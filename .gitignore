@@ -1,0 +1,9 @@
+
+*.DS_Store*
+.env
+image/installer/bin/configs/*.yaml
+image/installer/bin/mas.log
+image/installer/bin/mas.env
+image/installer/bin/ibm-mas-devops-*.tar.gz
+target/
+tmp/

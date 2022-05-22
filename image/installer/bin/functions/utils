@@ -1,0 +1,112 @@
+#!/bin/bash
+
+COLOR_RED=`tput setaf 1`
+COLOR_GREEN=`tput setaf 2`
+COLOR_YELLOW=`tput setaf 3`
+COLOR_BLUE=`tput setaf 4`
+COLOR_MAGENTA=`tput setaf 5`
+COLOR_CYAN=`tput setaf 6`
+COLOR_RESET=`tput sgr0`
+
+TEXT_BOLD=$(tput bold)
+TEXT_DIM=$(tput dim)
+TEXT_UNDERLINE=$(tput smul)
+TEXT_RESET=$(tput sgr0)
+
+function reset_colors() {
+  echo -ne "${COLOR_RESET}\033[1K"
+}
+
+function echo_h1() {
+  echo -e "${TEXT_BOLD}${TEXT_UNDERLINE}${1}${TEXT_RESET}"
+}
+function echo_h2() {
+  msg=$1
+  prefix=$2
+  echo -e "${prefix}${TEXT_UNDERLINE}${msg}${TEXT_RESET}"
+}
+
+function echo_warning() {
+  echo "${COLOR_RED}$1${COLOR_RESET}"
+}
+
+function echo_highlight() {
+  echo "${COLOR_CYAN}$1${COLOR_RESET}"
+}
+
+function echo_hr1() {
+  echo "==============================================================================="
+}
+
+function echo_hr2() {
+  echo "-------------------------------------------------------------------------------"
+}
+
+# Prompt for confirmation to continue
+# -----------------------------------------------------------------------------
+confirm() {
+  read -r -p "${1:-Proceed? [y/N]} " response
+  case "$response" in
+    [yY][eE][sS]|[yY])
+      export ALREADY_CONFIRMED="true"
+      true
+      ;;
+    *)
+      false
+      ;;
+  esac
+}
+
+function prompt_for_input(){
+  msg=$1
+  varname=$2
+  if [[ -z "${!varname}" ]]; then
+    default=$3
+  else
+    default=${!varname}
+  fi
+
+  if [[ "${default}" != "" ]]; then
+    read -e -p "${COLOR_YELLOW}$msg ${COLOR_BLUE}> " -i "${default}" input
+  else
+    read -p "${COLOR_YELLOW}$msg ${COLOR_BLUE}> " input
+  fi
+  echo -ne "${COLOR_RESET}\033[1K"
+  # https://stackoverflow.com/a/13717788
+  printf -v "$varname" "%s" "$input"
+}
+
+function prompt_for_confirm() {
+  if confirm "${COLOR_YELLOW}$1 ${COLOR_BLUE}[y/N]"; then
+    echo -ne "${COLOR_RESET}\033[1K"
+    true
+  else
+    echo -ne "${COLOR_RESET}\033[1K"
+    false
+  fi
+}
+
+
+function build_and_install_local() {
+  ansible-galaxy collection build /home/david/ibm-mas/ansible-devops/ibm/mas_devops --force
+  ansible-galaxy collection install ibm-mas_devops-11.0.0.tar.gz --force
+}
+
+function install() {
+  ansible-galaxy collection install ibm.mas_devops:10.0.0
+}
+
+
+function install_dependencies_ubuntu() {
+  # APT package installations
+  # python3-pip is required to install additional python packages
+  # ansible is required for ansible-galaxy command to be available
+  sudo apt install python3-pip ansible
+
+  # Python package installations
+  python3 -m pip install ansible junit_xml pymongo xmljson kubernetes==12.0.1 openshift==0.12.1
+
+  # Confirm versions
+  python3 --version
+  ansible-playbook --version
+}

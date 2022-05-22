@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# Usage: mas install
+
+set -e
+
+function trap_exit {
+  RC=$?
+  if [[ $RC != "0" ]]; then
+    echo_warning "Fatal Error[$RC]  See $DIR/mas.log for details"
+  fi
+  save_config
+}
+trap trap_exit EXIT
+
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+LOGFILE=$DIR/mas.log
+
+. $DIR/functions/utils
+. $DIR/functions/connect
+. $DIR/functions/install_pipeline
+. $DIR/functions/config_pipeline
+. $DIR/functions/save_config
+. $DIR/functions/show_config
+. $DIR/functions/run_pipeline
+. $DIR/functions/download_mustgather
+
+echo "${TEXT_BOLD}${TEXT_UNDERLINE}IBM Maximo Application Suite Installer${TEXT_RESET}"
+
+case $1 in
+  install)
+    load_config
+    connect
+    install_pipeline
+    config_pipeline
+    show_config
+    run_pipeline
+    ;;
+
+  download|mustgather|download-mustgather)
+    connect
+    download_mustgather
+    ;;
+
+  *)
+    echo "unknown parameter"
+    exit 1
+    ;;
+esac
