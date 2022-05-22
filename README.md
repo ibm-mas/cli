@@ -13,8 +13,6 @@ There are minimal dependencies to meet on your own computer:
 - OpenShift client
 - Network access to the OpenShift cluster
 
-Alternatively run the install from inside our docker container image: `docker run -ti quay.io/ibmmas/installer`
-
 The install is designed to work on any OCP cluster, but has been specifically tested in these environments:
 - IBMCloud ROKS
 - Azure
@@ -54,7 +52,7 @@ The installers supports:
 The installer will automatically provision and set up the required dependencies based on the applications that you select to install.
 
 ```bash
-$ mas install djp2204b
+$ ./mas install djp2204b
 Connected to OCP cluster: https://console-openshift-console.djp2204b-6f1620198115433da1cac8216c06779b-0000.eu-gb.containers.appdomain.cloud
 Proceed with installation on this cluster [y/N]  y
  - Installing OpenShift Pipelines Operator

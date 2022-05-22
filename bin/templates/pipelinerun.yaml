@@ -1,0 +1,124 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: mas-devops-$MAS_INSTANCE_ID-pipeline-
+  labels:
+    tekton.dev/pipeline: mas-devops-$MAS_INSTANCE_ID-pipeline
+spec:
+  pipelineRef:
+    name: mas-devops-$MAS_INSTANCE_ID-pipeline
+
+  serviceAccountName: pipeline
+  timeout: 24h
+
+  params:
+    # Enable development catalogs
+    - name: artifactory_username
+      value: "$ARTIFACTORY_USERNAME"
+    - name: artifactory_apikey
+      value: "$ARTIFACTORY_APIKEY"
+
+    # Dependencies - CP4D
+    - name: temp_deploy_cp4d
+      value: "skip"
+
+    # Dependencies - SLS
+    - name: sls_license_id
+      value: "$SLS_LICENSE_ID"
+    - name: sls_license_file
+      value: "$SLS_LICENSE_FILE"
+    - name: sls_icr_cp
+      value: "$SLS_ICR_CP"
+    - name: sls_icr_cpopen
+      value: "$SLS_ICR_CPOPEN"
+    - name: sls_entitlement_username
+      value: "$SLS_ENTITLEMENT_USERNAME"
+    - name: sls_entitlement_key
+      value: "$SLS_ENTITLEMENT_KEY"
+
+    # Dependencies - UDS (Required, no defaults)
+    - name: uds_contact_email
+      value: "$UDS_CONTACT_EMAIL"
+    - name: uds_contact_firstname
+      value: "$UDS_CONTACT_FIRSTNAME"
+    - name: uds_contact_lastname
+      value: "$UDS_CONTACT_LASTNAME"
+
+    # Configure MAS Core install
+    - name: mas_instance_id
+      value: "$MAS_INSTANCE_ID"
+    - name: mas_channel
+      value: "$MAS_CHANNEL"
+    - name: mas_catalog_source
+      value: "$MAS_CATALOG_SOURCE"
+
+    - name: mas_entitlement_username
+      value: "$MAS_ENTITLEMENT_USERNAME"
+    - name: mas_entitlement_key
+      value: "$MAS_ENTITLEMENT_KEY"
+
+    - name: mas_icr_cp
+      value: "$MAS_ICR_CP"
+    - name: mas_icr_cpopen
+      value: "$MAS_ICR_CPOPEN"
+
+    # Configure MAS Applications to install
+    # IoT Application
+    - name: mas_app_source_iot
+      value: "$MAS_APP_SOURCE_IOT"
+    - name: mas_app_channel_iot
+      value: "$MAS_APP_CHANNEL_IOT"
+    # Manage application
+    - name: mas_app_source_manage
+      value: "$MAS_APP_SOURCE_MANAGE"
+    - name: mas_app_channel_manage
+      value: "$MAS_APP_CHANNEL_MANAGE"
+    # Monitor Application
+    - name: mas_app_source_monitor
+      value: "$MAS_APP_SOURCE_MONITOR"
+    - name: mas_app_channel_monitor
+      value: "$MAS_APP_CHANNEL_MONITOR"
+    # MSO Application
+    - name: mas_app_source_mso
+      value: "$MAS_APP_SOURCE_MSO"
+    - name: mas_app_channel_mso
+      value: "$MAS_APP_CHANNEL_MSO"
+    # Optimizer Application
+    - name: mas_app_source_optimizer
+      value: "$MAS_APP_SOURCE_OPTIMIZER"
+    - name: mas_app_channel_optimizer
+      value: "$MAS_APP_CHANNEL_OPTIMIZER"
+    # Predict Application
+    - name: mas_app_source_predict
+      value: "$MAS_APP_SOURCE_PREDICT"
+    - name: mas_app_channel_predict
+      value: "$MAS_APP_CHANNEL_PREDICT"
+    # Safety Application
+    - name: mas_app_source_safety
+      value: "$MAS_APP_SOURCE_SAFETY"
+    - name: mas_app_channel_safety
+      value: "$MAS_APP_CHANNEL_SAFETY"
+
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+      persistentVolumeClaim:
+        claimName: config-pvc
+
+    # Any pre-generated configs that will be copied into the
+    # shared-config during install-suite
+    - name: shared-additional-configs
+      secret:
+        secretName: pipeline-additional-configs
+
+    # The SLS entitlement key file that will be installed
+    # during install-sls
+    - name: shared-entitlement
+      secret:
+        secretName: pipeline-sls-entitlement
+
+    # The storage to hold mustgather output after the pipeline has completed
+    - name: shared-mustgather
+      persistentVolumeClaim:
+        claimName: shared-mustgather-storage

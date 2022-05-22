@@ -1,0 +1,443 @@
+#!/bin/bash
+set -e
+
+function trap_exit {
+  RC=$?
+  if [[ $RC != "0" ]]; then
+    echo "Fatal Error[$RC]  See $DIR/mas.log for details"
+  fi
+}
+trap trap_exit EXIT
+
+
+# !!!! INCOMPLETE / WORK IN PROGRESS / USE AT OWN RISK !!!!
+
+# Usage:
+# oc login xxx
+# bin/mas install myinst1
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $DIR/functions
+
+LOGFILE=$DIR/mas.log
+
+
+# Install the pipeline
+# -----------------------------------------------------------------------------
+function install_pipeline() {
+  OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+  echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE" | tee $LOGFILE
+  confirm "Proceed with installation on this cluster [y/N]" || exit 0
+
+  # Install pipelines support
+  echo " - Installing OpenShift Pipelines Operator"
+  oc apply -f $DIR/templates/subscription.yaml &>> $LOGFILE
+
+  set +e
+  oc get crd tasks.tekton.dev  &>> $LOGFILE
+  LOOKUP_RESULT=$?
+  while [ "$LOOKUP_RESULT" == "1" ]; do
+    echo "Waiting 5s for tasks.tekton.dev CRD to be installed before checking again ..."  &>> $LOGFILE
+    sleep 5
+    oc get crd tasks.tekton.dev  &>> $LOGFILE
+    LOOKUP_RESULT=$?
+  done
+  set -e
+
+  echo "Wait for Pipeline operator to be ready" &>> $LOGFILE
+  oc wait --for=condition=Established  crd tasks.tekton.dev  --timeout=30m  &>> $LOGFILE
+}
+
+
+# Prepare the pipeline
+# -----------------------------------------------------------------------------
+function config_pipeline() {
+  echo ""
+  echo "Configure Installation:"
+
+  export MAS_INSTANCE_ID=$1
+
+  if [[ -z "$IBMCLOUD_APIKEY" ]]; then
+    read -p '  IBMCLOUD_APIKEY> ' IBMCLOUD_APIKEY
+  fi
+  export IBMCLOUD_APIKEY
+
+  if [[ -z "$MAS_INSTANCE_ID" ]]; then
+    read -p '  MAS_INSTANCE_ID> ' MAS_INSTANCE_ID
+  fi
+  export MAS_INSTANCE_ID
+
+  export MAS_CATALOG_SOURCE=ibm-mas-operators
+  echo "  MAS_CHANNEL:"
+  echo "    1. 8.7"
+  echo "    2. 8.6"
+  read -e -p '  Select Subscription Channel> ' -i "1" MAS_CHANNEL_SELECTION
+  echo ""
+
+  case $MAS_CHANNEL_SELECTION in
+    1|8.7|8.7.x)
+      export MAS_CHANNEL=8.7.x
+      ;;
+
+    2|8.6|8.6.x)
+      export MAS_CHANNEL=8.6.x
+      ;;
+
+    *)
+      export MAS_CHANNEL=$MAS_CHANNEL_SELECTION
+      ;;
+  esac
+
+  echo ""
+  echo "Select Applications:"
+  if confirm "  Install IoT Application [y/N]"; then
+    case $MAS_CHANNEL in
+      8.6.x|8.7.x)
+        MAS_APP_CHANNEL_IOT=8.4.x
+        MAS_APP_SOURCE_IOT=ibm-operator-catalog
+        ;;
+
+      *)
+        read -p    '    Custom Subscription Channel > ' MAS_APP_CHANNEL_IOT
+        read -e -p '    Custom Catalog Source       > ' -i "ibm-mas-iot-operators" MAS_APP_SOURCE_IOT
+        ;;
+    esac
+    export MAS_APP_CHANNEL_IOT; export MAS_APP_SOURCE_IOT
+  else
+    export MAS_APP_SOURCE_IOT='""'; export MAS_APP_CHANNEL_IOT='""'
+  fi
+
+  # Applications that require IoT
+  if [[ "$MAS_APP_CHANNEL_IOT" != '""' ]]; then
+    if confirm "  Install Monitor Application [y/N]"; then
+      case $MAS_CHANNEL in
+        8.7.x)
+          MAS_APP_CHANNEL_MONITOR=8.7.x
+          MAS_APP_SOURCE_MONITOR=ibm-operator-catalog
+          ;;
+        8.6.x)
+          MAS_APP_CHANNEL_MONITOR=8.6.x
+          MAS_APP_SOURCE_MONITOR=ibm-operator-catalog
+          ;;
+        *)
+          read -p    '    Custom Subscription Channel > ' MAS_APP_CHANNEL_MONITOR
+          read -e -p '    Custom Catalog Source       > ' -i "ibm-mas-monitor-operators" MAS_APP_SOURCE_MONITOR
+          ;;
+      esac
+      export MAS_APP_CHANNEL_MONITOR; export MAS_APP_SOURCE_MONITOR
+    else
+      export MAS_APP_SOURCE_MONITOR='""'; export MAS_APP_CHANNEL_MONITOR='""'
+    fi
+    if confirm "  Install Safety Application [y/N]"; then
+      export MAS_APP_SOURCE_SAFETY='""'; export MAS_APP_CHANNEL_SAFETY=8.2.x
+    else
+      export MAS_APP_SOURCE_SAFETY='""'; export MAS_APP_CHANNEL_SAFETY='""'
+    fi
+  else
+    export MAS_APP_SOURCE_MONITOR='""'; export MAS_APP_CHANNEL_MONITOR='""'
+    export MAS_APP_SOURCE_SAFETY='""'; export MAS_APP_CHANNEL_SAFETY='""'
+  fi
+
+  if confirm "  Install Manage Application [y/N]"; then
+    case $MAS_CHANNEL in
+      8.7.x)
+        MAS_APP_CHANNEL_MANAGE=8.3.x
+        MAS_APP_SOURCE_MANAGE=ibm-operator-catalog
+        ;;
+      8.6.x)
+        MAS_APP_CHANNEL_MANAGE=8.2.x
+        MAS_APP_SOURCE_MANAGE=ibm-operator-catalog
+        ;;
+      *)
+        read -p    '    Custom Subscription Channel > ' MAS_APP_CHANNEL_MANAGE
+        read -e -p '    Custom Catalog Source       > ' -i "ibm-mas-manage-operators" MAS_APP_SOURCE_MANAGE
+        ;;
+    esac
+    export MAS_APP_CHANNEL_MANAGE; export MAS_APP_SOURCE_MANAGE
+  else
+    export MAS_APP_SOURCE_MANAGE='""'; export MAS_APP_CHANNEL_MANAGE='""'
+  fi
+
+  # Applications that require Manage
+  if [[ "$MAS_APP_CHANNEL_MANAGE" != '""' ]]; then
+    if confirm "  Install Predict Application [y/N]"; then
+      export MAS_APP_SOURCE_PREDICT='""'; export MAS_APP_CHANNEL_PREDICT=8.5.x
+    else
+      export MAS_APP_SOURCE_PREDICT='""'; export MAS_APP_CHANNEL_PREDICT='""'
+    fi
+    if confirm "  Install MSO Application [y/N]"; then
+      export MAS_APP_SOURCE_MSO='""'; export MAS_APP_CHANNEL_MSO=8.1.x
+    else
+      export MAS_APP_SOURCE_MSO='""'; export MAS_APP_CHANNEL_MSO='""'
+    fi
+  else
+    export MAS_APP_SOURCE_PREDICT='""'; export MAS_APP_CHANNEL_PREDICT='""'
+    export MAS_APP_SOURCE_MSO='""'; export MAS_APP_CHANNEL_MSO='""'
+  fi
+
+
+  echo ""
+  if [[ "$MAS_CATALOG_SOURCE" == "ibm-mas-operators" ]]; then
+    export ARTIFACTORY_USERNAME=$W3_USERNAME_LOWERCASE
+
+    export MAS_ICR_CP=wiotp-docker-local.artifactory.swg-devops.com
+    export MAS_ICR_CPOPEN=wiotp-docker-local.artifactory.swg-devops.com
+    export MAS_ENTITLEMENT_USERNAME=$W3_USERNAME_LOWERCASE
+    export MAS_ENTITLEMENT_KEY=$ARTIFACTORY_APIKEY
+
+    # Also use development pre-release builds of IBM SLS
+    export SLS_ICR_CP=wiotp-docker-local.artifactory.swg-devops.com
+    export SLS_ICR_CPOPEN=wiotp-docker-local.artifactory.swg-devops.com
+    export SLS_ENTITLEMENT_USERNAME=$W3_USERNAME_LOWERCASE
+    export SLS_ENTITLEMENT_KEY=$ARTIFACTORY_APIKEY
+    export SLS_LICENSE_ID=0242ac110002
+  else
+    if [[ -z "$MAS_ENTITLEMENT_KEY" ]]; then
+      # Use IBM_ENTITLEMENT_KEY as the default and prompt for key
+      if [[ -z "$IBM_ENTITLEMENT_KEY" ]]; then
+        read -e -p '  MAS Entitlement Key> ' MAS_ENTITLEMENT_KEY
+      else
+        read -e -p '  MAS Entitlement Key> ' -i "$IBM_ENTITLEMENT_KEY" MAS_ENTITLEMENT_KEY
+      fi
+    fi
+    export MAS_ENTITLEMENT_KEY
+    export SLS_ENTITLEMENT_KEY=$MAS_ENTITLEMENT_KEY
+
+    read -e -p '  MAS License ID> ' SLS_LICENSE_ID
+    export SLS_LICENSE_ID
+  fi
+
+  if [[ -z "$MAS_LICENSE_FILE" ]]; then
+    read -p '  MAS License File> ' MAS_LICENSE_FILE
+  else
+    read -e -p '  MAS License File> ' -i "$MAS_LICENSE_FILE" MAS_LICENSE_FILE
+  fi
+
+  if [[ ! -e "$MAS_LICENSE_FILE" ]]; then
+    echo "Error: File does not exist: $MAS_LICENSE_FILE"
+    exit 1
+  fi
+  export SLS_LICENSE_FILE="/workspace/entitlement/$(basename $MAS_LICENSE_FILE)"
+
+
+  if [[ -z "$UDS_CONTACT_EMAIL" ]]; then
+    read -p '  UDS Contact Email> ' UDS_CONTACT_EMAIL
+  else
+    read -e -p '  UDS Contact Email> ' -i "$UDS_CONTACT_EMAIL" UDS_CONTACT_EMAIL
+  fi
+  export UDS_CONTACT_EMAIL
+
+  if [[ -z "$UDS_CONTACT_FIRSTNAME" ]]; then
+    read -p '  UDS Contact First Name> ' UDS_CONTACT_FIRSTNAME
+  else
+    read -e -p '  UDS Contact First Name> ' -i "$UDS_CONTACT_FIRSTNAME" UDS_CONTACT_FIRSTNAME
+  fi
+  export UDS_CONTACT_FIRSTNAME
+
+  if [[ -z "$UDS_CONTACT_LASTNAME" ]]; then
+    read -p '  UDS Contact Last Name> ' UDS_CONTACT_LASTNAME
+  else
+    read -e -p '  UDS Contact Last Name> ' -i "$UDS_CONTACT_LASTNAME" UDS_CONTACT_LASTNAME
+  fi
+  export UDS_CONTACT_LASTNAME
+
+  # Auto-detect based on available storage classes
+  # ----------------------------------------------
+  # 1. ROKS
+  set +e
+  oc get storageclass ibmc-file-gold &>> $LOGFILE
+  if [[ $? == "0" ]]; then
+    PIPELINE_STORAGE_CLASS=ibmc-file-gold
+  else
+    # 2. OCS
+    oc get storageclass ocs-storagecluster-ceph-rbd &>> $LOGFILE
+    if [[ $? == "0" ]]; then
+      PIPELINE_STORAGE_CLASS=ocs-storagecluster-ceph-rbd
+    else
+      # 3. Azure
+      oc get storageclass managed-premium &>> $LOGFILE
+      if [[ $? == "0" ]]; then
+        PIPELINE_STORAGE_CLASS=managed-premium
+      else
+        # 4. You choose then
+        echo ""
+        echo "No known compatible storage classes available.  Please enter "
+        echo "the name of storage class to use for the pipeline run"
+        echo ""
+        oc get storageclass
+        echo ""
+        read -p '  Pipeline Storage Class> ' PIPELINE_STORAGE_CLASS
+      fi
+    fi
+  fi
+  set -e
+  export PIPELINE_STORAGE_CLASS
+
+  mkdir -p $DIR/configs
+  # Replace ALL environment variables in templates
+  eval "echo \"$(cat $DIR/templates/pipelinerun.yaml)\"" > $DIR/configs/pipelinerun-$MAS_INSTANCE_ID.yaml
+
+  # Replace mas_instance_id and pipeline_storage_class in templates
+  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/namespace.yaml > $DIR/configs/namespace-$MAS_INSTANCE_ID.yaml
+  sed -e "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" \
+      -e "s/{{pipeline_storage_class}}/$PIPELINE_STORAGE_CLASS/g" \
+      $DIR/templates/pvc.yaml > $DIR/configs/pvc-$MAS_INSTANCE_ID.yaml
+  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/rbac.yaml > $DIR/configs/rbac-$MAS_INSTANCE_ID.yaml
+  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/pipeline.yaml > $DIR/configs/pipeline-$MAS_INSTANCE_ID.yaml
+
+  if [ "$ALREADY_CONFIRMED" != "true" ]; then
+    OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+    echo ""
+    echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+    confirm "Proceed with applying pipeline configuration on this cluster [y/N]" || exit 0
+  fi
+
+  export PIPELINE_VERSION=10.0.0-pre.pipelinetuning
+  if [ ! -e $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml ]; then
+    wget https://github.com/ibm-mas/ansible-devops/releases/download/$PIPELINE_VERSION/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml -O $DIR/templates/ibm-mas_devops-clustertasks-$PIPELINE_VERSION.yaml  &>> $LOGFILE
+  fi
+  # Install the MAS Devops Task definitions
+  oc apply -f $DIR/configs/namespace-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  oc -n mas-$MAS_INSTANCE_ID-pipelines apply -f templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml &>> $LOGFILE
+
+  oc apply -f $DIR/configs/pvc-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  oc apply -f $DIR/configs/rbac-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  oc apply -f $DIR/configs/pipeline-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+
+  # Clean up existing secrets
+  oc -n mas-$MAS_INSTANCE_ID-pipelines delete secret pipeline-additional-configs --ignore-not-found=true &>> $LOGFILE
+  oc -n mas-$MAS_INSTANCE_ID-pipelines delete secret pipeline-sls-entitlement --ignore-not-found=true &>> $LOGFILE
+
+  # Create new secrets
+  # pipeline-additional-configs must exist (otherwise the suite-install step will hang),
+  # but can be empty if no additional configs are required
+  # TODO: Support passing in files to this secret
+  oc -n mas-$MAS_INSTANCE_ID-pipelines create secret generic pipeline-additional-configs &>> $LOGFILE
+  oc -n mas-$MAS_INSTANCE_ID-pipelines create secret generic pipeline-sls-entitlement --from-file=$MAS_LICENSE_FILE &>> $LOGFILE
+
+}
+
+
+# Display the configuration of the pipeline
+# -----------------------------------------------------------------------------
+function show_config() {
+  MAS_INSTANCE_ID=$1
+
+  echo -e "\nIBM Maximo Application Suite Settings"
+  echo "==============================================================================="
+  echo "Instance ID ............... ${MAS_INSTANCE_ID}"
+  echo "Catalog Source ............ ${MAS_CATALOG_SOURCE}"
+  echo "Subscription Channel ...... ${MAS_CHANNEL}"
+  echo "IBM Entitled Registry ..... ${MAS_ICR_CP}"
+  echo "IBM Open Registry ......... ${MAS_ICR_CPOPEN}"
+  echo "Entitlement Username ...... ${MAS_ENTITLEMENT_USERNAME}"
+  echo "Entitlement Key ........... ${MAS_ENTITLEMENT_KEY:0:8}..."
+
+  echo -e "\nIBM Maximo Application Suite Applications"
+  echo "==============================================================================="
+  echo "IoT ...................... ${MAS_APP_SOURCE_IOT}/${MAS_APP_CHANNEL_IOT}"
+  echo " - Monitor ............... ${MAS_APP_SOURCE_MONITOR}/${MAS_APP_CHANNEL_MONITOR}"
+  echo " - Safety ................ ${MAS_APP_SOURCE_SAFETY}/${MAS_APP_CHANNEL_SAFETY}"
+  echo "Manage ................... ${MAS_APP_SOURCE_MANAGE}/${MAS_APP_CHANNEL_MANAGE}"
+  echo " - Predict ............... ${MAS_APP_SOURCE_PREDICT}/${MAS_APP_CHANNEL_PREDICT}"
+  echo " - MSO ................... ${MAS_APP_SOURCE_MSO}/${MAS_APP_CHANNEL_MSO}"
+
+  echo -e "\nIBM Suite License Service Settings"
+  echo "==============================================================================="
+  echo "License ID ................ ${SLS_LICENSE_ID}"
+  echo "License File .............. ${SLS_LICENSE_FILE}"
+  echo "IBM Entitled Registry ..... ${SLS_ICR_CP}"
+  echo "IBM Open Registry ......... ${SLS_ICR_CPOPEN}"
+  echo "Entitlement Username ...... ${SLS_ENTITLEMENT_USERNAME}"
+  echo "Entitlement Key ........... ${SLS_ENTITLEMENT_KEY:0:8}..."
+
+  echo -e "\nIBM User Data Services Settings"
+  echo "==============================================================================="
+  echo "Contact Email ............. ${UDS_CONTACT_EMAIL}"
+  echo "First Name ................ ${UDS_CONTACT_FIRSTNAME}"
+  echo "Last Name ................. ${UDS_CONTACT_LASTNAME}"
+
+}
+
+
+# Launch the pipeline run
+# -----------------------------------------------------------------------------
+function run_pipeline() {
+  echo ""
+
+  MAS_INSTANCE_ID=$1
+  if [[ ! -e "$DIR/configs/pipelinerun-$MAS_INSTANCE_ID.yaml" ]]; then
+    echo "No pipelinerun configuration exists for $MAS_INSTANCE_ID"
+    exit 1
+  fi
+
+
+  show_config $MAS_INSTANCE_ID
+  echo ""
+  OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+  echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+  echo ""
+  confirm "Proceed with these settings [y/N]" || exit 0
+
+  # Start pipeline execution
+  oc -n mas-$MAS_INSTANCE_ID-pipelines create -f $DIR/configs/pipelinerun-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+
+  echo "View progress: https://${OCP_CONSOLE_ROUTE}/pipelines/ns/mas-$MAS_INSTANCE_ID-pipelines"
+}
+
+
+# Download mustgather archive from the latest pipeline run
+# -----------------------------------------------------------------------------
+function download_mustgather() {
+  MAS_INSTANCE_ID=$1
+  export LOCAL_OUTPUT_DIR=/tmp/mustgather
+  export MUSTGATHER_NAMESPACE=mas-$MAS_INSTANCE_ID-pipelines
+
+  mkdir -p $LOCAL_OUTPUT_DIR
+  ansible localhost -m include_role -a name=ibm.mas_devops.suite_mustgather_download
+}
+
+# =============================================================================
+# Program Start
+# =============================================================================
+
+# Install yq v4.23.1
+# -----------------------------------------------------------------------------
+if [[ ! -e $DIR/yq ]]; then
+  echo "Installing YQ v4.23.1 into $DIR"
+  wget -q https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64.tar.gz -P $DIR
+  tar -xf $DIR/yq_linux_amd64.tar.gz -C $DIR
+  rm $DIR/yq_linux_amd64.tar.gz $DIR/yq.1 $DIR/install-man-page.sh
+  mv $DIR/yq_linux_amd64 $DIR/yq
+fi
+
+case $1 in
+
+  install)
+    install_pipeline
+    config_pipeline $2
+    run_pipeline $2
+    ;;
+
+  config|set-config)
+    config_pipeline $2
+    ;;
+
+  show|show-config)
+    show_config $2
+    ;;
+
+  run|run-pipeline)
+    run_pipeline $2
+    ;;
+
+  download|mustgather|download-mustgather)
+    # Note: Requires Ansible
+    download_mustgather $2
+    ;;
+
+  *)
+    echo "unknown parameter"
+    exit 1
+    ;;
+esac
