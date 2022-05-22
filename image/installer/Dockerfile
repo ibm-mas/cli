@@ -11,8 +11,20 @@ RUN wget -q https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.8
     mv kubectl /usr/local/bin/ && \
     rm -rf openshift-client-linux.tar.gz
 
+ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini /tini
+
 COPY bin /installer/bin
-RUN chmod u+x /installer/bin/mas
+COPY .bashrc /root/.bashrc
+
+RUN chmod +x /tini && \
+    chmod u+x /installer/bin/mas && \
+    chmod u+x /root/.bashrc
+
 ENV PATH="/installer/bin:${PATH}"
 WORKDIR /installer
-CMD mas install
+
+ENTRYPOINT ["/tini", "--"]
+CMD bash
+
+ARG VERSION_LABEL
+ENV VERSION $VERSION_LABEL
