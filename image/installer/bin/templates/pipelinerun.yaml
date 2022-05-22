@@ -4,10 +4,10 @@ kind: PipelineRun
 metadata:
   generateName: $MAS_INSTANCE_ID-install-
   labels:
-    tekton.dev/pipeline: mas-devops-pipeline
+    tekton.dev/pipeline: mas-devops-install-pipeline
 spec:
   pipelineRef:
-    name: mas-devops-pipeline
+    name: mas-devops-install-pipeline
 
   serviceAccountName: pipeline
   timeout: 24h
