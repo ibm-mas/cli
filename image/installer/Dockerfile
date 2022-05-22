@@ -11,7 +11,8 @@ RUN wget -q https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.8
     mv kubectl /usr/local/bin/ && \
     rm -rf openshift-client-linux.tar.gz
 
-COPY bin ${HOME}/installer/bin
-RUN chmod u+x ${HOME}/installer/bin/mas
-ENV PATH="${HOME}/installer/bin:${PATH}"
+COPY bin /installer/bin
+RUN chmod u+x /installer/bin/mas
+ENV PATH="/installer/bin:${PATH}"
+WORKDIR /installer
 CMD mas install
