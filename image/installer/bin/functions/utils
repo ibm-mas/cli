@@ -93,7 +93,7 @@ function build_and_install_local() {
 }
 
 function install() {
-  ansible-galaxy collection install ibm.mas_devops:10.0.0
+  ansible-galaxy collection install ibm.mas_devops:10.0.4
 }
 
 
