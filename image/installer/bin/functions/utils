@@ -27,7 +27,7 @@ function echo_h2() {
 }
 
 function echo_warning() {
-  echo "${COLOR_RED}$1${COLOR_RESET}"
+  echo -e "${COLOR_RED}$1${COLOR_RESET}"
 }
 
 function echo_highlight() {
