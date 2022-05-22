@@ -6,7 +6,7 @@ on:
     tags-ignore:
       - '**'
 jobs:
-  ansible-publish:
+  build-installer:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
