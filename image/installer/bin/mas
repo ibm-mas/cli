@@ -34,7 +34,15 @@ LOGFILE=$DIR/mas.log
 . $DIR/functions/run_pipeline
 . $DIR/functions/download_mustgather
 
-echo "${TEXT_BOLD}${TEXT_UNDERLINE}IBM Maximo Application Suite Installer${TEXT_RESET}"
+echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Installer${TEXT_RESET}"
+echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
+echo
+echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
+echo "${TEXT_DIM}1. The installer relies on built-in automatic storage class selection (IBMCloud ROKS & OpenShift Container Storage supported)"
+echo "${TEXT_DIM}2. Installation and configuration management for Cloud Pak for Data services is not yet complete"
+echo "${TEXT_DIM}3. Predict, Assist, & Visual Inspection applications can not be deployed using this installer yet"
+echo
+reset_colors
 
 case $1 in
   install)
