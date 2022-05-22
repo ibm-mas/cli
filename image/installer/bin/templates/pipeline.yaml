@@ -18,7 +18,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: mas-devops-{{mas_instance_id}}-pipeline
+  name: mas-devops-pipeline
   namespace: mas-{{mas_instance_id}}-pipelines
 spec:
   workspaces:

@@ -2,12 +2,12 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  generateName: mas-devops-$MAS_INSTANCE_ID-pipeline-
+  generateName: $MAS_INSTANCE_ID-install-
   labels:
-    tekton.dev/pipeline: mas-devops-$MAS_INSTANCE_ID-pipeline
+    tekton.dev/pipeline: mas-devops-pipeline
 spec:
   pipelineRef:
-    name: mas-devops-$MAS_INSTANCE_ID-pipeline
+    name: mas-devops-pipeline
 
   serviceAccountName: pipeline
   timeout: 24h
