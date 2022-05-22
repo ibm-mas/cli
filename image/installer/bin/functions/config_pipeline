@@ -271,6 +271,16 @@ function config_pipeline() {
   oc -n mas-$MAS_INSTANCE_ID-pipelines apply -f $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml &>> $LOGFILE
 
   oc apply -f $DIR/configs/pvc-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  # Wait for PVC
+  set +e
+  LOOKUP_RESULT=$(oc -n mas-$MAS_INSTANCE_ID-pipelines get pvc config-pvc -o jsonpath='{.status.phase}')
+  while [ "$LOOKUP_RESULT" != "Bound" ]; do
+    echo "Waiting 5s for PVC to be bound before checking again ..."  &>> $LOGFILE
+    sleep 5
+    LOOKUP_RESULT=$(oc -n mas-$MAS_INSTANCE_ID-pipelines get pvc config-pvc -o jsonpath='{.status.phase}')
+  done
+  set -e
+
   oc apply -f $DIR/configs/rbac-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
   oc apply -f $DIR/configs/pipeline-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
 
