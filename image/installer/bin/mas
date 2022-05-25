@@ -54,7 +54,7 @@ case $1 in
     setup_mirror_registry
     ;;
 
-  mirror|mirror-registry|mirror-to-registry)
+  mirror|mirror-images|mirror-registry|mirror-to-registry)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Image Mirror${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-airgap/${TEXT_RESET}"
     echo

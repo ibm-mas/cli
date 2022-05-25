@@ -9,11 +9,11 @@ function mirror_to_registry() {
 
   echo
   echo_h2 "2. Configure Images to Mirror"
-  prompt_for_confirm "IBM Foundational Services Images" MIRROR_COMMONSERVICES
-  prompt_for_confirm "IBM Suite License Service Images" MIRROR_SLS
-  prompt_for_confirm "IBM Truststore Manager Images" MIRROR_TRUSTSTOREMGR
-  prompt_for_confirm "IBM Maximo Application Suite Core Images" MIRROR_MASCORE
-  prompt_for_confirm "Third Party Images (e.g. MongoDb CE)" MIRROR_THIRDPARTY
+  prompt_for_confirm "Mirror IBM Foundational Services Images" MIRROR_COMMONSERVICES
+  prompt_for_confirm "Mirror IBM Suite License Service Images" MIRROR_SLS
+  prompt_for_confirm "Mirror IBM Truststore Manager Images" MIRROR_TRUSTSTOREMGR
+  prompt_for_confirm "Mirror IBM Maximo Application Suite Core Images" MIRROR_MASCORE
+  prompt_for_confirm "Mirror Third Party Images (e.g. MongoDb CE)" MIRROR_THIRDPARTY
 
   echo
   prompt_for_confirm "Proceed with these settings" || exit 0
