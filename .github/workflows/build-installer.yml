@@ -1,0 +1,45 @@
+name: Build Installer
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+jobs:
+  build-installer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.1
+
+      - name: Initialise the build system
+        run: |
+          chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
+          $GITHUB_WORKSPACE/build/bin/initbuild.sh
+          source $GITHUB_WORKSPACE/build/bin/.functions.sh
+
+      - name: Build the installer package
+        run: |
+          $GITHUB_WORKSPACE/build/bin/build-installer.sh
+
+      - name: Upload the installer
+        uses: actions/upload-artifact@v2
+        with:
+          name: ibm-mas-installer-${{ env.VERSION }}.tgz
+          path: ${{ github.workspace }}/ibm-mas-installer-${{ env.VERSION }}.tgz
+          retention-days: 30
+
+      - name: Build the docker image
+        run: |
+          $GITHUB_WORKSPACE/build/bin/docker-build.sh -n ibmmas -i installer
+          docker tag ibmmas/installer ibmmas/installer:${{ env.DOCKER_TAG }}
+          docker tag ibmmas/installer quay.io/ibmmas/installer:${{ env.DOCKER_TAG }}
+
+      # https://github.com/marketplace/actions/push-to-registry
+      - name: Push the docker image
+        id: push_to_quay
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          tags: quay.io/ibmmas/installer:${{ env.DOCKER_TAG }}
+          username: ${{ secrets.QUAYIO_USERNAME }}
+          password: ${{ secrets.QUAYIO_PASSWORD }}

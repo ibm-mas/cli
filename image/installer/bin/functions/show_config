@@ -1,0 +1,78 @@
+#!/bin/bash
+
+function echo_reset_dim() {
+  echo "${COLOR_RESET}${TEXT_DIM}    $1"
+}
+
+function show_config() {
+  if [[ ! -e "$DIR/configs/pipelinerun-$MAS_INSTANCE_ID.yaml" ]]; then
+    echo_warning "No pipelinerun configuration exists for '$MAS_INSTANCE_ID'"
+    exit 1
+  fi
+
+  reset_colors
+  echo_h2 "\n7. Review Settings"
+  echo "${TEXT_DIM}"
+  echo_h2 "IBM Maximo Application Suite" "    "
+  echo_reset_dim "Instance ID ............... ${COLOR_BLUE}${MAS_INSTANCE_ID}"
+  echo_reset_dim "Catalog Source ............ ${COLOR_BLUE}${MAS_CATALOG_SOURCE}"
+  echo_reset_dim "Subscription Channel ...... ${COLOR_BLUE}${MAS_CHANNEL}"
+  echo_reset_dim "IBM Entitled Registry ..... ${COLOR_BLUE}${MAS_ICR_CP}"
+  echo_reset_dim "IBM Open Registry ......... ${COLOR_BLUE}${MAS_ICR_CPOPEN}"
+  echo_reset_dim "Entitlement Username ...... ${COLOR_BLUE}${MAS_ENTITLEMENT_USERNAME}"
+  echo_reset_dim "Entitlement Key ........... ${COLOR_BLUE}${MAS_ENTITLEMENT_KEY:0:8}..."
+
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "IBM Maximo Application Suite Applications" "    "
+  if [[ "${MAS_APP_SOURCE_IOT}/${MAS_APP_CHANNEL_IOT}" == '/' ]]
+  then echo_reset_dim "IoT ...................... ${COLOR_RED}Skip Installation"
+  else echo_reset_dim "IoT ...................... ${COLOR_BLUE}${MAS_APP_SOURCE_IOT}/${MAS_APP_CHANNEL_IOT}"
+  fi
+
+  if [[ "${MAS_APP_SOURCE_MONITOR}/${MAS_APP_CHANNEL_MONITOR}" == '/' ]]
+  then echo_reset_dim " - Monitor ............... ${COLOR_RED}Skip Installation"
+  else echo_reset_dim " - Monitor ............... ${COLOR_BLUE}${MAS_APP_SOURCE_MONITOR}/${MAS_APP_CHANNEL_MONITOR}"
+  fi
+
+  if [[ "${MAS_APP_SOURCE_SAFETY}/${MAS_APP_CHANNEL_SAFETY}" == '/' ]]
+  then echo_reset_dim " - Safety ................ ${COLOR_RED}Skip Installation"
+  else echo_reset_dim " - Safety ................ ${COLOR_BLUE}${MAS_APP_SOURCE_SAFETY}/${MAS_APP_CHANNEL_SAFETY}"
+  fi
+
+  if [[ "${MAS_APP_SOURCE_MANAGE}/${MAS_APP_CHANNEL_MANAGE}" == '/' ]]
+  then echo_reset_dim "Manage ................... ${COLOR_RED}Skip Installation"
+  else echo_reset_dim "Manage ................... ${COLOR_BLUE}${MAS_APP_SOURCE_MANAGE}/${MAS_APP_CHANNEL_MANAGE}"
+  fi
+
+  if [[ "${MAS_APP_SOURCE_PREDICT}/${MAS_APP_CHANNEL_PREDICT}" == '/' ]]
+  then echo_reset_dim " - Predict ............... ${COLOR_RED}Skip Installation"
+  else echo_reset_dim " - Predict ............... ${COLOR_BLUE}${MAS_APP_SOURCE_PREDICT}/${MAS_APP_CHANNEL_PREDICT}"
+  fi
+
+  if [[ "${MAS_APP_SOURCE_MSO}/${MAS_APP_CHANNEL_MSO}" == '/' ]]
+  then echo_reset_dim " - MSO ................... ${COLOR_RED}Skip Installation"
+  else echo_reset_dim " - MSO ................... ${COLOR_BLUE}${MAS_APP_SOURCE_MSO}/${MAS_APP_CHANNEL_MSO}"
+  fi
+
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "IBM Suite License Service" "    "
+  echo_reset_dim "License ID ................ ${COLOR_BLUE}${SLS_LICENSE_ID}"
+  echo_reset_dim "License File .............. ${COLOR_BLUE}${SLS_LICENSE_FILE}"
+  echo_reset_dim "IBM Entitled Registry ..... ${COLOR_BLUE}${SLS_ICR_CP}"
+  echo_reset_dim "IBM Open Registry ......... ${COLOR_BLUE}${SLS_ICR_CPOPEN}"
+  echo_reset_dim "Entitlement Username ...... ${COLOR_BLUE}${SLS_ENTITLEMENT_USERNAME}"
+  echo_reset_dim "Entitlement Key ........... ${COLOR_BLUE}${SLS_ENTITLEMENT_KEY:0:8}..."
+
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "IBM User Data Services" "    "
+  echo_reset_dim "Contact Email ............. ${COLOR_BLUE}${UDS_CONTACT_EMAIL}"
+  echo_reset_dim "First Name ................ ${COLOR_BLUE}${UDS_CONTACT_FIRSTNAME}"
+  echo_reset_dim "Last Name ................. ${COLOR_BLUE}${UDS_CONTACT_LASTNAME}"
+  reset_colors
+  echo "${TEXT_RESET}"
+  prompt_for_confirm "Proceed with these settings" || exit 0
+
+}

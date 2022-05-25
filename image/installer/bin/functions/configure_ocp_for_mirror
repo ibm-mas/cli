@@ -1,0 +1,29 @@
+#!/bin/bash
+
+function configure_ocp_for_mirror() {
+  echo
+  echo_h2 "2. Configure Target Mirror"
+  prompt_for_input "Mirror Registry Host" REGISTRY_PRIVATE_HOST
+  prompt_for_input "Mirror Registry Port" REGISTRY_PRIVATE_PORT
+  prompt_for_input "Mirror Registry CA File" REGISTRY_PRIVATE_CA_FILE
+  if [[ ! -e $REGISTRY_PRIVATE_CA_FILE ]]; then
+    echo_warning "Certificate file '$REGISTRY_PRIVATE_CA_FILE' does not exist"
+    exit 1
+  fi
+
+  # Make the environment variables available to Ansible
+  export REGISTRY_PRIVATE_HOST
+  export REGISTRY_PRIVATE_PORT
+  export REGISTRY_PRIVATE_CA_FILE
+
+  echo
+  prompt_for_confirm "Proceed with these settings" || exit 0
+
+  echo
+  echo_h2 "3. Configure Image Content Source Policy"
+  ROLE_NAME=ocp_contentsourcepolicy ansible-playbook ibm.mas_airgap.run_role || exit 1
+
+  echo
+  echo_h2 "4. Install Air Gap Operator Catalogs"
+  ROLE_NAME=catalogs ansible-playbook ibm.mas_airgap.run_role || exit 1
+}

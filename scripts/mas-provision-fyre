@@ -1,0 +1,67 @@
+#!/bin/bash
+set -e
+
+# Load common functions
+# -----------------------------------------------------------------------------
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
+. $DIR/image/installer/bin/functions/utils
+
+
+# Set Target
+# -----------------------------------------------------------------------------
+function set_target_fyre() {
+  if [[ -z "$FYRE_USERNAME" ]]; then
+    read -p 'FYRE_USERNAME> ' FYRE_USERNAME
+  fi
+  export FYRE_USERNAME
+
+  if [[ -z "$FYRE_APIKEY" ]]; then
+    read -p 'FYRE_APIKEY> ' FYRE_USERNAME
+  fi
+  export FYRE_APIKEY
+
+  if [[ -z "$FYRE_PRODUCT_ID" ]]; then
+    read -p 'FYRE_PRODUCT_ID> ' FYRE_PRODUCT_ID
+  fi
+  export FYRE_PRODUCT_ID
+
+  if [[ -z "$CLUSTER_NAME" ]]; then
+    read -p 'CLUSTER_NAME> ' CLUSTER_NAME
+  else
+    read -e -p 'CLUSTER_NAME> ' -i "$CLUSTER_NAME" CLUSTER_NAME
+  fi
+  export CLUSTER_NAME
+  export CLUSTER_TYPE=quickburn
+  export OCP_VERSION=4.8
+}
+
+
+# Show Target
+# -----------------------------------------------------------------------------
+function show_target_fyre() {
+  echo "FYRE_USERNAME ............. $FYRE_USERNAME"
+  echo "FYRE_APIKEY ............... $FYRE_APIKEY"
+  echo "FYRE_PRODUCT_ID ........... $FYRE_PRODUCT_ID"
+  echo "CLUSTER_NAME .............. $CLUSTER_NAME"
+  echo "OCP_VERSION ............... $OCP_VERSION"
+}
+
+
+set_target_fyre
+show_target_fyre
+
+confirm "Proceed with these settings [y/N]" || exit 0
+if [[ "$DEV_MODE" == "true" ]]; then
+  build_and_install_local
+else
+  install
+fi
+
+ansible-playbook ibm.mas_devops.ocp_fyre_provision
+
+echo ""
+echo "IBM DevIT Fyre OCP cluster is ready to use"
+OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+
+exit 0

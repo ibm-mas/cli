@@ -1,0 +1,29 @@
+#!/bin/bash
+
+function mirror_to_registry() {
+  echo
+  echo_h2 "1. Configure Target Mirror"
+  prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
+  prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
+
+
+  echo
+  echo_h2 "2. Configure Images to Mirror"
+  prompt_for_confirm "Mirror IBM Foundational Services Images" MIRROR_COMMONSERVICES
+  prompt_for_confirm "Mirror IBM Suite License Service Images" MIRROR_SLS
+  prompt_for_confirm "Mirror IBM Truststore Manager Images" MIRROR_TRUSTSTOREMGR
+  prompt_for_confirm "Mirror IBM Maximo Application Suite Core Images" MIRROR_MASCORE
+  prompt_for_confirm "Mirror Third Party Images (e.g. MongoDb CE)" MIRROR_THIRDPARTY
+
+  echo
+  prompt_for_confirm "Proceed with these settings" || exit 0
+
+  echo
+  echo_h2 "2. Run Mirror Process"
+  echo "WARNING: This may take a long time"
+  [ "$MIRROR_COMMONSERVICES" == "true" ] && ansible-playbook ibm.mas_airgap.mirror_common_services
+  [ "$MIRROR_SLS" == "true" ]            && ansible-playbook ibm.mas_airgap.mirror_sls
+  [ "$MIRROR_TRUSTSTOREMGR" == "true" ]  && ansible-playbook ibm.mas_airgap.mirror_truststore_mgr
+  [ "$MIRROR_MASCORE" == "true" ]        && ansible-playbook ibm.mas_airgap.mirror_mas_core
+  [ "$MIRROR_THIRDPARTY" == "true" ]     && ROLE_NAME=thirdparty_mirror ansible-playbook ibm.mas_airgap.run_role
+}

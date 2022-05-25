@@ -1,0 +1,11 @@
+#!/bin/bash
+
+function run_pipeline() {
+  echo
+  echo_h2 "8. Launch Installation"
+  # Start pipeline execution
+  oc -n mas-$MAS_INSTANCE_ID-pipelines create -f $DIR/configs/pipelinerun-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  echo -e "${COLOR_GREEN}Installation started successfully${COLOR_RESET}"
+  echo -e "\nView progress:\n  ${COLOR_CYAN}${TEXT_UNDERLINE}https://${OCP_CONSOLE_ROUTE}/pipelines/ns/mas-$MAS_INSTANCE_ID-pipelines${TEXT_RESET}${COLOR_RESET}"
+  echo
+}

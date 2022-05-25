@@ -1,0 +1,11 @@
+
+*.DS_Store*
+.env
+image/installer/bin/configs/*.yaml
+image/installer/bin/mas.log
+image/installer/bin/mas.env
+image/installer/bin/ibm-mas-devops-*.tar.gz
+target/
+tmp/
+ibm-mas_airgap-2.0.0.tar.gz
+ibm-mas_devops-11.0.0.tar.gz

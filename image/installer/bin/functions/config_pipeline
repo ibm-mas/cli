@@ -1,0 +1,298 @@
+#!/bin/bash
+
+function config_pipeline() {
+  echo
+  echo_h2 "3. Configure Installation"
+
+  # MAS instance ID
+  if [[ ! -z "$1" ]]; then
+    export MAS_INSTANCE_ID=$1
+  fi
+  prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
+
+  export MAS_CATALOG_SOURCE=ibm-operator-catalog
+  echo -e "${COLOR_YELLOW}MAS Version:"
+  echo "  1. 8.7"
+  echo "  2. 8.6"
+  prompt_for_input "Select Subscription Channel" MAS_CHANNEL_SELECTION "1"
+
+  case $MAS_CHANNEL_SELECTION in
+    1|8.7|8.7.x)
+      export MAS_CHANNEL=8.7.x
+      ;;
+
+    2|8.6|8.6.x)
+      export MAS_CHANNEL=8.6.x
+      ;;
+
+    *)
+      export MAS_CHANNEL=$MAS_CHANNEL_SELECTION
+      prompt_for_input 'Custom Catalog Source' MAS_CATALOG_SOURCE "ibm-mas-operators"
+      ;;
+  esac
+
+  echo -e "${COLOR_YELLOW}Select Applications:"
+  if prompt_for_confirm "Install IoT"; then
+    case $MAS_CHANNEL in
+      8.6.x|8.7.x)
+        MAS_APP_CHANNEL_IOT=8.4.x
+        MAS_APP_SOURCE_IOT=ibm-operator-catalog
+        ;;
+
+      *)
+        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_IOT
+        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_IOT "ibm-mas-iot-operators"
+        ;;
+    esac
+    export MAS_APP_CHANNEL_IOT; export MAS_APP_SOURCE_IOT
+  else
+    export MAS_APP_SOURCE_IOT=''; export MAS_APP_CHANNEL_IOT=''
+  fi
+
+  # Applications that require IoT
+  if [[ "$MAS_APP_CHANNEL_IOT" != '' ]]; then
+    if prompt_for_confirm "Install Monitor"; then
+      case $MAS_CHANNEL in
+        8.7.x)
+          MAS_APP_CHANNEL_MONITOR=8.7.x
+          MAS_APP_SOURCE_MONITOR=ibm-operator-catalog
+          ;;
+        8.6.x)
+          MAS_APP_CHANNEL_MONITOR=8.6.x
+          MAS_APP_SOURCE_MONITOR=ibm-operator-catalog
+          ;;
+        *)
+          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MONITOR
+          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_MONITOR "ibm-mas-monitor-operators"
+          ;;
+      esac
+      export MAS_APP_CHANNEL_MONITOR; export MAS_APP_SOURCE_MONITOR
+    else
+      export MAS_APP_SOURCE_MONITOR=''; export MAS_APP_CHANNEL_MONITOR=''
+    fi
+    if prompt_for_confirm "Install Safety"; then
+      case $MAS_CHANNEL in
+        8.6.x|8.7.x)
+          MAS_APP_CHANNEL_SAFETY=8.2.x
+          MAS_APP_SOURCE_SAFETY=ibm-operator-catalog
+          ;;
+        *)
+          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_SAFETY
+          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_SAFETY "ibm-mas-safety-operators"
+          ;;
+      esac
+      export MAS_APP_CHANNEL_SAFETY; export MAS_APP_SOURCE_SAFETY
+    else
+      export MAS_APP_SOURCE_SAFETY=''; export MAS_APP_CHANNEL_SAFETY=''
+    fi
+  else
+    # If you're not installing IoT you can't install Monitor or Safety
+    export MAS_APP_SOURCE_MONITOR=''; export MAS_APP_CHANNEL_MONITOR=''
+    export MAS_APP_SOURCE_SAFETY=''; export MAS_APP_CHANNEL_SAFETY=''
+  fi
+
+  if prompt_for_confirm "Install Manage"; then
+    case $MAS_CHANNEL in
+      8.7.x)
+        MAS_APP_CHANNEL_MANAGE=8.3.x
+        MAS_APP_SOURCE_MANAGE=ibm-operator-catalog
+        ;;
+      8.6.x)
+        MAS_APP_CHANNEL_MANAGE=8.2.x
+        MAS_APP_SOURCE_MANAGE=ibm-operator-catalog
+        ;;
+      *)
+        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MANAGE
+        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_SAFETY "ibm-mas-manage-operators"
+        ;;
+    esac
+    export MAS_APP_CHANNEL_MANAGE; export MAS_APP_SOURCE_MANAGE
+  else
+    export MAS_APP_SOURCE_MANAGE=''; export MAS_APP_CHANNEL_MANAGE=''
+  fi
+
+  # Applications that require Manage
+  if [[ "$MAS_APP_CHANNEL_MANAGE" != '' ]]; then
+    if prompt_for_confirm "Install Predict"; then
+      case $MAS_CHANNEL in
+        8.7.x)
+          MAS_APP_CHANNEL_PREDICT=8.5.x
+          MAS_APP_SOURCE_PREDICT=ibm-operator-catalog
+          ;;
+        8.6.x)
+          MAS_APP_CHANNEL_PREDICT=8.4.x
+          MAS_APP_SOURCE_PREDICT=ibm-operator-catalog
+          ;;
+        *)
+          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_PREDICT
+          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_PREDICT "ibm-mas-predict-operators"
+          ;;
+      esac
+      export MAS_APP_CHANNEL_PREDICT; export MAS_APP_SOURCE_PREDICT
+    else
+      export MAS_APP_SOURCE_PREDICT=''; export MAS_APP_CHANNEL_PREDICT=''
+    fi
+    if prompt_for_confirm "Install Optimizer"; then
+      case $MAS_CHANNEL in
+        8.7.x)
+          MAS_APP_CHANNEL_MSO=8.1.x
+          MAS_APP_SOURCE_MSO=ibm-operator-catalog
+          ;;
+        8.6.x)
+          MAS_APP_CHANNEL_MSO=8.0.x
+          MAS_APP_SOURCE_MSO=ibm-operator-catalog
+          ;;
+        *)
+          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MSO
+          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_PREDICT "ibm-mas-mso-operators"
+          ;;
+      esac
+      export MAS_APP_CHANNEL_MSO; export MAS_APP_SOURCE_MSO
+    else
+      export MAS_APP_SOURCE_MSO=''; export MAS_APP_CHANNEL_MSO=''
+    fi
+  else
+    # If you're not installing Manage you can't install Predict or Optimizer
+    export MAS_APP_SOURCE_PREDICT=''; export MAS_APP_CHANNEL_PREDICT=''
+    export MAS_APP_SOURCE_MSO=''; export MAS_APP_CHANNEL_MSO=''
+  fi
+
+
+  echo ""
+  if [[ "$MAS_CATALOG_SOURCE" == "ibm-mas-operators" ]]; then
+    # Development Mode -- offer the ability to set MAS and SLS source independently
+    echo_h2 "4a. Configure Artifactory"
+    prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
+    prompt_for_input "Artifactory API Key" ARTIFACTORY_APIKEY
+
+    echo_h2 "4b. Configure IBM Container Registry (MAS)"
+    prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com
+    prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com
+    prompt_for_input "Entitlement Username" MAS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME
+    prompt_for_input "Entitlement Key" MAS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY
+
+    echo
+    echo_h2 "4c. Configure IBM Container Registry (SLS)"
+    prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com
+    prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com
+    prompt_for_input "Entitlement Username" SLS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME
+    prompt_for_input "Entitlement Key" SLS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY
+  else
+    # Production Mode -- everything comes from the same registry (IBM container registry)
+    echo_h2 "4. Configure IBM Container Registry"
+    prompt_for_input "IBM Entitled Registry" MAS_ICR_CP cp.icr.io/cp
+    prompt_for_input "IBM Container Registry" MAS_ICR_CPOPEN icr.io/cpopen
+    prompt_for_input "Entitlement Username" MAS_ENTITLEMENT_USERNAME cp
+    prompt_for_input "Entitlement Key" MAS_ENTITLEMENT_KEY $MAS_ENTITLEMENT_KEY
+
+    export SLS_ICR_CP=cp.icr.io/cp
+    export SLS_ICR_CPOPEN=icr.io/cpopen
+    export SLS_ENTITLEMENT_USERNAME=cp
+    export SLS_ENTITLEMENT_KEY=$MAS_ENTITLEMENT_KEY
+  fi
+  echo
+  echo_h2 "5. Configure Product License"
+  prompt_for_input "License ID" SLS_LICENSE_ID
+  prompt_for_input "License File" SLS_LICENSE_FILE_LOCAL
+  if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
+    echo_warning "Error: File does not exist: $SLS_LICENSE_FILE_LOCAL"
+    exit 1
+  fi
+  export SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
+
+  prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
+  prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
+  prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
+
+
+  echo
+  echo_h2 "6. Prepare Installation"
+  # Auto-detect based on available storage classes
+  # ----------------------------------------------
+  # 1. ROKS
+  oc get storageclass ibmc-file-gold &>> $LOGFILE
+  if [[ $? == "0" ]]; then
+    PIPELINE_STORAGE_CLASS=ibmc-file-gold
+    echo -e "${COLOR_GREEN}Storage class auto-detected: IBMCloud ROKS${COLOR_RESET}"
+  else
+    # 2. OCS
+    oc get storageclass ocs-storagecluster-ceph-rbd &>> $LOGFILE
+    if [[ $? == "0" ]]; then
+      PIPELINE_STORAGE_CLASS=ocs-storagecluster-ceph-rbd
+      echo -e "${COLOR_GREEN}Storage class auto-detected: OpenShift Container Storage${COLOR_RESET}"
+    else
+      # 3. Azure
+      oc get storageclass managed-premium &>> $LOGFILE
+      if [[ $? == "0" ]]; then
+        PIPELINE_STORAGE_CLASS=managed-premium
+        echo -e "${COLOR_GREEN}Storage class auto-detected: Azure Managed${COLOR_RESET}"
+      else
+        # 4. You choose then
+        echo ""
+        echo "No known compatible storage classes available.  Please enter "
+        echo "the name of storage class to use for the pipeline run"
+        echo ""
+        oc get storageclass
+        echo ""
+        prompt_for_input "Pipeline Storage Class" PIPELINE_STORAGE_CLASS
+      fi
+    fi
+  fi
+
+  mkdir -p $DIR/configs
+  # Replace ALL environment variables in templates
+  eval "echo \"$(cat $DIR/templates/pipelinerun.yaml)\"" > $DIR/configs/pipelinerun-$MAS_INSTANCE_ID.yaml
+
+  # Replace mas_instance_id and pipeline_storage_class in templates
+  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/namespace.yaml > $DIR/configs/namespace-$MAS_INSTANCE_ID.yaml
+  sed -e "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" \
+      -e "s/{{pipeline_storage_class}}/$PIPELINE_STORAGE_CLASS/g" \
+      $DIR/templates/pvc.yaml > $DIR/configs/pvc-$MAS_INSTANCE_ID.yaml
+  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/rbac.yaml > $DIR/configs/rbac-$MAS_INSTANCE_ID.yaml
+  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/pipeline.yaml > $DIR/configs/pipeline-$MAS_INSTANCE_ID.yaml
+
+  if [ "$ALREADY_CONFIRMED" != "true" ]; then
+    OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+    echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}${COLOR_RESET}"
+    prompt_for_confirm "Proceed with pipeline setup on this cluster" || exit 0
+  fi
+
+  echo -en "\033[s" # Save cursor position
+  echo -n "Preparing namespace 'mas-$MAS_INSTANCE_ID-pipelines' ..."
+
+  export PIPELINE_VERSION=10.0.4
+  if [ ! -e $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml ]; then
+    wget https://github.com/ibm-mas/ansible-devops/releases/download/$PIPELINE_VERSION/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml -O $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml  &>> $LOGFILE
+  fi
+  # Install the MAS Devops Task definitions
+  oc apply -f $DIR/configs/namespace-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  oc -n mas-$MAS_INSTANCE_ID-pipelines apply -f $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml &>> $LOGFILE
+
+  oc apply -f $DIR/configs/pvc-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  # Wait for PVC
+  LOOKUP_RESULT=$(oc -n mas-$MAS_INSTANCE_ID-pipelines get pvc config-pvc -o jsonpath='{.status.phase}')
+  while [ "$LOOKUP_RESULT" != "Bound" ]; do
+    echo "Waiting 5s for PVC to be bound before checking again ..."  &>> $LOGFILE
+    sleep 5
+    LOOKUP_RESULT=$(oc -n mas-$MAS_INSTANCE_ID-pipelines get pvc config-pvc -o jsonpath='{.status.phase}')
+  done
+
+  oc apply -f $DIR/configs/rbac-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  oc apply -f $DIR/configs/pipeline-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+
+  # Clean up existing secrets
+  oc -n mas-$MAS_INSTANCE_ID-pipelines delete secret pipeline-additional-configs --ignore-not-found=true &>> $LOGFILE
+  oc -n mas-$MAS_INSTANCE_ID-pipelines delete secret pipeline-sls-entitlement --ignore-not-found=true &>> $LOGFILE
+
+  # Create new secrets
+  # pipeline-additional-configs must exist (otherwise the suite-install step will hang),
+  # but can be empty if no additional configs are required
+  # TODO: Support passing in files to this secret
+  oc -n mas-$MAS_INSTANCE_ID-pipelines create secret generic pipeline-additional-configs &>> $LOGFILE
+  oc -n mas-$MAS_INSTANCE_ID-pipelines create secret generic pipeline-sls-entitlement --from-file=$SLS_LICENSE_FILE_LOCAL &>> $LOGFILE
+
+    echo -en "\033[1K" # Clear current line
+    echo -en "\033[u" # Restore cursor position
+    echo -e "${COLOR_GREEN}Namespace 'mas-$MAS_INSTANCE_ID-pipelines' is ready${COLOR_RESET}"
+
+}
