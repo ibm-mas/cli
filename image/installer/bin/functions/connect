@@ -5,7 +5,6 @@ function connect() {
   echo_h2 "1. Set Target OpenShift Cluster"
 
   PROMPT_FOR_LOGIN=false
-  set +e
   oc whoami &>> $LOGFILE
   if [[ $? == "0" ]]; then
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
@@ -16,7 +15,6 @@ function connect() {
   else
     PROMPT_FOR_LOGIN=true
   fi
-  set -e
 
   if [[ $PROMPT_FOR_LOGIN == "true" ]]; then
     read -e -p "$COLOR_YELLOW  Server URL ..... $COLOR_BLUE> " -i "$OCP_LOGIN_URL" OCP_LOGIN_URL

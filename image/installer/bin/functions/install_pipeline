@@ -9,7 +9,6 @@ function install_pipeline() {
   echo -en "\033[s" # Save cursor position
   echo -n "Installing OpenShift Pipelines Operator ..."
 
-  set +e
   oc get crd tasks.tekton.dev  &>> $LOGFILE
   LOOKUP_RESULT=$?
   while [ "$LOOKUP_RESULT" == "1" ]; do
@@ -18,7 +17,6 @@ function install_pipeline() {
     oc get crd tasks.tekton.dev  &>> $LOGFILE
     LOOKUP_RESULT=$?
   done
-  set -e
 
   echo "Wait for Pipeline operator to be ready" &>> $LOGFILE
   oc wait --for=condition=Established  crd tasks.tekton.dev  --timeout=30m  &>> $LOGFILE

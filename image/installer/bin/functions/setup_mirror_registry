@@ -1,0 +1,17 @@
+#!/bin/bash
+
+function setup_mirror_registry() {
+  echo
+  echo_h2 "2. Configure Installation"
+
+  prompt_for_input "Registry Namespace" REGISTRY_NAMESPACE "airgap-registry"
+  prompt_for_input "Registry Storage Class" REGISTRY_STORAGE_CLASS "ibmc-block-gold"
+  prompt_for_input "Registry Storage Capacity" REGISTRY_STORAGE_CAPACITY "100Gi"
+  prompt_for_input "Registry Service Type" REGISTRY_SERVICE_TYPE "loadbalancer"
+
+  prompt_for_confirm "Proceed with these settings" || exit 0
+
+  echo
+  echo_h2 "3. Run Installation"
+  ROLE_NAME=registry ansible-playbook ibm.mas_airgap.run_role
+}

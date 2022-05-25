@@ -77,23 +77,40 @@ function prompt_for_input(){
 }
 
 function prompt_for_confirm() {
-  if confirm "${COLOR_YELLOW}$1 ${COLOR_BLUE}[y/N]"; then
+  msg=$1
+  varname=$2
+  if confirm "${COLOR_YELLOW}$msg ${COLOR_BLUE}[y/N]"; then
     echo -ne "${COLOR_RESET}\033[1K"
+    if [[ "$varname" != "" ]]; then
+      printf -v "$varname" "%s" "true"
+    fi
     true
   else
     echo -ne "${COLOR_RESET}\033[1K"
+    if [[ "$varname" != "" ]]; then
+      printf -v "$varname" "%s" "false"
+    fi
     false
   fi
 }
 
 
-function build_and_install_local() {
-  ansible-galaxy collection build /home/david/ibm-mas/ansible-devops/ibm/mas_devops --force
-  ansible-galaxy collection install ibm-mas_devops-11.0.0.tar.gz --force
-}
-
-function install() {
-  ansible-galaxy collection install ibm.mas_devops:10.0.4
+function update_ansible_collections() {
+  if [[ "$UPDATE_ANSIBLE" == "true" ]]; then
+    if [[ "$DEV_MODE" == "true" ]]; then
+      echo
+      echo_h2 "Updating ansible collections from local build"
+      ansible-galaxy collection build ~/ibm-mas/ansible-devops/ibm/mas_devops --force || exit 1
+      ansible-galaxy collection build ~/ibm-mas/ansible-airgap/ibm/mas_airgap --force || exit 1
+      ansible-galaxy collection install ibm-mas_devops-11.0.0.tar.gz --force --no-deps || exit 1
+      ansible-galaxy collection install ibm-mas_airgap-2.0.0.tar.gz --force --no-deps || exit 1
+    else
+      echo
+      echo_h2 "Updating ansible collections from Galaxy"
+      ansible-galaxy collection install ibm.mas_devops:10.0.4 || exit 1
+      ansible-galaxy collection install ibm.mas_devops:1.0.0 || exit 1
+    fi
+  fi
 }
 
 

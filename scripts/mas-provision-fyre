@@ -3,7 +3,7 @@ set -e
 
 # Load common functions
 # -----------------------------------------------------------------------------
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 . $DIR/image/installer/bin/functions/utils
 
 
@@ -32,7 +32,7 @@ function set_target_fyre() {
   fi
   export CLUSTER_NAME
   export CLUSTER_TYPE=quickburn
-  export OCP_VERSION=4.8.35
+  export OCP_VERSION=4.8
 }
 
 
