@@ -1,0 +1,37 @@
+#!/bin/bash
+set -e
+
+function provision_fyre() {
+  prompt_for_input "Fyre username" FYRE_USERNAME
+  prompt_for_input "Fyre API key" FYRE_APIKEY
+  prompt_for_input "Fyre product ID" FYRE_PRODUCT_ID
+  prompt_for_input "Fyre cluster name" CLUSTER_NAME
+
+  export FYRE_USERNAME
+  export FYRE_APIKEY
+  export FYRE_PRODUCT_ID
+  export CLUSTER_NAME
+  export CLUSTER_TYPE=quickburn
+  export OCP_VERSION=4.8
+
+  prompt_for_confirm "Configure networking to simulate air gap" SIMULATE_AIRGAP_NETWORK
+
+  # echo "FYRE_USERNAME ............. $FYRE_USERNAME"
+  # echo "FYRE_APIKEY ............... $FYRE_APIKEY"
+  # echo "FYRE_PRODUCT_ID ........... $FYRE_PRODUCT_ID"
+  # echo "CLUSTER_NAME .............. $CLUSTER_NAME"
+  # echo "OCP_VERSION ............... $OCP_VERSION"
+  echo
+  prompt_for_confirm "Proceed with these settings" || exit 0
+  ansible-playbook ibm.mas_devops.ocp_fyre_provision
+
+  if [[ "$SIMULATE_AIRGAP_NETWORK" == "true" ]]; then
+    ROLE_NAME=simulate_network ansible-playbook ibm.mas_airgap.run_role
+  fi
+
+  echo ""
+  echo "IBM DevIT Fyre OCP cluster is ready to use"
+  OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+  echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+
+}

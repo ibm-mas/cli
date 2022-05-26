@@ -76,16 +76,6 @@ Users can then use the **ibm.mas_devops.suite_mustgather_download** playbook loc
 Note: The **mustgather** clusterTask will clear any previous content found in the `/workspace/mustgather` persistent volume before each call to the mustgather playbook. This is to ensure that the persistent volume does not become full after multiple runs using the same persistent volume/namespace.
 
 
-## Other Utilities
-### Provision a ROKS or Fyre Cluster
-This is a convenient utility to easily provision a new RedHat OpenShift Cluster in IBM Cloud or DevIT Fyre.  It it not part of the MAS installer.
-
-#### ROKS
-```bash
-$ scripts/mas-provision-roks mycluster
-```
-
-#### Fyre
-```bash
-$ scripts/mas-provision-fyre mycluster
-```
+## OpenShift Cluster Provisioning
+- `scripts/mas-provision-roks` (still to be integrated into the CLI)
+- `mas provision-fyre`

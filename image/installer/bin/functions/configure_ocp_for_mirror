@@ -11,10 +11,16 @@ function configure_ocp_for_mirror() {
     exit 1
   fi
 
+  prompt_for_confirm "Prepare a MAS instance for airgap install" INSTALL_DIGEST_CMS
+  if [[ $INSTALL_DIGEST_CMS == "true" ]]; then
+    prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
+  fi
+
   # Make the environment variables available to Ansible
   export REGISTRY_PRIVATE_HOST
   export REGISTRY_PRIVATE_PORT
   export REGISTRY_PRIVATE_CA_FILE
+  export MAS_INSTANCE_ID
 
   echo
   prompt_for_confirm "Proceed with these settings" || exit 0
@@ -26,4 +32,11 @@ function configure_ocp_for_mirror() {
   echo
   echo_h2 "4. Install Air Gap Operator Catalogs"
   ROLE_NAME=catalogs ansible-playbook ibm.mas_airgap.run_role || exit 1
+
+  if [[ $INSTALL_DIGEST_CMS == "true" ]]; then
+    echo
+    echo_h2 "5. Install MAS Air Gap Image Digest Configs"
+    ROLE_NAME=install_digest_cm ansible-playbook ibm.mas_airgap.run_role || exit 1
+  fi
+
 }
