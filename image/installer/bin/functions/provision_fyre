@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 function provision_fyre() {
   prompt_for_input "Fyre username" FYRE_USERNAME
