@@ -25,6 +25,8 @@ LOGFILE=$DIR/mas.log
 
 # General purpose
 . $DIR/functions/utils
+# MAS provisioning support
+. $DIR/functions/provision_fyre
 # MAS installation support
 . $DIR/functions/connect
 . $DIR/functions/install_pipeline
@@ -39,7 +41,20 @@ LOGFILE=$DIR/mas.log
 . $DIR/functions/configure_ocp_for_mirror
 
 
+load_config
 case $1 in
+  provision-fyre)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Fyre Cluster Provisioner${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
+    echo
+    echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
+    echo "${TEXT_DIM}1. This is still a work in progress"
+    echo
+    reset_colors
+    update_ansible_collections
+    provision_fyre
+    ;;
+
   registry|setup-registry|setup-mirror-registry|setup-airgap-registry)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Registry Setup${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-airgap/${TEXT_RESET}"
@@ -91,7 +106,6 @@ case $1 in
     echo "${TEXT_DIM}3. Predict, Assist, & Visual Inspection applications can not be deployed using this installer yet"
     echo
     reset_colors
-    load_config
     connect
     install_pipeline
     config_pipeline
