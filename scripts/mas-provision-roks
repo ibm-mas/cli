@@ -55,8 +55,8 @@ function set_target_roks() {
   esac
 
 
-  prompt_for_input "Datacenter" ROKS_ZONE "lon02" && export ROKS_ZONE
-  prompt_for_input "Worker Node Type" ROKS_FLAVOR "b3c.8x32" && export ROKS_FLAVOR
+  prompt_for_input "Datacenter" ROKS_ZONE "dal10" && export ROKS_ZONE
+  prompt_for_input "Worker Node Type" ROKS_FLAVOR "b3c.16x64.300gb" && export ROKS_FLAVOR
   prompt_for_input "Number of Worker Nodes" ROKS_WORKERS "3" && export ROKS_WORKERS
 
   export OCP_PROVISION_GPU=false
