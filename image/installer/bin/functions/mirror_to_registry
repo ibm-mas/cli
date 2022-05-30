@@ -5,6 +5,8 @@ function mirror_to_registry() {
   echo_h2 "1. Configure Target Mirror"
   prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
   prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
+  export REGISTRY_PUBLIC_HOST
+  export REGISTRY_PUBLIC_PORT
 
   echo
   echo_h2 "2. Configure Images to Mirror"
