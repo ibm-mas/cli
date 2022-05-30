@@ -1,14 +1,6 @@
 #!/bin/bash
-set -e
 
-# Load common functions
-# -----------------------------------------------------------------------------
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
-. $DIR/image/installer/bin/functions/utils
-
-# Set Target
-# -----------------------------------------------------------------------------
-function set_target_roks() {
+function provision_roks() {
   if [[ -z "$IBMCLOUD_APIKEY" ]]; then
     echo ""
     echo_h2 "IBM Cloud API Key"
@@ -54,7 +46,6 @@ function set_target_roks() {
       ;;
   esac
 
-
   prompt_for_input "Datacenter" ROKS_ZONE "dal10" && export ROKS_ZONE
   prompt_for_input "Worker Node Type" ROKS_FLAVOR "b3c.16x64.300gb" && export ROKS_FLAVOR
   prompt_for_input "Number of Worker Nodes" ROKS_WORKERS "3" && export ROKS_WORKERS
@@ -98,13 +89,6 @@ function set_target_roks() {
   echo ""
   prompt_for_confirm "Upgrade Image Registry Storage from 100GB to 400GB" && export UPGRADE_IMAGE_REGISTRY_STORAGE=true
 
-  true
-}
-
-
-# Show Target
-# -----------------------------------------------------------------------------
-function show_target_roks() {
   echo ""
   echo_h2 "Summary"
   echo "IBMCloud API Key .......... ${IBMCLOUD_APIKEY:0:8}..."
@@ -122,26 +106,15 @@ function show_target_roks() {
     echo "CP4D Entitlement Key ...... ${CPD_ENTITLEMENT_KEY:0:8}..."
   fi
   echo "Upgrade Registry Storage .. $UPGRADE_IMAGE_REGISTRY_STORAGE"
+
+  echo ""
+  confirm "Proceed with these settings [y/N]" || exit 0
+
+  ansible-playbook ibm.mas_devops.ocp_roks_provision
+
+  echo ""
+  echo "IBM Cloud ROKS cluster is ready to use"
+  OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+  echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+
 }
-
-
-set_target_roks $1
-show_target_roks
-
-echo ""
-confirm "Proceed with these settings [y/N]" || exit 0
-
-if [[ "$DEV_MODE" == "true" ]]; then
-  build_and_install_local
-else
-  install
-fi
-
-ansible-playbook ibm.mas_devops.ocp_roks_provision
-
-echo ""
-echo "IBM Cloud ROKS cluster is ready to use"
-OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
-echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
-
-exit 0
