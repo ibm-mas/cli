@@ -27,6 +27,7 @@ LOGFILE=$DIR/mas.log
 . $DIR/functions/utils
 # MAS provisioning support
 . $DIR/functions/provision_fyre
+. $DIR/functions/provision_roks
 # MAS installation support
 . $DIR/functions/connect
 . $DIR/functions/install_pipeline
@@ -43,7 +44,7 @@ LOGFILE=$DIR/mas.log
 
 load_config
 case $1 in
-  provision-fyre)
+  fyre|provision-fyre)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Fyre Cluster Provisioner${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
@@ -53,6 +54,18 @@ case $1 in
     reset_colors
     update_ansible_collections
     provision_fyre
+    ;;
+
+  roks|provision-roks)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite ROKS Cluster Provisioner${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
+    echo
+    echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
+    echo "${TEXT_DIM}1. This is still a work in progress"
+    echo
+    reset_colors
+    update_ansible_collections
+    provision_roks
     ;;
 
   registry|setup-registry|setup-mirror-registry|setup-airgap-registry)
