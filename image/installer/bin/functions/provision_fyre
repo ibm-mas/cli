@@ -22,10 +22,10 @@ function provision_fyre() {
   # echo "OCP_VERSION ............... $OCP_VERSION"
   echo
   prompt_for_confirm "Proceed with these settings" || exit 0
-  ansible-playbook ibm.mas_devops.ocp_fyre_provision
+  ansible-playbook ibm.mas_devops.ocp_fyre_provision || exit 1
 
   if [[ "$SIMULATE_AIRGAP_NETWORK" == "true" ]]; then
-    ROLE_NAME=simulate_network ansible-playbook ibm.mas_airgap.run_role
+    ROLE_NAME=simulate_network ansible-playbook ibm.mas_airgap.run_role || exit 1
   fi
 
   echo ""
