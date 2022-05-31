@@ -21,7 +21,8 @@ echo "${COLOR_CYAN}${TEXT_UNDERLINE}https://github.ibm.com/ibm-mas/installer${TE
 echo
 echo "Available commands:"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas install${TEXT_RESET} to launch a MAS install pipeline"
-echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-fyre${TEXT_RESET} to provision an OCP cluster in Fyre"
+echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-fyre${TEXT_RESET} to provision an OCP cluster on IBM DevIT Fyre (internal)"
+echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-roks${TEXT_RESET} to provision an OCP cluster on IBMCloud Red Hat OpenShift Service"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas setup-registry${TEXT_RESET} to setup a private container registry on an OCP cluster"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas mirror-images${TEXT_RESET} to mirror container images required by mas to a private registry"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas configure-ocp-for-mirror${TEXT_RESET} to configure a cluster to use a private registry as a mirror"
