@@ -13,15 +13,15 @@ There are minimal dependencies to meet on your own computer:
 - OpenShift client
 - Network access to the OpenShift cluster
 
-Alternatively run the install from inside our docker container image: `docker run -ti quay.io/ibmmas/installer`
-
 The install is designed to work on any OCP cluster, but has been specifically tested in these environments:
 - IBMCloud ROKS
 - Azure
 - IBM DevIT Fyre (internal)
 
 ## One-Click Install
-All settings can be controlled via environment variables to avoid needing to manually type them out, for example if you `export MAS_ENTITLEMENT_KEY=xxxx` then when you run the install that input will be prefilled with the value from the environment variable, allowing you to press Enter to continue, or modify the value if you need to.
+All settings can be controlled via environment variables to avoid needing to manually type them out, for example if you `export CPD_ENTITLEMENT_KEY=xxxx` then when you run the install that input will be prefilled with the value from the environment variable, allowing you to press Enter to continue, or modify the value if you need to.
+
+Before running the installer you must login to the OpenShift cluster that you want to install MAS into using the `oc login` command.
 
 The installers supports:
 - IBM Operator Catalog Configuration
@@ -51,21 +51,70 @@ The installers supports:
 
 The installer will automatically provision and set up the required dependencies based on the applications that you select to install.
 
-The install can be launched with the command `mas install`.  The end result will be a pipeline run being started in your target cluster where you can track the progress of the installation.
+```bash
+$ ./mas install djp2204b
+Connected to OCP cluster: https://console-openshift-console.djp2204b-6f1620198115433da1cac8216c06779b-0000.eu-gb.containers.appdomain.cloud
+Proceed with installation on this cluster [y/N]  y
+ - Installing OpenShift Pipelines Operator
+ - Installing Maximo Application Suite Pipeline Definition
+
+Configure Installation:
+  MAS_CHANNEL:
+    1. 8.7
+    2. 8.6
+  Select Subscription Channel> 1
+
+  CPD_ENTITLEMENT_KEY> *******************
+  MAS_LICENSE_FILE> /home/david/maximoappsuite/devops-configs/config/authorized_entitlement.lic
+  UDS_CONTACT_EMAIL> email@uk.ibm.com
+  UDS_CONTACT_FIRSTNAME> David
+  UDS_CONTACT_LASTNAME> Parker
+
+Select Applications:
+  Install IoT Application [y/N] n
+  Install Manage Application [y/N] n
+
+
+IBMCloud Settings
+-------------------------------------------------------------
+IBMCLOUD_APIKEY ........... ********...
+
+IBM Maximo Application Suite Settings
+-------------------------------------------------------------
+MAS_INSTANCE_ID ........... djp2204b
+MAS_CATALOG_SOURCE ........ ibm-operator-catalog
+MAS_CHANNEL ............... 8.7.x
+MAS_ICR_CP ................ cp.icr.io/cp
+MAS_ICR_CPOPEN ............ icr.io/cpopen
+MAS_ENTITLEMENT_USERNAME .. email@uk.ibm.com
+MAS_ENTITLEMENT_KEY ....... ********...
+
+CloudPak for Data Settings
+-------------------------------------------------------------
+CPD_ENTITLEMENT_KEY ....... eyJhbGci...
+
+IBM Suite License Service Settings
+-------------------------------------------------------------
+SLS_LICENSE_ID ............ ********
+SLS_ICR_CP ................ cp.icr.io/cp
+SLS_ICR_CPOPEN ............ icr.io/cpopen
+SLS_ENTITLEMENT_USERNAME .. email@uk.ibm.com
+SLS_ENTITLEMENT_KEY ....... ********...
+SLS_LICENSE_FILE .......... /workspace/entitlement/authorized_entitlement.lic
+
+IBM User Data Services Settings
+-------------------------------------------------------------
+UDS_CONTACT_EMAIL ......... email@uk.ibm.com
+UDS_CONTACT_FIRSTNAME ..... David
+UDS_CONTACT_LASTNAME ...... Parker
+
+Connected to OCP cluster: https://console-openshift-console.djp2204b-6f1620198115433da1cac8216c06779b-0000.eu-gb.containers.appdomain.cloud
+Proceed with these settings [y/N]  y
+
+View progress: https://console-openshift-console.djp2204b-6f1620198115433da1cac8216c06779b-0000.eu-gb.containers.appdomain.cloud/pipelines/ns/mas-djp2204b-pipelines
+```
 
 ![](docs/pipelineruns.png)
-
-
-## Air Gap Support
-Three commands are available to aid in the deployment of an Air Gap MAS installation.
-
-- `mas setup-registry` will deploy a private docker registry on an OCP cluster suitable for hosting a mirror of all container images used in a MAS installation
-- `mas mirror-images` will mirror all (or a subset) container images needed for a MAS installation to your private registry
-- `mas configure-airgap` will configure your target OCP cluster to use a private docker register and will install the operator catalogs required by MAS from that mirror
-
-**Important:** `mas configure-airgap` does not work for IBMCloud ROKS clusters.  This is a limitation of the service provided in IBMCloud which disables key parts of OpenShift functionality required to configure and use ImageContentSourcePolicy resources (which is the basis of airgap/image mirroring support in OpenShift).
-
-Once these steps have been completed, you should be able to run a "normal" MAS install on the target cluster (`mas install`).
 
 
 ## Mustgather
@@ -75,7 +124,11 @@ Users can then use the **ibm.mas_devops.suite_mustgather_download** playbook loc
 
 Note: The **mustgather** clusterTask will clear any previous content found in the `/workspace/mustgather` persistent volume before each call to the mustgather playbook. This is to ensure that the persistent volume does not become full after multiple runs using the same persistent volume/namespace.
 
+## Other Utilities
+### Provision a ROKS Cluster
+This is a convenient utility to easily provision a new RedHat OpenShift Cluster in IBM Cloud.  It it not part of the MAS installer.
 
-## OpenShift Cluster Provisioning
-- `scripts/mas-provision-roks` (still to be integrated into the CLI)
-- `mas provision-fyre`
+```bash
+$ bin/mas-provision-roks mycluster
+```
+

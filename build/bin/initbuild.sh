@@ -14,8 +14,8 @@ if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
   echo "Note: non-branch build for a tag named '${GITHUB_REF_NAME}'"
   TAG_BASED_RELEASE=true
 
-  SEMVER_XYZ="(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
-  SEMVER_PRE="(-(0|[1-9][0-9]*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*)?"
+  SEMVER_XYZ="(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
+  SEMVER_PRE="(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?"
   SEMVER_BUILD="(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?"
   SEMVER_REGEXP="^${SEMVER_XYZ}${SEMVER_PRE}${SEMVER_BUILD}$"
 
@@ -76,7 +76,7 @@ else
 
   # See: https://github.com/fsaintjacques/semver-tool/blob/master/src/semver
   if [ "${SEMVER_RELEASE_LEVEL}" == "initial" ]; then
-    echo "1.0.0" > $VERSION_FILE
+    echo $SEMVER_LAST_TAG > $VERSION_FILE
     echo "Configuring semver for initial release of $(cat $VERSION_FILE)"
   elif [[ "${SEMVER_RELEASE_LEVEL}" =~ ^(major|minor|patch)$ ]]; then
     semver bump ${SEMVER_RELEASE_LEVEL} ${SEMVER_LAST_TAG} > $VERSION_FILE

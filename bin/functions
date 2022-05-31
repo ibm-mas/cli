@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Prompt for confirmation to continue
+# -----------------------------------------------------------------------------
+confirm() {
+  read -r -p "${1:-Proceed? [y/N]} " response
+  case "$response" in
+    [yY][eE][sS]|[yY])
+      export ALREADY_CONFIRMED="true"
+      true
+      ;;
+    *)
+      false
+      ;;
+  esac
+}
+
+function build_and_install_local() {
+  ansible-galaxy collection build /home/david/ibm-mas/ansible-devops/ibm/mas_devops --force
+  ansible-galaxy collection install ibm-mas_devops-10.0.0.tar.gz --force
+}
+
+function install() {
+  ansible-galaxy collection install ibm.mas_devops:9.0.0
+}
+
+
+function install_dependencies_ubuntu() {
+  # APT package installations
+  # python3-pip is required to install additional python packages
+  # ansible is required for ansible-galaxy command to be available
+  sudo apt install python3-pip ansible
+
+  # Python package installations
+  python3 -m pip install ansible junit_xml pymongo xmljson kubernetes==12.0.1 openshift==0.12.1
+
+  # Confirm versions
+  python3 --version
+  ansible-playbook --version
+}
+

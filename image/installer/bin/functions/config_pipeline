@@ -2,7 +2,11 @@
 
 function config_pipeline() {
   echo
+<<<<<<< HEAD
   echo_h2 "3. Configure Installation"
+=======
+  echo_h2 "Configure Installation"
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
 
   # MAS instance ID
   if [[ ! -z "$1" ]]; then
@@ -46,11 +50,19 @@ function config_pipeline() {
     esac
     export MAS_APP_CHANNEL_IOT; export MAS_APP_SOURCE_IOT
   else
+<<<<<<< HEAD
     export MAS_APP_SOURCE_IOT=''; export MAS_APP_CHANNEL_IOT=''
   fi
 
   # Applications that require IoT
   if [[ "$MAS_APP_CHANNEL_IOT" != '' ]]; then
+=======
+    export MAS_APP_SOURCE_IOT='""'; export MAS_APP_CHANNEL_IOT='""'
+  fi
+
+  # Applications that require IoT
+  if [[ "$MAS_APP_CHANNEL_IOT" != '""' ]]; then
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
     if prompt_for_confirm "Install Monitor"; then
       case $MAS_CHANNEL in
         8.7.x)
@@ -68,7 +80,11 @@ function config_pipeline() {
       esac
       export MAS_APP_CHANNEL_MONITOR; export MAS_APP_SOURCE_MONITOR
     else
+<<<<<<< HEAD
       export MAS_APP_SOURCE_MONITOR=''; export MAS_APP_CHANNEL_MONITOR=''
+=======
+      export MAS_APP_SOURCE_MONITOR='""'; export MAS_APP_CHANNEL_MONITOR='""'
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
     fi
     if prompt_for_confirm "Install Safety"; then
       case $MAS_CHANNEL in
@@ -83,12 +99,21 @@ function config_pipeline() {
       esac
       export MAS_APP_CHANNEL_SAFETY; export MAS_APP_SOURCE_SAFETY
     else
+<<<<<<< HEAD
       export MAS_APP_SOURCE_SAFETY=''; export MAS_APP_CHANNEL_SAFETY=''
     fi
   else
     # If you're not installing IoT you can't install Monitor or Safety
     export MAS_APP_SOURCE_MONITOR=''; export MAS_APP_CHANNEL_MONITOR=''
     export MAS_APP_SOURCE_SAFETY=''; export MAS_APP_CHANNEL_SAFETY=''
+=======
+      export MAS_APP_SOURCE_SAFETY='""'; export MAS_APP_CHANNEL_SAFETY='""'
+    fi
+  else
+    # If you're not installing IoT you can't install Monitor or Safety
+    export MAS_APP_SOURCE_MONITOR='""'; export MAS_APP_CHANNEL_MONITOR='""'
+    export MAS_APP_SOURCE_SAFETY='""'; export MAS_APP_CHANNEL_SAFETY='""'
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
   fi
 
   if prompt_for_confirm "Install Manage"; then
@@ -108,11 +133,19 @@ function config_pipeline() {
     esac
     export MAS_APP_CHANNEL_MANAGE; export MAS_APP_SOURCE_MANAGE
   else
+<<<<<<< HEAD
     export MAS_APP_SOURCE_MANAGE=''; export MAS_APP_CHANNEL_MANAGE=''
   fi
 
   # Applications that require Manage
   if [[ "$MAS_APP_CHANNEL_MANAGE" != '' ]]; then
+=======
+    export MAS_APP_SOURCE_MANAGE='""'; export MAS_APP_CHANNEL_MANAGE='""'
+  fi
+
+  # Applications that require Manage
+  if [[ "$MAS_APP_CHANNEL_MANAGE" != '""' ]]; then
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
     if prompt_for_confirm "Install Predict"; then
       case $MAS_CHANNEL in
         8.7.x)
@@ -130,7 +163,11 @@ function config_pipeline() {
       esac
       export MAS_APP_CHANNEL_PREDICT; export MAS_APP_SOURCE_PREDICT
     else
+<<<<<<< HEAD
       export MAS_APP_SOURCE_PREDICT=''; export MAS_APP_CHANNEL_PREDICT=''
+=======
+      export MAS_APP_SOURCE_PREDICT='""'; export MAS_APP_CHANNEL_PREDICT='""'
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
     fi
     if prompt_for_confirm "Install Optimizer"; then
       case $MAS_CHANNEL in
@@ -149,37 +186,62 @@ function config_pipeline() {
       esac
       export MAS_APP_CHANNEL_MSO; export MAS_APP_SOURCE_MSO
     else
+<<<<<<< HEAD
       export MAS_APP_SOURCE_MSO=''; export MAS_APP_CHANNEL_MSO=''
     fi
   else
     # If you're not installing Manage you can't install Predict or Optimizer
     export MAS_APP_SOURCE_PREDICT=''; export MAS_APP_CHANNEL_PREDICT=''
     export MAS_APP_SOURCE_MSO=''; export MAS_APP_CHANNEL_MSO=''
+=======
+      export MAS_APP_SOURCE_MSO='""'; export MAS_APP_CHANNEL_MSO='""'
+    fi
+  else
+    # If you're not installing Manage you can't install Predict or Optimizer
+    export MAS_APP_SOURCE_PREDICT='""'; export MAS_APP_CHANNEL_PREDICT='""'
+    export MAS_APP_SOURCE_MSO='""'; export MAS_APP_CHANNEL_MSO='""'
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
   fi
 
 
   echo ""
   if [[ "$MAS_CATALOG_SOURCE" == "ibm-mas-operators" ]]; then
     # Development Mode -- offer the ability to set MAS and SLS source independently
+<<<<<<< HEAD
     echo_h2 "4a. Configure Artifactory"
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
     prompt_for_input "Artifactory API Key" ARTIFACTORY_APIKEY
 
     echo_h2 "4b. Configure IBM Container Registry (MAS)"
+=======
+    echo_h2 "Configure Artifactory"
+    prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
+    prompt_for_input "Artifactory API Key" ARTIFACTORY_APIKEY
+
+    echo_h2 "Configure IBM Container Registry (MAS)"
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
     prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com
     prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com
     prompt_for_input "Entitlement Username" MAS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME
     prompt_for_input "Entitlement Key" MAS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY
 
     echo
+<<<<<<< HEAD
     echo_h2 "4c. Configure IBM Container Registry (SLS)"
+=======
+    echo_h2 "Configure IBM Container Registry (SLS)"
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
     prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com
     prompt_for_input "Entitlement Username" SLS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME
     prompt_for_input "Entitlement Key" SLS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
+<<<<<<< HEAD
     echo_h2 "4. Configure IBM Container Registry"
+=======
+    echo_h2 "Configure IBM Container Registry"
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
     prompt_for_input "IBM Entitled Registry" MAS_ICR_CP cp.icr.io/cp
     prompt_for_input "IBM Container Registry" MAS_ICR_CPOPEN icr.io/cpopen
     prompt_for_input "Entitlement Username" MAS_ENTITLEMENT_USERNAME cp
@@ -191,7 +253,11 @@ function config_pipeline() {
     export SLS_ENTITLEMENT_KEY=$MAS_ENTITLEMENT_KEY
   fi
   echo
+<<<<<<< HEAD
   echo_h2 "5. Configure Product License"
+=======
+  echo_h2 "Configure Product License"
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
   prompt_for_input "License ID" SLS_LICENSE_ID
   prompt_for_input "License File" SLS_LICENSE_FILE_LOCAL
   if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
@@ -206,6 +272,7 @@ function config_pipeline() {
 
 
   echo
+<<<<<<< HEAD
   echo_h2 "6. Prepare Installation"
   # Auto-detect based on available storage classes
   # ----------------------------------------------
@@ -214,18 +281,34 @@ function config_pipeline() {
   if [[ $? == "0" ]]; then
     PIPELINE_STORAGE_CLASS=ibmc-file-gold
     echo -e "${COLOR_GREEN}Storage class auto-detected: IBMCloud ROKS${COLOR_RESET}"
+=======
+  echo_h1 "Preparing Install Pipeline"
+  # Auto-detect based on available storage classes
+  # ----------------------------------------------
+  # 1. ROKS
+  set +e
+  oc get storageclass ibmc-file-gold &>> $LOGFILE
+  if [[ $? == "0" ]]; then
+    PIPELINE_STORAGE_CLASS=ibmc-file-gold
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
   else
     # 2. OCS
     oc get storageclass ocs-storagecluster-ceph-rbd &>> $LOGFILE
     if [[ $? == "0" ]]; then
       PIPELINE_STORAGE_CLASS=ocs-storagecluster-ceph-rbd
+<<<<<<< HEAD
       echo -e "${COLOR_GREEN}Storage class auto-detected: OpenShift Container Storage${COLOR_RESET}"
+=======
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
     else
       # 3. Azure
       oc get storageclass managed-premium &>> $LOGFILE
       if [[ $? == "0" ]]; then
         PIPELINE_STORAGE_CLASS=managed-premium
+<<<<<<< HEAD
         echo -e "${COLOR_GREEN}Storage class auto-detected: Azure Managed${COLOR_RESET}"
+=======
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
       else
         # 4. You choose then
         echo ""
@@ -238,6 +321,10 @@ function config_pipeline() {
       fi
     fi
   fi
+<<<<<<< HEAD
+=======
+  set -e
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
 
   mkdir -p $DIR/configs
   # Replace ALL environment variables in templates
@@ -257,15 +344,20 @@ function config_pipeline() {
     prompt_for_confirm "Proceed with pipeline setup on this cluster" || exit 0
   fi
 
+<<<<<<< HEAD
   echo -en "\033[s" # Save cursor position
   echo -n "Preparing namespace 'mas-$MAS_INSTANCE_ID-pipelines' ..."
 
   export PIPELINE_VERSION=10.1.0-pre.master
+=======
+  export PIPELINE_VERSION=10.0.4
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
   if [ ! -e $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml ]; then
     wget https://github.com/ibm-mas/ansible-devops/releases/download/$PIPELINE_VERSION/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml -O $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml  &>> $LOGFILE
   fi
   # Install the MAS Devops Task definitions
   oc apply -f $DIR/configs/namespace-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+<<<<<<< HEAD
   oc -n mas-$MAS_INSTANCE_ID-pipelines apply -f $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml &>> $LOGFILE
 
   oc apply -f $DIR/configs/pvc-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
@@ -277,6 +369,11 @@ function config_pipeline() {
     LOOKUP_RESULT=$(oc -n mas-$MAS_INSTANCE_ID-pipelines get pvc config-pvc -o jsonpath='{.status.phase}')
   done
 
+=======
+  oc -n mas-$MAS_INSTANCE_ID-pipelines apply -f templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml &>> $LOGFILE
+
+  oc apply -f $DIR/configs/pvc-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
   oc apply -f $DIR/configs/rbac-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
   oc apply -f $DIR/configs/pipeline-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
 
@@ -291,8 +388,11 @@ function config_pipeline() {
   oc -n mas-$MAS_INSTANCE_ID-pipelines create secret generic pipeline-additional-configs &>> $LOGFILE
   oc -n mas-$MAS_INSTANCE_ID-pipelines create secret generic pipeline-sls-entitlement --from-file=$SLS_LICENSE_FILE_LOCAL &>> $LOGFILE
 
+<<<<<<< HEAD
     echo -en "\033[1K" # Clear current line
     echo -en "\033[u" # Restore cursor position
     echo -e "${COLOR_GREEN}Namespace 'mas-$MAS_INSTANCE_ID-pipelines' is ready${COLOR_RESET}"
 
+=======
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
 }

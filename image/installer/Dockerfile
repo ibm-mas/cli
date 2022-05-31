@@ -1,21 +1,16 @@
-FROM quay.io/ibmmas/ansible-airgap:1.1.0-pre.master
+FROM registry.access.redhat.com/ubi8/ubi-minimal
 
-ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini /tini
+# Update OS packages
+RUN microdnf update && microdnf upgrade -y
+RUN microdnf install -y wget nano tar gzip
 
-COPY bin /installer/bin
-COPY .bashrc /opt/app-root/src/.bashrc
+# Install OpenShift CLI 4.8.35
+RUN wget -q https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/4.8.35/openshift-client-linux.tar.gz && \
+    tar -zxf openshift-client-linux.tar.gz && \
+    mv oc /usr/local/bin/ && \
+    mv kubectl /usr/local/bin/ && \
+    rm -rf openshift-client-linux.tar.gz
 
-RUN chmod +x /tini && \
-    chmod u+x /installer/bin/mas && \
-    chmod u+x /opt/app-root/src/.bashrc && \
-    ln -s /opt/app-root/lib/python3.8/site-packages/ansible_collections/ibm/mas_airgap /installer/airgap && \
-    ln -s /opt/app-root/lib/python3.8/site-packages/ansible_collections/ibm/mas_devops /installer/devops
-
-ENV PATH="/installer/bin:${PATH}"
-WORKDIR /installer
-
-ENTRYPOINT ["/tini", "--"]
-CMD bash
-
-ARG VERSION_LABEL
-ENV VERSION $VERSION_LABEL
+COPY bin ${HOME}/installer/bin
+ENV PATH="${HOME}/installer/bin:${PATH}"
+CMD mas install

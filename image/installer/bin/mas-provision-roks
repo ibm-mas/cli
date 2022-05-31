@@ -1,0 +1,191 @@
+#!/bin/bash
+set -e
+
+# !!!! INCOMPLETE / WORK IN PROGRESS / USE AT OWN RISK !!!!
+
+# Load common functions
+# -----------------------------------------------------------------------------
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $DIR/functions
+
+# Set Target
+# -----------------------------------------------------------------------------
+function set_target_roks() {
+  if [[ -z "$IBMCLOUD_APIKEY" ]]; then
+    echo ""
+    echo "IBM Cloud API Key"
+    echo "==============================================================================="
+    echo "Provide your IBMCloud API key (if you have not set the IBMCLOUD_APIKEY"
+    echo "environment variable) which will be used to provision a ROKS instance."
+    echo ""
+    read -p 'IBMCLOUD_APIKEY> ' IBMCLOUD_APIKEY
+  fi
+  export IBMCLOUD_APIKEY
+
+  echo ""
+  echo "IBM Cloud ROKS Cluster Configuration"
+  echo "==============================================================================="
+  echo "Select your worker node flavour and the number of worker nodes to provision."
+  echo "We recommend the 'b3c.8x32' worker node flavour to provide the best balance of"
+  echo "performance, flexibility, and cost.  Larger MAS installations will require more"
+  echo "worker nodes.  You can easily add and remove worker nodes to the cluster after"
+  echo "provision so do not worry too much if you are not sure how many worker nodes "
+  echo "you need as this can easily be adjusted at any time."
+  echo ""
+  if [[ ! -z "$1" ]]; then
+    CLUSTER_NAME=$1
+  fi
+
+  if [[ -z "$CLUSTER_NAME" ]]; then
+    read -p 'CLUSTER_NAME> ' CLUSTER_NAME
+  else
+    read -e -p 'CLUSTER_NAME> ' -i "$CLUSTER_NAME" CLUSTER_NAME
+  fi
+  export CLUSTER_NAME
+  export CLUSTER_TYPE=roks
+
+  echo "  OCP Version:"
+  echo "    1. 4.10 EUS (MAS 8.8)"
+  echo "    2. 4.8 EUS  (MAS 8.6-8.8)"
+  read -e -p '  Select Version> ' -i "2" OCP_VERSION_SELECTION
+  echo ""
+
+  case $OCP_VERSION_SELECTION in
+    1|4.10|4.10\ EUS)
+      export OCP_VERSION=4.10_openshift
+      ;;
+
+    2|4.8|4.8\ EUS)
+      export OCP_VERSION=4.8_openshift
+      ;;
+
+    *)
+      export OCP_VERSION=$OCP_VERSION_SELECTION
+      ;;
+  esac
+
+  if [[ -z "$ROKS_FLAVOR" ]]; then
+    read -e -p 'ROKS_FLAVOR> ' -i "b3c.8x32" ROKS_FLAVOR
+  else
+    read -e -p 'ROKS_FLAVOR> ' -i "$ROKS_FLAVOR" ROKS_FLAVOR
+  fi
+  export ROKS_FLAVOR
+
+  if [[ -z "$ROKS_WORKERS" ]]; then
+    read -e -p 'ROKS_WORKERS> ' -i "3" ROKS_WORKERS
+  else
+    read -e -p 'ROKS_WORKERS> ' -i "$ROKS_WORKERS" ROKS_WORKERS
+  fi
+  export ROKS_WORKERS
+
+  export OCP_PROVISION_GPU=false
+  echo ""
+  echo "Bare Metal GPU Worker Support"
+  echo "==============================================================================="
+  echo "GPU worker nodes with flavour, mg4c.32x384.2xp100, can be added to the cluster"
+  echo "for applications that require complex mathematical computations.  If you intnd"
+  echo "to install the IBM Visual Inspection application you should answer 'yes' at"
+  echo "the prompt below."
+  echo ""
+  confirm "Provision GPU worker nodes in cluster [y/N]" && export OCP_PROVISION_GPU=true
+
+  if [[ $OCP_PROVISION_GPU == "true" ]]; then
+    if [[ -z "$GPU_WORKERS" ]]; then
+      read -e -p 'GPU_WORKERS> ' -i "1" GPU_WORKERS
+    else
+      read -e -p 'GPU_WORKERS> ' -i "$GPU_WORKERS" GPU_WORKERS
+    fi
+    export GPU_WORKERS
+
+    if [[ -z "$GPU_WORKERPOOL_NAME" ]]; then
+      read -e -p 'GPU_WORKERPOOL_NAME> ' -i "gpu" GPU_WORKERPOOL_NAME
+    else
+      read -e -p 'GPU_WORKERPOOL_NAME> ' -i "$GPU_WORKERPOOL_NAME" GPU_WORKERPOOL_NAME
+    fi
+    export GPU_WORKERPOOL_NAME
+  fi
+
+  export REBOOT_WORKER_NODES=false
+  echo ""
+  echo "IBM CloudPak for Data Support"
+  echo "==============================================================================="
+  echo "IBM CloudPak for Data (CP4D) requires your IBM entitlement key to be set as a "
+  echo "global image pull secret.  In IBMCloud ROKS this requires a reboot of all "
+  echo "worker nodes to take place.  If you intend to install CP4D in this cluster you"
+  echo "should answer 'yes' at the prompt below."
+  echo ""
+  confirm "Configure IBM Entitlement Key as Global Image Pull Secret [y/N]" && export REBOOT_WORKER_NODES=true
+
+  if [[ $REBOOT_WORKER_NODES == "true" ]]; then
+    if [[ -z "$CPD_ENTITLEMENT_KEY" ]]; then
+      # Use IBM_ENTITLEMENT_KEY as the default and prompt for key
+      if [[ -z "$IBM_ENTITLEMENT_KEY" ]]; then
+        read -e -p 'CPD_ENTITLEMENT_KEY> ' CPD_ENTITLEMENT_KEY
+      else
+        read -e -p 'CPD_ENTITLEMENT_KEY> ' -i "$IBM_ENTITLEMENT_KEY" CPD_ENTITLEMENT_KEY
+      fi
+    else
+      read -e -p 'CPD_ENTITLEMENT_KEY> ' -i "$CPD_ENTITLEMENT_KEY" CPD_ENTITLEMENT_KEY
+    fi
+    export CPD_ENTITLEMENT_KEY
+  fi
+
+  export UPGRADE_IMAGE_REGISTRY_STORAGE=false
+  echo ""
+  echo "Upgrade Image Registry Capacity"
+  echo "==============================================================================="
+  echo "IBM CloudPak for Data (CP4D) requires a significant amount of storage in your"
+  echo "container registry, by default IBMCloud ROKS only provisions 100GB of storage."
+  echo "If you intend to install multiple CP4D services in this cluster you should "
+  echo "answer 'yes' at the prompt below to upgrade the storage capacity to 400GB."
+  echo ""
+  confirm "Upgrade Image Registry Storage from 100GB to 400GB [y/N]" && export UPGRADE_IMAGE_REGISTRY_STORAGE=true
+
+  true
+}
+
+
+# Show Target
+# -----------------------------------------------------------------------------
+function show_target_roks() {
+  echo ""
+  echo "Summary"
+  echo "==============================================================================="
+  echo "IBMCloud API Key .......... ${IBMCLOUD_APIKEY:0:8}..."
+  echo "Cluster Name .............. $CLUSTER_NAME"
+  echo "OCP Version ............... $OCP_VERSION"
+  echo "Worker Flavour ............ $ROKS_FLAVOR"
+  echo "Worker Nodes .............. $ROKS_WORKERS"
+  echo "Add GPU Worker Nodes ...... $OCP_PROVISION_GPU"
+  if [[ $OCP_PROVISION_GPU == "true" ]]; then
+    echo "GPU Worker Nodes .......... $GPU_WORKERS"
+    echo "GPU Worker Pool Name ...... $GPU_WORKERPOOL_NAME"
+  fi
+  echo "Restart Worker Nodes ...... $REBOOT_WORKER_NODES"
+  if [[ $REBOOT_WORKER_NODES == "true" ]]; then
+    echo "CP4D Entitlement Key ...... ${CPD_ENTITLEMENT_KEY:0:8}..."
+  fi
+  echo "Upgrade Registry Storage .. $UPGRADE_IMAGE_REGISTRY_STORAGE"
+}
+
+
+set_target_roks $1
+show_target_roks
+
+echo ""
+confirm "Proceed with these settings [y/N]" || exit 0
+
+if [[ "$DEV_MODE" == "true" ]]; then
+  build_and_install_local
+else
+  install
+fi
+
+ansible-playbook ibm.mas_devops.ocp_roks_provision
+
+echo ""
+echo "IBM Cloud ROKS cluster is ready to use"
+OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+
+exit 0

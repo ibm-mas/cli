@@ -1,9 +1,12 @@
 #!/bin/bash
 
 function connect() {
+<<<<<<< HEAD
   echo
   echo_h2 "1. Set Target OpenShift Cluster"
 
+=======
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
   PROMPT_FOR_LOGIN=false
   oc whoami &>> $LOGFILE
   if [[ $? == "0" ]]; then
@@ -22,7 +25,10 @@ function connect() {
     echo -ne "${COLOR_RESET}\033[1K"
 
     oc login --token=$OCP_LOGIN_TOKEN --server=$OCP_LOGIN_URL &>> $LOGFILE
+<<<<<<< HEAD
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+=======
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
     echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}${COLOR_RESET}" | tee $LOGFILE
     prompt_for_confirm "Proceed with installation on this cluster" || exit 0
   fi

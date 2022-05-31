@@ -3,12 +3,19 @@
 function install_pipeline() {
   # Install pipelines support
   echo
+<<<<<<< HEAD
   echo_h2 "2. Install OpenShift Pipelines Operator"
   oc apply -f $DIR/templates/subscription.yaml &>> $LOGFILE
 
   echo -en "\033[s" # Save cursor position
   echo -n "Installing OpenShift Pipelines Operator ..."
 
+=======
+  echo_h2 "Install OpenShift Pipelines Operator"
+  oc apply -f $DIR/templates/subscription.yaml &>> $LOGFILE
+
+  set +e
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
   oc get crd tasks.tekton.dev  &>> $LOGFILE
   LOOKUP_RESULT=$?
   while [ "$LOOKUP_RESULT" == "1" ]; do
@@ -17,12 +24,20 @@ function install_pipeline() {
     oc get crd tasks.tekton.dev  &>> $LOGFILE
     LOOKUP_RESULT=$?
   done
+<<<<<<< HEAD
+=======
+  set -e
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
 
   echo "Wait for Pipeline operator to be ready" &>> $LOGFILE
   oc wait --for=condition=Established  crd tasks.tekton.dev  --timeout=30m  &>> $LOGFILE
 
+<<<<<<< HEAD
   echo -en "\033[1K" # Clear current line
   echo -en "\033[u" # Restore cursor position
   echo "${COLOR_GREEN}OpenShift Pipelines Operator is installed and ready${COLOR_RESET}"
   echo
+=======
+  echo "${COLOR_GREEN}OpenShift Pipelines Operator is installed and ready${COLOR_RESET}"
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
 }

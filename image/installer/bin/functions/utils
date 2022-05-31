@@ -27,7 +27,11 @@ function echo_h2() {
 }
 
 function echo_warning() {
+<<<<<<< HEAD
   echo -e "${COLOR_RED}$1${COLOR_RESET}"
+=======
+  echo "${COLOR_RED}$1${COLOR_RESET}"
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
 }
 
 function echo_highlight() {
@@ -77,6 +81,7 @@ function prompt_for_input(){
 }
 
 function prompt_for_confirm() {
+<<<<<<< HEAD
   msg=$1
   varname=$2
   if confirm "${COLOR_YELLOW}$msg ${COLOR_BLUE}[y/N]"; then
@@ -90,11 +95,19 @@ function prompt_for_confirm() {
     if [[ "$varname" != "" ]]; then
       printf -v "$varname" "%s" "false"
     fi
+=======
+  if confirm "${COLOR_YELLOW}$1 ${COLOR_BLUE}[y/N]"; then
+    echo -ne "${COLOR_RESET}\033[1K"
+    true
+  else
+    echo -ne "${COLOR_RESET}\033[1K"
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
     false
   fi
 }
 
 
+<<<<<<< HEAD
 function update_ansible_collections() {
   if [[ "$UPDATE_ANSIBLE" == "true" ]]; then
     if [[ "$DEV_MODE" == "true" ]]; then
@@ -111,6 +124,15 @@ function update_ansible_collections() {
       ansible-galaxy collection install ibm.mas_devops:1.0.0 || exit 1
     fi
   fi
+=======
+function build_and_install_local() {
+  ansible-galaxy collection build /home/david/ibm-mas/ansible-devops/ibm/mas_devops --force
+  ansible-galaxy collection install ibm-mas_devops-11.0.0.tar.gz --force
+}
+
+function install() {
+  ansible-galaxy collection install ibm.mas_devops:10.0.0
+>>>>>>> fccb7cff3345c52b990654f2f34b9241d819370a
 }
 
 
