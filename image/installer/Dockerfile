@@ -1,4 +1,4 @@
-FROM quay.io/ibmmas/ansible-airgap:1.1.0-pre.fixtsm
+FROM quay.io/ibmmas/ansible-airgap:1.1.0-pre.master
 
 ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini /tini
 
