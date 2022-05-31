@@ -15,11 +15,6 @@ function provision_fyre() {
 
   prompt_for_confirm "Configure networking to simulate air gap" SIMULATE_AIRGAP_NETWORK
 
-  # echo "FYRE_USERNAME ............. $FYRE_USERNAME"
-  # echo "FYRE_APIKEY ............... $FYRE_APIKEY"
-  # echo "FYRE_PRODUCT_ID ........... $FYRE_PRODUCT_ID"
-  # echo "CLUSTER_NAME .............. $CLUSTER_NAME"
-  # echo "OCP_VERSION ............... $OCP_VERSION"
   echo
   prompt_for_confirm "Proceed with these settings" || exit 0
   ansible-playbook ibm.mas_devops.ocp_fyre_provision || exit 1

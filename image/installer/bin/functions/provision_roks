@@ -7,9 +7,8 @@ function provision_roks() {
     echo "Provide your IBMCloud API key (if you have not set the IBMCLOUD_APIKEY"
     echo "environment variable) which will be used to provision a ROKS instance."
     echo ""
-    prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY
+    prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY && export IBMCLOUD_APIKEY
   fi
-
   echo ""
   echo_h2 "IBM Cloud ROKS Cluster Configuration"
   echo "Select your worker node flavour and the number of worker nodes to provision."
@@ -110,7 +109,7 @@ function provision_roks() {
   echo ""
   confirm "Proceed with these settings [y/N]" || exit 0
 
-  ansible-playbook ibm.mas_devops.ocp_roks_provision
+  ansible-playbook ibm.mas_devops.ocp_roks_provision || exit 1
 
   echo ""
   echo "IBM Cloud ROKS cluster is ready to use"
