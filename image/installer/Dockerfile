@@ -14,7 +14,7 @@ RUN chmod +x /tini && \
     ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /installer/devops
 
 ENV PATH="/installer/bin:${PATH}" \
-    VERSION $VERSION_LABEL
+    VERSION=$VERSION_LABEL
 
 WORKDIR /installer
 ENTRYPOINT ["/tini", "--"]
