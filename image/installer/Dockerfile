@@ -1,4 +1,4 @@
-FROM quay.io/ibmmas/ansible-airgap:1.1.0-pre.master
+FROM quay.io/ibmmas/ansible-airgap:1.1.0-pre.entitlementconsolidation
 
 ARG VERSION_LABEL
 
