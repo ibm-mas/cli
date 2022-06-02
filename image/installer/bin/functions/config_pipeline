@@ -111,6 +111,29 @@ function config_pipeline() {
     export MAS_APP_SOURCE_MANAGE=''; export MAS_APP_CHANNEL_MANAGE=''
   fi
 
+  # MSO can only be installed before MAS 8.8
+  if [[ "$MAS_CHANNEL" == "8.6.x" || "$MAS_CHANNEL" == "8.7.x" ]]; then
+    if prompt_for_confirm "Install MSO"; then
+      case $MAS_CHANNEL in
+        8.7.x)
+          MAS_APP_CHANNEL_MSO=8.0.x
+          MAS_APP_SOURCE_MSO=ibm-operator-catalog
+          ;;
+        8.6.x)
+          MAS_APP_CHANNEL_MSO=8.1.x
+          MAS_APP_SOURCE_MSO=ibm-operator-catalog
+          ;;
+        *)
+          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MSO
+          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_MSO "ibm-mas-mso-operators"
+          ;;
+      esac
+      export MAS_APP_CHANNEL_MSO; export MAS_APP_SOURCE_MSO
+    else
+      export MAS_APP_CHANNEL_MSO=''; export MAS_APP_SOURCE_MSO='';
+    fi
+  fi
+
   # Applications that require Manage
   if [[ "$MAS_APP_CHANNEL_MANAGE" != '' ]]; then
     if prompt_for_confirm "Install Predict"; then
@@ -132,20 +155,23 @@ function config_pipeline() {
     else
       export MAS_APP_SOURCE_PREDICT=''; export MAS_APP_CHANNEL_PREDICT=''
     fi
-    if prompt_for_confirm "Install Optimizer"; then
-      case $MAS_CHANNEL in
-        8.8.x)
-          MAS_APP_CHANNEL_OPTIMIZER=8.2.x
-          MAS_APP_SOURCE_OPTIMIZER=ibm-operator-catalog
-          ;;
-        *)
-          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_OPTIMIZER
-          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_OPTIMIZER "ibm-mas-optimizer-operators"
-          ;;
-      esac
-      export MAS_APP_CHANNEL_OPTIMIZER; export MAS_APP_SOURCE_OPTIMIZER
-    else
-      export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER='';
+    # Optimizer can only be installed from 8.8 on
+    if [[ "$MAS_CHANNEL" == "8.6.x" || "$MAS_CHANNEL" == "8.7.x" ]]; then
+      if prompt_for_confirm "Install Optimizer"; then
+        case $MAS_CHANNEL in
+          8.8.x)
+            MAS_APP_CHANNEL_OPTIMIZER=8.2.x # not released yet, though not reachable since MAS_CHANNEL cannot be 8.8 (yet)
+            MAS_APP_SOURCE_OPTIMIZER=ibm-operator-catalog
+            ;;
+          *)
+            prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_OPTIMIZER
+            prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_OPTIMIZER "ibm-mas-optimizer-operators"
+            ;;
+        esac
+        export MAS_APP_CHANNEL_OPTIMIZER; export MAS_APP_SOURCE_OPTIMIZER
+      else
+        export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER='';
+      fi
     fi
   else
     # If you're not installing Manage you can't install Predict or Optimizer
