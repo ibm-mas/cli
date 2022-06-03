@@ -111,19 +111,17 @@ function config_pipeline() {
     export MAS_APP_SOURCE_MANAGE=''; export MAS_APP_CHANNEL_MANAGE=''
   fi
 
-  echo "[DEBUG] MAS_CHANNEL = $MAS_CHANNEL"
-  echo $MAS_CHANNEL
   # MSO can only be installed before MAS 8.8
   if [[ "$MAS_CHANNEL" == '8.6.x' || "$MAS_CHANNEL" == '8.7.x' ]]; then
   
     if prompt_for_confirm "Install MSO"; then
       case $MAS_CHANNEL in
         8.7.x)
-          MAS_APP_CHANNEL_MSO=8.0.x
+          MAS_APP_CHANNEL_MSO=8.1.x
           MAS_APP_SOURCE_MSO=ibm-operator-catalog
           ;;
         8.6.x)
-          MAS_APP_CHANNEL_MSO=8.1.x
+          MAS_APP_CHANNEL_MSO=8.0.x
           MAS_APP_SOURCE_MSO=ibm-operator-catalog
           ;;
         *)
