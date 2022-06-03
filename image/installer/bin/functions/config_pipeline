@@ -180,41 +180,45 @@ function config_pipeline() {
     export MAS_APP_SOURCE_OPTIMIZER=''; export MAS_APP_CHANNEL_OPTIMIZER=''
   fi
 
+  echo ""
+  if [[ "$MAS_APP_CHANNEL_MANAGE" != '' || "$MAS_APP_CHANNEL_IOT" != '' ]]; then
+    echo_h2 "4. Configure DB2 Container"
+    prompt_for_input "Entitlement Key" ENTITLEMENT_KEY
+  fi
 
   echo ""
   if [[ "$MAS_CATALOG_SOURCE" == "ibm-mas-operators" ]]; then
     # Development Mode -- offer the ability to set MAS and SLS source independently
-    echo_h2 "4a. Configure Artifactory"
+    echo_h2 "5a. Configure Artifactory"
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
     prompt_for_input "Artifactory API Key" ARTIFACTORY_APIKEY
 
-    echo_h2 "4b. Configure IBM Container Registry (MAS)"
+    echo_h2 "5b. Configure IBM Container Registry (MAS)"
     prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com
     prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com
     prompt_for_input "Entitlement Username" MAS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME
     prompt_for_input "Entitlement Key" MAS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY
 
     echo
-    echo_h2 "4c. Configure IBM Container Registry (SLS)"
+    echo_h2 "5c. Configure IBM Container Registry (SLS)"
     prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com
     prompt_for_input "Entitlement Username" SLS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME
     prompt_for_input "Entitlement Key" SLS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
-    echo_h2 "4. Configure IBM Container Registry"
+    echo_h2 "5. Configure IBM Container Registry"
     prompt_for_input "IBM Entitled Registry" MAS_ICR_CP cp.icr.io/cp
     prompt_for_input "IBM Container Registry" MAS_ICR_CPOPEN icr.io/cpopen
     prompt_for_input "Entitlement Username" MAS_ENTITLEMENT_USERNAME cp
     prompt_for_input "Entitlement Key" MAS_ENTITLEMENT_KEY $MAS_ENTITLEMENT_KEY
-
     export SLS_ICR_CP=cp.icr.io/cp
     export SLS_ICR_CPOPEN=icr.io/cpopen
     export SLS_ENTITLEMENT_USERNAME=cp
     export SLS_ENTITLEMENT_KEY=$MAS_ENTITLEMENT_KEY
   fi
   echo
-  echo_h2 "5. Configure Product License"
+  echo_h2 "6. Configure Product License"
   prompt_for_input "License ID" SLS_LICENSE_ID
   prompt_for_input "License File" SLS_LICENSE_FILE_LOCAL
   if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
@@ -227,9 +231,8 @@ function config_pipeline() {
   prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
   prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
 
-
   echo
-  echo_h2 "6. Prepare Installation"
+  echo_h2 "7. Prepare Installation"
   # Auto-detect based on available storage classes
   # ----------------------------------------------
   # 1. ROKS

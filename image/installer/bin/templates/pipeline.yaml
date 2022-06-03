@@ -1291,7 +1291,7 @@ spec:
       runAfter:
         - app-install-mso
 
-# 16.3 Optimizer Install
+    # 16.3 Optimizer Install  
     - name: app-install-optimizer
       params:
         - name: devops_suite_name
