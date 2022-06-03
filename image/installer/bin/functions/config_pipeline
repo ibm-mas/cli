@@ -156,7 +156,7 @@ function config_pipeline() {
       export MAS_APP_SOURCE_PREDICT=''; export MAS_APP_CHANNEL_PREDICT=''
     fi
     # Optimizer can only be installed from 8.8 on
-    if [[ "$MAS_CHANNEL" == "8.6.x" || "$MAS_CHANNEL" == "8.7.x" ]]; then
+    if [[ "$MAS_CHANNEL" != "8.6.x" && "$MAS_CHANNEL" != "8.7.x" ]]; then
       if prompt_for_confirm "Install Optimizer"; then
         case $MAS_CHANNEL in
           8.8.x)
