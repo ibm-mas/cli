@@ -77,7 +77,7 @@ function show_config() {
   echo_reset_dim "First Name ................ ${COLOR_BLUE}${UDS_CONTACT_FIRSTNAME}"
   echo_reset_dim "Last Name ................. ${COLOR_BLUE}${UDS_CONTACT_LASTNAME}"
 
-  if [[ "${MAS_APP_CHANNEL_MANAGE}/${MAS_APP_CHANNEL_IOT}" == '/' ]] then
+  if [[ "${MAS_APP_CHANNEL_MANAGE}/${MAS_APP_CHANNEL_IOT}" != '/' ]]; then
     reset_colors
     echo "${TEXT_DIM}"
     echo_h2 "DB2 Container" "    "

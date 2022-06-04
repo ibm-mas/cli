@@ -103,7 +103,7 @@ function config_pipeline() {
         ;;
       *)
         prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MANAGE
-        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_SAFETY "ibm-mas-manage-operators"
+        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_MANAGE "ibm-mas-manage-operators"
         ;;
     esac
     export MAS_APP_CHANNEL_MANAGE; export MAS_APP_SOURCE_MANAGE
