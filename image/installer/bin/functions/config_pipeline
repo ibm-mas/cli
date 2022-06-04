@@ -165,14 +165,17 @@ function config_pipeline() {
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
     prompt_for_input "Artifactory API Key" ARTIFACTORY_APIKEY
 
-    echo_h2 "4b. Configure IBM Container Registry (MAS)"
+    echo_h2 "4b. Configure IBM Container Registry"
+    prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
+
+    echo_h2 "4c. Configure IBM Container Registry (MAS)"
     prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com
     prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com
     prompt_for_input "Entitlement Username" MAS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME
     prompt_for_input "Entitlement Key" MAS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY
 
     echo
-    echo_h2 "4c. Configure IBM Container Registry (SLS)"
+    echo_h2 "4d. Configure IBM Container Registry (SLS)"
     prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com
     prompt_for_input "Entitlement Username" SLS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME
@@ -180,15 +183,18 @@ function config_pipeline() {
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
     echo_h2 "4. Configure IBM Container Registry"
-    prompt_for_input "IBM Entitled Registry" MAS_ICR_CP cp.icr.io/cp
-    prompt_for_input "IBM Container Registry" MAS_ICR_CPOPEN icr.io/cpopen
-    prompt_for_input "Entitlement Username" MAS_ENTITLEMENT_USERNAME cp
-    prompt_for_input "Entitlement Key" MAS_ENTITLEMENT_KEY $MAS_ENTITLEMENT_KEY
+    prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
+
+    # Use defaults
+    export MAS_ICR_CP=cp.icr.io/cp
+    export MAS_ICR_CPOPEN=icr.io/cpopen
+    export MAS_ENTITLEMENT_USERNAME=cp
+    export MAS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
 
     export SLS_ICR_CP=cp.icr.io/cp
     export SLS_ICR_CPOPEN=icr.io/cpopen
     export SLS_ENTITLEMENT_USERNAME=cp
-    export SLS_ENTITLEMENT_KEY=$MAS_ENTITLEMENT_KEY
+    export SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   fi
   echo
   echo_h2 "5. Configure Product License"
@@ -260,7 +266,7 @@ function config_pipeline() {
   echo -en "\033[s" # Save cursor position
   echo -n "Preparing namespace 'mas-$MAS_INSTANCE_ID-pipelines' ..."
 
-  export PIPELINE_VERSION=10.1.0-pre.master
+  export PIPELINE_VERSION=10.1.0-pre.entitlementconsolidation
   if [ ! -e $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml ]; then
     wget https://github.com/ibm-mas/ansible-devops/releases/download/$PIPELINE_VERSION/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml -O $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml  &>> $LOGFILE
   fi

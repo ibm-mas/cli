@@ -19,6 +19,10 @@ spec:
     - name: artifactory_apikey
       value: '$ARTIFACTORY_APIKEY'
 
+    # Dependencies - IBM Entitlement Key
+    - name: ibm_entitlement_key
+      value: '$IBM_ENTITLEMENT_KEY'
+
     # Dependencies - CP4D
     - name: temp_deploy_cp4d
       value: 'skip'

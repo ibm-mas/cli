@@ -42,6 +42,9 @@ spec:
       type: string
       description: Required to install development MAS catalogs
 
+    - name: ibm_entitlement_key        # Required
+      type: string
+
     # Dependencies - CP4D
     # This will be removed once we wire up CP4D installation to the applications
     - name: temp_deploy_cp4d
@@ -65,8 +68,10 @@ spec:
     - name: sls_entitlement_username
       type: string
       default: ""
-    - name: sls_entitlement_key        # Required
+    - name: sls_entitlement_key
       type: string
+      default: ""
+      description: Override IBM Entitlement key for SLS installation
 
     # Dependencies - Mongo
     - name: mongodb_storage_class
@@ -140,8 +145,10 @@ spec:
     - name: mas_entitlement_username
       type: string
       default: ""
-    - name: mas_entitlement_key        # Required
+    - name: mas_entitlement_key
       type: string
+      default: ""
+      description: Override IBM Entitlement key for MAS installation
 
     # MAS Configuration - Workspace
     - name: mas_workspace_id
@@ -526,6 +533,8 @@ spec:
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
 
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
         - name: db2_instance_name
           value: db2u-shared
         - name: mas_instance_id
@@ -575,6 +584,8 @@ spec:
           value: $(params.sls_icr_cpopen)
         - name: sls_entitlement_username
           value: $(params.sls_entitlement_username)
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
         - name: sls_entitlement_key
           value: $(params.sls_entitlement_key)
       taskRef:
@@ -688,9 +699,11 @@ spec:
         - name: mas_icr_cpopen
           value: $(params.mas_icr_cpopen)
         - name: mas_entitlement_username
-          value: $(params.sls_entitlement_username)
+          value: $(params.mas_entitlement_username)
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
         - name: mas_entitlement_key
-          value: $(params.sls_entitlement_key)
+          value: $(params.mas_entitlement_key)
 
       taskRef:
         kind: Task
@@ -834,9 +847,12 @@ spec:
         - name: mas_icr_cp
           value: $(params.mas_icr_cp)
         - name: mas_entitlement_username
-          value: $(params.sls_entitlement_username)
+          value: $(params.mas_entitlement_username)
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
         - name: mas_entitlement_key
-          value: $(params.sls_entitlement_key)
+          value: $(params.mas_entitlement_key)
+
       taskRef:
         name: mas-devops-suite-app-install
         kind: Task
@@ -904,9 +920,12 @@ spec:
         - name: mas_icr_cp
           value: $(params.mas_icr_cp)
         - name: mas_entitlement_username
-          value: $(params.sls_entitlement_username)
+          value: $(params.mas_entitlement_username)
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
         - name: mas_entitlement_key
-          value: $(params.sls_entitlement_key)
+          value: $(params.mas_entitlement_key)
+
       taskRef:
         name: mas-devops-suite-app-install
         kind: Task
@@ -973,9 +992,11 @@ spec:
         - name: mas_icr_cp
           value: $(params.mas_icr_cp)
         - name: mas_entitlement_username
-          value: $(params.sls_entitlement_username)
+          value: $(params.mas_entitlement_username)
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
         - name: mas_entitlement_key
-          value: $(params.sls_entitlement_key)
+          value: $(params.mas_entitlement_key)
       taskRef:
         name: mas-devops-suite-app-install
         kind: Task
@@ -1067,9 +1088,11 @@ spec:
         - name: mas_icr_cp
           value: $(params.mas_icr_cp)
         - name: mas_entitlement_username
-          value: $(params.sls_entitlement_username)
+          value: $(params.mas_entitlement_username)
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
         - name: mas_entitlement_key
-          value: $(params.sls_entitlement_key)
+          value: $(params.mas_entitlement_key)
       taskRef:
         name: mas-devops-suite-app-install
         kind: Task
@@ -1138,9 +1161,11 @@ spec:
         - name: mas_icr_cp
           value: $(params.mas_icr_cp)
         - name: mas_entitlement_username
-          value: $(params.sls_entitlement_username)
+          value: $(params.mas_entitlement_username)
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
         - name: mas_entitlement_key
-          value: $(params.sls_entitlement_key)
+          value: $(params.mas_entitlement_key)
       taskRef:
         name: mas-devops-suite-app-install
         kind: Task
@@ -1208,9 +1233,11 @@ spec:
         - name: mas_icr_cp
           value: $(params.mas_icr_cp)
         - name: mas_entitlement_username
-          value: $(params.sls_entitlement_username)
+          value: $(params.mas_entitlement_username)
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
         - name: mas_entitlement_key
-          value: $(params.sls_entitlement_key)
+          value: $(params.mas_entitlement_key)
       taskRef:
         name: mas-devops-suite-app-install
         kind: Task
