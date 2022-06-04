@@ -183,7 +183,7 @@ function config_pipeline() {
   echo ""
   if [[ "$MAS_APP_CHANNEL_MANAGE" != '' || "$MAS_APP_CHANNEL_IOT" != '' ]]; then
     echo_h2 "4. Configure DB2 Container"
-    prompt_for_input "Entitlement Key" ENTITLEMENT_KEY
+    prompt_for_input "Entitlement Key" CPD_ENTITLEMENT_KEY
   fi
 
   echo ""
