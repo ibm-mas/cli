@@ -212,7 +212,14 @@ function config_pipeline() {
 
 
   echo
-  echo_h2 "6. Prepare Installation"
+  echo_h2 "6. Install Cloud Pak For Data"
+  echo "Watson Studio, Watson Machine Learning, Watson Discovery, & Analytics Service will all be installed"
+  DEPLOY_CP4D=skip
+  prompt_for_confirm "Install Cloud Pak for Data" && DEPLOY_CP4D=run
+
+
+  echo
+  echo_h2 "7. Prepare Installation"
   # Auto-detect based on available storage classes
   # ----------------------------------------------
   # 1. ROKS

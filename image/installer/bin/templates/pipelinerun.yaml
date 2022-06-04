@@ -25,7 +25,7 @@ spec:
 
     # Dependencies - CP4D
     - name: temp_deploy_cp4d
-      value: 'skip'
+      value: '$DEPLOY_CP4D'
 
     # Dependencies - SLS
     - name: sls_license_id
