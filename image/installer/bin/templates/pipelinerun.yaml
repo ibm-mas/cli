@@ -24,6 +24,9 @@ spec:
       value: '$IBM_ENTITLEMENT_KEY'
 
     # Dependencies - CP4D
+    - name: cpd_product_version
+      value: '4.0.9'
+
     - name: temp_deploy_cp4d
       value: '$DEPLOY_CP4D'
 
