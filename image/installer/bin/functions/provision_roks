@@ -27,9 +27,9 @@ function provision_roks() {
 
   echo
   echo "OCP Version:"
-  echo "  1. 4.10 EUS (MAS 8.8)"
+  echo "  1. 4.10 EUS (MAS 8.7-8.8)"
   echo "  2. 4.8 EUS  (MAS 8.6-8.8)"
-  prompt_for_input "Select Version" OCP_VERSION_SELECTION "2"
+  prompt_for_input "Select Version" OCP_VERSION_SELECTION "1"
 
   case $OCP_VERSION_SELECTION in
     1|4.10|4.10\ EUS)
@@ -64,27 +64,27 @@ function provision_roks() {
     prompt_for_input "GPU Worker Pool Name" GPU_WORKERPOOL_NAME "gpu" && export GPU_WORKERPOOL_NAME
   fi
 
-  export REBOOT_WORKER_NODES=false
-  echo ""
-  echo_h2 "IBM CloudPak for Data Support"
-  echo "IBM CloudPak for Data (CP4D) requires your IBM entitlement key to be set as a "
-  echo "global image pull secret.  In IBMCloud ROKS this requires a reboot of all "
-  echo "worker nodes to take place.  If you intend to install CP4D in this cluster you"
-  echo "should answer 'yes' at the prompt below."
-  echo ""
-  prompt_for_confirm "Configure IBM Entitlement Key as Global Image Pull Secret" && export REBOOT_WORKER_NODES=true
+  # As of v10.1.0 of ibm.mas_devops this is no longer required.
+  # Retaining for reference in the short term
+  # export REBOOT_WORKER_NODES=false
+  # echo ""
+  # echo_h2 "IBM CloudPak for Data Support"
+  # echo "IBM CloudPak for Data (CP4D) requires your IBM entitlement key to be set as a "
+  # echo "global image pull secret.  In IBMCloud ROKS this requires a reboot of all "
+  # echo "worker nodes to take place.  If you intend to install CP4D in this cluster you"
+  # echo "should answer 'yes' at the prompt below."
+  # echo ""
+  # prompt_for_confirm "Configure IBM Entitlement Key as Global Image Pull Secret" && export REBOOT_WORKER_NODES=true
 
-  if [[ $REBOOT_WORKER_NODES == "true" ]]; then
-    prompt_for_input "IBM Entitlement Key" CPD_ENTITLEMENT_KEY "$IBM_ENTITLEMENT_KEY" && export CPD_ENTITLEMENT_KEY
-  fi
+  # if [[ $REBOOT_WORKER_NODES == "true" ]]; then
+  #   prompt_for_input "IBM Entitlement Key" CPD_ENTITLEMENT_KEY "$IBM_ENTITLEMENT_KEY" && export CPD_ENTITLEMENT_KEY
+  # fi
 
   export UPGRADE_IMAGE_REGISTRY_STORAGE=false
   echo ""
   echo_h2 "Upgrade Image Registry Capacity"
-  echo "IBM CloudPak for Data (CP4D) requires a significant amount of storage in your"
-  echo "container registry, by default IBMCloud ROKS only provisions 100GB of storage."
-  echo "If you intend to install multiple CP4D services in this cluster you should "
-  echo "answer 'yes' at the prompt below to upgrade the storage capacity to 400GB."
+  echo "By default IBMCloud ROKS provisions 100GB of storage for the internal container registry."
+  echo "Answer 'yes' at the prompt below to upgrade the storage capacity to 400GB."
   echo ""
   prompt_for_confirm "Upgrade Image Registry Storage from 100GB to 400GB" && export UPGRADE_IMAGE_REGISTRY_STORAGE=true
 
@@ -100,10 +100,10 @@ function provision_roks() {
     echo "GPU Worker Nodes .......... $GPU_WORKERS"
     echo "GPU Worker Pool Name ...... $GPU_WORKERPOOL_NAME"
   fi
-  echo "Restart Worker Nodes ...... $REBOOT_WORKER_NODES"
-  if [[ $REBOOT_WORKER_NODES == "true" ]]; then
-    echo "CP4D Entitlement Key ...... ${CPD_ENTITLEMENT_KEY:0:8}..."
-  fi
+#  echo "Restart Worker Nodes ...... $REBOOT_WORKER_NODES"
+#  if [[ $REBOOT_WORKER_NODES == "true" ]]; then
+#    echo "CP4D Entitlement Key ...... ${CPD_ENTITLEMENT_KEY:0:8}..."
+#  fi
   echo "Upgrade Registry Storage .. $UPGRADE_IMAGE_REGISTRY_STORAGE"
 
   echo ""
