@@ -46,7 +46,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - appconnect
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -103,7 +103,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cert_manager
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -195,7 +195,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cluster_monitoring
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -251,7 +251,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - common_services
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -301,7 +301,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cos
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -391,7 +391,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cp4d
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/cp4d_service.yaml
@@ -483,7 +483,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cp4d_service
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -619,7 +619,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - db2
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -685,7 +685,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - gencfg_workspace
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -752,7 +752,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - ibm_catalogs
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -828,7 +828,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - kafka
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -885,7 +885,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - mongodb
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -938,7 +938,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - nvidia_gpu
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -997,7 +997,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - sbo
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -1021,6 +1021,12 @@ spec:
       type: string
     - name: sls_mongodb_cfg_file
       type: string
+    - name: sls_catalog_source
+      type: string
+      default: ""
+    - name: sls_channel
+      type: string
+      default: ""
     - name: sls_icr_cp
       type: string
       default: ""
@@ -1085,6 +1091,10 @@ spec:
         value: $(params.sls_license_id)
       - name: SLS_LICENSE_FILE
         value: $(params.sls_license_file)
+      - name: SLS_CATALOG_SOURCE
+        value: $(params.sls_catalog_source)
+      - name: SLS_CHANNEL
+        value: $(params.sls_channel)
       - name: SLS_ICR_CP
         value: $(params.sls_icr_cp)
       - name: SLS_ICR_CPOPEN
@@ -1115,7 +1125,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - sls
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -1186,7 +1196,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_app_config
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-app-install.yaml
@@ -1306,7 +1316,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_app_install
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-config.yaml
@@ -1358,7 +1368,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_config
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -1424,7 +1434,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_db2_setup_for_manage
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-dns.yaml
@@ -1474,7 +1484,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_dns
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-install.yaml
@@ -1600,7 +1610,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_install
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -1635,14 +1645,14 @@ spec:
     - name: clear-mustgather
       command:
         - /opt/app-root/src/clear-mustgather-workspace.sh
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/mustgather
     - name: suite-mustgather
       command:
         - /opt/app-root/src/run-role.sh
         - suite_mustgather
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/mustgather
 
@@ -1695,7 +1705,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_verify
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/uds.yaml
@@ -1762,7 +1772,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - uds
-      image: quay.io/ibmmas/ansible-devops:10.1.0-pre.entitlementconsolidation
+      image: quay.io/ibmmas/ansible-devops:10.1.0
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
