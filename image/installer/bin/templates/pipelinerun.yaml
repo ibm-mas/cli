@@ -23,6 +23,10 @@ spec:
     - name: ibm_entitlement_key
       value: '$IBM_ENTITLEMENT_KEY'
 
+    # Dependencies - DB2
+    - name: db2_entitlement_key
+      value: '$DB2_ENTITLEMENT_KEY'
+
     # Dependencies - CP4D
     - name: cpd_product_version
       value: '4.0.9'
