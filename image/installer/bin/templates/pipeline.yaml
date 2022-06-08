@@ -34,16 +34,17 @@ spec:
   params:
     # Development Build Support
     - name: artifactory_username
-      default: ''
+      default: ""
       type: string
       description: Required to install development MAS catalogs
     - name: artifactory_apikey
-      default: ''
+      default: ""
       type: string
       description: Required to install development MAS catalogs
 
     - name: ibm_entitlement_key        # Required
       type: string
+      description: IBM Entitlement Key
 
     # Dependencies - CP4D
     # This will be removed once we wire up CP4D installation to the applications
@@ -105,10 +106,6 @@ spec:
     - name: cpd_metadata_storage_class
       type: string
       default: ""
-    - name: cpd_entitlement_key
-      type: string
-      default: ""
-      description: Override IBM Entitlement key for CP4D installation
 
     # Dependencies - CP4D Services
     - name: cpd_product_version        # Required
@@ -151,6 +148,9 @@ spec:
     - name: mas_entitlement_username
       type: string
       default: ""
+    - name: mas_annotations
+      type: string
+      default: ""
     - name: mas_entitlement_key
       type: string
       default: ""
@@ -172,6 +172,12 @@ spec:
       description: Manage components to configure in the workspace
       default: "base=latest,health=latest"
 
+    # MAS Configuration - Optimizer Application
+    - name: mas_app_plan_optimizer
+      type: string
+      description: Configure install plan of Optimizer application (full or limited)
+      default: full
+
     # MAS Configuration - Application Channels
     - name: mas_app_channel_iot
       type: string
@@ -185,9 +191,9 @@ spec:
       type: string
       description: Subscription channel for Monitor application operator
       default: ""
-    - name: mas_app_channel_mso
+    - name: mas_app_channel_optimizer
       type: string
-      description: Subscription channel for MSO application operator
+      description: Subscription channel for Optimizer application operator
       default: ""
     - name: mas_app_channel_predict
       type: string
@@ -211,9 +217,9 @@ spec:
       type: string
       description: Subscription source for Monitor application operator
       default: ibm-operator-catalog
-    - name: mas_app_source_mso
+    - name: mas_app_source_optimizer
       type: string
-      description: Subscription source for MSO application operator
+      description: Subscription source for Optimizer application operator
       default: ibm-operator-catalog
     - name: mas_app_source_predict
       type: string
@@ -224,6 +230,7 @@ spec:
       description: Subscription source for Safety application operator
       default: ibm-operator-catalog
 
+    # Persist Results (Optional)
     - name: devops_mongo_uri
       type: string
       default: ""
@@ -241,8 +248,6 @@ spec:
       params:
         - name: ibm_entitlement_key
           value: $(params.ibm_entitlement_key)
-        - name: cpd_entitlement_key
-          value: $(params.cpd_entitlement_key)
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -723,6 +728,8 @@ spec:
           value: $(params.ibm_entitlement_key)
         - name: mas_entitlement_key
           value: $(params.mas_entitlement_key)
+        - name: mas_annotations
+          value: $(params.mas_annotations)
 
       taskRef:
         kind: Task
@@ -1225,13 +1232,13 @@ spec:
         - app-install-predict
 
 
-    # 16. MSO
+    # 16. Optimizer
     # -------------------------------------------------------------------------
-    # 16.1 MSO Install
-    - name: app-install-mso
+    # 16.1 Optimizer Install
+    - name: app-install-optimizer
       params:
         - name: devops_suite_name
-          value: app-mso-install
+          value: app-optimizer-install
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
@@ -1240,15 +1247,17 @@ spec:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_app_id
-          value: mso
+          value: optimizer
         - name: artifactory_username
           value: $(params.artifactory_username)
         - name: artifactory_apikey
           value: $(params.artifactory_apikey)
         - name: mas_app_channel
-          value: "$(params.mas_app_channel_mso)"
+          value: "$(params.mas_app_channel_optimizer)"
         - name: mas_app_catalog_source
-          value: "$(params.mas_app_source_mso)"
+          value: "$(params.mas_app_source_optimizer)"
+        - name: mas_app_plan
+          value: "$(params.mas_app_plan_optimizer)"
         - name: mas_icr_cp
           value: $(params.mas_icr_cp)
         - name: mas_entitlement_username
@@ -1260,19 +1269,19 @@ spec:
       taskRef:
         name: mas-devops-suite-app-install
         kind: Task
-      # Only install MSO if a channel has been chosen
+      # Only install Optimizer if a channel has been chosen
       when:
-        - input: "$(params.mas_app_channel_mso)"
+        - input: "$(params.mas_app_channel_optimizer)"
           operator: notin
           values: [""]
       runAfter:
-        - app-cfg-manage
+        - suite-verify
 
-    # 16.2 Configure MSO workspace
-    - name: app-cfg-mso
+    # 16.2 Configure Optimizer workspace
+    - name: app-cfg-optimizer
       params:
         - name: devops_suite_name
-          value: app-mso-cfg
+          value: app-optimizer-cfg
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
@@ -1281,19 +1290,20 @@ spec:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_app_id
-          value: mso
+          value: optimizer
         - name: mas_workspace_id
           value: "$(params.mas_workspace_id)"
+
       taskRef:
         name: mas-devops-suite-app-config
         kind: Task
-      # Only install MSO if a channel has been chosen
+      # Only install Optimizer if a channel has been chosen
       when:
-        - input: "$(params.mas_app_channel_mso)"
+        - input: "$(params.mas_app_channel_optimizer)"
           operator: notin
           values: [""]
       runAfter:
-        - app-install-mso
+        - app-install-optimizer
 
 
   # 17. Mustgather executed in finally block. Use suite_mustgather_download

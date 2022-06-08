@@ -103,7 +103,7 @@ function config_pipeline() {
         ;;
       *)
         prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MANAGE
-        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_SAFETY "ibm-mas-manage-operators"
+        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_MANAGE "ibm-mas-manage-operators"
         ;;
     esac
     export MAS_APP_CHANNEL_MANAGE; export MAS_APP_SOURCE_MANAGE
@@ -132,31 +132,39 @@ function config_pipeline() {
     else
       export MAS_APP_SOURCE_PREDICT=''; export MAS_APP_CHANNEL_PREDICT=''
     fi
-    if prompt_for_confirm "Install Optimizer"; then
-      case $MAS_CHANNEL in
-        8.7.x)
-          MAS_APP_CHANNEL_MSO=8.1.x
-          MAS_APP_SOURCE_MSO=ibm-operator-catalog
-          ;;
-        8.6.x)
-          MAS_APP_CHANNEL_MSO=8.0.x
-          MAS_APP_SOURCE_MSO=ibm-operator-catalog
-          ;;
-        *)
-          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MSO
-          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_PREDICT "ibm-mas-mso-operators"
-          ;;
-      esac
-      export MAS_APP_CHANNEL_MSO; export MAS_APP_SOURCE_MSO
-    else
-      export MAS_APP_SOURCE_MSO=''; export MAS_APP_CHANNEL_MSO=''
-    fi
   else
-    # If you're not installing Manage you can't install Predict or Optimizer
+    # If you're not installing Manage you can't install Predict
     export MAS_APP_SOURCE_PREDICT=''; export MAS_APP_CHANNEL_PREDICT=''
-    export MAS_APP_SOURCE_MSO=''; export MAS_APP_CHANNEL_MSO=''
   fi
 
+  # Optimizer can only be installed from 8.8 on
+  if [[ "$MAS_CHANNEL" != '8.6.x' && "$MAS_CHANNEL" != '8.7.x' ]]; then
+    if prompt_for_confirm "Install Optimizer"; then
+      case $MAS_CHANNEL in
+        8.8.x)
+          MAS_APP_CHANNEL_OPTIMIZER=8.2.x # not released yet, though not reachable since MAS_CHANNEL cannot be 8.8 (yet)
+          MAS_APP_SOURCE_OPTIMIZER=ibm-operator-catalog
+          ;;
+        *)
+          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_OPTIMIZER
+          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_OPTIMIZER "ibm-mas-optimizer-operators"
+          ;;
+      esac
+      export MAS_APP_CHANNEL_OPTIMIZER; export MAS_APP_SOURCE_OPTIMIZER;
+      # Optimizer install Plan + Validation
+      while : ; do
+        prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full"
+        [[ "$MAS_APP_PLAN_OPTIMIZER" != "full" && "$MAS_APP_PLAN_OPTIMIZER" != "limited" ]] || break
+      done
+      export MAS_APP_PLAN_OPTIMIZER;
+    else
+      # User chose not to install Optimizer
+      export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER='';
+    fi
+  else
+    # These versions of MAS don't support the optimizer application
+    export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER='';
+  fi
 
   echo ""
   if [[ "$MAS_CATALOG_SOURCE" == "ibm-mas-operators" ]]; then
@@ -180,6 +188,7 @@ function config_pipeline() {
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com
     prompt_for_input "Entitlement Username" SLS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME
     prompt_for_input "Entitlement Key" SLS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY
+
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
     echo_h2 "4. Configure IBM Container Registry"
@@ -196,6 +205,7 @@ function config_pipeline() {
     export SLS_ENTITLEMENT_USERNAME=cp
     export SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   fi
+
   echo
   echo_h2 "5. Configure Product License"
   prompt_for_input "License ID" SLS_LICENSE_ID
@@ -206,20 +216,20 @@ function config_pipeline() {
   fi
   export SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
 
+  echo
+  echo_h2 "6. Configure UDS"
   prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
   prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
   prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
 
-
   echo
-  echo_h2 "6. Install Cloud Pak For Data"
+  echo_h2 "7. Install Cloud Pak For Data"
   echo "Watson Studio, Watson Machine Learning, Watson Discovery, & Analytics Service will all be installed"
   DEPLOY_CP4D=skip
   prompt_for_confirm "Install Cloud Pak for Data" && DEPLOY_CP4D=run
 
-
   echo
-  echo_h2 "7. Prepare Installation"
+  echo_h2 "8. Prepare Installation"
   # Auto-detect based on available storage classes
   # ----------------------------------------------
   # 1. ROKS
@@ -273,8 +283,7 @@ function config_pipeline() {
   echo -en "\033[s" # Save cursor position
   echo -n "Preparing namespace 'mas-$MAS_INSTANCE_ID-pipelines' ..."
 
-
-  export PIPELINE_VERSION=10.1.0
+  export PIPELINE_VERSION=10.1.1-pre.master
   if [ ! -e $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml ]; then
     wget https://github.com/ibm-mas/ansible-devops/releases/download/$PIPELINE_VERSION/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml -O $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml  &>> $LOGFILE
   fi
