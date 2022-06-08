@@ -1261,7 +1261,7 @@ spec:
         - name: mas_icr_cp
           value: $(params.mas_icr_cp)
         - name: mas_entitlement_username
-          value: $(params.sls_entitlement_username)
+          value: $(params.mas_entitlement_username)
         - name: ibm_entitlement_key
           value: $(params.ibm_entitlement_key)
         - name: mas_entitlement_key
