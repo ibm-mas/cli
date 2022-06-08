@@ -60,9 +60,14 @@ confirm() {
 function prompt_for_input(){
   msg=$1
   varname=$2
-  if [[ -z "${!varname}" ]]; then
+  # When override is set, the default provided in $3 will override the saved default
+  override=$4
+
+  if [[ -z "${!varname}" || "$override" == "override" ]]; then
+    # Use the script default
     default=$3
   else
+    # Use the saved default
     default=${!varname}
   fi
 
