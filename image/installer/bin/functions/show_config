@@ -17,6 +17,7 @@ function show_config() {
   echo_h2 "Overall" "    "
   echo_reset_dim "IBM Entitlement Key ....... ${COLOR_BLUE}${IBM_ENTITLEMENT_KEY:0:8}..."
   
+  reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ............... ${COLOR_BLUE}${MAS_INSTANCE_ID}"
