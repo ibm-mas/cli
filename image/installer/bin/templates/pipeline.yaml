@@ -34,16 +34,18 @@ spec:
   params:
     # Development Build Support
     - name: artifactory_username
-      default: ''
+      default: ""
       type: string
       description: Required to install development MAS catalogs
     - name: artifactory_apikey
-      default: ''
+      default: ""
       type: string
       description: Required to install development MAS catalogs
 
     - name: ibm_entitlement_key        # Required
+      default: ""
       type: string
+      description: IBM Entitlement Key
 
     # Dependencies - CP4D
     # This will be removed once we wire up CP4D installation to the applications

@@ -12,6 +12,11 @@ function show_config() {
 
   reset_colors
   echo_h2 "\n8. Review Settings"
+  
+  echo "${TEXT_DIM}"
+  echo_h2 "Overall" "    "
+  echo_reset_dim "IBM Entitlement Key ....... ${COLOR_BLUE}${IBM_ENTITLEMENT_KEY:0:8}..."
+  
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ............... ${COLOR_BLUE}${MAS_INSTANCE_ID}"
@@ -83,7 +88,7 @@ function show_config() {
     reset_colors
     echo "${TEXT_DIM}"
     echo_h2 "DB2 Container" "    "
-    echo_reset_dim "Entitlement Key ............${COLOR_BLUE}${DB2_ENTITLEMENT_KEY:0:8}"
+    echo_reset_dim "Entitlement Key ............${COLOR_BLUE}${DB2_ENTITLEMENT_KEY:0:8}..."
   fi
 
   reset_colors
