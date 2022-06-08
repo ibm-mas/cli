@@ -54,10 +54,8 @@ function show_config() {
   fi
 
   if [[ "${MAS_APP_SOURCE_OPTIMIZER}/${MAS_APP_CHANNEL_OPTIMIZER}" == '/' ]]
-  then echo_reset_dim "Optimizer ............. ${COLOR_RED}Skip Installation"
-  else
-    echo_reset_dim "Optimizer ............. ${COLOR_BLUE}${MAS_APP_SOURCE_OPTIMIZER}/${MAS_APP_CHANNEL_OPTIMIZER}"
-    echo_reset_dim " > Install Plan ......... ${COLOR_BLUE}${MAS_APP_PLAN_OPTIMIZER}"
+  then echo_reset_dim "Optimizer ................ ${COLOR_RED}Skip Installation"
+  else echo_reset_dim "Optimizer ................ ${COLOR_BLUE}${MAS_APP_SOURCE_OPTIMIZER}/${MAS_APP_CHANNEL_OPTIMIZER} (${MAS_APP_PLAN_OPTIMIZER})"
   fi
 
   reset_colors
