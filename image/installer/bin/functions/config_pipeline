@@ -187,15 +187,9 @@ function config_pipeline() {
   fi
 
   echo ""
-  if [[ "$MAS_APP_CHANNEL_MANAGE" != '' || "$MAS_APP_CHANNEL_IOT" != '' ]]; then
-    echo_h2 "4. Configure DB2 Container"
-    prompt_for_input "Entitlement Key" CPD_ENTITLEMENT_KEY
-  fi
-
-  echo ""
   if [[ "$MAS_CATALOG_SOURCE" == "ibm-mas-operators" ]]; then
     # Development Mode -- offer the ability to set MAS and SLS source independently
-    echo_h2 "5a. Configure Artifactory"
+    echo_h2 "4a. Configure Artifactory"
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
     prompt_for_input "Artifactory API Key" ARTIFACTORY_APIKEY
 
@@ -214,6 +208,13 @@ function config_pipeline() {
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com
     prompt_for_input "Entitlement Username" SLS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME
     prompt_for_input "Entitlement Key" SLS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY
+
+    if [[ "$MAS_APP_CHANNEL_MANAGE" != '' || "$MAS_APP_CHANNEL_IOT" != '' ]]; then
+      echo
+      echo_h2 "4e. Configure DB2 Container"
+      prompt_for_input "Entitlement Key" CPD_ENTITLEMENT_KEY
+    fi
+
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
     echo_h2 "4. Configure IBM Container Registry"
@@ -229,6 +230,8 @@ function config_pipeline() {
     export SLS_ICR_CPOPEN=icr.io/cpopen
     export SLS_ENTITLEMENT_USERNAME=cp
     export SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
+
+    export CPD_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   fi
   echo
   echo_h2 "6. Configure Product License"
