@@ -229,6 +229,19 @@ function config_pipeline() {
   DEPLOY_CP4D=skip
   prompt_for_confirm "Install Cloud Pak for Data" && DEPLOY_CP4D=run
 
+  # --------------------------------------------------------
+  # TEMPORARY settings for testing before build interaction
+  # --------------------------------------------------------
+  # HPUtilities Application
+  export MAS_APP_SOURCE_HPUTILITIES="ibm-mas-hputilities-operators"
+  export MAS_APP_CHANNEL_HPUTILITIES="stable"
+  # Assist Application
+  export $MAS_APP_SOURCE_ASSIST="ibm-mas-assist-operators"
+  export MAS_APP_CHANNEL_ASSIST="m1dev88"
+  # MVI Application
+  export MAS_APP_SOURCE_VISUALINSPECTION="ibm-mas-visualinspection-operators"
+  export MAS_APP_CHANNEL_VISUALINSPECTION="8.6.0-pre.dev88"
+
   echo
   echo_h2 "8. Prepare Installation"
   # Auto-detect based on available storage classes

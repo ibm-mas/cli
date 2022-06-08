@@ -58,6 +58,21 @@ function show_config() {
   else echo_reset_dim "Optimizer ................ ${COLOR_BLUE}${MAS_APP_SOURCE_OPTIMIZER}/${MAS_APP_CHANNEL_OPTIMIZER} (${MAS_APP_PLAN_OPTIMIZER})"
   fi
 
+  if [[ "${MAS_APP_SOURCE_HPUTILITIES}/${MAS_APP_CHANNEL_HPUTILITIES}" == '/' ]]
+  then echo_reset_dim "H & P Utilities .......... ${COLOR_RED}Skip Installation"
+  else echo_reset_dim "H & P Utilities .......... ${COLOR_BLUE}${MAS_APP_SOURCE_HPUTILITIES}/${MAS_APP_CHANNEL_HPUTILITIES}"
+  fi
+
+  if [[ "${MAS_APP_SOURCE_ASSIST}/${MAS_APP_CHANNEL_ASSIST}" == '/' ]]
+  then echo_reset_dim "Assist ................... ${COLOR_RED}Skip Installation"
+  else echo_reset_dim "Assist ................... ${COLOR_BLUE}${MAS_APP_SOURCE_ASSIST}/${MAS_APP_CHANNEL_ASSIST}"
+  fi
+
+  if [[ "${MAS_APP_SOURCE_VISUALINSPECTION}/${MAS_APP_CHANNEL_VISUALINSPECTION}" == '/' ]]
+  then echo_reset_dim "MVI ...................... ${COLOR_RED}Skip Installation"
+  else echo_reset_dim "MVI ...................... ${COLOR_BLUE}${MAS_APP_SOURCE_VISUALINSPECTION}/${MAS_APP_CHANNEL_VISUALINSPECTION}"
+  fi
+
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "IBM Suite License Service" "    "

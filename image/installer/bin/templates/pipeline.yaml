@@ -46,12 +46,6 @@ spec:
       type: string
       description: IBM Entitlement Key
 
-    # Dependencies - CP4D
-    # This will be removed once we wire up CP4D installation to the applications
-    - name: temp_deploy_cp4d
-      type: string
-      default: "skip"
-
     # Dependencies - SLS
     - name: sls_license_id             # Required
       type: string
@@ -203,6 +197,18 @@ spec:
       type: string
       description: Subscription channel for Safety application operator
       default: ""
+    - name: mas_app_channel_hputilities
+      type: string
+      description: Subscription channel for Health & Predict - Utilities application operator
+      default: ""
+    - name: mas_app_channel_assist
+      type: string
+      description: Subscription channel for Assist application operator
+      default: ""
+    - name: mas_app_channel_visualinspection
+      type: string
+      description: Subscription channel for MVI application operator
+      default: ""
 
     # MAS Configuration - Application Sources
     - name: mas_app_source_iot
@@ -229,6 +235,18 @@ spec:
       type: string
       description: Subscription source for Safety application operator
       default: ibm-operator-catalog
+    - name: mas_app_source_hputilities
+      type: string
+      description: Subscription source for Health & Predict - Utilities application operator
+      default: ""
+    - name: mas_app_source_assist
+      type: string
+      description: Subscription source for Assist application operator
+      default: ""
+    - name: mas_app_source_visualinspection
+      type: string
+      description: Subscription source for MVI application operator
+      default: ""
 
     # Persist Results (Optional)
     - name: devops_mongo_uri
@@ -239,167 +257,6 @@ spec:
       default: ""
 
   tasks:
-    # 0. Cloud Pak for Data
-    # -------------------------------------------------------------------------
-    # Note: no apps in the pipeline are wired up to use these yet, this is
-    # experimental ... turn this part of the pipeline run/skip using the
-    # temp_deploy_cp4d parameter (which defaults to "off")
-    - name: cp4d
-      params:
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: setup-cp4d
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-      taskRef:
-        kind: Task
-        name: mas-devops-cp4d
-      runAfter:
-        - common-services
-      # Toggle this condition run/skip to deploy CP4D for now
-      when:
-        - input: "$(params.temp_deploy_cp4d)"
-          operator: in
-          values: ["run"]
-
-    - name: watson-studio
-      params:
-        - name: devops_suite_name
-          value: setup-cp4d-wsl
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: cpd_product_version
-          value: "$(params.cpd_product_version)"
-        - name: cpd_service_name
-          value: wsl
-        - name: cpd_service_storage_class
-          value: "$(params.cpd_wsl_storage_class)"
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-cp4d-service
-      runAfter:
-        - cp4d
-      # Toggle this condition run/skip to deploy CP4D for now
-      when:
-        - input: "$(params.temp_deploy_cp4d)"
-          operator: in
-          values: ["run"]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
-    - name: watson-machine-learning
-      params:
-        - name: devops_suite_name
-          value: setup-cp4d-wml
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: cpd_product_version
-          value: "$(params.cpd_product_version)"
-        - name: cpd_service_name
-          value: wml
-        - name: cpd_service_storage_class
-          value: "$(params.cpd_wml_storage_class)"
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-cp4d-service
-      runAfter:
-        - cp4d
-      # Toggle this condition run/skip to deploy CP4D for now
-      when:
-        - input: "$(params.temp_deploy_cp4d)"
-          operator: in
-          values: ["run"]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
-    - name: analytics-service
-      params:
-        - name: devops_suite_name
-          value: setup-cp4d-spark
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: cpd_product_version
-          value: "$(params.cpd_product_version)"
-        - name: cpd_service_name
-          value: spark
-        - name: cpd_service_storage_class
-          value: "$(params.cpd_spark_storage_class)"
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-cp4d-service
-      runAfter:
-        - cp4d
-      # Toggle this condition run/skip to deploy CP4D for now
-      when:
-        - input: "$(params.temp_deploy_cp4d)"
-          operator: in
-          values: ["run"]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
-    - name: discovery
-      params:
-        - name: devops_suite_name
-          value: setup-cp4d-discovery
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: cpd_product_version
-          value: "$(params.cpd_product_version)"
-        - name: cpd_service_name
-          value: wd
-        - name: cpd_service_storage_class
-          value: "$(params.cpd_wd_storage_class)"
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-cp4d-service
-      runAfter:
-        - cp4d
-      # Toggle this condition run/skip to deploy CP4D for now
-      when:
-        - input: "$(params.temp_deploy_cp4d)"
-          operator: in
-          values: ["run"]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
 
     # 1. Setup the cluster-wide dependencies & configure cluster monitoring
     # -------------------------------------------------------------------------
@@ -845,10 +702,248 @@ spec:
         - name: configs
           workspace: shared-configs
 
-
-    # 11. Install IBM MAS IoT application
+    # 11. Cloud Pak for Data
     # -------------------------------------------------------------------------
-    # 11.1 Install IoT
+    - name: cp4d
+      params:
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: devops_suite_name
+          value: setup-cp4d
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+      taskRef:
+        kind: Task
+        name: mas-devops-cp4d
+      runAfter:
+        - common-services
+      # Only needed if either Predict, HPUtilities or Assist are being installed
+      when:
+        - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)$(params.mas_app_channel_assist)"
+          operator: notin
+          values: [""]
+    
+    # 11.1 Cloud Pak for Data - Wastson Studio
+    - name: watson-studio
+      params:
+        - name: devops_suite_name
+          value: setup-cp4d-wsl
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: cpd_product_version
+          value: "$(params.cpd_product_version)"
+        - name: cpd_service_name
+          value: wsl
+        - name: cpd_service_storage_class
+          value: "$(params.cpd_wsl_storage_class)"
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-cp4d-service
+      runAfter:
+        - cp4d
+      # Only needed if either Predict or HPUtilities are being installed
+      when:
+        - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+    
+    # 11.2 Cloud Pak for Data - Wastson Machine Learning
+    - name: watson-machine-learning
+      params:
+        - name: devops_suite_name
+          value: setup-cp4d-wml
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: cpd_product_version
+          value: "$(params.cpd_product_version)"
+        - name: cpd_service_name
+          value: wml
+        - name: cpd_service_storage_class
+          value: "$(params.cpd_wml_storage_class)"
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-cp4d-service
+      runAfter:
+        - cp4d
+      # Only needed if Predict is being installed
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+    
+    # 11.3 Cloud Pak for Data - Analytics Service (Spark)
+    - name: analytics-service
+      params:
+        - name: devops_suite_name
+          value: setup-cp4d-spark
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: cpd_product_version
+          value: "$(params.cpd_product_version)"
+        - name: cpd_service_name
+          value: spark
+        - name: cpd_service_storage_class
+          value: "$(params.cpd_spark_storage_class)"
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-cp4d-service
+      runAfter:
+        - cp4d
+      # Only needed if Predict is being installed
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # 11.4 Cloud Pak for Data - Watson Discovery
+    - name: discovery
+      params:
+        - name: devops_suite_name
+          value: setup-cp4d-discovery
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: cpd_product_version
+          value: "$(params.cpd_product_version)"
+        - name: cpd_service_name
+          value: wd
+        - name: cpd_service_storage_class
+          value: "$(params.cpd_wd_storage_class)"
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-cp4d-service
+      runAfter:
+        - cp4d
+      # Only needed if Assist is being installed
+      when:
+        - input: "$(params.mas_app_channel_assist)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # 12. Cloud Object Storage (COS)
+    # -------------------------------------------------------------------------
+    - name: cos
+      params:
+        - name: devops_suite_name
+          value: dependencies-cos
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-cos
+      # Only needed if Assist is being installed
+      when:
+        - input: "$(params.mas_app_channel_assist)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+    
+    # 13. AppConnect
+    # -------------------------------------------------------------------------
+    - name: appconnect
+      params:
+        - name: devops_suite_name
+          value: dependencies-appconnect
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-appconnect
+      # Only needed if HPUtilities is being installed
+      when:
+        - input: "$(params.mas_app_channel_hputilities)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+    
+    # 14. NVidia
+    # -------------------------------------------------------------------------
+    - name: nvidia
+      params:
+        - name: devops_suite_name
+          value: dependencies-nvidia
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-nvidia-gpu
+      # Only needed if MVI is being installed
+      when:
+        - input: "$(params.mas_app_channel_visualinspection)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+
+    # -------------------------------------------------------------------------
+    # A. Install IBM MAS IoT application
+    # -------------------------------------------------------------------------
+    # A.1 Install IoT
     - name: app-install-iot
       params:
         - name: devops_suite_name
@@ -891,7 +986,7 @@ spec:
         - suite-config-db2
         - suite-config-kafka
 
-    # 11.2 Configure IoT workspace
+    # A.2 Configure IoT workspace
     - name: app-cfg-iot
       params:
         - name: devops_suite_name
@@ -919,9 +1014,9 @@ spec:
         - app-install-iot
 
 
-    # 12. Install IBM MAS Monitor application
+    # B. Install IBM MAS Monitor application
     # -------------------------------------------------------------------------
-    # 12.1 Install Monitor
+    # B.1 Install Monitor
     - name: app-install-monitor
       params:
         - name: devops_suite_name
@@ -963,7 +1058,7 @@ spec:
       runAfter:
         - app-cfg-iot
 
-    # 12.2 Configure Monitor workspace
+    # B.2 Configure Monitor workspace
     - name: app-cfg-monitor
       params:
         - name: devops_suite_name
@@ -991,9 +1086,9 @@ spec:
         - app-install-monitor
 
 
-    # 13. Install IBM MAS Safety application
+    # C. Install IBM MAS Safety application
     # -------------------------------------------------------------------------
-    # 13.1 Install Safety
+    # C.1 Install Safety
     - name: app-install-safety
       params:
         - name: devops_suite_name
@@ -1034,7 +1129,7 @@ spec:
       runAfter:
         - app-cfg-iot
 
-    # 13.2 Configure Safety workspace
+    # C.2 Configure Safety workspace
     - name: app-cfg-safety
       params:
         - name: devops_suite_name
@@ -1062,9 +1157,9 @@ spec:
         - app-install-safety
 
 
-    # 14. Install IBM MAS Manage application
+    # D. Install IBM MAS Manage application
     # -------------------------------------------------------------------------
-    # 14.1. Prepare database to Maxinst
+    # D.1. Prepare database to Maxinst
     - name: suite-db2-setup-for-manage
       params:
         - name: mas_instance_id
@@ -1089,7 +1184,7 @@ spec:
       runAfter:
         - suite-config-db2
 
-    # 14.2 Manage Install
+    # D.2 Manage Install
     - name: app-install-manage
       params:
         - name: devops_suite_name
@@ -1130,7 +1225,7 @@ spec:
       runAfter:
         - suite-db2-setup-for-manage
 
-    # 14.3 Configure Manage workspace
+    # D.3 Configure Manage workspace
     - name: app-cfg-manage
       params:
         - name: devops_suite_name
@@ -1160,9 +1255,9 @@ spec:
         - app-install-manage
 
 
-    # 15. Predict
+    # E. Predict
     # -------------------------------------------------------------------------
-    # 15.1 Predict Install
+    # E.1 Predict Install
     - name: app-install-predict
       params:
         - name: devops_suite_name
@@ -1203,8 +1298,12 @@ spec:
       runAfter:
         - app-cfg-manage
         - app-cfg-monitor
+        - watson-studio
+        - watson-machine-learning
+        - analytics-service
 
-    # 15.2 Configure Predict workspace
+
+    # E.2 Configure Predict workspace
     - name: app-cfg-predict
       params:
         - name: devops_suite_name
@@ -1232,9 +1331,9 @@ spec:
         - app-install-predict
 
 
-    # 16. Optimizer
+    # F. Optimizer
     # -------------------------------------------------------------------------
-    # 16.1 Optimizer Install
+    # F.1 Optimizer Install
     - name: app-install-optimizer
       params:
         - name: devops_suite_name
@@ -1277,7 +1376,7 @@ spec:
       runAfter:
         - suite-verify
 
-    # 16.2 Configure Optimizer workspace
+    # F.2 Configure Optimizer workspace
     - name: app-cfg-optimizer
       params:
         - name: devops_suite_name
@@ -1304,9 +1403,222 @@ spec:
           values: [""]
       runAfter:
         - app-install-optimizer
+    
+    # G. Health & Predict - Utilities
+    # -------------------------------------------------------------------------
+    # G.1 HPUtilities Install
+    - name: app-install-hputilities
+      params:
+        - name: devops_suite_name
+          value: app-hputilities-install
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: hputilities
+        - name: artifactory_username
+          value: $(params.artifactory_username)
+        - name: artifactory_apikey
+          value: $(params.artifactory_apikey)
+        - name: mas_app_channel
+          value: "$(params.mas_app_channel_hputilities)"
+        - name: mas_app_catalog_source
+          value: "$(params.mas_app_source_hputilities)"
+        - name: mas_icr_cp
+          value: $(params.mas_icr_cp)
+        - name: mas_entitlement_username
+          value: $(params.mas_entitlement_username)
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
+        - name: mas_entitlement_key
+          value: $(params.mas_entitlement_key)
+      taskRef:
+        name: mas-devops-suite-app-install
+        kind: Task
+      # Only install HPUtilities if a channel has been chosen
+      when:
+        - input: "$(params.mas_app_channel_hputilities)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - app-cfg-manage # Requires Health as an add-on
+        - watson-studio
+        - appconnect
+
+    # G.2 Configure HPUtilities workspace
+    - name: app-cfg-hputilities
+      params:
+        - name: devops_suite_name
+          value: app-hputilities-cfg
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: hputilities
+        - name: mas_workspace_id
+          value: "$(params.mas_workspace_id)"
+      taskRef:
+        name: mas-devops-suite-app-config
+        kind: Task
+      # Only install HPUtilities if a channel has been chosen
+      when:
+        - input: "$(params.mas_app_channel_hputilities)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - app-install-hputilities
+    
+    # H. Assist
+    # -------------------------------------------------------------------------
+    # H.1 Assist Install
+    - name: app-install-assist
+      params:
+        - name: devops_suite_name
+          value: app-assist-install
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: assist
+        - name: artifactory_username
+          value: $(params.artifactory_username)
+        - name: artifactory_apikey
+          value: $(params.artifactory_apikey)
+        - name: mas_app_channel
+          value: "$(params.mas_app_channel_assist)"
+        - name: mas_app_catalog_source
+          value: "$(params.mas_app_source_assist)"
+        - name: mas_icr_cp
+          value: $(params.mas_icr_cp)
+        - name: mas_entitlement_username
+          value: $(params.mas_entitlement_username)
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
+        - name: mas_entitlement_key
+          value: $(params.mas_entitlement_key)
+      taskRef:
+        name: mas-devops-suite-app-install
+        kind: Task
+      # Only install Assist if a channel has been chosen
+      when:
+        - input: "$(params.mas_app_channel_assist)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - discovery
+        - cos
+
+    # H.2 Configure Assist workspace
+    - name: app-cfg-assist
+      params:
+        - name: devops_suite_name
+          value: app-assist-cfg
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: assist
+        - name: mas_workspace_id
+          value: "$(params.mas_workspace_id)"
+      taskRef:
+        name: mas-devops-suite-app-config
+        kind: Task
+      # Only install Assist if a channel has been chosen
+      when:
+        - input: "$(params.mas_app_channel_assist)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - app-install-assist
+    
+    # I. Maximo Visual Inspection (MVI)
+    # -------------------------------------------------------------------------
+    # I.1 MVI Install
+    - name: app-install-visualinspection
+      params:
+        - name: devops_suite_name
+          value: app-visualinspection-install
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: visualinspection
+        - name: artifactory_username
+          value: $(params.artifactory_username)
+        - name: artifactory_apikey
+          value: $(params.artifactory_apikey)
+        - name: mas_app_channel
+          value: "$(params.mas_app_channel_visualinspection)"
+        - name: mas_app_catalog_source
+          value: "$(params.mas_app_source_visualinspection)"
+        - name: mas_icr_cp
+          value: $(params.mas_icr_cp)
+        - name: mas_entitlement_username
+          value: $(params.mas_entitlement_username)
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
+        - name: mas_entitlement_key
+          value: $(params.mas_entitlement_key)
+      taskRef:
+        name: mas-devops-suite-app-install
+        kind: Task
+      # Only install MVI if a channel has been chosen
+      when:
+        - input: "$(params.mas_app_channel_visualinspection)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - nvidia
+
+    # I.2 Configure MVI workspace
+    - name: app-cfg-visualinspection
+      params:
+        - name: devops_suite_name
+          value: app-visualinspection-cfg
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: visualinspection
+        - name: mas_workspace_id
+          value: "$(params.mas_workspace_id)"
+      taskRef:
+        name: mas-devops-suite-app-config
+        kind: Task
+      # Only install MVI if a channel has been chosen
+      when:
+        - input: "$(params.mas_app_channel_mvi)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - app-install-visualinspection
 
 
-  # 17. Mustgather executed in finally block. Use suite_mustgather_download
+  # Mustgather executed in finally block. Use suite_mustgather_download
   # playbook to retrieve the output on your local machine
   # -------------------------------------------------------------------------
   finally:
