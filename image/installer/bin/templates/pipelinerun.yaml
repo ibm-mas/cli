@@ -23,17 +23,11 @@ spec:
     - name: ibm_entitlement_key
       value: '$IBM_ENTITLEMENT_KEY'
 
-    # Dependencies - DB2
-    - name: db2_entitlement_key
-      value: '$DB2_ENTITLEMENT_KEY'
-
     # Dependencies - CP4D
     - name: cpd_product_version
       value: '4.0.9'
     - name: temp_deploy_cp4d
       value: '$DEPLOY_CP4D'
-    - name: cpd_entitlement_key
-      value: '$CPD_ENTITLEMENT_KEY'
 
     # Dependencies - SLS
     - name: sls_license_id
@@ -93,11 +87,6 @@ spec:
       value: '$MAS_APP_SOURCE_MONITOR'
     - name: mas_app_channel_monitor
       value: '$MAS_APP_CHANNEL_MONITOR'
-    # MSO Application
-    - name: mas_app_source_mso
-      value: '$MAS_APP_SOURCE_MSO'
-    - name: mas_app_channel_mso
-      value: '$MAS_APP_CHANNEL_MSO'
     # Optimizer Application
     - name: mas_app_source_optimizer
       value: '$MAS_APP_SOURCE_OPTIMIZER'
