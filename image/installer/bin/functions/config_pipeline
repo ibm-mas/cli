@@ -236,7 +236,7 @@ function config_pipeline() {
   export MAS_APP_SOURCE_HPUTILITIES="ibm-mas-hputilities-operators"
   export MAS_APP_CHANNEL_HPUTILITIES="stable"
   # Assist Application
-  export $MAS_APP_SOURCE_ASSIST="ibm-mas-assist-operators"
+  export MAS_APP_SOURCE_ASSIST="ibm-mas-assist-operators"
   export MAS_APP_CHANNEL_ASSIST="m1dev88"
   # MVI Application
   export MAS_APP_SOURCE_VISUALINSPECTION="ibm-mas-visualinspection-operators"
