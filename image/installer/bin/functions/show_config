@@ -11,7 +11,7 @@ function show_config() {
   fi
 
   reset_colors
-  echo_h2 "\n8. Review Settings"
+  echo_h2 "\n9. Review Settings"
 
   echo "${TEXT_DIM}"
   reset_colors
