@@ -11,7 +11,13 @@ function show_config() {
   fi
 
   reset_colors
-  echo_h2 "\n7. Review Settings"
+  echo_h2 "\n8. Review Settings"
+  
+  echo "${TEXT_DIM}"
+  echo_h2 "Overall" "    "
+  echo_reset_dim "IBM Entitlement Key ....... ${COLOR_BLUE}${IBM_ENTITLEMENT_KEY:0:8}..."
+  
+  reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ............... ${COLOR_BLUE}${MAS_INSTANCE_ID}"
@@ -50,9 +56,16 @@ function show_config() {
   else echo_reset_dim " - Predict ............... ${COLOR_BLUE}${MAS_APP_SOURCE_PREDICT}/${MAS_APP_CHANNEL_PREDICT}"
   fi
 
+  if [[ "${MAS_APP_SOURCE_OPTIMIZER}/${MAS_APP_CHANNEL_OPTIMIZER}" == '/' ]]
+  then echo_reset_dim " - Optimizer ............. ${COLOR_RED}Skip Installation"
+  else
+    echo_reset_dim " - Optimizer ............. ${COLOR_BLUE}${MAS_APP_SOURCE_OPTIMIZER}/${MAS_APP_CHANNEL_OPTIMIZER}"
+    echo_reset_dim "  > Install Plan ......... ${COLOR_BLUE}${MAS_APP_PLAN_OPTIMIZER}"
+  fi
+
   if [[ "${MAS_APP_SOURCE_MSO}/${MAS_APP_CHANNEL_MSO}" == '/' ]]
-  then echo_reset_dim " - MSO ................... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim " - MSO ................... ${COLOR_BLUE}${MAS_APP_SOURCE_MSO}/${MAS_APP_CHANNEL_MSO}"
+  then echo_reset_dim "MSO ...................... ${COLOR_RED}Skip Installation"
+  else echo_reset_dim "MSO ...................... ${COLOR_BLUE}${MAS_APP_SOURCE_MSO}/${MAS_APP_CHANNEL_MSO}"
   fi
 
   reset_colors
@@ -71,6 +84,14 @@ function show_config() {
   echo_reset_dim "Contact Email ............. ${COLOR_BLUE}${UDS_CONTACT_EMAIL}"
   echo_reset_dim "First Name ................ ${COLOR_BLUE}${UDS_CONTACT_FIRSTNAME}"
   echo_reset_dim "Last Name ................. ${COLOR_BLUE}${UDS_CONTACT_LASTNAME}"
+
+  if [[ "${MAS_APP_CHANNEL_MANAGE}/${MAS_APP_CHANNEL_IOT}" != '/' ]]; then
+    reset_colors
+    echo "${TEXT_DIM}"
+    echo_h2 "DB2 Container" "    "
+    echo_reset_dim "Entitlement Key ............${COLOR_BLUE}${DB2_ENTITLEMENT_KEY:0:8}..."
+  fi
+
   reset_colors
   echo "${TEXT_RESET}"
   prompt_for_confirm "Proceed with these settings" || exit 0
