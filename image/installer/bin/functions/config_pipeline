@@ -10,7 +10,6 @@ function config_pipeline() {
   fi
   prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
 
-  export MAS_CATALOG_SOURCE=ibm-operator-catalog
   echo -e "${COLOR_YELLOW}MAS Version:"
   echo "  1. 8.7"
   echo "  2. 8.6"
@@ -19,10 +18,12 @@ function config_pipeline() {
   case $MAS_CHANNEL_SELECTION in
     1|8.7|8.7.x)
       export MAS_CHANNEL=8.7.x
+      export MAS_CATALOG_SOURCE=ibm-operator-catalog
       ;;
 
     2|8.6|8.6.x)
       export MAS_CHANNEL=8.6.x
+      export MAS_CATALOG_SOURCE=ibm-operator-catalog
       ;;
 
     *)
@@ -177,17 +178,17 @@ function config_pipeline() {
     prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
 
     echo_h2 "4c. Configure IBM Container Registry (MAS)"
-    prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com
-    prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com
-    prompt_for_input "Entitlement Username" MAS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME
-    prompt_for_input "Entitlement Key" MAS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY
+    prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
+    prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com override
+    prompt_for_input "Entitlement Username" MAS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME override
+    prompt_for_input "Entitlement Key" MAS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY override
 
     echo
     echo_h2 "4d. Configure IBM Container Registry (SLS)"
-    prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com
-    prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com
-    prompt_for_input "Entitlement Username" SLS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME
-    prompt_for_input "Entitlement Key" SLS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY
+    prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
+    prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com override
+    prompt_for_input "Entitlement Username" SLS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME override
+    prompt_for_input "Entitlement Key" SLS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY override
 
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
