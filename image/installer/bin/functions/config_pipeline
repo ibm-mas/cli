@@ -170,9 +170,12 @@ function config_pipeline() {
             ;;
         esac
         export MAS_APP_CHANNEL_OPTIMIZER; export MAS_APP_SOURCE_OPTIMIZER;
-        # Optimizer install Plan
-        prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_CHANNEL_OPTIMIZER "full"
-        export MAS_APP_CHANNEL_OPTIMIZER;
+        # Optimizer install Plan + Validation
+        while : ; do
+          prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full"
+          [[ "$MAS_APP_PLAN_OPTIMIZER" != "full" && "$MAS_APP_PLAN_OPTIMIZER" != "limited" ]] || break
+        done
+        export MAS_APP_PLAN_OPTIMIZER;
       else
         export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER='';
       fi
