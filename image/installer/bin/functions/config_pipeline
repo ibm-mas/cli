@@ -132,35 +132,38 @@ function config_pipeline() {
     else
       export MAS_APP_SOURCE_PREDICT=''; export MAS_APP_CHANNEL_PREDICT=''
     fi
+  else
+    # If you're not installing Manage you can't install Predict
+    export MAS_APP_SOURCE_PREDICT=''; export MAS_APP_CHANNEL_PREDICT=''
+  fi
 
-    # Optimizer can only be installed from 8.8 on
-    if [[ "$MAS_CHANNEL" != '8.6.x' && "$MAS_CHANNEL" != '8.7.x' ]]; then
-      if prompt_for_confirm "Install Optimizer"; then
-        case $MAS_CHANNEL in
-          8.8.x)
-            MAS_APP_CHANNEL_OPTIMIZER=8.2.x # not released yet, though not reachable since MAS_CHANNEL cannot be 8.8 (yet)
-            MAS_APP_SOURCE_OPTIMIZER=ibm-operator-catalog
-            ;;
-          *)
-            prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_OPTIMIZER
-            prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_OPTIMIZER "ibm-mas-optimizer-operators"
-            ;;
-        esac
-        export MAS_APP_CHANNEL_OPTIMIZER; export MAS_APP_SOURCE_OPTIMIZER;
-        # Optimizer install Plan + Validation
-        while : ; do
-          prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full"
-          [[ "$MAS_APP_PLAN_OPTIMIZER" != "full" && "$MAS_APP_PLAN_OPTIMIZER" != "limited" ]] || break
-        done
-        export MAS_APP_PLAN_OPTIMIZER;
-      else
-        export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER='';
-      fi
+  # Optimizer can only be installed from 8.8 on
+  if [[ "$MAS_CHANNEL" != '8.6.x' && "$MAS_CHANNEL" != '8.7.x' ]]; then
+    if prompt_for_confirm "Install Optimizer"; then
+      case $MAS_CHANNEL in
+        8.8.x)
+          MAS_APP_CHANNEL_OPTIMIZER=8.2.x # not released yet, though not reachable since MAS_CHANNEL cannot be 8.8 (yet)
+          MAS_APP_SOURCE_OPTIMIZER=ibm-operator-catalog
+          ;;
+        *)
+          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_OPTIMIZER
+          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_OPTIMIZER "ibm-mas-optimizer-operators"
+          ;;
+      esac
+      export MAS_APP_CHANNEL_OPTIMIZER; export MAS_APP_SOURCE_OPTIMIZER;
+      # Optimizer install Plan + Validation
+      while : ; do
+        prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full"
+        [[ "$MAS_APP_PLAN_OPTIMIZER" != "full" && "$MAS_APP_PLAN_OPTIMIZER" != "limited" ]] || break
+      done
+      export MAS_APP_PLAN_OPTIMIZER;
+    else
+      # User chose not to install Optimizer
+      export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER='';
     fi
   else
-    # If you're not installing Manage you can't install Predict or Optimizer
-    export MAS_APP_SOURCE_PREDICT=''; export MAS_APP_CHANNEL_PREDICT=''
-    export MAS_APP_SOURCE_OPTIMIZER=''; export MAS_APP_CHANNEL_OPTIMIZER=''
+    # These versions of MAS don't support the optimizer application
+    export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER='';
   fi
 
   echo ""
