@@ -103,12 +103,36 @@ function config_pipeline() {
         ;;
       *)
         prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MANAGE
-        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_SAFETY "ibm-mas-manage-operators"
+        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_MANAGE "ibm-mas-manage-operators"
         ;;
     esac
     export MAS_APP_CHANNEL_MANAGE; export MAS_APP_SOURCE_MANAGE
   else
     export MAS_APP_SOURCE_MANAGE=''; export MAS_APP_CHANNEL_MANAGE=''
+  fi
+
+  # MSO can only be installed before MAS 8.8
+  if [[ "$MAS_CHANNEL" == '8.6.x' || "$MAS_CHANNEL" == '8.7.x' ]]; then
+  
+    if prompt_for_confirm "Install MSO"; then
+      case $MAS_CHANNEL in
+        8.7.x)
+          MAS_APP_CHANNEL_MSO=8.1.x
+          MAS_APP_SOURCE_MSO=ibm-operator-catalog
+          ;;
+        8.6.x)
+          MAS_APP_CHANNEL_MSO=8.0.x
+          MAS_APP_SOURCE_MSO=ibm-operator-catalog
+          ;;
+        *)
+          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MSO
+          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_MSO "ibm-mas-mso-operators"
+          ;;
+      esac
+      export MAS_APP_CHANNEL_MSO; export MAS_APP_SOURCE_MSO
+    else
+      export MAS_APP_CHANNEL_MSO=''; export MAS_APP_SOURCE_MSO='';
+    fi
   fi
 
   # Applications that require Manage
@@ -132,36 +156,43 @@ function config_pipeline() {
     else
       export MAS_APP_SOURCE_PREDICT=''; export MAS_APP_CHANNEL_PREDICT=''
     fi
-    if prompt_for_confirm "Install Optimizer"; then
-      case $MAS_CHANNEL in
-        8.7.x)
-          MAS_APP_CHANNEL_MSO=8.1.x
-          MAS_APP_SOURCE_MSO=ibm-operator-catalog
-          ;;
-        8.6.x)
-          MAS_APP_CHANNEL_MSO=8.0.x
-          MAS_APP_SOURCE_MSO=ibm-operator-catalog
-          ;;
-        *)
-          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MSO
-          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_PREDICT "ibm-mas-mso-operators"
-          ;;
-      esac
-      export MAS_APP_CHANNEL_MSO; export MAS_APP_SOURCE_MSO
-    else
-      export MAS_APP_SOURCE_MSO=''; export MAS_APP_CHANNEL_MSO=''
+    # Optimizer can only be installed from 8.8 on
+    if [[ "$MAS_CHANNEL" != '8.6.x' && "$MAS_CHANNEL" != '8.7.x' ]]; then
+      if prompt_for_confirm "Install Optimizer"; then
+        case $MAS_CHANNEL in
+          8.8.x)
+            MAS_APP_CHANNEL_OPTIMIZER=8.2.x # not released yet, though not reachable since MAS_CHANNEL cannot be 8.8 (yet)
+            MAS_APP_SOURCE_OPTIMIZER=ibm-operator-catalog
+            ;;
+          *)
+            prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_OPTIMIZER
+            prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_OPTIMIZER "ibm-mas-optimizer-operators"
+            ;;
+        esac
+        export MAS_APP_CHANNEL_OPTIMIZER; export MAS_APP_SOURCE_OPTIMIZER;
+        # Optimizer install Plan
+        prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_CHANNEL_OPTIMIZER "full"
+        export MAS_APP_CHANNEL_OPTIMIZER;
+      else
+        export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER='';
+      fi
     fi
   else
     # If you're not installing Manage you can't install Predict or Optimizer
     export MAS_APP_SOURCE_PREDICT=''; export MAS_APP_CHANNEL_PREDICT=''
-    export MAS_APP_SOURCE_MSO=''; export MAS_APP_CHANNEL_MSO=''
+    export MAS_APP_SOURCE_OPTIMIZER=''; export MAS_APP_CHANNEL_OPTIMIZER=''
   fi
 
+  echo ""
+  if [[ "$MAS_APP_CHANNEL_MANAGE" != '' || "$MAS_APP_CHANNEL_IOT" != '' ]]; then
+    echo_h2 "4. Configure DB2 Container"
+    prompt_for_input "Entitlement Key" CPD_ENTITLEMENT_KEY
+  fi
 
   echo ""
   if [[ "$MAS_CATALOG_SOURCE" == "ibm-mas-operators" ]]; then
     # Development Mode -- offer the ability to set MAS and SLS source independently
-    echo_h2 "4a. Configure Artifactory"
+    echo_h2 "5a. Configure Artifactory"
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
     prompt_for_input "Artifactory API Key" ARTIFACTORY_APIKEY
 
@@ -197,7 +228,7 @@ function config_pipeline() {
     export SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   fi
   echo
-  echo_h2 "5. Configure Product License"
+  echo_h2 "6. Configure Product License"
   prompt_for_input "License ID" SLS_LICENSE_ID
   prompt_for_input "License File" SLS_LICENSE_FILE_LOCAL
   if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
@@ -209,7 +240,6 @@ function config_pipeline() {
   prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
   prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
   prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
-
 
   echo
   echo_h2 "6. Install Cloud Pak For Data"
