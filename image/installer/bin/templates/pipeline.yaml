@@ -130,6 +130,12 @@ spec:
       type: string
     - name: uds_contact_lastname       # Required
       type: string
+    - name: uds_event_scheduler_frequency
+      type: string
+      default: ""
+    - name: mas_segment_key
+      type: string
+      default: ""
 
     # MAS Configuration
     - name: mas_instance_id            # Required
@@ -637,12 +643,16 @@ spec:
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
+        - name: mas_segment_key
+          value: $(params.mas_segment_key)
         - name: uds_contact_email
           value: "$(params.uds_contact_email)"
         - name: uds_contact_firstname
           value: "$(params.uds_contact_firstname)"
         - name: uds_contact_lastname
           value: "$(params.uds_contact_lastname)"
+        - name: uds_event_scheduler_frequency
+          value: "$(params.uds_event_scheduler_frequency)"
       taskRef:
         kind: Task
         name: mas-devops-uds
