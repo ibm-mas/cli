@@ -133,6 +133,14 @@ spec:
       type: string
       default: ""
       description: Override IBM Entitlement key for AppConnect installation
+    
+    # Dependencies - COS
+    - name: cos_type
+      type: string
+      description: COS Provider (ibm or ocs)
+    - name: ibmcloud_apikey
+      type: string
+      description: API Key used to create COS instance in IBM Cloud
 
     # MAS Configuration
     - name: mas_instance_id            # Required
@@ -875,6 +883,7 @@ spec:
 
     # 12. Cloud Object Storage (COS)
     # -------------------------------------------------------------------------
+    # 12.1 Install COS
     - name: cos
       params:
         - name: devops_suite_name
@@ -886,6 +895,11 @@ spec:
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
+        
+        - name: cos_type
+          value: $(params.cos_type)
+        - name: ibmcloud_apikey
+          value: $(params.ibmcloud_apikey)
       taskRef:
         kind: Task
         name: mas-devops-cos
@@ -898,6 +912,34 @@ spec:
         - name: configs
           workspace: shared-configs
     
+    # 12.2 Configure COS in MAS
+    - name: suite-config-cos
+      params:
+        - name: devops_suite_name
+          value: cfg-suite-appconnect
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-config
+      # Only load COS if Assist is being installed
+      when:
+        - input: "$(params.mas_app_channel_assist)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - suite-verify
+        - cos
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+
     # 13. AppConnect
     # -------------------------------------------------------------------------
     # 13.1 Install AppConnect
@@ -1563,7 +1605,7 @@ spec:
           values: [""]
       runAfter:
         - discovery
-        - cos
+        - suite-config-cos
 
     # H.2 Configure Assist workspace
     - name: app-cfg-assist

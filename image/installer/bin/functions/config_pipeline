@@ -52,6 +52,9 @@ function config_pipeline() {
 
   # Applications that require IoT
   if [[ "$MAS_APP_CHANNEL_IOT" != '' ]]; then
+    # -----------------
+    # Monitor
+    # -----------------
     if prompt_for_confirm "Install Monitor"; then
       case $MAS_CHANNEL in
         8.7.x)
@@ -71,6 +74,9 @@ function config_pipeline() {
     else
       export MAS_APP_SOURCE_MONITOR=''; export MAS_APP_CHANNEL_MONITOR=''
     fi
+    # -----------------
+    # Safety
+    # -----------------
     if prompt_for_confirm "Install Safety"; then
       case $MAS_CHANNEL in
         8.6.x|8.7.x)
@@ -92,6 +98,9 @@ function config_pipeline() {
     export MAS_APP_SOURCE_SAFETY=''; export MAS_APP_CHANNEL_SAFETY=''
   fi
 
+  # -----------------
+  # Manage
+  # -----------------
   if prompt_for_confirm "Install Manage"; then
     case $MAS_CHANNEL in
       8.7.x)
@@ -114,6 +123,9 @@ function config_pipeline() {
 
   # Applications that require Manage
   if [[ "$MAS_APP_CHANNEL_MANAGE" != '' ]]; then
+    # -----------------
+    # Predict
+    # -----------------
     if prompt_for_confirm "Install Predict"; then
       case $MAS_CHANNEL in
         8.7.x)
@@ -137,8 +149,10 @@ function config_pipeline() {
     # If you're not installing Manage you can't install Predict
     export MAS_APP_SOURCE_PREDICT=''; export MAS_APP_CHANNEL_PREDICT=''
   fi
-
-  # Optimizer can only be installed from 8.8 on
+  # -----------------
+  # Optimizer
+  # - It can only be installed from 8.8 on
+  # -----------------
   if [[ "$MAS_CHANNEL" != '8.6.x' && "$MAS_CHANNEL" != '8.7.x' ]]; then
     if prompt_for_confirm "Install Optimizer"; then
       case $MAS_CHANNEL in
@@ -165,6 +179,37 @@ function config_pipeline() {
   else
     # These versions of MAS don't support the optimizer application
     export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER='';
+  fi
+
+  # -----------------
+  # Assist
+  # -----------------
+  if prompt_for_confirm "Install Assist"; then
+    # case $MAS_CHANNEL in
+    #   8.7.x)
+    #     MAS_APP_CHANNEL_ASSIST=8.3.x
+    #     MAS_APP_SOURCE_ASSIST=ibm-operator-catalog
+    #     ;;
+    #   8.6.x)
+    #     MAS_APP_CHANNEL_ASSIST=8.2.x
+    #     MAS_APP_SOURCE_ASSIST=ibm-operator-catalog
+    #     ;;
+    #   *)
+    #     prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_ASSIST
+    #     prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_ASSIST "ibm-mas-manage-operators"
+    #     ;;
+    # esac
+    # export MAS_APP_CHANNEL_ASSIST; export MAS_APP_SOURCE_ASSIST;
+    # COS
+    while : ; do
+      prompt_for_input 'COS Provider [ibm/ocs]' COS_TYPE "ibm"
+      [[ "$COS_TYPE" != "ibm" && "$COS_TYPE" != "ocs" ]] || break
+    done
+    export COS_TYPE;
+    prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY $IBMCLOUD_APIKEY
+    prompt_for_input "IBM Cloud Resource Group" IBMCLOUD_RESOURCEGROUP $IBMCLOUD_RESOURCEGROUP "Default"
+  else
+    export MAS_APP_CHANNEL_ASSIST=''; export MAS_APP_CHANNEL_MANAGE=''
   fi
 
   echo ""
@@ -222,12 +267,6 @@ function config_pipeline() {
   prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
   prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
   prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
-
-  echo
-  echo_h2 "7. Install Cloud Pak For Data"
-  echo "Watson Studio, Watson Machine Learning, Watson Discovery, & Analytics Service will all be installed"
-  DEPLOY_CP4D=skip
-  prompt_for_confirm "Install Cloud Pak for Data" && DEPLOY_CP4D=run
 
   # --------------------------------------------------------
   # TEMPORARY settings for testing before build interaction
