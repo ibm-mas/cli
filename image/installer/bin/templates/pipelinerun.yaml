@@ -50,6 +50,12 @@ spec:
       value: '$UDS_CONTACT_FIRSTNAME'
     - name: uds_contact_lastname
       value: '$UDS_CONTACT_LASTNAME'
+    
+    # Dependencies - AppConnect
+    - name: appconnect_entitlement_username
+      value: '$APPCONNECT_ENTITLEMENT_USERNAME'
+    - name: appconnect_entitlement_key
+      value: '$APPCONNECT_ENTITLEMENT_KEY'
 
     # Configure MAS Core install
     - name: mas_instance_id
