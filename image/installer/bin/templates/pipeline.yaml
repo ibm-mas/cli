@@ -1492,7 +1492,7 @@ spec:
       runAfter:
         - app-cfg-manage # Requires Health as an add-on
         - watson-studio
-        - appconnect
+        - suite-config-appconnect
 
     # G.2 Configure HPUtilities workspace
     - name: app-cfg-hputilities
