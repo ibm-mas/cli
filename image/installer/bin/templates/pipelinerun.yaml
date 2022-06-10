@@ -34,6 +34,10 @@ spec:
       value: '$SLS_LICENSE_ID'
     - name: sls_license_file
       value: '$SLS_LICENSE_FILE'
+    - name: sls_catalog_source
+      value: '$SLS_CATALOG_SOURCE'
+    - name: sls_channel
+      value: '$SLS_CHANNEL'
     - name: sls_icr_cp
       value: '$SLS_ICR_CP'
     - name: sls_icr_cpopen
