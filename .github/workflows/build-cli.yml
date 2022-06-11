@@ -47,7 +47,7 @@ jobs:
       # In the future, this will move to the tag-specific build (once we start doing full releases)
       - name: Push the latest tag as well
         if: contains(github.ref, "master")
-        id: push_to_quay
+        id: push_to_quay_master
         uses: redhat-actions/push-to-registry@v2
         with:
           tags: quay.io/ibmmas/cli:latest
