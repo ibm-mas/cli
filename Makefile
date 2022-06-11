@@ -5,7 +5,7 @@
 .DEFAULT_GOAL := docker-all
 
 docker-build:
-	docker build -t installer:local image/installer
+	docker build -t cli:local image/cli
 docker-run:
-	docker run -ti installer:local
+	docker run -ti cli:local
 docker-all: docker-build docker-run

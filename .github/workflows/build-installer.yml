@@ -1,4 +1,4 @@
-name: Build Installer
+name: Build CLI
 on:
   push:
     branches:
@@ -6,7 +6,7 @@ on:
     tags-ignore:
       - '**'
 jobs:
-  build-installer:
+  build-cli:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -18,28 +18,38 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/initbuild.sh
           source $GITHUB_WORKSPACE/build/bin/.functions.sh
 
-      - name: Build the installer package
+      - name: Build the cli package
         run: |
-          $GITHUB_WORKSPACE/build/bin/build-installer.sh
+          $GITHUB_WORKSPACE/build/bin/build-cli.sh
 
-      - name: Upload the installer
+      - name: Upload the cli
         uses: actions/upload-artifact@v2
         with:
-          name: ibm-mas-installer-${{ env.VERSION }}.tgz
-          path: ${{ github.workspace }}/ibm-mas-installer-${{ env.VERSION }}.tgz
+          name: ibm-mas-cli-${{ env.VERSION }}.tgz
+          path: ${{ github.workspace }}/ibm-mas-cli-${{ env.VERSION }}.tgz
           retention-days: 30
 
       - name: Build the docker image
         run: |
-          $GITHUB_WORKSPACE/build/bin/docker-build.sh -n ibmmas -i installer
-          docker tag ibmmas/installer ibmmas/installer:${{ env.DOCKER_TAG }}
-          docker tag ibmmas/installer quay.io/ibmmas/installer:${{ env.DOCKER_TAG }}
+          $GITHUB_WORKSPACE/build/bin/docker-build.sh -n ibmmas -i cli
+          docker tag ibmmas/cli ibmmas/cli:${{ env.DOCKER_TAG }}
+          docker tag ibmmas/cli quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
 
       # https://github.com/marketplace/actions/push-to-registry
       - name: Push the docker image
         id: push_to_quay
         uses: redhat-actions/push-to-registry@v2
         with:
-          tags: quay.io/ibmmas/installer:${{ env.DOCKER_TAG }}
+          tags: quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
+          username: ${{ secrets.QUAYIO_USERNAME }}
+          password: ${{ secrets.QUAYIO_PASSWORD }}
+
+      # In the future, this will move to the tag-specific build (once we start doing full releases)
+      - name: Push the latest tag as well
+        if: contains(github.ref, "master")
+        id: push_to_quay
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          tags: quay.io/ibmmas/cli:latest
           username: ${{ secrets.QUAYIO_USERNAME }}
           password: ${{ secrets.QUAYIO_PASSWORD }}
