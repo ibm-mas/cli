@@ -7,7 +7,7 @@ There are minimal dependencies to meet on your own computer to use the CLI:
 - OpenShift client
 - Network access to the OpenShift cluster
 
-The best way to use the CLI is via the container image: `docker run -ti quay.io/ibmmas/cli`
+The best way to use the CLI is via the container image: `docker run -ti quay.io/ibmmas/cli:1.0.0-pre.master`
 
 The install is designed to work on any OCP cluster, but has been specifically tested in these environments:
 - IBMCloud ROKS
