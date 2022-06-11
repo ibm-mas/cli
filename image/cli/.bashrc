@@ -17,7 +17,7 @@ echo "${TEXT_UNDERLINE}IBM Maximo Application Suite CLI Container ${TEXT_BOLD}v$
 echo
 echo "${COLOR_CYAN}${TEXT_UNDERLINE}https://github.ibm.com/ibm-mas/ansible-devops${TEXT_RESET}"
 echo "${COLOR_CYAN}${TEXT_UNDERLINE}https://github.ibm.com/ibm-mas/ansible-airgap${TEXT_RESET}"
-echo "${COLOR_CYAN}${TEXT_UNDERLINE}https://github.ibm.com/ibm-mas/installer${TEXT_RESET}"
+echo "${COLOR_CYAN}${TEXT_UNDERLINE}https://github.ibm.com/ibm-mas/cli${TEXT_RESET}"
 echo
 echo "Available commands:"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas install${TEXT_RESET} to launch a MAS install pipeline"
