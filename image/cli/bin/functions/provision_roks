@@ -12,11 +12,12 @@ function provision_roks() {
   echo ""
   echo_h2 "IBM Cloud ROKS Cluster Configuration"
   echo "Select your worker node flavour and the number of worker nodes to provision."
-  echo "We recommend the 'b3c.8x32' worker node flavour to provide the best balance of"
-  echo "performance, flexibility, and cost.  Larger MAS installations will require more"
-  echo "worker nodes.  You can easily add and remove worker nodes to the cluster after"
-  echo "provision so do not worry too much if you are not sure how many worker nodes "
-  echo "you need as this can easily be adjusted at any time."
+  echo "We recommend the 'b3c.16x64.300gb' worker node flavour to provide the best balance"
+  echo "of performance, flexibility, and cost.  Three workers is sufficient to install"
+  echo "all applications in the suite, but larger workloads will require more worker nodes."
+  echo "You can easily add and remove worker nodes to the cluster after provision so do not"
+  echo "worry too much if you are not sure how many worker nodes you need as this can "
+  echo "easily be adjusted at any time to scale your cluster up or down."
   echo ""
   if [[ ! -z "$1" ]]; then
     CLUSTER_NAME=$1
@@ -45,6 +46,7 @@ function provision_roks() {
       ;;
   esac
 
+  prompt_for_input "Resource Group" IBMCLOUD_RESOURCEGROUP "Default" && export IBMCLOUD_RESOURCEGROUP
   prompt_for_input "Datacenter" ROKS_ZONE "dal10" && export ROKS_ZONE
   prompt_for_input "Worker Node Type" ROKS_FLAVOR "b3c.16x64.300gb" && export ROKS_FLAVOR
   prompt_for_input "Number of Worker Nodes" ROKS_WORKERS "3" && export ROKS_WORKERS
@@ -64,22 +66,6 @@ function provision_roks() {
     prompt_for_input "GPU Worker Pool Name" GPU_WORKERPOOL_NAME "gpu" && export GPU_WORKERPOOL_NAME
   fi
 
-  # As of v10.1.0 of ibm.mas_devops this is no longer required.
-  # Retaining for reference in the short term
-  # export REBOOT_WORKER_NODES=false
-  # echo ""
-  # echo_h2 "IBM CloudPak for Data Support"
-  # echo "IBM CloudPak for Data (CP4D) requires your IBM entitlement key to be set as a "
-  # echo "global image pull secret.  In IBMCloud ROKS this requires a reboot of all "
-  # echo "worker nodes to take place.  If you intend to install CP4D in this cluster you"
-  # echo "should answer 'yes' at the prompt below."
-  # echo ""
-  # prompt_for_confirm "Configure IBM Entitlement Key as Global Image Pull Secret" && export REBOOT_WORKER_NODES=true
-
-  # if [[ $REBOOT_WORKER_NODES == "true" ]]; then
-  #   prompt_for_input "IBM Entitlement Key" CPD_ENTITLEMENT_KEY "$IBM_ENTITLEMENT_KEY" && export CPD_ENTITLEMENT_KEY
-  # fi
-
   export UPGRADE_IMAGE_REGISTRY_STORAGE=false
   echo ""
   echo_h2 "Upgrade Image Registry Capacity"
@@ -91,6 +77,7 @@ function provision_roks() {
   echo ""
   echo_h2 "Summary"
   echo "IBMCloud API Key .......... ${IBMCLOUD_APIKEY:0:8}..."
+  echo "IBMCloud Resource Group ... $IBMCLOUD_RESOURCEGROUP"
   echo "Cluster Name .............. $CLUSTER_NAME"
   echo "OCP Version ............... $OCP_VERSION"
   echo "Worker Flavour ............ $ROKS_FLAVOR"
@@ -100,10 +87,6 @@ function provision_roks() {
     echo "GPU Worker Nodes .......... $GPU_WORKERS"
     echo "GPU Worker Pool Name ...... $GPU_WORKERPOOL_NAME"
   fi
-#  echo "Restart Worker Nodes ...... $REBOOT_WORKER_NODES"
-#  if [[ $REBOOT_WORKER_NODES == "true" ]]; then
-#    echo "CP4D Entitlement Key ...... ${CPD_ENTITLEMENT_KEY:0:8}..."
-#  fi
   echo "Upgrade Registry Storage .. $UPGRADE_IMAGE_REGISTRY_STORAGE"
 
   echo ""
