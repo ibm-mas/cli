@@ -5,25 +5,29 @@ function mirror_to_registry() {
   echo_h2 "1. Configure Target Mirror"
   prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
   prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
-  prompt_for_input "Mirror Registry Username" REGISTRY_PUBLIC_USERNAME
-  prompt_for_input "Mirror Registry Password" REGISTRY_PUBLIC_PASSWORD
+
+  echo
+  echo_h2 "2. Configure Authentication"
+  prompt_for_input "Mirror Registry Username" REGISTRY_AUTH_USERNAME
+  prompt_for_input "Mirror Registry Password" REGISTRY_AUTH_PASSWORD
   export REGISTRY_PUBLIC_HOST
   export REGISTRY_PUBLIC_PORT
-  export REGISTRY_PUBLIC_USERNAME
-  export REGISTRY_PUBLIC_PASSWORD
+  export REGISTRY_AUTH_USERNAME
+  export REGISTRY_AUTH_PASSWORD
 
   echo
   echo_h2 "2. Configure Images to Mirror"
-  prompt_for_confirm "Mirror OpenShift Release Images" MIRROR_OPENSHIFT_RELEASE
-  if [[ $MIRROR_OPENSHIFT_RELEASE == "true" ]]; then
-    prompt_for_input "Red Hat OpenShift Release" OPENSHIFT_RELEASE
-    export OPENSHIFT_RELEASE
-  fi
-  prompt_for_confirm "Mirror the four OpenShift standard operator catalogs" MIRROR_OPENSHIFT_OPERATORS
-  if [[ $MIRROR_OPENSHIFT_OPERATORS == "true" ]]; then
-    prompt_for_input "Red Hat OpenShift standard operator catalogs version" OPENSHIFT_OPERATORS
-    export OPENSHIFT_OPERATORS
-  fi
+  # These playbooks aren't available in ansible-airgap repository so we can't use there here yet
+  # prompt_for_confirm "Mirror OpenShift Release Images" MIRROR_OPENSHIFT_RELEASE
+  # if [[ $MIRROR_OPENSHIFT_RELEASE == "true" ]]; then
+  #   prompt_for_input "Red Hat OpenShift Release" OPENSHIFT_RELEASE
+  #   export OPENSHIFT_RELEASE
+  # fi
+  # prompt_for_confirm "Mirror the four OpenShift standard operator catalogs" MIRROR_OPENSHIFT_OPERATORS
+  # if [[ $MIRROR_OPENSHIFT_OPERATORS == "true" ]]; then
+  #   prompt_for_input "Red Hat OpenShift standard operator catalogs version" OPENSHIFT_OPERATORS
+  #   export OPENSHIFT_OPERATORS
+  # fi
   prompt_for_confirm "Mirror IBM Foundational Services Images" MIRROR_COMMONSERVICES
   prompt_for_confirm "Mirror IBM User Data Services Images" MIRROR_UDS
   prompt_for_confirm "Mirror IBM Suite License Service Images" MIRROR_SLS
@@ -48,9 +52,11 @@ function mirror_to_registry() {
 
   echo
   echo_h2 "4. Run Mirror Process"
-  echo "WARNING: This may take a long time"
-  [ "$MIRROR_OPENSHIFT_RELEASE" == "true" ] && ansible-playbook ibm.mas_airgap.mirror_openshift_release
-  [ "$MIRROR_OPENSHIFT_OPERATORS" == "true" ] && ansible-playbook ibm.mas_airgap.mirror_openshift_operators
+  echo_warning "IMPORTANT: This may take a very long time"
+  # These playbooks aren't available in ansible-airgap repository so we can't use there here yet
+  # prompt_for_confirm "Mirror OpenShift Release Images" MIRROR_OPENSHIFT_RELEASE
+  # [ "$MIRROR_OPENSHIFT_RELEASE" == "true" ] && ansible-playbook ibm.mas_airgap.mirror_openshift_release
+  # [ "$MIRROR_OPENSHIFT_OPERATORS" == "true" ] && ansible-playbook ibm.mas_airgap.mirror_openshift_operators
   [ "$MIRROR_COMMONSERVICES" == "true" ] && ansible-playbook ibm.mas_airgap.mirror_common_services
   [ "$MIRROR_UDS" == "true" ]            && ansible-playbook ibm.mas_airgap.mirror_uds
   [ "$MIRROR_SLS" == "true" ]            && ansible-playbook ibm.mas_airgap.mirror_sls
