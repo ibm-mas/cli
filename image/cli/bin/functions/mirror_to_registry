@@ -31,14 +31,14 @@ function mirror_to_registry() {
   prompt_for_confirm "IBM User Data Services (5 minutes)" MIRROR_UDS
   prompt_for_confirm "IBM Suite License Service (2 minutes)" MIRROR_SLS
   prompt_for_confirm "IBM Truststore Manager (1 minute)" MIRROR_TRUSTSTOREMGR
-  prompt_for_confirm "IBM Maximo Application Suite Core (5 minutes)" MIRROR_MAS_CORE
-  prompt_for_confirm "IBM Maximo Application Suite Assist (x minutes)" MIRROR_MAS_ASSIST
-  prompt_for_confirm "IBM Maximo Application Suite Health & Predict Utilities (x minutes)" MIRROR_MAS_HPU
-  prompt_for_confirm "IBM Maximo Application Suite IoT (x minutes)" MIRROR_MAS_IOT
-  prompt_for_confirm "IBM Maximo Application Suite Manage (x minutes)" MIRROR_MAS_MANAGE
-  prompt_for_confirm "IBM Maximo Application Suite Monitor (x minutes)" MIRROR_MAS_MONITOR
-  prompt_for_confirm "IBM Maximo Application Suite Predict (x minutes)" MIRROR_MAS_PREDICT
-  prompt_for_confirm "IBM Maximo Application Suite Visual Inspection (x minutes)" MIRROR_MAS_VI
+  prompt_for_confirm "IBM Maximo Application Suite - Core (5 minutes)" MIRROR_MAS_CORE
+  # prompt_for_confirm "IBM Maximo Application Suite - Assist (x minutes)" MIRROR_MAS_ASSIST
+  # prompt_for_confirm "IBM Maximo Application Suite - Health & Predict Utilities (x minutes)" MIRROR_MAS_HPU
+  prompt_for_confirm "IBM Maximo Application Suite - IoT (10 minutes)" MIRROR_MAS_IOT
+  prompt_for_confirm "IBM Maximo Application Suite - Manage (5 minutes)" MIRROR_MAS_MANAGE
+  prompt_for_confirm "IBM Maximo Application Suite - Monitor (5 minutes)" MIRROR_MAS_MONITOR
+  # prompt_for_confirm "IBM Maximo Application Suite - Predict (x minutes)" MIRROR_MAS_PREDICT
+  prompt_for_confirm "IBM Maximo Application Suite - Visual Inspection (10 minutes)" MIRROR_MAS_VI
   prompt_for_confirm "Third Party Content (x minutes)" MIRROR_THIRDPARTY
 
   echo
