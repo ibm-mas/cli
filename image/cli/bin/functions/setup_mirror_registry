@@ -12,8 +12,8 @@ function setup_mirror_registry() {
   echo
   echo_h2 "3. Configure Authentication"
 
-  prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME && export REGISTRY_USERNAME
-  prompt_for_input "Mirror Registry Password" REGISTRY_PASSWORD && export REGISTRY_PASSWORD
+  prompt_for_input "Mirror Registry Username" REGISTRY_AUTH_USERNAME && export REGISTRY_AUTH_USERNAME
+  prompt_for_input "Mirror Registry Password" REGISTRY_AUTH_PASSWORD && export REGISTRY_AUTH_PASSWORD
 
   prompt_for_confirm "Proceed with these settings" || exit 0
 
