@@ -6,12 +6,18 @@ function setup_mirror_registry() {
 
   prompt_for_input "Registry Namespace" REGISTRY_NAMESPACE "airgap-registry"
   prompt_for_input "Registry Storage Class" REGISTRY_STORAGE_CLASS "ibmc-block-gold"
-  prompt_for_input "Registry Storage Capacity" REGISTRY_STORAGE_CAPACITY "100Gi"
+  prompt_for_input "Registry Storage Capacity" REGISTRY_STORAGE_CAPACITY "200Gi"
   prompt_for_input "Registry Service Type" REGISTRY_SERVICE_TYPE "loadbalancer"
+
+  echo
+  echo_h2 "3. Configure Authentication"
+
+  prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME
+  prompt_for_input "Mirror Registry Password" REGISTRY_PASSWORD
 
   prompt_for_confirm "Proceed with these settings" || exit 0
 
   echo
-  echo_h2 "3. Run Installation"
-  ROLE_NAME=registry ansible-playbook ibm.mas_airgap.run_role
+  echo_h2 "4. Run Installation"
+  ansible-playbook ibm.mas_airgap.deploy_private_registry
 }

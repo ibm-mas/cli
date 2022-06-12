@@ -7,36 +7,37 @@ There are minimal dependencies to meet on your own computer to use the CLI:
 - OpenShift client
 - Network access to the OpenShift cluster
 
-The best way to use the CLI is via the container image: `docker run -ti quay.io/ibmmas/cli:1.0.0-pre.master`
+The best way to use the CLI is via the container image: `docker run -ti quay.io/ibmmas/cli:1.0.0-pre.master`, if you have used the container image before, always pull the latest pre-release first `docker pull quay.io/ibmmas/cli:1.0.0-pre.master`.
 
 The install is designed to work on any OCP cluster, but has been specifically tested in these environments:
 - IBMCloud ROKS
 - Azure
 - IBM DevIT Fyre (internal)
 
-## MAS Install
-All settings can be controlled via environment variables to avoid needing to manually type them out, for example if you `export MAS_ENTITLEMENT_KEY=xxxx` then when you run the install that input will be prefilled with the value from the environment variable, allowing you to press Enter to continue, or modify the value if you need to.
+All settings can be controlled via environment variables to avoid needing to manually type them out, for example if you `export IBM_ENTITLEMENT_KEY=xxxx` then when you run the install that input will be prefilled with the value from the environment variable, allowing you to press Enter to continue, or modify the value if you need to.
 
-The install itself is performed inside your RedHat OpenShift cluster utilizing [Openshift Pipelines](https://cloud.redhat.com/learn/topics/ci-cd)
-
-> OpenShift Pipelines is a Kubernetes-native CI/CD solution based on Tekton. It builds on Tekton to provide a CI/CD experience through tight integration with OpenShift and Red Hat developer tools. OpenShift Pipelines is designed to run each step of the CI/CD pipeline in its own container, allowing each step to scale independently to meet the demands of the pipeline.
-
-The engine that performs the installation is written in Ansible, and you can directly use the same automation outside of this installer if you wish.  The code is open source and available in [ibm-mas/ansible-devops](https://github.com/ibm-mas/ansible-devops) and [ibm-mas/ansible-airgap](https://github.com/ibm-mas/ansible-airgap), the collections are also available to install directly from Ansible Galaxy:
+The engine that performs all tasks is written in Ansible, you can directly use the same automation outside of this CLI if you wish.  The code is open source and available in [ibm-mas/ansible-devops](https://github.com/ibm-mas/ansible-devops) and [ibm-mas/ansible-airgap](https://github.com/ibm-mas/ansible-airgap), the collections are also available to install directly from Ansible Galaxy:
 
 - [Ansible Galaxy: ibm.mas_devops](https://galaxy.ansible.com/ibm/mas_devops)
-- [Ansible Galaxy: ibm.mas_devops](https://galaxy.ansible.com/ibm/mas_airgap)
+- [Ansible Galaxy: ibm.mas_airgap](https://galaxy.ansible.com/ibm/mas_airgap)
+
+
+## MAS Install
+The install is performed inside your RedHat OpenShift cluster utilizing [Openshift Pipelines](https://cloud.redhat.com/learn/topics/ci-cd)
+
+> OpenShift Pipelines is a Kubernetes-native CI/CD solution based on Tekton. It builds on Tekton to provide a CI/CD experience through tight integration with OpenShift and Red Hat developer tools. OpenShift Pipelines is designed to run each step of the CI/CD pipeline in its own container, allowing each step to scale independently to meet the demands of the pipeline.
 
 ![](docs/pipeline.png)
 
 The installer supports:
-- IBM Operator Catalog Configuration
-- Required Dependency Installation:
+- IBM operator catalog configuration
+- Required dependency installation:
   - MongoDb
   - IBM Suite License Service
   - IBM User Data Services
   - IBM Certificate Manager
   - Red Hat Service Binding Operator
-- Optional Dependency Installation:
+- Optional dependency installation:
   - Apache Kafka
   - IBM Db2
   - IBM Cloud Pak for Data
@@ -45,8 +46,8 @@ The installer supports:
     - [Watson Machine Learning](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-machine-learning)
     - [Watson OpenScale](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-openscale)
     - [Analytics Engine (Apache Spark)](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-analytics-engine-powered-by-apache-spark)
-- Suite Core Services Installation
-- Suite Application Installation
+- Suite core services installation
+- Suite application installation
 
 The installer will automatically provision and set up the required dependencies based on the applications that you select to install.
 
