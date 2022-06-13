@@ -46,6 +46,11 @@ spec:
       type: string
       description: IBM Entitlement Key
 
+    # Dependencies - Foundation Services
+    - name: common_services_catalog_source
+      type: string
+      default: ""
+
     # Dependencies - CP4D
     # This will be removed once we wire up CP4D installation to the applications
     - name: temp_deploy_cp4d
@@ -60,10 +65,12 @@ spec:
     - name: sls_mongodb_cfg_file
       type: string
       default: "/workspace/configs/mongo-mongoce.yml"
-    - name: sls_catalog_source         # Required
+    - name: sls_catalog_source
       type: string
-    - name: sls_channel                # Required
-      type: string 
+      default: ""
+    - name: sls_channel
+      type: string
+      default: ""
     - name: sls_icr_cp
       type: string
       default: ""
@@ -434,6 +441,9 @@ spec:
 
     - name: common-services
       params:
+        - name: common_services_catalog_source
+          value: $(params.common_services_catalog_source)
+
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: devops_suite_name

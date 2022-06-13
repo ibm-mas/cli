@@ -61,6 +61,7 @@ function show_config() {
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "IBM Suite License Service" "    "
+  echo_reset_dim "Catalog Source ............ ${COLOR_BLUE}${SLS_CATALOG_SOURCE}"
   echo_reset_dim "License ID ................ ${COLOR_BLUE}${SLS_LICENSE_ID}"
   echo_reset_dim "License File .............. ${COLOR_BLUE}${SLS_LICENSE_FILE}"
   echo_reset_dim "IBM Entitled Registry ..... ${COLOR_BLUE}${SLS_ICR_CP}"
@@ -74,6 +75,11 @@ function show_config() {
   echo_reset_dim "Contact Email ............. ${COLOR_BLUE}${UDS_CONTACT_EMAIL}"
   echo_reset_dim "First Name ................ ${COLOR_BLUE}${UDS_CONTACT_FIRSTNAME}"
   echo_reset_dim "Last Name ................. ${COLOR_BLUE}${UDS_CONTACT_LASTNAME}"
+
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "IBM Cloud Pak Foundation Services" "    "
+  echo_reset_dim "Catalog Source ............ ${COLOR_BLUE}${COMMON_SERVICES_CATALOG_SOURCE}"
 
   if [[ "$DEPLOY_CP4D" == "run" ]]; then
     reset_colors

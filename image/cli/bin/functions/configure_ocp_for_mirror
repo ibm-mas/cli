@@ -3,24 +3,23 @@
 function configure_ocp_for_mirror() {
   echo
   echo_h2 "2. Configure Target Mirror"
-  prompt_for_input "Mirror Registry Host" REGISTRY_PRIVATE_HOST
-  prompt_for_input "Mirror Registry Port" REGISTRY_PRIVATE_PORT
-  prompt_for_input "Mirror Registry CA File" REGISTRY_PRIVATE_CA_FILE
+  prompt_for_input "Mirror Registry Host" REGISTRY_PRIVATE_HOST && export REGISTRY_PRIVATE_HOST
+  prompt_for_input "Mirror Registry Port" REGISTRY_PRIVATE_PORT && export REGISTRY_PRIVATE_PORT
+  prompt_for_input "Mirror Registry CA File" REGISTRY_PRIVATE_CA_FILE && export REGISTRY_PRIVATE_CA_FILE
   if [[ ! -e $REGISTRY_PRIVATE_CA_FILE ]]; then
     echo_warning "Certificate file '$REGISTRY_PRIVATE_CA_FILE' does not exist"
     exit 1
   fi
 
+  echo
+  echo_h2 "2. Configure Authentication"
+  prompt_for_input "Mirror Registry Username" REGISTRY_AUTH_USERNAME && export REGISTRY_AUTH_USERNAME
+  prompt_for_input "Mirror Registry Password" REGISTRY_AUTH_PASSWORD && export REGISTRY_AUTH_PASSWORD
+
   prompt_for_confirm "Prepare a MAS instance for airgap install" INSTALL_DIGEST_CMS
   if [[ $INSTALL_DIGEST_CMS == "true" ]]; then
-    prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
+    prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID && export MAS_INSTANCE_ID
   fi
-
-  # Make the environment variables available to Ansible
-  export REGISTRY_PRIVATE_HOST
-  export REGISTRY_PRIVATE_PORT
-  export REGISTRY_PRIVATE_CA_FILE
-  export MAS_INSTANCE_ID
 
   echo
   prompt_for_confirm "Proceed with these settings" || exit 0

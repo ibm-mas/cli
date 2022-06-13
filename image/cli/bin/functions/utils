@@ -101,7 +101,7 @@ function prompt_for_confirm() {
 
 
 function update_ansible_collections() {
-  if [[ "$UPDATE_ANSIBLE" == "true" ]]; then
+  if [[ "$UPDATE_ANSIBLE" == "true" || "$ANSIBLE_UPDATE" == "true" ]]; then
     if [[ "$DEV_MODE" == "true" ]]; then
       echo
       echo_h2 "Updating ansible collections from local build"
@@ -112,8 +112,8 @@ function update_ansible_collections() {
     else
       echo
       echo_h2 "Updating ansible collections from Galaxy"
-      ansible-galaxy collection install ibm.mas_devops:10.0.4 || exit 1
-      ansible-galaxy collection install ibm.mas_devops:1.0.0 || exit 1
+      ansible-galaxy collection install ibm.mas_devops:10.2.0 || exit 1
+      ansible-galaxy collection install ibm.mas_airgap:1.1.0 || exit 1
     fi
   fi
 }
@@ -131,4 +131,13 @@ function install_dependencies_ubuntu() {
   # Confirm versions
   python3 --version
   ansible-playbook --version
+}
+
+function detect_airgap() {
+  oc get ImageContentSourcePolicy ibm-mas-and-dependencies &> /dev/null
+  if [[ "$?" == "0" ]]; then
+    export AIRGAP_MODE=true
+  else
+    unset AIRGAP_MODE
+  fi
 }
