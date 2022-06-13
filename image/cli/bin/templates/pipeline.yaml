@@ -159,6 +159,9 @@ spec:
     - name: cloudflare_apitoken
       type: string
       default: ""
+    - name: cloudflare_zone
+      type: string
+      default: ""
     - name: cloudflare_subdomain
       type: string
       default: ""
@@ -752,6 +755,8 @@ spec:
           value: $(params.cloudflare_email)
         - name: cloudflare_apitoken
           value: $(params.cloudflare_apitoken)
+        - name: cloudflare_zone
+          value: $(params.cloudflare_zone)
         - name: cloudflare_subdomain
           value: $(params.cloudflare_subdomain)
       taskRef:

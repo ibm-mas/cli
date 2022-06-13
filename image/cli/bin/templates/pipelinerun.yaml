@@ -67,6 +67,8 @@ spec:
       value: '$CLOUDFLARE_EMAIL'
     - name: cloudflare_apitoken
       value: '$CLOUDFLARE_APITOKEN'
+    - name: cloudflare_zone
+      value: '$CLOUDFLARE_ZONE'
     - name: cloudflare_subdomain
       value: '$CLOUDFLARE_SUBDOMAIN'
 
