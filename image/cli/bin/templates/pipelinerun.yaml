@@ -59,6 +59,17 @@ spec:
     - name: uds_contact_lastname
       value: '$UDS_CONTACT_LASTNAME'
 
+    # MAS DNS Integrations - General
+    - name: dns_provider
+      value: '$DNS_PROVIDER'
+    # MAS DNS Integrations - Cloudflare Support
+    - name: cloudflare_email
+      value: '$CLOUDFLARE_EMAIL'
+    - name: cloudflare_apitoken
+      value: '$CLOUDFLARE_APITOKEN'
+    - name: cloudflare_subdomain
+      value: '$CLOUDFLARE_SUBDOMAIN'
+
     # Configure MAS Core install
     - name: mas_instance_id
       value: '$MAS_INSTANCE_ID'
@@ -66,6 +77,11 @@ spec:
       value: '$MAS_CHANNEL'
     - name: mas_catalog_source
       value: '$MAS_CATALOG_SOURCE'
+
+    - name: mas_domain
+      value: '$MAS_DOMAIN'
+    - name: mas_cluster_issuer
+      value: '$MAS_CLUSTER_ISSUER'
 
     - name: mas_entitlement_username
       value: '$MAS_ENTITLEMENT_USERNAME'
