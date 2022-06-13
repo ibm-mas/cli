@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function channel_select_mas() {
-  if [[ -z AIRGAP_MODE ]]; then
+  if [[ -z "$AIRGAP_MODE" ]]; then
     echo -e "${COLOR_YELLOW}MAS Version:"
     echo "  1. 8.7"
     echo "  2. 8.6"
@@ -44,7 +44,7 @@ function channel_select_mas() {
 }
 
 function channel_select_iot() {
-  if [[ -z AIRGAP_MODE ]]; then
+  if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
       8.6.x|8.7.x)
         MAS_APP_CHANNEL_IOT=8.4.x
@@ -66,7 +66,7 @@ function channel_select_iot() {
 }
 
 function channel_select_monitor() {
-  if [[ -z AIRGAP_MODE ]]; then
+  if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
       8.7.x)
         MAS_APP_CHANNEL_MONITOR=8.7.x
@@ -90,7 +90,7 @@ function channel_select_monitor() {
 }
 
 function channel_select_safety() {
-  if [[ -z AIRGAP_MODE ]]; then
+  if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
       8.6.x|8.7.x)
         MAS_APP_CHANNEL_SAFETY=8.2.x
@@ -110,7 +110,7 @@ function channel_select_safety() {
 }
 
 function channel_select_manage() {
-  if [[ -z AIRGAP_MODE ]]; then
+  if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
       8.7.x)
         MAS_APP_CHANNEL_MANAGE=8.3.x
@@ -134,7 +134,7 @@ function channel_select_manage() {
 }
 
 function channel_select_predict() {
-  if [[ -z AIRGAP_MODE ]]; then
+  if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
       8.7.x)
         MAS_APP_CHANNEL_PREDICT=8.5.x
@@ -158,7 +158,7 @@ function channel_select_predict() {
 }
 
 channel_select_optimizer() {
-  if [[ -z AIRGAP_MODE ]]; then
+  if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
       8.8.x)
         MAS_APP_CHANNEL_OPTIMIZER=8.2.x

@@ -19,7 +19,7 @@ function config_pipeline() {
   export MAS_APP_SOURCE_PREDICT='';    export MAS_APP_CHANNEL_PREDICT=''
   export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER=''; export MAS_APP_PLAN_OPTIMIZER=''
 
-  if [[ -z AIRGAP_MODE ]]; then
+  if [[ -z "$AIRGAP_MODE" ]]; then
     echo -e "${COLOR_YELLOW}Select Applications:"
     if prompt_for_confirm "Install IoT"; then
       channel_select_iot || exit 1
@@ -60,7 +60,7 @@ function config_pipeline() {
   fi
 
   echo ""
-  if [[ "$MAS_CATALOG_SOURCE" == "ibm-mas-operators" && -z AIRGAP_MODE ]]; then
+  if [[ "$MAS_CATALOG_SOURCE" == "ibm-mas-operators" && -z "$AIRGAP_MODE" ]]; then
     # Development Mode -- offer the ability to set MAS and SLS source independently
     echo_h2 "4a. Configure Artifactory"
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
@@ -97,7 +97,7 @@ function config_pipeline() {
     export SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   fi
 
-  if [[ -n AIRGAP_MODE ]]; then
+  if [[ -n "$AIRGAP_MODE" ]]; then
     # Override Common Services Catalog Source
     export COMMON_SERVICES_CATALOG_SOURCE=opencloud-operators
     export SLS_CATALOG_SOURCE=ibm-sls-operators
@@ -125,7 +125,7 @@ function config_pipeline() {
   echo
   echo_h2 "7. Install Cloud Pak For Data"
   DEPLOY_CP4D=skip
-  if [[ -z AIRGAP_MODE ]]; then
+  if [[ -z "$AIRGAP_MODE" ]]; then
     echo "Watson Studio, Watson Machine Learning, Watson Discovery, & Analytics Service will all be installed"
     prompt_for_confirm "Install Cloud Pak for Data" && DEPLOY_CP4D=run
   else
