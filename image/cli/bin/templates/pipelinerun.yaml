@@ -23,6 +23,10 @@ spec:
     - name: ibm_entitlement_key
       value: '$IBM_ENTITLEMENT_KEY'
 
+    # Dependencies - Common Services
+    - name: common_services_catalog_source
+      value: '$COMMON_SERVICES_CATALOG_SOURCE'
+
     # Dependencies - CP4D
     - name: cpd_product_version
       value: '4.0.9'

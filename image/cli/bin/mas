@@ -31,6 +31,7 @@ LOGFILE=$DIR/mas.log
 # MAS installation support
 . $DIR/functions/connect
 . $DIR/functions/install_pipeline
+. $DIR/functions/channel_select
 . $DIR/functions/config_pipeline
 . $DIR/functions/save_config
 . $DIR/functions/show_config
@@ -74,7 +75,6 @@ case $1 in
     echo
     echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
     echo "${TEXT_DIM}1. This is still a work in progress"
-    echo "${TEXT_DIM}2. The registry is configured without authentication enabled"
     echo
     reset_colors
     update_ansible_collections
@@ -88,20 +88,18 @@ case $1 in
     echo
     echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
     echo "${TEXT_DIM}1. This is still a work in progress"
-    echo "${TEXT_DIM}2. Only supports mirroring to registry without authentication enabled"
     echo
     reset_colors
     update_ansible_collections
     mirror_to_registry
     ;;
 
-  configure-ocp-for-mirror|configure-airgap|configure-mirror)
+  configure-ocp-for-mirror|configure-airgap|configure-mirror|config-airgap|config-mirror)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap OCP Setup${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-airgap/${TEXT_RESET}"
     echo
     echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
     echo "${TEXT_DIM}1. This is still a work in progress"
-    echo "${TEXT_DIM}2. Only supports mirroring from a registry without authentication enabled"
     echo
     reset_colors
     update_ansible_collections
@@ -117,6 +115,7 @@ case $1 in
     echo "${TEXT_DIM}1. Install relies on built-in automatic storage class selection (IBMCloud ROKS & OpenShift Container Storage supported)"
     echo "${TEXT_DIM}2. Installation and configuration management for Cloud Pak for Data services is not yet complete"
     echo "${TEXT_DIM}3. Predict, Assist, & Visual Inspection applications can not be deployed using the install yet"
+    echo "${TEXT_DIM}4. Support for airgap installation is limited to MAS 8.7 (core only) at present"
     echo
     reset_colors
     connect

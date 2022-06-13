@@ -10,165 +10,56 @@ function config_pipeline() {
   fi
   prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
 
-  echo -e "${COLOR_YELLOW}MAS Version:"
-  echo "  1. 8.7"
-  echo "  2. 8.6"
-  prompt_for_input "Select Subscription Channel" MAS_CHANNEL_SELECTION "1"
+  channel_select_mas || exit 1
 
-  case $MAS_CHANNEL_SELECTION in
-    1|8.7|8.7.x)
-      export MAS_CHANNEL=8.7.x
-      export MAS_CATALOG_SOURCE=ibm-operator-catalog
-      ;;
-
-    2|8.6|8.6.x)
-      export MAS_CHANNEL=8.6.x
-      export MAS_CATALOG_SOURCE=ibm-operator-catalog
-      ;;
-
-    *)
-      export MAS_CHANNEL=$MAS_CHANNEL_SELECTION
-      prompt_for_input 'Custom Catalog Source' MAS_CATALOG_SOURCE "ibm-mas-operators"
-      ;;
-  esac
+  # Default all applications to "do not deploy"
+  export MAS_APP_SOURCE_IOT='';        export MAS_APP_CHANNEL_IOT=''
+  export MAS_APP_SOURCE_MONITOR='';    export MAS_APP_CHANNEL_MONITOR=''
+  export MAS_APP_SOURCE_SAFETY='';     export MAS_APP_CHANNEL_SAFETY=''
+  export MAS_APP_SOURCE_MANAGE='';     export MAS_APP_CHANNEL_MANAGE=''
+  export MAS_APP_SOURCE_PREDICT='';    export MAS_APP_CHANNEL_PREDICT=''
+  export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER=''; export MAS_APP_PLAN_OPTIMIZER=''
 
   echo -e "${COLOR_YELLOW}Select Applications:"
   if prompt_for_confirm "Install IoT"; then
-    case $MAS_CHANNEL in
-      8.6.x|8.7.x)
-        MAS_APP_CHANNEL_IOT=8.4.x
-        MAS_APP_SOURCE_IOT=ibm-operator-catalog
-        ;;
-
-      *)
-        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_IOT
-        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_IOT "ibm-mas-iot-operators"
-        ;;
-    esac
-    export MAS_APP_CHANNEL_IOT; export MAS_APP_SOURCE_IOT
-  else
-    export MAS_APP_SOURCE_IOT=''; export MAS_APP_CHANNEL_IOT=''
+    channel_select_iot || exit 1
   fi
 
   # Applications that require IoT
   if [[ "$MAS_APP_CHANNEL_IOT" != '' ]]; then
     if prompt_for_confirm "Install Monitor"; then
-      case $MAS_CHANNEL in
-        8.7.x)
-          MAS_APP_CHANNEL_MONITOR=8.7.x
-          MAS_APP_SOURCE_MONITOR=ibm-operator-catalog
-          ;;
-        8.6.x)
-          MAS_APP_CHANNEL_MONITOR=8.6.x
-          MAS_APP_SOURCE_MONITOR=ibm-operator-catalog
-          ;;
-        *)
-          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MONITOR
-          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_MONITOR "ibm-mas-monitor-operators"
-          ;;
-      esac
-      export MAS_APP_CHANNEL_MONITOR; export MAS_APP_SOURCE_MONITOR
-    else
-      export MAS_APP_SOURCE_MONITOR=''; export MAS_APP_CHANNEL_MONITOR=''
+      channel_select_monitor || exit 1
     fi
     if prompt_for_confirm "Install Safety"; then
-      case $MAS_CHANNEL in
-        8.6.x|8.7.x)
-          MAS_APP_CHANNEL_SAFETY=8.2.x
-          MAS_APP_SOURCE_SAFETY=ibm-operator-catalog
-          ;;
-        *)
-          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_SAFETY
-          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_SAFETY "ibm-mas-safety-operators"
-          ;;
-      esac
-      export MAS_APP_CHANNEL_SAFETY; export MAS_APP_SOURCE_SAFETY
-    else
-      export MAS_APP_SOURCE_SAFETY=''; export MAS_APP_CHANNEL_SAFETY=''
+      channel_select_safety || exit 1
     fi
-  else
-    # If you're not installing IoT you can't install Monitor or Safety
-    export MAS_APP_SOURCE_MONITOR=''; export MAS_APP_CHANNEL_MONITOR=''
-    export MAS_APP_SOURCE_SAFETY=''; export MAS_APP_CHANNEL_SAFETY=''
   fi
 
   if prompt_for_confirm "Install Manage"; then
-    case $MAS_CHANNEL in
-      8.7.x)
-        MAS_APP_CHANNEL_MANAGE=8.3.x
-        MAS_APP_SOURCE_MANAGE=ibm-operator-catalog
-        ;;
-      8.6.x)
-        MAS_APP_CHANNEL_MANAGE=8.2.x
-        MAS_APP_SOURCE_MANAGE=ibm-operator-catalog
-        ;;
-      *)
-        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MANAGE
-        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_MANAGE "ibm-mas-manage-operators"
-        ;;
-    esac
-    export MAS_APP_CHANNEL_MANAGE; export MAS_APP_SOURCE_MANAGE
-  else
-    export MAS_APP_SOURCE_MANAGE=''; export MAS_APP_CHANNEL_MANAGE=''
+    channel_select_manage || exit 1
   fi
 
   # Applications that require Manage
   if [[ "$MAS_APP_CHANNEL_MANAGE" != '' ]]; then
     if prompt_for_confirm "Install Predict"; then
-      case $MAS_CHANNEL in
-        8.7.x)
-          MAS_APP_CHANNEL_PREDICT=8.5.x
-          MAS_APP_SOURCE_PREDICT=ibm-operator-catalog
-          ;;
-        8.6.x)
-          MAS_APP_CHANNEL_PREDICT=8.4.x
-          MAS_APP_SOURCE_PREDICT=ibm-operator-catalog
-          ;;
-        *)
-          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_PREDICT
-          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_PREDICT "ibm-mas-predict-operators"
-          ;;
-      esac
-      export MAS_APP_CHANNEL_PREDICT; export MAS_APP_SOURCE_PREDICT
-    else
-      export MAS_APP_SOURCE_PREDICT=''; export MAS_APP_CHANNEL_PREDICT=''
+      channel_select_predict || exit 1
     fi
-  else
-    # If you're not installing Manage you can't install Predict
-    export MAS_APP_SOURCE_PREDICT=''; export MAS_APP_CHANNEL_PREDICT=''
   fi
 
   # Optimizer can only be installed from 8.8 on
   if [[ "$MAS_CHANNEL" != '8.6.x' && "$MAS_CHANNEL" != '8.7.x' ]]; then
     if prompt_for_confirm "Install Optimizer"; then
-      case $MAS_CHANNEL in
-        8.8.x)
-          MAS_APP_CHANNEL_OPTIMIZER=8.2.x # not released yet, though not reachable since MAS_CHANNEL cannot be 8.8 (yet)
-          MAS_APP_SOURCE_OPTIMIZER=ibm-operator-catalog
-          ;;
-        *)
-          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_OPTIMIZER
-          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_OPTIMIZER "ibm-mas-optimizer-operators"
-          ;;
-      esac
-      export MAS_APP_CHANNEL_OPTIMIZER; export MAS_APP_SOURCE_OPTIMIZER;
+      channel_select_optimizer || exit 1
       # Optimizer install Plan + Validation
       while : ; do
-        prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full"
+        prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full" && export MAS_APP_PLAN_OPTIMIZER
         [[ "$MAS_APP_PLAN_OPTIMIZER" != "full" && "$MAS_APP_PLAN_OPTIMIZER" != "limited" ]] || break
       done
-      export MAS_APP_PLAN_OPTIMIZER;
-    else
-      # User chose not to install Optimizer
-      export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER='';
     fi
-  else
-    # These versions of MAS don't support the optimizer application
-    export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER='';
   fi
 
   echo ""
-  if [[ "$MAS_CATALOG_SOURCE" == "ibm-mas-operators" ]]; then
+  if [[ "$MAS_CATALOG_SOURCE" == "ibm-mas-operators" && -z AIRGAP_MODE ]]; then
     # Development Mode -- offer the ability to set MAS and SLS source independently
     echo_h2 "4a. Configure Artifactory"
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
@@ -188,7 +79,6 @@ function config_pipeline() {
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com override
     prompt_for_input "Entitlement Username" SLS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME override
     prompt_for_input "Entitlement Key" SLS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY override
-
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
     echo_h2 "4. Configure IBM Container Registry"
@@ -204,6 +94,13 @@ function config_pipeline() {
     export SLS_ICR_CPOPEN=icr.io/cpopen
     export SLS_ENTITLEMENT_USERNAME=cp
     export SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
+  fi
+
+  if [[ -n AIRGAP_MODE ]]; then
+    # Override Common Services Catalog Source
+    export COMMON_SERVICES_CATALOG_SOURCE=opencloud-operators
+  else
+    export COMMON_SERVICES_CATALOG_SOURCE=ibm-operator-catalog
   fi
 
   echo
