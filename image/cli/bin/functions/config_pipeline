@@ -239,9 +239,9 @@ function config_pipeline() {
     echo -e "${COLOR_GREEN}Storage class auto-detected: IBMCloud ROKS${COLOR_RESET}"
   else
     # 2. OCS
-    oc get storageclass ocs-storagecluster-ceph-rbd &>> $LOGFILE
+    oc get storageclass ocs-storagecluster-cephfs &>> $LOGFILE
     if [[ $? == "0" ]]; then
-      PIPELINE_STORAGE_CLASS=ocs-storagecluster-ceph-rbd
+      PIPELINE_STORAGE_CLASS=ocs-storagecluster-cephfs
       echo -e "${COLOR_GREEN}Storage class auto-detected: OpenShift Container Storage${COLOR_RESET}"
     else
       # 3. Azure
