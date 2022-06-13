@@ -99,8 +99,10 @@ function config_pipeline() {
   if [[ -n AIRGAP_MODE ]]; then
     # Override Common Services Catalog Source
     export COMMON_SERVICES_CATALOG_SOURCE=opencloud-operators
+    export SLS_CATALOG_SOURCE=ibm-sls-operators
   else
     export COMMON_SERVICES_CATALOG_SOURCE=ibm-operator-catalog
+    export SLS_CATALOG_SOURCE=ibm-operator-catalog
   fi
 
   echo

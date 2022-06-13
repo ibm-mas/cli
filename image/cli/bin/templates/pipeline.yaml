@@ -65,10 +65,12 @@ spec:
     - name: sls_mongodb_cfg_file
       type: string
       default: "/workspace/configs/mongo-mongoce.yml"
-    - name: sls_catalog_source         # Required
+    - name: sls_catalog_source
       type: string
-    - name: sls_channel                # Required
+      default: ""
+    - name: sls_channel
       type: string
+      default: ""
     - name: sls_icr_cp
       type: string
       default: ""
