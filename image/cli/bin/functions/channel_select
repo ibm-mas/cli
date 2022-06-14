@@ -62,7 +62,6 @@ function channel_select_iot() {
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi
-  true
 }
 
 function channel_select_monitor() {
