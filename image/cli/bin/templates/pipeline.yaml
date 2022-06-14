@@ -148,6 +148,37 @@ spec:
       type: string
       default: ""
 
+    # MAS DNS Integrations - General
+    - name: dns_provider
+      type: string
+      default: ""
+    # MAS DNS Integrations - Cloudflare Support
+    - name: cloudflare_email
+      type: string
+      default: ""
+    - name: cloudflare_apitoken
+      type: string
+      default: ""
+    - name: cloudflare_zone
+      type: string
+      default: ""
+    - name: cloudflare_subdomain
+      type: string
+      default: ""
+    # MAS DNS Integrations - IBM Cloud Internet Services Support
+    - name: cis_email
+      type: string
+      default: ""
+    - name: cis_apikey
+      type: string
+      default: ""
+    - name: cis_crn
+      type: string
+      default: ""
+    - name: cis_subdomain
+      type: string
+      default: ""
+
     # MAS Configuration
     - name: mas_instance_id            # Required
       type: string
@@ -156,6 +187,14 @@ spec:
     - name: mas_catalog_source
       type: string
       default: ibm-operator-catalog
+
+    - name: mas_domain
+      type: string
+      default: ""
+    - name: mas_cluster_issuer
+      type: string
+      default: ""
+
     - name: mas_icr_cp
       type: string
       default: ""
@@ -720,11 +759,36 @@ spec:
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
+        - name: mas_domain
+          value: $(params.mas_domain)
+
+        - name: dns_provider
+          value: $(params.dns_provider)
+
+        - name: cloudflare_email
+          value: $(params.cloudflare_email)
+        - name: cloudflare_apitoken
+          value: $(params.cloudflare_apitoken)
+        - name: cloudflare_zone
+          value: $(params.cloudflare_zone)
+        - name: cloudflare_subdomain
+          value: $(params.cloudflare_subdomain)
+
+        - name: cis_email
+          value: $(params.cis_email)
+        - name: cis_apikey
+          value: $(params.cis_apikey)
+        - name: cis_crn
+          value: $(params.cis_crn)
+        - name: cis_subdomain
+          value: $(params.cis_subdomain)
+
       taskRef:
         kind: Task
         name: mas-devops-suite-dns
       runAfter:
         - cert-manager
+
 
     # 8.2 Suite Installation
     - name: suite-install
@@ -740,8 +804,16 @@ spec:
           value: $(params.artifactory_username)
         - name: artifactory_apikey
           value: $(params.artifactory_apikey)
+
         - name: mas_instance_id
           value: $(params.mas_instance_id)
+        - name: mas_annotations
+          value: $(params.mas_annotations)
+        - name: mas_domain
+          value: $(params.mas_domain)
+        - name: mas_cluster_issuer
+          value: $(params.mas_cluster_issuer)
+
         - name: mas_channel
           value: $(params.mas_channel)
         - name: mas_catalog_source
@@ -756,9 +828,6 @@ spec:
           value: $(params.ibm_entitlement_key)
         - name: mas_entitlement_key
           value: $(params.mas_entitlement_key)
-        - name: mas_annotations
-          value: $(params.mas_annotations)
-
       taskRef:
         kind: Task
         name: mas-devops-suite-install
