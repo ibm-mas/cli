@@ -17,7 +17,8 @@ function config_pipeline() {
     echo
     echo -e "${COLOR_YELLOW}DNS Integrations:"
     echo "  1. Cloudflare"
-    echo "  2. None (I will set up DNS myself)"
+    echo "  2. IBM Cloud Internet Services"
+    echo "  3. None (I will set up DNS myself)"
     prompt_for_input "Select DNS Provider" DNS_PROVIDER_SELECTION "1"
 
     case $DNS_PROVIDER_SELECTION in
@@ -50,7 +51,36 @@ function config_pipeline() {
             ;;
         esac
         ;;
-      2|none)
+      2|cis)
+        # User has chosen to set up DNS integration with Cloudflare
+        prompt_for_input "CIS e-mail" CIS_EMAIL
+        prompt_for_input "CIS API Key" CIS_APIKEY
+        prompt_for_input "CIS CRN" CIS_CRN
+        prompt_for_input "CIS Subdomain" CIS_SUBDOMAIN
+        export DNS_PROVIDER=cis
+
+        echo
+        echo -e "${COLOR_YELLOW}Certificate Issuer:"
+        echo "  1. LetsEncrypt (Production)"
+        echo "  2. LetsEncrypt (Staging)"
+        echo "  3. Self-Signed"
+        prompt_for_input "Select Certificate Issuer" CLUSTER_ISSUER_SELECTION "1"
+        case $CLUSTER_ISSUER_SELECTION in
+          1|prod)
+            export MAS_CLUSTER_ISSUER="${MAS_INSTANCE_ID}-cis-le-prod"
+            ;;
+          2|staging)
+            export MAS_CLUSTER_ISSUER="${MAS_INSTANCE_ID}-cis-le-stg"
+            ;;
+          3|self)
+            export MAS_CLUSTER_ISSUER=''
+            ;;
+          *)
+            export MAS_CLUSTER_ISSUER=CLUSTER_ISSUER_SELECTION
+            ;;
+        esac
+        ;;
+      3|none)
         # User has chosen to set up DNS themselves
         export DNS_PROVIDER=''
         echo
@@ -263,7 +293,7 @@ function config_pipeline() {
   echo -en "\033[s" # Save cursor position
   echo -n "Preparing namespace 'mas-$MAS_INSTANCE_ID-pipelines' ..."
 
-  export PIPELINE_VERSION=11.0.0-pre.cloudflare
+  export PIPELINE_VERSION=10.3.0
   if [ ! -e $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml ]; then
     wget https://github.com/ibm-mas/ansible-devops/releases/download/$PIPELINE_VERSION/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml -O $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml  &>> $LOGFILE
   fi

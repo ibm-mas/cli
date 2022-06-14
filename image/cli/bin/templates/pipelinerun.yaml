@@ -71,6 +71,15 @@ spec:
       value: '$CLOUDFLARE_ZONE'
     - name: cloudflare_subdomain
       value: '$CLOUDFLARE_SUBDOMAIN'
+    # MAS DNS Integrations - CIS Support
+    - name: cis_email
+      value: '$CIS_EMAIL'
+    - name: cis_apikey
+      value: '$CIS_APIKEY'
+    - name: cis_crn
+      value: '$CIS_CRN'
+    - name: cis_subdomain
+      value: '$CIS_SUBDOMAIN'
 
     # Configure MAS Core install
     - name: mas_instance_id

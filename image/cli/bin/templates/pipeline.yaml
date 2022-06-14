@@ -165,6 +165,19 @@ spec:
     - name: cloudflare_subdomain
       type: string
       default: ""
+    # MAS DNS Integrations - IBM Cloud Internet Services Support
+    - name: cis_email
+      type: string
+      default: ""
+    - name: cis_apikey
+      type: string
+      default: ""
+    - name: cis_crn
+      type: string
+      default: ""
+    - name: cis_subdomain
+      type: string
+      default: ""
 
     # MAS Configuration
     - name: mas_instance_id            # Required
@@ -751,6 +764,7 @@ spec:
 
         - name: dns_provider
           value: $(params.dns_provider)
+
         - name: cloudflare_email
           value: $(params.cloudflare_email)
         - name: cloudflare_apitoken
@@ -759,6 +773,16 @@ spec:
           value: $(params.cloudflare_zone)
         - name: cloudflare_subdomain
           value: $(params.cloudflare_subdomain)
+
+        - name: cis_email
+          value: $(params.cis_email)
+        - name: cis_apikey
+          value: $(params.cis_apikey)
+        - name: cis_crn
+          value: $(params.cis_crn)
+        - name: cis_subdomain
+          value: $(params.cis_subdomain)
+
       taskRef:
         kind: Task
         name: mas-devops-suite-dns
