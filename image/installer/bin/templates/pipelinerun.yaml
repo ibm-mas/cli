@@ -56,6 +56,12 @@ spec:
       value: '$APPCONNECT_ENTITLEMENT_USERNAME'
     - name: appconnect_entitlement_key
       value: '$APPCONNECT_ENTITLEMENT_KEY'
+    
+    # Dependencies - COS
+    - name: cos_type
+      value: '$COS_TYPE'
+    - name: ibmcloud_apikey
+      value: '$IBMCLOUD_APIKEY'
 
     # Configure MAS Core install
     - name: mas_instance_id

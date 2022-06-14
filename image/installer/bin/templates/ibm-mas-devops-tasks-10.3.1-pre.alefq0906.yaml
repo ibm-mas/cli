@@ -72,7 +72,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - appconnect
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -132,7 +132,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cert_manager
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -224,7 +224,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cluster_monitoring
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -280,7 +280,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - common_services
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -353,7 +353,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cos
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -446,7 +446,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cp4d
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/cp4d_service.yaml
@@ -538,7 +538,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cp4d_service
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -594,6 +594,14 @@ spec:
       type: string
       default: ""
     - name: db2_temp_storage_size
+      type: string
+      default: ""
+
+    # Optionally set up a db2 LDAP user
+    - name: db2_ldap_username
+      type: string
+      default: ""
+    - name: db2_ldap_password
       type: string
       default: ""
 
@@ -654,6 +662,12 @@ spec:
       - name: DB2_TEMP_STORAGE_SIZE
         value: $(params.db2_temp_storage_size)
 
+    # Optionally set up a db2 LDAP user
+      - name: DB2_LDAP_USERNAME
+        value: $(params.db2_ldap_username)
+      - name: DB2_LDAP_PASSWORD
+        value: $(params.db2_ldap_password)
+
       # Entitlement
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
@@ -674,7 +688,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - db2
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -740,7 +754,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - gencfg_workspace
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -807,7 +821,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - ibm_catalogs
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -883,7 +897,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - kafka
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -940,7 +954,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - mongodb
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -993,7 +1007,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - nvidia_gpu
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -1052,7 +1066,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - sbo
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -1180,7 +1194,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - sls
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -1251,7 +1265,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_app_config
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-app-install.yaml
@@ -1371,7 +1385,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_app_install
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-config.yaml
@@ -1423,7 +1437,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_config
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -1489,7 +1503,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_db2_setup_for_manage
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-dns.yaml
@@ -1501,9 +1515,42 @@ metadata:
   name: mas-devops-suite-dns
 spec:
   params:
+    - name: dns_provider
+      type: string
+      default: ""
     - name: mas_instance_id
       type: string
-      description: Instance ID
+    - name: mas_domain
+      type: string
+      default: ""
+
+    # Cloudflare support
+    - name: cloudflare_email
+      type: string
+      default: ""
+    - name: cloudflare_apitoken
+      type: string
+      default: ""
+    - name: cloudflare_zone
+      type: string
+      default: ""
+    - name: cloudflare_subdomain
+      type: string
+      default: ""
+
+    # IBM Cloud Internet Services support
+    - name: cis_email
+      type: string
+      default: ""
+    - name: cis_apikey
+      type: string
+      default: ""
+    - name: cis_crn
+      type: string
+      default: ""
+    - name: cis_subdomain
+      type: string
+      default: ""
 
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
@@ -1522,8 +1569,30 @@ spec:
 
   stepTemplate:
     env:
+      - name: DNS_PROVIDER
+        value: $(params.dns_provider)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
+      - name: MAS_DOMAIN
+        value: $(params.mas_domain)
+
+      - name: CLOUDFLARE_EMAIL
+        value: $(params.cloudflare_email)
+      - name: CLOUDFLARE_APITOKEN
+        value: $(params.cloudflare_apitoken)
+      - name: CLOUDFLARE_ZONE
+        value: $(params.cloudflare_zone)
+      - name: CLOUDFLARE_SUBDOMAIN
+        value: $(params.cloudflare_subdomain)
+
+      - name: CIS_EMAIL
+        value: $(params.cis_email)
+      - name: CIS_APIKEY
+        value: $(params.cis_apikey)
+      - name: CIS_CRN
+        value: $(params.cis_crn)
+      - name: CIS_SUBDOMAIN
+        value: $(params.cis_subdomain)
 
       # Optional support built into the ansible-devops image
       # for saving task execution results to a MongoDb instance
@@ -1539,7 +1608,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_dns
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-install.yaml
@@ -1557,6 +1626,23 @@ spec:
       type: string
     - name: mas_catalog_source
       type: string
+      default: ""
+
+    - name: mas_annotations
+      default: ''
+      type: string
+      description: Required to install  MAS with annotations (e.g. for saas)
+    - name: mas_domain
+      default: ''
+      type: string
+      description: Optional. If not provided the role will use the default cluster subdomain
+    - name: mas_cluster_issuer
+      default: ''
+      type: string
+      description: Optional. If not provided MAS will generate it's own self-signed cluster issuer when installed
+    - name: mas_upgrade_strategy
+      type: string
+      description: Optional identifier for the Upgrade strategy for MAS Operator. Default is set to Automatic
       default: ""
 
     - name: mas_icr_cp
@@ -1584,18 +1670,6 @@ spec:
       default: ''
       type: string
       description: Required to install development MAS catalogs
-    - name: mas_annotations
-      default: ''
-      type: string
-      description: Required to install  MAS with annotations (e.g. for saas)
-    - name: mas_domain
-      default: ''
-      type: string
-      description: Optional. If not provided the role will use the default cluster subdomain
-    - name: mas_upgrade_strategy
-      type: string
-      description: Optional identifier for the Upgrade strategy for MAS Operator. Default is set to Automatic
-      default: ""
 
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
@@ -1628,6 +1702,15 @@ spec:
       - name: MAS_CATALOG_SOURCE
         value: $(params.mas_catalog_source)
 
+      - name: MAS_ANNOTATIONS
+        value: $(params.mas_annotations)
+      - name: MAS_DOMAIN
+        value: $(params.mas_domain)
+      - name: MAS_CLUSTER_ISSUER
+        value: $(params.mas_cluster_issuer)
+      - name: MAS_UPGRADE_STRATEGY
+        value: $(params.mas_upgrade_strategy)
+
       - name: ARTIFACTORY_USERNAME
         value: $(params.artifactory_username)
       - name: ARTIFACTORY_APIKEY
@@ -1644,12 +1727,6 @@ spec:
         value: $(params.ibm_entitlement_key)
       - name: MAS_ENTITLEMENT_KEY
         value: $(params.mas_entitlement_key)
-      - name: MAS_ANNOTATIONS
-        value: $(params.mas_annotations)
-      - name: MAS_DOMAIN
-        value: $(params.mas_domain)
-      - name: MAS_UPGRADE_STRATEGY
-        value: $(params.mas_upgrade_strategy)
 
       # Optional support built into the ansible-devops image
       # for saving task execution results to a MongoDb instance
@@ -1665,7 +1742,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_install
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -1700,14 +1777,14 @@ spec:
     - name: clear-mustgather
       command:
         - /opt/app-root/src/clear-mustgather-workspace.sh
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/mustgather
     - name: suite-mustgather
       command:
         - /opt/app-root/src/run-role.sh
         - suite_mustgather
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/mustgather
 
@@ -1760,7 +1837,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_verify
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/uds.yaml
@@ -1840,7 +1917,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - uds
-      image: quay.io/ibmmas/ansible-devops:10.1.2-pre.alefq0906
+      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq0906
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
