@@ -52,7 +52,7 @@ function channel_select_iot() {
         ;;
 
       *)
-        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_IOTT
+        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_IOT
         prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_IOT "ibm-mas-iot-operators"
         ;;
     esac
