@@ -23,6 +23,10 @@ spec:
     - name: ibm_entitlement_key
       value: '$IBM_ENTITLEMENT_KEY'
 
+    # Dependencies - Common Services
+    - name: common_services_catalog_source
+      value: '$COMMON_SERVICES_CATALOG_SOURCE'
+
     # Dependencies - CP4D
     - name: cpd_product_version
       value: '4.0.9'
@@ -34,6 +38,10 @@ spec:
       value: '$SLS_LICENSE_ID'
     - name: sls_license_file
       value: '$SLS_LICENSE_FILE'
+    - name: sls_catalog_source
+      value: '$SLS_CATALOG_SOURCE'
+    - name: sls_channel
+      value: '3.x'
     - name: sls_icr_cp
       value: '$SLS_ICR_CP'
     - name: sls_icr_cpopen
@@ -63,6 +71,28 @@ spec:
     - name: ibmcloud_apikey
       value: '$IBMCLOUD_APIKEY'
 
+    # MAS DNS Integrations - General
+    - name: dns_provider
+      value: '$DNS_PROVIDER'
+    # MAS DNS Integrations - Cloudflare Support
+    - name: cloudflare_email
+      value: '$CLOUDFLARE_EMAIL'
+    - name: cloudflare_apitoken
+      value: '$CLOUDFLARE_APITOKEN'
+    - name: cloudflare_zone
+      value: '$CLOUDFLARE_ZONE'
+    - name: cloudflare_subdomain
+      value: '$CLOUDFLARE_SUBDOMAIN'
+    # MAS DNS Integrations - CIS Support
+    - name: cis_email
+      value: '$CIS_EMAIL'
+    - name: cis_apikey
+      value: '$CIS_APIKEY'
+    - name: cis_crn
+      value: '$CIS_CRN'
+    - name: cis_subdomain
+      value: '$CIS_SUBDOMAIN'
+
     # Configure MAS Core install
     - name: mas_instance_id
       value: '$MAS_INSTANCE_ID'
@@ -70,6 +100,11 @@ spec:
       value: '$MAS_CHANNEL'
     - name: mas_catalog_source
       value: '$MAS_CATALOG_SOURCE'
+
+    - name: mas_domain
+      value: '$MAS_DOMAIN'
+    - name: mas_cluster_issuer
+      value: '$MAS_CLUSTER_ISSUER'
 
     - name: mas_entitlement_username
       value: '$MAS_ENTITLEMENT_USERNAME'

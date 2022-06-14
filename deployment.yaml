@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mas-cli
+  name: mas-cli
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mas-cli
+  template:
+    metadata:
+      labels:
+        app: mas-cli
+    spec:
+      containers:
+      - name: mas-cli
+        imagePullPolicy: Always
+        image: quay.io/ibmmas/cli:1.0.0-pre.master
+        command: [ "/bin/bash", "-c", "--" ]
+        args: [ "while true; do sleep 30; done;" ]

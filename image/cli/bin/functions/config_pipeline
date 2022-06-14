@@ -1,7 +1,6 @@
 #!/bin/bash
 
 function config_pipeline() {
-  echo
   echo_h2 "3. Configure Installation"
 
   # MAS instance ID
@@ -10,210 +9,186 @@ function config_pipeline() {
   fi
   prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
 
-  echo -e "${COLOR_YELLOW}MAS Version:"
-  echo "  1. 8.7"
-  echo "  2. 8.6"
-  prompt_for_input "Select Subscription Channel" MAS_CHANNEL_SELECTION "1"
+  channel_select_mas || exit 1
 
-  case $MAS_CHANNEL_SELECTION in
-    1|8.7|8.7.x)
-      export MAS_CHANNEL=8.7.x
-      export MAS_CATALOG_SOURCE=ibm-operator-catalog
-      ;;
+  if prompt_for_confirm "Configure Custom Domain"; then
+    prompt_for_input "MAS Top Level Domain" MAS_DOMAIN
 
-    2|8.6|8.6.x)
-      export MAS_CHANNEL=8.6.x
-      export MAS_CATALOG_SOURCE=ibm-operator-catalog
-      ;;
+    echo
+    echo -e "${COLOR_YELLOW}DNS Integrations:"
+    echo "  1. Cloudflare"
+    echo "  2. IBM Cloud Internet Services"
+    echo "  3. None (I will set up DNS myself)"
+    prompt_for_input "Select DNS Provider" DNS_PROVIDER_SELECTION "1"
 
-    *)
-      export MAS_CHANNEL=$MAS_CHANNEL_SELECTION
-      prompt_for_input 'Custom Catalog Source' MAS_CATALOG_SOURCE "ibm-mas-operators"
-      ;;
-  esac
+    case $DNS_PROVIDER_SELECTION in
+      1|cloudflare)
+        # User has chosen to set up DNS integration with Cloudflare
+        prompt_for_input "Cloudflare e-mail" CLOUDFLARE_EMAIL
+        prompt_for_input "Cloudflare API Token" CLOUDFLARE_APITOKEN
+        prompt_for_input "Cloudflare Zone" CLOUDFLARE_ZONE
+        prompt_for_input "Cloudflare Subdomain" CLOUDFLARE_SUBDOMAIN
+        export DNS_PROVIDER=cloudflare
 
-  echo -e "${COLOR_YELLOW}Select Applications:"
-  if prompt_for_confirm "Install IoT"; then
-    case $MAS_CHANNEL in
-      8.6.x|8.7.x)
-        MAS_APP_CHANNEL_IOT=8.4.x
-        MAS_APP_SOURCE_IOT=ibm-operator-catalog
+        echo
+        echo -e "${COLOR_YELLOW}Certificate Issuer:"
+        echo "  1. LetsEncrypt (Production)"
+        echo "  2. LetsEncrypt (Staging)"
+        echo "  3. Self-Signed"
+        prompt_for_input "Select Certificate Issuer" CLUSTER_ISSUER_SELECTION "1"
+        case $CLUSTER_ISSUER_SELECTION in
+          1|prod)
+            export MAS_CLUSTER_ISSUER="${MAS_INSTANCE_ID}-cloudflare-le-prod"
+            ;;
+          2|staging)
+            export MAS_CLUSTER_ISSUER="${MAS_INSTANCE_ID}-cloudflare-le-stg"
+            ;;
+          3|self)
+            export MAS_CLUSTER_ISSUER=''
+            ;;
+          *)
+            export MAS_CLUSTER_ISSUER=CLUSTER_ISSUER_SELECTION
+            ;;
+        esac
         ;;
+      2|cis)
+        # User has chosen to set up DNS integration with Cloudflare
+        prompt_for_input "CIS e-mail" CIS_EMAIL
+        prompt_for_input "CIS API Key" CIS_APIKEY
+        prompt_for_input "CIS CRN" CIS_CRN
+        prompt_for_input "CIS Subdomain" CIS_SUBDOMAIN
+        export DNS_PROVIDER=cis
 
-      *)
-        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_IOT
-        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_IOT "ibm-mas-iot-operators"
+        echo
+        echo -e "${COLOR_YELLOW}Certificate Issuer:"
+        echo "  1. LetsEncrypt (Production)"
+        echo "  2. LetsEncrypt (Staging)"
+        echo "  3. Self-Signed"
+        prompt_for_input "Select Certificate Issuer" CLUSTER_ISSUER_SELECTION "1"
+        case $CLUSTER_ISSUER_SELECTION in
+          1|prod)
+            export MAS_CLUSTER_ISSUER="${MAS_INSTANCE_ID}-cis-le-prod"
+            ;;
+          2|staging)
+            export MAS_CLUSTER_ISSUER="${MAS_INSTANCE_ID}-cis-le-stg"
+            ;;
+          3|self)
+            export MAS_CLUSTER_ISSUER=''
+            ;;
+          *)
+            export MAS_CLUSTER_ISSUER=CLUSTER_ISSUER_SELECTION
+            ;;
+        esac
         ;;
-    esac
-    export MAS_APP_CHANNEL_IOT; export MAS_APP_SOURCE_IOT
-  else
-    export MAS_APP_SOURCE_IOT=''; export MAS_APP_CHANNEL_IOT=''
-  fi
-
-  # Applications that require IoT
-  if [[ "$MAS_APP_CHANNEL_IOT" != '' ]]; then
-    # -----------------
-    # Monitor
-    # -----------------
-    if prompt_for_confirm "Install Monitor"; then
-      case $MAS_CHANNEL in
-        8.7.x)
-          MAS_APP_CHANNEL_MONITOR=8.7.x
-          MAS_APP_SOURCE_MONITOR=ibm-operator-catalog
-          ;;
-        8.6.x)
-          MAS_APP_CHANNEL_MONITOR=8.6.x
-          MAS_APP_SOURCE_MONITOR=ibm-operator-catalog
-          ;;
-        *)
-          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MONITOR
-          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_MONITOR "ibm-mas-monitor-operators"
-          ;;
-      esac
-      export MAS_APP_CHANNEL_MONITOR; export MAS_APP_SOURCE_MONITOR
-    else
-      export MAS_APP_SOURCE_MONITOR=''; export MAS_APP_CHANNEL_MONITOR=''
-    fi
-    # -----------------
-    # Safety
-    # -----------------
-    if prompt_for_confirm "Install Safety"; then
-      case $MAS_CHANNEL in
-        8.6.x|8.7.x)
-          MAS_APP_CHANNEL_SAFETY=8.2.x
-          MAS_APP_SOURCE_SAFETY=ibm-operator-catalog
-          ;;
-        *)
-          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_SAFETY
-          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_SAFETY "ibm-mas-safety-operators"
-          ;;
-      esac
-      export MAS_APP_CHANNEL_SAFETY; export MAS_APP_SOURCE_SAFETY
-    else
-      export MAS_APP_SOURCE_SAFETY=''; export MAS_APP_CHANNEL_SAFETY=''
-    fi
-  else
-    # If you're not installing IoT you can't install Monitor or Safety
-    export MAS_APP_SOURCE_MONITOR=''; export MAS_APP_CHANNEL_MONITOR=''
-    export MAS_APP_SOURCE_SAFETY=''; export MAS_APP_CHANNEL_SAFETY=''
-  fi
-
-  # -----------------
-  # Manage
-  # -----------------
-  if prompt_for_confirm "Install Manage"; then
-    case $MAS_CHANNEL in
-      8.7.x)
-        MAS_APP_CHANNEL_MANAGE=8.3.x
-        MAS_APP_SOURCE_MANAGE=ibm-operator-catalog
-        ;;
-      8.6.x)
-        MAS_APP_CHANNEL_MANAGE=8.2.x
-        MAS_APP_SOURCE_MANAGE=ibm-operator-catalog
+      3|none)
+        # User has chosen to set up DNS themselves
+        export DNS_PROVIDER=''
+        echo
+        echo -e "${COLOR_YELLOW}Certificate Issuer:"
+        echo "  1. Self-Signed"
+        prompt_for_input "Select Certificate Issuer" CLUSTER_ISSUER_SELECTION "1"
+        case $CLUSTER_ISSUER_SELECTION in
+          1|self)
+            export MAS_CLUSTER_ISSUER=''
+            ;;
+          *)
+            export MAS_CLUSTER_ISSUER=CLUSTER_ISSUER_SELECTION
+            ;;
+        esac
+        export MAS_CLUSTER_ISSUER=''
         ;;
       *)
-        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MANAGE
-        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_MANAGE "ibm-mas-manage-operators"
+        exit 1
         ;;
     esac
-    export MAS_APP_CHANNEL_MANAGE; export MAS_APP_SOURCE_MANAGE
   else
-    export MAS_APP_SOURCE_MANAGE=''; export MAS_APP_CHANNEL_MANAGE=''
+    # User has chosen to use the default MAS domain, but can still choose a certificate issuer if they want
+    echo
+    echo -e "${COLOR_YELLOW}Certificate Issuer:"
+    echo "  1. Self-Signed"
+    prompt_for_input "Select Certificate Issuer" CLUSTER_ISSUER_SELECTION "1"
+    case $CLUSTER_ISSUER_SELECTION in
+      1|self)
+        export MAS_CLUSTER_ISSUER=''
+        ;;
+      *)
+        export MAS_CLUSTER_ISSUER=CLUSTER_ISSUER_SELECTION
+        ;;
+    esac
   fi
 
-  # Applications that require Manage
-  if [[ "$MAS_APP_CHANNEL_MANAGE" != '' ]]; then
-    # -----------------
-    # Predict
-    # -----------------
-    if prompt_for_confirm "Install Predict"; then
-      case $MAS_CHANNEL in
-        8.7.x)
-          MAS_APP_CHANNEL_PREDICT=8.5.x
-          MAS_APP_SOURCE_PREDICT=ibm-operator-catalog
-          ;;
-        8.6.x)
-          MAS_APP_CHANNEL_PREDICT=8.4.x
-          MAS_APP_SOURCE_PREDICT=ibm-operator-catalog
-          ;;
-        *)
-          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_PREDICT
-          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_PREDICT "ibm-mas-predict-operators"
-          ;;
-      esac
-      export MAS_APP_CHANNEL_PREDICT; export MAS_APP_SOURCE_PREDICT
-    else
-      export MAS_APP_SOURCE_PREDICT=''; export MAS_APP_CHANNEL_PREDICT=''
+  # Default all applications to "do not deploy"
+  export MAS_APP_SOURCE_IOT='';        export MAS_APP_CHANNEL_IOT=''
+  export MAS_APP_SOURCE_MONITOR='';    export MAS_APP_CHANNEL_MONITOR=''
+  export MAS_APP_SOURCE_SAFETY='';     export MAS_APP_CHANNEL_SAFETY=''
+  export MAS_APP_SOURCE_MANAGE='';     export MAS_APP_CHANNEL_MANAGE=''
+  export MAS_APP_SOURCE_PREDICT='';    export MAS_APP_CHANNEL_PREDICT=''
+  export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER=''; export MAS_APP_PLAN_OPTIMIZER=''
+
+  if [[ -z "$AIRGAP_MODE" ]]; then
+    echo -e "${COLOR_YELLOW}Select Applications:"
+    
+    # IoT
+    if prompt_for_confirm "Install IoT"; then
+      channel_select_iot || exit 1
     fi
-  else
-    # If you're not installing Manage you can't install Predict
-    export MAS_APP_SOURCE_PREDICT=''; export MAS_APP_CHANNEL_PREDICT=''
-  fi
-  # -----------------
-  # Optimizer
-  # - It can only be installed from 8.8 on
-  # -----------------
-  if [[ "$MAS_CHANNEL" != '8.6.x' && "$MAS_CHANNEL" != '8.7.x' ]]; then
-    if prompt_for_confirm "Install Optimizer"; then
-      case $MAS_CHANNEL in
-        8.8.x)
-          MAS_APP_CHANNEL_OPTIMIZER=8.2.x # not released yet, though not reachable since MAS_CHANNEL cannot be 8.8 (yet)
-          MAS_APP_SOURCE_OPTIMIZER=ibm-operator-catalog
-          ;;
-        *)
-          prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_OPTIMIZER
-          prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_OPTIMIZER "ibm-mas-optimizer-operators"
-          ;;
-      esac
-      export MAS_APP_CHANNEL_OPTIMIZER; export MAS_APP_SOURCE_OPTIMIZER;
-      # Optimizer install Plan + Validation
+
+    # Applications that require IoT
+    if [[ "$MAS_APP_CHANNEL_IOT" != '' ]]; then
+      # Monitor
+      if prompt_for_confirm "Install Monitor"; then
+        channel_select_monitor || exit 1
+      fi
+      # Safety
+      if prompt_for_confirm "Install Safety"; then
+        channel_select_safety || exit 1
+      fi
+    fi
+
+    # Manage
+    if prompt_for_confirm "Install Manage"; then
+      channel_select_manage || exit 1
+    fi
+
+    # Applications that require Manage
+    if [[ "$MAS_APP_CHANNEL_MANAGE" != '' ]]; then
+      # Predict
+      if prompt_for_confirm "Install Predict"; then
+        channel_select_predict || exit 1
+      fi
+    fi
+
+    # Assist
+    if prompt_for_confirm "Install Assist"; then
+      channel_select_assist || exit 1
+    fi
+
+    # Assist Dependencies
+    if [[ "$MAS_APP_CHANNEL_ASSIST" != '' ]]; then      
       while : ; do
-        prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full"
-        [[ "$MAS_APP_PLAN_OPTIMIZER" != "full" && "$MAS_APP_PLAN_OPTIMIZER" != "limited" ]] || break
+        prompt_for_input 'COS Provider [ibm/ocs]' COS_TYPE "ibm"
+        [[ "$COS_TYPE" != "ibm" && "$COS_TYPE" != "ocs" ]] || break
       done
-      export MAS_APP_PLAN_OPTIMIZER;
-    else
-      # User chose not to install Optimizer
-      export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER='';
+      export COS_TYPE;
+      prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY $IBMCLOUD_APIKEY
+      prompt_for_input "IBM Cloud Resource Group" IBMCLOUD_RESOURCEGROUP $IBMCLOUD_RESOURCEGROUP "Default"
     fi
-  else
-    # These versions of MAS don't support the optimizer application
-    export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER='';
-  fi
 
-  # -----------------
-  # Assist
-  # -----------------
-  if prompt_for_confirm "Install Assist"; then
-    # case $MAS_CHANNEL in
-    #   8.7.x)
-    #     MAS_APP_CHANNEL_ASSIST=8.3.x
-    #     MAS_APP_SOURCE_ASSIST=ibm-operator-catalog
-    #     ;;
-    #   8.6.x)
-    #     MAS_APP_CHANNEL_ASSIST=8.2.x
-    #     MAS_APP_SOURCE_ASSIST=ibm-operator-catalog
-    #     ;;
-    #   *)
-    #     prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_ASSIST
-    #     prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_ASSIST "ibm-mas-manage-operators"
-    #     ;;
-    # esac
-    # export MAS_APP_CHANNEL_ASSIST; export MAS_APP_SOURCE_ASSIST;
-    # COS
-    while : ; do
-      prompt_for_input 'COS Provider [ibm/ocs]' COS_TYPE "ibm"
-      [[ "$COS_TYPE" != "ibm" && "$COS_TYPE" != "ocs" ]] || break
-    done
-    export COS_TYPE;
-    prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY $IBMCLOUD_APIKEY
-    prompt_for_input "IBM Cloud Resource Group" IBMCLOUD_RESOURCEGROUP $IBMCLOUD_RESOURCEGROUP "Default"
-  else
-    export MAS_APP_CHANNEL_ASSIST=''; export MAS_APP_CHANNEL_MANAGE=''
+    # Optimizer can only be installed from 8.8 on
+    if [[ "$MAS_CHANNEL" != '8.6.x' && "$MAS_CHANNEL" != '8.7.x' ]]; then
+      if prompt_for_confirm "Install Optimizer"; then
+        channel_select_optimizer || exit 1
+        # Optimizer install Plan + Validation
+        while : ; do
+          prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full" && export MAS_APP_PLAN_OPTIMIZER
+          [[ "$MAS_APP_PLAN_OPTIMIZER" != "full" && "$MAS_APP_PLAN_OPTIMIZER" != "limited" ]] || break
+        done
+      fi
+    fi
   fi
 
   echo ""
-  if [[ "$MAS_CATALOG_SOURCE" == "ibm-mas-operators" ]]; then
+  if [[ "$MAS_CATALOG_SOURCE" == "ibm-mas-operators" && -z "$AIRGAP_MODE" ]]; then
     # Development Mode -- offer the ability to set MAS and SLS source independently
     echo_h2 "4a. Configure Artifactory"
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
@@ -228,13 +203,11 @@ function config_pipeline() {
     prompt_for_input "Entitlement Username" MAS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME override
     prompt_for_input "Entitlement Key" MAS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY override
 
-    echo
     echo_h2 "4d. Configure IBM Container Registry (SLS)"
     prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com override
     prompt_for_input "Entitlement Username" SLS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME override
     prompt_for_input "Entitlement Key" SLS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY override
-
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
     echo_h2 "4. Configure IBM Container Registry"
@@ -252,6 +225,15 @@ function config_pipeline() {
     export SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   fi
 
+  if [[ -n "$AIRGAP_MODE" ]]; then
+    # Override Common Services Catalog Source
+    export COMMON_SERVICES_CATALOG_SOURCE=opencloud-operators
+    export SLS_CATALOG_SOURCE=ibm-sls-operators
+  else
+    export COMMON_SERVICES_CATALOG_SOURCE=ibm-operator-catalog
+    export SLS_CATALOG_SOURCE=ibm-operator-catalog
+  fi
+
   echo
   echo_h2 "5. Configure Product License"
   prompt_for_input "License ID" SLS_LICENSE_ID
@@ -267,6 +249,16 @@ function config_pipeline() {
   prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
   prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
   prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
+
+  echo
+  echo_h2 "7. Install Cloud Pak For Data"
+  DEPLOY_CP4D=skip
+  if [[ -z "$AIRGAP_MODE" ]]; then
+    echo "Watson Studio, Watson Machine Learning, Watson Discovery, & Analytics Service will all be installed"
+    prompt_for_confirm "Install Cloud Pak for Data" && DEPLOY_CP4D=run
+  else
+    echo "Cloud Pak for Data install into airgap environment is not yet supported"
+  fi
 
   # --------------------------------------------------------
   # TEMPORARY settings for testing before build interaction
@@ -292,9 +284,9 @@ function config_pipeline() {
     echo -e "${COLOR_GREEN}Storage class auto-detected: IBMCloud ROKS${COLOR_RESET}"
   else
     # 2. OCS
-    oc get storageclass ocs-storagecluster-ceph-rbd &>> $LOGFILE
+    oc get storageclass ocs-storagecluster-cephfs &>> $LOGFILE
     if [[ $? == "0" ]]; then
-      PIPELINE_STORAGE_CLASS=ocs-storagecluster-ceph-rbd
+      PIPELINE_STORAGE_CLASS=ocs-storagecluster-cephfs
       echo -e "${COLOR_GREEN}Storage class auto-detected: OpenShift Container Storage${COLOR_RESET}"
     else
       # 3. Azure
