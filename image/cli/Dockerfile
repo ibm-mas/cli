@@ -12,7 +12,7 @@ RUN chmod +x /tini && \
     chmod +x /opt/app-root/src/.bashrc && \
     ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_airgap /mascli/airgap && \
     ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/devops && \
-    ansible-galaxy collection install ibm.mas_devops:10.3.0 --no-deps
+    ansible-galaxy collection install ibm.mas_devops:10.3.1 --no-deps
 
 ENV PATH="/mascli/bin:${PATH}" \
     VERSION=$VERSION_LABEL
