@@ -1169,6 +1169,7 @@ spec:
       runAfter:
         - suite-config-db2
         - suite-config-kafka
+        - suite-verify
 
     # A.2 Configure IoT workspace
     - name: app-cfg-iot
@@ -1408,6 +1409,7 @@ spec:
           values: [""]
       runAfter:
         - suite-db2-setup-for-manage
+        - suite-verify
 
     # D.3 Configure Manage workspace
     - name: app-cfg-manage
@@ -1703,6 +1705,7 @@ spec:
       runAfter:
         - discovery
         - suite-config-cos
+        - suite-verify
 
     # H.2 Configure Assist workspace
     - name: app-cfg-assist
@@ -1773,6 +1776,7 @@ spec:
           values: [""]
       runAfter:
         - nvidia
+        - suite-verify
 
     # I.2 Configure MVI workspace
     - name: app-cfg-visualinspection
