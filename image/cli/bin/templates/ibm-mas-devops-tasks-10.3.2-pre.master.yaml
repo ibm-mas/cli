@@ -1,0 +1,1937 @@
+
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/appconnect.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-appconnect
+spec:
+  params:
+    - name: mas_instance_id
+      type: string
+    
+    # Storage Clas
+    - name: appconnect_storage_class
+      type: string
+      default: ""
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+
+      # Storage Class
+      - name: APPCONNECT_STORAGE_CLASS
+        value: $(params.appconnect_storage_class)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: appconnect
+      command:
+        - /opt/app-root/src/run-role.sh
+        - appconnect
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/configs
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/cert-manager.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-cert-manager
+spec:
+  params:
+    - name: mas_channel
+      type: string
+      default: ""
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: mas_instance_id
+      type: string
+      description: Optional MAS instance Id, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: MAS_CHANNEL
+        value: $(params.mas_channel)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: cert-manager
+      command:
+        - /opt/app-root/src/run-role.sh
+        - cert_manager
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/configs
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/cluster-monitoring.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-cluster-monitoring
+spec:
+  params:
+    - name: prometheus_retention_period
+      type: string
+      default: ""
+    - name: prometheus_storage_class
+      type: string
+      default: ""
+    - name: prometheus_storage_size
+      type: string
+      default: ""
+    - name: prometheus_alertmgr_storage_class
+      type: string
+      default: ""
+    - name: prometheus_alertmgr_storage_size
+      type: string
+      default: ""
+    - name: prometheus_userworkload_retention_period
+      type: string
+      default: ""
+    - name: prometheus_userworkload_storage_class
+      type: string
+      default: ""
+    - name: prometheus_userworkload_storage_size
+      type: string
+      default: ""
+    - name: grafana_instance_storage_class
+      type: string
+      default: ""
+    - name: grafana_instance_storage_size
+      type: string
+      default: ""
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: mas_instance_id
+      type: string
+      description: Optional MAS instance Id, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: PROMETHEUS_RETENTION_PERIOD
+        value: $(params.prometheus_retention_period)
+      - name: PROMETHEUS_STORAGE_CLASS
+        value: $(params.prometheus_storage_class)
+      - name: PROMETHEUS_STORAGE_SIZE
+        value: $(params.prometheus_storage_size)
+      - name: PROMETHEUS_ALERTMGR_STORAGE_CLASS
+        value: $(params.prometheus_alertmgr_storage_class)
+      - name: PROMETHEUS_ALERTMGR_STORAGE_SIZE
+        value: $(params.prometheus_alertmgr_storage_size)
+      - name: PROMETHEUS_USERWORKLOAD_RETENTION_PERIOD
+        value: $(params.prometheus_userworkload_retention_period)
+      - name: PROMETHEUS_USERWORKLOAD_STORAGE_CLASS
+        value: $(params.prometheus_userworkload_storage_class)
+      - name: PROMETHEUS_USERWORKLOAD_STORAGE_SIZE
+        value: $(params.prometheus_userworkload_storage_size)
+      - name: GRAFANA_INSTANCE_STORAGE_CLASS
+        value: $(params.grafana_instance_storage_class)
+      - name: GRAFANA_INSTANCE_STORAGE_SIZE
+        value: $(params.grafana_instance_storage_size)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: cluster-monitoring
+      command:
+        - /opt/app-root/src/run-role.sh
+        - cluster_monitoring
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/configs
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/common-services.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-common-services
+spec:
+  params:
+    - name: common_services_catalog_source
+      type: string
+      default: ""
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: mas_instance_id
+      type: string
+      description: Optional MAS instance Id, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: COMMON_SERVICES_CATALOG_SOURCE
+        value: $(params.common_services_catalog_source)
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: common-services
+      command:
+        - /opt/app-root/src/run-role.sh
+        - common_services
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/configs
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/cos.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-cos
+spec:
+  params:
+    - name: mas_instance_id
+      type: string
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: cos
+      command:
+        - /opt/app-root/src/run-role.sh
+        - cos
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/configs
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/cp4d.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-cp4d
+spec:
+  params:
+    # Namespace configuration (Optional, defaults built into Ansible role)
+    - name: cpd_operator_namespace
+      type: string
+      default: ""
+    - name: cpd_instance_namespace
+      type: string
+      default: ""
+
+    # Storage classes (Optional, defaults built into Ansible role)
+    - name: cpd_primary_storage_class
+      type: string
+      default: ""
+    - name: cpd_metadata_storage_class
+      type: string
+      default: ""
+
+    # Entitlement
+    - name: ibm_entitlement_key
+      type: string
+    - name: cpd_entitlement_key
+      type: string
+      default: ""
+      description: "Optional CP4D-specific override for the IBM entitlement key"
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: mas_instance_id
+      type: string
+      description: Optional MAS instance Id, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: CPD_OPERATOR_NAMESPACE
+        value: $(params.cpd_operator_namespace)
+      - name: CPD_INSTANCE_NAMESPACE
+        value: $(params.cpd_instance_namespace)
+
+      - name: CPD_PRIMARY_STORAGE_CLASS
+        value: $(params.cpd_primary_storage_class)
+      - name: CPD_METADATA_STORAGE_CLASS
+        value: $(params.cpd_metadata_storage_class)
+
+      # Entitlement
+      - name: IBM_ENTITLEMENT_KEY
+        value: $(params.ibm_entitlement_key)
+      - name: CPD_ENTITLEMENT_KEY
+        value: $(params.cpd_entitlement_key)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: cp4d
+      command:
+        - /opt/app-root/src/run-role.sh
+        - cp4d
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/cp4d_service.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-cp4d-service
+spec:
+  params:
+    # Namespace configuration (Optional, defaults built into Ansible role)
+    - name: cpd_operator_namespace
+      type: string
+      default: ""
+    - name: cpd_instance_namespace
+      type: string
+      default: ""
+
+    # CPD Service Name (Required)
+    - name: cpd_service_name
+      type: string
+
+    # CPD product Version (Required)
+    - name: cpd_product_version
+      type: string
+
+    # CPD Storage class (Optional, defaults built into Ansible role)
+    - name: cpd_service_storage_class
+      type: string
+      default: ""
+
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+      default: ""
+    - name: mas_workspace_id
+      type: string
+      description: Workspace ID
+      default: ""
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: MAS_CONFIG_DIR
+        value: /workspace/configs
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
+
+      - name: CPD_OPERATOR_NAMESPACE
+        value: $(params.cpd_operator_namespace)
+      - name: CPD_INSTANCE_NAMESPACE
+        value: $(params.cpd_instance_namespace)
+
+      - name: CPD_PRODUCT_VERSION
+        value: $(params.cpd_product_version)
+      - name: CPD_SERVICE_NAME
+        value: $(params.cpd_service_name)
+      - name: CPD_SERVICE_STORAGE_CLASS
+        value: $(params.cpd_service_storage_class)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: cp4d-service
+      command:
+        - /opt/app-root/src/run-role.sh
+        - cp4d_service
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/configs
+
+  workspaces:
+    - name: configs
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/db2.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-db2
+spec:
+  params:
+    # Configure DB2W
+    - name: db2_instance_name
+      type: string
+      default: "" # By default, no config will be generated
+    - name: db2_version
+      type: string
+      default: "" # Use the default built into the ansible role
+    - name: db2_table_org
+      type: string
+      default: "" # Use the default built into the ansible role
+
+    # Configure JDBCCfg
+    - name: mas_config_scope
+      type: string
+      default: "" # By default, no config will be generated
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+      default: "" # By default, no config will be generated
+    - name: mas_workspace_id
+      type: string
+      default: "" # Only required if config_scope = ws or wsapp
+    - name: mas_application_id
+      type: string
+      default: "" # Only required if config_scope = app or wsapp
+
+    # Configure storage classes
+    - name: db2_meta_storage_class
+      type: string
+      default: ""
+    - name: db2_data_storage_class
+      type: string
+      default: ""
+    - name: db2_backup_storage_class
+      type: string
+      default: ""
+    - name: db2_logs_storage_class
+      type: string
+      default: ""
+    - name: db2_temp_storage_class
+      type: string
+      default: ""
+    
+    # Configure storage sizes
+    - name: db2_meta_storage_size
+      type: string
+      default: ""
+    - name: db2_data_storage_size
+      type: string
+      default: ""
+    - name: db2_backup_storage_size
+      type: string
+      default: ""
+    - name: db2_logs_storage_size
+      type: string
+      default: ""
+    - name: db2_temp_storage_size
+      type: string
+      default: ""
+
+    # Optionally set up a db2 LDAP user
+    - name: db2_ldap_username
+      type: string
+      default: ""
+    - name: db2_ldap_password
+      type: string
+      default: ""
+
+    # Entitlement
+    - name: ibm_entitlement_key
+      type: string
+    - name: db2_entitlement_key
+      type: string
+      default: ""
+      description: "Optional Db2-specific override for the IBM entitlement key"
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      # Configure JdbcCfg
+      - name: MAS_CONFIG_DIR
+        value: /workspace/configs
+      - name: MAS_CONFIG_SCOPE
+        value: $(params.mas_config_scope)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_APP_ID
+        value: $(params.mas_application_id)
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
+
+      # Configure Db2uCluster
+      - name: DB2_INSTANCE_NAME
+        value: $(params.db2_instance_name)
+      - name: DB2_VERSION
+        value: $(params.db2_version)
+      - name: DB2_TABLE_ORG
+        value: $(params.db2_table_org)
+
+      # Configure storage classes
+      - name: DB2_META_STORAGE_CLASS
+        value: $(params.db2_meta_storage_class)
+      - name: DB2_DATA_STORAGE_CLASS
+        value: $(params.db2_data_storage_class)
+      - name: DB2_BACKUP_STORAGE_CLASS
+        value: $(params.db2_backup_storage_class)
+      - name: DB2_LOGS_STORAGE_CLASS
+        value: $(params.db2_logs_storage_class)
+      - name: DB2_TEMP_STORAGE_CLASS
+        value: $(params.db2_temp_storage_class)
+      
+      # Configure storage sizes
+      - name: DB2_META_STORAGE_SIZE
+        value: $(params.db2_meta_storage_size)
+      - name: DB2_DATA_STORAGE_SIZE
+        value: $(params.db2_data_storage_size)
+      - name: DB2_BACKUP_STORAGE_SIZE
+        value: $(params.db2_backup_storage_size)
+      - name: DB2_LOGS_STORAGE_SIZE
+        value: $(params.db2_logs_storage_size)
+      - name: DB2_TEMP_STORAGE_SIZE
+        value: $(params.db2_temp_storage_size)
+
+    # Optionally set up a db2 LDAP user
+      - name: DB2_LDAP_USERNAME
+        value: $(params.db2_ldap_username)
+      - name: DB2_LDAP_PASSWORD
+        value: $(params.db2_ldap_password)
+
+      # Entitlement
+      - name: IBM_ENTITLEMENT_KEY
+        value: $(params.ibm_entitlement_key)
+      - name: DB2_ENTITLEMENT_KEY
+        value: $(params.db2_entitlement_key)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: db2
+      command:
+        - /opt/app-root/src/run-role.sh
+        - db2
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/configs
+
+  workspaces:
+    - name: configs
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/gencfg-workspace.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-gencfg-workspace
+spec:
+  params:
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+    - name: mas_workspace_id
+      type: string
+      description: Workspace ID
+    - name: mas_workspace_name
+      type: string
+      description: Workspace Name
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: MAS_CONFIG_DIR
+        value: /workspace/configs
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
+      - name: MAS_WORKSPACE_NAME
+        value: $(params.mas_workspace_name)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: gencfg-workspace
+      command:
+        - /opt/app-root/src/run-role.sh
+        - gencfg_workspace
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/configs
+
+  workspaces:
+    - name: configs
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/ibm-catalogs.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-ibm-catalogs
+spec:
+  params:
+    - name: artifactory_username
+      default: ''
+      type: string
+      description: Required to install development MAS catalogs
+    - name: artifactory_apikey
+      default: ''
+      type: string
+      description: Required to install development MAS catalogs
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: mas_instance_id
+      type: string
+      description: Optional MAS instance Id, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: ARTIFACTORY_USERNAME
+        value: $(params.artifactory_username)
+      - name: ARTIFACTORY_APIKEY
+        value: $(params.artifactory_apikey)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: ibm-catalogs
+      command:
+        - /opt/app-root/src/run-role.sh
+        - ibm_catalogs
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/configs
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/kafka.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-kafka
+spec:
+  params:
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+      default: "" # By default, no config will be generated
+
+    - name: kafka_namespace
+      type: string
+      default: "amq-streams"
+    - name: kafka_cluster_name
+      type: string
+      default: "maskafka"
+    - name: kafka_cluster_size
+      type: string
+      default: "small"
+    - name: kafka_user_name
+      type: string
+      default: "masuser"
+    - name: kafka_storage_class
+      type: string
+      default: ""
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: MAS_CONFIG_DIR
+        value: /workspace/configs
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+
+      - name: KAFKA_NAMESPACE
+        value: $(params.kafka_namespace)
+      - name: KAFKA_CLUSTER_NAME
+        value: $(params.kafka_cluster_name)
+      - name: KAFKA_CLUSTER_SIZE
+        value: $(params.kafka_cluster_size)
+      - name: KAFKA_USER_NAME
+        value: $(params.kafka_user_name)
+      - name: KAFKA_STORAGE_CLASS
+        value: $(params.kafka_storage_class)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: kafka
+      command:
+        - /opt/app-root/src/run-role.sh
+        - kafka
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/configs
+
+  workspaces:
+    - name: configs
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/mongodb.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-mongodb
+spec:
+  params:
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+      default: "" # By default, no config will be generated
+
+    # Storage Classs
+    - name: mongodb_storage_class
+      type: string
+      default: ""
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: MAS_CONFIG_DIR
+        value: /workspace/configs
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      
+      # Storage Classs
+      - name: MONGODB_STORAGE_CLASS
+        value: $(params.mongodb_storage_class)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: mongodb
+      command:
+        - /opt/app-root/src/run-role.sh
+        - mongodb
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/configs
+
+  workspaces:
+    - name: configs
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/nvidia-gpu.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-nvidia-gpu
+spec:
+  params:
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: mas_instance_id
+      type: string
+      description: Optional MAS instance Id, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: nvidi-gpu
+      command:
+        - /opt/app-root/src/run-role.sh
+        - nvidia_gpu
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/configs
+
+  workspaces:
+    - name: configs
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/sbo.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-sbo
+spec:
+  params:
+    - name: mas_channel
+      type: string
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: mas_instance_id
+      type: string
+      description: Optional MAS instance Id, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: MAS_CHANNEL
+        value: $(params.mas_channel)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: sbo
+      command:
+        - /opt/app-root/src/run-role.sh
+        - sbo
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/configs
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/sls.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-sls
+spec:
+  params:
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+      default: "" # By default, no config will be generated
+
+    - name: sls_license_id
+      type: string
+    - name: sls_license_file
+      type: string
+    - name: sls_mongodb_cfg_file
+      type: string
+    - name: sls_catalog_source
+      type: string
+      default: ""
+    - name: sls_channel
+      type: string
+      default: ""
+    - name: sls_icr_cp
+      type: string
+      default: ""
+    - name: sls_icr_cpopen
+      type: string
+      default: ""
+
+    # Entitlement
+    - name: sls_entitlement_username
+      type: string
+      default: ""
+    - name: ibm_entitlement_key
+      type: string
+    - name: sls_entitlement_key
+      type: string
+      default: ""
+      description: "Optional SLS-specific override for the IBM entitlement key"
+
+    - name: artifactory_username
+      default: ''
+      type: string
+      description: Required to use development MAS builds
+    - name: artifactory_apikey
+      default: ''
+      type: string
+      description: Required to use development MAS builds
+
+    - name: artifactory_username
+      default: ''
+      type: string
+      description: Required to use development MAS builds
+    - name: artifactory_apikey
+      default: ''
+      type: string
+      description: Required to use development MAS builds
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: MAS_CONFIG_DIR
+        value: /workspace/configs
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+
+      - name: SLS_MONGODB_CFG_FILE
+        value: $(params.sls_mongodb_cfg_file)
+      - name: SLS_LICENSE_ID
+        value: $(params.sls_license_id)
+      - name: SLS_LICENSE_FILE
+        value: $(params.sls_license_file)
+      - name: SLS_CATALOG_SOURCE
+        value: $(params.sls_catalog_source)
+      - name: SLS_CHANNEL
+        value: $(params.sls_channel)
+      - name: SLS_ICR_CP
+        value: $(params.sls_icr_cp)
+      - name: SLS_ICR_CPOPEN
+        value: $(params.sls_icr_cpopen)
+      - name: SLS_ENTITLEMENT_USERNAME
+        value: $(params.sls_entitlement_username)
+      - name: IBM_ENTITLEMENT_KEY
+        value: $(params.ibm_entitlement_key)
+      - name: SLS_ENTITLEMENT_KEY
+        value: $(params.sls_entitlement_key)
+
+      - name: ARTIFACTORY_USERNAME
+        value: $(params.artifactory_username)
+      - name: ARTIFACTORY_APIKEY
+        value: $(params.artifactory_apikey)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: sls
+      command:
+        - /opt/app-root/src/run-role.sh
+        - sls
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/configs
+
+  workspaces:
+    - name: configs
+    - name: entitlement
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-app-config.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-suite-app-config
+spec:
+  params:
+    - name: mas_app_id
+      type: string
+      description: Maximo Application Suite Application ID
+    - name: mas_appws_components
+      type: string
+      description: Components to configure in the workspace
+      default: ""
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+    - name: mas_workspace_id
+      type: string
+      description: Maximo Application Suite Workspace ID
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
+      - name: MAS_APP_ID
+        value: $(params.mas_app_id)
+      - name: MAS_APPWS_COMPONENTS
+        value: $(params.mas_appws_components)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: suite-app-config
+      command:
+        - /opt/app-root/src/run-role.sh
+        - suite_app_config
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-app-install.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-suite-app-install
+spec:
+  params:
+    - name: artifactory_username
+      default: ''
+      type: string
+      description: Required to use development MAS builds
+    - name: artifactory_apikey
+      default: ''
+      type: string
+      description: Required to use development MAS builds
+
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+    - name: mas_app_id
+      type: string
+      description: Maximo Applicaiton Suite Application Id
+    - name: mas_app_channel
+      type: string
+      description: Catalog channel for the application operator subscription
+
+    - name: mas_app_catalog_source
+      default: 'ibm-operator-catalog'
+      type: string
+      description: Catalog source for the application operator subscription
+
+    - name: mas_icr_cp
+      type: string
+      default: ""
+
+    - name: mas_entitlement_username
+      type: string
+      default: ""
+    - name: ibm_entitlement_key
+      type: string
+    - name: mas_entitlement_key
+      type: string
+      default: ""
+      description: "Optional MAS-specific override for the IBM entitlement key"
+
+    - name: mas_app_spec
+      default: ""
+      type: string
+      description: Application specifications such as binding, settings, etc
+
+    - name: mas_app_plan
+      type: string
+      description: Application installation plan
+      default: ""
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+
+      - name: ARTIFACTORY_USERNAME
+        value: $(params.artifactory_username)
+      - name: ARTIFACTORY_APIKEY
+        value: $(params.artifactory_apikey)
+
+      - name: MAS_ICR_CP
+        value: $(params.mas_icr_cp)
+
+      - name: MAS_ENTITLEMENT_USERNAME
+        value: $(params.mas_entitlement_username)
+      - name: IBM_ENTITLEMENT_KEY
+        value: $(params.ibm_entitlement_key)
+      - name: MAS_ENTITLEMENT_KEY
+        value: $(params.mas_entitlement_key)
+
+      - name: MAS_APP_ID
+        value: $(params.mas_app_id)
+      - name: MAS_APP_CHANNEL
+        value: $(params.mas_app_channel)
+      - name: MAS_APP_CATALOG_SOURCE
+        value: $(params.mas_app_catalog_source)
+      - name: MAS_APP_SPEC
+        value: $(params.mas_app_spec)
+      - name: MAS_APP_PLAN
+        value: $(params.mas_app_plan)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: suite-app-install
+      command:
+        - /opt/app-root/src/run-role.sh
+        - suite_app_install
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-config.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-suite-config
+spec:
+  params:
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: MAS_CONFIG_DIR
+        value: /workspace/configs
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: suite-config
+      command:
+        - /opt/app-root/src/run-role.sh
+        - suite_config
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/configs
+
+  workspaces:
+    - name: configs
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-db2-setup-for-manage.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-suite-db2-setup-for-manage
+spec:
+  params:
+    - name: db2_instance_name
+      type: string
+      description: Name (specifically, not the ID) of the DB2 Warehouse instance to execute the hack
+    - name: db2_namespace
+      type: string
+      description: Namespace where the DB2 Warehouse instance to execute the hack resides
+      default: "db2u"
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: mas_instance_id
+      type: string
+      description: Optional MAS instance Id, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: DB2_INSTANCE_NAME
+        value: $(params.db2_instance_name)
+      - name: DB2_NAMESPACE
+        value: $(params.db2_namespace)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: suite-db2-setup-for-manage
+      command:
+        - /opt/app-root/src/run-role.sh
+        - suite_db2_setup_for_manage
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-dns.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-suite-dns
+spec:
+  params:
+    - name: dns_provider
+      type: string
+      default: ""
+    - name: mas_instance_id
+      type: string
+    - name: mas_domain
+      type: string
+      default: ""
+
+    # Cloudflare support
+    - name: cloudflare_email
+      type: string
+      default: ""
+    - name: cloudflare_apitoken
+      type: string
+      default: ""
+    - name: cloudflare_zone
+      type: string
+      default: ""
+    - name: cloudflare_subdomain
+      type: string
+      default: ""
+
+    # IBM Cloud Internet Services support
+    - name: cis_email
+      type: string
+      default: ""
+    - name: cis_apikey
+      type: string
+      default: ""
+    - name: cis_crn
+      type: string
+      default: ""
+    - name: cis_subdomain
+      type: string
+      default: ""
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: DNS_PROVIDER
+        value: $(params.dns_provider)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_DOMAIN
+        value: $(params.mas_domain)
+
+      - name: CLOUDFLARE_EMAIL
+        value: $(params.cloudflare_email)
+      - name: CLOUDFLARE_APITOKEN
+        value: $(params.cloudflare_apitoken)
+      - name: CLOUDFLARE_ZONE
+        value: $(params.cloudflare_zone)
+      - name: CLOUDFLARE_SUBDOMAIN
+        value: $(params.cloudflare_subdomain)
+
+      - name: CIS_EMAIL
+        value: $(params.cis_email)
+      - name: CIS_APIKEY
+        value: $(params.cis_apikey)
+      - name: CIS_CRN
+        value: $(params.cis_crn)
+      - name: CIS_SUBDOMAIN
+        value: $(params.cis_subdomain)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: suite-dns
+      command:
+        - /opt/app-root/src/run-role.sh
+        - suite_dns
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-install.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-suite-install
+spec:
+  params:
+    - name: mas_instance_id
+      type: string
+    - name: mas_channel
+      type: string
+    - name: mas_catalog_source
+      type: string
+      default: ""
+
+    - name: mas_annotations
+      default: ''
+      type: string
+      description: Required to install  MAS with annotations (e.g. for saas)
+    - name: mas_domain
+      default: ''
+      type: string
+      description: Optional. If not provided the role will use the default cluster subdomain
+    - name: mas_cluster_issuer
+      default: ''
+      type: string
+      description: Optional. If not provided MAS will generate it's own self-signed cluster issuer when installed
+    - name: mas_upgrade_strategy
+      type: string
+      description: Optional identifier for the Upgrade strategy for MAS Operator. Default is set to Automatic
+      default: ""
+
+    - name: mas_icr_cp
+      type: string
+      default: ""
+    - name: mas_icr_cpopen
+      type: string
+      default: ""
+
+    - name: mas_entitlement_username
+      type: string
+      default: ""
+    - name: ibm_entitlement_key
+      type: string
+    - name: mas_entitlement_key
+      type: string
+      default: ""
+      description: "Optional MAS-specific override for the IBM entitlement key"
+
+    - name: artifactory_username
+      default: ''
+      type: string
+      description: Required to install development MAS catalogs
+    - name: artifactory_apikey
+      default: ''
+      type: string
+      description: Required to install development MAS catalogs
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: MAS_CHANNEL
+        value: $(params.mas_channel)
+      - name: MAS_CATALOG_SOURCE
+        value: $(params.mas_catalog_source)
+
+      - name: MAS_CONFIG_DIR
+        value: /workspace/configs
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_CHANNEL
+        value: $(params.mas_channel)
+      - name: MAS_CATALOG_SOURCE
+        value: $(params.mas_catalog_source)
+
+      - name: MAS_ANNOTATIONS
+        value: $(params.mas_annotations)
+      - name: MAS_DOMAIN
+        value: $(params.mas_domain)
+      - name: MAS_CLUSTER_ISSUER
+        value: $(params.mas_cluster_issuer)
+      - name: MAS_UPGRADE_STRATEGY
+        value: $(params.mas_upgrade_strategy)
+
+      - name: ARTIFACTORY_USERNAME
+        value: $(params.artifactory_username)
+      - name: ARTIFACTORY_APIKEY
+        value: $(params.artifactory_apikey)
+
+      - name: MAS_ICR_CP
+        value: $(params.mas_icr_cp)
+      - name: MAS_ICR_CPOPEN
+        value: $(params.mas_icr_cpopen)
+
+      - name: MAS_ENTITLEMENT_USERNAME
+        value: $(params.mas_entitlement_username)
+      - name: IBM_ENTITLEMENT_KEY
+        value: $(params.ibm_entitlement_key)
+      - name: MAS_ENTITLEMENT_KEY
+        value: $(params.mas_entitlement_key)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: suite-install
+      command:
+        - /opt/app-root/src/run-role.sh
+        - suite_install
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/configs
+
+  workspaces:
+    - name: configs
+    - name: additional-configs
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-mustgather.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-suite-mustgather
+spec:
+  params:
+    - name: base_output_dir
+      type: string
+      description: Locaton for the output of mustgather. Set as a sub-path of /workspace/mustgather to ensure that data is persisted.
+      default: "/workspace/mustgather"
+    - name: mas_instance_id
+      type: string
+
+  stepTemplate:
+    env:
+      - name: BASE_OUTPUT_DIR
+        value: $(params.base_output_dir)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+
+  steps:
+    - name: clear-mustgather
+      command:
+        - /opt/app-root/src/clear-mustgather-workspace.sh
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/mustgather
+    - name: suite-mustgather
+      command:
+        - /opt/app-root/src/run-role.sh
+        - suite_mustgather
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/mustgather
+
+  workspaces:
+    - name: mustgather
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-verify.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-suite-verify
+spec:
+  params:
+    - name: mas_instance_id
+      type: string
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: suite-verify
+      command:
+        - /opt/app-root/src/run-role.sh
+        - suite_verify
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+# --------------------------------------------------------------------------------
+# /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/uds.yaml
+# --------------------------------------------------------------------------------
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-uds
+spec:
+  params:
+    - name: mas_instance_id
+      type: string
+      default: ""
+    - name: mas_segment_key
+      type: string
+      default: ""
+    - name: uds_contact_email
+      type: string
+      default: ""
+    - name: uds_contact_firstname
+      type: string
+      default: ""
+    - name: uds_contact_lastname
+      type: string
+      default: ""
+    - name: uds_event_scheduler_frequency
+      type: string
+      default: ""
+    - name: uds_storage_class
+      type: string
+      default: ""
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+      # Properties for generating a MAS configuration
+      - name: MAS_CONFIG_DIR
+        value: /workspace/configs
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_SEGMENT_KEY
+        value: $(params.mas_segment_key)
+      - name: UDS_CONTACT_EMAIL
+        value: $(params.uds_contact_email)
+      - name: UDS_CONTACT_FIRSTNAME
+        value: $(params.uds_contact_firstname)
+      - name: UDS_CONTACT_LASTNAME
+        value: $(params.uds_contact_lastname)
+      - name: UDS_STORAGE_CLASS
+        value: $(params.uds_storage_class)
+
+      # Properties to configure the UDS install
+      - name: UDS_EVENT_SCHEDULER_FREQUENCY
+        value: $(params.uds_event_scheduler_frequency)
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+  steps:
+    - name: uds
+      command:
+        - /opt/app-root/src/run-role.sh
+        - uds
+      image: quay.io/ibmmas/ansible-devops:10.3.2-pre.master
+      imagePullPolicy: Always
+      workingDir: /workspace/configs
+
+  workspaces:
+    - name: configs
