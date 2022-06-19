@@ -11,10 +11,7 @@ function show_config() {
   fi
 
   reset_colors
-  echo_h2 "\n9. Review Settings"
-
-  echo "${TEXT_DIM}"
-  reset_colors
+  echo_h2 "\n12. Review Settings"
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ............... ${COLOR_BLUE}${MAS_INSTANCE_ID}"
@@ -106,6 +103,15 @@ function show_config() {
     echo "${TEXT_DIM}"
     echo_h2 "IBM Cloud Pak for Data" "    "
     echo_reset_dim "Entitlement Key ........... ${COLOR_BLUE}${IBM_ENTITLEMENT_KEY:0:8}..."
+  fi
+
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "Storage Class Configuration" "    "
+  echo_reset_dim "Storage Class Provider ... ${COLOR_BLUE}${STORAGE_CLASS_PROVIDER}"
+  if [[ "$STORAGE_CLASS_PROVIDER" == "custom" ]]; then
+    echo_reset_dim "ReadWriteOnce ............ ${COLOR_BLUE}${STORAGE_CLASS_RWO}"
+    echo_reset_dim "ReadWriteMany ............ ${COLOR_BLUE}${STORAGE_CLASS_RWX}"
   fi
 
   reset_colors

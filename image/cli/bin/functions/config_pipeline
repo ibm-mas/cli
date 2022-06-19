@@ -11,6 +11,8 @@ function config_pipeline() {
 
   channel_select_mas || exit 1
 
+  echo
+  echo_h2 "4. Configure Domain & Certificate Management"
   if prompt_for_confirm "Configure Custom Domain"; then
     prompt_for_input "MAS Top Level Domain" MAS_DOMAIN
 
@@ -102,21 +104,25 @@ function config_pipeline() {
         ;;
     esac
   else
-    # User has chosen to use the default MAS domain, but can still choose a certificate issuer if they want
-    echo
-    echo -e "${COLOR_YELLOW}Certificate Issuer:"
-    echo "  1. Self-Signed"
-    prompt_for_input "Select Certificate Issuer" CLUSTER_ISSUER_SELECTION "1"
-    case $CLUSTER_ISSUER_SELECTION in
-      1|self)
-        export MAS_CLUSTER_ISSUER=''
-        ;;
-      *)
-        export MAS_CLUSTER_ISSUER=CLUSTER_ISSUER_SELECTION
-        ;;
-    esac
+    # User has chosen to use the default MAS domain, but can still choose a certificate issuer if they want (not supported yet)
+    MAS_DOMAIN=""
+    MAS_CLUSTER_ISSUER=""
+    # echo
+    # echo -e "${COLOR_YELLOW}Certificate Issuer:"
+    # echo "  1. Self-Signed"
+    # prompt_for_input "Select Certificate Issuer" CLUSTER_ISSUER_SELECTION "1"
+    # case $CLUSTER_ISSUER_SELECTION in
+    #   1|self)
+    #     export MAS_CLUSTER_ISSUER=''
+    #     ;;
+    #   *)
+    #     export MAS_CLUSTER_ISSUER=CLUSTER_ISSUER_SELECTION
+    #     ;;
+    # esac
   fi
 
+  echo
+  echo_h2 "5. Application Selection"
   # Default all applications to "do not deploy"
   # TEMPORARY COMMENT THAT to simplify reinstallation
   # export MAS_APP_SOURCE_IOT='';        export MAS_APP_CHANNEL_IOT=''
@@ -127,9 +133,6 @@ function config_pipeline() {
   # export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER=''; export MAS_APP_PLAN_OPTIMIZER=''
 
   if [[ -z "$AIRGAP_MODE" ]]; then
-    echo -e "${COLOR_YELLOW}Select Applications:"
-    
-    # IoT
     if prompt_for_confirm "Install IoT"; then
       channel_select_iot || exit 1
     fi
@@ -188,30 +191,120 @@ function config_pipeline() {
     fi
   fi
 
+  echo
+  echo_h2 "6. Configure Storage Class Usage"
+  echo "${TEXT_DIM}ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node."
+  echo "Usually this role is fulfilled by block storage classes; used by cluster monitoring (Prometheus, Grafana, & user workload monitoring), Db2 (data, logs, and temp volumes), Kafka, MongoDb, and User Data Services"
+  echo
+  echo "ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes."
+  echo "Usually this role is fulfilled by file storage classes; used by cluster monitoring (alert manager) and Db2 (meta and backup volumes)"
+  echo ""
+  reset_colors
+  # Auto-detect based on available storage classes
+  # ----------------------------------------------
+  # 1. ROKS
+  oc get storageclass ibmc-file-gold &>> $LOGFILE
+  if [[ $? == "0" ]]; then
+    echo -e "${COLOR_GREEN}Storage provider auto-detected: IBMCloud ROKS${COLOR_RESET}"
+    echo "${TEXT_DIM}  - Storage class (ReadWriteOnce): ibmc-block-gold"
+    echo "${TEXT_DIM}  - Storage class (ReadWriteMany): ibmc-file-gold"
+    STORAGE_CLASS_PROVIDER=ibmc
+    STORAGE_CLASS_RWO=ibmc-block-gold
+    STORAGE_CLASS_RWX=ibmc-file-gold
+  fi
+
+  # 2. OCS
+  if [[ "$STORAGE_CLASS_RWX" == "" ]]; then
+    oc get storageclass ocs-storagecluster-cephfs &>> $LOGFILE
+    if [[ $? == "0" ]]; then
+      PIPELINE_STORAGE_CLASS=ocs-storagecluster-cephfs
+      echo -e "${COLOR_GREEN}Storage provider auto-detected: OpenShift Container Storage${COLOR_RESET}"
+      echo "${TEXT_DIM}  - Storage class (ReadWriteOnce): ocs-storagecluster-ceph-rbd"
+      echo "${TEXT_DIM}  - Storage class (ReadWriteMany): ocs-storagecluster-cephfs"
+      STORAGE_CLASS_PROVIDER=ocs
+      STORAGE_CLASS_RWO=ocs-storagecluster-ceph-rbd
+      STORAGE_CLASS_RWX=ocs-storagecluster-cephfs
+    fi
+  fi
+
+  # 3. Azure
+  if [[ "$STORAGE_CLASS_RWX" == "" ]]; then
+    oc get storageclass managed-premium &>> $LOGFILE
+    if [[ $? == "0" ]]; then
+      PIPELINE_STORAGE_CLASS=managed-premium
+      echo -e "${COLOR_GREEN}Storage provider auto-detected: Azure Managed${COLOR_RESET}"
+      echo "${TEXT_DIM}  - Storage class (ReadWriteOnce): azurefiles-premium"
+      echo "${TEXT_DIM}  - Storage class (ReadWriteMany): managed-premium"
+      STORAGE_CLASS_PROVIDER=azure
+      STORAGE_CLASS_RWO=azurefiles-premium
+      STORAGE_CLASS_RWX=managed-premium
+    fi
+  fi
+  reset_colors
+
+  OVERRIDE_STORAGE_CLASSES=false
+  if [[ "$STORAGE_CLASS_RWX" != "" ]]; then
+    echo
+    prompt_for_confirm "Choose your own storage classes anyway?" OVERRIDE_STORAGE_CLASSES
+  fi
+
+  # 4. You choose then ...
+  if [[ "$STORAGE_CLASS_RWX" == "" || "$OVERRIDE_STORAGE_CLASSES" == "true" ]]; then
+    STORAGE_CLASS_PROVIDER=custom
+    echo ""
+    echo "${COLOR_YELLOW}Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:"
+    oc get storageclasses -o jsonpath='{range .items[*]}{" - "}{.metadata.name}{"\n"}{end}'
+    echo ""
+    prompt_for_input "ReadWriteOnce storage class" STORAGE_CLASS_RWO
+    prompt_for_input "ReadWriteMany storage class" STORAGE_CLASS_RWX
+  fi
+
+  # STORAGE_CLASS_RWX
+  # prometheus_alertmgr_storage_class [ibmc-file-gold-gid, ocs-storagecluster-cephfs, azurefiles-premium]
+  # db2_meta_storage_class [ibmc-file-gold, ocs-storagecluster-cephfs, azurefiles-premium]
+  # db2_backup_storage_class [ibmc-file-gold, ocs-storagecluster-cephfs, azurefiles-premium]
+
+  # STORAGE_CLASS_RWO
+  # prometheus_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+  # prometheus_userworkload_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+  # grafana_instance_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+  # db2_data_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+  # db2_logs_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+  # db2_temp_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+  # kafka_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+  # mongodb_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+  # uds_storage_class [ibmc-block-bronze, ocs-storagecluster-ceph-rbd, managed-premium] (doesn't really need to be bronze)
+
+  # Unknown/TBC
+  # appconnect_storage_class - doesn't support auto-select storage classes :(
+  # cpd_metadata_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+  # cpd_primary_storage_class [ibmc-file-gold-gid, ocs-storagecluster-cephfs, azurefiles-premium]
+  # cpd_service_storage_class [ibmc-file-gold-gid, ocs-storagecluster-cephfs, azurefiles-premium] / WD: [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+
   echo ""
   if [[ "$MAS_CATALOG_SOURCE" == "ibm-mas-operators" && -z "$AIRGAP_MODE" ]]; then
     # Development Mode -- offer the ability to set MAS and SLS source independently
-    echo_h2 "4a. Configure Artifactory"
+    echo_h2 "7a. Configure Artifactory"
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
     prompt_for_input "Artifactory API Key" ARTIFACTORY_APIKEY
 
-    echo_h2 "4b. Configure IBM Container Registry"
+    echo_h2 "7b. Configure IBM Container Registry"
     prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
 
-    echo_h2 "4c. Configure IBM Container Registry (MAS)"
+    echo_h2 "7c. Configure IBM Container Registry (MAS)"
     prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
     prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com override
     prompt_for_input "Entitlement Username" MAS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME override
     prompt_for_input "Entitlement Key" MAS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY override
 
-    echo_h2 "4d. Configure IBM Container Registry (SLS)"
+    echo_h2 "7d. Configure IBM Container Registry (SLS)"
     prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com override
     prompt_for_input "Entitlement Username" SLS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME override
     prompt_for_input "Entitlement Key" SLS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY override
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
-    echo_h2 "4. Configure IBM Container Registry"
+    echo_h2 "7. Configure IBM Container Registry"
     prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
 
     # Use defaults
@@ -236,7 +329,7 @@ function config_pipeline() {
   fi
 
   echo
-  echo_h2 "5. Configure Product License"
+  echo_h2 "8. Configure Product License"
   prompt_for_input "License ID" SLS_LICENSE_ID
   prompt_for_input "License File" SLS_LICENSE_FILE_LOCAL
   if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
@@ -246,13 +339,13 @@ function config_pipeline() {
   export SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
 
   echo
-  echo_h2 "6. Configure UDS"
+  echo_h2 "9. Configure UDS"
   prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
   prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
   prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
 
   echo
-  echo_h2 "7. Install Cloud Pak For Data"
+  echo_h2 "10. Install Cloud Pak For Data"
   DEPLOY_CP4D=skip
   if [[ -z "$AIRGAP_MODE" ]]; then
     echo "Watson Studio, Watson Machine Learning, Watson Discovery, & Analytics Service will all be installed"
@@ -275,38 +368,7 @@ function config_pipeline() {
   export MAS_APP_CHANNEL_VISUALINSPECTION="dev88"
 
   echo
-  echo_h2 "8. Prepare Installation"
-  # Auto-detect based on available storage classes
-  # ----------------------------------------------
-  # 1. ROKS
-  oc get storageclass ibmc-file-gold &>> $LOGFILE
-  if [[ $? == "0" ]]; then
-    PIPELINE_STORAGE_CLASS=ibmc-file-gold
-    echo -e "${COLOR_GREEN}Storage class auto-detected: IBMCloud ROKS${COLOR_RESET}"
-  else
-    # 2. OCS
-    oc get storageclass ocs-storagecluster-cephfs &>> $LOGFILE
-    if [[ $? == "0" ]]; then
-      PIPELINE_STORAGE_CLASS=ocs-storagecluster-cephfs
-      echo -e "${COLOR_GREEN}Storage class auto-detected: OpenShift Container Storage${COLOR_RESET}"
-    else
-      # 3. Azure
-      oc get storageclass managed-premium &>> $LOGFILE
-      if [[ $? == "0" ]]; then
-        PIPELINE_STORAGE_CLASS=managed-premium
-        echo -e "${COLOR_GREEN}Storage class auto-detected: Azure Managed${COLOR_RESET}"
-      else
-        # 4. You choose then
-        echo ""
-        echo "No known compatible storage classes available.  Please enter "
-        echo "the name of storage class to use for the pipeline run"
-        echo ""
-        oc get storageclass
-        echo ""
-        prompt_for_input "Pipeline Storage Class" PIPELINE_STORAGE_CLASS
-      fi
-    fi
-  fi
+  echo_h2 "11. Prepare Installation"
 
   mkdir -p $DIR/configs
   # Replace ALL environment variables in templates
@@ -315,7 +377,7 @@ function config_pipeline() {
   # Replace mas_instance_id and pipeline_storage_class in templates
   sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/namespace.yaml > $DIR/configs/namespace-$MAS_INSTANCE_ID.yaml
   sed -e "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" \
-      -e "s/{{pipeline_storage_class}}/$PIPELINE_STORAGE_CLASS/g" \
+      -e "s/{{pipeline_storage_class}}/$STORAGE_CLASS_RWX/g" \
       $DIR/templates/pvc.yaml > $DIR/configs/pvc-$MAS_INSTANCE_ID.yaml
   sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/rbac.yaml > $DIR/configs/rbac-$MAS_INSTANCE_ID.yaml
   sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/pipeline.yaml > $DIR/configs/pipeline-$MAS_INSTANCE_ID.yaml

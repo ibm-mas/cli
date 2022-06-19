@@ -19,6 +19,12 @@ spec:
     - name: artifactory_apikey
       value: '$ARTIFACTORY_APIKEY'
 
+    # Storage Classes
+    - name: storage_class_rwx
+      value: '$STORAGE_CLASS_RWX'
+    - name: storage_class_rwo
+      value: '$STORAGE_CLASS_RWO'
+
     # Dependencies - IBM Entitlement Key
     - name: ibm_entitlement_key
       value: '$IBM_ENTITLEMENT_KEY'
