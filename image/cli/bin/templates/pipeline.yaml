@@ -1014,6 +1014,60 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
+    
+    # 11.5 Configure Watson Studio in MAS
+    - name: suite-config-watson-studio
+      params:
+        - name: devops_suite_name
+          value: cfg-suite-appconnect
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-config
+       # Only needed if either Predict or HPUtilities are being installed
+      when:
+        - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - suite-verify
+        - watson-studio
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+    
+    # 11.6 Configure Watson Discovery in MAS
+    - name: suite-config-discovery
+      params:
+        - name: devops_suite_name
+          value: cfg-suite-appconnect
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-config
+      # Only needed if Assist is being installed
+      when:
+        - input: "$(params.mas_app_channel_assist)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - suite-verify
+        - discovery
+      workspaces:
+        - name: configs
+          workspace: shared-configs
 
     # 12. Cloud Object Storage (COS)
     # -------------------------------------------------------------------------
@@ -1095,7 +1149,6 @@ spec:
           value: $(params.ibm_entitlement_key)
         - name: appconnect_entitlement_key
           value: $(params.appconnect_entitlement_key)
-
       taskRef:
         kind: Task
         name: mas-devops-appconnect
@@ -1104,6 +1157,8 @@ spec:
         - input: "$(params.mas_app_channel_hputilities)"
           operator: notin
           values: [""]
+      runAfter:
+        - ibm-catalogs
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -1521,7 +1576,7 @@ spec:
       runAfter:
         - app-cfg-manage
         - app-cfg-monitor
-        - watson-studio
+        - suite-config-watson-studio
         - watson-machine-learning
         - analytics-service
 
@@ -1669,7 +1724,7 @@ spec:
           values: [""]
       runAfter:
         - app-cfg-manage # Requires Health as an add-on
-        - watson-studio
+        - suite-config-watson-studio
         - suite-config-appconnect
 
     # G.2 Configure HPUtilities workspace
@@ -1740,7 +1795,7 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - discovery
+        - suite-config-discovery
         - suite-config-cos
         - suite-verify
 
