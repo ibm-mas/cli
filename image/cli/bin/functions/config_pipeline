@@ -272,7 +272,7 @@ function config_pipeline() {
   export MAS_APP_CHANNEL_ASSIST="m1dev88"
   # MVI Application
   export MAS_APP_SOURCE_VISUALINSPECTION="ibm-mas-visualinspection-operators"
-  export MAS_APP_CHANNEL_VISUALINSPECTION="8.6.0-pre.dev88"
+  export MAS_APP_CHANNEL_VISUALINSPECTION="dev88"
 
   echo
   echo_h2 "8. Prepare Installation"
@@ -329,7 +329,7 @@ function config_pipeline() {
   echo -en "\033[s" # Save cursor position
   echo -n "Preparing namespace 'mas-$MAS_INSTANCE_ID-pipelines' ..."
 
-  export PIPELINE_VERSION=10.3.1-pre.alefq1406
+  export PIPELINE_VERSION=10.3.4-pre.alefq-assist
   if [ ! -e $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml ]; then
     wget https://github.com/ibm-mas/ansible-devops/releases/download/$PIPELINE_VERSION/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml -O $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml  &>> $LOGFILE
   fi

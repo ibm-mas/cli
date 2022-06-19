@@ -28,6 +28,11 @@ spec:
       default: ""
       description: "Optional AppConnect-specific override for the IBM entitlement key"
 
+    # Storage Clas
+    - name: appconnect_storage_class
+      type: string
+      default: ""
+
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
     - name: devops_mongo_uri
@@ -58,6 +63,10 @@ spec:
       - name: APPCONNECT_ENTITLEMENT_KEY
         value: $(params.appconnect_entitlement_key)
 
+      # Storage Class
+      - name: APPCONNECT_STORAGE_CLASS
+        value: $(params.appconnect_storage_class)
+
       # Optional support built into the ansible-devops image
       # for saving task execution results to a MongoDb instance
       - name: DEVOPS_MONGO_URI
@@ -72,7 +81,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - appconnect
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -132,7 +141,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cert_manager
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -167,6 +176,12 @@ spec:
       type: string
       default: ""
     - name: prometheus_userworkload_storage_size
+      type: string
+      default: ""
+    - name: grafana_instance_storage_class
+      type: string
+      default: ""
+    - name: grafana_instance_storage_size
       type: string
       default: ""
 
@@ -207,6 +222,10 @@ spec:
         value: $(params.prometheus_userworkload_storage_class)
       - name: PROMETHEUS_USERWORKLOAD_STORAGE_SIZE
         value: $(params.prometheus_userworkload_storage_size)
+      - name: GRAFANA_INSTANCE_STORAGE_CLASS
+        value: $(params.grafana_instance_storage_class)
+      - name: GRAFANA_INSTANCE_STORAGE_SIZE
+        value: $(params.grafana_instance_storage_size)
 
       # Optional support built into the ansible-devops image
       # for saving task execution results to a MongoDb instance
@@ -224,7 +243,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cluster_monitoring
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -280,7 +299,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - common_services
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -353,7 +372,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cos
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -446,7 +465,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cp4d
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/cp4d_service.yaml
@@ -538,7 +557,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cp4d_service
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -580,6 +599,23 @@ spec:
       type: string
       default: "" # Only required if config_scope = app or wsapp
 
+    # Configure storage classes
+    - name: db2_meta_storage_class
+      type: string
+      default: ""
+    - name: db2_data_storage_class
+      type: string
+      default: ""
+    - name: db2_backup_storage_class
+      type: string
+      default: ""
+    - name: db2_logs_storage_class
+      type: string
+      default: ""
+    - name: db2_temp_storage_class
+      type: string
+      default: ""
+    
     # Configure storage sizes
     - name: db2_meta_storage_size
       type: string
@@ -650,7 +686,19 @@ spec:
       - name: DB2_TABLE_ORG
         value: $(params.db2_table_org)
 
-      # Configure storage sizes (storage classes are set globally in the secret)
+      # Configure storage classes
+      - name: DB2_META_STORAGE_CLASS
+        value: $(params.db2_meta_storage_class)
+      - name: DB2_DATA_STORAGE_CLASS
+        value: $(params.db2_data_storage_class)
+      - name: DB2_BACKUP_STORAGE_CLASS
+        value: $(params.db2_backup_storage_class)
+      - name: DB2_LOGS_STORAGE_CLASS
+        value: $(params.db2_logs_storage_class)
+      - name: DB2_TEMP_STORAGE_CLASS
+        value: $(params.db2_temp_storage_class)
+      
+      # Configure storage sizes
       - name: DB2_META_STORAGE_SIZE
         value: $(params.db2_meta_storage_size)
       - name: DB2_DATA_STORAGE_SIZE
@@ -688,7 +736,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - db2
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -754,7 +802,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - gencfg_workspace
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -821,7 +869,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - ibm_catalogs
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -851,6 +899,9 @@ spec:
     - name: kafka_user_name
       type: string
       default: "masuser"
+    - name: kafka_storage_class
+      type: string
+      default: ""
 
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
@@ -882,6 +933,8 @@ spec:
         value: $(params.kafka_cluster_size)
       - name: KAFKA_USER_NAME
         value: $(params.kafka_user_name)
+      - name: KAFKA_STORAGE_CLASS
+        value: $(params.kafka_storage_class)
 
       # Optional support built into the ansible-devops image
       # for saving task execution results to a MongoDb instance
@@ -897,7 +950,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - kafka
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -917,6 +970,11 @@ spec:
       type: string
       description: Instance ID
       default: "" # By default, no config will be generated
+
+    # Storage Classs
+    - name: mongodb_storage_class
+      type: string
+      default: ""
 
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
@@ -939,6 +997,10 @@ spec:
         value: /workspace/configs
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
+      
+      # Storage Classs
+      - name: MONGODB_STORAGE_CLASS
+        value: $(params.mongodb_storage_class)
 
       # Optional support built into the ansible-devops image
       # for saving task execution results to a MongoDb instance
@@ -954,7 +1016,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - mongodb
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -1007,7 +1069,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - nvidia_gpu
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -1066,7 +1128,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - sbo
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -1194,7 +1256,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - sls
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -1265,7 +1327,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_app_config
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-app-install.yaml
@@ -1385,7 +1447,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_app_install
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-config.yaml
@@ -1437,7 +1499,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_config
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -1503,7 +1565,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_db2_setup_for_manage
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-dns.yaml
@@ -1608,7 +1670,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_dns
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-install.yaml
@@ -1742,7 +1804,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_install
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -1777,14 +1839,14 @@ spec:
     - name: clear-mustgather
       command:
         - /opt/app-root/src/clear-mustgather-workspace.sh
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/mustgather
     - name: suite-mustgather
       command:
         - /opt/app-root/src/run-role.sh
         - suite_mustgather
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/mustgather
 
@@ -1837,7 +1899,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_verify
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/uds.yaml
@@ -1865,6 +1927,9 @@ spec:
       type: string
       default: ""
     - name: uds_event_scheduler_frequency
+      type: string
+      default: ""
+    - name: uds_storage_class
       type: string
       default: ""
 
@@ -1898,6 +1963,8 @@ spec:
         value: $(params.uds_contact_firstname)
       - name: UDS_CONTACT_LASTNAME
         value: $(params.uds_contact_lastname)
+      - name: UDS_STORAGE_CLASS
+        value: $(params.uds_storage_class)
 
       # Properties to configure the UDS install
       - name: UDS_EVENT_SCHEDULER_FREQUENCY
@@ -1917,7 +1984,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - uds
-      image: quay.io/ibmmas/ansible-devops:10.3.1-pre.alefq1406
+      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
