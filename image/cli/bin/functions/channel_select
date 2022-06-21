@@ -62,6 +62,7 @@ function channel_select_iot() {
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi
+  true
 }
 
 function channel_select_monitor() {
@@ -86,6 +87,7 @@ function channel_select_monitor() {
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi
+  true
 }
 
 function channel_select_safety() {
@@ -106,6 +108,7 @@ function channel_select_safety() {
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi
+  true
 }
 
 function channel_select_manage() {
@@ -130,6 +133,7 @@ function channel_select_manage() {
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi
+  true
 }
 
 function channel_select_predict() {
@@ -154,6 +158,32 @@ function channel_select_predict() {
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi
+  true
+}
+
+function channel_select_hputilities() {
+  if [[ -z "$AIRGAP_MODE" ]]; then
+    case $MAS_CHANNEL in
+      8.7.x)
+        MAS_APP_CHANNEL_HPUTILITIES=8.3.x
+        MAS_APP_SOURCE_HPUTILITIES=ibm-operator-catalog
+        ;;
+      8.6.x)
+        MAS_APP_CHANNEL_HPUTILITIES=8.2.x
+        MAS_APP_SOURCE_HPUTILITIES=ibm-operator-catalog
+        ;;
+      *)
+        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_HPUTILITIES
+        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_HPUTILITIES "ibm-mas-hputilities-operators"
+        ;;
+    esac
+  else
+    MAS_APP_CHANNEL_HPUTILITIES=8.4.x
+    MAS_APP_SOURCE_HPUTILITIES=ibm-mas-predict-operators
+    echo_warning "Sorry, air gap install of this application is not supported yet"
+    exit 1
+  fi
+  true
 }
 
 function channel_select_optimizer() {
@@ -174,6 +204,7 @@ function channel_select_optimizer() {
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi
+  true
 }
 
 function channel_select_assist() {
@@ -198,4 +229,30 @@ function channel_select_assist() {
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi
+  true
+}
+
+function channel_select_visualinspection() {
+  if [[ -z "$AIRGAP_MODE" ]]; then
+    case $MAS_CHANNEL in
+      8.7.x)
+        MAS_APP_CHANNEL_VISUALINSPECTION=8.4.x
+        MAS_APP_SOURCE_VISUALINSPECTION=ibm-operator-catalog
+        ;;
+      8.6.x)
+        MAS_APP_CHANNEL_VISUALINSPECTION=8.3.x
+        MAS_APP_SOURCE_VISUALINSPECTION=ibm-operator-catalog
+        ;;
+      *)
+        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_VISUALINSPECTION
+        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_VISUALINSPECTION "ibm-mas-visualinspection-operators"
+        ;;
+    esac
+  else
+    MAS_APP_CHANNEL_VISUALINSPECTION=8.5.x
+    MAS_APP_SOURCE_VISUALINSPECTION=ibm-mas-visualinspection-operators
+    echo_warning "Sorry, air gap install of this application is not supported yet"
+    exit 1
+  fi
+  true
 }

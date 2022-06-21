@@ -155,10 +155,16 @@ function config_pipeline() {
     fi
 
     # Applications that require Manage
+    # TODO: these applications require Health actuallt,
+    # need to review this code when add-ons selection are in place
     if [[ "$MAS_APP_CHANNEL_MANAGE" != '' ]]; then
       # Predict
       if prompt_for_confirm "Install Predict"; then
         channel_select_predict || exit 1
+      fi
+      # Health & Predict Utilities
+      if prompt_for_confirm "Install Health & Predict - Utilities"; then
+        channel_select_hputilities || exit 1
       fi
     fi
 
@@ -189,6 +195,12 @@ function config_pipeline() {
         done
       fi
     fi
+
+    # Maximo Visual Inspection
+    if prompt_for_confirm "Install Visual Inspection"; then
+      channel_select_visualinspection || exit 1
+    fi
+
   fi
 
   echo
@@ -344,31 +356,18 @@ function config_pipeline() {
   prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
   prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
 
-  echo
-  echo_h2 "10. Install Cloud Pak For Data"
-  DEPLOY_CP4D=skip
-  if [[ -z "$AIRGAP_MODE" ]]; then
-    echo "Watson Studio, Watson Machine Learning, Watson Discovery, & Analytics Service will all be installed"
-    prompt_for_confirm "Install Cloud Pak for Data" && DEPLOY_CP4D=run
-  else
-    echo "Cloud Pak for Data install into airgap environment is not yet supported"
-  fi
-
-  # --------------------------------------------------------
-  # TEMPORARY settings for testing before build interaction
-  # --------------------------------------------------------
-  # HPUtilities Application
-  export MAS_APP_SOURCE_HPUTILITIES="ibm-mas-hputilities-operators"
-  export MAS_APP_CHANNEL_HPUTILITIES="stable"
-  # Assist Application
-  export MAS_APP_SOURCE_ASSIST="ibm-mas-assist-operators"
-  export MAS_APP_CHANNEL_ASSIST="m1dev88"
-  # MVI Application
-  export MAS_APP_SOURCE_VISUALINSPECTION="ibm-mas-visualinspection-operators"
-  export MAS_APP_CHANNEL_VISUALINSPECTION="dev88"
+  # echo
+  # echo_h2 "10. Install Cloud Pak For Data"
+  # DEPLOY_CP4D=skip
+  # if [[ -z "$AIRGAP_MODE" ]]; then
+  #   echo "Watson Studio, Watson Machine Learning, Watson Discovery, & Analytics Service will all be installed"
+  #   prompt_for_confirm "Install Cloud Pak for Data" && DEPLOY_CP4D=run
+  # else
+  #   echo "Cloud Pak for Data install into airgap environment is not yet supported"
+  # fi
 
   echo
-  echo_h2 "11. Prepare Installation"
+  echo_h2 "10. Prepare Installation"
 
   mkdir -p $DIR/configs
   # Replace ALL environment variables in templates
