@@ -1,0 +1,64 @@
+#!/bin/bash
+
+function provision_rosa() {
+  if [[ -z "$ROSA_TOKEN" ]]; then
+    echo ""
+    echo_h2 "ROSA Token"
+    echo "Provide your ROSA Token (if you have not set the ROSA_TOKEN"
+    echo "environment variable) which will be used to provision a ROSA instance."
+    echo ""
+    prompt_for_input "ROSA Token" ROSA_TOKEN && export ROSA_TOKEN
+  fi
+  echo ""
+  echo_h2 "ROSA Cluster Configuration"
+  echo "Name your cluster and select the number of compute nodes to provision."
+  echo ""
+  if [[ ! -z "$1" ]]; then
+    CLUSTER_NAME=$1
+  fi
+
+  prompt_for_input "Cluster Name" CLUSTER_NAME && export CLUSTER_NAME
+  export CLUSTER_TYPE=rosa
+
+  echo
+  echo "OCP Version:"
+  echo "  1. 4.10 EUS (MAS 8.7-8.8)"
+  echo "  2. 4.8 EUS  (MAS 8.6-8.8)"
+  prompt_for_input "Select Version" OCP_VERSION_SELECTION "1"
+
+  case $OCP_VERSION_SELECTION in
+    1|4.10|4.10\ EUS)
+      export OCP_VERSION=4.10.18
+      ;;
+
+    2|4.8|4.8\ EUS)
+      export OCP_VERSION=4.8.42
+      ;;
+
+    *)
+      export OCP_VERSION=$OCP_VERSION_SELECTION
+      ;;
+  esac
+
+  prompt_for_input "Number of Compute Nodes" ROSA_COMPUTE_NODES "3" && export ROSA_COMPUTE_NODES
+  prompt_for_input "Cluster Admin Password" ROSA_CLUSTER_ADMIN_PASSWORD && export ROSA_CLUSTER_ADMIN_PASSWORD
+
+  echo ""
+  echo_h2 "Summary"
+  echo "ROSA Token ................ ${ROSA_TOKEN:0:8}..."
+  echo "Cluster Name .............. $CLUSTER_NAME"
+  echo "OCP Version ............... $OCP_VERSION"
+  echo "Compute Nodes ............. $ROSA_COMPUTE_NODES"
+  echo "Cluster Admin Password .... ${ROSA_CLUSTER_ADMIN_PASSWORD:0:8}..."
+
+  echo ""
+  confirm "Proceed with these settings [y/N]" || exit 0
+
+  ansible-playbook ibm.mas_devops.ocp_rosa_provision || exit 1
+
+  echo ""
+  echo "ROSA cluster is ready to use"
+  OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+  echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+
+}
