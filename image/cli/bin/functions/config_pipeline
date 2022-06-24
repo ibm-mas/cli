@@ -333,13 +333,14 @@ function config_pipeline() {
     if [[ "$DEPLOY_CP4D" == "run" ]]; then
       case $MAS_CHANNEL in
         8.7.x)
+          # Predict 8.5  was tested on 4.0.6 and 4.0.7
           # Breaking changes introduced in CP4D v4.0.8 prevent use of a newer version of CP4D
           CP4D_VERSION=4.0.7
           ;;
 
         8.6.x)
-          # Breaking changes introduced in CP4D v4.0.6 prevent use of a newer version of CP4D
-          CP4D_VERSION=4.0.5
+          # Predict 8.4 was tested on 4.0.3
+          CP4D_VERSION=4.0.3
           ;;
 
         *)
