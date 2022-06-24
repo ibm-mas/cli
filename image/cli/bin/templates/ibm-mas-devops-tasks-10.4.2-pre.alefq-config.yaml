@@ -81,7 +81,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - appconnect
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -141,7 +141,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cert_manager
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -243,7 +243,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cluster_monitoring
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -299,7 +299,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - common_services
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -372,7 +372,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cos
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -465,7 +465,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cp4d
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/cp4d_service.yaml
@@ -557,7 +557,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cp4d_service
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -736,7 +736,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - db2
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -802,7 +802,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - gencfg_workspace
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -869,7 +869,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - ibm_catalogs
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -950,7 +950,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - kafka
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -1016,7 +1016,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - mongodb
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -1069,7 +1069,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - nvidia_gpu
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -1128,7 +1128,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - sbo
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/configs
 # --------------------------------------------------------------------------------
@@ -1256,7 +1256,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - sls
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -1327,8 +1327,11 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_app_config
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
+
+  workspaces:
+    - name: configs
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-app-install.yaml
 # --------------------------------------------------------------------------------
@@ -1447,7 +1450,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_app_install
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-config.yaml
@@ -1499,7 +1502,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_config
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -1565,7 +1568,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_db2_setup_for_manage
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-dns.yaml
@@ -1670,7 +1673,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_dns
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/suite-install.yaml
@@ -1804,7 +1807,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_install
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
@@ -1839,14 +1842,14 @@ spec:
     - name: clear-mustgather
       command:
         - /opt/app-root/src/clear-mustgather-workspace.sh
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/mustgather
     - name: suite-mustgather
       command:
         - /opt/app-root/src/run-role.sh
         - suite_mustgather
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/mustgather
 
@@ -1899,7 +1902,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_verify
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
 # --------------------------------------------------------------------------------
 # /home/runner/work/ansible-devops/ansible-devops/pipelines/tasks/uds.yaml
@@ -1984,7 +1987,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - uds
-      image: quay.io/ibmmas/ansible-devops:10.3.4-pre.alefq-assist
+      image: quay.io/ibmmas/ansible-devops:10.4.2-pre.alefq-config
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
