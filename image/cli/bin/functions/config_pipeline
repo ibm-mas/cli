@@ -329,6 +329,24 @@ function config_pipeline() {
   if [[ -z "$AIRGAP_MODE" ]]; then
     echo "Watson Studio, Watson Machine Learning, Watson Discovery, & Analytics Service will all be installed"
     prompt_for_confirm "Install Cloud Pak for Data" && DEPLOY_CP4D=run
+
+    if [[ "$DEPLOY_CP4D" == "run" ]]; then
+      case $MAS_CHANNEL in
+        8.7.x)
+          # Breaking changes introduced in CP4D v4.0.8 prevent use of a newer version of CP4D
+          CP4D_VERSION=4.0.7
+          ;;
+
+        8.6.x)
+          # Breaking changes introduced in CP4D v4.0.6 prevent use of a newer version of CP4D
+          CP4D_VERSION=4.0.5
+          ;;
+
+        *)
+          prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.0.9"
+          ;;
+      esac
+    fi
   else
     echo "Cloud Pak for Data install into airgap environment is not yet supported"
   fi
@@ -357,7 +375,7 @@ function config_pipeline() {
   echo -en "\033[s" # Save cursor position
   echo -n "Preparing namespace 'mas-$MAS_INSTANCE_ID-pipelines' ..."
 
-  export PIPELINE_VERSION=10.3.2
+  export PIPELINE_VERSION=10.4.1
   if [ ! -e $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml ]; then
     wget https://github.com/ibm-mas/ansible-devops/releases/download/$PIPELINE_VERSION/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml -O $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml  &>> $LOGFILE
   fi
