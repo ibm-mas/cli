@@ -25,7 +25,7 @@ function show_config() {
   echo_reset_dim "IBM Entitled Registry ..... ${COLOR_BLUE}${MAS_ICR_CP}"
   echo_reset_dim "IBM Open Registry ......... ${COLOR_BLUE}${MAS_ICR_CPOPEN}"
   echo_reset_dim "Entitlement Username ...... ${COLOR_BLUE}${MAS_ENTITLEMENT_USERNAME}"
-  echo_reset_dim "Entitlement Key ........... ${COLOR_BLUE}${MAS_ENTITLEMENT_KEY:0:8}..."
+  echo_reset_dim "Entitlement Key ........... ${COLOR_BLUE}${MAS_ENTITLEMENT_KEY:0:8}<snip>"
 
   reset_colors
   echo "${TEXT_DIM}"
@@ -84,7 +84,7 @@ function show_config() {
   echo_reset_dim "IBM Entitled Registry ..... ${COLOR_BLUE}${SLS_ICR_CP}"
   echo_reset_dim "IBM Open Registry ......... ${COLOR_BLUE}${SLS_ICR_CPOPEN}"
   echo_reset_dim "Entitlement Username ...... ${COLOR_BLUE}${SLS_ENTITLEMENT_USERNAME}"
-  echo_reset_dim "Entitlement Key ........... ${COLOR_BLUE}${SLS_ENTITLEMENT_KEY:0:8}..."
+  echo_reset_dim "Entitlement Key ........... ${COLOR_BLUE}${SLS_ENTITLEMENT_KEY:0:8}<snip>"
 
   reset_colors
   echo "${TEXT_DIM}"
@@ -98,12 +98,13 @@ function show_config() {
   echo_h2 "IBM Cloud Pak Foundation Services" "    "
   echo_reset_dim "Catalog Source ............ ${COLOR_BLUE}${COMMON_SERVICES_CATALOG_SOURCE}"
 
-  # if [[ "$DEPLOY_CP4D" == "run" ]]; then
-  #   reset_colors
-  #   echo "${TEXT_DIM}"
-  #   echo_h2 "IBM Cloud Pak for Data" "    "
-  #   echo_reset_dim "Entitlement Key ........... ${COLOR_BLUE}${IBM_ENTITLEMENT_KEY:0:8}..."
-  # fi
+  if [[ "$DEPLOY_CP4D" == "run" ]]; then
+    reset_colors
+    echo "${TEXT_DIM}"
+    echo_h2 "IBM Cloud Pak for Data" "    "
+    echo_reset_dim "Entitlement Key ........... ${COLOR_BLUE}${IBM_ENTITLEMENT_KEY:0:8}<snip>"
+    echo_reset_dim "Product Version ........... ${COLOR_BLUE}${CP4D_VERSION}"
+  fi
 
   reset_colors
   echo "${TEXT_DIM}"

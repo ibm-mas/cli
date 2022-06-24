@@ -35,7 +35,9 @@ spec:
 
     # Dependencies - CP4D
     - name: cpd_product_version
-      value: '4.0.9'
+      value: '$CP4D_VERSION'
+    # - name: temp_deploy_cp4d
+    #   value: '$DEPLOY_CP4D'
 
     # Dependencies - SLS
     - name: sls_license_id

@@ -356,15 +356,34 @@ function config_pipeline() {
   prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
   prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
 
-  # echo
-  # echo_h2 "10. Install Cloud Pak For Data"
-  # DEPLOY_CP4D=skip
-  # if [[ -z "$AIRGAP_MODE" ]]; then
-  #   echo "Watson Studio, Watson Machine Learning, Watson Discovery, & Analytics Service will all be installed"
-  #   prompt_for_confirm "Install Cloud Pak for Data" && DEPLOY_CP4D=run
-  # else
-  #   echo "Cloud Pak for Data install into airgap environment is not yet supported"
-  # fi
+  echo
+  echo_h2 "10. Install Cloud Pak For Data"
+  DEPLOY_CP4D=skip
+  if [[ -z "$AIRGAP_MODE" ]]; then
+    echo "Watson Studio, Watson Machine Learning, Watson Discovery, & Analytics Service will all be installed"
+    prompt_for_confirm "Install Cloud Pak for Data" && DEPLOY_CP4D=run
+
+    if [[ "$DEPLOY_CP4D" == "run" ]]; then
+      case $MAS_CHANNEL in
+        8.7.x)
+          # Predict 8.5  was tested on 4.0.6 and 4.0.7
+          # Breaking changes introduced in CP4D v4.0.8 prevent use of a newer version of CP4D
+          CP4D_VERSION=4.0.7
+          ;;
+
+        8.6.x)
+          # Predict 8.4 was tested on 4.0.3
+          CP4D_VERSION=4.0.3
+          ;;
+
+        *)
+          prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.0.9"
+          ;;
+      esac
+    fi
+  else
+    echo "Cloud Pak for Data install into airgap environment is not yet supported"
+  fi
 
   echo
   echo_h2 "10. Prepare Installation"
