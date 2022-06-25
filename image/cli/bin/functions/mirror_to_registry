@@ -31,10 +31,10 @@ function mirror_to_registry() {
 
   if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
     MIRROR_RH_RELEASE=true
-    prompt_for_input "Red Hat Openshift Release Version (x.y)" OPENSHIFT_RELEASE_VERSION "4.10"
+    prompt_for_input "Red Hat Openshift Release Version (x.y.z)" OPENSHIFT_RELEASE_VERSION "4.10"
 
     MIRROR_RH_OPERATORS=true
-    prompt_for_input "Red Hat Openshift Operators Version (x.y.z)" OPENSHIFT_OPERATORS_VERSION "4.10.18"
+    prompt_for_input "Red Hat Openshift Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10.18"
 
     MIRROR_COMMONSERVICES=true
     MIRROR_UDS=true
@@ -48,10 +48,14 @@ function mirror_to_registry() {
     MIRROR_THIRDPARTY=true
   else
     prompt_for_confirm "Red Hat OpenShift Container Platform Release (x minutes)" MIRROR_RH_RELEASE
-    prompt_for_input "Release Version (x.y)" OPENSHIFT_RELEASE_VERSION "4.10"
+    if [[ "$MIRROR_RH_RELEASE" == "true" ]]; then
+      prompt_for_input "Release Version (x.y.z)" OPENSHIFT_RELEASE_VERSION "4.10.18"
+    fi
 
-    prompt_for_confirm "Red Hat OpenShift Container Platform Operators (x minutes)" MIRROR_RH_OPERATORS
-    prompt_for_input "Operator Version (x.y.z)" OPENSHIFT_OPERATORS_VERSION "4.10.18"
+    prompt_for_confirm "Red Hat OpenShift Container Platform Operator Catalog (x minutes)" MIRROR_RH_OPERATORS
+    if [[ "$MIRROR_RH_OPERATORS" == "true" ]]; then
+      prompt_for_input "Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10"
+    fi
 
     prompt_for_confirm "IBM Foundational Services (10 minutes)" MIRROR_COMMONSERVICES
     prompt_for_confirm "IBM Db2 Universal Operator (5 minutes)" MIRROR_DB2
@@ -80,15 +84,14 @@ function mirror_to_registry() {
     export REDHAT_CONNECT_PASSWORD
   fi
 
+  export OPENSHIFT_RELEASE_VERSION
+  export OPENSHIFT_OPERATORS_VERSION
+
   echo
   prompt_for_confirm "Proceed with these settings" || exit 0
 
   echo
   echo_h2 "4. Run Mirror Process"
-  # These playbooks aren't available in ansible-airgap repository so we can't use there here yet
-  # prompt_for_confirm "Mirror OpenShift Release Images" MIRROR_OPENSHIFT_RELEASE
-  # [ "$MIRROR_OPENSHIFT_RELEASE" == "true" ] && ansible-playbook ibm.mas_airgap.mirror_openshift_release
-  # [ "$MIRROR_OPENSHIFT_OPERATORS" == "true" ] && ansible-playbook ibm.mas_airgap.mirror_openshift_operators
   TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
   LOG_PREFIX="$DIR/mirror-$TIMESTAMP"
   [ "$MIRROR_RH_RELEASE" == "true" ]      && echo "Mirroring Red Hat OCP Release Images ..." && ansible-playbook ibm.mas_airgap.mirror_openshift_release &> $LOG_PREFIX-ocp-release.log
