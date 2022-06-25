@@ -57,10 +57,9 @@ function channel_select_iot() {
         ;;
     esac
   else
+    # Only supporting MAS 8.7 airgap install at present
     MAS_APP_CHANNEL_IOT=8.4.x
     MAS_APP_SOURCE_IOT=ibm-mas-iot-operators
-    echo_warning "Sorry, air gap install of this application is not supported yet"
-    exit 1
   fi
   true
 }
