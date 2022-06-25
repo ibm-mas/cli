@@ -31,10 +31,10 @@ function mirror_to_registry() {
 
   if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
     MIRROR_RH_RELEASE=true
-    prompt_for_input "Red Hat Openshift Release Version (x.y)" OPENSHIFT_RELEASE_VERSION "4.10"
+    prompt_for_input "Red Hat Openshift Release Version (x.y.z)" OPENSHIFT_RELEASE_VERSION "4.10"
 
     MIRROR_RH_OPERATORS=true
-    prompt_for_input "Red Hat Openshift Operators Version (x.y.z)" OPENSHIFT_OPERATORS_VERSION "4.10.18"
+    prompt_for_input "Red Hat Openshift Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10.18"
 
     MIRROR_COMMONSERVICES=true
     MIRROR_UDS=true
@@ -49,12 +49,12 @@ function mirror_to_registry() {
   else
     prompt_for_confirm "Red Hat OpenShift Container Platform Release (x minutes)" MIRROR_RH_RELEASE
     if [[ "$MIRROR_RH_RELEASE" == "true" ]]; then
-      prompt_for_input "Release Version (x.y)" OPENSHIFT_RELEASE_VERSION "4.10"
+      prompt_for_input "Release Version (x.y.z)" OPENSHIFT_RELEASE_VERSION "4.10.18"
     fi
 
-    prompt_for_confirm "Red Hat OpenShift Container Platform Operators (x minutes)" MIRROR_RH_OPERATORS
+    prompt_for_confirm "Red Hat OpenShift Container Platform Operator Catalog (x minutes)" MIRROR_RH_OPERATORS
     if [[ "$MIRROR_RH_OPERATORS" == "true" ]]; then
-      prompt_for_input "Operator Version (x.y.z)" OPENSHIFT_OPERATORS_VERSION "4.10.18"
+      prompt_for_input "Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10"
     fi
 
     prompt_for_confirm "IBM Foundational Services (10 minutes)" MIRROR_COMMONSERVICES
