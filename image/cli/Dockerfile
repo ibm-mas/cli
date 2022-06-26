@@ -1,4 +1,4 @@
-FROM quay.io/ibmmas/ansible-airgap:1.2.1-pre.fixrhmirror
+FROM quay.io/ibmmas/ansible-airgap:1.3.0-pre.master
 
 ARG VERSION_LABEL
 
