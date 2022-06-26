@@ -94,23 +94,23 @@ function mirror_to_registry() {
   echo_h2 "4. Run Mirror Process"
   TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
   LOG_PREFIX="$DIR/mirror-$TIMESTAMP"
-  [ "$MIRROR_RH_RELEASE" == "true" ]      && echo "Mirroring Red Hat OCP Release Images ..." && ansible-playbook ibm.mas_airgap.mirror_openshift_release &> $LOG_PREFIX-ocp-release.log
-  [ "$MIRROR_RH_OPERATORS" == "true" ]    && echo "Mirroring Red Hat OCP Operator Images ..." && ansible-playbook ibm.mas_airgap.mirror_openshift_operators &> $LOG_PREFIX-ocp-operators.log
+  [ "$MIRROR_RH_RELEASE" == "true" ]      && echo "Mirroring Red Hat OCP Release Images ..." && ansible-playbook ibm.mas_airgap.mirror_openshift_release | tee $LOG_PREFIX-ocp-release.log
+  [ "$MIRROR_RH_OPERATORS" == "true" ]    && echo "Mirroring Red Hat OCP Operator Images ..." && ansible-playbook ibm.mas_airgap.mirror_openshift_operators | tee $LOG_PREFIX-ocp-operators.log
 
-  [ "$MIRROR_COMMONSERVICES" == "true" ]  && echo "Mirroring IBM Foundational Services Images ..." && ansible-playbook ibm.mas_airgap.mirror_common_services &> $LOG_PREFIX-foundation-services.log
-  [ "$MIRROR_DB2" == "true" ]             && echo "Mirroring IBM Db2 Universal Operator Images ..." && ansible-playbook ibm.mas_airgap.mirror_db2uoperator &> $LOG_PREFIX-db2u.log
-  [ "$MIRROR_UDS" == "true" ]             && echo "Mirroring IBM User Data Services Images ..." && ansible-playbook ibm.mas_airgap.mirror_uds &> $LOG_PREFIX-uds.log
-  [ "$MIRROR_SLS" == "true" ]             && echo "Mirroring IBM Suite License Service Images ..." && ansible-playbook ibm.mas_airgap.mirror_sls &> $LOG_PREFIX-sls.log
-  [ "$MIRROR_TRUSTSTOREMGR" == "true" ]   && echo "Mirroring IBM Truststore Manager Images ..." && ansible-playbook ibm.mas_airgap.mirror_truststore_mgr &> $LOG_PREFIX-truststore-mgr.log
-  [ "$MIRROR_MAS_CORE" == "true" ]        && echo "Mirroring IBM Maximo Application Suite (Core) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_core &> $LOG_PREFIX-mas-core.log
-  [ "$MIRROR_MAS_ASSIST" == "true" ]      && echo "Mirroring IBM Maximo Application Suite (Assist) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_assist &> $LOG_PREFIX-mas-assist.log
-  [ "$MIRROR_MAS_HPU" == "true" ]         && echo "Mirroring IBM Maximo Application Suite (HP Utilities) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_hputilities &> $LOG_PREFIX-mas-hputilities.log
-  [ "$MIRROR_MAS_IOT" == "true" ]         && echo "Mirroring IBM Maximo Application Suite (IoT) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_iot &> $LOG_PREFIX-mas-iot.log
-  [ "$MIRROR_MAS_MANAGE" == "true" ]      && echo "Mirroring IBM Maximo Application Suite (Manage) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_manage &> $LOG_PREFIX-mas-manage.log
-  [ "$MIRROR_MAS_MONITOR" == "true" ]     && echo "Mirroring IBM Maximo Application Suite (Monitor) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_monitor &> $LOG_PREFIX-mas-monitor.log
-  [ "$MIRROR_MAS_PREDICT" == "true" ]     && echo "Mirroring IBM Maximo Application Suite (Predict) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_predict &> $LOG_PREFIX-mas-predict.log
-  [ "$MIRROR_MAS_VI" == "true" ]          && echo "Mirroring IBM Maximo Application Suite (Visual Inspection) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_visualinspection &> $LOG_PREFIX-mas-visualinspection.log
-  [ "$MIRROR_THIRDPARTY" == "true" ]      && echo "Mirroring Third Party Images ..." && ROLE_NAME=thirdparty_mirror ansible-playbook ibm.mas_airgap.run_role &> $LOG_PREFIX-thirdparty.log
+  [ "$MIRROR_COMMONSERVICES" == "true" ]  && echo "Mirroring IBM Foundational Services Images ..." && ansible-playbook ibm.mas_airgap.mirror_common_services | tee $LOG_PREFIX-foundation-services.log
+  [ "$MIRROR_DB2" == "true" ]             && echo "Mirroring IBM Db2 Universal Operator Images ..." && ansible-playbook ibm.mas_airgap.mirror_db2uoperator | tee $LOG_PREFIX-db2u.log
+  [ "$MIRROR_UDS" == "true" ]             && echo "Mirroring IBM User Data Services Images ..." && ansible-playbook ibm.mas_airgap.mirror_uds | tee $LOG_PREFIX-uds.log
+  [ "$MIRROR_SLS" == "true" ]             && echo "Mirroring IBM Suite License Service Images ..." && ansible-playbook ibm.mas_airgap.mirror_sls | tee $LOG_PREFIX-sls.log
+  [ "$MIRROR_TRUSTSTOREMGR" == "true" ]   && echo "Mirroring IBM Truststore Manager Images ..." && ansible-playbook ibm.mas_airgap.mirror_truststore_mgr | tee $LOG_PREFIX-truststore-mgr.log
+  [ "$MIRROR_MAS_CORE" == "true" ]        && echo "Mirroring IBM Maximo Application Suite (Core) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_core | tee $LOG_PREFIX-mas-core.log
+  [ "$MIRROR_MAS_ASSIST" == "true" ]      && echo "Mirroring IBM Maximo Application Suite (Assist) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_assist | tee $LOG_PREFIX-mas-assist.log
+  [ "$MIRROR_MAS_HPU" == "true" ]         && echo "Mirroring IBM Maximo Application Suite (HP Utilities) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_hputilities | tee $LOG_PREFIX-mas-hputilities.log
+  [ "$MIRROR_MAS_IOT" == "true" ]         && echo "Mirroring IBM Maximo Application Suite (IoT) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_iot | tee $LOG_PREFIX-mas-iot.log
+  [ "$MIRROR_MAS_MANAGE" == "true" ]      && echo "Mirroring IBM Maximo Application Suite (Manage) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_manage | tee $LOG_PREFIX-mas-manage.log
+  [ "$MIRROR_MAS_MONITOR" == "true" ]     && echo "Mirroring IBM Maximo Application Suite (Monitor) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_monitor | tee $LOG_PREFIX-mas-monitor.log
+  [ "$MIRROR_MAS_PREDICT" == "true" ]     && echo "Mirroring IBM Maximo Application Suite (Predict) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_predict | tee $LOG_PREFIX-mas-predict.log
+  [ "$MIRROR_MAS_VI" == "true" ]          && echo "Mirroring IBM Maximo Application Suite (Visual Inspection) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_visualinspection | tee $LOG_PREFIX-mas-visualinspection.log
+  [ "$MIRROR_THIRDPARTY" == "true" ]      && echo "Mirroring Third Party Images ..." && ROLE_NAME=thirdparty_mirror ansible-playbook ibm.mas_airgap.run_role | tee $LOG_PREFIX-thirdparty.log
 
   true
 }
