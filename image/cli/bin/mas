@@ -23,6 +23,8 @@ trap trap_int INT
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 LOGFILE=$DIR/mas.log
 
+export ANSIBLE_CONFIG=$DIR/ansible.cfg
+
 # General purpose
 . $DIR/functions/utils
 # MAS provisioning support
