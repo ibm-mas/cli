@@ -1,7 +1,5 @@
 # IBM Maximo Application Suite CLI Utility
 
-## Introduction
-
 There are minimal dependencies to meet on your own computer to use the CLI:
 - Bash (v4)
 - OpenShift client
@@ -20,7 +18,3 @@ The engine that performs all tasks is written in Ansible, you can directly use t
 
 - [Ansible Galaxy: ibm.mas_devops](https://galaxy.ansible.com/ibm/mas_devops)
 - [Ansible Galaxy: ibm.mas_airgap](https://galaxy.ansible.com/ibm/mas_airgap)
-
-
-## Documentation
-[https://ibm-mas.github.io/cli/](https://ibm-mas.github.io/cli/)
