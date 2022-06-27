@@ -63,9 +63,17 @@
               <ul class="current">
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">install</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
-    </li>
     <li class="toctree-l2"><a class="reference internal" href="#details">Details</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pre-reqs">Pre-reqs</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-ibm-entitlement-key">1. IBM Entitlement key</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-mas-license-file">2. MAS License File</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#mustgather">Mustgather</a>
     </li>
@@ -108,37 +116,86 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="install">Install<a class="headerlink" href="#install" title="Permanent link"></a></h1>
-<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
-<pre><code class="language-bash">docker run -ti -v ~:/home/local quay.io/ibmmas/cli:1.0.0 mas install
-</code></pre>
 <h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link"></a></h2>
 <p>The install is performed inside your RedHat OpenShift cluster utilizing <a href="https://cloud.redhat.com/learn/topics/ci-cd">Openshift Pipelines</a></p>
 <blockquote>
 <p>OpenShift Pipelines is a Kubernetes-native CI/CD solution based on Tekton. It builds on Tekton to provide a CI/CD experience through tight integration with OpenShift and Red Hat developer tools. OpenShift Pipelines is designed to run each step of the CI/CD pipeline in its own container, allowing each step to scale independently to meet the demands of the pipeline.</p>
 </blockquote>
 <p><img alt="" src="../../img/pipeline.png" /></p>
-<p>The installer supports:
-- IBM operator catalog configuration
-- Required dependency installation:
-  - MongoDb
-  - IBM Suite License Service
-  - IBM User Data Services
-  - IBM Certificate Manager
-  - Red Hat Service Binding Operator
-- Optional dependency installation:
-  - Apache Kafka
-  - IBM Db2
-  - IBM Cloud Pak for Data
-    - <a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-discovery">Watson Discovery</a>
-    - <a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-studio">Watson Studio</a>
-    - <a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-machine-learning">Watson Machine Learning</a>
-    - <a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-openscale">Watson OpenScale</a>
-    - <a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-analytics-engine-powered-by-apache-spark">Analytics Engine (Apache Spark)</a>
-- Suite core services installation
-- Suite application installation</p>
+<p>The installer supports:</p>
+<ul>
+<li>IBM operator catalog configuration</li>
+<li>Required dependency installation:<ul>
+<li>MongoDb</li>
+<li>IBM Suite License Service</li>
+<li>IBM User Data Services</li>
+<li>IBM Certificate Manager</li>
+<li>Red Hat Service Binding Operator</li>
+</ul>
+</li>
+<li>Optional dependency installation:<ul>
+<li>Apache Kafka</li>
+<li>IBM Db2</li>
+<li>IBM Cloud Pak for Data<ul>
+<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-discovery">Watson Discovery</a></li>
+<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-studio">Watson Studio</a></li>
+<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-machine-learning">Watson Machine Learning</a></li>
+<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-openscale">Watson OpenScale</a></li>
+<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-analytics-engine-powered-by-apache-spark">Analytics Engine (Apache Spark)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Suite core services installation</li>
+<li>Suite application installation</li>
+</ul>
 <p>The installer will automatically provision and set up the required dependencies based on the applications that you select to install.</p>
 <p>The install can be launched with the command <code>mas install</code>.  The end result will be a pipeline run being started in your target cluster where you can track the progress of the installation.</p>
 <p><img alt="" src="../../img/pipelineruns.png" /></p>
+<h2 id="pre-reqs">Pre-reqs<a class="headerlink" href="#pre-reqs" title="Permanent link"></a></h2>
+<h3 id="1-ibm-entitlement-key">1. IBM Entitlement key<a class="headerlink" href="#1-ibm-entitlement-key" title="Permanent link"></a></h3>
+<p>Access <a href="https://myibm.ibm.com/products-services/containerlibrary">Container Software Library</a> using your IBMId to access your entitlement key</p>
+<h3 id="2-mas-license-file">2. MAS License File<a class="headerlink" href="#2-mas-license-file" title="Permanent link"></a></h3>
+<p>Access <a href="https://licensing.subscribenet.com/control/ibmr/login">IBM License Key Center</a>, on the <strong>Get Keys</strong> menu select <strong>IBM AppPoint Suites</strong>.  Select <code>IBM MAXIMO APPLICATION SUITE AppPOINT LIC</code> and on the next page fill in the information as below:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Number of Keys</td>
+<td>How many AppPoints to assign to the license file</td>
+</tr>
+<tr>
+<td>Host ID Type</td>
+<td>Set to <strong>Ethernet Address</strong></td>
+</tr>
+<tr>
+<td>Host ID</td>
+<td>Enter any 12 digit hexadecimal string</td>
+</tr>
+<tr>
+<td>Hostname</td>
+<td>Set to the hostname of your OCP instance</td>
+</tr>
+<tr>
+<td>Port</td>
+<td>Set to <strong>27000</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The other values can be left at their defaults.  Finally, click <strong>Generate</strong> and download the license file to your home directory as <code>entitlement.lic</code>.</p>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>We will need the <code>entitlement.lic</code> file to perform the installation which is why we mount your home directory into the container.  If you saved the entitlement file elsewhere, mount that directory instead.</p>
+<p>When prompted you will be able to set license file to <code>/home/local/entitlement.lic</code></p>
+</div>
+<pre><code class="language-bash">docker run -ti -v ~:/home/local quay.io/ibmmas/cli:1.0.0 mas install
+</code></pre>
 <h2 id="mustgather">Mustgather<a class="headerlink" href="#mustgather" title="Permanent link"></a></h2>
 <p>The pipeline sets a "finally" block that is executed at the end of the steps regardless of success or failure. Inside this finally block the <strong>mustgather</strong> Task is executed which runs the IBM AI Applications' Must Gather tool against a MAS instance. It uses the mustgather workspace to persist the output into a Persistent Volume for retrieval after the pipeline has completed.</p>
 <p>Users can then use the <strong>ibm.mas_devops.suite_mustgather_download</strong> playbook locally to pull the mustgather output from the persistent volume.</p>
