@@ -1292,6 +1292,9 @@ spec:
           values: [""]
       runAfter:
         - app-install-iot
+      workspaces:
+        - name: configs
+          workspace: shared-configs
 
 
     # B. Install IBM MAS Monitor application
@@ -1364,6 +1367,9 @@ spec:
           values: [""]
       runAfter:
         - app-install-monitor
+      workspaces:
+        - name: configs
+          workspace: shared-configs
 
 
     # C. Install IBM MAS Safety application
@@ -1435,6 +1441,9 @@ spec:
           values: [""]
       runAfter:
         - app-install-safety
+      workspaces:
+        - name: configs
+          workspace: shared-configs
 
 
     # D. Install IBM MAS Manage application
@@ -1534,6 +1543,9 @@ spec:
           values: [""]
       runAfter:
         - app-install-manage
+      workspaces:
+        - name: configs
+          workspace: shared-configs
 
 
     # E. Predict
@@ -1610,6 +1622,9 @@ spec:
           values: [""]
       runAfter:
         - app-install-predict
+      workspaces:
+        - name: configs
+          workspace: shared-configs
 
 
     # F. Optimizer
@@ -1684,6 +1699,9 @@ spec:
           values: [""]
       runAfter:
         - app-install-optimizer
+      workspaces:
+        - name: configs
+          workspace: shared-configs
     
     # G. Health & Predict - Utilities
     # -------------------------------------------------------------------------
@@ -1756,6 +1774,9 @@ spec:
           values: [""]
       runAfter:
         - app-install-hputilities
+      workspaces:
+        - name: configs
+          workspace: shared-configs
     
     # H. Assist
     # -------------------------------------------------------------------------
@@ -1828,6 +1849,9 @@ spec:
           values: [""]
       runAfter:
         - app-install-assist
+      workspaces:
+        - name: configs
+          workspace: shared-configs
     
     # I. Maximo Visual Inspection (MVI)
     # -------------------------------------------------------------------------
@@ -1899,6 +1923,9 @@ spec:
           values: [""]
       runAfter:
         - app-install-visualinspection
+      workspaces:
+        - name: configs
+          workspace: shared-configs
 
 
   # Mustgather executed in finally block. Use suite_mustgather_download
