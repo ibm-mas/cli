@@ -132,11 +132,13 @@ function config_pipeline() {
   # export MAS_APP_SOURCE_PREDICT='';    export MAS_APP_CHANNEL_PREDICT=''
   # export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER=''; export MAS_APP_PLAN_OPTIMIZER=''
 
-  if [[ -z "$AIRGAP_MODE" ]]; then
-    if prompt_for_confirm "Install IoT"; then
-      channel_select_iot || exit 1
-    fi
+  # Applications supported in air gap and online installs
+  if prompt_for_confirm "Install IoT"; then
+    channel_select_iot || exit 1
+  fi
 
+  # Applications only supported in online installs
+  if [[ -z "$AIRGAP_MODE" ]]; then
     # Applications that require IoT
     if [[ "$MAS_APP_CHANNEL_IOT" != '' ]]; then
       # Monitor
@@ -203,13 +205,19 @@ function config_pipeline() {
 
   fi
 
+  # RWX: Usually this role is fulfilled by block storage classes; used by:
+  # - cluster monitoring (Prometheus, Grafana, & user workload monitoring)
+  # - Db2 (data, logs, and temp volumes)
+  # - Kafka, MongoDb, and User Data Services
+  # RWO: Usually this role is fulfilled by file storage classes; used by:
+  # - cluster monitoring (alert manager)
+  # - Db2 (meta and backup volumes)
+
   echo
   echo_h2 "6. Configure Storage Class Usage"
-  echo "${TEXT_DIM}ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node."
-  echo "Usually this role is fulfilled by block storage classes; used by cluster monitoring (Prometheus, Grafana, & user workload monitoring), Db2 (data, logs, and temp volumes), Kafka, MongoDb, and User Data Services"
-  echo
-  echo "ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes."
-  echo "Usually this role is fulfilled by file storage classes; used by cluster monitoring (alert manager) and Db2 (meta and backup volumes)"
+  echo "${TEXT_DIM}Maximo Application Suite and it's dependencies require storage classes that support ReadWriteOnce (RWO) and ReadWriteMany (RWX) access modes:"
+  echo "  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node."
+  echo "  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes."
   echo ""
   reset_colors
   # Auto-detect based on available storage classes

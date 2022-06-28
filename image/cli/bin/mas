@@ -23,6 +23,8 @@ trap trap_int INT
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 LOGFILE=$DIR/mas.log
 
+export ANSIBLE_CONFIG=$DIR/ansible.cfg
+
 # General purpose
 . $DIR/functions/utils
 # MAS provisioning support
@@ -112,14 +114,14 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
     echo
     echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
-    echo "${TEXT_DIM}1. Install relies on built-in automatic storage class selection (IBMCloud ROKS & OpenShift Container Storage supported)"
-    echo "${TEXT_DIM}2. Installation and configuration management for Cloud Pak for Data services is not yet complete"
-    echo "${TEXT_DIM}3. Predict, Assist, & Visual Inspection applications can not be deployed using the install yet"
-    echo "${TEXT_DIM}4. Support for airgap installation is limited to MAS 8.7 (core only) at present"
+    echo "${TEXT_DIM}1. Installation and configuration management for Cloud Pak for Data services is not yet complete"
+    echo "${TEXT_DIM}2. Predict, Assist, & Visual Inspection applications can not be deployed using the install yet"
+    echo "${TEXT_DIM}3. Support for airgap installation is limited to MAS 8.7 (core only) at present"
     echo
     reset_colors
     connect
     install_pipeline
+    detect_airgap
     config_pipeline
     show_config
     run_pipeline
