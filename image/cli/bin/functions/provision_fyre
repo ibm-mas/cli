@@ -5,13 +5,25 @@ function provision_fyre() {
   prompt_for_input "Fyre API key" FYRE_APIKEY
   prompt_for_input "Fyre product ID" FYRE_PRODUCT_ID
   prompt_for_input "Fyre cluster name" CLUSTER_NAME
+  prompt_for_input "Fyre cluster description" FYRE_CLUSTER_DESCRIPTION
 
   export FYRE_USERNAME
   export FYRE_APIKEY
   export FYRE_PRODUCT_ID
+  export FYRE_CLUSTER_DESCRIPTION
   export CLUSTER_NAME
-  export CLUSTER_TYPE=quickburn
+  export CLUSTER_TYPE=fyre
   export OCP_VERSION=4.8
+
+  prompt_for_confirm "Use Product Group Quota" USE_PRODUCT_GROUP_QUOTA
+  if [[ "$USE_PRODUCT_GROUP_QUOTA" == "true" ]]; then
+    export FYRE_QUOTA_TYPE=product_group
+    prompt_for_input "Number of Worker Nodes (min 2)" FYRE_WORKER_COUNT && export FYRE_WORKER_COUNT
+    prompt_for_input "Worker Node CPU (max 16)" FYRE_WORKER_CPU && export FYRE_WORKER_CPU
+    prompt_for_input "Worker Node Memory (max 64)" FYRE_WORKER_MEMORY && export FYRE_WORKER_MEMORY
+  else
+    export FYRE_QUOTA_TYPE=product_group
+  fi
 
   prompt_for_confirm "Configure networking to simulate air gap" SIMULATE_AIRGAP_NETWORK
 
