@@ -124,12 +124,15 @@ function config_pipeline() {
   echo
   echo_h2 "5. Application Selection"
   # Default all applications to "do not deploy"
-  export MAS_APP_SOURCE_IOT='';        export MAS_APP_CHANNEL_IOT=''
-  export MAS_APP_SOURCE_MONITOR='';    export MAS_APP_CHANNEL_MONITOR=''
-  export MAS_APP_SOURCE_SAFETY='';     export MAS_APP_CHANNEL_SAFETY=''
-  export MAS_APP_SOURCE_MANAGE='';     export MAS_APP_CHANNEL_MANAGE=''
-  export MAS_APP_SOURCE_PREDICT='';    export MAS_APP_CHANNEL_PREDICT=''
-  export MAS_APP_CHANNEL_OPTIMIZER=''; export MAS_APP_SOURCE_OPTIMIZER=''; export MAS_APP_PLAN_OPTIMIZER=''
+  export MAS_APP_SOURCE_IOT='';              export MAS_APP_CHANNEL_IOT=''
+  export MAS_APP_SOURCE_MONITOR='';          export MAS_APP_CHANNEL_MONITOR=''
+  export MAS_APP_SOURCE_SAFETY='';           export MAS_APP_CHANNEL_SAFETY=''
+  export MAS_APP_SOURCE_MANAGE='';           export MAS_APP_CHANNEL_MANAGE=''
+  export MAS_APP_SOURCE_PREDICT='';          export MAS_APP_CHANNEL_PREDICT=''
+  export MAS_APP_SOURCE_ASSIST='';           export MAS_APP_CHANNEL_ASSIST=''
+  export MAS_APP_SOURCE_HPUTILITIES='';      export MAS_APP_CHANNEL_HPUTILITIES=''
+  export MAS_APP_SOURCE_VISUALINSPECTION=''; export MAS_APP_CHANNEL_VISUALINSPECTION=''
+  export MAS_APP_CHANNEL_OPTIMIZER='';       export MAS_APP_SOURCE_OPTIMIZER=''; export MAS_APP_PLAN_OPTIMIZER=''
 
   # Applications supported in air gap and online installs
   if prompt_for_confirm "Install IoT"; then
@@ -140,23 +143,49 @@ function config_pipeline() {
   if [[ -z "$AIRGAP_MODE" ]]; then
     # Applications that require IoT
     if [[ "$MAS_APP_CHANNEL_IOT" != '' ]]; then
+      # Monitor
       if prompt_for_confirm "Install Monitor"; then
         channel_select_monitor || exit 1
       fi
+      # Safety
       if prompt_for_confirm "Install Safety"; then
         channel_select_safety || exit 1
       fi
     fi
 
+    # Manage
     if prompt_for_confirm "Install Manage"; then
       channel_select_manage || exit 1
     fi
 
     # Applications that require Manage
+    # TODO: these applications require Health actuallt,
+    # need to review this code when add-ons selection are in place
     if [[ "$MAS_APP_CHANNEL_MANAGE" != '' ]]; then
+      # Predict
       if prompt_for_confirm "Install Predict"; then
         channel_select_predict || exit 1
       fi
+      # Health & Predict Utilities
+      if prompt_for_confirm "Install Health & Predict - Utilities"; then
+        channel_select_hputilities || exit 1
+      fi
+    fi
+
+    # Assist
+    if prompt_for_confirm "Install Assist"; then
+      channel_select_assist || exit 1
+    fi
+
+    # Assist Dependencies
+    if [[ "$MAS_APP_CHANNEL_ASSIST" != '' ]]; then      
+      while : ; do
+        prompt_for_input 'COS Provider [ibm/ocs]' COS_TYPE "ibm"
+        [[ "$COS_TYPE" != "ibm" && "$COS_TYPE" != "ocs" ]] || break
+      done
+      export COS_TYPE;
+      prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY $IBMCLOUD_APIKEY
+      prompt_for_input "IBM Cloud Resource Group" IBMCLOUD_RESOURCEGROUP $IBMCLOUD_RESOURCEGROUP "Default"
     fi
 
     # Optimizer can only be installed from 8.8 on
@@ -170,6 +199,12 @@ function config_pipeline() {
         done
       fi
     fi
+
+    # Maximo Visual Inspection
+    if prompt_for_confirm "Install Visual Inspection"; then
+      channel_select_visualinspection || exit 1
+    fi
+
   fi
 
   # RWX: Usually this role is fulfilled by block storage classes; used by:
@@ -333,12 +368,9 @@ function config_pipeline() {
 
   echo
   echo_h2 "10. Install Cloud Pak For Data"
-  DEPLOY_CP4D=skip
-  if [[ -z "$AIRGAP_MODE" ]]; then
-    echo "Watson Studio, Watson Machine Learning, Watson Discovery, & Analytics Service will all be installed"
-    prompt_for_confirm "Install Cloud Pak for Data" && DEPLOY_CP4D=run
-
-    if [[ "$DEPLOY_CP4D" == "run" ]]; then
+  echo
+  if [[ "$MAS_APP_CHANNEL_PREDICT" != "" || "$MAS_APP_CHANNEL_HPUTILITIES" != "" || "$MAS_APP_CHANNEL_ASSIST" != "" ]]; then
+    if [[ -z "$AIRGAP_MODE" ]]; then
       case $MAS_CHANNEL in
         8.7.x)
           # Predict 8.5  was tested on 4.0.6 and 4.0.7
@@ -355,9 +387,11 @@ function config_pipeline() {
           prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.0.9"
           ;;
       esac
+    else
+      echo "Cloud Pak for Data install into airgap environment is not yet supported"
     fi
   else
-    echo "Cloud Pak for Data install into airgap environment is not yet supported"
+    echo "The applications to be installed do not require Cloud Pak for Data services"
   fi
 
   echo
@@ -384,7 +418,7 @@ function config_pipeline() {
   echo -en "\033[s" # Save cursor position
   echo -n "Preparing namespace 'mas-$MAS_INSTANCE_ID-pipelines' ..."
 
-  export PIPELINE_VERSION=10.4.2-pre.master
+  export PIPELINE_VERSION=10.5.1-pre.alefq-config
   if [ ! -e $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml ]; then
     wget https://github.com/ibm-mas/ansible-devops/releases/download/$PIPELINE_VERSION/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml -O $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml  &>> $LOGFILE
   fi
