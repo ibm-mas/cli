@@ -36,8 +36,8 @@ spec:
     # Dependencies - CP4D
     - name: cpd_product_version
       value: '$CP4D_VERSION'
-    - name: temp_deploy_cp4d
-      value: '$DEPLOY_CP4D'
+    # - name: temp_deploy_cp4d
+    #   value: '$DEPLOY_CP4D'
 
     # Dependencies - SLS
     - name: sls_license_id
@@ -64,6 +64,18 @@ spec:
       value: '$UDS_CONTACT_FIRSTNAME'
     - name: uds_contact_lastname
       value: '$UDS_CONTACT_LASTNAME'
+    
+    # Dependencies - AppConnect
+    - name: appconnect_entitlement_username
+      value: '$APPCONNECT_ENTITLEMENT_USERNAME'
+    - name: appconnect_entitlement_key
+      value: '$APPCONNECT_ENTITLEMENT_KEY'
+    
+    # Dependencies - COS
+    - name: cos_type
+      value: '$COS_TYPE'
+    - name: ibmcloud_apikey
+      value: '$IBMCLOUD_APIKEY'
 
     # MAS DNS Integrations - General
     - name: dns_provider
@@ -145,6 +157,21 @@ spec:
       value: '$MAS_APP_SOURCE_SAFETY'
     - name: mas_app_channel_safety
       value: '$MAS_APP_CHANNEL_SAFETY'
+    # HPUtilities Application
+    - name: mas_app_source_hputilities
+      value: '$MAS_APP_SOURCE_HPUTILITIES'
+    - name: mas_app_channel_hputilities
+      value: '$MAS_APP_CHANNEL_HPUTILITIES'
+    # Assist Application
+    - name: mas_app_source_assist
+      value: '$MAS_APP_SOURCE_ASSIST'
+    - name: mas_app_channel_assist
+      value: '$MAS_APP_CHANNEL_ASSIST'
+    # MVI Application
+    - name: mas_app_source_visualinspection
+      value: '$MAS_APP_SOURCE_VISUALINSPECTION'
+    - name: mas_app_channel_visualinspection
+      value: '$MAS_APP_CHANNEL_VISUALINSPECTION'
 
   workspaces:
     # The generated configuration files
