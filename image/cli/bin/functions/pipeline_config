@@ -1,0 +1,124 @@
+#!/bin/bash
+
+. $DIR/functions/pipeline_config_applications
+. $DIR/functions/pipeline_config_dns
+. $DIR/functions/pipeline_config_storage_classes
+
+function pipeline_config() {
+  echo_h2 "3. Configure Installation"
+
+  # MAS instance ID
+  if [[ ! -z "$1" ]]; then
+    MAS_INSTANCE_ID=$1
+  fi
+  prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
+
+  if [[ -z "$AIRGAP_MODE" ]]; then
+    echo -e "${COLOR_YELLOW}MAS Version:"
+    echo "  1. 8.7"
+    echo "  2. 8.6"
+    prompt_for_input "Select Subscription Channel" MAS_CHANNEL_SELECTION "1"
+
+    case $MAS_CHANNEL_SELECTION in
+      1|8.7|8.7.x)
+        MAS_CHANNEL=8.7.x
+        MAS_CATALOG_SOURCE=ibm-operator-catalog
+        ;;
+
+      2|8.6|8.6.x)
+        MAS_CHANNEL=8.6.x
+        MAS_CATALOG_SOURCE=ibm-operator-catalog
+        ;;
+
+      *)
+        MAS_CHANNEL=$MAS_CHANNEL_SELECTION
+        prompt_for_input 'Custom Catalog Source' MAS_CATALOG_SOURCE "ibm-mas-operators"
+        ;;
+    esac
+  else
+    echo -e "${COLOR_YELLOW}MAS Version:"
+    echo "  1. 8.7 (Airgap install)"
+    prompt_for_input "Select Subscription Channel" MAS_CHANNEL_SELECTION "1"
+
+    case $MAS_CHANNEL_SELECTION in
+      1|8.7|8.7.x)
+        MAS_CHANNEL=8.7.x
+        MAS_CATALOG_SOURCE=ibm-mas-operators
+        ;;
+
+      *)
+        MAS_CHANNEL=$MAS_CHANNEL_SELECTION
+        prompt_for_input 'Custom Catalog Source' MAS_CATALOG_SOURCE "ibm-mas-operators"
+        ;;
+    esac
+  fi
+  true
+
+  config_pipeline_dns
+  config_pipeline_applications
+  config_pipeline_storage_classes
+
+  echo ""
+  if [[ "$MAS_CATALOG_SOURCE" == "ibm-mas-operators" && -z "$AIRGAP_MODE" ]]; then
+    # Development Mode -- offer the ability to set MAS and SLS source independently
+    echo_h2 "7a. Configure Artifactory"
+    prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
+    prompt_for_input "Artifactory API Key" ARTIFACTORY_APIKEY
+
+    echo_h2 "7b. Configure IBM Container Registry"
+    prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
+
+    echo_h2 "7c. Configure IBM Container Registry (MAS)"
+    prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
+    prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com override
+    prompt_for_input "Entitlement Username" MAS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME override
+    prompt_for_input "Entitlement Key" MAS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY override
+
+    echo_h2 "7d. Configure IBM Container Registry (SLS)"
+    prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
+    prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com override
+    prompt_for_input "Entitlement Username" SLS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME override
+    prompt_for_input "Entitlement Key" SLS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY override
+  else
+    # Production Mode -- everything comes from the same registry (IBM container registry)
+    echo_h2 "7. Configure IBM Container Registry"
+    prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
+
+    # Use defaults
+    MAS_ICR_CP=cp.icr.io/cp
+    MAS_ICR_CPOPEN=icr.io/cpopen
+    MAS_ENTITLEMENT_USERNAME=cp
+    MAS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
+
+    SLS_ICR_CP=cp.icr.io/cp
+    SLS_ICR_CPOPEN=icr.io/cpopen
+    SLS_ENTITLEMENT_USERNAME=cp
+    SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
+  fi
+
+  if [[ -n "$AIRGAP_MODE" ]]; then
+    # Override Common Services Catalog Source
+    COMMON_SERVICES_CATALOG_SOURCE=opencloud-operators
+    SLS_CATALOG_SOURCE=ibm-sls-operators
+  else
+    COMMON_SERVICES_CATALOG_SOURCE=ibm-operator-catalog
+    SLS_CATALOG_SOURCE=ibm-operator-catalog
+  fi
+
+  echo
+  echo_h2 "8. Configure Product License"
+  prompt_for_input "License ID" SLS_LICENSE_ID
+  prompt_for_input "License File" SLS_LICENSE_FILE_LOCAL
+  if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
+    echo_warning "Error: File does not exist: $SLS_LICENSE_FILE_LOCAL"
+    exit 1
+  fi
+  SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
+
+  echo
+  echo_h2 "9. Configure UDS"
+  prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
+  prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
+  prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
+
+}
