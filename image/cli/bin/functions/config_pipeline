@@ -178,7 +178,7 @@ function config_pipeline() {
     fi
 
     # Assist Dependencies
-    if [[ "$MAS_APP_CHANNEL_ASSIST" != '' ]]; then      
+    if [[ "$MAS_APP_CHANNEL_ASSIST" != '' ]]; then
       while : ; do
         prompt_for_input 'COS Provider [ibm/ocs]' COS_TYPE "ibm"
         [[ "$COS_TYPE" != "ibm" && "$COS_TYPE" != "ocs" ]] || break
@@ -203,6 +203,24 @@ function config_pipeline() {
     # Maximo Visual Inspection
     if prompt_for_confirm "Install Visual Inspection"; then
       channel_select_visualinspection || exit 1
+    fi
+
+    if [[ "$MAS_APP_CHANNEL_PREDICT" != "" || "$MAS_APP_CHANNEL_HPUTILITIES" != "" || "$MAS_APP_CHANNEL_ASSIST" != "" ]]; then
+      case $MAS_CHANNEL in
+        8.7.x)
+          # Predict 8.5  was tested on 4.0.6 and 4.0.7
+          # Breaking changes introduced in CP4D v4.0.8 prevent use of a newer version of CP4D
+          CP4D_VERSION=4.0.7
+          ;;
+        8.6.x)
+          # Predict 8.4 was tested on 4.0.3
+          CP4D_VERSION=4.0.3
+          ;;
+        *)
+          echo "One or more selected applications require Cloud Pak for Data"
+          prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.0.9"
+          ;;
+      esac
     fi
 
   fi
@@ -367,35 +385,7 @@ function config_pipeline() {
   prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
 
   echo
-  echo_h2 "10. Install Cloud Pak For Data"
-  echo
-  if [[ "$MAS_APP_CHANNEL_PREDICT" != "" || "$MAS_APP_CHANNEL_HPUTILITIES" != "" || "$MAS_APP_CHANNEL_ASSIST" != "" ]]; then
-    if [[ -z "$AIRGAP_MODE" ]]; then
-      case $MAS_CHANNEL in
-        8.7.x)
-          # Predict 8.5  was tested on 4.0.6 and 4.0.7
-          # Breaking changes introduced in CP4D v4.0.8 prevent use of a newer version of CP4D
-          CP4D_VERSION=4.0.7
-          ;;
-
-        8.6.x)
-          # Predict 8.4 was tested on 4.0.3
-          CP4D_VERSION=4.0.3
-          ;;
-
-        *)
-          prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.0.9"
-          ;;
-      esac
-    else
-      echo "Cloud Pak for Data install into airgap environment is not yet supported"
-    fi
-  else
-    echo "The applications to be installed do not require Cloud Pak for Data services"
-  fi
-
-  echo
-  echo_h2 "11. Prepare Installation"
+  echo_h2 "10. Prepare Installation"
 
   mkdir -p $DIR/configs
   # Replace ALL environment variables in templates
@@ -418,7 +408,7 @@ function config_pipeline() {
   echo -en "\033[s" # Save cursor position
   echo -n "Preparing namespace 'mas-$MAS_INSTANCE_ID-pipelines' ..."
 
-  export PIPELINE_VERSION=10.5.1-pre.alefq-config
+  export PIPELINE_VERSION=10.6.0-pre.master
   if [ ! -e $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml ]; then
     wget https://github.com/ibm-mas/ansible-devops/releases/download/$PIPELINE_VERSION/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml -O $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml  &>> $LOGFILE
   fi
