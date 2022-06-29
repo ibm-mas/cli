@@ -51,8 +51,28 @@ confirm() {
       export ALREADY_CONFIRMED="true"
       true
       ;;
+    [nN][oO]|[nN])
+      false
+      ;;
     *)
       false
+      ;;
+  esac
+}
+
+confirm_default_yes() {
+  read -r -p "${1:-Proceed? [Y/n]} " response
+  case "$response" in
+    [yY][eE][sS]|[yY])
+      export ALREADY_CONFIRMED="true"
+      true
+      ;;
+    [nN][oO]|[nN])
+      export ALREADY_CONFIRMED="true"
+      false
+      ;;
+    *)
+      true
       ;;
   esac
 }
@@ -85,6 +105,24 @@ function prompt_for_confirm() {
   msg=$1
   varname=$2
   if confirm "${COLOR_YELLOW}$msg ${COLOR_BLUE}[y/N]"; then
+    echo -ne "${COLOR_RESET}\033[1K"
+    if [[ "$varname" != "" ]]; then
+      printf -v "$varname" "%s" "true"
+    fi
+    true
+  else
+    echo -ne "${COLOR_RESET}\033[1K"
+    if [[ "$varname" != "" ]]; then
+      printf -v "$varname" "%s" "false"
+    fi
+    false
+  fi
+}
+
+function prompt_for_confirm_default_yes() {
+  msg=$1
+  varname=$2
+  if confirm_default_yes "${COLOR_YELLOW}$msg ${COLOR_BLUE}[Y/n]"; then
     echo -ne "${COLOR_RESET}\033[1K"
     if [[ "$varname" != "" ]]; then
       printf -v "$varname" "%s" "true"

@@ -48,15 +48,12 @@ export ANSIBLE_CONFIG=$DIR/ansible.cfg
 load_config
 case $1 in
   fyre|provision-fyre)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Fyre Cluster Provisioner${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite FYRE Cluster Provisioner${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
-    echo
-    echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
-    echo "${TEXT_DIM}1. This is still a work in progress"
     echo
     reset_colors
     update_ansible_collections
-    provision_fyre
+    provision_fyre "$@"
     ;;
 
   roks|provision-roks)
