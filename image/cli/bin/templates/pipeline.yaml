@@ -145,7 +145,7 @@ spec:
       type: string
     - name: uds_contact_lastname       # Required
       type: string
-    
+
     # Dependencies - AppConnect
     - name: appconnect_entitlement_username
       type: string
@@ -154,7 +154,7 @@ spec:
       type: string
       default: ""
       description: Override IBM Entitlement key for AppConnect installation
-    
+
     # Dependencies - COS
     - name: cos_type
       type: string
@@ -658,7 +658,7 @@ spec:
 
     # 8. Install & configure IBM MAS
     # -------------------------------------------------------------------------
-    # 8.1 DNS Setup (only support IBMCloud CIS today)
+    # 8.1 DNS Setup
     - name: suite-dns
       params:
         - name: devops_suite_name
@@ -853,7 +853,8 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 11. Cloud Pak for Data
+
+    # 11. Cloud Pak for Data - Platform
     # -------------------------------------------------------------------------
     - name: cp4d
       params:
@@ -878,8 +879,10 @@ spec:
         - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)$(params.mas_app_channel_assist)"
           operator: notin
           values: [""]
-    
-    # 11.1 Cloud Pak for Data - Wastson Studio
+
+
+    # 12. Cloud Pak for Data - Watson Studio
+    # -------------------------------------------------------------------------
     - name: watson-studio
       params:
         - name: devops_suite_name
@@ -912,8 +915,10 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
-    
-    # 11.2 Cloud Pak for Data - Wastson Machine Learning
+
+
+    # 13. Cloud Pak for Data - Watson Machine Learning
+    # -------------------------------------------------------------------------
     - name: watson-machine-learning
       params:
         - name: devops_suite_name
@@ -946,8 +951,10 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
-    
-    # 11.3 Cloud Pak for Data - Analytics Service (Spark)
+
+
+    # 14. Cloud Pak for Data - Analytics Service (Spark)
+    # -------------------------------------------------------------------------
     - name: analytics-service
       params:
         - name: devops_suite_name
@@ -981,7 +988,9 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 11.4 Cloud Pak for Data - Watson Discovery
+
+    # 15. Cloud Pak for Data - Watson Discovery
+    # -------------------------------------------------------------------------
     - name: discovery
       params:
         - name: devops_suite_name
@@ -1014,8 +1023,10 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
-    
-    # 11.5 Configure Watson Studio in MAS
+
+
+    # 16. Configure Watson Studio in MAS
+    # -------------------------------------------------------------------------
     - name: suite-config-watson-studio
       params:
         - name: devops_suite_name
@@ -1041,8 +1052,10 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
-    
-    # 11.6 Configure Watson Discovery in MAS
+
+
+    # 17. Configure Watson Discovery in MAS
+    # -------------------------------------------------------------------------
     - name: suite-config-discovery
       params:
         - name: devops_suite_name
@@ -1069,9 +1082,10 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 12. Cloud Object Storage (COS)
+
+    # 18. Cloud Object Storage (COS)
     # -------------------------------------------------------------------------
-    # 12.1 Install COS
+    # 18.1 Install COS
     - name: cos
       params:
         - name: devops_suite_name
@@ -1083,7 +1097,7 @@ spec:
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        
+
         - name: cos_type
           value: $(params.cos_type)
         - name: ibmcloud_apikey
@@ -1099,8 +1113,8 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
-    
-    # 12.2 Configure COS in MAS
+
+    # 18.2 Configure COS in MAS
     - name: suite-config-cos
       params:
         - name: devops_suite_name
@@ -1128,9 +1142,9 @@ spec:
           workspace: shared-configs
 
 
-    # 13. AppConnect
+    # 19. AppConnect
     # -------------------------------------------------------------------------
-    # 13.1 Install AppConnect
+    # 19.1 Install AppConnect
     - name: appconnect
       params:
         - name: devops_suite_name
@@ -1162,8 +1176,8 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
-    
-    # 13.2 Configure AppConnect in MAS
+
+    # 19.2 Configure AppConnect in MAS
     - name: suite-config-appconnect
       params:
         - name: devops_suite_name
@@ -1189,40 +1203,11 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
-    
-    # 14. NVidia
-    # -------------------------------------------------------------------------
-    - name: nvidia
-      params:
-        - name: devops_suite_name
-          value: dependencies-nvidia
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-nvidia-gpu
-      # Only needed if MVI is being installed
-      when:
-        - input: "skip"
-          operator: notin
-          values: ["skip"]
-        # - input: "$(params.mas_app_channel_visualinspection)"
-        #   operator: notin
-        #   values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
 
 
+    # 20. Install IBM MAS IoT application
     # -------------------------------------------------------------------------
-    # A. Install IBM MAS IoT application
-    # -------------------------------------------------------------------------
-    # A.1 Install IoT
+    # 20.1 Install IoT
     - name: app-install-iot
       params:
         - name: devops_suite_name
@@ -1266,7 +1251,7 @@ spec:
         - suite-config-kafka
         - suite-verify
 
-    # A.2 Configure IoT workspace
+    # 20.2 Configure IoT workspace
     - name: app-cfg-iot
       params:
         - name: devops_suite_name
@@ -1297,9 +1282,9 @@ spec:
           workspace: shared-configs
 
 
-    # B. Install IBM MAS Monitor application
+    # 21. Install IBM MAS Monitor application
     # -------------------------------------------------------------------------
-    # B.1 Install Monitor
+    # 21.1 Install Monitor
     - name: app-install-monitor
       params:
         - name: devops_suite_name
@@ -1341,7 +1326,7 @@ spec:
       runAfter:
         - app-cfg-iot
 
-    # B.2 Configure Monitor workspace
+    # 21.2 Configure Monitor workspace
     - name: app-cfg-monitor
       params:
         - name: devops_suite_name
@@ -1372,9 +1357,9 @@ spec:
           workspace: shared-configs
 
 
-    # C. Install IBM MAS Safety application
+    # 22. Install IBM MAS Safety application
     # -------------------------------------------------------------------------
-    # C.1 Install Safety
+    # 22.1 Install Safety
     - name: app-install-safety
       params:
         - name: devops_suite_name
@@ -1415,7 +1400,7 @@ spec:
       runAfter:
         - app-cfg-iot
 
-    # C.2 Configure Safety workspace
+    # 22.2 Configure Safety workspace
     - name: app-cfg-safety
       params:
         - name: devops_suite_name
@@ -1446,9 +1431,9 @@ spec:
           workspace: shared-configs
 
 
-    # D. Install IBM MAS Manage application
+    # 23. Install IBM MAS Manage application
     # -------------------------------------------------------------------------
-    # D.1. Prepare database to Maxinst
+    # 23.1. Prepare database to Maxinst
     - name: suite-db2-setup-for-manage
       params:
         - name: mas_instance_id
@@ -1473,7 +1458,7 @@ spec:
       runAfter:
         - suite-config-db2
 
-    # D.2 Manage Install
+    # 23.2 Manage Install
     - name: app-install-manage
       params:
         - name: devops_suite_name
@@ -1515,7 +1500,7 @@ spec:
         - suite-db2-setup-for-manage
         - suite-verify
 
-    # D.3 Configure Manage workspace
+    # 23.3 Configure Manage workspace
     - name: app-cfg-manage
       params:
         - name: devops_suite_name
@@ -1548,9 +1533,9 @@ spec:
           workspace: shared-configs
 
 
-    # E. Predict
+    # 24. Predict
     # -------------------------------------------------------------------------
-    # E.1 Predict Install
+    # 24.1 Predict Install
     - name: app-install-predict
       params:
         - name: devops_suite_name
@@ -1596,7 +1581,7 @@ spec:
         - analytics-service
 
 
-    # E.2 Configure Predict workspace
+    # 24.2 Configure Predict workspace
     - name: app-cfg-predict
       params:
         - name: devops_suite_name
@@ -1627,9 +1612,9 @@ spec:
           workspace: shared-configs
 
 
-    # F. Optimizer
+    # 25. Optimizer
     # -------------------------------------------------------------------------
-    # F.1 Optimizer Install
+    # 25.1 Optimizer Install
     - name: app-install-optimizer
       params:
         - name: devops_suite_name
@@ -1672,7 +1657,7 @@ spec:
       runAfter:
         - suite-verify
 
-    # F.2 Configure Optimizer workspace
+    # 25.2 Configure Optimizer workspace
     - name: app-cfg-optimizer
       params:
         - name: devops_suite_name
@@ -1702,10 +1687,11 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
-    
-    # G. Health & Predict - Utilities
+
+
+    # 26. Health & Predict - Utilities
     # -------------------------------------------------------------------------
-    # G.1 HPUtilities Install
+    # 26.1 HPUtilities Install
     - name: app-install-hputilities
       params:
         - name: devops_suite_name
@@ -1748,7 +1734,7 @@ spec:
         - suite-config-watson-studio
         - suite-config-appconnect
 
-    # G.2 Configure HPUtilities workspace
+    # 26.2 Configure HPUtilities workspace
     - name: app-cfg-hputilities
       params:
         - name: devops_suite_name
@@ -1777,10 +1763,11 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
-    
-    # H. Assist
+
+
+    # 27. Assist
     # -------------------------------------------------------------------------
-    # H.1 Assist Install
+    # 27.1 Assist Install
     - name: app-install-assist
       params:
         - name: devops_suite_name
@@ -1822,7 +1809,7 @@ spec:
         - suite-config-cos
         - suite-verify
 
-    # H.2 Configure Assist workspace
+    # 27.2 Configure Assist workspace
     - name: app-cfg-assist
       params:
         - name: devops_suite_name
@@ -1851,10 +1838,11 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
-    
-    # I. Maximo Visual Inspection (MVI)
+
+
+    # 28. Maximo Visual Inspection (MVI)
     # -------------------------------------------------------------------------
-    # I.1 MVI Install
+    # 28.1 MVI Install
     - name: app-install-visualinspection
       params:
         - name: devops_suite_name
@@ -1896,7 +1884,7 @@ spec:
         - nvidia
         - suite-verify
 
-    # I.2 Configure MVI workspace
+    # 28.2 Configure MVI workspace
     - name: app-cfg-visualinspection
       params:
         - name: devops_suite_name

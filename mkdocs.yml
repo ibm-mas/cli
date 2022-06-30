@@ -1,0 +1,51 @@
+# mkdocs serve
+
+site_name: MAS CLI
+site_url: https://ibm-mas.github.io/cli
+
+repo_name: GitHub
+repo_url: https://github.com/ibm-mas/cli
+edit_uri: blob/master/docs/
+
+nav:
+  - 'Home': index.md
+  - 'Changes': changes.md
+  - 'OCP Provisioning':
+    - 'provision-fyre': commands/provision-fyre.md
+    - 'provision-roks': commands/provision-roks.md
+    - 'provision-rosa': commands/provision-rosa.md
+  - 'MAS Installation':
+    - 'install': commands/install.md
+  - 'Air Gap Support':
+    - 'setup-registry': commands/setup-registry.md
+    - 'mirror-images': commands/mirror-images.md
+    - 'configure-airgap': commands/configure-airgap.md
+
+theme:
+  name: readthedocs
+  highlightjs: true
+  hljs_languages:
+    - yaml
+  prev_next_buttons_location: none
+extra_css:
+  - extra.css
+markdown_extensions:
+  - toc:
+      permalink: 
+  - admonition
+  # Add this to support expandable sections
+  #- pymdownx.details
+
+# https://squidfunk.github.io/mkdocs-material/extensions/admonition/
+# Note
+# Abstract
+# Info
+# Tip
+# Success
+# Question
+# Warning
+# Failure
+# Danger
+# Bug
+# Example
+# Quote

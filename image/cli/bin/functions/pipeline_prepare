@@ -1,0 +1,62 @@
+#!/bin/bash
+function pipeline_prepare() {
+  echo
+  echo_h2 "10. Prepare Installation"
+
+  mkdir -p $DIR/configs
+  # Replace ALL environment variables in templates
+  eval "echo \"$(cat $DIR/templates/pipelinerun.yaml)\"" > $DIR/configs/pipelinerun-$MAS_INSTANCE_ID.yaml
+
+  # Replace mas_instance_id and pipeline_storage_class in templates
+  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/namespace.yaml > $DIR/configs/namespace-$MAS_INSTANCE_ID.yaml
+  sed -e "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" \
+      -e "s/{{pipeline_storage_class}}/$STORAGE_CLASS_RWX/g" \
+      $DIR/templates/pvc.yaml > $DIR/configs/pvc-$MAS_INSTANCE_ID.yaml
+  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/rbac.yaml > $DIR/configs/rbac-$MAS_INSTANCE_ID.yaml
+  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/pipeline.yaml > $DIR/configs/pipeline-$MAS_INSTANCE_ID.yaml
+
+  if [ "$ALREADY_CONFIRMED" != "true" ]; then
+    OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+    echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}${COLOR_RESET}"
+    prompt_for_confirm "Proceed with pipeline setup on this cluster" || exit 0
+  fi
+
+  echo -en "\033[s" # Save cursor position
+  echo -n "Preparing namespace 'mas-$MAS_INSTANCE_ID-pipelines' ..."
+
+  PIPELINE_VERSION=10.6.0-pre.master
+  if [ ! -e $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml ]; then
+    wget https://github.com/ibm-mas/ansible-devops/releases/download/$PIPELINE_VERSION/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml -O $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml  &>> $LOGFILE
+  fi
+  # Install the MAS Devops Task definitions
+  oc apply -f $DIR/configs/namespace-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  oc -n mas-$MAS_INSTANCE_ID-pipelines apply -f $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml &>> $LOGFILE
+
+  oc apply -f $DIR/configs/pvc-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  # Wait for PVC
+  LOOKUP_RESULT=$(oc -n mas-$MAS_INSTANCE_ID-pipelines get pvc config-pvc -o jsonpath='{.status.phase}')
+  while [ "$LOOKUP_RESULT" != "Bound" ]; do
+    echo "Waiting 5s for PVC to be bound before checking again ..."  &>> $LOGFILE
+    sleep 5
+    LOOKUP_RESULT=$(oc -n mas-$MAS_INSTANCE_ID-pipelines get pvc config-pvc -o jsonpath='{.status.phase}')
+  done
+
+  oc apply -f $DIR/configs/rbac-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  oc apply -f $DIR/configs/pipeline-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+
+  # Clean up existing secrets
+  oc -n mas-$MAS_INSTANCE_ID-pipelines delete secret pipeline-additional-configs --ignore-not-found=true &>> $LOGFILE
+  oc -n mas-$MAS_INSTANCE_ID-pipelines delete secret pipeline-sls-entitlement --ignore-not-found=true &>> $LOGFILE
+
+  # Create new secrets
+  # pipeline-additional-configs must exist (otherwise the suite-install step will hang),
+  # but can be empty if no additional configs are required
+  # TODO: Support passing in files to this secret
+  oc -n mas-$MAS_INSTANCE_ID-pipelines create secret generic pipeline-additional-configs &>> $LOGFILE
+  oc -n mas-$MAS_INSTANCE_ID-pipelines create secret generic pipeline-sls-entitlement --from-file=$SLS_LICENSE_FILE_LOCAL &>> $LOGFILE
+
+    echo -en "\033[1K" # Clear current line
+    echo -en "\033[u" # Restore cursor position
+    echo -e "${COLOR_GREEN}Namespace 'mas-$MAS_INSTANCE_ID-pipelines' is ready${COLOR_RESET}"
+
+}

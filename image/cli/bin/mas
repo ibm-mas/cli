@@ -26,18 +26,18 @@ LOGFILE=$DIR/mas.log
 export ANSIBLE_CONFIG=$DIR/ansible.cfg
 
 # General purpose
+. $DIR/functions/connect
 . $DIR/functions/utils
+. $DIR/functions/save_config
 # MAS provisioning support
 . $DIR/functions/provision_fyre
 . $DIR/functions/provision_roks
 # MAS installation support
-. $DIR/functions/connect
-. $DIR/functions/install_pipeline
-. $DIR/functions/channel_select
-. $DIR/functions/config_pipeline
-. $DIR/functions/save_config
-. $DIR/functions/show_config
-. $DIR/functions/run_pipeline
+. $DIR/functions/pipeline_config
+. $DIR/functions/pipeline_install_operator
+. $DIR/functions/pipeline_prepare
+. $DIR/functions/pipeline_run
+. $DIR/functions/pipeline_show_config
 . $DIR/functions/download_mustgather
 # Airgap support
 . $DIR/functions/setup_mirror_registry
@@ -48,27 +48,21 @@ export ANSIBLE_CONFIG=$DIR/ansible.cfg
 load_config
 case $1 in
   fyre|provision-fyre)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Fyre Cluster Provisioner${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite FYRE Cluster Provisioner${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
-    echo
-    echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
-    echo "${TEXT_DIM}1. This is still a work in progress"
     echo
     reset_colors
     update_ansible_collections
-    provision_fyre
+    provision_fyre "$@"
     ;;
 
   roks|provision-roks)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite ROKS Cluster Provisioner${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
-    echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
-    echo "${TEXT_DIM}1. This is still a work in progress"
-    echo
     reset_colors
     update_ansible_collections
-    provision_roks
+    provision_roks "$@"
     ;;
 
   registry|setup-registry|setup-mirror-registry|setup-airgap-registry)
@@ -114,17 +108,16 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
     echo
     echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
-    echo "${TEXT_DIM}1. Installation and configuration management for Cloud Pak for Data services is not yet complete"
-    echo "${TEXT_DIM}2. Predict, Assist, & Visual Inspection applications can not be deployed using the install yet"
-    echo "${TEXT_DIM}3. Support for airgap installation is limited to MAS 8.7 (core only) at present"
+    echo "${TEXT_DIM}1. Support for airgap installation is limited to MAS 8.7 (core only) at present"
     echo
     reset_colors
     connect
-    install_pipeline
+    pipeline_install_operator
     detect_airgap
-    config_pipeline
-    show_config
-    run_pipeline
+    pipeline_config
+    pipeline_prepare
+    pipeline_show_config
+    pipeline_run
     ;;
 
   download|mustgather|download-mustgather)

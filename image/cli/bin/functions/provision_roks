@@ -1,6 +1,100 @@
 #!/bin/bash
 
-function provision_roks() {
+function provision_roks_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas provision-roks [options]
+
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+IBMCloud Credentials (Required):
+  -a, --apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                  IBMCloud API key
+
+Cluster Configuration (Required):
+  -r, --resource-group ${COLOR_YELLOW}IBMCLOUD_RESOURCEGROUP${TEXT_RESET}   IBMCloud resource group to deploy the cluster in
+  -c, --cluster-name ${COLOR_YELLOW}CLUSTER_NAME${TEXT_RESET}               Name of the cluster to be provisioned
+  -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}                 OCP version to use (e.g 4.8_openshift, 4.10_openshift)
+
+Worker Node Configuration (Required):
+      --worker-count ${COLOR_YELLOW}ROKS_WORKERS${TEXT_RESET}               Number of worker nodes to provision
+      --worker-flavor ${COLOR_YELLOW}ROKS_FLAVOR${TEXT_RESET}               The flavour of worker node to use
+
+GPU Support (Optional):
+      --gpu-worker-count ${COLOR_YELLOW}GPU_WORKERS${TEXT_RESET}            Number of GPU worker nodes to provision
+      --gpu-workerpool-name ${COLOR_YELLOW}GPU_WORKERPOOL_NAME${TEXT_RESET} Name of the GPU workerpool
+
+Other Commands:
+      --no-confirm                              Provision the cluster without prompting for confirmation
+  -h, --help                                    Show this help message
+
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function provision_roks_noninteractive() {
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      -a|--apikey)
+        IBMCLOUD_APIKEY=$1 && shift
+        ;;
+      -r|--resource-group)
+        IBMCLOUD_RESOURCEGROUP=$1 && shift
+        ;;
+      -c|--cluster-name)
+        CLUSTER_NAME=$1 && shift
+        ;;
+      -v|--ocp-version)
+        OCP_VERSION=$1 && shift
+        ;;
+      --worker-count)
+        ROKS_WORKERS=$1 && shift
+        ;;
+      --worker-flavor)
+        ROKS_FLAVOR=$1 && shift
+        ;;
+      --gpu-worker-count)
+        OCP_PROVISION_GPU=true
+        GPU_WORKERS=$1 && shift
+        ;;
+      --gpu-workerpool-name)
+        OCP_PROVISION_GPU=true
+        GPU_WORKERPOOL_NAME=$1 && shift
+        ;;
+      --upgrade-registry-storage)
+        UPGRADE_IMAGE_REGISTRY_STORAGE=true
+        ;;
+      --no-confirm)
+        NO_CONFIRM=true
+        ;;
+      -h|--help)
+        provision_roks_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        provision_roks_help
+        exit 1
+        ;;
+      esac
+  done
+
+  # Check all args have been set
+  [[ -z "$IBMCLOUD_APIKEY" ]] && provision_roks_help "IBMCLOUD_APIKEY is not set"
+  [[ -z "$IBMCLOUD_RESOURCEGROUP" ]] && provision_roks_help "IBMCLOUD_RESOURCEGROUP is not set"
+  [[ -z "$CLUSTER_NAME" ]] && provision_roks_help "CLUSTER_NAME is not set"
+  [[ -z "$OCP_VERSION" ]] && provision_roks_help "OCP_VERSION is not set"
+  [[ -z "$ROKS_WORKERS" ]] && provision_roks_help "ROKS_WORKERS is not set"
+  [[ -z "$ROKS_FLAVOR" ]] && provision_roks_help "ROKS_FLAVOR is not set"
+}
+
+function provision_roks_interactive() {
+
   if [[ -z "$IBMCLOUD_APIKEY" ]]; then
     echo ""
     echo_h2 "IBM Cloud API Key"
@@ -8,7 +102,13 @@ function provision_roks() {
     echo "environment variable) which will be used to provision a ROKS instance."
     echo ""
     prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY && export IBMCLOUD_APIKEY
+  else
+    prompt_for_confirm_default_yes "Re-use saved IBMCloud API Key Starting '${IBMCLOUD_APIKEY:0:8}'?" REUSE_IBMCLOUD_AUTH
+    if [[ "$REUSE_IBMCLOUD_AUTH" == "false" ]]; then
+      prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY && export IBMCLOUD_APIKEY
+    fi
   fi
+
   echo ""
   echo_h2 "IBM Cloud ROKS Cluster Configuration"
   echo "Select your worker node flavour and the number of worker nodes to provision."
@@ -74,23 +174,61 @@ function provision_roks() {
   echo ""
   prompt_for_confirm "Upgrade Image Registry Storage from 100GB to 400GB" && export UPGRADE_IMAGE_REGISTRY_STORAGE=true
 
-  echo ""
-  echo_h2 "Summary"
-  echo "IBMCloud API Key .......... ${IBMCLOUD_APIKEY:0:8}..."
-  echo "IBMCloud Resource Group ... $IBMCLOUD_RESOURCEGROUP"
-  echo "Cluster Name .............. $CLUSTER_NAME"
-  echo "OCP Version ............... $OCP_VERSION"
-  echo "Worker Flavour ............ $ROKS_FLAVOR"
-  echo "Worker Nodes .............. $ROKS_WORKERS"
-  echo "Add GPU Worker Nodes ...... $OCP_PROVISION_GPU"
-  if [[ $OCP_PROVISION_GPU == "true" ]]; then
-    echo "GPU Worker Nodes .......... $GPU_WORKERS"
-    echo "GPU Worker Pool Name ...... $GPU_WORKERPOOL_NAME"
+}
+
+
+function provision_roks() {
+  # Take the first parameter off (it will be provision-fyre)
+  shift
+  if [[ $# -gt 0 ]]; then
+    provision_roks_noninteractive "$@"
+  else
+    provision_roks_interactive
   fi
-  echo "Upgrade Registry Storage .. $UPGRADE_IMAGE_REGISTRY_STORAGE"
+
+  # Ensure all environment variables are available to ansible-playbook
+  export IBMCLOUD_APIKEY
+  export IBMCLOUD_RESOURCEGROUP
+
+  export CLUSTER_TYPE=roks
+  export CLUSTER_NAME
+  export OCP_VERSION
+  export ROKS_WORKERS
+  export ROKS_FLAVOR
+  export OCP_PROVISION_GPU
+  export GPU_WORKERS
+  export GPU_WORKERPOOL_NAME
+  export UPGRADE_IMAGE_REGISTRY_STORAGE
+
 
   echo ""
-  confirm "Proceed with these settings [y/N]" || exit 0
+  echo_h2 "Review Settings"
+  echo "${TEXT_DIM}"
+  echo_h2 "IBMCloud Authentication" "    "
+  echo_reset_dim "IBMCloud API Key .......... ${IBMCLOUD_APIKEY:0:8}..."
+  echo_reset_dim "IBMCloud Resource Group ... $IBMCLOUD_RESOURCEGROUP"
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "Cluster Configuration" "    "
+  echo_reset_dim "Cluster Name .............. $CLUSTER_NAME"
+  echo_reset_dim "OCP Version ............... $OCP_VERSION"
+  echo_reset_dim "Upgrade Registry Storage .. $UPGRADE_IMAGE_REGISTRY_STORAGE"
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "Worker Configuration" "    "
+  echo_reset_dim "Worker Flavour ............ $ROKS_FLAVOR"
+  echo_reset_dim "Worker Nodes .............. $ROKS_WORKERS"
+  echo_reset_dim "Add GPU Worker Nodes ...... $OCP_PROVISION_GPU"
+  if [[ $OCP_PROVISION_GPU == "true" ]]; then
+    echo_reset_dim "GPU Worker Nodes .......... $GPU_WORKERS"
+    echo_reset_dim "GPU Worker Pool Name ...... $GPU_WORKERPOOL_NAME"
+  fi
+
+  echo
+  reset_colors
+  if [[ "$NO_CONFIRM" != "true" ]]; then
+    prompt_for_confirm "Proceed with these settings" || exit 0
+  fi
 
   ansible-playbook ibm.mas_devops.ocp_roks_provision || exit 1
 
@@ -98,5 +236,4 @@ function provision_roks() {
   echo "IBM Cloud ROKS cluster is ready to use"
   OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
   echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
-
 }
