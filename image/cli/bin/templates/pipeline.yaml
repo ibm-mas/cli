@@ -1819,7 +1819,6 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - suite-config-discovery
         - suite-config-cos
         - suite-verify
 
