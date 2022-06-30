@@ -1076,7 +1076,7 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - suite-verify
+        - app-install-assist
         - discovery
       workspaces:
         - name: configs
@@ -1806,7 +1806,6 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - suite-config-discovery
         - suite-config-cos
         - suite-verify
 
@@ -1835,7 +1834,7 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - app-install-assist
+        - suite-config-discovery
       workspaces:
         - name: configs
           workspace: shared-configs
