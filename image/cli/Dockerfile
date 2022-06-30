@@ -1,4 +1,4 @@
-FROM quay.io/ibmmas/ansible-airgap:1.3.0
+FROM quay.io/ibmmas/ansible-airgap:1.3.1
 
 ARG VERSION_LABEL
 
@@ -14,7 +14,7 @@ RUN chmod +x /tini && \
     ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/devops
 
 # Add this when we need to install a newer version of mas_devops than is contained in the newest version of ansible-airgap
-RUN ansible-galaxy collection install ibm.mas_devops:10.6.0 --no-deps
+# RUN ansible-galaxy collection install ibm.mas_devops:10.6.0 --no-deps
 
 ENV PATH="/mascli/bin:${PATH}" \
     VERSION=$VERSION_LABEL
