@@ -24,7 +24,7 @@ function pipeline_prepare() {
   echo -en "\033[s" # Save cursor position
   echo -n "Preparing namespace 'mas-$MAS_INSTANCE_ID-pipelines' ..."
 
-  PIPELINE_VERSION=10.6.0-pre.master
+  PIPELINE_VERSION=10.6.1
   if [ ! -e $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml ]; then
     wget https://github.com/ibm-mas/ansible-devops/releases/download/$PIPELINE_VERSION/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml -O $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml  &>> $LOGFILE
   fi
