@@ -1881,7 +1881,6 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - nvidia
         - suite-verify
 
     # 28.2 Configure MVI workspace
