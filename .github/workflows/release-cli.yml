@@ -27,7 +27,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ github.workspace }}/ibm-mas-cli-${{ env.VERSION }}.tgz
-          asset_name: ibm-mas-cli-${{ env.VERSION }}.yaml
+          asset_name: ibm-mas-cli-${{ env.VERSION }}.tgz
           tag: ${{ github.ref }}
           overwrite: true
 
