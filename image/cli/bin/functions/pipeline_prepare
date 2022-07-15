@@ -10,7 +10,8 @@ function pipeline_prepare() {
   # Replace mas_instance_id and pipeline_storage_class in templates
   sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/namespace.yaml > $DIR/configs/namespace-$MAS_INSTANCE_ID.yaml
   sed -e "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" \
-      -e "s/{{pipeline_storage_class}}/$STORAGE_CLASS_RWX/g" \
+      -e "s/{{pipeline_storage_class}}/$PIPELINE_STORAGE_CLASS/g" \
+      -e "s/{{pipeline_storage_accessmode}}/$PIPELINE_STORAGE_ACCESSMODE/g" \
       $DIR/templates/pvc.yaml > $DIR/configs/pvc-$MAS_INSTANCE_ID.yaml
   sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/rbac.yaml > $DIR/configs/rbac-$MAS_INSTANCE_ID.yaml
   sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/pipeline.yaml > $DIR/configs/pipeline-$MAS_INSTANCE_ID.yaml
@@ -22,6 +23,10 @@ function pipeline_prepare() {
   fi
 
   echo -en "\033[s" # Save cursor position
+  echo "${COLOR_YELLOW}If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"
+  echo ""
+  prompt_for_confirm "Wait for PVCs to bind?" WAIT_FOR_PVCS
+  echo ""
   echo -n "Preparing namespace 'mas-$MAS_INSTANCE_ID-pipelines' ..."
 
   PIPELINE_VERSION=10.6.1
@@ -34,12 +39,14 @@ function pipeline_prepare() {
 
   oc apply -f $DIR/configs/pvc-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
   # Wait for PVC
-  LOOKUP_RESULT=$(oc -n mas-$MAS_INSTANCE_ID-pipelines get pvc config-pvc -o jsonpath='{.status.phase}')
-  while [ "$LOOKUP_RESULT" != "Bound" ]; do
-    echo "Waiting 5s for PVC to be bound before checking again ..."  &>> $LOGFILE
-    sleep 5
+  if [[ "$WAIT_FOR_PVCS" == "true" ]]; then
     LOOKUP_RESULT=$(oc -n mas-$MAS_INSTANCE_ID-pipelines get pvc config-pvc -o jsonpath='{.status.phase}')
-  done
+    while [ "$LOOKUP_RESULT" != "Bound" ]; do
+      echo "Waiting 5s for PVC to be bound before checking again ..."  &>> $LOGFILE
+      sleep 5
+      LOOKUP_RESULT=$(oc -n mas-$MAS_INSTANCE_ID-pipelines get pvc config-pvc -o jsonpath='{.status.phase}')
+    done
+  fi
 
   oc apply -f $DIR/configs/rbac-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
   oc apply -f $DIR/configs/pipeline-$MAS_INSTANCE_ID.yaml &>> $LOGFILE

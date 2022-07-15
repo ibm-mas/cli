@@ -7,7 +7,7 @@ metadata:
   namespace: mas-{{mas_instance_id}}-pipelines
 spec:
   accessModes:
-    - ReadWriteMany
+    - {{pipeline_storage_accessmode}}
   volumeMode: Filesystem
   storageClassName: {{pipeline_storage_class}}
   resources:
@@ -21,10 +21,10 @@ metadata:
   name: shared-mustgather-storage
   namespace: mas-{{mas_instance_id}}-pipelines
 spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  storageClassName: {{pipeline_storage_class}}
   resources:
     requests:
       storage: 1Gi
-  volumeMode: Filesystem
-  storageClassName: {{pipeline_storage_class}}
-  accessModes:
-    - ReadWriteOnce

@@ -1,4 +1,4 @@
-FROM quay.io/ibmmas/ansible-airgap:1.3.1
+FROM quay.io/ibmmas/ansible-airgap:latest
 
 ARG VERSION_LABEL
 

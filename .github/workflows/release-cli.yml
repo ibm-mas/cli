@@ -1,9 +1,9 @@
 name: Build CLI
 on:
   push:
-    branches:
+    branches-ignore:
       - '**'
-    tags-ignore:
+    tags:
       - '**'
 jobs:
   build-cli:
@@ -23,22 +23,25 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/build-cli.sh
 
       - name: Upload the cli
-        uses: actions/upload-artifact@v2
+        uses: svenstaro/upload-release-action@v2
         with:
-          name: ibm-mas-cli-${{ env.VERSION }}.tgz
-          path: ${{ github.workspace }}/ibm-mas-cli-${{ env.VERSION }}.tgz
-          retention-days: 30
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ github.workspace }}/ibm-mas-cli-${{ env.VERSION }}.tgz
+          asset_name: ibm-mas-cli-${{ env.VERSION }}.yaml
+          tag: ${{ github.ref }}
+          overwrite: true
 
       - name: Build the docker image
         run: |
           $GITHUB_WORKSPACE/build/bin/docker-build.sh -n ibmmas -i cli
           docker tag ibmmas/cli quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
+          docker tag ibmmas/cli quay.io/ibmmas/cli:latest
 
       # https://github.com/marketplace/actions/push-to-registry
       - name: Push the docker image
         id: push_to_quay
         uses: redhat-actions/push-to-registry@v2
         with:
-          tags: quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
+          tags: quay.io/ibmmas/cli:${{ env.DOCKER_TAG }} quay.io/ibmmas/cli:latest
           username: ${{ secrets.QUAYIO_USERNAME }}
           password: ${{ secrets.QUAYIO_PASSWORD }}
