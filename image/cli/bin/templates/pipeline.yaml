@@ -536,6 +536,11 @@ spec:
         - input: "$(params.mas_app_channel_iot)$(params.mas_app_channel_manage)"
           operator: notin
           values: [""]
+        # If there is no RWX storage class available then we can't deploy Db2.
+        # TODO: Test Db2 install using RWO storage only
+        - input: "$(params.storage_class_rwx)"
+          operator: notin
+          values: ["none"]
       taskRef:
         name: mas-devops-db2
         kind: Task
