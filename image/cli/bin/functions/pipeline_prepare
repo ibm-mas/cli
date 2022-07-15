@@ -23,6 +23,10 @@ function pipeline_prepare() {
   fi
 
   echo -en "\033[s" # Save cursor position
+  echo "${COLOR_YELLOW}If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"
+  echo ""
+  prompt_for_confirm "Wait for PVCs to bind?" WAIT_FOR_PVCS
+  echo ""
   echo -n "Preparing namespace 'mas-$MAS_INSTANCE_ID-pipelines' ..."
 
   PIPELINE_VERSION=10.6.1
@@ -35,8 +39,6 @@ function pipeline_prepare() {
 
   oc apply -f $DIR/configs/pvc-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
   # Wait for PVC
-  echo "If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"
-  prompt_for_confirm "Wait for PVCs to bind?" WAIT_FOR_PVCS
   if [[ "$WAIT_FOR_PVCS" == "true" ]]; then
     LOOKUP_RESULT=$(oc -n mas-$MAS_INSTANCE_ID-pipelines get pvc config-pvc -o jsonpath='{.status.phase}')
     while [ "$LOOKUP_RESULT" != "Bound" ]; do

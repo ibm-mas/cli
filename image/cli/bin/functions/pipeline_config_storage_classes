@@ -91,8 +91,10 @@ function config_pipeline_storage_classes() {
   if [[ "$STORAGE_CLASS_RWX" == "" || "$OVERRIDE_STORAGE_CLASSES" == "true" ]]; then
     STORAGE_CLASS_PROVIDER=custom
     echo ""
-    echo "${COLOR_YELLOW}Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below (enter 'none' for the ReadWriteMany storage class if you do not have a suitable class available in the cluster, however this will limit what software can be installed in your cluster):"
+    echo "${COLOR_YELLOW}Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:"
     oc get storageclasses -o jsonpath='{range .items[*]}{" - "}{.metadata.name}{"\n"}{end}'
+    echo ""
+    echo "${COLOR_YELLOW}Enter 'none' for the ReadWriteMany storage class if you do not have a suitable class available in the cluster, however this will limit what can be installed"
     echo ""
     prompt_for_input "ReadWriteOnce (RWO) storage class" STORAGE_CLASS_RWO
     prompt_for_input "ReadWriteMany (RWX) storage class" STORAGE_CLASS_RWX
