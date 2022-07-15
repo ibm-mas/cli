@@ -1,6 +1,7 @@
 
 *.DS_Store*
 .env
+.vscode
 image/cli/bin/configs/*.yaml
 image/cli/bin/*.log
 image/cli/bin/mas.env
