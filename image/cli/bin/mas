@@ -33,6 +33,7 @@ export ANSIBLE_CONFIG=$DIR/ansible.cfg
 . $DIR/functions/provision_fyre
 . $DIR/functions/provision_roks
 # MAS installation support
+. $DIR/functions/install
 . $DIR/functions/pipeline_config
 . $DIR/functions/pipeline_install_operator
 . $DIR/functions/pipeline_prepare
@@ -111,13 +112,7 @@ case $1 in
     echo "${TEXT_DIM}1. Support for airgap installation is limited to MAS 8.7 (core only) at present"
     echo
     reset_colors
-    connect
-    pipeline_install_operator
-    detect_airgap
-    pipeline_config
-    pipeline_prepare
-    pipeline_show_config
-    pipeline_run
+    install "$@"
     ;;
 
   download|mustgather|download-mustgather)

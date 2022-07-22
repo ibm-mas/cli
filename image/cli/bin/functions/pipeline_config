@@ -59,7 +59,7 @@ function pipeline_config() {
   config_pipeline_storage_classes
 
   echo ""
-  if [[ "$MAS_CATALOG_SOURCE" == "ibm-mas-operators" && -z "$AIRGAP_MODE" ]]; then
+  if [[ "$DEV_MODE" == "true" && -z "$AIRGAP_MODE" ]]; then
     # Development Mode -- offer the ability to set MAS and SLS source independently
     echo_h2 "7a. Configure Artifactory"
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME

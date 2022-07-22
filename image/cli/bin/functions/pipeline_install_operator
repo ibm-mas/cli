@@ -33,8 +33,9 @@ function pipeline_install_operator() {
   done
 
   # This will have no effect on OCP 4.8 ... OpenShift Pipelines doesn't support configuration properly at this level
+  # Note: We need to use --tpye merge because it's a custom resource
   echo "Patch Tekton config to enable alpha API fields and scope when expressions to tasks" &>> $LOGFILE
-  oc patch TektonConfig config -p '{"spec":{"pipeline":{"enable-api-fields": "alpha", "scope-when-expressions-to-task": true}}}'  &>> $LOGFILE
+  oc patch TektonConfig config --type merge -p '{"spec":{"pipeline":{"enable-api-fields": "alpha", "scope-when-expressions-to-task": true}}}'  &>> $LOGFILE
 
   echo -en "\033[1K" # Clear current line
   echo -en "\033[u" # Restore cursor position
