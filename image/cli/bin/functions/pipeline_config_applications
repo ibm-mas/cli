@@ -6,12 +6,10 @@ function channel_select_iot() {
     case $MAS_CHANNEL in
       8.6.x|8.7.x)
         MAS_APP_CHANNEL_IOT=8.4.x
-        MAS_APP_SOURCE_IOT=ibm-operator-catalog
         ;;
 
       *)
         prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_IOT
-        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_IOT "ibm-mas-iot-operators"
         ;;
     esac
   else
@@ -27,15 +25,12 @@ function channel_select_monitor() {
     case $MAS_CHANNEL in
       8.7.x)
         MAS_APP_CHANNEL_MONITOR=8.7.x
-        MAS_APP_SOURCE_MONITOR=ibm-operator-catalog
         ;;
       8.6.x)
         MAS_APP_CHANNEL_MONITOR=8.6.x
-        MAS_APP_SOURCE_MONITOR=ibm-operator-catalog
         ;;
       *)
         prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MONITOR
-        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_MONITOR "ibm-mas-monitor-operators"
         ;;
     esac
   else
@@ -52,11 +47,9 @@ function channel_select_safety() {
     case $MAS_CHANNEL in
       8.6.x|8.7.x)
         MAS_APP_CHANNEL_SAFETY=8.2.x
-        MAS_APP_SOURCE_SAFETY=ibm-operator-catalog
         ;;
       *)
         prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_SAFETY
-        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_SAFETY "ibm-mas-safety-operators"
         ;;
     esac
   else
@@ -73,15 +66,12 @@ function channel_select_manage() {
     case $MAS_CHANNEL in
       8.7.x)
         MAS_APP_CHANNEL_MANAGE=8.3.x
-        MAS_APP_SOURCE_MANAGE=ibm-operator-catalog
         ;;
       8.6.x)
         MAS_APP_CHANNEL_MANAGE=8.2.x
-        MAS_APP_SOURCE_MANAGE=ibm-operator-catalog
         ;;
       *)
         prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MANAGE
-        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_MANAGE "ibm-mas-manage-operators"
         ;;
     esac
   else
@@ -98,15 +88,12 @@ function channel_select_predict() {
     case $MAS_CHANNEL in
       8.7.x)
         MAS_APP_CHANNEL_PREDICT=8.5.x
-        MAS_APP_SOURCE_PREDICT=ibm-operator-catalog
         ;;
       8.6.x)
         MAS_APP_CHANNEL_PREDICT=8.4.x
-        MAS_APP_SOURCE_PREDICT=ibm-operator-catalog
         ;;
       *)
         prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_PREDICT
-        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_PREDICT "ibm-mas-predict-operators"
         ;;
     esac
   else
@@ -123,15 +110,12 @@ function channel_select_hputilities() {
     case $MAS_CHANNEL in
       8.7.x)
         MAS_APP_CHANNEL_HPUTILITIES=8.3.x
-        MAS_APP_SOURCE_HPUTILITIES=ibm-operator-catalog
         ;;
       8.6.x)
         MAS_APP_CHANNEL_HPUTILITIES=8.2.x
-        MAS_APP_SOURCE_HPUTILITIES=ibm-operator-catalog
         ;;
       *)
         prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_HPUTILITIES
-        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_HPUTILITIES "ibm-mas-hputilities-operators"
         ;;
     esac
   else
@@ -148,11 +132,9 @@ function channel_select_optimizer() {
     case $MAS_CHANNEL in
       8.8.x)
         MAS_APP_CHANNEL_OPTIMIZER=8.2.x
-        MAS_APP_SOURCE_OPTIMIZER=ibm-operator-catalog
         ;;
       *)
         prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_OPTIMIZER
-        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_OPTIMIZER "ibm-mas-optimizer-operators"
         ;;
     esac
   else
@@ -169,15 +151,12 @@ function channel_select_assist() {
     case $MAS_CHANNEL in
       8.7.x)
         MAS_APP_CHANNEL_ASSIST=8.4.x
-        MAS_APP_SOURCE_ASSIST=ibm-operator-catalog
         ;;
       8.6.x)
         MAS_APP_CHANNEL_ASSIST=8.3.x
-        MAS_APP_SOURCE_ASSIST=ibm-operator-catalog
         ;;
       *)
         prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_ASSIST
-        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_ASSIST "ibm-mas-assist-operators"
         ;;
     esac
   else
@@ -194,15 +173,12 @@ function channel_select_visualinspection() {
     case $MAS_CHANNEL in
       8.7.x)
         MAS_APP_CHANNEL_VISUALINSPECTION=8.4.x
-        MAS_APP_SOURCE_VISUALINSPECTION=ibm-operator-catalog
         ;;
       8.6.x)
         MAS_APP_CHANNEL_VISUALINSPECTION=8.3.x
-        MAS_APP_SOURCE_VISUALINSPECTION=ibm-operator-catalog
         ;;
       *)
         prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_VISUALINSPECTION
-        prompt_for_input 'Custom Catalog Source' MAS_APP_SOURCE_VISUALINSPECTION "ibm-mas-visualinspection-operators"
         ;;
     esac
   else
@@ -219,15 +195,15 @@ function config_pipeline_applications() {
   echo
   echo_h2 "5. Application Selection"
   # Default all applications to "do not deploy"
-  MAS_APP_SOURCE_IOT='';              MAS_APP_CHANNEL_IOT=''
-  MAS_APP_SOURCE_MONITOR='';          MAS_APP_CHANNEL_MONITOR=''
-  MAS_APP_SOURCE_SAFETY='';           MAS_APP_CHANNEL_SAFETY=''
-  MAS_APP_SOURCE_MANAGE='';           MAS_APP_CHANNEL_MANAGE=''
-  MAS_APP_SOURCE_PREDICT='';          MAS_APP_CHANNEL_PREDICT=''
-  MAS_APP_SOURCE_ASSIST='';           MAS_APP_CHANNEL_ASSIST=''
-  MAS_APP_SOURCE_HPUTILITIES='';      MAS_APP_CHANNEL_HPUTILITIES=''
-  MAS_APP_SOURCE_VISUALINSPECTION=''; MAS_APP_CHANNEL_VISUALINSPECTION=''
-  MAS_APP_CHANNEL_OPTIMIZER='';       MAS_APP_SOURCE_OPTIMIZER=''; MAS_APP_PLAN_OPTIMIZER=''
+  MAS_APP_SOURCE_IOT='ibm-operator-catalog';              MAS_APP_CHANNEL_IOT=''
+  MAS_APP_SOURCE_MONITOR='ibm-operator-catalog';          MAS_APP_CHANNEL_MONITOR=''
+  MAS_APP_SOURCE_SAFETY='ibm-operator-catalog';           MAS_APP_CHANNEL_SAFETY=''
+  MAS_APP_SOURCE_MANAGE='ibm-operator-catalog';           MAS_APP_CHANNEL_MANAGE=''
+  MAS_APP_SOURCE_PREDICT='ibm-operator-catalog';          MAS_APP_CHANNEL_PREDICT=''
+  MAS_APP_SOURCE_ASSIST='ibm-operator-catalog';           MAS_APP_CHANNEL_ASSIST=''
+  MAS_APP_SOURCE_HPUTILITIES='ibm-operator-catalog';      MAS_APP_CHANNEL_HPUTILITIES=''
+  MAS_APP_SOURCE_VISUALINSPECTION='ibm-operator-catalog'; MAS_APP_CHANNEL_VISUALINSPECTION=''
+  MAS_APP_SOURCE_OPTIMIZER='ibm-operator-catalog';        MAS_APP_CHANNEL_OPTIMIZER='';        MAS_APP_PLAN_OPTIMIZER=''
 
   # Applications supported in air gap and online installs
   if prompt_for_confirm "Install IoT"; then
