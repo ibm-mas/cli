@@ -1,0 +1,46 @@
+#!/bin/bash
+
+function install_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas install [options]
+
+Options:
+  -d, --dev-mode                           Enable developer mode
+
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+
+function install() {
+  # Take the first parameter off (it will be install)
+  shift
+
+  while [[ $# -gt 0 ]]
+  do
+  key="$1"
+  shift
+  case $key in
+    -d|--dev-mode)
+    DEV_MODE=true && shift
+    ;;
+    *)
+    # unknown option
+    echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+    install_help
+    exit 1
+    ;;
+  esac
+  done
+
+  connect
+  pipeline_install_operator
+  detect_airgap
+  pipeline_config
+  pipeline_prepare
+  pipeline_show_config
+  pipeline_run
+}

@@ -9,17 +9,33 @@ function pipeline_install_operator() {
   echo -en "\033[s" # Save cursor position
   echo -n "Installing OpenShift Pipelines Operator ..."
 
-  oc get crd tasks.tekton.dev  &>> $LOGFILE
+  oc get crd tasks.tekton.dev &>> $LOGFILE
   LOOKUP_RESULT=$?
   while [ "$LOOKUP_RESULT" == "1" ]; do
-    echo "Waiting 5s for tasks.tekton.dev CRD to be installed before checking again ..."  &>> $LOGFILE
+    echo "Waiting 5s for tasks.tekton.dev CRD to be installed before checking again ..." &>> $LOGFILE
     sleep 5
-    oc get crd tasks.tekton.dev  &>> $LOGFILE
+    oc get crd tasks.tekton.dev &>> $LOGFILE
     LOOKUP_RESULT=$?
   done
 
   echo "Wait for Pipeline operator to be ready" &>> $LOGFILE
-  oc wait --for=condition=Established  crd tasks.tekton.dev  --timeout=30m  &>> $LOGFILE
+  oc wait --for=condition=Established  crd tasks.tekton.dev --timeout=30m &>> $LOGFILE
+
+
+  echo "Wait for Tekton config to be available" &>> $LOGFILE
+  oc get TektonConfig config &>> $LOGFILE
+  LOOKUP_RESULT=$?
+  while [ "$LOOKUP_RESULT" == "1" ]; do
+    echo "Waiting 5s for TektonConfig to be created before checking again ..." &>> $LOGFILE
+    sleep 5
+    oc get TektonConfig config &>> $LOGFILE
+    LOOKUP_RESULT=$?
+  done
+
+  # This will have no effect on OCP 4.8 ... OpenShift Pipelines doesn't support configuration properly at this level
+  # Note: We need to use --tpye merge because it's a custom resource
+  echo "Patch Tekton config to enable alpha API fields and scope when expressions to tasks" &>> $LOGFILE
+  oc patch TektonConfig config --type merge -p '{"spec":{"pipeline":{"enable-api-fields": "alpha", "scope-when-expressions-to-task": true}}}'  &>> $LOGFILE
 
   echo -en "\033[1K" # Clear current line
   echo -en "\033[u" # Restore cursor position
