@@ -21,7 +21,7 @@ Cluster Configuration (Required):
 Worker Node Configuration (Required):
       --worker-count ${COLOR_YELLOW}ROKS_WORKERS${TEXT_RESET}               Number of worker nodes to provision
       --worker-flavor ${COLOR_YELLOW}ROKS_FLAVOR${TEXT_RESET}               The flavour of worker node to use (e.g. b3c.16x64.300gb)
-      --worker-zone ${COLOR_YELLOW}ROKS_ZONE${TEXT_RESET}                 IBM Cloud zone where the cluster should be provisioned. (e.g. dal10)
+      --worker-zone ${COLOR_YELLOW}ROKS_ZONE${TEXT_RESET}                   IBM Cloud zone where the cluster should be provisioned. (e.g. dal10)
 
 GPU Support (Optional):
       --gpu-worker-count ${COLOR_YELLOW}GPU_WORKERS${TEXT_RESET}            Number of GPU worker nodes to provision

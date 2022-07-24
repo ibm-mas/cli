@@ -13,7 +13,8 @@
 
 ### Worker Node Configuration (Required):
 - `--worker-count ROKS_WORKERS` Number of worker nodes to provision
-- `--worker-flavor ROKS_FLAVOR` The flavour of worker node to use
+- `--worker-flavor ROKS_FLAVOR` The flavour of worker node to use (e.g. b3c.16x64.300gb)
+- `--worker-zone ROKS_ZONE` IBM Cloud zone where the cluster should be provisioned. (e.g. dal10)
 
 ### GPU Support (Optional):
 - `--gpu-worker-count GPU_WORKERS` Number of GPU worker nodes to provision
@@ -34,5 +35,5 @@ docker run -ti --rm quay.io/ibmmas/cli mas provision-roks
 ```bash
 export IBMCLOUD_APIKEY=xxx
 docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas provision-roks -a $IBMCLOUD_APIKEY -r mas-development -c masonroks -v 4.10_openshift --worker-count 3 --worker-flavor b3c.16x64.300gb --no-confirm
+docker run -ti --rm quay.io/ibmmas/cli mas provision-roks -a $IBMCLOUD_APIKEY -r mas-development -c masonroks -v 4.10_openshift --worker-count 3 --worker-flavor b3c.16x64.300gb --worker-zone dal10 --no-confirm
 ```
