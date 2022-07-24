@@ -4,13 +4,15 @@
 function channel_select_iot() {
   if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
+      8.8.x)
+      MAS_APP_CHANNEL_IOT=8.5.x
+      ;;
       8.6.x|8.7.x)
-        MAS_APP_CHANNEL_IOT=8.4.x
-        ;;
-
+      MAS_APP_CHANNEL_IOT=8.4.x
+      ;;
       *)
-        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_IOT
-        ;;
+      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_IOT
+      ;;
     esac
   else
     # Only supporting MAS 8.7 airgap install at present
@@ -23,12 +25,15 @@ function channel_select_iot() {
 function channel_select_monitor() {
   if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
+      8.8.x)
+      MAS_APP_CHANNEL_MONITOR=8.8.x
+      ;;
       8.7.x)
-        MAS_APP_CHANNEL_MONITOR=8.7.x
-        ;;
+      MAS_APP_CHANNEL_MONITOR=8.7.x
+      ;;
       8.6.x)
-        MAS_APP_CHANNEL_MONITOR=8.6.x
-        ;;
+      MAS_APP_CHANNEL_MONITOR=8.6.x
+      ;;
       *)
         prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MONITOR
         ;;
@@ -45,12 +50,15 @@ function channel_select_monitor() {
 function channel_select_safety() {
   if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
+      8.8.x)
+      MAS_APP_CHANNEL_SAFETY=8.3.x
+      ;;
       8.6.x|8.7.x)
-        MAS_APP_CHANNEL_SAFETY=8.2.x
-        ;;
+      MAS_APP_CHANNEL_SAFETY=8.2.x
+      ;;
       *)
-        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_SAFETY
-        ;;
+      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_SAFETY
+      ;;
     esac
   else
     MAS_APP_CHANNEL_MONITOR=8.7.x
@@ -64,15 +72,18 @@ function channel_select_safety() {
 function channel_select_manage() {
   if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
+      8.8.x)
+      MAS_APP_CHANNEL_MANAGE=8.4.x
+      ;;
       8.7.x)
-        MAS_APP_CHANNEL_MANAGE=8.3.x
-        ;;
+      MAS_APP_CHANNEL_MANAGE=8.3.x
+      ;;
       8.6.x)
-        MAS_APP_CHANNEL_MANAGE=8.2.x
-        ;;
+      MAS_APP_CHANNEL_MANAGE=8.2.x
+      ;;
       *)
-        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MANAGE
-        ;;
+      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MANAGE
+      ;;
     esac
   else
     MAS_APP_CHANNEL_MANAGE=8.3.x
@@ -86,15 +97,18 @@ function channel_select_manage() {
 function channel_select_predict() {
   if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
+      8.8.x)
+      MAS_APP_CHANNEL_PREDICT=8.6.x
+      ;;
       8.7.x)
-        MAS_APP_CHANNEL_PREDICT=8.5.x
-        ;;
+      MAS_APP_CHANNEL_PREDICT=8.5.x
+      ;;
       8.6.x)
-        MAS_APP_CHANNEL_PREDICT=8.4.x
-        ;;
+      MAS_APP_CHANNEL_PREDICT=8.4.x
+      ;;
       *)
-        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_PREDICT
-        ;;
+      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_PREDICT
+      ;;
     esac
   else
     MAS_APP_CHANNEL_PREDICT=8.7.x
@@ -108,15 +122,18 @@ function channel_select_predict() {
 function channel_select_hputilities() {
   if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
+      8.8.x)
+      MAS_APP_CHANNEL_HPUTILITIES=8.4.x
+      ;;
       8.7.x)
-        MAS_APP_CHANNEL_HPUTILITIES=8.3.x
-        ;;
+      MAS_APP_CHANNEL_HPUTILITIES=8.3.x
+      ;;
       8.6.x)
-        MAS_APP_CHANNEL_HPUTILITIES=8.2.x
-        ;;
+      MAS_APP_CHANNEL_HPUTILITIES=8.2.x
+      ;;
       *)
-        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_HPUTILITIES
-        ;;
+      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_HPUTILITIES
+      ;;
     esac
   else
     MAS_APP_CHANNEL_HPUTILITIES=8.4.x
@@ -131,11 +148,11 @@ function channel_select_optimizer() {
   if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
       8.8.x)
-        MAS_APP_CHANNEL_OPTIMIZER=8.2.x
-        ;;
+      MAS_APP_CHANNEL_OPTIMIZER=8.2.x
+      ;;
       *)
-        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_OPTIMIZER
-        ;;
+      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_OPTIMIZER
+      ;;
     esac
   else
     MAS_APP_CHANNEL_OPTIMIZER=8.2.x
@@ -149,15 +166,18 @@ function channel_select_optimizer() {
 function channel_select_assist() {
   if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
+      8.8.x)
+      MAS_APP_CHANNEL_ASSIST=8.5.x
+      ;;
       8.7.x)
-        MAS_APP_CHANNEL_ASSIST=8.4.x
-        ;;
+      MAS_APP_CHANNEL_ASSIST=8.4.x
+      ;;
       8.6.x)
-        MAS_APP_CHANNEL_ASSIST=8.3.x
-        ;;
+      MAS_APP_CHANNEL_ASSIST=8.3.x
+      ;;
       *)
-        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_ASSIST
-        ;;
+      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_ASSIST
+      ;;
     esac
   else
     MAS_APP_CHANNEL_ASSIST=8.5.x
@@ -171,15 +191,18 @@ function channel_select_assist() {
 function channel_select_visualinspection() {
   if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
+      8.8.x)
+      MAS_APP_CHANNEL_VISUALINSPECTION=8.6.x
+      ;;
       8.7.x)
-        MAS_APP_CHANNEL_VISUALINSPECTION=8.4.x
-        ;;
+      MAS_APP_CHANNEL_VISUALINSPECTION=8.5.x
+      ;;
       8.6.x)
-        MAS_APP_CHANNEL_VISUALINSPECTION=8.3.x
-        ;;
+      MAS_APP_CHANNEL_VISUALINSPECTION=8.4.x
+      ;;
       *)
-        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_VISUALINSPECTION
-        ;;
+      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_VISUALINSPECTION
+      ;;
     esac
   else
     MAS_APP_CHANNEL_VISUALINSPECTION=8.5.x

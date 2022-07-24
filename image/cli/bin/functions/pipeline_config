@@ -15,17 +15,23 @@ function pipeline_config() {
 
   if [[ -z "$AIRGAP_MODE" ]]; then
     echo -e "${COLOR_YELLOW}MAS Version:"
-    echo "  1. 8.7"
-    echo "  2. 8.6"
+    echo "  1. 8.8"
+    echo "  2. 8.7"
+    echo "  3. 8.6"
     prompt_for_input "Select Subscription Channel" MAS_CHANNEL_SELECTION "1"
 
     case $MAS_CHANNEL_SELECTION in
-      1|8.7|8.7.x)
+      1|8.8|8.8.x)
+        MAS_CHANNEL=8.8.x
+        MAS_CATALOG_SOURCE=ibm-operator-catalog
+        ;;
+
+      2|8.7|8.7.x)
         MAS_CHANNEL=8.7.x
         MAS_CATALOG_SOURCE=ibm-operator-catalog
         ;;
 
-      2|8.6|8.6.x)
+      3|8.6|8.6.x)
         MAS_CHANNEL=8.6.x
         MAS_CATALOG_SOURCE=ibm-operator-catalog
         ;;
@@ -65,15 +71,18 @@ function pipeline_config() {
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
     prompt_for_input "Artifactory API Key" ARTIFACTORY_APIKEY
 
+    echo
     echo_h2 "7b. Configure IBM Container Registry"
     prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
 
+    echo
     echo_h2 "7c. Configure IBM Container Registry (MAS)"
     prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
     prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com override
     prompt_for_input "Entitlement Username" MAS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME override
     prompt_for_input "Entitlement Key" MAS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY override
 
+    echo
     echo_h2 "7d. Configure IBM Container Registry (SLS)"
     prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com override
