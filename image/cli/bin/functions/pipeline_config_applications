@@ -287,7 +287,7 @@ function config_pipeline_applications() {
         channel_select_optimizer || exit 1
         # Optimizer install Plan + Validation
         while : ; do
-          prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full" && MAS_APP_PLAN_OPTIMIZER
+          prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full"
           [[ "$MAS_APP_PLAN_OPTIMIZER" != "full" && "$MAS_APP_PLAN_OPTIMIZER" != "limited" ]] || break
         done
       fi
@@ -300,6 +300,11 @@ function config_pipeline_applications() {
 
     if [[ "$MAS_APP_CHANNEL_PREDICT" != "" || "$MAS_APP_CHANNEL_HPUTILITIES" != "" || "$MAS_APP_CHANNEL_ASSIST" != "" ]]; then
       case $MAS_CHANNEL in
+        8.8.x)
+          # Predict 8.6  was tested on 4.0.9
+          # Breaking changes introduced in CP4D v4.5.0 prevent use of a newer version of CP4D
+          CP4D_VERSION=4.0.9
+          ;;
         8.7.x)
           # Predict 8.5  was tested on 4.0.6 and 4.0.7
           # Breaking changes introduced in CP4D v4.0.8 prevent use of a newer version of CP4D
@@ -307,9 +312,11 @@ function config_pipeline_applications() {
           ;;
         8.6.x)
           # Predict 8.4 was tested on 4.0.3
+          # Breaking changes introduced in CP4D v4.0.4 prevent use of a newer version of CP4D
           CP4D_VERSION=4.0.3
           ;;
         *)
+          echo
           echo "One or more selected applications require Cloud Pak for Data"
           prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.0.9"
           ;;
