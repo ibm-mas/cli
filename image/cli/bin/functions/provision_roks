@@ -6,30 +6,24 @@ function provision_roks_help() {
   cat << EOM
 Usage:
   mas provision-roks [options]
-
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
-
 IBMCloud Credentials (Required):
   -a, --apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                  IBMCloud API key
-
 Cluster Configuration (Required):
   -r, --resource-group ${COLOR_YELLOW}IBMCLOUD_RESOURCEGROUP${TEXT_RESET}   IBMCloud resource group to deploy the cluster in
   -c, --cluster-name ${COLOR_YELLOW}CLUSTER_NAME${TEXT_RESET}               Name of the cluster to be provisioned
   -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}                 OCP version to use (e.g 4.8_openshift, 4.10_openshift)
-
 Worker Node Configuration (Required):
       --worker-count ${COLOR_YELLOW}ROKS_WORKERS${TEXT_RESET}               Number of worker nodes to provision
-      --worker-flavor ${COLOR_YELLOW}ROKS_FLAVOR${TEXT_RESET}               The flavour of worker node to use
-
+      --worker-flavor ${COLOR_YELLOW}ROKS_FLAVOR${TEXT_RESET}               The flavour of worker node to use (e.g. b3c.16x64.300gb)
+      --worker-zone ${COLOR_YELLOW}ROKS_ZONE${TEXT_RESET}                   IBM Cloud zone where the cluster should be provisioned. (e.g. dal10)
 GPU Support (Optional):
       --gpu-worker-count ${COLOR_YELLOW}GPU_WORKERS${TEXT_RESET}            Number of GPU worker nodes to provision
       --gpu-workerpool-name ${COLOR_YELLOW}GPU_WORKERPOOL_NAME${TEXT_RESET} Name of the GPU workerpool
-
 Other Commands:
       --no-confirm                              Provision the cluster without prompting for confirmation
   -h, --help                                    Show this help message
-
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
@@ -57,6 +51,9 @@ function provision_roks_noninteractive() {
         ;;
       --worker-flavor)
         ROKS_FLAVOR=$1 && shift
+        ;;
+      --worker-zone)
+        ROKS_ZONE=$1 && shift
         ;;
       --gpu-worker-count)
         OCP_PROVISION_GPU=true
@@ -91,6 +88,7 @@ function provision_roks_noninteractive() {
   [[ -z "$OCP_VERSION" ]] && provision_roks_help "OCP_VERSION is not set"
   [[ -z "$ROKS_WORKERS" ]] && provision_roks_help "ROKS_WORKERS is not set"
   [[ -z "$ROKS_FLAVOR" ]] && provision_roks_help "ROKS_FLAVOR is not set"
+  [[ -z "$ROKS_ZONE" ]] && provision_roks_help "ROKS_ZONE is not set"
 }
 
 function provision_roks_interactive() {
@@ -195,6 +193,7 @@ function provision_roks() {
   export OCP_VERSION
   export ROKS_WORKERS
   export ROKS_FLAVOR
+  export ROKS_ZONE
   export OCP_PROVISION_GPU
   export GPU_WORKERS
   export GPU_WORKERPOOL_NAME
@@ -212,15 +211,16 @@ function provision_roks() {
   echo_h2 "Cluster Configuration" "    "
   echo_reset_dim "Cluster Name .............. $CLUSTER_NAME"
   echo_reset_dim "OCP Version ............... $OCP_VERSION"
-  echo_reset_dim "Upgrade Registry Storage .. $UPGRADE_IMAGE_REGISTRY_STORAGE"
+  echo_reset_dim "Upgrade Registry Storage .. ${UPGRADE_IMAGE_REGISTRY_STORAGE:-false}"
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "Worker Configuration" "    "
   echo_reset_dim "Worker Flavour ............ $ROKS_FLAVOR"
-  echo_reset_dim "Worker Nodes .............. $ROKS_WORKERS"
-  echo_reset_dim "Add GPU Worker Nodes ...... $OCP_PROVISION_GPU"
+  echo_reset_dim "Worker Pool Zone .......... $ROKS_ZONE"
+  echo_reset_dim "Worker Pool Size .......... $ROKS_WORKERS"
+  echo_reset_dim "Add GPU Worker Nodes ...... ${OCP_PROVISION_GPU:-false}"
   if [[ $OCP_PROVISION_GPU == "true" ]]; then
-    echo_reset_dim "GPU Worker Nodes .......... $GPU_WORKERS"
+    echo_reset_dim "GPU Worker Pool Size ...... $GPU_WORKERS"
     echo_reset_dim "GPU Worker Pool Name ...... $GPU_WORKERPOOL_NAME"
   fi
 

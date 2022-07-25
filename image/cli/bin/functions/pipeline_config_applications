@@ -288,7 +288,7 @@ function config_pipeline_applications() {
         channel_select_optimizer || exit 1
         # Optimizer install Plan + Validation
         while : ; do
-          prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full" && MAS_APP_PLAN_OPTIMIZER
+          prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full"
           [[ "$MAS_APP_PLAN_OPTIMIZER" != "full" && "$MAS_APP_PLAN_OPTIMIZER" != "limited" ]] || break
         done
       fi

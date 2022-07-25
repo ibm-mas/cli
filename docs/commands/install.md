@@ -64,7 +64,9 @@ The other values can be left at their defaults.  Finally, click **Generate** and
 
 
 ```bash
-docker run -ti -v ~:/home/local quay.io/ibmmas/cli:1.0.0 mas install
+docker pull quay.io/ibmmas/cli
+docker run -ti --rm -v ~:/home/local quay.io/ibmmas/cli
+mas install
 ```
 
 ## Mustgather

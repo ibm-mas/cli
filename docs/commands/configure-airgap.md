@@ -7,7 +7,7 @@
 ## Usage
 
 ```bash
-docker run -ti -v ~:/home/local quay.io/ibmmas/cli:1.0.0 mas configure-airgap
+docker run -ti --rm -v ~:/home/local quay.io/ibmmas/cli mas configure-airgap
 ```
 
 
