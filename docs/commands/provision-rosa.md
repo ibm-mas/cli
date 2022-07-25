@@ -3,5 +3,5 @@
 ## Usage
 
 ```bash
-docker run -ti quay.io/ibmmas/cli:1.0.0 mas provision-rosa
+docker run -ti --rm quay.io/ibmmas/cli mas provision-rosa
 ```

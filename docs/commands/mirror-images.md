@@ -3,7 +3,7 @@
 ## Usage
 
 ```bash
-docker run -ti quay.io/ibmmas/cli:1.0.0 mas mirror-images
+docker run -ti --rm quay.io/ibmmas/cli mas mirror-images
 ```
 
 ## Air Gap Environments

@@ -9,7 +9,7 @@ There are various dependencies to meet on your own computer to use the CLI, depe
 - Python
 - Network access to the OpenShift cluster
 
-The best way to use the CLI is via the container image: `docker run -ti -v ~:/home/local quay.io/ibmmas/cli:1.0.0`.
+The best way to use the CLI is via the container image: `docker run -ti -v ~:/home/local quay.io/ibmmas/cli`.  To ensure you have the latest version of the image run `docker pull quay.io/ibmmas/cli` first.
 
 The install is designed to work on any OCP cluster, but has been specifically tested in these environments:
 

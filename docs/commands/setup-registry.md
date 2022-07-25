@@ -3,7 +3,7 @@
 ## Usage
 
 ```bash
-docker run -ti quay.io/ibmmas/cli:1.0.0 mas setup-registry
+docker run -ti --rm quay.io/ibmmas/cli mas setup-registry
 ```
 
 ## Air Gap Environments
