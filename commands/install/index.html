@@ -103,7 +103,8 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
-          <li>MAS Installation &raquo;</li><li>install</li>
+          <li>MAS Installation &raquo;</li>
+      <li>install</li>
     <li class="wy-breadcrumbs-aside">
         <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/install.md"
           class="icon icon-github"> Edit on GitHub</a>
@@ -111,7 +112,6 @@
   </ul>
   <hr/>
 </div>
-
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
@@ -194,7 +194,9 @@
 <p>We will need the <code>entitlement.lic</code> file to perform the installation which is why we mount your home directory into the container.  If you saved the entitlement file elsewhere, mount that directory instead.</p>
 <p>When prompted you will be able to set license file to <code>/home/local/entitlement.lic</code></p>
 </div>
-<pre><code class="language-bash">docker run -ti -v ~:/home/local quay.io/ibmmas/cli:1.0.0 mas install
+<pre><code class="language-bash">docker pull quay.io/ibmmas/cli
+docker run -ti --rm -v ~:/home/local quay.io/ibmmas/cli
+mas install
 </code></pre>
 <h2 id="mustgather">Mustgather<a class="headerlink" href="#mustgather" title="Permanent link"></a></h2>
 <p>The pipeline sets a "finally" block that is executed at the end of the steps regardless of success or failure. Inside this finally block the <strong>mustgather</strong> Task is executed which runs the IBM AI Applications' Must Gather tool against a MAS instance. It uses the mustgather workspace to persist the output into a Persistent Volume for retrieval after the pipeline has completed.</p>

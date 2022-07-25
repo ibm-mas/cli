@@ -99,7 +99,8 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
-          <li>Air Gap Support &raquo;</li><li>setup-registry</li>
+          <li>Air Gap Support &raquo;</li>
+      <li>setup-registry</li>
     <li class="wy-breadcrumbs-aside">
         <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/setup-registry.md"
           class="icon icon-github"> Edit on GitHub</a>
@@ -107,13 +108,12 @@
   </ul>
   <hr/>
 </div>
-
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
                 <h1 id="setup-private-registry">Setup Private Registry<a class="headerlink" href="#setup-private-registry" title="Permanent link"></a></h1>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
-<pre><code class="language-bash">docker run -ti quay.io/ibmmas/cli:1.0.0 mas setup-registry
+<pre><code class="language-bash">docker run -ti --rm quay.io/ibmmas/cli mas setup-registry
 </code></pre>
 <h2 id="air-gap-environments">Air Gap Environments<a class="headerlink" href="#air-gap-environments" title="Permanent link"></a></h2>
 <p>Three commands are available to aid in the deployment of an Air Gap MAS installation.</p>
