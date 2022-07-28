@@ -23,7 +23,7 @@ trap trap_int INT
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 LOGFILE=$DIR/mas.log
 
-export ANSIBLE_CONFIG=$DIR/ansible.cfg
+# export ANSIBLE_CONFIG=$DIR/ansible.cfg
 
 # General purpose
 . $DIR/functions/connect
@@ -100,8 +100,7 @@ case $1 in
     echo
     reset_colors
     update_ansible_collections
-    connect
-    configure_ocp_for_mirror
+    configure_ocp_for_mirror "$@"
     ;;
 
   install)

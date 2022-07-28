@@ -24,37 +24,41 @@ function pipeline_config() {
       1|8.8|8.8.x)
         MAS_CHANNEL=8.8.x
         MAS_CATALOG_SOURCE=ibm-operator-catalog
+        MAS_CATALOG_VERSION=v8
         ;;
 
       2|8.7|8.7.x)
         MAS_CHANNEL=8.7.x
         MAS_CATALOG_SOURCE=ibm-operator-catalog
+        MAS_CATALOG_VERSION=v8
         ;;
 
       3|8.6|8.6.x)
         MAS_CHANNEL=8.6.x
         MAS_CATALOG_SOURCE=ibm-operator-catalog
+        MAS_CATALOG_VERSION=v8
         ;;
 
       *)
         MAS_CHANNEL=$MAS_CHANNEL_SELECTION
-        prompt_for_input 'Custom Catalog Source' MAS_CATALOG_SOURCE "ibm-mas-operators"
+        prompt_for_input 'Custom Catalog Source' MAS_CATALOG_SOURCE "ibm-operator-catalog"
         ;;
     esac
   else
     echo -e "${COLOR_YELLOW}MAS Version:"
-    echo "  1. 8.7 (Airgap install)"
-    prompt_for_input "Select Subscription Channel" MAS_CHANNEL_SELECTION "1"
+    echo "  1. 8.8 (2022-07-17)"
+    prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
 
     case $MAS_CHANNEL_SELECTION in
-      1|8.7|8.7.x)
-        MAS_CHANNEL=8.7.x
-        MAS_CATALOG_SOURCE=ibm-mas-operators
+      1|8.8|8.8.x)
+        MAS_CHANNEL=8.8.x
+        MAS_CATALOG_SOURCE=ibm-operator-catalog
+        MAS_CATALOG_VERSION=v8-220717
         ;;
 
       *)
-        MAS_CHANNEL=$MAS_CHANNEL_SELECTION
-        prompt_for_input 'Custom Catalog Source' MAS_CATALOG_SOURCE "ibm-mas-operators"
+        echo_warning "Invalid selection"
+        exit 1
         ;;
     esac
   fi
@@ -105,14 +109,8 @@ function pipeline_config() {
     SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   fi
 
-  if [[ -n "$AIRGAP_MODE" ]]; then
-    # Override Common Services Catalog Source
-    COMMON_SERVICES_CATALOG_SOURCE=opencloud-operators
-    SLS_CATALOG_SOURCE=ibm-sls-operators
-  else
-    COMMON_SERVICES_CATALOG_SOURCE=ibm-operator-catalog
-    SLS_CATALOG_SOURCE=ibm-operator-catalog
-  fi
+  COMMON_SERVICES_CATALOG_SOURCE=ibm-operator-catalog
+  SLS_CATALOG_SOURCE=ibm-operator-catalog
 
   echo
   echo_h2 "8. Configure Product License"

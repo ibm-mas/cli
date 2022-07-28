@@ -104,6 +104,8 @@ spec:
       value: '$MAS_CHANNEL'
     - name: mas_catalog_source
       value: '$MAS_CATALOG_SOURCE'
+    - name: mas_catalog_version
+      value: '$MAS_CATALOG_VERSION'
 
     - name: mas_domain
       value: '$MAS_DOMAIN'

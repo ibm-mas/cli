@@ -208,6 +208,9 @@ spec:
     - name: mas_catalog_source
       type: string
       default: ibm-operator-catalog
+    - name: mas_catalog_version
+      type: string
+      default: v8
 
     - name: mas_domain
       type: string
@@ -353,6 +356,9 @@ spec:
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+
+        - name: mas_catalog_version
+          value: $(params.mas_catalog_version)
 
         - name: artifactory_username
           value: $(params.artifactory_username)
