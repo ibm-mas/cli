@@ -54,4 +54,4 @@ docker build \
   --build-arg RELEASE_LABEL=$GITHUB_RUN_ID \
   --build-arg VCS_REF=$GITHUB_SHA \
   --build-arg VCS_URL=https://github.com/$GITHUB_REPOSITORY \
-  -t $NAMESPACE/$IMAGE $EXTRA_PARAMS -f $DOCKERFILE --target release_build $BUILDPATH
+  -t $NAMESPACE/$IMAGE $EXTRA_PARAMS -f $DOCKERFILE $BUILDPATH

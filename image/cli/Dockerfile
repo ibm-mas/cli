@@ -1,7 +1,5 @@
-FROM registry.access.redhat.com/ubi8/python-39 AS release_build
-
+FROM registry.access.redhat.com/ubi8/python-39
 ARG VERSION_LABEL
-ARG FOO
 # ----- Start as "default" user -----------------------------------------------
 # Running as userId = default
 # HOME=/opt/app-root
@@ -18,37 +16,42 @@ RUN dnf update -y --skip-broken --nobest &&\
     dnf install nano -y &&\
     dnf clean all
 
-# 2. Upgrade pip, install wheel, then install Python modules
-RUN python3 -m pip install --no-cache-dir --upgrade pip wheel &&\
-    python3 -m pip install --no-cache-dir -r requirements.txt
-
-# 3. Install required tools
+# 2. Copy basics
+COPY app-root/* ${HOME}/
+COPY bin /mascli/bin
 COPY install /tmp/install
+COPY .bashrc /opt/app-root/src/.bashrc
+
+# 3. Upgrade pip, install wheel, then install Python modules
+RUN python3 -m pip install --no-cache-dir --upgrade pip wheel &&\
+    python3 -m pip install --no-cache-dir -r /tmp/install/requirements.txt
+
+# 4. Install required tools & Ansible collections
 RUN chmod u+x /tmp/install/*.sh && \
     /tmp/install/install-oc.sh && \
     /tmp/install/install-ibmcloud.sh && \
     /tmp/install/install-skopeo.sh && \
     rm -rf /tmp/install
 
-# 4. Install tini
+# 5. Install tini
 ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini /tini
 RUN chmod +x /tini
 
-# 5. Set up Environment
+# 6. Set up Environment
 # VIRTUAL_ENV_DISABLE_PROMPT will stop built-in PS1 munging, we already set it to what we want
-COPY app-root/* ${HOME}/
-COPY bin /mascli/bin
-COPY .bashrc /opt/app-root/src/.bashrc
 ENV ANSIBLE_COLLECTIONS_PATH=/opt/app-root/lib64/python3.9/site-packages/ansible_collections \
     ANSIBLE_CONFIG=/opt/app-root/src/ansible.cfg \
     PATH="/mascli/bin:${PATH}" \
     VERSION=${VERSION_LABEL:-x.y.z} \
     VIRTUAL_ENV_DISABLE_PROMPT=1
 
-# 6. Install Ansible Collections
-RUN ansible-galaxy collection install -r ${HOME}/requirements.yml -p $ANSIBLE_COLLECTIONS_PATH
+# 7. Install Ansible collections -- do this last for efficient dev builds
+COPY install-ansible /tmp/install-ansible
+RUN chmod u+x /tmp/install-ansible/*.sh && \
+    /tmp/install-ansible/install-ansible-collections.sh && \
+    rm -rf /tmp/install-ansible
 
-# 7. Set file permissions in /opt/app-root & setup symlink to our collection
+# 8. Set file permissions in /opt/app-root & setup symlink to our collection
 RUN chmod -R ug+rwx ${HOME}/env.sh &&\
     chmod -R ug+rwx ${HOME}/.ansible &&\
     chmod +x ${HOME}/run-playbook.sh &&\
@@ -63,10 +66,3 @@ RUN chmod -R ug+rwx ${HOME}/env.sh &&\
 WORKDIR /mascli
 ENTRYPOINT ["/tini", "--"]
 CMD bash
-
-FROM release_build as dev_build
-
-COPY ibm-mas_devops.tar.gz /tmp
-COPY ibm-mas_airgap.tar.gz /tmp
-RUN ansible-galaxy collection install /tmp/ibm-mas_devops.tar.gz --force --no-deps
-RUN ansible-galaxy collection install /tmp/ibm-mas_airgap.tar.gz --force --no-deps

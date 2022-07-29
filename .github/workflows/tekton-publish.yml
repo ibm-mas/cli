@@ -17,22 +17,15 @@ jobs:
           chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
           $GITHUB_WORKSPACE/build/bin/initbuild.sh
           source $GITHUB_WORKSPACE/build/bin/.functions.sh
-          python -m pip install -q ansible==2.10.3 yamllint
-
-      - name: Initialise the build system
-        run: |
-          chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
-          $GITHUB_WORKSPACE/build/bin/initbuild.sh
-          source $GITHUB_WORKSPACE/build/bin/.functions.sh
 
       - name: Build the Tekton definitions
-        run: $GITHUB_WORKSPACE/pipelines/bin/build-pipelines.sh
+        run: $GITHUB_WORKSPACE/build/bin/build-tekton.sh
 
       - name: Upload Tekton definitions
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/pipelines/ibm-mas-tekton-${{ env.VERSION }}.yaml
+          file: ${{ github.workspace }}/image/cli/bin/templates/ibm-mas-tekton.yaml
           asset_name: ibm-mas-tekton-${{ env.VERSION }}.yaml
           tag: ${{ github.ref }}
           overwrite: true
