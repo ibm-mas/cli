@@ -1259,7 +1259,6 @@ spec:
       runAfter:
         - suite-config-db2
         - suite-config-kafka
-        - suite-verify
 
     # 20.2 Configure IoT workspace
     - name: app-cfg-iot
@@ -1508,7 +1507,6 @@ spec:
           values: [""]
       runAfter:
         - suite-db2-setup-for-manage
-        - suite-verify
 
     # 23.3 Configure Manage workspace
     - name: app-cfg-manage
@@ -1817,7 +1815,6 @@ spec:
           values: [""]
       runAfter:
         - suite-config-cos
-        - suite-verify
 
     # 27.2 Configure Assist workspace
     - name: app-cfg-assist

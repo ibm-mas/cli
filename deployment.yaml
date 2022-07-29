@@ -17,6 +17,6 @@ spec:
       containers:
       - name: mas-cli
         imagePullPolicy: Always
-        image: quay.io/ibmmas/cli
+        image: quay.io/ibmmas/cli:2.0.0-pre.curated
         command: [ "/bin/bash", "-c", "--" ]
         args: [ "while true; do sleep 30; done;" ]
