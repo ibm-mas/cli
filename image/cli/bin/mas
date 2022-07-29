@@ -108,7 +108,7 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
     echo
     echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
-    echo "${TEXT_DIM}1. Support for airgap installation is limited to MAS 8.7 (core only) at present"
+    echo "${TEXT_DIM}1. Support for airgap installation is limited to MAS 8.8 (core only) at present"
     echo
     reset_colors
     install "$@"

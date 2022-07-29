@@ -21,11 +21,12 @@ function pipeline_prepare() {
     prompt_for_confirm "Proceed with pipeline setup on this cluster" || exit 0
   fi
 
-  echo -en "\033[s" # Save cursor position
+
   echo "${COLOR_YELLOW}If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"
   echo ""
   prompt_for_confirm_default_yes "Wait for PVCs to bind?" WAIT_FOR_PVCS
   echo ""
+  echo -en "\033[s" # Save cursor position
   echo -n "Preparing namespace 'mas-$MAS_INSTANCE_ID-pipelines' ..."
 
   # Install the MAS Tekton definitions

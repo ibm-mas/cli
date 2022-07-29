@@ -43,13 +43,16 @@ function mirror_to_registry() {
     # MIRROR_RH_OPERATORS=true
     # prompt_for_input "Red Hat Openshift Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10.18"
 
+    # Core
+    MIRROR_MAS_CORE=true
     MIRROR_COMMONSERVICES=true
-    MIRROR_DB2=true
     MIRROR_UDS=true
     MIRROR_SLS=true
     MIRROR_TRUSTSTOREMGR=true
-    MIRROR_MAS_CORE=true
     MIRROR_MONGOCE=true
+    # IoT
+    MIRROR_MAS_IOT=true
+    MIRROR_DB2=true
   else
     # prompt_for_confirm "Red Hat OpenShift Container Platform Release (x minutes)" MIRROR_RH_RELEASE
     # if [[ "$MIRROR_RH_RELEASE" == "true" ]]; then
@@ -61,38 +64,49 @@ function mirror_to_registry() {
     #   prompt_for_input "Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10"
     # fi
 
-    prompt_for_confirm "IBM Foundational Services (10 minutes)" MIRROR_COMMONSERVICES
-    prompt_for_confirm "IBM Db2 Universal Operator (5 minutes)" MIRROR_DB2
-    prompt_for_confirm "IBM User Data Services (5 minutes)" MIRROR_UDS
-    prompt_for_confirm "IBM Suite License Service (2 minutes)" MIRROR_SLS
-    prompt_for_confirm "IBM Truststore Manager (1 minute)" MIRROR_TRUSTSTOREMGR
-    prompt_for_confirm "IBM Maximo Application Suite - Core (5 minutes)" MIRROR_MAS_CORE
-    prompt_for_confirm "MongoDb Community Edition (x minutes)" MIRROR_MONGOCE
+    prompt_for_confirm_default_yes "IBM Maximo Application Suite - Core" MIRROR_MAS_CORE
+    if [[ "$MIRROR_MAS_CORE" == "true" ]]; then
+      prompt_for_confirm_default_yes " + IBM Foundational Services" MIRROR_COMMONSERVICES
+      prompt_for_confirm_default_yes " + IBM User Data Services" MIRROR_UDS
+      prompt_for_confirm_default_yes " + IBM Suite License Service" MIRROR_SLS
+      prompt_for_confirm_default_yes " + IBM Truststore Manager" MIRROR_TRUSTSTOREMGR
+      prompt_for_confirm_default_yes " + MongoDb Community Edition" MIRROR_MONGOCE
+    fi
+
+    prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_IOT
+    if [[ "$MIRROR_MAS_IOT" == "true" ]]; then
+      prompt_for_confirm_default_yes " + IBM Db2" MIRROR_DB2
+    fi
   fi
 
   echo
-  echo_h2 "5. Configure Authentication for Mirroring"
+  echo_h2 "5. Configure Authentication"
   prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY
+
   if [[ $MIRROR_UDS == "true" || $MIRROR_UDS == "true" ]]; then
     prompt_for_input "Red Hat Connect Username" REDHAT_CONNECT_USERNAME
     prompt_for_input "Red Hat Connect Password" REDHAT_CONNECT_PASSWORD
   fi
 
+  # General Config
   export MAS_CATALOG_VERSION
   export REGISTRY_PUBLIC_HOST
   export REGISTRY_PUBLIC_PORT
   export REGISTRY_USERNAME
   export REGISTRY_PASSWORD
+  export OPENSHIFT_RELEASE_VERSION
+  export OPENSHIFT_OPERATORS_VERSION
+  # Core & Dependencies
+  export MIRROR_MAS_CORE
   export MIRROR_COMMONSERVICES
-  export MIRROR_DB2
   export MIRROR_UDS
   export MIRROR_SLS
   export MIRROR_TRUSTSTOREMGR
-  export MIRROR_MAS_CORE
   export MIRROR_MONGOCE
-  export OPENSHIFT_RELEASE_VERSION
-  export OPENSHIFT_OPERATORS_VERSION
-
+  # IoT & Dependencies
+  export MIRROR_MAS_IOT
+  export MIRROR_DB2
+  # Authentication
   export IBM_ENTITLEMENT_KEY
   export REDHAT_CONNECT_USERNAME
   export REDHAT_CONNECT_PASSWORD
@@ -105,8 +119,23 @@ function mirror_to_registry() {
   TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
   LOG_PREFIX="$DIR/mirror-$TIMESTAMP"
 
-  echo "Mirroring Core Images ..."
-  ansible-playbook ibm.mas_airgap.mirror_core | tee $LOG_PREFIX-core.log
+  if [[ "$MIRROR_MAS_CORE" == "true" ]]; then
+    echo -en "\033[s" # Save cursor position
+    echo -n "Mirroring Core & selected dependencies ... $LOG_PREFIX-core.log"
+    ansible-playbook ibm.mas_airgap.mirror_core &> $LOG_PREFIX-core.log
+    echo -en "\033[1K" # Clear current line
+    echo -en "\033[u" # Restore cursor position
+    echo -e "${COLOR_GREEN}Core Images mirrored to ${REGISTRY_PUBLIC_HOST}:${REGISTRY_PUBLIC_PORT}${COLOR_RESET}"
+  fi
+
+  if [[ "$MIRROR_MAS_IOT" == "true" ]]; then
+    echo -en "\033[s" # Save cursor position
+    echo "Mirroring IoT & selected dependencies ... $LOG_PREFIX-iot.log"
+    ansible-playbook ibm.mas_airgap.mirror_iot &> $LOG_PREFIX-iot.log
+    echo -en "\033[1K" # Clear current line
+    echo -en "\033[u" # Restore cursor position
+    echo -e "${COLOR_GREEN}Core Images mirrored to ${REGISTRY_PUBLIC_HOST}:${REGISTRY_PUBLIC_PORT}${COLOR_RESET}"
+  fi
 
   true
 }
