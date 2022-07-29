@@ -13,3 +13,5 @@ ibm-mas_devops-11.0.0.tar.gz
 ibm-entitlement.yaml
 image/cli/bin/ibm-mas_airgap.tar.gz
 image/cli/bin/ibm-mas_devops.tar.gz
+image/cli/ibm-mas_airgap.tar.gz
+image/cli/ibm-mas_devops.tar.gz

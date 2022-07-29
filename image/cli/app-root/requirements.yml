@@ -1,0 +1,9 @@
+---
+collections:
+  - name: ibm.mas_airgap
+  - name: ibm.mas_devops
+  - name: kubernetes.core
+    version: "2.2.3"
+  - name: operator_sdk.util
+    version: "0.2.0"
+

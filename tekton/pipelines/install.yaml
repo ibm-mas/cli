@@ -18,8 +18,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: mas-devops-install-pipeline
-  namespace: mas-{{mas_instance_id}}-pipelines
+  name: mas-install-pipeline
 spec:
   workspaces:
     # The generated configuration files
