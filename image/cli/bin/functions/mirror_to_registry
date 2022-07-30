@@ -38,7 +38,7 @@ Maximo IoT Image Mirroring Configuration (Optional):
       --skip-db2                                  Skip mirroring images for IBM Db2
 
 Other Commands:
-      --no-confirm                                Provision the cluster without prompting for confirmation
+      --no-confirm                                Mirror images without prompting for confirmation
   -h, --help                                      Show this help message
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0
