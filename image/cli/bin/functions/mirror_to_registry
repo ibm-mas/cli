@@ -30,6 +30,7 @@ Maximo Operator Catalog Selection (Optional):
   -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v8-220717)
       --mirror-core                               Mirror images for IBM Maximo Application Suite Core & dependencies
       --mirror-iot                                Mirror images for IBM Maximo IoT & dependencies
+      --mirror-manage                             Mirror images for IBM Maximo Manage & dependencies
 
 Maximo Core Image Mirroring Configuration (Optional):
       --skip-cfs                                  Skip mirroring images for IBM Cloud Pak Foundation Services
@@ -39,6 +40,9 @@ Maximo Core Image Mirroring Configuration (Optional):
       --skip-mongo                                Skip mirroring images for MongoDb Community Edition
 
 Maximo IoT Image Mirroring Configuration (Optional):
+      --skip-db2                                  Skip mirroring images for IBM Db2
+
+Maximo Manage Image Mirroring Configuration (Optional):
       --skip-db2                                  Skip mirroring images for IBM Db2
 
 Other Commands:
@@ -53,6 +57,7 @@ function mirror_to_registry_noninteractive() {
   # Main content
   MIRROR_MAS_CORE=false
   MIRROR_MAS_IOT=false
+  MIRROR_MAS_MANAGE=false
   # Dependencies
   MIRROR_COMMONSERVICES=true
   MIRROR_UDS=true
@@ -103,6 +108,9 @@ function mirror_to_registry_noninteractive() {
       --mirror-iot)
         MIRROR_MAS_IOT=true
         ;;
+      --mirror-manage)
+        MIRROR_MAS_MANAGE=true
+        ;;
       --skip-cfs)
         MIRROR_COMMONSERVICES=false
         ;;
@@ -139,7 +147,7 @@ function mirror_to_registry_noninteractive() {
   # Check all args have been set
   [[ -z "$REGISTRY_PUBLIC_HOST" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_HOST is not set"
   [[ -z "$REGISTRY_PUBLIC_PORT" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_PORT is not set"
-  if [[ $MIRROR_MAS_CORE == "true" || $MIRROR_MAS_IOT == "true" ]]; then
+  if [[ $MIRROR_MAS_CORE == "true" || $MIRROR_MAS_IOT == "true" || $MIRROR_MAS_MANAGE == "true" ]]; then
     [[ -z "$MAS_CATALOG_VERSION" ]] && mirror_to_registry_help "MAS_CATALOG_VERSION is not set"
     [[ -z "$IBM_ENTITLEMENT_KEY" ]] && mirror_to_registry_help "IBM_ENTITLEMENT_KEY is not set"
   fi
@@ -186,11 +194,11 @@ function mirror_to_registry_interactive() {
   prompt_for_confirm "Mirror all images (~1 hour)" MIRROR_EVERYTHING
 
   if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
-    # MIRROR_RH_RELEASE=true
-    # prompt_for_input "Red Hat Openshift Release Version (x.y.z)" OPENSHIFT_RELEASE_VERSION "4.10"
+    MIRROR_RH_RELEASE=true
+    prompt_for_input "Red Hat Openshift Release Version (x.y.z)" OPENSHIFT_RELEASE_VERSION "4.10.18"
 
-    # MIRROR_RH_OPERATORS=true
-    # prompt_for_input "Red Hat Openshift Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10.18"
+    MIRROR_RH_OPERATORS=true
+    prompt_for_input "Red Hat Openshift Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10"
 
     # Core
     MIRROR_MAS_CORE=true
@@ -203,12 +211,12 @@ function mirror_to_registry_interactive() {
     MIRROR_MAS_IOT=true
     MIRROR_DB2U=true
   else
-    prompt_for_confirm "Red Hat OpenShift Container Platform Release (x minutes)" MIRROR_RH_RELEASE
+    prompt_for_confirm "Red Hat OpenShift Container Platform Release" MIRROR_RH_RELEASE
     if [[ "$MIRROR_RH_RELEASE" == "true" ]]; then
       prompt_for_input "Release Version (x.y.z)" OPENSHIFT_RELEASE_VERSION "4.10.18"
     fi
 
-    prompt_for_confirm "Red Hat OpenShift Container Platform Operator Catalog (x minutes)" MIRROR_RH_OPERATORS
+    prompt_for_confirm "Red Hat OpenShift Container Platform Operator Catalog" MIRROR_RH_OPERATORS
     if [[ "$MIRROR_RH_OPERATORS" == "true" ]]; then
       prompt_for_input "Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10"
     fi
@@ -223,7 +231,8 @@ function mirror_to_registry_interactive() {
     fi
 
     prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_IOT
-    if [[ "$MIRROR_MAS_IOT" == "true" ]]; then
+    prompt_for_confirm "IBM Maximo Application Suite - Manage" MIRROR_MAS_MANAGE
+    if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
       prompt_for_confirm_default_yes " + IBM Db2" MIRROR_DB2U
     fi
   fi
@@ -235,6 +244,28 @@ function mirror_to_registry_interactive() {
   if [[ $MIRROR_UDS == "true" ]]; then
     prompt_for_input "Red Hat Connect Username" REDHAT_CONNECT_USERNAME
     prompt_for_input "Red Hat Connect Password" REDHAT_CONNECT_PASSWORD
+  fi
+}
+
+
+function mirror_one_thing() {
+    MOT_RUNMIRROR=$1
+    MOT_NAME=$2
+    MOT_LOGFILE=$3
+    MOT_PLAYBOOK=$4
+    if [[ "$MOT_RUNMIRROR" == "true" ]]; then
+    echo -en "\033[s" # Save cursor position
+    echo -n "Mirroring ${MOT_NAME} ... ${MOT_LOGFILE}"
+    ansible-playbook ibm.mas_airgap.${MOT_PLAYBOOK} &> ${MOT_LOGFILE}
+    mirror_result=$?
+    echo -en "\033[1K" # Clear current line
+    echo -en "\033[u" # Restore cursor position
+    if [[ $mirror_result == "0" ]];
+    then echo -e "${COLOR_GREEN}[SUCCESS] ${MOT_NAME}: ${MOT_LOGFILE}${COLOR_RESET}"
+    else echo -e "${COLOR_RED}[FAILURE] ${MOT_NAME}: ${MOT_LOGFILE}${COLOR_RESET}"
+    fi
+  else
+    echo -e "${COLOR_BLUE}[SKIPPED] ${MOT_NAME}${COLOR_RESET}"
   fi
 }
 
@@ -265,8 +296,9 @@ function mirror_to_registry() {
   export MIRROR_SLS
   export MIRROR_TRUSTSTOREMGR
   export MIRROR_MONGOCE
-  # IoT & Dependencies
+  # Apps & Dependencies
   export MIRROR_MAS_IOT
+  export MIRROR_MAS_MANAGE
   export MIRROR_DB2U
   # Authentication
   export IBM_ENTITLEMENT_KEY
@@ -313,13 +345,14 @@ function mirror_to_registry() {
 
   echo "${TEXT_DIM}"
   echo_h2 "IBM Operator Catalog" "    "
-  if [[ "$MIRROR_MAS_CORE" == "true" || "$MIRROR_MAS_IOT" == "true" ]]
+  if [[ "$MIRROR_MAS_CORE" == "true" || "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]
   then
     echo_reset_dim "Catalog Version ........... ${COLOR_BLUE}${MAS_CATALOG_VERSION}"
     echo_reset_dim "Authentication ............ ${COLOR_BLUE}cp/${IBM_ENTITLEMENT_KEY:0:4}<snip>"
     echo_reset_dim "Mirror Core ............... ${COLOR_BLUE}${MIRROR_MAS_CORE}"
     echo_reset_dim "Mirror IoT ................ ${COLOR_BLUE}${MIRROR_MAS_IOT}"
-    echo_reset_dim " - Mirror Db2 ............. ${COLOR_BLUE}${MIRROR_DB2U}"
+    echo_reset_dim "Mirror Manage ............. ${COLOR_BLUE}${MIRROR_MAS_MANAGE}"
+    echo_reset_dim " + Mirror Db2 ............. ${COLOR_BLUE}${MIRROR_DB2U}"
   else
     echo_reset_dim "${COLOR_RED}Skip"
   fi
@@ -337,65 +370,10 @@ function mirror_to_registry() {
   TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
   LOG_PREFIX="$DIR/mirror-$TIMESTAMP"
 
+  mirror_one_thing $MIRROR_RH_RELEASE   "Red Hat Release"                    "$LOG_PREFIX-ocp-release.log"   mirror_openshift_release
+  mirror_one_thing $MIRROR_RH_OPERATORS "Red Hat Operators"                  "$LOG_PREFIX-ocp-operators.log" mirror_openshift_operators
 
-  if [[ "$MIRROR_RH_RELEASE" == "true" ]]; then
-    echo -en "\033[s" # Save cursor position
-    echo -n "Mirroring Red Hat Release ... $LOG_PREFIX-ocp-release.log"
-    ansible-playbook ibm.mas_airgap.mirror_openshift_release &> $LOG_PREFIX-ocp-release.log
-    mirror_result=$?
-    echo -en "\033[1K" # Clear current line
-    echo -en "\033[u" # Restore cursor position
-    if [[ $mirror_result == "0" ]];
-    then echo -e "${COLOR_GREEN}[SUCCESS] Red Hat Release: $LOG_PREFIX-ocp-release.log${COLOR_RESET}"
-    else echo -e "${COLOR_RED}[FAILURE] Red Hat Release: $LOG_PREFIX-ocp-release.log${COLOR_RESET}"
-    fi
-  else
-    echo -e "${COLOR_BLUE}[SKIPPED] Red Hat Release${COLOR_RESET}"
-  fi
-
-  if [[ "$MIRROR_RH_OPERATORS" == "true" ]]; then
-    echo -en "\033[s" # Save cursor position
-    echo -n "Mirroring Red Hat Operators ... $LOG_PREFIX-ocp-operators.log"
-    ansible-playbook ibm.mas_airgap.mirror_openshift_operators &> $LOG_PREFIX-ocp-release.log
-    mirror_result=$?
-    echo -en "\033[1K" # Clear current line
-    echo -en "\033[u" # Restore cursor position
-    if [[ $mirror_result == "0" ]];
-    then echo -e "${COLOR_GREEN}[SUCCESS] Red Hat Operators: $LOG_PREFIX-ocp-operators.log${COLOR_RESET}"
-    else echo -e "${COLOR_RED}[FAILURE] Red Hat Operators: $LOG_PREFIX-ocp-operators.log${COLOR_RESET}"
-    fi
-  else
-    echo -e "${COLOR_BLUE}[SKIPPED] Red Hat Operators${COLOR_RESET}"
-  fi
-
-
-  if [[ "$MIRROR_MAS_CORE" == "true" ]]; then
-    echo -en "\033[s" # Save cursor position
-    echo -n "Mirroring IBM Maximo Application Suite Core ... $LOG_PREFIX-core.log"
-    ansible-playbook ibm.mas_airgap.mirror_core &> $LOG_PREFIX-core.log
-    mirror_result=$?
-    echo -en "\033[1K" # Clear current line
-    echo -en "\033[u" # Restore cursor position
-    if [[ $mirror_result == "0" ]];
-    then echo -e "${COLOR_GREEN}[SUCCESS] IBM Maximo Application Suite Core: $LOG_PREFIX-core.log${COLOR_RESET}"
-    else echo -e "${COLOR_RED}[FAILURE] IBM Maximo Application Suite Core: $LOG_PREFIX-core.log${COLOR_RESET}"
-    fi
-  else
-    echo -e "${COLOR_BLUE}[SKIPPED] IBM Maximo Application Suite Core${COLOR_RESET}"
-  fi
-
-  if [[ "$MIRROR_MAS_IOT" == "true" ]]; then
-    echo -en "\033[s" # Save cursor position
-    echo -n "Mirroring IBM Maximo IoT ... $LOG_PREFIX-iot.log"
-    ansible-playbook ibm.mas_airgap.mirror_add_iot &> $LOG_PREFIX-iot.log
-    mirror_result=$?
-    echo -en "\033[1K" # Clear current line
-    echo -en "\033[u" # Restore cursor position
-    if [[ $mirror_result == "0" ]];
-    then echo -e "${COLOR_GREEN}[SUCCESS] IBM Maximo IoT: $LOG_PREFIX-iot.log${COLOR_RESET}"
-    else echo -e "${COLOR_RED}[FAILURE] IBM Maximo IoT: $LOG_PREFIX-iot.log ${COLOR_RESET}"
-    fi
-  else
-    echo -e "${COLOR_BLUE}[SKIPPED] IBM Maximo IoT${COLOR_RESET}"
-  fi
+  mirror_one_thing $MIRROR_MAS_CORE     "IBM Maximo Application Suite Core"  "$LOG_PREFIX-core.log"   mirror_core
+  mirror_one_thing $MIRROR_MAS_IOT      "IBM Maximo IoT"                     "$LOG_PREFIX-iot.log"    mirror_add_iot
+  mirror_one_thing $MIRROR_MAS_MANAGE   "IBM Maximo Manage"                  "$LOG_PREFIX-manage.log" mirror_add_manage
 }
