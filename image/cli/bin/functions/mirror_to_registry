@@ -1,6 +1,141 @@
 #!/bin/bash
 
-function mirror_to_registry() {
+function mirror_to_registry_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas mirror-images [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Registry Details (Required):
+  -H, --host ${COLOR_YELLOW}REGISTRY_PUBLIC_HOST${TEXT_RESET}                 Hostname of the target registry
+  -P, --port ${COLOR_YELLOW}REGISTRY_PUBLIC_PORT${TEXT_RESET}                 Port number for the target registry
+
+Registry Authentication (Optional):
+  -u, --username ${COLOR_YELLOW}REGISTRY_USERNAME${TEXT_RESET}                Username to authenticate to the target registry
+  -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}                Password to authenticate to the target registry
+
+Source Registry Entitlements (Required):
+      --ibm-entitlement ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}       IBM Entitlement Key
+      --redhat-username ${COLOR_YELLOW}REDHAT_CONNECT_USERNAME${TEXT_RESET}   Red Hat Connect Username
+      --redhat-password ${COLOR_YELLOW}REDHAT_CONNECT_PASSWORD${TEXT_RESET}   Red Hat Connect Password
+
+Maximo Operator Catalog Selection (Required):
+  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v8-220717)
+      --mirror-core                               Mirror images for IBM Maximo Application Suite Core & dependencies
+      --mirror-iot                                Mirror images for IBM Maximo IoT & dependencies
+
+Maximo Core Image Mirroring Configuration (Optional):
+      --skip-cfs                                  Skip mirroring images for IBM Cloud Pak Foundation Services
+      --skip-uds                                  Skip mirroring images for IBM User Data Services
+      --skip-sls                                  Skip mirroring images for IBM Suite License Service
+      --skip-tsm                                  Skip mirroring images for IBM Truststore Manager
+      --skip-mongo                                Skip mirroring images for MongoDb Community Edition
+
+Maximo IoT Image Mirroring Configuration (Optional):
+      --skip-db2                                  Skip mirroring images for IBM Db2
+
+Other Commands:
+      --no-confirm                                Provision the cluster without prompting for confirmation
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+
+function mirror_to_registry_noninteractive() {
+  # Main content
+  MIRROR_MAS_CORE=false
+  MIRROR_MAS_IOT=false
+  # Dependencies
+  MIRROR_COMMONSERVICES=true
+  MIRROR_UDS=true
+  MIRROR_SLS=true
+  MIRROR_TRUSTSTOREMGR=true
+  MIRROR_MONGOCE=true
+  MIRROR_DB2U=true
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      -H|--host)
+        REGISTRY_PUBLIC_HOST=$1 && shift
+        ;;
+      -P|--port)
+        REGISTRY_PUBLIC_PORT=$1 && shift
+        ;;
+      -u|--username)
+        REGISTRY_USERNAME=$1 && shift
+        ;;
+      -p|--password)
+        REGISTRY_PASSWORD=$1 && shift
+        ;;
+      --ibm-entitlement)
+        IBM_ENTITLEMENT_KEY=$1 && shift
+        ;;
+      --redhat-username)
+        REDHAT_CONNECT_USERNAME=$1 && shift
+        ;;
+      --redhat-password)
+        REDHAT_CONNECT_PASSWORD=$1 && shift
+        ;;
+      -c|--catalog)
+        MAS_CATALOG_VERSION=$1 && shift
+        ;;
+      --mirror-core)
+        MIRROR_MAS_CORE=true
+        ;;
+      --mirror-iot)
+        MIRROR_MAS_IOT=true
+        ;;
+      --skip-cfs)
+        MIRROR_COMMONSERVICES=false
+        ;;
+      --skip-uds)
+        MIRROR_UDS=false
+        ;;
+      --skip-sls)
+        MIRROR_SLS=false
+        ;;
+      --skip-tsm)
+        MIRROR_TRUSTSTOREMGR=false
+        ;;
+      --skip-mongo)
+        MIRROR_MONGOCE=false
+        ;;
+      --skip-db2)
+        MIRROR_DB2U=false
+        ;;
+      --no-confirm)
+        NO_CONFIRM=true
+        ;;
+      -h|--help)
+        mirror_to_registry_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        mirror_to_registry_help
+        exit 1
+        ;;
+      esac
+  done
+
+  # Check all args have been set
+  [[ -z "$REGISTRY_PUBLIC_HOST" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_HOST is not set"
+  [[ -z "$REGISTRY_PUBLIC_PORT" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_PORT is not set"
+  [[ -z "$IBM_ENTITLEMENT_KEY" ]] && mirror_to_registry_help "IBM_ENTITLEMENT_KEY is not set"
+  [[ -z "$MAS_CATALOG_VERSION" ]] && mirror_to_registry_help "MAS_CATALOG_VERSION is not set"
+  if [[ $MIRROR_UDS == "true" ]]; then
+    [[ -z "$REDHAT_CONNECT_USERNAME" ]] && mirror_to_registry_help "REDHAT_CONNECT_USERNAME is not set"
+    [[ -z "$REDHAT_CONNECT_PASSWORD" ]] && mirror_to_registry_help "REDHAT_CONNECT_PASSWORD is not set"
+  fi
+}
+
+function mirror_to_registry_interactive() {
   echo
   echo_h2 "1. Configure Target Mirror"
   prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
@@ -52,7 +187,7 @@ function mirror_to_registry() {
     MIRROR_MONGOCE=true
     # IoT
     MIRROR_MAS_IOT=true
-    MIRROR_DB2=true
+    MIRROR_DB2U=true
   else
     # prompt_for_confirm "Red Hat OpenShift Container Platform Release (x minutes)" MIRROR_RH_RELEASE
     # if [[ "$MIRROR_RH_RELEASE" == "true" ]]; then
@@ -75,7 +210,7 @@ function mirror_to_registry() {
 
     prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_IOT
     if [[ "$MIRROR_MAS_IOT" == "true" ]]; then
-      prompt_for_confirm_default_yes " + IBM Db2" MIRROR_DB2
+      prompt_for_confirm_default_yes " + IBM Db2" MIRROR_DB2U
     fi
   fi
 
@@ -83,10 +218,22 @@ function mirror_to_registry() {
   echo_h2 "5. Configure Authentication"
   prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY
 
-  if [[ $MIRROR_UDS == "true" || $MIRROR_UDS == "true" ]]; then
+  if [[ $MIRROR_UDS == "true" ]]; then
     prompt_for_input "Red Hat Connect Username" REDHAT_CONNECT_USERNAME
     prompt_for_input "Red Hat Connect Password" REDHAT_CONNECT_PASSWORD
   fi
+}
+
+function mirror_to_registry() {
+  # Take the first parameter off (it will be mirror-images)
+  shift
+  if [[ $# -gt 0 ]]; then
+    mirror_to_registry_noninteractive "$@"
+  else
+    mirror_to_registry_interactive
+  fi
+
+  # Ensure all environment variables are available to ansible-playbook
 
   # General Config
   export MAS_CATALOG_VERSION
@@ -105,14 +252,39 @@ function mirror_to_registry() {
   export MIRROR_MONGOCE
   # IoT & Dependencies
   export MIRROR_MAS_IOT
-  export MIRROR_DB2
+  export MIRROR_DB2U
   # Authentication
   export IBM_ENTITLEMENT_KEY
   export REDHAT_CONNECT_USERNAME
   export REDHAT_CONNECT_PASSWORD
 
   echo
-  prompt_for_confirm "Proceed with these settings" || exit 0
+  reset_colors
+  echo_h2 "Review Settings"
+  echo "${TEXT_DIM}"
+  echo_h2 "Target Registry Connection" "    "
+  echo_reset_dim "Host ...................... ${COLOR_BLUE}${REGISTRY_PUBLIC_HOST}"
+  echo_reset_dim "Port ...................... ${COLOR_BLUE}${REGISTRY_PUBLIC_PORT}"
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "Target Registry Authentication" "    "
+  echo_reset_dim "Username .................. ${COLOR_BLUE}${REGISTRY_USERNAME}"
+  echo_reset_dim "Password .................. ${COLOR_BLUE}${REGISTRY_PASSWORD:0:8}<snip>"
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "Catalog Settings" "    "
+  echo_reset_dim "Catalog Version ........... ${COLOR_BLUE}${MAS_CATALOG_VERSION}"
+  echo_reset_dim "Mirror Core ............... ${COLOR_BLUE}${MIRROR_MAS_CORE}"
+  echo_reset_dim "Mirror IoT ................ ${COLOR_BLUE}${MIRROR_MAS_IOT}"
+  echo_reset_dim " - Mirror Db2 ............. ${COLOR_BLUE}${MIRROR_DB2U}"
+  reset_colors
+
+
+  echo
+  reset_colors
+  if [[ "$NO_CONFIRM" != "true" ]]; then
+    prompt_for_confirm "Proceed with these settings" || exit 0
+  fi
 
   echo
   echo_h2 "4. Run Mirror Process"
@@ -123,19 +295,29 @@ function mirror_to_registry() {
     echo -en "\033[s" # Save cursor position
     echo -n "Mirroring Core & selected dependencies ... $LOG_PREFIX-core.log"
     ansible-playbook ibm.mas_airgap.mirror_core &> $LOG_PREFIX-core.log
+    mirror_result=$?
     echo -en "\033[1K" # Clear current line
     echo -en "\033[u" # Restore cursor position
-    echo -e "${COLOR_GREEN}Core Images mirrored to ${REGISTRY_PUBLIC_HOST}:${REGISTRY_PUBLIC_PORT}${COLOR_RESET}"
+    if [[ $mirror_result == "0" ]];
+    then echo -e "${COLOR_GREEN}[SUCCESS] Core Images: $LOG_PREFIX-core.log${COLOR_RESET}"
+    else echo -e "${COLOR_RED}[FAILURE] Core Images: $LOG_PREFIX-core.log${COLOR_RESET}"
+    fi
+  else
+    echo -e "${COLOR_BLUE}[SKIPPED] Core Images${COLOR_RESET}"
   fi
 
   if [[ "$MIRROR_MAS_IOT" == "true" ]]; then
     echo -en "\033[s" # Save cursor position
-    echo "Mirroring IoT & selected dependencies ... $LOG_PREFIX-iot.log"
-    ansible-playbook ibm.mas_airgap.mirror_iot &> $LOG_PREFIX-iot.log
+    echo -n "Mirroring IoT & selected dependencies ... $LOG_PREFIX-iot.log"
+    ansible-playbook ibm.mas_airgap.mirror_add_iot &> $LOG_PREFIX-iot.log
+    mirror_result=$?
     echo -en "\033[1K" # Clear current line
     echo -en "\033[u" # Restore cursor position
-    echo -e "${COLOR_GREEN}Core Images mirrored to ${REGISTRY_PUBLIC_HOST}:${REGISTRY_PUBLIC_PORT}${COLOR_RESET}"
+    if [[ $mirror_result == "0" ]];
+    then echo -e "${COLOR_GREEN}[SUCCESS] IoT Images: $LOG_PREFIX-iot.log${COLOR_RESET}"
+    else echo -e "${COLOR_RED}[FAILURE] IoT Images: $LOG_PREFIX-iot.log ${COLOR_RESET}"
+    fi
+  else
+    echo -e "${COLOR_BLUE}[SKIPPED] Core Images${COLOR_RESET}"
   fi
-
-  true
 }

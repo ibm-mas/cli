@@ -88,7 +88,7 @@ case $1 in
     echo
     reset_colors
     update_ansible_collections
-    mirror_to_registry
+    mirror_to_registry "$@"
     ;;
 
   configure-ocp-for-mirror|configure-airgap|configure-mirror|config-airgap|config-mirror)

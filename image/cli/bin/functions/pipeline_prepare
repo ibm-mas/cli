@@ -58,8 +58,8 @@ function pipeline_prepare() {
   oc -n mas-$MAS_INSTANCE_ID-pipelines create secret generic pipeline-additional-configs &>> $LOGFILE
   oc -n mas-$MAS_INSTANCE_ID-pipelines create secret generic pipeline-sls-entitlement --from-file=$SLS_LICENSE_FILE_LOCAL &>> $LOGFILE
 
-    echo -en "\033[1K" # Clear current line
-    echo -en "\033[u" # Restore cursor position
-    echo -e "${COLOR_GREEN}Namespace 'mas-$MAS_INSTANCE_ID-pipelines' is ready${COLOR_RESET}"
+  echo -en "\033[1K" # Clear current line
+  echo -en "\033[u" # Restore cursor position
+  echo -e "${COLOR_GREEN}Namespace 'mas-$MAS_INSTANCE_ID-pipelines' is ready${COLOR_RESET}"
 
 }
