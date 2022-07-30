@@ -15,9 +15,8 @@ function channel_select_iot() {
       ;;
     esac
   else
-    # Only supporting MAS 8.7 airgap install at present
-    MAS_APP_CHANNEL_IOT=8.4.x
-    MAS_APP_SOURCE_IOT=ibm-mas-iot-operators
+    # Only supporting MAS 8.8 airgap install at present
+    MAS_APP_CHANNEL_IOT=8.5.x
   fi
   true
 }
@@ -39,8 +38,7 @@ function channel_select_monitor() {
         ;;
     esac
   else
-    MAS_APP_CHANNEL_MONITOR=8.7.x
-    MAS_APP_SOURCE_MONITOR=ibm-mas-monitor-operators
+    MAS_APP_CHANNEL_MONITOR=8.8.x
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi
@@ -61,8 +59,7 @@ function channel_select_safety() {
       ;;
     esac
   else
-    MAS_APP_CHANNEL_MONITOR=8.7.x
-    MAS_APP_SOURCE_MONITOR=ibm-mas-monitor-operators
+    MAS_APP_CHANNEL_SAFETY=8.3.x
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi
@@ -86,8 +83,7 @@ function channel_select_manage() {
       ;;
     esac
   else
-    MAS_APP_CHANNEL_MANAGE=8.3.x
-    MAS_APP_SOURCE_MANAGE=ibm-mas-manage-operators
+    MAS_APP_CHANNEL_MANAGE=8.4.x
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi
@@ -111,8 +107,7 @@ function channel_select_predict() {
       ;;
     esac
   else
-    MAS_APP_CHANNEL_PREDICT=8.7.x
-    MAS_APP_SOURCE_PREDICT=ibm-mas-predict-operators
+    MAS_APP_CHANNEL_PREDICT=8.6.x
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi
@@ -137,7 +132,6 @@ function channel_select_hputilities() {
     esac
   else
     MAS_APP_CHANNEL_HPUTILITIES=8.4.x
-    MAS_APP_SOURCE_HPUTILITIES=ibm-mas-predict-operators
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi
@@ -156,7 +150,6 @@ function channel_select_optimizer() {
     esac
   else
     MAS_APP_CHANNEL_OPTIMIZER=8.2.x
-    MAS_APP_SOURCE_OPTIMIZER=ibm-mas-optimizer-operators
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi
@@ -181,7 +174,6 @@ function channel_select_assist() {
     esac
   else
     MAS_APP_CHANNEL_ASSIST=8.5.x
-    MAS_APP_SOURCE_ASSIST=ibm-mas-assist-operators
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi
@@ -205,8 +197,7 @@ function channel_select_visualinspection() {
       ;;
     esac
   else
-    MAS_APP_CHANNEL_VISUALINSPECTION=8.5.x
-    MAS_APP_SOURCE_VISUALINSPECTION=ibm-mas-visualinspection-operators
+    MAS_APP_CHANNEL_VISUALINSPECTION=8.6.x
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi

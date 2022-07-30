@@ -45,5 +45,5 @@ docker run -ti --rm quay.io/ibmmas/cli mas mirror-images
 ### Non-Interactive Mode
 ```
 docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas mirror-images -H mirror.mydomain.com -P 32500 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD -c v8-220717 --mirror-core --mirror-iot --no-confirm
+docker run -ti --rm quay.io/ibmmas/cli mas mirror-images --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_CONNECT_USERNAME --redhat-password $REDHAT_CONNECT_PASSWORD -H mirror.mydomain.com -P 32500 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD -c v8-220717 --mirror-core --mirror-iot --no-confirm
 ```
