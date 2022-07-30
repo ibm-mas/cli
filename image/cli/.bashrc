@@ -1,7 +1,8 @@
 #!/bin/bash
 
-export PS1="[\e[0;32mibmmas/cli:$VERSION\e[0m]\e[0;36m\W\e[0m\$ "
-
+# Note:bash uses \[ \] to determine the "displayed length": text between those two escapes is considered unprintable and
+# not counted in the total length; everything else is.
+export PS1="[\[\e[0;32m\]ibmmas/cli:$VERSION\[\e[0m\]]\[\e[0;36m\]\W\[\e[0m\]\$ "
 COLOR_RED=`tput setaf 1`
 COLOR_GREEN=`tput setaf 2`
 COLOR_YELLOW=`tput setaf 3`
