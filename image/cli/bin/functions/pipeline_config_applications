@@ -83,9 +83,8 @@ function channel_select_manage() {
       ;;
     esac
   else
+    # Only supporting MAS 8.8 airgap install at present
     MAS_APP_CHANNEL_MANAGE=8.4.x
-    echo_warning "Sorry, air gap install of this application is not supported yet"
-    exit 1
   fi
   true
 }
@@ -237,12 +236,15 @@ function config_pipeline_applications() {
         channel_select_safety || exit 1
       fi
     fi
+  fi
 
-    # Manage
-    if prompt_for_confirm "Install Manage"; then
-      channel_select_manage || exit 1
-    fi
+  # Manage
+  if prompt_for_confirm "Install Manage"; then
+    channel_select_manage || exit 1
+  fi
 
+  # Applications only supported in online installs
+  if [[ -z "$AIRGAP_MODE" ]]; then
     # Applications that require Manage
     # TODO: these applications require Health actuallt,
     # need to review this code when add-ons selection are in place

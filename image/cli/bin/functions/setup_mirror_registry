@@ -6,7 +6,7 @@ function setup_mirror_registry() {
 
   prompt_for_input "Registry Namespace" REGISTRY_NAMESPACE "airgap-registry" && export REGISTRY_NAMESPACE
   prompt_for_input "Registry Storage Class" REGISTRY_STORAGE_CLASS "ibmc-block-gold" && export REGISTRY_STORAGE_CLASS
-  prompt_for_input "Registry Storage Capacity" REGISTRY_STORAGE_CAPACITY "200Gi" && export REGISTRY_STORAGE_CAPACITY
+  prompt_for_input "Registry Storage Capacity" REGISTRY_STORAGE_CAPACITY "2000Gi" && export REGISTRY_STORAGE_CAPACITY
   prompt_for_input "Registry Service Type" REGISTRY_SERVICE_TYPE "loadbalancer" && export REGISTRY_SERVICE_TYPE
 
   echo
