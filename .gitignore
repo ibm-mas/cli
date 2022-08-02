@@ -2,14 +2,10 @@
 *.DS_Store*
 .env
 .vscode
+ibm-entitlement.yaml
 image/cli/bin/configs/*.yaml
 image/cli/bin/*.log
 image/cli/bin/mas.env
-image/cli/bin/ibm-mas-devops-*.tar.gz
+image/cli/bin/templates/ibm-mas-tekton.yaml
 target/
 tmp/
-ibm-mas_airgap-2.0.0.tar.gz
-ibm-mas_devops-11.0.0.tar.gz
-ibm-entitlement.yaml
-image/cli/bin/ibm-mas_airgap.tar.gz
-image/cli/bin/ibm-mas_devops.tar.gz

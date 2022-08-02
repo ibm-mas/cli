@@ -212,6 +212,9 @@ function provision_fyre() {
     prompt_for_confirm "Proceed with these settings" || exit 0
   fi
 
+  # Set OCP_RELEASE environment variable for the ocs role
+  # This only works because we are only setting OCP_VERSION at the minor level
+  export OCP_RELEASE=$OCP_VERSION
   ansible-playbook ibm.mas_devops.ocp_fyre_provision || exit 1
 
   if [[ "$SIMULATE_AIRGAP_NETWORK" == "true" ]]; then

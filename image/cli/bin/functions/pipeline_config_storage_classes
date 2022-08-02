@@ -56,7 +56,6 @@ function config_pipeline_storage_classes() {
   if [[ "$STORAGE_CLASS_RWX" == "" ]]; then
     oc get storageclass ocs-storagecluster-cephfs &>> $LOGFILE
     if [[ $? == "0" ]]; then
-      PIPELINE_STORAGE_CLASS=ocs-storagecluster-cephfs
       echo -e "${COLOR_GREEN}Storage provider auto-detected: OpenShift Container Storage${COLOR_RESET}"
       echo "${TEXT_DIM}  - Storage class (ReadWriteOnce): ocs-storagecluster-ceph-rbd"
       echo "${TEXT_DIM}  - Storage class (ReadWriteMany): ocs-storagecluster-cephfs"
@@ -70,7 +69,6 @@ function config_pipeline_storage_classes() {
   if [[ "$STORAGE_CLASS_RWX" == "" ]]; then
     oc get storageclass managed-premium &>> $LOGFILE
     if [[ $? == "0" ]]; then
-      PIPELINE_STORAGE_CLASS=managed-premium
       echo -e "${COLOR_GREEN}Storage provider auto-detected: Azure Managed${COLOR_RESET}"
       echo "${TEXT_DIM}  - Storage class (ReadWriteOnce): azurefiles-premium"
       echo "${TEXT_DIM}  - Storage class (ReadWriteMany): managed-premium"
@@ -80,6 +78,9 @@ function config_pipeline_storage_classes() {
     fi
   fi
   reset_colors
+
+  PIPELINE_STORAGE_CLASS=$STORAGE_CLASS_RWX
+  PIPELINE_STORAGE_ACCESSMODE="ReadWriteMany"
 
   OVERRIDE_STORAGE_CLASSES=false
   if [[ "$STORAGE_CLASS_RWX" != "" ]]; then

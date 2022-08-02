@@ -14,7 +14,6 @@ function pipeline_prepare() {
       -e "s/{{pipeline_storage_accessmode}}/$PIPELINE_STORAGE_ACCESSMODE/g" \
       $DIR/templates/pvc.yaml > $DIR/configs/pvc-$MAS_INSTANCE_ID.yaml
   sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/rbac.yaml > $DIR/configs/rbac-$MAS_INSTANCE_ID.yaml
-  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/pipeline.yaml > $DIR/configs/pipeline-$MAS_INSTANCE_ID.yaml
 
   if [ "$ALREADY_CONFIRMED" != "true" ]; then
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
@@ -22,23 +21,20 @@ function pipeline_prepare() {
     prompt_for_confirm "Proceed with pipeline setup on this cluster" || exit 0
   fi
 
-  echo -en "\033[s" # Save cursor position
+
   echo "${COLOR_YELLOW}If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"
   echo ""
-  prompt_for_confirm "Wait for PVCs to bind?" WAIT_FOR_PVCS
+  prompt_for_confirm_default_yes "Wait for PVCs to bind?" WAIT_FOR_PVCS
   echo ""
+  echo -en "\033[s" # Save cursor position
   echo -n "Preparing namespace 'mas-$MAS_INSTANCE_ID-pipelines' ..."
 
-  PIPELINE_VERSION=10.6.2
-  if [ ! -e $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml ]; then
-    wget https://github.com/ibm-mas/ansible-devops/releases/download/$PIPELINE_VERSION/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml -O $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml  &>> $LOGFILE
-  fi
-  # Install the MAS Devops Task definitions
+  # Install the MAS Tekton definitions
   oc apply -f $DIR/configs/namespace-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
-  oc -n mas-$MAS_INSTANCE_ID-pipelines apply -f $DIR/templates/ibm-mas-devops-tasks-$PIPELINE_VERSION.yaml &>> $LOGFILE
+  oc -n mas-$MAS_INSTANCE_ID-pipelines apply -f $DIR/templates/ibm-mas-tekton.yaml &>> $LOGFILE
 
+  # Create the PVCs that we need
   oc apply -f $DIR/configs/pvc-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
-  # Wait for PVC
   if [[ "$WAIT_FOR_PVCS" == "true" ]]; then
     LOOKUP_RESULT=$(oc -n mas-$MAS_INSTANCE_ID-pipelines get pvc config-pvc -o jsonpath='{.status.phase}')
     while [ "$LOOKUP_RESULT" != "Bound" ]; do
@@ -62,8 +58,8 @@ function pipeline_prepare() {
   oc -n mas-$MAS_INSTANCE_ID-pipelines create secret generic pipeline-additional-configs &>> $LOGFILE
   oc -n mas-$MAS_INSTANCE_ID-pipelines create secret generic pipeline-sls-entitlement --from-file=$SLS_LICENSE_FILE_LOCAL &>> $LOGFILE
 
-    echo -en "\033[1K" # Clear current line
-    echo -en "\033[u" # Restore cursor position
-    echo -e "${COLOR_GREEN}Namespace 'mas-$MAS_INSTANCE_ID-pipelines' is ready${COLOR_RESET}"
+  echo -en "\033[1K" # Clear current line
+  echo -en "\033[u" # Restore cursor position
+  echo -e "${COLOR_GREEN}Namespace 'mas-$MAS_INSTANCE_ID-pipelines' is ready${COLOR_RESET}"
 
 }

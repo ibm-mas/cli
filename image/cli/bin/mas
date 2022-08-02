@@ -23,7 +23,7 @@ trap trap_int INT
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 LOGFILE=$DIR/mas.log
 
-export ANSIBLE_CONFIG=$DIR/ansible.cfg
+# export ANSIBLE_CONFIG=$DIR/ansible.cfg
 
 # General purpose
 . $DIR/functions/connect
@@ -33,6 +33,7 @@ export ANSIBLE_CONFIG=$DIR/ansible.cfg
 . $DIR/functions/provision_fyre
 . $DIR/functions/provision_roks
 # MAS installation support
+. $DIR/functions/install
 . $DIR/functions/pipeline_config
 . $DIR/functions/pipeline_install_operator
 . $DIR/functions/pipeline_prepare
@@ -87,7 +88,7 @@ case $1 in
     echo
     reset_colors
     update_ansible_collections
-    mirror_to_registry
+    mirror_to_registry "$@"
     ;;
 
   configure-ocp-for-mirror|configure-airgap|configure-mirror|config-airgap|config-mirror)
@@ -99,8 +100,7 @@ case $1 in
     echo
     reset_colors
     update_ansible_collections
-    connect
-    configure_ocp_for_mirror
+    configure_ocp_for_mirror "$@"
     ;;
 
   install)
@@ -108,16 +108,10 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
     echo
     echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
-    echo "${TEXT_DIM}1. Support for airgap installation is limited to MAS 8.7 (core only) at present"
+    echo "${TEXT_DIM}1. Support for airgap installation is limited to MAS 8.8 (core only) at present"
     echo
     reset_colors
-    connect
-    pipeline_install_operator
-    detect_airgap
-    pipeline_config
-    pipeline_prepare
-    pipeline_show_config
-    pipeline_run
+    install "$@"
     ;;
 
   download|mustgather|download-mustgather)

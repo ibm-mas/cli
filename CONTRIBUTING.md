@@ -1,35 +1,20 @@
 # Contributing
 
-## Useful commands
+## Building the container image locally
 ```bash
-# Build & install ansible collections, save them to image/cli/bin and build the docker container, then run the container
+# Build & install ansible collections, save them to image/cli/, build the docker container, then run the container
 make
-make all
+docker run -ti --rm quay.io/ibmmas:local
+```
 
-# Build ansible collections, save them to image/cli/bin
-make ansible-build
+## Using the docker image
+This is a great way to test in a clean environment (e.g. to ensure the myriad of environment variables that you no doubt have set up are not impacting your test scenarios).  After you commit your changes to the repository a pre-release container image will be built, which contains your in-development version of the collection:
 
-# Install ansible collections (from image/cli/bin)
-make ansible-install
-
-# Build & install ansible collections, save them to image/cli/bin
-make ansible-all
-
-# Build the docker container
-make docker-build
-
-# Run the docker container
-make docker-run
-
-# Build and run the docker container
-make docker-all
-
-# Deploy the CLI container image in Kubernetes
-oc apply -f deployment.yml
-
-# Exec into the container
-oc exec -ti $(oc get pod -l app=mas-cli -o name) -- bash
-
-# Pick up a rebuild of the image
-oc delete $(oc get pod -l app=mas-cli -o name)
+```bash
+docker run -ti --rm quay.io/ibmmas/cli:x.y.z-pre.mybranch
+oc login --token=xxxx --server=https://myocpserver
+export STUFF
+ansible localhost -m include_role -a name=ibm.mas_devops.ocp_verify
+ansible-playbook ibm.mas_devops.oneclick_core
+mas install
 ```

@@ -4,10 +4,10 @@ kind: PipelineRun
 metadata:
   generateName: $MAS_INSTANCE_ID-install-
   labels:
-    tekton.dev/pipeline: mas-devops-install-pipeline
+    tekton.dev/pipeline: mas-install-pipeline
 spec:
   pipelineRef:
-    name: mas-devops-install-pipeline
+    name: mas-install-pipeline
 
   serviceAccountName: pipeline
   timeout: 24h
@@ -36,8 +36,6 @@ spec:
     # Dependencies - CP4D
     - name: cpd_product_version
       value: '$CP4D_VERSION'
-    # - name: temp_deploy_cp4d
-    #   value: '$DEPLOY_CP4D'
 
     # Dependencies - SLS
     - name: sls_license_id
@@ -64,13 +62,13 @@ spec:
       value: '$UDS_CONTACT_FIRSTNAME'
     - name: uds_contact_lastname
       value: '$UDS_CONTACT_LASTNAME'
-    
+
     # Dependencies - AppConnect
     - name: appconnect_entitlement_username
       value: '$APPCONNECT_ENTITLEMENT_USERNAME'
     - name: appconnect_entitlement_key
       value: '$APPCONNECT_ENTITLEMENT_KEY'
-    
+
     # Dependencies - COS
     - name: cos_type
       value: '$COS_TYPE'
@@ -106,6 +104,8 @@ spec:
       value: '$MAS_CHANNEL'
     - name: mas_catalog_source
       value: '$MAS_CATALOG_SOURCE'
+    - name: mas_catalog_version
+      value: '$MAS_CATALOG_VERSION'
 
     - name: mas_domain
       value: '$MAS_DOMAIN'

@@ -49,21 +49,9 @@ echo "RELEASE_LABEL .. $GITHUB_RUN_ID"
 echo "VCS_REF ........ $GITHUB_SHA"
 echo "VCS_URL ........ https://github.com/$GITHUB_REPOSITORY"
 
-# ARM64 builds need a different setup
-if [[ $EXTRA_PARAMS =~ "AARCH64" ]]; then
-  docker run --privileged yen3/binfmt-register set aarch64
-  docker build \
+docker build \
   --build-arg VERSION_LABEL=$DOCKER_TAG \
   --build-arg RELEASE_LABEL=$GITHUB_RUN_ID \
   --build-arg VCS_REF=$GITHUB_SHA \
-  --build-arg VCS_URL=https://github.ibm.com/$GITHUB_REPOSITORY \
+  --build-arg VCS_URL=https://github.com/$GITHUB_REPOSITORY \
   -t $NAMESPACE/$IMAGE $EXTRA_PARAMS -f $DOCKERFILE $BUILDPATH
-  docker run --privileged yen3/binfmt-register clear aarch64
-else
-  docker build \
-    --build-arg VERSION_LABEL=$DOCKER_TAG \
-    --build-arg RELEASE_LABEL=$GITHUB_RUN_ID \
-    --build-arg VCS_REF=$GITHUB_SHA \
-    --build-arg VCS_URL=https://github.com/$GITHUB_REPOSITORY \
-    -t $NAMESPACE/$IMAGE $EXTRA_PARAMS -f $DOCKERFILE $BUILDPATH
-fi

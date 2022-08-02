@@ -1,117 +1,416 @@
 #!/bin/bash
 
-function mirror_to_registry() {
+function mirror_to_registry_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas mirror-images [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Registry Details (Required):
+  -H, --host ${COLOR_YELLOW}REGISTRY_PUBLIC_HOST${TEXT_RESET}                 Hostname of the target registry
+  -P, --port ${COLOR_YELLOW}REGISTRY_PUBLIC_PORT${TEXT_RESET}                 Port number for the target registry
+
+Registry Authentication (Optional):
+  -u, --username ${COLOR_YELLOW}REGISTRY_USERNAME${TEXT_RESET}                Username to authenticate to the target registry
+  -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}                Password to authenticate to the target registry
+
+Source Registry Entitlements (Required based on what content you choose to mirror):
+      --ibm-entitlement ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}       IBM Entitlement Key
+      --redhat-username ${COLOR_YELLOW}REDHAT_CONNECT_USERNAME${TEXT_RESET}   Red Hat Connect Username
+      --redhat-password ${COLOR_YELLOW}REDHAT_CONNECT_PASSWORD${TEXT_RESET}   Red Hat Connect Password
+
+Red Hat Catalog Selection (Optional):
+      --mirror-redhat-release ${COLOR_YELLOW}OPENSHIFT_RELEASE_VERSION${TEXT_RESET}      Mirror Red Hat Operator catalog image at the specified release (e.g. 4.10)
+      --mirror-redhat-operators ${COLOR_YELLOW}OPENSHIFT_OPERATORS_VERSION${TEXT_RESET}  Mirror Red Hat Release catalog images at the specified version (e.g. 4.10.18)
+
+Maximo Operator Catalog Selection (Optional):
+  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v8-220717)
+      --mirror-core                               Mirror images for IBM Maximo Application Suite Core & dependencies
+      --mirror-iot                                Mirror images for IBM Maximo IoT & dependencies
+      --mirror-manage                             Mirror images for IBM Maximo Manage & dependencies
+
+Maximo Core Image Mirroring Configuration (Optional):
+      --skip-cfs                                  Skip mirroring images for IBM Cloud Pak Foundation Services
+      --skip-uds                                  Skip mirroring images for IBM User Data Services
+      --skip-sls                                  Skip mirroring images for IBM Suite License Service
+      --skip-tsm                                  Skip mirroring images for IBM Truststore Manager
+      --skip-mongo                                Skip mirroring images for MongoDb Community Edition
+
+Maximo IoT Image Mirroring Configuration (Optional):
+      --skip-db2                                  Skip mirroring images for IBM Db2
+
+Maximo Manage Image Mirroring Configuration (Optional):
+      --skip-db2                                  Skip mirroring images for IBM Db2
+
+Other Commands:
+      --no-confirm                                Mirror images without prompting for confirmation
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+
+function mirror_to_registry_noninteractive() {
+  # Main content
+  MIRROR_MAS_CORE=false
+  MIRROR_MAS_IOT=false
+  MIRROR_MAS_MANAGE=false
+  # Dependencies
+  MIRROR_COMMONSERVICES=true
+  MIRROR_UDS=true
+  MIRROR_SLS=true
+  MIRROR_TRUSTSTOREMGR=true
+  MIRROR_MONGOCE=true
+  MIRROR_DB2U=true
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      -H|--host)
+        REGISTRY_PUBLIC_HOST=$1 && shift
+        ;;
+      -P|--port)
+        REGISTRY_PUBLIC_PORT=$1 && shift
+        ;;
+      -u|--username)
+        REGISTRY_USERNAME=$1 && shift
+        ;;
+      -p|--password)
+        REGISTRY_PASSWORD=$1 && shift
+        ;;
+      --ibm-entitlement)
+        IBM_ENTITLEMENT_KEY=$1 && shift
+        ;;
+      --redhat-username)
+        REDHAT_CONNECT_USERNAME=$1 && shift
+        ;;
+      --redhat-password)
+        REDHAT_CONNECT_PASSWORD=$1 && shift
+        ;;
+      --mirror-redhat-release)
+        MIRROR_RH_RELEASE=true
+        OPENSHIFT_RELEASE_VERSION=$1 && shift
+        ;;
+      --mirror-redhat-operators)
+        MIRROR_RH_OPERATORS=true
+        OPENSHIFT_OPERATORS_VERSION=$1 && shift
+        ;;
+      -c|--catalog)
+        MAS_CATALOG_VERSION=$1 && shift
+        ;;
+      --mirror-core)
+        MIRROR_MAS_CORE=true
+        ;;
+      --mirror-iot)
+        MIRROR_MAS_IOT=true
+        ;;
+      --mirror-manage)
+        MIRROR_MAS_MANAGE=true
+        ;;
+      --skip-cfs)
+        MIRROR_COMMONSERVICES=false
+        ;;
+      --skip-uds)
+        MIRROR_UDS=false
+        ;;
+      --skip-sls)
+        MIRROR_SLS=false
+        ;;
+      --skip-tsm)
+        MIRROR_TRUSTSTOREMGR=false
+        ;;
+      --skip-mongo)
+        MIRROR_MONGOCE=false
+        ;;
+      --skip-db2)
+        MIRROR_DB2U=false
+        ;;
+      --no-confirm)
+        NO_CONFIRM=true
+        ;;
+      -h|--help)
+        mirror_to_registry_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        mirror_to_registry_help
+        exit 1
+        ;;
+      esac
+  done
+
+  # Check all args have been set
+  [[ -z "$REGISTRY_PUBLIC_HOST" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_HOST is not set"
+  [[ -z "$REGISTRY_PUBLIC_PORT" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_PORT is not set"
+  if [[ $MIRROR_MAS_CORE == "true" || $MIRROR_MAS_IOT == "true" || $MIRROR_MAS_MANAGE == "true" ]]; then
+    [[ -z "$MAS_CATALOG_VERSION" ]] && mirror_to_registry_help "MAS_CATALOG_VERSION is not set"
+    [[ -z "$IBM_ENTITLEMENT_KEY" ]] && mirror_to_registry_help "IBM_ENTITLEMENT_KEY is not set"
+  fi
+  if [[ $MIRROR_UDS == "true" || $MIRROR_RH_RELEASE == "true" || $MIRROR_RH_OPERATORS == "true" ]]; then
+    [[ -z "$REDHAT_CONNECT_USERNAME" ]] && mirror_to_registry_help "REDHAT_CONNECT_USERNAME is not set"
+    [[ -z "$REDHAT_CONNECT_PASSWORD" ]] && mirror_to_registry_help "REDHAT_CONNECT_PASSWORD is not set"
+  fi
+}
+
+function mirror_to_registry_interactive() {
   echo
   echo_h2 "1. Configure Target Mirror"
-  prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST && export REGISTRY_PUBLIC_HOST
-  prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT && export REGISTRY_PUBLIC_PORT
+  prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
+  prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
 
   echo
   echo_h2 "2. Configure Authentication"
-  prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME && export REGISTRY_USERNAME
-  prompt_for_input "Mirror Registry Password" REGISTRY_PASSWORD && export REGISTRY_PASSWORD
+  prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME
+  prompt_for_input "Mirror Registry Password" REGISTRY_PASSWORD
 
   echo
-  echo_h2 "2. Configure Images to Mirror"
+  echo_h2 "3. Configure Static Catalog Version"
+
+  echo -e "${COLOR_YELLOW}MAS Version:"
+  echo "  1. 8.8 (2022-07-17)"
+  prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
+
+  case $MAS_CHANNEL_SELECTION in
+    1|8.8|8.8.x)
+      MAS_CATALOG_VERSION=v8-220717
+      ;;
+
+    *)
+      echo_warning "Invalid selection"
+      exit 1
+      ;;
+  esac
+
+  echo
+  echo_h2 "4. Configure Images to Mirror"
   echo "${TEXT_DIM}"
   echo "Timing are an estimate only, and will vary based on the quality of the host network connection"
   reset_colors
-  # These playbooks aren't available in ansible-airgap repository so we can't use there here yet
-  # prompt_for_confirm "OpenShift Release Images" MIRROR_OPENSHIFT_RELEASE
-  # if [[ $MIRROR_OPENSHIFT_RELEASE == "true" ]]; then
-  #   prompt_for_input "Red Hat OpenShift Release" OPENSHIFT_RELEASE
-  #   export OPENSHIFT_RELEASE
-  # fi
-  # prompt_for_confirm "OpenShift standard operator catalogs" MIRROR_OPENSHIFT_OPERATORS
-  # if [[ $MIRROR_OPENSHIFT_OPERATORS == "true" ]]; then
-  #   prompt_for_input "Red Hat OpenShift standard operator catalogs version" OPENSHIFT_OPERATORS
-  #   export OPENSHIFT_OPERATORS
-  # fi
   prompt_for_confirm "Mirror all images (~1 hour)" MIRROR_EVERYTHING
 
   if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
     MIRROR_RH_RELEASE=true
-    prompt_for_input "Red Hat Openshift Release Version (x.y.z)" OPENSHIFT_RELEASE_VERSION "4.10"
+    prompt_for_input "Red Hat Openshift Release Version (x.y.z)" OPENSHIFT_RELEASE_VERSION "4.10.18"
 
     MIRROR_RH_OPERATORS=true
-    prompt_for_input "Red Hat Openshift Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10.18"
+    prompt_for_input "Red Hat Openshift Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10"
 
+    # Core
+    MIRROR_MAS_CORE=true
     MIRROR_COMMONSERVICES=true
     MIRROR_UDS=true
     MIRROR_SLS=true
     MIRROR_TRUSTSTOREMGR=true
-    MIRROR_MAS_CORE=true
+    MIRROR_MONGOCE=true
+    # IoT
     MIRROR_MAS_IOT=true
-    MIRROR_MAS_MANAGE=true
-    MIRROR_MAS_MONITOR=true
-    MIRROR_MAS_VI=true
-    MIRROR_THIRDPARTY=true
+    MIRROR_DB2U=true
   else
-    prompt_for_confirm "Red Hat OpenShift Container Platform Release (x minutes)" MIRROR_RH_RELEASE
+    prompt_for_confirm "Red Hat OpenShift Container Platform Release" MIRROR_RH_RELEASE
     if [[ "$MIRROR_RH_RELEASE" == "true" ]]; then
       prompt_for_input "Release Version (x.y.z)" OPENSHIFT_RELEASE_VERSION "4.10.18"
     fi
 
-    prompt_for_confirm "Red Hat OpenShift Container Platform Operator Catalog (x minutes)" MIRROR_RH_OPERATORS
+    prompt_for_confirm "Red Hat OpenShift Container Platform Operator Catalog" MIRROR_RH_OPERATORS
     if [[ "$MIRROR_RH_OPERATORS" == "true" ]]; then
       prompt_for_input "Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10"
     fi
 
-    prompt_for_confirm "IBM Foundational Services (10 minutes)" MIRROR_COMMONSERVICES
-    prompt_for_confirm "IBM Db2 Universal Operator (5 minutes)" MIRROR_DB2
-    prompt_for_confirm "IBM User Data Services (5 minutes)" MIRROR_UDS
-    prompt_for_confirm "IBM Suite License Service (2 minutes)" MIRROR_SLS
-    prompt_for_confirm "IBM Truststore Manager (1 minute)" MIRROR_TRUSTSTOREMGR
-    prompt_for_confirm "IBM Maximo Application Suite - Core (5 minutes)" MIRROR_MAS_CORE
-    # prompt_for_confirm "IBM Maximo Application Suite - Assist (x minutes)" MIRROR_MAS_ASSIST
-    # prompt_for_confirm "IBM Maximo Application Suite - Health & Predict Utilities (x minutes)" MIRROR_MAS_HPU
-    prompt_for_confirm "IBM Maximo Application Suite - IoT (10 minutes)" MIRROR_MAS_IOT
-    prompt_for_confirm "IBM Maximo Application Suite - Manage (5 minutes)" MIRROR_MAS_MANAGE
-    prompt_for_confirm "IBM Maximo Application Suite - Monitor (5 minutes)" MIRROR_MAS_MONITOR
-    # prompt_for_confirm "IBM Maximo Application Suite - Predict (x minutes)" MIRROR_MAS_PREDICT
-    prompt_for_confirm "IBM Maximo Application Suite - Visual Inspection (10 minutes)" MIRROR_MAS_VI
-    prompt_for_confirm "Third Party Content (x minutes)" MIRROR_THIRDPARTY
+    prompt_for_confirm_default_yes "IBM Maximo Application Suite - Core" MIRROR_MAS_CORE
+    if [[ "$MIRROR_MAS_CORE" == "true" ]]; then
+      prompt_for_confirm_default_yes " + IBM Foundational Services" MIRROR_COMMONSERVICES
+      prompt_for_confirm_default_yes " + IBM User Data Services" MIRROR_UDS
+      prompt_for_confirm_default_yes " + IBM Suite License Service" MIRROR_SLS
+      prompt_for_confirm_default_yes " + IBM Truststore Manager" MIRROR_TRUSTSTOREMGR
+      prompt_for_confirm_default_yes " + MongoDb Community Edition" MIRROR_MONGOCE
+    fi
+
+    prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_IOT
+    prompt_for_confirm "IBM Maximo Application Suite - Manage" MIRROR_MAS_MANAGE
+    if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
+      prompt_for_confirm_default_yes " + IBM Db2" MIRROR_DB2U
+    fi
   fi
 
   echo
-  echo_h2 "3. Configure Authentication for Mirroring"
+  echo_h2 "5. Configure Authentication"
   prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY
-  export IBM_ENTITLEMENT_KEY
-  if [[ $MIRROR_UDS == "true" ]]; then
+
+  if [[ $MIRROR_UDS == "true" || $MIRROR_RH_RELEASE == "true"  || $MIRROR_RH_OPERATORS == "true" ]]; then
     prompt_for_input "Red Hat Connect Username" REDHAT_CONNECT_USERNAME
     prompt_for_input "Red Hat Connect Password" REDHAT_CONNECT_PASSWORD
-    export REDHAT_CONNECT_USERNAME
-    export REDHAT_CONNECT_PASSWORD
+  fi
+}
+
+
+function mirror_one_thing() {
+    MOT_RUNMIRROR=$1
+    MOT_NAME=$2
+    MOT_LOGFILE=$3
+    MOT_PLAYBOOK=$4
+    if [[ "$MOT_RUNMIRROR" == "true" ]]; then
+    echo -en "\033[s" # Save cursor position
+    echo -n "Mirroring ${MOT_NAME} ... ${MOT_LOGFILE}"
+    ansible-playbook ibm.mas_airgap.${MOT_PLAYBOOK} &> ${MOT_LOGFILE}
+    mirror_result=$?
+    echo -en "\033[1K" # Clear current line
+    echo -en "\033[u" # Restore cursor position
+    if [[ $mirror_result == "0" ]];
+    then echo -e "${COLOR_GREEN}[SUCCESS] ${MOT_NAME}: ${MOT_LOGFILE}${COLOR_RESET}"
+    else echo -e "${COLOR_RED}[FAILURE] ${MOT_NAME}: ${MOT_LOGFILE}${COLOR_RESET}"
+    fi
+  else
+    echo -e "${COLOR_BLUE}[SKIPPED] ${MOT_NAME}${COLOR_RESET}"
+  fi
+}
+
+function mirror_to_registry() {
+  # Take the first parameter off (it will be mirror-images)
+  shift
+  if [[ $# -gt 0 ]]; then
+    mirror_to_registry_noninteractive "$@"
+  else
+    mirror_to_registry_interactive
   fi
 
+  # Ensure all environment variables are available to ansible-playbook
+
+  # General Config
+  export MAS_CATALOG_VERSION
+  export REGISTRY_PUBLIC_HOST
+  export REGISTRY_PUBLIC_PORT
+  export REGISTRY_USERNAME
+  export REGISTRY_PASSWORD
+  # Red Hat Catalogs
   export OPENSHIFT_RELEASE_VERSION
   export OPENSHIFT_OPERATORS_VERSION
+  # Core & Dependencies
+  export MIRROR_MAS_CORE
+  export MIRROR_COMMONSERVICES
+  export MIRROR_UDS
+  export MIRROR_SLS
+  export MIRROR_TRUSTSTOREMGR
+  export MIRROR_MONGOCE
+  # Apps & Dependencies
+  export MIRROR_MAS_IOT
+  export MIRROR_MAS_MANAGE
+  export MIRROR_DB2U
+  # Authentication
+  export IBM_ENTITLEMENT_KEY
+  export REDHAT_CONNECT_USERNAME
+  export REDHAT_CONNECT_PASSWORD
 
   echo
-  prompt_for_confirm "Proceed with these settings" || exit 0
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Target Registry Connection" "    "
+  echo_reset_dim "Registry Host ......................... ${COLOR_BLUE}${REGISTRY_PUBLIC_HOST}"
+  echo_reset_dim "Registry Port ......................... ${COLOR_BLUE}${REGISTRY_PUBLIC_PORT}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Target Registry Authentication" "    "
+  echo_reset_dim "Registry Username ..................... ${COLOR_BLUE}${REGISTRY_USERNAME}"
+  echo_reset_dim "Registry Password ..................... ${COLOR_BLUE}${REGISTRY_PASSWORD:0:4}<snip>"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Red Hat Release Catalog" "    "
+  if [[ "$MIRROR_RH_RELEASE" == "true" ]]
+  then
+    echo_reset_dim "Catalog Version ....................... ${COLOR_BLUE}${OPENSHIFT_RELEASE_VERSION}"
+    echo_reset_dim "Authentication ........................ ${COLOR_BLUE}${REDHAT_CONNECT_USERNAME}/${REDHAT_CONNECT_PASSWORD:0:4}<snip>"
+  else
+    echo_reset_dim "${COLOR_RED}Skip"
+  fi
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Red Hat Operator Catalog" "    "
+  if [[ "$MIRROR_RH_OPERATORS" == "true" ]]
+  then
+    echo_reset_dim "Catalog Version ....................... ${COLOR_BLUE}${OPENSHIFT_OPERATORS_VERSION}"
+    echo_reset_dim "Red Hat Connect Authentication ........ ${COLOR_BLUE}${REDHAT_CONNECT_USERNAME}/${REDHAT_CONNECT_PASSWORD:0:4}<snip>"
+  else
+    echo_reset_dim "${COLOR_RED}Skip"
+  fi
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "IBM Operator Catalog" "    "
+  if [[ "$MIRROR_MAS_CORE" == "true" || "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]
+  then
+    echo_reset_dim "Catalog Version ..................... ${COLOR_BLUE}${MAS_CATALOG_VERSION}"
+    echo_reset_dim "IBM Authentication .................. ${COLOR_BLUE}cp/${IBM_ENTITLEMENT_KEY:0:4}<snip>"
+    if [[ "$MIRROR_MAS_CORE" == "true" ]]
+    then echo_reset_dim "IBM Maximo Application Suite Core ... ${COLOR_GREEN}Mirror"
+    else echo_reset_dim "IBM Maximo Application Suite Core ... ${COLOR_RED}Skip"
+    fi
+    if [[ "$MIRROR_MAS_IOT" == "true" ]]
+    then echo_reset_dim "IBM Maximo IoT ...................... ${COLOR_GREEN}Mirror"
+    else echo_reset_dim "IBM Maximo IoT ...................... ${COLOR_RED}Skip"
+    fi
+    if [[ "$MIRROR_MAS_MANAGE" == "true" ]]
+    then echo_reset_dim "IBM Maximo Manage ................... ${COLOR_GREEN}Mirror"
+    else echo_reset_dim "IBM Maximo Manage ................... ${COLOR_RED}Skip"
+    fi
+    # Dependencies
+    if [[ "$MIRROR_MAS_CORE" == "true" ]]; then
+      if [[ "$MIRROR_COMMONSERVICES" == "true" ]]
+      then echo_reset_dim " + IBM Db2 .......................... ${COLOR_GREEN}Mirror"
+      else echo_reset_dim " + IBM Db2 .......................... ${COLOR_RED}Skip"
+      fi
+      if [[ "$MIRROR_UDS" == "true" ]]
+      then echo_reset_dim " + IBM User Data Services ........... ${COLOR_GREEN}Mirror"
+      else echo_reset_dim " + IBM User Data Services ........... ${COLOR_RED}Skip"
+      fi
+      if [[ "$MIRROR_SLS" == "true" ]]
+      then echo_reset_dim " + IBM Suite License Service ........ ${COLOR_GREEN}Mirror"
+      else echo_reset_dim " + IBM Suite License Service ........ ${COLOR_RED}Skip"
+      fi
+      if [[ "$MIRROR_TRUSTSTOREMGR" == "true" ]]
+      then echo_reset_dim " + IBM Truststore Manager ........... ${COLOR_GREEN}Mirror"
+      else echo_reset_dim " + IBM Truststore Manager ........... ${COLOR_RED}Skip"
+      fi
+      if [[ "$MIRROR_MONGOCE" == "true" ]]
+      then echo_reset_dim " + MongoDb Community Edition ........ ${COLOR_GREEN}Mirror"
+      else echo_reset_dim " + MongoDb Community Edition ........ ${COLOR_RED}Skip"
+      fi
+    fi
+    if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
+      if [[ "$MIRROR_MAS_MANAGE" == "true" ]]
+      then echo_reset_dim " + IBM Db2 .......................... ${COLOR_GREEN}Mirror"
+      else echo_reset_dim " + IBM Db2 .......................... ${COLOR_RED}Skip"
+      fi
+    fi
+  else
+    echo_reset_dim "${COLOR_RED}Skip"
+  fi
+  reset_colors
+
+
+  echo
+  reset_colors
+  if [[ "$NO_CONFIRM" != "true" ]]; then
+    prompt_for_confirm "Proceed with these settings" || exit 0
+  fi
 
   echo
   echo_h2 "4. Run Mirror Process"
   TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
   LOG_PREFIX="$DIR/mirror-$TIMESTAMP"
-  [ "$MIRROR_RH_RELEASE" == "true" ]      && echo "Mirroring Red Hat OCP Release Images ..." && ansible-playbook ibm.mas_airgap.mirror_openshift_release | tee $LOG_PREFIX-ocp-release.log
-  [ "$MIRROR_RH_OPERATORS" == "true" ]    && echo "Mirroring Red Hat OCP Operator Images ..." && ansible-playbook ibm.mas_airgap.mirror_openshift_operators | tee $LOG_PREFIX-ocp-operators.log
 
-  [ "$MIRROR_COMMONSERVICES" == "true" ]  && echo "Mirroring IBM Foundational Services Images ..." && ansible-playbook ibm.mas_airgap.mirror_common_services | tee $LOG_PREFIX-foundation-services.log
-  [ "$MIRROR_DB2" == "true" ]             && echo "Mirroring IBM Db2 Universal Operator Images ..." && ansible-playbook ibm.mas_airgap.mirror_db2uoperator | tee $LOG_PREFIX-db2u.log
-  [ "$MIRROR_UDS" == "true" ]             && echo "Mirroring IBM User Data Services Images ..." && ansible-playbook ibm.mas_airgap.mirror_uds | tee $LOG_PREFIX-uds.log
-  [ "$MIRROR_SLS" == "true" ]             && echo "Mirroring IBM Suite License Service Images ..." && ansible-playbook ibm.mas_airgap.mirror_sls | tee $LOG_PREFIX-sls.log
-  [ "$MIRROR_TRUSTSTOREMGR" == "true" ]   && echo "Mirroring IBM Truststore Manager Images ..." && ansible-playbook ibm.mas_airgap.mirror_truststore_mgr | tee $LOG_PREFIX-truststore-mgr.log
-  [ "$MIRROR_MAS_CORE" == "true" ]        && echo "Mirroring IBM Maximo Application Suite (Core) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_core | tee $LOG_PREFIX-mas-core.log
-  [ "$MIRROR_MAS_ASSIST" == "true" ]      && echo "Mirroring IBM Maximo Application Suite (Assist) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_assist | tee $LOG_PREFIX-mas-assist.log
-  [ "$MIRROR_MAS_HPU" == "true" ]         && echo "Mirroring IBM Maximo Application Suite (HP Utilities) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_hputilities | tee $LOG_PREFIX-mas-hputilities.log
-  [ "$MIRROR_MAS_IOT" == "true" ]         && echo "Mirroring IBM Maximo Application Suite (IoT) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_iot | tee $LOG_PREFIX-mas-iot.log
-  [ "$MIRROR_MAS_MANAGE" == "true" ]      && echo "Mirroring IBM Maximo Application Suite (Manage) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_manage | tee $LOG_PREFIX-mas-manage.log
-  [ "$MIRROR_MAS_MONITOR" == "true" ]     && echo "Mirroring IBM Maximo Application Suite (Monitor) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_monitor | tee $LOG_PREFIX-mas-monitor.log
-  [ "$MIRROR_MAS_PREDICT" == "true" ]     && echo "Mirroring IBM Maximo Application Suite (Predict) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_predict | tee $LOG_PREFIX-mas-predict.log
-  [ "$MIRROR_MAS_VI" == "true" ]          && echo "Mirroring IBM Maximo Application Suite (Visual Inspection) Images ..." && ansible-playbook ibm.mas_airgap.mirror_mas_visualinspection | tee $LOG_PREFIX-mas-visualinspection.log
-  [ "$MIRROR_THIRDPARTY" == "true" ]      && echo "Mirroring Third Party Images ..." && ROLE_NAME=thirdparty_mirror ansible-playbook ibm.mas_airgap.run_role | tee $LOG_PREFIX-thirdparty.log
+  mirror_one_thing $MIRROR_RH_RELEASE   "Red Hat Release"                    "$LOG_PREFIX-ocp-release.log"   mirror_openshift_release
+  mirror_one_thing $MIRROR_RH_OPERATORS "Red Hat Operators"                  "$LOG_PREFIX-ocp-operators.log" mirror_openshift_operators
 
-  true
+  mirror_one_thing $MIRROR_MAS_CORE     "IBM Maximo Application Suite Core"  "$LOG_PREFIX-core.log"   mirror_core
+  mirror_one_thing $MIRROR_MAS_IOT      "IBM Maximo IoT"                     "$LOG_PREFIX-iot.log"    mirror_add_iot
+  mirror_one_thing $MIRROR_MAS_MANAGE   "IBM Maximo Manage"                  "$LOG_PREFIX-manage.log" mirror_add_manage
 }
-

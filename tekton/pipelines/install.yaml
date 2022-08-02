@@ -18,8 +18,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: mas-devops-install-pipeline
-  namespace: mas-{{mas_instance_id}}-pipelines
+  name: mas-install-pipeline
 spec:
   workspaces:
     # The generated configuration files
@@ -208,6 +207,9 @@ spec:
     - name: mas_catalog_source
       type: string
       default: ibm-operator-catalog
+    - name: mas_catalog_version
+      type: string
+      default: v8
 
     - name: mas_domain
       type: string
@@ -353,6 +355,9 @@ spec:
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+
+        - name: mas_catalog_version
+          value: $(params.mas_catalog_version)
 
         - name: artifactory_username
           value: $(params.artifactory_username)
@@ -1254,7 +1259,6 @@ spec:
       runAfter:
         - suite-config-db2
         - suite-config-kafka
-        - suite-verify
 
     # 20.2 Configure IoT workspace
     - name: app-cfg-iot
@@ -1503,7 +1507,6 @@ spec:
           values: [""]
       runAfter:
         - suite-db2-setup-for-manage
-        - suite-verify
 
     # 23.3 Configure Manage workspace
     - name: app-cfg-manage
@@ -1812,7 +1815,6 @@ spec:
           values: [""]
       runAfter:
         - suite-config-cos
-        - suite-verify
 
     # 27.2 Configure Assist workspace
     - name: app-cfg-assist
