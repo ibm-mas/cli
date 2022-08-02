@@ -55,6 +55,24 @@
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">provision-fyre</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#fyre-credentials-required">FYRE Credentials (Required):</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#cluster-configuration-required">Cluster Configuration (Required):</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#worker-node-configuration-optional-only-takes-effect-when-quota-type-is-set-to-product_group">Worker Node Configuration (Optional, only takes effect when quota-type is set to "product_group"):</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#other-commands">Other Commands:</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#interactive-mode">Interactive Mode</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#non-interactive-mode">Non-Interactive Mode</a>
+    </li>
+        </ul>
     </li>
     </ul>
                   </li>
@@ -105,7 +123,42 @@
               
                 <h1 id="provision-ocp-on-fyre">Provision OCP on FYRE<a class="headerlink" href="#provision-ocp-on-fyre" title="Permanent link"></a></h1>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
-<pre><code class="language-bash">docker run -ti --rm quay.io/ibmmas/cli mas provision-fyre
+<p><code>mas provision-fyre [options]</code></p>
+<h3 id="fyre-credentials-required">FYRE Credentials (Required):<a class="headerlink" href="#fyre-credentials-required" title="Permanent link"></a></h3>
+<ul>
+<li><code>-u|--username FYRE_USERNAME</code> FYRE username</li>
+<li><code>-a|--apikey FYRE_APIKEY</code> FYRE API key</li>
+</ul>
+<h3 id="cluster-configuration-required">Cluster Configuration (Required):<a class="headerlink" href="#cluster-configuration-required" title="Permanent link"></a></h3>
+<ul>
+<li><code>-p|--product-id FYRE_PRODUCT_ID</code> FYRE product group ID that will own the cluster</li>
+<li><code>-q|--quota-type FYRE_QUOTA_TYPE</code> Declare the quota to use when provisioning the cluster ("quick_burn" or "product_group")</li>
+<li><code>-c|--cluster-name CLUSTER_NAME</code> Name of the cluster to be provisioned</li>
+<li><code>-v|--ocp-version OCP_VERSION</code> OCP version to use (e.g 4.8, 4.10)</li>
+<li><code>-d|--description FYRE_DESCRIPTION</code> Description of the OCP cluster</li>
+</ul>
+<h3 id="worker-node-configuration-optional-only-takes-effect-when-quota-type-is-set-to-product_group">Worker Node Configuration (Optional, only takes effect when quota-type is set to "product_group"):<a class="headerlink" href="#worker-node-configuration-optional-only-takes-effect-when-quota-type-is-set-to-product_group" title="Permanent link"></a></h3>
+<ul>
+<li><code>--worker-count FYRE_WORKER_COUNT</code> Number of worker nodes to provision</li>
+<li><code>--worker-cpu FYRE_WORKER_CPU</code> How many CPUs to allocate per worker node</li>
+<li><code>--worker-memory FYRE_WORKER_MEMORY</code> How much memory to allocate per worker node</li>
+</ul>
+<h3 id="other-commands">Other Commands:<a class="headerlink" href="#other-commands" title="Permanent link"></a></h3>
+<ul>
+<li><code>-s|--simulate-airgap</code> Set flag to apply the simulated airgap network configuration to the cluster after provisioning</li>
+<li><code>--no-confirm</code> Provision the cluster without prompting for confirmation</li>
+<li><code>-h|--help</code> Show this help message</li>
+</ul>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
+<h3 id="interactive-mode">Interactive Mode<a class="headerlink" href="#interactive-mode" title="Permanent link"></a></h3>
+<pre><code class="language-bash">docker pull quay.io/ibmmas/cli
+docker run -ti --rm quay.io/ibmmas/cli mas provision-fyre
+</code></pre>
+<h3 id="non-interactive-mode">Non-Interactive Mode<a class="headerlink" href="#non-interactive-mode" title="Permanent link"></a></h3>
+<pre><code class="language-bash">export FYRE_USERNAME=xxx
+export FYRE_APIKEY=xxx
+docker pull quay.io/ibmmas/cli
+docker run -ti --rm quay.io/ibmmas/cli mas provision-fyre -u $FYRE_USERNAME -a $FYRE_APIKEY -p 225 -q product_group -c masonfyre -d &quot;My Cluster&quot; -v 4.10 --worker-count 3 --worker-cpu 8 --worker-memory 32 --no-confirm
 </code></pre>
               
             </div>

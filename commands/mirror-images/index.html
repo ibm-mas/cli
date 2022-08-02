@@ -71,12 +71,28 @@
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">mirror-images</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#air-gap-environments">Air Gap Environments</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#stage-1-prepare-your-mirror-registry">Stage 1: Prepare your mirror registry</a>
+    <li class="toctree-l3"><a class="reference internal" href="#registry-details-required">Registry Details (Required):</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#stage-2-configure-the-target-cluster-to-use-the-mirror-registry">Stage 2: Configure the target cluster to use the mirror registry</a>
+    <li class="toctree-l3"><a class="reference internal" href="#registry-authentication-optional">Registry Authentication (Optional):</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#source-registry-entitlements-required">Source Registry Entitlements (Required):</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#maximo-operator-catalog-selection-required">Maximo Operator Catalog Selection (Required):</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#maximo-core-image-mirroring-configuration-optional">Maximo Core Image Mirroring Configuration (Optional):</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#maximo-iot-image-mirroring-configuration-optional">Maximo IoT Image Mirroring Configuration (Optional):</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#other-commands">Other Commands:</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#interactive-mode">Interactive Mode</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#non-interactive-mode">Non-Interactive Mode</a>
     </li>
         </ul>
     </li>
@@ -113,19 +129,55 @@
               
                 <h1 id="mirror-images">Mirror Images<a class="headerlink" href="#mirror-images" title="Permanent link"></a></h1>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
-<pre><code class="language-bash">docker run -ti --rm quay.io/ibmmas/cli mas mirror-images
+<p><code>mas mirror-images [options]</code></p>
+<h3 id="registry-details-required">Registry Details (Required):<a class="headerlink" href="#registry-details-required" title="Permanent link"></a></h3>
+<ul>
+<li><code>-H|--host REGISTRY_PUBLIC_HOST</code> Hostname of the target registry</li>
+<li><code>-P|--port REGISTRY_PUBLIC_PORT</code> Port number for the target registry</li>
+</ul>
+<h3 id="registry-authentication-optional">Registry Authentication (Optional):<a class="headerlink" href="#registry-authentication-optional" title="Permanent link"></a></h3>
+<ul>
+<li><code>-u|--username REGISTRY_USERNAME</code> Username to authenticate to the target registry</li>
+<li><code>-p|--password REGISTRY_PASSWORD</code> Password to authenticate to the target registry</li>
+</ul>
+<h3 id="source-registry-entitlements-required">Source Registry Entitlements (Required):<a class="headerlink" href="#source-registry-entitlements-required" title="Permanent link"></a></h3>
+<ul>
+<li><code>--ibm-entitlement IBM_ENTITLEMENT_KEY</code> IBM Entitlement Key</li>
+<li><code>--redhat-username REDHAT_CONNECT_USERNAME</code> Red Hat Connect Username</li>
+<li><code>--redhat-password REDHAT_CONNECT_PASSWORD</code> Red Hat Connect Password</li>
+</ul>
+<h3 id="maximo-operator-catalog-selection-required">Maximo Operator Catalog Selection (Required):<a class="headerlink" href="#maximo-operator-catalog-selection-required" title="Permanent link"></a></h3>
+<ul>
+<li><code>-c|--catalog MAS_CATALOG_VERSION</code> Maximo Operator Catalog Version to mirror (e.g. v8-220717)</li>
+<li><code>--mirror-core</code> Mirror images for IBM Maximo Application Suite Core &amp; dependencies</li>
+<li><code>--mirror-iot</code> Mirror images for IBM Maximo IoT &amp; dependencies</li>
+</ul>
+<h3 id="maximo-core-image-mirroring-configuration-optional">Maximo Core Image Mirroring Configuration (Optional):<a class="headerlink" href="#maximo-core-image-mirroring-configuration-optional" title="Permanent link"></a></h3>
+<ul>
+<li><code>--skip-cfs</code> Skip mirroring images for IBM Cloud Pak Foundation Services</li>
+<li><code>--skip-uds</code> Skip mirroring images for IBM User Data Services</li>
+<li><code>--skip-sls</code> Skip mirroring images for IBM Suite License Service</li>
+<li><code>--skip-tsm</code> Skip mirroring images for IBM Truststore Manager</li>
+<li><code>--skip-mongo</code> Skip mirroring images for MongoDb Community Edition</li>
+</ul>
+<h3 id="maximo-iot-image-mirroring-configuration-optional">Maximo IoT Image Mirroring Configuration (Optional):<a class="headerlink" href="#maximo-iot-image-mirroring-configuration-optional" title="Permanent link"></a></h3>
+<ul>
+<li><code>--skip-db2</code> Skip mirroring images for IBM Db2</li>
+</ul>
+<h3 id="other-commands">Other Commands:<a class="headerlink" href="#other-commands" title="Permanent link"></a></h3>
+<ul>
+<li><code>--no-confirm</code> Mirror images without prompting for confirmation</li>
+<li><code>-h|--help</code> Show help message</li>
+</ul>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
+<h3 id="interactive-mode">Interactive Mode<a class="headerlink" href="#interactive-mode" title="Permanent link"></a></h3>
+<pre><code class="language-bash">docker pull quay.io/ibmmas/cli
+docker run -ti --rm quay.io/ibmmas/cli mas mirror-images
 </code></pre>
-<h2 id="air-gap-environments">Air Gap Environments<a class="headerlink" href="#air-gap-environments" title="Permanent link"></a></h2>
-<p>Three commands are available to aid in the deployment of an Air Gap MAS installation.</p>
-<h3 id="stage-1-prepare-your-mirror-registry">Stage 1: Prepare your mirror registry<a class="headerlink" href="#stage-1-prepare-your-mirror-registry" title="Permanent link"></a></h3>
-<ul>
-<li><code>mas setup-registry</code> will deploy a private docker registry on an OCP cluster suitable for hosting a mirror of all container images used in a MAS installation</li>
-<li><code>mas mirror-images</code> will mirror all (or a subset) container images needed for a MAS installation to your private registry</li>
-</ul>
-<h3 id="stage-2-configure-the-target-cluster-to-use-the-mirror-registry">Stage 2: Configure the target cluster to use the mirror registry<a class="headerlink" href="#stage-2-configure-the-target-cluster-to-use-the-mirror-registry" title="Permanent link"></a></h3>
-<ul>
-<li><code>mas configure-airgap</code> will configure your target OCP cluster to use a private docker register and will install the operator catalogs required by MAS from that mirror</li>
-</ul>
+<h3 id="non-interactive-mode">Non-Interactive Mode<a class="headerlink" href="#non-interactive-mode" title="Permanent link"></a></h3>
+<pre><code>docker pull quay.io/ibmmas/cli
+docker run -ti --rm quay.io/ibmmas/cli mas mirror-images --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_CONNECT_USERNAME --redhat-password $REDHAT_CONNECT_PASSWORD -H mirror.mydomain.com -P 32500 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD -c v8-220717 --mirror-core --mirror-iot --no-confirm
+</code></pre>
               
             </div>
           </div><footer>
