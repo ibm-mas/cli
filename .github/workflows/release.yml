@@ -45,3 +45,17 @@ jobs:
           tags: quay.io/ibmmas/cli:${{ env.DOCKER_TAG }} quay.io/ibmmas/cli:latest
           username: ${{ secrets.QUAYIO_USERNAME }}
           password: ${{ secrets.QUAYIO_PASSWORD }}
+
+      - name: Build the Tekton definitions (with digests)
+        run: |
+          export IMG_DIGEST=${{ steps.push-to-quay.outputs.digest }}
+          $GITHUB_WORKSPACE/build/bin/build-tekton.sh
+
+      - name: Upload Tekton definitions (with digests)
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ github.workspace }}/image/cli/bin/templates/ibm-mas-tekton.yaml
+          asset_name: ibm-mas-tekton-${{ env.VERSION }}.yaml
+          tag: ${{ github.ref }}
+          overwrite: true

@@ -35,7 +35,11 @@ for FILE in $PIPELINE_FILES; do
   cat $FILE >> $TARGET_FILE
 done
 
-sed "s/:latest/:$VERSION/g" $TARGET_FILE > $TARGET_FILE.txt
+# Digest mode
+if [[ -n "$IMG_DIGEST" ]]
+then sed "s/:latest/@$IMG_DIGEST/g" $TARGET_FILE > $TARGET_FILE.txt
+else sed "s/:latest/:$VERSION/g" $TARGET_FILE > $TARGET_FILE.txt
+fi
 
 rm $TARGET_FILE
 mv $TARGET_FILE.txt $TARGET_FILE

@@ -45,3 +45,28 @@ jobs:
           tags: quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
           username: ${{ secrets.QUAYIO_USERNAME }}
           password: ${{ secrets.QUAYIO_PASSWORD }}
+
+      - name: Print image digest
+        run: echo "Image pushed to ${{ steps.push-to-quay.outputs.digest }}"
+
+      - name: Build the Tekton definitions (with tags)
+        run: $GITHUB_WORKSPACE/build/bin/build-tekton.sh
+
+      - name: Upload the Tekton definitions (with tags)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ibm-mas-tekton-${{ env.VERSION }}-tags.yaml
+          path: ${{ github.workspace }}/image/cli/bin/templates/ibm-mas-tekton.yaml
+          retention-days: 30
+
+      - name: Build the Tekton definitions (with digests)
+        run: |
+          export IMG_DIGEST=${{ steps.push-to-quay.outputs.digest }}
+          $GITHUB_WORKSPACE/build/bin/build-tekton.sh
+
+      - name: Upload the Tekton definitions (with digests)
+        uses: actions/upload-artifact@v2
+        with:
+          name: ibm-mas-tekton-${{ env.VERSION }}-digests.yaml
+          path: ${{ github.workspace }}/image/cli/bin/templates/ibm-mas-tekton.yaml
+          retention-days: 30
