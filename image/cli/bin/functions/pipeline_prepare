@@ -3,17 +3,16 @@ function pipeline_prepare() {
   echo
   echo_h2 "10. Prepare Installation"
 
-  mkdir -p $DIR/configs
   # Replace ALL environment variables in templates
-  eval "echo \"$(cat $DIR/templates/pipelinerun.yaml)\"" > $DIR/configs/pipelinerun-$MAS_INSTANCE_ID.yaml
+  eval "echo \"$(cat $DIR/templates/pipelinerun.yaml)\"" > $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID.yaml
 
   # Replace mas_instance_id and pipeline_storage_class in templates
-  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/namespace.yaml > $DIR/configs/namespace-$MAS_INSTANCE_ID.yaml
+  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/namespace.yaml > $CONFIG_DIR/namespace-$MAS_INSTANCE_ID.yaml
   sed -e "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" \
       -e "s/{{pipeline_storage_class}}/$PIPELINE_STORAGE_CLASS/g" \
       -e "s/{{pipeline_storage_accessmode}}/$PIPELINE_STORAGE_ACCESSMODE/g" \
-      $DIR/templates/pvc.yaml > $DIR/configs/pvc-$MAS_INSTANCE_ID.yaml
-  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/rbac.yaml > $DIR/configs/rbac-$MAS_INSTANCE_ID.yaml
+      $DIR/templates/pvc.yaml > $CONFIG_DIR/pvc-$MAS_INSTANCE_ID.yaml
+  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/rbac.yaml > $CONFIG_DIR/rbac-$MAS_INSTANCE_ID.yaml
 
   if [ "$ALREADY_CONFIRMED" != "true" ]; then
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
@@ -25,16 +24,27 @@ function pipeline_prepare() {
   echo "${COLOR_YELLOW}If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"
   echo ""
   prompt_for_confirm_default_yes "Wait for PVCs to bind?" WAIT_FOR_PVCS
+
+  # Install the MAS Tekton definitions
+  if [[ "$AIRGAP_MODE" == "true" ]]; then
+    # If we're installing on airgap then we can't reference the images by tag, we need to prompt the user to enter the digest of
+    # a specific version of the container image ... we can't do this automatically as we are inside the image.
+    prompt_for_confirm_default_yes "Override image tag '$VERSION' with digest?" USE_DIGEST
+    if [[ "$USE_DIGEST" == "true" ]]; then
+      prompt_for_input "Enter image digest (sha:xxxxx) " CLI_IMAGE_DIGEST
+    fi
+    sed -e "s/:$VERSION/@$CLI_IMAGE_DIGEST/g" $DIR/templates/ibm-mas-tekton.yaml > $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
+  fi
+
   echo ""
   echo -en "\033[s" # Save cursor position
   echo -n "Preparing namespace 'mas-$MAS_INSTANCE_ID-pipelines' ..."
 
-  # Install the MAS Tekton definitions
-  oc apply -f $DIR/configs/namespace-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
-  oc -n mas-$MAS_INSTANCE_ID-pipelines apply -f $DIR/templates/ibm-mas-tekton.yaml &>> $LOGFILE
+  oc apply -f $CONFIG_DIR/namespace-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  oc -n mas-$MAS_INSTANCE_ID-pipelines apply -f $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
 
   # Create the PVCs that we need
-  oc apply -f $DIR/configs/pvc-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  oc apply -f $CONFIG_DIR/pvc-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
   if [[ "$WAIT_FOR_PVCS" == "true" ]]; then
     LOOKUP_RESULT=$(oc -n mas-$MAS_INSTANCE_ID-pipelines get pvc config-pvc -o jsonpath='{.status.phase}')
     while [ "$LOOKUP_RESULT" != "Bound" ]; do
@@ -44,8 +54,8 @@ function pipeline_prepare() {
     done
   fi
 
-  oc apply -f $DIR/configs/rbac-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
-  oc apply -f $DIR/configs/pipeline-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  oc apply -f $CONFIG_DIR/rbac-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  oc apply -f $CONFIG_DIR/pipeline-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
 
   # Clean up existing secrets
   oc -n mas-$MAS_INSTANCE_ID-pipelines delete secret pipeline-additional-configs --ignore-not-found=true &>> $LOGFILE

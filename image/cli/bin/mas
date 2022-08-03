@@ -21,7 +21,15 @@ trap trap_int INT
 
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-LOGFILE=$DIR/mas.log
+PARENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
+CONFIG_DIR="$PARENT_DIR/config"
+TEMPLATE_DIR="$PARENT_DIR/templates"
+LOG_DIR="$PARENT_DIR/logs"
+LOGFILE=$LOG_DIR/mas.log
+
+
+mkdir -p $LOG_DIR
+mkdir -p $CONFIG_DIR
 
 # export ANSIBLE_CONFIG=$DIR/ansible.cfg
 

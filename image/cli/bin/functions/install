@@ -37,8 +37,8 @@ function install() {
   done
 
   connect
-  pipeline_install_operator
   detect_airgap
+  pipeline_install_operator
   pipeline_config
   pipeline_prepare
   pipeline_show_config
