@@ -92,9 +92,9 @@ function prompt_for_input(){
   fi
 
   if [[ "${default}" != "" ]]; then
-    read -e -p "${COLOR_YELLOW}$msg ${COLOR_BLUE}> " -i "${default}" input
+    read -e -p "${COLOR_YELLOW}$msg ${COLOR_MAGENTA}> " -i "${default}" input
   else
-    read -p "${COLOR_YELLOW}$msg ${COLOR_BLUE}> " input
+    read -p "${COLOR_YELLOW}$msg ${COLOR_MAGENTA}> " input
   fi
   echo -ne "${COLOR_RESET}\033[1K"
   # https://stackoverflow.com/a/13717788
@@ -104,7 +104,7 @@ function prompt_for_input(){
 function prompt_for_confirm() {
   msg=$1
   varname=$2
-  if confirm "${COLOR_YELLOW}$msg ${COLOR_BLUE}[y/N]"; then
+  if confirm "${COLOR_YELLOW}$msg ${COLOR_MAGENTA}[y/N]"; then
     echo -ne "${COLOR_RESET}\033[1K"
     if [[ "$varname" != "" ]]; then
       printf -v "$varname" "%s" "true"
@@ -122,7 +122,7 @@ function prompt_for_confirm() {
 function prompt_for_confirm_default_yes() {
   msg=$1
   varname=$2
-  if confirm_default_yes "${COLOR_YELLOW}$msg ${COLOR_BLUE}[Y/n]"; then
+  if confirm_default_yes "${COLOR_YELLOW}$msg ${COLOR_MAGENTA}[Y/n]"; then
     echo -ne "${COLOR_RESET}\033[1K"
     if [[ "$varname" != "" ]]; then
       printf -v "$varname" "%s" "true"

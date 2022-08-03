@@ -118,14 +118,14 @@ function configure_ocp_for_mirror() {
   echo_h2 "Review Settings"
   echo "${TEXT_DIM}"
   echo_h2 "Private Registry Connection" "    "
-  echo_reset_dim "Host ...................... ${COLOR_BLUE}${REGISTRY_PRIVATE_HOST}"
-  echo_reset_dim "Port ...................... ${COLOR_BLUE}${REGISTRY_PRIVATE_PORT}"
-  echo_reset_dim "CA File ................... ${COLOR_BLUE}${REGISTRY_PRIVATE_CA_FILE}"
+  echo_reset_dim "Host ...................... ${COLOR_MAGENTA}${REGISTRY_PRIVATE_HOST}"
+  echo_reset_dim "Port ...................... ${COLOR_MAGENTA}${REGISTRY_PRIVATE_PORT}"
+  echo_reset_dim "CA File ................... ${COLOR_MAGENTA}${REGISTRY_PRIVATE_CA_FILE}"
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "Private Registry Authentication" "    "
-  echo_reset_dim "Username .................. ${COLOR_BLUE}${REGISTRY_USERNAME}"
-  echo_reset_dim "Password .................. ${COLOR_BLUE}${REGISTRY_PASSWORD:0:8}<snip>"
+  echo_reset_dim "Username .................. ${COLOR_MAGENTA}${REGISTRY_USERNAME}"
+  echo_reset_dim "Password .................. ${COLOR_MAGENTA}${REGISTRY_PASSWORD:0:8}<snip>"
   reset_colors
 
   echo

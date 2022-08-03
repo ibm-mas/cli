@@ -265,7 +265,7 @@ function mirror_one_thing() {
     else echo -e "${COLOR_RED}[FAILURE] ${MOT_NAME}: ${MOT_LOGFILE}${COLOR_RESET}"
     fi
   else
-    echo -e "${COLOR_BLUE}[SKIPPED] ${MOT_NAME}${COLOR_RESET}"
+    echo -e "${COLOR_MAGENTA}[SKIPPED] ${MOT_NAME}${COLOR_RESET}"
   fi
 }
 
@@ -311,22 +311,22 @@ function mirror_to_registry() {
 
   echo "${TEXT_DIM}"
   echo_h2 "Target Registry Connection" "    "
-  echo_reset_dim "Registry Host ......................... ${COLOR_BLUE}${REGISTRY_PUBLIC_HOST}"
-  echo_reset_dim "Registry Port ......................... ${COLOR_BLUE}${REGISTRY_PUBLIC_PORT}"
+  echo_reset_dim "Registry Host ......................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_HOST}"
+  echo_reset_dim "Registry Port ......................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_PORT}"
   reset_colors
 
   echo "${TEXT_DIM}"
   echo_h2 "Target Registry Authentication" "    "
-  echo_reset_dim "Registry Username ..................... ${COLOR_BLUE}${REGISTRY_USERNAME}"
-  echo_reset_dim "Registry Password ..................... ${COLOR_BLUE}${REGISTRY_PASSWORD:0:4}<snip>"
+  echo_reset_dim "Registry Username ..................... ${COLOR_MAGENTA}${REGISTRY_USERNAME}"
+  echo_reset_dim "Registry Password ..................... ${COLOR_MAGENTA}${REGISTRY_PASSWORD:0:4}<snip>"
   reset_colors
 
   echo "${TEXT_DIM}"
   echo_h2 "Red Hat Release Catalog" "    "
   if [[ "$MIRROR_RH_RELEASE" == "true" ]]
   then
-    echo_reset_dim "Catalog Version ....................... ${COLOR_BLUE}${OPENSHIFT_RELEASE_VERSION}"
-    echo_reset_dim "Authentication ........................ ${COLOR_BLUE}${REDHAT_CONNECT_USERNAME}/${REDHAT_CONNECT_PASSWORD:0:4}<snip>"
+    echo_reset_dim "Catalog Version ....................... ${COLOR_MAGENTA}${OPENSHIFT_RELEASE_VERSION}"
+    echo_reset_dim "Authentication ........................ ${COLOR_MAGENTA}${REDHAT_CONNECT_USERNAME}/${REDHAT_CONNECT_PASSWORD:0:4}<snip>"
   else
     echo_reset_dim "${COLOR_RED}Skip"
   fi
@@ -336,8 +336,8 @@ function mirror_to_registry() {
   echo_h2 "Red Hat Operator Catalog" "    "
   if [[ "$MIRROR_RH_OPERATORS" == "true" ]]
   then
-    echo_reset_dim "Catalog Version ....................... ${COLOR_BLUE}${OPENSHIFT_OPERATORS_VERSION}"
-    echo_reset_dim "Red Hat Connect Authentication ........ ${COLOR_BLUE}${REDHAT_CONNECT_USERNAME}/${REDHAT_CONNECT_PASSWORD:0:4}<snip>"
+    echo_reset_dim "Catalog Version ....................... ${COLOR_MAGENTA}${OPENSHIFT_OPERATORS_VERSION}"
+    echo_reset_dim "Red Hat Connect Authentication ........ ${COLOR_MAGENTA}${REDHAT_CONNECT_USERNAME}/${REDHAT_CONNECT_PASSWORD:0:4}<snip>"
   else
     echo_reset_dim "${COLOR_RED}Skip"
   fi
@@ -347,8 +347,8 @@ function mirror_to_registry() {
   echo_h2 "IBM Operator Catalog" "    "
   if [[ "$MIRROR_MAS_CORE" == "true" || "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]
   then
-    echo_reset_dim "Catalog Version ..................... ${COLOR_BLUE}${MAS_CATALOG_VERSION}"
-    echo_reset_dim "IBM Authentication .................. ${COLOR_BLUE}cp/${IBM_ENTITLEMENT_KEY:0:4}<snip>"
+    echo_reset_dim "Catalog Version ..................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
+    echo_reset_dim "IBM Authentication .................. ${COLOR_MAGENTA}cp/${IBM_ENTITLEMENT_KEY:0:4}<snip>"
     if [[ "$MIRROR_MAS_CORE" == "true" ]]
     then echo_reset_dim "IBM Maximo Application Suite Core ... ${COLOR_GREEN}Mirror"
     else echo_reset_dim "IBM Maximo Application Suite Core ... ${COLOR_RED}Skip"

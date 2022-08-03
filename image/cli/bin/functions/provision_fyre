@@ -183,27 +183,27 @@ function provision_fyre() {
   echo_h2 "Review Settings"
   echo "${TEXT_DIM}"
   echo_h2 "FYRE Authentication" "    "
-  echo_reset_dim "Username .................. ${COLOR_BLUE}${FYRE_USERNAME}"
-  echo_reset_dim "API Key ................... ${COLOR_BLUE}${FYRE_APIKEY:0:8}<snip>"
+  echo_reset_dim "Username .................. ${COLOR_MAGENTA}${FYRE_USERNAME}"
+  echo_reset_dim "API Key ................... ${COLOR_MAGENTA}${FYRE_APIKEY:0:8}<snip>"
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "FYRE Accounting" "    "
-  echo_reset_dim "Product Group ID .......... ${COLOR_BLUE}${FYRE_PRODUCT_ID}"
-  echo_reset_dim "Quota Type ................ ${COLOR_BLUE}${FYRE_QUOTA_TYPE}"
+  echo_reset_dim "Product Group ID .......... ${COLOR_MAGENTA}${FYRE_PRODUCT_ID}"
+  echo_reset_dim "Quota Type ................ ${COLOR_MAGENTA}${FYRE_QUOTA_TYPE}"
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "Cluster Configuration" "    "
-  echo_reset_dim "Name ...................... ${COLOR_BLUE}${CLUSTER_NAME}"
-  echo_reset_dim "Description ............... ${COLOR_BLUE}${FYRE_CLUSTER_DESCRIPTION}"
-  echo_reset_dim "OCP Version ............... ${COLOR_BLUE}${OCP_VERSION}"
+  echo_reset_dim "Name ...................... ${COLOR_MAGENTA}${CLUSTER_NAME}"
+  echo_reset_dim "Description ............... ${COLOR_MAGENTA}${FYRE_CLUSTER_DESCRIPTION}"
+  echo_reset_dim "OCP Version ............... ${COLOR_MAGENTA}${OCP_VERSION}"
 
   if [[ "${FYRE_QUOTA_TYPE}" == "product_group" ]]; then
     reset_colors
     echo "${TEXT_DIM}"
     echo_h2 "Worker Configuration" "    "
-    echo_reset_dim "Worker Node Count ......... ${COLOR_BLUE}${FYRE_WORKER_COUNT:-Default}"
-    echo_reset_dim "Worker Node CPU ........... ${COLOR_BLUE}${FYRE_WORKER_CPU:-Default}"
-    echo_reset_dim "Worker Node Memory ........ ${COLOR_BLUE}${FYRE_WORKER_MEMORY:-Default}"
+    echo_reset_dim "Worker Node Count ......... ${COLOR_MAGENTA}${FYRE_WORKER_COUNT:-Default}"
+    echo_reset_dim "Worker Node CPU ........... ${COLOR_MAGENTA}${FYRE_WORKER_CPU:-Default}"
+    echo_reset_dim "Worker Node Memory ........ ${COLOR_MAGENTA}${FYRE_WORKER_MEMORY:-Default}"
   fi
 
   echo
