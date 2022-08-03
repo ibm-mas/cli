@@ -14,107 +14,107 @@ function pipeline_show_config() {
   echo_h2 "\n11. Review Settings"
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
-  echo_reset_dim "Instance ID ............... ${COLOR_BLUE}${MAS_INSTANCE_ID}"
+  echo_reset_dim "Instance ID ............... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   if [[ "${MAS_DOMAIN}" != "" ]]; then
-    echo_reset_dim "Domain Name ............... ${COLOR_BLUE}${MAS_DOMAIN}"
-    echo_reset_dim "DNS Provider .............. ${COLOR_BLUE}${DNS_PROVIDER:-Manually configured}"
-    echo_reset_dim "Certificate Issuer ........ ${COLOR_BLUE}${MAS_CLUSTER_ISSUER:-Self-Signed}"
+    echo_reset_dim "Domain Name ............... ${COLOR_MAGENTA}${MAS_DOMAIN}"
+    echo_reset_dim "DNS Provider .............. ${COLOR_MAGENTA}${DNS_PROVIDER:-Manually configured}"
+    echo_reset_dim "Certificate Issuer ........ ${COLOR_MAGENTA}${MAS_CLUSTER_ISSUER:-Self-Signed}"
   fi
-  echo_reset_dim "Catalog Source ............ ${COLOR_BLUE}${MAS_CATALOG_SOURCE}"
-  echo_reset_dim "Subscription Channel ...... ${COLOR_BLUE}${MAS_CHANNEL}"
-  echo_reset_dim "IBM Entitled Registry ..... ${COLOR_BLUE}${MAS_ICR_CP}"
-  echo_reset_dim "IBM Open Registry ......... ${COLOR_BLUE}${MAS_ICR_CPOPEN}"
-  echo_reset_dim "Entitlement Username ...... ${COLOR_BLUE}${MAS_ENTITLEMENT_USERNAME}"
-  echo_reset_dim "Entitlement Key ........... ${COLOR_BLUE}${MAS_ENTITLEMENT_KEY:0:8}<snip>"
+  echo_reset_dim "Catalog Source ............ ${COLOR_MAGENTA}${MAS_CATALOG_SOURCE}"
+  echo_reset_dim "Subscription Channel ...... ${COLOR_MAGENTA}${MAS_CHANNEL}"
+  echo_reset_dim "IBM Entitled Registry ..... ${COLOR_MAGENTA}${MAS_ICR_CP}"
+  echo_reset_dim "IBM Open Registry ......... ${COLOR_MAGENTA}${MAS_ICR_CPOPEN}"
+  echo_reset_dim "Entitlement Username ...... ${COLOR_MAGENTA}${MAS_ENTITLEMENT_USERNAME}"
+  echo_reset_dim "Entitlement Key ........... ${COLOR_MAGENTA}${MAS_ENTITLEMENT_KEY:0:8}<snip>"
 
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite Applications" "    "
   if [[ "${MAS_APP_CHANNEL_IOT}" == '' ]]
   then echo_reset_dim "IoT ...................... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "IoT ...................... ${COLOR_BLUE}${MAS_APP_SOURCE_IOT}/${MAS_APP_CHANNEL_IOT}"
+  else echo_reset_dim "IoT ...................... ${COLOR_MAGENTA}${MAS_APP_SOURCE_IOT}/${MAS_APP_CHANNEL_IOT}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_MONITOR}" == '' ]]
   then echo_reset_dim " - Monitor ............... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim " - Monitor ............... ${COLOR_BLUE}${MAS_APP_SOURCE_MONITOR}/${MAS_APP_CHANNEL_MONITOR}"
+  else echo_reset_dim " - Monitor ............... ${COLOR_MAGENTA}${MAS_APP_SOURCE_MONITOR}/${MAS_APP_CHANNEL_MONITOR}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_SAFETY}" == '' ]]
   then echo_reset_dim " - Safety ................ ${COLOR_RED}Skip Installation"
-  else echo_reset_dim " - Safety ................ ${COLOR_BLUE}${MAS_APP_SOURCE_SAFETY}/${MAS_APP_CHANNEL_SAFETY}"
+  else echo_reset_dim " - Safety ................ ${COLOR_MAGENTA}${MAS_APP_SOURCE_SAFETY}/${MAS_APP_CHANNEL_SAFETY}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_MANAGE}" == '' ]]
   then echo_reset_dim "Manage ................... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "Manage ................... ${COLOR_BLUE}${MAS_APP_SOURCE_MANAGE}/${MAS_APP_CHANNEL_MANAGE}"
+  else echo_reset_dim "Manage ................... ${COLOR_MAGENTA}${MAS_APP_SOURCE_MANAGE}/${MAS_APP_CHANNEL_MANAGE}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_PREDICT}" == '' ]]
   then echo_reset_dim " - Predict ............... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim " - Predict ............... ${COLOR_BLUE}${MAS_APP_SOURCE_PREDICT}/${MAS_APP_CHANNEL_PREDICT}"
+  else echo_reset_dim " - Predict ............... ${COLOR_MAGENTA}${MAS_APP_SOURCE_PREDICT}/${MAS_APP_CHANNEL_PREDICT}"
   fi
 
   if [[ "${MAS_CHANNEL}" == '8.8.x' ]]; then
     if [[ "${MAS_APP_CHANNEL_OPTIMIZER}" == '' ]]
     then echo_reset_dim "Optimizer ................ ${COLOR_RED}Skip Installation"
-    else echo_reset_dim "Optimizer ................ ${COLOR_BLUE}${MAS_APP_SOURCE_OPTIMIZER}/${MAS_APP_CHANNEL_OPTIMIZER} (${MAS_APP_PLAN_OPTIMIZER})"
+    else echo_reset_dim "Optimizer ................ ${COLOR_MAGENTA}${MAS_APP_SOURCE_OPTIMIZER}/${MAS_APP_CHANNEL_OPTIMIZER} (${MAS_APP_PLAN_OPTIMIZER})"
     fi
   fi
 
   if [[ "${MAS_APP_CHANNEL_HPUTILITIES}" == '' ]]
   then echo_reset_dim "H & P Utilities .......... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "H & P Utilities .......... ${COLOR_BLUE}${MAS_APP_SOURCE_HPUTILITIES}/${MAS_APP_CHANNEL_HPUTILITIES}"
+  else echo_reset_dim "H & P Utilities .......... ${COLOR_MAGENTA}${MAS_APP_SOURCE_HPUTILITIES}/${MAS_APP_CHANNEL_HPUTILITIES}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_ASSIST}" == '' ]]
   then echo_reset_dim "Assist ................... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "Assist ................... ${COLOR_BLUE}${MAS_APP_SOURCE_ASSIST}/${MAS_APP_CHANNEL_ASSIST}"
+  else echo_reset_dim "Assist ................... ${COLOR_MAGENTA}${MAS_APP_SOURCE_ASSIST}/${MAS_APP_CHANNEL_ASSIST}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_VISUALINSPECTION}" == '' ]]
   then echo_reset_dim "MVI ...................... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "MVI ...................... ${COLOR_BLUE}${MAS_APP_SOURCE_VISUALINSPECTION}/${MAS_APP_CHANNEL_VISUALINSPECTION}"
+  else echo_reset_dim "MVI ...................... ${COLOR_MAGENTA}${MAS_APP_SOURCE_VISUALINSPECTION}/${MAS_APP_CHANNEL_VISUALINSPECTION}"
   fi
 
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "IBM Suite License Service" "    "
-  echo_reset_dim "Catalog Source ............ ${COLOR_BLUE}${SLS_CATALOG_SOURCE}"
-  echo_reset_dim "License ID ................ ${COLOR_BLUE}${SLS_LICENSE_ID}"
-  echo_reset_dim "License File .............. ${COLOR_BLUE}${SLS_LICENSE_FILE}"
-  echo_reset_dim "IBM Entitled Registry ..... ${COLOR_BLUE}${SLS_ICR_CP}"
-  echo_reset_dim "IBM Open Registry ......... ${COLOR_BLUE}${SLS_ICR_CPOPEN}"
-  echo_reset_dim "Entitlement Username ...... ${COLOR_BLUE}${SLS_ENTITLEMENT_USERNAME}"
-  echo_reset_dim "Entitlement Key ........... ${COLOR_BLUE}${SLS_ENTITLEMENT_KEY:0:8}<snip>"
+  echo_reset_dim "Catalog Source ............ ${COLOR_MAGENTA}${SLS_CATALOG_SOURCE}"
+  echo_reset_dim "License ID ................ ${COLOR_MAGENTA}${SLS_LICENSE_ID}"
+  echo_reset_dim "License File .............. ${COLOR_MAGENTA}${SLS_LICENSE_FILE}"
+  echo_reset_dim "IBM Entitled Registry ..... ${COLOR_MAGENTA}${SLS_ICR_CP}"
+  echo_reset_dim "IBM Open Registry ......... ${COLOR_MAGENTA}${SLS_ICR_CPOPEN}"
+  echo_reset_dim "Entitlement Username ...... ${COLOR_MAGENTA}${SLS_ENTITLEMENT_USERNAME}"
+  echo_reset_dim "Entitlement Key ........... ${COLOR_MAGENTA}${SLS_ENTITLEMENT_KEY:0:8}<snip>"
 
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "IBM User Data Services" "    "
-  echo_reset_dim "Contact Email ............. ${COLOR_BLUE}${UDS_CONTACT_EMAIL}"
-  echo_reset_dim "First Name ................ ${COLOR_BLUE}${UDS_CONTACT_FIRSTNAME}"
-  echo_reset_dim "Last Name ................. ${COLOR_BLUE}${UDS_CONTACT_LASTNAME}"
+  echo_reset_dim "Contact Email ............. ${COLOR_MAGENTA}${UDS_CONTACT_EMAIL}"
+  echo_reset_dim "First Name ................ ${COLOR_MAGENTA}${UDS_CONTACT_FIRSTNAME}"
+  echo_reset_dim "Last Name ................. ${COLOR_MAGENTA}${UDS_CONTACT_LASTNAME}"
 
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "IBM Cloud Pak Foundation Services" "    "
-  echo_reset_dim "Catalog Source ............ ${COLOR_BLUE}${COMMON_SERVICES_CATALOG_SOURCE}"
+  echo_reset_dim "Catalog Source ............ ${COLOR_MAGENTA}${COMMON_SERVICES_CATALOG_SOURCE}"
 
   if [[ "$DEPLOY_CP4D" == "run" ]]; then
     reset_colors
     echo "${TEXT_DIM}"
     echo_h2 "IBM Cloud Pak for Data" "    "
-    echo_reset_dim "Entitlement Key ........... ${COLOR_BLUE}${IBM_ENTITLEMENT_KEY:0:8}<snip>"
-    echo_reset_dim "Product Version ........... ${COLOR_BLUE}${CP4D_VERSION}"
+    echo_reset_dim "Entitlement Key ........... ${COLOR_MAGENTA}${IBM_ENTITLEMENT_KEY:0:8}<snip>"
+    echo_reset_dim "Product Version ........... ${COLOR_MAGENTA}${CP4D_VERSION}"
   fi
 
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "Storage Class Configuration" "    "
-  echo_reset_dim "Storage Class Provider ... ${COLOR_BLUE}${STORAGE_CLASS_PROVIDER}"
+  echo_reset_dim "Storage Class Provider ... ${COLOR_MAGENTA}${STORAGE_CLASS_PROVIDER}"
   if [[ "$STORAGE_CLASS_PROVIDER" == "custom" ]]; then
-    echo_reset_dim "ReadWriteOnce ............ ${COLOR_BLUE}${STORAGE_CLASS_RWO}"
-    echo_reset_dim "ReadWriteMany ............ ${COLOR_BLUE}${STORAGE_CLASS_RWX}"
+    echo_reset_dim "ReadWriteOnce ............ ${COLOR_MAGENTA}${STORAGE_CLASS_RWO}"
+    echo_reset_dim "ReadWriteMany ............ ${COLOR_MAGENTA}${STORAGE_CLASS_RWX}"
   fi
 
   reset_colors
