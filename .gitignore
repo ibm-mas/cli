@@ -9,3 +9,5 @@ image/cli/bin/mas.env
 image/cli/bin/templates/ibm-mas-tekton.yaml
 target/
 tmp/
+image/cli/config
+image/cli/logs
