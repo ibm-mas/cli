@@ -48,7 +48,7 @@ jobs:
 
       - name: Build the Tekton definitions (with digests)
         run: |
-          export IMG_DIGEST=${{ steps.push-to-quay.outputs.digest }}
+          export IMG_DIGEST=${{ steps.push_to_quay.outputs.digest }}
           $GITHUB_WORKSPACE/build/bin/build-tekton.sh
 
       - name: Upload Tekton definitions (with digests)
