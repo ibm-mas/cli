@@ -21,6 +21,20 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/initbuild.sh
           source $GITHUB_WORKSPACE/build/bin/.functions.sh
 
+      # 1. Tekton
+      # -------------------------------------------------------------------------------------------
+      - name: Build the Tekton definitions
+        run: $GITHUB_WORKSPACE/build/bin/build-tekton.sh
+
+      - name: Upload the Tekton definitions
+        uses: actions/upload-artifact@v2
+        with:
+          name: ibm-mas-tekton-${{ env.VERSION }}.yaml
+          path: ${{ github.workspace }}/image/cli/bin/templates/ibm-mas-tekton.yaml
+          retention-days: 30
+
+      # 2. CLI installer
+      # -------------------------------------------------------------------------------------------
       - name: Build the cli package
         run: |
           $GITHUB_WORKSPACE/build/bin/build-cli.sh
@@ -32,6 +46,8 @@ jobs:
           path: ${{ github.workspace }}/ibm-mas-cli-${{ env.VERSION }}.tgz
           retention-days: 30
 
+      # 3. CLI container image
+      # -------------------------------------------------------------------------------------------
       - name: Build the docker image
         run: |
           $GITHUB_WORKSPACE/build/bin/docker-build.sh -n ibmmas -i cli
