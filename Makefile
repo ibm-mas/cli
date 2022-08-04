@@ -8,7 +8,7 @@ ansible-build:
 	ansible-galaxy collection build --output-path image/cli/install-ansible ../ansible-devops/ibm/mas_devops --force
 	ansible-galaxy collection build --output-path image/cli/install-ansible ../ansible-airgap/ibm/mas_airgap --force
 	mv image/cli/install-ansible/ibm-mas_devops-11.0.0.tar.gz image/cli/install-ansible/ibm-mas_devops.tar.gz
-	mv image/cli/install-ansible/ibm-mas_airgap-2.0.0.tar.gz image/cli/install-ansible/ibm-mas_airgap.tar.gz
+	mv image/cli/install-ansible/ibm-mas_airgap-3.0.0.tar.gz image/cli/install-ansible/ibm-mas_airgap.tar.gz
 ansible-install:
 	ansible-galaxy collection install image/cli/install-ansible/ibm-mas_devops.tar.gz --force --no-deps
 	ansible-galaxy collection install image/cli/install-ansible/ibm-mas_airgap.tar.gz --force --no-deps

@@ -32,8 +32,10 @@ function pipeline_prepare() {
     prompt_for_confirm_default_yes "Override image tag '$VERSION' with digest?" USE_DIGEST
     if [[ "$USE_DIGEST" == "true" ]]; then
       prompt_for_input "Enter image digest (sha256:xxxxx) " CLI_IMAGE_DIGEST
+      sed -e "s/:$VERSION/@$CLI_IMAGE_DIGEST/g" $DIR/templates/ibm-mas-tekton.yaml > $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
+    else
+      cp $DIR/templates/ibm-mas-tekton.yaml $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
     fi
-    sed -e "s/:$VERSION/@$CLI_IMAGE_DIGEST/g" $DIR/templates/ibm-mas-tekton.yaml > $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
   fi
 
   echo ""
