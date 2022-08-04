@@ -18,6 +18,22 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/initbuild.sh
           source $GITHUB_WORKSPACE/build/bin/.functions.sh
 
+      # 1. Tekton
+      # -------------------------------------------------------------------------------------------
+      - name: Build the Tekton definitions
+        run: $GITHUB_WORKSPACE/build/bin/build-tekton.sh
+
+      - name: Upload Tekton definitions
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ github.workspace }}/image/cli/bin/templates/ibm-mas-tekton.yaml
+          asset_name: ibm-mas-tekton-${{ env.VERSION }}.yaml
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      # 2. CLI installer
+      # -------------------------------------------------------------------------------------------
       - name: Build the cli package
         run: |
           $GITHUB_WORKSPACE/build/bin/build-cli.sh
@@ -31,6 +47,8 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
 
+      # 3. CLI container image
+      # -------------------------------------------------------------------------------------------
       - name: Build the docker image
         run: |
           $GITHUB_WORKSPACE/build/bin/docker-build.sh -n ibmmas -i cli
