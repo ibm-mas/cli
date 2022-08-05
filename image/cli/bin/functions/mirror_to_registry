@@ -32,6 +32,7 @@ Maximo Operator Catalog Selection (Optional):
       --mirror-iot                                Mirror images for IBM Maximo IoT & dependencies
       --mirror-manage                             Mirror images for IBM Maximo Manage & dependencies
       --mirror-optimizer                          Mirror images for IBM Maximo Optimizer
+      --mirror-visualinspection                   Mirror images for IBM Maximo Visual Inspection
 
 Maximo Core Image Mirroring Configuration (Optional):
       --skip-cfs                                  Skip mirroring images for IBM Cloud Pak Foundation Services
@@ -59,6 +60,8 @@ function mirror_to_registry_noninteractive() {
   MIRROR_MAS_CORE=false
   MIRROR_MAS_IOT=false
   MIRROR_MAS_MANAGE=false
+  MIRROR_MAS_OPTIMIZER=false
+  MIRROR_MAS_VISUALINSPECTION=false
   # Dependencies
   MIRROR_COMMONSERVICES=true
   MIRROR_UDS=true
@@ -114,6 +117,9 @@ function mirror_to_registry_noninteractive() {
         ;;
       --mirror-optimizer)
         MIRROR_MAS_OPTIMIZER=true
+        ;;
+      --mirror-visualinspection)
+        MIRROR_MAS_VISUALINSPECTION=true
         ;;
       --skip-cfs)
         MIRROR_COMMONSERVICES=false
@@ -215,6 +221,7 @@ function mirror_to_registry_interactive() {
     MIRROR_MAS_IOT=true
     MIRROR_MAS_MANAGE=true
     MIRROR_MAS_OPTIMIZER=true
+    MIRROR_MAS_VISUALINSPECTION=true
     # App Dependencies
     MIRROR_DB2U=true
   else
@@ -240,6 +247,7 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_IOT
     prompt_for_confirm "IBM Maximo Application Suite - Manage" MIRROR_MAS_MANAGE
     prompt_for_confirm "IBM Maximo Application Suite - Optimizer" MIRROR_MAS_OPTIMIZER
+    prompt_for_confirm "IBM Maximo Application Suite - Visual Inspection" MIRROR_MAS_VISUALINSPECTION
     if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
       prompt_for_confirm_default_yes " + IBM Db2" MIRROR_DB2U
     fi
@@ -308,6 +316,7 @@ function mirror_to_registry() {
   export MIRROR_MAS_IOT
   export MIRROR_MAS_MANAGE
   export MIRROR_MAS_OPTIMIZER
+  export MIRROR_MAS_VISUALINSPECTION
   export MIRROR_DB2U
   # Authentication
   export IBM_ENTITLEMENT_KEY
@@ -378,6 +387,10 @@ function mirror_to_registry() {
     then echo_reset_dim "IBM Maximo Optimizer ................ ${COLOR_GREEN}Mirror"
     else echo_reset_dim "IBM Maximo Optimizer ................ ${COLOR_RED}Skip"
     fi
+    if [[ "$MIRROR_MAS_VISUALINSPECTION" == "true" ]]
+    then echo_reset_dim "IBM Maximo Visual Inspection ........ ${COLOR_GREEN}Mirror"
+    else echo_reset_dim "IBM Maximo Visual Inspection ........ ${COLOR_RED}Skip"
+    fi
 
     # Dependencies
     if [[ "$MIRROR_MAS_CORE" == "true" ]]; then
@@ -428,8 +441,9 @@ function mirror_to_registry() {
   mirror_one_thing $MIRROR_RH_RELEASE     "Red Hat Release"                    "$LOG_PREFIX-ocp-release.log"   mirror_openshift_release
   mirror_one_thing $MIRROR_RH_OPERATORS   "Red Hat Operators"                  "$LOG_PREFIX-ocp-operators.log" mirror_openshift_operators
 
-  mirror_one_thing $MIRROR_MAS_CORE       "IBM Maximo Application Suite Core"  "$LOG_PREFIX-core.log"      mirror_core
-  mirror_one_thing $MIRROR_MAS_IOT        "IBM Maximo IoT"                     "$LOG_PREFIX-iot.log"       mirror_add_iot
-  mirror_one_thing $MIRROR_MAS_MANAGE     "IBM Maximo Manage"                  "$LOG_PREFIX-manage.log"    mirror_add_manage
-  mirror_one_thing $MIRROR_MAS_OPTIMIZER  "IBM Maximo Optimizer"               "$LOG_PREFIX-optimizer.log" mirror_add_optimizer
+  mirror_one_thing $MIRROR_MAS_CORE       "IBM Maximo Application Suite Core"  "$LOG_PREFIX-core.log"             mirror_core
+  mirror_one_thing $MIRROR_MAS_IOT        "IBM Maximo IoT"                     "$LOG_PREFIX-iot.log"              mirror_add_iot
+  mirror_one_thing $MIRROR_MAS_MANAGE     "IBM Maximo Manage"                  "$LOG_PREFIX-manage.log"           mirror_add_manage
+  mirror_one_thing $MIRROR_MAS_OPTIMIZER  "IBM Maximo Optimizer"               "$LOG_PREFIX-optimizer.log"        mirror_add_optimizer
+  mirror_one_thing $MIRROR_MAS_VI         "IBM Maximo Visual Inspection"       "$LOG_PREFIX-visualinspection.log" mirror_add_visualinspection
 }
