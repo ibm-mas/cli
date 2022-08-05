@@ -26,15 +26,15 @@ function pipeline_prepare() {
   prompt_for_confirm_default_yes "Wait for PVCs to bind?" WAIT_FOR_PVCS
 
   # Install the MAS Tekton definitions
+  cp $DIR/templates/ibm-mas-tekton.yaml $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
   if [[ "$AIRGAP_MODE" == "true" ]]; then
     # If we're installing on airgap then we can't reference the images by tag, we need to prompt the user to enter the digest of
     # a specific version of the container image ... we can't do this automatically as we are inside the image.
     prompt_for_confirm_default_yes "Override image tag '$VERSION' with digest?" USE_DIGEST
     if [[ "$USE_DIGEST" == "true" ]]; then
       prompt_for_input "Enter image digest (sha256:xxxxx) " CLI_IMAGE_DIGEST
+      # Overwrite the tekton definitions with one that uses the provided image digest
       sed -e "s/:$VERSION/@$CLI_IMAGE_DIGEST/g" $DIR/templates/ibm-mas-tekton.yaml > $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
-    else
-      cp $DIR/templates/ibm-mas-tekton.yaml $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
     fi
   fi
 
