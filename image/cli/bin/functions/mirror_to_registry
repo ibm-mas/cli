@@ -31,6 +31,7 @@ Maximo Operator Catalog Selection (Optional):
       --mirror-core                               Mirror images for IBM Maximo Application Suite Core & dependencies
       --mirror-iot                                Mirror images for IBM Maximo IoT & dependencies
       --mirror-manage                             Mirror images for IBM Maximo Manage & dependencies
+      --mirror-optimizer                          Mirror images for IBM Maximo Optimizer
 
 Maximo Core Image Mirroring Configuration (Optional):
       --skip-cfs                                  Skip mirroring images for IBM Cloud Pak Foundation Services
@@ -110,6 +111,9 @@ function mirror_to_registry_noninteractive() {
         ;;
       --mirror-manage)
         MIRROR_MAS_MANAGE=true
+        ;;
+      --mirror-optimizer)
+        MIRROR_MAS_OPTIMIZER=true
         ;;
       --skip-cfs)
         MIRROR_COMMONSERVICES=false
@@ -200,15 +204,18 @@ function mirror_to_registry_interactive() {
     MIRROR_RH_OPERATORS=true
     prompt_for_input "Red Hat Openshift Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10"
 
-    # Core
+    # Core + Dependencies
     MIRROR_MAS_CORE=true
     MIRROR_COMMONSERVICES=true
     MIRROR_UDS=true
     MIRROR_SLS=true
     MIRROR_TRUSTSTOREMGR=true
     MIRROR_MONGOCE=true
-    # IoT
+    # Apps
     MIRROR_MAS_IOT=true
+    MIRROR_MAS_MANAGE=true
+    MIRROR_MAS_OPTIMIZER=true
+    # App Dependencies
     MIRROR_DB2U=true
   else
     prompt_for_confirm "Red Hat OpenShift Container Platform Release" MIRROR_RH_RELEASE
@@ -232,6 +239,7 @@ function mirror_to_registry_interactive() {
 
     prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_IOT
     prompt_for_confirm "IBM Maximo Application Suite - Manage" MIRROR_MAS_MANAGE
+    prompt_for_confirm "IBM Maximo Application Suite - Optimizer" MIRROR_MAS_OPTIMIZER
     if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
       prompt_for_confirm_default_yes " + IBM Db2" MIRROR_DB2U
     fi
@@ -299,6 +307,7 @@ function mirror_to_registry() {
   # Apps & Dependencies
   export MIRROR_MAS_IOT
   export MIRROR_MAS_MANAGE
+  export MIRROR_MAS_OPTIMIZER
   export MIRROR_DB2U
   # Authentication
   export IBM_ENTITLEMENT_KEY
@@ -345,14 +354,18 @@ function mirror_to_registry() {
 
   echo "${TEXT_DIM}"
   echo_h2 "IBM Operator Catalog" "    "
-  if [[ "$MIRROR_MAS_CORE" == "true" || "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]
+  if [[ "$MIRROR_MAS_CORE" == "true" || "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" || "$MIRROR_MAS_OPTIMIZER" == "true" ]]
   then
     echo_reset_dim "Catalog Version ..................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
     echo_reset_dim "IBM Authentication .................. ${COLOR_MAGENTA}cp/${IBM_ENTITLEMENT_KEY:0:4}<snip>"
+
+    # Core
     if [[ "$MIRROR_MAS_CORE" == "true" ]]
     then echo_reset_dim "IBM Maximo Application Suite Core ... ${COLOR_GREEN}Mirror"
     else echo_reset_dim "IBM Maximo Application Suite Core ... ${COLOR_RED}Skip"
     fi
+
+    # Applications
     if [[ "$MIRROR_MAS_IOT" == "true" ]]
     then echo_reset_dim "IBM Maximo IoT ...................... ${COLOR_GREEN}Mirror"
     else echo_reset_dim "IBM Maximo IoT ...................... ${COLOR_RED}Skip"
@@ -361,6 +374,11 @@ function mirror_to_registry() {
     then echo_reset_dim "IBM Maximo Manage ................... ${COLOR_GREEN}Mirror"
     else echo_reset_dim "IBM Maximo Manage ................... ${COLOR_RED}Skip"
     fi
+    if [[ "$MIRROR_MAS_OPTIMIZER" == "true" ]]
+    then echo_reset_dim "IBM Maximo Optimizer ................ ${COLOR_GREEN}Mirror"
+    else echo_reset_dim "IBM Maximo Optimizer ................ ${COLOR_RED}Skip"
+    fi
+
     # Dependencies
     if [[ "$MIRROR_MAS_CORE" == "true" ]]; then
       if [[ "$MIRROR_COMMONSERVICES" == "true" ]]
@@ -405,12 +423,13 @@ function mirror_to_registry() {
   echo
   echo_h2 "4. Run Mirror Process"
   TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
-  LOG_PREFIX="$DIR/mirror-$TIMESTAMP"
+  LOG_PREFIX="$LOG_DIR/mirror-$TIMESTAMP"
 
-  mirror_one_thing $MIRROR_RH_RELEASE   "Red Hat Release"                    "$LOG_PREFIX-ocp-release.log"   mirror_openshift_release
-  mirror_one_thing $MIRROR_RH_OPERATORS "Red Hat Operators"                  "$LOG_PREFIX-ocp-operators.log" mirror_openshift_operators
+  mirror_one_thing $MIRROR_RH_RELEASE     "Red Hat Release"                    "$LOG_PREFIX-ocp-release.log"   mirror_openshift_release
+  mirror_one_thing $MIRROR_RH_OPERATORS   "Red Hat Operators"                  "$LOG_PREFIX-ocp-operators.log" mirror_openshift_operators
 
-  mirror_one_thing $MIRROR_MAS_CORE     "IBM Maximo Application Suite Core"  "$LOG_PREFIX-core.log"   mirror_core
-  mirror_one_thing $MIRROR_MAS_IOT      "IBM Maximo IoT"                     "$LOG_PREFIX-iot.log"    mirror_add_iot
-  mirror_one_thing $MIRROR_MAS_MANAGE   "IBM Maximo Manage"                  "$LOG_PREFIX-manage.log" mirror_add_manage
+  mirror_one_thing $MIRROR_MAS_CORE       "IBM Maximo Application Suite Core"  "$LOG_PREFIX-core.log"      mirror_core
+  mirror_one_thing $MIRROR_MAS_IOT        "IBM Maximo IoT"                     "$LOG_PREFIX-iot.log"       mirror_add_iot
+  mirror_one_thing $MIRROR_MAS_MANAGE     "IBM Maximo Manage"                  "$LOG_PREFIX-manage.log"    mirror_add_manage
+  mirror_one_thing $MIRROR_MAS_OPTIMIZER  "IBM Maximo Optimizer"               "$LOG_PREFIX-optimizer.log" mirror_add_optimizer
 }

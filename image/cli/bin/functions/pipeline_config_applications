@@ -148,9 +148,8 @@ function channel_select_optimizer() {
       ;;
     esac
   else
+    # Only supporting MAS 8.8 airgap install at present
     MAS_APP_CHANNEL_OPTIMIZER=8.2.x
-    echo_warning "Sorry, air gap install of this application is not supported yet"
-    exit 1
   fi
   true
 }
@@ -243,6 +242,19 @@ function config_pipeline_applications() {
     channel_select_manage || exit 1
   fi
 
+  # Optimizer can only be installed from 8.8 on
+  if [[ "$MAS_CHANNEL" in '8.8.x'  ]]; then
+    if prompt_for_confirm "Install Optimizer"; then
+      channel_select_optimizer || exit 1
+      # Optimizer install Plan + Validation
+      while : ; do
+        prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full"
+        [[ "$MAS_APP_PLAN_OPTIMIZER" != "full" && "$MAS_APP_PLAN_OPTIMIZER" != "limited" ]] || break
+      done
+    fi
+  fi
+
+
   # Applications only supported in online installs
   if [[ -z "$AIRGAP_MODE" ]]; then
     # Applications that require Manage
@@ -272,18 +284,6 @@ function config_pipeline_applications() {
       done
       prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY $IBMCLOUD_APIKEY
       prompt_for_input "IBM Cloud Resource Group" IBMCLOUD_RESOURCEGROUP $IBMCLOUD_RESOURCEGROUP "Default"
-    fi
-
-    # Optimizer can only be installed from 8.8 on
-    if [[ "$MAS_CHANNEL" != '8.6.x' && "$MAS_CHANNEL" != '8.7.x' ]]; then
-      if prompt_for_confirm "Install Optimizer"; then
-        channel_select_optimizer || exit 1
-        # Optimizer install Plan + Validation
-        while : ; do
-          prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full"
-          [[ "$MAS_APP_PLAN_OPTIMIZER" != "full" && "$MAS_APP_PLAN_OPTIMIZER" != "limited" ]] || break
-        done
-      fi
     fi
 
     # Maximo Visual Inspection
