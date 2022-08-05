@@ -2,22 +2,17 @@
 
 
 function channel_select_iot() {
-  if [[ -z "$AIRGAP_MODE" ]]; then
-    case $MAS_CHANNEL in
-      8.8.x)
-      MAS_APP_CHANNEL_IOT=8.5.x
-      ;;
-      8.6.x|8.7.x)
-      MAS_APP_CHANNEL_IOT=8.4.x
-      ;;
-      *)
-      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_IOT
-      ;;
-    esac
-  else
-    # Only supporting MAS 8.8 airgap install at present
+  case $MAS_CHANNEL in
+    8.8.x)
     MAS_APP_CHANNEL_IOT=8.5.x
-  fi
+    ;;
+    8.6.x|8.7.x)
+    MAS_APP_CHANNEL_IOT=8.4.x
+    ;;
+    *)
+    prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_IOT
+    ;;
+  esac
   true
 }
 
@@ -67,25 +62,20 @@ function channel_select_safety() {
 }
 
 function channel_select_manage() {
-  if [[ -z "$AIRGAP_MODE" ]]; then
-    case $MAS_CHANNEL in
-      8.8.x)
-      MAS_APP_CHANNEL_MANAGE=8.4.x
-      ;;
-      8.7.x)
-      MAS_APP_CHANNEL_MANAGE=8.3.x
-      ;;
-      8.6.x)
-      MAS_APP_CHANNEL_MANAGE=8.2.x
-      ;;
-      *)
-      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MANAGE
-      ;;
-    esac
-  else
-    # Only supporting MAS 8.8 airgap install at present
+  case $MAS_CHANNEL in
+    8.8.x)
     MAS_APP_CHANNEL_MANAGE=8.4.x
-  fi
+    ;;
+    8.7.x)
+    MAS_APP_CHANNEL_MANAGE=8.3.x
+    ;;
+    8.6.x)
+    MAS_APP_CHANNEL_MANAGE=8.2.x
+    ;;
+    *)
+    prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MANAGE
+    ;;
+  esac
   true
 }
 
@@ -138,20 +128,14 @@ function channel_select_hputilities() {
 }
 
 function channel_select_optimizer() {
-  if [[ -z "$AIRGAP_MODE" ]]; then
-    case $MAS_CHANNEL in
-      8.8.x)
-      MAS_APP_CHANNEL_OPTIMIZER=8.2.x
-      ;;
-      *)
-      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_OPTIMIZER
-      ;;
-    esac
-  else
+  case $MAS_CHANNEL in
+    8.8.x)
     MAS_APP_CHANNEL_OPTIMIZER=8.2.x
-    echo_warning "Sorry, air gap install of this application is not supported yet"
-    exit 1
-  fi
+    ;;
+    *)
+    prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_OPTIMIZER
+    ;;
+  esac
   true
 }
 
@@ -180,26 +164,20 @@ function channel_select_assist() {
 }
 
 function channel_select_visualinspection() {
-  if [[ -z "$AIRGAP_MODE" ]]; then
-    case $MAS_CHANNEL in
-      8.8.x)
-      MAS_APP_CHANNEL_VISUALINSPECTION=8.6.x
-      ;;
-      8.7.x)
-      MAS_APP_CHANNEL_VISUALINSPECTION=8.5.x
-      ;;
-      8.6.x)
-      MAS_APP_CHANNEL_VISUALINSPECTION=8.4.x
-      ;;
-      *)
-      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_VISUALINSPECTION
-      ;;
-    esac
-  else
+  case $MAS_CHANNEL in
+    8.8.x)
     MAS_APP_CHANNEL_VISUALINSPECTION=8.6.x
-    echo_warning "Sorry, air gap install of this application is not supported yet"
-    exit 1
-  fi
+    ;;
+    8.7.x)
+    MAS_APP_CHANNEL_VISUALINSPECTION=8.5.x
+    ;;
+    8.6.x)
+    MAS_APP_CHANNEL_VISUALINSPECTION=8.4.x
+    ;;
+    *)
+    prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_VISUALINSPECTION
+    ;;
+  esac
   true
 }
 
@@ -243,6 +221,23 @@ function config_pipeline_applications() {
     channel_select_manage || exit 1
   fi
 
+  # Optimizer can only be installed from 8.8 on
+  if [[ "$MAS_CHANNEL" != "8.6.x"  && "$MAS_CHANNEL" != "8.7.x" ]]; then
+    if prompt_for_confirm "Install Optimizer"; then
+      channel_select_optimizer || exit 1
+      # Optimizer install Plan + Validation
+      while : ; do
+        prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full"
+        [[ "$MAS_APP_PLAN_OPTIMIZER" != "full" && "$MAS_APP_PLAN_OPTIMIZER" != "limited" ]] || break
+      done
+    fi
+  fi
+
+  # Maximo Visual Inspection
+  if prompt_for_confirm "Install Visual Inspection"; then
+    channel_select_visualinspection || exit 1
+  fi
+
   # Applications only supported in online installs
   if [[ -z "$AIRGAP_MODE" ]]; then
     # Applications that require Manage
@@ -274,23 +269,6 @@ function config_pipeline_applications() {
       prompt_for_input "IBM Cloud Resource Group" IBMCLOUD_RESOURCEGROUP $IBMCLOUD_RESOURCEGROUP "Default"
     fi
 
-    # Optimizer can only be installed from 8.8 on
-    if [[ "$MAS_CHANNEL" != '8.6.x' && "$MAS_CHANNEL" != '8.7.x' ]]; then
-      if prompt_for_confirm "Install Optimizer"; then
-        channel_select_optimizer || exit 1
-        # Optimizer install Plan + Validation
-        while : ; do
-          prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full"
-          [[ "$MAS_APP_PLAN_OPTIMIZER" != "full" && "$MAS_APP_PLAN_OPTIMIZER" != "limited" ]] || break
-        done
-      fi
-    fi
-
-    # Maximo Visual Inspection
-    if prompt_for_confirm "Install Visual Inspection"; then
-      channel_select_visualinspection || exit 1
-    fi
-
     if [[ "$MAS_APP_CHANNEL_PREDICT" != "" || "$MAS_APP_CHANNEL_HPUTILITIES" != "" || "$MAS_APP_CHANNEL_ASSIST" != "" ]]; then
       case $MAS_CHANNEL in
         8.8.x)
@@ -315,6 +293,5 @@ function config_pipeline_applications() {
           ;;
       esac
     fi
-
   fi
 }
