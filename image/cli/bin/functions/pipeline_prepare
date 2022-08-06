@@ -102,7 +102,7 @@ function pipeline_prepare() {
   fi
 
   oc -n mas-$MAS_INSTANCE_ID-pipelines wait --for=condition=Available=true deployment mas-cli --timeout=3m &>> $LOGFILE
-  if [[ $1 == "0" ]]; then
+  if [[ "$?" == "0" ]]; then
     # All is good
     echo -en "\033[1K" # Clear current line
     echo -en "\033[u" # Restore cursor position
