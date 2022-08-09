@@ -45,14 +45,17 @@ Access [IBM License Key Center](https://licensing.subscribenet.com/control/ibmr/
 
 | Field            | Content                                           |
 | ---------------- | ------------------------------------------------- |
-| Number of Keys 	 | How many AppPoints to assign to the license file  |
-| Host ID Type 	   | Set to **Ethernet Address**                       |
-| Host ID 	       | Enter any 12 digit hexadecimal string             |
-| Hostname 	       | Set to the hostname of your OCP instance          |
-| Port 	           | Set to **27000**                                  |
+| Number of Keys   | How many AppPoints to assign to the license file  |
+| Host ID Type     | Set to **Ethernet Address**                       |
+| Host ID          | Enter any 12 digit hexadecimal string             |
+| Hostname         | Set to the hostname of your OCP instance          |
+| Port             | Set to **27000**                                  |
 
 
 The other values can be left at their defaults.  Finally, click **Generate** and download the license file to your home directory as `entitlement.lic`.
+
+!!! note
+    For more information about how to access the IBM License Key Center review the [getting started documentation](https://www.ibm.com/support/pages/system/files/inline-files/GettingStartedEnglish_2020.pdf) available from the IBM support website.
 
 
 ## Usage

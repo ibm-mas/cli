@@ -13,7 +13,7 @@ USER root
 # 1. Upgrade system packages
 RUN dnf update -y --skip-broken --nobest &&\
     dnf upgrade -y --skip-broken --nobest &&\
-    dnf install nano -y &&\
+    dnf install nano jq -y &&\
     dnf clean all
 
 # 2. Copy basics
