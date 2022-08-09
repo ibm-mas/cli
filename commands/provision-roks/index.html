@@ -58,15 +58,15 @@
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#ibmcloud-credentials-required">IBMCloud Credentials (Required):</a>
+    <li class="toctree-l3"><a class="reference internal" href="#ibmcloud-credentials">IBMCloud Credentials</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#cluster-configuration-required">Cluster Configuration (Required):</a>
+    <li class="toctree-l3"><a class="reference internal" href="#cluster-configuration">Cluster Configuration</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#worker-node-configuration-required">Worker Node Configuration (Required):</a>
+    <li class="toctree-l3"><a class="reference internal" href="#worker-node-configuration">Worker Node Configuration</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#gpu-support-optional">GPU Support (Optional):</a>
+    <li class="toctree-l3"><a class="reference internal" href="#gpu-support">GPU Support</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#other-commands">Other Commands:</a>
+    <li class="toctree-l3"><a class="reference internal" href="#other-commands">Other Commands</a>
     </li>
         </ul>
     </li>
@@ -126,28 +126,32 @@
                 <h1 id="provision-ocp-on-ibmcloud-roks">Provision OCP on IBMCloud ROKS<a class="headerlink" href="#provision-ocp-on-ibmcloud-roks" title="Permanent link"></a></h1>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
 <p><code>mas provision-roks [options]</code></p>
-<h3 id="ibmcloud-credentials-required">IBMCloud Credentials (Required):<a class="headerlink" href="#ibmcloud-credentials-required" title="Permanent link"></a></h3>
+<h3 id="ibmcloud-credentials">IBMCloud Credentials<a class="headerlink" href="#ibmcloud-credentials" title="Permanent link"></a></h3>
+<p>Required</p>
 <ul>
 <li><code>-a|--apikey IBMCLOUD_APIKEY</code> IBMCloud API key</li>
 </ul>
-<h3 id="cluster-configuration-required">Cluster Configuration (Required):<a class="headerlink" href="#cluster-configuration-required" title="Permanent link"></a></h3>
+<h3 id="cluster-configuration">Cluster Configuration<a class="headerlink" href="#cluster-configuration" title="Permanent link"></a></h3>
+<p>Required</p>
 <ul>
 <li><code>-r|--resource-group IBMCLOUD_RESOURCEGROUP</code> IBMCloud resource group to deploy the cluster in</li>
 <li><code>-c|--cluster-name CLUSTER_NAME</code> Name of the cluster to be provisioned</li>
 <li><code>-v|--ocp-version OCP_VERSION</code> OCP version to use (e.g 4.8_openshift, 4.10_openshift)</li>
 </ul>
-<h3 id="worker-node-configuration-required">Worker Node Configuration (Required):<a class="headerlink" href="#worker-node-configuration-required" title="Permanent link"></a></h3>
+<h3 id="worker-node-configuration">Worker Node Configuration<a class="headerlink" href="#worker-node-configuration" title="Permanent link"></a></h3>
+<p>Required</p>
 <ul>
 <li><code>--worker-count ROKS_WORKERS</code> Number of worker nodes to provision</li>
 <li><code>--worker-flavor ROKS_FLAVOR</code> The flavour of worker node to use (e.g. b3c.16x64.300gb)</li>
 <li><code>--worker-zone ROKS_ZONE</code> IBM Cloud zone where the cluster should be provisioned. (e.g. dal10)</li>
 </ul>
-<h3 id="gpu-support-optional">GPU Support (Optional):<a class="headerlink" href="#gpu-support-optional" title="Permanent link"></a></h3>
+<h3 id="gpu-support">GPU Support<a class="headerlink" href="#gpu-support" title="Permanent link"></a></h3>
+<p>Optional</p>
 <ul>
 <li><code>--gpu-worker-count GPU_WORKERS</code> Number of GPU worker nodes to provision</li>
 <li><code>--gpu-workerpool-name GPU_WORKERPOOL_NAME</code> Name of the GPU workerpool</li>
 </ul>
-<h3 id="other-commands">Other Commands:<a class="headerlink" href="#other-commands" title="Permanent link"></a></h3>
+<h3 id="other-commands">Other Commands<a class="headerlink" href="#other-commands" title="Permanent link"></a></h3>
 <ul>
 <li><code>--no-confirm</code> Provision the cluster without prompting for confirmation</li>
 <li><code>-h|--help</code> Show help message</li>
