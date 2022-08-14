@@ -1,0 +1,125 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-upgrade
+spec:
+  params:
+    # MAS Configuration
+    - name: mas_instance_id
+      type: string
+
+    - name: mas_channel
+      type: string
+
+    # MAS Configuration - Application Channels
+    - name: mas_app_channel_iot
+      type: string
+      description: Subscription channel for IoT application operator
+      default: ""
+
+    - name: mas_app_channel_manage
+      type: string
+      description: Subscription channel for Manage application operator
+      default: ""
+
+    - name: mas_app_channel_monitor
+      type: string
+      description: Subscription channel for Monitor application operator
+      default: ""
+
+    - name: mas_app_channel_optimizer
+      type: string
+      description: Subscription channel for Optimizer application operator
+      default: ""
+
+    - name: mas_app_channel_predict
+      type: string
+      description: Subscription channel for Predict application operator
+      default: ""
+
+    - name: mas_app_channel_safety
+      type: string
+      description: Subscription channel for Safety application operator
+      default: ""
+
+    - name: mas_app_channel_hputilities
+      type: string
+      description: Subscription channel for Health & Predict - Utilities application operator
+      default: ""
+
+    - name: mas_app_channel_assist
+      type: string
+      description: Subscription channel for Assist application operator
+      default: ""
+
+    - name: mas_app_channel_visualinspection
+      type: string
+      description: Subscription channel for MVI application operator
+      default: ""
+
+  tasks:
+    # 1. Suite Upgrade
+    - name: upgrade-core
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_channel
+          value: $(params.mas_app_channel)
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-upgrade
+
+    - name: verify
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-verify
+
+    # 2. Assist
+    - name: upgrade-assist
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_channel
+          value: $(params.mas_app_channel_assist)
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-upgrade
+      runAfter:
+        - verify
+
+    # 4. IoT
+    - name: upgrade-iot
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_channel
+          value: $(params.mas_app_channel_iot)
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-upgrade
+      runAfter:
+        - verify
+
+
+        # - name: mas_app_channel_iot
+        #   value: $(params.mas_app_channel_iot)
+        # - name: mas_app_channel_manage
+        #   value: $(params.mas_app_channel_manage)
+        # - name: mas_app_channel_monitor
+        #   value: $(params.mas_app_channel_monitor)
+        # - name: mas_app_channel_optimizer
+        #   value: $(params.mas_app_channel_optimizer)
+        # - name: mas_app_channel_predict
+        #   value: $(params.mas_app_channel_predict)
+        # - name: mas_app_channel_safety
+        #   value: $(params.mas_app_channel_safety)
+        # - name: mas_app_channel_hputilities
+        #   value: $(params.mas_app_channel_hputilities)
+        # - name: mas_app_channel_assist
+        #   value: $(params.mas_app_channel_assist)
+        # - name: mas_app_channel_visualinspection
+        #   value: $(params.mas_app_channel_visualinspection)

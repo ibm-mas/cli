@@ -1,24 +1,8 @@
 ---
-# MAS One-Click Installation Pipeline
-# -------------------
-# By default only MAS core will be installed, with no applications installed.
-# - To add applications to the pipeline, set the mas_app_channel_x parameter for one or more applications
-# - The pipeline will automatically deploy the necessary additional dependencies for any applications enabled this way
-#
-# This pipeline will deploy a shared instance of Db2 and Kafka suitable for all applications
-# - Db2 will only be set up if IoT or Manage applications are set to be installed
-# - Db2 will be configured with the default recommended settings as defined in the ansible role
-# - Kafka will only be set up if IoT application is set to be installed
-#
-# This is a **sample** pipeline, you can use this as a template for your own pipelines, we aim to strike a good
-# balance between power and complexity in this configuration, if you have any questions about how the pipeline
-# works, or how to make adjustments to fir your specific use case, please raise an issue in GitHub:
-#   https://github.com/ibm-mas/ansible-devops/issues
-#
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: mas-install-pipeline
+  name: mas-install
 spec:
   workspaces:
     # The generated configuration files
@@ -209,7 +193,7 @@ spec:
       default: ibm-operator-catalog
     - name: mas_catalog_version
       type: string
-      default: v8
+      default: v8-amd64
 
     - name: mas_domain
       type: string
