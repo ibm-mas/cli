@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# - Set up namespace
+# - Create tasks and pipeline resources
+# - Set up RBAC
+function pipeline_install_tasks() {
+  # Install the MAS Tekton definitions
+  cp $DIR/templates/ibm-mas-tekton.yaml $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
+  sed -e "s/:latest/:$VERSION/g" $DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yaml
+  CLI_IMAGE=quay.io/ibmmas/cli:$VERSION
+
+  if [[ "$AIRGAP_MODE" == "true" ]]; then
+    # If we're installing on airgap then we can't reference the images by tag, we need to prompt the user to enter the digest of
+    # a specific version of the container image ... we can't do this automatically as we are inside the image.
+    prompt_for_confirm_default_yes "Override image tag '$VERSION' with digest?" USE_DIGEST
+    if [[ "$USE_DIGEST" == "true" ]]; then
+      CLI_IMAGE_DIGEST=$(skopeo inspect docker://quay.io/ibmmas/cli:$VERSION 2>> $LOGFILE | jq -r ".Digest")
+      if [[ "$CLI_IMAGE_DIGEST" == "" ]]; then
+        echo_warning "Unable to retrieve image digest for quay.io/ibmmas/cli:$VERSION"
+        exit 1
+      fi
+      echo "Using image digest $CLI_IMAGE_DIGEST"
+      # Overwrite the tekton definitions with one that uses the looked up image digest
+      sed -e "s/:$VERSION/@$CLI_IMAGE_DIGEST/g" $DIR/templates/ibm-mas-tekton.yaml > $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
+      sed -e "s/:latest/@$CLI_IMAGE_DIGEST/g" $DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yaml
+      CLI_IMAGE=quay.io/ibmmas/cli@$CLI_IMAGE_DIGEST
+    fi
+  fi
+
+  # Set up namespace
+  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/namespace.yaml > $CONFIG_DIR/namespace-$MAS_INSTANCE_ID.yaml
+  oc apply -f $CONFIG_DIR/namespace-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+
+  # Create tasks and pipeline resources in namespace
+  oc -n mas-$MAS_INSTANCE_ID-pipelines apply -f $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+
+  # Set up RBAC in namespace
+  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/rbac.yaml > $CONFIG_DIR/rbac-$MAS_INSTANCE_ID.yaml
+  oc apply -f $CONFIG_DIR/rbac-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+}

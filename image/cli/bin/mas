@@ -44,10 +44,13 @@ mkdir -p $CONFIG_DIR
 . $DIR/functions/install
 . $DIR/functions/pipeline_config
 . $DIR/functions/pipeline_install_operator
+. $DIR/functions/pipeline_install_tasks
 . $DIR/functions/pipeline_prepare
 . $DIR/functions/pipeline_run
 . $DIR/functions/pipeline_show_config
 . $DIR/functions/download_mustgather
+. $DIR/functions/update
+. $DIR/functions/upgrade
 # Airgap support
 . $DIR/functions/setup_mirror_registry
 . $DIR/functions/mirror_to_registry
@@ -121,6 +124,23 @@ case $1 in
     reset_colors
     install "$@"
     ;;
+
+  update)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Update Manager${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
+    echo
+    reset_colors
+    update "$@"
+    ;;
+
+  upgrade)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Upgrade Manager${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
+    echo
+    reset_colors
+    upgrade "$@"
+    ;;
+
 
   download|mustgather|download-mustgather)
     connect

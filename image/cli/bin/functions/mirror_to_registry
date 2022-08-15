@@ -27,11 +27,16 @@ Red Hat Catalog Selection (Optional):
       --mirror-redhat-operators ${COLOR_YELLOW}OPENSHIFT_OPERATORS_VERSION${TEXT_RESET}  Mirror Red Hat Release catalog images at the specified version (e.g. 4.10.18)
 
 Maximo Operator Catalog Selection (Optional):
-  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v8-220717)
+  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v8-220805)
       --mirror-core                               Mirror images for IBM Maximo Application Suite Core & dependencies
+      --mirror-assist                             Mirror images for IBM Maximo Assist
+      --mirror-hputilities                        Mirror images for IBM Maximo Health & Predict Utilities
       --mirror-iot                                Mirror images for IBM Maximo IoT & dependencies
       --mirror-manage                             Mirror images for IBM Maximo Manage & dependencies
+      --mirror-monitor                            Mirror images for IBM Maximo Monitor
+      --mirror-predict                            Mirror images for IBM Maximo Predict
       --mirror-optimizer                          Mirror images for IBM Maximo Optimizer
+      --mirror-safety                             Mirror images for IBM Maximo Safety
       --mirror-visualinspection                   Mirror images for IBM Maximo Visual Inspection
 
 Maximo Core Image Mirroring Configuration (Optional):
@@ -58,10 +63,16 @@ EOM
 function mirror_to_registry_noninteractive() {
   # Main content
   MIRROR_MAS_CORE=false
+  MIRROR_MAS_ASSIST=false
+  MIRROR_MAS_HPUTILITIES=false
   MIRROR_MAS_IOT=false
   MIRROR_MAS_MANAGE=false
+  MIRROR_MAS_MONITOR=false
+  MIRROR_MAS_PREDICT=false
   MIRROR_MAS_OPTIMIZER=false
+  MIRROR_MAS_SAFETY=false
   MIRROR_MAS_VISUALINSPECTION=false
+  MIRROR_MAS_X=false
   # Dependencies
   MIRROR_COMMONSERVICES=true
   MIRROR_UDS=true
@@ -108,18 +119,43 @@ function mirror_to_registry_noninteractive() {
         ;;
       --mirror-core)
         MIRROR_MAS_CORE=true
+        MIRROR_MAS_X=true
+        ;;
+      --mirror-assist)
+        MIRROR_MAS_ASSIST=true
+        MIRROR_MAS_X=true
+        ;;
+      --mirror-hputilities)
+        MIRROR_MAS_HPUTILITIES=true
+        MIRROR_MAS_X=true
         ;;
       --mirror-iot)
         MIRROR_MAS_IOT=true
+        MIRROR_MAS_X=true
         ;;
       --mirror-manage)
         MIRROR_MAS_MANAGE=true
+        MIRROR_MAS_X=true
+        ;;
+      --mirror-monitor)
+        MIRROR_MAS_MONITOR=true
+        MIRROR_MAS_X=true
+        ;;
+      --mirror-predict)
+        MIRROR_MAS_PREDICT=true
+        MIRROR_MAS_X=true
         ;;
       --mirror-optimizer)
         MIRROR_MAS_OPTIMIZER=true
+        MIRROR_MAS_X=true
+        ;;
+      --mirror-safety)
+        MIRROR_MAS_SAFETY=true
+        MIRROR_MAS_X=true
         ;;
       --mirror-visualinspection)
         MIRROR_MAS_VISUALINSPECTION=true
+        MIRROR_MAS_X=true
         ;;
       --skip-cfs)
         MIRROR_COMMONSERVICES=false
@@ -157,7 +193,7 @@ function mirror_to_registry_noninteractive() {
   # Check all args have been set
   [[ -z "$REGISTRY_PUBLIC_HOST" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_HOST is not set"
   [[ -z "$REGISTRY_PUBLIC_PORT" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_PORT is not set"
-  if [[ $MIRROR_MAS_CORE == "true" || $MIRROR_MAS_IOT == "true" || $MIRROR_MAS_MANAGE == "true" ]]; then
+  if [[ $MIRROR_MAS_X == "true" ]]; then
     [[ -z "$MAS_CATALOG_VERSION" ]] && mirror_to_registry_help "MAS_CATALOG_VERSION is not set"
     [[ -z "$IBM_ENTITLEMENT_KEY" ]] && mirror_to_registry_help "IBM_ENTITLEMENT_KEY is not set"
   fi
@@ -227,9 +263,14 @@ function mirror_to_registry_interactive() {
     MIRROR_TRUSTSTOREMGR=true
     MIRROR_MONGOCE=true
     # Apps
+    MIRROR_MAS_ASSIST=true
+    MIRROR_MAS_HPUTILITIES=true
     MIRROR_MAS_IOT=true
     MIRROR_MAS_MANAGE=true
+    MIRROR_MAS_MONITOR=true
+    MIRROR_MAS_PREDICT=true
     MIRROR_MAS_OPTIMIZER=true
+    MIRROR_MAS_SAFETY=true
     MIRROR_MAS_VISUALINSPECTION=true
     # App Dependencies
     MIRROR_DB2U=true
@@ -253,9 +294,13 @@ function mirror_to_registry_interactive() {
       prompt_for_confirm_default_yes " + MongoDb Community Edition" MIRROR_MONGOCE
     fi
 
-    prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_IOT
+    prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_HPUTILITIES
+    prompt_for_confirm "IBM Maximo Application Suite - HP Utilities" MIRROR_MAS_HPUTILITIES
     prompt_for_confirm "IBM Maximo Application Suite - Manage" MIRROR_MAS_MANAGE
+    prompt_for_confirm "IBM Maximo Application Suite - Monitor" MIRROR_MAS_MONITOR
+    prompt_for_confirm "IBM Maximo Application Suite - Predict" MIRROR_MAS_PREDICT
     prompt_for_confirm "IBM Maximo Application Suite - Optimizer" MIRROR_MAS_OPTIMIZER
+    prompt_for_confirm "IBM Maximo Application Suite - Safety" MIRROR_MAS_SAFETY
     prompt_for_confirm "IBM Maximo Application Suite - Visual Inspection" MIRROR_MAS_VISUALINSPECTION
     if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
       prompt_for_confirm_default_yes " + IBM Db2" MIRROR_DB2U
@@ -294,6 +339,14 @@ function mirror_one_thing() {
   fi
 }
 
+
+function show_mirror_status() {
+  if [[ "$2" == "true" ]]
+  then echo_reset_dim "$1 ${COLOR_GREEN}Mirror"
+  else echo_reset_dim "$1 ${COLOR_RED}Skip"
+  fi
+}
+
 function mirror_to_registry() {
   # Take the first parameter off (it will be mirror-images)
   shift
@@ -322,9 +375,14 @@ function mirror_to_registry() {
   export MIRROR_TRUSTSTOREMGR
   export MIRROR_MONGOCE
   # Apps & Dependencies
+  export MIRROR_MAS_ASSIST
+  export MIRROR_MAS_HPUTILITIES
   export MIRROR_MAS_IOT
   export MIRROR_MAS_MANAGE
+  export MIRROR_MAS_MONITOR
+  export MIRROR_MAS_PREDICT
   export MIRROR_MAS_OPTIMIZER
+  export MIRROR_MAS_SAFETY
   export MIRROR_MAS_VISUALINSPECTION
   export MIRROR_DB2U
   # Authentication
@@ -372,70 +430,41 @@ function mirror_to_registry() {
 
   echo "${TEXT_DIM}"
   echo_h2 "IBM Operator Catalog" "    "
-  if [[ "$MIRROR_MAS_CORE" == "true" || "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" \
-        || "$MIRROR_MAS_OPTIMIZER" == "true" || MIRROR_MAS_VISUALINSPECTION == "true" ]]
+  if [[ "$MIRROR_MAS_CORE" == "true" || "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" \
+        || "$MIRROR_MAS_OPTIMIZER" == "true" || "$MIRROR_MAS_SAFETY" == "true" || "$MIRROR_MAS_VISUALINSPECTION" == "true" ]]
   then
     echo_reset_dim "Catalog Version ..................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
     echo_reset_dim "IBM Authentication .................. ${COLOR_MAGENTA}cp/${IBM_ENTITLEMENT_KEY:0:4}<snip>"
 
     # Core
-    if [[ "$MIRROR_MAS_CORE" == "true" ]]
-    then echo_reset_dim "IBM Maximo Application Suite Core ... ${COLOR_GREEN}Mirror"
-    else echo_reset_dim "IBM Maximo Application Suite Core ... ${COLOR_RED}Skip"
-    fi
+    show_mirror_status "IBM Maximo Application Suite Core ..." $MIRROR_MAS_CORE
 
     # Applications
-    if [[ "$MIRROR_MAS_IOT" == "true" ]]
-    then echo_reset_dim "IBM Maximo IoT ...................... ${COLOR_GREEN}Mirror"
-    else echo_reset_dim "IBM Maximo IoT ...................... ${COLOR_RED}Skip"
-    fi
-    if [[ "$MIRROR_MAS_MANAGE" == "true" ]]
-    then echo_reset_dim "IBM Maximo Manage ................... ${COLOR_GREEN}Mirror"
-    else echo_reset_dim "IBM Maximo Manage ................... ${COLOR_RED}Skip"
-    fi
-    if [[ "$MIRROR_MAS_OPTIMIZER" == "true" ]]
-    then echo_reset_dim "IBM Maximo Optimizer ................ ${COLOR_GREEN}Mirror"
-    else echo_reset_dim "IBM Maximo Optimizer ................ ${COLOR_RED}Skip"
-    fi
-    if [[ "$MIRROR_MAS_VISUALINSPECTION" == "true" ]]
-    then echo_reset_dim "IBM Maximo Visual Inspection ........ ${COLOR_GREEN}Mirror"
-    else echo_reset_dim "IBM Maximo Visual Inspection ........ ${COLOR_RED}Skip"
-    fi
+    show_mirror_status "IBM Maximo Assist ..................." $MIRROR_MAS_ASSIST
+    show_mirror_status "IBM Maximo IoT ......................" $MIRROR_MAS_IOT
+    show_mirror_status "IBM Maximo Manage ..................." $MIRROR_MAS_MANAGE
+    show_mirror_status "IBM Maximo Monitor .................." $MIRROR_MAS_MONITOR
+    show_mirror_status "IBM Maximo Predict .................." $MIRROR_MAS_PREDICT
+    show_mirror_status "IBM Maximo Optimizer ................" $MIRROR_MAS_OPTIMIZER
+    show_mirror_status "IBM Maximo Safety ..................." $MIRROR_MAS_SAFETY
+    show_mirror_status "IBM Maximo Visual Inspection ........" $MIRROR_MAS_VISUALINSPECTION
 
-    # Dependencies
+    # Core Dependencies
     if [[ "$MIRROR_MAS_CORE" == "true" ]]; then
-      if [[ "$MIRROR_COMMONSERVICES" == "true" ]]
-      then echo_reset_dim " + IBM Db2 .......................... ${COLOR_GREEN}Mirror"
-      else echo_reset_dim " + IBM Db2 .......................... ${COLOR_RED}Skip"
-      fi
-      if [[ "$MIRROR_UDS" == "true" ]]
-      then echo_reset_dim " + IBM User Data Services ........... ${COLOR_GREEN}Mirror"
-      else echo_reset_dim " + IBM User Data Services ........... ${COLOR_RED}Skip"
-      fi
-      if [[ "$MIRROR_SLS" == "true" ]]
-      then echo_reset_dim " + IBM Suite License Service ........ ${COLOR_GREEN}Mirror"
-      else echo_reset_dim " + IBM Suite License Service ........ ${COLOR_RED}Skip"
-      fi
-      if [[ "$MIRROR_TRUSTSTOREMGR" == "true" ]]
-      then echo_reset_dim " + IBM Truststore Manager ........... ${COLOR_GREEN}Mirror"
-      else echo_reset_dim " + IBM Truststore Manager ........... ${COLOR_RED}Skip"
-      fi
-      if [[ "$MIRROR_MONGOCE" == "true" ]]
-      then echo_reset_dim " + MongoDb Community Edition ........ ${COLOR_GREEN}Mirror"
-      else echo_reset_dim " + MongoDb Community Edition ........ ${COLOR_RED}Skip"
-      fi
+      show_mirror_status " + IBM Cloud Pak Foundation Services " $MIRROR_COMMONSERVICES
+      show_mirror_status " + IBM User Data Services ..........." $MIRROR_UDS
+      show_mirror_status " + IBM Suite License Service ........" $MIRROR_SLS
+      show_mirror_status " + IBM Truststore Manager ..........." $MIRROR_TRUSTSTOREMGR
+      show_mirror_status " + MongoDb Community Edition ........" $MIRROR_MONGOCE
     fi
+    # IoT & Manage Dependencies
     if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
-      if [[ "$MIRROR_MAS_MANAGE" == "true" ]]
-      then echo_reset_dim " + IBM Db2 .......................... ${COLOR_GREEN}Mirror"
-      else echo_reset_dim " + IBM Db2 .......................... ${COLOR_RED}Skip"
-      fi
+      show_mirror_status " + IBM Db2 .......................... " $MIRROR_DB2U
     fi
   else
     echo_reset_dim "${COLOR_RED}Skip"
   fi
   reset_colors
-
 
   echo
   reset_colors
@@ -452,8 +481,13 @@ function mirror_to_registry() {
   mirror_one_thing $MIRROR_RH_OPERATORS         "Red Hat Operators"                  "$LOG_PREFIX-ocp-operators.log" mirror_openshift_operators
 
   mirror_one_thing $MIRROR_MAS_CORE             "IBM Maximo Application Suite Core"  "$LOG_PREFIX-core.log"             mirror_core
+  mirror_one_thing $MIRROR_MAS_ASSIST           "IBM Maximo Assist"                  "$LOG_PREFIX-assist.log"           mirror_add_assist
+  mirror_one_thing $MIRROR_MAS_HPUTILITIES      "IBM Maximo HP Utilties"             "$LOG_PREFIX-hputilties.log"       mirror_add_hputilities
   mirror_one_thing $MIRROR_MAS_IOT              "IBM Maximo IoT"                     "$LOG_PREFIX-iot.log"              mirror_add_iot
   mirror_one_thing $MIRROR_MAS_MANAGE           "IBM Maximo Manage"                  "$LOG_PREFIX-manage.log"           mirror_add_manage
+  mirror_one_thing $MIRROR_MAS_MONITOR          "IBM Maximo Monitor"                 "$LOG_PREFIX-monitor.log"          mirror_add_monitor
+  mirror_one_thing $MIRROR_MAS_PREDICT          "IBM Maximo Predict"                 "$LOG_PREFIX-predict.log"          mirror_add_predict
   mirror_one_thing $MIRROR_MAS_OPTIMIZER        "IBM Maximo Optimizer"               "$LOG_PREFIX-optimizer.log"        mirror_add_optimizer
+  mirror_one_thing $MIRROR_MAS_SAFETY           "IBM Maximo Safety"                  "$LOG_PREFIX-safety.log"           mirror_add_safety
   mirror_one_thing $MIRROR_MAS_VISUALINSPECTION "IBM Maximo Visual Inspection"       "$LOG_PREFIX-visualinspection.log" mirror_add_visualinspection
 }

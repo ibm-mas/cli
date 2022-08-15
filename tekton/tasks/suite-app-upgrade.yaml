@@ -11,7 +11,7 @@ spec:
     - name: mas_app_id
       type: string
       description: Maximo Application Suite Application ID
-    - name: mas_app_channnel
+    - name: mas_app_channel
       type: string
       description: Instance ID
 
