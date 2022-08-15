@@ -13,7 +13,30 @@ function pipeline_config() {
   fi
   prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
 
+  MAS_CATALOG_SOURCE=ibm-operator-catalog
   if [[ -z "$AIRGAP_MODE" ]]; then
+    prompt_for_confirm "Use online catalog?" USE_ONLINE_CATALOG
+    if [[ "$USE_ONLINE_CATALOG" == "true" ]]; then
+      MAS_CATALOG_VERSION=v8-amd64
+    else
+      echo -e "${COLOR_YELLOW}Catalog Version:"
+      echo "  1. v8 (2022-08-05)"
+      echo "  2. v8 (2022-07-17)"
+      prompt_for_input "Select Catalog Source" MAS_CATALOG_SELECTION "1"
+
+      case $MAS_CATALOG_SELECTION in
+        1|220805|2022-08-05)
+          MAS_CATALOG_VERSION=v8-220805-amd64
+          ;;
+        2|220717|2022-07-17)
+          MAS_CATALOG_VERSION=v8-220717-amd64
+          ;;
+        *)
+          exit 1
+          ;;
+      esac
+    fi
+
     echo -e "${COLOR_YELLOW}MAS Version:"
     echo "  1. 8.8"
     echo "  2. 8.7"
@@ -23,20 +46,14 @@ function pipeline_config() {
     case $MAS_CHANNEL_SELECTION in
       1|8.8|8.8.x)
         MAS_CHANNEL=8.8.x
-        MAS_CATALOG_SOURCE=ibm-operator-catalog
-        MAS_CATALOG_VERSION=v8
         ;;
 
       2|8.7|8.7.x)
         MAS_CHANNEL=8.7.x
-        MAS_CATALOG_SOURCE=ibm-operator-catalog
-        MAS_CATALOG_VERSION=v8
         ;;
 
       3|8.6|8.6.x)
         MAS_CHANNEL=8.6.x
-        MAS_CATALOG_SOURCE=ibm-operator-catalog
-        MAS_CATALOG_VERSION=v8
         ;;
 
       *)

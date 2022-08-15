@@ -1,0 +1,17 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: $MAS_INSTANCE_ID-update-
+  labels:
+    tekton.dev/pipeline: mas-update
+spec:
+  pipelineRef:
+    name: mas-update
+
+  serviceAccountName: pipeline
+  timeout: 1h
+
+  params:
+    - name: mas_catalog_version
+      value: '$MAS_CATALOG_VERSION'
