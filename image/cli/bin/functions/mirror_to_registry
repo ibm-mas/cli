@@ -435,7 +435,8 @@ function mirror_to_registry() {
 
   echo "${TEXT_DIM}"
   echo_h2 "IBM Operator Catalog" "    "
-  if [[ "$MIRROR_MAS_CORE" == "true" || "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" \
+  if [[ "$MIRROR_MAS_CORE" == "true" || "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_IOT" == "true" \
+        || "$MIRROR_MAS_MANAGE" == "true" || "$MIRROR_MAS_MONITOR" == "true" || "$MIRROR_MAS_PREDICT" == "true" \
         || "$MIRROR_MAS_OPTIMIZER" == "true" || "$MIRROR_MAS_SAFETY" == "true" || "$MIRROR_MAS_VISUALINSPECTION" == "true" ]]
   then
     echo_reset_dim "Catalog Version ..................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
