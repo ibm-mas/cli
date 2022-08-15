@@ -61,6 +61,9 @@ EOM
 
 
 function mirror_to_registry_noninteractive() {
+  # Red Hat
+  MIRROR_RH_RELEASE=false
+  MIRROR_RH_OPERATORS=false
   # Main content
   MIRROR_MAS_CORE=false
   MIRROR_MAS_ASSIST=false
@@ -197,9 +200,11 @@ function mirror_to_registry_noninteractive() {
     [[ -z "$MAS_CATALOG_VERSION" ]] && mirror_to_registry_help "MAS_CATALOG_VERSION is not set"
     [[ -z "$IBM_ENTITLEMENT_KEY" ]] && mirror_to_registry_help "IBM_ENTITLEMENT_KEY is not set"
   fi
-  if [[ $MIRROR_UDS == "true" || $MIRROR_RH_RELEASE == "true" || $MIRROR_RH_OPERATORS == "true" ]]; then
-    [[ -z "$REDHAT_CONNECT_USERNAME" ]] && mirror_to_registry_help "REDHAT_CONNECT_USERNAME is not set"
-    [[ -z "$REDHAT_CONNECT_PASSWORD" ]] && mirror_to_registry_help "REDHAT_CONNECT_PASSWORD is not set"
+  if [[ $MIRROR_MAS_CORE == "true" ]]; then
+    if [[ $MIRROR_UDS == "true" || $MIRROR_RH_RELEASE == "true" || $MIRROR_RH_OPERATORS == "true" ]]; then
+      [[ -z "$REDHAT_CONNECT_USERNAME" ]] && mirror_to_registry_help "REDHAT_CONNECT_USERNAME is not set"
+      [[ -z "$REDHAT_CONNECT_PASSWORD" ]] && mirror_to_registry_help "REDHAT_CONNECT_PASSWORD is not set"
+    fi
   fi
 }
 
