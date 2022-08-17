@@ -270,7 +270,7 @@ function mirror_to_registry_interactive() {
 
     # Core + Dependencies
     MIRROR_MAS_CORE=true
-    MIRROR_COMMONSERVICES=truE
+    MIRROR_COMMONSERVICES=true
     MIRROR_UDS=true
     MIRROR_SLS=true
     MIRROR_TRUSTSTOREMGR=true
@@ -489,19 +489,19 @@ function mirror_to_registry() {
     fi
     # IoT & Manage Dependencies
     if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
-      show_mirror_status " + IBM Db2 .......................... " $MIRROR_DB2U
+      show_mirror_status " + IBM Db2 .........................." $MIRROR_DB2U
     fi
     # HP Utilities Dependencies
     if [[ "$MIRROR_MAS_HPUTILITIES" == "true" ]]; then
-      show_mirror_status " + IBM Application Connect .......... " MIRROR_APPCONNECT
+      show_mirror_status " + IBM Application Connect .........." $MIRROR_APPCONNECT
     fi
     # Assist & HP Utilities and Predict Dependencies
     if [[ "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_PREDICT" == "true" ]]; then
-      show_mirror_status " + IBM Cloud Pak for Data ........... " MIRROR_CP4D
+      show_mirror_status " + IBM Cloud Pak for Data ..........." $MIRROR_CP4D
     fi
     # Assist Dependencies
     if [[ "$MIRROR_MAS_ASSIST" == "true" ]]; then
-      show_mirror_status " + IBM Watson Discovery ............. " MIRROR_WD
+      show_mirror_status " + IBM Watson Discovery ............." $MIRROR_WD
     fi
   else
     echo_reset_dim "${COLOR_RED}Skip"
