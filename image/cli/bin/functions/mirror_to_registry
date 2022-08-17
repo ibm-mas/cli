@@ -78,11 +78,14 @@ function mirror_to_registry_noninteractive() {
   MIRROR_MAS_X=false
   # Dependencies
   MIRROR_COMMONSERVICES=true
-  MIRROR_UDS=true
+  MIRROR_APPCONNECT=false
+  MIRROR_CP4D=false
+  MIRROR_DB2U=true
+  MIRROR_MONGOCE=true
   MIRROR_SLS=true
   MIRROR_TRUSTSTOREMGR=true
-  MIRROR_MONGOCE=true
-  MIRROR_DB2U=true
+  MIRROR_UDS=true
+  MIRROR_WD=false
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -127,10 +130,14 @@ function mirror_to_registry_noninteractive() {
       --mirror-assist)
         MIRROR_MAS_ASSIST=true
         MIRROR_MAS_X=true
+        MIRROR_CP4D=true
+        MIRROR_WD=true
         ;;
       --mirror-hputilities)
         MIRROR_MAS_HPUTILITIES=true
         MIRROR_MAS_X=true
+        MIRROR_CP4D=true
+        MIRROR_APPCONNECT=true
         ;;
       --mirror-iot)
         MIRROR_MAS_IOT=true
@@ -147,6 +154,7 @@ function mirror_to_registry_noninteractive() {
       --mirror-predict)
         MIRROR_MAS_PREDICT=true
         MIRROR_MAS_X=true
+        MIRROR_CP4D=true
         ;;
       --mirror-optimizer)
         MIRROR_MAS_OPTIMIZER=true
@@ -262,7 +270,7 @@ function mirror_to_registry_interactive() {
 
     # Core + Dependencies
     MIRROR_MAS_CORE=true
-    MIRROR_COMMONSERVICES=true
+    MIRROR_COMMONSERVICES=truE
     MIRROR_UDS=true
     MIRROR_SLS=true
     MIRROR_TRUSTSTOREMGR=true
@@ -278,7 +286,10 @@ function mirror_to_registry_interactive() {
     MIRROR_MAS_SAFETY=true
     MIRROR_MAS_VISUALINSPECTION=true
     # App Dependencies
+    MIRROR_APPCONNECT=true
+    MIRROR_CP4D=true
     MIRROR_DB2U=true
+    MIRROR_WD=true
   else
     prompt_for_confirm "Red Hat OpenShift Container Platform Release" MIRROR_RH_RELEASE
     if [[ "$MIRROR_RH_RELEASE" == "true" ]]; then
@@ -299,7 +310,8 @@ function mirror_to_registry_interactive() {
       prompt_for_confirm_default_yes " + MongoDb Community Edition" MIRROR_MONGOCE
     fi
 
-    prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_HPUTILITIES
+    prompt_for_confirm "IBM Maximo Application Suite - Assist" MIRROR_MAS_ASSIST
+    prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_IOT
     prompt_for_confirm "IBM Maximo Application Suite - HP Utilities" MIRROR_MAS_HPUTILITIES
     prompt_for_confirm "IBM Maximo Application Suite - Manage" MIRROR_MAS_MANAGE
     prompt_for_confirm "IBM Maximo Application Suite - Monitor" MIRROR_MAS_MONITOR
@@ -309,6 +321,15 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm "IBM Maximo Application Suite - Visual Inspection" MIRROR_MAS_VISUALINSPECTION
     if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
       prompt_for_confirm_default_yes " + IBM Db2" MIRROR_DB2U
+    fi
+    if [[ "$MIRROR_MAS_HPUTILITIES" == "true" ]]; then
+      prompt_for_confirm_default_yes " + IBM Application Connect" MIRROR_APPCONNECT
+    fi
+    if [[ "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_PREDICT" == "true" ]]; then
+      prompt_for_confirm_default_yes " + IBM Cloud Pak for Data" MIRROR_CP4D
+    fi
+    if [[ "$MIRROR_MAS_ASSIST" == "true" ]]; then
+      prompt_for_confirm_default_yes " + IBM Watson Discovery" MIRROR_WD
     fi
   fi
 
@@ -390,6 +411,9 @@ function mirror_to_registry() {
   export MIRROR_MAS_SAFETY
   export MIRROR_MAS_VISUALINSPECTION
   export MIRROR_DB2U
+  export MIRROR_APPCONNECT
+  export MIRROR_CP4D
+  export MIRROR_WD
   # Authentication
   export IBM_ENTITLEMENT_KEY
   export REDHAT_CONNECT_USERNAME
@@ -466,6 +490,18 @@ function mirror_to_registry() {
     # IoT & Manage Dependencies
     if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
       show_mirror_status " + IBM Db2 .......................... " $MIRROR_DB2U
+    fi
+    # HP Utilities Dependencies
+    if [[ "$MIRROR_MAS_HPUTILITIES" == "true" ]]; then
+      show_mirror_status " + IBM Application Connect .......... " MIRROR_APPCONNECT
+    fi
+    # Assist & HP Utilities and Predict Dependencies
+    if [[ "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_PREDICT" == "true" ]]; then
+      show_mirror_status " + IBM Cloud Pak for Data ........... " MIRROR_CP4D
+    fi
+    # Assist Dependencies
+    if [[ "$MIRROR_MAS_ASSIST" == "true" ]]; then
+      show_mirror_status " + IBM Watson Discovery ............. " MIRROR_WD
     fi
   else
     echo_reset_dim "${COLOR_RED}Skip"
