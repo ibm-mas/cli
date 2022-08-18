@@ -471,6 +471,7 @@ function mirror_to_registry() {
 
     # Applications
     show_mirror_status "IBM Maximo Assist ..................." $MIRROR_MAS_ASSIST
+    show_mirror_status "IBM Maximo HP Utilities ............." $MIRROR_MAS_HPUTILITIES
     show_mirror_status "IBM Maximo IoT ......................" $MIRROR_MAS_IOT
     show_mirror_status "IBM Maximo Manage ..................." $MIRROR_MAS_MANAGE
     show_mirror_status "IBM Maximo Monitor .................." $MIRROR_MAS_MONITOR
