@@ -1311,9 +1311,12 @@ spec:
       taskRef:
         name: mas-devops-suite-app-install
         kind: Task
-      # Only install Monitor if a channel has been chosen
+      # Only install Monitor if a channel has been chosen for both Monitor and IoT
       when:
         - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_iot)"
           operator: notin
           values: [""]
       runAfter:
@@ -1338,9 +1341,12 @@ spec:
       taskRef:
         name: mas-devops-suite-app-config
         kind: Task
-      # Only configure a workspace for Monitor if a channel has been chosen
+      # Only configure a workspace for Monitor if a channel has been chosen for both Monitor and IoT
       when:
         - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_iot)"
           operator: notin
           values: [""]
       runAfter:
@@ -1385,9 +1391,12 @@ spec:
       taskRef:
         name: mas-devops-suite-app-install
         kind: Task
-      # Only install Safety if a channel has been chosen
+      # Only install Safety if a channel has been chosen for both IoT and Safety
       when:
         - input: "$(params.mas_app_channel_safety)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_iot)"
           operator: notin
           values: [""]
       runAfter:
@@ -1412,9 +1421,12 @@ spec:
       taskRef:
         name: mas-devops-suite-app-config
         kind: Task
-      # Only install Safety if a channel has been chosen
+      # Only install Safety if a channel has been chosen for both Safety and IoT
       when:
         - input: "$(params.mas_app_channel_safety)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_iot)"
           operator: notin
           values: [""]
       runAfter:
@@ -1560,9 +1572,12 @@ spec:
       taskRef:
         name: mas-devops-suite-app-install
         kind: Task
-      # Only install Predict if a channel has been chosen
+      # Only install Predict if a channel has been chosen for both Predict and Manage
       when:
         - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
           operator: notin
           values: [""]
       runAfter:
@@ -1592,9 +1607,12 @@ spec:
       taskRef:
         name: mas-devops-suite-app-config
         kind: Task
-      # Only install Predict if a channel has been chosen
+      # Only install Predict if a channel has been chosen for both Predict and Manage
       when:
         - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
           operator: notin
           values: [""]
       runAfter:
@@ -1716,9 +1734,12 @@ spec:
       taskRef:
         name: mas-devops-suite-app-install
         kind: Task
-      # Only install HPUtilities if a channel has been chosen
+      # Only install HPUtilities if a channel has been chosen for both HPUtilities and Manage
       when:
         - input: "$(params.mas_app_channel_hputilities)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
           operator: notin
           values: [""]
       runAfter:
@@ -1745,9 +1766,12 @@ spec:
       taskRef:
         name: mas-devops-suite-app-config
         kind: Task
-      # Only install HPUtilities if a channel has been chosen
+      # Only install HPUtilities if a channel has been chosen for both HPUtilities and Manage
       when:
         - input: "$(params.mas_app_channel_hputilities)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
           operator: notin
           values: [""]
       runAfter:
