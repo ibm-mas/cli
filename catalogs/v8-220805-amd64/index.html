@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/catalogs/v8-220805-amd64/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>v8-220805-amd64 - MAS CLI</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "v8-220805-amd64";
+        var mkdocs_page_input_path = "catalogs/v8-220805-amd64.md";
+        var mkdocs_page_url = "/cli/catalogs/v8-220805-amd64/";
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/yaml.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> MAS CLI
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../changes/">Changes</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/airgap-install/">Air Gap Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/choosing-the-right-catalog/">Choosing the Right Catalog</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Commands</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-fyre/">provision-fyre</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-roks/">provision-roks</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-rosa/">provision-rosa</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/setup-registry/">setup-registry</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-images/">mirror-images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configure-airgap/">configure-airgap</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/install/">install</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Catalogs</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">v8-220805-amd64</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#catalog-details">Catalog Details</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#catalog-source">Catalog Source</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#catalog-content">Catalog Content</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#ibm-maximo-application-suite">IBM Maximo Application Suite</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#ibm-utilities">IBM Utilities</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#ibm-cloud-pak-foundational-services">IBM Cloud Pak Foundational Services</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#ibm-cloud-pak-for-data">IBM Cloud Pak for Data</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#ibm-appconnect">IBM AppConnect</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../v8-220717-amd64/">v8-220717-amd64</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">MAS CLI</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Catalogs &raquo;</li>
+      <li>v8-220805-amd64</li>
+    <li class="wy-breadcrumbs-aside">
+        <a href="https://github.com/ibm-mas/cli/blob/master/docs/catalogs/v8-220805-amd64.md"
+          class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="ibm-maximo-operator-catalog-v8-aug-5-2022">IBM Maximo Operator Catalog v8 Aug 5 2022<a class="headerlink" href="#ibm-maximo-operator-catalog-v8-aug-5-2022" title="Permanent link"></a></h1>
+<h2 id="catalog-details">Catalog Details<a class="headerlink" href="#catalog-details" title="Permanent link"></a></h2>
+<ul>
+<li>Image: <code>icr.io/cpopen/ibm-maximo-operator-catalog</code></li>
+<li>Tag: <code>v8-220805-amd64</code></li>
+<li>Digest: <code>sha256:012839d2dd801863b5a1f35de3d1e1e39d8e4a3e707f894beee091608c09aca4</code></li>
+</ul>
+<h2 id="catalog-source">Catalog Source<a class="headerlink" href="#catalog-source" title="Permanent link"></a></h2>
+<pre><code class="language-yaml">apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: IBM Maximo Operators (v8-220805-amd64)
+  publisher: IBM
+  description: Static Catalog Source for IBM Maximo Application Suite
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-maximo-operator-catalog@sha256:012839d2dd801863b5a1f35de3d1e1e39d8e4a3e707f894beee091608c09aca4
+  priority: 90
+</code></pre>
+<h2 id="catalog-content">Catalog Content<a class="headerlink" href="#catalog-content" title="Permanent link"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Changes from previous catalog (<a href="../v8-220717-amd64/">v8-220717-amd64</a>) are highlighted in <strong>bold</strong>.</p>
+</div>
+<h3 id="ibm-maximo-application-suite">IBM Maximo Application Suite<a class="headerlink" href="#ibm-maximo-application-suite" title="Permanent link"></a></h3>
+<ul>
+<li>ibm-mas v8.8.0, v8.7.3, v8.6.4, v8.5.2</li>
+<li>ibm-mas-assist v8.5.0, v8.4.0, v8.3.0, v8.2.0</li>
+<li>ibm-mas-hputilities v8.4.0, v8.3.0, v8.2.0</li>
+<li>ibm-mas-iot <strong>v8.5.1</strong>, v8.4.0</li>
+<li>ibm-mas-manage v8.4.0, v8.3.0, v8.2.0, v8.1.0</li>
+<li>ibm-mas-monitor v8.8.0, v8.7.2, v8.6.4</li>
+<li>ibm-mas-mso v8.1.0, v8.0.3</li>
+<li>ibm-mas-optimizer v8.2.0</li>
+<li>ibm-mas-predict v8.6.0, v8.5.1, v8.4.1</li>
+<li>ibm-mas-safety v8.3.0, v8.2.2</li>
+<li>ibm-mas-visualinspection v8.6.0, v8.5.0, v8.4.0, v8.3.0</li>
+</ul>
+<h3 id="ibm-utilities">IBM Utilities<a class="headerlink" href="#ibm-utilities" title="Permanent link"></a></h3>
+<ul>
+<li>ibm-sls <strong>v3.4.1</strong></li>
+<li>ibm-truststore-mgr v1.3.0</li>
+</ul>
+<h3 id="ibm-cloud-pak-foundational-services">IBM Cloud Pak Foundational Services<a class="headerlink" href="#ibm-cloud-pak-foundational-services" title="Permanent link"></a></h3>
+<ul>
+<li>ibm-common-service-operator v3.19.1</li>
+<li>ibm-namespace-scope-operator v1.13.1</li>
+<li>ibm-odlm v1.17.1</li>
+<li>ibm-cert-manager-operator v3.21.1</li>
+<li>ibm-user-data-services-operator v2.0.8</li>
+<li>ibm-events-operator v4.2.0</li>
+<li>db2u-operator v1.1.13</li>
+<li>ibm-licensing-operator-app v1.16.1</li>
+<li>ibm-zen-operator v1.5.4 (channel capped due to breaking changes introduced in v1.6.0)</li>
+</ul>
+<h3 id="ibm-cloud-pak-for-data">IBM Cloud Pak for Data<a class="headerlink" href="#ibm-cloud-pak-for-data" title="Permanent link"></a></h3>
+<ul>
+<li>cpd-platform-operator v2.0.8</li>
+<li>ibm-cpd-wsl v2.0.9</li>
+<li>ibm-cpd-css v1.0.9</li>
+<li>ibm-cpd-datarefinery</li>
+<li>ibm-cpd-ws-runtimes v1.0.9</li>
+<li>ibm-cpd-wml-operator v1.1.8</li>
+<li>analyticsengine-operator v1.0.9</li>
+<li>ibm-cpd-wos v1.5.4</li>
+<li>ibm-watson-discovery-operator v4.0.9</li>
+<li>ibm-watson-gateway-operator v1.0.12</li>
+<li>ibm-rabbitmq-operator v1.0.11</li>
+<li>ibm-model-train-operator v1.1.2</li>
+<li>ibm-minio-operator v1.0.10</li>
+<li>ibm-etcd-operator v1.0.10</li>
+<li>ibm-elasticsearch-operator v1.1.1042</li>
+</ul>
+<h3 id="ibm-appconnect">IBM AppConnect<a class="headerlink" href="#ibm-appconnect" title="Permanent link"></a></h3>
+<ul>
+<li>ibm-appconnect v3.0.0</li>
+<li>couchdb-operator v2.2.1</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/ibm-mas/cli" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../../commands/install/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../v8-220717-amd64/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

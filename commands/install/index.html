@@ -50,21 +50,29 @@
                 <li class="toctree-l1"><a class="reference internal" href="../../changes/">Changes</a>
                 </li>
               </ul>
-              <p class="caption"><span class="caption-text">OCP Provisioning</span></p>
+              <p class="caption"><span class="caption-text">Guides</span></p>
               <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/airgap-install/">Air Gap Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/choosing-the-right-catalog/">Choosing the Right Catalog</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Commands</span></p>
+              <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../provision-fyre/">provision-fyre</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../provision-roks/">provision-roks</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../provision-rosa/">provision-rosa</a>
                   </li>
-              </ul>
-              <p class="caption"><span class="caption-text">MAS Installation</span></p>
-              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../setup-registry/">setup-registry</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../mirror-images/">mirror-images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../configure-airgap/">configure-airgap</a>
+                  </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">install</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#details">Details</a>
-    </li>
     <li class="toctree-l2"><a class="reference internal" href="#pre-reqs">Pre-reqs</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#1-ibm-entitlement-key">1. IBM Entitlement key</a>
@@ -75,18 +83,28 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#mustgather">Mustgather</a>
+    <li class="toctree-l2"><a class="reference internal" href="#air-gap-support">Air Gap Support</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#must-gather">Must Gather</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#more-information">More Information</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#the-automation-engine">The Automation Engine</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#the-automation-driver">The Automation Driver</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#support">Support</a>
+    </li>
+        </ul>
     </li>
     </ul>
                   </li>
               </ul>
-              <p class="caption"><span class="caption-text">Air Gap Support</span></p>
+              <p class="caption"><span class="caption-text">Catalogs</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../setup-registry/">setup-registry</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-220805-amd64/">v8-220805-amd64</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../mirror-images/">mirror-images</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../configure-airgap/">configure-airgap</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-220717-amd64/">v8-220717-amd64</a>
                   </li>
               </ul>
       </div>
@@ -103,7 +121,7 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
-          <li>MAS Installation &raquo;</li>
+          <li>Commands &raquo;</li>
       <li>install</li>
     <li class="wy-breadcrumbs-aside">
         <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/install.md"
@@ -116,45 +134,9 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="install">Install<a class="headerlink" href="#install" title="Permanent link"></a></h1>
-<h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link"></a></h2>
-<p>The install is performed inside your RedHat OpenShift cluster utilizing <a href="https://cloud.redhat.com/learn/topics/ci-cd">Openshift Pipelines</a></p>
-<blockquote>
-<p>OpenShift Pipelines is a Kubernetes-native CI/CD solution based on Tekton. It builds on Tekton to provide a CI/CD experience through tight integration with OpenShift and Red Hat developer tools. OpenShift Pipelines is designed to run each step of the CI/CD pipeline in its own container, allowing each step to scale independently to meet the demands of the pipeline.</p>
-</blockquote>
-<p><img alt="" src="../../img/pipeline.png" /></p>
-<p>The installer supports:</p>
-<ul>
-<li>IBM operator catalog configuration</li>
-<li>Required dependency installation:<ul>
-<li>MongoDb</li>
-<li>IBM Suite License Service</li>
-<li>IBM User Data Services</li>
-<li>IBM Certificate Manager</li>
-<li>Red Hat Service Binding Operator</li>
-</ul>
-</li>
-<li>Optional dependency installation:<ul>
-<li>Apache Kafka</li>
-<li>IBM Db2</li>
-<li>IBM Cloud Pak for Data<ul>
-<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-discovery">Watson Discovery</a></li>
-<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-studio">Watson Studio</a></li>
-<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-machine-learning">Watson Machine Learning</a></li>
-<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-openscale">Watson OpenScale</a></li>
-<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-analytics-engine-powered-by-apache-spark">Analytics Engine (Apache Spark)</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li>Suite core services installation</li>
-<li>Suite application installation</li>
-</ul>
-<p>The installer will automatically provision and set up the required dependencies based on the applications that you select to install.</p>
-<p>The install can be launched with the command <code>mas install</code>.  The end result will be a pipeline run being started in your target cluster where you can track the progress of the installation.</p>
-<p><img alt="" src="../../img/pipelineruns.png" /></p>
 <h2 id="pre-reqs">Pre-reqs<a class="headerlink" href="#pre-reqs" title="Permanent link"></a></h2>
 <h3 id="1-ibm-entitlement-key">1. IBM Entitlement key<a class="headerlink" href="#1-ibm-entitlement-key" title="Permanent link"></a></h3>
-<p>Access <a href="https://myibm.ibm.com/products-services/containerlibrary">Container Software Library</a> using your IBMId to access your entitlement key</p>
+<p>Access <a href="https://myibm.ibm.com/products-services/containerlibrary">Container Software Library</a> using your IBMId to obtain your entitlement key.</p>
 <h3 id="2-mas-license-file">2. MAS License File<a class="headerlink" href="#2-mas-license-file" title="Permanent link"></a></h3>
 <p>Access <a href="https://licensing.subscribenet.com/control/ibmr/login">IBM License Key Center</a>, on the <strong>Get Keys</strong> menu select <strong>IBM AppPoint Suites</strong>.  Select <code>IBM MAXIMO APPLICATION SUITE AppPOINT LIC</code> and on the next page fill in the information as below:</p>
 <table>
@@ -193,22 +175,86 @@
 <p>For more information about how to access the IBM License Key Center review the <a href="https://www.ibm.com/support/pages/system/files/inline-files/GettingStartedEnglish_2020.pdf">getting started documentation</a> available from the IBM support website.</p>
 </div>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
+<p>The install is an interactive command.  At present there is no support for an
+unattended install, but this is planned for the future.</p>
+<pre><code class="language-bash">docker pull quay.io/ibmmas/cli
+docker run -ti --rm -v ~:/home/local quay.io/ibmmas/cli
+mas install
+</code></pre>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>We will need the <code>entitlement.lic</code> file to perform the installation which is why we mount your home directory into the container.  If you saved the entitlement file elsewhere, mount that directory instead.</p>
 <p>When prompted you will be able to set license file to <code>/home/local/entitlement.lic</code></p>
 </div>
-<pre><code class="language-bash">docker pull quay.io/ibmmas/cli
-docker run -ti --rm -v ~:/home/local quay.io/ibmmas/cli
-mas install
-</code></pre>
-<h2 id="mustgather">Mustgather<a class="headerlink" href="#mustgather" title="Permanent link"></a></h2>
+<h2 id="air-gap-support">Air Gap Support<a class="headerlink" href="#air-gap-support" title="Permanent link"></a></h2>
+<p>If you have already ran <code>mas configure-airgap</code> to install the ImageContentSourcePolicy for IBM Maximo Application Suite then the installer will automatically detect the presence of this and tailor the installation configuration for a disconnected installation.</p>
+<p>A number of applications are not currently available when using a private mirror registry in this fashion, as a result you will not be asked whether you wish to install these applications:</p>
+<ul>
+<li>Maximo Assist</li>
+<li>Maximo Health &amp; Predict Utilities</li>
+<li>Maximo Monitor</li>
+<li>Maximo Predict</li>
+<li>Maximo Safety</li>
+<li>Maximo Visual Inspection</li>
+</ul>
+<h2 id="must-gather">Must Gather<a class="headerlink" href="#must-gather" title="Permanent link"></a></h2>
 <p>The pipeline sets a "finally" block that is executed at the end of the steps regardless of success or failure. Inside this finally block the <strong>mustgather</strong> Task is executed which runs the IBM AI Applications' Must Gather tool against a MAS instance. It uses the mustgather workspace to persist the output into a Persistent Volume for retrieval after the pipeline has completed.</p>
 <p>Users can then use the <strong>ibm.mas_devops.suite_mustgather_download</strong> playbook locally to pull the mustgather output from the persistent volume.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The <strong>mustgather</strong> Task will clear any previous content found in the <code>/workspace/mustgather</code> persistent volume before each call to the mustgather playbook. This is to ensure that the persistent volume does not become full after multiple runs using the same persistent volume/namespace.</p>
 </div>
+<h2 id="more-information">More Information<a class="headerlink" href="#more-information" title="Permanent link"></a></h2>
+<p>The install is designed to work on any OCP cluster, but has been specifically tested in these environments:</p>
+<ul>
+<li>IBMCloud ROKS</li>
+<li>Microsoft Azure</li>
+<li>AWS ROSA</li>
+<li>IBM DevIT FYRE (internal)</li>
+</ul>
+<h3 id="the-automation-engine">The Automation Engine<a class="headerlink" href="#the-automation-engine" title="Permanent link"></a></h3>
+<p>The engine that performs all tasks is written in Ansible, you can directly use the same automation outside of this CLI if you wish.  The code is open source and available in <a href="https://github.com/ibm-mas/ansible-devops">ibm-mas/ansible-devops</a> and <a href="https://github.com/ibm-mas/ansible-airgap">ibm-mas/ansible-airgap</a>, the collections are also available to install directly from Ansible Galaxy:</p>
+<ul>
+<li><a href="https://galaxy.ansible.com/ibm/mas_devops">Ansible Galaxy: ibm.mas_devops</a></li>
+<li><a href="https://galaxy.ansible.com/ibm/mas_airgap">Ansible Galaxy: ibm.mas_airgap</a></li>
+</ul>
+<h3 id="the-automation-driver">The Automation Driver<a class="headerlink" href="#the-automation-driver" title="Permanent link"></a></h3>
+<p>The install is performed inside your RedHat OpenShift cluster utilizing <a href="https://cloud.redhat.com/learn/topics/ci-cd">Openshift Pipelines</a></p>
+<blockquote>
+<p>OpenShift Pipelines is a Kubernetes-native CI/CD solution based on Tekton. It builds on Tekton to provide a CI/CD experience through tight integration with OpenShift and Red Hat developer tools. OpenShift Pipelines is designed to run each step of the CI/CD pipeline in its own container, allowing each step to scale independently to meet the demands of the pipeline.</p>
+</blockquote>
+<p><img alt="" src="../../img/pipeline.png" /></p>
+<h3 id="support">Support<a class="headerlink" href="#support" title="Permanent link"></a></h3>
+<p>The installer supports:</p>
+<ul>
+<li>IBM Maximo Operator Catalog installation</li>
+<li>Required dependency installation:<ul>
+<li>MongoDb</li>
+<li>IBM Suite License Service</li>
+<li>IBM User Data Services</li>
+<li>IBM Certificate Manager</li>
+<li>Red Hat Service Binding Operator (for MAS 8.6 and 8.7)</li>
+</ul>
+</li>
+<li>Optional dependency installation:<ul>
+<li>Apache Kafka</li>
+<li>IBM Db2</li>
+<li>IBM Cloud Pak for Data Platform and Services<ul>
+<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-discovery">Watson Discovery</a></li>
+<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-studio">Watson Studio</a></li>
+<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-machine-learning">Watson Machine Learning</a></li>
+<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-openscale">Watson OpenScale</a></li>
+<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-analytics-engine-powered-by-apache-spark">Analytics Engine (Apache Spark)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Suite core services installation</li>
+<li>Suite application installation</li>
+</ul>
+<p>The installer will automatically provision and set up the required dependencies based on the applications that you select to install.</p>
+<p>The install can be launched with the command <code>mas install</code>.  The end result will be a pipeline run started in your target cluster where you can track the progress of the installation.</p>
+<p><img alt="" src="../../img/pipelineruns.png" /></p>
               
             </div>
           </div><footer>
@@ -237,10 +283,10 @@ mas install
         </span>
     
     
-      <span><a href="../provision-rosa/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../configure-airgap/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../setup-registry/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../../catalogs/v8-220805-amd64/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

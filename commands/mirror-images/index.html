@@ -50,22 +50,21 @@
                 <li class="toctree-l1"><a class="reference internal" href="../../changes/">Changes</a>
                 </li>
               </ul>
-              <p class="caption"><span class="caption-text">OCP Provisioning</span></p>
+              <p class="caption"><span class="caption-text">Guides</span></p>
               <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/airgap-install/">Air Gap Installation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/choosing-the-right-catalog/">Choosing the Right Catalog</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Commands</span></p>
+              <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../provision-fyre/">provision-fyre</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../provision-roks/">provision-roks</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../provision-rosa/">provision-rosa</a>
                   </li>
-              </ul>
-              <p class="caption"><span class="caption-text">MAS Installation</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../install/">install</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Air Gap Support</span></p>
-              <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../setup-registry/">setup-registry</a>
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">mirror-images</a>
@@ -84,6 +83,8 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#maximo-iot-image-mirroring-configuration">Maximo IoT Image Mirroring Configuration</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#maximo-manage-image-mirroring-configuration">Maximo Manage Image Mirroring Configuration</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#other-commands">Other Commands</a>
     </li>
         </ul>
@@ -100,6 +101,15 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../configure-airgap/">configure-airgap</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../install/">install</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Catalogs</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-220805-amd64/">v8-220805-amd64</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-220717-amd64/">v8-220717-amd64</a>
+                  </li>
               </ul>
       </div>
     </div>
@@ -115,7 +125,7 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
-          <li>Air Gap Support &raquo;</li>
+          <li>Commands &raquo;</li>
       <li>mirror-images</li>
     <li class="wy-breadcrumbs-aside">
         <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/mirror-images.md"
@@ -154,7 +164,15 @@
 <ul>
 <li><code>-c|--catalog MAS_CATALOG_VERSION</code> Maximo Operator Catalog Version to mirror (e.g. v8-220717)</li>
 <li><code>--mirror-core</code> Mirror images for IBM Maximo Application Suite Core &amp; dependencies</li>
+<li><code>--mirror-assist</code>  Mirror images for IBM Maximo Assist</li>
+<li><code>--mirror-hputilities</code> Mirror images for IBM Maximo Health &amp; Predict Utilities</li>
 <li><code>--mirror-iot</code> Mirror images for IBM Maximo IoT &amp; dependencies</li>
+<li><code>--mirror-manage</code> Mirror images for IBM Maximo Manage &amp; dependencies</li>
+<li><code>--mirror-monitor</code> Mirror images for IBM Maximo Monitor</li>
+<li><code>--mirror-predict</code> Mirror images for IBM Maximo Predict</li>
+<li><code>--mirror-optimizer</code> Mirror images for IBM Maximo Optimizer</li>
+<li><code>--mirror-safety</code> Mirror images for IBM Maximo Safety</li>
+<li><code>--mirror-visualinspection</code> Mirror images for IBM Maximo Visual Inspection</li>
 </ul>
 <h3 id="maximo-core-image-mirroring-configuration">Maximo Core Image Mirroring Configuration<a class="headerlink" href="#maximo-core-image-mirroring-configuration" title="Permanent link"></a></h3>
 <p>Optional</p>
@@ -170,6 +188,11 @@
 <ul>
 <li><code>--skip-db2</code> Skip mirroring images for IBM Db2</li>
 </ul>
+<h3 id="maximo-manage-image-mirroring-configuration">Maximo Manage Image Mirroring Configuration<a class="headerlink" href="#maximo-manage-image-mirroring-configuration" title="Permanent link"></a></h3>
+<p>Optional</p>
+<ul>
+<li><code>--skip-db2</code> Skip mirroring images for IBM Db2</li>
+</ul>
 <h3 id="other-commands">Other Commands<a class="headerlink" href="#other-commands" title="Permanent link"></a></h3>
 <ul>
 <li><code>--no-confirm</code> Mirror images without prompting for confirmation</li>
@@ -181,8 +204,9 @@
 docker run -ti --rm quay.io/ibmmas/cli mas mirror-images
 </code></pre>
 <h3 id="non-interactive-mode">Non-Interactive Mode<a class="headerlink" href="#non-interactive-mode" title="Permanent link"></a></h3>
+<p>The following example will mirror all images required for Maximo Application Suite Core and the Maximo IoT application without prompting for confirmation.</p>
 <pre><code>docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas mirror-images --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_CONNECT_USERNAME --redhat-password $REDHAT_CONNECT_PASSWORD -H mirror.mydomain.com -P 32500 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD -c v8-220717 --mirror-core --mirror-iot --no-confirm
+docker run -ti --rm quay.io/ibmmas/cli mas mirror-images --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_CONNECT_USERNAME --redhat-password $REDHAT_CONNECT_PASSWORD -H mirror.mydomain.com -P 32500 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD -c v8-220805 --mirror-core --mirror-iot --no-confirm
 </code></pre>
               
             </div>
