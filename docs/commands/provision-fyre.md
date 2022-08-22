@@ -1,6 +1,8 @@
-# Provision OCP on FYRE
+Provision OCP on FYRE
+===============================================================================
 
-## Usage
+Usage
+-------------------------------------------------------------------------------
 `mas provision-fyre [options]`
 
 ### FYRE Credentials
@@ -31,7 +33,8 @@ Optional, only takes effect when quota-type is set to "product_group"
 - `-h|--help` Show this help message
 
 
-## Examples
+Examples
+-------------------------------------------------------------------------------
 ### Interactive Mode
 ```bash
 docker pull quay.io/ibmmas/cli

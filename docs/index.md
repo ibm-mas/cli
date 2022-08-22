@@ -1,5 +1,5 @@
-# IBM Maximo Application Suite CLI Utility
-
+IBM Maximo Application Suite CLI Utility
+===============================================================================
 There are various dependencies to meet on your own computer to use the CLI, depending on which functions you are using:
 
 - Bash (v4)
@@ -9,17 +9,25 @@ There are various dependencies to meet on your own computer to use the CLI, depe
 - Python
 - Network access to the OpenShift cluster
 
-The best way to use the CLI is via the container image: `docker run -ti -v ~:/home/local quay.io/ibmmas/cli`.  To ensure you have the latest version of the image run `docker pull quay.io/ibmmas/cli` first.
 
-The install is designed to work on any OCP cluster, but has been specifically tested in these environments:
+Installation
+-------------------------------------------------------------------------------
+The best way to use the CLI is to not install it at all and use the container image we publish:
 
-- IBMCloud ROKS
-- Microsoft Azure
-- IBM DevIT FYRE (internal)
+```bash
+docker pull quay.io/ibmmas/cli
+docker run -ti -v ~:/home/local quay.io/ibmmas/cli
+```
 
-All settings can be controlled via environment variables to avoid needing to manually type them out, for example if you `export IBM_ENTITLEMENT_KEY=xxxx` then when you run the install that input will be prefilled with the value from the environment variable, allowing you to press Enter to continue, or modify the value if you need to.
+!!! tip
+    Running `docker pull` before `docker run` will ensure you are using the latest release of the container image.
 
-The engine that performs all tasks is written in Ansible, you can directly use the same automation outside of this CLI if you wish.  The code is open source and available in [ibm-mas/ansible-devops](https://github.com/ibm-mas/ansible-devops) and [ibm-mas/ansible-airgap](https://github.com/ibm-mas/ansible-airgap), the collections are also available to install directly from Ansible Galaxy:
+    If you want to stick with a specific release of the image you can attach a specific version tag to the docker run command: `docker run -ti -v ~:/home/local quay.io/ibmmas/cli:x.y.z`
 
-- [Ansible Galaxy: ibm.mas_devops](https://galaxy.ansible.com/ibm/mas_devops)
-- [Ansible Galaxy: ibm.mas_airgap](https://galaxy.ansible.com/ibm/mas_airgap)
+If you prefer to install the client it can be obtained from the [GitHub releases page](https://github.com/ibm-mas/cli/releases).
+
+```bash
+wget https://github.com/ibm-mas/cli/releases/download/2.3.1/ibm-mas-cli-2.3.1.tgz
+tar -xvf ibm-mas-cli-2.3.1.tgz
+./mas mirror-images
+```

@@ -1,6 +1,8 @@
-# Provision OCP on IBMCloud ROKS
+Provision OCP on IBMCloud ROKS
+===============================================================================
 
-## Usage
+Usage
+-------------------------------------------------------------------------------
 `mas provision-roks [options]`
 
 ### IBMCloud Credentials
@@ -33,7 +35,9 @@ Optional
 - `-h|--help` Show help message
 
 
-## Examples
+Examples
+-------------------------------------------------------------------------------
+
 ### Interactive Mode
 ```bash
 docker pull quay.io/ibmmas/cli

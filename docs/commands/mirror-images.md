@@ -1,6 +1,8 @@
-# Mirror Images
+Mirror Images
+===============================================================================
 
-## Usage
+Usage
+-------------------------------------------------------------------------------
 `mas mirror-images [options]`
 
 ### Registry Details
@@ -27,7 +29,15 @@ Required
 
 - `-c|--catalog MAS_CATALOG_VERSION` Maximo Operator Catalog Version to mirror (e.g. v8-220717)
 - `--mirror-core` Mirror images for IBM Maximo Application Suite Core & dependencies
+- `--mirror-assist`  Mirror images for IBM Maximo Assist
+- `--mirror-hputilities` Mirror images for IBM Maximo Health & Predict Utilities
 - `--mirror-iot` Mirror images for IBM Maximo IoT & dependencies
+- `--mirror-manage` Mirror images for IBM Maximo Manage & dependencies
+- `--mirror-monitor` Mirror images for IBM Maximo Monitor
+- `--mirror-predict` Mirror images for IBM Maximo Predict
+- `--mirror-optimizer` Mirror images for IBM Maximo Optimizer
+- `--mirror-safety` Mirror images for IBM Maximo Safety
+- `--mirror-visualinspection` Mirror images for IBM Maximo Visual Inspection
 
 ### Maximo Core Image Mirroring Configuration
 Optional
@@ -43,12 +53,18 @@ Optional
 
 - `--skip-db2` Skip mirroring images for IBM Db2
 
+### Maximo Manage Image Mirroring Configuration
+Optional
+
+- `--skip-db2` Skip mirroring images for IBM Db2
+
 ### Other Commands
 - `--no-confirm` Mirror images without prompting for confirmation
 - `-h|--help` Show help message
 
 
-## Examples
+Examples
+-------------------------------------------------------------------------------
 ### Interactive Mode
 ```bash
 docker pull quay.io/ibmmas/cli
@@ -56,7 +72,8 @@ docker run -ti --rm quay.io/ibmmas/cli mas mirror-images
 ```
 
 ### Non-Interactive Mode
+The following example will mirror all images required for Maximo Application Suite Core and the Maximo IoT application without prompting for confirmation.
 ```
 docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas mirror-images --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_CONNECT_USERNAME --redhat-password $REDHAT_CONNECT_PASSWORD -H mirror.mydomain.com -P 32500 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD -c v8-220717 --mirror-core --mirror-iot --no-confirm
+docker run -ti --rm quay.io/ibmmas/cli mas mirror-images --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_CONNECT_USERNAME --redhat-password $REDHAT_CONNECT_PASSWORD -H mirror.mydomain.com -P 32500 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD -c v8-220805 --mirror-core --mirror-iot --no-confirm
 ```
