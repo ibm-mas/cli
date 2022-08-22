@@ -129,11 +129,12 @@
               
                 <h1 id="ibm-maximo-operator-catalog-v8-jul-28-2022">IBM Maximo Operator Catalog v8 Jul 28 2022<a class="headerlink" href="#ibm-maximo-operator-catalog-v8-jul-28-2022" title="Permanent link"></a></h1>
 <h2 id="catalog-details">Catalog Details<a class="headerlink" href="#catalog-details" title="Permanent link"></a></h2>
-<ul>
-<li>Image: <code>icr.io/cpopen/ibm-maximo-operator-catalog</code></li>
-<li>Tag: <code>v8-220717-amd64</code></li>
-<li>Digest: <code>sha256:02db98338386f874dead37fb9a0b956fe59b851db09440e5523b634f7341e4bf</code></li>
-</ul>
+<table>
+  <tr><th>Image</th><td>icr.io/cpopen/ibm-maximo-operator-catalog</tr></tr>
+  <tr><th>Tag</th><td>v8-220717-amd64`</tr></tr>
+  <tr><th>Digest</th><td>sha256:02db98338386f874dead37fb9a0b956fe59b851db09440e5523b634f7341e4bf`</tr></tr>
+</table>
+
 <h2 id="catalog-source">Catalog Source<a class="headerlink" href="#catalog-source" title="Permanent link"></a></h2>
 <pre><code class="language-yaml">apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
@@ -150,19 +151,60 @@ spec:
 </code></pre>
 <h2 id="catalog-content">Catalog Content<a class="headerlink" href="#catalog-content" title="Permanent link"></a></h2>
 <h3 id="ibm-maximo-application-suite">IBM Maximo Application Suite<a class="headerlink" href="#ibm-maximo-application-suite" title="Permanent link"></a></h3>
-<ul>
-<li>ibm-mas v8.8.0, v8.7.3, v8.6.4, v8.5.2</li>
-<li>ibm-mas-assist v8.5.0, v8.4.0, v8.3.0, v8.2.0</li>
-<li>ibm-mas-hputilities v8.4.0, v8.3.0, v8.2.0</li>
-<li>ibm-mas-iot v8.5.0, v8.4.0</li>
-<li>ibm-mas-manage v8.4.0, v8.3.0, v8.2.0, v8.1.0</li>
-<li>ibm-mas-monitor v8.8.0, v8.7.2, v8.6.4</li>
-<li>ibm-mas-mso v8.1.0, v8.0.3</li>
-<li>ibm-mas-optimizer v8.2.0</li>
-<li>ibm-mas-predict v8.6.0, v8.5.1, v8.4.1</li>
-<li>ibm-mas-safety v8.3.0, v8.2.2</li>
-<li>ibm-mas-visualinspection v8.6.0, v8.5.0, v8.4.0, v8.3.0</li>
-</ul>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Versions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ibm-mas</td>
+<td>v8.8.0, v8.7.3, v8.6.4, v8.5.2</td>
+</tr>
+<tr>
+<td>ibm-mas-assist</td>
+<td>v8.5.0, v8.4.0, v8.3.0, v8.2.0</td>
+</tr>
+<tr>
+<td>ibm-mas-hputilities</td>
+<td>v8.4.0, v8.3.0, v8.2.0</td>
+</tr>
+<tr>
+<td>ibm-mas-iot</td>
+<td>v8.5.0, v8.4.0</td>
+</tr>
+<tr>
+<td>ibm-mas-manage</td>
+<td>v8.4.0, v8.3.0, v8.2.0, v8.1.0</td>
+</tr>
+<tr>
+<td>ibm-mas-monitor</td>
+<td>v8.8.0, v8.7.2, v8.6.4</td>
+</tr>
+<tr>
+<td>ibm-mas-mso</td>
+<td>v8.1.0, v8.0.3</td>
+</tr>
+<tr>
+<td>ibm-mas-optimizer</td>
+<td>v8.2.0</td>
+</tr>
+<tr>
+<td>ibm-mas-predict</td>
+<td>v8.6.0, v8.5.1, v8.4.1</td>
+</tr>
+<tr>
+<td>ibm-mas-safety</td>
+<td>v8.3.0, v8.2.2</td>
+</tr>
+<tr>
+<td>ibm-mas-visualinspection</td>
+<td>v8.6.0, v8.5.0, v8.4.0, v8.3.0</td>
+</tr>
+</tbody>
+</table>
 <h3 id="ibm-utilities">IBM Utilities<a class="headerlink" href="#ibm-utilities" title="Permanent link"></a></h3>
 <ul>
 <li>ibm-sls v3.4.0</li>
