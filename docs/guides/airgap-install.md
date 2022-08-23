@@ -1,6 +1,23 @@
 Air Gap Installation
 ===============================================================================
 
+Limitations
+-------------------------------------------------------------------------------
+Air gap installation for Maximo Application Suite is supported from MAS v8.8 onwards:
+
+| Application                | First Version to Support Air Gap  |
+| -------------------------- | --------------------------------- |
+| Core                       |  v8.8.0 (v8-2022-07-17-amd64)     |
+| Assist                     |  No support                       |
+| Health & Predict Utilities |  No support                       |
+| IoT                        |  v8.5.1 (v8-2022-08-05-amd64)     |
+| Manage                     |  v8.4.0 (v8-2022-07-17-amd64)     |
+| Monitor                    |  No support                       |
+| Optimizer                  |  v8.2.0 (v8-2022-07-17-amd64)     |
+| Predict                    |  No support                       |
+| Safety                     |  No support                       |
+| Visual Inspection          |  No support                       |
+
 Pre-requisites
 -------------------------------------------------------------------------------
 ### 1. IBM Entitlement key
@@ -24,9 +41,7 @@ The other values can be left at their defaults.  Finally, click **Generate** and
     For more information about how to access the IBM License Key Center review the [getting started documentation](https://www.ibm.com/support/pages/system/files/inline-files/GettingStartedEnglish_2020.pdf) available from the IBM support website.
 
 ### 3. Working OpenShift cluster
-
-### 4. Bastion Host
-This host must have internet connectivity and access to the target OpenShift cluster
+You should already have a target OpenShift cluster ready to install Maximo Application suite into.
 
 
 Prepare the Private Registry
@@ -57,7 +72,7 @@ For more details on this step, refer to the [install](../commands/install.md) co
 
 Populate the Mirror
 -------------------------------------------------------------------------------
-Mirroring the images is simple. You must select the version of IBM Maximo Operator Catalog that you want to mirror and the content that you wish to mirror.
+Mirroring the images is a simple but time consuming process, this step must be performed from a system with internet connectivity and network access your private registry, but does not need access to your target OpenShift cluster.
 
 !!! tip
     You can also use this command to mirror the images for OpenShift itself, but that is beyond the scope of this guide.
@@ -67,7 +82,9 @@ docker pull quay.io/ibmmas/cli
 docker run -ti quay.io/ibmmas/cli mas mirror-images
 ```
 
-You can choose to mirror everything, or control exactly what is mirrored to your private registry.  This command can also be ran non-interactive, for full details refer to the [mirror-images](../commands/mirror-images.md) command documentation.
+You will be prompted to set the target registry for the image mirroring and to [select the version of IBM Maximo Operator Catalog to mirror](choosing-the-right-catalog.md) and the subset of content that you wish to mirror  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.
+
+This command can also be ran non-interactive, for full details refer to the [mirror-images](../commands/mirror-images.md) command documentation.
 
 
 Configure the Cluster
