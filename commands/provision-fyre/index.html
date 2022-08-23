@@ -133,13 +133,11 @@
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
 <p><code>mas provision-fyre [options]</code></p>
 <h3 id="fyre-credentials">FYRE Credentials<a class="headerlink" href="#fyre-credentials" title="Permanent link"></a></h3>
-<p>Required</p>
 <ul>
 <li><code>-u|--username FYRE_USERNAME</code> FYRE username</li>
 <li><code>-a|--apikey FYRE_APIKEY</code> FYRE API key</li>
 </ul>
 <h3 id="cluster-configuration">Cluster Configuration<a class="headerlink" href="#cluster-configuration" title="Permanent link"></a></h3>
-<p>Required</p>
 <ul>
 <li><code>-p|--product-id FYRE_PRODUCT_ID</code> FYRE product group ID that will own the cluster</li>
 <li><code>-q|--quota-type FYRE_QUOTA_TYPE</code> Declare the quota to use when provisioning the cluster ("quick_burn" or "product_group")</li>
@@ -148,7 +146,6 @@
 <li><code>-d|--description FYRE_DESCRIPTION</code> Description of the OCP cluster</li>
 </ul>
 <h3 id="worker-node-configuration">Worker Node Configuration<a class="headerlink" href="#worker-node-configuration" title="Permanent link"></a></h3>
-<p>Optional, only takes effect when quota-type is set to "product_group"</p>
 <ul>
 <li><code>--worker-count FYRE_WORKER_COUNT</code> Number of worker nodes to provision</li>
 <li><code>--worker-cpu FYRE_WORKER_CPU</code> How many CPUs to allocate per worker node</li>
@@ -169,7 +166,12 @@ docker run -ti --rm quay.io/ibmmas/cli mas provision-fyre
 <pre><code class="language-bash">export FYRE_USERNAME=xxx
 export FYRE_APIKEY=xxx
 docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas provision-fyre -u $FYRE_USERNAME -a $FYRE_APIKEY -p 225 -q product_group -c masonfyre -d &quot;My Cluster&quot; -v 4.10 --worker-count 3 --worker-cpu 8 --worker-memory 32 --no-confirm
+docker run -ti --rm quay.io/ibmmas/cli mas provision-fyre \
+  -u $FYRE_USERNAME -a $FYRE_APIKEY \
+  -p 225 -q product_group \
+  -c masonfyre -d &quot;My Cluster&quot; -v 4.10 \
+  --worker-count 3 --worker-cpu 8 --worker-memory 32 \
+  --no-confirm
 </code></pre>
               
             </div>
