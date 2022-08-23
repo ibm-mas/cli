@@ -54,6 +54,8 @@
               <ul class="current">
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">Air Gap Installation</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#limitations">Limitations</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#pre-requisites">Pre-requisites</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#1-ibm-entitlement-key">1. IBM Entitlement key</a>
@@ -61,8 +63,6 @@
     <li class="toctree-l3"><a class="reference internal" href="#2-mas-license-file">2. MAS License File</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#3-working-openshift-cluster">3. Working OpenShift cluster</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#4-bastion-host">4. Bastion Host</a>
     </li>
         </ul>
     </li>
@@ -130,6 +130,58 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="air-gap-installation">Air Gap Installation<a class="headerlink" href="#air-gap-installation" title="Permanent link"></a></h1>
+<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link"></a></h2>
+<p>Air gap installation for Maximo Application Suite is supported from MAS v8.8 onwards:</p>
+<table>
+<thead>
+<tr>
+<th>Application</th>
+<th>First Version to Support Air Gap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Core</td>
+<td>v8.8.0 (v8-2022-07-17-amd64)</td>
+</tr>
+<tr>
+<td>Assist</td>
+<td>No support</td>
+</tr>
+<tr>
+<td>Health &amp; Predict Utilities</td>
+<td>No support</td>
+</tr>
+<tr>
+<td>IoT</td>
+<td>v8.5.1 (v8-2022-08-05-amd64)</td>
+</tr>
+<tr>
+<td>Manage</td>
+<td>v8.4.0 (v8-2022-07-17-amd64)</td>
+</tr>
+<tr>
+<td>Monitor</td>
+<td>No support</td>
+</tr>
+<tr>
+<td>Optimizer</td>
+<td>v8.2.0 (v8-2022-07-17-amd64)</td>
+</tr>
+<tr>
+<td>Predict</td>
+<td>No support</td>
+</tr>
+<tr>
+<td>Safety</td>
+<td>No support</td>
+</tr>
+<tr>
+<td>Visual Inspection</td>
+<td>No support</td>
+</tr>
+</tbody>
+</table>
 <h2 id="pre-requisites">Pre-requisites<a class="headerlink" href="#pre-requisites" title="Permanent link"></a></h2>
 <h3 id="1-ibm-entitlement-key">1. IBM Entitlement key<a class="headerlink" href="#1-ibm-entitlement-key" title="Permanent link"></a></h3>
 <p>Access <a href="https://myibm.ibm.com/products-services/containerlibrary">Container Software Library</a> using your IBMId to obtain your entitlement key.</p>
@@ -171,8 +223,7 @@
 <p>For more information about how to access the IBM License Key Center review the <a href="https://www.ibm.com/support/pages/system/files/inline-files/GettingStartedEnglish_2020.pdf">getting started documentation</a> available from the IBM support website.</p>
 </div>
 <h3 id="3-working-openshift-cluster">3. Working OpenShift cluster<a class="headerlink" href="#3-working-openshift-cluster" title="Permanent link"></a></h3>
-<h3 id="4-bastion-host">4. Bastion Host<a class="headerlink" href="#4-bastion-host" title="Permanent link"></a></h3>
-<p>This host must have internet connectivity and access to the target OpenShift cluster</p>
+<p>You should already have a target OpenShift cluster ready to install Maximo Application suite into.</p>
 <h2 id="prepare-the-private-registry">Prepare the Private Registry<a class="headerlink" href="#prepare-the-private-registry" title="Permanent link"></a></h2>
 <p>If you do not already have a mirror registry you can use the setup-mirror function to deploy a mirror registry inside a target OpenShift cluster</p>
 <pre><code class="language-bash">docker pull quay.io/ibmmas/cli
@@ -220,7 +271,7 @@ docker run -ti quay.io/ibmmas/cli mas setup-registry
 </table>
 <p>For more details on this step, refer to the <a href="../../commands/install/">install</a> command's documentation.</p>
 <h2 id="populate-the-mirror">Populate the Mirror<a class="headerlink" href="#populate-the-mirror" title="Permanent link"></a></h2>
-<p>Mirroring the images is simple. You must select the version of IBM Maximo Operator Catalog that you want to mirror and the content that you wish to mirror.</p>
+<p>Mirroring the images is a simple but time consuming process, this step must be performed from a system with internet connectivity and network access your private registry, but does not need access to your target OpenShift cluster.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>You can also use this command to mirror the images for OpenShift itself, but that is beyond the scope of this guide.</p>
@@ -228,7 +279,8 @@ docker run -ti quay.io/ibmmas/cli mas setup-registry
 <pre><code class="language-bash">docker pull quay.io/ibmmas/cli
 docker run -ti quay.io/ibmmas/cli mas mirror-images
 </code></pre>
-<p>You can choose to mirror everything, or control exactly what is mirrored to your private registry.  This command can also be ran non-interactive, for full details refer to the <a href="../../commands/mirror-images/">mirror-images</a> command documentation.</p>
+<p>You will be prompted to set the target registry for the image mirroring and to <a href="../choosing-the-right-catalog/">select the version of IBM Maximo Operator Catalog to mirror</a> and the subset of content that you wish to mirror  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.</p>
+<p>This command can also be ran non-interactive, for full details refer to the <a href="../../commands/mirror-images/">mirror-images</a> command documentation.</p>
 <h2 id="configure-the-cluster">Configure the Cluster<a class="headerlink" href="#configure-the-cluster" title="Permanent link"></a></h2>
 <p>TODO: Work in progress</p>
 <h2 id="install-maximo-application-suite">Install Maximo Application Suite<a class="headerlink" href="#install-maximo-application-suite" title="Permanent link"></a></h2>

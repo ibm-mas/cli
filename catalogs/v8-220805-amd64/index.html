@@ -78,11 +78,13 @@
               <ul class="current">
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">v8-220805-amd64</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#catalog-details">Catalog Details</a>
+    <li class="toctree-l2"><a class="reference internal" href="#details">Details</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#catalog-source">Catalog Source</a>
+    <li class="toctree-l2"><a class="reference internal" href="#manual-installation">Manual Installation</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#catalog-content">Catalog Content</a>
+    <li class="toctree-l2"><a class="reference internal" href="#source">Source</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#manifest">Manifest</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#ibm-maximo-application-suite">IBM Maximo Application Suite</a>
     </li>
@@ -127,14 +129,17 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="ibm-maximo-operator-catalog-v8-aug-5-2022">IBM Maximo Operator Catalog v8 Aug 5 2022<a class="headerlink" href="#ibm-maximo-operator-catalog-v8-aug-5-2022" title="Permanent link"></a></h1>
-<h2 id="catalog-details">Catalog Details<a class="headerlink" href="#catalog-details" title="Permanent link"></a></h2>
-<ul>
-<li>Image: <code>icr.io/cpopen/ibm-maximo-operator-catalog</code></li>
-<li>Tag: <code>v8-220805-amd64</code></li>
-<li>Digest: <code>sha256:012839d2dd801863b5a1f35de3d1e1e39d8e4a3e707f894beee091608c09aca4</code></li>
-</ul>
-<h2 id="catalog-source">Catalog Source<a class="headerlink" href="#catalog-source" title="Permanent link"></a></h2>
+                <h1 id="ibm-maximo-operator-catalog-v8-aug-5-2022">IBM Maximo Operator Catalog v8 (Aug 5 2022)<a class="headerlink" href="#ibm-maximo-operator-catalog-v8-aug-5-2022" title="Permanent link"></a></h1>
+<h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link"></a></h2>
+<table>
+  <tr><td>Image</td><td>icr.io/cpopen/ibm-maximo-operator-catalog</tr></tr>
+  <tr><td>Tag</td><td>v8-220805-amd64</tr></tr>
+  <tr><td>Digest</td><td>sha256:012839d2dd801863b5a1f35de3d1e1e39d8e4a3e707f894beee091608c09aca4</tr></tr>
+</table>
+
+<h2 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link"></a></h2>
+<p><code>oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v8-220805-amd64.yaml</code></p>
+<h2 id="source">Source<a class="headerlink" href="#source" title="Permanent link"></a></h2>
 <pre><code class="language-yaml">apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
 metadata:
@@ -148,65 +153,226 @@ spec:
   image: icr.io/cpopen/ibm-maximo-operator-catalog@sha256:012839d2dd801863b5a1f35de3d1e1e39d8e4a3e707f894beee091608c09aca4
   priority: 90
 </code></pre>
-<h2 id="catalog-content">Catalog Content<a class="headerlink" href="#catalog-content" title="Permanent link"></a></h2>
+<h2 id="manifest">Manifest<a class="headerlink" href="#manifest" title="Permanent link"></a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Changes from previous catalog (<a href="../v8-220717-amd64/">v8-220717-amd64</a>) are highlighted in <strong>bold</strong>.</p>
 </div>
 <h3 id="ibm-maximo-application-suite">IBM Maximo Application Suite<a class="headerlink" href="#ibm-maximo-application-suite" title="Permanent link"></a></h3>
-<ul>
-<li>ibm-mas v8.8.0, v8.7.3, v8.6.4, v8.5.2</li>
-<li>ibm-mas-assist v8.5.0, v8.4.0, v8.3.0, v8.2.0</li>
-<li>ibm-mas-hputilities v8.4.0, v8.3.0, v8.2.0</li>
-<li>ibm-mas-iot <strong>v8.5.1</strong>, v8.4.0</li>
-<li>ibm-mas-manage v8.4.0, v8.3.0, v8.2.0, v8.1.0</li>
-<li>ibm-mas-monitor v8.8.0, v8.7.2, v8.6.4</li>
-<li>ibm-mas-mso v8.1.0, v8.0.3</li>
-<li>ibm-mas-optimizer v8.2.0</li>
-<li>ibm-mas-predict v8.6.0, v8.5.1, v8.4.1</li>
-<li>ibm-mas-safety v8.3.0, v8.2.2</li>
-<li>ibm-mas-visualinspection v8.6.0, v8.5.0, v8.4.0, v8.3.0</li>
-</ul>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Latest Versions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ibm-mas</td>
+<td>v8.8.0, v8.7.3, v8.6.4, v8.5.2</td>
+</tr>
+<tr>
+<td>ibm-mas-assist</td>
+<td>v8.5.0, v8.4.0, v8.3.0, v8.2.0</td>
+</tr>
+<tr>
+<td>ibm-mas-hputilities</td>
+<td>v8.4.0, v8.3.0, v8.2.0</td>
+</tr>
+<tr>
+<td>ibm-mas-iot</td>
+<td><strong>v8.5.1</strong>, <strong>v8.4.4</strong></td>
+</tr>
+<tr>
+<td>ibm-mas-manage</td>
+<td>v8.4.0, v8.3.0, v8.2.0, v8.1.0</td>
+</tr>
+<tr>
+<td>ibm-mas-monitor</td>
+<td>v8.8.0, v8.7.2, v8.6.4</td>
+</tr>
+<tr>
+<td>ibm-mas-mso</td>
+<td>v8.1.0, v8.0.3</td>
+</tr>
+<tr>
+<td>ibm-mas-optimizer</td>
+<td>v8.2.0</td>
+</tr>
+<tr>
+<td>ibm-mas-predict</td>
+<td>v8.6.0, v8.5.1, v8.4.1</td>
+</tr>
+<tr>
+<td>ibm-mas-safety</td>
+<td>v8.3.0, v8.2.2</td>
+</tr>
+<tr>
+<td>ibm-mas-visualinspection</td>
+<td>v8.6.0, v8.5.0, v8.4.0, v8.3.0</td>
+</tr>
+</tbody>
+</table>
 <h3 id="ibm-utilities">IBM Utilities<a class="headerlink" href="#ibm-utilities" title="Permanent link"></a></h3>
-<ul>
-<li>ibm-sls <strong>v3.4.1</strong></li>
-<li>ibm-truststore-mgr v1.3.0</li>
-</ul>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Latest Versions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ibm-sls</td>
+<td><strong>v3.4.1</strong></td>
+</tr>
+<tr>
+<td>ibm-truststore-mgr</td>
+<td>v1.3.0</td>
+</tr>
+</tbody>
+</table>
 <h3 id="ibm-cloud-pak-foundational-services">IBM Cloud Pak Foundational Services<a class="headerlink" href="#ibm-cloud-pak-foundational-services" title="Permanent link"></a></h3>
-<ul>
-<li>ibm-common-service-operator v3.19.1</li>
-<li>ibm-namespace-scope-operator v1.13.1</li>
-<li>ibm-odlm v1.17.1</li>
-<li>ibm-cert-manager-operator v3.21.1</li>
-<li>ibm-user-data-services-operator v2.0.8</li>
-<li>ibm-events-operator v4.2.0</li>
-<li>db2u-operator v1.1.13</li>
-<li>ibm-licensing-operator-app v1.16.1</li>
-<li>ibm-zen-operator v1.5.4 (channel capped due to breaking changes introduced in v1.6.0)</li>
-</ul>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Latest Versions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ibm-common-service-operator</td>
+<td>v3.19.1</td>
+</tr>
+<tr>
+<td>ibm-namespace-scope-operator</td>
+<td>v1.13.1</td>
+</tr>
+<tr>
+<td>ibm-odlm</td>
+<td>v1.17.1</td>
+</tr>
+<tr>
+<td>ibm-cert-manager-operator</td>
+<td>v3.21.1</td>
+</tr>
+<tr>
+<td>ibm-user-data-services-operator</td>
+<td>v2.0.8</td>
+</tr>
+<tr>
+<td>ibm-events-operator</td>
+<td>v4.2.0</td>
+</tr>
+<tr>
+<td>db2u-operator</td>
+<td>v1.1.13</td>
+</tr>
+<tr>
+<td>ibm-licensing-operator-app</td>
+<td>v1.16.1</td>
+</tr>
+<tr>
+<td>ibm-zen-operator</td>
+<td>v1.5.4*</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>ibm-zen-operator</strong> channel capped at version 1.5.4 due to breaking changes introduced in v1.6.0.</p>
+</div>
 <h3 id="ibm-cloud-pak-for-data">IBM Cloud Pak for Data<a class="headerlink" href="#ibm-cloud-pak-for-data" title="Permanent link"></a></h3>
-<ul>
-<li>cpd-platform-operator v2.0.8</li>
-<li>ibm-cpd-wsl v2.0.9</li>
-<li>ibm-cpd-css v1.0.9</li>
-<li>ibm-cpd-datarefinery</li>
-<li>ibm-cpd-ws-runtimes v1.0.9</li>
-<li>ibm-cpd-wml-operator v1.1.8</li>
-<li>analyticsengine-operator v1.0.9</li>
-<li>ibm-cpd-wos v1.5.4</li>
-<li>ibm-watson-discovery-operator v4.0.9</li>
-<li>ibm-watson-gateway-operator v1.0.12</li>
-<li>ibm-rabbitmq-operator v1.0.11</li>
-<li>ibm-model-train-operator v1.1.2</li>
-<li>ibm-minio-operator v1.0.10</li>
-<li>ibm-etcd-operator v1.0.10</li>
-<li>ibm-elasticsearch-operator v1.1.1042</li>
-</ul>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Latest Versions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cpd-platform-operator</td>
+<td>v2.0.8</td>
+</tr>
+<tr>
+<td>ibm-cpd-wsl</td>
+<td>v2.0.9</td>
+</tr>
+<tr>
+<td>ibm-cpd-css</td>
+<td>v1.0.9</td>
+</tr>
+<tr>
+<td>ibm-cpd-datarefinery</td>
+<td>v1.0.10</td>
+</tr>
+<tr>
+<td>ibm-cpd-ws-runtimes</td>
+<td>v1.0.9</td>
+</tr>
+<tr>
+<td>ibm-cpd-wml-operator</td>
+<td>v1.1.8</td>
+</tr>
+<tr>
+<td>analyticsengine-operator</td>
+<td>v1.0.9</td>
+</tr>
+<tr>
+<td>ibm-cpd-wos</td>
+<td>v1.5.4</td>
+</tr>
+<tr>
+<td>ibm-watson-discovery-operator</td>
+<td>v4.0.9</td>
+</tr>
+<tr>
+<td>ibm-watson-gateway-operator</td>
+<td>v1.0.12</td>
+</tr>
+<tr>
+<td>ibm-rabbitmq-operator</td>
+<td>v1.0.11</td>
+</tr>
+<tr>
+<td>ibm-model-train-operator</td>
+<td>v1.1.2</td>
+</tr>
+<tr>
+<td>ibm-minio-operator</td>
+<td>v1.0.10</td>
+</tr>
+<tr>
+<td>ibm-etcd-operator</td>
+<td>v1.0.10</td>
+</tr>
+<tr>
+<td>ibm-elasticsearch-operator</td>
+<td>v1.1.1042</td>
+</tr>
+</tbody>
+</table>
 <h3 id="ibm-appconnect">IBM AppConnect<a class="headerlink" href="#ibm-appconnect" title="Permanent link"></a></h3>
-<ul>
-<li>ibm-appconnect v3.0.0</li>
-<li>couchdb-operator v2.2.1</li>
-</ul>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Latest Versions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ibm-appconnect</td>
+<td>v3.0.0</td>
+</tr>
+<tr>
+<td>couchdb-operator</td>
+<td>v2.2.1</td>
+</tr>
+</tbody>
+</table>
               
             </div>
           </div><footer>
