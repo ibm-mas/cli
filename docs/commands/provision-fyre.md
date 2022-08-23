@@ -46,5 +46,10 @@ docker run -ti --rm quay.io/ibmmas/cli mas provision-fyre
 export FYRE_USERNAME=xxx
 export FYRE_APIKEY=xxx
 docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas provision-fyre -u $FYRE_USERNAME -a $FYRE_APIKEY -p 225 -q product_group -c masonfyre -d "My Cluster" -v 4.10 --worker-count 3 --worker-cpu 8 --worker-memory 32 --no-confirm
+docker run -ti --rm quay.io/ibmmas/cli mas provision-fyre \
+  -u $FYRE_USERNAME -a $FYRE_APIKEY \
+  -p 225 -q product_group \
+  -c masonfyre -d "My Cluster" -v 4.10 \
+  --worker-count 3 --worker-cpu 8 --worker-memory 32 \
+  --no-confirm
 ```

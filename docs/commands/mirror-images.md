@@ -59,8 +59,16 @@ docker run -ti --rm quay.io/ibmmas/cli mas mirror-images
 ```
 
 ### Non-Interactive Mode
-The following example will mirror all images required for Maximo Application Suite Core and the Maximo IoT application without prompting for confirmation.
+The following example will mirror all images required for Maximo Application Suite Core and the Maximo Manage and IoT applications without prompting for confirmation.
 ```
 docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas mirror-images --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_CONNECT_USERNAME --redhat-password $REDHAT_CONNECT_PASSWORD -H mirror.mydomain.com -P 32500 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD -c v8-220805 --mirror-core --mirror-iot --no-confirm
+docker run -ti --rm quay.io/ibmmas/cli mas mirror-images \
+  --ibm-entitlement $IBM_ENTITLEMENT_KEY \
+  --redhat-username $REDHAT_CONNECT_USERNAME \
+  --redhat-password $REDHAT_CONNECT_PASSWORD \
+  -H mirror.mydomain.com -P 32500 \
+  -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
+  -c v8-220805-amd64 \
+  --mirror-core --mirror-iot --mirror-manage \
+  --no-confirm
 ```
