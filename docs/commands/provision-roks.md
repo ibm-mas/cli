@@ -6,27 +6,19 @@ Usage
 `mas provision-roks [options]`
 
 ### IBMCloud Credentials
-Required
-
 - `-a|--apikey IBMCLOUD_APIKEY` IBMCloud API key
 
 ### Cluster Configuration
-Required
-
 - `-r|--resource-group IBMCLOUD_RESOURCEGROUP` IBMCloud resource group to deploy the cluster in
 - `-c|--cluster-name CLUSTER_NAME` Name of the cluster to be provisioned
 - `-v|--ocp-version OCP_VERSION` OCP version to use (e.g 4.8_openshift, 4.10_openshift)
 
 ### Worker Node Configuration
-Required
-
 - `--worker-count ROKS_WORKERS` Number of worker nodes to provision
 - `--worker-flavor ROKS_FLAVOR` The flavour of worker node to use (e.g. b3c.16x64.300gb)
 - `--worker-zone ROKS_ZONE` IBM Cloud zone where the cluster should be provisioned. (e.g. dal10)
 
 ### GPU Support
-Optional
-
 - `--gpu-worker-count GPU_WORKERS` Number of GPU worker nodes to provision
 - `--gpu-workerpool-name GPU_WORKERPOOL_NAME` Name of the GPU workerpool
 
