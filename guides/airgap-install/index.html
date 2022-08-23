@@ -58,11 +58,11 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#pre-requisites">Pre-requisites</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#1-ibm-entitlement-key">1. IBM Entitlement key</a>
+    <li class="toctree-l3"><a class="reference internal" href="#ibm-entitlement-key">IBM Entitlement Key</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-mas-license-file">2. MAS License File</a>
+    <li class="toctree-l3"><a class="reference internal" href="#mas-license-file">MAS License File</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#3-working-openshift-cluster">3. Working OpenShift cluster</a>
+    <li class="toctree-l3"><a class="reference internal" href="#openshift-cluster">OpenShift Cluster</a>
     </li>
         </ul>
     </li>
@@ -183,9 +183,9 @@
 </tbody>
 </table>
 <h2 id="pre-requisites">Pre-requisites<a class="headerlink" href="#pre-requisites" title="Permanent link"></a></h2>
-<h3 id="1-ibm-entitlement-key">1. IBM Entitlement key<a class="headerlink" href="#1-ibm-entitlement-key" title="Permanent link"></a></h3>
+<h3 id="ibm-entitlement-key">IBM Entitlement Key<a class="headerlink" href="#ibm-entitlement-key" title="Permanent link"></a></h3>
 <p>Access <a href="https://myibm.ibm.com/products-services/containerlibrary">Container Software Library</a> using your IBMId to obtain your entitlement key.</p>
-<h3 id="2-mas-license-file">2. MAS License File<a class="headerlink" href="#2-mas-license-file" title="Permanent link"></a></h3>
+<h3 id="mas-license-file">MAS License File<a class="headerlink" href="#mas-license-file" title="Permanent link"></a></h3>
 <p>Access <a href="https://licensing.subscribenet.com/control/ibmr/login">IBM License Key Center</a>, on the <strong>Get Keys</strong> menu select <strong>IBM AppPoint Suites</strong>.  Select <code>IBM MAXIMO APPLICATION SUITE AppPOINT LIC</code> and on the next page fill in the information as below:</p>
 <table>
 <thead>
@@ -222,15 +222,14 @@
 <p class="admonition-title">Note</p>
 <p>For more information about how to access the IBM License Key Center review the <a href="https://www.ibm.com/support/pages/system/files/inline-files/GettingStartedEnglish_2020.pdf">getting started documentation</a> available from the IBM support website.</p>
 </div>
-<h3 id="3-working-openshift-cluster">3. Working OpenShift cluster<a class="headerlink" href="#3-working-openshift-cluster" title="Permanent link"></a></h3>
+<h3 id="openshift-cluster">OpenShift Cluster<a class="headerlink" href="#openshift-cluster" title="Permanent link"></a></h3>
 <p>You should already have a target OpenShift cluster ready to install Maximo Application suite into.</p>
 <h2 id="prepare-the-private-registry">Prepare the Private Registry<a class="headerlink" href="#prepare-the-private-registry" title="Permanent link"></a></h2>
-<p>If you do not already have a mirror registry you can use the setup-mirror function to deploy a mirror registry inside a target OpenShift cluster</p>
+<p>If you do not already have a mirror registry you can use the <code>setup-mirror</code> function to deploy a private registry inside a target OpenShift cluster.</p>
 <pre><code class="language-bash">docker pull quay.io/ibmmas/cli
 docker run -ti quay.io/ibmmas/cli mas setup-registry
 </code></pre>
-<p>The registry will be setup running on port 32500</p>
-<p>Regardless of whether you set up a new mirror using <code>setup-registry</code> or already had one you need to collection the following information about your private registry:</p>
+<p>The registry will be setup running on port 32500.  For more details on this step, refer to the <a href="../../commands/setup-registry/">setup-registry</a> command's documentation.  Regardless of whether you set up a new registry using <code>setup-registry</code> or already had one, you need to collect the following information about your private registry:</p>
 <table>
 <thead>
 <tr>
@@ -241,11 +240,11 @@ docker run -ti quay.io/ibmmas/cli mas setup-registry
 <tbody>
 <tr>
 <td>Private Hostname</td>
-<td>The hostname by which the registry will be accessible from the OCP cluster you are installing Maximo Application Suite.</td>
+<td>The hostname by which the registry will be accessible from the target OCP cluster.</td>
 </tr>
 <tr>
 <td>Private Port</td>
-<td>The port number by which the registry will be accessible from the OCP cluster you are installing Maximo Application Suite.</td>
+<td>The port number by which the registry will be accessible from the target OCP cluster.</td>
 </tr>
 <tr>
 <td>Public Hostname</td>
@@ -261,15 +260,14 @@ docker run -ti quay.io/ibmmas/cli mas setup-registry
 </tr>
 <tr>
 <td>Username</td>
-<td>Optional.  The username to authenticate to the registry as.</td>
+<td>Optional.  Authentication username for the registry.</td>
 </tr>
 <tr>
 <td>Password</td>
-<td>Optional.  The password to authenticate to the registry with.</td>
+<td>Optional.  Authentication password for the registry.</td>
 </tr>
 </tbody>
 </table>
-<p>For more details on this step, refer to the <a href="../../commands/install/">install</a> command's documentation.</p>
 <h2 id="populate-the-mirror">Populate the Mirror<a class="headerlink" href="#populate-the-mirror" title="Permanent link"></a></h2>
 <p>Mirroring the images is a simple but time consuming process, this step must be performed from a system with internet connectivity and network access your private registry, but does not need access to your target OpenShift cluster.</p>
 <div class="admonition tip">
@@ -282,9 +280,9 @@ docker run -ti quay.io/ibmmas/cli mas mirror-images
 <p>You will be prompted to set the target registry for the image mirroring and to <a href="../choosing-the-right-catalog/">select the version of IBM Maximo Operator Catalog to mirror</a> and the subset of content that you wish to mirror  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.</p>
 <p>This command can also be ran non-interactive, for full details refer to the <a href="../../commands/mirror-images/">mirror-images</a> command documentation.</p>
 <h2 id="configure-the-cluster">Configure the Cluster<a class="headerlink" href="#configure-the-cluster" title="Permanent link"></a></h2>
-<p>TODO: Work in progress</p>
+<p>TODO: Work in progress ... basically run <code>mas configure-airgap</code></p>
 <h2 id="install-maximo-application-suite">Install Maximo Application Suite<a class="headerlink" href="#install-maximo-application-suite" title="Permanent link"></a></h2>
-<p>TODO: Work in progress</p>
+<p>TODO: Work in progress .. basically run the install as normal: <code>mas install</code></p>
               
             </div>
           </div><footer>
