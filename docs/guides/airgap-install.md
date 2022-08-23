@@ -20,10 +20,10 @@ Air gap installation for Maximo Application Suite is supported from MAS v8.8 onw
 
 Pre-requisites
 -------------------------------------------------------------------------------
-### 1. IBM Entitlement key
+### IBM Entitlement Key
 Access [Container Software Library](https://myibm.ibm.com/products-services/containerlibrary) using your IBMId to obtain your entitlement key.
 
-### 2. MAS License File
+### MAS License File
 Access [IBM License Key Center](https://licensing.subscribenet.com/control/ibmr/login), on the **Get Keys** menu select **IBM AppPoint Suites**.  Select `IBM MAXIMO APPLICATION SUITE AppPOINT LIC` and on the next page fill in the information as below:
 
 | Field            | Content                                           |
@@ -40,34 +40,30 @@ The other values can be left at their defaults.  Finally, click **Generate** and
 !!! note
     For more information about how to access the IBM License Key Center review the [getting started documentation](https://www.ibm.com/support/pages/system/files/inline-files/GettingStartedEnglish_2020.pdf) available from the IBM support website.
 
-### 3. Working OpenShift cluster
+### OpenShift Cluster
 You should already have a target OpenShift cluster ready to install Maximo Application suite into.
 
 
 Prepare the Private Registry
 -------------------------------------------------------------------------------
-If you do not already have a mirror registry you can use the setup-mirror function to deploy a mirror registry inside a target OpenShift cluster
+If you do not already have a mirror registry you can use the `setup-mirror` function to deploy a private registry inside a target OpenShift cluster.
 
 ```bash
 docker pull quay.io/ibmmas/cli
 docker run -ti quay.io/ibmmas/cli mas setup-registry
 ```
 
-The registry will be setup running on port 32500
-
-Regardless of whether you set up a new mirror using `setup-registry` or already had one you need to collection the following information about your private registry:
+The registry will be setup running on port 32500.  For more details on this step, refer to the [setup-registry](../commands/setup-registry.md) command's documentation.  Regardless of whether you set up a new registry using `setup-registry` or already had one, you need to collect the following information about your private registry:
 
 | Name | Detail |
 | ---- | ------ |
-| Private Hostname | The hostname by which the registry will be accessible from the OCP cluster you are installing Maximo Application Suite. |
-| Private Port | The port number by which the registry will be accessible from the OCP cluster you are installing Maximo Application Suite. |
+| Private Hostname | The hostname by which the registry will be accessible from the target OCP cluster. |
+| Private Port | The port number by which the registry will be accessible from the target OCP cluster. |
 | Public Hostname | The hostname by which the registry will be accessible from the machine that will be performing image mirroring. |
 | Public Port | The port number by which the registry will be accessible from the machine that will be performing image mirroring. |
 | CA certificate file | The CA certificate that the registry will present on the **private** hostname. Save this to your home directory.  |
-| Username | Optional.  The username to authenticate to the registry as. |
-| Password | Optional.  The password to authenticate to the registry with. |
-
-For more details on this step, refer to the [install](../commands/install.md) command's documentation.
+| Username | Optional.  Authentication username for the registry. |
+| Password | Optional.  Authentication password for the registry. |
 
 
 Populate the Mirror
@@ -89,9 +85,9 @@ This command can also be ran non-interactive, for full details refer to the [mir
 
 Configure the Cluster
 -------------------------------------------------------------------------------
-TODO: Work in progress
+TODO: Work in progress ... basically run `mas configure-airgap`
 
 
 Install Maximo Application Suite
 -------------------------------------------------------------------------------
-TODO: Work in progress
+TODO: Work in progress .. basically run the install as normal: `mas install`
