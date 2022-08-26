@@ -29,9 +29,9 @@ You should already have a target OpenShift cluster ready to install Maximo Appli
 
 The CLI also supports OpenShift provisioning in many hyperscaler providers:
 
-- [AWS](../commands/provision_rosa.md)
-- [IBM Cloud](../commands/provision_roks.md)
-- [IBM DevIT FYRE(Internal)](../commands/provision_fyre.md)
+- [AWS](../commands/provision-rosa.md)
+- [IBM Cloud](../commands/provision-roks.md)
+- [IBM DevIT FYRE(Internal)](../commands/provision-fyre.md)
 
 
 ### Operator Catalog Selection
