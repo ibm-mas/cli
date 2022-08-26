@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/guides/airgap-install/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/guides/install/" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>Air Gap Installation - MAS CLI</title>
+    <title>Installation - MAS CLI</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
@@ -13,9 +13,9 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Air Gap Installation";
-        var mkdocs_page_input_path = "guides/airgap-install.md";
-        var mkdocs_page_url = "/cli/guides/airgap-install/";
+        var mkdocs_page_name = "Installation";
+        var mkdocs_page_input_path = "guides/install.md";
+        var mkdocs_page_url = "/cli/guides/install/";
       </script>
     
     <script src="../../js/jquery-3.6.0.min.js" defer></script>
@@ -52,10 +52,8 @@
               </ul>
               <p class="caption"><span class="caption-text">Guides</span></p>
               <ul class="current">
-                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Air Gap Installation</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Installation</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#limitations">Limitations</a>
-    </li>
     <li class="toctree-l2"><a class="reference internal" href="#pre-requisites">Pre-requisites</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#ibm-entitlement-key">IBM Entitlement Key</a>
@@ -64,13 +62,19 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#openshift-cluster">OpenShift Cluster</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#operator-catalog-selection">Operator Catalog Selection</a>
+    </li>
         </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#disconnected-install-limitations">Disconnected Install Limitations</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#installation-overview">Installation Overview</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#prepare-the-private-registry">Prepare the Private Registry</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#populate-the-mirror">Populate the Mirror</a>
+    <li class="toctree-l2"><a class="reference internal" href="#mirror-container-images">Mirror Container Images</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#configure-the-cluster">Configure the Cluster</a>
+    <li class="toctree-l2"><a class="reference internal" href="#configure-openshift-to-use-your-private-registry-for-mas">Configure OpenShift to use your Private Registry for MAS</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#install-maximo-application-suite">Install Maximo Application Suite</a>
     </li>
@@ -120,9 +124,9 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
           <li>Guides &raquo;</li>
-      <li>Air Gap Installation</li>
+      <li>Installation</li>
     <li class="wy-breadcrumbs-aside">
-        <a href="https://github.com/ibm-mas/cli/blob/master/docs/guides/airgap-install.md"
+        <a href="https://github.com/ibm-mas/cli/blob/master/docs/guides/install.md"
           class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
@@ -131,9 +135,59 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="air-gap-installation">Air Gap Installation<a class="headerlink" href="#air-gap-installation" title="Permanent link"></a></h1>
-<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link"></a></h2>
-<p>Air gap installation for Maximo Application Suite is supported from MAS v8.8 onwards:</p>
+                <h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link"></a></h1>
+<h2 id="pre-requisites">Pre-requisites<a class="headerlink" href="#pre-requisites" title="Permanent link"></a></h2>
+<h3 id="ibm-entitlement-key">IBM Entitlement Key<a class="headerlink" href="#ibm-entitlement-key" title="Permanent link"></a></h3>
+<p>Access <a href="https://myibm.ibm.com/products-services/containerlibrary">Container Software Library</a> using your IBMId to obtain your entitlement key.</p>
+<h3 id="mas-license-file">MAS License File<a class="headerlink" href="#mas-license-file" title="Permanent link"></a></h3>
+<p>Access <a href="https://licensing.subscribenet.com/control/ibmr/login">IBM License Key Center</a>, on the <strong>Get Keys</strong> menu select <strong>IBM AppPoint Suites</strong>.  Select <code>IBM MAXIMO APPLICATION SUITE AppPOINT LIC</code> and on the next page fill in the information as below:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Number of Keys</td>
+<td>How many AppPoints to assign to the license file</td>
+</tr>
+<tr>
+<td>Host ID Type</td>
+<td>Set to <strong>Ethernet Address</strong></td>
+</tr>
+<tr>
+<td>Host ID</td>
+<td>Enter any 12 digit hexadecimal string</td>
+</tr>
+<tr>
+<td>Hostname</td>
+<td>Set to the hostname of your OCP instance</td>
+</tr>
+<tr>
+<td>Port</td>
+<td>Set to <strong>27000</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The other values can be left at their defaults.  Finally, click <strong>Generate</strong> and download the license file to your home directory as <code>entitlement.lic</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For more information about how to access the IBM License Key Center review the <a href="https://www.ibm.com/support/pages/system/files/inline-files/GettingStartedEnglish_2020.pdf">getting started documentation</a> available from the IBM support website.</p>
+</div>
+<h3 id="openshift-cluster">OpenShift Cluster<a class="headerlink" href="#openshift-cluster" title="Permanent link"></a></h3>
+<p>You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the <a href="https://docs.openshift.com/container-platform/4.10/installing/index.html">OpenShift Container Platform installation overview</a>.</p>
+<p>The CLI also supports OpenShift provisioning in many hyperscaler providers:</p>
+<ul>
+<li><a href="../../commands/provision-rosa/">AWS</a></li>
+<li><a href="../../commands/provision-roks/">IBM Cloud</a></li>
+<li><a href="../../commands/provision-fyre/">IBM DevIT FYRE(Internal)</a></li>
+</ul>
+<h3 id="operator-catalog-selection">Operator Catalog Selection<a class="headerlink" href="#operator-catalog-selection" title="Permanent link"></a></h3>
+<p>If you have not already determined the best catalog source for your installation, refer to the information in the <a href="../choosing-the-right-catalog/">choosing the right IBM Maximo Operator Catalog to meet your requirements</a> guide, or contact IBM Support for guidance.</p>
+<h2 id="disconnected-install-limitations">Disconnected Install Limitations<a class="headerlink" href="#disconnected-install-limitations" title="Permanent link"></a></h2>
+<p>Disconnected install for IBM Maximo Application Suite is supported from MAS v8.8 onwards with some restrictions:</p>
 <table>
 <thead>
 <tr>
@@ -184,54 +238,19 @@
 </tr>
 </tbody>
 </table>
-<h2 id="pre-requisites">Pre-requisites<a class="headerlink" href="#pre-requisites" title="Permanent link"></a></h2>
-<h3 id="ibm-entitlement-key">IBM Entitlement Key<a class="headerlink" href="#ibm-entitlement-key" title="Permanent link"></a></h3>
-<p>Access <a href="https://myibm.ibm.com/products-services/containerlibrary">Container Software Library</a> using your IBMId to obtain your entitlement key.</p>
-<h3 id="mas-license-file">MAS License File<a class="headerlink" href="#mas-license-file" title="Permanent link"></a></h3>
-<p>Access <a href="https://licensing.subscribenet.com/control/ibmr/login">IBM License Key Center</a>, on the <strong>Get Keys</strong> menu select <strong>IBM AppPoint Suites</strong>.  Select <code>IBM MAXIMO APPLICATION SUITE AppPOINT LIC</code> and on the next page fill in the information as below:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Content</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Number of Keys</td>
-<td>How many AppPoints to assign to the license file</td>
-</tr>
-<tr>
-<td>Host ID Type</td>
-<td>Set to <strong>Ethernet Address</strong></td>
-</tr>
-<tr>
-<td>Host ID</td>
-<td>Enter any 12 digit hexadecimal string</td>
-</tr>
-<tr>
-<td>Hostname</td>
-<td>Set to the hostname of your OCP instance</td>
-</tr>
-<tr>
-<td>Port</td>
-<td>Set to <strong>27000</strong></td>
-</tr>
-</tbody>
-</table>
-<p>The other values can be left at their defaults.  Finally, click <strong>Generate</strong> and download the license file to your home directory as <code>entitlement.lic</code>.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>For more information about how to access the IBM License Key Center review the <a href="https://www.ibm.com/support/pages/system/files/inline-files/GettingStartedEnglish_2020.pdf">getting started documentation</a> available from the IBM support website.</p>
-</div>
-<h3 id="openshift-cluster">OpenShift Cluster<a class="headerlink" href="#openshift-cluster" title="Permanent link"></a></h3>
-<p>You should already have a target OpenShift cluster ready to install Maximo Application suite into.</p>
+<h2 id="installation-overview">Installation Overview<a class="headerlink" href="#installation-overview" title="Permanent link"></a></h2>
+<ol>
+<li><a href="#prepare-the-private-registry">Prepare your Private Registry</a> (disconnected install only)</li>
+<li><a href="#mirror-container-images">Mirror Container Images</a> (disconnected install only)</li>
+<li><a href="#configure-the-cluster">Configure OpenShift to use your Private Registry for MAS</a> (disconnected install only)</li>
+<li><a href="#install-maximo-application-suite">Install MAS</a></li>
+</ol>
 <h2 id="prepare-the-private-registry">Prepare the Private Registry<a class="headerlink" href="#prepare-the-private-registry" title="Permanent link"></a></h2>
-<p>If you do not already have a mirror registry you can use the <code>setup-mirror</code> function to deploy a private registry inside a target OpenShift cluster.</p>
+<p>If you do not already have a private registry available to use as your mirror then you can use the <code>setup-mirror</code> function to deploy a private registry inside a target OpenShift cluster.</p>
 <pre><code class="language-bash">docker pull quay.io/ibmmas/cli
 docker run -ti quay.io/ibmmas/cli mas setup-registry
 </code></pre>
-<p>The registry will be setup running on port 32500.  For more details on this step, refer to the <a href="../../commands/setup-registry/">setup-registry</a> command's documentation.  Regardless of whether you set up a new registry using <code>setup-registry</code> or already had one, you need to collect the following information about your private registry:</p>
+<p>The registry will be setup running on port 32500.  For more details on this step, refer to the <a href="../../commands/setup-registry/">setup-registry</a> command's documentation.  Regardless of whether you set up a new registry or already had one, you need to collect the following information about your private registry:</p>
 <table>
 <thead>
 <tr>
@@ -270,7 +289,7 @@ docker run -ti quay.io/ibmmas/cli mas setup-registry
 </tr>
 </tbody>
 </table>
-<h2 id="populate-the-mirror">Populate the Mirror<a class="headerlink" href="#populate-the-mirror" title="Permanent link"></a></h2>
+<h2 id="mirror-container-images">Mirror Container Images<a class="headerlink" href="#mirror-container-images" title="Permanent link"></a></h2>
 <p>Mirroring the images is a simple but time consuming process, this step must be performed from a system with internet connectivity and network access your private registry, but does not need access to your target OpenShift cluster.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
@@ -281,7 +300,7 @@ docker run -ti quay.io/ibmmas/cli mas mirror-images
 </code></pre>
 <p>You will be prompted to set the target registry for the image mirroring and to <a href="../choosing-the-right-catalog/">select the version of IBM Maximo Operator Catalog to mirror</a> and the subset of content that you wish to mirror  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.</p>
 <p>This command can also be ran non-interactive, for full details refer to the <a href="../../commands/mirror-images/">mirror-images</a> command documentation.</p>
-<h2 id="configure-the-cluster">Configure the Cluster<a class="headerlink" href="#configure-the-cluster" title="Permanent link"></a></h2>
+<h2 id="configure-openshift-to-use-your-private-registry-for-mas">Configure OpenShift to use your Private Registry for MAS<a class="headerlink" href="#configure-openshift-to-use-your-private-registry-for-mas" title="Permanent link"></a></h2>
 <p>TODO: Work in progress ... basically run <code>mas configure-airgap</code></p>
 <h2 id="install-maximo-application-suite">Install Maximo Application Suite<a class="headerlink" href="#install-maximo-application-suite" title="Permanent link"></a></h2>
 <p>TODO: Work in progress .. basically run the install as normal: <code>mas install</code></p>

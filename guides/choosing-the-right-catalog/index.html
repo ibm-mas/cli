@@ -52,17 +52,17 @@
               </ul>
               <p class="caption"><span class="caption-text">Guides</span></p>
               <ul class="current">
-                  <li class="toctree-l1"><a class="reference internal" href="../airgap-install/">Air Gap Installation</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../install/">Installation</a>
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">Choosing the Right Catalog</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#scenario-1-automatic-updates">Scenario 1: Automatic Updates</a>
+    <li class="toctree-l2"><a class="reference internal" href="#automatic-updates">Automatic Updates</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#scenario-2-user-controlled-updates">Scenario 2: User Controlled Updates</a>
+    <li class="toctree-l2"><a class="reference internal" href="#user-controlled-updates">User Controlled Updates</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#scenario-3-multi-cluster-version-equivalency">Scenario 3: Multi-Cluster Version Equivalency</a>
+    <li class="toctree-l2"><a class="reference internal" href="#multi-cluster-version-equivalency">Multi-Cluster Version Equivalency</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#scenario-4-disconnected-install">Scenario 4: Disconnected Install</a>
+    <li class="toctree-l2"><a class="reference internal" href="#disconnected-install">Disconnected Install</a>
     </li>
     </ul>
                   </li>
@@ -125,7 +125,7 @@
 <p>In all cases we <strong>strongly discourage the use of manual update approvals on subscriptions</strong>.  In our experience it leads to overly complicated updates requiring significant administrative effort when taking into account the range of operators running in a cluster across numerous namespaces.</p>
 <p>If you desire control over updates we highly recommend the use of our static operator catalogs.</p>
 </div>
-<h2 id="scenario-1-automatic-updates">Scenario 1: Automatic Updates<a class="headerlink" href="#scenario-1-automatic-updates" title="Permanent link"></a></h2>
+<h2 id="automatic-updates">Automatic Updates<a class="headerlink" href="#automatic-updates" title="Permanent link"></a></h2>
 <ul>
 <li>Goal: I want to receive updates automatically as soon as they are available</li>
 <li>Solution: Use the <strong>dynamic catalog and automatic approval strategy</strong></li>
@@ -139,20 +139,20 @@
 <p class="admonition-title">Tip</p>
 <p>This is the recommended way to install IBM Maximo Application Suite in a connected environment.  It will ensure that you recieve vulnerability fixes and critical defect fixes as soon as they are available.</p>
 </div>
-<h2 id="scenario-2-user-controlled-updates">Scenario 2: User Controlled Updates<a class="headerlink" href="#scenario-2-user-controlled-updates" title="Permanent link"></a></h2>
+<h2 id="user-controlled-updates">User Controlled Updates<a class="headerlink" href="#user-controlled-updates" title="Permanent link"></a></h2>
 <ul>
 <li>Goal: I want to control when updates are introduced into my cluster</li>
 <li>Solution: Use one of the <strong>static catalogs and automatic approval strategy</strong></li>
 </ul>
 <p>The packages available in these catalogs are fixed. Multiple installations at different times will always result in exactly the same version of all operators being installed.</p>
 <p>When you are ready to apply updates you simply modify the CatalogSource installed in your cluster, changing it from e.g. <code>v8-220717-amd64</code> to <code>v8-220805-amd64</code>.  No further action is required, after a brief delay all installed operators will update automatically to the latest versions in the new catalog source.</p>
-<h2 id="scenario-3-multi-cluster-version-equivalency">Scenario 3: Multi-Cluster Version Equivalency<a class="headerlink" href="#scenario-3-multi-cluster-version-equivalency" title="Permanent link"></a></h2>
+<h2 id="multi-cluster-version-equivalency">Multi-Cluster Version Equivalency<a class="headerlink" href="#multi-cluster-version-equivalency" title="Permanent link"></a></h2>
 <ul>
 <li>Goal: I want to maintain <strong>exact</strong> version alignment across multiple OpenShift clusters, for instance in a development, staging, production setup</li>
 <li>Solution: Use one of the <strong>static catalogs and automatic approval strategy</strong></li>
 </ul>
 <p>The packages available in these catalogs are fixed. Multiple installations at different times will always result in exactly the same version of all operators being installed.  By choosing the same static catalog across multiple clusters the customer will be guaranteed that their installations are identical, right down to the patch level of the operators installed.  Updates can be rolled out in a controlled manner, and the upgrade path between two catalog versions will always be identical regardless of how much time passes between upgrades in different cluster.</p>
-<h2 id="scenario-4-disconnected-install">Scenario 4: Disconnected Install<a class="headerlink" href="#scenario-4-disconnected-install" title="Permanent link"></a></h2>
+<h2 id="disconnected-install">Disconnected Install<a class="headerlink" href="#disconnected-install" title="Permanent link"></a></h2>
 <ul>
 <li>Goal: I want to run a disconnected environment using a private mirror registry</li>
 <li>Solution: Use one of the <strong>static catalogs and automatic approval strategy</strong></li>
@@ -190,7 +190,7 @@
         </span>
     
     
-      <span><a href="../airgap-install/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../install/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
       <span><a href="../../commands/provision-fyre/" style="color: #fcfcfc">Next &raquo;</a></span>
