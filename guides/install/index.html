@@ -70,11 +70,15 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#installation-overview">Installation Overview</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#prepare-the-private-registry">Prepare the Private Registry</a>
+    <li class="toctree-l2"><a class="reference internal" href="#disconnected-install-preparation">Disconnected Install Preparation</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#prepare-the-private-registry">Prepare the Private Registry</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#mirror-container-images">Mirror Container Images</a>
+    <li class="toctree-l3"><a class="reference internal" href="#mirror-container-images">Mirror Container Images</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#configure-openshift-to-use-your-private-registry-for-mas">Configure OpenShift to use your Private Registry for MAS</a>
+    <li class="toctree-l3"><a class="reference internal" href="#configure-openshift-to-use-your-private-registry-for-mas">Configure OpenShift to use your Private Registry for MAS</a>
+    </li>
+        </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#install-maximo-application-suite">Install Maximo Application Suite</a>
     </li>
@@ -240,12 +244,16 @@
 </table>
 <h2 id="installation-overview">Installation Overview<a class="headerlink" href="#installation-overview" title="Permanent link"></a></h2>
 <ol>
-<li><a href="#prepare-the-private-registry">Prepare your Private Registry</a> (disconnected install only)</li>
-<li><a href="#mirror-container-images">Mirror Container Images</a> (disconnected install only)</li>
-<li><a href="#configure-the-cluster">Configure OpenShift to use your Private Registry for MAS</a> (disconnected install only)</li>
+<li>Disconnected Install Preparation<ul>
+<li><a href="#prepare-the-private-registry">Prepare your Private Registry</a></li>
+<li><a href="#mirror-container-images">Mirror Container Images</a></li>
+<li><a href="#configure-the-cluster">Configure OpenShift to use your Private Registry for MAS</a></li>
+</ul>
+</li>
 <li><a href="#install-maximo-application-suite">Install MAS</a></li>
 </ol>
-<h2 id="prepare-the-private-registry">Prepare the Private Registry<a class="headerlink" href="#prepare-the-private-registry" title="Permanent link"></a></h2>
+<h2 id="disconnected-install-preparation">Disconnected Install Preparation<a class="headerlink" href="#disconnected-install-preparation" title="Permanent link"></a></h2>
+<h3 id="prepare-the-private-registry">Prepare the Private Registry<a class="headerlink" href="#prepare-the-private-registry" title="Permanent link"></a></h3>
 <p>If you do not already have a private registry available to use as your mirror then you can use the <code>setup-mirror</code> function to deploy a private registry inside a target OpenShift cluster.</p>
 <pre><code class="language-bash">docker pull quay.io/ibmmas/cli
 docker run -ti quay.io/ibmmas/cli mas setup-registry
@@ -289,7 +297,7 @@ docker run -ti quay.io/ibmmas/cli mas setup-registry
 </tr>
 </tbody>
 </table>
-<h2 id="mirror-container-images">Mirror Container Images<a class="headerlink" href="#mirror-container-images" title="Permanent link"></a></h2>
+<h3 id="mirror-container-images">Mirror Container Images<a class="headerlink" href="#mirror-container-images" title="Permanent link"></a></h3>
 <p>Mirroring the images is a simple but time consuming process, this step must be performed from a system with internet connectivity and network access your private registry, but does not need access to your target OpenShift cluster.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
@@ -300,7 +308,7 @@ docker run -ti quay.io/ibmmas/cli mas mirror-images
 </code></pre>
 <p>You will be prompted to set the target registry for the image mirroring and to <a href="../choosing-the-right-catalog/">select the version of IBM Maximo Operator Catalog to mirror</a> and the subset of content that you wish to mirror  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.</p>
 <p>This command can also be ran non-interactive, for full details refer to the <a href="../../commands/mirror-images/">mirror-images</a> command documentation.</p>
-<h2 id="configure-openshift-to-use-your-private-registry-for-mas">Configure OpenShift to use your Private Registry for MAS<a class="headerlink" href="#configure-openshift-to-use-your-private-registry-for-mas" title="Permanent link"></a></h2>
+<h3 id="configure-openshift-to-use-your-private-registry-for-mas">Configure OpenShift to use your Private Registry for MAS<a class="headerlink" href="#configure-openshift-to-use-your-private-registry-for-mas" title="Permanent link"></a></h3>
 <p>TODO: Work in progress ... basically run <code>mas configure-airgap</code></p>
 <h2 id="install-maximo-application-suite">Install Maximo Application Suite<a class="headerlink" href="#install-maximo-application-suite" title="Permanent link"></a></h2>
 <p>TODO: Work in progress .. basically run the install as normal: <code>mas install</code></p>
