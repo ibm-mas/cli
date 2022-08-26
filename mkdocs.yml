@@ -22,6 +22,7 @@ nav:
     - 'configure-airgap': commands/configure-airgap.md
     - 'install': commands/install.md
   - 'Catalogs':
+    - 'Overview': catalogs/index.md
     - 'v8-220805-amd64': catalogs/v8-220805-amd64.md
     - 'v8-220717-amd64': catalogs/v8-220717-amd64.md
 

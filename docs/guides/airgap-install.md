@@ -7,13 +7,13 @@ Air gap installation for Maximo Application Suite is supported from MAS v8.8 onw
 
 | Application                | First Version to Support Air Gap  |
 | -------------------------- | --------------------------------- |
-| Core                       |  v8.8.0 (v8-2022-07-17-amd64)     |
+| Core                       |  v8.8.0 ([v8-2022-07-17-amd64](../catalogs/v8-220717-amd64.md))     |
 | Assist                     |  No support                       |
 | Health & Predict Utilities |  No support                       |
-| IoT                        |  v8.5.1 (v8-2022-08-05-amd64)     |
-| Manage                     |  v8.4.0 (v8-2022-07-17-amd64)     |
+| IoT                        |  v8.5.1 ([v8-2022-08-05-amd64](../catalogs/v8-220805-amd64.md))     |
+| Manage                     |  v8.4.0 ([v8-2022-07-17-amd64](../catalogs/v8-220717-amd64.md))     |
 | Monitor                    |  No support                       |
-| Optimizer                  |  v8.2.0 (v8-2022-07-17-amd64)     |
+| Optimizer                  |  v8.2.0 ([v8-2022-07-17-amd64](../catalogs/v8-220717-amd64.md))     |
 | Predict                    |  No support                       |
 | Safety                     |  No support                       |
 | Visual Inspection          |  No support                       |
