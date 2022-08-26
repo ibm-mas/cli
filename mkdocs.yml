@@ -11,7 +11,7 @@ nav:
   - 'Home': index.md
   - 'Changes': changes.md
   - 'Guides':
-    - 'Air Gap Installation': guides/airgap-install.md
+    - 'Installation': guides/install.md
     - 'Choosing the Right Catalog': guides/choosing-the-right-catalog.md
   - 'Commands':
     - 'provision-fyre': commands/provision-fyre.md

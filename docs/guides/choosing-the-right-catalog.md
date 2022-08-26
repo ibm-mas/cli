@@ -7,7 +7,7 @@ Choosing the Right Catalog
     If you desire control over updates we highly recommend the use of our static operator catalogs.
 
 
-Scenario 1: Automatic Updates
+Automatic Updates
 -------------------------------------------------------------------------------
 - Goal: I want to receive updates automatically as soon as they are available
 - Solution: Use the **dynamic catalog and automatic approval strategy**
@@ -21,7 +21,7 @@ The content in this catalog is updated regularly. Multiple installations at diff
     This is the recommended way to install IBM Maximo Application Suite in a connected environment.  It will ensure that you recieve vulnerability fixes and critical defect fixes as soon as they are available.
 
 
-Scenario 2: User Controlled Updates
+User Controlled Updates
 -------------------------------------------------------------------------------
 - Goal: I want to control when updates are introduced into my cluster
 - Solution: Use one of the **static catalogs and automatic approval strategy**
@@ -31,7 +31,7 @@ The packages available in these catalogs are fixed. Multiple installations at di
 When you are ready to apply updates you simply modify the CatalogSource installed in your cluster, changing it from e.g. `v8-220717-amd64` to `v8-220805-amd64`.  No further action is required, after a brief delay all installed operators will update automatically to the latest versions in the new catalog source.
 
 
-Scenario 3: Multi-Cluster Version Equivalency
+Multi-Cluster Version Equivalency
 -------------------------------------------------------------------------------
 - Goal: I want to maintain **exact** version alignment across multiple OpenShift clusters, for instance in a development, staging, production setup
 - Solution: Use one of the **static catalogs and automatic approval strategy**
@@ -39,7 +39,7 @@ Scenario 3: Multi-Cluster Version Equivalency
 The packages available in these catalogs are fixed. Multiple installations at different times will always result in exactly the same version of all operators being installed.  By choosing the same static catalog across multiple clusters the customer will be guaranteed that their installations are identical, right down to the patch level of the operators installed.  Updates can be rolled out in a controlled manner, and the upgrade path between two catalog versions will always be identical regardless of how much time passes between upgrades in different cluster.
 
 
-Scenario 4: Disconnected Install
+Disconnected Install
 -------------------------------------------------------------------------------
 - Goal: I want to run a disconnected environment using a private mirror registry
 - Solution: Use one of the **static catalogs and automatic approval strategy**
