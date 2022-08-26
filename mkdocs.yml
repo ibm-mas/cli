@@ -11,8 +11,8 @@ nav:
   - 'Home': index.md
   - 'Changes': changes.md
   - 'Guides':
-    - 'Installation': guides/install.md
     - 'Choosing the Right Catalog': guides/choosing-the-right-catalog.md
+    - 'Installation': guides/install.md
   - 'Commands':
     - 'provision-fyre': commands/provision-fyre.md
     - 'provision-roks': commands/provision-roks.md
