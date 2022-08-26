@@ -58,14 +58,17 @@ Disconnected install for IBM Maximo Application Suite is supported from MAS v8.8
 
 Installation Overview
 -------------------------------------------------------------------------------
-1. [Prepare your Private Registry](#prepare-the-private-registry) (disconnected install only)
-2. [Mirror Container Images](#mirror-container-images) (disconnected install only)
-3. [Configure OpenShift to use your Private Registry for MAS](#configure-the-cluster) (disconnected install only)
-4. [Install MAS](#install-maximo-application-suite)
+1. Disconnected Install Preparation
+    - [Prepare your Private Registry](#prepare-the-private-registry)
+    - [Mirror Container Images](#mirror-container-images)
+    - [Configure OpenShift to use your Private Registry for MAS](#configure-the-cluster)
+2. [Install MAS](#install-maximo-application-suite)
 
 
-Prepare the Private Registry
+Disconnected Install Preparation
 -------------------------------------------------------------------------------
+
+### Prepare the Private Registry
 If you do not already have a private registry available to use as your mirror then you can use the `setup-mirror` function to deploy a private registry inside a target OpenShift cluster.
 
 ```bash
@@ -86,8 +89,7 @@ The registry will be setup running on port 32500.  For more details on this step
 | Password | Optional.  Authentication password for the registry. |
 
 
-Mirror Container Images
--------------------------------------------------------------------------------
+### Mirror Container Images
 Mirroring the images is a simple but time consuming process, this step must be performed from a system with internet connectivity and network access your private registry, but does not need access to your target OpenShift cluster.
 
 !!! tip
@@ -103,8 +105,7 @@ You will be prompted to set the target registry for the image mirroring and to [
 This command can also be ran non-interactive, for full details refer to the [mirror-images](../commands/mirror-images.md) command documentation.
 
 
-Configure OpenShift to use your Private Registry for MAS
--------------------------------------------------------------------------------
+### Configure OpenShift to use your Private Registry for MAS
 TODO: Work in progress ... basically run `mas configure-airgap`
 
 
