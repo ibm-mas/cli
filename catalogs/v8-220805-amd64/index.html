@@ -76,6 +76,8 @@
               </ul>
               <p class="caption"><span class="caption-text">Catalogs</span></p>
               <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../">Overview</a>
+                  </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">v8-220805-amd64</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#details">Details</a>
@@ -83,6 +85,10 @@
     <li class="toctree-l2"><a class="reference internal" href="#manual-installation">Manual Installation</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#source">Source</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#openshift-container-platform-support">OpenShift Container Platform Support</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#hyperscaler-certification">Hyperscaler Certification</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#manifest">Manifest</a>
         <ul>
@@ -153,6 +159,77 @@ spec:
   image: icr.io/cpopen/ibm-maximo-operator-catalog@sha256:012839d2dd801863b5a1f35de3d1e1e39d8e4a3e707f894beee091608c09aca4
   priority: 90
 </code></pre>
+<h2 id="openshift-container-platform-support">OpenShift Container Platform Support<a class="headerlink" href="#openshift-container-platform-support" title="Permanent link"></a></h2>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>OCP Release</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Maximo Application Suite 8.8</td>
+<td>4.8-4.10</td>
+</tr>
+<tr>
+<td>Maximo Application Suite 8.7</td>
+<td>4.6-4.8</td>
+</tr>
+<tr>
+<td>Maximo Application Suite 8.6</td>
+<td>4.6</td>
+</tr>
+<tr>
+<td><a href="https://www.ibm.com/docs/en/cpfs?topic=operator-supported-openshift-versions-platforms">Cloud Pak Foundational Services 1.19.1</a>*</td>
+<td>4.6-4.10</td>
+</tr>
+<tr>
+<td><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=requirements-software">Cloud Pak For Data 2.0.8</a></td>
+<td>4.6, 4.8</td>
+</tr>
+<tr>
+<td><a href="https://www.ibm.com/support/pages/node/6239294">AppConnect 3.0.0</a></td>
+<td>4.6-4.8</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Note the following <a href="https://www.ibm.com/docs/en/cpfs?topic=operator-supported-openshift-versions-platforms">limitations</a> with Cloud Pak Foundational Services OCP support:</p>
+<ul>
+<li>User Data Services (UDS) is supported on Linux® x86_64 and OpenShift Container Platform versions 4.6, 4.7 and 4.8 only.</li>
+<li>DB2, which is installed with ibm-db2u-operator, is supported on OpenShift Container Platform versions 4.6, 4.7, 4.8, and 4.9 only.</li>
+</ul>
+</div>
+<h2 id="hyperscaler-certification">Hyperscaler Certification<a class="headerlink" href="#hyperscaler-certification" title="Permanent link"></a></h2>
+<p>IBM Maximo Application Suite will run anywhere that you can run a supported OpenShift release, additionally this catalog is specifically tested and verified compatible with these hyperscaler providers' managed OpenShift offerings.</p>
+<table>
+<thead>
+<tr>
+<th>Provider</th>
+<th align="center">Certified</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://aws.amazon.com/rosa/">AWS</a></td>
+<td align="center">❌</td>
+</tr>
+<tr>
+<td><a href="https://azure.microsoft.com/en-gb/services/openshift/">Azure</a></td>
+<td align="center">❌</td>
+</tr>
+<tr>
+<td><a href="https://cloud.google.com/architecture/partners/openshift-on-gcp">Google Cloud Platform</a></td>
+<td align="center">❌</td>
+</tr>
+<tr>
+<td><a href="https://www.ibm.com/cloud/openshift">IBM Cloud</a></td>
+<td align="center">✔</td>
+</tr>
+</tbody>
+</table>
 <h2 id="manifest">Manifest<a class="headerlink" href="#manifest" title="Permanent link"></a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -401,7 +478,7 @@ spec:
         </span>
     
     
-      <span><a href="../../commands/install/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
       <span><a href="../v8-220717-amd64/" style="color: #fcfcfc">Next &raquo;</a></span>

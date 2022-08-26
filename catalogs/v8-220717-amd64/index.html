@@ -76,6 +76,8 @@
               </ul>
               <p class="caption"><span class="caption-text">Catalogs</span></p>
               <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../">Overview</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../v8-220805-amd64/">v8-220805-amd64</a>
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">v8-220717-amd64</a>
@@ -85,6 +87,10 @@
     <li class="toctree-l2"><a class="reference internal" href="#manual-installation">Manual Installation</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#source">Source</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#openshift-container-platform-support">OpenShift Container Platform Support</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#hyperscaler-certification">Hyperscaler Certification</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#manifest">Manifest</a>
         <ul>
@@ -153,6 +159,77 @@ spec:
   image: icr.io/cpopen/ibm-maximo-operator-catalog@sha256:02db98338386f874dead37fb9a0b956fe59b851db09440e5523b634f7341e4bf
   priority: 90
 </code></pre>
+<h2 id="openshift-container-platform-support">OpenShift Container Platform Support<a class="headerlink" href="#openshift-container-platform-support" title="Permanent link"></a></h2>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>OCP Release</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Maximo Application Suite 8.8</td>
+<td>4.8-4.10</td>
+</tr>
+<tr>
+<td>Maximo Application Suite 8.7</td>
+<td>4.6-4.8</td>
+</tr>
+<tr>
+<td>Maximo Application Suite 8.6</td>
+<td>4.6</td>
+</tr>
+<tr>
+<td><a href="https://www.ibm.com/docs/en/cpfs?topic=operator-supported-openshift-versions-platforms">Cloud Pak Foundational Services 1.19.1</a>*</td>
+<td>4.6-4.10</td>
+</tr>
+<tr>
+<td><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=requirements-software">Cloud Pak For Data 2.0.8</a></td>
+<td>4.6, 4.8</td>
+</tr>
+<tr>
+<td><a href="https://www.ibm.com/support/pages/node/6239294">AppConnect 3.0.0</a></td>
+<td>4.6-4.8</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Note the following <a href="https://www.ibm.com/docs/en/cpfs?topic=operator-supported-openshift-versions-platforms">limitations</a> with Cloud Pak Foundational Services OCP support:</p>
+<ul>
+<li>User Data Services (UDS) is supported on Linux® x86_64 and OpenShift Container Platform versions 4.6, 4.7 and 4.8 only.</li>
+<li>DB2, which is installed with ibm-db2u-operator, is supported on OpenShift Container Platform versions 4.6, 4.7, 4.8, and 4.9 only.</li>
+</ul>
+</div>
+<h2 id="hyperscaler-certification">Hyperscaler Certification<a class="headerlink" href="#hyperscaler-certification" title="Permanent link"></a></h2>
+<p>IBM Maximo Application Suite will run anywhere that you can run a supported OpenShift release, additionally this catalog is specifically tested and verified compatible with these hyperscaler providers' managed OpenShift offerings.</p>
+<table>
+<thead>
+<tr>
+<th>Provider</th>
+<th align="center">Certified</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://aws.amazon.com/rosa/">AWS</a></td>
+<td align="center">❌</td>
+</tr>
+<tr>
+<td><a href="https://azure.microsoft.com/en-gb/services/openshift/">Azure</a></td>
+<td align="center">❌</td>
+</tr>
+<tr>
+<td><a href="https://cloud.google.com/architecture/partners/openshift-on-gcp">Google Cloud Platform</a></td>
+<td align="center">❌</td>
+</tr>
+<tr>
+<td><a href="https://www.ibm.com/cloud/openshift">IBM Cloud</a></td>
+<td align="center">✔</td>
+</tr>
+</tbody>
+</table>
 <h2 id="manifest">Manifest<a class="headerlink" href="#manifest" title="Permanent link"></a></h2>
 <h3 id="ibm-maximo-application-suite">IBM Maximo Application Suite<a class="headerlink" href="#ibm-maximo-application-suite" title="Permanent link"></a></h3>
 <table>
@@ -165,47 +242,47 @@ spec:
 <tbody>
 <tr>
 <td>ibm-mas</td>
-<td>v8.8.0, v8.7.3, v8.6.4, v8.5.2</td>
+<td>8.8.0, 8.7.3, 8.6.4, 8.5.2</td>
 </tr>
 <tr>
 <td>ibm-mas-assist</td>
-<td>v8.5.0, v8.4.0, v8.3.0, v8.2.0</td>
+<td>8.5.0, 8.4.0, 8.3.0, 8.2.0</td>
 </tr>
 <tr>
 <td>ibm-mas-hputilities</td>
-<td>v8.4.0, v8.3.0, v8.2.0</td>
+<td>8.4.0, 8.3.0, 8.2.0</td>
 </tr>
 <tr>
 <td>ibm-mas-iot</td>
-<td>v8.5.0, v8.4.3</td>
+<td>8.5.0, 8.4.3</td>
 </tr>
 <tr>
 <td>ibm-mas-manage</td>
-<td>v8.4.0, v8.3.0, v8.2.0, v8.1.0</td>
+<td>8.4.0, 8.3.0, 8.2.0, 8.1.0</td>
 </tr>
 <tr>
 <td>ibm-mas-monitor</td>
-<td>v8.8.0, v8.7.2, v8.6.4</td>
+<td>8.8.0, 8.7.2, 8.6.4</td>
 </tr>
 <tr>
 <td>ibm-mas-mso</td>
-<td>v8.1.0, v8.0.3</td>
+<td>8.1.0, 8.0.3</td>
 </tr>
 <tr>
 <td>ibm-mas-optimizer</td>
-<td>v8.2.0</td>
+<td>8.2.0</td>
 </tr>
 <tr>
 <td>ibm-mas-predict</td>
-<td>v8.6.0, v8.5.1, v8.4.1</td>
+<td>8.6.0, 8.5.1, 8.4.1</td>
 </tr>
 <tr>
 <td>ibm-mas-safety</td>
-<td>v8.3.0, v8.2.2</td>
+<td>8.3.0, 8.2.2</td>
 </tr>
 <tr>
 <td>ibm-mas-visualinspection</td>
-<td>v8.6.0, v8.5.0, v8.4.0, v8.3.0</td>
+<td>8.6.0, 8.5.0, 8.4.0, 8.3.0</td>
 </tr>
 </tbody>
 </table>
@@ -220,11 +297,11 @@ spec:
 <tbody>
 <tr>
 <td>ibm-sls</td>
-<td>v3.4.0</td>
+<td>3.4.0</td>
 </tr>
 <tr>
 <td>ibm-truststore-mgr</td>
-<td>v1.3.0</td>
+<td>1.3.0</td>
 </tr>
 </tbody>
 </table>
@@ -239,39 +316,39 @@ spec:
 <tbody>
 <tr>
 <td>ibm-common-service-operator</td>
-<td>v3.19.1</td>
+<td>3.19.1</td>
 </tr>
 <tr>
 <td>ibm-namespace-scope-operator</td>
-<td>v1.13.1</td>
+<td>1.13.1</td>
 </tr>
 <tr>
 <td>ibm-odlm</td>
-<td>v1.17.1</td>
+<td>1.17.1</td>
 </tr>
 <tr>
 <td>ibm-cert-manager-operator</td>
-<td>v3.21.1</td>
+<td>3.21.1</td>
 </tr>
 <tr>
 <td>ibm-user-data-services-operator</td>
-<td>v2.0.8</td>
+<td>2.0.8</td>
 </tr>
 <tr>
 <td>ibm-events-operator</td>
-<td>v4.2.0</td>
+<td>4.2.0</td>
 </tr>
 <tr>
 <td>db2u-operator</td>
-<td>v1.1.13</td>
+<td>1.1.13</td>
 </tr>
 <tr>
 <td>ibm-licensing-operator-app</td>
-<td>v1.16.1</td>
+<td>1.16.1</td>
 </tr>
 <tr>
 <td>ibm-zen-operator</td>
-<td>v1.5.4*</td>
+<td>1.5.4*</td>
 </tr>
 </tbody>
 </table>
@@ -290,63 +367,63 @@ spec:
 <tbody>
 <tr>
 <td>cpd-platform-operator</td>
-<td>v2.0.8</td>
+<td>2.0.8</td>
 </tr>
 <tr>
 <td>ibm-cpd-wsl</td>
-<td>v2.0.9</td>
+<td>2.0.9</td>
 </tr>
 <tr>
 <td>ibm-cpd-css</td>
-<td>v1.0.9</td>
+<td>1.0.9</td>
 </tr>
 <tr>
 <td>ibm-cpd-datarefinery</td>
-<td>v1.0.10</td>
+<td>1.0.10</td>
 </tr>
 <tr>
 <td>ibm-cpd-ws-runtimes</td>
-<td>v1.0.9</td>
+<td>1.0.9</td>
 </tr>
 <tr>
 <td>ibm-cpd-wml-operator</td>
-<td>v1.1.8</td>
+<td>1.1.8</td>
 </tr>
 <tr>
 <td>analyticsengine-operator</td>
-<td>v1.0.9</td>
+<td>1.0.9</td>
 </tr>
 <tr>
 <td>ibm-cpd-wos</td>
-<td>v1.5.4</td>
+<td>1.5.4</td>
 </tr>
 <tr>
 <td>ibm-watson-discovery-operator</td>
-<td>v4.0.9</td>
+<td>4.0.9</td>
 </tr>
 <tr>
 <td>ibm-watson-gateway-operator</td>
-<td>v1.0.12</td>
+<td>1.0.12</td>
 </tr>
 <tr>
 <td>ibm-rabbitmq-operator</td>
-<td>v1.0.11</td>
+<td>1.0.11</td>
 </tr>
 <tr>
 <td>ibm-model-train-operator</td>
-<td>v1.1.2</td>
+<td>1.1.2</td>
 </tr>
 <tr>
 <td>ibm-minio-operator</td>
-<td>v1.0.10</td>
+<td>1.0.10</td>
 </tr>
 <tr>
 <td>ibm-etcd-operator</td>
-<td>v1.0.10</td>
+<td>1.0.10</td>
 </tr>
 <tr>
 <td>ibm-elasticsearch-operator</td>
-<td>v1.1.1042</td>
+<td>1.1.1042</td>
 </tr>
 </tbody>
 </table>
@@ -361,11 +438,11 @@ spec:
 <tbody>
 <tr>
 <td>ibm-appconnect</td>
-<td>v3.0.0</td>
+<td>3.0.0</td>
 </tr>
 <tr>
 <td>couchdb-operator</td>
-<td>v2.2.1</td>
+<td>2.2.1</td>
 </tr>
 </tbody>
 </table>
