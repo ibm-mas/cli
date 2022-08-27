@@ -86,6 +86,9 @@ function mirror_to_registry_noninteractive() {
   MIRROR_TRUSTSTOREMGR=true
   MIRROR_UDS=true
   MIRROR_WD=false
+  MIRROR_WML=false
+  MIRROR_WSL=false
+  MIRROR_AE=false
   MIRROR_ZEN=false
   while [[ $# -gt 0 ]]
   do
@@ -141,6 +144,7 @@ function mirror_to_registry_noninteractive() {
         MIRROR_CP4D=true
         MIRROR_ZEN=true
         MIRROR_APPCONNECT=true
+        MIRROR_WSL=true
         ;;
       --mirror-iot)
         MIRROR_MAS_IOT=true
@@ -159,6 +163,9 @@ function mirror_to_registry_noninteractive() {
         MIRROR_MAS_X=true
         MIRROR_CP4D=true
         MIRROR_ZEN=true
+        MIRROR_WML=true
+        MIRROR_WSL=true
+        MIRROR_AE=true
         ;;
       --mirror-optimizer)
         MIRROR_MAS_OPTIMIZER=true
@@ -294,6 +301,9 @@ function mirror_to_registry_interactive() {
     MIRROR_CP4D=true
     MIRROR_DB2U=true
     MIRROR_WD=true
+    MIRROR_WML=true
+    MIRROR_WSL=true
+    MIRROR_AE=true
     MIRROR_ZEN=true
   else
     prompt_for_confirm "Red Hat OpenShift Container Platform Release" MIRROR_RH_RELEASE
@@ -327,12 +337,19 @@ function mirror_to_registry_interactive() {
     if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
       prompt_for_confirm_default_yes " + IBM Db2" MIRROR_DB2U
     fi
-    if [[ "$MIRROR_MAS_HPUTILITIES" == "true" ]]; then
-      prompt_for_confirm_default_yes " + IBM Application Connect" MIRROR_APPCONNECT
-    fi
     if [[ "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_PREDICT" == "true" ]]; then
       prompt_for_confirm_default_yes " + IBM Cloud Pak for Data" MIRROR_CP4D
       prompt_for_confirm_default_yes " + IBM Zen Services" MIRROR_ZEN
+    fi
+    if [[ "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_PREDICT" == "true" ]]; then
+      prompt_for_confirm_default_yes " + IBM Watson Studio" MIRROR_WSL
+    fi
+    if [[ "$MIRROR_MAS_HPUTILITIES" == "true" ]]; then
+      prompt_for_confirm_default_yes " + IBM Application Connect" MIRROR_APPCONNECT
+    fi
+    if [[ "$MIRROR_MAS_PREDICT" == "true" ]]; then
+      prompt_for_confirm_default_yes " + Analytics Engine" MIRROR_AE
+      prompt_for_confirm_default_yes " + IBM Machine Learning" MIRROR_WML
     fi
     if [[ "$MIRROR_MAS_ASSIST" == "true" ]]; then
       prompt_for_confirm_default_yes " + IBM Watson Discovery" MIRROR_WD
@@ -420,6 +437,9 @@ function mirror_to_registry() {
   export MIRROR_APPCONNECT
   export MIRROR_CP4D
   export MIRROR_WD
+  export MIRROR_WSL
+  export MIRROR_WML
+  export MIRROR_AE
   export MIRROR_ZEN
   # Authentication
   export IBM_ENTITLEMENT_KEY
@@ -499,14 +519,23 @@ function mirror_to_registry() {
     if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
       show_mirror_status " + IBM Db2 .........................." $MIRROR_DB2U
     fi
-    # HP Utilities Dependencies
-    if [[ "$MIRROR_MAS_HPUTILITIES" == "true" ]]; then
-      show_mirror_status " + IBM Application Connect .........." $MIRROR_APPCONNECT
-    fi
     # Assist & HP Utilities and Predict Dependencies
     if [[ "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_PREDICT" == "true" ]]; then
       show_mirror_status " + IBM Cloud Pak for Data ..........." $MIRROR_CP4D
       show_mirror_status " + IBM Zen Services ..........." $MIRROR_ZEN
+    fi
+    # HP Utilities and Predict Dependencies
+    if [[ "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_PREDICT" == "true" ]]; then
+      show_mirror_status " + IBM Watson Studio ..........." $MIRROR_WSL
+    fi
+    # HP Utilities Dependencies
+    if [[ "$MIRROR_MAS_HPUTILITIES" == "true" ]]; then
+      show_mirror_status " + IBM Application Connect .........." $MIRROR_APPCONNECT
+    fi
+    # Predict Dependencies
+    if [[ "$MIRROR_MAS_PREDICT" == "true" ]]; then
+      show_mirror_status " + Analytics Engine ..........." $MIRROR_AE
+      show_mirror_status " + IBM Watson Machine Learning ..........." $MIRROR_WML
     fi
     # Assist Dependencies
     if [[ "$MIRROR_MAS_ASSIST" == "true" ]]; then
