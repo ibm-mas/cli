@@ -10,16 +10,21 @@ edit_uri: blob/master/docs/
 nav:
   - 'Home': index.md
   - 'Changes': changes.md
-  - 'OCP Provisioning':
+  - 'Guides':
+    - 'Choosing the Right Catalog': guides/choosing-the-right-catalog.md
+    - 'Installation': guides/install.md
+  - 'Commands':
     - 'provision-fyre': commands/provision-fyre.md
     - 'provision-roks': commands/provision-roks.md
     - 'provision-rosa': commands/provision-rosa.md
-  - 'MAS Installation':
-    - 'install': commands/install.md
-  - 'Air Gap Support':
     - 'setup-registry': commands/setup-registry.md
     - 'mirror-images': commands/mirror-images.md
     - 'configure-airgap': commands/configure-airgap.md
+    - 'install': commands/install.md
+  - 'Catalogs':
+    - 'Overview': catalogs/index.md
+    - 'v8-220805-amd64': catalogs/v8-220805-amd64.md
+    - 'v8-220717-amd64': catalogs/v8-220717-amd64.md
 
 theme:
   name: readthedocs

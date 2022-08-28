@@ -16,7 +16,7 @@ spec:
     - name: mas_catalog_version
       type: string
       description: Optional version of the IBM Maximo Operator Catalog to install
-      default: "v8"
+      default: "v8-amd64"
 
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
