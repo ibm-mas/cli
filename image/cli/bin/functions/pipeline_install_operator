@@ -15,7 +15,7 @@ function is_tektonconfig_supported() {
     fi
   done
 
-  echo $SUPPORT_TEKTONCONFIG
+  echo "$SUPPORT_TEKTONCONFIG"
 }
 
 function pipeline_install_operator() {
