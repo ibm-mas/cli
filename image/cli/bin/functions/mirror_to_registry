@@ -21,6 +21,8 @@ Source Registry Entitlements (Required based on what content you choose to mirro
       --ibm-entitlement ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}       IBM Entitlement Key
       --redhat-username ${COLOR_YELLOW}REDHAT_CONNECT_USERNAME${TEXT_RESET}   Red Hat Connect Username
       --redhat-password ${COLOR_YELLOW}REDHAT_CONNECT_PASSWORD${TEXT_RESET}   Red Hat Connect Password
+      --quay-username ${COLOR_YELLOW}QUAY_USERNAME${TEXT_RESET}               Quay Username
+      --quay-password ${COLOR_YELLOW}QUAY_PASSWORD${TEXT_RESET}               Quay Password
 
 Red Hat Catalog Selection (Optional):
       --mirror-redhat-release ${COLOR_YELLOW}OPENSHIFT_RELEASE_VERSION${TEXT_RESET}      Mirror Red Hat Operator catalog image at the specified release (e.g. 4.10)
@@ -115,6 +117,12 @@ function mirror_to_registry_noninteractive() {
         ;;
       --redhat-password)
         REDHAT_CONNECT_PASSWORD=$1 && shift
+        ;;
+      --quay-username)
+        QUAY_USERNAME=$1 && shift
+        ;;
+      --quay-password)
+        QUAY_PASSWORD=$1 && shift
         ;;
       --mirror-redhat-release)
         MIRROR_RH_RELEASE=true
@@ -223,6 +231,10 @@ function mirror_to_registry_noninteractive() {
     if [[ $MIRROR_UDS == "true" || $MIRROR_RH_RELEASE == "true" || $MIRROR_RH_OPERATORS == "true" ]]; then
       [[ -z "$REDHAT_CONNECT_USERNAME" ]] && mirror_to_registry_help "REDHAT_CONNECT_USERNAME is not set"
       [[ -z "$REDHAT_CONNECT_PASSWORD" ]] && mirror_to_registry_help "REDHAT_CONNECT_PASSWORD is not set"
+    fi
+    if [[ $MIRROR_RH_RELEASE == "true" ]]; then
+      [[ -z "$QUAY_USERNAME" ]] && mirror_to_registry_help "QUAY_USERNAME is not set"
+      [[ -z "$QUAY_PASSWORD" ]] && mirror_to_registry_help "QUAY_PASSWORD is not set"
     fi
   fi
 }
@@ -364,6 +376,10 @@ function mirror_to_registry_interactive() {
     prompt_for_input "Red Hat Connect Username" REDHAT_CONNECT_USERNAME
     prompt_for_input "Red Hat Connect Password" REDHAT_CONNECT_PASSWORD
   fi
+  if [[ $MIRROR_RH_RELEASE == "true" ]]; then
+    prompt_for_input "Quay Username" QUAY_USERNAME
+    prompt_for_input "Quay Password" QUAY_PASSWORD
+  fi
 }
 
 
@@ -445,6 +461,8 @@ function mirror_to_registry() {
   export IBM_ENTITLEMENT_KEY
   export REDHAT_CONNECT_USERNAME
   export REDHAT_CONNECT_PASSWORD
+  export QUAY_USERNAME
+  export QUAY_PASSWORD
 
   echo
   reset_colors
@@ -468,6 +486,7 @@ function mirror_to_registry() {
   then
     echo_reset_dim "Catalog Version ....................... ${COLOR_MAGENTA}${OPENSHIFT_RELEASE_VERSION}"
     echo_reset_dim "Authentication ........................ ${COLOR_MAGENTA}${REDHAT_CONNECT_USERNAME}/${REDHAT_CONNECT_PASSWORD:0:4}<snip>"
+    echo_reset_dim "Authentication ........................ ${COLOR_MAGENTA}${QUAY_USERNAME}/${QUAY_PASSWORD:0:4}<snip>"
   else
     echo_reset_dim "${COLOR_RED}Skip"
   fi
@@ -562,7 +581,7 @@ function mirror_to_registry() {
 
   mirror_one_thing $MIRROR_MAS_CORE             "IBM Maximo Application Suite Core"  "$LOG_PREFIX-core.log"             mirror_core
   mirror_one_thing $MIRROR_MAS_ASSIST           "IBM Maximo Assist"                  "$LOG_PREFIX-assist.log"           mirror_add_assist
-  mirror_one_thing $MIRROR_MAS_HPUTILITIES      "IBM Maximo HP Utilties"             "$LOG_PREFIX-hputilties.log"       mirror_add_hputilities
+  mirror_one_thing $MIRROR_MAS_HPUTILITIES      "IBM Maximo HP Utilities"            "$LOG_PREFIX-hputilities.log"      mirror_add_hputilities
   mirror_one_thing $MIRROR_MAS_IOT              "IBM Maximo IoT"                     "$LOG_PREFIX-iot.log"              mirror_add_iot
   mirror_one_thing $MIRROR_MAS_MANAGE           "IBM Maximo Manage"                  "$LOG_PREFIX-manage.log"           mirror_add_manage
   mirror_one_thing $MIRROR_MAS_MONITOR          "IBM Maximo Monitor"                 "$LOG_PREFIX-monitor.log"          mirror_add_monitor
