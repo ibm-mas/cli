@@ -1,6 +1,8 @@
-# Setup Private Registry
+Setup Private Registry
+===============================================================================
 
-## Usage
+Usage
+-------------------------------------------------------------------------------
 
 ```bash
 docker run -ti --rm quay.io/ibmmas/cli mas setup-registry
