@@ -91,7 +91,6 @@ function mirror_to_registry_noninteractive() {
   MIRROR_WML=false
   MIRROR_WSL=false
   MIRROR_AE=false
-  MIRROR_ZEN=false
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -143,14 +142,12 @@ function mirror_to_registry_noninteractive() {
         MIRROR_MAS_ASSIST=true
         MIRROR_MAS_X=true
         MIRROR_CP4D=true
-        MIRROR_ZEN=true
         MIRROR_WD=true
         ;;
       --mirror-hputilities)
         MIRROR_MAS_HPUTILITIES=true
         MIRROR_MAS_X=true
         MIRROR_CP4D=true
-        MIRROR_ZEN=true
         MIRROR_APPCONNECT=true
         MIRROR_WSL=true
         ;;
@@ -170,7 +167,6 @@ function mirror_to_registry_noninteractive() {
         MIRROR_MAS_PREDICT=true
         MIRROR_MAS_X=true
         MIRROR_CP4D=true
-        MIRROR_ZEN=true
         MIRROR_WML=true
         MIRROR_WSL=true
         MIRROR_AE=true
@@ -316,7 +312,6 @@ function mirror_to_registry_interactive() {
     MIRROR_WML=true
     MIRROR_WSL=true
     MIRROR_AE=true
-    MIRROR_ZEN=true
   else
     prompt_for_confirm "Red Hat OpenShift Container Platform Release" MIRROR_RH_RELEASE
     if [[ "$MIRROR_RH_RELEASE" == "true" ]]; then
@@ -350,8 +345,7 @@ function mirror_to_registry_interactive() {
       prompt_for_confirm_default_yes " + IBM Db2" MIRROR_DB2U
     fi
     if [[ "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_PREDICT" == "true" ]]; then
-      prompt_for_confirm_default_yes " + IBM Cloud Pak for Data" MIRROR_CP4D
-      prompt_for_confirm_default_yes " + IBM Zen Services" MIRROR_ZEN
+      prompt_for_confirm_default_yes " + IBM Cloud Pak for Data and Services" MIRROR_CP4D
     fi
     if [[ "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_PREDICT" == "true" ]]; then
       prompt_for_confirm_default_yes " + IBM Watson Studio" MIRROR_WSL
@@ -456,7 +450,6 @@ function mirror_to_registry() {
   export MIRROR_WSL
   export MIRROR_WML
   export MIRROR_AE
-  export MIRROR_ZEN
   # Authentication
   export IBM_ENTITLEMENT_KEY
   export REDHAT_CONNECT_USERNAME
@@ -540,8 +533,7 @@ function mirror_to_registry() {
     fi
     # Assist & HP Utilities and Predict Dependencies
     if [[ "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_PREDICT" == "true" ]]; then
-      show_mirror_status " + IBM Cloud Pak for Data ..........." $MIRROR_CP4D
-      show_mirror_status " + IBM Zen Services ................." $MIRROR_ZEN
+      show_mirror_status " + IBM Cloud Pak for Data and Services ..........." $MIRROR_CP4D
     fi
     # HP Utilities and Predict Dependencies
     if [[ "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_PREDICT" == "true" ]]; then
