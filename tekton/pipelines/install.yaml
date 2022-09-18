@@ -455,7 +455,7 @@ spec:
           workspace: shared-configs
 
 
-    # 3. Install AMQStream (Kafka)
+    # 3. Install AMQStreams (Kafka)
     # -------------------------------------------------------------------------
     - name: kafka
       params:
@@ -486,6 +486,8 @@ spec:
       taskRef:
         kind: Task
         name: mas-devops-kafka
+      runAfter:
+        - cluster-monitoring
       workspaces:
         - name: configs
           workspace: shared-configs
