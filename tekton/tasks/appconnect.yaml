@@ -24,6 +24,24 @@ spec:
       default: ""
       description: "Optional AppConnect-specific override for the IBM entitlement key"
 
+    # Channel
+    - name: appconnect_channel
+      type: string
+      default: ""
+
+    # Dashboard
+    - name: appconnect_dashboard_name
+      type: string
+      default: ""
+    - name: appconnect_dashboard_version
+      type: string
+      default: ""
+
+    # License
+    - name: appconnect_license_id
+      type: string
+      default: ""
+
     # Storage Clas
     - name: appconnect_storage_class
       type: string
@@ -58,6 +76,20 @@ spec:
         value: $(params.ibm_entitlement_key)
       - name: APPCONNECT_ENTITLEMENT_KEY
         value: $(params.appconnect_entitlement_key)
+
+      # Channel
+      - name: APPCONNECT_CHANNEL
+        value: $(params.appconnect_channel)
+
+      # Dashboard
+      - name: APPCONNECT_DASHBOARD_NAME
+        value: $(params.appconnect_dashboard_name)
+      - name: APPCONNECT_DASHBOARD_VERSION
+        value: $(params.appconnect_dashboard_version)
+
+      # License
+      - name: APPCONNECT_LICENSE_ID
+        value: $(params.appconnect_license_id)
 
       # Storage Class
       - name: APPCONNECT_STORAGE_CLASS
