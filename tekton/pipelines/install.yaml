@@ -1026,7 +1026,7 @@ spec:
     - name: suite-config-watson-studio
       params:
         - name: devops_suite_name
-          value: cfg-suite-appconnect
+          value: cfg-suite-watson-studio
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
@@ -1055,7 +1055,7 @@ spec:
     - name: suite-config-discovery
       params:
         - name: devops_suite_name
-          value: cfg-suite-appconnect
+          value: cfg-suite-discovery
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
@@ -1114,7 +1114,7 @@ spec:
     - name: suite-config-cos
       params:
         - name: devops_suite_name
-          value: cfg-suite-appconnect
+          value: cfg-suite-cos
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
