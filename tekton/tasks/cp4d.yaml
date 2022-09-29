@@ -5,6 +5,11 @@ metadata:
   name: mas-devops-cp4d
 spec:
   params:
+    # CPD Release Version
+    - name: cpd_release_version
+      type: string
+      default: ""
+
     # Namespace configuration (Optional, defaults built into Ansible role)
     - name: cpd_operator_namespace
       type: string
@@ -50,6 +55,9 @@ spec:
 
   stepTemplate:
     env:
+      - name: CPD_RELEASE_VERSION
+        value: $(params.cpd_release_version)
+
       - name: CPD_OPERATOR_NAMESPACE
         value: $(params.cpd_operator_namespace)
       - name: CPD_INSTANCE_NAMESPACE
