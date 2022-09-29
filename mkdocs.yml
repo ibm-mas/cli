@@ -13,6 +13,7 @@ nav:
   - 'Guides':
     - 'Choosing the Right Catalog': guides/choosing-the-right-catalog.md
     - 'Installation': guides/install.md
+    - 'MAS pods explained': guides/mas-pods-explained.md
   - 'Commands':
     - 'provision-fyre': commands/provision-fyre.md
     - 'provision-roks': commands/provision-roks.md
