@@ -81,6 +81,12 @@
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">Overview</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#dynamic-catalog">Dynamic Catalog</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#manual-installation">Manual Installation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#source">Source</a>
+    </li>
+        </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#static-catalogs">Static Catalogs</a>
     </li>
@@ -117,8 +123,34 @@
             <div class="section" itemprop="articleBody">
               
                 <h2 id="catalog-options">Catalog Options<a class="headerlink" href="#catalog-options" title="Permanent link"></a></h2>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Whether you are using dynamic or static catalogs we <strong>strongly discourage the use of manual update approvals on subscriptions</strong>.  In our experience it leads to overly complicated updates requiring significant administrative effort when taking into account the range of operators running in a cluster across numerous namespaces.</p>
+<p>If you desire control over when updates are introduced to your cluster we highly recommend the use of static operator catalogs.</p>
+</div>
 <h3 id="dynamic-catalog">Dynamic Catalog<a class="headerlink" href="#dynamic-catalog" title="Permanent link"></a></h3>
+<p>The dynamic operator catalog is continuously updated, if you use the dynamic catalog you will always have access to the latest operator updates.</p>
+<p>This catalog is a <strong>curated</strong> catalog, the Maximo Application Suite team take a snapshot of the online IBM Operator Catalog and test compatibility of all dependant IBM operators with supported releases of Maximo Application suite; this allows the team to intercept any breaking changes that may have evaded other teams' testing before they reach your cluster.</p>
+<p>No updates are made to this catalog without extensive testing with all in-support version of Maximo Application Suite, so you can trust this dynamic catalog, even in a production environment.</p>
+<h4 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link"></a></h4>
+<p><code>oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v8-amd64.yaml</code></p>
+<h4 id="source">Source<a class="headerlink" href="#source" title="Permanent link"></a></h4>
+<pre><code class="language-yaml">apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: IBM Maximo Operators (v8-amd64)
+  publisher: IBM
+  description: Dynamic Catalog Source for IBM Maximo Application Suite
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-maximo-operator-catalog:v8-amd64
+  priority: 90
+</code></pre>
 <h3 id="static-catalogs">Static Catalogs<a class="headerlink" href="#static-catalogs" title="Permanent link"></a></h3>
+<p>The static operator catalogs provide a fixed reference point, if you use a static catalog you can rely on the fact that it will never change which allows for 100% reproducable installations no matter how much time has passed between the install.</p>
+<p>To recieve security updates and bug fixes you must periodically update the version of the static catalog that you have installed in the cluster.  Once you do this all operators that you have installed from the catalog will automatically update to the newer version.  We aim to release a catalog update monthly.</p>
 <ul>
 <li><a href="v8-220805-amd64/">v8-220805-amd64</a></li>
 <li><a href="v8-220717-amd64/">v8-220717-amd64</a></li>
