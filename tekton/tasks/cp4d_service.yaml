@@ -5,11 +5,6 @@ metadata:
   name: mas-devops-cp4d-service
 spec:
   params:
-    # CPD Release Version
-    - name: cpd_release_version
-      type: string
-      default: ""
-
     # Namespace configuration (Optional, defaults built into Ansible role)
     - name: cpd_operator_namespace
       type: string
@@ -62,9 +57,6 @@ spec:
 
   stepTemplate:
     env:
-      - name: CPD_RELEASE_VERSION
-        value: $(params.cpd_release_version)
-
       - name: MAS_CONFIG_DIR
         value: /workspace/configs
       - name: MAS_INSTANCE_ID

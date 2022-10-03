@@ -5,8 +5,8 @@ metadata:
   name: mas-devops-cp4d
 spec:
   params:
-    # CPD Release Version
-    - name: cpd_release_version
+    # CPD Product Version
+    - name: cpd_product_version
       type: string
       default: ""
 
@@ -55,8 +55,8 @@ spec:
 
   stepTemplate:
     env:
-      - name: CPD_RELEASE_VERSION
-        value: $(params.cpd_release_version)
+      - name: CPD_PRODUCT_VERSION
+        value: $(params.cpd_product_version)
 
       - name: CPD_OPERATOR_NAMESPACE
         value: $(params.cpd_operator_namespace)
