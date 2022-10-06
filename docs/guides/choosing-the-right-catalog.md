@@ -4,7 +4,7 @@ Choosing the Right Catalog
 !!! important
     In all cases we **strongly discourage the use of manual update approvals on subscriptions**.  In our experience it leads to overly complicated updates requiring significant administrative effort when taking into account the range of operators running in a cluster across numerous namespaces.
 
-    If you desire control over updates we highly recommend the use of our static operator catalogs.
+    If you desire control over when updates are introduced to your cluster we highly recommend the use of our static operator catalogs.
 
 
 Automatic Updates
@@ -21,7 +21,7 @@ The content in this catalog is updated regularly. Multiple installations at diff
     This is the recommended way to install IBM Maximo Application Suite in a connected environment.  It will ensure that you recieve vulnerability fixes and critical defect fixes as soon as they are available.
 
 
-User Controlled Updates
+User-Controlled Updates
 -------------------------------------------------------------------------------
 - Goal: I want to control when updates are introduced into my cluster
 - Solution: Use one of the **static catalogs and automatic approval strategy**
