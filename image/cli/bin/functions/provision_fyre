@@ -17,7 +17,7 @@ FYRE Credentials (Required):
 Cluster Configuration (Required):
   -p, --product-id ${COLOR_YELLOW}FYRE_PRODUCT_ID${TEXT_RESET}        FYRE product group ID that will own the cluster
   -q, --quota-type ${COLOR_YELLOW}FYRE_QUOTA_TYPE${TEXT_RESET}        Declare the quota to use when provisioning the cluster ("quick_burn" or "product_group")
-  -c, --cluster-name ${COLOR_YELLOW}CLUSTER_NAME${TEXT_RESET}         Name of the cluster to be provisioned
+  -c, --cluster-name ${COLOR_YELLOW}CLUSTER_NAME${TEXT_RESET}         Name of the cluster to be provisioned (lowercase only)
   -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}           OCP version to use (e.g 4.8, 4.10)
   -d, --description ${COLOR_YELLOW}FYRE_DESCRIPTION${TEXT_RESET}      Description of the OCP cluster
 
@@ -132,10 +132,11 @@ function provision_fyre_interactive() {
       ;;
 
     *)
+      # Print out a warning as there could be a typo
+      echo_warning "    Using none standard OCP version ($OCP_VERSION_SELECTION)"
       export OCP_VERSION=$OCP_VERSION_SELECTION
       ;;
   esac
-
 
   prompt_for_input "Cluster Description" FYRE_CLUSTER_DESCRIPTION
   prompt_for_input "FYRE Product ID" FYRE_PRODUCT_ID
@@ -144,9 +145,9 @@ function provision_fyre_interactive() {
   prompt_for_confirm "Use Product Group Quota?" USE_PRODUCT_GROUP_QUOTA
   if [[ "$USE_PRODUCT_GROUP_QUOTA" == "true" ]]; then
     FYRE_QUOTA_TYPE=product_group
-    prompt_for_input "Number of Worker Nodes (min 3)" FYRE_WORKER_COUNT
-    prompt_for_input "Worker Node CPU (max 16)" FYRE_WORKER_CPU
-    prompt_for_input "Worker Node Memory (max 64)" FYRE_WORKER_MEMORY
+    prompt_for_number "Number of Worker Nodes (min 3)" FYRE_WORKER_COUNT
+    prompt_for_number "Worker Node CPU (max 16)" FYRE_WORKER_CPU
+    prompt_for_number "Worker Node Memory (max 64)" FYRE_WORKER_MEMORY
   else
     FYRE_QUOTA_TYPE=product_group
   fi
@@ -162,6 +163,15 @@ function provision_fyre() {
     provision_fyre_noninteractive "$@"
   else
     provision_fyre_interactive
+  fi
+
+  # Fyre will provision a cluster with lowercase name so force to lowercase now
+  old=$CLUSTER_NAME
+  declare -l new=$CLUSTER_NAME
+  if [[ $old != $new ]] ; then
+    echo
+    echo_warning "Cluster name converted to lowercase"
+    CLUSTER_NAME=$new
   fi
 
   # Ensure all environment variables are available to ansible-playbook
