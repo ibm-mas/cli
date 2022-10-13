@@ -36,7 +36,6 @@ Maximo Operator Catalog Selection (Optional):
       --mirror-monitor                            Mirror images for IBM Maximo Monitor
       --mirror-predict                            Mirror images for IBM Maximo Predict
       --mirror-optimizer                          Mirror images for IBM Maximo Optimizer
-      --mirror-safety                             Mirror images for IBM Maximo Safety
       --mirror-visualinspection                   Mirror images for IBM Maximo Visual Inspection
 
 Maximo Core Image Mirroring Configuration (Optional):
@@ -73,7 +72,6 @@ function mirror_to_registry_noninteractive() {
   MIRROR_MAS_MONITOR=false
   MIRROR_MAS_PREDICT=false
   MIRROR_MAS_OPTIMIZER=false
-  MIRROR_MAS_SAFETY=false
   MIRROR_MAS_VISUALINSPECTION=false
   MIRROR_MAS_X=false
   # Dependencies
@@ -152,10 +150,6 @@ function mirror_to_registry_noninteractive() {
         MIRROR_MAS_OPTIMIZER=true
         MIRROR_MAS_X=true
         ;;
-      --mirror-safety)
-        MIRROR_MAS_SAFETY=true
-        MIRROR_MAS_X=true
-        ;;
       --mirror-visualinspection)
         MIRROR_MAS_VISUALINSPECTION=true
         MIRROR_MAS_X=true
@@ -223,17 +217,23 @@ function mirror_to_registry_interactive() {
   echo_h2 "3. Configure Static Catalog Version"
 
   echo -e "${COLOR_YELLOW}MAS Version:"
-  echo "  1. 8.8 (2022-08-05)"
-  echo "  2. 8.8 (2022-07-17)"
+  echo "  1. 8.8.1 (2022-09-27)"
+  echo "  2. 8.8.0 (2022-08-05)"
+  echo "  3. 8.8.0 (2022-07-17)"
   prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
 
   case $MAS_CHANNEL_SELECTION in
-    1|220805|2022-08-05)
+    1|220927|2022-09-27)
+      MAS_CHANNEL=8.8.x
+      MAS_CATALOG_SOURCE=ibm-operator-catalog
+      MAS_CATALOG_VERSION=v8-220927-amd64
+      ;;
+    2|220805|2022-08-05)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-220805-amd64
       ;;
-    2|220717|2022-07-17)
+    3|220717|2022-07-17)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-220717
@@ -275,7 +275,6 @@ function mirror_to_registry_interactive() {
     MIRROR_MAS_MONITOR=true
     MIRROR_MAS_PREDICT=true
     MIRROR_MAS_OPTIMIZER=true
-    MIRROR_MAS_SAFETY=true
     MIRROR_MAS_VISUALINSPECTION=true
     # App Dependencies
     MIRROR_DB2U=true
@@ -299,13 +298,12 @@ function mirror_to_registry_interactive() {
       prompt_for_confirm_default_yes " + MongoDb Community Edition" MIRROR_MONGOCE
     fi
 
-    prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_HPUTILITIES
+    prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_IOT
     prompt_for_confirm "IBM Maximo Application Suite - HP Utilities" MIRROR_MAS_HPUTILITIES
     prompt_for_confirm "IBM Maximo Application Suite - Manage" MIRROR_MAS_MANAGE
     prompt_for_confirm "IBM Maximo Application Suite - Monitor" MIRROR_MAS_MONITOR
     prompt_for_confirm "IBM Maximo Application Suite - Predict" MIRROR_MAS_PREDICT
     prompt_for_confirm "IBM Maximo Application Suite - Optimizer" MIRROR_MAS_OPTIMIZER
-    prompt_for_confirm "IBM Maximo Application Suite - Safety" MIRROR_MAS_SAFETY
     prompt_for_confirm "IBM Maximo Application Suite - Visual Inspection" MIRROR_MAS_VISUALINSPECTION
     if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
       prompt_for_confirm_default_yes " + IBM Db2" MIRROR_DB2U
@@ -387,7 +385,6 @@ function mirror_to_registry() {
   export MIRROR_MAS_MONITOR
   export MIRROR_MAS_PREDICT
   export MIRROR_MAS_OPTIMIZER
-  export MIRROR_MAS_SAFETY
   export MIRROR_MAS_VISUALINSPECTION
   export MIRROR_DB2U
   # Authentication
@@ -437,7 +434,7 @@ function mirror_to_registry() {
   echo_h2 "IBM Operator Catalog" "    "
   if [[ "$MIRROR_MAS_CORE" == "true" || "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_IOT" == "true" \
         || "$MIRROR_MAS_MANAGE" == "true" || "$MIRROR_MAS_MONITOR" == "true" || "$MIRROR_MAS_PREDICT" == "true" \
-        || "$MIRROR_MAS_OPTIMIZER" == "true" || "$MIRROR_MAS_SAFETY" == "true" || "$MIRROR_MAS_VISUALINSPECTION" == "true" ]]
+        || "$MIRROR_MAS_OPTIMIZER" == "true" || "$MIRROR_MAS_VISUALINSPECTION" == "true" ]]
   then
     echo_reset_dim "Catalog Version ..................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
     echo_reset_dim "IBM Authentication .................. ${COLOR_MAGENTA}cp/${IBM_ENTITLEMENT_KEY:0:4}<snip>"
@@ -452,7 +449,6 @@ function mirror_to_registry() {
     show_mirror_status "IBM Maximo Monitor .................." $MIRROR_MAS_MONITOR
     show_mirror_status "IBM Maximo Predict .................." $MIRROR_MAS_PREDICT
     show_mirror_status "IBM Maximo Optimizer ................" $MIRROR_MAS_OPTIMIZER
-    show_mirror_status "IBM Maximo Safety ..................." $MIRROR_MAS_SAFETY
     show_mirror_status "IBM Maximo Visual Inspection ........" $MIRROR_MAS_VISUALINSPECTION
 
     # Core Dependencies
@@ -494,6 +490,5 @@ function mirror_to_registry() {
   mirror_one_thing $MIRROR_MAS_MONITOR          "IBM Maximo Monitor"                 "$LOG_PREFIX-monitor.log"          mirror_add_monitor
   mirror_one_thing $MIRROR_MAS_PREDICT          "IBM Maximo Predict"                 "$LOG_PREFIX-predict.log"          mirror_add_predict
   mirror_one_thing $MIRROR_MAS_OPTIMIZER        "IBM Maximo Optimizer"               "$LOG_PREFIX-optimizer.log"        mirror_add_optimizer
-  mirror_one_thing $MIRROR_MAS_SAFETY           "IBM Maximo Safety"                  "$LOG_PREFIX-safety.log"           mirror_add_safety
   mirror_one_thing $MIRROR_MAS_VISUALINSPECTION "IBM Maximo Visual Inspection"       "$LOG_PREFIX-visualinspection.log" mirror_add_visualinspection
 }
