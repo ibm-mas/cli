@@ -298,7 +298,7 @@ function mirror_to_registry_interactive() {
       prompt_for_confirm_default_yes " + MongoDb Community Edition" MIRROR_MONGOCE
     fi
 
-    prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_HPUTILITIES
+    prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_IOT
     prompt_for_confirm "IBM Maximo Application Suite - HP Utilities" MIRROR_MAS_HPUTILITIES
     prompt_for_confirm "IBM Maximo Application Suite - Manage" MIRROR_MAS_MANAGE
     prompt_for_confirm "IBM Maximo Application Suite - Monitor" MIRROR_MAS_MONITOR
