@@ -1,0 +1,52 @@
+#!/bin/bash
+
+
+# The following line reads "Source file provision_aws. This way I can load functions in provision_aws and then execute them"
+. provision_aws
+. provision_aws_sno
+ provision_aws_sno provision-aws-sno "$@"
+
+
+
+# export MAS_CHANNEL=8.8.x
+# export MAS_INSTANCE_ID=inst1
+# export MAS_ENTITLEMENT_KEY=
+# export IBM_ENTITLEMENT_KEY=
+# export MAS_CONFIG_DIR=/root/masconfig-sno
+# export SLS_LICENSE_FILE=/root/masconfig-sno/license.dat
+# export SLS_LICENSE_ID=0242ac110002
+# export SLS_ENTITLEMENT_KEY=
+# export UDS_CONTACT_EMAIL=sujala.velagapudi@ibm.com
+# export UDS_CONTACT_FIRSTNAME=Sujala
+# export UDS_CONTACT_LASTNAME=Velagapudi
+# export PROMETHEUS_STORAGE_CLASS=gp2
+# export PROMETHEUS_ALERTMGR_STORAGE_CLASS=gp2
+# export GRAFANA_INSTANCE_STORAGE_CLASS=gp2
+# export MONGODB_STORAGE_CLASS=gp2
+# export MONGODB_REPLICAS=1
+# export UDS_STORAGE_CLASS=gp2
+# # call mas function / Call pipeline_config
+# # ansible-playbook ibm.mas_devops.oneclick_core
+
+# export MAS_APP_CHANNEL=8.4.x
+# export DB2_DATA_STORAGE_CLASS=gp2
+# export DB2_DATA_STORAGE_SIZE=100Gi ## default value
+# export DB2_META_STORAGE_CLASS=gp2
+# export DB2_META_STORAGE_SIZE=20Gi ## default
+# export DB2_BACKUP_STORAGE_CLASS=gp2
+# export DB2_BACKUP_STORAGE_SIZE=100Gi ## default value
+# export DB2_LOGS_STORAGE_CLASS=gp2
+# export DB2_LOGS_STORAGE_SIZE=100Gi ## default value
+# export DB2_TEMP_STORAGE_CLASS=gp2
+# export DB2_TEMP_STORAGE_SIZE=100Gi  ##default value
+# export DB2_CPU_REQUESTS=1000m ##default value
+# export DB2_CPU_LIMITS=4000m ## default value
+# export DB2_MEMORY_REQUESTS=2Gi ## default value
+# export DB2_MEMORY_LIMITS=6Gi ## default value
+# export DB2_META_STORAGE_ACCESSMODE=ReadWriteOnce
+# export DB2_BACKUP_STORAGE_ACCESSMODE=ReadWriteOnce
+# export DB2_NAMESPACE=db2u
+# export DB2_ENTITLEMENT_KEY=
+# export MAS_APP_SETTINGS_AIO_FLAG=false
+# # call manage functions
+# # ansible-playbook ibm.mas_devops.oneclick_add_manage

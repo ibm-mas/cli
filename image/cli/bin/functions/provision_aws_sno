@@ -1,0 +1,19 @@
+#!/bin/bash
+
+
+
+
+function provision_aws_sno_set_default_env_var() {
+  export IPI_PLATFORM=aws             # IPI_PLATFORM
+  export CLUSTER_TYPE=ipi             # CLUSTER_TYPE
+  export IPI_PULL_SECRET_FILE="/root/masconfig-sno/pull-secret"       # IPI_PULL_SECRET_FILE
+  export IPI_DIR="/root/sno"          # IPI_DIR
+  export IPI_CONTROLPLANE_REPLICAS=1  # IPI_CONTROLPLANE_REPLICAS
+  export IPI_COMPUTE_REPLICAS=0       # IPI_COMPUTE_REPLICAS
+}
+
+
+function provision_aws_sno() {
+  provision_aws_sno_set_default_env_var
+  provision_aws_cluster "$@"
+}
