@@ -30,6 +30,7 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip wheel &&\
 RUN chmod u+x /tmp/install/*.sh && \
     /tmp/install/install-oc.sh && \
     /tmp/install/install-ibmcloud.sh && \
+    /tmp/install/install-ibmpak.sh && \
     /tmp/install/install-skopeo.sh && \
     rm -rf /tmp/install
 
