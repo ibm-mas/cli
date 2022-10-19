@@ -78,8 +78,8 @@ function provision_aws_noninteractive() {
   [[ -z "$IPI_BASE_DOMAIN" ]] && provision_aws_help "IPI_BASE_DOMAIN is not set"
 }
 
-# function provision_aws_default contains default variables for a generic AWS provisioning.
-function provision_aws_set_default_env_var() {
+# function set_default_vars sets default variables for a generic AWS provisioning.
+function set_default_vars() {
   export IPI_PLATFORM=aws             # IPI_PLATFORM
   export CLUSTER_TYPE=ipi             # CLUSTER_TYPE
   export IPI_PULL_SECRET_FILE="/root/masconfig-sno/pull-secret"                   # IPI_PULL_SECRET_FILE
@@ -89,6 +89,12 @@ function provision_aws_set_default_env_var() {
 }
 
 
+# function set_sno_vars sets SNO specific variabels 
+function set_sno_vars() {
+  export IPI_CONTROLPLANE_REPLICAS=1  # IPI_CONTROLPLANE_REPLICAS
+  export IPI_COMPUTE_REPLICAS=0       # IPI_COMPUTE_REPLICAS
+}
+
 # function provision_aws_interactive contains the prompts for the different variables.
 function provision_aws_interactive() {
   prompt_aws_access_key_id            # AWS_ACCESS_KEY_ID
@@ -96,10 +102,13 @@ function provision_aws_interactive() {
   prompt_aws_cluster_configuration    # CLUSTER_NAME
   prompt_for_input "AWS Region" IPI_REGION "US East 2" && export IPI_REGION       # IPI_REGION
   prompt_for_input "AWS Base Domain" IPI_BASE_DOMAIN && export IPI_BASE_DOMAIN    # IPI_BASE_DOMAIN
-  prompt_for_ocp_version              # OCP_VERSION
+  prompt_for_confirm_default_yes "Do you want single node openshift " SNO_MODE    # SNO_NODE
+  if [[ "$SNO_MODE" == "true" ]]; then
+    set_sno_vars
+  fi
+  prompt_ocp_version                  # OCP_VERSION
+  prompt_confirm                      # Confirm options
 }
-                                       
-
 
 # The following function is a work in progress and is not ready for testing
 function provision_aws_cluster() {
@@ -108,50 +117,19 @@ function provision_aws_cluster() {
   if [[ $# -gt 0 ]]; then
     provision_aws_noninteractive "$@"
   else
-    provision_aws_interactive
+    provision_aws_interactive "$@"
   fi
-
-  # # Ensure all environment variables are available to ansible-playbook
-  # #Following variables are set for provisioning an AWS Cluster
-  # export AWS_ACCESS_KEY_ID
-  # export AWS_SECRET_ACCESS_KEY
-  # export CLUSTER_NAME
-  # export IPI_REGION
-  # export IPI_BASE_DOMAIN
-  # export OCP_VERSION
-
-  # echo ""
-  # echo_h2 "Review Settings"
-  # echo "${TEXT_DIM}"
-  # echo_h2 "AWS Authentication" "    "
-  # echo_reset_dim "AWS API Key .......... $AWS_APIKEY"
-  # echo_reset_dim "AWS Resource Group ... $AWS_RESOURCEGROUP"
-  # reset_colors
-  # echo "${TEXT_DIM}"
-  # echo_h2 "Cluster Configuration" "    "
-  # echo_reset_dim "Cluster Name .............. $CLUSTER_NAME"
-  # echo_reset_dim "OCP Version ............... $OCP_VERSION"
-  # reset_colors
-  # echo "${TEXT_DIM}"
-  # # echo_h2 "IPI Configuration" "    "
-  # echo_reset_dim "Worker Flavour ............ $IPI_REGION"
-  # echo_reset_dim "Worker Pool Zone .......... $IPI_BASE_DOMAIN"
-
-  # echo
-  # reset_colors
-  # if [[ "$NO_CONFIRM" != "true" ]]; then
-  #   prompt_for_confirm "Proceed with these settings" || exit 0
-  # fi
 
   # ansible-playbook ibm.mas_devops.ocp_aws_provision || exit 1
 
   # echo ""
-  # echo "IBM AWS cluster is ready to use"
+  # echo "AWS cluster is ready to use"
   # OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
   # echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+
 }
 
 function provision_aws() {
-  provision_aws_set_default_env_var
+  set_default_vars
   provision_aws_cluster
 }

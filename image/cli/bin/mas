@@ -42,7 +42,6 @@ mkdir -p $CONFIG_DIR
 . $DIR/functions/provision_fyre
 . $DIR/functions/provision_roks
 . $DIR/functions/provision_aws
-. $DIR/functions/provision_aws_sno
 # MAS installation support
 . $DIR/functions/install
 . $DIR/functions/pipeline_config
@@ -80,13 +79,13 @@ case $1 in
     provision_roks "$@"
     ;;
 
-  roks|provision-aws-sno)
+  aws|provision-aws)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AWS SNO Cluster Provisioner${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
     update_ansible_collections
-    provision_aws_sno "$@"
+    provision_aws "$@"
     ;;
 
   registry|setup-registry|setup-mirror-registry|setup-airgap-registry)

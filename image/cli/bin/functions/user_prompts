@@ -1,6 +1,6 @@
  #!/bin/bash
 
-function prompt_for_ocp_version() {
+function prompt_ocp_version() {
   echo
   echo "OCP Version:"
   echo "  1. 4.10 EUS (MAS 8.7-8.8)"
@@ -62,3 +62,13 @@ function prompt_aws_cluster_configuration() {
   echo_h2 "AWS Cluster Configuration"
   prompt_for_input "Cluster Name" CLUSTER_NAME && export CLUSTER_NAME
 }
+
+
+function prompt_confirm() {
+  echo
+  reset_colors
+  if [[ "$NO_CONFIRM" != "true" ]]; then
+    prompt_for_confirm "Proceed with these settings" || exit 0
+  fi
+}
+
