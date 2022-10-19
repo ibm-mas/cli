@@ -82,8 +82,8 @@ function provision_aws_noninteractive() {
 function set_default_vars() {
   export IPI_PLATFORM=aws             # IPI_PLATFORM
   export CLUSTER_TYPE=ipi             # CLUSTER_TYPE
-  export IPI_PULL_SECRET_FILE="/root/masconfig-sno/pull-secret"                   # IPI_PULL_SECRET_FILE
-  export IPI_DIR="/root/sno"          # IPI_DIR
+  export IPI_PULL_SECRET_FILE="/Users/sujala.velagapudi@ibm.com/workspaces/github.com/ibm-mas/pull-secret"                   # IPI_PULL_SECRET_FILE
+  export IPI_DIR="/Users/sujala.velagapudi@ibm.com/workspaces/github.com/sno"          # IPI_DIR
   export IPI_CONTROLPLANE_REPLICAS=3  # IPI_CONTROLPLANE_REPLICAS
   export IPI_COMPUTE_REPLICAS=3       # IPI_COMPUTE_REPLICAS
 }
@@ -120,12 +120,12 @@ function provision_aws_cluster() {
     provision_aws_interactive "$@"
   fi
 
-  # ansible-playbook ibm.mas_devops.ocp_aws_provision || exit 1
+  ansible-playbook ibm.mas_devops.ocp_aws_provision || exit 1
 
-  # echo ""
-  # echo "AWS cluster is ready to use"
-  # OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
-  # echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+  echo ""
+  echo "AWS cluster is ready to use"
+  OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+  echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
 
 }
 
