@@ -80,7 +80,7 @@ case $1 in
     ;;
 
   aws|provision-aws)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AWS SNO Cluster Provisioner${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AWS Cluster Provisioner${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
