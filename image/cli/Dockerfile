@@ -24,9 +24,10 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip wheel &&\
 
 # 3. Install required tools & Ansible collections
 USER root
-RUN bash /tmp/install/install-oc.sh && \
-    bash /tmp/install/install-ibmcloud.sh && \
+RUN umask 0002 && \
+    bash /tmp/install/install-oc.sh && \
     bash /tmp/install/install-ibmpak.sh && \
+    bash /tmp/install/install-ibmcloud.sh && \
     bash /tmp/install/install-skopeo.sh && \
     rm -rf /tmp/install
 
@@ -50,7 +51,8 @@ ENV ANSIBLE_COLLECTIONS_PATH=/opt/app-root/lib64/python3.9/site-packages/ansible
 
 # 7. Install Ansible collections -- do this last for efficient dev builds
 COPY --chown=default:root install-ansible /tmp/install-ansible
-RUN bash /tmp/install-ansible/install-ansible-collections.sh && \
+RUN umask 0002 && \
+    bash /tmp/install-ansible/install-ansible-collections.sh && \
     rm -rf /tmp/install-ansible
 
 # 8. Set file permissions in /opt/app-root & /mascli & setup symlink to our collection
