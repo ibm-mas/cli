@@ -31,7 +31,7 @@ Red Hat Catalog Selection (Optional):
       --mirror-redhat-operators ${COLOR_YELLOW}OPENSHIFT_OPERATORS_VERSION${TEXT_RESET}  Mirror Red Hat Release catalog images at the specified version (e.g. 4.10.18)
 
 Maximo Operator Catalog Selection (Optional):
-  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v8-220805)
+  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v8-220927-amd64)
       --mirror-core                               Mirror images for IBM Maximo Application Suite Core & dependencies
       --mirror-assist                             Mirror images for IBM Maximo Assist
       --mirror-hputilities                        Mirror images for IBM Maximo Health & Predict Utilities
