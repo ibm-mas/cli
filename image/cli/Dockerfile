@@ -44,7 +44,7 @@ COPY --chown=default:root .bashrc /opt/app-root/src/.bashrc
 # VIRTUAL_ENV_DISABLE_PROMPT will stop built-in PS1 munging, we already set it to what we want
 ENV ANSIBLE_COLLECTIONS_PATH=/opt/app-root/lib64/python3.9/site-packages/ansible_collections \
     ANSIBLE_CONFIG=/opt/app-root/src/ansible.cfg \
-    PATH="/mascli/bin:${PATH}" \
+    PATH="/mascli:${PATH}" \
     VERSION=${VERSION_LABEL:-x.y.z} \
     VIRTUAL_ENV_DISABLE_PROMPT=1
 
@@ -59,7 +59,7 @@ RUN bash /tmp/install-ansible/install-ansible-collections.sh && \
 #    chmod +x ${HOME}/run-playbook.sh &&\
 #    chmod +x ${HOME}/run-role.sh &&\
 #    chmod +x ${HOME}/clear-mustgather-workspace.sh && \
-#    chmod +x /mascli/bin/mas && \
+#    chmod +x /mascli/mas && \
 #    chmod +x /opt/app-root/src/.bashrc && \
 RUN ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /opt/app-root/devops && \
     ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_airgap /opt/app-root/airgap

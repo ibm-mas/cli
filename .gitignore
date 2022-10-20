@@ -6,4 +6,4 @@ target/
 tmp/
 image/cli/config
 image/cli/logs
-image/cli/mascli/bin/templates/ibm-mas-tekton.yaml
+image/cli/mascli/templates/ibm-mas-tekton.yaml
