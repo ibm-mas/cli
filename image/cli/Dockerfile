@@ -61,6 +61,7 @@ RUN chmod -R ug+rwx ${HOME}/env.sh &&\
     chmod +x ${HOME}/run-playbook.sh &&\
     chmod +x ${HOME}/run-role.sh &&\
     chmod +x ${HOME}/clear-mustgather-workspace.sh && \
+    chmod -R ug+w /mascli &&\
     chmod +x /mascli/mas && \
     chmod +x /opt/app-root/src/.bashrc && \
     ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops && \

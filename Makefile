@@ -31,8 +31,8 @@ clean:
 	rm image/cli/bin/templates/ibm-mas-tekton.yaml
 
 create:
-	oc -n default apply -f deployment.yaml
+	oc apply -f tmp/deployment.yaml
 delete:
-	oc -n default delete pod $(shell oc -n default get pods --selector app=mas-cli -o jsonpath="{.items[0].metadata.name}")
+	oc delete pod $(shell oc get pods --selector app=mas-cli -o jsonpath="{.items[0].metadata.name}")
 exec:
-	oc -n default exec -ti $(shell oc -n default get pods --selector app=mas-cli -o jsonpath="{.items[0].metadata.name}") -- bash
+	oc exec -ti $(shell oc get pods --selector app=mas-cli -o jsonpath="{.items[0].metadata.name}") -- bash
