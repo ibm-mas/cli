@@ -1,0 +1,51 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cli-storage
+  namespace: djpcli
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  storageClassName: ibmc-block-gold
+  resources:
+    requests:
+      storage: 2000Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mas-cli
+  name: mas-cli
+  namespace: djpcli
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: mas-cli
+
+  strategy:
+    type: Recreate
+
+  template:
+    metadata:
+      labels:
+        app: mas-cli
+    spec:
+      containers:
+      - name: mas-cli
+        imagePullPolicy: Always
+        image: quay.io/ibmmas/cli:2.5.0-pre.ibmpak
+        command: [ "/bin/bash", "-c", "--" ]
+        args: [ "while true; do sleep 30; done;" ]
+        volumeMounts:
+          - mountPath: "/pvc"
+            name: cli-storage
+
+      volumes:
+        - name: cli-storage
+          persistentVolumeClaim:
+            claimName: cli-storage
