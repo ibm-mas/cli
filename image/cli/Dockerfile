@@ -56,15 +56,15 @@ RUN umask 0002 && \
     rm -rf /tmp/install-ansible
 
 # 8. Set file permissions in /opt/app-root & /mascli & setup symlink to our collection
-#RUN chmod -R ug+rwx ${HOME}/env.sh &&\
-#    chmod -R ug+rwx ${HOME}/.ansible &&\
-#    chmod +x ${HOME}/run-playbook.sh &&\
-#    chmod +x ${HOME}/run-role.sh &&\
-#    chmod +x ${HOME}/clear-mustgather-workspace.sh && \
-#    chmod +x /mascli/mas && \
-#    chmod +x /opt/app-root/src/.bashrc && \
-RUN ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /opt/app-root/devops && \
-    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_airgap /opt/app-root/airgap
+RUN chmod -R ug+rwx ${HOME}/env.sh &&\
+    chmod -R ug+rwx ${HOME}/.ansible &&\
+    chmod +x ${HOME}/run-playbook.sh &&\
+    chmod +x ${HOME}/run-role.sh &&\
+    chmod +x ${HOME}/clear-mustgather-workspace.sh && \
+    chmod +x /mascli/mas && \
+    chmod +x /opt/app-root/src/.bashrc && \
+    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops && \
+    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_airgap /mascli/ansible-airgap
 
 # 8. Setup working environment
 WORKDIR /mascli
