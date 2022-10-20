@@ -38,8 +38,8 @@ Maximo Operator Catalog Selection (Optional):
       --mirror-iot                                Mirror images for IBM Maximo IoT & dependencies
       --mirror-manage                             Mirror images for IBM Maximo Manage & dependencies
       --mirror-monitor                            Mirror images for IBM Maximo Monitor
-      --mirror-predict                            Mirror images for IBM Maximo Predict
       --mirror-optimizer                          Mirror images for IBM Maximo Optimizer
+      --mirror-predict                            Mirror images for IBM Maximo Predict
       --mirror-visualinspection                   Mirror images for IBM Maximo Visual Inspection
 
 Maximo Core Image Mirroring Configuration (Optional):
@@ -289,15 +289,20 @@ function mirror_to_registry_interactive() {
   echo "${TEXT_DIM}"
   echo "Timing are an estimate only, and will vary based on the quality of the host network connection"
   reset_colors
-  prompt_for_confirm "Mirror all images (~1 hour)" MIRROR_EVERYTHING
+
+  prompt_for_confirm "Red Hat OpenShift Container Platform Release" MIRROR_RH_RELEASE
+  if [[ "$MIRROR_RH_RELEASE" == "true" ]]; then
+    prompt_for_input "Release Version (x.y.z)" OPENSHIFT_RELEASE_VERSION "4.10.18"
+  fi
+
+  prompt_for_confirm "Red Hat OpenShift Container Platform Operator Catalog" MIRROR_RH_OPERATORS
+  if [[ "$MIRROR_RH_OPERATORS" == "true" ]]; then
+    prompt_for_input "Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10"
+  fi
+
+  prompt_for_confirm "Mirror all MAS images (with dependencies)" MIRROR_EVERYTHING
 
   if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
-    MIRROR_RH_RELEASE=true
-    prompt_for_input "Red Hat Openshift Release Version (x.y.z)" OPENSHIFT_RELEASE_VERSION "4.10.18"
-
-    MIRROR_RH_OPERATORS=true
-    prompt_for_input "Red Hat Openshift Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10"
-
     # Core + Dependencies
     MIRROR_MAS_CORE=true
     MIRROR_COMMONSERVICES=true
@@ -311,22 +316,12 @@ function mirror_to_registry_interactive() {
     MIRROR_MAS_IOT=true
     MIRROR_MAS_MANAGE=true
     MIRROR_MAS_MONITOR=true
-    MIRROR_MAS_PREDICT=true
     MIRROR_MAS_OPTIMIZER=true
+    MIRROR_MAS_PREDICT=true
     MIRROR_MAS_VISUALINSPECTION=true
     # App Dependencies
     MIRROR_DB2U=true
   else
-    prompt_for_confirm "Red Hat OpenShift Container Platform Release" MIRROR_RH_RELEASE
-    if [[ "$MIRROR_RH_RELEASE" == "true" ]]; then
-      prompt_for_input "Release Version (x.y.z)" OPENSHIFT_RELEASE_VERSION "4.10.18"
-    fi
-
-    prompt_for_confirm "Red Hat OpenShift Container Platform Operator Catalog" MIRROR_RH_OPERATORS
-    if [[ "$MIRROR_RH_OPERATORS" == "true" ]]; then
-      prompt_for_input "Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10"
-    fi
-
     prompt_for_confirm_default_yes "IBM Maximo Application Suite - Core" MIRROR_MAS_CORE
     if [[ "$MIRROR_MAS_CORE" == "true" ]]; then
       prompt_for_confirm_default_yes " + IBM Foundational Services" MIRROR_COMMONSERVICES
@@ -336,12 +331,13 @@ function mirror_to_registry_interactive() {
       prompt_for_confirm_default_yes " + MongoDb Community Edition" MIRROR_MONGOCE
     fi
 
-    prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_IOT
+    prompt_for_confirm "IBM Maximo Application Suite - Assist" MIRROR_MAS_ASSIST
     prompt_for_confirm "IBM Maximo Application Suite - HP Utilities" MIRROR_MAS_HPUTILITIES
+    prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_IOT
     prompt_for_confirm "IBM Maximo Application Suite - Manage" MIRROR_MAS_MANAGE
     prompt_for_confirm "IBM Maximo Application Suite - Monitor" MIRROR_MAS_MONITOR
-    prompt_for_confirm "IBM Maximo Application Suite - Predict" MIRROR_MAS_PREDICT
     prompt_for_confirm "IBM Maximo Application Suite - Optimizer" MIRROR_MAS_OPTIMIZER
+    prompt_for_confirm "IBM Maximo Application Suite - Predict" MIRROR_MAS_PREDICT
     prompt_for_confirm "IBM Maximo Application Suite - Visual Inspection" MIRROR_MAS_VISUALINSPECTION
     if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
       prompt_for_confirm_default_yes " + IBM Db2" MIRROR_DB2U
