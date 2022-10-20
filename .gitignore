@@ -1,9 +1,6 @@
 
 *.DS_Store*
 .vscode
-ibm-entitlement.yaml
+image/cli/mascli/templates/ibm-mas-tekton.yaml
 target/
 tmp/
-image/cli/config
-image/cli/logs
-image/cli/mascli/templates/ibm-mas-tekton.yaml
