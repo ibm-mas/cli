@@ -55,19 +55,21 @@ RUN umask 0002 && \
     bash /tmp/install-ansible/install-ansible-collections.sh && \
     rm -rf /tmp/install-ansible
 
-# 8. Set file permissions in /opt/app-root & /mascli & setup symlink to our collection
-RUN chmod -R ug+rwx ${HOME}/env.sh &&\
-    chmod -R ug+rwx ${HOME}/.ansible &&\
-    chmod +x ${HOME}/run-playbook.sh &&\
-    chmod +x ${HOME}/run-role.sh &&\
+# 8. Set file permissions to be developer (hack) friendly
+RUN chmod -R ug+rwx ${HOME}/env.sh && \
+    chmod -R ug+rwx ${HOME}/.ansible && \
+    chmod +x ${HOME}/run-playbook.sh && \
+    chmod +x ${HOME}/run-role.sh && \
     chmod +x ${HOME}/clear-mustgather-workspace.sh && \
-    chmod -R ug+w /mascli &&\
+    chmod -R ug+w /mascli && \
     chmod +x /mascli/mas && \
     chmod +x /opt/app-root/src/.bashrc && \
+    chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops && \
+    chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-airgap && \
     ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops && \
     ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_airgap /mascli/ansible-airgap
 
-# 8. Setup working environment
+# 9. Setup working environment
 WORKDIR /mascli
 ENTRYPOINT ["/tini", "--"]
 CMD bash
