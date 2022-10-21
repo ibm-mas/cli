@@ -36,7 +36,6 @@ mkdir -p $CONFIG_DIR
 # General purpose
 . $DIR/functions/connect
 . $DIR/functions/utils
-. $DIR/functions/user_prompts
 . $DIR/functions/save_config
 # MAS provisioning support
 . $DIR/functions/provision_fyre

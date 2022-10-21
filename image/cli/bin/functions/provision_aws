@@ -149,6 +149,10 @@ function provision_aws_interactive() {
     1|4.10|4.10\ EUS)
       export OCP_VERSION=4.10_openshift
       ;;
+    *)
+      export OCP_VERSION=$OCP_VERSION_SELECTION
+      ;;
+  esac
 
 
   # prompt_confirm                      # Confirm options
