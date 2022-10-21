@@ -8,5 +8,5 @@ Usage
 
 ```bash
 docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas provision-aws-sno
+docker run -ti --rm quay.io/ibmmas/cli mas provision-aws
 ```
