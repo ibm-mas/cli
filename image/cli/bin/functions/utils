@@ -180,12 +180,12 @@ function detect_airgap() {
   fi
 }
 
-
-function detect_sno() {
-  oc get nodes ibm-mas-and-dependencies &> /dev/null
-  if [[ "$?" == "0" ]]; then
-    export SNO_MODE=true
-  else
-    unset SNO_MODE
-  fi
-}
+#  For the next sprint
+# function detect_sno() {
+#   oc get nodes ibm-mas-and-dependencies &> /dev/null
+#   if [[ "$?" == "0" ]]; then
+#     export SNO_MODE=true
+#   else
+#     unset SNO_MODE
+#   fi
+# }
