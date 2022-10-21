@@ -38,7 +38,6 @@ function install() {
 
   connect
   detect_airgap
-  detect_sno
   pipeline_install_operator
   pipeline_config
   pipeline_prepare

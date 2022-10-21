@@ -97,17 +97,67 @@ function set_sno_vars() {
 
 # function provision_aws_interactive contains the prompts for the different variables.
 function provision_aws_interactive() {
-  prompt_aws_access_key_id            # AWS_ACCESS_KEY_ID
-  prompt_aws_secret_access_key        # AWS_SECRET_ACCESS_KEY
-  prompt_aws_cluster_configuration    # CLUSTER_NAME
+
+  # prompt_aws_access_key_id            # AWS_ACCESS_KEY_ID
+  if [[ -z "$AWS_ACCESS_KEY_ID" ]]; then
+    echo ""
+    echo_h2 "AWS Access Key ID"
+    echo "Provide your AWS API Key ID (if you have not set the AWS_ACCESS_KEY_ID"
+    echo "environment variable) which will be used to provision an AWS instance."
+    prompt_for_input "AWS API Key ID" AWS_ACCESS_KEY_ID && export AWS_ACCESS_KEY_ID
+  else
+    prompt_for_confirm_default_yes "Re-use saved AWS API Key ID Starting '$AWS_ACCESS_KEY_ID'?" REUSE_AWS_AUTH
+    if [[ "$REUSE_AWS_AUTH" == "false" ]]; then
+      prompt_for_input "AWS Access Key ID" AWS_ACCESS_KEY_ID && export AWS_ACCESS_KEY_ID
+    fi
+  fi
+
+  # prompt_aws_secret_access_key        # AWS_SECRET_ACCESS_KEY
+  if [[ -z "$AWS_SECRET_ACCESS_KEY" ]]; then
+    echo ""
+    echo_h2 "AWS Secret Access Key"
+    echo "Provide your AWS Secret Access Key (if you have not set the AWS_SECRET_ACCESS_KEY"
+    echo "environment variable) which will be used to provision an AWS instance."
+    echo ""
+    prompt_for_input "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY && export AWS_SECRET_ACCESS_KEY
+  else
+    prompt_for_confirm_default_yes "Re-use saved AWS Secret Access Key Starting '$AWS_SECRET_ACCESS_KEY'?" REUSE_AWS_AUTH
+    if [[ "$REUSE_AWS_AUTH" == "false" ]]; then
+      prompt_for_input "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY && export AWS_SECRET_ACCESS_KEY
+    fi
+  fi
+
+
+  # prompt_aws_cluster_configuration    # CLUSTER_NAME
+  echo ""
+  echo_h2 "AWS Cluster Configuration"
+  prompt_for_input "Cluster Name" CLUSTER_NAME && export CLUSTER_NAME
+
   prompt_for_input "AWS Region" IPI_REGION "US East 2" && export IPI_REGION       # IPI_REGION
   prompt_for_input "AWS Base Domain" IPI_BASE_DOMAIN && export IPI_BASE_DOMAIN    # IPI_BASE_DOMAIN
   prompt_for_confirm_default_yes "Do you want single node openshift " SNO_MODE    # SNO_NODE
   if [[ "$SNO_MODE" == "true" ]]; then
     set_sno_vars
   fi
-  prompt_ocp_version                  # OCP_VERSION
-  prompt_confirm                      # Confirm options
+  # prompt_ocp_version                  # OCP_VERSION
+  echo
+  echo "OCP Version:"
+  echo "  1. 4.10 EUS (MAS 8.7-8.8)"
+  prompt_for_input "Select Version" OCP_VERSION_SELECTION "1"
+
+  case $OCP_VERSION_SELECTION in
+    1|4.10|4.10\ EUS)
+      export OCP_VERSION=4.10_openshift
+      ;;
+
+
+  # prompt_confirm                      # Confirm options
+  echo
+  reset_colors
+  if [[ "$NO_CONFIRM" != "true" ]]; then
+    prompt_for_confirm "Proceed with these settings" || exit 0
+  fi
+
 }
 
 # The following function is a work in progress and is not ready for testing
