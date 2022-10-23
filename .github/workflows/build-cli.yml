@@ -30,7 +30,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ibm-mas-tekton-${{ env.VERSION }}.yaml
-          path: ${{ github.workspace }}/image/cli/bin/templates/ibm-mas-tekton.yaml
+          path: ${{ github.workspace }}/image/cli/mascli/templates/ibm-mas-tekton.yaml
           retention-days: 30
 
       # 2. CLI installer

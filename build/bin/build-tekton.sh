@@ -9,11 +9,11 @@ if [ "$DEV_MODE" != "true" ]; then
 
   TASK_FILES=$GITHUB_WORKSPACE/tekton/tasks/*.yaml
   PIPELINE_FILES=$GITHUB_WORKSPACE/tekton/pipelines/*.yaml
-  TARGET_FILE=$GITHUB_WORKSPACE/image/cli/bin/templates/ibm-mas-tekton.yaml
+  TARGET_FILE=$GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yaml
 else
   TASK_FILES=$DIR/../../tekton/tasks/*.yaml
   PIPELINE_FILES=$DIR/../../tekton/pipelines/*.yaml
-  TARGET_FILE=$DIR/../../image/cli/bin/templates/ibm-mas-tekton.yaml
+  TARGET_FILE=$DIR/../../image/cli/mascli/templates/ibm-mas-tekton.yaml
 fi
 
 echo "" > $TARGET_FILE
