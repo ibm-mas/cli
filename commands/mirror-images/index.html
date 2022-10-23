@@ -73,6 +73,8 @@
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
         <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#mirror-mode">Mirror Mode</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#registry-details">Registry Details</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#registry-authentication">Registry Authentication</a>
@@ -93,9 +95,17 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#interactive-mode">Interactive Mode</a>
+    <li class="toctree-l3"><a class="reference internal" href="#interactive-image-mirroring">Interactive Image Mirroring</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#non-interactive-mode">Non-Interactive Mode</a>
+    <li class="toctree-l3"><a class="reference internal" href="#two-phase-image-mirroring">Two-Phase Image Mirroring</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#phase-1-mirror-to-filesystem">Phase 1: Mirror to Filesystem</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#phase-2-mirror-from-filesystem">Phase 2: Mirror from Filesystem</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#direct-image-mirroring">Direct Image Mirroring</a>
     </li>
         </ul>
     </li>
@@ -143,6 +153,11 @@
                 <h1 id="mirror-images">Mirror Images<a class="headerlink" href="#mirror-images" title="Permanent link"></a></h1>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
 <p><code>mas mirror-images [options]</code></p>
+<h3 id="mirror-mode">Mirror Mode<a class="headerlink" href="#mirror-mode" title="Permanent link"></a></h3>
+<ul>
+<li><code>-m|--mode MIRROR_MODE</code> Operation mode (direct, to-filesystem, from-filesystem)</li>
+<li><code>-d|--dir MIRROR_WORKING_DIR</code> Working directory for the mirror process</li>
+</ul>
 <h3 id="registry-details">Registry Details<a class="headerlink" href="#registry-details" title="Permanent link"></a></h3>
 <ul>
 <li><code>-H|--host REGISTRY_PUBLIC_HOST</code> Hostname of the target registry</li>
@@ -170,7 +185,6 @@
 <li><code>--mirror-monitor</code> Mirror images for IBM Maximo Monitor</li>
 <li><code>--mirror-predict</code> Mirror images for IBM Maximo Predict</li>
 <li><code>--mirror-optimizer</code> Mirror images for IBM Maximo Optimizer</li>
-<li><code>--mirror-safety</code> Mirror images for IBM Maximo Safety</li>
 <li><code>--mirror-visualinspection</code> Mirror images for IBM Maximo Visual Inspection</li>
 </ul>
 <h3 id="maximo-core-image-mirroring-configuration">Maximo Core Image Mirroring Configuration<a class="headerlink" href="#maximo-core-image-mirroring-configuration" title="Permanent link"></a></h3>
@@ -195,20 +209,69 @@
 <li><code>-h|--help</code> Show help message</li>
 </ul>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
-<h3 id="interactive-mode">Interactive Mode<a class="headerlink" href="#interactive-mode" title="Permanent link"></a></h3>
+<h3 id="interactive-image-mirroring">Interactive Image Mirroring<a class="headerlink" href="#interactive-image-mirroring" title="Permanent link"></a></h3>
 <pre><code class="language-bash">docker pull quay.io/ibmmas/cli
 docker run -ti --rm quay.io/ibmmas/cli mas mirror-images
 </code></pre>
-<h3 id="non-interactive-mode">Non-Interactive Mode<a class="headerlink" href="#non-interactive-mode" title="Permanent link"></a></h3>
-<p>The following example will mirror all images required for Maximo Application Suite Core and the Maximo Manage and IoT applications without prompting for confirmation.</p>
-<pre><code>docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas mirror-images \
+<h3 id="two-phase-image-mirroring">Two-Phase Image Mirroring<a class="headerlink" href="#two-phase-image-mirroring" title="Permanent link"></a></h3>
+<p>Two-Phase image mirroring is required when you do not have a single system with both access to the public registries containing the source container images <strong>and</strong> your internal private registry.  In this case you will require a system with internet connectivity and another with access to your private network, along with a means to transfer data from one to the other (for example, a portable drive).</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The examples here use a specific version of the container image (2.5.0).  You should always use the latest available container image, but because we are working in a disconnected environment we need to be specific about the version we are using.  Replace <code>2.5.0</code> with the appropriate version.</p>
+</div>
+<h4 id="phase-1-mirror-to-filesystem">Phase 1: Mirror to Filesystem<a class="headerlink" href="#phase-1-mirror-to-filesystem" title="Permanent link"></a></h4>
+<p>First, download the latest version of the container image and start up a terminal session inside the container image, we are going to mount a local directory into the running container to persist the mirror filesystem.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Mirroring images for Core, Manage and all dependencies will require approximately 62Gb available capacity.</p>
+</div>
+<pre><code class="language-bash">docker pull quay.io/ibmmas/cli:2.5.0
+docker run -ti --rm -v /mnt/registry:/mnt/registry quay.io/ibmmas/cli mas mirror-images \
+  --mode to-filesystem \
+  --dir /mnt/registry \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY \
   --redhat-username $REDHAT_CONNECT_USERNAME \
   --redhat-password $REDHAT_CONNECT_PASSWORD \
   -H mirror.mydomain.com -P 32500 \
   -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
-  -c v8-220805-amd64 \
+  -c v8-220927-amd64 \
+  --mirror-core --mirror-iot --mirror-manage \
+  --no-confirm
+</code></pre>
+<p>Once this process completes you will find the mirrored images in <code>/mnt/registry</code> ready to transfer to the system inside your disconnected network on which we will perform phase 2 of this operator.  However, before we can do that we also need to mirror the CLI image to your mirror registry so that it's available on the disconnected host system.</p>
+<pre><code class="language-bash">oc image mirror --dir /mnt/registry quay.io/ibmmas/cli:2.5.0  file://ibmmas/cli:2.5.0
+</code></pre>
+<h4 id="phase-2-mirror-from-filesystem">Phase 2: Mirror from Filesystem<a class="headerlink" href="#phase-2-mirror-from-filesystem" title="Permanent link"></a></h4>
+<p>Transfer the content of <code>/mnt/registry</code> to your system in the disconnected network.  Now we are going to put the CLI image in your registry:</p>
+<pre><code class="language-bash">docker login &lt;YOURPRIVATEREGISTRY&gt; -u MIRROR_USERNAME -p MIRROR_PASSWORD
+oc image mirror --dir /mnt/myportabledisk file://ibmmas/cli:2.5.0 mirror.mydomain.com:32500/ibmmas/cli:2.5.0
+</code></pre>
+<p>Now we are ready to mirror the images to your registry using the CLI image in the same way we mirrored the images to the local disk in the first place:</p>
+<pre><code class="language-bash">docker pull mirror.mydomain.com:32500/ibmmas/cli:2.5.0
+docker run -ti --rm -v /mnt/mirrorregistry:/mnt/mirrorregistry mirror.mydomain.com:32500/ibmmas/cli:2.5.0 mas mirror-images \
+  --mode from-filesystem \
+  --dir /mnt/registry \
+  --ibm-entitlement $IBM_ENTITLEMENT_KEY \
+  --redhat-username $REDHAT_CONNECT_USERNAME \
+  --redhat-password $REDHAT_CONNECT_PASSWORD \
+  -H mirror.mydomain.com -P 32500 \
+  -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
+  -c v8-220927-amd64 \
+  --mirror-core --mirror-iot --mirror-manage \
+  --no-confirm
+</code></pre>
+<h3 id="direct-image-mirroring">Direct Image Mirroring<a class="headerlink" href="#direct-image-mirroring" title="Permanent link"></a></h3>
+<p>The following example will mirror all images required for Maximo Application Suite Core and the Maximo Manage and IoT applications directly to your target registry, without prompting for confirmation.</p>
+<pre><code class="language-bash">docker pull quay.io/ibmmas/cli
+docker run -ti --rm quay.io/ibmmas/cli mas mirror-images \
+  --mode direct \
+  --dir /mnt/registry \
+  --ibm-entitlement $IBM_ENTITLEMENT_KEY \
+  --redhat-username $REDHAT_CONNECT_USERNAME \
+  --redhat-password $REDHAT_CONNECT_PASSWORD \
+  -H mirror.mydomain.com -P 32500 \
+  -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
+  -c v8-220927-amd64 \
   --mirror-core --mirror-iot --mirror-manage \
   --no-confirm
 </code></pre>
