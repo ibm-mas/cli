@@ -77,6 +77,39 @@ confirm_default_yes() {
   esac
 }
 
+
+function prompt_for_number(){
+  msg=$1
+  varname=$2
+  # When override is set, the default provided in $3 will override the saved default
+  override=$4
+
+  if [[ -z "${!varname}" || "$override" == "override" ]]; then
+    # Use the script default
+    default=$3
+  else
+    # Use the saved default
+    default=${!varname}
+  fi
+
+  while :; do
+
+    if [[ "${default}" != "" ]]; then
+      read -e -p "${COLOR_YELLOW}$msg ${COLOR_MAGENTA}> " -i "${default}" input
+    else
+      read -p "${COLOR_YELLOW}$msg ${COLOR_MAGENTA}> " input
+    fi
+    echo -ne "${COLOR_RESET}\033[1K"
+    # https://stackoverflow.com/a/13717788
+    re='^[1-9][0-9]*$'
+    if [[ $input =~ $re ]] ; then
+      break
+    fi
+  done
+  printf -v "$varname" "%s" "$input"
+}
+
+
 function prompt_for_input(){
   msg=$1
   varname=$2

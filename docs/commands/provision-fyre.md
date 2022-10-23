@@ -12,7 +12,7 @@ Usage
 ### Cluster Configuration
 - `-p|--product-id FYRE_PRODUCT_ID` FYRE product group ID that will own the cluster
 - `-q|--quota-type FYRE_QUOTA_TYPE` Declare the quota to use when provisioning the cluster ("quick_burn" or "product_group")
-- `-c|--cluster-name CLUSTER_NAME` Name of the cluster to be provisioned
+- `-c|--cluster-name CLUSTER_NAME` Name of the cluster to be provisioned (lowercase only)
 - `-v|--ocp-version OCP_VERSION` OCP version to use (e.g 4.8, 4.10)
 - `-d|--description FYRE_DESCRIPTION` Description of the OCP cluster
 
