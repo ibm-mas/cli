@@ -513,7 +513,10 @@ function mirror_to_registry() {
   echo
   echo_h2 "4. Run Mirror Process"
   TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
-  LOG_PREFIX="$LOG_DIR/mirror-$TIMESTAMP"
+  LOG_PREFIX="$MIRROR_WORKING_DIR/logs/mirror-$TIMESTAMP"
+  if [ ! -d $MIRROR_WORKING_DIR/logs/ ]; then
+    mkdir -p $MIRROR_WORKING_DIR/logs/
+  fi
 
   mirror_one_thing $MIRROR_RH_RELEASE           "Red Hat Release"                    "$LOG_PREFIX-ocp-release.log"   mirror_openshift_release
   mirror_one_thing $MIRROR_RH_OPERATORS         "Red Hat Operators"                  "$LOG_PREFIX-ocp-operators.log" mirror_openshift_operators
