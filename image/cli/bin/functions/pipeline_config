@@ -164,3 +164,11 @@ function pipeline_config() {
   prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
 
 }
+
+
+echo ""
+if [[ "$SNO_MODE" == "true" ]]; then
+  # SNO Mode -- Set environment variables MONGODB_REPLICAS=1
+  echo_h2 "Cluster is an SNO Cluster. Setting environment variables MONGODB_REPLICAS=1"
+  export MONGODB_REPLICAS=1
+fi

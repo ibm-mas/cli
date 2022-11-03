@@ -147,7 +147,7 @@ function provision_aws_interactive() {
 
   case $OCP_VERSION_SELECTION in
     1|4.10|4.10\ EUS)
-      export OCP_VERSION=4.10_openshift
+      export OCP_VERSION=latest-4.10
       ;;
     *)
       export OCP_VERSION=$OCP_VERSION_SELECTION
