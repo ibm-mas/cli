@@ -165,6 +165,7 @@ function pipeline_config() {
 
 }
 
+# adding this section for SNO mode
 echo ""
 if [[ "$SNO_MODE" == "true" ]]; then
   # SNO Mode -- Set environment variables MONGODB_REPLICAS=1
