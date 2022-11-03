@@ -169,7 +169,9 @@ function pipeline_config() {
 echo ""
 if [[ "$SNO_MODE" == "true" ]]; then
   # SNO Mode -- Set environment variables MONGODB_REPLICAS=1
-  echo_h2 "Cluster is an SNO Cluster. Setting environment variables MONGODB_REPLICAS=1"
+  echo_h2 "10. Cluster is an SNO Cluster. Setting environment variables MONGODB_REPLICAS=1"
   export MONGODB_REPLICAS=1
   export MONGODB_CPU_REQUESTS=300m
+else
+  echo_h2 "10. Info: SNO_MODE was not detected"
 fi
