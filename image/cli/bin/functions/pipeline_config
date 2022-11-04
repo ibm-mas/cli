@@ -1,5 +1,6 @@
 #!/bin/bash
 
+. $DIR/functions/pipeline_config_sno
 . $DIR/functions/pipeline_config_applications
 . $DIR/functions/pipeline_config_dns
 . $DIR/functions/pipeline_config_storage_classes
@@ -99,6 +100,7 @@ function pipeline_config() {
   fi
   true
 
+  config_pipeline_sno
   config_pipeline_dns
   config_pipeline_applications
   config_pipeline_storage_classes
@@ -164,16 +166,3 @@ function pipeline_config() {
   prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
 
 }
-
-# adding this section for SNO mode
-echo ""
-if [[ "$SNO_MODE" == "true" ]]; then
-  # SNO Mode -- Set environment variables MONGODB_REPLICAS=1
-  echo_h2 "10. Cluster is an SNO Cluster. Setting environment variables MONGODB_REPLICAS=1, MONGODB_CPU_REQUESTS=300m and MAS_APP_SETTINGS_AIO_FLAG=false"
-  export MONGODB_REPLICAS=1
-  export MONGODB_CPU_REQUESTS=300m
-  export MAS_APP_SETTINGS_AIO_FLAG=false
-  prompt_for_confirm_default_yes "Do you want manage demodata to be loaded or not " MAS_APP_SETTINGS_DEMODATA && export MAS_APP_SETTINGS_DEMODATA
-else
-  echo_h2 "10. Info: SNO_MODE was not detected"
-fi
