@@ -8,61 +8,69 @@ ARG VERSION_LABEL
 # If we switch back to the "default" user then mounts in /workspace/xxx are
 # not writeable, there may be a way to fix this so that we don't have to leave
 # the active user as root, haven't looked into this yet.
-USER root
 
 # 1. Upgrade system packages
+USER root
 RUN dnf update -y --skip-broken --nobest &&\
     dnf upgrade -y --skip-broken --nobest &&\
     dnf install nano jq -y &&\
     dnf clean all
 
-# 2. Copy basics
-COPY app-root/* ${HOME}/
-COPY bin /mascli/bin
-COPY install /tmp/install
-COPY .bashrc /opt/app-root/src/.bashrc
-
-# 3. Upgrade pip, install wheel, then install Python modules
+# 2. Upgrade pip, install wheel, then install Python modules
+USER default
+COPY --chown=default:root install /tmp/install
 RUN python3 -m pip install --no-cache-dir --upgrade pip wheel &&\
     python3 -m pip install --no-cache-dir -r /tmp/install/requirements.txt
 
-# 4. Install required tools & Ansible collections
-RUN chmod u+x /tmp/install/*.sh && \
-    /tmp/install/install-oc.sh && \
-    /tmp/install/install-ibmcloud.sh && \
-    /tmp/install/install-skopeo.sh && \
+# 3. Install required tools & Ansible collections
+USER root
+RUN umask 0002 && \
+    bash /tmp/install/install-oc.sh && \
+    bash /tmp/install/install-ibmpak.sh && \
+    bash /tmp/install/install-ibmcloud.sh && \
+    bash /tmp/install/install-skopeo.sh && \
+    bash /tmp/install/install-aws.sh && \
     rm -rf /tmp/install
 
-# 5. Install tini
+# 4. Install tini
 ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini /tini
 RUN chmod +x /tini
+
+# 5. Copy basics
+USER default
+COPY --chown=default:root app-root/* ${HOME}/
+COPY --chown=default:root mascli /mascli
+COPY --chown=default:root .bashrc /opt/app-root/src/.bashrc
 
 # 6. Set up Environment
 # VIRTUAL_ENV_DISABLE_PROMPT will stop built-in PS1 munging, we already set it to what we want
 ENV ANSIBLE_COLLECTIONS_PATH=/opt/app-root/lib64/python3.9/site-packages/ansible_collections \
     ANSIBLE_CONFIG=/opt/app-root/src/ansible.cfg \
-    PATH="/mascli/bin:${PATH}" \
+    PATH="/mascli:${PATH}" \
     VERSION=${VERSION_LABEL:-x.y.z} \
     VIRTUAL_ENV_DISABLE_PROMPT=1
 
 # 7. Install Ansible collections -- do this last for efficient dev builds
-COPY install-ansible /tmp/install-ansible
-RUN chmod u+x /tmp/install-ansible/*.sh && \
-    /tmp/install-ansible/install-ansible-collections.sh && \
+COPY --chown=default:root install-ansible /tmp/install-ansible
+RUN umask 0002 && \
+    bash /tmp/install-ansible/install-ansible-collections.sh && \
     rm -rf /tmp/install-ansible
 
-# 8. Set file permissions in /opt/app-root & setup symlink to our collection
-RUN chmod -R ug+rwx ${HOME}/env.sh &&\
-    chmod -R ug+rwx ${HOME}/.ansible &&\
-    chmod +x ${HOME}/run-playbook.sh &&\
-    chmod +x ${HOME}/run-role.sh &&\
+# 8. Set file permissions to be developer (hack) friendly
+RUN chmod -R ug+rwx ${HOME}/env.sh && \
+    chmod -R ug+rwx ${HOME}/.ansible && \
+    chmod +x ${HOME}/run-playbook.sh && \
+    chmod +x ${HOME}/run-role.sh && \
     chmod +x ${HOME}/clear-mustgather-workspace.sh && \
-    chmod +x /mascli/bin/mas && \
+    chmod -R ug+w /mascli && \
+    chmod +x /mascli/mas && \
     chmod +x /opt/app-root/src/.bashrc && \
-    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /opt/app-root/devops && \
-    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_airgap /opt/app-root/airgap
+    chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops && \
+    chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_airgap && \
+    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops && \
+    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_airgap /mascli/ansible-airgap
 
-# 8. Setup working environment
+# 9. Setup working environment
 WORKDIR /mascli
 ENTRYPOINT ["/tini", "--"]
 CMD bash

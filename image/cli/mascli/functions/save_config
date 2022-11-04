@@ -1,13 +1,17 @@
 #!/bin/bash
 
 function load_config() {
-  if [[ -e $DIR/mas.env ]]; then
-    source $DIR/mas.env
+  if [[ -e $HOME/.ibm-mas/cli.env ]]; then
+    source $HOME/.ibm-mas/cli.env
   fi
 }
 
 function save_config() {
-  cat << EOF > $DIR/mas.env
+  if [[ ! -d $HOME/.ibm-mas ]]; then
+    mkdir $HOME/.ibm-mas
+  fi
+
+  cat << EOF > $HOME/.ibm-mas/cli.env
 export ARTIFACTORY_USERNAME=$ARTIFACTORY_USERNAME
 export ARTIFACTORY_APIKEY=$ARTIFACTORY_APIKEY
 

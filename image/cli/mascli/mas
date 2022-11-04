@@ -21,12 +21,9 @@ trap trap_int INT
 
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PARENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
-CONFIG_DIR="$PARENT_DIR/config"
-TEMPLATE_DIR="$PARENT_DIR/templates"
-LOG_DIR="$PARENT_DIR/logs"
-LOGFILE=$LOG_DIR/mas.log
-
+CONFIG_DIR="$HOME/.ibm-mas/config"
+LOG_DIR="$HOME/.ibm-mas/logs"
+LOGFILE=$HOME/.ibm-mas/mas.log
 
 mkdir -p $LOG_DIR
 mkdir -p $CONFIG_DIR

@@ -9,5 +9,5 @@ else
   export GITHUB_WORKSPACE=$(pwd)
 fi
 
-cd $GITHUB_WORKSPACE/image/cli/bin
-tar -czvf $GITHUB_WORKSPACE/ibm-mas-cli-$VERSION.tgz --directory $GITHUB_WORKSPACE/image/cli/bin *
+cd $GITHUB_WORKSPACE/image/cli/mascli
+tar -czvf $GITHUB_WORKSPACE/ibm-mas-cli-$VERSION.tgz --directory $GITHUB_WORKSPACE/image/cli/mascli *

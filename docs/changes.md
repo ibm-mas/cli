@@ -1,5 +1,8 @@
 ## Changes
 
+- [`2.7`](https://github.com/ibm-mas/cli/releases/tag/2.7.0) Add support for Oct 2022 catalog
+- [`2.6`](https://github.com/ibm-mas/cli/releases/tag/2.6.0) Add aws client to container image
+- [`2.5`](https://github.com/ibm-mas/cli/releases/tag/2.5.0) Support IBM Pak and Two Phase Mirroring
 - [`2.4`](https://github.com/ibm-mas/cli/releases/tag/2.4.0) Add support for Sep 2022 catalog
 - [`2.3`](https://github.com/ibm-mas/cli/releases/tag/2.3.0) Add Update and Upgrade command support
 - [`2.2`](https://github.com/ibm-mas/cli/releases/tag/2.2.0) Catalog update for IoT airgap support fix

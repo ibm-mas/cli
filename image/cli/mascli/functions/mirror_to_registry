@@ -9,6 +9,10 @@ Usage:
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
+Mirror Mode (Required):
+  -m, --mode ${COLOR_YELLOW}MIRROR_MODE${TEXT_RESET}                         Operation mode (direct, to-filesystem, from-filesystem)
+  -d, --dir ${COLOR_YELLOW}MIRROR_WORKING_DIR${TEXT_RESET}                   Working directory for the mirror process
+
 Registry Details (Required):
   -H, --host ${COLOR_YELLOW}REGISTRY_PUBLIC_HOST${TEXT_RESET}                 Hostname of the target registry
   -P, --port ${COLOR_YELLOW}REGISTRY_PUBLIC_PORT${TEXT_RESET}                 Port number for the target registry
@@ -27,15 +31,15 @@ Red Hat Catalog Selection (Optional):
       --mirror-redhat-operators ${COLOR_YELLOW}OPENSHIFT_OPERATORS_VERSION${TEXT_RESET}  Mirror Red Hat Release catalog images at the specified version (e.g. 4.10.18)
 
 Maximo Operator Catalog Selection (Optional):
-  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v8-220805)
+  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v8-221025-amd64)
       --mirror-core                               Mirror images for IBM Maximo Application Suite Core & dependencies
       --mirror-assist                             Mirror images for IBM Maximo Assist
       --mirror-hputilities                        Mirror images for IBM Maximo Health & Predict Utilities
       --mirror-iot                                Mirror images for IBM Maximo IoT & dependencies
       --mirror-manage                             Mirror images for IBM Maximo Manage & dependencies
       --mirror-monitor                            Mirror images for IBM Maximo Monitor
-      --mirror-predict                            Mirror images for IBM Maximo Predict
       --mirror-optimizer                          Mirror images for IBM Maximo Optimizer
+      --mirror-predict                            Mirror images for IBM Maximo Predict
       --mirror-visualinspection                   Mirror images for IBM Maximo Visual Inspection
 
 Maximo Core Image Mirroring Configuration (Optional):
@@ -86,6 +90,12 @@ function mirror_to_registry_noninteractive() {
     key="$1"
     shift
     case $key in
+      -m|--mode)
+        MIRROR_MODE=$1 && shift
+        ;;
+      -d|--dir)
+        MIRROR_WORKING_DIR=$1 && shift
+        ;;
       -H|--host)
         REGISTRY_PUBLIC_HOST=$1 && shift
         ;;
@@ -188,6 +198,8 @@ function mirror_to_registry_noninteractive() {
   done
 
   # Check all args have been set
+  [[ -z "$MIRROR_MODE" ]] && mirror_to_registry_help "MIRROR_MODE is not set"
+  [[ -z "$MIRROR_WORKING_DIR" ]] && mirror_to_registry_help "MIRROR_WORKING_DIR is not set"
   [[ -z "$REGISTRY_PUBLIC_HOST" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_HOST is not set"
   [[ -z "$REGISTRY_PUBLIC_PORT" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_PORT is not set"
   if [[ $MIRROR_MAS_X == "true" ]]; then
@@ -204,6 +216,32 @@ function mirror_to_registry_noninteractive() {
 
 function mirror_to_registry_interactive() {
   echo
+  echo_h2 "1. Configure Mirror Mode"
+  prompt_for_input "Working Directory" MIRROR_WORKING_DIR
+
+  echo -e "${COLOR_YELLOW}Mirror Mode:"
+  echo "  1. Direct"
+  echo "  2. To filesystem"
+  echo "  3. From filesystem"
+  prompt_for_input "Select Mirror Mode" MIRROR_MODE_SELECTION "1"
+
+  case $MIRROR_MODE_SELECTION in
+    1|direct)
+      MIRROR_MODE=direct
+      ;;
+    2|t|to|to-filesystem)
+      MIRROR_MODE=to-filesystem
+      ;;
+    3|f|from|from-filesystem)
+      MIRROR_MODE=from-filesystem
+      ;;
+    *)
+      echo_warning "Invalid selection"
+      exit 1
+      ;;
+  esac
+
+  echo
   echo_h2 "1. Configure Target Mirror"
   prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
   prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
@@ -217,23 +255,29 @@ function mirror_to_registry_interactive() {
   echo_h2 "3. Configure Static Catalog Version"
 
   echo -e "${COLOR_YELLOW}MAS Version:"
-  echo "  1. 8.8.1 (2022-09-27)"
-  echo "  2. 8.8.0 (2022-08-05)"
-  echo "  3. 8.8.0 (2022-07-17)"
+  echo "  1. 8.8.2 (2022-10-25)"
+  echo "  2. 8.8.1 (2022-09-27)"
+  echo "  3. 8.8.0 (2022-08-05)"
+  echo "  4. 8.8.0 (2022-07-17)"
   prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
 
   case $MAS_CHANNEL_SELECTION in
-    1|220927|2022-09-27)
+    1|221025|2022-10-25)
+      MAS_CHANNEL=8.8.x
+      MAS_CATALOG_SOURCE=ibm-operator-catalog
+      MAS_CATALOG_VERSION=v8-221025-amd64
+      ;;
+    2|220927|2022-09-27)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-220927-amd64
       ;;
-    2|220805|2022-08-05)
+    3|220805|2022-08-05)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-220805-amd64
       ;;
-    3|220717|2022-07-17)
+    4|220717|2022-07-17)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-220717
@@ -251,15 +295,20 @@ function mirror_to_registry_interactive() {
   echo "${TEXT_DIM}"
   echo "Timing are an estimate only, and will vary based on the quality of the host network connection"
   reset_colors
-  prompt_for_confirm "Mirror all images (~1 hour)" MIRROR_EVERYTHING
+
+  prompt_for_confirm "Red Hat OpenShift Container Platform Release" MIRROR_RH_RELEASE
+  if [[ "$MIRROR_RH_RELEASE" == "true" ]]; then
+    prompt_for_input "Release Version (x.y.z)" OPENSHIFT_RELEASE_VERSION "4.10.18"
+  fi
+
+  prompt_for_confirm "Red Hat OpenShift Container Platform Operator Catalog" MIRROR_RH_OPERATORS
+  if [[ "$MIRROR_RH_OPERATORS" == "true" ]]; then
+    prompt_for_input "Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10"
+  fi
+
+  prompt_for_confirm "Mirror all MAS images (with dependencies)" MIRROR_EVERYTHING
 
   if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
-    MIRROR_RH_RELEASE=true
-    prompt_for_input "Red Hat Openshift Release Version (x.y.z)" OPENSHIFT_RELEASE_VERSION "4.10.18"
-
-    MIRROR_RH_OPERATORS=true
-    prompt_for_input "Red Hat Openshift Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10"
-
     # Core + Dependencies
     MIRROR_MAS_CORE=true
     MIRROR_COMMONSERVICES=true
@@ -273,22 +322,12 @@ function mirror_to_registry_interactive() {
     MIRROR_MAS_IOT=true
     MIRROR_MAS_MANAGE=true
     MIRROR_MAS_MONITOR=true
-    MIRROR_MAS_PREDICT=true
     MIRROR_MAS_OPTIMIZER=true
+    MIRROR_MAS_PREDICT=true
     MIRROR_MAS_VISUALINSPECTION=true
     # App Dependencies
     MIRROR_DB2U=true
   else
-    prompt_for_confirm "Red Hat OpenShift Container Platform Release" MIRROR_RH_RELEASE
-    if [[ "$MIRROR_RH_RELEASE" == "true" ]]; then
-      prompt_for_input "Release Version (x.y.z)" OPENSHIFT_RELEASE_VERSION "4.10.18"
-    fi
-
-    prompt_for_confirm "Red Hat OpenShift Container Platform Operator Catalog" MIRROR_RH_OPERATORS
-    if [[ "$MIRROR_RH_OPERATORS" == "true" ]]; then
-      prompt_for_input "Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10"
-    fi
-
     prompt_for_confirm_default_yes "IBM Maximo Application Suite - Core" MIRROR_MAS_CORE
     if [[ "$MIRROR_MAS_CORE" == "true" ]]; then
       prompt_for_confirm_default_yes " + IBM Foundational Services" MIRROR_COMMONSERVICES
@@ -298,12 +337,13 @@ function mirror_to_registry_interactive() {
       prompt_for_confirm_default_yes " + MongoDb Community Edition" MIRROR_MONGOCE
     fi
 
-    prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_IOT
+    prompt_for_confirm "IBM Maximo Application Suite - Assist" MIRROR_MAS_ASSIST
     prompt_for_confirm "IBM Maximo Application Suite - HP Utilities" MIRROR_MAS_HPUTILITIES
+    prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_IOT
     prompt_for_confirm "IBM Maximo Application Suite - Manage" MIRROR_MAS_MANAGE
     prompt_for_confirm "IBM Maximo Application Suite - Monitor" MIRROR_MAS_MONITOR
-    prompt_for_confirm "IBM Maximo Application Suite - Predict" MIRROR_MAS_PREDICT
     prompt_for_confirm "IBM Maximo Application Suite - Optimizer" MIRROR_MAS_OPTIMIZER
+    prompt_for_confirm "IBM Maximo Application Suite - Predict" MIRROR_MAS_PREDICT
     prompt_for_confirm "IBM Maximo Application Suite - Visual Inspection" MIRROR_MAS_VISUALINSPECTION
     if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
       prompt_for_confirm_default_yes " + IBM Db2" MIRROR_DB2U
@@ -362,6 +402,8 @@ function mirror_to_registry() {
   # Ensure all environment variables are available to ansible-playbook
 
   # General Config
+  export MIRROR_MODE
+  export MIRROR_WORKING_DIR
   export MAS_CATALOG_VERSION
   export REGISTRY_PUBLIC_HOST
   export REGISTRY_PUBLIC_PORT
@@ -477,7 +519,10 @@ function mirror_to_registry() {
   echo
   echo_h2 "4. Run Mirror Process"
   TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
-  LOG_PREFIX="$LOG_DIR/mirror-$TIMESTAMP"
+  LOG_PREFIX="$MIRROR_WORKING_DIR/logs/mirror-$TIMESTAMP"
+  if [ ! -d $MIRROR_WORKING_DIR/logs/ ]; then
+    mkdir -p $MIRROR_WORKING_DIR/logs/
+  fi
 
   mirror_one_thing $MIRROR_RH_RELEASE           "Red Hat Release"                    "$LOG_PREFIX-ocp-release.log"   mirror_openshift_release
   mirror_one_thing $MIRROR_RH_OPERATORS         "Red Hat Operators"                  "$LOG_PREFIX-ocp-operators.log" mirror_openshift_operators
