@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# when SNO_MODE is detected, we have a couple of parameters that need to be set.
 function config_pipeline_sno() {
   echo ""
   if [[ "$SNO_MODE" == "true" ]]; then
@@ -13,3 +14,4 @@ function config_pipeline_sno() {
     echo_h2 "10. Info: SNO_MODE was not detected"
   fi
 }
+ 
