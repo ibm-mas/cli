@@ -42,6 +42,27 @@ spec:
       type: string
       description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
       default: ""
+    
+    - name: wml_instance_id
+      type: string
+      description: Optional. Identifier of wml instance to be configured in Predict
+      default: ""
+    - name: wml_url
+      type: string
+      description: Optional. Url to access WML service (same as Cloud Pak for Data url)
+      default: ""
+    - name: cpd_product_version
+      type: string
+      description: Required when mas_app_settings_wml_version is not informed. It is the version of cloud pak for data installed in the cluster. Based on that wml version will be identified. Recommend use of this variable instead of forcing wml version by setting mas_app_settings_wml_version
+      default: ""
+    - name: wml_version
+      type: string
+      description: Required when cpd_product_versionis not informed. Is the version of WML to use.
+      default: ""
+    - name: predict_deployment_size
+      type: string
+      description: Optional. Controls the workload size of predict containers. Available options are developer, small, medium, and small
+      default: ""
 
   stepTemplate:
     env:
@@ -69,6 +90,17 @@ spec:
         value: $(params.devops_suite_name)
       - name: DEVOPS_BUILD_NUMBER
         value: $(params.devops_build_number)
+
+      - name: WML_INSTANCE_ID
+        value: $(params.wml_instance_id)
+      - name: WML_URL
+        value: $(params.wml_url)
+      - name: CPD_PRODUCT_VERSION
+        value: $(params.cpd_product_version)
+      - name: WML_VERSION
+        value: $(params.wml_version)
+      - name: PREDICT_DEPLOYMENT_SIZE
+        value: $(params.predict_deployment_size)
 
   steps:
     - name: suite-app-config
