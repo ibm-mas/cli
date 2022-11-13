@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/guides/architecture/core/" />
       <link rel="shortcut icon" href="../../../img/favicon.ico" />
-    <title>Architecture: MAS Core - MAS CLI</title>
+    <title>MAS Core Explained - MAS CLI</title>
     <link rel="stylesheet" href="../../../css/theme.css" />
     <link rel="stylesheet" href="../../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
@@ -13,7 +13,7 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Architecture: MAS Core";
+        var mkdocs_page_name = "MAS Core Explained";
         var mkdocs_page_input_path = "guides/architecture/core.md";
         var mkdocs_page_url = "/cli/guides/architecture/core/";
       </script>
@@ -56,15 +56,105 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../install/">Installation</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../mas-pods-explained/">MAS Pods explained</a>
-                  </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Architecture: MAS Core</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">MAS Core Explained</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#ibm-mas-operator">ibm-mas-operator</a>
+    <li class="toctree-l2"><a class="reference internal" href="#kubernetes-control-plane">Kubernetes Control Plane</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#controller-managers">Controller Managers</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#ibm-truststore-mgr-controller-manager">ibm-truststore-mgr-controller-manager</a>
+    <li class="toctree-l3"><a class="reference internal" href="#entity-managers">Entity Managers</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#suite-administration">Suite Administration</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#core-api">Core API</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#deployment-topology">Deployment Topology</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#internal-api">Internal API</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#deployment-topology_1">Deployment Topology</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#mobile-api">Mobile API</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#deployment-topology_2">Deployment Topology</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#monitoring-agent">Monitoring Agent</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pns-integration">PNS Integration</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#deployment-topology_3">Deployment Topology</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#identity-provider">Identity Provider</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#core-idp">Core IDP</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#core-idp-login">Core IDP Login</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#group-sync-coordinator">Group Sync Coordinator</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#user-sync-coordinator">User Sync Coordinator</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#deployment-topology_4">Deployment Topology</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#catalog-management">Catalog Management</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#catalog-api">Catalog API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#catalog-manager">Catalog Manager</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#console">Console</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#admin-dashboard">Admin Dashboard</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#suite-homepage">Suite Homepage</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#application-navigator">Application Navigator</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#licensing-and-usage-data-collection">Licensing and Usage Data Collection</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#account-apppoints-reporter">Account AppPoints Reporter</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#adoption-usage-api">Adoption Usage API</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#adoption-usage-reporter">Adoption Usage Reporter</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sls-mediator">SLS Mediator</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#deployment-topology_5">Deployment Topology</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#milestones-api">Milestones API</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#deployment-topology_6">Deployment Topology</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
     </li>
     </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../mas-pods-explained/">MAS Pods Explained</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Commands</span></p>
@@ -112,7 +202,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
           <li>Guides &raquo;</li>
-      <li>Architecture: MAS Core</li>
+      <li>MAS Core Explained</li>
     <li class="wy-breadcrumbs-aside">
           <a href="https://github.com/ibm-mas/cli/blob/master/docs/guides/architecture/core.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
@@ -122,133 +212,105 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <p>===============================================================================</p>
+                <h1 id="mas-core-explained">MAS Core Explained<a class="headerlink" href="#mas-core-explained" title="Permanent link"></a></h1>
 <ul>
-<li><a href="#controller-managers">Controller Managers</a></li>
-<li><a href="#entity-managers">Entity Managers</a></li>
-<li><a href="#suite-administration-services">Suite Administration Services</a></li>
-<li><a href="#identity-provider-service">Identity Provider Service</a></li>
-<li><a href="#catalog-management-services">Catalog Management Services</a></li>
-<li><a href="#user-registry">User Registry</a></li>
+<li><a href="#kubernetes-control-plane">Kubernetes Control Plane</a></li>
+<li><a href="#suite-administration">Suite Administration</a></li>
+<li><a href="#identity-provider">Identity Provider</a></li>
+<li><a href="#catalog-management">Catalog Management</a></li>
 <li><a href="#console">Console</a></li>
 <li><a href="#licensing-and-usage-data-collection">Licensing and Usage Data Collection</a></li>
 </ul>
-<h2 id="controller-managers">Controller Managers<a class="headerlink" href="#controller-managers" title="Permanent link"></a></h2>
-<h3 id="ibm-mas-operator">ibm-mas-operator<a class="headerlink" href="#ibm-mas-operator" title="Permanent link"></a></h3>
-<p>Watches <code>Suite.core.mas.ibm.com</code>.</p>
-<p>Primary controller manager for an installation of the MAS core services.</p>
-<h3 id="ibm-truststore-mgr-controller-manager">ibm-truststore-mgr-controller-manager<a class="headerlink" href="#ibm-truststore-mgr-controller-manager" title="Permanent link"></a></h3>
-<p>Watches <code>Truststore.ibm-truststore-mgr.ibm.com</code>.</p>
-<p>Truststores pod is the operator responsible for handling the trust store request and add provided truststore in the format consumed by the servers.</p>
-<h2 id="entity-managers">Entity Managers<a class="headerlink" href="#entity-managers" title="Permanent link"></a></h2>
-<h3 id="entitymgr-addons">entitymgr-addons<a class="headerlink" href="#entitymgr-addons" title="Permanent link"></a></h3>
-<p>Add-ons configuration</p>
-<h3 id="entitymgr-bascfg">entitymgr-bascfg<a class="headerlink" href="#entitymgr-bascfg" title="Permanent link"></a></h3>
-<p>Watches <code>BASCfg.config.mas.ibm.com</code>.</p>
-<p>Entity Manager used to manage UDS integration with MAS. Generating internal certificates, performing configuration verification and all deployment of all UDS related pods.</p>
-<h3 id="entitymgr-coreidp">entitymgr-coreidp<a class="headerlink" href="#entitymgr-coreidp" title="Permanent link"></a></h3>
-<p>Watches <code>CoreIDP.internal.mas.ibm.com</code>.</p>
-<p>Entity Manager used to manage Coreidp integration with MAS. Generating internal certificates, validations, coreidp-login and coreidp PODs deployment.</p>
-<h3 id="entitymgr-idpcfg">entitymgr-idpcfg<a class="headerlink" href="#entitymgr-idpcfg" title="Permanent link"></a></h3>
-<p>Watches <code>IDPCfg.config.mas.ibm.com</code>.</p>
-<p>Entity Manager used to manage IDP integration with MAS. Generating internal certificates, performing configuration and verification.</p>
-<h3 id="entitymgr-jdbccfg">entitymgr-jdbccfg<a class="headerlink" href="#entitymgr-jdbccfg" title="Permanent link"></a></h3>
-<p>Watches <code>JDBCCfg.config.mas.ibm.com</code>.</p>
-<p>Entity Manager used to manage JDBC integration with MAS, performing configuration validation.</p>
-<h3 id="entitymgr-kafkacfg">entitymgr-kafkacfg<a class="headerlink" href="#entitymgr-kafkacfg" title="Permanent link"></a></h3>
-<p>Watches <code>KafkaCfg.config.mas.ibm.com</code>.</p>
-<p>Entity Manager used to manage Kafka integration with MAS, performing configuration validation.</p>
-<h3 id="entitymgr-jdbccfg_1">entitymgr-jdbccfg<a class="headerlink" href="#entitymgr-jdbccfg_1" title="Permanent link"></a></h3>
-<p>Watches <code>MongoCfg.config.mas.ibm.com</code>.</p>
-<p>Entity Manager used to manage Mongo integration with MAS, performing configuration validation.</p>
-<h3 id="entitymgr-objectstorage">entitymgr-objectstorage<a class="headerlink" href="#entitymgr-objectstorage" title="Permanent link"></a></h3>
-<p>Watches <code>ObjectStorageCfg.config.mas.ibm.com</code>.</p>
-<p>Entity Manager used to manage ObjectStorage integration with MAS, performing configuration validation.</p>
-<h3 id="entitymgr-pushnotificationcfg">entitymgr-pushnotificationcfg<a class="headerlink" href="#entitymgr-pushnotificationcfg" title="Permanent link"></a></h3>
-<p>Watches <code>PushNotificationCfg.config.mas.ibm.com</code>.</p>
-<p>Entity Manager used to manage PushNotification integration with MAS, performing configuration validation.</p>
-<h3 id="entitymgr-scimcfg">entitymgr-scimcfg<a class="headerlink" href="#entitymgr-scimcfg" title="Permanent link"></a></h3>
-<p>Watches <code>SCIMCfg.config.mas.ibm.com</code>.</p>
-<p>Entity Manager used to manage SCIM (LDAP User Sync) integration with MAS, performing configuration validation and resources creation such as scimsync-agent job and scimsync liberty pod.</p>
-<h3 id="entitymgr-slscfg">entitymgr-slscfg<a class="headerlink" href="#entitymgr-slscfg" title="Permanent link"></a></h3>
-<p>Watches <code>SLSCfg.config.mas.ibm.com</code>.</p>
-<p>Entity Manager used to manage SLS integration with MAS, performing configuration validation and resources creation such as licensing-mediator pod. This pod is also responsible to register the SLS client in the SLS server.</p>
-<h3 id="entitymgr-smtpcfg">entitymgr-smtpcfg<a class="headerlink" href="#entitymgr-smtpcfg" title="Permanent link"></a></h3>
-<p>Watches <code>SMTPCfg.config.mas.ibm.com</code>.</p>
-<p>Entity Manager used to manage SMTP integration with MAS, performing configuration validation.</p>
-<h3 id="entitymgr-watsonstudiocfg">entitymgr-watsonstudiocfg<a class="headerlink" href="#entitymgr-watsonstudiocfg" title="Permanent link"></a></h3>
-<p>Watches <code>WatsonStudioCfg.config.mas.ibm.com</code>.</p>
-<p>Entity Manager used to manage Watson Studio integration with MAS, performing configuration validation.</p>
-<h3 id="entitymgr-ws">entitymgr-ws<a class="headerlink" href="#entitymgr-ws" title="Permanent link"></a></h3>
-<p>Watches <code>Workspace.core.mas.ibm.com</code>.</p>
-<p>Entity Manager used to manage Workspace creation in MAS.</p>
-<h2 id="suite-administration-services">Suite Administration Services<a class="headerlink" href="#suite-administration-services" title="Permanent link"></a></h2>
-<h3 id="coreapi">coreapi<a class="headerlink" href="#coreapi" title="Permanent link"></a></h3>
-<p>The MAS CoreAPI pod which provides a HTTPS APIs to support working with Kubernetes resources natively. It primarily acts as a proxy to the Kubernetes APIs and MongoDB integration.</p>
-<p>Route: <code>https://api.{masdomain}</code></p>
+<h2 id="kubernetes-control-plane">Kubernetes Control Plane<a class="headerlink" href="#kubernetes-control-plane" title="Permanent link"></a></h2>
+<h3 id="controller-managers">Controller Managers<a class="headerlink" href="#controller-managers" title="Permanent link"></a></h3>
+<ul>
+<li><strong>ibm-mas-operator</strong> watches <code>Suite.core.mas.ibm.com</code>, acts as the primary controller manager for an installation of the MAS core services, installing all required entity managers and provisioning the primary resources detailed on this page.</li>
+<li><strong>ibm-truststore-mgr-controller-manager</strong> watches <code>Truststore.ibm-truststore-mgr.ibm.com</code> and manages all of the truststores in use in the core services namespace.</li>
+</ul>
+<h3 id="entity-managers">Entity Managers<a class="headerlink" href="#entity-managers" title="Permanent link"></a></h3>
+<ul>
+<li><strong>entitymgr-addons</strong> add-ons configuration</li>
+<li><strong>entitymgr-bascfg</strong> watches <code>BASCfg.config.mas.ibm.com</code>, manages the UDS integration with MAS.</li>
+<li><strong>entitymgr-coreidp</strong> watches <code>CoreIDP.internal.mas.ibm.com</code>, manages the Core IDP component.</li>
+<li><strong>entitymgr-idpcfg</strong> watches <code>IDPCfg.config.mas.ibm.com</code>, manages IDP integration with MAS.</li>
+<li><strong>entitymgr-jdbccfg</strong> watches <code>JDBCCfg.config.mas.ibm.com</code>, manages JDBC integration with MAS, performing configuration validation.</li>
+<li><strong>entitymgr-kafkacfg</strong> watches <code>KafkaCfg.config.mas.ibm.com</code>, manages Kafka integration with MAS, performing configuration validation.</li>
+<li><strong>entitymgr-jdbccfg</strong> watches <code>MongoCfg.config.mas.ibm.com</code>, manages Mongo integration with MAS, performing configuration validation.</li>
+<li><strong>entitymgr-objectstorage</strong> watches <code>ObjectStorageCfg.config.mas.ibm.com</code>, manages ObjectStorage integration with MAS, performing configuration validation.</li>
+<li><strong>entitymgr-pushnotificationcfg</strong>, watches <code>PushNotificationCfg.config.mas.ibm.com</code>, manages PushNotification integration with MAS, performing configuration validation.</li>
+<li><strong>entitymgr-scimcfg</strong> watches <code>SCIMCfg.config.mas.ibm.com</code>, manages SCIM (LDAP User Sync) integration with MAS, performing configuration validation and resources creation such as scimsync-agent job and scimsync liberty pod.</li>
+<li><strong>entitymgr-slscfg</strong> watches <code>SLSCfg.config.mas.ibm.com</code>, manages SLS integration with MAS, performing configuration validation and resources creation such as licensing-mediator pod. This pod is also responsible to register the SLS client in the SLS server.</li>
+<li><strong>entitymgr-smtpcfg</strong> watches <code>SMTPCfg.config.mas.ibm.com</code>, manages SMTP integration with MAS, performing configuration validation.</li>
+<li><strong>entitymgr-watsonstudiocfg</strong> watches <code>WatsonStudioCfg.config.mas.ibm.com</code>, manages Watson Studio integration with MAS, performing configuration validation.</li>
+<li><strong>entitymgr-ws</strong> watches <code>Workspace.core.mas.ibm.com</code>, manages Workspace creation in MAS.</li>
+</ul>
+<h2 id="suite-administration">Suite Administration<a class="headerlink" href="#suite-administration" title="Permanent link"></a></h2>
+<h3 id="core-api">Core API<a class="headerlink" href="#core-api" title="Permanent link"></a></h3>
+<p>The <strong>coreapi</strong> deployment provides a RESTful API to support management of the application suite, as an alternative to working directly with Kubernetes resources natively.  The API is made available on the route <code>https://api.{masdomain}</code>.</p>
 <h4 id="deployment-topology">Deployment Topology<a class="headerlink" href="#deployment-topology" title="Permanent link"></a></h4>
 <p><img alt="" src="../img/coreapi.png" /></p>
-<h3 id="internalapi">internalapi<a class="headerlink" href="#internalapi" title="Permanent link"></a></h3>
-<p>The internal api pod which provides the Internal version of the MAS Administrative API, for example, user management. Notes, this is used by internal components only. Application to application communication.</p>
+<h3 id="internal-api">Internal API<a class="headerlink" href="#internal-api" title="Permanent link"></a></h3>
+<p>The <strong>internalapi</strong> deployment provides an internal API available to applications in the suite, for example, user management. Notes, this is used by internal components only. Application to application communication.</p>
 <h4 id="deployment-topology_1">Deployment Topology<a class="headerlink" href="#deployment-topology_1" title="Permanent link"></a></h4>
 <p><img alt="" src="../img/internalapi.png" /></p>
-<h3 id="mobileapi">mobileapi<a class="headerlink" href="#mobileapi" title="Permanent link"></a></h3>
-<p>The mobile API pods which provides the mobile application package API and specifically it serves up the navigator application package. It integrates with coreapi.</p>
+<h3 id="mobile-api">Mobile API<a class="headerlink" href="#mobile-api" title="Permanent link"></a></h3>
+<p>The <strong>mobileapi</strong> deployment provides the backend for the mobile application package API, serving up the navigator application package. Other implementations of the mobile API exist in each application that supported mobile application packages, Core API controls access to these backend services.</p>
 <h4 id="deployment-topology_2">Deployment Topology<a class="headerlink" href="#deployment-topology_2" title="Permanent link"></a></h4>
 <p><img alt="" src="../img/mobileapi.png" /></p>
-<h3 id="monagent-mas">monagent-mas<a class="headerlink" href="#monagent-mas" title="Permanent link"></a></h3>
-<p>Monagent is responsible to monitor MAS general components health and report back to Suite CR.</p>
-<h3 id="pushnotification">pushnotification<a class="headerlink" href="#pushnotification" title="Permanent link"></a></h3>
-<p>Push notification support is an optional extension to the core API that can be configured by a system administrator, it allows the user to enable push notification support across MAS applications.</p>
-<div class="admonition info">
-<p class="admonition-title">Info</p>
-<p>The push notification service is available at <strong>https://api.{{domain}}/pushnotification</strong> only if the system scope <strong>PushNotificationCfg</strong> resource has been created by the administrator.</p>
-</div>
+<h3 id="monitoring-agent">Monitoring Agent<a class="headerlink" href="#monitoring-agent" title="Permanent link"></a></h3>
+<p>The <strong>monagent-mas</strong> deployment is responsible for tracking the health of the core services, it reports status to the Suite status sub-resource broken down into three categories:</p>
+<ul>
+<li>Mongo configuration status</li>
+<li>SLS integration status</li>
+<li>UDS integration status</li>
+</ul>
+<h3 id="pns-integration">PNS Integration<a class="headerlink" href="#pns-integration" title="Permanent link"></a></h3>
+<p>The <strong>pushnotifications</strong> deployment provides support for integration to an external push notification service (PNS).  PNS support is an optional extension configured by a system administrator, enabling push notification support across MAS applications; it is available at <strong>https://api.{{domain}}/pushnotification</strong> only if the system scope <strong>PushNotificationCfg</strong> resource has been created.</p>
 <h4 id="deployment-topology_3">Deployment Topology<a class="headerlink" href="#deployment-topology_3" title="Permanent link"></a></h4>
 <p><img alt="" src="../img/pushnotify.png" /></p>
-<h2 id="identity-provider-service">Identity Provider Service<a class="headerlink" href="#identity-provider-service" title="Permanent link"></a></h2>
-<h3 id="coreidp">coreidp<a class="headerlink" href="#coreidp" title="Permanent link"></a></h3>
-<p>The coreidp pod is a Liberty based server which handles the authentication, access management and user privileges authorization managed by Maximo Application Suite. This pod will integrate with internal applications through OIDC flow and externally using SAML.</p>
-<h3 id="coreidp-login">coreidp-login<a class="headerlink" href="#coreidp-login" title="Permanent link"></a></h3>
-<p>The coreidp login pods which hosts login page and superuser login logic for Maximo Application Suite.  This is not meant to be a MAS endpoint but used as part of the redirect during MAS authentication flow.</p>
-<p>Route: <code>https://auth.{masdomain}</code></p>
-<h2 id="catalog-management-services">Catalog Management Services<a class="headerlink" href="#catalog-management-services" title="Permanent link"></a></h2>
-<p>The MAS Catalog acts as the mechanism for customers to discover the resources in MAS that they are interested in, it allows us to abstract the actual resource (ie implementation) of a capability away from how it is presented as a catalog item.</p>
-<h3 id="catalogapi">catalogapi<a class="headerlink" href="#catalogapi" title="Permanent link"></a></h3>
-<p>The catalogapi pod which provides read access to the catalog inventory.  The catalog API is exposed via endpoints in <a href="#coreapi">Core API</a> which proxy requests to the internal catalog API service.</p>
-<h3 id="catalogmgr">catalogmgr<a class="headerlink" href="#catalogmgr" title="Permanent link"></a></h3>
-<p>The catalogapi pod which provides inventory management and AppPoint reservation APIs.</p>
-<p><img alt="" src="../img/catalog.png" /></p>
-<h2 id="user-registry">User Registry<a class="headerlink" href="#user-registry" title="Permanent link"></a></h2>
-<h3 id="groupsync-coordinator">groupsync-coordinator<a class="headerlink" href="#groupsync-coordinator" title="Permanent link"></a></h3>
-<p>The group sync manager pod which coordinates the group sync activities between MAS and Applications</p>
-<h3 id="usersync-coordinator">usersync-coordinator<a class="headerlink" href="#usersync-coordinator" title="Permanent link"></a></h3>
-<p>The user sync manager pod which coordinates the user sync activities between MAS and Applications</p>
+<h2 id="identity-provider">Identity Provider<a class="headerlink" href="#identity-provider" title="Permanent link"></a></h2>
+<h3 id="core-idp">Core IDP<a class="headerlink" href="#core-idp" title="Permanent link"></a></h3>
+<p>The <strong>coreidp</strong> deployment serves as the identity provider for all applications across Maximo Application Suite.</p>
+<h3 id="core-idp-login">Core IDP Login<a class="headerlink" href="#core-idp-login" title="Permanent link"></a></h3>
+<p>The <strong>coreidp-login</strong> deployment hosts the authentication login screens and superuser login logic for Maximo Application Suite.  This is not meant to be a MAS endpoint but used as part of the redirect during MAS authentication flow.  The service is available on the route <code>https://auth.{masdomain}</code>.</p>
+<h3 id="group-sync-coordinator">Group Sync Coordinator<a class="headerlink" href="#group-sync-coordinator" title="Permanent link"></a></h3>
+<p>The <strong>groupsync-coordinator</strong> deployment is responsible for coordinating user group synchronization across all installed applications.</p>
+<h3 id="user-sync-coordinator">User Sync Coordinator<a class="headerlink" href="#user-sync-coordinator" title="Permanent link"></a></h3>
+<p>The <strong>usersync-coordinator</strong> deployment is responsible for coordinating user synchronization across all installed Applications.</p>
 <h4 id="deployment-topology_4">Deployment Topology<a class="headerlink" href="#deployment-topology_4" title="Permanent link"></a></h4>
 <p><img alt="" src="../img/usersync.png" /></p>
+<h2 id="catalog-management">Catalog Management<a class="headerlink" href="#catalog-management" title="Permanent link"></a></h2>
+<p>The MAS Catalog acts as the mechanism for customers to discover the resources in MAS that they are interested in, it allows the suite to abstract the actual resource (ie implementation) of a capability away from how it is presented as a catalog item.</p>
+<h3 id="catalog-api">Catalog API<a class="headerlink" href="#catalog-api" title="Permanent link"></a></h3>
+<p>The <strong>catalogapi</strong> deployment provides read access to the catalog inventory.  The catalog API is exposed via endpoints in <a href="#core-api">Core API</a> which proxy requests to the internal catalog API service.</p>
+<h3 id="catalog-manager">Catalog Manager<a class="headerlink" href="#catalog-manager" title="Permanent link"></a></h3>
+<p>The <strong>catalogmanager</strong> deployment provides internal inventory management and AppPoint reservation APIs.</p>
+<p><img alt="" src="../img/catalog.png" /></p>
 <h2 id="console">Console<a class="headerlink" href="#console" title="Permanent link"></a></h2>
-<h3 id="admin-dashboard">admin-dashboard<a class="headerlink" href="#admin-dashboard" title="Permanent link"></a></h3>
-<p>MAS Core Admin dashboard UI pod which is user interface for Maximo Application Suite administrator including system admin work and user management.</p>
-<p>Route: <code>https://admin.{masdomain}</code></p>
-<h3 id="homepage">homepage<a class="headerlink" href="#homepage" title="Permanent link"></a></h3>
-<p>MAS Core homepage UI pod. This is main page when you are not running in a workspace-based endpoint.</p>
-<p>Route: <code>https://home.{masdomain}</code></p>
-<h3 id="navigator">navigator<a class="headerlink" href="#navigator" title="Permanent link"></a></h3>
-<p>The Application Navigator is a workspace-based UI acting as a home page where users can access any application.</p>
-<p>Route: <code>https://{workspace}.home.{masdomain}</code></p>
+<h3 id="admin-dashboard">Admin Dashboard<a class="headerlink" href="#admin-dashboard" title="Permanent link"></a></h3>
+<p>The <strong>admin-dashboard</strong> deployment provides the adminstration console available on the route <code>https://admin.{masdomain}</code>.</p>
+<h3 id="suite-homepage">Suite Homepage<a class="headerlink" href="#suite-homepage" title="Permanent link"></a></h3>
+<p>The <strong>homepage</strong> deployment provides the primary homescreen for the suite, available on the route <code>https://home.{masdomain}</code>.</p>
+<h3 id="application-navigator">Application Navigator<a class="headerlink" href="#application-navigator" title="Permanent link"></a></h3>
+<p>The <strong>navigator</strong> deployment serves the application navigator available at <code>https://{workspace}.home.{masdomain}</code>.</p>
 <h2 id="licensing-and-usage-data-collection">Licensing and Usage Data Collection<a class="headerlink" href="#licensing-and-usage-data-collection" title="Permanent link"></a></h2>
-<h3 id="accapppoints">accapppoints<a class="headerlink" href="#accapppoints" title="Permanent link"></a></h3>
-<p>The accapppoints reporter pod which pulls data from SLS, converts app point reports to Account Contractual Usage events and license usage reports to Account Adoption Usage events, and pushes the events to UDS every hour.</p>
-<h3 id="adoptionusageapi">adoptionusageapi<a class="headerlink" href="#adoptionusageapi" title="Permanent link"></a></h3>
-<p>AdoptionUsage API is the api which enables this process by providing the API which is invoked by coreapi to share information about user when they login to any application.</p>
-<h3 id="adoptionusage-reporter">adoptionusage-reporter<a class="headerlink" href="#adoptionusage-reporter" title="Permanent link"></a></h3>
-<p>The adoptionusage reporter pulls the data related to adoption of different applications by users. It gathers data in terms of number of users and total AppPoints of these users who login to each of the MAS applications, whenever the users login to these applications. This application runs as a cronjob and sends this data to UDS ( User Data Services). (earlier known as BAS - Behaviour Analytics Services). UDS in turn sends this data to IBM growth stack including Segment and Amplitude where different IBM roles like Product management/ Operations etc can understand adoption patterns of different MAS applications by using relevant dashboards.</p>
-<h3 id="licensing-mediator">licensing-mediator<a class="headerlink" href="#licensing-mediator" title="Permanent link"></a></h3>
-<p>SLS mediator is a bridge between MAS and SLS. It proxies a subset of the SLS APIs, hosts internal APIs that manage licenses for user entitlement and SSO flows, and periodically runs a licensing sync process that ensures the MAS user registry and user licenses in SLS are in sync.</p>
+<h3 id="account-apppoints-reporter">Account AppPoints Reporter<a class="headerlink" href="#account-apppoints-reporter" title="Permanent link"></a></h3>
+<p>The <strong>accapppoints</strong> deployment submits events to IBM User Data Services (UDS) on an hourly basis.  It obtains and converts data from the Suite Licensing Service:</p>
+<ul>
+<li>AppPoint reports are converted to account contractual usage events</li>
+<li>License usage reports are converted to account adoption usage events</li>
+</ul>
+<h3 id="adoption-usage-api">Adoption Usage API<a class="headerlink" href="#adoption-usage-api" title="Permanent link"></a></h3>
+<p>The <strong>adoptionusageapi</strong> deployment provides an internal API which enables applications in the suite to report metrics that are used to generate AppPoint and License usage reports.</p>
+<h3 id="adoption-usage-reporter">Adoption Usage Reporter<a class="headerlink" href="#adoption-usage-reporter" title="Permanent link"></a></h3>
+<p>The <strong>adoptionusage-reporter</strong> deployment pulls the data related to adoption of different applications by users. It gathers data in terms of number of users and total AppPoints of these users who login to each of the MAS applications, whenever the users login to these applications.</p>
+<p>This application runs as a cronjob and sends this data to IBM User Data Services (UDS). UDS in turn sends this data to the IBM growth stack to provide IBM an insight into how customers are using the application suite.</p>
+<h3 id="sls-mediator">SLS Mediator<a class="headerlink" href="#sls-mediator" title="Permanent link"></a></h3>
+<p>The <strong>licensing-mediator</strong> deployment provides internal APIs that act as the bridge between the MAS installation and the Suite License Service (SLS). It will also periodically run a synchronization process which ensures licensing infromation in the user regsitry and in SLS are in alignment.</p>
 <h4 id="deployment-topology_5">Deployment Topology<a class="headerlink" href="#deployment-topology_5" title="Permanent link"></a></h4>
 <p><img alt="" src="../img/slsmediator.png" /></p>
-<h3 id="milestonesapi">milestonesapi<a class="headerlink" href="#milestonesapi" title="Permanent link"></a></h3>
-<p>The milestones API is responsible for reporting critical user events, known as “milestones”, to Behaviour Analytics Service or “BAS”. BAS forwards these events into the IBM Growth Stack, which includes tools to help IBM gain insight into customer usage and assist with campaign administration.</p>
+<h3 id="milestones-api">Milestones API<a class="headerlink" href="#milestones-api" title="Permanent link"></a></h3>
+<p>The <strong>milestonesapi</strong> deployment is responsible for reporting critical user events, known as "milestones", to IBM User Data Services (UDS). UDS forwards these events into the IBM Growth Stack, which includes tools to help IBM gain insight into customer usage and assist with campaign administration.</p>
 <h4 id="deployment-topology_6">Deployment Topology<a class="headerlink" href="#deployment-topology_6" title="Permanent link"></a></h4>
 <p><img alt="" src="../img/milestonesapi.png" /></p>
               
@@ -279,10 +341,10 @@
         </span>
     
     
-      <span><a href="../../mas-pods-explained/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../../install/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../../../commands/provision-fyre/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../../mas-pods-explained/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
