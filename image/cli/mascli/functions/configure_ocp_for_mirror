@@ -136,6 +136,6 @@ function configure_ocp_for_mirror() {
 
   echo
   echo_h2 "Configure Image Content Source Policy"
-  ROLE_NAME=ocp_contentsourcepolicy ansible-playbook ibm.mas_airgap.run_role || exit 1
+  ROLE_NAME=ocp_contentsourcepolicy ansible-playbook ibm.mas_devops.run_role || exit 1
 
 }

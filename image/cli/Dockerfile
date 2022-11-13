@@ -61,9 +61,7 @@ RUN chmod -R ug+rwx ${HOME}/env.sh && \
     chmod +x /mascli/mas && \
     chmod +x /opt/app-root/src/.bashrc && \
     chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops && \
-    chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_airgap && \
-    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops && \
-    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_airgap /mascli/ansible-airgap
+    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops
 
 # 9. Switch to root user
 # Running an non-root user makes using the container with docker run and mounted volumes
