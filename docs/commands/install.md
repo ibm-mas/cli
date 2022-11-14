@@ -75,10 +75,9 @@ The install is designed to work on any OCP cluster, but has been specifically te
 - IBM DevIT FYRE (internal)
 
 ### The Automation Engine
-The engine that performs all tasks is written in Ansible, you can directly use the same automation outside of this CLI if you wish.  The code is open source and available in [ibm-mas/ansible-devops](https://github.com/ibm-mas/ansible-devops) and [ibm-mas/ansible-airgap](https://github.com/ibm-mas/ansible-airgap), the collections are also available to install directly from Ansible Galaxy:
+The engine that performs all tasks is written in Ansible, you can directly use the same automation outside of this CLI if you wish.  The code is open source and available in [ibm-mas/ansible-devops](https://github.com/ibm-mas/ansible-devops), the collection is also available to install directly from Ansible Galaxy:
 
 - [Ansible Galaxy: ibm.mas_devops](https://galaxy.ansible.com/ibm/mas_devops)
-- [Ansible Galaxy: ibm.mas_airgap](https://galaxy.ansible.com/ibm/mas_airgap)
 
 ### The Automation Driver
 The install is performed inside your RedHat OpenShift cluster utilizing [Openshift Pipelines](https://cloud.redhat.com/learn/topics/ci-cd)

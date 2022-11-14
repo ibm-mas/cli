@@ -4,11 +4,6 @@ ARG VERSION_LABEL
 # Running as userId = default
 # HOME=/opt/app-root
 
-# ----- Switch to root user ---------------------------------------------------
-# If we switch back to the "default" user then mounts in /workspace/xxx are
-# not writeable, there may be a way to fix this so that we don't have to leave
-# the active user as root, haven't looked into this yet.
-
 # 1. Upgrade system packages
 USER root
 RUN dnf update -y --skip-broken --nobest &&\
@@ -66,11 +61,14 @@ RUN chmod -R ug+rwx ${HOME}/env.sh && \
     chmod +x /mascli/mas && \
     chmod +x /opt/app-root/src/.bashrc && \
     chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops && \
-    chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_airgap && \
-    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops && \
-    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_airgap /mascli/ansible-airgap
+    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops
 
-# 9. Setup working environment
+# 9. Switch to root user
+# Running an non-root user makes using the container with docker run and mounted volumes
+# more difficult, users have to add -u root anyway, so just leave the active user as root
+USER root
+
+# 10. Setup working environment
 WORKDIR /mascli
 ENTRYPOINT ["/tini", "--"]
 CMD bash

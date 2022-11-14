@@ -28,6 +28,7 @@ Worker Node Configuration (Optional, only takes effect when quota-type is set to
 
 Other Commands:
   -s, --simulate-airgap                   Set flag to apply the simulated airgap network configuration to the cluster after provisioning
+  -C, --ca-file                           Private Registry CA certificate file location (required when using --simulate-airgap)
       --no-confirm                        Provision the cluster without prompting for confirmation
   -h, --help                              Show this help message
 
@@ -77,6 +78,9 @@ function provision_fyre_noninteractive() {
       -s|--simulate-airgap)
         SIMULATE_AIRGAP_NETWORK=true
         ;;
+      -C|--ca-file)
+        REGISTRY_PRIVATE_CA_FILE=$1 && shift
+        ;;
       -h|--help)
         provision_fyre_help
         ;;
@@ -97,6 +101,10 @@ function provision_fyre_noninteractive() {
   [[ -z "$FYRE_CLUSTER_DESCRIPTION" ]] && provision_fyre_help "FYRE_CLUSTER_DESCRIPTION is not set"
   [[ -z "$FYRE_PRODUCT_ID" ]] && provision_fyre_help "FYRE_PRODUCT_ID is not set"
   [[ -z "$FYRE_QUOTA_TYPE" ]] && provision_fyre_help "FYRE_QUOTA_TYPE is not set"
+
+  if [[ "$SIMULATE_AIRGAP_NETWORK" == "true" ]]; then
+    [[ -z "$REGISTRY_PRIVATE_CA_FILE" ]] && provision_fyre_help "REGISTRY_PRIVATE_CA_FILE is not set"
+  fi
 }
 
 function provision_fyre_interactive() {
@@ -154,6 +162,10 @@ function provision_fyre_interactive() {
   fi
 
   prompt_for_confirm "Configure networking to simulate air gap" SIMULATE_AIRGAP_NETWORK
+
+  if [[ "$SIMULATE_AIRGAP_NETWORK" == "true" ]]; then
+    prompt_for_input "Private Registry CA File Location" REGISTRY_PRIVATE_CA_FILE
+  fi
 }
 
 
@@ -188,6 +200,8 @@ function provision_fyre() {
   export FYRE_WORKER_COUNT
   export FYRE_WORKER_CPU
   export FYRE_WORKER_MEMORY
+
+  export REGISTRY_PRIVATE_CA_FILE
 
   echo
   reset_colors
@@ -229,7 +243,7 @@ function provision_fyre() {
   ansible-playbook ibm.mas_devops.ocp_fyre_provision || exit 1
 
   if [[ "$SIMULATE_AIRGAP_NETWORK" == "true" ]]; then
-    ROLE_NAME=simulate_network ansible-playbook ibm.mas_airgap.run_role || exit 1
+    ROLE_NAME=ocp_simulate_disconnected_network ansible-playbook ibm.mas_devops.run_role || exit 1
   fi
 
   echo ""

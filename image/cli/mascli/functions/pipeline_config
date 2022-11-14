@@ -8,14 +8,20 @@
 function pipeline_config() {
   echo_h2 "3. Configure Installation"
 
+  MAS_CATALOG_SOURCE=ibm-operator-catalog
+
   # MAS instance ID
   if [[ ! -z "$1" ]]; then
     MAS_INSTANCE_ID=$1
   fi
   prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
 
-  MAS_CATALOG_SOURCE=ibm-operator-catalog
-  if [[ -z "$AIRGAP_MODE" ]]; then
+  if [[ -n "$DEV_MODE" ]]; then
+    # Development mode
+    prompt_for_input "Select Catalog Source" MAS_CATALOG_VERSION "v8-master-amd64"
+    prompt_for_input "Select Subscription Channel" MAS_CHANNEL "m1dev810"
+  elif [[ -z "$AIRGAP_MODE" ]]; then
+    # Online (GA) mode
     prompt_for_confirm "Use online catalog?" USE_ONLINE_CATALOG
     if [[ "$USE_ONLINE_CATALOG" == "true" ]]; then
       MAS_CATALOG_VERSION=v8-amd64
@@ -67,10 +73,10 @@ function pipeline_config() {
 
       *)
         MAS_CHANNEL=$MAS_CHANNEL_SELECTION
-        prompt_for_input 'Custom Catalog Source' MAS_CATALOG_SOURCE "ibm-operator-catalog"
         ;;
     esac
   else
+    # Airgap (GA) mode
     echo -e "${COLOR_YELLOW}MAS Version:"
     echo "  1. 8.8.2 (2022-10-25)"
     echo "  2. 8.8.1 (2022-09-27)"
@@ -81,22 +87,18 @@ function pipeline_config() {
     case $MAS_CHANNEL_SELECTION in
       1|221025|2022-10-25)
         MAS_CHANNEL=8.8.x
-        MAS_CATALOG_SOURCE=ibm-operator-catalog
         MAS_CATALOG_VERSION=v8-221025-amd64
         ;;
       2|220927|2022-09-27)
         MAS_CHANNEL=8.8.x
-        MAS_CATALOG_SOURCE=ibm-operator-catalog
         MAS_CATALOG_VERSION=v8-220927-amd64
         ;;
       3|220805|2022-08-05)
         MAS_CHANNEL=8.8.x
-        MAS_CATALOG_SOURCE=ibm-operator-catalog
         MAS_CATALOG_VERSION=v8-220805-amd64
         ;;
       4|220717|2022-07-17)
         MAS_CHANNEL=8.8.x
-        MAS_CATALOG_SOURCE=ibm-operator-catalog
         MAS_CATALOG_VERSION=v8-220717
         # We are deliberately leaving this without the -amd64 to ensure this is not a breaking change
         # for anyone already using v8-220717
@@ -129,16 +131,20 @@ function pipeline_config() {
     echo
     echo_h2 "7c. Configure IBM Container Registry (MAS)"
     prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
-    prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com override
-    prompt_for_input "Entitlement Username" MAS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME override
-    prompt_for_input "Entitlement Key" MAS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY override
+    prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com/cpopen override
+#    prompt_for_input "Entitlement Username" MAS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME override
+#    prompt_for_input "Entitlement Key" MAS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY override
+    MAS_ENTITLEMENT_USERNAME=cp
+    MAS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
 
     echo
     echo_h2 "7d. Configure IBM Container Registry (SLS)"
     prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
-    prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com override
-    prompt_for_input "Entitlement Username" SLS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME override
-    prompt_for_input "Entitlement Key" SLS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY override
+    prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com/cpopen override
+#    prompt_for_input "Entitlement Username" SLS_ENTITLEMENT_USERNAME $ARTIFACTORY_USERNAME override
+#    prompt_for_input "Entitlement Key" SLS_ENTITLEMENT_KEY $ARTIFACTORY_APIKEY override
+    SLS_ENTITLEMENT_USERNAME=cp
+    SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
     echo_h2 "7. Configure IBM Container Registry"
