@@ -207,7 +207,7 @@ function mirror_redhat_to_registry() {
   if [[ "$MIRROR_RH_RELEASE" == "true" ]]
   then
     echo_reset_dim "Catalog Version ....................... ${COLOR_MAGENTA}${OPENSHIFT_RELEASE_VERSION}"
-    echo_reset_dim "Authentication ........................ ${COLOR_MAGENTA}${REDHAT_CONNECT_USERNAME}/${REDHAT_PULLSECRET}"
+    echo_reset_dim "Authentication ........................ ${COLOR_MAGENTA}${REDHAT_PULLSECRET}"
   else
     echo_reset_dim "${COLOR_RED}Skip"
   fi
@@ -218,7 +218,7 @@ function mirror_redhat_to_registry() {
   if [[ "$MIRROR_RH_OPERATORS" == "true" ]]
   then
     echo_reset_dim "Catalog Version ....................... ${COLOR_MAGENTA}${OPENSHIFT_OPERATORS_VERSION}"
-    echo_reset_dim "Red Hat Connect Authentication ........ ${COLOR_MAGENTA}${REDHAT_CONNECT_USERNAME}/${REDHAT_PULLSECRET}"
+    echo_reset_dim "Red Hat Connect Authentication ........ ${COLOR_MAGENTA}${REDHAT_PULLSECRET}"
   else
     echo_reset_dim "${COLOR_RED}Skip"
   fi
