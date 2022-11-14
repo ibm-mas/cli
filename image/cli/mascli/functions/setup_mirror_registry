@@ -19,5 +19,5 @@ function setup_mirror_registry() {
 
   echo
   echo_h2 "4. Run Installation"
-  ansible-playbook ibm.mas_airgap.deploy_private_registry
+  ansible-playbook ibm.mas_devops.deploy_private_registry
 }

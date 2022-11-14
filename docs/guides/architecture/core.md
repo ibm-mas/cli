@@ -1,208 +1,137 @@
-Architecture: MAS Core
+MAS Core Explained
 ===============================================================================
 
-- [Controller Managers](#controller-managers)
-- [Entity Managers](#entity-managers)
-- [Suite Administration Services](#suite-administration-services)
-- [Identity Provider Service](#identity-provider-service)
-- [Catalog Management Services](#catalog-management-services)
-- [User Registry](#user-registry)
+- [Kubernetes Control Plane](#kubernetes-control-plane)
+- [Suite Administration](#suite-administration)
+- [Identity Provider](#identity-provider)
+- [Catalog Management](#catalog-management)
 - [Console](#console)
 - [Licensing and Usage Data Collection](#licensing-and-usage-data-collection)
 
-Controller Managers
+Kubernetes Control Plane
 -------------------------------------------------------------------------------
-### ibm-mas-operator
-Watches `Suite.core.mas.ibm.com`.
+### Controller Managers
+- **ibm-mas-operator** watches `Suite.core.mas.ibm.com`, acts as the primary controller manager for an installation of the MAS core services, installing all required entity managers and provisioning the primary resources detailed on this page.
+- **ibm-truststore-mgr-controller-manager** watches `Truststore.ibm-truststore-mgr.ibm.com` and manages all of the truststores in use in the core services namespace.
 
-Primary controller manager for an installation of the MAS core services.
+### Entity Managers
+- **entitymgr-addons** add-ons configuration
+- **entitymgr-bascfg** watches `BASCfg.config.mas.ibm.com`, manages the UDS integration with MAS.
+- **entitymgr-coreidp** watches `CoreIDP.internal.mas.ibm.com`, manages the Core IDP component.
+- **entitymgr-idpcfg** watches `IDPCfg.config.mas.ibm.com`, manages IDP integration with MAS.
+- **entitymgr-jdbccfg** watches `JDBCCfg.config.mas.ibm.com`, manages JDBC integration with MAS, performing configuration validation.
+- **entitymgr-kafkacfg** watches `KafkaCfg.config.mas.ibm.com`, manages Kafka integration with MAS, performing configuration validation.
+- **entitymgr-jdbccfg** watches `MongoCfg.config.mas.ibm.com`, manages Mongo integration with MAS, performing configuration validation.
+- **entitymgr-objectstorage** watches `ObjectStorageCfg.config.mas.ibm.com`, manages ObjectStorage integration with MAS, performing configuration validation.
+- **entitymgr-pushnotificationcfg**, watches `PushNotificationCfg.config.mas.ibm.com`, manages PushNotification integration with MAS, performing configuration validation.
+- **entitymgr-scimcfg** watches `SCIMCfg.config.mas.ibm.com`, manages SCIM (LDAP User Sync) integration with MAS, performing configuration validation and resources creation such as scimsync-agent job and scimsync liberty pod.
+- **entitymgr-slscfg** watches `SLSCfg.config.mas.ibm.com`, manages SLS integration with MAS, performing configuration validation and resources creation such as licensing-mediator pod. This pod is also responsible to register the SLS client in the SLS server.
+- **entitymgr-smtpcfg** watches `SMTPCfg.config.mas.ibm.com`, manages SMTP integration with MAS, performing configuration validation.
+- **entitymgr-watsonstudiocfg** watches `WatsonStudioCfg.config.mas.ibm.com`, manages Watson Studio integration with MAS, performing configuration validation.
+- **entitymgr-ws** watches `Workspace.core.mas.ibm.com`, manages Workspace creation in MAS.
 
-### ibm-truststore-mgr-controller-manager
-Watches `Truststore.ibm-truststore-mgr.ibm.com`.
 
-Truststores pod is the operator responsible for handling the trust store request and add provided truststore in the format consumed by the servers.
-
-
-Entity Managers
+Suite Administration
 -------------------------------------------------------------------------------
-### entitymgr-addons
-Add-ons configuration
-
-### entitymgr-bascfg
-Watches `BASCfg.config.mas.ibm.com`.
-
-Entity Manager used to manage UDS integration with MAS. Generating internal certificates, performing configuration verification and all deployment of all UDS related pods.
-
-### entitymgr-coreidp
-Watches `CoreIDP.internal.mas.ibm.com`.
-
-Entity Manager used to manage Coreidp integration with MAS. Generating internal certificates, validations, coreidp-login and coreidp PODs deployment.
-
-### entitymgr-idpcfg
-Watches `IDPCfg.config.mas.ibm.com`.
-
-Entity Manager used to manage IDP integration with MAS. Generating internal certificates, performing configuration and verification.
-
-### entitymgr-jdbccfg
-Watches `JDBCCfg.config.mas.ibm.com`.
-
-Entity Manager used to manage JDBC integration with MAS, performing configuration validation.
-
-### entitymgr-kafkacfg
-Watches `KafkaCfg.config.mas.ibm.com`.
-
-Entity Manager used to manage Kafka integration with MAS, performing configuration validation.
-
-### entitymgr-jdbccfg
-Watches `MongoCfg.config.mas.ibm.com`.
-
-Entity Manager used to manage Mongo integration with MAS, performing configuration validation.
-
-### entitymgr-objectstorage
-Watches `ObjectStorageCfg.config.mas.ibm.com`.
-
-Entity Manager used to manage ObjectStorage integration with MAS, performing configuration validation.
-
-### entitymgr-pushnotificationcfg
-Watches `PushNotificationCfg.config.mas.ibm.com`.
-
-Entity Manager used to manage PushNotification integration with MAS, performing configuration validation.
-
-### entitymgr-scimcfg
-Watches `SCIMCfg.config.mas.ibm.com`.
-
-Entity Manager used to manage SCIM (LDAP User Sync) integration with MAS, performing configuration validation and resources creation such as scimsync-agent job and scimsync liberty pod.
-
-### entitymgr-slscfg
-Watches `SLSCfg.config.mas.ibm.com`.
-
-Entity Manager used to manage SLS integration with MAS, performing configuration validation and resources creation such as licensing-mediator pod. This pod is also responsible to register the SLS client in the SLS server.
-
-### entitymgr-smtpcfg
-Watches `SMTPCfg.config.mas.ibm.com`.
-
-Entity Manager used to manage SMTP integration with MAS, performing configuration validation.
-
-### entitymgr-watsonstudiocfg
-Watches `WatsonStudioCfg.config.mas.ibm.com`.
-
-Entity Manager used to manage Watson Studio integration with MAS, performing configuration validation.
-
-### entitymgr-ws
-Watches `Workspace.core.mas.ibm.com`.
-
-Entity Manager used to manage Workspace creation in MAS.
-
-
-Suite Administration Services
--------------------------------------------------------------------------------
-### coreapi
-The MAS CoreAPI pod which provides a HTTPS APIs to support working with Kubernetes resources natively. It primarily acts as a proxy to the Kubernetes APIs and MongoDB integration.
-
-Route: `https://api.{masdomain}`
+### Core API
+The **coreapi** deployment provides a RESTful API to support management of the application suite, as an alternative to working directly with Kubernetes resources natively.  The API is made available on the route `https://api.{masdomain}`.
 
 #### Deployment Topology
 ![](img/coreapi.png)
 
-### internalapi
-The internal api pod which provides the Internal version of the MAS Administrative API, for example, user management. Notes, this is used by internal components only. Application to application communication.
+### Internal API
+The **internalapi** deployment provides an internal API available to applications in the suite, for example, user management. Notes, this is used by internal components only. Application to application communication.
 
 #### Deployment Topology
 ![](img/internalapi.png)
 
-### mobileapi
-The mobile API pods which provides the mobile application package API and specifically it serves up the navigator application package. It integrates with coreapi.
+### Mobile API
+The **mobileapi** deployment provides the backend for the mobile application package API, serving up the navigator application package. Other implementations of the mobile API exist in each application that supported mobile application packages, Core API controls access to these backend services.
 
 #### Deployment Topology
 ![](img/mobileapi.png)
 
-### monagent-mas
-Monagent is responsible to monitor MAS general components health and report back to Suite CR.
+### Monitoring Agent
+The **monagent-mas** deployment is responsible for tracking the health of the core services, it reports status to the Suite status sub-resource broken down into three categories:
 
-### pushnotification
-Push notification support is an optional extension to the core API that can be configured by a system administrator, it allows the user to enable push notification support across MAS applications.
+- Mongo configuration status
+- SLS integration status
+- UDS integration status
 
-!!! info
-    The push notification service is available at **https://api.{{domain}}/pushnotification** only if the system scope **PushNotificationCfg** resource has been created by the administrator.
+### PNS Integration
+The **pushnotifications** deployment provides support for integration to an external push notification service (PNS).  PNS support is an optional extension configured by a system administrator, enabling push notification support across MAS applications; it is available at **https://api.{{domain}}/pushnotification** only if the system scope **PushNotificationCfg** resource has been created.
 
 #### Deployment Topology
 ![](img/pushnotify.png)
 
 
-
-Identity Provider Service
+Identity Provider
 -------------------------------------------------------------------------------
-### coreidp
-The coreidp pod is a Liberty based server which handles the authentication, access management and user privileges authorization managed by Maximo Application Suite. This pod will integrate with internal applications through OIDC flow and externally using SAML.
+### Core IDP
+The **coreidp** deployment serves as the identity provider for all applications across Maximo Application Suite.
 
-### coreidp-login
-The coreidp login pods which hosts login page and superuser login logic for Maximo Application Suite.  This is not meant to be a MAS endpoint but used as part of the redirect during MAS authentication flow.
+### Core IDP Login
+The **coreidp-login** deployment hosts the authentication login screens and superuser login logic for Maximo Application Suite.  This is not meant to be a MAS endpoint but used as part of the redirect during MAS authentication flow.  The service is available on the route `https://auth.{masdomain}`.
 
-Route: `https://auth.{masdomain}`
+### Group Sync Coordinator
+The **groupsync-coordinator** deployment is responsible for coordinating user group synchronization across all installed applications.
 
-
-Catalog Management Services
--------------------------------------------------------------------------------
-The MAS Catalog acts as the mechanism for customers to discover the resources in MAS that they are interested in, it allows us to abstract the actual resource (ie implementation) of a capability away from how it is presented as a catalog item.
-
-### catalogapi
-The catalogapi pod which provides read access to the catalog inventory.  The catalog API is exposed via endpoints in [Core API](#coreapi) which proxy requests to the internal catalog API service.
-
-### catalogmgr
-The catalogapi pod which provides inventory management and AppPoint reservation APIs.
-
-![](img/catalog.png)
-
-
-User Registry
--------------------------------------------------------------------------------
-### groupsync-coordinator
-The group sync manager pod which coordinates the group sync activities between MAS and Applications
-
-### usersync-coordinator
-The user sync manager pod which coordinates the user sync activities between MAS and Applications
+### User Sync Coordinator
+The **usersync-coordinator** deployment is responsible for coordinating user synchronization across all installed Applications.
 
 #### Deployment Topology
 ![](img/usersync.png)
 
 
+Catalog Management
+-------------------------------------------------------------------------------
+The MAS Catalog acts as the mechanism for customers to discover the resources in MAS that they are interested in, it allows the suite to abstract the actual resource (ie implementation) of a capability away from how it is presented as a catalog item.
+
+### Catalog API
+The **catalogapi** deployment provides read access to the catalog inventory.  The catalog API is exposed via endpoints in [Core API](#core-api) which proxy requests to the internal catalog API service.
+
+### Catalog Manager
+The **catalogmanager** deployment provides internal inventory management and AppPoint reservation APIs.
+
+![](img/catalog.png)
+
+
 Console
 -------------------------------------------------------------------------------
-### admin-dashboard
-MAS Core Admin dashboard UI pod which is user interface for Maximo Application Suite administrator including system admin work and user management.
+### Admin Dashboard
+The **admin-dashboard** deployment provides the adminstration console available on the route `https://admin.{masdomain}`.
 
-Route: `https://admin.{masdomain}`
+### Suite Homepage
+The **homepage** deployment provides the primary homescreen for the suite, available on the route `https://home.{masdomain}`.
 
-### homepage
-MAS Core homepage UI pod. This is main page when you are not running in a workspace-based endpoint.
-
-Route: `https://home.{masdomain}`
-
-### navigator
-The Application Navigator is a workspace-based UI acting as a home page where users can access any application.
-
-Route: `https://{workspace}.home.{masdomain}`
+### Application Navigator
+The **navigator** deployment serves the application navigator available at `https://{workspace}.home.{masdomain}`.
 
 
 Licensing and Usage Data Collection
 -------------------------------------------------------------------------------
-### accapppoints
-The accapppoints reporter pod which pulls data from SLS, converts app point reports to Account Contractual Usage events and license usage reports to Account Adoption Usage events, and pushes the events to UDS every hour.
+### Account AppPoints Reporter
+The **accapppoints** deployment submits events to IBM User Data Services (UDS) on an hourly basis.  It obtains and converts data from the Suite Licensing Service:
 
-### adoptionusageapi
-AdoptionUsage API is the api which enables this process by providing the API which is invoked by coreapi to share information about user when they login to any application.
+- AppPoint reports are converted to account contractual usage events
+- License usage reports are converted to account adoption usage events
 
-### adoptionusage-reporter
-The adoptionusage reporter pulls the data related to adoption of different applications by users. It gathers data in terms of number of users and total AppPoints of these users who login to each of the MAS applications, whenever the users login to these applications. This application runs as a cronjob and sends this data to UDS ( User Data Services). (earlier known as BAS - Behaviour Analytics Services). UDS in turn sends this data to IBM growth stack including Segment and Amplitude where different IBM roles like Product management/ Operations etc can understand adoption patterns of different MAS applications by using relevant dashboards.
+### Adoption Usage API
+The **adoptionusageapi** deployment provides an internal API which enables applications in the suite to report metrics that are used to generate AppPoint and License usage reports.
 
-### licensing-mediator
-SLS mediator is a bridge between MAS and SLS. It proxies a subset of the SLS APIs, hosts internal APIs that manage licenses for user entitlement and SSO flows, and periodically runs a licensing sync process that ensures the MAS user registry and user licenses in SLS are in sync.
+### Adoption Usage Reporter
+The **adoptionusage-reporter** deployment pulls the data related to adoption of different applications by users. It gathers data in terms of number of users and total AppPoints of these users who login to each of the MAS applications, whenever the users login to these applications.
+
+This application runs as a cronjob and sends this data to IBM User Data Services (UDS). UDS in turn sends this data to the IBM growth stack to provide IBM an insight into how customers are using the application suite.
+
+### SLS Mediator
+The **licensing-mediator** deployment provides internal APIs that act as the bridge between the MAS installation and the Suite License Service (SLS). It will also periodically run a synchronization process which ensures licensing infromation in the user regsitry and in SLS are in alignment.
 
 #### Deployment Topology
 ![](img/slsmediator.png)
 
-### milestonesapi
-The milestones API is responsible for reporting critical user events, known as “milestones”, to Behaviour Analytics Service or “BAS”. BAS forwards these events into the IBM Growth Stack, which includes tools to help IBM gain insight into customer usage and assist with campaign administration.
+### Milestones API
+The **milestonesapi** deployment is responsible for reporting critical user events, known as "milestones", to IBM User Data Services (UDS). UDS forwards these events into the IBM Growth Stack, which includes tools to help IBM gain insight into customer usage and assist with campaign administration.
 
 #### Deployment Topology
 ![](img/milestonesapi.png)
