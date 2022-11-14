@@ -55,6 +55,20 @@ A number of applications are not currently available when using a private mirror
 - Maximo Visual Inspection
 
 
+SNO Support
+-------------------------------------------------------------------------------
+If you  already ran `mas install` to install the  IBM Maximo Application Suite then the installer will automatically detect the presence of SNO and tailor the installation configuration for a disconnected installation.
+
+A number of applications are not currently available when using a private mirror registry in this fashion, as a result you will not be asked whether you wish to install these applications:
+
+- Maximo Assist
+- Maximo Health & Predict Utilities
+- Maximo Monitor
+- Maximo Predict
+- Maximo Safety
+- Maximo Visual Inspection
+
+
 Must Gather
 -------------------------------------------------------------------------------
 The pipeline sets a "finally" block that is executed at the end of the steps regardless of success or failure. Inside this finally block the **mustgather** Task is executed which runs the IBM AI Applications' Must Gather tool against a MAS instance. It uses the mustgather workspace to persist the output into a Persistent Volume for retrieval after the pipeline has completed.
