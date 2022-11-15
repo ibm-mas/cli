@@ -3,6 +3,7 @@ MAS pods explained
 
 Core pods
 -------------------------------------------------------------------------------
+For more detail, refer to [MAS Core Explained](architecture/core.md)
 
 |Pod keyword (full name)|Explanation|Comments|
 |---|---|---|

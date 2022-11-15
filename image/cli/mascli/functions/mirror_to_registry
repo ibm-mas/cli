@@ -369,7 +369,7 @@ function mirror_one_thing() {
     if [[ "$MOT_RUNMIRROR" == "true" ]]; then
     echo -en "\033[s" # Save cursor position
     echo -n "Mirroring ${MOT_NAME} ... ${MOT_LOGFILE}"
-    ansible-playbook ibm.mas_airgap.${MOT_PLAYBOOK} &> ${MOT_LOGFILE}
+    ansible-playbook ibm.mas_devops.${MOT_PLAYBOOK} &> ${MOT_LOGFILE}
     mirror_result=$?
     echo -en "\033[1K" # Clear current line
     echo -en "\033[u" # Restore cursor position

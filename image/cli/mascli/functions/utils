@@ -175,16 +175,13 @@ function update_ansible_collections() {
   if [[ "$UPDATE_ANSIBLE" == "true" || "$ANSIBLE_UPDATE" == "true" ]]; then
     if [[ "$DEV_MODE" == "true" ]]; then
       echo
-      echo_h2 "Updating ansible collections from local build"
+      echo_h2 "Updating ansible collection from local build"
       ansible-galaxy collection build ~/ibm-mas/ansible-devops/ibm/mas_devops --force || exit 1
-      ansible-galaxy collection build ~/ibm-mas/ansible-airgap/ibm/mas_airgap --force || exit 1
-      ansible-galaxy collection install ibm-mas_devops-11.0.0.tar.gz --force --no-deps || exit 1
-      ansible-galaxy collection install ibm-mas_airgap-2.0.0.tar.gz --force --no-deps || exit 1
+      ansible-galaxy collection install ibm-mas_devops-13.0.0.tar.gz --force --no-deps || exit 1
     else
       echo
       echo_h2 "Updating ansible collections from Galaxy"
-      ansible-galaxy collection install ibm.mas_devops:10.4.1 --force || exit 1
-      ansible-galaxy collection install ibm.mas_airgap:1.2.0 --force || exit 1
+      ansible-galaxy collection install ibm.mas_devops --force || exit 1
     fi
   fi
 }
