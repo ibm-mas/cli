@@ -51,6 +51,7 @@ mkdir -p $CONFIG_DIR
 # Airgap support
 . $DIR/functions/setup_mirror_registry
 . $DIR/functions/mirror_to_registry
+. $DIR/functions/mirror_redhat_to_registry
 . $DIR/functions/configure_ocp_for_mirror
 
 
@@ -76,7 +77,7 @@ case $1 in
 
   registry|setup-registry|setup-mirror-registry|setup-airgap-registry)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Registry Setup${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-airgap/${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
     echo "${TEXT_DIM}1. This is still a work in progress"
@@ -87,9 +88,9 @@ case $1 in
     setup_mirror_registry
     ;;
 
-  mirror|mirror-images|mirror-registry|mirror-to-registry)
+  mirror|mirror-images)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Image Mirror${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-airgap/${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
     echo "${TEXT_DIM}1. This is still a work in progress"
@@ -99,9 +100,22 @@ case $1 in
     mirror_to_registry "$@"
     ;;
 
+  mirror-redhat|mirror-redhat-images)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Image Mirror${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
+    echo
+    echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
+    echo "${TEXT_DIM}1. This is still a work in progress"
+    echo
+    reset_colors
+    update_ansible_collections
+    mirror_redhat_to_registry "$@"
+    ;;
+
+
   configure-ocp-for-mirror|configure-airgap|configure-mirror|config-airgap|config-mirror)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap OCP Setup${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-airgap/${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
     echo "${TEXT_DIM}1. This is still a work in progress"
