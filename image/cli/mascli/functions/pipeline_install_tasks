@@ -10,16 +10,21 @@ function pipeline_install_tasks() {
   CLI_IMAGE=quay.io/ibmmas/cli:$VERSION
 
   if [[ "$AIRGAP_MODE" == "true" ]]; then
-    # If we're installing on airgap then we can't reference the images by tag, we need to prompt the user to enter the digest of
-    # a specific version of the container image ... we can't do this automatically as we are inside the image.
     prompt_for_confirm_default_yes "Override image tag '$VERSION' with digest?" USE_DIGEST
     if [[ "$USE_DIGEST" == "true" ]]; then
-      CLI_IMAGE_DIGEST=$(skopeo inspect docker://quay.io/ibmmas/cli:$VERSION 2>> $LOGFILE | jq -r ".Digest")
-      if [[ "$CLI_IMAGE_DIGEST" == "" ]]; then
-        echo_warning "Unable to retrieve image digest for quay.io/ibmmas/cli:$VERSION"
-        exit 1
+      skopeo inspect docker://quay.io/ibmmas/cli:$VERSION &> /dev/null
+      if [[ "$?" == "0" ]]; then
+        CLI_IMAGE_DIGEST=$(skopeo inspect docker://quay.io/ibmmas/cli:$VERSION 2>> $LOGFILE | jq -r ".Digest")
+        if [[ "$CLI_IMAGE_DIGEST" == "" ]]; then
+          echo_warning "Unable to retrieve image digest for quay.io/ibmmas/cli:$VERSION"
+          exit 1
+        fi
+        echo "Using image digest $CLI_IMAGE_DIGEST"
+      else
+        echo "Unable to communicate with quay.io, please manually enter the digest for"
+        echo "environment variable) which will be used to provision a ROKS instance."
+        prompt_for_input "quay.io/ibmmas/cli image digest" CLI_IMAGE_DIGEST
       fi
-      echo "Using image digest $CLI_IMAGE_DIGEST"
       # Overwrite the tekton definitions with one that uses the looked up image digest
       sed -e "s/:$VERSION/@$CLI_IMAGE_DIGEST/g" $DIR/templates/ibm-mas-tekton.yaml > $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
       sed -e "s/:latest/@$CLI_IMAGE_DIGEST/g" $DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yaml
