@@ -1,9 +1,9 @@
-Setup Private Registry
+Update
 ===============================================================================
 
 Usage
 -------------------------------------------------------------------------------
 
 ```bash
-docker run -ti --rm quay.io/ibmmas/cli mas setup-registry
+docker run -ti --rm quay.io/ibmmas/cli mas update
 ```
