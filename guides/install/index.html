@@ -56,35 +56,37 @@
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">Installation</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#pre-requisites">Pre-requisites</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#ibm-entitlement-key">IBM Entitlement Key</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#mas-license-file">MAS License File</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#openshift-cluster">OpenShift Cluster</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#operator-catalog-selection">Operator Catalog Selection</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#disconnected-install-limitations">Disconnected Install Limitations</a>
-    </li>
     <li class="toctree-l2"><a class="reference internal" href="#installation-overview">Installation Overview</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#disconnected-install-preparation">Disconnected Install Preparation</a>
+    <li class="toctree-l2"><a class="reference internal" href="#1-pre-requisites">1 Pre-requisites</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#prepare-the-private-registry">Prepare the Private Registry</a>
+    <li class="toctree-l3"><a class="reference internal" href="#11-ibm-entitlement-key">1.1 IBM Entitlement Key</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#mirror-container-images">Mirror Container Images</a>
+    <li class="toctree-l3"><a class="reference internal" href="#12-mas-license-file">1.2 MAS License File</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#configure-openshift-to-use-your-private-registry-for-mas">Configure OpenShift to use your Private Registry for MAS</a>
+    <li class="toctree-l3"><a class="reference internal" href="#13-openshift-cluster">1.3 OpenShift Cluster</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#14-operator-catalog-selection">1.4 Operator Catalog Selection</a>
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#install-maximo-application-suite">Install Maximo Application Suite</a>
+    <li class="toctree-l2"><a class="reference internal" href="#2-disconnected-install-preparation">2 Disconnected Install Preparation</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#21-disconnected-install-limitations">2.1 Disconnected Install Limitations</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#22-prepare-the-private-registry">2.2 Prepare the Private Registry</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#23-mirror-container-images">2.3 Mirror Container Images</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#24-configure-openshift-to-use-your-private-registry-for-mas">2.4 Configure OpenShift to use your Private Registry for MAS</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-install-maximo-application-suite">3 Install Maximo Application Suite</a>
     </li>
     </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../update/">Update</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../architecture/core/">MAS Core Explained</a>
                   </li>
@@ -147,10 +149,28 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link"></a></h1>
-<h2 id="pre-requisites">Pre-requisites<a class="headerlink" href="#pre-requisites" title="Permanent link"></a></h2>
-<h3 id="ibm-entitlement-key">IBM Entitlement Key<a class="headerlink" href="#ibm-entitlement-key" title="Permanent link"></a></h3>
+<h2 id="installation-overview">Installation Overview<a class="headerlink" href="#installation-overview" title="Permanent link"></a></h2>
+<ol>
+<li><a href="#1-pre-requisites">Pre-requistes</a><ul>
+<li>1.1 <a href="#11-ibm-entitlement-key">IBM Entitlement Key</a></li>
+<li>1.2 <a href="#12-mas-license-file">MAS License File</a></li>
+<li>1.3 <a href="#13-openshift-cluster">OpenShift Cluster</a></li>
+<li>1.4 <a href="#14-operator-catalog-selection">Operator Catalog Selection</a></li>
+</ul>
+</li>
+<li><a href="#2-disconnected-install-preparation">Disconnected Install Preparation</a><ul>
+<li>2.1 <a href="#21-disconnected-install-limitations">Disconnected Install Limitations</a></li>
+<li>2.2 <a href="#22-prepare-the-private-registry">Prepare your Private Registry</a></li>
+<li>2.3 <a href="#23-mirror-container-images">Mirror Container Images</a></li>
+<li>2.4 <a href="#24-configure-openshift-to-use-your-private-registry-for-mas">Configure OpenShift to use your Private Registry for MAS</a></li>
+</ul>
+</li>
+<li><a href="#3-install-maximo-application-suite">Install MAS</a></li>
+</ol>
+<h2 id="1-pre-requisites">1 Pre-requisites<a class="headerlink" href="#1-pre-requisites" title="Permanent link"></a></h2>
+<h3 id="11-ibm-entitlement-key">1.1 IBM Entitlement Key<a class="headerlink" href="#11-ibm-entitlement-key" title="Permanent link"></a></h3>
 <p>Access <a href="https://myibm.ibm.com/products-services/containerlibrary">Container Software Library</a> using your IBMId to obtain your entitlement key.</p>
-<h3 id="mas-license-file">MAS License File<a class="headerlink" href="#mas-license-file" title="Permanent link"></a></h3>
+<h3 id="12-mas-license-file">1.2 MAS License File<a class="headerlink" href="#12-mas-license-file" title="Permanent link"></a></h3>
 <p>Access <a href="https://licensing.subscribenet.com/control/ibmr/login">IBM License Key Center</a>, on the <strong>Get Keys</strong> menu select <strong>IBM AppPoint Suites</strong>.  Select <code>IBM MAXIMO APPLICATION SUITE AppPOINT LIC</code> and on the next page fill in the information as below:</p>
 <table>
 <thead>
@@ -174,7 +194,7 @@
 </tr>
 <tr>
 <td>Hostname</td>
-<td>Set to the hostname of your OCP instance</td>
+<td>Set to the hostname of your OCP instance, but this can be any value really.</td>
 </tr>
 <tr>
 <td>Port</td>
@@ -187,7 +207,7 @@
 <p class="admonition-title">Note</p>
 <p>For more information about how to access the IBM License Key Center review the <a href="https://www.ibm.com/support/pages/system/files/inline-files/GettingStartedEnglish_2020.pdf">getting started documentation</a> available from the IBM support website.</p>
 </div>
-<h3 id="openshift-cluster">OpenShift Cluster<a class="headerlink" href="#openshift-cluster" title="Permanent link"></a></h3>
+<h3 id="13-openshift-cluster">1.3 OpenShift Cluster<a class="headerlink" href="#13-openshift-cluster" title="Permanent link"></a></h3>
 <p>You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the <a href="https://docs.openshift.com/container-platform/4.10/installing/index.html">OpenShift Container Platform installation overview</a>.</p>
 <p>The CLI also supports OpenShift provisioning in many hyperscaler providers:</p>
 <ul>
@@ -195,9 +215,10 @@
 <li><a href="../../commands/provision-roks/">IBM Cloud</a></li>
 <li><a href="../../commands/provision-fyre/">IBM DevIT FYRE(Internal)</a></li>
 </ul>
-<h3 id="operator-catalog-selection">Operator Catalog Selection<a class="headerlink" href="#operator-catalog-selection" title="Permanent link"></a></h3>
+<h3 id="14-operator-catalog-selection">1.4 Operator Catalog Selection<a class="headerlink" href="#14-operator-catalog-selection" title="Permanent link"></a></h3>
 <p>If you have not already determined the best catalog source for your installation, refer to the information in the <a href="../choosing-the-right-catalog/">choosing the right IBM Maximo Operator Catalog to meet your requirements</a> guide, or contact IBM Support for guidance.</p>
-<h2 id="disconnected-install-limitations">Disconnected Install Limitations<a class="headerlink" href="#disconnected-install-limitations" title="Permanent link"></a></h2>
+<h2 id="2-disconnected-install-preparation">2 Disconnected Install Preparation<a class="headerlink" href="#2-disconnected-install-preparation" title="Permanent link"></a></h2>
+<h3 id="21-disconnected-install-limitations">2.1 Disconnected Install Limitations<a class="headerlink" href="#21-disconnected-install-limitations" title="Permanent link"></a></h3>
 <p>Disconnected install for IBM Maximo Application Suite is supported from MAS v8.8 onwards with some restrictions:</p>
 <table>
 <thead>
@@ -249,18 +270,7 @@
 </tr>
 </tbody>
 </table>
-<h2 id="installation-overview">Installation Overview<a class="headerlink" href="#installation-overview" title="Permanent link"></a></h2>
-<ol>
-<li>Disconnected Install Preparation<ul>
-<li><a href="#prepare-the-private-registry">Prepare your Private Registry</a></li>
-<li><a href="#mirror-container-images">Mirror Container Images</a></li>
-<li><a href="#configure-the-cluster">Configure OpenShift to use your Private Registry for MAS</a></li>
-</ul>
-</li>
-<li><a href="#install-maximo-application-suite">Install MAS</a></li>
-</ol>
-<h2 id="disconnected-install-preparation">Disconnected Install Preparation<a class="headerlink" href="#disconnected-install-preparation" title="Permanent link"></a></h2>
-<h3 id="prepare-the-private-registry">Prepare the Private Registry<a class="headerlink" href="#prepare-the-private-registry" title="Permanent link"></a></h3>
+<h3 id="22-prepare-the-private-registry">2.2 Prepare the Private Registry<a class="headerlink" href="#22-prepare-the-private-registry" title="Permanent link"></a></h3>
 <p>If you do not already have a private registry available to use as your mirror then you can use the <code>setup-mirror</code> function to deploy a private registry inside a target OpenShift cluster.</p>
 <pre><code class="language-bash">docker pull quay.io/ibmmas/cli
 docker run -ti quay.io/ibmmas/cli mas setup-registry
@@ -304,21 +314,44 @@ docker run -ti quay.io/ibmmas/cli mas setup-registry
 </tr>
 </tbody>
 </table>
-<h3 id="mirror-container-images">Mirror Container Images<a class="headerlink" href="#mirror-container-images" title="Permanent link"></a></h3>
-<p>Mirroring the images is a simple but time consuming process, this step must be performed from a system with internet connectivity and network access your private registry, but does not need access to your target OpenShift cluster.</p>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>You can also use this command to mirror the images for OpenShift itself, but that is beyond the scope of this guide.</p>
-</div>
+<h3 id="23-mirror-container-images">2.3 Mirror Container Images<a class="headerlink" href="#23-mirror-container-images" title="Permanent link"></a></h3>
+<p>Mirroring the images is a simple but time consuming process, this step must be performed from a system with internet connectivity and network access your private registry, but does not need access to your target OpenShift cluster.  Three modes are available for the mirror process:</p>
+<ul>
+<li><strong>direct</strong> mirrors images directly from the source registry to your private registry</li>
+<li><strong>to-filesystem</strong> mirrors images from the source to a local directory</li>
+<li><strong>from-filesystem</strong> mirrors images from a local directory to your private registry</li>
+</ul>
 <pre><code class="language-bash">docker pull quay.io/ibmmas/cli
 docker run -ti quay.io/ibmmas/cli mas mirror-images
 </code></pre>
-<p>You will be prompted to set the target registry for the image mirroring and to <a href="../choosing-the-right-catalog/">select the version of IBM Maximo Operator Catalog to mirror</a> and the subset of content that you wish to mirror  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.</p>
+<p>You will be prompted to set the target registry for the image mirroring and to <a href="../choosing-the-right-catalog/">select the version of IBM Maximo Operator Catalog to mirror</a> and the subset of content that you wish to mirror.  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.</p>
 <p>This command can also be ran non-interactive, for full details refer to the <a href="../../commands/mirror-images/">mirror-images</a> command documentation.</p>
-<h3 id="configure-openshift-to-use-your-private-registry-for-mas">Configure OpenShift to use your Private Registry for MAS<a class="headerlink" href="#configure-openshift-to-use-your-private-registry-for-mas" title="Permanent link"></a></h3>
-<p>TODO: Work in progress ... basically run <code>mas configure-airgap</code></p>
-<h2 id="install-maximo-application-suite">Install Maximo Application Suite<a class="headerlink" href="#install-maximo-application-suite" title="Permanent link"></a></h2>
-<p>TODO: Work in progress .. basically run the install as normal: <code>mas install</code></p>
+<pre><code class="language-bash">mas mirror-images \
+  -m direct \
+  -d /mnt/local-mirror/ \
+  -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+  -c v8-221025-amd64 --mirror-core --mirror-iot --mirror-optimizer --mirror-manage \
+  --ibm-entitlement $IBM_ENTITLEMENT_KEY \
+  --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
+  --no-confirm
+</code></pre>
+<h3 id="24-configure-openshift-to-use-your-private-registry-for-mas">2.4 Configure OpenShift to use your Private Registry for MAS<a class="headerlink" href="#24-configure-openshift-to-use-your-private-registry-for-mas" title="Permanent link"></a></h3>
+<p>Your cluster must be configured to use the private registry as a mirror for the MAS container images.  An <code>ImageContentSourcePolicy</code> named <code>mas-and-dependencies</code> will be created in the cluster, this is also the resource that the MAS install will use to detect whether the installation is a disconnected install and tailor the options presented when you run the <code>mas install</code> command.</p>
+<pre><code class="language-bash">docker pull quay.io/ibmmas/cli
+docker run -ti quay.io/ibmmas/cli mas configure-airgap
+</code></pre>
+<p>You will be prompted to provide information about the private registry, including the CA certificate necessary to configure your cluster to trust the private registry.</p>
+<p>This command can also be ran non-interactive, for full details refer to the <a href="../../commands/configure-airgap/">configure-airgap</a> command documentation.</p>
+<pre><code class="language-bash">mas configure-airgap \
+  -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+  --ca-file /mnt/local-mirror/registry-ca.crt \
+  --no-confirm
+</code></pre>
+<h2 id="3-install-maximo-application-suite">3 Install Maximo Application Suite<a class="headerlink" href="#3-install-maximo-application-suite" title="Permanent link"></a></h2>
+<p>Regardless of whether you are running a connected or disconnect installation, simply run the <code>mas install</code> command and follow the prompts.</p>
+<pre><code class="language-bash">docker pull quay.io/ibmmas/cli
+docker run -ti quay.io/ibmmas/cli mas install
+</code></pre>
               
             </div>
           </div><footer>
@@ -350,7 +383,7 @@ docker run -ti quay.io/ibmmas/cli mas mirror-images
       <span><a href="../choosing-the-right-catalog/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../architecture/core/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../update/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

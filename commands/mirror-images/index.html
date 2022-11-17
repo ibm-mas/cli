@@ -56,6 +56,8 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../guides/install/">Installation</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/update/">Update</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../guides/architecture/core/">MAS Core Explained</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../guides/mas-pods-explained/">MAS Pods Explained</a>
@@ -217,7 +219,7 @@
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
 <h3 id="interactive-image-mirroring">Interactive Image Mirroring<a class="headerlink" href="#interactive-image-mirroring" title="Permanent link"></a></h3>
 <pre><code class="language-bash">docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas mirror-images
+docker run -ti --rm -v /mnt/registry:/mnt/registry quay.io/ibmmas/cli mas mirror-images
 </code></pre>
 <h3 id="two-phase-image-mirroring">Two-Phase Image Mirroring<a class="headerlink" href="#two-phase-image-mirroring" title="Permanent link"></a></h3>
 <p>Two-Phase image mirroring is required when you do not have a single system with both access to the public registries containing the source container images <strong>and</strong> your internal private registry.  In this case you will require a system with internet connectivity and another with access to your private network, along with a means to transfer data from one to the other (for example, a portable drive).</p>
