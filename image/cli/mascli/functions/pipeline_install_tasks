@@ -21,8 +21,7 @@ function pipeline_install_tasks() {
         fi
         echo "Using image digest $CLI_IMAGE_DIGEST"
       else
-        echo "Unable to communicate with quay.io, please manually enter the digest for"
-        echo "environment variable) which will be used to provision a ROKS instance."
+        echo "Unable to communicate with quay.io, please manually enter the digest."
         prompt_for_input "quay.io/ibmmas/cli image digest" CLI_IMAGE_DIGEST
       fi
       # Overwrite the tekton definitions with one that uses the looked up image digest
