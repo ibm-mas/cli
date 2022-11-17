@@ -92,8 +92,14 @@ function config_pipeline_storage_classes() {
   fi
   reset_colors
 
+  echo "${TEXT_DIM}  - SNO MODE is set to ${SNO_MODE}"
   PIPELINE_STORAGE_CLASS=$STORAGE_CLASS_RWX
   PIPELINE_STORAGE_ACCESSMODE="ReadWriteMany"
+  if [[ "$SNO_MODE" == "true" ]]; then
+    PIPELINE_STORAGE_CLASS=$STORAGE_CLASS_RWO
+    PIPELINE_STORAGE_ACCESSMODE="ReadWriteOnce"
+  fi
+
 
   OVERRIDE_STORAGE_CLASSES=false
   if [[ "$STORAGE_CLASS_RWX" != "" ]]; then
