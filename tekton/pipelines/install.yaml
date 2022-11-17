@@ -241,6 +241,24 @@ spec:
       description: Configure install plan of Optimizer application (full or limited)
       default: full
 
+    # MAS Configuration - Predict
+    - name: wml_instance_id
+      type: string
+      description: wml instance to be configured in Predict
+      default: "openshift"
+    - name: wml_url
+      type: string
+      description: Url to access wml services
+      default: "https://internal-nginx-svc.ibm-cpd.svc:12443"
+    - name: wml_version
+      type: string
+      description: product version if cpd_product_version is not set
+      default: ""
+    - name: predict_deployment_size
+      type: string
+      description: controls the workload size of predict containers
+      default: "small"
+
     # MAS Configuration - Application Channels
     - name: mas_app_channel_iot
       type: string
@@ -1591,6 +1609,16 @@ spec:
           value: predict
         - name: mas_workspace_id
           value: "$(params.mas_workspace_id)"
+        - name: wml_instance_id
+          value: "$(params.wml_instance_id)"
+        - name: wml_url
+          value: "$(params.wml_url)"
+        - name: wml_version
+          value: "$(params.wml_version)"
+        - name: cpd_product_version
+          value: "$(params.cpd_product_version)"
+        - name: predict_deployment_size
+          value: "$(params.predict_deployment_size)"
       taskRef:
         name: mas-devops-suite-app-config
         kind: Task
