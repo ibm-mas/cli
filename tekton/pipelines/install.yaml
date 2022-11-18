@@ -100,10 +100,6 @@ spec:
       type: string
       description: Optional. Nvidia gpu channel for install and updates
       default: ""
-    - name: gpu_driver_version
-      type: string
-      description: Optional. Nvidia gpu driver version to use in cluster policy
-      default: ""
     - name: nfd_namespace
       type: string
       description: Optional. Node feature discovery namespace 
@@ -1258,8 +1254,6 @@ spec:
           value: $(params.gpu_namespace)
         - name: gpu_channel
           value: $(params.gpu_channel)
-        - name: gpu_driver_version
-          value: $(params.gpu_driver_version)
         - name: nfd_namespace
           value: $(params.nfd_namespace)
         - name: nfd_channel
