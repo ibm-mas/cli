@@ -1242,7 +1242,6 @@ spec:
 
     # 20. Nvidia GPU
     # -------------------------------------------------------------------------
-    # 19.1 Install Nvidia GPU
     - name: nvidia-gpu
       params:
         - name: devops_suite_name
