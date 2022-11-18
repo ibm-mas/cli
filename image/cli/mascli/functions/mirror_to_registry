@@ -26,10 +26,6 @@ Source Registry Entitlements (Required based on what content you choose to mirro
       --redhat-username ${COLOR_YELLOW}REDHAT_CONNECT_USERNAME${TEXT_RESET}   Red Hat Connect Username
       --redhat-password ${COLOR_YELLOW}REDHAT_CONNECT_PASSWORD${TEXT_RESET}   Red Hat Connect Password
 
-Red Hat Catalog Selection (Optional):
-      --mirror-redhat-release ${COLOR_YELLOW}OPENSHIFT_RELEASE_VERSION${TEXT_RESET}      Mirror Red Hat Operator catalog image at the specified release (e.g. 4.10)
-      --mirror-redhat-operators ${COLOR_YELLOW}OPENSHIFT_OPERATORS_VERSION${TEXT_RESET}  Mirror Red Hat Release catalog images at the specified version (e.g. 4.10.18)
-
 Maximo Operator Catalog Selection (Optional):
   -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v8-221025-amd64)
       --mirror-core                               Mirror images for IBM Maximo Application Suite Core & dependencies
@@ -64,9 +60,6 @@ EOM
 
 
 function mirror_to_registry_noninteractive() {
-  # Red Hat
-  MIRROR_RH_RELEASE=false
-  MIRROR_RH_OPERATORS=false
   # Main content
   MIRROR_MAS_CORE=false
   MIRROR_MAS_ASSIST=false
@@ -116,14 +109,6 @@ function mirror_to_registry_noninteractive() {
         ;;
       --redhat-password)
         REDHAT_CONNECT_PASSWORD=$1 && shift
-        ;;
-      --mirror-redhat-release)
-        MIRROR_RH_RELEASE=true
-        OPENSHIFT_RELEASE_VERSION=$1 && shift
-        ;;
-      --mirror-redhat-operators)
-        MIRROR_RH_OPERATORS=true
-        OPENSHIFT_OPERATORS_VERSION=$1 && shift
         ;;
       -c|--catalog)
         MAS_CATALOG_VERSION=$1 && shift
@@ -207,7 +192,7 @@ function mirror_to_registry_noninteractive() {
     [[ -z "$IBM_ENTITLEMENT_KEY" ]] && mirror_to_registry_help "IBM_ENTITLEMENT_KEY is not set"
   fi
   if [[ $MIRROR_MAS_CORE == "true" ]]; then
-    if [[ $MIRROR_UDS == "true" || $MIRROR_RH_RELEASE == "true" || $MIRROR_RH_OPERATORS == "true" ]]; then
+    if [[ $MIRROR_UDS == "true" ]]; then
       [[ -z "$REDHAT_CONNECT_USERNAME" ]] && mirror_to_registry_help "REDHAT_CONNECT_USERNAME is not set"
       [[ -z "$REDHAT_CONNECT_PASSWORD" ]] && mirror_to_registry_help "REDHAT_CONNECT_PASSWORD is not set"
     fi
@@ -409,9 +394,6 @@ function mirror_to_registry() {
   export REGISTRY_PUBLIC_PORT
   export REGISTRY_USERNAME
   export REGISTRY_PASSWORD
-  # Red Hat Catalogs
-  export OPENSHIFT_RELEASE_VERSION
-  export OPENSHIFT_OPERATORS_VERSION
   # Core & Dependencies
   export MIRROR_MAS_CORE
   export MIRROR_COMMONSERVICES
@@ -448,28 +430,6 @@ function mirror_to_registry() {
   echo_h2 "Target Registry Authentication" "    "
   echo_reset_dim "Registry Username ..................... ${COLOR_MAGENTA}${REGISTRY_USERNAME}"
   echo_reset_dim "Registry Password ..................... ${COLOR_MAGENTA}${REGISTRY_PASSWORD:0:4}<snip>"
-  reset_colors
-
-  echo "${TEXT_DIM}"
-  echo_h2 "Red Hat Release Catalog" "    "
-  if [[ "$MIRROR_RH_RELEASE" == "true" ]]
-  then
-    echo_reset_dim "Catalog Version ....................... ${COLOR_MAGENTA}${OPENSHIFT_RELEASE_VERSION}"
-    echo_reset_dim "Authentication ........................ ${COLOR_MAGENTA}${REDHAT_CONNECT_USERNAME}/${REDHAT_CONNECT_PASSWORD:0:4}<snip>"
-  else
-    echo_reset_dim "${COLOR_RED}Skip"
-  fi
-  reset_colors
-
-  echo "${TEXT_DIM}"
-  echo_h2 "Red Hat Operator Catalog" "    "
-  if [[ "$MIRROR_RH_OPERATORS" == "true" ]]
-  then
-    echo_reset_dim "Catalog Version ....................... ${COLOR_MAGENTA}${OPENSHIFT_OPERATORS_VERSION}"
-    echo_reset_dim "Red Hat Connect Authentication ........ ${COLOR_MAGENTA}${REDHAT_CONNECT_USERNAME}/${REDHAT_CONNECT_PASSWORD:0:4}<snip>"
-  else
-    echo_reset_dim "${COLOR_RED}Skip"
-  fi
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -523,9 +483,6 @@ function mirror_to_registry() {
   if [ ! -d $MIRROR_WORKING_DIR/logs/ ]; then
     mkdir -p $MIRROR_WORKING_DIR/logs/
   fi
-
-  mirror_one_thing $MIRROR_RH_RELEASE           "Red Hat Release"                    "$LOG_PREFIX-ocp-release.log"   mirror_openshift_release
-  mirror_one_thing $MIRROR_RH_OPERATORS         "Red Hat Operators"                  "$LOG_PREFIX-ocp-operators.log" mirror_openshift_operators
 
   mirror_one_thing $MIRROR_MAS_CORE             "IBM Maximo Application Suite Core"  "$LOG_PREFIX-core.log"             mirror_core
   mirror_one_thing $MIRROR_MAS_ASSIST           "IBM Maximo Assist"                  "$LOG_PREFIX-assist.log"           mirror_add_assist

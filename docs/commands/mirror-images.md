@@ -57,7 +57,7 @@ Examples
 ### Interactive Image Mirroring
 ```bash
 docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas mirror-images
+docker run -ti --rm -v /mnt/registry:/mnt/registry quay.io/ibmmas/cli mas mirror-images
 ```
 
 ### Two-Phase Image Mirroring

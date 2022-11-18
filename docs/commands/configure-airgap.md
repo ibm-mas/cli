@@ -6,6 +6,15 @@
 
 ## Usage
 
+### Interactive
 ```bash
-docker run -ti --rm -v ~:/home/local quay.io/ibmmas/cli mas configure-airgap
+docker run -ti --rm -v ~:/mnt/local quay.io/ibmmas/cli mas configure-airgap
+```
+
+### Non-Interactive
+```bash
+docker run -ti --rm -v ~:/mnt/local quay.io/ibmmas/cli mas configure-airgap \
+  -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+  --ca-file /mnt/local/registry-ca.crt \
+  --no-confirm
 ```

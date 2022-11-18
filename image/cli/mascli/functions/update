@@ -55,18 +55,24 @@ function update_interactive() {
   echo_h2 "Select IBM Maximo Operator Catalog Version"
 
   echo -e "${COLOR_YELLOW}MAS Catalog:"
-  echo "  1. v8 (2022-08-05)"
-  echo "  2. v8 (2022-07-17)"
+  echo "  1. v8 (2022-10-25)"
+  echo "  2. v8 (2022-09-27)"
+  echo "  3. v8 (2022-08-05)"
+  echo "  4. v8 (2022-07-17)"
   prompt_for_input "Select Catalog Version" MAS_CATALOG_SELECTION "1"
 
   case $MAS_CATALOG_SELECTION in
-    1|220805|2022-08-05)
+    1|221025|2022-10-25)
+      MAS_CATALOG_VERSION=v8-221025-amd64
+      ;;
+    2|220927|2022-09-27)
+      MAS_CATALOG_VERSION=v8-220927-amd64
+      ;;
+    3|220805|2022-08-05)
       MAS_CATALOG_VERSION=v8-220805-amd64
       ;;
-    2|220717|2022-07-17)
-      MAS_CATALOG_VERSION=v8-220717
-      # We are deliberately leaving this without the -amd64 to ensure this is not a breaking change
-      # for anyone already using v8-220717
+    4|220717|2022-07-17)
+      MAS_CATALOG_VERSION=v8-220717-amd64
       ;;
     *)
       echo_warning "Invalid selection"
@@ -77,7 +83,7 @@ function update_interactive() {
 
 
 function update() {
-  # Take the first parameter off (it will be mirror-images)
+  # Take the first parameter off (it will be "update")
   shift
   if [[ $# -gt 0 ]]; then
     update_noninteractive "$@"
