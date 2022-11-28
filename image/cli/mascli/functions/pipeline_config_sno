@@ -5,7 +5,7 @@ function config_pipeline_sno() {
   echo ""
   if [[ "$SNO_MODE" == "true" ]]; then
     # SNO Mode -- Set environment variables MONGODB_REPLICAS=1
-    echo_h2 "Info: SNO_MODE was not detected."
+    echo_h2 "Info: SNO_MODE was detected."
     export MONGODB_REPLICAS=1
     export MONGODB_CPU_REQUESTS=300m
     export MAS_APP_SETTINGS_AIO_FLAG=false
