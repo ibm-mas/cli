@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  generateName: $MAS_INSTANCE_ID-update-
+  generateName: update-
   labels:
     tekton.dev/pipeline: mas-update
 spec:
