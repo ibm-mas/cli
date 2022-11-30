@@ -26,6 +26,7 @@ nav:
     - 'install': commands/install.md
   - 'Catalogs':
     - 'Overview': catalogs/index.md
+    - 'Nov 2022': catalogs/v8-221129-amd64.md
     - 'Oct 2022': catalogs/v8-221025-amd64.md
     - 'Sep 2022': catalogs/v8-220927-amd64.md
     - 'Aug 2022': catalogs/v8-220805-amd64.md
