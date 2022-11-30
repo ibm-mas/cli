@@ -149,7 +149,7 @@ function provision_aws_interactive() {
   echo_h2 "AWS Cluster Configuration"
   prompt_for_input "Cluster Name" CLUSTER_NAME && export CLUSTER_NAME
 
-  prompt_for_input "AWS Region" IPI_REGION "US East 2" && export IPI_REGION       # IPI_REGION
+  prompt_for_input "AWS Region" IPI_REGION && export IPI_REGION       # IPI_REGION
   prompt_for_input "AWS Base Domain" IPI_BASE_DOMAIN && export IPI_BASE_DOMAIN    # IPI_BASE_DOMAIN
   prompt_for_confirm_default_yes "Do you want single node openshift " SNO_MODE    # SNO_NODE
   if [[ "$SNO_MODE" == "true" ]]; then

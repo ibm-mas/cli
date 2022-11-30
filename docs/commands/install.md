@@ -57,7 +57,7 @@ A number of applications are not currently available when using a private mirror
 
 SNO Support
 -------------------------------------------------------------------------------
-If you  already ran `mas install` to install the  IBM Maximo Application Suite then the installer will automatically detect the presence of SNO and tailor the installation configuration for a disconnected installation.
+If you  already ran `mas install` to install the  IBM Maximo Application Suite then the installer will automatically detect the presence of SNO and tailor the installation configuration for a connected installation.
 
 A number of applications are not currently available when using a private mirror registry in this fashion, as a result you will not be asked whether you wish to install these applications:
 
