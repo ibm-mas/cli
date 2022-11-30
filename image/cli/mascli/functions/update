@@ -110,15 +110,15 @@ function update() {
   echo_h2 "Launch Update"
 
   # Create namespace, install MAS Tekton definitions, configure RBAC
-  pipeline_install_tasks || exit 1
+  pipeline_install_tasks_shared_namespace || exit 1
 
   # Replace ALL environment variables in templates
-  eval "echo \"$(cat $DIR/templates/pipelinerun-update.yaml)\"" > $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-update.yaml
+  eval "echo \"$(cat $DIR/templates/pipelinerun-update.yaml)\"" > $CONFIG_DIR/pipelinerun-update.yaml
 
   # Start pipeline execution
-  oc -n mas-$MAS_INSTANCE_ID-pipelines create -f $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-update.yaml &>> $LOGFILE || exit 1
+  oc -n mas-pipelines create -f $CONFIG_DIR/pipelinerun-update.yaml &>> $LOGFILE || exit 1
   echo -e "${COLOR_GREEN}Update started successfully${COLOR_RESET}"
-  echo -e "\nView progress:\n  ${COLOR_CYAN}${TEXT_UNDERLINE}https://${OCP_CONSOLE_ROUTE}/pipelines/ns/mas-$MAS_INSTANCE_ID-pipelines${TEXT_RESET}${COLOR_RESET}"
+  echo -e "\nView progress:\n  ${COLOR_CYAN}${TEXT_UNDERLINE}https://${OCP_CONSOLE_ROUTE}/pipelines/ns/mas-pipelines${TEXT_RESET}${COLOR_RESET}"
   echo
 
 }
