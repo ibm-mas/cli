@@ -123,6 +123,24 @@ spec:
     - name: kafka_user_name
       type: string
       default: ""
+    
+    # Dependencies - nvidia gpu
+    - name: gpu_namespace
+      type: string
+      description: Optional. Nvidia gpu namespace 
+      default: ""
+    - name: gpu_channel
+      type: string
+      description: Optional. Nvidia gpu channel for install and updates
+      default: ""
+    - name: nfd_namespace
+      type: string
+      description: Optional. Node feature discovery namespace 
+      default: ""
+    - name: nfd_channel
+      type: string
+      description: Optional. Node feature discovery channel for install and updates
+      default: ""
 
     # Dependencies - CP4D
     - name: cpd_operators_namespace
@@ -288,11 +306,11 @@ spec:
     - name: wml_instance_id
       type: string
       description: wml instance to be configured in Predict
-      default: "openshift"
+      default: ""
     - name: wml_url
       type: string
       description: Url to access wml services
-      default: "https://internal-nginx-svc.ibm-cpd.svc:12443"
+      default: ""
     - name: wml_version
       type: string
       description: product version if cpd_product_version is not set
@@ -300,7 +318,7 @@ spec:
     - name: predict_deployment_size
       type: string
       description: controls the workload size of predict containers
-      default: "small"
+      default: ""
 
     # MAS Configuration - Application Channels
     - name: mas_app_channel_iot
@@ -1274,10 +1292,45 @@ spec:
         - name: configs
           workspace: shared-configs
 
-
-    # 20. Install IBM MAS IoT application
+    # 20. Nvidia GPU
     # -------------------------------------------------------------------------
-    # 20.1 Install IoT
+    - name: nvidia-gpu
+      params:
+        - name: devops_suite_name
+          value: dependencies-nvidia-gpu
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: gpu_namespace
+          value: $(params.gpu_namespace)
+        - name: gpu_channel
+          value: $(params.gpu_channel)
+        - name: nfd_namespace
+          value: $(params.nfd_namespace)
+        - name: nfd_channel
+          value: $(params.nfd_channel)
+      taskRef:
+        kind: Task
+        name: mas-devops-nvidia-gpu
+      # Only needed if Visual Inspection is being installed
+      when:
+        - input: "$(params.mas_app_channel_visualinspection)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - ibm-catalogs
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # 21. Install IBM MAS IoT application
+    # -------------------------------------------------------------------------
+    # 21.1 Install IoT
     - name: app-install-iot
       params:
         - name: devops_suite_name
@@ -1320,7 +1373,7 @@ spec:
         - suite-config-db2
         - suite-config-kafka
 
-    # 20.2 Configure IoT workspace
+    # 21.2 Configure IoT workspace
     - name: app-cfg-iot
       params:
         - name: devops_suite_name
@@ -1351,9 +1404,9 @@ spec:
           workspace: shared-configs
 
 
-    # 21. Install IBM MAS Monitor application
+    # 22. Install IBM MAS Monitor application
     # -------------------------------------------------------------------------
-    # 21.1 Install Monitor
+    # 22.1 Install Monitor
     - name: app-install-monitor
       params:
         - name: devops_suite_name
@@ -1395,7 +1448,7 @@ spec:
       runAfter:
         - app-cfg-iot
 
-    # 21.2 Configure Monitor workspace
+    # 22.2 Configure Monitor workspace
     - name: app-cfg-monitor
       params:
         - name: devops_suite_name
@@ -1426,9 +1479,9 @@ spec:
           workspace: shared-configs
 
 
-    # 22. Install IBM MAS Safety application
+    # 23. Install IBM MAS Safety application
     # -------------------------------------------------------------------------
-    # 22.1 Install Safety
+    # 23.1 Install Safety
     - name: app-install-safety
       params:
         - name: devops_suite_name
@@ -1469,7 +1522,7 @@ spec:
       runAfter:
         - app-cfg-iot
 
-    # 22.2 Configure Safety workspace
+    # 23.2 Configure Safety workspace
     - name: app-cfg-safety
       params:
         - name: devops_suite_name
@@ -1500,9 +1553,9 @@ spec:
           workspace: shared-configs
 
 
-    # 23. Install IBM MAS Manage application
+    # 24. Install IBM MAS Manage application
     # -------------------------------------------------------------------------
-    # 23.1. Prepare database to Maxinst
+    # 24.1. Prepare database to Maxinst
     - name: suite-db2-setup-for-manage
       params:
         - name: mas_instance_id
@@ -1527,7 +1580,7 @@ spec:
       runAfter:
         - suite-config-db2
 
-    # 23.2 Manage Install
+    # 24.2 Manage Install
     - name: app-install-manage
       params:
         - name: devops_suite_name
@@ -1568,7 +1621,7 @@ spec:
       runAfter:
         - suite-db2-setup-for-manage
 
-    # 23.3 Configure Manage workspace
+    # 24.3 Configure Manage workspace
     - name: app-cfg-manage
       params:
         - name: devops_suite_name
@@ -1607,9 +1660,9 @@ spec:
           workspace: shared-configs
 
 
-    # 24. Predict
+    # 25. Predict
     # -------------------------------------------------------------------------
-    # 24.1 Predict Install
+    # 25.1 Predict Install
     - name: app-install-predict
       params:
         - name: devops_suite_name
@@ -1655,7 +1708,7 @@ spec:
         - analytics-service
 
 
-    # 24.2 Configure Predict workspace
+    # 25.2 Configure Predict workspace
     - name: app-cfg-predict
       params:
         - name: devops_suite_name
@@ -1696,9 +1749,9 @@ spec:
           workspace: shared-configs
 
 
-    # 25. Optimizer
+    # 26. Optimizer
     # -------------------------------------------------------------------------
-    # 25.1 Optimizer Install
+    # 26.1 Optimizer Install
     - name: app-install-optimizer
       params:
         - name: devops_suite_name
@@ -1741,7 +1794,7 @@ spec:
       runAfter:
         - suite-verify
 
-    # 25.2 Configure Optimizer workspace
+    # 26.2 Configure Optimizer workspace
     - name: app-cfg-optimizer
       params:
         - name: devops_suite_name
@@ -1773,9 +1826,9 @@ spec:
           workspace: shared-configs
 
 
-    # 26. Health & Predict - Utilities
+    # 27. Health & Predict - Utilities
     # -------------------------------------------------------------------------
-    # 26.1 HPUtilities Install
+    # 27.1 HPUtilities Install
     - name: app-install-hputilities
       params:
         - name: devops_suite_name
@@ -1818,7 +1871,7 @@ spec:
         - suite-config-watson-studio
         - suite-config-appconnect
 
-    # 26.2 Configure HPUtilities workspace
+    # 27.2 Configure HPUtilities workspace
     - name: app-cfg-hputilities
       params:
         - name: devops_suite_name
@@ -1849,9 +1902,9 @@ spec:
           workspace: shared-configs
 
 
-    # 27. Assist
+    # 28. Assist
     # -------------------------------------------------------------------------
-    # 27.1 Assist Install
+    # 28.1 Assist Install
     - name: app-install-assist
       params:
         - name: devops_suite_name
@@ -1892,7 +1945,7 @@ spec:
       runAfter:
         - suite-config-cos
 
-    # 27.2 Configure Assist workspace
+    # 28.2 Configure Assist workspace
     - name: app-cfg-assist
       params:
         - name: devops_suite_name
@@ -1923,9 +1976,9 @@ spec:
           workspace: shared-configs
 
 
-    # 28. Maximo Visual Inspection (MVI)
+    # 29. Maximo Visual Inspection (MVI)
     # -------------------------------------------------------------------------
-    # 28.1 MVI Install
+    # 29.1 MVI Install
     - name: app-install-visualinspection
       params:
         - name: devops_suite_name
@@ -1964,9 +2017,10 @@ spec:
           operator: notin
           values: [""]
       runAfter:
+        - nvidia-gpu
         - suite-verify
 
-    # 28.2 Configure MVI workspace
+    # 29.2 Configure MVI workspace
     - name: app-cfg-visualinspection
       params:
         - name: devops_suite_name

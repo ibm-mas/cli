@@ -1,5 +1,8 @@
 ## Changes
 
+- [`3.2`](https://github.com/ibm-mas/cli/releases/tag/3.2.0) Add support for Nov 2022 catalog
+- [`3.1`](https://github.com/ibm-mas/cli/releases/tag/3.1.0) Support two-phase RH image mirroring
+- [`3.0`](https://github.com/ibm-mas/cli/releases/tag/3.0.0) Support combined mas_devops and mas_airgap Ansible collection
 - [`2.7`](https://github.com/ibm-mas/cli/releases/tag/2.7.0) Add support for Oct 2022 catalog
 - [`2.6`](https://github.com/ibm-mas/cli/releases/tag/2.6.0) Add aws client to container image
 - [`2.5`](https://github.com/ibm-mas/cli/releases/tag/2.5.0) Support IBM Pak and Two Phase Mirroring

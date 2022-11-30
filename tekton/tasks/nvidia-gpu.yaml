@@ -24,6 +24,23 @@ spec:
       description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
       default: ""
 
+    - name: gpu_namespace
+      type: string
+      description: Optional. Nvidia gpu namespace 
+      default: ""
+    - name: gpu_channel
+      type: string
+      description: Optional. Nvidia gpu channel for install and updates
+      default: ""
+    - name: nfd_namespace
+      type: string
+      description: Optional. Node feature discovery namespace 
+      default: ""
+    - name: nfd_channel
+      type: string
+      description: Optional. Node feature discovery channel for install and updates
+      default: ""
+
   stepTemplate:
     env:
       # Optional support built into the ansible-devops image
@@ -37,8 +54,17 @@ spec:
       - name: DEVOPS_BUILD_NUMBER
         value: $(params.devops_build_number)
 
+      - name: GPU_NAMESPACE
+        value: $(params.gpu_namespace)
+      - name: GPU_CHANNEL
+        value: $(params.gpu_channel)
+      - name: NFD_NAMESPACE
+        value: $(params.nfd_namespace)
+      - name: NFD_CHANNEL
+        value: $(params.nfd_channel)
+
   steps:
-    - name: nvidi-gpu
+    - name: nvidia-gpu
       command:
         - /opt/app-root/src/run-role.sh
         - nvidia_gpu
