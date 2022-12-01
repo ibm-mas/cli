@@ -4,6 +4,8 @@
 . $DIR/functions/pipeline_config_applications
 . $DIR/functions/pipeline_config_dns
 . $DIR/functions/pipeline_config_storage_classes
+. $DIR/functions/pipeline_config_storage_classes_sno
+. $DIR/functions/pipeline_config_db2
 
 function pipeline_config() {
   echo_h2 "3. Configure Installation"
@@ -52,22 +54,33 @@ function pipeline_config() {
       esac
     fi
 
-    echo -e "${COLOR_YELLOW}MAS Version:"
-    echo "  1. 8.8"
-    echo "  2. 8.7"
-    echo "  3. 8.6"
+    
+    if [[ "$SNO_MODE" == "true" ]]; then
+      echo -e "${COLOR_YELLOW}MAS Version:"
+      echo "  1. 8.9"
+    else
+      echo -e "${COLOR_YELLOW}MAS Version:"
+      echo "  1. 8.9"
+      echo "  2. 8.8"
+      echo "  3. 8.7"
+      echo "  4. 8.6"
+    fi
     prompt_for_input "Select Subscription Channel" MAS_CHANNEL_SELECTION "1"
 
     case $MAS_CHANNEL_SELECTION in
-      1|8.8|8.8.x)
+      1|8.9|8.9.x)
+        MAS_CHANNEL=8.9.x
+        ;;
+
+      2|8.8|8.8.x)
         MAS_CHANNEL=8.8.x
         ;;
 
-      2|8.7|8.7.x)
+      3|8.7|8.7.x)
         MAS_CHANNEL=8.7.x
         ;;
 
-      3|8.6|8.6.x)
+      4|8.6|8.6.x)
         MAS_CHANNEL=8.6.x
         ;;
 
@@ -115,7 +128,14 @@ function pipeline_config() {
   config_pipeline_sno
   config_pipeline_dns
   config_pipeline_applications
-  config_pipeline_storage_classes
+  
+  # config_pipeline_storage_classes
+  if [[ "$SNO_MODE" == "true" ]]; then
+    config_pipeline_storage_classes_sno
+  else
+    config_pipeline_storage_classes
+  fi
+  config_pipeline_storage_db2_size
 
   echo ""
   if [[ "$DEV_MODE" == "true" && -z "$AIRGAP_MODE" ]]; then

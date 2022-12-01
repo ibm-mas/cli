@@ -93,6 +93,28 @@ spec:
       type: string
       description: Optional configuration for mongodb cpu limits
       default: ""
+
+    # DB2 size parameters
+    - name: db2_meta_storage_size
+      type: string
+      description: Size of metadata persistent volume
+      default: ""
+    - name: db2_temp_storage_size
+      type: string
+      description: Size of temporary persistent volume
+      default: ""
+    - name: db2_data_storage_size
+      type: string
+      description: Size of data persistent volume
+      default: ""
+    - name: db2_logs_storage_size
+      type: string
+      description: Size of logs persistent volume
+      default: ""
+    - name: db2_backup_storage_size
+      type: string
+      description: Size of backup persistent volume
+      default: ""
    
     # Dependencies - Mongo
     - name: mongodb_storage_class
@@ -599,6 +621,17 @@ spec:
           value: $(params.db2_cpu_requests)
         - name: db2_cpu_limits
           value: $(params.db2_cpu_limits)
+
+        - name: db2_meta_storage_size
+          value: $(params.db2_meta_storage_size)
+        - name: db2_backup_storage_size
+          value: $(params.db2_backup_storage_size)
+        - name: db2_logs_storage_size
+          value: $(params.db2_logs_storage_size)
+        - name: db2_temp_storage_size
+          value: $(params.db2_temp_storage_size)
+        - name: db2_data_storage_size
+          value: $(params.db2_data_storage_size)
 
         - name: devops_suite_name
           value: dependencies-db2

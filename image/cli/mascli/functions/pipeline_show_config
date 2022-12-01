@@ -118,6 +118,15 @@ function pipeline_show_config() {
   fi
 
   reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "DB2 Configuration" 
+  echo_reset_dim "DB2_META_STORAGE_SIZE ............ ${COLOR_MAGENTA}${DB2_META_STORAGE_SIZE}"
+  echo_reset_dim "DB2_DATA_STORAGE_SIZE ............ ${COLOR_MAGENTA}${DB2_DATA_STORAGE_SIZE}"
+  echo_reset_dim "DB2_BACKUP_STORAGE_SIZE ............ ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_SIZE}"
+  echo_reset_dim "DB2_TEMP_STORAGE_SIZE ............ ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_SIZE}"
+  echo_reset_dim "DB2_LOGS_STORAGE_SIZE ............ ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_SIZE}"
+
+  reset_colors
   echo "${TEXT_RESET}"
   prompt_for_confirm "Proceed with these settings" || exit 0
 
