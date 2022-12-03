@@ -250,7 +250,6 @@ function mirror_to_registry_interactive() {
   echo "  3. 8.8.2 (2022-10-25)"
   echo "  4. 8.8.1 (2022-09-27)"
   echo "  5. 8.8.0 (2022-08-05)"
-  echo "  6. 8.8.0 (2022-07-17)"
   prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
 
   case $MAS_CHANNEL_SELECTION in
@@ -278,13 +277,6 @@ function mirror_to_registry_interactive() {
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-220805-amd64
-      ;;
-    6|8.8.0)
-      MAS_CHANNEL=8.8.x
-      MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-220717
-      # We are deliberately leaving this without the -amd64 to ensure this is not a breaking change
-      # for anyone already using v8-220717
       ;;
     *)
       echo_warning "Invalid selection"
