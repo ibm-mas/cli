@@ -1,0 +1,45 @@
+- name: db2
+  params:
+    - name: db2_meta_storage_class
+      value: $(params.storage_class_rwx)
+    - name: db2_data_storage_class
+      value: $(params.storage_class_rwo)
+    - name: db2_backup_storage_class
+      value: $(params.storage_class_rwx)
+    - name: db2_logs_storage_class
+      value: $(params.storage_class_rwo)
+    - name: db2_temp_storage_class
+      value: $(params.storage_class_rwo)
+
+    - name: devops_suite_name
+      value: dependencies-db2
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+
+    - name: ibm_entitlement_key
+      value: $(params.ibm_entitlement_key)
+    - name: db2_instance_name
+      value: db2u-shared
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+  # Only install Db2 if IoT or Manage are being installed
+  when:
+    # See: https://github.com/tektoncd/pipeline/issues/3591#issuecomment-1073901961
+    - input: "$(params.mas_app_channel_iot)$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+    # If there is no RWX storage class available then we can't deploy Db2.
+    # TODO: Test Db2 install using RWO storage only
+    - input: "$(params.storage_class_rwx)"
+      operator: notin
+      values: ["none"]
+  taskRef:
+    name: mas-devops-db2
+    kind: Task
+  runAfter:
+    - cert-manager
+  workspaces:
+    - name: configs
+      workspace: shared-configs

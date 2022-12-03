@@ -1,0 +1,22 @@
+- name: cluster-monitoring
+  params:
+    - name: prometheus_storage_class
+      value: $(params.storage_class_rwo)
+    - name: prometheus_alertmgr_storage_class
+      value: $(params.storage_class_rwo)
+    - name: prometheus_userworkload_storage_class
+      value: $(params.storage_class_rwo)
+    - name: grafana_instance_storage_class
+      value: $(params.storage_class_rwo)
+
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: devops_suite_name
+      value: setup-cluster-monitoring
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+  taskRef:
+    kind: Task
+    name: mas-devops-cluster-monitoring
