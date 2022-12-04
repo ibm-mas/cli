@@ -40,11 +40,6 @@ function pipeline_show_config() {
   else echo_reset_dim " - Monitor ............... ${COLOR_MAGENTA}${MAS_APP_SOURCE_MONITOR}/${MAS_APP_CHANNEL_MONITOR}"
   fi
 
-  if [[ "${MAS_APP_CHANNEL_SAFETY}" == '' ]]
-  then echo_reset_dim " - Safety ................ ${COLOR_RED}Skip Installation"
-  else echo_reset_dim " - Safety ................ ${COLOR_MAGENTA}${MAS_APP_SOURCE_SAFETY}/${MAS_APP_CHANNEL_SAFETY}"
-  fi
-
   if [[ "${MAS_APP_CHANNEL_MANAGE}" == '' ]]
   then echo_reset_dim "Manage ................... ${COLOR_RED}Skip Installation"
   else echo_reset_dim "Manage ................... ${COLOR_MAGENTA}${MAS_APP_SOURCE_MANAGE}/${MAS_APP_CHANNEL_MANAGE}"
