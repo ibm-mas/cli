@@ -30,6 +30,16 @@ spec:
       description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
       default: ""
 
+    # Other MONGODB parameters
+    - name: mongodb_replicas
+      type: string
+      description: Optional configuration for mongodb replicas
+      default: ""
+    - name: mongodb_cpu_requests
+      type: string
+      description: Optional configuration for mongodb cpu requests
+      default: ""
+
   stepTemplate:
     env:
       - name: MAS_CONFIG_DIR
@@ -49,6 +59,12 @@ spec:
         value: $(params.devops_suite_name)
       - name: DEVOPS_BUILD_NUMBER
         value: $(params.devops_build_number)
+
+      # Other MONGODB paramters
+      - name: MONGODB_REPLICAS
+        value: $(params.mongodb_replicas)
+      - name: MONGODB_CPU_REQUESTS
+        value: $(params.mongodb_cpu_requests)
 
   steps:
     - name: mongodb
