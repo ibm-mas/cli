@@ -73,10 +73,43 @@ spec:
       default: ""
       description: Override IBM Entitlement key for SLS installation
 
+    # Dependencies - DB2
+    # DB2 access mode
+    - name: db2_meta_storage_accessmode
+      type: string
+      description: Optional configuration for db2 meta storage access mode
+      default: ""
+    - name: db2_backup_storage_accessmode
+      type: string
+      description: Optional configuration for db2 backup storage access mode
+      default: ""
+
+
+    # Other DB2 parameters
+    - name: db2_cpu_requests
+      type: string
+      description: Optional configuration for db2 cpu requests
+      default: ""
+    - name: db2_cpu_limits
+      type: string
+      description: Optional configuration for mongodb cpu limits
+      default: ""
+   
     # Dependencies - Mongo
     - name: mongodb_storage_class
       type: string
       default: ""
+
+    - name: mongodb_replicas
+      type: string
+      description: Optional configuration for mongodb replicas
+      default: ""
+    - name: mongodb_cpu_requests
+      type: string
+      description: Optional configuration for mongodb cpu requests
+      default: ""
+
+      
 
     # Dependencies - Kafka
     - name: kafka_namespace
@@ -247,6 +280,16 @@ spec:
       type: string
       description: Workspace Name used when setting up the workspace
       default: MAS Development
+
+    - name: mas_app_settings_aio_flag
+      type: string
+      description: Flag indicating if Asset Investment Optimization (AIO) resource must be loaded or not. It can be loaded only when Optimizer application is installed.
+      default: ""
+    - name: mas_app_settings_demodata
+      type: string
+      description: Flag indicating if manage demodata should be loaded or not
+      default: ""
+
 
     # MAS Configuration - Manage Application
     - name: mas_appws_components
@@ -496,6 +539,10 @@ spec:
       params:
         - name: mongodb_storage_class
           value: $(params.storage_class_rwo)
+        - name: mongodb_replicas
+          value: $(params.mongodb_replicas)
+        - name: mongodb_cpu_requests
+          value: $(params.mongodb_cpu_requests)
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -563,6 +610,15 @@ spec:
           value: $(params.storage_class_rwo)
         - name: db2_temp_storage_class
           value: $(params.storage_class_rwo)
+
+        - name: db2_meta_storage_accessmode
+          value: $(params.db2_meta_storage_accessmode)
+        - name: db2_backup_storage_accessmode
+          value: $(params.db2_backup_storage_accessmode)
+        - name: db2_cpu_requests
+          value: $(params.db2_cpu_requests)
+        - name: db2_cpu_limits
+          value: $(params.db2_cpu_limits)
 
         - name: devops_suite_name
           value: dependencies-db2
@@ -1551,6 +1607,12 @@ spec:
           value: "$(params.mas_workspace_id)"
         - name: mas_appws_components
           value: "$(params.mas_appws_components)"
+
+        - name: mas_app_settings_aio_flag
+          value: $(params.mas_app_settings_aio_flag)
+        - name: mas_app_settings_demodata
+          value: $(params.mas_app_settings_demodata)
+
       taskRef:
         name: mas-devops-suite-app-config
         kind: Task

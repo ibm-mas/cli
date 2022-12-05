@@ -1,5 +1,6 @@
 #!/bin/bash
 
+. $DIR/functions/pipeline_config_sno
 . $DIR/functions/pipeline_config_applications
 . $DIR/functions/pipeline_config_dns
 . $DIR/functions/pipeline_config_storage_classes
@@ -114,6 +115,7 @@ function pipeline_config() {
   fi
   true
 
+  config_pipeline_sno
   config_pipeline_dns
   config_pipeline_applications
   config_pipeline_storage_classes

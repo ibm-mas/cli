@@ -37,6 +37,7 @@ mkdir -p $CONFIG_DIR
 # MAS provisioning support
 . $DIR/functions/provision_fyre
 . $DIR/functions/provision_roks
+. $DIR/functions/provision_aws
 # MAS installation support
 . $DIR/functions/install
 . $DIR/functions/pipeline_config
@@ -73,6 +74,15 @@ case $1 in
     reset_colors
     update_ansible_collections
     provision_roks "$@"
+    ;;
+
+  aws|provision-aws)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AWS Cluster Provisioner${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
+    echo
+    reset_colors
+    update_ansible_collections
+    provision_aws "$@"
     ;;
 
   registry|setup-registry|setup-mirror-registry|setup-airgap-registry)

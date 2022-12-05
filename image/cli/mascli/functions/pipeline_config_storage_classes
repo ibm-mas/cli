@@ -77,10 +77,29 @@ function config_pipeline_storage_classes() {
       STORAGE_CLASS_RWX=managed-premium
     fi
   fi
+
+  # 4. AWS
+  if [[ "$STORAGE_CLASS_RWX" == "" ]]; then
+    oc get storageclass gp2 &>> $LOGFILE
+    if [[ $? == "0" ]]; then
+      echo -e "${COLOR_GREEN}Storage provider auto-detected: AWS gp2${COLOR_RESET}"
+      echo "${TEXT_DIM}  - Storage class (ReadWriteOnce): gp2"
+      echo "${TEXT_DIM}  - Storage class (ReadWriteMany): efs"
+      STORAGE_CLASS_PROVIDER=aws
+      STORAGE_CLASS_RWO=gp2
+      STORAGE_CLASS_RWX=efs 
+    fi
+  fi
   reset_colors
 
+  echo "${TEXT_DIM}  - SNO MODE is set to ${SNO_MODE}"
   PIPELINE_STORAGE_CLASS=$STORAGE_CLASS_RWX
   PIPELINE_STORAGE_ACCESSMODE="ReadWriteMany"
+  if [[ "$SNO_MODE" == "true" ]]; then
+    PIPELINE_STORAGE_CLASS=$STORAGE_CLASS_RWO
+    PIPELINE_STORAGE_ACCESSMODE="ReadWriteOnce"
+  fi
+
 
   OVERRIDE_STORAGE_CLASSES=false
   if [[ "$STORAGE_CLASS_RWX" != "" ]]; then
@@ -88,7 +107,7 @@ function config_pipeline_storage_classes() {
     prompt_for_confirm "Choose your own storage classes anyway?" OVERRIDE_STORAGE_CLASSES
   fi
 
-  # 4. You choose then ...
+  # 5. You choose then ...
   if [[ "$STORAGE_CLASS_RWX" == "" || "$OVERRIDE_STORAGE_CLASSES" == "true" ]]; then
     STORAGE_CLASS_PROVIDER=custom
     echo ""

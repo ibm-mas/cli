@@ -28,6 +28,15 @@ spec:
       description: Analytics Project Name
       default: ""
 
+    - name: mas_app_settings_aio_flag
+      type: string
+      description: Flag indicating if Asset Investment Optimization (AIO) resource must be loaded or not. It can be loaded only when Optimizer application is installed.
+      default: ""
+    - name: mas_app_settings_demodata
+      type: string
+      description: Flag indicating if manage demodata should be loaded or not
+      default: ""
+
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
     - name: devops_mongo_uri
@@ -91,6 +100,11 @@ spec:
       - name: DEVOPS_BUILD_NUMBER
         value: $(params.devops_build_number)
 
+      # Optional 
+      - name: MAS_APP_SETTINGS_AIO_FLAG
+        value: $(params.mas_app_settings_aio_flag)
+      - name: MAS_APP_SETTINGS_DEMODATA
+        value: $(params.mas_app_settings_demodata)
       - name: WML_INSTANCE_ID
         value: $(params.wml_instance_id)
       - name: WML_URL

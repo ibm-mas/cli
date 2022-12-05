@@ -209,3 +209,20 @@ function detect_airgap() {
     unset AIRGAP_MODE
   fi
 }
+
+# detect_sno function checks the number of nodes in the cluster. If there is only one node, then the cluster is an SNO
+# For SNO, we have only one master node and zero worker nodes
+# We check for the number of lines the command oc get nodes returns. If it is equal to 2, then the cluster is SNO
+# The reason we check for 2 is that the first line is the heading. Following is an example of the output
+#                        NAME                           STATUS   ROLES           AGE   VERSION
+#                        ip-10-0-141-250.ec2.internal   Ready    master,worker   22h   v1.21.11+5cc9227
+# when we run wc -l shell script command, wc gets the word count and -l gets the number of lines.
+function detect_sno() {
+  sno_num_nodes=$(oc get nodes | wc -l | xargs)
+  if [[ "$sno_num_nodes" == "2" ]]; then
+    export SNO_MODE=true
+  else
+    unset SNO_MODE
+  fi
+}
+
