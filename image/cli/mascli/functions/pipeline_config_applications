@@ -174,18 +174,22 @@ function config_pipeline_applications() {
   MAS_APP_SOURCE_VISUALINSPECTION='ibm-operator-catalog'; MAS_APP_CHANNEL_VISUALINSPECTION=''
   MAS_APP_SOURCE_OPTIMIZER='ibm-operator-catalog';        MAS_APP_CHANNEL_OPTIMIZER='';        MAS_APP_PLAN_OPTIMIZER=''
 
-  # Applications supported in air gap and online installs
-  if prompt_for_confirm "Install IoT"; then
-    channel_select_iot || exit 1
+  if [[ "$SNO_MODE" != "true" ]]; then
+    # Applications supported in air gap and online installs
+    if prompt_for_confirm "Install IoT"; then
+      channel_select_iot || exit 1
+    fi
   fi
 
-  # Applications only supported in online installs
-  if [[ -z "$AIRGAP_MODE" ]]; then
-    # Applications that require IoT
-    if [[ "$MAS_APP_CHANNEL_IOT" != '' ]]; then
-      # Monitor
-      if prompt_for_confirm "Install Monitor"; then
-        channel_select_monitor || exit 1
+  if [[ "$SNO_MODE" != "true" ]]; then
+    # Applications only supported in online installs
+    if [[ -z "$AIRGAP_MODE" ]]; then
+      # Applications that require IoT
+      if [[ "$MAS_APP_CHANNEL_IOT" != '' ]]; then
+        # Monitor
+        if prompt_for_confirm "Install Monitor"; then
+          channel_select_monitor || exit 1
+        fi
       fi
     fi
   fi
@@ -195,42 +199,51 @@ function config_pipeline_applications() {
     channel_select_manage || exit 1
   fi
 
-  # Optimizer can only be installed from 8.8 on
-  if [[ "$MAS_CHANNEL" != "8.7.x" ]]; then
-    if prompt_for_confirm "Install Optimizer"; then
-      channel_select_optimizer || exit 1
-      # Optimizer install Plan + Validation
-      while : ; do
-        prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full"
-        [[ "$MAS_APP_PLAN_OPTIMIZER" != "full" && "$MAS_APP_PLAN_OPTIMIZER" != "limited" ]] || break
-      done
+  if [[ "$SNO_MODE" != "true" ]]; then
+    # Optimizer can only be installed from 8.8 on
+    if [[ "$MAS_CHANNEL" != "8.7.x" ]]; then
+      if prompt_for_confirm "Install Optimizer"; then
+        channel_select_optimizer || exit 1
+        # Optimizer install Plan + Validation
+        while : ; do
+          prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full"
+          [[ "$MAS_APP_PLAN_OPTIMIZER" != "full" && "$MAS_APP_PLAN_OPTIMIZER" != "limited" ]] || break
+        done
+      fi
     fi
   fi
 
-  # Maximo Visual Inspection
-  if prompt_for_confirm "Install Visual Inspection"; then
-    channel_select_visualinspection || exit 1
+
+  if [[ "$SNO_MODE" != "true" ]]; then
+    # Maximo Visual Inspection
+    if prompt_for_confirm "Install Visual Inspection"; then
+     channel_select_visualinspection || exit 1
+    fi
   fi
 
-  # Applications only supported in online installs
-  if [[ -z "$AIRGAP_MODE" ]]; then
-    # Applications that require Manage
-    # TODO: these applications require Health component specifically,
-    # need to review this code when add-ons selection are in place
-    if [[ "$MAS_APP_CHANNEL_MANAGE" != '' ]]; then
-      # Predict
-      if prompt_for_confirm "Install Predict"; then
-        channel_select_predict || exit 1
-      fi
-      # Health & Predict Utilities
-      if prompt_for_confirm "Install Health & Predict - Utilities"; then
-        channel_select_hputilities || exit 1
+  if [[ "$SNO_MODE" != "true" ]]; then
+    # Applications only supported in online installs
+    if [[ -z "$AIRGAP_MODE" ]]; then
+      # Applications that require Manage
+      # TODO: these applications require Health component specifically,
+      # need to review this code when add-ons selection are in place
+      if [[ "$MAS_APP_CHANNEL_MANAGE" != '' ]]; then
+        # Predict
+        if prompt_for_confirm "Install Predict"; then
+          channel_select_predict || exit 1
+        fi
+        # Health & Predict Utilities
+        if prompt_for_confirm "Install Health & Predict - Utilities"; then
+          channel_select_hputilities || exit 1
+        fi
       fi
     fi
 
-    # Assist
-    if prompt_for_confirm "Install Assist"; then
-      channel_select_assist || exit 1
+    if [[ "$SNO_MODE" != "true" ]]; then
+      # Assist
+      if prompt_for_confirm "Install Assist"; then
+        channel_select_assist || exit 1
+      fi
     fi
 
     # Assist Dependencies
