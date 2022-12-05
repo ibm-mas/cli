@@ -1,7 +1,7 @@
-- name: suite-config-kafka
+- name: app-cfg-hputilities
   params:
     - name: devops_suite_name
-      value: cfg-suite-kafka
+      value: app-hputilities-cfg
     - name: devops_build_number
       value: $(params.devops_build_number)
     - name: devops_mongo_uri
@@ -9,12 +9,16 @@
 
     - name: mas_instance_id
       value: $(params.mas_instance_id)
+    - name: mas_app_id
+      value: hputilities
+    - name: mas_workspace_id
+      value: "$(params.mas_workspace_id)"
   taskRef:
+    name: mas-devops-suite-app-config
     kind: Task
-    name: mas-devops-suite-config
-  # Only load the KafkaCfg if IoT is being installed
+  # Only install HPUtilities if a channel has been chosen
   when:
-    - input: "$(params.mas_app_channel_iot)"
+    - input: "$(params.mas_app_channel_hputilities)"
       operator: notin
       values: [""]
   workspaces:
