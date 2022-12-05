@@ -91,6 +91,8 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#air-gap-support">Air Gap Support</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sno-support">SNO Support</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#must-gather">Must Gather</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#more-information">More Information</a>
@@ -201,6 +203,17 @@ mas install
 </div>
 <h2 id="air-gap-support">Air Gap Support<a class="headerlink" href="#air-gap-support" title="Permanent link"></a></h2>
 <p>If you have already ran <code>mas configure-airgap</code> to install the ImageContentSourcePolicy for IBM Maximo Application Suite then the installer will automatically detect the presence of this and tailor the installation configuration for a disconnected installation.</p>
+<p>A number of applications are not currently available when using a private mirror registry in this fashion, as a result you will not be asked whether you wish to install these applications:</p>
+<ul>
+<li>Maximo Assist</li>
+<li>Maximo Health &amp; Predict Utilities</li>
+<li>Maximo Monitor</li>
+<li>Maximo Predict</li>
+<li>Maximo Safety</li>
+<li>Maximo Visual Inspection</li>
+</ul>
+<h2 id="sno-support">SNO Support<a class="headerlink" href="#sno-support" title="Permanent link"></a></h2>
+<p>If you  already ran <code>mas install</code> to install the  IBM Maximo Application Suite then the installer will automatically detect the presence of SNO and tailor the installation configuration for a connected installation.</p>
 <p>A number of applications are not currently available when using a private mirror registry in this fashion, as a result you will not be asked whether you wish to install these applications:</p>
 <ul>
 <li>Maximo Assist</li>
