@@ -622,6 +622,17 @@ spec:
         - name: db2_cpu_limits
           value: $(params.db2_cpu_limits)
 
+        - name: db2_meta_storage_size
+          value: $(params.db2_meta_storage_size)
+        - name: db2_backup_storage_size
+          value: $(params.db2_backup_storage_size)
+        - name: db2_logs_storage_size
+          value: $(params.db2_logs_storage_size)
+        - name: db2_temp_storage_size
+          value: $(params.db2_temp_storage_size)
+        - name: db2_data_storage_size
+          value: $(params.db2_data_storage_size)
+
         - name: devops_suite_name
           value: dependencies-db2
         - name: devops_build_number
