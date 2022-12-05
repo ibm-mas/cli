@@ -44,4 +44,4 @@ function config_pipeline_sno() {
     echo_h2 "Info: SNO_MODE was not detected"
   fi
 }
- 
+
