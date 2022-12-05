@@ -225,3 +225,4 @@ function detect_sno() {
     unset SNO_MODE
   fi
 }
+
