@@ -125,7 +125,7 @@ function pipeline_config() {
   config_pipeline_sno
   config_pipeline_dns
   config_pipeline_applications
-  config_pipeline_storage_classes
+
   if [[ "$SNO_MODE" == "true" ]]; then
     config_pipeline_storage_classes_sno
   else
