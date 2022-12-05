@@ -1,0 +1,52 @@
+- name: suite-install
+  params:
+    - name: devops_suite_name
+      value: suite-install
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+
+    - name: artifactory_username
+      value: $(params.artifactory_username)
+    - name: artifactory_apikey
+      value: $(params.artifactory_apikey)
+
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_annotations
+      value: $(params.mas_annotations)
+    - name: mas_domain
+      value: $(params.mas_domain)
+    - name: mas_cluster_issuer
+      value: $(params.mas_cluster_issuer)
+
+    - name: mas_channel
+      value: $(params.mas_channel)
+    - name: mas_catalog_source
+      value: $(params.mas_catalog_source)
+    - name: mas_icr_cp
+      value: $(params.mas_icr_cp)
+    - name: mas_icr_cpopen
+      value: $(params.mas_icr_cpopen)
+    - name: mas_entitlement_username
+      value: $(params.mas_entitlement_username)
+    - name: ibm_entitlement_key
+      value: $(params.ibm_entitlement_key)
+    - name: mas_entitlement_key
+      value: $(params.mas_entitlement_key)
+  taskRef:
+    kind: Task
+    name: mas-devops-suite-install
+  runAfter:
+    - sbo
+    - sls
+    - uds
+    - gencfg-workspace
+    - suite-dns
+  workspaces:
+    # This is the stage at which we copy across any user-provided additional configs
+    - name: configs
+      workspace: shared-configs
+    - name: additional-configs
+      workspace: shared-additional-configs

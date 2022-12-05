@@ -49,15 +49,6 @@ spec:
       type: string
       description: Required to use development MAS builds
 
-    - name: artifactory_username
-      default: ''
-      type: string
-      description: Required to use development MAS builds
-    - name: artifactory_apikey
-      default: ''
-      type: string
-      description: Required to use development MAS builds
-
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
     - name: devops_mongo_uri

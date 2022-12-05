@@ -73,43 +73,10 @@ spec:
       default: ""
       description: Override IBM Entitlement key for SLS installation
 
-    # Dependencies - DB2
-    # DB2 access mode
-    - name: db2_meta_storage_accessmode
-      type: string
-      description: Optional configuration for db2 meta storage access mode
-      default: ""
-    - name: db2_backup_storage_accessmode
-      type: string
-      description: Optional configuration for db2 backup storage access mode
-      default: ""
-
-
-    # Other DB2 parameters
-    - name: db2_cpu_requests
-      type: string
-      description: Optional configuration for db2 cpu requests
-      default: ""
-    - name: db2_cpu_limits
-      type: string
-      description: Optional configuration for mongodb cpu limits
-      default: ""
-   
     # Dependencies - Mongo
     - name: mongodb_storage_class
       type: string
       default: ""
-
-    - name: mongodb_replicas
-      type: string
-      description: Optional configuration for mongodb replicas
-      default: ""
-    - name: mongodb_cpu_requests
-      type: string
-      description: Optional configuration for mongodb cpu requests
-      default: ""
-
-      
 
     # Dependencies - Kafka
     - name: kafka_namespace
@@ -281,16 +248,6 @@ spec:
       description: Workspace Name used when setting up the workspace
       default: MAS Development
 
-    - name: mas_app_settings_aio_flag
-      type: string
-      description: Flag indicating if Asset Investment Optimization (AIO) resource must be loaded or not. It can be loaded only when Optimizer application is installed.
-      default: ""
-    - name: mas_app_settings_demodata
-      type: string
-      description: Flag indicating if manage demodata should be loaded or not
-      default: ""
-
-
     # MAS Configuration - Manage Application
     - name: mas_appws_components
       type: string
@@ -408,877 +365,84 @@ spec:
   tasks:
     # 1. Setup the cluster-wide dependencies & configure cluster monitoring
     # -------------------------------------------------------------------------
-    - name: ibm-catalogs
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: setup-ibm-catalogs
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_catalog_version
-          value: $(params.mas_catalog_version)
-
-        - name: artifactory_username
-          value: $(params.artifactory_username)
-        - name: artifactory_apikey
-          value: $(params.artifactory_apikey)
-      taskRef:
-        kind: Task
-        name: mas-devops-ibm-catalogs
-
-    - name: common-services
-      taskRef:
-        kind: Task
-        name: mas-devops-common-services
-      params:
-        - name: common_services_catalog_source
-          value: $(params.common_services_catalog_source)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: setup-common-services
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-      runAfter:
-        - ibm-catalogs
-
-    - name: cert-manager
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: setup-cert-manager
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_channel
-          value: $(params.mas_channel)
-      taskRef:
-        kind: Task
-        name: mas-devops-cert-manager
-      runAfter:
-        - common-services
-
-    - name: sbo
-      taskRef:
-        kind: Task
-        name: mas-devops-sbo
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: setup-sbo
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_channel
-          value: $(params.mas_channel)
-
-    - name: cluster-monitoring
-      params:
-        - name: prometheus_storage_class
-          value: $(params.storage_class_rwo)
-        - name: prometheus_alertmgr_storage_class
-          value: $(params.storage_class_rwo)
-        - name: prometheus_userworkload_storage_class
-          value: $(params.storage_class_rwo)
-        - name: grafana_instance_storage_class
-          value: $(params.storage_class_rwo)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: setup-cluster-monitoring
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-      taskRef:
-        kind: Task
-        name: mas-devops-cluster-monitoring
-
+    {{ lookup('template', 'taskdefs/cluster-setup/ibm-catalogs.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/cluster-setup/common-services.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/cluster-setup/cert-manager.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/cluster-setup/sbo.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/cluster-setup/cluster-monitoring.yml.j2') | indent(4) }}
 
     # 2. Install MongoDb
     # -------------------------------------------------------------------------
-    - name: mongodb
-      params:
-        - name: mongodb_storage_class
-          value: $(params.storage_class_rwo)
-        - name: mongodb_replicas
-          value: $(params.mongodb_replicas)
-        - name: mongodb_cpu_requests
-          value: $(params.mongodb_cpu_requests)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: dependencies-mongodb
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-      taskRef:
-        kind: Task
-        name: mas-devops-mongodb
-      runAfter:
-        - cert-manager
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
+    {{ lookup('template', 'taskdefs/dependencies/mongo.yml.j2') | indent(4) }}
 
     # 3. Install AMQStreams (Kafka)
     # -------------------------------------------------------------------------
-    - name: kafka
-      params:
-        - name: kafka_namespace
-          value: "$(params.kafka_namespace)"
-        - name: kafka_cluster_name
-          value: "$(params.kafka_cluster_name)"
-        - name: kafka_cluster_size
-          value: "$(params.kafka_cluster_size)"
-        - name: kafka_user_name
-          value: "$(params.kafka_user_name)"
-        - name: kafka_storage_class
-          value: $(params.storage_class_rwo)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: dependencies-kafka
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-      # Only install Kafka if the IoT application is being installed
-      when:
-        - input: "$(params.mas_app_channel_iot)"
-          operator: notin
-          values: [""]
-      taskRef:
-        kind: Task
-        name: mas-devops-kafka
-      runAfter:
-        - cluster-monitoring
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
+    {{ lookup('template', 'taskdefs/dependencies/kafka.yml.j2') | indent(4) }}
 
     # 4. Install Db2
     # -------------------------------------------------------------------------
-    - name: db2
-      params:
-        - name: db2_meta_storage_class
-          value: $(params.storage_class_rwx)
-        - name: db2_data_storage_class
-          value: $(params.storage_class_rwo)
-        - name: db2_backup_storage_class
-          value: $(params.storage_class_rwx)
-        - name: db2_logs_storage_class
-          value: $(params.storage_class_rwo)
-        - name: db2_temp_storage_class
-          value: $(params.storage_class_rwo)
-
-        - name: db2_meta_storage_accessmode
-          value: $(params.db2_meta_storage_accessmode)
-        - name: db2_backup_storage_accessmode
-          value: $(params.db2_backup_storage_accessmode)
-        - name: db2_cpu_requests
-          value: $(params.db2_cpu_requests)
-        - name: db2_cpu_limits
-          value: $(params.db2_cpu_limits)
-
-        - name: devops_suite_name
-          value: dependencies-db2
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
-        - name: db2_instance_name
-          value: db2u-shared
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-      # Only install Db2 if IoT or Manage are being installed
-      when:
-        # See: https://github.com/tektoncd/pipeline/issues/3591#issuecomment-1073901961
-        - input: "$(params.mas_app_channel_iot)$(params.mas_app_channel_manage)"
-          operator: notin
-          values: [""]
-        # If there is no RWX storage class available then we can't deploy Db2.
-        # TODO: Test Db2 install using RWO storage only
-        - input: "$(params.storage_class_rwx)"
-          operator: notin
-          values: ["none"]
-      taskRef:
-        name: mas-devops-db2
-        kind: Task
-      runAfter:
-        - cert-manager
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
+    {{ lookup('template', 'taskdefs/dependencies/db2.yml.j2') | indent(4) }}
 
     # 5. Install IBM SLS
     # -------------------------------------------------------------------------
-    - name: sls
-      params:
-        - name: devops_suite_name
-          value: dependencies-sls
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: artifactory_username
-          value: $(params.artifactory_username)
-        - name: artifactory_apikey
-          value: $(params.artifactory_apikey)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: sls_mongodb_cfg_file
-          value: $(params.sls_mongodb_cfg_file)
-        - name: sls_catalog_source
-          value: $(params.sls_catalog_source)
-        - name: sls_channel
-          value: $(params.sls_channel)
-        - name: sls_license_id
-          value: $(params.sls_license_id)
-        - name: sls_license_file
-          value: $(params.sls_license_file)
-        - name: sls_icr_cp
-          value: $(params.sls_icr_cp)
-        - name: sls_icr_cpopen
-          value: $(params.sls_icr_cpopen)
-        - name: sls_entitlement_username
-          value: $(params.sls_entitlement_username)
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
-        - name: sls_entitlement_key
-          value: $(params.sls_entitlement_key)
-      taskRef:
-        kind: Task
-        name: mas-devops-sls
-      runAfter:
-        - mongodb
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-        - name: entitlement
-          workspace: shared-entitlement
-
+    {{ lookup('template', 'taskdefs/dependencies/sls.yml.j2') | indent(4) }}
 
     # 6. Install UDS
     # -------------------------------------------------------------------------
-    - name: uds
-      params:
-        - name: uds_contact_email
-          value: "$(params.uds_contact_email)"
-        - name: uds_contact_firstname
-          value: "$(params.uds_contact_firstname)"
-        - name: uds_contact_lastname
-          value: "$(params.uds_contact_lastname)"
-        - name: uds_event_scheduler_frequency
-          value: "$(params.uds_event_scheduler_frequency)"
-        - name: uds_storage_class
-          value: $(params.storage_class_rwo)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_segment_key
-          value: $(params.mas_segment_key)
-
-        - name: devops_suite_name
-          value: dependencies-uds
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-      taskRef:
-        kind: Task
-        name: mas-devops-uds
-      runAfter:
-        - common-services
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
+    {{ lookup('template', 'taskdefs/dependencies/uds.yml.j2') | indent(4) }}
 
     # 7. Configure Workspace
     # -------------------------------------------------------------------------
-    - name: gencfg-workspace
-      params:
-        - name: devops_suite_name
-          value: gencfg-workspace
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: mas_workspace_name
-          value: $(params.mas_workspace_name)
-      taskRef:
-        kind: Task
-        name: mas-devops-gencfg-workspace
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
+    {{ lookup('template', 'taskdefs/core/gencfg-workspace.yml.j2') | indent(4) }}
 
     # 8. Install & configure IBM MAS
     # -------------------------------------------------------------------------
     # 8.1 DNS Setup
-    - name: suite-dns
-      params:
-        - name: devops_suite_name
-          value: suite-dns
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_domain
-          value: $(params.mas_domain)
-
-        - name: dns_provider
-          value: $(params.dns_provider)
-
-        - name: cloudflare_email
-          value: $(params.cloudflare_email)
-        - name: cloudflare_apitoken
-          value: $(params.cloudflare_apitoken)
-        - name: cloudflare_zone
-          value: $(params.cloudflare_zone)
-        - name: cloudflare_subdomain
-          value: $(params.cloudflare_subdomain)
-
-        - name: cis_email
-          value: $(params.cis_email)
-        - name: cis_apikey
-          value: $(params.cis_apikey)
-        - name: cis_crn
-          value: $(params.cis_crn)
-        - name: cis_subdomain
-          value: $(params.cis_subdomain)
-
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-dns
-      runAfter:
-        - cert-manager
-
+    {{ lookup('template', 'taskdefs/core/suite-dns.yml.j2') | indent(4) }}
     # 8.2 Suite Installation
-    - name: suite-install
-      params:
-        - name: devops_suite_name
-          value: suite-install
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: artifactory_username
-          value: $(params.artifactory_username)
-        - name: artifactory_apikey
-          value: $(params.artifactory_apikey)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_annotations
-          value: $(params.mas_annotations)
-        - name: mas_domain
-          value: $(params.mas_domain)
-        - name: mas_cluster_issuer
-          value: $(params.mas_cluster_issuer)
-
-        - name: mas_channel
-          value: $(params.mas_channel)
-        - name: mas_catalog_source
-          value: $(params.mas_catalog_source)
-        - name: mas_icr_cp
-          value: $(params.mas_icr_cp)
-        - name: mas_icr_cpopen
-          value: $(params.mas_icr_cpopen)
-        - name: mas_entitlement_username
-          value: $(params.mas_entitlement_username)
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
-        - name: mas_entitlement_key
-          value: $(params.mas_entitlement_key)
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-install
-      runAfter:
-        - sbo
-        - sls
-        - uds
-        - gencfg-workspace
-        - suite-dns
-      workspaces:
-        # This is the stage at which we copy across any user-provided additional configs
-        - name: configs
-          workspace: shared-configs
-        - name: additional-configs
-          workspace: shared-additional-configs
-
+    {{ lookup('template', 'taskdefs/core/suite-install.yml.j2') | indent(4) }}
     # 8.3 Suite Configuration
-    - name: suite-config
-      params:
-        - name: devops_suite_name
-          value: suite-config
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-config
-      runAfter:
-        - suite-install
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
+    {{ lookup('template', 'taskdefs/core/suite-config.yml.j2') | indent(4) }}
     # 8.4 Suite Verification
-    - name: suite-verify
-      params:
-        - name: devops_suite_name
-          value: suite-verify
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-verify
-      runAfter:
-        - suite-config
-
+    {{ lookup('template', 'taskdefs/core/suite-verify.yml.j2') | indent(4) }}
     # 8.5 Configure Db2 in MAS
-    - name: suite-config-db2
-      params:
-        - name: devops_suite_name
-          value: suite-config-db2
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-config
-      # Only load the JDBCCfg if IoT or Manage are being installed
-      # See: https://github.com/tektoncd/pipeline/issues/3591#issuecomment-1073901961
-      when:
-        - input: "$(params.mas_app_channel_iot)$(params.mas_app_channel_manage)"
-          operator: notin
-          values: [""]
-      runAfter:
-        - suite-verify
-        - db2
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
+    {{ lookup('template', 'taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
     # 8.6 Configure Kafka in MAS
-    - name: suite-config-kafka
-      params:
-        - name: devops_suite_name
-          value: cfg-suite-kafka
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-config
-      # Only load the KafkaCfg if IoT is being installed
-      when:
-        - input: "$(params.mas_app_channel_iot)"
-          operator: notin
-          values: [""]
-      runAfter:
-        - suite-verify
-        - kafka
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
+    {{ lookup('template', 'taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
 
     # 9. Cloud Pak for Data
     # -------------------------------------------------------------------------
     # 9.1 Cloud Pak for Data Platform
-    - name: cp4d
-      params:
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: setup-cp4d
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-      taskRef:
-        kind: Task
-        name: mas-devops-cp4d
-      runAfter:
-        - common-services
-      # Only needed if either Predict, HPUtilities or Assist are being installed
-      when:
-        - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-platform.yml.j2') | indent(4) }}
     # 9.2 Watson Studio
-    - name: watson-studio
-      params:
-        - name: devops_suite_name
-          value: setup-cp4d-wsl
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: cpd_product_version
-          value: "$(params.cpd_product_version)"
-        - name: cpd_service_name
-          value: wsl
-        - name: cpd_service_storage_class
-          value: "$(params.cpd_wsl_storage_class)"
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-cp4d-service
-      runAfter:
-        - cp4d
-      # Only needed if either Predict or HPUtilities are being installed
-      when:
-        - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-wsl.yml.j2') | indent(4) }}
     # 9.3 Watson Machine Learning
-    - name: watson-machine-learning
-      params:
-        - name: devops_suite_name
-          value: setup-cp4d-wml
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: cpd_product_version
-          value: "$(params.cpd_product_version)"
-        - name: cpd_service_name
-          value: wml
-        - name: cpd_service_storage_class
-          value: "$(params.cpd_wml_storage_class)"
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-cp4d-service
-      runAfter:
-        - cp4d
-      # Only needed if Predict is being installed
-      when:
-        - input: "$(params.mas_app_channel_predict)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-wml.yml.j2') | indent(4) }}
     # 9.4 Analytics Service (Spark)
-    - name: analytics-service
-      params:
-        - name: devops_suite_name
-          value: setup-cp4d-spark
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: cpd_product_version
-          value: "$(params.cpd_product_version)"
-        - name: cpd_service_name
-          value: spark
-        - name: cpd_service_storage_class
-          value: "$(params.cpd_spark_storage_class)"
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-cp4d-service
-      runAfter:
-        - cp4d
-      # Only needed if Predict is being installed
-      when:
-        - input: "$(params.mas_app_channel_predict)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-spark.yml.j2') | indent(4) }}
     # 9.5 Watson Discovery
-    - name: discovery
-      params:
-        - name: devops_suite_name
-          value: setup-cp4d-discovery
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: cpd_product_version
-          value: "$(params.cpd_product_version)"
-        - name: cpd_service_name
-          value: wd
-        - name: cpd_service_storage_class
-          value: "$(params.cpd_wd_storage_class)"
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-cp4d-service
-      runAfter:
-        - cp4d
-      # Only needed if Assist is being installed
-      when:
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-discovery.yml.j2') | indent(4) }}
 
     # 10. Additional Post-CP4D Install MAS Configuration
     # -------------------------------------------------------------------------
     # 10.6 Configure Watson Studio in MAS
-    - name: suite-config-watson-studio
-      params:
-        - name: devops_suite_name
-          value: cfg-suite-watson-studio
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-config
-      # Only needed if either Predict or HPUtilities are being installed
-      when:
-        - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)"
-          operator: notin
-          values: [""]
-      runAfter:
-        - suite-verify
-        - watson-studio
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
+    {{ lookup('template', 'taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
     # 10.7 Configure Watson Discovery in MAS
-    - name: suite-config-discovery
-      params:
-        - name: devops_suite_name
-          value: cfg-suite-discovery
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-config
-      # Only needed if Assist is being installed
-      when:
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-      runAfter:
-        - app-install-assist
-        - discovery
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
+    {{ lookup('template', 'taskdefs/core/suite-config-discovery.yml.j2') | indent(4) }}
 
     # 11. Cloud Object Storage (COS)
     # -------------------------------------------------------------------------
     # 11.1 Install COS
-    - name: cos
-      params:
-        - name: devops_suite_name
-          value: dependencies-cos
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-
-        - name: cos_type
-          value: $(params.cos_type)
-        - name: ibmcloud_apikey
-          value: $(params.ibmcloud_apikey)
-      taskRef:
-        kind: Task
-        name: mas-devops-cos
-      # Only needed if Assist is being installed
-      when:
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
+    {{ lookup('template', 'taskdefs/dependencies/cos.yml.j2') | indent(4) }}
     # 11.2 Configure COS in MAS
-    - name: suite-config-cos
-      params:
-        - name: devops_suite_name
-          value: cfg-suite-cos
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-config
-      # Only load COS if Assist is being installed
-      when:
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-      runAfter:
-        - suite-verify
-        - cos
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
+    {{ lookup('template', 'taskdefs/core/suite-config-cos.yml.j2') | indent(4) }}
 
     # 12. AppConnect
     # -------------------------------------------------------------------------
     # 12.1 Install AppConnect
-    - name: appconnect
-      params:
-        - name: devops_suite_name
-          value: dependencies-appconnect
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-
-        - name: appconnect_entitlement_username
-          value: $(params.appconnect_entitlement_username)
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
-        - name: appconnect_entitlement_key
-          value: $(params.appconnect_entitlement_key)
-      taskRef:
-        kind: Task
-        name: mas-devops-appconnect
-      # Only needed if HPUtilities is being installed
-      when:
-        - input: "$(params.mas_app_channel_hputilities)"
-          operator: notin
-          values: [""]
-      runAfter:
-        - ibm-catalogs
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
+    {{ lookup('template', 'taskdefs/dependencies/appconnect.yml.j2') | indent(4) }}
     # 12.2 Configure AppConnect in MAS
-    - name: suite-config-appconnect
-      params:
-        - name: devops_suite_name
-          value: cfg-suite-appconnect
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-config
-      # Only load AppConnect if HPUtilities is being installed
-      when:
-        - input: "$(params.mas_app_channel_hputilities)"
-          operator: notin
-          values: [""]
-      runAfter:
-        - suite-verify
-        - appconnect
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
+    {{ lookup('template', 'taskdefs/core/suite-config-appconnect.yml.j2') | indent(4) }}
 
     # You can see what I've started to do ..
     # TODO: Finish breaking this up!
@@ -1631,12 +795,6 @@ spec:
           value: "$(params.mas_workspace_id)"
         - name: mas_appws_components
           value: "$(params.mas_appws_components)"
-
-        - name: mas_app_settings_aio_flag
-          value: $(params.mas_app_settings_aio_flag)
-        - name: mas_app_settings_demodata
-          value: $(params.mas_app_settings_demodata)
-
       taskRef:
         name: mas-devops-suite-app-config
         kind: Task

@@ -1,0 +1,6 @@
+- hosts: localhost
+  any_errors_fatal: true
+  tasks:
+    - ansible.builtin.template:
+        src: install.yaml.j2
+        dest: install.yaml
