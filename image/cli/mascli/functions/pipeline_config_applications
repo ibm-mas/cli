@@ -3,78 +3,54 @@
 
 function channel_select_iot() {
   case $MAS_CHANNEL in
+    8.9.x)
+      MAS_APP_CHANNEL_IOT=8.6.x
+      ;;
     8.8.x)
-    MAS_APP_CHANNEL_IOT=8.5.x
-    ;;
-    8.6.x|8.7.x)
-    MAS_APP_CHANNEL_IOT=8.4.x
-    ;;
+      MAS_APP_CHANNEL_IOT=8.5.x
+      ;;
+    8.7.x)
+      MAS_APP_CHANNEL_IOT=8.4.x
+      ;;
     *)
-    prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_IOT
-    ;;
+      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_IOT
+      ;;
   esac
   true
 }
 
 function channel_select_monitor() {
-  if [[ -z "$AIRGAP_MODE" ]]; then
-    case $MAS_CHANNEL in
-      8.8.x)
+  case $MAS_CHANNEL in
+    8.9.x)
+      MAS_APP_CHANNEL_MONITOR=8.9.x
+      ;;
+    8.8.x)
       MAS_APP_CHANNEL_MONITOR=8.8.x
       ;;
-      8.7.x)
+    8.7.x)
       MAS_APP_CHANNEL_MONITOR=8.7.x
       ;;
-      8.6.x)
-      MAS_APP_CHANNEL_MONITOR=8.6.x
+    *)
+      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MONITOR
       ;;
-      *)
-        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MONITOR
-        ;;
-    esac
-  else
-    MAS_APP_CHANNEL_MONITOR=8.8.x
-    echo_warning "Sorry, air gap install of this application is not supported yet"
-    exit 1
-  fi
-  true
-}
-
-function channel_select_safety() {
-  if [[ -z "$AIRGAP_MODE" ]]; then
-    case $MAS_CHANNEL in
-      8.8.x)
-      MAS_APP_CHANNEL_SAFETY=8.3.x
-      ;;
-      8.6.x|8.7.x)
-      MAS_APP_CHANNEL_SAFETY=8.2.x
-      ;;
-      *)
-      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_SAFETY
-      ;;
-    esac
-  else
-    MAS_APP_CHANNEL_SAFETY=8.3.x
-    echo_warning "Sorry, air gap install of this application is not supported yet"
-    exit 1
-  fi
+  esac
   true
 }
 
 function channel_select_manage() {
   case $MAS_CHANNEL in
+    8.9.x)
+      MAS_APP_CHANNEL_MANAGE=8.5.x
+      ;;
     8.8.x)
-    MAS_APP_CHANNEL_MANAGE=8.4.x
-    ;;
+      MAS_APP_CHANNEL_MANAGE=8.4.x
+      ;;
     8.7.x)
-    MAS_APP_CHANNEL_MANAGE=8.3.x
-    ;;
-    8.6.x)
-    MAS_APP_CHANNEL_MANAGE=8.2.x
-    ;;
+      MAS_APP_CHANNEL_MANAGE=8.3.x
+      ;;
     *)
-    prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MANAGE
-    ;;
+      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_MANAGE
+      ;;
   esac
   true
 }
@@ -82,21 +58,21 @@ function channel_select_manage() {
 function channel_select_predict() {
   if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
+      8.9.x)
+        MAS_APP_CHANNEL_PREDICT=8.7.x
+        ;;
       8.8.x)
-      MAS_APP_CHANNEL_PREDICT=8.6.x
-      ;;
+        MAS_APP_CHANNEL_PREDICT=8.6.x
+        ;;
       8.7.x)
-      MAS_APP_CHANNEL_PREDICT=8.5.x
-      ;;
-      8.6.x)
-      MAS_APP_CHANNEL_PREDICT=8.4.x
-      ;;
+        MAS_APP_CHANNEL_PREDICT=8.5.x
+        ;;
       *)
-      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_PREDICT
-      ;;
+        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_PREDICT
+        ;;
     esac
   else
-    MAS_APP_CHANNEL_PREDICT=8.6.x
+    MAS_APP_CHANNEL_PREDICT=""
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi
@@ -106,21 +82,21 @@ function channel_select_predict() {
 function channel_select_hputilities() {
   if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
+      8.9.x)
+        MAS_APP_CHANNEL_HPUTILITIES=8.5.x
+        ;;
       8.8.x)
-      MAS_APP_CHANNEL_HPUTILITIES=8.4.x
-      ;;
+        MAS_APP_CHANNEL_HPUTILITIES=8.4.x
+        ;;
       8.7.x)
-      MAS_APP_CHANNEL_HPUTILITIES=8.3.x
-      ;;
-      8.6.x)
-      MAS_APP_CHANNEL_HPUTILITIES=8.2.x
-      ;;
+        MAS_APP_CHANNEL_HPUTILITIES=8.3.x
+        ;;
       *)
-      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_HPUTILITIES
-      ;;
+        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_HPUTILITIES
+        ;;
     esac
   else
-    MAS_APP_CHANNEL_HPUTILITIES=8.4.x
+    MAS_APP_CHANNEL_HPUTILITIES=""
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi
@@ -129,12 +105,15 @@ function channel_select_hputilities() {
 
 function channel_select_optimizer() {
   case $MAS_CHANNEL in
+    8.9.x)
+      MAS_APP_CHANNEL_OPTIMIZER=8.3.x
+      ;;
     8.8.x)
-    MAS_APP_CHANNEL_OPTIMIZER=8.2.x
-    ;;
+      MAS_APP_CHANNEL_OPTIMIZER=8.2.x
+      ;;
     *)
-    prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_OPTIMIZER
-    ;;
+      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_OPTIMIZER
+      ;;
   esac
   true
 }
@@ -142,21 +121,21 @@ function channel_select_optimizer() {
 function channel_select_assist() {
   if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
+      8.9.x)
+        MAS_APP_CHANNEL_ASSIST=8.6.x
+        ;;
       8.8.x)
-      MAS_APP_CHANNEL_ASSIST=8.5.x
-      ;;
+        MAS_APP_CHANNEL_ASSIST=8.5.x
+        ;;
       8.7.x)
-      MAS_APP_CHANNEL_ASSIST=8.4.x
-      ;;
-      8.6.x)
-      MAS_APP_CHANNEL_ASSIST=8.3.x
-      ;;
+        MAS_APP_CHANNEL_ASSIST=8.4.x
+        ;;
       *)
-      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_ASSIST
-      ;;
+        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_ASSIST
+        ;;
     esac
   else
-    MAS_APP_CHANNEL_ASSIST=8.5.x
+    MAS_APP_CHANNEL_ASSIST=""
     echo_warning "Sorry, air gap install of this application is not supported yet"
     exit 1
   fi
@@ -165,18 +144,18 @@ function channel_select_assist() {
 
 function channel_select_visualinspection() {
   case $MAS_CHANNEL in
+    8.9.x)
+      MAS_APP_CHANNEL_VISUALINSPECTION=8.7.x
+      ;;
     8.8.x)
-    MAS_APP_CHANNEL_VISUALINSPECTION=8.6.x
-    ;;
+      MAS_APP_CHANNEL_VISUALINSPECTION=8.6.x
+      ;;
     8.7.x)
-    MAS_APP_CHANNEL_VISUALINSPECTION=8.5.x
-    ;;
-    8.6.x)
-    MAS_APP_CHANNEL_VISUALINSPECTION=8.4.x
-    ;;
+      MAS_APP_CHANNEL_VISUALINSPECTION=8.5.x
+      ;;
     *)
-    prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_VISUALINSPECTION
-    ;;
+      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_VISUALINSPECTION
+      ;;
   esac
   true
 }
@@ -188,7 +167,6 @@ function config_pipeline_applications() {
   # Default all applications to "do not deploy"
   MAS_APP_SOURCE_IOT='ibm-operator-catalog';              MAS_APP_CHANNEL_IOT=''
   MAS_APP_SOURCE_MONITOR='ibm-operator-catalog';          MAS_APP_CHANNEL_MONITOR=''
-  MAS_APP_SOURCE_SAFETY='ibm-operator-catalog';           MAS_APP_CHANNEL_SAFETY=''
   MAS_APP_SOURCE_MANAGE='ibm-operator-catalog';           MAS_APP_CHANNEL_MANAGE=''
   MAS_APP_SOURCE_PREDICT='ibm-operator-catalog';          MAS_APP_CHANNEL_PREDICT=''
   MAS_APP_SOURCE_ASSIST='ibm-operator-catalog';           MAS_APP_CHANNEL_ASSIST=''
@@ -209,10 +187,6 @@ function config_pipeline_applications() {
       if prompt_for_confirm "Install Monitor"; then
         channel_select_monitor || exit 1
       fi
-      # Safety
-      if prompt_for_confirm "Install Safety"; then
-        channel_select_safety || exit 1
-      fi
     fi
   fi
 
@@ -222,7 +196,7 @@ function config_pipeline_applications() {
   fi
 
   # Optimizer can only be installed from 8.8 on
-  if [[ "$MAS_CHANNEL" != "8.6.x"  && "$MAS_CHANNEL" != "8.7.x" ]]; then
+  if [[ "$MAS_CHANNEL" != "8.7.x" ]]; then
     if prompt_for_confirm "Install Optimizer"; then
       channel_select_optimizer || exit 1
       # Optimizer install Plan + Validation
@@ -241,7 +215,7 @@ function config_pipeline_applications() {
   # Applications only supported in online installs
   if [[ -z "$AIRGAP_MODE" ]]; then
     # Applications that require Manage
-    # TODO: these applications require Health actuallt,
+    # TODO: these applications require Health component specifically,
     # need to review this code when add-ons selection are in place
     if [[ "$MAS_APP_CHANNEL_MANAGE" != '' ]]; then
       # Predict
@@ -271,25 +245,21 @@ function config_pipeline_applications() {
 
     if [[ "$MAS_APP_CHANNEL_PREDICT" != "" || "$MAS_APP_CHANNEL_HPUTILITIES" != "" || "$MAS_APP_CHANNEL_ASSIST" != "" ]]; then
       case $MAS_CHANNEL in
+        8.9.x)
+          CP4D_VERSION=4.5.0
+          ;;
         8.8.x)
-          # Predict 8.6  was tested on 4.0.9
-          # Breaking changes introduced in CP4D v4.5.0 prevent use of a newer version of CP4D
           CP4D_VERSION=4.0.9
           ;;
         8.7.x)
-          # Predict 8.5  was tested on 4.0.6 and 4.0.7
+          # Predict 8.5 was tested on 4.0.6 and 4.0.7
           # Breaking changes introduced in CP4D v4.0.8 prevent use of a newer version of CP4D
           CP4D_VERSION=4.0.7
-          ;;
-        8.6.x)
-          # Predict 8.4 was tested on 4.0.3
-          # Breaking changes introduced in CP4D v4.0.4 prevent use of a newer version of CP4D
-          CP4D_VERSION=4.0.3
           ;;
         *)
           echo
           echo "One or more selected applications require Cloud Pak for Data"
-          prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.0.9"
+          prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.5.0"
           ;;
       esac
     fi

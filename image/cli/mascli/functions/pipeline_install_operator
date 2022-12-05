@@ -22,10 +22,12 @@ function pipeline_install_operator() {
   # Install pipelines support
   echo
   echo_h2 "2. Install OpenShift Pipelines Operator"
-  oc apply -f $DIR/templates/subscription.yaml &>> $LOGFILE
+  PIPELINES_CHANNEL=$(oc get packagemanifests openshift-pipelines-operator-rh -o jsonpath="{.status.defaultChannel}")
+
+  sed -e "s/{{pipelines_channel}}/$PIPELINES_CHANNEL/g" $DIR/templates/subscription.yaml | oc apply -f - &>> $LOGFILE
 
   echo -en "\033[s" # Save cursor position
-  echo -n "Installing OpenShift Pipelines Operator ..."
+  echo -n "Installing OpenShift Pipelines Operator ($PIPELINES_CHANNEL) ..."
 
   oc get crd tasks.tekton.dev &>> $LOGFILE
   LOOKUP_RESULT=$?

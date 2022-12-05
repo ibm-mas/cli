@@ -1,0 +1,16 @@
+- name: suite-verify
+  params:
+    - name: devops_suite_name
+      value: suite-verify
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+  taskRef:
+    kind: Task
+    name: mas-devops-suite-verify
+  runAfter:
+    - suite-config
