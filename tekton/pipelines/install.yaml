@@ -406,8 +406,27 @@ spec:
       default: ""
 
   tasks:
-    # 1. Setup the cluster-wide dependencies & configure cluster monitoring
+    # Content
+    # -------
+    # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
+    # 2. Install Universal Dependencies
+    # 3. Cloud Pak for Data
+    # 4. Other Dependecies
+    # 5. Install & Configure IBM MAS
+    # 6. Install & Configure IoT
+    # 7. Install & Configure Monitor
+    # 8. Install & Configure Safety
+    # 9. Install & Configure Manage
+    # 10. Install & Configure Predict
+    # 11. Install & Configure Optimizer
+    # 12. Install & Configure Health & Predict Utilities
+    # 13. Install & Configure Assist
+    # 14. Install & Configure Visual Inspection
+
+
+    # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
     # -------------------------------------------------------------------------
+    # 1.1 IBM Operator Catalog
     - name: ibm-catalogs
       params:
         - name: mas_instance_id
@@ -430,6 +449,7 @@ spec:
         kind: Task
         name: mas-devops-ibm-catalogs
 
+    # 1.2 IBM Cloud Pak Foundational Services
     - name: common-services
       taskRef:
         kind: Task
@@ -449,6 +469,7 @@ spec:
       runAfter:
         - ibm-catalogs
 
+    # 1.3 IBM Certificate Manager
     - name: cert-manager
       params:
         - name: mas_instance_id
@@ -468,6 +489,7 @@ spec:
       runAfter:
         - common-services
 
+    # 1.4 Red Hat Service Binding Operator
     - name: sbo
       taskRef:
         kind: Task
@@ -485,6 +507,7 @@ spec:
         - name: mas_channel
           value: $(params.mas_channel)
 
+    # 1.5 Configure Cluster Monitoring
     - name: cluster-monitoring
       params:
         - name: prometheus_storage_class
@@ -509,8 +532,9 @@ spec:
         name: mas-devops-cluster-monitoring
 
 
-    # 2. Install MongoDb
+    # 2. Install Universal Dependencies
     # -------------------------------------------------------------------------
+    # 2.1 MongoDb
     - name: mongodb
       params:
         - name: mongodb_storage_class
@@ -531,15 +555,13 @@ spec:
       taskRef:
         kind: Task
         name: mas-devops-mongodb
-      runAfter:
-        - cert-manager
       workspaces:
         - name: configs
           workspace: shared-configs
+      runAfter:
+        - cert-manager
 
-
-    # 3. Install AMQStreams (Kafka)
-    # -------------------------------------------------------------------------
+    # 2.2 AMQStreams (Kafka)
     - name: kafka
       params:
         - name: kafka_namespace
@@ -569,15 +591,13 @@ spec:
       taskRef:
         kind: Task
         name: mas-devops-kafka
-      runAfter:
-        - cluster-monitoring
       workspaces:
         - name: configs
           workspace: shared-configs
+      runAfter:
+        - cluster-monitoring
 
-
-    # 4. Install Db2
-    # -------------------------------------------------------------------------
+    # 2.3 Db2
     - name: db2
       params:
         - name: db2_meta_storage_class
@@ -627,15 +647,13 @@ spec:
       taskRef:
         name: mas-devops-db2
         kind: Task
-      runAfter:
-        - cert-manager
       workspaces:
         - name: configs
           workspace: shared-configs
+      runAfter:
+        - cert-manager
 
-
-    # 5. Install IBM SLS
-    # -------------------------------------------------------------------------
+    # 2.4 IBM SLS
     - name: sls
       params:
         - name: devops_suite_name
@@ -674,17 +692,15 @@ spec:
       taskRef:
         kind: Task
         name: mas-devops-sls
-      runAfter:
-        - mongodb
       workspaces:
         - name: configs
           workspace: shared-configs
         - name: entitlement
           workspace: shared-entitlement
+      runAfter:
+        - mongodb
 
-
-    # 6. Install UDS
-    # -------------------------------------------------------------------------
+    # 2.5 UDS
     - name: uds
       params:
         - name: uds_contact_email
@@ -712,15 +728,361 @@ spec:
       taskRef:
         kind: Task
         name: mas-devops-uds
+      workspaces:
+        - name: configs
+          workspace: shared-configs
       runAfter:
         - common-services
+
+
+    # 3. Cloud Pak for Data
+    # -------------------------------------------------------------------------
+    # 3.1 Cloud Pak for Data Platform
+    - name: cp4d
+      params:
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: devops_suite_name
+          value: setup-cp4d
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+      taskRef:
+        kind: Task
+        name: mas-devops-cp4d
+      # Only needed if either Predict, HPUtilities or Assist are being installed
+      when:
+        - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)$(params.mas_app_channel_assist)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - common-services
+
+    # 3.2 Watson Studio
+    - name: watson-studio
+      params:
+        - name: devops_suite_name
+          value: setup-cp4d-wsl
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: cpd_product_version
+          value: "$(params.cpd_product_version)"
+        - name: cpd_service_name
+          value: wsl
+        - name: cpd_service_storage_class
+          value: "$(params.cpd_wsl_storage_class)"
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-cp4d-service
+      # Only needed if either Predict or HPUtilities are being installed
+      when:
+        - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - cp4d
+
+    # 3.3 Watson Machine Learning
+    - name: watson-machine-learning
+      params:
+        - name: devops_suite_name
+          value: setup-cp4d-wml
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: cpd_product_version
+          value: "$(params.cpd_product_version)"
+        - name: cpd_service_name
+          value: wml
+        - name: cpd_service_storage_class
+          value: "$(params.cpd_wml_storage_class)"
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-cp4d-service
+      # Only needed if Predict is being installed
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - cp4d
+
+    # 3.4 Analytics Service (Spark)
+    - name: analytics-service
+      params:
+        - name: devops_suite_name
+          value: setup-cp4d-spark
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: cpd_product_version
+          value: "$(params.cpd_product_version)"
+        - name: cpd_service_name
+          value: spark
+        - name: cpd_service_storage_class
+          value: "$(params.cpd_spark_storage_class)"
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-cp4d-service
+      # Only needed if Predict is being installed
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - cp4d
+
+    # 3.5 Watson Discovery
+    - name: discovery
+      params:
+        - name: devops_suite_name
+          value: setup-cp4d-discovery
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: cpd_product_version
+          value: "$(params.cpd_product_version)"
+        - name: cpd_service_name
+          value: wd
+        - name: cpd_service_storage_class
+          value: "$(params.cpd_wd_storage_class)"
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-cp4d-service
+      # Only needed if Assist is being installed
+      when:
+        - input: "$(params.mas_app_channel_assist)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - cp4d
+
+    # 3.6 Configure Watson Studio in MAS
+    - name: suite-config-watson-studio
+      params:
+        - name: devops_suite_name
+          value: cfg-suite-watson-studio
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-config
+      # Only needed if either Predict or HPUtilities are being installed
+      when:
+        - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - suite-verify
+        - watson-studio
+
+
+    # 4. Other Dependecies
+    # -------------------------------------------------------------------------
+    # 4.1 Install Cloud Object Storage (COS)
+    - name: cos
+      params:
+        - name: devops_suite_name
+          value: dependencies-cos
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cos_type
+          value: $(params.cos_type)
+        - name: ibmcloud_apikey
+          value: $(params.ibmcloud_apikey)
+      taskRef:
+        kind: Task
+        name: mas-devops-cos
+      # Only needed if Assist is being installed
+      when:
+        - input: "$(params.mas_app_channel_assist)"
+          operator: notin
+          values: [""]
       workspaces:
         - name: configs
           workspace: shared-configs
 
+    # 4.2 Configure COS in MAS
+    - name: suite-config-cos
+      params:
+        - name: devops_suite_name
+          value: cfg-suite-cos
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
 
-    # 7. Configure Workspace
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-config
+      # Only load COS if Assist is being installed
+      when:
+        - input: "$(params.mas_app_channel_assist)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - suite-verify
+        - cos
+
+    # 4.1 Install AppConnect
+    - name: appconnect
+      params:
+        - name: devops_suite_name
+          value: dependencies-appconnect
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: appconnect_entitlement_username
+          value: $(params.appconnect_entitlement_username)
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
+        - name: appconnect_entitlement_key
+          value: $(params.appconnect_entitlement_key)
+      taskRef:
+        kind: Task
+        name: mas-devops-appconnect
+      # Only needed if HPUtilities is being installed
+      when:
+        - input: "$(params.mas_app_channel_hputilities)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - ibm-catalogs
+
+    # 4.2 Configure AppConnect in MAS
+    - name: suite-config-appconnect
+      params:
+        - name: devops_suite_name
+          value: cfg-suite-appconnect
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-config
+      # Only load AppConnect if HPUtilities is being installed
+      when:
+        - input: "$(params.mas_app_channel_hputilities)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - suite-verify
+        - appconnect
+
+    # 4.3 Nvidia GPU Operator
+    - name: nvidia-gpu
+      params:
+        - name: devops_suite_name
+          value: dependencies-nvidia-gpu
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: gpu_namespace
+          value: $(params.gpu_namespace)
+        - name: gpu_channel
+          value: $(params.gpu_channel)
+        - name: nfd_namespace
+          value: $(params.nfd_namespace)
+        - name: nfd_channel
+          value: $(params.nfd_channel)
+      taskRef:
+        kind: Task
+        name: mas-devops-nvidia-gpu
+      # Only needed if Visual Inspection is being installed
+      when:
+        - input: "$(params.mas_app_channel_visualinspection)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - ibm-catalogs
+
+
+    # 5. Install & Configure IBM MAS
     # -------------------------------------------------------------------------
+    # 5.1 Configure Workspace
     - name: gencfg-workspace
       params:
         - name: devops_suite_name
@@ -743,10 +1105,7 @@ spec:
         - name: configs
           workspace: shared-configs
 
-
-    # 8. Install & configure IBM MAS
-    # -------------------------------------------------------------------------
-    # 8.1 DNS Setup
+    # 5.2 DNS Setup
     - name: suite-dns
       params:
         - name: devops_suite_name
@@ -788,7 +1147,7 @@ spec:
       runAfter:
         - cert-manager
 
-    # 8.2 Suite Installation
+    # 5.3 Suite Installation
     - name: suite-install
       params:
         - name: devops_suite_name
@@ -829,20 +1188,20 @@ spec:
       taskRef:
         kind: Task
         name: mas-devops-suite-install
-      runAfter:
-        - sbo
-        - sls
-        - uds
-        - gencfg-workspace
-        - suite-dns
       workspaces:
         # This is the stage at which we copy across any user-provided additional configs
         - name: configs
           workspace: shared-configs
         - name: additional-configs
           workspace: shared-additional-configs
+      runAfter:
+        - sbo
+        - sls
+        - uds
+        - gencfg-workspace
+        - suite-dns
 
-    # 8.3 Suite Configuration
+    # 5.4 Suite Configuration
     - name: suite-config
       params:
         - name: devops_suite_name
@@ -857,13 +1216,13 @@ spec:
       taskRef:
         kind: Task
         name: mas-devops-suite-config
-      runAfter:
-        - suite-install
       workspaces:
         - name: configs
           workspace: shared-configs
+      runAfter:
+        - suite-install
 
-    # 8.4 Suite Verification
+    # 5.5 Suite Verification
     - name: suite-verify
       params:
         - name: devops_suite_name
@@ -881,7 +1240,7 @@ spec:
       runAfter:
         - suite-config
 
-    # 8.5 Configure Db2 in MAS
+    # 5.6 Configure Db2 in MAS
     - name: suite-config-db2
       params:
         - name: devops_suite_name
@@ -902,14 +1261,14 @@ spec:
         - input: "$(params.mas_app_channel_iot)$(params.mas_app_channel_manage)"
           operator: notin
           values: [""]
-      runAfter:
-        - suite-verify
-        - db2
       workspaces:
         - name: configs
           workspace: shared-configs
+      runAfter:
+        - suite-verify
+        - db2
 
-    # 8.6 Configure Kafka in MAS
+    # 5.7 Configure Kafka in MAS
     - name: suite-config-kafka
       params:
         - name: devops_suite_name
@@ -929,400 +1288,17 @@ spec:
         - input: "$(params.mas_app_channel_iot)"
           operator: notin
           values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
       runAfter:
         - suite-verify
         - kafka
-      workspaces:
-        - name: configs
-          workspace: shared-configs
 
 
-    # 9. Cloud Pak for Data
+    # 6. Install & Configure IoT
     # -------------------------------------------------------------------------
-    # 9.1 Cloud Pak for Data Platform
-    - name: cp4d
-      params:
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: setup-cp4d
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-      taskRef:
-        kind: Task
-        name: mas-devops-cp4d
-      runAfter:
-        - common-services
-      # Only needed if either Predict, HPUtilities or Assist are being installed
-      when:
-        - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-
-    # 9.2 Watson Studio
-    - name: watson-studio
-      params:
-        - name: devops_suite_name
-          value: setup-cp4d-wsl
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: cpd_product_version
-          value: "$(params.cpd_product_version)"
-        - name: cpd_service_name
-          value: wsl
-        - name: cpd_service_storage_class
-          value: "$(params.cpd_wsl_storage_class)"
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-cp4d-service
-      runAfter:
-        - cp4d
-      # Only needed if either Predict or HPUtilities are being installed
-      when:
-        - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
-    # 9.3 Watson Machine Learning
-    - name: watson-machine-learning
-      params:
-        - name: devops_suite_name
-          value: setup-cp4d-wml
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: cpd_product_version
-          value: "$(params.cpd_product_version)"
-        - name: cpd_service_name
-          value: wml
-        - name: cpd_service_storage_class
-          value: "$(params.cpd_wml_storage_class)"
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-cp4d-service
-      runAfter:
-        - cp4d
-      # Only needed if Predict is being installed
-      when:
-        - input: "$(params.mas_app_channel_predict)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
-    # 9.4 Analytics Service (Spark)
-    - name: analytics-service
-      params:
-        - name: devops_suite_name
-          value: setup-cp4d-spark
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: cpd_product_version
-          value: "$(params.cpd_product_version)"
-        - name: cpd_service_name
-          value: spark
-        - name: cpd_service_storage_class
-          value: "$(params.cpd_spark_storage_class)"
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-cp4d-service
-      runAfter:
-        - cp4d
-      # Only needed if Predict is being installed
-      when:
-        - input: "$(params.mas_app_channel_predict)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
-    # 9.5 Watson Discovery
-    - name: discovery
-      params:
-        - name: devops_suite_name
-          value: setup-cp4d-discovery
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: cpd_product_version
-          value: "$(params.cpd_product_version)"
-        - name: cpd_service_name
-          value: wd
-        - name: cpd_service_storage_class
-          value: "$(params.cpd_wd_storage_class)"
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-cp4d-service
-      runAfter:
-        - cp4d
-      # Only needed if Assist is being installed
-      when:
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
-
-    # 10. Additional Post-CP4D Install MAS Configuration
-    # -------------------------------------------------------------------------
-    # 10.6 Configure Watson Studio in MAS
-    - name: suite-config-watson-studio
-      params:
-        - name: devops_suite_name
-          value: cfg-suite-watson-studio
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-config
-      # Only needed if either Predict or HPUtilities are being installed
-      when:
-        - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)"
-          operator: notin
-          values: [""]
-      runAfter:
-        - suite-verify
-        - watson-studio
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
-    # 10.7 Configure Watson Discovery in MAS
-    - name: suite-config-discovery
-      params:
-        - name: devops_suite_name
-          value: cfg-suite-discovery
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-config
-      # Only needed if Assist is being installed
-      when:
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-      runAfter:
-        - app-install-assist
-        - discovery
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
-
-    # 11. Cloud Object Storage (COS)
-    # -------------------------------------------------------------------------
-    # 11.1 Install COS
-    - name: cos
-      params:
-        - name: devops_suite_name
-          value: dependencies-cos
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-
-        - name: cos_type
-          value: $(params.cos_type)
-        - name: ibmcloud_apikey
-          value: $(params.ibmcloud_apikey)
-      taskRef:
-        kind: Task
-        name: mas-devops-cos
-      # Only needed if Assist is being installed
-      when:
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
-    # 11.2 Configure COS in MAS
-    - name: suite-config-cos
-      params:
-        - name: devops_suite_name
-          value: cfg-suite-cos
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-config
-      # Only load COS if Assist is being installed
-      when:
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-      runAfter:
-        - suite-verify
-        - cos
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
-
-    # 12. AppConnect
-    # -------------------------------------------------------------------------
-    # 12.1 Install AppConnect
-    - name: appconnect
-      params:
-        - name: devops_suite_name
-          value: dependencies-appconnect
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-
-        - name: appconnect_entitlement_username
-          value: $(params.appconnect_entitlement_username)
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
-        - name: appconnect_entitlement_key
-          value: $(params.appconnect_entitlement_key)
-      taskRef:
-        kind: Task
-        name: mas-devops-appconnect
-      # Only needed if HPUtilities is being installed
-      when:
-        - input: "$(params.mas_app_channel_hputilities)"
-          operator: notin
-          values: [""]
-      runAfter:
-        - ibm-catalogs
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
-    # 12.2 Configure AppConnect in MAS
-    - name: suite-config-appconnect
-      params:
-        - name: devops_suite_name
-          value: cfg-suite-appconnect
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-config
-      # Only load AppConnect if HPUtilities is being installed
-      when:
-        - input: "$(params.mas_app_channel_hputilities)"
-          operator: notin
-          values: [""]
-      runAfter:
-        - suite-verify
-        - appconnect
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
-
-    # You can see what I've started to do ..
-    # TODO: Finish breaking this up!
-    # TODO: Integrate this into the build rather than committing the generated file to GitHub
-
-    # 20. Nvidia GPU
-    # -------------------------------------------------------------------------
-    - name: nvidia-gpu
-      params:
-        - name: devops_suite_name
-          value: dependencies-nvidia-gpu
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-
-        - name: gpu_namespace
-          value: $(params.gpu_namespace)
-        - name: gpu_channel
-          value: $(params.gpu_channel)
-        - name: nfd_namespace
-          value: $(params.nfd_namespace)
-        - name: nfd_channel
-          value: $(params.nfd_channel)
-      taskRef:
-        kind: Task
-        name: mas-devops-nvidia-gpu
-      # Only needed if Visual Inspection is being installed
-      when:
-        - input: "$(params.mas_app_channel_visualinspection)"
-          operator: notin
-          values: [""]
-      runAfter:
-        - ibm-catalogs
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
-    # 21. Install IBM MAS IoT application
-    # -------------------------------------------------------------------------
-    # 21.1 Install IoT
+    # 6.1 Install IoT
     - name: app-install-iot
       params:
         - name: devops_suite_name
@@ -1365,7 +1341,7 @@ spec:
         - suite-config-db2
         - suite-config-kafka
 
-    # 21.2 Configure IoT workspace
+    # 6.2 Configure IoT workspace
     - name: app-cfg-iot
       params:
         - name: devops_suite_name
@@ -1389,16 +1365,16 @@ spec:
         - input: "$(params.mas_app_channel_iot)"
           operator: notin
           values: [""]
-      runAfter:
-        - app-install-iot
       workspaces:
         - name: configs
           workspace: shared-configs
+      runAfter:
+        - app-install-iot
 
 
-    # 22. Install IBM MAS Monitor application
+    # 7. Install & Configure Monitor
     # -------------------------------------------------------------------------
-    # 22.1 Install Monitor
+    # 7.1 Install Monitor
     - name: app-install-monitor
       params:
         - name: devops_suite_name
@@ -1440,7 +1416,7 @@ spec:
       runAfter:
         - app-cfg-iot
 
-    # 22.2 Configure Monitor workspace
+    # 7.2 Configure Monitor workspace
     - name: app-cfg-monitor
       params:
         - name: devops_suite_name
@@ -1464,16 +1440,16 @@ spec:
         - input: "$(params.mas_app_channel_monitor)"
           operator: notin
           values: [""]
-      runAfter:
-        - app-install-monitor
       workspaces:
         - name: configs
           workspace: shared-configs
+      runAfter:
+        - app-install-monitor
 
 
-    # 23. Install IBM MAS Safety application
+    # 8. Install & Configure Safety
     # -------------------------------------------------------------------------
-    # 23.1 Install Safety
+    # 8.1 Install Safety
     - name: app-install-safety
       params:
         - name: devops_suite_name
@@ -1514,7 +1490,7 @@ spec:
       runAfter:
         - app-cfg-iot
 
-    # 23.2 Configure Safety workspace
+    # 8.2 Configure Safety workspace
     - name: app-cfg-safety
       params:
         - name: devops_suite_name
@@ -1538,16 +1514,16 @@ spec:
         - input: "$(params.mas_app_channel_safety)"
           operator: notin
           values: [""]
-      runAfter:
-        - app-install-safety
       workspaces:
         - name: configs
           workspace: shared-configs
+      runAfter:
+        - app-install-safety
 
 
-    # 24. Install IBM MAS Manage application
+    # 9. Install & Configure Manage
     # -------------------------------------------------------------------------
-    # 24.1. Prepare database to Maxinst
+    # 9.1. Prepare database to Maxinst
     - name: suite-db2-setup-for-manage
       params:
         - name: mas_instance_id
@@ -1572,7 +1548,7 @@ spec:
       runAfter:
         - suite-config-db2
 
-    # 24.2 Manage Install
+    # 9.2 Manage Install
     - name: app-install-manage
       params:
         - name: devops_suite_name
@@ -1613,7 +1589,7 @@ spec:
       runAfter:
         - suite-db2-setup-for-manage
 
-    # 24.3 Configure Manage workspace
+    # 9.3 Configure Manage workspace
     - name: app-cfg-manage
       params:
         - name: devops_suite_name
@@ -1645,16 +1621,16 @@ spec:
         - input: "$(params.mas_app_channel_manage)"
           operator: notin
           values: [""]
-      runAfter:
-        - app-install-manage
       workspaces:
         - name: configs
           workspace: shared-configs
+      runAfter:
+        - app-install-manage
 
 
-    # 25. Predict
+    # 10. Install & Configure Predict
     # -------------------------------------------------------------------------
-    # 25.1 Predict Install
+    # 10.1 Predict Install
     - name: app-install-predict
       params:
         - name: devops_suite_name
@@ -1699,8 +1675,7 @@ spec:
         - watson-machine-learning
         - analytics-service
 
-
-    # 25.2 Configure Predict workspace
+    # 10.2 Configure Predict workspace
     - name: app-cfg-predict
       params:
         - name: devops_suite_name
@@ -1734,16 +1709,16 @@ spec:
         - input: "$(params.mas_app_channel_predict)"
           operator: notin
           values: [""]
-      runAfter:
-        - app-install-predict
       workspaces:
         - name: configs
           workspace: shared-configs
+      runAfter:
+        - app-install-predict
 
 
-    # 26. Optimizer
+    # 11. Install & Configure Optimizer
     # -------------------------------------------------------------------------
-    # 26.1 Optimizer Install
+    # 11.1 Optimizer Install
     - name: app-install-optimizer
       params:
         - name: devops_suite_name
@@ -1786,7 +1761,7 @@ spec:
       runAfter:
         - suite-verify
 
-    # 26.2 Configure Optimizer workspace
+    # 11.2 Configure Optimizer workspace
     - name: app-cfg-optimizer
       params:
         - name: devops_suite_name
@@ -1811,16 +1786,16 @@ spec:
         - input: "$(params.mas_app_channel_optimizer)"
           operator: notin
           values: [""]
-      runAfter:
-        - app-install-optimizer
       workspaces:
         - name: configs
           workspace: shared-configs
+      runAfter:
+        - app-install-optimizer
 
 
-    # 27. Health & Predict - Utilities
+    # 12. Install & Configure Health & Predict Utilities
     # -------------------------------------------------------------------------
-    # 27.1 HPUtilities Install
+    # 12.1 HPUtilities Install
     - name: app-install-hputilities
       params:
         - name: devops_suite_name
@@ -1863,7 +1838,7 @@ spec:
         - suite-config-watson-studio
         - suite-config-appconnect
 
-    # 27.2 Configure HPUtilities workspace
+    # 12.2 Configure HPUtilities workspace
     - name: app-cfg-hputilities
       params:
         - name: devops_suite_name
@@ -1887,16 +1862,16 @@ spec:
         - input: "$(params.mas_app_channel_hputilities)"
           operator: notin
           values: [""]
-      runAfter:
-        - app-install-hputilities
       workspaces:
         - name: configs
           workspace: shared-configs
+      runAfter:
+        - app-install-hputilities
 
 
-    # 28. Assist
+    # 13. Install & Configure Assist
     # -------------------------------------------------------------------------
-    # 28.1 Assist Install
+    # 13.1 Assist Install
     - name: app-install-assist
       params:
         - name: devops_suite_name
@@ -1929,7 +1904,6 @@ spec:
       taskRef:
         name: mas-devops-suite-app-install
         kind: Task
-      # Only install Assist if a channel has been chosen
       when:
         - input: "$(params.mas_app_channel_assist)"
           operator: notin
@@ -1937,7 +1911,34 @@ spec:
       runAfter:
         - suite-config-cos
 
-    # 28.2 Configure Assist workspace
+    # 13.2 Configure Watson Discovery in MAS
+    - name: suite-config-discovery
+      params:
+        - name: devops_suite_name
+          value: cfg-suite-discovery
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-config
+      # Only needed if Assist is being installed
+      when:
+        - input: "$(params.mas_app_channel_assist)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - app-install-assist
+        - discovery
+
+    # 13.3 Configure Assist workspace
     - name: app-cfg-assist
       params:
         - name: devops_suite_name
@@ -1961,16 +1962,16 @@ spec:
         - input: "$(params.mas_app_channel_assist)"
           operator: notin
           values: [""]
-      runAfter:
-        - suite-config-discovery
       workspaces:
         - name: configs
           workspace: shared-configs
+      runAfter:
+        - suite-config-discovery
 
 
-    # 29. Maximo Visual Inspection (MVI)
+    # 14. Install & Configure Visual Inspection
     # -------------------------------------------------------------------------
-    # 29.1 MVI Install
+    # 14.1 MVI Install
     - name: app-install-visualinspection
       params:
         - name: devops_suite_name
@@ -2012,7 +2013,7 @@ spec:
         - nvidia-gpu
         - suite-verify
 
-    # 29.2 Configure MVI workspace
+    # 14.2 Configure MVI workspace
     - name: app-cfg-visualinspection
       params:
         - name: devops_suite_name
@@ -2036,12 +2037,11 @@ spec:
         - input: "$(params.mas_app_channel_visualinspection)"
           operator: notin
           values: [""]
-      runAfter:
-        - app-install-visualinspection
       workspaces:
         - name: configs
           workspace: shared-configs
-
+      runAfter:
+        - app-install-visualinspection
 
   # Mustgather executed in finally block. Use suite_mustgather_download
   # playbook to retrieve the output on your local machine

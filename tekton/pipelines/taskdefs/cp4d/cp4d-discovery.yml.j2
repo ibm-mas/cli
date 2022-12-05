@@ -20,8 +20,6 @@
   taskRef:
     kind: Task
     name: mas-devops-cp4d-service
-  runAfter:
-    - cp4d
   # Only needed if Assist is being installed
   when:
     - input: "$(params.mas_app_channel_assist)"

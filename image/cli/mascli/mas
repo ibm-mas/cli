@@ -102,9 +102,6 @@ case $1 in
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Image Mirror${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
-    echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
-    echo "${TEXT_DIM}1. This is still a work in progress"
-    echo
     reset_colors
     update_ansible_collections
     mirror_to_registry "$@"
@@ -113,9 +110,6 @@ case $1 in
   mirror-redhat|mirror-redhat-images)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Image Mirror${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
-    echo
-    echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
-    echo "${TEXT_DIM}1. This is still a work in progress"
     echo
     reset_colors
     update_ansible_collections
@@ -127,9 +121,6 @@ case $1 in
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap OCP Setup${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
-    echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
-    echo "${TEXT_DIM}1. This is still a work in progress"
-    echo
     reset_colors
     update_ansible_collections
     configure_ocp_for_mirror "$@"
@@ -140,7 +131,7 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
     echo
     echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
-    echo "${TEXT_DIM}1. Support for airgap installation is limited to MAS 8.8 (core only) at present"
+    echo "${TEXT_DIM}1. Support for airgap installation is limited to Core with IoT, Manage, Optimizer at present"
     echo
     reset_colors
     install "$@"
@@ -161,7 +152,6 @@ case $1 in
     reset_colors
     upgrade "$@"
     ;;
-
 
   download|mustgather|download-mustgather)
     connect
