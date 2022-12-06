@@ -9,7 +9,7 @@ Usage:
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
-Maximo Operator Catalog Selection (Required):
+MAS Instance Selection (Required):
   -i, --id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}     MAS Instance ID to upgrade
 
 Other Commands:

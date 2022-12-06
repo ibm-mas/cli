@@ -1,12 +1,12 @@
-Update
+Upgrade
 ===============================================================================
 
 Usage
 -------------------------------------------------------------------------------
-`mas update [options]`
+`mas upgrade [options]`
 
-### Maximo Operator Catalog Selection
-- `-c|--catalog MAS_CATALOG_VERSION` Maximo Operator Catalog Version to mirror (e.g. v8-221129)
+### MAS Instance Selection
+- `-i|--id MAS_INSTANCE_ID` MAS Instance ID to upgrade
 
 ### Other Options
 - `--no-confirm` Mirror images without prompting for confirmation
@@ -15,14 +15,14 @@ Usage
 
 Examples
 -------------------------------------------------------------------------------
-### Interactive Update
+### Interactive Upgrade
 ```bash
 docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas update
+docker run -ti --rm quay.io/ibmmas/cli mas upgrade
 ```
 
-### Non-Interactive Update
+### Non-Interactive Upgrade
 ```bash
 docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas update -c v8-220927-amd64 --no-confirm
+docker run -ti --rm quay.io/ibmmas/cli mas upgrade -i inst1 --no-confirm
 ```

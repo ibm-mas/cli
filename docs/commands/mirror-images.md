@@ -23,7 +23,8 @@ Usage
 - `--redhat-password REDHAT_CONNECT_PASSWORD` Red Hat Connect Password
 
 ### Maximo Operator Catalog Selection
-- `-c|--catalog MAS_CATALOG_VERSION` Maximo Operator Catalog Version to mirror (e.g. v8-220717)
+- `-c|--catalog MAS_CATALOG_VERSION` Maximo Operator Catalog Version to mirror (e.g. v8-221129)
+- `-C|--channel MAS_CHANNEL` Maximo Application Suite Channel to mirror (e.g. 8.9.x)
 - `--mirror-core` Mirror images for IBM Maximo Application Suite Core & dependencies
 - `--mirror-assist`  Mirror images for IBM Maximo Assist
 - `--mirror-hputilities` Mirror images for IBM Maximo Health & Predict Utilities
@@ -64,7 +65,7 @@ docker run -ti --rm -v /mnt/registry:/mnt/registry quay.io/ibmmas/cli mas mirror
 Two-Phase image mirroring is required when you do not have a single system with both access to the public registries containing the source container images **and** your internal private registry.  In this case you will require a system with internet connectivity and another with access to your private network, along with a means to transfer data from one to the other (for example, a portable drive).
 
 !!! important
-    The examples here use a specific version of the container image (2.5.0).  You should always use the latest available container image, but because we are working in a disconnected environment we need to be specific about the version we are using.  Replace `2.5.0` with the appropriate version.
+    The examples here use a specific version of the container image (3.3.0).  You should always use the latest available container image, but because we are working in a disconnected environment we need to be specific about the version we are using.  Replace `3.3.0` with the appropriate version.
 
 #### Phase 1: Mirror to Filesystem
 First, download the latest version of the container image and start up a terminal session inside the container image, we are going to mount a local directory into the running container to persist the mirror filesystem.
@@ -73,7 +74,7 @@ First, download the latest version of the container image and start up a termina
     Mirroring images for Core, Manage and all dependencies will require approximately 62Gb available capacity.
 
 ```bash
-docker pull quay.io/ibmmas/cli:2.5.0
+docker pull quay.io/ibmmas/cli:3.3.0
 docker run -ti --rm -v /mnt/registry:/mnt/registry quay.io/ibmmas/cli mas mirror-images \
   --mode to-filesystem \
   --dir /mnt/registry \
@@ -82,15 +83,15 @@ docker run -ti --rm -v /mnt/registry:/mnt/registry quay.io/ibmmas/cli mas mirror
   --redhat-password $REDHAT_CONNECT_PASSWORD \
   -H mirror.mydomain.com -P 32500 \
   -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
-  -c v8-220927-amd64 \
-  --mirror-core --mirror-iot --mirror-manage \
+  -c v8-220927-amd64 -C 8.9.x \
+  --mirror-core --mirror-iot --mirror-manage --mirror-optimizer \
   --no-confirm
 ```
 
 Once this process completes you will find the mirrored images in `/mnt/registry` ready to transfer to the system inside your disconnected network on which we will perform phase 2 of this operator.  However, before we can do that we also need to mirror the CLI image to your mirror registry so that it's available on the disconnected host system.
 
 ```bash
-oc image mirror --dir /mnt/registry quay.io/ibmmas/cli:2.5.0  file://ibmmas/cli:2.5.0
+oc image mirror --dir /mnt/registry quay.io/ibmmas/cli:3.3.0 file://ibmmas/cli:3.3.0
 ```
 
 
@@ -99,14 +100,14 @@ Transfer the content of `/mnt/registry` to your system in the disconnected netwo
 
 ```bash
 docker login <YOURPRIVATEREGISTRY> -u MIRROR_USERNAME -p MIRROR_PASSWORD
-oc image mirror --dir /mnt/myportabledisk file://ibmmas/cli:2.5.0 mirror.mydomain.com:32500/ibmmas/cli:2.5.0
+oc image mirror --dir /mnt/myportabledisk file://ibmmas/cli:3.3.0 mirror.mydomain.com:32500/ibmmas/cli:3.3.0
 ```
 
 Now we are ready to mirror the images to your registry using the CLI image in the same way we mirrored the images to the local disk in the first place:
 
 ```bash
-docker pull mirror.mydomain.com:32500/ibmmas/cli:2.5.0
-docker run -ti --rm -v /mnt/mirrorregistry:/mnt/mirrorregistry mirror.mydomain.com:32500/ibmmas/cli:2.5.0 mas mirror-images \
+docker pull mirror.mydomain.com:32500/ibmmas/cli:3.3.0
+docker run -ti --rm -v /mnt/mirrorregistry:/mnt/mirrorregistry mirror.mydomain.com:32500/ibmmas/cli:3.3.0 mas mirror-images \
   --mode from-filesystem \
   --dir /mnt/registry \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY \
@@ -114,8 +115,8 @@ docker run -ti --rm -v /mnt/mirrorregistry:/mnt/mirrorregistry mirror.mydomain.c
   --redhat-password $REDHAT_CONNECT_PASSWORD \
   -H mirror.mydomain.com -P 32500 \
   -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
-  -c v8-220927-amd64 \
-  --mirror-core --mirror-iot --mirror-manage \
+  -c v8-220927-amd64 -C 8.9.x \
+  --mirror-core --mirror-iot --mirror-manage --mirror-optimizer \
   --no-confirm
 ```
 
@@ -133,7 +134,7 @@ docker run -ti --rm quay.io/ibmmas/cli mas mirror-images \
   --redhat-password $REDHAT_CONNECT_PASSWORD \
   -H mirror.mydomain.com -P 32500 \
   -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
-  -c v8-220927-amd64 \
-  --mirror-core --mirror-iot --mirror-manage \
+  -c v8-220927-amd64 -C 8.9.x \
+  --mirror-core --mirror-iot --mirror-manage --mirror-optimizer \
   --no-confirm
 ```
