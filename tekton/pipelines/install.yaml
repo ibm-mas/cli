@@ -95,7 +95,7 @@ spec:
       description: Optional configuration for mongodb cpu limits
       default: ""
    
-   # DB2 size parameters
+    # DB2 size parameters
     - name: db2_meta_storage_size
       type: string
       description: Size of metadata persistent volume
