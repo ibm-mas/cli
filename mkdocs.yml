@@ -12,8 +12,9 @@ nav:
   - 'Changes': changes.md
   - 'Guides':
     - 'Choosing the Right Catalog': guides/choosing-the-right-catalog.md
-    - 'Installation': guides/install.md
+    - 'Install': guides/install.md
     - 'Update': guides/update.md
+    - 'Upgrade': guides/upgrade.md
     - 'MAS Core Explained': guides/architecture/core.md
     - 'MAS Pods Explained': guides/mas-pods-explained.md
   - 'Commands':

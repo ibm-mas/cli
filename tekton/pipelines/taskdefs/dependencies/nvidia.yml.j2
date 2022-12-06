@@ -1,0 +1,31 @@
+- name: nvidia-gpu
+  params:
+    - name: devops_suite_name
+      value: dependencies-nvidia-gpu
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+
+    - name: gpu_namespace
+      value: $(params.gpu_namespace)
+    - name: gpu_channel
+      value: $(params.gpu_channel)
+    - name: nfd_namespace
+      value: $(params.nfd_namespace)
+    - name: nfd_channel
+      value: $(params.nfd_channel)
+  taskRef:
+    kind: Task
+    name: mas-devops-nvidia-gpu
+  # Only needed if Visual Inspection is being installed
+  when:
+    - input: "$(params.mas_app_channel_visualinspection)"
+      operator: notin
+      values: [""]
+  workspaces:
+    - name: configs
+      workspace: shared-configs

@@ -18,9 +18,6 @@
     - input: "$(params.mas_app_channel_iot)$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
-  runAfter:
-    - suite-verify
-    - db2
   workspaces:
     - name: configs
       workspace: shared-configs

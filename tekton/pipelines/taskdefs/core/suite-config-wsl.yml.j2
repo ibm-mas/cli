@@ -17,9 +17,6 @@
     - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)"
       operator: notin
       values: [""]
-  runAfter:
-    - suite-verify
-    - watson-studio
   workspaces:
     - name: configs
       workspace: shared-configs

@@ -10,7 +10,7 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Maximo Operator Catalog Selection (Required):
-  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}     Maximo Operator Catalog Version (e.g. v8-220805)
+  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}     Maximo Operator Catalog Version (e.g. v8-221129)
 
 Other Commands:
       --no-confirm                      Mirror images without prompting for confirmation
@@ -55,24 +55,24 @@ function update_interactive() {
   echo_h2 "Select IBM Maximo Operator Catalog Version"
 
   echo -e "${COLOR_YELLOW}MAS Catalog:"
-  echo "  1. v8 (2022-10-25)"
-  echo "  2. v8 (2022-09-27)"
-  echo "  3. v8 (2022-08-05)"
-  echo "  4. v8 (2022-07-17)"
+  echo "  1. v8 (2022-11-29)"
+  echo "  2. v8 (2022-10-25)"
+  echo "  3. v8 (2022-09-27)"
+  echo "  4. v8 (2022-08-05)"
   prompt_for_input "Select Catalog Version" MAS_CATALOG_SELECTION "1"
 
   case $MAS_CATALOG_SELECTION in
-    1|221025|2022-10-25)
+    1|221129|2022-11-29)
+      MAS_CATALOG_VERSION=v8-221129-amd64
+      ;;
+    2|221025|2022-10-25)
       MAS_CATALOG_VERSION=v8-221025-amd64
       ;;
-    2|220927|2022-09-27)
+    3|220927|2022-09-27)
       MAS_CATALOG_VERSION=v8-220927-amd64
       ;;
-    3|220805|2022-08-05)
+    4|220805|2022-08-05)
       MAS_CATALOG_VERSION=v8-220805-amd64
-      ;;
-    4|220717|2022-07-17)
-      MAS_CATALOG_VERSION=v8-220717-amd64
       ;;
     *)
       echo_warning "Invalid selection"
