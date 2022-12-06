@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/guides/update/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/guides/upgrade/" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>Update - MAS CLI</title>
+    <title>Upgrade - MAS CLI</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
@@ -13,9 +13,9 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Update";
-        var mkdocs_page_input_path = "guides/update.md";
-        var mkdocs_page_url = "/cli/guides/update/";
+        var mkdocs_page_name = "Upgrade";
+        var mkdocs_page_input_path = "guides/upgrade.md";
+        var mkdocs_page_url = "/cli/guides/upgrade/";
       </script>
     
     <script src="../../js/jquery-3.6.0.min.js" defer></script>
@@ -56,17 +56,19 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../install/">Install</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Update</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../update/">Update</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Upgrade</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#update-overview">Update Overview</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#1-disconnected-update-preparation">1 Disconnected Update Preparation</a>
+    <li class="toctree-l2"><a class="reference internal" href="#1-update">1 Update</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2-update-maximo-application-suite">2 Update Maximo Application Suite</a>
+    <li class="toctree-l2"><a class="reference internal" href="#2-disconnected-upgrade-preparation">2 Disconnected Upgrade Preparation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-upgrade-maximo-application-suite">2 Upgrade Maximo Application Suite</a>
     </li>
     </ul>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../upgrade/">Upgrade</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../architecture/core/">MAS Core Explained</a>
                   </li>
@@ -120,9 +122,9 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
           <li>Guides &raquo;</li>
-      <li>Update</li>
+      <li>Upgrade</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/ibm-mas/cli/blob/master/docs/guides/update.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/ibm-mas/cli/blob/master/docs/guides/upgrade.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -130,15 +132,22 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="update">Update<a class="headerlink" href="#update" title="Permanent link"></a></h1>
+                <h1 id="upgrade">Upgrade<a class="headerlink" href="#upgrade" title="Permanent link"></a></h1>
 <h2 id="update-overview">Update Overview<a class="headerlink" href="#update-overview" title="Permanent link"></a></h2>
-<p>This guide is specifically for environments using <strong>static catalogs</strong>.  If you are using the <strong>dynamic catalog</strong> then updates are automatically applied as soon as they are released.</p>
+<p>Upgrade is the act of switching a MAS installation to a new subscription channel; it is distinct from an update, which is when new versions are delivered on existing subsciption channels.  New features are always delivered via new subscirption channels, update within a channel will only deliver updates to existing functionality (including security updates) and bug fixes.</p>
 <ol>
-<li><a href="#1-disconnected-install-preparation">Disconnected Update Preparation</a></li>
+<li><a href="#1-update">Update</a></li>
+<li><a href="#1-disconnected-install-preparation">Disconnected Upgrade Preparation</a></li>
 <li><a href="#2-update-maximo-application-suite">Update MAS</a></li>
 </ol>
-<h2 id="1-disconnected-update-preparation">1 Disconnected Update Preparation<a class="headerlink" href="#1-disconnected-update-preparation" title="Permanent link"></a></h2>
-<p>Before you start the update, you must mirror the images for the new catalog that you wish to update to. Mirroring the images is a simple but time consuming process.  Three modes are available for the mirror process:</p>
+<h2 id="1-update">1 Update<a class="headerlink" href="#1-update" title="Permanent link"></a></h2>
+<p>You can only upgrade to a version of MAS already supported by the <code>ibm-operator-catalog</code> CatalogSource currently installed in the cluster.</p>
+<ul>
+<li>If you are using the static catalog and have not already updated to a catalog that includes the version of MAS you wish to upgrade to then you must first follow the <a href="../update/">update process</a>.</li>
+<li>If you are using the dynamic catalog then no action is required here, the catalog source will automatically update to include new MAS releases.</li>
+</ul>
+<h2 id="2-disconnected-upgrade-preparation">2 Disconnected Upgrade Preparation<a class="headerlink" href="#2-disconnected-upgrade-preparation" title="Permanent link"></a></h2>
+<p>Before you start the upgrade, you must mirror the images for the new catalog that you wish to update to. Mirroring the images is a simple but time consuming process.  Three modes are available for the mirror process:</p>
 <ul>
 <li><strong>direct</strong> mirrors images directly from the source registry to your private registry</li>
 <li><strong>to-filesystem</strong> mirrors images from the source to a local directory</li>
@@ -160,19 +169,15 @@ docker run -ti --rm quay.io/ibmmas/cli mas mirror-images
 </code></pre>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>Make sure to select the release of MAS you currently have installed in the cluster, if you have multiple instances of MAS in the cluster running different releases then you must run the mirror command multiple time to ensure that you have mirrored the content for all releases of MAS that are in use in the cluster.</p>
+<p>Make sure to select the release of MAS you want to upgrade to instead of the release of MAS you are currently on, for example if you are upgrading from MAS 8.8 to MAS 8.9 you should set <code>-C 8.9.x</code>.</p>
 </div>
-<h2 id="2-update-maximo-application-suite">2 Update Maximo Application Suite<a class="headerlink" href="#2-update-maximo-application-suite" title="Permanent link"></a></h2>
-<p>Run <code>mas update</code> and choose the catalog to update to.  This will update the operator catalog installed in your cluster, and the Operator Lifecycle Manager (OLM) will automatically update all installed operators to the newest version available on the current subscription channel.</p>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>You must select a newer catalog than what is already in use.  Updating to an older static catalog is not supported.</p>
-</div>
+<h2 id="2-upgrade-maximo-application-suite">2 Upgrade Maximo Application Suite<a class="headerlink" href="#2-upgrade-maximo-application-suite" title="Permanent link"></a></h2>
+<p>Run <code>mas upgrade</code> and choose the MAS instance to upgrade.  The upgrade will automatically detect the installed release, and perform an upgrade to the next available release.</p>
 <pre><code class="language-bash">docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas update
+docker run -ti --rm quay.io/ibmmas/cli mas upgrade
 </code></pre>
-<p>The command can akso be ran non-interactive.</p>
-<pre><code class="language-bash">mas update -c v8-221129-amd64 --no-confirm
+<p>The command can also be ran non-interactive.</p>
+<pre><code class="language-bash">mas upgrade -i inst1 --no-confirm
 </code></pre>
               
             </div>
@@ -202,10 +207,10 @@ docker run -ti --rm quay.io/ibmmas/cli mas update
         </span>
     
     
-      <span><a href="../install/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../update/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../upgrade/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../architecture/core/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

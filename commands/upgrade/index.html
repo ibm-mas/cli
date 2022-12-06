@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/commands/update/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/commands/upgrade/" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>Update - MAS CLI</title>
+    <title>Upgrade - MAS CLI</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
@@ -13,9 +13,9 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Update";
-        var mkdocs_page_input_path = "commands/update.md";
-        var mkdocs_page_url = "/cli/commands/update/";
+        var mkdocs_page_name = "Upgrade";
+        var mkdocs_page_input_path = "commands/upgrade.md";
+        var mkdocs_page_url = "/cli/commands/upgrade/";
       </script>
     
     <script src="../../js/jquery-3.6.0.min.js" defer></script>
@@ -111,9 +111,9 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
-      <li>Update</li>
+      <li>Upgrade</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/update.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/upgrade.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -121,12 +121,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="update">Update<a class="headerlink" href="#update" title="Permanent link"></a></h1>
+                <h1 id="upgrade">Upgrade<a class="headerlink" href="#upgrade" title="Permanent link"></a></h1>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
-<p><code>mas update [options]</code></p>
-<h3 id="maximo-operator-catalog-selection">Maximo Operator Catalog Selection<a class="headerlink" href="#maximo-operator-catalog-selection" title="Permanent link"></a></h3>
+<p><code>mas upgrade [options]</code></p>
+<h3 id="mas-instance-selection">MAS Instance Selection<a class="headerlink" href="#mas-instance-selection" title="Permanent link"></a></h3>
 <ul>
-<li><code>-c|--catalog MAS_CATALOG_VERSION</code> Maximo Operator Catalog Version to mirror (e.g. v8-221129)</li>
+<li><code>-i|--id MAS_INSTANCE_ID</code> MAS Instance ID to upgrade</li>
 </ul>
 <h3 id="other-options">Other Options<a class="headerlink" href="#other-options" title="Permanent link"></a></h3>
 <ul>
@@ -134,13 +134,13 @@
 <li><code>-h|--help</code> Show help message</li>
 </ul>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
-<h3 id="interactive-update">Interactive Update<a class="headerlink" href="#interactive-update" title="Permanent link"></a></h3>
+<h3 id="interactive-upgrade">Interactive Upgrade<a class="headerlink" href="#interactive-upgrade" title="Permanent link"></a></h3>
 <pre><code class="language-bash">docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas update
+docker run -ti --rm quay.io/ibmmas/cli mas upgrade
 </code></pre>
-<h3 id="non-interactive-update">Non-Interactive Update<a class="headerlink" href="#non-interactive-update" title="Permanent link"></a></h3>
+<h3 id="non-interactive-upgrade">Non-Interactive Upgrade<a class="headerlink" href="#non-interactive-upgrade" title="Permanent link"></a></h3>
 <pre><code class="language-bash">docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas update -c v8-220927-amd64 --no-confirm
+docker run -ti --rm quay.io/ibmmas/cli mas upgrade -i inst1 --no-confirm
 </code></pre>
               
             </div>
