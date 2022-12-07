@@ -1,0 +1,61 @@
+# These tests cannot be ran with anything else (~75m)
+# - CoreIDP ... both result in IDP restarts
+# - Licensing API ... not really sure why TBH
+# - SMTP ... temporarily disables SMTP integration
+
+# FVT5.1 coreidp-ldap ~10m
+- name: fvt-coreidp-ldap
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-coreidp-ldap
+  runAfter:
+    # Only start after all suites in phase 4 are complete
+    - fvt-internalapi
+    - fvt-catalogapi
+    - fvt-ibmadminissuer
+    - fvt-milestonesapi
+    - fvt-adoptionusageapi
+    - fvt-adoptionusagereporter
+    - fvt-accapppoints
+
+# FVT5.2 coreidp-saml ~40m
+- name: fvt-coreidp-saml
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-coreidp-saml
+  runAfter:
+    - fvt-coreidp-ldap
+
+# FVT5.3 coreidp-auth ~20m - Refresh token and authentication patterns
+- name: fvt-coreidp-auth
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-coreidp-auth
+  runAfter:
+    - fvt-coreidp-saml
+
+# FVT5.4 licensingapi ~20m
+- name: fvt-licensingapi
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-licensingapi
+  runAfter:
+    - fvt-coreidp-auth
+
+# FVT5.5 smtp ~5m
+- name: fvt-smtp
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-smtp
+  runAfter:
+    - fvt-licensingapi

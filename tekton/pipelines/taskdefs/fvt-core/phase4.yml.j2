@@ -1,0 +1,75 @@
+# Only start phase 4 tests after all suites in phase 3 are complete
+
+# FVT4.1 internalapi ~10m
+- name: fvt-internalapi
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-internalapi
+  runAfter:
+    - fvt-adoptionusagemetering
+
+# FVT4.2 catalogapi ~5m
+- name: fvt-catalogapi
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-catalogapi
+  runAfter:
+    - fvt-adoptionusagemetering
+
+# FVT4.3 ibmadminissuer 5m
+- name: fvt-ibmadminissuer
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-ibmadminissuer
+  runAfter:
+    - fvt-adoptionusagemetering
+
+# FVT4.4 milestonesapi ~5m
+- name: fvt-milestonesapi
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-milestonesapi
+  runAfter:
+    - fvt-adoptionusagemetering
+
+# FVT4.5 adoptionusageapi ~5m
+- name: fvt-adoptionusageapi
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-adoptionusageapi
+  runAfter:
+    - fvt-adoptionusagemetering
+
+# FVT4.6 adoptionusagereporter ~5m
+- name: fvt-adoptionusagereporter
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_image_name
+      value: fvt-adoptionusagereporter
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: ddp_apikey
+      value: $(params.ddp_apikey)
+  runAfter:
+    - fvt-adoptionusagemetering
+
+# FVT4.7 accapppoints ~5m
+- name: fvt-accapppoints
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-accapppoints
+    - name: ddp_apikey
+      value: $(params.ddp_apikey)
+  runAfter:
+    - fvt-adoptionusagemetering

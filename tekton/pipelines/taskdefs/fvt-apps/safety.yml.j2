@@ -1,0 +1,42 @@
+- name: fvt-safety-selenium
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-safety
+    - name: fvt_image_name
+      value: fvt-ibm-mas-safety
+    - name: fvt_image_version
+      value: $(params.fvt_version_safety)
+    - name: product_channel
+      value: $(params.mas_app_channel_safety)
+    - name: product_id
+      value: ibm-mas-safety
+    - name: fvt_test_suite
+      value: testng-mas-safety
+    - name: artifactory_apikey
+      value: $(params.fvt_artifactory_apikey)
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Satety FVT to run
+  when:
+    - input: "$(params.fvt_version_safety)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_safety)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - ivtcore-safety
+  workspaces:
+    - name: configs
+      workspace: shared-configs

@@ -1,0 +1,40 @@
+
+- name: fvt-iot
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: mas-devops
+    - name: fvt_image_name
+      value: fvt-iot
+    - name: fvt_image_version
+      value: $(params.fvt_version_iot)
+    - name: product_channel
+      value: $(params.mas_app_channel_iot)
+    - name: product_id
+      value: ibm-mas-iot
+    - name: fvt_test_suite
+      value: iot
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  when:
+    - input: "$(params.fvt_version_iot)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_iot)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - ivtcore-iot
+  workspaces:
+    - name: configs
+      workspace: shared-configs

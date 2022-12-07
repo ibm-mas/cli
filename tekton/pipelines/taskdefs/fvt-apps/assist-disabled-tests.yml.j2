@@ -1,0 +1,1999 @@
+
+- name: fvt-assist-testng-desktop-admin-apikeys
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-admin-apikeys
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-testng-desktop-admin-attribute
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-admin-attribute
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-technician-collaborate
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-testng-desktop-admin-field
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-admin-field
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-admin-apikeys
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-testng-desktop-admin-expertise
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-admin-expertise
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-admin-field
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-testng-desktop-admin-collaboration
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-admin-collaboration
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-admin-expertise
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-testng-desktop-admin-ice
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-admin-ice
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-admin-collaboration
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-testng-desktop-admin-search-config
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-admin-search-config
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-admin-ice
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+#    - name: fvt-assist-testng-desktop-admin-session-timeout
+#      params:
+#        - name: mas_instance_id
+#          value: $(params.mas_instance_id)
+#        - name: mas_workspace_id
+#          value: $(params.mas_workspace_id)
+#
+#        - name: devops_mongo_uri
+#          value: $(params.devops_mongo_uri)
+#        - name: devops_build_number
+#          value: $(params.devops_build_number)
+#
+#        - name: fvt_image_namespace
+#          value: fvt-assist
+#        - name: fvt_image_name
+#          value: fvt-assist-testng
+#        - name: fvt_image_version
+#          value: $(params.fvt_version_assist)
+#        - name: fvt_test_suite
+#          value: testng-desktop-admin-session-timeout
+#        - name: product_channel
+#          value: $(params.mas_app_channel_assist)
+#        - name: product_id
+#          value: ibm-mas-assist
+#        - name: browserstack_remoteserver
+#          value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+#      taskRef:
+#        kind: Task
+#        name: mas-fvt-run-suite
+#      # Only if we've set a version of the Assist FVT to run
+#      when:
+#        - input: "$(params.fvt_version_assist)"
+#          operator: notin
+#          values: [""]
+#        - input: "$(params.mas_app_channel_assist)"
+#          operator: notin
+#          values: [""]
+#      runAfter:
+#        - fvt-assist-testng-desktop-admin-search-config
+
+- name: fvt-assist-testng-desktop-admin-sessions
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-admin-sessions
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-admin-search-config
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-testng-desktop-admin-token-refresh-studio
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-admin-token-refresh-studio
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-admin-attribute
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-testng-desktop-admin-token-refresh-adminconsole
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-admin-token-refresh-adminconsole
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-admin-token-refresh-studio
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-testng-desktop-admin-token-refresh-technician
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-admin-token-refresh-technician
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-admin-token-refresh-adminconsole
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+
+- name: fvt-assist-testng-desktop-admin-users
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-admin-users
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-admin-sessions
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-testng-desktop-diagnosis-element-relation
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-diagnosis-element-relation
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-admin-users
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-testng-desktop-diagnosis-flow
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-diagnosis-flow
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-diagnosis-element-relation
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-testng-desktop-diagnosis-library-feedback
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-diagnosis-library-feedback
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-diagnosis-flow
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-testng-desktop-diagnosis-library-historicaldata
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-diagnosis-library-historicaldata
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-diagnosis-library-feedback
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+
+- name: fvt-assist-testng-desktop-technician-diagnosis
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-technician-diagnosis
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-diagnosis-library-historicaldata
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+#    - name: fvt-assist-testng-desktop-document-management
+#      params:
+#        - name: mas_instance_id
+#          value: $(params.mas_instance_id)
+#        - name: mas_workspace_id
+#          value: $(params.mas_workspace_id)
+#
+#        - name: devops_mongo_uri
+#          value: $(params.devops_mongo_uri)
+#        - name: devops_build_number
+#          value: $(params.devops_build_number)
+#
+#        - name: fvt_image_namespace
+#          value: fvt-assist
+#        - name: fvt_image_name
+#          value: fvt-assist-testng
+#        - name: fvt_image_version
+#          value: $(params.fvt_version_assist)
+#        - name: fvt_test_suite
+#          value: testng-desktop-document-management
+#        - name: product_channel
+#          value: $(params.mas_app_channel_assist)
+#        - name: product_id
+#          value: ibm-mas-assist
+#        - name: browserstack_remoteserver
+#          value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+#      taskRef:
+#        kind: Task
+#        name: mas-fvt-run-suite
+#      # Only if we've set a version of the Assist FVT to run
+#      when:
+#        - input: "$(params.fvt_version_assist)"
+#          operator: notin
+#          values: [""]
+#        - input: "$(params.mas_app_channel_assist)"
+#          operator: notin
+#          values: [""]
+#      runAfter:
+#        - fvt-assist-testng-desktop-diagnosis
+
+#    - name: fvt-assist-testng-desktop-flow
+#      params:
+#        - name: mas_instance_id
+#          value: $(params.mas_instance_id)
+#        - name: mas_workspace_id
+#          value: $(params.mas_workspace_id)
+#
+#        - name: devops_mongo_uri
+#          value: $(params.devops_mongo_uri)
+#        - name: devops_build_number
+#          value: $(params.devops_build_number)
+#
+#        - name: fvt_image_namespace
+#          value: fvt-assist
+#        - name: fvt_image_name
+#          value: fvt-assist-testng
+#        - name: fvt_image_version
+#          value: $(params.fvt_version_assist)
+#        - name: fvt_test_suite
+#          value: testng-desktop-flow
+#        - name: product_channel
+#          value: $(params.mas_app_channel_assist)
+#        - name: product_id
+#          value: ibm-mas-assist
+#        - name: browserstack_remoteserver
+#          value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+#      taskRef:
+#        kind: Task
+#        name: mas-fvt-run-suite
+#      # Only if we've set a version of the Assist FVT to run
+#      when:
+#        - input: "$(params.fvt_version_assist)"
+#          operator: notin
+#          values: [""]
+#        - input: "$(params.mas_app_channel_assist)"
+#          operator: notin
+#          values: [""]
+#      runAfter:
+#        - fvt-assist-testng-desktop-element-relation
+#
+#
+#    - name: fvt-assist-testng-desktop-library-extraction
+#      params:
+#        - name: mas_instance_id
+#          value: $(params.mas_instance_id)
+#        - name: mas_workspace_id
+#          value: $(params.mas_workspace_id)
+#
+#        - name: devops_mongo_uri
+#          value: $(params.devops_mongo_uri)
+#        - name: devops_build_number
+#          value: $(params.devops_build_number)
+#
+#        - name: fvt_image_namespace
+#          value: fvt-assist
+#        - name: fvt_image_name
+#          value: fvt-assist-testng
+#        - name: fvt_image_version
+#          value: $(params.fvt_version_assist)
+#        - name: fvt_test_suite
+#          value: testng-desktop-library-extraction
+#        - name: product_channel
+#          value: $(params.mas_app_channel_assist)
+#        - name: product_id
+#          value: ibm-mas-assist
+#        - name: browserstack_remoteserver
+#          value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+#      taskRef:
+#        kind: Task
+#        name: mas-fvt-run-suite
+#      # Only if we've set a version of the Assist FVT to run
+#      when:
+#        - input: "$(params.fvt_version_assist)"
+#          operator: notin
+#          values: [""]
+#        - input: "$(params.mas_app_channel_assist)"
+#          operator: notin
+#          values: [""]
+#      runAfter:
+#        - fvt-assist-testng-desktop-flow
+#
+#
+#    - name: fvt-assist-testng-desktop-library-feedback
+#      params:
+#        - name: mas_instance_id
+#          value: $(params.mas_instance_id)
+#        - name: mas_workspace_id
+#          value: $(params.mas_workspace_id)
+#
+#        - name: devops_mongo_uri
+#          value: $(params.devops_mongo_uri)
+#        - name: devops_build_number
+#          value: $(params.devops_build_number)
+#
+#        - name: fvt_image_namespace
+#          value: fvt-assist
+#        - name: fvt_image_name
+#          value: fvt-assist-testng
+#        - name: fvt_image_version
+#          value: $(params.fvt_version_assist)
+#        - name: fvt_test_suite
+#          value: testng-desktop-library-feedback
+#        - name: product_channel
+#          value: $(params.mas_app_channel_assist)
+#        - name: product_id
+#          value: ibm-mas-assist
+#        - name: browserstack_remoteserver
+#          value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+#      taskRef:
+#        kind: Task
+#        name: mas-fvt-run-suite
+#      # Only if we've set a version of the Assist FVT to run
+#      when:
+#        - input: "$(params.fvt_version_assist)"
+#          operator: notin
+#          values: [""]
+#        - input: "$(params.mas_app_channel_assist)"
+#          operator: notin
+#          values: [""]
+#      runAfter:
+#        - fvt-assist-testng-desktop-library-extraction
+#
+#
+#    - name: fvt-assist-testng-desktop-library-historicaldata
+#      params:
+#        - name: mas_instance_id
+#          value: $(params.mas_instance_id)
+#        - name: mas_workspace_id
+#          value: $(params.mas_workspace_id)
+#
+#        - name: devops_mongo_uri
+#          value: $(params.devops_mongo_uri)
+#        - name: devops_build_number
+#          value: $(params.devops_build_number)
+#
+#        - name: fvt_image_namespace
+#          value: fvt-assist
+#        - name: fvt_image_name
+#          value: fvt-assist-testng
+#        - name: fvt_image_version
+#          value: $(params.fvt_version_assist)
+#        - name: fvt_test_suite
+#          value: testng-desktop-library-historicaldata
+#        - name: product_channel
+#          value: $(params.mas_app_channel_assist)
+#        - name: product_id
+#          value: ibm-mas-assist
+#        - name: browserstack_remoteserver
+#          value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+#      taskRef:
+#        kind: Task
+#        name: mas-fvt-run-suite
+#      # Only if we've set a version of the Assist FVT to run
+#      when:
+#        - input: "$(params.fvt_version_assist)"
+#          operator: notin
+#          values: [""]
+#        - input: "$(params.mas_app_channel_assist)"
+#          operator: notin
+#          values: [""]
+#      runAfter:
+#        - fvt-assist-testng-desktop-library-feedback
+#
+#
+#    - name: fvt-assist-testng-desktop-library-management
+#      params:
+#        - name: mas_instance_id
+#          value: $(params.mas_instance_id)
+#        - name: mas_workspace_id
+#          value: $(params.mas_workspace_id)
+#
+#        - name: devops_mongo_uri
+#          value: $(params.devops_mongo_uri)
+#        - name: devops_build_number
+#          value: $(params.devops_build_number)
+#
+#        - name: fvt_image_namespace
+#          value: fvt-assist
+#        - name: fvt_image_name
+#          value: fvt-assist-testng
+#        - name: fvt_image_version
+#          value: $(params.fvt_version_assist)
+#        - name: fvt_test_suite
+#          value: testng-desktop-library-management
+#        - name: product_channel
+#          value: $(params.mas_app_channel_assist)
+#        - name: product_id
+#          value: ibm-mas-assist
+#        - name: browserstack_remoteserver
+#          value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+#      taskRef:
+#        kind: Task
+#        name: mas-fvt-run-suite
+#      # Only if we've set a version of the Assist FVT to run
+#      when:
+#        - input: "$(params.fvt_version_assist)"
+#          operator: notin
+#          values: [""]
+#        - input: "$(params.mas_app_channel_assist)"
+#          operator: notin
+#          values: [""]
+#      runAfter:
+#        - fvt-assist-testng-desktop-library-historicaldata
+#
+#    - name: fvt-assist-testng-desktop-library-model
+#      params:
+#        - name: mas_instance_id
+#          value: $(params.mas_instance_id)
+#        - name: mas_workspace_id
+#          value: $(params.mas_workspace_id)
+#
+#        - name: devops_mongo_uri
+#          value: $(params.devops_mongo_uri)
+#        - name: devops_build_number
+#          value: $(params.devops_build_number)
+#
+#        - name: fvt_image_namespace
+#          value: fvt-assist
+#        - name: fvt_image_name
+#          value: fvt-assist-testng
+#        - name: fvt_image_version
+#          value: $(params.fvt_version_assist)
+#        - name: fvt_test_suite
+#          value: testng-desktop-library-model
+#        - name: product_channel
+#          value: $(params.mas_app_channel_assist)
+#        - name: product_id
+#          value: ibm-mas-assist
+#        - name: browserstack_remoteserver
+#          value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+#      taskRef:
+#        kind: Task
+#        name: mas-fvt-run-suite
+#      # Only if we've set a version of the Assist FVT to run
+#      when:
+#        - input: "$(params.fvt_version_assist)"
+#          operator: notin
+#          values: [""]
+#        - input: "$(params.mas_app_channel_assist)"
+#          operator: notin
+#          values: [""]
+#      runAfter:
+#        - fvt-assist-testng-desktop-library-management
+#
+#    - name: fvt-assist-testng-desktop-library-rule
+#      params:
+#        - name: mas_instance_id
+#          value: $(params.mas_instance_id)
+#        - name: mas_workspace_id
+#          value: $(params.mas_workspace_id)
+#
+#        - name: devops_mongo_uri
+#          value: $(params.devops_mongo_uri)
+#        - name: devops_build_number
+#          value: $(params.devops_build_number)
+#
+#        - name: fvt_image_namespace
+#          value: fvt-assist
+#        - name: fvt_image_name
+#          value: fvt-assist-testng
+#        - name: fvt_image_version
+#          value: $(params.fvt_version_assist)
+#        - name: fvt_test_suite
+#          value: testng-desktop-library-rule
+#        - name: product_channel
+#          value: $(params.mas_app_channel_assist)
+#        - name: product_id
+#          value: ibm-mas-assist
+#        - name: browserstack_remoteserver
+#          value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+#      taskRef:
+#        kind: Task
+#        name: mas-fvt-run-suite
+#      # Only if we've set a version of the Assist FVT to run
+#      when:
+#        - input: "$(params.fvt_version_assist)"
+#          operator: notin
+#          values: [""]
+#        - input: "$(params.mas_app_channel_assist)"
+#          operator: notin
+#          values: [""]
+#      runAfter:
+#        - fvt-assist-testng-desktop-library-model
+
+- name: fvt-assist-testng-desktop-query-docpreview
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-query-docpreview
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-technician-diagnosis
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-testng-desktop-query-maximo-integration
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-query-maximo-integration
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-query-docpreview
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+
+- name: fvt-assist-testng-desktop-query-resultcard
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-query-resultcard
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-query-maximo-integration
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+
+- name: fvt-assist-testng-desktop-query-search
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-query-search
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-query-resultcard
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-testng-desktop-query-searchconfig
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-query-searchconfig
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-query-search
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-testng-desktop-technician-collaborate
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-desktop-technician-collaborate
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-desktop-query-searchconfig
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+# Add all MobileApp Suites using Android Test Suites here.
+- name: fvt-assist-testng-mobile
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: testng-mobile-diagnosis
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+    - name: assist_test_type
+      value: mobileapp
+    - name: assist_device_type
+      value: android
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - ivtcore-assist
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+#    - name: fvt-assist-testng-mobile-query-docpreview
+#      params:
+#        - name: mas_instance_id
+#          value: $(params.mas_instance_id)
+#        - name: mas_workspace_id
+#          value: $(params.mas_workspace_id)
+#
+#        - name: devops_mongo_uri
+#          value: $(params.devops_mongo_uri)
+#        - name: devops_build_number
+#          value: $(params.devops_build_number)
+#
+#        - name: fvt_image_namespace
+#          value: fvt-assist
+#        - name: fvt_image_name
+#          value: fvt-assist-testng
+#        - name: fvt_image_version
+#          value: $(params.fvt_version_assist)
+#        - name: fvt_test_suite
+#          value: testng-mobile-query-docpreview
+#        - name: product_channel
+#          value: $(params.mas_app_channel_assist)
+#        - name: product_id
+#          value: ibm-mas-assist
+#        - name: browserstack_remoteserver
+#          value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+#        - name: assist_test_type
+#          value: mobileapp
+#        - name: assist_device_type
+#          value: android
+#      taskRef:
+#        kind: Task
+#        name: mas-fvt-run-suite
+#      # Only if we've set a version of the Assist FVT to run
+#      when:
+#        - input: "$(params.fvt_version_assist)"
+#          operator: notin
+#          values: [""]
+#        - input: "$(params.mas_app_channel_assist)"
+#          operator: notin
+#          values: [""]
+#      runAfter:
+#        - fvt-assist-testng-mobile
+#
+#    - name: fvt-assist-testng-mobile-query-maximo-integration
+#      params:
+#        - name: mas_instance_id
+#          value: $(params.mas_instance_id)
+#        - name: mas_workspace_id
+#          value: $(params.mas_workspace_id)
+#
+#        - name: devops_mongo_uri
+#          value: $(params.devops_mongo_uri)
+#        - name: devops_build_number
+#          value: $(params.devops_build_number)
+#
+#        - name: fvt_image_namespace
+#          value: fvt-assist
+#        - name: fvt_image_name
+#          value: fvt-assist-testng
+#        - name: fvt_image_version
+#          value: $(params.fvt_version_assist)
+#        - name: fvt_test_suite
+#          value: testng-mobile-query-maximo-integration
+#        - name: product_channel
+#          value: $(params.mas_app_channel_assist)
+#        - name: product_id
+#          value: ibm-mas-assist
+#        - name: browserstack_remoteserver
+#          value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+#        - name: assist_test_type
+#          value: mobileapp
+#        - name: assist_device_type
+#          value: android
+#      taskRef:
+#        kind: Task
+#        name: mas-fvt-run-suite
+#      # Only if we've set a version of the Assist FVT to run
+#      when:
+#        - input: "$(params.fvt_version_assist)"
+#          operator: notin
+#          values: [""]
+#        - input: "$(params.mas_app_channel_assist)"
+#          operator: notin
+#          values: [""]
+#      runAfter:
+#        - fvt-assist-testng-mobile-query-docpreview
+#
+#    - name: fvt-assist-testng-mobile-query-resultcard
+#      params:
+#        - name: mas_instance_id
+#          value: $(params.mas_instance_id)
+#        - name: mas_workspace_id
+#          value: $(params.mas_workspace_id)
+#
+#        - name: devops_mongo_uri
+#          value: $(params.devops_mongo_uri)
+#        - name: devops_build_number
+#          value: $(params.devops_build_number)
+#
+#        - name: fvt_image_namespace
+#          value: fvt-assist
+#        - name: fvt_image_name
+#          value: fvt-assist-testng
+#        - name: fvt_image_version
+#          value: $(params.fvt_version_assist)
+#        - name: fvt_test_suite
+#          value: testng-mobile-query-resultcard
+#        - name: product_channel
+#          value: $(params.mas_app_channel_assist)
+#        - name: product_id
+#          value: ibm-mas-assist
+#        - name: browserstack_remoteserver
+#          value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+#        - name: assist_test_type
+#          value: mobileapp
+#        - name: assist_device_type
+#          value: android
+#      taskRef:
+#        kind: Task
+#        name: mas-fvt-run-suite
+#      # Only if we've set a version of the Assist FVT to run
+#      when:
+#        - input: "$(params.fvt_version_assist)"
+#          operator: notin
+#          values: [""]
+#        - input: "$(params.mas_app_channel_assist)"
+#          operator: notin
+#          values: [""]
+#      runAfter:
+#        - fvt-assist-testng-mobile-query-maximo-integration
+#
+#    - name: fvt-assist-testng-mobile-query-search
+#      params:
+#        - name: mas_instance_id
+#          value: $(params.mas_instance_id)
+#        - name: mas_workspace_id
+#          value: $(params.mas_workspace_id)
+#
+#        - name: devops_mongo_uri
+#          value: $(params.devops_mongo_uri)
+#        - name: devops_build_number
+#          value: $(params.devops_build_number)
+#
+#        - name: fvt_image_namespace
+#          value: fvt-assist
+#        - name: fvt_image_name
+#          value: fvt-assist-testng
+#        - name: fvt_image_version
+#          value: $(params.fvt_version_assist)
+#        - name: fvt_test_suite
+#          value: testng-mobile-query-resultcard
+#        - name: product_channel
+#          value: $(params.mas_app_channel_assist)
+#        - name: product_id
+#          value: ibm-mas-assist
+#        - name: browserstack_remoteserver
+#          value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+#        - name: assist_test_type
+#          value: mobileapp
+#        - name: assist_device_type
+#          value: android
+#      taskRef:
+#        kind: Task
+#        name: mas-fvt-run-suite
+#      # Only if we've set a version of the Assist FVT to run
+#      when:
+#        - input: "$(params.fvt_version_assist)"
+#          operator: notin
+#          values: [""]
+#        - input: "$(params.mas_app_channel_assist)"
+#          operator: notin
+#          values: [""]
+#      runAfter:
+#        - fvt-assist-testng-mobile-query-resultcard
+#
+#    - name: fvt-assist-testng-mobile-query-searchconfig
+#      params:
+#        - name: mas_instance_id
+#          value: $(params.mas_instance_id)
+#        - name: mas_workspace_id
+#          value: $(params.mas_workspace_id)
+#
+#        - name: devops_mongo_uri
+#          value: $(params.devops_mongo_uri)
+#        - name: devops_build_number
+#          value: $(params.devops_build_number)
+#
+#        - name: fvt_image_namespace
+#          value: fvt-assist
+#        - name: fvt_image_name
+#          value: fvt-assist-testng
+#        - name: fvt_image_version
+#          value: $(params.fvt_version_assist)
+#        - name: fvt_test_suite
+#          value: testng-mobile-query-resultcard
+#        - name: product_channel
+#          value: $(params.mas_app_channel_assist)
+#        - name: product_id
+#          value: ibm-mas-assist
+#        - name: browserstack_remoteserver
+#          value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+#        - name: assist_test_type
+#          value: mobileapp
+#        - name: assist_device_type
+#          value: android
+#      taskRef:
+#        kind: Task
+#        name: mas-fvt-run-suite
+#      # Only if we've set a version of the Assist FVT to run
+#      when:
+#        - input: "$(params.fvt_version_assist)"
+#          operator: notin
+#          values: [""]
+#        - input: "$(params.mas_app_channel_assist)"
+#          operator: notin
+#          values: [""]
+#      runAfter:
+#        - fvt-assist-testng-mobile-query-search
+#    ## 14.3 Assist back-end API test suites using cucumber
+- name: fvt-assist-cucumber
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-cucumber
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: document_query
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - ivtcore-assist
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-cucumber-bayes
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-cucumber
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: bayes
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - ivtcore-assist
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-cucumber-diagnosis
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-cucumber
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: diagnosis
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - ivtcore-assist
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-cucumber-document-management
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-cucumber
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: document_management
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - ivtcore-assist
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-cucumber-expertise
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-cucumber
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: expertise
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - ivtcore-assist
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-cucumber-iot
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-cucumber
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: iot
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - ivtcore-assist
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-cucumber-usage
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-cucumber
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: usage
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - ivtcore-assist
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+
+- name: fvt-assist-cucumber-knowledge-extraction
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-cucumber
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: knowledge-extraction
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - ivtcore-assist
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+# This task is failing, which blows up the entire pipeline
+# Ref: https://ibm-watson-iot.slack.com/archives/C031Q7W21FZ/p1662453941042859
+# Make sure the task runs 100% reliably before re-introducing it - doesn't matter
+# if the tests pass or fail, but the task has to be able to reliably run them.
+#    # For Assist Python test suite
+- name: fvt-assist-python
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-assist
+    - name: fvt_image_name
+      value: fvt-assist-python
+    - name: fvt_image_version
+      value: $(params.fvt_version_assist)
+    - name: fvt_test_suite
+      value: unittest_pg_session
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: product_id
+      value: ibm-mas-assist
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Assist FVT to run
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-assist-testng-preparedata
+  workspaces:
+    - name: configs
+      workspace: shared-configs

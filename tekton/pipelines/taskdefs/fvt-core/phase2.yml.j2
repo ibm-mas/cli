@@ -1,0 +1,71 @@
+# Only start phase 2 tests after all suites in phase 1 are complete
+
+# Core FVT 2.1 coreapi-mobileapi ~5m
+- name: fvt-coreapi-mobileapi
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_image_name
+      value: fvt-coreapi-mobileapi
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - fvt-coreapi-addons
+    - fvt-coreapi-groupmgmt
+    - fvt-coreapi-usermgmt
+    - fvt-coreapi-workspacemgmt
+    - fvt-coreapi-graphiteconfigtool
+
+# Core FVT 2.2 coreapi-other ~5m
+- name: fvt-coreapi-other
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-coreapi-other
+  runAfter:
+    - fvt-coreapi-addons
+    - fvt-coreapi-groupmgmt
+    - fvt-coreapi-usermgmt
+    - fvt-coreapi-workspacemgmt
+    - fvt-coreapi-graphiteconfigtool
+
+# Core FVT 2.3 coreapi-utilities ~5m
+- name: fvt-coreapi-utilities
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-coreapi-utilities
+  runAfter:
+    - fvt-coreapi-addons
+    - fvt-coreapi-groupmgmt
+    - fvt-coreapi-usermgmt
+    - fvt-coreapi-workspacemgmt
+    - fvt-coreapi-graphiteconfigtool
+
+# Core FVT 2.4 coreapi-uiresources ~5m
+- name: fvt-coreapi-uiresources
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-coreapi-uiresources
+  runAfter:
+    - fvt-coreapi-addons
+    - fvt-coreapi-groupmgmt
+    - fvt-coreapi-usermgmt
+    - fvt-coreapi-workspacemgmt
+    - fvt-coreapi-graphiteconfigtool
+
+# Core FVT 2.5 coreapi-dependencies ~10m
+- name: fvt-coreapi-dependencies
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-coreapi-dependencies
+  runAfter:
+    - fvt-coreapi-addons
+    - fvt-coreapi-groupmgmt
+    - fvt-coreapi-usermgmt
+    - fvt-coreapi-workspacemgmt
+    - fvt-coreapi-graphiteconfigtool
