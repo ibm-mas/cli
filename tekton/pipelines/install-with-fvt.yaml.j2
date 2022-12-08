@@ -355,7 +355,7 @@ spec:
 
     # 16. MAS Core IVT
     # -------------------------------------------------------------------------
-    #{ lookup('template', 'taskdefs/ivt-core/all-apps.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/ivt-core/all-apps.yml.j2') | indent(4) }}
 
 
     # 17. Application FVT - Assist

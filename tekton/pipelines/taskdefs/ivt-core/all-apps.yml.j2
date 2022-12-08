@@ -112,7 +112,6 @@
   {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
-  params:
     - name: product_id
       value: ibm-mas-optimizer
     - name: product_channel
@@ -179,7 +178,6 @@
   {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
-  params:
     - name: product_id
       value: ibm-mas-visualinspection
     - name: product_channel

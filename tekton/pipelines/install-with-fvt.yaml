@@ -2869,7 +2869,343 @@ spec:
 
     # 16. MAS Core IVT
     # -------------------------------------------------------------------------
-    #{ lookup('template', 'taskdefs/ivt-core/all-apps.yml.j2') | indent(4) }}
+    # IVT 1: Core x Assist
+    # -------------------------------------------------------------------------
+    - name: ivtcore-assist
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: fvt_image_name
+          value: ivt-core
+        - name: fvt_image_version
+          value: $(params.ivt_version_core)
+        - name: product_id
+          value: ibm-mas-assist
+        - name: product_channel
+          value: $(params.mas_app_channel_assist)
+      when:
+        - input: "$(params.ivt_version_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_assist)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - app-cfg-assist
+
+
+    # IVT 2: Core x HPUtilities
+    # -------------------------------------------------------------------------
+    - name: ivtcore-hputilities
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: fvt_image_name
+          value: ivt-core
+        - name: fvt_image_version
+          value: $(params.ivt_version_core)
+        - name: product_id
+          value: ibm-mas-hputilities
+        - name: product_channel
+          value: $(params.mas_app_channel_hputilities)
+      when:
+        - input: "$(params.ivt_version_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_hputilities)"
+          operator: notin
+          values: [""]
+        - input: "$(params.fvt_version_health)" # Cannot be tested if Health is not installed (fvt_version_health is only set when health is)
+          operator: notin
+          values: [""]
+      runAfter:
+        - app-cfg-hputilities
+
+
+    # IVT 3: Core x IoT
+    # -------------------------------------------------------------------------
+    - name: ivtcore-iot
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: fvt_image_name
+          value: ivt-core
+        - name: fvt_image_version
+          value: $(params.ivt_version_core)
+        - name: product_id
+          value: ibm-mas-iot
+        - name: product_channel
+          value: $(params.mas_app_channel_iot)
+      when:
+        - input: "$(params.ivt_version_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_iot)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - app-cfg-iot
+
+
+    # IVT 4: Core x Manage
+    # -------------------------------------------------------------------------
+    - name: ivtcore-manage
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: fvt_image_name
+          value: ivt-core
+        - name: fvt_image_version
+          value: $(params.ivt_version_core)
+        - name: product_id
+          value: ibm-mas-manage
+        - name: product_channel
+          value: $(params.mas_app_channel_manage)
+      when:
+        - input: "$(params.ivt_version_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - app-cfg-manage
+
+
+    # IVT 5: Core x Monitor
+    # -------------------------------------------------------------------------
+    - name: ivtcore-monitor
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: fvt_image_name
+          value: ivt-core
+        - name: fvt_image_version
+          value: $(params.ivt_version_core)
+        - name: product_id
+          value: ibm-mas-monitor
+        - name: product_channel
+          value: $(params.mas_app_channel_monitor)
+      when:
+        - input: "$(params.ivt_version_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - app-cfg-monitor
+
+
+    # IVT 6: Core x Optimizer
+    # -------------------------------------------------------------------------
+    - name: ivtcore-optimizer
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: fvt_image_name
+          value: ivt-core
+        - name: fvt_image_version
+          value: $(params.ivt_version_core)
+        - name: product_id
+          value: ibm-mas-optimizer
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+      when:
+        - input: "$(params.ivt_version_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_optimizer)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - app-cfg-optimizer
+
+
+    # IVT 7: Core x Predict
+    # -------------------------------------------------------------------------
+    - name: ivtcore-predict
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: fvt_image_name
+          value: ivt-core
+        - name: fvt_image_version
+          value: $(params.ivt_version_core)
+        - name: product_id
+          value: ibm-mas-predict
+        - name: product_channel
+          value: $(params.mas_app_channel_predict)
+      when:
+        - input: "$(params.ivt_version_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+        - input: "$(params.fvt_version_health)" # Cannot be tested if Health is not installed (fvt_version_health is only set when health is)
+          operator: notin
+          values: [""]
+      runAfter:
+        - app-cfg-predict
+
+
+    # IVT 8: Core x Safety
+    # -------------------------------------------------------------------------
+    - name: ivtcore-safety
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: fvt_image_name
+          value: ivt-core
+        - name: fvt_image_version
+          value: $(params.ivt_version_core)
+        - name: product_id
+          value: ibm-mas-safety
+        - name: product_channel
+          value: $(params.mas_app_channel_safety)
+      when:
+        - input: "$(params.ivt_version_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_safety)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - app-cfg-safety
+
+
+    # IVT 9: Core x Visual Inspection
+    # -------------------------------------------------------------------------
+    - name: ivtcore-visualinspection
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: fvt_image_name
+          value: ivt-core
+        - name: fvt_image_version
+          value: $(params.ivt_version_core)
+        - name: product_id
+          value: ibm-mas-visualinspection
+        - name: product_channel
+          value: $(params.mas_app_channel_visualinspection)
+      when:
+        - input: "$(params.ivt_version_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_visualinspection)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - app-cfg-visualinspection
 
 
     # 17. Application FVT - Assist
