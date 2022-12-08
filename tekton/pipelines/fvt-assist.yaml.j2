@@ -1,0 +1,44 @@
+---
+# Don't edit install.yaml directly -- modify install.yaml.j2, and the content in parts/, then run "ansible-playbook generate-install.yaml"
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-fvt-assist
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+
+  params:
+    # 1. Installation
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'params/install.yml.j2') | indent(4) }}
+
+
+    # 2. Additional Params for FVT
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'params/fvt.yml.j2') | indent(4) }}
+
+
+  tasks:
+    # 1. Core x Assist
+    # -------------------------------------------------------------------------
+    - name: ivtcore-assist
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-assist
+        - name: product_channel
+          value: $(params.mas_app_channel_assist)
+      when:
+        - input: "$(params.ivt_version_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_assist)"
+          operator: notin
+          values: [""]
+
+    # 2. Application FVT - Assist
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/assist-multistep.yml.j2') | indent(4) }}

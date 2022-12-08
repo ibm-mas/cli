@@ -2,15 +2,14 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-fvt-assist-testng
+  name: mas-fvt-assist
 spec:
   params:
     # Test Container Information
     # -------------------------------------------------------------------------
     - name: fvt_image_name
       type: string
-      description: FVT Container Image Name
-      default: fvt-assist-testng
+      description: FVT Container Image Name (required)
     - name: fvt_image_version
       type: string
       description: FVT Container Image Version
@@ -113,8 +112,10 @@ spec:
       - name: CTF_IS_LOCAL
         value: $(params.ctf_is_local)
   steps:
-    - image: '{{ fvt_registry }}/fvt-assist/$(params.fvt_image_name):$(params.fvt_image_version)'
+    - image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/$(params.fvt_image_name):$(params.fvt_image_version)'
       imagePullPolicy: Always
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
       volumeMounts:

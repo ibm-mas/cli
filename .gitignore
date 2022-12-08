@@ -6,3 +6,4 @@ target/
 tmp/
 tekton/test-run.yml
 tekton/ibm-mas-tekton.yaml
+tekton/test-run-assist.yml
