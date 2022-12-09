@@ -68,8 +68,6 @@ spec:
 
   stepTemplate:
     name: 'fvt-core'
-    timeout: 90m # Ensure bad FVTs don't run forever
-    onError: continue # Ensure bad FVTs don't break the pipeline
     env:
       - name: PRODUCT_ID
         value: ibm-mas
@@ -105,6 +103,8 @@ spec:
   steps:
     - image: 'wiotp-docker-local.artifactory.swg-devops.com/$(params.fvt_image_namespace)/$(params.fvt_image_name):$(params.fvt_image_version)'
       imagePullPolicy: Always
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
       volumeMounts:
