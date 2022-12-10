@@ -157,13 +157,7 @@
   type: string
 
 # Dependencies - AppConnect
-- name: appconnect_entitlement_username
-  type: string
-  default: ""
-- name: appconnect_entitlement_key
-  type: string
-  default: ""
-  description: Override IBM Entitlement key for AppConnect installation
+{{ lookup('template', 'params/install-appconnect.yml.j2') }}
 
 # Dependencies - COS
 - name: cos_type

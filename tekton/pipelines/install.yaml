@@ -177,13 +177,25 @@ spec:
       type: string
 
     # Dependencies - AppConnect
-    - name: appconnect_entitlement_username
+    # Subscription Channel
+    - name: appconnect_channel
       type: string
       default: ""
-    - name: appconnect_entitlement_key
+    # Dashboard Configuration
+    - name: appconnect_dashboard_version
       type: string
       default: ""
-      description: Override IBM Entitlement key for AppConnect installation
+    - name: appconnect_dashboard_name
+      type: string
+      default: ""
+    # License
+    - name: appconnect_license_id
+      type: string
+      default: ""
+    # Storage Class
+    - name: appconnect_storage_class
+      type: string
+      default: ""
 
     # Dependencies - COS
     - name: cos_type
