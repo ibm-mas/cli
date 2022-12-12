@@ -4,3 +4,6 @@
 image/cli/mascli/templates/ibm-mas-tekton.yaml
 target/
 tmp/
+tekton/test-run.yml
+tekton/ibm-mas-tekton.yaml
+tekton/test-run-assist.yml

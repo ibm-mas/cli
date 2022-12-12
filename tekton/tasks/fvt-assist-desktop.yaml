@@ -1,0 +1,217 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-fvt-assist-desktop
+spec:
+  params:
+    # Test Container Information
+    # -------------------------------------------------------------------------
+    - name: fvt_image_version
+      type: string
+      description: FVT Container Image Version
+      default: latest
+
+    # Test Framework Information
+    # -------------------------------------------------------------------------
+    - name: fvt_enable_debug
+      type: string
+      description: Turn on debug logging (verbose mode)
+      default: "true"
+    - name: fvt_test_suite
+      type: string
+      description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
+      default: ""
+
+    - name: devops_mongo_uri
+      type: string
+      description: Mongo URI for recording test results (optional)
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Build number to record test result (optional)
+      default: ""
+    - name: product_channel
+      type: string
+      description: "Subscription channel for the product (todo: have the test code look this up instead)"
+      default: ""
+    - name: mas_instance_id
+      type: string
+      description: Instance ID of the target test environment
+    - name: mas_workspace_id
+      type: string
+      description: Workspace ID in MAS to use for running the tests
+
+    # Assist Specific information
+    - name: assist_device_type
+      type: string
+      description: Assist UI test device type. Can be android, ios, chrome, edge, firefox or safari. Default is chrome
+      default: ""
+    - name: assist_test_type
+      type: string
+      description: Assist UI test type. Can be mobileapp, mobilebrowser or desktop. Default is desktop
+      default: ""
+
+    # Common Test Framework Specific information
+    - name: ctf_is_local
+      type: string
+      description: Boolean value to check if tests are runninng locally or on fvt
+      default: "false"
+
+  stepTemplate:
+    image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+    imagePullPolicy: Always
+    resources: {}
+    workingDir: /opt/ibm/test/src
+    volumeMounts:
+      - mountPath: /dev/shm
+        name: dshm
+    env:
+      - name: PRODUCT_ID
+        value: ibm-mas-assist
+      - name: PRODUCT_CHANNEL
+        value: $(params.product_channel)
+
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: BUILD_NUM
+        value: $(params.devops_build_number)
+
+      - name: IBMADMIN_ENABLED
+        value: "true"
+
+      - name: NAMESPACE
+        value: "mas-$(params.mas_instance_id)-core"
+      - name: INSTANCE_ID
+        value: "$(params.mas_instance_id)"
+      - name: WORKSPACE_ID
+        value: "$(params.mas_workspace_id)"
+
+      - name: FVT_ENABLE_DEBUG
+        value: "$(params.fvt_enable_debug)"
+
+      # Assist Specific information
+      - name: BROWSERSTACK_TESTSERVER
+        value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+      - name: BROWSERSTACK_APPID
+        value: ""
+      - name: BROWSERSTACK_USELOCAL
+        value: ""
+      - name: BROWSERSTACK_FORCEUSELOCAL
+        value: ""
+      - name: BROWSERSTACK_USERID
+        value: ""
+      - name: BROWSERSTACK_ACCESSKEY
+        value: ""
+
+      - name: ASSIST_DEVICE_TYPE
+        value: $(params.assist_device_type)
+      - name: ASSIST_TEST_TYPE
+        value: $(params.assist_test_type)
+
+      # Common Test Framework Specific information
+      - name: CTF_IS_LOCAL
+        value: $(params.ctf_is_local)
+  volumes:
+    - name: dshm
+      emptyDir:
+        medium: Memory
+  workspaces:
+    - name: configs
+  steps:
+    - name: admin-roles
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-admin-roles", "/bin/bash", "runner.sh" ]
+    - name: admin-apikeys
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-admin-apikeys", "/bin/bash", "runner.sh" ]
+    - name: admin-field
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-admin-field", "/bin/bash", "runner.sh" ]
+    - name: admin-expertise
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-admin-expertise", "/bin/bash", "runner.sh" ]
+    - name: admin-collaboration
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-admin-collaboration", "/bin/bash", "runner.sh" ]
+    - name: admin-ice
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-admin-ice", "/bin/bash", "runner.sh" ]
+    - name: admin-search-config
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-admin-search-config", "/bin/bash", "runner.sh" ]
+    - name: admin-sessions
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-admin-sessions", "/bin/bash", "runner.sh" ]
+    - name: admin-users
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-admin-users", "/bin/bash", "runner.sh" ]
+    - name: diagnosis-element-relation
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-diagnosis-element-relation", "/bin/bash", "runner.sh" ]
+    - name: diagnosis-flow
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-diagnosis-flow", "/bin/bash", "runner.sh" ]
+    - name: diagnosis-library-feedback
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-diagnosis-library-feedback", "/bin/bash", "runner.sh" ]
+    - name: diagnosis-library-historicaldata
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-diagnosis-library-historicaldata", "/bin/bash", "runner.sh" ]
+    - name: technician-diagnosis
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-technician-diagnosis", "/bin/bash", "runner.sh" ]
+    - name: query-docpreview
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-query-docpreview", "/bin/bash", "runner.sh" ]
+    - name: query-maximo-integration
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-query-maximo-integration", "/bin/bash", "runner.sh" ]
+    - name: query-resultcard
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-query-resultcard", "/bin/bash", "runner.sh" ]
+    - name: query-search
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-query-search", "/bin/bash", "runner.sh" ]
+    - name: query-searchconfig
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-query-searchconfig", "/bin/bash", "runner.sh" ]
+    - name: technician-collaborate
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-technician-collaborate", "/bin/bash", "runner.sh" ]
+    - name: admin-attribute
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-admin-attribute", "/bin/bash", "runner.sh" ]
+    - name: admin-token-refresh-studio
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-admin-token-refresh-studio", "/bin/bash", "runner.sh" ]
+    - name: admin-token-refresh-adminconsole
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-admin-token-refresh-adminconsole", "/bin/bash", "runner.sh" ]
+    - name: admin-token-refresh-technician
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      command: [ "FVT_TEST_SUITE=testng-desktop-admin-token-refresh-technician", "/bin/bash", "runner.sh" ]

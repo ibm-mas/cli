@@ -1,0 +1,13 @@
+taskRef:
+  kind: Task
+  name: mas-fvt-assist
+when:
+  - input: "$(params.fvt_version_assist)"
+    operator: notin
+    values: [""]
+  - input: "$(params.mas_app_channel_assist)"
+    operator: notin
+    values: [""]
+workspaces:
+  - name: configs
+    workspace: shared-configs

@@ -1,0 +1,135 @@
+# Prepare data for Python and Desktop suites
+# -----------------------------------------------------------------------------
+- name: fvt-assist-testng-preparedata
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-prepare.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: prepare
+  runAfter:
+    - ivtcore-assist
+
+
+# Python - Singleton
+# -----------------------------------------------------------------------------
+- name: fvt-assist-python
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-python.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: unittest_pg_session
+  runAfter:
+    - fvt-assist-testng-preparedata
+
+
+# Desktop Test Suite - Runs in sequence
+# -----------------------------------------------------------------------------
+- name: fvt-assist-testng-desktop
+  taskRef:
+    kind: Task
+    name: mas-fvt-assist-desktop
+  when:
+    - input: "$(params.fvt_version_assist)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+  runAfter:
+    - fvt-assist-testng-preparedata
+
+
+# Mobile Test Suite - Singleton
+# -----------------------------------------------------------------------------
+- name: fvt-assist-testng-mobile
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-mobile-diagnosis
+    - name: assist_test_type
+      value: mobileapp
+    - name: assist_device_type
+      value: android
+  runAfter:
+    - ivtcore-assist
+
+
+# Cucumber - Run in parallel
+# -----------------------------------------------------------------------------
+- name: fvt-assist-cucumber
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: document_query
+  runAfter:
+    - ivtcore-assist
+
+- name: fvt-assist-cucumber-bayes
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: bayes
+  runAfter:
+    - ivtcore-assist
+
+- name: fvt-assist-cucumber-diagnosis
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: diagnosis
+  runAfter:
+    - ivtcore-assist
+
+- name: fvt-assist-cucumber-document-management
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: document_management
+  runAfter:
+    - ivtcore-assist
+
+- name: fvt-assist-cucumber-expertise
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: expertise
+  runAfter:
+    - ivtcore-assist
+
+- name: fvt-assist-cucumber-iot
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: iot
+  runAfter:
+    - ivtcore-assist
+
+- name: fvt-assist-cucumber-usage
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: usage
+  runAfter:
+    - ivtcore-assist
+
+- name: fvt-assist-cucumber-knowledge-extraction
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: knowledge-extraction
+  runAfter:
+    - ivtcore-assist

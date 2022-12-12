@@ -1,0 +1,336 @@
+# Prepare data for Python and Desktop suites
+# -----------------------------------------------------------------------------
+- name: fvt-assist-testng-preparedata
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-prepare.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: prepare
+  runAfter:
+    - ivtcore-assist
+
+
+# Python - Singleton
+# -----------------------------------------------------------------------------
+- name: fvt-assist-python
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-python.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: unittest_pg_session
+  runAfter:
+    - fvt-assist-testng-preparedata
+
+
+# Desktop Test Suite - Runs in sequence in steps
+# -----------------------------------------------------------------------------
+- name: fvt-assist-testng-desktop
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-admin-roles
+  runAfter:
+    - fvt-assist-testng-preparedata
+
+- name: fvt-assist-testng-desktop-admin-apikeys
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-admin-apikeys
+  runAfter:
+    - fvt-assist-testng-desktop-admin-roles
+
+- name: fvt-assist-testng-desktop-admin-field
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-admin-field
+  runAfter:
+    - fvt-assist-testng-desktop-admin-apikeys
+
+- name: fvt-assist-testng-desktop-admin-expertise
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-admin-expertise
+  runAfter:
+    - fvt-assist-testng-desktop-admin-field
+
+- name: fvt-assist-testng-desktop-admin-collaboration
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+  params:
+    - name: fvt_test_suite
+      value: testng-desktop-admin-collaboration
+  runAfter:
+    - fvt-assist-testng-desktop-admin-expertise
+
+- name: fvt-assist-testng-desktop-admin-ice
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-admin-ice
+  runAfter:
+    - fvt-assist-testng-desktop-admin-collaboration
+
+- name: fvt-assist-testng-desktop-admin-search-config
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-admin-search-config
+  runAfter:
+    - fvt-assist-testng-desktop-admin-ice
+
+- name: fvt-assist-testng-desktop-admin-sessions
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-admin-sessions
+  runAfter:
+    - fvt-assist-testng-desktop-admin-search-config
+
+- name: fvt-assist-testng-desktop-admin-users
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-admin-users
+  runAfter:
+    - fvt-assist-testng-desktop-admin-sessions
+
+- name: fvt-assist-testng-desktop-diagnosis-element-relation
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-diagnosis-element-relation
+  runAfter:
+    - fvt-assist-testng-desktop-admin-users
+
+- name: fvt-assist-testng-desktop-diagnosis-flow
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-diagnosis-flow
+  runAfter:
+    - fvt-assist-testng-desktop-diagnosis-element-relation
+
+- name: fvt-assist-testng-desktop-diagnosis-library-feedback
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-diagnosis-library-feedback
+  runAfter:
+    - fvt-assist-testng-desktop-diagnosis-flow
+
+- name: fvt-assist-testng-desktop-diagnosis-library-historicaldata
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-diagnosis-library-historicaldata
+  runAfter:
+    - fvt-assist-testng-desktop-diagnosis-library-feedback
+
+- name: fvt-assist-testng-desktop-technician-diagnosis
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-technician-diagnosis
+  runAfter:
+    - fvt-assist-testng-desktop-diagnosis-library-historicaldata
+
+- name: fvt-assist-testng-desktop-query-docpreview
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-query-docpreview
+  runAfter:
+    - fvt-assist-testng-desktop-technician-diagnosis
+
+- name: fvt-assist-testng-desktop-query-maximo-integration
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-query-maximo-integration
+  runAfter:
+    - fvt-assist-testng-desktop-query-docpreview
+
+- name: fvt-assist-testng-desktop-query-resultcard
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-query-resultcard
+  runAfter:
+    - fvt-assist-testng-desktop-query-maximo-integration
+
+- name: fvt-assist-testng-desktop-query-search
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-query-search
+  runAfter:
+    - fvt-assist-testng-desktop-query-resultcard
+
+- name: fvt-assist-testng-desktop-query-searchconfig
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-query-searchconfig
+  runAfter:
+    - fvt-assist-testng-desktop-query-search
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+- name: fvt-assist-testng-desktop-technician-collaborate
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-technician-collaborate
+  runAfter:
+    - fvt-assist-testng-desktop-query-searchconfig
+
+- name: fvt-assist-testng-desktop-admin-attribute
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-admin-attribute
+  runAfter:
+    - fvt-assist-testng-desktop-technician-collaborate
+
+- name: fvt-assist-testng-desktop-admin-token-refresh-studio
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-admin-token-refresh-studio
+  runAfter:
+    - fvt-assist-testng-desktop-admin-attribute
+
+- name: fvt-assist-testng-desktop-admin-token-refresh-adminconsole
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-admin-token-refresh-adminconsole
+  runAfter:
+    - fvt-assist-testng-desktop-admin-token-refresh-studio
+
+- name: fvt-assist-testng-desktop-admin-token-refresh-technician
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-desktop-admin-token-refresh-technician
+  runAfter:
+    - fvt-assist-testng-desktop-admin-token-refresh-adminconsole
+
+
+# Mobile Test Suite - Singleton
+# -----------------------------------------------------------------------------
+- name: fvt-assist-testng-mobile
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: testng-mobile-diagnosis
+    - name: assist_test_type
+      value: mobileapp
+    - name: assist_device_type
+      value: android
+  runAfter:
+    - ivtcore-assist
+
+
+# Cucumber - Run in parallel
+# -----------------------------------------------------------------------------
+- name: fvt-assist-cucumber
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: document_query
+  runAfter:
+    - ivtcore-assist
+
+- name: fvt-assist-cucumber-bayes
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: bayes
+  runAfter:
+    - ivtcore-assist
+
+- name: fvt-assist-cucumber-diagnosis
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: diagnosis
+  runAfter:
+    - ivtcore-assist
+
+- name: fvt-assist-cucumber-document-management
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: document_management
+  runAfter:
+    - ivtcore-assist
+
+- name: fvt-assist-cucumber-expertise
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: expertise
+  runAfter:
+    - ivtcore-assist
+
+- name: fvt-assist-cucumber-iot
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: iot
+  runAfter:
+    - ivtcore-assist
+
+- name: fvt-assist-cucumber-usage
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: usage
+  runAfter:
+    - ivtcore-assist
+
+- name: fvt-assist-cucumber-knowledge-extraction
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: knowledge-extraction
+  runAfter:
+    - ivtcore-assist

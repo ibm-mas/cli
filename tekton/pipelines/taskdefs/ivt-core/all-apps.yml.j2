@@ -1,0 +1,193 @@
+# IVT 1: Core x Assist
+# -------------------------------------------------------------------------
+- name: ivtcore-assist
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas-assist
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+  when:
+    - input: "$(params.ivt_version_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - app-cfg-assist
+
+
+# IVT 2: Core x HPUtilities
+# -------------------------------------------------------------------------
+- name: ivtcore-hputilities
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas-hputilities
+    - name: product_channel
+      value: $(params.mas_app_channel_hputilities)
+  when:
+    - input: "$(params.ivt_version_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_hputilities)"
+      operator: notin
+      values: [""]
+    - input: "$(params.fvt_version_health)" # Cannot be tested if Health is not installed (fvt_version_health is only set when health is)
+      operator: notin
+      values: [""]
+  runAfter:
+    - app-cfg-hputilities
+
+
+# IVT 3: Core x IoT
+# -------------------------------------------------------------------------
+- name: ivtcore-iot
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas-iot
+    - name: product_channel
+      value: $(params.mas_app_channel_iot)
+  when:
+    - input: "$(params.ivt_version_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_iot)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - app-cfg-iot
+
+
+# IVT 4: Core x Manage
+# -------------------------------------------------------------------------
+- name: ivtcore-manage
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas-manage
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+  when:
+    - input: "$(params.ivt_version_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - app-cfg-manage
+
+
+# IVT 5: Core x Monitor
+# -------------------------------------------------------------------------
+- name: ivtcore-monitor
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas-monitor
+    - name: product_channel
+      value: $(params.mas_app_channel_monitor)
+  when:
+    - input: "$(params.ivt_version_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_monitor)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - app-cfg-monitor
+
+
+# IVT 6: Core x Optimizer
+# -------------------------------------------------------------------------
+- name: ivtcore-optimizer
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas-optimizer
+    - name: product_channel
+      value: $(params.mas_app_channel_optimizer)
+  when:
+    - input: "$(params.ivt_version_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_optimizer)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - app-cfg-optimizer
+
+
+# IVT 7: Core x Predict
+# -------------------------------------------------------------------------
+- name: ivtcore-predict
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas-predict
+    - name: product_channel
+      value: $(params.mas_app_channel_predict)
+  when:
+    - input: "$(params.ivt_version_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_predict)"
+      operator: notin
+      values: [""]
+    - input: "$(params.fvt_version_health)" # Cannot be tested if Health is not installed (fvt_version_health is only set when health is)
+      operator: notin
+      values: [""]
+  runAfter:
+    - app-cfg-predict
+
+
+# IVT 8: Core x Safety
+# -------------------------------------------------------------------------
+- name: ivtcore-safety
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas-safety
+    - name: product_channel
+      value: $(params.mas_app_channel_safety)
+  when:
+    - input: "$(params.ivt_version_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_safety)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - app-cfg-safety
+
+
+# IVT 9: Core x Visual Inspection
+# -------------------------------------------------------------------------
+- name: ivtcore-visualinspection
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas-visualinspection
+    - name: product_channel
+      value: $(params.mas_app_channel_visualinspection)
+  when:
+    - input: "$(params.ivt_version_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_visualinspection)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - app-cfg-visualinspection

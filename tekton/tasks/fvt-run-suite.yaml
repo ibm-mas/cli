@@ -1,0 +1,222 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-fvt-run-suite
+spec:
+  params:
+    # Test Container Information
+    # -------------------------------------------------------------------------
+    - name: fvt_image_namespace
+      type: string
+      description: FVT Image namespace
+      default: mas-devops
+    - name: fvt_image_name
+      type: string
+      description: FVT Container Image
+    - name: fvt_image_version
+      type: string
+      description: FVT Container Image Version
+      default: latest
+
+    # Test Framework Information
+    # -------------------------------------------------------------------------
+    - name: fvt_enable_debug
+      type: string
+      description: Turn on debug logging (verbose mode)
+      default: "true"
+    - name: fvt_test_suite
+      type: string
+      description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
+      default: ""
+    - name: devops_mongo_uri
+      type: string
+      description: Mongo URI for recording test results (optional)
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Build number to record test result (optional)
+      default: ""
+    - name: product_id
+      type: string
+      description: Product ID under test
+      default: ibm-mas
+    - name: product_channel
+      type: string
+      description: "Subscription channel for the product (todo: have the test code look this up instead)"
+      default: ""
+    - name: mas_instance_id
+      type: string
+      description: Instance ID of the target test environment
+    - name: mas_workspace_id
+      type: string
+      description: Workspace ID in MAS to use for running the tests
+    - name: devops_cos_crn
+      type: string
+      description: Object Storage Resource Instance Id in IBM Cloud (optional)
+      default: ""
+    - name: devops_cos_upload_folder
+      type: string
+      description: Directory inside container that will be uploaded to Object Storage (optional)
+      default: ""
+    - name: ibmcloud_apikey
+      description: IBM Cloud API Key to access Object Storage resource (optional)
+      default: ""
+
+    # Test-specific Information (all optional)
+    # -------------------------------------------------------------------------
+    - name: ddp_apikey
+      type: string
+      description: Partium username (required by fvt-adoptionusagereporter)
+      default: ""
+    - name: partium_username
+      type: string
+      description: Partium username (required by fvt-coreapi-workspacemgmt)
+      default: ""
+    - name: partium_password
+      type: string
+      description: Partium password (required by fvt-coreapi-workspacemgmt)
+      default: ""
+    - name: artifactory_apikey
+      type: string
+      description: Artifactory API Key (required by fvt-ibm-mas-manage and fvt-ibm-mas-safety to pull test container content)
+      default: ""
+
+    # Assist Specific information
+    - name: browserstack_remoteserver
+      type: string
+      description: Browserstack remote server url (required by assist test container)
+      default: ""
+    - name: browserstack_appid
+      type: string
+      description: Browserstack app_id for mobile device. If it's not informed, assume it's for desktop test
+      default: ""
+    - name: assist_device_type
+      type: string
+      description: Assist UI test device type. Can be android, ios, chrome, edge, firefox or safari. Default is chrome
+      default: ""
+    - name: assist_test_type
+      type: string
+      description: Assist UI test type. Can be mobileapp, mobilebrowser or desktop. Default is desktop
+      default: ""
+    - name: browserstack_uselocal
+      type: string
+      description: Browserstack network policy. Can be true or false. Default is false.
+      default: ""
+    - name: browserstack_forceuselocal
+      type: string
+      description: Browserstack network policy force flag. Can be true or false. Default is false.
+      default: ""
+    - name: browserstack_userid
+      type: string
+      description: Browserstack userid.
+      default: ""
+    - name: browserstack_accesskey
+      type: string
+      description: Browserstack accesskey.
+      default: ""
+
+    # Mobile Foundation Specific information
+    - name: foundation_device_type
+      type: string
+      description: Mobile Foundation test device type. Can be android, ios. Default is android
+      default: ""
+    - name: foundation_server_type
+      type: string
+      description: Mobile Foundation server type. Can be mas, eam. Default is mas
+      default: ""
+
+    # Common Test Framework Specific information
+    - name: ctf_is_local
+      type: string
+      description: Boolean value to check if tests are runninng locally or on fvt
+      default: "false"
+
+  stepTemplate:
+    name: 'fvt-run-$(params.fvt_image_name)'
+    env:
+      - name: PRODUCT_ID
+        value: $(params.product_id)
+      - name: PRODUCT_CHANNEL
+        value: $(params.product_channel)
+
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: BUILD_NUM
+        value: $(params.devops_build_number)
+
+      - name: IBMADMIN_ENABLED
+        value: "true"
+
+      - name: NAMESPACE
+        value: "mas-$(params.mas_instance_id)-core"
+      - name: INSTANCE_ID
+        value: "$(params.mas_instance_id)"
+      - name: WORKSPACE_ID
+        value: "$(params.mas_workspace_id)"
+
+      - name: FVT_TEST_SUITE
+        value: $(params.fvt_test_suite)
+      - name: FVT_ENABLE_DEBUG
+        value: "$(params.fvt_enable_debug)"
+
+      - name: DDP_APIKEY
+        value: $(params.ddp_apikey)
+      - name: PARTIUM_USERNAME
+        value: $(params.partium_username)
+      - name: PARTIUM_PASSWORD
+        value: $(params.partium_password)
+      - name: ARTIFACTORY_APIKEY
+        value: $(params.artifactory_apikey)
+
+      - name: DEVOPS_COS_CRN
+        value: $(params.devops_cos_crn)
+      - name: DEVOPS_COS_UPLOAD_FOLDER
+        value: $(params.devops_cos_upload_folder)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
+
+      # Assist Specific information
+      - name: BROWSERSTACK_TESTSERVER
+        value: $(params.browserstack_remoteserver)
+      - name: BROWSERSTACK_APPID
+        value: $(params.browserstack_appid)
+      - name: ASSIST_DEVICE_TYPE
+        value: $(params.assist_device_type)
+      - name: ASSIST_TEST_TYPE
+        value: $(params.assist_test_type)
+      - name: BROWSERSTACK_USELOCAL
+        value: $(params.browserstack_uselocal)
+      - name: BROWSERSTACK_FORCEUSELOCAL
+        value: $(params.browserstack_forceuselocal)
+      - name: BROWSERSTACK_USERID
+        value: $(params.browserstack_userid)
+      - name: BROWSERSTACK_ACCESSKEY
+        value: $(params.browserstack_accesskey)
+
+      # Mobile Foundation Specific information
+      - name: FOUNDATION_DEVICE_TYPE
+        value: $(params.foundation_device_type)
+      - name: FOUNDATION_SERVER_TYPE
+        value: $(params.foundation_server_type)
+
+      # Common Test Framework Specific information
+      - name: CTF_IS_LOCAL
+        value: $(params.ctf_is_local)
+  steps:
+    - image: 'wiotp-docker-local.artifactory.swg-devops.com/$(params.fvt_image_namespace)/$(params.fvt_image_name):$(params.fvt_image_version)'
+      imagePullPolicy: Always
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      resources: {}
+      workingDir: /opt/ibm/test/src
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+  volumes:
+    - name: dshm
+      emptyDir:
+        medium: Memory
+
+  workspaces:
+    - name: configs

@@ -3,7 +3,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: mas-install
+  name: mas-install-with-fvt
 spec:
   workspaces:
     # The generated configuration files
@@ -19,6 +19,12 @@ spec:
     # 1. Installation
     # -------------------------------------------------------------------------
     {{ lookup('template', 'params/install.yml.j2') | indent(4) }}
+
+
+    # 2. Additional Params for FVT
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'params/fvt.yml.j2') | indent(4) }}
+
 
   tasks:
     # Content
@@ -119,7 +125,7 @@ spec:
     # 3.6 Configure Watson Studio in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
       runAfter:
-        - suite-verify
+        - fvt-smtp
         - watson-studio
 
 
@@ -131,7 +137,7 @@ spec:
     # 4.2 Configure COS in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-cos.yml.j2') | indent(4) }}
       runAfter:
-        - suite-verify
+        - fvt-smtp
         - cos
 
     # 4.1 Install AppConnect
@@ -142,7 +148,7 @@ spec:
     # 4.2 Configure AppConnect in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-appconnect.yml.j2') | indent(4) }}
       runAfter:
-        - suite-verify
+        - fvt-smtp
         - appconnect
 
     # 4.3 Nvidia GPU Operator
@@ -183,13 +189,13 @@ spec:
     # 5.6 Configure Db2 in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
       runAfter:
-        - suite-verify
+        - fvt-smtp
         - db2
 
     # 5.7 Configure Kafka in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
       runAfter:
-        - suite-verify
+        - fvt-smtp
         - kafka
 
 
@@ -273,7 +279,7 @@ spec:
     # 11.1 Optimizer Install
     {{ lookup('template', 'taskdefs/apps/optimizer-app.yml.j2') | indent(4) }}
       runAfter:
-        - suite-verify
+        - fvt-smtp
 
     # 11.2 Configure Optimizer workspace
     {{ lookup('template', 'taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}
@@ -321,12 +327,76 @@ spec:
     {{ lookup('template', 'taskdefs/apps/visualinspection-app.yml.j2') | indent(4) }}
       runAfter:
         - nvidia-gpu
-        - suite-verify
+        - fvt-smtp
 
     # 14.2 Configure MVI workspace
     {{ lookup('template', 'taskdefs/apps/visualinspection-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-visualinspection
+
+
+    # 15. MAS Core FVT
+    # -------------------------------------------------------------------------
+    # 15.1 Phase 1 of CoreAPI testing (~35m)
+    {{ lookup('template', 'taskdefs/fvt-core/phase1.yml.j2') | indent(4) }}
+
+    # 15.2 Phase 2 of CoreAPI testing (~10m)
+    {{ lookup('template', 'taskdefs/fvt-core/phase2.yml.j2') | indent(4) }}
+
+    # 15.3 Adoptionusage Metering test suite (~30m)
+    {{ lookup('template', 'taskdefs/fvt-core/phase3.yml.j2') | indent(4) }}
+
+    # 15.4 Miscellaneous test suites (~10m)
+    {{ lookup('template', 'taskdefs/fvt-core/phase4.yml.j2') | indent(4) }}
+
+    # 15.5 Single-threaded suites
+    {{ lookup('template', 'taskdefs/fvt-core/phase5.yml.j2') | indent(4) }}
+
+
+    # 16. MAS Core IVT
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/ivt-core/all-apps.yml.j2') | indent(4) }}
+
+
+    # 17. Application FVT - Assist
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/assist-multistep.yml.j2') | indent(4) }}
+
+
+    # 18. Application FVT - IoT
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/iot.yml.j2') | indent(4) }}
+
+
+    # 19. Application FVT - Manage
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/manage.yml.j2') | indent(4) }}
+
+
+    # 20. Application FVT - Mobile Foundation
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/mobile.yml.j2') | indent(4) }}
+
+
+    # 21. Application FVT - Monitor
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/monitor.yml.j2') | indent(4) }}
+
+
+    # 22. Application FVT - Predict
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/predict.yml.j2') | indent(4) }}
+
+
+    # 23. Application FVT - Safety
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/safety.yml.j2') | indent(4) }}
+
+
+    # 24. Application FVT - Visual Inspection
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/visualinspection.yml.j2') | indent(4) }}
+
 
   # Mustgather executed in finally block. Use suite_mustgather_download
   # playbook to retrieve the output on your local machine

@@ -1,0 +1,16 @@
+# Only start phase 3 test after all suites in phase 2 are complete
+# This testsuite cannot be run in parallel with others
+
+# FVT3.1 adoptionusagemetering ~30m
+- name: fvt-adoptionusagemetering
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-adoptionusagemetering
+  runAfter:
+    - fvt-coreapi-mobileapi
+    - fvt-coreapi-other
+    - fvt-coreapi-uiresources
+    - fvt-coreapi-dependencies
+    - fvt-coreapi-utilities

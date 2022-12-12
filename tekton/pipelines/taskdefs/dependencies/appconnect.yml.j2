@@ -6,16 +6,24 @@
       value: $(params.devops_build_number)
     - name: devops_mongo_uri
       value: $(params.devops_mongo_uri)
-
     - name: mas_instance_id
       value: $(params.mas_instance_id)
-
-    - name: appconnect_entitlement_username
-      value: $(params.appconnect_entitlement_username)
     - name: ibm_entitlement_key
       value: $(params.ibm_entitlement_key)
-    - name: appconnect_entitlement_key
-      value: $(params.appconnect_entitlement_key)
+    # Subscription Channel
+    - name: appconnect_channel
+      value: $(params.appconnect_channel)
+    # Dashboard Configuration
+    - name: appconnect_dashboard_version
+      value: $(params.appconnect_dashboard_version)
+    - name: appconnect_dashboard_name
+      value: $(params.appconnect_dashboard_name)
+    # License
+    - name: appconnect_license_id
+      value: $(params.appconnect_license_id)
+    # Storage Class
+    - name: appconnect_storage_class
+      value: $(params.appconnect_storage_class)
   taskRef:
     kind: Task
     name: mas-devops-appconnect

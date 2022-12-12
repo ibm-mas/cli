@@ -1,0 +1,53 @@
+# Core FVT 1.1 coreapi-addons ~20m
+- name: fvt-coreapi-addons
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-coreapi-addons
+  runAfter:
+    - suite-verify
+
+# Core FVT 1.2 coreapi-groupmgmt ~30m
+- name: fvt-coreapi-groupmgmt
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-coreapi-groupmgmt
+  runAfter:
+    - suite-verify
+
+# Core FVT 1.3 coreapi-usermgmt ~15m
+- name: fvt-coreapi-usermgmt
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-coreapi-usermgmt
+  runAfter:
+    - suite-verify
+
+# Core FVT 1.4 coreapi-workspacemgmt  ~35m
+- name: fvt-coreapi-workspacemgmt
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_image_name
+      value: fvt-coreapi-workspacemgmt
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: partium_username
+      value: $(params.partium_username)
+    - name: partium_password
+      value: $(params.partium_password)
+  runAfter:
+    - suite-verify
+
+# Core FVT 1.5 coreapi-graphiteconfigtool  ~15m
+- name: fvt-coreapi-graphiteconfigtool
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_image_name
+      value: fvt-coreapi-graphiteconfigtool
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - suite-verify

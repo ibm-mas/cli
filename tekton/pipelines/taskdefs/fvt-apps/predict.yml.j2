@@ -1,0 +1,38 @@
+- name: fvt-predict
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: fvt_image_namespace
+      value: ai-solutions
+    - name: fvt_image_name
+      value: common-test-framework
+    - name: fvt_image_version
+      value: $(params.fvt_version_predict)
+    - name: fvt_test_suite
+      value: predict_fvt # pytest_marker in Common Test Framework
+    - name: product_channel
+      value: $(params.mas_app_channel_predict)
+    - name: product_id
+      value: ibm-mas-predict
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Predict FVT to run
+  when:
+    - input: "$(params.fvt_version_predict)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_predict)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - ivtcore-predict
+  workspaces:
+    - name: configs
+      workspace: shared-configs
