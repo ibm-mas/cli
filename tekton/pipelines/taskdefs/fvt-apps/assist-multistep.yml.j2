@@ -3,9 +3,7 @@
 - name: fvt-assist-testng-preparedata
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
-    - name: fvt_image_name
-      value: fvt-assist-preparedata
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-prepare.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: prepare
   runAfter:
