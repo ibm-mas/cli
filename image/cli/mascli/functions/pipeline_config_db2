@@ -19,4 +19,4 @@ function config_pipeline_storage_db2_size() {
         prompt_for_input "Size of backup persistent volume" DB2_BACKUP_STORAGE_SIZE && export DB2_BACKUP_STORAGE_SIZE  
 
     fi
-}         
+}
