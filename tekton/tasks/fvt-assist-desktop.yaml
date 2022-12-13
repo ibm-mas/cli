@@ -118,168 +118,168 @@ spec:
     - name: configs
   steps:
     - name: admin-roles
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-roles", "/bin/bash", "runner.sh" ]
 
     - name: admin-apikeys
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-apikeys", "/bin/bash", "runner.sh" ]
 
     - name: admin-field
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-field", "/bin/bash", "runner.sh" ]
 
     - name: admin-expertise
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-expertise", "/bin/bash", "runner.sh" ]
 
     - name: admin-collaboration
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-collaboration", "/bin/bash", "runner.sh" ]
 
     - name: admin-ice
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-ice", "/bin/bash", "runner.sh" ]
 
     - name: admin-search-config
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-search-config", "/bin/bash", "runner.sh" ]
 
     - name: admin-sessions
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-sessions", "/bin/bash", "runner.sh" ]
 
     - name: admin-users
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-users", "/bin/bash", "runner.sh" ]
 
     - name: diagnosis-element-relation
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-diagnosis-element-relation", "/bin/bash", "runner.sh" ]
 
     - name: diagnosis-flow
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-diagnosis-flow", "/bin/bash", "runner.sh" ]
 
     - name: diagnosis-library-feedback
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-diagnosis-library-feedback", "/bin/bash", "runner.sh" ]
 
     - name: diagnosis-library-historicaldata
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-diagnosis-library-historicaldata", "/bin/bash", "runner.sh" ]
 
     - name: technician-diagnosis
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-technician-diagnosis", "/bin/bash", "runner.sh" ]
 
     - name: query-docpreview
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-query-docpreview", "/bin/bash", "runner.sh" ]
 
     - name: query-maximo-integration
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-query-maximo-integration", "/bin/bash", "runner.sh" ]
 
     - name: query-resultcard
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-query-resultcard", "/bin/bash", "runner.sh" ]
 
     - name: query-search
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-query-search", "/bin/bash", "runner.sh" ]
 
     - name: query-searchconfig
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-query-searchconfig", "/bin/bash", "runner.sh" ]
 
     - name: technician-collaborate
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-technician-collaborate", "/bin/bash", "runner.sh" ]
 
     - name: admin-attribute
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-attribute", "/bin/bash", "runner.sh" ]
 
     - name: admin-token-refresh-studio
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-token-refresh-studio", "/bin/bash", "runner.sh" ]
 
     - name: admin-token-refresh-adminconsole
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-token-refresh-adminconsole", "/bin/bash", "runner.sh" ]
 
     - name: admin-token-refresh-technician
-      image: 'wiotp-docker-local.artifactory.swg-devops.com/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
+      image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline

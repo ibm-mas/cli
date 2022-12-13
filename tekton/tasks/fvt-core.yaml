@@ -7,6 +7,9 @@ spec:
   params:
     # Test Container Information
     # -------------------------------------------------------------------------
+    - name: fvt_image_registry
+      type: string
+      description: FVT Container Image Registry (required)
     - name: fvt_image_namespace
       type: string
       description: FVT Image namespace
@@ -101,7 +104,7 @@ spec:
       - name: PARTIUM_PASSWORD
         value: $(params.partium_password)
   steps:
-    - image: 'wiotp-docker-local.artifactory.swg-devops.com/$(params.fvt_image_namespace)/$(params.fvt_image_name):$(params.fvt_image_version)'
+    - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name):$(params.fvt_image_version)'
       imagePullPolicy: Always
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
