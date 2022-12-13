@@ -7,6 +7,9 @@ spec:
   params:
     # Test Container Information
     # -------------------------------------------------------------------------
+    - name: fvt_image_registry
+      type: string
+      description: FVT Container Image Registry (required)
     - name: fvt_image_version
       type: string
       description: FVT Container Image Version
