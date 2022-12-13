@@ -1,5 +1,15 @@
 - name: db2
   params:
+    - name: db2_cpu_requests
+      value: $(params.db2_cpu_requests)
+    - name: db2_cpu_limits
+      value: $(params.db2_cpu_limits)
+
+    - name: db2_meta_storage_accessmode
+      value: $(params.db2_meta_storage_accessmode)
+    - name: db2_backup_storage_accessmode
+      value: $(params.db2_backup_storage_accessmode)
+
     - name: db2_meta_storage_class
       value: $(params.storage_class_rwx)
     - name: db2_data_storage_class

@@ -34,6 +34,7 @@ spec:
       value: '$DB2_CPU_REQUESTS'
     - name: db2_cpu_limits
       value: '$DB2_CPU_LIMITS'
+
     - name: db2_meta_storage_size
       value: '$DB2_META_STORAGE_SIZE'
     - name: db2_backup_storage_size
@@ -44,7 +45,7 @@ spec:
       value: '$DB2_TEMP_STORAGE_SIZE'
     - name: db2_data_storage_size
       value: '$DB2_DATA_STORAGE_SIZE'
-    
+   
     # Additional Mongo DB parameters
     - name: mongodb_replicas
       value: '$MONGODB_REPLICAS'
@@ -162,9 +163,9 @@ spec:
     - name: mas_app_channel_manage
       value: '$MAS_APP_CHANNEL_MANAGE'
     - name: mas_app_settings_aio_flag
-      value: '$MAS_APP_SETTINGS_AIO_FLAG'    
+      value: '$MAS_APP_SETTINGS_AIO_FLAG'
     - name: mas_app_settings_demodata
-      value: '$MAS_APP_SETTINGS_DEMODATA'    
+      value: '$MAS_APP_SETTINGS_DEMODATA'
     # Monitor Application
     - name: mas_app_source_monitor
       value: '$MAS_APP_SOURCE_MONITOR'

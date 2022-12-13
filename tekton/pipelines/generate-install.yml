@@ -4,3 +4,9 @@
     - ansible.builtin.template:
         src: install.yaml.j2
         dest: install.yaml
+    - ansible.builtin.template:
+        src: install-with-fvt.yaml.j2
+        dest: install-with-fvt.yaml
+    - ansible.builtin.template:
+        src: fvt-assist.yaml.j2
+        dest: fvt-assist.yaml

@@ -1,0 +1,91 @@
+## Mobile Foundation Prepare User Data
+- name: fvt-mobilefoundation-testng-preparedata
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-mobilefoundation
+    - name: fvt_image_name
+      value: fvt-mobilefoundation-preparedata
+    - name: fvt_image_version
+      value: $(params.fvt_version_mobilefoundation)
+    - name: fvt_test_suite
+      value: prepare
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-mobilefoundation
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Mobile Foundation FVT to run
+  when:
+    - input: "$(params.fvt_version_mobilefoundation)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - ivtcore-manage
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+## All Mobile Foundation MAS test suites
+- name: fvt-mobilefoundation-testng-mas-login
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_namespace
+      value: fvt-mobilefoundation
+    - name: fvt_image_name
+      value: fvt-mobilefoundation-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_mobilefoundation)
+    - name: fvt_test_suite
+      value: testng-fvt-login
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-mobilefoundation
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+    - name: foundation_device_type
+      value: android
+    - name: foundation_server_type
+      value: mas
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Mobile Foundation FVT to run
+  when:
+    - input: "$(params.fvt_version_mobilefoundation)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-mobilefoundation-testng-preparedata
+  workspaces:
+    - name: configs
+      workspace: shared-configs

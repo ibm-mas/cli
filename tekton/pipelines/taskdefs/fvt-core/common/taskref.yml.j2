@@ -1,0 +1,10 @@
+taskRef:
+  kind: Task
+  name: mas-fvt-core
+when:
+  - input: "$(params.fvt_version_core)"
+    operator: notin
+    values: [""]
+workspaces:
+  - name: configs
+    workspace: shared-configs

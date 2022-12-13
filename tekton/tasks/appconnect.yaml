@@ -5,44 +5,32 @@ metadata:
   name: mas-devops-appconnect
 spec:
   params:
+    # MAS Instance
     - name: mas_instance_id
       type: string
       description: Instance ID
       default: ""
-
     # Entitlement
-    - name: appconnect_entitlement_username
-      type: string
-      default: ""
-      description: "AppConnect Entitlement Username"
     - name: ibm_entitlement_key
       type: string
-      default: ""
       description: "IBM Entitlement Key"
-    - name: appconnect_entitlement_key
-      type: string
       default: ""
-      description: "Optional AppConnect-specific override for the IBM entitlement key"
-
-    # Channel
+    # Subscription Channel
     - name: appconnect_channel
       type: string
       default: ""
-
-    # Dashboard
+    # Dashboard Configuration
     - name: appconnect_dashboard_name
       type: string
       default: ""
     - name: appconnect_dashboard_version
       type: string
       default: ""
-
     # License
     - name: appconnect_license_id
       type: string
       default: ""
-
-    # Storage Clas
+    # Storage Class
     - name: appconnect_storage_class
       type: string
       default: ""
@@ -68,33 +56,23 @@ spec:
         value: /workspace/configs
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
-
       # Entitlement
-      - name: APPCONNECT_ENTITLEMENT_USERNAME
-        value: $(params.appconnect_entitlement_username)
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
-      - name: APPCONNECT_ENTITLEMENT_KEY
-        value: $(params.appconnect_entitlement_key)
-
       # Channel
       - name: APPCONNECT_CHANNEL
         value: $(params.appconnect_channel)
-
       # Dashboard
       - name: APPCONNECT_DASHBOARD_NAME
         value: $(params.appconnect_dashboard_name)
       - name: APPCONNECT_DASHBOARD_VERSION
         value: $(params.appconnect_dashboard_version)
-
       # License
       - name: APPCONNECT_LICENSE_ID
         value: $(params.appconnect_license_id)
-
       # Storage Class
       - name: APPCONNECT_STORAGE_CLASS
         value: $(params.appconnect_storage_class)
-
       # Optional support built into the ansible-devops image
       # for saving task execution results to a MongoDb instance
       - name: DEVOPS_MONGO_URI
@@ -103,7 +81,6 @@ spec:
         value: $(params.devops_suite_name)
       - name: DEVOPS_BUILD_NUMBER
         value: $(params.devops_build_number)
-
   steps:
     - name: appconnect
       command:

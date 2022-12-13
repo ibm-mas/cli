@@ -13,8 +13,13 @@
       value: manage
     - name: mas_workspace_id
       value: "$(params.mas_workspace_id)"
+
     - name: mas_appws_components
       value: "$(params.mas_appws_components)"
+    - name: mas_app_settings_aio_flag
+      value: $(params.mas_app_settings_aio_flag)
+    - name: mas_app_settings_demodata
+      value: $(params.mas_app_settings_demodata)
   taskRef:
     name: mas-devops-suite-app-config
     kind: Task

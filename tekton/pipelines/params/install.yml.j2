@@ -1,0 +1,373 @@
+# Development Build Support
+- name: artifactory_username
+  default: ""
+  type: string
+  description: Required to install development MAS catalogs
+- name: artifactory_apikey
+  default: ""
+  type: string
+  description: Required to install development MAS catalogs
+
+- name: storage_class_rwo
+  type: string
+  default: ""
+  description: ReadWriteOnce storage class
+
+- name: storage_class_rwx
+  type: string
+  default: ""
+  description: ReadWriteMany storage class
+
+- name: ibm_entitlement_key        # Required
+  type: string
+  description: IBM Entitlement Key
+
+# Dependencies - Foundation Services
+- name: common_services_catalog_source
+  type: string
+  default: ""
+
+# Dependencies - SLS
+- name: sls_license_id             # Required
+  type: string
+- name: sls_license_file           # Required
+  type: string
+- name: sls_mongodb_cfg_file
+  type: string
+  default: "/workspace/configs/mongo-mongoce.yml"
+- name: sls_catalog_source
+  type: string
+  default: ""
+- name: sls_channel
+  type: string
+  default: ""
+- name: sls_icr_cp
+  type: string
+  default: ""
+- name: sls_icr_cpopen
+  type: string
+  default: ""
+- name: sls_entitlement_username
+  type: string
+  default: ""
+- name: sls_entitlement_key
+  type: string
+  default: ""
+  description: Override IBM Entitlement key for SLS installation
+
+# Dependencies - Mongo
+- name: mongodb_storage_class
+  type: string
+  default: ""
+- name: mongodb_replicas
+  type: string
+  description: Optional configuration for mongodb replicas
+  default: ""
+- name: mongodb_cpu_requests
+  type: string
+  description: Optional configuration for mongodb cpu requests
+  default: ""
+
+# Dependencies - Kafka
+- name: kafka_namespace
+  type: string
+  default: ""
+- name: kafka_cluster_name
+  type: string
+  default: ""
+- name: kafka_cluster_size
+  type: string
+  default: ""
+- name: kafka_user_name
+  type: string
+  default: ""
+
+# Dependencies - nvidia gpu
+- name: gpu_namespace
+  type: string
+  description: Optional. Nvidia gpu namespace
+  default: ""
+- name: gpu_channel
+  type: string
+  description: Optional. Nvidia gpu channel for install and updates
+  default: ""
+- name: nfd_namespace
+  type: string
+  description: Optional. Node feature discovery namespace
+  default: ""
+- name: nfd_channel
+  type: string
+  description: Optional. Node feature discovery channel for install and updates
+  default: ""
+
+# Dependencies - DB2
+- name: db2_meta_storage_accessmode
+  type: string
+  description: Optional configuration for db2 meta storage access mode
+  default: ""
+- name: db2_backup_storage_accessmode
+  type: string
+  description: Optional configuration for db2 backup storage access mode
+  default: ""
+- name: db2_cpu_requests
+  type: string
+  description: Optional configuration for db2 cpu requests
+  default: ""
+- name: db2_cpu_limits
+  type: string
+  description: Optional configuration for mongodb cpu limits
+  default: ""
+
+# Dependencies - CP4D
+- name: cpd_operators_namespace
+  type: string
+  default: ""
+- name: cpd_instance_namespace
+  type: string
+  default: ""
+- name: cpd_primary_storage_class
+  type: string
+  default: ""
+- name: cpd_metadata_storage_class
+  type: string
+  default: ""
+
+# Dependencies - CP4D Services
+- name: cpd_product_version        # Required
+  type: string
+- name: cpd_wd_storage_class
+  type: string
+  default: ""
+- name: cpd_wml_storage_class
+  type: string
+  default: ""
+- name: cpd_spark_storage_class
+  type: string
+  default: ""
+- name: cpd_wsl_storage_class
+  type: string
+  default: ""
+
+# Dependencies - UDS
+- name: uds_contact_email          # Required
+  type: string
+- name: uds_contact_firstname      # Required
+  type: string
+- name: uds_contact_lastname       # Required
+  type: string
+
+# Dependencies - AppConnect
+{{ lookup('template', 'params/install-appconnect.yml.j2') }}
+
+# Dependencies - COS
+- name: cos_type
+  type: string
+  description: COS Provider (ibm or ocs)
+- name: ibmcloud_apikey
+  type: string
+  description: API Key used to create COS instance in IBM Cloud
+- name: uds_event_scheduler_frequency
+  type: string
+  default: ""
+- name: mas_segment_key
+  type: string
+  default: ""
+
+# MAS DNS Integrations - General
+- name: dns_provider
+  type: string
+  default: ""
+# MAS DNS Integrations - Cloudflare Support
+- name: cloudflare_email
+  type: string
+  default: ""
+- name: cloudflare_apitoken
+  type: string
+  default: ""
+- name: cloudflare_zone
+  type: string
+  default: ""
+- name: cloudflare_subdomain
+  type: string
+  default: ""
+# MAS DNS Integrations - IBM Cloud Internet Services Support
+- name: cis_email
+  type: string
+  default: ""
+- name: cis_apikey
+  type: string
+  default: ""
+- name: cis_crn
+  type: string
+  default: ""
+- name: cis_subdomain
+  type: string
+  default: ""
+
+# MAS Configuration
+- name: mas_instance_id            # Required
+  type: string
+- name: mas_channel                # Required
+  type: string
+- name: mas_catalog_source
+  type: string
+  default: ibm-operator-catalog
+- name: mas_catalog_version
+  type: string
+  default: v8-amd64
+
+- name: mas_domain
+  type: string
+  default: ""
+- name: mas_cluster_issuer
+  type: string
+  default: ""
+
+- name: mas_icr_cp
+  type: string
+  default: ""
+- name: mas_icr_cpopen
+  type: string
+  default: ""
+- name: mas_entitlement_username
+  type: string
+  default: ""
+- name: mas_annotations
+  type: string
+  default: ""
+- name: mas_entitlement_key
+  type: string
+  default: ""
+  description: Override IBM Entitlement key for MAS installation
+
+# MAS Configuration - Workspace
+- name: mas_workspace_id
+  type: string
+  description: Workspace ID used to configure all applications
+  default: masdev
+- name: mas_workspace_name
+  type: string
+  description: Workspace Name used when setting up the workspace
+  default: MAS Development
+
+# MAS Configuration - Manage Application
+- name: mas_appws_components
+  type: string
+  description: Manage components to configure in the workspace
+  default: "base=latest,health=latest"
+- name: mas_app_settings_aio_flag
+  type: string
+  description: Flag indicating if Asset Investment Optimization (AIO) resource must be loaded or not. It can be loaded only when Optimizer application is installed.
+  default: ""
+- name: mas_app_settings_demodata
+  type: string
+  description: Flag indicating if manage demodata should be loaded or not
+  default: ""
+
+# MAS Configuration - Optimizer Application
+- name: mas_app_plan_optimizer
+  type: string
+  description: Configure install plan of Optimizer application (full or limited)
+  default: full
+
+# MAS Configuration - Predict
+- name: wml_instance_id
+  type: string
+  description: wml instance to be configured in Predict
+  default: ""
+- name: wml_url
+  type: string
+  description: Url to access wml services
+  default: ""
+- name: wml_version
+  type: string
+  description: product version if cpd_product_version is not set
+  default: ""
+- name: predict_deployment_size
+  type: string
+  description: controls the workload size of predict containers
+  default: ""
+
+# MAS Configuration - Application Channels
+- name: mas_app_channel_iot
+  type: string
+  description: Subscription channel for IoT application operator
+  default: ""
+- name: mas_app_channel_manage
+  type: string
+  description: Subscription channel for Manage application operator
+  default: ""
+- name: mas_app_channel_monitor
+  type: string
+  description: Subscription channel for Monitor application operator
+  default: ""
+- name: mas_app_channel_optimizer
+  type: string
+  description: Subscription channel for Optimizer application operator
+  default: ""
+- name: mas_app_channel_predict
+  type: string
+  description: Subscription channel for Predict application operator
+  default: ""
+- name: mas_app_channel_safety
+  type: string
+  description: Subscription channel for Safety application operator
+  default: ""
+- name: mas_app_channel_hputilities
+  type: string
+  description: Subscription channel for Health & Predict - Utilities application operator
+  default: ""
+- name: mas_app_channel_assist
+  type: string
+  description: Subscription channel for Assist application operator
+  default: ""
+- name: mas_app_channel_visualinspection
+  type: string
+  description: Subscription channel for MVI application operator
+  default: ""
+
+# MAS Configuration - Application Sources
+- name: mas_app_source_iot
+  type: string
+  description: Subscription source for IoT application operator
+  default: ibm-operator-catalog
+- name: mas_app_source_manage
+  type: string
+  description: Subscription source for Manage application operator
+  default: ibm-operator-catalog
+- name: mas_app_source_monitor
+  type: string
+  description: Subscription source for Monitor application operator
+  default: ibm-operator-catalog
+- name: mas_app_source_optimizer
+  type: string
+  description: Subscription source for Optimizer application operator
+  default: ibm-operator-catalog
+- name: mas_app_source_predict
+  type: string
+  description: Subscription source for Predict application operator
+  default: ibm-operator-catalog
+- name: mas_app_source_safety
+  type: string
+  description: Subscription source for Safety application operator
+  default: ibm-operator-catalog
+- name: mas_app_source_hputilities
+  type: string
+  description: Subscription source for Health & Predict - Utilities application operator
+  default: ""
+- name: mas_app_source_assist
+  type: string
+  description: Subscription source for Assist application operator
+  default: ""
+- name: mas_app_source_visualinspection
+  type: string
+  description: Subscription source for MVI application operator
+  default: ""
+
+# Persist Results (Optional)
+- name: devops_mongo_uri
+  type: string
+  default: ""
+- name: devops_build_number
+  type: string
+  default: ""
