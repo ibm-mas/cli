@@ -179,9 +179,7 @@ function config_pipeline_applications() {
     if prompt_for_confirm "Install IoT"; then
       channel_select_iot || exit 1
     fi
-  fi
-
-  if [[ "$SNO_MODE" != "true" ]]; then
+    
     # Applications only supported in online installs
     if [[ -z "$AIRGAP_MODE" ]]; then
       # Applications that require IoT
@@ -211,17 +209,12 @@ function config_pipeline_applications() {
         done
       fi
     fi
-  fi
-
-
-  if [[ "$SNO_MODE" != "true" ]]; then
+  
     # Maximo Visual Inspection
     if prompt_for_confirm "Install Visual Inspection"; then
      channel_select_visualinspection || exit 1
     fi
-  fi
-
-  if [[ "$SNO_MODE" != "true" ]]; then
+ 
     # Applications only supported in online installs
     if [[ -z "$AIRGAP_MODE" ]]; then
       # Applications that require Manage
@@ -237,9 +230,7 @@ function config_pipeline_applications() {
           channel_select_hputilities || exit 1
         fi
       fi
-    fi
 
-    if [[ "$SNO_MODE" != "true" ]]; then
       # Assist
       if prompt_for_confirm "Install Assist"; then
         channel_select_assist || exit 1
