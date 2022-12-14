@@ -75,6 +75,51 @@ spec:
       default: ""
       description: Override IBM Entitlement key for SLS installation
 
+
+    # Dependencies - DB2
+    # DB2 access mode
+    - name: db2_meta_storage_accessmode
+      type: string
+      description: Optional configuration for db2 meta storage access mode
+      default: ""
+    - name: db2_backup_storage_accessmode
+      type: string
+      description: Optional configuration for db2 backup storage access mode
+      default: ""
+
+
+    # Other DB2 parameters
+    - name: db2_cpu_requests
+      type: string
+      description: Optional configuration for db2 cpu requests
+      default: ""
+    - name: db2_cpu_limits
+      type: string
+      description: Optional configuration for mongodb cpu limits
+      default: ""
+   
+    # DB2 size parameters
+    - name: db2_meta_storage_size
+      type: string
+      description: Size of metadata persistent volume
+      default: ""
+    - name: db2_temp_storage_size
+      type: string
+      description: Size of temporary persistent volume
+      default: ""
+    - name: db2_data_storage_size
+      type: string
+      description: Size of data persistent volume
+      default: ""
+    - name: db2_logs_storage_size
+      type: string
+      description: Size of logs persistent volume
+      default: ""
+    - name: db2_backup_storage_size
+      type: string
+      description: Size of backup persistent volume
+      default: ""
+
     # Dependencies - Mongo
     - name: mongodb_storage_class
       type: string
@@ -625,6 +670,26 @@ spec:
           value: $(params.storage_class_rwo)
         - name: db2_temp_storage_class
           value: $(params.storage_class_rwo)
+
+        - name: db2_meta_storage_accessmode
+          value: $(params.db2_meta_storage_accessmode)
+        - name: db2_backup_storage_accessmode
+          value: $(params.db2_backup_storage_accessmode)
+        - name: db2_cpu_requests
+          value: $(params.db2_cpu_requests)
+        - name: db2_cpu_limits
+          value: $(params.db2_cpu_limits)
+
+        - name: db2_meta_storage_size
+          value: $(params.db2_meta_storage_size)
+        - name: db2_backup_storage_size
+          value: $(params.db2_backup_storage_size)
+        - name: db2_logs_storage_size
+          value: $(params.db2_logs_storage_size)
+        - name: db2_temp_storage_size
+          value: $(params.db2_temp_storage_size)
+        - name: db2_data_storage_size
+          value: $(params.db2_data_storage_size)
 
         - name: devops_suite_name
           value: dependencies-db2

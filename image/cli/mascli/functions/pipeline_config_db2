@@ -1,0 +1,22 @@
+#!/bin/bash
+
+
+function config_pipeline_storage_db2_size() {
+    if [[ "$SNO_MODE" == "true" ]]; then
+    
+        DB2_META_STORAGE_SIZE=10Gi 
+        DB2_BACKUP_STORAGE_SIZE=10Gi
+        DB2_LOGS_STORAGE_SIZE=10Gi
+        DB2_TEMP_STORAGE_SIZE=10Gi
+        DB2_DATA_STORAGE_SIZE=20Gi
+
+        echo
+        echo_h2 "6b. DB2 Storage size, in Gi(Gigabytes)"
+        prompt_for_input "Size of data persistent volume" DB2_DATA_STORAGE_SIZE && export DB2_DATA_STORAGE_SIZE
+        prompt_for_input 'Size of temporary persistent volume' DB2_TEMP_STORAGE_SIZE && export DB2_TEMP_STORAGE_SIZE
+        prompt_for_input "Size of metadata persistent volume" DB2_META_STORAGE_SIZE && export DB2_META_STORAGE_SIZE   
+        prompt_for_input 'Size of transaction logs persistent volume' DB2_LOGS_STORAGE_SIZE && export DB2_LOGS_STORAGE_SIZE
+        prompt_for_input "Size of backup persistent volume" DB2_BACKUP_STORAGE_SIZE && export DB2_BACKUP_STORAGE_SIZE  
+
+    fi
+}
