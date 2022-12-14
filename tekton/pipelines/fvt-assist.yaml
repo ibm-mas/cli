@@ -115,6 +115,7 @@ spec:
       default: ""
 
     # Dependencies - DB2
+    # Storage - Access mode
     - name: db2_meta_storage_accessmode
       type: string
       description: Optional configuration for db2 meta storage access mode
@@ -123,6 +124,28 @@ spec:
       type: string
       description: Optional configuration for db2 backup storage access mode
       default: ""
+    # Storage - Capacity
+    - name: db2_meta_storage_size
+      type: string
+      description: Storage capacity (metadata)
+      default: ""
+    - name: db2_backup_storage_size
+      type: string
+      description: Storage capacity (backup)
+      default: ""
+    - name: db2_logs_storage_size
+      type: string
+      description: Storage capacity (logs)
+      default: ""
+    - name: db2_temp_storage_size
+      type: string
+      description: Storage capacity (temp)
+      default: ""
+    - name: db2_data_storage_size
+      type: string
+      description: Storage capacity (data)
+      default: ""
+    # CPU requests and limits
     - name: db2_cpu_requests
       type: string
       description: Optional configuration for db2 cpu requests
@@ -552,6 +575,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: ivt-core
         - name: fvt_image_version
@@ -595,6 +620,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-preparedata
         - name: fvt_image_version
@@ -632,6 +659,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-python
         - name: fvt_image_version
@@ -669,6 +698,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-testng
         - name: fvt_image_version
@@ -704,6 +735,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-testng
         - name: fvt_image_version
@@ -745,6 +778,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-cucumber
         - name: fvt_image_version
@@ -779,6 +814,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-cucumber
         - name: fvt_image_version
@@ -813,6 +850,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-cucumber
         - name: fvt_image_version
@@ -847,6 +886,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-cucumber
         - name: fvt_image_version
@@ -881,6 +922,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-cucumber
         - name: fvt_image_version
@@ -915,6 +958,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-cucumber
         - name: fvt_image_version
@@ -949,6 +994,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-cucumber
         - name: fvt_image_version
@@ -983,6 +1030,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-cucumber
         - name: fvt_image_version

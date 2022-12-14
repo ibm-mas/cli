@@ -121,6 +121,7 @@ spec:
       default: ""
 
     # Dependencies - DB2
+    # Storage - Access mode
     - name: db2_meta_storage_accessmode
       type: string
       description: Optional configuration for db2 meta storage access mode
@@ -129,6 +130,28 @@ spec:
       type: string
       description: Optional configuration for db2 backup storage access mode
       default: ""
+    # Storage - Capacity
+    - name: db2_meta_storage_size
+      type: string
+      description: Storage capacity (metadata)
+      default: ""
+    - name: db2_backup_storage_size
+      type: string
+      description: Storage capacity (backup)
+      default: ""
+    - name: db2_logs_storage_size
+      type: string
+      description: Storage capacity (logs)
+      default: ""
+    - name: db2_temp_storage_size
+      type: string
+      description: Storage capacity (temp)
+      default: ""
+    - name: db2_data_storage_size
+      type: string
+      description: Storage capacity (data)
+      default: ""
+    # CPU requests and limits
     - name: db2_cpu_requests
       type: string
       description: Optional configuration for db2 cpu requests
@@ -755,6 +778,17 @@ spec:
         - name: db2_temp_storage_class
           value: $(params.storage_class_rwo)
 
+        - name: db2_meta_storage_size
+          value: $(params.db2_meta_storage_size)
+        - name: db2_backup_storage_size
+          value: $(params.db2_backup_storage_size)
+        - name: db2_logs_storage_size
+          value: $(params.db2_logs_storage_size)
+        - name: db2_temp_storage_size
+          value: $(params.db2_temp_storage_size)
+        - name: db2_data_storage_size
+          value: $(params.db2_data_storage_size)
+
         - name: devops_suite_name
           value: dependencies-db2
         - name: devops_build_number
@@ -768,6 +802,8 @@ spec:
           value: db2u-shared
         - name: mas_instance_id
           value: $(params.mas_instance_id)
+
+
       # Only install Db2 if IoT or Manage are being installed
       when:
         # See: https://github.com/tektoncd/pipeline/issues/3591#issuecomment-1073901961
@@ -2214,6 +2250,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-coreapi-addons
       runAfter:
@@ -2242,6 +2280,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-coreapi-groupmgmt
       runAfter:
@@ -2270,6 +2310,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-coreapi-usermgmt
       runAfter:
@@ -2300,6 +2342,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: partium_username
           value: $(params.partium_username)
         - name: partium_password
@@ -2332,6 +2376,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
       runAfter:
         - suite-verify
 
@@ -2363,6 +2409,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
       runAfter:
         - fvt-coreapi-addons
         - fvt-coreapi-groupmgmt
@@ -2393,6 +2441,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-coreapi-other
       runAfter:
@@ -2425,6 +2475,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-coreapi-utilities
       runAfter:
@@ -2457,6 +2509,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-coreapi-uiresources
       runAfter:
@@ -2489,6 +2543,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-coreapi-dependencies
       runAfter:
@@ -2525,6 +2581,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-adoptionusagemetering
       runAfter:
@@ -2560,6 +2618,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-internalapi
       runAfter:
@@ -2588,6 +2648,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-catalogapi
       runAfter:
@@ -2616,6 +2678,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-ibmadminissuer
       runAfter:
@@ -2644,6 +2708,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-milestonesapi
       runAfter:
@@ -2672,6 +2738,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-adoptionusageapi
       runAfter:
@@ -2702,6 +2770,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: ddp_apikey
           value: $(params.ddp_apikey)
       runAfter:
@@ -2730,6 +2800,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-accapppoints
         - name: ddp_apikey
@@ -2766,6 +2838,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-coreidp-ldap
       runAfter:
@@ -2801,6 +2875,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-coreidp-saml
       runAfter:
@@ -2829,6 +2905,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-coreidp-auth
       runAfter:
@@ -2857,6 +2935,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-licensingapi
       runAfter:
@@ -2885,6 +2965,8 @@ spec:
           value: $(params.devops_build_number)
         - name: product_channel
           value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-smtp
       runAfter:
@@ -2911,6 +2993,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: ivt-core
         - name: fvt_image_version
@@ -2948,6 +3032,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: ivt-core
         - name: fvt_image_version
@@ -2988,6 +3074,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: ivt-core
         - name: fvt_image_version
@@ -3025,6 +3113,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: ivt-core
         - name: fvt_image_version
@@ -3062,6 +3152,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: ivt-core
         - name: fvt_image_version
@@ -3099,6 +3191,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: ivt-core
         - name: fvt_image_version
@@ -3136,6 +3230,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: ivt-core
         - name: fvt_image_version
@@ -3176,6 +3272,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: ivt-core
         - name: fvt_image_version
@@ -3213,6 +3311,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: ivt-core
         - name: fvt_image_version
@@ -3259,6 +3359,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-preparedata
         - name: fvt_image_version
@@ -3296,6 +3398,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-python
         - name: fvt_image_version
@@ -3333,6 +3437,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-testng
         - name: fvt_image_version
@@ -3368,6 +3474,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-testng
         - name: fvt_image_version
@@ -3409,6 +3517,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-cucumber
         - name: fvt_image_version
@@ -3443,6 +3553,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-cucumber
         - name: fvt_image_version
@@ -3477,6 +3589,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-cucumber
         - name: fvt_image_version
@@ -3511,6 +3625,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-cucumber
         - name: fvt_image_version
@@ -3545,6 +3661,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-cucumber
         - name: fvt_image_version
@@ -3579,6 +3697,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-cucumber
         - name: fvt_image_version
@@ -3613,6 +3733,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-cucumber
         - name: fvt_image_version
@@ -3647,6 +3769,8 @@ spec:
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_name
           value: fvt-assist-cucumber
         - name: fvt_image_version
