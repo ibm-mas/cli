@@ -101,22 +101,7 @@
   default: ""
 
 # Dependencies - DB2
-- name: db2_meta_storage_accessmode
-  type: string
-  description: Optional configuration for db2 meta storage access mode
-  default: ""
-- name: db2_backup_storage_accessmode
-  type: string
-  description: Optional configuration for db2 backup storage access mode
-  default: ""
-- name: db2_cpu_requests
-  type: string
-  description: Optional configuration for db2 cpu requests
-  default: ""
-- name: db2_cpu_limits
-  type: string
-  description: Optional configuration for mongodb cpu limits
-  default: ""
+{{ lookup('template', 'params/install-db2.yml.j2') }}
 
 # Dependencies - CP4D
 - name: cpd_operators_namespace
