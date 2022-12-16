@@ -2252,6 +2252,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-coreapi-addons
       runAfter:
@@ -2282,6 +2284,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-coreapi-groupmgmt
       runAfter:
@@ -2312,6 +2316,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-coreapi-usermgmt
       runAfter:
@@ -2344,6 +2350,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: partium_username
           value: $(params.partium_username)
         - name: partium_password
@@ -2378,6 +2386,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
       runAfter:
         - suite-verify
 
@@ -2411,6 +2421,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
       runAfter:
         - fvt-coreapi-addons
         - fvt-coreapi-groupmgmt
@@ -2443,6 +2455,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-coreapi-other
       runAfter:
@@ -2477,6 +2491,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-coreapi-utilities
       runAfter:
@@ -2511,6 +2527,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-coreapi-uiresources
       runAfter:
@@ -2545,6 +2563,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-coreapi-dependencies
       runAfter:
@@ -2583,6 +2603,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-adoptionusagemetering
       runAfter:
@@ -2620,6 +2642,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-internalapi
       runAfter:
@@ -2650,6 +2674,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-catalogapi
       runAfter:
@@ -2680,6 +2706,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-ibmadminissuer
       runAfter:
@@ -2710,6 +2738,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-milestonesapi
       runAfter:
@@ -2740,6 +2770,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-adoptionusageapi
       runAfter:
@@ -2772,6 +2804,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: ddp_apikey
           value: $(params.ddp_apikey)
       runAfter:
@@ -2802,6 +2836,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-accapppoints
         - name: ddp_apikey
@@ -2840,6 +2876,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-coreidp-ldap
       runAfter:
@@ -2877,6 +2915,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-coreidp-saml
       runAfter:
@@ -2907,6 +2947,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-coreidp-auth
       runAfter:
@@ -2937,6 +2979,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-licensingapi
       runAfter:
@@ -2967,6 +3011,8 @@ spec:
           value: $(params.mas_channel)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
         - name: fvt_image_name
           value: fvt-smtp
       runAfter:
@@ -3334,121 +3380,6 @@ spec:
 
     # 17. Application FVT - Assist
     # -------------------------------------------------------------------------
-    # Prepare data for Python and Desktop suites
-    # -----------------------------------------------------------------------------
-    - name: fvt-assist-testng-preparedata
-      taskRef:
-        kind: Task
-        name: mas-fvt-assist
-      when:
-        - input: "$(params.fvt_version_assist)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_name
-          value: fvt-assist-preparedata
-        - name: fvt_image_version
-          value: $(params.fvt_version_assist)
-        - name: product_channel
-          value: $(params.mas_app_channel_assist)
-        - name: fvt_test_suite
-          value: prepare
-      runAfter:
-        - ivtcore-assist
-
-
-    # Python - Singleton
-    # -----------------------------------------------------------------------------
-    - name: fvt-assist-python
-      taskRef:
-        kind: Task
-        name: mas-fvt-assist
-      when:
-        - input: "$(params.fvt_version_assist)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_name
-          value: fvt-assist-python
-        - name: fvt_image_version
-          value: $(params.fvt_version_assist)
-        - name: product_channel
-          value: $(params.mas_app_channel_assist)
-        - name: fvt_test_suite
-          value: unittest_pg_session
-      runAfter:
-        - fvt-assist-testng-preparedata
-
-
-    # Desktop Test Suite - Runs in sequence
-    # -----------------------------------------------------------------------------
-    - name: fvt-assist-testng-desktop
-      taskRef:
-        kind: Task
-        name: mas-fvt-assist-desktop
-      when:
-        - input: "$(params.fvt_version_assist)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_name
-          value: fvt-assist-testng
-        - name: fvt_image_version
-          value: $(params.fvt_version_assist)
-        - name: product_channel
-          value: $(params.mas_app_channel_assist)
-      runAfter:
-        - fvt-assist-testng-preparedata
-
-
     # Mobile Test Suite - Singleton
     # -----------------------------------------------------------------------------
     - name: fvt-assist-testng-mobile
