@@ -23,21 +23,27 @@ spec:
   tasks:
     # Content
     # -------
-    # 1. MAS Core FVT
+    # 1. MAS Suite Verify
+    # 2. MAS Core FVT
 
-    # 1. MAS Core FVT
+    # 1. MAS Suite Verify
     # -------------------------------------------------------------------------
-    # 1.1 Phase 1 of CoreAPI testing (~35m)
+    # 1.1 Suite Verification
+    {{ lookup('template', 'taskdefs/core/suite-verify.yml.j2') | indent(4) }}
+
+    # 2. MAS Core FVT
+    # -------------------------------------------------------------------------
+    # 2.1 Phase 1 of CoreAPI testing (~35m)
     {{ lookup('template', 'taskdefs/fvt-core/phase1.yml.j2') | indent(4) }}
 
-    # 1.2 Phase 2 of CoreAPI testing (~10m)
+    # 2.2 Phase 2 of CoreAPI testing (~10m)
     {{ lookup('template', 'taskdefs/fvt-core/phase2.yml.j2') | indent(4) }}
 
-    # 1.3 Adoptionusage Metering test suite (~30m)
+    # 2.3 Adoptionusage Metering test suite (~30m)
     {{ lookup('template', 'taskdefs/fvt-core/phase3.yml.j2') | indent(4) }}
 
-    # 1.4 Miscellaneous test suites (~10m)
+    # 2.4 Miscellaneous test suites (~10m)
     {{ lookup('template', 'taskdefs/fvt-core/phase4.yml.j2') | indent(4) }}
 
-    # 1.5 Single-threaded suites
+    # 2.5 Single-threaded suites
     {{ lookup('template', 'taskdefs/fvt-core/phase5.yml.j2') | indent(4) }}
