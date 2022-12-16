@@ -35,6 +35,17 @@ spec:
     - name: db2_cpu_limits
       value: '$DB2_CPU_LIMITS'
 
+    - name: db2_meta_storage_size
+      value: '$DB2_META_STORAGE_SIZE'
+    - name: db2_backup_storage_size
+      value: '$DB2_BACKUP_STORAGE_SIZE'
+    - name: db2_logs_storage_size
+      value: '$DB2_LOGS_STORAGE_SIZE'
+    - name: db2_temp_storage_size
+      value: '$DB2_TEMP_STORAGE_SIZE'
+    - name: db2_data_storage_size
+      value: '$DB2_DATA_STORAGE_SIZE'
+   
     # Additional Mongo DB parameters
     - name: mongodb_replicas
       value: '$MONGODB_REPLICAS'

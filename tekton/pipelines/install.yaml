@@ -121,6 +121,7 @@ spec:
       default: ""
 
     # Dependencies - DB2
+    # Storage - Access mode
     - name: db2_meta_storage_accessmode
       type: string
       description: Optional configuration for db2 meta storage access mode
@@ -129,6 +130,28 @@ spec:
       type: string
       description: Optional configuration for db2 backup storage access mode
       default: ""
+    # Storage - Capacity
+    - name: db2_meta_storage_size
+      type: string
+      description: Storage capacity (metadata)
+      default: ""
+    - name: db2_backup_storage_size
+      type: string
+      description: Storage capacity (backup)
+      default: ""
+    - name: db2_logs_storage_size
+      type: string
+      description: Storage capacity (logs)
+      default: ""
+    - name: db2_temp_storage_size
+      type: string
+      description: Storage capacity (temp)
+      default: ""
+    - name: db2_data_storage_size
+      type: string
+      description: Storage capacity (data)
+      default: ""
+    # CPU requests and limits
     - name: db2_cpu_requests
       type: string
       description: Optional configuration for db2 cpu requests
@@ -626,6 +649,17 @@ spec:
         - name: db2_temp_storage_class
           value: $(params.storage_class_rwo)
 
+        - name: db2_meta_storage_size
+          value: $(params.db2_meta_storage_size)
+        - name: db2_backup_storage_size
+          value: $(params.db2_backup_storage_size)
+        - name: db2_logs_storage_size
+          value: $(params.db2_logs_storage_size)
+        - name: db2_temp_storage_size
+          value: $(params.db2_temp_storage_size)
+        - name: db2_data_storage_size
+          value: $(params.db2_data_storage_size)
+
         - name: devops_suite_name
           value: dependencies-db2
         - name: devops_build_number
@@ -639,6 +673,8 @@ spec:
           value: db2u-shared
         - name: mas_instance_id
           value: $(params.mas_instance_id)
+
+
       # Only install Db2 if IoT or Manage are being installed
       when:
         # See: https://github.com/tektoncd/pipeline/issues/3591#issuecomment-1073901961
