@@ -1,6 +1,6 @@
 # Prepare data for Python and Desktop suites
 # -----------------------------------------------------------------------------
-- name: fvt-assist-testng-preparedata
+- name: fvt-assist-preparedata
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-prepare.yml.j2') | indent(4) }}
@@ -10,33 +10,33 @@
     - ivtcore-assist
 
 
-# Python - Singleton
+# Python
 # -----------------------------------------------------------------------------
-- name: fvt-assist-python-all
+- name: fvt-assist-python
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-python.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: unittest_pg_session
   runAfter:
-    - fvt-assist-testng-preparedata
+    - fvt-assist-preparedata
 
 
-# Desktop Test Suite - Runs in sequence
+# Test NG - Desktop
 # -----------------------------------------------------------------------------
-- name: fvt-assist-testng-desktop-all
+- name: fvt-assist-testng-desktop
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: testng-assist-desktop
   runAfter:
-    - fvt-assist-testng-preparedata
+    - fvt-assist-preparedata
 
 
-# Mobile Test Suite - Singleton
+# Test NG - Mobile
 # -----------------------------------------------------------------------------
-- name: fvt-assist-testng-mobile-all
+- name: fvt-assist-testng-mobile
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
@@ -47,15 +47,14 @@
     - name: assist_device_type
       value: android
   runAfter:
-    - fvt-assist-testng-preparedata
+    - fvt-assist-preparedata
 
 
-# Cucumber - Run in parallel
+# Cucumber
 # -----------------------------------------------------------------------------
-- name: fvt-assist-cucumber-all
+- name: fvt-assist-cucumber
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
   runAfter:
     - ivtcore-assist
-
