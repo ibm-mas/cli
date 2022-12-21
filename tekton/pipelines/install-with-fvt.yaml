@@ -4096,6 +4096,8 @@ spec:
           value: $(params.devops_cos_crn)
         - name: ibmcloud_apikey
           value: $(params.ibmcloud_apikey
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_namespace
           value: fvt-manage
         - name: fvt_image_name
@@ -4242,6 +4244,8 @@ spec:
           value: $(params.devops_cos_crn)
         - name: ibmcloud_apikey
           value: $(params.ibmcloud_apikey
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_namespace
           value: fvt-manage
         - name: fvt_image_name
@@ -4438,6 +4442,8 @@ spec:
           value: $(params.devops_cos_crn)
         - name: ibmcloud_apikey
           value: $(params.ibmcloud_apikey
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_namespace
           value: fvt-inventorycounting
         - name: fvt_image_name
@@ -4484,6 +4490,8 @@ spec:
           value: $(params.devops_cos_crn)
         - name: ibmcloud_apikey
           value: $(params.ibmcloud_apikey
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_namespace
           value: fvt-manage
         - name: fvt_image_name
@@ -4530,6 +4538,8 @@ spec:
           value: $(params.devops_cos_crn)
         - name: ibmcloud_apikey
           value: $(params.ibmcloud_apikey
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_namespace
           value: fvt-manage
         - name: fvt_image_name
@@ -4576,6 +4586,8 @@ spec:
           value: $(params.devops_cos_crn)
         - name: ibmcloud_apikey
           value: $(params.ibmcloud_apikey
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_namespace
           value: fvt-manage
         - name: fvt_image_name
@@ -4622,6 +4634,8 @@ spec:
           value: $(params.devops_cos_crn)
         - name: ibmcloud_apikey
           value: $(params.ibmcloud_apikey
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: fvt_image_namespace
           value: fvt-manage
         - name: fvt_image_name
@@ -4671,7 +4685,9 @@ spec:
     #          value: $(params.devops_cos_crn)
     #        - name: ibmcloud_apikey
     #          value: $(params.ibmcloud_apikey)
+    #        - name: fvt_image_registry
     #
+    #          value: $(params.fvt_image_registry)
     #        - name: fvt_image_namespace
     #          value: fvt-manage
     #        - name: fvt_image_name
@@ -4718,6 +4734,8 @@ spec:
     #        - name: ibmcloud_apikey
     #          value: $(params.ibmcloud_apikey)
     #
+    #        - name: fvt_image_registry
+    #          value: $(params.fvt_image_registry)
     #        - name: fvt_image_namespace
     #          value: fvt-manage
     #        - name: fvt_image_name
