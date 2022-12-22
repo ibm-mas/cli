@@ -542,12 +542,32 @@ spec:
       type: string
       description: FVT Version - Manage IC
       default: ""
+    - name: fvt_version_manage_scheduler
+      type: string
+      description: FVT Version - Manage Scheduler
+      default: ""   
+    - name: fvt_version_manage_mobile_setup
+      type: string
+      description: FVT Version - Manage Mobile Setup
+      default: "" 
+    - name: fvt_version_manage_maintmanager
+      type: string
+      description: FVT Version - Manage Maintenance Manager
+      default: ""   
+
 
     # FVT Versions - Mobile Foundation
     - name: fvt_version_mobilefoundation
       type: string
       description: FVT Version - Mobile Foundation
       default: ""
+
+    # FVT Versions - Mobile IC
+    - name: fvt_version_mobileic
+      type: string
+      description: FVT Version - Mobile IC
+      default: ""
+
 
     # IVT Versions
     - name: ivt_version_core
