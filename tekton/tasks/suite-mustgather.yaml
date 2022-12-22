@@ -5,6 +5,10 @@ metadata:
   name: mas-devops-suite-mustgather
 spec:
   params:
+    - name: cli_version
+      type: string
+      default: latest
+
     - name: base_output_dir
       type: string
       description: Locaton for the output of mustgather. Set as a sub-path of /workspace/mustgather to ensure that data is persisted.
@@ -23,14 +27,14 @@ spec:
     - name: clear-mustgather
       command:
         - /opt/app-root/src/clear-mustgather-workspace.sh
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:$(params.cli_version)
       imagePullPolicy: Always
       workingDir: /workspace/mustgather
     - name: suite-mustgather
       command:
         - /opt/app-root/src/run-role.sh
         - suite_mustgather
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:$(params.cli_version)
       imagePullPolicy: Always
       workingDir: /workspace/mustgather
 

@@ -5,6 +5,10 @@ metadata:
   name: mas-devops-kafka
 spec:
   params:
+    - name: cli_version
+      type: string
+      default: latest
+
     - name: mas_instance_id
       type: string
       description: Instance ID
@@ -73,7 +77,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - kafka
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:$(params.cli_version)
       imagePullPolicy: Always
       workingDir: /workspace/configs
 

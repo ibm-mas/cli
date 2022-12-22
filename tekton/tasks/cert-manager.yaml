@@ -5,6 +5,10 @@ metadata:
   name: mas-devops-cert-manager
 spec:
   params:
+    - name: cli_version
+      type: string
+      default: latest
+
     - name: mas_channel
       type: string
       default: ""
@@ -49,6 +53,6 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cert_manager
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:$(params.cli_version)
       imagePullPolicy: Always
       workingDir: /workspace/configs

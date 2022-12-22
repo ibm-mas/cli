@@ -5,6 +5,10 @@ metadata:
   name: mas-devops-suite-app-config
 spec:
   params:
+    - name: cli_version
+      type: string
+      default: latest
+
     - name: mas_app_id
       type: string
       description: Maximo Application Suite Application ID
@@ -51,7 +55,7 @@ spec:
       type: string
       description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
       default: ""
-    
+
     - name: wml_instance_id
       type: string
       description: Optional. Identifier of wml instance to be configured in Predict
@@ -100,7 +104,7 @@ spec:
       - name: DEVOPS_BUILD_NUMBER
         value: $(params.devops_build_number)
 
-      # Optional 
+      # Optional
       - name: MAS_APP_SETTINGS_AIO_FLAG
         value: $(params.mas_app_settings_aio_flag)
       - name: MAS_APP_SETTINGS_DEMODATA
@@ -121,7 +125,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_app_config
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:$(params.cli_version)
       imagePullPolicy: Always
 
   workspaces:
