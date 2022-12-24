@@ -7,6 +7,13 @@ spec:
   params:
     # Test Container Information
     # -------------------------------------------------------------------------
+    - name: fvt_timeout
+      type: string
+      description: Timeout for FVT suite to run to completion
+      default: 150m
+
+    # Test Container Information
+    # -------------------------------------------------------------------------
     - name: fvt_image_registry
       type: string
       description: FVT Container Image Registry (required)
@@ -209,7 +216,7 @@ spec:
   steps:
     - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name):$(params.fvt_image_version)'
       imagePullPolicy: Always
-      timeout: 150m # Ensure bad FVTs don't run forever
+      timeout: $(params.fvt_timeout) # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
