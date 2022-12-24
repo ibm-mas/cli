@@ -3286,7 +3286,7 @@ spec:
         - input: "$(params.mas_app_channel_hputilities)"
           operator: notin
           values: [""]
-        - input: "$(params.fvt_version_health)" # Cannot be tested if Health is not installed (fvt_version_health is only set when health is)
+        - input: "$(params.fvt_version_hputilities)"
           operator: notin
           values: [""]
       runAfter:
@@ -3484,7 +3484,7 @@ spec:
         - input: "$(params.mas_app_channel_predict)"
           operator: notin
           values: [""]
-        - input: "$(params.fvt_version_health)" # Cannot be tested if Health is not installed (fvt_version_health is only set when health is)
+        - input: "$(params.fvt_version_predict)"
           operator: notin
           values: [""]
       runAfter:
