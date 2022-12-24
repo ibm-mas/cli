@@ -7,13 +7,6 @@ spec:
   params:
     # Test Container Information
     # -------------------------------------------------------------------------
-    - name: fvt_timeout
-      type: string
-      description: Timeout for FVT suite to run to completion
-      default: 150m
-
-    # Test Container Information
-    # -------------------------------------------------------------------------
     - name: fvt_image_registry
       type: string
       description: FVT Container Image Registry (required)
@@ -216,7 +209,7 @@ spec:
   steps:
     - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name):$(params.fvt_image_version)'
       imagePullPolicy: Always
-      timeout: $(params.fvt_timeout) # Ensure bad FVTs don't run forever
+      timeout: 4h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src

@@ -4583,9 +4583,6 @@ spec:
           value: $(params.mas_app_channel_predict)
         - name: product_id
           value: ibm-mas-predict
-        # Increase timeout, this suite is exceeding the 150 minute timeout - try to tune this down once we have an idea how long it takes to run
-        - name: fvt_timeout
-          value: 4h
       taskRef:
         kind: Task
         name: mas-fvt-run-suite
