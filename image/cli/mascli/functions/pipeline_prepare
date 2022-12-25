@@ -60,7 +60,7 @@ function pipeline_prepare() {
 
   echo
   echo_h2 "Installed Task Definitions"
-  oc -n mas-$MAS_INSTANCE_ID-pipelines get tasks -o=custom-columns='NAME:.metadata.name,IMAGE:.spec.steps[0].image'
+  oc -n mas-$MAS_INSTANCE_ID-pipelines get tasks -o=custom-columns='NAME:.metadata.name,IMAGE:.spec.steps[0].image' | grep mas-devops-
 
   echo
   echo_h2 "Installed Pipeline Definitions"

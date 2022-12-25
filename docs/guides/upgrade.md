@@ -27,8 +27,7 @@ Before you start the upgrade, you must mirror the images for the new catalog tha
 - **from-filesystem** mirrors images from a local directory to your private registry
 
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas mirror-images
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas mirror-images
 ```
 
 You will be prompted to set the target registry for the image mirroring and to [select the version of IBM Maximo Operator Catalog to mirror](choosing-the-right-catalog.md) and the subset of content that you wish to mirror.  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.
@@ -55,8 +54,7 @@ mas mirror-images \
 Run `mas upgrade` and choose the MAS instance to upgrade.  The upgrade will automatically detect the installed release, and perform an upgrade to the next available release.
 
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas upgrade
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas upgrade
 ```
 
 The command can also be ran non-interactive.
