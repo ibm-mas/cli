@@ -5,6 +5,10 @@ metadata:
   name: mas-devops-suite-install
 spec:
   params:
+    - name: cli_version
+      type: string
+      default: latest
+
     - name: mas_instance_id
       type: string
     - name: mas_channel
@@ -139,7 +143,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_install
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:$(params.cli_version)
       imagePullPolicy: Always
       workingDir: /workspace/configs
 

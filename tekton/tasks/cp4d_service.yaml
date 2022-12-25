@@ -5,6 +5,10 @@ metadata:
   name: mas-devops-cp4d-service
 spec:
   params:
+    - name: cli_version
+      type: string
+      default: latest
+
     # Namespace configuration (Optional, defaults built into Ansible role)
     - name: cpd_operator_namespace
       type: string
@@ -93,7 +97,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cp4d_service
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:$(params.cli_version)
       imagePullPolicy: Always
       workingDir: /workspace/configs
 

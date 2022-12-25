@@ -1,5 +1,8 @@
 ## Changes
 
+- [`3.5`](https://github.com/ibm-mas/cli/releases/tag/3.5.0) Add fvt-core test pipeline
+- [`3.4`](https://github.com/ibm-mas/cli/releases/tag/3.4.0) Add support for the FVT enhanced pipeline
+- [`3.3`](https://github.com/ibm-mas/cli/releases/tag/3.3.0) Add support for single node OpenShfit on AWS
 - [`3.2`](https://github.com/ibm-mas/cli/releases/tag/3.2.0) Add support for Nov 2022 catalog
 - [`3.1`](https://github.com/ibm-mas/cli/releases/tag/3.1.0) Support two-phase RH image mirroring
 - [`3.0`](https://github.com/ibm-mas/cli/releases/tag/3.0.0) Support combined mas_devops and mas_airgap Ansible collection

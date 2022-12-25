@@ -76,8 +76,7 @@ Disconnected install for IBM Maximo Application Suite is supported from MAS v8.8
 If you do not already have a private registry available to use as your mirror then you can use the `setup-mirror` function to deploy a private registry inside a target OpenShift cluster.
 
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti quay.io/ibmmas/cli mas setup-registry
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas setup-registry
 ```
 
 The registry will be setup running on port 32500.  For more details on this step, refer to the [setup-registry](../commands/setup-registry.md) command's documentation.  Regardless of whether you set up a new registry or already had one, you need to collect the following information about your private registry:
@@ -101,8 +100,7 @@ Mirroring the images is a simple but time consuming process, this step must be p
 - **from-filesystem** mirrors images from a local directory to your private registry
 
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti quay.io/ibmmas/cli mas mirror-images
+docker run -ti --pull always quay.io/ibmmas/cli mas mirror-images
 ```
 
 You will be prompted to set the target registry for the image mirroring and to [select the version of IBM Maximo Operator Catalog to mirror](choosing-the-right-catalog.md) and the subset of content that you wish to mirror.  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.
@@ -124,8 +122,7 @@ mas mirror-images \
 Your cluster must be configured to use the private registry as a mirror for the MAS container images.  An `ImageContentSourcePolicy` named `mas-and-dependencies` will be created in the cluster, this is also the resource that the MAS install will use to detect whether the installation is a disconnected install and tailor the options presented when you run the `mas install` command.
 
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti quay.io/ibmmas/cli mas configure-airgap
+docker run -ti --pull always quay.io/ibmmas/cli mas configure-airgap
 ```
 
 You will be prompted to provide information about the private registry, including the CA certificate necessary to configure your cluster to trust the private registry.
@@ -145,6 +142,5 @@ mas configure-airgap \
 Regardless of whether you are running a connected or disconnect installation, simply run the `mas install` command and follow the prompts.
 
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti quay.io/ibmmas/cli mas install
+docker run -ti --pull always quay.io/ibmmas/cli mas install
 ```

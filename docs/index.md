@@ -15,8 +15,7 @@ Installation
 The best way to use the CLI is to not install it at all and use the container image we publish:
 
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti -v ~:/home/local quay.io/ibmmas/cli
+docker run -ti -v ~:/home/local --pull always quay.io/ibmmas/cli
 ```
 
 !!! tip

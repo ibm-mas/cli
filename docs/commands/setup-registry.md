@@ -5,5 +5,5 @@ Usage
 -------------------------------------------------------------------------------
 
 ```bash
-docker run -ti --rm quay.io/ibmmas/cli mas setup-registry
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas setup-registry
 ```

@@ -5,6 +5,10 @@ metadata:
   name: mas-devops-suite-app-install
 spec:
   params:
+    - name: cli_version
+      type: string
+      default: latest
+
     - name: artifactory_username
       default: ''
       type: string
@@ -113,5 +117,5 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_app_install
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:$(params.cli_version)
       imagePullPolicy: Always
