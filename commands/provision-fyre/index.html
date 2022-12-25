@@ -174,14 +174,12 @@
 </ul>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
 <h3 id="interactive-mode">Interactive Mode<a class="headerlink" href="#interactive-mode" title="Permanent link"></a></h3>
-<pre><code class="language-bash">docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas provision-fyre
+<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-fyre
 </code></pre>
 <h3 id="non-interactive-mode">Non-Interactive Mode<a class="headerlink" href="#non-interactive-mode" title="Permanent link"></a></h3>
 <pre><code class="language-bash">export FYRE_USERNAME=xxx
 export FYRE_APIKEY=xxx
-docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas provision-fyre \
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-fyre \
   -u $FYRE_USERNAME -a $FYRE_APIKEY \
   -p 225 -q product_group \
   -c masonfyre -d &quot;My Cluster&quot; -v 4.10 \

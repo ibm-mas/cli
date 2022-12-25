@@ -139,10 +139,10 @@
 </div>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
 <h3 id="interactive">Interactive<a class="headerlink" href="#interactive" title="Permanent link"></a></h3>
-<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/local quay.io/ibmmas/cli mas configure-airgap
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/local --pull always quay.io/ibmmas/cli mas configure-airgap
 </code></pre>
 <h3 id="non-interactive">Non-Interactive<a class="headerlink" href="#non-interactive" title="Permanent link"></a></h3>
-<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/local quay.io/ibmmas/cli mas configure-airgap \
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/local --pull always quay.io/ibmmas/cli mas configure-airgap \
   -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   --ca-file /mnt/local/registry-ca.crt \
   --no-confirm

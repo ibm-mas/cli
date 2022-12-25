@@ -137,8 +137,7 @@
 </ul>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link"></a></h2>
 <p>The best way to use the CLI is to not install it at all and use the container image we publish:</p>
-<pre><code class="language-bash">docker pull quay.io/ibmmas/cli
-docker run -ti -v ~:/home/local quay.io/ibmmas/cli
+<pre><code class="language-bash">docker run -ti -v ~:/home/local --pull always quay.io/ibmmas/cli
 </code></pre>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
@@ -198,5 +197,5 @@ tar -xvf ibm-mas-cli-2.3.1.tgz
 
 <!--
 MkDocs version : 1.4.2
-Build Date UTC : 2022-12-21 13:57:02.132777+00:00
+Build Date UTC : 2022-12-25 21:36:18.236955+00:00
 -->

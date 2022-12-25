@@ -124,8 +124,7 @@
                 <h1 id="provision-ocp-on-aws-sno">Provision OCP on AWS SNO<a class="headerlink" href="#provision-ocp-on-aws-sno" title="Permanent link"></a></h1>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
 <h3 id="non-interactive-mode">Non-Interactive Mode<a class="headerlink" href="#non-interactive-mode" title="Permanent link"></a></h3>
-<pre><code class="language-bash">docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas provision-aws
+<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-aws
 </code></pre>
               
             </div>
