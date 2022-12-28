@@ -57,8 +57,7 @@ Examples
 -------------------------------------------------------------------------------
 ### Interactive Image Mirroring
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti --rm -v /mnt/registry:/mnt/registry quay.io/ibmmas/cli mas mirror-images
+docker run -ti --rm -v /mnt/registry:/mnt/registry --pull always quay.io/ibmmas/cli mas mirror-images
 ```
 
 ### Two-Phase Image Mirroring
@@ -75,7 +74,7 @@ First, download the latest version of the container image and start up a termina
 
 ```bash
 docker pull quay.io/ibmmas/cli:3.3.0
-docker run -ti --rm -v /mnt/registry:/mnt/registry quay.io/ibmmas/cli mas mirror-images \
+docker run -ti --rm -v /mnt/registry:/mnt/registry quay.io/ibmmas/cli:3.3.0 mas mirror-images \
   --mode to-filesystem \
   --dir /mnt/registry \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY \
@@ -125,8 +124,7 @@ docker run -ti --rm -v /mnt/mirrorregistry:/mnt/mirrorregistry mirror.mydomain.c
 The following example will mirror all images required for Maximo Application Suite Core and the Maximo Manage and IoT applications directly to your target registry, without prompting for confirmation.
 
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas mirror-images \
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas mirror-images \
   --mode direct \
   --dir /mnt/registry \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY \

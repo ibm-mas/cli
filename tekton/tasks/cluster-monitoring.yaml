@@ -5,6 +5,10 @@ metadata:
   name: mas-devops-cluster-monitoring
 spec:
   params:
+    - name: cli_version
+      type: string
+      default: latest
+
     - name: prometheus_retention_period
       type: string
       default: ""
@@ -94,6 +98,6 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cluster_monitoring
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:$(params.cli_version)
       imagePullPolicy: Always
       workingDir: /workspace/configs

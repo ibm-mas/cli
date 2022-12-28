@@ -5,6 +5,10 @@ metadata:
   name: mas-devops-appconnect
 spec:
   params:
+    - name: cli_version
+      type: string
+      default: latest
+
     # MAS Instance
     - name: mas_instance_id
       type: string
@@ -86,7 +90,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - appconnect
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:$(params.cli_version)
       imagePullPolicy: Always
       workingDir: /workspace/configs
 

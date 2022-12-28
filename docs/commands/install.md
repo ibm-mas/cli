@@ -30,8 +30,7 @@ The install is an interactive command.  At present there is no support for an
 unattended install, but this is planned for the future.
 
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti --rm -v ~:/home/local quay.io/ibmmas/cli
+docker run -ti --rm -v ~:/home/local --pull always quay.io/ibmmas/cli
 mas install
 ```
 

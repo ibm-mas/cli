@@ -5,6 +5,10 @@ metadata:
   name: mas-devops-cp4d
 spec:
   params:
+    - name: cli_version
+      type: string
+      default: latest
+
     # CPD Product Version
     - name: cpd_product_version
       type: string
@@ -90,5 +94,5 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cp4d
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:$(params.cli_version)
       imagePullPolicy: Always

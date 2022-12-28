@@ -10,3 +10,6 @@
     - ansible.builtin.template:
         src: fvt-assist.yaml.j2
         dest: fvt-assist.yaml
+    - ansible.builtin.template:
+        src: fvt-core.yaml.j2
+        dest: fvt-core.yaml

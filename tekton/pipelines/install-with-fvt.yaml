@@ -18,6 +18,12 @@ spec:
   params:
     # 1. Installation
     # -------------------------------------------------------------------------
+    # IBM MAS CLI Version
+    - name: cli_version
+      type: string
+      default: latest
+      description: Version of the IBM MAS CLI image to use
+
     # Development Build Support
     - name: artifactory_username
       default: ""
@@ -28,16 +34,17 @@ spec:
       type: string
       description: Required to install development MAS catalogs
 
+    # Storage Class Selection
     - name: storage_class_rwo
       type: string
       default: ""
       description: ReadWriteOnce storage class
-
     - name: storage_class_rwx
       type: string
       default: ""
       description: ReadWriteMany storage class
 
+    # Entitlement
     - name: ibm_entitlement_key        # Required
       type: string
       description: IBM Entitlement Key
@@ -586,14 +593,18 @@ spec:
     # 1.1 IBM Operator Catalog
     - name: ibm-catalogs
       params:
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: setup-ibm-catalogs
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: setup-ibm-catalogs
 
         - name: mas_catalog_version
           value: $(params.mas_catalog_version)
@@ -612,31 +623,39 @@ spec:
         kind: Task
         name: mas-devops-common-services
       params:
-        - name: common_services_catalog_source
-          value: $(params.common_services_catalog_source)
-
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: setup-common-services
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: setup-common-services
+
+        - name: common_services_catalog_source
+          value: $(params.common_services_catalog_source)
       runAfter:
         - ibm-catalogs
 
     # 1.3 IBM Certificate Manager
     - name: cert-manager
       params:
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: setup-cert-manager
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: setup-cert-manager
 
         - name: mas_channel
           value: $(params.mas_channel)
@@ -652,14 +671,18 @@ spec:
         kind: Task
         name: mas-devops-sbo
       params:
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: setup-sbo
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: setup-sbo
 
         - name: mas_channel
           value: $(params.mas_channel)
@@ -667,6 +690,19 @@ spec:
     # 1.5 Configure Cluster Monitoring
     - name: cluster-monitoring
       params:
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: setup-cluster-monitoring
+
         - name: prometheus_storage_class
           value: $(params.storage_class_rwo)
         - name: prometheus_alertmgr_storage_class
@@ -675,15 +711,6 @@ spec:
           value: $(params.storage_class_rwo)
         - name: grafana_instance_storage_class
           value: $(params.storage_class_rwo)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: setup-cluster-monitoring
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
       taskRef:
         kind: Task
         name: mas-devops-cluster-monitoring
@@ -694,21 +721,25 @@ spec:
     # 2.1 MongoDb
     - name: mongodb
       params:
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: dependencies-mongodb
+
         - name: mongodb_storage_class
           value: $(params.storage_class_rwo)
         - name: mongodb_replicas
           value: $(params.mongodb_replicas)
         - name: mongodb_cpu_requests
           value: $(params.mongodb_cpu_requests)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: dependencies-mongodb
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
       taskRef:
         kind: Task
         name: mas-devops-mongodb
@@ -721,6 +752,19 @@ spec:
     # 2.2 AMQStreams (Kafka)
     - name: kafka
       params:
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: dependencies-kafka
+
         - name: kafka_namespace
           value: "$(params.kafka_namespace)"
         - name: kafka_cluster_name
@@ -731,15 +775,6 @@ spec:
           value: "$(params.kafka_user_name)"
         - name: kafka_storage_class
           value: $(params.storage_class_rwo)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: dependencies-kafka
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
       # Only install Kafka if the IoT application is being installed
       when:
         - input: "$(params.mas_app_channel_iot)"
@@ -757,6 +792,19 @@ spec:
     # 2.3 Db2
     - name: db2
       params:
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: dependencies-db2
+
         - name: db2_cpu_requests
           value: $(params.db2_cpu_requests)
         - name: db2_cpu_limits
@@ -789,20 +837,10 @@ spec:
         - name: db2_data_storage_size
           value: $(params.db2_data_storage_size)
 
-        - name: devops_suite_name
-          value: dependencies-db2
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-
         - name: ibm_entitlement_key
           value: $(params.ibm_entitlement_key)
         - name: db2_instance_name
           value: db2u-shared
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-
 
       # Only install Db2 if IoT or Manage are being installed
       when:
@@ -827,19 +865,24 @@ spec:
     # 2.4 IBM SLS
     - name: sls
       params:
-        - name: devops_suite_name
-          value: dependencies-sls
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: dependencies-sls
 
         - name: artifactory_username
           value: $(params.artifactory_username)
         - name: artifactory_apikey
           value: $(params.artifactory_apikey)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+
         - name: sls_mongodb_cfg_file
           value: $(params.sls_mongodb_cfg_file)
         - name: sls_catalog_source
@@ -874,6 +917,19 @@ spec:
     # 2.5 UDS
     - name: uds
       params:
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: dependencies-uds
+
         - name: uds_contact_email
           value: "$(params.uds_contact_email)"
         - name: uds_contact_firstname
@@ -885,17 +941,8 @@ spec:
         - name: uds_storage_class
           value: $(params.storage_class_rwo)
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_segment_key
           value: $(params.mas_segment_key)
-
-        - name: devops_suite_name
-          value: dependencies-uds
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
       taskRef:
         kind: Task
         name: mas-devops-uds
@@ -911,19 +958,23 @@ spec:
     # 3.1 Cloud Pak for Data Platform
     - name: cp4d
       params:
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
-        - name: cpd_product_version
-          value: $(params.cpd_product_version)
-
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: setup-cp4d
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: setup-cp4d
+
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
+        - name: cpd_product_version
+          value: $(params.cpd_product_version)
       taskRef:
         kind: Task
         name: mas-devops-cp4d
@@ -938,12 +989,18 @@ spec:
     # 3.2 Watson Studio
     - name: watson-studio
       params:
-        - name: devops_suite_name
-          value: setup-cp4d-wsl
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: setup-cp4d-wsl
 
         - name: cpd_product_version
           value: "$(params.cpd_product_version)"
@@ -951,8 +1008,6 @@ spec:
           value: wsl
         - name: cpd_service_storage_class
           value: "$(params.cpd_wsl_storage_class)"
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
       taskRef:
@@ -972,12 +1027,18 @@ spec:
     # 3.3 Watson Machine Learning
     - name: watson-machine-learning
       params:
-        - name: devops_suite_name
-          value: setup-cp4d-wml
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: setup-cp4d-wml
 
         - name: cpd_product_version
           value: "$(params.cpd_product_version)"
@@ -985,8 +1046,6 @@ spec:
           value: wml
         - name: cpd_service_storage_class
           value: "$(params.cpd_wml_storage_class)"
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
       taskRef:
@@ -1006,12 +1065,18 @@ spec:
     # 3.4 Analytics Service (Spark)
     - name: analytics-service
       params:
-        - name: devops_suite_name
-          value: setup-cp4d-spark
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: setup-cp4d-spark
 
         - name: cpd_product_version
           value: "$(params.cpd_product_version)"
@@ -1019,8 +1084,6 @@ spec:
           value: spark
         - name: cpd_service_storage_class
           value: "$(params.cpd_spark_storage_class)"
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
       taskRef:
@@ -1040,12 +1103,18 @@ spec:
     # 3.5 Watson Discovery
     - name: discovery
       params:
-        - name: devops_suite_name
-          value: setup-cp4d-discovery
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: setup-cp4d-discovery
 
         - name: cpd_product_version
           value: "$(params.cpd_product_version)"
@@ -1053,8 +1122,6 @@ spec:
           value: wd
         - name: cpd_service_storage_class
           value: "$(params.cpd_wd_storage_class)"
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
       taskRef:
@@ -1074,15 +1141,18 @@ spec:
     # 3.6 Configure Watson Studio in MAS
     - name: suite-config-watson-studio
       params:
-        - name: devops_suite_name
-          value: cfg-suite-watson-studio
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: devops_suite_name
+          value: cfg-suite-watson-studio
       taskRef:
         kind: Task
         name: mas-devops-suite-config
@@ -1104,15 +1174,18 @@ spec:
     # 4.1 Install Cloud Object Storage (COS)
     - name: cos
       params:
-        - name: devops_suite_name
-          value: dependencies-cos
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: devops_suite_name
+          value: dependencies-cos
 
         - name: cos_type
           value: $(params.cos_type)
@@ -1133,15 +1206,18 @@ spec:
     # 4.2 Configure COS in MAS
     - name: suite-config-cos
       params:
-        - name: devops_suite_name
-          value: cfg-suite-cos
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: devops_suite_name
+          value: cfg-suite-cos
       taskRef:
         kind: Task
         name: mas-devops-suite-config
@@ -1160,14 +1236,19 @@ spec:
     # 4.1 Install AppConnect
     - name: appconnect
       params:
-        - name: devops_suite_name
-          value: dependencies-appconnect
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: devops_suite_name
+          value: dependencies-appconnect
+
         - name: ibm_entitlement_key
           value: $(params.ibm_entitlement_key)
         # Subscription Channel
@@ -1201,15 +1282,18 @@ spec:
     # 4.2 Configure AppConnect in MAS
     - name: suite-config-appconnect
       params:
-        - name: devops_suite_name
-          value: cfg-suite-appconnect
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: devops_suite_name
+          value: cfg-suite-appconnect
       taskRef:
         kind: Task
         name: mas-devops-suite-config
@@ -1228,15 +1312,18 @@ spec:
     # 4.3 Nvidia GPU Operator
     - name: nvidia-gpu
       params:
-        - name: devops_suite_name
-          value: dependencies-nvidia-gpu
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: devops_suite_name
+          value: dependencies-nvidia-gpu
 
         - name: gpu_namespace
           value: $(params.gpu_namespace)
@@ -1266,15 +1353,19 @@ spec:
     # 5.1 Configure Workspace
     - name: gencfg-workspace
       params:
-        - name: devops_suite_name
-          value: gencfg-workspace
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: gencfg-workspace
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
         - name: mas_workspace_name
@@ -1289,15 +1380,19 @@ spec:
     # 5.2 DNS Setup
     - name: suite-dns
       params:
-        - name: devops_suite_name
-          value: suite-dns
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: suite-dns
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_domain
           value: $(params.mas_domain)
 
@@ -1331,20 +1426,24 @@ spec:
     # 5.3 Suite Installation
     - name: suite-install
       params:
-        - name: devops_suite_name
-          value: suite-install
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: suite-install
 
         - name: artifactory_username
           value: $(params.artifactory_username)
         - name: artifactory_apikey
           value: $(params.artifactory_apikey)
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_annotations
           value: $(params.mas_annotations)
         - name: mas_domain
@@ -1385,15 +1484,18 @@ spec:
     # 5.4 Suite Configuration
     - name: suite-config
       params:
-        - name: devops_suite_name
-          value: suite-config
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: devops_suite_name
+          value: suite-config
       taskRef:
         kind: Task
         name: mas-devops-suite-config
@@ -1406,15 +1508,18 @@ spec:
     # 5.5 Suite Verification
     - name: suite-verify
       params:
-        - name: devops_suite_name
-          value: suite-verify
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: devops_suite_name
+          value: suite-verify
       taskRef:
         kind: Task
         name: mas-devops-suite-verify
@@ -1424,15 +1529,18 @@ spec:
     # 5.6 Configure Db2 in MAS
     - name: suite-config-db2
       params:
-        - name: devops_suite_name
-          value: suite-config-db2
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: devops_suite_name
+          value: suite-config-db2
       taskRef:
         kind: Task
         name: mas-devops-suite-config
@@ -1452,15 +1560,18 @@ spec:
     # 5.7 Configure Kafka in MAS
     - name: suite-config-kafka
       params:
-        - name: devops_suite_name
-          value: cfg-suite-kafka
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: devops_suite_name
+          value: cfg-suite-kafka
       taskRef:
         kind: Task
         name: mas-devops-suite-config
@@ -1482,19 +1593,23 @@ spec:
     # 6.1 Install IoT
     - name: app-install-iot
       params:
-        - name: devops_suite_name
-          value: app-iot-install
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: app-iot-install
 
         - name: artifactory_username
           value: $(params.artifactory_username)
         - name: artifactory_apikey
           value: $(params.artifactory_apikey)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_app_id
           value: iot
         - name: mas_app_channel
@@ -1525,15 +1640,19 @@ spec:
     # 6.2 Configure IoT workspace
     - name: app-cfg-iot
       params:
-        - name: devops_suite_name
-          value: app-iot-cfg
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: app-iot-cfg
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_app_id
           value: iot
         - name: mas_workspace_id
@@ -1558,19 +1677,23 @@ spec:
     # 7.1 Install Monitor
     - name: app-install-monitor
       params:
-        - name: devops_suite_name
-          value: app-monitor-install
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: app-monitor-install
 
         - name: artifactory_username
           value: $(params.artifactory_username)
         - name: artifactory_apikey
           value: $(params.artifactory_apikey)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_app_id
           value: monitor
         - name: mas_app_channel
@@ -1600,15 +1723,19 @@ spec:
     # 7.2 Configure Monitor workspace
     - name: app-cfg-monitor
       params:
-        - name: devops_suite_name
-          value: app-monitor-cfg
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: app-monitor-cfg
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_app_id
           value: monitor
         - name: mas_workspace_id
@@ -1633,15 +1760,19 @@ spec:
     # 8.1 Install Safety
     - name: app-install-safety
       params:
-        - name: devops_suite_name
-          value: app-safety-install
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: app-safety-install
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_app_id
           value: safety
         - name: artifactory_username
@@ -1674,15 +1805,19 @@ spec:
     # 8.2 Configure Safety workspace
     - name: app-cfg-safety
       params:
-        - name: devops_suite_name
-          value: app-safety-cfg
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: app-safety-cfg
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_app_id
           value: safety
         - name: mas_workspace_id
@@ -1707,14 +1842,18 @@ spec:
     # 9.1. Prepare database to Maxinst
     - name: suite-db2-setup-for-manage
       params:
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: devops_suite_name
-          value: suite-db2-setup-for-manage
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: suite-db2-setup-for-manage
 
         - name: db2_instance_name
           value: "db2u-shared"
@@ -1732,15 +1871,20 @@ spec:
     # 9.2 Manage Install
     - name: app-install-manage
       params:
-        - name: devops_suite_name
-          value: app-manage-install
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: app-manage-install
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+
         - name: mas_app_id
           value: manage
         - name: artifactory_username
@@ -1773,15 +1917,19 @@ spec:
     # 9.3 Configure Manage workspace
     - name: app-cfg-manage
       params:
-        - name: devops_suite_name
-          value: app-manage-cfg
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: app-manage-cfg
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_app_id
           value: manage
         - name: mas_workspace_id
@@ -1813,15 +1961,19 @@ spec:
     # 10.1 Predict Install
     - name: app-install-predict
       params:
-        - name: devops_suite_name
-          value: app-predict-install
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: app-predict-install
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_app_id
           value: predict
         - name: artifactory_username
@@ -1858,15 +2010,19 @@ spec:
     # 10.2 Configure Predict workspace
     - name: app-cfg-predict
       params:
-        - name: devops_suite_name
-          value: app-predict-cfg
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: app-predict-cfg
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_app_id
           value: predict
         - name: mas_workspace_id
@@ -1901,15 +2057,19 @@ spec:
     # 11.1 Optimizer Install
     - name: app-install-optimizer
       params:
-        - name: devops_suite_name
-          value: app-optimizer-install
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: app-optimizer-install
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_app_id
           value: optimizer
         - name: artifactory_username
@@ -1944,15 +2104,19 @@ spec:
     # 11.2 Configure Optimizer workspace
     - name: app-cfg-optimizer
       params:
-        - name: devops_suite_name
-          value: app-optimizer-cfg
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: app-optimizer-cfg
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_app_id
           value: optimizer
         - name: mas_workspace_id
@@ -1978,15 +2142,19 @@ spec:
     # 12.1 HPUtilities Install
     - name: app-install-hputilities
       params:
-        - name: devops_suite_name
-          value: app-hputilities-install
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: app-hputilities-install
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_app_id
           value: hputilities
         - name: artifactory_username
@@ -2021,15 +2189,19 @@ spec:
     # 12.2 Configure HPUtilities workspace
     - name: app-cfg-hputilities
       params:
-        - name: devops_suite_name
-          value: app-hputilities-cfg
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: app-hputilities-cfg
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_app_id
           value: hputilities
         - name: mas_workspace_id
@@ -2054,15 +2226,19 @@ spec:
     # 13.1 Assist Install
     - name: app-install-assist
       params:
-        - name: devops_suite_name
-          value: app-assist-install
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: app-assist-install
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_app_id
           value: assist
         - name: artifactory_username
@@ -2094,15 +2270,18 @@ spec:
     # 13.2 Configure Watson Discovery in MAS
     - name: suite-config-discovery
       params:
-        - name: devops_suite_name
-          value: cfg-suite-discovery
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: devops_suite_name
+          value: cfg-suite-discovery
       taskRef:
         kind: Task
         name: mas-devops-suite-config
@@ -2121,15 +2300,19 @@ spec:
     # 13.3 Configure Assist workspace
     - name: app-cfg-assist
       params:
-        - name: devops_suite_name
-          value: app-assist-cfg
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: app-assist-cfg
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_app_id
           value: assist
         - name: mas_workspace_id
@@ -2154,15 +2337,19 @@ spec:
     # 14.1 MVI Install
     - name: app-install-visualinspection
       params:
-        - name: devops_suite_name
-          value: app-visualinspection-install
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: app-visualinspection-install
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_app_id
           value: visualinspection
         - name: artifactory_username
@@ -2196,15 +2383,19 @@ spec:
     # 14.2 Configure MVI workspace
     - name: app-cfg-visualinspection
       params:
-        - name: devops_suite_name
-          value: app-visualinspection-cfg
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
         - name: devops_build_number
           value: $(params.devops_build_number)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: app-visualinspection-cfg
 
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mas_app_id
           value: visualinspection
         - name: mas_workspace_id
@@ -3095,7 +3286,7 @@ spec:
         - input: "$(params.mas_app_channel_hputilities)"
           operator: notin
           values: [""]
-        - input: "$(params.fvt_version_health)" # Cannot be tested if Health is not installed (fvt_version_health is only set when health is)
+        - input: "$(params.fvt_version_hputilities)"
           operator: notin
           values: [""]
       runAfter:
@@ -3293,7 +3484,7 @@ spec:
         - input: "$(params.mas_app_channel_predict)"
           operator: notin
           values: [""]
-        - input: "$(params.fvt_version_health)" # Cannot be tested if Health is not installed (fvt_version_health is only set when health is)
+        - input: "$(params.fvt_version_predict)"
           operator: notin
           values: [""]
       runAfter:
@@ -3380,7 +3571,124 @@ spec:
 
     # 17. Application FVT - Assist
     # -------------------------------------------------------------------------
-    # Mobile Test Suite - Singleton
+    # Prepare data for Python and Desktop suites
+    # -----------------------------------------------------------------------------
+    - name: fvt-assist-preparedata
+      taskRef:
+        kind: Task
+        name: mas-fvt-assist
+      when:
+        - input: "$(params.fvt_version_assist)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_assist)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_name
+          value: fvt-assist-preparedata
+        - name: fvt_image_version
+          value: $(params.fvt_version_assist)
+        - name: product_channel
+          value: $(params.mas_app_channel_assist)
+        - name: fvt_test_suite
+          value: prepare
+      runAfter:
+        - ivtcore-assist
+
+
+    # Python
+    # -----------------------------------------------------------------------------
+    - name: fvt-assist-python
+      taskRef:
+        kind: Task
+        name: mas-fvt-assist
+      when:
+        - input: "$(params.fvt_version_assist)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_assist)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_name
+          value: fvt-assist-python
+        - name: fvt_image_version
+          value: $(params.fvt_version_assist)
+        - name: product_channel
+          value: $(params.mas_app_channel_assist)
+        - name: fvt_test_suite
+          value: unittest_pg_session
+      runAfter:
+        - fvt-assist-preparedata
+
+
+    # Test NG - Desktop
+    # -----------------------------------------------------------------------------
+    - name: fvt-assist-testng-desktop
+      taskRef:
+        kind: Task
+        name: mas-fvt-assist
+      when:
+        - input: "$(params.fvt_version_assist)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_assist)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_name
+          value: fvt-assist-testng
+        - name: fvt_image_version
+          value: $(params.fvt_version_assist)
+        - name: product_channel
+          value: $(params.mas_app_channel_assist)
+        - name: fvt_test_suite
+          value: testng-assist-desktop
+      runAfter:
+        - fvt-assist-preparedata
+
+
+    # Test NG - Mobile
     # -----------------------------------------------------------------------------
     - name: fvt-assist-testng-mobile
       taskRef:
@@ -3414,16 +3722,16 @@ spec:
         - name: product_channel
           value: $(params.mas_app_channel_assist)
         - name: fvt_test_suite
-          value: testng-mobile-diagnosis
+          value: testng-assist-mobile
         - name: assist_test_type
           value: mobileapp
         - name: assist_device_type
           value: android
       runAfter:
-        - ivtcore-assist
+        - fvt-assist-preparedata
 
 
-    # Cucumber - Run in parallel
+    # Cucumber
     # -----------------------------------------------------------------------------
     - name: fvt-assist-cucumber
       taskRef:
@@ -3456,260 +3764,6 @@ spec:
           value: $(params.fvt_version_assist)
         - name: product_channel
           value: $(params.mas_app_channel_assist)
-        - name: fvt_test_suite
-          value: document_query
-      runAfter:
-        - ivtcore-assist
-
-    - name: fvt-assist-cucumber-bayes
-      taskRef:
-        kind: Task
-        name: mas-fvt-assist
-      when:
-        - input: "$(params.fvt_version_assist)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_name
-          value: fvt-assist-cucumber
-        - name: fvt_image_version
-          value: $(params.fvt_version_assist)
-        - name: product_channel
-          value: $(params.mas_app_channel_assist)
-        - name: fvt_test_suite
-          value: bayes
-      runAfter:
-        - ivtcore-assist
-
-    - name: fvt-assist-cucumber-diagnosis
-      taskRef:
-        kind: Task
-        name: mas-fvt-assist
-      when:
-        - input: "$(params.fvt_version_assist)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_name
-          value: fvt-assist-cucumber
-        - name: fvt_image_version
-          value: $(params.fvt_version_assist)
-        - name: product_channel
-          value: $(params.mas_app_channel_assist)
-        - name: fvt_test_suite
-          value: diagnosis
-      runAfter:
-        - ivtcore-assist
-
-    - name: fvt-assist-cucumber-document-management
-      taskRef:
-        kind: Task
-        name: mas-fvt-assist
-      when:
-        - input: "$(params.fvt_version_assist)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_name
-          value: fvt-assist-cucumber
-        - name: fvt_image_version
-          value: $(params.fvt_version_assist)
-        - name: product_channel
-          value: $(params.mas_app_channel_assist)
-        - name: fvt_test_suite
-          value: document_management
-      runAfter:
-        - ivtcore-assist
-
-    - name: fvt-assist-cucumber-expertise
-      taskRef:
-        kind: Task
-        name: mas-fvt-assist
-      when:
-        - input: "$(params.fvt_version_assist)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_name
-          value: fvt-assist-cucumber
-        - name: fvt_image_version
-          value: $(params.fvt_version_assist)
-        - name: product_channel
-          value: $(params.mas_app_channel_assist)
-        - name: fvt_test_suite
-          value: expertise
-      runAfter:
-        - ivtcore-assist
-
-    - name: fvt-assist-cucumber-iot
-      taskRef:
-        kind: Task
-        name: mas-fvt-assist
-      when:
-        - input: "$(params.fvt_version_assist)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_name
-          value: fvt-assist-cucumber
-        - name: fvt_image_version
-          value: $(params.fvt_version_assist)
-        - name: product_channel
-          value: $(params.mas_app_channel_assist)
-        - name: fvt_test_suite
-          value: iot
-      runAfter:
-        - ivtcore-assist
-
-    - name: fvt-assist-cucumber-usage
-      taskRef:
-        kind: Task
-        name: mas-fvt-assist
-      when:
-        - input: "$(params.fvt_version_assist)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_name
-          value: fvt-assist-cucumber
-        - name: fvt_image_version
-          value: $(params.fvt_version_assist)
-        - name: product_channel
-          value: $(params.mas_app_channel_assist)
-        - name: fvt_test_suite
-          value: usage
-      runAfter:
-        - ivtcore-assist
-
-    - name: fvt-assist-cucumber-knowledge-extraction
-      taskRef:
-        kind: Task
-        name: mas-fvt-assist
-      when:
-        - input: "$(params.fvt_version_assist)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_name
-          value: fvt-assist-cucumber
-        - name: fvt_image_version
-          value: $(params.fvt_version_assist)
-        - name: product_channel
-          value: $(params.mas_app_channel_assist)
-        - name: fvt_test_suite
-          value: knowledge-extraction
       runAfter:
         - ivtcore-assist
 

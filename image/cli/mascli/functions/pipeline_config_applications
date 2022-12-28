@@ -179,7 +179,7 @@ function config_pipeline_applications() {
     if prompt_for_confirm "Install IoT"; then
       channel_select_iot || exit 1
     fi
-    
+
     # Applications only supported in online installs
     if [[ -z "$AIRGAP_MODE" ]]; then
       # Applications that require IoT
@@ -195,6 +195,7 @@ function config_pipeline_applications() {
   # Manage
   if prompt_for_confirm "Install Manage"; then
     channel_select_manage || exit 1
+    prompt_for_confirm_default_yes "+ Create demo data" MAS_APP_SETTINGS_DEMODATA
   fi
 
   if [[ "$SNO_MODE" != "true" ]]; then
@@ -204,17 +205,17 @@ function config_pipeline_applications() {
         channel_select_optimizer || exit 1
         # Optimizer install Plan + Validation
         while : ; do
-          prompt_for_input 'Optimizer Install Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full"
+          prompt_for_input '+ Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full"
           [[ "$MAS_APP_PLAN_OPTIMIZER" != "full" && "$MAS_APP_PLAN_OPTIMIZER" != "limited" ]] || break
         done
       fi
     fi
-  
+
     # Maximo Visual Inspection
     if prompt_for_confirm "Install Visual Inspection"; then
      channel_select_visualinspection || exit 1
     fi
- 
+
     # Applications only supported in online installs
     if [[ -z "$AIRGAP_MODE" ]]; then
       # Applications that require Manage
