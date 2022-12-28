@@ -479,7 +479,7 @@ function mirror_to_registry() {
     fi
     # IoT & Manage Dependencies
     if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
-      show_mirror_status " + IBM Db2 .......................... " $MIRROR_DB2U
+      show_mirror_status " + IBM Db2 .........................." $MIRROR_DB2U
     fi
   else
     echo_reset_dim "${COLOR_RED}Skip"
