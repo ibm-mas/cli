@@ -4694,6 +4694,98 @@ spec:
         - name: configs
           workspace: shared-configs
 
+    # 25. Application FVT - HPUtilities
+    # HPUtilities Prepare User Data
+    - name: fvt-hputilities-testng-preparedata
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: fvt-hputilities
+        - name: fvt_image_name
+          value: fvt-hputilities-preparedata
+        - name: fvt_image_version
+          value: $(params.fvt_version_hputilities)
+        - name: fvt_test_suite
+          value: prepare
+        - name: product_channel
+          value: $(params.mas_app_channel_hputilities)
+        - name: product_id
+          value: ibm-mas-hputilities
+        - name: browserstack_remoteserver
+          value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      # Only if we've set a version of the HPUtilities FVT to run
+      when:
+        - input: "$(params.fvt_version_hputilities)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_hputilities)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - ivtcore-hputilities
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # All HPUtilities test suites on desktop
+    - name: fvt-hputilities-testng-desktop
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: fvt-hputilities
+        - name: fvt_image_name
+          value: fvt-hputilities-testng
+        - name: fvt_image_version
+          value: $(params.fvt_version_hputilities)
+        - name: fvt_test_suite
+          value: testng-desktop-all
+        - name: product_channel
+          value: $(params.mas_app_channel_hputilities)
+        - name: product_id
+          value: ibm-mas-hputilities
+        - name: browserstack_remoteserver
+          value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      # Only if we've set a version of the HPUtilities FVT to run
+      when:
+        - input: "$(params.fvt_version_hputilities)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_hputilities)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - fvt-hputilities-testng-preparedata
+      workspaces:
+        - name: configs
+          workspace: shared-configs
 
   # Mustgather executed in finally block. Use suite_mustgather_download
   # playbook to retrieve the output on your local machine
