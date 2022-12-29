@@ -114,6 +114,8 @@
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/">Overview</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-221228-amd64/">Dec 2022</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-221129-amd64/">Nov 2022</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-221025-amd64/">Oct 2022</a>
@@ -194,13 +196,13 @@
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
 <p>The install is an interactive command.  At present there is no support for an
 unattended install, but this is planned for the future.</p>
-<pre><code class="language-bash">docker run -ti --rm -v ~:/home/local --pull always quay.io/ibmmas/cli
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
 mas install
 </code></pre>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>We will need the <code>entitlement.lic</code> file to perform the installation which is why we mount your home directory into the container.  If you saved the entitlement file elsewhere, mount that directory instead.</p>
-<p>When prompted you will be able to set license file to <code>/home/local/entitlement.lic</code></p>
+<p>When prompted you will be able to set license file to <code>/mnt/home/entitlement.lic</code></p>
 </div>
 <h2 id="air-gap-support">Air Gap Support<a class="headerlink" href="#air-gap-support" title="Permanent link"></a></h2>
 <p>If you have already ran <code>mas configure-airgap</code> to install the ImageContentSourcePolicy for IBM Maximo Application Suite then the installer will automatically detect the presence of this and tailor the installation configuration for a disconnected installation.</p>

@@ -98,6 +98,8 @@
     </li>
     </ul>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="v8-221228-amd64/">Dec 2022</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="v8-221129-amd64/">Nov 2022</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="v8-221025-amd64/">Oct 2022</a>
@@ -142,7 +144,7 @@
 </div>
 <h3 id="dynamic-catalog">Dynamic Catalog<a class="headerlink" href="#dynamic-catalog" title="Permanent link"></a></h3>
 <p>The dynamic operator catalog is continuously updated, if you use the dynamic catalog you will always have access to the latest operator updates.</p>
-<p>This catalog is a <strong>curated</strong> catalog, the Maximo Application Suite team take a snapshot of the online IBM Operator Catalog and test compatibility of all dependant IBM operators with supported releases of Maximo Application suite; this allows the team to intercept any breaking changes that may have evaded other teams' testing before they reach your cluster.</p>
+<p>This catalog is a <strong>curated</strong> catalog, the Maximo Application Suite team take a snapshot of the online IBM Operator Catalog and test compatibility of all dependent IBM operators with supported releases of Maximo Application suite; this allows the team to intercept any breaking changes that may have evaded other teams' testing before they reach your cluster.</p>
 <p>No updates are made to this catalog without extensive testing with all in-support version of Maximo Application Suite, so you can trust this dynamic catalog, even in a production environment.</p>
 <h4 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link"></a></h4>
 <p><code>oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v8-amd64.yaml</code></p>
@@ -161,9 +163,10 @@ spec:
   priority: 90
 </code></pre>
 <h3 id="static-catalogs">Static Catalogs<a class="headerlink" href="#static-catalogs" title="Permanent link"></a></h3>
-<p>The static operator catalogs provide a fixed reference point, if you use a static catalog you can rely on the fact that it will never change which allows for 100% reproducable installations no matter how much time has passed between the install.</p>
-<p>To recieve security updates and bug fixes you must periodically update the version of the static catalog that you have installed in the cluster.  Once you do this all operators that you have installed from the catalog will automatically update to the newer version.  We aim to release a catalog update monthly.</p>
+<p>The static operator catalogs provide a fixed reference point, if you use a static catalog you can rely on the fact that it will never change which allows for 100% reproducible installations no matter how much time has passed between the install.</p>
+<p>To receive security updates and bug fixes you must periodically update the version of the static catalog that you have installed in the cluster.  Once you do this all operators that you have installed from the catalog will automatically update to the newer version.  We aim to release a catalog update monthly.</p>
 <ul>
+<li><a href="v8-221228-amd64/">v8-221228-amd64</a></li>
 <li><a href="v8-221129-amd64/">v8-221129-amd64</a></li>
 <li><a href="v8-221025-amd64/">v8-221025-amd64</a></li>
 <li><a href="v8-220927-amd64/">v8-220927-amd64</a></li>
@@ -201,7 +204,7 @@ spec:
       <span><a href="../commands/install/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="v8-221129-amd64/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="v8-221228-amd64/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
