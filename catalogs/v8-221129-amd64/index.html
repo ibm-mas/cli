@@ -118,12 +118,6 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../v8-221025-amd64/">Oct 2022</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../v8-220927-amd64/">Sep 2022</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../v8-220805-amd64/">Aug 2022</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../v8-220717-amd64/">Jul 2022</a>
-                  </li>
               </ul>
       </div>
     </div>
@@ -162,6 +156,10 @@
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>There is a known issue with image digests for Optimizer 8.2.2 and disconnected installation.  If you are running a disconnected install and want to use Optimizer v8.2 it is recommended that you skip this catalog update and wait for the December update.  This issue does not affect Optimizer 8.3.0.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Manage v8.5.0 introduces a regression with air gap support, as such this catalog is unsuitable for customers using Maximo Manage in an air gap environment.</p>
 </div>
 <h2 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link"></a></h2>
 <p><code>oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v8-221129-amd64.yaml</code></p>
