@@ -71,6 +71,9 @@ Disconnected install for IBM Maximo Application Suite is supported from MAS v8.8
 | Safety                     |  No support                       |
 | Visual Inspection          |  No support                       |
 
+!!! warning
+    Manage v8.5.0 introduces a regression with air gap support in the application, as such the November 2022 and December 2022 catalogs are unsuitable for customers using Maximo Manage in an air gap environment.
+
 
 ### 2.2 Prepare the Private Registry
 If you do not already have a private registry available to use as your mirror then you can use the `setup-mirror` function to deploy a private registry inside a target OpenShift cluster.
