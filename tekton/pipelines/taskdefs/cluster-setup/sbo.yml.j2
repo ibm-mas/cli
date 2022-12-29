@@ -3,14 +3,9 @@
     kind: Task
     name: mas-devops-sbo
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
+    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
       value: setup-sbo
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
 
     - name: mas_channel
       value: $(params.mas_channel)

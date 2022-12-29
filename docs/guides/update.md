@@ -18,8 +18,7 @@ Before you start the update, you must mirror the images for the new catalog that
 - **from-filesystem** mirrors images from a local directory to your private registry
 
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas mirror-images
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas mirror-images
 ```
 
 You will be prompted to set the target registry for the image mirroring and to [select the version of IBM Maximo Operator Catalog to mirror](choosing-the-right-catalog.md) and the subset of content that you wish to mirror.  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.
@@ -49,8 +48,7 @@ Run `mas update` and choose the catalog to update to.  This will update the oper
     You must select a newer catalog than what is already in use.  Updating to an older static catalog is not supported.
 
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas update
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas update
 ```
 
 

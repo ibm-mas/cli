@@ -87,12 +87,11 @@ function config_pipeline_storage_classes() {
       echo "${TEXT_DIM}  - Storage class (ReadWriteMany): efs"
       STORAGE_CLASS_PROVIDER=aws
       STORAGE_CLASS_RWO=gp2
-      STORAGE_CLASS_RWX=efs 
+      STORAGE_CLASS_RWX=efs
     fi
   fi
   reset_colors
 
-  echo "${TEXT_DIM}  - SNO MODE is set to ${SNO_MODE}"
   PIPELINE_STORAGE_CLASS=$STORAGE_CLASS_RWX
   PIPELINE_STORAGE_ACCESSMODE="ReadWriteMany"
   if [[ "$SNO_MODE" == "true" ]]; then
