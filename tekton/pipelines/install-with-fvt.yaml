@@ -307,6 +307,11 @@ spec:
       type: string
       default: ""
       description: Override IBM Entitlement key for MAS installation
+    - name: mas_customize_scaling
+      type: string
+      default: ""
+      description: Workload Scaling Custom ConfigMap Name
+
 
     # MAS Configuration - Workspace
     - name: mas_workspace_id
@@ -1465,6 +1470,9 @@ spec:
           value: $(params.ibm_entitlement_key)
         - name: mas_entitlement_key
           value: $(params.mas_entitlement_key)
+        - name: mas_customize_scaling
+          value: $(params.mas_customize_scaling)
+
       taskRef:
         kind: Task
         name: mas-devops-suite-install
@@ -3208,6 +3216,38 @@ spec:
           value: fvt-smtp
       runAfter:
         - fvt-licensingapi
+
+    # FVT5.6 core-scaling ~25m
+    - name: fvt-core-scaling
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-core-scaling
+      runAfter:
+        - fvt-smtp
 
 
     # 16. MAS Core IVT
