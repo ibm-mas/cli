@@ -25,7 +25,7 @@ function pipeline_install_tasks() {
         prompt_for_input "quay.io/ibmmas/cli image digest" CLI_IMAGE_DIGEST
       fi
       # Overwrite the tekton definitions with one that uses the looked up image digest
-      sed -e "s/cli:\$\(params\.cli_version\)/cli@$CLI_IMAGE_DIGEST/g" $DIR/templates/ibm-mas-tekton.yaml > $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
+      sed -e "s/cli:\$(params.cli_version)/cli@${CLI_IMAGE_DIGEST}/g" $DIR/templates/ibm-mas-tekton.yaml > $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
       sed -e "s/:latest/@$CLI_IMAGE_DIGEST/g" $DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yaml
       CLI_IMAGE=quay.io/ibmmas/cli@$CLI_IMAGE_DIGEST
     fi
