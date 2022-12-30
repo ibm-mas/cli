@@ -59,3 +59,13 @@
       value: fvt-smtp
   runAfter:
     - fvt-licensingapi
+
+# FVT5.6 core-scaling ~25m
+- name: fvt-core-scaling
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-core-scaling
+  runAfter:
+    - fvt-smtp
