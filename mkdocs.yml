@@ -27,11 +27,9 @@ nav:
     - 'install': commands/install.md
   - 'Catalogs':
     - 'Overview': catalogs/index.md
+    - 'Dec 2022': catalogs/v8-221228-amd64.md
     - 'Nov 2022': catalogs/v8-221129-amd64.md
     - 'Oct 2022': catalogs/v8-221025-amd64.md
-    - 'Sep 2022': catalogs/v8-220927-amd64.md
-    - 'Aug 2022': catalogs/v8-220805-amd64.md
-    - 'Jul 2022': catalogs/v8-220717-amd64.md
 
 theme:
   name: readthedocs

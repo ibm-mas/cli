@@ -58,6 +58,11 @@ spec:
       default: ""
       description: "Optional MAS-specific override for the IBM entitlement key"
 
+    - name: mas_customize_scaling
+      type: string
+      default: ""
+      description: Optional Workload Scaling Custom ConfigMap Name
+
     - name: artifactory_username
       default: ''
       type: string
@@ -128,6 +133,9 @@ spec:
         value: $(params.ibm_entitlement_key)
       - name: MAS_ENTITLEMENT_KEY
         value: $(params.mas_entitlement_key)
+
+      - name: MAS_CUSTOMIZE_SCALING
+        value: $(params.mas_customize_scaling)
 
       # Optional support built into the ansible-devops image
       # for saving task execution results to a MongoDb instance

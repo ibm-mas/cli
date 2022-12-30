@@ -1,5 +1,7 @@
 ## Changes
 
+- [`3.7`](https://github.com/ibm-mas/cli/releases/tag/3.7.0) Add support for Dec 2022 catalog
+- [`3.6`](https://github.com/ibm-mas/cli/releases/tag/3.6.0) Support customizable CLI version in tekton
 - [`3.5`](https://github.com/ibm-mas/cli/releases/tag/3.5.0) Add fvt-core test pipeline
 - [`3.4`](https://github.com/ibm-mas/cli/releases/tag/3.4.0) Add support for the FVT enhanced pipeline
 - [`3.3`](https://github.com/ibm-mas/cli/releases/tag/3.3.0) Add support for single node OpenShfit on AWS
