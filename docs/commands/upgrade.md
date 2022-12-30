@@ -17,12 +17,10 @@ Examples
 -------------------------------------------------------------------------------
 ### Interactive Upgrade
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas upgrade
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas upgrade
 ```
 
 ### Non-Interactive Upgrade
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas upgrade -i inst1 --no-confirm
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas upgrade -i inst1 --no-confirm
 ```

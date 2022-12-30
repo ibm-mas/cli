@@ -5,6 +5,10 @@ metadata:
   name: mas-devops-suite-dns
 spec:
   params:
+    - name: cli_version
+      type: string
+      default: latest
+
     - name: dns_provider
       type: string
       default: ""
@@ -98,5 +102,5 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_dns
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:$(params.cli_version)
       imagePullPolicy: Always

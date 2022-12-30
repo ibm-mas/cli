@@ -5,6 +5,10 @@ metadata:
   name: mas-devops-nvidia-gpu
 spec:
   params:
+    - name: cli_version
+      type: string
+      default: latest
+
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
     - name: mas_instance_id
@@ -26,7 +30,7 @@ spec:
 
     - name: gpu_namespace
       type: string
-      description: Optional. Nvidia gpu namespace 
+      description: Optional. Nvidia gpu namespace
       default: ""
     - name: gpu_channel
       type: string
@@ -34,7 +38,7 @@ spec:
       default: ""
     - name: nfd_namespace
       type: string
-      description: Optional. Node feature discovery namespace 
+      description: Optional. Node feature discovery namespace
       default: ""
     - name: nfd_channel
       type: string
@@ -68,7 +72,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - nvidia_gpu
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:$(params.cli_version)
       imagePullPolicy: Always
       workingDir: /workspace/configs
 

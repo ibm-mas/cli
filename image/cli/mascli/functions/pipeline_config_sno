@@ -5,7 +5,7 @@ function config_pipeline_sno() {
   echo ""
   if [[ "$SNO_MODE" == "true" ]]; then
     # SNO Mode -- Set environment variables MONGODB_REPLICAS=1
-    echo_h2 "Info: SNO_MODE was detected."
+    echo_highlight "Single Node OpenShift detected"
     export MONGODB_REPLICAS=1
     export MONGODB_CPU_REQUESTS=500m
     export MAS_APP_SETTINGS_AIO_FLAG=false
@@ -16,11 +16,5 @@ function config_pipeline_sno() {
     export DB2_BACKUP_STORAGE_ACCESSMODE=ReadWriteOnce
     export DB2_DATA_STORAGE_ACCESSMODE=ReadWriteOnce
     export DB2_LOGS_STORAGE_ACCESSMODE=ReadWriteOnce
-    #export DB2_NAMESPACE=db2u
-    
-    prompt_for_confirm_default_yes "Do you want manage demodata to be loaded or not " MAS_APP_SETTINGS_DEMODATA && export MAS_APP_SETTINGS_DEMODATA
-  else
-    echo_h2 "Info: SNO_MODE was not detected"
   fi
 }
-

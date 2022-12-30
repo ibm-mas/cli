@@ -31,16 +31,14 @@ Examples
 -------------------------------------------------------------------------------
 ### Interactive Mode
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas provision-fyre
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-fyre
 ```
 
 ### Non-Interactive Mode
 ```bash
 export FYRE_USERNAME=xxx
 export FYRE_APIKEY=xxx
-docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas provision-fyre \
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-fyre \
   -u $FYRE_USERNAME -a $FYRE_APIKEY \
   -p 225 -q product_group \
   -c masonfyre -d "My Cluster" -v 4.10 \

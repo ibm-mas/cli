@@ -30,15 +30,14 @@ The install is an interactive command.  At present there is no support for an
 unattended install, but this is planned for the future.
 
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti --rm -v ~:/home/local quay.io/ibmmas/cli
+docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
 mas install
 ```
 
 !!! important
     We will need the `entitlement.lic` file to perform the installation which is why we mount your home directory into the container.  If you saved the entitlement file elsewhere, mount that directory instead.
 
-    When prompted you will be able to set license file to `/home/local/entitlement.lic`
+    When prompted you will be able to set license file to `/mnt/home/entitlement.lic`
 
 
 Air Gap Support

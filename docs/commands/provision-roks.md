@@ -32,15 +32,13 @@ Examples
 
 ### Interactive Mode
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas provision-roks
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-roks
 ```
 
 ### Non-Interactive Mode
 ```bash
 export IBMCLOUD_APIKEY=xxx
-docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas provision-roks \
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-roks \
   -a $IBMCLOUD_APIKEY -r mas-development \
   -c masonroks -v 4.10_openshift \
   --worker-count 3 --worker-flavor b3c.16x64.300gb --worker-zone dal10 \

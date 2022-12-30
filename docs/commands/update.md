@@ -17,12 +17,10 @@ Examples
 -------------------------------------------------------------------------------
 ### Interactive Update
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas update
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas update
 ```
 
 ### Non-Interactive Update
 ```bash
-docker pull quay.io/ibmmas/cli
-docker run -ti --rm quay.io/ibmmas/cli mas update -c v8-220927-amd64 --no-confirm
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas update -c v8-220927-amd64 --no-confirm
 ```

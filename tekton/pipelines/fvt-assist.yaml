@@ -12,6 +12,12 @@ spec:
   params:
     # 1. Installation
     # -------------------------------------------------------------------------
+    # IBM MAS CLI Version
+    - name: cli_version
+      type: string
+      default: latest
+      description: Version of the IBM MAS CLI image to use
+
     # Development Build Support
     - name: artifactory_username
       default: ""
@@ -22,16 +28,17 @@ spec:
       type: string
       description: Required to install development MAS catalogs
 
+    # Storage Class Selection
     - name: storage_class_rwo
       type: string
       default: ""
       description: ReadWriteOnce storage class
-
     - name: storage_class_rwx
       type: string
       default: ""
       description: ReadWriteMany storage class
 
+    # Entitlement
     - name: ibm_entitlement_key        # Required
       type: string
       description: IBM Entitlement Key
@@ -294,6 +301,11 @@ spec:
       type: string
       default: ""
       description: Override IBM Entitlement key for MAS installation
+    - name: mas_customize_scaling
+      type: string
+      default: ""
+      description: Workload Scaling Custom ConfigMap Name
+
 
     # MAS Configuration - Workspace
     - name: mas_workspace_id
