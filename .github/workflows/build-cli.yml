@@ -29,8 +29,8 @@ jobs:
       - name: Upload the Tekton definitions
         uses: actions/upload-artifact@v2
         with:
-          name: ibm-mas-tekton-${{ env.VERSION }}.yaml
-          path: ${{ github.workspace }}/image/cli/mascli/templates/ibm-mas-tekton.yaml
+          name: ibm-mas-tekton-${{ env.VERSION }}.yml
+          path: ${{ github.workspace }}/image/cli/mascli/templates/ibm-mas-tekton.yml
           retention-days: 30
 
       # 2. CLI installer

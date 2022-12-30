@@ -1,0 +1,44 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-install-run-pipeline
+  namespace: "{{ pipeline_namespace }}"
+spec:
+  params:    
+    # Pipeline Run Common Parameters
+    - name: pipeline_name
+      type: string
+      description: name of the pipeline to run
+    - name: pipelines_namespace
+      type: string
+      description: namespace where pipelines are installed
+    - name: pipelinerun_timeout
+      type: string
+      description: when pipeline run times out
+
+    # Install Parameters
+    {{ lookup('template', 'pipelines/params/install.yml.j2') | indent(4) }}
+  
+  stepTemplate:
+    name: 'run-pipeline-$(params.pipeline_name)'
+    env:
+      - name: PIPELINE_NAME
+        value: $(params.pipeline_name)
+      - name: PIPELINES_NAMESPACE
+        value: $(params.pipelines_namespace)
+      - name: PIPELINERUN_TIMEOUT
+        value: $(params.pipelinerun_timeout)
+      
+{% for install_param in install_params_definition.params %}
+      - name: {{ install_param.name | upper }}
+        value: $(params.{{ install_param.name }})
+{% endfor %}
+
+  steps:
+    # It uses pipeline_name to know what pipeline to run
+    - name: run-pipeline
+      command:
+        - /opt/app-root/src/run-pipeline.sh
+      image: '$(params.fvt_image_registry)/mas-devops/ansible-fvt:latest'
+      imagePullPolicy: Always

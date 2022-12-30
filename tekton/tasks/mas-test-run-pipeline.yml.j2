@@ -1,0 +1,60 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-test-run-pipeline
+  namespace: "{{ pipeline_namespace }}"
+spec:
+  params:    
+    # Pipeline Run Parameters
+    - name: pipeline_name
+      type: string
+      description: name of the pipeline to run
+    - name: pipelines_namespace
+      type: string
+      description: namespace where pipelines are installed
+    - name: pipelinerun_timeout
+      type: string
+      description: when pipeline run times out
+    
+    # Other Parameters (MAS and Devops)
+    - name: mas_instance_id            # Required
+      type: string
+    - name: mas_channel                # Required
+      type: string
+    - name: mas_workspace_id
+      type: string
+      description: Workspace ID used to configure all applications
+      default: masdev
+    - name: devops_mongo_uri
+      type: string
+      default: ""
+    - name: devops_build_number
+      type: string
+      default: ""
+
+    # Test Parameters
+    {{ lookup('template', 'pipelines/params/fvt.yml.j2') | indent(4) }}
+
+  stepTemplate:
+    name: 'run-pipeline-$(params.pipeline_name)'
+    env:
+      - name: PIPELINE_NAME
+        value: $(params.pipeline_name)
+      - name: PIPELINES_NAMESPACE
+        value: $(params.pipelines_namespace)
+      - name: PIPELINERUN_TIMEOUT
+        value: $(params.pipelinerun_timeout)
+
+{% for fvt_param in fvt_params_definition.params %}
+      - name: {{ fvt_param.name | upper }}
+        value: $(params.{{ fvt_param.name }})
+{% endfor %}
+
+  steps:
+    # It uses pipeline_name to know what pipeline to run
+    - name: run-pipeline
+      command:
+        - /opt/app-root/src/run-pipeline.sh
+      image: '$(params.fvt_image_registry)/mas-devops/ansible-fvt:latest'
+      imagePullPolicy: Always

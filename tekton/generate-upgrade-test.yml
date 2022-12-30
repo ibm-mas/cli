@@ -1,0 +1,83 @@
+- hosts: localhost
+  any_errors_fatal: true
+  vars:
+    pipeline_namespace: mas-pipelines
+  tasks:
+
+    # Load Source & Target Attributes
+    - name: "Load source target attributes"
+      ansible.builtin.set_fact:
+        params_source_target_list: "{{ params_source_target_list | default([]) + [item] }}"
+      with_lines: cat pipelines/params/upgrade-test/source-target.txt
+
+    # Load Install Parameters
+    - name: "Resolve install parameters template into a list"
+      ansible.builtin.template:
+        src: pipelines/params/upgrade-test/install-list.yml.j2
+        dest: pipelines/params/upgrade-test/install-list.yml
+    - name: "Load install parameters list into a variable"
+      ansible.builtin.include_vars:
+        file: pipelines/params/upgrade-test/install-list.yml
+        name: install_params_definition
+    
+    # Load FVT Parameters
+    - name: "Resolve fvt parameters template into a list"
+      ansible.builtin.template:
+        src: pipelines/params/upgrade-test/fvt-list.yml.j2
+        dest: pipelines/params/upgrade-test/fvt-list.yml
+    - name: "Load fvt parameters list into a variable"
+      ansible.builtin.include_vars:
+        file: pipelines/params/upgrade-test/fvt-list.yml
+        name: fvt_params_definition
+    
+    # Load Upgrade Parameters
+    - name: "Resolve upgrade parameters template into a list"
+      ansible.builtin.template:
+        src: pipelines/params/upgrade-test/upgrade-list.yml.j2
+        dest: pipelines/params/upgrade-test/upgrade-list.yml
+    - name: "Load upgrade parameters list into a variable"
+      ansible.builtin.include_vars:
+        file: pipelines/params/upgrade-test/upgrade-list.yml
+        name: upgrade_params_definition
+
+    # Generate Run Pipeline Tasks
+    - name: "Generate mas-install-run-pipeline task"
+      ansible.builtin.template:
+        src: tasks/mas-install-run-pipeline.yml.j2
+        dest: tasks/mas-install-run-pipeline.yml
+    - name: "Generate mas-test-run-pipeline task"
+      ansible.builtin.template:
+        src: tasks/mas-test-run-pipeline.yml.j2
+        dest: tasks/mas-test-run-pipeline.yml
+    - name: "Generate mas-upgrade-run-pipeline task"
+      ansible.builtin.template:
+        src: tasks/mas-upgrade-run-pipeline.yml.j2
+        dest: tasks/mas-upgrade-run-pipeline.yml
+
+    # Debug
+    - name: "Debug params_definition"
+      ansible.builtin.debug:
+        msg:
+          - "####### params_source_target_list ........... {{ params_source_target_list }}"
+          - "####### install_params_definition ........... {{ install_params_definition }}"
+          - "####### fvt_params_definition ............... {{ fvt_params_definition }}"
+          - "####### upgrade_params_definition ........... {{ upgrade_params_definition }}"
+    
+    # Create Upgrade Test Pipeline
+    - name: "Generate Upgrade Test Pipeline"
+      ansible.builtin.template:
+        src: pipelines/upgrade-test.yml.j2
+        dest: pipelines/upgrade-test.yml
+
+    # - name: "Read list of install parameters"
+    #   ansible.builtin.set_fact:
+    #     install_param_text_list: "{{ lookup('file', 'params/install.yml') }}"
+    # - ansible.builtin.set_fact:
+    #     install_param_list: "{{ install_param_text_list | dict2items }}"
+    # - name: "Debug install_param_list"
+    #   ansible.builtin.debug:
+    #     msg: "{{ install_param_list }}"
+    # - name: "Generate Upgrade Test Pipeline"
+    #   ansible.builtin.template:
+    #     src: upgrade-test.yml.j2
+    #     dest: upgrade-test.yml

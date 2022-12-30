@@ -24,10 +24,10 @@ run:
 
 clean:
 	rm image/cli/install-ansible/ibm-mas_devops.tar.gz
-	rm image/cli/bin/templates/ibm-mas-tekton.yaml
+	rm image/cli/bin/templates/ibm-mas-tekton.yml
 
 create:
-	oc apply -f tmp/deployment.yaml
+	oc apply -f tmp/deployment.yml
 delete:
 	oc delete pod $(shell oc get pods --selector app=mas-cli -o jsonpath="{.items[0].metadata.name}")
 exec:

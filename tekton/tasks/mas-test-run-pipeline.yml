@@ -1,0 +1,241 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-test-run-pipeline
+  namespace: "mas-pipelines"
+spec:
+  params:    
+    # Pipeline Run Parameters
+    - name: pipeline_name
+      type: string
+      description: name of the pipeline to run
+    - name: pipelines_namespace
+      type: string
+      description: namespace where pipelines are installed
+    - name: pipelinerun_timeout
+      type: string
+      description: when pipeline run times out
+    
+    # Other Parameters (MAS and Devops)
+    - name: mas_instance_id            # Required
+      type: string
+    - name: mas_channel                # Required
+      type: string
+    - name: mas_workspace_id
+      type: string
+      description: Workspace ID used to configure all applications
+      default: masdev
+    - name: devops_mongo_uri
+      type: string
+      default: ""
+    - name: devops_build_number
+      type: string
+      default: ""
+
+    # Test Parameters
+    # FVT Image Container Registry
+    - name: fvt_image_registry
+      type: string
+
+    # FVT Image Pull Secret
+    - name: fvt_artifactory_username
+      type: string
+    - name: fvt_artifactory_apikey
+      type: string
+
+    # Data Dictionary
+    - name: mas_add_catalog
+      type: string
+    - name: mas_add_channel
+      type: string
+
+    # FVT Test Secrets
+    - name: ddp_apikey
+      type: string
+    - name: partium_username
+      type: string
+    - name: partium_password
+      type: string
+
+    # FVT Upload files (Optional)
+    - name: devops_cos_crn
+      type: string
+      default: ""
+
+    # FVT Versions
+    - name: fvt_version_core
+      type: string
+      description: FVT Version - Core
+      default: ""
+    - name: fvt_version_iot
+      type: string
+      description: FVT Version - IoT
+      default: ""
+    - name: fvt_version_safety
+      type: string
+      description: FVT Version - Safety
+      default: ""
+    - name: fvt_version_monitor
+      type: string
+      description: FVT Version - Monitor
+      default: ""
+    - name: fvt_version_predict
+      type: string
+      description: FVT Version - Predict
+      default: ""
+    - name: fvt_version_hputilities
+      type: string
+      description: FVT Version - Health & Predict Utilities
+      default: ""
+    - name: fvt_version_visualinspection
+      type: string
+      description: FVT Version - Visual Inspection
+      default: ""
+    - name: fvt_version_assist
+      type: string
+      description: FVT Version - Assist
+      default: ""
+    - name: fvt_version_optimizer
+      type: string
+      description: FVT Version - Optimizer
+      default: ""
+
+    # FVT Versions - Manage, Health and Industry Solutions
+    - name: fvt_version_manage
+      type: string
+      description: FVT Version - Manage
+      default: ""
+    - name: fvt_version_health
+      type: string
+      description: FVT Version - Health
+      default: ""
+    - name: fvt_version_manage_acm
+      type: string
+      description: FVT Version - Manage ACM
+      default: ""
+    - name: fvt_version_manage_aviation
+      type: string
+      description: FVT Version - Manage Aviation
+      default: ""
+    - name: fvt_version_manage_hse
+      type: string
+      description: FVT Version - Manage HSE
+      default: ""
+    - name: fvt_version_manage_nuclear
+      type: string
+      description: FVT Version - Manage Nuclear
+      default: ""
+    - name: fvt_version_manage_serviceprovider
+      type: string
+      description: FVT Version - Service Provider
+      default: ""
+    - name: fvt_version_manage_spatial
+      type: string
+      description: FVT Version - Spatial
+      default: ""
+    - name: fvt_version_manage_transportation
+      type: string
+      description: FVT Version - Manage Transportation
+      default: ""
+    - name: fvt_version_manage_civil
+      type: string
+      description: FVT Version - Manage Civil Infrastructure
+      default: ""
+    - name: fvt_version_manage_ic
+      type: string
+      description: FVT Version - Manage IC
+      default: ""
+
+    # FVT Versions - Mobile Foundation
+    - name: fvt_version_mobilefoundation
+      type: string
+      description: FVT Version - Mobile Foundation
+      default: ""
+
+    # IVT Versions
+    - name: ivt_version_core
+      type: string
+      description: IVT Version - Core
+      default: ""
+
+  stepTemplate:
+    name: 'run-pipeline-$(params.pipeline_name)'
+    env:
+      - name: PIPELINE_NAME
+        value: $(params.pipeline_name)
+      - name: PIPELINES_NAMESPACE
+        value: $(params.pipelines_namespace)
+      - name: PIPELINERUN_TIMEOUT
+        value: $(params.pipelinerun_timeout)
+
+      - name: FVT_IMAGE_REGISTRY
+        value: $(params.fvt_image_registry)
+      - name: FVT_ARTIFACTORY_USERNAME
+        value: $(params.fvt_artifactory_username)
+      - name: FVT_ARTIFACTORY_APIKEY
+        value: $(params.fvt_artifactory_apikey)
+      - name: MAS_ADD_CATALOG
+        value: $(params.mas_add_catalog)
+      - name: MAS_ADD_CHANNEL
+        value: $(params.mas_add_channel)
+      - name: DDP_APIKEY
+        value: $(params.ddp_apikey)
+      - name: PARTIUM_USERNAME
+        value: $(params.partium_username)
+      - name: PARTIUM_PASSWORD
+        value: $(params.partium_password)
+      - name: DEVOPS_COS_CRN
+        value: $(params.devops_cos_crn)
+      - name: FVT_VERSION_CORE
+        value: $(params.fvt_version_core)
+      - name: FVT_VERSION_IOT
+        value: $(params.fvt_version_iot)
+      - name: FVT_VERSION_SAFETY
+        value: $(params.fvt_version_safety)
+      - name: FVT_VERSION_MONITOR
+        value: $(params.fvt_version_monitor)
+      - name: FVT_VERSION_PREDICT
+        value: $(params.fvt_version_predict)
+      - name: FVT_VERSION_HPUTILITIES
+        value: $(params.fvt_version_hputilities)
+      - name: FVT_VERSION_VISUALINSPECTION
+        value: $(params.fvt_version_visualinspection)
+      - name: FVT_VERSION_ASSIST
+        value: $(params.fvt_version_assist)
+      - name: FVT_VERSION_OPTIMIZER
+        value: $(params.fvt_version_optimizer)
+      - name: FVT_VERSION_MANAGE
+        value: $(params.fvt_version_manage)
+      - name: FVT_VERSION_HEALTH
+        value: $(params.fvt_version_health)
+      - name: FVT_VERSION_MANAGE_ACM
+        value: $(params.fvt_version_manage_acm)
+      - name: FVT_VERSION_MANAGE_AVIATION
+        value: $(params.fvt_version_manage_aviation)
+      - name: FVT_VERSION_MANAGE_HSE
+        value: $(params.fvt_version_manage_hse)
+      - name: FVT_VERSION_MANAGE_NUCLEAR
+        value: $(params.fvt_version_manage_nuclear)
+      - name: FVT_VERSION_MANAGE_SERVICEPROVIDER
+        value: $(params.fvt_version_manage_serviceprovider)
+      - name: FVT_VERSION_MANAGE_SPATIAL
+        value: $(params.fvt_version_manage_spatial)
+      - name: FVT_VERSION_MANAGE_TRANSPORTATION
+        value: $(params.fvt_version_manage_transportation)
+      - name: FVT_VERSION_MANAGE_CIVIL
+        value: $(params.fvt_version_manage_civil)
+      - name: FVT_VERSION_MANAGE_IC
+        value: $(params.fvt_version_manage_ic)
+      - name: FVT_VERSION_MOBILEFOUNDATION
+        value: $(params.fvt_version_mobilefoundation)
+      - name: IVT_VERSION_CORE
+        value: $(params.ivt_version_core)
+
+  steps:
+    # It uses pipeline_name to know what pipeline to run
+    - name: run-pipeline
+      command:
+        - /opt/app-root/src/run-pipeline.sh
+      image: '$(params.fvt_image_registry)/mas-devops/ansible-fvt:latest'
+      imagePullPolicy: Always

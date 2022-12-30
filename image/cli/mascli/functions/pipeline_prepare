@@ -4,13 +4,13 @@ function pipeline_prepare() {
   echo_h2 "10. Prepare Installation"
 
   # Replace ALL environment variables in templates
-  eval "echo \"$(cat $DIR/templates/pipelinerun.yaml)\"" > $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID.yaml
+  eval "echo \"$(cat $DIR/templates/pipelinerun.yml)\"" > $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID.yml
 
   # Replace mas_instance_id and pipeline_storage_class in templates
   sed -e "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" \
       -e "s/{{pipeline_storage_class}}/$PIPELINE_STORAGE_CLASS/g" \
       -e "s/{{pipeline_storage_accessmode}}/$PIPELINE_STORAGE_ACCESSMODE/g" \
-      $DIR/templates/pvc.yaml > $CONFIG_DIR/pvc-$MAS_INSTANCE_ID.yaml
+      $DIR/templates/pvc.yml > $CONFIG_DIR/pvc-$MAS_INSTANCE_ID.yml
 
   if [ "$ALREADY_CONFIRMED" != "true" ]; then
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
@@ -33,7 +33,7 @@ function pipeline_prepare() {
   pipeline_install_tasks
 
   # Create the PVCs that we need
-  oc apply -f $CONFIG_DIR/pvc-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  oc apply -f $CONFIG_DIR/pvc-$MAS_INSTANCE_ID.yml &>> $LOGFILE
   if [[ "$WAIT_FOR_PVCS" == "true" ]]; then
     LOOKUP_RESULT=$(oc -n mas-$MAS_INSTANCE_ID-pipelines get pvc config-pvc -o jsonpath='{.status.phase}')
     while [ "$LOOKUP_RESULT" != "Bound" ]; do
@@ -72,7 +72,7 @@ function pipeline_prepare() {
   EXISTING_DEPLOYMENT_IMAGE=$(oc -n default get deployment mas-cli2 -o jsonpath='{.spec.template.spec.containers[0].image}' 2>/dev/null)
 
   if [[ "$EXISTING_DEPLOYMENT_IMAGE" != "CLI_IMAGE" ]]
-  then oc -n mas-$MAS_INSTANCE_ID-pipelines apply -f $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  then oc -n mas-$MAS_INSTANCE_ID-pipelines apply -f $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yml &>> $LOGFILE
   fi
 
   oc -n mas-$MAS_INSTANCE_ID-pipelines wait --for=condition=Available=true deployment mas-cli --timeout=3m &>> $LOGFILE
@@ -92,7 +92,7 @@ function pipeline_prepare() {
 
     echo -e "\n\n[WARNING] $CLI_IMAGE is unavailable from the target OCP cluster" >> $LOGFILE
     echo_hr1 >> $LOGFILE
-    oc -n mas-$MAS_INSTANCE_ID-pipelines get pods --selector="app=mas-cli" -o yaml >> $LOGFILE
+    oc -n mas-$MAS_INSTANCE_ID-pipelines get pods --selector="app=mas-cli" -o.yml >> $LOGFILE
     exit 1
   fi
 }

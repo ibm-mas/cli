@@ -7,13 +7,13 @@ if [ "$DEV_MODE" != "true" ]; then
   source ${GITHUB_WORKSPACE}/build/bin/.env.sh
   source ${GITHUB_WORKSPACE}/build/bin/.functions.sh
 
-  TASK_FILES=$GITHUB_WORKSPACE/tekton/tasks/*.yaml
-  PIPELINE_FILES=$GITHUB_WORKSPACE/tekton/pipelines/*.yaml
-  TARGET_FILE=$GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yaml
+  TASK_FILES=$GITHUB_WORKSPACE/tekton/tasks/*.yml
+  PIPELINE_FILES=$GITHUB_WORKSPACE/tekton/pipelines/*.yml
+  TARGET_FILE=$GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yml
 else
-  TASK_FILES=$DIR/../../tekton/tasks/*.yaml
-  PIPELINE_FILES=$DIR/../../tekton/pipelines/*.yaml
-  TARGET_FILE=$DIR/../../image/cli/mascli/templates/ibm-mas-tekton.yaml
+  TASK_FILES=$DIR/../../tekton/tasks/*.yml
+  PIPELINE_FILES=$DIR/../../tekton/pipelines/*.yml
+  TARGET_FILE=$DIR/../../image/cli/mascli/templates/ibm-mas-tekton.yml
 fi
 
 echo "" > $TARGET_FILE

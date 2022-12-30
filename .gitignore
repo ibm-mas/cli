@@ -1,9 +1,9 @@
 
 *.DS_Store*
 .vscode
-image/cli/mascli/templates/ibm-mas-tekton.yaml
+image/cli/mascli/templates/ibm-mas-tekton.yml
 target/
 tmp/
 tekton/test-run.yml
-tekton/ibm-mas-tekton.yaml
+tekton/ibm-mas-tekton.yml
 tekton/test-run-assist.yml
