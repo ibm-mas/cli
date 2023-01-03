@@ -5,7 +5,6 @@ metadata:
   name: mas-upgrade
 spec:
   params:
-
     # MAS Configuration
     - name: mas_instance_id
       type: string
