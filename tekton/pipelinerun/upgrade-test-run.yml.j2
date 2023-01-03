@@ -2,12 +2,12 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: {{ mas_instance_id }}-upgrade-test-{{ build_num }}
+  name: mas-upgrade-test-{{ build_num }}
   labels:
-    tekton.dev/pipeline: upgrade-test
+    tekton.dev/pipeline: mas-upgrade-test
 spec:
   pipelineRef:
-    name: upgrade-test
+    name: mas-upgrade-test
   serviceAccountName: pipeline
   timeout: {{ pipelinerun_timeout }}
 

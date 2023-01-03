@@ -75,14 +75,18 @@
         dest: pipelines/upgrade-test.yml
 
     # Create PipelineRun templates
-    - name: "Generate install-with-fvt-run PipelineRun template"
+    - name: "Generate install-with-fvt PipelineRun template"
       ansible.builtin.template:
         src: pipelinerun/templates/install-with-fvt-run.yml.j2
         dest: pipelinerun/install-with-fvt-run.yml.j2
-    - name: "Generate upgrade-test-run-template PipelineRun template"
+    - name: "Generate upgrade-test PipelineRun template"
       ansible.builtin.template:
         src: pipelinerun/templates/upgrade-test-run.yml.j2
         dest: pipelinerun/upgrade-test-run.yml.j2
+    - name: "Generate test PipelineRun template"
+      ansible.builtin.template:
+        src: pipelinerun/templates/test-run.yml.j2
+        dest: pipelinerun/test-run.yml.j2
 
     # OLD
     # - name: "Read list of install parameters"

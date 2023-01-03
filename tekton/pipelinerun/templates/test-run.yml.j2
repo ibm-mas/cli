@@ -1,0 +1,23 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: {{ "mas-test-{{ build_num }}" }}
+  labels:
+    tekton.dev/pipeline: mas-test
+spec:
+  pipelineRef:
+    name: mas-test
+  serviceAccountName: pipeline
+  timeout: {{ "{{ pipelinerun_timeout }}" }}
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+      persistentVolumeClaim:
+        claimName: config-pvc
+  params:
+    # Test Parameters
+{% for fvt_param in fvt_params_definition.params %}
+    - name: {{ fvt_param.name }}
+      value: {{"{{ lookup('env', '" ~ fvt_param.name | upper ~ "') }}"}}
+{% endfor %}
