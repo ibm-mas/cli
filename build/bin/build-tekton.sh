@@ -18,7 +18,7 @@ else
   PIPELINE_FILES=$DIR/../../tekton/pipelines/*.yml
   TARGET_FILE=$DIR/../../image/cli/mascli/templates/ibm-mas-tekton.yml
   
-  PIPELINERUN_TEMPLATES=$DIR../../tekton/pipelinerun/templates/*.j2
+  PIPELINERUN_FILES=$DIR../../tekton/pipelinerun/templates/*.j2
   TARGET_PIPELINERUN_DIRECTORY=$DIR/../../image/cli/mascli/templates
 fi
 
@@ -41,6 +41,10 @@ for FILE in $PIPELINE_FILES; do
   cat $FILE >> $TARGET_FILE
 done
 
+echo "Copying PipelineRun templates to $TARGET_PIPELINERUN_DIRECTORY"
+echo "cp $PIPELINERUN_FILES $TARGET_PIPELINERUN_DIRECTORY"
+cp --verbose $PIPELINERUN_FILES $TARGET_PIPELINERUN_DIRECTORY
+
 sed "s/default: latest/default: \"$VERSION\"/g" $TARGET_FILE > $TARGET_FILE.txt
 
 rm $TARGET_FILE
@@ -51,6 +55,3 @@ if [ "$DEV_MODE" != "true" ]; then
   cat $TARGET_FILE
 fi
 
-echo "Copying PipelineRun templates to $TARGET_PIPELINERUN_DIRECTORY"
-echo "cp $PIPELINERUN_TEMPLATES $TARGET_PIPELINERUN_DIRECTORY"
-cp --verbose $PIPELINERUN_TEMPLATES $TARGET_PIPELINERUN_DIRECTORY
