@@ -1,0 +1,316 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: {{ mas_instance_id }}-fvt-{{ build_num }}
+  labels:
+    tekton.dev/pipeline: mas-install-with-fvt
+spec:
+  pipelineRef:
+    name: mas-install-with-fvt
+  serviceAccountName: pipeline
+  timeout: {{ pipelinerun_timeout }}
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+      persistentVolumeClaim:
+        claimName: config-pvc
+
+    # Any pre-generated configs that will be copied into the
+    # shared-config during install-suite
+    - name: shared-additional-configs
+      secret:
+        secretName: pipeline-additional-configs
+
+    # The SLS entitlement key file that will be installed
+    # during install-sls
+    - name: shared-entitlement
+      secret:
+        secretName: pipeline-sls-entitlement
+
+    # The storage to hold mustgather output after the pipeline has completed
+    - name: shared-mustgather
+      persistentVolumeClaim:
+        claimName: shared-mustgather-storage
+
+  params:
+    # Install Parameters
+    - name: cli_version
+      value: {{ lookup('env', 'CLI_VERSION') }}
+    - name: artifactory_username
+      value: {{ lookup('env', 'ARTIFACTORY_USERNAME') }}
+    - name: artifactory_apikey
+      value: {{ lookup('env', 'ARTIFACTORY_APIKEY') }}
+    - name: storage_class_rwo
+      value: {{ lookup('env', 'STORAGE_CLASS_RWO') }}
+    - name: storage_class_rwx
+      value: {{ lookup('env', 'STORAGE_CLASS_RWX') }}
+    - name: ibm_entitlement_key
+      value: {{ lookup('env', 'IBM_ENTITLEMENT_KEY') }}
+    - name: common_services_catalog_source
+      value: {{ lookup('env', 'COMMON_SERVICES_CATALOG_SOURCE') }}
+    - name: sls_license_id
+      value: {{ lookup('env', 'SLS_LICENSE_ID') }}
+    - name: sls_license_file
+      value: {{ lookup('env', 'SLS_LICENSE_FILE') }}
+    - name: sls_mongodb_cfg_file
+      value: {{ lookup('env', 'SLS_MONGODB_CFG_FILE') }}
+    - name: sls_catalog_source
+      value: {{ lookup('env', 'SLS_CATALOG_SOURCE') }}
+    - name: sls_channel
+      value: {{ lookup('env', 'SLS_CHANNEL') }}
+    - name: sls_icr_cp
+      value: {{ lookup('env', 'SLS_ICR_CP') }}
+    - name: sls_icr_cpopen
+      value: {{ lookup('env', 'SLS_ICR_CPOPEN') }}
+    - name: sls_entitlement_username
+      value: {{ lookup('env', 'SLS_ENTITLEMENT_USERNAME') }}
+    - name: sls_entitlement_key
+      value: {{ lookup('env', 'SLS_ENTITLEMENT_KEY') }}
+    - name: mongodb_storage_class
+      value: {{ lookup('env', 'MONGODB_STORAGE_CLASS') }}
+    - name: mongodb_replicas
+      value: {{ lookup('env', 'MONGODB_REPLICAS') }}
+    - name: mongodb_cpu_requests
+      value: {{ lookup('env', 'MONGODB_CPU_REQUESTS') }}
+    - name: kafka_namespace
+      value: {{ lookup('env', 'KAFKA_NAMESPACE') }}
+    - name: kafka_cluster_name
+      value: {{ lookup('env', 'KAFKA_CLUSTER_NAME') }}
+    - name: kafka_cluster_size
+      value: {{ lookup('env', 'KAFKA_CLUSTER_SIZE') }}
+    - name: kafka_user_name
+      value: {{ lookup('env', 'KAFKA_USER_NAME') }}
+    - name: gpu_namespace
+      value: {{ lookup('env', 'GPU_NAMESPACE') }}
+    - name: gpu_channel
+      value: {{ lookup('env', 'GPU_CHANNEL') }}
+    - name: nfd_namespace
+      value: {{ lookup('env', 'NFD_NAMESPACE') }}
+    - name: nfd_channel
+      value: {{ lookup('env', 'NFD_CHANNEL') }}
+    - name: db2_meta_storage_accessmode
+      value: {{ lookup('env', 'DB2_META_STORAGE_ACCESSMODE') }}
+    - name: db2_backup_storage_accessmode
+      value: {{ lookup('env', 'DB2_BACKUP_STORAGE_ACCESSMODE') }}
+    - name: db2_meta_storage_size
+      value: {{ lookup('env', 'DB2_META_STORAGE_SIZE') }}
+    - name: db2_backup_storage_size
+      value: {{ lookup('env', 'DB2_BACKUP_STORAGE_SIZE') }}
+    - name: db2_logs_storage_size
+      value: {{ lookup('env', 'DB2_LOGS_STORAGE_SIZE') }}
+    - name: db2_temp_storage_size
+      value: {{ lookup('env', 'DB2_TEMP_STORAGE_SIZE') }}
+    - name: db2_data_storage_size
+      value: {{ lookup('env', 'DB2_DATA_STORAGE_SIZE') }}
+    - name: db2_cpu_requests
+      value: {{ lookup('env', 'DB2_CPU_REQUESTS') }}
+    - name: db2_cpu_limits
+      value: {{ lookup('env', 'DB2_CPU_LIMITS') }}
+    - name: cpd_operators_namespace
+      value: {{ lookup('env', 'CPD_OPERATORS_NAMESPACE') }}
+    - name: cpd_instance_namespace
+      value: {{ lookup('env', 'CPD_INSTANCE_NAMESPACE') }}
+    - name: cpd_primary_storage_class
+      value: {{ lookup('env', 'CPD_PRIMARY_STORAGE_CLASS') }}
+    - name: cpd_metadata_storage_class
+      value: {{ lookup('env', 'CPD_METADATA_STORAGE_CLASS') }}
+    - name: cpd_product_version
+      value: {{ lookup('env', 'CPD_PRODUCT_VERSION') }}
+    - name: cpd_wd_storage_class
+      value: {{ lookup('env', 'CPD_WD_STORAGE_CLASS') }}
+    - name: cpd_wml_storage_class
+      value: {{ lookup('env', 'CPD_WML_STORAGE_CLASS') }}
+    - name: cpd_spark_storage_class
+      value: {{ lookup('env', 'CPD_SPARK_STORAGE_CLASS') }}
+    - name: cpd_wsl_storage_class
+      value: {{ lookup('env', 'CPD_WSL_STORAGE_CLASS') }}
+    - name: uds_contact_email
+      value: {{ lookup('env', 'UDS_CONTACT_EMAIL') }}
+    - name: uds_contact_firstname
+      value: {{ lookup('env', 'UDS_CONTACT_FIRSTNAME') }}
+    - name: uds_contact_lastname
+      value: {{ lookup('env', 'UDS_CONTACT_LASTNAME') }}
+    - name: appconnect_channel
+      value: {{ lookup('env', 'APPCONNECT_CHANNEL') }}
+    - name: appconnect_dashboard_version
+      value: {{ lookup('env', 'APPCONNECT_DASHBOARD_VERSION') }}
+    - name: appconnect_dashboard_name
+      value: {{ lookup('env', 'APPCONNECT_DASHBOARD_NAME') }}
+    - name: appconnect_license_id
+      value: {{ lookup('env', 'APPCONNECT_LICENSE_ID') }}
+    - name: appconnect_storage_class
+      value: {{ lookup('env', 'APPCONNECT_STORAGE_CLASS') }}
+    - name: cos_type
+      value: {{ lookup('env', 'COS_TYPE') }}
+    - name: ibmcloud_apikey
+      value: {{ lookup('env', 'IBMCLOUD_APIKEY') }}
+    - name: uds_event_scheduler_frequency
+      value: {{ lookup('env', 'UDS_EVENT_SCHEDULER_FREQUENCY') }}
+    - name: mas_segment_key
+      value: {{ lookup('env', 'MAS_SEGMENT_KEY') }}
+    - name: dns_provider
+      value: {{ lookup('env', 'DNS_PROVIDER') }}
+    - name: cloudflare_email
+      value: {{ lookup('env', 'CLOUDFLARE_EMAIL') }}
+    - name: cloudflare_apitoken
+      value: {{ lookup('env', 'CLOUDFLARE_APITOKEN') }}
+    - name: cloudflare_zone
+      value: {{ lookup('env', 'CLOUDFLARE_ZONE') }}
+    - name: cloudflare_subdomain
+      value: {{ lookup('env', 'CLOUDFLARE_SUBDOMAIN') }}
+    - name: cis_email
+      value: {{ lookup('env', 'CIS_EMAIL') }}
+    - name: cis_apikey
+      value: {{ lookup('env', 'CIS_APIKEY') }}
+    - name: cis_crn
+      value: {{ lookup('env', 'CIS_CRN') }}
+    - name: cis_subdomain
+      value: {{ lookup('env', 'CIS_SUBDOMAIN') }}
+    - name: mas_instance_id
+      value: {{ lookup('env', 'MAS_INSTANCE_ID') }}
+    - name: mas_channel
+      value: {{ lookup('env', 'MAS_CHANNEL') }}
+    - name: mas_catalog_source
+      value: {{ lookup('env', 'MAS_CATALOG_SOURCE') }}
+    - name: mas_catalog_version
+      value: {{ lookup('env', 'MAS_CATALOG_VERSION') }}
+    - name: mas_domain
+      value: {{ lookup('env', 'MAS_DOMAIN') }}
+    - name: mas_cluster_issuer
+      value: {{ lookup('env', 'MAS_CLUSTER_ISSUER') }}
+    - name: mas_icr_cp
+      value: {{ lookup('env', 'MAS_ICR_CP') }}
+    - name: mas_icr_cpopen
+      value: {{ lookup('env', 'MAS_ICR_CPOPEN') }}
+    - name: mas_entitlement_username
+      value: {{ lookup('env', 'MAS_ENTITLEMENT_USERNAME') }}
+    - name: mas_annotations
+      value: {{ lookup('env', 'MAS_ANNOTATIONS') }}
+    - name: mas_entitlement_key
+      value: {{ lookup('env', 'MAS_ENTITLEMENT_KEY') }}
+    - name: mas_customize_scaling
+      value: {{ lookup('env', 'MAS_CUSTOMIZE_SCALING') }}
+    - name: mas_workspace_id
+      value: {{ lookup('env', 'MAS_WORKSPACE_ID') }}
+    - name: mas_workspace_name
+      value: {{ lookup('env', 'MAS_WORKSPACE_NAME') }}
+    - name: mas_appws_components
+      value: {{ lookup('env', 'MAS_APPWS_COMPONENTS') }}
+    - name: mas_app_settings_aio_flag
+      value: {{ lookup('env', 'MAS_APP_SETTINGS_AIO_FLAG') }}
+    - name: mas_app_settings_demodata
+      value: {{ lookup('env', 'MAS_APP_SETTINGS_DEMODATA') }}
+    - name: mas_app_plan_optimizer
+      value: {{ lookup('env', 'MAS_APP_PLAN_OPTIMIZER') }}
+    - name: wml_instance_id
+      value: {{ lookup('env', 'WML_INSTANCE_ID') }}
+    - name: wml_url
+      value: {{ lookup('env', 'WML_URL') }}
+    - name: wml_version
+      value: {{ lookup('env', 'WML_VERSION') }}
+    - name: predict_deployment_size
+      value: {{ lookup('env', 'PREDICT_DEPLOYMENT_SIZE') }}
+    - name: mas_app_channel_iot
+      value: {{ lookup('env', 'MAS_APP_CHANNEL_IOT') }}
+    - name: mas_app_channel_manage
+      value: {{ lookup('env', 'MAS_APP_CHANNEL_MANAGE') }}
+    - name: mas_app_channel_monitor
+      value: {{ lookup('env', 'MAS_APP_CHANNEL_MONITOR') }}
+    - name: mas_app_channel_optimizer
+      value: {{ lookup('env', 'MAS_APP_CHANNEL_OPTIMIZER') }}
+    - name: mas_app_channel_predict
+      value: {{ lookup('env', 'MAS_APP_CHANNEL_PREDICT') }}
+    - name: mas_app_channel_safety
+      value: {{ lookup('env', 'MAS_APP_CHANNEL_SAFETY') }}
+    - name: mas_app_channel_hputilities
+      value: {{ lookup('env', 'MAS_APP_CHANNEL_HPUTILITIES') }}
+    - name: mas_app_channel_assist
+      value: {{ lookup('env', 'MAS_APP_CHANNEL_ASSIST') }}
+    - name: mas_app_channel_visualinspection
+      value: {{ lookup('env', 'MAS_APP_CHANNEL_VISUALINSPECTION') }}
+    - name: mas_app_source_iot
+      value: {{ lookup('env', 'MAS_APP_SOURCE_IOT') }}
+    - name: mas_app_source_manage
+      value: {{ lookup('env', 'MAS_APP_SOURCE_MANAGE') }}
+    - name: mas_app_source_monitor
+      value: {{ lookup('env', 'MAS_APP_SOURCE_MONITOR') }}
+    - name: mas_app_source_optimizer
+      value: {{ lookup('env', 'MAS_APP_SOURCE_OPTIMIZER') }}
+    - name: mas_app_source_predict
+      value: {{ lookup('env', 'MAS_APP_SOURCE_PREDICT') }}
+    - name: mas_app_source_safety
+      value: {{ lookup('env', 'MAS_APP_SOURCE_SAFETY') }}
+    - name: mas_app_source_hputilities
+      value: {{ lookup('env', 'MAS_APP_SOURCE_HPUTILITIES') }}
+    - name: mas_app_source_assist
+      value: {{ lookup('env', 'MAS_APP_SOURCE_ASSIST') }}
+    - name: mas_app_source_visualinspection
+      value: {{ lookup('env', 'MAS_APP_SOURCE_VISUALINSPECTION') }}
+    - name: devops_mongo_uri
+      value: {{ lookup('env', 'DEVOPS_MONGO_URI') }}
+    - name: devops_build_number
+      value: {{ lookup('env', 'DEVOPS_BUILD_NUMBER') }}
+    # Test Parameters
+    - name: fvt_image_registry
+      value: {{ lookup('env', 'FVT_IMAGE_REGISTRY') }}
+    - name: fvt_artifactory_username
+      value: {{ lookup('env', 'FVT_ARTIFACTORY_USERNAME') }}
+    - name: fvt_artifactory_apikey
+      value: {{ lookup('env', 'FVT_ARTIFACTORY_APIKEY') }}
+    - name: mas_add_catalog
+      value: {{ lookup('env', 'MAS_ADD_CATALOG') }}
+    - name: mas_add_channel
+      value: {{ lookup('env', 'MAS_ADD_CHANNEL') }}
+    - name: ddp_apikey
+      value: {{ lookup('env', 'DDP_APIKEY') }}
+    - name: partium_username
+      value: {{ lookup('env', 'PARTIUM_USERNAME') }}
+    - name: partium_password
+      value: {{ lookup('env', 'PARTIUM_PASSWORD') }}
+    - name: devops_cos_crn
+      value: {{ lookup('env', 'DEVOPS_COS_CRN') }}
+    - name: fvt_version_core
+      value: {{ lookup('env', 'FVT_VERSION_CORE') }}
+    - name: fvt_version_iot
+      value: {{ lookup('env', 'FVT_VERSION_IOT') }}
+    - name: fvt_version_safety
+      value: {{ lookup('env', 'FVT_VERSION_SAFETY') }}
+    - name: fvt_version_monitor
+      value: {{ lookup('env', 'FVT_VERSION_MONITOR') }}
+    - name: fvt_version_predict
+      value: {{ lookup('env', 'FVT_VERSION_PREDICT') }}
+    - name: fvt_version_hputilities
+      value: {{ lookup('env', 'FVT_VERSION_HPUTILITIES') }}
+    - name: fvt_version_visualinspection
+      value: {{ lookup('env', 'FVT_VERSION_VISUALINSPECTION') }}
+    - name: fvt_version_assist
+      value: {{ lookup('env', 'FVT_VERSION_ASSIST') }}
+    - name: fvt_version_optimizer
+      value: {{ lookup('env', 'FVT_VERSION_OPTIMIZER') }}
+    - name: fvt_version_manage
+      value: {{ lookup('env', 'FVT_VERSION_MANAGE') }}
+    - name: fvt_version_health
+      value: {{ lookup('env', 'FVT_VERSION_HEALTH') }}
+    - name: fvt_version_manage_acm
+      value: {{ lookup('env', 'FVT_VERSION_MANAGE_ACM') }}
+    - name: fvt_version_manage_aviation
+      value: {{ lookup('env', 'FVT_VERSION_MANAGE_AVIATION') }}
+    - name: fvt_version_manage_hse
+      value: {{ lookup('env', 'FVT_VERSION_MANAGE_HSE') }}
+    - name: fvt_version_manage_nuclear
+      value: {{ lookup('env', 'FVT_VERSION_MANAGE_NUCLEAR') }}
+    - name: fvt_version_manage_serviceprovider
+      value: {{ lookup('env', 'FVT_VERSION_MANAGE_SERVICEPROVIDER') }}
+    - name: fvt_version_manage_spatial
+      value: {{ lookup('env', 'FVT_VERSION_MANAGE_SPATIAL') }}
+    - name: fvt_version_manage_transportation
+      value: {{ lookup('env', 'FVT_VERSION_MANAGE_TRANSPORTATION') }}
+    - name: fvt_version_manage_civil
+      value: {{ lookup('env', 'FVT_VERSION_MANAGE_CIVIL') }}
+    - name: fvt_version_manage_ic
+      value: {{ lookup('env', 'FVT_VERSION_MANAGE_IC') }}
+    - name: fvt_version_mobilefoundation
+      value: {{ lookup('env', 'FVT_VERSION_MOBILEFOUNDATION') }}
+    - name: ivt_version_core
+      value: {{ lookup('env', 'IVT_VERSION_CORE') }}

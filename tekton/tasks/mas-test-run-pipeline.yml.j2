@@ -3,19 +3,20 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: mas-test-run-pipeline
-  namespace: "{{ pipeline_namespace }}"
 spec:
   params:    
     # Pipeline Run Parameters
     - name: pipeline_name
       type: string
       description: name of the pipeline to run
+      default: mas-fvt-core
     - name: pipelines_namespace
       type: string
       description: namespace where pipelines are installed
     - name: pipelinerun_timeout
       type: string
       description: when pipeline run times out
+      default: 20h
     
     # Other Parameters (MAS and Devops)
     - name: mas_instance_id            # Required

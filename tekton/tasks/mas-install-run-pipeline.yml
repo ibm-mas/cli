@@ -3,19 +3,20 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: mas-install-run-pipeline
-  namespace: "mas-pipelines"
 spec:
   params:    
     # Pipeline Run Common Parameters
     - name: pipeline_name
       type: string
       description: name of the pipeline to run
+      default: mas-install
     - name: pipelines_namespace
       type: string
       description: namespace where pipelines are installed
     - name: pipelinerun_timeout
       type: string
       description: when pipeline run times out
+      default: 20h
 
     # Install Parameters
     # IBM MAS CLI Version
@@ -307,6 +308,11 @@ spec:
       type: string
       default: ""
       description: Override IBM Entitlement key for MAS installation
+    - name: mas_customize_scaling
+      type: string
+      default: ""
+      description: Workload Scaling Custom ConfigMap Name
+
 
     # MAS Configuration - Workspace
     - name: mas_workspace_id
@@ -604,6 +610,8 @@ spec:
         value: $(params.mas_annotations)
       - name: MAS_ENTITLEMENT_KEY
         value: $(params.mas_entitlement_key)
+      - name: MAS_CUSTOMIZE_SCALING
+        value: $(params.mas_customize_scaling)
       - name: MAS_WORKSPACE_ID
         value: $(params.mas_workspace_id)
       - name: MAS_WORKSPACE_NAME

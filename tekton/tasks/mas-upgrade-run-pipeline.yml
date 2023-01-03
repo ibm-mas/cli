@@ -3,19 +3,20 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: mas-upgrade-run-pipeline
-  namespace: "mas-pipelines"
 spec:
   params:    
     # Pipeline Run Common Parameters
     - name: pipeline_name
       type: string
       description: name of the pipeline to run
+      default: mas-upgrade
     - name: pipelines_namespace
       type: string
       description: namespace where pipelines are installed
     - name: pipelinerun_timeout
       type: string
       description: when pipeline run times out
+      default: 20h
 
     # Upgrade Parameters
     # MAS Configuration

@@ -1,0 +1,46 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: {{ "{{ mas_instance_id }}-fvt-{{ build_num }}" }}
+  labels:
+    tekton.dev/pipeline: mas-install-with-fvt
+spec:
+  pipelineRef:
+    name: mas-install-with-fvt
+  serviceAccountName: pipeline
+  timeout: {{ "{{ pipelinerun_timeout }}" }}
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+      persistentVolumeClaim:
+        claimName: config-pvc
+
+    # Any pre-generated configs that will be copied into the
+    # shared-config during install-suite
+    - name: shared-additional-configs
+      secret:
+        secretName: pipeline-additional-configs
+
+    # The SLS entitlement key file that will be installed
+    # during install-sls
+    - name: shared-entitlement
+      secret:
+        secretName: pipeline-sls-entitlement
+
+    # The storage to hold mustgather output after the pipeline has completed
+    - name: shared-mustgather
+      persistentVolumeClaim:
+        claimName: shared-mustgather-storage
+
+  params:
+    # Install Parameters
+{% for install_param in install_params_definition.params %}
+    - name: {{ install_param.name }}
+      value: {{"{{ lookup('env', '" ~ install_param.name | upper ~ "') }}"}}
+{% endfor %}
+    # Test Parameters
+{% for fvt_param in fvt_params_definition.params %}
+    - name: {{ fvt_param.name }}
+      value: {{"{{ lookup('env', '" ~ fvt_param.name | upper ~ "') }}"}}
+{% endfor %}

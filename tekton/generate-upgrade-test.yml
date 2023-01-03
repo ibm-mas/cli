@@ -1,9 +1,14 @@
 - hosts: localhost
   any_errors_fatal: true
   vars:
-    pipeline_namespace: mas-pipelines
+    param1: UDS_CONTACT_EMAIL
+    param2: UDS_CONTACT_NAME
   tasks:
-
+    # - name: "Resolve install parameters template into a list"
+    #   ansible.builtin.template:
+    #     src: pipelines/params/upgrade-test/test.yml.j2
+    #     dest: pipelines/params/upgrade-test/test.yml
+    
     # Load Source & Target Attributes
     - name: "Load source target attributes"
       ansible.builtin.set_fact:
@@ -69,6 +74,17 @@
         src: pipelines/upgrade-test.yml.j2
         dest: pipelines/upgrade-test.yml
 
+    # Create PipelineRun templates
+    - name: "Generate install-with-fvt-run PipelineRun template"
+      ansible.builtin.template:
+        src: pipelinerun/install-with-fvt-runtemplate.yml.j2
+        dest: pipelinerun/install-with-fvt-run.yml.j2
+    - name: "Generate upgrade-test-run-template PipelineRun template"
+      ansible.builtin.template:
+        src: pipelinerun/upgrade-test-runtemplate.yml.j2
+        dest: pipelinerun/upgrade-test-run.yml.j2
+
+    # OLD
     # - name: "Read list of install parameters"
     #   ansible.builtin.set_fact:
     #     install_param_text_list: "{{ lookup('file', 'params/install.yml') }}"

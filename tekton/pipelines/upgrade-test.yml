@@ -2,19 +2,12 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: upgrade-test # make sure it matches the name of file
+  name: mas-upgrade-test
 spec:
   params:
-    # Pipeline Run Common Parameters
-    - name: pipeline_name
-      type: string
-      description: name of the pipeline to run
     - name: pipelines_namespace
       type: string
-      description: namespace where pipelines are installed
-    - name: pipelinerun_timeout
-      type: string
-      description: when pipeline run times out
+      description: Namespace where pipelines are installed
 
     # Install & Upgrade Parameters
     - name: cli_version
@@ -332,6 +325,10 @@ spec:
       type: string
       description: Override IBM Entitlement key for MAS installation
       default: ""
+    - name: mas_customize_scaling
+      type: string
+      description: Workload Scaling Custom ConfigMap Name
+      default: ""
     - name: mas_workspace_id
       type: string
       description: Workspace ID used to configure all applications
@@ -647,8 +644,6 @@ spec:
           value: mas-install
         - name: pipelines_namespace
           value: $(params.pipelines_namespace)
-        - name: pipelinerun_timeout
-          value: "20h"
 
         # Install Parameters
         - name: cli_version
@@ -805,6 +800,8 @@ spec:
           value: $(params.mas_annotations)
         - name: mas_entitlement_key
           value: $(params.mas_entitlement_key)
+        - name: mas_customize_scaling
+          value: $(params.mas_customize_scaling)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
         - name: mas_workspace_name
@@ -876,8 +873,6 @@ spec:
           value: mas-fvt-core
         - name: pipelines_namespace
           value: $(params.pipelines_namespace)
-        - name: pipelinerun_timeout
-          value: "20h"
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
@@ -964,8 +959,6 @@ spec:
           value: mas-upgrade
         - name: pipelines_namespace
           value: $(params.pipelines_namespace)
-        - name: pipelinerun_timeout
-          value: "20h"
           # MAS Upgrade parameters
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -1006,8 +999,6 @@ spec:
           value: mas-fvt-core
         - name: pipelines_namespace
           value: $(params.pipelines_namespace)
-        - name: pipelinerun_timeout
-          value: "20h"
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
@@ -1015,7 +1006,7 @@ spec:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_channel
-          value: $(params.source_mas_channel)
+          value: $(params.target_mas_channel)
         - name: mas_workspace
           value: $(params.mas_workspace_id)
         # MAS Test parameters
