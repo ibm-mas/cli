@@ -77,11 +77,11 @@
     # Create PipelineRun templates
     - name: "Generate install-with-fvt-run PipelineRun template"
       ansible.builtin.template:
-        src: pipelinerun/install-with-fvt-runtemplate.yml.j2
+        src: pipelinerun/templates/install-with-fvt-run.yml.j2
         dest: pipelinerun/install-with-fvt-run.yml.j2
     - name: "Generate upgrade-test-run-template PipelineRun template"
       ansible.builtin.template:
-        src: pipelinerun/upgrade-test-runtemplate.yml.j2
+        src: pipelinerun/templates/upgrade-test-run.yml.j2
         dest: pipelinerun/upgrade-test-run.yml.j2
 
     # OLD
