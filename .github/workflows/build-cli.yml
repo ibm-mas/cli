@@ -40,7 +40,7 @@ jobs:
           path: ${{ github.workspace }}/image/cli/mascli/templates/install-with-fvt.yml.j2
           retention-days: 30
 
-      - name: Install the fvt PipelineRun definitions
+      - name: Upload the install PipelineRun definitions
         uses: actions/upload-artifact@v2
         with:
           name: install-run-${{ env.VERSION }}.yml

@@ -79,6 +79,10 @@
       ansible.builtin.template:
         src: pipelinerun/templates/install-with-fvt-run.yml.j2
         dest: pipelinerun/install-with-fvt.yml.j2
+    - name: "Generate install PipelineRun template"
+      ansible.builtin.template:
+        src: pipelinerun/templates/install-run.yml.j2
+        dest: pipelinerun/install.yml.j2
     - name: "Generate fvt PipelineRun template"
       ansible.builtin.template:
         src: pipelinerun/templates/fvt-run.yml.j2
