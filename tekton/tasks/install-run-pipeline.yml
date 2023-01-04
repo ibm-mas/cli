@@ -13,7 +13,7 @@ spec:
     - name: pipelinerun_timeout
       type: string
       description: pipelinerun timeout
-      default: 10h
+      default: "10h"
     - name: fvt_image_registry
       type: string
       description: registry where test images live
@@ -453,7 +453,7 @@ spec:
       - name: PIPELINERUN_TIMEOUT
         value: $(params.pipelinerun_timeout)
       - name: PIPELINERUN_WAIT
-        value: True
+        value: "true"
 
       - name: CLI_VERSION
         value: $(params.cli_version)

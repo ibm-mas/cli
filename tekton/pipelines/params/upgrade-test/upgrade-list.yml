@@ -7,7 +7,7 @@ params:
     type: string
     default: ""
 
-  - name: mas_workspace
+  - name: mas_workspace_id
     type: string
     default: ""
 

@@ -82,7 +82,7 @@ spec:
           value: $(params.mas_instance_id)
         - name: mas_channel
           value: $(params.source_mas_channel)
-        - name: mas_workspace
+        - name: mas_workspace_id
           value: $(params.mas_workspace_id)
         # MAS Test parameters
 {% for fvt_param in fvt_params_definition.params %}
@@ -133,7 +133,7 @@ spec:
           value: $(params.mas_instance_id)
         - name: mas_channel
           value: $(params.target_mas_channel)
-        - name: mas_workspace
+        - name: mas_workspace_id
           value: $(params.mas_workspace_id)
         # MAS Test parameters
 {% for fvt_param in fvt_params_definition.params %}
