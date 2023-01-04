@@ -2,7 +2,6 @@
 *.DS_Store*
 .vscode
 image/cli/mascli/templates/ibm-mas-tekton.yml
-image/cli/mascli/templates/*.j2
 target/
 tmp/
 tekton/test-run.yml
