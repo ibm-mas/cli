@@ -1,0 +1,1422 @@
+---
+# Don't edit install.yml directly -- modify install.yml.j2, and the content in parts/, then run "ansible-playbook generate-install.yml"
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-fvt
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+
+  params:
+    # 1. Installation
+    # -------------------------------------------------------------------------
+    # IBM MAS CLI Version
+    - name: cli_version
+      type: string
+      default: latest
+      description: Version of the IBM MAS CLI image to use
+
+    # Development Build Support
+    - name: artifactory_username
+      default: ""
+      type: string
+      description: Required to install development MAS catalogs
+    - name: artifactory_apikey
+      default: ""
+      type: string
+      description: Required to install development MAS catalogs
+
+    # Storage Class Selection
+    - name: storage_class_rwo
+      type: string
+      default: ""
+      description: ReadWriteOnce storage class
+    - name: storage_class_rwx
+      type: string
+      default: ""
+      description: ReadWriteMany storage class
+
+    # Entitlement
+    - name: ibm_entitlement_key        # Required
+      type: string
+      description: IBM Entitlement Key
+
+    # Dependencies - Foundation Services
+    - name: common_services_catalog_source
+      type: string
+      default: ""
+
+    # Dependencies - SLS
+    - name: sls_license_id             # Required
+      type: string
+    - name: sls_license_file           # Required
+      type: string
+    - name: sls_mongodb_cfg_file
+      type: string
+      default: "/workspace/configs/mongo-mongoce.yml"
+    - name: sls_catalog_source
+      type: string
+      default: ""
+    - name: sls_channel
+      type: string
+      default: ""
+    - name: sls_icr_cp
+      type: string
+      default: ""
+    - name: sls_icr_cpopen
+      type: string
+      default: ""
+    - name: sls_entitlement_username
+      type: string
+      default: ""
+    - name: sls_entitlement_key
+      type: string
+      default: ""
+      description: Override IBM Entitlement key for SLS installation
+
+    # Dependencies - Mongo
+    - name: mongodb_storage_class
+      type: string
+      default: ""
+    - name: mongodb_replicas
+      type: string
+      description: Optional configuration for mongodb replicas
+      default: ""
+    - name: mongodb_cpu_requests
+      type: string
+      description: Optional configuration for mongodb cpu requests
+      default: ""
+
+    # Dependencies - Kafka
+    - name: kafka_namespace
+      type: string
+      default: ""
+    - name: kafka_cluster_name
+      type: string
+      default: ""
+    - name: kafka_cluster_size
+      type: string
+      default: ""
+    - name: kafka_user_name
+      type: string
+      default: ""
+
+    # Dependencies - nvidia gpu
+    - name: gpu_namespace
+      type: string
+      description: Optional. Nvidia gpu namespace
+      default: ""
+    - name: gpu_channel
+      type: string
+      description: Optional. Nvidia gpu channel for install and updates
+      default: ""
+    - name: nfd_namespace
+      type: string
+      description: Optional. Node feature discovery namespace
+      default: ""
+    - name: nfd_channel
+      type: string
+      description: Optional. Node feature discovery channel for install and updates
+      default: ""
+
+    # Dependencies - DB2
+    # Storage - Access mode
+    - name: db2_meta_storage_accessmode
+      type: string
+      description: Optional configuration for db2 meta storage access mode
+      default: ""
+    - name: db2_backup_storage_accessmode
+      type: string
+      description: Optional configuration for db2 backup storage access mode
+      default: ""
+    # Storage - Capacity
+    - name: db2_meta_storage_size
+      type: string
+      description: Storage capacity (metadata)
+      default: ""
+    - name: db2_backup_storage_size
+      type: string
+      description: Storage capacity (backup)
+      default: ""
+    - name: db2_logs_storage_size
+      type: string
+      description: Storage capacity (logs)
+      default: ""
+    - name: db2_temp_storage_size
+      type: string
+      description: Storage capacity (temp)
+      default: ""
+    - name: db2_data_storage_size
+      type: string
+      description: Storage capacity (data)
+      default: ""
+    # CPU requests and limits
+    - name: db2_cpu_requests
+      type: string
+      description: Optional configuration for db2 cpu requests
+      default: ""
+    - name: db2_cpu_limits
+      type: string
+      description: Optional configuration for mongodb cpu limits
+      default: ""
+
+    # Dependencies - CP4D
+    - name: cpd_operators_namespace
+      type: string
+      default: ""
+    - name: cpd_instance_namespace
+      type: string
+      default: ""
+    - name: cpd_primary_storage_class
+      type: string
+      default: ""
+    - name: cpd_metadata_storage_class
+      type: string
+      default: ""
+
+    # Dependencies - CP4D Services
+    - name: cpd_product_version        # Required
+      type: string
+    - name: cpd_wd_storage_class
+      type: string
+      default: ""
+    - name: cpd_wml_storage_class
+      type: string
+      default: ""
+    - name: cpd_spark_storage_class
+      type: string
+      default: ""
+    - name: cpd_wsl_storage_class
+      type: string
+      default: ""
+
+    # Dependencies - UDS
+    - name: uds_contact_email          # Required
+      type: string
+    - name: uds_contact_firstname      # Required
+      type: string
+    - name: uds_contact_lastname       # Required
+      type: string
+
+    # Dependencies - AppConnect
+    # Subscription Channel
+    - name: appconnect_channel
+      type: string
+      default: ""
+    # Dashboard Configuration
+    - name: appconnect_dashboard_version
+      type: string
+      default: ""
+    - name: appconnect_dashboard_name
+      type: string
+      default: ""
+    # License
+    - name: appconnect_license_id
+      type: string
+      default: ""
+    # Storage Class
+    - name: appconnect_storage_class
+      type: string
+      default: ""
+
+    # Dependencies - COS
+    - name: cos_type
+      type: string
+      description: COS Provider (ibm or ocs)
+    - name: ibmcloud_apikey
+      type: string
+      description: API Key used to create COS instance in IBM Cloud
+    - name: uds_event_scheduler_frequency
+      type: string
+      default: ""
+    - name: mas_segment_key
+      type: string
+      default: ""
+
+    # MAS DNS Integrations - General
+    - name: dns_provider
+      type: string
+      default: ""
+    # MAS DNS Integrations - Cloudflare Support
+    - name: cloudflare_email
+      type: string
+      default: ""
+    - name: cloudflare_apitoken
+      type: string
+      default: ""
+    - name: cloudflare_zone
+      type: string
+      default: ""
+    - name: cloudflare_subdomain
+      type: string
+      default: ""
+    # MAS DNS Integrations - IBM Cloud Internet Services Support
+    - name: cis_email
+      type: string
+      default: ""
+    - name: cis_apikey
+      type: string
+      default: ""
+    - name: cis_crn
+      type: string
+      default: ""
+    - name: cis_subdomain
+      type: string
+      default: ""
+
+    # MAS Configuration
+    - name: mas_instance_id            # Required
+      type: string
+    - name: mas_channel                # Required
+      type: string
+    - name: mas_catalog_source
+      type: string
+      default: ibm-operator-catalog
+    - name: mas_catalog_version
+      type: string
+      default: v8-amd64
+
+    - name: mas_domain
+      type: string
+      default: ""
+    - name: mas_cluster_issuer
+      type: string
+      default: ""
+
+    - name: mas_icr_cp
+      type: string
+      default: ""
+    - name: mas_icr_cpopen
+      type: string
+      default: ""
+    - name: mas_entitlement_username
+      type: string
+      default: ""
+    - name: mas_annotations
+      type: string
+      default: ""
+    - name: mas_entitlement_key
+      type: string
+      default: ""
+      description: Override IBM Entitlement key for MAS installation
+    - name: mas_customize_scaling
+      type: string
+      default: ""
+      description: Workload Scaling Custom ConfigMap Name
+
+
+    # MAS Configuration - Workspace
+    - name: mas_workspace_id
+      type: string
+      description: Workspace ID used to configure all applications
+      default: masdev
+    - name: mas_workspace_name
+      type: string
+      description: Workspace Name used when setting up the workspace
+      default: MAS Development
+
+    # MAS Configuration - Manage Application
+    - name: mas_appws_components
+      type: string
+      description: Manage components to configure in the workspace
+      default: "base=latest,health=latest"
+    - name: mas_app_settings_aio_flag
+      type: string
+      description: Flag indicating if Asset Investment Optimization (AIO) resource must be loaded or not. It can be loaded only when Optimizer application is installed.
+      default: ""
+    - name: mas_app_settings_demodata
+      type: string
+      description: Flag indicating if manage demodata should be loaded or not
+      default: ""
+
+    # MAS Configuration - Optimizer Application
+    - name: mas_app_plan_optimizer
+      type: string
+      description: Configure install plan of Optimizer application (full or limited)
+      default: full
+
+    # MAS Configuration - Predict
+    - name: wml_instance_id
+      type: string
+      description: wml instance to be configured in Predict
+      default: ""
+    - name: wml_url
+      type: string
+      description: Url to access wml services
+      default: ""
+    - name: wml_version
+      type: string
+      description: product version if cpd_product_version is not set
+      default: ""
+    - name: predict_deployment_size
+      type: string
+      description: controls the workload size of predict containers
+      default: ""
+
+    # MAS Configuration - Application Channels
+    - name: mas_app_channel_iot
+      type: string
+      description: Subscription channel for IoT application operator
+      default: ""
+    - name: mas_app_channel_manage
+      type: string
+      description: Subscription channel for Manage application operator
+      default: ""
+    - name: mas_app_channel_monitor
+      type: string
+      description: Subscription channel for Monitor application operator
+      default: ""
+    - name: mas_app_channel_optimizer
+      type: string
+      description: Subscription channel for Optimizer application operator
+      default: ""
+    - name: mas_app_channel_predict
+      type: string
+      description: Subscription channel for Predict application operator
+      default: ""
+    - name: mas_app_channel_safety
+      type: string
+      description: Subscription channel for Safety application operator
+      default: ""
+    - name: mas_app_channel_hputilities
+      type: string
+      description: Subscription channel for Health & Predict - Utilities application operator
+      default: ""
+    - name: mas_app_channel_assist
+      type: string
+      description: Subscription channel for Assist application operator
+      default: ""
+    - name: mas_app_channel_visualinspection
+      type: string
+      description: Subscription channel for MVI application operator
+      default: ""
+
+    # MAS Configuration - Application Sources
+    - name: mas_app_source_iot
+      type: string
+      description: Subscription source for IoT application operator
+      default: ibm-operator-catalog
+    - name: mas_app_source_manage
+      type: string
+      description: Subscription source for Manage application operator
+      default: ibm-operator-catalog
+    - name: mas_app_source_monitor
+      type: string
+      description: Subscription source for Monitor application operator
+      default: ibm-operator-catalog
+    - name: mas_app_source_optimizer
+      type: string
+      description: Subscription source for Optimizer application operator
+      default: ibm-operator-catalog
+    - name: mas_app_source_predict
+      type: string
+      description: Subscription source for Predict application operator
+      default: ibm-operator-catalog
+    - name: mas_app_source_safety
+      type: string
+      description: Subscription source for Safety application operator
+      default: ibm-operator-catalog
+    - name: mas_app_source_hputilities
+      type: string
+      description: Subscription source for Health & Predict - Utilities application operator
+      default: ""
+    - name: mas_app_source_assist
+      type: string
+      description: Subscription source for Assist application operator
+      default: ""
+    - name: mas_app_source_visualinspection
+      type: string
+      description: Subscription source for MVI application operator
+      default: ""
+
+    # Persist Results (Optional)
+    - name: devops_mongo_uri
+      type: string
+      default: ""
+    - name: devops_build_number
+      type: string
+      default: ""
+
+
+    # 2. Additional Params for FVT
+    # -------------------------------------------------------------------------
+    # FVT Image Container Registry
+    - name: fvt_image_registry
+      type: string
+
+    # FVT Image Pull Secret
+    - name: fvt_artifactory_username
+      type: string
+    - name: fvt_artifactory_apikey
+      type: string
+
+    # Data Dictionary
+    - name: mas_add_catalog
+      type: string
+    - name: mas_add_channel
+      type: string
+
+    # FVT Test Secrets
+    - name: ddp_apikey
+      type: string
+    - name: partium_username
+      type: string
+    - name: partium_password
+      type: string
+
+    # FVT Upload files (Optional)
+    - name: devops_cos_crn
+      type: string
+      default: ""
+
+    # FVT Versions
+    - name: fvt_version_core
+      type: string
+      description: FVT Version - Core
+      default: ""
+    - name: fvt_version_iot
+      type: string
+      description: FVT Version - IoT
+      default: ""
+    - name: fvt_version_safety
+      type: string
+      description: FVT Version - Safety
+      default: ""
+    - name: fvt_version_monitor
+      type: string
+      description: FVT Version - Monitor
+      default: ""
+    - name: fvt_version_predict
+      type: string
+      description: FVT Version - Predict
+      default: ""
+    - name: fvt_version_hputilities
+      type: string
+      description: FVT Version - Health & Predict Utilities
+      default: ""
+    - name: fvt_version_visualinspection
+      type: string
+      description: FVT Version - Visual Inspection
+      default: ""
+    - name: fvt_version_assist
+      type: string
+      description: FVT Version - Assist
+      default: ""
+    - name: fvt_version_optimizer
+      type: string
+      description: FVT Version - Optimizer
+      default: ""
+
+    # FVT Versions - Manage, Health and Industry Solutions
+    - name: fvt_version_manage
+      type: string
+      description: FVT Version - Manage
+      default: ""
+    - name: fvt_version_health
+      type: string
+      description: FVT Version - Health
+      default: ""
+    - name: fvt_version_manage_acm
+      type: string
+      description: FVT Version - Manage ACM
+      default: ""
+    - name: fvt_version_manage_aviation
+      type: string
+      description: FVT Version - Manage Aviation
+      default: ""
+    - name: fvt_version_manage_hse
+      type: string
+      description: FVT Version - Manage HSE
+      default: ""
+    - name: fvt_version_manage_nuclear
+      type: string
+      description: FVT Version - Manage Nuclear
+      default: ""
+    - name: fvt_version_manage_serviceprovider
+      type: string
+      description: FVT Version - Service Provider
+      default: ""
+    - name: fvt_version_manage_spatial
+      type: string
+      description: FVT Version - Spatial
+      default: ""
+    - name: fvt_version_manage_transportation
+      type: string
+      description: FVT Version - Manage Transportation
+      default: ""
+    - name: fvt_version_manage_civil
+      type: string
+      description: FVT Version - Manage Civil Infrastructure
+      default: ""
+    - name: fvt_version_manage_ic
+      type: string
+      description: FVT Version - Manage IC
+      default: ""
+
+    # FVT Versions - Mobile Foundation
+    - name: fvt_version_mobilefoundation
+      type: string
+      description: FVT Version - Mobile Foundation
+      default: ""
+
+    # IVT Versions
+    - name: ivt_version_core
+      type: string
+      description: IVT Version - Core
+      default: ""
+
+
+  tasks:
+    # Content
+    # -------
+    # 1. MAS Suite Verify
+    # 2. MAS Core FVT
+
+    # 1. MAS Suite Verify
+    # -------------------------------------------------------------------------
+    # 1.1 Suite Verification
+    - name: suite-verify
+      params:
+        # Controls the version of the ibmmas/cli image used
+        - name: cli_version
+          value: $(params.cli_version)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_suite_name
+          value: suite-verify
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-verify
+
+    # 2. MAS Core FVT
+    # -------------------------------------------------------------------------
+    # 2.1 Phase 1 of CoreAPI testing (~35m)
+    # Core FVT 1.1 coreapi-addons ~20m
+    - name: fvt-coreapi-addons
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-coreapi-addons
+      runAfter:
+        - suite-verify
+
+    # Core FVT 1.2 coreapi-groupmgmt ~30m
+    - name: fvt-coreapi-groupmgmt
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-coreapi-groupmgmt
+      runAfter:
+        - suite-verify
+
+    # Core FVT 1.3 coreapi-usermgmt ~15m
+    - name: fvt-coreapi-usermgmt
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-coreapi-usermgmt
+      runAfter:
+        - suite-verify
+
+    # Core FVT 1.4 coreapi-workspacemgmt  ~35m
+    - name: fvt-coreapi-workspacemgmt
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: fvt_image_name
+          value: fvt-coreapi-workspacemgmt
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: partium_username
+          value: $(params.partium_username)
+        - name: partium_password
+          value: $(params.partium_password)
+      runAfter:
+        - suite-verify
+
+    # Core FVT 1.5 coreapi-graphiteconfigtool  ~15m
+    - name: fvt-coreapi-graphiteconfigtool
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: fvt_image_name
+          value: fvt-coreapi-graphiteconfigtool
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+      runAfter:
+        - suite-verify
+
+    # 2.2 Phase 2 of CoreAPI testing (~10m)
+    # Only start phase 2 tests after all suites in phase 1 are complete
+
+    # Core FVT 2.1 coreapi-mobileapi ~5m
+    - name: fvt-coreapi-mobileapi
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: fvt_image_name
+          value: fvt-coreapi-mobileapi
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+      runAfter:
+        - fvt-coreapi-addons
+        - fvt-coreapi-groupmgmt
+        - fvt-coreapi-usermgmt
+        - fvt-coreapi-workspacemgmt
+        - fvt-coreapi-graphiteconfigtool
+
+    # Core FVT 2.2 coreapi-other ~5m
+    - name: fvt-coreapi-other
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-coreapi-other
+      runAfter:
+        - fvt-coreapi-addons
+        - fvt-coreapi-groupmgmt
+        - fvt-coreapi-usermgmt
+        - fvt-coreapi-workspacemgmt
+        - fvt-coreapi-graphiteconfigtool
+
+    # Core FVT 2.3 coreapi-utilities ~5m
+    - name: fvt-coreapi-utilities
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-coreapi-utilities
+      runAfter:
+        - fvt-coreapi-addons
+        - fvt-coreapi-groupmgmt
+        - fvt-coreapi-usermgmt
+        - fvt-coreapi-workspacemgmt
+        - fvt-coreapi-graphiteconfigtool
+
+    # Core FVT 2.4 coreapi-uiresources ~5m
+    - name: fvt-coreapi-uiresources
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-coreapi-uiresources
+      runAfter:
+        - fvt-coreapi-addons
+        - fvt-coreapi-groupmgmt
+        - fvt-coreapi-usermgmt
+        - fvt-coreapi-workspacemgmt
+        - fvt-coreapi-graphiteconfigtool
+
+    # Core FVT 2.5 coreapi-dependencies ~10m
+    - name: fvt-coreapi-dependencies
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-coreapi-dependencies
+      runAfter:
+        - fvt-coreapi-addons
+        - fvt-coreapi-groupmgmt
+        - fvt-coreapi-usermgmt
+        - fvt-coreapi-workspacemgmt
+        - fvt-coreapi-graphiteconfigtool
+
+    # 2.3 Adoptionusage Metering test suite (~30m)
+    # Only start phase 3 test after all suites in phase 2 are complete
+    # This testsuite cannot be run in parallel with others
+
+    # FVT3.1 adoptionusagemetering ~30m
+    - name: fvt-adoptionusagemetering
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-adoptionusagemetering
+      runAfter:
+        - fvt-coreapi-mobileapi
+        - fvt-coreapi-other
+        - fvt-coreapi-uiresources
+        - fvt-coreapi-dependencies
+        - fvt-coreapi-utilities
+
+    # 2.4 Miscellaneous test suites (~10m)
+    # Only start phase 4 tests after all suites in phase 3 are complete
+
+    # FVT4.1 internalapi ~10m
+    - name: fvt-internalapi
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-internalapi
+      runAfter:
+        - fvt-adoptionusagemetering
+
+    # FVT4.2 catalogapi ~5m
+    - name: fvt-catalogapi
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-catalogapi
+      runAfter:
+        - fvt-adoptionusagemetering
+
+    # FVT4.3 ibmadminissuer 5m
+    - name: fvt-ibmadminissuer
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-ibmadminissuer
+      runAfter:
+        - fvt-adoptionusagemetering
+
+    # FVT4.4 milestonesapi ~5m
+    - name: fvt-milestonesapi
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-milestonesapi
+      runAfter:
+        - fvt-adoptionusagemetering
+
+    # FVT4.5 adoptionusageapi ~5m
+    - name: fvt-adoptionusageapi
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-adoptionusageapi
+      runAfter:
+        - fvt-adoptionusagemetering
+
+    # FVT4.6 adoptionusagereporter ~5m
+    - name: fvt-adoptionusagereporter
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: fvt_image_name
+          value: fvt-adoptionusagereporter
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: ddp_apikey
+          value: $(params.ddp_apikey)
+      runAfter:
+        - fvt-adoptionusagemetering
+
+    # FVT4.7 accapppoints ~5m
+    - name: fvt-accapppoints
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-accapppoints
+        - name: ddp_apikey
+          value: $(params.ddp_apikey)
+      runAfter:
+        - fvt-adoptionusagemetering
+
+    # 2.5 Single-threaded suites
+    # These tests cannot be ran with anything else (~75m)
+    # - CoreIDP ... both result in IDP restarts
+    # - Licensing API ... not really sure why TBH
+    # - SMTP ... temporarily disables SMTP integration
+
+    # FVT5.1 coreidp-ldap ~10m
+    - name: fvt-coreidp-ldap
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-coreidp-ldap
+      runAfter:
+        # Only start after all suites in phase 4 are complete
+        - fvt-internalapi
+        - fvt-catalogapi
+        - fvt-ibmadminissuer
+        - fvt-milestonesapi
+        - fvt-adoptionusageapi
+        - fvt-adoptionusagereporter
+        - fvt-accapppoints
+
+    # FVT5.2 coreidp-saml ~40m
+    - name: fvt-coreidp-saml
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-coreidp-saml
+      runAfter:
+        - fvt-coreidp-ldap
+
+    # FVT5.3 coreidp-auth ~20m - Refresh token and authentication patterns
+    - name: fvt-coreidp-auth
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-coreidp-auth
+      runAfter:
+        - fvt-coreidp-saml
+
+    # FVT5.4 licensingapi ~20m
+    - name: fvt-licensingapi
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-licensingapi
+      runAfter:
+        - fvt-coreidp-auth
+
+    # FVT5.5 smtp ~5m
+    - name: fvt-smtp
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-smtp
+      runAfter:
+        - fvt-licensingapi
+
+    # FVT5.6 core-scaling ~25m
+    - name: fvt-core-scaling
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+        - name: fvt_image_name
+          value: fvt-core-scaling
+      runAfter:
+        - fvt-smtp

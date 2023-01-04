@@ -14,12 +14,12 @@ if [ "$DEV_MODE" != "true" ]; then
   PIPELINERUN_FILES=$GITHUB_WORKSPACE/tekton/pipelinerun/*.j2
   TARGET_PIPELINERUN_DIRECTORY=$GITHUB_WORKSPACE/image/cli/mascli/templates/
 else
-  TASK_FILES=$DIR/../../tekton/tasks/*.yml
-  PIPELINE_FILES=$DIR/../../tekton/pipelines/*.yml
-  TARGET_FILE=$DIR/../../image/cli/mascli/templates/ibm-mas-tekton.yml
+  TASK_FILES=../../tekton/tasks/*.yml
+  PIPELINE_FILES=../../tekton/pipelines/*.yml
+  TARGET_FILE=../../image/cli/mascli/templates/ibm-mas-tekton.yml
   
-  PIPELINERUN_FILES=$DIR../../tekton/pipelinerun/templates/*.j2
-  TARGET_PIPELINERUN_DIRECTORY=$DIR/../../image/cli/mascli/templates
+  PIPELINERUN_FILES=../../tekton/pipelinerun/templates/*.j2
+  TARGET_PIPELINERUN_DIRECTORY=../../image/cli/mascli/templates
 fi
 
 echo "" > $TARGET_FILE
@@ -54,4 +54,3 @@ mv $TARGET_FILE.txt $TARGET_FILE
 if [ "$DEV_MODE" != "true" ]; then
   cat $TARGET_FILE
 fi
-

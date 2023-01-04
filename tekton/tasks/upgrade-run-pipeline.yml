@@ -6,17 +6,17 @@ metadata:
 spec:
   params:    
     # Pipeline Run Common Parameters
-    - name: pipeline_name
+    - name: pipelinerun_template_file_name
       type: string
-      description: name of the pipeline to run
-      default: mas-upgrade
-    - name: pipelines_namespace
-      type: string
-      description: namespace where pipelines are installed
+      description: name of the pipelinerun template (.yml.j2)
+      default: install
     - name: pipelinerun_timeout
       type: string
-      description: when pipeline run times out
-      default: 20h
+      description: pipelinerun timeout
+      default: 10h
+    - name: fvt_image_registry
+      type: string
+      description: registry where test images live
 
     # Upgrade Parameters
     # MAS Configuration
@@ -84,12 +84,13 @@ spec:
   stepTemplate:
     name: 'run-pipeline-$(params.pipeline_name)'
     env:
-      - name: PIPELINE_NAME
-        value: $(params.pipeline_name)
-      - name: PIPELINES_NAMESPACE
-        value: $(params.pipelines_namespace)
+      - name: PIPELINERUN_TEMPLATE_FILE_NAME
+        value: $(params.pipelinerun_template_file_name)
       - name: PIPELINERUN_TIMEOUT
         value: $(params.pipelinerun_timeout)
+      - name: PIPELINERUN_WAIT
+        value: True
+
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
       - name: MAS_CHANNEL

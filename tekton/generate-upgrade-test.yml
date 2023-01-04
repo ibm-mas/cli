@@ -46,18 +46,18 @@
         name: upgrade_params_definition
 
     # Generate Run Pipeline Tasks
-    - name: "Generate mas-install-run-pipeline task"
+    - name: "Generate install-run-pipeline task"
       ansible.builtin.template:
-        src: tasks/mas-install-run-pipeline.yml.j2
-        dest: tasks/mas-install-run-pipeline.yml
-    - name: "Generate mas-test-run-pipeline task"
+        src: tasks/install-run-pipeline.yml.j2
+        dest: tasks/install-run-pipeline.yml
+    - name: "Generate fvt-run-pipeline task"
       ansible.builtin.template:
-        src: tasks/mas-test-run-pipeline.yml.j2
-        dest: tasks/mas-test-run-pipeline.yml
-    - name: "Generate mas-upgrade-run-pipeline task"
+        src: tasks/fvt-run-pipeline.yml.j2
+        dest: tasks/fvt-run-pipeline.yml
+    - name: "Generate upgrade-run-pipeline task"
       ansible.builtin.template:
-        src: tasks/mas-upgrade-run-pipeline.yml.j2
-        dest: tasks/mas-upgrade-run-pipeline.yml
+        src: tasks/upgrade-run-pipeline.yml.j2
+        dest: tasks/upgrade-run-pipeline.yml
 
     # Debug
     - name: "Debug params_definition"
@@ -79,10 +79,10 @@
       ansible.builtin.template:
         src: pipelinerun/templates/install-with-fvt-run.yml.j2
         dest: pipelinerun/install-with-fvt.yml.j2
-    - name: "Generate test PipelineRun template"
+    - name: "Generate fvt PipelineRun template"
       ansible.builtin.template:
-        src: pipelinerun/templates/test-run.yml.j2
-        dest: pipelinerun/test.yml.j2
+        src: pipelinerun/templates/fvt-run.yml.j2
+        dest: pipelinerun/fvt.yml.j2
     - name: "Generate upgrade PipelineRun template"
       ansible.builtin.template:
         src: pipelinerun/templates/upgrade-run.yml.j2

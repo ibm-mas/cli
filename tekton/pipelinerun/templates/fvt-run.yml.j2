@@ -2,12 +2,12 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: {{ "mas-test-{{ build_num }}" }}
+  name: {{ "mas-fvt-{{ build_num }}" }}
   labels:
-    tekton.dev/pipeline: mas-test
+    tekton.dev/pipeline: mas-fvt
 spec:
   pipelineRef:
-    name: mas-test
+    name: mas-fvt
   serviceAccountName: pipeline
   timeout: {{ "{{ pipelinerun_timeout }}" }}
   workspaces:
