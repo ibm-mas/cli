@@ -37,7 +37,7 @@ spec:
 
   steps:
     # It uses pipelinerun_template_file_name to know what pipeline to run
-    - name: 'run-pipeline-$(params.pipelinerun_template_file_name)'
+    - name: 'run-pipeline'
       command:
         - /opt/app-root/src/run-pipeline.sh
       image: '$(params.fvt_image_registry)/mas-devops/ansible-fvt:latest'
