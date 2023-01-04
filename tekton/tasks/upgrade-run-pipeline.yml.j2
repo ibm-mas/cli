@@ -29,7 +29,7 @@ spec:
       - name: PIPELINERUN_TIMEOUT
         value: $(params.pipelinerun_timeout)
       - name: PIPELINERUN_WAIT
-        value: True
+        value: "true"
 
 {% for upgrade_param in upgrade_params_definition.params %}
       - name: {{ upgrade_param.name | upper }}

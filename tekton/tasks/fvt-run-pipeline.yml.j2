@@ -45,7 +45,7 @@ spec:
       - name: PIPELINERUN_TIMEOUT
         value: $(params.pipelinerun_timeout)
       - name: PIPELINERUN_WAIT
-        value: True
+        value: "true"
 
 {% for fvt_param in fvt_params_definition.params %}
       - name: {{ fvt_param.name | upper }}
