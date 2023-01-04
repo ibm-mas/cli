@@ -2,14 +2,14 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: {{ "mas-install-{{ build_num }}" }}
+  name: {{'"mas-install-{{ build_num }}"'}}
   labels:
     tekton.dev/pipeline: mas-install
 spec:
   pipelineRef:
     name: mas-install
   serviceAccountName: pipeline
-  timeout: {{ "{{ pipelinerun_timeout }}" }}
+  timeout: {{'"{{ pipelinerun_timeout }}"'}}
   workspaces:
     # The generated configuration files
     - name: shared-configs
@@ -37,5 +37,5 @@ spec:
     # Install Parameters
 {% for install_param in install_params_definition.params %}
     - name: {{ install_param.name }}
-      value: {{"{{ lookup('env', '" ~ install_param.name | upper ~ "') }}"}}
+      value: {{'"{{ lookup(\'env\', \'' ~ install_param.name | upper ~ '\') }}"'}}
 {% endfor %}

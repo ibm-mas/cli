@@ -2,14 +2,14 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: {{ "mas-upgrade-{{ build_num }}" }}
+  name: {{'"mas-upgrade-{{ build_num }}"'}}
   labels:
     tekton.dev/pipeline: mas-upgrade
 spec:
   pipelineRef:
     name: mas-upgrade
   serviceAccountName: pipeline
-  timeout: {{ "{{ pipelinerun_timeout }}" }}
+  timeout: {{'"{{ pipelinerun_timeout }}"'}}
   workspaces:
     # The generated configuration files
     - name: shared-configs
@@ -20,9 +20,9 @@ spec:
 {% for upgrade_param in upgrade_params_definition.params %}
 {% if upgrade_param.name in params_source_target_list %}
     - name: {{ upgrade_param.name }}
-      value: {{"{{ lookup('env', 'TARGET_" ~ upgrade_param.name | upper ~ "') }}"}}
+      value: {{'"{{ lookup(\'env\', \'TARGET_' ~ upgrade_param.name | upper ~ '\') }}"'}}
 {% else %}
     - name: {{ upgrade_param.name }}
-      value: {{"{{ lookup('env', '" ~ upgrade_param.name | upper ~ "') }}"}}
+      value: {{'"{{ lookup(\'env\', \'' ~ upgrade_param.name | upper ~ '\') }}"'}}
 {% endif %}
 {% endfor %}
