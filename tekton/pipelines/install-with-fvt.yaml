@@ -4769,9 +4769,9 @@ spec:
           value: $(params.mas_app_channel_manage)
         - name: product_id
           value: ibm-mas-mobilefoundation
-        - name: foundation_device_type
+        - name: assist_device_type
           value: android
-        - name: foundation_server_type
+        - name: assist_server_type
           value: mas
       taskRef:
         kind: Task
@@ -4817,9 +4817,9 @@ spec:
           value: $(params.mas_app_channel_manage)
         - name: product_id
           value: ibm-mas-mobilefoundation
-        - name: foundation_device_type
+        - name: assist_device_type
           value: ios
-        - name: foundation_server_type
+        - name: assist_server_type
           value: mas
       taskRef:
         kind: Task
