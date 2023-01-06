@@ -260,32 +260,32 @@ function mirror_to_registry_interactive() {
       MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-221228-amd64
       ;;
-    1)
+    2)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-221228-amd64
       ;;
-    2)
-      MAS_CHANNEL=8.9.x
-      MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-221129-amd64
-      ;;
     3)
-      MAS_CHANNEL=8.8.x
+      MAS_CHANNEL=8.9.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-221129-amd64
       ;;
     4)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-221025-amd64
+      MAS_CATALOG_VERSION=v8-221129-amd64
       ;;
     5)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-220927-amd64
+      MAS_CATALOG_VERSION=v8-221025-amd64
       ;;
     6)
+      MAS_CHANNEL=8.8.x
+      MAS_CATALOG_SOURCE=ibm-operator-catalog
+      MAS_CATALOG_VERSION=v8-220927-amd64
+      ;;
+    7)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-220805-amd64
