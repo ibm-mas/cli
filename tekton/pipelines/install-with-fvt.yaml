@@ -4768,7 +4768,9 @@ spec:
         - name: product_channel
           value: $(params.mas_app_channel_manage)
         - name: product_id
-          value: ibm-mas-mobilefoundation
+          value: ibm-mas-manage
+        - name: assist_test_type
+          value: mobileapp
         - name: assist_device_type
           value: android
         - name: assist_server_type
@@ -4816,7 +4818,9 @@ spec:
         - name: product_channel
           value: $(params.mas_app_channel_manage)
         - name: product_id
-          value: ibm-mas-mobilefoundation
+          value: ibm-mas-manage
+        - name: assist_test_type
+          value: mobileapp
         - name: assist_device_type
           value: ios
         - name: assist_server_type
