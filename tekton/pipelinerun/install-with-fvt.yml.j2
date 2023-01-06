@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: "mas-install-with-fvt-{{ build_num }}"
+  name: "mas-install-with-fvt-{{ devops_build_number }}"
   labels:
     tekton.dev/pipeline: mas-install-with-fvt
 spec:

@@ -5,10 +5,6 @@ metadata:
   name: mas-upgrade-test
 spec:
   params:
-    - name: pipelines_namespace
-      type: string
-      description: Namespace where pipelines are installed
-
     # Install & Upgrade Parameters
 {% for install_param in install_params_definition.params %}
 {% if install_param.name in params_source_target_list %}
@@ -33,7 +29,6 @@ spec:
 {% endif %}
 {% endif %}
 {% endfor %}
-
     # Test Parameters
 {% for fvt_param in fvt_params_definition.params %}
     - name: {{ fvt_param.name }}
@@ -43,15 +38,12 @@ spec:
       default: {{ fvt_param.default | default('\"\"', true) }}
 {% endif %}
 {% endfor %}
-
   tasks:
     - name: install
       params:
         # Pipeline Run Parameters
-        - name: pipeline_name
+        - name: pipelinerun_template_file_name
           value: mas-install
-        - name: pipelines_namespace
-          value: $(params.pipelines_namespace)
 
         # Install Parameters
 {% for install_param in install_params_definition.params %}
@@ -70,10 +62,8 @@ spec:
     - name: test-before
       params:
         # Pipeline Run Parameters
-        - name: pipeline_name
-          value: mas-fvt-core
-        - name: pipelines_namespace
-          value: $(params.pipelines_namespace)
+        - name: pipelinerun_template_file_name
+          value: mas-fvt
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
@@ -98,10 +88,8 @@ spec:
     - name: upgrade
       params:
         # Pipeline Run Parameters
-        - name: pipeline_name
+        - name: pipelinerun_template_file_name
           value: mas-upgrade
-        - name: pipelines_namespace
-          value: $(params.pipelines_namespace)
           # MAS Upgrade parameters
 {% for upgrade_param in upgrade_params_definition.params %}
 {% if upgrade_param.name in params_source_target_list %}
@@ -121,10 +109,8 @@ spec:
     - name: test-after
       params:
         # Pipeline Run Parameters
-        - name: pipeline_name
-          value: mas-fvt-core
-        - name: pipelines_namespace
-          value: $(params.pipelines_namespace)
+        - name: pipelinerun_template_file_name
+          value: mas-fvt
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
         - name: devops_build_number

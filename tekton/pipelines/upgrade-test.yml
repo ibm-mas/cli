@@ -5,10 +5,6 @@ metadata:
   name: mas-upgrade-test
 spec:
   params:
-    - name: pipelines_namespace
-      type: string
-      description: Namespace where pipelines are installed
-
     # Install & Upgrade Parameters
     - name: cli_version
       type: string
@@ -517,7 +513,6 @@ spec:
       type: string
       description: ""
       default: ""
-
     # Test Parameters
     - name: fvt_image_registry
       type: string
@@ -635,15 +630,12 @@ spec:
       type: string
       description: IVT Version - Core
       default: ""
-
   tasks:
     - name: install
       params:
         # Pipeline Run Parameters
-        - name: pipeline_name
+        - name: pipelinerun_template_file_name
           value: mas-install
-        - name: pipelines_namespace
-          value: $(params.pipelines_namespace)
 
         # Install Parameters
         - name: cli_version
@@ -869,10 +861,8 @@ spec:
     - name: test-before
       params:
         # Pipeline Run Parameters
-        - name: pipeline_name
-          value: mas-fvt-core
-        - name: pipelines_namespace
-          value: $(params.pipelines_namespace)
+        - name: pipelinerun_template_file_name
+          value: mas-fvt
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
@@ -955,10 +945,8 @@ spec:
     - name: upgrade
       params:
         # Pipeline Run Parameters
-        - name: pipeline_name
+        - name: pipelinerun_template_file_name
           value: mas-upgrade
-        - name: pipelines_namespace
-          value: $(params.pipelines_namespace)
           # MAS Upgrade parameters
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -995,10 +983,8 @@ spec:
     - name: test-after
       params:
         # Pipeline Run Parameters
-        - name: pipeline_name
-          value: mas-fvt-core
-        - name: pipelines_namespace
-          value: $(params.pipelines_namespace)
+        - name: pipelinerun_template_file_name
+          value: mas-fvt
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
         - name: devops_build_number

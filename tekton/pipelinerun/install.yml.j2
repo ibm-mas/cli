@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: "mas-install-{{ build_num }}"
+  name: "mas-install-{{ devops_build_number }}"
   labels:
     tekton.dev/pipeline: mas-install
 spec:

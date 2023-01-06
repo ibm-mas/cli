@@ -48,15 +48,15 @@
     # Generate Run Pipeline Tasks
     - name: "Generate install-run-pipeline task"
       ansible.builtin.template:
-        src: tasks/install-run-pipeline.yml.j2
+        src: tasks/templates/install-run-pipeline.yml.j2
         dest: tasks/install-run-pipeline.yml
     - name: "Generate fvt-run-pipeline task"
       ansible.builtin.template:
-        src: tasks/fvt-run-pipeline.yml.j2
+        src: tasks/templates/fvt-run-pipeline.yml.j2
         dest: tasks/fvt-run-pipeline.yml
     - name: "Generate upgrade-run-pipeline task"
       ansible.builtin.template:
-        src: tasks/upgrade-run-pipeline.yml.j2
+        src: tasks/templates/upgrade-run-pipeline.yml.j2
         dest: tasks/upgrade-run-pipeline.yml
 
     # Debug
