@@ -625,8 +625,8 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-coreapi-addons
+        - name: test_suite
+          value: coreapi-addons
       runAfter:
         - suite-verify
 
@@ -657,8 +657,8 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-coreapi-groupmgmt
+        - name: test_suite
+          value: coreapi-groupmgmt
       runAfter:
         - suite-verify
 
@@ -689,8 +689,8 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-coreapi-usermgmt
+        - name: test_suite
+          value: coreapi-usermgmt
       runAfter:
         - suite-verify
 
@@ -707,8 +707,8 @@ spec:
         - name: configs
           workspace: shared-configs
       params:
-        - name: fvt_image_name
-          value: fvt-coreapi-workspacemgmt
+        - name: test_suite
+          value: coreapi-workspacemgmt
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
@@ -743,8 +743,41 @@ spec:
         - name: configs
           workspace: shared-configs
       params:
-        - name: fvt_image_name
-          value: fvt-coreapi-graphiteconfigtool
+        - name: test_suite
+          value: coreapi-graphiteconfigtool
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_version
+          value: $(params.fvt_version_core)
+      runAfter:
+        - suite-verify
+
+
+    # Core FVT 1.6 coreapi-operatormaturity  ~5m
+    - name: fvt-coreapi-operatormaturity
+      taskRef:
+        kind: Task
+        name: mas-fvt-core
+      when:
+        - input: "$(params.fvt_version_core)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      params:
+        - name: test_suite
+          value: coreapi-operatormaturity
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
@@ -778,8 +811,8 @@ spec:
         - name: configs
           workspace: shared-configs
       params:
-        - name: fvt_image_name
-          value: fvt-coreapi-mobileapi
+        - name: test_suite
+          value: coreapi-mobileapi
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
@@ -800,6 +833,7 @@ spec:
         - fvt-coreapi-usermgmt
         - fvt-coreapi-workspacemgmt
         - fvt-coreapi-graphiteconfigtool
+        - fvt-coreapi-operatormaturity
 
     # Core FVT 2.2 coreapi-other ~5m
     - name: fvt-coreapi-other
@@ -828,14 +862,15 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-coreapi-other
+        - name: test_suite
+          value: coreapi-other
       runAfter:
         - fvt-coreapi-addons
         - fvt-coreapi-groupmgmt
         - fvt-coreapi-usermgmt
         - fvt-coreapi-workspacemgmt
         - fvt-coreapi-graphiteconfigtool
+        - fvt-coreapi-operatormaturity
 
     # Core FVT 2.3 coreapi-utilities ~5m
     - name: fvt-coreapi-utilities
@@ -864,14 +899,15 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-coreapi-utilities
+        - name: test_suite
+          value: coreapi-utilities
       runAfter:
         - fvt-coreapi-addons
         - fvt-coreapi-groupmgmt
         - fvt-coreapi-usermgmt
         - fvt-coreapi-workspacemgmt
         - fvt-coreapi-graphiteconfigtool
+        - fvt-coreapi-operatormaturity
 
     # Core FVT 2.4 coreapi-uiresources ~5m
     - name: fvt-coreapi-uiresources
@@ -900,14 +936,15 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-coreapi-uiresources
+        - name: test_suite
+          value: coreapi-uiresources
       runAfter:
         - fvt-coreapi-addons
         - fvt-coreapi-groupmgmt
         - fvt-coreapi-usermgmt
         - fvt-coreapi-workspacemgmt
         - fvt-coreapi-graphiteconfigtool
+        - fvt-coreapi-operatormaturity
 
     # Core FVT 2.5 coreapi-dependencies ~10m
     - name: fvt-coreapi-dependencies
@@ -936,14 +973,15 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-coreapi-dependencies
+        - name: test_suite
+          value: coreapi-dependencies
       runAfter:
         - fvt-coreapi-addons
         - fvt-coreapi-groupmgmt
         - fvt-coreapi-usermgmt
         - fvt-coreapi-workspacemgmt
         - fvt-coreapi-graphiteconfigtool
+        - fvt-coreapi-operatormaturity
 
     # 2.3 Adoptionusage Metering test suite (~30m)
     # Only start phase 3 test after all suites in phase 2 are complete
@@ -976,8 +1014,8 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-adoptionusagemetering
+        - name: test_suite
+          value: adoptionusagemetering
       runAfter:
         - fvt-coreapi-mobileapi
         - fvt-coreapi-other
@@ -1015,8 +1053,8 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-internalapi
+        - name: test_suite
+          value: internalapi
       runAfter:
         - fvt-adoptionusagemetering
 
@@ -1047,8 +1085,8 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-catalogapi
+        - name: test_suite
+          value: catalogapi
       runAfter:
         - fvt-adoptionusagemetering
 
@@ -1079,8 +1117,8 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-ibmadminissuer
+        - name: test_suite
+          value: ibmadminissuer
       runAfter:
         - fvt-adoptionusagemetering
 
@@ -1111,8 +1149,8 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-milestonesapi
+        - name: test_suite
+          value: milestonesapi
       runAfter:
         - fvt-adoptionusagemetering
 
@@ -1143,8 +1181,8 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-adoptionusageapi
+        - name: test_suite
+          value: adoptionusageapi
       runAfter:
         - fvt-adoptionusagemetering
 
@@ -1161,8 +1199,8 @@ spec:
         - name: configs
           workspace: shared-configs
       params:
-        - name: fvt_image_name
-          value: fvt-adoptionusagereporter
+        - name: test_suite
+          value: adoptionusagereporter
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
@@ -1209,8 +1247,8 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-accapppoints
+        - name: test_suite
+          value: accapppoints
         - name: ddp_apikey
           value: $(params.ddp_apikey)
       runAfter:
@@ -1249,8 +1287,8 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-coreidp-ldap
+        - name: test_suite
+          value: coreidp-ldap
       runAfter:
         # Only start after all suites in phase 4 are complete
         - fvt-internalapi
@@ -1288,8 +1326,8 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-coreidp-saml
+        - name: test_suite
+          value: coreidp-saml
       runAfter:
         - fvt-coreidp-ldap
 
@@ -1320,8 +1358,8 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-coreidp-auth
+        - name: test_suite
+          value: coreidp-auth
       runAfter:
         - fvt-coreidp-saml
 
@@ -1352,8 +1390,8 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-licensingapi
+        - name: test_suite
+          value: licensingapi
       runAfter:
         - fvt-coreidp-auth
 
@@ -1384,8 +1422,8 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-smtp
+        - name: test_suite
+          value: smtp
       runAfter:
         - fvt-licensingapi
 
@@ -1416,7 +1454,7 @@ spec:
           value: $(params.fvt_image_registry)
         - name: fvt_image_version
           value: $(params.fvt_version_core)
-        - name: fvt_image_name
-          value: fvt-core-scaling
+        - name: test_suite
+          value: core-scaling
       runAfter:
         - fvt-smtp
