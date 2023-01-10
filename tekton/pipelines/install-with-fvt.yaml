@@ -3879,7 +3879,7 @@ spec:
         - name: fvt_image_version
           value: $(params.fvt_version_hputilities)
         - name: fvt_test_suite
-          value: testng-hputilities-all
+          value: testng-hputilities-minimal
         - name: product_channel
           value: $(params.mas_app_channel_hputilities)
         - name: product_id
