@@ -2591,8 +2591,8 @@ spec:
         - suite-verify
 
 
-    # Core FVT 1.6 coreapi-operatormaturity  ~5m
-    - name: fvt-coreapi-operatormaturity
+    # Core FVT 1.6 operatormaturity  ~5m
+    - name: fvt-operatormaturity
       taskRef:
         kind: Task
         name: mas-fvt-core
@@ -2605,7 +2605,7 @@ spec:
           workspace: shared-configs
       params:
         - name: test_suite
-          value: coreapi-operatormaturity
+          value: operatormaturity
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
@@ -2661,7 +2661,7 @@ spec:
         - fvt-coreapi-usermgmt
         - fvt-coreapi-workspacemgmt
         - fvt-coreapi-graphiteconfigtool
-        - fvt-coreapi-operatormaturity
+        - fvt-operatormaturity
 
     # Core FVT 2.2 coreapi-other ~5m
     - name: fvt-coreapi-other
@@ -2698,7 +2698,7 @@ spec:
         - fvt-coreapi-usermgmt
         - fvt-coreapi-workspacemgmt
         - fvt-coreapi-graphiteconfigtool
-        - fvt-coreapi-operatormaturity
+        - fvt-operatormaturity
 
     # Core FVT 2.3 coreapi-utilities ~5m
     - name: fvt-coreapi-utilities
@@ -2735,7 +2735,7 @@ spec:
         - fvt-coreapi-usermgmt
         - fvt-coreapi-workspacemgmt
         - fvt-coreapi-graphiteconfigtool
-        - fvt-coreapi-operatormaturity
+        - fvt-operatormaturity
 
     # Core FVT 2.4 coreapi-uiresources ~5m
     - name: fvt-coreapi-uiresources
@@ -2772,7 +2772,7 @@ spec:
         - fvt-coreapi-usermgmt
         - fvt-coreapi-workspacemgmt
         - fvt-coreapi-graphiteconfigtool
-        - fvt-coreapi-operatormaturity
+        - fvt-operatormaturity
 
     # Core FVT 2.5 coreapi-dependencies ~10m
     - name: fvt-coreapi-dependencies
@@ -2809,7 +2809,7 @@ spec:
         - fvt-coreapi-usermgmt
         - fvt-coreapi-workspacemgmt
         - fvt-coreapi-graphiteconfigtool
-        - fvt-coreapi-operatormaturity
+        - fvt-operatormaturity
 
     # 15.3 Adoptionusage Metering test suite (~30m)
     # Only start phase 3 test after all suites in phase 2 are complete
@@ -3944,7 +3944,7 @@ spec:
 
     # 19. Application FVT - IoT
     # -------------------------------------------------------------------------
-    
+
     - name: fvt-iot
       params:
         - name: mas_instance_id
