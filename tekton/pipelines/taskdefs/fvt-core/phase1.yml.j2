@@ -3,8 +3,8 @@
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: fvt_image_name
-      value: fvt-coreapi-addons
+    - name: test_suite
+      value: coreapi-addons
   runAfter:
     - suite-verify
 
@@ -13,8 +13,8 @@
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: fvt_image_name
-      value: fvt-coreapi-groupmgmt
+    - name: test_suite
+      value: coreapi-groupmgmt
   runAfter:
     - suite-verify
 
@@ -23,8 +23,8 @@
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: fvt_image_name
-      value: fvt-coreapi-usermgmt
+    - name: test_suite
+      value: coreapi-usermgmt
   runAfter:
     - suite-verify
 
@@ -32,8 +32,8 @@
 - name: fvt-coreapi-workspacemgmt
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    - name: fvt_image_name
-      value: fvt-coreapi-workspacemgmt
+    - name: test_suite
+      value: coreapi-workspacemgmt
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: partium_username
       value: $(params.partium_username)
@@ -46,8 +46,19 @@
 - name: fvt-coreapi-graphiteconfigtool
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    - name: fvt_image_name
-      value: fvt-coreapi-graphiteconfigtool
+    - name: test_suite
+      value: coreapi-graphiteconfigtool
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - suite-verify
+
+
+# Core FVT 1.6 operatormaturity  ~5m
+- name: fvt-operatormaturity
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: test_suite
+      value: operatormaturity
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
     - suite-verify
