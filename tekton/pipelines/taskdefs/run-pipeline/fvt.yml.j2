@@ -1,0 +1,4 @@
+{% for fvt_param in fvt_params_definition.params %}
+- name: {{ fvt_param.name }}
+  value: $(params.{{ fvt_param.name }})
+{% endfor %}

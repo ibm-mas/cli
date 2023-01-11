@@ -1,0 +1,9 @@
+{% for install_param in install_params_definition.params %}
+{% if install_param.name in params_source_target_list %}
+- name: {{ install_param.name }}
+  value: $(params.source_{{ install_param.name }})
+{% else %}
+- name: {{ install_param.name }}
+  value: $(params.{{ install_param.name }})
+{% endif %}
+{% endfor %}
