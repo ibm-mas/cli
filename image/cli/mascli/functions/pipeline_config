@@ -21,7 +21,7 @@ function pipeline_config() {
   if [[ -n "$DEV_MODE" ]]; then
     # Development mode
     prompt_for_input "Select Catalog Source" MAS_CATALOG_VERSION "v8-master-amd64"
-    prompt_for_input "Select Subscription Channel" MAS_CHANNEL "m2dev810"
+    prompt_for_input "Select Subscription Channel" MAS_CHANNEL "m3dev810"
   elif [[ -z "$AIRGAP_MODE" ]]; then
     # Online (GA) mode
     prompt_for_confirm "Use online catalog?" USE_ONLINE_CATALOG
@@ -29,27 +29,31 @@ function pipeline_config() {
       MAS_CATALOG_VERSION=v8-amd64
     else
       echo -e "${COLOR_YELLOW}Catalog Version:"
-      echo "  1. v8 (2022-12-28)"
-      echo "  2. v8 (2022-11-29)"
-      echo "  3. v8 (2022-10-25)"
-      echo "  4. v8 (2022-09-27)"
-      echo "  5. v8 (2022-08-05)"
+      echo "  1. v8 (2023-01-11)"
+      echo "  2. v8 (2022-12-28)"
+      echo "  3. v8 (2022-11-29)"
+      echo "  4. v8 (2022-10-25)"
+      echo "  5. v8 (2022-09-27)"
+      echo "  6. v8 (2022-08-05)"
       prompt_for_input "Select Catalog Source" MAS_CATALOG_SELECTION "1"
 
       case $MAS_CATALOG_SELECTION in
-        1|221228|2022-12-28)
+        1|230111|2023-01-11)
+          MAS_CATALOG_VERSION=v8-230111-amd64
+          ;;
+        2|221228|2022-12-28)
           MAS_CATALOG_VERSION=v8-221228-amd64
           ;;
-        2|221129|2022-11-29)
+        3|221129|2022-11-29)
           MAS_CATALOG_VERSION=v8-221129-amd64
           ;;
-        3|221025|2022-10-25)
+        4|221025|2022-10-25)
           MAS_CATALOG_VERSION=v8-221025-amd64
           ;;
-        4|220927|2022-09-27)
+        5|220927|2022-09-27)
           MAS_CATALOG_VERSION=v8-220927-amd64
           ;;
-        5|220805|2022-08-05)
+        6|220805|2022-08-05)
           MAS_CATALOG_VERSION=v8-220805-amd64
           ;;
         *)
@@ -89,36 +93,41 @@ function pipeline_config() {
   else
     # Airgap (GA) mode
     echo -e "${COLOR_YELLOW}MAS Version:"
-    echo "  1. 8.9.0 (2022-12-28)"
-    echo "  2. 8.8.4 (2022-12-28)"
-    echo "  3. 8.9.0 (2022-11-29)"
-    echo "  4. 8.8.3 (2022-11-29)"
-    echo "  5. 8.8.2 (2022-10-25)"
-    echo "  6. 8.8.1 (2022-09-27)"
+    echo "  1. 8.9.1 (2023-01-11)"
+    echo "  2. 8.8.5 (2023-01-11)"
+    echo "  3. 8.8.4 (2022-12-28)"
+    echo "  4. 8.9.0 (2022-11-29)"
+    echo "  5. 8.8.3 (2022-11-29)"
+    echo "  6. 8.8.2 (2022-10-25)"
+    echo "  7. 8.8.1 (2022-09-27)"
     prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
 
     case $MAS_CHANNEL_SELECTION in
       1)
         MAS_CHANNEL=8.9.x
-        MAS_CATALOG_VERSION=v8-221228-amd64
+        MAS_CATALOG_VERSION=v8-20230111-amd64
         ;;
       2)
         MAS_CHANNEL=8.8.x
-        MAS_CATALOG_VERSION=v8-221228-amd64
+        MAS_CATALOG_VERSION=v8-20230111-amd64
         ;;
       3)
-        MAS_CHANNEL=8.9.x
-        MAS_CATALOG_VERSION=v8-221129-amd64
+        MAS_CHANNEL=8.8.x
+        MAS_CATALOG_VERSION=v8-221228-amd64
         ;;
       4)
-        MAS_CHANNEL=8.8.x
+        MAS_CHANNEL=8.9.x
         MAS_CATALOG_VERSION=v8-221129-amd64
         ;;
       5)
         MAS_CHANNEL=8.8.x
-        MAS_CATALOG_VERSION=v8-221025-amd64
+        MAS_CATALOG_VERSION=v8-221129-amd64
         ;;
       6)
+        MAS_CHANNEL=8.8.x
+        MAS_CATALOG_VERSION=v8-221025-amd64
+        ;;
+      7)
         MAS_CHANNEL=8.8.x
         MAS_CATALOG_VERSION=v8-220927-amd64
         ;;
