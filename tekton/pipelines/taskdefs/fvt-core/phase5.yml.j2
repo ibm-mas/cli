@@ -8,8 +8,8 @@
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: fvt_image_name
-      value: fvt-coreidp-ldap
+    - name: test_suite
+      value: coreidp-ldap
   runAfter:
     # Only start after all suites in phase 4 are complete
     - fvt-internalapi
@@ -25,8 +25,8 @@
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: fvt_image_name
-      value: fvt-coreidp-saml
+    - name: test_suite
+      value: coreidp-saml
   runAfter:
     - fvt-coreidp-ldap
 
@@ -35,8 +35,8 @@
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: fvt_image_name
-      value: fvt-coreidp-auth
+    - name: test_suite
+      value: coreidp-auth
   runAfter:
     - fvt-coreidp-saml
 
@@ -45,8 +45,8 @@
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: fvt_image_name
-      value: fvt-licensingapi
+    - name: test_suite
+      value: licensingapi
   runAfter:
     - fvt-coreidp-auth
 
@@ -55,8 +55,8 @@
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: fvt_image_name
-      value: fvt-smtp
+    - name: test_suite
+      value: smtp
   runAfter:
     - fvt-licensingapi
 
@@ -65,7 +65,7 @@
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: fvt_image_name
-      value: fvt-core-scaling
+    - name: test_suite
+      value: core-scaling
   runAfter:
     - fvt-smtp
