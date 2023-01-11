@@ -3,32 +3,32 @@
 {% for install_param in install_params_definition.params %}
 {% if install_param.name in params_source_target_list %}
 - name: source_{{ install_param.name }}
-    type: {{ install_param.type }}
-    description: {{ install_param.description | default('\"\"', true) }}
+  type: {{ install_param.type }}
+  description: {{ install_param.description | default('\"\"', true) }}
 {% if "default" in install_param %}
-      default: {{ install_param.default | default('\"\"', true) }}
+  default: {{ install_param.default | default('\"\"', true) }}
 {% endif %}
 - name: target_{{ install_param.name }}
-    type: {{ install_param.type }}
-    description: {{ install_param.description | default('\"\"', true) }}
+  type: {{ install_param.type }}
+  description: {{ install_param.description | default('\"\"', true) }}
 {% if "default" in install_param %}
-    default: {{ install_param.default | default('\"\"', true) }}
+  default: {{ install_param.default | default('\"\"', true) }}
 {% endif %}
 {% else %}
 - name: {{ install_param.name }}
-    type: {{ install_param.type }}
-    description: {{ install_param.description | default('\"\"', true) }}
+  type: {{ install_param.type }}
+  description: {{ install_param.description | default('\"\"', true) }}
 {% if "default" in install_param %}
-    default: {{ install_param.default | default('\"\"', true) }}
+  default: {{ install_param.default | default('\"\"', true) }}
 {% endif %}
 {% endif %}
 {% endfor %}
 # FVT Parameters
 {% for fvt_param in fvt_params_definition.params %}
 - name: {{ fvt_param.name }}
-    type: {{ fvt_param.type }}
-    description: {{ fvt_param.description | default('\"\"', true) }}
+  type: {{ fvt_param.type }}
+  description: {{ fvt_param.description | default('\"\"', true) }}
 {% if "default" in fvt_param %}
-    default: {{ fvt_param.default | default('\"\"', true) }}
+  default: {{ fvt_param.default | default('\"\"', true) }}
 {% endif %}
 {% endfor %}
