@@ -33,39 +33,11 @@ jobs:
           path: ${{ github.workspace }}/image/cli/mascli/templates/ibm-mas-tekton.yml
           retention-days: 30
 
-      - name: Upload the install-with-fvt PipelineRun definitions
+      - name: Upload PipelineRun definitions
         uses: actions/upload-artifact@v2
         with:
-          name: install-with-fvt-run-${{ env.VERSION }}.yml
-          path: ${{ github.workspace }}/image/cli/mascli/templates/install-with-fvt.yml.j2
-          retention-days: 30
-
-      - name: Upload the install PipelineRun definitions
-        uses: actions/upload-artifact@v2
-        with:
-          name: install-run-${{ env.VERSION }}.yml
-          path: ${{ github.workspace }}/image/cli/mascli/templates/install.yml.j2
-          retention-days: 30
-      
-      - name: Upload the fvt PipelineRun definitions
-        uses: actions/upload-artifact@v2
-        with:
-          name: fvt-run-${{ env.VERSION }}.yml
-          path: ${{ github.workspace }}/image/cli/mascli/templates/fvt.yml.j2
-          retention-days: 30
-
-      - name: Upload the upgrade PipelineRun definitions
-        uses: actions/upload-artifact@v2
-        with:
-          name: upgrade-run-${{ env.VERSION }}.yml
-          path: ${{ github.workspace }}/image/cli/mascli/templates/upgrade.yml.j2
-          retention-days: 30
-      
-      - name: Upload the upgrade-test PipelineRun definitions
-        uses: actions/upload-artifact@v2
-        with:
-          name: upgrade-test-run-${{ env.VERSION }}.yml
-          path: ${{ github.workspace }}/image/cli/mascli/templates/upgrade-test.yml.j2
+          name: ibm-mas-tekton-pipelinerun-${{ env.VERSION }}
+          path: ${{ github.workspace }}/image/cli/mascli/templates/*.j2
           retention-days: 30
 
       # 2. CLI installer
