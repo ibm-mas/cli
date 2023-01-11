@@ -44,6 +44,17 @@ spec:
       - name: PIPELINERUN_WAIT
         value: "true"
 
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_CHANNEL
+        value: $(params.mas_channel)
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
+
 {% for fvt_param in fvt_params_definition.params %}
       - name: {{ fvt_param.name | upper }}
         value: $(params.{{ fvt_param.name }})
