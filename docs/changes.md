@@ -1,6 +1,5 @@
 ## Changes
 
-- [`3.8`](https://github.com/ibm-mas/cli/releases/tag/3.8.0) Add support for custom labels
 - [`3.7`](https://github.com/ibm-mas/cli/releases/tag/3.7.0) Add support for Dec 2022 catalog
 - [`3.6`](https://github.com/ibm-mas/cli/releases/tag/3.6.0) Support customizable CLI version in tekton
 - [`3.5`](https://github.com/ibm-mas/cli/releases/tag/3.5.0) Add fvt-core test pipeline
