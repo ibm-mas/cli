@@ -30,6 +30,33 @@ spec:
     - name: devops_build_number
       type: string
       default: ""
+    - name: ibm_entitlement_key
+      type: string
+      default: ""
+    - name: sls_license_id
+      type: string
+      default: ""
+    - name: sls_license_file
+      type: string
+      default: ""
+    - name: cpd_product_version
+      type: string
+      default: ""
+    - name: uds_contact_email
+      type: string
+      default: ""
+    - name: uds_contact_firstname
+      type: string
+      default: ""
+    - name: uds_contact_lastname
+      type: string
+      default: ""
+    - name: cos_type
+      type: string
+      default: ""
+    - name: ibmcloud_apikey
+      type: string
+      default: ""
 
     # Test Parameters
     {{ lookup('template', 'pipelines/params/fvt.yml.j2') | indent(4) }}
@@ -54,6 +81,25 @@ spec:
         value: $(params.mas_channel)
       - name: MAS_WORKSPACE_ID
         value: $(params.mas_workspace_id)
+
+      - name: IBM_ENTITLEMENT_KEY
+        value: $(params.ibm_entitlement_key)
+      - name: SLS_LICENSE_ID
+        value: $(params.sls_license_id)
+      - name: SLS_LICENSE_FILE
+        value: $(params.sls_license_file)
+      - name: CPD_PRODUCT_VERSION
+        value: $(params.cpd_product_version)
+      - name: UDS_CONTACT_EMAIL
+        value: $(params.uds_contact_email)
+      - name: UDS_CONTACT_FIRSTNAME
+        value: $(params.uds_contact_firstname)
+      - name: UDS_CONTACT_LASTNAME
+        value: $(params.uds_contact_lastname)
+      - name: COS_TYPE
+        value: $(params.cos_type)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
 
 {% for fvt_param in fvt_params_definition.params %}
       - name: {{ fvt_param.name | upper }}

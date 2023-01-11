@@ -40,6 +40,25 @@ spec:
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
 
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
+        - name: sls_license_id
+          value: $(params.sls_license_id)
+        - name: sls_license_file
+          value: $(params.sls_license_file)
+        - name: cpd_product_version
+          value: $(params.cpd_product_version)
+        - name: uds_contact_email
+          value: $(params.uds_contact_email)
+        - name: uds_contact_firstname
+          value: $(params.uds_contact_firstname)
+        - name: uds_contact_lastname
+          value: $(params.uds_contact_lastname)
+        - name: cos_type
+          value: $(params.cos_type)
+        - name: ibmcloud_apikey
+          value: $(params.ibmcloud_apikey)
+
         {{ lookup('template', 'taskdefs/run-pipeline/fvt.yml.j2') | indent(8) }}
 
       taskRef:
@@ -79,6 +98,25 @@ spec:
           value: $(params.target_mas_channel)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
+        
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
+        - name: sls_license_id
+          value: $(params.sls_license_id)
+        - name: sls_license_file
+          value: $(params.sls_license_file)
+        - name: cpd_product_version
+          value: $(params.cpd_product_version)
+        - name: uds_contact_email
+          value: $(params.uds_contact_email)
+        - name: uds_contact_firstname
+          value: $(params.uds_contact_firstname)
+        - name: uds_contact_lastname
+          value: $(params.uds_contact_lastname)
+        - name: cos_type
+          value: $(params.cos_type)
+        - name: ibmcloud_apikey
+          value: $(params.ibmcloud_apikey)
 
         {{ lookup('template', 'taskdefs/run-pipeline/fvt.yml.j2') | indent(8) }}
 
