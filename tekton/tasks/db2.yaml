@@ -28,6 +28,10 @@ spec:
       type: string
       description: Instance ID
       default: "" # By default, no config will be generated
+    - name: custom_labels
+      type: string
+      description: Optional MAS custom labels, comma separated list of key=value pairs
+      default: ""
     - name: mas_workspace_id
       type: string
       default: "" # Only required if config_scope = ws or wsapp
@@ -130,6 +134,8 @@ spec:
         value: $(params.mas_config_scope)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
+      - name: CUSTOM_LABELS
+        value: $(params.custom_labels)
       - name: MAS_APP_ID
         value: $(params.mas_application_id)
       - name: MAS_WORKSPACE_ID
