@@ -640,10 +640,9 @@ spec:
     - name: install
       params:
         - name: pipelinerun_template_file_name
-          value: mas-install
+          value: install
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
-
         - name: cli_version
           value: $(params.cli_version)
         - name: artifactory_username
@@ -861,7 +860,6 @@ spec:
         - name: devops_build_number
           value: $(params.devops_build_number)
 
-
       taskRef:
         kind: Task
         name: mas-install-run-pipeline
@@ -870,17 +868,223 @@ spec:
     - name: test-before
       params:
         - name: pipelinerun_template_file_name
-          value: mas-fvt
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-        - name: devops_build_number
-          value: $(params.devops_build_number)
+          value: fvt
+        - name: cli_version
+          value: $(params.cli_version)
+        - name: artifactory_username
+          value: $(params.artifactory_username)
+        - name: artifactory_apikey
+          value: $(params.artifactory_apikey)
+        - name: storage_class_rwo
+          value: $(params.storage_class_rwo)
+        - name: storage_class_rwx
+          value: $(params.storage_class_rwx)
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
+        - name: common_services_catalog_source
+          value: $(params.common_services_catalog_source)
+        - name: sls_license_id
+          value: $(params.sls_license_id)
+        - name: sls_license_file
+          value: $(params.sls_license_file)
+        - name: sls_mongodb_cfg_file
+          value: $(params.sls_mongodb_cfg_file)
+        - name: sls_catalog_source
+          value: $(params.source_sls_catalog_source)
+        - name: sls_channel
+          value: $(params.source_sls_channel)
+        - name: sls_icr_cp
+          value: $(params.sls_icr_cp)
+        - name: sls_icr_cpopen
+          value: $(params.sls_icr_cpopen)
+        - name: sls_entitlement_username
+          value: $(params.sls_entitlement_username)
+        - name: sls_entitlement_key
+          value: $(params.sls_entitlement_key)
+        - name: mongodb_storage_class
+          value: $(params.mongodb_storage_class)
+        - name: mongodb_replicas
+          value: $(params.mongodb_replicas)
+        - name: mongodb_cpu_requests
+          value: $(params.mongodb_cpu_requests)
+        - name: kafka_namespace
+          value: $(params.kafka_namespace)
+        - name: kafka_cluster_name
+          value: $(params.kafka_cluster_name)
+        - name: kafka_cluster_size
+          value: $(params.kafka_cluster_size)
+        - name: kafka_user_name
+          value: $(params.kafka_user_name)
+        - name: gpu_namespace
+          value: $(params.gpu_namespace)
+        - name: gpu_channel
+          value: $(params.gpu_channel)
+        - name: nfd_namespace
+          value: $(params.nfd_namespace)
+        - name: nfd_channel
+          value: $(params.nfd_channel)
+        - name: db2_meta_storage_accessmode
+          value: $(params.db2_meta_storage_accessmode)
+        - name: db2_backup_storage_accessmode
+          value: $(params.db2_backup_storage_accessmode)
+        - name: db2_meta_storage_size
+          value: $(params.db2_meta_storage_size)
+        - name: db2_backup_storage_size
+          value: $(params.db2_backup_storage_size)
+        - name: db2_logs_storage_size
+          value: $(params.db2_logs_storage_size)
+        - name: db2_temp_storage_size
+          value: $(params.db2_temp_storage_size)
+        - name: db2_data_storage_size
+          value: $(params.db2_data_storage_size)
+        - name: db2_cpu_requests
+          value: $(params.db2_cpu_requests)
+        - name: db2_cpu_limits
+          value: $(params.db2_cpu_limits)
+        - name: cpd_operators_namespace
+          value: $(params.cpd_operators_namespace)
+        - name: cpd_instance_namespace
+          value: $(params.cpd_instance_namespace)
+        - name: cpd_primary_storage_class
+          value: $(params.cpd_primary_storage_class)
+        - name: cpd_metadata_storage_class
+          value: $(params.cpd_metadata_storage_class)
+        - name: cpd_product_version
+          value: $(params.source_cpd_product_version)
+        - name: cpd_wd_storage_class
+          value: $(params.cpd_wd_storage_class)
+        - name: cpd_wml_storage_class
+          value: $(params.cpd_wml_storage_class)
+        - name: cpd_spark_storage_class
+          value: $(params.cpd_spark_storage_class)
+        - name: cpd_wsl_storage_class
+          value: $(params.cpd_wsl_storage_class)
+        - name: uds_contact_email
+          value: $(params.uds_contact_email)
+        - name: uds_contact_firstname
+          value: $(params.uds_contact_firstname)
+        - name: uds_contact_lastname
+          value: $(params.uds_contact_lastname)
+        - name: appconnect_channel
+          value: $(params.appconnect_channel)
+        - name: appconnect_dashboard_version
+          value: $(params.appconnect_dashboard_version)
+        - name: appconnect_dashboard_name
+          value: $(params.appconnect_dashboard_name)
+        - name: appconnect_license_id
+          value: $(params.appconnect_license_id)
+        - name: appconnect_storage_class
+          value: $(params.appconnect_storage_class)
+        - name: cos_type
+          value: $(params.cos_type)
+        - name: ibmcloud_apikey
+          value: $(params.ibmcloud_apikey)
+        - name: uds_event_scheduler_frequency
+          value: $(params.uds_event_scheduler_frequency)
+        - name: mas_segment_key
+          value: $(params.mas_segment_key)
+        - name: dns_provider
+          value: $(params.dns_provider)
+        - name: cloudflare_email
+          value: $(params.cloudflare_email)
+        - name: cloudflare_apitoken
+          value: $(params.cloudflare_apitoken)
+        - name: cloudflare_zone
+          value: $(params.cloudflare_zone)
+        - name: cloudflare_subdomain
+          value: $(params.cloudflare_subdomain)
+        - name: cis_email
+          value: $(params.cis_email)
+        - name: cis_apikey
+          value: $(params.cis_apikey)
+        - name: cis_crn
+          value: $(params.cis_crn)
+        - name: cis_subdomain
+          value: $(params.cis_subdomain)
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_channel
           value: $(params.source_mas_channel)
+        - name: mas_catalog_source
+          value: $(params.source_mas_catalog_source)
+        - name: mas_catalog_version
+          value: $(params.mas_catalog_version)
+        - name: mas_domain
+          value: $(params.mas_domain)
+        - name: mas_cluster_issuer
+          value: $(params.mas_cluster_issuer)
+        - name: mas_icr_cp
+          value: $(params.mas_icr_cp)
+        - name: mas_icr_cpopen
+          value: $(params.mas_icr_cpopen)
+        - name: mas_entitlement_username
+          value: $(params.mas_entitlement_username)
+        - name: mas_annotations
+          value: $(params.mas_annotations)
+        - name: mas_entitlement_key
+          value: $(params.mas_entitlement_key)
+        - name: mas_customize_scaling
+          value: $(params.mas_customize_scaling)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
+        - name: mas_workspace_name
+          value: $(params.mas_workspace_name)
+        - name: mas_appws_components
+          value: $(params.mas_appws_components)
+        - name: mas_app_settings_aio_flag
+          value: $(params.mas_app_settings_aio_flag)
+        - name: mas_app_settings_demodata
+          value: $(params.mas_app_settings_demodata)
+        - name: mas_app_plan_optimizer
+          value: $(params.mas_app_plan_optimizer)
+        - name: wml_instance_id
+          value: $(params.wml_instance_id)
+        - name: wml_url
+          value: $(params.wml_url)
+        - name: wml_version
+          value: $(params.wml_version)
+        - name: predict_deployment_size
+          value: $(params.predict_deployment_size)
+        - name: mas_app_channel_iot
+          value: $(params.source_mas_app_channel_iot)
+        - name: mas_app_channel_manage
+          value: $(params.source_mas_app_channel_manage)
+        - name: mas_app_channel_monitor
+          value: $(params.source_mas_app_channel_monitor)
+        - name: mas_app_channel_optimizer
+          value: $(params.source_mas_app_channel_optimizer)
+        - name: mas_app_channel_predict
+          value: $(params.source_mas_app_channel_predict)
+        - name: mas_app_channel_safety
+          value: $(params.source_mas_app_channel_safety)
+        - name: mas_app_channel_hputilities
+          value: $(params.source_mas_app_channel_hputilities)
+        - name: mas_app_channel_assist
+          value: $(params.source_mas_app_channel_assist)
+        - name: mas_app_channel_visualinspection
+          value: $(params.source_mas_app_channel_visualinspection)
+        - name: mas_app_source_iot
+          value: $(params.source_mas_app_source_iot)
+        - name: mas_app_source_manage
+          value: $(params.source_mas_app_source_manage)
+        - name: mas_app_source_monitor
+          value: $(params.source_mas_app_source_monitor)
+        - name: mas_app_source_optimizer
+          value: $(params.source_mas_app_source_optimizer)
+        - name: mas_app_source_predict
+          value: $(params.source_mas_app_source_predict)
+        - name: mas_app_source_safety
+          value: $(params.mas_app_source_safety)
+        - name: mas_app_source_hputilities
+          value: $(params.source_mas_app_source_hputilities)
+        - name: mas_app_source_assist
+          value: $(params.source_mas_app_source_assist)
+        - name: mas_app_source_visualinspection
+          value: $(params.source_mas_app_source_visualinspection)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
 
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
@@ -945,7 +1149,6 @@ spec:
         - name: ivt_version_core
           value: $(params.ivt_version_core)
 
-
       taskRef:
         kind: Task
         name: mas-fvt-run-pipeline
@@ -956,10 +1159,9 @@ spec:
     - name: upgrade
       params:
         - name: pipelinerun_template_file_name
-          value: mas-upgrade
+          value: upgrade
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
-        
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_channel
@@ -987,7 +1189,6 @@ spec:
         - name: devops_build_number
           value: $(params.devops_build_number)
 
-
       taskRef:
         kind: Task
         name: mas-upgrade-run-pipeline
@@ -998,17 +1199,223 @@ spec:
     - name: test-after
       params:
         - name: pipelinerun_template_file_name
-          value: mas-fvt
+          value: fvt
+        - name: cli_version
+          value: $(params.cli_version)
+        - name: artifactory_username
+          value: $(params.artifactory_username)
+        - name: artifactory_apikey
+          value: $(params.artifactory_apikey)
+        - name: storage_class_rwo
+          value: $(params.storage_class_rwo)
+        - name: storage_class_rwx
+          value: $(params.storage_class_rwx)
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
+        - name: common_services_catalog_source
+          value: $(params.common_services_catalog_source)
+        - name: sls_license_id
+          value: $(params.sls_license_id)
+        - name: sls_license_file
+          value: $(params.sls_license_file)
+        - name: sls_mongodb_cfg_file
+          value: $(params.sls_mongodb_cfg_file)
+        - name: sls_catalog_source
+          value: $(params.source_sls_catalog_source)
+        - name: sls_channel
+          value: $(params.source_sls_channel)
+        - name: sls_icr_cp
+          value: $(params.sls_icr_cp)
+        - name: sls_icr_cpopen
+          value: $(params.sls_icr_cpopen)
+        - name: sls_entitlement_username
+          value: $(params.sls_entitlement_username)
+        - name: sls_entitlement_key
+          value: $(params.sls_entitlement_key)
+        - name: mongodb_storage_class
+          value: $(params.mongodb_storage_class)
+        - name: mongodb_replicas
+          value: $(params.mongodb_replicas)
+        - name: mongodb_cpu_requests
+          value: $(params.mongodb_cpu_requests)
+        - name: kafka_namespace
+          value: $(params.kafka_namespace)
+        - name: kafka_cluster_name
+          value: $(params.kafka_cluster_name)
+        - name: kafka_cluster_size
+          value: $(params.kafka_cluster_size)
+        - name: kafka_user_name
+          value: $(params.kafka_user_name)
+        - name: gpu_namespace
+          value: $(params.gpu_namespace)
+        - name: gpu_channel
+          value: $(params.gpu_channel)
+        - name: nfd_namespace
+          value: $(params.nfd_namespace)
+        - name: nfd_channel
+          value: $(params.nfd_channel)
+        - name: db2_meta_storage_accessmode
+          value: $(params.db2_meta_storage_accessmode)
+        - name: db2_backup_storage_accessmode
+          value: $(params.db2_backup_storage_accessmode)
+        - name: db2_meta_storage_size
+          value: $(params.db2_meta_storage_size)
+        - name: db2_backup_storage_size
+          value: $(params.db2_backup_storage_size)
+        - name: db2_logs_storage_size
+          value: $(params.db2_logs_storage_size)
+        - name: db2_temp_storage_size
+          value: $(params.db2_temp_storage_size)
+        - name: db2_data_storage_size
+          value: $(params.db2_data_storage_size)
+        - name: db2_cpu_requests
+          value: $(params.db2_cpu_requests)
+        - name: db2_cpu_limits
+          value: $(params.db2_cpu_limits)
+        - name: cpd_operators_namespace
+          value: $(params.cpd_operators_namespace)
+        - name: cpd_instance_namespace
+          value: $(params.cpd_instance_namespace)
+        - name: cpd_primary_storage_class
+          value: $(params.cpd_primary_storage_class)
+        - name: cpd_metadata_storage_class
+          value: $(params.cpd_metadata_storage_class)
+        - name: cpd_product_version
+          value: $(params.source_cpd_product_version)
+        - name: cpd_wd_storage_class
+          value: $(params.cpd_wd_storage_class)
+        - name: cpd_wml_storage_class
+          value: $(params.cpd_wml_storage_class)
+        - name: cpd_spark_storage_class
+          value: $(params.cpd_spark_storage_class)
+        - name: cpd_wsl_storage_class
+          value: $(params.cpd_wsl_storage_class)
+        - name: uds_contact_email
+          value: $(params.uds_contact_email)
+        - name: uds_contact_firstname
+          value: $(params.uds_contact_firstname)
+        - name: uds_contact_lastname
+          value: $(params.uds_contact_lastname)
+        - name: appconnect_channel
+          value: $(params.appconnect_channel)
+        - name: appconnect_dashboard_version
+          value: $(params.appconnect_dashboard_version)
+        - name: appconnect_dashboard_name
+          value: $(params.appconnect_dashboard_name)
+        - name: appconnect_license_id
+          value: $(params.appconnect_license_id)
+        - name: appconnect_storage_class
+          value: $(params.appconnect_storage_class)
+        - name: cos_type
+          value: $(params.cos_type)
+        - name: ibmcloud_apikey
+          value: $(params.ibmcloud_apikey)
+        - name: uds_event_scheduler_frequency
+          value: $(params.uds_event_scheduler_frequency)
+        - name: mas_segment_key
+          value: $(params.mas_segment_key)
+        - name: dns_provider
+          value: $(params.dns_provider)
+        - name: cloudflare_email
+          value: $(params.cloudflare_email)
+        - name: cloudflare_apitoken
+          value: $(params.cloudflare_apitoken)
+        - name: cloudflare_zone
+          value: $(params.cloudflare_zone)
+        - name: cloudflare_subdomain
+          value: $(params.cloudflare_subdomain)
+        - name: cis_email
+          value: $(params.cis_email)
+        - name: cis_apikey
+          value: $(params.cis_apikey)
+        - name: cis_crn
+          value: $(params.cis_crn)
+        - name: cis_subdomain
+          value: $(params.cis_subdomain)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_channel
+          value: $(params.source_mas_channel)
+        - name: mas_catalog_source
+          value: $(params.source_mas_catalog_source)
+        - name: mas_catalog_version
+          value: $(params.mas_catalog_version)
+        - name: mas_domain
+          value: $(params.mas_domain)
+        - name: mas_cluster_issuer
+          value: $(params.mas_cluster_issuer)
+        - name: mas_icr_cp
+          value: $(params.mas_icr_cp)
+        - name: mas_icr_cpopen
+          value: $(params.mas_icr_cpopen)
+        - name: mas_entitlement_username
+          value: $(params.mas_entitlement_username)
+        - name: mas_annotations
+          value: $(params.mas_annotations)
+        - name: mas_entitlement_key
+          value: $(params.mas_entitlement_key)
+        - name: mas_customize_scaling
+          value: $(params.mas_customize_scaling)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_workspace_name
+          value: $(params.mas_workspace_name)
+        - name: mas_appws_components
+          value: $(params.mas_appws_components)
+        - name: mas_app_settings_aio_flag
+          value: $(params.mas_app_settings_aio_flag)
+        - name: mas_app_settings_demodata
+          value: $(params.mas_app_settings_demodata)
+        - name: mas_app_plan_optimizer
+          value: $(params.mas_app_plan_optimizer)
+        - name: wml_instance_id
+          value: $(params.wml_instance_id)
+        - name: wml_url
+          value: $(params.wml_url)
+        - name: wml_version
+          value: $(params.wml_version)
+        - name: predict_deployment_size
+          value: $(params.predict_deployment_size)
+        - name: mas_app_channel_iot
+          value: $(params.source_mas_app_channel_iot)
+        - name: mas_app_channel_manage
+          value: $(params.source_mas_app_channel_manage)
+        - name: mas_app_channel_monitor
+          value: $(params.source_mas_app_channel_monitor)
+        - name: mas_app_channel_optimizer
+          value: $(params.source_mas_app_channel_optimizer)
+        - name: mas_app_channel_predict
+          value: $(params.source_mas_app_channel_predict)
+        - name: mas_app_channel_safety
+          value: $(params.source_mas_app_channel_safety)
+        - name: mas_app_channel_hputilities
+          value: $(params.source_mas_app_channel_hputilities)
+        - name: mas_app_channel_assist
+          value: $(params.source_mas_app_channel_assist)
+        - name: mas_app_channel_visualinspection
+          value: $(params.source_mas_app_channel_visualinspection)
+        - name: mas_app_source_iot
+          value: $(params.source_mas_app_source_iot)
+        - name: mas_app_source_manage
+          value: $(params.source_mas_app_source_manage)
+        - name: mas_app_source_monitor
+          value: $(params.source_mas_app_source_monitor)
+        - name: mas_app_source_optimizer
+          value: $(params.source_mas_app_source_optimizer)
+        - name: mas_app_source_predict
+          value: $(params.source_mas_app_source_predict)
+        - name: mas_app_source_safety
+          value: $(params.mas_app_source_safety)
+        - name: mas_app_source_hputilities
+          value: $(params.source_mas_app_source_hputilities)
+        - name: mas_app_source_assist
+          value: $(params.source_mas_app_source_assist)
+        - name: mas_app_source_visualinspection
+          value: $(params.source_mas_app_source_visualinspection)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
           value: $(params.devops_build_number)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_channel
-          value: $(params.target_mas_channel)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
 
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
@@ -1072,7 +1479,6 @@ spec:
           value: $(params.fvt_version_mobilefoundation)
         - name: ivt_version_core
           value: $(params.ivt_version_core)
-
 
       taskRef:
         kind: Task

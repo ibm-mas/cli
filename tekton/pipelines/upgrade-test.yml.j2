@@ -17,9 +17,7 @@ spec:
           value: install
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
-
         {{ lookup('template', 'taskdefs/run-pipeline/install.yml.j2') | indent(8) }}
-
       taskRef:
         kind: Task
         name: mas-install-run-pipeline
@@ -29,38 +27,8 @@ spec:
       params:
         - name: pipelinerun_template_file_name
           value: fvt
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_channel
-          value: $(params.source_mas_channel)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
-        - name: sls_license_id
-          value: $(params.sls_license_id)
-        - name: sls_license_file
-          value: $(params.sls_license_file)
-        - name: cpd_product_version
-          value: $(params.source_cpd_product_version)
-        - name: uds_contact_email
-          value: $(params.uds_contact_email)
-        - name: uds_contact_firstname
-          value: $(params.uds_contact_firstname)
-        - name: uds_contact_lastname
-          value: $(params.uds_contact_lastname)
-        - name: cos_type
-          value: $(params.cos_type)
-        - name: ibmcloud_apikey
-          value: $(params.ibmcloud_apikey)
-
+        {{ lookup('template', 'taskdefs/run-pipeline/install.yml.j2') | indent(8) }}
         {{ lookup('template', 'taskdefs/run-pipeline/fvt.yml.j2') | indent(8) }}
-
       taskRef:
         kind: Task
         name: mas-fvt-run-pipeline
@@ -74,9 +42,7 @@ spec:
           value: upgrade
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
-        
         {{ lookup('template', 'taskdefs/run-pipeline/upgrade.yml.j2') | indent(8) }}
-
       taskRef:
         kind: Task
         name: mas-upgrade-run-pipeline
@@ -88,38 +54,8 @@ spec:
       params:
         - name: pipelinerun_template_file_name
           value: fvt
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_channel
-          value: $(params.target_mas_channel)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
-        - name: sls_license_id
-          value: $(params.sls_license_id)
-        - name: sls_license_file
-          value: $(params.sls_license_file)
-        - name: cpd_product_version
-          value: $(params.target_cpd_product_version)
-        - name: uds_contact_email
-          value: $(params.uds_contact_email)
-        - name: uds_contact_firstname
-          value: $(params.uds_contact_firstname)
-        - name: uds_contact_lastname
-          value: $(params.uds_contact_lastname)
-        - name: cos_type
-          value: $(params.cos_type)
-        - name: ibmcloud_apikey
-          value: $(params.ibmcloud_apikey)
-
+        {{ lookup('template', 'taskdefs/run-pipeline/install.yml.j2') | indent(8) }}
         {{ lookup('template', 'taskdefs/run-pipeline/fvt.yml.j2') | indent(8) }}
-
       taskRef:
         kind: Task
         name: mas-fvt-run-pipeline
