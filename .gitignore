@@ -7,3 +7,7 @@ tmp/
 tekton/test-run.yml
 tekton/ibm-mas-tekton.yaml
 tekton/test-run-assist.yml
+tekton/pipelines/fvt-assist.yaml
+tekton/pipelines/fvt-core.yaml
+tekton/pipelines/install-with-fvt.yaml
+tekton/pipelines/install.yaml
