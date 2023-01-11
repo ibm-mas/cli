@@ -16,6 +16,8 @@ else
   TARGET_FILE=$DIR/../../image/cli/mascli/templates/ibm-mas-tekton.yaml
 fi
 
+ansible-playbook tekton/generate-pipelines.yml
+
 echo "" > $TARGET_FILE
 
 echo "Creating tekton installer ($TARGET_FILE)"
