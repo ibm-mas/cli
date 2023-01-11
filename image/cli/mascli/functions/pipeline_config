@@ -21,7 +21,7 @@ function pipeline_config() {
   if [[ -n "$DEV_MODE" ]]; then
     # Development mode
     prompt_for_input "Select Catalog Source" MAS_CATALOG_VERSION "v8-master-amd64"
-    prompt_for_input "Select Subscription Channel" MAS_CHANNEL "m3dev810"
+    prompt_for_input "Select Subscription Channel" MAS_CHANNEL "dev"
   elif [[ -z "$AIRGAP_MODE" ]]; then
     # Online (GA) mode
     prompt_for_confirm "Use online catalog?" USE_ONLINE_CATALOG
