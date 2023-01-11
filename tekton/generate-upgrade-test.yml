@@ -1,14 +1,9 @@
 - hosts: localhost
   any_errors_fatal: true
   vars:
-    param1: UDS_CONTACT_EMAIL
-    param2: UDS_CONTACT_NAME
+    ansible_fvt_version: "{{ lookup('env', 'ANSIBLE_FVT_VERSION') | default('latest', true) }}"
   tasks:
-    # - name: "Resolve install parameters template into a list"
-    #   ansible.builtin.template:
-    #     src: pipelines/params/upgrade-test/test.yml.j2
-    #     dest: pipelines/params/upgrade-test/test.yml
-    
+
     # Load Source & Target Attributes
     - name: "Load source target attributes"
       ansible.builtin.set_fact:
@@ -95,17 +90,3 @@
       ansible.builtin.template:
         src: pipelinerun/templates/upgrade-test-run.yml.j2
         dest: pipelinerun/upgrade-test.yml.j2
-
-    # OLD
-    # - name: "Read list of install parameters"
-    #   ansible.builtin.set_fact:
-    #     install_param_text_list: "{{ lookup('file', 'params/install.yml') }}"
-    # - ansible.builtin.set_fact:
-    #     install_param_list: "{{ install_param_text_list | dict2items }}"
-    # - name: "Debug install_param_list"
-    #   ansible.builtin.debug:
-    #     msg: "{{ install_param_list }}"
-    # - name: "Generate Upgrade Test Pipeline"
-    #   ansible.builtin.template:
-    #     src: upgrade-test.yml.j2
-    #     dest: upgrade-test.yml

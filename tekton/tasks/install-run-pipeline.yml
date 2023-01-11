@@ -677,5 +677,5 @@ spec:
     - name: 'run-pipeline'
       command:
         - /opt/app-root/src/run-pipeline.sh
-      image: '$(params.fvt_image_registry)/mas-devops/ansible-fvt:latest'
+      image: '$(params.fvt_image_registry)/mas-devops/ansible-fvt:20.0.0-pre.coderefactor'
       imagePullPolicy: Always
