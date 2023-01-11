@@ -869,6 +869,8 @@ spec:
       params:
         - name: pipelinerun_template_file_name
           value: fvt
+        - name: pipelinerun_name_suffix
+          value: before
         - name: cli_version
           value: $(params.cli_version)
         - name: artifactory_username
@@ -1200,6 +1202,8 @@ spec:
       params:
         - name: pipelinerun_template_file_name
           value: fvt
+        - name: pipelinerun_name_suffix
+          value: after
         - name: cli_version
           value: $(params.cli_version)
         - name: artifactory_username

@@ -18,11 +18,6 @@ spec:
   params:
     # Upgrade Parameters
 {% for upgrade_param in upgrade_params_definition.params %}
-{% if upgrade_param.name in params_source_target_list %}
-    - name: {{ upgrade_param.name }}
-      value: {{'"{{ lookup(\'env\', \'TARGET_' ~ upgrade_param.name | upper ~ '\') }}"'}}
-{% else %}
     - name: {{ upgrade_param.name }}
       value: {{'"{{ lookup(\'env\', \'' ~ upgrade_param.name | upper ~ '\') }}"'}}
-{% endif %}
 {% endfor %}

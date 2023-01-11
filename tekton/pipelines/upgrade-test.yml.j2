@@ -27,6 +27,8 @@ spec:
       params:
         - name: pipelinerun_template_file_name
           value: fvt
+        - name: pipelinerun_name_suffix
+          value: before
         {{ lookup('template', 'taskdefs/run-pipeline/install.yml.j2') | indent(8) }}
         {{ lookup('template', 'taskdefs/run-pipeline/fvt.yml.j2') | indent(8) }}
       taskRef:
@@ -54,6 +56,8 @@ spec:
       params:
         - name: pipelinerun_template_file_name
           value: fvt
+        - name: pipelinerun_name_suffix
+          value: after
         {{ lookup('template', 'taskdefs/run-pipeline/install.yml.j2') | indent(8) }}
         {{ lookup('template', 'taskdefs/run-pipeline/fvt.yml.j2') | indent(8) }}
       taskRef:

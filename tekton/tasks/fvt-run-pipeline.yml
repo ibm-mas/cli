@@ -14,6 +14,9 @@ spec:
       type: string
       description: pipelinerun timeout
       default: 10h
+    - name: pipelinerun_name_suffix
+      description: optional suffix to pipelinerun standard name
+      default: ""
     
     # Install Parameters
     # IBM MAS CLI Version
@@ -578,6 +581,8 @@ spec:
         value: $(params.pipelinerun_timeout)
       - name: PIPELINERUN_WAIT
         value: "true"
+      - name: PIPELINERUN_NAME_SUFFIX
+        value: $(params.pipelinerun_name_suffix)
       - name: CLI_VERSION
         value: $(params.cli_version)
       - name: ARTIFACTORY_USERNAME

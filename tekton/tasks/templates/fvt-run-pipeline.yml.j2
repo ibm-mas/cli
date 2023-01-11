@@ -14,6 +14,9 @@ spec:
       type: string
       description: pipelinerun timeout
       default: 10h
+    - name: pipelinerun_name_suffix
+      description: optional suffix to pipelinerun standard name
+      default: ""
     
     # Install Parameters
     {{ lookup('template', 'pipelines/params/install.yml.j2') | indent(4) }}
@@ -30,6 +33,8 @@ spec:
         value: $(params.pipelinerun_timeout)
       - name: PIPELINERUN_WAIT
         value: "true"
+      - name: PIPELINERUN_NAME_SUFFIX
+        value: $(params.pipelinerun_name_suffix)
 {% for install_param in install_params_definition.params %}
       - name: {{ install_param.name | upper }}
         value: $(params.{{ install_param.name }})
