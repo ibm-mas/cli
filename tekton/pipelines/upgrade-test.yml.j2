@@ -14,7 +14,7 @@ spec:
     - name: install
       params:
         - name: pipelinerun_template_file_name
-          value: mas-install
+          value: install
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
 
@@ -28,7 +28,7 @@ spec:
     - name: test-before
       params:
         - name: pipelinerun_template_file_name
-          value: mas-fvt
+          value: fvt
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
@@ -52,7 +52,7 @@ spec:
     - name: upgrade
       params:
         - name: pipelinerun_template_file_name
-          value: mas-upgrade
+          value: upgrade
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
         
@@ -68,7 +68,7 @@ spec:
     - name: test-after
       params:
         - name: pipelinerun_template_file_name
-          value: mas-fvt
+          value: fvt
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
