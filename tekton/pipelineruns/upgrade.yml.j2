@@ -17,6 +17,8 @@ spec:
         claimName: config-pvc
   params:
     # Upgrade Parameters
+    - name: skip_compatibility_check
+      value: "{{ lookup('env', 'SKIP_COMPATIBILITY_CHECK') }}"
     - name: mas_instance_id
       value: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
     - name: mas_channel

@@ -5,6 +5,11 @@ metadata:
   name: mas-upgrade
 spec:
   params:
+    # Skip Compatiblity Check
+    - name: skip_compatibility_check
+      type: string
+      default: "False"
+
     # MAS Configuration
     - name: mas_instance_id
       type: string

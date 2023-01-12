@@ -19,6 +19,11 @@ spec:
       description: registry where test images live
 
     # Upgrade Parameters
+    # Skip Compatiblity Check
+    - name: skip_compatibility_check
+      type: string
+      default: "False"
+
     # MAS Configuration
     - name: mas_instance_id
       type: string
@@ -91,6 +96,8 @@ spec:
       - name: PIPELINERUN_WAIT
         value: "true"
 
+      - name: SKIP_COMPATIBILITY_CHECK
+        value: $(params.skip_compatibility_check)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
       - name: MAS_CHANNEL
