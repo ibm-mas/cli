@@ -6,7 +6,7 @@ metadata:
 spec:
   params:
 
-    {{ lookup('template', 'pipelines/params/upgrade-test/params.yml.j2') | indent(4) }}
+    {{ lookup('template', 'pipeline-templates/params/upgrade-test/params.yml.j2') | indent(4) }}
   
   tasks:
 
@@ -17,7 +17,7 @@ spec:
           value: install
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
-        {{ lookup('template', 'taskdefs/run-pipeline/install.yml.j2') | indent(8) }}
+        {{ lookup('template', 'pipeline-templates/taskdefs/run-pipeline/install.yml.j2') | indent(8) }}
       taskRef:
         kind: Task
         name: mas-install-run-pipeline
@@ -29,8 +29,8 @@ spec:
           value: fvt
         - name: pipelinerun_name_suffix
           value: before
-        {{ lookup('template', 'taskdefs/run-pipeline/install.yml.j2') | indent(8) }}
-        {{ lookup('template', 'taskdefs/run-pipeline/fvt.yml.j2') | indent(8) }}
+        {{ lookup('template', 'pipeline-templates/taskdefs/run-pipeline/install.yml.j2') | indent(8) }}
+        {{ lookup('template', 'pipeline-templates/taskdefs/run-pipeline/fvt.yml.j2') | indent(8) }}
       taskRef:
         kind: Task
         name: mas-fvt-run-pipeline
@@ -44,7 +44,7 @@ spec:
           value: upgrade
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
-        {{ lookup('template', 'taskdefs/run-pipeline/upgrade.yml.j2') | indent(8) }}
+        {{ lookup('template', 'pipeline-templates/taskdefs/run-pipeline/upgrade.yml.j2') | indent(8) }}
       taskRef:
         kind: Task
         name: mas-upgrade-run-pipeline
@@ -58,8 +58,8 @@ spec:
           value: fvt
         - name: pipelinerun_name_suffix
           value: after
-        {{ lookup('template', 'taskdefs/run-pipeline/install.yml.j2') | indent(8) }}
-        {{ lookup('template', 'taskdefs/run-pipeline/fvt.yml.j2') | indent(8) }}
+        {{ lookup('template', 'pipeline-templates/taskdefs/run-pipeline/install.yml.j2') | indent(8) }}
+        {{ lookup('template', 'pipeline-templates/taskdefs/run-pipeline/fvt.yml.j2') | indent(8) }}
       taskRef:
         kind: Task
         name: mas-fvt-run-pipeline

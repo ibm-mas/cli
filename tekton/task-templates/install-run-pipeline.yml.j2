@@ -19,7 +19,7 @@ spec:
       description: registry where test images live
     
     # Install Parameters
-    {{ lookup('template', 'pipelines/params/install.yml.j2') | indent(4) }}
+    {{ lookup('template', 'pipeline-templates/params/install.yml.j2') | indent(4) }}
   
   stepTemplate:
     env:

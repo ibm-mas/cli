@@ -628,6 +628,10 @@ spec:
       type: string
       description: FVT Version - Mobile Foundation
       default: ""
+    - name: fvt_version_servicerequests
+      type: string
+      description: FVT Version - Mobile Service Requests
+      default: ""
     - name: ivt_version_core
       type: string
       description: IVT Version - Core
@@ -1148,6 +1152,8 @@ spec:
           value: $(params.fvt_version_manage_ic)
         - name: fvt_version_mobilefoundation
           value: $(params.fvt_version_mobilefoundation)
+        - name: fvt_version_servicerequests
+          value: $(params.fvt_version_servicerequests)
         - name: ivt_version_core
           value: $(params.ivt_version_core)
 
@@ -1481,6 +1487,8 @@ spec:
           value: $(params.fvt_version_manage_ic)
         - name: fvt_version_mobilefoundation
           value: $(params.fvt_version_mobilefoundation)
+        - name: fvt_version_servicerequests
+          value: $(params.fvt_version_servicerequests)
         - name: ivt_version_core
           value: $(params.ivt_version_core)
 

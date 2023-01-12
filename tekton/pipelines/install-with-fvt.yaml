@@ -566,6 +566,10 @@ spec:
       type: string
       description: FVT Version - Mobile Foundation
       default: ""
+    - name: fvt_version_servicerequests
+      type: string
+      description: FVT Version - Mobile Service Requests
+      default: ""
 
     # IVT Versions
     - name: ivt_version_core
@@ -3917,7 +3921,7 @@ spec:
         - name: fvt_image_version
           value: $(params.fvt_version_hputilities)
         - name: fvt_test_suite
-          value: testng-hputilities-all
+          value: testng-hputilities-minimal
         - name: product_channel
           value: $(params.mas_app_channel_hputilities)
         - name: product_id
@@ -4728,6 +4732,150 @@ spec:
           values: [""]
       runAfter:
         - fvt-mobilefoundation-testng-preparedata
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    ## Prepare Data for Mobile Service Request MAS test suites
+    - name: fvt-servicerequests-testng-preparedata
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: fvt-servicerequests
+        - name: fvt_image_name
+          value: fvt-servicerequests-preparedata
+        - name: fvt_image_version
+          value: $(params.fvt_version_servicerequests)
+        - name: fvt_test_suite
+          value: prepare-test-data-testng-mas
+        - name: product_channel
+          value: $(params.mas_app_channel_manage)
+        - name: product_id
+          value: ibm-mas-mobile-service-requests
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      # Only if we've set a version of the Mobile Foundation FVT to run
+      when:
+        - input: "$(params.fvt_version_servicerequests)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - fvt-manage-setup
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    ## Minimum Verification Test for Mobile Service Request MAS test suites
+    - name: fvt-servicerequest-testng-mas-android
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: fvt-servicerequests
+        - name: fvt_image_name
+          value: fvt-servicerequests-testng
+        - name: fvt_image_version
+          value: $(params.fvt_version_servicerequests)
+        - name: fvt_test_suite
+          value: testng-mas-mobile-andorid-MVT
+        - name: product_channel
+          value: $(params.mas_app_channel_manage)
+        - name: product_id
+          value: ibm-mas-mobile-service-requests
+        - name: assist_test_type
+          value: mobileapp
+        - name: assist_device_type
+          value: android
+        - name: assist_server_type
+          value: mas
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      # Only if we've set a version of the Mobile Service Request FVT to run
+      when:
+        - input: "$(params.fvt_version_servicerequests)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - fvt-servicerequests-testng-preparedata
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    ## Minimum Verification Test for Mobile Service Request MAS test suites
+    - name: fvt-servicerequest-testng-mas-ios
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: fvt-servicerequests
+        - name: fvt_image_name
+          value: fvt-servicerequests-testng
+        - name: fvt_image_version
+          value: $(params.fvt_version_servicerequests)
+        - name: fvt_test_suite
+          value: testng-mas-mobile-ios-MVT
+        - name: product_channel
+          value: $(params.mas_app_channel_manage)
+        - name: product_id
+          value: ibm-mas-mobile-service-requests
+        - name: assist_test_type
+          value: mobileapp
+        - name: assist_device_type
+          value: ios
+        - name: assist_server_type
+          value: mas
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      # Only if we've set a version of the Mobile Service Request FVT to run
+      when:
+        - input: "$(params.fvt_version_servicerequests)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - fvt-servicerequest-testng-mas-android
       workspaces:
         - name: configs
           workspace: shared-configs

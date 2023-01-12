@@ -108,7 +108,7 @@
   default: ""
 
 # Dependencies - DB2
-{{ lookup('template', 'pipelines/params/install-db2.yml.j2') }}
+{{ lookup('template', 'pipeline-templates/params/install-db2.yml.j2') }}
 
 # Dependencies - CP4D
 - name: cpd_operators_namespace
@@ -149,7 +149,7 @@
   type: string
 
 # Dependencies - AppConnect
-{{ lookup('template', 'pipelines/params/install-appconnect.yml.j2') }}
+{{ lookup('template', 'pipeline-templates/params/install-appconnect.yml.j2') }}
 
 # Dependencies - COS
 - name: cos_type

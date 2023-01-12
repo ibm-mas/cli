@@ -14,15 +14,22 @@ if [ "$DEV_MODE" != "true" ]; then
   PIPELINERUN_FILES=$GITHUB_WORKSPACE/tekton/pipelinerun/*.j2
   TARGET_PIPELINERUN_DIRECTORY=$GITHUB_WORKSPACE/image/cli/mascli/templates/
 
-  echo "Copying PipelineRun templates to $TARGET_PIPELINERUN_DIRECTORY"
-  echo "cp $PIPELINERUN_FILES $TARGET_PIPELINERUN_DIRECTORY"
-  cp --verbose $PIPELINERUN_FILES $TARGET_PIPELINERUN_DIRECTORY
-
 else
   TASK_FILES=../../tekton/tasks/*.yml
   PIPELINE_FILES=../../tekton/pipelines/*.yml
   TARGET_FILE=../../image/cli/mascli/templates/ibm-mas-tekton.yml
+  
+  PIPELINERUN_FILES=../../tekton/pipelinerun/*.j2
+  TARGET_PIPELINERUN_DIRECTORY=../../image/cli/mascli/templates/
+
 fi
+
+ansible-playbook tekton/generate-tekton.yml
+
+echo "Copying PipelineRun templates to $TARGET_PIPELINERUN_DIRECTORY"
+echo "cp $PIPELINERUN_FILES $TARGET_PIPELINERUN_DIRECTORY"
+cp $PIPELINERUN_FILES $TARGET_PIPELINERUN_DIRECTORY
+
 
 echo "" > $TARGET_FILE
 

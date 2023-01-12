@@ -2,15 +2,19 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: "mas-upgrade-test-{{ devops_build_number if pipelinerun_name_suffix == '' else  (pipelinerun_name_suffix + '-' + devops_build_number) }}"
+  name: "mas-fvt-{{ devops_build_number if pipelinerun_name_suffix == '' else  (pipelinerun_name_suffix + '-' + devops_build_number) }}"
   labels:
-    tekton.dev/pipeline: mas-upgrade-test
+    tekton.dev/pipeline: mas-fvt
 spec:
   pipelineRef:
-    name: mas-upgrade-test
+    name: mas-fvt
   serviceAccountName: pipeline
   timeout: "{{ pipelinerun_timeout }}"
-
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+      persistentVolumeClaim:
+        claimName: config-pvc
   params:
     # Install Parameters
     - name: cli_version
@@ -33,14 +37,10 @@ spec:
       value: "{{ lookup('env', 'SLS_LICENSE_FILE') }}"
     - name: sls_mongodb_cfg_file
       value: "{{ lookup('env', 'SLS_MONGODB_CFG_FILE') }}"
-    - name: source_sls_catalog_source
-      value: "{{ lookup('env', 'SOURCE_SLS_CATALOG_SOURCE') }}"
-    - name: target_sls_catalog_source
-      value: "{{ lookup('env', 'TARGET_SLS_CATALOG_SOURCE') }}"
-    - name: source_sls_channel
-      value: "{{ lookup('env', 'SOURCE_SLS_CHANNEL') }}"
-    - name: target_sls_channel
-      value: "{{ lookup('env', 'TARGET_SLS_CHANNEL') }}"
+    - name: sls_catalog_source
+      value: "{{ lookup('env', 'SLS_CATALOG_SOURCE') }}"
+    - name: sls_channel
+      value: "{{ lookup('env', 'SLS_CHANNEL') }}"
     - name: sls_icr_cp
       value: "{{ lookup('env', 'SLS_ICR_CP') }}"
     - name: sls_icr_cpopen
@@ -97,10 +97,8 @@ spec:
       value: "{{ lookup('env', 'CPD_PRIMARY_STORAGE_CLASS') }}"
     - name: cpd_metadata_storage_class
       value: "{{ lookup('env', 'CPD_METADATA_STORAGE_CLASS') }}"
-    - name: source_cpd_product_version
-      value: "{{ lookup('env', 'SOURCE_CPD_PRODUCT_VERSION') }}"
-    - name: target_cpd_product_version
-      value: "{{ lookup('env', 'TARGET_CPD_PRODUCT_VERSION') }}"
+    - name: cpd_product_version
+      value: "{{ lookup('env', 'CPD_PRODUCT_VERSION') }}"
     - name: cpd_wd_storage_class
       value: "{{ lookup('env', 'CPD_WD_STORAGE_CLASS') }}"
     - name: cpd_wml_storage_class
@@ -153,14 +151,10 @@ spec:
       value: "{{ lookup('env', 'CIS_SUBDOMAIN') }}"
     - name: mas_instance_id
       value: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
-    - name: source_mas_channel
-      value: "{{ lookup('env', 'SOURCE_MAS_CHANNEL') }}"
-    - name: target_mas_channel
-      value: "{{ lookup('env', 'TARGET_MAS_CHANNEL') }}"
-    - name: source_mas_catalog_source
-      value: "{{ lookup('env', 'SOURCE_MAS_CATALOG_SOURCE') }}"
-    - name: target_mas_catalog_source
-      value: "{{ lookup('env', 'TARGET_MAS_CATALOG_SOURCE') }}"
+    - name: mas_channel
+      value: "{{ lookup('env', 'MAS_CHANNEL') }}"
+    - name: mas_catalog_source
+      value: "{{ lookup('env', 'MAS_CATALOG_SOURCE') }}"
     - name: mas_catalog_version
       value: "{{ lookup('env', 'MAS_CATALOG_VERSION') }}"
     - name: mas_domain
@@ -199,76 +193,42 @@ spec:
       value: "{{ lookup('env', 'WML_VERSION') }}"
     - name: predict_deployment_size
       value: "{{ lookup('env', 'PREDICT_DEPLOYMENT_SIZE') }}"
-    - name: source_mas_app_channel_iot
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_CHANNEL_IOT') }}"
-    - name: target_mas_app_channel_iot
-      value: "{{ lookup('env', 'TARGET_MAS_APP_CHANNEL_IOT') }}"
-    - name: source_mas_app_channel_manage
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_CHANNEL_MANAGE') }}"
-    - name: target_mas_app_channel_manage
-      value: "{{ lookup('env', 'TARGET_MAS_APP_CHANNEL_MANAGE') }}"
-    - name: source_mas_app_channel_monitor
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_CHANNEL_MONITOR') }}"
-    - name: target_mas_app_channel_monitor
-      value: "{{ lookup('env', 'TARGET_MAS_APP_CHANNEL_MONITOR') }}"
-    - name: source_mas_app_channel_optimizer
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_CHANNEL_OPTIMIZER') }}"
-    - name: target_mas_app_channel_optimizer
-      value: "{{ lookup('env', 'TARGET_MAS_APP_CHANNEL_OPTIMIZER') }}"
-    - name: source_mas_app_channel_predict
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_CHANNEL_PREDICT') }}"
-    - name: target_mas_app_channel_predict
-      value: "{{ lookup('env', 'TARGET_MAS_APP_CHANNEL_PREDICT') }}"
-    - name: source_mas_app_channel_safety
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_CHANNEL_SAFETY') }}"
-    - name: target_mas_app_channel_safety
-      value: "{{ lookup('env', 'TARGET_MAS_APP_CHANNEL_SAFETY') }}"
-    - name: source_mas_app_channel_hputilities
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_CHANNEL_HPUTILITIES') }}"
-    - name: target_mas_app_channel_hputilities
-      value: "{{ lookup('env', 'TARGET_MAS_APP_CHANNEL_HPUTILITIES') }}"
-    - name: source_mas_app_channel_assist
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_CHANNEL_ASSIST') }}"
-    - name: target_mas_app_channel_assist
-      value: "{{ lookup('env', 'TARGET_MAS_APP_CHANNEL_ASSIST') }}"
-    - name: source_mas_app_channel_visualinspection
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_CHANNEL_VISUALINSPECTION') }}"
-    - name: target_mas_app_channel_visualinspection
-      value: "{{ lookup('env', 'TARGET_MAS_APP_CHANNEL_VISUALINSPECTION') }}"
-    - name: source_mas_app_source_iot
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_SOURCE_IOT') }}"
-    - name: target_mas_app_source_iot
-      value: "{{ lookup('env', 'TARGET_MAS_APP_SOURCE_IOT') }}"
-    - name: source_mas_app_source_manage
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_SOURCE_MANAGE') }}"
-    - name: target_mas_app_source_manage
-      value: "{{ lookup('env', 'TARGET_MAS_APP_SOURCE_MANAGE') }}"
-    - name: source_mas_app_source_monitor
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_SOURCE_MONITOR') }}"
-    - name: target_mas_app_source_monitor
-      value: "{{ lookup('env', 'TARGET_MAS_APP_SOURCE_MONITOR') }}"
-    - name: source_mas_app_source_optimizer
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_SOURCE_OPTIMIZER') }}"
-    - name: target_mas_app_source_optimizer
-      value: "{{ lookup('env', 'TARGET_MAS_APP_SOURCE_OPTIMIZER') }}"
-    - name: source_mas_app_source_predict
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_SOURCE_PREDICT') }}"
-    - name: target_mas_app_source_predict
-      value: "{{ lookup('env', 'TARGET_MAS_APP_SOURCE_PREDICT') }}"
+    - name: mas_app_channel_iot
+      value: "{{ lookup('env', 'MAS_APP_CHANNEL_IOT') }}"
+    - name: mas_app_channel_manage
+      value: "{{ lookup('env', 'MAS_APP_CHANNEL_MANAGE') }}"
+    - name: mas_app_channel_monitor
+      value: "{{ lookup('env', 'MAS_APP_CHANNEL_MONITOR') }}"
+    - name: mas_app_channel_optimizer
+      value: "{{ lookup('env', 'MAS_APP_CHANNEL_OPTIMIZER') }}"
+    - name: mas_app_channel_predict
+      value: "{{ lookup('env', 'MAS_APP_CHANNEL_PREDICT') }}"
+    - name: mas_app_channel_safety
+      value: "{{ lookup('env', 'MAS_APP_CHANNEL_SAFETY') }}"
+    - name: mas_app_channel_hputilities
+      value: "{{ lookup('env', 'MAS_APP_CHANNEL_HPUTILITIES') }}"
+    - name: mas_app_channel_assist
+      value: "{{ lookup('env', 'MAS_APP_CHANNEL_ASSIST') }}"
+    - name: mas_app_channel_visualinspection
+      value: "{{ lookup('env', 'MAS_APP_CHANNEL_VISUALINSPECTION') }}"
+    - name: mas_app_source_iot
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_IOT') }}"
+    - name: mas_app_source_manage
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_MANAGE') }}"
+    - name: mas_app_source_monitor
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_MONITOR') }}"
+    - name: mas_app_source_optimizer
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_OPTIMIZER') }}"
+    - name: mas_app_source_predict
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_PREDICT') }}"
     - name: mas_app_source_safety
       value: "{{ lookup('env', 'MAS_APP_SOURCE_SAFETY') }}"
-    - name: source_mas_app_source_hputilities
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_SOURCE_HPUTILITIES') }}"
-    - name: target_mas_app_source_hputilities
-      value: "{{ lookup('env', 'TARGET_MAS_APP_SOURCE_HPUTILITIES') }}"
-    - name: source_mas_app_source_assist
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_SOURCE_ASSIST') }}"
-    - name: target_mas_app_source_assist
-      value: "{{ lookup('env', 'TARGET_MAS_APP_SOURCE_ASSIST') }}"
-    - name: source_mas_app_source_visualinspection
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_SOURCE_VISUALINSPECTION') }}"
-    - name: target_mas_app_source_visualinspection
-      value: "{{ lookup('env', 'TARGET_MAS_APP_SOURCE_VISUALINSPECTION') }}"
+    - name: mas_app_source_hputilities
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_HPUTILITIES') }}"
+    - name: mas_app_source_assist
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_ASSIST') }}"
+    - name: mas_app_source_visualinspection
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_VISUALINSPECTION') }}"
     - name: devops_mongo_uri
       value: "{{ lookup('env', 'DEVOPS_MONGO_URI') }}"
     - name: devops_build_number
@@ -334,6 +294,7 @@ spec:
       value: "{{ lookup('env', 'FVT_VERSION_MANAGE_IC') }}"
     - name: fvt_version_mobilefoundation
       value: "{{ lookup('env', 'FVT_VERSION_MOBILEFOUNDATION') }}"
+    - name: fvt_version_servicerequests
+      value: "{{ lookup('env', 'FVT_VERSION_SERVICEREQUESTS') }}"
     - name: ivt_version_core
       value: "{{ lookup('env', 'IVT_VERSION_CORE') }}"
-      

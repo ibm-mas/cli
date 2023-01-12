@@ -2,27 +2,24 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-fvt-run-pipeline
+  name: mas-upgrade-run-pipeline
 spec:
   params:    
-    # Pipeline Run Parameters
+    # Pipeline Run Common Parameters
     - name: pipelinerun_template_file_name
       type: string
       description: name of the pipelinerun template (.yml.j2)
-      default: fvt
+      default: install
     - name: pipelinerun_timeout
       type: string
       description: pipelinerun timeout
       default: 10h
-    - name: pipelinerun_name_suffix
-      description: optional suffix to pipelinerun standard name
-      default: ""
-    
-    # Install Parameters
-    {{ lookup('template', 'pipelines/params/install.yml.j2') | indent(4) }}
-    
-    # Test Parameters
-    {{ lookup('template', 'pipelines/params/fvt.yml.j2') | indent(4) }}
+    - name: fvt_image_registry
+      type: string
+      description: registry where test images live
+
+    # Upgrade Parameters
+    {{ lookup('template', 'pipeline-templates/params/upgrade.yml.j2') | indent(4) }}
 
   stepTemplate:
     name: 'run-pipeline-$(params.pipeline_name)'
@@ -33,15 +30,10 @@ spec:
         value: $(params.pipelinerun_timeout)
       - name: PIPELINERUN_WAIT
         value: "true"
-      - name: PIPELINERUN_NAME_SUFFIX
-        value: $(params.pipelinerun_name_suffix)
-{% for install_param in install_params_definition.params %}
-      - name: {{ install_param.name | upper }}
-        value: $(params.{{ install_param.name }})
-{% endfor %}
-{% for fvt_param in fvt_params_definition.params %}
-      - name: {{ fvt_param.name | upper }}
-        value: $(params.{{ fvt_param.name }})
+
+{% for upgrade_param in upgrade_params_definition.params %}
+      - name: {{ upgrade_param.name | upper }}
+        value: $(params.{{ upgrade_param.name }})
 {% endfor %}
 
   steps:

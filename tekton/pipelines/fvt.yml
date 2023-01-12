@@ -560,6 +560,10 @@ spec:
       type: string
       description: FVT Version - Mobile Foundation
       default: ""
+    - name: fvt_version_servicerequests
+      type: string
+      description: FVT Version - Mobile Service Requests
+      default: ""
 
     # IVT Versions
     - name: ivt_version_core
