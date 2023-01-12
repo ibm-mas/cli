@@ -181,7 +181,7 @@ function update_ansible_collections() {
     else
       echo
       echo_h2 "Updating ansible collections from Galaxy"
-      ansible-galaxy collection install ibm.mas_devops-12.7.0-pre.jancat --force || exit 1
+      ansible-galaxy collection install ibm.mas_devops:==12.7.0:-pre.jancat --force || exit 1
     fi
   fi
 }
