@@ -11,7 +11,7 @@ if [ "$DEV_MODE" != "true" ]; then
   PIPELINE_FILES=$GITHUB_WORKSPACE/tekton/pipelines/*.yml
   TARGET_FILE=$GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yml
   
-  PIPELINERUN_FILES=$GITHUB_WORKSPACE/tekton/pipelinerun/*.j2
+  PIPELINERUN_FILES=$GITHUB_WORKSPACE/tekton/pipelineruns/*.j2
   TARGET_PIPELINERUN_DIRECTORY=$GITHUB_WORKSPACE/image/cli/mascli/templates/
 
 else
@@ -19,7 +19,7 @@ else
   PIPELINE_FILES=../../tekton/pipelines/*.yml
   TARGET_FILE=../../image/cli/mascli/templates/ibm-mas-tekton.yml
   
-  PIPELINERUN_FILES=../../tekton/pipelinerun/*.j2
+  PIPELINERUN_FILES=../../tekton/pipelineruns/*.j2
   TARGET_PIPELINERUN_DIRECTORY=../../image/cli/mascli/templates/
 
 fi
