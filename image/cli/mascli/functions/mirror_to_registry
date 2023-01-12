@@ -245,6 +245,8 @@ function mirror_to_registry_interactive() {
   echo_h2 "3. Configure Static Catalog Version"
 
   echo -e "${COLOR_YELLOW}MAS Version:"
+  echo "  1. 8.9.1 (2023-01-11)"
+  echo "  1. 8.8.5 (2023-01-11)"
   echo "  1. 8.9.0 (2022-12-28)"
   echo "  2. 8.8.4 (2022-12-28)"
   echo "  3. 8.9.0 (2022-11-29)"
@@ -258,34 +260,44 @@ function mirror_to_registry_interactive() {
     1)
       MAS_CHANNEL=8.9.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-221228-amd64
+      MAS_CATALOG_VERSION=v8-230111-amd64
       ;;
     2)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-221228-amd64
+      MAS_CATALOG_VERSION=v8-230111-amd64
       ;;
     3)
       MAS_CHANNEL=8.9.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-221129-amd64
+      MAS_CATALOG_VERSION=v8-221228-amd64
       ;;
     4)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-221129-amd64
+      MAS_CATALOG_VERSION=v8-221228-amd64
       ;;
     5)
-      MAS_CHANNEL=8.8.x
+      MAS_CHANNEL=8.9.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-221025-amd64
+      MAS_CATALOG_VERSION=v8-221129-amd64
       ;;
     6)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-220927-amd64
+      MAS_CATALOG_VERSION=v8-221129-amd64
       ;;
     7)
+      MAS_CHANNEL=8.8.x
+      MAS_CATALOG_SOURCE=ibm-operator-catalog
+      MAS_CATALOG_VERSION=v8-221025-amd64
+      ;;
+    8)
+      MAS_CHANNEL=8.8.x
+      MAS_CATALOG_SOURCE=ibm-operator-catalog
+      MAS_CATALOG_VERSION=v8-220927-amd64
+      ;;
+    9)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-220805-amd64
