@@ -15,6 +15,10 @@ spec:
     - name: mas_channel
       type: string
       description: MAS Channel
+    
+    - name: skip_compatibility_check
+      type: string
+      description: set as true to skip compatibility check and force an upgrade path
 
   stepTemplate:
     env:
@@ -22,6 +26,8 @@ spec:
         value: $(params.mas_instance_id)
       - name: MAS_CHANNEL
         value: $(params.mas_channel)
+      - name: SKIP_COMPATIBILITY_CHECK
+        value: $(params.skip_compatibility_check)
   steps:
     - name: suite-upgrade
       command:
