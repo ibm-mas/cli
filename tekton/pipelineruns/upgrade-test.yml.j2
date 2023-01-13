@@ -234,39 +234,25 @@ spec:
       value: "{{ lookup('env', 'WML_VERSION') }}"
     - name: predict_deployment_size
       value: "{{ lookup('env', 'PREDICT_DEPLOYMENT_SIZE') }}"
-    - name: source_mas_app_source_iot
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_SOURCE_IOT') }}"
-    - name: target_mas_app_source_iot
-      value: "{{ lookup('env', 'TARGET_MAS_APP_SOURCE_IOT') }}"
-    - name: source_mas_app_source_manage
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_SOURCE_MANAGE') }}"
-    - name: target_mas_app_source_manage
-      value: "{{ lookup('env', 'TARGET_MAS_APP_SOURCE_MANAGE') }}"
-    - name: source_mas_app_source_monitor
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_SOURCE_MONITOR') }}"
-    - name: target_mas_app_source_monitor
-      value: "{{ lookup('env', 'TARGET_MAS_APP_SOURCE_MONITOR') }}"
-    - name: source_mas_app_source_optimizer
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_SOURCE_OPTIMIZER') }}"
-    - name: target_mas_app_source_optimizer
-      value: "{{ lookup('env', 'TARGET_MAS_APP_SOURCE_OPTIMIZER') }}"
-    - name: source_mas_app_source_predict
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_SOURCE_PREDICT') }}"
-    - name: target_mas_app_source_predict
-      value: "{{ lookup('env', 'TARGET_MAS_APP_SOURCE_PREDICT') }}"
+    - name: mas_app_channel_safety
+      value: "{{ lookup('env', 'MAS_APP_CHANNEL_SAFETY') }}"
+    - name: mas_app_source_iot
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_IOT') }}"
+    - name: mas_app_source_manage
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_MANAGE') }}"
+    - name: mas_app_source_monitor
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_MONITOR') }}"
+    - name: mas_app_source_optimizer
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_OPTIMIZER') }}"
+    - name: mas_app_source_predict
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_PREDICT') }}"
     - name: mas_app_source_safety
       value: "{{ lookup('env', 'MAS_APP_SOURCE_SAFETY') }}"
-    - name: source_mas_app_source_hputilities
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_SOURCE_HPUTILITIES') }}"
-    - name: target_mas_app_source_hputilities
-      value: "{{ lookup('env', 'TARGET_MAS_APP_SOURCE_HPUTILITIES') }}"
-    - name: source_mas_app_source_assist
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_SOURCE_ASSIST') }}"
-    - name: target_mas_app_source_assist
-      value: "{{ lookup('env', 'TARGET_MAS_APP_SOURCE_ASSIST') }}"
-    - name: source_mas_app_source_visualinspection
-      value: "{{ lookup('env', 'SOURCE_MAS_APP_SOURCE_VISUALINSPECTION') }}"
-    - name: target_mas_app_source_visualinspection
-      value: "{{ lookup('env', 'TARGET_MAS_APP_SOURCE_VISUALINSPECTION') }}"
+    - name: mas_app_source_hputilities
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_HPUTILITIES') }}"
+    - name: mas_app_source_assist
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_ASSIST') }}"
+    - name: mas_app_source_visualinspection
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_VISUALINSPECTION') }}"
     - name: skip_compatibility_check
       value: "{{ lookup('env', 'SKIP_COMPATIBILITY_CHECK') }}"

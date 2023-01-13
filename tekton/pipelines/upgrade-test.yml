@@ -30,7 +30,7 @@ spec:
     - name: mas_workspace_id
       type: string
       description: Workspace ID used to configure all applications
-      default: masdev
+      default: "masdev"
     - name: source_mas_app_channel_iot
       type: string
       description: Subscription channel for IoT application operator
@@ -98,7 +98,7 @@ spec:
     - name: cli_version
       type: string
       description: Version of the IBM MAS CLI image to use
-      default: latest
+      default: "latest"
     - name: artifactory_username
       type: string
       description: Required to install development MAS catalogs
@@ -131,7 +131,7 @@ spec:
     - name: sls_mongodb_cfg_file
       type: string
       description: ""
-      default: /workspace/configs/mongo-mongoce.yml
+      default: "/workspace/configs/mongo-mongoce.yml"
     - name: source_sls_catalog_source
       type: string
       description: ""
@@ -364,15 +364,15 @@ spec:
     - name: source_mas_catalog_source
       type: string
       description: ""
-      default: ibm-operator-catalog
+      default: "ibm-operator-catalog"
     - name: target_mas_catalog_source
       type: string
       description: ""
-      default: ibm-operator-catalog
+      default: "ibm-operator-catalog"
     - name: mas_catalog_version
       type: string
       description: ""
-      default: v8-amd64
+      default: "v8-amd64"
     - name: mas_domain
       type: string
       description: ""
@@ -408,11 +408,11 @@ spec:
     - name: mas_workspace_name
       type: string
       description: Workspace Name used when setting up the workspace
-      default: MAS Development
+      default: "MAS Development"
     - name: mas_appws_components
       type: string
       description: Manage components to configure in the workspace
-      default: base=latest,health=latest
+      default: "base=latest,health=latest"
     - name: mas_app_settings_aio_flag
       type: string
       description: Flag indicating if Asset Investment Optimization (AIO) resource must be loaded or not. It can be loaded only when Optimizer application is installed.
@@ -424,7 +424,7 @@ spec:
     - name: mas_app_plan_optimizer
       type: string
       description: Configure install plan of Optimizer application (full or limited)
-      default: full
+      default: "full"
     - name: wml_instance_id
       type: string
       description: wml instance to be configured in Predict
@@ -441,78 +441,50 @@ spec:
       type: string
       description: controls the workload size of predict containers
       default: ""
-    - name: source_mas_app_source_iot
+    - name: mas_app_channel_safety
+      type: string
+      description: Subscription channel for Safety application operator
+      default: ""
+    - name: mas_app_source_iot
       type: string
       description: Subscription source for IoT application operator
-      default: ibm-operator-catalog
-    - name: target_mas_app_source_iot
-      type: string
-      description: Subscription source for IoT application operator
-      default: ibm-operator-catalog
-    - name: source_mas_app_source_manage
+      default: "ibm-operator-catalog"
+    - name: mas_app_source_manage
       type: string
       description: Subscription source for Manage application operator
-      default: ibm-operator-catalog
-    - name: target_mas_app_source_manage
-      type: string
-      description: Subscription source for Manage application operator
-      default: ibm-operator-catalog
-    - name: source_mas_app_source_monitor
+      default: "ibm-operator-catalog"
+    - name: mas_app_source_monitor
       type: string
       description: Subscription source for Monitor application operator
-      default: ibm-operator-catalog
-    - name: target_mas_app_source_monitor
-      type: string
-      description: Subscription source for Monitor application operator
-      default: ibm-operator-catalog
-    - name: source_mas_app_source_optimizer
+      default: "ibm-operator-catalog"
+    - name: mas_app_source_optimizer
       type: string
       description: Subscription source for Optimizer application operator
-      default: ibm-operator-catalog
-    - name: target_mas_app_source_optimizer
-      type: string
-      description: Subscription source for Optimizer application operator
-      default: ibm-operator-catalog
-    - name: source_mas_app_source_predict
+      default: "ibm-operator-catalog"
+    - name: mas_app_source_predict
       type: string
       description: Subscription source for Predict application operator
-      default: ibm-operator-catalog
-    - name: target_mas_app_source_predict
-      type: string
-      description: Subscription source for Predict application operator
-      default: ibm-operator-catalog
+      default: "ibm-operator-catalog"
     - name: mas_app_source_safety
       type: string
       description: Subscription source for Safety application operator
-      default: ibm-operator-catalog
-    - name: source_mas_app_source_hputilities
+      default: "ibm-operator-catalog"
+    - name: mas_app_source_hputilities
       type: string
       description: Subscription source for Health & Predict - Utilities application operator
       default: ""
-    - name: target_mas_app_source_hputilities
-      type: string
-      description: Subscription source for Health & Predict - Utilities application operator
-      default: ""
-    - name: source_mas_app_source_assist
+    - name: mas_app_source_assist
       type: string
       description: Subscription source for Assist application operator
       default: ""
-    - name: target_mas_app_source_assist
-      type: string
-      description: Subscription source for Assist application operator
-      default: ""
-    - name: source_mas_app_source_visualinspection
-      type: string
-      description: Subscription source for MVI application operator
-      default: ""
-    - name: target_mas_app_source_visualinspection
+    - name: mas_app_source_visualinspection
       type: string
       description: Subscription source for MVI application operator
       default: ""
     - name: skip_compatibility_check
       type: string
       description: ""
-      default: False
+      default: "False"
 
   
   tasks:
@@ -721,24 +693,26 @@ spec:
           value: $(params.wml_version)
         - name: predict_deployment_size
           value: $(params.predict_deployment_size)
+        - name: mas_app_channel_safety
+          value: $(params.mas_app_channel_safety)
         - name: mas_app_source_iot
-          value: $(params.source_mas_app_source_iot)
+          value: $(params.mas_app_source_iot)
         - name: mas_app_source_manage
-          value: $(params.source_mas_app_source_manage)
+          value: $(params.mas_app_source_manage)
         - name: mas_app_source_monitor
-          value: $(params.source_mas_app_source_monitor)
+          value: $(params.mas_app_source_monitor)
         - name: mas_app_source_optimizer
-          value: $(params.source_mas_app_source_optimizer)
+          value: $(params.mas_app_source_optimizer)
         - name: mas_app_source_predict
-          value: $(params.source_mas_app_source_predict)
+          value: $(params.mas_app_source_predict)
         - name: mas_app_source_safety
           value: $(params.mas_app_source_safety)
         - name: mas_app_source_hputilities
-          value: $(params.source_mas_app_source_hputilities)
+          value: $(params.mas_app_source_hputilities)
         - name: mas_app_source_assist
-          value: $(params.source_mas_app_source_assist)
+          value: $(params.mas_app_source_assist)
         - name: mas_app_source_visualinspection
-          value: $(params.source_mas_app_source_visualinspection)
+          value: $(params.mas_app_source_visualinspection)
 
       taskRef:
         kind: Task
@@ -948,24 +922,26 @@ spec:
           value: $(params.wml_version)
         - name: predict_deployment_size
           value: $(params.predict_deployment_size)
+        - name: mas_app_channel_safety
+          value: $(params.mas_app_channel_safety)
         - name: mas_app_source_iot
-          value: $(params.source_mas_app_source_iot)
+          value: $(params.mas_app_source_iot)
         - name: mas_app_source_manage
-          value: $(params.source_mas_app_source_manage)
+          value: $(params.mas_app_source_manage)
         - name: mas_app_source_monitor
-          value: $(params.source_mas_app_source_monitor)
+          value: $(params.mas_app_source_monitor)
         - name: mas_app_source_optimizer
-          value: $(params.source_mas_app_source_optimizer)
+          value: $(params.mas_app_source_optimizer)
         - name: mas_app_source_predict
-          value: $(params.source_mas_app_source_predict)
+          value: $(params.mas_app_source_predict)
         - name: mas_app_source_safety
           value: $(params.mas_app_source_safety)
         - name: mas_app_source_hputilities
-          value: $(params.source_mas_app_source_hputilities)
+          value: $(params.mas_app_source_hputilities)
         - name: mas_app_source_assist
-          value: $(params.source_mas_app_source_assist)
+          value: $(params.mas_app_source_assist)
         - name: mas_app_source_visualinspection
-          value: $(params.source_mas_app_source_visualinspection)
+          value: $(params.mas_app_source_visualinspection)
 
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
@@ -1285,24 +1261,26 @@ spec:
           value: $(params.wml_version)
         - name: predict_deployment_size
           value: $(params.predict_deployment_size)
+        - name: mas_app_channel_safety
+          value: $(params.mas_app_channel_safety)
         - name: mas_app_source_iot
-          value: $(params.source_mas_app_source_iot)
+          value: $(params.mas_app_source_iot)
         - name: mas_app_source_manage
-          value: $(params.source_mas_app_source_manage)
+          value: $(params.mas_app_source_manage)
         - name: mas_app_source_monitor
-          value: $(params.source_mas_app_source_monitor)
+          value: $(params.mas_app_source_monitor)
         - name: mas_app_source_optimizer
-          value: $(params.source_mas_app_source_optimizer)
+          value: $(params.mas_app_source_optimizer)
         - name: mas_app_source_predict
-          value: $(params.source_mas_app_source_predict)
+          value: $(params.mas_app_source_predict)
         - name: mas_app_source_safety
           value: $(params.mas_app_source_safety)
         - name: mas_app_source_hputilities
-          value: $(params.source_mas_app_source_hputilities)
+          value: $(params.mas_app_source_hputilities)
         - name: mas_app_source_assist
-          value: $(params.source_mas_app_source_assist)
+          value: $(params.mas_app_source_assist)
         - name: mas_app_source_visualinspection
-          value: $(params.source_mas_app_source_visualinspection)
+          value: $(params.mas_app_source_visualinspection)
 
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)

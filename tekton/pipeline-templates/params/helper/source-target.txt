@@ -13,12 +13,3 @@ mas_app_channel_predict
 mas_app_channel_visualinspection
 sls_catalog_source
 mas_catalog_source
-mas_app_source_assist
-mas_app_source_hputilities
-mas_app_source_iot
-mas_app_source_manage
-mas_app_source_monitor
-mas_app_source_predict
-mas_app_source_optimizer
-mas_app_source_visualinspection
-mas_app_channel_safety
