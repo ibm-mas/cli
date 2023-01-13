@@ -18,7 +18,7 @@
         dest: pipeline-templates/params/helper/common-list.yml
     - name: "Load common parameters list into a variable"
       ansible.builtin.include_vars:
-        file: pipeline-templates/params/helper/install-list.yml
+        file: pipeline-templates/params/helper/common-list.yml
         name: common_params_definition
     
     # Load Install Parameters

@@ -8,419 +8,92 @@ spec:
 
     # Combined install, fvt and upgrade parameters + source/target parsing
     # Upgrade Test Parameters
-    - name: cli_version
-      type: string
-      description: Version of the IBM MAS CLI image to use
-      default: latest
-    - name: artifactory_username
-      type: string
-      description: Required to install development MAS catalogs
-      default: ""
-    - name: artifactory_apikey
-      type: string
-      description: Required to install development MAS catalogs
-      default: ""
-    - name: storage_class_rwo
-      type: string
-      description: ReadWriteOnce storage class
-      default: ""
-    - name: storage_class_rwx
-      type: string
-      description: ReadWriteMany storage class
-      default: ""
-    - name: ibm_entitlement_key
-      type: string
-      description: IBM Entitlement Key
-    - name: common_services_catalog_source
+    - name: devops_mongo_uri
       type: string
       description: ""
       default: ""
-    - name: sls_license_id
-      type: string
-      description: ""
-    - name: sls_license_file
-      type: string
-      description: ""
-    - name: sls_mongodb_cfg_file
-      type: string
-      description: ""
-      default: /workspace/configs/mongo-mongoce.yml
-    - name: source_sls_catalog_source
+    - name: devops_build_number
       type: string
       description: ""
       default: ""
-    - name: target_sls_catalog_source
+    - name: mas_instance_id
+      type: string
+      description: ""
+    - name: source_mas_channel
       type: string
       description: ""
       default: ""
-    - name: source_sls_channel
+    - name: target_mas_channel
       type: string
       description: ""
       default: ""
-    - name: target_sls_channel
+    - name: mas_workspace_id
       type: string
-      description: ""
-      default: ""
-    - name: sls_icr_cp
-      type: string
-      description: ""
-      default: ""
-    - name: sls_icr_cpopen
-      type: string
-      description: ""
-      default: ""
-    - name: sls_entitlement_username
-      type: string
-      description: ""
-      default: ""
-    - name: sls_entitlement_key
-      type: string
-      description: Override IBM Entitlement key for SLS installation
-      default: ""
-    - name: mongodb_storage_class
-      type: string
-      description: ""
-      default: ""
-    - name: mongodb_replicas
-      type: string
-      description: Optional configuration for mongodb replicas
-      default: ""
-    - name: mongodb_cpu_requests
-      type: string
-      description: Optional configuration for mongodb cpu requests
-      default: ""
-    - name: kafka_namespace
-      type: string
-      description: ""
-      default: ""
-    - name: kafka_cluster_name
-      type: string
-      description: ""
-      default: ""
-    - name: kafka_cluster_size
-      type: string
-      description: ""
-      default: ""
-    - name: kafka_user_name
-      type: string
-      description: ""
-      default: ""
-    - name: gpu_namespace
-      type: string
-      description: Optional. Nvidia gpu namespace
-      default: ""
-    - name: gpu_channel
-      type: string
-      description: Optional. Nvidia gpu channel for install and updates
-      default: ""
-    - name: nfd_namespace
-      type: string
-      description: Optional. Node feature discovery namespace
-      default: ""
-    - name: nfd_channel
-      type: string
-      description: Optional. Node feature discovery channel for install and updates
-      default: ""
-    - name: db2_meta_storage_accessmode
-      type: string
-      description: Optional configuration for db2 meta storage access mode
-      default: ""
-    - name: db2_backup_storage_accessmode
-      type: string
-      description: Optional configuration for db2 backup storage access mode
-      default: ""
-    - name: db2_meta_storage_size
-      type: string
-      description: Storage capacity (metadata)
-      default: ""
-    - name: db2_backup_storage_size
-      type: string
-      description: Storage capacity (backup)
-      default: ""
-    - name: db2_logs_storage_size
-      type: string
-      description: Storage capacity (logs)
-      default: ""
-    - name: db2_temp_storage_size
-      type: string
-      description: Storage capacity (temp)
-      default: ""
-    - name: db2_data_storage_size
-      type: string
-      description: Storage capacity (data)
-      default: ""
-    - name: db2_cpu_requests
-      type: string
-      description: Optional configuration for db2 cpu requests
-      default: ""
-    - name: db2_cpu_limits
-      type: string
-      description: Optional configuration for mongodb cpu limits
-      default: ""
-    - name: cpd_operators_namespace
-      type: string
-      description: ""
-      default: ""
-    - name: cpd_instance_namespace
-      type: string
-      description: ""
-      default: ""
-    - name: cpd_primary_storage_class
-      type: string
-      description: ""
-      default: ""
-    - name: cpd_metadata_storage_class
-      type: string
-      description: ""
-      default: ""
-    - name: source_cpd_product_version
-      type: string
-      description: ""
-    - name: target_cpd_product_version
-      type: string
-      description: ""
-    - name: cpd_wd_storage_class
-      type: string
-      description: ""
-      default: ""
-    - name: cpd_wml_storage_class
-      type: string
-      description: ""
-      default: ""
-    - name: cpd_spark_storage_class
-      type: string
-      description: ""
-      default: ""
-    - name: cpd_wsl_storage_class
-      type: string
-      description: ""
-      default: ""
-    - name: uds_contact_email
-      type: string
-      description: ""
-    - name: uds_contact_firstname
-      type: string
-      description: ""
-    - name: uds_contact_lastname
-      type: string
-      description: ""
-    - name: appconnect_channel
-      type: string
-      description: ""
-      default: ""
-    - name: appconnect_dashboard_version
-      type: string
-      description: ""
-      default: ""
-    - name: appconnect_dashboard_name
-      type: string
-      description: ""
-      default: ""
-    - name: appconnect_license_id
-      type: string
-      description: ""
-      default: ""
-    - name: appconnect_storage_class
-      type: string
-      description: ""
-      default: ""
-    - name: cos_type
-      type: string
-      description: COS Provider (ibm or ocs)
-    - name: ibmcloud_apikey
-      type: string
-      description: API Key used to create COS instance in IBM Cloud
-    - name: uds_event_scheduler_frequency
-      type: string
-      description: ""
-      default: ""
-    - name: mas_segment_key
-      type: string
-      description: ""
-      default: ""
-    - name: dns_provider
-      type: string
-      description: ""
-      default: ""
-    - name: cloudflare_email
-      type: string
-      description: ""
-      default: ""
-    - name: cloudflare_apitoken
-      type: string
-      description: ""
-      default: ""
-    - name: cloudflare_zone
-      type: string
-      description: ""
-      default: ""
-    - name: cloudflare_subdomain
-      type: string
-      description: ""
-      default: ""
-    - name: cis_email
+      description: Workspace ID used to configure all applications
+      default: masdev
+    - name: source_mas_app_channel_iot
       type: string
-      description: ""
+      description: Subscription channel for IoT application operator
       default: ""
-    - name: cis_apikey
+    - name: target_mas_app_channel_iot
       type: string
-      description: ""
+      description: Subscription channel for IoT application operator
       default: ""
-    - name: cis_crn
+    - name: source_mas_app_channel_manage
       type: string
-      description: ""
+      description: Subscription channel for Manage application operator
       default: ""
-    - name: cis_subdomain
+    - name: target_mas_app_channel_manage
       type: string
-      description: ""
+      description: Subscription channel for Manage application operator
       default: ""
-    - name: source_mas_catalog_source
+    - name: source_mas_app_channel_monitor
       type: string
-      description: ""
-      default: ibm-operator-catalog
-    - name: target_mas_catalog_source
-      type: string
-      description: ""
-      default: ibm-operator-catalog
-    - name: mas_catalog_version
-      type: string
-      description: ""
-      default: v8-amd64
-    - name: mas_domain
-      type: string
-      description: ""
-      default: ""
-    - name: mas_cluster_issuer
-      type: string
-      description: ""
-      default: ""
-    - name: mas_icr_cp
-      type: string
-      description: ""
-      default: ""
-    - name: mas_icr_cpopen
-      type: string
-      description: ""
-      default: ""
-    - name: mas_entitlement_username
-      type: string
-      description: ""
-      default: ""
-    - name: mas_annotations
-      type: string
-      description: ""
-      default: ""
-    - name: mas_entitlement_key
-      type: string
-      description: Override IBM Entitlement key for MAS installation
-      default: ""
-    - name: mas_customize_scaling
-      type: string
-      description: Workload Scaling Custom ConfigMap Name
-      default: ""
-    - name: mas_workspace_name
-      type: string
-      description: Workspace Name used when setting up the workspace
-      default: MAS Development
-    - name: mas_appws_components
-      type: string
-      description: Manage components to configure in the workspace
-      default: base=latest,health=latest
-    - name: mas_app_settings_aio_flag
-      type: string
-      description: Flag indicating if Asset Investment Optimization (AIO) resource must be loaded or not. It can be loaded only when Optimizer application is installed.
+      description: Subscription channel for Monitor application operator
       default: ""
-    - name: mas_app_settings_demodata
+    - name: target_mas_app_channel_monitor
       type: string
-      description: Flag indicating if manage demodata should be loaded or not
+      description: Subscription channel for Monitor application operator
       default: ""
-    - name: mas_app_plan_optimizer
-      type: string
-      description: Configure install plan of Optimizer application (full or limited)
-      default: full
-    - name: wml_instance_id
+    - name: source_mas_app_channel_optimizer
       type: string
-      description: wml instance to be configured in Predict
+      description: Subscription channel for Optimizer application operator
       default: ""
-    - name: wml_url
+    - name: target_mas_app_channel_optimizer
       type: string
-      description: Url to access wml services
+      description: Subscription channel for Optimizer application operator
       default: ""
-    - name: wml_version
+    - name: source_mas_app_channel_predict
       type: string
-      description: product version if cpd_product_version is not set
+      description: Subscription channel for Predict application operator
       default: ""
-    - name: predict_deployment_size
+    - name: target_mas_app_channel_predict
       type: string
-      description: controls the workload size of predict containers
+      description: Subscription channel for Predict application operator
       default: ""
-    - name: source_mas_app_source_iot
-      type: string
-      description: Subscription source for IoT application operator
-      default: ibm-operator-catalog
-    - name: target_mas_app_source_iot
-      type: string
-      description: Subscription source for IoT application operator
-      default: ibm-operator-catalog
-    - name: source_mas_app_source_manage
-      type: string
-      description: Subscription source for Manage application operator
-      default: ibm-operator-catalog
-    - name: target_mas_app_source_manage
-      type: string
-      description: Subscription source for Manage application operator
-      default: ibm-operator-catalog
-    - name: source_mas_app_source_monitor
-      type: string
-      description: Subscription source for Monitor application operator
-      default: ibm-operator-catalog
-    - name: target_mas_app_source_monitor
-      type: string
-      description: Subscription source for Monitor application operator
-      default: ibm-operator-catalog
-    - name: source_mas_app_source_optimizer
-      type: string
-      description: Subscription source for Optimizer application operator
-      default: ibm-operator-catalog
-    - name: target_mas_app_source_optimizer
-      type: string
-      description: Subscription source for Optimizer application operator
-      default: ibm-operator-catalog
-    - name: source_mas_app_source_predict
-      type: string
-      description: Subscription source for Predict application operator
-      default: ibm-operator-catalog
-    - name: target_mas_app_source_predict
-      type: string
-      description: Subscription source for Predict application operator
-      default: ibm-operator-catalog
-    - name: mas_app_source_safety
-      type: string
-      description: Subscription source for Safety application operator
-      default: ibm-operator-catalog
-    - name: source_mas_app_source_hputilities
+    - name: source_mas_app_channel_hputilities
       type: string
-      description: Subscription source for Health & Predict - Utilities application operator
+      description: Subscription channel for Health & Predict - Utilities application operator
       default: ""
-    - name: target_mas_app_source_hputilities
+    - name: target_mas_app_channel_hputilities
       type: string
-      description: Subscription source for Health & Predict - Utilities application operator
+      description: Subscription channel for Health & Predict - Utilities application operator
       default: ""
-    - name: source_mas_app_source_assist
+    - name: source_mas_app_channel_assist
       type: string
-      description: Subscription source for Assist application operator
+      description: Subscription channel for Assist application operator
       default: ""
-    - name: target_mas_app_source_assist
+    - name: target_mas_app_channel_assist
       type: string
-      description: Subscription source for Assist application operator
+      description: Subscription channel for Assist application operator
       default: ""
-    - name: source_mas_app_source_visualinspection
+    - name: source_mas_app_channel_visualinspection
       type: string
-      description: Subscription source for MVI application operator
+      description: Subscription channel for MVI application operator
       default: ""
-    - name: target_mas_app_source_visualinspection
+    - name: target_mas_app_channel_visualinspection
       type: string
-      description: Subscription source for MVI application operator
+      description: Subscription channel for MVI application operator
       default: ""
     - name: cli_version
       type: string
@@ -851,194 +524,32 @@ spec:
           value: install
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
-        - name: cli_version
-          value: $(params.cli_version)
-        - name: artifactory_username
-          value: $(params.artifactory_username)
-        - name: artifactory_apikey
-          value: $(params.artifactory_apikey)
-        - name: storage_class_rwo
-          value: $(params.storage_class_rwo)
-        - name: storage_class_rwx
-          value: $(params.storage_class_rwx)
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
-        - name: common_services_catalog_source
-          value: $(params.common_services_catalog_source)
-        - name: sls_license_id
-          value: $(params.sls_license_id)
-        - name: sls_license_file
-          value: $(params.sls_license_file)
-        - name: sls_mongodb_cfg_file
-          value: $(params.sls_mongodb_cfg_file)
-        - name: sls_catalog_source
-          value: $(params.source_sls_catalog_source)
-        - name: sls_channel
-          value: $(params.source_sls_channel)
-        - name: sls_icr_cp
-          value: $(params.sls_icr_cp)
-        - name: sls_icr_cpopen
-          value: $(params.sls_icr_cpopen)
-        - name: sls_entitlement_username
-          value: $(params.sls_entitlement_username)
-        - name: sls_entitlement_key
-          value: $(params.sls_entitlement_key)
-        - name: mongodb_storage_class
-          value: $(params.mongodb_storage_class)
-        - name: mongodb_replicas
-          value: $(params.mongodb_replicas)
-        - name: mongodb_cpu_requests
-          value: $(params.mongodb_cpu_requests)
-        - name: kafka_namespace
-          value: $(params.kafka_namespace)
-        - name: kafka_cluster_name
-          value: $(params.kafka_cluster_name)
-        - name: kafka_cluster_size
-          value: $(params.kafka_cluster_size)
-        - name: kafka_user_name
-          value: $(params.kafka_user_name)
-        - name: gpu_namespace
-          value: $(params.gpu_namespace)
-        - name: gpu_channel
-          value: $(params.gpu_channel)
-        - name: nfd_namespace
-          value: $(params.nfd_namespace)
-        - name: nfd_channel
-          value: $(params.nfd_channel)
-        - name: db2_meta_storage_accessmode
-          value: $(params.db2_meta_storage_accessmode)
-        - name: db2_backup_storage_accessmode
-          value: $(params.db2_backup_storage_accessmode)
-        - name: db2_meta_storage_size
-          value: $(params.db2_meta_storage_size)
-        - name: db2_backup_storage_size
-          value: $(params.db2_backup_storage_size)
-        - name: db2_logs_storage_size
-          value: $(params.db2_logs_storage_size)
-        - name: db2_temp_storage_size
-          value: $(params.db2_temp_storage_size)
-        - name: db2_data_storage_size
-          value: $(params.db2_data_storage_size)
-        - name: db2_cpu_requests
-          value: $(params.db2_cpu_requests)
-        - name: db2_cpu_limits
-          value: $(params.db2_cpu_limits)
-        - name: cpd_operators_namespace
-          value: $(params.cpd_operators_namespace)
-        - name: cpd_instance_namespace
-          value: $(params.cpd_instance_namespace)
-        - name: cpd_primary_storage_class
-          value: $(params.cpd_primary_storage_class)
-        - name: cpd_metadata_storage_class
-          value: $(params.cpd_metadata_storage_class)
-        - name: cpd_product_version
-          value: $(params.source_cpd_product_version)
-        - name: cpd_wd_storage_class
-          value: $(params.cpd_wd_storage_class)
-        - name: cpd_wml_storage_class
-          value: $(params.cpd_wml_storage_class)
-        - name: cpd_spark_storage_class
-          value: $(params.cpd_spark_storage_class)
-        - name: cpd_wsl_storage_class
-          value: $(params.cpd_wsl_storage_class)
-        - name: uds_contact_email
-          value: $(params.uds_contact_email)
-        - name: uds_contact_firstname
-          value: $(params.uds_contact_firstname)
-        - name: uds_contact_lastname
-          value: $(params.uds_contact_lastname)
-        - name: appconnect_channel
-          value: $(params.appconnect_channel)
-        - name: appconnect_dashboard_version
-          value: $(params.appconnect_dashboard_version)
-        - name: appconnect_dashboard_name
-          value: $(params.appconnect_dashboard_name)
-        - name: appconnect_license_id
-          value: $(params.appconnect_license_id)
-        - name: appconnect_storage_class
-          value: $(params.appconnect_storage_class)
-        - name: cos_type
-          value: $(params.cos_type)
-        - name: ibmcloud_apikey
-          value: $(params.ibmcloud_apikey)
-        - name: uds_event_scheduler_frequency
-          value: $(params.uds_event_scheduler_frequency)
-        - name: mas_segment_key
-          value: $(params.mas_segment_key)
-        - name: dns_provider
-          value: $(params.dns_provider)
-        - name: cloudflare_email
-          value: $(params.cloudflare_email)
-        - name: cloudflare_apitoken
-          value: $(params.cloudflare_apitoken)
-        - name: cloudflare_zone
-          value: $(params.cloudflare_zone)
-        - name: cloudflare_subdomain
-          value: $(params.cloudflare_subdomain)
-        - name: cis_email
-          value: $(params.cis_email)
-        - name: cis_apikey
-          value: $(params.cis_apikey)
-        - name: cis_crn
-          value: $(params.cis_crn)
-        - name: cis_subdomain
-          value: $(params.cis_subdomain)
-        - name: mas_catalog_source
-          value: $(params.source_mas_catalog_source)
-        - name: mas_catalog_version
-          value: $(params.mas_catalog_version)
-        - name: mas_domain
-          value: $(params.mas_domain)
-        - name: mas_cluster_issuer
-          value: $(params.mas_cluster_issuer)
-        - name: mas_icr_cp
-          value: $(params.mas_icr_cp)
-        - name: mas_icr_cpopen
-          value: $(params.mas_icr_cpopen)
-        - name: mas_entitlement_username
-          value: $(params.mas_entitlement_username)
-        - name: mas_annotations
-          value: $(params.mas_annotations)
-        - name: mas_entitlement_key
-          value: $(params.mas_entitlement_key)
-        - name: mas_customize_scaling
-          value: $(params.mas_customize_scaling)
-        - name: mas_workspace_name
-          value: $(params.mas_workspace_name)
-        - name: mas_appws_components
-          value: $(params.mas_appws_components)
-        - name: mas_app_settings_aio_flag
-          value: $(params.mas_app_settings_aio_flag)
-        - name: mas_app_settings_demodata
-          value: $(params.mas_app_settings_demodata)
-        - name: mas_app_plan_optimizer
-          value: $(params.mas_app_plan_optimizer)
-        - name: wml_instance_id
-          value: $(params.wml_instance_id)
-        - name: wml_url
-          value: $(params.wml_url)
-        - name: wml_version
-          value: $(params.wml_version)
-        - name: predict_deployment_size
-          value: $(params.predict_deployment_size)
-        - name: mas_app_source_iot
-          value: $(params.source_mas_app_source_iot)
-        - name: mas_app_source_manage
-          value: $(params.source_mas_app_source_manage)
-        - name: mas_app_source_monitor
-          value: $(params.source_mas_app_source_monitor)
-        - name: mas_app_source_optimizer
-          value: $(params.source_mas_app_source_optimizer)
-        - name: mas_app_source_predict
-          value: $(params.source_mas_app_source_predict)
-        - name: mas_app_source_safety
-          value: $(params.mas_app_source_safety)
-        - name: mas_app_source_hputilities
-          value: $(params.source_mas_app_source_hputilities)
-        - name: mas_app_source_assist
-          value: $(params.source_mas_app_source_assist)
-        - name: mas_app_source_visualinspection
-          value: $(params.source_mas_app_source_visualinspection)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_channel
+          value: $(params.source_mas_channel)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_channel_iot
+          value: $(params.source_mas_app_channel_iot)
+        - name: mas_app_channel_manage
+          value: $(params.source_mas_app_channel_manage)
+        - name: mas_app_channel_monitor
+          value: $(params.source_mas_app_channel_monitor)
+        - name: mas_app_channel_optimizer
+          value: $(params.source_mas_app_channel_optimizer)
+        - name: mas_app_channel_predict
+          value: $(params.source_mas_app_channel_predict)
+        - name: mas_app_channel_hputilities
+          value: $(params.source_mas_app_channel_hputilities)
+        - name: mas_app_channel_assist
+          value: $(params.source_mas_app_channel_assist)
+        - name: mas_app_channel_visualinspection
+          value: $(params.source_mas_app_channel_visualinspection)
 
         - name: cli_version
           value: $(params.cli_version)
@@ -1240,194 +751,32 @@ spec:
           value: fvt
         - name: pipelinerun_name_suffix
           value: before
-        - name: cli_version
-          value: $(params.cli_version)
-        - name: artifactory_username
-          value: $(params.artifactory_username)
-        - name: artifactory_apikey
-          value: $(params.artifactory_apikey)
-        - name: storage_class_rwo
-          value: $(params.storage_class_rwo)
-        - name: storage_class_rwx
-          value: $(params.storage_class_rwx)
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
-        - name: common_services_catalog_source
-          value: $(params.common_services_catalog_source)
-        - name: sls_license_id
-          value: $(params.sls_license_id)
-        - name: sls_license_file
-          value: $(params.sls_license_file)
-        - name: sls_mongodb_cfg_file
-          value: $(params.sls_mongodb_cfg_file)
-        - name: sls_catalog_source
-          value: $(params.source_sls_catalog_source)
-        - name: sls_channel
-          value: $(params.source_sls_channel)
-        - name: sls_icr_cp
-          value: $(params.sls_icr_cp)
-        - name: sls_icr_cpopen
-          value: $(params.sls_icr_cpopen)
-        - name: sls_entitlement_username
-          value: $(params.sls_entitlement_username)
-        - name: sls_entitlement_key
-          value: $(params.sls_entitlement_key)
-        - name: mongodb_storage_class
-          value: $(params.mongodb_storage_class)
-        - name: mongodb_replicas
-          value: $(params.mongodb_replicas)
-        - name: mongodb_cpu_requests
-          value: $(params.mongodb_cpu_requests)
-        - name: kafka_namespace
-          value: $(params.kafka_namespace)
-        - name: kafka_cluster_name
-          value: $(params.kafka_cluster_name)
-        - name: kafka_cluster_size
-          value: $(params.kafka_cluster_size)
-        - name: kafka_user_name
-          value: $(params.kafka_user_name)
-        - name: gpu_namespace
-          value: $(params.gpu_namespace)
-        - name: gpu_channel
-          value: $(params.gpu_channel)
-        - name: nfd_namespace
-          value: $(params.nfd_namespace)
-        - name: nfd_channel
-          value: $(params.nfd_channel)
-        - name: db2_meta_storage_accessmode
-          value: $(params.db2_meta_storage_accessmode)
-        - name: db2_backup_storage_accessmode
-          value: $(params.db2_backup_storage_accessmode)
-        - name: db2_meta_storage_size
-          value: $(params.db2_meta_storage_size)
-        - name: db2_backup_storage_size
-          value: $(params.db2_backup_storage_size)
-        - name: db2_logs_storage_size
-          value: $(params.db2_logs_storage_size)
-        - name: db2_temp_storage_size
-          value: $(params.db2_temp_storage_size)
-        - name: db2_data_storage_size
-          value: $(params.db2_data_storage_size)
-        - name: db2_cpu_requests
-          value: $(params.db2_cpu_requests)
-        - name: db2_cpu_limits
-          value: $(params.db2_cpu_limits)
-        - name: cpd_operators_namespace
-          value: $(params.cpd_operators_namespace)
-        - name: cpd_instance_namespace
-          value: $(params.cpd_instance_namespace)
-        - name: cpd_primary_storage_class
-          value: $(params.cpd_primary_storage_class)
-        - name: cpd_metadata_storage_class
-          value: $(params.cpd_metadata_storage_class)
-        - name: cpd_product_version
-          value: $(params.source_cpd_product_version)
-        - name: cpd_wd_storage_class
-          value: $(params.cpd_wd_storage_class)
-        - name: cpd_wml_storage_class
-          value: $(params.cpd_wml_storage_class)
-        - name: cpd_spark_storage_class
-          value: $(params.cpd_spark_storage_class)
-        - name: cpd_wsl_storage_class
-          value: $(params.cpd_wsl_storage_class)
-        - name: uds_contact_email
-          value: $(params.uds_contact_email)
-        - name: uds_contact_firstname
-          value: $(params.uds_contact_firstname)
-        - name: uds_contact_lastname
-          value: $(params.uds_contact_lastname)
-        - name: appconnect_channel
-          value: $(params.appconnect_channel)
-        - name: appconnect_dashboard_version
-          value: $(params.appconnect_dashboard_version)
-        - name: appconnect_dashboard_name
-          value: $(params.appconnect_dashboard_name)
-        - name: appconnect_license_id
-          value: $(params.appconnect_license_id)
-        - name: appconnect_storage_class
-          value: $(params.appconnect_storage_class)
-        - name: cos_type
-          value: $(params.cos_type)
-        - name: ibmcloud_apikey
-          value: $(params.ibmcloud_apikey)
-        - name: uds_event_scheduler_frequency
-          value: $(params.uds_event_scheduler_frequency)
-        - name: mas_segment_key
-          value: $(params.mas_segment_key)
-        - name: dns_provider
-          value: $(params.dns_provider)
-        - name: cloudflare_email
-          value: $(params.cloudflare_email)
-        - name: cloudflare_apitoken
-          value: $(params.cloudflare_apitoken)
-        - name: cloudflare_zone
-          value: $(params.cloudflare_zone)
-        - name: cloudflare_subdomain
-          value: $(params.cloudflare_subdomain)
-        - name: cis_email
-          value: $(params.cis_email)
-        - name: cis_apikey
-          value: $(params.cis_apikey)
-        - name: cis_crn
-          value: $(params.cis_crn)
-        - name: cis_subdomain
-          value: $(params.cis_subdomain)
-        - name: mas_catalog_source
-          value: $(params.source_mas_catalog_source)
-        - name: mas_catalog_version
-          value: $(params.mas_catalog_version)
-        - name: mas_domain
-          value: $(params.mas_domain)
-        - name: mas_cluster_issuer
-          value: $(params.mas_cluster_issuer)
-        - name: mas_icr_cp
-          value: $(params.mas_icr_cp)
-        - name: mas_icr_cpopen
-          value: $(params.mas_icr_cpopen)
-        - name: mas_entitlement_username
-          value: $(params.mas_entitlement_username)
-        - name: mas_annotations
-          value: $(params.mas_annotations)
-        - name: mas_entitlement_key
-          value: $(params.mas_entitlement_key)
-        - name: mas_customize_scaling
-          value: $(params.mas_customize_scaling)
-        - name: mas_workspace_name
-          value: $(params.mas_workspace_name)
-        - name: mas_appws_components
-          value: $(params.mas_appws_components)
-        - name: mas_app_settings_aio_flag
-          value: $(params.mas_app_settings_aio_flag)
-        - name: mas_app_settings_demodata
-          value: $(params.mas_app_settings_demodata)
-        - name: mas_app_plan_optimizer
-          value: $(params.mas_app_plan_optimizer)
-        - name: wml_instance_id
-          value: $(params.wml_instance_id)
-        - name: wml_url
-          value: $(params.wml_url)
-        - name: wml_version
-          value: $(params.wml_version)
-        - name: predict_deployment_size
-          value: $(params.predict_deployment_size)
-        - name: mas_app_source_iot
-          value: $(params.source_mas_app_source_iot)
-        - name: mas_app_source_manage
-          value: $(params.source_mas_app_source_manage)
-        - name: mas_app_source_monitor
-          value: $(params.source_mas_app_source_monitor)
-        - name: mas_app_source_optimizer
-          value: $(params.source_mas_app_source_optimizer)
-        - name: mas_app_source_predict
-          value: $(params.source_mas_app_source_predict)
-        - name: mas_app_source_safety
-          value: $(params.mas_app_source_safety)
-        - name: mas_app_source_hputilities
-          value: $(params.source_mas_app_source_hputilities)
-        - name: mas_app_source_assist
-          value: $(params.source_mas_app_source_assist)
-        - name: mas_app_source_visualinspection
-          value: $(params.source_mas_app_source_visualinspection)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_channel
+          value: $(params.source_mas_channel)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_channel_iot
+          value: $(params.source_mas_app_channel_iot)
+        - name: mas_app_channel_manage
+          value: $(params.source_mas_app_channel_manage)
+        - name: mas_app_channel_monitor
+          value: $(params.source_mas_app_channel_monitor)
+        - name: mas_app_channel_optimizer
+          value: $(params.source_mas_app_channel_optimizer)
+        - name: mas_app_channel_predict
+          value: $(params.source_mas_app_channel_predict)
+        - name: mas_app_channel_hputilities
+          value: $(params.source_mas_app_channel_hputilities)
+        - name: mas_app_channel_assist
+          value: $(params.source_mas_app_channel_assist)
+        - name: mas_app_channel_visualinspection
+          value: $(params.source_mas_app_channel_visualinspection)
 
         - name: cli_version
           value: $(params.cli_version)
@@ -1696,194 +1045,32 @@ spec:
           value: upgrade
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
-        - name: cli_version
-          value: $(params.cli_version)
-        - name: artifactory_username
-          value: $(params.artifactory_username)
-        - name: artifactory_apikey
-          value: $(params.artifactory_apikey)
-        - name: storage_class_rwo
-          value: $(params.storage_class_rwo)
-        - name: storage_class_rwx
-          value: $(params.storage_class_rwx)
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
-        - name: common_services_catalog_source
-          value: $(params.common_services_catalog_source)
-        - name: sls_license_id
-          value: $(params.sls_license_id)
-        - name: sls_license_file
-          value: $(params.sls_license_file)
-        - name: sls_mongodb_cfg_file
-          value: $(params.sls_mongodb_cfg_file)
-        - name: sls_catalog_source
-          value: $(params.source_sls_catalog_source)
-        - name: sls_channel
-          value: $(params.source_sls_channel)
-        - name: sls_icr_cp
-          value: $(params.sls_icr_cp)
-        - name: sls_icr_cpopen
-          value: $(params.sls_icr_cpopen)
-        - name: sls_entitlement_username
-          value: $(params.sls_entitlement_username)
-        - name: sls_entitlement_key
-          value: $(params.sls_entitlement_key)
-        - name: mongodb_storage_class
-          value: $(params.mongodb_storage_class)
-        - name: mongodb_replicas
-          value: $(params.mongodb_replicas)
-        - name: mongodb_cpu_requests
-          value: $(params.mongodb_cpu_requests)
-        - name: kafka_namespace
-          value: $(params.kafka_namespace)
-        - name: kafka_cluster_name
-          value: $(params.kafka_cluster_name)
-        - name: kafka_cluster_size
-          value: $(params.kafka_cluster_size)
-        - name: kafka_user_name
-          value: $(params.kafka_user_name)
-        - name: gpu_namespace
-          value: $(params.gpu_namespace)
-        - name: gpu_channel
-          value: $(params.gpu_channel)
-        - name: nfd_namespace
-          value: $(params.nfd_namespace)
-        - name: nfd_channel
-          value: $(params.nfd_channel)
-        - name: db2_meta_storage_accessmode
-          value: $(params.db2_meta_storage_accessmode)
-        - name: db2_backup_storage_accessmode
-          value: $(params.db2_backup_storage_accessmode)
-        - name: db2_meta_storage_size
-          value: $(params.db2_meta_storage_size)
-        - name: db2_backup_storage_size
-          value: $(params.db2_backup_storage_size)
-        - name: db2_logs_storage_size
-          value: $(params.db2_logs_storage_size)
-        - name: db2_temp_storage_size
-          value: $(params.db2_temp_storage_size)
-        - name: db2_data_storage_size
-          value: $(params.db2_data_storage_size)
-        - name: db2_cpu_requests
-          value: $(params.db2_cpu_requests)
-        - name: db2_cpu_limits
-          value: $(params.db2_cpu_limits)
-        - name: cpd_operators_namespace
-          value: $(params.cpd_operators_namespace)
-        - name: cpd_instance_namespace
-          value: $(params.cpd_instance_namespace)
-        - name: cpd_primary_storage_class
-          value: $(params.cpd_primary_storage_class)
-        - name: cpd_metadata_storage_class
-          value: $(params.cpd_metadata_storage_class)
-        - name: cpd_product_version
-          value: $(params.source_cpd_product_version)
-        - name: cpd_wd_storage_class
-          value: $(params.cpd_wd_storage_class)
-        - name: cpd_wml_storage_class
-          value: $(params.cpd_wml_storage_class)
-        - name: cpd_spark_storage_class
-          value: $(params.cpd_spark_storage_class)
-        - name: cpd_wsl_storage_class
-          value: $(params.cpd_wsl_storage_class)
-        - name: uds_contact_email
-          value: $(params.uds_contact_email)
-        - name: uds_contact_firstname
-          value: $(params.uds_contact_firstname)
-        - name: uds_contact_lastname
-          value: $(params.uds_contact_lastname)
-        - name: appconnect_channel
-          value: $(params.appconnect_channel)
-        - name: appconnect_dashboard_version
-          value: $(params.appconnect_dashboard_version)
-        - name: appconnect_dashboard_name
-          value: $(params.appconnect_dashboard_name)
-        - name: appconnect_license_id
-          value: $(params.appconnect_license_id)
-        - name: appconnect_storage_class
-          value: $(params.appconnect_storage_class)
-        - name: cos_type
-          value: $(params.cos_type)
-        - name: ibmcloud_apikey
-          value: $(params.ibmcloud_apikey)
-        - name: uds_event_scheduler_frequency
-          value: $(params.uds_event_scheduler_frequency)
-        - name: mas_segment_key
-          value: $(params.mas_segment_key)
-        - name: dns_provider
-          value: $(params.dns_provider)
-        - name: cloudflare_email
-          value: $(params.cloudflare_email)
-        - name: cloudflare_apitoken
-          value: $(params.cloudflare_apitoken)
-        - name: cloudflare_zone
-          value: $(params.cloudflare_zone)
-        - name: cloudflare_subdomain
-          value: $(params.cloudflare_subdomain)
-        - name: cis_email
-          value: $(params.cis_email)
-        - name: cis_apikey
-          value: $(params.cis_apikey)
-        - name: cis_crn
-          value: $(params.cis_crn)
-        - name: cis_subdomain
-          value: $(params.cis_subdomain)
-        - name: mas_catalog_source
-          value: $(params.source_mas_catalog_source)
-        - name: mas_catalog_version
-          value: $(params.mas_catalog_version)
-        - name: mas_domain
-          value: $(params.mas_domain)
-        - name: mas_cluster_issuer
-          value: $(params.mas_cluster_issuer)
-        - name: mas_icr_cp
-          value: $(params.mas_icr_cp)
-        - name: mas_icr_cpopen
-          value: $(params.mas_icr_cpopen)
-        - name: mas_entitlement_username
-          value: $(params.mas_entitlement_username)
-        - name: mas_annotations
-          value: $(params.mas_annotations)
-        - name: mas_entitlement_key
-          value: $(params.mas_entitlement_key)
-        - name: mas_customize_scaling
-          value: $(params.mas_customize_scaling)
-        - name: mas_workspace_name
-          value: $(params.mas_workspace_name)
-        - name: mas_appws_components
-          value: $(params.mas_appws_components)
-        - name: mas_app_settings_aio_flag
-          value: $(params.mas_app_settings_aio_flag)
-        - name: mas_app_settings_demodata
-          value: $(params.mas_app_settings_demodata)
-        - name: mas_app_plan_optimizer
-          value: $(params.mas_app_plan_optimizer)
-        - name: wml_instance_id
-          value: $(params.wml_instance_id)
-        - name: wml_url
-          value: $(params.wml_url)
-        - name: wml_version
-          value: $(params.wml_version)
-        - name: predict_deployment_size
-          value: $(params.predict_deployment_size)
-        - name: mas_app_source_iot
-          value: $(params.source_mas_app_source_iot)
-        - name: mas_app_source_manage
-          value: $(params.source_mas_app_source_manage)
-        - name: mas_app_source_monitor
-          value: $(params.source_mas_app_source_monitor)
-        - name: mas_app_source_optimizer
-          value: $(params.source_mas_app_source_optimizer)
-        - name: mas_app_source_predict
-          value: $(params.source_mas_app_source_predict)
-        - name: mas_app_source_safety
-          value: $(params.mas_app_source_safety)
-        - name: mas_app_source_hputilities
-          value: $(params.source_mas_app_source_hputilities)
-        - name: mas_app_source_assist
-          value: $(params.source_mas_app_source_assist)
-        - name: mas_app_source_visualinspection
-          value: $(params.source_mas_app_source_visualinspection)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_channel
+          value: $(params.source_mas_channel)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_channel_iot
+          value: $(params.source_mas_app_channel_iot)
+        - name: mas_app_channel_manage
+          value: $(params.source_mas_app_channel_manage)
+        - name: mas_app_channel_monitor
+          value: $(params.source_mas_app_channel_monitor)
+        - name: mas_app_channel_optimizer
+          value: $(params.source_mas_app_channel_optimizer)
+        - name: mas_app_channel_predict
+          value: $(params.source_mas_app_channel_predict)
+        - name: mas_app_channel_hputilities
+          value: $(params.source_mas_app_channel_hputilities)
+        - name: mas_app_channel_assist
+          value: $(params.source_mas_app_channel_assist)
+        - name: mas_app_channel_visualinspection
+          value: $(params.source_mas_app_channel_visualinspection)
 
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
@@ -1901,194 +1088,32 @@ spec:
           value: fvt
         - name: pipelinerun_name_suffix
           value: after
-        - name: cli_version
-          value: $(params.cli_version)
-        - name: artifactory_username
-          value: $(params.artifactory_username)
-        - name: artifactory_apikey
-          value: $(params.artifactory_apikey)
-        - name: storage_class_rwo
-          value: $(params.storage_class_rwo)
-        - name: storage_class_rwx
-          value: $(params.storage_class_rwx)
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
-        - name: common_services_catalog_source
-          value: $(params.common_services_catalog_source)
-        - name: sls_license_id
-          value: $(params.sls_license_id)
-        - name: sls_license_file
-          value: $(params.sls_license_file)
-        - name: sls_mongodb_cfg_file
-          value: $(params.sls_mongodb_cfg_file)
-        - name: sls_catalog_source
-          value: $(params.source_sls_catalog_source)
-        - name: sls_channel
-          value: $(params.source_sls_channel)
-        - name: sls_icr_cp
-          value: $(params.sls_icr_cp)
-        - name: sls_icr_cpopen
-          value: $(params.sls_icr_cpopen)
-        - name: sls_entitlement_username
-          value: $(params.sls_entitlement_username)
-        - name: sls_entitlement_key
-          value: $(params.sls_entitlement_key)
-        - name: mongodb_storage_class
-          value: $(params.mongodb_storage_class)
-        - name: mongodb_replicas
-          value: $(params.mongodb_replicas)
-        - name: mongodb_cpu_requests
-          value: $(params.mongodb_cpu_requests)
-        - name: kafka_namespace
-          value: $(params.kafka_namespace)
-        - name: kafka_cluster_name
-          value: $(params.kafka_cluster_name)
-        - name: kafka_cluster_size
-          value: $(params.kafka_cluster_size)
-        - name: kafka_user_name
-          value: $(params.kafka_user_name)
-        - name: gpu_namespace
-          value: $(params.gpu_namespace)
-        - name: gpu_channel
-          value: $(params.gpu_channel)
-        - name: nfd_namespace
-          value: $(params.nfd_namespace)
-        - name: nfd_channel
-          value: $(params.nfd_channel)
-        - name: db2_meta_storage_accessmode
-          value: $(params.db2_meta_storage_accessmode)
-        - name: db2_backup_storage_accessmode
-          value: $(params.db2_backup_storage_accessmode)
-        - name: db2_meta_storage_size
-          value: $(params.db2_meta_storage_size)
-        - name: db2_backup_storage_size
-          value: $(params.db2_backup_storage_size)
-        - name: db2_logs_storage_size
-          value: $(params.db2_logs_storage_size)
-        - name: db2_temp_storage_size
-          value: $(params.db2_temp_storage_size)
-        - name: db2_data_storage_size
-          value: $(params.db2_data_storage_size)
-        - name: db2_cpu_requests
-          value: $(params.db2_cpu_requests)
-        - name: db2_cpu_limits
-          value: $(params.db2_cpu_limits)
-        - name: cpd_operators_namespace
-          value: $(params.cpd_operators_namespace)
-        - name: cpd_instance_namespace
-          value: $(params.cpd_instance_namespace)
-        - name: cpd_primary_storage_class
-          value: $(params.cpd_primary_storage_class)
-        - name: cpd_metadata_storage_class
-          value: $(params.cpd_metadata_storage_class)
-        - name: cpd_product_version
-          value: $(params.source_cpd_product_version)
-        - name: cpd_wd_storage_class
-          value: $(params.cpd_wd_storage_class)
-        - name: cpd_wml_storage_class
-          value: $(params.cpd_wml_storage_class)
-        - name: cpd_spark_storage_class
-          value: $(params.cpd_spark_storage_class)
-        - name: cpd_wsl_storage_class
-          value: $(params.cpd_wsl_storage_class)
-        - name: uds_contact_email
-          value: $(params.uds_contact_email)
-        - name: uds_contact_firstname
-          value: $(params.uds_contact_firstname)
-        - name: uds_contact_lastname
-          value: $(params.uds_contact_lastname)
-        - name: appconnect_channel
-          value: $(params.appconnect_channel)
-        - name: appconnect_dashboard_version
-          value: $(params.appconnect_dashboard_version)
-        - name: appconnect_dashboard_name
-          value: $(params.appconnect_dashboard_name)
-        - name: appconnect_license_id
-          value: $(params.appconnect_license_id)
-        - name: appconnect_storage_class
-          value: $(params.appconnect_storage_class)
-        - name: cos_type
-          value: $(params.cos_type)
-        - name: ibmcloud_apikey
-          value: $(params.ibmcloud_apikey)
-        - name: uds_event_scheduler_frequency
-          value: $(params.uds_event_scheduler_frequency)
-        - name: mas_segment_key
-          value: $(params.mas_segment_key)
-        - name: dns_provider
-          value: $(params.dns_provider)
-        - name: cloudflare_email
-          value: $(params.cloudflare_email)
-        - name: cloudflare_apitoken
-          value: $(params.cloudflare_apitoken)
-        - name: cloudflare_zone
-          value: $(params.cloudflare_zone)
-        - name: cloudflare_subdomain
-          value: $(params.cloudflare_subdomain)
-        - name: cis_email
-          value: $(params.cis_email)
-        - name: cis_apikey
-          value: $(params.cis_apikey)
-        - name: cis_crn
-          value: $(params.cis_crn)
-        - name: cis_subdomain
-          value: $(params.cis_subdomain)
-        - name: mas_catalog_source
-          value: $(params.source_mas_catalog_source)
-        - name: mas_catalog_version
-          value: $(params.mas_catalog_version)
-        - name: mas_domain
-          value: $(params.mas_domain)
-        - name: mas_cluster_issuer
-          value: $(params.mas_cluster_issuer)
-        - name: mas_icr_cp
-          value: $(params.mas_icr_cp)
-        - name: mas_icr_cpopen
-          value: $(params.mas_icr_cpopen)
-        - name: mas_entitlement_username
-          value: $(params.mas_entitlement_username)
-        - name: mas_annotations
-          value: $(params.mas_annotations)
-        - name: mas_entitlement_key
-          value: $(params.mas_entitlement_key)
-        - name: mas_customize_scaling
-          value: $(params.mas_customize_scaling)
-        - name: mas_workspace_name
-          value: $(params.mas_workspace_name)
-        - name: mas_appws_components
-          value: $(params.mas_appws_components)
-        - name: mas_app_settings_aio_flag
-          value: $(params.mas_app_settings_aio_flag)
-        - name: mas_app_settings_demodata
-          value: $(params.mas_app_settings_demodata)
-        - name: mas_app_plan_optimizer
-          value: $(params.mas_app_plan_optimizer)
-        - name: wml_instance_id
-          value: $(params.wml_instance_id)
-        - name: wml_url
-          value: $(params.wml_url)
-        - name: wml_version
-          value: $(params.wml_version)
-        - name: predict_deployment_size
-          value: $(params.predict_deployment_size)
-        - name: mas_app_source_iot
-          value: $(params.source_mas_app_source_iot)
-        - name: mas_app_source_manage
-          value: $(params.source_mas_app_source_manage)
-        - name: mas_app_source_monitor
-          value: $(params.source_mas_app_source_monitor)
-        - name: mas_app_source_optimizer
-          value: $(params.source_mas_app_source_optimizer)
-        - name: mas_app_source_predict
-          value: $(params.source_mas_app_source_predict)
-        - name: mas_app_source_safety
-          value: $(params.mas_app_source_safety)
-        - name: mas_app_source_hputilities
-          value: $(params.source_mas_app_source_hputilities)
-        - name: mas_app_source_assist
-          value: $(params.source_mas_app_source_assist)
-        - name: mas_app_source_visualinspection
-          value: $(params.source_mas_app_source_visualinspection)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_channel
+          value: $(params.source_mas_channel)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_channel_iot
+          value: $(params.source_mas_app_channel_iot)
+        - name: mas_app_channel_manage
+          value: $(params.source_mas_app_channel_manage)
+        - name: mas_app_channel_monitor
+          value: $(params.source_mas_app_channel_monitor)
+        - name: mas_app_channel_optimizer
+          value: $(params.source_mas_app_channel_optimizer)
+        - name: mas_app_channel_predict
+          value: $(params.source_mas_app_channel_predict)
+        - name: mas_app_channel_hputilities
+          value: $(params.source_mas_app_channel_hputilities)
+        - name: mas_app_channel_assist
+          value: $(params.source_mas_app_channel_assist)
+        - name: mas_app_channel_visualinspection
+          value: $(params.source_mas_app_channel_visualinspection)
 
         - name: cli_version
           value: $(params.cli_version)
