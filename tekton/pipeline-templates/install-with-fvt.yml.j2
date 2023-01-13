@@ -16,15 +16,17 @@ spec:
     - name: shared-mustgather
 
   params:
-    # 1. Installation
+    # 1. Common Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'params/common.yml.j2') | indent(4) }}
+
+    # 2. Installation
     # -------------------------------------------------------------------------
     {{ lookup('template', 'params/install.yml.j2') | indent(4) }}
 
-
-    # 2. Additional Params for FVT
+    # 3. Additional Params for FVT
     # -------------------------------------------------------------------------
     {{ lookup('template', 'params/fvt.yml.j2') | indent(4) }}
-
 
   tasks:
     # Content

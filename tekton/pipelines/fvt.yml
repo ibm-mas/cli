@@ -10,7 +10,65 @@ spec:
     - name: shared-configs
 
   params:
-    # 1. Installation
+    # 1. Common Parameters
+    # -------------------------------------------------------------------------
+      # Persist Results (Optional)
+    - name: devops_mongo_uri
+      type: string
+      default: ""
+    - name: devops_build_number
+      type: string
+      default: ""
+
+    # MAS Configuration
+    - name: mas_instance_id
+      type: string
+    - name: mas_channel
+      type: string
+      default: ""
+
+    # MAS Configuration - Workspace
+    - name: mas_workspace_id
+      type: string
+      description: Workspace ID used to configure all applications
+      default: masdev
+
+    # MAS Configuration - Application Channels
+    - name: mas_app_channel_iot
+      type: string
+      description: Subscription channel for IoT application operator
+      default: ""
+    - name: mas_app_channel_manage
+      type: string
+      description: Subscription channel for Manage application operator
+      default: ""
+    - name: mas_app_channel_monitor
+      type: string
+      description: Subscription channel for Monitor application operator
+      default: ""
+    - name: mas_app_channel_optimizer
+      type: string
+      description: Subscription channel for Optimizer application operator
+      default: ""
+    - name: mas_app_channel_predict
+      type: string
+      description: Subscription channel for Predict application operator
+      default: ""
+    - name: mas_app_channel_hputilities
+      type: string
+      description: Subscription channel for Health & Predict - Utilities application operator
+      default: ""
+    - name: mas_app_channel_assist
+      type: string
+      description: Subscription channel for Assist application operator
+      default: ""
+    - name: mas_app_channel_visualinspection
+      type: string
+      description: Subscription channel for MVI application operator
+      default: ""
+
+
+    # 2. Installation
     # -------------------------------------------------------------------------
     # IBM MAS CLI Version
     - name: cli_version
@@ -267,10 +325,6 @@ spec:
       default: ""
 
     # MAS Configuration
-    - name: mas_instance_id            # Required
-      type: string
-    - name: mas_channel                # Required
-      type: string
     - name: mas_catalog_source
       type: string
       default: ibm-operator-catalog
@@ -306,12 +360,7 @@ spec:
       default: ""
       description: Workload Scaling Custom ConfigMap Name
 
-
     # MAS Configuration - Workspace
-    - name: mas_workspace_id
-      type: string
-      description: Workspace ID used to configure all applications
-      default: masdev
     - name: mas_workspace_name
       type: string
       description: Workspace Name used when setting up the workspace
@@ -355,44 +404,6 @@ spec:
       description: controls the workload size of predict containers
       default: ""
 
-    # MAS Configuration - Application Channels
-    - name: mas_app_channel_iot
-      type: string
-      description: Subscription channel for IoT application operator
-      default: ""
-    - name: mas_app_channel_manage
-      type: string
-      description: Subscription channel for Manage application operator
-      default: ""
-    - name: mas_app_channel_monitor
-      type: string
-      description: Subscription channel for Monitor application operator
-      default: ""
-    - name: mas_app_channel_optimizer
-      type: string
-      description: Subscription channel for Optimizer application operator
-      default: ""
-    - name: mas_app_channel_predict
-      type: string
-      description: Subscription channel for Predict application operator
-      default: ""
-    - name: mas_app_channel_safety
-      type: string
-      description: Subscription channel for Safety application operator
-      default: ""
-    - name: mas_app_channel_hputilities
-      type: string
-      description: Subscription channel for Health & Predict - Utilities application operator
-      default: ""
-    - name: mas_app_channel_assist
-      type: string
-      description: Subscription channel for Assist application operator
-      default: ""
-    - name: mas_app_channel_visualinspection
-      type: string
-      description: Subscription channel for MVI application operator
-      default: ""
-
     # MAS Configuration - Application Sources
     - name: mas_app_source_iot
       type: string
@@ -431,16 +442,7 @@ spec:
       description: Subscription source for MVI application operator
       default: ""
 
-    # Persist Results (Optional)
-    - name: devops_mongo_uri
-      type: string
-      default: ""
-    - name: devops_build_number
-      type: string
-      default: ""
-
-
-    # 2. Additional Params for FVT
+    # 3. Additional Params for FVT
     # -------------------------------------------------------------------------
     # FVT Image Container Registry
     - name: fvt_image_registry
@@ -570,7 +572,6 @@ spec:
       type: string
       description: IVT Version - Core
       default: ""
-
 
   tasks:
     # Content

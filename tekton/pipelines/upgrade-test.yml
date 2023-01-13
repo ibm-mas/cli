@@ -6,8 +6,7 @@ metadata:
 spec:
   params:
 
-    
-    # Install and Upgrade Parameters
+    # Upgrade Test Parameters
     - name: cli_version
       type: string
       description: Version of the IBM MAS CLI image to use
@@ -274,15 +273,6 @@ spec:
       type: string
       description: ""
       default: ""
-    - name: mas_instance_id
-      type: string
-      description: ""
-    - name: source_mas_channel
-      type: string
-      description: ""
-    - name: target_mas_channel
-      type: string
-      description: ""
     - name: source_mas_catalog_source
       type: string
       description: ""
@@ -327,10 +317,6 @@ spec:
       type: string
       description: Workload Scaling Custom ConfigMap Name
       default: ""
-    - name: mas_workspace_id
-      type: string
-      description: Workspace ID used to configure all applications
-      default: masdev
     - name: mas_workspace_name
       type: string
       description: Workspace Name used when setting up the workspace
@@ -366,78 +352,6 @@ spec:
     - name: predict_deployment_size
       type: string
       description: controls the workload size of predict containers
-      default: ""
-    - name: source_mas_app_channel_iot
-      type: string
-      description: Subscription channel for IoT application operator
-      default: ""
-    - name: target_mas_app_channel_iot
-      type: string
-      description: Subscription channel for IoT application operator
-      default: ""
-    - name: source_mas_app_channel_manage
-      type: string
-      description: Subscription channel for Manage application operator
-      default: ""
-    - name: target_mas_app_channel_manage
-      type: string
-      description: Subscription channel for Manage application operator
-      default: ""
-    - name: source_mas_app_channel_monitor
-      type: string
-      description: Subscription channel for Monitor application operator
-      default: ""
-    - name: target_mas_app_channel_monitor
-      type: string
-      description: Subscription channel for Monitor application operator
-      default: ""
-    - name: source_mas_app_channel_optimizer
-      type: string
-      description: Subscription channel for Optimizer application operator
-      default: ""
-    - name: target_mas_app_channel_optimizer
-      type: string
-      description: Subscription channel for Optimizer application operator
-      default: ""
-    - name: source_mas_app_channel_predict
-      type: string
-      description: Subscription channel for Predict application operator
-      default: ""
-    - name: target_mas_app_channel_predict
-      type: string
-      description: Subscription channel for Predict application operator
-      default: ""
-    - name: source_mas_app_channel_safety
-      type: string
-      description: Subscription channel for Safety application operator
-      default: ""
-    - name: target_mas_app_channel_safety
-      type: string
-      description: Subscription channel for Safety application operator
-      default: ""
-    - name: source_mas_app_channel_hputilities
-      type: string
-      description: Subscription channel for Health & Predict - Utilities application operator
-      default: ""
-    - name: target_mas_app_channel_hputilities
-      type: string
-      description: Subscription channel for Health & Predict - Utilities application operator
-      default: ""
-    - name: source_mas_app_channel_assist
-      type: string
-      description: Subscription channel for Assist application operator
-      default: ""
-    - name: target_mas_app_channel_assist
-      type: string
-      description: Subscription channel for Assist application operator
-      default: ""
-    - name: source_mas_app_channel_visualinspection
-      type: string
-      description: Subscription channel for MVI application operator
-      default: ""
-    - name: target_mas_app_channel_visualinspection
-      type: string
-      description: Subscription channel for MVI application operator
       default: ""
     - name: source_mas_app_source_iot
       type: string
@@ -507,135 +421,424 @@ spec:
       type: string
       description: Subscription source for MVI application operator
       default: ""
-    - name: devops_mongo_uri
+    - name: cli_version
+      type: string
+      description: Version of the IBM MAS CLI image to use
+      default: latest
+    - name: artifactory_username
+      type: string
+      description: Required to install development MAS catalogs
+      default: ""
+    - name: artifactory_apikey
+      type: string
+      description: Required to install development MAS catalogs
+      default: ""
+    - name: storage_class_rwo
+      type: string
+      description: ReadWriteOnce storage class
+      default: ""
+    - name: storage_class_rwx
+      type: string
+      description: ReadWriteMany storage class
+      default: ""
+    - name: ibm_entitlement_key
+      type: string
+      description: IBM Entitlement Key
+    - name: common_services_catalog_source
       type: string
       description: ""
       default: ""
-    - name: devops_build_number
+    - name: sls_license_id
+      type: string
+      description: ""
+    - name: sls_license_file
+      type: string
+      description: ""
+    - name: sls_mongodb_cfg_file
+      type: string
+      description: ""
+      default: /workspace/configs/mongo-mongoce.yml
+    - name: source_sls_catalog_source
       type: string
       description: ""
       default: ""
-    # FVT Parameters
-    - name: fvt_image_registry
-      type: string
-      description: ""
-    - name: fvt_artifactory_username
-      type: string
-      description: ""
-    - name: fvt_artifactory_apikey
-      type: string
-      description: ""
-    - name: mas_add_catalog
-      type: string
-      description: ""
-    - name: mas_add_channel
-      type: string
-      description: ""
-    - name: ddp_apikey
-      type: string
-      description: ""
-    - name: partium_username
-      type: string
-      description: ""
-    - name: partium_password
-      type: string
-      description: ""
-    - name: devops_cos_crn
+    - name: target_sls_catalog_source
       type: string
       description: ""
       default: ""
-    - name: fvt_version_core
+    - name: source_sls_channel
       type: string
-      description: FVT Version - Core
+      description: ""
       default: ""
-    - name: fvt_version_iot
+    - name: target_sls_channel
       type: string
-      description: FVT Version - IoT
+      description: ""
       default: ""
-    - name: fvt_version_safety
+    - name: sls_icr_cp
       type: string
-      description: FVT Version - Safety
+      description: ""
       default: ""
-    - name: fvt_version_monitor
+    - name: sls_icr_cpopen
       type: string
-      description: FVT Version - Monitor
+      description: ""
       default: ""
-    - name: fvt_version_predict
+    - name: sls_entitlement_username
       type: string
-      description: FVT Version - Predict
+      description: ""
       default: ""
-    - name: fvt_version_hputilities
+    - name: sls_entitlement_key
       type: string
-      description: FVT Version - Health & Predict Utilities
+      description: Override IBM Entitlement key for SLS installation
       default: ""
-    - name: fvt_version_visualinspection
+    - name: mongodb_storage_class
       type: string
-      description: FVT Version - Visual Inspection
+      description: ""
       default: ""
-    - name: fvt_version_assist
+    - name: mongodb_replicas
       type: string
-      description: FVT Version - Assist
+      description: Optional configuration for mongodb replicas
       default: ""
-    - name: fvt_version_optimizer
+    - name: mongodb_cpu_requests
       type: string
-      description: FVT Version - Optimizer
+      description: Optional configuration for mongodb cpu requests
       default: ""
-    - name: fvt_version_manage
+    - name: kafka_namespace
       type: string
-      description: FVT Version - Manage
+      description: ""
       default: ""
-    - name: fvt_version_health
+    - name: kafka_cluster_name
       type: string
-      description: FVT Version - Health
+      description: ""
       default: ""
-    - name: fvt_version_manage_acm
+    - name: kafka_cluster_size
       type: string
-      description: FVT Version - Manage ACM
+      description: ""
       default: ""
-    - name: fvt_version_manage_aviation
+    - name: kafka_user_name
       type: string
-      description: FVT Version - Manage Aviation
+      description: ""
       default: ""
-    - name: fvt_version_manage_hse
+    - name: gpu_namespace
       type: string
-      description: FVT Version - Manage HSE
+      description: Optional. Nvidia gpu namespace
       default: ""
-    - name: fvt_version_manage_nuclear
+    - name: gpu_channel
       type: string
-      description: FVT Version - Manage Nuclear
+      description: Optional. Nvidia gpu channel for install and updates
       default: ""
-    - name: fvt_version_manage_serviceprovider
+    - name: nfd_namespace
       type: string
-      description: FVT Version - Service Provider
+      description: Optional. Node feature discovery namespace
       default: ""
-    - name: fvt_version_manage_spatial
+    - name: nfd_channel
       type: string
-      description: FVT Version - Spatial
+      description: Optional. Node feature discovery channel for install and updates
       default: ""
-    - name: fvt_version_manage_transportation
+    - name: db2_meta_storage_accessmode
       type: string
-      description: FVT Version - Manage Transportation
+      description: Optional configuration for db2 meta storage access mode
       default: ""
-    - name: fvt_version_manage_civil
+    - name: db2_backup_storage_accessmode
       type: string
-      description: FVT Version - Manage Civil Infrastructure
+      description: Optional configuration for db2 backup storage access mode
       default: ""
-    - name: fvt_version_manage_ic
+    - name: db2_meta_storage_size
       type: string
-      description: FVT Version - Manage IC
+      description: Storage capacity (metadata)
       default: ""
-    - name: fvt_version_mobilefoundation
+    - name: db2_backup_storage_size
       type: string
-      description: FVT Version - Mobile Foundation
+      description: Storage capacity (backup)
       default: ""
-    - name: fvt_version_servicerequests
+    - name: db2_logs_storage_size
       type: string
-      description: FVT Version - Mobile Service Requests
+      description: Storage capacity (logs)
       default: ""
-    - name: ivt_version_core
+    - name: db2_temp_storage_size
       type: string
-      description: IVT Version - Core
+      description: Storage capacity (temp)
       default: ""
+    - name: db2_data_storage_size
+      type: string
+      description: Storage capacity (data)
+      default: ""
+    - name: db2_cpu_requests
+      type: string
+      description: Optional configuration for db2 cpu requests
+      default: ""
+    - name: db2_cpu_limits
+      type: string
+      description: Optional configuration for mongodb cpu limits
+      default: ""
+    - name: cpd_operators_namespace
+      type: string
+      description: ""
+      default: ""
+    - name: cpd_instance_namespace
+      type: string
+      description: ""
+      default: ""
+    - name: cpd_primary_storage_class
+      type: string
+      description: ""
+      default: ""
+    - name: cpd_metadata_storage_class
+      type: string
+      description: ""
+      default: ""
+    - name: source_cpd_product_version
+      type: string
+      description: ""
+    - name: target_cpd_product_version
+      type: string
+      description: ""
+    - name: cpd_wd_storage_class
+      type: string
+      description: ""
+      default: ""
+    - name: cpd_wml_storage_class
+      type: string
+      description: ""
+      default: ""
+    - name: cpd_spark_storage_class
+      type: string
+      description: ""
+      default: ""
+    - name: cpd_wsl_storage_class
+      type: string
+      description: ""
+      default: ""
+    - name: uds_contact_email
+      type: string
+      description: ""
+    - name: uds_contact_firstname
+      type: string
+      description: ""
+    - name: uds_contact_lastname
+      type: string
+      description: ""
+    - name: appconnect_channel
+      type: string
+      description: ""
+      default: ""
+    - name: appconnect_dashboard_version
+      type: string
+      description: ""
+      default: ""
+    - name: appconnect_dashboard_name
+      type: string
+      description: ""
+      default: ""
+    - name: appconnect_license_id
+      type: string
+      description: ""
+      default: ""
+    - name: appconnect_storage_class
+      type: string
+      description: ""
+      default: ""
+    - name: cos_type
+      type: string
+      description: COS Provider (ibm or ocs)
+    - name: ibmcloud_apikey
+      type: string
+      description: API Key used to create COS instance in IBM Cloud
+    - name: uds_event_scheduler_frequency
+      type: string
+      description: ""
+      default: ""
+    - name: mas_segment_key
+      type: string
+      description: ""
+      default: ""
+    - name: dns_provider
+      type: string
+      description: ""
+      default: ""
+    - name: cloudflare_email
+      type: string
+      description: ""
+      default: ""
+    - name: cloudflare_apitoken
+      type: string
+      description: ""
+      default: ""
+    - name: cloudflare_zone
+      type: string
+      description: ""
+      default: ""
+    - name: cloudflare_subdomain
+      type: string
+      description: ""
+      default: ""
+    - name: cis_email
+      type: string
+      description: ""
+      default: ""
+    - name: cis_apikey
+      type: string
+      description: ""
+      default: ""
+    - name: cis_crn
+      type: string
+      description: ""
+      default: ""
+    - name: cis_subdomain
+      type: string
+      description: ""
+      default: ""
+    - name: source_mas_catalog_source
+      type: string
+      description: ""
+      default: ibm-operator-catalog
+    - name: target_mas_catalog_source
+      type: string
+      description: ""
+      default: ibm-operator-catalog
+    - name: mas_catalog_version
+      type: string
+      description: ""
+      default: v8-amd64
+    - name: mas_domain
+      type: string
+      description: ""
+      default: ""
+    - name: mas_cluster_issuer
+      type: string
+      description: ""
+      default: ""
+    - name: mas_icr_cp
+      type: string
+      description: ""
+      default: ""
+    - name: mas_icr_cpopen
+      type: string
+      description: ""
+      default: ""
+    - name: mas_entitlement_username
+      type: string
+      description: ""
+      default: ""
+    - name: mas_annotations
+      type: string
+      description: ""
+      default: ""
+    - name: mas_entitlement_key
+      type: string
+      description: Override IBM Entitlement key for MAS installation
+      default: ""
+    - name: mas_customize_scaling
+      type: string
+      description: Workload Scaling Custom ConfigMap Name
+      default: ""
+    - name: mas_workspace_name
+      type: string
+      description: Workspace Name used when setting up the workspace
+      default: MAS Development
+    - name: mas_appws_components
+      type: string
+      description: Manage components to configure in the workspace
+      default: base=latest,health=latest
+    - name: mas_app_settings_aio_flag
+      type: string
+      description: Flag indicating if Asset Investment Optimization (AIO) resource must be loaded or not. It can be loaded only when Optimizer application is installed.
+      default: ""
+    - name: mas_app_settings_demodata
+      type: string
+      description: Flag indicating if manage demodata should be loaded or not
+      default: ""
+    - name: mas_app_plan_optimizer
+      type: string
+      description: Configure install plan of Optimizer application (full or limited)
+      default: full
+    - name: wml_instance_id
+      type: string
+      description: wml instance to be configured in Predict
+      default: ""
+    - name: wml_url
+      type: string
+      description: Url to access wml services
+      default: ""
+    - name: wml_version
+      type: string
+      description: product version if cpd_product_version is not set
+      default: ""
+    - name: predict_deployment_size
+      type: string
+      description: controls the workload size of predict containers
+      default: ""
+    - name: source_mas_app_source_iot
+      type: string
+      description: Subscription source for IoT application operator
+      default: ibm-operator-catalog
+    - name: target_mas_app_source_iot
+      type: string
+      description: Subscription source for IoT application operator
+      default: ibm-operator-catalog
+    - name: source_mas_app_source_manage
+      type: string
+      description: Subscription source for Manage application operator
+      default: ibm-operator-catalog
+    - name: target_mas_app_source_manage
+      type: string
+      description: Subscription source for Manage application operator
+      default: ibm-operator-catalog
+    - name: source_mas_app_source_monitor
+      type: string
+      description: Subscription source for Monitor application operator
+      default: ibm-operator-catalog
+    - name: target_mas_app_source_monitor
+      type: string
+      description: Subscription source for Monitor application operator
+      default: ibm-operator-catalog
+    - name: source_mas_app_source_optimizer
+      type: string
+      description: Subscription source for Optimizer application operator
+      default: ibm-operator-catalog
+    - name: target_mas_app_source_optimizer
+      type: string
+      description: Subscription source for Optimizer application operator
+      default: ibm-operator-catalog
+    - name: source_mas_app_source_predict
+      type: string
+      description: Subscription source for Predict application operator
+      default: ibm-operator-catalog
+    - name: target_mas_app_source_predict
+      type: string
+      description: Subscription source for Predict application operator
+      default: ibm-operator-catalog
+    - name: mas_app_source_safety
+      type: string
+      description: Subscription source for Safety application operator
+      default: ibm-operator-catalog
+    - name: source_mas_app_source_hputilities
+      type: string
+      description: Subscription source for Health & Predict - Utilities application operator
+      default: ""
+    - name: target_mas_app_source_hputilities
+      type: string
+      description: Subscription source for Health & Predict - Utilities application operator
+      default: ""
+    - name: source_mas_app_source_assist
+      type: string
+      description: Subscription source for Assist application operator
+      default: ""
+    - name: target_mas_app_source_assist
+      type: string
+      description: Subscription source for Assist application operator
+      default: ""
+    - name: source_mas_app_source_visualinspection
+      type: string
+      description: Subscription source for MVI application operator
+      default: ""
+    - name: target_mas_app_source_visualinspection
+      type: string
+      description: Subscription source for MVI application operator
+      default: ""
+    - name: skip_compatibility_check
+      type: string
+      description: ""
+      default: False
 
   
   tasks:
@@ -779,10 +982,6 @@ spec:
           value: $(params.cis_crn)
         - name: cis_subdomain
           value: $(params.cis_subdomain)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_channel
-          value: $(params.source_mas_channel)
         - name: mas_catalog_source
           value: $(params.source_mas_catalog_source)
         - name: mas_catalog_version
@@ -803,8 +1002,6 @@ spec:
           value: $(params.mas_entitlement_key)
         - name: mas_customize_scaling
           value: $(params.mas_customize_scaling)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
         - name: mas_workspace_name
           value: $(params.mas_workspace_name)
         - name: mas_appws_components
@@ -823,24 +1020,6 @@ spec:
           value: $(params.wml_version)
         - name: predict_deployment_size
           value: $(params.predict_deployment_size)
-        - name: mas_app_channel_iot
-          value: $(params.source_mas_app_channel_iot)
-        - name: mas_app_channel_manage
-          value: $(params.source_mas_app_channel_manage)
-        - name: mas_app_channel_monitor
-          value: $(params.source_mas_app_channel_monitor)
-        - name: mas_app_channel_optimizer
-          value: $(params.source_mas_app_channel_optimizer)
-        - name: mas_app_channel_predict
-          value: $(params.source_mas_app_channel_predict)
-        - name: mas_app_channel_safety
-          value: $(params.source_mas_app_channel_safety)
-        - name: mas_app_channel_hputilities
-          value: $(params.source_mas_app_channel_hputilities)
-        - name: mas_app_channel_assist
-          value: $(params.source_mas_app_channel_assist)
-        - name: mas_app_channel_visualinspection
-          value: $(params.source_mas_app_channel_visualinspection)
         - name: mas_app_source_iot
           value: $(params.source_mas_app_source_iot)
         - name: mas_app_source_manage
@@ -859,10 +1038,6 @@ spec:
           value: $(params.source_mas_app_source_assist)
         - name: mas_app_source_visualinspection
           value: $(params.source_mas_app_source_visualinspection)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-        - name: devops_build_number
-          value: $(params.devops_build_number)
 
       taskRef:
         kind: Task
@@ -1007,10 +1182,6 @@ spec:
           value: $(params.cis_crn)
         - name: cis_subdomain
           value: $(params.cis_subdomain)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_channel
-          value: $(params.source_mas_channel)
         - name: mas_catalog_source
           value: $(params.source_mas_catalog_source)
         - name: mas_catalog_version
@@ -1031,8 +1202,6 @@ spec:
           value: $(params.mas_entitlement_key)
         - name: mas_customize_scaling
           value: $(params.mas_customize_scaling)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
         - name: mas_workspace_name
           value: $(params.mas_workspace_name)
         - name: mas_appws_components
@@ -1051,24 +1220,6 @@ spec:
           value: $(params.wml_version)
         - name: predict_deployment_size
           value: $(params.predict_deployment_size)
-        - name: mas_app_channel_iot
-          value: $(params.source_mas_app_channel_iot)
-        - name: mas_app_channel_manage
-          value: $(params.source_mas_app_channel_manage)
-        - name: mas_app_channel_monitor
-          value: $(params.source_mas_app_channel_monitor)
-        - name: mas_app_channel_optimizer
-          value: $(params.source_mas_app_channel_optimizer)
-        - name: mas_app_channel_predict
-          value: $(params.source_mas_app_channel_predict)
-        - name: mas_app_channel_safety
-          value: $(params.source_mas_app_channel_safety)
-        - name: mas_app_channel_hputilities
-          value: $(params.source_mas_app_channel_hputilities)
-        - name: mas_app_channel_assist
-          value: $(params.source_mas_app_channel_assist)
-        - name: mas_app_channel_visualinspection
-          value: $(params.source_mas_app_channel_visualinspection)
         - name: mas_app_source_iot
           value: $(params.source_mas_app_source_iot)
         - name: mas_app_source_manage
@@ -1087,10 +1238,6 @@ spec:
           value: $(params.source_mas_app_source_assist)
         - name: mas_app_source_visualinspection
           value: $(params.source_mas_app_source_visualinspection)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-        - name: devops_build_number
-          value: $(params.devops_build_number)
 
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
@@ -1172,32 +1319,6 @@ spec:
           value: $(params.fvt_image_registry)
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_channel
-          value: $(params.target_mas_channel)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: mas_app_channel_iot
-          value: $(params.target_mas_app_channel_iot)
-        - name: mas_app_channel_manage
-          value: $(params.target_mas_app_channel_manage)
-        - name: mas_app_channel_monitor
-          value: $(params.target_mas_app_channel_monitor)
-        - name: mas_app_channel_optimizer
-          value: $(params.target_mas_app_channel_optimizer)
-        - name: mas_app_channel_predict
-          value: $(params.target_mas_app_channel_predict)
-        - name: mas_app_channel_hputilities
-          value: $(params.target_mas_app_channel_hputilities)
-        - name: mas_app_channel_assist
-          value: $(params.target_mas_app_channel_assist)
-        - name: mas_app_channel_visualinspection
-          value: $(params.target_mas_app_channel_visualinspection)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-        - name: devops_build_number
-          value: $(params.devops_build_number)
 
       taskRef:
         kind: Task
@@ -1344,10 +1465,6 @@ spec:
           value: $(params.cis_crn)
         - name: cis_subdomain
           value: $(params.cis_subdomain)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_channel
-          value: $(params.source_mas_channel)
         - name: mas_catalog_source
           value: $(params.source_mas_catalog_source)
         - name: mas_catalog_version
@@ -1368,8 +1485,6 @@ spec:
           value: $(params.mas_entitlement_key)
         - name: mas_customize_scaling
           value: $(params.mas_customize_scaling)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
         - name: mas_workspace_name
           value: $(params.mas_workspace_name)
         - name: mas_appws_components
@@ -1388,24 +1503,6 @@ spec:
           value: $(params.wml_version)
         - name: predict_deployment_size
           value: $(params.predict_deployment_size)
-        - name: mas_app_channel_iot
-          value: $(params.source_mas_app_channel_iot)
-        - name: mas_app_channel_manage
-          value: $(params.source_mas_app_channel_manage)
-        - name: mas_app_channel_monitor
-          value: $(params.source_mas_app_channel_monitor)
-        - name: mas_app_channel_optimizer
-          value: $(params.source_mas_app_channel_optimizer)
-        - name: mas_app_channel_predict
-          value: $(params.source_mas_app_channel_predict)
-        - name: mas_app_channel_safety
-          value: $(params.source_mas_app_channel_safety)
-        - name: mas_app_channel_hputilities
-          value: $(params.source_mas_app_channel_hputilities)
-        - name: mas_app_channel_assist
-          value: $(params.source_mas_app_channel_assist)
-        - name: mas_app_channel_visualinspection
-          value: $(params.source_mas_app_channel_visualinspection)
         - name: mas_app_source_iot
           value: $(params.source_mas_app_source_iot)
         - name: mas_app_source_manage
@@ -1424,10 +1521,6 @@ spec:
           value: $(params.source_mas_app_source_assist)
         - name: mas_app_source_visualinspection
           value: $(params.source_mas_app_source_visualinspection)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-        - name: devops_build_number
-          value: $(params.devops_build_number)
 
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)

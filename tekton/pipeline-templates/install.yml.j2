@@ -16,7 +16,11 @@ spec:
     - name: shared-mustgather
 
   params:
-    # 1. Installation
+    # 1. Common Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'params/common.yml.j2') | indent(4) }}
+
+    # 2. Installation
     # -------------------------------------------------------------------------
     {{ lookup('template', 'params/install.yml.j2') | indent(4) }}
 

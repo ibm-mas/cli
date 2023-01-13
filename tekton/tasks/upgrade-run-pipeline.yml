@@ -24,68 +24,6 @@ spec:
       type: string
       default: "False"
 
-    # MAS Configuration
-    - name: mas_instance_id
-      type: string
-
-    - name: mas_channel
-      type: string
-      default: ""
-
-    - name: mas_workspace_id
-      type: string
-      default: ""
-
-    # MAS Configuration - Application Channels
-    - name: mas_app_channel_iot
-      type: string
-      description: Subscription channel for IoT application operator
-      default: ""
-
-    - name: mas_app_channel_manage
-      type: string
-      description: Subscription channel for Manage application operator
-      default: ""
-
-    - name: mas_app_channel_monitor
-      type: string
-      description: Subscription channel for Monitor application operator
-      default: ""
-
-    - name: mas_app_channel_optimizer
-      type: string
-      description: Subscription channel for Optimizer application operator
-      default: ""
-
-    - name: mas_app_channel_predict
-      type: string
-      description: Subscription channel for Predict application operator
-      default: ""
-
-    - name: mas_app_channel_hputilities
-      type: string
-      description: Subscription channel for Health & Predict - Utilities application operator
-      default: ""
-
-    - name: mas_app_channel_assist
-      type: string
-      description: Subscription channel for Assist application operator
-      default: ""
-
-    - name: mas_app_channel_visualinspection
-      type: string
-      description: Subscription channel for MVI application operator
-      default: ""
-
-      # Persist Results (Optional)
-    - name: devops_mongo_uri
-      type: string
-      default: ""
-
-    - name: devops_build_number
-      type: string
-      default: ""
-
   stepTemplate:
     name: 'run-pipeline-$(params.pipeline_name)'
     env:
@@ -98,32 +36,6 @@ spec:
 
       - name: SKIP_COMPATIBILITY_CHECK
         value: $(params.skip_compatibility_check)
-      - name: MAS_INSTANCE_ID
-        value: $(params.mas_instance_id)
-      - name: MAS_CHANNEL
-        value: $(params.mas_channel)
-      - name: MAS_WORKSPACE_ID
-        value: $(params.mas_workspace_id)
-      - name: MAS_APP_CHANNEL_IOT
-        value: $(params.mas_app_channel_iot)
-      - name: MAS_APP_CHANNEL_MANAGE
-        value: $(params.mas_app_channel_manage)
-      - name: MAS_APP_CHANNEL_MONITOR
-        value: $(params.mas_app_channel_monitor)
-      - name: MAS_APP_CHANNEL_OPTIMIZER
-        value: $(params.mas_app_channel_optimizer)
-      - name: MAS_APP_CHANNEL_PREDICT
-        value: $(params.mas_app_channel_predict)
-      - name: MAS_APP_CHANNEL_HPUTILITIES
-        value: $(params.mas_app_channel_hputilities)
-      - name: MAS_APP_CHANNEL_ASSIST
-        value: $(params.mas_app_channel_assist)
-      - name: MAS_APP_CHANNEL_VISUALINSPECTION
-        value: $(params.mas_app_channel_visualinspection)
-      - name: DEVOPS_MONGO_URI
-        value: $(params.devops_mongo_uri)
-      - name: DEVOPS_BUILD_NUMBER
-        value: $(params.devops_build_number)
 
   steps:
     # It uses pipeline_name to know what pipeline to run

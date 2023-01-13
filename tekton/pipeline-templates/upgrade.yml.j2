@@ -5,6 +5,12 @@ metadata:
   name: mas-upgrade
 spec:
   params:
+    # 1. Common Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'params/common.yml.j2') | indent(4) }}
+
+    # 2. Upgrade
+    # -------------------------------------------------------------------------
     {{ lookup('template', 'params/upgrade.yml.j2') | indent(4) }}
 
   tasks:
