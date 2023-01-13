@@ -34,6 +34,195 @@ spec:
         claimName: shared-mustgather-storage
 
   params:
+    # Common Parameters
+    - name: cli_version
+      value: "{{ lookup('env', 'CLI_VERSION') }}"
+    - name: artifactory_username
+      value: "{{ lookup('env', 'ARTIFACTORY_USERNAME') }}"
+    - name: artifactory_apikey
+      value: "{{ lookup('env', 'ARTIFACTORY_APIKEY') }}"
+    - name: storage_class_rwo
+      value: "{{ lookup('env', 'STORAGE_CLASS_RWO') }}"
+    - name: storage_class_rwx
+      value: "{{ lookup('env', 'STORAGE_CLASS_RWX') }}"
+    - name: ibm_entitlement_key
+      value: "{{ lookup('env', 'IBM_ENTITLEMENT_KEY') }}"
+    - name: common_services_catalog_source
+      value: "{{ lookup('env', 'COMMON_SERVICES_CATALOG_SOURCE') }}"
+    - name: sls_license_id
+      value: "{{ lookup('env', 'SLS_LICENSE_ID') }}"
+    - name: sls_license_file
+      value: "{{ lookup('env', 'SLS_LICENSE_FILE') }}"
+    - name: sls_mongodb_cfg_file
+      value: "{{ lookup('env', 'SLS_MONGODB_CFG_FILE') }}"
+    - name: sls_catalog_source
+      value: "{{ lookup('env', 'SLS_CATALOG_SOURCE') }}"
+    - name: sls_channel
+      value: "{{ lookup('env', 'SLS_CHANNEL') }}"
+    - name: sls_icr_cp
+      value: "{{ lookup('env', 'SLS_ICR_CP') }}"
+    - name: sls_icr_cpopen
+      value: "{{ lookup('env', 'SLS_ICR_CPOPEN') }}"
+    - name: sls_entitlement_username
+      value: "{{ lookup('env', 'SLS_ENTITLEMENT_USERNAME') }}"
+    - name: sls_entitlement_key
+      value: "{{ lookup('env', 'SLS_ENTITLEMENT_KEY') }}"
+    - name: mongodb_storage_class
+      value: "{{ lookup('env', 'MONGODB_STORAGE_CLASS') }}"
+    - name: mongodb_replicas
+      value: "{{ lookup('env', 'MONGODB_REPLICAS') }}"
+    - name: mongodb_cpu_requests
+      value: "{{ lookup('env', 'MONGODB_CPU_REQUESTS') }}"
+    - name: kafka_namespace
+      value: "{{ lookup('env', 'KAFKA_NAMESPACE') }}"
+    - name: kafka_cluster_name
+      value: "{{ lookup('env', 'KAFKA_CLUSTER_NAME') }}"
+    - name: kafka_cluster_size
+      value: "{{ lookup('env', 'KAFKA_CLUSTER_SIZE') }}"
+    - name: kafka_user_name
+      value: "{{ lookup('env', 'KAFKA_USER_NAME') }}"
+    - name: gpu_namespace
+      value: "{{ lookup('env', 'GPU_NAMESPACE') }}"
+    - name: gpu_channel
+      value: "{{ lookup('env', 'GPU_CHANNEL') }}"
+    - name: nfd_namespace
+      value: "{{ lookup('env', 'NFD_NAMESPACE') }}"
+    - name: nfd_channel
+      value: "{{ lookup('env', 'NFD_CHANNEL') }}"
+    - name: db2_meta_storage_accessmode
+      value: "{{ lookup('env', 'DB2_META_STORAGE_ACCESSMODE') }}"
+    - name: db2_backup_storage_accessmode
+      value: "{{ lookup('env', 'DB2_BACKUP_STORAGE_ACCESSMODE') }}"
+    - name: db2_meta_storage_size
+      value: "{{ lookup('env', 'DB2_META_STORAGE_SIZE') }}"
+    - name: db2_backup_storage_size
+      value: "{{ lookup('env', 'DB2_BACKUP_STORAGE_SIZE') }}"
+    - name: db2_logs_storage_size
+      value: "{{ lookup('env', 'DB2_LOGS_STORAGE_SIZE') }}"
+    - name: db2_temp_storage_size
+      value: "{{ lookup('env', 'DB2_TEMP_STORAGE_SIZE') }}"
+    - name: db2_data_storage_size
+      value: "{{ lookup('env', 'DB2_DATA_STORAGE_SIZE') }}"
+    - name: db2_cpu_requests
+      value: "{{ lookup('env', 'DB2_CPU_REQUESTS') }}"
+    - name: db2_cpu_limits
+      value: "{{ lookup('env', 'DB2_CPU_LIMITS') }}"
+    - name: cpd_operators_namespace
+      value: "{{ lookup('env', 'CPD_OPERATORS_NAMESPACE') }}"
+    - name: cpd_instance_namespace
+      value: "{{ lookup('env', 'CPD_INSTANCE_NAMESPACE') }}"
+    - name: cpd_primary_storage_class
+      value: "{{ lookup('env', 'CPD_PRIMARY_STORAGE_CLASS') }}"
+    - name: cpd_metadata_storage_class
+      value: "{{ lookup('env', 'CPD_METADATA_STORAGE_CLASS') }}"
+    - name: cpd_product_version
+      value: "{{ lookup('env', 'CPD_PRODUCT_VERSION') }}"
+    - name: cpd_wd_storage_class
+      value: "{{ lookup('env', 'CPD_WD_STORAGE_CLASS') }}"
+    - name: cpd_wml_storage_class
+      value: "{{ lookup('env', 'CPD_WML_STORAGE_CLASS') }}"
+    - name: cpd_spark_storage_class
+      value: "{{ lookup('env', 'CPD_SPARK_STORAGE_CLASS') }}"
+    - name: cpd_wsl_storage_class
+      value: "{{ lookup('env', 'CPD_WSL_STORAGE_CLASS') }}"
+    - name: uds_contact_email
+      value: "{{ lookup('env', 'UDS_CONTACT_EMAIL') }}"
+    - name: uds_contact_firstname
+      value: "{{ lookup('env', 'UDS_CONTACT_FIRSTNAME') }}"
+    - name: uds_contact_lastname
+      value: "{{ lookup('env', 'UDS_CONTACT_LASTNAME') }}"
+    - name: appconnect_channel
+      value: "{{ lookup('env', 'APPCONNECT_CHANNEL') }}"
+    - name: appconnect_dashboard_version
+      value: "{{ lookup('env', 'APPCONNECT_DASHBOARD_VERSION') }}"
+    - name: appconnect_dashboard_name
+      value: "{{ lookup('env', 'APPCONNECT_DASHBOARD_NAME') }}"
+    - name: appconnect_license_id
+      value: "{{ lookup('env', 'APPCONNECT_LICENSE_ID') }}"
+    - name: appconnect_storage_class
+      value: "{{ lookup('env', 'APPCONNECT_STORAGE_CLASS') }}"
+    - name: cos_type
+      value: "{{ lookup('env', 'COS_TYPE') }}"
+    - name: ibmcloud_apikey
+      value: "{{ lookup('env', 'IBMCLOUD_APIKEY') }}"
+    - name: uds_event_scheduler_frequency
+      value: "{{ lookup('env', 'UDS_EVENT_SCHEDULER_FREQUENCY') }}"
+    - name: mas_segment_key
+      value: "{{ lookup('env', 'MAS_SEGMENT_KEY') }}"
+    - name: dns_provider
+      value: "{{ lookup('env', 'DNS_PROVIDER') }}"
+    - name: cloudflare_email
+      value: "{{ lookup('env', 'CLOUDFLARE_EMAIL') }}"
+    - name: cloudflare_apitoken
+      value: "{{ lookup('env', 'CLOUDFLARE_APITOKEN') }}"
+    - name: cloudflare_zone
+      value: "{{ lookup('env', 'CLOUDFLARE_ZONE') }}"
+    - name: cloudflare_subdomain
+      value: "{{ lookup('env', 'CLOUDFLARE_SUBDOMAIN') }}"
+    - name: cis_email
+      value: "{{ lookup('env', 'CIS_EMAIL') }}"
+    - name: cis_apikey
+      value: "{{ lookup('env', 'CIS_APIKEY') }}"
+    - name: cis_crn
+      value: "{{ lookup('env', 'CIS_CRN') }}"
+    - name: cis_subdomain
+      value: "{{ lookup('env', 'CIS_SUBDOMAIN') }}"
+    - name: mas_catalog_source
+      value: "{{ lookup('env', 'MAS_CATALOG_SOURCE') }}"
+    - name: mas_catalog_version
+      value: "{{ lookup('env', 'MAS_CATALOG_VERSION') }}"
+    - name: mas_domain
+      value: "{{ lookup('env', 'MAS_DOMAIN') }}"
+    - name: mas_cluster_issuer
+      value: "{{ lookup('env', 'MAS_CLUSTER_ISSUER') }}"
+    - name: mas_icr_cp
+      value: "{{ lookup('env', 'MAS_ICR_CP') }}"
+    - name: mas_icr_cpopen
+      value: "{{ lookup('env', 'MAS_ICR_CPOPEN') }}"
+    - name: mas_entitlement_username
+      value: "{{ lookup('env', 'MAS_ENTITLEMENT_USERNAME') }}"
+    - name: mas_annotations
+      value: "{{ lookup('env', 'MAS_ANNOTATIONS') }}"
+    - name: mas_entitlement_key
+      value: "{{ lookup('env', 'MAS_ENTITLEMENT_KEY') }}"
+    - name: mas_customize_scaling
+      value: "{{ lookup('env', 'MAS_CUSTOMIZE_SCALING') }}"
+    - name: mas_workspace_name
+      value: "{{ lookup('env', 'MAS_WORKSPACE_NAME') }}"
+    - name: mas_appws_components
+      value: "{{ lookup('env', 'MAS_APPWS_COMPONENTS') }}"
+    - name: mas_app_settings_aio_flag
+      value: "{{ lookup('env', 'MAS_APP_SETTINGS_AIO_FLAG') }}"
+    - name: mas_app_settings_demodata
+      value: "{{ lookup('env', 'MAS_APP_SETTINGS_DEMODATA') }}"
+    - name: mas_app_plan_optimizer
+      value: "{{ lookup('env', 'MAS_APP_PLAN_OPTIMIZER') }}"
+    - name: wml_instance_id
+      value: "{{ lookup('env', 'WML_INSTANCE_ID') }}"
+    - name: wml_url
+      value: "{{ lookup('env', 'WML_URL') }}"
+    - name: wml_version
+      value: "{{ lookup('env', 'WML_VERSION') }}"
+    - name: predict_deployment_size
+      value: "{{ lookup('env', 'PREDICT_DEPLOYMENT_SIZE') }}"
+    - name: mas_app_source_iot
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_IOT') }}"
+    - name: mas_app_source_manage
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_MANAGE') }}"
+    - name: mas_app_source_monitor
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_MONITOR') }}"
+    - name: mas_app_source_optimizer
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_OPTIMIZER') }}"
+    - name: mas_app_source_predict
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_PREDICT') }}"
+    - name: mas_app_source_safety
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_SAFETY') }}"
+    - name: mas_app_source_hputilities
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_HPUTILITIES') }}"
+    - name: mas_app_source_assist
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_ASSIST') }}"
+    - name: mas_app_source_visualinspection
+      value: "{{ lookup('env', 'MAS_APP_SOURCE_VISUALINSPECTION') }}"
     # Install Parameters
     - name: cli_version
       value: "{{ lookup('env', 'CLI_VERSION') }}"

@@ -6,6 +6,7 @@ metadata:
 spec:
   params:
 
+    # Combined install, fvt and upgrade parameters + source/target parsing
     {{ lookup('template', 'pipeline-templates/params/upgrade-test.yml.j2') | indent(4) }}
   
   tasks:
@@ -17,6 +18,7 @@ spec:
           value: install
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        {{ lookup('template', 'pipeline-templates/taskdefs/run-pipeline/common.yml.j2') | indent(8) }}
         {{ lookup('template', 'pipeline-templates/taskdefs/run-pipeline/install.yml.j2') | indent(8) }}
       taskRef:
         kind: Task
@@ -29,6 +31,7 @@ spec:
           value: fvt
         - name: pipelinerun_name_suffix
           value: before
+        {{ lookup('template', 'pipeline-templates/taskdefs/run-pipeline/common.yml.j2') | indent(8) }}
         {{ lookup('template', 'pipeline-templates/taskdefs/run-pipeline/install.yml.j2') | indent(8) }}
         {{ lookup('template', 'pipeline-templates/taskdefs/run-pipeline/fvt.yml.j2') | indent(8) }}
       taskRef:
@@ -44,6 +47,7 @@ spec:
           value: upgrade
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
+        {{ lookup('template', 'pipeline-templates/taskdefs/run-pipeline/common.yml.j2') | indent(8) }}
         {{ lookup('template', 'pipeline-templates/taskdefs/run-pipeline/upgrade.yml.j2') | indent(8) }}
       taskRef:
         kind: Task
@@ -58,6 +62,7 @@ spec:
           value: fvt
         - name: pipelinerun_name_suffix
           value: after
+        {{ lookup('template', 'pipeline-templates/taskdefs/run-pipeline/common.yml.j2') | indent(8) }}
         {{ lookup('template', 'pipeline-templates/taskdefs/run-pipeline/install.yml.j2') | indent(8) }}
         {{ lookup('template', 'pipeline-templates/taskdefs/run-pipeline/fvt.yml.j2') | indent(8) }}
       taskRef:

@@ -18,6 +18,9 @@ spec:
       description: optional suffix to pipelinerun standard name
       default: ""
     
+    # Common Parameters
+    {{ lookup('template', 'pipeline-templates/params/common.yml.j2') | indent(4) }}
+
     # Install Parameters
     {{ lookup('template', 'pipeline-templates/params/install.yml.j2') | indent(4) }}
     
@@ -35,6 +38,10 @@ spec:
         value: "true"
       - name: PIPELINERUN_NAME_SUFFIX
         value: $(params.pipelinerun_name_suffix)
+{% for common_param in common_params_definition.params %}
+      - name: {{ common_param.name | upper }}
+        value: $(params.{{ common_param.name }})
+{% endfor %}
 {% for install_param in install_params_definition.params %}
       - name: {{ install_param.name | upper }}
         value: $(params.{{ install_param.name }})

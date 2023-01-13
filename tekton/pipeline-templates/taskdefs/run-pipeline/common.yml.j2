@@ -1,0 +1,9 @@
+{% for common_param in common_params_definition.params %}
+{% if common_param.name in params_source_target_list %}
+- name: {{ common_param.name }}
+  value: $(params.source_{{ common_param.name }})
+{% else %}
+- name: {{ common_param.name }}
+  value: $(params.{{ common_param.name }})
+{% endif %}
+{% endfor %}

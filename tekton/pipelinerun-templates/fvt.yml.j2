@@ -16,6 +16,11 @@ spec:
       persistentVolumeClaim:
         claimName: config-pvc
   params:
+    # Common Parameters
+{% for common_param in common_params_definition.params %}
+    - name: {{ common_param.name }}
+      value: {{'"{{ lookup(\'env\', \'' ~ common_param.name | upper ~ '\') }}"'}}
+{% endfor %}
     # Install Parameters
 {% for install_param in install_params_definition.params %}
     - name: {{ install_param.name }}

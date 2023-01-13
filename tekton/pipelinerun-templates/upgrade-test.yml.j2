@@ -12,7 +12,6 @@ spec:
   timeout: {{'"{{ pipelinerun_timeout }}"'}}
 
   params:
-
 {% for upgrade_test_raw_param in upgrade_test_raw_params_definition %}
 {% if upgrade_test_raw_param.name in params_source_target_list %}
     - name: source_{{ upgrade_test_raw_param.name }}

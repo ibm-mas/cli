@@ -18,6 +18,9 @@ spec:
       type: string
       description: registry where test images live
 
+    # Common Parameters
+    {{ lookup('template', 'pipeline-templates/params/common.yml.j2') | indent(4) }}
+
     # Upgrade Parameters
     {{ lookup('template', 'pipeline-templates/params/upgrade.yml.j2') | indent(4) }}
 
@@ -30,7 +33,10 @@ spec:
         value: $(params.pipelinerun_timeout)
       - name: PIPELINERUN_WAIT
         value: "true"
-
+{% for common_param in common_params_definition.params %}
+      - name: {{ common_param.name | upper }}
+        value: $(params.{{ common_param.name }})
+{% endfor %}
 {% for upgrade_param in upgrade_params_definition.params %}
       - name: {{ upgrade_param.name | upper }}
         value: $(params.{{ upgrade_param.name }})

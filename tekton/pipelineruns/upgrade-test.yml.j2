@@ -12,7 +12,6 @@ spec:
   timeout: "{{ pipelinerun_timeout }}"
 
   params:
-
     - name: cli_version
       value: "{{ lookup('env', 'CLI_VERSION') }}"
     - name: artifactory_username
