@@ -51,12 +51,12 @@
         file: pipeline-templates/params/helper/upgrade-list.yml
         name: upgrade_params_definition
 
-    # Load Upgrade Test Parameters (combine common, install and upgrade lists)
+    # Load Upgrade Test Parameters (combine common, install, upgrade and fvt parameter lists)
     # This is raw list as source/target attributes do not have their final form
-    # (i.g. we have mas_channel, instead of source_mas_channel and target_mas_channel). That will be solved when templating list into pipeline, tasks or pipelinerun
+    # (e.g. we have mas_channel, instead of source_mas_channel and target_mas_channel). That will be solved when templating list into pipeline, tasks or pipelinerun
     - name: "Load upgrade-test raw parameters list into a variable"
       ansible.builtin.set_fact:
-        upgrade_test_raw_params_definition: "{{ common_params_definition.params + install_params_definition.params + upgrade_params_definition.params }}"
+        upgrade_test_raw_params_definition: "{{ common_params_definition.params + install_params_definition.params + fvt_params_definition.params + upgrade_params_definition.params }}"
     
     # Debug upgrade_test_raw_params_definition
     - name: "Debug upgrade_test_raw_params_definition"
