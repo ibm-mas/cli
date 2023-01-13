@@ -80,6 +80,8 @@ spec:
           value: $(params.mas_instance_id)
         - name: mas_channel
           value: $(params.mas_channel)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
       taskRef:
         kind: Task
         name: mas-devops-suite-upgrade
@@ -106,6 +108,8 @@ spec:
           value: iot
         - name: mas_app_channel
           value: $(params.mas_app_channel_iot)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -121,6 +125,8 @@ spec:
           value: manage
         - name: mas_app_channel
           value: $(params.mas_app_channel_manage)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -136,6 +142,8 @@ spec:
           value: visualinspection
         - name: mas_app_channel
           value: $(params.mas_app_channel_visualinspection)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -151,6 +159,8 @@ spec:
           value: assist
         - name: mas_app_channel
           value: $(params.mas_app_channel_assist)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -166,6 +176,8 @@ spec:
           value: optimizer
         - name: mas_app_channel
           value: $(params.mas_app_channel_optimizer)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -184,6 +196,8 @@ spec:
           value: monitor
         - name: mas_app_channel
           value: $(params.mas_app_channel_monitor)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -199,6 +213,8 @@ spec:
           value: predict
         - name: mas_app_channel
           value: $(params.mas_app_channel_predict)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -214,6 +230,8 @@ spec:
           value: hputilities
         - name: mas_app_channel
           value: $(params.mas_app_channel_hputilities)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade

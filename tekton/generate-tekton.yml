@@ -1,7 +1,8 @@
 - hosts: localhost
   any_errors_fatal: true
   vars:
-    ansible_fvt_version: "{{ lookup('env', 'ANSIBLE_FVT_VERSION') | default('latest', true) }}"
+    # ansible_fvt_version: latest
+    ansible_fvt_version: 20.0.0-pre.coderefactor
   tasks:
 
     # Load Source & Target Upgrade Test attributes
@@ -57,12 +58,12 @@
     - name: "Load upgrade-test raw parameters list into a variable"
       ansible.builtin.set_fact:
         upgrade_test_raw_params_definition: "{{ common_params_definition.params + install_params_definition.params + fvt_params_definition.params + upgrade_params_definition.params }}"
-    
+
     # Debug upgrade_test_raw_params_definition
     - name: "Debug upgrade_test_raw_params_definition"
       ansible.builtin.debug:
         msg: "{{ upgrade_test_raw_params_definition }}"
-    
+
     # Generate Run Pipeline Tasks
     - name: "Generate install-run-pipeline task"
       ansible.builtin.template:
@@ -81,11 +82,11 @@
     - name: "Debug params_definition"
       ansible.builtin.debug:
         msg:
-          - "####### params_source_target_list ........... {{ params_source_target_list }}"
+          - "####### common_params_definition ........... {{ install_params_definition }}"
           - "####### install_params_definition ........... {{ install_params_definition }}"
           - "####### fvt_params_definition ............... {{ fvt_params_definition }}"
           - "####### upgrade_params_definition ........... {{ upgrade_params_definition }}"
-    
+
     # Generate Pipelines
     - name: Generate MAS Install Pipeline
       ansible.builtin.template:
@@ -116,7 +117,7 @@
         src: pipeline-templates/upgrade-test.yml.j2
         dest: pipelines/upgrade-test.yml
 
-    # Generate final PipelineRun templates
+    # Generate PipelineRun templates
     - name: Generate install PipelineRun template
       ansible.builtin.template:
         src: pipelinerun-templates/install.yml.j2
