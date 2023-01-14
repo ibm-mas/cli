@@ -19,7 +19,11 @@ spec:
       description: registry where test images live
     
     # Common Parameters
-      # Persist Results (Optional)
+    # FVT Image Container Registry
+    - name: fvt_image_registry
+      type: string
+
+    # Persist Results (Optional)
     - name: devops_mongo_uri
       type: string
       default: ""
@@ -464,6 +468,8 @@ spec:
         value: $(params.pipelinerun_timeout)
       - name: PIPELINERUN_WAIT
         value: "true"
+      - name: FVT_IMAGE_REGISTRY
+        value: $(params.fvt_image_registry)
       - name: DEVOPS_MONGO_URI
         value: $(params.devops_mongo_uri)
       - name: DEVOPS_BUILD_NUMBER

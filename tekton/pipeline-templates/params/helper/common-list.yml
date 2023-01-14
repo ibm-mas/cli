@@ -1,5 +1,9 @@
 params:
-    # Persist Results (Optional)
+  # FVT Image Container Registry
+  - name: fvt_image_registry
+    type: string
+
+  # Persist Results (Optional)
   - name: devops_mongo_uri
     type: string
     default: ""

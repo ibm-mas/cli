@@ -19,7 +19,11 @@ spec:
       default: ""
     
     # Common Parameters
-      # Persist Results (Optional)
+    # FVT Image Container Registry
+    - name: fvt_image_registry
+      type: string
+
+    # Persist Results (Optional)
     - name: devops_mongo_uri
       type: string
       default: ""
@@ -457,10 +461,6 @@ spec:
       default: ""
     
     # Test Parameters
-    # FVT Image Container Registry
-    - name: fvt_image_registry
-      type: string
-
     # FVT Image Pull Secret
     - name: fvt_artifactory_username
       type: string
@@ -597,6 +597,8 @@ spec:
         value: "true"
       - name: PIPELINERUN_NAME_SUFFIX
         value: $(params.pipelinerun_name_suffix)
+      - name: FVT_IMAGE_REGISTRY
+        value: $(params.fvt_image_registry)
       - name: DEVOPS_MONGO_URI
         value: $(params.devops_mongo_uri)
       - name: DEVOPS_BUILD_NUMBER
@@ -813,8 +815,6 @@ spec:
         value: $(params.mas_app_source_assist)
       - name: MAS_APP_SOURCE_VISUALINSPECTION
         value: $(params.mas_app_source_visualinspection)
-      - name: FVT_IMAGE_REGISTRY
-        value: $(params.fvt_image_registry)
       - name: FVT_ARTIFACTORY_USERNAME
         value: $(params.fvt_artifactory_username)
       - name: FVT_ARTIFACTORY_APIKEY

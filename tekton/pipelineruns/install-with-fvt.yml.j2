@@ -35,6 +35,8 @@ spec:
 
   params:
     # Common Parameters
+    - name: fvt_image_registry
+      value: "{{ lookup('env', 'FVT_IMAGE_REGISTRY') }}"
     - name: devops_mongo_uri
       value: "{{ lookup('env', 'DEVOPS_MONGO_URI') }}"
     - name: devops_build_number
@@ -253,8 +255,6 @@ spec:
     - name: mas_app_source_visualinspection
       value: "{{ lookup('env', 'MAS_APP_SOURCE_VISUALINSPECTION') }}"
     # Test Parameters
-    - name: fvt_image_registry
-      value: "{{ lookup('env', 'FVT_IMAGE_REGISTRY') }}"
     - name: fvt_artifactory_username
       value: "{{ lookup('env', 'FVT_ARTIFACTORY_USERNAME') }}"
     - name: fvt_artifactory_apikey

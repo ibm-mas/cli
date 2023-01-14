@@ -12,7 +12,11 @@ spec:
   params:
     # 1. Common Parameters
     # -------------------------------------------------------------------------
-      # Persist Results (Optional)
+    # FVT Image Container Registry
+    - name: fvt_image_registry
+      type: string
+
+    # Persist Results (Optional)
     - name: devops_mongo_uri
       type: string
       default: ""
@@ -452,10 +456,6 @@ spec:
 
     # 3. Additional Params for FVT
     # -------------------------------------------------------------------------
-    # FVT Image Container Registry
-    - name: fvt_image_registry
-      type: string
-
     # FVT Image Pull Secret
     - name: fvt_artifactory_username
       type: string

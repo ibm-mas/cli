@@ -8,6 +8,9 @@ spec:
 
     # Combined install, fvt and upgrade parameters + source/target parsing
     # Upgrade Test Parameters
+    - name: fvt_image_registry
+      type: string
+      description: ""
     - name: devops_mongo_uri
       type: string
       description: ""
@@ -481,9 +484,6 @@ spec:
       type: string
       description: Subscription source for MVI application operator
       default: ""
-    - name: fvt_image_registry
-      type: string
-      description: ""
     - name: fvt_artifactory_username
       type: string
       description: ""
@@ -845,6 +845,8 @@ spec:
           value: fvt
         - name: pipelinerun_name_suffix
           value: before
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
@@ -1063,8 +1065,68 @@ spec:
         - name: mas_app_source_visualinspection
           value: $(params.mas_app_source_visualinspection)
 
-        - name: skip_compatibility_check
-          value: $(params.skip_compatibility_check)
+        - name: fvt_artifactory_username
+          value: $(params.fvt_artifactory_username)
+        - name: fvt_artifactory_apikey
+          value: $(params.fvt_artifactory_apikey)
+        - name: mas_add_catalog
+          value: $(params.mas_add_catalog)
+        - name: mas_add_channel
+          value: $(params.mas_add_channel)
+        - name: ddp_apikey
+          value: $(params.ddp_apikey)
+        - name: partium_username
+          value: $(params.partium_username)
+        - name: partium_password
+          value: $(params.partium_password)
+        - name: devops_cos_crn
+          value: $(params.devops_cos_crn)
+        - name: fvt_version_core
+          value: $(params.fvt_version_core)
+        - name: fvt_version_iot
+          value: $(params.fvt_version_iot)
+        - name: fvt_version_safety
+          value: $(params.fvt_version_safety)
+        - name: fvt_version_monitor
+          value: $(params.fvt_version_monitor)
+        - name: fvt_version_predict
+          value: $(params.fvt_version_predict)
+        - name: fvt_version_hputilities
+          value: $(params.fvt_version_hputilities)
+        - name: fvt_version_visualinspection
+          value: $(params.fvt_version_visualinspection)
+        - name: fvt_version_assist
+          value: $(params.fvt_version_assist)
+        - name: fvt_version_optimizer
+          value: $(params.fvt_version_optimizer)
+        - name: fvt_version_manage
+          value: $(params.fvt_version_manage)
+        - name: fvt_version_health
+          value: $(params.fvt_version_health)
+        - name: fvt_version_manage_acm
+          value: $(params.fvt_version_manage_acm)
+        - name: fvt_version_manage_aviation
+          value: $(params.fvt_version_manage_aviation)
+        - name: fvt_version_manage_hse
+          value: $(params.fvt_version_manage_hse)
+        - name: fvt_version_manage_nuclear
+          value: $(params.fvt_version_manage_nuclear)
+        - name: fvt_version_manage_serviceprovider
+          value: $(params.fvt_version_manage_serviceprovider)
+        - name: fvt_version_manage_spatial
+          value: $(params.fvt_version_manage_spatial)
+        - name: fvt_version_manage_transportation
+          value: $(params.fvt_version_manage_transportation)
+        - name: fvt_version_manage_civil
+          value: $(params.fvt_version_manage_civil)
+        - name: fvt_version_manage_ic
+          value: $(params.fvt_version_manage_ic)
+        - name: fvt_version_mobilefoundation
+          value: $(params.fvt_version_mobilefoundation)
+        - name: fvt_version_servicerequests
+          value: $(params.fvt_version_servicerequests)
+        - name: ivt_version_core
+          value: $(params.ivt_version_core)
 
       taskRef:
         kind: Task
@@ -1122,6 +1184,8 @@ spec:
           value: fvt
         - name: pipelinerun_name_suffix
           value: after
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
         - name: devops_build_number
@@ -1340,8 +1404,68 @@ spec:
         - name: mas_app_source_visualinspection
           value: $(params.mas_app_source_visualinspection)
 
-        - name: skip_compatibility_check
-          value: $(params.skip_compatibility_check)
+        - name: fvt_artifactory_username
+          value: $(params.fvt_artifactory_username)
+        - name: fvt_artifactory_apikey
+          value: $(params.fvt_artifactory_apikey)
+        - name: mas_add_catalog
+          value: $(params.mas_add_catalog)
+        - name: mas_add_channel
+          value: $(params.mas_add_channel)
+        - name: ddp_apikey
+          value: $(params.ddp_apikey)
+        - name: partium_username
+          value: $(params.partium_username)
+        - name: partium_password
+          value: $(params.partium_password)
+        - name: devops_cos_crn
+          value: $(params.devops_cos_crn)
+        - name: fvt_version_core
+          value: $(params.fvt_version_core)
+        - name: fvt_version_iot
+          value: $(params.fvt_version_iot)
+        - name: fvt_version_safety
+          value: $(params.fvt_version_safety)
+        - name: fvt_version_monitor
+          value: $(params.fvt_version_monitor)
+        - name: fvt_version_predict
+          value: $(params.fvt_version_predict)
+        - name: fvt_version_hputilities
+          value: $(params.fvt_version_hputilities)
+        - name: fvt_version_visualinspection
+          value: $(params.fvt_version_visualinspection)
+        - name: fvt_version_assist
+          value: $(params.fvt_version_assist)
+        - name: fvt_version_optimizer
+          value: $(params.fvt_version_optimizer)
+        - name: fvt_version_manage
+          value: $(params.fvt_version_manage)
+        - name: fvt_version_health
+          value: $(params.fvt_version_health)
+        - name: fvt_version_manage_acm
+          value: $(params.fvt_version_manage_acm)
+        - name: fvt_version_manage_aviation
+          value: $(params.fvt_version_manage_aviation)
+        - name: fvt_version_manage_hse
+          value: $(params.fvt_version_manage_hse)
+        - name: fvt_version_manage_nuclear
+          value: $(params.fvt_version_manage_nuclear)
+        - name: fvt_version_manage_serviceprovider
+          value: $(params.fvt_version_manage_serviceprovider)
+        - name: fvt_version_manage_spatial
+          value: $(params.fvt_version_manage_spatial)
+        - name: fvt_version_manage_transportation
+          value: $(params.fvt_version_manage_transportation)
+        - name: fvt_version_manage_civil
+          value: $(params.fvt_version_manage_civil)
+        - name: fvt_version_manage_ic
+          value: $(params.fvt_version_manage_ic)
+        - name: fvt_version_mobilefoundation
+          value: $(params.fvt_version_mobilefoundation)
+        - name: fvt_version_servicerequests
+          value: $(params.fvt_version_servicerequests)
+        - name: ivt_version_core
+          value: $(params.ivt_version_core)
 
       taskRef:
         kind: Task

@@ -17,6 +17,8 @@ spec:
         claimName: config-pvc
   params:
     # Common Parameters
+    - name: fvt_image_registry
+      value: "{{ lookup('env', 'FVT_IMAGE_REGISTRY') }}"
     - name: devops_mongo_uri
       value: "{{ lookup('env', 'DEVOPS_MONGO_URI') }}"
     - name: devops_build_number

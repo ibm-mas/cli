@@ -16,8 +16,6 @@ spec:
       params:
         - name: pipelinerun_template_file_name
           value: install
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
         {{ lookup('template', 'pipeline-templates/taskdefs/run-pipeline/install.yml.j2') | indent(8) }}
       taskRef:
         kind: Task
@@ -42,8 +40,6 @@ spec:
       params:
         - name: pipelinerun_template_file_name
           value: upgrade
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
         {{ lookup('template', 'pipeline-templates/taskdefs/run-pipeline/upgrade.yml.j2') | indent(8) }}
       taskRef:
         kind: Task
