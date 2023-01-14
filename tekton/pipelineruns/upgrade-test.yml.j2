@@ -78,10 +78,8 @@ spec:
       value: "{{ lookup('env', 'SLS_LICENSE_FILE') }}"
     - name: sls_mongodb_cfg_file
       value: "{{ lookup('env', 'SLS_MONGODB_CFG_FILE') }}"
-    - name: source_sls_catalog_source
-      value: "{{ lookup('env', 'SOURCE_SLS_CATALOG_SOURCE') }}"
-    - name: target_sls_catalog_source
-      value: "{{ lookup('env', 'TARGET_SLS_CATALOG_SOURCE') }}"
+    - name: sls_catalog_source
+      value: "{{ lookup('env', 'SLS_CATALOG_SOURCE') }}"
     - name: source_sls_channel
       value: "{{ lookup('env', 'SOURCE_SLS_CHANNEL') }}"
     - name: target_sls_channel
@@ -196,12 +194,12 @@ spec:
       value: "{{ lookup('env', 'CIS_CRN') }}"
     - name: cis_subdomain
       value: "{{ lookup('env', 'CIS_SUBDOMAIN') }}"
-    - name: source_mas_catalog_source
-      value: "{{ lookup('env', 'SOURCE_MAS_CATALOG_SOURCE') }}"
-    - name: target_mas_catalog_source
-      value: "{{ lookup('env', 'TARGET_MAS_CATALOG_SOURCE') }}"
-    - name: mas_catalog_version
-      value: "{{ lookup('env', 'MAS_CATALOG_VERSION') }}"
+    - name: mas_catalog_source
+      value: "{{ lookup('env', 'MAS_CATALOG_SOURCE') }}"
+    - name: source_mas_catalog_version
+      value: "{{ lookup('env', 'SOURCE_MAS_CATALOG_VERSION') }}"
+    - name: target_mas_catalog_version
+      value: "{{ lookup('env', 'TARGET_MAS_CATALOG_VERSION') }}"
     - name: mas_domain
       value: "{{ lookup('env', 'MAS_DOMAIN') }}"
     - name: mas_cluster_issuer

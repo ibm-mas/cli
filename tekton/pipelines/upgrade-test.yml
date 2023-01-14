@@ -135,11 +135,7 @@ spec:
       type: string
       description: ""
       default: "/workspace/configs/mongo-mongoce.yml"
-    - name: source_sls_catalog_source
-      type: string
-      description: ""
-      default: ""
-    - name: target_sls_catalog_source
+    - name: sls_catalog_source
       type: string
       description: ""
       default: ""
@@ -364,15 +360,15 @@ spec:
       type: string
       description: ""
       default: ""
-    - name: source_mas_catalog_source
+    - name: mas_catalog_source
       type: string
       description: ""
       default: "ibm-operator-catalog"
-    - name: target_mas_catalog_source
+    - name: source_mas_catalog_version
       type: string
       description: ""
-      default: "ibm-operator-catalog"
-    - name: mas_catalog_version
+      default: "v8-amd64"
+    - name: target_mas_catalog_version
       type: string
       description: ""
       default: "v8-amd64"
@@ -664,7 +660,7 @@ spec:
         - name: sls_mongodb_cfg_file
           value: $(params.sls_mongodb_cfg_file)
         - name: sls_catalog_source
-          value: $(params.source_sls_catalog_source)
+          value: $(params.sls_catalog_source)
         - name: sls_channel
           value: $(params.source_sls_channel)
         - name: sls_icr_cp
@@ -776,9 +772,9 @@ spec:
         - name: cis_subdomain
           value: $(params.cis_subdomain)
         - name: mas_catalog_source
-          value: $(params.source_mas_catalog_source)
+          value: $(params.mas_catalog_source)
         - name: mas_catalog_version
-          value: $(params.mas_catalog_version)
+          value: $(params.source_mas_catalog_version)
         - name: mas_domain
           value: $(params.mas_domain)
         - name: mas_cluster_issuer
@@ -895,7 +891,7 @@ spec:
         - name: sls_mongodb_cfg_file
           value: $(params.sls_mongodb_cfg_file)
         - name: sls_catalog_source
-          value: $(params.source_sls_catalog_source)
+          value: $(params.sls_catalog_source)
         - name: sls_channel
           value: $(params.source_sls_channel)
         - name: sls_icr_cp
@@ -1007,9 +1003,9 @@ spec:
         - name: cis_subdomain
           value: $(params.cis_subdomain)
         - name: mas_catalog_source
-          value: $(params.source_mas_catalog_source)
+          value: $(params.mas_catalog_source)
         - name: mas_catalog_version
-          value: $(params.mas_catalog_version)
+          value: $(params.source_mas_catalog_version)
         - name: mas_domain
           value: $(params.mas_domain)
         - name: mas_cluster_issuer
@@ -1234,7 +1230,7 @@ spec:
         - name: sls_mongodb_cfg_file
           value: $(params.sls_mongodb_cfg_file)
         - name: sls_catalog_source
-          value: $(params.source_sls_catalog_source)
+          value: $(params.sls_catalog_source)
         - name: sls_channel
           value: $(params.source_sls_channel)
         - name: sls_icr_cp
@@ -1346,9 +1342,9 @@ spec:
         - name: cis_subdomain
           value: $(params.cis_subdomain)
         - name: mas_catalog_source
-          value: $(params.source_mas_catalog_source)
+          value: $(params.mas_catalog_source)
         - name: mas_catalog_version
-          value: $(params.mas_catalog_version)
+          value: $(params.source_mas_catalog_version)
         - name: mas_domain
           value: $(params.mas_domain)
         - name: mas_cluster_issuer
