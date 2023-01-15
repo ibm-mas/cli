@@ -86,6 +86,8 @@
               <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../">Overview</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../v8-230111-amd64/">Jan 2023</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../v8-221228-amd64/">Dec 2022</a>
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">Nov 2022</a>
@@ -97,8 +99,6 @@
     <li class="toctree-l2"><a class="reference internal" href="#source">Source</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#openshift-container-platform-support">OpenShift Container Platform Support</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#hyperscaler-certification">Hyperscaler Certification</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#manifest">Manifest</a>
         <ul>
@@ -178,6 +178,13 @@ spec:
   priority: 90
 </code></pre>
 <h2 id="openshift-container-platform-support">OpenShift Container Platform Support<a class="headerlink" href="#openshift-container-platform-support" title="Permanent link"></a></h2>
+<p>IBM Maximo Application Suite will run anywhere that you can run a supported OpenShift release, including:</p>
+<ul>
+<li><a href="https://aws.amazon.com/rosa/">AWS</a></li>
+<li><a href="https://azure.microsoft.com/en-gb/services/openshift/">Azure</a></li>
+<li><a href="https://cloud.google.com/architecture/partners/openshift-on-gcp">Google Cloud Platform</a></li>
+<li><a href="https://www.ibm.com/cloud/openshift">IBM Cloud</a></li>
+</ul>
 <table>
 <thead>
 <tr>
@@ -228,34 +235,6 @@ spec:
 <li>DB2, which is installed with ibm-db2u-operator, is supported on OpenShift Container Platform versions 4.6-4.9 only.</li>
 </ul>
 </div>
-<h2 id="hyperscaler-certification">Hyperscaler Certification<a class="headerlink" href="#hyperscaler-certification" title="Permanent link"></a></h2>
-<p>IBM Maximo Application Suite will run anywhere that you can run a supported OpenShift release, additionally this catalog is specifically tested and verified compatible with these hyperscaler providers' managed OpenShift offerings.</p>
-<table>
-<thead>
-<tr>
-<th>Provider</th>
-<th align="center">Certified</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="https://aws.amazon.com/rosa/">AWS</a></td>
-<td align="center">✔</td>
-</tr>
-<tr>
-<td><a href="https://azure.microsoft.com/en-gb/services/openshift/">Azure</a></td>
-<td align="center">❌</td>
-</tr>
-<tr>
-<td><a href="https://cloud.google.com/architecture/partners/openshift-on-gcp">Google Cloud Platform</a></td>
-<td align="center">❌</td>
-</tr>
-<tr>
-<td><a href="https://www.ibm.com/cloud/openshift">IBM Cloud</a></td>
-<td align="center">✔</td>
-</tr>
-</tbody>
-</table>
 <h2 id="manifest">Manifest<a class="headerlink" href="#manifest" title="Permanent link"></a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -528,7 +507,7 @@ spec:
 <tr>
 <td>ibm-zen-operator</td>
 <td>v3</td>
-<td>1.5.4 *</td>
+<td>1.5.4*</td>
 </tr>
 <tr>
 <td>ibm-zen-operator</td>
