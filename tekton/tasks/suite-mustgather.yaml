@@ -28,14 +28,14 @@ spec:
       command:
         - /opt/app-root/src/clear-mustgather-workspace.sh
       image: quay.io/ibmmas/cli:$(params.cli_version)
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
       workingDir: /workspace/mustgather
     - name: suite-mustgather
       command:
         - /opt/app-root/src/run-role.sh
         - suite_mustgather
       image: quay.io/ibmmas/cli:$(params.cli_version)
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
       workingDir: /workspace/mustgather
 
   workspaces:

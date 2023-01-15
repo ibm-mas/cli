@@ -33,4 +33,4 @@ spec:
         - /opt/app-root/src/run-role.sh
         - suite_app_upgrade
       image: quay.io/ibmmas/cli:$(params.cli_version)
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent

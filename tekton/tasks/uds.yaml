@@ -83,7 +83,7 @@ spec:
         - /opt/app-root/src/run-role.sh
         - uds
       image: quay.io/ibmmas/cli:$(params.cli_version)
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
       workingDir: /workspace/configs
 
   workspaces:

@@ -103,7 +103,7 @@ spec:
         value: $(params.partium_password)
   steps:
     - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas:$(params.fvt_image_version)'
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
