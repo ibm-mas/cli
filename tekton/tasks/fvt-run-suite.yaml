@@ -208,7 +208,7 @@ spec:
         value: $(params.ctf_is_local)
   steps:
     - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name):$(params.fvt_image_version)'
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
       timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}

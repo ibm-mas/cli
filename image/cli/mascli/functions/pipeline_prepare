@@ -69,7 +69,7 @@ function pipeline_prepare() {
   echo ""
   echo -en "\033[s" # Save cursor position
   echo -n "Testing availability of $CLI_IMAGE in cluster ..."
-  EXISTING_DEPLOYMENT_IMAGE=$(oc -n default get deployment mas-cli2 -o jsonpath='{.spec.template.spec.containers[0].image}' 2>/dev/null)
+  EXISTING_DEPLOYMENT_IMAGE=$(oc -n mas-$MAS_INSTANCE_ID-pipelines get deployment mas-cli -o jsonpath='{.spec.template.spec.containers[0].image}' 2>/dev/null)
 
   if [[ "$EXISTING_DEPLOYMENT_IMAGE" != "CLI_IMAGE" ]]
   then oc -n mas-$MAS_INSTANCE_ID-pipelines apply -f $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yaml &>> $LOGFILE

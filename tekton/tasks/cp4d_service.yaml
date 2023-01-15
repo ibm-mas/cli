@@ -98,7 +98,7 @@ spec:
         - /opt/app-root/src/run-role.sh
         - cp4d_service
       image: quay.io/ibmmas/cli:$(params.cli_version)
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
       workingDir: /workspace/configs
 
   workspaces:

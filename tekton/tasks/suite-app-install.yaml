@@ -118,4 +118,4 @@ spec:
         - /opt/app-root/src/run-role.sh
         - suite_app_install
       image: quay.io/ibmmas/cli:$(params.cli_version)
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
