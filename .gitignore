@@ -14,4 +14,11 @@ tekton/pipelines/install-with-fvt.yml
 tekton/pipelines/install.yml
 tekton/pipelines/upgrade-test.yml
 tekton/pipelines/upgrade.yml
-tekton/pipelineruns/
+tekton/pipelineruns/fvt.yml.j2
+tekton/pipelineruns/install-with-fvt.yml.j2
+tekton/pipelineruns/install.yml.j2
+tekton/pipelineruns/upgrade-test.yml.j2
+tekton/pipelineruns/upgrade.yml.j2
+tekton/tasks/install-run-pipeline.yml
+tekton/tasks/fvt-run-pipeline.yml
+tekton/tasks/upgrade-run-pipeline.yml
