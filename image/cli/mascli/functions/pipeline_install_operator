@@ -24,7 +24,7 @@ function pipeline_install_operator() {
   echo_h2 "2. Install OpenShift Pipelines Operator"
   PIPELINES_CHANNEL=$(oc get packagemanifests openshift-pipelines-operator-rh -o jsonpath="{.status.defaultChannel}")
 
-  sed -e "s/{{pipelines_channel}}/$PIPELINES_CHANNEL/g" $DIR/templates/subscription.yaml | oc apply -f - &>> $LOGFILE
+  sed -e "s/{{pipelines_channel}}/$PIPELINES_CHANNEL/g" $DIR/templates/subscription.yml | oc apply -f - &>> $LOGFILE
 
   echo -en "\033[s" # Save cursor position
   echo -n "Installing OpenShift Pipelines Operator ($PIPELINES_CHANNEL) ..."

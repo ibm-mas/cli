@@ -1,0 +1,140 @@
+- hosts: localhost
+  any_errors_fatal: true
+  vars:
+    # ansible_fvt_version: latest
+    ansible_fvt_version: 20.0.0-pre.coderefactor
+  tasks:
+
+    # Load Source & Target Upgrade Test attributes
+    # Used to rename from/to parameters properly in upgrade-test pipeline
+    - name: "Load source target attributes"
+      ansible.builtin.set_fact:
+        params_source_target_list: "{{ params_source_target_list | default([]) + [item] }}"
+      with_lines: cat pipeline-templates/params/helper/source-target.txt
+
+    # Load Common Parameters
+    - name: "Resolve common parameters template into a list"
+      ansible.builtin.template:
+        src: pipeline-templates/params/helper/common-list.yml.j2
+        dest: pipeline-templates/params/helper/common-list.yml
+    - name: "Load common parameters list into a variable"
+      ansible.builtin.include_vars:
+        file: pipeline-templates/params/helper/common-list.yml
+        name: common_params_definition
+    
+    # Load Install Parameters
+    - name: "Resolve install parameters template into a list"
+      ansible.builtin.template:
+        src: pipeline-templates/params/helper/install-list.yml.j2
+        dest: pipeline-templates/params/helper/install-list.yml
+    - name: "Load install parameters list into a variable"
+      ansible.builtin.include_vars:
+        file: pipeline-templates/params/helper/install-list.yml
+        name: install_params_definition
+    
+    # Load FVT Parameters
+    - name: "Resolve fvt parameters template into a list"
+      ansible.builtin.template:
+        src: pipeline-templates/params/helper/fvt-list.yml.j2
+        dest: pipeline-templates/params/helper/fvt-list.yml
+    - name: "Load fvt parameters list into a variable"
+      ansible.builtin.include_vars:
+        file: pipeline-templates/params/helper/fvt-list.yml
+        name: fvt_params_definition
+    
+    # Load Upgrade Parameters
+    - name: "Resolve upgrade parameters template into a list"
+      ansible.builtin.template:
+        src: pipeline-templates/params/helper/upgrade-list.yml.j2
+        dest: pipeline-templates/params/helper/upgrade-list.yml
+    - name: "Load upgrade parameters list into a variable"
+      ansible.builtin.include_vars:
+        file: pipeline-templates/params/helper/upgrade-list.yml
+        name: upgrade_params_definition
+
+    # Load Upgrade Test Parameters (combine common, install, upgrade and fvt parameter lists)
+    # This is raw list as source/target attributes do not have their final form
+    # (e.g. we have mas_channel, instead of source_mas_channel and target_mas_channel). That will be solved when templating list into pipeline, tasks or pipelinerun
+    - name: "Load upgrade-test raw parameters list into a variable"
+      ansible.builtin.set_fact:
+        upgrade_test_raw_params_definition: "{{ common_params_definition.params + install_params_definition.params + fvt_params_definition.params + upgrade_params_definition.params }}"
+
+    # Debug upgrade_test_raw_params_definition
+    - name: "Debug upgrade_test_raw_params_definition"
+      ansible.builtin.debug:
+        msg: "{{ upgrade_test_raw_params_definition }}"
+
+    # Generate Run Pipeline Tasks
+    - name: "Generate install-run-pipeline task"
+      ansible.builtin.template:
+        src: task-templates/install-run-pipeline.yml.j2
+        dest: tasks/install-run-pipeline.yml
+    - name: "Generate fvt-run-pipeline task"
+      ansible.builtin.template:
+        src: task-templates/fvt-run-pipeline.yml.j2
+        dest: tasks/fvt-run-pipeline.yml
+    - name: "Generate upgrade-run-pipeline task"
+      ansible.builtin.template:
+        src: task-templates/upgrade-run-pipeline.yml.j2
+        dest: tasks/upgrade-run-pipeline.yml
+
+    # Debug Parameters Definition
+    - name: "Debug params_definition"
+      ansible.builtin.debug:
+        msg:
+          - "####### common_params_definition ........... {{ install_params_definition }}"
+          - "####### install_params_definition ........... {{ install_params_definition }}"
+          - "####### fvt_params_definition ............... {{ fvt_params_definition }}"
+          - "####### upgrade_params_definition ........... {{ upgrade_params_definition }}"
+
+    # Generate Pipelines
+    - name: Generate MAS Install Pipeline
+      ansible.builtin.template:
+        src: pipeline-templates/install.yml.j2
+        dest: pipelines/install.yml
+    - name: Generate MAS Install with FVT Pipeline
+      ansible.builtin.template:
+        src: pipeline-templates/install-with-fvt.yml.j2
+        dest: pipelines/install-with-fvt.yml
+    - name: Generate FVT Assist Pipeline
+      ansible.builtin.template:
+        src: pipeline-templates/fvt-assist.yml.j2
+        dest: pipelines/fvt-assist.yml
+    - name: Generate FVT Core Pipeline
+      ansible.builtin.template:
+        src: pipeline-templates/fvt-core.yml.j2
+        dest: pipelines/fvt-core.yml
+    - name: Generate FVT Pipeline
+      ansible.builtin.template:
+        src: pipeline-templates/fvt.yml.j2
+        dest: pipelines/fvt.yml
+    - name: Generate Upgrade Pipeline
+      ansible.builtin.template:
+        src: pipeline-templates/upgrade.yml.j2
+        dest: pipelines/upgrade.yml
+    - name: Generate Upgrade Test Pipeline
+      ansible.builtin.template:
+        src: pipeline-templates/upgrade-test.yml.j2
+        dest: pipelines/upgrade-test.yml
+
+    # Generate PipelineRun templates
+    - name: Generate install PipelineRun template
+      ansible.builtin.template:
+        src: pipelinerun-templates/install.yml.j2
+        dest: pipelineruns/install.yml.j2
+    - name: Generate install-with-fvt PipelineRun template
+      ansible.builtin.template:
+        src: pipelinerun-templates/install-with-fvt.yml.j2
+        dest: pipelineruns/install-with-fvt.yml.j2
+    - name: Generate fvt PipelineRun template
+      ansible.builtin.template:
+        src: pipelinerun-templates/fvt.yml.j2
+        dest: pipelineruns/fvt.yml.j2
+    - name: Generate upgrade PipelineRun template
+      ansible.builtin.template:
+        src: pipelinerun-templates/upgrade.yml.j2
+        dest: pipelineruns/upgrade.yml.j2
+    - name: Generate upgrade-test PipelineRun template
+      ansible.builtin.template:
+        src: pipelinerun-templates/upgrade-test.yml.j2
+        dest: pipelineruns/upgrade-test.yml.j2

@@ -5,54 +5,13 @@ metadata:
   name: mas-upgrade
 spec:
   params:
-    # MAS Configuration
-    - name: mas_instance_id
-      type: string
+    # 1. Common Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'params/common.yml.j2') | indent(4) }}
 
-    - name: mas_channel
-      type: string
-      default: ""
-
-    # MAS Configuration - Application Channels
-    - name: mas_app_channel_iot
-      type: string
-      description: Subscription channel for IoT application operator
-      default: ""
-
-    - name: mas_app_channel_manage
-      type: string
-      description: Subscription channel for Manage application operator
-      default: ""
-
-    - name: mas_app_channel_monitor
-      type: string
-      description: Subscription channel for Monitor application operator
-      default: ""
-
-    - name: mas_app_channel_optimizer
-      type: string
-      description: Subscription channel for Optimizer application operator
-      default: ""
-
-    - name: mas_app_channel_predict
-      type: string
-      description: Subscription channel for Predict application operator
-      default: ""
-
-    - name: mas_app_channel_hputilities
-      type: string
-      description: Subscription channel for Health & Predict - Utilities application operator
-      default: ""
-
-    - name: mas_app_channel_assist
-      type: string
-      description: Subscription channel for Assist application operator
-      default: ""
-
-    - name: mas_app_channel_visualinspection
-      type: string
-      description: Subscription channel for MVI application operator
-      default: ""
+    # 2. Upgrade
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'params/upgrade.yml.j2') | indent(4) }}
 
   tasks:
     # Phase 1
@@ -64,6 +23,8 @@ spec:
           value: $(params.mas_instance_id)
         - name: mas_channel
           value: $(params.mas_channel)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
       taskRef:
         kind: Task
         name: mas-devops-suite-upgrade
@@ -90,6 +51,8 @@ spec:
           value: iot
         - name: mas_app_channel
           value: $(params.mas_app_channel_iot)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -105,6 +68,8 @@ spec:
           value: manage
         - name: mas_app_channel
           value: $(params.mas_app_channel_manage)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -120,6 +85,8 @@ spec:
           value: visualinspection
         - name: mas_app_channel
           value: $(params.mas_app_channel_visualinspection)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -135,6 +102,8 @@ spec:
           value: assist
         - name: mas_app_channel
           value: $(params.mas_app_channel_assist)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -150,6 +119,8 @@ spec:
           value: optimizer
         - name: mas_app_channel
           value: $(params.mas_app_channel_optimizer)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -168,6 +139,8 @@ spec:
           value: monitor
         - name: mas_app_channel
           value: $(params.mas_app_channel_monitor)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -183,6 +156,8 @@ spec:
           value: predict
         - name: mas_app_channel
           value: $(params.mas_app_channel_predict)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -198,6 +173,8 @@ spec:
           value: hputilities
         - name: mas_app_channel
           value: $(params.mas_app_channel_hputilities)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade

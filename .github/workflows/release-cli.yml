@@ -27,8 +27,8 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/image/cli/mascli/templates/ibm-mas-tekton.yaml
-          asset_name: ibm-mas-tekton-${{ env.VERSION }}.yaml
+          file: ${{ github.workspace }}/image/cli/mascli/templates/ibm-mas-tekton.yml
+          asset_name: ibm-mas-tekton-${{ env.VERSION }}.yml
           tag: ${{ github.ref }}
           overwrite: true
 

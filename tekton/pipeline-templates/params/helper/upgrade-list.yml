@@ -1,0 +1,5 @@
+params:
+  # Skip Compatiblity Check
+  - name: skip_compatibility_check
+    type: string
+    default: "False"
