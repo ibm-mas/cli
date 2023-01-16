@@ -1,5 +1,8 @@
 ## Changes
 
+- [`3.10`](https://github.com/ibm-mas/cli/releases/tag/3.10.0) Add support for Jan 2023 catalog
+- [`3.9`](https://github.com/ibm-mas/cli/releases/tag/3.9.0) Add mobile test suite
+- [`3.8`](https://github.com/ibm-mas/cli/releases/tag/3.8.0) Add support for workload scale customization
 - [`3.7`](https://github.com/ibm-mas/cli/releases/tag/3.7.0) Add support for Dec 2022 catalog
 - [`3.6`](https://github.com/ibm-mas/cli/releases/tag/3.6.0) Support customizable CLI version in tekton
 - [`3.5`](https://github.com/ibm-mas/cli/releases/tag/3.5.0) Add fvt-core test pipeline
