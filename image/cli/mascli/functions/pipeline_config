@@ -192,6 +192,7 @@ function pipeline_config() {
   fi
 
   COMMON_SERVICES_CATALOG_SOURCE=ibm-operator-catalog
+  COMMON_SERVICES_CHANNEL=v3.22
   SLS_CATALOG_SOURCE=ibm-operator-catalog
 
   echo

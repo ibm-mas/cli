@@ -12,6 +12,9 @@ spec:
     - name: common_services_catalog_source
       type: string
       default: ""
+    - name: common_services_channel
+      type: string
+      default: ""
 
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
@@ -36,6 +39,8 @@ spec:
     env:
       - name: COMMON_SERVICES_CATALOG_SOURCE
         value: $(params.common_services_catalog_source)
+      - name: COMMON_SERVICES_CHANNEL
+        value: $(params.common_services_channel)
       # Optional support built into the ansible-devops image
       # for saving task execution results to a MongoDb instance
       - name: MAS_INSTANCE_ID

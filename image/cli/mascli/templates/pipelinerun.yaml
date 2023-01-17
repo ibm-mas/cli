@@ -59,6 +59,8 @@ spec:
     # Dependencies - Common Services
     - name: common_services_catalog_source
       value: '$COMMON_SERVICES_CATALOG_SOURCE'
+    - name: common_services_channel
+      value: '$COMMON_SERVICES_CHANNEL'
 
     # Dependencies - CP4D
     - name: cpd_product_version
