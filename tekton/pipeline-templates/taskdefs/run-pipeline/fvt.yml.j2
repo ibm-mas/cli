@@ -1,4 +1,5 @@
 {% for common_param in common_params_definition.params %}
+{% if common_param.name not in param_manual_setting_list %}
 {% if common_param.name in params_source_target_list %}
 - name: {{ common_param.name }}
   value: $(params.target_{{ common_param.name }})
@@ -6,9 +7,11 @@
 - name: {{ common_param.name }}
   value: $(params.{{ common_param.name }})
 {% endif %}
+{% endif %}
 {% endfor %}
 
 {% for install_param in install_params_definition.params %}
+{% if install_param.name not in param_manual_setting_list %}
 {% if install_param.name in params_source_target_list %}
 - name: {{ install_param.name }}
   value: $(params.source_{{ install_param.name }})
@@ -16,14 +19,17 @@
 - name: {{ install_param.name }}
   value: $(params.{{ install_param.name }})
 {% endif %}
+{% endif %}
 {% endfor %}
 
 {% for fvt_param in fvt_params_definition.params %}
+{% if fvt_param.name not in param_manual_setting_list %}
 {% if fvt_param.name in params_source_target_list %}
 - name: {{ fvt_param.name }}
   value: $(params.target_{{ fvt_param.name }})
 {% else %}
 - name: {{ fvt_param.name }}
   value: $(params.{{ fvt_param.name }})
+{% endif %}
 {% endif %}
 {% endfor %}

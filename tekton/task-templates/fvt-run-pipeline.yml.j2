@@ -4,18 +4,14 @@ kind: Task
 metadata:
   name: mas-fvt-run-pipeline
 spec:
-  params:    
-    # Pipeline Run Parameters
-    - name: pipelinerun_template_file_name
-      type: string
-      description: name of the pipelinerun template (.yml.j2)
-      default: fvt
+  params:
+    # Run Pipeline Parameters
     - name: pipelinerun_timeout
       type: string
       description: pipelinerun timeout
       default: 10h
-    - name: pipelinerun_name_suffix
-      description: optional suffix to pipelinerun standard name
+    - name: task_name_suffix
+      description: optional suffix to pipelinerun task name
       default: ""
     
     # Common Parameters
@@ -28,16 +24,15 @@ spec:
     {{ lookup('template', 'pipeline-templates/params/fvt.yml.j2') | indent(4) }}
 
   stepTemplate:
-    name: 'run-pipeline-$(params.pipeline_name)'
     env:
-      - name: PIPELINERUN_TEMPLATE_FILE_NAME
-        value: $(params.pipelinerun_template_file_name)
+      - name: PIPELINE_NAME
+        value: fvt
       - name: PIPELINERUN_TIMEOUT
         value: $(params.pipelinerun_timeout)
       - name: PIPELINERUN_WAIT
         value: "true"
-      - name: PIPELINERUN_NAME_SUFFIX
-        value: $(params.pipelinerun_name_suffix)
+      - name: TASK_NAME_SUFFIX
+        value: $(params.task_name_suffix)
 {% for common_param in common_params_definition.params %}
       - name: {{ common_param.name | upper }}
         value: $(params.{{ common_param.name }})

@@ -5,18 +5,14 @@ metadata:
   name: mas-install-run-pipeline
 spec:
   params:    
-    # Pipeline Run Parameters
-    - name: pipelinerun_template_file_name
-      type: string
-      description: name of the pipelinerun template (.yml.j2)
-      default: install
+    # Run Pipeline Parameters
     - name: pipelinerun_timeout
       type: string
       description: pipelinerun timeout
-      default: "10h"
-    - name: fvt_image_registry
-      type: string
-      description: registry where test images live
+      default: 10h
+    - name: task_name_suffix
+      description: optional suffix to pipelinerun task name
+      default: ""
     
     # Common Parameters
     {{ lookup('template', 'pipeline-templates/params/common.yml.j2') | indent(4) }}
@@ -26,12 +22,14 @@ spec:
   
   stepTemplate:
     env:
-      - name: PIPELINERUN_TEMPLATE_FILE_NAME
-        value: $(params.pipelinerun_template_file_name)
+      - name: PIPELINE_NAME
+        value: install
       - name: PIPELINERUN_TIMEOUT
         value: $(params.pipelinerun_timeout)
       - name: PIPELINERUN_WAIT
         value: "true"
+      - name: TASK_NAME_SUFFIX
+        value: $(params.task_name_suffix)
 {% for common_param in common_params_definition.params %}
       - name: {{ common_param.name | upper }}
         value: $(params.{{ common_param.name }})

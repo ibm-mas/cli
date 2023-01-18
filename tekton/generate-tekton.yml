@@ -6,10 +6,16 @@
 
     # Load Source & Target Upgrade Test attributes
     # Used to rename from/to parameters properly in upgrade-test pipeline
-    - name: "Load source target attributes"
+    - name: "Load source target parameters"
       ansible.builtin.set_fact:
         params_source_target_list: "{{ params_source_target_list | default([]) + [item] }}"
       with_lines: cat pipeline-templates/params/helper/source-target.txt
+    
+    # Run-pipeline task parameters that should not be created in run-pipeline/taskdefs because they will be manuallu set
+    - name: "Load manual setting run-pipeline parameters"
+      ansible.builtin.set_fact:
+        param_manual_setting_list: "{{ param_manual_setting_list | default([]) + [item] }}"
+      with_lines: cat pipeline-templates/taskdefs/run-pipeline/manual-setting.txt
 
     # Load Common Parameters
     - name: "Resolve common parameters template into a list"
@@ -81,10 +87,11 @@
     - name: "Debug params_definition"
       ansible.builtin.debug:
         msg:
-          - "####### common_params_definition ........... {{ install_params_definition }}"
+          - "####### common_params_definition ............ {{ install_params_definition }}"
           - "####### install_params_definition ........... {{ install_params_definition }}"
           - "####### fvt_params_definition ............... {{ fvt_params_definition }}"
           - "####### upgrade_params_definition ........... {{ upgrade_params_definition }}"
+          - "####### param_manual_setting_list ........... {{ param_manual_setting_list }}"
 
     # Generate Pipelines
     - name: Generate MAS Install Pipeline

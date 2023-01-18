@@ -10,6 +10,14 @@ params:
   - name: devops_build_number
     type: string
     default: ""
+  - name: test_type
+    type: string
+    description: Optional. Used to different upgrade tests from other type of tests
+    default: ""
+  - name: test_phase
+    type: string
+    description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
+    default: ""
 
   # MAS Configuration
   - name: mas_instance_id
