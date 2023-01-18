@@ -3,20 +3,63 @@ table {
 }
 
 table tr th {
-  padding: 5px 10px;
-  background-color: #ddd;
-  border:1px solid #aaa !important;
-  min-width:240px;
+  padding: 10px 10px;
+  background-color: #2980B9;
+  border:0px solid #aaa !important;
+  color: #fff;
+  font-weight: normal;
+}
+
+table tr th a, table tr th a:hover, table tr th a:active, table tr th a:visited {
+  color: #fff !important;
+  text-decoration: underline;
 }
 
 table tr td {
-  padding: 5px 10px;
-  border:1px solid #aaa !important;
-  min-width:240px;
+  padding: 10px 10px;
+  border:0px solid #aaa !important;
+  vertical-align: middle;
 }
 
 table tr:nth-child(even) {
+  background-color: #f3f6f6;
+}
+table tr:nth-child(odd) {
   background-color: #eee;
+}
+
+
+table.compatabilityMatrix tr th {
+  text-align: left;
+}
+table.compatabilityMatrix tr th.firstColumn {
+  text-align: left;
+}
+
+
+table.compatabilityMatrix tr td {
+  text-align: left;
+}
+table.compatabilityMatrix tr td.firstColumn {
+  font-weight: bold;
+  text-align: left;
+}
+
+
+table.supportMatrix tr th {
+  text-align: center;
+}
+
+table tr th.spacer {
+  background-color: #FCFCFC !important;
+  width: 2px !important;
+  padding: 0 !important;
+}
+
+table tr td.spacer {
+  background-color: #FCFCFC !important;
+  width: 2px !important;
+  padding: 0 !important;
 }
 
 /* If an unordered list immediately follows a normal paragraph, set negative
