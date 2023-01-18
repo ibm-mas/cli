@@ -1,7 +1,8 @@
 - hosts: localhost
   any_errors_fatal: true
   vars:
-    ansible_fvt_version: latest
+    # ansible_fvt_version: latest
+    ansible_fvt_version: 20.0.0-pre.coderefactor
   tasks:
 
     # Load Source & Target Upgrade Test attributes
