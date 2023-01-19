@@ -27,6 +27,11 @@
       value: ibm-mas-hputilities
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+
+    - name: test_type
+      value: $(params.test_type)
+    - name: test_phase
+      value: $(params.test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -73,6 +78,11 @@
       value: ibm-mas-hputilities
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+    
+    - name: test_type
+      value: $(params.test_type)
+    - name: test_phase
+      value: $(params.test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite

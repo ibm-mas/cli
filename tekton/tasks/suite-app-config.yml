@@ -77,6 +77,17 @@ spec:
       description: Optional. Controls the workload size of predict containers. Available options are developer, small, medium, and small
       default: ""
 
+    # Optional parameters to categoriz result to be persisted
+    # -------------------------------------------------------------------------
+    - name: test_type
+      type: string
+      description: Optional. Used to different upgrade tests from other type of tests
+      default: ""
+    - name: test_phase
+      type: string
+      description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
+      default: ""
+
   stepTemplate:
     env:
       - name: MAS_CONFIG_DIR
@@ -119,6 +130,12 @@ spec:
         value: $(params.wml_version)
       - name: PREDICT_DEPLOYMENT_SIZE
         value: $(params.predict_deployment_size)
+      
+      # Optional parameters to categoriz result to be persisted
+      - name: TEST_TYPE
+        value: $(params.test_type)
+      - name: TEST_PHASE
+        value: $(params.test_phase)
 
   steps:
     - name: suite-app-config

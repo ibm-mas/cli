@@ -25,6 +25,11 @@
       value: ibm-mas-iot
     - name: fvt_test_suite
       value: iot
+
+    - name: test_type
+      value: $(params.test_type)
+    - name: test_phase
+      value: $(params.test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite

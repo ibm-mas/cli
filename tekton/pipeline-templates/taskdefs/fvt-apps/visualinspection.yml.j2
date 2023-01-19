@@ -24,6 +24,11 @@
       value: $(params.mas_app_channel_visualinspection)
     - name: product_id
       value: ibm-mas-visualinspection
+    
+    - name: test_type
+      value: $(params.test_type)
+    - name: test_phase
+      value: $(params.test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite

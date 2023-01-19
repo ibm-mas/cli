@@ -49,6 +49,7 @@ spec:
       description: Workspace ID in MAS to use for running the tests
 
     # Assist Specific information
+    # -------------------------------------------------------------------------
     - name: assist_device_type
       type: string
       description: Assist UI test device type. Can be android, ios, chrome, edge, firefox or safari. Default is chrome
@@ -59,10 +60,22 @@ spec:
       default: ""
 
     # Common Test Framework Specific information
+    # -------------------------------------------------------------------------
     - name: ctf_is_local
       type: string
       description: Boolean value to check if tests are runninng locally or on fvt
       default: "false"
+    
+    # Optional parameters to categoriz result to be persisted
+    # -------------------------------------------------------------------------
+    - name: test_type
+      type: string
+      description: Optional. Used to different upgrade tests from other type of tests
+      default: ""
+    - name: test_phase
+      type: string
+      description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
+      default: ""
 
   stepTemplate:
     name: 'fvt-run-$(params.fvt_image_name)'
@@ -114,6 +127,12 @@ spec:
       # Common Test Framework Specific information
       - name: CTF_IS_LOCAL
         value: $(params.ctf_is_local)
+
+      # Optional parameters to categoriz result to be persisted
+      - name: TEST_TYPE
+        value: $(params.test_type)
+      - name: TEST_PHASE
+        value: $(params.test_phase)
   steps:
     - image: '$(params.fvt_image_registry)/fvt-assist/$(params.fvt_image_name):$(params.fvt_image_version)'
       imagePullPolicy: IfNotPresent

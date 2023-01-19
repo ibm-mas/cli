@@ -8,3 +8,8 @@
   value: $(params.devops_build_number)
 - name: devops_mongo_uri
   value: $(params.devops_mongo_uri)
+# Optional parameters used to categorize results
+- name: test_type
+  value: $(params.test_type)
+- name: test_phase
+  value: $(params.test_phase)
