@@ -18,6 +18,13 @@ spec:
     - name: mas_app_channel
       type: string
       description: Instance ID
+
+    # Optional parameter to skip
+    # -------------------------------------------------------------------------
+    - name: skip_compatibility_check
+      type: string
+      description: "Optional. Skip compatibility checking and force upgrade when set to true"
+      default: "False"
     
     # Optional parameters to categoriz result to be persisted
     # -------------------------------------------------------------------------
@@ -39,7 +46,13 @@ spec:
       - name: MAS_APP_CHANNEL
         value: $(params.mas_app_channel)
       
+      # Optional parameter to skip
+      # -------------------------------------------------------------------------
+      - name: SKIP_COMPATIBILITY_CHECK
+        value: $(params.skip_compatibility_check)
+      
       # Optional parameters to categoriz result to be persisted
+      # -------------------------------------------------------------------------
       - name: TEST_TYPE
         value: $(params.test_type)
       - name: TEST_PHASE
