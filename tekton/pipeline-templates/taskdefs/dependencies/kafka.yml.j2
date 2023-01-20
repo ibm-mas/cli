@@ -14,6 +14,8 @@
       value: "$(params.kafka_user_name)"
     - name: kafka_storage_class
       value: $(params.storage_class_rwo)
+    - name: zookeeper_storage_class
+      value: $(params.storage_class_rwo)
   # Only install Kafka if the IoT application is being installed
   when:
     - input: "$(params.mas_app_channel_iot)"
