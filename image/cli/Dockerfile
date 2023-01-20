@@ -25,7 +25,8 @@ RUN umask 0002 && \
     bash /tmp/install/install-ibmcloud.sh && \
     bash /tmp/install/install-skopeo.sh && \
     bash /tmp/install/install-aws.sh && \
-    rm -rf /tmp/install
+    rm -rf /tmp/install && \
+    rm /opt/app-root/src/.wget-hsts /opt/app-root/src/README.md /opt/app-root/src/LICENSE
 
 # 4. Install tini
 ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini /tini
