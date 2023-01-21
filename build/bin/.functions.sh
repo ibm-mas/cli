@@ -76,5 +76,5 @@ function artifactory_upload() {
   sha1Value="${sha1Value:0:40}"
 
   echo "Uploading $1 to $2"
-  curl -H "X-JFrog-Art-Api:$ARTIFACTORY_APIKEY"  -H "X-Checksum-Md5: $md5Value" -H "X-Checksum-Sha1: $sha1Value" -T $1 $2
+  curl -H "X-JFrog-Art-Api:$ARTIFACTORY_APIKEY"  -H "X-Checksum-Md5: $md5Value" -H "X-Checksum-Sha1: $sha1Value" -T $1 $2 || exit 1
 }
