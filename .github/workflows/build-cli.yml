@@ -33,6 +33,10 @@ jobs:
           path: ${{ github.workspace }}/image/cli/mascli/templates/ibm-mas-tekton.yaml
           retention-days: 30
 
+      - name: Upload definition to Artifactory
+        run: |
+          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yaml
+
       # 2. CLI installer
       # -------------------------------------------------------------------------------------------
       - name: Build the cli package

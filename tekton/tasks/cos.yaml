@@ -16,10 +16,11 @@ spec:
     - name: cos_type
       type: string
       description: COS Provider (ibm and ocs are supported)
-      default: "ibm"
+      default: ""
     - name: ibmcloud_apikey
       type: string
       description: IBM Cloud API Key
+      default: ""
     - name: ibmcloud_resourcegroup
       type: string
       description: Name of an existing Resource Group in IBM Cloud account

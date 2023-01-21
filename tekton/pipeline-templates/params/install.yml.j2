@@ -147,6 +147,12 @@
   type: string
 - name: uds_contact_lastname       # Required
   type: string
+- name: uds_event_scheduler_frequency
+  type: string
+  default: ""
+- name: mas_segment_key
+  type: string
+  default: ""
 
 # Dependencies - AppConnect
 {{ lookup('template', 'params/install-appconnect.yml.j2') }}
@@ -155,14 +161,10 @@
 - name: cos_type
   type: string
   description: COS Provider (ibm or ocs)
+  default: ""
 - name: ibmcloud_apikey
   type: string
   description: API Key used to create COS instance in IBM Cloud
-- name: uds_event_scheduler_frequency
-  type: string
-  default: ""
-- name: mas_segment_key
-  type: string
   default: ""
 
 # MAS DNS Integrations - General
