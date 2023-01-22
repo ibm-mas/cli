@@ -5,9 +5,10 @@ metadata:
   name: mas-devops-cp4d-service
 spec:
   params:
-    - name: cli_version
+    # Control the image pull policy for the CLI container image
+    - name: image_pull_policy
       type: string
-      default: latest
+      default: IfNotPresent
 
     # Namespace configuration (Optional, defaults built into Ansible role)
     - name: cpd_operator_namespace
@@ -97,8 +98,8 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cp4d_service
-      image: quay.io/ibmmas/cli:$(params.cli_version)
-      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
 
   workspaces:

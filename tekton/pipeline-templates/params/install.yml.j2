@@ -1,8 +1,8 @@
-# IBM MAS CLI Version
-- name: cli_version
+# Tekton Pipeline image pull policy (for CLI & FVT images)
+- name: image_pull_policy
   type: string
-  default: latest
-  description: Version of the IBM MAS CLI image to use
+  default: IfNotPresent
+  description: Pull policy for pipeline container images
 
 # Development Build Support
 - name: artifactory_username

@@ -5,6 +5,11 @@ metadata:
   name: mas-fvt-core
 spec:
   params:
+    # Control the image pull policy for the FVT container image
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+
     # Test Container Information
     # -------------------------------------------------------------------------
     - name: fvt_image_registry
@@ -103,7 +108,7 @@ spec:
         value: $(params.partium_password)
   steps:
     - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}

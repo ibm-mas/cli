@@ -5,6 +5,11 @@ metadata:
   name: mas-fvt-assist-desktop
 spec:
   params:
+    # Control the image pull policy for the FVT container image
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+
     # Test Container Information
     # -------------------------------------------------------------------------
     - name: fvt_image_registry
