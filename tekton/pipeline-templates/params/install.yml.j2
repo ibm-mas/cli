@@ -272,18 +272,10 @@
   default: full
 
 # MAS Configuration - Predict
-- name: wml_instance_id
-  type: string
-  description: wml instance to be configured in Predict
-  default: ""
-- name: wml_url
-  type: string
-  description: Url to access wml services
-  default: ""
 - name: predict_deployment_size
   type: string
   description: controls the workload size of predict containers
-  default: ""
+  default: "small"
 
 # MAS Configuration - Application Channels
 - name: mas_app_channel_iot
