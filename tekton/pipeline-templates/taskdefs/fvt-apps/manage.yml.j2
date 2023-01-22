@@ -38,7 +38,7 @@
   when:
     - input: "$(params.fvt_version_manage)"
       operator: notin
-      values: [""]
+      values: ["skip"]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -88,7 +88,7 @@
   when:
     - input: "$(params.fvt_version_manage_acm)"
       operator: notin
-      values: [""]
+      values: ["skip"]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -138,7 +138,7 @@
   when:
     - input: "$(params.fvt_version_manage_aviation)"
       operator: notin
-      values: [""]
+      values: ["skip"]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -188,7 +188,7 @@
   when:
     - input: "$(params.fvt_version_manage_hse)"
       operator: notin
-      values: [""]
+      values: ["skip"]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -238,7 +238,7 @@
   when:
     - input: "$(params.fvt_version_manage_nuclear)"
       operator: notin
-      values: [""]
+      values: ["skip"]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -288,7 +288,7 @@
   when:
     - input: "$(params.fvt_version_manage_serviceprovider)"
       operator: notin
-      values: [""]
+      values: ["skip"]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -338,7 +338,7 @@
   when:
     - input: "$(params.fvt_version_manage_spatial)"
       operator: notin
-      values: [""]
+      values: ["skip"]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -388,7 +388,7 @@
   when:
     - input: "$(params.fvt_version_manage_transportation)"
       operator: notin
-      values: [""]
+      values: ["skip"]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -438,7 +438,7 @@
   when:
     - input: "$(params.fvt_version_manage_civil)"
       operator: notin
-      values: [""]
+      values: ["skip"]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -488,7 +488,7 @@
   when:
     - input: "$(params.fvt_version_manage_ic)"
       operator: notin
-      values: [""]
+      values: ["skip"]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -539,7 +539,7 @@
 #      when:
 #        - input: "$(params.fvt_version_health)"
 #          operator: notin
-#          values: [""]
+#          values: ["skip"]
 #        - input: "$(params.mas_app_channel_manage)"
 #          operator: notin
 #          values: [""]
@@ -585,7 +585,7 @@
 #      when:
 #        - input: "$(params.fvt_version_health)"
 #          operator: notin
-#          values: [""]
+#          values: ["skip"]
 #        - input: "$(params.mas_app_channel_manage)"
 #          operator: notin
 #          values: [""]
