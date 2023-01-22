@@ -66,11 +66,7 @@ spec:
       default: ""
     - name: cpd_product_version
       type: string
-      description: Required when wml_version is not informed. It is the version of cloud pak for data installed in the cluster. Based on that wml version will be identified. Recommend use of this variable instead of forcing wml version by setting wml_version
-      default: ""
-    - name: wml_version
-      type: string
-      description: Required when cpd_product_version is not informed. Is the version of WML to use.
+      description: The version of Cloud Pak for Data installed in the cluster, used to determine the version of WML.
       default: ""
     - name: predict_deployment_size
       type: string
@@ -115,8 +111,6 @@ spec:
         value: $(params.wml_url)
       - name: CPD_PRODUCT_VERSION
         value: $(params.cpd_product_version)
-      - name: WML_VERSION
-        value: $(params.wml_version)
       - name: PREDICT_DEPLOYMENT_SIZE
         value: $(params.predict_deployment_size)
 

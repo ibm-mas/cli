@@ -125,8 +125,9 @@
   default: ""
 
 # Dependencies - CP4D Services
-- name: cpd_product_version        # Required
+- name: cpd_product_version
   type: string
+  default: ""
 - name: cpd_wd_storage_class
   type: string
   default: ""
@@ -277,10 +278,6 @@
 - name: wml_url
   type: string
   description: Url to access wml services
-  default: ""
-- name: wml_version
-  type: string
-  description: product version if cpd_product_version is not set
   default: ""
 - name: predict_deployment_size
   type: string
