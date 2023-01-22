@@ -111,10 +111,10 @@ spec:
       # WML
       - name: CPD_PRODUCT_VERSION
         value: $(params.cpd_product_version)
-      - name: WML_INSTANCE_ID
-        value: $(params.wml_instance_id)
-      - name: WML_URL
-        value: $(params.wml_url)
+      - name: CPD_WML_INSTANCE_ID
+        value: $(params.cpd_wml_instance_id)
+      - name: CPD_WML_URL
+        value: $(params.cpd_wml_url)
 
       # Optional support built into the ansible-devops image
       # for saving task execution results to a MongoDb instance
