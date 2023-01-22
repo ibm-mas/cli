@@ -37,8 +37,9 @@
 # Dependencies - SLS
 - name: sls_license_id             # Required
   type: string
-- name: sls_license_file           # Required
+- name: sls_license_file
   type: string
+  default: "/workspace/entitlement/entitlement.lic"
 - name: sls_mongodb_cfg_file
   type: string
   default: "/workspace/configs/mongo-mongoce.yml"
