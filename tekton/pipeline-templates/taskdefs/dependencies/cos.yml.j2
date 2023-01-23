@@ -11,8 +11,10 @@
   taskRef:
     kind: Task
     name: mas-devops-cos
-  # Only needed if Assist is being installed
   when:
+    - input: "$(params.cos_type)"
+      operator: notin
+      values: [""]
     - input: "$(params.mas_app_channel_assist)"
       operator: notin
       values: [""]

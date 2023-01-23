@@ -5,9 +5,10 @@ metadata:
   name: mas-devops-common-services
 spec:
   params:
-    - name: cli_version
+    # Control the image pull policy for the CLI container image
+    - name: image_pull_policy
       type: string
-      default: latest
+      default: IfNotPresent
 
     - name: common_services_catalog_source
       type: string
@@ -52,6 +53,6 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - common_services
-      image: quay.io/ibmmas/cli:$(params.cli_version)
-      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs

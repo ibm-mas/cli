@@ -1,8 +1,8 @@
-# IBM MAS CLI Version
-- name: cli_version
+# Tekton Pipeline image pull policy (for CLI & FVT images)
+- name: image_pull_policy
   type: string
-  default: latest
-  description: Version of the IBM MAS CLI image to use
+  default: IfNotPresent
+  description: Pull policy for pipeline container images
 
 # Development Build Support
 - name: artifactory_username
@@ -37,8 +37,9 @@
 # Dependencies - SLS
 - name: sls_license_id             # Required
   type: string
-- name: sls_license_file           # Required
+- name: sls_license_file
   type: string
+  default: "/workspace/entitlement/entitlement.lic"
 - name: sls_mongodb_cfg_file
   type: string
   default: "/workspace/configs/mongo-mongoce.yml"
@@ -125,8 +126,9 @@
   default: ""
 
 # Dependencies - CP4D Services
-- name: cpd_product_version        # Required
+- name: cpd_product_version
   type: string
+  default: ""
 - name: cpd_wd_storage_class
   type: string
   default: ""
@@ -147,6 +149,12 @@
   type: string
 - name: uds_contact_lastname       # Required
   type: string
+- name: uds_event_scheduler_frequency
+  type: string
+  default: ""
+- name: mas_segment_key
+  type: string
+  default: ""
 
 # Dependencies - AppConnect
 {{ lookup('template', 'params/install-appconnect.yml.j2') }}
@@ -155,14 +163,10 @@
 - name: cos_type
   type: string
   description: COS Provider (ibm or ocs)
+  default: ""
 - name: ibmcloud_apikey
   type: string
   description: API Key used to create COS instance in IBM Cloud
-- name: uds_event_scheduler_frequency
-  type: string
-  default: ""
-- name: mas_segment_key
-  type: string
   default: ""
 
 # MAS DNS Integrations - General
@@ -268,22 +272,10 @@
   default: full
 
 # MAS Configuration - Predict
-- name: wml_instance_id
-  type: string
-  description: wml instance to be configured in Predict
-  default: ""
-- name: wml_url
-  type: string
-  description: Url to access wml services
-  default: ""
-- name: wml_version
-  type: string
-  description: product version if cpd_product_version is not set
-  default: ""
 - name: predict_deployment_size
   type: string
   description: controls the workload size of predict containers
-  default: ""
+  default: "small"
 
 # MAS Configuration - Application Channels
 - name: mas_app_channel_iot

@@ -5,10 +5,12 @@ metadata:
   name: mas-devops-suite-app-config
 spec:
   params:
-    - name: cli_version
+    # Control the image pull policy for the CLI container image
+    - name: image_pull_policy
       type: string
-      default: latest
+      default: IfNotPresent
 
+    # Generic settings
     - name: mas_app_id
       type: string
       description: Maximo Application Suite Application ID
@@ -23,15 +25,7 @@ spec:
       type: string
       description: Maximo Application Suite Workspace ID
 
-    - name: cpd_ws_project_id
-      type: string
-      description: Analytics Project Id
-      default: ""
-    - name: cpd_ws_project_name
-      type: string
-      description: Analytics Project Name
-      default: ""
-
+    # Manage settings
     - name: mas_app_settings_aio_flag
       type: string
       description: Flag indicating if Asset Investment Optimization (AIO) resource must be loaded or not. It can be loaded only when Optimizer application is installed.
@@ -39,6 +33,36 @@ spec:
     - name: mas_app_settings_demodata
       type: string
       description: Flag indicating if manage demodata should be loaded or not
+      default: ""
+
+    # Deployment Size - Predict only
+    - name: predict_deployment_size
+      type: string
+      description: Optional. Controls the workload size of predict containers. Available options are developer, small, medium, and small
+      default: ""
+
+    # Watson Studio Local - Predict & HP Utilities only
+    - name: cpd_wsl_project_id
+      type: string
+      description: Analytics Project Id
+      default: ""
+    - name: cpd_wsl_project_name
+      type: string
+      description: Analytics Project Name
+      default: ""
+
+    # Watson Machine Learning - Predict only
+    - name: cpd_product_version
+      type: string
+      description: The version of Cloud Pak for Data installed in the cluster, used to determine the version of WML.
+      default: ""
+    - name: cpd_wml_instance_id
+      type: string
+      description: Optional. Identifier of wml instance to be configured in Predict
+      default: ""
+    - name: cpd_wml_url
+      type: string
+      description: Optional. Url to access WML service (same as Cloud Pak for Data url)
       default: ""
 
     # Optional support built into the ansible-devops image
@@ -56,27 +80,6 @@ spec:
       description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
       default: ""
 
-    - name: wml_instance_id
-      type: string
-      description: Optional. Identifier of wml instance to be configured in Predict
-      default: ""
-    - name: wml_url
-      type: string
-      description: Optional. Url to access WML service (same as Cloud Pak for Data url)
-      default: ""
-    - name: cpd_product_version
-      type: string
-      description: Required when wml_version is not informed. It is the version of cloud pak for data installed in the cluster. Based on that wml version will be identified. Recommend use of this variable instead of forcing wml version by setting wml_version
-      default: ""
-    - name: wml_version
-      type: string
-      description: Required when cpd_product_version is not informed. Is the version of WML to use.
-      default: ""
-    - name: predict_deployment_size
-      type: string
-      description: Optional. Controls the workload size of predict containers. Available options are developer, small, medium, and small
-      default: ""
-
   stepTemplate:
     env:
       - name: MAS_CONFIG_DIR
@@ -90,10 +93,29 @@ spec:
       - name: MAS_APPWS_COMPONENTS
         value: $(params.mas_appws_components)
 
-      - name: CPD_WS_PROJECT_ID
-        value: $(params.cpd_ws_project_id)
-      - name: CPD_WS_PROJECT_NAME
-        value: $(params.cpd_ws_project_name)
+      # Manage
+      - name: MAS_APP_SETTINGS_AIO_FLAG
+        value: $(params.mas_app_settings_aio_flag)
+      - name: MAS_APP_SETTINGS_DEMODATA
+        value: $(params.mas_app_settings_demodata)
+
+      # Predict
+      - name: PREDICT_DEPLOYMENT_SIZE
+        value: $(params.predict_deployment_size)
+
+      # WSL
+      - name: CPD_WSL_PROJECT_ID
+        value: $(params.cpd_wsl_project_id)
+      - name: CPD_WSL_PROJECT_NAME
+        value: $(params.cpd_wsl_project_name)
+
+      # WML
+      - name: CPD_PRODUCT_VERSION
+        value: $(params.cpd_product_version)
+      - name: CPD_WML_INSTANCE_ID
+        value: $(params.cpd_wml_instance_id)
+      - name: CPD_WML_URL
+        value: $(params.cpd_wml_url)
 
       # Optional support built into the ansible-devops image
       # for saving task execution results to a MongoDb instance
@@ -104,29 +126,13 @@ spec:
       - name: DEVOPS_BUILD_NUMBER
         value: $(params.devops_build_number)
 
-      # Optional
-      - name: MAS_APP_SETTINGS_AIO_FLAG
-        value: $(params.mas_app_settings_aio_flag)
-      - name: MAS_APP_SETTINGS_DEMODATA
-        value: $(params.mas_app_settings_demodata)
-      - name: WML_INSTANCE_ID
-        value: $(params.wml_instance_id)
-      - name: WML_URL
-        value: $(params.wml_url)
-      - name: CPD_PRODUCT_VERSION
-        value: $(params.cpd_product_version)
-      - name: WML_VERSION
-        value: $(params.wml_version)
-      - name: PREDICT_DEPLOYMENT_SIZE
-        value: $(params.predict_deployment_size)
-
   steps:
     - name: suite-app-config
       command:
         - /opt/app-root/src/run-role.sh
         - suite_app_config
-      image: quay.io/ibmmas/cli:$(params.cli_version)
-      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
 
   workspaces:
     - name: configs

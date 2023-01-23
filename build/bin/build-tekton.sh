@@ -37,7 +37,7 @@ for FILE in $PIPELINE_FILES; do
   cat $FILE >> $TARGET_FILE
 done
 
-sed "s/default: latest/default: \"$VERSION\"/g" $TARGET_FILE > $TARGET_FILE.txt
+sed "s/cli:latest/cli:$VERSION/g" $TARGET_FILE > $TARGET_FILE.txt
 
 rm $TARGET_FILE
 mv $TARGET_FILE.txt $TARGET_FILE

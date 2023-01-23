@@ -5,6 +5,11 @@ metadata:
   name: mas-fvt-run-suite
 spec:
   params:
+    # Control the image pull policy for the FVT container image
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+
     # Test Container Information
     # -------------------------------------------------------------------------
     - name: fvt_image_registry
@@ -208,7 +213,7 @@ spec:
         value: $(params.ctf_is_local)
   steps:
     - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name):$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
