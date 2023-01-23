@@ -32,6 +32,13 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
 
+      - name: Upload definition to Artifactory
+        env:
+          ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
+          ARTIFACTORY_APIKEY: ${{ secrets.ARTIFACTORY_APIKEY }}
+        run: |
+          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yaml
+
       # 2. CLI installer
       # -------------------------------------------------------------------------------------------
       - name: Build the cli package

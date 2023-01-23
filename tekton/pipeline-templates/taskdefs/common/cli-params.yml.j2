@@ -1,6 +1,6 @@
-# Controls the version of the ibmmas/cli image used
-- name: cli_version
-  value: $(params.cli_version)
+# Controls the image pull policy for the ibmmas/cli image (& FVT container images)
+- name: image_pull_policy
+  value: $(params.image_pull_policy)
 # Parameters that enable MongoDb results storage
 - name: mas_instance_id
   value: $(params.mas_instance_id)

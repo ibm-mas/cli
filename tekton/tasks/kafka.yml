@@ -5,9 +5,10 @@ metadata:
   name: mas-devops-kafka
 spec:
   params:
-    - name: cli_version
+    # Control the image pull policy for the CLI container image
+    - name: image_pull_policy
       type: string
-      default: latest
+      default: IfNotPresent
 
     - name: mas_instance_id
       type: string
@@ -27,6 +28,9 @@ spec:
       type: string
       default: "masuser"
     - name: kafka_storage_class
+      type: string
+      default: ""
+    - name: zookeeper_storage_class
       type: string
       default: ""
 
@@ -73,6 +77,8 @@ spec:
         value: $(params.kafka_user_name)
       - name: KAFKA_STORAGE_CLASS
         value: $(params.kafka_storage_class)
+      - name: ZOOKEEPER_STORAGE_CLASS
+        value: $(params.zookeeper_storage_class)
 
       # Optional support built into the ansible-devops image
       # for saving task execution results to a MongoDb instance
@@ -94,8 +100,8 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - kafka
-      image: quay.io/ibmmas/cli:$(params.cli_version)
-      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
 
   workspaces:
