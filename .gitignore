@@ -22,3 +22,7 @@ tekton/pipelineruns/upgrade.yml.j2
 tekton/tasks/install-run-pipeline.yml
 tekton/tasks/fvt-run-pipeline.yml
 tekton/tasks/upgrade-run-pipeline.yml
+tekton/pipeline-templates/params/helper/common-list.yml
+tekton/pipeline-templates/params/helper/fvt-list.yml
+tekton/pipeline-templates/params/helper/install-list-yml
+tekton/pipeline-templates/params/helper/upgrade-list.yml
