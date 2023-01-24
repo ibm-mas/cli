@@ -10,6 +10,8 @@
       value: $(params.mongodb_replicas)
     - name: mongodb_cpu_requests
       value: $(params.mongodb_cpu_requests)
+    - name: custom_labels
+      value: $(params.custom_labels)
   taskRef:
     kind: Task
     name: mas-devops-mongodb
