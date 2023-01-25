@@ -51,5 +51,5 @@ spec:
     - name: run-pipeline
       command:
         - /opt/app-root/src/run-pipeline.sh
-      image: '$(params.fvt_image_registry)/mas-devops/ansible-fvt:{{ ansible_fvt_version }}'
+      image: '$(params.fvt_image_registry)/mas-devops/mas-tektont:{{ mas_tekton_version }}'
       imagePullPolicy: Always
