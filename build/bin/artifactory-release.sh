@@ -35,8 +35,8 @@ fi
 TARGET_URL="${ARTIFACTORY_GENERIC_RELEASE_URL}/${GITHUB_REPOSITORY}/${VERSION}/${FILE_NAME}-${VERSION}.${FILE_EXT}"
 artifactory_upload $FILE_PATH $TARGET_URL
 
-# This is deliberately only done if the branch==master because we don't want to override artifacts tagged as 'latest' with backlevel releases (eg if we built a new patch of an old release level)
-if [ "${GITHUB_REF_NAME}" == "master" ]; then
+# Update latest when we publish release, and when we update master branch .. latest build is used internally in development
+if [ "${GITHUB_REF_NAME}" == "master" ] || [ "${GITHUB_REF_TYPE}" == "tag" ]; then
   LATEST_URL="${ARTIFACTORY_GENERIC_RELEASE_URL}/${GITHUB_REPOSITORY}/latest/${FILE_NAME}-latest.${FILE_EXT}"
   artifactory_upload $FILE_PATH $LATEST_URL
 fi
