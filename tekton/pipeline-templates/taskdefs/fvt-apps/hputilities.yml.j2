@@ -34,7 +34,7 @@
   when:
     - input: "$(params.fvt_version_hputilities)"
       operator: notin
-      values: [""]
+      values: ["skip"]
     - input: "$(params.mas_app_channel_hputilities)"
       operator: notin
       values: [""]
@@ -80,7 +80,7 @@
   when:
     - input: "$(params.fvt_version_hputilities)"
       operator: notin
-      values: [""]
+      values: ["skip"]
     - input: "$(params.mas_app_channel_hputilities)"
       operator: notin
       values: [""]

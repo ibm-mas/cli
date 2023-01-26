@@ -6,7 +6,7 @@
 function pipeline_install_tasks() {
   # Install the MAS Tekton definitions
   cp $DIR/templates/ibm-mas-tekton.yaml $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
-  sed -e "s/:latest/:$VERSION/g" $DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yaml
+  sed -e "s/cli:latest/cli:$VERSION/g" $DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yaml
   CLI_IMAGE=quay.io/ibmmas/cli:$VERSION
 
   if [[ "$AIRGAP_MODE" == "true" ]]; then
@@ -25,8 +25,8 @@ function pipeline_install_tasks() {
         prompt_for_input "quay.io/ibmmas/cli image digest" CLI_IMAGE_DIGEST
       fi
       # Overwrite the tekton definitions with one that uses the looked up image digest
-      sed -e "s/cli:\$(params.cli_version)/cli@${CLI_IMAGE_DIGEST}/g" $DIR/templates/ibm-mas-tekton.yaml > $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
-      sed -e "s/:latest/@$CLI_IMAGE_DIGEST/g" $DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yaml
+      sed -e "s/cli:$VERSION/cli@${CLI_IMAGE_DIGEST}/g" $DIR/templates/ibm-mas-tekton.yaml > $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
+      sed -e "s/cli:latest/cli@$CLI_IMAGE_DIGEST/g" $DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yaml
       CLI_IMAGE=quay.io/ibmmas/cli@$CLI_IMAGE_DIGEST
     fi
   fi
@@ -47,7 +47,7 @@ function pipeline_install_tasks() {
 function pipeline_install_tasks_shared_namespace() {
   # Install the MAS Tekton definitions
   cp $DIR/templates/ibm-mas-tekton.yaml $CONFIG_DIR/ibm-mas-tekton-cluster.yaml
-  sed -e "s/:latest/:$VERSION/g" $DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-cluster.yaml
+  sed -e "s/cli:latest/cli:$VERSION/g" $DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-cluster.yaml
   CLI_IMAGE=quay.io/ibmmas/cli:$VERSION
 
   if [[ "$AIRGAP_MODE" == "true" ]]; then
@@ -66,8 +66,8 @@ function pipeline_install_tasks_shared_namespace() {
         prompt_for_input "quay.io/ibmmas/cli image digest" CLI_IMAGE_DIGEST
       fi
       # Overwrite the tekton definitions with one that uses the looked up image digest
-      sed -e "s/:$VERSION/@$CLI_IMAGE_DIGEST/g" $DIR/templates/ibm-mas-tekton.yaml > $CONFIG_DIR/ibm-mas-tekton-cluster.yaml
-      sed -e "s/:latest/@$CLI_IMAGE_DIGEST/g" $DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-cluster.yaml
+      sed -e "s/cli:$VERSION/cli@$CLI_IMAGE_DIGEST/g" $DIR/templates/ibm-mas-tekton.yaml > $CONFIG_DIR/ibm-mas-tekton-cluster.yaml
+      sed -e "s/cli:latest/cli@$CLI_IMAGE_DIGEST/g" $DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-cluster.yaml
       CLI_IMAGE=quay.io/ibmmas/cli@$CLI_IMAGE_DIGEST
     fi
   fi

@@ -5,9 +5,10 @@ metadata:
   name: mas-devops-suite-db2-setup-for-manage
 spec:
   params:
-    - name: cli_version
+    # Control the image pull policy for the CLI container image
+    - name: image_pull_policy
       type: string
-      default: latest
+      default: IfNotPresent
 
     - name: db2_instance_name
       type: string
@@ -59,5 +60,5 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_db2_setup_for_manage
-      image: quay.io/ibmmas/cli:$(params.cli_version)
-      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)

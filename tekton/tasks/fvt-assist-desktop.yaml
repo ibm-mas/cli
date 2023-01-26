@@ -5,6 +5,11 @@ metadata:
   name: mas-fvt-assist-desktop
 spec:
   params:
+    # Control the image pull policy for the FVT container image
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+
     # Test Container Information
     # -------------------------------------------------------------------------
     - name: fvt_image_registry
@@ -122,168 +127,168 @@ spec:
   steps:
     - name: admin-roles
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-roles", "/bin/bash", "runner.sh" ]
 
     - name: admin-apikeys
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-apikeys", "/bin/bash", "runner.sh" ]
 
     - name: admin-field
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-field", "/bin/bash", "runner.sh" ]
 
     - name: admin-expertise
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-expertise", "/bin/bash", "runner.sh" ]
 
     - name: admin-collaboration
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-collaboration", "/bin/bash", "runner.sh" ]
 
     - name: admin-ice
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-ice", "/bin/bash", "runner.sh" ]
 
     - name: admin-search-config
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-search-config", "/bin/bash", "runner.sh" ]
 
     - name: admin-sessions
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-sessions", "/bin/bash", "runner.sh" ]
 
     - name: admin-users
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-users", "/bin/bash", "runner.sh" ]
 
     - name: diagnosis-element-relation
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-diagnosis-element-relation", "/bin/bash", "runner.sh" ]
 
     - name: diagnosis-flow
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-diagnosis-flow", "/bin/bash", "runner.sh" ]
 
     - name: diagnosis-library-feedback
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-diagnosis-library-feedback", "/bin/bash", "runner.sh" ]
 
     - name: diagnosis-library-historicaldata
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-diagnosis-library-historicaldata", "/bin/bash", "runner.sh" ]
 
     - name: technician-diagnosis
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-technician-diagnosis", "/bin/bash", "runner.sh" ]
 
     - name: query-docpreview
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-query-docpreview", "/bin/bash", "runner.sh" ]
 
     - name: query-maximo-integration
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-query-maximo-integration", "/bin/bash", "runner.sh" ]
 
     - name: query-resultcard
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-query-resultcard", "/bin/bash", "runner.sh" ]
 
     - name: query-search
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-query-search", "/bin/bash", "runner.sh" ]
 
     - name: query-searchconfig
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-query-searchconfig", "/bin/bash", "runner.sh" ]
 
     - name: technician-collaborate
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-technician-collaborate", "/bin/bash", "runner.sh" ]
 
     - name: admin-attribute
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-attribute", "/bin/bash", "runner.sh" ]
 
     - name: admin-token-refresh-studio
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-token-refresh-studio", "/bin/bash", "runner.sh" ]
 
     - name: admin-token-refresh-adminconsole
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-token-refresh-adminconsole", "/bin/bash", "runner.sh" ]
 
     - name: admin-token-refresh-technician
       image: '$(params.fvt_image_registry)/fvt-assist/fvt-assist-testng:$(params.fvt_image_version)'
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       command: [ "FVT_TEST_SUITE=testng-desktop-admin-token-refresh-technician", "/bin/bash", "runner.sh" ]

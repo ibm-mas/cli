@@ -31,7 +31,7 @@
   when:
     - input: "$(params.fvt_version_monitor)"
       operator: notin
-      values: [""]
+      values: ["skip"]
     - input: "$(params.mas_app_channel_monitor)"
       operator: notin
       values: [""]

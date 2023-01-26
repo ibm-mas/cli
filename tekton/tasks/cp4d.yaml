@@ -5,9 +5,10 @@ metadata:
   name: mas-devops-cp4d
 spec:
   params:
-    - name: cli_version
+    # Control the image pull policy for the CLI container image
+    - name: image_pull_policy
       type: string
-      default: latest
+      default: IfNotPresent
 
     # CPD Product Version
     - name: cpd_product_version
@@ -94,5 +95,5 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cp4d
-      image: quay.io/ibmmas/cli:$(params.cli_version)
-      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)

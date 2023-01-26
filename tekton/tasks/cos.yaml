@@ -5,9 +5,10 @@ metadata:
   name: mas-devops-cos
 spec:
   params:
-    - name: cli_version
+    # Control the image pull policy for the CLI container image
+    - name: image_pull_policy
       type: string
-      default: latest
+      default: IfNotPresent
 
     - name: mas_instance_id
       type: string
@@ -16,10 +17,11 @@ spec:
     - name: cos_type
       type: string
       description: COS Provider (ibm and ocs are supported)
-      default: "ibm"
+      default: ""
     - name: ibmcloud_apikey
       type: string
       description: IBM Cloud API Key
+      default: ""
     - name: ibmcloud_resourcegroup
       type: string
       description: Name of an existing Resource Group in IBM Cloud account
@@ -69,8 +71,8 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - cos
-      image: quay.io/ibmmas/cli:$(params.cli_version)
-      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
 
   workspaces:

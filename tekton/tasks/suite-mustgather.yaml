@@ -5,9 +5,10 @@ metadata:
   name: mas-devops-suite-mustgather
 spec:
   params:
-    - name: cli_version
+    # Control the image pull policy for the CLI container image
+    - name: image_pull_policy
       type: string
-      default: latest
+      default: IfNotPresent
 
     - name: base_output_dir
       type: string
@@ -27,15 +28,15 @@ spec:
     - name: clear-mustgather
       command:
         - /opt/app-root/src/clear-mustgather-workspace.sh
-      image: quay.io/ibmmas/cli:$(params.cli_version)
-      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/mustgather
     - name: suite-mustgather
       command:
         - /opt/app-root/src/run-role.sh
         - suite_mustgather
-      image: quay.io/ibmmas/cli:$(params.cli_version)
-      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/mustgather
 
   workspaces:
