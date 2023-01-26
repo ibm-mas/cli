@@ -542,8 +542,8 @@
     - name: configs
       workspace: shared-configs
 
-# Manage FVT - Civil Infrastructure
-- name: fvt-manage-civil
+# Manage FVT - Civil Infrastructure Selenium
+- name: fvt-manage-civil-selenium
   params:
     - name: mas_instance_id
       value: $(params.mas_instance_id)
@@ -564,9 +564,59 @@
     - name: fvt_image_namespace
       value: fvt-civil
     - name: fvt_image_name
-      value: fvt-ibm-mas-manage-civil
+      value: fvt-ibm-mas-manage-civil-selenium
     - name: fvt_image_version
-      value: $(params.fvt_version_manage_civil)
+      value: $(params.fvt_version_manage_civil_selenium)
+    - name: fvt_test_suite
+      value: mcifvt # Civil Selenium keyword
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-manage
+    - name: artifactory_apikey
+      value: $(params.fvt_artifactory_apikey)
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of Civil FVT to run
+  when:
+    - input: "$(params.fvt_version_manage_civil_selenium)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-manage-setup
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+# Manage FVT - Civil Infrastructure Cypress
+- name: fvt-manage-civil-cypress
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-civil
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-civil-cypress
+    - name: fvt_image_version
+      value: $(params.fvt_version_manage_civil_cypress)
     - name: fvt_test_suite
       value: web-mas-civil # display purposes only, not a keyword
     - name: product_channel
@@ -580,14 +630,14 @@
     name: mas-fvt-run-suite
   # Only if we've set a version of Civil FVT to run
   when:
-    - input: "$(params.fvt_version_manage_civil)"
+    - input: "$(params.fvt_version_manage_civil_cypress)"
       operator: notin
       values: ["skip"]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-civil-selenium
   workspaces:
     - name: configs
       workspace: shared-configs
