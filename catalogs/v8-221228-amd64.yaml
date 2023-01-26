@@ -8,5 +8,5 @@ spec:
   publisher: IBM
   description: Static Catalog Source for IBM Maximo Application Suite
   sourceType: grpc
-  image: wiotp-docker-local.artifactory.swg-devops.com/cpopen/ibm-maximo-operator-catalog@sha256:505a135ba1af2cee548703e85b17764074b7479dbbf506b132d5871af793073f
+  image: icr.io/cpopen/ibm-maximo-operator-catalog@sha256:505a135ba1af2cee548703e85b17764074b7479dbbf506b132d5871af793073f
   priority: 90

@@ -1,0 +1,420 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-install-with-fvt
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+    # Any pre-generated configs that will be copied into the shared-configs workspace during suite-install
+    - name: shared-additional-configs
+    # The SLS entitlement key file that will be installed during install-sls.
+    - name: shared-entitlement
+    # Shared storage to hold mustgather output for tasks
+    - name: shared-mustgather
+
+  params:
+    # 1. Installation
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'params/install.yml.j2') | indent(4) }}
+
+
+    # 2. Additional Params for FVT
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'params/fvt.yml.j2') | indent(4) }}
+
+
+  tasks:
+    # Content
+    # -------
+    # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
+    # 2. Install Universal Dependencies
+    # 3. Cloud Pak for Data
+    # 4. Other Dependecies
+    # 5. Install & Configure IBM MAS
+    # 6. Install & Configure IoT
+    # 7. Install & Configure Monitor
+    # 8. Install & Configure Safety
+    # 9. Install & Configure Manage
+    # 10. Install & Configure Predict
+    # 11. Install & Configure Optimizer
+    # 12. Install & Configure Health & Predict Utilities
+    # 13. Install & Configure Assist
+    # 14. Install & Configure Visual Inspection
+
+
+    # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
+    # -------------------------------------------------------------------------
+    # 1.1 IBM Operator Catalog
+    {{ lookup('template', 'taskdefs/cluster-setup/ibm-catalogs.yml.j2') | indent(4) }}
+
+    # 1.2 IBM Cloud Pak Foundational Services
+    {{ lookup('template', 'taskdefs/cluster-setup/common-services.yml.j2') | indent(4) }}
+      runAfter:
+        - ibm-catalogs
+
+    # 1.3 IBM Certificate Manager
+    {{ lookup('template', 'taskdefs/cluster-setup/cert-manager.yml.j2') | indent(4) }}
+      runAfter:
+        - common-services
+
+    # 1.4 Red Hat Service Binding Operator
+    {{ lookup('template', 'taskdefs/cluster-setup/sbo.yml.j2') | indent(4) }}
+
+    # 1.5 Configure Cluster Monitoring
+    {{ lookup('template', 'taskdefs/cluster-setup/cluster-monitoring.yml.j2') | indent(4) }}
+
+
+    # 2. Install Universal Dependencies
+    # -------------------------------------------------------------------------
+    # 2.1 MongoDb
+    {{ lookup('template', 'taskdefs/dependencies/mongo.yml.j2') | indent(4) }}
+      runAfter:
+        - cert-manager
+
+    # 2.2 AMQStreams (Kafka)
+    {{ lookup('template', 'taskdefs/dependencies/kafka.yml.j2') | indent(4) }}
+      runAfter:
+        - cluster-monitoring
+
+    # 2.3 Db2
+    {{ lookup('template', 'taskdefs/dependencies/db2.yml.j2') | indent(4) }}
+      runAfter:
+        - cert-manager
+
+    # 2.4 IBM SLS
+    {{ lookup('template', 'taskdefs/dependencies/sls.yml.j2') | indent(4) }}
+      runAfter:
+        - mongodb
+
+    # 2.5 UDS
+    {{ lookup('template', 'taskdefs/dependencies/uds.yml.j2') | indent(4) }}
+      runAfter:
+        - common-services
+
+
+    # 3. Cloud Pak for Data
+    # -------------------------------------------------------------------------
+    # 3.1 Cloud Pak for Data Platform
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-platform.yml.j2') | indent(4) }}
+      runAfter:
+        - common-services
+
+    # 3.2 Watson Studio
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-wsl.yml.j2') | indent(4) }}
+      runAfter:
+        - cp4d
+
+    # 3.3 Watson Machine Learning
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-wml.yml.j2') | indent(4) }}
+      runAfter:
+        - cp4d
+
+    # 3.4 Analytics Service (Spark)
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-spark.yml.j2') | indent(4) }}
+      runAfter:
+        - cp4d
+
+    # 3.5 Watson Discovery
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-discovery.yml.j2') | indent(4) }}
+      runAfter:
+        - cp4d
+
+    # 3.6 Configure Watson Studio in MAS
+    {{ lookup('template', 'taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
+      runAfter:
+        - fvt-smtp
+        - watson-studio
+
+
+    # 4. Other Dependecies
+    # -------------------------------------------------------------------------
+    # 4.1 Install Cloud Object Storage (COS)
+    {{ lookup('template', 'taskdefs/dependencies/cos.yml.j2') | indent(4) }}
+
+    # 4.2 Configure COS in MAS
+    {{ lookup('template', 'taskdefs/core/suite-config-cos.yml.j2') | indent(4) }}
+      runAfter:
+        - fvt-smtp
+        - cos
+
+    # 4.1 Install AppConnect
+    {{ lookup('template', 'taskdefs/dependencies/appconnect.yml.j2') | indent(4) }}
+      runAfter:
+        - ibm-catalogs
+
+    # 4.2 Configure AppConnect in MAS
+    {{ lookup('template', 'taskdefs/core/suite-config-appconnect.yml.j2') | indent(4) }}
+      runAfter:
+        - fvt-smtp
+        - appconnect
+
+    # 4.3 Nvidia GPU Operator
+    {{ lookup('template', 'taskdefs/dependencies/nvidia.yml.j2') | indent(4) }}
+      runAfter:
+        - ibm-catalogs
+
+
+    # 5. Install & Configure IBM MAS
+    # -------------------------------------------------------------------------
+    # 5.1 Configure Workspace
+    {{ lookup('template', 'taskdefs/core/gencfg-workspace.yml.j2') | indent(4) }}
+
+    # 5.2 DNS Setup
+    {{ lookup('template', 'taskdefs/core/suite-dns.yml.j2') | indent(4) }}
+      runAfter:
+        - cert-manager
+
+    # 5.3 Suite Installation
+    {{ lookup('template', 'taskdefs/core/suite-install.yml.j2') | indent(4) }}
+      runAfter:
+        - sbo
+        - sls
+        - uds
+        - gencfg-workspace
+        - suite-dns
+
+    # 5.4 Suite Configuration
+    {{ lookup('template', 'taskdefs/core/suite-config.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-install
+
+    # 5.5 Suite Verification
+    {{ lookup('template', 'taskdefs/core/suite-verify.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config
+
+    # 5.6 Configure Db2 in MAS
+    {{ lookup('template', 'taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
+      runAfter:
+        - fvt-smtp
+        - db2
+
+    # 5.7 Configure Kafka in MAS
+    {{ lookup('template', 'taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
+      runAfter:
+        - fvt-smtp
+        - kafka
+
+
+    # 6. Install & Configure IoT
+    # -------------------------------------------------------------------------
+    # 6.1 Install IoT
+    {{ lookup('template', 'taskdefs/apps/iot-app.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config-db2
+        - suite-config-kafka
+
+    # 6.2 Configure IoT workspace
+    {{ lookup('template', 'taskdefs/apps/iot-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-iot
+
+
+    # 7. Install & Configure Monitor
+    # -------------------------------------------------------------------------
+    # 7.1 Install Monitor
+    {{ lookup('template', 'taskdefs/apps/monitor-app.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-iot
+
+    # 7.2 Configure Monitor workspace
+    {{ lookup('template', 'taskdefs/apps/monitor-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-monitor
+
+
+    # 8. Install & Configure Safety
+    # -------------------------------------------------------------------------
+    # 8.1 Install Safety
+    {{ lookup('template', 'taskdefs/apps/safety-app.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-iot
+
+    # 8.2 Configure Safety workspace
+    {{ lookup('template', 'taskdefs/apps/safety-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-safety
+
+
+    # 9. Install & Configure Manage
+    # -------------------------------------------------------------------------
+    # 9.1. Prepare database to Maxinst
+    {{ lookup('template', 'taskdefs/apps/manage-db-prep.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config-db2
+
+    # 9.2 Manage Install
+    {{ lookup('template', 'taskdefs/apps/manage-app.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-db2-setup-for-manage
+
+    # 9.3 Configure Manage workspace
+    {{ lookup('template', 'taskdefs/apps/manage-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-manage
+
+
+    # 10. Install & Configure Predict
+    # -------------------------------------------------------------------------
+    # 10.1 Predict Install
+    {{ lookup('template', 'taskdefs/apps/predict-app.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-manage
+        - app-cfg-monitor
+        - suite-config-watson-studio
+        - watson-machine-learning
+        - analytics-service
+
+    # 10.2 Configure Predict workspace
+    {{ lookup('template', 'taskdefs/apps/predict-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-predict
+
+
+    # 11. Install & Configure Optimizer
+    # -------------------------------------------------------------------------
+    # 11.1 Optimizer Install
+    {{ lookup('template', 'taskdefs/apps/optimizer-app.yml.j2') | indent(4) }}
+      runAfter:
+        - fvt-smtp
+
+    # 11.2 Configure Optimizer workspace
+    {{ lookup('template', 'taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-optimizer
+
+
+    # 12. Install & Configure Health & Predict Utilities
+    # -------------------------------------------------------------------------
+    # 12.1 HPUtilities Install
+    {{ lookup('template', 'taskdefs/apps/hputilities-app.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-manage # Requires Health as an add-on
+        - suite-config-watson-studio
+        - suite-config-appconnect
+
+    # 12.2 Configure HPUtilities workspace
+    {{ lookup('template', 'taskdefs/apps/hputilities-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-hputilities
+
+
+    # 13. Install & Configure Assist
+    # -------------------------------------------------------------------------
+    # 13.1 Assist Install
+    {{ lookup('template', 'taskdefs/apps/assist-app.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config-cos
+
+    # 13.2 Configure Watson Discovery in MAS
+    {{ lookup('template', 'taskdefs/core/suite-config-discovery.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-assist
+        - discovery
+
+    # 13.3 Configure Assist workspace
+    {{ lookup('template', 'taskdefs/apps/assist-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config-discovery
+
+
+    # 14. Install & Configure Visual Inspection
+    # -------------------------------------------------------------------------
+    # 14.1 MVI Install
+    {{ lookup('template', 'taskdefs/apps/visualinspection-app.yml.j2') | indent(4) }}
+      runAfter:
+        - nvidia-gpu
+        - fvt-smtp
+
+    # 14.2 Configure MVI workspace
+    {{ lookup('template', 'taskdefs/apps/visualinspection-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-visualinspection
+
+
+    # 15. MAS Core FVT
+    # -------------------------------------------------------------------------
+    # 15.1 Phase 1 of CoreAPI testing (~35m)
+    {{ lookup('template', 'taskdefs/fvt-core/phase1.yml.j2') | indent(4) }}
+
+    # 15.2 Phase 2 of CoreAPI testing (~10m)
+    {{ lookup('template', 'taskdefs/fvt-core/phase2.yml.j2') | indent(4) }}
+
+    # 15.3 Adoptionusage Metering test suite (~30m)
+    {{ lookup('template', 'taskdefs/fvt-core/phase3.yml.j2') | indent(4) }}
+
+    # 15.4 Miscellaneous test suites (~10m)
+    {{ lookup('template', 'taskdefs/fvt-core/phase4.yml.j2') | indent(4) }}
+
+    # 15.5 Single-threaded suites
+    {{ lookup('template', 'taskdefs/fvt-core/phase5.yml.j2') | indent(4) }}
+
+
+    # 16. MAS Core IVT
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/ivt-core/all-apps.yml.j2') | indent(4) }}
+
+
+    # 17. Application FVT - Assist
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/assist.yml.j2') | indent(4) }}
+
+
+    # 18. Application FVT - HP Utilities
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/hputilities.yml.j2') | indent(4) }}
+
+
+    # 19. Application FVT - IoT
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/iot.yml.j2') | indent(4) }}
+
+
+    # 20. Application FVT - Manage
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/manage.yml.j2') | indent(4) }}
+
+
+    # 21. Application FVT - Mobile Foundation
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/mobile.yml.j2') | indent(4) }}
+
+
+    # 22. Application FVT - Monitor
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/monitor.yml.j2') | indent(4) }}
+
+
+    # 23. Application FVT - Predict
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/predict.yml.j2') | indent(4) }}
+
+
+    # 24. Application FVT - Safety
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/safety.yml.j2') | indent(4) }}
+
+
+    # 25. Application FVT - Visual Inspection
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/visualinspection.yml.j2') | indent(4) }}
+
+
+  # Mustgather executed in finally block. Use suite_mustgather_download
+  # playbook to retrieve the output on your local machine
+  # -------------------------------------------------------------------------
+  finally:
+    - name: suite-mustgather
+      params:
+        - name: base_output_dir
+          value: "/workspace/mustgather/$(context.pipelineRun.name)"
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-mustgather
+      workspaces:
+        - name: mustgather
+          workspace: shared-mustgather

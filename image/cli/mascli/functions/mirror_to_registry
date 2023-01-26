@@ -245,47 +245,59 @@ function mirror_to_registry_interactive() {
   echo_h2 "3. Configure Static Catalog Version"
 
   echo -e "${COLOR_YELLOW}MAS Version:"
-  echo "  1. 8.9.0 (2022-12-28)"
-  echo "  2. 8.8.4 (2022-12-28)"
-  echo "  3. 8.9.0 (2022-11-29)"
-  echo "  4. 8.8.3 (2022-11-29)"
-  echo "  5. 8.8.2 (2022-10-25)"
-  echo "  6. 8.8.1 (2022-09-27)"
-  echo "  7. 8.8.0 (2022-08-05)"
+  echo "  1. 8.9.1 (2023-01-11)"
+  echo "  2. 8.8.5 (2023-01-11)"
+  echo "  3. 8.9.0 (2022-12-28)"
+  echo "  4. 8.8.4 (2022-12-28)"
+  echo "  5. 8.9.0 (2022-11-29)"
+  echo "  6. 8.8.3 (2022-11-29)"
+  echo "  7. 8.8.2 (2022-10-25)"
+  echo "  8. 8.8.1 (2022-09-27)"
+  echo "  9. 8.8.0 (2022-08-05)"
   prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
 
   case $MAS_CHANNEL_SELECTION in
     1)
       MAS_CHANNEL=8.9.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-221228-amd64
+      MAS_CATALOG_VERSION=v8-230111-amd64
       ;;
     2)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-221228-amd64
+      MAS_CATALOG_VERSION=v8-230111-amd64
       ;;
     3)
       MAS_CHANNEL=8.9.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-221129-amd64
+      MAS_CATALOG_VERSION=v8-221228-amd64
       ;;
     4)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-221129-amd64
+      MAS_CATALOG_VERSION=v8-221228-amd64
       ;;
     5)
-      MAS_CHANNEL=8.8.x
+      MAS_CHANNEL=8.9.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-221025-amd64
+      MAS_CATALOG_VERSION=v8-221129-amd64
       ;;
     6)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-220927-amd64
+      MAS_CATALOG_VERSION=v8-221129-amd64
       ;;
     7)
+      MAS_CHANNEL=8.8.x
+      MAS_CATALOG_SOURCE=ibm-operator-catalog
+      MAS_CATALOG_VERSION=v8-221025-amd64
+      ;;
+    8)
+      MAS_CHANNEL=8.8.x
+      MAS_CATALOG_SOURCE=ibm-operator-catalog
+      MAS_CATALOG_VERSION=v8-220927-amd64
+      ;;
+    9)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-220805-amd64
