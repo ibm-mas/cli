@@ -33,12 +33,12 @@ jobs:
           path: ${{ github.workspace }}/image/cli/mascli/templates/ibm-mas-tekton.yml
           retention-days: 30
 
-      - name: Upload PipelineRun definitions
-        uses: actions/upload-artifact@v2
-        with:
-          name: ibm-mas-tekton-pipelinerun-${{ env.VERSION }}
-          path: ${{ github.workspace }}/image/cli/mascli/templates/*.j2
-          retention-days: 30
+      # - name: Upload PipelineRun definitions
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: ibm-mas-tekton-pipelinerun-${{ env.VERSION }}
+      #     path: ${{ github.workspace }}/image/cli/mascli/templates/*.j2
+      #     retention-days: 30
 
       - name: Upload definition to Artifactory
         env:
@@ -46,6 +46,17 @@ jobs:
           ARTIFACTORY_APIKEY: ${{ secrets.ARTIFACTORY_APIKEY }}
         run: |
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yml
+      
+      - name: Upload PipelineRun definitions to Artifactory
+        env:
+          ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
+          ARTIFACTORY_APIKEY: ${{ secrets.ARTIFACTORY_APIKEY }}
+        run: |
+          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/image/cli/mascli/templates/fvt.yml.j2
+          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/image/cli/mascli/templates/install-with-fvt.yml.j2
+          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/image/cli/mascli/templates/install.yml.j2
+          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/image/cli/mascli/templates/upgrade-test.yml.j2
+          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/image/cli/mascli/templates/upgrade.yml.j2
 
       # 2. CLI installer
       # -------------------------------------------------------------------------------------------
