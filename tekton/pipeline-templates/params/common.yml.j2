@@ -2,10 +2,20 @@
 - name: cli_version
   type: string
   description: version of mas cli to be used in tasks and dependencies
+  default: ""
 
-# FVT Image Container Registry
+# Registry
 - name: fvt_image_registry
   type: string
+  default: ""
+
+# Artifactory Secret
+- name: fvt_artifactory_username
+  type: string
+  default: ""
+- name: fvt_artifactory_apikey
+  type: string
+  default: ""
 
 # Persist Results (Optional)
 - name: devops_mongo_uri
