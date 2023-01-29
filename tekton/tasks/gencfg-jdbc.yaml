@@ -1,0 +1,118 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-gencfg-jdbc
+spec:
+  params:
+    - name: cli_version
+      type: string
+      default: latest
+
+
+    # Configure JDBCCfg
+    - name: mas_config_scope
+      type: string
+      default: "" # By default, no config will be generated
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+      default: "" # By default, no config will be generated
+    - name: mas_workspace_id
+      type: string
+      default: "" # Only required if config_scope = ws or wsapp
+    - name: mas_app_id
+      type: string
+      default: "" # Only required if config_scope = app or wsapp
+
+    - name: configure_external_db
+      type : string
+      description: Boolean flag to indicate to configure an external database
+      default: "false"
+    - name: db_instance_id
+      type: string
+      description: Database instance name identifier
+    - name: mas_jdbc_user
+      type: string
+      description: JDBC user name
+    - name: mas_jdbc_password
+      type: string
+      description: JDBC password
+    - name: mas_jdbc_url
+      type: string
+      description: JDBC Connection string
+    - name: ssl_enabled
+      type: string
+      description: Boolean flag to indicate if database server is SSL enabled
+    - name: mas_jdbc_cert_local_file
+      type: string
+      description: Location for the database SSL Certificate
+
+    # Optional support built into the ansible-devops image
+    # for saving task execution results to a MongoDb instance
+    - name: devops_mongo_uri
+      type: string
+      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_suite_name
+      type: string
+      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
+      default: ""
+    - name: devops_build_number
+      type: string
+      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
+      default: ""
+
+  stepTemplate:
+    env:
+
+      # Configure JdbcCfg
+      - name: MAS_CONFIG_DIR
+        value: /workspace/configs
+      - name: MAS_CONFIG_SCOPE
+        value: $(params.mas_config_scope)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_APP_ID
+        value: $(params.mas_app_id)
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
+
+      - name: CONFIGURE_EXTERNAL_DB
+        value: $(params.configure_external_db)
+      - name: DB_INSTANCE_ID
+        value: $(params.db_instance_id)
+      - name: MAS_JDBC_USER
+        value: $(params.mas_jdbc_user)
+      - name: MAS_JDBC_PASSWORD
+        value: $(params.mas_jdbc_password)
+      - name: MAS_JDBC_URL
+        value: $(params.mas_jdbc_url)
+      - name: SSL_ENABLED
+        value: $(params.ssl_enabled)
+      - name: MAS_JDBC_CERT_LOCAL_FILE
+        value: $(params.mas_jdbc_cert_local_file)
+
+
+      # Optional support built into the ansible-devops image
+      # for saving task execution results to a MongoDb instance
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: DEVOPS_SUITE_NAME
+        value: $(params.devops_suite_name)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
+
+  steps:
+    - name: gencfg-jdbc
+      command:
+        - /opt/app-root/src/run-role.sh
+        - gencfg_jdbc
+      #image: quay.io/ibmmas/cli:$(params.cli_version)
+      image: quay.io/ibmmas/cli:3.11.0-pre.external-db
+      imagePullPolicy: Always
+      workingDir: /workspace/configs
+
+  workspaces:
+    - name: configs

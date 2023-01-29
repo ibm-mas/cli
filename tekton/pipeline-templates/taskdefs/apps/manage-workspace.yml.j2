@@ -15,6 +15,12 @@
       value: $(params.mas_app_settings_aio_flag)
     - name: mas_app_settings_demodata
       value: $(params.mas_app_settings_demodata)
+    - name: mas_app_settings_tablespace
+      value: $(params.mas_app_settings_tablespace)
+    - name: mas_app_settings_indexspace
+      value: $(params.mas_app_settings_indexspace)
+    - name: mas_app_settings_db2_schema
+      value: $(params.mas_app_settings_db2_schema)
   taskRef:
     name: mas-devops-suite-app-config
     kind: Task

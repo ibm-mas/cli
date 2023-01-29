@@ -115,13 +115,28 @@ function pipeline_show_config() {
   if [[ "$SNO_MODE" == "true" ]]; then
     reset_colors
     echo "${TEXT_DIM}"
-    echo_h2 "DB2 Configuration" 
-    echo_reset_dim "DB2_META_STORAGE_SIZE .............. ${COLOR_MAGENTA}${DB2_META_STORAGE_SIZE}"
-    echo_reset_dim "DB2_DATA_STORAGE_SIZE .............. ${COLOR_MAGENTA}${DB2_DATA_STORAGE_SIZE}"
-    echo_reset_dim "DB2_BACKUP_STORAGE_SIZE ............ ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_SIZE}"
-    echo_reset_dim "DB2_TEMP_STORAGE_SIZE .............. ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_SIZE}"
-    echo_reset_dim "DB2_LOGS_STORAGE_SIZE .............. ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_SIZE}"
+    echo_h2 "DB2 Configuration" "    "
+    echo_reset_dim "Meta Storage Size ................ ${COLOR_MAGENTA}${DB2_META_STORAGE_SIZE}"
+    echo_reset_dim "Data Storage Size ................ ${COLOR_MAGENTA}${DB2_DATA_STORAGE_SIZE}"
+    echo_reset_dim "Backup Storage Size .............. ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_SIZE}"
+    echo_reset_dim "Temp Storage Size ................ ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_SIZE}"
+    echo_reset_dim "Logs Storage Size ................ ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_SIZE}"
   fi
+
+  #JDBC Configuration
+  if [[ "${CONFIGURE_EXTERNAL_DB}" == "true" ]]; then
+    reset_colors
+    echo "${TEXT_DIM}"
+    echo_h2 "JDBC Configuration" "    "
+    echo_reset_dim "DB User ................ ${COLOR_MAGENTA}${MAS_JDBC_USER}"
+    echo_reset_dim "DB URL ................. ${COLOR_MAGENTA}${MAS_JDBC_URL}"
+    echo_reset_dim "DB Schema .............. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DB2_SCHEMA}"
+    echo_reset_dim "Tablespace ............. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_TABLESPACE}"
+    echo_reset_dim "Indexspace ............. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_INDEXSPACE}"
+    echo_reset_dim "SSL enabled ............ ${COLOR_MAGENTA}${SSL_ENABLED}"  
+    if [[ "${SSL_ENABLED}" == "true" ]]; then
+      echo_reset_dim "SSL Certificate Path ... ${COLOR_MAGENTA}${MAS_JDBC_CERT_LOCAL_FILE}"
+    fi
   
   reset_colors
   echo "${TEXT_RESET}"

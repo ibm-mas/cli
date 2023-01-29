@@ -45,6 +45,24 @@ spec:
       value: '$DB2_TEMP_STORAGE_SIZE'
     - name: db2_data_storage_size
       value: '$DB2_DATA_STORAGE_SIZE'
+
+    # JDBC Configuration
+    - name: configure_external_db
+      value: '$CONFIGURE_EXTERNAL_DB'
+    - name: db_instance_id
+      value: '$DB_INSTANCE_ID'
+    - name: mas_jdbc_user
+      value: '$MAS_JDBC_USER'
+    - name: mas_jdbc_password
+      value: '$MAS_JDBC_PASSWORD' 
+    - name: mas_jdbc_url
+      value: '$MAS_JDBC_URL'
+    - name: ssl_enabled
+      value: '$SSL_ENABLED'
+    - name: mas_jdbc_cert_local_file
+      value: '$MAS_JDBC_CERT_LOCAL_FILE'
+    - name: mas_config_scope
+      value: '$MAS_CONFIG_SCOPE'
    
     # Additional Mongo DB parameters
     - name: mongodb_replicas
@@ -166,6 +184,13 @@ spec:
       value: '$MAS_APP_SETTINGS_AIO_FLAG'
     - name: mas_app_settings_demodata
       value: '$MAS_APP_SETTINGS_DEMODATA'
+    # JDBC Configuration
+    - name: mas_app_settings_tablespace
+      value: '$MAS_APP_SETTINGS_TABLESPACE'
+    - name: mas_app_settings_indexspace
+      value: '$MAS_APP_SETTINGS_INDEXSPACE' 
+    - name: mas_app_settings_db2_schema
+      value: '$MAS_APP_SETTINGS_DB2_SCHEMA'
     # Monitor Application
     - name: mas_app_source_monitor
       value: '$MAS_APP_SOURCE_MONITOR'

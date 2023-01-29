@@ -1,0 +1,42 @@
+- name: gencfg-jdbc
+  params:
+    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    - name: devops_suite_name
+      value: gencfg-jdbc
+
+    - name: mas_app_id
+      value: manage
+    - name: mas_workspace_id
+      value: "$(params.mas_workspace_id)"
+
+    - name: configure_external_db
+      value: "$(params.configure_external_db)"
+    - name: db_instance_id
+      value: "$(params.db_instance_id)"
+    - name: mas_jdbc_user
+      value: "$(params.mas_jdbc_user)"
+    - name: mas_jdbc_password
+      value: "$(params.mas_jdbc_password)"
+    - name: mas_jdbc_url
+      value: "$(params.mas_jdbc_url)"
+    - name: ssl_enabled
+      value: "$(params.ssl_enabled)"
+    - name: mas_jdbc_cert_local_file
+      value: "$(params.mas_jdbc_cert_local_file)"
+    - name: mas_config_scope
+      value: "$(params.mas_config_scope)"
+
+  # Only perform the hack if Manage is being installed
+  when:
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+    - input: "$(params.configure_external_db)"
+      operator: notin
+      values: ["false"]  
+  taskRef:
+    name: mas-devops-gencfg-jdbc
+    kind: Task
+  workspaces:
+    - name: configs
+      workspace: shared-configs

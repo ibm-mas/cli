@@ -54,6 +54,10 @@ A number of applications are not currently available when using a private mirror
 - Maximo Visual Inspection
 
 
+JDBC Configuration to connect to an external database (Manage only)
+-------------------------------------------------------------------------------
+You can connect to an external database for the Manage application. All three databases (Db2, Oracle, SQL Server) are supported. The installer will prompt you if you want to configure an external database. If yes, it will prompt for additional database configuration information. On successful installation, it will create a JDBC configuration and connect to the configured database.
+
 SNO Support
 -------------------------------------------------------------------------------
 If you  already ran `mas install` to install the  IBM Maximo Application Suite then the installer will automatically detect the presence of SNO and tailor the installation configuration for a connected installation.

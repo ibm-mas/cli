@@ -1,0 +1,28 @@
+#!/bin/bash
+
+
+function  config_pipeline_externaldb() {
+
+  prompt_for_input "Database Instance ID" DB_INSTANCE_ID
+  prompt_for_input "Connection String" MAS_JDBC_URL
+  prompt_for_input "User name" MAS_JDBC_USER
+  prompt_for_input "Password" MAS_JDBC_PASSWORD
+  prompt_for_input "Schema" MAS_APP_SETTINGS_DB2_SCHEMA
+  prompt_for_input "Tablespace" MAS_APP_SETTINGS_TABLESPACE
+  prompt_for_input "Indexspace" MAS_APP_SETTINGS_INDEXSPACE
+  prompt_for_confirm_default_yes "SSL Enabled" SSL_ENABLED
+
+  if [[ "$SSL_ENABLED" == "true" ]]; then
+    export SS=true
+    prompt_for_input "Location for SSL certificate" MAS_JDBC_CERT_LOCAL_FILE
+    if [[ ! -e "$MAS_JDBC_CERT_LOCAL_FILE" ]]; then
+      echo_warning "Error: File does not exist: $MAS_JDBC_CERT_LOCAL_FILE"
+      exit 1
+    fi
+  fi
+
+  MAS_CONFIG_SCOPE="system"
+  echo ""
+}
+
+

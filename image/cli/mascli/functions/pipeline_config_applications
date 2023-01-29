@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. $DIR/functions/pipeline_config_externaldb
+
 
 function channel_select_iot() {
   case $MAS_CHANNEL in
@@ -196,6 +198,13 @@ function config_pipeline_applications() {
   if prompt_for_confirm "Install Manage"; then
     channel_select_manage || exit 1
     prompt_for_confirm_default_yes "+ Create demo data" MAS_APP_SETTINGS_DEMODATA
+    # JDBC Config
+    if prompt_for_confirm "+ Configure external database"; then
+      CONFIGURE_EXTERNAL_DB="true"
+      config_pipeline_externaldb
+    else
+      CONFIGURE_EXTERNAL_DB="false"
+    fi
   fi
 
   if [[ "$SNO_MODE" != "true" ]]; then
