@@ -137,6 +137,7 @@ function pipeline_show_config() {
     if [[ "${SSL_ENABLED}" == "true" ]]; then
       echo_reset_dim "SSL Certificate Path ... ${COLOR_MAGENTA}${MAS_JDBC_CERT_LOCAL_FILE}"
     fi
+  fi
   
   reset_colors
   echo "${TEXT_RESET}"
