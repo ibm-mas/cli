@@ -16,6 +16,10 @@ spec:
     - name: mas_channel
       type: string
       description: MAS Channel
+    
+    - name: skip_compatibility_check
+      type: string
+      default: "False"
 
   stepTemplate:
     env:
@@ -23,6 +27,8 @@ spec:
         value: $(params.mas_instance_id)
       - name: MAS_CHANNEL
         value: $(params.mas_channel)
+      - name: SKIP_COMPATIBILITY_CHECK
+        value: $(params.skip_compatibility_check)
   steps:
     - name: suite-upgrade
       command:
