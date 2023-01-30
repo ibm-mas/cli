@@ -105,11 +105,11 @@ function pipeline_config() {
     case $MAS_CHANNEL_SELECTION in
       1)
         MAS_CHANNEL=8.9.x
-        MAS_CATALOG_VERSION=v8-20230111-amd64
+        MAS_CATALOG_VERSION=v8-230111-amd64
         ;;
       2)
         MAS_CHANNEL=8.8.x
-        MAS_CATALOG_VERSION=v8-20230111-amd64
+        MAS_CATALOG_VERSION=v8-230111-amd64
         ;;
       3)
         MAS_CHANNEL=8.8.x
