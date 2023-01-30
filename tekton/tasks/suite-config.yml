@@ -29,7 +29,7 @@ spec:
       description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
       default: ""
     
-    # Optional parameters to categoriz result to be persisted
+    # Optional parameters to categorize result to be persisted
     # -------------------------------------------------------------------------
     - name: test_type
       type: string
@@ -56,7 +56,7 @@ spec:
       - name: DEVOPS_BUILD_NUMBER
         value: $(params.devops_build_number)
       
-      # Optional parameters to categoriz result to be persisted
+      # Optional parameters to categorize result to be persisted
       - name: TEST_TYPE
         value: $(params.test_type)
       - name: TEST_PHASE
