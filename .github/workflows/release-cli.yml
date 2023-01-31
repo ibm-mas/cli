@@ -27,7 +27,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/image/cli/mascli/templates/ibm-mas-tekton.yaml
+          file: ${{ github.workspace }}/tekton/target/ibm-mas-tekton.yaml
           asset_name: ibm-mas-tekton-${{ env.VERSION }}.yaml
           tag: ${{ github.ref }}
           overwrite: true
@@ -37,7 +37,19 @@ jobs:
           ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
           ARTIFACTORY_APIKEY: ${{ secrets.ARTIFACTORY_APIKEY }}
         run: |
-          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yaml
+          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton-with-fvt.yaml
+          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml
+
+      - name: Upload PipelineRun templates to Artifactory
+        env:
+          ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
+          ARTIFACTORY_APIKEY: ${{ secrets.ARTIFACTORY_APIKEY }}
+        run: |
+          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/pipelineruns/fvt-core.yml.j2
+          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/pipelineruns/install-with-fvt.yml.j2
+          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/pipelineruns/install.yml.j2
+          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/pipelineruns/upgrade-with-fvt.yml.j2
+          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/pipelineruns/upgrade.yml.j2
 
       # 2. CLI installer
       # -------------------------------------------------------------------------------------------

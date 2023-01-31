@@ -7,28 +7,30 @@ if [ "$DEV_MODE" != "true" ]; then
   source ${GITHUB_WORKSPACE}/build/bin/.env.sh
   source ${GITHUB_WORKSPACE}/build/bin/.functions.sh
 
-  TASK_FILES=$GITHUB_WORKSPACE/tekton/tasks/*.yaml
-  PIPELINE_FILES=$GITHUB_WORKSPACE/tekton/pipelines/*.yaml
-  TARGET_FILE=$GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yaml
-  
-  PIPELINERUN_FILES=$GITHUB_WORKSPACE/tekton/pipelineruns/*.j2
-  TARGET_PIPELINERUN_DIRECTORY=$GITHUB_WORKSPACE/image/cli/mascli/templates/
+  TARGET_DIR=$GITHUB_WORKSPACE/tekton/target
 
+  TASK_FILES=$TARGET_DIR/tasks/*.yaml
+  PIPELINE_FILES=$TARGET_DIR/pipelines/*.yaml
+
+  TARGET_FILE=$GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml
+  TARGET_FILE_IN_CLI=$GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yaml
 else
-  TASK_FILES=../../tekton/tasks/*.yaml
-  PIPELINE_FILES=../../tekton/pipelines/*.yaml
-  TARGET_FILE=../../image/cli/mascli/templates/ibm-mas-tekton.yaml
-  
-  PIPELINERUN_FILES=../../tekton/pipelineruns/*.j2
-  TARGET_PIPELINERUN_DIRECTORY=../../image/cli/mascli/templates/
+  TARGET_DIR=$DIR/../../tekton/target
+  VERSION=999.999.999
 
+  TASK_FILES=$TARGET_DIR/tasks/*.yaml
+  PIPELINE_FILES=$TARGET_DIR/pipelines/*.yaml
+
+  TARGET_FILE=$DIR/../../tekton/target/ibm-mas-tekton.yaml
+  TARGET_FILE_IN_CLI=$DIR/../../image/cli/mascli/templates/ibm-mas-tekton.yaml
 fi
 
-ansible-playbook tekton/generate-tekton.yml
+ansible-playbook tekton/generate-tekton-tasks.yml
+ansible-playbook tekton/generate-tekton-pipelines.yml
+ansible-playbook tekton/generate-tekton-pipelineruns.yml
 
-echo "Copying PipelineRun templates to $TARGET_PIPELINERUN_DIRECTORY"
-echo "cp $PIPELINERUN_FILES $TARGET_PIPELINERUN_DIRECTORY"
-cp $PIPELINERUN_FILES $TARGET_PIPELINERUN_DIRECTORY
+# Special case, has extra non-standard build logic
+ansible-playbook tekton/generate-tekton-upgrade-with-fvt.yml
 
 
 echo "" > $TARGET_FILE
@@ -54,6 +56,7 @@ sed "s/cli:latest/cli:$VERSION/g" $TARGET_FILE > $TARGET_FILE.txt
 
 rm $TARGET_FILE
 mv $TARGET_FILE.txt $TARGET_FILE
+cp $TARGET_FILE $TARGET_FILE_IN_CLI
 
 # Extra debug for Travis builds
 if [ "$DEV_MODE" != "true" ]; then
