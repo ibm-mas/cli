@@ -37,7 +37,6 @@ jobs:
           ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
           ARTIFACTORY_APIKEY: ${{ secrets.ARTIFACTORY_APIKEY }}
         run: |
-          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton-with-fvt.yaml
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml
 
       - name: Upload PipelineRun templates to Artifactory
