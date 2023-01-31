@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-upgrade-run-pipeline
+  name: mas-fvt-upgrade-run-pipeline
 spec:
   params:
     # Run Pipeline Parameters
@@ -12,6 +12,11 @@ spec:
       default: 10h
     - name: pipelinerun_name_suffix
       description: optional suffix to pipelinerun task name
+      default: ""
+
+    # Registry
+    - name: fvt_image_registry
+      type: string
       default: ""
 
     # Common Parameters
