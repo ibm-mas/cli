@@ -138,7 +138,6 @@
 - name: mas_config_scope
   type: string
   description: Database configuration scope. Supported values are `system`, `ws`, `app`, or `wsapp`
-  default: "system"
 
 
 # Dependencies - CP4D
@@ -306,6 +305,9 @@
   type: string
   description: Name of the Manage database schema
   default: ""
+- name: mas_appws_jdbc_binding
+  type: string
+  description: Application workspace JDBC binding
 
 # MAS Configuration - Optimizer Application
 - name: mas_app_plan_optimizer

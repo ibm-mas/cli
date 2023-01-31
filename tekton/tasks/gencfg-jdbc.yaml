@@ -24,6 +24,9 @@ spec:
     - name: mas_app_id
       type: string
       default: "" # Only required if config_scope = app or wsapp
+    - name: mas_appws_jdbc_binding
+      type: string
+      default: "" 
 
     - name: configure_external_db
       type : string
@@ -110,7 +113,7 @@ spec:
         - /opt/app-root/src/run-role.sh
         - gencfg_jdbc
       #image: quay.io/ibmmas/cli:$(params.cli_version)
-      image: quay.io/ibmmas/cli:3.11.0-pre.external-db
+      image: quay.io/ibmmas/cli:3.11.0-pre.external-db-new
       imagePullPolicy: Always
       workingDir: /workspace/configs
 

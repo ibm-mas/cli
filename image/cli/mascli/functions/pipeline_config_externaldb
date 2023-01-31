@@ -13,7 +13,6 @@ function  config_pipeline_externaldb() {
   prompt_for_confirm_default_yes "SSL Enabled" SSL_ENABLED
 
   if [[ "$SSL_ENABLED" == "true" ]]; then
-    export SS=true
     prompt_for_input "Location for SSL certificate" MAS_JDBC_CERT_LOCAL_FILE
     if [[ ! -e "$MAS_JDBC_CERT_LOCAL_FILE" ]]; then
       echo_warning "Error: File does not exist: $MAS_JDBC_CERT_LOCAL_FILE"
@@ -21,7 +20,9 @@ function  config_pipeline_externaldb() {
     fi
   fi
 
-  MAS_CONFIG_SCOPE="system"
+  MAS_CONFIG_SCOPE="wsapp"
+  MAS_APPWS_JDBC_BINDING="workspace-application"
+
   echo ""
 }
 

@@ -191,6 +191,8 @@ spec:
       value: '$MAS_APP_SETTINGS_INDEXSPACE' 
     - name: mas_app_settings_db2_schema
       value: '$MAS_APP_SETTINGS_DB2_SCHEMA'
+    - name: mas_appws_jdbc_binding
+      value: '$MAS_APPWS_JDBC_BINDING'
     # Monitor Application
     - name: mas_app_source_monitor
       value: '$MAS_APP_SOURCE_MONITOR'
