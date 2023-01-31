@@ -92,7 +92,7 @@ function pipeline_prepare() {
 
     echo -e "\n\n[WARNING] $CLI_IMAGE is unavailable from the target OCP cluster" >> $LOGFILE
     echo_hr1 >> $LOGFILE
-    oc -n mas-$MAS_INSTANCE_ID-pipelines get pods --selector="app=mas-cli" -o.yaml >> $LOGFILE
+    oc -n mas-$MAS_INSTANCE_ID-pipelines get pods --selector="app=mas-cli" -o yaml >> $LOGFILE
     exit 1
   fi
 }
