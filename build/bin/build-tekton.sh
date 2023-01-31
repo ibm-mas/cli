@@ -24,7 +24,7 @@ else
 
 fi
 
-ansible-playbook tekton/generate-tekton.yaml
+ansible-playbook tekton/generate-tekton.yml
 
 echo "Copying PipelineRun templates to $TARGET_PIPELINERUN_DIRECTORY"
 echo "cp $PIPELINERUN_FILES $TARGET_PIPELINERUN_DIRECTORY"
