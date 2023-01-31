@@ -113,10 +113,10 @@ function update() {
   pipeline_install_tasks_shared_namespace || exit 1
 
   # Replace ALL environment variables in templates
-  eval "echo \"$(cat $DIR/templates/pipelinerun-update.yml)\"" > $CONFIG_DIR/pipelinerun-update.yml
+  eval "echo \"$(cat $DIR/templates/pipelinerun-update.yaml)\"" > $CONFIG_DIR/pipelinerun-update.yaml
 
   # Start pipeline execution
-  oc -n mas-pipelines create -f $CONFIG_DIR/pipelinerun-update.yml &>> $LOGFILE || exit 1
+  oc -n mas-pipelines create -f $CONFIG_DIR/pipelinerun-update.yaml &>> $LOGFILE || exit 1
   echo -e "${COLOR_GREEN}Update started successfully${COLOR_RESET}"
   echo -e "\nView progress:\n  ${COLOR_CYAN}${TEXT_UNDERLINE}https://${OCP_CONSOLE_ROUTE}/pipelines/ns/mas-pipelines${TEXT_RESET}${COLOR_RESET}"
   echo

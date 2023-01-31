@@ -1,0 +1,82 @@
+params:
+  # CLI Version
+  - name: cli_version
+    type: string
+    description: version of mas cli to be used in tasks and dependencies
+    default: ""
+
+  # Registry
+  - name: fvt_image_registry
+    type: string
+    default: ""
+
+  # Artifactory Secret
+  - name: fvt_artifactory_username
+    type: string
+    default: ""
+  - name: fvt_artifactory_apikey
+    type: string
+    default: ""
+
+  # Persist Results (Optional)
+  - name: devops_mongo_uri
+    type: string
+    default: ""
+  - name: devops_build_number
+    type: string
+    default: ""
+  - name: test_type
+    type: string
+    description: Optional. Used to different upgrade tests from other type of tests
+    default: ""
+  - name: test_phase
+    type: string
+    description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
+    default: ""
+
+  # MAS Configuration
+  - name: mas_instance_id
+    type: string
+  - name: mas_channel
+    type: string
+    default: ""
+
+  # MAS Configuration - Workspace
+  - name: mas_workspace_id
+    type: string
+    description: Workspace ID used to configure all applications
+    default: masdev
+
+  # MAS Configuration - Application Channels
+  - name: mas_app_channel_iot
+    type: string
+    description: Subscription channel for IoT application operator
+    default: ""
+  - name: mas_app_channel_manage
+    type: string
+    description: Subscription channel for Manage application operator
+    default: ""
+  - name: mas_app_channel_monitor
+    type: string
+    description: Subscription channel for Monitor application operator
+    default: ""
+  - name: mas_app_channel_optimizer
+    type: string
+    description: Subscription channel for Optimizer application operator
+    default: ""
+  - name: mas_app_channel_predict
+    type: string
+    description: Subscription channel for Predict application operator
+    default: ""
+  - name: mas_app_channel_hputilities
+    type: string
+    description: Subscription channel for Health & Predict - Utilities application operator
+    default: ""
+  - name: mas_app_channel_assist
+    type: string
+    description: Subscription channel for Assist application operator
+    default: ""
+  - name: mas_app_channel_visualinspection
+    type: string
+    description: Subscription channel for MVI application operator
+    default: ""

@@ -5,8 +5,8 @@
 # - Set up RBAC
 function pipeline_install_tasks() {
   # Install the MAS Tekton definitions
-  cp $DIR/templates/ibm-mas-tekton.yml $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yml
-  sed -e "s/cli:latest/cli:$VERSION/g" $DIR/templates/deployment.yml > $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yml
+  cp $DIR/templates/ibm-mas-tekton.yaml $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
+  sed -e "s/cli:latest/cli:$VERSION/g" $DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yaml
   CLI_IMAGE=quay.io/ibmmas/cli:$VERSION
 
   if [[ "$AIRGAP_MODE" == "true" ]]; then
@@ -25,29 +25,29 @@ function pipeline_install_tasks() {
         prompt_for_input "quay.io/ibmmas/cli image digest" CLI_IMAGE_DIGEST
       fi
       # Overwrite the tekton definitions with one that uses the looked up image digest
-      sed -e "s/cli:$VERSION/cli@${CLI_IMAGE_DIGEST}/g" $DIR/templates/ibm-mas-tekton.yml > $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yml
-      sed -e "s/cli:latest/cli@$CLI_IMAGE_DIGEST/g" $DIR/templates/deployment.yml > $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yml
+      sed -e "s/cli:$VERSION/cli@${CLI_IMAGE_DIGEST}/g" $DIR/templates/ibm-mas-tekton.yaml > $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
+      sed -e "s/cli:latest/cli@$CLI_IMAGE_DIGEST/g" $DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yaml
       CLI_IMAGE=quay.io/ibmmas/cli@$CLI_IMAGE_DIGEST
     fi
   fi
 
   # Set up namespace
-  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/namespace.yml > $CONFIG_DIR/namespace-$MAS_INSTANCE_ID.yml
-  oc apply -f $CONFIG_DIR/namespace-$MAS_INSTANCE_ID.yml &>> $LOGFILE
+  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/namespace.yaml > $CONFIG_DIR/namespace-$MAS_INSTANCE_ID.yaml
+  oc apply -f $CONFIG_DIR/namespace-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
 
   # Create tasks and pipeline resources in namespace
-  oc -n mas-$MAS_INSTANCE_ID-pipelines apply -f $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yml &>> $LOGFILE
+  oc -n mas-$MAS_INSTANCE_ID-pipelines apply -f $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
 
   # Set up RBAC in namespace
-  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/rbac.yml > $CONFIG_DIR/rbac-$MAS_INSTANCE_ID.yml
-  oc apply -f $CONFIG_DIR/rbac-$MAS_INSTANCE_ID.yml &>> $LOGFILE
+  sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/rbac.yaml > $CONFIG_DIR/rbac-$MAS_INSTANCE_ID.yaml
+  oc apply -f $CONFIG_DIR/rbac-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
 }
 
 
 function pipeline_install_tasks_shared_namespace() {
   # Install the MAS Tekton definitions
-  cp $DIR/templates/ibm-mas-tekton.yml $CONFIG_DIR/ibm-mas-tekton-cluster.yml
-  sed -e "s/cli:latest/cli:$VERSION/g" $DIR/templates/deployment.yml > $CONFIG_DIR/deployment-cluster.yml
+  cp $DIR/templates/ibm-mas-tekton.yaml $CONFIG_DIR/ibm-mas-tekton-cluster.yaml
+  sed -e "s/cli:latest/cli:$VERSION/g" $DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-cluster.yaml
   CLI_IMAGE=quay.io/ibmmas/cli:$VERSION
 
   if [[ "$AIRGAP_MODE" == "true" ]]; then
@@ -66,18 +66,18 @@ function pipeline_install_tasks_shared_namespace() {
         prompt_for_input "quay.io/ibmmas/cli image digest" CLI_IMAGE_DIGEST
       fi
       # Overwrite the tekton definitions with one that uses the looked up image digest
-      sed -e "s/cli:$VERSION/cli@$CLI_IMAGE_DIGEST/g" $DIR/templates/ibm-mas-tekton.yml > $CONFIG_DIR/ibm-mas-tekton-cluster.yml
-      sed -e "s/cli:latest/cli@$CLI_IMAGE_DIGEST/g" $DIR/templates/deployment.yml > $CONFIG_DIR/deployment-cluster.yml
+      sed -e "s/cli:$VERSION/cli@$CLI_IMAGE_DIGEST/g" $DIR/templates/ibm-mas-tekton.yaml > $CONFIG_DIR/ibm-mas-tekton-cluster.yaml
+      sed -e "s/cli:latest/cli@$CLI_IMAGE_DIGEST/g" $DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-cluster.yaml
       CLI_IMAGE=quay.io/ibmmas/cli@$CLI_IMAGE_DIGEST
     fi
   fi
 
   # Set up namespace
-  oc apply -f $DIR/templates/namespace-cluster.yml &>> $LOGFILE
+  oc apply -f $DIR/templates/namespace-cluster.yaml &>> $LOGFILE
 
   # Create tasks and pipeline resources in namespace
-  oc -n mas-pipelines apply -f $CONFIG_DIR/ibm-mas-tekton-cluster.yml &>> $LOGFILE
+  oc -n mas-pipelines apply -f $CONFIG_DIR/ibm-mas-tekton-cluster.yaml &>> $LOGFILE
 
   # Set up RBAC in namespace
-  oc apply -f $DIR/templates/rbac-cluster.yml &>> $LOGFILE
+  oc apply -f $DIR/templates/rbac-cluster.yaml &>> $LOGFILE
 }

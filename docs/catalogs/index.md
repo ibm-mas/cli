@@ -14,7 +14,7 @@ This catalog is a **curated** catalog, the Maximo Application Suite team take a 
 No updates are made to this catalog without extensive testing with all in-support version of Maximo Application Suite, so you can trust this dynamic catalog, even in a production environment.
 
 #### Manual Installation
-`oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v8-amd64.yml`
+`oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v8-amd64.yaml`
 
 #### Source
 ```yaml

@@ -27,8 +27,8 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/image/cli/mascli/templates/ibm-mas-tekton.yml
-          asset_name: ibm-mas-tekton-${{ env.VERSION }}.yml
+          file: ${{ github.workspace }}/image/cli/mascli/templates/ibm-mas-tekton.yaml
+          asset_name: ibm-mas-tekton-${{ env.VERSION }}.yaml
           tag: ${{ github.ref }}
           overwrite: true
 
@@ -37,7 +37,7 @@ jobs:
           ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
           ARTIFACTORY_APIKEY: ${{ secrets.ARTIFACTORY_APIKEY }}
         run: |
-          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yml
+          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yaml
 
       # 2. CLI installer
       # -------------------------------------------------------------------------------------------

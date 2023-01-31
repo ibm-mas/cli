@@ -7,17 +7,17 @@ if [ "$DEV_MODE" != "true" ]; then
   source ${GITHUB_WORKSPACE}/build/bin/.env.sh
   source ${GITHUB_WORKSPACE}/build/bin/.functions.sh
 
-  TASK_FILES=$GITHUB_WORKSPACE/tekton/tasks/*.yml
-  PIPELINE_FILES=$GITHUB_WORKSPACE/tekton/pipelines/*.yml
-  TARGET_FILE=$GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yml
+  TASK_FILES=$GITHUB_WORKSPACE/tekton/tasks/*.yaml
+  PIPELINE_FILES=$GITHUB_WORKSPACE/tekton/pipelines/*.yaml
+  TARGET_FILE=$GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yaml
   
   PIPELINERUN_FILES=$GITHUB_WORKSPACE/tekton/pipelineruns/*.j2
   TARGET_PIPELINERUN_DIRECTORY=$GITHUB_WORKSPACE/image/cli/mascli/templates/
 
 else
-  TASK_FILES=../../tekton/tasks/*.yml
-  PIPELINE_FILES=../../tekton/pipelines/*.yml
-  TARGET_FILE=../../image/cli/mascli/templates/ibm-mas-tekton.yml
+  TASK_FILES=../../tekton/tasks/*.yaml
+  PIPELINE_FILES=../../tekton/pipelines/*.yaml
+  TARGET_FILE=../../image/cli/mascli/templates/ibm-mas-tekton.yaml
   
   PIPELINERUN_FILES=../../tekton/pipelineruns/*.j2
   TARGET_PIPELINERUN_DIRECTORY=../../image/cli/mascli/templates/
