@@ -120,7 +120,7 @@ spec:
         value: $(params.mas_app_settings_indexspace)
       - name: MAS_APP_SETTINGS_DB2_SCHEMA
         value: $(params.mas_app_settings_db2_schema)
-      - name: mas_appws_jdbc_binding
+      - name: MAS_APPWS_JDBC_BINDING
         value: $(params.mas_appws_jdbc_binding)
 
       # Predict
