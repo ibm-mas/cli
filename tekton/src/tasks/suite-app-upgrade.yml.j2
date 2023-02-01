@@ -1,0 +1,43 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-suite-app-upgrade
+spec:
+  params:
+    # Control the image pull policy for the CLI container image
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+    - name: mas_app_id
+      type: string
+      description: Maximo Application Suite Application ID
+    - name: mas_app_channel
+      type: string
+      description: Instance ID
+    
+    - name: skip_compatibility_check
+      type: string
+      default: "False"
+
+  stepTemplate:
+    env:
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_APP_ID
+        value: $(params.mas_app_id)
+      - name: MAS_APP_CHANNEL
+        value: $(params.mas_app_channel)
+      - name: SKIP_COMPATIBILITY_CHECK
+        value: $(params.skip_compatibility_check)
+  steps:
+    - name: suite-app-upgrade
+      command:
+        - /opt/app-root/src/run-role.sh
+        - suite_app_upgrade
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)

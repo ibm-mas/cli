@@ -1,13 +1,12 @@
 
 *.DS_Store*
 .vscode
+
 image/cli/mascli/templates/ibm-mas-tekton.yaml
+
 target/
 tmp/
-tekton/test-run.yml
-tekton/ibm-mas-tekton.yaml
-tekton/test-run-assist.yml
-tekton/pipelines/fvt-assist.yaml
-tekton/pipelines/fvt-core.yaml
-tekton/pipelines/install-with-fvt.yaml
-tekton/pipelines/install.yaml
+
+tekton/test-*.yaml
+tekton/target
+tekton/tmp
