@@ -1,0 +1,78 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-upgrade-with-fvt
+spec:
+  params:
+
+    # Combined install, fvt and upgrade parameters + source/target parsing
+    {{ lookup('template', params_src_dir ~ '/upgrade-test.yml.j2') | indent(4) }}
+
+  tasks:
+
+    # Install
+    - name: install
+      params:
+        - name: pipeline_name
+          value: install
+        - name: test_type
+          value: upgrade
+        - name: test_phase
+          value: install
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/run-pipeline/install.yml.j2') | indent(8) }}
+      taskRef:
+        kind: Task
+        name: mas-install-run-pipeline
+
+    # FVT
+    - name: test-before
+      params:
+        - name: pipeline_name
+          value: fvt
+        - name: pipelinerun_name_suffix
+          value: before
+        - name: test_type
+          value: upgrade
+        - name: test_phase
+          value: installtest
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/run-pipeline/fvt.yml.j2') | indent(8) }}
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-pipeline
+      runAfter:
+        - install
+
+    # Upgrade
+    - name: upgrade
+      params:
+        - name: pipeline_name
+          value: upgrade
+        - name: test_type
+          value: upgrade
+        - name: test_phase
+          value: upgrade
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/run-pipeline/upgrade.yml.j2') | indent(8) }}
+      taskRef:
+        kind: Task
+        name: mas-upgrade-run-pipeline
+      runAfter:
+        - test-before
+
+    # FVT
+    - name: test-after
+      params:
+        - name: pipeline_name
+          value: fvt
+        - name: pipelinerun_name_suffix
+          value: after
+        - name: test_type
+          value: upgrade
+        - name: test_phase
+          value: upgradetest
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/run-pipeline/fvt.yml.j2') | indent(8) }}
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-pipeline
+      runAfter:
+        - upgrade
