@@ -20,6 +20,8 @@
     # Storage Class
     - name: appconnect_storage_class
       value: $(params.appconnect_storage_class)
+    - name: custom_labels
+      value: $(params.custom_labels)
   taskRef:
     kind: Task
     name: mas-devops-appconnect
