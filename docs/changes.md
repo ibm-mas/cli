@@ -1,5 +1,6 @@
 ## Changes
 
+- [`3.11`](https://github.com/ibm-mas/cli/releases/tag/3.11.0) Add upgrade-test pipeline and automatin to automatically generate PipelineRun resources
 - [`3.10`](https://github.com/ibm-mas/cli/releases/tag/3.10.0) Add support for Jan 2023 catalog
 - [`3.9`](https://github.com/ibm-mas/cli/releases/tag/3.9.0) Add mobile test suite
 - [`3.8`](https://github.com/ibm-mas/cli/releases/tag/3.8.0) Add support for workload scale customization

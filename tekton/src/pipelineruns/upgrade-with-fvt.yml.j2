@@ -1,0 +1,25 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: {{'"mas-upgrade-with-fvt-{{ devops_build_number if pipelinerun_name_suffix == \'\' else  (pipelinerun_name_suffix + \'-\' + devops_build_number) }}"'}}
+  labels:
+    tekton.dev/pipeline: mas-upgrade-with-fvt
+spec:
+  pipelineRef:
+    name: mas-upgrade-with-fvt
+  serviceAccountName: pipeline
+  timeout: {{'"{{ pipelinerun_timeout }}"'}}
+
+  params:
+{% for upgrade_test_raw_param in upgrade_test_raw_params_definition %}
+{% if upgrade_test_raw_param.name in params_source_target_list %}
+    - name: source_{{ upgrade_test_raw_param.name }}
+      value: {{'"{{ lookup(\'env\', \'SOURCE_' ~ upgrade_test_raw_param.name | upper ~ '\') }}"'}}
+    - name: target_{{ upgrade_test_raw_param.name }}
+      value: {{'"{{ lookup(\'env\', \'TARGET_' ~ upgrade_test_raw_param.name | upper ~ '\') }}"'}}
+{% else %}
+    - name: {{ upgrade_test_raw_param.name }}
+      value: {{'"{{ lookup(\'env\', \'' ~ upgrade_test_raw_param.name | upper ~ '\') }}"'}}
+{% endif %}
+{% endfor %}
