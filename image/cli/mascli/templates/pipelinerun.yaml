@@ -19,22 +19,41 @@ spec:
     - name: artifactory_apikey
       value: '$ARTIFACTORY_APIKEY'
 
+    # IBM Entitlement Key
+    - name: ibm_entitlement_key
+      value: '$IBM_ENTITLEMENT_KEY'
+
     # Storage Classes
     - name: storage_class_rwx
       value: '$STORAGE_CLASS_RWX'
     - name: storage_class_rwo
       value: '$STORAGE_CLASS_RWO'
 
-    # DB2 Classes
+    # Dependencies - Db2 - Actions
+    - name: db2_action_system
+      value: '$DB2_ACTION_SYSTEM'
+    - name: db2_action_manage
+      value: '$DB2_ACTION_MANAGE'
+
+    # Dependencies - Db2 - Access Mode
     - name: db2_meta_storage_accessmode
       value: '$DB2_META_STORAGE_ACCESSMODE'
     - name: db2_backup_storage_accessmode
       value: '$DB2_BACKUP_STORAGE_ACCESSMODE'
+
+    # Dependencies - Db2 - CPU Resources
     - name: db2_cpu_requests
       value: '$DB2_CPU_REQUESTS'
     - name: db2_cpu_limits
       value: '$DB2_CPU_LIMITS'
 
+    # Dependencies - Db2 - Memory Resources
+    - name: db2_memory_requests
+      value: '$DB2_MEMORY_REQUESTS'
+    - name: db2_memory_limits
+      value: '$DB2_MEMORY_LIMITS'
+
+    # Dependencies - Db2 - Storage Capacity
     - name: db2_meta_storage_size
       value: '$DB2_META_STORAGE_SIZE'
     - name: db2_backup_storage_size
@@ -46,15 +65,11 @@ spec:
     - name: db2_data_storage_size
       value: '$DB2_DATA_STORAGE_SIZE'
 
-    # Additional Mongo DB parameters
+    # Dependencies - MongoDb
     - name: mongodb_replicas
       value: '$MONGODB_REPLICAS'
     - name: mongodb_cpu_requests
       value: '$MONGODB_CPU_REQUESTS'
-
-    # Dependencies - IBM Entitlement Key
-    - name: ibm_entitlement_key
-      value: '$IBM_ENTITLEMENT_KEY'
 
     # Dependencies - CP4D
     - name: cpd_product_version

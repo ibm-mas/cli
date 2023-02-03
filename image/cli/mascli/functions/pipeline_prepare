@@ -1,7 +1,7 @@
 #!/bin/bash
 function pipeline_prepare() {
   echo
-  echo_h2 "10. Prepare Installation"
+  echo_h2 "11. Prepare Installation"
 
   # Replace ALL environment variables in templates
   eval "echo \"$(cat $DIR/templates/pipelinerun.yaml)\"" > $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID.yaml

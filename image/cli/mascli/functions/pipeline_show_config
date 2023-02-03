@@ -98,6 +98,25 @@ function pipeline_show_config() {
     echo_reset_dim "Product Version ........... ${COLOR_MAGENTA}${CP4D_VERSION}"
   fi
 
+  if [[ "$DB2_ACTION_SYSTEM" == "install" || "$DB2_ACTION_MANAGE" == "install" ]]; then
+    reset_colors
+    echo "${TEXT_DIM}"
+    echo_h2 "IBM Db2" "    "
+    echo_reset_dim "System Instance ........... ${COLOR_MAGENTA}${DB2_ACTION_SYSTEM}"
+    echo_reset_dim "Dedicated Manage Instance . ${COLOR_MAGENTA}${DB2_ACTION_MANAGE}"
+
+    echo_reset_dim "CPU Request ............... ${COLOR_MAGENTA}${DB2_CPU_REQUESTS:-Default}"
+    echo_reset_dim "CPU Limit ................. ${COLOR_MAGENTA}${DB2_CPU_LIMITS:-Default}"
+    echo_reset_dim "Memory Request ............ ${COLOR_MAGENTA}${DB2_MEMORY_REQUESTS:-Default}"
+    echo_reset_dim "Memory Limit .............. ${COLOR_MAGENTA}${DB2_MEMORY_LIMITS:-Default}"
+
+    echo_reset_dim "Meta Storage .............. ${COLOR_MAGENTA}${DB2_META_STORAGE_SIZE:-Default}"
+    echo_reset_dim "Data Storage .............. ${COLOR_MAGENTA}${DB2_DATA_STORAGE_SIZE:-Default}"
+    echo_reset_dim "Backup Storage ............ ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_SIZE:-Default}"
+    echo_reset_dim "Temp Storage .............. ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_SIZE:-Default}"
+    echo_reset_dim "Transaction Logs Storage .. ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_SIZE:-Default}"
+  fi
+
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "Storage Class Configuration" "    "
@@ -105,17 +124,6 @@ function pipeline_show_config() {
   if [[ "$STORAGE_CLASS_PROVIDER" == "custom" ]]; then
     echo_reset_dim "ReadWriteOnce ............ ${COLOR_MAGENTA}${STORAGE_CLASS_RWO}"
     echo_reset_dim "ReadWriteMany ............ ${COLOR_MAGENTA}${STORAGE_CLASS_RWX}"
-  fi
-
-  if [[ "$SNO_MODE" == "true" ]]; then
-    reset_colors
-    echo "${TEXT_DIM}"
-    echo_h2 "DB2 Configuration"
-    echo_reset_dim "DB2_META_STORAGE_SIZE .............. ${COLOR_MAGENTA}${DB2_META_STORAGE_SIZE}"
-    echo_reset_dim "DB2_DATA_STORAGE_SIZE .............. ${COLOR_MAGENTA}${DB2_DATA_STORAGE_SIZE}"
-    echo_reset_dim "DB2_BACKUP_STORAGE_SIZE ............ ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_SIZE}"
-    echo_reset_dim "DB2_TEMP_STORAGE_SIZE .............. ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_SIZE}"
-    echo_reset_dim "DB2_LOGS_STORAGE_SIZE .............. ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_SIZE}"
   fi
 
   reset_colors

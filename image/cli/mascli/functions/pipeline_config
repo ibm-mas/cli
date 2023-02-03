@@ -148,35 +148,36 @@ function pipeline_config() {
   else
     config_pipeline_storage_classes
   fi
-  config_pipeline_storage_db2_size
+
+  config_pipeline_storage_db2
 
   echo ""
   if [[ "$DEV_MODE" == "true" && -z "$AIRGAP_MODE" ]]; then
     # Development Mode -- offer the ability to set MAS and SLS source independently
-    echo_h2 "7a. Configure Artifactory"
+    echo_h2 "8a. Configure Artifactory"
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
     prompt_for_input "Artifactory API Key" ARTIFACTORY_APIKEY
 
     echo
-    echo_h2 "7b. Configure IBM Container Registry"
+    echo_h2 "8b. Configure IBM Container Registry"
     prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
 
     echo
-    echo_h2 "7c. Configure IBM Container Registry (MAS)"
+    echo_h2 "8c. Configure IBM Container Registry (MAS)"
     prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
     prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com/cpopen override
     MAS_ENTITLEMENT_USERNAME=cp
     MAS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
 
     echo
-    echo_h2 "7d. Configure IBM Container Registry (SLS)"
+    echo_h2 "8d. Configure IBM Container Registry (SLS)"
     prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com/cpopen override
     SLS_ENTITLEMENT_USERNAME=cp
     SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
-    echo_h2 "7. Configure IBM Container Registry"
+    echo_h2 "8. Configure IBM Container Registry"
     prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
 
     # Use defaults
@@ -194,7 +195,7 @@ function pipeline_config() {
   SLS_CATALOG_SOURCE=ibm-operator-catalog
 
   echo
-  echo_h2 "8. Configure Product License"
+  echo_h2 "9. Configure Product License"
   prompt_for_input "License ID" SLS_LICENSE_ID
   prompt_for_input "License File" SLS_LICENSE_FILE_LOCAL
   if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
@@ -204,7 +205,7 @@ function pipeline_config() {
   SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
 
   echo
-  echo_h2 "9. Configure UDS"
+  echo_h2 "10. Configure UDS"
   prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
   prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
   prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME

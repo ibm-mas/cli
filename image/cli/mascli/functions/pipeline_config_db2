@@ -1,22 +1,80 @@
 #!/bin/bash
 
 
-function config_pipeline_storage_db2_size() {
+function config_pipeline_storage_db2() {
+  echo
+  echo_h2 "7. Configure Db2"
+
+  # Unless we are installing IoT or Manage we have nothing to do
+  if [[ "$MAS_APP_CHANNEL_IOT" != "" ||  "$MAS_APP_CHANNEL_MANAGE" != "" ]]; then
+    # Defaults
+    DB2_CPU_REQUESTS=${DB2_CPU_REQUESTS:-4000m}
+    DB2_CPU_LIMITS=${DB2_CPU_LIMITS:-6000m}
+
+    DB2_MEMORY_REQUESTS=${DB2_MEMORY_REQUESTS:-8Gi}
+    DB2_MEMORY_LIMITS=${DB2_MEMORY_LIMITS:-12Gi}
+
     if [[ "$SNO_MODE" == "true" ]]; then
-    
-        DB2_META_STORAGE_SIZE=10Gi 
+      # Set smaller deaults for SNO deployments
+      DB2_META_STORAGE_SIZE=${DB2_META_STORAGE_SIZE:-10Gi}
+      DB2_BACKUP_STORAGE_SIZE=${DB2_BACKUP_STORAGE_SIZE:-10Gi}
+      DB2_LOGS_STORAGE_SIZE=${DB2_LOGS_STORAGE_SIZE:-10Gi}
+      DB2_TEMP_STORAGE_SIZE=${DB2_TEMP_STORAGE_SIZE:-10Gi}
+      DB2_DATA_STORAGE_SIZE=${DB2_DATA_STORAGE_SIZE:-20Gi}
+    else
+      DB2_META_STORAGE_SIZE=${DB2_META_STORAGE_SIZE:-20Gi}
+      DB2_BACKUP_STORAGE_SIZE=${DB2_BACKUP_STORAGE_SIZE:-100Gi}
+      DB2_LOGS_STORAGE_SIZE=${DB2_LOGS_STORAGE_SIZE:-100Gi}
+      DB2_TEMP_STORAGE_SIZE=${DB2_TEMP_STORAGE_SIZE:-100Gi}
+      DB2_DATA_STORAGE_SIZE=${DB2_DATA_STORAGE_SIZE:-100Gi}
+    fi
+
+    if prompt_for_confirm "Install Db2 using the IBM Db2 Universal Operator?"; then
+      # No need to prompt the user to decide for IoT, it needs to be using the system
+      # JDBC binding because both Predict and Monitor want to share the same Database
+      if [ "$MAS_APP_CHANNEL_IOT" != "" ]; then
+        DB2_ACTION_SYSTEM=install
+      else
+        DB2_ACTION_SYSTEM=none
+      fi
+
+      # The user can choose to deploy a dedicated Db2 instance just for Manage
+      if [ "$MAS_APP_CHANNEL_MANAGE" != "" ]; then
+        if prompt_for_confirm "Install Dedicated Db2 instance for Manage application?"; then
+          DB2_ACTION_MANAGE=install
+        else
+          DB2_ACTION_SYSTEM=install
+          DB2_ACTION_MANAGE=none
+        fi
+      fi
+
+      # Set SNO-specific overrides (not defaults, these will wipe whatever saved defaults you have)
+      if [[ "$SNO_MODE" == "true" ]]; then
+        DB2_META_STORAGE_SIZE=10Gi
         DB2_BACKUP_STORAGE_SIZE=10Gi
         DB2_LOGS_STORAGE_SIZE=10Gi
         DB2_TEMP_STORAGE_SIZE=10Gi
         DB2_DATA_STORAGE_SIZE=20Gi
+      fi
 
-        echo
-        echo_h2 "6b. DB2 Storage size, in Gi(Gigabytes)"
-        prompt_for_input "Size of data persistent volume" DB2_DATA_STORAGE_SIZE && export DB2_DATA_STORAGE_SIZE
-        prompt_for_input 'Size of temporary persistent volume' DB2_TEMP_STORAGE_SIZE && export DB2_TEMP_STORAGE_SIZE
-        prompt_for_input "Size of metadata persistent volume" DB2_META_STORAGE_SIZE && export DB2_META_STORAGE_SIZE   
-        prompt_for_input 'Size of transaction logs persistent volume' DB2_LOGS_STORAGE_SIZE && export DB2_LOGS_STORAGE_SIZE
-        prompt_for_input "Size of backup persistent volume" DB2_BACKUP_STORAGE_SIZE && export DB2_BACKUP_STORAGE_SIZE  
+      if prompt_for_confirm "Customize CPU and memory request/limit?"; then
+        prompt_for_input "  CPU Request" DB2_CPU_REQUESTS && export DB2_CPU_REQUESTS
+        prompt_for_input "  CPU Limit" DB2_CPU_LIMITS && export DB2_CPU_LIMITS
+        prompt_for_input "  Memory Request" DB2_MEMORY_REQUESTS && export DB2_MEMORY_REQUESTS
+        prompt_for_input "  Memory Limit" DB2_MEMORY_LIMITS && export DB2_MEMORY_LIMITS
+      fi
 
+      if prompt_for_confirm "Customize storage capacity?"; then
+        prompt_for_input "  Data volume size" DB2_DATA_STORAGE_SIZE && export DB2_DATA_STORAGE_SIZE
+        prompt_for_input "  Temporary volume size" DB2_TEMP_STORAGE_SIZE && export DB2_TEMP_STORAGE_SIZE
+        prompt_for_input "  Metadata volume size" DB2_META_STORAGE_SIZE && export DB2_META_STORAGE_SIZE
+        prompt_for_input "  Transaction logs volume size" DB2_LOGS_STORAGE_SIZE && export DB2_LOGS_STORAGE_SIZE
+        prompt_for_input "  Backup volume size" DB2_BACKUP_STORAGE_SIZE && export DB2_BACKUP_STORAGE_SIZE
+      fi
     fi
+  else
+    echo "No applications have been selected that require a Db2 installation"
+    DB2_ACTION_SYSTEM=none
+    DB2_ACTION_MANAGE=none
+  fi
 }
