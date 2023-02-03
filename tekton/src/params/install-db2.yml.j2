@@ -1,39 +1,80 @@
-# Storage - Access mode
-- name: db2_meta_storage_accessmode
+# Db2
+# -------------------------------------------------------------------------
+# Db2 - Instance
+- name: db2_dbname
   type: string
-  description: Optional configuration for db2 meta storage access mode
-  default: ""
-- name: db2_backup_storage_accessmode
+  description: The name of the database created
+  default: "BLUDB"
+- name: db2_version
   type: string
-  description: Optional configuration for db2 backup storage access mode
-  default: ""
-# Storage - Capacity
+  description: The version of the database created
+  default: "11.5.7.0-cn2"
+- name: db2_workload
+  type: string
+  description: The workload profile for the db2 instance ('PUREDATA_OLAP' or 'ANALYTICS')
+  default: "ANALYTICS"
+- name: db2_4k_device_support
+  type: string
+  description: Enable 4K device support.  Set to 'ON' or 'OFF'
+  default: "ON"
+- name: db2_table_org
+  type: string
+  description: Customize the way database tables will be organized.  Set to 'ROW' or 'COLUMN'
+  default: "ROW"
+# Db2 - CPU requests and limits
+- name: db2_cpu_requests
+  type: string
+  description: Define the Kubernetes CPU request for the Db2 pod
+  default: "4000m"
+- name: db2_cpu_limits
+  type: string
+  description: Define the Kubernetes CPU limit for the Db2 pod
+  default: "6000m"
+# Db2 - Memory requests and limits
+- name: db2_memory_requests
+  type: string
+  description: Define the Kubernetes memory request for the Db2 pod
+  default: "8Gi"
+- name: db2_memory_limits
+  type: string
+  description: Define the Kubernetes memory limit for the Db2 pod
+  default: "16Gi"
+# Db2 - Storage - Capacity
 - name: db2_meta_storage_size
   type: string
   description: Storage capacity (metadata)
-  default: ""
+  default: "20Gi"
 - name: db2_backup_storage_size
   type: string
   description: Storage capacity (backup)
-  default: ""
+  default: "100Gi"
 - name: db2_logs_storage_size
   type: string
   description: Storage capacity (logs)
-  default: ""
+  default: "100Gi"
 - name: db2_temp_storage_size
   type: string
   description: Storage capacity (temp)
-  default: ""
+  default: "100Gi"
 - name: db2_data_storage_size
   type: string
   description: Storage capacity (data)
-  default: ""
-# CPU requests and limits
-- name: db2_cpu_requests
+  default: "100Gi"
+# Db2 - Storage - Access mode
+- name: db2_meta_storage_accessmode
   type: string
-  description: Optional configuration for db2 cpu requests
+  description: Optional override for db2 meta storage access mode
   default: ""
-- name: db2_cpu_limits
+- name: db2_backup_storage_accessmode
   type: string
-  description: Optional configuration for mongodb cpu limits
+  description: Optional override for db2 backup storage access mode
+  default: ""
+# Db2 - LDAP
+- name: db2_ldap_username
+  type: string
+  description: Define the username of db2 in the local LDAP registry. If this is defined, the LDAP user will be the user identity passed into the MAS JDBC configuration.
+  default: ""
+- name: db2_ldap_password
+  type: string
+  description: Define the password of the db2 user in the local LDAP registry. Must define when db2_ldap_username is used.
   default: ""

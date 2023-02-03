@@ -45,7 +45,7 @@ spec:
       value: '$DB2_TEMP_STORAGE_SIZE'
     - name: db2_data_storage_size
       value: '$DB2_DATA_STORAGE_SIZE'
-   
+
     # Additional Mongo DB parameters
     - name: mongodb_replicas
       value: '$MONGODB_REPLICAS'
@@ -55,10 +55,6 @@ spec:
     # Dependencies - IBM Entitlement Key
     - name: ibm_entitlement_key
       value: '$IBM_ENTITLEMENT_KEY'
-
-    # Dependencies - Common Services
-    - name: common_services_catalog_source
-      value: '$COMMON_SERVICES_CATALOG_SOURCE'
 
     # Dependencies - CP4D
     - name: cpd_product_version

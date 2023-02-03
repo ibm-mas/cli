@@ -1,45 +1,3 @@
-# Tekton Pipeline image pull policy (for CLI & FVT images)
-- name: image_pull_policy
-  type: string
-  default: IfNotPresent
-  description: Pull policy for pipeline container images
-
-# Development Build Support
-- name: artifactory_username
-  default: ""
-  type: string
-  description: Required to install development MAS catalogs
-- name: artifactory_apikey
-  default: ""
-  type: string
-  description: Required to install development MAS catalogs
-
-# Storage Class Selection
-- name: storage_class_rwo
-  type: string
-  default: ""
-  description: ReadWriteOnce storage class
-- name: storage_class_rwx
-  type: string
-  default: ""
-  description: ReadWriteMany storage class
-
-# Entitlement
-- name: ibm_entitlement_key        # Required
-  type: string
-  description: IBM Entitlement Key
-
-# Custom Labels
-- name: custom_labels
-  type: string
-  default: ""
-  description: Optional custom labels, comma separated list of key=value pairs
-
-# Dependencies - Foundation Services
-- name: common_services_catalog_source
-  type: string
-  default: ""
-
 # Dependencies - SLS
 - name: sls_license_id             # Required
   type: string
@@ -116,6 +74,14 @@
 
 # Dependencies - DB2
 {{ lookup('template', params_src_dir ~ '/install-db2.yml.j2') }}
+- name: db2_action_system
+  type: string
+  description: Set to 'install' to set up a Db2 instance for the whole suite
+  default: "none"
+- name: db2_action_manage
+  type: string
+  description: Set to 'install' to set up a Db2 instance for Manage
+  default: "none"
 
 # Dependencies - CP4D
 - name: cpd_operators_namespace
@@ -206,14 +172,12 @@
   type: string
   default: ""
 
-# MAS Configuration
-- name: mas_catalog_source
-  type: string
-  default: ibm-operator-catalog
-- name: mas_catalog_version
-  type: string
-  default: v8-amd64
+{{ lookup('template', params_src_dir ~ '/install-ibmcatalogs.yml.j2') }}
 
+{{ lookup('template', params_src_dir ~ '/install-workspace.yml.j2') }}
+{{ lookup('template', params_src_dir ~ '/install-appchannels.yml.j2') }}
+
+# MAS Configuration
 - name: mas_domain
   type: string
   default: ""
@@ -241,12 +205,6 @@
   type: string
   default: ""
   description: Workload Scaling Custom ConfigMap Name
-
-# MAS Configuration - Workspace
-- name: mas_workspace_name
-  type: string
-  description: Workspace Name used when setting up the workspace
-  default: MAS Development
 
 # MAS Configuration - Manage Application
 - name: mas_appws_components

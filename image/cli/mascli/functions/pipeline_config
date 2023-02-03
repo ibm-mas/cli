@@ -191,7 +191,6 @@ function pipeline_config() {
     SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   fi
 
-  COMMON_SERVICES_CATALOG_SOURCE=ibm-operator-catalog
   SLS_CATALOG_SOURCE=ibm-operator-catalog
 
   echo
