@@ -32,44 +32,44 @@ function pipeline_show_config() {
   echo_h2 "IBM Maximo Application Suite Applications" "    "
   if [[ "${MAS_APP_CHANNEL_IOT}" == '' ]]
   then echo_reset_dim "IoT ...................... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "IoT ...................... ${COLOR_MAGENTA}${MAS_APP_SOURCE_IOT}/${MAS_APP_CHANNEL_IOT}"
+  else echo_reset_dim "IoT ...................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_IOT}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_MONITOR}" == '' ]]
   then echo_reset_dim " - Monitor ............... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim " - Monitor ............... ${COLOR_MAGENTA}${MAS_APP_SOURCE_MONITOR}/${MAS_APP_CHANNEL_MONITOR}"
+  else echo_reset_dim " - Monitor ............... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_MONITOR}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_MANAGE}" == '' ]]
   then echo_reset_dim "Manage ................... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "Manage ................... ${COLOR_MAGENTA}${MAS_APP_SOURCE_MANAGE}/${MAS_APP_CHANNEL_MANAGE}"
+  else echo_reset_dim "Manage ................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_MANAGE}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_PREDICT}" == '' ]]
   then echo_reset_dim " - Predict ............... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim " - Predict ............... ${COLOR_MAGENTA}${MAS_APP_SOURCE_PREDICT}/${MAS_APP_CHANNEL_PREDICT}"
+  else echo_reset_dim " - Predict ............... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_PREDICT}"
   fi
 
   if [[ "${MAS_CHANNEL}" == '8.8.x' ]]; then
     if [[ "${MAS_APP_CHANNEL_OPTIMIZER}" == '' ]]
     then echo_reset_dim "Optimizer ................ ${COLOR_RED}Skip Installation"
-    else echo_reset_dim "Optimizer ................ ${COLOR_MAGENTA}${MAS_APP_SOURCE_OPTIMIZER}/${MAS_APP_CHANNEL_OPTIMIZER} (${MAS_APP_PLAN_OPTIMIZER})"
+    else echo_reset_dim "Optimizer ................ ${COLOR_MAGENTA}${MAS_APP_CHANNEL_OPTIMIZER} (${MAS_APP_PLAN_OPTIMIZER})"
     fi
   fi
 
   if [[ "${MAS_APP_CHANNEL_HPUTILITIES}" == '' ]]
   then echo_reset_dim "H & P Utilities .......... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "H & P Utilities .......... ${COLOR_MAGENTA}${MAS_APP_SOURCE_HPUTILITIES}/${MAS_APP_CHANNEL_HPUTILITIES}"
+  else echo_reset_dim "H & P Utilities .......... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_HPUTILITIES}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_ASSIST}" == '' ]]
   then echo_reset_dim "Assist ................... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "Assist ................... ${COLOR_MAGENTA}${MAS_APP_SOURCE_ASSIST}/${MAS_APP_CHANNEL_ASSIST}"
+  else echo_reset_dim "Assist ................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_ASSIST}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_VISUALINSPECTION}" == '' ]]
   then echo_reset_dim "MVI ...................... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "MVI ...................... ${COLOR_MAGENTA}${MAS_APP_SOURCE_VISUALINSPECTION}/${MAS_APP_CHANNEL_VISUALINSPECTION}"
+  else echo_reset_dim "MVI ...................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_VISUALINSPECTION}"
   fi
 
   reset_colors

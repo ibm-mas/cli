@@ -14,46 +14,54 @@ spec:
 
   params:
     # Enable development catalogs
+    # -------------------------------------------------------------------------
     - name: artifactory_username
       value: '$ARTIFACTORY_USERNAME'
     - name: artifactory_apikey
       value: '$ARTIFACTORY_APIKEY'
 
     # IBM Entitlement Key
+    # -------------------------------------------------------------------------
     - name: ibm_entitlement_key
       value: '$IBM_ENTITLEMENT_KEY'
 
     # Storage Classes
+    # -------------------------------------------------------------------------
     - name: storage_class_rwx
       value: '$STORAGE_CLASS_RWX'
     - name: storage_class_rwo
       value: '$STORAGE_CLASS_RWO'
 
     # Dependencies - Db2 - Actions
+    # -------------------------------------------------------------------------
     - name: db2_action_system
       value: '$DB2_ACTION_SYSTEM'
     - name: db2_action_manage
       value: '$DB2_ACTION_MANAGE'
 
     # Dependencies - Db2 - Access Mode
+    # -------------------------------------------------------------------------
     - name: db2_meta_storage_accessmode
       value: '$DB2_META_STORAGE_ACCESSMODE'
     - name: db2_backup_storage_accessmode
       value: '$DB2_BACKUP_STORAGE_ACCESSMODE'
 
     # Dependencies - Db2 - CPU Resources
+    # -------------------------------------------------------------------------
     - name: db2_cpu_requests
       value: '$DB2_CPU_REQUESTS'
     - name: db2_cpu_limits
       value: '$DB2_CPU_LIMITS'
 
     # Dependencies - Db2 - Memory Resources
+    # -------------------------------------------------------------------------
     - name: db2_memory_requests
       value: '$DB2_MEMORY_REQUESTS'
     - name: db2_memory_limits
       value: '$DB2_MEMORY_LIMITS'
 
     # Dependencies - Db2 - Storage Capacity
+    # -------------------------------------------------------------------------
     - name: db2_meta_storage_size
       value: '$DB2_META_STORAGE_SIZE'
     - name: db2_backup_storage_size
@@ -66,16 +74,19 @@ spec:
       value: '$DB2_DATA_STORAGE_SIZE'
 
     # Dependencies - MongoDb
+    # -------------------------------------------------------------------------
     - name: mongodb_replicas
       value: '$MONGODB_REPLICAS'
     - name: mongodb_cpu_requests
       value: '$MONGODB_CPU_REQUESTS'
 
     # Dependencies - CP4D
+    # -------------------------------------------------------------------------
     - name: cpd_product_version
       value: '$CP4D_VERSION'
 
     # Dependencies - SLS
+    # -------------------------------------------------------------------------
     - name: sls_license_id
       value: '$SLS_LICENSE_ID'
     - name: sls_license_file
@@ -94,6 +105,7 @@ spec:
       value: '$SLS_ENTITLEMENT_KEY'
 
     # Dependencies - UDS (Required, no defaults)
+    # -------------------------------------------------------------------------
     - name: uds_contact_email
       value: '$UDS_CONTACT_EMAIL'
     - name: uds_contact_firstname
@@ -102,21 +114,26 @@ spec:
       value: '$UDS_CONTACT_LASTNAME'
 
     # Dependencies - AppConnect
+    # -------------------------------------------------------------------------
     - name: appconnect_entitlement_username
       value: '$APPCONNECT_ENTITLEMENT_USERNAME'
     - name: appconnect_entitlement_key
       value: '$APPCONNECT_ENTITLEMENT_KEY'
 
     # Dependencies - COS
+    # -------------------------------------------------------------------------
     - name: cos_type
       value: '$COS_TYPE'
     - name: ibmcloud_apikey
       value: '$IBMCLOUD_APIKEY'
 
     # MAS DNS Integrations - General
+    # -------------------------------------------------------------------------
     - name: dns_provider
       value: '$DNS_PROVIDER'
+
     # MAS DNS Integrations - Cloudflare Support
+    # -------------------------------------------------------------------------
     - name: cloudflare_email
       value: '$CLOUDFLARE_EMAIL'
     - name: cloudflare_apitoken
@@ -125,7 +142,9 @@ spec:
       value: '$CLOUDFLARE_ZONE'
     - name: cloudflare_subdomain
       value: '$CLOUDFLARE_SUBDOMAIN'
+
     # MAS DNS Integrations - CIS Support
+    # -------------------------------------------------------------------------
     - name: cis_email
       value: '$CIS_EMAIL'
     - name: cis_apikey
@@ -135,7 +154,8 @@ spec:
     - name: cis_subdomain
       value: '$CIS_SUBDOMAIN'
 
-    # Configure MAS Core install
+    # MAS Core
+    # -------------------------------------------------------------------------
     - name: mas_instance_id
       value: '$MAS_INSTANCE_ID'
     - name: mas_channel
@@ -162,77 +182,84 @@ spec:
     - name: mas_icr_cpopen
       value: '$MAS_ICR_CPOPEN'
 
-    # Configure MAS Applications to install
     # IoT Application
-    - name: mas_app_source_iot
-      value: '$MAS_APP_SOURCE_IOT'
+    # -------------------------------------------------------------------------
     - name: mas_app_channel_iot
       value: '$MAS_APP_CHANNEL_IOT'
-    # Manage application
-    - name: mas_app_source_manage
-      value: '$MAS_APP_SOURCE_MANAGE'
+
+    # Manage Application
+    # -------------------------------------------------------------------------
     - name: mas_app_channel_manage
       value: '$MAS_APP_CHANNEL_MANAGE'
     - name: mas_app_settings_aio_flag
       value: '$MAS_APP_SETTINGS_AIO_FLAG'
     - name: mas_app_settings_demodata
       value: '$MAS_APP_SETTINGS_DEMODATA'
+    - name: mas_appws_bindings_jdbc_manage
+      value: '$MAS_APPWS_BINDINGS_JDBC_MANAGE'
+
     # Monitor Application
-    - name: mas_app_source_monitor
-      value: '$MAS_APP_SOURCE_MONITOR'
+    # -------------------------------------------------------------------------
     - name: mas_app_channel_monitor
       value: '$MAS_APP_CHANNEL_MONITOR'
+
     # Optimizer Application
-    - name: mas_app_source_optimizer
-      value: '$MAS_APP_SOURCE_OPTIMIZER'
+    # -------------------------------------------------------------------------
     - name: mas_app_channel_optimizer
       value: '$MAS_APP_CHANNEL_OPTIMIZER'
     - name: mas_app_plan_optimizer
       value: '$MAS_APP_PLAN_OPTIMIZER'
+
     # Predict Application
-    - name: mas_app_source_predict
-      value: '$MAS_APP_SOURCE_PREDICT'
+    # -------------------------------------------------------------------------
     - name: mas_app_channel_predict
       value: '$MAS_APP_CHANNEL_PREDICT'
+
     # Safety Application
-    - name: mas_app_source_safety
-      value: '$MAS_APP_SOURCE_SAFETY'
+    # -------------------------------------------------------------------------
     - name: mas_app_channel_safety
       value: '$MAS_APP_CHANNEL_SAFETY'
+
     # HPUtilities Application
-    - name: mas_app_source_hputilities
-      value: '$MAS_APP_SOURCE_HPUTILITIES'
+    # -------------------------------------------------------------------------
     - name: mas_app_channel_hputilities
       value: '$MAS_APP_CHANNEL_HPUTILITIES'
+
     # Assist Application
-    - name: mas_app_source_assist
-      value: '$MAS_APP_SOURCE_ASSIST'
+    # -------------------------------------------------------------------------
     - name: mas_app_channel_assist
       value: '$MAS_APP_CHANNEL_ASSIST'
+
     # MVI Application
-    - name: mas_app_source_visualinspection
-      value: '$MAS_APP_SOURCE_VISUALINSPECTION'
+    # -------------------------------------------------------------------------
     - name: mas_app_channel_visualinspection
       value: '$MAS_APP_CHANNEL_VISUALINSPECTION'
 
   workspaces:
     # The generated configuration files
+    # -------------------------------------------------------------------------
     - name: shared-configs
       persistentVolumeClaim:
         claimName: config-pvc
 
+    # User-provided configurations
+    # -------------------------------------------------------------------------
     # Any pre-generated configs that will be copied into the
     # shared-config during install-suite
     - name: shared-additional-configs
       secret:
         secretName: pipeline-additional-configs
 
+    # SLS entitlement
+    # -------------------------------------------------------------------------
     # The SLS entitlement key file that will be installed
     # during install-sls
     - name: shared-entitlement
       secret:
         secretName: pipeline-sls-entitlement
 
+    # Pipeline must-gather storage
+    # -------------------------------------------------------------------------
     # The storage to hold mustgather output after the pipeline has completed
     - name: shared-mustgather
       persistentVolumeClaim:

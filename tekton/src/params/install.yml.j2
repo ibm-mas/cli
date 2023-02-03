@@ -1,5 +1,6 @@
 # Dependencies - SLS
-- name: sls_license_id             # Required
+# -----------------------------------------------------------------------------
+- name: sls_license_id
   type: string
 - name: sls_license_file
   type: string
@@ -27,7 +28,8 @@
   default: ""
   description: Override IBM Entitlement key for SLS installation
 
-# Dependencies - Mongo
+# Dependencies - MongoDb
+# -----------------------------------------------------------------------------
 - name: mongodb_storage_class
   type: string
   default: ""
@@ -41,6 +43,7 @@
   default: ""
 
 # Dependencies - Kafka
+# -----------------------------------------------------------------------------
 - name: kafka_namespace
   type: string
   default: ""
@@ -54,7 +57,8 @@
   type: string
   default: ""
 
-# Dependencies - nvidia gpu
+# Dependencies - NVIDIA GPU
+# -----------------------------------------------------------------------------
 - name: gpu_namespace
   type: string
   description: Optional. Nvidia gpu namespace
@@ -73,6 +77,7 @@
   default: ""
 
 # Dependencies - DB2
+# -----------------------------------------------------------------------------
 {{ lookup('template', params_src_dir ~ '/install-db2.yml.j2') }}
 - name: db2_action_system
   type: string
@@ -82,8 +87,13 @@
   type: string
   description: Set to 'install' to set up a Db2 instance for Manage
   default: "none"
+- name: db2_binding_manage
+  type: string
+  description: Set to 'system' if using the shared system JDBC configuration, or 'application-workspace' if using a dedicated JDBC configuration.
+  default: ""
 
 # Dependencies - CP4D
+# -----------------------------------------------------------------------------
 - name: cpd_operators_namespace
   type: string
   default: ""
@@ -98,6 +108,7 @@
   default: ""
 
 # Dependencies - CP4D Services
+# -----------------------------------------------------------------------------
 - name: cpd_product_version
   type: string
   default: ""
@@ -115,11 +126,12 @@
   default: ""
 
 # Dependencies - UDS
-- name: uds_contact_email          # Required
+# -----------------------------------------------------------------------------
+- name: uds_contact_email
   type: string
-- name: uds_contact_firstname      # Required
+- name: uds_contact_firstname
   type: string
-- name: uds_contact_lastname       # Required
+- name: uds_contact_lastname
   type: string
 - name: uds_event_scheduler_frequency
   type: string
@@ -129,9 +141,11 @@
   default: ""
 
 # Dependencies - AppConnect
+# -----------------------------------------------------------------------------
 {{ lookup('template', params_src_dir ~ '/install-appconnect.yml.j2') }}
 
 # Dependencies - COS
+# -----------------------------------------------------------------------------
 - name: cos_type
   type: string
   description: COS Provider (ibm or ocs)
@@ -142,10 +156,12 @@
   default: ""
 
 # MAS DNS Integrations - General
+# -----------------------------------------------------------------------------
 - name: dns_provider
   type: string
   default: ""
 # MAS DNS Integrations - Cloudflare Support
+# -----------------------------------------------------------------------------
 - name: cloudflare_email
   type: string
   default: ""
@@ -159,6 +175,7 @@
   type: string
   default: ""
 # MAS DNS Integrations - IBM Cloud Internet Services Support
+# -----------------------------------------------------------------------------
 - name: cis_email
   type: string
   default: ""
@@ -178,6 +195,7 @@
 {{ lookup('template', params_src_dir ~ '/install-appchannels.yml.j2') }}
 
 # MAS Configuration
+# -----------------------------------------------------------------------------
 - name: mas_domain
   type: string
   default: ""
@@ -206,7 +224,12 @@
   default: ""
   description: Workload Scaling Custom ConfigMap Name
 
-# MAS Configuration - Manage Application
+# MAS Application Configuration - Manage Application
+# -----------------------------------------------------------------------------
+- name: mas_appws_bindings_jdbc_manage
+  type: string
+  description: Select the JDBC configuration to bind to
+  default: system
 - name: mas_appws_components
   type: string
   description: Manage components to configure in the workspace
@@ -220,60 +243,25 @@
   description: Flag indicating if manage demodata should be loaded or not
   default: ""
 
-# MAS Configuration - Optimizer Application
+# MAS Application Configuration - Optimizer Application
+# -----------------------------------------------------------------------------
 - name: mas_app_plan_optimizer
   type: string
   description: Configure install plan of Optimizer application (full or limited)
   default: full
 
-# MAS Configuration - Predict
+# MAS Application Configuration - Predict
+# -----------------------------------------------------------------------------
 - name: predict_deployment_size
   type: string
   description: controls the workload size of predict containers
   default: "small"
 
-# MAS Configuration - Application Channels
+# MAS Subscriptions - Application Channels
+# -----------------------------------------------------------------------------
 # Safety is deprecated, so it is only available in install pipeline
 # The other channels are in params/common
 - name: mas_app_channel_safety
   type: string
   description: Subscription channel for Safety application operator
-  default: ""
-
-# MAS Configuration - Application Sources
-- name: mas_app_source_iot
-  type: string
-  description: Subscription source for IoT application operator
-  default: ibm-operator-catalog
-- name: mas_app_source_manage
-  type: string
-  description: Subscription source for Manage application operator
-  default: ibm-operator-catalog
-- name: mas_app_source_monitor
-  type: string
-  description: Subscription source for Monitor application operator
-  default: ibm-operator-catalog
-- name: mas_app_source_optimizer
-  type: string
-  description: Subscription source for Optimizer application operator
-  default: ibm-operator-catalog
-- name: mas_app_source_predict
-  type: string
-  description: Subscription source for Predict application operator
-  default: ibm-operator-catalog
-- name: mas_app_source_safety
-  type: string
-  description: Subscription source for Safety application operator
-  default: ibm-operator-catalog
-- name: mas_app_source_hputilities
-  type: string
-  description: Subscription source for Health & Predict - Utilities application operator
-  default: ""
-- name: mas_app_source_assist
-  type: string
-  description: Subscription source for Assist application operator
-  default: ""
-- name: mas_app_source_visualinspection
-  type: string
-  description: Subscription source for MVI application operator
   default: ""
