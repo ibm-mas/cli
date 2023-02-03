@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-fvt-core
+  name: mas-fvt-core-ui
 spec:
   params:
     # Control the image pull policy for the FVT container image
@@ -124,7 +124,7 @@ spec:
       - name: TEST_PHASE
         value: $(params.test_phase)
   steps:
-    - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas:$(params.fvt_image_version)'
+    - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas-ui:$(params.fvt_image_version)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
