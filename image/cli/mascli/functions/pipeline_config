@@ -17,6 +17,8 @@ function pipeline_config() {
     MAS_INSTANCE_ID=$1
   fi
   prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
+  prompt_for_input "MAS Workspace ID" MAS_WORKSPACE_ID
+  prompt_for_input "MAS Workspace Display Name" MAS_WORKSPACE_NAME
 
   if [[ -n "$DEV_MODE" ]]; then
     # Development mode
@@ -143,13 +145,13 @@ function pipeline_config() {
   config_pipeline_dns
   config_pipeline_applications
 
+  config_pipeline_storage_db2
+
   if [[ "$SNO_MODE" == "true" ]]; then
     config_pipeline_storage_classes_sno
   else
     config_pipeline_storage_classes
   fi
-
-  config_pipeline_storage_db2
 
   echo ""
   if [[ "$DEV_MODE" == "true" && -z "$AIRGAP_MODE" ]]; then

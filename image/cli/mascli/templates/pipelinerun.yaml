@@ -127,6 +127,15 @@ spec:
     - name: ibmcloud_apikey
       value: '$IBMCLOUD_APIKEY'
 
+    # MAS Catalog
+    # -------------------------------------------------------------------------
+    - name: mas_channel
+      value: '$MAS_CHANNEL'
+    - name: mas_catalog_source
+      value: '$MAS_CATALOG_SOURCE'
+    - name: mas_catalog_version
+      value: '$MAS_CATALOG_VERSION'
+
     # MAS DNS Integrations - General
     # -------------------------------------------------------------------------
     - name: dns_provider
@@ -158,12 +167,6 @@ spec:
     # -------------------------------------------------------------------------
     - name: mas_instance_id
       value: '$MAS_INSTANCE_ID'
-    - name: mas_channel
-      value: '$MAS_CHANNEL'
-    - name: mas_catalog_source
-      value: '$MAS_CATALOG_SOURCE'
-    - name: mas_catalog_version
-      value: '$MAS_CATALOG_VERSION'
 
     - name: mas_domain
       value: '$MAS_DOMAIN'
@@ -182,6 +185,13 @@ spec:
     - name: mas_icr_cpopen
       value: '$MAS_ICR_CPOPEN'
 
+    # MAS Workspace
+    # -------------------------------------------------------------------------
+    - name: mas_workspace_id
+      value: '$MAS_WORKSPACE_ID'
+    - name: mas_workspace_name
+      value: '$MAS_WORKSPACE_NAME'
+
     # IoT Application
     # -------------------------------------------------------------------------
     - name: mas_app_channel_iot
@@ -191,6 +201,7 @@ spec:
     # -------------------------------------------------------------------------
     - name: mas_app_channel_manage
       value: '$MAS_APP_CHANNEL_MANAGE'
+
     - name: mas_app_settings_aio_flag
       value: '$MAS_APP_SETTINGS_AIO_FLAG'
     - name: mas_app_settings_demodata
@@ -207,6 +218,7 @@ spec:
     # -------------------------------------------------------------------------
     - name: mas_app_channel_optimizer
       value: '$MAS_APP_CHANNEL_OPTIMIZER'
+
     - name: mas_app_plan_optimizer
       value: '$MAS_APP_PLAN_OPTIMIZER'
 

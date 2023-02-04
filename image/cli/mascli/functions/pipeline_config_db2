@@ -3,7 +3,7 @@
 
 function config_pipeline_storage_db2() {
   echo
-  echo_h2 "7. Configure Db2"
+  echo_h2 "6. Configure Db2"
 
   # Unless we are installing IoT or Manage we have nothing to do
   if [[ "$MAS_APP_CHANNEL_IOT" != "" ||  "$MAS_APP_CHANNEL_MANAGE" != "" ]]; then
@@ -42,9 +42,11 @@ function config_pipeline_storage_db2() {
       if [ "$MAS_APP_CHANNEL_MANAGE" != "" ]; then
         if prompt_for_confirm "Install Dedicated Db2 instance for Manage application?"; then
           DB2_ACTION_MANAGE=install
+          MAS_APPWS_BINDINGS_JDBC_MANAGE=application-workspace
         else
           DB2_ACTION_SYSTEM=install
           DB2_ACTION_MANAGE=none
+          MAS_APPWS_BINDINGS_JDBC_MANAGE=system
         fi
       fi
 

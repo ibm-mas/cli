@@ -35,7 +35,7 @@
 
 function config_pipeline_storage_classes() {
   echo
-  echo_h2 "6. Configure Storage Class Usage"
+  echo_h2 "7. Configure Storage Class Usage"
   echo "${TEXT_DIM}Maximo Application Suite and it's dependencies require storage classes that support ReadWriteOnce (RWO) and ReadWriteMany (RWX) access modes:"
   echo "  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node."
   echo "  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes."
