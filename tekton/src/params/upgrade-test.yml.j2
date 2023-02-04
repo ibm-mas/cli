@@ -1,0 +1,24 @@
+# Upgrade Test Parameters
+{% for upgrade_test_raw_param in upgrade_test_raw_params_definition %}
+{% if upgrade_test_raw_param.name in params_source_target_list %}
+- name: source_{{ upgrade_test_raw_param.name }}
+  type: {{ upgrade_test_raw_param.type }}
+  description: {{ upgrade_test_raw_param.description | default('\"\"', true) }}
+{% if "default" in upgrade_test_raw_param %}
+  default: "{{ upgrade_test_raw_param.default }}"
+{% endif %}
+- name: target_{{ upgrade_test_raw_param.name }}
+  type: {{ upgrade_test_raw_param.type }}
+  description: {{ upgrade_test_raw_param.description | default('\"\"', true) }}
+{% if "default" in upgrade_test_raw_param %}
+  default: "{{ upgrade_test_raw_param.default }}"
+{% endif %}
+{% else %}
+- name: {{ upgrade_test_raw_param.name }}
+  type: {{ upgrade_test_raw_param.type }}
+  description: {{ upgrade_test_raw_param.description | default('\"\"', true) }}
+{% if "default" in upgrade_test_raw_param %}
+  default: "{{ upgrade_test_raw_param.default }}"
+{% endif %}
+{% endif %}
+{% endfor %}
