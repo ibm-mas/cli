@@ -1,6 +1,5 @@
-# Db2
+# Dependencies - Db2 - Instance
 # -------------------------------------------------------------------------
-# Db2 - Instance
 - name: db2_dbname
   type: string
   description: The name of the database created
@@ -21,7 +20,9 @@
   type: string
   description: Customize the way database tables will be organized.  Set to 'ROW' or 'COLUMN'
   default: "ROW"
-# Db2 - CPU requests and limits
+
+# Dependences - Db2 - CPU requests and limits
+# -------------------------------------------------------------------------
 - name: db2_cpu_requests
   type: string
   description: Define the Kubernetes CPU request for the Db2 pod
@@ -30,7 +31,9 @@
   type: string
   description: Define the Kubernetes CPU limit for the Db2 pod
   default: "6000m"
-# Db2 - Memory requests and limits
+
+# Dependencies - Db2 - Memory requests and limits
+# -------------------------------------------------------------------------
 - name: db2_memory_requests
   type: string
   description: Define the Kubernetes memory request for the Db2 pod
@@ -39,7 +42,9 @@
   type: string
   description: Define the Kubernetes memory limit for the Db2 pod
   default: "16Gi"
-# Db2 - Storage - Capacity
+
+# Dependencies - Db2 - Storage - Capacity
+# -------------------------------------------------------------------------
 - name: db2_meta_storage_size
   type: string
   description: Storage capacity (metadata)
@@ -60,7 +65,9 @@
   type: string
   description: Storage capacity (data)
   default: "100Gi"
-# Db2 - Storage - Access mode
+
+# Dependencies - Db2 - Storage - Access mode
+# -------------------------------------------------------------------------
 - name: db2_meta_storage_accessmode
   type: string
   description: Optional override for db2 meta storage access mode
@@ -69,7 +76,9 @@
   type: string
   description: Optional override for db2 backup storage access mode
   default: ""
-# Db2 - LDAP
+
+# Dependencies - Db2 - LDAP
+# -------------------------------------------------------------------------
 - name: db2_ldap_username
   type: string
   description: Define the username of db2 in the local LDAP registry. If this is defined, the LDAP user will be the user identity passed into the MAS JDBC configuration.
