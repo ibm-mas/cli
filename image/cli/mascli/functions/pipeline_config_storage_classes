@@ -92,7 +92,13 @@ function config_pipeline_storage_classes() {
   fi
   reset_colors
 
-  PIPELINE_STORAGE_CLASS=$STORAGE_CLASS_RWX
+  if [[ "$STORAGE_CLASS_PROVIDER" == "ibmc" ]]; then
+    # Unless we use the -gid storage class we struggle with permission issues when mounted
+    PIPELINE_STORAGE_CLASS=ibmc-file-gold-gid
+  else
+    PIPELINE_STORAGE_CLASS=$STORAGE_CLASS_RWX
+  fi
+
   PIPELINE_STORAGE_ACCESSMODE="ReadWriteMany"
   if [[ "$SNO_MODE" == "true" ]]; then
     PIPELINE_STORAGE_CLASS=$STORAGE_CLASS_RWO
