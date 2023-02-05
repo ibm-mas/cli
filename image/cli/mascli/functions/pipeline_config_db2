@@ -42,10 +42,10 @@ function config_pipeline_storage_db2() {
       # No need to prompt the user to decide for IoT, it needs to be using the system
       # JDBC binding because both Predict and Monitor want to share the same Database
       if [ "$MAS_APP_CHANNEL_IOT" != "" ]; then
-        echo -e "${COLOR_GREEN}IoT Db2 instance will be created${COLOR_RESET}"
+        echo_highlight "IoT Db2 instance will be created"
         DB2_ACTION_SYSTEM=install
       else
-        echo -e "${COLOR_RED}IoT Db2 instance will not be created because the application is not being installed${COLOR_RESET}"
+        echo_highlight "IoT Db2 instance will not be created because the application is not being installed"
         DB2_ACTION_SYSTEM=none
       fi
 
