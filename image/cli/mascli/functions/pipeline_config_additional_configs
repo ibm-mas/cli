@@ -11,7 +11,7 @@ function config_pipeline_additional_configs() {
 
   if prompt_for_confirm "Use additional configurations?"; then
     # Select local MAS_CONFIG_DIR
-    prompt_for_input "  Local config directory" LOCAL_MAS_CONFIG_DIR && export LOCAL_MAS_CONFIG_DIR
+    prompt_for_input "+ Local config directory" LOCAL_MAS_CONFIG_DIR && export LOCAL_MAS_CONFIG_DIR
     echo
 
     ADDITIONAL_CONFIG_FILES=$LOCAL_MAS_CONFIG_DIR/*.yaml

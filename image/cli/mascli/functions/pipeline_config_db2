@@ -60,22 +60,22 @@ function config_pipeline_storage_db2() {
         # User is not installing IoT, so there's no need to choose between using a shared or dedicated database
           DB2_ACTION_MANAGE=install
           MAS_APPWS_BINDINGS_JDBC_MANAGE=workspace-application
-          echo -e "${COLOR_GREEN}Dedicated Manage Db2 instance will be created because IoT is not being installed${COLOR_RESET}"
+          echo_highlight "Dedicated Manage Db2 instance will be created because IoT is not being installed"
       else
         # The user can choose to deploy a dedicated Db2 instance just for Manage, or use the shared instance
         if [ "$MAS_APP_CHANNEL_MANAGE" != "" ]; then
           if prompt_for_confirm_default_yes "Install Dedicated Db2 instance for Manage application?"; then
             DB2_ACTION_MANAGE=install
             MAS_APPWS_BINDINGS_JDBC_MANAGE=workspace-application
-            echo -e "${COLOR_GREEN}Dedicated Manage Db2 instance will be created${COLOR_RESET}"
+            echo_highlight "Dedicated Manage Db2 instance will be created in addition to the shared IoT Db2 instance"
           else
-            echo -e "${COLOR_RED}Dedicated Manage DB2 instance will not be created, Manage will use the shared IoT Db2 instance${COLOR_RESET}"
+            echo_highlight "Dedicated Manage DB2 instance will not be created, Manage will use the shared IoT Db2 instance"
             DB2_ACTION_SYSTEM=install
             DB2_ACTION_MANAGE=none
             MAS_APPWS_BINDINGS_JDBC_MANAGE=system
           fi
         else
-          echo -e "${COLOR_RED}Dedicated Manage Db2 instance will not be created because the application is not being installed${COLOR_RESET}"
+          echo_highlight "Dedicated Manage Db2 instance will not be created because the application is not being installed"
           DB2_ACTION_MANAGE=none
         fi
       fi
@@ -100,10 +100,10 @@ function config_pipeline_storage_db2() {
       echo
       reset_colors
       if prompt_for_confirm "Customize CPU and memory request/limit?"; then
-        prompt_for_input "  CPU Request" DB2_CPU_REQUESTS && export DB2_CPU_REQUESTS
-        prompt_for_input "  CPU Limit" DB2_CPU_LIMITS && export DB2_CPU_LIMITS
-        prompt_for_input "  Memory Request" DB2_MEMORY_REQUESTS && export DB2_MEMORY_REQUESTS
-        prompt_for_input "  Memory Limit" DB2_MEMORY_LIMITS && export DB2_MEMORY_LIMITS
+        prompt_for_input "+ CPU Request" DB2_CPU_REQUESTS && export DB2_CPU_REQUESTS
+        prompt_for_input "+ CPU Limit" DB2_CPU_LIMITS && export DB2_CPU_LIMITS
+        prompt_for_input "+ Memory Request" DB2_MEMORY_REQUESTS && export DB2_MEMORY_REQUESTS
+        prompt_for_input "+ Memory Limit" DB2_MEMORY_LIMITS && export DB2_MEMORY_LIMITS
       fi
 
       echo
@@ -119,24 +119,27 @@ function config_pipeline_storage_db2() {
       echo
       reset_colors
       if prompt_for_confirm "Customize storage capacity?"; then
-        prompt_for_input "  Data volume size" DB2_DATA_STORAGE_SIZE && export DB2_DATA_STORAGE_SIZE
-        prompt_for_input "  Temporary volume size" DB2_TEMP_STORAGE_SIZE && export DB2_TEMP_STORAGE_SIZE
-        prompt_for_input "  Metadata volume size" DB2_META_STORAGE_SIZE && export DB2_META_STORAGE_SIZE
-        prompt_for_input "  Transaction logs volume size" DB2_LOGS_STORAGE_SIZE && export DB2_LOGS_STORAGE_SIZE
-        prompt_for_input "  Backup volume size" DB2_BACKUP_STORAGE_SIZE && export DB2_BACKUP_STORAGE_SIZE
+        prompt_for_input "+ Data volume size" DB2_DATA_STORAGE_SIZE && export DB2_DATA_STORAGE_SIZE
+        prompt_for_input "+ Temporary volume size" DB2_TEMP_STORAGE_SIZE && export DB2_TEMP_STORAGE_SIZE
+        prompt_for_input "+ Metadata volume size" DB2_META_STORAGE_SIZE && export DB2_META_STORAGE_SIZE
+        prompt_for_input "+ Transaction logs volume size" DB2_LOGS_STORAGE_SIZE && export DB2_LOGS_STORAGE_SIZE
+        prompt_for_input "+ Backup volume size" DB2_BACKUP_STORAGE_SIZE && export DB2_BACKUP_STORAGE_SIZE
       fi
     else
       # Configure MAS to use existing databases
+      DB2_ACTION_SYSTEM=none
+      DB2_ACTION_MANAGE=none
       echo
       echo_h2 "6.1 Database configuration for IoT"
       echo "${TEXT_DIM}Maximo IoT requires a shared system-scope Db2 instance because others application in the suite require access to the same database source."
       echo " - Only IBM Db2 is supported for this database"
       echo ""
       reset_colors
-      echo -e "${COLOR_RED}This path is not implemented yet ... prompt user to provide the path to an existing JDBCCfg file, or provide the input fields and build one dynamically, then add that ${COLOR_RESET}"
-      echo -e "${COLOR_RED} - prompt user to provide the path to an existing JDBCCfg file${COLOR_RESET}"
-      echo -e "${COLOR_RED} - or, provide the input fields and build one dynamically${COLOR_RESET}"
-      echo -e "${COLOR_RED} - add the file to the additional-configs that are loaded into the pipeline${COLOR_RESET}"
+      if [ "$MAS_APP_CHANNEL_IOT" != "" ]; then
+        echo_highlight "In the next section you MUST ensure that a system database configuration is included in your local MAS configuration directory"
+      else
+        echo_highlight "System Database configuration for IoT is not required because the application is not being installed"
+      fi
 
       echo ""
       echo_h2 "6.2 Database configuration for Manage"
@@ -146,28 +149,27 @@ function config_pipeline_storage_db2() {
       reset_colors
       if [ "$MAS_APP_CHANNEL_IOT" == "" ]; then
         # User is not installing IoT, so there's no need to choose between using a shared or dedicated database configuration
-        echo -e "${COLOR_RED}This path is not implemented yet ... prompt user to provide the path to an existing JDBCCfg file, or provide the input fields and build one dynamically, then add that ${COLOR_RESET}"
-        echo -e "${COLOR_RED} - prompt user to provide the path to an existing JDBCCfg file${COLOR_RESET}"
-        echo -e "${COLOR_RED} - or, provide the input fields and build one dynamically${COLOR_RESET}"
-        echo -e "${COLOR_RED} - add the file to the additional-configs that are loaded into the pipeline${COLOR_RESET}"
+        echo_highlight "In the next section you MUST ensure that a dedicated database configuration for Manage is included in your local MAS configuration directory"
+        MAS_APPWS_BINDINGS_JDBC_MANAGE=workspace-application
       else
         # The user can choose to use the same configuration set up for IoT, or configure one just for the Manage application
         if [ "$MAS_APP_CHANNEL_MANAGE" != "" ]; then
           if prompt_for_confirm_default_yes "Use dedicated database configuration for Manage application?"; then
-            echo -e "${COLOR_RED}This path is not implemented yet ... prompt user to provide the path to an existing JDBCCfg file, or provide the input fields and build one dynamically, then add that ${COLOR_RESET}"
-            echo -e "${COLOR_RED} - prompt user to provide the path to an existing JDBCCfg file${COLOR_RESET}"
-            echo -e "${COLOR_RED} - or, provide the input fields and build one dynamically${COLOR_RESET}"
-            echo -e "${COLOR_RED} - add the file to the additional-configs that are loaded into the pipeline${COLOR_RESET}"
+            echo
+            echo_highlight "In the next section you MUST ensure that a dedicated database configuration for Manage is included in your local MAS configuration directory"
+            MAS_APPWS_BINDINGS_JDBC_MANAGE=workspace-application
           else
-            echo -e "${COLOR_RED}Dedicated Manage database configuration will not be created, Manage will use the shared IoT Db2 instance${COLOR_RESET}"
+            echo
+            echo_highlight "In the next section you MUST ensure that a system database configuration is included in your local MAS configuration directory"
+            MAS_APPWS_BINDINGS_JDBC_MANAGE=system
           fi
         else
-          echo -e "${COLOR_RED}Dedicated Manage database configuration will not be created because the application is not being installed${COLOR_RESET}"
+          echo_highlight "Dedicated Manage database configuration is not required because the application is not being installed"
         fi
       fi
     fi
   else
-    echo -e "${COLOR_GREEN}No applications have been selected that require a Db2 installation${COLOR_RESET}"
+    echo_highlight "No applications have been selected that require a Db2 installation"
     DB2_ACTION_SYSTEM=none
     DB2_ACTION_MANAGE=none
   fi
