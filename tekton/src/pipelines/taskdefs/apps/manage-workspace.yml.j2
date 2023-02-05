@@ -4,17 +4,23 @@
     - name: devops_suite_name
       value: app-manage-cfg
 
+    # Application Workspace - Identifier
     - name: mas_app_id
       value: manage
     - name: mas_workspace_id
       value: "$(params.mas_workspace_id)"
 
+    # Application Workspace - Operand
     - name: mas_appws_components
       value: "$(params.mas_appws_components)"
+    - name: mas_appws_bindings_jdbc
+      value: "$(params.mas_appws_bindings_jdbc_manage)"
     - name: mas_app_settings_aio_flag
       value: $(params.mas_app_settings_aio_flag)
     - name: mas_app_settings_demodata
       value: $(params.mas_app_settings_demodata)
+
+    # Custom Label Support
     - name: custom_labels
       value: $(params.custom_labels)
   taskRef:
