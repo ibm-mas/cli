@@ -16,12 +16,28 @@
 {% if suffix == "manage" %}
       value: mas-$(params.mas_instance_id)-$(params.mas_workspace_id)-manage
 {% endif %}
+    - name: db2_dbname
+      value: $(params.db2_dbname)
+    - name: db2_version
+      value: $(params.db2_version)
+    - name: db2_workload
+      value: $(params.db2_workload)
+    - name: db2_4k_device_support
+      value: $(params.db2_4k_device_support)
+    - name: db2_table_org
+      value: $(params.db2_table_org)
 
-    # Resource Requests and Limits
+    # Requests and Limits - CPU
     - name: db2_cpu_requests
       value: $(params.db2_cpu_requests)
     - name: db2_cpu_limits
       value: $(params.db2_cpu_limits)
+
+    # Requests and Limits - Memory
+    - name: db2_memory_requests
+      value: $(params.db2_memory_requests)
+    - name: db2_memory_limits
+      value: $(params.db2_memory_limits)
 
     # Storage - Capacity
     - name: db2_meta_storage_size
