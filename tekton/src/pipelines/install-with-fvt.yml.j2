@@ -261,7 +261,7 @@ spec:
     # 9.2 Manage Install
     {{ lookup('template', 'taskdefs/apps/manage-app.yml.j2') | indent(4) }}
       runAfter:
-        - suite-db2-setup-manage
+        - suite-db2-setup-system
         - suite-db2-setup-manage
 
     # 9.3 Configure Manage workspace
