@@ -1,0 +1,30 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-uninstall
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+
+  params:
+    # 1. Common Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}
+
+  tasks:
+    - name: suite-uninstall
+      params:
+        # Controls the image pull policy for the ibmmas/cli image
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        # Parameters that enable MongoDb results storage
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-uninstall
+      workspaces:
+        # This is the stage at which we copy across any user-provided additional configs
+        - name: configs
+          workspace: shared-configs

@@ -39,6 +39,7 @@
         - install-appconnect
         - install-db2
         - install
+        - uninstall
         - upgrade
 
     - name: "Load intermediate files to variables"
@@ -51,6 +52,7 @@
         - install-appconnect
         - install-db2
         - install
+        - uninstall
         - upgrade
 
 
@@ -64,4 +66,5 @@
         - fvt-core
         - install-with-fvt
         - install
+        - uninstall
         - upgrade

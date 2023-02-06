@@ -1,0 +1,23 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: {{'"mas-uninstall-{{ devops_build_number if pipelinerun_name_suffix == \'\' else  (pipelinerun_name_suffix + \'-\' + devops_build_number) }}"'}}
+  labels:
+    tekton.dev/pipeline: mas-uninstall
+spec:
+  pipelineRef:
+    name: mas-uninstall
+  serviceAccountName: pipeline
+  timeout: {{'"{{ pipelinerun_timeout }}"'}}
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+      persistentVolumeClaim:
+        claimName: config-pvc
+  params:
+    # Common Parameters
+{% for common_param in common_params_definition.params %}
+    - name: {{ common_param.name }}
+      value: {{'"{{ lookup(\'env\', \'' ~ common_param.name | upper ~ '\') }}"'}}
+{% endfor %}
