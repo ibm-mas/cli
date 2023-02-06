@@ -39,7 +39,6 @@
         - install-appconnect
         - install-db2
         - install
-        - uninstall
         - upgrade
 
     - name: "Load intermediate files to variables"
@@ -52,7 +51,6 @@
         - install-appconnect
         - install-db2
         - install
-        - uninstall
         - upgrade
 
 
