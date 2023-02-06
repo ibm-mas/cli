@@ -1,20 +1,10 @@
 #!/bin/bash
 
 function uninstall() {
-  while true; do
-    read -p "Are you sure you want to uninstall IBM MAS Core? (Y/n) " yn
-    case $yn in
-        [Yy]* ) break;;
-        [Nn]* ) exit;;
-        * ) echo "Please answer yes or no.";;
-    esac
-  done
-
+  confirm
   # MAS instance ID
   prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
-  export MAS_INSTANCE_ID
+  export $MAS_INSTANCE_ID
 
   connect
-  detect_airgap
-  detect_sno
 }
