@@ -9,7 +9,7 @@ function connect() {
   if [[ $? == "0" ]]; then
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
     echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${COLOR_RESET}${TEXT_RESET}" | tee $LOGFILE
-    if prompt_for_confirm "Connect to a different cluster"; then
+    if ! prompt_for_confirm_default_yes "Install Maximo Application Suite on this cluster?"; then
       PROMPT_FOR_LOGIN=true
     fi
   else
@@ -28,7 +28,7 @@ function connect() {
     fi
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
     echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}${COLOR_RESET}" | tee $LOGFILE
-    prompt_for_confirm "Proceed with installation on this cluster" || exit 0
+    prompt_for_confirm "Proceed with installation on this cluster?" || exit 0
   fi
   ALREADY_CONFIRMED=true
   echo -ne "${COLOR_RESET}\033[1K"

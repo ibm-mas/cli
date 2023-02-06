@@ -22,7 +22,7 @@ metadata:
   namespace: mas-{{mas_instance_id}}-pipelines
 spec:
   accessModes:
-    - ReadWriteOnce
+    - {{pipeline_storage_accessmode}}
   volumeMode: Filesystem
   storageClassName: {{pipeline_storage_class}}
   resources:

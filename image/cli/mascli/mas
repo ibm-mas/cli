@@ -5,7 +5,7 @@
 function trap_exit {
   RC=$?
   if [[ $RC != "0" ]]; then
-    echo_warning "\nFatal Error[$RC]  See $DIR/mas.log for details"
+    echo_warning "\nFatal Error[$RC]  See $LOGFILE for details"
   fi
   save_config
 }
@@ -23,7 +23,7 @@ trap trap_int INT
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CONFIG_DIR="$HOME/.ibm-mas/config"
 LOG_DIR="$HOME/.ibm-mas/logs"
-LOGFILE=$HOME/.ibm-mas/mas.log
+LOGFILE=$LOG_DIR/mas.log
 
 mkdir -p $LOG_DIR
 mkdir -p $CONFIG_DIR
