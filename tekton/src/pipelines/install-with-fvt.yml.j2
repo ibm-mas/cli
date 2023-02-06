@@ -133,7 +133,7 @@ spec:
     # 3.6 Configure Watson Studio in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-smtp
+        - fvt-operatormaturity
         - watson-studio
 
 
@@ -145,7 +145,7 @@ spec:
     # 4.2 Configure COS in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-cos.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-smtp
+        - fvt-operatormaturity
         - cos
 
     # 4.1 Install AppConnect
@@ -156,7 +156,7 @@ spec:
     # 4.2 Configure AppConnect in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-appconnect.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-smtp
+        - fvt-operatormaturity
         - appconnect
 
     # 4.3 Nvidia GPU Operator
@@ -197,14 +197,14 @@ spec:
     # 5.6 Configure Db2 in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-smtp
+        - fvt-operatormaturity
         - db2-system
         - db2-manage
 
     # 5.7 Configure Kafka in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-smtp
+        - fvt-operatormaturity
         - kafka
 
 
@@ -292,7 +292,7 @@ spec:
     # 11.1 Optimizer Install
     {{ lookup('template', 'taskdefs/apps/optimizer-app.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-smtp
+        - fvt-operatormaturity
 
     # 11.2 Configure Optimizer workspace
     {{ lookup('template', 'taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}
@@ -340,7 +340,7 @@ spec:
     {{ lookup('template', 'taskdefs/apps/visualinspection-app.yml.j2') | indent(4) }}
       runAfter:
         - nvidia-gpu
-        - fvt-smtp
+        - fvt-operatormaturity
 
     # 14.2 Configure MVI workspace
     {{ lookup('template', 'taskdefs/apps/visualinspection-workspace.yml.j2') | indent(4) }}

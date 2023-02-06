@@ -81,3 +81,13 @@
       value: core-scaling
   runAfter:
     - fvt-smtp
+
+# FVT 5.8 operatormaturity  ~5m
+- name: fvt-operatormaturity
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: test_suite
+      value: operatormaturity
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - fvt-core-scaling
