@@ -5,18 +5,14 @@ metadata:
   name: mas-devops-gencfg-workspace
 spec:
   params:
-    # Control the image pull policy for the CLI container image
-    - name: image_pull_policy
-      type: string
-      default: IfNotPresent
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
+    # MAS Instance
     - name: mas_instance_id
       type: string
       description: Instance ID
-    - name: custom_labels
-      type: string
-      description: Optional MAS custom labels, comma separated list of key=value pairs
-      default: ""
+
+    # MAS Workspace
     - name: mas_workspace_id
       type: string
       description: Workspace ID
@@ -24,59 +20,32 @@ spec:
       type: string
       description: Workspace Name
 
-    # Optional support built into the ansible-devops image
-    # for saving task execution results to a MongoDb instance
-    - name: devops_mongo_uri
+    # Custom Label Support
+    - name: custom_labels
       type: string
-      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
-      default: ""
-    - name: devops_suite_name
-      type: string
-      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
-      default: ""
-    - name: devops_build_number
-      type: string
-      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
-      default: ""
-    
-    # Optional parameters to categorize result to be persisted
-    # -------------------------------------------------------------------------
-    - name: test_type
-      type: string
-      description: Optional. Used to different upgrade tests from other type of tests
-      default: ""
-    - name: test_phase
-      type: string
-      description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
+      description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
   stepTemplate:
     env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
       - name: MAS_CONFIG_DIR
         value: /workspace/configs
+
+      # MAS Instance
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
-      - name: CUSTOM_LABELS
-        value: $(params.custom_labels)
+
+      # MAS Workspace
       - name: MAS_WORKSPACE_ID
         value: $(params.mas_workspace_id)
       - name: MAS_WORKSPACE_NAME
         value: $(params.mas_workspace_name)
 
-      # Optional support built into the ansible-devops image
-      # for saving task execution results to a MongoDb instance
-      - name: DEVOPS_MONGO_URI
-        value: $(params.devops_mongo_uri)
-      - name: DEVOPS_SUITE_NAME
-        value: $(params.devops_suite_name)
-      - name: DEVOPS_BUILD_NUMBER
-        value: $(params.devops_build_number)
-      
-      # Optional parameters to categorize result to be persisted
-      - name: TEST_TYPE
-        value: $(params.test_type)
-      - name: TEST_PHASE
-        value: $(params.test_phase)
+      # Custom Label Support
+      - name: CUSTOM_LABELS
+        value: $(params.custom_labels)
 
   steps:
     - name: gencfg-workspace
