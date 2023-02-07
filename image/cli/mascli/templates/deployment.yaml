@@ -17,8 +17,20 @@ spec:
         app: mas-cli
     spec:
       containers:
-      - name: mas-cli
-        imagePullPolicy: IfNotPresent
-        image: quay.io/ibmmas/cli:latest
-        command: [ "/bin/bash", "-c", "--" ]
-        args: [ "while true; do sleep 30; done;" ]
+        - name: mas-cli
+          imagePullPolicy: IfNotPresent
+          image: quay.io/ibmmas/cli:latest
+          command: [ "/bin/bash", "-c", "--" ]
+          args: [ "while true; do sleep 30; done;" ]
+          volumeMounts:
+            - mountPath: /mnt/config
+              name: config
+            - mountPath: /mnt/mustgather
+              name: mustgather
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: config-pvc
+        - name: mustgather
+          persistentVolumeClaim:
+            claimName: shared-mustgather-storage

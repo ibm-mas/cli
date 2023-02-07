@@ -9,6 +9,11 @@ if [ -e "/workspace/entitlement/entitlement.lic" ]; then
 fi
 
 source /opt/app-root/src/env.sh
+
+# Useful for debugging permission issues
+# oc whoami
+# oc auth can-i --list
+
 ansible-playbook "$@"
 rc=$?
 python3 /opt/app-root/src/save-junit-to-mongo.py

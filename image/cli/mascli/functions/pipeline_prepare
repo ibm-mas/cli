@@ -1,7 +1,10 @@
 #!/bin/bash
 function pipeline_prepare() {
   echo
-  echo_h2 "10. Prepare Installation"
+  echo_h2 "11. Prepare Installation"
+
+  # Set the namespace we are going to be working in
+  PIPELINES_NS="mas-$MAS_INSTANCE_ID-pipelines"
 
   # Replace ALL environment variables in templates
   eval "echo \"$(cat $DIR/templates/pipelinerun.yaml)\"" > $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID.yaml
@@ -25,8 +28,8 @@ function pipeline_prepare() {
 
   echo ""
   echo -en "\033[s" # Save cursor position
-  echo -n "Preparing namespace 'mas-$MAS_INSTANCE_ID-pipelines' ..."
-  echo -e "\n\nPreparing namespace 'mas-$MAS_INSTANCE_ID-pipelines" >> $LOGFILE
+  echo -n "Preparing namespace '$PIPELINES_NS' ..."
+  echo -e "\n\nPreparing namespace '$PIPELINES_NS" >> $LOGFILE
   echo_hr1 >> $LOGFILE
 
   # Install the MAS Tekton definitions
@@ -35,47 +38,49 @@ function pipeline_prepare() {
   # Create the PVCs that we need
   oc apply -f $CONFIG_DIR/pvc-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
   if [[ "$WAIT_FOR_PVCS" == "true" ]]; then
-    LOOKUP_RESULT=$(oc -n mas-$MAS_INSTANCE_ID-pipelines get pvc config-pvc -o jsonpath='{.status.phase}')
+    LOOKUP_RESULT=$(oc -n $PIPELINES_NS get pvc config-pvc -o jsonpath='{.status.phase}')
     while [ "$LOOKUP_RESULT" != "Bound" ]; do
       echo "Waiting 5s for PVC to be bound before checking again ..."  &>> $LOGFILE
       sleep 5
-      LOOKUP_RESULT=$(oc -n mas-$MAS_INSTANCE_ID-pipelines get pvc config-pvc -o jsonpath='{.status.phase}')
+      LOOKUP_RESULT=$(oc -n $PIPELINES_NS get pvc config-pvc -o jsonpath='{.status.phase}')
     done
   fi
 
   # Clean up existing secrets
-  oc -n mas-$MAS_INSTANCE_ID-pipelines delete secret pipeline-additional-configs --ignore-not-found=true &>> $LOGFILE
-  oc -n mas-$MAS_INSTANCE_ID-pipelines delete secret pipeline-sls-entitlement --ignore-not-found=true &>> $LOGFILE
+  oc -n $PIPELINES_NS delete secret pipeline-additional-configs --ignore-not-found=true &>> $LOGFILE
+  oc -n $PIPELINES_NS delete secret pipeline-sls-entitlement --ignore-not-found=true &>> $LOGFILE
 
   # Create new secrets
-  # pipeline-additional-configs must exist (otherwise the suite-install step will hang),
-  # but can be empty if no additional configs are required
-  # TODO: Support passing in files to this secret
-  oc -n mas-$MAS_INSTANCE_ID-pipelines create secret generic pipeline-additional-configs &>> $LOGFILE
-  oc -n mas-$MAS_INSTANCE_ID-pipelines create secret generic pipeline-sls-entitlement --from-file=$SLS_LICENSE_FILE_LOCAL &>> $LOGFILE
+  if [ "$LOCAL_MAS_CONFIG_DIR" != "" ]; then
+    oc -n $PIPELINES_NS apply -f $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  else
+    # pipeline-additional-configs must exist (otherwise the suite-install step will hang), but can be empty
+    oc -n $PIPELINES_NS create secret generic pipeline-additional-configs &>> $LOGFILE
+  fi
+  oc -n $PIPELINES_NS create secret generic pipeline-sls-entitlement --from-file=$SLS_LICENSE_FILE_LOCAL &>> $LOGFILE
 
   echo -en "\033[1K" # Clear current line
   echo -en "\033[u" # Restore cursor position
-  echo -e "${COLOR_GREEN}Namespace 'mas-$MAS_INSTANCE_ID-pipelines' is ready${COLOR_RESET}"
+  echo -e "${COLOR_GREEN}Namespace '$PIPELINES_NS' is ready${COLOR_RESET}"
 
   echo
   echo_h2 "Installed Task Definitions"
-  oc -n mas-$MAS_INSTANCE_ID-pipelines get tasks -o=custom-columns='NAME:.metadata.name,IMAGE:.spec.steps[0].image' | grep mas-devops-
+  oc -n $PIPELINES_NS get tasks -o=custom-columns='NAME:.metadata.name,IMAGE:.spec.steps[0].image' | grep mas-devops-
 
   echo
   echo_h2 "Installed Pipeline Definitions"
-  oc -n mas-$MAS_INSTANCE_ID-pipelines get pipeline
+  oc -n $PIPELINES_NS get pipeline
 
   echo ""
   echo -en "\033[s" # Save cursor position
   echo -n "Testing availability of $CLI_IMAGE in cluster ..."
-  EXISTING_DEPLOYMENT_IMAGE=$(oc -n mas-$MAS_INSTANCE_ID-pipelines get deployment mas-cli -o jsonpath='{.spec.template.spec.containers[0].image}' 2>/dev/null)
+  EXISTING_DEPLOYMENT_IMAGE=$(oc -n $PIPELINES_NS get deployment mas-cli -o jsonpath='{.spec.template.spec.containers[0].image}' 2>/dev/null)
 
   if [[ "$EXISTING_DEPLOYMENT_IMAGE" != "CLI_IMAGE" ]]
-  then oc -n mas-$MAS_INSTANCE_ID-pipelines apply -f $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  then oc -n $PIPELINES_NS apply -f $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
   fi
 
-  oc -n mas-$MAS_INSTANCE_ID-pipelines wait --for=condition=Available=true deployment mas-cli --timeout=3m &>> $LOGFILE
+  oc -n $PIPELINES_NS wait --for=condition=Available=true deployment mas-cli --timeout=3m &>> $LOGFILE
   if [[ "$?" == "0" ]]; then
     # All is good
     echo -en "\033[1K" # Clear current line
@@ -84,6 +89,7 @@ function pipeline_prepare() {
   else
     echo -en "\033[1K" # Clear current line
     echo -en "\033[u" # Restore cursor position
+
     # We can't get the image, so there's no point running the pipeline
     echo_warning "$CLI_IMAGE is unavailable from the target OCP cluster"
     echo "This image must be accessible from your OpenShift cluster to run the installation:"
@@ -92,7 +98,7 @@ function pipeline_prepare() {
 
     echo -e "\n\n[WARNING] $CLI_IMAGE is unavailable from the target OCP cluster" >> $LOGFILE
     echo_hr1 >> $LOGFILE
-    oc -n mas-$MAS_INSTANCE_ID-pipelines get pods --selector="app=mas-cli" -o yaml >> $LOGFILE
+    oc -n $PIPELINES_NS get pods --selector="app=mas-cli" -o yaml >> $LOGFILE
     exit 1
   fi
 }

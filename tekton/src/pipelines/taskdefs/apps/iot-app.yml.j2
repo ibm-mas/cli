@@ -1,0 +1,31 @@
+- name: app-install-iot
+  params:
+    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    - name: devops_suite_name
+      value: app-iot-install
+
+    - name: artifactory_username
+      value: $(params.artifactory_username)
+    - name: artifactory_apikey
+      value: $(params.artifactory_apikey)
+    - name: mas_app_id
+      value: iot
+    - name: mas_app_channel
+      value: "$(params.mas_app_channel_iot)"
+    - name: ibm_entitlement_key
+      value: $(params.ibm_entitlement_key)
+    - name: mas_entitlement_username
+      value: $(params.mas_entitlement_username)
+    - name: mas_entitlement_key
+      value: $(params.mas_entitlement_key)
+    - name: custom_labels
+      value: $(params.custom_labels)
+
+  taskRef:
+    name: mas-devops-suite-app-install
+    kind: Task
+  # Only install IoT if a channel has been chosen
+  when:
+    - input: "$(params.mas_app_channel_iot)"
+      operator: notin
+      values: [""]

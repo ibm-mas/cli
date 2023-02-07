@@ -5,6 +5,11 @@ if [ -e "/workspace/additional-configs" ]; then
 fi
 
 source /opt/app-root/src/env.sh
+
+# Useful for debugging permission issues
+# oc whoami
+# oc auth can-i --list
+
 export ROLE_NAME=$1
 ansible-playbook ibm.mas_devops.run_role
 rc=$?

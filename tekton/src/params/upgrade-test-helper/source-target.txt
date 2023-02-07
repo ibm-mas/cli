@@ -1,0 +1,15 @@
+catalog_version
+ocp_version
+cpd_product_version
+sls_channel
+mas_channel
+mas_app_channel_assist
+mas_app_channel_hputilities
+mas_app_channel_iot
+mas_app_channel_monitor
+mas_app_channel_manage
+mas_app_channel_optimizer
+mas_app_channel_predict
+mas_app_channel_visualinspection
+sls_channel
+mas_catalog_version
