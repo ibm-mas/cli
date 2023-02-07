@@ -4,10 +4,10 @@ kind: PipelineRun
 metadata:
   name: {{'"mas-fvt-{{ devops_build_number if pipelinerun_name_suffix == \'\' else  (pipelinerun_name_suffix + \'-\' + devops_build_number) }}"'}}
   labels:
-    tekton.dev/pipeline: mas-fvt
+    tekton.dev/pipeline: mas-fvt-core
 spec:
   pipelineRef:
-    name: mas-fvt
+    name: mas-fvt-core
   serviceAccountName: pipeline
   timeout: {{'"{{ pipelinerun_timeout }}"'}}
   workspaces:
