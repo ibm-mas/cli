@@ -26,7 +26,7 @@
 function config_pipeline_storage_classes_sno() {
   if [[ "$SNO_MODE" == "true" ]]; then
     echo
-    echo_h2 "6a. Configure Storage Class Usage"
+    echo_h2 "8. Configure Storage Class Usage"
     echo "${TEXT_DIM}Maximo Application Suite and it's dependencies require storage classes that support ReadWriteOnce (RWO) access mode:"
     echo "  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node."
     echo ""
@@ -41,7 +41,7 @@ function config_pipeline_storage_classes_sno() {
         #echo "${TEXT_DIM}  - Storage class (ReadWriteMany): efs"
         STORAGE_CLASS_PROVIDER=aws
         STORAGE_CLASS_RWO=gp2
-        #STORAGE_CLASS_RWX=efs 
+        #STORAGE_CLASS_RWX=efs
         STORAGE_CLASS_RWX=gp2
       fi
     fi
@@ -50,7 +50,7 @@ function config_pipeline_storage_classes_sno() {
     echo "${TEXT_DIM}  - SNO MODE is set to ${SNO_MODE}"
     PIPELINE_STORAGE_CLASS=$STORAGE_CLASS_RWO
     PIPELINE_STORAGE_ACCESSMODE="ReadWriteOnce"
-  
+
     OVERRIDE_STORAGE_CLASSES=false
     if [[ "$STORAGE_CLASS_RWO" != "" ]]; then
       echo

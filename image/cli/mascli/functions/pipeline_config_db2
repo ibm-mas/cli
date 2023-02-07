@@ -1,22 +1,176 @@
 #!/bin/bash
 
 
-function config_pipeline_storage_db2_size() {
+function config_pipeline_storage_db2() {
+  echo
+  echo_h2 "6. Configure Db2"
+  echo "${TEXT_DIM}The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, Manage, Monitor, & Predict) or you may choose to configure MAS to use an existing database."
+  echo
+  reset_colors
+
+  # Unless we are installing IoT or Manage we have nothing to do
+  if [[ "$MAS_APP_CHANNEL_IOT" != "" ||  "$MAS_APP_CHANNEL_MANAGE" != "" ]]; then
+    # Defaults
+    DB2_CPU_REQUESTS=${DB2_CPU_REQUESTS:-4000m}
+    DB2_CPU_LIMITS=${DB2_CPU_LIMITS:-6000m}
+
+    DB2_MEMORY_REQUESTS=${DB2_MEMORY_REQUESTS:-8Gi}
+    DB2_MEMORY_LIMITS=${DB2_MEMORY_LIMITS:-12Gi}
+
     if [[ "$SNO_MODE" == "true" ]]; then
-    
-        DB2_META_STORAGE_SIZE=10Gi 
+      # Set smaller deaults for SNO deployments
+      DB2_META_STORAGE_SIZE=${DB2_META_STORAGE_SIZE:-10Gi}
+      DB2_BACKUP_STORAGE_SIZE=${DB2_BACKUP_STORAGE_SIZE:-10Gi}
+      DB2_LOGS_STORAGE_SIZE=${DB2_LOGS_STORAGE_SIZE:-10Gi}
+      DB2_TEMP_STORAGE_SIZE=${DB2_TEMP_STORAGE_SIZE:-10Gi}
+      DB2_DATA_STORAGE_SIZE=${DB2_DATA_STORAGE_SIZE:-20Gi}
+    else
+      DB2_META_STORAGE_SIZE=${DB2_META_STORAGE_SIZE:-20Gi}
+      DB2_BACKUP_STORAGE_SIZE=${DB2_BACKUP_STORAGE_SIZE:-100Gi}
+      DB2_LOGS_STORAGE_SIZE=${DB2_LOGS_STORAGE_SIZE:-100Gi}
+      DB2_TEMP_STORAGE_SIZE=${DB2_TEMP_STORAGE_SIZE:-100Gi}
+      DB2_DATA_STORAGE_SIZE=${DB2_DATA_STORAGE_SIZE:-100Gi}
+    fi
+
+    if prompt_for_confirm_default_yes "Install Db2 using the IBM Db2 Universal Operator?"; then
+      # Install and configure MAS to use in-cluster Db2 instances
+      echo
+      echo_h2 "6.1 Db2 for IoT"
+      echo "${TEXT_DIM}Maximo IoT requires a shared system-scope Db2 instance because others application in the suite require access to the same database source."
+      echo ""
+      reset_colors
+      # No need to prompt the user to decide for IoT, it needs to be using the system
+      # JDBC binding because both Predict and Monitor want to share the same Database
+      if [ "$MAS_APP_CHANNEL_IOT" != "" ]; then
+        echo_highlight "IoT Db2 instance will be created"
+        DB2_ACTION_SYSTEM=install
+      else
+        echo_highlight "IoT Db2 instance will not be created because the application is not being installed"
+        DB2_ACTION_SYSTEM=none
+      fi
+
+      echo ""
+      echo_h2 "6.2 Db2 for Manage"
+      echo "${TEXT_DIM}Maximo Manage can be configured to share the system Db2 instance or use it's own dedicated database:"
+      echo " - Use of a shared instance has a significant footprint reduction but is only recommended for development/test/demo installs"
+      echo " - In most production systems you will want to use a dedicated database"
+      echo ""
+      reset_colors
+      if [ "$MAS_APP_CHANNEL_IOT" == "" ]; then
+        # User is not installing IoT, so there's no need to choose between using a shared or dedicated database
+          DB2_ACTION_MANAGE=install
+          MAS_APPWS_BINDINGS_JDBC_MANAGE=workspace-application
+          echo_highlight "Dedicated Manage Db2 instance will be created because IoT is not being installed"
+      else
+        # The user can choose to deploy a dedicated Db2 instance just for Manage, or use the shared instance
+        if [ "$MAS_APP_CHANNEL_MANAGE" != "" ]; then
+          if prompt_for_confirm_default_yes "Install Dedicated Db2 instance for Manage application?"; then
+            DB2_ACTION_MANAGE=install
+            MAS_APPWS_BINDINGS_JDBC_MANAGE=workspace-application
+            echo_highlight "Dedicated Manage Db2 instance will be created in addition to the shared IoT Db2 instance"
+          else
+            echo_highlight "Dedicated Manage DB2 instance will not be created, Manage will use the shared IoT Db2 instance"
+            DB2_ACTION_SYSTEM=install
+            DB2_ACTION_MANAGE=none
+            MAS_APPWS_BINDINGS_JDBC_MANAGE=system
+          fi
+        else
+          echo_highlight "Dedicated Manage Db2 instance will not be created because the application is not being installed"
+          DB2_ACTION_MANAGE=none
+        fi
+      fi
+
+      # Set SNO-specific overrides (not defaults, these will wipe whatever saved defaults you have)
+      if [[ "$SNO_MODE" == "true" ]]; then
+        DB2_META_STORAGE_SIZE=10Gi
         DB2_BACKUP_STORAGE_SIZE=10Gi
         DB2_LOGS_STORAGE_SIZE=10Gi
         DB2_TEMP_STORAGE_SIZE=10Gi
         DB2_DATA_STORAGE_SIZE=20Gi
+      fi
+      echo
+      echo_h2 "6.3 Database CPU & Memory"
+      echo "${TEXT_DIM}Note that the same settings are applied to both the IoT and Manage Db2 instances, it will be possible to set these independently in a future update."
+      echo
+      reset_colors
+      echo_reset_dim "CPU Request:    ${COLOR_MAGENTA}${DB2_CPU_REQUESTS:-Default}"
+      echo_reset_dim "CPU Limit:      ${COLOR_MAGENTA}${DB2_CPU_LIMITS:-Default}"
+      echo_reset_dim "Memory Request: ${COLOR_MAGENTA}${DB2_MEMORY_REQUESTS:-Default}"
+      echo_reset_dim "Memory Limit:   ${COLOR_MAGENTA}${DB2_MEMORY_LIMITS:-Default}"
+      echo
+      reset_colors
+      if prompt_for_confirm "Customize CPU and memory request/limit?"; then
+        prompt_for_input "+ CPU Request" DB2_CPU_REQUESTS && export DB2_CPU_REQUESTS
+        prompt_for_input "+ CPU Limit" DB2_CPU_LIMITS && export DB2_CPU_LIMITS
+        prompt_for_input "+ Memory Request" DB2_MEMORY_REQUESTS && export DB2_MEMORY_REQUESTS
+        prompt_for_input "+ Memory Limit" DB2_MEMORY_LIMITS && export DB2_MEMORY_LIMITS
+      fi
 
-        echo
-        echo_h2 "6b. DB2 Storage size, in Gi(Gigabytes)"
-        prompt_for_input "Size of data persistent volume" DB2_DATA_STORAGE_SIZE && export DB2_DATA_STORAGE_SIZE
-        prompt_for_input 'Size of temporary persistent volume' DB2_TEMP_STORAGE_SIZE && export DB2_TEMP_STORAGE_SIZE
-        prompt_for_input "Size of metadata persistent volume" DB2_META_STORAGE_SIZE && export DB2_META_STORAGE_SIZE   
-        prompt_for_input 'Size of transaction logs persistent volume' DB2_LOGS_STORAGE_SIZE && export DB2_LOGS_STORAGE_SIZE
-        prompt_for_input "Size of backup persistent volume" DB2_BACKUP_STORAGE_SIZE && export DB2_BACKUP_STORAGE_SIZE  
+      echo
+      echo_h2 "6.4 Database Storage Capacity"
+      echo "${TEXT_DIM}Note that the same settings are applied to both the IoT and Manage Db2 instances, it will be possible to set these independently in a future update."
+      echo
+      reset_colors
+      echo_reset_dim " - Meta:             ${COLOR_MAGENTA}${DB2_META_STORAGE_SIZE:-Default}"
+      echo_reset_dim " - Data:             ${COLOR_MAGENTA}${DB2_DATA_STORAGE_SIZE:-Default}"
+      echo_reset_dim " - Backup:           ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_SIZE:-Default}"
+      echo_reset_dim " - Temp:             ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_SIZE:-Default}"
+      echo_reset_dim " - Transaction Logs: ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_SIZE:-Default}"
+      echo
+      reset_colors
+      if prompt_for_confirm "Customize storage capacity?"; then
+        prompt_for_input "+ Data volume size" DB2_DATA_STORAGE_SIZE && export DB2_DATA_STORAGE_SIZE
+        prompt_for_input "+ Temporary volume size" DB2_TEMP_STORAGE_SIZE && export DB2_TEMP_STORAGE_SIZE
+        prompt_for_input "+ Metadata volume size" DB2_META_STORAGE_SIZE && export DB2_META_STORAGE_SIZE
+        prompt_for_input "+ Transaction logs volume size" DB2_LOGS_STORAGE_SIZE && export DB2_LOGS_STORAGE_SIZE
+        prompt_for_input "+ Backup volume size" DB2_BACKUP_STORAGE_SIZE && export DB2_BACKUP_STORAGE_SIZE
+      fi
+    else
+      # Configure MAS to use existing databases
+      DB2_ACTION_SYSTEM=none
+      DB2_ACTION_MANAGE=none
+      echo
+      echo_h2 "6.1 Database configuration for IoT"
+      echo "${TEXT_DIM}Maximo IoT requires a shared system-scope Db2 instance because others application in the suite require access to the same database source."
+      echo " - Only IBM Db2 is supported for this database"
+      echo ""
+      reset_colors
+      if [ "$MAS_APP_CHANNEL_IOT" != "" ]; then
+        echo_highlight "In the next section you MUST ensure that a system database configuration is included in your local MAS configuration directory"
+      else
+        echo_highlight "System Database configuration for IoT is not required because the application is not being installed"
+      fi
 
+      echo ""
+      echo_h2 "6.2 Database configuration for Manage"
+      echo "${TEXT_DIM}Maximo Manage can be configured to share the system Db2 instance or use it's own dedicated database."
+      echo " - IBM Db2, Oracle Database, & Microsoft SQL Server are all supported database options"
+      echo ""
+      reset_colors
+      if [ "$MAS_APP_CHANNEL_IOT" == "" ]; then
+        # User is not installing IoT, so there's no need to choose between using a shared or dedicated database configuration
+        echo_highlight "In the next section you MUST ensure that a dedicated database configuration for Manage is included in your local MAS configuration directory"
+        MAS_APPWS_BINDINGS_JDBC_MANAGE=workspace-application
+      else
+        # The user can choose to use the same configuration set up for IoT, or configure one just for the Manage application
+        if [ "$MAS_APP_CHANNEL_MANAGE" != "" ]; then
+          if prompt_for_confirm_default_yes "Use dedicated database configuration for Manage application?"; then
+            echo
+            echo_highlight "In the next section you MUST ensure that a dedicated database configuration for Manage is included in your local MAS configuration directory"
+            MAS_APPWS_BINDINGS_JDBC_MANAGE=workspace-application
+          else
+            echo
+            echo_highlight "In the next section you MUST ensure that a system database configuration is included in your local MAS configuration directory"
+            MAS_APPWS_BINDINGS_JDBC_MANAGE=system
+          fi
+        else
+          echo_highlight "Dedicated Manage database configuration is not required because the application is not being installed"
+        fi
+      fi
     fi
+  else
+    echo_highlight "No applications have been selected that require a Db2 installation"
+    DB2_ACTION_SYSTEM=none
+    DB2_ACTION_MANAGE=none
+  fi
 }
