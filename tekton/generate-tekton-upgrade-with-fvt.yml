@@ -1,7 +1,8 @@
 - hosts: localhost
   any_errors_fatal: true
   vars:
-    mas_tekton_version: latest
+    # mas_tekton_version: latest
+    mas_tekton_version: 1.1.2-pre.upgtest
 
     params_src_dir: src/params
     params_tmp_dir: tmp/upgrade-test-helper
