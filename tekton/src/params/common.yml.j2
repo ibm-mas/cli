@@ -1,13 +1,14 @@
-# Registry
+# Runpipeline Settings (used by all pipelines running inside other pipelines)
+- name: runpipeline_cli_version
+  description: version of CLI where PipelineRuns used by run-pipeline tasks have been released
+  type: string
+  default: ""
 - name: runpipeline_image_registry
   type: string
-  default: ""
-
-# Artifactory Secret
-- name: runpipeline_artifactory_username
-  type: string
+  description: registry where run pipeline tasks will run
   default: ""
 - name: runpipeline_artifactory_apikey
+  description: apikey used to download PipelineRuns from artifactory
   type: string
   default: ""
 
