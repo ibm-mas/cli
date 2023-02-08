@@ -25,6 +25,7 @@
         src: "{{ pipeline_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ pipeline_target_dir }}/{{ item }}.yaml"
       with_items:
+        - db2
         - install
         - install-with-fvt
         - fvt-assist

@@ -10,10 +10,6 @@ spec:
       type: string
       default: IfNotPresent
 
-    - name: common_services_catalog_source
-      type: string
-      default: ""
-
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
     - name: mas_instance_id
@@ -43,8 +39,6 @@ spec:
 
   stepTemplate:
     env:
-      - name: COMMON_SERVICES_CATALOG_SOURCE
-        value: $(params.common_services_catalog_source)
       # Optional support built into the ansible-devops image
       # for saving task execution results to a MongoDb instance
       - name: MAS_INSTANCE_ID
@@ -55,7 +49,7 @@ spec:
         value: $(params.devops_suite_name)
       - name: DEVOPS_BUILD_NUMBER
         value: $(params.devops_build_number)
-      
+
       # Optional parameters to categorize result to be persisted
       - name: DEVOPS_TEST_TYPE
         value: $(params.devops_test_type)

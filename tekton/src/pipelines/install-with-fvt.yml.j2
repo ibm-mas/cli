@@ -82,9 +82,15 @@ spec:
         - cluster-monitoring
 
     # 2.3 Db2
-    {{ lookup('template', 'taskdefs/dependencies/db2.yml.j2') | indent(4) }}
+    # 2.3.1 System Db2
+    {{ lookup('template', 'taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'system'}) | indent(4) }}
       runAfter:
         - cert-manager
+
+    # 2.3.2 Dedicated Manage Db2
+    {{ lookup('template', 'taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'manage'}) | indent(4) }}
+      runAfter:
+        - db2-system
 
     # 2.4 IBM SLS
     {{ lookup('template', 'taskdefs/dependencies/sls.yml.j2') | indent(4) }}
@@ -127,7 +133,7 @@ spec:
     # 3.6 Configure Watson Studio in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-smtp
+        - fvt-operatormaturity
         - watson-studio
 
 
@@ -139,7 +145,7 @@ spec:
     # 4.2 Configure COS in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-cos.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-smtp
+        - fvt-operatormaturity
         - cos
 
     # 4.1 Install AppConnect
@@ -150,7 +156,7 @@ spec:
     # 4.2 Configure AppConnect in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-appconnect.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-smtp
+        - fvt-operatormaturity
         - appconnect
 
     # 4.3 Nvidia GPU Operator
@@ -191,13 +197,14 @@ spec:
     # 5.6 Configure Db2 in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-smtp
-        - db2
+        - fvt-operatormaturity
+        - db2-system
+        - db2-manage
 
     # 5.7 Configure Kafka in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-smtp
+        - fvt-operatormaturity
         - kafka
 
 
@@ -243,15 +250,19 @@ spec:
 
     # 9. Install & Configure Manage
     # -------------------------------------------------------------------------
-    # 9.1. Prepare database to Maxinst
-    {{ lookup('template', 'taskdefs/apps/manage-db-prep.yml.j2') | indent(4) }}
+    # 9.1. Prepare database for Maxinst
+    {{ lookup('template', 'taskdefs/apps/db2-setup-system.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config-db2
+    {{ lookup('template', 'taskdefs/apps/db2-setup-manage.yml.j2') | indent(4) }}
       runAfter:
         - suite-config-db2
 
     # 9.2 Manage Install
     {{ lookup('template', 'taskdefs/apps/manage-app.yml.j2') | indent(4) }}
       runAfter:
-        - suite-db2-setup-for-manage
+        - suite-db2-setup-system
+        - suite-db2-setup-manage
 
     # 9.3 Configure Manage workspace
     {{ lookup('template', 'taskdefs/apps/manage-workspace.yml.j2') | indent(4) }}
@@ -281,7 +292,7 @@ spec:
     # 11.1 Optimizer Install
     {{ lookup('template', 'taskdefs/apps/optimizer-app.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-smtp
+        - fvt-operatormaturity
 
     # 11.2 Configure Optimizer workspace
     {{ lookup('template', 'taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}
@@ -329,7 +340,7 @@ spec:
     {{ lookup('template', 'taskdefs/apps/visualinspection-app.yml.j2') | indent(4) }}
       runAfter:
         - nvidia-gpu
-        - fvt-smtp
+        - fvt-operatormaturity
 
     # 14.2 Configure MVI workspace
     {{ lookup('template', 'taskdefs/apps/visualinspection-workspace.yml.j2') | indent(4) }}

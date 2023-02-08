@@ -49,6 +49,7 @@
         - fvt-assist-desktop
         - fvt-assist
         - fvt-core
+        - fvt-core-ui
         - fvt-run-suite
 
 

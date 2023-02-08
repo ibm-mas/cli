@@ -13,6 +13,8 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/upgrade.yml.j2') | indent(4) }}
 
+    {{ lookup('template', params_src_dir ~ '/install-appchannels.yml.j2') | indent(4) }}
+
   tasks:
     # Phase 1
     # -------------------------------------------------------------------------

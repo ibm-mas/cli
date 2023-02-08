@@ -1,16 +1,41 @@
-# Runpipeline Settings (used by all pipelines running inside other pipelines)
-- name: runpipeline_cli_version
-  description: version of CLI where PipelineRuns used by run-pipeline tasks have been released
+# Common Parameters
+# -------------------------------------------------------------------------
+# Tekton Pipeline image pull policy (for CLI & FVT images)
+- name: image_pull_policy
+  type: string
+  default: IfNotPresent
+  description: Pull policy for pipeline container images
+
+# Development Build Support
+- name: artifactory_username
+  default: ""
+  type: string
+  description: Required to install development MAS catalogs
+- name: artifactory_apikey
+  default: ""
+  type: string
+  description: Required to install development MAS catalogs
+
+# Storage Class Selection
+- name: storage_class_rwo
   type: string
   default: ""
-- name: runpipeline_image_registry
-  type: string
-  description: registry where run pipeline tasks will run
-  default: ""
-- name: runpipeline_artifactory_apikey
-  description: apikey used to download PipelineRuns from artifactory
+  description: ReadWriteOnce storage class
+- name: storage_class_rwx
   type: string
   default: ""
+  description: ReadWriteMany storage class
+
+# Entitlement
+- name: ibm_entitlement_key
+  type: string
+  description: IBM Entitlement Key
+
+# Custom Labels
+- name: custom_labels
+  type: string
+  default: ""
+  description: Optional custom labels, comma separated list of key=value pairs
 
 # Persist Results (Optional)
 - name: devops_mongo_uri
@@ -29,48 +54,23 @@
   default: ""
 
 # MAS Configuration
-- name: mas_instance_id
-  type: string
 - name: mas_channel
   type: string
   default: ""
+- name: mas_instance_id
+  type: string
+  default: ""
 
-# MAS Configuration - Workspace
-- name: mas_workspace_id
+# Runpipeline Settings (used by all pipelines running inside other pipelines)
+- name: runpipeline_cli_version
+  description: version of CLI where PipelineRuns used by run-pipeline tasks have been released
   type: string
-  description: Workspace ID used to configure all applications
-  default: masdev
-
-# MAS Configuration - Application Channels
-- name: mas_app_channel_iot
-  type: string
-  description: Subscription channel for IoT application operator
   default: ""
-- name: mas_app_channel_manage
+- name: runpipeline_image_registry
   type: string
-  description: Subscription channel for Manage application operator
+  description: registry where run pipeline tasks will run
   default: ""
-- name: mas_app_channel_monitor
+- name: runpipeline_artifactory_apikey
+  description: apikey used to download PipelineRuns from artifactory
   type: string
-  description: Subscription channel for Monitor application operator
-  default: ""
-- name: mas_app_channel_optimizer
-  type: string
-  description: Subscription channel for Optimizer application operator
-  default: ""
-- name: mas_app_channel_predict
-  type: string
-  description: Subscription channel for Predict application operator
-  default: ""
-- name: mas_app_channel_hputilities
-  type: string
-  description: Subscription channel for Health & Predict - Utilities application operator
-  default: ""
-- name: mas_app_channel_assist
-  type: string
-  description: Subscription channel for Assist application operator
-  default: ""
-- name: mas_app_channel_visualinspection
-  type: string
-  description: Subscription channel for MVI application operator
   default: ""

@@ -5,59 +5,49 @@ metadata:
   name: mas-devops-db2
 spec:
   params:
-    # Control the image pull policy for the CLI container image
-    - name: image_pull_policy
-      type: string
-      default: IfNotPresent
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
-    # Configure DB2W
+    # Entitlement
+    - name: ibm_entitlement_key
+      type: string
+
+    # Db2 - Instance
     - name: db2_instance_name
       type: string
-      default: "" # By default, no config will be generated
+      default: ""
+    - name: db2_dbname
+      type: string
+      default: ""
     - name: db2_version
       type: string
-      default: "" # Use the default built into the ansible role
+      default: ""
+    - name: db2_workload
+      type: string
+      default: ""
+    - name: db2_4k_device_support
+      type: string
+      default: ""
     - name: db2_table_org
       type: string
-      default: "" # Use the default built into the ansible role
+      default: ""
 
-    # Configure JDBCCfg
-    - name: mas_config_scope
-      type: string
-      default: "" # By default, no config will be generated
-    - name: mas_instance_id
-      type: string
-      description: Instance ID
-      default: "" # By default, no config will be generated
-    - name: custom_labels
-      type: string
-      description: Optional MAS custom labels, comma separated list of key=value pairs
-      default: ""
-    - name: mas_workspace_id
-      type: string
-      default: "" # Only required if config_scope = ws or wsapp
-    - name: mas_application_id
-      type: string
-      default: "" # Only required if config_scope = app or wsapp
-
-    # Configure storage classes
-    - name: db2_meta_storage_class
+    # Db2 - CPU requests and limits
+    - name: db2_cpu_requests
       type: string
       default: ""
-    - name: db2_data_storage_class
-      type: string
-      default: ""
-    - name: db2_backup_storage_class
-      type: string
-      default: ""
-    - name: db2_logs_storage_class
-      type: string
-      default: ""
-    - name: db2_temp_storage_class
+    - name: db2_cpu_limits
       type: string
       default: ""
 
-    # Configure storage sizes
+    # Db2 - Memory requests and limits
+    - name: db2_memory_requests
+      type: string
+      default: ""
+    - name: db2_memory_limits
+      type: string
+      default: ""
+
+    # Db2 - Storage - Capacity
     - name: db2_meta_storage_size
       type: string
       default: ""
@@ -74,28 +64,32 @@ spec:
       type: string
       default: ""
 
-    # Other DB2 access mode
+    # Db2 - Storage - Class
+    - name: db2_meta_storage_class
+      type: string
+      default: ""
+    - name: db2_data_storage_class
+      type: string
+      default: ""
+    - name: db2_backup_storage_class
+      type: string
+      default: ""
+    - name: db2_logs_storage_class
+      type: string
+      default: ""
+    - name: db2_temp_storage_class
+      type: string
+      default: ""
+
+    # Db2 - Storage - Access Mode
     - name: db2_meta_storage_accessmode
       type: string
-      description: Optional configuration for db2 meta storage access mode
       default: ""
     - name: db2_backup_storage_accessmode
       type: string
-      description: Optional configuration for db2 backup storage access mode
       default: ""
 
-
-    # Other DB2 parameters
-    - name: db2_cpu_requests
-      type: string
-      description: Optional configuration for db2 cpu requests
-      default: ""
-    - name: db2_cpu_limits
-      type: string
-      description: Optional configuration for mongodb cpu limits
-      default: ""
-
-    # Optionally set up a db2 LDAP user
+    # Db2 - LDAP
     - name: db2_ldap_username
       type: string
       default: ""
@@ -103,18 +97,25 @@ spec:
       type: string
       default: ""
 
-    # Entitlement
-    - name: ibm_entitlement_key
-      type: string
-    - name: db2_entitlement_key
+    # JDBCCfg
+    - name: mas_config_scope
       type: string
       default: ""
-      description: "Optional Db2-specific override for the IBM entitlement key"
-
-    # Optional support built into the ansible-devops image
-    # for saving task execution results to a MongoDb instance
-    - name: devops_mongo_uri
+    - name: mas_instance_id
       type: string
+      description: Instance ID
+      default: ""
+    - name: mas_workspace_id
+      type: string
+      default: ""
+    - name: mas_application_id
+      type: string
+      default: ""
+
+    # Custom Labels support
+    - name: custom_labels
+      type: string
+<<<<<<< HEAD
       description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
       default: ""
     - name: devops_suite_name
@@ -132,45 +133,46 @@ spec:
     - name: devops_test_phase
       type: string
       description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
+=======
+      description: Optional MAS custom labels, comma separated list of key=value pairs
+>>>>>>> 11115740622d65651dfed515ab5ccf8628b9945c
       default: ""
 
   stepTemplate:
     env:
-      # Configure JdbcCfg
-      - name: MAS_CONFIG_DIR
-        value: /workspace/configs
-      - name: MAS_CONFIG_SCOPE
-        value: $(params.mas_config_scope)
-      - name: MAS_INSTANCE_ID
-        value: $(params.mas_instance_id)
-      - name: CUSTOM_LABELS
-        value: $(params.custom_labels)
-      - name: MAS_APP_ID
-        value: $(params.mas_application_id)
-      - name: MAS_WORKSPACE_ID
-        value: $(params.mas_workspace_id)
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
 
-      # Configure Db2uCluster
+      # Entitlement
+      - name: IBM_ENTITLEMENT_KEY
+        value: $(params.ibm_entitlement_key)
+
+      # Db2 - Instance
       - name: DB2_INSTANCE_NAME
         value: $(params.db2_instance_name)
+      - name: DB2_DBNAME
+        value: $(params.db2_dbname)
       - name: DB2_VERSION
         value: $(params.db2_version)
+      - name: DB2_WORKLOAD
+        value: $(params.db2_workload)
+      - name: DB2_4K_DEVICE_SUPPORT
+        value: $(params.db2_4k_device_support)
       - name: DB2_TABLE_ORG
         value: $(params.db2_table_org)
 
-      # Configure storage classes
-      - name: DB2_META_STORAGE_CLASS
-        value: $(params.db2_meta_storage_class)
-      - name: DB2_DATA_STORAGE_CLASS
-        value: $(params.db2_data_storage_class)
-      - name: DB2_BACKUP_STORAGE_CLASS
-        value: $(params.db2_backup_storage_class)
-      - name: DB2_LOGS_STORAGE_CLASS
-        value: $(params.db2_logs_storage_class)
-      - name: DB2_TEMP_STORAGE_CLASS
-        value: $(params.db2_temp_storage_class)
+      # Db2 - CPU requests and limits
+      - name: DB2_CPU_REQUESTS
+        value: $(params.db2_cpu_requests)
+      - name: DB2_CPU_LIMITS
+        value: $(params.db2_cpu_limits)
 
-      # Configure storage sizes
+      # Db2 - Memory requests and limits
+      - name: DB2_MEMORY_REQUESTS
+        value: $(params.db2_memory_requests)
+      - name: DB2_MEMORY_LIMITS
+        value: $(params.db2_memory_limits)
+
+      # Db2 - Storage - Capacity
       - name: DB2_META_STORAGE_SIZE
         value: $(params.db2_meta_storage_size)
       - name: DB2_DATA_STORAGE_SIZE
@@ -182,25 +184,31 @@ spec:
       - name: DB2_TEMP_STORAGE_SIZE
         value: $(params.db2_temp_storage_size)
 
-      # Configure storage access mode
+      # Db2 - Storage - Class
+      - name: DB2_META_STORAGE_CLASS
+        value: $(params.db2_meta_storage_class)
+      - name: DB2_DATA_STORAGE_CLASS
+        value: $(params.db2_data_storage_class)
+      - name: DB2_BACKUP_STORAGE_CLASS
+        value: $(params.db2_backup_storage_class)
+      - name: DB2_LOGS_STORAGE_CLASS
+        value: $(params.db2_logs_storage_class)
+      - name: DB2_TEMP_STORAGE_CLASS
+        value: $(params.db2_temp_storage_class)
+
+      # Db2 - Storage - Access mode
       - name: DB2_META_STORAGE_ACCESSMODE
         value: $(params.db2_meta_storage_accessmode)
       - name: DB2_BACKUP_STORAGE_ACCESSMODE
         value: $(params.db2_backup_storage_accessmode)
 
-      # Other DB2 parameters
-      - name: DB2_CPU_REQUESTS
-        value: $(params.db2_cpu_requests)
-      - name: DB2_CPU_LIMITS
-        value: $(params.db2_cpu_limits)
-
-
-    # Optionally set up a db2 LDAP user
+      # Db2 - LDAP
       - name: DB2_LDAP_USERNAME
         value: $(params.db2_ldap_username)
       - name: DB2_LDAP_PASSWORD
         value: $(params.db2_ldap_password)
 
+<<<<<<< HEAD
       # Entitlement
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
@@ -221,7 +229,23 @@ spec:
         value: $(params.devops_test_type)
       - name: DEVOPS_TEST_PHASE
         value: $(params.devops_test_phase)
+=======
+      # MAS - JdbcCfg
+      - name: MAS_CONFIG_DIR
+        value: /workspace/configs
+      - name: MAS_CONFIG_SCOPE
+        value: $(params.mas_config_scope)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_APP_ID
+        value: $(params.mas_application_id)
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
+>>>>>>> 11115740622d65651dfed515ab5ccf8628b9945c
 
+      # Custom labels support
+      - name: CUSTOM_LABELS
+        value: $(params.custom_labels)
   steps:
     - name: db2
       command:
