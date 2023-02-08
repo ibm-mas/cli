@@ -1,10 +1,24 @@
 #!/bin/bash
 
-function uninstall() {
-  confirm
+function check_mas_exists() {
   # MAS instance ID
   prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
-  export $MAS_INSTANCE_ID
+  MAS_NS="mas-$MAS_INSTANCE_ID-core"
 
+  if check_project_exists $MAS_NS; then
+    export MAS_INSTANCE_ID
+    prompt_for_confirm "Proceed with uninstalling $MAS_NS" || exit 0
+  else
+    echo -e "${COLOR_RED}Error: IBM MAS Core does not exist in namespace \"${MAS_NS}\"${COLOR_RESET}\n"
+    exit 1
+  fi
+}
+
+function uninstall() {
   connect
+  check_mas_exists
+
+  echo
+  echo_h2 "Launch Uninstall"
+
 }

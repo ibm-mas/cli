@@ -138,6 +138,18 @@ function prompt_for_input(){
   printf -v "$varname" "%s" "$input"
 }
 
+function check_project_exists(){
+  varname=$1
+  oc get "project/$PROJECT_NAME" > /dev/null 2>&1
+
+  if [ "$?" == "0" ]; then
+    true
+  else
+    false
+  fi
+}
+
+
 function prompt_for_confirm() {
   msg=$1
   varname=$2
