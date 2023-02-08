@@ -120,9 +120,9 @@ spec:
       
       # Optional parameters to categorize result to be persisted
       - name: DEVOPS_TEST_TYPE
-        value: $(params.test_type)
-      - name: TEST_PHASE
-        value: $(params.test_phase)
+        value: $(params.devops_test_type)
+      - name: DEVOPS_TEST_PHASE
+        value: $(params.devops_test_phase)
   steps:
     - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas-ui:$(params.fvt_image_version)'
       imagePullPolicy: $(params.image_pull_policy)

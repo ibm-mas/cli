@@ -115,27 +115,7 @@ spec:
     # Custom Labels support
     - name: custom_labels
       type: string
-<<<<<<< HEAD
-      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
-      default: ""
-    - name: devops_suite_name
-      type: string
-      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
-      default: ""
-    - name: devops_build_number
-      type: string
-      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
-      default: ""
-    - name: devops_test_type
-      type: string
-      description: Optional. Used to different upgrade tests from other type of tests
-      default: ""
-    - name: devops_test_phase
-      type: string
-      description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
-=======
       description: Optional MAS custom labels, comma separated list of key=value pairs
->>>>>>> 11115740622d65651dfed515ab5ccf8628b9945c
       default: ""
 
   stepTemplate:
@@ -208,28 +188,6 @@ spec:
       - name: DB2_LDAP_PASSWORD
         value: $(params.db2_ldap_password)
 
-<<<<<<< HEAD
-      # Entitlement
-      - name: IBM_ENTITLEMENT_KEY
-        value: $(params.ibm_entitlement_key)
-      - name: DB2_ENTITLEMENT_KEY
-        value: $(params.db2_entitlement_key)
-
-      # Optional support built into the ansible-devops image
-      # for saving task execution results to a MongoDb instance
-      - name: DEVOPS_MONGO_URI
-        value: $(params.devops_mongo_uri)
-      - name: DEVOPS_SUITE_NAME
-        value: $(params.devops_suite_name)
-      - name: DEVOPS_BUILD_NUMBER
-        value: $(params.devops_build_number)
-      
-      # Optional parameters to categorize result to be persisted
-      - name: DEVOPS_TEST_TYPE
-        value: $(params.devops_test_type)
-      - name: DEVOPS_TEST_PHASE
-        value: $(params.devops_test_phase)
-=======
       # MAS - JdbcCfg
       - name: MAS_CONFIG_DIR
         value: /workspace/configs
@@ -241,7 +199,6 @@ spec:
         value: $(params.mas_application_id)
       - name: MAS_WORKSPACE_ID
         value: $(params.mas_workspace_id)
->>>>>>> 11115740622d65651dfed515ab5ccf8628b9945c
 
       # Custom labels support
       - name: CUSTOM_LABELS
