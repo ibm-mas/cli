@@ -18,6 +18,10 @@ spec:
       default: ''
       type: string
       description: Required to install development MAS catalogs
+    - name: dev_mode
+      type: string
+      description: When using development builds in air gap
+      default: "False"
     - name: mas_catalog_version
       type: string
       description: Optional version of the IBM Maximo Operator Catalog to install
@@ -59,6 +63,8 @@ spec:
         value: $(params.artifactory_username)
       - name: ARTIFACTORY_APIKEY
         value: $(params.artifactory_apikey)
+      - name: DEV_MODE
+        value: $(params.dev_mode)
 
       - name: MAS_CATALOG_VERSION
         value: $(params.mas_catalog_version)

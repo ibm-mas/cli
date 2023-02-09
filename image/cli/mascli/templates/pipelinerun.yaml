@@ -19,6 +19,8 @@ spec:
       value: '$ARTIFACTORY_USERNAME'
     - name: artifactory_apikey
       value: '$ARTIFACTORY_APIKEY'
+    - name: dev_mode
+      value: '$DEV_MODE'
 
     # IBM Entitlement Key
     # -------------------------------------------------------------------------
