@@ -1,0 +1,17 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: $MAS_INSTANCE_ID-uninstall-
+  labels:
+    tekton.dev/pipeline: mas-uninstall
+spec:
+  pipelineRef:
+    name: mas-uninstall
+
+  serviceAccountName: pipeline
+  timeout: 1h
+
+  params:
+    - name: mas_instance_id
+      value: '$MAS_INSTANCE_ID'

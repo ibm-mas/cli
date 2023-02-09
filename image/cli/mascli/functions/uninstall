@@ -9,7 +9,7 @@ function check_mas_exists() {
     export MAS_INSTANCE_ID
     prompt_for_confirm "Proceed with uninstalling $MAS_NS" || exit 0
   else
-    echo -e "${COLOR_RED}Error: IBM MAS Core does not exist in namespace \"${MAS_NS}\"${COLOR_RESET}\n"
+    echo -e "${COLOR_RED}Error: The project \"${MAS_NS}\"${COLOR_RESET} does not exist.\n"
     exit 1
   fi
 }
@@ -20,5 +20,17 @@ function uninstall() {
 
   echo
   echo_h2 "Launch Uninstall"
+
+  # Create namespace, install MAS Tekton definitions, configure RBAC
+  pipeline_install_tasks_shared_namespace || exit 1
+
+  # Replace ALL environment variables in templates
+  eval "echo \"$(cat $DIR/templates/pipelinerun-uninstall.yaml)\"" > $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-uninstall.yaml
+
+  # Start pipeline execution
+  oc -n mas-$MAS_INSTANCE_ID-pipelines create -f $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-uninstall.yaml &>> $LOGFILE || exit 1
+  echo -e "${COLOR_GREEN}Uninstall started successfully${COLOR_RESET}"
+  echo -e "\nView progress:\n  ${COLOR_CYAN}${TEXT_UNDERLINE}https://${OCP_CONSOLE_ROUTE}/pipelines/ns/mas-$MAS_INSTANCE_ID-pipelines${TEXT_RESET}${COLOR_RESET}"
+  echo
 
 }
