@@ -185,7 +185,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-service-requests
+      value: ibm-mobile
     
     - name: test_type
       value: $(params.test_type)
@@ -285,11 +285,11 @@
     - name: fvt_image_version
       value: $(params.fvt_version_servicerequests)
     - name: fvt_test_suite
-      value: testng-mas-mobile-ios-MVT
+      value: mas-ios-MVT-SR
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-service-requests
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -344,7 +344,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-technician
+      value: ibm-mobile
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -384,11 +384,11 @@
     - name: fvt_image_version
       value: $(params.fvt_version_technician)
     - name: fvt_test_suite
-      value: testng-mas-mobile-andorid
+      value: mas-android-MVT-Technician
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-technician
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -434,11 +434,11 @@
     - name: fvt_image_version
       value: $(params.fvt_version_technician)
     - name: fvt_test_suite
-      value: testng-mas-mobile-ios
+      value: mas-ios-MVT-Technician
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-technician
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -488,7 +488,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-inspections
+      value: ibm-mobile
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -528,11 +528,11 @@
     - name: fvt_image_version
       value: $(params.fvt_version_inspection)
     - name: fvt_test_suite
-      value: testng-mas-mobile-andorid-MVT
+      value: mas-android-MVT-Inspections
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-inspections
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -578,11 +578,11 @@
     - name: fvt_image_version
       value: $(params.fvt_version_inspection)
     - name: fvt_test_suite
-      value: testng-mas-mobile-ios-MVT
+      value: mas-ios-MVT-Inspections
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-inspections
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -632,7 +632,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-defects
+      value: ibm-mobile
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -672,11 +672,11 @@
     - name: fvt_image_version
       value: $(params.fvt_version_defects)
     - name: fvt_test_suite
-      value: testng-mas-mobile-andorid
+      value: mas-android-MVT-Defects
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-defects
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -722,11 +722,11 @@
     - name: fvt_image_version
       value: $(params.fvt_version_defects)
     - name: fvt_test_suite
-      value: testng-mas-mobile-ios
+      value: mas-ios-MVT-Defects
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-defects
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -776,7 +776,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-asset-manager
+      value: ibm-mobile
     
     - name: test_type
       value: $(params.test_type)
@@ -825,7 +825,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-asset-manager
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -854,7 +854,7 @@
     - name: configs
       workspace: shared-configs
 
-## Minimum Verification Test for Mobile Service Request MAS test suites
+## Minimum Verification Test for Mobile Asset Manager MAS test suites
 - name: fvt-asset-manager-testng-mas-ios
   params:
     - name: mas_instance_id
@@ -880,7 +880,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-asset-manager
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
