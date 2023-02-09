@@ -1,22 +1,94 @@
 #!/bin/bash
 
+function uninstall_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat <<EOM
+Usage:
+  mas uninstall [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+MAS Instance Selection (Required):
+  -i, --id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}     MAS Instance ID to uninstall
+
+Other Commands:
+      --no-confirm                      Uninstall MAS without prompting for confirmation
+  -h, --help                            Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
 function check_mas_ns_exists() {
-  # MAS instance ID
-  prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
   MAS_NS="mas-$MAS_INSTANCE_ID-core"
 
   if check_project_exists $MAS_NS; then
-    export MAS_INSTANCE_ID
-    prompt_for_confirm "Proceed with uninstalling $MAS_NS" || exit 0
+    echo "Found project $MAS_NS."
   else
     echo -e "${COLOR_RED}Error: The project \"${MAS_NS}\"${COLOR_RESET} does not exist.\n"
     exit 1
   fi
 }
 
+function uninstall_noninteractive() {
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    shift
+    case $key in
+    -i | --id)
+      MAS_INSTANCE_ID=$1 && shift
+      ;;
+    --no-confirm)
+      NO_CONFIRM=true
+      ;;
+    -h | --help)
+      uninstall_help
+      ;;
+    *)
+      # unknown option
+      echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+      uninstall_help
+      exit 1
+      ;;
+    esac
+  done
+
+  # Check all args have been set
+  [[ -z "$MAS_INSTANCE_ID" ]] && uninstall_help "MAS_INSTANCE_ID is not set"
+}
+
+function uninstall_interactive() {
+  echo
+  echo_h2 "Select IBM Maximo Application Suite Uninstall"
+
+  prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
+}
+
 function uninstall() {
+  # Take the first parameter off (it will be uninstall)
+  shift
+  if [[ $# -gt 0 ]]; then
+    uninstall_noninteractive "$@"
+  else
+    uninstall_interactive
+  fi
+
   connect
   check_mas_ns_exists
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Maximo Application Suite" "    "
+  echo_reset_dim "Instance ID ..................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+
+  echo
+  reset_colors
+  if [[ "$NO_CONFIRM" != "true" ]]; then
+    prompt_for_confirm "Proceed with these settings" || exit 0
+  fi
 
   echo
   echo_h2 "Launch Uninstall"
@@ -25,10 +97,10 @@ function uninstall() {
   pipeline_install_tasks || exit 1
 
   # Replace ALL environment variables in templates
-  eval "echo \"$(cat $DIR/templates/pipelinerun-uninstall.yaml)\"" > $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-uninstall.yaml
+  eval "echo \"$(cat $DIR/templates/pipelinerun-uninstall.yaml)\"" >$CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-uninstall.yaml
 
   # Start pipeline execution
-  oc -n mas-$MAS_INSTANCE_ID-pipelines create -f $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-uninstall.yaml &>> $LOGFILE || exit 1
+  oc -n mas-$MAS_INSTANCE_ID-pipelines create -f $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-uninstall.yaml &>>$LOGFILE || exit 1
   echo -e "${COLOR_GREEN}Uninstall started successfully${COLOR_RESET}"
   echo -e "\nView progress:\n  ${COLOR_CYAN}${TEXT_UNDERLINE}https://${OCP_CONSOLE_ROUTE}/pipelines/ns/mas-$MAS_INSTANCE_ID-pipelines${TEXT_RESET}${COLOR_RESET}"
   echo
