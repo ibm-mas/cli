@@ -1029,6 +1029,54 @@
   workspaces:
     - name: configs
       workspace: shared-configs
+  
+# FVT6.15 Manage FVT - Mobile SR Setup
+- name: fvt-manage-mobile-sr-setup
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-manage
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-sr
+    - name: fvt_image_version
+      value: $(params.fvt_version_manage_mobile_sr_setup)
+    - name: fvt_test_suite
+      value: setup4sr # Keyword for Mobile FVT
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mobile
+    - name: artifactory_apikey
+      value: $(params.fvt_artifactory_apikey)
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Manage Transportation FVT to run
+  when:
+    - input: "$(params.fvt_version_manage_mobile_setup)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-servicerequests-testng-preparedata
+  workspaces:
+    - name: configs
+      workspace: shared-configs
 
 
 # This task is failing, which blows up the entire pipeline

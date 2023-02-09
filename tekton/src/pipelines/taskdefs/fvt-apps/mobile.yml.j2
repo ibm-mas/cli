@@ -230,11 +230,11 @@
     - name: fvt_image_version
       value: $(params.fvt_version_servicerequests)
     - name: fvt_test_suite
-      value: testng-mas-mobile-andorid-MVT
+      value: mas-android-MVT-SR
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-service-requests
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -258,7 +258,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-servicerequests-testng-preparedata
+    - fvt-manage-mobile-sr-setup
   workspaces:
     - name: configs
       workspace: shared-configs
