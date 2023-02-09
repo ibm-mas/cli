@@ -1,6 +1,6 @@
 ## Changes
 
-- [`3.12`](https://github.com/ibm-mas/cli/releases/tag/3.12.0) Add tasks for Manage Industry Solutions 
+- [`3.12`](https://github.com/ibm-mas/cli/releases/tag/3.12.0) Add tasks for Manage Industry Solutions and add support for Manage JMS configuration
 - [`3.11`](https://github.com/ibm-mas/cli/releases/tag/3.11.0) Add upgrade-test pipeline and automation to automatically generate PipelineRun resources
 - [`3.10`](https://github.com/ibm-mas/cli/releases/tag/3.10.0) Add support for Jan 2023 catalog
 - [`3.9`](https://github.com/ibm-mas/cli/releases/tag/3.9.0) Add mobile test suite
