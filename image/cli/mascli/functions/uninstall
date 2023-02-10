@@ -60,65 +60,30 @@ function uninstall_noninteractive() {
   [[ -z "$MAS_INSTANCE_ID" ]] && uninstall_help "MAS_INSTANCE_ID is not set"
 }
 
+function validate_action_param() {
+  msg=$1
+  action=$2
+
+  if [[ -z ${!action} ]] || [[ ${!action} != "none" ]] && [[ ${!action} != "uninstall" ]]; then
+    if prompt_for_confirm "$msg"; then
+      export $action="uninstall"
+    else
+      export $action="none"
+    fi
+  fi
+}
+
 function prompt_for_deps_to_uninstall() {
   echo
-  echo_h2 "2. Set Dependencies for Uninstall"
+  echo_h2 "2. Uninstall MAS Dependencies"
 
-  if [[ -z "${SLS_ACTION}" || "${SLS_ACTION}" != "none" || "${SLS_ACTION}" != "uninstall" ]]; then
-    if prompt_for_confirm "Uninstall IBM Suite Licensing Service?"; then
-      export SLS_ACTION="uninstall"
-    else
-      export SLS_ACTION="none"
-    fi
-  fi
-
-  if [[ -z "${MONGODB_ACTION}" || "${MONGODB_ACTION}" != "none" || "${MONGODB_ACTION}" != "uninstall" ]]; then
-    if prompt_for_confirm "Uninstall MongoDB?"; then
-      export MONGODB_ACTION="uninstall"
-    else
-      export MONGODB_ACTION="none"
-    fi
-  fi
-
-  if [[ -z "${UDS_ACTION}" || "${UDS_ACTION}" != "none" || "${UDS_ACTION}" != "uninstall" ]]; then
-    if prompt_for_confirm "Uninstall IBM User Data Services?"; then
-      export UDS_ACTION="uninstall"
-    else
-      export UDS_ACTION="none"
-    fi
-  fi
-
-  if [[ -z "${CERT_MANAGER_ACTION}" || "${CERT_MANAGER_ACTION}" != "none" || "${CERT_MANAGER_ACTION}" != "uninstall" ]]; then
-    if prompt_for_confirm "Uninstall IBM Cert Manager?"; then
-      export CERT_MANAGER_ACTION="uninstall"
-    else
-      export CERT_MANAGER_ACTION="none"
-    fi
-  fi
-
-  if [[ -z "${COMMON_SERVICES_ACTION}" || "${COMMON_SERVICES_ACTION}" != "none" || "${COMMON_SERVICES_ACTION}" != "uninstall" ]]; then
-    if prompt_for_confirm "Uninstall IBM Common Services?"; then
-      export COMMON_SERVICES_ACTION="uninstall"
-    else
-      export COMMON_SERVICES_ACTION="none"
-    fi
-  fi
-
-  if [[ -z "${IBM_CATALOGS_ACTION}" || "${IBM_CATALOGS_ACTION}" != "none" || "${IBM_CATALOGS_ACTION}" != "uninstall" ]]; then
-    if prompt_for_confirm "Uninstall IBM Catalogs?"; then
-      export IBM_CATALOGS_ACTION="uninstall"
-    else
-      export IBM_CATALOGS_ACTION="none"
-    fi
-  fi
-
-  if [[ -z "${CLUSTER_MONITORING_ACTION}" || "${CLUSTER_MONITORING_ACTION}" != "none" || "${CLUSTER_MONITORING_ACTION}" != "uninstall" ]]; then
-    if prompt_for_confirm "Uninstall Cluster Monitoring?"; then
-      export CLUSTER_MONITORING_ACTION="uninstall"
-    else
-      export CLUSTER_MONITORING_ACTION="none"
-    fi
-  fi
+  validate_action_param "Uninstall IBM Suite Licensing Service?" SLS_ACTION
+  validate_action_param "Uninstall MongoDB?" MONGODB_ACTION
+  validate_action_param "Uninstall IBM User Data Services?" UDS_ACTION
+  validate_action_param "Uninstall IBM Cert Manager?" CERT_MANAGER_ACTION
+  validate_action_param "Uninstall IBM Common Services?" COMMON_SERVICES_ACTION
+  validate_action_param "Uninstall IBM Catalogs?" IBM_CATALOGS_ACTION
+  validate_action_param "Uninstall Cluster Monitoring?" CLUSTER_MONITORING_ACTION
 }
 
 function review_uninstall_settings() {
@@ -133,29 +98,15 @@ function review_uninstall_settings() {
 
   reset_colors
   echo "${TEXT_DIM}"
-  echo_h2 "IBM Maximo Application Suite Dependencies" "    "
+  echo_h2 "MAS Dependencies" "    "
 
-  if [[ "${SLS_ACTION}" == "uninstall" ]]; then
-    echo_reset_dim "IBM Suite Licensing Service ..... ${COLOR_MAGENTA}${SLS_ACTION}"
-  fi
-  if [[ "${UDS_ACTION}" == "uninstall" ]]; then
-    echo_reset_dim "IBM User Data Services .......... ${COLOR_MAGENTA}${UDS_ACTION}"
-  fi
-  if [[ "${CERT_MANAGER_ACTION}" == "uninstall" ]]; then
-    echo_reset_dim "IBM Cert Manager ................ ${COLOR_MAGENTA}${CERT_MANAGER_ACTION}"
-  fi
-  if [[ "${COMMON_SERVICES_ACTION}" == "uninstall" ]]; then
-    echo_reset_dim "IBM Common Services ............. ${COLOR_MAGENTA}${COMMON_SERVICES_ACTION}"
-  fi
-  if [[ "${IBM_CATALOGS_ACTION}" == "uninstall" ]]; then
-    echo_reset_dim "IBM Catalogs .................... ${COLOR_MAGENTA}${IBM_CATALOGS_ACTION}"
-  fi
-  if [[ "${MONGODB_ACTION}" == "uninstall" ]]; then
-    echo_reset_dim "MongoDB ......................... ${COLOR_MAGENTA}${MONGODB_ACTION}"
-  fi
-  if [[ "${CLUSTER_MONITORING_ACTION}" == "uninstall" ]]; then
-    echo_reset_dim "Cluster Monitoring .............. ${COLOR_MAGENTA}${CLUSTER_MONITORING_ACTION}"
-  fi
+  echo_reset_dim "IBM Suite Licensing Service ..... Action: ${COLOR_MAGENTA}${SLS_ACTION}"
+  echo_reset_dim "IBM User Data Services .......... Action: ${COLOR_MAGENTA}${UDS_ACTION}"
+  echo_reset_dim "IBM Cert Manager ................ Action: ${COLOR_MAGENTA}${CERT_MANAGER_ACTION}"
+  echo_reset_dim "IBM Common Services ............. Action: ${COLOR_MAGENTA}${COMMON_SERVICES_ACTION}"
+  echo_reset_dim "IBM Catalogs .................... Action: ${COLOR_MAGENTA}${IBM_CATALOGS_ACTION}"
+  echo_reset_dim "MongoDB ......................... Action: ${COLOR_MAGENTA}${MONGODB_ACTION}"
+  echo_reset_dim "Cluster Monitoring .............. Action: ${COLOR_MAGENTA}${CLUSTER_MONITORING_ACTION}"
 
   echo
   reset_colors
