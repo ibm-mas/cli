@@ -67,7 +67,7 @@ spec:
   steps:
     - name: suite-uninstall
       command:
-        - /opt/app-root/src/run-role.sh
+        - /opt/app-root/src/run-playbook.sh
         - uninstall_core
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
