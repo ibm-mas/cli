@@ -25,6 +25,7 @@ nav:
     - 'mirror-images': commands/mirror-images.md
     - 'configure-airgap': commands/configure-airgap.md
     - 'install': commands/install.md
+    - 'configtool-oidc': commands/configtool-oidc.md
   - 'Catalogs':
     - 'Overview': catalogs/index.md
     - 'Jan 2023': catalogs/v8-230111-amd64.md
