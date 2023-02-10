@@ -10,11 +10,6 @@ spec:
     name: mas-uninstall
   serviceAccountName: pipeline
   timeout: {{'"{{ pipelinerun_timeout }}"'}}
-  workspaces:
-    # The generated configuration files
-    - name: shared-configs
-      persistentVolumeClaim:
-        claimName: config-pvc
   params:
     # Uninstall Parameters
 {% for uninstall_param in uninstall_params_definition.params %}
