@@ -18,9 +18,9 @@ spec:
       default: ''
       type: string
       description: Required to install development MAS catalogs
-    - name: dev_mode
+    - name: dev_mode_airgap
       type: string
-      description: When using development builds in air gap
+      description: Set when using development builds in air gap
       default: "False"
     - name: mas_catalog_version
       type: string
@@ -63,8 +63,8 @@ spec:
         value: $(params.artifactory_username)
       - name: ARTIFACTORY_APIKEY
         value: $(params.artifactory_apikey)
-      - name: DEV_MODE
-        value: $(params.dev_mode)
+      - name: DEV_MODE_AIRGAP
+        value: $(params.dev_mode_airgap)
 
       - name: MAS_CATALOG_VERSION
         value: $(params.mas_catalog_version)
