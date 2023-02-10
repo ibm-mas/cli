@@ -86,7 +86,7 @@ function uninstall() {
   echo "${TEXT_DIM}"
   echo_h2 "Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ..................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo "Namespace   ..................... ${COLOR_MAGENTA}${MAS_NS}"
+  echo_reset_dim "Namespace   ..................... ${COLOR_MAGENTA}${MAS_NS}"
 
   echo
   reset_colors

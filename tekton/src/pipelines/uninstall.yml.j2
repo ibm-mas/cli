@@ -9,9 +9,9 @@ spec:
     - name: shared-configs
 
   params:
-    # 1. Common Parameters
+    # 1. Uninstall Parameters
     # -------------------------------------------------------------------------
-    {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}
+    {{ lookup('template', params_src_dir ~ '/uninstall.yml.j2') | indent(4) }}
 
   tasks:
     - name: suite-uninstall

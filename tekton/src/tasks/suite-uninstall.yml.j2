@@ -69,7 +69,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - uninstall_core
-      image: quay.io/ibmmas/cli:3.12.0-pre.uninstall-pipeline
+      image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
 
