@@ -117,7 +117,7 @@ function review_uninstall_settings() {
 
 function launch_uninstall() {
   echo
-  echo_h2 "Launch Uninstall"
+  echo_h2 "4. Launch Uninstall"
 
   # Create namespace, install MAS Tekton definitions, configure RBAC
   pipeline_install_tasks || exit 1
