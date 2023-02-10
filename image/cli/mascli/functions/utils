@@ -139,8 +139,8 @@ function prompt_for_input(){
 }
 
 function check_project_exists(){
-  PROJECT_NAME=$1
-  oc get "project/$PROJECT_NAME" > /dev/null 2>&1
+  varname=$1
+  oc get "project/$varname" > /dev/null 2>&1
 
   if [ "$?" == "0" ]; then
     true

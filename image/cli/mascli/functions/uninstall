@@ -13,7 +13,8 @@ MAS Instance Selection (Required):
   -i, --id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}     MAS Instance ID to uninstall
 
 Other Commands:
-      --no-confirm                      Uninstall MAS without prompting for confirmation
+      --no-confirm                      Uninstall without prompting for confirmation
+  
   -h, --help                            Show this help message
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0
@@ -22,8 +23,10 @@ EOM
 function check_mas_ns_exists() {
   MAS_NS="mas-$MAS_INSTANCE_ID-core"
 
-  if check_project_exists $MAS_NS; then
-    echo "Found project $MAS_NS."
+  check_project_exists $MAS_NS
+
+  if [ "$?" == "0" ]; then
+    export MAS_NS
   else
     echo -e "${COLOR_RED}Error: The project \"${MAS_NS}\"${COLOR_RESET} does not exist.\n"
     exit 1
@@ -83,6 +86,7 @@ function uninstall() {
   echo "${TEXT_DIM}"
   echo_h2 "Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ..................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo "Namespace   ..................... ${COLOR_MAGENTA}${MAS_NS}"
 
   echo
   reset_colors

@@ -1,0 +1,12 @@
+# Uninstall Parameters
+# -------------------------------------------------------------------------
+# Tekton Pipeline image pull policy (for CLI & FVT images)
+- name: image_pull_policy
+  type: string
+  default: IfNotPresent
+  description: Pull policy for pipeline container images
+
+  # MAS Configuration
+- name: mas_instance_id
+  type: string
+  default: ""
