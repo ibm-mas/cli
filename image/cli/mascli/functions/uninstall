@@ -20,7 +20,7 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function check_mas_ns_exists() {
+function check_mas_project_exists() {
   MAS_NS="mas-$MAS_INSTANCE_ID-core"
 
   check_project_exists $MAS_NS
@@ -60,14 +60,10 @@ function uninstall_noninteractive() {
   [[ -z "$MAS_INSTANCE_ID" ]] && uninstall_help "MAS_INSTANCE_ID is not set"
 }
 
-function uninstall_interactive() {
-  echo
-  echo_h2 "Select IBM Maximo Application Suite Uninstall"
-
-  prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
-}
-
 function prompt_for_deps_to_uninstall() {
+  echo
+  echo_h2 "2. Set Dependencies for Uninstall"
+
   if [[ -z "${SLS_ACTION}" || "${SLS_ACTION}" != "none" || "${SLS_ACTION}" != "uninstall" ]]; then
     if prompt_for_confirm "Uninstall IBM Suite Licensing Service?"; then
       export SLS_ACTION="uninstall"
@@ -125,22 +121,10 @@ function prompt_for_deps_to_uninstall() {
   fi
 }
 
-function uninstall() {
-  # Take the first parameter off (it will be uninstall)
-  shift
-  if [[ $# -gt 0 ]]; then
-    uninstall_noninteractive "$@"
-  else
-    uninstall_interactive
-  fi
-
-  connect
-  check_mas_ns_exists
-  prompt_for_deps_to_uninstall
-
+function review_uninstall_settings() {
   echo
   reset_colors
-  echo_h2 "Review Settings"
+  echo_h2 "3. Review Settings"
 
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
@@ -178,7 +162,9 @@ function uninstall() {
   if [[ "$NO_CONFIRM" != "true" ]]; then
     prompt_for_confirm "Proceed with these settings" || exit 0
   fi
+}
 
+function launch_uninstall() {
   echo
   echo_h2 "Launch Uninstall"
 
@@ -193,4 +179,21 @@ function uninstall() {
   echo -e "${COLOR_GREEN}Uninstall started successfully${COLOR_RESET}"
   echo -e "\nView progress:\n  ${COLOR_CYAN}${TEXT_UNDERLINE}https://${OCP_CONSOLE_ROUTE}/pipelines/ns/mas-$MAS_INSTANCE_ID-pipelines${TEXT_RESET}${COLOR_RESET}"
   echo
+}
+
+function uninstall() {
+  connect
+
+  # Take the first parameter off (it will be uninstall)
+  shift
+  if [[ $# -gt 0 ]]; then
+    uninstall_noninteractive "$@"
+  else
+    prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
+  fi
+
+  check_mas_project_exists
+  prompt_for_deps_to_uninstall
+  review_uninstall_settings
+  launch_uninstall
 }

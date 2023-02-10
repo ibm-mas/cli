@@ -81,7 +81,6 @@ confirm_default_yes() {
   esac
 }
 
-
 function prompt_for_number(){
   msg=$1
   varname=$2
@@ -112,7 +111,6 @@ function prompt_for_number(){
   done
   printf -v "$varname" "%s" "$input"
 }
-
 
 function prompt_for_input(){
   msg=$1
@@ -148,7 +146,6 @@ function check_project_exists(){
     false
   fi
 }
-
 
 function prompt_for_confirm() {
   msg=$1
@@ -186,7 +183,6 @@ function prompt_for_confirm_default_yes() {
   fi
 }
 
-
 function update_ansible_collections() {
   if [[ "$UPDATE_ANSIBLE" == "true" || "$ANSIBLE_UPDATE" == "true" ]]; then
     if [[ "$DEV_MODE" == "true" ]]; then
@@ -201,7 +197,6 @@ function update_ansible_collections() {
     fi
   fi
 }
-
 
 function install_dependencies_ubuntu() {
   # APT package installations
@@ -241,4 +236,3 @@ function detect_sno() {
     unset SNO_MODE
   fi
 }
-
