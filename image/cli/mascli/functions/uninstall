@@ -92,13 +92,14 @@ function review_uninstall_settings() {
   echo_h2 "3. Review Settings"
 
   echo "${TEXT_DIM}"
-  echo_h2 "IBM Maximo Application Suite" "    "
+  echo_h2 "IBM Maximo Application Suite"
+
   echo_reset_dim "Instance ID ..................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "Namespace   ..................... ${COLOR_MAGENTA}${MAS_NS}"
 
   reset_colors
   echo "${TEXT_DIM}"
-  echo_h2 "MAS Dependencies" "    "
+  echo_h2 "MAS Dependencies"
 
   echo_reset_dim "IBM Suite Licensing Service ..... Action: ${COLOR_MAGENTA}${SLS_ACTION}"
   echo_reset_dim "IBM User Data Services .......... Action: ${COLOR_MAGENTA}${UDS_ACTION}"
