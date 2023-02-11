@@ -12,12 +12,24 @@ spec:
   tasks:
     - name: suite-uninstall
       params:
-        # Controls the image pull policy for the ibmmas/cli image
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        # Parameters that enable MongoDb results storage
         - name: mas_instance_id
           value: $(params.mas_instance_id)
+        - name: cluster_monitoring_action
+          value: $(params.cluster_monitoring_action)
+        - name: cert_manager_action
+          value: $(params.cert_manager_action)
+        - name: common_services_action
+          value: $(params.common_services_action)
+        - name: ibm_catalogs_action
+          value: $(params.ibm_catalogs_action)
+        - name: mongodb_action
+          value: $(params.mongodb_action)
+        - name: sls_action
+          value: $(params.sls_action)
+        - name: uds_action
+          value: $(params.uds_action)
       taskRef:
         kind: Task
         name: mas-devops-suite-uninstall

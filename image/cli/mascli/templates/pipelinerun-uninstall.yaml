@@ -15,7 +15,6 @@ spec:
   params:
     - name: mas_instance_id
       value: "$MAS_INSTANCE_ID"
-
     - name: cluster_monitoring_action
       value: "$CLUSTER_MONITORING_ACTION"
     - name: cert_manager_action
