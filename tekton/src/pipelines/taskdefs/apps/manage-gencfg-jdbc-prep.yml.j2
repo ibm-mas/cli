@@ -32,8 +32,8 @@
       operator: notin
       values: [""]
     - input: "$(params.configure_external_db)"
-      operator: notin
-      values: ["false"]  
+      operator: in
+      values: ["true"]  
   taskRef:
     name: mas-devops-gencfg-jdbc
     kind: Task
