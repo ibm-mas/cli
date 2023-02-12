@@ -112,8 +112,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - gencfg_jdbc
-      #image: quay.io/ibmmas/cli:$(params.cli_version)
-      image: quay.io/ibmmas/cli:3.11.0-pre.external-db-new
+      image: quay.io/ibmmas/cli:$(params.cli_version)
       imagePullPolicy: Always
       workingDir: /workspace/configs
 
