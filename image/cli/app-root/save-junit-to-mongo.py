@@ -36,6 +36,20 @@ if __name__ == "__main__":
     runId = f"{instanceId}:{build}"
     resultId = f"{instanceId}:{build}:{productId}:{suite}"
 
+    # Add logic to support upgrade test results with testtype ("upgrade") and testphase with values below
+    # "global": for global pipeline tasks to link the subpineline for upgrade test
+    #  install: all pipeline tasks under install phase
+    #  installtest: all pipeline tasks under installtest phase
+    #  upgrade: all pipeline tasks under upgrade phase
+    #  upgradetest: all pipeline tasks under upgrade validation phase
+    #  rollback: not used for this 8.10 release, and  all pipeline tasks under rollback phase in the future
+    #  rollbacktest: not used for this 8.10 release, and  all pipeline tasks under rollback phase in the future
+    if "TEST_TYPE" in os.environ and os.environ['TEST_TYPE'] != "" and "TEST_PHASE" in os.environ and os.environ['TEST_PHASE'] != "":
+        testtype = os.environ['TEST_TYPE']
+        testphase = os.environ['TEST_PHASE']
+        runId = f"{instanceId}:{testtype}:{testphase}:{build}"
+        resultId = f"{instanceId}:{testtype}:{testphase}:{build}:{productId}:{suite}"
+
     resultFiles = glob.glob(f'{junitOutputDir}/*.xml')
     for resultfile in resultFiles:
         try:
@@ -72,6 +86,12 @@ if __name__ == "__main__":
                 "channelId": channelId,
                 "version": version
             }
+            ### Add logic to add key in resultsV2 for upgrade test
+            if "TEST_TYPE" in os.environ and os.environ['TEST_TYPE'] != "" and "TEST_PHASE" in os.environ and os.environ['TEST_PHASE'] != "":
+                testtype = os.environ['TEST_TYPE']
+                testphase = os.environ['TEST_PHASE']
+                resultDoc["target"]["testtype"] = testtype
+                resultDoc["target"]["testphase"] = testphase
 
             # Look for existing summary document
             suiteSummary = {

@@ -1,0 +1,105 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-suite-app-install
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    # Pre-Release Support
+    - name: artifactory_username
+      default: ''
+      type: string
+      description: Required to use development MAS builds
+    - name: artifactory_apikey
+      default: ''
+      type: string
+      description: Required to use development MAS builds
+
+    # Entitlement
+    - name: ibm_entitlement_key
+      type: string
+    - name: mas_entitlement_username
+      type: string
+      default: ""
+    - name: mas_entitlement_key
+      type: string
+      default: ""
+      description: "Optional MAS-specific override for the IBM entitlement key"
+
+    # MAS Details
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+
+    # Application - Identifier
+    - name: mas_app_id
+      type: string
+      description: Maximo Applicaiton Suite Application Id
+
+    # Application - Operator
+    - name: mas_app_channel
+      type: string
+      description: Catalog channel for the application operator subscription
+
+    # Application - Operand
+    - name: mas_app_bindings_jdbc
+      default: ""
+      type: string
+    - name: mas_app_plan
+      type: string
+      description: Application installation plan
+      default: ""
+
+    # Custom Label Support
+    - name: custom_labels
+      type: string
+      description: Optional MAS custom labels, comma separated list of key=value pairs
+      default: ""
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      # Pre-Release Support
+      - name: ARTIFACTORY_USERNAME
+        value: $(params.artifactory_username)
+      - name: ARTIFACTORY_APIKEY
+        value: $(params.artifactory_apikey)
+
+      # Entitlement
+      - name: IBM_ENTITLEMENT_KEY
+        value: $(params.ibm_entitlement_key)
+      - name: MAS_ENTITLEMENT_USERNAME
+        value: $(params.mas_entitlement_username)
+      - name: MAS_ENTITLEMENT_KEY
+        value: $(params.mas_entitlement_key)
+
+      # MAS Details
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+
+      # Application - Identifier
+      - name: MAS_APP_ID
+        value: $(params.mas_app_id)
+
+      # Application - Operator
+      - name: MAS_APP_CHANNEL
+        value: $(params.mas_app_channel)
+
+      # Application - Operand
+      - name: MAS_APP_PLAN
+        value: $(params.mas_app_plan)
+
+      # Custom Label Support
+      - name: CUSTOM_LABELS
+        value: $(params.custom_labels)
+
+  steps:
+    - name: suite-app-install
+      command:
+        - /opt/app-root/src/run-role.sh
+        - suite_app_install
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)

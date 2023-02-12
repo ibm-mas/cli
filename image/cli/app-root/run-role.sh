@@ -4,10 +4,11 @@ if [ -e "/workspace/additional-configs" ]; then
   cp /workspace/additional-configs/* /workspace/configs/
 fi
 
-# Debug
 source /opt/app-root/src/env.sh
-oc whoami
-oc auth can-i --list
+
+# Useful for debugging permission issues
+# oc whoami
+# oc auth can-i --list
 
 export ROLE_NAME=$1
 ansible-playbook ibm.mas_devops.run_role

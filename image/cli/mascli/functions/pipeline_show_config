@@ -15,6 +15,8 @@ function pipeline_show_config() {
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ............... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "Workspace ID .............. ${COLOR_MAGENTA}${MAS_WORKSPACE_ID}"
+  echo_reset_dim "Workspace Name ............ ${COLOR_MAGENTA}${MAS_WORKSPACE_NAME}"
   if [[ "${MAS_DOMAIN}" != "" ]]; then
     echo_reset_dim "Domain Name ............... ${COLOR_MAGENTA}${MAS_DOMAIN}"
     echo_reset_dim "DNS Provider .............. ${COLOR_MAGENTA}${DNS_PROVIDER:-Manually configured}"
@@ -32,44 +34,44 @@ function pipeline_show_config() {
   echo_h2 "IBM Maximo Application Suite Applications" "    "
   if [[ "${MAS_APP_CHANNEL_IOT}" == '' ]]
   then echo_reset_dim "IoT ...................... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "IoT ...................... ${COLOR_MAGENTA}${MAS_APP_SOURCE_IOT}/${MAS_APP_CHANNEL_IOT}"
+  else echo_reset_dim "IoT ...................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_IOT}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_MONITOR}" == '' ]]
   then echo_reset_dim " - Monitor ............... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim " - Monitor ............... ${COLOR_MAGENTA}${MAS_APP_SOURCE_MONITOR}/${MAS_APP_CHANNEL_MONITOR}"
+  else echo_reset_dim " - Monitor ............... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_MONITOR}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_MANAGE}" == '' ]]
   then echo_reset_dim "Manage ................... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "Manage ................... ${COLOR_MAGENTA}${MAS_APP_SOURCE_MANAGE}/${MAS_APP_CHANNEL_MANAGE}"
+  else echo_reset_dim "Manage ................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_MANAGE} (${MAS_APPWS_BINDINGS_JDBC_MANAGE} JDBC Config)"
   fi
 
   if [[ "${MAS_APP_CHANNEL_PREDICT}" == '' ]]
   then echo_reset_dim " - Predict ............... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim " - Predict ............... ${COLOR_MAGENTA}${MAS_APP_SOURCE_PREDICT}/${MAS_APP_CHANNEL_PREDICT}"
+  else echo_reset_dim " - Predict ............... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_PREDICT}"
   fi
 
   if [[ "${MAS_CHANNEL}" == '8.8.x' ]]; then
     if [[ "${MAS_APP_CHANNEL_OPTIMIZER}" == '' ]]
     then echo_reset_dim "Optimizer ................ ${COLOR_RED}Skip Installation"
-    else echo_reset_dim "Optimizer ................ ${COLOR_MAGENTA}${MAS_APP_SOURCE_OPTIMIZER}/${MAS_APP_CHANNEL_OPTIMIZER} (${MAS_APP_PLAN_OPTIMIZER})"
+    else echo_reset_dim "Optimizer ................ ${COLOR_MAGENTA}${MAS_APP_CHANNEL_OPTIMIZER} (${MAS_APP_PLAN_OPTIMIZER})"
     fi
   fi
 
   if [[ "${MAS_APP_CHANNEL_HPUTILITIES}" == '' ]]
   then echo_reset_dim "H & P Utilities .......... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "H & P Utilities .......... ${COLOR_MAGENTA}${MAS_APP_SOURCE_HPUTILITIES}/${MAS_APP_CHANNEL_HPUTILITIES}"
+  else echo_reset_dim "H & P Utilities .......... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_HPUTILITIES}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_ASSIST}" == '' ]]
   then echo_reset_dim "Assist ................... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "Assist ................... ${COLOR_MAGENTA}${MAS_APP_SOURCE_ASSIST}/${MAS_APP_CHANNEL_ASSIST}"
+  else echo_reset_dim "Assist ................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_ASSIST}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_VISUALINSPECTION}" == '' ]]
   then echo_reset_dim "MVI ...................... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "MVI ...................... ${COLOR_MAGENTA}${MAS_APP_SOURCE_VISUALINSPECTION}/${MAS_APP_CHANNEL_VISUALINSPECTION}"
+  else echo_reset_dim "MVI ...................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_VISUALINSPECTION}"
   fi
 
   reset_colors
@@ -90,17 +92,31 @@ function pipeline_show_config() {
   echo_reset_dim "First Name ................ ${COLOR_MAGENTA}${UDS_CONTACT_FIRSTNAME}"
   echo_reset_dim "Last Name ................. ${COLOR_MAGENTA}${UDS_CONTACT_LASTNAME}"
 
-  reset_colors
-  echo "${TEXT_DIM}"
-  echo_h2 "IBM Cloud Pak Foundation Services" "    "
-  echo_reset_dim "Catalog Source ............ ${COLOR_MAGENTA}${COMMON_SERVICES_CATALOG_SOURCE}"
-
   if [[ "$DEPLOY_CP4D" == "run" ]]; then
     reset_colors
     echo "${TEXT_DIM}"
     echo_h2 "IBM Cloud Pak for Data" "    "
     echo_reset_dim "Entitlement Key ........... ${COLOR_MAGENTA}${IBM_ENTITLEMENT_KEY:0:8}<snip>"
     echo_reset_dim "Product Version ........... ${COLOR_MAGENTA}${CP4D_VERSION}"
+  fi
+
+  if [[ "$DB2_ACTION_SYSTEM" == "install" || "$DB2_ACTION_MANAGE" == "install" ]]; then
+    reset_colors
+    echo "${TEXT_DIM}"
+    echo_h2 "IBM Db2" "    "
+    echo_reset_dim "System Instance ........... ${COLOR_MAGENTA}${DB2_ACTION_SYSTEM}"
+    echo_reset_dim "Dedicated Manage Instance . ${COLOR_MAGENTA}${DB2_ACTION_MANAGE}"
+
+    echo_reset_dim "CPU Request ............... ${COLOR_MAGENTA}${DB2_CPU_REQUESTS:-Default}"
+    echo_reset_dim "CPU Limit ................. ${COLOR_MAGENTA}${DB2_CPU_LIMITS:-Default}"
+    echo_reset_dim "Memory Request ............ ${COLOR_MAGENTA}${DB2_MEMORY_REQUESTS:-Default}"
+    echo_reset_dim "Memory Limit .............. ${COLOR_MAGENTA}${DB2_MEMORY_LIMITS:-Default}"
+
+    echo_reset_dim "Meta Storage .............. ${COLOR_MAGENTA}${DB2_META_STORAGE_SIZE:-Default}"
+    echo_reset_dim "Data Storage .............. ${COLOR_MAGENTA}${DB2_DATA_STORAGE_SIZE:-Default}"
+    echo_reset_dim "Backup Storage ............ ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_SIZE:-Default}"
+    echo_reset_dim "Temp Storage .............. ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_SIZE:-Default}"
+    echo_reset_dim "Transaction Logs Storage .. ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_SIZE:-Default}"
   fi
 
   reset_colors

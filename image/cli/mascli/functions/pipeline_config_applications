@@ -167,14 +167,14 @@ function config_pipeline_applications() {
   echo
   echo_h2 "5. Application Selection"
   # Default all applications to "do not deploy"
-  MAS_APP_SOURCE_IOT='ibm-operator-catalog';              MAS_APP_CHANNEL_IOT=''
-  MAS_APP_SOURCE_MONITOR='ibm-operator-catalog';          MAS_APP_CHANNEL_MONITOR=''
-  MAS_APP_SOURCE_MANAGE='ibm-operator-catalog';           MAS_APP_CHANNEL_MANAGE=''
-  MAS_APP_SOURCE_PREDICT='ibm-operator-catalog';          MAS_APP_CHANNEL_PREDICT=''
-  MAS_APP_SOURCE_ASSIST='ibm-operator-catalog';           MAS_APP_CHANNEL_ASSIST=''
-  MAS_APP_SOURCE_HPUTILITIES='ibm-operator-catalog';      MAS_APP_CHANNEL_HPUTILITIES=''
-  MAS_APP_SOURCE_VISUALINSPECTION='ibm-operator-catalog'; MAS_APP_CHANNEL_VISUALINSPECTION=''
-  MAS_APP_SOURCE_OPTIMIZER='ibm-operator-catalog';        MAS_APP_CHANNEL_OPTIMIZER='';        MAS_APP_PLAN_OPTIMIZER=''
+  MAS_APP_CHANNEL_IOT=''
+  MAS_APP_CHANNEL_MONITOR=''
+  MAS_APP_CHANNEL_MANAGE=''
+  MAS_APP_CHANNEL_PREDICT=''
+  MAS_APP_CHANNEL_ASSIST=''
+  MAS_APP_CHANNEL_HPUTILITIES=''
+  MAS_APP_CHANNEL_VISUALINSPECTION=''
+  MAS_APP_CHANNEL_OPTIMIZER='';        MAS_APP_PLAN_OPTIMIZER=''
 
   if [[ "$SNO_MODE" != "true" ]]; then
     # Applications supported in air gap and online installs

@@ -1,0 +1,32 @@
+- hosts: localhost
+  any_errors_fatal: true
+  vars:
+    mas_tekton_version: latest
+
+    params_src_dir: src/params
+    params_tmp_dir: tmp
+
+    pipeline_src_dir: src/pipelines
+    pipeline_target_dir: target/pipelines
+  tasks:
+
+    # 1. Prepare tmp and target directory for the pipeline build
+    # -------------------------------------------------------------------------
+    - name: Create target directory
+      file:
+        path: "{{ pipeline_target_dir }}"
+        state: directory
+
+    # 2. Generate Pipelines
+    # -------------------------------------------------------------------------
+    - name: Generate Pipelines
+      ansible.builtin.template:
+        src: "{{ pipeline_src_dir }}/{{ item }}.yml.j2"
+        dest: "{{ pipeline_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - db2
+        - install
+        - install-with-fvt
+        - fvt-assist
+        - fvt-core
+        - upgrade

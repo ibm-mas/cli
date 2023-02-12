@@ -1,0 +1,72 @@
+- hosts: localhost
+  any_errors_fatal: true
+  vars:
+    mas_tekton_version: latest
+
+    task_src_dir: src/tasks
+    task_target_dir: target/tasks
+  tasks:
+
+    # 1. Prepare tmp and target directory for the tasks build
+    # -------------------------------------------------------------------------
+    - name: Create target directory
+      file:
+        path: "{{ task_target_dir }}"
+        state: directory
+
+
+    # 2. Generate Tasks (Dependencies)
+    # -------------------------------------------------------------------------
+    - name: Generate Tasks (Dependencies)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/dependencies/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - appconnect
+        - cert-manager
+        - cluster-monitoring
+        - common-services
+        - cos
+        - cp4d_service
+        - cp4d
+        - db2
+        - ibm-catalogs
+        - kafka
+        - mongodb
+        - nvidia-gpu
+        - sbo
+        - sls
+        - uds
+
+    # 2. Generate Tasks (FVT)
+    # -------------------------------------------------------------------------
+    - name: Generate Tasks (FVT)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/fvt/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - fvt-assist-desktop
+        - fvt-assist
+        - fvt-core
+        - fvt-core-ui
+        - fvt-run-suite
+
+
+    # 3. Generate Tasks (Suite)
+    # -------------------------------------------------------------------------
+    - name: Generate Tasks (Suite)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - gencfg-workspace
+        - suite-app-config
+        - suite-app-install
+        - suite-app-upgrade
+        - suite-config
+        - suite-db2-setup-for-manage
+        - suite-dns
+        - suite-install
+        - suite-mustgather
+        - suite-upgrade
+        - suite-verify
