@@ -1,0 +1,18 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: {{'"mas-uninstall-{{ devops_build_number if pipelinerun_name_suffix == \'\' else  (pipelinerun_name_suffix + \'-\' + devops_build_number) }}"'}}
+  labels:
+    tekton.dev/pipeline: mas-uninstall
+spec:
+  pipelineRef:
+    name: mas-uninstall
+  serviceAccountName: pipeline
+  timeout: {{'"{{ pipelinerun_timeout }}"'}}
+  params:
+    # Uninstall Parameters
+{% for uninstall_param in uninstall_params_definition.params %}
+    - name: {{ uninstall_param.name }}
+      value: {{'"{{ lookup(\'env\', \'' ~ uninstall_param.name | upper ~ '\') }}"'}}
+{% endfor %}

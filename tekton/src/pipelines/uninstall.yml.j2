@@ -1,0 +1,35 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-uninstall
+spec:
+  params:
+    # 1. Uninstall Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/uninstall.yml.j2') | indent(4) }}
+
+  tasks:
+    - name: suite-uninstall
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: cluster_monitoring_action
+          value: $(params.cluster_monitoring_action)
+        - name: cert_manager_action
+          value: $(params.cert_manager_action)
+        - name: common_services_action
+          value: $(params.common_services_action)
+        - name: ibm_catalogs_action
+          value: $(params.ibm_catalogs_action)
+        - name: mongodb_action
+          value: $(params.mongodb_action)
+        - name: sls_action
+          value: $(params.sls_action)
+        - name: uds_action
+          value: $(params.uds_action)
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-uninstall
