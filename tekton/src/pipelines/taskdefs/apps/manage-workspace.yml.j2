@@ -27,6 +27,10 @@
       value: $(params.mas_app_settings_db2_schema)
     - name: mas_appws_jdbc_binding
       value: $(params.mas_appws_jdbc_binding)
+
+    # Custom Label Support
+    - name: custom_labels
+      value: $(params.custom_labels)
   taskRef:
     name: mas-devops-suite-app-config
     kind: Task
