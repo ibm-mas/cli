@@ -92,6 +92,33 @@
   description: Set to 'system' if using the shared system JDBC configuration, or 'workspace-application' if using a dedicated JDBC configuration.
   default: ""
 
+# Dependencies - JDBC settings
+- name: configure_external_db
+  type: string
+  description: Boolean flag to indicate if external db will be used
+  default: "false"
+- name: db_instance_id
+  type: string
+  description: Database instance name identifier
+- name: mas_jdbc_user
+  type: string
+  description: JDBC user name
+- name: mas_jdbc_password
+  type: string
+  description: JDBC password
+- name: mas_jdbc_url
+  type: string
+  description: JDBC Connection string
+- name: ssl_enabled
+  type: string
+  description: Boolean flag to indicate if database server is SSL enabled
+- name: mas_jdbc_cert_local_file
+  type: string
+  description: Location for the database SSL Certificate
+- name: mas_config_scope
+  type: string
+  description: Database configuration scope. Supported values are `system`, `ws`, `app`, or `wsapp`
+
 # Dependencies - CP4D
 # -----------------------------------------------------------------------------
 - name: cpd_operators_namespace
@@ -244,6 +271,22 @@
 - name: mas_app_settings_demodata
   type: string
   description: Flag indicating if manage demodata should be loaded or not
+  default: ""
+- name: mas_app_settings_tablespace
+  type: string
+  description: Name of the Manage database tablespace
+  default: ""
+- name: mas_app_settings_indexspace
+  type: string
+  description: Name of the Manage database indexspace
+  default: ""
+- name: mas_app_settings_db2_schema
+  type: string
+  description: Name of the Manage database schema
+  default: ""
+- name: mas_appws_jdbc_binding
+  type: string
+  description: Application workspace JDBC binding
   default: ""
 
 # MAS Application Configuration - Optimizer Application
