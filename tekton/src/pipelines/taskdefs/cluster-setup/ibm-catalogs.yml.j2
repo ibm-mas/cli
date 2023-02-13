@@ -13,6 +13,8 @@
       value: $(params.artifactory_apikey)
     - name: dev_mode_airgap
       value: $(params.dev_mode_airgap)
+    - name: catalog_digest
+      value: $(params.catalog_digest)
   taskRef:
     kind: Task
     name: mas-devops-ibm-catalogs

@@ -26,6 +26,10 @@ spec:
       type: string
       description: Optional version of the IBM Maximo Operator Catalog to install
       default: "v8-amd64"
+    - name: catalog_digest
+      type: string
+      description: Set when using development catalog in air gap
+      default: ""
 
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
@@ -68,6 +72,8 @@ spec:
 
       - name: MAS_CATALOG_VERSION
         value: $(params.mas_catalog_version)
+      - name: CATALOG_DIGEST
+        value: $(params.catalog_digest)
 
       # Optional support built into the ansible-devops image
       # for saving task execution results to a MongoDb instance

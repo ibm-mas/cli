@@ -21,6 +21,8 @@ spec:
       value: '$ARTIFACTORY_APIKEY'
     - name: dev_mode_airgap
       value: '$DEV_MODE_AIRGAP'
+    - name: catalog_digest
+      value: '$CATALOG_DIGEST'
 
     # IBM Entitlement Key
     # -------------------------------------------------------------------------
