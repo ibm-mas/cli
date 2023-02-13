@@ -157,30 +157,30 @@ function pipeline_config() {
   echo ""
   if [[ "$DEV_MODE" == "true" && -z "$AIRGAP_MODE" ]]; then
     # Development Mode -- offer the ability to set MAS and SLS source independently
-    echo_h2 "9.1 Configure Artifactory"
+    echo_h2 "10.1 Configure Artifactory"
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
     prompt_for_input "Artifactory API Key" ARTIFACTORY_APIKEY
 
     echo
-    echo_h2 "9.2 Configure IBM Container Registry"
+    echo_h2 "10.2 Configure IBM Container Registry"
     prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
 
     echo
-    echo_h2 "9.3 Configure IBM Container Registry (MAS)"
+    echo_h2 "10.3 Configure IBM Container Registry (MAS)"
     prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
     prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com/cpopen override
     MAS_ENTITLEMENT_USERNAME=cp
     MAS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
 
     echo
-    echo_h2 "9.4 Configure IBM Container Registry (SLS)"
+    echo_h2 "10.4 Configure IBM Container Registry (SLS)"
     prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com/cpopen override
     SLS_ENTITLEMENT_USERNAME=cp
     SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
-    echo_h2 "9. Configure IBM Container Registry"
+    echo_h2 "10. Configure IBM Container Registry"
     prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
 
     # Use defaults

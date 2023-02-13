@@ -1,0 +1,45 @@
+#!/bin/bash
+
+function config_pipeline_customizations() {
+  echo
+  echo_h2 "5. Configure MAS Customizations"
+  if prompt_for_confirm "Configure MAS t-shirt size for workload scaling"; then
+    echo
+    echo -e "${COLOR_YELLOW}MAS t-shirt size:"
+    echo "  1. Small"
+    echo "  2. Medium (default)"
+    echo "  3. Large"
+    echo "  4. None (I will set up my own workload scaling ConfigMap)"
+    prompt_for_input "Select MAS t-shirt size" WORKLOAD_SCALING_SELECTION "2"
+
+    case $WORKLOAD_SCALING_SELECTION in
+      1|small)
+        MAS_CUSTOMIZE_SCALING="${MAS_INSTANCE_ID}-wl-cust-small"
+        ;;
+      2|medium)
+        MAS_CUSTOMIZE_SCALING="${MAS_INSTANCE_ID}-wl-cust-medium"
+        ;;
+      3|large)
+        MAS_CUSTOMIZE_SCALING="${MAS_INSTANCE_ID}-wl-cust-large"
+        ;;
+      4|none)
+        prompt_for_input "Custom Workload Scaling ConfigMap path:" WORKLOAD_SCALING_CONFIGMAP_PATH
+        MAS_CUSTOMIZE_SCALING=$(oc apply -f $WORKLOAD_SCALING_CONFIGMAP_PATH | awk '/configmap/ {print substr($1,11)}')        
+        if [ -z "$MAS_CUSTOMIZE_SCALING" ]; then
+          echo -e "${COLOR_RED}Input Error: Unable to create workload scaling configMap: \"${WORKLOAD_SCALING_CONFIGMAP_PATH}\"${COLOR_RESET}\n"          
+          exit 1
+        else
+          echo_h2 "Using workload scaling ConfigMap name: ${MAS_CUSTOMIZE_SCALING}"
+        fi
+        ;;
+      *)
+        echo_warning "Invalid selection"
+        exit 1
+        ;;
+    esac
+  else
+    echo_h2 "Using default medium size t-shirt size"
+    # User has chosen to do not specify the customization, then use default values
+    MAS_CUSTOMIZE_SCALING="${MAS_INSTANCE_ID}-wl-cust-medium"
+  fi
+}
