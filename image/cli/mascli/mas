@@ -10,6 +10,9 @@ function trap_exit {
   save_config
 }
 function trap_int {
+  # Reset any modifications made to the terminal
+  tset
+
   echo
   echo
   save_config
