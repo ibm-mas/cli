@@ -2,15 +2,15 @@
 
 function config_pipeline_customizations() {
   echo
-  echo_h2 "5. Configure MAS Customizations"
-  if prompt_for_confirm "Configure MAS t-shirt size for workload scaling"; then
+  echo_h2 "5. Configure Maximo Application Suite customizations"
+  if prompt_for_confirm "Configure size for workload scaling"; then
     echo
-    echo -e "${COLOR_YELLOW}MAS t-shirt size:"
+    echo -e "${COLOR_YELLOW}Workload scaling size:"
     echo "  1. Small"
     echo "  2. Medium (default)"
     echo "  3. Large"
     echo "  4. None (I will set up my own workload scaling ConfigMap)"
-    prompt_for_input "Select MAS t-shirt size" WORKLOAD_SCALING_SELECTION "2"
+    prompt_for_input "Select workload scaling size" WORKLOAD_SCALING_SELECTION "2"
 
     case $WORKLOAD_SCALING_SELECTION in
       1|small)

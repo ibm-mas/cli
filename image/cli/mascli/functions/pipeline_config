@@ -4,6 +4,7 @@
 . $DIR/functions/pipeline_config_applications
 . $DIR/functions/pipeline_config_db2
 . $DIR/functions/pipeline_config_dns
+. $DIR/functions/pipeline_config_customizations
 . $DIR/functions/pipeline_config_sno
 . $DIR/functions/pipeline_config_storage_classes
 . $DIR/functions/pipeline_config_storage_classes_sno
