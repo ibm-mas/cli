@@ -49,7 +49,7 @@ function echo_hr2() {
 # Prompt for confirmation to continue
 # -----------------------------------------------------------------------------
 confirm() {
-  read -r -p "${1:-Proceed? [y/N]} " response
+  read -r -p "${COLOR_YELLOW}${1:-Proceed? [y/N]} ${COLOR_MAGENTA}" response
   case "$response" in
     [yY][eE][sS]|[yY])
       export ALREADY_CONFIRMED="true"
@@ -65,7 +65,7 @@ confirm() {
 }
 
 confirm_default_yes() {
-  read -r -p "${1:-Proceed? [Y/n]} " response
+  read -r -p "${COLOR_YELLOW}${1:-Proceed? [Y/n]} ${COLOR_MAGENTA}" response
   case "$response" in
     [yY][eE][sS]|[yY])
       export ALREADY_CONFIRMED="true"
@@ -111,6 +111,32 @@ function prompt_for_number(){
   done
   printf -v "$varname" "%s" "$input"
 }
+
+function prompt_for_secret(){
+  msg=$1
+  varname=$2
+  # When override is set, the default provided in $3 will override the saved default
+  reuse_msg=$3
+
+  # Use the saved default
+  default=${!varname}
+
+  if [[ "${default}" != "" && "${reuse_msg}" != "" ]]; then
+    if ! confirm_default_yes "$reuse_msg [Y/n]"; then
+      input=$(/bin/systemd-ask-password "${COLOR_YELLOW}$msg ${COLOR_MAGENTA}> ")
+      echo -ne "${COLOR_RESET}\033[1K"
+      # https://stackoverflow.com/a/13717788
+      printf -v "$varname" "%s" "$input"
+    fi
+  else
+    input=$(/bin/systemd-ask-password "${COLOR_YELLOW}$msg ${COLOR_MAGENTA}> ")
+    echo -ne "${COLOR_RESET}\033[1K"
+    # https://stackoverflow.com/a/13717788
+    printf -v "$varname" "%s" "$input"
+  fi
+  echo -ne "${COLOR_RESET}\033[1K"
+}
+
 
 function prompt_for_input(){
   msg=$1

@@ -192,7 +192,7 @@ function pipeline_config() {
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
     echo_h2 "10. Configure IBM Container Registry"
-    prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
+    prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY "Re-use saved IBM Entitlement Key?"
 
     # Use defaults
     MAS_ICR_CP=cp.icr.io/cp

@@ -98,19 +98,11 @@ function provision_roks_noninteractive() {
 
 function provision_roks_interactive() {
 
-  if [[ -z "$IBMCLOUD_APIKEY" ]]; then
-    echo ""
-    echo_h2 "IBM Cloud API Key"
-    echo "Provide your IBMCloud API key (if you have not set the IBMCLOUD_APIKEY"
-    echo "environment variable) which will be used to provision a ROKS instance."
-    echo ""
-    prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY && export IBMCLOUD_APIKEY
-  else
-    prompt_for_confirm_default_yes "Re-use saved IBMCloud API Key Starting '${IBMCLOUD_APIKEY:0:8}'?" REUSE_IBMCLOUD_AUTH
-    if [[ "$REUSE_IBMCLOUD_AUTH" == "false" ]]; then
-      prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY && export IBMCLOUD_APIKEY
-    fi
-  fi
+  echo_h2 "IBM Cloud API Key"
+  echo "Provide your IBM Cloud API key (if you have not set the IBMCLOUD_APIKEY"
+  echo "environment variable) which will be used to provision a ROKS instance."
+  echo ""
+  prompt_for_secret "IBM Cloud API Key" IBMCLOUD_APIKEY "Re-use saved IBM Cloud API Key?" && export IBMCLOUD_APIKEY
 
   echo ""
   echo_h2 "IBM Cloud ROKS Cluster Configuration"
