@@ -150,6 +150,8 @@ function pipeline_config() {
   # It will be promoted to released versions once MAS 8.10 channel is available.
   if [[ -n "$DEV_MODE" ]]; then  
     config_pipeline_customizations
+  else
+    echo_h2 "Configure Maximo Application Suite customizations (to be released in MAS 8.10). Skiping..."
   fi
 
   config_pipeline_applications
