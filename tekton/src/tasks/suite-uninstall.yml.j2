@@ -1,0 +1,71 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-suite-uninstall
+spec:
+  params:
+    # Control the image pull policy for the CLI container image
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+    - name: mas_instance_id
+      type: string
+
+    # Optional parameters to uninstall dependencies
+    # -------------------------------------------------------------------------
+    - name: cluster_monitoring_action
+      type: string
+      description: Optional. Used to uninstall Cluster Monitoring
+      default: "none"
+    - name: cert_manager_action
+      type: string
+      description: Optional. Used to uninstall Cert Manager
+      default: "none"
+    - name: common_services_action
+      type: string
+      description: Optional. Used to uninstall IBM Common Services
+      default: "none"
+    - name: ibm_catalogs_action
+      type: string
+      description: Optional. Used to uninstall IBM Catalogs
+      default: "none"
+    - name: mongodb_action
+      type: string
+      description: Optional. Used to uninstall MongoDB
+      default: "none"
+    - name: sls_action
+      type: string
+      description: Optional. Used to uninstall SLS
+      default: "none"
+    - name: uds_action
+      type: string
+      description: Optional. Used to uninstall UDS
+      default: "none"
+
+  stepTemplate:
+    env:
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: CLUSTER_MONITORING_ACTION
+        value: $(params.cluster_monitoring_action)
+      - name: CERT_MANAGER_ACTION
+        value: $(params.cert_manager_action)
+      - name: COMMON_SERVICES_ACTION
+        value: $(params.common_services_action)
+      - name: IBM_CATALOGS_ACTION
+        value: $(params.ibm_catalogs_action)
+      - name: MONGODB_ACTION
+        value: $(params.mongodb_action)
+      - name: SLS_ACTION
+        value: $(params.sls_action)
+      - name: UDS_ACTION
+        value: $(params.uds_action)
+
+  steps:
+    - name: suite-uninstall
+      command:
+        - /opt/app-root/src/run-playbook.sh
+        - uninstall_core
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
