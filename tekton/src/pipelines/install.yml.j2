@@ -254,13 +254,17 @@ spec:
       runAfter:
         - suite-config-db2
 
-    # 9.2 Manage Install
+    # 9.2 Prepare database to Maxinst
+    {{ lookup('template', 'taskdefs/apps/manage-gencfg-jdbc-prep.yml.j2') | indent(4) }}
+
+    # 9.3 Manage Install
     {{ lookup('template', 'taskdefs/apps/manage-app.yml.j2') | indent(4) }}
       runAfter:
         - suite-db2-setup-system
         - suite-db2-setup-manage
+        - gencfg-jdbc
 
-    # 9.3 Configure Manage workspace
+    # 9.4 Configure Manage workspace
     {{ lookup('template', 'taskdefs/apps/manage-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-manage
