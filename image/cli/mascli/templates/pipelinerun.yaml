@@ -173,6 +173,9 @@ spec:
     - name: mas_cluster_issuer
       value: '$MAS_CLUSTER_ISSUER'
 
+    - name: mas_customize_scaling
+      value: '$MAS_CUSTOMIZE_SCALING'
+
     - name: mas_entitlement_username
       value: '$MAS_ENTITLEMENT_USERNAME'
     - name: mas_entitlement_key
