@@ -144,6 +144,7 @@ function pipeline_config() {
 
   config_pipeline_sno
   config_pipeline_dns
+  config_pipeline_customizations
   config_pipeline_applications
   config_pipeline_storage_db2
   config_pipeline_additional_configs
