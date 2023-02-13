@@ -38,7 +38,7 @@ function config_pipeline_customizations() {
         ;;
     esac
   else
-    echo_h2 "Using default medium size t-shirt size"
+    echo_h2 "Using default medium size workload scaling configuration"
     # User has chosen to do not specify the customization, then use default values
     MAS_CUSTOMIZE_SCALING="${MAS_INSTANCE_ID}-wl-cust-medium"
   fi

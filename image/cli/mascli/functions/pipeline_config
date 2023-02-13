@@ -145,7 +145,13 @@ function pipeline_config() {
 
   config_pipeline_sno
   config_pipeline_dns
-  config_pipeline_customizations
+  
+  # Workload Scaling is only available for dev_mode. 
+  # It will be promoted to released versions once MAS 8.10 channel is available.
+  if [[ -n "$DEV_MODE" ]]; then  
+    config_pipeline_customizations
+  fi
+
   config_pipeline_applications
   config_pipeline_storage_db2
   config_pipeline_additional_configs
