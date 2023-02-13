@@ -17,11 +17,12 @@ function connect() {
   fi
 
   if [[ $PROMPT_FOR_LOGIN == "true" ]]; then
-    read -e -p "$COLOR_YELLOW  Server URL ..... $COLOR_MAGENTA> " -i "$OCP_LOGIN_URL" OCP_LOGIN_URL
-    read -e -p "$COLOR_YELLOW  Login Token  ... $COLOR_MAGENTA> " -i "$OCP_LOGIN_TOKEN" OCP_LOGIN_TOKEN
+    prompt_for_input "Server URL" OCP_LOGIN_URL
+    prompt_for_secret "Login Token" OCP_LOGIN_TOKEN
+    prompt_for_confirm "Disable TLS Verify?" OCP_DISABLE_TLS_VERIFY
     echo -ne "${COLOR_RESET}\033[1K"
 
-    oc login --token=$OCP_LOGIN_TOKEN --server=$OCP_LOGIN_URL &>> $LOGFILE
+    oc login --token=$OCP_LOGIN_TOKEN --server=$OCP_LOGIN_URL --insecure-skip-tls-verify=$OCP_DISABLE_TLS_VERIFY &>> $LOGFILE
     if [[ $? != "0" ]]; then
       echo_warning "Login to $OCP_LOGIN_URL failed"
       exit 1
