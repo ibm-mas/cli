@@ -147,7 +147,7 @@ function pipeline_config() {
   All applications, add-ons, and solutions have 0 (zero) installation AppPoints in the non-production installations. 
   These specifications are also visible in the metrics that are shared with IBM® and on the product UI."
   
-  prompt_for_confirm_default_yes "Use Nonproduction Mode (dev/test environments)?" USE_NON_PROD_MODE
+  prompt_for_confirm "Use Nonproduction Mode?" USE_NON_PROD_MODE
   
   if [[ "$USE_NON_PROD_MODE" == "true" ]]; then
     MAS_ANNOTATIONS="mas.ibm.com/operationalMode=nonproduction"
