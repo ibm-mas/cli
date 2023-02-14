@@ -60,23 +60,6 @@ function uninstall_noninteractive() {
   [[ -z "$MAS_INSTANCE_ID" ]] && uninstall_help "MAS_INSTANCE_ID is not set"
 }
 
-function validate_action_param() {
-  msg=$1
-  action=$2
-
-  if [[ -z ${!action} ]] || [[ ${!action} != "none" ]] && [[ ${!action} != "uninstall" ]]; then
-    if [deps_prompt_conditions $action]; then
-      export $action="none"
-      return
-    fi
-    if prompt_for_confirm "$msg"; then
-      export $action="uninstall"
-    else
-      export $action="none"
-    fi
-  fi
-}
-
 # This function checks if dependencies are set to "uninstall" to avoid prompting
 # for it in subsequent functions
 function deps_prompt_conditions() {
@@ -122,6 +105,23 @@ function deps_prompt_conditions() {
     false
     ;;
   esac
+}
+
+function validate_action_param() {
+  msg=$1
+  action=$2
+
+  if [[ -z ${!action} ]] || [[ ${!action} != "none" ]] && [[ ${!action} != "uninstall" ]]; then
+    if [deps_prompt_conditions $action]; then
+      export $action="none"
+      return
+    fi
+    if prompt_for_confirm "$msg"; then
+      export $action="uninstall"
+    else
+      export $action="none"
+    fi
+  fi
 }
 
 function prompt_for_deps_to_uninstall() {
