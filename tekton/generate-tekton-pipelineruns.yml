@@ -33,7 +33,6 @@
       ansible.builtin.template:
         src: "src/utils/params-to-dict.yml.j2"
         dest: "{{ params_tmp_dir }}/{{ item }}.yml"
-        mode: preserve
       with_items:
         - common
         - fvt
@@ -47,7 +46,6 @@
       ansible.builtin.include_vars:
         file: "{{ params_tmp_dir }}/{{ item }}.yml"
         name: "{{ item }}_params_definition"
-        mode: preserve
       with_items:
         - common
         - fvt
@@ -63,7 +61,6 @@
       ansible.builtin.template:
         src: "{{ pipelinerun_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ pipelinerun_target_dir }}/{{ item }}.yml.j2"
-        mode: preserve
       with_items:
         - fvt-core
         - install-with-fvt

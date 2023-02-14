@@ -41,7 +41,6 @@
       ansible.builtin.template:
         src: "src/utils/params-to-dict.yml.j2"
         dest: "{{ params_tmp_dir }}/{{ item }}.yml"
-        mode: preserve
       with_items:
         - common
         - fvt
@@ -90,7 +89,6 @@
       ansible.builtin.template:
         src: "src/utils/params-to-dict.yml.j2"
         dest: "{{ params_tmp_dir }}/{{ item }}.yml"
-        mode: preserve
       with_items:
         - upgrade-test
 
@@ -108,7 +106,6 @@
       ansible.builtin.template:
         src: "{{ pipeline_src_dir }}/upgrade-with-fvt.yml.j2"
         dest: "{{ pipeline_target_dir }}/upgrade-with-fvt.yaml"
-        mode: preserve
 
     # 8. Generate Upgrade Test PipelineRun template
     # -------------------------------------------------------------------------
@@ -116,7 +113,6 @@
       ansible.builtin.template:
         src: "{{ pipelinerun_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ pipelinerun_target_dir }}/{{ item }}.yml.j2"
-        mode: preserve
       with_items:
         - upgrade-with-fvt
 
@@ -127,7 +123,6 @@
       ansible.builtin.template:
         src: "{{ task_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
-        mode: preserve
       with_items:
         - fvt-install-run-pipeline
         - fvt-run-pipeline

@@ -24,7 +24,6 @@
       ansible.builtin.template:
         src: "{{ pipeline_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ pipeline_target_dir }}/{{ item }}.yaml"
-        mode: preserve
       with_items:
         - db2
         - install
