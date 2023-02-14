@@ -84,12 +84,6 @@ spec:
       description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
       default: ""
 
-    # Optional parameter to uninstall SLS
-    - name: sls_action
-      type: string
-      description: Optional. Used to uninstall SLS
-      default: "none"
-
   stepTemplate:
     env:
       - name: MAS_CONFIG_DIR
@@ -139,10 +133,6 @@ spec:
         value: $(params.test_type)
       - name: TEST_PHASE
         value: $(params.test_phase)
-
-      # Optional parameter to uninstall SLS
-      - name: SLS_ACTION
-        value: $(params.sls_action)
 
   steps:
     - name: sls

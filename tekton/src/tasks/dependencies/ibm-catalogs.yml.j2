@@ -53,12 +53,6 @@ spec:
       description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
       default: ""
 
-    # Optional parameter to uninstall IBM Catalogs
-    - name: ibm_catalogs_action
-      type: string
-      description: Optional. Used to uninstall IBM Catalogs
-      default: "none"
-
   stepTemplate:
     env:
       - name: ARTIFACTORY_USERNAME
@@ -85,10 +79,6 @@ spec:
         value: $(params.test_type)
       - name: TEST_PHASE
         value: $(params.test_phase)
-
-      # Optional parameter to uninstall IBM Catalogs
-      - name: IBM_CATALOGS_ACTION
-        value: $(params.ibm_catalogs_action)
 
   steps:
     - name: ibm-catalogs

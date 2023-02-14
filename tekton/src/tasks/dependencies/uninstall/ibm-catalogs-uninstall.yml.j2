@@ -1,0 +1,32 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-ibm-catalogs-uninstall
+spec:
+  params:
+    # Control the image pull policy for the CLI container image
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+
+    # Optional parameter to uninstall IBM Catalogs
+    - name: ibm_catalogs_action
+      type: string
+      description: Optional. Used to uninstall IBM Catalogs
+      default: "none"
+
+  stepTemplate:
+    env:
+      # Optional parameter to uninstall IBM Catalogs
+      - name: IBM_CATALOGS_ACTION
+        value: $(params.ibm_catalogs_action)
+
+  steps:
+    - name: ibm-catalogs
+      command:
+        - /opt/app-root/src/run-role.sh
+        - ibm_catalogs
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/configs

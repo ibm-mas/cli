@@ -1,0 +1,32 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-cert-manager-uninstall
+spec:
+  params:
+    # Control the image pull policy for the CLI container image
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+
+    # Optional parameter to uninstall Cert Manager
+    - name: cert_manager_action
+      type: string
+      description: Optional. Used to uninstall Cert Manager
+      default: "none"
+
+  stepTemplate:
+    env:
+      # Optional parameter to uninstall Cert Manager
+      - name: CERT_MANAGER_ACTION
+        value: $(params.cert_manager_action)
+
+  steps:
+    - name: cert-manager
+      command:
+        - /opt/app-root/src/run-role.sh
+        - cert_manager
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/configs

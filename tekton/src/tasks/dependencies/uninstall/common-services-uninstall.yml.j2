@@ -1,0 +1,32 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-common-services-uninstall
+spec:
+  params:
+    # Control the image pull policy for the CLI container image
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+
+    # Optional parameter to uninstall Common Services
+    - name: common_services_action
+      type: string
+      description: Optional. Used to uninstall IBM Common Services
+      default: "none"
+
+  stepTemplate:
+    env:
+      # Optional parameter to uninstall Common Services
+      - name: COMMON_SERVICES_ACTION
+        value: $(params.common_services_action)
+
+  steps:
+    - name: common-services
+      command:
+        - /opt/app-root/src/run-role.sh
+        - common_services
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/configs

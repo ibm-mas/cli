@@ -1,0 +1,32 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-mongodb-uninstall
+spec:
+  params:
+    # Control the image pull policy for the CLI container image
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+
+    # Optional parameter to uninstall MongoDB
+    - name: mongodb_action
+      type: string
+      description: Optional. Used to uninstall MongoDB
+      default: "none"
+
+  stepTemplate:
+    env:
+      # Optional parameter to uninstall MongoDB
+      - name: MONGODB_ACTION
+        value: $(params.mongodb_action)
+
+  steps:
+    - name: mongodb
+      command:
+        - /opt/app-root/src/run-role.sh
+        - mongodb
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/configs

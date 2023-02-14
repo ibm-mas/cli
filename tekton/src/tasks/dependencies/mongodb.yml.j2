@@ -60,12 +60,6 @@ spec:
       description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
       default: ""
 
-    # Optional parameter to uninstall MongoDB
-    - name: mongodb_action
-      type: string
-      description: Optional. Used to uninstall MongoDB
-      default: "none"
-
   stepTemplate:
     env:
       - name: MAS_CONFIG_DIR
@@ -99,10 +93,6 @@ spec:
         value: $(params.test_type)
       - name: TEST_PHASE
         value: $(params.test_phase)
-
-      # Optional parameter to uninstall MongoDB
-      - name: MONGODB_ACTION
-        value: $(params.mongodb_action)
 
   steps:
     - name: mongodb

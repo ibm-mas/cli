@@ -22,7 +22,7 @@ spec:
     # 8. Uninstall IBM Catalogs
 
     # 1. Uninstall IBM Maximo Application Suite
-    - name: suite-uninstall
+    - name: uninstall-suite
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -33,7 +33,7 @@ spec:
         name: mas-devops-suite-uninstall
 
     # 2. Uninstall IBM User Data Services
-    - name: uds-uninstall
+    - name: uninstall-uds
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -41,16 +41,16 @@ spec:
           value: $(params.uds_action)
       taskRef:
         kind: Task
-        name: mas-devops-uds
+        name: mas-devops-uds-uninstall
       when:
         - input: "$(params.uds_action)"
           operator: in
           values: ["uninstall"]
       runAfter:
-        - suite-uninstall
+        - uninstall-suite
 
     # 3. Uninstall IBM Suite Licensing Service
-    - name: sls-uninstall
+    - name: uninstall-sls
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -58,16 +58,16 @@ spec:
           value: $(params.sls_action)
       taskRef:
         kind: Task
-        name: mas-devops-sls
+        name: mas-devops-sls-uninstall
       when:
         - input: "$(params.sls_action)"
           operator: in
           values: ["uninstall"]
       runAfter:
-        - uds-uninstall
+        - uninstall-uds
 
     # 4. Uninstall MongoDB
-    - name: mongodb-uninstall
+    - name: uninstall-mongodb
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -75,16 +75,16 @@ spec:
           value: $(params.mongodb_action)
       taskRef:
         kind: Task
-        name: mas-devops-mongodb
+        name: mas-devops-mongodb-uninstall
       when:
         - input: "$(params.mongodb_action)"
           operator: in
           values: ["uninstall"]
       runAfter:
-        - sls-uninstall
+        - uninstall-sls
 
     # 5. Uninstall Cluster Monitoring
-    - name: cluster-monitoring-uninstall
+    - name: uninstall-cluster-monitoring
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -92,16 +92,16 @@ spec:
           value: $(params.cluster_monitoring_action)
       taskRef:
         kind: Task
-        name: mas-devops-cluster-monitoring
+        name: mas-devops-cluster-monitoring-uninstall
       when:
         - input: "$(params.cluster_monitoring_action)"
           operator: in
           values: ["uninstall"]
       runAfter:
-        - mongodb-uninstall
+        - uninstall-mongodb
 
     # 6. Uninstall IBM Cert Manager
-    - name: cert-manager-uninstall
+    - name: uninstall-cert-manager
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -109,16 +109,16 @@ spec:
           value: $(params.cert_manager_action)
       taskRef:
         kind: Task
-        name: mas-devops-cert-manager
+        name: mas-devops-cert-manager-uninstall
       when:
         - input: "$(params.cert_manager_action)"
           operator: in
           values: ["uninstall"]
       runAfter:
-        - cluster-monitoring-uninstall
+        - uninstall-cluster-monitoring
 
     # 7. Uninstall IBM Common Services
-    - name: common-services-uninstall
+    - name: uninstall-common-services
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -126,16 +126,16 @@ spec:
           value: $(params.common_services_action)
       taskRef:
         kind: Task
-        name: mas-devops-common-services
+        name: mas-devops-common-services-uninstall
       when:
         - input: "$(params.common_services_action)"
           operator: in
           values: ["uninstall"]
       runAfter:
-        - cert-manager-uninstall
+        - uninstall-cert-manager
 
     # 8. Uninstall IBM Catalogs
-    - name: ibm-catalogs-uninstall
+    - name: uninstall-ibm-catalogs
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -143,10 +143,10 @@ spec:
           value: $(params.ibm_catalogs_action)
       taskRef:
         kind: Task
-        name: mas-devops-ibm-catalogs
+        name: mas-devops-ibm-catalogs-uninstall
       when:
         - input: "$(params.ibm_catalogs_action)"
           operator: in
           values: ["uninstall"]
       runAfter:
-        - common-services-uninstall
+        - uninstall-common-services

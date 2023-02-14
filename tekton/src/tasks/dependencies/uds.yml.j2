@@ -62,12 +62,6 @@ spec:
       description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
       default: ""
 
-    # Optional parameter to uninstall UDS
-    - name: uds_action
-      type: string
-      description: Optional. Used to uninstall UDS
-      default: "none"
-
   stepTemplate:
     env:
       # Properties for generating a MAS configuration
@@ -106,10 +100,6 @@ spec:
         value: $(params.test_type)
       - name: TEST_PHASE
         value: $(params.test_phase)
-
-      # Optional parameter to uninstall UDS
-      - name: UDS_ACTION
-        value: $(params.uds_action)
 
   steps:
     - name: uds
