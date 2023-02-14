@@ -21,6 +21,7 @@
       ansible.builtin.template:
         src: "{{ task_src_dir }}/dependencies/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
+        mode: preserve
       with_items:
         - appconnect
         - cert-manager
@@ -38,12 +39,13 @@
         - sls
         - uds
 
-    # 3. Generate Tasks (Dependencies)
+    # 3. Generate Uninstall Tasks (Dependencies)
     # -------------------------------------------------------------------------
     - name: Generate Uninstall Tasks (Dependencies)
       ansible.builtin.template:
         src: "{{ task_src_dir }}/dependencies/uninstall/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
+        mode: preserve
       with_items:
         - cert-manager-uninstall
         - cluster-monitoring-uninstall
@@ -59,6 +61,7 @@
       ansible.builtin.template:
         src: "{{ task_src_dir }}/fvt/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
+        mode: preserve
       with_items:
         - fvt-assist-desktop
         - fvt-assist
@@ -72,6 +75,7 @@
       ansible.builtin.template:
         src: "{{ task_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
+        mode: preserve
       with_items:
         - gencfg-workspace
         - suite-app-config

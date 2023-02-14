@@ -1,4 +1,5 @@
-- hosts: localhost
+- name: Generate Tekton PipelineRuns
+  hosts: localhost
   any_errors_fatal: true
   vars:
     mas_tekton_version: latest
@@ -15,14 +16,13 @@
     # 1. Prepare tmp and target directory for the pipeline build
     # -------------------------------------------------------------------------
     - name: Create tmp directory
-      file:
+      ansible.builtin.file:
         path: "{{ params_tmp_dir }}"
         state: directory
     - name: Create target directory
-      file:
+      ansible.builtin.file:
         path: "{{ pipelinerun_target_dir }}"
         state: directory
-
 
     # 2. Load parameter lists into Ansible variables
     # -------------------------------------------------------------------------
@@ -33,6 +33,7 @@
       ansible.builtin.template:
         src: "src/utils/params-to-dict.yml.j2"
         dest: "{{ params_tmp_dir }}/{{ item }}.yml"
+        mode: preserve
       with_items:
         - common
         - fvt
@@ -43,9 +44,10 @@
         - upgrade
 
     - name: "Load intermediate files to variables"
-      include_vars:
+      ansible.builtin.include_vars:
         file: "{{ params_tmp_dir }}/{{ item }}.yml"
         name: "{{ item }}_params_definition"
+        mode: preserve
       with_items:
         - common
         - fvt
@@ -55,13 +57,13 @@
         - uninstall
         - upgrade
 
-
     # 3. Generate PipelineRun templates
     # -------------------------------------------------------------------------
     - name: Generate install PipelineRun templates
       ansible.builtin.template:
         src: "{{ pipelinerun_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ pipelinerun_target_dir }}/{{ item }}.yml.j2"
+        mode: preserve
       with_items:
         - fvt-core
         - install-with-fvt

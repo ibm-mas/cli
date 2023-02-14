@@ -1,4 +1,5 @@
-- hosts: localhost
+- name: Generate Tekton Upgrade with FVT
+  hosts: localhost
   any_errors_fatal: true
   vars:
     mas_tekton_version: latest
@@ -16,23 +17,22 @@
     task_target_dir: target/tasks
   tasks:
 
-    # 0. Prepare tmp and target directory for the pipeline build
+    # 1. Prepare tmp and target directory for the pipeline build
     # -------------------------------------------------------------------------
     - name: Create tmp directory
-      file:
+      ansible.builtin.file:
         path: "{{ params_tmp_dir }}"
         state: directory
     - name: Create target directory (pipelines)
-      file:
+      ansible.builtin.file:
         path: "{{ pipeline_target_dir }}"
         state: directory
     - name: Create target directory (tasks)
-      file:
+      ansible.builtin.file:
         path: "{{ task_target_dir }}"
         state: directory
 
-
-    # 1. Load parameter lists into Ansible variables
+    # 2. Load parameter lists into Ansible variables
     # -------------------------------------------------------------------------
     # This could be done in one step, but using a template lookup, but generating
     # the intermediate files and processing this in two steps allows for easier
@@ -41,6 +41,7 @@
       ansible.builtin.template:
         src: "src/utils/params-to-dict.yml.j2"
         dest: "{{ params_tmp_dir }}/{{ item }}.yml"
+        mode: preserve
       with_items:
         - common
         - fvt
@@ -50,7 +51,7 @@
         - upgrade
 
     - name: "Load intermediate files to variables"
-      include_vars:
+      ansible.builtin.include_vars:
         file: "{{ params_tmp_dir }}/{{ item }}.yml"
         name: "{{ item }}_params_definition"
       with_items:
@@ -61,15 +62,13 @@
         - install
         - upgrade
 
-
-    # 2. Combine common + install + fvt + upgrade lists for upgrade-with-fvt
+    # 3. Combine common + install + fvt + upgrade lists for upgrade-with-fvt
     # -------------------------------------------------------------------------
     - name: "Load upgrade-test raw parameters list into a variable"
       ansible.builtin.set_fact:
         upgrade_test_raw_params_definition: "{{ common_params_definition.params + install_params_definition.params + fvt_params_definition.params + upgrade_params_definition.params }}"
 
-
-    # 3. Load Source & Target Upgrade Test attributes
+    # 4. Load Source & Target Upgrade Test attributes
     # -------------------------------------------------------------------------
     # Used to rename from/to parameters properly in upgrade-test pipeline
     - name: "Load source target parameters"
@@ -77,8 +76,7 @@
         params_source_target_list: "{{ params_source_target_list | default([]) + [item] }}"
       with_lines: cat "{{ params_src_dir }}/upgrade-test-helper/source-target.txt"
 
-
-    # 4. Not sure what this means
+    # 5. Not sure what this means
     # -------------------------------------------------------------------------
     # Run-pipeline task parameters that should not be created in run-pipeline/taskdefs because they will be manually set
     - name: "Load manual setting run-pipeline parameters"
@@ -86,50 +84,50 @@
         param_manual_setting_list: "{{ param_manual_setting_list | default([]) + [item] }}"
       with_lines: cat "{{ pipeline_src_dir }}/taskdefs/run-pipeline/manual-setting.txt"
 
-
-    # 5. Load parameter list for upgrade-with-fvt into Ansible variables
+    # 6. Load parameter list for upgrade-with-fvt into Ansible variables
     # -------------------------------------------------------------------------
     - name: "Generate intermediate files"
       ansible.builtin.template:
         src: "src/utils/params-to-dict.yml.j2"
         dest: "{{ params_tmp_dir }}/{{ item }}.yml"
+        mode: preserve
       with_items:
         - upgrade-test
 
     - name: "Load intermediate files to variables"
-      include_vars:
+      ansible.builtin.include_vars:
         file: "{{ params_tmp_dir }}/{{ item }}.yml"
         name: "{{ item }}_params_definition"
       with_items:
         - upgrade-test
 
-
-    # 6. Generate Upgrade Test Pipeline
+    # 7. Generate Upgrade Test Pipeline
     # -------------------------------------------------------------------------
     # This pipeline requires the upgrade_test_raw_params_definition variable generated in step 1.5
     - name: Generate Upgrade Test Pipeline
       ansible.builtin.template:
         src: "{{ pipeline_src_dir }}/upgrade-with-fvt.yml.j2"
         dest: "{{ pipeline_target_dir }}/upgrade-with-fvt.yaml"
+        mode: preserve
 
-
-    # 7. Generate Upgrade Test PipelineRun template
+    # 8. Generate Upgrade Test PipelineRun template
     # -------------------------------------------------------------------------
     - name: Generate install PipelineRun template
       ansible.builtin.template:
         src: "{{ pipelinerun_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ pipelinerun_target_dir }}/{{ item }}.yml.j2"
+        mode: preserve
       with_items:
         - upgrade-with-fvt
 
-
-    # 8. Generate Upgrade Test Tasks
+    # 9. Generate Upgrade Test Tasks
     # -------------------------------------------------------------------------
     # These tasks require the *_params_definition variables generated in step 1.1 - 1.4
     - name: "Generate Tasks"
       ansible.builtin.template:
         src: "{{ task_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
+        mode: preserve
       with_items:
         - fvt-install-run-pipeline
         - fvt-run-pipeline
