@@ -21,10 +21,13 @@ spec:
 
     - name: sls_license_id
       type: string
+      default: ""
     - name: sls_license_file
       type: string
+      default: ""
     - name: sls_mongodb_cfg_file
       type: string
+      default: ""
     - name: sls_catalog_source
       type: string
       default: ""
@@ -44,6 +47,7 @@ spec:
       default: ""
     - name: ibm_entitlement_key
       type: string
+      default: ""
     - name: sls_entitlement_key
       type: string
       default: ""
@@ -83,6 +87,12 @@ spec:
       type: string
       description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
       default: ""
+
+    # Optional parameter to uninstall SLS
+    - name: sls_action
+      type: string
+      description: Optional. Used to uninstall SLS
+      default: "none"
 
   stepTemplate:
     env:
@@ -133,6 +143,10 @@ spec:
         value: $(params.test_type)
       - name: TEST_PHASE
         value: $(params.test_phase)
+
+      # Optional parameter to uninstall SLS
+      - name: SLS_ACTION
+        value: $(params.sls_action)
 
   steps:
     - name: sls

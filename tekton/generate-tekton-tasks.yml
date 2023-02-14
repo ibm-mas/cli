@@ -38,22 +38,7 @@
         - sls
         - uds
 
-    # 3. Generate Uninstall Tasks (Dependencies)
-    # -------------------------------------------------------------------------
-    - name: Generate Uninstall Tasks (Dependencies)
-      ansible.builtin.template:
-        src: "{{ task_src_dir }}/dependencies/uninstall/{{ item }}.yml.j2"
-        dest: "{{ task_target_dir }}/{{ item }}.yaml"
-      with_items:
-        - cert-manager-uninstall
-        - cluster-monitoring-uninstall
-        - common-services-uninstall
-        - ibm-catalogs-uninstall
-        - mongodb-uninstall
-        - sls-uninstall
-        - uds-uninstall
-
-    # 4. Generate Tasks (FVT)
+    # 3. Generate Tasks (FVT)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (FVT)
       ansible.builtin.template:
@@ -66,7 +51,7 @@
         - fvt-core-ui
         - fvt-run-suite
 
-    # 5. Generate Tasks (Suite)
+    # 4. Generate Tasks (Suite)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (Suite)
       ansible.builtin.template:

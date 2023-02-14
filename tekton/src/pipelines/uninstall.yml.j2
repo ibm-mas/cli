@@ -41,7 +41,7 @@ spec:
           value: $(params.uds_action)
       taskRef:
         kind: Task
-        name: mas-devops-uds-uninstall
+        name: mas-devops-uds
       when:
         - input: "$(params.uds_action)"
           operator: in
@@ -58,7 +58,7 @@ spec:
           value: $(params.sls_action)
       taskRef:
         kind: Task
-        name: mas-devops-sls-uninstall
+        name: mas-devops-sls
       when:
         - input: "$(params.sls_action)"
           operator: in
@@ -75,7 +75,7 @@ spec:
           value: $(params.mongodb_action)
       taskRef:
         kind: Task
-        name: mas-devops-mongodb-uninstall
+        name: mas-devops-mongodb
       when:
         - input: "$(params.mongodb_action)"
           operator: in
@@ -92,7 +92,7 @@ spec:
           value: $(params.cluster_monitoring_action)
       taskRef:
         kind: Task
-        name: mas-devops-cluster-monitoring-uninstall
+        name: mas-devops-cluster-monitoring
       when:
         - input: "$(params.cluster_monitoring_action)"
           operator: in
@@ -109,7 +109,7 @@ spec:
           value: $(params.cert_manager_action)
       taskRef:
         kind: Task
-        name: mas-devops-cert-manager-uninstall
+        name: mas-devops-cert-manager
       when:
         - input: "$(params.cert_manager_action)"
           operator: in
@@ -126,7 +126,7 @@ spec:
           value: $(params.common_services_action)
       taskRef:
         kind: Task
-        name: mas-devops-common-services-uninstall
+        name: mas-devops-common-services
       when:
         - input: "$(params.common_services_action)"
           operator: in
@@ -143,7 +143,7 @@ spec:
           value: $(params.ibm_catalogs_action)
       taskRef:
         kind: Task
-        name: mas-devops-ibm-catalogs-uninstall
+        name: mas-devops-ibm-catalogs
       when:
         - input: "$(params.ibm_catalogs_action)"
           operator: in
