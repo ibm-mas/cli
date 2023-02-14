@@ -37,6 +37,12 @@ spec:
       description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
       default: ""
 
+    # Optional parameter to uninstall Common Services
+    - name: common_services_action
+      type: string
+      description: Optional. Used to uninstall IBM Common Services
+      default: "none"
+
   stepTemplate:
     env:
       # Optional support built into the ansible-devops image
@@ -55,6 +61,10 @@ spec:
         value: $(params.test_type)
       - name: TEST_PHASE
         value: $(params.test_phase)
+
+      # Optional parameter to uninstall Common Services
+      - name: COMMON_SERVICES_ACTION
+        value: $(params.common_services_action)
 
   steps:
     - name: common-services

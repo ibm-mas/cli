@@ -50,11 +50,11 @@ spec:
       description: "Optional SLS-specific override for the IBM entitlement key"
 
     - name: artifactory_username
-      default: ''
+      default: ""
       type: string
       description: Required to use development MAS builds
     - name: artifactory_apikey
-      default: ''
+      default: ""
       type: string
       description: Required to use development MAS builds
 
@@ -72,7 +72,7 @@ spec:
       type: string
       description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
       default: ""
-    
+
     # Optional parameters to categorize result to be persisted
     # -------------------------------------------------------------------------
     - name: test_type
@@ -83,6 +83,12 @@ spec:
       type: string
       description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
       default: ""
+
+    # Optional parameter to uninstall SLS
+    - name: sls_action
+      type: string
+      description: Optional. Used to uninstall SLS
+      default: "none"
 
   stepTemplate:
     env:
@@ -127,12 +133,16 @@ spec:
         value: $(params.devops_suite_name)
       - name: DEVOPS_BUILD_NUMBER
         value: $(params.devops_build_number)
-      
+
       # Optional parameters to categorize result to be persisted
       - name: TEST_TYPE
         value: $(params.test_type)
       - name: TEST_PHASE
         value: $(params.test_phase)
+
+      # Optional parameter to uninstall SLS
+      - name: SLS_ACTION
+        value: $(params.sls_action)
 
   steps:
     - name: sls
