@@ -59,6 +59,7 @@
         src: "{{ task_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
+        - gencfg-jdbc
         - gencfg-workspace
         - suite-app-config
         - suite-app-install
