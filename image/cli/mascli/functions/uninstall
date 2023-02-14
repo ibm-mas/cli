@@ -65,12 +65,10 @@ function validate_action_param() {
   action=$2
 
   if [[ -z ${!action} ]] || [[ ${!action} != "none" ]] && [[ ${!action} != "uninstall" ]]; then
-
     if [deps_prompt_conditions $action]; then
       export $action="none"
       return
     fi
-
     if prompt_for_confirm "$msg"; then
       export $action="uninstall"
     else
@@ -81,51 +79,50 @@ function validate_action_param() {
 
 # This function checks if dependencies are set to "uninstall" to avoid prompting
 # for it in subsequent functions
-function deps_prompt_conditions(){
+function deps_prompt_conditions() {
   key="$1"
   case $key in
-    UDS_ACTION)
-      if [[ ${COMMON_SERVICES_ACTION} == "uninstall" ]] || [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]]; then
-        true
-      else
-        false
-      fi
-      ;;
-    SLS_ACTION)
-      if [[ ${COMMON_SERVICES_ACTION} == "uninstall" ]] || [[ ${CERT_MANAGER_ACTION} == "uninstall" ]] || [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]]; then
-        true
-      else
-        false
-      fi
-      ;;
-    MONGODB_ACTION)
-      if [[ ${COMMON_SERVICES_ACTION} == "uninstall" ]] || [[ ${CERT_MANAGER_ACTION} == "uninstall" ]] || [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]]; then
-        true
-      else
-        false
-      fi
-      ;;
-    CERT_MANAGER_ACTION)
-      if [[ ${COMMON_SERVICES_ACTION} == "uninstall" ]] || [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]]; then
-        true
-      else
-        false
-      fi
-      ;;
-    COMMON_SERVICES_ACTION)
-      if [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]]; then
-        true
-      else
-        false
-      fi
-      ;;
-    *)
-      # unknown key
+  UDS_ACTION)
+    if [[ ${COMMON_SERVICES_ACTION} == "uninstall" ]] || [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]]; then
+      true
+    else
       false
-      ;;
+    fi
+    ;;
+  SLS_ACTION)
+    if [[ ${COMMON_SERVICES_ACTION} == "uninstall" ]] || [[ ${CERT_MANAGER_ACTION} == "uninstall" ]] || [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]]; then
+      true
+    else
+      false
+    fi
+    ;;
+  MONGODB_ACTION)
+    if [[ ${COMMON_SERVICES_ACTION} == "uninstall" ]] || [[ ${CERT_MANAGER_ACTION} == "uninstall" ]] || [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]]; then
+      true
+    else
+      false
+    fi
+    ;;
+  CERT_MANAGER_ACTION)
+    if [[ ${COMMON_SERVICES_ACTION} == "uninstall" ]] || [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]]; then
+      true
+    else
+      false
+    fi
+    ;;
+  COMMON_SERVICES_ACTION)
+    if [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]]; then
+      true
+    else
+      false
+    fi
+    ;;
+  *)
+    # unknown key
+    false
+    ;;
   esac
 }
-
 
 function prompt_for_deps_to_uninstall() {
   echo
