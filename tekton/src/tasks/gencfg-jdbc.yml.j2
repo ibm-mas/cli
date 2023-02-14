@@ -5,10 +5,7 @@ metadata:
   name: mas-devops-gencfg-jdbc
 spec:
   params:
-    - name: cli_version
-      type: string
-      default: latest
-
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
     # Configure JDBCCfg
     - name: mas_config_scope
@@ -51,23 +48,9 @@ spec:
       type: string
       description: Location for the database SSL Certificate
 
-    # Optional support built into the ansible-devops image
-    # for saving task execution results to a MongoDb instance
-    - name: devops_mongo_uri
-      type: string
-      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
-      default: ""
-    - name: devops_suite_name
-      type: string
-      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
-      default: ""
-    - name: devops_build_number
-      type: string
-      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
-      default: ""
-
   stepTemplate:
     env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
 
       # Configure JdbcCfg
       - name: MAS_CONFIG_DIR
@@ -95,16 +78,6 @@ spec:
         value: $(params.ssl_enabled)
       - name: MAS_JDBC_CERT_LOCAL_FILE
         value: $(params.mas_jdbc_cert_local_file)
-
-
-      # Optional support built into the ansible-devops image
-      # for saving task execution results to a MongoDb instance
-      - name: DEVOPS_MONGO_URI
-        value: $(params.devops_mongo_uri)
-      - name: DEVOPS_SUITE_NAME
-        value: $(params.devops_suite_name)
-      - name: DEVOPS_BUILD_NUMBER
-        value: $(params.devops_build_number)
 
 
   steps:
