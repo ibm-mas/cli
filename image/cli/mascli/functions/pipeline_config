@@ -142,6 +142,17 @@ function pipeline_config() {
   fi
   true
 
+  echo -e "${COLOR_YELLOW}Nonproduction mode:"
+  echo -e "Non-production installations can be used for internal development and testing. Once the software has been installed this setting cannot be reversed.
+  All applications, add-ons, and solutions have 0 (zero) installation AppPoints in the non-production installations. 
+  These specifications are also visible in the metrics that are shared with IBM® and on the product UI."
+  
+  prompt_for_confirm_default_yes "Use Nonproduction Mode (dev/test environments)?" USE_NON_PROD_MODE
+  
+  if [[ "$USE_NON_PROD_MODE" == "true" ]]; then
+    MAS_ANNOTATIONS="mas.ibm.com/operationalMode=nonproduction"
+  fi
+
   config_pipeline_sno
   config_pipeline_dns
   config_pipeline_applications
