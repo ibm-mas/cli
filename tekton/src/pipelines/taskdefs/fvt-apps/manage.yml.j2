@@ -61,6 +61,7 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
     - name: devops_mongo_uri
+
       value: $(params.devops_mongo_uri)
     - name: devops_build_number
       value: $(params.devops_build_number)
@@ -68,6 +69,7 @@
       value: $(params.devops_cos_crn)
     - name: ibmcloud_apikey
       value: $(params.ibmcloud_apikey)
+
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -84,6 +86,11 @@
       value: ibm-mas-manage
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
+
+    - name: test_type
+      value: $(params.test_type)
+    - name: test_phase
+      value: $(params.test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -493,6 +500,7 @@
       value: $(params.mas_instance_id)
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
+    
     - name: devops_mongo_uri
       value: $(params.devops_mongo_uri)
     - name: devops_build_number
@@ -501,6 +509,7 @@
       value: $(params.devops_cos_crn)
     - name: ibmcloud_apikey
       value: $(params.ibmcloud_apikey)
+
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -517,6 +526,11 @@
       value: ibm-mas-manage
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
+
+    - name: test_type
+      value: $(params.test_type)
+    - name: test_phase
+      value: $(params.test_phase)  
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -816,6 +830,7 @@
       value: $(params.mas_instance_id)
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
+
     - name: devops_mongo_uri
       value: $(params.devops_mongo_uri)
     - name: devops_build_number
@@ -824,6 +839,7 @@
       value: $(params.devops_cos_crn)
     - name: ibmcloud_apikey
       value: $(params.ibmcloud_apikey)
+
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -840,6 +856,11 @@
       value: ibm-mas-manage
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
+    
+    - name: test_type
+      value: $(params.test_type)
+    - name: test_phase
+      value: $(params.test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -945,6 +966,11 @@
       value: ibm-mas-manage
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
+
+    - name: test_type
+      value: $(params.test_type)
+    - name: test_phase
+      value: $(params.test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -995,6 +1021,11 @@
       value: ibm-mas-manage
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
+
+    - name: test_type
+      value: $(params.test_type)
+    - name: test_phase
+      value: $(params.test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -1129,6 +1160,7 @@
       value: $(params.mas_instance_id)
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
+
     - name: devops_mongo_uri
       value: $(params.devops_mongo_uri)
     - name: devops_build_number
@@ -1137,6 +1169,7 @@
       value: $(params.devops_cos_crn)
     - name: ibmcloud_apikey
       value: $(params.ibmcloud_apikey)
+
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -1153,6 +1186,11 @@
       value: ibm-mas-manage
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
+
+    - name: test_type
+      value: $(params.test_type)
+    - name: test_phase
+      value: $(params.test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -1177,6 +1215,7 @@
       value: $(params.mas_instance_id)
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
+
     - name: devops_mongo_uri
       value: $(params.devops_mongo_uri)
     - name: devops_build_number
@@ -1185,6 +1224,7 @@
       value: $(params.devops_cos_crn)
     - name: ibmcloud_apikey
       value: $(params.ibmcloud_apikey)
+    
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -1201,6 +1241,11 @@
       value: ibm-mas-manage
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
+
+    - name: test_type
+      value: $(params.test_type)
+    - name: test_phase
+      value: $(params.test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -1225,6 +1270,7 @@
       value: $(params.mas_instance_id)
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
+
     - name: devops_mongo_uri
       value: $(params.devops_mongo_uri)
     - name: devops_build_number
@@ -1233,6 +1279,7 @@
       value: $(params.devops_cos_crn)
     - name: ibmcloud_apikey
       value: $(params.ibmcloud_apikey)
+
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -1249,6 +1296,11 @@
       value: ibm-mas-manage
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
+
+    - name: test_type
+      value: $(params.test_type)
+    - name: test_phase
+      value: $(params.test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -1273,6 +1325,7 @@
       value: $(params.mas_instance_id)
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
+
     - name: devops_mongo_uri
       value: $(params.devops_mongo_uri)
     - name: devops_build_number
@@ -1281,6 +1334,7 @@
       value: $(params.devops_cos_crn)
     - name: ibmcloud_apikey
       value: $(params.ibmcloud_apikey)
+
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -1297,6 +1351,11 @@
       value: ibm-mas-manage
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
+
+    - name: test_type
+      value: $(params.test_type)
+    - name: test_phase
+      value: $(params.test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -1321,6 +1380,7 @@
       value: $(params.mas_instance_id)
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
+
     - name: devops_mongo_uri
       value: $(params.devops_mongo_uri)
     - name: devops_build_number
@@ -1329,6 +1389,7 @@
       value: $(params.devops_cos_crn)
     - name: ibmcloud_apikey
       value: $(params.ibmcloud_apikey)
+
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -1345,6 +1406,11 @@
       value: ibm-mas-manage
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
+
+    - name: test_type
+      value: $(params.test_type)
+    - name: test_phase
+      value: $(params.test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -1369,6 +1435,7 @@
       value: $(params.mas_instance_id)
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
+
     - name: devops_mongo_uri
       value: $(params.devops_mongo_uri)
     - name: devops_build_number
@@ -1377,6 +1444,7 @@
       value: $(params.devops_cos_crn)
     - name: ibmcloud_apikey
       value: $(params.ibmcloud_apikey)
+
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -1393,6 +1461,11 @@
       value: ibm-mas-manage
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
+
+    - name: test_type
+      value: $(params.test_type)
+    - name: test_phase
+      value: $(params.test_phase)      
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
