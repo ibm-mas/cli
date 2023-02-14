@@ -27,6 +27,7 @@
         - db2
         - install
         - install-with-fvt
+        - uninstall
         - fvt-assist
         - fvt-core
         - upgrade
