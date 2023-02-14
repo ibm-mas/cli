@@ -68,5 +68,6 @@
         - suite-dns
         - suite-install
         - suite-mustgather
+        - suite-uninstall
         - suite-upgrade
         - suite-verify
