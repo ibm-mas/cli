@@ -23,9 +23,7 @@ EOM
 function check_mas_project_exists() {
   MAS_NS="mas-$MAS_INSTANCE_ID-core"
 
-  check_project_exists $MAS_NS
-
-  if [ "$?" == "0" ]; then
+  if check_project_exists $MAS_NS; then
     export MAS_NS
   else
     echo -e "${COLOR_RED}Error: The project \"${MAS_NS}\"${COLOR_RESET} does not exist.\n"
@@ -112,8 +110,7 @@ function validate_action_param() {
   action=$2
 
   if [[ -z ${!action} ]] || [[ ${!action} != "none" ]] && [[ ${!action} != "uninstall" ]]; then
-    deps_prompt_conditions $action
-    if [ "$?" == "0" ]; then
+    if deps_prompt_conditions $action; then
       export $action="none"
       return
     fi
