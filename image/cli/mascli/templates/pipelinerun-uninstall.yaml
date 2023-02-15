@@ -29,3 +29,21 @@ spec:
       value: "$SLS_ACTION"
     - name: uds_action
       value: "$UDS_ACTION"
+
+  workspaces:
+    # Workspace are not needed for uninstall but are required by
+    # the tasks for the install path. We can't avoid this.
+
+    # The generated configuration files
+    # -------------------------------------------------------------------------
+    - name: shared-configs
+      persistentVolumeClaim:
+        claimName: config-pvc
+
+    # SLS entitlement
+    # -------------------------------------------------------------------------
+    # The SLS entitlement key file that will be installed
+    # during install-sls
+    - name: shared-entitlement
+      secret:
+        secretName: pipeline-sls-entitlement
