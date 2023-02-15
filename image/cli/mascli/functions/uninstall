@@ -112,7 +112,8 @@ function validate_action_param() {
   action=$2
 
   if [[ -z ${!action} ]] || [[ ${!action} != "none" ]] && [[ ${!action} != "uninstall" ]]; then
-    if [deps_prompt_conditions $action]; then
+    deps_prompt_conditions $action
+    if [ "$?" == "0" ]; then
       export $action="none"
       return
     fi
