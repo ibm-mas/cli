@@ -58,34 +58,33 @@ function uninstall_noninteractive() {
   [[ -z "$MAS_INSTANCE_ID" ]] && uninstall_help "MAS_INSTANCE_ID is not set"
 }
 
-# This function checks if dependencies are set to "uninstall" to avoid prompting
-# for it in subsequent functions
+# This function checks if dependencies are set to "uninstall"
 function deps_prompt_conditions() {
   key="$1"
   case $key in
-  UDS_ACTION)
-    if [[ ${COMMON_SERVICES_ACTION} == "uninstall" ]] || [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]]; then
-      true
-    else
-      false
-    fi
-    ;;
   SLS_ACTION)
-    if [[ ${COMMON_SERVICES_ACTION} == "uninstall" ]] || [[ ${CERT_MANAGER_ACTION} == "uninstall" ]] || [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]]; then
+    if [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]] || [[ ${COMMON_SERVICES_ACTION} == "uninstall" ]] || [[ ${CERT_MANAGER_ACTION} == "uninstall" ]]; then
       true
     else
       false
     fi
     ;;
   MONGODB_ACTION)
-    if [[ ${COMMON_SERVICES_ACTION} == "uninstall" ]] || [[ ${CERT_MANAGER_ACTION} == "uninstall" ]] || [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]]; then
+    if [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]] || [[ ${COMMON_SERVICES_ACTION} == "uninstall" ]] || [[ ${CERT_MANAGER_ACTION} == "uninstall" ]]; then
+      true
+    else
+      false
+    fi
+    ;;
+  UDS_ACTION)
+    if [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]] || [[ ${COMMON_SERVICES_ACTION} == "uninstall" ]]; then
       true
     else
       false
     fi
     ;;
   CERT_MANAGER_ACTION)
-    if [[ ${COMMON_SERVICES_ACTION} == "uninstall" ]] || [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]]; then
+    if [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]] || [[ ${COMMON_SERVICES_ACTION} == "uninstall" ]]; then
       true
     else
       false
@@ -111,7 +110,7 @@ function validate_action_param() {
 
   if [[ -z ${!action} ]] || [[ ${!action} != "none" ]] && [[ ${!action} != "uninstall" ]]; then
     if deps_prompt_conditions $action; then
-      export $action="none"
+      export $action="uninstall"
       return
     fi
     if prompt_for_confirm "$msg"; then
@@ -126,13 +125,13 @@ function prompt_for_deps_to_uninstall() {
   echo
   echo_h2 "2. Uninstall MAS Dependencies"
 
-  validate_action_param "Uninstall IBM User Data Services?" UDS_ACTION
-  validate_action_param "Uninstall IBM Suite Licensing Service?" SLS_ACTION
-  validate_action_param "Uninstall MongoDB?" MONGODB_ACTION
-  validate_action_param "Uninstall IBM Cert Manager?" CERT_MANAGER_ACTION
-  validate_action_param "Uninstall IBM Common Services?" COMMON_SERVICES_ACTION
-  validate_action_param "Uninstall IBM Catalogs?" IBM_CATALOGS_ACTION
   validate_action_param "Uninstall Cluster Monitoring?" CLUSTER_MONITORING_ACTION
+  validate_action_param "Uninstall IBM Catalogs?" IBM_CATALOGS_ACTION
+  validate_action_param "Uninstall IBM Common Services?" COMMON_SERVICES_ACTION
+  validate_action_param "Uninstall IBM Cert Manager?" CERT_MANAGER_ACTION
+  validate_action_param "Uninstall IBM User Data Services?" UDS_ACTION
+  validate_action_param "Uninstall MongoDB?" MONGODB_ACTION
+  validate_action_param "Uninstall IBM Suite Licensing Service?" SLS_ACTION
 }
 
 function review_uninstall_settings() {
@@ -150,13 +149,13 @@ function review_uninstall_settings() {
   echo "${TEXT_DIM}"
   echo_h2 "MAS Dependencies"
 
-  echo_reset_dim "IBM User Data Services .......... Action: ${COLOR_MAGENTA}${UDS_ACTION}"
-  echo_reset_dim "IBM Suite Licensing Service ..... Action: ${COLOR_MAGENTA}${SLS_ACTION}"
-  echo_reset_dim "MongoDB ......................... Action: ${COLOR_MAGENTA}${MONGODB_ACTION}"
   echo_reset_dim "Cluster Monitoring .............. Action: ${COLOR_MAGENTA}${CLUSTER_MONITORING_ACTION}"
-  echo_reset_dim "IBM Cert Manager ................ Action: ${COLOR_MAGENTA}${CERT_MANAGER_ACTION}"
-  echo_reset_dim "IBM Common Services ............. Action: ${COLOR_MAGENTA}${COMMON_SERVICES_ACTION}"
   echo_reset_dim "IBM Catalogs .................... Action: ${COLOR_MAGENTA}${IBM_CATALOGS_ACTION}"
+  echo_reset_dim "IBM Common Services ............. Action: ${COLOR_MAGENTA}${COMMON_SERVICES_ACTION}"
+  echo_reset_dim "IBM Cert Manager ................ Action: ${COLOR_MAGENTA}${CERT_MANAGER_ACTION}"
+  echo_reset_dim "IBM User Data Services .......... Action: ${COLOR_MAGENTA}${UDS_ACTION}"
+  echo_reset_dim "MongoDB ......................... Action: ${COLOR_MAGENTA}${MONGODB_ACTION}"
+  echo_reset_dim "IBM Suite Licensing Service ..... Action: ${COLOR_MAGENTA}${SLS_ACTION}"
 
   echo
   reset_colors
