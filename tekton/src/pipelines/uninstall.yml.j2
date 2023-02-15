@@ -4,15 +4,6 @@ kind: Pipeline
 metadata:
   name: mas-uninstall
 spec:
-  workspaces:
-    # Workspace are not needed for uninstall but are required by
-    # the tasks for the install path. We can't avoid this.
-
-    # The generated configuration files
-    - name: shared-configs
-    # The SLS entitlement key file that will be installed during install-sls.
-    - name: shared-entitlement
-
   params:
     # 1. Uninstall Parameters
     # -------------------------------------------------------------------------
@@ -48,11 +39,6 @@ spec:
           value: $(params.image_pull_policy)
         - name: sls_action
           value: $(params.sls_action)
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-        - name: entitlement
-          workspace: shared-entitlement
       taskRef:
         kind: Task
         name: mas-devops-sls
@@ -70,9 +56,6 @@ spec:
           value: $(params.image_pull_policy)
         - name: mongodb_action
           value: $(params.mongodb_action)
-      workspaces:
-        - name: configs
-          workspace: shared-configs
       taskRef:
         kind: Task
         name: mas-devops-mongodb
@@ -90,9 +73,6 @@ spec:
           value: $(params.image_pull_policy)
         - name: uds_action
           value: $(params.uds_action)
-      workspaces:
-        - name: configs
-          workspace: shared-configs
       taskRef:
         kind: Task
         name: mas-devops-uds

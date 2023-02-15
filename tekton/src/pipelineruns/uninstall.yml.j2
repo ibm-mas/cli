@@ -10,20 +10,6 @@ spec:
     name: mas-uninstall
   serviceAccountName: pipeline
   timeout: {{'"{{ pipelinerun_timeout }}"'}}
-  workspaces:
-    # Workspace are not needed for uninstall but are required by
-    # the tasks for the install path. We can't avoid this.
-
-    # The generated configuration files
-    - name: shared-configs
-      persistentVolumeClaim:
-        claimName: config-pvc
-
-    # The SLS entitlement key file that will be installed
-    # during install-sls
-    - name: shared-entitlement
-      secret:
-        secretName: pipeline-sls-entitlement
   params:
     # Uninstall Parameters
 {% for uninstall_param in uninstall_params_definition.params %}
