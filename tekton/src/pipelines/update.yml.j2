@@ -1,0 +1,35 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-update
+spec:
+  params:
+    # Catalog Version
+    - name: mas_catalog_version
+      type: string
+
+    # Development Build Support
+    - name: artifactory_username
+      default: ""
+      type: string
+      description: Required to install development MAS catalogs
+    - name: artifactory_apikey
+      default: ""
+      type: string
+      description: Required to install development MAS catalogs
+
+  tasks:
+    - name: ibm-catalogs
+      params:
+        - name: mas_catalog_version
+          value: $(params.mas_catalog_version)
+
+        # Development catalog support
+        - name: artifactory_username
+          value: $(params.artifactory_username)
+        - name: artifactory_apikey
+          value: $(params.artifactory_apikey)
+      taskRef:
+        kind: Task
+        name: mas-devops-ibm-catalogs
