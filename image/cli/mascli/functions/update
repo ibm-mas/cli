@@ -21,6 +21,7 @@ EOM
 
 
 function update_noninteractive() {
+  detect_airgap
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -50,6 +51,7 @@ function update_noninteractive() {
 
 function update_interactive() {
   connect
+  detect_airgap
 
   echo
   echo_h2 "Select IBM Maximo Operator Catalog Version"
