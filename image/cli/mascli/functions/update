@@ -55,7 +55,7 @@ function update_interactive() {
   echo_h2 "Select IBM Maximo Operator Catalog Version"
 
   echo -e "${COLOR_YELLOW}MAS Catalog:"
-  echo "  1. v8 (2023-02-14)"
+  echo "  1. v8 (2023-02-17)"
   echo "  2. v8 (2023-01-11)"
   echo "  3. v8 (2022-12-28)"
   echo "  4. v8 (2022-11-29)"
@@ -63,7 +63,7 @@ function update_interactive() {
 
   case $MAS_CATALOG_SELECTION in
     1|230211|2023-02-14)
-      MAS_CATALOG_VERSION=v8-230214-amd64
+      MAS_CATALOG_VERSION=v8-230217-amd64
       ;;
     2|230111|2023-01-11)
       MAS_CATALOG_VERSION=v8-230111-amd64

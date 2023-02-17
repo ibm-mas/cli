@@ -245,7 +245,7 @@ function mirror_to_registry_interactive() {
   echo_h2 "3. Configure Static Catalog Version"
 
   echo -e "${COLOR_YELLOW}MAS Version:"
-  echo "February 14 2023 Update"
+  echo "February 17 2023 Update"
   echo "  1. 8.9.2"
   echo "  2. 8.8.6"
   echo "January 11 2023 Update"
@@ -263,12 +263,12 @@ function mirror_to_registry_interactive() {
     1)
       MAS_CHANNEL=8.9.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-230214-amd64
+      MAS_CATALOG_VERSION=v8-230217-amd64
       ;;
     2)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-230214-amd64
+      MAS_CATALOG_VERSION=v8-230217-amd64
       ;;
     3)
       MAS_CHANNEL=8.9.x
