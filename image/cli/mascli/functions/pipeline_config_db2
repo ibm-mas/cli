@@ -3,7 +3,7 @@
 
 function config_pipeline_storage_db2() {
   echo
-  echo_h2 "6. Configure Db2"
+  echo_h2 "7. Configure Db2"
   echo "${TEXT_DIM}The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, Manage, Monitor, & Predict) or you may choose to configure MAS to use an existing database."
   echo
   reset_colors
