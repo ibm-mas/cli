@@ -163,7 +163,7 @@ function channel_select_visualinspection() {
 
 function config_pipeline_applications() {
   echo
-  echo_h2 "5. Application Selection"
+  echo_h2 "6. Application Selection"
   # Default all applications to "do not deploy"
   MAS_APP_CHANNEL_IOT=''
   MAS_APP_CHANNEL_MONITOR=''

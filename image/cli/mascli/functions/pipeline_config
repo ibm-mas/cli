@@ -146,56 +146,58 @@ function pipeline_config() {
   fi
   true
 
-  echo -e "${COLOR_YELLOW}Nonproduction mode:"
-  echo -e "Non-production installations can be used for internal development and testing. Once the software has been installed this setting cannot be reversed.
-  All applications, add-ons, and solutions have 0 (zero) installation AppPoints in the non-production installations. 
-  These specifications are also visible in the metrics that are shared with IBM® and on the product UI."
-  
-  prompt_for_confirm "Use Nonproduction Mode?" USE_NON_PROD_MODE
-  
+  echo
+  echo_h2 "4. Configure Operation Mode"
+  echo "${TEXT_DIM}Maximo Application Suite can be installed in a non-production mode for internal development and testing, this setting cannot be changed after installation:"
+  echo " - All applications, add-ons, and solutions have 0 (zero) installation AppPoints in non-production installations."
+  echo " - These specifications are also visible in the metrics that are shared with IBM® and on the product UI."
+  echo
+  reset_colors
+  prompt_for_confirm "Use non-production mode?" USE_NON_PROD_MODE
+
   if [[ "$USE_NON_PROD_MODE" == "true" ]]; then
     MAS_ANNOTATIONS="mas.ibm.com/operationalMode=nonproduction"
   fi
 
   config_pipeline_sno
-  config_pipeline_dns
-  config_pipeline_applications
-  config_pipeline_storage_db2
-  config_pipeline_additional_configs
+  config_pipeline_dns #5
+  config_pipeline_applications #6
+  config_pipeline_storage_db2 #7
+  config_pipeline_additional_configs #8
 
   if [[ "$SNO_MODE" == "true" ]]; then
-    config_pipeline_storage_classes_sno
+    config_pipeline_storage_classes_sno #9
   else
-    config_pipeline_storage_classes
+    config_pipeline_storage_classes #9
   fi
 
   echo ""
   if [[ "$DEV_MODE" == "true" && -z "$AIRGAP_MODE" ]]; then
     # Development Mode -- offer the ability to set MAS and SLS source independently
-    echo_h2 "9.1 Configure Artifactory"
+    echo_h2 "10.1 Configure Artifactory"
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
     prompt_for_input "Artifactory API Key" ARTIFACTORY_APIKEY
 
     echo
-    echo_h2 "9.2 Configure IBM Container Registry"
+    echo_h2 "10.2 Configure IBM Container Registry"
     prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
 
     echo
-    echo_h2 "9.3 Configure IBM Container Registry (MAS)"
+    echo_h2 "10.3 Configure IBM Container Registry (MAS)"
     prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
     prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com/cpopen override
     MAS_ENTITLEMENT_USERNAME=cp
     MAS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
 
     echo
-    echo_h2 "9.4 Configure IBM Container Registry (SLS)"
+    echo_h2 "10.4 Configure IBM Container Registry (SLS)"
     prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com/cpopen override
     SLS_ENTITLEMENT_USERNAME=cp
     SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
-    echo_h2 "9. Configure IBM Container Registry"
+    echo_h2 "10. Configure IBM Container Registry"
     prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY "Re-use saved IBM Entitlement Key?"
 
     # Use defaults
@@ -213,7 +215,7 @@ function pipeline_config() {
   SLS_CATALOG_SOURCE=ibm-operator-catalog
 
   echo
-  echo_h2 "10. Configure Product License"
+  echo_h2 "11. Configure Product License"
   prompt_for_input "License ID" SLS_LICENSE_ID
   prompt_for_input "License File" SLS_LICENSE_FILE_LOCAL
   if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
@@ -223,7 +225,7 @@ function pipeline_config() {
   SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
 
   echo
-  echo_h2 "11. Configure UDS"
+  echo_h2 "12. Configure UDS"
   prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
   prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
   prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
