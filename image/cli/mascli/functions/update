@@ -21,6 +21,7 @@ EOM
 
 
 function update_noninteractive() {
+  detect_airgap
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -50,37 +51,30 @@ function update_noninteractive() {
 
 function update_interactive() {
   connect
+  detect_airgap
 
   echo
   echo_h2 "Select IBM Maximo Operator Catalog Version"
 
   echo -e "${COLOR_YELLOW}MAS Catalog:"
-  echo "  1. v8 (2023-01-11)"
-  echo "  2. v8 (2022-12-28)"
-  echo "  3. v8 (2022-11-29)"
-  echo "  4. v8 (2022-10-25)"
-  echo "  5. v8 (2022-09-27)"
-  echo "  6. v8 (2022-08-05)"
+  echo "  1. v8 (2023-02-17)"
+  echo "  2. v8 (2023-01-11)"
+  echo "  3. v8 (2022-12-28)"
+  echo "  4. v8 (2022-11-29)"
   prompt_for_input "Select Catalog Version" MAS_CATALOG_SELECTION "1"
 
   case $MAS_CATALOG_SELECTION in
-    1|230111|2023-01-11)
+    1|230211|2023-02-14)
+      MAS_CATALOG_VERSION=v8-230217-amd64
+      ;;
+    2|230111|2023-01-11)
       MAS_CATALOG_VERSION=v8-230111-amd64
       ;;
-    2|221228|2022-12-28)
+    3|221228|2022-12-28)
       MAS_CATALOG_VERSION=v8-221228-amd64
       ;;
-    3|221129|2022-11-29)
+    4|221129|2022-11-29)
       MAS_CATALOG_VERSION=v8-221129-amd64
-      ;;
-    4|221025|2022-10-25)
-      MAS_CATALOG_VERSION=v8-221025-amd64
-      ;;
-    5|220927|2022-09-27)
-      MAS_CATALOG_VERSION=v8-220927-amd64
-      ;;
-    6|220805|2022-08-05)
-      MAS_CATALOG_VERSION=v8-220805-amd64
       ;;
     *)
       echo_warning "Invalid selection"
