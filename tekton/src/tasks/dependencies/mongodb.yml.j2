@@ -48,7 +48,7 @@ spec:
       type: string
       description: Optional configuration for mongodb cpu requests
       default: ""
-    
+
     # Optional parameters to categorize result to be persisted
     # -------------------------------------------------------------------------
     - name: test_type
@@ -58,6 +58,12 @@ spec:
     - name: test_phase
       type: string
       description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
+      default: ""
+
+    # Optional parameter to uninstall MongoDB
+    - name: mongodb_action
+      type: string
+      description: Optional. Used to uninstall MongoDB
       default: ""
 
   stepTemplate:
@@ -87,12 +93,16 @@ spec:
         value: $(params.mongodb_replicas)
       - name: MONGODB_CPU_REQUESTS
         value: $(params.mongodb_cpu_requests)
-      
+
       # Optional parameters to categorize result to be persisted
       - name: TEST_TYPE
         value: $(params.test_type)
       - name: TEST_PHASE
         value: $(params.test_phase)
+
+      # Optional parameter to uninstall MongoDB
+      - name: MONGODB_ACTION
+        value: $(params.mongodb_action)
 
   steps:
     - name: mongodb
@@ -105,3 +115,4 @@ spec:
 
   workspaces:
     - name: configs
+      optional: true

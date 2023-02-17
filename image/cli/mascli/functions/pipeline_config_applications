@@ -165,7 +165,7 @@ function channel_select_visualinspection() {
 
 function config_pipeline_applications() {
   echo
-  echo_h2 "5. Application Selection"
+  echo_h2 "6. Application Selection"
   # Default all applications to "do not deploy"
   MAS_APP_CHANNEL_IOT=''
   MAS_APP_CHANNEL_MONITOR=''
@@ -258,22 +258,19 @@ function config_pipeline_applications() {
     fi
 
     if [[ "$MAS_APP_CHANNEL_PREDICT" != "" || "$MAS_APP_CHANNEL_HPUTILITIES" != "" || "$MAS_APP_CHANNEL_ASSIST" != "" ]]; then
-      case $MAS_CHANNEL in
-        8.9.x)
-          CP4D_VERSION=4.5.0
+      case $MAS_CATALOG_VERSION in
+        # CP4D v4.6.0 was added in the February 2023 catalog update
+        v8-amd64|v8-230217-amd64)
+          CP4D_VERSION=4.6.0
           ;;
-        8.8.x)
-          CP4D_VERSION=4.0.9
-          ;;
-        8.7.x)
-          # Predict 8.5 was tested on 4.0.6 and 4.0.7
-          # Breaking changes introduced in CP4D v4.0.8 prevent use of a newer version of CP4D
-          CP4D_VERSION=4.0.7
+        # Versions of the catalog older than February 2023 support up to CP4D v4.5.2
+        v8-230111-amd64|v8-221228-amd64|v8-221129-amd64)
+          CP4D_VERSION=4.5.2
           ;;
         *)
           echo
           echo "One or more selected applications require Cloud Pak for Data"
-          prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.5.0"
+          prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.6.0"
           ;;
       esac
     fi

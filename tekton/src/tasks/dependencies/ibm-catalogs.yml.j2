@@ -11,11 +11,11 @@ spec:
       default: IfNotPresent
 
     - name: artifactory_username
-      default: ''
+      default: ""
       type: string
       description: Required to install development MAS catalogs
     - name: artifactory_apikey
-      default: ''
+      default: ""
       type: string
       description: Required to install development MAS catalogs
     - name: mas_catalog_version
@@ -41,7 +41,7 @@ spec:
       type: string
       description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
       default: ""
-    
+
     # Optional parameters to categorize result to be persisted
     # -------------------------------------------------------------------------
     - name: test_type
@@ -51,6 +51,12 @@ spec:
     - name: test_phase
       type: string
       description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
+      default: ""
+
+    # Optional parameter to uninstall IBM Catalogs
+    - name: ibm_catalogs_action
+      type: string
+      description: Optional. Used to uninstall IBM Catalogs
       default: ""
 
   stepTemplate:
@@ -73,12 +79,16 @@ spec:
         value: $(params.devops_suite_name)
       - name: DEVOPS_BUILD_NUMBER
         value: $(params.devops_build_number)
-      
+
       # Optional parameters to categorize result to be persisted
       - name: TEST_TYPE
         value: $(params.test_type)
       - name: TEST_PHASE
         value: $(params.test_phase)
+
+      # Optional parameter to uninstall IBM Catalogs
+      - name: IBM_CATALOGS_ACTION
+        value: $(params.ibm_catalogs_action)
 
   steps:
     - name: ibm-catalogs
