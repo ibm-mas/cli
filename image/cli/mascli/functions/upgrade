@@ -21,6 +21,7 @@ EOM
 
 
 function upgrade_noninteractive() {
+  detect_airgap
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -50,6 +51,7 @@ function upgrade_noninteractive() {
 
 function upgrade_interactive() {
   connect
+  detect_airgap
 
   echo
   echo_h2 "Select IBM Maximo Application Suite Upgrade"
