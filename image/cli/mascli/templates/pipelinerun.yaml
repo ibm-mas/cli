@@ -226,6 +226,13 @@ spec:
       value: '$MAS_APP_SETTINGS_AIO_FLAG'
     - name: mas_app_settings_demodata
       value: '$MAS_APP_SETTINGS_DEMODATA'
+    - name: mas_app_settings_tablespace
+      value: '$MAS_APP_SETTINGS_TABLESPACE'
+    - name: mas_app_settings_indexspace
+      value: '$MAS_APP_SETTINGS_INDEXSPACE'
+    - name: mas_app_settings_db2_schema
+      value: '$MAS_APP_SETTINGS_DB2_SCHEMA'
+
     - name: mas_appws_bindings_jdbc_manage
       value: '$MAS_APPWS_BINDINGS_JDBC_MANAGE'
 

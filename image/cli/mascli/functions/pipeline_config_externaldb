@@ -21,7 +21,8 @@ function  config_pipeline_externaldb() {
   fi
 
   MAS_CONFIG_SCOPE="wsapp"
-  MAS_APPWS_JDBC_BINDING="workspace-application"
+  #MAS_APPWS_JDBC_BINDING="workspace-application"
+  mas_appws_bindings_jdbc_manage="workspace-application"
 
   echo ""
 }

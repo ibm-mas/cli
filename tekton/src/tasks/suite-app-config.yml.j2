@@ -51,10 +51,10 @@ spec:
       type: string
       description: Name of the Manage database schema
       default: ""
-    - name: mas_appws_jdbc_binding
-      type: string
-      description: Name of the Manage applicaion workspace JDBC binding
-      default: ""
+    #- name: mas_appws_jdbc_binding
+    #  type: string
+    #  description: Name of the Manage applicaion workspace JDBC binding
+    #  default: ""
 
     # Application Workspace - Operand (Predict)
     - name: predict_deployment_size
@@ -125,8 +125,8 @@ spec:
         value: $(params.mas_app_settings_indexspace)
       - name: MAS_APP_SETTINGS_DB2_SCHEMA
         value: $(params.mas_app_settings_db2_schema)
-      - name: MAS_APPWS_JDBC_BINDING
-        value: $(params.mas_appws_jdbc_binding)
+      #- name: MAS_APPWS_JDBC_BINDING
+      #  value: $(params.mas_appws_jdbc_binding)
 
       # Application Workspace - Operand (Predict)
       - name: PREDICT_DEPLOYMENT_SIZE
