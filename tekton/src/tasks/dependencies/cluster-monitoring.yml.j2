@@ -68,6 +68,12 @@ spec:
       description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
       default: ""
 
+    # Optional parameter to uninstall Cluster Monitoring
+    - name: cluster_monitoring_action
+      type: string
+      description: Optional. Used to uninstall Cluster Monitoring
+      default: ""
+
   stepTemplate:
     env:
       - name: PROMETHEUS_RETENTION_PERIOD
@@ -101,12 +107,16 @@ spec:
         value: $(params.devops_suite_name)
       - name: DEVOPS_BUILD_NUMBER
         value: $(params.devops_build_number)
-      
+
       # Optional parameters to categorize result to be persisted
       - name: TEST_TYPE
         value: $(params.test_type)
       - name: TEST_PHASE
         value: $(params.test_phase)
+
+      # Optional parameter to uninstall Cluster Monitoring
+      - name: CLUSTER_MONITORING_ACTION
+        value: $(params.cluster_monitoring_action)
 
   steps:
     - name: cluster-monitoring

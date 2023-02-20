@@ -37,8 +37,6 @@
     {{ lookup('template', 'taskdefs/fvt-core/ui/params.yml.j2') | indent(4) }}
     - name: test_suite
       value: coreidp-saml-ui
-    - name: fvt_image_name
-      value: fvt-ibm-mas-ui
   runAfter:
     - fvt-coreidp-saml
 
