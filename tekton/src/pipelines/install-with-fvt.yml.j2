@@ -259,7 +259,7 @@ spec:
         - suite-config-db2
 
     # 9.2 Prepare database to Maxinst
-    {{ lookup('template', 'taskdefs/apps/manage-gencfg-jdbc-prep.yml.j2') | indent(4) }
+    {{ lookup('template', 'taskdefs/apps/manage-gencfg-jdbc-prep.yml.j2') | indent(4) }}
 
     # 9.3 Manage Install
     {{ lookup('template', 'taskdefs/apps/manage-app.yml.j2') | indent(4) }}
