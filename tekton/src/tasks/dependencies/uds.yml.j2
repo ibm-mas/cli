@@ -50,7 +50,7 @@ spec:
       type: string
       description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
       default: ""
-    
+
     # Optional parameters to categorize result to be persisted
     # -------------------------------------------------------------------------
     - name: devops_test_type
@@ -60,6 +60,12 @@ spec:
     - name: devops_test_phase
       type: string
       description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
+      default: ""
+
+    # Optional parameter to uninstall UDS
+    - name: uds_action
+      type: string
+      description: Optional. Used to uninstall UDS
       default: ""
 
   stepTemplate:
@@ -94,12 +100,16 @@ spec:
         value: $(params.devops_suite_name)
       - name: DEVOPS_BUILD_NUMBER
         value: $(params.devops_build_number)
-      
+
       # Optional parameters to categorize result to be persisted
       - name: DEVOPS_TEST_TYPE
         value: $(params.devops_test_type)
       - name: DEVOPS_TEST_PHASE
         value: $(params.devops_test_phase)
+
+      # Optional parameter to uninstall UDS
+      - name: UDS_ACTION
+        value: $(params.uds_action)
 
   steps:
     - name: uds
@@ -112,3 +122,4 @@ spec:
 
   workspaces:
     - name: configs
+      optional: true

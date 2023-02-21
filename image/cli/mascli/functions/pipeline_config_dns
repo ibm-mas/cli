@@ -2,7 +2,7 @@
 
 function config_pipeline_dns() {
   echo
-  echo_h2 "4. Configure Domain & Certificate Management"
+  echo_h2 "5. Configure Domain & Certificate Management"
   if prompt_for_confirm "Configure Custom Domain"; then
     prompt_for_input "MAS Top Level Domain" MAS_DOMAIN
 

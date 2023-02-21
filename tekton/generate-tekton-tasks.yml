@@ -1,4 +1,5 @@
-- hosts: localhost
+- name: Generate Tekton Tasks
+  hosts: localhost
   any_errors_fatal: true
   vars:
     mas_tekton_version: latest
@@ -10,10 +11,9 @@
     # 1. Prepare tmp and target directory for the tasks build
     # -------------------------------------------------------------------------
     - name: Create target directory
-      file:
+      ansible.builtin.file:
         path: "{{ task_target_dir }}"
         state: directory
-
 
     # 2. Generate Tasks (Dependencies)
     # -------------------------------------------------------------------------
@@ -38,7 +38,7 @@
         - sls
         - uds
 
-    # 2. Generate Tasks (FVT)
+    # 3. Generate Tasks (FVT)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (FVT)
       ansible.builtin.template:
@@ -51,8 +51,7 @@
         - fvt-core-ui
         - fvt-run-suite
 
-
-    # 3. Generate Tasks (Suite)
+    # 4. Generate Tasks (Suite)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (Suite)
       ansible.builtin.template:
