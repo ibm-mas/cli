@@ -157,6 +157,7 @@ function pipeline_show_config() {
     echo_reset_dim "Indexspace ............... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_INDEXSPACE}"
     echo_reset_dim "SSL enabled .............. ${COLOR_MAGENTA}${SSL_ENABLED}" 
     echo_reset_dim "JDBC binding ............. ${COLOR_MAGENTA}${mas_appws_bindings_jdbc_manage}"
+    
     if [[ "${SSL_ENABLED}" == "true" ]]; then
       echo_reset_dim "SSL Certificate Path ... ${COLOR_MAGENTA}${MAS_JDBC_CERT_LOCAL_FILE}"
     fi
