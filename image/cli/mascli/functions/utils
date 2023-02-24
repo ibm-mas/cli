@@ -46,6 +46,12 @@ function echo_hr2() {
   echo "-------------------------------------------------------------------------------"
 }
 
+function build_license_link_by_mas_version() {
+  version=$1
+  link="https://ibm.biz/MAS"$VERSION"-License"
+  echo $link
+}
+
 # Prompt for confirmation to continue
 # -----------------------------------------------------------------------------
 confirm() {
