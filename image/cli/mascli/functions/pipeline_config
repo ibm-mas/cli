@@ -158,7 +158,7 @@ function pipeline_config() {
   
   echo
   echo_h2 "3.1. Accept License"
-  echo "this is the link for the license: "$MAS_LICENSE_LINK
+  echo -e "${COLOR_YELLOW} this is the link for the license: "$MAS_LICENSE_LINK
   prompt_for_confirm "Do you accept the license?" LICENSE_RESPONSE
 
   if [[ "$LICENSE_RESPONSE" == "false" ]]; then

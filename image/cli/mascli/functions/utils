@@ -48,7 +48,7 @@ function echo_hr2() {
 
 function build_license_link_by_mas_version() {
   version=$1
-  link="https://ibm.biz/MAS"$VERSION"-License"
+  link="https://ibm.biz/MAS"$version"-License"
   echo $link
 }
 
