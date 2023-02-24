@@ -15,13 +15,6 @@ spec:
     - name: fvt_image_registry
       type: string
       description: FVT Container Image Registry (required)
-    - name: fvt_image_namespace
-      type: string
-      description: FVT Image namespace
-      default: mas-devops
-    - name: fvt_image_name
-      type: string
-      description: FVT Container Image
     - name: fvt_image_version
       type: string
       description: FVT Container Image Version
@@ -37,6 +30,10 @@ spec:
       type: string
       description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
       default: ""
+    - name: fvt_mas_appws_component
+      type: string
+      description: Manage product that will be tested by this task. Use official names as expected by Manage operators
+      default: "base"
     - name: devops_mongo_uri
       type: string
       description: Mongo URI for recording test results (optional)
@@ -102,7 +99,7 @@ spec:
       default: ""
 
   stepTemplate:
-    name: 'fvt-run-$(params.fvt_image_name)'
+    name: 'fvt-manage'
     env:
       - name: PRODUCT_ID
         value: $(params.product_id)
@@ -126,6 +123,9 @@ spec:
 
       - name: FVT_TEST_SUITE
         value: $(params.fvt_test_suite)
+      - name: FVT_MAS_APPWS_COMPONENT
+        value: $(params.fvt_mas_appws_component)
+
       - name: FVT_ENABLE_DEBUG
         value: "$(params.fvt_enable_debug)"
 
@@ -151,7 +151,7 @@ spec:
       - name: TEST_PHASE
         value: $(params.test_phase)
   steps:
-    - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name):$(params.fvt_image_version)'
+    - image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage:$(params.fvt_image_version)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
       onError: continue # Ensure bad FVTs don't break the pipeline
