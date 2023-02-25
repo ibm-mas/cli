@@ -28,10 +28,10 @@
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -84,10 +84,10 @@
     - name: foundation_server_type
       value: mas
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -138,10 +138,10 @@
     - name: foundation_server_type
       value: mas
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -187,10 +187,10 @@
     - name: product_id
       value: ibm-mas-mobile-service-requests
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -242,10 +242,10 @@
     - name: assist_server_type
       value: mas
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -297,10 +297,10 @@
     - name: assist_server_type
       value: mas
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
