@@ -39,6 +39,14 @@ spec:
       type: string
       description: Flag indicating if manage demodata should be loaded or not
       default: ""
+    - name: mas_app_settings_persistent_volumes_flag
+      type: string
+      description: Flag indicating if persistent volumes should be configured by default during Manage Workspace activation. There are two defaulted File Storage Persistent Volumes Claim resources that will be created out of the box for Manage if this flag is set to true.
+      default: ""
+    - name: mas_app_settings_server_bundles_size
+      type: string
+      description: Provides different flavors of server bundle configuration to handle workload for Manage application.
+      default: ""
 
     # Application Workspace - Operand (Predict)
     - name: predict_deployment_size
@@ -103,6 +111,11 @@ spec:
         value: $(params.mas_app_settings_aio_flag)
       - name: MAS_APP_SETTINGS_DEMODATA
         value: $(params.mas_app_settings_demodata)
+      - name: MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG
+        value: $(params.mas_app_settings_persistent_volumes_flag)
+      - name: MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE
+        value: $(params.mas_app_settings_server_bundles_size)
+
 
       # Application Workspace - Operand (Predict)
       - name: PREDICT_DEPLOYMENT_SIZE
