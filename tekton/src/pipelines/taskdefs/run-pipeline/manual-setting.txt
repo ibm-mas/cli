@@ -1,2 +1,2 @@
-test_type
-test_phase
+devops_test_type
+devops_test_phase
