@@ -49,5 +49,5 @@ spec:
     - name: 'run-pipeline'
       command:
         - /opt/app-root/src/run-pipeline.sh
-      image: '$(params.fvt_image_registry)/mas-devops/mas-tekton:{{ mas_tekton_version }}'
+      image: '$(params.runpipeline_image_registry)/mas-devops/mas-tekton:{{ mas_tekton_version }}'
       imagePullPolicy: Always
