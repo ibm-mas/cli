@@ -368,7 +368,11 @@ spec:
 
     # 16. MAS Core IVT
     # -------------------------------------------------------------------------
+    # 16.1 All Apps IVT (except Manage)
     {{ lookup('template', 'taskdefs/ivt-core/all-apps.yml.j2') | indent(4) }}
+    
+    # 16.2 Manage IVT
+    {{ lookup('template', 'taskdefs/ivt-core/manage.yml.j2') | indent(4) }}
 
 
     # 17. Application FVT - Assist
