@@ -40,6 +40,7 @@
       values: [""]
   runAfter:
     - ivtcore-predict
+    - fvt-manage-setup # as predict tests need to se maxadmin
   workspaces:
     - name: configs
       workspace: shared-configs
