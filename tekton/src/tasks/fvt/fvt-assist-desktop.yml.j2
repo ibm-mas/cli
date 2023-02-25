@@ -67,11 +67,11 @@ spec:
       default: "false"
     
     # Optional parameters to categorize result to be persisted
-    - name: test_type
+    - name: devops_test_type
       type: string
       description: Optional. Used to different upgrade tests from other type of tests
       default: ""
-    - name: test_phase
+    - name: devops_test_phase
       type: string
       description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
       default: ""
@@ -130,10 +130,10 @@ spec:
         value: $(params.ctf_is_local)
       
       # Optional parameters to categorize result to be persisted
-      - name: TEST_TYPE
-        value: $(params.test_type)
-      - name: TEST_PHASE
-        value: $(params.test_phase)
+      - name: DEVOPS_TEST_TYPE
+        value: $(params.devops_test_type)
+      - name: DEVOPS_TEST_PHASE
+        value: $(params.devops_test_phase)
   volumes:
     - name: dshm
       emptyDir:
