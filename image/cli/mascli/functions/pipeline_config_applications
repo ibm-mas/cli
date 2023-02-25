@@ -196,6 +196,10 @@ function config_pipeline_applications() {
   if prompt_for_confirm "Install Manage"; then
     channel_select_manage || exit 1
     prompt_for_confirm_default_yes "+ Create demo data" MAS_APP_SETTINGS_DEMODATA
+    if prompt_for_confirm "+ Configure JMS"; then
+      MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
+      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE="jms"
+    fi
   fi
 
   if [[ "$SNO_MODE" != "true" ]]; then
