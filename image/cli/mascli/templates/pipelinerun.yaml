@@ -233,6 +233,10 @@ spec:
 
     - name: mas_appws_bindings_jdbc_manage
       value: '$MAS_APPWS_BINDINGS_JDBC_MANAGE'
+    - name: mas_app_settings_persistent_volumes_flag
+      value: '$MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG'
+    - name: mas_app_settings_server_bundles_size
+      value: '$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE'
 
     # Monitor Application
     # -------------------------------------------------------------------------

@@ -31,5 +31,6 @@
         - uninstall
         - fvt-assist
         - fvt-core
+        - fvt-manage-regr
         - upgrade
         - update

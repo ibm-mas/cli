@@ -26,7 +26,7 @@ spec:
   stepTemplate:
     env:
       - name: PIPELINE_NAME
-        value: fvt
+        value: fvt-core
       - name: PIPELINERUN_TIMEOUT
         value: $(params.pipelinerun_timeout)
       - name: PIPELINERUN_WAIT
@@ -51,5 +51,5 @@ spec:
     - name: run-pipeline
       command:
         - /opt/app-root/src/run-pipeline.sh
-      image: '$(params.fvt_image_registry)/mas-devops/mas-tekton:{{ mas_tekton_version }}'
+      image: '$(params.runpipeline_image_registry)/mas-devops/mas-tekton:{{ mas_tekton_version }}'
       imagePullPolicy: Always

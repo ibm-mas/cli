@@ -284,6 +284,14 @@
   type: string
   description: Name of the Manage database schema
   default: ""
+- name: mas_app_settings_persistent_volumes_flag
+  type: string
+  description: Flag indicating if persistent volumes should be configured by default during Manage Workspace activation. There are two defaulted File Storage Persistent Volumes Claim resources that will be created out of the box for Manage if this flag is set to true.
+  default: "False"
+- name: mas_app_settings_server_bundles_size
+  type: string
+  description: Provides different flavors of server bundle configuration to handle workload for Manage application.
+  default: "dev"
 
 # MAS Application Configuration - Optimizer Application
 # -----------------------------------------------------------------------------

@@ -49,6 +49,7 @@
         - fvt-assist
         - fvt-core
         - fvt-core-ui
+        - fvt-manage
         - fvt-run-suite
 
     # 4. Generate Tasks (Suite)
