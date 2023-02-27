@@ -48,7 +48,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - ivtcore-manage
+    - fvt-manage-aviation-setup
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -203,7 +203,7 @@
       value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage Aviation FVT to run
   when:
     - input: "$(params.fvt_version_manage_aviation)"
@@ -213,7 +213,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-setup
+    - ivtcore-manage
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -268,7 +268,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-aviation-setup
+    - fvt-manage-setup
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -313,7 +313,7 @@
       value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage HSE FVT to run
   when:
     - input: "$(params.fvt_version_manage_hse)"
@@ -423,7 +423,7 @@
       value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage Nuclear FVT to run
   when:
     - input: "$(params.fvt_version_manage_nuclear)"
@@ -698,7 +698,7 @@
       value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage Spatial FVT to run
   when:
     - input: "$(params.fvt_version_manage_spatial)"
@@ -753,7 +753,7 @@
       value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage Spatial FVT to run
   when:
     - input: "$(params.fvt_version_manage_spatial)"
@@ -808,7 +808,7 @@
       value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage Spatial FVT to run
   when:
     - input: "$(params.fvt_version_manage_spatial)"
@@ -973,7 +973,7 @@
       value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of Civil FVT to run
   when:
     - input: "$(params.fvt_version_manage_civil_selenium)"
