@@ -16,26 +16,26 @@ spec:
       params:
         - name: pipeline_name
           value: install
-        - name: test_type
+        - name: devops_test_type
           value: upgrade
-        - name: test_phase
+        - name: devops_test_phase
           value: install
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/run-pipeline/install.yml.j2') | indent(8) }}
       taskRef:
         kind: Task
-        name: mas-install-run-pipeline
+        name: mas-fvt-install-run-pipeline
 
     # FVT
     - name: test-before
       params:
         - name: pipeline_name
-          value: fvt
+          value: fvt-core
         - name: pipelinerun_name_suffix
           value: before
-        - name: test_type
+        - name: devops_test_type
           value: upgrade
-        - name: test_phase
-          value: installtest
+        - name: devops_test_phase
+          value: fvtbefore
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/run-pipeline/fvt.yml.j2') | indent(8) }}
       taskRef:
         kind: Task
@@ -48,14 +48,14 @@ spec:
       params:
         - name: pipeline_name
           value: upgrade
-        - name: test_type
+        - name: devops_test_type
           value: upgrade
-        - name: test_phase
+        - name: devops_test_phase
           value: upgrade
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/run-pipeline/upgrade.yml.j2') | indent(8) }}
       taskRef:
         kind: Task
-        name: mas-upgrade-run-pipeline
+        name: mas-fvt-upgrade-run-pipeline
       runAfter:
         - test-before
 
@@ -66,10 +66,10 @@ spec:
           value: fvt
         - name: pipelinerun_name_suffix
           value: after
-        - name: test_type
+        - name: devops_test_type
           value: upgrade
-        - name: test_phase
-          value: upgradetest
+        - name: devops_test_phase
+          value: fvtafter
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/run-pipeline/fvt.yml.j2') | indent(8) }}
       taskRef:
         kind: Task

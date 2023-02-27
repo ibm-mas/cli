@@ -44,12 +44,11 @@
 - name: devops_build_number
   type: string
   default: ""
-# TODO: Style guide: These should prefixed devops_ same as other vars linked to persisting results, e.g. devops_test_type, devops_test_phase
-- name: test_type
+- name: devops_test_type
   type: string
   description: Optional. Used to different upgrade tests from other type of tests
   default: ""
-- name: test_phase
+- name: devops_test_phase
   type: string
   description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
   default: ""
@@ -60,4 +59,14 @@
   default: ""
 - name: mas_instance_id
   type: string
+  default: ""
+
+# Runpipeline Settings (used by all pipelines running inside other pipelines)
+- name: runpipeline_cli_version
+  description: version of CLI where PipelineRuns used by run-pipeline tasks have been released
+  type: string
+  default: ""
+- name: runpipeline_image_registry
+  type: string
+  description: registry where run pipeline tasks will run
   default: ""

@@ -368,7 +368,11 @@ spec:
 
     # 16. MAS Core IVT
     # -------------------------------------------------------------------------
+    # 16.1 All Apps IVT (except Manage)
     {{ lookup('template', 'taskdefs/ivt-core/all-apps.yml.j2') | indent(4) }}
+    
+    # 16.2 Manage IVT
+    {{ lookup('template', 'taskdefs/ivt-core/manage.yml.j2') | indent(4) }}
 
 
     # 17. Application FVT - Assist
@@ -414,6 +418,11 @@ spec:
     # 25. Application FVT - Visual Inspection
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-apps/visualinspection.yml.j2') | indent(4) }}
+
+
+    # 26. Application FVT - Optimizer
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/optimizer.yml.j2') | indent(4) }}
 
 
   # Mustgather executed in finally block. Use suite_mustgather_download

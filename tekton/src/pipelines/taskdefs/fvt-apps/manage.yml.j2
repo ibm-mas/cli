@@ -32,13 +32,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage FVT to run
   when:
     - input: "$(params.fvt_version_manage)"
@@ -87,13 +87,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
 
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage ACM FVT to run
   when:
     - input: "$(params.fvt_version_manage_acm)"
@@ -142,13 +142,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
 
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage ACM FVT to run
   when:
     - input: "$(params.fvt_version_manage_acm)"
@@ -197,10 +197,10 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -252,13 +252,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage Aviation FVT to run
   when:
     - input: "$(params.fvt_version_manage_aviation)"
@@ -307,10 +307,10 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -362,13 +362,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage HSE FVT to run
   when:
     - input: "$(params.fvt_version_manage_hse)"
@@ -417,10 +417,10 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -472,13 +472,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage Nuclear FVT to run
   when:
     - input: "$(params.fvt_version_manage_nuclear)"
@@ -527,13 +527,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
 
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)  
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)  
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage Service Provider FVT to run
   when:
     - input: "$(params.fvt_version_manage_serviceprovider)"
@@ -582,13 +582,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage Service Provider FVT to run
   when:
     - input: "$(params.fvt_version_manage_serviceprovider)"
@@ -637,10 +637,65 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage
+  # Only if we've set a version of the Manage Spatial FVT to run
+  when:
+    - input: "$(params.fvt_version_manage_spatial)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-manage-setup
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+# Manage FVT - Spatial
+- name: fvt-manage-spatial
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-manage
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-spatial
+    - name: fvt_image_version
+      value: $(params.fvt_version_manage_spatial)
+    - name: fvt_test_suite
+      value: lbs-setup # Keyword for Spatial FVT
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-manage
+    - name: artifactory_apikey
+      value: $(params.fvt_artifactory_apikey)
+    
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -653,7 +708,117 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-lbs-setup
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+# Manage FVT - Utilities
+- name: fvt-manage-utilities
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-manage
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-spatial
+    - name: fvt_image_version
+      value: $(params.fvt_version_manage_spatial)
+    - name: fvt_test_suite
+      value: fvt-manage-utilities # Keyword for Utilities FVT
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-manage
+    - name: artifactory_apikey
+      value: $(params.fvt_artifactory_apikey)
+    
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Manage Spatial FVT to run
+  when:
+    - input: "$(params.fvt_version_manage_spatial)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-manage-lbs-setup
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+# Manage FVT - Linear
+- name: fvt-manage-linear
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-manage
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-spatial
+    - name: fvt_image_version
+      value: $(params.fvt_version_manage_spatial)
+    - name: fvt_test_suite
+      value: fvt-manage-linear # Keyword for Utilities FVT
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-manage
+    - name: artifactory_apikey
+      value: $(params.fvt_artifactory_apikey)
+    
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Manage Spatial FVT to run
+  when:
+    - input: "$(params.fvt_version_manage_spatial)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-manage-lbs-setup
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -857,13 +1022,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage Transportation FVT to run
   when:
     - input: "$(params.fvt_version_manage_transportation)"
@@ -912,13 +1077,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage Transportation FVT to run
   when:
     - input: "$(params.fvt_version_manage_transportation)"
@@ -967,10 +1132,10 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
 
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -1022,13 +1187,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
 
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of Civil FVT to run
   when:
     - input: "$(params.fvt_version_manage_civil_selenium)"
@@ -1077,13 +1242,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of Civil FVT to run
   when:
     - input: "$(params.fvt_version_manage_civil_cypress)"
@@ -1132,13 +1297,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
     
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the IC FVT to run
   when:
     - input: "$(params.fvt_version_manage_ic)"
@@ -1187,13 +1352,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
 
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Mobile IC FVT to run
   when:
     - input: "$(params.fvt_version_mobileic)"
@@ -1242,13 +1407,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
 
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage scheduler FVT to run
   when:
     - input: "$(params.fvt_version_manage_scheduler)"
@@ -1297,13 +1462,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
 
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage scheduler FVT to run
   when:
     - input: "$(params.fvt_version_manage_scheduler)"
@@ -1352,13 +1517,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
 
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage Transportation FVT to run
   when:
     - input: "$(params.fvt_version_manage_mobile_setup)"
@@ -1407,13 +1572,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
 
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage Maintenance Manager FVT to run
   when:
     - input: "$(params.fvt_version_manage_maintmanager)"
@@ -1462,13 +1627,13 @@
     - name: artifactory_apikey
       value: $(params.fvt_artifactory_apikey)
 
-    - name: test_type
-      value: $(params.test_type)
-    - name: test_phase
-      value: $(params.test_phase)      
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)      
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Manage Health FVT to run
   when:
     - input: "$(params.fvt_version_manage_health)"
@@ -1482,110 +1647,3 @@
   workspaces:
     - name: configs
       workspace: shared-configs
-
-
-# This task is failing, which blows up the entire pipeline
-# See: https://ibm-watson-iot.slack.com/archives/C02BEENFM1P/p1663346212349879
-#    # FVT6.8.1 Manage FVT - Health (HP-createHPusers)
-#    - name: fvt-health-createusers
-#      params:
-#        - name: mas_instance_id
-#          value: $(params.mas_instance_id)
-#        - name: mas_workspace_id
-#          value: $(params.mas_workspace_id)
-#
-#        - name: devops_mongo_uri
-#          value: $(params.devops_mongo_uri)
-#        - name: devops_build_number
-#          value: $(params.devops_build_number)
-#        - name: devops_cos_crn
-#          value: $(params.devops_cos_crn)
-#        - name: ibmcloud_apikey
-#          value: $(params.ibmcloud_apikey)
-#        - name: fvt_image_registry
-#
-#          value: $(params.fvt_image_registry)
-#        - name: fvt_image_namespace
-#          value: fvt-manage
-#        - name: fvt_image_name
-#          value: fvt-ibm-mas-manage
-#        - name: fvt_image_version
-#          value: $(params.fvt_version_health)
-#        - name: fvt_test_suite
-#          value: HP-createHPusers # Keyword for Health create users
-#        - name: product_channel
-#          value: $(params.mas_app_channel_manage)
-#        - name: product_id
-#          value: ibm-mas-manage
-#        - name: artifactory_apikey
-#          value: $(params.fvt_artifactory_apikey)
-#        - name: test_type
-#          value: $(params.test_type)
-#        - name: test_phase
-#          value: $(params.test_phase)
-#      taskRef:
-#        kind: Task
-#        name: mas-fvt-run-suite
-#      # Only if we've set a version of the Health FVT to run
-#      when:
-#        - input: "$(params.fvt_version_health)"
-#          operator: notin
-#          values: ["skip"]
-#        - input: "$(params.mas_app_channel_manage)"
-#          operator: notin
-#          values: [""]
-#      runAfter:
-#        - ivtcore-manage
-
-# This test would also fail since above test failed
-#    # FVT6.8.2 Manage FVT - Health (HP-BVT)
-#    - name: fvt-health-bvt
-#      params:
-#        - name: mas_instance_id
-#          value: $(params.mas_instance_id)
-#        - name: mas_workspace_id
-#          value: $(params.mas_workspace_id)
-#
-#        - name: devops_mongo_uri
-#          value: $(params.devops_mongo_uri)
-#        - name: devops_build_number
-#          value: $(params.devops_build_number)
-#        - name: devops_cos_crn
-#          value: $(params.devops_cos_crn)
-#        - name: ibmcloud_apikey
-#          value: $(params.ibmcloud_apikey)
-#
-#        - name: fvt_image_registry
-#          value: $(params.fvt_image_registry)
-#        - name: fvt_image_namespace
-#          value: fvt-manage
-#        - name: fvt_image_name
-#          value: fvt-ibm-mas-manage
-#        - name: fvt_image_version
-#          value: $(params.fvt_version_health)
-#        - name: fvt_test_suite
-#          value: HP-BVT # Keyword for Health BVT
-#        - name: product_channel
-#          value: $(params.mas_app_channel_manage)
-#        - name: product_id
-#          value: ibm-mas-manage
-#        - name: artifactory_apikey
-#          value: $(params.fvt_artifactory_apikey)
-#
-#        - name: test_type
-#          value: $(params.test_type)
-#        - name: test_phase
-#          value: $(params.test_phase)
-#      taskRef:
-#        kind: Task
-#        name: mas-fvt-run-suite
-#      # Only if we've set a version of the Health FVT to run
-#      when:
-#        - input: "$(params.fvt_version_health)"
-#          operator: notin
-#          values: ["skip"]
-#        - input: "$(params.mas_app_channel_manage)"
-#          operator: notin
-#          values: [""]
-#      runAfter:
-#        - fvt-health-createusers
