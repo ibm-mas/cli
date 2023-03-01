@@ -11,9 +11,9 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Private Registry Details (Required):
-  -H, --host ${COLOR_YELLOW}REGISTRY_PRIVATE_HOST${TEXT_RESET}        Hostname of the private registry
-  -P, --port ${COLOR_YELLOW}REGISTRY_PRIVATE_PORT${TEXT_RESET}        Port number for the private registry
-  -c, --ca-file ${COLOR_YELLOW}REGISTRY_PRIVATE_CA_FILE${TEXT_RESET}  Location of the CA file for the private registry
+  -H, --host ${COLOR_YELLOW}REGISTRY_PUBLIC_HOST${TEXT_RESET}        Hostname of the private registry
+  -P, --port ${COLOR_YELLOW}REGISTRY_PUBLIC_PORT${TEXT_RESET}        Port number for the private registry
+  -c, --ca-file ${COLOR_YELLOW}REGISTRY_PUBLIC_CA_FILE${TEXT_RESET}  Location of the CA file for the private registry
 
 Private Registry Authentication (Optional):
   -u, --username ${COLOR_YELLOW}REGISTRY_USERNAME${TEXT_RESET}    Username to authenticate to the private registry
@@ -35,13 +35,13 @@ function configure_ocp_for_mirror_noninteractive() {
     shift
     case $key in
       -H|--host)
-        REGISTRY_PRIVATE_HOST=$1 && shift
+        REGISTRY_PUBLIC_HOST=$1 && shift
         ;;
       -P|--port)
-        REGISTRY_PRIVATE_PORT=$1 && shift
+        REGISTRY_PUBLIC_PORT=$1 && shift
         ;;
       -c|--ca-file)
-        REGISTRY_PRIVATE_CA_FILE=$1 && shift
+        REGISTRY_PUBLIC_CA_FILE=$1 && shift
         ;;
       -u|--username)
         REGISTRY_USERNAME=$1 && shift
@@ -65,11 +65,11 @@ function configure_ocp_for_mirror_noninteractive() {
   done
 
   # Check all args have been set
-  [[ -z "$REGISTRY_PRIVATE_HOST" ]] && configure_ocp_for_mirror_help "REGISTRY_PRIVATE_HOST is not set"
-  [[ -z "$REGISTRY_PRIVATE_PORT" ]] && configure_ocp_for_mirror_help "REGISTRY_PRIVATE_PORT is not set"
-  [[ -z "$REGISTRY_PRIVATE_CA_FILE" ]] && configure_ocp_for_mirror_help "REGISTRY_PRIVATE_CA_FILE is not set"
-  if [[ ! -e $REGISTRY_PRIVATE_CA_FILE ]]; then
-    echo_warning "Certificate file '$REGISTRY_PRIVATE_CA_FILE' does not exist"
+  [[ -z "$REGISTRY_PUBLIC_HOST" ]] && configure_ocp_for_mirror_help "REGISTRY_PUBLIC_HOST is not set"
+  [[ -z "$REGISTRY_PUBLIC_PORT" ]] && configure_ocp_for_mirror_help "REGISTRY_PUBLIC_PORT is not set"
+  [[ -z "$REGISTRY_PUBLIC_CA_FILE" ]] && configure_ocp_for_mirror_help "REGISTRY_PUBLIC_CA_FILE is not set"
+  if [[ ! -e $REGISTRY_PUBLIC_CA_FILE ]]; then
+    echo_warning "Certificate file '$REGISTRY_PUBLIC_CA_FILE' does not exist"
     exit 1
   fi
 
@@ -81,11 +81,11 @@ function configure_ocp_for_mirror_interactive() {
 
   echo
   echo_h2 "Configure Target Mirror"
-  prompt_for_input "Mirror Registry Host" REGISTRY_PRIVATE_HOST && export REGISTRY_PRIVATE_HOST
-  prompt_for_input "Mirror Registry Port" REGISTRY_PRIVATE_PORT && export REGISTRY_PRIVATE_PORT
-  prompt_for_input "Mirror Registry CA File" REGISTRY_PRIVATE_CA_FILE && export REGISTRY_PRIVATE_CA_FILE
-  if [[ ! -e $REGISTRY_PRIVATE_CA_FILE ]]; then
-    echo_warning "Certificate file '$REGISTRY_PRIVATE_CA_FILE' does not exist"
+  prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST && export REGISTRY_PUBLIC_HOST
+  prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT && export REGISTRY_PUBLIC_PORT
+  prompt_for_input "Mirror Registry CA File" REGISTRY_PUBLIC_CA_FILE && export REGISTRY_PUBLIC_CA_FILE
+  if [[ ! -e $REGISTRY_PUBLIC_CA_FILE ]]; then
+    echo_warning "Certificate file '$REGISTRY_PUBLIC_CA_FILE' does not exist"
     exit 1
   fi
 
@@ -106,9 +106,9 @@ function configure_ocp_for_mirror() {
   fi
 
   # Ensure all environment variables are available to ansible-playbook
-  export REGISTRY_PRIVATE_HOST
-  export REGISTRY_PRIVATE_PORT
-  export REGISTRY_PRIVATE_CA_FILE
+  export REGISTRY_PUBLIC_HOST
+  export REGISTRY_PUBLIC_PORT
+  export REGISTRY_PUBLIC_CA_FILE
 
   export REGISTRY_USERNAME
   export REGISTRY_PASSWORD
@@ -118,9 +118,9 @@ function configure_ocp_for_mirror() {
   echo_h2 "Review Settings"
   echo "${TEXT_DIM}"
   echo_h2 "Private Registry Connection" "    "
-  echo_reset_dim "Host ...................... ${COLOR_MAGENTA}${REGISTRY_PRIVATE_HOST}"
-  echo_reset_dim "Port ...................... ${COLOR_MAGENTA}${REGISTRY_PRIVATE_PORT}"
-  echo_reset_dim "CA File ................... ${COLOR_MAGENTA}${REGISTRY_PRIVATE_CA_FILE}"
+  echo_reset_dim "Host ...................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_HOST}"
+  echo_reset_dim "Port ...................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_PORT}"
+  echo_reset_dim "CA File ................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_CA_FILE}"
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "Private Registry Authentication" "    "

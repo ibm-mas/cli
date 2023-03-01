@@ -79,7 +79,7 @@ function provision_fyre_noninteractive() {
         SIMULATE_AIRGAP_NETWORK=true
         ;;
       -C|--ca-file)
-        REGISTRY_PRIVATE_CA_FILE=$1 && shift
+        REGISTRY_PUBLIC_CA_FILE=$1 && shift
         ;;
       -h|--help)
         provision_fyre_help
@@ -103,7 +103,7 @@ function provision_fyre_noninteractive() {
   [[ -z "$FYRE_QUOTA_TYPE" ]] && provision_fyre_help "FYRE_QUOTA_TYPE is not set"
 
   if [[ "$SIMULATE_AIRGAP_NETWORK" == "true" ]]; then
-    [[ -z "$REGISTRY_PRIVATE_CA_FILE" ]] && provision_fyre_help "REGISTRY_PRIVATE_CA_FILE is not set"
+    [[ -z "$REGISTRY_PUBLIC_CA_FILE" ]] && provision_fyre_help "REGISTRY_PUBLIC_CA_FILE is not set"
   fi
 }
 
@@ -164,7 +164,7 @@ function provision_fyre_interactive() {
   prompt_for_confirm "Configure networking to simulate air gap" SIMULATE_AIRGAP_NETWORK
 
   if [[ "$SIMULATE_AIRGAP_NETWORK" == "true" ]]; then
-    prompt_for_input "Private Registry CA File Location" REGISTRY_PRIVATE_CA_FILE
+    prompt_for_input "Private Registry CA File Location" REGISTRY_PUBLIC_CA_FILE
   fi
 }
 
@@ -201,7 +201,7 @@ function provision_fyre() {
   export FYRE_WORKER_CPU
   export FYRE_WORKER_MEMORY
 
-  export REGISTRY_PRIVATE_CA_FILE
+  export REGISTRY_PUBLIC_CA_FILE
 
   echo
   reset_colors
