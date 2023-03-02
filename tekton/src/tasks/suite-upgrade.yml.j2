@@ -7,11 +7,6 @@ spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
-    # Control the image pull policy for the CLI container image
-    - name: image_pull_policy
-      type: string
-      default: IfNotPresent
-
     - name: mas_instance_id
       type: string
       description: Instance ID
