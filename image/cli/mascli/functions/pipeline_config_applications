@@ -160,114 +160,144 @@ function channel_select_visualinspection() {
   true
 }
 
+# The list of apps is stored in APP_LIST in utils the default is:
+#   supports single node openshift (override by APP_INSTALL_DICT[<<app>>,sno]=false)
+#   supports airgap (override by APP_INSTALL_DICT[<<app>>,airgap]=false)
+#   has no prereqs (set by APP_INSTALL_DICT[<<app>>,prereq]=<<prereqApp>>)
+#   on selection calls channel_select_<<app>> (override by APP_INSTALL_DICT[<<app>>,func]=<<function>>)
+#   supports all channels (override by APP_INSTALL_DICT[<<app>>,unsupported_channel]=<<channel>>)
+# Current limitations:
+#   single node openshift and airgap support are binary but probably will need to be channel dependant
+#     ie "APP_INSTALL_DICT[iot,sno]=false" means don't support sno at all
+#        "APP_INSTALL_DCIT[iot,sno,8.8.x]=false" means don't support sno on channel 8.8.x
+#   prereqs only supports a single app may need to be a list
+#   unsupported channels only supports a single channel will probably need to be a list
+
+declare -A APP_INSTALL_DICT
+# IOT
+APP_INSTALL_DICT[iot,sno]=false
+# MONITOR
+APP_INSTALL_DICT[monitor,airgap]=false
+APP_INSTALL_DICT[monitor,pre]=iot
+# MANAGE
+APP_INSTALL_DICT[manage,func]=selected_manage
+# OPTIMIZER
+APP_INSTALL_DICT[optimizer,sno]=false
+APP_INSTALL_DICT[optimizer,unsupported_channel]=8.7.x
+APP_INSTALL_DICT[optimizer,func]=selected_optimizer
+# VISUALINSPECTION
+APP_INSTALL_DICT[visualinspection,sno]=false
+# PREDICT
+APP_INSTALL_DICT[predict,sno]=false
+APP_INSTALL_DICT[predict,pre]=manage
+APP_INSTALL_DICT[predict,airgap]=false
+# ASSIST
+APP_INSTALL_DICT[assist,sno]=false
+APP_INSTALL_DICT[assist,pre]=manage
+APP_INSTALL_DICT[assist,airgap]=false
+# HPUTILITIES
+APP_INSTALL_DICT[hputilities,sno]=false
+APP_INSTALL_DICT[hputilities,pre]=predict
+APP_INSTALL_DICT[hputilities,airgap]=false
+
+function selected_manage() {
+  channel_select_manage
+  prompt_for_confirm_default_yes "+ Create demo data" MAS_APP_SETTINGS_DEMODATA
+  if prompt_for_confirm "+ Configure JMS"; then
+    MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
+    MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE="jms"
+  fi
+}
+
+function selected_optimizer() {
+  channel_select_optimizer
+  while : ; do
+    prompt_for_input '+ Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full"
+    [[ "$MAS_APP_PLAN_OPTIMIZER" != "full" && "$MAS_APP_PLAN_OPTIMIZER" != "limited" ]] || break
+  done
+}
+
+function selected_assist() {
+  channel_select_assist
+  while : ; do
+    prompt_for_input 'COS Provider [ibm/ocs]' COS_TYPE "ibm"
+    [[ "$COS_TYPE" != "ibm" && "$COS_TYPE" != "ocs" ]] || break
+  done
+  prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY $IBMCLOUD_APIKEY
+  prompt_for_input "IBM Cloud Resource Group" IBMCLOUD_RESOURCEGROUP $IBMCLOUD_RESOURCEGROUP "Default"
+}
 
 function config_pipeline_applications() {
   echo
   echo_h2 "6. Application Selection"
-  # Default all applications to "do not deploy"
-  MAS_APP_CHANNEL_IOT=''
-  MAS_APP_CHANNEL_MONITOR=''
-  MAS_APP_CHANNEL_MANAGE=''
-  MAS_APP_CHANNEL_PREDICT=''
-  MAS_APP_CHANNEL_ASSIST=''
-  MAS_APP_CHANNEL_HPUTILITIES=''
-  MAS_APP_CHANNEL_VISUALINSPECTION=''
-  MAS_APP_CHANNEL_OPTIMIZER='';        MAS_APP_PLAN_OPTIMIZER=''
-
-  if [[ "$SNO_MODE" != "true" ]]; then
-    # Applications supported in air gap and online installs
-    if prompt_for_confirm "Install IoT"; then
-      channel_select_iot || exit 1
+  declare -A install
+  for app in "${APP_LIST[@]}"
+  do
+    if [[ ! -z ${APP_INSTALL_DICT[$app,pre]} ]]
+    then
+       if [[ ${install[${APP_INSTALL_DICT[$app,pre]}]} -ne 1 ]]
+       then
+         echo "${TEXT_DIM}Skipping $app due to missing prereq ${APP_INSTALL_DICT[$app,pre]}${TEXT_RESET}"
+         continue
+       fi
     fi
 
-    # Applications only supported in online installs
-    if [[ -z "$AIRGAP_MODE" ]]; then
-      # Applications that require IoT
-      if [[ "$MAS_APP_CHANNEL_IOT" != '' ]]; then
-        # Monitor
-        if prompt_for_confirm "Install Monitor"; then
-          channel_select_monitor || exit 1
-        fi
+    if [[ ! -z ${APP_INSTALL_DICT[$app,unsupported_channel]} ]]
+    then
+       echo "checking level!!!${TEXT_RESET}"
+       if [[ ${APP_INSTALL_DICT[$app,unsupported_channel]} = "$MAS_CHANNEL" ]]
+       then
+         echo "${TEXT_DIM}Skipping $app due to not supporting channel $MAS_CHANNEL${TEXT_RESET}"
+         continue
+       fi
+    fi
+
+    if [[ "$SNO_MODE" == "true" &&  ! -z ${APP_INSTALL_DICT[$app,sno]} ]]
+    then
+      echo "${TEXT_DIM}Skipping $app due to not supporting Single Node Openshift${TEXT_RESET}"
+      continue
+    fi
+    if [[ "$AIRGAP_MODE" == "true" && ! -z ${APP_INSTALL_DICT[$app,airgap]} ]]
+    then
+      echo "${TEXT_DIM}Skipping $app due to not supporting airgap${TEXT_RESET}"
+      continue
+    fi
+    if prompt_for_confirm "Install $app"
+    then
+      install[$app]=1
+      if [[ -z ${APP_INSTALL_DICT[$app,func]} ]]
+      then
+        function="channel_select_$app"
+        $function
+      else
+        ${APP_INSTALL_DICT[$app,func]}
       fi
     fi
-  fi
-
-  # Manage
-  if prompt_for_confirm "Install Manage"; then
-    channel_select_manage || exit 1
-    prompt_for_confirm_default_yes "+ Create demo data" MAS_APP_SETTINGS_DEMODATA
-    if prompt_for_confirm "+ Configure JMS"; then
-      MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
-      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE="jms"
+  done
+  for app in "${APP_LIST[@]}"
+  do
+    if [[ ${install[$app]} -ne 1 ]]
+    then
+      var="MAS_APP_CHANNEL_${app^^}"
+      printf -v "${var}" ''
     fi
-  fi
+  done
 
-  if [[ "$SNO_MODE" != "true" ]]; then
-    # Optimizer can only be installed from 8.8 on
-    if [[ "$MAS_CHANNEL" != "8.7.x" ]]; then
-      if prompt_for_confirm "Install Optimizer"; then
-        channel_select_optimizer || exit 1
-        # Optimizer install Plan + Validation
-        while : ; do
-          prompt_for_input '+ Plan [full/limited]' MAS_APP_PLAN_OPTIMIZER "full"
-          [[ "$MAS_APP_PLAN_OPTIMIZER" != "full" && "$MAS_APP_PLAN_OPTIMIZER" != "limited" ]] || break
-        done
-      fi
-    fi
-
-    # Maximo Visual Inspection
-    if prompt_for_confirm "Install Visual Inspection"; then
-     channel_select_visualinspection || exit 1
-    fi
-
-    # Applications only supported in online installs
-    if [[ -z "$AIRGAP_MODE" ]]; then
-      # Applications that require Manage
-      # TODO: these applications require Health component specifically,
-      # need to review this code when add-ons selection are in place
-      if [[ "$MAS_APP_CHANNEL_MANAGE" != '' ]]; then
-        # Predict
-        if prompt_for_confirm "Install Predict"; then
-          channel_select_predict || exit 1
-        fi
-        # Health & Predict Utilities
-        if prompt_for_confirm "Install Health & Predict - Utilities"; then
-          channel_select_hputilities || exit 1
-        fi
-      fi
-
-      # Assist
-      if prompt_for_confirm "Install Assist"; then
-        channel_select_assist || exit 1
-      fi
-    fi
-
-    # Assist Dependencies
-    if [[ "$MAS_APP_CHANNEL_ASSIST" != '' ]]; then
-      while : ; do
-        prompt_for_input 'COS Provider [ibm/ocs]' COS_TYPE "ibm"
-        [[ "$COS_TYPE" != "ibm" && "$COS_TYPE" != "ocs" ]] || break
-      done
-      prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY $IBMCLOUD_APIKEY
-      prompt_for_input "IBM Cloud Resource Group" IBMCLOUD_RESOURCEGROUP $IBMCLOUD_RESOURCEGROUP "Default"
-    fi
-
-    if [[ "$MAS_APP_CHANNEL_PREDICT" != "" || "$MAS_APP_CHANNEL_HPUTILITIES" != "" || "$MAS_APP_CHANNEL_ASSIST" != "" ]]; then
-      case $MAS_CATALOG_VERSION in
-        # CP4D v4.6.0 was added in the February 2023 catalog update
-        v8-amd64|v8-230217-amd64|v8-230314-amd64)
-          CP4D_VERSION=4.6.0
-          ;;
-        # Versions of the catalog older than February 2023 support up to CP4D v4.5.2
-        v8-230111-amd64|v8-221228-amd64|v8-221129-amd64)
-          CP4D_VERSION=4.5.2
-          ;;
-        *)
-          echo
-          echo "One or more selected applications require Cloud Pak for Data"
-          prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.6.0"
-          ;;
-      esac
-    fi
+  if [[ "$MAS_APP_CHANNEL_PREDICT" != "" || "$MAS_APP_CHANNEL_HPUTILITIES" != "" || "$MAS_APP_CHANNEL_ASSIST" != "" ]]; then
+    case $MAS_CATALOG_VERSION in
+      # CP4D v4.6.0 was added in the February 2023 catalog update
+      v8-amd64|v8-230217-amd64|v8-230314-amd64)
+        CP4D_VERSION=4.6.0
+        ;;
+      # Versions of the catalog older than February 2023 support up to CP4D v4.5.2
+      v8-230111-amd64|v8-221228-amd64|v8-221129-amd64)
+        CP4D_VERSION=4.5.2
+        ;;
+      *)
+        echo
+        echo "One or more selected applications require Cloud Pak for Data"
+        prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.6.0"
+        ;;
+    esac
   fi
 }

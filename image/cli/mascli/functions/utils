@@ -13,6 +13,9 @@ TEXT_DIM=$(tput dim)
 TEXT_UNDERLINE=$(tput smul)
 TEXT_RESET=$(tput sgr0)
 
+# APP_LIST used during install/uninstall
+APP_LIST=(iot monitor manage optimizer visualinspection predict assist hputilities)
+
 function reset_colors() {
   echo -ne "${COLOR_RESET}\033[1K"
 }
