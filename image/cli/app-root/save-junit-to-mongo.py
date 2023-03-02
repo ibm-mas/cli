@@ -52,9 +52,8 @@ if __name__ == "__main__":
 
     ####Print all junit files contents for debug
     ext = ('.xml')
-    path = ''
     for file in os.listdir(junitOutputDir):
-        file_path = f'{path}\\{file}'
+        file_path = f'{junitOutputDir}/{file}'
         if file.endswith(ext):
             print(f"===file {file} under {file_path} contents=====")  # printing file name of desired extension
             try:
