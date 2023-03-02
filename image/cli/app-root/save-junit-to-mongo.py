@@ -50,6 +50,26 @@ if __name__ == "__main__":
         runId = f"{instanceId}:{testtype}:{testphase}:{build}"
         resultId = f"{instanceId}:{testtype}:{testphase}:{build}:{productId}:{suite}"
 
+    ####Print all junit files contents for debug
+    ext = ('.xml')
+    path = ''
+    for file in os.listdir(junitOutputDir):
+        file_path = f'{path}\\{file}'
+        if file.endswith(ext):
+            print(f"===file {file} under {file_path} contents=====")  # printing file name of desired extension
+            try:
+                # Printing the file pertaining to file_path
+                cmd=f"cat {file_path}"
+                os.system(cmd)
+            except:
+                # Catching if any error occurs and alerting the user
+                print(f'ALERT: {file} could not be printed! Please check\
+                the associated softwares, or the file type.')
+            print(f"========")
+        else:
+            continue
+
+
     resultFiles = glob.glob(f'{junitOutputDir}/*.xml')
     for resultfile in resultFiles:
         try:
