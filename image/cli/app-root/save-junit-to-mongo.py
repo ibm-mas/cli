@@ -127,26 +127,55 @@ if __name__ == "__main__":
             db = client.masfvt
 
             # Update or create summary doc
-            result1 = db.runsv2.find_one_and_update(
-                {"_id": runId},
-                {
-                    '$setOnInsert': {
-                        "_id": runId,
-                        "timestamp": datetime.utcnow(),
-                        "target": {
-                            "instanceId": instanceId,
-                            "buildId": build,
+            ## Add logic to add key in runV2 for upgrade test
+            if "DEVOPS_TEST_TYPE" in os.environ and os.environ['DEVOPS_TEST_TYPE'] != "" and "DEVOPS_TEST_PHASE" in os.environ and os.environ['DEVOPS_TEST_PHASE'] != "":
+                testtype = os.environ['DEVOPS_TEST_TYPE']
+                testphase = os.environ['DEVOPS_TEST_PHASE']
+
+                result1 = db.runsv2.find_one_and_update(
+                    {"_id": runId},
+                    {
+                        '$setOnInsert': {
+                            "_id": runId,
+                            "timestamp": datetime.utcnow(),
+                            "target": {
+                                "instanceId": instanceId,
+                                "buildId": build,
+                                "testtype": testtype,
+                                "testphase":testphase
+                            }
+                        },
+                        '$set': {
+                            f"products.ibm-mas-devops.productId": productId,
+                            f"products.ibm-mas-devops.channelId": channelId,
+                            f"products.ibm-mas-devops.version": version,
+                            f"products.ibm-mas-devops.results.{suite}": suiteSummary
                         }
                     },
-                    '$set': {
-                        f"products.ibm-mas-devops.productId": productId,
-                        f"products.ibm-mas-devops.channelId": channelId,
-                        f"products.ibm-mas-devops.version": version,
-                        f"products.ibm-mas-devops.results.{suite}": suiteSummary
-                    }
-                },
-                upsert=True
-            )
+                    upsert=True
+                )
+            else:
+                result1 = db.runsv2.find_one_and_update(
+                    {"_id": runId},
+                    {
+                        '$setOnInsert': {
+                            "_id": runId,
+                            "timestamp": datetime.utcnow(),
+                            "target": {
+                                "instanceId": instanceId,
+                                "buildId": build
+
+                            }
+                        },
+                        '$set': {
+                            f"products.ibm-mas-devops.productId": productId,
+                            f"products.ibm-mas-devops.channelId": channelId,
+                            f"products.ibm-mas-devops.version": version,
+                            f"products.ibm-mas-devops.results.{suite}": suiteSummary
+                        }
+                    },
+                    upsert=True
+                )
 
             # Replace or create result doc
             result2 = db.resultsv2.replace_one(
