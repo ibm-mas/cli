@@ -146,9 +146,9 @@ spec:
         value: $(params.ibmcloud_apikey)
       
       # Optional parameters to categorize result to be persisted
-      - name: TEST_TYPE
+      - name: DEVOPS_TEST_TYPE
         value: $(params.devops_test_type)
-      - name: TEST_PHASE
+      - name: DEVOPS_TEST_PHASE
         value: $(params.devops_test_phase)
   steps:
     - image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage:$(params.fvt_image_version)'
