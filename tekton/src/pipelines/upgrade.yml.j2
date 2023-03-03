@@ -31,6 +31,8 @@ spec:
           value: $(params.devops_test_phase)
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
+        - name: devops_suite_name
+          value: upgrade-core
       taskRef:
         kind: Task
         name: mas-devops-suite-upgrade
