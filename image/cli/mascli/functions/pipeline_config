@@ -70,10 +70,12 @@ function pipeline_config() {
     case $MAS_CHANNEL_SELECTION in
       1|8.9|8.9.x)
         MAS_CHANNEL=8.9.x
+        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
         ;;
 
       2|8.8|8.8.x)
         MAS_CHANNEL=8.8.x
+        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "88" )
         ;;
 
       *)
@@ -102,40 +104,48 @@ function pipeline_config() {
       # -----------------------------------------------------------------------
       1)
         MAS_CHANNEL=8.9.x
+        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
         MAS_CATALOG_VERSION=v8-230217-amd64
         ;;
       2)
         MAS_CHANNEL=8.8.x
+        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "88" )
         MAS_CATALOG_VERSION=v8-230217-amd64
         ;;
       # Jan 2023 Catalog
       # -----------------------------------------------------------------------
       3)
         MAS_CHANNEL=8.9.x
+        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
         MAS_CATALOG_VERSION=v8-230111-amd64
         ;;
       4)
         MAS_CHANNEL=8.8.x
+        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "88" )
         MAS_CATALOG_VERSION=v8-230111-amd64
         ;;
       # Dec 2022 Catalog
       # -----------------------------------------------------------------------
       5)
         MAS_CHANNEL=8.9.x
+        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
         MAS_CATALOG_VERSION=v8-221228-amd64
         ;;
       6)
         MAS_CHANNEL=8.8.x
+        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "88" )
         MAS_CATALOG_VERSION=v8-221228-amd64
         ;;
       # Nov 2022 Catalog
       # -----------------------------------------------------------------------
       7)
         MAS_CHANNEL=8.9.x
+        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
         MAS_CATALOG_VERSION=v8-221129-amd64
         ;;
       8)
         MAS_CHANNEL=8.8.x
+        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "88" )
         MAS_CATALOG_VERSION=v8-221129-amd64
         ;;
       *)
@@ -145,6 +155,15 @@ function pipeline_config() {
     esac
   fi
   true
+  
+  echo
+  echo_h2 "3.1. License Terms"
+  echo -e "${COLOR_YELLOW} For information about your license, see "$MAS_LICENSE_LINK " To continue with the installation, you must accept the license terms."
+  prompt_for_confirm "Do you accept the license terms?" LICENSE_RESPONSE
+
+  if [[ "$LICENSE_RESPONSE" == "false" ]]; then
+    exit 1
+  fi
 
   echo
   echo_h2 "4. Configure Operation Mode"
@@ -184,15 +203,15 @@ function pipeline_config() {
 
     echo
     echo_h2 "10.3 Configure IBM Container Registry (MAS)"
-    prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
-    prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com/cpopen override
+    prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP docker-na-public.artifactory.swg-devops.com/wiotp-docker-local override
+    prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen override
     MAS_ENTITLEMENT_USERNAME=cp
     MAS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
 
     echo
     echo_h2 "10.4 Configure IBM Container Registry (SLS)"
-    prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP wiotp-docker-local.artifactory.swg-devops.com override
-    prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN wiotp-docker-local.artifactory.swg-devops.com/cpopen override
+    prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP docker-na-public.artifactory.swg-devops.com/wiotp-docker-local override
+    prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen override
     SLS_ENTITLEMENT_USERNAME=cp
     SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   else
