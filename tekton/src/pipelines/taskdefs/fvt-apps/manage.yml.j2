@@ -134,7 +134,7 @@
     - name: fvt_image_version
       value: $(params.fvt_version_manage_acm)
     - name: fvt_test_suite
-      value: fvt-acm # Keyword for ACM FVT
+      value: fvt-acm-user # Keyword for ACM FVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -299,7 +299,7 @@
     - name: fvt_image_version
       value: $(params.fvt_version_manage_aviation)
     - name: fvt_test_suite
-      value: fvt-mfa # Keyword for Aviation FVT
+      value: fvt-mfa-user # Keyword for Aviation FVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -464,7 +464,7 @@
     - name: fvt_image_version
       value: $(params.fvt_version_manage_hse)
     - name: fvt_test_suite
-      value: fvt-hse # Keyword for HSE FVT
+      value: fvt-hse-user # Keyword for HSE FVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -603,7 +603,7 @@
     - name: configs
       workspace: shared-configs
 
-# Manage FVT - Nuclear
+# Manage FVT - Nuclear - New User
 - name: fvt-manage-nuclear-user
   params:
     - name: mas_instance_id
@@ -629,7 +629,7 @@
     - name: fvt_image_version
       value: $(params.fvt_version_manage_nuclear)
     - name: fvt_test_suite
-      value: fvt-nuc # Keyword for Nuclear FVT
+      value: fvt-nuc-user # Keyword for Nuclear FVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -794,7 +794,7 @@
     - name: fvt_image_version
       value: $(params.fvt_version_manage_serviceprovider)
     - name: fvt_test_suite
-      value: fvt-sp # Keyword for Service Provider FVT
+      value: fvt-sp-user # Keyword for Service Provider FVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -959,7 +959,7 @@
     - name: fvt_image_version
       value: $(params.fvt_version_manage_spatial)
     - name: fvt_test_suite
-      value: lbs-setup # Keyword for Spatial FVT
+      value: lbs-user # Keyword for Spatial FVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -1234,7 +1234,7 @@
     - name: fvt_image_version
       value: $(params.fvt_version_manage_transportation)
     - name: fvt_test_suite
-      value: fvt-tr # Keyword for Transportation FVT
+      value: fvt-tr-user # Keyword for Transportation FVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -1399,7 +1399,7 @@
     - name: fvt_image_version
       value: $(params.fvt_version_manage_civil_selenium)
     - name: fvt_test_suite
-      value: cibvt # Civil Selenium keyword
+      value: cibvt-user # Civil Selenium keyword
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -1533,7 +1533,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-civil-selenium
+    - fvt-manage-civil-selenium-user
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -1729,7 +1729,7 @@
     - name: fvt_image_version
       value: $(params.fvt_version_manage_scheduler)
     - name: fvt_test_suite
-      value: sched_fvt # Keyword for Scheduler FVT
+      value: sched_fvt_user # Keyword for Scheduler FVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
