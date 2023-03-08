@@ -106,7 +106,62 @@
     - fvt-manage-setup
   workspaces:
     - name: configs
-      workspace: shared-configs   
+      workspace: shared-configs
+
+# Manage FVT - ACM - New User
+- name: fvt-manage-acm-user
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-manage
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-acm
+    - name: fvt_image_version
+      value: $(params.fvt_version_manage_acm)
+    - name: fvt_test_suite
+      value: fvt-acm # Keyword for ACM FVT
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-manage
+    - name: artifactory_apikey
+      value: $(params.fvt_artifactory_apikey)
+
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage
+  # Only if we've set a version of the Manage ACM FVT to run
+  when:
+    - input: "$(params.fvt_version_manage_acm)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-manage-acm-setup
+  workspaces:
+    - name: configs
+      workspace: shared-configs
 
 # Manage FVT - ACM
 - name: fvt-manage-acm
@@ -158,7 +213,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-acm-setup
+    - fvt-manage-acm-user
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -218,6 +273,61 @@
     - name: configs
       workspace: shared-configs
 
+# Manage FVT - Aviation - New User
+- name: fvt-manage-aviation-user
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-manage
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-aviation
+    - name: fvt_image_version
+      value: $(params.fvt_version_manage_aviation)
+    - name: fvt_test_suite
+      value: fvt-mfa # Keyword for Aviation FVT
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-manage
+    - name: artifactory_apikey
+      value: $(params.fvt_artifactory_apikey)
+    
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage
+  # Only if we've set a version of the Manage Aviation FVT to run
+  when:
+    - input: "$(params.fvt_version_manage_aviation)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-manage-setup
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
 # Manage FVT - Aviation
 - name: fvt-manage-aviation
   params:
@@ -268,7 +378,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-aviation-user
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -328,6 +438,61 @@
     - name: configs
       workspace: shared-configs
 
+# Manage FVT - HSE - New User
+- name: fvt-manage-hse-user
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-manage
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-hse
+    - name: fvt_image_version
+      value: $(params.fvt_version_manage_hse)
+    - name: fvt_test_suite
+      value: fvt-hse # Keyword for HSE FVT
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-manage
+    - name: artifactory_apikey
+      value: $(params.fvt_artifactory_apikey)
+    
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage
+  # Only if we've set a version of the Manage HSE FVT to run
+  when:
+    - input: "$(params.fvt_version_manage_hse)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-manage-hse-setup
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
 # Manage FVT - HSE
 - name: fvt-manage-hse
   params:
@@ -378,7 +543,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-hse-setup
+    - fvt-manage-hse-user
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -439,7 +604,7 @@
       workspace: shared-configs
 
 # Manage FVT - Nuclear
-- name: fvt-manage-nuclear
+- name: fvt-manage-nuclear-user
   params:
     - name: mas_instance_id
       value: $(params.mas_instance_id)
@@ -489,6 +654,61 @@
       values: [""]
   runAfter:
     - fvt-manage-nuclear-setup
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+# Manage FVT - Nuclear
+- name: fvt-manage-nuclear
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-manage
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-nuclear
+    - name: fvt_image_version
+      value: $(params.fvt_version_manage_nuclear)
+    - name: fvt_test_suite
+      value: fvt-nuc # Keyword for Nuclear FVT
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-manage
+    - name: artifactory_apikey
+      value: $(params.fvt_artifactory_apikey)
+    
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage
+  # Only if we've set a version of the Manage Nuclear FVT to run
+  when:
+    - input: "$(params.fvt_version_manage_nuclear)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-manage-nuclear-user
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -548,6 +768,61 @@
     - name: configs
       workspace: shared-configs
 
+# Manage FVT - Service Provider - New User
+- name: fvt-manage-serviceprovider-user
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-manage
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-service-provider
+    - name: fvt_image_version
+      value: $(params.fvt_version_manage_serviceprovider)
+    - name: fvt_test_suite
+      value: fvt-sp # Keyword for Service Provider FVT
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-manage
+    - name: artifactory_apikey
+      value: $(params.fvt_artifactory_apikey)
+    
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage
+  # Only if we've set a version of the Manage Service Provider FVT to run
+  when:
+    - input: "$(params.fvt_version_manage_serviceprovider)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-manage-serviceprovider-setup
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
 # Manage FVT - Service Provider
 - name: fvt-manage-serviceprovider
   params:
@@ -598,7 +873,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-serviceprovider-setup
+    - fvt-manage-serviceprovider-user
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -658,6 +933,61 @@
     - name: configs
       workspace: shared-configs
 
+# Manage FVT - Location Base Services - New User
+- name: fvt-manage-lbs-user
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-manage
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-spatial
+    - name: fvt_image_version
+      value: $(params.fvt_version_manage_spatial)
+    - name: fvt_test_suite
+      value: lbs-setup # Keyword for Spatial FVT
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-manage
+    - name: artifactory_apikey
+      value: $(params.fvt_artifactory_apikey)
+    
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage
+  # Only if we've set a version of the Manage Spatial FVT to run
+  when:
+    - input: "$(params.fvt_version_manage_spatial)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-manage-lbs-setup
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
 # Manage FVT - Spatial
 - name: fvt-manage-spatial
   params:
@@ -708,7 +1038,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-lbs-setup
+    - fvt-manage-lbs-user
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -763,7 +1093,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-lbs-setup
+    - fvt-manage-lbs-user
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -818,7 +1148,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-lbs-setup
+    - fvt-manage-lbs-user
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -878,6 +1208,61 @@
     - name: configs
       workspace: shared-configs
 
+# Manage FVT - Transportation - New User
+- name: fvt-manage-transportation-user
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-manage
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-transportation
+    - name: fvt_image_version
+      value: $(params.fvt_version_manage_transportation)
+    - name: fvt_test_suite
+      value: fvt-tr # Keyword for Transportation FVT
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-manage
+    - name: artifactory_apikey
+      value: $(params.fvt_artifactory_apikey)
+    
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage
+  # Only if we've set a version of the Manage Transportation FVT to run
+  when:
+    - input: "$(params.fvt_version_manage_transportation)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-manage-transportation-setup
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
 # Manage FVT - Transportation
 - name: fvt-manage-transportation
   params:
@@ -928,7 +1313,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-transportation-setup
+    - fvt-manage-transportation-user
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -988,6 +1373,61 @@
     - name: configs
       workspace: shared-configs
 
+# Manage FVT - Civil Infrastructure Selenium - New User
+- name: fvt-manage-civil-selenium-user
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-civil
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-civil-selenium
+    - name: fvt_image_version
+      value: $(params.fvt_version_manage_civil_selenium)
+    - name: fvt_test_suite
+      value: cibvt # Civil Selenium keyword
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-manage
+    - name: artifactory_apikey
+      value: $(params.fvt_artifactory_apikey)
+
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage
+  # Only if we've set a version of Civil FVT to run
+  when:
+    - input: "$(params.fvt_version_manage_civil_selenium)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-manage-civil-selenium-setup
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
 # Manage FVT - Civil Infrastructure Selenium
 - name: fvt-manage-civil-selenium
   params:
@@ -1038,7 +1478,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-civil-selenium-setup
+    - fvt-manage-civil-selenium-user
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -1208,7 +1648,7 @@
     - name: configs
       workspace: shared-configs
 
-# FVT6.12.1 Manage FVT - Scheduler Setup
+# FVT Manage FVT - Scheduler Setup
 - name: fvt-manage-scheduler-setup
   params:
     - name: mas_instance_id
@@ -1263,8 +1703,8 @@
     - name: configs
       workspace: shared-configs
 
-# FVT6.12.2 Manage FVT - Scheduler
-- name: fvt-manage-scheduler
+# FVT Manage FVT - Scheduler - New User
+- name: fvt-manage-scheduler-user
   params:
     - name: mas_instance_id
       value: $(params.mas_instance_id)
@@ -1314,6 +1754,61 @@
       values: [""]
   runAfter:
     - fvt-manage-scheduler-setup
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+# FVT Manage FVT - Scheduler
+- name: fvt-manage-scheduler
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-manage
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-scheduler
+    - name: fvt_image_version
+      value: $(params.fvt_version_manage_scheduler)
+    - name: fvt_test_suite
+      value: sched_fvt # Keyword for Scheduler FVT
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-manage
+    - name: artifactory_apikey
+      value: $(params.fvt_artifactory_apikey)
+
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage
+  # Only if we've set a version of the Manage scheduler FVT to run
+  when:
+    - input: "$(params.fvt_version_manage_scheduler)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-manage-scheduler-user
   workspaces:
     - name: configs
       workspace: shared-configs
