@@ -264,7 +264,7 @@
     - name: mas_appws_components
       value: $(params.mas_appws_components)
     - name: fvt_test_suite
-      value: mfa-setup # Keyword for Aviation FVT Setup
+      value: fvt-mfa-setup # Keyword for Aviation FVT Setup
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -289,65 +289,6 @@
       values: [""]
   runAfter:
     - ivtcore-manage
-  workspaces:
-    - name: configs
-      workspace: shared-configs
-
-# Manage FVT - Aviation - New User
-- name: fvt-manage-aviation-user
-  params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-    - name: devops_cos_crn
-      value: $(params.devops_cos_crn)
-    - name: ibmcloud_apikey
-      value: $(params.ibmcloud_apikey)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
-    - name: fvt_image_namespace
-      value: fvt-manage
-    - name: fvt_image_name
-      value: fvt-ibm-mas-manage-aviation
-    - name: fvt_image_version
-      value: $(params.fvt_version_manage_aviation)
-    - name: fvt_mas_appws_component
-      value: aviation
-    - name: mas_appws_components
-      value: $(params.mas_appws_components)
-    - name: fvt_test_suite
-      value: fvt-mfa-user # Keyword for Aviation FVT
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mas-manage
-    - name: artifactory_apikey
-      value: $(params.fvt_artifactory_apikey)
-    
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
-  taskRef:
-    kind: Task
-    name: mas-fvt-manage
-  # Only if we've set a version of the Manage Aviation FVT to run
-  when:
-    - input: "$(params.fvt_version_manage_aviation)"
-      operator: notin
-      values: ["skip"]
-    - input: "$(params.mas_app_channel_manage)"
-      operator: notin
-      values: [""]
-  runAfter:
-    - fvt-manage-setup
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -406,7 +347,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-aviation-user
+    - fvt-manage-setup
   workspaces:
     - name: configs
       workspace: shared-configs
