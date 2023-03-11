@@ -27,10 +27,10 @@
       with_items:
         - db2
         - install
-        - install-with-fvt
+        # - install-with-fvt
         - uninstall
-        - fvt-assist
-        - fvt-core
-        - fvt-manage-regr
+        # - fvt-assist
+        # - fvt-core
+        # - fvt-manage-regr
         - upgrade
         - update

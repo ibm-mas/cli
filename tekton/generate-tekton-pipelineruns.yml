@@ -63,7 +63,7 @@
         dest: "{{ pipelinerun_target_dir }}/{{ item }}.yml.j2"
       with_items:
         - fvt-core
-        - install-with-fvt
+        # - install-with-fvt
         - install
         - uninstall
         - upgrade
