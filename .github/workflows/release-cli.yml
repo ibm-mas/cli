@@ -45,7 +45,6 @@ jobs:
           ARTIFACTORY_APIKEY: ${{ secrets.ARTIFACTORY_APIKEY }}
         run: |
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/pipelineruns/fvt-core.yml.j2
-          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/pipelineruns/install-with-fvt.yml.j2
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/pipelineruns/install.yml.j2
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/pipelineruns/upgrade-with-fvt.yml.j2
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/pipelineruns/upgrade.yml.j2
