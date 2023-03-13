@@ -155,7 +155,7 @@ function pipeline_config() {
     esac
   fi
   true
-  
+
   echo
   echo_h2 "3.1. License Terms"
   echo -e "${COLOR_YELLOW} For information about your license, see "$MAS_LICENSE_LINK " To continue with the installation, you must accept the license terms."
@@ -245,8 +245,17 @@ function pipeline_config() {
 
   echo
   echo_h2 "12. Configure UDS"
-  prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
-  prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
-  prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
-
+  if [[ -n "$DEV_MODE" ]]; then
+    echo "${TEXT_DIM}Maximo Application Suite version v8.10+ no longer requires IBM User Data Services as a dependency."
+    echo
+    reset_colors
+    UDS_CONTACT_EMAIL=""
+    UDS_CONTACT_FIRSTNAME=""
+    UDS_CONTACT_LASTNAME=""
+    UDS_ACTION="install_suds"
+  else
+    prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
+    prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
+    prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
+  fi
 }
