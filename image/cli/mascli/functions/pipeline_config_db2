@@ -136,7 +136,13 @@ function config_pipeline_storage_db2() {
       echo ""
       reset_colors
       if [ "$MAS_APP_CHANNEL_IOT" != "" ]; then
-        echo_highlight "In the next section you MUST ensure that a system database configuration is included in your local MAS configuration directory"
+        if prompt_for_confirm "Do you want to generate a system JDBC configuration for the MAS install?"; then
+          prompt_for_input "Select Local configuration directory" LOCAL_MAS_CONFIG_DIR && export LOCAL_MAS_CONFIG_DIR
+          export LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN=yes
+          python3 $DIR/gencfg $MAS_INSTANCE_ID system
+        else
+          echo_highlight "In the next section you MUST ensure that a system database configuration is included in your local MAS configuration directory"
+        fi
       else
         echo_highlight "System Database configuration for IoT is not required because the application is not being installed"
       fi
@@ -149,18 +155,34 @@ function config_pipeline_storage_db2() {
       reset_colors
       if [ "$MAS_APP_CHANNEL_IOT" == "" ]; then
         # User is not installing IoT, so there's no need to choose between using a shared or dedicated database configuration
-        echo_highlight "In the next section you MUST ensure that a dedicated database configuration for Manage is included in your local MAS configuration directory"
+        if prompt_for_confirm "Do you want to generate a dedicated JDBC configuration for Manage?"; then
+          echo
+          if [[ "$LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN" != "yes" ]]; then
+            prompt_for_input "Select Local configuration directory" LOCAL_MAS_CONFIG_DIR && export LOCAL_MAS_CONFIG_DIR
+            export LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN=yes
+          fi
+          python3 $DIR/gencfg $MAS_INSTANCE_ID workspace-application
+        else
+          echo_highlight "In the next section you MUST ensure that a dedicated database configuration for Manage is included in your local MAS configuration directory"
+        fi
         MAS_APPWS_BINDINGS_JDBC_MANAGE=workspace-application
       else
         # The user can choose to use the same configuration set up for IoT, or configure one just for the Manage application
         if [ "$MAS_APP_CHANNEL_MANAGE" != "" ]; then
           if prompt_for_confirm_default_yes "Use dedicated database configuration for Manage application?"; then
             echo
-            echo_highlight "In the next section you MUST ensure that a dedicated database configuration for Manage is included in your local MAS configuration directory"
+            if prompt_for_confirm "Do you want to generate a dedicated JDBC configuration for Manage?"; then
+              if [[ "$LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN" != "yes" ]]; then
+                prompt_for_input "Select Local configuration directory" LOCAL_MAS_CONFIG_DIR && export LOCAL_MAS_CONFIG_DIR
+                export LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN=yes
+              fi
+              python3 $DIR/gencfg $MAS_INSTANCE_ID workspace-application
+            else
+              echo_highlight "In the next section you MUST ensure that a dedicated database configuration for Manage is included in your local MAS configuration directory"
+            fi
             MAS_APPWS_BINDINGS_JDBC_MANAGE=workspace-application
           else
             echo
-            echo_highlight "In the next section you MUST ensure that a system database configuration is included in your local MAS configuration directory"
             MAS_APPWS_BINDINGS_JDBC_MANAGE=system
           fi
         else
