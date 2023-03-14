@@ -112,6 +112,8 @@ spec:
       value: '$UDS_CONTACT_FIRSTNAME'
     - name: uds_contact_lastname
       value: '$UDS_CONTACT_LASTNAME'
+    - name: uds_action
+      value: '$UDS_ACTION'
 
     # Dependencies - AppConnect
     # -------------------------------------------------------------------------
