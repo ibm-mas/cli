@@ -44,9 +44,9 @@ if __name__ == "__main__":
     #  upgradetest: all pipeline tasks under upgrade validation phase
     #  rollback: not used for this 8.10 release, and  all pipeline tasks under rollback phase in the future
     #  rollbacktest: not used for this 8.10 release, and  all pipeline tasks under rollback phase in the future
-    if "TEST_TYPE" in os.environ and os.environ['TEST_TYPE'] != "" and "TEST_PHASE" in os.environ and os.environ['TEST_PHASE'] != "":
-        testtype = os.environ['TEST_TYPE']
-        testphase = os.environ['TEST_PHASE']
+    if "DEVOPS_TEST_TYPE" in os.environ and os.environ['DEVOPS_TEST_TYPE'] != "" and "DEVOPS_TEST_PHASE" in os.environ and os.environ['DEVOPS_TEST_PHASE'] != "":
+        testtype = os.environ['DEVOPS_TEST_TYPE']
+        testphase = os.environ['DEVOPS_TEST_PHASE']
         runId = f"{instanceId}:{testtype}:{testphase}:{build}"
         resultId = f"{instanceId}:{testtype}:{testphase}:{build}:{productId}:{suite}"
 
@@ -87,9 +87,9 @@ if __name__ == "__main__":
                 "version": version
             }
             ### Add logic to add key in resultsV2 for upgrade test
-            if "TEST_TYPE" in os.environ and os.environ['TEST_TYPE'] != "" and "TEST_PHASE" in os.environ and os.environ['TEST_PHASE'] != "":
-                testtype = os.environ['TEST_TYPE']
-                testphase = os.environ['TEST_PHASE']
+            if "DEVOPS_TEST_TYPE" in os.environ and os.environ['DEVOPS_TEST_TYPE'] != "" and "DEVOPS_TEST_PHASE" in os.environ and os.environ['DEVOPS_TEST_PHASE'] != "":
+                testtype = os.environ['DEVOPS_TEST_TYPE']
+                testphase = os.environ['DEVOPS_TEST_PHASE']
                 resultDoc["target"]["testtype"] = testtype
                 resultDoc["target"]["testphase"] = testphase
 
@@ -116,7 +116,7 @@ if __name__ == "__main__":
                         "timestamp": datetime.utcnow(),
                         "target": {
                             "instanceId": instanceId,
-                            "buildId": build
+                            "buildId": build,
                         }
                     },
                     '$set': {
