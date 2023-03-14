@@ -20,21 +20,6 @@
   description: Set when using dev or pre-release builds in airgap
   default: "False"
 
-# Storage Class Selection
-- name: storage_class_rwo
-  type: string
-  default: ""
-  description: ReadWriteOnce storage class
-- name: storage_class_rwx
-  type: string
-  default: ""
-  description: ReadWriteMany storage class
-
-# Entitlement
-- name: ibm_entitlement_key
-  type: string
-  description: IBM Entitlement Key
-
 # Custom Labels
 - name: custom_labels
   type: string
@@ -63,14 +48,4 @@
   default: ""
 - name: mas_instance_id
   type: string
-  default: ""
-
-# Runpipeline Settings (used by all pipelines running inside other pipelines)
-- name: runpipeline_cli_version
-  description: version of CLI where PipelineRuns used by run-pipeline tasks have been released
-  type: string
-  default: ""
-- name: runpipeline_image_registry
-  type: string
-  description: registry where run pipeline tasks will run
   default: ""
