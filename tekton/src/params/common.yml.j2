@@ -16,21 +16,6 @@
   type: string
   description: Required to install development MAS catalogs
 
-# Storage Class Selection
-- name: storage_class_rwo
-  type: string
-  default: ""
-  description: ReadWriteOnce storage class
-- name: storage_class_rwx
-  type: string
-  default: ""
-  description: ReadWriteMany storage class
-
-# Entitlement
-- name: ibm_entitlement_key
-  type: string
-  description: IBM Entitlement Key
-
 # Custom Labels
 - name: custom_labels
   type: string
@@ -44,12 +29,11 @@
 - name: devops_build_number
   type: string
   default: ""
-# TODO: Style guide: These should prefixed devops_ same as other vars linked to persisting results, e.g. devops_test_type, devops_test_phase
-- name: test_type
+- name: devops_test_type
   type: string
   description: Optional. Used to different upgrade tests from other type of tests
   default: ""
-- name: test_phase
+- name: devops_test_phase
   type: string
   description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
   default: ""

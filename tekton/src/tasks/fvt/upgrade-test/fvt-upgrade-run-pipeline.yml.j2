@@ -22,6 +22,9 @@ spec:
     # Common Parameters
     {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}
 
+    # Run Pipeline Parameters
+    {{ lookup('template', params_src_dir ~ '/runpipeline.yml.j2') | indent(4) }}
+
     # Upgrade Parameters
     {{ lookup('template', params_src_dir ~ '/upgrade.yml.j2') | indent(4) }}
 
@@ -49,5 +52,5 @@ spec:
     - name: run-pipeline
       command:
         - /opt/app-root/src/run-pipeline.sh
-      image: '$(params.fvt_image_registry)/mas-devops/mas-tekton:{{ mas_tekton_version }}'
+      image: '$(params.runpipeline_image_registry)/mas-devops/mas-tekton:{{ mas_tekton_version }}'
       imagePullPolicy: Always

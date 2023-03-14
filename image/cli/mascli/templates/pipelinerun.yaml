@@ -112,6 +112,8 @@ spec:
       value: '$UDS_CONTACT_FIRSTNAME'
     - name: uds_contact_lastname
       value: '$UDS_CONTACT_LASTNAME'
+    - name: uds_action
+      value: '$UDS_ACTION'
 
     # Dependencies - AppConnect
     # -------------------------------------------------------------------------
@@ -208,6 +210,10 @@ spec:
       value: '$MAS_APP_SETTINGS_DEMODATA'
     - name: mas_appws_bindings_jdbc_manage
       value: '$MAS_APPWS_BINDINGS_JDBC_MANAGE'
+    - name: mas_app_settings_persistent_volumes_flag
+      value: '$MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG'
+    - name: mas_app_settings_server_bundles_size
+      value: '$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE'
 
     # Monitor Application
     # -------------------------------------------------------------------------

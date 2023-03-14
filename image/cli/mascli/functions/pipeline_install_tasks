@@ -7,6 +7,12 @@ function pipeline_install_tasks() {
   # Install the MAS Tekton definitions
   cp $DIR/templates/ibm-mas-tekton.yaml $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
   sed -e "s/cli:latest/cli:$VERSION/g" $DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yaml
+
+  # Patch the tekton definitions to remove features not supported on OCP 4.8
+  if [[ "$OCP_VERSION" =~ ^4\.8\.* ]]; then
+    sed -i -e "s/onError: continue//g" $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
+  fi
+
   CLI_IMAGE=quay.io/ibmmas/cli:$VERSION
 
   if [[ "$AIRGAP_MODE" == "true" ]]; then
