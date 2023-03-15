@@ -53,7 +53,7 @@
     - name: "Load intermediate files to variables"
       ansible.builtin.include_vars:
         file: "{{ params_tmp_dir }}/{{ item }}.yml"
-        name: "{{ item }}_params_definition"
+        name: "{{ item | replace('-','_') }}_params_definition"
       with_items:
         - common
         - fvt
@@ -67,7 +67,7 @@
     # -------------------------------------------------------------------------
     - name: "Load upgrade-test raw parameters list into a variable"
       ansible.builtin.set_fact:
-        upgrade_test_raw_params_definition: "{{ common_params_definition.params + install_params_definition.params + install-common_params_definition.params + fvt_params_definition.params + upgrade_params_definition.params }}"
+        upgrade_test_raw_params_definition: "{{ common_params_definition.params + install_params_definition.params + install_common_params_definition.params + fvt_params_definition.params + upgrade_params_definition.params }}"
 
     # 4. Load Source & Target Upgrade Test attributes
     # -------------------------------------------------------------------------
