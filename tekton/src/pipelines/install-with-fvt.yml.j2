@@ -22,6 +22,7 @@ spec:
 
     # 2. Installation
     # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
     {{ lookup('template', params_src_dir ~ '/install.yml.j2') | indent(4) }}
 
     # 3. Additional Params for FVT
@@ -371,7 +372,7 @@ spec:
     # -------------------------------------------------------------------------
     # 16.1 All Apps IVT (except Manage)
     {{ lookup('template', 'taskdefs/ivt-core/all-apps.yml.j2') | indent(4) }}
-    
+
     # 16.2 Manage IVT
     {{ lookup('template', 'taskdefs/ivt-core/manage.yml.j2') | indent(4) }}
 
