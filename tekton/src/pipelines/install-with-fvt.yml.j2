@@ -263,6 +263,7 @@ spec:
       runAfter:
         - suite-db2-setup-system
         - suite-db2-setup-manage
+        - app-cfg-monitor
 
     # 9.3 Configure Manage workspace
     {{ lookup('template', 'taskdefs/apps/manage-workspace.yml.j2') | indent(4) }}
