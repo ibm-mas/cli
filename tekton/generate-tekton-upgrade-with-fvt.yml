@@ -47,6 +47,7 @@
         - install-appconnect
         - install-db2
         - install
+        - install-common
         - upgrade
 
     - name: "Load intermediate files to variables"
@@ -59,6 +60,7 @@
         - install-appconnect
         - install-db2
         - install
+        - install-common
         - upgrade
 
     # 3. Combine common + install + fvt + upgrade lists for upgrade-with-fvt
