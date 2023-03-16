@@ -46,3 +46,15 @@
 {% endif %}
 {% endif %}
 {% endfor %}
+
+{% for runpipeline_param in runpipeline_params_definition.params %}
+{% if runpipeline_param.name not in param_manual_setting_list %}
+{% if runpipeline_param.name in params_source_target_list %}
+- name: {{ runpipeline_param.name }}
+  value: $(params.source_{{ runpipeline_param.name }})
+{% else %}
+- name: {{ runpipeline_param.name }}
+  value: $(params.{{ runpipeline_param.name }})
+{% endif %}
+{% endif %}
+{% endfor %}
