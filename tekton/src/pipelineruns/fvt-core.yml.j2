@@ -26,10 +26,6 @@ spec:
     - name: {{ install_param.name }}
       value: {{'"{{ lookup(\'env\', \'' ~ install_param.name | upper ~ '\') }}"'}}
 {% endfor %}
-{% for install_common_param in install_common_params_definition.params %}
-    - name: {{ install_common_param.name }}
-      value: {{'"{{ lookup(\'env\', \'' ~ install_common_param.name | upper ~ '\') }}"'}}
-{% endfor %}
     # Test Parameters
 {% for fvt_param in fvt_params_definition.params %}
     - name: {{ fvt_param.name }}
