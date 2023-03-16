@@ -3,64 +3,78 @@
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: workorder
   runAfter:
     - fvt-manage-setup # regression tasks depend on fvt-manage-setup or, eventually, any subsequent task in case of Manage Industry Solutions
  
 # Manage Regression FVT - Aviation 1
 
-- name: fvt-manage-aviation-avi-reg1-1
+- name: fvt-manage-avi-reg1-1
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: avi-reg1-1
     - name: fvt_mas_appws_component
       value: aviation
   runAfter:
     - fvt-manage-aviation
 
-- name: fvt-manage-aviation-avi-reg2-1
+- name: fvt-manage-avi-reg2-1
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: avi-reg2-1
     - name: fvt_mas_appws_component
       value: aviation
   runAfter:
     - fvt-manage-aviation
 
-- name: fvt-manage-aviation-avi-reg1-2
+- name: fvt-manage-avi-reg1-2
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: avi-reg1-2
     - name: fvt_mas_appws_component
       value: aviation  
   runAfter:
-    - fvt-manage-aviation-avi-reg1-1
+    - fvt-manage-avi-reg1-1
 
-- name: fvt-manage-aviation-avi-reg2-2
+- name: fvt-manage-avi-reg2-2
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: avi-reg2-2
     - name: fvt_mas_appws_component
       value: aviation
   runAfter:
-    - fvt-manage-aviation-avi-reg2-1
+    - fvt-manage-avi-reg2-1
 
-- name: fvt-manage-aviation-avi-reg1-3
+- name: fvt-manage-avi-reg1-3
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: avi-reg1-3
     - name: fvt_mas_appws_component
       value: aviation    
   runAfter:
-    - fvt-manage-aviation-avi-reg1-2
+    - fvt-manage-avi-reg1-2
 
-- name: fvt-manage-aviation-avi-reg2-3
+- name: fvt-manage-avi-reg2-3
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: avi-reg2-3
     - name: fvt_mas_appws_component
       value: aviation
   runAfter:
-    - fvt-manage-aviation-avi-reg2-2
+    - fvt-manage-avi-reg2-2
 
 # Manage Regression FVT - IndSol 2
 # Manage Regression FVT - IndSol 3
