@@ -54,3 +54,8 @@ spec:
     - name: {{ fvt_param.name }}
       value: {{'"{{ lookup(\'env\', \'' ~ fvt_param.name | upper ~ '\') }}"'}}
 {% endfor %}
+    # runpipeline Parameters
+{% for runpipeline_param in runpipeline_params_definition.params %}
+    - name: {{ runpipeline_param.name }}
+      value: {{'"{{ lookup(\'env\', \'' ~ runpipeline_param.name | upper ~ '\') }}"'}}
+{% endfor %}

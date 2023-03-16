@@ -42,6 +42,7 @@
         - install
         - uninstall
         - upgrade
+        - runpipeline
 
     - name: "Load intermediate files to variables"
       ansible.builtin.include_vars:
@@ -56,6 +57,7 @@
         - install
         - uninstall
         - upgrade
+        - runpipeline
 
     # 3. Generate PipelineRun templates
     # -------------------------------------------------------------------------
