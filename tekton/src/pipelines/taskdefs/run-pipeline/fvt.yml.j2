@@ -22,6 +22,19 @@
 {% endif %}
 {% endfor %}
 
+{% for install_common_param in install_common_params_definition.params %}
+{% if install_common_param.name not in param_manual_setting_list %}
+{% if install_common_param.name in params_source_target_list %}
+- name: {{ install_common_param.name }}
+  value: $(params.source_{{ install_common_param.name }})
+{% else %}
+- name: {{ install_common_param.name }}
+  value: $(params.{{ install_common_param.name }})
+{% endif %}
+{% endif %}
+{% endfor %}
+
+
 {% for fvt_param in fvt_params_definition.params %}
 {% if fvt_param.name not in param_manual_setting_list %}
 {% if fvt_param.name in params_source_target_list %}

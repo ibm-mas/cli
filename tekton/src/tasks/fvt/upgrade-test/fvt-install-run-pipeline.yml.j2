@@ -47,6 +47,10 @@ spec:
       - name: {{ install_param.name | upper }}
         value: $(params.{{ install_param.name }})
 {% endfor %}
+{% for install_common_param in install_common_params_definition.params %}
+      - name: {{ install_common_param.name | upper }}
+        value: $(params.{{ install_common_param.name }})
+{% endfor %}
 
   steps:
     # It uses pipelinerun_template_file_name to know what pipeline to run
