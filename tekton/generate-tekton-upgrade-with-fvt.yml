@@ -97,7 +97,7 @@
     - name: "Load intermediate files to variables"
       ansible.builtin.include_vars:
         file: "{{ params_tmp_dir }}/{{ item }}.yml"
-        name: "{{ item }}_params_definition"
+        name: "{{ item | replace('-','_') }}_params_definition"
       with_items:
         - upgrade-test
 
