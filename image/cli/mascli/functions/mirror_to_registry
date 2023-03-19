@@ -8,24 +8,19 @@ Usage:
   mas mirror-images [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
-
 Mirror Mode (Required):
   -m, --mode ${COLOR_YELLOW}MIRROR_MODE${TEXT_RESET}                         Operation mode (direct, to-filesystem, from-filesystem)
   -d, --dir ${COLOR_YELLOW}MIRROR_WORKING_DIR${TEXT_RESET}                   Working directory for the mirror process
-
 Registry Details (Required):
   -H, --host ${COLOR_YELLOW}REGISTRY_PUBLIC_HOST${TEXT_RESET}                 Hostname of the target registry
   -P, --port ${COLOR_YELLOW}REGISTRY_PUBLIC_PORT${TEXT_RESET}                 Port number for the target registry
-
 Registry Authentication (Optional):
   -u, --username ${COLOR_YELLOW}REGISTRY_USERNAME${TEXT_RESET}                Username to authenticate to the target registry
   -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}                Password to authenticate to the target registry
-
 Source Registry Entitlements (Required based on what content you choose to mirror):
       --ibm-entitlement ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}       IBM Entitlement Key
       --redhat-username ${COLOR_YELLOW}REDHAT_CONNECT_USERNAME${TEXT_RESET}   Red Hat Connect Username
       --redhat-password ${COLOR_YELLOW}REDHAT_CONNECT_PASSWORD${TEXT_RESET}   Red Hat Connect Password
-
 Maximo Operator Catalog Selection (Optional):
   -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v8-221228-amd64)
   -C, --channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                       Maximo Application Suite Channel to mirror (e.g. 8.9.x)
@@ -38,20 +33,16 @@ Maximo Operator Catalog Selection (Optional):
       --mirror-optimizer                          Mirror images for IBM Maximo Optimizer
       --mirror-predict                            Mirror images for IBM Maximo Predict
       --mirror-visualinspection                   Mirror images for IBM Maximo Visual Inspection
-
 Maximo Core Image Mirroring Configuration (Optional):
       --skip-cfs                                  Skip mirroring images for IBM Cloud Pak Foundation Services
       --skip-uds                                  Skip mirroring images for IBM User Data Services
       --skip-sls                                  Skip mirroring images for IBM Suite License Service
       --skip-tsm                                  Skip mirroring images for IBM Truststore Manager
       --skip-mongo                                Skip mirroring images for MongoDb Community Edition
-
 Maximo IoT Image Mirroring Configuration (Optional):
       --skip-db2                                  Skip mirroring images for IBM Db2
-
 Maximo Manage Image Mirroring Configuration (Optional):
       --skip-db2                                  Skip mirroring images for IBM Db2
-
 Other Commands:
       --no-confirm                                Mirror images without prompting for confirmation
   -h, --help                                      Show this help message
@@ -245,57 +236,70 @@ function mirror_to_registry_interactive() {
   echo_h2 "3. Configure Static Catalog Version"
 
   echo -e "${COLOR_YELLOW}MAS Version:"
+  echo "March 14 2023 Update"
+  echo "  1. 8.9.3"
+  echo "  2. 8.8.7"
   echo "February 17 2023 Update"
-  echo "  1. 8.9.2"
-  echo "  2. 8.8.6"
+  echo "  3. 8.9.2"
+  echo "  4. 8.8.6"
   echo "January 11 2023 Update"
-  echo "  3. 8.9.1"
-  echo "  4. 8.8.5"
+  echo "  5. 8.9.1"
+  echo "  6. 8.8.5"
   echo "December 28 2022 Update"
-  echo "  5. 8.9.0"
-  echo "  6. 8.8.4"
-  echo "November 29 2022 Update"
   echo "  7. 8.9.0"
-  echo "  8. 8.8.3"
+  echo "  8. 8.8.4"
+  echo "November 29 2022 Update"
+  echo "  9. 8.9.0"
+  echo "  10. 8.8.3"
   prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
 
   case $MAS_CHANNEL_SELECTION in
     1)
       MAS_CHANNEL=8.9.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-230217-amd64
+      MAS_CATALOG_VERSION=v8-230314-amd64
       ;;
     2)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-230217-amd64
+      MAS_CATALOG_VERSION=v8-230314-amd64
       ;;
     3)
       MAS_CHANNEL=8.9.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-230111-amd64
+      MAS_CATALOG_VERSION=v8-230217-amd64
       ;;
     4)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-230111-amd64
+      MAS_CATALOG_VERSION=v8-230217-amd64
       ;;
     5)
       MAS_CHANNEL=8.9.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-221228-amd64
+      MAS_CATALOG_VERSION=v8-230111-amd64
       ;;
     6)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-221228-amd64
+      MAS_CATALOG_VERSION=v8-230111-amd64
       ;;
     7)
       MAS_CHANNEL=8.9.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-221129-amd64
+      MAS_CATALOG_VERSION=v8-221228-amd64
       ;;
     8)
+      MAS_CHANNEL=8.8.x
+      MAS_CATALOG_SOURCE=ibm-operator-catalog
+      MAS_CATALOG_VERSION=v8-221228-amd64
+      ;;
+    9)
+      MAS_CHANNEL=8.9.x
+      MAS_CATALOG_SOURCE=ibm-operator-catalog
+      MAS_CATALOG_VERSION=v8-221129-amd64
+      ;;
+    10)
       MAS_CHANNEL=8.8.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-221129-amd64
