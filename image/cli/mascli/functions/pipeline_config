@@ -37,7 +37,6 @@ function pipeline_config() {
       echo "  3. v8 (2023-02-17)"
       echo "  4. v8 (2023-01-11)"
       echo "  5. v8 (2022-12-28)"
-      echo "  6. v8 (2022-11-29)"
       prompt_for_input "Select Catalog Source" MAS_CATALOG_SELECTION "1"
 
       case $MAS_CATALOG_SELECTION in
@@ -55,9 +54,6 @@ function pipeline_config() {
           ;;
         5|221228|2022-12-28)
           MAS_CATALOG_VERSION=v8-221228-amd64
-          ;;
-        6|221129|2022-11-29)
-          MAS_CATALOG_VERSION=v8-221129-amd64
           ;;
         *)
           exit 1
@@ -108,9 +104,6 @@ function pipeline_config() {
     echo "December 28 2022 Update"
     echo "  9. 8.9.0"
     echo "  10. 8.8.4"
-    echo "November 29 2022 Update"
-    echo "  11. 8.9.0"
-    echo "  12. 8.8.3"
     prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
 
     case $MAS_CHANNEL_SELECTION in
@@ -173,18 +166,6 @@ function pipeline_config() {
         MAS_CHANNEL=8.8.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "88" )
         MAS_CATALOG_VERSION=v8-221228-amd64
-        ;;
-      # Nov 2022 Catalog
-      # -----------------------------------------------------------------------
-      11)
-        MAS_CHANNEL=8.9.x
-        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
-        MAS_CATALOG_VERSION=v8-221129-amd64
-        ;;
-      12)
-        MAS_CHANNEL=8.8.x
-        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "88" )
-        MAS_CATALOG_VERSION=v8-221129-amd64
         ;;
       *)
         echo_warning "Invalid selection"
