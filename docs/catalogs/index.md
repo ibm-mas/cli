@@ -42,8 +42,3 @@ To receive security updates and bug fixes you must periodically update the versi
 - [v8-230217-amd64](v8-230217-amd64.md)
 - [v8-230111-amd64](v8-230111-amd64.md)
 - [v8-221228-amd64](v8-221228-amd64.md)
-- [v8-221129-amd64](v8-221129-amd64.md)
-- [v8-221025-amd64](v8-221025-amd64.md)
-- [v8-220927-amd64](v8-220927-amd64.md)
-- [v8-220805-amd64](v8-220805-amd64.md)
-- [v8-220717-amd64](v8-220717-amd64.md)
