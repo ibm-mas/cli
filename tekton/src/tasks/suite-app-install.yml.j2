@@ -16,10 +16,6 @@ spec:
       default: ''
       type: string
       description: Required to use development MAS builds
-    - name: dev_mode_airgap
-      type: string
-      description: Set when using dev or pre-release builds in airgap
-      default: "False"
 
     # Entitlement
     - name: ibm_entitlement_key
@@ -71,8 +67,6 @@ spec:
         value: $(params.artifactory_username)
       - name: ARTIFACTORY_APIKEY
         value: $(params.artifactory_apikey)
-      - name: DEV_MODE_AIRGAP
-        value: $(params.dev_mode_airgap)
 
       # Entitlement
       - name: IBM_ENTITLEMENT_KEY

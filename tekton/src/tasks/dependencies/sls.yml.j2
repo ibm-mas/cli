@@ -61,10 +61,6 @@ spec:
       default: ""
       type: string
       description: Required to use development MAS builds
-    - name: dev_mode_airgap
-      type: string
-      description: Set when using dev or pre-release builds in airgap
-      default: "False"
 
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
@@ -132,8 +128,6 @@ spec:
         value: $(params.artifactory_username)
       - name: ARTIFACTORY_APIKEY
         value: $(params.artifactory_apikey)
-      - name: DEV_MODE_AIRGAP
-        value: $(params.dev_mode_airgap)
 
       # Optional support built into the ansible-devops image
       # for saving task execution results to a MongoDb instance

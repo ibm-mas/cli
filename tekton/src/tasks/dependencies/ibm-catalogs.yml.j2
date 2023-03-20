@@ -18,15 +18,11 @@ spec:
       default: ""
       type: string
       description: Required to install development MAS catalogs
-    - name: dev_mode_airgap
-      type: string
-      description: Set when using development builds in air gap
-      default: "False"
     - name: mas_catalog_version
       type: string
       description: Optional version of the IBM Maximo Operator Catalog to install
       default: "v8-amd64"
-    - name: catalog_digest
+    - name: mas_catalog_digest
       type: string
       description: Set when using development catalog in air gap
       default: ""
@@ -73,13 +69,11 @@ spec:
         value: $(params.artifactory_username)
       - name: ARTIFACTORY_APIKEY
         value: $(params.artifactory_apikey)
-      - name: DEV_MODE_AIRGAP
-        value: $(params.dev_mode_airgap)
 
       - name: MAS_CATALOG_VERSION
         value: $(params.mas_catalog_version)
-      - name: CATALOG_DIGEST
-        value: $(params.catalog_digest)
+      - name: MAS_CATALOG_DIGEST
+        value: $(params.mas_catalog_digest)
 
       # Optional support built into the ansible-devops image
       # for saving task execution results to a MongoDb instance
