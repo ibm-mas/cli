@@ -404,115 +404,6 @@
   runAfter:
     - fvt-manage-transportation-user
 
-# Manage FVT - Civil Infrastructure Selenium - Setup
-- name: fvt-manage-civil-selenium-setup
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-civil
-    - name: fvt_image_name
-      value: fvt-ibm-mas-manage-civil-selenium
-    - name: fvt_test_suite
-      value: fvt-ci-setup
-    - name: fvt_mas_appws_component
-      value: civil
-    - name: fvt_test_driver
-      value: tpae
-  runAfter:
-    - fvt-manage-setup
-
-# Manage FVT - Civil Infrastructure Selenium - New User
-- name: fvt-manage-civil-selenium-user
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-civil
-    - name: fvt_image_name
-      value: fvt-ibm-mas-manage-civil-selenium
-    - name: fvt_test_suite
-      value: cibvt-user
-    - name: fvt_mas_appws_component
-      value: civil
-    - name: fvt_test_driver
-      value: tpae
-  runAfter:
-    - fvt-manage-civil-selenium-setup
-
-
-# Manage FVT - Civil Infrastructure Selenium
-- name: fvt-manage-civil-selenium
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-civil
-    - name: fvt_image_name
-      value: fvt-ibm-mas-manage-civil-selenium
-    - name: fvt_test_suite
-      value: cibvt
-    - name: fvt_mas_appws_component
-      value: civil
-    - name: fvt_test_driver
-      value: tpae
-  runAfter:
-    - fvt-manage-civil-selenium-user
-
-# Manage FVT - Civil Infrastructure Cypress
-- name: fvt-manage-civil-cypress
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-civil
-    - name: fvt_image_name
-      value: fvt-ibm-mas-manage-civil-cypress
-    - name: fvt_test_suite
-      value: web-mas-civil # display purposes only, not a keyword
-    - name: fvt_mas_appws_component
-      value: civil
-    - name: fvt_test_driver
-      value: tpae
-  runAfter:
-    - fvt-manage-civil-selenium-user
-
-# Manage FVT - Inventory Counting Setup
-- name: fvt-manage-ic-setup
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-manage
-    - name: fvt_image_name
-      value: fvt-ibm-mas-manage-ic
-    - name: fvt_test_suite
-      value: setup4ic
-    - name: fvt_mas_appws_component
-      value: base
-    - name: fvt_test_driver
-      value: tpae
-  runAfter:
-    - fvt-manage-setup
-
-# Manage FVT - Inventory Counting
-- name: fvt-manage-ic
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-inventorycounting
-    - name: fvt_image_name
-      value: fvt-inventorycounting-testng
-    - name: fvt_test_suite
-      value: prepare-test-data-testng-mas # xml for Mobile IC
-    - name: fvt_mas_appws_component
-      value: base
-    - name: fvt_test_driver
-      value: tpae
-  runAfter:
-    - fvt-manage-ic-setup
-
 # Manage FVT - Scheduler Setup
 - name: fvt-manage-scheduler-setup
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
@@ -523,7 +414,7 @@
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-scheduler
     - name: fvt_test_suite
-      value: setup_sched_fvt
+      value: sched_fvt_setup
     - name: fvt_mas_appws_component
       value: scheduler
     - name: fvt_test_driver
@@ -541,7 +432,7 @@
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-scheduler
     - name: fvt_test_suite
-      value: setup_sched_fvt
+      value: sched_fvt_user
     - name: fvt_mas_appws_component
       value: scheduler
     - name: fvt_test_driver
@@ -550,7 +441,7 @@
     - fvt-manage-scheduler-setup
 
 # Manage FVT - Scheduler
-- name: fvt-manage-scheduler
+- name: fvt-manage-scheduler-1
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
@@ -559,7 +450,7 @@
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-scheduler    
     - name: fvt_test_suite
-      value: sched_fvt
+      value: sched_fvt_1
     - name: fvt_mas_appws_component
       value: scheduler
     - name: fvt_test_driver
@@ -567,8 +458,62 @@
   runAfter:
     - fvt-manage-scheduler-user
 
-# Manage FVT - Scheduler Optimization
-- name: fvt-manage-scheduler-optimizer
+# Manage FVT - Scheduler
+- name: fvt-manage-scheduler-2
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
+    - name: fvt_image_namespace
+      value: fvt-manage
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-scheduler    
+    - name: fvt_test_suite
+      value: sched_fvt_2
+    - name: fvt_mas_appws_component
+      value: scheduler
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-scheduler-user
+
+# Manage FVT - Scheduler
+- name: fvt-manage-scheduler-3
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
+    - name: fvt_image_namespace
+      value: fvt-manage
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-scheduler    
+    - name: fvt_test_suite
+      value: sched_fvt_3
+    - name: fvt_mas_appws_component
+      value: scheduler
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-scheduler-user
+
+# Manage FVT - Scheduler
+- name: fvt-manage-scheduler-4
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
+    - name: fvt_image_namespace
+      value: fvt-manage
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-scheduler    
+    - name: fvt_test_suite
+      value: sched_fvt_4
+    - name: fvt_mas_appws_component
+      value: scheduler
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-scheduler-user
+
+# Manage FVT - Scheduler Dashboard
+- name: fvt-manage-scheduling-dashboard
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
@@ -584,24 +529,6 @@
       value: graphite
   runAfter:
     - fvt-manage-scheduler-user
-
-# Manage FVT - Mobile Setup
-- name: fvt-manage-mobile-setup
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-manage
-    - name: fvt_image_name
-      value: fvt-ibm-mas-manage-mobile-setup
-    - name: fvt_test_suite
-      value: mxmobsetup
-    - name: fvt_mas_appws_component
-      value: base
-    - name: fvt_test_driver
-      value: tpae
-  runAfter:
-    - fvt-manage-setup
 
 # Manage FVT - Maintenance Manager
 - name: fvt-manage-maintmanager
@@ -639,3 +566,51 @@
   runAfter:
     - fvt-manage-setup
 
+# Manage FVT - Civil Infrastructure Selenium - Setup
+- name: fvt-manage-civil-selenium-setup
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-civil.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-civil.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-civil-selenium
+    - name: fvt_test_suite
+      value: fvt-ci-setup
+  runAfter:
+    - fvt-manage-setup
+
+# Manage FVT - Civil Infrastructure Selenium - New User
+- name: fvt-manage-civil-selenium-user
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-civil.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-civil.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-civil-selenium
+    - name: fvt_test_suite
+      value: cibvt-user
+  runAfter:
+    - fvt-manage-civil-selenium-setup
+
+
+# Manage FVT - Civil Infrastructure Selenium
+- name: fvt-manage-civil-selenium
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-civil.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-civil.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-civil-selenium
+    - name: fvt_test_suite
+      value: cibvt
+  runAfter:
+    - fvt-manage-civil-selenium-user
+
+# Manage FVT - Civil Infrastructure Cypress
+- name: fvt-manage-civil-cypress
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-civil.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-civil.yml.j2') | indent(4) }}
+    - name: fvt_image_name
+      value: fvt-ibm-mas-manage-civil-cypress
+    - name: fvt_test_suite
+      value: web-mas-civil # display purposes only, not a keyword
+  runAfter:
+    - fvt-manage-civil-selenium-user
