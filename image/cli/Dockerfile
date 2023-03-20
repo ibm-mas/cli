@@ -64,12 +64,17 @@ RUN chmod -R ug+rwx ${HOME}/env.sh && \
     chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops && \
     ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops
 
-# 9. Switch to root user
+#. 9 Install argocd cli
+RUN curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64 && \
+    sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd && \
+    rm argocd-linux-amd64
+
+# 10. Switch to root user
 # Running an non-root user makes using the container with docker run and mounted volumes
 # more difficult, users have to add -u root anyway, so just leave the active user as root
 USER root
 
-# 10. Setup working environment
+# 11. Setup working environment
 WORKDIR /mascli
 ENTRYPOINT ["/tini", "--"]
 CMD bash
