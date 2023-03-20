@@ -1,5 +1,6 @@
 ## Changes
 
+- [`3.16`](https://github.com/ibm-mas/cli/releases/tag/3.16.0) Update catalog support for MAS 8.10 release
 - [`3.15`](https://github.com/ibm-mas/cli/releases/tag/3.15.0) Add support for March 2023 catalog
 - [`3.14`](https://github.com/ibm-mas/cli/releases/tag/3.14.0) Add manage regression pipeline
 - [`3.13`](https://github.com/ibm-mas/cli/releases/tag/3.13.0) Add tasks for Manage Industry Solutions and add support for Manage JMS configuration
