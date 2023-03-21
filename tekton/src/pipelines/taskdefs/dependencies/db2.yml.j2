@@ -15,6 +15,10 @@
 {% endif %}
 {% if suffix == "manage" %}
       value: mas-$(params.mas_instance_id)-$(params.mas_workspace_id)-manage
+    - name: db2_ldap_username
+      value: $(params.db2_ldap_username)
+    - name: db2_ldap_password
+      value: $(params.db2_ldap_password)
 {% endif %}
     - name: db2_dbname
       value: $(params.db2_dbname)
