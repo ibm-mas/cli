@@ -194,6 +194,18 @@
   type: string
   default: ""
 
+# MAS DNS Integrations - CIS Security Enhancement Support
+# -------------------------------------------------------------------------
+- name: cis_service_name
+  type: string
+  default: ""
+- name: cis_enhanced_security
+  type: string
+  default: "false"
+- name: override_edge_certs
+  type: string
+  default: "false"
+
 {{ lookup('template', params_src_dir ~ '/install-ibmcatalogs.yml.j2') }}
 
 {{ lookup('template', params_src_dir ~ '/install-workspace.yml.j2') }}

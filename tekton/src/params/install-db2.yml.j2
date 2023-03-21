@@ -45,22 +45,42 @@
 
 # Dependencies - Db2 - Storage - Capacity
 # -------------------------------------------------------------------------
+- name: db2_meta_storage_class
+  type: string
+  description: Storage class (metadata)
+  default: ""
 - name: db2_meta_storage_size
   type: string
   description: Storage capacity (metadata)
   default: "20Gi"
+- name: db2_backup_storage_class
+  type: string
+  description: Storage class (backup)
+  default: ""
 - name: db2_backup_storage_size
   type: string
   description: Storage capacity (backup)
   default: "100Gi"
+- name: db2_logs_storage_class
+  type: string
+  description: Storage class (logs)
+  default: ""
 - name: db2_logs_storage_size
   type: string
   description: Storage capacity (logs)
   default: "100Gi"
+- name: db2_temp_storage_class
+  type: string
+  description: Storage class (temp)
+  default: ""
 - name: db2_temp_storage_size
   type: string
   description: Storage capacity (temp)
   default: "100Gi"
+- name: db2_data_storage_class
+  type: string
+  description: Storage class (data)
+  default: ""
 - name: db2_data_storage_size
   type: string
   description: Storage capacity (data)
@@ -75,6 +95,18 @@
 - name: db2_backup_storage_accessmode
   type: string
   description: Optional override for db2 backup storage access mode
+  default: ""
+- name: db2_logs_storage_accessmode
+  type: string
+  description: Optional override for db2 logs storage access mode
+  default: ""
+- name: db2_temp_storage_accessmode
+  type: string
+  description: Optional override for db2 temp storage access mode
+  default: ""
+- name: db2_data_storage_accessmode
+  type: string
+  description: Optional override for db2 data storage access mode
   default: ""
 
 # Dependencies - Db2 - LDAP

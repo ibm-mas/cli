@@ -51,6 +51,17 @@ spec:
       type: string
       default: ""
 
+    # IBM Cloud Internet Services support Security Enhancement support
+    - name: cis_service_name
+      type: string
+      default: ""
+    - name: cis_enhanced_security
+      type: string
+      default: "false"
+    - name: override_edge_certs
+      type: string
+      default: "false"
+
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
     - name: devops_mongo_uri
