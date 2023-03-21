@@ -49,7 +49,7 @@ def cli(ctx):
 
 @cli.command()
 @click.pass_obj
-@click.argument('instance-id', required=True, type=str, )
+@click.argument('instance-id', required=True, type=str)
 @click.argument('scope', required=True, type=str)
 @click.argument('jdbc-cfg-file', required=True, type=str)
 @click.option('--application-id', required=False, type=str)
