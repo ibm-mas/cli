@@ -188,8 +188,14 @@ spec:
       # Db2 - Storage - Access mode
       - name: DB2_META_STORAGE_ACCESSMODE
         value: $(params.db2_meta_storage_accessmode)
+      - name: DB2_DATA_STORAGE_ACCESSMODE
+        value: $(params.db2_data_storage_accessmode)
       - name: DB2_BACKUP_STORAGE_ACCESSMODE
         value: $(params.db2_backup_storage_accessmode)
+      - name: DB2_LOGS_STORAGE_ACCESSMODE
+        value: $(params.db2_logs_storage_accessmode)
+      - name: DB2_TEMP_STORAGE_ACCESSMODE
+        value: $(params.db2_temp_storage_accessmode)
 
       # Db2 - LDAP
       - name: DB2_LDAP_USERNAME
