@@ -189,6 +189,8 @@ spec:
       value: '$CIS_ENHANCED_SECURITY'
     - name: override_edge_certs
       value: '$OVERRIDE_EDGE_CERTS'
+    - name: cis_proxy
+      value: '$CIS_PROXY'
 
     # MAS Core
     # -------------------------------------------------------------------------

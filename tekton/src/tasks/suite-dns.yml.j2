@@ -57,10 +57,13 @@ spec:
       default: ""
     - name: cis_enhanced_security
       type: string
-      default: "false"
+      default: ""
     - name: override_edge_certs
       type: string
       default: "false"
+    - name: cis_proxy
+      type: string
+      default: ""
 
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance

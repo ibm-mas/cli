@@ -28,11 +28,13 @@
     - name: cis_subdomain
       value: $(params.cis_subdomain)
     - name: cis_service_name
-      value: '$CIS_SERVICE_NAME'
+      value: $(params.cis_service_name)
     - name: cis_enhanced_security
-      value: '$CIS_ENHANCED_SECURITY'
+      value: $(params.cis_enhanced_security)
     - name: override_edge_certs
-      value: '$OVERRIDE_EDGE_CERTS'
+      value: $(params.override_edge_certs)
+    - name: cis_proxy
+      value: $(params.cis_proxy)
 
     - name: custom_labels
       value: $(params.custom_labels)

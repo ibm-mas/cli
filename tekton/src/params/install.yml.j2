@@ -205,6 +205,9 @@
 - name: override_edge_certs
   type: string
   default: "false"
+- name: cis_proxy
+  type: string
+  default: "false"
 
 {{ lookup('template', params_src_dir ~ '/install-ibmcatalogs.yml.j2') }}
 
