@@ -43,7 +43,7 @@ class MasCli(object):
 @click.option('--version', is_flag=True, callback=print_version, expose_value=False, is_eager=True)
 @click.pass_context
 def cli(ctx):
-    click.echo('IBM Maximo Application Suite Configuration Generator')
+    #click.echo('IBM Maximo Application Suite Configuration Generator')
     ctx.obj = MasCli()
 
 
@@ -65,8 +65,6 @@ def jdbc(mascli, instance_id, scope, jdbc_cfg_file, **kwargs):
     """
     Generate a JDBC Config .. currently there are only uses for system and workspace-application scoped JDBC configs
     """
-    click.echo(f"Configuring {scope} JDBC configuration for {instance_id}")
-
     templateFile = f"{sys.path[0]}/cfgs/jdbccfg.yml.j2"
     with open(templateFile) as tFile:
         template = Template(tFile.read())
@@ -93,6 +91,8 @@ def jdbc(mascli, instance_id, scope, jdbc_cfg_file, **kwargs):
             jdbc_cert_local_file_content = cFile.read()
     else:
         jdbc_cert_local_file_content = ""
+
+    click.echo(f"Configuring {scope} JDBC configuration for {instance_id}")
 
     cfg = template.render(
         scope=scope,
