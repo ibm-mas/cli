@@ -140,7 +140,7 @@ function config_pipeline_storage_db2() {
           prompt_for_input "Select Local configuration directory" LOCAL_MAS_CONFIG_DIR && export LOCAL_MAS_CONFIG_DIR
           export LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN=
           jdbc_cfg_file=jdbc-$LOCAL_MAS_CONFIG_DIR/jdbc-$MAS_INSTANCE_ID-system.yaml
-          python3 $DIR/functions/gencfg $MAS_INSTANCE_ID system $jdbc_cfg_file
+          python3 $DIR/functions/gencfg jdbc $MAS_INSTANCE_ID system $jdbc_cfg_file
         else
           echo_highlight "In the next section you MUST ensure that a system database configuration is included in your local MAS configuration directory"
         fi
@@ -163,7 +163,7 @@ function config_pipeline_storage_db2() {
             export LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN=yes
           fi
           jdbc_cfg_file=jdbc-$LOCAL_MAS_CONFIG_DIR/jdbc-$MAS_INSTANCE_ID-wsapp.yaml
-          python3 $DIR/functions/gencfg $MAS_INSTANCE_ID wsapp $jdbc_cfg_file
+          python3 $DIR/functions/gencfg jdbc $MAS_INSTANCE_ID wsapp $jdbc_cfg_file
         else
           echo_highlight "In the next section you MUST ensure that a dedicated database configuration for Manage is included in your local MAS configuration directory"
         fi
@@ -179,7 +179,7 @@ function config_pipeline_storage_db2() {
                 export LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN=yes
               fi
               jdbc_cfg_file=jdbc-$LOCAL_MAS_CONFIG_DIR/jdbc-$MAS_INSTANCE_ID-wsapp.yaml
-              python3 $DIR/functions/gencfg $MAS_INSTANCE_ID wsapp $jdbc_cfg_file
+              python3 $DIR/functions/gencfg jdbc $MAS_INSTANCE_ID wsapp $jdbc_cfg_file
             else
               echo_highlight "In the next section you MUST ensure that a dedicated database configuration for Manage is included in your local MAS configuration directory"
             fi

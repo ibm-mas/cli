@@ -4,7 +4,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PATH=$PATH:$DIR
 
-pip install --quiet pyyaml yamllint click
+pip install --quiet pyyaml yamllint
 
 # 1. Set up semantic versioning
 # -----------------------------------------------------------------------------

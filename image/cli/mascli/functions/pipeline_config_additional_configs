@@ -37,7 +37,7 @@ function config_pipeline_additional_configs() {
     echo
     prompt_for_confirm "Are these the correct configuration files to apply?" || exit 0
 
-    $DIR/tools/cfgmgr add $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml $LOCAL_MAS_CONFIG_DIR
+    bash $DIR/tools/cfgmgr add $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml $LOCAL_MAS_CONFIG_DIR
     echo
   else
     LOCAL_MAS_CONFIG_DIR=""

@@ -112,8 +112,8 @@ def jdbc(mascli, instance_id, scope, jdbc_cfg_file, **kwargs):
     )
     # click.echo(cfg)
     with open(jdbc_cfg_file, 'w') as f:
-        yaml.dump(cfg,f)
-
+        f.write(cfg)
+        f.write('\n')
 
 
 @cli.command()
