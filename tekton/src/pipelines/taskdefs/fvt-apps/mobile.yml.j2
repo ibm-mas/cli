@@ -833,7 +833,7 @@
     - name: fvt_image_name
       value: fvt-inventorycounting-manage-setup
     - name: fvt_image_version
-      value: $(params.fvt_version_mobileic)
+      value: $(params.fvt_version_inventorycounting)
     - name: fvt_mas_appws_component
       value: base
     - name: mas_appws_components
@@ -856,7 +856,7 @@
     name: mas-fvt-manage
   # Only if we've set a version of the IC FVT to run
   when:
-    - input: "$(params.fvt_version_mobileic)"
+    - input: "$(params.fvt_version_inventorycounting)"
       operator: notin
       values: ["skip"]
     - input: "$(params.mas_app_channel_manage)"
@@ -892,7 +892,7 @@
     - name: fvt_image_name
       value: fvt-inventorycounting-testng
     - name: fvt_image_version
-      value: $(params.fvt_version_mobileic)
+      value: $(params.fvt_version_inventorycounting)
     - name: fvt_mas_appws_component
       value: base
     - name: mas_appws_components
@@ -915,7 +915,7 @@
     name: mas-fvt-manage
   # Only if we've set a version of the Mobile IC FVT to run
   when:
-    - input: "$(params.fvt_version_mobileic)"
+    - input: "$(params.fvt_version_inventorycounting)"
       operator: notin
       values: ["skip"]
     - input: "$(params.mas_app_channel_manage)"
