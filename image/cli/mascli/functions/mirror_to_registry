@@ -21,6 +21,9 @@ Source Registry Entitlements (Required based on what content you choose to mirro
       --ibm-entitlement ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}       IBM Entitlement Key
       --redhat-username ${COLOR_YELLOW}REDHAT_CONNECT_USERNAME${TEXT_RESET}   Red Hat Connect Username
       --redhat-password ${COLOR_YELLOW}REDHAT_CONNECT_PASSWORD${TEXT_RESET}   Red Hat Connect Password
+      --artifactory-username ${COLOR_YELLOW}ARTIFACTORY_USERNAME${TEXT_RESET} Artifactory Username
+      --artifactory-apikey ${COLOR_YELLOW}ARTIFACTORY_APIKEY${TEXT_RESET}     Artifactory API Key
+
 Maximo Operator Catalog Selection (Optional):
   -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v8-221228-amd64)
   -C, --channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                       Maximo Application Suite Channel to mirror (e.g. 8.9.x)
@@ -101,6 +104,12 @@ function mirror_to_registry_noninteractive() {
         ;;
       --redhat-password)
         REDHAT_CONNECT_PASSWORD=$1 && shift
+        ;;
+      --artifactory-username)
+        ARTIFACTORY_USERNAME=$1 && shift
+        ;;
+      --artifactory-apikey)
+        ARTIFACTORY_APIKEY=$1 && shift
         ;;
       -c|--catalog)
         MAS_CATALOG_VERSION=$1 && shift
@@ -378,6 +387,7 @@ function mirror_to_registry_interactive() {
     prompt_for_input "Red Hat Connect Username" REDHAT_CONNECT_USERNAME
     prompt_for_input "Red Hat Connect Password" REDHAT_CONNECT_PASSWORD
   fi
+
 }
 
 
@@ -451,6 +461,8 @@ function mirror_to_registry() {
   export IBM_ENTITLEMENT_KEY
   export REDHAT_CONNECT_USERNAME
   export REDHAT_CONNECT_PASSWORD
+  export ARTIFACTORY_USERNAME
+  export ARTIFACTORY_APIKEY
 
   echo
   reset_colors
@@ -472,7 +484,7 @@ function mirror_to_registry() {
   echo_h2 "IBM Operator Catalog" "    "
   if [[ "$MIRROR_MAS_CORE" == "true" || "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_IOT" == "true" \
         || "$MIRROR_MAS_MANAGE" == "true" || "$MIRROR_MAS_MONITOR" == "true" || "$MIRROR_MAS_PREDICT" == "true" \
-        || "$MIRROR_MAS_OPTIMIZER" == "true" || "$MIRROR_MAS_VISUALINSPECTION" == "true" ]]
+        || "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_OPTIMIZER" == "true" || "$MIRROR_MAS_VISUALINSPECTION" == "true" ]]
   then
     echo_reset_dim "Catalog Version ..................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
     echo_reset_dim "IBM Authentication .................. ${COLOR_MAGENTA}cp/${IBM_ENTITLEMENT_KEY:0:4}<snip>"
@@ -486,6 +498,7 @@ function mirror_to_registry() {
     show_mirror_status "IBM Maximo Manage ..................." $MIRROR_MAS_MANAGE
     show_mirror_status "IBM Maximo Monitor .................." $MIRROR_MAS_MONITOR
     show_mirror_status "IBM Maximo Predict .................." $MIRROR_MAS_PREDICT
+    show_mirror_status "IBM Maximo HPUtilities .............." $MIRROR_MAS_HPUTILITIES
     show_mirror_status "IBM Maximo Optimizer ................" $MIRROR_MAS_OPTIMIZER
     show_mirror_status "IBM Maximo Visual Inspection ........" $MIRROR_MAS_VISUALINSPECTION
 
@@ -522,7 +535,7 @@ function mirror_to_registry() {
 
   mirror_one_thing $MIRROR_MAS_CORE             "IBM Maximo Application Suite Core"  "$LOG_PREFIX-core.log"             mirror_core
   mirror_one_thing $MIRROR_MAS_ASSIST           "IBM Maximo Assist"                  "$LOG_PREFIX-assist.log"           mirror_add_assist
-  mirror_one_thing $MIRROR_MAS_HPUTILITIES      "IBM Maximo HP Utilties"             "$LOG_PREFIX-hputilties.log"       mirror_add_hputilities
+  mirror_one_thing $MIRROR_MAS_HPUTILITIES      "IBM Maximo HP Utilities"             "$LOG_PREFIX-hputilities.log"       mirror_add_hputilities
   mirror_one_thing $MIRROR_MAS_IOT              "IBM Maximo IoT"                     "$LOG_PREFIX-iot.log"              mirror_add_iot
   mirror_one_thing $MIRROR_MAS_MANAGE           "IBM Maximo Manage"                  "$LOG_PREFIX-manage.log"           mirror_add_manage
   mirror_one_thing $MIRROR_MAS_MONITOR          "IBM Maximo Monitor"                 "$LOG_PREFIX-monitor.log"          mirror_add_monitor
