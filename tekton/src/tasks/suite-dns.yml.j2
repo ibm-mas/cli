@@ -44,6 +44,9 @@ spec:
     - name: cis_apikey
       type: string
       default: ""
+    - name: ibmcloud_apikey
+      type: string
+      default: ""
     - name: cis_crn
       type: string
       default: ""
@@ -115,6 +118,8 @@ spec:
         value: $(params.cis_email)
       - name: CIS_APIKEY
         value: $(params.cis_apikey)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
       - name: CIS_CRN
         value: $(params.cis_crn)
       - name: CIS_SUBDOMAIN
