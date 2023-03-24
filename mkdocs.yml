@@ -25,12 +25,13 @@ nav:
       - "mirror-images": commands/mirror-images.md
       - "configure-airgap": commands/configure-airgap.md
       - "install": commands/install.md
+      - "configtool-oidc": commands/configtool-oidc.md
   - "Catalogs":
       - "Overview": catalogs/index.md
+      - "March 2023": catalogs/v8-230314-amd64.md
+      - "Feb 2023": catalogs/v8-230217-amd64.md
       - "Jan 2023": catalogs/v8-230111-amd64.md
       - "Dec 2022": catalogs/v8-221228-amd64.md
-      - "Nov 2022": catalogs/v8-221129-amd64.md
-      - "Oct 2022": catalogs/v8-221025-amd64.md
 
 theme:
   name: readthedocs

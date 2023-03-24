@@ -137,6 +137,9 @@ spec:
       value: '$MAS_CATALOG_SOURCE'
     - name: mas_catalog_version
       value: '$MAS_CATALOG_VERSION'
+    - name: mas_catalog_digest
+      value: '$MAS_CATALOG_DIGEST'
+
 
     # MAS DNS Integrations - General
     # -------------------------------------------------------------------------

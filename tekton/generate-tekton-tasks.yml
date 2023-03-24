@@ -34,7 +34,6 @@
         - kafka
         - mongodb
         - nvidia-gpu
-        - sbo
         - sls
         - uds
 
