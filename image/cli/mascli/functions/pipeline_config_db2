@@ -129,6 +129,7 @@ function config_pipeline_storage_db2() {
       # Configure MAS to use existing databases
       DB2_ACTION_SYSTEM=none
       DB2_ACTION_MANAGE=none
+      export CONFIGURE_EXTERNAL_DB=True
       echo
       echo_h2 "6.1 Database configuration for IoT"
       echo "${TEXT_DIM}Maximo IoT requires a shared system-scope Db2 instance because others application in the suite require access to the same database source."
