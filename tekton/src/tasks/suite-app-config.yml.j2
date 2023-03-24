@@ -47,6 +47,18 @@ spec:
       type: string
       description: Provides different flavors of server bundle configuration to handle workload for Manage application.
       default: ""
+    - name: mas_app_settings_tablespace
+      type: string
+      description: Name of the Manage database tablespace
+      default: ""
+    - name: mas_app_settings_indexspace
+      type: string
+      description: Name of the Manage database indexspace
+      default: ""
+    - name: mas_app_settings_db2_schema
+      type: string
+      description: Name of the Manage database schema
+      default: ""
 
     # Application Workspace - Operand (Predict)
     - name: predict_deployment_size

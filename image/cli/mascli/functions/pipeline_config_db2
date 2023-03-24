@@ -172,6 +172,10 @@ function config_pipeline_storage_db2() {
           fi
           jdbc_cfg_file=$LOCAL_MAS_CONFIG_DIR/jdbc-$MAS_INSTANCE_ID-wsapp.yaml
           python3 $DIR/functions/gencfg jdbc $MAS_INSTANCE_ID workspace-application $jdbc_cfg_file --workspace-id $MAS_WORKSPACE_ID --application-id manage
+          # prompt for Manage schema
+          prompt_for_input "Schema" MAS_APP_SETTINGS_DB2_SCHEMA
+          prompt_for_input "Tablespace" MAS_APP_SETTINGS_TABLESPACE
+          prompt_for_input "Indexspace" MAS_APP_SETTINGS_INDEXSPACE
         else
           echo_highlight "In the next section you MUST ensure that a dedicated database configuration for Manage is included in your local MAS configuration directory"
         fi
@@ -192,6 +196,10 @@ function config_pipeline_storage_db2() {
               fi
               jdbc_cfg_file=$LOCAL_MAS_CONFIG_DIR/jdbc-$MAS_INSTANCE_ID-wsapp.yaml
               python3 $DIR/functions/gencfg jdbc $MAS_INSTANCE_ID $MAS_WORKSPACE_ID $MAS_APP_ID workspace-application $jdbc_cfg_file --workspace-id $MAS_WORKSPACE_ID --application-id manage
+              # prompt for Manage schema
+              prompt_for_input "Schema" MAS_APP_SETTINGS_DB2_SCHEMA
+              prompt_for_input "Tablespace" MAS_APP_SETTINGS_TABLESPACE
+              prompt_for_input "Indexspace" MAS_APP_SETTINGS_INDEXSPACE
             else
               echo_highlight "In the next section you MUST ensure that a dedicated database configuration for Manage is included in your local MAS configuration directory"
             fi
