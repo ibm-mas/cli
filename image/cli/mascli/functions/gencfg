@@ -122,30 +122,5 @@ def jdbc(mascli, instance_id, scope, jdbc_cfg_file, **kwargs):
         f.write('\n')
 
 
-@cli.command()
-@click.pass_obj
-@click.argument('instance-id', required=True, type=str, )
-def install(mascli, **kwargs):
-    """
-    Install IBM Maximo Application Suite
-    """
-    click.secho(f"Hi Dave! {mascli.foo}", fg='green')
-
-    for name, value in kwargs.items():
-        click.echo(f"{name} .......... {value}")
-
-    if click.confirm('Do you want to continue?', default=True):
-        click.echo('Well done!')
-
-    click.confirm('Do you want to continue?', default=True, abort=True)
-    click.clear()
-    click.edit(filename='/home/david/testclickedit.txt')
-    click.launch("https://click.palletsprojects.com/")
-
-    #with click.open_file(filename, 'w') as f:
-    #    f.write('Hello World!\n')
-
-    click.echo(click.get_app_dir("mascli"))
-
 if __name__ == '__main__':
     cli()
