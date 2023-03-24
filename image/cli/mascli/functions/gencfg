@@ -60,7 +60,7 @@ def cli(ctx):
 @click.option("--username", help="JDBC User Name", required=True, prompt='JDBC User Name', type=str)
 @click.option("--password", help="JDBC Password", required=True, prompt='JDBC Password', type=str)
 @click.option("--ssl-enabled", help="SSL Enabled", required=True, prompt='SSL Enabled [y/n]', type=bool)
-@click.option("--ssl-cert", help="Location of certificate file", required=False, prompt='Path to certificate file', type=click.Path(exists=True))
+@click.option("--ssl-cert", help="Location of certificate file", required=False, type=click.Path(exists=True))
 def jdbc(mascli, instance_id, scope, jdbc_cfg_file, **kwargs):
 
     """
