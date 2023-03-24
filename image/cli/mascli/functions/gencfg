@@ -61,7 +61,7 @@ def cli(ctx):
 @click.option("--ssl-enabled", help="SSL Enabled", required=True, prompt='SSL Enabled [y/n]', type=bool)
 # @click.option("--ssl-cert", help="Location of certificate file", required=False, prompt='Path to certificate file', type=click.Path(exists=True))
 
-def jdbc(mascli, instance_id, application_id, workspace_id, scope, jdbc_cfg_file, **kwargs):
+def jdbc(mascli, instance_id, scope, jdbc_cfg_file, **kwargs):
    
     """
     Generate a JDBC Config .. currently there are only uses for system and workspace-application scoped JDBC configs
