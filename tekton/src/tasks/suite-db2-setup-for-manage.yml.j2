@@ -80,8 +80,8 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
   when:
     - input: "$(params.db2_action_system)"
-      operator: notin
-      values: ["use_external"]
+      operator: in
+      values: ["install"]
     - input: "$(params.db2_action_manage)"
       operator: notin
-      values: ["use_external"]
+      values: ["install", "byo"]
