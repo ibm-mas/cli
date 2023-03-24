@@ -58,7 +58,8 @@ mkdir -p $CONFIG_DIR
 . $DIR/functions/mirror_to_registry
 . $DIR/functions/mirror_redhat_to_registry
 . $DIR/functions/configure_ocp_for_mirror
-
+# Manage OIDC for configtool
+. $DIR/functions/configtool_oidc
 
 load_config
 case $1 in
@@ -87,6 +88,13 @@ case $1 in
     reset_colors
     update_ansible_collections
     provision_aws "$@"
+    ;;
+
+  oidc|configtool-oidc)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite OIDC for Configuration Tool${TEXT_RESET}"
+    echo
+    reset_colors
+    configtool_oidc "$@"
     ;;
 
   registry|setup-registry|setup-mirror-registry|setup-airgap-registry)
