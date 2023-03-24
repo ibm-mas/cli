@@ -14,6 +14,9 @@
     - input: "$(params.db2_action_manage)"
       operator: notin
       values: ["install"]
+    - input: "$(params.db2_action_system)"
+      operator: notin
+      values: ["use_external"]
   taskRef:
     name: mas-devops-suite-db2-setup-for-manage
     kind: Task

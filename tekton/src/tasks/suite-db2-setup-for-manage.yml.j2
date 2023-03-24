@@ -47,7 +47,6 @@ spec:
       type: string
       description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
       default: ""
-
   stepTemplate:
     env:
       - name: DB2_INSTANCE_NAME
@@ -79,3 +78,7 @@ spec:
         - suite_db2_setup_for_manage
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
+  when:
+    - input: "$(params.db2_action_system)"
+      operator: notin
+      values: ["use_external"]
