@@ -63,7 +63,7 @@
         - suite-app-install
         - suite-app-upgrade
         - suite-config
-        - suite-db2-setup-for-manage
+        # - suite-db2-setup-for-manage
         - suite-dns
         - suite-install
         - suite-mustgather
