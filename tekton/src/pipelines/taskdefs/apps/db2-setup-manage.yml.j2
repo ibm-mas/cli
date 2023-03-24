@@ -14,7 +14,7 @@
     - input: "$(params.db2_action_manage)"
       operator: in
       values: ["install"]
-    - input: "$(params.db2_action_system)"
+    - input: "$(params.db2_action_manage)"
       operator: notin
       values: ["use_external"]
   taskRef:
