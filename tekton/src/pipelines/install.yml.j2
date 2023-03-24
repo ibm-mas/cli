@@ -141,17 +141,18 @@ spec:
       runAfter:
         - suite-verify
         - cos
-
+    
+    # App Connect temporarily disabled due CVEID: CVE-2023-28521
     # 4.1 Install AppConnect
-    {{ lookup('template', 'taskdefs/dependencies/appconnect.yml.j2') | indent(4) }}
-      runAfter:
-        - ibm-catalogs
+    # {{ lookup('template', 'taskdefs/dependencies/appconnect.yml.j2') | indent(4) }}
+      # runAfter:
+        # - ibm-catalogs
 
     # 4.2 Configure AppConnect in MAS
-    {{ lookup('template', 'taskdefs/core/suite-config-appconnect.yml.j2') | indent(4) }}
-      runAfter:
-        - suite-verify
-        - appconnect
+    # {{ lookup('template', 'taskdefs/core/suite-config-appconnect.yml.j2') | indent(4) }}
+      # runAfter:
+        # - suite-verify
+        # - appconnect
 
     # 4.3 Nvidia GPU Operator
     {{ lookup('template', 'taskdefs/dependencies/nvidia.yml.j2') | indent(4) }}
@@ -300,7 +301,8 @@ spec:
       runAfter:
         - app-cfg-manage # Requires Health as an add-on
         - suite-config-watson-studio
-        - suite-config-appconnect
+        # App Connect temporarily disabled due CVEID: CVE-2023-28521
+        # - suite-config-appconnect
 
     # 12.2 Configure HPUtilities workspace
     {{ lookup('template', 'taskdefs/apps/hputilities-workspace.yml.j2') | indent(4) }}
