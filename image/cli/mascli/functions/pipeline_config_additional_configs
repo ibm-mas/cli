@@ -39,7 +39,6 @@ function config_pipeline_additional_configs() {
 
     cp $DIR/templates/additional-configs.yaml $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml
     python3 $DIR/tools/cfgmgr add $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml $LOCAL_MAS_CONFIG_DIR
-    CONFIGURE_EXTERNAL_DB="true"
     echo
   else
     LOCAL_MAS_CONFIG_DIR=""
