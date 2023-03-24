@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/commands/upgrade/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/commands/configtool-oidc/" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>Upgrade - MAS CLI</title>
+    <title>configtool-oidc - MAS CLI</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
@@ -13,9 +13,9 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Upgrade";
-        var mkdocs_page_input_path = "commands/upgrade.md";
-        var mkdocs_page_url = "/cli/commands/upgrade/";
+        var mkdocs_page_name = "configtool-oidc";
+        var mkdocs_page_input_path = "commands/configtool-oidc.md";
+        var mkdocs_page_url = "/cli/commands/configtool-oidc/";
       </script>
     
     <script src="../../js/jquery-3.6.0.min.js" defer></script>
@@ -66,7 +66,7 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Commands</span></p>
-              <ul>
+              <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../provision-fyre/">provision-fyre</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../provision-roks/">provision-roks</a>
@@ -81,7 +81,35 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../install/">install</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../configtool-oidc/">configtool-oidc</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">configtool-oidc</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#cluster-credentials-required">Cluster Credentials (Required):</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#mas-oidc-information-required">MAS OIDC Information (Required):</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#interactive-mode">Interactive Mode</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#non-interactive-mode">Non-Interactive Mode</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#appendix">Appendix</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-cluster-credentials">1. Cluster Credentials.</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-mas-oidc-information">2. MAS OIDC Information</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Catalogs</span></p>
@@ -111,9 +139,10 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
-      <li>Upgrade</li>
+          <li>Commands &raquo;</li>
+      <li>configtool-oidc</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/upgrade.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/configtool-oidc.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -121,25 +150,52 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="upgrade">Upgrade<a class="headerlink" href="#upgrade" title="Permanent link"></a></h1>
+                <h1 id="manage-openid-client-for-configration-tool">Manage OpenID client for Configration Tool<a class="headerlink" href="#manage-openid-client-for-configration-tool" title="Permanent link"></a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link"></a></h2>
+<p>Configuration Tool can be used to configure and customize MAS apps through OIDC authentication since MAS 8.10.<br />
+This quick guide is as a reference for customer admininstrator to register/unregister/update OIDC client for this tool.  </p>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
-<p><code>mas upgrade [options]</code></p>
-<h3 id="mas-instance-selection">MAS Instance Selection<a class="headerlink" href="#mas-instance-selection" title="Permanent link"></a></h3>
+<p><code>mas oidc [register|unregister|update|-h|--help] [options]</code></p>
+<h3 id="cluster-credentials-required">Cluster Credentials (Required):<a class="headerlink" href="#cluster-credentials-required" title="Permanent link"></a></h3>
 <ul>
-<li><code>-i|--id MAS_INSTANCE_ID</code> MAS Instance ID to upgrade</li>
+<li><code>-t|--token CLUSTER_TOKEN</code>                     Cluster's token</li>
+<li><code>-s|--server CLUSTER_SERVER</code>                   Cluster server</li>
 </ul>
-<h3 id="other-options">Other Options<a class="headerlink" href="#other-options" title="Permanent link"></a></h3>
+<h3 id="mas-oidc-information-required">MAS OIDC Information (Required):<a class="headerlink" href="#mas-oidc-information-required" title="Permanent link"></a></h3>
 <ul>
-<li><code>--no-confirm</code> Mirror images without prompting for confirmation</li>
-<li><code>-h|--help</code> Show help message</li>
+<li><code>-m|--mas-home MAS_HOME</code>                      MAS Home Url</li>
+<li><code>-p|--ui-prefix TRUST_UI_PREFIX</code>              Trust UI prefix to receive OIDC callback</li>
 </ul>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
-<h3 id="interactive-upgrade">Interactive Upgrade<a class="headerlink" href="#interactive-upgrade" title="Permanent link"></a></h3>
-<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas upgrade
+<h3 id="interactive-mode">Interactive Mode<a class="headerlink" href="#interactive-mode" title="Permanent link"></a></h3>
+<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas oidc register
 </code></pre>
-<h3 id="non-interactive-upgrade">Non-Interactive Upgrade<a class="headerlink" href="#non-interactive-upgrade" title="Permanent link"></a></h3>
-<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas upgrade -i inst1 --no-confirm
+<h3 id="non-interactive-mode">Non-Interactive Mode<a class="headerlink" href="#non-interactive-mode" title="Permanent link"></a></h3>
+<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas oidc register \
+  -t sha256~dOnviPZtgCfJqUfUFLiSlsmXjzxtXpedhdxyXZ0F0X4 -s https://c118-e.us-south.containers.cloud.ibm.com:30221 \
+  -m masdev.home.mobfound1.masdev.suite.maximo.com -p &quot;http://localhost:3000, http://localhost:3001&quot;
 </code></pre>
+<pre><code class="language-bash">export CLUSTER_TOKEN=sha256~COA8-2Hd6G45rUN0HZLLh47sFByoX8QCC8j92jWB3to  
+export CLUSTER_SERVER=https://c130-e.us-south.containers.cloud.ibm.com:32250
+export MAS_HOME=masdev.home.mobfound1.masdev.suite.maximo.com  
+export TRUST_UI_PREFIX=&quot;http://localhost:3000, http://localhost:3001&quot;
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas oidc register \
+  -t $CLUSTER_TOKEN -s $CLUSTER_SERVEr -m $MAS_HOME -p $TRUEST_UI_PREFIX
+</code></pre>
+<h2 id="appendix">Appendix<a class="headerlink" href="#appendix" title="Permanent link"></a></h2>
+<h3 id="1-cluster-credentials">1. Cluster Credentials.<a class="headerlink" href="#1-cluster-credentials" title="Permanent link"></a></h3>
+<p>Log in to your cluster with your IBMid by using the following method, browse to the OpenShift web console. 
+From the dropdown menu in the upper right of the page, click Copy Login Command.<br />
+example: <code>oc login --token=sha256~COA8-2Hd6G45rUN0HZLLh47sFByoX8QCC8j92jWB3to --server=https://c130-e.us-south.containers.cloud.ibm.com:32250</code>    </p>
+<ul>
+<li>CLUSTER_TOKEN=sha256~COA8-2Hd6G45rUN0HZLLh47sFByoX8QCC8j92jWB3to  </li>
+<li>CLUSTER_SERVER=https://c130-e.us-south.containers.cloud.ibm.com:32250    </li>
+</ul>
+<h3 id="2-mas-oidc-information">2. MAS OIDC Information<a class="headerlink" href="#2-mas-oidc-information" title="Permanent link"></a></h3>
+<ul>
+<li>MAS_HOME=main.home.ivt15rel89.ivt.suite.maximo.com</li>
+<li>TRUST_UI_PREFIX="http://localhost:3000, http://localhost:3001"</li>
+</ul>
               
             </div>
           </div><footer>
@@ -168,6 +224,10 @@
         </span>
     
     
+      <span><a href="../install/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../catalogs/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
