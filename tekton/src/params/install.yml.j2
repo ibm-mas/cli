@@ -92,6 +92,10 @@
   description: Set to 'system' if using the shared system JDBC configuration, or 'workspace-application' if using a dedicated JDBC configuration.
   default: ""
 
+# Dependencies - JDBC settings
+- name: configure_external_db
+  type: string
+  
 # Dependencies - CP4D
 # -----------------------------------------------------------------------------
 - name: cpd_operators_namespace
