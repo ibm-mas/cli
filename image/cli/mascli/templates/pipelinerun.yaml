@@ -73,6 +73,11 @@ spec:
     - name: db2_data_storage_size
       value: '$DB2_DATA_STORAGE_SIZE'
 
+    # JDBC Configuration
+    # -------------------------------------------------------------------------
+    - name: configure_external_db
+      value: '$CONFIGURE_EXTERNAL_DB'
+
     # Dependencies - MongoDb
     # -------------------------------------------------------------------------
     - name: mongodb_replicas
