@@ -201,9 +201,9 @@ function config_pipeline_applications() {
       MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE="jms"
     fi
     if prompt_for_confirm "+ Customize database settings"; then
-      prompt_for_input "Schema" MAS_APP_SETTINGS_DB2_SCHEMA export MAS_APP_SETTINGS_DB2_SCHEMA
-      prompt_for_input "Tablespace" MAS_APP_SETTINGS_TABLESPACE export MAS_APP_SETTINGS_TABLESPACE
-      prompt_for_input "Indexspace" MAS_APP_SETTINGS_INDEXSPACE export MAS_APP_SETTINGS_INDEXSPACE
+      prompt_for_input "Schema" MAS_APP_SETTINGS_DB2_SCHEMA
+      prompt_for_input "Tablespace" MAS_APP_SETTINGS_TABLESPACE 
+      prompt_for_input "Indexspace" MAS_APP_SETTINGS_INDEXSPACE
     fi            
   fi
 
