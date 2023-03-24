@@ -23,11 +23,13 @@ import yaml
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
+
 def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
         return
-    click.echo('Version 1.0')
+    click.echo('v1.0.0')
     ctx.exit()
+
 
 def abort_if_false(ctx, param, value):
     if not value:
@@ -43,7 +45,6 @@ class MasCli(object):
 @click.option('--version', is_flag=True, callback=print_version, expose_value=False, is_eager=True)
 @click.pass_context
 def cli(ctx):
-    #click.echo('IBM Maximo Application Suite Configuration Generator')
     ctx.obj = MasCli()
 
 
@@ -59,14 +60,13 @@ def cli(ctx):
 @click.option("--username", help="JDBC User Name", required=True, prompt='JDBC User Name', type=str)
 @click.option("--password", help="JDBC Password", required=True, prompt='JDBC Password', type=str)
 @click.option("--ssl-enabled", help="SSL Enabled", required=True, prompt='SSL Enabled [y/n]', type=bool)
-# @click.option("--ssl-cert", help="Location of certificate file", required=False, prompt='Path to certificate file', type=click.Path(exists=True))
-
+@click.option("--ssl-cert", help="Location of certificate file", required=False, prompt='Path to certificate file', type=click.Path(exists=True))
 def jdbc(mascli, instance_id, scope, jdbc_cfg_file, **kwargs):
-   
+
     """
     Generate a JDBC Config .. currently there are only uses for system and workspace-application scoped JDBC configs
     """
-   
+
     templateFile = f"{sys.path[0]}/cfgs/jdbccfg.yml.j2"
     with open(templateFile) as tFile:
         template = Template(tFile.read())
@@ -88,10 +88,11 @@ def jdbc(mascli, instance_id, scope, jdbc_cfg_file, **kwargs):
     jdbc_ssl_enabled = kwargs["ssl_enabled"]
 
     if jdbc_ssl_enabled:
-        #jdbc_cert_local_file = kwargs.get("ssl_cert")
-        #if not jdbc_cert_local_file:
+        if "ssl_cert" not in kwargs:
             # If ssl_enabled is True but no ssl_cert option is provided, prompt the user for the certificate file path
-        jdbc_cert_local_file = click.prompt("Path to certificate file", type=click.Path(exists=True))
+            jdbc_cert_local_file = click.prompt("Path to certificate file", type=click.Path(exists=True))
+        else:
+            jdbc_cert_local_file = kwargs["ssl_cert"]
         with open(jdbc_cert_local_file) as cFile:
             jdbc_cert_local_file_content = cFile.read()
     else:
@@ -116,10 +117,10 @@ def jdbc(mascli, instance_id, scope, jdbc_cfg_file, **kwargs):
         jdbc_cert_local_file_content=jdbc_cert_local_file_content
     )
 
-    #click.echo(cfg)
     with open(jdbc_cfg_file, 'w') as f:
         f.write(cfg)
         f.write('\n')
+
 
 @cli.command()
 @click.pass_obj
