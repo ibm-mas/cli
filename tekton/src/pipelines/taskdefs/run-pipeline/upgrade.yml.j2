@@ -10,6 +10,30 @@
 {% endif %}
 {% endfor %}
 
+{% for install_common_param in install_common_params_definition.params %}
+{% if install_common_param.name not in param_manual_setting_list %}
+{% if install_common_param.name in params_source_target_list %}
+- name: {{ install_common_param.name }}
+  value: $(params.source_{{ install_common_param.name }})
+{% else %}
+- name: {{ install_common_param.name }}
+  value: $(params.{{ install_common_param.name }})
+{% endif %}
+{% endif %}
+{% endfor %}
+
+{% for runpipeline_param in runpipeline_params_definition.params %}
+{% if runpipeline_param.name not in param_manual_setting_list %}
+{% if runpipeline_param.name in params_source_target_list %}
+- name: {{ runpipeline_param.name }}
+  value: $(params.source_{{ runpipeline_param.name }})
+{% else %}
+- name: {{ runpipeline_param.name }}
+  value: $(params.{{ runpipeline_param.name }})
+{% endif %}
+{% endif %}
+{% endfor %}
+
 {% for upgrade_param in upgrade_params_definition.params %}
 {% if upgrade_param.name not in param_manual_setting_list %}
 {% if upgrade_param.name in params_source_target_list %}
