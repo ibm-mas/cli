@@ -38,22 +38,26 @@
         - fvt
         - install-appconnect
         - install-db2
+        - install-common
         - install
         - uninstall
         - upgrade
+        - runpipeline
 
     - name: "Load intermediate files to variables"
       ansible.builtin.include_vars:
         file: "{{ params_tmp_dir }}/{{ item }}.yml"
-        name: "{{ item }}_params_definition"
+        name: "{{ item | replace('-','_') }}_params_definition"
       with_items:
         - common
         - fvt
         - install-appconnect
         - install-db2
+        - install-common
         - install
         - uninstall
         - upgrade
+        - runpipeline
 
     # 3. Generate PipelineRun templates
     # -------------------------------------------------------------------------
