@@ -11,6 +11,8 @@
       value: $(params.artifactory_username)
     - name: artifactory_apikey
       value: $(params.artifactory_apikey)
+    - name: mas_catalog_digest
+      value: $(params.mas_catalog_digest)
   taskRef:
     kind: Task
     name: mas-devops-ibm-catalogs
