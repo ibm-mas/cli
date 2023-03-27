@@ -49,6 +49,20 @@ spec:
       description: Optional configuration for mongodb cpu requests
       default: ""
 
+    - name: mongodb_provider
+      value: '$MONGODB_PROVIDER'
+    - name: mongodb_action
+      value: '$MONGODB_ACTION'
+
+    # Dependencies - IBM Cloud MongoDb
+    # -------------------------------------------------------------------------
+    - name: ibm_mongo_name
+      value: '$IBM_MONGO_NAME'
+    - name: ibm_mongo_resourcegroup
+      value: '$IBM_MONGO_RESOURCEGROUP'
+    - name: ibm_mongo_region
+      value: '$IBM_MONGO_REGION'
+
     # Optional parameters to categorize result to be persisted
     # -------------------------------------------------------------------------
     - name: devops_test_type
@@ -88,11 +102,23 @@ spec:
       - name: DEVOPS_BUILD_NUMBER
         value: $(params.devops_build_number)
 
-      # Other MONGODB paramters
+      # Other MONGODB parameters
       - name: MONGODB_REPLICAS
         value: $(params.mongodb_replicas)
       - name: MONGODB_CPU_REQUESTS
         value: $(params.mongodb_cpu_requests)
+      - name: MONGODB_PROVIDER
+        value: $(params.mongodb_provider)
+      - name: mongodb_action
+        value: $(params.mongodb_action)
+
+      # Dependencies - IBM Cloud MongoDb
+      - name: IBM_MONGO_NAME
+        value: $(params.ibm_mongo_name)
+      - name: IBM_MONGO_REGION
+        value: $(params.ibm_mongo_region)
+      - name: IBM_MONGO_RESOURCEGROUP
+        value: $(params.ibm_mongo_resourcegroup)
 
       # Optional parameters to categorize result to be persisted
       - name: DEVOPS_TEST_TYPE

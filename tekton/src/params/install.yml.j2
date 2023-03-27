@@ -41,6 +41,29 @@
   type: string
   description: Optional configuration for mongodb cpu requests
   default: ""
+- name: mongodb_provider
+  type: string
+  description: MongoDb provider
+  default: ""
+- name: mongodb_action
+  type: string
+  description: MongoDb action
+  default: ""
+      
+# Dependencies - IBM Cloud MongoDb
+# -------------------------------------------------------------------------
+- name: ibm_mongo_name
+  type: string
+  description: IBM Cloud MongoDb instance name
+  default: ""
+- name: ibm_mongo_resourcegroup
+  type: string
+  description: IBM Cloud MongoDb resource group
+  default: ""
+- name: ibm_mongo_region
+  type: string
+  description: IBM Cloud MongoDb instance region
+  default: ""
 
 # Dependencies - Kafka
 # -----------------------------------------------------------------------------
