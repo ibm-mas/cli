@@ -1,6 +1,6 @@
 ## Changes
 
-- [`3.17`](https://github.com/ibm-mas/cli/releases/tag/3.17.0) Add support for MAS 8.10
+- [`3.18`](https://github.com/ibm-mas/cli/releases/tag/3.18.0) Add support for MAS 8.10
 - [`3.16`](https://github.com/ibm-mas/cli/releases/tag/3.16.0) Multiple updates:
     - Support generation of BYO JDBC config
     - Add config tool for MAS OIDC client mgmt
