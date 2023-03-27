@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.1
+        uses: actions/checkout@v3
         # Without this option, we don't get the tag information
         with:
           fetch-depth: 0
@@ -27,7 +27,7 @@ jobs:
         run: $GITHUB_WORKSPACE/build/bin/build-tekton.sh
 
       - name: Upload the Tekton definitions
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ibm-mas-tekton-${{ env.VERSION }}.yaml
           path: ${{ github.workspace }}/tekton/target/ibm-mas-tekton.yaml
@@ -58,7 +58,7 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/build-cli.sh
 
       - name: Upload the cli
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ibm-mas-cli-${{ env.VERSION }}.tgz
           path: ${{ github.workspace }}/ibm-mas-cli-${{ env.VERSION }}.tgz
@@ -94,7 +94,7 @@ jobs:
             --enableRetired
 
       - name: Upload dependency check results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
            name: OWASP dependency check report
            path: ${{github.workspace}}/reports

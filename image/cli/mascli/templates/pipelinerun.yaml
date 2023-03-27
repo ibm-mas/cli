@@ -217,6 +217,12 @@ spec:
       value: '$MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG'
     - name: mas_app_settings_server_bundles_size
       value: '$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE'
+    - name: mas_app_settings_tablespace
+      value: '$MAS_APP_SETTINGS_TABLESPACE'
+    - name: mas_app_settings_indexspace
+      value: '$MAS_APP_SETTINGS_INDEXSPACE'
+    - name: mas_app_settings_db2_schema
+      value: '$MAS_APP_SETTINGS_DB2_SCHEMA'
 
     # Monitor Application
     # -------------------------------------------------------------------------
