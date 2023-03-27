@@ -45,6 +45,16 @@ spec:
       - name: {{ install_param.name | upper }}
         value: $(params.{{ install_param.name }})
 {% endfor %}
+    # Install common Parameters
+{% for install_common_param in install_common_params_definition.params %}
+      - name: {{ install_common_param.name | upper }}
+        value: $(params.{{ install_common_param.name }})
+{% endfor %}
+    # runpipeline common Parameters
+{% for runpipeline_param in runpipeline_params_definition.params %}
+      - name: {{ runpipeline_param.name | upper }}
+        value: $(params.{{ runpipeline_param.name }})
+{% endfor %}
 {% for fvt_param in fvt_params_definition.params %}
       - name: {{ fvt_param.name | upper }}
         value: $(params.{{ fvt_param.name }})

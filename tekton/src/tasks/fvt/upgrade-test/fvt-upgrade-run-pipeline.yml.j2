@@ -42,6 +42,11 @@ spec:
       - name: {{ common_param.name | upper }}
         value: $(params.{{ common_param.name }})
 {% endfor %}
+    # runpipeline common Parameters
+{% for runpipeline_param in runpipeline_params_definition.params %}
+      - name: {{ runpipeline_param.name | upper }}
+        value: $(params.{{ runpipeline_param.name }})
+{% endfor %}
 {% for upgrade_param in upgrade_params_definition.params %}
       - name: {{ upgrade_param.name | upper }}
         value: $(params.{{ upgrade_param.name }})
