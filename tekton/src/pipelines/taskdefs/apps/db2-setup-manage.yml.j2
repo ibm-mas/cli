@@ -6,14 +6,17 @@
 
     - name: db2_instance_name
       value: "mas-$(params.mas_instance_id)-$(params.mas_workspace_id)-manage"
-  # Only perform the hack if Manage is being installed and if we're are using a dedicated Db2 instance for Manage
+  # Only perform the hack if Manage is being installed, if we're using in-cluster system db and we're not using a dedicated Db2 instance for Manage (in-cluster or BYO)
   when:
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
-    - input: "$(params.db2_action_manage)"
+    - input: "$(params.db2_action_system)"
       operator: in
       values: ["install"]
+    - input: "$(params.db2_action_manage)"
+      operator: notin
+      values: ["install", "byo"]
   taskRef:
     name: mas-devops-suite-db2-setup-for-manage
     kind: Task
