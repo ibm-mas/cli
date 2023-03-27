@@ -95,6 +95,19 @@ spec:
       value: '$MONGODB_REPLICAS'
     - name: mongodb_cpu_requests
       value: '$MONGODB_CPU_REQUESTS'
+    - name: mongodb_provider
+      value: '$MONGODB_PROVIDER'
+    - name: mongodb_action
+      value: '$MONGODB_ACTION'
+
+    # Dependencies - IBM Cloud MongoDb
+    # -------------------------------------------------------------------------
+    - name: ibm_mongo_name
+      value: '$IBM_MONGO_NAME'
+    - name: ibm_mongo_resourcegroup
+      value: '$IBM_MONGO_RESOURCEGROUP'
+    - name: ibm_mongo_region
+      value: '$IBM_MONGO_REGION'
 
     # Dependencies - CP4D
     # -------------------------------------------------------------------------
