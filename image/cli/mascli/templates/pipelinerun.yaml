@@ -108,6 +108,8 @@ spec:
       value: '$IBM_MONGO_RESOURCEGROUP'
     - name: ibm_mongo_region
       value: '$IBM_MONGO_REGION'
+    - name: ibm_mongo_admin_password
+      value: '$IBM_MONGO_ADMIN_PASSWORD'
 
     # Dependencies - CP4D
     # -------------------------------------------------------------------------

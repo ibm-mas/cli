@@ -59,6 +59,10 @@ spec:
       type: string
       description: IBM Cloud MongoDb instance name
       default: ""
+    - name: ibm_mongo_admin_password
+      type: string
+      description: IBM Cloud MongoDb admin password
+      default: ""
     - name: ibm_mongo_resourcegroup
       type: string
       description: IBM Cloud MongoDb resource group
@@ -122,6 +126,8 @@ spec:
       # Dependencies - IBM Cloud MongoDb
       - name: IBM_MONGO_NAME
         value: $(params.ibm_mongo_name)
+      - name: IBM_MONGO_ADMIN_PASSWORD
+        value: $(params.ibm_mongo_admin_password)
       - name: IBM_MONGO_REGION
         value: $(params.ibm_mongo_region)
       - name: IBM_MONGO_RESOURCEGROUP
