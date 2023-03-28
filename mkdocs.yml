@@ -28,11 +28,11 @@ nav:
       - "configtool-oidc": commands/configtool-oidc.md
   - "Catalogs":
       - "Overview": catalogs/index.md
-      - "March 28 2023": catalogs/v8-230328-amd64.md
-      - "March 14 2023": catalogs/v8-230314-amd64.md
-      - "Feb 2023": catalogs/v8-230217-amd64.md
-      - "Jan 2023": catalogs/v8-230111-amd64.md
-      - "Dec 2022": catalogs/v8-221228-amd64.md
+      - "Mar 28 2023": catalogs/v8-230328-amd64.md
+      - "Mar 14 2023": catalogs/v8-230314-amd64.md
+      - "Feb 17 2023": catalogs/v8-230217-amd64.md
+      - "Jan 11 2023": catalogs/v8-230111-amd64.md
+      - "Dec 28 2022": catalogs/v8-221228-amd64.md
 
 theme:
   name: readthedocs
