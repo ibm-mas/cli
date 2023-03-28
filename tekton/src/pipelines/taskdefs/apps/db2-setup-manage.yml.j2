@@ -11,12 +11,12 @@
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
-    - input: "$(params.db2_action_system)"
+    - input: "$(params.db2_action_manage)"
       operator: in
       values: ["install"]
     - input: "$(params.db2_action_manage)"
       operator: notin
-      values: ["install", "byo"]
+      values: ["byo"]
   taskRef:
     name: mas-devops-suite-db2-setup-for-manage
     kind: Task
