@@ -116,6 +116,8 @@ spec:
 
     # Dependencies - SLS
     # -------------------------------------------------------------------------
+    - name: sls_namespace
+      value: '$SLS_NAMESPACE'
     - name: sls_license_id
       value: '$SLS_LICENSE_ID'
     - name: sls_license_file

@@ -19,6 +19,9 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
+    - name: sls_namespace
+      type: string
+      default: ""
     - name: sls_license_id
       type: string
       default: ""
@@ -103,6 +106,8 @@ spec:
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
 
+      - name: SLS_NAMESPACE
+        value: $(params.sls_namespace)
       - name: SLS_MONGODB_CFG_FILE
         value: $(params.sls_mongodb_cfg_file)
       - name: SLS_LICENSE_ID
