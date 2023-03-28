@@ -67,6 +67,10 @@ spec:
       type: string
       description: IBM Cloud MongoDb instance region
       default: ""
+    - name: ibmcloud_apikey
+      type: string
+      description: API Key used to create Mongo instance in IBM Cloud
+      default: ""
 
     # Optional parameters to categorize result to be persisted
     # -------------------------------------------------------------------------
@@ -122,6 +126,8 @@ spec:
         value: $(params.ibm_mongo_region)
       - name: IBM_MONGO_RESOURCEGROUP
         value: $(params.ibm_mongo_resourcegroup)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
 
       # Optional parameters to categorize result to be persisted
       - name: DEVOPS_TEST_TYPE
