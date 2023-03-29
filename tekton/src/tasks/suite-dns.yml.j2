@@ -22,6 +22,9 @@ spec:
     - name: mas_domain
       type: string
       default: ""
+    - name: mas_workspace_id
+      type: string
+      default: ""
 
     # Cloudflare support
     - name: cloudflare_email
@@ -44,10 +47,27 @@ spec:
     - name: cis_apikey
       type: string
       default: ""
+    - name: ibmcloud_apikey
+      type: string
+      default: ""
     - name: cis_crn
       type: string
       default: ""
     - name: cis_subdomain
+      type: string
+      default: ""
+
+    # IBM Cloud Internet Services support Security Enhancement support
+    - name: cis_service_name
+      type: string
+      default: ""
+    - name: cis_enhanced_security
+      type: string
+      default: ""
+    - name: override_edge_certs
+      type: string
+      default: "false"
+    - name: cis_proxy
       type: string
       default: ""
 
@@ -83,6 +103,8 @@ spec:
         value: $(params.dns_provider)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
       - name: MAS_DOMAIN
@@ -101,10 +123,20 @@ spec:
         value: $(params.cis_email)
       - name: CIS_APIKEY
         value: $(params.cis_apikey)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
       - name: CIS_CRN
         value: $(params.cis_crn)
       - name: CIS_SUBDOMAIN
         value: $(params.cis_subdomain)
+      - name: CIS_SERVICE_NAME
+        value: $(params.cis_service_name)
+      - name: CIS_ENHANCED_SECURITY
+        value: $(params.cis_enhanced_security)
+      - name: OVERRIDE_EDGE_CERTS
+        value: $(params.override_edge_certs)
+      - name: CIS_PROXY
+        value: $(params.cis_proxy)
 
       # Optional support built into the ansible-devops image
       # for saving task execution results to a MongoDb instance

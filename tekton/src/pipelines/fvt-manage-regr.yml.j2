@@ -21,6 +21,7 @@ spec:
 
     # 2. Installation
     # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
     {{ lookup('template', params_src_dir ~ '/install.yml.j2') | indent(4) }}
 
     # 3. Additional Params for FVT
@@ -35,7 +36,7 @@ spec:
     # 4. Other Dependecies
     # 5. Install & Configure IBM MAS
     # 9. Install & Configure Manage
-    
+
 
     # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
     # -------------------------------------------------------------------------
@@ -52,10 +53,7 @@ spec:
       runAfter:
         - common-services
 
-    # 1.4 Red Hat Service Binding Operator
-    {{ lookup('template', 'taskdefs/cluster-setup/sbo.yml.j2') | indent(4) }}
-
-    # 1.5 Configure Cluster Monitoring
+    # 1.4 Configure Cluster Monitoring
     {{ lookup('template', 'taskdefs/cluster-setup/cluster-monitoring.yml.j2') | indent(4) }}
 
 
@@ -117,7 +115,6 @@ spec:
     # 4.3 Suite Installation
     {{ lookup('template', 'taskdefs/core/suite-install.yml.j2') | indent(4) }}
       runAfter:
-        - sbo
         - sls
         - uds
         - gencfg-workspace
@@ -167,7 +164,7 @@ spec:
       runAfter:
         - app-install-manage
 
-    
+
     # 6. Manage IVT
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/ivt-core/manage.yml.j2') | indent(4) }}
@@ -184,7 +181,7 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-apps/manage-regr.yml.j2') | indent(4) }}
 
-  
+
   # Mustgather executed in finally block. Use suite_mustgather_download
   # playbook to retrieve the output on your local machine
   # -------------------------------------------------------------------------

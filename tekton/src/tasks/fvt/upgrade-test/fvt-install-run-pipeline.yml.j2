@@ -23,7 +23,11 @@ spec:
     {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}
 
     # Install Parameters
+    {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
     {{ lookup('template', params_src_dir ~ '/install.yml.j2') | indent(4) }}
+
+    # Run Pipeline Parameters
+    {{ lookup('template', params_src_dir ~ '/runpipeline.yml.j2') | indent(4) }}
 
   stepTemplate:
     env:
@@ -42,6 +46,16 @@ spec:
 {% for install_param in install_params_definition.params %}
       - name: {{ install_param.name | upper }}
         value: $(params.{{ install_param.name }})
+{% endfor %}
+    # Install common Parameters
+{% for install_common_param in install_common_params_definition.params %}
+      - name: {{ install_common_param.name | upper }}
+        value: $(params.{{ install_common_param.name }})
+{% endfor %}
+    # runpipeline common Parameters
+{% for runpipeline_param in runpipeline_params_definition.params %}
+      - name: {{ runpipeline_param.name | upper }}
+        value: $(params.{{ runpipeline_param.name }})
 {% endfor %}
 
   steps:

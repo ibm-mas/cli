@@ -1,5 +1,14 @@
 ## Changes
 
+- [`3.18`](https://github.com/ibm-mas/cli/releases/tag/3.18.0) Add support for MAS 8.10
+- [`3.17`](https://github.com/ibm-mas/cli/releases/tag/3.17.0) Support Manage advanced database settings
+- [`3.16`](https://github.com/ibm-mas/cli/releases/tag/3.16.0) Multiple updates:
+    - Support generation of BYO JDBC config
+    - Add config tool for MAS OIDC client mgmt
+- [`3.15`](https://github.com/ibm-mas/cli/releases/tag/3.15.0) Multiple updates:
+    - Add support for March 2023 catalog
+    - Remove SBO from install pipeline
+    - Add support to mirror pre-release builds
 - [`3.14`](https://github.com/ibm-mas/cli/releases/tag/3.14.0) Add manage regression pipeline
 - [`3.13`](https://github.com/ibm-mas/cli/releases/tag/3.13.0) Add tasks for Manage Industry Solutions and add support for Manage JMS configuration
 - [`3.12`](https://github.com/ibm-mas/cli/releases/tag/3.12.0) Add support for Feb 2023 catalog

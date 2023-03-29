@@ -22,6 +22,7 @@ spec:
 
     # 2. Installation
     # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
     {{ lookup('template', params_src_dir ~ '/install.yml.j2') | indent(4) }}
 
     # 3. Additional Params for FVT
@@ -62,10 +63,7 @@ spec:
       runAfter:
         - common-services
 
-    # 1.4 Red Hat Service Binding Operator
-    {{ lookup('template', 'taskdefs/cluster-setup/sbo.yml.j2') | indent(4) }}
-
-    # 1.5 Configure Cluster Monitoring
+    # 1.4 Configure Cluster Monitoring
     {{ lookup('template', 'taskdefs/cluster-setup/cluster-monitoring.yml.j2') | indent(4) }}
 
 
@@ -148,16 +146,17 @@ spec:
         - fvt-operatormaturity
         - cos
 
+    # App Connect temporarily disabled due CVEID: CVE-2023-28521
     # 4.1 Install AppConnect
-    {{ lookup('template', 'taskdefs/dependencies/appconnect.yml.j2') | indent(4) }}
-      runAfter:
-        - ibm-catalogs
+    # {{ lookup('template', 'taskdefs/dependencies/appconnect.yml.j2') | indent(4) }}
+      # runAfter:
+        # - ibm-catalogs
 
     # 4.2 Configure AppConnect in MAS
-    {{ lookup('template', 'taskdefs/core/suite-config-appconnect.yml.j2') | indent(4) }}
-      runAfter:
-        - fvt-operatormaturity
-        - appconnect
+    # {{ lookup('template', 'taskdefs/core/suite-config-appconnect.yml.j2') | indent(4) }}
+      # runAfter:
+        # - fvt-operatormaturity
+        # - appconnect
 
     # 4.3 Nvidia GPU Operator
     {{ lookup('template', 'taskdefs/dependencies/nvidia.yml.j2') | indent(4) }}
@@ -178,7 +177,6 @@ spec:
     # 5.3 Suite Installation
     {{ lookup('template', 'taskdefs/core/suite-install.yml.j2') | indent(4) }}
       runAfter:
-        - sbo
         - sls
         - uds
         - gencfg-workspace
@@ -307,7 +305,8 @@ spec:
       runAfter:
         - app-cfg-manage # Requires Health as an add-on
         - suite-config-watson-studio
-        - suite-config-appconnect
+        # App Connect temporarily disabled due CVEID: CVE-2023-28521
+        # - suite-config-appconnect
 
     # 12.2 Configure HPUtilities workspace
     {{ lookup('template', 'taskdefs/apps/hputilities-workspace.yml.j2') | indent(4) }}
@@ -370,7 +369,7 @@ spec:
     # -------------------------------------------------------------------------
     # 16.1 All Apps IVT (except Manage)
     {{ lookup('template', 'taskdefs/ivt-core/all-apps.yml.j2') | indent(4) }}
-    
+
     # 16.2 Manage IVT
     {{ lookup('template', 'taskdefs/ivt-core/manage.yml.j2') | indent(4) }}
 

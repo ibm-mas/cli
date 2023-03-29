@@ -6,6 +6,8 @@
 
     - name: mas_domain
       value: $(params.mas_domain)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
 
     - name: dns_provider
       value: $(params.dns_provider)
@@ -23,10 +25,20 @@
       value: $(params.cis_email)
     - name: cis_apikey
       value: $(params.cis_apikey)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
     - name: cis_crn
       value: $(params.cis_crn)
     - name: cis_subdomain
       value: $(params.cis_subdomain)
+    - name: cis_service_name
+      value: $(params.cis_service_name)
+    - name: cis_enhanced_security
+      value: $(params.cis_enhanced_security)
+    - name: override_edge_certs
+      value: $(params.override_edge_certs)
+    - name: cis_proxy
+      value: $(params.cis_proxy)
 
     - name: custom_labels
       value: $(params.custom_labels)

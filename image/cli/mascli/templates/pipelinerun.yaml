@@ -45,6 +45,12 @@ spec:
       value: '$DB2_META_STORAGE_ACCESSMODE'
     - name: db2_backup_storage_accessmode
       value: '$DB2_BACKUP_STORAGE_ACCESSMODE'
+    - name: db2_logs_storage_accessmode
+      value: '$DB2_LOGS_STORAGE_ACCESSMODE'
+    - name: db2_temp_storage_accessmode
+      value: '$DB2_TEMP_STORAGE_ACCESSMODE'
+    - name: db2_data_storage_accessmode
+      value: '$DB2_DATA_STORAGE_ACCESSMODE'
 
     # Dependencies - Db2 - CPU Resources
     # -------------------------------------------------------------------------
@@ -62,14 +68,24 @@ spec:
 
     # Dependencies - Db2 - Storage Capacity
     # -------------------------------------------------------------------------
+    - name: db2_meta_storage_class
+      value: '$DB2_META_STORAGE_CLASS'
     - name: db2_meta_storage_size
       value: '$DB2_META_STORAGE_SIZE'
+    - name: db2_backup_storage_class
+      value: '$DB2_BACKUP_STORAGE_CLASS'
     - name: db2_backup_storage_size
       value: '$DB2_BACKUP_STORAGE_SIZE'
+    - name: db2_logs_storage_class
+      value: '$DB2_LOGS_STORAGE_CLASS'
     - name: db2_logs_storage_size
       value: '$DB2_LOGS_STORAGE_SIZE'
+    - name: db2_temp_storage_class
+      value: '$DB2_TEMP_STORAGE_CLASS'
     - name: db2_temp_storage_size
       value: '$DB2_TEMP_STORAGE_SIZE'
+    - name: db2_data_storage_class
+      value: '$DB2_DATA_STORAGE_CLASS'
     - name: db2_data_storage_size
       value: '$DB2_DATA_STORAGE_SIZE'
 
@@ -112,6 +128,8 @@ spec:
       value: '$UDS_CONTACT_FIRSTNAME'
     - name: uds_contact_lastname
       value: '$UDS_CONTACT_LASTNAME'
+    - name: uds_action
+      value: '$UDS_ACTION'
 
     # Dependencies - AppConnect
     # -------------------------------------------------------------------------
@@ -135,6 +153,9 @@ spec:
       value: '$MAS_CATALOG_SOURCE'
     - name: mas_catalog_version
       value: '$MAS_CATALOG_VERSION'
+    - name: mas_catalog_digest
+      value: '$MAS_CATALOG_DIGEST'
+
 
     # MAS DNS Integrations - General
     # -------------------------------------------------------------------------
@@ -162,6 +183,17 @@ spec:
       value: '$CIS_CRN'
     - name: cis_subdomain
       value: '$CIS_SUBDOMAIN'
+
+    # MAS DNS Integrations - CIS Security Enhancement Support
+    # -------------------------------------------------------------------------
+    - name: cis_service_name
+      value: '$CIS_SERVICE_NAME'
+    - name: cis_enhanced_security
+      value: '$CIS_ENHANCED_SECURITY'
+    - name: override_edge_certs
+      value: '$OVERRIDE_EDGE_CERTS'
+    - name: cis_proxy
+      value: '$CIS_PROXY'
 
     # MAS Core
     # -------------------------------------------------------------------------
@@ -212,6 +244,12 @@ spec:
       value: '$MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG'
     - name: mas_app_settings_server_bundles_size
       value: '$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE'
+    - name: mas_app_settings_tablespace
+      value: '$MAS_APP_SETTINGS_TABLESPACE'
+    - name: mas_app_settings_indexspace
+      value: '$MAS_APP_SETTINGS_INDEXSPACE'
+    - name: mas_app_settings_db2_schema
+      value: '$MAS_APP_SETTINGS_DB2_SCHEMA'
 
     # Monitor Application
     # -------------------------------------------------------------------------
