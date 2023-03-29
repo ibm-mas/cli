@@ -15,6 +15,10 @@
 {% endif %}
 {% if suffix == "manage" %}
       value: mas-$(params.mas_instance_id)-$(params.mas_workspace_id)-manage
+    - name: db2_ldap_username
+      value: $(params.db2_ldap_username)
+    - name: db2_ldap_password
+      value: $(params.db2_ldap_password)
 {% endif %}
     - name: db2_dbname
       value: $(params.db2_dbname)
@@ -68,6 +72,12 @@
       value: $(params.db2_meta_storage_accessmode)
     - name: db2_backup_storage_accessmode
       value: $(params.db2_backup_storage_accessmode)
+    - name: db2_temp_storage_accessmode
+      value: $(params.db2_temp_storage_accessmode)
+    - name: db2_logs_storage_accessmode
+      value: $(params.db2_logs_storage_accessmode)
+    - name: db2_data_storage_accessmode
+      value: $(params.db2_data_storage_accessmode)
 
 {% if suffix == "system" %}
     # MAS - JDBCCfg - System
