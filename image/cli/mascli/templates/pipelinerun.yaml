@@ -199,6 +199,8 @@ spec:
     # -------------------------------------------------------------------------
     - name: mas_instance_id
       value: '$MAS_INSTANCE_ID'
+    - name: mas_wipe_mongo_data
+      value: '$MAS_WIPE_MONGO_DATA'
 
     - name: mas_domain
       value: '$MAS_DOMAIN'
