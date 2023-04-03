@@ -216,6 +216,7 @@ function pipeline_config() {
   else
     config_pipeline_storage_classes #9
   fi
+  config_pipeline_advanced #  10
 
   echo ""
   if [[ "$DEV_MODE" == "true" && -z "$AIRGAP_MODE" ]]; then
