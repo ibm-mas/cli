@@ -1,3 +1,62 @@
+## Mobile Foundation Manage Setup
+- name: fvt-mobilefoundation-manage-setup
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: devops_ibmcloud_apikey
+      value: $(params.devops_ibmcloud_apikey)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-mobilefoundation
+    - name: fvt_image_name
+      value: fvt-mobilefoundation-manage-setup
+    - name: fvt_image_version
+      value: $(params.fvt_version_mobilefoundation)
+    - name: fvt_mas_appws_component
+      value: base
+    - name: mas_appws_components
+      value: $(params.mas_appws_components)
+    - name: fvt_test_suite
+      value: mxmobsetup # Keyword for Mobile FVT
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-mobilefoundation
+    - name: artifactory_apikey
+      value: $(params.fvt_artifactory_apikey)
+
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage
+  # Only if we've set a version of the Manage Transportation FVT to run
+  when:
+    - input: "$(params.fvt_version_mobilefoundation)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-manage-setup
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
 ## Mobile Foundation Prepare User Data
 - name: fvt-mobilefoundation-testng-preparedata
   params:
@@ -45,7 +104,7 @@
       values: [""]
   runAfter:
     - ivtcore-manage
-    - fvt-manage-mobile-setup
+    - fvt-mobilefoundation-manage-setup
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -622,11 +681,11 @@
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
-      value: fvt-civil-defects
+      value: fvt-manage-civil
     - name: fvt_image_name
-      value: fvt-civil-defects-preparedata
+      value: fvt-ibm-mas-manage-civil-defects-preparedata
     - name: fvt_image_version
-      value: $(params.fvt_version_defects)
+      value: $(params.fvt_version_manage_civil)
     - name: fvt_test_suite
       value: prepare-test-data-testng-mas
     - name: product_channel
@@ -638,7 +697,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a version of the Mobile Foundation FVT to run
   when:
-    - input: "$(params.fvt_version_defects)"
+    - input: "$(params.fvt_version_manage_civil)"
       operator: notin
       values: ["skip"]
     - input: "$(params.mas_app_channel_manage)"
@@ -666,11 +725,11 @@
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
-      value: fvt-civil-defects
+      value: fvt-manage-civil
     - name: fvt_image_name
-      value: fvt-civil-defects-testng
+      value: fvt-ibm-mas-manage-civil-defects-testng
     - name: fvt_image_version
-      value: $(params.fvt_version_defects)
+      value: $(params.fvt_version_manage_civil)
     - name: fvt_test_suite
       value: testng-mas-mobile-andorid
     - name: product_channel
@@ -688,7 +747,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a version of the Mobile Defects FVT to run
   when:
-    - input: "$(params.fvt_version_defects)"
+    - input: "$(params.fvt_version_manage_civil)"
       operator: notin
       values: ["skip"]
     - input: "$(params.mas_app_channel_manage)"
@@ -716,11 +775,11 @@
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
-      value: fvt-civil-defects
+      value: fvt-manage-civil
     - name: fvt_image_name
-      value: fvt-civil-defects-testng
+      value: fvt-ibm-mas-manage-civil-defects-testng
     - name: fvt_image_version
-      value: $(params.fvt_version_defects)
+      value: $(params.fvt_version_manage_civil)
     - name: fvt_test_suite
       value: testng-mas-mobile-ios
     - name: product_channel
@@ -738,7 +797,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a version of the Mobile Defects FVT to run
   when:
-    - input: "$(params.fvt_version_defects)"
+    - input: "$(params.fvt_version_manage_civil)"
       operator: notin
       values: ["skip"]
     - input: "$(params.mas_app_channel_manage)"
@@ -749,3 +808,125 @@
   workspaces:
     - name: configs
       workspace: shared-configs
+
+# Manage FVT - IC Setup
+- name: fvt-mobile-inventorycounting-setup
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: devops_ibmcloud_apikey
+      value: $(params.devops_ibmcloud_apikey)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-inventorycounting
+    - name: fvt_image_name
+      value: fvt-inventorycounting-manage-setup
+    - name: fvt_image_version
+      value: $(params.fvt_version_inventorycounting)
+    - name: fvt_mas_appws_component
+      value: base
+    - name: mas_appws_components
+      value: $(params.mas_appws_components)
+    - name: fvt_test_suite
+      value: setup4ic # Keyword for IC setup
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-mobile-inventorycounting
+    - name: artifactory_apikey
+      value: $(params.fvt_artifactory_apikey)
+    
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage
+  # Only if we've set a version of the IC FVT to run
+  when:
+    - input: "$(params.fvt_version_inventorycounting)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-manage-setup
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+# Mobile FVT - Inventory Counting
+- name: fvt-mobile-inventorycounting
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: devops_ibmcloud_apikey
+      value: $(params.devops_ibmcloud_apikey)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-inventorycounting
+    - name: fvt_image_name
+      value: fvt-inventorycounting-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_inventorycounting)
+    - name: fvt_mas_appws_component
+      value: base
+    - name: mas_appws_components
+      value: $(params.mas_appws_components)
+    - name: fvt_test_suite
+      value: prepare-test-data-testng-mas # xml for Mobile IC
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-mobile-inventorycounting
+    - name: artifactory_apikey
+      value: $(params.fvt_artifactory_apikey)
+
+    - name: devops_test_type
+      value: $(params.devops_test_type)
+    - name: devops_test_phase
+      value: $(params.devops_test_phase)
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage
+  # Only if we've set a version of the Mobile IC FVT to run
+  when:
+    - input: "$(params.fvt_version_inventorycounting)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-mobile-inventorycounting-setup
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+
+
+
