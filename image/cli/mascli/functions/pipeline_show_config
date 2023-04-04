@@ -11,7 +11,7 @@ function pipeline_show_config() {
   fi
 
   reset_colors
-  echo_h2 "\n14. Review Settings"
+  echo_h2 "\n15. Review Settings"
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ............... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
