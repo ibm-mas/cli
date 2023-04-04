@@ -35,14 +35,14 @@ jobs:
       - name: Upload definition to Artifactory
         env:
           ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
-          ARTIFACTORY_APIKEY: ${{ secrets.ARTIFACTORY_APIKEY }}
+          ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
         run: |
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml
 
       - name: Upload PipelineRun templates to Artifactory
         env:
           ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
-          ARTIFACTORY_APIKEY: ${{ secrets.ARTIFACTORY_APIKEY }}
+          ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
         run: |
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/pipelineruns/fvt-core.yml.j2
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/pipelineruns/install-with-fvt.yml.j2
