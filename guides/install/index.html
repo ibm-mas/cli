@@ -256,7 +256,7 @@
 </tr>
 <tr>
 <td>Monitor</td>
-<td>No support</td>
+<td>v8.10.0 (<a href="../../catalogs/v8-230328-amd64/">v8-2023-03-28-amd64</a>)</td>
 </tr>
 <tr>
 <td>Optimizer</td>
@@ -276,10 +276,6 @@
 </tr>
 </tbody>
 </table>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Manage v8.5.0 introduces a regression with air gap support in the application, as such the November 2022 and December 2022 catalogs are unsuitable for customers using Maximo Manage in an air gap environment.</p>
-</div>
 <h3 id="22-prepare-the-private-registry">2.2 Prepare the Private Registry<a class="headerlink" href="#22-prepare-the-private-registry" title="Permanent link"></a></h3>
 <p>If you do not already have a private registry available to use as your mirror then you can use the <code>setup-mirror</code> function to deploy a private registry inside a target OpenShift cluster.</p>
 <pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas setup-registry
