@@ -65,14 +65,11 @@ Disconnected install for IBM Maximo Application Suite is supported from MAS v8.8
 | Health & Predict Utilities |  No support                       |
 | IoT                        |  v8.5.1 ([v8-2022-08-05-amd64](../catalogs/v8-220805-amd64.md))     |
 | Manage                     |  v8.4.0 ([v8-2022-07-17-amd64](../catalogs/v8-220717-amd64.md))     |
-| Monitor                    |  No support                       |
+| Monitor                    |  v8.10.0 ([v8-2023-03-28-amd64](../catalogs/v8-230328-amd64.md))    |
 | Optimizer                  |  v8.2.0 ([v8-2022-07-17-amd64](../catalogs/v8-220717-amd64.md))     |
 | Predict                    |  No support                       |
 | Safety                     |  No support                       |
 | Visual Inspection          |  No support                       |
-
-!!! warning
-    Manage v8.5.0 introduces a regression with air gap support in the application, as such the November 2022 and December 2022 catalogs are unsuitable for customers using Maximo Manage in an air gap environment.
 
 
 ### 2.2 Prepare the Private Registry
