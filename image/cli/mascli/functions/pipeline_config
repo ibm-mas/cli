@@ -7,6 +7,7 @@
 . $DIR/functions/pipeline_config_sno
 . $DIR/functions/pipeline_config_storage_classes
 . $DIR/functions/pipeline_config_storage_classes_sno
+. $DIR/functions/pipeline_config_advanced
 
 function pipeline_config() {
   echo_h2 "3. Configure Installation"
@@ -215,34 +216,35 @@ function pipeline_config() {
   else
     config_pipeline_storage_classes #9
   fi
+  config_pipeline_advanced #  10
 
   echo ""
   if [[ "$DEV_MODE" == "true" && -z "$AIRGAP_MODE" ]]; then
     # Development Mode -- offer the ability to set MAS and SLS source independently
-    echo_h2 "10.1 Configure Artifactory"
+    echo_h2 "11.1 Configure Artifactory"
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
     prompt_for_input "Artifactory API Key" ARTIFACTORY_APIKEY
 
     echo
-    echo_h2 "10.2 Configure IBM Container Registry"
+    echo_h2 "11.2 Configure IBM Container Registry"
     prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
 
     echo
-    echo_h2 "10.3 Configure IBM Container Registry (MAS)"
+    echo_h2 "11.3 Configure IBM Container Registry (MAS)"
     prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP docker-na-public.artifactory.swg-devops.com/wiotp-docker-local override
     prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen override
     MAS_ENTITLEMENT_USERNAME=cp
     MAS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
 
     echo
-    echo_h2 "10.4 Configure IBM Container Registry (SLS)"
+    echo_h2 "11.4 Configure IBM Container Registry (SLS)"
     prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP docker-na-public.artifactory.swg-devops.com/wiotp-docker-local override
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen override
     SLS_ENTITLEMENT_USERNAME=cp
     SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
-    echo_h2 "10. Configure IBM Container Registry"
+    echo_h2 "11. Configure IBM Container Registry"
     prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY "Re-use saved IBM Entitlement Key?"
 
     # Use defaults
@@ -260,7 +262,7 @@ function pipeline_config() {
   SLS_CATALOG_SOURCE=ibm-operator-catalog
 
   echo
-  echo_h2 "11. Configure Product License"
+  echo_h2 "12. Configure Product License"
   prompt_for_input "License ID" SLS_LICENSE_ID
   prompt_for_input "License File" SLS_LICENSE_FILE_LOCAL
   if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
@@ -270,7 +272,7 @@ function pipeline_config() {
   SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
 
   echo
-  echo_h2 "12. Configure UDS"
+  echo_h2 "13. Configure UDS"
   if [[ -n "$DEV_MODE" ]]; then
     echo "${TEXT_DIM}Maximo Application Suite version v8.10+ no longer requires IBM User Data Services as a dependency."
     echo
