@@ -45,6 +45,12 @@ spec:
       value: '$DB2_META_STORAGE_ACCESSMODE'
     - name: db2_backup_storage_accessmode
       value: '$DB2_BACKUP_STORAGE_ACCESSMODE'
+    - name: db2_logs_storage_accessmode
+      value: '$DB2_LOGS_STORAGE_ACCESSMODE'
+    - name: db2_temp_storage_accessmode
+      value: '$DB2_TEMP_STORAGE_ACCESSMODE'
+    - name: db2_data_storage_accessmode
+      value: '$DB2_DATA_STORAGE_ACCESSMODE'
 
     # Dependencies - Db2 - CPU Resources
     # -------------------------------------------------------------------------
@@ -62,14 +68,24 @@ spec:
 
     # Dependencies - Db2 - Storage Capacity
     # -------------------------------------------------------------------------
+    - name: db2_meta_storage_class
+      value: '$DB2_META_STORAGE_CLASS'
     - name: db2_meta_storage_size
       value: '$DB2_META_STORAGE_SIZE'
+    - name: db2_backup_storage_class
+      value: '$DB2_BACKUP_STORAGE_CLASS'
     - name: db2_backup_storage_size
       value: '$DB2_BACKUP_STORAGE_SIZE'
+    - name: db2_logs_storage_class
+      value: '$DB2_LOGS_STORAGE_CLASS'
     - name: db2_logs_storage_size
       value: '$DB2_LOGS_STORAGE_SIZE'
+    - name: db2_temp_storage_class
+      value: '$DB2_TEMP_STORAGE_CLASS'
     - name: db2_temp_storage_size
       value: '$DB2_TEMP_STORAGE_SIZE'
+    - name: db2_data_storage_class
+      value: '$DB2_DATA_STORAGE_CLASS'
     - name: db2_data_storage_size
       value: '$DB2_DATA_STORAGE_SIZE'
 
@@ -168,6 +184,17 @@ spec:
     - name: cis_subdomain
       value: '$CIS_SUBDOMAIN'
 
+    # MAS DNS Integrations - CIS Security Enhancement Support
+    # -------------------------------------------------------------------------
+    - name: cis_service_name
+      value: '$CIS_SERVICE_NAME'
+    - name: cis_enhanced_security
+      value: '$CIS_ENHANCED_SECURITY'
+    - name: override_edge_certs
+      value: '$OVERRIDE_EDGE_CERTS'
+    - name: cis_proxy
+      value: '$CIS_PROXY'
+
     # MAS Core
     # -------------------------------------------------------------------------
     - name: mas_instance_id
@@ -261,6 +288,32 @@ spec:
     # -------------------------------------------------------------------------
     - name: mas_app_channel_visualinspection
       value: '$MAS_APP_CHANNEL_VISUALINSPECTION'
+
+    # Prometheus
+    # -------------------------------------------------------------------------
+    - name: prometheus_retention_period
+      value: '$PROMETHEUS_RETENTION_PERIOD'
+    - name: prometheus_storage_class
+      value: '$PROMETHEUS_STORAGE_CLASS'
+    - name: prometheus_storage_size
+      value: '$PROMETHEUS_STORAGE_SIZE'
+    - name: prometheus_alertmgr_storage_class
+      value: '$PROMETHEUS_ALERTMGR_STORAGE_CLASS'
+    - name: prometheus_alertmgr_storage_size
+      value: '$PROMETHEUS_ALERTMGR_STORAGE_SIZE'
+    - name: prometheus_userworkload_retention_period
+      value: '$PROMETHEUS_USERWORKLOAD_RETENTION_PERIOD'
+    - name: prometheus_userworkload_storage_class
+      value: '$PROMETHEUS_USERWORKLOAD_STORAGE_CLASS'
+    - name: prometheus_userworkload_storage_size
+      value: '$PROMETHEUS_USERWORKLOAD_STORAGE_SIZE'
+
+    # Grafana
+    # -------------------------------------------------------------------------
+    - name: grafana_instance_storage_class
+      value: '$GRAFANA_INSTANCE_STORAGE_CLASS'
+    - name: grafana_instance_storage_size
+      value: '$GRAFANA_INSTANCE_STORAGE_CLASS'
 
   workspaces:
     # The generated configuration files

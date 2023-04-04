@@ -158,6 +158,39 @@
   description: API Key used to create COS instance in IBM Cloud
   default: ""
 
+# MAS Integration - Prometheus
+# -----------------------------------------------------------------------------
+- name: prometheus_retention_period
+  type: string
+  default: ""
+- name: prometheus_storage_class
+  type: string
+  default: ""
+- name: prometheus_storage_size
+  type: string
+  default: ""
+- name: prometheus_alertmgr_storage_class
+  type: string
+  default: ""
+- name: prometheus_alertmgr_storage_size
+  type: string
+  default: ""
+- name: prometheus_userworkload_retention_period
+  type: string
+  default: ""
+- name: prometheus_userworkload_storage_class
+  type: string
+  default: ""
+- name: prometheus_userworkload_storage_size
+  type: string
+  default: ""
+- name: grafana_instance_storage_class
+  type: string
+  default: ""
+- name: grafana_instance_storage_size
+  type: string
+  default: ""
+
 # MAS DNS Integrations - General
 # -----------------------------------------------------------------------------
 - name: dns_provider
@@ -193,6 +226,21 @@
 - name: cis_subdomain
   type: string
   default: ""
+
+# MAS DNS Integrations - CIS Security Enhancement Support
+# -------------------------------------------------------------------------
+- name: cis_service_name
+  type: string
+  default: ""
+- name: cis_enhanced_security
+  type: string
+  default: "false"
+- name: override_edge_certs
+  type: string
+  default: "false"
+- name: cis_proxy
+  type: string
+  default: "false"
 
 {{ lookup('template', params_src_dir ~ '/install-ibmcatalogs.yml.j2') }}
 

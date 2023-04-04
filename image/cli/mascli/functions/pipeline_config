@@ -7,6 +7,7 @@
 . $DIR/functions/pipeline_config_sno
 . $DIR/functions/pipeline_config_storage_classes
 . $DIR/functions/pipeline_config_storage_classes_sno
+. $DIR/functions/pipeline_config_advanced
 
 function pipeline_config() {
   echo_h2 "3. Configure Installation"
@@ -32,28 +33,28 @@ function pipeline_config() {
       MAS_CATALOG_VERSION=v8-amd64
     else
       echo -e "${COLOR_YELLOW}Catalog Version:"
-      echo "  1. v8 (2023-03-14)"
-      echo "  2. v8 (2023-02-17)"
-      echo "  3. v8 (2023-01-11)"
-      echo "  4. v8 (2022-12-28)"
-      echo "  5. v8 (2022-11-29)"
+      echo "  1. v8 (2023-03-28)"
+      echo "  2. v8 (2023-03-14)"
+      echo "  3. v8 (2023-02-17)"
+      echo "  4. v8 (2023-01-11)"
+      echo "  5. v8 (2022-12-28)"
       prompt_for_input "Select Catalog Source" MAS_CATALOG_SELECTION "1"
 
       case $MAS_CATALOG_SELECTION in
-        1|230314|2023-03-14)
+        1|230328|2023-03-28)
+          MAS_CATALOG_VERSION=v8-230328-amd64
+          ;;
+        2|230314|2023-03-14)
           MAS_CATALOG_VERSION=v8-230314-amd64
           ;;
-        2|230217|2023-02-17)
+        3|230217|2023-02-17)
           MAS_CATALOG_VERSION=v8-230217-amd64
           ;;
-        3|230111|2023-01-11)
+        4|230111|2023-01-11)
           MAS_CATALOG_VERSION=v8-230111-amd64
           ;;
-        4|221228|2022-12-28)
+        5|221228|2022-12-28)
           MAS_CATALOG_VERSION=v8-221228-amd64
-          ;;
-        5|221129|2022-11-29)
-          MAS_CATALOG_VERSION=v8-221129-amd64
           ;;
         *)
           exit 1
@@ -63,21 +64,28 @@ function pipeline_config() {
 
     if [[ "$SNO_MODE" == "true" ]]; then
       echo -e "${COLOR_YELLOW}MAS Version:"
-      echo "  1. 8.9"
+      echo "  1. 8.10"
+      echo "  2. 8.9"
     else
       echo -e "${COLOR_YELLOW}MAS Version:"
-      echo "  1. 8.9"
-      echo "  2. 8.8"
+      echo "  1. 8.10"
+      echo "  2. 8.9"
+      echo "  3. 8.8"
     fi
     prompt_for_input "Select Subscription Channel" MAS_CHANNEL_SELECTION "1"
 
     case $MAS_CHANNEL_SELECTION in
-      1|8.9|8.9.x)
+      1|8.10|8.10.x)
+        MAS_CHANNEL=8.10.x
+        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
+        ;;
+
+      2|8.9|8.9.x)
         MAS_CHANNEL=8.9.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
         ;;
 
-      2|8.8|8.8.x)
+      3|8.8|8.8.x)
         MAS_CHANNEL=8.8.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "88" )
         ;;
@@ -89,83 +97,83 @@ function pipeline_config() {
   else
     # Airgap (GA) mode
     echo -e "${COLOR_YELLOW}MAS Version:"
+    echo "March 28 2023 Update"
+    echo "  1. 8.10.0"
+    echo "  2. 8.9.3"
     echo "March 14 2023 Update"
-    echo "  1. 8.9.3"
-    echo "  2. 8.8.7"
+    echo "  3. 8.9.3"
+    echo "  4. 8.8.7"
     echo "February 17 2023 Update"
-    echo "  3. 8.9.2"
-    echo "  4. 8.8.6"
+    echo "  5. 8.9.2"
+    echo "  6. 8.8.6"
     echo "January 11 2023 Update"
-    echo "  5. 8.9.1"
-    echo "  6. 8.8.5"
+    echo "  7. 8.9.1"
+    echo "  8. 8.8.5"
     echo "December 28 2022 Update"
-    echo "  7. 8.9.0"
-    echo "  8. 8.8.4"
-    echo "November 29 2022 Update"
     echo "  9. 8.9.0"
-    echo "  10. 8.8.3"
+    echo "  10. 8.8.4"
     prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
 
     case $MAS_CHANNEL_SELECTION in
-      # March 2023 Catalog
+      # Nov 2022 Catalog
       # -----------------------------------------------------------------------
       1)
+        MAS_CHANNEL=8.10.x
+        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
+        MAS_CATALOG_VERSION=v8-230328-amd64
+        ;;
+      2)
+        MAS_CHANNEL=8.9.x
+        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
+        MAS_CATALOG_VERSION=v8-230328-amd64
+        ;;
+      # March 2023 Catalog
+      # -----------------------------------------------------------------------
+      3)
         MAS_CHANNEL=8.9.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
         MAS_CATALOG_VERSION=v8-230314-amd64
         ;;
-      2)
+      4)
         MAS_CHANNEL=8.8.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "88" )
         MAS_CATALOG_VERSION=v8-230314-amd64
         ;;
       # Feb 2023 Catalog
       # -----------------------------------------------------------------------
-      3)
+      5)
         MAS_CHANNEL=8.9.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
         MAS_CATALOG_VERSION=v8-230217-amd64
         ;;
-      4)
+      6)
         MAS_CHANNEL=8.8.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "88" )
         MAS_CATALOG_VERSION=v8-230217-amd64
         ;;
       # Jan 2023 Catalog
       # -----------------------------------------------------------------------
-      5)
+      7)
         MAS_CHANNEL=8.9.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
         MAS_CATALOG_VERSION=v8-230111-amd64
         ;;
-      6)
+      8)
         MAS_CHANNEL=8.8.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "88" )
         MAS_CATALOG_VERSION=v8-230111-amd64
         ;;
       # Dec 2022 Catalog
       # -----------------------------------------------------------------------
-      7)
-        MAS_CHANNEL=8.9.x
-        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
-        MAS_CATALOG_VERSION=v8-221228-amd64
-        ;;
-      8)
-        MAS_CHANNEL=8.8.x
-        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "88" )
-        MAS_CATALOG_VERSION=v8-221228-amd64
-        ;;
-      # Nov 2022 Catalog
-      # -----------------------------------------------------------------------
       9)
         MAS_CHANNEL=8.9.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
-        MAS_CATALOG_VERSION=v8-221129-amd64
+        MAS_CATALOG_VERSION=v8-221228-amd64
         ;;
       10)
         MAS_CHANNEL=8.8.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "88" )
-        MAS_CATALOG_VERSION=v8-221129-amd64
+        MAS_CATALOG_VERSION=v8-221228-amd64
         ;;
       *)
         echo_warning "Invalid selection"
@@ -208,34 +216,35 @@ function pipeline_config() {
   else
     config_pipeline_storage_classes #9
   fi
+  config_pipeline_advanced #  10
 
   echo ""
   if [[ "$DEV_MODE" == "true" && -z "$AIRGAP_MODE" ]]; then
     # Development Mode -- offer the ability to set MAS and SLS source independently
-    echo_h2 "10.1 Configure Artifactory"
+    echo_h2 "11.1 Configure Artifactory"
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
     prompt_for_input "Artifactory API Key" ARTIFACTORY_APIKEY
 
     echo
-    echo_h2 "10.2 Configure IBM Container Registry"
+    echo_h2 "11.2 Configure IBM Container Registry"
     prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
 
     echo
-    echo_h2 "10.3 Configure IBM Container Registry (MAS)"
+    echo_h2 "11.3 Configure IBM Container Registry (MAS)"
     prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP docker-na-public.artifactory.swg-devops.com/wiotp-docker-local override
     prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen override
     MAS_ENTITLEMENT_USERNAME=cp
     MAS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
 
     echo
-    echo_h2 "10.4 Configure IBM Container Registry (SLS)"
+    echo_h2 "11.4 Configure IBM Container Registry (SLS)"
     prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP docker-na-public.artifactory.swg-devops.com/wiotp-docker-local override
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen override
     SLS_ENTITLEMENT_USERNAME=cp
     SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
-    echo_h2 "10. Configure IBM Container Registry"
+    echo_h2 "11. Configure IBM Container Registry"
     prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY "Re-use saved IBM Entitlement Key?"
 
     # Use defaults
@@ -253,7 +262,7 @@ function pipeline_config() {
   SLS_CATALOG_SOURCE=ibm-operator-catalog
 
   echo
-  echo_h2 "11. Configure Product License"
+  echo_h2 "12. Configure Product License"
   prompt_for_input "License ID" SLS_LICENSE_ID
   prompt_for_input "License File" SLS_LICENSE_FILE_LOCAL
   if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
@@ -263,7 +272,7 @@ function pipeline_config() {
   SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
 
   echo
-  echo_h2 "12. Configure UDS"
+  echo_h2 "13. Configure UDS"
   if [[ -n "$DEV_MODE" ]]; then
     echo "${TEXT_DIM}Maximo Application Suite version v8.10+ no longer requires IBM User Data Services as a dependency."
     echo

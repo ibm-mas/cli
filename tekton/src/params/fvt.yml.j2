@@ -31,6 +31,9 @@
 - name: devops_cos_crn
   type: string
   default: ""
+- name: devops_ibmcloud_apikey
+  type: string
+  default: ""
 
 # FVT Versions
 - name: fvt_version_core
@@ -75,62 +78,20 @@
   type: string
   description: FVT Version - Manage
   default: ""
-- name: fvt_version_manage_acm
+- name: fvt_version_manage_multi_is
   type: string
-  description: FVT Version - Manage ACM
+  description: FVT Version - Manage Multi IS
   default: ""
-- name: fvt_version_manage_aviation
+- name: fvt_test_driver
   type: string
-  description: FVT Version - Manage Aviation
+  description: FVT Driver for Manage - graphite/tpae
   default: ""
-- name: fvt_version_manage_hse
+
+# FVT Versions - Civil Selenium, Cypress and Defects (mobile)
+- name: fvt_version_manage_civil
   type: string
-  description: FVT Version - Manage HSE
+  description: FVT Version - Civil
   default: ""
-- name: fvt_version_manage_nuclear
-  type: string
-  description: FVT Version - Manage Nuclear
-  default: ""
-- name: fvt_version_manage_serviceprovider
-  type: string
-  description: FVT Version - Service Provider
-  default: ""
-- name: fvt_version_manage_spatial
-  type: string
-  description: FVT Version - Spatial
-  default: ""
-- name: fvt_version_manage_transportation
-  type: string
-  description: FVT Version - Manage Transportation
-  default: ""
-- name: fvt_version_manage_civil_cypress
-  type: string
-  description: FVT Version - Manage Civil Infrastructure Cypress
-  default: ""
-- name: fvt_version_manage_civil_selenium
-  type: string
-  description: FVT Version - Manage Civil Infrastructure Selenium
-  default: ""
-- name: fvt_version_manage_ic
-  type: string
-  description: FVT Version - Manage IC
-  default: ""
-- name: fvt_version_manage_scheduler
-  type: string
-  description: FVT Version - Manage Scheduler
-  default: ""   
-- name: fvt_version_manage_mobile_setup
-  type: string
-  description: FVT Version - Manage Mobile Setup
-  default: "" 
-- name: fvt_version_manage_maintmanager
-  type: string
-  description: FVT Version - Manage Maintenance Manager
-  default: ""   
-- name: fvt_version_manage_health
-  type: string
-  description: FVT Version - Health
-  default: "" 
 
 # FVT Versions - Mobile Foundation
 - name: fvt_version_mobilefoundation
@@ -149,13 +110,10 @@
   type: string
   description: FVT Version - Mobile Inspection
   default: ""
-- name: fvt_version_defects
-  type: string
-  description: FVT Version - Mobile Defects
-  default: ""
 
-# FVT Versions - Mobile IC
-- name: fvt_version_mobileic
+
+# FVT Versions - Inventory Counting Manage Setup and Mobile
+- name: fvt_version_inventorycounting
   type: string
   description: FVT Version - Mobile IC
   default: ""
