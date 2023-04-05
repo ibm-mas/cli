@@ -1,0 +1,20 @@
+#!/bin/bash
+
+function config_pipeline_advanced() {
+  echo
+  echo_h2 "10. Advanced Settings"
+  if prompt_for_confirm "Configure Advanced Settings (optional)?"; then
+    if prompt_for_confirm "Change Prometheus default options (optional)?"; then
+    
+        prompt_for_input "Prometheus Retention Period" PROMETHEUS_RETENTION_PERIOD "15d"
+        prompt_for_input "Prometheus Storage Size" PROMETHEUS_STORAGE_SIZE "300Gi"
+        prompt_for_input "Prometheus Alert Mgr Storage Size" PROMETHEUS_ALERTMGR_STORAGE_SIZE "300Gi"
+        prompt_for_input "Prometheus User Workload Retention Period" PROMETHEUS_USERWORKLOAD_RETENTION_PERIOD "15d"
+        prompt_for_input "Prometheus User Workload Storage Size" PROMETHEUS_USERWORKLOAD_STORAGE_SIZE "300Gi"
+    fi
+    if prompt_for_confirm "Change Grafana default options (optional)?"; then
+    
+        prompt_for_input "Grafana Storage Size" GRAFANA_INSTANCE_STORAGE_SIZE "10Gi"
+    fi
+  fi
+}

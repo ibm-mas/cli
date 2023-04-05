@@ -3,6 +3,9 @@
 
 function channel_select_iot() {
   case $MAS_CHANNEL in
+    8.10.x)
+      MAS_APP_CHANNEL_IOT=8.7.x
+      ;;
     8.9.x)
       MAS_APP_CHANNEL_IOT=8.6.x
       ;;
@@ -21,6 +24,9 @@ function channel_select_iot() {
 
 function channel_select_monitor() {
   case $MAS_CHANNEL in
+    8.10.x)
+      MAS_APP_CHANNEL_MONITOR=8.10.x
+      ;;
     8.9.x)
       MAS_APP_CHANNEL_MONITOR=8.9.x
       ;;
@@ -39,6 +45,9 @@ function channel_select_monitor() {
 
 function channel_select_manage() {
   case $MAS_CHANNEL in
+    8.10.x)
+      MAS_APP_CHANNEL_MANAGE=8.6.x
+      ;;
     8.9.x)
       MAS_APP_CHANNEL_MANAGE=8.5.x
       ;;
@@ -58,6 +67,9 @@ function channel_select_manage() {
 function channel_select_predict() {
   if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
+      8.10.x)
+        MAS_APP_CHANNEL_PREDICT=8.8.x
+        ;;
       8.9.x)
         MAS_APP_CHANNEL_PREDICT=8.7.x
         ;;
@@ -82,6 +94,9 @@ function channel_select_predict() {
 function channel_select_hputilities() {
   if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
+      8.10.x)
+        MAS_APP_CHANNEL_HPUTILITIES=8.6.x
+        ;;
       8.9.x)
         MAS_APP_CHANNEL_HPUTILITIES=8.5.x
         ;;
@@ -105,6 +120,9 @@ function channel_select_hputilities() {
 
 function channel_select_optimizer() {
   case $MAS_CHANNEL in
+    8.10.x)
+      MAS_APP_CHANNEL_OPTIMIZER=8.4.x
+      ;;
     8.9.x)
       MAS_APP_CHANNEL_OPTIMIZER=8.3.x
       ;;
@@ -121,6 +139,9 @@ function channel_select_optimizer() {
 function channel_select_assist() {
   if [[ -z "$AIRGAP_MODE" ]]; then
     case $MAS_CHANNEL in
+      8.10.x)
+        MAS_APP_CHANNEL_ASSIST=8.7.x
+        ;;
       8.9.x)
         MAS_APP_CHANNEL_ASSIST=8.6.x
         ;;
@@ -144,6 +165,9 @@ function channel_select_assist() {
 
 function channel_select_visualinspection() {
   case $MAS_CHANNEL in
+    8.10.x)
+      MAS_APP_CHANNEL_VISUALINSPECTION=8.8.x
+      ;;
     8.9.x)
       MAS_APP_CHANNEL_VISUALINSPECTION=8.7.x
       ;;
@@ -175,19 +199,15 @@ function config_pipeline_applications() {
   MAS_APP_CHANNEL_OPTIMIZER='';        MAS_APP_PLAN_OPTIMIZER=''
 
   if [[ "$SNO_MODE" != "true" ]]; then
-    # Applications supported in air gap and online installs
+    # IoT
     if prompt_for_confirm "Install IoT"; then
       channel_select_iot || exit 1
     fi
 
-    # Applications only supported in online installs
-    if [[ -z "$AIRGAP_MODE" ]]; then
-      # Applications that require IoT
-      if [[ "$MAS_APP_CHANNEL_IOT" != '' ]]; then
-        # Monitor
-        if prompt_for_confirm "Install Monitor"; then
-          channel_select_monitor || exit 1
-        fi
+    if [[ "$MAS_APP_CHANNEL_IOT" != '' ]]; then
+      # Monitor
+      if prompt_for_confirm "Install Monitor"; then
+        channel_select_monitor || exit 1
       fi
     fi
   fi
@@ -202,9 +222,9 @@ function config_pipeline_applications() {
     fi
     if prompt_for_confirm "+ Customize database settings"; then
       prompt_for_input "Schema" MAS_APP_SETTINGS_DB2_SCHEMA
-      prompt_for_input "Tablespace" MAS_APP_SETTINGS_TABLESPACE 
+      prompt_for_input "Tablespace" MAS_APP_SETTINGS_TABLESPACE
       prompt_for_input "Indexspace" MAS_APP_SETTINGS_INDEXSPACE
-    fi            
+    fi
   fi
 
   if [[ "$SNO_MODE" != "true" ]]; then
@@ -259,6 +279,10 @@ function config_pipeline_applications() {
 
     if [[ "$MAS_APP_CHANNEL_PREDICT" != "" || "$MAS_APP_CHANNEL_HPUTILITIES" != "" || "$MAS_APP_CHANNEL_ASSIST" != "" ]]; then
       case $MAS_CATALOG_VERSION in
+        # CP4D v4.6.3 was added in the March 2023 catalog update
+        v8-amd64|v8-230328-amd64)
+          CP4D_VERSION=4.6.3
+          ;;
         # CP4D v4.6.0 was added in the February 2023 catalog update
         v8-amd64|v8-230217-amd64|v8-230314-amd64)
           CP4D_VERSION=4.6.0
