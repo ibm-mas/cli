@@ -41,8 +41,8 @@ function pipeline_config() {
       prompt_for_input "Select Catalog Source" MAS_CATALOG_SELECTION "1"
 
       case $MAS_CATALOG_SELECTION in
-        1|230328|2023-03-28)
-          MAS_CATALOG_VERSION=v8-230328-amd64
+        1|230407|2023-04-07)
+          MAS_CATALOG_VERSION=v8-230407-amd64
           ;;
         2|230314|2023-03-14)
           MAS_CATALOG_VERSION=v8-230314-amd64
@@ -120,12 +120,12 @@ function pipeline_config() {
       1)
         MAS_CHANNEL=8.10.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
-        MAS_CATALOG_VERSION=v8-230328-amd64
+        MAS_CATALOG_VERSION=v8-230407-amd64
         ;;
       2)
         MAS_CHANNEL=8.9.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
-        MAS_CATALOG_VERSION=v8-230328-amd64
+        MAS_CATALOG_VERSION=v8-230407-amd64
         ;;
       # March 2023 Catalog
       # -----------------------------------------------------------------------

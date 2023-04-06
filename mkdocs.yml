@@ -28,6 +28,7 @@ nav:
       - "configtool-oidc": commands/configtool-oidc.md
   - "Catalogs":
       - "Overview": catalogs/index.md
+      - "Apr 07 2023": catalogs/v8-230407-amd64.md
       - "Mar 28 2023": catalogs/v8-230328-amd64.md
       - "Mar 14 2023": catalogs/v8-230314-amd64.md
       - "Feb 17 2023": catalogs/v8-230217-amd64.md
