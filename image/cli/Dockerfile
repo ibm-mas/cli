@@ -32,7 +32,7 @@ RUN umask 0002 && \
 ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini /tini
 RUN chmod +x /tini
 RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/helm/latest/helm-linux-amd64 -o /usr/local/bin/helm
-
+RUN chmod +x /usr/local/bin/helm
 # 5. Copy basics
 USER default
 COPY --chown=default:root app-root/* ${HOME}/
