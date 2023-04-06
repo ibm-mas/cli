@@ -64,6 +64,8 @@ RUN chmod -R ug+rwx ${HOME}/env.sh && \
     chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops && \
     ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops
 
+RUN RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/helm/latest/helm-linux-amd64 -o /usr/local/bin/helm
+
 # 9. Switch to root user
 # Running an non-root user makes using the container with docker run and mounted volumes
 # more difficult, users have to add -u root anyway, so just leave the active user as root
