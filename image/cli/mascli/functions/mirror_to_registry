@@ -22,7 +22,7 @@ Source Registry Entitlements (Required based on what content you choose to mirro
       --redhat-username ${COLOR_YELLOW}REDHAT_CONNECT_USERNAME${TEXT_RESET}   Red Hat Connect Username
       --redhat-password ${COLOR_YELLOW}REDHAT_CONNECT_PASSWORD${TEXT_RESET}   Red Hat Connect Password
       --artifactory-username ${COLOR_YELLOW}ARTIFACTORY_USERNAME${TEXT_RESET} Artifactory Username
-      --artifactory-apikey ${COLOR_YELLOW}ARTIFACTORY_APIKEY${TEXT_RESET}     Artifactory API Key
+      --artifactory-token ${COLOR_YELLOW}ARTIFACTORY_TOKEN${TEXT_RESET}       Artifactory Token
 
 Maximo Operator Catalog Selection (Optional):
   -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v8-221228-amd64)
@@ -109,7 +109,7 @@ function mirror_to_registry_noninteractive() {
         ARTIFACTORY_USERNAME=$1 && shift
         ;;
       --artifactory-apikey)
-        ARTIFACTORY_APIKEY=$1 && shift
+        ARTIFACTORY_TOKEN=$1 && shift
         ;;
       -c|--catalog)
         MAS_CATALOG_VERSION=$1 && shift
@@ -462,7 +462,7 @@ function mirror_to_registry() {
   export REDHAT_CONNECT_USERNAME
   export REDHAT_CONNECT_PASSWORD
   export ARTIFACTORY_USERNAME
-  export ARTIFACTORY_APIKEY
+  export ARTIFACTORY_TOKEN
 
   echo
   reset_colors

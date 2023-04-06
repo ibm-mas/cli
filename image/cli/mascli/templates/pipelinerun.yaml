@@ -17,8 +17,8 @@ spec:
     # -------------------------------------------------------------------------
     - name: artifactory_username
       value: '$ARTIFACTORY_USERNAME'
-    - name: artifactory_apikey
-      value: '$ARTIFACTORY_APIKEY'
+    - name: artifactory_token
+      value: '$ARTIFACTORY_TOKEN'
 
     # IBM Entitlement Key
     # -------------------------------------------------------------------------
@@ -95,6 +95,21 @@ spec:
       value: '$MONGODB_REPLICAS'
     - name: mongodb_cpu_requests
       value: '$MONGODB_CPU_REQUESTS'
+    - name: mongodb_provider
+      value: '$MONGODB_PROVIDER'
+    - name: mongodb_action
+      value: '$MONGODB_ACTION'
+
+    # Dependencies - IBM Cloud MongoDb
+    # -------------------------------------------------------------------------
+    - name: ibm_mongo_name
+      value: '$IBM_MONGO_NAME'
+    - name: ibm_mongo_resourcegroup
+      value: '$IBM_MONGO_RESOURCEGROUP'
+    - name: ibm_mongo_region
+      value: '$IBM_MONGO_REGION'
+    - name: ibm_mongo_admin_password
+      value: '$IBM_MONGO_ADMIN_PASSWORD'
 
     # Dependencies - CP4D
     # -------------------------------------------------------------------------
@@ -103,6 +118,10 @@ spec:
 
     # Dependencies - SLS
     # -------------------------------------------------------------------------
+    - name: sls_namespace
+      value: '$SLS_NAMESPACE'
+    - name: sls_mongodb_cfg_file
+      value: '$SLS_MONGODB_CFG_FILE'
     - name: sls_license_id
       value: '$SLS_LICENSE_ID'
     - name: sls_license_file

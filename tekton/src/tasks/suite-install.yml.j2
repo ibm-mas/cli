@@ -72,7 +72,7 @@ spec:
       default: ''
       type: string
       description: Required to install development MAS catalogs
-    - name: artifactory_apikey
+    - name: artifactory_token
       default: ''
       type: string
       description: Required to install development MAS catalogs
@@ -137,8 +137,8 @@ spec:
 
       - name: ARTIFACTORY_USERNAME
         value: $(params.artifactory_username)
-      - name: ARTIFACTORY_APIKEY
-        value: $(params.artifactory_apikey)
+      - name: ARTIFACTORY_TOKEN
+        value: $(params.artifactory_token)
 
       - name: MAS_ICR_CP
         value: $(params.mas_icr_cp)
