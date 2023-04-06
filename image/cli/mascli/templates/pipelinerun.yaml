@@ -17,8 +17,8 @@ spec:
     # -------------------------------------------------------------------------
     - name: artifactory_username
       value: '$ARTIFACTORY_USERNAME'
-    - name: artifactory_apikey
-      value: '$ARTIFACTORY_APIKEY'
+    - name: artifactory_token
+      value: '$ARTIFACTORY_TOKEN'
 
     # IBM Entitlement Key
     # -------------------------------------------------------------------------

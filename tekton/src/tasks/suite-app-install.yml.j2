@@ -12,7 +12,7 @@ spec:
       default: ''
       type: string
       description: Required to use development MAS builds
-    - name: artifactory_apikey
+    - name: artifactory_token
       default: ''
       type: string
       description: Required to use development MAS builds
@@ -65,8 +65,8 @@ spec:
       # Pre-Release Support
       - name: ARTIFACTORY_USERNAME
         value: $(params.artifactory_username)
-      - name: ARTIFACTORY_APIKEY
-        value: $(params.artifactory_apikey)
+      - name: ARTIFACTORY_token
+        value: $(params.artifactory_token)
 
       # Entitlement
       - name: IBM_ENTITLEMENT_KEY

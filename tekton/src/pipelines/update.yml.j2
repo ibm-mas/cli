@@ -14,7 +14,7 @@ spec:
       default: ""
       type: string
       description: Required to install development MAS catalogs
-    - name: artifactory_apikey
+    - name: artifactory_token
       default: ""
       type: string
       description: Required to install development MAS catalogs
@@ -28,8 +28,8 @@ spec:
         # Development catalog support
         - name: artifactory_username
           value: $(params.artifactory_username)
-        - name: artifactory_apikey
-          value: $(params.artifactory_apikey)
+        - name: artifactory_token
+          value: $(params.artifactory_token)
       taskRef:
         kind: Task
         name: mas-devops-ibm-catalogs

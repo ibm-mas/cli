@@ -223,7 +223,7 @@ function pipeline_config() {
     # Development Mode -- offer the ability to set MAS and SLS source independently
     echo_h2 "11.1 Configure Artifactory"
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
-    prompt_for_input "Artifactory API Key" ARTIFACTORY_APIKEY
+    prompt_for_input "Artifactory Token" ARTIFACTORY_TOKEN
 
     echo
     echo_h2 "11.2 Configure IBM Container Registry"
