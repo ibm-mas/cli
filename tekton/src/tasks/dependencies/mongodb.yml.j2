@@ -48,6 +48,33 @@ spec:
       type: string
       description: Optional configuration for mongodb cpu requests
       default: ""
+    - name: mongodb_provider
+      type: string
+      description: MongoDb provider
+      default: ""
+          
+    # Dependencies - IBM Cloud MongoDb
+    # -------------------------------------------------------------------------
+    - name: ibm_mongo_name
+      type: string
+      description: IBM Cloud MongoDb instance name
+      default: ""
+    - name: ibm_mongo_admin_password
+      type: string
+      description: IBM Cloud MongoDb admin password
+      default: ""
+    - name: ibm_mongo_resourcegroup
+      type: string
+      description: IBM Cloud MongoDb resource group
+      default: ""
+    - name: ibm_mongo_region
+      type: string
+      description: IBM Cloud MongoDb instance region
+      default: ""
+    - name: ibmcloud_apikey
+      type: string
+      description: API Key used to create Mongo instance in IBM Cloud
+      default: ""
 
     # Optional parameters to categorize result to be persisted
     # -------------------------------------------------------------------------
@@ -88,11 +115,25 @@ spec:
       - name: DEVOPS_BUILD_NUMBER
         value: $(params.devops_build_number)
 
-      # Other MONGODB paramters
+      # Other MONGODB parameters
       - name: MONGODB_REPLICAS
         value: $(params.mongodb_replicas)
       - name: MONGODB_CPU_REQUESTS
         value: $(params.mongodb_cpu_requests)
+      - name: MONGODB_PROVIDER
+        value: $(params.mongodb_provider)
+
+      # Dependencies - IBM Cloud MongoDb
+      - name: IBM_MONGO_NAME
+        value: $(params.ibm_mongo_name)
+      - name: IBM_MONGO_ADMIN_PASSWORD
+        value: $(params.ibm_mongo_admin_password)
+      - name: IBM_MONGO_REGION
+        value: $(params.ibm_mongo_region)
+      - name: IBM_MONGO_RESOURCEGROUP
+        value: $(params.ibm_mongo_resourcegroup)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
 
       # Optional parameters to categorize result to be persisted
       - name: DEVOPS_TEST_TYPE
