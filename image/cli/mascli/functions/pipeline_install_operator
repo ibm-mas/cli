@@ -37,12 +37,11 @@ function pipeline_install_operator() {
     LOOKUP_RESULT=$?
   done
 
-  # This will have no effect on OCP 4.8 ... OpenShift Pipelines doesn't support configuration properly at this level
-  # Note: We need to use --tpye merge because it's a custom resource
+  # Note: We need to use --type merge because it's a custom resource
   echo "Patch Tekton config to enable alpha API fields and scope when expressions to tasks" &>> $LOGFILE
   oc patch TektonConfig config --type merge -p '{"spec":{"pipeline":{"enable-api-fields": "alpha", "scope-when-expressions-to-task": true}}}'  &>> $LOGFILE
 
-  # Set the default task timeout, which will take effect in OCP 4.11 and newer
+  # Increase the default task timeout, which will take effect in OCP 4.11 and newer
   echo "Set the default pipeline tasks timeout to 12 hours" &>> $LOGFILE
   oc patch cm config-defaults -n openshift-pipelines --type merge -p '{"data":{"default-timeout-minutes": "720"}}' &>> $LOGFILE
 
