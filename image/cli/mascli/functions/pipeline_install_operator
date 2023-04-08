@@ -1,29 +1,15 @@
 #!/bin/bash
 
-# Array of OCP versions that do not support TektonConfig CR
-NOT_SUPPORTED_OCP_VERSIONS=("4.6")
-
-function is_tektonconfig_supported() {
-  LOCAL_OCP_VERSION=`oc version -o json | jq -r ".openshiftVersion"`
-
-  SUPPORT_TEKTONCONFIG=1
-
-  for i in "${NOT_SUPPORTED_OCP_VERSIONS[@]}"; do
-    echo "i is $i" &>> $LOGFILE
-    if [[ "$LOCAL_OCP_VERSION" == "$i"* ]]; then
-       SUPPORT_TEKTONCONFIG=0
-    fi
-  done
-
-  echo $SUPPORT_TEKTONCONFIG
-}
-
 function pipeline_install_operator() {
   # Install pipelines support
   echo
   echo_h2 "2. Install OpenShift Pipelines Operator"
   PIPELINES_CHANNEL=$(oc get packagemanifests openshift-pipelines-operator-rh -o jsonpath="{.status.defaultChannel}")
 
+  if [[ "$PIPELINES_CHANNEL" == "" ]]; then
+    echo_warning "Unable to determine correct subscription channel for OpenShift Pipelines on this cluster"
+    exit 1
+  fi
   sed -e "s/{{pipelines_channel}}/$PIPELINES_CHANNEL/g" $DIR/templates/subscription.yaml | oc apply -f - &>> $LOGFILE
 
   echo -en "\033[s" # Save cursor position
@@ -41,26 +27,24 @@ function pipeline_install_operator() {
   echo "Wait for Pipeline operator to be ready" &>> $LOGFILE
   oc wait --for=condition=Established  crd tasks.tekton.dev --timeout=30m &>> $LOGFILE
 
-  if [[ "$(is_tektonconfig_supported)" == "1" ]]; then
-    echo "Wait for Tekton config to be available" &>> $LOGFILE
+  echo "Wait for Tekton config to be available" &>> $LOGFILE
+  oc get TektonConfig config &>> $LOGFILE
+  LOOKUP_RESULT=$?
+  while [ "$LOOKUP_RESULT" == "1" ]; do
+    echo "Waiting 5s for TektonConfig to be created before checking again ..." &>> $LOGFILE
+    sleep 5
     oc get TektonConfig config &>> $LOGFILE
     LOOKUP_RESULT=$?
-    while [ "$LOOKUP_RESULT" == "1" ]; do
-      echo "Waiting 5s for TektonConfig to be created before checking again ..." &>> $LOGFILE
-      sleep 5
-      oc get TektonConfig config &>> $LOGFILE
-      LOOKUP_RESULT=$?
-    done
+  done
 
-    # This will have no effect on OCP 4.8 ... OpenShift Pipelines doesn't support configuration properly at this level
-    # Note: We need to use --tpye merge because it's a custom resource
-    echo "Patch Tekton config to enable alpha API fields and scope when expressions to tasks" &>> $LOGFILE
-    oc patch TektonConfig config --type merge -p '{"spec":{"pipeline":{"enable-api-fields": "alpha", "scope-when-expressions-to-task": true}}}'  &>> $LOGFILE
+  # This will have no effect on OCP 4.8 ... OpenShift Pipelines doesn't support configuration properly at this level
+  # Note: We need to use --tpye merge because it's a custom resource
+  echo "Patch Tekton config to enable alpha API fields and scope when expressions to tasks" &>> $LOGFILE
+  oc patch TektonConfig config --type merge -p '{"spec":{"pipeline":{"enable-api-fields": "alpha", "scope-when-expressions-to-task": true}}}'  &>> $LOGFILE
 
-    # Set the default task timeout, which will take effect in OCP 4.11 and newer
-    echo "Set the default pipeline tasks timeout to 12 hours" &>> $LOGFILE
-    oc patch cm config-defaults -n openshift-pipelines --type merge -p '{"data":{"default-timeout-minutes": "720"}}' &>> $LOGFILE
-  fi
+  # Set the default task timeout, which will take effect in OCP 4.11 and newer
+  echo "Set the default pipeline tasks timeout to 12 hours" &>> $LOGFILE
+  oc patch cm config-defaults -n openshift-pipelines --type merge -p '{"data":{"default-timeout-minutes": "720"}}' &>> $LOGFILE
 
   echo -en "\033[1K" # Clear current line
   echo -en "\033[u" # Restore cursor position
