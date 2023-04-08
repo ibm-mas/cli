@@ -33,6 +33,18 @@ function config_pipeline_storage_db2() {
     fi
 
     if prompt_for_confirm_default_yes "Install Db2 using the IBM Db2 Universal Operator?"; then
+      case $MAS_CATALOG_VERSION in
+        v8-amd64|v8-230328-amd64)
+          DB2_CHANNEL=v2.2 # Next catalog should use v3.1 for OCP 4.12 support (need to update mirroring rules as well)
+          ;;
+        v8-230111-amd64|v8-230217-amd64|v8-230314-amd64)
+          DB2_CHANNEL=v2.2
+          ;;
+        *)
+          DB2_CHANNEL="" # The default channel will be used
+          ;;
+      esac
+
       # Install and configure MAS to use in-cluster Db2 instances
       echo
       echo_h2 "7.1 Db2 for IoT"
