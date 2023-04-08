@@ -11,7 +11,17 @@ spec:
     - name: ibm_entitlement_key
       type: string
 
+    # Db2u Operator
+    - name: db2_channel
+      type: string
+      description: Subscription channel for the Db2 Universal Operator
+      default: ""
+
     # Db2 - Instance
+    - name: db2_namespace
+      type: string
+      description: Namespace to create Db2uCluster instances
+      default: ""
     - name: db2_instance_name
       type: string
       default: ""
@@ -135,7 +145,13 @@ spec:
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
 
+      # Db2u Operator
+      - name: DB2_CHANNEL
+        value: $(params.db2_channel)
+
       # Db2 - Instance
+      - name: DB2_NAMESPACE
+        value: $(params.db2_namespace)
       - name: DB2_INSTANCE_NAME
         value: $(params.db2_instance_name)
       - name: DB2_DBNAME
