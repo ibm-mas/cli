@@ -40,16 +40,16 @@ function pipeline_config() {
       prompt_for_input "Select Catalog Source" MAS_CATALOG_SELECTION "1"
 
       case $MAS_CATALOG_SELECTION in
-        1|230411|2023-04-07)
+        1|230411)
           MAS_CATALOG_VERSION=v8-230411-amd64
           ;;
-        2|230314|2023-03-14)
+        2|230314)
           MAS_CATALOG_VERSION=v8-230314-amd64
           ;;
-        3|230217|2023-02-17)
+        3|230217)
           MAS_CATALOG_VERSION=v8-230217-amd64
           ;;
-        4|230111|2023-01-11)
+        4|230111)
           MAS_CATALOG_VERSION=v8-230111-amd64
           ;;
         *)
