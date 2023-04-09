@@ -50,19 +50,7 @@
   runAfter:
     - fvt-adoptionusagemetering
 
-# FVT4.6 adoptionusagereporter ~5m
-- name: fvt-adoptionusagereporter
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    - name: test_suite
-      value: adoptionusagereporter
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: ddp_apikey
-      value: $(params.ddp_apikey)
-  runAfter:
-    - fvt-adoptionusagemetering
-
-# FVT4.7 accapppoints ~5m
+# FVT4.6 accapppoints ~5m
 - name: fvt-accapppoints
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:

@@ -33,9 +33,21 @@ function config_pipeline_storage_db2() {
     fi
 
     if prompt_for_confirm_default_yes "Install Db2 using the IBM Db2 Universal Operator?"; then
+      case $MAS_CATALOG_VERSION in
+        v8-amd64|v8-230328-amd64)
+          DB2_CHANNEL=v2.2 # Next catalog should use v3.1 for OCP 4.12 support (need to update mirroring rules as well)
+          ;;
+        v8-230111-amd64|v8-230217-amd64|v8-230314-amd64)
+          DB2_CHANNEL=v2.2
+          ;;
+        *)
+          DB2_CHANNEL="" # The default channel will be used
+          ;;
+      esac
+
       # Install and configure MAS to use in-cluster Db2 instances
       echo
-      echo_h2 "6.1 Db2 for IoT"
+      echo_h2 "7.1 Db2 for IoT"
       echo "${TEXT_DIM}Maximo IoT requires a shared system-scope Db2 instance because others application in the suite require access to the same database source."
       echo ""
       reset_colors
@@ -50,7 +62,7 @@ function config_pipeline_storage_db2() {
       fi
 
       echo ""
-      echo_h2 "6.2 Db2 for Manage"
+      echo_h2 "7.2 Db2 for Manage"
       echo "${TEXT_DIM}Maximo Manage can be configured to share the system Db2 instance or use it's own dedicated database:"
       echo " - Use of a shared instance has a significant footprint reduction but is only recommended for development/test/demo installs"
       echo " - In most production systems you will want to use a dedicated database"
@@ -89,7 +101,7 @@ function config_pipeline_storage_db2() {
         DB2_DATA_STORAGE_SIZE=20Gi
       fi
       echo
-      echo_h2 "6.3 Database CPU & Memory"
+      echo_h2 "7.3 Database CPU & Memory"
       echo "${TEXT_DIM}Note that the same settings are applied to both the IoT and Manage Db2 instances, it will be possible to set these independently in a future update."
       echo
       reset_colors
@@ -107,7 +119,7 @@ function config_pipeline_storage_db2() {
       fi
 
       echo
-      echo_h2 "6.4 Database Storage Capacity"
+      echo_h2 "7.4 Database Storage Capacity"
       echo "${TEXT_DIM}Note that the same settings are applied to both the IoT and Manage Db2 instances, it will be possible to set these independently in a future update."
       echo
       reset_colors
@@ -130,7 +142,7 @@ function config_pipeline_storage_db2() {
       DB2_ACTION_SYSTEM=none
       DB2_ACTION_MANAGE=none
       echo
-      echo_h2 "6.1 Database configuration for IoT"
+      echo_h2 "7.1 Database configuration for IoT"
       echo "${TEXT_DIM}Maximo IoT requires a shared system-scope Db2 instance because others application in the suite require access to the same database source."
       echo " - Only IBM Db2 is supported for this database"
       echo ""
@@ -154,7 +166,7 @@ function config_pipeline_storage_db2() {
       fi
 
       echo ""
-      echo_h2 "6.2 Database configuration for Manage"
+      echo_h2 "7.2 Database configuration for Manage"
       echo "${TEXT_DIM}Maximo Manage can be configured to share the system Db2 instance or use it's own dedicated database."
       echo " - IBM Db2, Oracle Database, & Microsoft SQL Server are all supported database options"
       echo ""
@@ -193,7 +205,7 @@ function config_pipeline_storage_db2() {
                 export LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN=yes
               fi
               jdbc_cfg_file=$LOCAL_MAS_CONFIG_DIR/jdbc-$MAS_INSTANCE_ID-wsapp.yaml
-              python3 $DIR/functions/gencfg jdbc $MAS_INSTANCE_ID $MAS_WORKSPACE_ID $MAS_APP_ID workspace-application $jdbc_cfg_file --workspace-id $MAS_WORKSPACE_ID --application-id manage           
+              python3 $DIR/functions/gencfg jdbc $MAS_INSTANCE_ID $MAS_WORKSPACE_ID $MAS_APP_ID workspace-application $jdbc_cfg_file --workspace-id $MAS_WORKSPACE_ID --application-id manage
               DB2_ACTION_MANAGE=byo
             else
               echo_highlight "In the next section you MUST ensure that a dedicated database configuration for Manage is included in your local MAS configuration directory"
