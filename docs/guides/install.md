@@ -60,13 +60,13 @@ Disconnected install for IBM Maximo Application Suite is supported from MAS v8.8
 
 | Application                | First Version to Support Air Gap  |
 | -------------------------- | --------------------------------- |
-| Core                       |  v8.8.0 ([v8-2022-07-17-amd64](../catalogs/v8-220717-amd64.md))     |
+| Core                       |  v8.8.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
 | Assist                     |  No support                       |
 | Health & Predict Utilities |  No support                       |
-| IoT                        |  v8.5.1 ([v8-2022-08-05-amd64](../catalogs/v8-220805-amd64.md))     |
-| Manage                     |  v8.4.0 ([v8-2022-07-17-amd64](../catalogs/v8-220717-amd64.md))     |
-| Monitor                    |  v8.10.0 ([v8-2023-03-28-amd64](../catalogs/v8-230328-amd64.md))    |
-| Optimizer                  |  v8.2.0 ([v8-2022-07-17-amd64](../catalogs/v8-220717-amd64.md))     |
+| IoT                        |  v8.5.1 ([v8-220805-amd64](../catalogs/v8-220805-amd64.md))     |
+| Manage                     |  v8.4.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
+| Monitor                    |  v8.10.0 ([v8-230411-amd64](../catalogs/v8-230411-amd64.md))    |
+| Optimizer                  |  v8.2.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
 | Predict                    |  No support                       |
 | Safety                     |  No support                       |
 | Visual Inspection          |  No support                       |
