@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/catalogs/v8-230328-amd64/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/catalogs/v8-230411-amd64/" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>Mar 28 2023 - MAS CLI</title>
+    <title>Apr 11 2023 - MAS CLI</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
@@ -13,9 +13,9 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Mar 28 2023";
-        var mkdocs_page_input_path = "catalogs/v8-230328-amd64.md";
-        var mkdocs_page_url = "/cli/catalogs/v8-230328-amd64/";
+        var mkdocs_page_name = "Apr 11 2023";
+        var mkdocs_page_input_path = "catalogs/v8-230411-amd64.md";
+        var mkdocs_page_url = "/cli/catalogs/v8-230411-amd64/";
       </script>
     
     <script src="../../js/jquery-3.6.0.min.js" defer></script>
@@ -88,7 +88,7 @@
               <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../">Overview</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Mar 28 2023</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Apr 11 2023</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#details">Details</a>
     </li>
@@ -144,9 +144,9 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
           <li>Catalogs &raquo;</li>
-      <li>Mar 28 2023</li>
+      <li>Apr 11 2023</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/ibm-mas/cli/blob/master/docs/catalogs/v8-230328-amd64.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/ibm-mas/cli/blob/master/docs/catalogs/v8-230411-amd64.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -154,17 +154,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="ibm-maximo-operator-catalog-v8-230328">IBM Maximo Operator Catalog v8 (230328)<a class="headerlink" href="#ibm-maximo-operator-catalog-v8-230328" title="Permanent link"></a></h1>
+                <h1 id="ibm-maximo-operator-catalog-v8-230411">IBM Maximo Operator Catalog v8 (230411)<a class="headerlink" href="#ibm-maximo-operator-catalog-v8-230411" title="Permanent link"></a></h1>
 <h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link"></a></h2>
 <table>
   <tr><td>Image</td><td>icr.io/cpopen/ibm-maximo-operator-catalog</tr></tr>
-  <tr><td>Tag</td><td>v8-230328-amd64</tr></tr>
-  <tr><td>Digest</td><td>sha256:cb81644746cffdb0618797c0adf16f7bf735fdf4c474bf305e2bca209ca942ba</tr></tr>
+  <tr><td>Tag</td><td>v8-230411-amd64</tr></tr>
+  <tr><td>Digest</td><td>sha256:cd33efddb8084f9fc2928860570dd2658472542a75948a04bd9f173a539a5652</tr></tr>
 </table>
 
-<p>Other IBM content curated from <code>icr.io/cpopen/ibm-operator-catalog@sha256:18d6f0b85e9cf33d2b079ee4eb451407e3522516492aab7294f38577ce96f7e8</code></p>
 <h2 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link"></a></h2>
-<p><code>oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v8-230328-amd64.yaml</code></p>
+<p><code>oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v8-230411-amd64.yaml</code></p>
 <h2 id="source">Source<a class="headerlink" href="#source" title="Permanent link"></a></h2>
 <pre><code class="language-yaml">apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
@@ -172,11 +171,11 @@ metadata:
   name: ibm-operator-catalog
   namespace: openshift-marketplace
 spec:
-  displayName: IBM Maximo Operators (v8-230328-amd64)
+  displayName: IBM Maximo Operators (v8-230411-amd64)
   publisher: IBM
   description: Static Catalog Source for IBM Maximo Application Suite
   sourceType: grpc
-  image: icr.io/cpopen/ibm-maximo-operator-catalog@sha256:cb81644746cffdb0618797c0adf16f7bf735fdf4c474bf305e2bca209ca942ba
+  image: icr.io/cpopen/ibm-maximo-operator-catalog@sha256:cd33efddb8084f9fc2928860570dd2658472542a75948a04bd9f173a539a5652
   priority: 90
 </code></pre>
 <h2 id="red-hat-openshift-container-platform-support">Red Hat OpenShift Container Platform Support<a class="headerlink" href="#red-hat-openshift-container-platform-support" title="Permanent link"></a></h2>
@@ -243,7 +242,7 @@ spec:
   <tr>                                              <td>4.0.6 - 4.0.7</td>  <td>February 2022</td> <td>June, 2022</td>    <td>8.7<sup>2</sup></td>       </tr>
   <tr>                                              <td>4.0.7 - 4.0.9</td>  <td>March 2022</td>    <td>June, 2022</td>    <td>8.8<sup>2</sup> - 8.9</td> </tr>
   <tr> <td class="firstColumn" rowspan="1">4.10</td><td>4.5</td>            <td>June, 2022</td>    <td>November 2022</td> <td>8.8<sup>3</sup> - 8.9</td> </tr>
-  <tr> <td class="firstColumn" rowspan="1">4.10</td><td>4.6.3</td>            <td>February, 2023</td>    <td>TBD</td> <td>8.10</td> </tr> 
+  <tr> <td class="firstColumn" rowspan="1">4.10</td><td>4.6.3</td>            <td>February, 2023</td>    <td>TBD</td> <td>8.10</td> </tr>
 </table>
 
 <ol>
