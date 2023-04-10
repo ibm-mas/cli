@@ -13,14 +13,14 @@ import glob
 
 if __name__ == "__main__":
     # Initialize the properties we need
-    instanceId = os.getenv("MAS_INSTANCE_ID")
+    instanceId = os.getenv("MAS_INSTANCE_ID", "none")
     productId = "ibm-mas-devops"
     build = os.getenv("DEVOPS_BUILD_NUMBER")
     suite = os.getenv("DEVOPS_SUITE_NAME", "")
     junitOutputDir = os.getenv("JUNIT_OUTPUT_DIR", "/tmp")
 
     channelId = "n/a"
-    version = "unknown"
+    cliVersion = os.getenv("VERSION", "unknown")
 
     if suite == "":
         print ("Results not recorded because DEVOPS_SUITE_NAME is not defined")
@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
             for testcase in resultDoc["testsuites"]["testsuite"]["testcase"]:
                 testcase["name"] = testcase["name"].replace("[localhost] localhost: ", "")
-                # Playbooks don't have ibm/mas_devops in the classnmae but do have /opt/app-root.
+                # Playbooks don't have ibm/mas_devops in the classname but do have /opt/app-root.
                 # Roles have both ibm/mas_devops and /opt/app-root.
                 # Guard against both and remove when required.
                 if "/opt/app-root/" in testcase["classname"]:
@@ -84,7 +84,7 @@ if __name__ == "__main__":
                 "build": build,
                 "productId": productId,
                 "channelId": channelId,
-                "version": version
+                "version": cliVersion
             }
             ### Add logic to add key in resultsV2 for upgrade test
             if "DEVOPS_TEST_TYPE" in os.environ and os.environ['DEVOPS_TEST_TYPE'] != "" and "DEVOPS_TEST_PHASE" in os.environ and os.environ['DEVOPS_TEST_PHASE'] != "":
@@ -122,7 +122,7 @@ if __name__ == "__main__":
                     '$set': {
                         f"products.ibm-mas-devops.productId": productId,
                         f"products.ibm-mas-devops.channelId": channelId,
-                        f"products.ibm-mas-devops.version": version,
+                        f"products.ibm-mas-devops.version": cliVersion,
                         f"products.ibm-mas-devops.results.{suite}": suiteSummary
                     }
                 },
