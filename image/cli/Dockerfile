@@ -31,15 +31,18 @@ RUN umask 0002 && \
 # 4. Install tini
 ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini /tini
 RUN chmod +x /tini
+
+# 5. Install helm for argocd-repo-server sidecar
 RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/helm/latest/helm-linux-amd64 -o /usr/local/bin/helm
 RUN chmod +x /usr/local/bin/helm
-# 5. Copy basics
+
+# 6. Copy basics
 USER default
 COPY --chown=default:root app-root/* ${HOME}/
 COPY --chown=default:root mascli /mascli
 COPY --chown=default:root .bashrc /opt/app-root/src/.bashrc
 
-# 6. Set up Environment
+# 7. Set up Environment
 # VIRTUAL_ENV_DISABLE_PROMPT will stop built-in PS1 munging, we already set it to what we want
 ENV ANSIBLE_COLLECTIONS_PATH=/opt/app-root/lib64/python3.9/site-packages/ansible_collections \
     ANSIBLE_CONFIG=/opt/app-root/src/ansible.cfg \
@@ -47,13 +50,13 @@ ENV ANSIBLE_COLLECTIONS_PATH=/opt/app-root/lib64/python3.9/site-packages/ansible
     VERSION=${VERSION_LABEL:-x.y.z} \
     VIRTUAL_ENV_DISABLE_PROMPT=1
 
-# 7. Install Ansible collections -- do this last for efficient dev builds
+# 8. Install Ansible collections -- do this last for efficient dev builds
 COPY --chown=default:root install-ansible /tmp/install-ansible
 RUN umask 0002 && \
     bash /tmp/install-ansible/install-ansible-collections.sh && \
     rm -rf /tmp/install-ansible
 
-# 8. Set file permissions to be developer (hack) friendly
+# 9. Set file permissions to be developer (hack) friendly
 RUN chmod -R ug+rwx ${HOME}/env.sh && \
     chmod -R ug+rwx ${HOME}/.ansible && \
     chmod +x ${HOME}/run-playbook.sh && \
@@ -66,12 +69,12 @@ RUN chmod -R ug+rwx ${HOME}/env.sh && \
     ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops
 
 
-# 9. Switch to root user
+# 10. Switch to root user
 # Running an non-root user makes using the container with docker run and mounted volumes
 # more difficult, users have to add -u root anyway, so just leave the active user as root
 USER root
 
-# 10. Setup working environment
+# 11. Setup working environment
 WORKDIR /mascli
 ENTRYPOINT ["/tini", "--"]
 CMD bash
