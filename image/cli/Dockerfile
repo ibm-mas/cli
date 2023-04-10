@@ -34,7 +34,7 @@ RUN chmod +x /tini
 
 # 5. Install helm for argocd-repo-server sidecar
 RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/helm/latest/helm-linux-amd64 -o /usr/local/bin/helm
-RUN chmod +x /usr/local/bin/helm
+RUN chwon default:root /usr/local/bin/helm
 
 # 6. Copy basics
 USER default
@@ -66,8 +66,7 @@ RUN chmod -R ug+rwx ${HOME}/env.sh && \
     chmod +x /mascli/mas && \
     chmod +x /opt/app-root/src/.bashrc && \
     chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops && \
-    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops && \
-    chmod +x /usr/local/bin/helm
+    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops 
 
 
 # 10. Switch to root user
