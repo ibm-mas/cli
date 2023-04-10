@@ -66,7 +66,8 @@ RUN chmod -R ug+rwx ${HOME}/env.sh && \
     chmod +x /mascli/mas && \
     chmod +x /opt/app-root/src/.bashrc && \
     chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops && \
-    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops
+    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops \
+    chmod +x /usr/local/bin/helm
 
 
 # 10. Switch to root user
