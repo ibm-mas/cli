@@ -34,7 +34,7 @@ RUN chmod +x /tini
 
 # 5. Install helm for argocd-repo-server sidecar
 RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/helm/latest/helm-linux-amd64 -o /usr/local/bin/helm
-RUN chwon default:root /usr/local/bin/helm
+RUN chown default:root /usr/local/bin/helm
 
 # 6. Copy basics
 USER default
