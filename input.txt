@@ -1,4 +1,0 @@
-! TRAVIS input file
-! Created with TRAVIS version compiled at Sep 15 2021 23:00:11
-! Source code version: May 21 2021
-! Input file written at Mon Apr 10 20:16:15 2023.
