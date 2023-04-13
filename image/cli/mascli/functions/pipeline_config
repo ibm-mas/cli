@@ -40,7 +40,7 @@ function pipeline_config() {
       prompt_for_input "Select Catalog Source" MAS_CATALOG_SELECTION "1"
 
       case $MAS_CATALOG_SELECTION in
-        1|230411)
+        1|230414)
           MAS_CATALOG_VERSION=v8-230414-amd64
           ;;
         2|230314)
@@ -83,7 +83,7 @@ function pipeline_config() {
     echo -e "${COLOR_YELLOW}MAS Version:"
     echo "April 14 2023 Update"
     echo "  1. 8.10.0"
-    echo "  2. 8.9.3"
+    echo "  2. 8.9.4"
     echo "March 14 2023 Update"
     echo "  3. 8.9.3"
     echo "February 17 2023 Update"
@@ -93,7 +93,7 @@ function pipeline_config() {
     prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
 
     case $MAS_CHANNEL_SELECTION in
-      # March 28 2023 Catalog
+      # April 14 2023 Catalog
       # -----------------------------------------------------------------------
       1)
         MAS_CHANNEL=8.10.x

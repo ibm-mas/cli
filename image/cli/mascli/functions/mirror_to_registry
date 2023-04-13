@@ -241,7 +241,7 @@ function mirror_to_registry_interactive() {
   echo -e "${COLOR_YELLOW}MAS Version:"
   echo "April 14 2023 Update"
   echo "  1. 8.10.0"
-  echo "  2. 8.9.3"
+  echo "  2. 8.9.4"
   echo "March 14 2023 Update"
   echo "  3. 8.9.3"
   echo "February 17 2023 Update"
