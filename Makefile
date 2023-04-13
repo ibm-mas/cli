@@ -6,7 +6,7 @@
 
 ansible-build:
 	ansible-galaxy collection build --output-path image/cli/install-ansible ../ansible-devops/ibm/mas_devops --force
-	mv image/cli/install-ansible/ibm-mas_devops-13.0.0.tar.gz image/cli/install-ansible/ibm-mas_devops.tar.gz
+	mv image/cli/install-ansible/ibm-mas_devops-14.0.0.tar.gz image/cli/install-ansible/ibm-mas_devops.tar.gz
 ansible-install:
 	ansible-galaxy collection install image/cli/install-ansible/ibm-mas_devops.tar.gz --force --no-deps
 ansible: ansible-build ansible-install

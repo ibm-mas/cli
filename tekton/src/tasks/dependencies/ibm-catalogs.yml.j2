@@ -14,7 +14,7 @@ spec:
       default: ""
       type: string
       description: Required to install development MAS catalogs
-    - name: artifactory_apikey
+    - name: artifactory_token
       default: ""
       type: string
       description: Required to install development MAS catalogs
@@ -67,8 +67,8 @@ spec:
     env:
       - name: ARTIFACTORY_USERNAME
         value: $(params.artifactory_username)
-      - name: ARTIFACTORY_APIKEY
-        value: $(params.artifactory_apikey)
+      - name: ARTIFACTORY_TOKEN
+        value: $(params.artifactory_token)
 
       - name: MAS_CATALOG_VERSION
         value: $(params.mas_catalog_version)
