@@ -1,6 +1,8 @@
 ## Changes
 
-- [`3.21`](https://github.com/ibm-mas/cli/releases/tag/3.21.0) Support April Catalog Update (#236)
+- [`4.0`](https://github.com/ibm-mas/cli/releases/tag/4.0.0) Multiple updates:
+    - Remove HP Utilities & MAS 8.8 support (#234)
+    - Support April Catalog Update (#236)
 - [`3.20`](https://github.com/ibm-mas/cli/releases/tag/3.20.0) Multiple updates:
      - Add support for advanced settings (#227)
      - Add support for March 28th catalog update (#226)
