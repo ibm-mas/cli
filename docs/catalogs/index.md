@@ -38,7 +38,7 @@ The static operator catalogs provide a fixed reference point, if you use a stati
 To receive security updates and bug fixes you must periodically update the version of the static catalog that you have installed in the cluster.  Once you do this all operators that you have installed from the catalog will automatically update to the newer version.  We aim to release a catalog update monthly.
 
 #### 2023
-- [v8-230411-amd64](v8-230411-amd64.md)
+- [v8-230414-amd64](v8-230414-amd64.md)
 - [v8-230314-amd64](v8-230314-amd64.md)
 - [v8-230217-amd64](v8-230217-amd64.md)
 - [v8-230111-amd64](v8-230111-amd64.md)
