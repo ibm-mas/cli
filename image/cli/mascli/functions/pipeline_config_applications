@@ -207,7 +207,7 @@ function config_pipeline_applications() {
     if [[ "$MAS_APP_CHANNEL_PREDICT" != "" || "$MAS_APP_CHANNEL_ASSIST" != "" ]]; then
       case $MAS_CATALOG_VERSION in
         # CP4D v4.6.3 was added in the April 2023 catalog update
-        v8-amd64|v8-230411-amd64)
+        v8-amd64|v8-230414-amd64)
           CP4D_VERSION=4.6.3
           ;;
         # CP4D v4.6.0 was added in the February 2023 catalog update
