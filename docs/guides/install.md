@@ -65,7 +65,7 @@ Disconnected install for IBM Maximo Application Suite is supported from MAS v8.8
 | Health & Predict Utilities |  No support                       |
 | IoT                        |  v8.5.1 ([v8-220805-amd64](../catalogs/v8-220805-amd64.md))     |
 | Manage                     |  v8.4.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
-| Monitor                    |  v8.10.0 ([v8-230411-amd64](../catalogs/v8-230411-amd64.md))    |
+| Monitor                    |  v8.10.0 ([v8-230414-amd64](../catalogs/v8-230414-amd64.md))    |
 | Optimizer                  |  v8.2.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
 | Predict                    |  No support                       |
 | Safety                     |  No support                       |
