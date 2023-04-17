@@ -58,6 +58,11 @@ function pipeline_show_config() {
   else echo_reset_dim " - Predict ............... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_PREDICT}"
   fi
 
+  if [[ "${MAS_APP_CHANNEL_HPUTILITIES}" == '' ]]
+  then echo_reset_dim " - HP Utilities .......... ${COLOR_RED}Skip Installation"
+  else echo_reset_dim " - HP Utilities .......... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_HPUTILITIES}"
+  fi
+
   if [[ "${MAS_CHANNEL}" == '8.8.x' ]]; then
     if [[ "${MAS_APP_CHANNEL_OPTIMIZER}" == '' ]]
     then echo_reset_dim "Optimizer ................ ${COLOR_RED}Skip Installation"

@@ -291,6 +291,11 @@ spec:
     - name: mas_app_channel_predict
       value: '$MAS_APP_CHANNEL_PREDICT'
 
+    # Health & Predict Utilities Application
+    # -------------------------------------------------------------------------
+    - name: mas_app_channel_hputilities
+      value: '$MAS_APP_CHANNEL_HPUTILITIES'
+
     # Safety Application
     # -------------------------------------------------------------------------
     - name: mas_app_channel_safety
