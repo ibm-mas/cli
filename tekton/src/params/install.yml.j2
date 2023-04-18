@@ -72,7 +72,7 @@
   description: IBM Cloud MongoDb admin password
   default: ""
 
-# Dependencies - Kafka
+# Dependencies - AMQ Streams (Kafka)
 # -----------------------------------------------------------------------------
 - name: kafka_namespace
   type: string
@@ -84,6 +84,27 @@
   type: string
   default: ""
 - name: kafka_user_name
+  type: string
+  default: ""
+
+# Dependencies - IBM Cloud Event Streams (Kafka)
+# -----------------------------------------------------------------------------
+- name: kafka_provider
+  type: string
+  default: ""
+- name: eventstreams_resourcegroup
+  type: string
+  default: ""
+- name: eventstreams_name
+  type: string
+  default: ""
+- name: eventstreams_location
+  type: string
+  default: ""
+- name: eventstreams_retention
+  type: string
+  default: ""
+- name: eventstreams_create_manage_jms_topics
   type: string
   default: ""
 
