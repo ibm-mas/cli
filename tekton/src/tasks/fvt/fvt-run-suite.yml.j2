@@ -138,7 +138,7 @@ spec:
       type: string
       description: Boolean value to check if tests are runninng locally or on fvt
       default: "false"
-    
+
     # Optional parameters to categorize result to be persisted
     # -------------------------------------------------------------------------
     - name: devops_test_type
@@ -221,14 +221,14 @@ spec:
       # Common Test Framework Specific information
       - name: CTF_IS_LOCAL
         value: $(params.ctf_is_local)
-      
+
       # Optional parameters to categorize result to be persisted
       - name: DEVOPS_TEST_TYPE
         value: $(params.devops_test_type)
       - name: DEVOPS_TEST_PHASE
         value: $(params.devops_test_phase)
   steps:
-    - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name):$(params.fvt_image_digest)'
+    - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
       onError: continue # Ensure bad FVTs don't break the pipeline

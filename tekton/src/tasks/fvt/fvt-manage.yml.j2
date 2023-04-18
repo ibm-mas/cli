@@ -100,7 +100,7 @@ spec:
       type: string
       description: Artifactory API Key (required by fvt-ibm-mas-manage and fvt-ibm-mas-safety to pull test container content)
       default: ""
-    
+
     # Optional parameters to categorize result to be persisted
     # -------------------------------------------------------------------------
     - name: devops_test_type
@@ -162,14 +162,14 @@ spec:
         value: $(params.devops_cos_upload_folder)
       - name: DEVOPS_IBMCLOUD_APIKEY
         value: $(params.devops_ibmcloud_apikey)
-      
+
       # Optional parameters to categorize result to be persisted
       - name: DEVOPS_TEST_TYPE
         value: $(params.devops_test_type)
       - name: DEVOPS_TEST_PHASE
         value: $(params.devops_test_phase)
   steps:
-    - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name):$(params.fvt_image_digest)'
+    - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
       onError: continue # Ensure bad FVTs don't break the pipeline
