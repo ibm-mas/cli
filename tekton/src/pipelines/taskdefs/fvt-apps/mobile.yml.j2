@@ -219,7 +219,7 @@
       workspace: shared-configs
 
 ## Prepare Data for Mobile Service Request MAS test suites
-- name: fvt-servicerequests-testng-preparedata
+- name: fvt-servicerequest-setup4sr
   params:
     - name: mas_instance_id
       value: $(params.mas_instance_id)
@@ -228,19 +228,25 @@
 
     - name: devops_mongo_uri
       value: $(params.devops_mongo_uri)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
     - name: devops_build_number
       value: $(params.devops_build_number)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
 
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
       value: fvt-servicerequests
     - name: fvt_image_name
-      value: fvt-servicerequests-preparedata
+      value: fvt-servicerequests-manage-setup
     - name: fvt_image_version
       value: $(params.fvt_version_servicerequests)
+    - name: artifactory_token
+      value: $(params.fvt_artifactory_token)
     - name: fvt_test_suite
-      value: prepare-test-data-testng-mas
+      value: setup4sr
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -252,7 +258,7 @@
       value: $(params.devops_test_phase)
   taskRef:
     kind: Task
-    name: mas-fvt-run-suite
+    name: mas-fvt-manage
   # Only if we've set a version of the Mobile Foundation FVT to run
   when:
     - input: "$(params.fvt_version_servicerequests)"
@@ -289,7 +295,7 @@
     - name: fvt_image_version
       value: $(params.fvt_version_servicerequests)
     - name: fvt_test_suite
-      value: testng-mas-mobile-andorid-MVT
+      value: mas-android-MVT-SR
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -317,7 +323,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-servicerequests-testng-preparedata
+    - fvt-servicerequest-setup4sr
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -344,7 +350,7 @@
     - name: fvt_image_version
       value: $(params.fvt_version_servicerequests)
     - name: fvt_test_suite
-      value: testng-mas-mobile-ios-MVT
+      value: mas-ios-MVT-SR
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -416,7 +422,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-setup
+    - fvt-asset-manager-testng-mas-ios
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -443,7 +449,7 @@
     - name: fvt_image_version
       value: $(params.fvt_version_technician)
     - name: fvt_test_suite
-      value: testng-mas-mobile-andorid
+      value: mas-android-MVT-Technician
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -493,7 +499,7 @@
     - name: fvt_image_version
       value: $(params.fvt_version_technician)
     - name: fvt_test_suite
-      value: testng-mas-mobile-ios
+      value: mas-ios-MVT-Technician
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -587,7 +593,7 @@
     - name: fvt_image_version
       value: $(params.fvt_version_inspection)
     - name: fvt_test_suite
-      value: testng-mas-mobile-andorid-MVT
+      value: mas-android-MVT-Inspections
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -637,7 +643,7 @@
     - name: fvt_image_version
       value: $(params.fvt_version_inspection)
     - name: fvt_test_suite
-      value: testng-mas-mobile-ios-MVT
+      value: mas-ios-MVT-Inspections
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -809,6 +815,165 @@
     - name: configs
       workspace: shared-configs
 
+## Prepare Data for Mobile Asset Manager MAS test suites
+- name: fvt-asset-manager-testng-preparedata
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-asset-manager
+    - name: fvt_image_name
+      value: fvt-asset-manager-preparedata
+    - name: fvt_image_version
+      value: $(params.fvt_version_asset_manager)
+    - name: fvt_test_suite
+      value: prepare-test-data-testng-mas
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mobile
+
+    - name: test_type
+      value: $(params.devops_test_type)
+    - name: test_phase
+      value: $(params.devops_test_phase)
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Mobile Foundation FVT to run
+  when:
+    - input: "$(params.fvt_version_asset_manager)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-manage-setup
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+## Minimum Verification Test for Mobile Asset Manager MAS test suites
+- name: fvt-asset-manager-testng-mas-android
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-asset-manager
+    - name: fvt_image_name
+      value: fvt-asset-manager-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_asset_manager)
+    - name: fvt_test_suite
+      value: mas-android-MVT-AssetManager
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mobile
+    - name: assist_test_type
+      value: mobileapp
+    - name: assist_device_type
+      value: android
+    - name: assist_server_type
+      value: mas
+
+    - name: test_type
+      value: $(params.devops_test_type)
+    - name: test_phase
+      value: $(params.devops_test_phase)
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Mobile Asset Manager FVT to run
+  when:
+    - input: "$(params.fvt_version_asset_manager)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-asset-manager-testng-preparedata
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
+## Minimum Verification Test for Mobile Asset Manager MAS test suites
+- name: fvt-asset-manager-testng-mas-ios
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: devops_mongo_uri
+      value: $(params.devops_mongo_uri)
+    - name: devops_build_number
+      value: $(params.devops_build_number)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-asset-manager
+    - name: fvt_image_name
+      value: fvt-asset-manager-testng
+    - name: fvt_image_version
+      value: $(params.fvt_version_asset_manager)
+    - name: fvt_test_suite
+      value: mas-ios-MVT-AssetManager
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mobile
+    - name: assist_test_type
+      value: mobileapp
+    - name: assist_device_type
+      value: ios
+    - name: assist_server_type
+      value: mas
+
+    - name: test_type
+      value: $(params.devops_test_type)
+    - name: test_phase
+      value: $(params.devops_test_phase)
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a version of the Mobile Asset Manager FVT to run
+  when:
+    - input: "$(params.fvt_version_asset_manager)"
+      operator: notin
+      values: ["skip"]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-asset-manager-testng-mas-android
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+
 # Manage FVT - IC Setup
 - name: fvt-mobile-inventorycounting-setup
   params:
@@ -926,7 +1091,3 @@
   workspaces:
     - name: configs
       workspace: shared-configs
-
-
-
-
