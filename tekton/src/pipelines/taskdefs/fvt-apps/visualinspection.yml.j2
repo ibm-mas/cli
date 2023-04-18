@@ -16,8 +16,8 @@
       value: ai-solutions
     - name: fvt_image_name
       value: common-test-framework
-    - name: fvt_image_version
-      value: $(params.fvt_version_visualinspection)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_visualinspection)
     - name: fvt_test_suite
       value: visualinspection_fvt # pytest_marker in Common Test Framework
     - name: product_channel
@@ -32,11 +32,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the MVI FVT to run
+  # Only if we've set a digest of the MVI FVT to run
   when:
-    - input: "$(params.fvt_version_visualinspection)"
+    - input: "$(params.fvt_digest_visualinspection)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_visualinspection)"
       operator: notin
       values: [""]
