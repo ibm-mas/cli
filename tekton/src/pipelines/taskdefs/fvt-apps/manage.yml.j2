@@ -46,5 +46,9 @@
     - name: fvt_test_suite
       value: api-test_layer3
   runAfter:
-    - fvt-manage-setup
+    # API tests are not yet supported so it will temporarily run after all the other tests
+    # to avoid breaking pipeline before tests are executed
+    - fvt-manage-startcenter-config
+    - fvt-manage-escalation-action
+    - fvt-manage-metrics
 
