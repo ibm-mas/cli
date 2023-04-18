@@ -2,9 +2,9 @@ taskRef:
   kind: Task
   name: mas-fvt-core-ui
 when:
-  - input: "$(params.fvt_version_core)"
+  - input: "$(params.fvt_digest_core)"
     operator: notin
-    values: ["skip"]
+    values: [""]
 workspaces:
   - name: configs
     workspace: shared-configs
