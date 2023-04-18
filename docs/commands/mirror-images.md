@@ -27,7 +27,6 @@ Usage
 - `-C|--channel MAS_CHANNEL` Maximo Application Suite Channel to mirror (e.g. 8.9.x)
 - `--mirror-core` Mirror images for IBM Maximo Application Suite Core & dependencies
 - `--mirror-assist`  Mirror images for IBM Maximo Assist
-- `--mirror-hputilities` Mirror images for IBM Maximo Health & Predict Utilities
 - `--mirror-iot` Mirror images for IBM Maximo IoT & dependencies
 - `--mirror-manage` Mirror images for IBM Maximo Manage & dependencies
 - `--mirror-monitor` Mirror images for IBM Maximo Monitor

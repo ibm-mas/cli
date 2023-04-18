@@ -1,5 +1,12 @@
 ## Changes
 
+- [`4.0`](https://github.com/ibm-mas/cli/releases/tag/4.0.0) Multiple updates:
+    - Remove HP Utilities & MAS 8.8 support (#234)
+    - Support April Catalog Update (#236)
+- [`3.20`](https://github.com/ibm-mas/cli/releases/tag/3.20.0) Multiple updates:
+     - Add support for advanced settings (#227)
+     - Add support for March 28th catalog update (#226)
+- [`3.19`](https://github.com/ibm-mas/cli/releases/tag/3.19.0) Manage Industry Solutions regression tasks (#221)
 - [`3.18`](https://github.com/ibm-mas/cli/releases/tag/3.18.0) Add support for MAS 8.10
 - [`3.17`](https://github.com/ibm-mas/cli/releases/tag/3.17.0) Support Manage advanced database settings
 - [`3.16`](https://github.com/ibm-mas/cli/releases/tag/3.16.0) Multiple updates:
