@@ -108,8 +108,12 @@
     # This pipeline requires the upgrade_test_raw_params_definition variable generated in step 1.5
     - name: Generate Upgrade Test Pipeline
       ansible.builtin.template:
-        src: "{{ pipeline_src_dir }}/upgrade-with-fvt.yml.j2"
-        dest: "{{ pipeline_target_dir }}/upgrade-with-fvt.yaml"
+        src: "{{ pipeline_src_dir }}/{{item}}.yml.j2"
+        dest: "{{ pipeline_target_dir }}/{{item}}.yaml"
+      with_items:
+        - preupgrade
+        - upgrade-with-fvt
+        - postupgrade
 
     # 8. Generate Upgrade Test PipelineRun template
     # -------------------------------------------------------------------------
@@ -118,9 +122,41 @@
         src: "{{ pipelinerun_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ pipelinerun_target_dir }}/{{ item }}.yml.j2"
       with_items:
+        - preupgrade
         - upgrade-with-fvt
+        - postupgrade
 
-    # 9. Generate Upgrade Test Tasks
+    # 9. Generate PipelineRun
+    # -------------------------------------------------------------------------
+    # Create the pipeline run for upgrade-with-fvt with basic defaults 
+    # designed for rapid development of pipelines
+    - name: Generate install PipelineRuns
+      ansible.builtin.template:
+        src: "{{ pipelinerun_target_dir }}/{{ item }}.yml.j2"
+        dest: "{{ pipelinerun_target_dir }}/{{ item }}.yaml"
+      vars:
+        - devops_build_number: "0000"
+        - pipelinerun_timeout: "2h"
+        - pipelinerun_name_suffix: ""
+      with_items:
+        - upgrade-with-fvt
+ 
+    # 10. Generate pre/post PipelineRun
+    # -------------------------------------------------------------------------
+    # same as above but with much shorter timeout for the pre and post jobs
+    - name: Generate install PipelineRuns
+      ansible.builtin.template:
+        src: "{{ pipelinerun_target_dir }}/{{ item }}.yml.j2"
+        dest: "{{ pipelinerun_target_dir }}/{{ item }}.yaml"
+      vars:
+        - devops_build_number: "0000"
+        - pipelinerun_timeout: "20m"
+        - pipelinerun_name_suffix: ""
+      with_items:
+        - preupgrade
+        - postupgrade
+
+    # 11. Generate Upgrade Test Tasks
     # -------------------------------------------------------------------------
     # These tasks require the *_params_definition variables generated in step 1.1 - 1.4
     - name: "Generate Tasks"

@@ -71,3 +71,20 @@
         - install
         - uninstall
         - upgrade
+
+    # 4. Generate PipelineRun
+    # -------------------------------------------------------------------------
+    - name: Generate install PipelineRuns
+      ansible.builtin.template:
+        src: "{{ pipelinerun_target_dir }}/{{ item }}.yml.j2"
+        dest: "{{ pipelinerun_target_dir }}/{{ item }}.yaml"
+      vars:
+        - devops_build_number: "0000"
+        - pipelinerun_timeout: "1h"
+        - pipelinerun_name_suffix: ""
+      with_items:
+        - fvt-core
+        - install-with-fvt
+        - install
+        - uninstall
+        - upgrade

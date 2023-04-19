@@ -1,0 +1,37 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: {{'"mas-fvt-preupgrade-{{ devops_build_number if pipelinerun_name_suffix == \'\' else  (pipelinerun_name_suffix + \'-\' + devops_build_number) }}"'}}
+  labels:
+    tekton.dev/pipeline: mas-fvt-preupgrade
+spec:
+  pipelineRef:
+    name: mas-fvt-preupgrade
+  serviceAccountName: pipeline
+  timeout: {{'"{{ pipelinerun_timeout }}"'}}
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+      persistentVolumeClaim:
+        claimName: config-pvc
+  params:
+    # Common Parameters
+{% for common_param in common_params_definition.params %}
+    - name: {{ common_param.name }}
+      value: {{'"{{ lookup(\'env\', \'' ~ common_param.name | upper ~ '\') }}"'}}
+{% endfor %}
+    # Install Parameters
+{% for install_param in install_params_definition.params %}
+    - name: {{ install_param.name }}
+      value: {{'"{{ lookup(\'env\', \'' ~ install_param.name | upper ~ '\') }}"'}}
+{% endfor %}
+{% for install_common_param in install_common_params_definition.params %}
+    - name: {{ install_common_param.name }}
+      value: {{'"{{ lookup(\'env\', \'' ~ install_common_param.name | upper ~ '\') }}"'}}
+{% endfor %}
+    # Test Parameters
+{% for fvt_param in fvt_params_definition.params %}
+    - name: {{ fvt_param.name }}
+      value: {{'"{{ lookup(\'env\', \'' ~ fvt_param.name | upper ~ '\') }}"'}}
+{% endfor %}
