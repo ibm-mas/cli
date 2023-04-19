@@ -39,11 +39,11 @@ spec:
       type: string
       description: Flag indicating if manage demodata should be loaded or not
       default: ""
-    - name: mas_app_settings_base_lang
+    - name: mas_app_settings_base_language
       type: string
       description: Defines Manage application base language
       default: "EN"
-    - name: mas_app_settings_secondary_langs
+    - name: mas_app_settings_secondary_languages
       type: string
       description: Defines Manage application list of secondary languages
       default: ""
@@ -132,9 +132,9 @@ spec:
       - name: MAS_APP_SETTINGS_DEMODATA
         value: $(params.mas_app_settings_demodata)
       - name: MAS_APP_SETTINGS_BASE_LANG
-        value: $(params.mas_app_settings_base_lang)
+        value: $(params.mas_app_settings_base_language)
       - name: MAS_APP_SETTINGS_SECONDARY_LANGS
-        value: $(params.mas_app_settings_secondary_langs)
+        value: $(params.mas_app_settings_secondary_languages)
       - name: MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG
         value: $(params.mas_app_settings_persistent_volumes_flag)
       - name: MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE
