@@ -58,6 +58,10 @@ spec:
     - name: eventstreams_create_manage_jms_topics
       type: string
       default: ""
+    - name: ibmcloud_apikey
+      type: string
+      description: API Key used to create Event Streams instance in IBM Cloud
+      default: ""
 
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
@@ -120,6 +124,8 @@ spec:
         value: $(params.eventstreams_retention)
       - name: EVENTSTREAMS_CREATE_MANAGE_JMS_TOPICS
         value: $(params.eventstreams_create_manage_jms_topics)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
 
       # Optional support built into the ansible-devops image
       # for saving task execution results to a MongoDb instance
