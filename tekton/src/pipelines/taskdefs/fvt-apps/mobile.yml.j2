@@ -22,7 +22,7 @@
     - name: fvt_image_name
       value: fvt-mobilefoundation-manage-setup
     - name: fvt_image_digest
-      value: $(params.fvt_digest_mobilefoundation)
+      value: $(params.fvt_digest_mobilefoundation_manage_setup)
     - name: fvt_mas_appws_component
       value: base
     - name: mas_appws_components
@@ -45,7 +45,7 @@
     name: mas-fvt-manage
   # Only if we've set a digest of the Manage Transportation FVT to run
   when:
-    - input: "$(params.fvt_digest_mobilefoundation)"
+    - input: "$(params.fvt_digest_mobilefoundation_manage_setup)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -77,7 +77,7 @@
     - name: fvt_image_name
       value: fvt-mobilefoundation-preparedata
     - name: fvt_image_digest
-      value: $(params.fvt_digest_mobilefoundation)
+      value: $(params.fvt_digest_mobilefoundation_preparedata)
     - name: fvt_test_suite
       value: prepare
     - name: product_channel
@@ -96,7 +96,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    - input: "$(params.fvt_digest_mobilefoundation)"
+    - input: "$(params.fvt_digest_mobilefoundation_preparedata)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -129,7 +129,7 @@
     - name: fvt_image_name
       value: fvt-mobilefoundation-testng
     - name: fvt_image_digest
-      value: $(params.fvt_digest_mobilefoundation)
+      value: $(params.fvt_digest_mobilefoundation_testng)
     - name: fvt_test_suite
       value: testng-all
     - name: product_channel
@@ -152,7 +152,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    - input: "$(params.fvt_digest_mobilefoundation)"
+    - input: "$(params.fvt_digest_mobilefoundation_testng)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -183,7 +183,7 @@
     - name: fvt_image_name
       value: fvt-mobilefoundation-testng
     - name: fvt_image_digest
-      value: $(params.fvt_digest_mobilefoundation)
+      value: $(params.fvt_digest_mobilefoundation_testng)
     - name: fvt_test_suite
       value: testng-all
     - name: product_channel
@@ -206,7 +206,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    - input: "$(params.fvt_digest_mobilefoundation)"
+    - input: "$(params.fvt_digest_mobilefoundation_testng)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -242,7 +242,7 @@
     - name: fvt_image_name
       value: fvt-servicerequests-manage-setup
     - name: fvt_image_digest
-      value: $(params.fvt_digest_servicerequests)
+      value: $(params.fvt_digest_servicerequests_manage_setup)
     - name: artifactory_token
       value: $(params.fvt_artifactory_token)
     - name: fvt_test_suite
@@ -261,7 +261,7 @@
     name: mas-fvt-manage
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    - input: "$(params.fvt_digest_servicerequests)"
+    - input: "$(params.fvt_digest_servicerequests_manage_setup)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -293,7 +293,7 @@
     - name: fvt_image_name
       value: fvt-servicerequests-testng
     - name: fvt_image_digest
-      value: $(params.fvt_digest_servicerequests)
+      value: $(params.fvt_digest_servicerequests_testng)
     - name: fvt_test_suite
       value: mas-android-MVT-SR
     - name: product_channel
@@ -316,7 +316,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Service Request FVT to run
   when:
-    - input: "$(params.fvt_digest_servicerequests)"
+    - input: "$(params.fvt_digest_servicerequests_testng)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -348,7 +348,7 @@
     - name: fvt_image_name
       value: fvt-servicerequests-testng
     - name: fvt_image_digest
-      value: $(params.fvt_digest_servicerequests)
+      value: $(params.fvt_digest_servicerequests_testng)
     - name: fvt_test_suite
       value: mas-ios-MVT-SR
     - name: product_channel
@@ -371,7 +371,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Service Request FVT to run
   when:
-    - input: "$(params.fvt_digest_servicerequests)"
+    - input: "$(params.fvt_digest_servicerequests_testng)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -403,7 +403,7 @@
     - name: fvt_image_name
       value: fvt-technician-preparedata
     - name: fvt_image_digest
-      value: $(params.fvt_digest_technician)
+      value: $(params.fvt_digest_technician_preparedata)
     - name: fvt_test_suite
       value: prepare-test-data-testng-mas
     - name: product_channel
@@ -415,7 +415,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    - input: "$(params.fvt_digest_technician)"
+    - input: "$(params.fvt_digest_technician_preparedata)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -447,7 +447,7 @@
     - name: fvt_image_name
       value: fvt-technician-testng
     - name: fvt_image_digest
-      value: $(params.fvt_digest_technician)
+      value: $(params.fvt_digest_technician_testng)
     - name: fvt_test_suite
       value: mas-android-MVT-Technician
     - name: product_channel
@@ -465,7 +465,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Technician FVT to run
   when:
-    - input: "$(params.fvt_digest_technician)"
+    - input: "$(params.fvt_digest_technician_testng)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -497,7 +497,7 @@
     - name: fvt_image_name
       value: fvt-technician-testng
     - name: fvt_image_digest
-      value: $(params.fvt_digest_technician)
+      value: $(params.fvt_digest_technician_testng)
     - name: fvt_test_suite
       value: mas-ios-MVT-Technician
     - name: product_channel
@@ -515,7 +515,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Technician FVT to run
   when:
-    - input: "$(params.fvt_digest_technician)"
+    - input: "$(params.fvt_digest_technician_testng)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -547,7 +547,7 @@
     - name: fvt_image_name
       value: fvt-inspections-preparedata
     - name: fvt_image_digest
-      value: $(params.fvt_digest_inspection)
+      value: $(params.fvt_digest_inspection_preparedata)
     - name: fvt_test_suite
       value: prepare-test-data-testng-mas
     - name: product_channel
@@ -559,7 +559,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    - input: "$(params.fvt_digest_inspection)"
+    - input: "$(params.fvt_digest_inspection_preparedata)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -591,7 +591,7 @@
     - name: fvt_image_name
       value: fvt-inspections-testng
     - name: fvt_image_digest
-      value: $(params.fvt_digest_inspection)
+      value: $(params.fvt_digest_inspection_testng)
     - name: fvt_test_suite
       value: mas-android-MVT-Inspections
     - name: product_channel
@@ -609,7 +609,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Inspection FVT to run
   when:
-    - input: "$(params.fvt_digest_inspection)"
+    - input: "$(params.fvt_digest_inspection_testng)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -641,7 +641,7 @@
     - name: fvt_image_name
       value: fvt-inspections-testng
     - name: fvt_image_digest
-      value: $(params.fvt_digest_inspection)
+      value: $(params.fvt_digest_inspection_testng)
     - name: fvt_test_suite
       value: mas-ios-MVT-Inspections
     - name: product_channel
@@ -659,7 +659,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Inspection FVT to run
   when:
-    - input: "$(params.fvt_digest_inspection)"
+    - input: "$(params.fvt_digest_inspection_testng)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -691,7 +691,7 @@
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-civil-defects-preparedata
     - name: fvt_image_digest
-      value: $(params.fvt_digest_manage_civil)
+      value: $(params.fvt_digest_manage_defects_preparedata)
     - name: fvt_test_suite
       value: prepare-test-data-testng-mas
     - name: product_channel
@@ -703,7 +703,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    - input: "$(params.fvt_digest_manage_civil)"
+    - input: "$(params.fvt_digest_manage_defects_preparedata)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -735,7 +735,7 @@
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-civil-defects-testng
     - name: fvt_image_digest
-      value: $(params.fvt_digest_manage_civil)
+      value: $(params.fvt_digest_manage_defects_testng)
     - name: fvt_test_suite
       value: testng-mas-mobile-andorid
     - name: product_channel
@@ -753,7 +753,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Defects FVT to run
   when:
-    - input: "$(params.fvt_digest_manage_civil)"
+    - input: "$(params.fvt_digest_manage_defects_testng)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -785,7 +785,7 @@
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-civil-defects-testng
     - name: fvt_image_digest
-      value: $(params.fvt_digest_manage_civil)
+      value: $(params.fvt_digest_manage_defects_testng)
     - name: fvt_test_suite
       value: testng-mas-mobile-ios
     - name: product_channel
@@ -803,7 +803,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Defects FVT to run
   when:
-    - input: "$(params.fvt_digest_manage_civil)"
+    - input: "$(params.fvt_digest_manage_defects_testng)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -835,7 +835,7 @@
     - name: fvt_image_name
       value: fvt-asset-manager-preparedata
     - name: fvt_image_digest
-      value: $(params.fvt_digest_asset_manager)
+      value: $(params.fvt_digest_asset_manager_preparedata)
     - name: fvt_test_suite
       value: prepare-test-data-testng-mas
     - name: product_channel
@@ -852,7 +852,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    - input: "$(params.fvt_digest_asset_manager)"
+    - input: "$(params.fvt_digest_asset_manager_preparedata)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -884,7 +884,7 @@
     - name: fvt_image_name
       value: fvt-asset-manager-testng
     - name: fvt_image_digest
-      value: $(params.fvt_digest_asset_manager)
+      value: $(params.fvt_digest_asset_manager_testng)
     - name: fvt_test_suite
       value: mas-android-MVT-AssetManager
     - name: product_channel
@@ -907,7 +907,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Asset Manager FVT to run
   when:
-    - input: "$(params.fvt_digest_asset_manager)"
+    - input: "$(params.fvt_digest_asset_manager_testng)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -939,7 +939,7 @@
     - name: fvt_image_name
       value: fvt-asset-manager-testng
     - name: fvt_image_digest
-      value: $(params.fvt_digest_asset_manager)
+      value: $(params.fvt_digest_asset_manager_testng)
     - name: fvt_test_suite
       value: mas-ios-MVT-AssetManager
     - name: product_channel
@@ -962,7 +962,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Asset Manager FVT to run
   when:
-    - input: "$(params.fvt_digest_asset_manager)"
+    - input: "$(params.fvt_digest_asset_manager_testng)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -998,7 +998,7 @@
     - name: fvt_image_name
       value: fvt-inventorycounting-manage-setup
     - name: fvt_image_digest
-      value: $(params.fvt_digest_inventorycounting)
+      value: $(params.fvt_digest_ic_manage_setup)
     - name: fvt_mas_appws_component
       value: base
     - name: mas_appws_components
@@ -1021,7 +1021,7 @@
     name: mas-fvt-manage
   # Only if we've set a digest of the IC FVT to run
   when:
-    - input: "$(params.fvt_digest_inventorycounting)"
+    - input: "$(params.fvt_digest_ic_manage_setup)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
@@ -1057,7 +1057,7 @@
     - name: fvt_image_name
       value: fvt-inventorycounting-testng
     - name: fvt_image_digest
-      value: $(params.fvt_digest_inventorycounting)
+      value: $(params.fvt_digest_ic_testng)
     - name: fvt_mas_appws_component
       value: base
     - name: mas_appws_components
@@ -1080,7 +1080,7 @@
     name: mas-fvt-manage
   # Only if we've set a digest of the Mobile IC FVT to run
   when:
-    - input: "$(params.fvt_digest_inventorycounting)"
+    - input: "$(params.fvt_digest_ic_testng)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
