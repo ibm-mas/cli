@@ -9,9 +9,9 @@
     - name: product_channel
       value: $(params.mas_app_channel_assist)
   when:
-    - input: "$(params.ivt_version_core)"
+    - input: "$(params.ivt_digest_core)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_assist)"
       operator: notin
       values: [""]
@@ -30,9 +30,9 @@
     - name: product_channel
       value: $(params.mas_app_channel_hputilities)
   when:
-    - input: "$(params.ivt_version_core)"
+    - input: "$(params.ivt_digest_core)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_hputilities)"
       operator: notin
       values: [""]
@@ -51,9 +51,9 @@
     - name: product_channel
       value: $(params.mas_app_channel_iot)
   when:
-    - input: "$(params.ivt_version_core)"
+    - input: "$(params.ivt_digest_core)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_iot)"
       operator: notin
       values: [""]
@@ -72,9 +72,9 @@
     - name: product_channel
       value: $(params.mas_app_channel_monitor)
   when:
-    - input: "$(params.ivt_version_core)"
+    - input: "$(params.ivt_digest_core)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_monitor)"
       operator: notin
       values: [""]
@@ -93,9 +93,9 @@
     - name: product_channel
       value: $(params.mas_app_channel_optimizer)
   when:
-    - input: "$(params.ivt_version_core)"
+    - input: "$(params.ivt_digest_core)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_optimizer)"
       operator: notin
       values: [""]
@@ -114,9 +114,9 @@
     - name: product_channel
       value: $(params.mas_app_channel_predict)
   when:
-    - input: "$(params.ivt_version_core)"
+    - input: "$(params.ivt_digest_core)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_predict)"
       operator: notin
       values: [""]
@@ -135,9 +135,9 @@
     - name: product_channel
       value: $(params.mas_app_channel_safety)
   when:
-    - input: "$(params.ivt_version_core)"
+    - input: "$(params.ivt_digest_core)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_safety)"
       operator: notin
       values: [""]
@@ -156,9 +156,9 @@
     - name: product_channel
       value: $(params.mas_app_channel_visualinspection)
   when:
-    - input: "$(params.ivt_version_core)"
+    - input: "$(params.ivt_digest_core)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_visualinspection)"
       operator: notin
       values: [""]

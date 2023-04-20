@@ -16,8 +16,8 @@
       value: fvt-safety
     - name: fvt_image_name
       value: fvt-ibm-mas-safety
-    - name: fvt_image_version
-      value: $(params.fvt_version_safety)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_safety)
     - name: product_channel
       value: $(params.mas_app_channel_safety)
     - name: product_id
@@ -34,11 +34,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the Satety FVT to run
+  # Only if we've set a digest of the Satety FVT to run
   when:
-    - input: "$(params.fvt_version_safety)"
+    - input: "$(params.fvt_digest_safety)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_safety)"
       operator: notin
       values: [""]

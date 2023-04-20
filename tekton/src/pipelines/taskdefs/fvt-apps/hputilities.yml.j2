@@ -17,8 +17,8 @@
       value: fvt-hputilities
     - name: fvt_image_name
       value: fvt-hputilities-preparedata
-    - name: fvt_image_version
-      value: $(params.fvt_version_hputilities)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_hputilities)
     - name: fvt_test_suite
       value: prepare
     - name: product_channel
@@ -35,11 +35,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the HPUtilities FVT to run
+  # Only if we've set a digest of the HPUtilities FVT to run
   when:
-    - input: "$(params.fvt_version_hputilities)"
+    - input: "$(params.fvt_digest_hputilities)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_hputilities)"
       operator: notin
       values: [""]
@@ -68,8 +68,8 @@
       value: fvt-hputilities
     - name: fvt_image_name
       value: fvt-hputilities-testng
-    - name: fvt_image_version
-      value: $(params.fvt_version_hputilities)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_hputilities)
     - name: fvt_test_suite
       value: testng-hputilities-minimal
     - name: product_channel
@@ -86,11 +86,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the HPUtilities FVT to run
+  # Only if we've set a digest of the HPUtilities FVT to run
   when:
-    - input: "$(params.fvt_version_hputilities)"
+    - input: "$(params.fvt_digest_hputilities)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_hputilities)"
       operator: notin
       values: [""]
@@ -119,8 +119,8 @@
       value: fvt-hputilities
     - name: fvt_image_name
       value: fvt-hputilities-python
-    - name: fvt_image_version
-      value: $(params.fvt_version_hputilities)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_hputilities)
     - name: product_channel
       value: $(params.mas_app_channel_hputilities)
     - name: product_id
@@ -133,11 +133,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the HPUtilities FVT to run
+  # Only if we've set a digest of the HPUtilities FVT to run
   when:
-    - input: "$(params.fvt_version_hputilities)"
+    - input: "$(params.fvt_digest_hputilities)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_hputilities)"
       operator: notin
       values: [""]

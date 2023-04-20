@@ -15,10 +15,9 @@ spec:
     - name: fvt_image_registry
       type: string
       description: FVT Container Image Registry (required)
-    - name: fvt_image_version
+    - name: fvt_image_digest
       type: string
-      description: FVT Container Image Version
-      default: latest
+      description: FVT Container Image Digest
 
     # Test Framework Information
     # -------------------------------------------------------------------------
@@ -124,7 +123,7 @@ spec:
       - name: DEVOPS_TEST_PHASE
         value: $(params.devops_test_phase)
   steps:
-    - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas:$(params.fvt_image_version)'
+    - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
