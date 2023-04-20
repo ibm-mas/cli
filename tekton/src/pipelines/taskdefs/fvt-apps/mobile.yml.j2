@@ -32,7 +32,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobilefoundation
+      value: ibm-mobile
     - name: artifactory_token
       value: $(params.fvt_artifactory_token)
 
@@ -83,7 +83,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobilefoundation
+      value: ibm-mobile
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
     
@@ -135,7 +135,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobilefoundation
+      value: ibm-mobile
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
     - name: foundation_device_type
@@ -189,7 +189,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobilefoundation
+      value: ibm-mobile
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
     - name: foundation_device_type
@@ -246,11 +246,11 @@
     - name: artifactory_token
       value: $(params.fvt_artifactory_token)
     - name: fvt_test_suite
-      value: setup4sr
+      value: SR-setup
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-service-requests
+      value: ibm-mobile
     
     - name: devops_test_type
       value: $(params.devops_test_type)
@@ -295,11 +295,11 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_servicerequests_testng)
     - name: fvt_test_suite
-      value: mas-android-MVT-SR
+      value: SR-mas-android-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-service-requests
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -350,11 +350,11 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_servicerequests_testng)
     - name: fvt_test_suite
-      value: mas-ios-MVT-SR
+      value: SR-mas-ios-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-service-requests
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -405,11 +405,11 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_technician_preparedata)
     - name: fvt_test_suite
-      value: prepare-test-data-testng-mas
+      value: Technician-prepare-data
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-technician
+      value: ibm-mobile
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -449,11 +449,11 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_technician_testng)
     - name: fvt_test_suite
-      value: mas-android-MVT-Technician
+      value: Technician-mas-android-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-technician
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -499,11 +499,11 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_technician_testng)
     - name: fvt_test_suite
-      value: mas-ios-MVT-Technician
+      value: Technician-mas-ios-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-technician
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -549,11 +549,11 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_inspection_preparedata)
     - name: fvt_test_suite
-      value: prepare-test-data-testng-mas
+      value: Inspections-prepare-data
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-inspections
+      value: ibm-mobile
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -593,11 +593,11 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_inspection_testng)
     - name: fvt_test_suite
-      value: mas-android-MVT-Inspections
+      value: Inspections-mas-android-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-inspections
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -643,11 +643,11 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_inspection_testng)
     - name: fvt_test_suite
-      value: mas-ios-MVT-Inspections
+      value: Inspections-mas-ios-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-inspections
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -693,11 +693,11 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_manage_defects_preparedata)
     - name: fvt_test_suite
-      value: prepare-test-data-testng-mas
+      value: Defects-prepare-data
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-defects
+      value: ibm-mobile
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -737,11 +737,11 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_manage_defects_testng)
     - name: fvt_test_suite
-      value: testng-mas-mobile-andorid
+      value: Defects-mas-android-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-defects
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -787,11 +787,11 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_manage_defects_testng)
     - name: fvt_test_suite
-      value: testng-mas-mobile-ios
+      value: Defects-mas-ios-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-defects
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -837,7 +837,7 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_asset_manager_preparedata)
     - name: fvt_test_suite
-      value: prepare-test-data-testng-mas
+      value: AssetManager-prepare-data
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -886,7 +886,7 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_asset_manager_testng)
     - name: fvt_test_suite
-      value: mas-android-MVT-AssetManager
+      value: AssetManager-mas-android-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -941,7 +941,7 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_asset_manager_testng)
     - name: fvt_test_suite
-      value: mas-ios-MVT-AssetManager
+      value: AssetManager-mas-ios-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -1008,7 +1008,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-inventorycounting
+      value: ibm-mobile
     - name: artifactory_token
       value: $(params.fvt_artifactory_token)
     
@@ -1067,7 +1067,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-inventorycounting
+      value: ibm-mobile
     - name: artifactory_token
       value: $(params.fvt_artifactory_token)
 
