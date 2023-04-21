@@ -232,6 +232,13 @@ spec:
     - name: cis_proxy
       value: '$CIS_PROXY'
 
+    # Data Dictionary
+    # -------------------------------------------------------------------------
+    - name: mas_add_catalog
+      value: '$MAS_ADD_CATALOG'
+    - name: mas_add_channel
+      value: '$MAS_ADD_CHANNEL'
+
     # MAS Core
     # -------------------------------------------------------------------------
     - name: mas_instance_id
