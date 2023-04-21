@@ -35,13 +35,12 @@ spec:
     # 5. Install & Configure IBM MAS
     # 6. Install & Configure IoT
     # 7. Install & Configure Monitor
-    # 8. Install & Configure Safety
-    # 9. Install & Configure Manage
-    # 10. Install & Configure Predict
-    # 11. Install & Configure Optimizer
-    # 12. Install & Configure Health & Predict Utilities
-    # 13. Install & Configure Assist
-    # 14. Install & Configure Visual Inspection
+    # 8. Install & Configure Manage
+    # 9. Install & Configure Predict
+    # 10. Install & Configure Optimizer
+    # 11. Install & Configure Health & Predict Utilities
+    # 12. Install & Configure Assist
+    # 13. Install & Configure Visual Inspection
 
 
     # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
@@ -141,7 +140,7 @@ spec:
       runAfter:
         - suite-verify
         - cos
-    
+
     # App Connect temporarily disabled due CVEID: CVE-2023-28521
     # 4.1 Install AppConnect
     # {{ lookup('template', 'taskdefs/dependencies/appconnect.yml.j2') | indent(4) }}
@@ -229,22 +228,9 @@ spec:
         - app-install-monitor
 
 
-    # 8. Install & Configure Safety
+    # 8. Install & Configure Manage
     # -------------------------------------------------------------------------
-    # 8.1 Install Safety
-    {{ lookup('template', 'taskdefs/apps/safety-app.yml.j2') | indent(4) }}
-      runAfter:
-        - app-cfg-iot
-
-    # 8.2 Configure Safety workspace
-    {{ lookup('template', 'taskdefs/apps/safety-workspace.yml.j2') | indent(4) }}
-      runAfter:
-        - app-install-safety
-
-
-    # 9. Install & Configure Manage
-    # -------------------------------------------------------------------------
-    # 9.1. Prepare database for Maxinst
+    # 8.1. Prepare database for Maxinst
     {{ lookup('template', 'taskdefs/apps/db2-setup-system.yml.j2') | indent(4) }}
       runAfter:
         - suite-config-db2
@@ -252,21 +238,21 @@ spec:
       runAfter:
         - suite-config-db2
 
-    # 9.2 Manage Install
+    # 8.2 Manage Install
     {{ lookup('template', 'taskdefs/apps/manage-app.yml.j2') | indent(4) }}
       runAfter:
         - suite-db2-setup-system
         - suite-db2-setup-manage
 
-    # 9.3 Configure Manage workspace
+    # 8.3 Configure Manage workspace
     {{ lookup('template', 'taskdefs/apps/manage-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-manage
 
 
-    # 10. Install & Configure Predict
+    # 9. Install & Configure Predict
     # -------------------------------------------------------------------------
-    # 10.1 Predict Install
+    # 9.1 Predict Install
     {{ lookup('template', 'taskdefs/apps/predict-app.yml.j2') | indent(4) }}
       runAfter:
         - app-cfg-manage
@@ -275,28 +261,28 @@ spec:
         - watson-machine-learning
         - analytics-service
 
-    # 10.2 Configure Predict workspace
+    # 9.2 Configure Predict workspace
     {{ lookup('template', 'taskdefs/apps/predict-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-predict
 
 
-    # 11. Install & Configure Optimizer
+    # 10. Install & Configure Optimizer
     # -------------------------------------------------------------------------
-    # 11.1 Optimizer Install
+    # 10.1 Optimizer Install
     {{ lookup('template', 'taskdefs/apps/optimizer-app.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
 
-    # 11.2 Configure Optimizer workspace
+    # 10.2 Configure Optimizer workspace
     {{ lookup('template', 'taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-optimizer
 
 
-    # 12. Install & Configure Health & Predict Utilities
+    # 11. Install & Configure Health & Predict Utilities
     # -------------------------------------------------------------------------
-    # 12.1 HPUtilities Install
+    # 11.1 HPUtilities Install
     {{ lookup('template', 'taskdefs/apps/hputilities-app.yml.j2') | indent(4) }}
       runAfter:
         - app-cfg-manage # Requires Health as an add-on
@@ -304,43 +290,44 @@ spec:
         # App Connect temporarily disabled due CVEID: CVE-2023-28521
         # - suite-config-appconnect
 
-    # 12.2 Configure HPUtilities workspace
+    # 11.2 Configure HPUtilities workspace
     {{ lookup('template', 'taskdefs/apps/hputilities-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-hputilities
 
 
-    # 13. Install & Configure Assist
+    # 12. Install & Configure Assist
     # -------------------------------------------------------------------------
-    # 13.1 Assist Install
+    # 12.1 Assist Install
     {{ lookup('template', 'taskdefs/apps/assist-app.yml.j2') | indent(4) }}
       runAfter:
         - suite-config-cos
 
-    # 13.2 Configure Watson Discovery in MAS
+    # 12.2 Configure Watson Discovery in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-discovery.yml.j2') | indent(4) }}
       runAfter:
         - app-install-assist
         - discovery
 
-    # 13.3 Configure Assist workspace
+    # 12.3 Configure Assist workspace
     {{ lookup('template', 'taskdefs/apps/assist-workspace.yml.j2') | indent(4) }}
       runAfter:
         - suite-config-discovery
 
 
-    # 14. Install & Configure Visual Inspection
+    # 13. Install & Configure Visual Inspection
     # -------------------------------------------------------------------------
-    # 14.1 MVI Install
+    # 13.1 MVI Install
     {{ lookup('template', 'taskdefs/apps/visualinspection-app.yml.j2') | indent(4) }}
       runAfter:
         - nvidia-gpu
         - suite-verify
 
-    # 14.2 Configure MVI workspace
+    # 13.2 Configure MVI workspace
     {{ lookup('template', 'taskdefs/apps/visualinspection-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-visualinspection
+
 
   # Mustgather executed in finally block. Use suite_mustgather_download
   # playbook to retrieve the output on your local machine

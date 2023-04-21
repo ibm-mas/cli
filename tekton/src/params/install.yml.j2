@@ -52,7 +52,7 @@
   type: string
   description: MongoDb action
   default: ""
-      
+
 # Dependencies - IBM Cloud MongoDb
 # -------------------------------------------------------------------------
 - name: ibm_mongo_name
@@ -360,12 +360,3 @@
   type: string
   description: controls the workload size of predict containers
   default: "small"
-
-# MAS Subscriptions - Application Channels
-# -----------------------------------------------------------------------------
-# Safety is deprecated, so it is only available in install pipeline
-# The other channels are in params/common
-- name: mas_app_channel_safety
-  type: string
-  description: Subscription channel for Safety application operator
-  default: ""
