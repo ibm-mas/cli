@@ -65,7 +65,7 @@ spec:
       type: string
       description: Partium password (required by fvt-coreapi-workspacemgmt)
       default: ""
-    
+
     # Optional parameters to categorize result to be persisted
     # -------------------------------------------------------------------------
     - name: devops_test_type
@@ -116,7 +116,7 @@ spec:
         value: $(params.partium_username)
       - name: PARTIUM_PASSWORD
         value: $(params.partium_password)
-      
+
       # Optional parameters to categorize result to be persisted
       - name: DEVOPS_TEST_TYPE
         value: $(params.devops_test_type)
@@ -125,7 +125,7 @@ spec:
   steps:
     - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 90m # Ensure bad FVTs don't run forever
+      timeout: 2h0m0s # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
