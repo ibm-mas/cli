@@ -15,14 +15,14 @@
     - name: fvt_image_name
       value: common-test-framework
     - name: fvt_image_digest
-      value: $(params.fvt_digest_predict)
+      value: $(params.fvt_digest_ctf)
     - name: fvt_test_suite
       value: predict_fvt # pytest_marker in Common Test Framework
     - name: product_channel
       value: $(params.mas_app_channel_predict)
     - name: product_id
       value: ibm-mas-predict
-    
+
     - name: devops_test_type
       value: $(params.devops_test_type)
     - name: devops_test_phase
@@ -32,7 +32,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Predict FVT to run
   when:
-    - input: "$(params.fvt_digest_predict)"
+    - input: "$(params.fvt_digest_ctf)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_predict)"
