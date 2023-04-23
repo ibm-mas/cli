@@ -82,7 +82,7 @@ function mustgather() {
         # Generic Kubernetes must-gather
         if [[ "$SUMMARY_ONLY" == false ]]
         then
-          $MG_DIR/mgcollect-pods $MAS_APP_NAMESPACE $POD_LOGS $OUTPUT_DIR/resources
+          $MG_DIR/mg-collect-pods $MAS_APP_NAMESPACE $POD_LOGS $OUTPUT_DIR/resources
           for RESOURCE in configmaps secrets services routes pvc deployments statefulsets
           do
             $MG_DIR/mg-collect-resources $MAS_APP_NAMESPACE $RESOURCE $OUTPUT_DIR/resources
