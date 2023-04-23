@@ -1,0 +1,54 @@
+#!/bin/bash
+set -e
+
+NAMESPACE=$1
+POD_LOGS=$2
+OUTPUT_DIR=$3
+
+NAMESPACE_DIR=${OUTPUT_DIR}/${NAMESPACE}
+POD_DIR=${NAMESPACE_DIR}/pods
+mkdir -p $POD_DIR
+rm -rf $POD_DIR/*
+
+if [[ "$POD_LOGS" == "true" ]]; then
+  echo "  - Collecting debug information: pods (with logs)"
+else
+  echo "  - Collecting debug information: pods (without logs)"
+fi
+
+# Generate Summary
+# -----------------------------------------------------------------------------
+oc -n ${NAMESPACE} get pods -o wide > ${NAMESPACE_DIR}/pods.txt
+
+
+# Generate Detailed Report
+# -----------------------------------------------------------------------------
+PODS=$(oc get pods -n ${NAMESPACE} -o name)
+for POD in ${PODS[@]}
+do
+  # echo "    - $POD"
+  POD_NAME=$(echo ${POD} | cut -d '/' -f 2)
+  APP="$(oc -n ${NAMESPACE} get $POD -o jsonpath='{.metadata.labels.app}')"
+  if [[ "$APP" == "" ]]; then
+    APP="_other"
+  fi
+  APP_DIR="${POD_DIR}/${APP}"
+  mkdir -p $APP_DIR
+
+  # Get summary information for pod
+  oc -n ${NAMESPACE} get ${POD} -o yaml > ${APP_DIR}/${POD_NAME}.yaml
+  oc -n ${NAMESPACE} describe ${POD} > ${APP_DIR}/${POD_NAME}.txt
+
+  # Get container logs
+  if [[ "$POD_LOGS" == "true" ]]
+  then
+    APP_LOG_DIR="${POD_DIR}/${APP}/logs"
+    mkdir -p $APP_LOG_DIR
+
+    CONTAINERS=$(oc -n ${NAMESPACE} get ${POD} -o json -o jsonpath='{range .status.containerStatuses[*]}[{.name}] {end}' | tr -d '[]')
+    for CONTAINER in ${CONTAINERS[@]}
+    do
+      oc -n ${NAMESPACE} logs ${POD} -c ${CONTAINER} > ${APP_LOG_DIR}/${POD_NAME}_${CONTAINER}.log;
+    done
+  fi
+done
