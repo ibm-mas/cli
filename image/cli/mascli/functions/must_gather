@@ -89,7 +89,7 @@ function mustgather() {
       then
         echo -e "- Performing must-gather in namespace ${MAS_APP_NAMESPACE}"
         # MAS-specific must-gather
-        $MG_SCRIPT_DIR/mg-summary-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE > ${OUTPUT_DIR}/mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}.txt
+        $MG_SCRIPT_DIR/mg-summary-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE 2&> ${OUTPUT_DIR}/mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}.txt
         $MG_SCRIPT_DIR/mg-collect-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE $OUTPUT_DIR
 
         # Generic Kubernetes must-gather
