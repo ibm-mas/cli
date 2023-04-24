@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/commands/must-gather/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Must gather - MAS CLI</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Must gather";
+        var mkdocs_page_input_path = "commands/must-gather.md";
+        var mkdocs_page_url = "/cli/commands/must-gather/";
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/yaml.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> MAS CLI
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../changes/">Changes</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/choosing-the-right-catalog/">Choosing the Right Catalog</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/install/">Install</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/update/">Update</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/upgrade/">Upgrade</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/architecture/core/">MAS Core Explained</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/mas-pods-explained/">MAS Pods Explained</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Commands</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../provision-fyre/">provision-fyre</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../provision-roks/">provision-roks</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../provision-rosa/">provision-rosa</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../setup-registry/">setup-registry</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../mirror-images/">mirror-images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../configure-airgap/">configure-airgap</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../install/">install</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../configtool-oidc/">configtool-oidc</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Catalogs</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-230414-amd64/">Apr 14 2023</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-230314-amd64/">Mar 14 2023</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-230217-amd64/">Feb 17 2023</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-230111-amd64/">Jan 11 2023</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">MAS CLI</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+      <li>Must gather</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/must-gather.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="must-gather">Must gather<a class="headerlink" href="#must-gather" title="Permanent link"></a></h1>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
+<p><code>mas must-gather [options]</code></p>
+<h3 id="options">Options<a class="headerlink" href="#options" title="Permanent link"></a></h3>
+<ul>
+<li><code>-d|--directory MG_DIR</code> Directory where the must-gather will be saved, defaults to <code>/tmp/must-gather</code></li>
+<li><code>--summary-only</code> Perform a much faster must-gather that only gathers high level summary of resources in the cluster</li>
+<li><code>--no-pod-logs</code> Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required</li>
+<li><code>--artifactory-token ARTIFACTORY_TOKEN</code> Provide a token for Artifactory to automatically upload the file to <code>ARTIFACTORY_UPLOAD_DIRECTORY</code></li>
+<li><code>--artifactory-upload-directory ARTIFACTORY_UPLOAD_DIRECTORY</code> Working URL to the root directory in Artifactory where the must-gather file should be uploaded</li>
+</ul>
+<h2 id="content">Content<a class="headerlink" href="#content" title="Permanent link"></a></h2>
+<pre><code>tmp/must-gather/
+├── 20230423-204411
+│   ├── reconcile-logs
+│   │   └── mas-inst1-core
+│   │   |   ├── Suite
+│   │   |   │   └── 20230423-172432.log
+│   │   |   │   └── 20230423-204010.log
+│   │   |   ├── Workspace
+│   │   |   │   └── 20230423-113224.log
+│   │   |   └── MongoCfg
+│   │   |       └── 20230423-130043.log
+│   ├── resources
+│   │   └── mas-inst1-core
+│   │   |   ├── configmaps
+│   │   |   │   ├── ibm-cpp-config.yaml
+│   │   |   │   └── ibm-licensing-upload-config.yaml
+│   │   |   ├── deployments
+│   │   |   │   ├── inst1-coreapi.yaml
+│   │   |   │   └── isnt2-internalapi.yaml
+│   │   |   ├── pods
+│   │   |   │   ├── app1
+│   │   |   │   |   ├── logs
+│   │   |   │   |   |   └── inst1-coreapi-28037940-njx4_coreapi.log
+│   │   |   │   |   ├── inst1-coreapi-28037940-njx4.txt
+│   │   |   │   |   └── inst1-coreapi-28037940-njx4.yaml
+│   │   |   │   ├── app2
+│   │   |   │   └── app3
+│   │   |   ├── pvc
+│   │   |   │   └── &lt;contain definition of every PVC in the namespace&gt;
+│   │   |   ├── routes
+│   │   |   │   └── &lt;contain definition of every Route in the namespace&gt;
+│   │   |   ├── secrets
+│   │   |   │   └── &lt;contain definition of every Secret in the namespace&gt;
+│   │   |   ├── services
+│   │   |   │   └── &lt;contain definition of every Service in the namespace&gt;
+│   │   |   ├── statefulsets
+│   │   |   │   └── &lt;contain definition of every StatefulSet in the namespace&gt;
+│   │   |   ├── configmaps.txt
+│   │   |   ├── deployments.txt
+│   |   │   ├── pods.txt
+│   |   │   ├── pvc.txt
+│   |   │   ├── routes.txt
+│   |   │   ├── secrets.txt
+│   |   │   ├── services.txt
+│   |   │   └── statefulsets.txt
+│   │   └── mas-inst1-appId
+│   │       ├── configmaps
+│   │       │   └── &lt;contain definition of every ConfigMap in the namespace&gt;
+│   │       ├── deployments
+│   │       │   └── &lt;contain definition of every Deployment in the namespace&gt;
+│   │       ├── pods
+│   │       │   └── &lt;contain definition of every Pod in the namespace&gt;
+│   │       ├── pvc
+│   │       │   └── &lt;contain definition of every PVC in the namespace&gt;
+│   │       ├── routes
+│   │       │   └── &lt;contain definition of every Route in the namespace&gt;
+│   │       ├── secrets
+│   │       │   └── &lt;contain definition of every Secret in the namespace&gt;
+│   │       ├── services
+│   │       │   └── &lt;contain definition of every Service in the namespace&gt;
+│   │       ├── statefulsets
+│   │       │   └── &lt;contain definition of every StatefulSet in the namespace&gt;
+│   │       ├── configmaps.txt
+│   │       ├── deployments.txt
+│   |       ├── pods.txt
+│   |       ├── pvc.txt
+│   |       ├── routes.txt
+│   |       ├── secrets.txt
+│   |       ├── services.txt
+│   |       └── statefulsets.txt
+│   ├── cp4d.txt
+│   ├── db2u.txt
+│   ├── ibm-common-services.txt
+│   ├── mas-inst1-core.txt
+│   ├── mas-inst1-appId.txt
+│   ├── mas-inst2-core.txt
+│   ├── mas-inst2-appId.txt
+│   └── namespaces.txt
+└── must-gather-20230423-204411.tgz
+</code></pre>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
+<h3 id="complete-must-gather">Complete Must-Gather<a class="headerlink" href="#complete-must-gather" title="Permanent link"></a></h3>
+<p>Running this command will save the must-gather file to a must-gather directory in your home directory.</p>
+<pre><code class="language-bash">docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather
+</code></pre>
+<h3 id="quick-must-gather">Quick Must-Gather<a class="headerlink" href="#quick-must-gather" title="Permanent link"></a></h3>
+<p>Running this command will save the must-gather file to a must-gather directory in your home directory.</p>
+<pre><code class="language-bash">docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --summary-only
+</code></pre>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/ibm-mas/cli" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
