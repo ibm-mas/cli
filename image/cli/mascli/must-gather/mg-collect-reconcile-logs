@@ -1,0 +1,52 @@
+#!/bin/bash
+set -e
+
+NAMESPACE=$1
+CONTROL_PLANE=$2
+OUTPUT_DIR=$3
+POD=$(oc -n $NAMESPACE get pods -l "control-plane=$CONTROL_PLANE" -o jsonpath="{.items[0].metadata.name}")
+
+set +e
+LOGFILES=$(oc -n $NAMESPACE exec $POD -- find /tmp/ansible-operator/runner/ -name stdout 2>/dev/null)
+if [[ "$?" == "1" ]]; then
+  exit 0
+fi
+set -e
+
+TMP_DIR=${OUTPUT_DIR}/tmp-$CONTROL_PLANE
+mkdir -p $TMP_DIR
+
+oc -n $NAMESPACE exec $POD -- tar -czf - $LOGFILES > $TMP_DIR/ansible-logs-$KIND.tgz 2> /dev/null
+tar -xf $TMP_DIR/ansible-logs-$KIND.tgz -C $TMP_DIR
+rm $TMP_DIR/ansible-logs-$KIND.tgz
+
+for API_DIR in $TMP_DIR/tmp/ansible-operator/runner/*
+do
+  API=$(basename $API_DIR)
+  for VERSION_DIR in $API_DIR/*/
+  do
+    VERSION=$(basename $VERSION_DIR)
+    for KIND_DIR in $VERSION_DIR/*/
+    do
+      KIND=$(basename $KIND_DIR)
+      RLOG_DIR=${OUTPUT_DIR}/reconcile-logs/$NAMESPACE/$KIND
+      mkdir -p $RLOG_DIR
+
+      echo "  - Collecting reconcile logs for $KIND.$API/$VERSION"
+      for INSTANCE_DIR in $KIND_DIR/$NAMESPACE/*/
+      do
+        INSTANCE_NAME=$(basename $INSTANCE_DIR)
+        mkdir -p $RLOG_DIR/$INSTANCE_NAME
+
+        for RECONCILE_LOG in $INSTANCE_DIR/artifacts/*/stdout
+        do
+          EPOC=$(stat -c '%Y' $RECONCILE_LOG)
+          TIMESTAMP=$(date --date=@$EPOC +"%Y%m%d-%H%M%S")
+          cat $RECONCILE_LOG | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g" > ${RLOG_DIR}/$INSTANCE_NAME/$TIMESTAMP.log
+        done
+      done # INSTANCE_DIR
+    done  # KIND_DIR
+  done  # VERSION_DIR
+done  # API_DIR
+
+rm -rf $TMP_DIR

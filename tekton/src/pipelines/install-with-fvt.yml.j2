@@ -409,15 +409,13 @@ spec:
   # playbook to retrieve the output on your local machine
   # -------------------------------------------------------------------------
   finally:
-    - name: suite-mustgather
+    - name: must-gather
       params:
         - name: base_output_dir
           value: "/workspace/mustgather/$(context.pipelineRun.name)"
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
       taskRef:
         kind: Task
-        name: mas-devops-suite-mustgather
+        name: mas-devops-must-gather
       workspaces:
         - name: mustgather
           workspace: shared-mustgather

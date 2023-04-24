@@ -1,0 +1,32 @@
+#!/bin/bash
+
+echo "IBM Maximo Application Suite - Manage Application"
+echo "--------------------------------------------------------------------------------"
+oc get manageapp -n $1
+echo ""
+
+echo ""
+echo "IBM Maximo Application Suite - Manage Workspace Configuration"
+echo "--------------------------------------------------------------------------------"
+oc get manageworkspace -n $1
+echo ""
+
+echo ""
+echo "IBM Maximo Application Suite - Manage Build"
+echo "--------------------------------------------------------------------------------"
+oc get managebuild -n $1
+echo ""
+
+echo ""
+echo "IBM Maximo Application Suite - Manage Deployment"
+echo "--------------------------------------------------------------------------------"
+oc get managedeployment -n $1
+echo ""
+
+echo ""
+echo "IBM Maximo Application Suite - Server Bundle"
+echo "--------------------------------------------------------------------------------"
+oc get manageserverbundle -n $1
+echo ""
+
+exit 0

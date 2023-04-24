@@ -6,10 +6,6 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
     - name: devops_cos_crn
       value: $(params.devops_cos_crn)
     - name: devops_ibmcloud_apikey
@@ -65,11 +61,6 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -86,7 +77,7 @@
       value: ibm-mobile
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
-    
+
     - name: devops_test_type
       value: $(params.devops_test_type)
     - name: devops_test_phase
@@ -117,11 +108,6 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -142,7 +128,7 @@
       value: android
     - name: foundation_server_type
       value: mas
-    
+
     - name: devops_test_type
       value: $(params.devops_test_type)
     - name: devops_test_phase
@@ -171,11 +157,6 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -196,7 +177,7 @@
       value: ios
     - name: foundation_server_type
       value: mas
-    
+
     - name: devops_test_type
       value: $(params.devops_test_type)
     - name: devops_test_phase
@@ -226,12 +207,8 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
     - name: devops_cos_crn
       value: $(params.devops_cos_crn)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
     - name: ibmcloud_apikey
       value: $(params.ibmcloud_apikey)
 
@@ -251,7 +228,7 @@
       value: $(params.mas_app_channel_manage)
     - name: product_id
       value: ibm-mobile
-    
+
     - name: devops_test_type
       value: $(params.devops_test_type)
     - name: devops_test_phase
@@ -281,11 +258,6 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -306,7 +278,7 @@
       value: android
     - name: assist_server_type
       value: mas
-    
+
     - name: devops_test_type
       value: $(params.devops_test_type)
     - name: devops_test_phase
@@ -336,11 +308,6 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -361,7 +328,7 @@
       value: ios
     - name: assist_server_type
       value: mas
-    
+
     - name: devops_test_type
       value: $(params.devops_test_type)
     - name: devops_test_phase
@@ -390,11 +357,6 @@
       value: $(params.mas_instance_id)
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
-
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
 
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
@@ -434,11 +396,6 @@
       value: $(params.mas_instance_id)
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
-
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
 
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
@@ -485,11 +442,6 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -535,11 +487,6 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -578,11 +525,6 @@
       value: $(params.mas_instance_id)
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
-
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
 
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
@@ -629,11 +571,6 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -679,11 +616,6 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -722,11 +654,6 @@
       value: $(params.mas_instance_id)
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
-
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
 
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
@@ -773,11 +700,6 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -823,11 +745,6 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -871,11 +788,6 @@
       value: $(params.mas_instance_id)
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
-
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
 
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
@@ -927,11 +839,6 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
@@ -982,10 +889,6 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
     - name: devops_cos_crn
       value: $(params.devops_cos_crn)
     - name: devops_ibmcloud_apikey
@@ -1011,7 +914,7 @@
       value: ibm-mobile
     - name: artifactory_token
       value: $(params.fvt_artifactory_token)
-    
+
     - name: devops_test_type
       value: $(params.devops_test_type)
     - name: devops_test_phase
@@ -1041,10 +944,6 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
     - name: devops_cos_crn
       value: $(params.devops_cos_crn)
     - name: devops_ibmcloud_apikey
