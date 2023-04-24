@@ -58,6 +58,7 @@ RUN chmod -R ug+rwx ${HOME}/env.sh && \
     chmod +x ${HOME}/run-playbook.sh && \
     chmod +x ${HOME}/run-role.sh && \
     chmod -R ug+w /mascli && \
+    chmod +x /mascli/must-gather/* && \
     chmod +x /mascli/mas && \
     chmod +x /opt/app-root/src/.bashrc && \
     chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops && \
