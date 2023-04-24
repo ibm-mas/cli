@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+NAMESPACE=$1
+RESOURCE_TYPE=$2
+OUTPUT_DIR=$3
+
+NAMESPACE_DIR=${OUTPUT_DIR}/${NAMESPACE}
+RESOURCE_DIR=${NAMESPACE_DIR}/${RESOURCE_TYPE}
+mkdir -p $RESOURCE_DIR
+rm -rf $RESOURCE_DIR/*
+
+echo "  - Collecting debug information: ${RESOURCE_TYPE}"
+
+# Generate Summary
+# -----------------------------------------------------------------------------
+oc -n ${NAMESPACE} get secrets -o wide > ${NAMESPACE_DIR}/${RESOURCE_TYPE}.txt
+
+
+# Generate Detailed Report
+# -----------------------------------------------------------------------------
+RESOURCES=$(oc -n ${NAMESPACE} get ${RESOURCE_TYPE} -o name)
+for RESOURCE in ${RESOURCES[@]}
+do
+    # echo "    - Collecting $RESOURCE"
+    RESOURCE_NAME=$(echo ${RESOURCE} | cut -d '/' -f 2)
+
+    oc -n ${NAMESPACE} get ${RESOURCE} -o yaml > ${RESOURCE_DIR}/${RESOURCE_NAME}.yaml
+done

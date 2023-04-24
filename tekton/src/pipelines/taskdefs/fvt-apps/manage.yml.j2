@@ -10,13 +10,15 @@
 
 # Manage FVT - ACM Setup
 - name: fvt-manage-acm-setup
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-acm.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-acm
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_acm)
     - name: fvt_test_suite
       value: fvt-acm-setup
     - name: fvt_mas_appws_component
@@ -28,13 +30,15 @@
 
 # Manage FVT - ACM - New User
 - name: fvt-manage-acm-user
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-acm.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-acm
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_acm)
     - name: fvt_test_suite
       value: fvt-acm-user
     - name: fvt_mas_appws_component
@@ -46,13 +50,15 @@
 
 # Manage FVT - ACM
 - name: fvt-manage-acm
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-acm.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-acm
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_acm)
     - name: fvt_test_suite
       value: fvt-acm
     - name: fvt_mas_appws_component
@@ -64,13 +70,15 @@
 
 # Manage FVT - Aviation Setup
 - name: fvt-manage-aviation-setup
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-aviation.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-aviation
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_aviation)
     - name: fvt_test_suite
       value: fvt-mfa-setup
     - name: fvt_mas_appws_component
@@ -82,13 +90,15 @@
 
 # Manage FVT - Aviation
 - name: fvt-manage-aviation
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-aviation.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-aviation
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_aviation)
     - name: fvt_test_suite
       value: fvt-mfa
     - name: fvt_mas_appws_component
@@ -100,13 +110,15 @@
 
 # Manage FVT - HSE Setup
 - name: fvt-manage-hse-setup
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-hse.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-hse
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_hse)
     - name: fvt_test_suite
       value: hse-setup
     - name: fvt_mas_appws_component
@@ -118,13 +130,15 @@
 
 # Manage FVT - HSE - New User
 - name: fvt-manage-hse-user
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-hse.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-hse
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_hse)
     - name: fvt_test_suite
       value: fvt-hse-user
     - name: fvt_mas_appws_component
@@ -136,13 +150,15 @@
 
 # Manage FVT - HSE
 - name: fvt-manage-hse
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-hse.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-hse
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_hse)
     - name: fvt_test_suite
       value: fvt-hse
     - name: fvt_mas_appws_component
@@ -154,13 +170,15 @@
 
 # Manage FVT - Nuclear Setup
 - name: fvt-manage-nuclear-setup
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-nuclear.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-nuclear
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_nuclear)
     - name: fvt_test_suite
       value: nuc-setup
     - name: fvt_mas_appws_component
@@ -172,13 +190,15 @@
 
 # Manage FVT - Nuclear - New User
 - name: fvt-manage-nuclear-user
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-nuclear.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-nuclear
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_nuclear)
     - name: fvt_test_suite
       value: fvt-nuc-user
     - name: fvt_mas_appws_component
@@ -190,13 +210,15 @@
 
 # Manage FVT - Nuclear
 - name: fvt-manage-nuclear
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-nuclear.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-nuclear
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_nuclear)
     - name: fvt_test_suite
       value: fvt-nuc
     - name: fvt_mas_appws_component
@@ -208,13 +230,15 @@
 
 # Manage FVT - Service Provider Setup
 - name: fvt-manage-serviceprovider-setup
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-serviceprovider.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-service-provider
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_serviceprovider)
     - name: fvt_test_suite
       value: fvt-sp-setup
     - name: fvt_mas_appws_component
@@ -226,13 +250,15 @@
 
 # Manage FVT - Service Provider - New User
 - name: fvt-manage-serviceprovider-user
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-serviceprovider.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-service-provider
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_serviceprovider)
     - name: fvt_test_suite
       value: fvt-sp-user
     - name: fvt_mas_appws_component
@@ -244,13 +270,15 @@
 
 # Manage FVT - Service Provider
 - name: fvt-manage-serviceprovider
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-serviceprovider.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-service-provider
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_serviceprovider)
     - name: fvt_test_suite
       value: fvt-sp
     - name: fvt_mas_appws_component
@@ -262,13 +290,15 @@
 
 # Manage FVT - Location Base Services - Setup
 - name: fvt-manage-lbs-setup
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-spatial.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-spatial
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_spatial)
     - name: fvt_test_suite
       value: lbs-setup
     - name: fvt_mas_appws_component
@@ -280,13 +310,15 @@
 
 # Manage FVT - Location Base Services - New User
 - name: fvt-manage-lbs-user
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-spatial.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-spatial
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_spatial)
     - name: fvt_test_suite
       value: lbs-user
     - name: fvt_mas_appws_component
@@ -298,13 +330,15 @@
 
 # Manage FVT - Spatial
 - name: fvt-manage-spatial
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-spatial.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-spatial
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_spatial)
     - name: fvt_test_suite
       value: fvt-manage-spatial
     - name: fvt_mas_appws_component
@@ -316,13 +350,15 @@
 
 # Manage FVT - Utilities
 - name: fvt-manage-utilities
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-spatial.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-spatial
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_spatial)
     - name: fvt_test_suite
       value: fvt-manage-utilities
     - name: fvt_mas_appws_component
@@ -334,13 +370,15 @@
 
 # Manage FVT - Linear
 - name: fvt-manage-linear
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-spatial.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-spatial
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_spatial)
     - name: fvt_test_suite
       value: fvt-manage-linear
     - name: fvt_mas_appws_component
@@ -352,13 +390,15 @@
 
 # Manage FVT - Transportation Setup
 - name: fvt-manage-transportation-setup
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-transportation.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-transportation
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_transportation)
     - name: fvt_test_suite
       value: fvt-tr-setup
     - name: fvt_mas_appws_component
@@ -370,13 +410,15 @@
 
 # Manage FVT - Transportation - New User
 - name: fvt-manage-transportation-user
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-transportation.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-transportation
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_transportation)
     - name: fvt_test_suite
       value: fvt-tr-user
     - name: fvt_mas_appws_component
@@ -388,13 +430,15 @@
 
 # Manage FVT - Transportation
 - name: fvt-manage-transportation
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-transportation.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-transportation
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_transportation)
     - name: fvt_test_suite
       value: fvt-tr
     - name: fvt_mas_appws_component
@@ -406,13 +450,15 @@
 
 # Manage FVT - Scheduler Setup
 - name: fvt-manage-scheduler-setup
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-scheduler.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-scheduler
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_scheduler)
     - name: fvt_test_suite
       value: sched_fvt_setup
     - name: fvt_mas_appws_component
@@ -424,13 +470,15 @@
 
 # Manage FVT - Scheduler - New User
 - name: fvt-manage-scheduler-user
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-scheduler.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-scheduler
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_scheduler)
     - name: fvt_test_suite
       value: sched_fvt_user
     - name: fvt_mas_appws_component
@@ -442,13 +490,15 @@
 
 # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-1
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-scheduler.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
-      value: fvt-ibm-mas-manage-scheduler    
+      value: fvt-ibm-mas-manage-scheduler 
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_scheduler)   
     - name: fvt_test_suite
       value: sched_fvt_1
     - name: fvt_mas_appws_component
@@ -460,13 +510,15 @@
 
 # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-2
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-scheduler.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-scheduler    
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_scheduler)
     - name: fvt_test_suite
       value: sched_fvt_2
     - name: fvt_mas_appws_component
@@ -478,13 +530,15 @@
 
 # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-3
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-scheduler.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-scheduler    
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_scheduler)
     - name: fvt_test_suite
       value: sched_fvt_3
     - name: fvt_mas_appws_component
@@ -496,13 +550,15 @@
 
 # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-4
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-scheduler.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
-      value: fvt-ibm-mas-manage-scheduler    
+      value: fvt-ibm-mas-manage-scheduler   
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_scheduler) 
     - name: fvt_test_suite
       value: sched_fvt_4
     - name: fvt_mas_appws_component
@@ -514,13 +570,15 @@
 
 # Manage FVT - Scheduler Dashboard
 - name: fvt-manage-scheduling-dashboard
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-scheduler.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
-      value: fvt-ibm-mas-manage-scheduler    
+      value: fvt-ibm-mas-manage-scheduler   
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_scheduler) 
     - name: fvt_test_suite
       value: schedulingDashboard
     - name: fvt_mas_appws_component
@@ -532,13 +590,15 @@
 
 # Manage FVT - Maintenance Manager
 - name: fvt-manage-maintmanager
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-maintmanager.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-maintmanager
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_maintmanager)
     - name: fvt_test_suite
       value: mm_bvt
     - name: fvt_mas_appws_component
@@ -550,13 +610,15 @@
 
 # Manage FVT - Health
 - name: fvt-manage-health
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-multi-is.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-health.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-multi-is.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-health
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_health)
     - name: fvt_test_suite
       value: assetviewtable
     - name: fvt_mas_appws_component
@@ -568,11 +630,13 @@
 
 # Manage FVT - Civil Infrastructure Selenium - Setup
 - name: fvt-manage-civil-selenium-setup
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-civil.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-civil-selenium.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-civil.yml.j2') | indent(4) }}
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-civil-selenium
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_civil_selenium)
     - name: fvt_test_suite
       value: fvt-ci-setup
   runAfter:
@@ -580,11 +644,13 @@
 
 # Manage FVT - Civil Infrastructure Selenium - New User
 - name: fvt-manage-civil-selenium-user
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-civil.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-civil-selenium.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-civil.yml.j2') | indent(4) }}
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-civil-selenium
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_civil_selenium)
     - name: fvt_test_suite
       value: cibvt-user
   runAfter:
@@ -593,11 +659,13 @@
 
 # Manage FVT - Civil Infrastructure Selenium
 - name: fvt-manage-civil-selenium
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-civil.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-civil-selenium.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-civil.yml.j2') | indent(4) }}
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-civil-selenium
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_civil_selenium)
     - name: fvt_test_suite
       value: cibvt
   runAfter:
@@ -605,11 +673,13 @@
 
 # Manage FVT - Civil Infrastructure Cypress
 - name: fvt-manage-civil-cypress
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-civil.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-civil-cypress.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-civil.yml.j2') | indent(4) }}
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-civil-cypress
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_civil_cypress)
     - name: fvt_test_suite
       value: web-mas-civil # display purposes only, not a keyword
   runAfter:

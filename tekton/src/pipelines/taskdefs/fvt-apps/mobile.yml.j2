@@ -6,10 +6,6 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
     - name: devops_cos_crn
       value: $(params.devops_cos_crn)
     - name: devops_ibmcloud_apikey
@@ -21,8 +17,8 @@
       value: fvt-mobilefoundation
     - name: fvt_image_name
       value: fvt-mobilefoundation-manage-setup
-    - name: fvt_image_version
-      value: $(params.fvt_version_mobilefoundation)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_mobilefoundation_manage_setup)
     - name: fvt_mas_appws_component
       value: base
     - name: mas_appws_components
@@ -32,7 +28,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobilefoundation
+      value: ibm-mobile
     - name: artifactory_token
       value: $(params.fvt_artifactory_token)
 
@@ -43,11 +39,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-manage
-  # Only if we've set a version of the Manage Transportation FVT to run
+  # Only if we've set a digest of the Manage Transportation FVT to run
   when:
-    - input: "$(params.fvt_version_mobilefoundation)"
+    - input: "$(params.fvt_digest_mobilefoundation_manage_setup)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -65,28 +61,23 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
       value: fvt-mobilefoundation
     - name: fvt_image_name
       value: fvt-mobilefoundation-preparedata
-    - name: fvt_image_version
-      value: $(params.fvt_version_mobilefoundation)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_mobilefoundation_preparedata)
     - name: fvt_test_suite
       value: prepare
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobilefoundation
+      value: ibm-mobile
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
-    
+
     - name: devops_test_type
       value: $(params.devops_test_type)
     - name: devops_test_phase
@@ -94,11 +85,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the Mobile Foundation FVT to run
+  # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    - input: "$(params.fvt_version_mobilefoundation)"
+    - input: "$(params.fvt_digest_mobilefoundation_preparedata)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -117,32 +108,27 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
       value: fvt-mobilefoundation
     - name: fvt_image_name
       value: fvt-mobilefoundation-testng
-    - name: fvt_image_version
-      value: $(params.fvt_version_mobilefoundation)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_mobilefoundation_testng)
     - name: fvt_test_suite
       value: testng-all
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobilefoundation
+      value: ibm-mobile
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
     - name: foundation_device_type
       value: android
     - name: foundation_server_type
       value: mas
-    
+
     - name: devops_test_type
       value: $(params.devops_test_type)
     - name: devops_test_phase
@@ -150,11 +136,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the Mobile Foundation FVT to run
+  # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    - input: "$(params.fvt_version_mobilefoundation)"
+    - input: "$(params.fvt_digest_mobilefoundation_testng)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -171,32 +157,27 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
       value: fvt-mobilefoundation
     - name: fvt_image_name
       value: fvt-mobilefoundation-testng
-    - name: fvt_image_version
-      value: $(params.fvt_version_mobilefoundation)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_mobilefoundation_testng)
     - name: fvt_test_suite
       value: testng-all
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobilefoundation
+      value: ibm-mobile
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
     - name: foundation_device_type
       value: ios
     - name: foundation_server_type
       value: mas
-    
+
     - name: devops_test_type
       value: $(params.devops_test_type)
     - name: devops_test_phase
@@ -204,11 +185,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the Mobile Foundation FVT to run
+  # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    - input: "$(params.fvt_version_mobilefoundation)"
+    - input: "$(params.fvt_digest_mobilefoundation_testng)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -226,12 +207,8 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
     - name: devops_cos_crn
       value: $(params.devops_cos_crn)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
     - name: ibmcloud_apikey
       value: $(params.ibmcloud_apikey)
 
@@ -241,17 +218,17 @@
       value: fvt-servicerequests
     - name: fvt_image_name
       value: fvt-servicerequests-manage-setup
-    - name: fvt_image_version
-      value: $(params.fvt_version_servicerequests)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_servicerequests_manage_setup)
     - name: artifactory_token
       value: $(params.fvt_artifactory_token)
     - name: fvt_test_suite
-      value: setup4sr
+      value: SR-setup
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-service-requests
-    
+      value: ibm-mobile
+
     - name: devops_test_type
       value: $(params.devops_test_type)
     - name: devops_test_phase
@@ -259,11 +236,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-manage
-  # Only if we've set a version of the Mobile Foundation FVT to run
+  # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    - input: "$(params.fvt_version_servicerequests)"
+    - input: "$(params.fvt_digest_servicerequests_manage_setup)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -281,32 +258,27 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
       value: fvt-servicerequests
     - name: fvt_image_name
       value: fvt-servicerequests-testng
-    - name: fvt_image_version
-      value: $(params.fvt_version_servicerequests)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_servicerequests_testng)
     - name: fvt_test_suite
-      value: mas-android-MVT-SR
+      value: SR-mas-android-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-service-requests
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
       value: android
     - name: assist_server_type
       value: mas
-    
+
     - name: devops_test_type
       value: $(params.devops_test_type)
     - name: devops_test_phase
@@ -314,11 +286,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the Mobile Service Request FVT to run
+  # Only if we've set a digest of the Mobile Service Request FVT to run
   when:
-    - input: "$(params.fvt_version_servicerequests)"
+    - input: "$(params.fvt_digest_servicerequests_testng)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -336,32 +308,27 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
       value: fvt-servicerequests
     - name: fvt_image_name
       value: fvt-servicerequests-testng
-    - name: fvt_image_version
-      value: $(params.fvt_version_servicerequests)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_servicerequests_testng)
     - name: fvt_test_suite
-      value: mas-ios-MVT-SR
+      value: SR-mas-ios-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-service-requests
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
       value: ios
     - name: assist_server_type
       value: mas
-    
+
     - name: devops_test_type
       value: $(params.devops_test_type)
     - name: devops_test_phase
@@ -369,11 +336,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the Mobile Service Request FVT to run
+  # Only if we've set a digest of the Mobile Service Request FVT to run
   when:
-    - input: "$(params.fvt_version_servicerequests)"
+    - input: "$(params.fvt_digest_servicerequests_testng)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -391,33 +358,28 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
       value: fvt-technician
     - name: fvt_image_name
       value: fvt-technician-preparedata
-    - name: fvt_image_version
-      value: $(params.fvt_version_technician)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_technician_preparedata)
     - name: fvt_test_suite
-      value: prepare-test-data-testng-mas
+      value: Technician-prepare-data
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-technician
+      value: ibm-mobile
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the Mobile Foundation FVT to run
+  # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    - input: "$(params.fvt_version_technician)"
+    - input: "$(params.fvt_digest_technician_preparedata)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -435,25 +397,20 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
       value: fvt-technician
     - name: fvt_image_name
       value: fvt-technician-testng
-    - name: fvt_image_version
-      value: $(params.fvt_version_technician)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_technician_testng)
     - name: fvt_test_suite
-      value: mas-android-MVT-Technician
+      value: Technician-mas-android-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-technician
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -463,11 +420,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the Mobile Technician FVT to run
+  # Only if we've set a digest of the Mobile Technician FVT to run
   when:
-    - input: "$(params.fvt_version_technician)"
+    - input: "$(params.fvt_digest_technician_testng)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -485,25 +442,20 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
       value: fvt-technician
     - name: fvt_image_name
       value: fvt-technician-testng
-    - name: fvt_image_version
-      value: $(params.fvt_version_technician)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_technician_testng)
     - name: fvt_test_suite
-      value: mas-ios-MVT-Technician
+      value: Technician-mas-ios-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-technician
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -513,11 +465,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the Mobile Technician FVT to run
+  # Only if we've set a digest of the Mobile Technician FVT to run
   when:
-    - input: "$(params.fvt_version_technician)"
+    - input: "$(params.fvt_digest_technician_testng)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -535,33 +487,28 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
       value: fvt-inspections
     - name: fvt_image_name
       value: fvt-inspections-preparedata
-    - name: fvt_image_version
-      value: $(params.fvt_version_inspection)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_inspection_preparedata)
     - name: fvt_test_suite
-      value: prepare-test-data-testng-mas
+      value: Inspections-prepare-data
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-inspections
+      value: ibm-mobile
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the Mobile Foundation FVT to run
+  # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    - input: "$(params.fvt_version_inspection)"
+    - input: "$(params.fvt_digest_inspection_preparedata)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -579,25 +526,20 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
       value: fvt-inspections
     - name: fvt_image_name
       value: fvt-inspections-testng
-    - name: fvt_image_version
-      value: $(params.fvt_version_inspection)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_inspection_testng)
     - name: fvt_test_suite
-      value: mas-android-MVT-Inspections
+      value: Inspections-mas-android-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-inspections
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -607,11 +549,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the Mobile Inspection FVT to run
+  # Only if we've set a digest of the Mobile Inspection FVT to run
   when:
-    - input: "$(params.fvt_version_inspection)"
+    - input: "$(params.fvt_digest_inspection_testng)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -629,25 +571,20 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
       value: fvt-inspections
     - name: fvt_image_name
       value: fvt-inspections-testng
-    - name: fvt_image_version
-      value: $(params.fvt_version_inspection)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_inspection_testng)
     - name: fvt_test_suite
-      value: mas-ios-MVT-Inspections
+      value: Inspections-mas-ios-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-inspections
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -657,11 +594,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the Mobile Inspection FVT to run
+  # Only if we've set a digest of the Mobile Inspection FVT to run
   when:
-    - input: "$(params.fvt_version_inspection)"
+    - input: "$(params.fvt_digest_inspection_testng)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -679,33 +616,28 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
       value: fvt-manage-civil
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-civil-defects-preparedata
-    - name: fvt_image_version
-      value: $(params.fvt_version_manage_civil)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_defects_preparedata)
     - name: fvt_test_suite
-      value: prepare-test-data-testng-mas
+      value: Defects-prepare-data
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-defects
+      value: ibm-mobile
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the Mobile Foundation FVT to run
+  # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    - input: "$(params.fvt_version_manage_civil)"
+    - input: "$(params.fvt_digest_manage_defects_preparedata)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -723,25 +655,20 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
       value: fvt-manage-civil
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-civil-defects-testng
-    - name: fvt_image_version
-      value: $(params.fvt_version_manage_civil)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_defects_testng)
     - name: fvt_test_suite
-      value: testng-mas-mobile-andorid
+      value: Defects-mas-android-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-defects
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -751,11 +678,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the Mobile Defects FVT to run
+  # Only if we've set a digest of the Mobile Defects FVT to run
   when:
-    - input: "$(params.fvt_version_manage_civil)"
+    - input: "$(params.fvt_digest_manage_defects_testng)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -773,25 +700,20 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
       value: fvt-manage-civil
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-civil-defects-testng
-    - name: fvt_image_version
-      value: $(params.fvt_version_manage_civil)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_manage_defects_testng)
     - name: fvt_test_suite
-      value: testng-mas-mobile-ios
+      value: Defects-mas-ios-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-defects
+      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -801,11 +723,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the Mobile Defects FVT to run
+  # Only if we've set a digest of the Mobile Defects FVT to run
   when:
-    - input: "$(params.fvt_version_manage_civil)"
+    - input: "$(params.fvt_digest_manage_defects_testng)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -823,21 +745,16 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
       value: fvt-asset-manager
     - name: fvt_image_name
       value: fvt-asset-manager-preparedata
-    - name: fvt_image_version
-      value: $(params.fvt_version_asset_manager)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_asset_manager_preparedata)
     - name: fvt_test_suite
-      value: prepare-test-data-testng-mas
+      value: AssetManager-prepare-data
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -850,11 +767,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the Mobile Foundation FVT to run
+  # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    - input: "$(params.fvt_version_asset_manager)"
+    - input: "$(params.fvt_digest_asset_manager_preparedata)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -872,21 +789,16 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
       value: fvt-asset-manager
     - name: fvt_image_name
       value: fvt-asset-manager-testng
-    - name: fvt_image_version
-      value: $(params.fvt_version_asset_manager)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_asset_manager_testng)
     - name: fvt_test_suite
-      value: mas-android-MVT-AssetManager
+      value: AssetManager-mas-android-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -905,11 +817,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the Mobile Asset Manager FVT to run
+  # Only if we've set a digest of the Mobile Asset Manager FVT to run
   when:
-    - input: "$(params.fvt_version_asset_manager)"
+    - input: "$(params.fvt_digest_asset_manager_testng)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -927,21 +839,16 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-
     - name: fvt_image_registry
       value: $(params.fvt_image_registry)
     - name: fvt_image_namespace
       value: fvt-asset-manager
     - name: fvt_image_name
       value: fvt-asset-manager-testng
-    - name: fvt_image_version
-      value: $(params.fvt_version_asset_manager)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_asset_manager_testng)
     - name: fvt_test_suite
-      value: mas-ios-MVT-AssetManager
+      value: AssetManager-mas-ios-MVT
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
@@ -960,11 +867,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
-  # Only if we've set a version of the Mobile Asset Manager FVT to run
+  # Only if we've set a digest of the Mobile Asset Manager FVT to run
   when:
-    - input: "$(params.fvt_version_asset_manager)"
+    - input: "$(params.fvt_digest_asset_manager_testng)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -982,10 +889,6 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
     - name: devops_cos_crn
       value: $(params.devops_cos_crn)
     - name: devops_ibmcloud_apikey
@@ -997,8 +900,8 @@
       value: fvt-inventorycounting
     - name: fvt_image_name
       value: fvt-inventorycounting-manage-setup
-    - name: fvt_image_version
-      value: $(params.fvt_version_inventorycounting)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_ic_manage_setup)
     - name: fvt_mas_appws_component
       value: base
     - name: mas_appws_components
@@ -1008,10 +911,10 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-inventorycounting
+      value: ibm-mobile
     - name: artifactory_token
       value: $(params.fvt_artifactory_token)
-    
+
     - name: devops_test_type
       value: $(params.devops_test_type)
     - name: devops_test_phase
@@ -1019,11 +922,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-manage
-  # Only if we've set a version of the IC FVT to run
+  # Only if we've set a digest of the IC FVT to run
   when:
-    - input: "$(params.fvt_version_inventorycounting)"
+    - input: "$(params.fvt_digest_ic_manage_setup)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
@@ -1041,10 +944,6 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
 
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
     - name: devops_cos_crn
       value: $(params.devops_cos_crn)
     - name: devops_ibmcloud_apikey
@@ -1056,8 +955,8 @@
       value: fvt-inventorycounting
     - name: fvt_image_name
       value: fvt-inventorycounting-testng
-    - name: fvt_image_version
-      value: $(params.fvt_version_inventorycounting)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_ic_testng)
     - name: fvt_mas_appws_component
       value: base
     - name: mas_appws_components
@@ -1067,7 +966,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-mobile-inventorycounting
+      value: ibm-mobile
     - name: artifactory_token
       value: $(params.fvt_artifactory_token)
 
@@ -1078,11 +977,11 @@
   taskRef:
     kind: Task
     name: mas-fvt-manage
-  # Only if we've set a version of the Mobile IC FVT to run
+  # Only if we've set a digest of the Mobile IC FVT to run
   when:
-    - input: "$(params.fvt_version_inventorycounting)"
+    - input: "$(params.fvt_digest_ic_testng)"
       operator: notin
-      values: ["skip"]
+      values: [""]
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]

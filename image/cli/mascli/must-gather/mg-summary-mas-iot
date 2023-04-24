@@ -1,0 +1,8 @@
+#!/bin/bash
+
+echo "IBM Maximo Application Suite - IoT Application"
+echo "--------------------------------------------------------------------------------"
+oc get alliot -n $1
+echo ""
+
+exit 0

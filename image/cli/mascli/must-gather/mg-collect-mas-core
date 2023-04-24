@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+NAMESPACE=$1
+OUTPUT_DIR=$2
+
+# Collect Reconcile Logs
+# -----------------------------------------------------------------------------
+# Primary Resources
+$DIR/mg-collect-reconcile-logs $NAMESPACE ibm-mas $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE ibm-mas-ws $OUTPUT_DIR
+
+# Internals
+$DIR/mg-collect-reconcile-logs $NAMESPACE ibm-mas-coreidp $OUTPUT_DIR
+
+# Addons
+$DIR/mg-collect-reconcile-logs $NAMESPACE ibm-mas-addons $OUTPUT_DIR
+
+# Configurations
+$DIR/mg-collect-reconcile-logs $NAMESPACE ibm-mas-cfg-bas $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE ibm-mas-cfg-sls $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE ibm-mas-cfg-idp $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE ibm-mas-cfg-scim $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE ibm-mas-cfg-jdbc $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE ibm-mas-cfg-mongo $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE ibm-mas-cfg-kafka $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE ibm-mas-cfg-objectstorage $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE ibm-mas-cfg-smtp $OUTPUT_DIR

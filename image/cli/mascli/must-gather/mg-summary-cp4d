@@ -1,0 +1,37 @@
+#!/bin/bash
+
+echo "IBM Cloud Pak For Data - Platform"
+echo "--------------------------------------------------------------------------------"
+oc -n ibm-cpd get ibmcpd ibmcpd -o jsonpath='Operator Version ..... {.status.controlPlaneOperatorVersion}{"\n"}Product Version ...... {.spec.version}{"\n"}Status ............... {.status.controlPlaneStatus}'
+echo ""
+
+echo ""
+echo "IBM Cloud Pak For Data - CCS"
+echo "--------------------------------------------------------------------------------"
+oc -n ibm-cpd get ccs ccs-cr -o jsonpath='Version .............. {.spec.version}{"\n"}Build Number ......... {.status.ccsBuildNumber}{"\n"}Status ............... {.status.ccsStatus}'
+echo ""
+
+echo ""
+echo "IBM Cloud Pak For Data - Watson Studio"
+echo "--------------------------------------------------------------------------------"
+oc -n ibm-cpd get ws ws-cr -o jsonpath='Version .............. {.spec.version}{"\n"}Build Number ......... {.status.wsBuildNumber}{"\n"}Status ............... {.status.wsStatus}'
+oc -n ibm-cpd get ws
+oc -n ibm-cpd get datarefinery
+oc -n ibm-cpd get notebookruntimes
+
+echo ""
+echo "IBM Cloud Pak For Data - Watson Machine Learning"
+echo "--------------------------------------------------------------------------------"
+oc -n ibm-cpd get wmlbase
+
+echo ""
+echo "IBM Cloud Pak For Data - Watson Discovery"
+echo "--------------------------------------------------------------------------------"
+oc -n ibm-cpd get watsondiscoveries
+
+echo ""
+echo "IBM Cloud Pak For Data - Analytics Engine"
+echo "--------------------------------------------------------------------------------"
+oc -n ibm-cpd get analyticsengine
+
+exit 0
