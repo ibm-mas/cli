@@ -15,25 +15,6 @@ spec:
       description: Locaton for the output of mustgather. Set as a sub-path of /workspace/mustgather to ensure that data is persisted.
       default: "/workspace/mustgather"
 
-    # Optional parameters to categorize result to be persisted
-    # -------------------------------------------------------------------------
-    - name: devops_test_type
-      type: string
-      description: Optional. Used to different upgrade tests from other type of tests
-      default: ""
-    - name: devops_test_phase
-      type: string
-      description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
-      default: ""
-
-  stepTemplate:
-    env:
-      # Optional parameters to categorize result to be persisted
-      - name: DEVOPS_TEST_TYPE
-        value: $(params.devops_test_type)
-      - name: DEVOPS_TEST_PHASE
-        value: $(params.devops_test_phase)
-
   steps:
     - name: must-gather
       command:
@@ -48,13 +29,13 @@ spec:
         - name: ARTIFACTORY_TOKEN
           valueFrom:
             secretKeyRef:
-              name: artifactory
+              name: mas-devops
               key: ARTIFACTORY_TOKEN
               optional: true
         - name: ARTIFACTORY_UPLOAD_DIRECTORY
           valueFrom:
             secretKeyRef:
-              name: artifactory
+              name: mas-devops
               key: ARTIFACTORY_UPLOAD_DIRECTORY
               optional: true
   workspaces:

@@ -2,6 +2,7 @@
 
 ## Building the tekton definitions
 ```bash
+export VERSION=4.1.0-pre.mg
 export DEV_MODE=true
 bash build/bin/build-tekton.sh
 ```

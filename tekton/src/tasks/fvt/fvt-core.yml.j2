@@ -30,15 +30,6 @@ spec:
       description: Turn on debug logging (verbose mode)
       default: "true"
 
-    - name: devops_mongo_uri
-      type: string
-      description: Mongo URI for recording test results (optional)
-      default: ""
-    - name: devops_build_number
-      type: string
-      description: Build number to record test result (optional)
-      default: ""
-
     - name: product_channel
       type: string
       description: "Subscription channel for the product (todo: have the test code look this up instead)"
@@ -94,9 +85,17 @@ spec:
 
       # Enable results to be saved
       - name: DEVOPS_MONGO_URI
-        value: $(params.devops_mongo_uri)
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: DEVOPS_MONGO_URI
+            optional: true
       - name: BUILD_NUM
-        value: $(params.devops_build_number)
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: DEVOPS_BUILD_NUMBER
+            optional: true
 
       # The name of the test suite inside the container we will execute (/opt/ibm/test/suites/{TEST_SUITE})
       - name: TEST_SUITE
