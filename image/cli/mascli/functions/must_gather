@@ -1,0 +1,126 @@
+#!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+MG_SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd "../must-gather" && pwd )"
+
+function mustgather() {
+  # Take the first parameter off (it will be "must-gather")
+  shift
+
+  # Set defaults
+  SUMMARY_ONLY=false
+  POD_LOGS=true
+  MG_DIR=/tmp/must-gather
+
+  # Process command flags
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+    -d|--directory)
+      MG_DIR=$1; shift
+      ;;
+    --summary-only)
+      SUMMARY_ONLY=true
+      ;;
+    --no-logs|--no-pod-logs)
+      POD_LOGS=false
+      ;;
+    --artifactory-token)
+      ARTIFACTORY_TOKEN=$1; shift
+      ;;
+    --artifactory-upload-directory)
+      ARTIFACTORY_UPLOAD_DIRECTORY=$1; shift
+      ;;
+    *)
+      # unknown option
+      echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+      mirror_to_registry_help
+      exit 1
+      ;;
+    esac
+  done
+
+  TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
+
+  # All the output is generated here
+  OUTPUT_DIR=${MG_DIR}/${TIMESTAMP}
+  mkdir -p $OUTPUT_DIR
+
+  # The final destination for the must-gather is a tgz
+  OUTPUT_FILENAME=must-gather-${TIMESTAMP}.tgz
+  OUTPUT_FILE=${MG_DIR}/${OUTPUT_FILENAME}
+
+
+  echo "Must gather will be saved to: $OUTPUT_FILE"
+
+  # Generate Dependency Report
+  # -----------------------------------------------------------------------------
+  echo_h2 "Generate Dependency Report"
+  echo "- Cluster Namespaces"
+  oc get namespaces -o wide > ${OUTPUT_DIR}/namespaces.txt
+
+  echo "- IBM CloudPak Foundation Services"
+  $MG_SCRIPT_DIR/mg-summary-ibm-common-services 2&> ${OUTPUT_DIR}/ibm-common-services.txt
+
+  echo "- IBM CloudPak for Data"
+  $MG_SCRIPT_DIR/mg-summary-cp4d 2&> ${OUTPUT_DIR}/cp4d.txt
+
+  echo "- IBM Db2 universal Operator"
+  $MG_SCRIPT_DIR/mg-summary-db2u 2&> ${OUTPUT_DIR}/db2u.txt
+
+  # Find MAS instances
+  # -----------------------------------------------------------------------------
+  MAS_INSTANCE_IDS=$(oc get suite --all-namespaces -o jsonpath='{.items[*].metadata.name}')
+
+  # Generate Detailed Report
+  # -----------------------------------------------------------------------------
+  echo ""
+  for MAS_INSTANCE_ID in $MAS_INSTANCE_IDS
+  do
+    echo_h2 "Maximo Application Suite Must Gather: ${MAS_INSTANCE_ID}"
+
+    for MAS_APP_ID in core assist iot monitor manage optimizer visualinspection
+    do
+      MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+      NAMESPACE_LOOKUP=$(oc get namespace $MAS_APP_NAMESPACE --ignore-not-found)
+
+      if [[ "$NAMESPACE_LOOKUP" != "" ]]
+      then
+        echo -e "- Performing must-gather in namespace ${MAS_APP_NAMESPACE}"
+        # MAS-specific must-gather
+        $MG_SCRIPT_DIR/mg-summary-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE 2&> ${OUTPUT_DIR}/mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}.txt
+        $MG_SCRIPT_DIR/mg-collect-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE $OUTPUT_DIR
+
+        # Generic Kubernetes must-gather
+        if [[ "$SUMMARY_ONLY" == false ]]
+        then
+          $MG_SCRIPT_DIR/mg-collect-pods $MAS_APP_NAMESPACE $POD_LOGS $OUTPUT_DIR/resources
+          for RESOURCE in configmaps secrets services routes pvc deployments statefulsets
+          do
+            $MG_SCRIPT_DIR/mg-collect-resources $MAS_APP_NAMESPACE $RESOURCE $OUTPUT_DIR/resources
+          done
+        fi
+      fi
+    done
+  done
+
+  tar -czf $OUTPUT_FILE -C $MG_DIR $TIMESTAMP
+  if [[ -n "$ARTIFACTORY_TOKEN" && -n "$ARTIFACTORY_UPLOAD_DIRECTORY" ]]; then
+    set -e
+    ARTIFACTORY_AUTH_HEADER="Authorization:Bearer $ARTIFACTORY_TOKEN"
+    TARGET_URL="${ARTIFACTORY_UPLOAD_DIRECTORY}/${OUTPUT_FILENAME}"
+
+    MD5_VALUE="`md5sum "$OUTPUT_FILE"`"
+    MD5_VALUE="${MD5_VALUE:0:32}"
+
+    SHA1_VALUE="`sha1sum "$OUTPUT_FILE"`"
+    SHA1_VALUE="${SHA1_VALUE:0:40}"
+
+    echo "Uploading $OUTPUT_FILE to $TARGET_URL"
+    curl -H "$ARTIFACTORY_AUTH_HEADER"  -H "X-Checksum-Md5: $MD5_VALUE" -H "X-Checksum-Sha1: $SHA1_VALUE" -T $OUTPUT_FILE $TARGET_URL
+    set +e
+  fi
+
+  true
+}

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+echo "IBM Certificate Manager"
+echo "--------------------------------------------------------------------------------"
+oc -n ibm-common-services get certmanager default -o jsonpath='Version ........ {.spec.version}{"\n"}Status ......... {.status.certManagerStatus}'
+echo ""
+
+echo ""
+echo "IBM User Data Services"
+echo "--------------------------------------------------------------------------------"
+oc -n ibm-common-services get analyticsproxy -o jsonpath='{range .items[*]}{"AnalyticsProxy"}/{.metadata.name} = {.status.phase}{"\n"}{end}'
+
+exit 0

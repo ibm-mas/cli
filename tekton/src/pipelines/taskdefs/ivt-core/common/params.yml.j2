@@ -2,16 +2,12 @@
   value: $(params.mas_instance_id)
 - name: mas_workspace_id
   value: $(params.mas_workspace_id)
-- name: devops_mongo_uri
-  value: $(params.devops_mongo_uri)
-- name: devops_build_number
-  value: $(params.devops_build_number)
 - name: fvt_image_registry
   value: $(params.fvt_image_registry)
 - name: fvt_image_name
   value: ivt-core
-- name: fvt_image_version
-  value: $(params.ivt_version_core)
+- name: fvt_image_digest
+  value: $(params.ivt_digest_core)
 - name: devops_test_type
   value: $(params.devops_test_type)
 - name: devops_test_phase

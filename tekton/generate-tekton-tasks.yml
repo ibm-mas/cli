@@ -59,6 +59,7 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - gencfg-workspace
+        - must-gather
         - suite-app-config
         - suite-app-install
         - suite-app-upgrade
@@ -66,7 +67,6 @@
         - suite-db2-setup-for-manage
         - suite-dns
         - suite-install
-        - suite-mustgather
         - suite-uninstall
         - suite-upgrade
         - suite-verify

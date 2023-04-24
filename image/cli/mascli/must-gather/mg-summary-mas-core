@@ -1,0 +1,32 @@
+#!/bin/bash
+
+echo "IBM Maximo Application Suite - Core Platform"
+echo "--------------------------------------------------------------------------------"
+oc get suite --all-namespaces
+echo ""
+
+echo ""
+echo "IBM Maximo Application Suite - Mongo Configurations"
+echo "--------------------------------------------------------------------------------"
+oc get mongocfg --all-namespaces
+echo ""
+
+echo ""
+echo "IBM Maximo Application Suite - SLS Configurations"
+echo "--------------------------------------------------------------------------------"
+oc get slscfg --all-namespaces
+echo ""
+
+echo ""
+echo "IBM Maximo Application Suite - BAS (UDS) Configurations"
+echo "--------------------------------------------------------------------------------"
+oc get bascfg --all-namespaces
+echo ""
+
+echo ""
+echo "IBM Maximo Application Suite - JDBC Configurations"
+echo "--------------------------------------------------------------------------------"
+oc get jdbccfg --all-namespaces
+echo ""
+
+exit 0
