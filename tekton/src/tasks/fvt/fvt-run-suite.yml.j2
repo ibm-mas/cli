@@ -58,7 +58,7 @@ spec:
       type: string
       description: Directory inside container that will be uploaded to Object Storage (optional)
       default: ""
-    - name: ibmcloud_apikey
+    - name: devops_ibmcloud_apikey
       description: IBM Cloud API Key to access Object Storage resource (optional)
       default: ""
 
@@ -191,8 +191,8 @@ spec:
         value: $(params.devops_cos_crn)
       - name: DEVOPS_COS_UPLOAD_FOLDER
         value: $(params.devops_cos_upload_folder)
-      - name: IBMCLOUD_APIKEY
-        value: $(params.ibmcloud_apikey)
+      - name: DEVOPS_IBMCLOUD_APIKEY
+        value: $(params.devops_ibmcloud_apikey)
 
       # Assist Specific information
       - name: BROWSERSTACK_TESTSERVER
