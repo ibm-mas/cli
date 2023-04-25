@@ -190,12 +190,6 @@ spec:
       value: '$MAS_CATALOG_SOURCE'
     - name: mas_catalog_version
       value: '$MAS_CATALOG_VERSION'
-    - name: mas_add_channel
-      value: '$MAS_ADD_CHANNEL'
-    - name: mas_add_catalog
-      value: '$MAS_ADD_CATALOG'
-    - name: mas_catalog_version
-      value: '$MAS_CATALOG_VERSION'
     - name: mas_catalog_digest
       value: '$MAS_CATALOG_DIGEST'
 
