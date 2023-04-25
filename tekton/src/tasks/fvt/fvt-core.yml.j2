@@ -17,7 +17,7 @@ spec:
       description: FVT Container Image Registry (required)
     - name: fvt_image_digest
       type: string
-      description: FVT Container Image digest
+      description: FVT Container Image Digest
 
     # Test Framework Information
     # -------------------------------------------------------------------------
@@ -29,15 +29,6 @@ spec:
       type: string
       description: Turn on debug logging (verbose mode)
       default: "true"
-
-    - name: devops_mongo_uri
-      type: string
-      description: Mongo URI for recording test results (optional)
-      default: ""
-    - name: devops_build_number
-      type: string
-      description: Build number to record test result (optional)
-      default: ""
 
     - name: product_channel
       type: string
@@ -65,7 +56,7 @@ spec:
       type: string
       description: Partium password (required by fvt-coreapi-workspacemgmt)
       default: ""
-    
+
     # Optional parameters to categorize result to be persisted
     # -------------------------------------------------------------------------
     - name: devops_test_type
@@ -94,9 +85,17 @@ spec:
 
       # Enable results to be saved
       - name: DEVOPS_MONGO_URI
-        value: $(params.devops_mongo_uri)
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: DEVOPS_MONGO_URI
+            optional: true
       - name: BUILD_NUM
-        value: $(params.devops_build_number)
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: DEVOPS_BUILD_NUMBER
+            optional: true
 
       # The name of the test suite inside the container we will execute (/opt/ibm/test/suites/{TEST_SUITE})
       - name: TEST_SUITE
@@ -116,7 +115,7 @@ spec:
         value: $(params.partium_username)
       - name: PARTIUM_PASSWORD
         value: $(params.partium_password)
-      
+
       # Optional parameters to categorize result to be persisted
       - name: DEVOPS_TEST_TYPE
         value: $(params.devops_test_type)
@@ -125,7 +124,7 @@ spec:
   steps:
     - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 90m # Ensure bad FVTs don't run forever
+      timeout: 2h0m0s # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src

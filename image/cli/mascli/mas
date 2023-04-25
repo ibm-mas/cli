@@ -49,7 +49,6 @@ mkdir -p $CONFIG_DIR
 . $DIR/functions/pipeline_prepare
 . $DIR/functions/pipeline_run
 . $DIR/functions/pipeline_show_config
-. $DIR/functions/download_mustgather
 . $DIR/functions/update
 . $DIR/functions/upgrade
 . $DIR/functions/uninstall
@@ -60,6 +59,8 @@ mkdir -p $CONFIG_DIR
 . $DIR/functions/configure_ocp_for_mirror
 # Manage OIDC for configtool
 . $DIR/functions/configtool_oidc
+# Must Gather
+. $DIR/functions/must_gather
 
 load_config
 case $1 in
@@ -173,9 +174,10 @@ case $1 in
     uninstall "$@"
     ;;
 
-  download|mustgather|download-mustgather)
-    connect
-    download_mustgather
+  mustgather|must-gather)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Must-Gather Tool${TEXT_RESET}"
+    echo
+    mustgather "$@"
     ;;
 
   *)

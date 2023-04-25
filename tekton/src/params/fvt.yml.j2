@@ -35,93 +35,180 @@
   type: string
   default: ""
 
-# FVT Versions
+# FVT Digests
 - name: fvt_digest_core
   type: string
   description: FVT digest - Core
   default: ""
-- name: fvt_version_iot
+- name: fvt_digest_coreui
   type: string
-  description: FVT Version - IoT
+  description: FVT digest - Core  UI
   default: ""
-- name: fvt_version_safety
+- name: fvt_digest_iot
   type: string
-  description: FVT Version - Safety
+  description: FVT Digest - IoT
   default: ""
-- name: fvt_version_monitor
+- name: fvt_digest_ctf
   type: string
-  description: FVT Version - Monitor
+  description: FVT Digest - Common Test Framework (Predict, Monitor, Optimizer, Visual Inspection)
   default: ""
-- name: fvt_version_predict
+- name: fvt_digest_hputilities_preparedata
   type: string
-  description: FVT Version - Predict
+  description: FVT Digest - Health & Predict Utilities - Preparedata
   default: ""
-- name: fvt_version_hputilities
+- name: fvt_digest_hputilities_testng
   type: string
-  description: FVT Version - Health & Predict Utilities
+  description: FVT Digest - Health & Predict Utilities - Testng
   default: ""
-- name: fvt_version_visualinspection
+- name: fvt_digest_hputilities_python
   type: string
-  description: FVT Version - Visual Inspection
+  description: FVT Digest - Health & Predict Utilities - Python
   default: ""
-- name: fvt_version_assist
+- name: fvt_digest_assist_cucumber
   type: string
-  description: FVT Version - Assist
+  description: FVT Digest - Assist - Cucumber
   default: ""
-- name: fvt_version_optimizer
+- name: fvt_digest_assist_preparedata
   type: string
-  description: FVT Version - Optimizer
+  description: FVT Digest - Assist - Preparedata
+  default: ""
+- name: fvt_digest_assist_python
+  type: string
+  description: FVT Digest - Assist - Python
+  default: ""
+- name: fvt_digest_assist_testng
+  type: string
+  description: FVT Digest - Assist - Testng
   default: ""
 
-# FVT Versions - Manage, Health and Industry Solutions
-- name: fvt_version_manage
+# FVT Digests - Manage, Health and Industry Solutions
+- name: fvt_digest_manage
   type: string
-  description: FVT Version - Manage
+  description: FVT Digest - Manage
   default: ""
-- name: fvt_version_manage_multi_is
+- name: fvt_digest_manage_aviation
   type: string
-  description: FVT Version - Manage Multi IS
+  description: FVT Digest - Manage Aviation
+  default: ""
+- name: fvt_digest_manage_scheduler
+  type: string
+  description: FVT Digest - Manage Scheduler
+  default: ""
+- name: fvt_digest_manage_serviceprovider
+  type: string
+  description: FVT Digest - Manage Service Provider
+  default: ""
+- name: fvt_digest_manage_transportation
+  type: string
+  description: FVT Digest - Manage Transportation
+  default: ""
+- name: fvt_digest_manage_acm
+  type: string
+  description: FVT Digest - Manage ACM
+  default: ""
+- name: fvt_digest_manage_hse
+  type: string
+  description: FVT Digest - Manage HSE
+  default: ""
+- name: fvt_digest_manage_nuclear
+  type: string
+  description: FVT Digest - Manage Nuclear
+  default: ""
+- name: fvt_digest_manage_spatial
+  type: string
+  description: FVT Digest - Manage Spatial
+  default: ""
+- name: fvt_digest_manage_maintmanager
+  type: string
+  description: FVT Digest - Manage maintmanager
+  default: ""
+- name: fvt_digest_manage_health
+  type: string
+  description: FVT Digest - Manage Health
   default: ""
 - name: fvt_test_driver
   type: string
   description: FVT Driver for Manage - graphite/tpae
   default: ""
 
-# FVT Versions - Civil Selenium, Cypress and Defects (mobile)
-- name: fvt_version_manage_civil
+# FVT Digests - Civil Selenium, Cypress and Defects (mobile)
+- name: fvt_digest_manage_civil_selenium
   type: string
-  description: FVT Version - Civil
+  description: FVT Digest - Civil Selenium
+  default: ""
+- name: fvt_digest_manage_civil_cypress
+  type: string
+  description: FVT Digest - Civil Cypress
+  default: ""
+- name: fvt_digest_manage_defects_preparedata
+  type: string
+  description: FVT Digest - Civil Defects - preparedata
+  default: ""
+- name: fvt_digest_manage_defects_testng
+  type: string
+  description: FVT Digest - Civil Defects - Testng
   default: ""
 
-# FVT Versions - Mobile Tests
-- name: fvt_version_mobilefoundation
+# FVT Digests - Mobile Tests
+- name: fvt_digest_mobilefoundation_manage_setup
   type: string
-  description: FVT Version - Mobile Foundation
+  description: FVT Digest - Mobile Foundation _ Manage Setup
   default: ""
-- name: fvt_version_servicerequests
+- name: fvt_digest_mobilefoundation_preparedata
   type: string
-  description: FVT Version - Mobile Service Requests
+  description: FVT Digest - Mobile Foundation - Preparedata
   default: ""
-- name: fvt_version_technician
+- name: fvt_digest_mobilefoundation_testng
   type: string
-  description: FVT Version - Mobile Technician
+  description: FVT Digest - Mobile Foundation - Testng
   default: ""
-- name: fvt_version_inspection
+- name: fvt_digest_servicerequests_manage_setup
   type: string
-  description: FVT Version - Mobile Inspection
+  description: FVT Digest - Mobile Service Requests - Manage Setup
   default: ""
-- name: fvt_version_asset_manager
+- name: fvt_digest_servicerequests_testng
   type: string
-  description: FVT Version - Mobile Asset Manager
+  description: FVT Digest - Mobile Service Requests - Testng
   default: ""
-- name: fvt_version_inventorycounting
+- name: fvt_digest_technician_preparedata
   type: string
-  description: FVT Version - Mobile IC
+  description: FVT Digest - Mobile Technician - Preparedata
+  default: ""
+- name: fvt_digest_technician_testng
+  type: string
+  description: FVT Digest - Mobile Technician - Testng
+  default: ""
+- name: fvt_digest_inspection_preparedata
+  type: string
+  description: FVT Digest - Mobile Inspection - Preparedata
+  default: ""
+- name: fvt_digest_inspection_testng
+  type: string
+  description: FVT Digest - Mobile Inspection - Testng
+  default: ""
+- name: fvt_digest_asset_manager_preparedata
+  type: string
+  description: FVT Digest - Mobile Asset Manager - Preparedata
+  default: ""
+- name: fvt_digest_asset_manager_testng
+  type: string
+  description: FVT Digest - Mobile Asset Manager - Testng
+  default: ""
+- name: fvt_digest_ic_manage_setup
+  type: string
+  description: FVT Digest - Mobile IC - Manage Setup
+  default: ""
+- name: fvt_digest_ic_testng
+  type: string
+  description: FVT Digest - Mobile IC - Testng
+  default: ""
+- name: fvt_digest_inventorycounting
+  type: string
+  description: FVT Digest - Mobile IC - Testng
   default: ""
 
-
-# IVT Versions
-- name: ivt_version_core
+# IVT Digests
+- name: ivt_digest_core
   type: string
-  description: IVT Version - Core
+  description: IVT Digest - Core
   default: ""
