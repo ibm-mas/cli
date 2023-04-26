@@ -1,0 +1,63 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-update-after-install
+spec:
+  params:
+    # Catalog Version
+    - name: mas_catalog_version
+      type: string
+
+    # Development Build Support
+    - name: artifactory_username
+      default: ""
+      type: string
+      description: Required to install development MAS catalogs
+    - name: artifactory_token
+      default: ""
+      type: string
+      description: Required to install development MAS catalogs
+
+  tasks:
+    - name: wait-for-install
+      taskSpec:
+        steps:
+          - image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+            script: |
+              #!/usr/bin/env bash
+
+              echo 'Updating to $(params.mas_catalog_version) after install completes'
+              echo ''
+              echo 'Status of install pipeline'
+              echo '--------------------------'
+              oc -n $(context.pipelineRun.namespace) get pipelinerun/fvtupdate-install-${DEVOPS_BUILD_NUMBER}
+              echo ''
+              echo 'Waiting for pipelinerun/fvtupdate-install-${DEVOPS_BUILD_NUMBER} to complete'
+              echo '------------------------------------------------------------------'
+              oc -n $(context.pipelineRun.namespace) wait pipelinerun/fvtupdate-install-${DEVOPS_BUILD_NUMBER} --for=condition=Succeeded --timeout=12h
+            env:
+              - name: DEVOPS_BUILD_NUMBER
+                valueFrom:
+                  secretKeyRef:
+                    name: mas-devops
+                    key: DEVOPS_BUILD_NUMBER
+                    optional: true
+
+    - name: update-catalog
+      params:
+        - name: devops_suite_name
+          value: update-catalog
+        - name: mas_catalog_version
+          value: $(params.mas_catalog_version)
+
+        # Development catalog support
+        - name: artifactory_username
+          value: $(params.artifactory_username)
+        - name: artifactory_token
+          value: $(params.artifactory_token)
+      taskRef:
+        kind: Task
+        name: mas-devops-ibm-catalogs
+      runAfter:
+        - wait-for-install
