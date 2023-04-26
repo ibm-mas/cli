@@ -34,3 +34,4 @@
         - fvt-manage-regr
         - upgrade
         - update
+        - update-after-install

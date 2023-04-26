@@ -135,6 +135,8 @@ if __name__ == "__main__":
                 resultDoc,
                 upsert=True
             )
-            print ("Pipeline results saved to MongoDb (v2 data model)")
+            print("Pipeline results saved to MongoDb (v2 data model)")
+            print(result1)
+            print(result2)
         else:
             print("Pipeline results not recorded as DEVOPS_MONGO_URI is not defined")
