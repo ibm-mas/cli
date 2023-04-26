@@ -39,14 +39,14 @@ spec:
             script: |
               #!/usr/bin/env bash
 
-              echo 'Updating to $(params.mas_catalog_version) after install completes'
-              echo ''
-              echo 'Status of install pipeline'
-              echo '--------------------------'
+              echo "Updating to $(params.mas_catalog_version) after install completes"
+              echo ""
+              echo "Status of install pipeline"
+              echo "--------------------------"
               oc -n $(context.pipelineRun.namespace) get pipelinerun/$(params.mas_instance_id)-install-${DEVOPS_BUILD_NUMBER}
-              echo ''
-              echo 'Waiting for pipelinerun/$(params.mas_instance_id)-install-${DEVOPS_BUILD_NUMBER} to complete'
-              echo '------------------------------------------------------------------'
+              echo ""
+              echo "Waiting for pipelinerun/$(params.mas_instance_id)-install-${DEVOPS_BUILD_NUMBER} to complete"
+              echo "------------------------------------------------------------------"
               oc -n $(context.pipelineRun.namespace) wait pipelinerun/$(params.mas_instance_id)-install-${DEVOPS_BUILD_NUMBER} --for=condition=Succeeded --timeout=12h
             env:
               - name: DEVOPS_BUILD_NUMBER
