@@ -5,9 +5,13 @@ metadata:
   name: mas-update-after-install
 spec:
   params:
-    # Catalog Version
-    - name: mas_catalog_version
+    # Common Parameters
+    # -------------------------------------------------------------------------
+    # Tekton Pipeline image pull policy (for CLI & FVT images)
+    - name: image_pull_policy
       type: string
+      default: IfNotPresent
+      description: Pull policy for pipeline container images
 
     # Development Build Support
     - name: artifactory_username
@@ -18,6 +22,10 @@ spec:
       default: ""
       type: string
       description: Required to install development MAS catalogs
+
+    # Catalog Version
+    - name: mas_catalog_version
+      type: string
 
     # Required to save results to the FVT database and to know what install to wait for
     - name: mas_instance_id
@@ -50,6 +58,9 @@ spec:
 
     - name: update-catalog
       params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+
         - name: devops_suite_name
           value: update-catalog
         - name: mas_instance_id
