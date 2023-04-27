@@ -1,6 +1,6 @@
 FROM registry.access.redhat.com/ubi8/python-39
 ARG VERSION_LABEL
-# ----- Start as "default" user -----------------------------------------------
+# ----- Start as "default" user ----------------------------------------------
 # Running as userId = default
 # HOME=/opt/app-root
 
