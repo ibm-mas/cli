@@ -61,7 +61,7 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_mobilefoundation_testng)
     - name: fvt_test_suite
-      value: testng-all
+      value: mobfoundation-mvt-android
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
     - name: foundation_device_type
@@ -88,7 +88,7 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_mobilefoundation_testng)
     - name: fvt_test_suite
-      value: testng-all
+      value: mobfoundation-mvt-ios
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
     - name: foundation_device_type
