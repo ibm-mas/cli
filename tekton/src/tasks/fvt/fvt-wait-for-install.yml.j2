@@ -11,7 +11,6 @@ spec:
   steps:
     - name: wait-for-install
       image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
-      imagePullPolicy: $(params.image_pull_policy)
       script: |
         #!/usr/bin/env bash
 
