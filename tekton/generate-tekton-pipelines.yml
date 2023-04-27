@@ -21,6 +21,8 @@
     # 2. Generate Pipelines
     # -------------------------------------------------------------------------
     - name: Generate Pipelines
+      vars:
+        wait_for_install: false
       ansible.builtin.template:
         src: "{{ pipeline_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ pipeline_target_dir }}/{{ item }}.yaml"
@@ -28,10 +30,22 @@
         - db2
         - install
         - install-with-fvt
-        - uninstall
         - fvt-assist
         - fvt-core
         - fvt-manage-regr
-        - upgrade
         - update
-        - update-after-install
+        - upgrade
+        - uninstall
+
+    # 2. Generate Pipelines
+    # -------------------------------------------------------------------------
+    - name: Generate Pipelines (wait-for-install versions)
+      vars:
+        wait_for_install: true
+      ansible.builtin.template:
+        src: "{{ pipeline_src_dir }}/{{ item }}.yml.j2"
+        dest: "{{ pipeline_target_dir }}/{{ item }}-after-install.yaml"
+      with_items:
+        - update
+        - upgrade
+        - uninstall
