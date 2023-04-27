@@ -14,15 +14,17 @@ spec:
       script: |
         #!/usr/bin/env bash
 
-        echo "Waiting for install pipeline to complete"
+        echo "Waiting for install pipeline in $(context.taskRun.namespace) to complete ..."
+
         echo ""
         echo "Status of install pipeline"
-        echo "--------------------------"
-        oc -n $(context.pipelineRun.namespace) get pipelinerun/$(params.mas_instance_id)-install-${DEVOPS_BUILD_NUMBER}
+        echo "------------------------------------------------------------------"
+        oc -n $(context.taskRun.namespace) get pipelinerun/$(params.mas_instance_id)-install-${DEVOPS_BUILD_NUMBER}
+
         echo ""
         echo "Waiting for pipelinerun/$(params.mas_instance_id)-install-${DEVOPS_BUILD_NUMBER} to complete"
         echo "------------------------------------------------------------------"
-        oc -n $(context.pipelineRun.namespace) wait pipelinerun/$(params.mas_instance_id)-install-${DEVOPS_BUILD_NUMBER} --for=condition=Succeeded --timeout=12h
+        oc -n $(context.taskRun.namespace) wait pipelinerun/$(params.mas_instance_id)-install-${DEVOPS_BUILD_NUMBER} --for=condition=Succeeded --timeout=12h
 
       env:
         - name: DEVOPS_BUILD_NUMBER
