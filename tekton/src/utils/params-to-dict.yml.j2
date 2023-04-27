@@ -1,5 +1,0 @@
----
-# Simple template that allows us to load the params list templates into a dictionary object
-# This allows us to easily load the data into an Ansible variable
-params:
-  {{ lookup('template', params_src_dir ~ '/' ~ item ~ '.yml.j2') | indent(2) }}

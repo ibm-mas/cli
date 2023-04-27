@@ -32,10 +32,6 @@
     - name: artifactory_token
       value: $(params.fvt_artifactory_token)
 
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-manage
@@ -78,10 +74,6 @@
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
 
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -129,10 +121,6 @@
     - name: foundation_server_type
       value: mas
 
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -178,10 +166,6 @@
     - name: foundation_server_type
       value: mas
 
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -229,10 +213,6 @@
     - name: product_id
       value: ibm-mobile
 
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-manage
@@ -279,10 +259,6 @@
     - name: assist_server_type
       value: mas
 
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -329,10 +305,6 @@
     - name: assist_server_type
       value: mas
 
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -760,10 +732,6 @@
     - name: product_id
       value: ibm-mobile
 
-    - name: test_type
-      value: $(params.devops_test_type)
-    - name: test_phase
-      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -810,10 +778,6 @@
     - name: assist_server_type
       value: mas
 
-    - name: test_type
-      value: $(params.devops_test_type)
-    - name: test_phase
-      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -860,10 +824,6 @@
     - name: assist_server_type
       value: mas
 
-    - name: test_type
-      value: $(params.devops_test_type)
-    - name: test_phase
-      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -915,10 +875,6 @@
     - name: artifactory_token
       value: $(params.fvt_artifactory_token)
 
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-manage
@@ -970,10 +926,6 @@
     - name: artifactory_token
       value: $(params.fvt_artifactory_token)
 
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-manage
