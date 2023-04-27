@@ -85,6 +85,13 @@ spec:
     # 1. Uninstall IBM Maximo Application Suite
     # -------------------------------------------------------------------------
     - name: uninstall-suite
+{% if wait_for_install == true %}
+      runAfter:
+        - wait-for-install
+{% endif %}
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-uninstall
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -92,9 +99,6 @@ spec:
           value: $(params.mas_instance_id)
         - name: mas_wipe_mongo_data
           value: $(params.mas_wipe_mongo_data)
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-uninstall
 
 
     # 2. Uninstall IBM Suite Licensing Service

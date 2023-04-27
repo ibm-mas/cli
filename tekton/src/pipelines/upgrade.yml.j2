@@ -39,6 +39,13 @@ spec:
     # -------------------------------------------------------------------------
     # Suite Upgrade
     - name: upgrade-core
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-upgrade
+{% if wait_for_install == true %}
+      runAfter:
+        - wait-for-install
+{% endif %}
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -48,11 +55,8 @@ spec:
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
           value: upgrade-core
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-upgrade
 
-    - name: verify
+    - name: verify-core
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -88,7 +92,7 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - verify
+        - verify-core
 
     # Manage Upgrade
     - name: upgrade-manage
@@ -107,7 +111,7 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - verify
+        - verify-core
 
     # Visual Inspection Upgrade
     - name: upgrade-visualinspection
@@ -126,7 +130,7 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - verify
+        - verify-core
 
     # Assist Upgrade
     - name: upgrade-assist
@@ -145,7 +149,7 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - verify
+        - verify-core
 
     # Optimizer Upgrade
     - name: upgrade-optimizer
@@ -164,7 +168,7 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - verify
+        - verify-core
 
 
     # Phase 3 - Apps dependant on upgrades in Phase 2

@@ -45,6 +45,13 @@ spec:
     # 1. Run the catalog update
     # -------------------------------------------------------------------------
     - name: update-catalog
+{% if wait_for_install == true %}
+      runAfter:
+        - wait-for-install
+{% endif %}
+      taskRef:
+        kind: Task
+        name: mas-devops-ibm-catalogs
       params:
         - name: mas_catalog_version
           value: $(params.mas_catalog_version)
@@ -54,6 +61,3 @@ spec:
           value: $(params.artifactory_username)
         - name: artifactory_token
           value: $(params.artifactory_token)
-      taskRef:
-        kind: Task
-        name: mas-devops-ibm-catalogs
