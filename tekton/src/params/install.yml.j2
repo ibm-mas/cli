@@ -72,7 +72,7 @@
   description: IBM Cloud MongoDb admin password
   default: ""
 
-# Dependencies - Kafka
+# Dependencies - AMQ Streams (Kafka)
 # -----------------------------------------------------------------------------
 - name: kafka_namespace
   type: string
@@ -84,6 +84,27 @@
   type: string
   default: ""
 - name: kafka_user_name
+  type: string
+  default: ""
+
+# Dependencies - IBM Cloud Event Streams (Kafka)
+# -----------------------------------------------------------------------------
+- name: kafka_provider
+  type: string
+  default: ""
+- name: eventstreams_resourcegroup
+  type: string
+  default: ""
+- name: eventstreams_name
+  type: string
+  default: ""
+- name: eventstreams_location
+  type: string
+  default: ""
+- name: eventstreams_retention
+  type: string
+  default: ""
+- name: eventstreams_create_manage_jms_topics
   type: string
   default: ""
 
@@ -286,7 +307,6 @@
 - name: mas_cluster_issuer
   type: string
   default: ""
-
 - name: mas_icr_cp
   type: string
   default: ""
@@ -307,6 +327,14 @@
   type: string
   default: ""
   description: Workload Scaling Custom ConfigMap Name
+- name: mas_add_channel
+  type: string
+  default: ""
+  description: Data Dictionary subscription channel
+- name: mas_add_catalog
+  type: string
+  default: ""
+  description: Data Dictionary catalog source
 
 # MAS Application Configuration - Manage Application
 # -----------------------------------------------------------------------------
@@ -325,6 +353,14 @@
 - name: mas_app_settings_demodata
   type: string
   description: Flag indicating if manage demodata should be loaded or not
+  default: ""
+- name: mas_app_settings_base_language
+  type: string
+  description: Defines Manage application base language
+  default: "EN"
+- name: mas_app_settings_secondary_languages
+  type: string
+  description: Defines Manage application list of secondary languages
   default: ""
 - name: mas_app_settings_persistent_volumes_flag
   type: string

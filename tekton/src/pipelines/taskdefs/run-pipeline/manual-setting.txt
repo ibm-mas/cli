@@ -1,2 +1,0 @@
-devops_test_type
-devops_test_phase

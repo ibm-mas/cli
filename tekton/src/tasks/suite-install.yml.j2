@@ -21,6 +21,11 @@ spec:
     - name: mas_catalog_source
       type: string
       default: ""
+    - name: mas_add_channel
+      type: string
+    - name: mas_add_catalog
+      type: string
+      default: ""
 
     - name: mas_annotations
       default: ''
@@ -38,13 +43,6 @@ spec:
       type: string
       description: Optional identifier for the Upgrade strategy for MAS Operator. Default is set to Automatic
       default: ""
-
-    - name: mas_add_catalog
-      default: ''
-      type: string
-    - name: mas_add_channel
-      default: ''
-      type: string
 
     - name: mas_icr_cp
       type: string
@@ -84,17 +82,6 @@ spec:
       description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
       default: ""
 
-    # Optional parameters to categorize result to be persisted
-    # -------------------------------------------------------------------------
-    - name: devops_test_type
-      type: string
-      description: Optional. Used to different upgrade tests from other type of tests
-      default: ""
-    - name: devops_test_phase
-      type: string
-      description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
-      default: ""
-
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -111,10 +98,6 @@ spec:
         value: $(params.mas_instance_id)
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
-      - name: MAS_CHANNEL
-        value: $(params.mas_channel)
-      - name: MAS_CATALOG_SOURCE
-        value: $(params.mas_catalog_source)
 
       - name: MAS_ADD_CATALOG
         value: $(params.mas_add_catalog)
