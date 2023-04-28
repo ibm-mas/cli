@@ -57,16 +57,11 @@
 
 
 # Manage FVT API Tests
-- name: fvt-manage-api-test
+- name: fvt-manage-meter-api
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: meter-api-test
+      value: meter-api
   runAfter:
-    # API tests are not yet supported so it will temporarily run after all the other tests
-    # to avoid breaking pipeline before tests are executed
-    - fvt-manage-startcenter-config
-    - fvt-manage-escalation-action
-    - fvt-manage-metrics
-    - ivt-manage-monitor-dd
+    - fvt-manage-setup

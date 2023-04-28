@@ -2,7 +2,11 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
+{% if wait_for_install == true %}
+  name: mas-upgrade-after-install
+{% else %}
   name: mas-upgrade
+{% endif %}
 spec:
   params:
     # 1. Common Parameters
@@ -11,42 +15,53 @@ spec:
 
     # 2. Upgrade
     # -------------------------------------------------------------------------
-    {{ lookup('template', params_src_dir ~ '/upgrade.yml.j2') | indent(4) }}
+    - name: skip_compatibility_check
+      type: string
+      default: "False"
+      description: Skip performing compatiblity checks before upgrade
 
     {{ lookup('template', params_src_dir ~ '/install-appchannels.yml.j2') | indent(4) }}
 
   tasks:
+{% if wait_for_install == true %}
+    # Wait for the install pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-install
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      taskRef:
+        kind: Task
+        name: mas-fvt-wait-for-install
+{% endif %}
+
     # Phase 1
     # -------------------------------------------------------------------------
     # Suite Upgrade
-    - name: upgrade-core
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_channel
-          value: $(params.mas_channel)
-        - name: devops_test_type
-          value: $(params.devops_test_type)
-        - name: devops_test_phase
-          value: $(params.devops_test_phase)
-        - name: skip_compatibility_check
-          value: $(params.skip_compatibility_check)
-        - name: devops_suite_name
-          value: upgrade-core
+    - name: core-upgrade
       taskRef:
         kind: Task
         name: mas-devops-suite-upgrade
-
-    - name: verify
+{% if wait_for_install == true %}
+      runAfter:
+        - wait-for-install
+{% endif %}
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_channel
           value: $(params.mas_channel)
-        - name: devops_test_type
-          value: $(params.devops_test_type)
-        - name: devops_test_phase
-          value: $(params.devops_test_phase)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
+        - name: devops_suite_name
+          value: core-upgrade
+
+    - name: core-verify
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_channel
+          value: $(params.mas_channel)
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
@@ -55,13 +70,13 @@ spec:
         kind: Task
         name: mas-devops-suite-verify
       runAfter:
-        - upgrade-core
+        - core-upgrade
 
 
     # Phase 2 - Apps with no dependencies
     # -------------------------------------------------------------------------
     # IoT Upgrade
-    - name: upgrade-iot
+    - name: iot-upgrade
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -69,10 +84,6 @@ spec:
           value: iot
         - name: mas_app_channel
           value: $(params.mas_app_channel_iot)
-        - name: devops_test_type
-          value: $(params.devops_test_type)
-        - name: devops_test_phase
-          value: $(params.devops_test_phase)
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
@@ -81,10 +92,10 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - verify
+        - core-verify
 
     # Manage Upgrade
-    - name: upgrade-manage
+    - name: manage-upgrade
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -92,10 +103,6 @@ spec:
           value: manage
         - name: mas_app_channel
           value: $(params.mas_app_channel_manage)
-        - name: devops_test_type
-          value: $(params.devops_test_type)
-        - name: devops_test_phase
-          value: $(params.devops_test_phase)
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
@@ -104,10 +111,10 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - verify
+        - core-verify
 
     # Visual Inspection Upgrade
-    - name: upgrade-visualinspection
+    - name: visualinspection-upgrade
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -115,10 +122,6 @@ spec:
           value: visualinspection
         - name: mas_app_channel
           value: $(params.mas_app_channel_visualinspection)
-        - name: devops_test_type
-          value: $(params.devops_test_type)
-        - name: devops_test_phase
-          value: $(params.devops_test_phase)
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
@@ -127,10 +130,10 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - verify
+        - core-verify
 
     # Assist Upgrade
-    - name: upgrade-assist
+    - name: assist-upgrade
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -138,10 +141,6 @@ spec:
           value: assist
         - name: mas_app_channel
           value: $(params.mas_app_channel_assist)
-        - name: devops_test_type
-          value: $(params.devops_test_type)
-        - name: devops_test_phase
-          value: $(params.devops_test_phase)
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
@@ -150,10 +149,10 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - verify
+        - core-verify
 
     # Optimizer Upgrade
-    - name: upgrade-optimizer
+    - name: optimizer-upgrade
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -161,10 +160,6 @@ spec:
           value: optimizer
         - name: mas_app_channel
           value: $(params.mas_app_channel_optimizer)
-        - name: devops_test_type
-          value: $(params.devops_test_type)
-        - name: devops_test_phase
-          value: $(params.devops_test_phase)
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
@@ -173,13 +168,13 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - verify
+        - core-verify
 
 
     # Phase 3 - Apps dependant on upgrades in Phase 2
     # -------------------------------------------------------------------------
     # Monitor Upgrade (after IoT)
-    - name: upgrade-monitor
+    - name: monitor-upgrade
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -187,10 +182,6 @@ spec:
           value: monitor
         - name: mas_app_channel
           value: $(params.mas_app_channel_monitor)
-        - name: devops_test_type
-          value: $(params.devops_test_type)
-        - name: devops_test_phase
-          value: $(params.devops_test_phase)
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
@@ -199,10 +190,10 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - upgrade-iot
+        - iot-upgrade
 
     # Predict Upgrade (after Manage)
-    - name: upgrade-predict
+    - name: predict-upgrade
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -210,10 +201,6 @@ spec:
           value: predict
         - name: mas_app_channel
           value: $(params.mas_app_channel_predict)
-        - name: devops_test_type
-          value: $(params.devops_test_type)
-        - name: devops_test_phase
-          value: $(params.devops_test_phase)
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
@@ -222,10 +209,10 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - upgrade-manage
+        - manage-upgrade
 
     # HP Utilities Upgrade (after Manage)
-    - name: upgrade-hputilities
+    - name: hputilities-upgrade
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -233,10 +220,6 @@ spec:
           value: hputilities
         - name: mas_app_channel
           value: $(params.mas_app_channel_hputilities)
-        - name: devops_test_type
-          value: $(params.devops_test_type)
-        - name: devops_test_phase
-          value: $(params.devops_test_phase)
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
@@ -245,4 +228,4 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - upgrade-manage
+        - manage-upgrade
