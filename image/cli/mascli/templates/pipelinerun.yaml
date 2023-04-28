@@ -353,7 +353,7 @@ spec:
     - name: grafana_instance_storage_class
       value: '$GRAFANA_INSTANCE_STORAGE_CLASS'
     - name: grafana_instance_storage_size
-      value: '$GRAFANA_INSTANCE_STORAGE_CLASS'
+      value: '$GRAFANA_INSTANCE_STORAGE_SIZE'
 
   workspaces:
     # The generated configuration files
