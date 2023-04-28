@@ -14,7 +14,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: startcenter_config_layer3
+      value: startcenter-config
   runAfter:
     - fvt-manage-setup
 
@@ -24,28 +24,18 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: escalation_action_layer3
-  runAfter:
-    - fvt-manage-setup
-
-# Manage FVT Monitoring Metrics
-- name: fvt-manage-metrics
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: metrics_layer3
+      value: escalation-action
   runAfter:
     - fvt-manage-setup
 
 # Manage x Monitor IVT - Data Dictionary (Manage First)
-# TODO: these three tasks must be incorporated in a single task with 3 steps
+# TODO: these three tasks must be incorporated in a single task with 3 steps once text.xml is fixed in Maximo Automation Framework
 - name: fvt-manage-mif-jms-setup
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: mif_jms_setup
+      value: mif-jms-setup
   runAfter:
     - fvt-manage-setup
 - name: ivt-manage-monitor-dd-setup
@@ -53,7 +43,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: mif_dd_setup
+      value: mif-dd-setup
   runAfter:
     - fvt-manage-mif-jms-setup
 - name: ivt-manage-monitor-dd
@@ -61,7 +51,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: mif_dd
+      value: mif-dd
   runAfter:
     - ivt-manage-monitor-dd-setup
 
@@ -72,7 +62,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: api-test_layer3
+      value: meter-api-test
   runAfter:
     # API tests are not yet supported so it will temporarily run after all the other tests
     # to avoid breaking pipeline before tests are executed
