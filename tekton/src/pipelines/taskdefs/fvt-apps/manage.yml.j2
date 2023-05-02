@@ -57,11 +57,11 @@
 
 
 # Manage FVT API Tests
-- name: fvt-manage-meter-api
+- name: fvt-manage-metrics-api
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: meter-api
+      value: metrics-api-test
   runAfter:
     - fvt-manage-setup
