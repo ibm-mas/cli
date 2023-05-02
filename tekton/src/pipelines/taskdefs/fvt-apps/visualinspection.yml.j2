@@ -20,10 +20,6 @@
     - name: product_id
       value: ibm-mas-visualinspection
 
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
   taskRef:
     kind: Task
     name: mas-fvt-run-suite

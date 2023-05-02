@@ -62,17 +62,6 @@ spec:
       description: Boolean value to check if tests are runninng locally or on fvt
       default: "false"
 
-    # Optional parameters to categorize result to be persisted
-    # -------------------------------------------------------------------------
-    - name: devops_test_type
-      type: string
-      description: Optional. Used to different upgrade tests from other type of tests
-      default: ""
-    - name: devops_test_phase
-      type: string
-      description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
-      default: ""
-
   stepTemplate:
     name: 'fvt-run-$(params.fvt_image_name)'
     env:
@@ -132,11 +121,6 @@ spec:
       - name: CTF_IS_LOCAL
         value: $(params.ctf_is_local)
 
-      # Optional parameters to categorize result to be persisted
-      - name: DEVOPS_TEST_TYPE
-        value: $(params.devops_test_type)
-      - name: DEVOPS_TEST_PHASE
-        value: $(params.devops_test_phase)
   steps:
     - image: '$(params.fvt_image_registry)/fvt-assist/$(params.fvt_image_name)@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)

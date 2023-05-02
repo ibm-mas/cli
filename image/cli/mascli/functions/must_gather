@@ -1,5 +1,4 @@
 #!/bin/bash
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 MG_SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd "../must-gather" && pwd )"
 
 function mustgather() {

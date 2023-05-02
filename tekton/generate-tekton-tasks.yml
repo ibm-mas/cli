@@ -50,6 +50,7 @@
         - fvt-core-ui
         - fvt-manage
         - fvt-run-suite
+        - fvt-wait-for-install
 
     # 4. Generate Tasks (Suite)
     # -------------------------------------------------------------------------
