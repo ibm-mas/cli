@@ -22,7 +22,7 @@ function pipeline_prepare() {
   fi
 
 
-  echo "${COLOR_YELLOW}If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"
+  echo "${COLOR_YELLOW}If you are using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"
   echo ""
   prompt_for_confirm_default_yes "Wait for PVCs to bind?" WAIT_FOR_PVCS
 

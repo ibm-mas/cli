@@ -135,6 +135,8 @@ spec:
     # -------------------------------------------------------------------------
     - name: cpd_product_version
       value: '$CP4D_VERSION'
+    - name: cpd_install_spss
+      value: '$CPD_INSTALL_SPSS'
 
     # Dependencies - SLS
     # -------------------------------------------------------------------------
