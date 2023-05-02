@@ -249,12 +249,6 @@
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-manage
-    - name: fvt_image_name
-      value: fvt-ibm-mas-manage-transportation
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_manage_transportation)
     - name: fvt_test_suite
       value: fvt-tr-reg2-1
     - name: fvt_mas_appws_component
