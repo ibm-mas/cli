@@ -185,6 +185,9 @@ function config_pipeline_applications() {
         # Predict
         if prompt_for_confirm "Install Predict"; then
           channel_select_predict || exit 1
+          if prompt_for_confirm "+ Install SPSS (Optional CPD service)"; then
+          CPD_INSTALL_SPSS=true
+          fi
         fi
       fi
 
