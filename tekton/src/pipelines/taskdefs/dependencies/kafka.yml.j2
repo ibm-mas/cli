@@ -4,6 +4,7 @@
     - name: devops_suite_name
       value: dependencies-kafka
 
+    # AMQ Streams (Kafka)
     - name: kafka_namespace
       value: "$(params.kafka_namespace)"
     - name: kafka_cluster_name
@@ -18,6 +19,23 @@
       value: $(params.storage_class_rwo)
     - name: custom_labels
       value: $(params.custom_labels)
+
+    # IBM Cloud Event Streams (Kafka)
+    - name: kafka_provider
+      value: $(params.kafka_provider)
+    - name: eventstreams_resourcegroup
+      value: $(params.eventstreams_resourcegroup)
+    - name: eventstreams_name
+      value: $(params.eventstreams_name)
+    - name: eventstreams_location
+      value: $(params.eventstreams_location)
+    - name: eventstreams_retention
+      value: $(params.eventstreams_retention)
+    - name: eventstreams_create_manage_jms_topics
+      value: $(params.eventstreams_create_manage_jms_topics)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
+
   # Only install Kafka if the IoT application is being installed
   when:
     - input: "$(params.mas_app_channel_iot)"

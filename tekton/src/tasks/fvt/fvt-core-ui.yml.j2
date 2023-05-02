@@ -42,31 +42,6 @@ spec:
       type: string
       description: Workspace ID in MAS to use for running the tests
 
-    # Test-specific Information (all optional)
-    # -------------------------------------------------------------------------
-    - name: ddp_apikey
-      type: string
-      description: Partium username (required by fvt-adoptionusagereporter)
-      default: ""
-    - name: partium_username
-      type: string
-      description: Partium username (required by fvt-coreapi-workspacemgmt)
-      default: ""
-    - name: partium_password
-      type: string
-      description: Partium password (required by fvt-coreapi-workspacemgmt)
-      default: ""
-
-    # Optional parameters to categorize result to be persisted
-    # -------------------------------------------------------------------------
-    - name: devops_test_type
-      type: string
-      description: Optional. Used to different upgrade tests from other type of tests
-      default: ""
-    - name: devops_test_phase
-      type: string
-      description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
-      default: ""
 
   stepTemplate:
     name: 'fvt-core-ui'
@@ -109,18 +84,6 @@ spec:
       - name: IBMADMIN_ENABLED
         value: "true"
 
-      - name: DDP_APIKEY
-        value: $(params.ddp_apikey)
-      - name: PARTIUM_USERNAME
-        value: $(params.partium_username)
-      - name: PARTIUM_PASSWORD
-        value: $(params.partium_password)
-
-      # Optional parameters to categorize result to be persisted
-      - name: DEVOPS_TEST_TYPE
-        value: $(params.devops_test_type)
-      - name: DEVOPS_TEST_PHASE
-        value: $(params.devops_test_phase)
   steps:
     - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas-ui@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
