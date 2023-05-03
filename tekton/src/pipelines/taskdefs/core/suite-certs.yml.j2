@@ -1,0 +1,28 @@
+- name: suite-certs
+  params:
+    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    - name: devops_suite_name
+      value: suite-certs
+    - name: dns_provider
+      value: $(params.dns_provider)
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+    - name: mas_config_dir
+      value: $(params.mas_config_dir)
+    - name: mas_manual_cert_mgmt
+      value: $(params.mas_manual_cert_mgmt) 
+    - name: cis_crn
+      value: $(params.cis_crn)
+    - name: cis_apikey
+      value: $(params.cis_apikey)
+    - name: cis_subdomain
+      value: $(params.cis_subdomain)
+    - name: cis_proxy
+      value: $(params.cis_proxy)
+    - name: DEVOPS_SUITE_NAME
+      value: $(params.devops_suite_name)
+  taskRef:
+    kind: Task
+    name: mas-devops-suite-certs
