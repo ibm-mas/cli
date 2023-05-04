@@ -1,5 +1,6 @@
 ## Changes
 
+- [`4.1`](https://github.com/ibm-mas/cli/releases/tag/4.1.0) Added new Manage core functional tests and separate results from Industry Solutions by using different product ids (#241)
 - [`4.0`](https://github.com/ibm-mas/cli/releases/tag/4.0.0) Multiple updates:
     - Remove HP Utilities & MAS 8.8 support (#234)
     - Support April Catalog Update (#236)
