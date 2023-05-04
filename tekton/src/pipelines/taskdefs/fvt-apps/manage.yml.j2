@@ -65,12 +65,12 @@
   runAfter:
     - fvt-manage-setup
 
-# Manage FVT API Tests
-- name: fvt-manage-security-user
+# Manage FVT Security Audit Logging
+- name: fvt-manage-security-audit-logging
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: security-user
+      value: security-audit-logging
   runAfter:
     - fvt-manage-setup
