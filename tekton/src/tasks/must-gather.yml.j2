@@ -25,18 +25,18 @@ spec:
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       env:
-        # If this secret exists (with both ARTIFACTORY_TOKEN and ARTIFACTORY_UPLOAD_DIRECTORY keys set) the must-gather file will be automatically uploaded
+        # If this secret exists (with both ARTIFACTORY_TOKEN and ARTIFACTORY_UPLOAD_DIR keys set) the must-gather file will be automatically uploaded
         - name: ARTIFACTORY_TOKEN
           valueFrom:
             secretKeyRef:
               name: mas-devops
               key: ARTIFACTORY_TOKEN
               optional: true
-        - name: ARTIFACTORY_UPLOAD_DIRECTORY
+        - name: ARTIFACTORY_UPLOAD_DIR
           valueFrom:
             secretKeyRef:
               name: mas-devops
-              key: ARTIFACTORY_UPLOAD_DIRECTORY
+              key: ARTIFACTORY_UPLOAD_DIR
               optional: true
   workspaces:
     - name: mustgather
