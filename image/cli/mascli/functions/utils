@@ -34,6 +34,10 @@ function echo_highlight() {
   echo "${COLOR_CYAN}$1${COLOR_RESET}"
 }
 
+function echo_green() {
+  echo "${COLOR_GREEN}$1${COLOR_RESET}"
+}
+
 function echo_blue() {
   echo "${COLOR_BLUE}$1${COLOR_RESET}"
 }
