@@ -121,5 +121,7 @@ function mustgather() {
     set +e
   fi
 
+  echo_green "Must gather successfully saved to: $OUTPUT_FILE"
+
   true
 }
