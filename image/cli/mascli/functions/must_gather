@@ -1,6 +1,30 @@
 #!/bin/bash
 MG_SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd "../must-gather" && pwd )"
 
+function must_gather_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas must-gather [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+
+Collection Options (Optional):
+  -d, --directory ${COLOR_YELLOW}MG_DIR${TEXT_RESET}     Directory where the must-gather will be saved, defaults to /tmp/must-gather
+  --summary-only             Perform a much faster must-gather that only gathers high level summary of resources in the cluster
+  --no-pod-logs              Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required
+
+Artifactory Upload (Optional):
+  --artifactory-token ${COLOR_YELLOW}ARTIFACTORY_TOKEN${TEXT_RESET}              Provide a token for Artifactory to automatically upload the file to ARTIFACTORY_UPLOAD_DIR
+  --artifactory-upload-dir ${COLOR_YELLOW}ARTIFACTORY_UPLOAD_DIR${TEXT_RESET}    Working URL to the root directory in Artifactory where the must-gather file should be uploaded
+
+Other Options:
+  -h, --help    Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+
 function mustgather() {
   # Take the first parameter off (it will be "must-gather")
   shift
@@ -28,13 +52,17 @@ function mustgather() {
     --artifactory-token)
       ARTIFACTORY_TOKEN=$1; shift
       ;;
-    --artifactory-upload-directory)
-      ARTIFACTORY_UPLOAD_DIRECTORY=$1; shift
+    --artifactory-upload-dir)
+      ARTIFACTORY_UPLOAD_DIR=$1; shift
+      ;;
+    -h|--help)
+      must_gather_help
+      exit 0
       ;;
     *)
       # unknown option
       echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-      mirror_to_registry_help
+      must_gather_help
       exit 1
       ;;
     esac
@@ -105,10 +133,10 @@ function mustgather() {
   done
 
   tar -czf $OUTPUT_FILE -C $MG_DIR $TIMESTAMP
-  if [[ -n "$ARTIFACTORY_TOKEN" && -n "$ARTIFACTORY_UPLOAD_DIRECTORY" ]]; then
+  if [[ -n "$ARTIFACTORY_TOKEN" && -n "$ARTIFACTORY_UPLOAD_DIR" ]]; then
     set -e
     ARTIFACTORY_AUTH_HEADER="Authorization:Bearer $ARTIFACTORY_TOKEN"
-    TARGET_URL="${ARTIFACTORY_UPLOAD_DIRECTORY}/${OUTPUT_FILENAME}"
+    TARGET_URL="${ARTIFACTORY_UPLOAD_DIR}/${OUTPUT_FILENAME}"
 
     MD5_VALUE="`md5sum "$OUTPUT_FILE"`"
     MD5_VALUE="${MD5_VALUE:0:32}"
