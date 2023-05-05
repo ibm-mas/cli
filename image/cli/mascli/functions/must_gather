@@ -32,7 +32,7 @@ function mustgather() {
   # Set defaults
   SUMMARY_ONLY=false
   POD_LOGS=true
-  MG_DIR=/tmp/must-gather
+  MG_DIR=/must-gather
 
   # Process command flags
   while [[ $# -gt 0 ]]
