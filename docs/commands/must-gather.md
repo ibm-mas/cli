@@ -7,6 +7,7 @@ Usage
 
 ### Options
 - `-d|--directory MG_DIR` Directory where the must-gather will be saved, defaults to `/must-gather`
+- `-k|--keep-files` Do not delete individual files after creating the must-gather compressed tar archive
 - `--summary-only` Perform a much faster must-gather that only gathers high level summary of resources in the cluster
 - `--no-pod-logs` Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required
 - `--artifactory-token ARTIFACTORY_TOKEN` Provide a token for Artifactory to automatically upload the file to `ARTIFACTORY_UPLOAD_DIRECTORY`

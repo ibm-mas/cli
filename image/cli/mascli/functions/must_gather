@@ -11,6 +11,7 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 
 Collection Options (Optional):
   -d, --directory ${COLOR_YELLOW}MG_DIR${TEXT_RESET}     Directory where the must-gather will be saved, defaults to /tmp/must-gather
+  -k, --keep-files           Do not delete individual files after creating the must-gather compressed tar archive
   --summary-only             Perform a much faster must-gather that only gathers high level summary of resources in the cluster
   --no-pod-logs              Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required
 
@@ -55,6 +56,9 @@ function mustgather() {
     --artifactory-upload-dir)
       ARTIFACTORY_UPLOAD_DIR=$1; shift
       ;;
+    -k|--keep-files)
+      KEEP_FILES=true;
+      ;;
     -h|--help)
       must_gather_help
       exit 0
@@ -81,12 +85,27 @@ function mustgather() {
 
   echo "Must gather will be saved to: $OUTPUT_FILE"
 
+  # Generate OCP Report
+  # -----------------------------------------------------------------------------
+  echo_h2 "Generate OCP Report"
+  echo "- Cluster Resources"
+  for RESOURCE in namespaces packagemanifests clusterversions storageclasses operatorconditions
+  do
+    $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources --no-detail
+  done
+
+  echo "- OpenShift Marketplace"
+  for RESOURCE in catalogsources jobs
+  do
+    $MG_SCRIPT_DIR/mg-collect-resources -n openshift-marketplace -r $RESOURCE -d $OUTPUT_DIR/resources
+  done
+
+  echo "- Operator Conditions"
+  oc get operatorconditions --all-namespaces 2&> ${OUTPUT_DIR}/operatorconditions.txt
+
   # Generate Dependency Report
   # -----------------------------------------------------------------------------
   echo_h2 "Generate Dependency Report"
-  echo "- Cluster Namespaces"
-  oc get namespaces -o wide > ${OUTPUT_DIR}/namespaces.txt
-
   echo "- IBM CloudPak Foundation Services"
   $MG_SCRIPT_DIR/mg-summary-ibm-common-services 2&> ${OUTPUT_DIR}/ibm-common-services.txt
 
@@ -123,9 +142,9 @@ function mustgather() {
         if [[ "$SUMMARY_ONLY" == false ]]
         then
           $MG_SCRIPT_DIR/mg-collect-pods $MAS_APP_NAMESPACE $POD_LOGS $OUTPUT_DIR/resources
-          for RESOURCE in configmaps secrets services routes pvc deployments statefulsets
+          for RESOURCE in configmaps secrets services routes pvc deployments statefulsets jobs
           do
-            $MG_SCRIPT_DIR/mg-collect-resources $MAS_APP_NAMESPACE $RESOURCE $OUTPUT_DIR/resources
+            $MG_SCRIPT_DIR/mg-collect-resources -n $MAS_APP_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
           done
         fi
       fi
@@ -149,6 +168,9 @@ function mustgather() {
     set +e
   fi
 
+  if [[ "$KEEP_FILES" != "true" ]]; then
+    rm -rf "$OUTPUT_DIR"
+  fi
   echo_green "Must gather successfully saved to: $OUTPUT_FILE"
 
   true
