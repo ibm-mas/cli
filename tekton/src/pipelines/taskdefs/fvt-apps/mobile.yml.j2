@@ -1,18 +1,8 @@
 ## Mobile Foundation Manage Setup
 - name: fvt-mobilefoundation-manage-setup
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: devops_cos_crn
-      value: $(params.devops_cos_crn)
-    - name: devops_ibmcloud_apikey
-      value: $(params.devops_ibmcloud_apikey)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-mobilefoundation
     - name: fvt_image_name
@@ -20,49 +10,25 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_mobilefoundation_manage_setup)
     - name: fvt_mas_appws_component
-      value: base
+      value: mobfound
     - name: mas_appws_components
       value: $(params.mas_appws_components)
     - name: fvt_test_suite
       value: mxmobsetup # Keyword for Mobile FVT
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
-    - name: artifactory_token
-      value: $(params.fvt_artifactory_token)
-
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
-  taskRef:
-    kind: Task
-    name: mas-fvt-manage
   # Only if we've set a digest of the Manage Transportation FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_mobilefoundation_manage_setup)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-manage-setup
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 ## Mobile Foundation Prepare User Data
 - name: fvt-mobilefoundation-testng-preparedata
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }} 
     - name: fvt_image_namespace
       value: fvt-mobilefoundation
     - name: fvt_image_name
@@ -71,45 +37,23 @@
       value: $(params.fvt_digest_mobilefoundation_preparedata)
     - name: fvt_test_suite
       value: prepare
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
-
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
-  taskRef:
-    kind: Task
-    name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_mobilefoundation_preparedata)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - ivtcore-manage
     - fvt-mobilefoundation-manage-setup
-  workspaces:
-    - name: configs
-      workspace: shared-configs
-
+  
 ## All Mobile Foundation MAS test suites
 - name: fvt-mobilefoundation-testng-mas-android
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-mobilefoundation
     - name: fvt_image_name
@@ -117,48 +61,26 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_mobilefoundation_testng)
     - name: fvt_test_suite
-      value: testng-all
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
+      value: mobfoundation-mvt-android
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
     - name: foundation_device_type
       value: android
     - name: foundation_server_type
       value: mas
-
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
-  taskRef:
-    kind: Task
-    name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_mobilefoundation_testng)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-mobilefoundation-testng-preparedata
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 - name: fvt-mobilefoundation-testng-mas-ios
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-mobilefoundation
     - name: fvt_image_name
@@ -166,100 +88,51 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_mobilefoundation_testng)
     - name: fvt_test_suite
-      value: testng-all
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
+      value: mobfoundation-mvt-ios
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
     - name: foundation_device_type
       value: ios
     - name: foundation_server_type
       value: mas
-
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
-  taskRef:
-    kind: Task
-    name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_mobilefoundation_testng)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-mobilefoundation-testng-preparedata
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 ## Prepare Data for Mobile Service Request MAS test suites
 - name: fvt-servicerequest-setup4sr
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: devops_cos_crn
-      value: $(params.devops_cos_crn)
-    - name: ibmcloud_apikey
-      value: $(params.ibmcloud_apikey)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-servicerequests
     - name: fvt_image_name
       value: fvt-servicerequests-manage-setup
     - name: fvt_image_digest
       value: $(params.fvt_digest_servicerequests_manage_setup)
-    - name: artifactory_token
-      value: $(params.fvt_artifactory_token)
     - name: fvt_test_suite
       value: SR-setup
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
-
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
-  taskRef:
-    kind: Task
-    name: mas-fvt-manage
+    - name: fvt_mas_appws_component
+      value: mobsr
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_servicerequests_manage_setup)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-manage-setup
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 ## Minimum Verification Test for Mobile Service Request MAS test suites
 - name: fvt-servicerequest-testng-mas-android
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-servicerequests
     - name: fvt_image_name
@@ -268,48 +141,26 @@
       value: $(params.fvt_digest_servicerequests_testng)
     - name: fvt_test_suite
       value: SR-mas-android-MVT
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
       value: android
     - name: assist_server_type
       value: mas
-
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
-  taskRef:
-    kind: Task
-    name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Service Request FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_servicerequests_testng)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-servicerequest-setup4sr
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 ## Minimum Verification Test for Mobile Service Request MAS test suites
 - name: fvt-servicerequest-testng-mas-ios
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-servicerequests
     - name: fvt_image_name
@@ -318,48 +169,26 @@
       value: $(params.fvt_digest_servicerequests_testng)
     - name: fvt_test_suite
       value: SR-mas-ios-MVT
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
       value: ios
     - name: assist_server_type
       value: mas
-
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
-  taskRef:
-    kind: Task
-    name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Service Request FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }} 
     - input: "$(params.fvt_digest_servicerequests_testng)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-servicerequest-testng-mas-android
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 ## Prepare Data for Mobile Technician MAS test suites
 - name: fvt-technician-testng-preparedata
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-technician
     - name: fvt_image_name
@@ -368,37 +197,20 @@
       value: $(params.fvt_digest_technician_preparedata)
     - name: fvt_test_suite
       value: Technician-prepare-data
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
-  taskRef:
-    kind: Task
-    name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_technician_preparedata)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-asset-manager-testng-mas-ios
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 ## Minimum Verification Test for Mobile Technician MAS test suites
 - name: fvt-technician-testng-mas-android
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-technician
     - name: fvt_image_name
@@ -407,43 +219,26 @@
       value: $(params.fvt_digest_technician_testng)
     - name: fvt_test_suite
       value: Technician-mas-android-MVT
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
       value: android
     - name: assist_server_type
       value: mas
-  taskRef:
-    kind: Task
-    name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Technician FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_technician_testng)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-technician-testng-preparedata
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 ## Minimum Verification Test for Mobile Technician MAS test suites
 - name: fvt-technician-testng-mas-ios
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-technician
     - name: fvt_image_name
@@ -452,43 +247,26 @@
       value: $(params.fvt_digest_technician_testng)
     - name: fvt_test_suite
       value: Technician-mas-ios-MVT
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
       value: ios
     - name: assist_server_type
       value: mas
-  taskRef:
-    kind: Task
-    name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Technician FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_technician_testng)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-technician-testng-mas-android
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 ## Prepare Data for Mobile Inspection MAS test suites
 - name: fvt-inspections-testng-preparedata
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-inspections
     - name: fvt_image_name
@@ -497,37 +275,20 @@
       value: $(params.fvt_digest_inspection_preparedata)
     - name: fvt_test_suite
       value: Inspections-prepare-data
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
-  taskRef:
-    kind: Task
-    name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_inspection_preparedata)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-manage-setup
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 ## Minimum Verification Test for Mobile Inspection MAS test suites
 - name: fvt-inspections-testng-mas-android
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-inspections
     - name: fvt_image_name
@@ -536,43 +297,26 @@
       value: $(params.fvt_digest_inspection_testng)
     - name: fvt_test_suite
       value: Inspections-mas-android-MVT
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
       value: android
     - name: assist_server_type
       value: mas
-  taskRef:
-    kind: Task
-    name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Inspection FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_inspection_testng)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-inspections-testng-preparedata
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 ## Minimum Verification Test for Mobile Inspections MAS test suites
 - name: fvt-inspections-testng-mas-ios
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-inspections
     - name: fvt_image_name
@@ -581,43 +325,26 @@
       value: $(params.fvt_digest_inspection_testng)
     - name: fvt_test_suite
       value: Inspections-mas-ios-MVT
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
       value: ios
     - name: assist_server_type
       value: mas
-  taskRef:
-    kind: Task
-    name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Inspection FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_inspection_testng)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-inspections-testng-mas-android
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 ## Prepare Data for Mobile Defects MAS test suites
 - name: fvt-defects-testng-preparedata
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage-civil
     - name: fvt_image_name
@@ -626,37 +353,20 @@
       value: $(params.fvt_digest_manage_defects_preparedata)
     - name: fvt_test_suite
       value: Defects-prepare-data
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
-  taskRef:
-    kind: Task
-    name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_manage_defects_preparedata)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-manage-setup
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 ## Minimum Verification Test for Mobile Defects MAS test suites
 - name: fvt-defects-testng-mas-android
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage-civil
     - name: fvt_image_name
@@ -665,43 +375,26 @@
       value: $(params.fvt_digest_manage_defects_testng)
     - name: fvt_test_suite
       value: Defects-mas-android-MVT
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
       value: android
     - name: assist_server_type
       value: mas
-  taskRef:
-    kind: Task
-    name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Defects FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_manage_defects_testng)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-defects-testng-preparedata
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 ## Minimum Verification Test for Mobile Defects MAS test suites
 - name: fvt-defects-testng-mas-ios
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage-civil
     - name: fvt_image_name
@@ -710,43 +403,26 @@
       value: $(params.fvt_digest_manage_defects_testng)
     - name: fvt_test_suite
       value: Defects-mas-ios-MVT
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
       value: ios
     - name: assist_server_type
       value: mas
-  taskRef:
-    kind: Task
-    name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Defects FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_manage_defects_testng)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-defects-testng-mas-android
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 ## Prepare Data for Mobile Asset Manager MAS test suites
 - name: fvt-asset-manager-testng-preparedata
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-asset-manager
     - name: fvt_image_name
@@ -755,42 +431,20 @@
       value: $(params.fvt_digest_asset_manager_preparedata)
     - name: fvt_test_suite
       value: AssetManager-prepare-data
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
-
-    - name: test_type
-      value: $(params.devops_test_type)
-    - name: test_phase
-      value: $(params.devops_test_phase)
-  taskRef:
-    kind: Task
-    name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_asset_manager_preparedata)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-manage-setup
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 ## Minimum Verification Test for Mobile Asset Manager MAS test suites
 - name: fvt-asset-manager-testng-mas-android
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-asset-manager
     - name: fvt_image_name
@@ -799,24 +453,12 @@
       value: $(params.fvt_digest_asset_manager_testng)
     - name: fvt_test_suite
       value: AssetManager-mas-android-MVT
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
       value: android
     - name: assist_server_type
       value: mas
-
-    - name: test_type
-      value: $(params.devops_test_type)
-    - name: test_phase
-      value: $(params.devops_test_phase)
-  taskRef:
-    kind: Task
-    name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Asset Manager FVT to run
   when:
     - input: "$(params.fvt_digest_asset_manager_testng)"
@@ -827,20 +469,12 @@
       values: [""]
   runAfter:
     - fvt-asset-manager-testng-preparedata
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 ## Minimum Verification Test for Mobile Asset Manager MAS test suites
 - name: fvt-asset-manager-testng-mas-ios
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-asset-manager
     - name: fvt_image_name
@@ -849,53 +483,26 @@
       value: $(params.fvt_digest_asset_manager_testng)
     - name: fvt_test_suite
       value: AssetManager-mas-ios-MVT
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
       value: ios
     - name: assist_server_type
       value: mas
-
-    - name: test_type
-      value: $(params.devops_test_type)
-    - name: test_phase
-      value: $(params.devops_test_phase)
-  taskRef:
-    kind: Task
-    name: mas-fvt-run-suite
   # Only if we've set a digest of the Mobile Asset Manager FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_asset_manager_testng)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-asset-manager-testng-mas-android
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 # Manage FVT - IC Setup
 - name: fvt-mobile-inventorycounting-setup
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: devops_cos_crn
-      value: $(params.devops_cos_crn)
-    - name: devops_ibmcloud_apikey
-      value: $(params.devops_ibmcloud_apikey)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-inventorycounting
     - name: fvt_image_name
@@ -903,54 +510,25 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_ic_manage_setup)
     - name: fvt_mas_appws_component
-      value: base
+      value: mobic
     - name: mas_appws_components
       value: $(params.mas_appws_components)
     - name: fvt_test_suite
       value: setup4ic # Keyword for IC setup
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
-    - name: artifactory_token
-      value: $(params.fvt_artifactory_token)
-
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
-  taskRef:
-    kind: Task
-    name: mas-fvt-manage
   # Only if we've set a digest of the IC FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_ic_manage_setup)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-manage-setup
-  workspaces:
-    - name: configs
-      workspace: shared-configs
 
 # Mobile FVT - Inventory Counting
 - name: fvt-mobile-inventorycounting
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: devops_cos_crn
-      value: $(params.devops_cos_crn)
-    - name: devops_ibmcloud_apikey
-      value: $(params.devops_ibmcloud_apikey)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-inventorycounting
     - name: fvt_image_name
@@ -963,30 +541,11 @@
       value: $(params.mas_appws_components)
     - name: fvt_test_suite
       value: prepare-test-data-testng-mas # xml for Mobile IC
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mobile
-    - name: artifactory_token
-      value: $(params.fvt_artifactory_token)
-
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
-  taskRef:
-    kind: Task
-    name: mas-fvt-manage
   # Only if we've set a digest of the Mobile IC FVT to run
   when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_ic_testng)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
     - fvt-mobile-inventorycounting-setup
-  workspaces:
-    - name: configs
-      workspace: shared-configs

@@ -38,22 +38,36 @@ spec:
       type: string
       default: ""
 
+    # Dependencies - IBM Cloud Event Streams (Kafka)
+    # -----------------------------------------------------------------------------
+    - name: kafka_provider
+      type: string
+      default: ""
+    - name: eventstreams_resourcegroup
+      type: string
+      default: ""
+    - name: eventstreams_name
+      type: string
+      default: ""
+    - name: eventstreams_location
+      type: string
+      default: ""
+    - name: eventstreams_retention
+      type: string
+      default: ""
+    - name: eventstreams_create_manage_jms_topics
+      type: string
+      default: ""
+    - name: ibmcloud_apikey
+      type: string
+      description: API Key used to create Event Streams instance in IBM Cloud
+      default: ""
+
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
     - name: devops_suite_name
       type: string
       description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
-      default: ""
-
-    # Optional parameters to categorize result to be persisted
-    # -------------------------------------------------------------------------
-    - name: devops_test_type
-      type: string
-      description: Optional. Used to different upgrade tests from other type of tests
-      default: ""
-    - name: devops_test_phase
-      type: string
-      description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
       default: ""
 
   stepTemplate:
@@ -80,6 +94,22 @@ spec:
         value: $(params.kafka_storage_class)
       - name: ZOOKEEPER_STORAGE_CLASS
         value: $(params.zookeeper_storage_class)
+
+      # Optional - IBM Cloud Event Streams (Kafka)
+      - name: KAFKA_PROVIDER
+        value: $(params.kafka_provider)
+      - name: EVENTSTREAMS_RESOURCEGROUP
+        value: $(params.eventstreams_resourcegroup)
+      - name: EVENTSTREAMS_NAME
+        value: $(params.eventstreams_name)
+      - name: EVENTSTREAMS_LOCATION
+        value: $(params.eventstreams_location)
+      - name: EVENTSTREAMS_RETENTION
+        value: $(params.eventstreams_retention)
+      - name: EVENTSTREAMS_CREATE_MANAGE_JMS_TOPICS
+        value: $(params.eventstreams_create_manage_jms_topics)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
 
   steps:
     - name: kafka

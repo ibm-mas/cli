@@ -1,6 +1,6 @@
 # Common Parameters
 # -------------------------------------------------------------------------
-# Tekton Pipeline image pull policy (for CLI & FVT images)
+# Tekton Pipeline image pull policy (for ibmmas/cli images)
 - name: image_pull_policy
   type: string
   default: IfNotPresent
@@ -21,16 +21,6 @@
   type: string
   default: ""
   description: Optional custom labels, comma separated list of key=value pairs
-
-# Persist Results (Optional)
-- name: devops_test_type
-  type: string
-  description: Optional. Used to different upgrade tests from other type of tests
-  default: ""
-- name: devops_test_phase
-  type: string
-  description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
-  default: ""
 
 # MAS Configuration
 - name: mas_channel

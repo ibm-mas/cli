@@ -74,7 +74,7 @@ div[role=main] p.admonition-title + ul {
 }
 
 .wy-nav-content {
-    max-width: 1200px !important;
+  max-width: 1200px !important;
 }
 
 .wy-table-responsive table td, .wy-table-responsive table th {

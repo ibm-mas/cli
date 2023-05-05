@@ -93,17 +93,6 @@ spec:
       description: Artifactory API Key (required by fvt-ibm-mas-manage to pull test container content)
       default: ""
 
-    # Optional parameters to categorize result to be persisted
-    # -------------------------------------------------------------------------
-    - name: devops_test_type
-      type: string
-      description: Optional. Used to different upgrade tests from other type of tests
-      default: ""
-    - name: devops_test_phase
-      type: string
-      description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
-      default: ""
-
   stepTemplate:
     name: 'fvt-manage'
     env:
@@ -163,11 +152,6 @@ spec:
       - name: DEVOPS_IBMCLOUD_APIKEY
         value: $(params.devops_ibmcloud_apikey)
 
-      # Optional parameters to categorize result to be persisted
-      - name: DEVOPS_TEST_TYPE
-        value: $(params.devops_test_type)
-      - name: DEVOPS_TEST_PHASE
-        value: $(params.devops_test_phase)
   steps:
     - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)

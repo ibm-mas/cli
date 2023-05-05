@@ -58,7 +58,7 @@ spec:
       type: string
       description: Directory inside container that will be uploaded to Object Storage (optional)
       default: ""
-    - name: ibmcloud_apikey
+    - name: devops_ibmcloud_apikey
       description: IBM Cloud API Key to access Object Storage resource (optional)
       default: ""
 
@@ -131,17 +131,6 @@ spec:
       description: Boolean value to check if tests are runninng locally or on fvt
       default: "false"
 
-    # Optional parameters to categorize result to be persisted
-    # -------------------------------------------------------------------------
-    - name: devops_test_type
-      type: string
-      description: Optional. Used to different upgrade tests from other type of tests
-      default: ""
-    - name: devops_test_phase
-      type: string
-      description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
-      default: ""
-
   stepTemplate:
     name: 'fvt-run-$(params.fvt_image_name)'
     env:
@@ -191,8 +180,8 @@ spec:
         value: $(params.devops_cos_crn)
       - name: DEVOPS_COS_UPLOAD_FOLDER
         value: $(params.devops_cos_upload_folder)
-      - name: IBMCLOUD_APIKEY
-        value: $(params.ibmcloud_apikey)
+      - name: DEVOPS_IBMCLOUD_APIKEY
+        value: $(params.devops_ibmcloud_apikey)
 
       # Assist Specific information
       - name: BROWSERSTACK_TESTSERVER
@@ -222,11 +211,6 @@ spec:
       - name: CTF_IS_LOCAL
         value: $(params.ctf_is_local)
 
-      # Optional parameters to categorize result to be persisted
-      - name: DEVOPS_TEST_TYPE
-        value: $(params.devops_test_type)
-      - name: DEVOPS_TEST_PHASE
-        value: $(params.devops_test_phase)
   steps:
     - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
