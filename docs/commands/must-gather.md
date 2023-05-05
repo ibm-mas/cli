@@ -17,7 +17,7 @@ Content
 -------------------------------------------------------------------------------
 
 ```
-tmp/must-gather/
+/must-gather/
 ├── 20230423-204411
 │   ├── reconcile-logs
 │   │   └── mas-inst1-core
@@ -29,13 +29,27 @@ tmp/must-gather/
 │   │   |   └── MongoCfg
 │   │   |       └── 20230423-130043.log
 │   ├── resources
-│   │   └── mas-inst1-core
+│   │   ├── _cluster
+│   |   │   ├── clusterversions.txt
+│   |   │   ├── namespaces.txt
+│   |   │   ├── operatorconditions.txt
+│   |   │   ├── packagemanifests.txt
+│   |   │   └── storageclasses.txt
+│   │   ├── mas-inst1-core
+│   │   |   ├── clusterserviceversions
+│   │   |   │   └── <contain definition of every ClusterServiceVersion in the namespace>
 │   │   |   ├── configmaps
 │   │   |   │   ├── ibm-cpp-config.yaml
 │   │   |   │   └── ibm-licensing-upload-config.yaml
 │   │   |   ├── deployments
 │   │   |   │   ├── inst1-coreapi.yaml
 │   │   |   │   └── isnt2-internalapi.yaml
+│   │   |   ├── installplans
+│   │   |   │   └── <contain definition of every InstallPlan in the namespace>
+│   │   |   ├── jobs
+│   │   |   │   └── <contain definition of every Job in the namespace>
+│   │   |   ├── operatorconditions
+│   │   |   │   └── <contain definition of every OperatorCondition in the namespace>
 │   │   |   ├── pods
 │   │   |   │   ├── app1
 │   │   |   │   |   ├── logs
@@ -46,47 +60,44 @@ tmp/must-gather/
 │   │   |   │   └── app3
 │   │   |   ├── pvc
 │   │   |   │   └── <contain definition of every PVC in the namespace>
+│   │   |   ├── roles
+│   │   |   │   └── <contain definition of every Role in the namespace>
+│   │   |   ├── rolebindings
+│   │   |   │   └── <contain definition of every RoleBinding in the namespace>
 │   │   |   ├── routes
 │   │   |   │   └── <contain definition of every Route in the namespace>
 │   │   |   ├── secrets
 │   │   |   │   └── <contain definition of every Secret in the namespace>
+│   │   |   ├── serviceaccounts
+│   │   |   │   └── <contain definition of every ServiceAccount in the namespace>
 │   │   |   ├── services
 │   │   |   │   └── <contain definition of every Service in the namespace>
 │   │   |   ├── statefulsets
 │   │   |   │   └── <contain definition of every StatefulSet in the namespace>
+│   │   |   ├── subscriptions
+│   │   |   │   └── <contain definition of every Subscription in the namespace>
+│   │   |   ├── clusterserviceversions.txt
 │   │   |   ├── configmaps.txt
 │   │   |   ├── deployments.txt
+│   │   |   ├── installplans.txt
+│   │   |   ├── jobs.txt
+│   │   |   ├── operatorconditions.txt
 │   |   │   ├── pods.txt
 │   |   │   ├── pvc.txt
+│   |   │   ├── roles.txt
+│   |   │   ├── rolebindings.txt
 │   |   │   ├── routes.txt
 │   |   │   ├── secrets.txt
+│   |   │   ├── serviceaccounts.txt
 │   |   │   ├── services.txt
-│   |   │   └── statefulsets.txt
+│   |   │   ├── statefulsets.txt
+│   │   |   └── subscriptions.txt
 │   │   └── mas-inst1-appId
-│   │       ├── configmaps
-│   │       │   └── <contain definition of every ConfigMap in the namespace>
-│   │       ├── deployments
-│   │       │   └── <contain definition of every Deployment in the namespace>
-│   │       ├── pods
-│   │       │   └── <contain definition of every Pod in the namespace>
-│   │       ├── pvc
-│   │       │   └── <contain definition of every PVC in the namespace>
-│   │       ├── routes
-│   │       │   └── <contain definition of every Route in the namespace>
-│   │       ├── secrets
-│   │       │   └── <contain definition of every Secret in the namespace>
-│   │       ├── services
-│   │       │   └── <contain definition of every Service in the namespace>
-│   │       ├── statefulsets
-│   │       │   └── <contain definition of every StatefulSet in the namespace>
-│   │       ├── configmaps.txt
-│   │       ├── deployments.txt
-│   |       ├── pods.txt
-│   |       ├── pvc.txt
-│   |       ├── routes.txt
-│   |       ├── secrets.txt
-│   |       ├── services.txt
-│   |       └── statefulsets.txt
+│   │   |   └── <contain must-gather from mas-inst1-appId>
+│   │   ├── mas-inst2-core
+│   │   |   └── <contain must-gather from mas-inst2-core>
+│   │   └── mas-inst2-appId
+│   │       └── <contain must-gather from mas-inst2-appId>
 │   ├── cp4d.txt
 │   ├── db2u.txt
 │   ├── ibm-common-services.txt
@@ -94,7 +105,6 @@ tmp/must-gather/
 │   ├── mas-inst1-appId.txt
 │   ├── mas-inst2-core.txt
 │   ├── mas-inst2-appId.txt
-│   └── namespaces.txt
 └── must-gather-20230423-204411.tgz
 ```
 

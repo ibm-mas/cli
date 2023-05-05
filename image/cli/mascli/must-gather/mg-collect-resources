@@ -33,9 +33,12 @@ else
     NAMESPACE_DIR=${OUTPUT_DIR}/_cluster
 fi
 
-RESOURCE_DIR=${NAMESPACE_DIR}/${RESOURCE_TYPE}
-mkdir -p $RESOURCE_DIR
-rm -rf $RESOURCE_DIR/*
+mkdir -p $NAMESPACE_DIR
+
+if [[ "$NO_DETAIL" == "false" ]]; then
+    RESOURCE_DIR=${NAMESPACE_DIR}/${RESOURCE_TYPE}
+    mkdir -p $RESOURCE_DIR
+fi
 
 echo "  - Collecting debug information: ${RESOURCE_TYPE}"
 

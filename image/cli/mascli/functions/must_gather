@@ -89,7 +89,7 @@ function mustgather() {
   # -----------------------------------------------------------------------------
   echo_h2 "Generate OCP Report"
   echo "- Cluster Resources"
-  for RESOURCE in namespaces packagemanifests clusterversions storageclasses operatorconditions
+  for RESOURCE in namespaces packagemanifests clusterversions storageclasses nodes clusterroles clusterrolebindings
   do
     $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources --no-detail
   done
@@ -105,6 +105,7 @@ function mustgather() {
 
   # Generate Dependency Report
   # -----------------------------------------------------------------------------
+  echo ""
   echo_h2 "Generate Dependency Report"
   echo "- IBM CloudPak Foundation Services"
   $MG_SCRIPT_DIR/mg-summary-ibm-common-services 2&> ${OUTPUT_DIR}/ibm-common-services.txt
@@ -142,7 +143,7 @@ function mustgather() {
         if [[ "$SUMMARY_ONLY" == false ]]
         then
           $MG_SCRIPT_DIR/mg-collect-pods $MAS_APP_NAMESPACE $POD_LOGS $OUTPUT_DIR/resources
-          for RESOURCE in configmaps secrets services routes pvc deployments statefulsets jobs
+          for RESOURCE in configmaps secrets services routes pvc deployments statefulsets jobs operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings
           do
             $MG_SCRIPT_DIR/mg-collect-resources -n $MAS_APP_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
           done
