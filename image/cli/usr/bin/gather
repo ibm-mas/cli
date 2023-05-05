@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# https://github.com/openshift/enhancements/blob/89bbe226db20573f8f489eacb558a9f011072737/enhancements/oc/must-gather.md#must-gather-images
+mas must-gather
