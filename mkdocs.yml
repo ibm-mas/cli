@@ -15,8 +15,6 @@ nav:
       - "Install": guides/install.md
       - "Update": guides/update.md
       - "Upgrade": guides/upgrade.md
-      - "MAS Core Explained": guides/architecture/core.md
-      - "MAS Pods Explained": guides/mas-pods-explained.md
   - "Commands":
       - "provision-fyre": commands/provision-fyre.md
       - "provision-roks": commands/provision-roks.md
@@ -25,6 +23,7 @@ nav:
       - "mirror-images": commands/mirror-images.md
       - "configure-airgap": commands/configure-airgap.md
       - "install": commands/install.md
+      - "must-gather": commands/must-gather.md
       - "configtool-oidc": commands/configtool-oidc.md
   - "Catalogs":
       - "Overview": catalogs/index.md
