@@ -17,8 +17,12 @@ TMP_DIR=${OUTPUT_DIR}/tmp-$CONTROL_PLANE
 mkdir -p $TMP_DIR
 
 oc -n $NAMESPACE exec $POD -- tar -czf - $LOGFILES > $TMP_DIR/ansible-logs-$KIND.tgz 2> /dev/null
-tar -xf $TMP_DIR/ansible-logs-$KIND.tgz -C $TMP_DIR
-rm $TMP_DIR/ansible-logs-$KIND.tgz
+tar -xf $TMP_DIR/ansible-logs-$KIND.tgz -C $TMP_DIR 2> /dev/null
+if [[ "$?" == "0" ]]; then
+  rm $TMP_DIR/ansible-logs-$KIND.tgz
+else
+  echo_warning "    - Unable to get Reconcile logs from $POD"
+fi
 
 for API_DIR in $TMP_DIR/tmp/ansible-operator/runner/*
 do
