@@ -1,5 +1,11 @@
 ## Changes
 
+- [`4.2`](https://github.com/ibm-mas/cli/releases/tag/4.2.0) Added new Manage core functional tests and separate results from Industry Solutions by using different product ids (#241)
+- [`4.1`](https://github.com/ibm-mas/cli/releases/tag/4.1.0) Multiple updates:
+    - Add mas must-gather command by @durera in #257
+    - Add param mas_wipe_mongo_data by @andrercm in #225
+    - Add update-after-install pipeline by @durera in #263
+    - Add uninstall/upgrade-after-install pipelines by @durera in #265
 - [`4.0`](https://github.com/ibm-mas/cli/releases/tag/4.0.0) Multiple updates:
     - Remove HP Utilities & MAS 8.8 support (#234)
     - Support April Catalog Update (#236)
