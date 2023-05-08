@@ -29,6 +29,7 @@ Maximo Operator Catalog Selection (Optional):
   -C, --channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                       Maximo Application Suite Channel to mirror (e.g. 8.9.x)
       --mirror-core                               Mirror images for IBM Maximo Application Suite Core & dependencies
       --mirror-assist                             Mirror images for IBM Maximo Assist
+      --mirror-hputilities                        Mirror images for IBM Maximo Health & Predict Utilities
       --mirror-iot                                Mirror images for IBM Maximo IoT & dependencies
       --mirror-manage                             Mirror images for IBM Maximo Manage & dependencies
       --mirror-monitor                            Mirror images for IBM Maximo Monitor
@@ -41,6 +42,11 @@ Maximo Core Image Mirroring Configuration (Optional):
       --skip-sls                                  Skip mirroring images for IBM Suite License Service
       --skip-tsm                                  Skip mirroring images for IBM Truststore Manager
       --skip-mongo                                Skip mirroring images for MongoDb Community Edition
+Maximo Assist Image Mirroring Configuration (Optional):
+      --skip-cp4d                                 Skip mirroring images for IBM CP4D
+Maximo HP Utilities Image Mirroring Configuration (Optional):
+      --skip-appconnect                           Skip mirroring images for Appconnect
+      --skip-cp4d                                 Skip mirroring images for IBM CP4D
 Maximo IoT Image Mirroring Configuration (Optional):
       --skip-db2                                  Skip mirroring images for IBM Db2
 Maximo Manage Image Mirroring Configuration (Optional):
@@ -59,6 +65,7 @@ function mirror_to_registry_noninteractive() {
   # Main content
   MIRROR_MAS_CORE=false
   MIRROR_MAS_ASSIST=false
+  MIRROR_MAS_HPUTILITIES=false
   MIRROR_MAS_IOT=false
   MIRROR_MAS_MANAGE=false
   MIRROR_MAS_MONITOR=false
@@ -74,6 +81,11 @@ function mirror_to_registry_noninteractive() {
   MIRROR_MONGOCE=true
   MIRROR_DB2U=true
   MIRROR_CP4D=true
+  MIRROR_APPCONNECT=true
+  MIRROR_WD=true
+  MIRROR_WSL=true
+  MIRROR_WML=true
+  MIRROR_SPARK=true
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -126,6 +138,10 @@ function mirror_to_registry_noninteractive() {
         MIRROR_MAS_ASSIST=true
         MIRROR_MAS_X=true
         ;;
+      --mirror-hputilities)
+        MIRROR_MAS_HPUTILITIES=true
+        MIRROR_MAS_X=true
+        ;;
       --mirror-iot)
         MIRROR_MAS_IOT=true
         MIRROR_MAS_X=true
@@ -170,6 +186,9 @@ function mirror_to_registry_noninteractive() {
         ;;
       --skip-cp4d)
         MIRROR_CP4D=false
+        ;;
+      --skip-appconnect)
+        MIRROR_APPCONNECT=false
         ;;
       --no-confirm)
         NO_CONFIRM=true
@@ -245,9 +264,9 @@ function mirror_to_registry_interactive() {
   echo_h2 "3. Configure Static Catalog Version"
 
   echo -e "${COLOR_YELLOW}MAS Version:"
-  echo "April 11 2023 Update"
+  echo "April 14 2023 Update"
   echo "  1. 8.10.0"
-  echo "  2. 8.9.3"
+  echo "  2. 8.9.4"
   echo "March 14 2023 Update"
   echo "  3. 8.9.3"
   echo "February 17 2023 Update"
@@ -260,12 +279,12 @@ function mirror_to_registry_interactive() {
     1)
       MAS_CHANNEL=8.10.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-230411-amd64
+      MAS_CATALOG_VERSION=v8-230414-amd64
       ;;
     2)
       MAS_CHANNEL=8.9.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-230411-amd64
+      MAS_CATALOG_VERSION=v8-230414-amd64
       ;;
     3)
       MAS_CHANNEL=8.9.x
@@ -313,6 +332,7 @@ function mirror_to_registry_interactive() {
     MIRROR_MONGOCE=true
     # Apps
     MIRROR_MAS_ASSIST=true
+    MIRROR_MAS_HPUTILITIES=true
     MIRROR_MAS_IOT=true
     MIRROR_MAS_MANAGE=true
     MIRROR_MAS_MONITOR=true
@@ -320,6 +340,7 @@ function mirror_to_registry_interactive() {
     MIRROR_MAS_PREDICT=true
     MIRROR_MAS_VISUALINSPECTION=true
     # App Dependencies
+    MIRROR_APPCONNECT=true
     MIRROR_DB2U=true
     MIRROR_CP4D=true
   else
@@ -333,6 +354,7 @@ function mirror_to_registry_interactive() {
     fi
 
     prompt_for_confirm "IBM Maximo Application Suite - Assist" MIRROR_MAS_ASSIST
+    prompt_for_confirm "IBM Maximo Application Suite - HP Utilities" MIRROR_MAS_HPUTILITIES
     prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_IOT
     prompt_for_confirm "IBM Maximo Application Suite - Manage" MIRROR_MAS_MANAGE
     prompt_for_confirm "IBM Maximo Application Suite - Monitor" MIRROR_MAS_MONITOR
@@ -344,6 +366,9 @@ function mirror_to_registry_interactive() {
     fi
     if [[ "$MIRROR_MAS_PREDICT" == "true" ]]; then
       prompt_for_confirm_default_yes " + IBM Cloud Pak for Data (CP4D)" MIRROR_CP4D
+    fi
+    if [[ "$MIRROR_MAS_HPUTILITIES" == "true" ]]; then
+      prompt_for_confirm_default_yes " + IBM Appconnect" MIRROR_APPCONNECT
     fi
   fi
 
@@ -417,12 +442,14 @@ function mirror_to_registry() {
   export MIRROR_MONGOCE
   # Apps & Dependencies
   export MIRROR_MAS_ASSIST
+  export MIRROR_MAS_HPUTILITIES
   export MIRROR_MAS_IOT
   export MIRROR_MAS_MANAGE
   export MIRROR_MAS_MONITOR
   export MIRROR_MAS_PREDICT
   export MIRROR_MAS_OPTIMIZER
   export MIRROR_MAS_VISUALINSPECTION
+  export MIRROR_APPCONNECT
   export MIRROR_DB2U
   export MIRROR_CP4D
   # Authentication
@@ -450,7 +477,7 @@ function mirror_to_registry() {
 
   echo "${TEXT_DIM}"
   echo_h2 "IBM Operator Catalog" "    "
-  if [[ "$MIRROR_MAS_CORE" == "true" || "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_IOT" == "true" \
+  if [[ "$MIRROR_MAS_CORE" == "true" || "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_IOT" == "true" \
         || "$MIRROR_MAS_MANAGE" == "true" || "$MIRROR_MAS_MONITOR" == "true" || "$MIRROR_MAS_PREDICT" == "true" \
         || "$MIRROR_MAS_OPTIMIZER" == "true" || "$MIRROR_MAS_VISUALINSPECTION" == "true" ]]
   then
@@ -462,6 +489,7 @@ function mirror_to_registry() {
 
     # Applications
     show_mirror_status "IBM Maximo Assist ..................." $MIRROR_MAS_ASSIST
+    show_mirror_status "IBM Maximo HP Utilities ............." $MIRROR_MAS_HPUTILITIES
     show_mirror_status "IBM Maximo IoT ......................" $MIRROR_MAS_IOT
     show_mirror_status "IBM Maximo Manage ..................." $MIRROR_MAS_MANAGE
     show_mirror_status "IBM Maximo Monitor .................." $MIRROR_MAS_MONITOR
@@ -485,6 +513,10 @@ function mirror_to_registry() {
     if [[ "$MIRROR_MAS_PREDICT" == "true" ]]; then
       show_mirror_status " + IBM Cloud Pak for Data (CP4D) .........................." $MIRROR_CP4D
     fi
+    # HP Utilities Dependencies
+    if [[ "$MIRROR_MAS_HPUTILITIES" == "true" ]]; then
+      show_mirror_status " + IBM Appconnect .........................." $MIRROR_APPCONNECT
+    fi
   else
     echo_reset_dim "${COLOR_RED}Skip"
   fi
@@ -506,6 +538,7 @@ function mirror_to_registry() {
 
   mirror_one_thing $MIRROR_MAS_CORE             "IBM Maximo Application Suite Core"  "$LOG_PREFIX-core.log"             mirror_core
   mirror_one_thing $MIRROR_MAS_ASSIST           "IBM Maximo Assist"                  "$LOG_PREFIX-assist.log"           mirror_add_assist
+  mirror_one_thing $MIRROR_MAS_HPUTILITIES      "IBM Maximo HP Utilities"            "$LOG_PREFIX-hputilities.log"      mirror_add_hputilities
   mirror_one_thing $MIRROR_MAS_IOT              "IBM Maximo IoT"                     "$LOG_PREFIX-iot.log"              mirror_add_iot
   mirror_one_thing $MIRROR_MAS_MANAGE           "IBM Maximo Manage"                  "$LOG_PREFIX-manage.log"           mirror_add_manage
   mirror_one_thing $MIRROR_MAS_MONITOR          "IBM Maximo Monitor"                 "$LOG_PREFIX-monitor.log"          mirror_add_monitor

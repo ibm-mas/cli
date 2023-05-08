@@ -2,12 +2,59 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
+{% if wait_for_install == true %}
+  name: mas-uninstall-after-install
+{% else %}
   name: mas-uninstall
+{% endif %}
 spec:
   params:
-    # 1. Uninstall Parameters
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+      description: Tekton Pipeline image pull policy (for ibmmas/cli images)
+
+    # Optional parameters to uninstall dependencies
     # -------------------------------------------------------------------------
-    {{ lookup('template', params_src_dir ~ '/uninstall.yml.j2') | indent(4) }}
+    - name: mas_instance_id
+      type: string
+      default: ""
+      description: Instance ID of the MAS installation to remove from the cluster, if not provided the uninstall can still be used to remove shared dependencies from the cluster
+
+    # Optional parameters to uninstall dependencies
+    # -------------------------------------------------------------------------
+    - name: cluster_monitoring_action
+      type: string
+      description: Optional. Used to uninstall Cluster Monitoring
+      default: "none"
+    - name: cert_manager_action
+      type: string
+      description: Optional. Used to uninstall Cert Manager
+      default: "none"
+    - name: common_services_action
+      type: string
+      description: Optional. Used to uninstall IBM Common Services
+      default: "none"
+    - name: ibm_catalogs_action
+      type: string
+      description: Optional. Used to uninstall IBM Catalogs
+      default: "none"
+    - name: mongodb_action
+      type: string
+      description: Optional. Used to uninstall MongoDB
+      default: "none"
+    - name: mas_wipe_mongo_data
+      type: string
+      description: Optional. Used to wipe content from the MAS Core MongoDB database during MAS uninstall
+      default: ""
+    - name: sls_action
+      type: string
+      description: Optional. Used to uninstall SLS
+      default: "none"
+    - name: uds_action
+      type: string
+      description: Optional. Used to uninstall UDS
+      default: "none"
 
   tasks:
     # Content
@@ -21,18 +68,41 @@ spec:
     # 7. Uninstall IBM Catalogs
     # 8. Uninstall Cluster Monitoring
 
+
+{% if wait_for_install == true %}
+    # 0. Wait for the install pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-install
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      taskRef:
+        kind: Task
+        name: mas-fvt-wait-for-install
+{% endif %}
+
+
     # 1. Uninstall IBM Maximo Application Suite
+    # -------------------------------------------------------------------------
     - name: uninstall-suite
+{% if wait_for_install == true %}
+      runAfter:
+        - wait-for-install
+{% endif %}
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-uninstall
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-uninstall
+        - name: mas_wipe_mongo_data
+          value: $(params.mas_wipe_mongo_data)
+
 
     # 2. Uninstall IBM Suite Licensing Service
+    # -------------------------------------------------------------------------
     - name: uninstall-sls
       params:
         - name: image_pull_policy
@@ -49,7 +119,9 @@ spec:
       runAfter:
         - uninstall-suite
 
+
     # 3. Uninstall MongoDB
+    # -------------------------------------------------------------------------
     - name: uninstall-mongodb
       params:
         - name: image_pull_policy
@@ -66,7 +138,9 @@ spec:
       runAfter:
         - uninstall-sls
 
+
     # 4. Uninstall IBM User Data Services
+    # -------------------------------------------------------------------------
     - name: uninstall-uds
       params:
         - name: image_pull_policy
@@ -83,7 +157,9 @@ spec:
       runAfter:
         - uninstall-mongodb
 
+
     # 5. Uninstall IBM Cert Manager
+    # -------------------------------------------------------------------------
     - name: uninstall-cert-manager
       params:
         - name: image_pull_policy
@@ -100,7 +176,9 @@ spec:
       runAfter:
         - uninstall-uds
 
+
     # 6. Uninstall IBM Common Services
+    # -------------------------------------------------------------------------
     - name: uninstall-common-services
       params:
         - name: image_pull_policy
@@ -117,7 +195,9 @@ spec:
       runAfter:
         - uninstall-cert-manager
 
+
     # 7. Uninstall IBM Catalogs
+    # -------------------------------------------------------------------------
     - name: uninstall-ibm-catalogs
       params:
         - name: image_pull_policy
@@ -134,7 +214,9 @@ spec:
       runAfter:
         - uninstall-common-services
 
+
     # 8. Uninstall Cluster Monitoring
+    # -------------------------------------------------------------------------
     - name: uninstall-cluster-monitoring
       params:
         - name: image_pull_policy

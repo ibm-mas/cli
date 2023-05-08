@@ -12,8 +12,6 @@ spec:
     - name: shared-additional-configs
     # The SLS entitlement key file that will be installed during install-sls.
     - name: shared-entitlement
-    # Shared storage to hold mustgather output for tasks
-    - name: shared-mustgather
 
   params:
     {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}

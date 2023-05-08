@@ -1,9 +1,0 @@
-#!/bin/bash
-
-function download_mustgather() {
-  export LOCAL_OUTPUT_DIR=/tmp/mustgather
-  export MUSTGATHER_NAMESPACE=mas-$MAS_INSTANCE_ID-pipelines
-
-  mkdir -p $LOCAL_OUTPUT_DIR
-  ansible localhost -m include_role -a name=ibm.mas_devops.suite_mustgather_download
-}
