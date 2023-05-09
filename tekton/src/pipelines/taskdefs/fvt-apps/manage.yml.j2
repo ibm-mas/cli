@@ -9,6 +9,8 @@
       value: base
     - name: fvt_test_driver
       value: tpae
+    - name: product_id
+      value: ibm-mas-manage
   runAfter:
     - fvt-manage-aviation-setup # regression tasks depend on fvt-manage-setup or, eventually, any subsequent task in case of Manage Industry Solutions
 
@@ -19,6 +21,8 @@
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: startcenter-config
+    - name: product_id
+      value: ibm-mas-manage
   runAfter:
     - fvt-manage-setup
 
@@ -29,6 +33,8 @@
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: escalation-action
+    - name: product_id
+      value: ibm-mas-manage
   runAfter:
     - fvt-manage-setup
 
@@ -40,6 +46,8 @@
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: mif-jms-setup
+    - name: product_id
+      value: ibm-mas-manage
   runAfter:
     - fvt-manage-setup
 - name: ivt-manage-monitor-dd-setup
@@ -48,6 +56,8 @@
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: mif-dd-setup
+    - name: product_id
+      value: ibm-mas-manage
   runAfter:
     - fvt-manage-mif-jms-setup
 - name: ivt-manage-monitor-dd
@@ -56,6 +66,8 @@
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: mif-dd
+    - name: product_id
+      value: ibm-mas-manage
   runAfter:
     - ivt-manage-monitor-dd-setup
 
@@ -66,6 +78,8 @@
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: metrics-api
+    - name: product_id
+      value: ibm-mas-manage
   runAfter:
     - fvt-manage-setup
 
@@ -76,5 +90,7 @@
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: security-audit-logging
+    - name: product_id
+      value: ibm-mas-manage
   runAfter:
     - fvt-manage-setup
