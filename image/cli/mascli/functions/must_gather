@@ -103,6 +103,13 @@ function mustgather() {
   echo "- Operator Conditions"
   oc get operatorconditions --all-namespaces 2&> ${OUTPUT_DIR}/operatorconditions.txt
 
+  echo "- Subscriptions"
+  oc get subscriptions --all-namespaces 2&> ${OUTPUT_DIR}/subscriptions.txt
+
+  echo "- InstallPlans"
+  oc get installplans --all-namespaces 2&> ${OUTPUT_DIR}/installplans.txt
+
+
   # Generate Dependency Report
   # -----------------------------------------------------------------------------
   echo ""
