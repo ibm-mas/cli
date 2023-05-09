@@ -12,4 +12,6 @@ fi
 sed -i "s#VERSION=latest#VERSION=${VERSION}#g" ${GITHUB_WORKSPACE}/image/cli/mascli/mas
 
 cd $GITHUB_WORKSPACE/image/cli/mascli
+chmod +x $GITHUB_WORKSPACE/image/cli/mascli/mas
+chmod +x $GITHUB_WORKSPACE/image/cli/mascli/must-gather/*
 tar -czvf $GITHUB_WORKSPACE/ibm-mas-cli-$VERSION.tgz --directory $GITHUB_WORKSPACE/image/cli/mascli *
