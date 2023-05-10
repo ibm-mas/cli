@@ -2,7 +2,7 @@
 - name: fvt-manage-workorder # convention: use fvt-manage-<keyword>, as the value of fvt_test_suite parameter
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: workorder
   runAfter:
@@ -12,7 +12,7 @@
 - name: fvt-manage-avi-reg1-1
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: avi-reg1-1
     - name: fvt_mas_appws_component
@@ -26,7 +26,7 @@
 - name: fvt-manage-avi-reg2-1
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: avi-reg2-1
     - name: fvt_mas_appws_component
@@ -40,7 +40,7 @@
 - name: fvt-manage-avi-reg1-2
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: avi-reg1-2
     - name: fvt_mas_appws_component
@@ -54,7 +54,7 @@
 - name: fvt-manage-avi-reg2-2
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: avi-reg2-2
     - name: fvt_mas_appws_component
@@ -68,7 +68,7 @@
 - name: fvt-manage-avi-reg1-3
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: avi-reg1-3
     - name: fvt_mas_appws_component
@@ -82,7 +82,7 @@
 - name: fvt-manage-avi-reg2-3
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: avi-reg2-3
     - name: fvt_mas_appws_component
@@ -96,7 +96,7 @@
 - name: fvt-manage-scheduler-5
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: scheduler-5
     - name: fvt_mas_appws_component
@@ -114,7 +114,7 @@
 - name: fvt-manage-scheduler-6
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: scheduler-6
     - name: fvt_mas_appws_component
@@ -132,7 +132,7 @@
 - name: fvt-manage-scheduler-7
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: scheduler-7
     - name: fvt_mas_appws_component
@@ -150,7 +150,7 @@
 - name: fvt-manage-sp-reg1-1
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: fvt-sp-reg1-1
     - name: fvt_mas_appws_component
@@ -164,7 +164,7 @@
 - name: fvt-manage-sp-reg1-2
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: fvt-sp-reg1-2
     - name: fvt_mas_appws_component
@@ -178,7 +178,7 @@
 - name: fvt-manage-sp-reg2-1
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: fvt-sp-reg2-1
     - name: fvt_mas_appws_component
@@ -192,7 +192,7 @@
 - name: fvt-manage-sp-reg2-2
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: fvt-sp-reg2-2
     - name: fvt_mas_appws_component
@@ -206,7 +206,7 @@
 - name: fvt-manage-tr-reg1-1
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: fvt-tr-reg1-1
     - name: fvt_mas_appws_component
@@ -220,7 +220,7 @@
 - name: fvt-manage-tr-reg1-2
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: fvt-tr-reg1-2
     - name: fvt_mas_appws_component
@@ -234,7 +234,7 @@
 - name: fvt-manage-tr-reg1-3
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: fvt-tr-reg1-3
     - name: fvt_mas_appws_component
@@ -248,7 +248,7 @@
 - name: fvt-manage-tr-reg2-1
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: fvt-tr-reg2-1
     - name: fvt_mas_appws_component
@@ -262,7 +262,7 @@
 - name: fvt-manage-tr-reg2-2
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: fvt-tr-reg2-2
     - name: fvt_mas_appws_component
@@ -276,7 +276,7 @@
 - name: fvt-manage-tr-reg2-3
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: fvt-tr-reg2-3
     - name: fvt_mas_appws_component
@@ -290,7 +290,7 @@
 - name: fvt-manage-acm-reg1-1
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: fvt-acm-reg1-1
     - name: fvt_mas_appws_component
@@ -304,7 +304,7 @@
 - name: fvt-manage-acm-reg1-2
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: fvt-acm-reg1-2
     - name: fvt_mas_appws_component
@@ -318,7 +318,7 @@
 - name: fvt-manage-acm-reg1-3
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: fvt-acm-reg1-3
     - name: fvt_mas_appws_component
@@ -332,7 +332,7 @@
 - name: fvt-manage-acm-reg2-1
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: fvt-acm-reg2-1
     - name: fvt_mas_appws_component
@@ -346,7 +346,7 @@
 - name: fvt-manage-acm-reg2-2
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: fvt-acm-reg2-2
     - name: fvt_mas_appws_component
@@ -360,7 +360,7 @@
 - name: fvt-manage-acm-reg2-3
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-is.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: fvt-acm-reg2-3
     - name: fvt_mas_appws_component
