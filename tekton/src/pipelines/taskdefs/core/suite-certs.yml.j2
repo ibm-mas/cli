@@ -21,8 +21,12 @@
       value: $(params.cis_subdomain)
     - name: cis_proxy
       value: $(params.cis_proxy)
-    - name: DEVOPS_SUITE_NAME
-      value: $(params.devops_suite_name)
   taskRef:
     kind: Task
     name: mas-devops-suite-certs
+  workspaces:
+    # This is the stage at which we copy across any pre-generated certificates into shared-configs
+    - name: configs
+      workspace: shared-configs
+    - name: certificates
+      workspace: shared-certificates

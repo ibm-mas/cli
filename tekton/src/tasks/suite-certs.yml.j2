@@ -66,6 +66,7 @@ spec:
         value: $(params.cis_proxy)
       - name: DEVOPS_SUITE_NAME
         value: $(params.devops_suite_name)
+  
   steps:
     - name: suite-certs
       command:
@@ -73,3 +74,7 @@ spec:
         - suite_certs
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
+  
+  workspaces:
+    - name: configs
+    - name: certificates
