@@ -21,7 +21,15 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/initbuild.sh
           source $GITHUB_WORKSPACE/build/bin/.functions.sh
 
-      # 1. Tekton
+      # 1. Download Ansible collection from Artifactory
+      # -------------------------------------------------------------------------------------------
+      - name: Download Ansible collection from Artifactory
+        run: |
+          ANSIBLE_COLLECTION_FILE=ibm-mas_devops-13.7.0-pre.improve-build-system.tar.gz
+          echo $ANSIBLE_COLLECTION_FILE
+          wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/$ANSIBLE_COLLECTION_FILE -O $GITHUB_WORKSPACE/image/cli/install-ansible/ibm-mas_devops.tar.gz
+
+      # 2. Tekton
       # -------------------------------------------------------------------------------------------
       - name: Build the Tekton definitions
         run: $GITHUB_WORKSPACE/build/bin/build-tekton.sh
@@ -41,7 +49,7 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton-fvt.yaml
 
-      # 2. CLI installer
+      # 3. CLI installer
       # -------------------------------------------------------------------------------------------
       - name: Build the cli package
         run: |
@@ -54,7 +62,7 @@ jobs:
           path: ${{ github.workspace }}/ibm-mas-cli-${{ env.VERSION }}.tgz
           retention-days: 30
 
-      # 3. CLI container image
+      # 4. CLI container image
       # -------------------------------------------------------------------------------------------
       - name: Build the docker image
         run: |
@@ -70,7 +78,7 @@ jobs:
           username: ${{ secrets.QUAYIO_USERNAME }}
           password: ${{ secrets.QUAYIO_PASSWORD }}
 
-      # 4. OWASP Dependency Check
+      # 5. OWASP Dependency Check
       # -------------------------------------------------------------------------------------------
       - name: Perform dependency check
         uses: dependency-check/Dependency-Check_Action@main
