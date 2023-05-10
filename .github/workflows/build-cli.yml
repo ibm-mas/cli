@@ -24,6 +24,9 @@ jobs:
       # 1. Download Ansible collection from Artifactory
       # -------------------------------------------------------------------------------------------
       - name: Download Ansible collection from Artifactory
+        env:
+          ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
+          ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
         run: |
           ANSIBLE_COLLECTION_FILE=ibm-mas_devops-13.7.0-pre.improve-build-system.tar.gz
           echo $ANSIBLE_COLLECTION_FILE
