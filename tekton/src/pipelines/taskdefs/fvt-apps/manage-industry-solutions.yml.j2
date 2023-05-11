@@ -376,48 +376,6 @@
   runAfter:
     - fvt-manage-scheduler-user
 
-## Manage FVT - Scheduler
-#- name: fvt-manage-scheduler-4
-#  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
-#  params:
-#    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
-#    - name: fvt_test_suite
-#      value: scheduler-4
-#    - name: fvt_mas_appws_component
-#      value: scheduler
-#    - name: fvt_test_driver
-#      value: tpae
-#  runAfter:
-#    - fvt-manage-scheduler-user
-#
-## Manage FVT - Scheduler Graphite
-#- name: fvt-manage-scheduler-graphite
-#  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
-#  params:
-#    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
-#    - name: fvt_test_suite
-#      value: scheduler-graphite
-#    - name: fvt_mas_appws_component
-#      value: scheduler
-#    - name: fvt_test_driver
-#      value: graphite
-#  runAfter:
-#    - fvt-manage-scheduler-user
-#
-## Manage FVT - Maintenance Manager
-#- name: fvt-manage-maintmanager
-#  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
-#  params:
-#    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
-#    - name: fvt_test_suite
-#      value: mm_bvt
-#    - name: fvt_mas_appws_component
-#      value: maintmanager
-#    - name: fvt_test_driver
-#      value: graphite
-#  runAfter:
-#    - fvt-manage-setup
-
 # Manage FVT - Health
 - name: fvt-manage-health
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
