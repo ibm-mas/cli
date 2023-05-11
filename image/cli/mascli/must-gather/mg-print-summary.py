@@ -124,7 +124,6 @@ def process_storageclass( output_dir, storageclass, storageclass_table ):
     storageclass_yaml=yaml.safe_load( file )
 
   allow_volume_expansion = "allowVolumeExpansion" in storageclass_yaml
-  print( storageclassname )
 
   # We should get this from the annotataions
   default_storage_class = False
