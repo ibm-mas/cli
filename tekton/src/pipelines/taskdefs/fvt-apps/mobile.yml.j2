@@ -570,7 +570,7 @@
   # Only if we've set a digest of the Manage Transportation FVT to run
   when:
     {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_mobilefoundation_manage_setup)"
+    - input: "$(params.fvt_digest_inspections_manage_setup)"
       operator: notin
       values: [""]
   runAfter:
