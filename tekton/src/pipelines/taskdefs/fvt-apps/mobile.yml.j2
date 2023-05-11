@@ -262,6 +262,32 @@
   runAfter:
     - fvt-technician-testng-mas-android
 
+## Mobile Inspections Manage Setup
+- name: fvt-inspections-manage-setup
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
+    - name: fvt_image_namespace
+      value: fvt-inspections
+    - name: fvt_image_name
+      value: fvt-inspections-manage-setup
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_inspection_manage_setup)
+    - name: fvt_mas_appws_component
+      value: mobile
+    - name: mas_appws_components
+      value: $(params.mas_appws_components)
+    - name: fvt_test_suite
+      value: inspections-setup-data # Keyword for Mobile FVT
+  # Only if we've set a digest of the Manage Transportation FVT to run
+  when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
+    - input: "$(params.fvt_digest_inspection_manage_setup)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-manage-setup
+
 ## Prepare Data for Mobile Inspection MAS test suites
 - name: fvt-inspections-testng-preparedata
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
@@ -549,29 +575,3 @@
       values: [""]
   runAfter:
     - fvt-mobile-inventorycounting-setup
-
-## Mobile Inspections Manage Setup
-- name: fvt-inspections-manage-setup
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-manage.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-inspections
-    - name: fvt_image_name
-      value: fvt-inspections-manage-setup
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_inspections_manage_setup)
-    - name: fvt_mas_appws_component
-      value: mobile
-    - name: mas_appws_components
-      value: $(params.mas_appws_components)
-    - name: fvt_test_suite
-      value: inspections-setup-data # Keyword for Mobile FVT
-  # Only if we've set a digest of the Manage Transportation FVT to run
-  when:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_inspections_manage_setup)"
-      operator: notin
-      values: [""]
-  runAfter:
-    - fvt-manage-setup
