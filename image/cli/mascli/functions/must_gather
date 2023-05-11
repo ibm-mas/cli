@@ -12,6 +12,7 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 Collection Options (Optional):
   -d, --directory ${COLOR_YELLOW}MG_DIR${TEXT_RESET}     Directory where the must-gather will be saved, defaults to /tmp/must-gather
   -k, --keep-files           Do not delete individual files after creating the must-gather compressed tar archive
+  -p, --print-summary        Print a summary of the gathered information to help in diagnosing problems on the cluster.
   --summary-only             Perform a much faster must-gather that only gathers high level summary of resources in the cluster
   --no-pod-logs              Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required
 
@@ -59,6 +60,9 @@ function mustgather() {
     -k|--keep-files)
       KEEP_FILES=true;
       ;;
+    -p|--print-summary)
+      PRINT_SUMMARY=true;
+      ;;
     -h|--help)
       must_gather_help
       exit 0
@@ -88,8 +92,15 @@ function mustgather() {
   # Generate OCP Report
   # -----------------------------------------------------------------------------
   echo_h2 "Generate OCP Report"
+
+  echo "- Cluster Resources Detailed"
+  for RESOURCE in nodes storageclasses
+  do
+    $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources 
+  done
+
   echo "- Cluster Resources"
-  for RESOURCE in namespaces packagemanifests clusterversions storageclasses nodes clusterroles clusterrolebindings
+  for RESOURCE in namespaces packagemanifests clusterversions  clusterroles clusterrolebindings
   do
     $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources --no-detail
   done
@@ -99,15 +110,9 @@ function mustgather() {
   do
     $MG_SCRIPT_DIR/mg-collect-resources -n openshift-marketplace -r $RESOURCE -d $OUTPUT_DIR/resources
   done
-
-  echo "- Operator Conditions"
-  oc get operatorconditions --all-namespaces 2&> ${OUTPUT_DIR}/operatorconditions.txt
-
-  echo "- Subscriptions"
-  oc get subscriptions --all-namespaces 2&> ${OUTPUT_DIR}/subscriptions.txt
-
-  echo "- InstallPlans"
-  oc get installplans --all-namespaces 2&> ${OUTPUT_DIR}/installplans.txt
+ 
+  echo "- Cluster report"
+  $MG_SCRIPT_DIR/mg-cluster-report 2&> ${OUTPUT_DIR}/clusterreport.txt
 
 
   # Generate Dependency Report
@@ -122,6 +127,7 @@ function mustgather() {
 
   echo "- IBM Db2 universal Operator"
   $MG_SCRIPT_DIR/mg-summary-db2u 2&> ${OUTPUT_DIR}/db2u.txt
+
 
   # Find MAS instances
   # -----------------------------------------------------------------------------
@@ -158,6 +164,10 @@ function mustgather() {
       fi
     done
   done
+
+  if [[ "$PRINT_SUMMARY" == true ]]; then
+    python $MG_SCRIPT_DIR/mg-print-summary.py $OUTPUT_DIR
+  fi
 
   tar -czf $OUTPUT_FILE -C $MG_DIR $TIMESTAMP
   if [[ -n "$ARTIFACTORY_TOKEN" && -n "$ARTIFACTORY_UPLOAD_DIR" ]]; then
