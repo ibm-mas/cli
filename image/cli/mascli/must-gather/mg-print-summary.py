@@ -6,6 +6,7 @@ from prettytable import PrettyTable
 from prettytable import from_csv
 
 
+
 # process the node information and show any nodes that have problems
 def process_node( output_dir, node, node_table ):
   nodename = node.rsplit()[0]
