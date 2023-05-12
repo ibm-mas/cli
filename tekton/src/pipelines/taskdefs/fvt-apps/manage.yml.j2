@@ -78,3 +78,23 @@
       value: security-audit-logging
   runAfter:
     - fvt-manage-setup
+
+# Manage FVT Inactive User Authentication
+- name: fvt-manage-security-inactive-auth
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: security-inactiveuser-authentication
+  runAfter:
+    - fvt-manage-setup
+
+# Manage FVT Work Order Basic Scenario
+- name: fvt-manage-wobasic
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: workorderbasic
+  runAfter:
+    - fvt-manage-setup
