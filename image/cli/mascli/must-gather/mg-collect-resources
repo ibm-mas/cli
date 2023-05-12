@@ -5,6 +5,7 @@ set -e
 NAMESPACE_FLAG=""
 NAMESPACE=""
 NO_DETAIL=false
+ALL_NAMESPACES=""
 
 while [[ $# -gt 0 ]]
 do
@@ -24,6 +25,9 @@ do
     --no-detail)
         NO_DETAIL=true
         ;;
+    -a)
+        ALL_NAMESPACES="--all-namespaces"
+        ;;        
     esac
 done
 
@@ -44,7 +48,7 @@ echo "  - Collecting debug information: ${RESOURCE_TYPE}"
 
 # Generate Summary
 # -----------------------------------------------------------------------------
-oc ${NAMESPACE_FLAG} get ${RESOURCE_TYPE} -o wide > ${NAMESPACE_DIR}/${RESOURCE_TYPE}.txt
+oc ${NAMESPACE_FLAG} get ${RESOURCE_TYPE}  ${ALL_NAMESPACES} -o wide > ${NAMESPACE_DIR}/${RESOURCE_TYPE}.txt
 
 # Generate Detailed Report
 # -----------------------------------------------------------------------------

@@ -4,8 +4,8 @@ import yaml
 import sys
 from prettytable import PrettyTable
 from prettytable import from_csv
-
-
+import subprocess
+from yaml import Loader
 
 # process the node information and show any nodes that have problems
 def process_node( output_dir, node, node_table ):
@@ -137,19 +137,80 @@ def process_storageclass( output_dir, storageclass, storageclass_table ):
                                default_storage_class ])
 
 
+def process_subscriptions( output_dir):
+  subscriptions_file=output_dir + "/resources/_cluster/subscriptions.txt"  
+  subscriptions_table=PrettyTable()
+  subscriptions_table.field_names = [ "Name", "Namespace", "Channel", "Source", "Installed CSV" ,"Approval", "CS Health", 'Install Plan', 'Installed' ]
+  header=True
+  with open( subscriptions_file ) as file:
+    for subscription in file:
+      if header == True:
+        header=False
+      else:
+         process_subscription( output_dir, subscription, subscriptions_table )  
+
+  print( "*********************************************************************" )   
+  print( "Subscription Information" )
+  print( "*********************************************************************" ) 
+  subscriptions_table.align = "l" 
+  print( subscriptions_table )
+
+
+def process_subscription( output_dir, subscription, subscriptions_table ):
+  subscriptionnamespace = subscription.rsplit()[0]
+  subscriptionname = subscription.rsplit()[1]
+
+  getSubscriptionYaml =  subprocess.Popen( "oc get subscription " + subscriptionname + " -n " + subscriptionnamespace + " -o yaml" , shell=True, stdout=subprocess.PIPE).stdout
+  subscription_yaml =  yaml.load( getSubscriptionYaml.read(), Loader=Loader )
+
+  # Extract the conditions we are interested in
+  sub_condition_types=['CatalogSourcesUnhealthy']  
+  sub_condition_statuses= {x['type']:{
+    "status": x[ 'status']} for x in subscription_yaml['status']['conditions'] if x['type'] in sub_condition_types}
+  sub_condition_statuses
+
+  installplanname=subscription_yaml['status']['installplan']['name']
+
+  #Lets check if we have an installplan as referenced in the subscription 
+  installplan_status="na"
+
+  getInstallPlanYaml =  subprocess.Popen( "oc get installplan " + installplanname + " -n " + subscriptionnamespace + " -o yaml" , shell=True, stdout=subprocess.PIPE).stdout
+  installplan_yaml =  yaml.load( getInstallPlanYaml.read(), Loader=Loader)
+
+  if str(installplan_yaml) != "None":
+    ip_condition_types=['Installed'] 
+    ip_condition_statuses= {x['type']:{
+      "status": x[ 'status']} for x in installplan_yaml['status']['conditions'] if x['type'] in ip_condition_types}
+    ip_condition_statuses
+    ip_status= ip_condition_statuses['Installed']['status']
+  else:
+    ip_status="UNKNOWN"
+
+  subscriptions_table.add_row([subscriptionname,
+                               subscriptionnamespace, 
+                               subscription_yaml['spec']['channel'], 
+                               subscription_yaml['spec']['source'],
+                               subscription_yaml['status']['installedCSV'],
+                               subscription_yaml['spec']['installPlanApproval'],
+                               sub_condition_statuses['CatalogSourcesUnhealthy']['status'],
+                               subscription_yaml['status']['installplan']['name'],
+                               ip_status])
 
 # Process the output from the must-gather to generate a summary report
 def  process_must_gather(args):
   output_dir=args[1]
 
   # What do we know about the cluster
-  process_cluster( output_dir )\
+  process_cluster( output_dir )
   
   #What do we know about the nodes
   process_nodes( output_dir)
 
   #What do we know about the catalogsources
   process_catalogsources( output_dir)
+
+  #What do we know about the subscriptions and install plans
+  process_subscriptions( output_dir )
 
   #What do we know about subscriptions and their install plans
   process_storageclasses( output_dir )
