@@ -6,6 +6,10 @@ from prettytable import PrettyTable
 from prettytable import from_csv
 import subprocess
 from yaml import Loader
+import logging
+
+
+
 
 # process the node information and show any nodes that have problems
 def process_node( output_dir, node, node_table ):
@@ -160,8 +164,8 @@ def process_subscription( output_dir, subscription, subscriptions_table ):
   subscriptionnamespace = subscription.rsplit()[0]
   subscriptionname = subscription.rsplit()[1]
 
-  getSubscriptionYaml =  subprocess.Popen( "oc get subscription " + subscriptionname + " -n " + subscriptionnamespace + " -o yaml" , shell=True, stdout=subprocess.PIPE).stdout
-  subscription_yaml =  yaml.load( getSubscriptionYaml.read(), Loader=Loader )
+  getSubscriptionOutput =  subprocess.run( "oc get subscription " + subscriptionname + " -n " + subscriptionnamespace + " -o yaml" , shell=True, capture_output=True, text=True)
+  subscription_yaml =  yaml.load( getSubscriptionOutput.stdout, Loader=Loader )
 
   # Extract the conditions we are interested in
   sub_condition_types=['CatalogSourcesUnhealthy']  
@@ -174,8 +178,8 @@ def process_subscription( output_dir, subscription, subscriptions_table ):
   #Lets check if we have an installplan as referenced in the subscription 
   installplan_status="na"
 
-  getInstallPlanYaml =  subprocess.Popen( "oc get installplan " + installplanname + " -n " + subscriptionnamespace + " -o yaml" , shell=True, stdout=subprocess.PIPE).stdout
-  installplan_yaml =  yaml.load( getInstallPlanYaml.read(), Loader=Loader)
+  getInstallPlanOutput =  subprocess.run( "oc get installplan " + installplanname + " -n " + subscriptionnamespace + " -o yaml" , shell=True, capture_output=True, text=True)
+  installplan_yaml =  yaml.load( getInstallPlanOutput.stdout, Loader=Loader)
 
   if str(installplan_yaml) != "None":
     ip_condition_types=['Installed'] 
@@ -199,7 +203,7 @@ def process_subscription( output_dir, subscription, subscriptions_table ):
 # Process the output from the must-gather to generate a summary report
 def  process_must_gather(args):
   output_dir=args[1]
-
+                  
   # What do we know about the cluster
   process_cluster( output_dir )
   
@@ -214,7 +218,7 @@ def  process_must_gather(args):
 
   #What do we know about subscriptions and their install plans
   process_storageclasses( output_dir )
-
+  
 
 if __name__ == "__main__":
     process_must_gather(sys.argv)

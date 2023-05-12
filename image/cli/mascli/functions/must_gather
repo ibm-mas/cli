@@ -173,7 +173,7 @@ function mustgather() {
   done
 
   if [[ "$PRINT_SUMMARY" == true ]]; then
-    python $MG_SCRIPT_DIR/mg-print-summary.py $OUTPUT_DIR
+    python $MG_SCRIPT_DIR/mg-print-summary.py $OUTPUT_DIR | tee $OUTPUT_DIR/resources/_cluster/mg-print-summary.txt
   fi
 
   tar -czf $OUTPUT_FILE -C $MG_DIR $TIMESTAMP
