@@ -70,6 +70,12 @@ spec:
     - name: cis_proxy
       type: string
       default: ""
+    
+    # Use of Manual Certificates
+    - name: mas_manual_cert_mgmt
+      type: string
+      description: Optional boolean parameter that when set to True, indicates a manually created certiificate will be used to certify MAS and application routes
+      default: ""
 
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
@@ -121,6 +127,8 @@ spec:
         value: $(params.override_edge_certs)
       - name: CIS_PROXY
         value: $(params.cis_proxy)
+      - name: MAS_MANUAL_CERT_MGMT
+        value: $(params.mas_manual_cert_mgmt)
 
   steps:
     - name: suite-dns
