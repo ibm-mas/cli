@@ -13,11 +13,10 @@ appList=(
 
 if [ -e "/workspace/certificates" ]; then
   for app in ${appList[@]}; do
-    echo $app
     # tls.crt and tls.key will always exist if pipeline is configured to use manual certificates
     if [[ -f "/workspace/certificates/$app.tls.crt" ]]; then  
       echo "Copying certs from $app into configs workspace"
-      mkdir -p configs/certs/$app
+      mkdir -p /workspace/configs/certs/$app
       cp /workspace/certificates/$app.tls.crt /workspace/configs/certs/$app/tls.crt
       cp /workspace/certificates/$app.tls.key /workspace/configs/certs/$app/tls.key      
       # ca.crt may be empty, but file must exist
