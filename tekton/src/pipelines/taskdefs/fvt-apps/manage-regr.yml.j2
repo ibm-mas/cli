@@ -1,58 +1,365 @@
 # Manage Regression FVT
 - name: fvt-manage-workorder # convention: use fvt-manage-<keyword>, as the value of fvt_test_suite parameter
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: devops_mongo_uri
-      value: $(params.devops_mongo_uri)
-    - name: devops_build_number
-      value: $(params.devops_build_number)
-    - name: devops_cos_crn
-      value: $(params.devops_cos_crn)
-    - name: ibmcloud_apikey
-      value: $(params.ibmcloud_apikey)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
-    - name: fvt_image_namespace
-      value: fvt-manage
-    - name: fvt_image_name
-      value: fvt-ibm-mas-manage
-    - name: fvt_image_version
-      value: $(params.fvt_version_manage)
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: workorder
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mas-manage
-    - name: artifactory_apikey
-      value: $(params.fvt_artifactory_apikey)
-    
-    - name: devops_test_type
-      value: $(params.devops_test_type)
-    - name: devops_test_phase
-      value: $(params.devops_test_phase)
-  taskRef:
-    kind: Task
-    name: mas-fvt-manage
-  # Only if we've set a version of the Manage FVT to run
-  when:
-    - input: "$(params.fvt_version_manage)"
-      operator: notin
-      values: ["skip"]
-    - input: "$(params.mas_app_channel_manage)"
-      operator: notin
-      values: [""]
   runAfter:
     - fvt-manage-setup # regression tasks depend on fvt-manage-setup or, eventually, any subsequent task in case of Manage Industry Solutions
-  workspaces:
-    - name: configs
-      workspace: shared-configs
+ 
+# Manage Aviation FVT - Regression Lane 1 - Task 1
+- name: fvt-manage-avi-reg1-1
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: avi-reg1-1
+    - name: fvt_mas_appws_component
+      value: aviation
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-aviation
 
-# Manage Regression FVT - IndSol 1
-# Manage Regression FVT - IndSol 2
-# Manage Regression FVT - IndSol 3
+# Manage Aviation FVT - Regression Lane 2 - Task 1
+- name: fvt-manage-avi-reg2-1
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: avi-reg2-1
+    - name: fvt_mas_appws_component
+      value: aviation
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-aviation
+
+# Manage Aviation FVT - Regression Lane 1 - Task 2
+- name: fvt-manage-avi-reg1-2
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: avi-reg1-2
+    - name: fvt_mas_appws_component
+      value: aviation
+    - name: fvt_test_driver
+      value: tpae  
+  runAfter:
+    - fvt-manage-avi-reg1-1
+
+# Manage Aviation FVT - Regression Lane 2 - Task 2
+- name: fvt-manage-avi-reg2-2
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: avi-reg2-2
+    - name: fvt_mas_appws_component
+      value: aviation
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-avi-reg2-1
+
+# Manage Aviation FVT - Regression Lane 1 - Task 3
+- name: fvt-manage-avi-reg1-3
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: avi-reg1-3
+    - name: fvt_mas_appws_component
+      value: aviation  
+    - name: fvt_test_driver
+      value: tpae  
+  runAfter:
+    - fvt-manage-avi-reg1-2
+
+# Manage Aviation FVT - Regression Lane 2 - Task 3
+- name: fvt-manage-avi-reg2-3
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: avi-reg2-3
+    - name: fvt_mas_appws_component
+      value: aviation
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-avi-reg2-2
+
+# Manage FVT - Scheduler
+- name: fvt-manage-scheduler-5
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: scheduler-5
+    - name: fvt_mas_appws_component
+      value: scheduler
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-scheduler-1
+    - fvt-manage-scheduler-2
+    - fvt-manage-scheduler-3
+
+# Manage FVT - Scheduler
+- name: fvt-manage-scheduler-6
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: scheduler-6
+    - name: fvt_mas_appws_component
+      value: scheduler
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-scheduler-1
+    - fvt-manage-scheduler-2
+    - fvt-manage-scheduler-3
+
+# Manage FVT - Scheduler
+- name: fvt-manage-scheduler-7
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: scheduler-7
+    - name: fvt_mas_appws_component
+      value: scheduler
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-scheduler-1
+    - fvt-manage-scheduler-2
+    - fvt-manage-scheduler-3
+
+# Service Provider FVT - Regression Lane 1 - Task 1
+- name: fvt-manage-sp-reg1-1
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt-sp-reg1-1
+    - name: fvt_mas_appws_component
+      value: serviceprovider
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-serviceprovider
+
+# Service Provider FVT - Regression Lane 1 - Task 2
+- name: fvt-manage-sp-reg1-2
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt-sp-reg1-2
+    - name: fvt_mas_appws_component
+      value: serviceprovider
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-sp-reg1-1
+
+# Service Provider FVT - Regression Lane 2 - Task 1
+- name: fvt-manage-sp-reg2-1
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt-sp-reg2-1
+    - name: fvt_mas_appws_component
+      value: serviceprovider
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-serviceprovider
+
+# Service Provider FVT - Regression Lane 2 - Task 2
+- name: fvt-manage-sp-reg2-2
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt-sp-reg2-2
+    - name: fvt_mas_appws_component
+      value: serviceprovider
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-sp-reg2-1
+
+# Transportation FVT - Regression Lane 1 - Task 1
+- name: fvt-manage-tr-reg1-1
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt-tr-reg1-1
+    - name: fvt_mas_appws_component
+      value: transportation
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-transportation
+
+# Transportation FVT - Regression Lane 1 - Task 2
+- name: fvt-manage-tr-reg1-2
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt-tr-reg1-2
+    - name: fvt_mas_appws_component
+      value: transportation
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-tr-reg1-1
+
+# Transportation FVT - Regression Lane 1 - Task 3
+- name: fvt-manage-tr-reg1-3
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt-tr-reg1-3
+    - name: fvt_mas_appws_component
+      value: transportation
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-tr-reg1-2
+
+# Transportation FVT - Regression Lane 2 - Task 1
+- name: fvt-manage-tr-reg2-1
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt-tr-reg2-1
+    - name: fvt_mas_appws_component
+      value: transportation
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-transportation
+
+# Transportation FVT - Regression Lane 2 - Task 2
+- name: fvt-manage-tr-reg2-2
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt-tr-reg2-2
+    - name: fvt_mas_appws_component
+      value: transportation
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-tr-reg2-1
+
+# Transportation FVT - Regression Lane 2 - Task 2
+- name: fvt-manage-tr-reg2-3
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt-tr-reg2-3
+    - name: fvt_mas_appws_component
+      value: transportation
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-tr-reg2-2
+
+# ACM - Regression Lane 1 - Task 1
+- name: fvt-manage-acm-reg1-1
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt-acm-reg1-1
+    - name: fvt_mas_appws_component
+      value: acm
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-acm
+
+# ACM - Regression Lane 1 - Task 2
+- name: fvt-manage-acm-reg1-2
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt-acm-reg1-2
+    - name: fvt_mas_appws_component
+      value: acm
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-acm-reg1-1
+
+# ACM - Regression Lane 1 - Task 3
+- name: fvt-manage-acm-reg1-3
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt-acm-reg1-3
+    - name: fvt_mas_appws_component
+      value: acm
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-acm-reg1-2
+
+# ACM - Regression Lane 2 - Task 1
+- name: fvt-manage-acm-reg2-1
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt-acm-reg2-1
+    - name: fvt_mas_appws_component
+      value: acm
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-acm
+
+# ACM- Regression Lane 2 - Task 2
+- name: fvt-manage-acm-reg2-2
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt-acm-reg2-2
+    - name: fvt_mas_appws_component
+      value: acm
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-acm-reg2-1
+
+# ACM- Regression Lane 2 - Task 3
+- name: fvt-manage-acm-reg2-3
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: fvt-acm-reg2-3
+    - name: fvt_mas_appws_component
+      value: acm
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-acm-reg2-2

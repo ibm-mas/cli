@@ -1,6 +1,6 @@
 FROM registry.access.redhat.com/ubi8/python-39
 ARG VERSION_LABEL
-# ----- Start as "default" user -----------------------------------------------
+# ----- Start as "default" user ----------------------------------------------
 # Running as userId = default
 # HOME=/opt/app-root
 
@@ -38,7 +38,7 @@ RUN chmod +x /tini
 USER default
 COPY --chown=default:root app-root/* ${HOME}/
 COPY --chown=default:root mascli /mascli
-COPY --chown=default:root .bashrc /opt/app-root/src/.bashrc
+COPY --chown=default:root usr/bin/* /usr/bin
 
 # 7. Set up Environment
 # VIRTUAL_ENV_DISABLE_PROMPT will stop built-in PS1 munging, we already set it to what we want
@@ -59,10 +59,11 @@ RUN chmod -R ug+rwx ${HOME}/env.sh && \
     chmod -R ug+rwx ${HOME}/.ansible && \
     chmod +x ${HOME}/run-playbook.sh && \
     chmod +x ${HOME}/run-role.sh && \
-    chmod +x ${HOME}/clear-mustgather-workspace.sh && \
     chmod -R ug+w /mascli && \
     chmod +x /mascli/mas && \
+    chmod +x /mascli/must-gather/* && \
     chmod +x /opt/app-root/src/.bashrc && \
+    chmod +x /usr/bin/gather && \
     chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops && \
     ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops 
 

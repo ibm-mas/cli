@@ -19,6 +19,9 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
+    - name: sls_namespace
+      type: string
+      default: ""
     - name: sls_license_id
       type: string
       default: ""
@@ -57,35 +60,16 @@ spec:
       default: ""
       type: string
       description: Required to use development MAS builds
-    - name: artifactory_apikey
+    - name: artifactory_token
       default: ""
       type: string
       description: Required to use development MAS builds
 
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
-    - name: devops_mongo_uri
-      type: string
-      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
-      default: ""
     - name: devops_suite_name
       type: string
       description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
-      default: ""
-    - name: devops_build_number
-      type: string
-      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
-      default: ""
-
-    # Optional parameters to categorize result to be persisted
-    # -------------------------------------------------------------------------
-    - name: devops_test_type
-      type: string
-      description: Optional. Used to different upgrade tests from other type of tests
-      default: ""
-    - name: devops_test_phase
-      type: string
-      description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
       default: ""
 
     # Optional parameter to uninstall SLS
@@ -96,6 +80,9 @@ spec:
 
   stepTemplate:
     env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      # General
       - name: MAS_CONFIG_DIR
         value: /workspace/configs
       - name: MAS_INSTANCE_ID
@@ -103,6 +90,8 @@ spec:
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
 
+      - name: SLS_NAMESPACE
+        value: $(params.sls_namespace)
       - name: SLS_MONGODB_CFG_FILE
         value: $(params.sls_mongodb_cfg_file)
       - name: SLS_LICENSE_ID
@@ -126,23 +115,8 @@ spec:
 
       - name: ARTIFACTORY_USERNAME
         value: $(params.artifactory_username)
-      - name: ARTIFACTORY_APIKEY
-        value: $(params.artifactory_apikey)
-
-      # Optional support built into the ansible-devops image
-      # for saving task execution results to a MongoDb instance
-      - name: DEVOPS_MONGO_URI
-        value: $(params.devops_mongo_uri)
-      - name: DEVOPS_SUITE_NAME
-        value: $(params.devops_suite_name)
-      - name: DEVOPS_BUILD_NUMBER
-        value: $(params.devops_build_number)
-
-      # Optional parameters to categorize result to be persisted
-      - name: DEVOPS_TEST_TYPE
-        value: $(params.devops_test_type)
-      - name: DEVOPS_TEST_PHASE
-        value: $(params.devops_test_phase)
+      - name: ARTIFACTORY_TOKEN
+        value: $(params.artifactory_token)
 
       # Optional parameter to uninstall SLS
       - name: SLS_ACTION

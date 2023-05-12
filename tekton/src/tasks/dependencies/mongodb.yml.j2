@@ -26,17 +26,9 @@ spec:
 
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
-    - name: devops_mongo_uri
-      type: string
-      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
-      default: ""
     - name: devops_suite_name
       type: string
       description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
-      default: ""
-    - name: devops_build_number
-      type: string
-      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
       default: ""
 
     # Other MONGODB parameters
@@ -48,16 +40,32 @@ spec:
       type: string
       description: Optional configuration for mongodb cpu requests
       default: ""
-
-    # Optional parameters to categorize result to be persisted
-    # -------------------------------------------------------------------------
-    - name: devops_test_type
+    - name: mongodb_provider
       type: string
-      description: Optional. Used to different upgrade tests from other type of tests
+      description: MongoDb provider
       default: ""
-    - name: devops_test_phase
+
+    # Dependencies - IBM Cloud MongoDb
+    # -------------------------------------------------------------------------
+    - name: ibm_mongo_name
       type: string
-      description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
+      description: IBM Cloud MongoDb instance name
+      default: ""
+    - name: ibm_mongo_admin_password
+      type: string
+      description: IBM Cloud MongoDb admin password
+      default: ""
+    - name: ibm_mongo_resourcegroup
+      type: string
+      description: IBM Cloud MongoDb resource group
+      default: ""
+    - name: ibm_mongo_region
+      type: string
+      description: IBM Cloud MongoDb instance region
+      default: ""
+    - name: ibmcloud_apikey
+      type: string
+      description: API Key used to create Mongo instance in IBM Cloud
       default: ""
 
     # Optional parameter to uninstall MongoDB
@@ -68,6 +76,9 @@ spec:
 
   stepTemplate:
     env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      # General
       - name: MAS_CONFIG_DIR
         value: /workspace/configs
       - name: MAS_INSTANCE_ID
@@ -79,26 +90,25 @@ spec:
       - name: MONGODB_STORAGE_CLASS
         value: $(params.mongodb_storage_class)
 
-      # Optional support built into the ansible-devops image
-      # for saving task execution results to a MongoDb instance
-      - name: DEVOPS_MONGO_URI
-        value: $(params.devops_mongo_uri)
-      - name: DEVOPS_SUITE_NAME
-        value: $(params.devops_suite_name)
-      - name: DEVOPS_BUILD_NUMBER
-        value: $(params.devops_build_number)
-
-      # Other MONGODB paramters
+      # Other MONGODB parameters
       - name: MONGODB_REPLICAS
         value: $(params.mongodb_replicas)
       - name: MONGODB_CPU_REQUESTS
         value: $(params.mongodb_cpu_requests)
+      - name: MONGODB_PROVIDER
+        value: $(params.mongodb_provider)
 
-      # Optional parameters to categorize result to be persisted
-      - name: DEVOPS_TEST_TYPE
-        value: $(params.devops_test_type)
-      - name: DEVOPS_TEST_PHASE
-        value: $(params.devops_test_phase)
+      # Dependencies - IBM Cloud MongoDb
+      - name: IBM_MONGO_NAME
+        value: $(params.ibm_mongo_name)
+      - name: IBM_MONGO_ADMIN_PASSWORD
+        value: $(params.ibm_mongo_admin_password)
+      - name: IBM_MONGO_REGION
+        value: $(params.ibm_mongo_region)
+      - name: IBM_MONGO_RESOURCEGROUP
+        value: $(params.ibm_mongo_resourcegroup)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
 
       # Optional parameter to uninstall MongoDB
       - name: MONGODB_ACTION

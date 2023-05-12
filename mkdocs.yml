@@ -15,8 +15,6 @@ nav:
       - "Install": guides/install.md
       - "Update": guides/update.md
       - "Upgrade": guides/upgrade.md
-      - "MAS Core Explained": guides/architecture/core.md
-      - "MAS Pods Explained": guides/mas-pods-explained.md
   - "Commands":
       - "provision-fyre": commands/provision-fyre.md
       - "provision-roks": commands/provision-roks.md
@@ -25,14 +23,14 @@ nav:
       - "mirror-images": commands/mirror-images.md
       - "configure-airgap": commands/configure-airgap.md
       - "install": commands/install.md
+      - "must-gather": commands/must-gather.md
       - "configtool-oidc": commands/configtool-oidc.md
   - "Catalogs":
       - "Overview": catalogs/index.md
-      - "Mar 28 2023": catalogs/v8-230328-amd64.md
+      - "Apr 14 2023": catalogs/v8-230414-amd64.md
       - "Mar 14 2023": catalogs/v8-230314-amd64.md
       - "Feb 17 2023": catalogs/v8-230217-amd64.md
       - "Jan 11 2023": catalogs/v8-230111-amd64.md
-      - "Dec 28 2022": catalogs/v8-221228-amd64.md
 
 theme:
   name: readthedocs
@@ -48,6 +46,11 @@ markdown_extensions:
   - admonition
   # Add this to support expandable sections
   #- pymdownx.details
+plugins:
+  - redirects:
+      redirect_maps:
+        "guides/architecture/core.md": "https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=reference-maximo-application-suite-core-services"
+        "guides/mas-pods-explained.md": "https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=reference-maximo-application-suite-pod-details"
 
 # https://squidfunk.github.io/mkdocs-material/extensions/admonition/
 # Note

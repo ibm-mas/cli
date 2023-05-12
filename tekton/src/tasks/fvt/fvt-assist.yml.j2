@@ -18,10 +18,9 @@ spec:
     - name: fvt_image_name
       type: string
       description: FVT Container Image Name (required)
-    - name: fvt_image_version
+    - name: fvt_image_digest
       type: string
-      description: FVT Container Image Version
-      default: latest
+      description: FVT Container Image Digest
 
     # Test Framework Information
     # -------------------------------------------------------------------------
@@ -34,14 +33,6 @@ spec:
       description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
       default: ""
 
-    - name: devops_mongo_uri
-      type: string
-      description: Mongo URI for recording test results (optional)
-      default: ""
-    - name: devops_build_number
-      type: string
-      description: Build number to record test result (optional)
-      default: ""
     - name: product_channel
       type: string
       description: "Subscription channel for the product (todo: have the test code look this up instead)"
@@ -70,17 +61,6 @@ spec:
       type: string
       description: Boolean value to check if tests are runninng locally or on fvt
       default: "false"
-    
-    # Optional parameters to categorize result to be persisted
-    # -------------------------------------------------------------------------
-    - name: devops_test_type
-      type: string
-      description: Optional. Used to different upgrade tests from other type of tests
-      default: ""
-    - name: devops_test_phase
-      type: string
-      description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
-      default: ""
 
   stepTemplate:
     name: 'fvt-run-$(params.fvt_image_name)'
@@ -91,9 +71,17 @@ spec:
         value: $(params.product_channel)
 
       - name: DEVOPS_MONGO_URI
-        value: $(params.devops_mongo_uri)
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: DEVOPS_MONGO_URI
+            optional: true
       - name: BUILD_NUM
-        value: $(params.devops_build_number)
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: DEVOPS_BUILD_NUMBER
+            optional: true
 
       - name: IBMADMIN_ENABLED
         value: "true"
@@ -133,13 +121,8 @@ spec:
       - name: CTF_IS_LOCAL
         value: $(params.ctf_is_local)
 
-      # Optional parameters to categorize result to be persisted
-      - name: DEVOPS_TEST_TYPE
-        value: $(params.devops_test_type)
-      - name: DEVOPS_TEST_PHASE
-        value: $(params.devops_test_phase)
   steps:
-    - image: '$(params.fvt_image_registry)/fvt-assist/$(params.fvt_image_name):$(params.fvt_image_version)'
+    - image: '$(params.fvt_image_registry)/fvt-assist/$(params.fvt_image_name)@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 300m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline

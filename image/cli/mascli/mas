@@ -28,6 +28,8 @@ CONFIG_DIR="$HOME/.ibm-mas/config"
 LOG_DIR="$HOME/.ibm-mas/logs"
 LOGFILE=$LOG_DIR/mas.log
 
+VERSION=latest
+
 mkdir -p $LOG_DIR
 mkdir -p $CONFIG_DIR
 
@@ -49,7 +51,6 @@ mkdir -p $CONFIG_DIR
 . $DIR/functions/pipeline_prepare
 . $DIR/functions/pipeline_run
 . $DIR/functions/pipeline_show_config
-. $DIR/functions/download_mustgather
 . $DIR/functions/update
 . $DIR/functions/upgrade
 . $DIR/functions/uninstall
@@ -60,11 +61,13 @@ mkdir -p $CONFIG_DIR
 . $DIR/functions/configure_ocp_for_mirror
 # Manage OIDC for configtool
 . $DIR/functions/configtool_oidc
+# Must Gather
+. $DIR/functions/must_gather
 
 load_config
 case $1 in
   fyre|provision-fyre)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite FYRE Cluster Provisioner${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite FYRE Cluster Provisioner (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
@@ -73,7 +76,7 @@ case $1 in
     ;;
 
   roks|provision-roks)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite ROKS Cluster Provisioner${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite ROKS Cluster Provisioner (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
@@ -82,7 +85,7 @@ case $1 in
     ;;
 
   aws|provision-aws)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AWS Cluster Provisioner${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AWS Cluster Provisioner (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
@@ -91,14 +94,14 @@ case $1 in
     ;;
 
   oidc|configtool-oidc)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite OIDC for Configuration Tool${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite OIDC for Configuration Tool (v${VERSION})${TEXT_RESET}"
     echo
     reset_colors
     configtool_oidc "$@"
     ;;
 
   registry|setup-registry|setup-mirror-registry|setup-airgap-registry)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Registry Setup${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Registry Setup (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
@@ -111,7 +114,7 @@ case $1 in
     ;;
 
   mirror|mirror-images)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Image Mirror${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Image Mirror (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
@@ -120,7 +123,7 @@ case $1 in
     ;;
 
   mirror-redhat|mirror-redhat-images)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Image Mirror${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Image Mirror (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
@@ -130,7 +133,7 @@ case $1 in
 
 
   configure-ocp-for-mirror|configure-airgap|configure-mirror|config-airgap|config-mirror)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap OCP Setup${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap OCP Setup (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
@@ -139,7 +142,7 @@ case $1 in
     ;;
 
   install)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Installer${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Installer (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
     echo
     echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
@@ -150,7 +153,7 @@ case $1 in
     ;;
 
   update)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Update Manager${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Update Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
     echo
     reset_colors
@@ -158,7 +161,7 @@ case $1 in
     ;;
 
   upgrade)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Upgrade Manager${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Upgrade Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
     echo
     reset_colors
@@ -166,16 +169,17 @@ case $1 in
     ;;
 
   uninstall)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Uninstall Manager${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Uninstall Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
     echo
     reset_colors
     uninstall "$@"
     ;;
 
-  download|mustgather|download-mustgather)
-    connect
-    download_mustgather
+  mustgather|must-gather)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Must-Gather Tool (v${VERSION})${TEXT_RESET}"
+    echo
+    mustgather "$@"
     ;;
 
   *)

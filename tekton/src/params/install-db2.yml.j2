@@ -1,5 +1,13 @@
 # Dependencies - Db2 - Instance
 # -------------------------------------------------------------------------
+- name: db2_namespace
+  type: string
+  description: Namespace to create Db2uCluster instances
+  default: ""
+- name: db2_channel
+  type: string
+  description: Subscription channel for the Db2 Universal Operator
+  default: ""
 - name: db2_dbname
   type: string
   description: The name of the database created

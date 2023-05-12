@@ -1,0 +1,14 @@
+#!/bin/bash
+
+echo "IBM Maximo Application Suite - Assist Application"
+echo "--------------------------------------------------------------------------------"
+oc get assistapp -n $1
+echo ""
+
+echo ""
+echo "IBM Maximo Application Suite - Assist Workspace Configuration"
+echo "--------------------------------------------------------------------------------"
+oc get assistworkspace -n $1
+echo ""
+
+exit 0

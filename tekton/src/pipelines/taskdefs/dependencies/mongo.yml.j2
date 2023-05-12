@@ -12,6 +12,22 @@
       value: $(params.mongodb_cpu_requests)
     - name: custom_labels
       value: $(params.custom_labels)
+    - name: mongodb_provider
+      value: $(params.mongodb_provider)
+    - name: mongodb_action
+      value: $(params.mongodb_action)
+
+    - name: ibm_mongo_name
+      value: $(params.ibm_mongo_name)
+    - name: ibm_mongo_admin_password
+      value: $(params.ibm_mongo_admin_password)
+    - name: ibm_mongo_resourcegroup
+      value: $(params.ibm_mongo_resourcegroup)
+    - name: ibm_mongo_region
+      value: $(params.ibm_mongo_region)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
+
   taskRef:
     kind: Task
     name: mas-devops-mongodb

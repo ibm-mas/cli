@@ -11,7 +11,7 @@ function pipeline_show_config() {
   fi
 
   reset_colors
-  echo_h2 "\n14. Review Settings"
+  echo_h2 "\n15. Review Settings"
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ............... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
@@ -65,11 +65,6 @@ function pipeline_show_config() {
     fi
   fi
 
-  if [[ "${MAS_APP_CHANNEL_HPUTILITIES}" == '' ]]
-  then echo_reset_dim "H & P Utilities .......... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "H & P Utilities .......... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_HPUTILITIES}"
-  fi
-
   if [[ "${MAS_APP_CHANNEL_ASSIST}" == '' ]]
   then echo_reset_dim "Assist ................... ${COLOR_RED}Skip Installation"
   else echo_reset_dim "Assist ................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_ASSIST}"
@@ -110,6 +105,8 @@ function pipeline_show_config() {
     reset_colors
     echo "${TEXT_DIM}"
     echo_h2 "IBM Db2" "    "
+    echo_reset_dim "Subscription Channel ...... ${COLOR_MAGENTA}${DB2_CHANNEL}"
+
     echo_reset_dim "System Instance ........... ${COLOR_MAGENTA}${DB2_ACTION_SYSTEM}"
     echo_reset_dim "Dedicated Manage Instance . ${COLOR_MAGENTA}${DB2_ACTION_MANAGE}"
 

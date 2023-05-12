@@ -17,8 +17,8 @@ spec:
     # -------------------------------------------------------------------------
     - name: artifactory_username
       value: '$ARTIFACTORY_USERNAME'
-    - name: artifactory_apikey
-      value: '$ARTIFACTORY_APIKEY'
+    - name: artifactory_token
+      value: '$ARTIFACTORY_TOKEN'
 
     # IBM Entitlement Key
     # -------------------------------------------------------------------------
@@ -31,6 +31,11 @@ spec:
       value: '$STORAGE_CLASS_RWX'
     - name: storage_class_rwo
       value: '$STORAGE_CLASS_RWO'
+
+    # Dependencies - Db2u Operator
+    # -------------------------------------------------------------------------
+    - name: db2_channel
+      value: '$DB2_CHANNEL'
 
     # Dependencies - Db2 - Actions
     # -------------------------------------------------------------------------
@@ -95,6 +100,36 @@ spec:
       value: '$MONGODB_REPLICAS'
     - name: mongodb_cpu_requests
       value: '$MONGODB_CPU_REQUESTS'
+    - name: mongodb_provider
+      value: '$MONGODB_PROVIDER'
+    - name: mongodb_action
+      value: '$MONGODB_ACTION'
+
+    # Dependencies - IBM Cloud MongoDb
+    # -------------------------------------------------------------------------
+    - name: ibm_mongo_name
+      value: '$IBM_MONGO_NAME'
+    - name: ibm_mongo_resourcegroup
+      value: '$IBM_MONGO_RESOURCEGROUP'
+    - name: ibm_mongo_region
+      value: '$IBM_MONGO_REGION'
+    - name: ibm_mongo_admin_password
+      value: '$IBM_MONGO_ADMIN_PASSWORD'
+
+    # Dependencies - IBM Cloud Event Streams
+    # -------------------------------------------------------------------------
+    - name: kafka_provider
+      value: '$KAFKA_PROVIDER'
+    - name: eventstreams_resourcegroup
+      value: '$EVENTSTREAMS_RESOURCEGROUP'
+    - name: eventstreams_name
+      value: '$EVENTSTREAMS_NAME'
+    - name: eventstreams_location
+      value: '$EVENTSTREAMS_LOCATION'
+    - name: eventstreams_retention
+      value: '$EVENTSTREAMS_RETENTION'
+    - name: eventstreams_create_manage_jms_topics
+      value: '$EVENTSTREAMS_CREATE_MANAGE_JMS_TOPICS'
 
     # Dependencies - CP4D
     # -------------------------------------------------------------------------
@@ -103,6 +138,8 @@ spec:
 
     # Dependencies - SLS
     # -------------------------------------------------------------------------
+    - name: sls_namespace
+      value: '$SLS_NAMESPACE'
     - name: sls_license_id
       value: '$SLS_LICENSE_ID'
     - name: sls_license_file
@@ -195,10 +232,19 @@ spec:
     - name: cis_proxy
       value: '$CIS_PROXY'
 
+    # Data Dictionary
+    # -------------------------------------------------------------------------
+    - name: mas_add_catalog
+      value: '$MAS_ADD_CATALOG'
+    - name: mas_add_channel
+      value: '$MAS_ADD_CHANNEL'
+
     # MAS Core
     # -------------------------------------------------------------------------
     - name: mas_instance_id
       value: '$MAS_INSTANCE_ID'
+    - name: mas_wipe_mongo_data
+      value: '$MAS_WIPE_MONGO_DATA'
 
     - name: mas_domain
       value: '$MAS_DOMAIN'
@@ -244,6 +290,10 @@ spec:
       value: '$MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG'
     - name: mas_app_settings_server_bundles_size
       value: '$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE'
+    - name: mas_app_settings_base_language
+      value: '$MAS_APP_SETTINGS_BASE_LANG'
+    - name: mas_app_settings_secondary_languages
+      value: '$MAS_APP_SETTINGS_SECONDARY_LANGS'
     - name: mas_app_settings_tablespace
       value: '$MAS_APP_SETTINGS_TABLESPACE'
     - name: mas_app_settings_indexspace
@@ -269,16 +319,6 @@ spec:
     - name: mas_app_channel_predict
       value: '$MAS_APP_CHANNEL_PREDICT'
 
-    # Safety Application
-    # -------------------------------------------------------------------------
-    - name: mas_app_channel_safety
-      value: '$MAS_APP_CHANNEL_SAFETY'
-
-    # HPUtilities Application
-    # -------------------------------------------------------------------------
-    - name: mas_app_channel_hputilities
-      value: '$MAS_APP_CHANNEL_HPUTILITIES'
-
     # Assist Application
     # -------------------------------------------------------------------------
     - name: mas_app_channel_assist
@@ -288,6 +328,32 @@ spec:
     # -------------------------------------------------------------------------
     - name: mas_app_channel_visualinspection
       value: '$MAS_APP_CHANNEL_VISUALINSPECTION'
+
+    # Prometheus
+    # -------------------------------------------------------------------------
+    - name: prometheus_retention_period
+      value: '$PROMETHEUS_RETENTION_PERIOD'
+    - name: prometheus_storage_class
+      value: '$PROMETHEUS_STORAGE_CLASS'
+    - name: prometheus_storage_size
+      value: '$PROMETHEUS_STORAGE_SIZE'
+    - name: prometheus_alertmgr_storage_class
+      value: '$PROMETHEUS_ALERTMGR_STORAGE_CLASS'
+    - name: prometheus_alertmgr_storage_size
+      value: '$PROMETHEUS_ALERTMGR_STORAGE_SIZE'
+    - name: prometheus_userworkload_retention_period
+      value: '$PROMETHEUS_USERWORKLOAD_RETENTION_PERIOD'
+    - name: prometheus_userworkload_storage_class
+      value: '$PROMETHEUS_USERWORKLOAD_STORAGE_CLASS'
+    - name: prometheus_userworkload_storage_size
+      value: '$PROMETHEUS_USERWORKLOAD_STORAGE_SIZE'
+
+    # Grafana
+    # -------------------------------------------------------------------------
+    - name: grafana_instance_storage_class
+      value: '$GRAFANA_INSTANCE_STORAGE_CLASS'
+    - name: grafana_instance_storage_size
+      value: '$GRAFANA_INSTANCE_STORAGE_SIZE'
 
   workspaces:
     # The generated configuration files

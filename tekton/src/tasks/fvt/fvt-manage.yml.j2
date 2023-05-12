@@ -22,10 +22,9 @@ spec:
     - name: fvt_image_name
       type: string
       description: FVT Container Image
-    - name: fvt_image_version
+    - name: fvt_image_digest
       type: string
-      description: FVT Container Image Version
-      default: latest
+      description: FVT Container Image Digest
 
     # Test Framework Information
     # -------------------------------------------------------------------------
@@ -33,6 +32,10 @@ spec:
       type: string
       description: Turn on debug logging (verbose mode)
       default: "true"
+    - name: fvt_test_driver
+      type: string
+      description: Driver utilized by the manage selenium framework - Can be wither tpae or graphite
+      default: "tpae"
     - name: fvt_test_suite
       type: string
       description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
@@ -44,14 +47,6 @@ spec:
     - name: mas_appws_components
       type: string
       description: Manage Workspace component list so ISs tasks can decide if it should be executed base on what is configured
-      default: ""
-    - name: devops_mongo_uri
-      type: string
-      description: Mongo URI for recording test results (optional)
-      default: ""
-    - name: devops_build_number
-      type: string
-      description: Build number to record test result (optional)
       default: ""
     - name: product_id
       type: string
@@ -75,7 +70,7 @@ spec:
       type: string
       description: Directory inside container that will be uploaded to Object Storage (optional)
       default: ""
-    - name: ibmcloud_apikey
+    - name: devops_ibmcloud_apikey
       description: IBM Cloud API Key to access Object Storage resource (optional)
       default: ""
 
@@ -93,20 +88,9 @@ spec:
       type: string
       description: Partium password (required by fvt-coreapi-workspacemgmt)
       default: ""
-    - name: artifactory_apikey
+    - name: artifactory_token
       type: string
-      description: Artifactory API Key (required by fvt-ibm-mas-manage and fvt-ibm-mas-safety to pull test container content)
-      default: ""
-    
-    # Optional parameters to categorize result to be persisted
-    # -------------------------------------------------------------------------
-    - name: devops_test_type
-      type: string
-      description: Optional. Used to different upgrade tests from other type of tests
-      default: ""
-    - name: devops_test_phase
-      type: string
-      description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
+      description: Artifactory API Key (required by fvt-ibm-mas-manage to pull test container content)
       default: ""
 
   stepTemplate:
@@ -118,9 +102,17 @@ spec:
         value: $(params.product_channel)
 
       - name: DEVOPS_MONGO_URI
-        value: $(params.devops_mongo_uri)
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: DEVOPS_MONGO_URI
+            optional: true
       - name: BUILD_NUM
-        value: $(params.devops_build_number)
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: DEVOPS_BUILD_NUMBER
+            optional: true
 
       - name: IBMADMIN_ENABLED
         value: "true"
@@ -132,6 +124,8 @@ spec:
       - name: WORKSPACE_ID
         value: "$(params.mas_workspace_id)"
 
+      - name: FVT_TEST_DRIVER
+        value: $(params.fvt_test_driver)
       - name: FVT_TEST_SUITE
         value: $(params.fvt_test_suite)
       - name: FVT_MAS_APPWS_COMPONENT
@@ -148,23 +142,18 @@ spec:
         value: $(params.partium_username)
       - name: PARTIUM_PASSWORD
         value: $(params.partium_password)
-      - name: ARTIFACTORY_APIKEY
-        value: $(params.artifactory_apikey)
+      - name: ARTIFACTORY_TOKEN
+        value: $(params.artifactory_token)
 
       - name: DEVOPS_COS_CRN
         value: $(params.devops_cos_crn)
       - name: DEVOPS_COS_UPLOAD_FOLDER
         value: $(params.devops_cos_upload_folder)
-      - name: IBMCLOUD_APIKEY
-        value: $(params.ibmcloud_apikey)
-      
-      # Optional parameters to categorize result to be persisted
-      - name: DEVOPS_TEST_TYPE
-        value: $(params.devops_test_type)
-      - name: DEVOPS_TEST_PHASE
-        value: $(params.devops_test_phase)
+      - name: DEVOPS_IBMCLOUD_APIKEY
+        value: $(params.devops_ibmcloud_apikey)
+
   steps:
-    - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name):$(params.fvt_image_version)'
+    - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
       onError: continue # Ensure bad FVTs don't break the pipeline

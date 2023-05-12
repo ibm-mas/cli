@@ -73,32 +73,16 @@ spec:
 
     # Optional support built into the ansible-devops image
     # for saving task execution results to a MongoDb instance
-    - name: devops_mongo_uri
-      type: string
-      description: Optional MongoDb connection URI, used to enable save-junit-to-mongo.py
-      default: ""
     - name: devops_suite_name
       type: string
       description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
       default: ""
-    - name: devops_build_number
-      type: string
-      description: Optional identifier for the execution run, used to enable save-junit-to-mongo.py
-      default: ""
-    
-    # Optional parameters to categorize result to be persisted
-    # -------------------------------------------------------------------------
-    - name: devops_test_type
-      type: string
-      description: Optional. Used to different upgrade tests from other type of tests
-      default: ""
-    - name: devops_test_phase
-      type: string
-      description: Optional. Used to categorize the phase of pipeline this test is running. Used by integrated pipelines like upgrade-test
-      default: ""
 
   stepTemplate:
     env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      # General
       - name: DNS_PROVIDER
         value: $(params.dns_provider)
       - name: MAS_INSTANCE_ID
@@ -137,21 +121,6 @@ spec:
         value: $(params.override_edge_certs)
       - name: CIS_PROXY
         value: $(params.cis_proxy)
-
-      # Optional support built into the ansible-devops image
-      # for saving task execution results to a MongoDb instance
-      - name: DEVOPS_MONGO_URI
-        value: $(params.devops_mongo_uri)
-      - name: DEVOPS_SUITE_NAME
-        value: $(params.devops_suite_name)
-      - name: DEVOPS_BUILD_NUMBER
-        value: $(params.devops_build_number)
-      
-      # Optional parameters to categorize result to be persisted
-      - name: DEVOPS_TEST_TYPE
-        value: $(params.devops_test_type)
-      - name: DEVOPS_TEST_PHASE
-        value: $(params.devops_test_phase)
 
   steps:
     - name: suite-dns

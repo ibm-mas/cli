@@ -2,9 +2,19 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
+{% if wait_for_install == true %}
+  name: mas-update-after-install
+{% else %}
   name: mas-update
+{% endif %}
 spec:
   params:
+{% if wait_for_install == true %}
+    # MAS Instance ID (the instance who's install to wait for)
+    - name: mas_instance_id
+      type: string
+{% endif %}
+
     # Catalog Version
     - name: mas_catalog_version
       type: string
@@ -14,22 +24,43 @@ spec:
       default: ""
       type: string
       description: Required to install development MAS catalogs
-    - name: artifactory_apikey
+    - name: artifactory_token
       default: ""
       type: string
       description: Required to install development MAS catalogs
 
   tasks:
-    - name: ibm-catalogs
+{% if wait_for_install == true %}
+    # 0. Wait for the install pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-install
       params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      taskRef:
+        kind: Task
+        name: mas-fvt-wait-for-install
+{% endif %}
+
+    # 1. Run the catalog update
+    # -------------------------------------------------------------------------
+    - name: update-catalog
+{% if wait_for_install == true %}
+      runAfter:
+        - wait-for-install
+{% endif %}
+      taskRef:
+        kind: Task
+        name: mas-devops-ibm-catalogs
+      params:
+        - name: devops_suite_name
+          value: update-catalog
+
         - name: mas_catalog_version
           value: $(params.mas_catalog_version)
 
         # Development catalog support
         - name: artifactory_username
           value: $(params.artifactory_username)
-        - name: artifactory_apikey
-          value: $(params.artifactory_apikey)
-      taskRef:
-        kind: Task
-        name: mas-devops-ibm-catalogs
+        - name: artifactory_token
+          value: $(params.artifactory_token)

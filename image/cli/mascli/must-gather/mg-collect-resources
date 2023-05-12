@@ -1,0 +1,60 @@
+#!/bin/bash
+set -e
+
+# Process command flags
+NAMESPACE_FLAG=""
+NAMESPACE=""
+NO_DETAIL=false
+
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    shift
+    case $key in
+    -n)
+        NAMESPACE=$1; shift
+        NAMESPACE_FLAG="-n $NAMESPACE"
+        ;;
+    -r)
+        RESOURCE_TYPE=$1; shift
+        ;;
+    -d)
+        OUTPUT_DIR=$1; shift
+        ;;
+    --no-detail)
+        NO_DETAIL=true
+        ;;
+    esac
+done
+
+if [[ "$NAMESPACE" != "" ]]; then
+    NAMESPACE_DIR=${OUTPUT_DIR}/${NAMESPACE}
+else
+    NAMESPACE_DIR=${OUTPUT_DIR}/_cluster
+fi
+
+mkdir -p $NAMESPACE_DIR
+
+if [[ "$NO_DETAIL" == "false" ]]; then
+    RESOURCE_DIR=${NAMESPACE_DIR}/${RESOURCE_TYPE}
+    mkdir -p $RESOURCE_DIR
+fi
+
+echo "  - Collecting debug information: ${RESOURCE_TYPE}"
+
+# Generate Summary
+# -----------------------------------------------------------------------------
+oc ${NAMESPACE_FLAG} get ${RESOURCE_TYPE} -o wide > ${NAMESPACE_DIR}/${RESOURCE_TYPE}.txt
+
+# Generate Detailed Report
+# -----------------------------------------------------------------------------
+if [[ "$NO_DETAIL" == "false" ]]; then
+    RESOURCES=$(oc ${NAMESPACE_FLAG} get ${RESOURCE_TYPE} -o name)
+    for RESOURCE in ${RESOURCES[@]}
+    do
+        # echo "    - Collecting $RESOURCE"
+        RESOURCE_NAME=$(echo ${RESOURCE} | cut -d '/' -f 2)
+
+        oc ${NAMESPACE_FLAG} get ${RESOURCE} -o yaml > ${RESOURCE_DIR}/${RESOURCE_NAME}.yaml
+    done
+fi
