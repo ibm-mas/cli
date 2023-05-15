@@ -16,12 +16,13 @@ set -e
 TMP_DIR=${OUTPUT_DIR}/tmp-$CONTROL_PLANE
 mkdir -p $TMP_DIR
 
-oc -n $NAMESPACE exec $POD -- tar -czf - $LOGFILES > $TMP_DIR/ansible-logs-$KIND.tgz 2> /dev/null
-tar -xf $TMP_DIR/ansible-logs-$KIND.tgz -C $TMP_DIR 2> /dev/null
+echo "  - Collecting reconcile logs from control plane '$CONTROL_PLANE'"
+oc -n $NAMESPACE exec $POD -- tar -czf - $LOGFILES > $TMP_DIR/ansible-logs-$CONTROL_PLANE.tgz 2> /dev/null
+tar -xf $TMP_DIR/ansible-logs-$CONTROL_PLANE.tgz -C $TMP_DIR 2> /dev/null
 if [[ "$?" == "0" ]]; then
-  rm $TMP_DIR/ansible-logs-$KIND.tgz
+  rm $TMP_DIR/ansible-logs-$CONTROL_PLANE.tgz
 else
-  echo_warning "    - Unable to get Reconcile logs from $POD"
+  echo_warning "    - Unable to get reconcile logs from $POD"
 fi
 
 for API_DIR in $TMP_DIR/tmp/ansible-operator/runner/*
@@ -36,7 +37,7 @@ do
       RLOG_DIR=${OUTPUT_DIR}/reconcile-logs/$NAMESPACE/$KIND
       mkdir -p $RLOG_DIR
 
-      echo "  - Collecting reconcile logs for $KIND.$API/$VERSION"
+      echo "    - $KIND.$API/$VERSION"
       for INSTANCE_DIR in $KIND_DIR/$NAMESPACE/*/
       do
         INSTANCE_NAME=$(basename $INSTANCE_DIR)
