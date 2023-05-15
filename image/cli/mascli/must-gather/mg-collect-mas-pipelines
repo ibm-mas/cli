@@ -1,0 +1,19 @@
+#!/bin/bash
+set -e
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+NAMESPACE=$1
+OUTPUT_DIR=$2
+
+# Collect Tekton Resources
+# -----------------------------------------------------------------------------
+if [[ "$SUMMARY_ONLY" == false ]]
+then
+  $MG_SCRIPT_DIR/mg-collect-pods $NAMESPACE $POD_LOGS $OUTPUT_DIR/resources
+  for RESOURCE in tasks taskruns pipelines pipelineruns
+  do
+    $MG_SCRIPT_DIR/mg-collect-resources -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
+  done
+fi
+
+exit 0

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+NAMESPACE=$1
+
+echo "OpenShift Pipelines - Pipelines"
+echo "--------------------------------------------------------------------------------"
+oc -n $NAMESPACE get pipelines -o wide
+echo ""
+
+echo "OpenShift Pipelines - Tasks"
+echo "--------------------------------------------------------------------------------"
+oc -n $NAMESPACE get tasks -o wide
+echo ""
+
+echo "OpenShift Pipelines - PipelineRuns"
+echo "--------------------------------------------------------------------------------"
+oc -n $NAMESPACE get pipelineruns -o wide
+echo ""
+
+echo "OpenShift Pipelines - TaskRuns"
+echo "--------------------------------------------------------------------------------"
+oc -n $NAMESPACE get taskruns -o wide
+echo ""
+
+exit 0
