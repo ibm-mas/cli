@@ -4,7 +4,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: fvt-acm-setup
+      value: acm-setup-data
     - name: fvt_mas_appws_component
       value: acm
     - name: fvt_test_driver
@@ -18,7 +18,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: fvt-acm-user
+      value: acm-setup-user
     - name: fvt_mas_appws_component
       value: acm
     - name: fvt_test_driver
@@ -32,7 +32,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: fvt-acm
+      value: acm-1
     - name: fvt_mas_appws_component
       value: acm
     - name: fvt_test_driver
@@ -46,7 +46,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: fvt-mfa-setup
+      value: mfa-setup
     - name: fvt_mas_appws_component
       value: aviation
     - name: fvt_test_driver
@@ -60,7 +60,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: fvt-mfa
+      value: mfa-1
     - name: fvt_mas_appws_component
       value: aviation
     - name: fvt_test_driver
@@ -74,7 +74,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: hse-setup
+      value: hse-setup-data
     - name: fvt_mas_appws_component
       value: hse
     - name: fvt_test_driver
@@ -88,7 +88,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: fvt-hse-user
+      value: hse-setup-user
     - name: fvt_mas_appws_component
       value: hse
     - name: fvt_test_driver
@@ -102,7 +102,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: fvt-hse
+      value: hse-1
     - name: fvt_mas_appws_component
       value: hse
     - name: fvt_test_driver
@@ -116,7 +116,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: nuc-setup
+      value: nuc-setup-data
     - name: fvt_mas_appws_component
       value: nuclear
     - name: fvt_test_driver
@@ -130,7 +130,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: fvt-nuc-user
+      value: nuc-setup-user
     - name: fvt_mas_appws_component
       value: nuclear
     - name: fvt_test_driver
@@ -144,7 +144,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: fvt-nuc
+      value: nuc-1
     - name: fvt_mas_appws_component
       value: nuclear
     - name: fvt_test_driver
@@ -158,7 +158,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: fvt-sp-setup
+      value: sp-setup-data
     - name: fvt_mas_appws_component
       value: serviceprovider
     - name: fvt_test_driver
@@ -172,7 +172,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: fvt-sp-user
+      value: sp-setup-user
     - name: fvt_mas_appws_component
       value: serviceprovider
     - name: fvt_test_driver
@@ -186,7 +186,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: fvt-sp
+      value: sp-1
     - name: fvt_mas_appws_component
       value: serviceprovider
     - name: fvt_test_driver
@@ -200,7 +200,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: lbs-setup
+      value: lbs-setup-data
     - name: fvt_mas_appws_component
       value: spatial
     - name: fvt_test_driver
@@ -214,7 +214,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: lbs-user
+      value: lbs-setup-user
     - name: fvt_mas_appws_component
       value: spatial
     - name: fvt_test_driver
@@ -228,7 +228,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: fvt-manage-spatial
+      value: lbs-spatial-1
     - name: fvt_mas_appws_component
       value: spatial
     - name: fvt_test_driver
@@ -242,7 +242,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: fvt-manage-utilities
+      value: lbs-utilities-1
     - name: fvt_mas_appws_component
       value: spatial
     - name: fvt_test_driver
@@ -256,7 +256,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: fvt-manage-linear
+      value: lbs-linear-1
     - name: fvt_mas_appws_component
       value: spatial
     - name: fvt_test_driver
@@ -270,7 +270,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: fvt-tr-setup
+      value: tr-setup-data
     - name: fvt_mas_appws_component
       value: transportation
     - name: fvt_test_driver
@@ -284,7 +284,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: fvt-tr-user
+      value: tr-setup-user
     - name: fvt_mas_appws_component
       value: transportation
     - name: fvt_test_driver
@@ -298,7 +298,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: fvt-tr
+      value: tr-1
     - name: fvt_mas_appws_component
       value: transportation
     - name: fvt_test_driver
@@ -376,55 +376,13 @@
   runAfter:
     - fvt-manage-scheduler-user
 
-# Manage FVT - Scheduler
-- name: fvt-manage-scheduler-4
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: scheduler-4
-    - name: fvt_mas_appws_component
-      value: scheduler
-    - name: fvt_test_driver
-      value: tpae
-  runAfter:
-    - fvt-manage-scheduler-user
-
-# Manage FVT - Scheduler Graphite
-- name: fvt-manage-scheduler-graphite
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: scheduler-graphite
-    - name: fvt_mas_appws_component
-      value: scheduler
-    - name: fvt_test_driver
-      value: graphite
-  runAfter:
-    - fvt-manage-scheduler-user
-
-# Manage FVT - Maintenance Manager
-- name: fvt-manage-maintmanager
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: mm_bvt
-    - name: fvt_mas_appws_component
-      value: maintmanager
-    - name: fvt_test_driver
-      value: graphite
-  runAfter:
-    - fvt-manage-setup
-
 # Manage FVT - Health
 - name: fvt-manage-health
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: assetviewtable
+      value: health-asset-view-table
     - name: fvt_mas_appws_component
       value: health
     - name: fvt_test_driver
