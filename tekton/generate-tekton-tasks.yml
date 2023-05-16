@@ -66,6 +66,7 @@
         - suite-app-upgrade
         - suite-config
         - suite-db2-setup-for-manage
+        - suite-certs
         - suite-dns
         - suite-install
         - suite-uninstall

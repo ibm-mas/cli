@@ -59,6 +59,7 @@ RUN chmod -R ug+rwx ${HOME}/env.sh && \
     chmod -R ug+rwx ${HOME}/.ansible && \
     chmod +x ${HOME}/run-playbook.sh && \
     chmod +x ${HOME}/run-role.sh && \
+    chmod +x ${HOME}/copy-certificates.sh && \
     chmod -R ug+w /mascli && \
     chmod +x /mascli/mas && \
     chmod +x /mascli/must-gather/* && \
