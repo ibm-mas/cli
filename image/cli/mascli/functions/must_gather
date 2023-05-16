@@ -33,7 +33,12 @@ function mustgather() {
   # Set defaults
   SUMMARY_ONLY=false
   POD_LOGS=true
-  MG_DIR=/must-gather
+  MG_DIR=/tmp/must-gather
+
+  # If a /must-gather directory exists, default to that as the output directory instead
+  if [[ -d "/must-gather" ]]; then
+    MG_DIR=/must-gather
+  fi
 
   # Process command flags
   while [[ $# -gt 0 ]]
@@ -78,6 +83,11 @@ function mustgather() {
   OUTPUT_DIR=${MG_DIR}/${TIMESTAMP}
   mkdir -p $OUTPUT_DIR
 
+  if [[ "$?" != "0" ]]; then
+    echo_warning "Unable to create must-gather output directory '${MG_DIR}/${TIMESTAMP}'"
+    exit 1
+  fi
+
   # The final destination for the must-gather is a tgz
   OUTPUT_FILENAME=must-gather-${TIMESTAMP}.tgz
   OUTPUT_FILE=${MG_DIR}/${OUTPUT_FILENAME}
@@ -101,20 +111,20 @@ function mustgather() {
   done
 
   echo "- Operator Conditions"
-  oc get operatorconditions --all-namespaces 2&> ${OUTPUT_DIR}/operatorconditions.txt
+  oc get operatorconditions --all-namespaces &> ${OUTPUT_DIR}/operatorconditions.txt
 
   # Generate Dependency Report
   # -----------------------------------------------------------------------------
   echo ""
   echo_h2 "Generate Dependency Report"
   echo "- IBM CloudPak Foundation Services"
-  $MG_SCRIPT_DIR/mg-summary-ibm-common-services 2&> ${OUTPUT_DIR}/ibm-common-services.txt
+  $MG_SCRIPT_DIR/mg-summary-ibm-common-services &> ${OUTPUT_DIR}/ibm-common-services.txt
 
   echo "- IBM CloudPak for Data"
-  $MG_SCRIPT_DIR/mg-summary-cp4d 2&> ${OUTPUT_DIR}/cp4d.txt
+  $MG_SCRIPT_DIR/mg-summary-cp4d &> ${OUTPUT_DIR}/cp4d.txt
 
-  echo "- IBM Db2 universal Operator"
-  $MG_SCRIPT_DIR/mg-summary-db2u 2&> ${OUTPUT_DIR}/db2u.txt
+  echo "- IBM Db2 Universal Operator"
+  $MG_SCRIPT_DIR/mg-summary-db2u &> ${OUTPUT_DIR}/db2u.txt
 
   # Find MAS instances
   # -----------------------------------------------------------------------------
@@ -127,7 +137,7 @@ function mustgather() {
   do
     echo_h2 "Maximo Application Suite Must Gather: ${MAS_INSTANCE_ID}"
 
-    for MAS_APP_ID in core assist iot monitor manage optimizer visualinspection
+    for MAS_APP_ID in core assist iot monitor manage optimizer visualinspection pipelines
     do
       MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
       NAMESPACE_LOOKUP=$(oc get namespace $MAS_APP_NAMESPACE --ignore-not-found)
@@ -136,7 +146,7 @@ function mustgather() {
       then
         echo -e "- Performing must-gather in namespace ${MAS_APP_NAMESPACE}"
         # MAS-specific must-gather
-        $MG_SCRIPT_DIR/mg-summary-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE 2&> ${OUTPUT_DIR}/mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}.txt
+        $MG_SCRIPT_DIR/mg-summary-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE &> ${OUTPUT_DIR}/mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}.txt
         $MG_SCRIPT_DIR/mg-collect-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE $OUTPUT_DIR
 
         # Generic Kubernetes must-gather
