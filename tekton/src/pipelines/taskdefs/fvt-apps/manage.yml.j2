@@ -108,3 +108,13 @@
       value: workorderbasic
   runAfter:
     - fvt-manage-setup
+    
+  # Manage FVT Masnavigation Scenarion 
+- name: fvt-manage-masnavigation
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: masnavigation
+  runAfter:
+    - fvt-manage-setup
