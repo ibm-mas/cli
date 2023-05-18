@@ -1,32 +1,40 @@
 #!/bin/bash
 
+NAMESPACE=$1
+
 echo "IBM Maximo Application Suite - Core Platform"
 echo "--------------------------------------------------------------------------------"
-oc get suite --all-namespaces
+oc -n $NAMESPACE get suite
+echo ""
+
+echo ""
+echo "IBM Maximo Application Suite - Workspace Configurations"
+echo "--------------------------------------------------------------------------------"
+oc -n $NAMESPACE get workspace
 echo ""
 
 echo ""
 echo "IBM Maximo Application Suite - Mongo Configurations"
 echo "--------------------------------------------------------------------------------"
-oc get mongocfg --all-namespaces
+oc -n $NAMESPACE get mongocfg
 echo ""
 
 echo ""
 echo "IBM Maximo Application Suite - SLS Configurations"
 echo "--------------------------------------------------------------------------------"
-oc get slscfg --all-namespaces
+oc -n $NAMESPACE get slscfg
 echo ""
 
 echo ""
 echo "IBM Maximo Application Suite - BAS (UDS) Configurations"
 echo "--------------------------------------------------------------------------------"
-oc get bascfg --all-namespaces
+oc -n $NAMESPACE get bascfg
 echo ""
 
 echo ""
 echo "IBM Maximo Application Suite - JDBC Configurations"
 echo "--------------------------------------------------------------------------------"
-oc get jdbccfg --all-namespaces
+oc -n $NAMESPACE get jdbccfg
 echo ""
 
 exit 0
