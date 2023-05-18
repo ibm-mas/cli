@@ -69,8 +69,8 @@
   runAfter:
     - fvt-manage-setup
   
-  # Manage FVT Pytest Tests
-- name: fvt-manage-pytest-metrics
+  # Manage Monitoring Tests
+- name: fvt-manage-monitoring
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
