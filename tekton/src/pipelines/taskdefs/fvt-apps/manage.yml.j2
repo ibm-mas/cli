@@ -118,3 +118,13 @@
       value: masnavigation
   runAfter:
     - fvt-manage-setup
+    
+    # Manage FVT Create Workflow Design & Approve WO Assignments
+- name: fvt-manage-workflow-designer
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: workflow-designer
+  runAfter:
+    - fvt-manage-setup
