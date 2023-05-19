@@ -1,6 +1,8 @@
 ## Changes
 
-- [`4.3`](https://github.com/ibm-mas/cli/releases/tag/4.3.0) Support use of manual certificates in `install-with-fvt` pipeline (#272)
+- [`4.3`](https://github.com/ibm-mas/cli/releases/tag/4.3.0) Multiple updates:
+    - Support May Catalog Update (#)
+    - Support use of manual certificates in `install-with-fvt` pipeline (#272)
 - [`4.2`](https://github.com/ibm-mas/cli/releases/tag/4.2.0) Added new Manage core functional tests and separate results from Industry Solutions by using different product ids (#241)
 - [`4.1`](https://github.com/ibm-mas/cli/releases/tag/4.1.0) Multiple updates:
     - Add mas must-gather command by @durera in #257
