@@ -73,15 +73,20 @@ spec:
     
     # AWS Route53 support
     - name: aws_access_key_id
-      value: $(aws_access_key_id)
+      type: string
+      default: ""
     - name: aws_secret_access_key
-      value: $(aws_secret_access_key)
+      type: string
+      default: ""
     - name: route53_hosted_zone_name
-      value: $(route53_hosted_zone_name)
+      type: string
+      default: ""
     - name: route53_hosted_zone_region
-      value: $(route53_hosted_zone_region)
+      type: string
+      default: ""
     - name: route53_email
-      value: $(route53_email)
+      type: string
+      default: ""
 
     # Use of Manual Certificates
     - name: mas_manual_cert_mgmt
