@@ -81,7 +81,6 @@ function config_pipeline_dns() {
         prompt_for_input "AWS route53 e-mail" ROUTE53_EMAIL
         DNS_PROVIDER=route53
         MAS_CLUSTER_ISSUER="${MAS_INSTANCE_ID}-route53-le-prod"
-        esac
         ;;
       4|none)
         # User has chosen to set up DNS themselves
