@@ -83,7 +83,7 @@ function set_default_vars() {
   export IPI_CONFIG_DIR="/mascli/masconfig"
   export IPI_PLATFORM=aws             # IPI_PLATFORM
   export CLUSTER_TYPE=ipi             # CLUSTER_TYPE
-  export IPI_PULL_SECRET_FILE="/opt/app-root/src/masconfig/pull-secret"                   # IPI_PULL_SECRET_FILE
+  # export IPI_PULL_SECRET_FILE="/opt/app-root/src/masconfig/pull-secret"                   # IPI_PULL_SECRET_FILE
   export IPI_DIR="/opt/app-root/src/masconfig/sno"                                        # IPI_DIR
   export IPI_CONTROLPLANE_REPLICAS=3  # IPI_CONTROLPLANE_REPLICAS
   export IPI_COMPUTE_REPLICAS=3       # IPI_COMPUTE_REPLICAS
@@ -100,49 +100,68 @@ function set_sno_vars() {
 function provision_aws_interactive() {
 
   # prompt_aws_access_key_id            # AWS_ACCESS_KEY_ID
-  if [[ -z "$AWS_ACCESS_KEY_ID" ]]; then
-    echo ""
-    echo_h2 "AWS Access Key ID"
-    echo "Provide your AWS API Key ID (if you have not set the AWS_ACCESS_KEY_ID"
-    echo "environment variable) which will be used to provision an AWS instance."
-    prompt_for_input "AWS API Key ID" AWS_ACCESS_KEY_ID && export AWS_ACCESS_KEY_ID
-  else
-    prompt_for_confirm_default_yes "Re-use saved AWS API Key ID Starting '$AWS_ACCESS_KEY_ID'?" REUSE_AWS_AUTH
-    if [[ "$REUSE_AWS_AUTH" == "false" ]]; then
-      prompt_for_input "AWS Access Key ID" AWS_ACCESS_KEY_ID && export AWS_ACCESS_KEY_ID
-    fi
-  fi
+  # if [[ -z "$AWS_ACCESS_KEY_ID" ]]; then
+  #   echo ""
+  #   echo_h2 "AWS Access Key ID"
+  #   echo "Provide your AWS API Key ID (if you have not set the AWS_ACCESS_KEY_ID"
+  #   echo "environment variable) which will be used to provision an AWS instance."
+  #   prompt_for_input "AWS API Key ID" AWS_ACCESS_KEY_ID && export AWS_ACCESS_KEY_ID
+  # else
+  #   prompt_for_confirm_default_yes "Re-use saved AWS API Key ID Starting '$AWS_ACCESS_KEY_ID'?" REUSE_AWS_AUTH
+  #   if [[ "$REUSE_AWS_AUTH" == "false" ]]; then
+  #     prompt_for_input "AWS Access Key ID" AWS_ACCESS_KEY_ID && export AWS_ACCESS_KEY_ID
+  #   fi
+  # fi
+  prompt_for_secret "AWS Access Key ID" AWS_ACCESS_KEY_ID "Re-use saved AWS Access Key ID?"
+
 
   # prompt_aws_secret_access_key        # AWS_SECRET_ACCESS_KEY
-  if [[ -z "$AWS_SECRET_ACCESS_KEY" ]]; then
-    echo ""
-    echo_h2 "AWS Secret Access Key"
-    echo "Provide your AWS Secret Access Key (if you have not set the AWS_SECRET_ACCESS_KEY"
-    echo "environment variable) which will be used to provision an AWS instance."
-    echo ""
-    prompt_for_input "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY && export AWS_SECRET_ACCESS_KEY
-  else
-    prompt_for_confirm_default_yes "Re-use saved AWS Secret Access Key Starting '$AWS_SECRET_ACCESS_KEY'?" REUSE_AWS_AUTH
-    if [[ "$REUSE_AWS_AUTH" == "false" ]]; then
-      prompt_for_input "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY && export AWS_SECRET_ACCESS_KEY
-    fi
-  fi
+  # if [[ -z "$AWS_SECRET_ACCESS_KEY" ]]; then
+  #   echo ""
+  #   echo_h2 "AWS Secret Access Key"
+  #   echo "Provide your AWS Secret Access Key (if you have not set the AWS_SECRET_ACCESS_KEY"
+  #   echo "environment variable) which will be used to provision an AWS instance."
+  #   echo ""
+  #   prompt_for_input "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY && export AWS_SECRET_ACCESS_KEY
+  # else
+  #   prompt_for_confirm_default_yes "Re-use saved AWS Secret Access Key Starting '$AWS_SECRET_ACCESS_KEY'?" REUSE_AWS_AUTH
+  #   if [[ "$REUSE_AWS_AUTH" == "false" ]]; then
+  #     prompt_for_input "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY && export AWS_SECRET_ACCESS_KEY
+  #   fi
+  # fi
+  prompt_for_secret "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY "Re-use saved AWS Secret Accress Key?"
 
   # prompt_ipi_secret_file        # IPI_PULL_SECRET_FILE
+  # if [[ -z "$IPI_PULL_SECRET_FILE" ]]; then
+  #   echo ""
+  #   echo "Provide your Red Hat Pull Secret File. It can be downloaded via https://access.redhat.com/management."
+  #   echo "You need a valid redhat account for downloading MAS license file (license.dat)"
+  #   echo "environment variable) which will be used to provision an AWS instance."
+  #   echo ""
+  #   prompt_for_input "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY && export AWS_SECRET_ACCESS_KEY
+  # else
+  #   prompt_for_confirm_default_yes "Re-use saved AWS Secret Access Key Starting '$AWS_SECRET_ACCESS_KEY'?" REUSE_AWS_AUTH
+  #   if [[ "$REUSE_AWS_AUTH" == "false" ]]; then
+  #     prompt_for_input "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY && export AWS_SECRET_ACCESS_KEY
+  #   fi
+  # fi
   if [[ -z "$IPI_PULL_SECRET_FILE" ]]; then
     echo ""
     echo "Provide your Red Hat Pull Secret File. It can be downloaded via https://access.redhat.com/management."
     echo "You need a valid redhat account for downloading MAS license file (license.dat)"
     echo "environment variable) which will be used to provision an AWS instance."
     echo ""
-    prompt_for_input "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY && export AWS_SECRET_ACCESS_KEY
+    prompt_for_input "Red Hat Pull Secret File" IPI_PULL_SECRET_FILE && export IPI_PULL_SECRET_FILE
   else
-    prompt_for_confirm_default_yes "Re-use saved AWS Secret Access Key Starting '$AWS_SECRET_ACCESS_KEY'?" REUSE_AWS_AUTH
-    if [[ "$REUSE_AWS_AUTH" == "false" ]]; then
-      prompt_for_input "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY && export AWS_SECRET_ACCESS_KEY
+    prompt_for_confirm_default_yes "Re-use saved IPI Pull Secret file '$IPI_PULL_SECRET_FILE'?" REUSE_IPI_PULL_SECRET_FILE
+    if [[ "$REUSE_IPI_PULL_SECRET_FILE" == "false" ]]; then
+      prompt_for_input "Red Hat Pull Secret File" IPI_PULL_SECRET_FILE && export IPI_PULL_SECRET_FILE
     fi
   fi
-
+  if [[ ! -e "$IPI_PULL_SECRET_FILE" ]]; then
+    echo_warning "Error: File does not exist: $IPI_PULL_SECRET_FILE"
+    exit 1
+  fi
 
   # prompt_aws_cluster_configuration    # CLUSTER_NAME
   echo ""
