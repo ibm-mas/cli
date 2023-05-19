@@ -42,12 +42,22 @@ Maximo Core Image Mirroring Configuration (Optional):
       --skip-sls                                  Skip mirroring images for IBM Suite License Service
       --skip-tsm                                  Skip mirroring images for IBM Truststore Manager
       --skip-mongo                                Skip mirroring images for MongoDb Community Edition
+Maximo Assist Image Mirroring Configuration (Optional):
+      --skip-cp4d                                 Skip mirroring images for IBM CP4D
+      --skip-wd                                   Skip mirroring images for IBM Watson Discovery
 Maximo HP Utilities Image Mirroring Configuration (Optional):
       --skip-appconnect                           Skip mirroring images for Appconnect
+      --skip-cp4d                                 Skip mirroring images for IBM CP4D
+      --skip-wsl                                  Skip mirroring images for IBM Watson Studio
 Maximo IoT Image Mirroring Configuration (Optional):
       --skip-db2                                  Skip mirroring images for IBM Db2
 Maximo Manage Image Mirroring Configuration (Optional):
       --skip-db2                                  Skip mirroring images for IBM Db2
+Maximo Predict Image Mirroring Configuration (Optional):
+      --skip-cp4d                                 Skip mirroring images for IBM CP4D
+      --skip-wsl                                  Skip mirroring images for IBM Watson Studio
+      --skip-wml                                  Skip mirroring images for IBM Watson Machine Learning
+      --skip-spark                                Skip mirroring images for IBM Analytics Engine (Spark)
 Other Commands:
       --no-confirm                                Mirror images without prompting for confirmation
   -h, --help                                      Show this help message
@@ -75,7 +85,12 @@ function mirror_to_registry_noninteractive() {
   MIRROR_TRUSTSTOREMGR=true
   MIRROR_MONGOCE=true
   MIRROR_DB2U=true
+  MIRROR_CP4D=true
   MIRROR_APPCONNECT=true
+  MIRROR_WD=true
+  MIRROR_WSL=true
+  MIRROR_WML=true
+  MIRROR_SPARK=true
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -174,8 +189,23 @@ function mirror_to_registry_noninteractive() {
       --skip-db2)
         MIRROR_DB2U=false
         ;;
+      --skip-cp4d)
+        MIRROR_CP4D=false
+        ;;
       --skip-appconnect)
         MIRROR_APPCONNECT=false
+        ;;
+      --skip-wd)
+        MIRROR_WD=false
+        ;;
+      --skip-wsl)
+        MIRROR_WSL=false
+        ;;
+      --skip-wml)
+        MIRROR_WML=false
+        ;;
+      --skip-spark)
+        MIRROR_SPARK=false
         ;;
       --no-confirm)
         NO_CONFIRM=true
@@ -251,42 +281,48 @@ function mirror_to_registry_interactive() {
   echo_h2 "3. Configure Static Catalog Version"
 
   echo -e "${COLOR_YELLOW}MAS Version:"
+  echo "May 18 2023 Update"
+  echo "  1. 8.10.1"
+  echo "  2. 8.9.5"
   echo "April 14 2023 Update"
-  echo "  1. 8.10.0"
-  echo "  2. 8.9.4"
+  echo "  3. 8.10.0"
+  echo "  4. 8.9.4"
   echo "March 14 2023 Update"
-  echo "  3. 8.9.3"
+  echo "  5. 8.9.3"
   echo "February 17 2023 Update"
-  echo "  4. 8.9.2"
-  echo "January 11 2023 Update"
-  echo "  5. 8.9.1"
+  echo "  6. 8.9.2"
   prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
 
   case $MAS_CHANNEL_SELECTION in
     1)
       MAS_CHANNEL=8.10.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-230414-amd64
+      MAS_CATALOG_VERSION=v8-230518-amd64
       ;;
     2)
       MAS_CHANNEL=8.9.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-230414-amd64
+      MAS_CATALOG_VERSION=v8-230518-amd64
       ;;
     3)
-      MAS_CHANNEL=8.9.x
+      MAS_CHANNEL=8.10.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-230314-amd64
+      MAS_CATALOG_VERSION=v8-230414-amd64
       ;;
     4)
       MAS_CHANNEL=8.9.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-230217-amd64
+      MAS_CATALOG_VERSION=v8-230414-amd64
       ;;
     5)
       MAS_CHANNEL=8.9.x
       MAS_CATALOG_SOURCE=ibm-operator-catalog
-      MAS_CATALOG_VERSION=v8-230111-amd64
+      MAS_CATALOG_VERSION=v8-230314-amd64
+      ;;
+    6)
+      MAS_CHANNEL=8.9.x
+      MAS_CATALOG_SOURCE=ibm-operator-catalog
+      MAS_CATALOG_VERSION=v8-230217-amd64
       ;;
     *)
       echo_warning "Invalid selection"
@@ -329,6 +365,11 @@ function mirror_to_registry_interactive() {
     # App Dependencies
     MIRROR_APPCONNECT=true
     MIRROR_DB2U=true
+    MIRROR_CP4D=true
+    MIRROR_WD=true
+    MIRROR_WSL=true
+    MIRROR_WML=true
+    MIRROR_SPARK=true
   else
     prompt_for_confirm_default_yes "IBM Maximo Application Suite - Core" MIRROR_MAS_CORE
     if [[ "$MIRROR_MAS_CORE" == "true" ]]; then
@@ -350,8 +391,21 @@ function mirror_to_registry_interactive() {
     if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
       prompt_for_confirm_default_yes " + IBM Db2" MIRROR_DB2U
     fi
+    if [[ "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_PREDICT" == "true" ]]; then
+      prompt_for_confirm_default_yes " + IBM Cloud Pak for Data (CP4D)" MIRROR_CP4D
+    fi
+    if [[ "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_PREDICT" == "true" ]]; then
+      prompt_for_confirm_default_yes " + IBM Watson Studio" MIRROR_WSL
+    fi
+    if [[ "$MIRROR_MAS_ASSIST" == "true" ]]; then
+      prompt_for_confirm_default_yes " + IBM Watson Discovery" MIRROR_WD
+    fi
     if [[ "$MIRROR_MAS_HPUTILITIES" == "true" ]]; then
       prompt_for_confirm_default_yes " + IBM Appconnect" MIRROR_APPCONNECT
+    fi
+    if [[ "$MIRROR_MAS_PREDICT" == "true" ]]; then
+      prompt_for_confirm_default_yes " + IBM Watson Machine Learning" MIRROR_WML
+      prompt_for_confirm_default_yes " + IBM Analytics Engine (Spark)" MIRROR_SPARK
     fi
   fi
 
@@ -434,6 +488,11 @@ function mirror_to_registry() {
   export MIRROR_MAS_VISUALINSPECTION
   export MIRROR_APPCONNECT
   export MIRROR_DB2U
+  export MIRROR_CP4D
+  export MIRROR_WD
+  export MIRROR_WML
+  export MIRROR_WSL
+  export MIRROR_SPARK
   # Authentication
   export IBM_ENTITLEMENT_KEY
   export REDHAT_CONNECT_USERNAME
@@ -491,9 +550,26 @@ function mirror_to_registry() {
     if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
       show_mirror_status " + IBM Db2 .........................." $MIRROR_DB2U
     fi
+    # Assist, HPU & Predict Dependencies
+    if [[ "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_PREDICT" == "true" ]]; then
+      show_mirror_status " + IBM Cloud Pak for Data (CP4D) ...." $MIRROR_CP4D
+    fi
+    # HPU & Predict Dependencies
+    if [[ "$MIRROR_MAS_HPUTILITIES" == "true" || "$MIRROR_MAS_PREDICT" == "true" ]]; then
+      show_mirror_status " + IBM Watson Studio ................" $MIRROR_WSL
+    fi
+    # Assist Dependencies
+    if [[ "$MIRROR_MAS_ASSIST" == "true" ]]; then
+      show_mirror_status " + IBM Watson Discovery ............." $MIRROR_WD
+    fi
     # HP Utilities Dependencies
     if [[ "$MIRROR_MAS_HPUTILITIES" == "true" ]]; then
-      show_mirror_status " + IBM Appconnect .........................." $MIRROR_APPCONNECT
+      show_mirror_status " + IBM Appconnect ..................." $MIRROR_APPCONNECT
+    fi
+    # Predict Dependencies
+    if [[ "$MIRROR_MAS_PREDICT" == "true" ]]; then
+      show_mirror_status " + IBM Watson Machine Learning ......" $MIRROR_WML
+      show_mirror_status " + IBM Analytics Engine (Spark)......" $MIRROR_SPARK
     fi
   else
     echo_reset_dim "${COLOR_RED}Skip"

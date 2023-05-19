@@ -33,24 +33,24 @@ function pipeline_config() {
       MAS_CATALOG_VERSION=v8-amd64
     else
       echo -e "${COLOR_YELLOW}Catalog Version:"
-      echo "  1. v8 (2023-04-14)"
-      echo "  2. v8 (2023-03-14)"
-      echo "  3. v8 (2023-02-17)"
-      echo "  4. v8 (2023-01-11)"
+      echo "  1. v8 (2023-05-18)"
+      echo "  2. v8 (2023-04-14)"
+      echo "  3. v8 (2023-03-14)"
+      echo "  4. v8 (2023-02-17)"
       prompt_for_input "Select Catalog Source" MAS_CATALOG_SELECTION "1"
 
       case $MAS_CATALOG_SELECTION in
-        1|230414)
+        1|230518)
+          MAS_CATALOG_VERSION=v8-230518-amd64
+          ;;
+        2|230414)
           MAS_CATALOG_VERSION=v8-230414-amd64
           ;;
-        2|230314)
+        3|230314)
           MAS_CATALOG_VERSION=v8-230314-amd64
           ;;
-        3|230217)
+        4|230217)
           MAS_CATALOG_VERSION=v8-230217-amd64
-          ;;
-        4|230111)
-          MAS_CATALOG_VERSION=v8-230111-amd64
           ;;
         *)
           exit 1
@@ -81,50 +81,56 @@ function pipeline_config() {
   else
     # Airgap (GA) mode
     echo -e "${COLOR_YELLOW}MAS Version:"
+    echo "May 18 2023 Update"
+    echo "  1. 8.10.1"
+    echo "  2. 8.9.5"
     echo "April 14 2023 Update"
-    echo "  1. 8.10.0"
-    echo "  2. 8.9.4"
+    echo "  3. 8.10.0"
+    echo "  4. 8.9.4"
     echo "March 14 2023 Update"
-    echo "  3. 8.9.3"
+    echo "  5. 8.9.3"
     echo "February 17 2023 Update"
-    echo "  4. 8.9.2"
-    echo "January 11 2023 Update"
-    echo "  5. 8.9.1"
+    echo "  6. 8.9.2"
     prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
 
     case $MAS_CHANNEL_SELECTION in
-      # April 14 2023 Catalog
+      # May 18 2023 Catalog
       # -----------------------------------------------------------------------
       1)
         MAS_CHANNEL=8.10.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
-        MAS_CATALOG_VERSION=v8-230414-amd64
+        MAS_CATALOG_VERSION=v8-230518-amd64
         ;;
       2)
+        MAS_CHANNEL=8.9.x
+        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
+        MAS_CATALOG_VERSION=v8-230518-amd64
+        ;;
+      # April 14 2023 Catalog
+      # -----------------------------------------------------------------------
+      3)
+        MAS_CHANNEL=8.10.x
+        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
+        MAS_CATALOG_VERSION=v8-230414-amd64
+        ;;
+      4)
         MAS_CHANNEL=8.9.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
         MAS_CATALOG_VERSION=v8-230414-amd64
         ;;
       # March 14 2023 Catalog
       # -----------------------------------------------------------------------
-      3)
+      5)
         MAS_CHANNEL=8.9.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
         MAS_CATALOG_VERSION=v8-230314-amd64
         ;;
       # Feb 2023 Catalog
       # -----------------------------------------------------------------------
-      4)
+      6)
         MAS_CHANNEL=8.9.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
         MAS_CATALOG_VERSION=v8-230217-amd64
-        ;;
-      # Jan 2023 Catalog
-      # -----------------------------------------------------------------------
-      5)
-        MAS_CHANNEL=8.9.x
-        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
-        MAS_CATALOG_VERSION=v8-230111-amd64
         ;;
       # Oops!
       # -----------------------------------------------------------------------

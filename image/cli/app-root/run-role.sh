@@ -4,6 +4,7 @@ if [ -e "/workspace/additional-configs" ]; then
   cp /workspace/additional-configs/* /workspace/configs/
 fi
 
+source /opt/app-root/src/copy-certificates.sh
 source /opt/app-root/src/env.sh
 
 # Useful for debugging permission issues
