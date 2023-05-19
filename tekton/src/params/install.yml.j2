@@ -293,6 +293,24 @@
   type: string
   default: "false"
 
+# MAS DNS Integrations - AWS Route53
+# -------------------------------------------------------------------------
+- name: aws_access_key_id
+  type: string
+  default: ""
+- name: aws_secret_access_key
+  type: string
+  default: ""
+- name: route53_hosted_zone_name
+  type: string
+  default: ""
+- name: route53_hosted_zone_region
+  type: string
+  default: ""
+- name: route53_email
+  type: string
+  default: ""
+    
 {{ lookup('template', params_src_dir ~ '/install-ibmcatalogs.yml.j2') }}
 
 {{ lookup('template', params_src_dir ~ '/install-workspace.yml.j2') }}

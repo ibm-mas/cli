@@ -1,5 +1,4 @@
 #!/bin/bash
-
 function config_pipeline_dns() {
   echo
   echo_h2 "5. Configure Domain & Certificate Management"
@@ -10,7 +9,8 @@ function config_pipeline_dns() {
     echo -e "${COLOR_YELLOW}DNS Integrations:"
     echo "  1. Cloudflare"
     echo "  2. IBM Cloud Internet Services"
-    echo "  3. None (I will set up DNS myself)"
+    echo "  3. AWS Route53"
+    echo "  4. None (I will set up DNS myself)"
     prompt_for_input "Select DNS Provider" DNS_PROVIDER_SELECTION "1"
 
     case $DNS_PROVIDER_SELECTION in
@@ -72,7 +72,18 @@ function config_pipeline_dns() {
             ;;
         esac
         ;;
-      3|none)
+      3|route53)
+        # User has chosen to set up DNS integration with AWS Route53
+        prompt_for_input "AWS access key ID" AWS_ACCESS_KEY_ID
+        prompt_for_input "AWS secret access key" AWS_SECRET_ACCESS_KEY
+        prompt_for_input "AWS route53 hosted zone name" ROUTE53_HOSTED_ZONE_NAME
+        prompt_for_input "AWS route53 hosted zone region" ROUTE53_HOSTED_ZONE_REGION
+        prompt_for_input "AWS route53 e-mail" ROUTE53_EMAIL
+        DNS_PROVIDER=route53
+        MAS_CLUSTER_ISSUER="${MAS_INSTANCE_ID}-route53-le-prod"
+        esac
+        ;;
+      4|none)
         # User has chosen to set up DNS themselves
         DNS_PROVIDER=''
         echo

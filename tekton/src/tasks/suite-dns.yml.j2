@@ -127,6 +127,18 @@ spec:
         value: $(params.override_edge_certs)
       - name: CIS_PROXY
         value: $(params.cis_proxy)
+
+      - name: AWS_ACCESS_KEY_ID
+        value: $(aws_access_key_id)
+      - name: AWS_SECRET_ACCESS_KEY
+        value: $(aws_secret_access_key)
+      - name: ROUTE53_HOSTED_ZONE_NAME
+        value: $(route53_hosted_zone_name)
+      - name: ROUTE53_HOSTED_ZONE_REGION
+        value: $(route53_hosted_zone_region)
+      - name: ROUTE53_EMAIL
+        value: $(route53_email)
+
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
 
