@@ -17,6 +17,16 @@
       value: $(params.cis_subdomain)
     - name: cis_proxy
       value: $(params.cis_proxy)
+    - name: aws_access_key_id
+      value: $(aws_access_key_id)
+    - name: aws_secret_access_key
+      value: $(aws_secret_access_key)
+    - name: route53_hosted_zone_name
+      value: $(route53_hosted_zone_name)
+    - name: route53_hosted_zone_region
+      value: $(route53_hosted_zone_region)
+    - name: route53_email
+      value: $(route53_email)
   taskRef:
     kind: Task
     name: mas-devops-suite-certs
