@@ -58,17 +58,17 @@ If you have not already determined the best catalog source for your installation
 ### 2.1 Disconnected Install Limitations
 Disconnected install for IBM Maximo Application Suite is supported from MAS v8.8 onwards with some restrictions:
 
-| Application                | First Version to Support Air Gap  |
-| -------------------------- | --------------------------------- |
+| Application                | First Version to Support Air Gap                                |
+| -------------------------- | --------------------------------------------------------------- |
 | Core                       |  v8.8.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
-| Assist                     |  No support                       |
-| Health & Predict Utilities |  No support                       |
+| Assist                     |  No support                                                     |
+| Health & Predict Utilities |  No support                                                     |
 | IoT                        |  v8.5.1 ([v8-220805-amd64](../catalogs/v8-220805-amd64.md))     |
 | Manage                     |  v8.4.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
 | Monitor                    |  v8.10.0 ([v8-230414-amd64](../catalogs/v8-230414-amd64.md))    |
 | Optimizer                  |  v8.2.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
-| Predict                    |  No support                       |
-| Visual Inspection          |  No support                       |
+| Predict                    |  No support                                                     |
+| Visual Inspection          |  No support                                                     |
 
 
 ### 2.2 Prepare the Private Registry
