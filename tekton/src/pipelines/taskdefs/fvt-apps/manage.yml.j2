@@ -68,6 +68,16 @@
       value: metrics-api
   runAfter:
     - fvt-manage-setup
+  
+  # Manage Monitoring Tests
+- name: fvt-manage-monitoring
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: monitoring
+  runAfter:
+    - ivtcore-manage
 
 # Manage FVT Security Audit Logging
 - name: fvt-manage-security-audit-logging
@@ -76,5 +86,45 @@
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: security-audit-logging
+  runAfter:
+    - fvt-manage-setup
+
+# Manage FVT Inactive User Authentication
+- name: fvt-manage-security-inactive-auth
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: security-inactiveuser-authentication
+  runAfter:
+    - fvt-manage-setup
+
+# Manage FVT Work Order Basic Scenario
+- name: fvt-manage-wobasic
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: workorderbasic
+  runAfter:
+    - fvt-manage-setup
+    
+  # Manage FVT Masnavigation Scenarion 
+- name: fvt-manage-masnavigation
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: masnavigation
+  runAfter:
+    - fvt-manage-setup
+    
+    # Manage FVT Create Workflow Design & Approve WO Assignments
+- name: fvt-manage-workflow-designer
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: workflow-designer
   runAfter:
     - fvt-manage-setup
