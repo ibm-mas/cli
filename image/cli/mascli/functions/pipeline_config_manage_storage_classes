@@ -2,7 +2,7 @@
 
 function config_pipeline_manage_storage_classes() {
   echo
-  echo "${TEXT_DIM}Manage Storage Classes for Doclinks, BIM and JMS:"
+  echo "${TEXT_DIM}Manage Storage Class for Doclinks, BIM and JMS:"
   echo ""
   reset_colors
   # 1. ROKS
