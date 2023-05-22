@@ -87,6 +87,9 @@ spec:
     - name: route53_email
       type: string
       default: ""
+    - name: route53_subdomain
+      type: string
+      default: ""
 
     # Use of Manual Certificates
     - name: mas_manual_cert_mgmt
@@ -155,7 +158,8 @@ spec:
         value: $(params.route53_hosted_zone_region)
       - name: ROUTE53_EMAIL
         value: $(params.route53_email)
-
+      - name: ROUTE53_SUBDOMAIN
+        value: $(route53_subdomain)
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
 

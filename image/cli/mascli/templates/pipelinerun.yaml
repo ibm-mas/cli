@@ -244,6 +244,8 @@ spec:
       value: '$ROUTE53_HOSTED_ZONE_REGION'
     - name: route53_email
       value: '$ROUTE53_EMAIL'
+    - name: route53_subdomain
+      value: '$ROUTE53_SUBDOMAIN'
 
     # Data Dictionary
     # -------------------------------------------------------------------------

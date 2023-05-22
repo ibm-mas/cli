@@ -310,6 +310,9 @@
 - name: route53_email
   type: string
   default: ""
+- name: route53_subdomain
+  type: string
+  default: ""
     
 {{ lookup('template', params_src_dir ~ '/install-ibmcatalogs.yml.j2') }}
 
