@@ -92,7 +92,7 @@ function config_pipeline_dns() {
         echo "AWS Route53 hosted zone name: mycompany.com"
         echo "AWS Route53 subdomain: masinst1"
         echo ""
-        echo -e "${COLOR_GREEN}Your MAS Top Level Domain: $MAS_DOMAIN"
+        echo -e "${COLOR_YELLOW}Your MAS Top Level Domain: $MAS_DOMAIN"
         echo ""
         prompt_for_input "AWS Route53 hosted zone name" ROUTE53_HOSTED_ZONE_NAME && export ROUTE53_HOSTED_ZONE_NAME
         prompt_for_input "AWS Route53 hosted zone region" ROUTE53_HOSTED_ZONE_REGION && export ROUTE53_HOSTED_ZONE_REGION
