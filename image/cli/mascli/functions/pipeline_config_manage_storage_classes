@@ -1,8 +1,6 @@
 #!/bin/bash
 
 function config_pipeline_manage_storage_classes() {
-  echo
-  echo "${TEXT_DIM}Manage Storage Class for Doclinks, BIM and JMS:"
   echo ""
   reset_colors
   # 1. ROKS
@@ -41,7 +39,7 @@ function config_pipeline_manage_storage_classes() {
     oc get storageclass gp2 &>> $LOGFILE
     if [[ $? == "0" ]]; then
       echo -e "${COLOR_GREEN}Storage provider auto-detected: AWS gp2${COLOR_RESET}"
-      echo "${TEXT_DIM}  - Manage Storage class for Doclinks, BIM and JMS: efs"
+      echo "${TEXT_DIM}  - Manage Storage class for Doclinks, BIM and JMS: gp2"
       MANAGE_STORAGE_CLASS_PROVIDER=aws
       MANAGE_STORAGE_CLASS_RWX=gp2
     fi
@@ -70,7 +68,7 @@ function config_pipeline_manage_storage_classes() {
     echo ""
     prompt_for_input "Storage Class for Manage application Doclinks, BIM and JMS" MANAGE_STORAGE_CLASS_RWX
   fi
-
+  echo ""
   export MAS_APP_SETTINGS_DOCLINKS_PVC_STORAGE_CLASS=$MANAGE_STORAGE_CLASS_RWX
   export MAS_APP_SETTINGS_BIM_PVC_STORAGE_CLASS=$MANAGE_STORAGE_CLASS_RWX
   export MAS_APP_SETTINGS_JMS_QUEUE_PVC_STORAGE_CLASS=$MANAGE_STORAGE_CLASS_RWX
