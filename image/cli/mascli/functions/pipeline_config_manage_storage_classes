@@ -63,10 +63,10 @@ function config_pipeline_manage_storage_classes() {
   if [[ "$MANAGE_STORAGE_CLASS_RWX" == "" || "$OVERRIDE_MANAGE_STORAGE_CLASSES" == "true" ]]; then
     MANAGE_STORAGE_CLASS_PROVIDER=custom
     echo ""
-    echo "${COLOR_YELLOW}Type the Manage application storage class to use from the list below:"
+    echo "${COLOR_YELLOW}Select the Manage application storage class to use for Doclinks, BIM and JMS from the list below:"
     oc get storageclasses -o jsonpath='{range .items[*]}{" - "}{.metadata.name}{"\n"}{end}'
     echo ""
-    prompt_for_input "Storage Class for Manage application Doclinks, BIM and JMS" MANAGE_STORAGE_CLASS_RWX
+    prompt_for_input "Enter the selected Storage Class" MANAGE_STORAGE_CLASS_RWX
   fi
   echo ""
   export MAS_APP_SETTINGS_DOCLINKS_PVC_STORAGE_CLASS=$MANAGE_STORAGE_CLASS_RWX
