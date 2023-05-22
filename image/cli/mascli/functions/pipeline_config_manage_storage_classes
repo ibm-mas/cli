@@ -1,0 +1,78 @@
+#!/bin/bash
+
+function config_pipeline_manage_storage_classes() {
+  echo
+  echo "${TEXT_DIM}Manage Storage Classes for Doclinks, BIM and JMS:"
+  echo ""
+  reset_colors
+  # 1. ROKS
+  oc get storageclass ibmc-file-gold &>> $LOGFILE
+  if [[ $? == "0" ]]; then
+    echo -e "${COLOR_GREEN}Storage provider auto-detected: IBMCloud ROKS${COLOR_RESET}"
+    echo "${TEXT_DIM}  - Storage class (ReadWriteMany): ibmc-file-gold"
+    MANAGE_STORAGE_CLASS_PROVIDER=ibmc
+    MANAGE_STORAGE_CLASS_RWX=ibmc-file-gold
+  fi
+
+  # 2. OCS
+  if [[ "$MANAGE_STORAGE_CLASS_RWX" == "" ]]; then
+    oc get storageclass ocs-storagecluster-cephfs &>> $LOGFILE
+    if [[ $? == "0" ]]; then
+      echo -e "${COLOR_GREEN}Storage provider auto-detected: OpenShift Container Storage${COLOR_RESET}"
+      echo "${TEXT_DIM}  - Manage Storage class for Doclinks, BIM and JMS: ocs-storagecluster-cephfs"
+      MANAGE_STORAGE_CLASS_PROVIDER=ocs
+      MANAGE_STORAGE_CLASS_RWX=ocs-storagecluster-cephfs
+    fi
+  fi
+
+  # 3. Azure
+  if [[ "$MANAGE_STORAGE_CLASS_RWX" == "" ]]; then
+    oc get storageclass managed-premium &>> $LOGFILE
+    if [[ $? == "0" ]]; then
+      echo -e "${COLOR_GREEN}Storage provider auto-detected: Azure Managed${COLOR_RESET}"
+      echo "${TEXT_DIM}  - Manage Storage class for Doclinks, BIM and JMS: managed-premium"
+      MANAGE_STORAGE_CLASS_PROVIDER=azure
+      MANAGE_STORAGE_CLASS_RWX=managed-premium
+    fi
+  fi
+
+  # 4. AWS
+  if [[ "$MANAGE_STORAGE_CLASS_RWX" == "" ]]; then
+    oc get storageclass gp2 &>> $LOGFILE
+    if [[ $? == "0" ]]; then
+      echo -e "${COLOR_GREEN}Storage provider auto-detected: AWS gp2${COLOR_RESET}"
+      echo "${TEXT_DIM}  - Manage Storage class for Doclinks, BIM and JMS: efs"
+      MANAGE_STORAGE_CLASS_PROVIDER=aws
+      MANAGE_STORAGE_CLASS_RWX=gp2
+    fi
+  fi
+  reset_colors
+
+  if [[ "$MANAGE_STORAGE_CLASS_PROVIDER" == "ibmc" ]]; then
+    # Unless we use the -gid storage class we struggle with permission issues when mounted
+    PIPELINE_MANAGE_STORAGE_CLASS=ibmc-file-gold-gid
+  else
+    PIPELINE_MANAGE_STORAGE_CLASS=$MANAGE_STORAGE_CLASS_RWX
+  fi
+
+  OVERRIDE_MANAGE_STORAGE_CLASSES=false
+  if [[ "$MANAGE_STORAGE_CLASS_RWX" != "" ]]; then
+    echo
+    prompt_for_confirm "Choose your own storage classes anyway?" OVERRIDE_MANAGE_STORAGE_CLASSES
+  fi
+
+  # 5. You choose then ...
+  if [[ "$MANAGE_STORAGE_CLASS_RWX" == "" || "$OVERRIDE_MANAGE_STORAGE_CLASSES" == "true" ]]; then
+    MANAGE_STORAGE_CLASS_PROVIDER=custom
+    echo ""
+    echo "${COLOR_YELLOW}Type the Manage application storage class to use from the list below:"
+    oc get storageclasses -o jsonpath='{range .items[*]}{" - "}{.metadata.name}{"\n"}{end}'
+    echo ""
+    prompt_for_input "Storage Class for Manage application Doclinks, BIM and JMS" MANAGE_STORAGE_CLASS_RWX
+  fi
+
+  export MAS_APP_SETTINGS_DOCLINKS_PVC_STORAGE_CLASS=$MANAGE_STORAGE_CLASS_RWX
+  export MAS_APP_SETTINGS_BIM_PVC_STORAGE_CLASS=$MANAGE_STORAGE_CLASS_RWX
+  export MAS_APP_SETTINGS_JMS_QUEUE_PVC_STORAGE_CLASS=$MANAGE_STORAGE_CLASS_RWX
+
+}

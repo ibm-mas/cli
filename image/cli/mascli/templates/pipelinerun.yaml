@@ -288,6 +288,12 @@ spec:
       value: '$MAS_APPWS_BINDINGS_JDBC_MANAGE'
     - name: mas_app_settings_persistent_volumes_flag
       value: '$MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG'
+    - name: mas_app_settings_jms_queue_pvc_storage_class
+      value: '$MAS_APP_SETTINGS_JMS_QUEUE_PVC_STORAGE_CLASS'
+    - name: mas_app_settings_bim_pvc_storage_class
+      value: '$MAS_APP_SETTINGS_BIM_PVC_STORAGE_CLASS'
+    - name: mas_app_settings_doclinks_pvc_storage_class
+      value: '$MAS_APP_SETTINGS_DOCLINKS_PVC_STORAGE_CLASS'
     - name: mas_app_settings_server_bundles_size
       value: '$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE'
     - name: mas_app_settings_base_language
