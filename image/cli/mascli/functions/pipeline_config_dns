@@ -96,8 +96,8 @@ function config_pipeline_dns() {
         echo ""
         prompt_for_input "AWS Route53 hosted zone name" ROUTE53_HOSTED_ZONE_NAME && export ROUTE53_HOSTED_ZONE_NAME
         prompt_for_input "AWS Route53 hosted zone region" ROUTE53_HOSTED_ZONE_REGION && export ROUTE53_HOSTED_ZONE_REGION
-        prompt_for_input "AWS Route53 e-mail" ROUTE53_EMAIL && export ROUTE53_EMAIL
         prompt_for_input "AWS Route53 subdomain" ROUTE53_SUBDOMAIN && export ROUTE53_SUBDOMAIN
+        prompt_for_input "AWS Route53 e-mail" ROUTE53_EMAIL && export ROUTE53_EMAIL
 
         DNS_PROVIDER=route53
         MAS_CLUSTER_ISSUER="${MAS_INSTANCE_ID}-route53-le-prod"
