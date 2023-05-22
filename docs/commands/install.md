@@ -48,34 +48,8 @@ A number of applications are not currently available when using a private mirror
 
 - Maximo Assist
 - Maximo Health & Predict Utilities
-- Maximo Monitor
 - Maximo Predict
-- Maximo Safety
 - Maximo Visual Inspection
-
-
-SNO Support
--------------------------------------------------------------------------------
-If you  already ran `mas install` to install the  IBM Maximo Application Suite then the installer will automatically detect the presence of SNO and tailor the installation configuration for a connected installation.
-
-A number of applications are not currently available when using a private mirror registry in this fashion, as a result you will not be asked whether you wish to install these applications:
-
-- Maximo Assist
-- Maximo Health & Predict Utilities
-- Maximo Monitor
-- Maximo Predict
-- Maximo Safety
-- Maximo Visual Inspection
-
-
-Must Gather
--------------------------------------------------------------------------------
-The pipeline sets a "finally" block that is executed at the end of the steps regardless of success or failure. Inside this finally block the **mustgather** Task is executed which runs the IBM AI Applications' Must Gather tool against a MAS instance. It uses the mustgather workspace to persist the output into a Persistent Volume for retrieval after the pipeline has completed.
-
-Users can then use the **ibm.mas_devops.suite_mustgather_download** playbook locally to pull the mustgather output from the persistent volume.
-
-!!! note
-    The **mustgather** Task will clear any previous content found in the `/workspace/mustgather` persistent volume before each call to the mustgather playbook. This is to ensure that the persistent volume does not become full after multiple runs using the same persistent volume/namespace.
 
 
 More Information
@@ -108,7 +82,6 @@ The installer supports:
     - IBM Suite License Service
     - IBM User Data Services
     - IBM Certificate Manager
-    - Red Hat Service Binding Operator (for MAS 8.6 and 8.7)
 - Optional dependency installation:
     - Apache Kafka
     - IBM Db2
