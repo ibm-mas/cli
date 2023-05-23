@@ -12,8 +12,6 @@
 function pipeline_config() {
   echo_h2 "3. Configure Installation"
 
-  MAS_CATALOG_SOURCE=ibm-operator-catalog
-
   # MAS instance ID
   if [[ ! -z "$1" ]]; then
     MAS_INSTANCE_ID=$1
@@ -209,8 +207,6 @@ function pipeline_config() {
     SLS_ICR_CP=cp.icr.io/cp
     SLS_ICR_CPOPEN=icr.io/cpopen
   fi
-
-  SLS_CATALOG_SOURCE=ibm-operator-catalog
 
   echo
   echo_h2 "12. Configure Product License"

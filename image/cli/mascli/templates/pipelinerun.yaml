@@ -144,8 +144,6 @@ spec:
       value: '$SLS_LICENSE_ID'
     - name: sls_license_file
       value: '$SLS_LICENSE_FILE'
-    - name: sls_catalog_source
-      value: '$SLS_CATALOG_SOURCE'
     - name: sls_channel
       value: '3.x'
     - name: sls_icr_cp
@@ -182,8 +180,6 @@ spec:
     # -------------------------------------------------------------------------
     - name: mas_channel
       value: '$MAS_CHANNEL'
-    - name: mas_catalog_source
-      value: '$MAS_CATALOG_SOURCE'
     - name: mas_catalog_version
       value: '$MAS_CATALOG_VERSION'
     - name: mas_catalog_digest

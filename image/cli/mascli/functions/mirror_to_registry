@@ -282,32 +282,26 @@ function mirror_to_registry_interactive() {
   case $MAS_CHANNEL_SELECTION in
     1)
       MAS_CHANNEL=8.10.x
-      MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-230518-amd64
       ;;
     2)
       MAS_CHANNEL=8.9.x
-      MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-230518-amd64
       ;;
     3)
       MAS_CHANNEL=8.10.x
-      MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-230414-amd64
       ;;
     4)
       MAS_CHANNEL=8.9.x
-      MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-230414-amd64
       ;;
     5)
       MAS_CHANNEL=8.9.x
-      MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-230314-amd64
       ;;
     6)
       MAS_CHANNEL=8.9.x
-      MAS_CATALOG_SOURCE=ibm-operator-catalog
       MAS_CATALOG_VERSION=v8-230217-amd64
       ;;
     *)

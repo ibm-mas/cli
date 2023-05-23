@@ -237,8 +237,6 @@ function install_noninteractive() {
   esac
   done
 
-  MAS_CATALOG_SOURCE=ibm-operator-catalog
-
 }
 
 function install_interactive() {
