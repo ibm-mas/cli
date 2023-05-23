@@ -200,8 +200,10 @@ function config_pipeline_applications() {
         prompt_for_input 'COS Provider [ibm/ocs]' COS_TYPE "ibm"
         [[ "$COS_TYPE" != "ibm" && "$COS_TYPE" != "ocs" ]] || break
       done
-      prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY $IBMCLOUD_APIKEY
-      prompt_for_input "IBM Cloud Resource Group" IBMCLOUD_RESOURCEGROUP $IBMCLOUD_RESOURCEGROUP "Default"
+      if [[ "$COS_TYPE" == "ibm" ]]; then
+        prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY $IBMCLOUD_APIKEY
+        prompt_for_input "IBM Cloud Resource Group" IBMCLOUD_RESOURCEGROUP $IBMCLOUD_RESOURCEGROUP "Default"
+      fi
     fi
 
     if [[ "$MAS_APP_CHANNEL_PREDICT" != "" || "$MAS_APP_CHANNEL_ASSIST" != "" ]]; then
