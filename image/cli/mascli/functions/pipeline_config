@@ -192,15 +192,11 @@ function pipeline_config() {
     echo_h2 "11.3 Configure IBM Container Registry (MAS)"
     prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP docker-na-public.artifactory.swg-devops.com/wiotp-docker-local override
     prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen override
-    MAS_ENTITLEMENT_USERNAME=cp
-    MAS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
 
     echo
     echo_h2 "11.4 Configure IBM Container Registry (SLS)"
     prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP docker-na-public.artifactory.swg-devops.com/wiotp-docker-local override
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen override
-    SLS_ENTITLEMENT_USERNAME=cp
-    SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
     echo_h2 "11. Configure IBM Container Registry"
@@ -209,13 +205,9 @@ function pipeline_config() {
     # Use defaults
     MAS_ICR_CP=cp.icr.io/cp
     MAS_ICR_CPOPEN=icr.io/cpopen
-    MAS_ENTITLEMENT_USERNAME=cp
-    MAS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
 
     SLS_ICR_CP=cp.icr.io/cp
     SLS_ICR_CPOPEN=icr.io/cpopen
-    SLS_ENTITLEMENT_USERNAME=cp
-    SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   fi
 
   SLS_CATALOG_SOURCE=ibm-operator-catalog

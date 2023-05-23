@@ -152,10 +152,6 @@ spec:
       value: '$SLS_ICR_CP'
     - name: sls_icr_cpopen
       value: '$SLS_ICR_CPOPEN'
-    - name: sls_entitlement_username
-      value: '$SLS_ENTITLEMENT_USERNAME'
-    - name: sls_entitlement_key
-      value: '$SLS_ENTITLEMENT_KEY'
 
     # Dependencies - UDS (Required, no defaults)
     # -------------------------------------------------------------------------
@@ -251,10 +247,6 @@ spec:
     - name: mas_cluster_issuer
       value: '$MAS_CLUSTER_ISSUER'
 
-    - name: mas_entitlement_username
-      value: '$MAS_ENTITLEMENT_USERNAME'
-    - name: mas_entitlement_key
-      value: '$MAS_ENTITLEMENT_KEY'
     - name: mas_annotations
       value: '$MAS_ANNOTATIONS'
 

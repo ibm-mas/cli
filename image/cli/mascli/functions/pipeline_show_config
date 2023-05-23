@@ -32,8 +32,7 @@ function pipeline_show_config() {
   echo_reset_dim "Subscription Channel ...... ${COLOR_MAGENTA}${MAS_CHANNEL}"
   echo_reset_dim "IBM Entitled Registry ..... ${COLOR_MAGENTA}${MAS_ICR_CP}"
   echo_reset_dim "IBM Open Registry ......... ${COLOR_MAGENTA}${MAS_ICR_CPOPEN}"
-  echo_reset_dim "Entitlement Username ...... ${COLOR_MAGENTA}${MAS_ENTITLEMENT_USERNAME}"
-  echo_reset_dim "Entitlement Key ........... ${COLOR_MAGENTA}${MAS_ENTITLEMENT_KEY:0:8}<snip>"
+  echo_reset_dim "IBM Entitlement Key ....... ${COLOR_MAGENTA}${IBM_ENTITLEMENT_KEY:0:8}<snip>"
 
   reset_colors
   echo "${TEXT_DIM}"
@@ -58,11 +57,9 @@ function pipeline_show_config() {
   else echo_reset_dim " - Predict ............... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_PREDICT}"
   fi
 
-  if [[ "${MAS_CHANNEL}" == '8.8.x' ]]; then
-    if [[ "${MAS_APP_CHANNEL_OPTIMIZER}" == '' ]]
+  if [[ "${MAS_APP_CHANNEL_OPTIMIZER}" == '' ]]
     then echo_reset_dim "Optimizer ................ ${COLOR_RED}Skip Installation"
     else echo_reset_dim "Optimizer ................ ${COLOR_MAGENTA}${MAS_APP_CHANNEL_OPTIMIZER} (${MAS_APP_PLAN_OPTIMIZER})"
-    fi
   fi
 
   if [[ "${MAS_APP_CHANNEL_ASSIST}" == '' ]]
@@ -83,8 +80,6 @@ function pipeline_show_config() {
   echo_reset_dim "License File .............. ${COLOR_MAGENTA}${SLS_LICENSE_FILE}"
   echo_reset_dim "IBM Entitled Registry ..... ${COLOR_MAGENTA}${SLS_ICR_CP}"
   echo_reset_dim "IBM Open Registry ......... ${COLOR_MAGENTA}${SLS_ICR_CPOPEN}"
-  echo_reset_dim "Entitlement Username ...... ${COLOR_MAGENTA}${SLS_ENTITLEMENT_USERNAME}"
-  echo_reset_dim "Entitlement Key ........... ${COLOR_MAGENTA}${SLS_ENTITLEMENT_KEY:0:8}<snip>"
 
   reset_colors
   echo "${TEXT_DIM}"
