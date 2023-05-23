@@ -2,6 +2,8 @@
 
 function config_pipeline_manage_storage_classes() {
   echo ""
+  echo "Trying to auto-detect available storage classes for Manage application..."
+  echo ""
   reset_colors
   # 1. ROKS
   oc get storageclass ibmc-file-gold &>> $LOGFILE
@@ -66,7 +68,7 @@ function config_pipeline_manage_storage_classes() {
     echo "${COLOR_YELLOW}Select the Manage application storage class to use for Doclinks, BIM and JMS from the list below:"
     oc get storageclasses -o jsonpath='{range .items[*]}{" - "}{.metadata.name}{"\n"}{end}'
     echo ""
-    prompt_for_input "Enter the selected Storage Class" MANAGE_STORAGE_CLASS_RWX
+    prompt_for_input "Enter the selected storage class" MANAGE_STORAGE_CLASS_RWX
   fi
   echo ""
   export MAS_APP_SETTINGS_DOCLINKS_PVC_STORAGE_CLASS=$MANAGE_STORAGE_CLASS_RWX
