@@ -67,6 +67,7 @@ Advanced Db2u Universal Operator Configuration (Optional):
       --db2u-temp-storage ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
 
 Other Commands:
+      --no-wait-for-pvcs                                           If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
       --no-confirm                                                 Mirror images without prompting for confirmation
   -h, --help                                                       Show this help message
 
@@ -90,6 +91,7 @@ function install_noninteractive() {
   LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN=yes
   use_additional_configs=no
 
+  WAIT_FOR_PVCS=true
   STORAGE_CLASS_PROVIDER=custom
 
   while [[ $# -gt 0 ]]
@@ -236,6 +238,8 @@ function install_noninteractive() {
     ;;
 
     # Other Commands
+    --no-wait-for-pvcs)
+      WAIT_FOR_PVCS=false
     --no-confirm)
       NO_CONFIRM=true
       ;;

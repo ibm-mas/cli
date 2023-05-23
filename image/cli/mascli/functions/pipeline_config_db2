@@ -3,7 +3,7 @@
 
 function config_pipeline_storage_db2() {
   echo
-  echo_h2 "7. Configure Db2"
+  echo_h2 "Configure Db2"
   echo "${TEXT_DIM}The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, Manage, Monitor, & Predict) or you may choose to configure MAS to use an existing database."
   echo
   reset_colors
@@ -47,7 +47,7 @@ function config_pipeline_storage_db2() {
 
       # Install and configure MAS to use in-cluster Db2 instances
       echo
-      echo_h2 "7.1 Db2 for IoT"
+      echo_h3 "Db2 for IoT"
       echo "${TEXT_DIM}Maximo IoT requires a shared system-scope Db2 instance because others application in the suite require access to the same database source."
       echo ""
       reset_colors
@@ -62,7 +62,7 @@ function config_pipeline_storage_db2() {
       fi
 
       echo ""
-      echo_h2 "7.2 Db2 for Manage"
+      echo_h3 "Db2 for Manage"
       echo "${TEXT_DIM}Maximo Manage can be configured to share the system Db2 instance or use it's own dedicated database:"
       echo " - Use of a shared instance has a significant footprint reduction but is only recommended for development/test/demo installs"
       echo " - In most production systems you will want to use a dedicated database"
@@ -101,7 +101,7 @@ function config_pipeline_storage_db2() {
         DB2_DATA_STORAGE_SIZE=20Gi
       fi
       echo
-      echo_h2 "7.3 Database CPU & Memory"
+      echo_h3 "Database CPU & Memory"
       echo "${TEXT_DIM}Note that the same settings are applied to both the IoT and Manage Db2 instances, it will be possible to set these independently in a future update."
       echo
       reset_colors
@@ -119,7 +119,7 @@ function config_pipeline_storage_db2() {
       fi
 
       echo
-      echo_h2 "7.4 Database Storage Capacity"
+      echo_h3 "Database Storage Capacity"
       echo "${TEXT_DIM}Note that the same settings are applied to both the IoT and Manage Db2 instances, it will be possible to set these independently in a future update."
       echo
       reset_colors
@@ -142,7 +142,7 @@ function config_pipeline_storage_db2() {
       DB2_ACTION_SYSTEM=none
       DB2_ACTION_MANAGE=none
       echo
-      echo_h2 "7.1 Database configuration for IoT"
+      echo_h3 "Database configuration for IoT"
       echo "${TEXT_DIM}Maximo IoT requires a shared system-scope Db2 instance because others application in the suite require access to the same database source."
       echo " - Only IBM Db2 is supported for this database"
       echo ""
@@ -166,7 +166,7 @@ function config_pipeline_storage_db2() {
       fi
 
       echo ""
-      echo_h2 "7.2 Database configuration for Manage"
+      echo_h3 "Database configuration for Manage"
       echo "${TEXT_DIM}Maximo Manage can be configured to share the system Db2 instance or use it's own dedicated database."
       echo " - IBM Db2, Oracle Database, & Microsoft SQL Server are all supported database options"
       echo ""

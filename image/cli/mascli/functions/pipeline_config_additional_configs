@@ -4,7 +4,7 @@
 function config_pipeline_additional_configs() {
   if [[ -z "$NON_INTERACTIVE" ]]; then
     echo
-    echo_h2 "8. Additional Configuration"
+    echo_h2 "Additional Configuration"
     echo "${TEXT_DIM}Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step."
     echo "The primary purpose of this is to apply configuration for Maximo Application Suite itself, but you can use this to deploy ANY additional resource into your cluster."
     echo

@@ -228,7 +228,7 @@ function mirror_to_registry_noninteractive() {
 
 function mirror_to_registry_interactive() {
   echo
-  echo_h2 "1. Configure Mirror Mode"
+  echo_h2 "Configure Mirror Mode"
   prompt_for_input "Working Directory" MIRROR_WORKING_DIR
 
   echo -e "${COLOR_YELLOW}Mirror Mode:"
@@ -254,17 +254,17 @@ function mirror_to_registry_interactive() {
   esac
 
   echo
-  echo_h2 "1. Configure Target Mirror"
+  echo_h2 "Configure Target Mirror"
   prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
   prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
 
   echo
-  echo_h2 "2. Configure Authentication"
+  echo_h2 "Configure Authentication"
   prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME
   prompt_for_input "Mirror Registry Password" REGISTRY_PASSWORD
 
   echo
-  echo_h2 "3. Configure Static Catalog Version"
+  echo_h2 "Configure Static Catalog Version"
 
   echo -e "${COLOR_YELLOW}MAS Version:"
   echo "May 18 2023 Update"
@@ -311,7 +311,7 @@ function mirror_to_registry_interactive() {
   esac
 
   echo
-  echo_h2 "4. Configure Images to Mirror"
+  echo_h2 "Configure Images to Mirror"
 
   prompt_for_confirm "Red Hat OpenShift Container Platform Release" MIRROR_RH_RELEASE
   if [[ "$MIRROR_RH_RELEASE" == "true" ]]; then
@@ -384,7 +384,7 @@ function mirror_to_registry_interactive() {
   fi
 
   echo
-  echo_h2 "5. Configure Authentication"
+  echo_h2 "Configure Authentication"
   prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY
 
   if [[ $MIRROR_UDS == "true" || $MIRROR_RH_RELEASE == "true"  || $MIRROR_RH_OPERATORS == "true" ]]; then
@@ -547,7 +547,7 @@ function mirror_to_registry() {
   fi
 
   echo
-  echo_h2 "4. Run Mirror Process"
+  echo_h2 "Run Mirror Process"
   TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
   LOG_PREFIX="$MIRROR_WORKING_DIR/logs/mirror-$TIMESTAMP"
   if [ ! -d $MIRROR_WORKING_DIR/logs/ ]; then

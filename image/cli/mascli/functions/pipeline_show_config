@@ -11,9 +11,10 @@ function pipeline_show_config() {
   fi
 
   reset_colors
-  echo_h2 "\n15. Review Settings"
+  echo
+  echo_h4 "Review Settings"
   echo "${TEXT_DIM}"
-  echo_h2 "IBM Maximo Application Suite" "    "
+  echo_h4 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ............... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "Workspace ID .............. ${COLOR_MAGENTA}${MAS_WORKSPACE_ID}"
   echo_reset_dim "Workspace Name ............ ${COLOR_MAGENTA}${MAS_WORKSPACE_NAME}"
@@ -35,7 +36,7 @@ function pipeline_show_config() {
 
   reset_colors
   echo "${TEXT_DIM}"
-  echo_h2 "IBM Maximo Application Suite Applications" "    "
+  echo_h4 "IBM Maximo Application Suite Applications" "    "
   if [[ "${MAS_APP_CHANNEL_IOT}" == '' ]]
   then echo_reset_dim "IoT ...................... ${COLOR_RED}Skip Installation"
   else echo_reset_dim "IoT ...................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_IOT}"
@@ -73,7 +74,7 @@ function pipeline_show_config() {
 
   reset_colors
   echo "${TEXT_DIM}"
-  echo_h2 "IBM Suite License Service" "    "
+  echo_h4 "IBM Suite License Service" "    "
   echo_reset_dim "License ID ................ ${COLOR_MAGENTA}${SLS_LICENSE_ID}"
   echo_reset_dim "License File .............. ${COLOR_MAGENTA}${SLS_LICENSE_FILE_LOCAL}"
   echo_reset_dim "IBM Entitled Registry ..... ${COLOR_MAGENTA}${SLS_ICR_CP}"
@@ -81,7 +82,7 @@ function pipeline_show_config() {
 
   reset_colors
   echo "${TEXT_DIM}"
-  echo_h2 "IBM User Data Services" "    "
+  echo_h4 "IBM User Data Services" "    "
   echo_reset_dim "Contact Email ............. ${COLOR_MAGENTA}${UDS_CONTACT_EMAIL}"
   echo_reset_dim "First Name ................ ${COLOR_MAGENTA}${UDS_CONTACT_FIRSTNAME}"
   echo_reset_dim "Last Name ................. ${COLOR_MAGENTA}${UDS_CONTACT_LASTNAME}"
@@ -89,7 +90,7 @@ function pipeline_show_config() {
   if [[ "$DEPLOY_CP4D" == "run" ]]; then
     reset_colors
     echo "${TEXT_DIM}"
-    echo_h2 "IBM Cloud Pak for Data" "    "
+    echo_h4 "IBM Cloud Pak for Data" "    "
     echo_reset_dim "Entitlement Key ........... ${COLOR_MAGENTA}${IBM_ENTITLEMENT_KEY:0:8}<snip>"
     echo_reset_dim "Product Version ........... ${COLOR_MAGENTA}${CP4D_VERSION}"
   fi
@@ -97,7 +98,7 @@ function pipeline_show_config() {
   if [[ "$DB2_ACTION_SYSTEM" == "install" || "$DB2_ACTION_MANAGE" == "install" ]]; then
     reset_colors
     echo "${TEXT_DIM}"
-    echo_h2 "IBM Db2" "    "
+    echo_h4 "IBM Db2" "    "
     echo_reset_dim "Subscription Channel ...... ${COLOR_MAGENTA}${DB2_CHANNEL}"
 
     echo_reset_dim "System Instance ........... ${COLOR_MAGENTA}${DB2_ACTION_SYSTEM}"
@@ -117,7 +118,7 @@ function pipeline_show_config() {
 
   reset_colors
   echo "${TEXT_DIM}"
-  echo_h2 "Storage Class Configuration" "    "
+  echo_h4 "Storage Class Configuration" "    "
   echo_reset_dim "Storage Class Provider ... ${COLOR_MAGENTA}${STORAGE_CLASS_PROVIDER}"
   if [[ "$STORAGE_CLASS_PROVIDER" == "custom" ]]; then
     echo_reset_dim "ReadWriteOnce ............ ${COLOR_MAGENTA}${STORAGE_CLASS_RWO}"
@@ -126,6 +127,8 @@ function pipeline_show_config() {
 
   reset_colors
   echo "${TEXT_RESET}"
-  prompt_for_confirm "Proceed with these settings" || exit 0
 
+  if [ "$NO_CONFIRM" != "true" ]; then
+    prompt_for_confirm "Proceed with these settings" || exit 0
+  fi
 }
