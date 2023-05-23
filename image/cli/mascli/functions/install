@@ -240,6 +240,7 @@ function install_noninteractive() {
     # Other Commands
     --no-wait-for-pvcs)
       WAIT_FOR_PVCS=false
+      ;;
     --no-confirm)
       NO_CONFIRM=true
       ;;
