@@ -75,7 +75,7 @@ function pipeline_show_config() {
   echo "${TEXT_DIM}"
   echo_h2 "IBM Suite License Service" "    "
   echo_reset_dim "License ID ................ ${COLOR_MAGENTA}${SLS_LICENSE_ID}"
-  echo_reset_dim "License File .............. ${COLOR_MAGENTA}${SLS_LICENSE_FILE}"
+  echo_reset_dim "License File .............. ${COLOR_MAGENTA}${SLS_LICENSE_FILE_LOCAL}"
   echo_reset_dim "IBM Entitled Registry ..... ${COLOR_MAGENTA}${SLS_ICR_CP}"
   echo_reset_dim "IBM Open Registry ......... ${COLOR_MAGENTA}${SLS_ICR_CPOPEN}"
 

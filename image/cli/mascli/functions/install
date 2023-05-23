@@ -8,32 +8,33 @@ Usage:
   mas install [options]
 
 Catalog Selection (Required):
-  -c, --mas-catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}  IBM Maximo Operator Catalog to install (e.g. v8-amd64)
+  -c, --mas-catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}                    IBM Maximo Operator Catalog to install (e.g. v8-amd64)
 
 Entitlement & Licensing (Required):
-      --ibm-entitlement-key ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}  IBM entitlement key
-      --license-file ${COLOR_YELLOW}SLS_LICENSE_FILE_LOCAL${TEXT_RESET}      Path to MAS license file
-      --uds-email ${COLOR_YELLOW}UDS_CONTACT_EMAIL${TEXT_RESET}              Contact e-mail address
-      --uds-firstname ${COLOR_YELLOW}UDS_CONTACT_FIRSTNAME${TEXT_RESET}      Contact first name
-      --uds-lastname ${COLOR_YELLOW}UDS_CONTACT_LASTNAME${TEXT_RESET}        Contact last name
+      --ibm-entitlement-key ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}                    IBM entitlement key
+      --license-id ${COLOR_YELLOW}SLS_LICENSE_ID${TEXT_RESET}                                  MAS license ID
+      --license-file ${COLOR_YELLOW}SLS_LICENSE_FILE_LOCAL${TEXT_RESET}                        Path to MAS license file
+      --uds-email ${COLOR_YELLOW}UDS_CONTACT_EMAIL${TEXT_RESET}                                Contact e-mail address
+      --uds-firstname ${COLOR_YELLOW}UDS_CONTACT_FIRSTNAME${TEXT_RESET}                        Contact first name
+      --uds-lastname ${COLOR_YELLOW}UDS_CONTACT_LASTNAME${TEXT_RESET}                          Contact last name
 
 Storage Class Selection (Required):
-      --storage-rwo ${COLOR_YELLOW}STORAGE_CLASS_RWO${TEXT_RESET}                   Read Write Once (RWO) storage class (e.g. ibmc-block-gold)
-      --storage-rwx ${COLOR_YELLOW}STORAGE_CLASS_RWX${TEXT_RESET}                   Read Write Many (RWX) storage class (e.g. ibmc-file-gold-gid)
-      --storage-pipeline ${COLOR_YELLOW}PIPELINE_STORAGE_CLASS${TEXT_RESET}         Install pipeline storage class (e.g. ibmc-file-gold-gid)
-      --storage-accessmode ${COLOR_YELLOW}PIPELINE_STORAGE_ACCESSMODE${TEXT_RESET}  Install pipeline storage class access mode (ReadWriteMany or ReadWriteOnce)
+      --storage-rwo ${COLOR_YELLOW}STORAGE_CLASS_RWO${TEXT_RESET}                              Read Write Once (RWO) storage class (e.g. ibmc-block-gold)
+      --storage-rwx ${COLOR_YELLOW}STORAGE_CLASS_RWX${TEXT_RESET}                              Read Write Many (RWX) storage class (e.g. ibmc-file-gold-gid)
+      --storage-pipeline ${COLOR_YELLOW}PIPELINE_STORAGE_CLASS${TEXT_RESET}                    Install pipeline storage class (e.g. ibmc-file-gold-gid)
+      --storage-accessmode ${COLOR_YELLOW}PIPELINE_STORAGE_ACCESSMODE${TEXT_RESET}             Install pipeline storage class access mode (ReadWriteMany or ReadWriteOnce)
 
 Maximo Application Suite Instance (Required):
-  -i, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}       MAS Instance ID
-  -w, --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}     MAS Workspace ID
-  -W, --mas-workspace-name ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}   MAS Workspace Name
+  -i, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                            MAS Instance ID
+  -w, --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}                          MAS Workspace ID
+  -W, --mas-workspace-name ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}                        MAS Workspace Name
 
 Advanced MAS Configuration (Optional):
-      --additional-configs ${COLOR_YELLOW}LOCAL_MAS_CONFIG_DIR${TEXT_RESET}   Path to a directory containing additional configuration files to be applied
-      --non-prod                                  Install MAS in Non-production mode
+      --additional-configs ${COLOR_YELLOW}LOCAL_MAS_CONFIG_DIR${TEXT_RESET}                    Path to a directory containing additional configuration files to be applied
+      --non-prod                                                   Install MAS in Non-production mode
 
 Maximo Application Suite Core Platform (Required):
-      --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}  Subscription channel for the Core Platform
+      --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                                    Subscription channel for the Core Platform
 
 Maximo Application Suite Application Selection (Optional):
       --iot-channel ${COLOR_YELLOW}MAS_APP_CHANNEL_IOT${TEXT_RESET}                            Subscription channel for Maximo IoT
@@ -47,24 +48,27 @@ Maximo Application Suite Application Selection (Optional):
       --optimizer-plan ${COLOR_YELLOW}MAS_APP_PLAN_OPTIMIZER${TEXT_RESET}                      Installation plan for Maximo Optimizer (full or limited)
 
 IBM Cloud Pak for Data (Required when installing Predict or Assist):
-      --cp4d-version ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}  Product version of CP4D to use
+      --cp4d-version ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}                                  Product version of CP4D to use
 
 IBM Db2 (Optional, required to use IBM Db2 Universal Operator):
-      --db2u-channel ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}  Subscription channel for Db2u (e.g. v110508.0)
-      --db2u-system               Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)
-      --db2u-manage               Install a dedicated Db2u instance for Maximo Manage (supported by Manage)
+      --db2u-channel ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                                   Subscription channel for Db2u (e.g. v110508.0)
+      --db2u-system                                                Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)
+      --db2u-manage                                                Install a dedicated Db2u instance for Maximo Manage (supported by Manage)
 
 Advanced Db2u Universal Operator Configuration (Optional):
-      --db2u-cpu-request ${COLOR_YELLOW}DB2_CPU_REQUESTS${TEXT_RESET}        Customise Db2 CPU request
-      --db2u-cpu-limit ${COLOR_YELLOW}DB2_CPU_LIMITS${TEXT_RESET}            Customise Db2 CPU limit
-      --db2u-memory-request ${COLOR_YELLOW}DB2_MEMORY_REQUESTS${TEXT_RESET}  Customise Db2 memory request
-      --db2u-memory-limit ${COLOR_YELLOW}DB2_MEMORY_LIMITS${TEXT_RESET}      Customise Db2 memory limit
+      --db2u-cpu-request ${COLOR_YELLOW}DB2_CPU_REQUESTS${TEXT_RESET}                          Customise Db2 CPU request
+      --db2u-cpu-limit ${COLOR_YELLOW}DB2_CPU_LIMITS${TEXT_RESET}                              Customise Db2 CPU limit
+      --db2u-memory-request ${COLOR_YELLOW}DB2_MEMORY_REQUESTS${TEXT_RESET}                    Customise Db2 memory request
+      --db2u-memory-limit ${COLOR_YELLOW}DB2_MEMORY_LIMITS${TEXT_RESET}                        Customise Db2 memory limit
+      --db2u-backup-storage ${COLOR_YELLOW}DB2_BACKUP_STORAGE_SIZE${TEXT_RESET}                Customise Db2 storage capacity
+      --db2u-data-storage ${COLOR_YELLOW}DB2_DATA_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
+      --db2u-logs-storage ${COLOR_YELLOW}DB2_LOGS_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
+      --db2u-meta-storage ${COLOR_YELLOW}DB2_META_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
+      --db2u-temp-storage ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
 
-      --db2u-backup-storage ${COLOR_YELLOW}DB2_BACKUP_STORAGE_SIZE${TEXT_RESET}  Customise Db2 storage capacity
-      --db2u-data-storage ${COLOR_YELLOW}DB2_DATA_STORAGE_SIZE${TEXT_RESET}      Customise Db2 storage capacity
-      --db2u-logs-storage ${COLOR_YELLOW}DB2_LOGS_STORAGE_SIZE${TEXT_RESET}      Customise Db2 storage capacity
-      --db2u-meta-storage ${COLOR_YELLOW}DB2_META_STORAGE_SIZE${TEXT_RESET}      Customise Db2 storage capacity
-      --db2u-temp-storage ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}      Customise Db2 storage capacity
+Other Commands:
+      --no-confirm                                                 Mirror images without prompting for confirmation
+  -h, --help                                                       Show this help message
 
 
 EOM
@@ -215,6 +219,9 @@ function install_noninteractive() {
     --ibm-entitlement-key)
     export IBM_ENTITLEMENT_KEY=$1 && shift
     ;;
+    --license-id)
+    export SLS_LICENSE_ID=$1 && shift
+    ;;
     --license-file)
     export SLS_LICENSE_FILE_LOCAL=$1 && shift
     ;;
@@ -227,6 +234,15 @@ function install_noninteractive() {
     --uds-lastname)
     export UDS_CONTACT_LASTNAME=$1 && shift
     ;;
+
+    # Other Commands
+    --no-confirm)
+      NO_CONFIRM=true
+      ;;
+    -h|--help)
+      install_help
+      ;;
+
 
     *)
     # unknown option
@@ -278,8 +294,9 @@ function install() {
   if [[ $# -gt 0 ]]; then
     detect_airgap
     detect_sno
-    pipeline_install_operator
     install_noninteractive "$@"
+
+    pipeline_install_operator
 
     config_pipeline_additional_configs
   else
