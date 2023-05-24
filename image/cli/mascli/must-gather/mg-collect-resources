@@ -27,7 +27,7 @@ do
         ;;
     -a)
         ALL_NAMESPACES="--all-namespaces"
-        ;;        
+        ;;
     esac
 done
 
@@ -48,17 +48,21 @@ echo "  - Collecting debug information: ${RESOURCE_TYPE}"
 
 # Generate Summary
 # -----------------------------------------------------------------------------
-oc ${NAMESPACE_FLAG} get ${RESOURCE_TYPE}  ${ALL_NAMESPACES} -o wide > ${NAMESPACE_DIR}/${RESOURCE_TYPE}.txt
+oc ${NAMESPACE_FLAG} get ${RESOURCE_TYPE} ${ALL_NAMESPACES} -o wide > ${NAMESPACE_DIR}/${RESOURCE_TYPE}.txt
 
 # Generate Detailed Report
 # -----------------------------------------------------------------------------
 if [[ "$NO_DETAIL" == "false" ]]; then
-    RESOURCES=$(oc ${NAMESPACE_FLAG} get ${RESOURCE_TYPE} -o name)
-    for RESOURCE in ${RESOURCES[@]}
-    do
-        # echo "    - Collecting $RESOURCE"
-        RESOURCE_NAME=$(echo ${RESOURCE} | cut -d '/' -f 2)
+    if [[ -z "$ALL_NAMESPACES" ]]; then
+        RESOURCES=$(oc ${NAMESPACE_FLAG} get ${RESOURCE_TYPE} -o name)
+        for RESOURCE in ${RESOURCES[@]}
+        do
+            # echo "    - Collecting $RESOURCE"
+            RESOURCE_NAME=$(echo ${RESOURCE} | cut -d '/' -f 2)
 
-        oc ${NAMESPACE_FLAG} get ${RESOURCE} -o yaml > ${RESOURCE_DIR}/${RESOURCE_NAME}.yaml
-    done
+            oc ${NAMESPACE_FLAG} get ${RESOURCE} -o yaml > ${RESOURCE_DIR}/${RESOURCE_NAME}.yaml
+        done
+    else
+        oc get ${RESOURCE_TYPE} ${ALL_NAMESPACES} -o yaml > ${RESOURCE_DIR}/all-namespaces.yaml
+    fi
 fi
