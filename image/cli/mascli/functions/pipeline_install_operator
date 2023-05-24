@@ -3,7 +3,7 @@
 function pipeline_install_operator() {
   # Install pipelines support
   echo
-  echo_h2 "2. Install OpenShift Pipelines Operator"
+  echo_h2 "Install OpenShift Pipelines Operator"
   PIPELINES_CHANNEL=$(oc get packagemanifests openshift-pipelines-operator-rh -o jsonpath="{.status.defaultChannel}")
 
   if [[ "$PIPELINES_CHANNEL" == "" ]]; then
