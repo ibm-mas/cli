@@ -1,33 +1,89 @@
 Install
 ===============================================================================
 
-Pre-reqs
--------------------------------------------------------------------------------
-### 1. IBM Entitlement key
-Access [Container Software Library](https://myibm.ibm.com/products-services/containerlibrary) using your IBMId to obtain your entitlement key.
-
-### 2. MAS License File
-Access [IBM License Key Center](https://licensing.subscribenet.com/control/ibmr/login), on the **Get Keys** menu select **IBM AppPoint Suites**.  Select `IBM MAXIMO APPLICATION SUITE AppPOINT LIC` and on the next page fill in the information as below:
-
-| Field            | Content                                           |
-| ---------------- | ------------------------------------------------- |
-| Number of Keys   | How many AppPoints to assign to the license file  |
-| Host ID Type     | Set to **Ethernet Address**                       |
-| Host ID          | Enter any 12 digit hexadecimal string             |
-| Hostname         | Set to the hostname of your OCP instance          |
-| Port             | Set to **27000**                                  |
-
-
-The other values can be left at their defaults.  Finally, click **Generate** and download the license file to your home directory as `entitlement.lic`.
-
-!!! note
-    For more information about how to access the IBM License Key Center review the [getting started documentation](https://www.ibm.com/support/pages/system/files/inline-files/GettingStartedEnglish_2020.pdf) available from the IBM support website.
-
-
 Usage
 -------------------------------------------------------------------------------
-The install is an interactive command.  At present there is no support for an
-unattended install, but this is planned for the future.
+`mas install [options]`
+
+### Catalog Selection (Required):
+- `-c, --mas-catalog-version MAS_CATALOG_VERSION` IBM Maximo Operator Catalog to install (e.g. v8-amd64)
+
+### Entitlement & Licensing (Required):
+- `--ibm-entitlement-key IBM_ENTITLEMENT_KEY`  IBM entitlement key
+- `--license-id SLS_LICENSE_ID`                MAS license ID
+- `--license-file SLS_LICENSE_FILE_LOCAL`      Path to MAS license file
+- `--uds-email UDS_CONTACT_EMAIL`              Contact e-mail address
+- `--uds-firstname UDS_CONTACT_FIRSTNAME`      Contact first name
+- `--uds-lastname UDS_CONTACT_LASTNAME`        Contact last name
+
+### Storage Class Selection (Required):
+- `--storage-rwo STORAGE_CLASS_RWO`                   Read Write Once (RWO) storage class (e.g. ibmc-block-gold)
+- `--storage-rwx STORAGE_CLASS_RWX`                   Read Write Many (RWX) storage class (e.g. ibmc-file-gold-gid)
+- `--storage-pipeline PIPELINE_STORAGE_CLASS`         Install pipeline storage class (e.g. ibmc-file-gold-gid)
+- `--storage-accessmode PIPELINE_STORAGE_ACCESSMODE`  Install pipeline storage class access mode (ReadWriteMany or ReadWriteOnce)
+
+### Maximo Application Suite Instance (Required):
+- `-i, --mas-instance-id MAS_INSTANCE_ID`             MAS Instance ID
+- `-w, --mas-workspace-id MAS_WORKSPACE_ID`           MAS Workspace ID
+- `-W, --mas-workspace-name MAS_WORKSPACE_ID`         MAS Workspace Name
+
+### Advanced MAS Configuration (Optional):
+- `--additional-configs LOCAL_MAS_CONFIG_DIR`         Path to a directory containing additional configuration files to be applied
+- `--non-prod`                                        Install MAS in Non-production mode
+
+### Maximo Application Suite Core Platform (Required):
+- `--mas-channel MAS_CHANNEL`                                    Subscription channel for the Core Platform
+
+### Maximo Application Suite Application Selection (Optional):
+- `--iot-channel MAS_APP_CHANNEL_IOT`                            Subscription channel for Maximo IoT
+- `--monitor-channel MAS_APP_CHANNEL_MONITOR`                    Subscription channel for Maximo Monitor
+- `--manage-channel MAS_APP_CHANNEL_MANAGE`                      Subscription channel for Maximo Manage
+- `--manage-jdbc MAS_APPWS_BINDINGS_JDBC_MANAGE`                 Configure Maximo Manage JDBC binding (workspace-application or system)
+- `--predict-channel MAS_APP_CHANNEL_PREDICT`                    Subscription channel for Maximo Predict
+- `--assist-channel MAS_APP_CHANNEL_ASSIST`                      Subscription channel for Maximo Assist
+- `--visualinspection-channel MAS_APP_CHANNEL_VISUALINSPECTION`  Subscription channel for Maximo Visual Inspection
+- `--optimizer-channel MAS_APP_CHANNEL_OPTIMIZER`                Subscription channel for Maximo optimizer
+- `--optimizer-plan MAS_APP_PLAN_OPTIMIZER`                      Installation plan for Maximo Optimizer (full or limited)
+
+### IBM Cloud Pak for Data (Required when installing Predict or Assist):
+- `--cp4d-version CP4D_VERSION`                                  Product version of CP4D to use
+
+### IBM Db2 (Optional, required to use IBM Db2 Universal Operator):
+- `--db2u-channel DB2_CHANNEL`     Subscription channel for Db2u (e.g. v110508.0)
+- `--db2u-system`                  Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)
+- `--db2u-manage`                  Install a dedicated Db2u instance for Maximo Manage (supported by Manage)
+
+### Advanced Db2u Universal Operator Configuration (Optional):
+- `--db2u-cpu-request DB2_CPU_REQUESTS`              Customise Db2 CPU request
+- `--db2u-cpu-limit DB2_CPU_LIMITS`                  Customise Db2 CPU limit
+- `--db2u-memory-request DB2_MEMORY_REQUESTS`        Customise Db2 memory request
+- `--db2u-memory-limit DB2_MEMORY_LIMITS`            Customise Db2 memory limit
+- `--db2u-backup-storage DB2_BACKUP_STORAGE_SIZE`    Customise Db2 storage capacity
+- `--db2u-data-storage DB2_DATA_STORAGE_SIZE`        Customise Db2 storage capacity
+- `--db2u-logs-storage DB2_LOGS_STORAGE_SIZE`        Customise Db2 storage capacity
+- `--db2u-meta-storage DB2_META_STORAGE_SIZE`        Customise Db2 storage capacity
+- `--db2u-temp-storage DB2_TEMP_STORAGE_SIZE`        Customise Db2 storage capacity
+
+### Other Commands:
+- `--no-wait-for-pvcs` If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
+- `--no-confirm`       Mirror images without prompting for confirmation
+- `-h, --help`         Show install help message
+
+
+### Non-Interactive
+```bash
+docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
+export ENTITLEMENT_KEY=xxx
+mas install -i mas1 -w ws1 -W "My Workspace" -c v8-amd64 --mas-channel 8.10.x \
+  --ibm-entitlement-key $ENTITLEMENT_KEY \
+  --license-id xxxxxxxxxxxx --license-file /mnt/home/entitlement.lic \
+  --uds-email myemail@email.com --uds-firstname John --uds-lastname Barnes \
+  --storage-rwo ibmc-block-gold --storage-rwx ibmc-file-gold-gid \
+  --storage-pipeline ibmc-file-gold-gid --storage-accessmode ReadWriteMany \
+  --no-confirm
+```
+
+### Interactive
 
 ```bash
 docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
@@ -48,34 +104,8 @@ A number of applications are not currently available when using a private mirror
 
 - Maximo Assist
 - Maximo Health & Predict Utilities
-- Maximo Monitor
 - Maximo Predict
-- Maximo Safety
 - Maximo Visual Inspection
-
-
-SNO Support
--------------------------------------------------------------------------------
-If you  already ran `mas install` to install the  IBM Maximo Application Suite then the installer will automatically detect the presence of SNO and tailor the installation configuration for a connected installation.
-
-A number of applications are not currently available when using a private mirror registry in this fashion, as a result you will not be asked whether you wish to install these applications:
-
-- Maximo Assist
-- Maximo Health & Predict Utilities
-- Maximo Monitor
-- Maximo Predict
-- Maximo Safety
-- Maximo Visual Inspection
-
-
-Must Gather
--------------------------------------------------------------------------------
-The pipeline sets a "finally" block that is executed at the end of the steps regardless of success or failure. Inside this finally block the **mustgather** Task is executed which runs the IBM AI Applications' Must Gather tool against a MAS instance. It uses the mustgather workspace to persist the output into a Persistent Volume for retrieval after the pipeline has completed.
-
-Users can then use the **ibm.mas_devops.suite_mustgather_download** playbook locally to pull the mustgather output from the persistent volume.
-
-!!! note
-    The **mustgather** Task will clear any previous content found in the `/workspace/mustgather` persistent volume before each call to the mustgather playbook. This is to ensure that the persistent volume does not become full after multiple runs using the same persistent volume/namespace.
 
 
 More Information
@@ -108,7 +138,6 @@ The installer supports:
     - IBM Suite License Service
     - IBM User Data Services
     - IBM Certificate Manager
-    - Red Hat Service Binding Operator (for MAS 8.6 and 8.7)
 - Optional dependency installation:
     - Apache Kafka
     - IBM Db2

@@ -123,7 +123,7 @@ function validate_action_param() {
 
 function prompt_for_deps_to_uninstall() {
   echo
-  echo_h2 "2. Uninstall MAS Dependencies"
+  echo_h2 "Uninstall MAS Dependencies"
 
   validate_action_param "Uninstall Cluster Monitoring?" CLUSTER_MONITORING_ACTION
   validate_action_param "Uninstall IBM Catalogs?" IBM_CATALOGS_ACTION
@@ -137,7 +137,7 @@ function prompt_for_deps_to_uninstall() {
 function review_uninstall_settings() {
   echo
   reset_colors
-  echo_h2 "3. Review Settings"
+  echo_h2 "Review Settings"
 
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite"
@@ -166,7 +166,7 @@ function review_uninstall_settings() {
 
 function launch_uninstall() {
   echo
-  echo_h2 "4. Launch Uninstall"
+  echo_h2 "Launch Uninstall"
 
   # Create namespace, install MAS Tekton definitions, configure RBAC
   pipeline_install_tasks || exit 1
