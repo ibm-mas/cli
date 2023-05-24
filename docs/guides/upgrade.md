@@ -9,6 +9,9 @@ Upgrade is the act of switching a MAS installation to a new subscription channel
 2. [Disconnected Upgrade Preparation](#1-disconnected-install-preparation)
 3. [Update MAS](#2-update-maximo-application-suite)
 
+When you choose to upgrade to pick up a feature release, the upgrade is targeted at a specific MAS instance in the cluster.  Upgrades must work within an n-1 range, ie. we support MAS 8.10 and 8.9 on a cluster, or 8.9 and 8.8, but not 8.8 and 8.10.
+
+The process to undo an upgrade varies depending on what version and which applications were being upgraded, e.g. if there are database changes that need to be reversed it's more involved than if it's just a case of stateless runtimes to be reverted to an older version.
 
 1 Update
 -------------------------------------------------------------------------------
