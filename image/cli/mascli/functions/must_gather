@@ -34,7 +34,12 @@ function mustgather() {
   # Set defaults
   SUMMARY_ONLY=false
   POD_LOGS=true
-  MG_DIR=/must-gather
+  MG_DIR=/tmp/must-gather
+
+  # If a /must-gather directory exists, default to that as the output directory instead
+  if [[ -d "/must-gather" ]]; then
+    MG_DIR=/must-gather
+  fi
 
   # Process command flags
   while [[ $# -gt 0 ]]
@@ -82,6 +87,11 @@ function mustgather() {
   OUTPUT_DIR=${MG_DIR}/${TIMESTAMP}
   mkdir -p $OUTPUT_DIR
 
+  if [[ "$?" != "0" ]]; then
+    echo_warning "Unable to create must-gather output directory '${MG_DIR}/${TIMESTAMP}'"
+    exit 1
+  fi
+
   # The final destination for the must-gather is a tgz
   OUTPUT_FILENAME=must-gather-${TIMESTAMP}.tgz
   OUTPUT_FILE=${MG_DIR}/${OUTPUT_FILENAME}
@@ -96,30 +106,32 @@ function mustgather() {
   echo "- Cluster Resources Detailed"
   for RESOURCE in nodes storageclasses
   do
-    $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources 
+    $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources
   done
 
   echo "- Cluster Resources"
-  for RESOURCE in namespaces packagemanifests clusterversions  clusterroles clusterrolebindings
+  for RESOURCE in namespaces packagemanifests clusterroles clusterrolebindings
   do
     $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources --no-detail
   done
 
-  echo "- Resoucres across all namespaces"
-  for RESOURCE in subscriptions installplans
+  for RESOURCE in clusterversions
   do
-    $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources -a --no-detail
+    $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources
   done
-
 
   echo "- OpenShift Marketplace"
   for RESOURCE in catalogsources jobs
   do
     $MG_SCRIPT_DIR/mg-collect-resources -n openshift-marketplace -r $RESOURCE -d $OUTPUT_DIR/resources
   done
- 
-  echo "- Cluster report"
-  $MG_SCRIPT_DIR/mg-cluster-report 2&> ${OUTPUT_DIR}/clusterreport.txt
+
+  echo "- Operators"
+  oc get operatorconditions --all-namespaces &> ${OUTPUT_DIR}/operatorconditions.txt
+  for RESOURCE in subscriptions installplans
+  do
+    $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources -a
+  done
 
 
   # Generate Dependency Report
@@ -127,13 +139,13 @@ function mustgather() {
   echo ""
   echo_h2 "Generate Dependency Report"
   echo "- IBM CloudPak Foundation Services"
-  $MG_SCRIPT_DIR/mg-summary-ibm-common-services 2&> ${OUTPUT_DIR}/ibm-common-services.txt
+  $MG_SCRIPT_DIR/mg-summary-ibm-common-services &> ${OUTPUT_DIR}/ibm-common-services.txt
 
   echo "- IBM CloudPak for Data"
-  $MG_SCRIPT_DIR/mg-summary-cp4d 2&> ${OUTPUT_DIR}/cp4d.txt
+  $MG_SCRIPT_DIR/mg-summary-cp4d &> ${OUTPUT_DIR}/cp4d.txt
 
-  echo "- IBM Db2 universal Operator"
-  $MG_SCRIPT_DIR/mg-summary-db2u 2&> ${OUTPUT_DIR}/db2u.txt
+  echo "- IBM Db2 Universal Operator"
+  $MG_SCRIPT_DIR/mg-summary-db2u &> ${OUTPUT_DIR}/db2u.txt
 
 
   # Find MAS instances
@@ -147,7 +159,7 @@ function mustgather() {
   do
     echo_h2 "Maximo Application Suite Must Gather: ${MAS_INSTANCE_ID}"
 
-    for MAS_APP_ID in core assist iot monitor manage optimizer visualinspection
+    for MAS_APP_ID in core assist iot monitor manage optimizer visualinspection pipelines
     do
       MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
       NAMESPACE_LOOKUP=$(oc get namespace $MAS_APP_NAMESPACE --ignore-not-found)
@@ -156,7 +168,7 @@ function mustgather() {
       then
         echo -e "- Performing must-gather in namespace ${MAS_APP_NAMESPACE}"
         # MAS-specific must-gather
-        $MG_SCRIPT_DIR/mg-summary-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE 2&> ${OUTPUT_DIR}/mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}.txt
+        $MG_SCRIPT_DIR/mg-summary-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE &> ${OUTPUT_DIR}/mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}.txt
         $MG_SCRIPT_DIR/mg-collect-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE $OUTPUT_DIR
 
         # Generic Kubernetes must-gather
@@ -173,7 +185,7 @@ function mustgather() {
   done
 
   if [[ "$PRINT_SUMMARY" == true ]]; then
-    python $MG_SCRIPT_DIR/mg-print-summary.py $OUTPUT_DIR | tee $OUTPUT_DIR/resources/_cluster/mg-print-summary.txt
+    python $MG_SCRIPT_DIR/mg-print-summary.py $OUTPUT_DIR | tee $OUTPUT_DIR/summary.txt
   fi
 
   tar -czf $OUTPUT_FILE -C $MG_DIR $TIMESTAMP

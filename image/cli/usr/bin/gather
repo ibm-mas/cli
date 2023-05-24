@@ -1,4 +1,10 @@
 #!/bin/bash
 
 # https://github.com/openshift/enhancements/blob/89bbe226db20573f8f489eacb558a9f011072737/enhancements/oc/must-gather.md#must-gather-images
+
+# Creating a directory named /must-gather will change the default output directory from /tmp/must-gather to /must-gather, which is
+# the directory that the oc must-gather command expects to collect the must-gather files from
+mkdir -p /must-gather
+
+# Run full MAS must-gather
 mas must-gather

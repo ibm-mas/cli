@@ -10,9 +10,7 @@
 . $DIR/functions/pipeline_config_advanced
 
 function pipeline_config() {
-  echo_h2 "3. Configure Installation"
-
-  MAS_CATALOG_SOURCE=ibm-operator-catalog
+  echo_h2 "Configure Installation"
 
   # MAS instance ID
   if [[ ! -z "$1" ]]; then
@@ -33,24 +31,24 @@ function pipeline_config() {
       MAS_CATALOG_VERSION=v8-amd64
     else
       echo -e "${COLOR_YELLOW}Catalog Version:"
-      echo "  1. v8 (2023-04-14)"
-      echo "  2. v8 (2023-03-14)"
-      echo "  3. v8 (2023-02-17)"
-      echo "  4. v8 (2023-01-11)"
+      echo "  1. v8 (2023-05-18)"
+      echo "  2. v8 (2023-04-14)"
+      echo "  3. v8 (2023-03-14)"
+      echo "  4. v8 (2023-02-17)"
       prompt_for_input "Select Catalog Source" MAS_CATALOG_SELECTION "1"
 
       case $MAS_CATALOG_SELECTION in
-        1|230414)
+        1|230518)
+          MAS_CATALOG_VERSION=v8-230518-amd64
+          ;;
+        2|230414)
           MAS_CATALOG_VERSION=v8-230414-amd64
           ;;
-        2|230314)
+        3|230314)
           MAS_CATALOG_VERSION=v8-230314-amd64
           ;;
-        3|230217)
+        4|230217)
           MAS_CATALOG_VERSION=v8-230217-amd64
-          ;;
-        4|230111)
-          MAS_CATALOG_VERSION=v8-230111-amd64
           ;;
         *)
           exit 1
@@ -81,50 +79,56 @@ function pipeline_config() {
   else
     # Airgap (GA) mode
     echo -e "${COLOR_YELLOW}MAS Version:"
+    echo "May 18 2023 Update"
+    echo "  1. 8.10.1"
+    echo "  2. 8.9.5"
     echo "April 14 2023 Update"
-    echo "  1. 8.10.0"
-    echo "  2. 8.9.4"
+    echo "  3. 8.10.0"
+    echo "  4. 8.9.4"
     echo "March 14 2023 Update"
-    echo "  3. 8.9.3"
+    echo "  5. 8.9.3"
     echo "February 17 2023 Update"
-    echo "  4. 8.9.2"
-    echo "January 11 2023 Update"
-    echo "  5. 8.9.1"
+    echo "  6. 8.9.2"
     prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
 
     case $MAS_CHANNEL_SELECTION in
-      # April 14 2023 Catalog
+      # May 18 2023 Catalog
       # -----------------------------------------------------------------------
       1)
         MAS_CHANNEL=8.10.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
-        MAS_CATALOG_VERSION=v8-230414-amd64
+        MAS_CATALOG_VERSION=v8-230518-amd64
         ;;
       2)
+        MAS_CHANNEL=8.9.x
+        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
+        MAS_CATALOG_VERSION=v8-230518-amd64
+        ;;
+      # April 14 2023 Catalog
+      # -----------------------------------------------------------------------
+      3)
+        MAS_CHANNEL=8.10.x
+        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
+        MAS_CATALOG_VERSION=v8-230414-amd64
+        ;;
+      4)
         MAS_CHANNEL=8.9.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
         MAS_CATALOG_VERSION=v8-230414-amd64
         ;;
       # March 14 2023 Catalog
       # -----------------------------------------------------------------------
-      3)
+      5)
         MAS_CHANNEL=8.9.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
         MAS_CATALOG_VERSION=v8-230314-amd64
         ;;
       # Feb 2023 Catalog
       # -----------------------------------------------------------------------
-      4)
+      6)
         MAS_CHANNEL=8.9.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
         MAS_CATALOG_VERSION=v8-230217-amd64
-        ;;
-      # Jan 2023 Catalog
-      # -----------------------------------------------------------------------
-      5)
-        MAS_CHANNEL=8.9.x
-        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
-        MAS_CATALOG_VERSION=v8-230111-amd64
         ;;
       # Oops!
       # -----------------------------------------------------------------------
@@ -137,7 +141,7 @@ function pipeline_config() {
   true
 
   echo
-  echo_h2 "3.1. License Terms"
+  echo_h2 "License Terms"
   echo -e "${COLOR_YELLOW} For information about your license, see "$MAS_LICENSE_LINK " To continue with the installation, you must accept the license terms."
   prompt_for_confirm "Do you accept the license terms?" LICENSE_RESPONSE
 
@@ -146,7 +150,7 @@ function pipeline_config() {
   fi
 
   echo
-  echo_h2 "4. Configure Operation Mode"
+  echo_h2 "Configure Operation Mode"
   echo "${TEXT_DIM}Maximo Application Suite can be installed in a non-production mode for internal development and testing, this setting cannot be changed after installation:"
   echo " - All applications, add-ons, and solutions have 0 (zero) installation AppPoints in non-production installations."
   echo " - These specifications are also visible in the metrics that are shared with IBM® and on the product UI."
@@ -174,48 +178,38 @@ function pipeline_config() {
   echo ""
   if [[ "$DEV_MODE" == "true" && -z "$AIRGAP_MODE" ]]; then
     # Development Mode -- offer the ability to set MAS and SLS source independently
-    echo_h2 "11.1 Configure Artifactory"
+    echo_h2 "Configure Artifactory"
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
     prompt_for_input "Artifactory Token" ARTIFACTORY_TOKEN
 
     echo
-    echo_h2 "11.2 Configure IBM Container Registry"
+    echo_h2 "Configure IBM Container Registry"
     prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
 
     echo
-    echo_h2 "11.3 Configure IBM Container Registry (MAS)"
+    echo_h2 "Configure IBM Container Registry (MAS)"
     prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP docker-na-public.artifactory.swg-devops.com/wiotp-docker-local override
     prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen override
-    MAS_ENTITLEMENT_USERNAME=cp
-    MAS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
 
     echo
-    echo_h2 "11.4 Configure IBM Container Registry (SLS)"
+    echo_h2 "Configure IBM Container Registry (SLS)"
     prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP docker-na-public.artifactory.swg-devops.com/wiotp-docker-local override
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen override
-    SLS_ENTITLEMENT_USERNAME=cp
-    SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
-    echo_h2 "11. Configure IBM Container Registry"
+    echo_h2 "Configure IBM Container Registry"
     prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY "Re-use saved IBM Entitlement Key?"
 
     # Use defaults
     MAS_ICR_CP=cp.icr.io/cp
     MAS_ICR_CPOPEN=icr.io/cpopen
-    MAS_ENTITLEMENT_USERNAME=cp
-    MAS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
 
     SLS_ICR_CP=cp.icr.io/cp
     SLS_ICR_CPOPEN=icr.io/cpopen
-    SLS_ENTITLEMENT_USERNAME=cp
-    SLS_ENTITLEMENT_KEY=$IBM_ENTITLEMENT_KEY
   fi
 
-  SLS_CATALOG_SOURCE=ibm-operator-catalog
-
   echo
-  echo_h2 "12. Configure Product License"
+  echo_h2 "Configure Product License"
   prompt_for_input "License ID" SLS_LICENSE_ID
   prompt_for_input "License File" SLS_LICENSE_FILE_LOCAL
   if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
@@ -225,7 +219,7 @@ function pipeline_config() {
   SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
 
   echo
-  echo_h2 "13. Configure UDS"
+  echo_h2 "Configure UDS"
   if [[ -n "$DEV_MODE" ]]; then
     echo "${TEXT_DIM}Installing Maximo Application Suite with built-in UDS replacement (SUDS)"
     echo

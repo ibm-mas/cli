@@ -43,6 +43,10 @@ spec:
       type: string
       description: Optional identifier for the Upgrade strategy for MAS Operator. Default is set to Automatic
       default: ""
+    - name: mas_manual_cert_mgmt
+      type: string
+      description: Optional boolean parameter that when set to True, indicates that manually created certificates will be used to certify MAS and application routes
+      default: ""
 
     - name: mas_icr_cp
       type: string
@@ -51,15 +55,8 @@ spec:
       type: string
       default: ""
 
-    - name: mas_entitlement_username
-      type: string
-      default: ""
     - name: ibm_entitlement_key
       type: string
-    - name: mas_entitlement_key
-      type: string
-      default: ""
-      description: "Optional MAS-specific override for the IBM entitlement key"
 
     - name: mas_customize_scaling
       type: string
@@ -112,6 +109,8 @@ spec:
         value: $(params.mas_cluster_issuer)
       - name: MAS_UPGRADE_STRATEGY
         value: $(params.mas_upgrade_strategy)
+      - name: MAS_MANUAL_CERT_MGMT
+        value: $(params.mas_manual_cert_mgmt)
 
       - name: ARTIFACTORY_USERNAME
         value: $(params.artifactory_username)
@@ -123,12 +122,8 @@ spec:
       - name: MAS_ICR_CPOPEN
         value: $(params.mas_icr_cpopen)
 
-      - name: MAS_ENTITLEMENT_USERNAME
-        value: $(params.mas_entitlement_username)
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
-      - name: MAS_ENTITLEMENT_KEY
-        value: $(params.mas_entitlement_key)
 
       - name: MAS_CUSTOMIZE_SCALING
         value: $(params.mas_customize_scaling)
