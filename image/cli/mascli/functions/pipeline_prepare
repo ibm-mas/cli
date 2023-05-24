@@ -1,7 +1,7 @@
 #!/bin/bash
 function pipeline_prepare() {
   echo
-  echo_h2 "14. Prepare Installation"
+  echo_h2 "Prepare Installation"
 
   # Set the namespace we are going to be working in
   PIPELINES_NS="mas-$MAS_INSTANCE_ID-pipelines"
@@ -15,16 +15,18 @@ function pipeline_prepare() {
       -e "s/{{pipeline_storage_accessmode}}/$PIPELINE_STORAGE_ACCESSMODE/g" \
       $DIR/templates/pvc.yaml > $CONFIG_DIR/pvc-$MAS_INSTANCE_ID.yaml
 
-  if [ "$ALREADY_CONFIRMED" != "true" ]; then
+  if [ "$ALREADY_CONFIRMED" != "true" ] && [ "$NO_CONFIRM" != "true" ]; then
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
     echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}${COLOR_RESET}"
     prompt_for_confirm "Proceed with pipeline setup on this cluster" || exit 0
   fi
 
 
-  echo "${COLOR_YELLOW}If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"
-  echo ""
-  prompt_for_confirm_default_yes "Wait for PVCs to bind?" WAIT_FOR_PVCS
+  if [ "$ALREADY_CONFIRMED" != "true" ] && [ "$NO_CONFIRM" != "true" ]; then
+    echo "${COLOR_YELLOW}If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"
+    echo ""
+    prompt_for_confirm_default_yes "Wait for PVCs to bind?" WAIT_FOR_PVCS
+  fi
 
   echo ""
   echo -en "\033[s" # Save cursor position

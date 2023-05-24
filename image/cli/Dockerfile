@@ -63,6 +63,7 @@ RUN chmod -R ug+rwx ${HOME}/env.sh && \
     chmod -R ug+w /mascli && \
     chmod +x /mascli/mas && \
     chmod +x /mascli/must-gather/* && \
+    chmod +x /mascli/backup-restore/* && \
     chmod +x /opt/app-root/src/.bashrc && \
     chmod +x /usr/bin/gather && \
     chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops && \
