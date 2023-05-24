@@ -187,28 +187,15 @@ spec:
     <th>Supported MAS Releases</th>
   </tr>
   <tr>
-    <td class="firstColumn">4.8</td>
-    <td>July 27, 2021</td>
-    <td>January 27, 2023</td>
-    <td>8.7 - 8.9</td>
-  </tr>
-  <tr>
-    <td class="firstColumn">4.9<sup>1</sup></td>
-    <td>October 18, 2021</td>
-    <td>April 18, 2023</td>
-    <td>8.8 - 8.9</td>
-  </tr>
-  <tr>
     <td class="firstColumn">4.10</td>
     <td>March 10, 2022</td>
     <td>September 10, 2023</td>
-    <td>8.8 - 8.10</td>
+    <td>8.9 - 8.10</td>
   </tr>
 </table>
 
-<ol>
-<li>Note that <strong>IBM App Connect</strong> and <strong>IBM Cloud Pak for Data</strong> do not support odd-numbered OpenShift releases, so if you intend to use Predict, HP Utilities, or Assist you are limited to use of the even numbered OCP releases.</li>
-</ol>
+<!-- 1. Note that **IBM App Connect** and **IBM Cloud Pak for Data** do not support odd-numbered OpenShift releases, so if you intend to use Predict, HP Utilities, or Assist you are limited to use of the even numbered OCP releases. -->
+
 <h2 id="ibm-cloud-pak-for-data-compatibility">IBM Cloud Pak for Data Compatibility<a class="headerlink" href="#ibm-cloud-pak-for-data-compatibility" title="Permanent link"></a></h2>
 <p>Maximo application compatibility with Cloud Pak for Data (CP4D) is complicated by limited OpenShift Container Platform support in CP4D (only even numbered OCP releases are supported) and minor updates to CP4D services not always being backwards compatible.  For more information on Cloud Pak for Data's support policy review this <a href="https://www.ibm.com/support/pages/node/6593147">IBM Cloud Pak for Data Software Support Lifecycle Addendum</a>.</p>
 <p>Cloud Pak for Data covers the following application's dependencies:</p>
@@ -230,18 +217,9 @@ spec:
     <th>General Availability</th>
     <th>End of Support</th>
   </tr>
-  <tr> <td class="firstColumn" rowspan="3">4.8</td> <td>4.0.3</td>          <td>November 2021</td> <td>June, 2022</td>    <td>8.7<sup>1</sup></td>       </tr>
-  <tr>                                              <td>4.0.6 - 4.0.7</td>  <td>February 2022</td> <td>June, 2022</td>    <td>8.7<sup>2</sup></td>       </tr>
-  <tr>                                              <td>4.0.7 - 4.0.9</td>  <td>March 2022</td>    <td>June, 2022</td>    <td>8.8<sup>2</sup> - 8.9</td> </tr>
-  <tr> <td class="firstColumn" rowspan="1">4.10</td><td>4.5</td>            <td>June, 2022</td>    <td>November 2022</td> <td>8.8<sup>3</sup> - 8.9</td> </tr>
-  <tr> <td class="firstColumn" rowspan="1">4.10</td><td>4.6.3</td>            <td>February, 2023</td>    <td>TBD</td> <td>8.10</td> </tr>
+  <tr> <td class="firstColumn" rowspan="1">4.10</td><td>4.6.3</td>            <td>February, 2023</td>    <td>TBD</td> <td>8.9 - 8.10</td> </tr>
 </table>
 
-<ol>
-<li>Predict v8.4 is only compatible with CP4D v4.0.3 due to breaking changes in v4.0.4 (removes Python 3.7 runtime support)</li>
-<li>Predict v8.5 is only compatible with CP4D v4.0.6 and v4.0.7 due to breaking changes in v4.0.8 (removes Python 3.8 runtime support)</li>
-<li>CP4D v4.5 support added to MAS 8.8 in the November 2022 maintenance updates (HP Utilities v8.4.1, Assist v8.5.2, Predict v8.6.2)</li>
-</ol>
 <h2 id="ibm-app-connect-compatibility">IBM App Connect Compatibility<a class="headerlink" href="#ibm-app-connect-compatibility" title="Permanent link"></a></h2>
 <p>Health and Predict Utilities compatibility with IBM App Connect is complicated by limited OpenShift Container Platform support and need to manage an explicit license inside each operand.  For more information review the material in <a href="https://www.ibm.com/support/pages/ibm-app-connect-enterprise-certified-container-versions">IBM App Connect Enterprise certified container versions</a> (also available <a href="https://www.ibm.com/support/pages/node/6239294">here</a>) and <a href="https://www.ibm.com/docs/en/app-connect/containers_cd?topic=resources-licensing-reference-app-connect-operator">Licensing reference for IBM App Connect Operator</a>.</p>
 <table class="compatabilityMatrix">
@@ -258,15 +236,11 @@ spec:
     <th>License</th>
   </tr>
   <tr>
-    <td class="firstColumn" rowspan="2">8.4 - 8.5</td>
-    <td>4.8</td>
-    <td>4.1 - 4.2</td>
-    <td rowspan="2">12.0.4</td>
-    <td rowspan="2">L-APEH-C9NCK6</td>
-  </tr>
-  <tr>
+    <td class="firstColumn">8.4 - 8.5</td>
     <td>4.10</td>
     <td>5.0 - 5.2</td>
+    <td>12.0.4</td>
+    <td>L-APEH-C9NCK6</td>
   </tr>
 </table>
 
