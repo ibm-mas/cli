@@ -1,5 +1,8 @@
 ## Changes
 
+- [`5.0`](https://github.com/ibm-mas/cli/releases/tag/5.0.0) Multiple updates:
+    - Add support for non-interactive `mas install` mode
+    - Removal of Health & Predict Utilities from `mas mirror-images` command
 - [`4.3`](https://github.com/ibm-mas/cli/releases/tag/4.3.0) Multiple updates:
     - Support May Catalog Update (#)
     - Support use of manual certificates in `install-with-fvt` pipeline (#272)

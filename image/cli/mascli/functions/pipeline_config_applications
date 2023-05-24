@@ -122,7 +122,7 @@ function channel_select_visualinspection() {
 
 function config_pipeline_applications() {
   echo
-  echo_h2 "6. Application Selection"
+  echo_h2 "Application Selection"
   # Default all applications to "do not deploy"
   MAS_APP_CHANNEL_IOT=''
   MAS_APP_CHANNEL_MONITOR=''
@@ -185,6 +185,9 @@ function config_pipeline_applications() {
         # Predict
         if prompt_for_confirm "Install Predict"; then
           channel_select_predict || exit 1
+          if prompt_for_confirm "+ Install SPSS (Optional Cloud Pak for Data service)"; then
+          CPD_INSTALL_SPSS=true
+          fi
         fi
       fi
 
@@ -207,7 +210,7 @@ function config_pipeline_applications() {
     if [[ "$MAS_APP_CHANNEL_PREDICT" != "" || "$MAS_APP_CHANNEL_ASSIST" != "" ]]; then
       case $MAS_CATALOG_VERSION in
         # CP4D v4.6.3 was added in the April 2023 catalog update
-        v8-amd64|v8-230414-amd64)
+        v8-amd64|v8-230414-amd64|v8-230518-amd64)
           CP4D_VERSION=4.6.3
           ;;
         # CP4D v4.6.0 was added in the February 2023 catalog update
@@ -221,7 +224,7 @@ function config_pipeline_applications() {
         *)
           echo
           echo "One or more selected applications require Cloud Pak for Data"
-          prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.6.0"
+          prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.6.3"
           ;;
       esac
     fi

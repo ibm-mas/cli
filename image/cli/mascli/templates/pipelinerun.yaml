@@ -135,6 +135,8 @@ spec:
     # -------------------------------------------------------------------------
     - name: cpd_product_version
       value: '$CP4D_VERSION'
+    - name: cpd_install_spss
+      value: '$CPD_INSTALL_SPSS'
 
     # Dependencies - SLS
     # -------------------------------------------------------------------------
@@ -144,18 +146,12 @@ spec:
       value: '$SLS_LICENSE_ID'
     - name: sls_license_file
       value: '$SLS_LICENSE_FILE'
-    - name: sls_catalog_source
-      value: '$SLS_CATALOG_SOURCE'
     - name: sls_channel
       value: '3.x'
     - name: sls_icr_cp
       value: '$SLS_ICR_CP'
     - name: sls_icr_cpopen
       value: '$SLS_ICR_CPOPEN'
-    - name: sls_entitlement_username
-      value: '$SLS_ENTITLEMENT_USERNAME'
-    - name: sls_entitlement_key
-      value: '$SLS_ENTITLEMENT_KEY'
 
     # Dependencies - UDS (Required, no defaults)
     # -------------------------------------------------------------------------
@@ -186,8 +182,6 @@ spec:
     # -------------------------------------------------------------------------
     - name: mas_channel
       value: '$MAS_CHANNEL'
-    - name: mas_catalog_source
-      value: '$MAS_CATALOG_SOURCE'
     - name: mas_catalog_version
       value: '$MAS_CATALOG_VERSION'
     - name: mas_catalog_digest
@@ -266,10 +260,6 @@ spec:
     - name: mas_cluster_issuer
       value: '$MAS_CLUSTER_ISSUER'
 
-    - name: mas_entitlement_username
-      value: '$MAS_ENTITLEMENT_USERNAME'
-    - name: mas_entitlement_key
-      value: '$MAS_ENTITLEMENT_KEY'
     - name: mas_annotations
       value: '$MAS_ANNOTATIONS'
 

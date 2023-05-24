@@ -23,13 +23,6 @@
 - name: sls_icr_cpopen
   type: string
   default: ""
-- name: sls_entitlement_username
-  type: string
-  default: ""
-- name: sls_entitlement_key
-  type: string
-  default: ""
-  description: Override IBM Entitlement key for SLS installation
 
 # Dependencies - MongoDb
 # -----------------------------------------------------------------------------
@@ -175,6 +168,15 @@
 - name: cpd_wsl_storage_class
   type: string
   default: ""
+- name: cpd_aiopenscale_storage_class
+  type: string
+  default: ""
+- name: cpd_spss_storage_class
+  type: string
+  default: ""
+- name: cpd_install_spss
+  type: string
+  default: "False"
 
 # Dependencies - UDS
 # -----------------------------------------------------------------------------
@@ -334,16 +336,9 @@
 - name: mas_icr_cpopen
   type: string
   default: ""
-- name: mas_entitlement_username
-  type: string
-  default: ""
 - name: mas_annotations
   type: string
   default: ""
-- name: mas_entitlement_key
-  type: string
-  default: ""
-  description: Override IBM Entitlement key for MAS installation
 - name: mas_customize_scaling
   type: string
   default: ""

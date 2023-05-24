@@ -45,16 +45,9 @@ spec:
       default: ""
 
     # Entitlement
-    - name: sls_entitlement_username
-      type: string
-      default: ""
     - name: ibm_entitlement_key
       type: string
       default: ""
-    - name: sls_entitlement_key
-      type: string
-      default: ""
-      description: "Optional SLS-specific override for the IBM entitlement key"
 
     - name: artifactory_username
       default: ""
@@ -106,12 +99,8 @@ spec:
         value: $(params.sls_icr_cp)
       - name: SLS_ICR_CPOPEN
         value: $(params.sls_icr_cpopen)
-      - name: SLS_ENTITLEMENT_USERNAME
-        value: $(params.sls_entitlement_username)
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
-      - name: SLS_ENTITLEMENT_KEY
-        value: $(params.sls_entitlement_key)
 
       - name: ARTIFACTORY_USERNAME
         value: $(params.artifactory_username)
