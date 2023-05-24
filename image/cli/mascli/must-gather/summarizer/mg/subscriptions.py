@@ -10,10 +10,6 @@ def process_subscription( output_dir, subscriptionYaml, ipYaml, subscriptions_ta
   sub_condition_types=["CatalogSourcesUnhealthy"]
   sub_condition_statuses= {x["type"]:{
     "status": x[ "status"]} for x in subscriptionYaml["status"]["conditions"] if x["type"] in sub_condition_types}
-  sub_condition_statuses
-
-  installplanname=subscriptionYaml["status"]["installplan"]["name"]
-
 
   if ipYaml is not None:
     ip_status = ipYaml["status"]["phase"]
@@ -25,15 +21,25 @@ def process_subscription( output_dir, subscriptionYaml, ipYaml, subscriptions_ta
   else:
     approval = "<undefined>"
 
+  if "installplan" in subscriptionYaml["status"]:
+    installPlan = subscriptionYaml["status"]["installplan"]["name"]
+  else:
+    installPlan = "<undefined>"
+
+  if "installedCSV" in subscriptionYaml["status"]:
+    installedCSV = subscriptionYaml["status"]["installedCSV"]
+  else:
+    installedCSV = "<undefined>"
+
   subscriptions_table.add_row([
     subscriptionYaml["metadata"]["namespace"],
     subscriptionYaml["metadata"]["name"],
     subscriptionYaml["spec"]["channel"],
     subscriptionYaml["spec"]["source"],
-    subscriptionYaml["status"]["installedCSV"],
+    installedCSV,
     approval,
     sub_condition_statuses["CatalogSourcesUnhealthy"]["status"],
-    subscriptionYaml["status"]["installplan"]["name"],
+    installPlan,
     ip_status
   ])
 

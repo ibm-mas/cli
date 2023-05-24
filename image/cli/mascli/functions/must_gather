@@ -176,7 +176,7 @@ function mustgather() {
     done
   done
 
-  python $MG_SCRIPT_DIR/mg-print-summary.py $OUTPUT_DIR | tee $OUTPUT_DIR/summary.txt
+  python3 $MG_SCRIPT_DIR/summarizer/mg-print-summary.py $OUTPUT_DIR | tee $OUTPUT_DIR/summary.txt
 
   tar -czf $OUTPUT_FILE -C $MG_DIR $TIMESTAMP
   if [[ -n "$ARTIFACTORY_TOKEN" && -n "$ARTIFACTORY_UPLOAD_DIR" ]]; then
