@@ -1,0 +1,30 @@
+- name: spss
+  params:
+    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    - name: devops_suite_name
+      value: setup-cp4d-spss
+
+    - name: cpd_product_version
+      value: "$(params.cpd_product_version)"
+    - name: cpd_service_name
+      value: spss
+    - name: cpd_service_storage_class
+      value: "$(params.cpd_spss_storage_class)"
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+    - name: cpd_install_spss
+      value: $(params.cpd_install_spss)
+  taskRef:
+    kind: Task
+    name: mas-devops-cp4d-service
+  # Only needed if Predict is being installed
+  when:
+    - input: "$(params.mas_app_channel_predict)"
+      operator: notin
+      values: [""]
+    - input: "$(params.cpd_install_spss)"
+      operator: in
+      values: ["True","true"]
+  workspaces:
+    - name: configs
+      workspace: shared-configs

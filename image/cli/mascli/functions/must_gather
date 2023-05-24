@@ -94,12 +94,19 @@ function mustgather() {
 
 
   echo "Must gather will be saved to: $OUTPUT_FILE"
+  echo ""
 
   # Generate OCP Report
   # -----------------------------------------------------------------------------
   echo_h2 "Generate OCP Report"
+
   echo "- Cluster Resources"
-  for RESOURCE in namespaces packagemanifests clusterversions storageclasses nodes clusterroles clusterrolebindings
+  for RESOURCE in nodes storageclasses clusterversions
+  do
+    $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources
+  done
+
+  for RESOURCE in namespaces packagemanifests clusterroles clusterrolebindings
   do
     $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources --no-detail
   done
@@ -110,8 +117,14 @@ function mustgather() {
     $MG_SCRIPT_DIR/mg-collect-resources -n openshift-marketplace -r $RESOURCE -d $OUTPUT_DIR/resources
   done
 
-  echo "- Operator Conditions"
+  echo "- Operators"
+  echo "  - Collecting debug information: operatorconditions"
   oc get operatorconditions --all-namespaces &> ${OUTPUT_DIR}/operatorconditions.txt
+  for RESOURCE in subscriptions installplans
+  do
+    $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources -a
+  done
+
 
   # Generate Dependency Report
   # -----------------------------------------------------------------------------
@@ -125,6 +138,7 @@ function mustgather() {
 
   echo "- IBM Db2 Universal Operator"
   $MG_SCRIPT_DIR/mg-summary-db2u &> ${OUTPUT_DIR}/db2u.txt
+
 
   # Find MAS instances
   # -----------------------------------------------------------------------------
@@ -162,6 +176,8 @@ function mustgather() {
     done
   done
 
+  python3 $MG_SCRIPT_DIR/summarizer/mg-print-summary.py $OUTPUT_DIR | tee $OUTPUT_DIR/summary.txt
+
   tar -czf $OUTPUT_FILE -C $MG_DIR $TIMESTAMP
   if [[ -n "$ARTIFACTORY_TOKEN" && -n "$ARTIFACTORY_UPLOAD_DIR" ]]; then
     set -e
@@ -182,6 +198,8 @@ function mustgather() {
   if [[ "$KEEP_FILES" != "true" ]]; then
     rm -rf "$OUTPUT_DIR"
   fi
+
+  echo
   echo_green "Must gather successfully saved to: $OUTPUT_FILE"
 
   true
