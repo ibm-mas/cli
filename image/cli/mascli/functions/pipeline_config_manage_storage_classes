@@ -56,15 +56,13 @@ function config_pipeline_manage_storage_classes() {
   
   reset_colors
   
-  echo -e "${COLOR_GREEN}Storage provider auto-detected: $MANAGE_STORAGE_CLASS_PROVIDER $MANAGE_STORAGE_CLASS_RWX${COLOR_RESET}"
-
   if [[ "$SNO_MODE" == "true" ]]; then
     MANAGE_STORAGE_CLASS_RWX=$MANAGE_STORAGE_CLASS_RWO
     MANAGE_STORAGE_ACCESSMODE=ReadWriteOnce
     echo "${TEXT_DIM}  - SNO MODE is set to ${SNO_MODE} - Forcing Manage Storage Class to be $MANAGE_STORAGE_CLASS_RWX and access mode $MANAGE_STORAGE_ACCESSMODE."
   fi
   
-  echo "${TEXT_DIM}  - Manage Storage class for Doclinks, BIM and JMS: $MANAGE_STORAGE_CLASS_RWX"
+  echo "${TEXT_DIM}  - Manage Storage class for Doclinks, BIM and JMS: $MANAGE_STORAGE_CLASS_RWX ($MANAGE_STORAGE_ACCESSMODE)"
 
   OVERRIDE_MANAGE_STORAGE_CLASSES=false
   if [[ "$MANAGE_STORAGE_CLASS_RWX" != "" ]]; then
