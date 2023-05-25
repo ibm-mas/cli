@@ -282,7 +282,7 @@ function mirror_to_registry_interactive() {
   case $MAS_CHANNEL_SELECTION in
     1)
       MAS_CHANNEL=8.10.x
-      MAS_CATALOG_VERSION=v8-230518-amd64
+      MAS_CATALOG_VERSION=v8-230526-amd64
       ;;
     2)
       MAS_CHANNEL=8.9.x

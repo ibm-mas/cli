@@ -31,15 +31,15 @@ function pipeline_config() {
       MAS_CATALOG_VERSION=v8-amd64
     else
       echo -e "${COLOR_YELLOW}Catalog Version:"
-      echo "  1. v8 (2023-05-18)"
+      echo "  1. v8 (2023-05-26)"
       echo "  2. v8 (2023-04-14)"
       echo "  3. v8 (2023-03-14)"
       echo "  4. v8 (2023-02-17)"
       prompt_for_input "Select Catalog Source" MAS_CATALOG_SELECTION "1"
 
       case $MAS_CATALOG_SELECTION in
-        1|230518)
-          MAS_CATALOG_VERSION=v8-230518-amd64
+        1|230526)
+          MAS_CATALOG_VERSION=v8-230526-amd64
           ;;
         2|230414)
           MAS_CATALOG_VERSION=v8-230414-amd64
@@ -97,7 +97,7 @@ function pipeline_config() {
       1)
         MAS_CHANNEL=8.10.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
-        MAS_CATALOG_VERSION=v8-230518-amd64
+        MAS_CATALOG_VERSION=v8-230526-amd64
         ;;
       2)
         MAS_CHANNEL=8.9.x
