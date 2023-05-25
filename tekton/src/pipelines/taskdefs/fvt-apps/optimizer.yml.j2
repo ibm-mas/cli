@@ -72,7 +72,7 @@
     value: optimizer
   - name: fvt_test_driver
     value: tpae
-when:
+  when:
   - input: "$(params.fvt_digest_optimizer)"
     operator: notin
     values: [""]
@@ -82,10 +82,10 @@ when:
   - input: "$(params.mas_app_channel_optimizer)"
     operator: notin
     values: [""]
-workspaces:
+  workspaces:
   - name: configs
     workspace: shared-configs
- runAfter:
+  runAfter:
    - fvt-manage-setup
 
 
@@ -124,7 +124,7 @@ workspaces:
     value: optimizer
   - name: fvt_test_driver
     value: tpae
-when:
+  when:
   - input: "$(params.fvt_digest_optimizer)"
     operator: notin
     values: [""]
@@ -134,8 +134,8 @@ when:
   - input: "$(params.mas_app_channel_optimizer)"
     operator: notin
     values: [""]
-workspaces:
+  workspaces:
   - name: configs
     workspace: shared-configs
- runAfter:
+  runAfter:
    - fvt-optimizer-manage-connection-setup
