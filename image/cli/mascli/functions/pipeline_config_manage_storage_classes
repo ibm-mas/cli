@@ -80,12 +80,12 @@ function config_pipeline_manage_storage_classes() {
     echo ""
     prompt_for_input "Enter the selected storage class" MANAGE_STORAGE_CLASS_RWX
     echo ""
-    echo -e "${COLOR_YELLOW}Storage access mode:"
+    echo -e "${COLOR_YELLOW}Select the Manage application storage access mode:"
     echo ""
     echo "  1. ReadWriteMany"
     echo "  2. ReadWriteOnce"
     echo ""
-    prompt_for_input "Select the corresponding storage access mode" MANAGE_STORAGE_ACCESSMODE
+    prompt_for_input "Enter the selected storage access mode" MANAGE_STORAGE_ACCESSMODE
   
     case $MANAGE_STORAGE_ACCESSMODE in
       1|ReadWriteMany|RWX)
