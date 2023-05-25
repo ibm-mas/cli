@@ -140,12 +140,21 @@ function mustgather() {
   $MG_SCRIPT_DIR/mg-summary-db2u &> ${OUTPUT_DIR}/db2u.txt
 
 
+  # Find MongoCE
+  # -----------------------------------------------------------------------------
+  MONGOCE_NAMESPACES=$(oc get mongodbcommunity --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
+  echo ""
+  for MONGOCE_NAMESPACE in $MONGOCE_NAMESPACES
+  do
+    echo_h2 "MongoCE: ${MONGOCE_NAMESPACE}"
+    $MG_SCRIPT_DIR/mg-summary-mongoce $MONGOCE_NAMESPACE &> ${OUTPUT_DIR}/mongoce-${MONGOCE_NAMESPACE}.txt
+    $MG_SCRIPT_DIR/mg-collect-mongoce $MONGOCE_NAMESPACE $OUTPUT_DIR
+  done
+
+
   # Find MAS instances
   # -----------------------------------------------------------------------------
   MAS_INSTANCE_IDS=$(oc get suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
-
-  # Generate Detailed Report
-  # -----------------------------------------------------------------------------
   echo ""
   for MAS_INSTANCE_ID in $MAS_INSTANCE_IDS
   do
