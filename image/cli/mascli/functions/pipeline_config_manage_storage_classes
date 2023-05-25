@@ -62,7 +62,7 @@ function config_pipeline_manage_storage_classes() {
     echo "${TEXT_DIM}  - SNO MODE is set to ${SNO_MODE} - Forcing Manage Storage Class to be $MANAGE_STORAGE_CLASS_RWX and access mode $MANAGE_STORAGE_ACCESSMODE."
   fi
   
-  echo "${TEXT_DIM}  - Manage Storage class for Doclinks, BIM and JMS: $MANAGE_STORAGE_CLASS_RWX ($MANAGE_STORAGE_ACCESSMODE)"
+  echo "${TEXT_DIM}  - Auto-detected: Manage Storage class for Doclinks, BIM and JMS: $MANAGE_STORAGE_CLASS_RWX ($MANAGE_STORAGE_ACCESSMODE)"
 
   OVERRIDE_MANAGE_STORAGE_CLASSES=false
   if [[ "$MANAGE_STORAGE_CLASS_RWX" != "" ]]; then
@@ -107,8 +107,5 @@ function config_pipeline_manage_storage_classes() {
   export MAS_APP_SETTINGS_DOCLINKS_PVC_ACCESSMODE=$MANAGE_STORAGE_ACCESSMODE
   export MAS_APP_SETTINGS_BIM_PVC_ACCESSMODE=$MANAGE_STORAGE_ACCESSMODE
   export MAS_APP_SETTINGS_JMS_QUEUE_PVC_ACCESSMODE=$MANAGE_STORAGE_ACCESSMODE
-  echo ""
-  echo "${COLOR_GREEN}Manage application storage details for Doclinks, BIM and JMS:"
-  echo "${COLOR_GREEN}Storage class ($MANAGE_STORAGE_ACCESSMODE): $MANAGE_STORAGE_CLASS_RWX"
   echo ""
 }
