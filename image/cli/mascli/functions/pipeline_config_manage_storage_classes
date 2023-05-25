@@ -6,22 +6,22 @@ function config_pipeline_manage_storage_classes() {
   echo ""
   reset_colors
   # 1. ROKS
-  oc get storageclass ibmc-file-gold &>> $LOGFILE
+  oc get storageclass ibmc-file-gold-gid &>> $LOGFILE
   if [[ $? == "0" ]]; then
-    echo -e "${COLOR_GREEN}Storage provider auto-detected: IBMCloud ROKS${COLOR_RESET}"
-    echo "${TEXT_DIM}  - Storage class (ReadWriteMany): ibmc-file-gold"
     MANAGE_STORAGE_CLASS_PROVIDER=ibmc
-    MANAGE_STORAGE_CLASS_RWX=ibmc-file-gold
+    MANAGE_STORAGE_CLASS_RWX=ibmc-file-gold-gid
+    MANAGE_STORAGE_CLASS_RWO=ibmc-file-block-gold
+    MANAGE_STORAGE_ACCESSMODE=ReadWriteMany
   fi
 
   # 2. OCS
   if [[ "$MANAGE_STORAGE_CLASS_RWX" == "" ]]; then
     oc get storageclass ocs-storagecluster-cephfs &>> $LOGFILE
     if [[ $? == "0" ]]; then
-      echo -e "${COLOR_GREEN}Storage provider auto-detected: OpenShift Container Storage${COLOR_RESET}"
-      echo "${TEXT_DIM}  - Manage Storage class for Doclinks, BIM and JMS: ocs-storagecluster-cephfs"
       MANAGE_STORAGE_CLASS_PROVIDER=ocs
+      MANAGE_STORAGE_CLASS_RWO=ocs-storagecluster-ceph-rbd
       MANAGE_STORAGE_CLASS_RWX=ocs-storagecluster-cephfs
+      MANAGE_STORAGE_ACCESSMODE=ReadWriteMany
     fi
   fi
 
@@ -29,10 +29,10 @@ function config_pipeline_manage_storage_classes() {
   if [[ "$MANAGE_STORAGE_CLASS_RWX" == "" ]]; then
     oc get storageclass managed-premium &>> $LOGFILE
     if [[ $? == "0" ]]; then
-      echo -e "${COLOR_GREEN}Storage provider auto-detected: Azure Managed${COLOR_RESET}"
-      echo "${TEXT_DIM}  - Manage Storage class for Doclinks, BIM and JMS: managed-premium"
       MANAGE_STORAGE_CLASS_PROVIDER=azure
+      MANAGE_STORAGE_CLASS_RWO=azurefiles-premium
       MANAGE_STORAGE_CLASS_RWX=managed-premium
+      MANAGE_STORAGE_ACCESSMODE=ReadWriteMany
     fi
   fi
 
@@ -40,19 +40,22 @@ function config_pipeline_manage_storage_classes() {
   if [[ "$MANAGE_STORAGE_CLASS_RWX" == "" ]]; then
     oc get storageclass gp2 &>> $LOGFILE
     if [[ $? == "0" ]]; then
-      echo -e "${COLOR_GREEN}Storage provider auto-detected: AWS gp2${COLOR_RESET}"
-      echo "${TEXT_DIM}  - Manage Storage class for Doclinks, BIM and JMS: gp2"
       MANAGE_STORAGE_CLASS_PROVIDER=aws
-      MANAGE_STORAGE_CLASS_RWX=gp2
+      MANAGE_STORAGE_CLASS_RWO=gp2
+      MANAGE_STORAGE_CLASS_RWX=efs
+      MANAGE_STORAGE_ACCESSMODE=ReadWriteMany
     fi
   fi
+  
+  echo -e "${COLOR_GREEN}Storage provider auto-detected: $MANAGE_STORAGE_CLASS_PROVIDER $MANAGE_STORAGE_CLASS_RWX${COLOR_RESET}"
+  echo "${TEXT_DIM}  - Manage Storage class for Doclinks, BIM and JMS: $MANAGE_STORAGE_CLASS_RWX"
+
   reset_colors
 
-  if [[ "$MANAGE_STORAGE_CLASS_PROVIDER" == "ibmc" ]]; then
-    # Unless we use the -gid storage class we struggle with permission issues when mounted
-    PIPELINE_MANAGE_STORAGE_CLASS=ibmc-file-gold-gid
-  else
-    PIPELINE_MANAGE_STORAGE_CLASS=$MANAGE_STORAGE_CLASS_RWX
+  if [[ "$SNO_MODE" == "true" ]]; then
+    MANAGE_STORAGE_CLASS_RWX=$MANAGE_STORAGE_CLASS_RWO
+    MANAGE_STORAGE_ACCESSMODE=ReadWriteOnce
+    echo "${TEXT_DIM}  - SNO MODE is set to ${SNO_MODE} - Forcing Manage Storage Class to be 'ReadWriteOnce' >> $MANAGE_STORAGE_CLASS_RWO."
   fi
 
   OVERRIDE_MANAGE_STORAGE_CLASSES=false
@@ -69,17 +72,35 @@ function config_pipeline_manage_storage_classes() {
     oc get storageclasses -o jsonpath='{range .items[*]}{" - "}{.metadata.name}{"\n"}{end}'
     echo ""
     prompt_for_input "Enter the selected storage class" MANAGE_STORAGE_CLASS_RWX
-  fi
+    echo -e "${COLOR_YELLOW}Storage access mode:"
+    echo ""
+    echo "  1. ReadWriteMany"
+    echo "  2. ReadWriteOnce"
+    echo ""
+    prompt_for_input "Select the corresponding storage access mode" MANAGE_STORAGE_ACCESSMODE
   
-  if [[ "$SNO_MODE" == "true" ]]; then
-    PIPELINE_STORAGE_ACCESSMODE="ReadWriteOnce"
+    case $MANAGE_STORAGE_ACCESSMODE in
+      1|ReadWriteMany|RWX)
+        MANAGE_STORAGE_ACCESSMODE=ReadWriteMany
+        ;;
+      2|ReadWriteOnce|RWO)
+        MANAGE_STORAGE_ACCESSMODE=ReadWriteOnce
+        ;;
+      *)
+        echo_warning "Invalid access mode selection"
+        exit 1
+        ;;
+    esac
   fi
 
   export MAS_APP_SETTINGS_DOCLINKS_PVC_STORAGE_CLASS=$MANAGE_STORAGE_CLASS_RWX
   export MAS_APP_SETTINGS_BIM_PVC_STORAGE_CLASS=$MANAGE_STORAGE_CLASS_RWX
   export MAS_APP_SETTINGS_JMS_QUEUE_PVC_STORAGE_CLASS=$MANAGE_STORAGE_CLASS_RWX
-
-  echo "Manage PVCS: $MANAGE_STORAGE_CLASS_RWX"
-  echo "Pipeline Access Mode: $PIPELINE_STORAGE_ACCESSMODE"
+  export MAS_APP_SETTINGS_DOCLINKS_PVC_ACCESSMODE=$MANAGE_STORAGE_ACCESSMODE
+  export MAS_APP_SETTINGS_BIM_PVC_ACCESSMODE=$MANAGE_STORAGE_ACCESSMODE
+  export MAS_APP_SETTINGS_JMS_QUEUE_PVC_ACCESSMODE=$MANAGE_STORAGE_ACCESSMODE
+  echo ""
+  echo "${COLOR_GREEN}Manage storage class: $MANAGE_STORAGE_CLASS_RWX"
+  echo "${COLOR_GREEN}Manage storage accessmode: $MANAGE_STORAGE_ACCESSMODE"
 
 }
