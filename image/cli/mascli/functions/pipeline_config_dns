@@ -9,7 +9,7 @@ function config_pipeline_dns() {
     echo -e "${COLOR_YELLOW}DNS Integrations:"
     echo "  1. Cloudflare"
     echo "  2. IBM Cloud Internet Services"
-    echo "  3. AWS Route53"
+    echo "  3. AWS Route 53"
     echo "  4. None (I will set up DNS myself)"
     prompt_for_input "Select DNS Provider" DNS_PROVIDER_SELECTION "1"
 
@@ -73,31 +73,31 @@ function config_pipeline_dns() {
         esac
         ;;
       3|route53)
-        # User has chosen to set up DNS integration with AWS Route53
+        # User has chosen to set up DNS integration with AWS Route 53
         echo ""
         echo "Provide your AWS account access key ID & secret access key."
-        echo "This will be used to authenticate into the AWS account where your AWS Route53 hosted zone instance is located."
+        echo "This will be used to authenticate into the AWS account where your AWS Route 53 hosted zone instance is located."
         echo ""
         prompt_for_input "AWS access key ID" AWS_ACCESS_KEY_ID && export AWS_ACCESS_KEY_ID
         prompt_for_input "AWS secret access key" AWS_SECRET_ACCESS_KEY && export AWS_SECRET_ACCESS_KEY
         echo ""
-        echo "Provide your AWS Route53 hosted zone instance details."
-        echo "This information will be used to create webhook resources between your cluster and your AWS Route53 instance (cluster issuer and cname records)"
+        echo "Provide your AWS Route 53 hosted zone instance details."
+        echo "This information will be used to create webhook resources between your cluster and your AWS Route 53 instance (cluster issuer and cname records)"
         echo "in order for it to be able to resolve DNS entries for all the subdomains created for your Maximo Application Suite instance."
         echo ""
-        echo "Therefore, the AWS Route53 subdomain + the AWS Route53 hosted zone name defined, when combined, needs to match with the chosen MAS Top Level domain, otherwise the DNS records won't be able to get resolved."
+        echo "Therefore, the AWS Route 53 subdomain + the AWS Route 53 hosted zone name defined, when combined, needs to match with the chosen MAS Top Level domain, otherwise the DNS records won't be able to get resolved."
         echo "" 
         echo -e "${COLOR_YELLOW}Example:"
         echo "MAS Top Level Domain: masinst1.mycompany.com"
-        echo "AWS Route53 hosted zone name: mycompany.com"
-        echo "AWS Route53 subdomain: masinst1"
+        echo "AWS Route 53 hosted zone name: mycompany.com"
+        echo "AWS Route 53 subdomain: masinst1"
         echo ""
         echo -e "${COLOR_YELLOW}Your MAS Top Level Domain: $MAS_DOMAIN"
         echo ""
-        prompt_for_input "AWS Route53 hosted zone name" ROUTE53_HOSTED_ZONE_NAME && export ROUTE53_HOSTED_ZONE_NAME
-        prompt_for_input "AWS Route53 hosted zone region" ROUTE53_HOSTED_ZONE_REGION && export ROUTE53_HOSTED_ZONE_REGION
-        prompt_for_input "AWS Route53 subdomain" ROUTE53_SUBDOMAIN && export ROUTE53_SUBDOMAIN
-        prompt_for_input "AWS Route53 e-mail" ROUTE53_EMAIL && export ROUTE53_EMAIL
+        prompt_for_input "AWS Route 53 hosted zone name" ROUTE53_HOSTED_ZONE_NAME && export ROUTE53_HOSTED_ZONE_NAME
+        prompt_for_input "AWS Route 53 hosted zone region" ROUTE53_HOSTED_ZONE_REGION && export ROUTE53_HOSTED_ZONE_REGION
+        prompt_for_input "AWS Route 53 subdomain" ROUTE53_SUBDOMAIN && export ROUTE53_SUBDOMAIN
+        prompt_for_input "AWS Route 53 e-mail" ROUTE53_EMAIL && export ROUTE53_EMAIL
 
         DNS_PROVIDER=route53
         MAS_CLUSTER_ISSUER="${MAS_INSTANCE_ID}-route53-le-prod"

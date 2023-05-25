@@ -226,7 +226,7 @@ spec:
     - name: cis_proxy
       value: '$CIS_PROXY'
 
-    # MAS DNS Integrations - AWS Route53
+    # MAS DNS Integrations - AWS Route 53
     # -------------------------------------------------------------------------
     - name: aws_access_key_id
       value: '$AWS_ACCESS_KEY_ID'
