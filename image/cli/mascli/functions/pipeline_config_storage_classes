@@ -9,6 +9,7 @@
 #
 # - db2_meta_storage_class [ibmc-file-gold, ocs-storagecluster-cephfs, azurefiles-premium]
 # - db2_backup_storage_class [ibmc-file-gold, ocs-storagecluster-cephfs, azurefiles-premium]
+# - grafana_instance_storage_class [ibmc-file-gold, ocs-storagecluster-cephfs, azurefiles-premium]
 
 # STORAGE_CLASS_RWO
 # -----------------
@@ -19,7 +20,6 @@
 # - prometheus_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
 # - prometheus_alertmgr_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
 # - prometheus_userworkload_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
-# - grafana_instance_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
 # - db2_data_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
 # - db2_logs_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
 # - db2_temp_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
