@@ -102,7 +102,7 @@ function pipeline_config() {
       2)
         MAS_CHANNEL=8.9.x
         MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
-        MAS_CATALOG_VERSION=v8-230518-amd64
+        MAS_CATALOG_VERSION=v8-230526-amd64
         ;;
       # April 14 2023 Catalog
       # -----------------------------------------------------------------------
