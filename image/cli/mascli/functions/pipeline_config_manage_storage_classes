@@ -57,6 +57,7 @@ function config_pipeline_manage_storage_classes() {
   reset_colors
   
   if [[ "$SNO_MODE" == "true" ]]; then
+    MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE="snojms" # if SNO then we'll deploy only all + jms bundle to reduce footprint with this config
     MANAGE_STORAGE_CLASS_RWX=$MANAGE_STORAGE_CLASS_RWO
     MANAGE_STORAGE_ACCESSMODE=ReadWriteOnce
     echo "${TEXT_DIM}  - SNO MODE is set to ${SNO_MODE} - Forcing Manage Storage Class to be $MANAGE_STORAGE_CLASS_RWX and access mode $MANAGE_STORAGE_ACCESSMODE."
