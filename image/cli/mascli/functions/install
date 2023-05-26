@@ -224,6 +224,11 @@ function install_noninteractive() {
     ;;
     --license-file)
     export SLS_LICENSE_FILE_LOCAL=$1 && shift
+    if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
+      echo_warning "Error: File does not exist: $SLS_LICENSE_FILE_LOCAL"
+      exit 1
+    fi
+    export SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
     ;;
     --uds-email)
     export UDS_CONTACT_EMAIL=$1 && shift
