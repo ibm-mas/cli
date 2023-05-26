@@ -56,6 +56,7 @@
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
+    - fvt-manage-classification
 
 # Manage FVT Mas Navigation Scenario
 - name: fvt-manage-masnavigation
@@ -147,3 +148,13 @@
       value: startcenter-config
   runAfter:
     - fvt-manage-workflow-designer
+
+# Manage FVT Classification
+- name: fvt-manage-classification
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: classification
+  runAfter:
+    - fvt-manage-setup
