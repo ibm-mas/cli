@@ -32,33 +32,6 @@
   runAfter:
     - fvt-manage-setup
 
-# Manage x Monitor IVT - Data Dictionary (Manage First)
-# TODO: these three tasks must be incorporated in a single task with 3 steps once text.xml is fixed in Maximo Automation Framework
-- name: fvt-manage-mif-jms-setup
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: mif-jms-setup
-  runAfter:
-    - fvt-manage-setup
-- name: ivt-manage-monitor-dd-setup
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: mif-dd-setup
-  runAfter:
-    - fvt-manage-mif-jms-setup
-- name: ivt-manage-monitor-dd
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: mif-dd
-  runAfter:
-    - ivt-manage-monitor-dd-setup
-
 # Manage FVT API Tests
 - name: fvt-manage-metrics-api
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}

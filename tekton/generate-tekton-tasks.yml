@@ -52,7 +52,16 @@
         - fvt-run-suite
         - fvt-wait-for-install
 
-    # 4. Generate Tasks (Suite)
+    # 4. Generate Tasks (IVT)
+    # -------------------------------------------------------------------------
+    - name: Generate Tasks (IVT)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/ivt/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - ivt-manage-monitor-dd
+    
+    # 5. Generate Tasks (Suite)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (Suite)
       ansible.builtin.template:
