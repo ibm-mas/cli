@@ -2,24 +2,26 @@
 
 
 function config_pipeline_additional_configs() {
-  echo
-  echo_h2 "8. Additional Configuration"
-  echo "${TEXT_DIM}Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step."
-  echo "The primary purpose of this is to apply configuration for Maximo Application Suite itself, but you can use this to deploy ANY additional resource into your cluster."
-  echo
-  reset_colors
+  if [[ -z "$NON_INTERACTIVE" ]]; then
+    echo
+    echo_h2 "Additional Configuration"
+    echo "${TEXT_DIM}Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step."
+    echo "The primary purpose of this is to apply configuration for Maximo Application Suite itself, but you can use this to deploy ANY additional resource into your cluster."
+    echo
+    reset_colors
 
-  if [[ -z "$LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN" ]]; then
-    # Ask the user if they want to load additional configs
-    if prompt_for_confirm "Use additional configurations?"; then
-      # Select local MAS_CONFIG_DIR
-      prompt_for_input "+ Local config directory" LOCAL_MAS_CONFIG_DIR && export LOCAL_MAS_CONFIG_DIR
-      echo
+    if [[ -z "$LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN" ]]; then
+      # Ask the user if they want to load additional configs
+      if prompt_for_confirm "Use additional configurations?"; then
+        # Select local MAS_CONFIG_DIR
+        prompt_for_input "+ Local config directory" LOCAL_MAS_CONFIG_DIR && export LOCAL_MAS_CONFIG_DIR
+        echo
+        use_additional_configs=yes
+      fi
+    else
+      # If the user has already generated a config then we will lose additional configs
       use_additional_configs=yes
     fi
-  else
-    # If the user has already generated a config then we will lose additional configs
-    use_additional_configs=yes
   fi
 
   if [[ "$use_additional_configs" == "yes" ]]; then
