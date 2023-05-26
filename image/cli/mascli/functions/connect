@@ -2,7 +2,7 @@
 
 function connect() {
   echo
-  echo_h2 "1. Set Target OpenShift Cluster"
+  echo_h2 "Set Target OpenShift Cluster"
 
   PROMPT_FOR_LOGIN=false
   oc whoami &>> $LOGFILE
