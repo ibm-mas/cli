@@ -267,7 +267,7 @@ function mirror_to_registry_interactive() {
   echo_h2 "Configure Static Catalog Version"
 
   echo -e "${COLOR_YELLOW}MAS Version:"
-  echo "May 18 2023 Update"
+  echo "May 26 2023 Update"
   echo "  1. 8.10.1"
   echo "  2. 8.9.5"
   echo "April 14 2023 Update"

@@ -39,6 +39,7 @@ To receive security updates and bug fixes you must periodically update the versi
 
 #### 2023
 - [v8-230526-amd64](v8-230526-amd64.md)
+- [v8-230518-amd64](v8-230518-amd64.md)
 - [v8-230414-amd64](v8-230414-amd64.md)
 - [v8-230314-amd64](v8-230314-amd64.md)
 - [v8-230217-amd64](v8-230217-amd64.md)
