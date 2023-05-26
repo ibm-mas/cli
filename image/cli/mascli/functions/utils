@@ -13,6 +13,9 @@ TEXT_DIM=$(tput dim)
 TEXT_UNDERLINE=$(tput smul)
 TEXT_RESET=$(tput sgr0)
 
+H2_COUNT=1
+H3_COUNT=1
+
 function reset_colors() {
   echo -ne "${COLOR_RESET}\033[1K"
 }
@@ -21,6 +24,21 @@ function echo_h1() {
   echo -e "${TEXT_BOLD}${TEXT_UNDERLINE}${1}${TEXT_RESET}"
 }
 function echo_h2() {
+  msg=$1
+  prefix=$2
+  echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}. ${msg}${TEXT_RESET}"
+  H2_COUNT=$(($H2_COUNT + 1))
+  H3_COUNT=1
+}
+
+function echo_h3() {
+  msg=$1
+  prefix=$2
+  echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}.${H3_COUNT}. ${msg}${TEXT_RESET}"
+  H3_COUNT=$(($H3_COUNT + 1))
+}
+
+function echo_h4() {
   msg=$1
   prefix=$2
   echo -e "${prefix}${TEXT_UNDERLINE}${msg}${TEXT_RESET}"

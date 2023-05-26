@@ -27,3 +27,10 @@ $DIR/mg-collect-reconcile-logs $NAMESPACE ibm-mas-cfg-mongo $OUTPUT_DIR
 $DIR/mg-collect-reconcile-logs $NAMESPACE ibm-mas-cfg-kafka $OUTPUT_DIR
 $DIR/mg-collect-reconcile-logs $NAMESPACE ibm-mas-cfg-objectstorage $OUTPUT_DIR
 $DIR/mg-collect-reconcile-logs $NAMESPACE ibm-mas-cfg-smtp $OUTPUT_DIR
+
+# Collect Custom Resources
+# -----------------------------------------------------------------------------
+  for RESOURCE in Suite Workspace Truststore CoreIDP AppConnect Humai MVIEdge BasCfg SlsCfg IDPCfg ScimCfg JdbcCfg MongoCfg KafkaCfg ObjectStorageCfg SmtpCfg
+  do
+    $DIR/mg-collect-resources -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
+  done
