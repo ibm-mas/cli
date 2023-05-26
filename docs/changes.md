@@ -1,6 +1,7 @@
 ## Changes
 
-- [`5.1`](https://github.com/ibm-mas/cli/releases/tag/5.1.0) Add support for AWS Route 53 as DNS provider for MAS installs
+- [`5.2`](https://github.com/ibm-mas/cli/releases/tag/5.1.0) Add support for AWS Route 53 as DNS provider for MAS installs
+- [`5.1`](https://github.com/ibm-mas/cli/releases/tag/5.1.0) Add support for May 26 Catalog Update
 - [`5.0`](https://github.com/ibm-mas/cli/releases/tag/5.0.0) Multiple updates:
     - Add support for non-interactive `mas install` mode
     - Removal of Health & Predict Utilities from `mas mirror-images` command

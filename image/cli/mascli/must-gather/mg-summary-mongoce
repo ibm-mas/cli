@@ -1,0 +1,25 @@
+#!/bin/bash
+
+NAMESPACE=$1
+
+echo "MongoCE: Cluster"
+echo "--------------------------------------------------------------------------------"
+oc -n $NAMESPACE get mongodbcommunity -o wide
+echo ""
+
+echo "MongoCE: PVCs"
+echo "--------------------------------------------------------------------------------"
+oc -n $NAMESPACE get pvc -o wide
+echo ""
+
+echo "MongoCE: StatefulSets"
+echo "--------------------------------------------------------------------------------"
+oc -n $NAMESPACE get statefulsets -o wide
+echo ""
+
+echo "MongoCE: Pods"
+echo "--------------------------------------------------------------------------------"
+oc -n $NAMESPACE get pods -o wide
+echo ""
+
+exit 0
