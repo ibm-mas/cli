@@ -67,6 +67,7 @@ Advanced Db2u Universal Operator Configuration (Optional):
       --db2u-temp-storage ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
 
 Other Commands:
+      --dev-mode                                                   Enable developer mode (e.g. for access to pre-release builds)
       --no-wait-for-pvcs                                           If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
       --no-confirm                                                 Mirror images without prompting for confirmation
   -h, --help                                                       Show this help message
@@ -78,12 +79,9 @@ EOM
 
 function install_noninteractive() {
   NON_INTERACTIVE=true
-  # Defaults
-  MAS_ICR_CP=cp.icr.io/cp
-  MAS_ICR_CPOPEN=icr.io/cpopen
-  SLS_ICR_CP=cp.icr.io/cp
-  SLS_ICR_CPOPEN=icr.io/cpopen
+  DEV_MODE=false
 
+  # Defaults
   DB2_ACTION_SYSTEM=none
   DB2_ACTION_MANAGE=none
 
@@ -238,6 +236,9 @@ function install_noninteractive() {
     ;;
 
     # Other Commands
+    --dev-mode)
+      DEV_MODE=true
+      ;;
     --no-wait-for-pvcs)
       WAIT_FOR_PVCS=false
       ;;
@@ -257,6 +258,19 @@ function install_noninteractive() {
     ;;
   esac
   done
+
+  if [[ "$DEV_MODE" == "true"  ]]; then
+    MAS_ICR_CP=docker-na-public.artifactory.swg-devops.com/wiotp-docker-local
+    MAS_ICR_CPOPEN=docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen
+    SLS_ICR_CP=docker-na-public.artifactory.swg-devops.com/wiotp-docker-local
+    SLS_ICR_CPOPEN=docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen
+  else
+    MAS_ICR_CP=cp.icr.io/cp
+    MAS_ICR_CPOPEN=icr.io/cpopen
+    SLS_ICR_CP=cp.icr.io/cp
+    SLS_ICR_CPOPEN=icr.io/cpopen
+  fi
+
 
 }
 
