@@ -230,6 +230,21 @@ spec:
     - name: cis_proxy
       value: '$CIS_PROXY'
 
+    # MAS DNS Integrations - AWS Route 53
+    # -------------------------------------------------------------------------
+    - name: aws_access_key_id
+      value: '$AWS_ACCESS_KEY_ID'
+    - name: aws_secret_access_key
+      value: '$AWS_SECRET_ACCESS_KEY'
+    - name: route53_hosted_zone_name
+      value: '$ROUTE53_HOSTED_ZONE_NAME'
+    - name: route53_hosted_zone_region
+      value: '$ROUTE53_HOSTED_ZONE_REGION'
+    - name: route53_email
+      value: '$ROUTE53_EMAIL'
+    - name: route53_subdomain
+      value: '$ROUTE53_SUBDOMAIN'
+
     # Data Dictionary
     # -------------------------------------------------------------------------
     - name: mas_add_catalog
