@@ -33,6 +33,10 @@ function pipeline_show_config() {
   echo_reset_dim "IBM Entitled Registry ..... ${COLOR_MAGENTA}${MAS_ICR_CP}"
   echo_reset_dim "IBM Open Registry ......... ${COLOR_MAGENTA}${MAS_ICR_CPOPEN}"
   echo_reset_dim "IBM Entitlement Key ....... ${COLOR_MAGENTA}${IBM_ENTITLEMENT_KEY:0:8}<snip>"
+  if [[ "${DEV_MODE}" == "true" ]]; then
+    echo_reset_dim "Artifactory Username ...... ${COLOR_MAGENTA}${ARTIFACTORY_USERNAME}<snip>"
+    echo_reset_dim "Artifactory Token ......... ${COLOR_MAGENTA}${ARTIFACTORY_TOKEN:0:8}<snip>"
+  fi
 
   reset_colors
   echo "${TEXT_DIM}"
