@@ -20,9 +20,13 @@ spec:
       type: string
       description: Product ID under test
       default: ibm-mas-manage
-    - name: product_channel
+    - name: product_channel_manage
       type: string
-      description: "Subscription channel for the product (todo: have the test code look this up instead)"
+      description: "Manage subscription channel for the product"
+      default: ""
+    - name: product_channel_monitor
+      type: string
+      description: "Monitor subscription channel for the product"
       default: ""
 
     # Test Containers Information
@@ -79,10 +83,6 @@ spec:
     env:
       - name: PRODUCT_ID
         value: $(params.product_id)
-      - name: PRODUCT_CHANNEL
-        value: $(params.product_channel)
-      - name: NAMESPACE
-        value: "mas-$(params.mas_instance_id)-manage"
       - name: INSTANCE_ID
         value: "$(params.mas_instance_id)"
       - name: WORKSPACE_ID
@@ -137,7 +137,6 @@ spec:
     - name: mif-jms-setup
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest_manage)'
       imagePullPolicy: $(params.image_pull_policy)
-      imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
@@ -145,8 +144,13 @@ spec:
       volumeMounts:
         - mountPath: /dev/shm
           name: dshm
-      command: [ "FVT_TEST_SUITE=mif-jms-setup"]
-
+      env:
+        - name: FVT_TEST_SUITE
+          value: mif-jms-setup
+        - name: PRODUCT_CHANNEL
+          value: $(params.product_channel_manage)
+        - name: NAMESPACE
+          value: "mas-$(params.mas_instance_id)-manage"
     - name: mif-dd-setup
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest_manage)'
       imagePullPolicy: $(params.image_pull_policy)
@@ -157,8 +161,13 @@ spec:
       volumeMounts:
         - mountPath: /dev/shm
           name: dshm
-      command: [ "FVT_TEST_SUITE=mif-dd-setup"]
-    
+      env:
+        - name: FVT_TEST_SUITE
+          value: mif-dd-setup
+        - name: PRODUCT_CHANNEL
+          value: $(params.product_channel_manage)
+        - name: NAMESPACE
+          value: "mas-$(params.mas_instance_id)-manage"
     - name: mif-dd
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest_manage)'
       imagePullPolicy: $(params.image_pull_policy)
@@ -169,7 +178,13 @@ spec:
       volumeMounts:
         - mountPath: /dev/shm
           name: dshm
-      command: [ "FVT_TEST_SUITE=mif-dd"]
+      env:
+        - name: FVT_TEST_SUITE
+          value: mif-dd
+        - name: PRODUCT_CHANNEL
+          value: $(params.product_channel_manage)
+        - name: NAMESPACE
+          value: "mas-$(params.mas_instance_id)-manage"
     
     - name: manage-monitor-ivt
       image: '$(params.fvt_image_registry)/ai-solutions/common-test-framework@$(params.fvt_image_digest_monitor)'
@@ -179,4 +194,10 @@ spec:
       volumeMounts:
         - mountPath: /dev/shm
           name: dshm
-      command: [ "FVT_TEST_SUITE=manage_monitor_ivt"]
+      env:
+        - name: FVT_TEST_SUITE
+          value: manage_monitor_ivt
+        - name: PRODUCT_CHANNEL
+          value: $(params.product_channel_monitor)
+        - name: NAMESPACE
+          value: "mas-$(params.mas_instance_id)-monitor"
