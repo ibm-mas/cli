@@ -1,5 +1,6 @@
 ## Changes
 
+- [`5.2`](https://github.com/ibm-mas/cli/releases/tag/5.2.0) Add new Manage bundle server config for SNO
 - [`5.1`](https://github.com/ibm-mas/cli/releases/tag/5.1.0) Add support for May 26 Catalog Update
 - [`5.0`](https://github.com/ibm-mas/cli/releases/tag/5.0.0) Multiple updates:
     - Add support for non-interactive `mas install` mode
