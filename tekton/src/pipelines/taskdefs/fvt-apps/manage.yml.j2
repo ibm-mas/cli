@@ -1,8 +1,8 @@
-# --------------------------------
+# -------------------------------------------------------------
 # PHASE 1
 # - fvt-manage-setup
 # - fvt-manage-monitoring
-# --------------------------------
+# -------------------------------------------------------------
 
 # Manage FVT Setup
 - name: fvt-manage-setup # convention: use fvt-manage-<keyword>, as the value of fvt_test_suite parameter
@@ -28,12 +28,12 @@
   runAfter:
     - ivtcore-manage
 
-# --------------------------------
+# -------------------------------------------------------------
 # PHASE 2
 # - fvt-manage-metrics-api
 # - fvt-manage-masnavigation
 # - fvt-manage-classification
-# --------------------------------
+# -------------------------------------------------------------
 
 # Manage FVT Metrics API
 - name: fvt-manage-metrics-api
@@ -68,13 +68,13 @@
     - fvt-manage-setup
     - fvt-manage-monitoring
 
-# --------------------------------
+# -------------------------------------------------------------
 # PHASE 3
 # - fvt-manage-wobasic
 # - fvt-manage-security-audit-logging
 # - fvt-manage-security-inactive-auth
 # - fvt-manage-escalation-action
-# --------------------------------
+# -------------------------------------------------------------
 
 # Manage FVT Work Order Basic Scenario
 - name: fvt-manage-wobasic
@@ -124,16 +124,12 @@
     - fvt-manage-masnavigation
     - fvt-manage-classification
 
-# --------------------------------
-# PHASE 4
-# --------------------------------
-
-# --------------------------------
+# -------------------------------------------------------------
 # LAST PHASE (in sequence)
 # - fvt-manage-workflow-designer
 # - fvt-manage-application-designer
 # - fvt-manage-startcenter-config
-# --------------------------------
+# -------------------------------------------------------------
 
 # Manage FVT Create Workflow Design & Approve WO Assignments
 - name: fvt-manage-workflow-designer
@@ -169,3 +165,52 @@
       value: startcenter-config
   runAfter:
     - fvt-manage-application-designer
+
+# -------------------------------------------------------------
+# IVT (Integration tests between Manage and other applications)
+# - ivt-manage-monitor-d
+# -------------------------------------------------------------
+- name: ivt-manage-monitor-dd
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_digest_manage
+      value: $(params.fvt_digest_manage)
+    - name: fvt_image_digest_monitor
+      value: $(params.fvt_digest_ctf)
+    - name: product_channel_manage
+      value: $(params.mas_app_channel_manage)
+    - name: product_channel_monitor
+      value: $(params.mas_app_channel_monitor)
+    - name: mas_appws_components
+      value: $(params.mas_appws_components)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: devops_ibmcloud_apikey
+      value: $(params.devops_ibmcloud_apikey)      
+  taskRef:
+    kind: Task
+    name: mas-ivt-manage-monitor-dd
+  when:
+    - input: "$(params.fvt_digest_ctf)"
+      operator: notin
+      values: [""]
+    - input: "$(params.fvt_digest_manage)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_monitor)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+  runAfter:
+    - fvt-manage-startcenter-config
+    - ivtcore-monitor
