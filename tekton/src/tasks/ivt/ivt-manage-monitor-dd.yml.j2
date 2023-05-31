@@ -170,7 +170,8 @@ spec:
           value: "mas-$(params.mas_instance_id)-manage"
     - name: mif-dd
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest_manage)'
-      imagePullPolicy: $(params.image_pull_policy)
+      # imagePullPolicy: $(params.image_pull_policy)
+      imagePullPolicy: Always # Remove and uncomment above before merging
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
