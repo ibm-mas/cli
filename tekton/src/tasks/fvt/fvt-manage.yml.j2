@@ -88,10 +88,6 @@ spec:
       type: string
       description: Partium password (required by fvt-coreapi-workspacemgmt)
       default: ""
-    - name: artifactory_token
-      type: string
-      description: Artifactory API Key (required by fvt-ibm-mas-manage to pull test container content)
-      default: ""
 
   stepTemplate:
     name: 'fvt-manage'
@@ -142,8 +138,6 @@ spec:
         value: $(params.partium_username)
       - name: PARTIUM_PASSWORD
         value: $(params.partium_password)
-      - name: ARTIFACTORY_TOKEN
-        value: $(params.artifactory_token)
 
       - name: DEVOPS_COS_CRN
         value: $(params.devops_cos_crn)
