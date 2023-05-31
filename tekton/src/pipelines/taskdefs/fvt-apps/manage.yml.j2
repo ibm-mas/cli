@@ -85,8 +85,8 @@
       value: workorderbasic
   runAfter:
     - fvt-manage-metrics-api
-    - fvt-manage-escalation-action
     - fvt-manage-masnavigation
+    - fvt-manage-classification
 
 # Manage FVT Security Audit Logging
 - name: fvt-manage-security-audit-logging
@@ -97,8 +97,8 @@
       value: security-audit-logging
   runAfter:
     - fvt-manage-metrics-api
-    - fvt-manage-escalation-action
     - fvt-manage-masnavigation
+    - fvt-manage-classification
 
 # Manage FVT Inactive User Authentication
 - name: fvt-manage-security-inactive-auth
@@ -109,8 +109,8 @@
       value: security-inactiveuser-authentication
   runAfter:
     - fvt-manage-metrics-api
-    - fvt-manage-escalation-action
     - fvt-manage-masnavigation
+    - fvt-manage-classification
 
 # Manage FVT Escalation
 - name: fvt-manage-escalation-action
@@ -121,15 +121,12 @@
       value: escalation-action
   runAfter:
     - fvt-manage-metrics-api
-    - fvt-manage-escalation-action
     - fvt-manage-masnavigation
-
+    - fvt-manage-classification
 
 # --------------------------------
 # PHASE 4
 # --------------------------------
-    
-
 
 # --------------------------------
 # LAST PHASE (in sequence)
