@@ -88,6 +88,10 @@ spec:
       type: string
       description: Partium password (required by fvt-coreapi-workspacemgmt)
       default: ""
+    - name: artifactory_token
+      type: string
+      description: Artifactory API Key (required by fvt-ibm-mas-manage to pull test container content)
+      default: ""
 
   stepTemplate:
     name: 'fvt-manage'
@@ -138,6 +142,8 @@ spec:
         value: $(params.partium_username)
       - name: PARTIUM_PASSWORD
         value: $(params.partium_password)
+      - name: ARTIFACTORY_TOKEN
+        value: $(params.artifactory_token)
 
       - name: DEVOPS_COS_CRN
         value: $(params.devops_cos_crn)
@@ -148,8 +154,7 @@ spec:
 
   steps:
     - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
-      # imagePullPolicy: $(params.image_pull_policy)
-      imagePullPolicy: Always # Remove and uncomment above before merging
+      imagePullPolicy: $(params.image_pull_policy)
       timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
