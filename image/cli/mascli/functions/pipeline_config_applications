@@ -185,8 +185,11 @@ function config_pipeline_applications() {
         # Predict
         if prompt_for_confirm "Install Predict"; then
           channel_select_predict || exit 1
-          if prompt_for_confirm "+ Install SPSS (Optional Cloud Pak for Data service)"; then
-          CPD_INSTALL_SPSS=true
+          if prompt_for_confirm "+ Install IBM SPSS Statistics"; then
+            CPD_INSTALL_SPSS=true
+          fi
+          if prompt_for_confirm "+ Install Watson OpenScale"; then
+            CPD_INSTALL_OPENSCALE=true
           fi
         fi
       fi

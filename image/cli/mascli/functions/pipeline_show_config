@@ -103,6 +103,7 @@ function pipeline_show_config() {
     reset_colors
     echo "${TEXT_DIM}"
     echo_h4 "IBM Db2" "    "
+    echo_reset_dim "Common Namespace .......... ${COLOR_MAGENTA}${DB2_NAMESPACE}"
     echo_reset_dim "Subscription Channel ...... ${COLOR_MAGENTA}${DB2_CHANNEL}"
 
     echo_reset_dim "System Instance ........... ${COLOR_MAGENTA}${DB2_ACTION_SYSTEM}"

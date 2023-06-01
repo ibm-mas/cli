@@ -26,6 +26,9 @@
 
 # Dependencies - MongoDb
 # -----------------------------------------------------------------------------
+- name: mongodb_namespace
+  type: string
+  default: ""
 - name: mongodb_storage_class
   type: string
   default: ""
@@ -177,6 +180,9 @@
 - name: cpd_install_spss
   type: string
   default: "False"
+- name: cpd_install_openscale
+  type: string
+  default: "False"
 
 # Dependencies - UDS
 # -----------------------------------------------------------------------------
@@ -235,6 +241,9 @@
   type: string
   default: ""
 - name: prometheus_userworkload_storage_size
+  type: string
+  default: ""
+- name: grafana_namespace
   type: string
   default: ""
 - name: grafana_instance_storage_class

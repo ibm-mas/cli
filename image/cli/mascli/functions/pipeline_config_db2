@@ -45,6 +45,8 @@ function config_pipeline_storage_db2() {
           ;;
       esac
 
+      prompt_for_input "+ DB2 Namespace" DB2_NAMESPACE "db2u" && export DB2_NAMESPACE
+
       # Install and configure MAS to use in-cluster Db2 instances
       echo
       echo_h3 "Db2 for IoT"
