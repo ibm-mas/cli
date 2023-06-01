@@ -32,6 +32,10 @@ spec:
       default: ""
 
     # Other MONGODB parameters
+    - name: mongodb_namespace
+      type: string
+      description: Optional configuration for mongodb namespace
+      default: ""
     - name: mongodb_replicas
       type: string
       description: Optional configuration for mongodb replicas
@@ -91,6 +95,8 @@ spec:
         value: $(params.mongodb_storage_class)
 
       # Other MONGODB parameters
+      - name: MONGODB_NAMESPACE
+        value: $(params.mongodb_namespace)
       - name: MONGODB_REPLICAS
         value: $(params.mongodb_replicas)
       - name: MONGODB_CPU_REQUESTS
