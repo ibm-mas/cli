@@ -26,6 +26,9 @@
 
 # Dependencies - MongoDb
 # -----------------------------------------------------------------------------
+- name: mongodb_namespace
+  type: string
+  default: ""
 - name: mongodb_storage_class
   type: string
   default: ""
@@ -238,6 +241,9 @@
   type: string
   default: ""
 - name: prometheus_userworkload_storage_size
+  type: string
+  default: ""
+- name: grafana_namespace
   type: string
   default: ""
 - name: grafana_instance_storage_class
