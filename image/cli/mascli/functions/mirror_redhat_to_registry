@@ -22,11 +22,11 @@ Registry Authentication (Optional):
   -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}                Password to authenticate to the target registry
 
 Red Hat Image Pull Secret (Required):
-      --redhat-pullsecret ${COLOR_YELLOW}REDHAT_PULLSECRET${TEXT_RESET}   Red Hat OpenShift Pull Secret (https://console.redhat.com/openshift/install/pull-secret)
+      --pullsecret ${COLOR_YELLOW}REDHAT_PULLSECRET${TEXT_RESET}              Red Hat OpenShift Pull Secret (https://console.redhat.com/openshift/install/pull-secret)
 
 Red Hat Catalog Selection (Optional):
-      --mirror-redhat-release ${COLOR_YELLOW}OPENSHIFT_RELEASE_VERSION${TEXT_RESET}      Mirror Red Hat Operator catalog image at the specified version (e.g. 4.10.18)
-      --mirror-redhat-operators ${COLOR_YELLOW}OPENSHIFT_OPERATORS_VERSION${TEXT_RESET}  Mirror Red Hat Release catalog images at the specified release (e.g. 4.10)
+      --mirror-release ${COLOR_YELLOW}MIRROR_REDHAT_PLATFORM${TEXT_RESET}     Mirror Red Hat Platform images
+      --mirror-operators ${COLOR_YELLOW}MIRROR_REDHAT_OPERATORS${TEXT_RESET}  Mirror selected content from Red Hat Operator catalogs
 
 Other Commands:
       --no-confirm                                Mirror images without prompting for confirmation
@@ -212,8 +212,8 @@ function mirror_redhat_to_registry() {
   echo_h2 "Red Hat Operator Catalog" "    "
   if [[ "$MIRROR_RH_OPERATORS" == "true" ]]
   then
-    echo_reset_dim "Catalog Version ....................... ${COLOR_MAGENTA}${OPENSHIFT_OPERATORS_VERSION}"
-    echo_reset_dim "Red Hat Connect Authentication ........ ${COLOR_MAGENTA}${REDHAT_PULLSECRET}"
+    echo_reset_dim "Catalog Version ....................... ${COLOR_MAGENTA}${OCP_RELEASE}"
+    echo_reset_dim "Red Hat Pull Secret ................... ${COLOR_MAGENTA}${REDHAT_PULLSECRET}"
   else
     echo_reset_dim "${COLOR_RED}Skip"
   fi
