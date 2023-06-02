@@ -12,21 +12,24 @@ When no options are specified on the command line, interactive-mode will be enab
 Mirror Mode (Required):
   -m, --mode ${COLOR_YELLOW}MIRROR_MODE${TEXT_RESET}                         Operation mode (direct, to-filesystem, from-filesystem)
   -d, --dir ${COLOR_YELLOW}MIRROR_WORKING_DIR${TEXT_RESET}                   Working directory for the mirror process
+  --mirror-platform                                Mirror Red Hat Platform images
+  --mirror-operators                              Mirror selected content from Red Hat Operator catalogs
 
-Registry Details (Required):
+Registry Details (Required when mode is direct and from-filesystem only):
   -H, --host ${COLOR_YELLOW}REGISTRY_PUBLIC_HOST${TEXT_RESET}                 Hostname of the target registry
   -P, --port ${COLOR_YELLOW}REGISTRY_PUBLIC_PORT${TEXT_RESET}                 Port number for the target registry
-
-Registry Authentication (Optional):
   -u, --username ${COLOR_YELLOW}REGISTRY_USERNAME${TEXT_RESET}                Username to authenticate to the target registry
   -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}                Password to authenticate to the target registry
 
 Red Hat Image Pull Secret (Required):
       --pullsecret ${COLOR_YELLOW}REDHAT_PULLSECRET${TEXT_RESET}              Red Hat OpenShift Pull Secret (https://console.redhat.com/openshift/install/pull-secret)
 
-Red Hat Catalog Selection (Optional):
-      --mirror-release ${COLOR_YELLOW}MIRROR_REDHAT_PLATFORM${TEXT_RESET}     Mirror Red Hat Platform images
-      --mirror-operators ${COLOR_YELLOW}MIRROR_REDHAT_OPERATORS${TEXT_RESET}  Mirror selected content from Red Hat Operator catalogs
+Content Selection (Optional):
+      --release ${COLOR_YELLOW}OCP_RELEASE${TEXT_RESET}                       OCP Release to mirror content for (e.g. 4.10, 4.12)
+
+Platform Version Range (Optional):
+      --min-version ${COLOR_YELLOW}OCP_MIN_VERSION${TEXT_RESET}               Minimum version of the OCP release to mirror
+      --max-version ${COLOR_YELLOW}OCP_MAX_VERSION${TEXT_RESET}               Maximium version of the OCP release to mirror
 
 Other Commands:
       --no-confirm                                Mirror images without prompting for confirmation
@@ -38,19 +41,30 @@ EOM
 
 function mirror_redhat_to_registry_noninteractive() {
   # Red Hat
-  MIRROR_RH_RELEASE=false
-  MIRROR_RH_OPERATORS=false
+  MIRROR_REDHAT_PLATFORM=false
+  MIRROR_REDHAT_OPERATORS=false
   while [[ $# -gt 0 ]]
   do
     key="$1"
     shift
     case $key in
+      # Basic mode of operation
       -m|--mode)
         MIRROR_MODE=$1 && shift
         ;;
       -d|--dir)
         MIRROR_WORKING_DIR=$1 && shift
         ;;
+
+      # What to mirror
+      --mirror-platform)
+        MIRROR_REDHAT_PLATFORM=true
+        ;;
+      --mirror-operators)
+        MIRROR_REDHAT_OPERATORS=true
+        ;;
+
+      # Registry
       -H|--host)
         REGISTRY_PUBLIC_HOST=$1 && shift
         ;;
@@ -63,17 +77,26 @@ function mirror_redhat_to_registry_noninteractive() {
       -p|--password)
         REGISTRY_PASSWORD=$1 && shift
         ;;
-      --redhat-pullsecret)
+
+      # Pull secret
+      --pullsecret)
         REDHAT_PULLSECRET=$1 && shift
         ;;
-      --mirror-redhat-release)
-        MIRROR_RH_RELEASE=true
-        OPENSHIFT_RELEASE_VERSION=$1 && shift
+
+      # Content Selection (Optional)
+      --release)
+        OCP_RELEASE=$1 && shift
         ;;
-      --mirror-redhat-operators)
-        MIRROR_RH_OPERATORS=true
-        OPENSHIFT_OPERATORS_VERSION=$1 && shift
+
+      # Platform Version Range (Optional)
+      --min-version)
+        OCP_MIN_VERSION=$1 && shift
         ;;
+      --max-version)
+        OCP_MAX_VERSION=$1 && shift
+        ;;
+
+      # Other commands
       --no-confirm)
         NO_CONFIRM=true
         ;;
@@ -92,9 +115,17 @@ function mirror_redhat_to_registry_noninteractive() {
   # Check all args have been set
   [[ -z "$MIRROR_MODE" ]] && mirror_redhat_to_registry_help "MIRROR_MODE is not set"
   [[ -z "$MIRROR_WORKING_DIR" ]] && mirror_redhat_to_registry_help "MIRROR_WORKING_DIR is not set"
-  [[ -z "$REGISTRY_PUBLIC_HOST" ]] && mirror_redhat_to_registry_help "REGISTRY_PUBLIC_HOST is not set"
-  [[ -z "$REGISTRY_PUBLIC_PORT" ]] && mirror_redhat_to_registry_help "REGISTRY_PUBLIC_PORT is not set"
+
+  if [[ "$MIRROR_MODE" == "direct" ]] | [[ "$MIRROR_MODE" == "from-filesystem" ]]; then
+    [[ -z "$REGISTRY_PUBLIC_HOST" ]] && mirror_redhat_to_registry_help "REGISTRY_PUBLIC_HOST is not set"
+    [[ -z "$REGISTRY_PUBLIC_PORT" ]] && mirror_redhat_to_registry_help "REGISTRY_PUBLIC_PORT is not set"
+  fi
   [[ -z "$REDHAT_PULLSECRET" ]] && mirror_redhat_to_registry_help "REDHAT_PULLSECRET is not set"
+  [[ -z "$OCP_RELEASE" ]] && mirror_redhat_to_registry_help "OCP_RELEASE is not set"
+
+  if [[ "$MIRROR_REDHAT_PLATFORM" == "false" ]] && [[ "$MIRROR_REDHAT_OPERATORS" == "false" ]]; then
+    echo "Nothing to do.  Select what content to mirror using --mirror-product and/or --mirror-operators"
+  fi
 }
 
 function mirror_redhat_to_registry_interactive() {
@@ -167,57 +198,68 @@ function mirror_redhat_to_registry() {
   # General Config
   export MIRROR_MODE
   export MIRROR_WORKING_DIR
-  export MAS_CATALOG_VERSION
+  export MIRROR_REDHAT_PLATFORM
+  export MIRROR_REDHAT_OPERATORS
+
+  # Target Registry
   export REGISTRY_PUBLIC_HOST
   export REGISTRY_PUBLIC_PORT
   export REGISTRY_USERNAME
   export REGISTRY_PASSWORD
 
   # Red Hat Catalogs
-  export OPENSHIFT_RELEASE_VERSION
-  export OPENSHIFT_OPERATORS_VERSION
+  export OCP_RELEASE
+  export OCP_MIN_VERSION
+  export OCP_MAX_VERSION
 
   # Authentication
   export REDHAT_PULLSECRET
-  export REDHAT_CONNECT_PASSWORD
 
   echo
   reset_colors
   echo_h2 "Review Settings"
 
   echo "${TEXT_DIM}"
-  echo_h2 "Target Registry Connection" "    "
-  echo_reset_dim "Registry Host ......................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_HOST}"
-  echo_reset_dim "Registry Port ......................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_PORT}"
-  reset_colors
+  echo_h3 "Configuration" "    "
+  echo_reset_dim "Mirror Mode ........................... ${COLOR_MAGENTA}${MIRROR_MODE}"
+  echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${MIRROR_WORKING_DIR}"
 
-  echo "${TEXT_DIM}"
-  echo_h2 "Target Registry Authentication" "    "
-  echo_reset_dim "Registry Username ..................... ${COLOR_MAGENTA}${REGISTRY_USERNAME}"
-  echo_reset_dim "Registry Password ..................... ${COLOR_MAGENTA}${REGISTRY_PASSWORD:0:4}<snip>"
   reset_colors
-
   echo "${TEXT_DIM}"
-  echo_h2 "Red Hat Release Catalog" "    "
-  if [[ "$MIRROR_RH_RELEASE" == "true" ]]
+  echo_h3 "Red Hat Content" "    "
+  echo_reset_dim "OpenShift Release ..................... ${COLOR_MAGENTA}${OCP_RELEASE}"
+  echo_reset_dim "Authentication ........................ ${COLOR_MAGENTA}${REDHAT_PULLSECRET}"
+
+  if [[ "$MIRROR_REDHAT_PLATFORM" == "true" ]]
   then
-    echo_reset_dim "Catalog Version ....................... ${COLOR_MAGENTA}${OPENSHIFT_RELEASE_VERSION}"
-    echo_reset_dim "Authentication ........................ ${COLOR_MAGENTA}${REDHAT_PULLSECRET}"
+    echo_reset_dim "Mirror Platform Images ................ ${COLOR_GREEN}Yes"
+    echo_reset_dim "Minimum Version ....................... ${COLOR_MAGENTA}${OCP_MIN_VERSION:-undefined}"
+    echo_reset_dim "Maximum Version ....................... ${COLOR_MAGENTA}${OCP_MAX_VERSION:-undefined}"
   else
-    echo_reset_dim "${COLOR_RED}Skip"
+    echo_reset_dim "Mirror Platform Images ................ ${COLOR_RED}No"
+  fi
+
+  if [[ "$MIRROR_REDHAT_OPERATORS" == "true" ]]
+  then
+    echo_reset_dim "Mirror Operator Catalogs .............. ${COLOR_GREEN}Yes"
+  else
+    echo_reset_dim "Mirror Operator Catalogs .............. ${COLOR_RED}No"
   fi
   reset_colors
 
-  echo "${TEXT_DIM}"
-  echo_h2 "Red Hat Operator Catalog" "    "
-  if [[ "$MIRROR_RH_OPERATORS" == "true" ]]
-  then
-    echo_reset_dim "Catalog Version ....................... ${COLOR_MAGENTA}${OCP_RELEASE}"
-    echo_reset_dim "Red Hat Pull Secret ................... ${COLOR_MAGENTA}${REDHAT_PULLSECRET}"
-  else
-    echo_reset_dim "${COLOR_RED}Skip"
+  if [[ "$MIRROR_MODE" == "direct" ]] | [[ "$MIRROR_MODE" == "from-filesystem" ]]; then
+    echo "${TEXT_DIM}"
+    echo_h3 "Target Registry Connection" "    "
+    echo_reset_dim "Registry Host ......................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_HOST}"
+    echo_reset_dim "Registry Port ......................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_PORT}"
+    reset_colors
+
+    echo "${TEXT_DIM}"
+    echo_h3 "Target Registry Authentication" "    "
+    echo_reset_dim "Registry Username ..................... ${COLOR_MAGENTA}${REGISTRY_USERNAME}"
+    echo_reset_dim "Registry Password ..................... ${COLOR_MAGENTA}${REGISTRY_PASSWORD:0:4}<snip>"
+    reset_colors
   fi
-  reset_colors
 
   echo
   reset_colors
@@ -233,7 +275,6 @@ function mirror_redhat_to_registry() {
     mkdir -p $MIRROR_WORKING_DIR/logs/
   fi
 
-  mirror_one_thing $MIRROR_RH_RELEASE           "Red Hat Release"      "$LOG_PREFIX-ocp-release.log"   mirror_openshift_release
-  mirror_one_thing $MIRROR_RH_OPERATORS         "Red Hat Operators"    "$LOG_PREFIX-ocp-operators.log" mirror_openshift_operators
+  mirror_one_thing true "Red Hat Content" "$LOG_PREFIX-redhat.log"  mirror_openshift
 
 }
