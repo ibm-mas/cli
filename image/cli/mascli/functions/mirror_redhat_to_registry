@@ -78,12 +78,12 @@ function mirror_redhat_to_registry_noninteractive() {
         NO_CONFIRM=true
         ;;
       -h|--help)
-        mirror_to_registry_help
+        mirror_redhat_to_registry_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        mirror_to_registry_help
+        mirror_redhat_to_registry_help
         exit 1
         ;;
       esac
@@ -143,10 +143,10 @@ function mirror_redhat_to_registry_interactive() {
     prompt_for_input "Release Version (x.y.z)" OPENSHIFT_RELEASE_VERSION "4.10.18"
   fi
 
-#  prompt_for_confirm "Red Hat OpenShift Container Platform Operator Catalog" MIRROR_RH_OPERATORS
-#  if [[ "$MIRROR_RH_OPERATORS" == "true" ]]; then
-#    prompt_for_input "Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10"
-#  fi
+  prompt_for_confirm "Red Hat OpenShift Container Platform Operator Catalog" MIRROR_RH_OPERATORS
+  if [[ "$MIRROR_RH_OPERATORS" == "true" ]]; then
+    prompt_for_input "Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10"
+  fi
 
   echo
   echo_h2 "Configure Pull Secret"
@@ -172,16 +172,11 @@ function mirror_redhat_to_registry() {
   export REGISTRY_PUBLIC_PORT
   export REGISTRY_USERNAME
   export REGISTRY_PASSWORD
+
   # Red Hat Catalogs
   export OPENSHIFT_RELEASE_VERSION
   export OPENSHIFT_OPERATORS_VERSION
-  # Core & Dependencies
-  export MIRROR_MAS_CORE
-  export MIRROR_COMMONSERVICES
-  export MIRROR_UDS
-  export MIRROR_SLS
-  export MIRROR_TRUSTSTOREMGR
-  export MIRROR_MONGOCE
+
   # Authentication
   export REDHAT_PULLSECRET
   export REDHAT_CONNECT_PASSWORD
@@ -213,16 +208,16 @@ function mirror_redhat_to_registry() {
   fi
   reset_colors
 
-#  echo "${TEXT_DIM}"
-#  echo_h2 "Red Hat Operator Catalog" "    "
-#  if [[ "$MIRROR_RH_OPERATORS" == "true" ]]
-#  then
-#    echo_reset_dim "Catalog Version ....................... ${COLOR_MAGENTA}${OPENSHIFT_OPERATORS_VERSION}"
-#    echo_reset_dim "Red Hat Connect Authentication ........ ${COLOR_MAGENTA}${REDHAT_PULLSECRET}"
-#  else
-#    echo_reset_dim "${COLOR_RED}Skip"
-#  fi
-#  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "Red Hat Operator Catalog" "    "
+  if [[ "$MIRROR_RH_OPERATORS" == "true" ]]
+  then
+    echo_reset_dim "Catalog Version ....................... ${COLOR_MAGENTA}${OPENSHIFT_OPERATORS_VERSION}"
+    echo_reset_dim "Red Hat Connect Authentication ........ ${COLOR_MAGENTA}${REDHAT_PULLSECRET}"
+  else
+    echo_reset_dim "${COLOR_RED}Skip"
+  fi
+  reset_colors
 
   echo
   reset_colors
@@ -238,7 +233,7 @@ function mirror_redhat_to_registry() {
     mkdir -p $MIRROR_WORKING_DIR/logs/
   fi
 
-  mirror_one_thing $MIRROR_RH_RELEASE           "Red Hat Release"                    "$LOG_PREFIX-ocp-release.log"   mirror_openshift_release
-#  mirror_one_thing $MIRROR_RH_OPERATORS         "Red Hat Operators"                  "$LOG_PREFIX-ocp-operators.log" mirror_openshift_operators
+  mirror_one_thing $MIRROR_RH_RELEASE           "Red Hat Release"      "$LOG_PREFIX-ocp-release.log"   mirror_openshift_release
+  mirror_one_thing $MIRROR_RH_OPERATORS         "Red Hat Operators"    "$LOG_PREFIX-ocp-operators.log" mirror_openshift_operators
 
 }
