@@ -123,8 +123,11 @@ function mirror_redhat_to_registry_noninteractive() {
   [[ -z "$REDHAT_PULLSECRET" ]] && mirror_redhat_to_registry_help "REDHAT_PULLSECRET is not set"
   [[ -z "$OCP_RELEASE" ]] && mirror_redhat_to_registry_help "OCP_RELEASE is not set"
 
-  if [[ "$MIRROR_REDHAT_PLATFORM" == "false" ]] && [[ "$MIRROR_REDHAT_OPERATORS" == "false" ]]; then
-    echo "Nothing to do.  Select what content to mirror using --mirror-product and/or --mirror-operators"
+  if [[ "$MIRROR_MODE" == "direct" ]] | [[ "$MIRROR_MODE" == "to-filesystem" ]]; then
+    if [[ "$MIRROR_REDHAT_PLATFORM" == "false" ]] && [[ "$MIRROR_REDHAT_OPERATORS" == "false" ]]; then
+      echo "Nothing to do.  Select what content to mirror using --mirror-product and/or --mirror-operators"
+      exit 0
+    fi
   fi
 }
 
@@ -235,15 +238,11 @@ function mirror_redhat_to_registry() {
     echo_reset_dim "Mirror Platform Images ................ ${COLOR_GREEN}Yes"
     echo_reset_dim "Minimum Version ....................... ${COLOR_MAGENTA}${OCP_MIN_VERSION:-undefined}"
     echo_reset_dim "Maximum Version ....................... ${COLOR_MAGENTA}${OCP_MAX_VERSION:-undefined}"
-  else
-    echo_reset_dim "Mirror Platform Images ................ ${COLOR_RED}No"
   fi
 
   if [[ "$MIRROR_REDHAT_OPERATORS" == "true" ]]
   then
     echo_reset_dim "Mirror Operator Catalogs .............. ${COLOR_GREEN}Yes"
-  else
-    echo_reset_dim "Mirror Operator Catalogs .............. ${COLOR_RED}No"
   fi
   reset_colors
 
