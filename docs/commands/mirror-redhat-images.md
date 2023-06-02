@@ -75,7 +75,7 @@ oc image mirror --dir /mnt/workspace quay.io/ibmmas/cli:3.3.0 file://ibmmas/cli:
 
 
 #### Phase 2: Mirror from Filesystem
-Transfer the content of `/local/dir` to your system in the disconnected network.  Now we are going to put the CLI image in your registry:
+Transfer the content of `/mnt/storage` to your system in the disconnected network.  Now we are going to put the CLI image in your registry:
 
 ```bash
 docker login mirror.mydomain.com:32500 -u admin -p password
@@ -91,9 +91,6 @@ docker run -ti --rm -v /mnt/storage:/mnt/workspace mirror.mydomain.com:32500/ibm
   --dir /mnt/workspace \
   -H mirror.mydomain.com -P 32500 \
   -u admin -p password \
-  --mirror-platform \
-  --mirror-operators \
-  --release 4.10 \
   --no-confirm
 ```
 
