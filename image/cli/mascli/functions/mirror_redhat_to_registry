@@ -116,14 +116,15 @@ function mirror_redhat_to_registry_noninteractive() {
   [[ -z "$MIRROR_MODE" ]] && mirror_redhat_to_registry_help "MIRROR_MODE is not set"
   [[ -z "$MIRROR_WORKING_DIR" ]] && mirror_redhat_to_registry_help "MIRROR_WORKING_DIR is not set"
 
-  if [[ "$MIRROR_MODE" == "direct" ]] | [[ "$MIRROR_MODE" == "from-filesystem" ]]; then
+  if [[ "$MIRROR_MODE" == "direct" ]] || [[ "$MIRROR_MODE" == "from-filesystem" ]]; then
     [[ -z "$REGISTRY_PUBLIC_HOST" ]] && mirror_redhat_to_registry_help "REGISTRY_PUBLIC_HOST is not set"
     [[ -z "$REGISTRY_PUBLIC_PORT" ]] && mirror_redhat_to_registry_help "REGISTRY_PUBLIC_PORT is not set"
   fi
-  [[ -z "$REDHAT_PULLSECRET" ]] && mirror_redhat_to_registry_help "REDHAT_PULLSECRET is not set"
-  [[ -z "$OCP_RELEASE" ]] && mirror_redhat_to_registry_help "OCP_RELEASE is not set"
 
-  if [[ "$MIRROR_MODE" == "direct" ]] | [[ "$MIRROR_MODE" == "to-filesystem" ]]; then
+  [[ -z "$REDHAT_PULLSECRET" ]] && mirror_redhat_to_registry_help "REDHAT_PULLSECRET is not set"
+
+  if [[ "$MIRROR_MODE" == "direct" ]] || [[ "$MIRROR_MODE" == "to-filesystem" ]]; then
+    [[ -z "$OCP_RELEASE" ]] && mirror_redhat_to_registry_help "OCP_RELEASE is not set"
     if [[ "$MIRROR_REDHAT_PLATFORM" == "false" ]] && [[ "$MIRROR_REDHAT_OPERATORS" == "false" ]]; then
       echo "Nothing to do.  Select what content to mirror using --mirror-product and/or --mirror-operators"
       exit 0
