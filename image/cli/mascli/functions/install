@@ -18,6 +18,9 @@ Entitlement & Licensing (Required):
       --uds-firstname ${COLOR_YELLOW}UDS_CONTACT_FIRSTNAME${TEXT_RESET}                        Contact first name
       --uds-lastname ${COLOR_YELLOW}UDS_CONTACT_LASTNAME${TEXT_RESET}                          Contact last name
 
+Mongo DB (Optional):
+      --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET}
+
 Storage Class Selection (Required):
       --storage-rwo ${COLOR_YELLOW}STORAGE_CLASS_RWO${TEXT_RESET}                              Read Write Once (RWO) storage class (e.g. ibmc-block-gold)
       --storage-rwx ${COLOR_YELLOW}STORAGE_CLASS_RWX${TEXT_RESET}                              Read Write Many (RWX) storage class (e.g. ibmc-file-gold-gid)
@@ -242,6 +245,11 @@ function install_noninteractive() {
     ;;
     --uds-lastname)
     export UDS_CONTACT_LASTNAME=$1 && shift
+    ;;
+
+    # Mongodb
+    --mongodb-namespace)
+    export MONGODB_NAMESPACE=$1 && shift
     ;;
 
     # Other Commands

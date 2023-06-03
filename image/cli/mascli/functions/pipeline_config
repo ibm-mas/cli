@@ -219,6 +219,10 @@ function pipeline_config() {
   SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
 
   echo
+  echo_h2 "Configure Mongodb"
+  prompt_for_input "Mongodb Namespace" MONGODB_NAMESPACE "mongoce"
+
+  echo
   echo_h2 "Configure UDS"
   if [[ -n "$DEV_MODE" ]]; then
     echo "${TEXT_DIM}Installing Maximo Application Suite with built-in UDS replacement (SUDS)"
