@@ -1,5 +1,5 @@
 # IBM Maximo Application Suite CLI Utility
-![GitHub release](https://img.shields.io/github/v/release/ibm-mas/cli)
+[![GitHub release](https://img.shields.io/github/v/release/ibm-mas/cli)](https://github.com/ibm-mas/cli/releases/latest)
 
 ## Introduction
 
