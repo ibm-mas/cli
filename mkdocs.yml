@@ -21,6 +21,7 @@ nav:
       - "provision-rosa": commands/provision-rosa.md
       - "setup-registry": commands/setup-registry.md
       - "mirror-images": commands/mirror-images.md
+      - "mirror-redhat-images": commands/mirror-redhat-images.md
       - "configure-airgap": commands/configure-airgap.md
       - "install": commands/install.md
       - "must-gather": commands/must-gather.md
