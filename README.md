@@ -1,5 +1,6 @@
 # IBM Maximo Application Suite CLI Utility
 [![GitHub release](https://img.shields.io/github/v/release/ibm-mas/cli)](https://github.com/ibm-mas/cli/releases/latest)
+[![Build CLI](https://github.com/ibm-mas/cli/actions/workflows/build-cli.yml/badge.svg)](https://github.com/ibm-mas/cli/actions/workflows/build-cli.yml)
 [![Ansible Galaxy Release](https://img.shields.io/badge/dynamic/json?style=flat&label=ibm.mas_devops&prefix=v&url=https://galaxy.ansible.com/api/v2/collections/ibm/mas_devops/&query=latest_version.version)](https://galaxy.ansible.com/ibm/mas_devops)
 
 ## Introduction
