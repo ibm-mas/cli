@@ -18,7 +18,7 @@ Entitlement & Licensing (Required):
       --uds-firstname ${COLOR_YELLOW}UDS_CONTACT_FIRSTNAME${TEXT_RESET}                        Contact first name
       --uds-lastname ${COLOR_YELLOW}UDS_CONTACT_LASTNAME${TEXT_RESET}                          Contact last name
 
-Mongo DB (Optional):
+MongoDB (Optional):
       --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET}
 
 Storage Class Selection (Required):
@@ -247,7 +247,7 @@ function install_noninteractive() {
     export UDS_CONTACT_LASTNAME=$1 && shift
     ;;
 
-    # Mongodb
+    # MongoDB
     --mongodb-namespace)
     export MONGODB_NAMESPACE=$1 && shift
     ;;
