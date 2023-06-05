@@ -51,12 +51,12 @@ IBM Cloud Pak for Data (Required when installing Predict or Assist):
       --cp4d-version ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}                                  Product version of CP4D to use
 
 IBM Db2 (Optional, required to use IBM Db2 Universal Operator):
-      --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}                               Default namespace to use for DB2u
       --db2u-channel ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                                   Subscription channel for Db2u (e.g. v110508.0)
       --db2u-system                                                Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)
       --db2u-manage                                                Install a dedicated Db2u instance for Maximo Manage (supported by Manage)
 
 Advanced Db2u Universal Operator Configuration (Optional):
+      --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}                               Change namespace where Db2u instances will be created
       --db2u-cpu-request ${COLOR_YELLOW}DB2_CPU_REQUESTS${TEXT_RESET}                          Customise Db2 CPU request
       --db2u-cpu-limit ${COLOR_YELLOW}DB2_CPU_LIMITS${TEXT_RESET}                              Customise Db2 CPU limit
       --db2u-memory-request ${COLOR_YELLOW}DB2_MEMORY_REQUESTS${TEXT_RESET}                    Customise Db2 memory request
@@ -66,6 +66,10 @@ Advanced Db2u Universal Operator Configuration (Optional):
       --db2u-logs-storage ${COLOR_YELLOW}DB2_LOGS_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
       --db2u-meta-storage ${COLOR_YELLOW}DB2_META_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
       --db2u-temp-storage ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
+
+Advanced MongoDB Configuration (Optional):
+      --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET}                        Change namespace where MongoCE operator and instance will be created
+
 
 Other Commands:
       --dev-mode                                                   Enable developer mode (e.g. for access to pre-release builds)
@@ -242,6 +246,11 @@ function install_noninteractive() {
     ;;
     --uds-lastname)
     export UDS_CONTACT_LASTNAME=$1 && shift
+    ;;
+
+    # MongoDB
+    --mongodb-namespace)
+    export MONGODB_NAMESPACE=$1 && shift
     ;;
 
     # Other Commands
