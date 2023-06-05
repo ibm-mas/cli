@@ -152,11 +152,10 @@ function config_pipeline_applications() {
     if prompt_for_confirm "+ Configure JMS"; then
       MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
       if [[ "$SNO_MODE" == "true" ]]; then
-        MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='snojms'
+        MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='snojms' # will just deploy manage with 'all' + 'jms' bundle pods
       else
-        MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='jms'
+        MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='jms' # will deploy manage with 'mea','rpt','ui','cron' and 'jms' bundle pods
       fi
-      echo "Bundle config: $MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE"
     fi
     if prompt_for_confirm "+ Customize database settings"; then
       prompt_for_input "Schema" MAS_APP_SETTINGS_DB2_SCHEMA
