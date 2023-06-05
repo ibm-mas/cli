@@ -10,7 +10,15 @@ function pipeline_install_operator() {
     echo_warning "Unable to determine correct subscription channel for OpenShift Pipelines on this cluster"
     exit 1
   fi
-  sed -e "s/{{pipelines_channel}}/$PIPELINES_CHANNEL/g" $DIR/templates/subscription.yaml | oc apply -f - &>> $LOGFILE
+
+  PIPELINES_SOURCE=$(oc get packagemanifests openshift-pipelines-operator-rh -o jsonpath="{.status.catalogSource}")
+  PIPELINES_SOURCE_NAMESPACE=$(oc get packagemanifests openshift-pipelines-operator-rh -o jsonpath="{.status.catalogSourceNamespace}")
+
+  sed \
+    -e "s/{{pipelines_channel}}/$PIPELINES_CHANNEL/g" \
+    -e "s/{{pipelines_source}}/$PIPELINES_SOURCE/g" \
+    -e "s/{{pipelines_source_namespace}}/$PIPELINES_SOURCE_NAMESPACE/g" \
+    $DIR/templates/subscription.yaml | oc apply -f - &>> $LOGFILE
 
   echo -en "\033[s" # Save cursor position
   echo -n "Installing OpenShift Pipelines Operator ($PIPELINES_CHANNEL) ..."

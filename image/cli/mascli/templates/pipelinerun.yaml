@@ -34,6 +34,8 @@ spec:
 
     # Dependencies - Db2u Operator
     # -------------------------------------------------------------------------
+    - name: db2_namespace
+      value: '$DB2_NAMESPACE'
     - name: db2_channel
       value: '$DB2_CHANNEL'
 
@@ -96,6 +98,8 @@ spec:
 
     # Dependencies - MongoDb
     # -------------------------------------------------------------------------
+    - name: mongodb_namespace
+      value: '$MONGODB_NAMESPACE'
     - name: mongodb_replicas
       value: '$MONGODB_REPLICAS'
     - name: mongodb_cpu_requests
@@ -137,6 +141,8 @@ spec:
       value: '$CP4D_VERSION'
     - name: cpd_install_spss
       value: '$CPD_INSTALL_SPSS'
+    - name: cpd_install_openscale
+      value: '$CPD_INSTALL_OPENSCALE'
 
     # Dependencies - SLS
     # -------------------------------------------------------------------------
@@ -355,6 +361,8 @@ spec:
 
     # Grafana
     # -------------------------------------------------------------------------
+    - name: grafana_namespace
+      value: '$GRAFANA_NAMESPACE'
     - name: grafana_instance_storage_class
       value: '$GRAFANA_INSTANCE_STORAGE_CLASS'
     - name: grafana_instance_storage_size

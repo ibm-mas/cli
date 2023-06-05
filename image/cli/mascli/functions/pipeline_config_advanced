@@ -15,6 +15,7 @@ function config_pipeline_advanced() {
     if prompt_for_confirm "Change Grafana default options (optional)?"; then
 
         prompt_for_input "Grafana Storage Size" GRAFANA_INSTANCE_STORAGE_SIZE "10Gi"
+        prompt_for_input "Grafana Namespace" GRAFANA_NAMESPACE "grafana"
     fi
   fi
 }
