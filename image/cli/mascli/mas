@@ -123,7 +123,7 @@ case $1 in
     ;;
 
   mirror-redhat|mirror-redhat-images)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Image Mirror (v${VERSION})${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Red Hat Image Mirror (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
