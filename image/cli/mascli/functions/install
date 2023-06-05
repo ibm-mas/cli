@@ -18,9 +18,6 @@ Entitlement & Licensing (Required):
       --uds-firstname ${COLOR_YELLOW}UDS_CONTACT_FIRSTNAME${TEXT_RESET}                        Contact first name
       --uds-lastname ${COLOR_YELLOW}UDS_CONTACT_LASTNAME${TEXT_RESET}                          Contact last name
 
-MongoDB (Optional):
-      --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET}
-
 Storage Class Selection (Required):
       --storage-rwo ${COLOR_YELLOW}STORAGE_CLASS_RWO${TEXT_RESET}                              Read Write Once (RWO) storage class (e.g. ibmc-block-gold)
       --storage-rwx ${COLOR_YELLOW}STORAGE_CLASS_RWX${TEXT_RESET}                              Read Write Many (RWX) storage class (e.g. ibmc-file-gold-gid)
@@ -69,6 +66,10 @@ Advanced Db2u Universal Operator Configuration (Optional):
       --db2u-logs-storage ${COLOR_YELLOW}DB2_LOGS_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
       --db2u-meta-storage ${COLOR_YELLOW}DB2_META_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
       --db2u-temp-storage ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
+
+Advanced MongoDB Configuration (Optional):
+      --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET}                        Change namespace where MongoCE operator and instance will be created
+
 
 Other Commands:
       --dev-mode                                                   Enable developer mode (e.g. for access to pre-release builds)
