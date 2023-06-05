@@ -151,7 +151,12 @@ function config_pipeline_applications() {
     prompt_for_confirm_default_yes "+ Create demo data" MAS_APP_SETTINGS_DEMODATA
     if prompt_for_confirm "+ Configure JMS"; then
       MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
-      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE="jms"
+      if [[ "$SNO_MODE" == "true" ]]; then
+        MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='snojms'
+      else
+        MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='jms'
+      fi
+      echo "Bundle config: $MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE"
     fi
     if prompt_for_confirm "+ Customize database settings"; then
       prompt_for_input "Schema" MAS_APP_SETTINGS_DB2_SCHEMA
