@@ -318,7 +318,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-setup
+    - fvt-manage-scheduler-user
 
 # Manage FVT - Scheduler - New User
 - name: fvt-manage-scheduler-user
@@ -374,7 +374,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-user
+    - fvt-manage-scheduler-setup
 
 # Manage FVT - Health
 - name: fvt-manage-health
