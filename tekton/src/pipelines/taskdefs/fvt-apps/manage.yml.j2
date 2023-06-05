@@ -33,7 +33,7 @@
 # - fvt-manage-metrics-api
 # - fvt-manage-masnavigation
 # - fvt-manage-classification
-# - fvt-manage-jms-integration
+# - fvt-manage-jms-inbound
 # -------------------------------------------------------------
 
 # Manage FVT Metrics API
@@ -69,13 +69,13 @@
     - fvt-manage-setup
     - fvt-manage-monitoring
 
-# Manage JMS Integration
-- name: fvt-manage-jms-integration
+# Manage JMS Integration - Inbound
+- name: fvt-manage-jms-inbound
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: classification
+      value: mif-jms-inbound
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
@@ -100,7 +100,7 @@
     - fvt-manage-metrics-api
     - fvt-manage-masnavigation
     - fvt-manage-classification
-    - fvt-manage-jms-integration
+    - fvt-manage-jms-inbound
 
 # Manage FVT Security Audit Logging
 - name: fvt-manage-security-audit-logging
@@ -113,7 +113,7 @@
     - fvt-manage-metrics-api
     - fvt-manage-masnavigation
     - fvt-manage-classification
-    - fvt-manage-jms-integration
+    - fvt-manage-jms-inbound
 
 # Manage FVT Inactive User Authentication
 - name: fvt-manage-security-inactive-auth
@@ -126,7 +126,7 @@
     - fvt-manage-metrics-api
     - fvt-manage-masnavigation
     - fvt-manage-classification
-    - fvt-manage-jms-integration
+    - fvt-manage-jms-inbound
 
 # Manage FVT Escalation
 - name: fvt-manage-escalation-action
@@ -139,7 +139,7 @@
     - fvt-manage-metrics-api
     - fvt-manage-masnavigation
     - fvt-manage-classification
-    - fvt-manage-jms-integration
+    - fvt-manage-jms-inbound
     
   # Manage FVT AutoScript to Add Delete WorkOrder
 - name: fvt-manage-autoscript-adddeletewo
@@ -152,7 +152,7 @@
     - fvt-manage-metrics-api
     - fvt-manage-masnavigation
     - fvt-manage-classification
-    - fvt-manage-jms-integration
+    - fvt-manage-jms-inbound
 
 # -------------------------------------------------------------
 # LAST PHASE (in sequence)
