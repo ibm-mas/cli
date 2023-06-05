@@ -1,112 +1,19 @@
 #!/bin/bash
 
+# Manage Storage Classes for Doclinks, BIM and JMS
+
 function config_pipeline_manage_storage_classes() {
-  echo ""
-  echo "Trying to auto-detect available storage classes for Manage application..."
-  echo ""
-  reset_colors
-  # 1. ROKS
-  oc get storageclass ibmc-file-gold-gid &>> $LOGFILE
-  if [[ $? == "0" ]]; then
-    MANAGE_STORAGE_CLASS_PROVIDER=ibmc
-    MANAGE_STORAGE_CLASS_RWX=ibmc-file-gold-gid
-    MANAGE_STORAGE_CLASS_RWO=ibmc-file-block-gold
-    MANAGE_STORAGE_ACCESSMODE=ReadWriteMany
-  fi
 
-  # 2. OCS
-  if [[ "$MANAGE_STORAGE_CLASS_RWX" == "" ]]; then
-    oc get storageclass ocs-storagecluster-cephfs &>> $LOGFILE
-    if [[ $? == "0" ]]; then
-      MANAGE_STORAGE_CLASS_PROVIDER=ocs
-      MANAGE_STORAGE_CLASS_RWO=ocs-storagecluster-ceph-rbd
-      MANAGE_STORAGE_CLASS_RWX=ocs-storagecluster-cephfs
-      MANAGE_STORAGE_ACCESSMODE=ReadWriteMany
-    fi
-  fi
+  MAS_APP_SETTINGS_DOCLINKS_PVC_STORAGE_CLASS=$STORAGE_CLASS_RWX
+  MAS_APP_SETTINGS_BIM_PVC_STORAGE_CLASS=$STORAGE_CLASS_RWX
+  MAS_APP_SETTINGS_JMS_QUEUE_PVC_STORAGE_CLASS=$STORAGE_CLASS_RWX
 
-  # 3. Azure
-  if [[ "$MANAGE_STORAGE_CLASS_RWX" == "" ]]; then
-    oc get storageclass managed-premium &>> $LOGFILE
-    if [[ $? == "0" ]]; then
-      MANAGE_STORAGE_CLASS_PROVIDER=azure
-      MANAGE_STORAGE_CLASS_RWO=azurefiles-premium
-      MANAGE_STORAGE_CLASS_RWX=managed-premium
-      MANAGE_STORAGE_ACCESSMODE=ReadWriteMany
-    fi
-  fi
+  MAS_APP_SETTINGS_DOCLINKS_PVC_ACCESSMODE=$PIPELINE_STORAGE_ACCESSMODE
+  MAS_APP_SETTINGS_BIM_PVC_ACCESSMODE=$PIPELINE_STORAGE_ACCESSMODE
+  MAS_APP_SETTINGS_JMS_QUEUE_PVC_ACCESSMODE=$PIPELINE_STORAGE_ACCESSMODE
 
-  # 4. AWS
-  if [[ "$MANAGE_STORAGE_CLASS_RWX" == "" ]]; then
-    oc get storageclass gp2 &>> $LOGFILE
-    if [[ $? == "0" ]]; then
-      MANAGE_STORAGE_CLASS_PROVIDER=aws
-      MANAGE_STORAGE_CLASS_RWO=gp2
-      MANAGE_STORAGE_CLASS_RWX=gp2 # for SNO we'll force it to be gp2 and rwo
-      MANAGE_STORAGE_ACCESSMODE=ReadWriteOnce
-    fi
-    
-    oc get storageclass efs &>> $LOGFILE
-    if [[ $? == "0" ]]; then
-      MANAGE_STORAGE_CLASS_PROVIDER=aws
-      MANAGE_STORAGE_CLASS_RWX=efs
-      MANAGE_STORAGE_ACCESSMODE=ReadWriteMany
-    fi
-  fi
-  
-  reset_colors
-  
-  if [[ "$SNO_MODE" == "true" ]]; then
-    MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE="snojms" # if SNO then we'll deploy only all + jms bundle to reduce footprint with this config
-    MANAGE_STORAGE_CLASS_RWX=$MANAGE_STORAGE_CLASS_RWO
-    MANAGE_STORAGE_ACCESSMODE=ReadWriteOnce
-    echo "${TEXT_DIM}  - SNO MODE is set to ${SNO_MODE} - Forcing Manage Storage Class to be $MANAGE_STORAGE_CLASS_RWX and access mode $MANAGE_STORAGE_ACCESSMODE."
-  fi
-  
-  echo "${TEXT_DIM}  - Auto-detected: Manage Storage class for Doclinks, BIM and JMS: $MANAGE_STORAGE_CLASS_RWX ($MANAGE_STORAGE_ACCESSMODE)"
+  echo "Doclinks: $MAS_APP_SETTINGS_DOCLINKS_PVC_STORAGE_CLASS ($MAS_APP_SETTINGS_DOCLINKS_PVC_ACCESSMODE)"
+  echo "BIM: $MAS_APP_SETTINGS_BIM_PVC_STORAGE_CLASS ($MAS_APP_SETTINGS_BIM_PVC_ACCESSMODE)"
+  echo "JMS: $MAS_APP_SETTINGS_JMS_QUEUE_PVC_STORAGE_CLASS ($MAS_APP_SETTINGS_JMS_QUEUE_PVC_ACCESSMODE)"
 
-  OVERRIDE_MANAGE_STORAGE_CLASSES=false
-  if [[ "$MANAGE_STORAGE_CLASS_RWX" != "" ]]; then
-    echo
-    prompt_for_confirm "Choose your own storage classes anyway?" OVERRIDE_MANAGE_STORAGE_CLASSES
-  fi
-
-  # 5. You choose then ...
-  if [[ "$MANAGE_STORAGE_CLASS_RWX" == "" || "$OVERRIDE_MANAGE_STORAGE_CLASSES" == "true" ]]; then
-    MANAGE_STORAGE_CLASS_PROVIDER=custom
-    echo ""
-    echo "${COLOR_YELLOW}Select the Manage application storage class to use for Doclinks, BIM and JMS from the list below:"
-    oc get storageclasses -o jsonpath='{range .items[*]}{" - "}{.metadata.name}{"\n"}{end}'
-    echo ""
-    prompt_for_input "Enter the selected storage class" MANAGE_STORAGE_CLASS_RWX
-    echo ""
-    echo -e "${COLOR_YELLOW}Select the Manage application storage access mode:"
-    echo ""
-    echo "  1. ReadWriteMany"
-    echo "  2. ReadWriteOnce"
-    echo ""
-    prompt_for_input "Enter the selected storage access mode" MANAGE_STORAGE_ACCESSMODE
-  
-    case $MANAGE_STORAGE_ACCESSMODE in
-      1|ReadWriteMany|RWX)
-        MANAGE_STORAGE_ACCESSMODE=ReadWriteMany
-        ;;
-      2|ReadWriteOnce|RWO)
-        MANAGE_STORAGE_ACCESSMODE=ReadWriteOnce
-        ;;
-      *)
-        echo_warning "Invalid access mode selection"
-        exit 1
-        ;;
-    esac
-  fi
-
-  export MAS_APP_SETTINGS_DOCLINKS_PVC_STORAGE_CLASS=$MANAGE_STORAGE_CLASS_RWX
-  export MAS_APP_SETTINGS_BIM_PVC_STORAGE_CLASS=$MANAGE_STORAGE_CLASS_RWX
-  export MAS_APP_SETTINGS_JMS_QUEUE_PVC_STORAGE_CLASS=$MANAGE_STORAGE_CLASS_RWX
-
-  export MAS_APP_SETTINGS_DOCLINKS_PVC_ACCESSMODE=$MANAGE_STORAGE_ACCESSMODE
-  export MAS_APP_SETTINGS_BIM_PVC_ACCESSMODE=$MANAGE_STORAGE_ACCESSMODE
-  export MAS_APP_SETTINGS_JMS_QUEUE_PVC_ACCESSMODE=$MANAGE_STORAGE_ACCESSMODE
-  echo ""
 }
