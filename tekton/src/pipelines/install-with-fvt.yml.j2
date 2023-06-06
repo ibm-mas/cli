@@ -209,6 +209,29 @@ spec:
         - kafka
 
 
+    # 6. Install & Configure IoT
+    # -------------------------------------------------------------------------
+    # 6.1 Install IoT
+    {{ lookup('template', 'taskdefs/apps/iot-app.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config-db2
+        - suite-config-kafka
+    # 6.2 Configure IoT workspace
+    {{ lookup('template', 'taskdefs/apps/iot-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-iot
+    # 7. Install & Configure Monitor
+    # -------------------------------------------------------------------------
+    # 7.1 Install Monitor
+    {{ lookup('template', 'taskdefs/apps/monitor-app.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-iot
+    # 7.2 Configure Monitor workspace
+    {{ lookup('template', 'taskdefs/apps/monitor-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-monitor
+
+
     # 8. Install & Configure Manage
     # -------------------------------------------------------------------------
     # 8.1. Prepare database for Maxinst
