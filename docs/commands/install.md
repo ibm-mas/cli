@@ -54,10 +54,22 @@ Usage
 - `--db2u-manage`                  Install a dedicated Db2u instance for Maximo Manage (supported by Manage)
 
 ### Advanced Db2u Universal Operator Configuration (Optional):
+- `--db2u-namespace DB2_NAMESPACE` Change namespace where Db2u instances will be created
+
+### Advanced Db2u Universal Operator Configuration - Node Scheduling (Optional):
+- `--db2u-affinity-key DB2_AFFINITY_KEY`             Set a node label to declare affinity to
+- `--db2u-affinity-value DB2_AFFINITY_VALUE`         Set the value of the node label to affine with
+- `--db2u-tolerate-key DB2_TOLERATE_KEY`             Set a node taint to tolerate
+- `--db2u-tolerate-value DB2_TOLERATE_VALUE`         Set the value of the taint to tolerate
+- `--db2u-tolerate-effect DB2_TOLERATE_EFFECT`       Set the effect that will be tolerated (NoSchedule, PreferNoSchedule, or NoExecute)
+
+### Advanced Db2u Universal Operator Configuration - Resource Requests (Optional):
 - `--db2u-cpu-request DB2_CPU_REQUESTS`              Customise Db2 CPU request
 - `--db2u-cpu-limit DB2_CPU_LIMITS`                  Customise Db2 CPU limit
 - `--db2u-memory-request DB2_MEMORY_REQUESTS`        Customise Db2 memory request
 - `--db2u-memory-limit DB2_MEMORY_LIMITS`            Customise Db2 memory limit
+
+### Advanced Db2u Universal Operator Configuration - Storage (Optional):
 - `--db2u-backup-storage DB2_BACKUP_STORAGE_SIZE`    Customise Db2 storage capacity
 - `--db2u-data-storage DB2_DATA_STORAGE_SIZE`        Customise Db2 storage capacity
 - `--db2u-logs-storage DB2_LOGS_STORAGE_SIZE`        Customise Db2 storage capacity
@@ -70,6 +82,8 @@ Usage
 - `-h, --help`         Show install help message
 
 
+Examples
+-------------------------------------------------------------------------------
 ### Non-Interactive
 ```bash
 docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
