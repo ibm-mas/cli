@@ -51,21 +51,36 @@ IBM Cloud Pak for Data (Required when installing Predict or Assist):
       --cp4d-version ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}                                  Product version of CP4D to use
 
 IBM Db2 (Optional, required to use IBM Db2 Universal Operator):
-      --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}                               Default namespace to use for DB2u
       --db2u-channel ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                                   Subscription channel for Db2u (e.g. v110508.0)
       --db2u-system                                                Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)
       --db2u-manage                                                Install a dedicated Db2u instance for Maximo Manage (supported by Manage)
 
 Advanced Db2u Universal Operator Configuration (Optional):
+      --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}                               Change namespace where Db2u instances will be created
+
+Advanced Db2u Universal Operator Configuration - Node Scheduling (Optional):
+      --db2u-affinity-key ${COLOR_YELLOW}DB2_AFFINITY_KEY${TEXT_RESET}                         Set a node label to declare affinity to
+      --db2u-affinity-value ${COLOR_YELLOW}DB2_AFFINITY_VALUE${TEXT_RESET}                     Set the value of the node label to affine with
+      --db2u-tolerate-key ${COLOR_YELLOW}DB2_TOLERATE_KEY${TEXT_RESET}                         Set a node taint to tolerate
+      --db2u-tolerate-value ${COLOR_YELLOW}DB2_TOLERATE_VALUE${TEXT_RESET}                     Set the value of the taint to tolerate
+      --db2u-tolerate-effect ${COLOR_YELLOW}DB2_TOLERATE_EFFECT${TEXT_RESET}                   Set the effect that will be tolerated (NoSchedule, PreferNoSchedule, or NoExecute)
+
+Advanced Db2u Universal Operator Configuration - Resource Requests (Optional):
       --db2u-cpu-request ${COLOR_YELLOW}DB2_CPU_REQUESTS${TEXT_RESET}                          Customise Db2 CPU request
       --db2u-cpu-limit ${COLOR_YELLOW}DB2_CPU_LIMITS${TEXT_RESET}                              Customise Db2 CPU limit
       --db2u-memory-request ${COLOR_YELLOW}DB2_MEMORY_REQUESTS${TEXT_RESET}                    Customise Db2 memory request
       --db2u-memory-limit ${COLOR_YELLOW}DB2_MEMORY_LIMITS${TEXT_RESET}                        Customise Db2 memory limit
+
+Advanced Db2u Universal Operator Configuration - Storage (Optional):
       --db2u-backup-storage ${COLOR_YELLOW}DB2_BACKUP_STORAGE_SIZE${TEXT_RESET}                Customise Db2 storage capacity
       --db2u-data-storage ${COLOR_YELLOW}DB2_DATA_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
       --db2u-logs-storage ${COLOR_YELLOW}DB2_LOGS_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
       --db2u-meta-storage ${COLOR_YELLOW}DB2_META_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
       --db2u-temp-storage ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
+
+Advanced MongoDB Configuration (Optional):
+      --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET}                        Change namespace where MongoCE operator and instance will be created
+
 
 Other Commands:
       --dev-mode                                                   Enable developer mode (e.g. for access to pre-release builds)
@@ -190,6 +205,23 @@ function install_noninteractive() {
     ;;
 
     # Dependencies - Db2 Advanced Options
+    --db2u-affinity-key)
+    export DB2_SET_AFFINITY=true
+    export DB2_AFFINITY_KEY=$1 && shift
+    ;;
+    --db2u-affinity-value)
+    export DB2_AFFINITY_VALUE=$1 && shift
+    ;;
+    --db2u-tolerate-key)
+    export DB2_SET_TOLERATIONS=false
+    export DB2_TOLERATE_KEY=$1 && shift
+    ;;
+    --db2u-tolerate-value)
+    export DB2_TOLERATE_VALUE=$1 && shift
+    ;;
+    --db2u-tolerate-effect)
+    export DB2_TOLERATE_EFFECT=$1 && shift
+    ;;
     --db2u-cpu-request)
     export DB2_CPU_REQUESTS=$1 && shift
     ;;
@@ -242,6 +274,11 @@ function install_noninteractive() {
     ;;
     --uds-lastname)
     export UDS_CONTACT_LASTNAME=$1 && shift
+    ;;
+
+    # MongoDB
+    --mongodb-namespace)
+    export MONGODB_NAMESPACE=$1 && shift
     ;;
 
     # Other Commands

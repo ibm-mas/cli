@@ -166,7 +166,7 @@ function pipeline_config() {
   config_pipeline_sno
   config_pipeline_dns #5
   config_pipeline_applications #6
-  config_pipeline_storage_db2 #7
+  config_pipeline_db2 #7
   config_pipeline_additional_configs #8
 
   if [[ "$SNO_MODE" == "true" ]]; then
