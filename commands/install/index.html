@@ -97,8 +97,18 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#advanced-db2u-universal-operator-configuration-optional">Advanced Db2u Universal Operator Configuration (Optional):</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#advanced-db2u-universal-operator-configuration-node-scheduling-optional">Advanced Db2u Universal Operator Configuration - Node Scheduling (Optional):</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#advanced-db2u-universal-operator-configuration-resource-requests-optional">Advanced Db2u Universal Operator Configuration - Resource Requests (Optional):</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#advanced-db2u-universal-operator-configuration-storage-optional">Advanced Db2u Universal Operator Configuration - Storage (Optional):</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#other-commands">Other Commands:</a>
     </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a>
+        <ul>
     <li class="toctree-l3"><a class="reference internal" href="#non-interactive">Non-Interactive</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#interactive">Interactive</a>
@@ -224,10 +234,25 @@
 </ul>
 <h3 id="advanced-db2u-universal-operator-configuration-optional">Advanced Db2u Universal Operator Configuration (Optional):<a class="headerlink" href="#advanced-db2u-universal-operator-configuration-optional" title="Permanent link"></a></h3>
 <ul>
+<li><code>--db2u-namespace DB2_NAMESPACE</code> Change namespace where Db2u instances will be created</li>
+</ul>
+<h3 id="advanced-db2u-universal-operator-configuration-node-scheduling-optional">Advanced Db2u Universal Operator Configuration - Node Scheduling (Optional):<a class="headerlink" href="#advanced-db2u-universal-operator-configuration-node-scheduling-optional" title="Permanent link"></a></h3>
+<ul>
+<li><code>--db2u-affinity-key DB2_AFFINITY_KEY</code>             Set a node label to declare affinity to</li>
+<li><code>--db2u-affinity-value DB2_AFFINITY_VALUE</code>         Set the value of the node label to affine with</li>
+<li><code>--db2u-tolerate-key DB2_TOLERATE_KEY</code>             Set a node taint to tolerate</li>
+<li><code>--db2u-tolerate-value DB2_TOLERATE_VALUE</code>         Set the value of the taint to tolerate</li>
+<li><code>--db2u-tolerate-effect DB2_TOLERATE_EFFECT</code>       Set the effect that will be tolerated (NoSchedule, PreferNoSchedule, or NoExecute)</li>
+</ul>
+<h3 id="advanced-db2u-universal-operator-configuration-resource-requests-optional">Advanced Db2u Universal Operator Configuration - Resource Requests (Optional):<a class="headerlink" href="#advanced-db2u-universal-operator-configuration-resource-requests-optional" title="Permanent link"></a></h3>
+<ul>
 <li><code>--db2u-cpu-request DB2_CPU_REQUESTS</code>              Customise Db2 CPU request</li>
 <li><code>--db2u-cpu-limit DB2_CPU_LIMITS</code>                  Customise Db2 CPU limit</li>
 <li><code>--db2u-memory-request DB2_MEMORY_REQUESTS</code>        Customise Db2 memory request</li>
 <li><code>--db2u-memory-limit DB2_MEMORY_LIMITS</code>            Customise Db2 memory limit</li>
+</ul>
+<h3 id="advanced-db2u-universal-operator-configuration-storage-optional">Advanced Db2u Universal Operator Configuration - Storage (Optional):<a class="headerlink" href="#advanced-db2u-universal-operator-configuration-storage-optional" title="Permanent link"></a></h3>
+<ul>
 <li><code>--db2u-backup-storage DB2_BACKUP_STORAGE_SIZE</code>    Customise Db2 storage capacity</li>
 <li><code>--db2u-data-storage DB2_DATA_STORAGE_SIZE</code>        Customise Db2 storage capacity</li>
 <li><code>--db2u-logs-storage DB2_LOGS_STORAGE_SIZE</code>        Customise Db2 storage capacity</li>
@@ -240,6 +265,7 @@
 <li><code>--no-confirm</code>       Mirror images without prompting for confirmation</li>
 <li><code>-h, --help</code>         Show install help message</li>
 </ul>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
 <h3 id="non-interactive">Non-Interactive<a class="headerlink" href="#non-interactive" title="Permanent link"></a></h3>
 <pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
 export ENTITLEMENT_KEY=xxx
