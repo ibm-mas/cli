@@ -365,6 +365,21 @@
   default: ""
   description: Data Dictionary catalog source
 
+# MAS Application Configuration - IoT Application
+# -----------------------------------------------------------------------------
+- name: mas_app_settings_iot_deployment_size
+  type: string
+  description: controls the workload size of iot containers
+  default: ""
+- name: mas_app_settings_iot_mqttbroker_pvc_storage_class
+  type: string
+  description: defines storage class for iot messagesight
+  default: ""
+- name: mas_app_settings_iot_fpl_pvc_storage_class
+  type: string
+  description: defines storage class for iot functions pipeline component
+  default: ""
+
 # MAS Application Configuration - Manage Application
 # -----------------------------------------------------------------------------
 - name: mas_appws_bindings_jdbc_manage

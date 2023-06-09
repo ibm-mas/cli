@@ -8,6 +8,7 @@
 . $DIR/functions/pipeline_config_storage_classes
 . $DIR/functions/pipeline_config_storage_classes_sno
 . $DIR/functions/pipeline_config_manage_storage_classes
+. $DIR/functions/pipeline_config_iot_storage_classes
 . $DIR/functions/pipeline_config_advanced
 
 function pipeline_config() {
@@ -174,8 +175,9 @@ function pipeline_config() {
   else
     config_pipeline_storage_classes #9
   fi
-  config_pipeline_manage_storage_classes #10
-  config_pipeline_advanced #11
+  config_pipeline_iot_storage_classes #10
+  config_pipeline_manage_storage_classes #11
+  config_pipeline_advanced #12
 
   echo ""
   if [[ "$DEV_MODE" == "true" && -z "$AIRGAP_MODE" ]]; then
