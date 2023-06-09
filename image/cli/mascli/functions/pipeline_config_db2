@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-function config_pipeline_storage_db2() {
+function config_pipeline_db2() {
   echo
   echo_h2 "Configure Db2"
   echo "${TEXT_DIM}The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, Manage, Monitor, & Predict) or you may choose to configure MAS to use an existing database."
@@ -18,7 +18,7 @@ function config_pipeline_storage_db2() {
     DB2_MEMORY_LIMITS=${DB2_MEMORY_LIMITS:-12Gi}
 
     if [[ "$SNO_MODE" == "true" ]]; then
-      # Set smaller deaults for SNO deployments
+      # Set smaller defaults for SNO deployments
       DB2_META_STORAGE_SIZE=${DB2_META_STORAGE_SIZE:-10Gi}
       DB2_BACKUP_STORAGE_SIZE=${DB2_BACKUP_STORAGE_SIZE:-10Gi}
       DB2_LOGS_STORAGE_SIZE=${DB2_LOGS_STORAGE_SIZE:-10Gi}
@@ -33,6 +33,9 @@ function config_pipeline_storage_db2() {
     fi
 
     if prompt_for_confirm_default_yes "Install Db2 using the IBM Db2 Universal Operator?"; then
+
+      # Subscription Channel
+      # -------------------------------------------------------------------------------------------
       case $MAS_CATALOG_VERSION in
         v8-amd64|v8-230414-amd64|v8-230518-amd64|v8-230526-amd64)
           DB2_CHANNEL=v110508.0
@@ -46,6 +49,7 @@ function config_pipeline_storage_db2() {
       esac
 
       # Install and configure MAS to use in-cluster Db2 instances
+      # -------------------------------------------------------------------------------------------
       echo
       echo_h3 "Db2 for IoT"
       echo "${TEXT_DIM}Maximo IoT requires a shared system-scope Db2 instance because others application in the suite require access to the same database source."
@@ -92,17 +96,43 @@ function config_pipeline_storage_db2() {
         fi
       fi
 
-      # Set SNO-specific overrides (not defaults, these will wipe whatever saved defaults you have)
-      if [[ "$SNO_MODE" == "true" ]]; then
-        DB2_META_STORAGE_SIZE=10Gi
-        DB2_BACKUP_STORAGE_SIZE=10Gi
-        DB2_LOGS_STORAGE_SIZE=10Gi
-        DB2_TEMP_STORAGE_SIZE=10Gi
-        DB2_DATA_STORAGE_SIZE=20Gi
+      # Node Affinity & Tolerations
+      # -------------------------------------------------------------------------------------------
+      echo
+      echo_h3 "Node Affinity and Tolerations"
+      echo "${TEXT_DIM}Note that the same settings are applied to both the IoT and Manage Db2 instances."
+      echo "Use existing node labels and taints to control scheduling of the Db2 workload in your cluster."
+      echo "For more information refer to the Red Hat documentation:"
+      echo "- ${COLOR_CYAN}${TEXT_UNDERLINE}https://docs.openshift.com/container-platform/4.12/nodes/scheduling/nodes-scheduler-node-affinity.html${TEXT_RESET}"
+      echo "- ${COLOR_CYAN}${TEXT_UNDERLINE}https://docs.openshift.com/container-platform/4.12/nodes/scheduling/nodes-scheduler-taints-tolerations.html${TEXT_RESET}"
+      echo
+      reset_colors
+      export DB2_SET_AFFINITY=false
+      export DB2_SET_TOLERATIONS=false
+      if prompt_for_confirm "Configure node affinity?"; then
+        export DB2_SET_AFFINITY=true
+        prompt_for_input "+ Key" DB2_AFFINITY_KEY && export DB2_AFFINITY_KEY
+        prompt_for_input "+ Value" DB2_AFFINITY_VALUE && export DB2_AFFINITY_VALUE
+      else
+        export DB2_AFFINITY_KEY=""
+        export DB2_AFFINITY_VALUE=""
       fi
+      if prompt_for_confirm "Configure node tolerations?"; then
+        export DB2_SET_TOLERATIONS=true
+        prompt_for_input "+ Key" DB2_TOLERATE_KEY && export DB2_TOLERATE_KEY
+        prompt_for_input "+ Value" DB2_TOLERATE_VALUE && export DB2_TOLERATE_VALUE
+        prompt_for_input "+ Effect" DB2_TOLERATE_EFFECT && export DB2_TOLERATE_EFFECT
+      else
+        export DB2_TOLERATE_KEY=""
+        export DB2_TOLERATE_VALUE=""
+        export DB2_TOLERATE_EFFECT=""
+      fi
+
+      # CPU & Memory
+      # -------------------------------------------------------------------------------------------
       echo
       echo_h3 "Database CPU & Memory"
-      echo "${TEXT_DIM}Note that the same settings are applied to both the IoT and Manage Db2 instances, it will be possible to set these independently in a future update."
+      echo "${TEXT_DIM}Note that the same settings are applied to both the IoT and Manage Db2 instances."
       echo
       reset_colors
       echo_reset_dim "CPU Request:    ${COLOR_MAGENTA}${DB2_CPU_REQUESTS:-Default}"
@@ -118,9 +148,11 @@ function config_pipeline_storage_db2() {
         prompt_for_input "+ Memory Limit" DB2_MEMORY_LIMITS && export DB2_MEMORY_LIMITS
       fi
 
+      # Storage
+      # -------------------------------------------------------------------------------------------
       echo
       echo_h3 "Database Storage Capacity"
-      echo "${TEXT_DIM}Note that the same settings are applied to both the IoT and Manage Db2 instances, it will be possible to set these independently in a future update."
+      echo "${TEXT_DIM}Note that the same settings are applied to both the IoT and Manage Db2 instances."
       echo
       reset_colors
       echo_reset_dim " - Meta:             ${COLOR_MAGENTA}${DB2_META_STORAGE_SIZE:-Default}"

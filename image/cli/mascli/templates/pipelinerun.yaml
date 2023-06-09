@@ -59,6 +59,20 @@ spec:
     - name: db2_data_storage_accessmode
       value: '$DB2_DATA_STORAGE_ACCESSMODE'
 
+    # Dependencies - Db2 - Node Scheduling
+    # -------------------------------------------------------------------------
+    - name: db2_affinity_key
+      value: '$DB2_AFFINITY_KEY'
+    - name: db2_affinity_value
+      value: '$DB2_AFFINITY_VALUE'
+
+    - name: db2_tolerate_key
+      value: '$DB2_TOLERATE_KEY'
+    - name: db2_tolerate_value
+      value: '$DB2_TOLERATE_VALUE'
+    - name: db2_tolerate_effect
+      value: '$DB2_TOLERATE_EFFECT'
+
     # Dependencies - Db2 - CPU Resources
     # -------------------------------------------------------------------------
     - name: db2_cpu_requests
