@@ -292,3 +292,16 @@ function detect_sno() {
     unset SNO_MODE
   fi
 }
+
+
+function select_local_config_dir() {
+  if [ "$LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN" != "yes" ]; then
+    # You need to tell us where the configuration file can be found
+    prompt_for_input "Select Local configuration directory" LOCAL_MAS_CONFIG_DIR && export LOCAL_MAS_CONFIG_DIR
+    if [[ ! -e "$LOCAL_MAS_CONFIG_DIR" ]]; then
+      echo_warning "$LOCAL_MAS_CONFIG_DIR does not exist"
+      exit 1
+    fi
+    export LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN=yes
+  fi
+}
