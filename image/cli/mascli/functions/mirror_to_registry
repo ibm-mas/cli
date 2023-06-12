@@ -265,50 +265,7 @@ function mirror_to_registry_interactive() {
 
   echo
   echo_h2 "Configure Static Catalog Version"
-
-  echo -e "${COLOR_YELLOW}MAS Version:"
-  echo "May 26 2023 Update"
-  echo "  1. 8.10.1"
-  echo "  2. 8.9.5"
-  echo "April 14 2023 Update"
-  echo "  3. 8.10.0"
-  echo "  4. 8.9.4"
-  echo "March 14 2023 Update"
-  echo "  5. 8.9.3"
-  echo "February 17 2023 Update"
-  echo "  6. 8.9.2"
-  prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
-
-  case $MAS_CHANNEL_SELECTION in
-    1)
-      MAS_CHANNEL=8.10.x
-      MAS_CATALOG_VERSION=v8-230526-amd64
-      ;;
-    2)
-      MAS_CHANNEL=8.9.x
-      MAS_CATALOG_VERSION=v8-230526-amd64
-      ;;
-    3)
-      MAS_CHANNEL=8.10.x
-      MAS_CATALOG_VERSION=v8-230414-amd64
-      ;;
-    4)
-      MAS_CHANNEL=8.9.x
-      MAS_CATALOG_VERSION=v8-230414-amd64
-      ;;
-    5)
-      MAS_CHANNEL=8.9.x
-      MAS_CATALOG_VERSION=v8-230314-amd64
-      ;;
-    6)
-      MAS_CHANNEL=8.9.x
-      MAS_CATALOG_VERSION=v8-230217-amd64
-      ;;
-    *)
-      echo_warning "Invalid selection"
-      exit 1
-      ;;
-  esac
+  choose_mas_version
 
   echo
   echo_h2 "Configure Images to Mirror"
