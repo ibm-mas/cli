@@ -105,7 +105,6 @@ function config_pipeline_storage_classes() {
     PIPELINE_STORAGE_ACCESSMODE="ReadWriteOnce"
   fi
 
-
   OVERRIDE_STORAGE_CLASSES=false
   if [[ "$STORAGE_CLASS_RWX" != "" ]]; then
     echo

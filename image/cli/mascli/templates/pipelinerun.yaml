@@ -59,6 +59,20 @@ spec:
     - name: db2_data_storage_accessmode
       value: '$DB2_DATA_STORAGE_ACCESSMODE'
 
+    # Dependencies - Db2 - Node Scheduling
+    # -------------------------------------------------------------------------
+    - name: db2_affinity_key
+      value: '$DB2_AFFINITY_KEY'
+    - name: db2_affinity_value
+      value: '$DB2_AFFINITY_VALUE'
+
+    - name: db2_tolerate_key
+      value: '$DB2_TOLERATE_KEY'
+    - name: db2_tolerate_value
+      value: '$DB2_TOLERATE_VALUE'
+    - name: db2_tolerate_effect
+      value: '$DB2_TOLERATE_EFFECT'
+
     # Dependencies - Db2 - CPU Resources
     # -------------------------------------------------------------------------
     - name: db2_cpu_requests
@@ -285,6 +299,12 @@ spec:
     # -------------------------------------------------------------------------
     - name: mas_app_channel_iot
       value: '$MAS_APP_CHANNEL_IOT'
+    - name: mas_app_settings_iot_deployment_size
+      value: '$MAS_APP_SETTINGS_IOT_DEPLOYMENT_SIZE'
+    - name: mas_app_settings_iot_fpl_pvc_storage_class
+      value: '$MAS_APP_SETTINGS_IOT_FPL_PVC_STORAGE_CLASS'
+    - name: mas_app_settings_iot_mqttbroker_pvc_storage_class
+      value: '$MAS_APP_SETTINGS_IOT_MQTTBROKER_PVC_STORAGE_CLASS'
 
     # Manage Application
     # -------------------------------------------------------------------------
@@ -299,6 +319,18 @@ spec:
       value: '$MAS_APPWS_BINDINGS_JDBC_MANAGE'
     - name: mas_app_settings_persistent_volumes_flag
       value: '$MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG'
+    - name: mas_app_settings_jms_queue_pvc_storage_class
+      value: '$MAS_APP_SETTINGS_JMS_QUEUE_PVC_STORAGE_CLASS'
+    - name: mas_app_settings_jms_queue_pvc_accessmode
+      value: '$MAS_APP_SETTINGS_JMS_QUEUE_PVC_ACCESSMODE'
+    - name: mas_app_settings_bim_pvc_storage_class
+      value: '$MAS_APP_SETTINGS_BIM_PVC_STORAGE_CLASS'
+    - name: mas_app_settings_bim_pvc_accessmode
+      value: '$MAS_APP_SETTINGS_BIM_PVC_ACCESSMODE'
+    - name: mas_app_settings_doclinks_pvc_storage_class
+      value: '$MAS_APP_SETTINGS_DOCLINKS_PVC_STORAGE_CLASS'
+    - name: mas_app_settings_doclinks_pvc_accessmode
+      value: '$MAS_APP_SETTINGS_DOCLINKS_PVC_ACCESSMODE'
     - name: mas_app_settings_server_bundles_size
       value: '$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE'
     - name: mas_app_settings_base_language

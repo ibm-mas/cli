@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 function channel_select_iot() {
   case $MAS_CHANNEL in
     8.10.x)
@@ -149,10 +148,14 @@ function config_pipeline_applications() {
   # Manage
   if prompt_for_confirm "Install Manage"; then
     channel_select_manage || exit 1
-    prompt_for_confirm_default_yes "+ Create demo data" MAS_APP_SETTINGS_DEMODATA
+    prompt_for_confirm "+ Create demo data" MAS_APP_SETTINGS_DEMODATA
     if prompt_for_confirm "+ Configure JMS"; then
       MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
-      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE="jms"
+      if [[ "$SNO_MODE" == "true" ]]; then
+        MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='snojms' # will just deploy manage with 'all' + 'jms' bundle pods
+      else
+        MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='jms' # will deploy manage with 'mea','rpt','ui','cron' and 'jms' bundle pods
+      fi
     fi
     if prompt_for_confirm "+ Customize database settings"; then
       prompt_for_input "Schema" MAS_APP_SETTINGS_DB2_SCHEMA
@@ -213,25 +216,7 @@ function config_pipeline_applications() {
     fi
 
     if [[ "$MAS_APP_CHANNEL_PREDICT" != "" || "$MAS_APP_CHANNEL_ASSIST" != "" ]]; then
-      case $MAS_CATALOG_VERSION in
-        # CP4D v4.6.3 was added in the April 2023 catalog update
-        v8-amd64|v8-230414-amd64|v8-230518-amd64|v8-230526-amd64)
-          CP4D_VERSION=4.6.3
-          ;;
-        # CP4D v4.6.0 was added in the February 2023 catalog update
-        v8-230217-amd64|v8-230314-amd64)
-          CP4D_VERSION=4.6.0
-          ;;
-        # Versions of the catalog older than February 2023 support up to CP4D v4.5.2
-        v8-230111-amd64)
-          CP4D_VERSION=4.5.2
-          ;;
-        *)
-          echo
-          echo "One or more selected applications require Cloud Pak for Data"
-          prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.6.3"
-          ;;
-      esac
+      cp4d_channel_selection
     fi
   fi
 }

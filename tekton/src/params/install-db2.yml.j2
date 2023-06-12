@@ -29,6 +29,29 @@
   description: Customize the way database tables will be organized.  Set to 'ROW' or 'COLUMN'
   default: "ROW"
 
+# Dependences - Db2 - Node scheduling
+# -------------------------------------------------------------------------
+- name: db2_affinity_key
+  type: string
+  description: Configure node affinity (1/2)
+  default: ""
+- name: db2_affinity_value
+  type: string
+  description: Configure node affinity (2/2)
+  default: ""
+- name: db2_tolerate_key
+  type: string
+  description: Configure node tolerations (1/3)
+  default: ""
+- name: db2_tolerate_value
+  type: string
+  description: Configure node tolerations (2/3)
+  default: ""
+- name: db2_tolerate_effect
+  type: string
+  description: Configure node tolerations (3/3)
+  default: ""
+
 # Dependences - Db2 - CPU requests and limits
 # -------------------------------------------------------------------------
 - name: db2_cpu_requests

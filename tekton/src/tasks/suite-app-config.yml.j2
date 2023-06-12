@@ -51,6 +51,30 @@ spec:
       type: string
       description: Flag indicating if persistent volumes should be configured by default during Manage Workspace activation. There are two defaulted File Storage Persistent Volumes Claim resources that will be created out of the box for Manage if this flag is set to true.
       default: ""
+    - name: mas_app_settings_jms_queue_pvc_storage_class
+      type: string
+      description: Storage Class for Manage JMS queues.
+      default: ""
+    - name: mas_app_settings_jms_queue_pvc_accessmode
+      type: string
+      description: Storage Access Mode for Manage JMS queues.
+      default: ""
+    - name: mas_app_settings_bim_pvc_storage_class
+      type: string
+      description: Storage Class for Manage BIM.
+      default: ""
+    - name: mas_app_settings_bim_pvc_accessmode
+      type: string
+      description: Storage Access Mode for Manage BIM.
+      default: ""
+    - name: mas_app_settings_doclinks_pvc_storage_class
+      type: string
+      description: Storage Class for Manage Doclinks.
+      default: ""
+    - name: mas_app_settings_doclinks_pvc_accessmode
+      type: string
+      description: Storage Access Mode for Manage Doclinks.
+      default: ""
     - name: mas_app_settings_server_bundles_size
       type: string
       description: Provides different flavors of server bundle configuration to handle workload for Manage application.
@@ -137,6 +161,18 @@ spec:
         value: $(params.mas_app_settings_secondary_languages)
       - name: MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG
         value: $(params.mas_app_settings_persistent_volumes_flag)
+      - name: MAS_APP_SETTINGS_JMS_QUEUE_PVC_STORAGE_CLASS
+        value: $(params.mas_app_settings_jms_queue_pvc_storage_class)
+      - name: MAS_APP_SETTINGS_JMS_QUEUE_PVC_ACCESSMODE
+        value: $(params.mas_app_settings_jms_queue_pvc_accessmode)
+      - name: MAS_APP_SETTINGS_BIM_PVC_STORAGE_CLASS
+        value: $(params.mas_app_settings_bim_pvc_storage_class)
+      - name: MAS_APP_SETTINGS_BIM_PVC_ACCESSMODE
+        value: $(params.mas_app_settings_bim_pvc_accessmode)
+      - name: MAS_APP_SETTINGS_DOCLINKS_PVC_STORAGE_CLASS
+        value: $(params.mas_app_settings_doclinks_pvc_storage_class)
+      - name: MAS_APP_SETTINGS_DOCLINKS_PVC_ACCESSMODE
+        value: $(params.mas_app_settings_doclinks_pvc_accessmode)
       - name: MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE
         value: $(params.mas_app_settings_server_bundles_size)
       - name: MAS_APP_SETTINGS_TABLESPACE

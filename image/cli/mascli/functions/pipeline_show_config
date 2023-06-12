@@ -72,8 +72,8 @@ function pipeline_show_config() {
   fi
 
   if [[ "${MAS_APP_CHANNEL_VISUALINSPECTION}" == '' ]]
-  then echo_reset_dim "MVI ...................... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "MVI ...................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_VISUALINSPECTION}"
+  then echo_reset_dim "Visual Inspection ........ ${COLOR_RED}Skip Installation"
+  else echo_reset_dim "Visual Inspection ........ ${COLOR_MAGENTA}${MAS_APP_CHANNEL_VISUALINSPECTION}"
   fi
 
   reset_colors
@@ -83,6 +83,11 @@ function pipeline_show_config() {
   echo_reset_dim "License File .............. ${COLOR_MAGENTA}${SLS_LICENSE_FILE_LOCAL}"
   echo_reset_dim "IBM Entitled Registry ..... ${COLOR_MAGENTA}${SLS_ICR_CP}"
   echo_reset_dim "IBM Open Registry ......... ${COLOR_MAGENTA}${SLS_ICR_CPOPEN}"
+
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h4 "MongoDB" "    "
+  echo_reset_dim "Install Namespace ......... ${COLOR_MAGENTA}${MONGODB_NAMESPACE:-<default>}"
 
   reset_colors
   echo "${TEXT_DIM}"
@@ -103,22 +108,32 @@ function pipeline_show_config() {
     reset_colors
     echo "${TEXT_DIM}"
     echo_h4 "IBM Db2" "    "
-    echo_reset_dim "Common Namespace .......... ${COLOR_MAGENTA}${DB2_NAMESPACE}"
+    echo_reset_dim "Install Namespace ......... ${COLOR_MAGENTA}${DB2_NAMESPACE:-<default>}"
     echo_reset_dim "Subscription Channel ...... ${COLOR_MAGENTA}${DB2_CHANNEL}"
 
     echo_reset_dim "System Instance ........... ${COLOR_MAGENTA}${DB2_ACTION_SYSTEM}"
     echo_reset_dim "Dedicated Manage Instance . ${COLOR_MAGENTA}${DB2_ACTION_MANAGE}"
 
-    echo_reset_dim "CPU Request ............... ${COLOR_MAGENTA}${DB2_CPU_REQUESTS:-Default}"
-    echo_reset_dim "CPU Limit ................. ${COLOR_MAGENTA}${DB2_CPU_LIMITS:-Default}"
-    echo_reset_dim "Memory Request ............ ${COLOR_MAGENTA}${DB2_MEMORY_REQUESTS:-Default}"
-    echo_reset_dim "Memory Limit .............. ${COLOR_MAGENTA}${DB2_MEMORY_LIMITS:-Default}"
+    echo_reset_dim "CPU Request ............... ${COLOR_MAGENTA}${DB2_CPU_REQUESTS:-<default>}"
+    echo_reset_dim "CPU Limit ................. ${COLOR_MAGENTA}${DB2_CPU_LIMITS:-<default>}"
+    echo_reset_dim "Memory Request ............ ${COLOR_MAGENTA}${DB2_MEMORY_REQUESTS:-<default>}"
+    echo_reset_dim "Memory Limit .............. ${COLOR_MAGENTA}${DB2_MEMORY_LIMITS:-<default>}"
 
-    echo_reset_dim "Meta Storage .............. ${COLOR_MAGENTA}${DB2_META_STORAGE_SIZE:-Default}"
-    echo_reset_dim "Data Storage .............. ${COLOR_MAGENTA}${DB2_DATA_STORAGE_SIZE:-Default}"
-    echo_reset_dim "Backup Storage ............ ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_SIZE:-Default}"
-    echo_reset_dim "Temp Storage .............. ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_SIZE:-Default}"
-    echo_reset_dim "Transaction Logs Storage .. ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_SIZE:-Default}"
+    echo_reset_dim "Meta Storage .............. ${COLOR_MAGENTA}${DB2_META_STORAGE_SIZE:-<default>}"
+    echo_reset_dim "Data Storage .............. ${COLOR_MAGENTA}${DB2_DATA_STORAGE_SIZE:-<default>}"
+    echo_reset_dim "Backup Storage ............ ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_SIZE:-<default>}"
+    echo_reset_dim "Temp Storage .............. ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_SIZE:-<default>}"
+    echo_reset_dim "Transaction Logs Storage .. ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_SIZE:-<default>}"
+
+    if [[ "$DB2_SET_AFFINITY" == "true" ]]
+      then echo_reset_dim "Node Affinity ............. ${COLOR_MAGENTA}${DB2_AFFINITY_KEY}=${DB2_AFFINITY_VALUE}"
+      else echo_reset_dim "Node Affinity ............. None"
+    fi
+
+    if [[ "$DB2_SET_TOLERATIONS" == "true" ]]
+      then echo_reset_dim "Node Tolerations .......... ${COLOR_MAGENTA}${DB2_TOLERATE_KEY}=${DB2_TOLERATE_VALUE} @ ${DB2_TOLERATE_EFFECT}"
+      else echo_reset_dim "Node Tolerations .......... None"
+    fi
   fi
 
   reset_colors

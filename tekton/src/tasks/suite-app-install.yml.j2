@@ -44,6 +44,20 @@ spec:
       type: string
       description: Application installation plan
       default: ""
+    
+    # Application - IoT
+    - name: mas_app_settings_iot_deployment_size
+      type: string
+      description: controls the workload size of iot containers
+      default: ""
+    - name: mas_app_settings_iot_mqttbroker_pvc_storage_class
+      type: string
+      description: defines storage class for iot messagesight
+      default: ""
+    - name: mas_app_settings_iot_fpl_pvc_storage_class
+      type: string
+      description: defines storage class for iot functions pipeline component
+      default: ""
 
     # Custom Label Support
     - name: custom_labels
