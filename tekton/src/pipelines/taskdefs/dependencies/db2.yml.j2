@@ -33,6 +33,18 @@
     - name: db2_table_org
       value: $(params.db2_table_org)
 
+    # Node Scheduling
+    - name: db2_affinity_key
+      value: $(params.db2_affinity_key)
+    - name: db2_affinity_value
+      value: $(params.db2_affinity_value)
+    - name: db2_tolerate_key
+      value: $(params.db2_tolerate_key)
+    - name: db2_tolerate_value
+      value: $(params.db2_tolerate_value)
+    - name: db2_tolerate_effect
+      value: $(params.db2_tolerate_effect)
+
     # Requests and Limits - CPU
     - name: db2_cpu_requests
       value: $(params.db2_cpu_requests)
