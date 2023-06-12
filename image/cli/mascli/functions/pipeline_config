@@ -10,22 +10,19 @@
 . $DIR/functions/pipeline_config_advanced
 
 function pipeline_config() {
-  echo_h2 "Configure Installation"
-
-  # MAS instance ID
-  if [[ ! -z "$1" ]]; then
-    MAS_INSTANCE_ID=$1
-  fi
-  prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
-  prompt_for_input "MAS Workspace ID" MAS_WORKSPACE_ID
-  prompt_for_input "MAS Workspace Display Name" MAS_WORKSPACE_NAME
+  echo_h2 "IBM Maximo Operator Catalog Selection"
+  echo "${TEXT_DIM}Select how you want to manage updates in this cluster:"
+  echo "- For automatic updates select to use the online dynamic catalog.  Updates will be delivered as soon as they are published by IBM"
+  echo "- To take direct control over when updates are applied to the cluster select to use a static catalog instead.  Updates will be delivered only when you update the catalog source in your cluster"
+  echo
+  reset_colors
 
   if [[ -n "$DEV_MODE" ]]; then
     # Development mode
     prompt_for_input "Select Catalog Source" MAS_CATALOG_VERSION "v8-master-amd64"
     prompt_for_input "Select Subscription Channel" MAS_CHANNEL "8.11.x-dev"
   elif [[ -z "$AIRGAP_MODE" ]]; then
-    prompt_for_confirm "Use the online dynamic catalog?" USE_ONLINE_CATALOG
+    prompt_for_confirm "Enable automatic updates with the online dynamic catalog?" USE_ONLINE_CATALOG
     if [[ "$USE_ONLINE_CATALOG" == "true" ]]; then
       # Dynamic Catalog Source (Connected Install)
       MAS_CATALOG_VERSION=v8-amd64
@@ -71,11 +68,23 @@ function pipeline_config() {
   echo
   echo_h2 "License Terms"
   echo -e "${COLOR_YELLOW} For information about your license, see "$MAS_LICENSE_LINK " To continue with the installation, you must accept the license terms."
-  prompt_for_confirm "Do you accept the license terms?" LICENSE_RESPONSE
+  prompt_for_confirm_default_yes "Do you accept the license terms?" LICENSE_RESPONSE
 
   if [[ "$LICENSE_RESPONSE" == "false" ]]; then
     exit 1
   fi
+
+  echo_h2 "Configure MAS Instance"
+
+  # MAS instance ID
+  if [[ ! -z "$1" ]]; then
+    MAS_INSTANCE_ID=$1
+  fi
+  prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
+  prompt_for_input "MAS Workspace ID" MAS_WORKSPACE_ID
+  prompt_for_input "MAS Workspace Display Name" MAS_WORKSPACE_NAME
+
+
 
   echo
   echo_h2 "Configure Operation Mode"

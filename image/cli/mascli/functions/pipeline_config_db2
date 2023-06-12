@@ -49,7 +49,7 @@ function db2_for_manage() {
     reset_colors
 
     # Determine whether to use the system or a dedicated database
-    if [ "$MAS_APP_CHANNEL_IOT" == ""] && prompt_for_confirm_default_yes "Re-use System Db2 instance for Manage application?"; then
+    if [ "$MAS_APP_CHANNEL_IOT" == "" ] && prompt_for_confirm_default_yes "Re-use System Db2 instance for Manage application?"; then
       # We are going to bind Manage to the system database, which has already been set up in the previous step
       MAS_APPWS_BINDINGS_JDBC_MANAGE=system
       DB2_ACTION_MANAGE=none
@@ -82,7 +82,7 @@ function db2_for_manage() {
 # Do we need to configure Db2u?
 # -----------------------------------------------------------------------------
 function db2u_configuration() {
-  if [ "$DB2_ACTION_SYSTEM" == "install" || "$DB2_ACTION_MANAGE" == "install" ]; then
+  if [[ "$DB2_ACTION_SYSTEM" == "install" || "$DB2_ACTION_MANAGE" == "install" ]]; then
     db2_channel_selection
 
     # Node Affinity & Tolerations
@@ -92,7 +92,7 @@ function db2u_configuration() {
     echo "${TEXT_DIM}Note that the same settings are applied to both the IoT and Manage Db2 instances."
     echo "Use existing node labels and taints to control scheduling of the Db2 workload in your cluster."
     echo "For more information refer to the Red Hat documentation:"
-    echo "- ${COLOR_CYAN}${TEXT_UNDERLINE}https://docs.openshift.com/container-platform/4.12/nodes/scheduling/nodes-scheduler-node-affinity.html${TEXT_RESET}"
+    echo "- ${COLOR_CYAN}${TEXT_UNDERLINE}https://docs.openshift.com/container-platform/4.12/nodes/scheduling/nodes-scheduler-node-affinity.html${TEXT_RESET}${TEXT_DIM}"
     echo "- ${COLOR_CYAN}${TEXT_UNDERLINE}https://docs.openshift.com/container-platform/4.12/nodes/scheduling/nodes-scheduler-taints-tolerations.html${TEXT_RESET}"
     echo
     reset_colors

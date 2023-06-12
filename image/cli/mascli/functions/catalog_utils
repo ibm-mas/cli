@@ -8,11 +8,11 @@
 # Currently only used in the mas update function.  The user does not need to select
 # the version of MAS, only the version of the catalog to update to.
 function choose_catalog_version() {
-  echo -e "${COLOR_YELLOW}MAS Catalog:"
-  echo "  1. May 26 2023 Update (MAS 8.10.1 & 8.9.5)"
-  echo "  2. April 14 2023 Update (MAS 8.10.0 & 8.9.4)"
-  echo "  3. March 14 2023 Update (MAS 8.9.3)"
-  echo "  4. February 17 2023 Update (MAS 8.9.2)"
+  echo -e "${COLOR_YELLOW}Select MAS Catalog:"
+  echo "  1) May 26 2023 Update (MAS 8.10.1 & 8.9.5)"
+  echo "  2) April 14 2023 Update (MAS 8.10.0 & 8.9.4)"
+  echo "  3) March 14 2023 Update (MAS 8.9.3)"
+  echo "  4) February 17 2023 Update (MAS 8.9.2)"
   prompt_for_input "Select Catalog Version" MAS_CATALOG_SELECTION "1"
 
   case $MAS_CATALOG_SELECTION in
@@ -41,17 +41,21 @@ function choose_catalog_version() {
 # Currently only in the mas install and mirror-images functions.  The user must
 # select both a version of the catalog and a version of MAS within the catalog.
 function choose_mas_version() {
-  echo -e "${COLOR_YELLOW}MAS Version:"
-  echo "May 26 2023 Update"
-  echo "  1. 8.10.1"
-  echo "  2. 8.9.5"
-  echo "April 14 2023 Update"
-  echo "  3. 8.10.0"
-  echo "  4. 8.9.4"
-  echo "March 14 2023 Update"
-  echo "  5. 8.9.3"
-  echo "February 17 2023 Update"
-  echo "  6. 8.9.2"
+  echo ""
+  echo " ┌───┬──────────────┬────────┬──────────────────────────────────────────────────────────────────────┐"
+  echo " │ # │ Catalog      │  Core  │ Assist |  IoT  | Manage | Monitor | Optimizer | Predict | Inspection |"
+  echo " ├───┼──────────────┼────────┼────────┤───────┼────────┼─────────┼───────────┼─────────┼────────────┤"
+  echo " │ 1 │ May 26 2023  | 8.10.1 │ 8.7.0  | 8.7.1 | 8.6.1  | 8.10.2  |   8.4.1   |  8.8.1  |   8.8.0    |"
+  echo " │ 2 │              │ 8.9.5  │ 8.6.3  | 8.6.6 | 8.5.5  | 8.9.5   |   8.3.3   |  8.7.2  |   8.7.1    |"
+  echo " ├───┼──────────────┼────────┼────────┤───────┼────────┼─────────┼───────────┼─────────┼────────────┤"
+  echo " │ 3 │ Apr 14 2023  │ 8.10.0 │ 8.7.0  | 8.7.0 | 8.6.0  | 8.10.0  |   8.4.0   |  8.8.0  |   8.8.0    |"
+  echo " │ 4 │              │ 8.9.4  │ 8.6.3  | 8.6.5 | 8.5.4  | 8.9.4   |   8.3.3   |  8.7.2  |   8.7.0    |"
+  echo " ├───┼──────────────┼────────┼────────┤───────┼────────┼─────────┼───────────┼─────────┼────────────┤"
+  echo " │ 5 │ Mar 14 2023  │ 8.9.3  │ 8.6.2  | 8.6.4 | 8.5.3  | 8.9.4   |   8.3.2   |  8.7.1  |   8.7.0    |"
+  echo " ├───┼──────────────┼────────┼────────┤───────┼────────┼─────────┼───────────┼─────────┼────────────┤"
+  echo " │ 6 │ Feb 17 2023  │ 8.9.2  │ 8.6.2  | 8.6.1 | 8.5.2  | 8.9.3   |   8.3.2   |  8.7.1  |   8.7.0    | "
+  echo " └───┴──────────────┴────────┴────────┴───────┴────────┴─────────┴───────────┴─────────┴────────────┘"
+  echo
   prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
 
   case $MAS_CHANNEL_SELECTION in
