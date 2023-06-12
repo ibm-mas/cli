@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 function channel_select_iot() {
   case $MAS_CHANNEL in
     8.10.x)
@@ -152,7 +151,11 @@ function config_pipeline_applications() {
     prompt_for_confirm "+ Create demo data" MAS_APP_SETTINGS_DEMODATA
     if prompt_for_confirm "+ Configure JMS"; then
       MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
-      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE="jms"
+      if [[ "$SNO_MODE" == "true" ]]; then
+        MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='snojms' # will just deploy manage with 'all' + 'jms' bundle pods
+      else
+        MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='jms' # will deploy manage with 'mea','rpt','ui','cron' and 'jms' bundle pods
+      fi
     fi
     if prompt_for_confirm "+ Customize database settings"; then
       prompt_for_input "Schema" MAS_APP_SETTINGS_DB2_SCHEMA
