@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# IoT Storage Classes for FPL and Messagesight
+
+function config_pipeline_iot_storage_classes() {
+
+  MAS_APP_SETTINGS_IOT_FPL_PVC_STORAGE_CLASS=$STORAGE_CLASS_RWO
+  MAS_APP_SETTINGS_IOT_MQTTBROKER_PVC_STORAGE_CLASS=$STORAGE_CLASS_RWO
+
+}
