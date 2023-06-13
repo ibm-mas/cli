@@ -1,7 +1,7 @@
 # SPS: Core x Manage
 # -------------------------------------------------------------------------
 - name: spscore-manage
-  {{ lookup('template', 'taskdefs/sps-core/common/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/sps-core/common/task.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/sps-core/common/params.yml.j2') | indent(4) }}
     - name: product_id
