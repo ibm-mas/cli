@@ -1,9 +1,9 @@
 ## Changes
 
 - [`5.4`](https://github.com/ibm-mas/cli/releases/tag/5.4.0) 
-    - Added new Manage core tests in `install-with-fvt` pipeline
-    - Added first IVT task between Manage and Monitor, also in `install-with-fvt` pipeline
-    - Reorganization of Manage tests in different test phases to avoid conflicts and distribute better use resources
+    - Added new Manage core tests in `install-with-fvt` pipeline (#330)
+    - Added first IVT task between Manage and Monitor, also in `install-with-fvt` pipeline (#330)
+    - Reorganization of Manage tests in different test phases to avoid conflicts and distribute better use resources (#330)
 - [`5.3`](https://github.com/ibm-mas/cli/releases/tag/5.3.0)
     - Support affinity and tolerations for Db2 install
     - Support mix of in-cluster & BYO databases
