@@ -16,6 +16,12 @@
       value: $(params.ibm_entitlement_key)
     - name: custom_labels
       value: $(params.custom_labels)
+    - name: mas_app_settings_iot_deployment_size
+      value: $(params.mas_app_settings_iot_deployment_size)
+    - name: mas_app_settings_iot_mqttbroker_pvc_storage_class
+      value: $(params.mas_app_settings_iot_mqttbroker_pvc_storage_class)
+    - name: mas_app_settings_iot_fpl_pvc_storage_class
+      value: $(params.mas_app_settings_iot_fpl_pvc_storage_class)
 
   taskRef:
     name: mas-devops-suite-app-install
