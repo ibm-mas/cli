@@ -212,23 +212,13 @@ spec:
         value: $(params.ctf_is_local)
 
   steps:
-    - image: ubuntu
+    - name: sps-trigger-scan
+      command:
+        - ibmcloud dev tekton-trigger 8487528e-4fc0-4a93-9bd5-c60d2d301932 --trigger-name "Security Scan Manual Trigger" --output json --trigger-properties "{\"fvt-host\":\"fvtsecurity.fvtsecurity-6f1620198115433da1cac8216c06779b-0000.us-south.containers.appdomain.cloud\",\"app-image-name\":\"$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)\",\"app-image-digest\":\"$(params.fvt_image_digest)\",\"app-image-tags\":\"$(params.fvt_image_digest)\"}"
+      image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
-      onError: continue # Ensure bad FVTs don't break the pipeline
-      resources: {}
-      workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
-      script: |
-        #!/usr/bin/env bash
-        # curl -s -H "Accept:application/vnd.github.v3.raw" -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.ibm.com/repos/maximoappsuite/masdev/contents/scripts/utils/ibmcloud.sh | bash -s trigger
-        ibmcloud dev tekton-trigger 8487528e-4fc0-4a93-9bd5-c60d2d301932 --trigger-name "Security Scan Manual Trigger" --output json --trigger-properties "{\"fvt-host\":\"fvtsecurity.fvtsecurity-6f1620198115433da1cac8216c06779b-0000.us-south.containers.appdomain.cloud\",\"app-image-name\":\"wiotp-docker-local.artifactory.swg-devops.com/fvt-manage/fvt-ibm-mas-manage:2.6.1-pre.vncupdates\",\"app-image-digest\":\"sha256:bd106e883cc134212379e4536f1746ac71a9db02d5e73998e63b97fcffb28f1e\",\"app-image-tags\":\"wiotp-docker-local.artifactory.swg-devops.com/fvt-manage/fvt-ibm-mas-manage:2.6.1-pre.vncupdates\"}"
-  volumes:
-    - name: dshm
-      emptyDir:
-        medium: Memory
+      timeout: 6h
+      onError: continue
 
   workspaces:
     - name: configs
