@@ -321,7 +321,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-workflow-designer # See note above
+    - fvt-manage-scheduler-user
 
 # Manage FVT - Scheduler - New User
 - name: fvt-manage-scheduler-user
@@ -335,7 +335,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-setup
+    - fvt-manage-setup
 
 # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-1
@@ -349,7 +349,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-user
+    - fvt-manage-scheduler-setup
 
 # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-2
@@ -363,7 +363,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-user
+    - fvt-manage-scheduler-setup
 
 # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-3
@@ -377,7 +377,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-user
+    - fvt-manage-scheduler-setup
 
 # Manage FVT - Health
 - name: fvt-manage-health
@@ -449,3 +449,31 @@
       value: web-mas-civil # display purposes only, not a keyword
   runAfter:
     - fvt-manage-civil-selenium-user
+
+# Manage FVT - Maintenance Manager Setup
+- name: fvt-manage-maintmanager-setup
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: maintmanager-setup-data
+    - name: fvt_mas_appws_component
+      value: maintmanager
+    - name: fvt_test_driver
+      value: graphite
+  runAfter:
+    - fvt-manage-setup
+
+# Manage FVT - Maintenance Manager Tests
+- name: fvt-manage-maintmanager
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: maintmanager-bvt
+    - name: fvt_mas_appws_component
+      value: maintmanager
+    - name: fvt_test_driver
+      value: graphite
+  runAfter:
+    - fvt-manage-maintmanager-setup
