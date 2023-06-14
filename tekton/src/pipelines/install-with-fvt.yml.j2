@@ -367,9 +367,6 @@ spec:
     # 27. Application FVT - Health
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-apps/health.yml.j2') | indent(4) }}
-      runAfter:
-        - app-cfg-manage # Requires Health as an add-on
-        - suite-config-watson-studio
 
   # Mustgather executed in finally block. Use suite_mustgather_download
   # playbook to retrieve the output on your local machine
