@@ -1,5 +1,9 @@
 ## Changes
 
+- [`5.4`](https://github.com/ibm-mas/cli/releases/tag/5.4.0) Multiple updates:
+    - Multiple Industry Solutions tasks updates for Maintenance Manager, Scheduler and Civil
+    - Parameter clean up for old Industry Solution tasks
+    - New FVT tasks for Optimizer
 - [`5.3`](https://github.com/ibm-mas/cli/releases/tag/5.3.0)
     - Support affinity and tolerations for Db2 install
     - Support mix of in-cluster & BYO databases
