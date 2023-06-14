@@ -24,31 +24,6 @@
   runAfter:
     - fvt-manage-setup
 
-## Mobile Foundation Prepare User Data
-- name: fvt-mobilefoundation-testng-preparedata
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }} 
-    - name: fvt_image_namespace
-      value: fvt-mobilefoundation
-    - name: fvt_image_name
-      value: fvt-mobilefoundation-preparedata
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_mobilefoundation_preparedata)
-    - name: fvt_test_suite
-      value: prepare
-    - name: browserstack_remoteserver
-      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
-  # Only if we've set a digest of the Mobile Foundation FVT to run
-  when:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_mobilefoundation_preparedata)"
-      operator: notin
-      values: [""]
-  runAfter:
-    - ivtcore-manage
-    - fvt-mobilefoundation-manage-setup
-  
 ## All Mobile Foundation MAS test suites
 - name: fvt-mobilefoundation-testng-mas-android
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
@@ -75,7 +50,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobilefoundation-testng-preparedata
+    - fvt-mobilefoundation-manage-setup
 
 - name: fvt-mobilefoundation-testng-mas-ios
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
@@ -102,10 +77,10 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobilefoundation-testng-preparedata
+    - fvt-mobilefoundation-manage-setup
 
 ## Prepare Data for Mobile Service Request MAS test suites
-- name: fvt-servicerequest-setup4sr
+- name: fvt-servicerequest-manage-setup
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
@@ -156,7 +131,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-servicerequest-setup4sr
+    - fvt-servicerequest-manage-setup
 
 ## Minimum Verification Test for Mobile Service Request MAS test suites
 - name: fvt-servicerequest-testng-mas-ios
@@ -187,26 +162,30 @@
     - fvt-servicerequest-testng-mas-android
 
 ## Prepare Data for Mobile Technician MAS test suites
-- name: fvt-technician-testng-preparedata
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
+- name: fvt-technician-manage-setup
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-technician
     - name: fvt_image_name
-      value: fvt-technician-preparedata
+      value: fvt-technician-manage-setup
     - name: fvt_image_digest
-      value: $(params.fvt_digest_technician_preparedata)
+      value: $(params.fvt_digest_technician_manage_setup)
     - name: fvt_test_suite
-      value: Technician-prepare-data
+      value: technician-setup-data
+    - name: fvt_mas_appws_component
+      value: mobile
+    - name: mas_appws_components
+      value: $(params.mas_appws_components)
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
     {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_technician_preparedata)"
+    - input: "$(params.fvt_digest_technician_manage_setup)"
       operator: notin
       values: [""]
   runAfter:
-    - fvt-asset-manager-testng-mas-ios
+    - fvt-manage-setup
 
 ## Minimum Verification Test for Mobile Technician MAS test suites
 - name: fvt-technician-testng-mas-android
@@ -234,7 +213,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-technician-testng-preparedata
+    - fvt-technician-manage-setup
 
 ## Minimum Verification Test for Mobile Technician MAS test suites
 - name: fvt-technician-testng-mas-ios
@@ -290,28 +269,6 @@
   runAfter:
     - fvt-manage-setup
 
-## Prepare Data for Mobile Inspection MAS test suites
-- name: fvt-inspections-testng-preparedata
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-inspections
-    - name: fvt_image_name
-      value: fvt-inspections-preparedata
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_inspection_preparedata)
-    - name: fvt_test_suite
-      value: Inspections-prepare-data
-  # Only if we've set a digest of the Mobile Foundation FVT to run
-  when:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_inspection_preparedata)"
-      operator: notin
-      values: [""]
-  runAfter:
-    - fvt-inspections-manage-setup
-
 ## Minimum Verification Test for Mobile Inspection MAS test suites
 - name: fvt-inspections-testng-mas-android
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
@@ -338,7 +295,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-inspections-testng-preparedata
+    - fvt-inspections-manage-setup
 
 ## Minimum Verification Test for Mobile Inspections MAS test suites
 - name: fvt-inspections-testng-mas-ios
@@ -368,28 +325,6 @@
   runAfter:
     - fvt-inspections-testng-mas-android
 
-## Prepare Data for Mobile Defects MAS test suites
-- name: fvt-defects-testng-preparedata
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-manage-civil
-    - name: fvt_image_name
-      value: fvt-ibm-mas-manage-civil-defects-preparedata
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_manage_defects_preparedata)
-    - name: fvt_test_suite
-      value: Defects-prepare-data
-  # Only if we've set a digest of the Mobile Foundation FVT to run
-  when:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_manage_defects_preparedata)"
-      operator: notin
-      values: [""]
-  runAfter:
-    - fvt-manage-setup
-
 ## Minimum Verification Test for Mobile Defects MAS test suites
 - name: fvt-defects-testng-mas-android
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
@@ -416,7 +351,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-defects-testng-preparedata
+    - fvt-technician-testng-mas-ios
 
 ## Minimum Verification Test for Mobile Defects MAS test suites
 - name: fvt-defects-testng-mas-ios
@@ -430,7 +365,7 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_manage_defects_testng)
     - name: fvt_test_suite
-      value: Defects-mas-ios-MVT
+      value: Defects-mas-android-MVT
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -445,28 +380,6 @@
       values: [""]
   runAfter:
     - fvt-defects-testng-mas-android
-
-## Prepare Data for Mobile Asset Manager MAS test suites
-- name: fvt-asset-manager-testng-preparedata
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-manage.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-asset-manager
-    - name: fvt_image_name
-      value: fvt-asset-manager-preparedata
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_asset_manager_preparedata)
-    - name: fvt_test_suite
-      value: AssetManager-prepare-data
-  # Only if we've set a digest of the Mobile Foundation FVT to run
-  when:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_asset_manager_preparedata)"
-      operator: notin
-      values: [""]
-  runAfter:
-    - fvt-manage-setup
 
 ## Minimum Verification Test for Mobile Asset Manager MAS test suites
 - name: fvt-asset-manager-testng-mas-android
@@ -496,7 +409,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-asset-manager-testng-preparedata
+    - fvt-technician-testng-mas-ios
 
 ## Minimum Verification Test for Mobile Asset Manager MAS test suites
 - name: fvt-asset-manager-testng-mas-ios
@@ -527,7 +440,7 @@
     - fvt-asset-manager-testng-mas-android
 
 # Manage FVT - IC Setup
-- name: fvt-mobile-inventorycounting-setup
+- name: fvt-inventorycounting-manage-setup
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
@@ -536,7 +449,7 @@
     - name: fvt_image_name
       value: fvt-inventorycounting-manage-setup
     - name: fvt_image_digest
-      value: $(params.fvt_digest_ic_manage_setup)
+      value: $(params.fvt_digest_inventorycounting_manage_setup)
     - name: fvt_mas_appws_component
       value: mobile
     - name: mas_appws_components
@@ -546,7 +459,7 @@
   # Only if we've set a digest of the IC FVT to run
   when:
     {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_ic_manage_setup)"
+    - input: "$(params.fvt_digest_inventorycounting_manage_setup)"
       operator: notin
       values: [""]
   runAfter:
@@ -562,7 +475,7 @@
     - name: fvt_image_name
       value: fvt-inventorycounting-testng
     - name: fvt_image_digest
-      value: $(params.fvt_digest_ic_testng)
+      value: $(params.fvt_digest_inventorycounting_testng)
     - name: fvt_mas_appws_component
       value: base
     - name: mas_appws_components
@@ -572,8 +485,8 @@
   # Only if we've set a digest of the Mobile IC FVT to run
   when:
     {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_ic_testng)"
+    - input: "$(params.fvt_digest_inventorycounting_testng)"
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobile-inventorycounting-setup
+    - fvt-inventorycounting-manage-setup
