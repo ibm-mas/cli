@@ -136,36 +136,6 @@ spec:
     - name: configs
 
   steps:
-    - name: mif-jms-setup
-      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest_manage)'
-      imagePullPolicy: $(params.image_pull_policy)
-      timeout: 90m # Ensure bad FVTs don't run forever
-      onError: continue # Ensure bad FVTs don't break the pipeline
-      resources: {}
-      workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
-      env:
-        - name: FVT_TEST_SUITE
-          value: mif-jms-setup
-        - name: PRODUCT_CHANNEL
-          value: $(params.product_channel_manage)
-    - name: mif-dd-setup
-      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest_manage)'
-      imagePullPolicy: $(params.image_pull_policy)
-      timeout: 90m # Ensure bad FVTs don't run forever
-      onError: continue # Ensure bad FVTs don't break the pipeline
-      resources: {}
-      workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
-      env:
-        - name: FVT_TEST_SUITE
-          value: mif-dd-setup
-        - name: PRODUCT_CHANNEL
-          value: $(params.product_channel_manage)
     - name: mif-dd
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest_manage)'
       imagePullPolicy: $(params.image_pull_policy)
