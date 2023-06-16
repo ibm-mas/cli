@@ -1,5 +1,6 @@
 ## Changes
-
+- [`5.6`](https://github.com/ibm-mas/cli/releases/tag/5.6.0) Multiple updates: 
+    - Support June Catalog Update ()
 - [`5.5`](https://github.com/ibm-mas/cli/releases/tag/5.5.0) Multiple updates:
     - Added new Manage core tests in `install-with-fvt` pipeline (#330)
     - Added first IVT task between Manage and Monitor, also in `install-with-fvt` pipeline (#330)
