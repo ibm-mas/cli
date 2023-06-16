@@ -413,6 +413,11 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-apps/optimizer.yml.j2') | indent(4) }}
 
+    
+    # 27. Applications IVT
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/ivt.yml.j2') | indent(4) }}
+
 
   # Mustgather executed in finally block. Use suite_mustgather_download
   # playbook to retrieve the output on your local machine
