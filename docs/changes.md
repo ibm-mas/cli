@@ -1,14 +1,11 @@
 ## Changes
-- [`5.6`](https://github.com/ibm-mas/cli/releases/tag/5.6.0) Multiple updates: 
-    - Support June Catalog Update ()
-- [`5.5`](https://github.com/ibm-mas/cli/releases/tag/5.5.0) Multiple updates:
+- [`5.4`](https://github.com/ibm-mas/cli/releases/tag/5.4.0) Multiple updates:
+    - Support June Catalog Update
+    - Multiple Industry Solutions tasks updates for Maintenance Manager, Scheduler and Civil
+    - New FVT tasks for Optimizer
     - Added new Manage core tests in `install-with-fvt` pipeline (#330)
     - Added first IVT task between Manage and Monitor, also in `install-with-fvt` pipeline (#330)
     - Reorganization of Manage tests in different test phases to avoid conflicts and distribute better use resources (#330)
-- [`5.4`](https://github.com/ibm-mas/cli/releases/tag/5.4.0) Multiple updates:
-    - Multiple Industry Solutions tasks updates for Maintenance Manager, Scheduler and Civil
-    - Parameter clean up for old Industry Solution tasks
-    - New FVT tasks for Optimizer
 - [`5.3`](https://github.com/ibm-mas/cli/releases/tag/5.3.0)
     - Support affinity and tolerations for Db2 install
     - Support mix of in-cluster & BYO databases
