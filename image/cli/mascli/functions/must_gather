@@ -160,7 +160,7 @@ function mustgather() {
   do
     echo_h2 "Maximo Application Suite Must Gather: ${MAS_INSTANCE_ID}"
 
-    for MAS_APP_ID in core assist iot monitor manage optimizer visualinspection pipelines
+    for MAS_APP_ID in core add assist iot monitor manage optimizer predict visualinspection pipelines
     do
       MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
       NAMESPACE_LOOKUP=$(oc get namespace $MAS_APP_NAMESPACE --ignore-not-found)
