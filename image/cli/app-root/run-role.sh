@@ -12,6 +12,7 @@ source /opt/app-root/src/env.sh
 # oc auth can-i --list
 
 export ROLE_NAME=$1
+export ANSIBLE_DEVOPS_VERSION=$(grep -oP '(?<="version": ")[^"]*' $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops/MANIFEST.json) # get ibm.mas_devops version from manifest.json
 ansible-playbook ibm.mas_devops.run_role
 rc=$?
 python3 /opt/app-root/src/save-junit-to-mongo.py
