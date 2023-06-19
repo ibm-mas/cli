@@ -1,6 +1,16 @@
 ## Changes
-
-- [`5.2`](https://github.com/ibm-mas/cli/releases/tag/5.1.0) Add support for AWS Route 53 as DNS provider for MAS installs
+- [`5.4`](https://github.com/ibm-mas/cli/releases/tag/5.4.0) Multiple updates:
+    - Support June Catalog Update
+    - Multiple Industry Solutions tasks updates for Maintenance Manager, Scheduler and Civil
+    - New FVT tasks for Optimizer
+    - Added new Manage core tests in `install-with-fvt` pipeline (#330)
+    - Added first IVT task between Manage and Monitor, also in `install-with-fvt` pipeline (#330)
+    - Reorganization of Manage tests in different test phases to avoid conflicts and distribute better use resources (#330)
+- [`5.3`](https://github.com/ibm-mas/cli/releases/tag/5.3.0)
+    - Support affinity and tolerations for Db2 install
+    - Support mix of in-cluster & BYO databases
+    - Add new Manage bundle server config for SNO
+- [`5.2`](https://github.com/ibm-mas/cli/releases/tag/5.2.0) Add support for AWS Route 53 as DNS provider for MAS installs
 - [`5.1`](https://github.com/ibm-mas/cli/releases/tag/5.1.0) Add support for May 26 Catalog Update
 - [`5.0`](https://github.com/ibm-mas/cli/releases/tag/5.0.0) Multiple updates:
     - Add support for non-interactive `mas install` mode

@@ -124,6 +124,16 @@ function pipeline_show_config() {
     echo_reset_dim "Backup Storage ............ ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_SIZE:-<default>}"
     echo_reset_dim "Temp Storage .............. ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_SIZE:-<default>}"
     echo_reset_dim "Transaction Logs Storage .. ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_SIZE:-<default>}"
+
+    if [[ "$DB2_SET_AFFINITY" == "true" ]]
+      then echo_reset_dim "Node Affinity ............. ${COLOR_MAGENTA}${DB2_AFFINITY_KEY}=${DB2_AFFINITY_VALUE}"
+      else echo_reset_dim "Node Affinity ............. None"
+    fi
+
+    if [[ "$DB2_SET_TOLERATIONS" == "true" ]]
+      then echo_reset_dim "Node Tolerations .......... ${COLOR_MAGENTA}${DB2_TOLERATE_KEY}=${DB2_TOLERATE_VALUE} @ ${DB2_TOLERATE_EFFECT}"
+      else echo_reset_dim "Node Tolerations .......... None"
+    fi
   fi
 
   reset_colors

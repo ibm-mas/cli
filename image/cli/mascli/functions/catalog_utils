@@ -1,0 +1,157 @@
+#!/bin/bash
+
+# This file contains all the code that needs to change whenever a new catalog is released
+# Make sure to update every function in this file when adding support for a new catalog
+
+# Choose a catalog only
+# -----------------------------------------------------------------------------
+# Currently only used in the mas update function.  The user does not need to select
+# the version of MAS, only the version of the catalog to update to.
+function choose_catalog_version() {
+  echo -e "${COLOR_YELLOW}Select MAS Catalog:"
+  echo "  1) June 16 2023 Update (MAS 8.10.2 & 8.9.6)"
+  echo "  2) May 26 2023 Update (MAS 8.10.1 & 8.9.5)"
+  echo "  3) April 14 2023 Update (MAS 8.10.0 & 8.9.4)"
+  echo "  4) March 14 2023 Update (MAS 8.9.3)"
+  prompt_for_input "Select Catalog Version" MAS_CATALOG_SELECTION "1"
+
+  case $MAS_CATALOG_SELECTION in
+    1)
+      MAS_CATALOG_VERSION=v8-230616-amd64
+      ;;
+    2)
+      MAS_CATALOG_VERSION=v8-230526-amd64
+      ;;
+    3)
+      MAS_CATALOG_VERSION=v8-230414-amd64
+      ;;
+    4)
+      MAS_CATALOG_VERSION=v8-230314-amd64
+      ;;
+    *)
+      echo_warning "Invalid selection"
+      exit 1
+      ;;
+  esac
+}
+
+
+# Choose a catalog and the MAS channel
+# -----------------------------------------------------------------------------
+# Currently only in the mas install and mirror-images functions.  The user must
+# select both a version of the catalog and a version of MAS within the catalog.
+function choose_mas_version() {
+  echo ""
+  echo " ┌───┬──────────────┬────────┬──────────────────────────────────────────────────────────────────────┐"
+  echo " │ # │ Catalog      │  Core  │ Assist |  IoT  | Manage | Monitor | Optimizer | Predict | Inspection |"
+  echo " ├───┼──────────────┼────────┼────────┤───────┼────────┼─────────┼───────────┼─────────┼────────────┤"
+  echo " │ 1 │ June 16 2023 | 8.10.2 │ 8.7.1  | 8.7.2 | 8.6.2  | 8.10.3  |   8.4.1   |  8.8.1  |   8.8.1    |"
+  echo " │ 2 │              │ 8.9.6  │ 8.6.4  | 8.6.7 | 8.5.6  | 8.9.5   |   8.3.3   |  8.7.2  |   8.7.1    |"
+  echo " ├───┼──────────────┼────────┼────────┤───────┼────────┼─────────┼───────────┼─────────┼────────────┤"
+  echo " │ 3 │ May 26 2023  | 8.10.1 │ 8.7.0  | 8.7.1 | 8.6.1  | 8.10.2  |   8.4.1   |  8.8.1  |   8.8.0    |"
+  echo " │ 4 │              │ 8.9.5  │ 8.6.3  | 8.6.6 | 8.5.5  | 8.9.5   |   8.3.3   |  8.7.2  |   8.7.1    |"
+  echo " ├───┼──────────────┼────────┼────────┤───────┼────────┼─────────┼───────────┼─────────┼────────────┤"
+  echo " │ 5 │ Apr 14 2023  │ 8.10.0 │ 8.7.0  | 8.7.0 | 8.6.0  | 8.10.0  |   8.4.0   |  8.8.0  |   8.8.0    |"
+  echo " │ 6 │              │ 8.9.4  │ 8.6.3  | 8.6.5 | 8.5.4  | 8.9.4   |   8.3.3   |  8.7.2  |   8.7.0    |"
+  echo " ├───┼──────────────┼────────┼────────┤───────┼────────┼─────────┼───────────┼─────────┼────────────┤"
+  echo " │ 7 │ Mar 14 2023  │ 8.9.3  │ 8.6.2  | 8.6.4 | 8.5.3  | 8.9.4   |   8.3.2   |  8.7.1  |   8.7.0    |"
+  echo " └───┴──────────────┴────────┴────────┴───────┴────────┴─────────┴───────────┴─────────┴────────────┘"
+  echo
+  prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
+
+  case $MAS_CHANNEL_SELECTION in
+    # June 2023
+    1)
+      MAS_CHANNEL=8.10.x
+      MAS_CATALOG_VERSION=v8-230616-amd64
+      ;;
+    2)
+      MAS_CHANNEL=8.9.x
+      MAS_CATALOG_VERSION=v8-230616-amd64
+      ;;
+
+    # May 2023
+    3)
+      MAS_CHANNEL=8.10.x
+      MAS_CATALOG_VERSION=v8-230526-amd64
+      ;;
+    4)
+      MAS_CHANNEL=8.9.x
+      MAS_CATALOG_VERSION=v8-230526-amd64
+      ;;
+
+    # April 2023
+    5)
+      MAS_CHANNEL=8.10.x
+      MAS_CATALOG_VERSION=v8-230414-amd64
+      ;;
+    6)
+      MAS_CHANNEL=8.9.x
+      MAS_CATALOG_VERSION=v8-230414-amd64
+      ;;
+
+    # March 2023
+    7)
+      MAS_CHANNEL=8.9.x
+      MAS_CATALOG_VERSION=v8-230314-amd64
+      ;;
+
+    # Invalid Selection
+    *)
+      echo_warning "Invalid selection"
+      exit 1
+      ;;
+  esac
+}
+
+
+# Determine the version of Db2u Operator to use
+# -----------------------------------------------------------------------------
+# We automatically select the version of the Db2u operator to install in the
+# cluster based on the version of the catalog that is being used
+function db2_channel_selection() {
+  case $MAS_CATALOG_VERSION in
+    # Db2 Channel selection
+    # -------------------------------------------------------------------------
+    v8-amd64|v8-230414-amd64|v8-230518-amd64|v8-230526-amd64|v8-230616-amd64)
+      DB2_CHANNEL=v110508.0
+      ;;
+    v8-230111-amd64|v8-230217-amd64|v8-230314-amd64|v8-230328-amd64)
+      DB2_CHANNEL=v2.2
+      ;;
+    *)
+      DB2_CHANNEL="" # The default channel will be used
+      ;;
+  esac
+}
+
+
+# Determine the version of Cloud Pak for Data to use
+# -----------------------------------------------------------------------------
+# We automatically select the version of CP4D to install in the
+# cluster based on the version of the catalog that is being used
+function cp4d_channel_selection() {
+  case $MAS_CATALOG_VERSION in
+    # CP4D v4.6.4 was added in the June 2023 catalog update
+    v8-amd64|v8-230616-amd64)
+      CP4D_VERSION=4.6.4
+      ;;
+    # CP4D v4.6.3 was added in the April 2023 catalog update
+    v8-230414-amd64|v8-230518-amd64|v8-230526-amd64)
+      CP4D_VERSION=4.6.3
+      ;;
+    # CP4D v4.6.0 was added in the February 2023 catalog update
+    v8-230217-amd64|v8-230314-amd64)
+      CP4D_VERSION=4.6.0
+      ;;
+    # Versions of the catalog older than February 2023 support up to CP4D v4.5.2
+    v8-230111-amd64)
+      CP4D_VERSION=4.5.2
+      ;;
+    *)
+      echo
+      echo "One or more selected applications require Cloud Pak for Data"
+      prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.6.4"
+      ;;
+  esac
+}
