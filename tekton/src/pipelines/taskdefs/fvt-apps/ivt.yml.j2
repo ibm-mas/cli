@@ -1,0 +1,51 @@
+
+# -------------------------------------------------------------
+# Manage x Monitor - Data Dictionary
+# - Requires in the same pipeline:
+#   - fvt-apps/manage.yml.j2
+#   - fvt-apps/monitor.yml.j2
+# -------------------------------------------------------------
+- name: ivt-manage-monitor-dd
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_digest_manage
+      value: $(params.fvt_digest_manage)
+    - name: fvt_image_digest_monitor
+      value: $(params.fvt_digest_ctf)
+    - name: product_channel_manage
+      value: $(params.mas_app_channel_manage)
+    - name: product_channel_monitor
+      value: $(params.mas_app_channel_monitor)
+    - name: mas_appws_components
+      value: $(params.mas_appws_components)
+    - name: devops_cos_crn
+      value: $(params.devops_cos_crn)
+    - name: devops_ibmcloud_apikey
+      value: $(params.devops_ibmcloud_apikey)      
+  taskRef:
+    kind: Task
+    name: mas-ivt-manage-monitor-dd
+  when:
+    - input: "$(params.fvt_digest_ctf)"
+      operator: notin
+      values: [""]
+    - input: "$(params.fvt_digest_manage)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_monitor)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+  runAfter:
+    - fvt-manage-workflow-designer
+    - ivtcore-monitor

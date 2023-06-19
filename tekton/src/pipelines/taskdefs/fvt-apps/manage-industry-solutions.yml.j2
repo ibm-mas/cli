@@ -1,3 +1,6 @@
+# Note: last FVT test of Manage Core is fvt-manage-workflow-designer to avoid trigger
+# all the tests at the same time, be sure to start industry solution and mobile tests
+# after this test instead of fvt-manage-setup
 # Manage FVT - ACM Setup
 - name: fvt-manage-acm-setup
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
@@ -10,7 +13,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-workflow-designer # See note above
 
 # Manage FVT - ACM - New User
 - name: fvt-manage-acm-user
@@ -66,7 +69,7 @@
     - name: fvt_test_driver
       value: tpae 
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-workflow-designer # See note above
 
 # Manage FVT - HSE Setup
 - name: fvt-manage-hse-setup
@@ -80,7 +83,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-workflow-designer # See note above
 
 # Manage FVT - HSE - New User
 - name: fvt-manage-hse-user
@@ -122,7 +125,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-workflow-designer # See note above
 
 # Manage FVT - Nuclear - New User
 - name: fvt-manage-nuclear-user
@@ -164,7 +167,7 @@
     - name: fvt_test_driver
       value: tpae      
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-workflow-designer # See note above
 
 # Manage FVT - Service Provider - New User
 - name: fvt-manage-serviceprovider-user
@@ -206,7 +209,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-workflow-designer # See note above
 
 # Manage FVT - Location Base Services - New User
 - name: fvt-manage-lbs-user
@@ -276,7 +279,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-workflow-designer # See note above
 
 # Manage FVT - Transportation - New User
 - name: fvt-manage-transportation-user
@@ -318,7 +321,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-scheduler-user
 
 # Manage FVT - Scheduler - New User
 - name: fvt-manage-scheduler-user
@@ -332,7 +335,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-setup
+    - fvt-manage-setup
 
 # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-1
@@ -346,7 +349,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-user
+    - fvt-manage-scheduler-setup
 
 # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-2
@@ -360,7 +363,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-user
+    - fvt-manage-scheduler-setup
 
 # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-3
@@ -374,7 +377,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-user
+    - fvt-manage-scheduler-setup
 
 # Manage FVT - Health
 - name: fvt-manage-health
@@ -388,7 +391,7 @@
     - name: fvt_test_driver
       value: graphite
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-workflow-designer # See note above
 
 # Manage FVT - Civil Infrastructure Selenium - Setup
 - name: fvt-manage-civil-selenium-setup
@@ -402,7 +405,7 @@
     - name: fvt_test_suite
       value: fvt-ci-setup
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-workflow-designer # See note above
 
 # Manage FVT - Civil Infrastructure Selenium - New User
 - name: fvt-manage-civil-selenium-user
@@ -446,3 +449,31 @@
       value: web-mas-civil # display purposes only, not a keyword
   runAfter:
     - fvt-manage-civil-selenium-user
+
+# Manage FVT - Maintenance Manager Setup
+- name: fvt-manage-maintmanager-setup
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: maintmanager-setup-data
+    - name: fvt_mas_appws_component
+      value: maintmanager
+    - name: fvt_test_driver
+      value: graphite
+  runAfter:
+    - fvt-manage-setup
+
+# Manage FVT - Maintenance Manager Tests
+- name: fvt-manage-maintmanager
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: maintmanager-bvt
+    - name: fvt_mas_appws_component
+      value: maintmanager
+    - name: fvt_test_driver
+      value: graphite
+  runAfter:
+    - fvt-manage-maintmanager-setup
