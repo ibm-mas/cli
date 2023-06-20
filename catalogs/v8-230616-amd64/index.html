@@ -202,11 +202,28 @@ spec:
     <td>September 10, 2023</td>
     <td>8.9 - 8.10</td>
   </tr>
+  <tr>
+    <td class="firstColumn">4.11<sup>1</sup></td>
+    <td>August 10, 2022</td>
+    <td>February 10, 2024</td>
+    <td>8.9 - 8.10</td>
+  </tr>
+  <tr>
+    <td class="firstColumn">4.12</td>
+    <td>January 17, 2023</td>
+    <td>January 17, 2025</td>
+    <td>8.9 - 8.10</td>
+  </tr>
 </table>
 
+<ol>
+<li>Note that <strong>IBM App Connect</strong> and <strong>IBM Cloud Pak for Data</strong> do not support odd-numbered OpenShift releases, so if you intend to use Predict, HP Utilities, or Assist you are limited to use of the even numbered OCP releases.</li>
+</ol>
 <h3 id="certified-operators">Certified Operators<a class="headerlink" href="#certified-operators" title="Permanent link"></a></h3>
 <ul>
 <li><code>registry.redhat.io/redhat/certified-operator-index:v4.10</code></li>
+<li><code>registry.redhat.io/redhat/certified-operator-index:v4.11</code></li>
+<li><code>registry.redhat.io/redhat/certified-operator-index:v4.12</code></li>
 </ul>
 <p>The following packages from this catalog are used in the Maximo Application Suite install:</p>
 <ul>
@@ -217,6 +234,8 @@ spec:
 <h3 id="community-operators">Community Operators<a class="headerlink" href="#community-operators" title="Permanent link"></a></h3>
 <ul>
 <li><code>registry.redhat.io/redhat/community-operator-index:v4.10</code></li>
+<li><code>registry.redhat.io/redhat/community-operator-index:v4.11</code></li>
+<li><code>registry.redhat.io/redhat/community-operator-index:v4.12</code></li>
 </ul>
 <p>The following packages from this catalog are used in the Maximo Application Suite install:</p>
 <ul>
@@ -226,6 +245,8 @@ spec:
 <h3 id="red-hat-operators">Red Hat Operators<a class="headerlink" href="#red-hat-operators" title="Permanent link"></a></h3>
 <ul>
 <li><code>registry.redhat.io/redhat/redhat-operator-index:v4.10</code></li>
+<li><code>registry.redhat.io/redhat/redhat-operator-index:v4.11</code></li>
+<li><code>registry.redhat.io/redhat/redhat-operator-index:v4.12</code></li>
 </ul>
 <p>The following packages from this catalog are used in the Maximo Application Suite install:</p>
 <ul>
@@ -237,8 +258,6 @@ spec:
 <li><strong>ocs-operator</strong>  required by <code>ibm.mas_devops.ocs</code> role (OCP 4.10)</li>
 <li><strong>odf-operator</strong>  required by <code>ibm.mas_devops.ocs</code> role (OCP 4.11+)</li>
 </ul>
-<!-- 1. Note that **IBM App Connect** and **IBM Cloud Pak for Data** do not support odd-numbered OpenShift releases, so if you intend to use Predict, HP Utilities, or Assist you are limited to use of the even numbered OCP releases. -->
-
 <h2 id="ibm-cloud-pak-for-data-compatibility">IBM Cloud Pak for Data Compatibility<a class="headerlink" href="#ibm-cloud-pak-for-data-compatibility" title="Permanent link"></a></h2>
 <p>Maximo application compatibility with Cloud Pak for Data (CP4D) is complicated by limited OpenShift Container Platform support in CP4D (only even numbered OCP releases are supported) and minor updates to CP4D services not always being backwards compatible.  For more information on Cloud Pak for Data's support policy review this <a href="https://www.ibm.com/support/pages/node/6593147">IBM Cloud Pak for Data Software Support Lifecycle Addendum</a>.</p>
 <p>Cloud Pak for Data covers the following application's dependencies:</p>
