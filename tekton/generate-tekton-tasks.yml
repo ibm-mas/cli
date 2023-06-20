@@ -49,6 +49,7 @@
         - fvt-core
         - fvt-core-ui
         - fvt-manage
+        - fvt-manage-scan
         - fvt-run-suite
         - fvt-wait-for-install
 
