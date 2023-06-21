@@ -21,6 +21,7 @@ if __name__ == "__main__":
 
     channelId = "n/a"
     cliVersion = os.getenv("VERSION", "unknown")
+    ansibleDevopsVersion = os.getenv("ANSIBLE_DEVOPS_VERSION", "unknown")
 
     if suite == "":
         print ("Results not recorded because DEVOPS_SUITE_NAME is not defined")
@@ -70,7 +71,8 @@ if __name__ == "__main__":
                 "build": build,
                 "productId": productId,
                 "channelId": channelId,
-                "version": cliVersion
+                "version": cliVersion,
+                "ansibleDevopsVersion": ansibleDevopsVersion
             }
 
             # Look for existing summary document
@@ -103,6 +105,7 @@ if __name__ == "__main__":
                         f"products.ibm-mas-devops.productId": productId,
                         f"products.ibm-mas-devops.channelId": channelId,
                         f"products.ibm-mas-devops.version": cliVersion,
+                        f"products.ibm-mas-devops.ansibleDevopsVersion": ansibleDevopsVersion,
                         f"products.ibm-mas-devops.results.{suite}": suiteSummary
                     }
                 },
