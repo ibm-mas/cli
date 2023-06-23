@@ -1,4 +1,5 @@
 ## Changes
+- [`5.5`](https://github.com/ibm-mas/cli/releases/tag/5.5.0) Include the fvt-core-trustcas test into FVT Core phase 5, to test setting the Suite trustDefaultCAs flag (#338)
 - [`5.4`](https://github.com/ibm-mas/cli/releases/tag/5.4.0) Multiple updates:
     - Support June Catalog Update
     - Multiple Industry Solutions tasks updates for Maintenance Manager, Scheduler and Civil
