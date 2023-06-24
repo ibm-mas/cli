@@ -9,9 +9,14 @@ import sys
 from datetime import datetime
 from pymongo import MongoClient
 from xmljson import Yahoo
+from pprint import pprint
 import glob
 
 if __name__ == "__main__":
+    if "DEVOPS_MONGO_URI" not in os.environ or os.environ['DEVOPS_MONGO_URI'] != "":
+        sys.exit(0)
+
+    print("Saving pipeline results to MongoDb (v2 data model)")
     # Initialize the properties we need
     instanceId = os.getenv("MAS_INSTANCE_ID", "none")
     productId = "ibm-mas-devops"
@@ -26,7 +31,6 @@ if __name__ == "__main__":
     if suite == "":
         print ("Results not recorded because DEVOPS_SUITE_NAME is not defined")
         exit(0)
-
     if instanceId is None:
         print("Results not recorded because MAS_INSTANCE_ID env var is not set")
         exit(0)
@@ -36,6 +40,18 @@ if __name__ == "__main__":
 
     runId = f"{instanceId}:{build}"
     resultId = f"{instanceId}:{build}:{productId}:{suite}"
+
+    print(f"Instance ID ............ {instanceId}")
+    print(f"Product ID ............. {productId}")
+    print(f"Build .................. {build}")
+    print(f"Suite .................. {suite}")
+    print(f"Channel ID ............. {channelId}")
+
+    print(f"CLI Version ............ {cliVersion}")
+    print(f"mas_devops Version ..... {ansibleDevopsVersion}")
+
+    print(f"Run ID ................. {runId}")
+    print(f"Result ID .............. {resultId}")
 
     resultFiles = glob.glob(f'{junitOutputDir}/*.xml')
     for resultfile in resultFiles:
@@ -47,79 +63,78 @@ if __name__ == "__main__":
 
         root = tree.getroot()
 
-        if "DEVOPS_MONGO_URI" in os.environ and os.environ['DEVOPS_MONGO_URI'] != "":
-            # Convert junit xml to json
-            bf = Yahoo(dict_type=dict)
-            resultDoc = bf.data(root)
+        # Convert junit xml to json
+        bf = Yahoo(dict_type=dict)
+        resultDoc = bf.data(root)
 
-            for testcase in resultDoc["testsuites"]["testsuite"]["testcase"]:
-                testcase["name"] = testcase["name"].replace("[localhost] localhost: ", "")
-                # Playbooks don't have ibm/mas_devops in the classname but do have /opt/app-root.
-                # Roles have both ibm/mas_devops and /opt/app-root.
-                # Guard against both and remove when required.
-                if "/opt/app-root/" in testcase["classname"]:
-                    testcase["classname"] = testcase["classname"].split("/opt/app-root/")[1]
-                if "ibm/mas_devops/" in testcase["classname"]:
-                    testcase["classname"] = testcase["classname"].split("ibm/mas_devops/")[1]
-            # Enrich document
-            resultDoc["_id"] = resultId
-            resultDoc["build"] = build
-            resultDoc["suite"] = suite
-            resultDoc["timestamp"] = datetime.utcnow()
-            resultDoc["target"] = {
-                "instanceId": instanceId,
-                "build": build,
-                "productId": productId,
-                "channelId": channelId,
-                "version": cliVersion,
-                "ansibleDevopsVersion": ansibleDevopsVersion
-            }
+        for testcase in resultDoc["testsuites"]["testsuite"]["testcase"]:
+            testcase["name"] = testcase["name"].replace("[localhost] localhost: ", "")
+            # Playbooks don't have ibm/mas_devops in the classname but do have /opt/app-root.
+            # Roles have both ibm/mas_devops and /opt/app-root.
+            # Guard against both and remove when required.
+            if "/opt/app-root/" in testcase["classname"]:
+                testcase["classname"] = testcase["classname"].split("/opt/app-root/")[1]
+            if "ibm/mas_devops/" in testcase["classname"]:
+                testcase["classname"] = testcase["classname"].split("ibm/mas_devops/")[1]
+        # Enrich document
+        resultDoc["_id"] = resultId
+        resultDoc["build"] = build
+        resultDoc["suite"] = suite
+        resultDoc["timestamp"] = datetime.utcnow()
+        resultDoc["target"] = {
+            "instanceId": instanceId,
+            "build": build,
+            "productId": productId,
+            "channelId": channelId,
+            "version": cliVersion,
+            "ansibleDevopsVersion": ansibleDevopsVersion
+        }
 
-            # Look for existing summary document
-            suiteSummary = {
-                "tests" : int(resultDoc["testsuites"]["testsuite"]["tests"]),
-                "errors" : int(resultDoc["testsuites"]["testsuite"]["errors"]),
-                "name" : suite,
-                "skipped" : int(resultDoc["testsuites"]["testsuite"]["skipped"]),
-                "time" : float(resultDoc["testsuites"]["testsuite"]["time"]),
-                "failures" : int(resultDoc["testsuites"]["testsuite"]["failures"])
-            }
+        # Look for existing summary document
+        suiteSummary = {
+            "tests" : int(resultDoc["testsuites"]["testsuite"]["tests"]),
+            "errors" : int(resultDoc["testsuites"]["testsuite"]["errors"]),
+            "name" : suite,
+            "skipped" : int(resultDoc["testsuites"]["testsuite"]["skipped"]),
+            "time" : float(resultDoc["testsuites"]["testsuite"]["time"]),
+            "failures" : int(resultDoc["testsuites"]["testsuite"]["failures"])
+        }
 
-            # Connect to mongoDb
-            client = MongoClient(os.getenv("DEVOPS_MONGO_URI"))
-            db = client.masfvt
+        # Connect to mongoDb
+        client = MongoClient(os.getenv("DEVOPS_MONGO_URI"))
+        db = client.masfvt
 
-            # Update or create summary doc
-            result1 = db.runsv2.find_one_and_update(
-                {"_id": runId},
-                {
-                    '$setOnInsert': {
-                        "_id": runId,
-                        "timestamp": datetime.utcnow(),
-                        "target": {
-                            "instanceId": instanceId,
-                            "buildId": build,
-                        }
-                    },
-                    '$set': {
-                        f"products.ibm-mas-devops.productId": productId,
-                        f"products.ibm-mas-devops.channelId": channelId,
-                        f"products.ibm-mas-devops.version": cliVersion,
-                        f"products.ibm-mas-devops.ansibleDevopsVersion": ansibleDevopsVersion,
-                        f"products.ibm-mas-devops.results.{suite}": suiteSummary
+        # Update or create summary doc
+        result1 = db.runsv2.find_one_and_update(
+            {"_id": runId},
+            {
+                '$setOnInsert': {
+                    "_id": runId,
+                    "timestamp": datetime.utcnow(),
+                    "target": {
+                        "instanceId": instanceId,
+                        "buildId": build,
                     }
                 },
-                upsert=True
-            )
+                '$set': {
+                    f"products.ibm-mas-devops.productId": productId,
+                    f"products.ibm-mas-devops.channelId": channelId,
+                    f"products.ibm-mas-devops.version": cliVersion,
+                    f"products.ibm-mas-devops.ansibleDevopsVersion": ansibleDevopsVersion,
+                    f"products.ibm-mas-devops.results.{suite}": suiteSummary
+                }
+            },
+            upsert=True
+        )
 
-            # Replace or create result doc
-            result2 = db.resultsv2.replace_one(
-                {"_id": resultId},
-                resultDoc,
-                upsert=True
-            )
-            print("Pipeline results saved to MongoDb (v2 data model)")
-            print(result1)
-            print(result2)
-        else:
-            print("Pipeline results not recorded as DEVOPS_MONGO_URI is not defined")
+        # Replace or create result doc
+        result2 = db.resultsv2.replace_one(
+            {"_id": resultId},
+            resultDoc,
+            upsert=True
+        )
+        print("Pipeline results saved to MongoDb (v2 data model)")
+        print(result1)
+        pprint(resultDoc)
+
+        print(result2)
