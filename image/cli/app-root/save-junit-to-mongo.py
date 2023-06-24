@@ -14,9 +14,10 @@ import glob
 
 if __name__ == "__main__":
     if "DEVOPS_MONGO_URI" not in os.environ or os.environ['DEVOPS_MONGO_URI'] != "":
+        print("MongoDb integration disabled because DEVOPS_MONGO_URI is not set")
         sys.exit(0)
 
-    print("Saving pipeline results to MongoDb (v2 data model)")
+    print("MongoDb integration enabled (v2 data model)")
     # Initialize the properties we need
     instanceId = os.getenv("MAS_INSTANCE_ID", "none")
     productId = "ibm-mas-devops"
@@ -30,13 +31,13 @@ if __name__ == "__main__":
 
     if suite == "":
         print ("Results not recorded because DEVOPS_SUITE_NAME is not defined")
-        exit(0)
+        sys.exit(0)
     if instanceId is None:
         print("Results not recorded because MAS_INSTANCE_ID env var is not set")
-        exit(0)
+        sys.exit(0)
     if build is None:
         print("Results not recorded because DEVOPS_BUILD_NUMBER env var is not set")
-        exit(0)
+        sys.exit(0)
 
     runId = f"{instanceId}:{build}"
     resultId = f"{instanceId}:{build}:{productId}:{suite}"
