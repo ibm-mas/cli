@@ -13,7 +13,7 @@ from pprint import pprint
 import glob
 
 if __name__ == "__main__":
-    if "DEVOPS_MONGO_URI" not in os.environ or os.environ['DEVOPS_MONGO_URI'] != "":
+    if "DEVOPS_MONGO_URI" not in os.environ or os.environ['DEVOPS_MONGO_URI'] == "":
         print("MongoDb integration disabled because DEVOPS_MONGO_URI is not set")
         sys.exit(0)
 
