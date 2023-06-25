@@ -34,6 +34,7 @@
         - kafka
         - mongodb
         - nvidia-gpu
+        - ocp-verify
         - sls
         - uds
 
@@ -60,7 +61,7 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - ivt-manage-monitor-dd
-    
+
     # 5. Generate Tasks (Suite)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (Suite)
