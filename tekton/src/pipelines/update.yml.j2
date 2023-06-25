@@ -8,6 +8,10 @@ metadata:
   name: mas-update
 {% endif %}
 spec:
+  workspaces:
+    # Shared storage to hold mustgather output for tasks
+    - name: shared-mustgather
+
   params:
 {% if wait_for_install == true %}
     # MAS Instance ID (the instance who's install to wait for)
