@@ -18,13 +18,17 @@ if __name__ == "__main__":
         sys.exit(0)
 
     print("MongoDb integration enabled (v2 data model)")
+
     # Initialize the properties we need
-    instanceId = os.getenv("MAS_INSTANCE_ID", "none")
-    productId = "ibm-mas-devops"
+
+    # Note: We don't use MAS_INSTANCE_ID to remove the confusion between when a role actually
+    # needs MAS_INSTANCE_ID and when we are providing it just for the reporting framework
+    instanceId = os.getenv("DEVOPS_ENVIRONMENT", "none")
     build = os.getenv("DEVOPS_BUILD_NUMBER")
     suite = os.getenv("DEVOPS_SUITE_NAME", "")
     junitOutputDir = os.getenv("JUNIT_OUTPUT_DIR", "/tmp")
 
+    productId = "ibm-mas-devops"
     channelId = "n/a"
     cliVersion = os.getenv("VERSION", "unknown")
     ansibleDevopsVersion = os.getenv("ANSIBLE_DEVOPS_VERSION", "unknown")
@@ -135,7 +139,3 @@ if __name__ == "__main__":
             upsert=True
         )
         print("Pipeline results saved to MongoDb (v2 data model)")
-        print(result1)
-        pprint(resultDoc)
-
-        print(result2)

@@ -10,5 +10,11 @@
       name: mas-devops
       key: DEVOPS_BUILD_NUMBER
       optional: true
+- name: DEVOPS_ENVIRONMENT
+  valueFrom:
+    secretKeyRef:
+      name: mas-devops
+      key: MAS_INSTANCE_ID
+      optional: true
 - name: DEVOPS_SUITE_NAME
   value: $(params.devops_suite_name)

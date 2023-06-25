@@ -42,6 +42,7 @@ spec:
     # 12. Install & Configure Assist
     # 13. Install & Configure Visual Inspection
 
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2') | indent(4) }}
 
     # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
     # -------------------------------------------------------------------------

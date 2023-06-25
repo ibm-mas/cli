@@ -15,6 +15,11 @@ spec:
       type: string
 {% endif %}
 
+    # Tekton Pipeline image pull policy (for ibmmas/cli images)
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+
     # Catalog Version
     - name: mas_catalog_version
       type: string
