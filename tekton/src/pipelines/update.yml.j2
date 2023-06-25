@@ -47,16 +47,22 @@ spec:
         name: mas-fvt-wait-for-install
 {% endif %}
 
-    # 1. Run the catalog update
+    # 1. Verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
-    - name: update-catalog
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'ocp-verify-pre-update', 'devops_suite_name': 'pre-update-verify'}) | indent(4) }}
 {% if wait_for_install == true %}
       runAfter:
         - wait-for-install
 {% endif %}
+
+    # 2. Run the catalog update
+    # -------------------------------------------------------------------------
+    - name: update-catalog
       taskRef:
         kind: Task
         name: mas-devops-ibm-catalogs
+      runAfter:
+        - ocp-verify-pre-update
       params:
         - name: devops_suite_name
           value: update-catalog
@@ -69,3 +75,24 @@ spec:
           value: $(params.artifactory_username)
         - name: artifactory_token
           value: $(params.artifactory_token)
+
+    # 3. Verify health of the cluster before we consider the update complete
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'ocp-verify-post-update', 'devops_suite_name': 'post-update-verify'}) | indent(4) }}
+      runAfter:
+        - update-catalog
+
+
+  # Perform must-gather after the update
+  # ---------------------------------------------------------------------------
+  finally:
+    - name: must-gather
+      taskRef:
+        kind: Task
+        name: mas-devops-must-gather
+      params:
+        - name: base_output_dir
+          value: "/workspace/mustgather/$(context.pipelineRun.name)"
+      workspaces:
+        - name: mustgather
+          workspace: shared-mustgather

@@ -1,18 +1,8 @@
-- name: ocp-verify
+- name: {{ name | default("ocp-verify") }}
+  taskRef:
+    kind: Task
+    name: mas-devops-ocp-verify
   params:
     {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
-      value: setup-ibm-catalogs
-
-    - name: mas_catalog_version
-      value: $(params.mas_catalog_version)
-
-    - name: artifactory_username
-      value: $(params.artifactory_username)
-    - name: artifactory_token
-      value: $(params.artifactory_token)
-    - name: mas_catalog_digest
-      value: $(params.mas_catalog_digest)
-  taskRef:
-    kind: Task
-    name: mas-devops-ibm-catalogs
+      value: {{ devops_suite_name }}
