@@ -66,7 +66,7 @@ spec:
         kind: Task
         name: mas-devops-ibm-catalogs
       runAfter:
-        - ocp-verify-pre-update
+        - pre-update-check
       params:
         - name: devops_suite_name
           value: update-catalog
