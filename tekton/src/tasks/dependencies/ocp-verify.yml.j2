@@ -7,9 +7,44 @@ spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
+    - name: verify_cluster
+      type: string
+      default: "True"
+    - name: verify_catalogsources
+      type: string
+      default: "True"
+    - name: verify_subscriptions
+      type: string
+      default: "True"
+    - name: verify_workloads
+      type: string
+      default: "True"
+    - name: verify_ingress
+      type: string
+      default: "True"
+
+    - name: ocp_ingress_tls_secret_name
+      type: string
+      default: ""
+
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      - name: VERIFY_CLUSTER
+        value: $(params.verify_cluster)
+      - name: VERIFY_CATALOGSOURCES
+        value: $(params.verify_catalogsources)
+      - name: VERIFY_SUBSCRIPTIONS
+        value: $(params.verify_subscriptions)
+      - name: VERIFY_WORKLOADS
+        value: $(params.verify_workloads)
+      - name: VERIFY_INGRESS
+        value: $(params.verify_ingress)
+
+      - name: OCP_INGRESS_TLS_SECRET_NAME
+        value: $(params.ocp_ingress_tls_secret_name)
 
   steps:
     - name: ocp-verify

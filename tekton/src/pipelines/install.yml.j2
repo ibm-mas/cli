@@ -42,7 +42,7 @@ spec:
     # 12. Install & Configure Assist
     # 13. Install & Configure Visual Inspection
 
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'ocp-verify-pre-install', 'devops_suite_name': 'pre-install-verify'}) | indent(4) }}
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-install-check', 'devops_suite_name': 'pre-install-check'}) | indent(4) }}
 
     # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
     # -------------------------------------------------------------------------
@@ -331,7 +331,7 @@ spec:
 
     # 14. Verify health of the cluster before we consider the install complete
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'ocp-verify-post-install', 'devops_suite_name': 'post-install-verify'}) | indent(4) }}
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'post-install-verify', 'devops_suite_name': 'post-install-verify'}) | indent(4) }}
       runAfter:
         - app-cfg-assist
         - app-cfg-hputilities

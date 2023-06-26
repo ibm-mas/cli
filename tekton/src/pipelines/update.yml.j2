@@ -53,7 +53,7 @@ spec:
 
     # 1. Verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'ocp-verify-pre-update', 'devops_suite_name': 'pre-update-verify'}) | indent(4) }}
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-update-check', 'devops_suite_name': 'pre-update-check'}) | indent(4) }}
 {% if wait_for_install == true %}
       runAfter:
         - wait-for-install
@@ -82,9 +82,53 @@ spec:
 
     # 3. Verify health of the cluster before we consider the update complete
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'ocp-verify-post-update', 'devops_suite_name': 'post-update-verify'}) | indent(4) }}
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'post-update-verify-cluster',
+        'devops_suite_name': 'post-update-verify-cluster',
+        'verify_cluster': 'True',
+        'verify_catalogsources': 'False',
+        'verify_subscriptions': 'False',
+        'verify_workloads': 'False',
+        'verify_ingress': 'False'
+      }) | indent(4) }}
       runAfter:
         - update-catalog
+
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'post-update-verify-catalogsources',
+        'devops_suite_name': 'post-update-verify-catalogsources',
+        'verify_cluster': 'False',
+        'verify_catalogsources': 'True',
+        'verify_subscriptions': 'False',
+        'verify_workloads': 'False',
+        'verify_ingress': 'False'
+      }) | indent(4) }}
+      runAfter:
+        - post-update-verify-cluster
+
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'post-update-verify-subscriptions',
+        'devops_suite_name': 'post-update-verify-subscriptions',
+        'verify_cluster': 'False',
+        'verify_catalogsources': 'False',
+        'verify_subscriptions': 'True',
+        'verify_workloads': 'False',
+        'verify_ingress': 'False'
+      }) | indent(4) }}
+      runAfter:
+        - post-update-verify-catalogsources
+
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'post-update-verify-workloads',
+        'devops_suite_name': 'post-update-verify-workloads',
+        'verify_cluster': 'False',
+        'verify_catalogsources': 'False',
+        'verify_subscriptions': 'False',
+        'verify_workloads': 'True',
+        'verify_ingress': 'False'
+      }) | indent(4) }}
+      runAfter:
+        - post-update-verify-subscriptions
 
 
   # Perform must-gather after the update
