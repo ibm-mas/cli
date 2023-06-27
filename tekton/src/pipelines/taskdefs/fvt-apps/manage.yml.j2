@@ -19,14 +19,14 @@
     - fvt-manage-aviation-setup # regression tasks depend on fvt-manage-setup or, eventually, any subsequent task in case of Manage Industry Solutions
 
 # Manage FVT Monitoring
-{# - name: fvt-manage-monitoring
+- name: fvt-manage-monitoring
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-pytest.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: monitoring
   runAfter:
-    - ivtcore-manage #}
+    - ivtcore-manage
 
 # -------------------------------------------------------------
 # PHASE 2
@@ -45,7 +45,7 @@
       value: metrics-api
   runAfter:
     - fvt-manage-setup
-    # - fvt-manage-monitoring
+    - fvt-manage-monitoring
 
 # Manage FVT Mas Navigation Scenario
 - name: fvt-manage-masnavigation
@@ -56,7 +56,7 @@
       value: masnavigation
   runAfter:
     - fvt-manage-setup
-    # - fvt-manage-monitoring
+    - fvt-manage-monitoring
 
 # Manage FVT Classification
 - name: fvt-manage-classification
@@ -67,7 +67,7 @@
       value: classification
   runAfter:
     - fvt-manage-setup
-    # - fvt-manage-monitoring #
+    - fvt-manage-monitoring
 
 # Manage MIF setup
 - name: fvt-manage-mif-setup
@@ -78,7 +78,7 @@
       value: mif-setup
   runAfter:
     - fvt-manage-setup
-    # - fvt-manage-monitoring #
+    - fvt-manage-monitoring
 
 # -------------------------------------------------------------
 # PHASE 3
