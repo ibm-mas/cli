@@ -12,8 +12,6 @@ spec:
     - name: shared-additional-configs
     # The SLS entitlement key file that will be installed during install-sls.
     - name: shared-entitlement
-    # Shared storage to hold mustgather output for tasks
-    - name: shared-mustgather
 
   params:
     # 1. Common Parameters
@@ -343,18 +341,3 @@ spec:
         - app-cfg-predict # infers Manage completed
         - app-cfg-monitor # infers IoT completed
         - app-cfg-visualinspection
-
-
-  # Perform must-gather after the install
-  # ---------------------------------------------------------------------------
-  finally:
-    - name: must-gather
-      params:
-        - name: base_output_dir
-          value: "/workspace/mustgather/$(context.pipelineRun.name)"
-      taskRef:
-        kind: Task
-        name: mas-devops-must-gather
-      workspaces:
-        - name: mustgather
-          workspace: shared-mustgather

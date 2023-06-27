@@ -8,9 +8,11 @@ metadata:
   name: mas-update
 {% endif %}
 spec:
+{% if wait_for_install == true %}
   workspaces:
     # Shared storage to hold mustgather output for tasks
     - name: shared-mustgather
+{% endif %}
 
   params:
 {% if wait_for_install == true %}
@@ -130,7 +132,7 @@ spec:
       runAfter:
         - post-update-verify-subscriptions
 
-
+{% if wait_for_install == true %}
   # Perform must-gather after the update
   # ---------------------------------------------------------------------------
   finally:
@@ -144,3 +146,4 @@ spec:
       workspaces:
         - name: mustgather
           workspace: shared-mustgather
+{% endif %}
