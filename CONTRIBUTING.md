@@ -9,16 +9,13 @@ This will allow you authenticate to this repository and raise pull requests with
 
 Here's how you could get started developing within a new working branch:
 
-1. Clone MAS CLI repository locally:
+1. Clone MAS CLI repository locally.
+2. Create your own branch.
+3. Set the new branch as active working branch.
+
 ```
 git clone git@github.com:ibm-mas/cli.git
-```
-2. Create your own branch:
-```
 git checkout -b name-your-branch 
-```
-3. Set the new branch as active working branch:
-```
 git checkout name-your-branch 
 ```
 
@@ -41,7 +38,7 @@ This build system is triggered when including specific tags at the beginning of 
 
 ### Pre-requisites for new pull requests
 
-For `major` and `minor` pull requests mainly, make sure you follow the standard approach new developing new code:
+For `major` and `minor` pull requests mainly, make sure you follow the standard approach new while developing new code:
 
 - Ensure you have tested your changes and they do what is supposed to from an "end-to-end" perspective. Attaching screenshots of the end goal in your `pull request` are always welcome so everyone knows what to expect by the change, and that it does not break existing role functionalities around your change (basic regression test).
 - Ensure that a MAS install test runs successfully from an `end-to-end` via cli (basic regression test). See more information about it in [MAS CLI documentation](https://github.com/ibm-mas/cli).
@@ -49,16 +46,13 @@ For `major` and `minor` pull requests mainly, make sure you follow the standard 
 
 Here's how you could get started with a new pull request from your branch:
 
-1. Create your local commit:
+1. Create your local commit.
+2. Stage your code changes locally in order to prepare for remote push.
+3. Push the staged changes from your local branch to the remote repository.
+
 ```
 git commit -m "[minor] - my own changes to mas cli"
-```
-2. Stage your code changes locally in order to prepare for remote push
-```
 git add .
-```
-3. Push the staged changes from your local branch to the remote repository:
-```
 git push --set-upstream origin your-new-branch
 ```
 
