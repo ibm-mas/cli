@@ -422,10 +422,3 @@ spec:
     - name: shared-entitlement
       secret:
         secretName: pipeline-sls-entitlement
-
-    # Pipeline must-gather storage
-    # -------------------------------------------------------------------------
-    # The storage to hold mustgather output after the pipeline has completed
-    - name: shared-mustgather
-      persistentVolumeClaim:
-        claimName: shared-mustgather-storage
