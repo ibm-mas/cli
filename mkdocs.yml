@@ -29,6 +29,7 @@ nav:
   - "Catalogs":
       - "Overview": catalogs/index.md
       - "June 27 2023": catalogs/v8-230627-amd64.md
+      - "June 16 2023": catalogs/v8-230616-amd64.md
       - "May 26 2023": catalogs/v8-230526-amd64.md
       - "Apr 14 2023": catalogs/v8-230414-amd64.md
       - "Mar 14 2023": catalogs/v8-230314-amd64.md
