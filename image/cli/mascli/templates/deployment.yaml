@@ -25,12 +25,7 @@ spec:
           volumeMounts:
             - mountPath: /mnt/config
               name: config
-            - mountPath: /mnt/mustgather
-              name: mustgather
       volumes:
         - name: config
           persistentVolumeClaim:
             claimName: config-pvc
-        - name: mustgather
-          persistentVolumeClaim:
-            claimName: shared-mustgather-storage

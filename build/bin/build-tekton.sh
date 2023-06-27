@@ -27,6 +27,7 @@ else
   TARGET_FILE_IN_CLI=$DIR/../../image/cli/mascli/templates/ibm-mas-tekton.yaml
 fi
 
+
 # 1. Generate tasks and pipelines
 # -----------------------------------------------------------------------------
 ansible-playbook tekton/generate-tekton-tasks.yml
