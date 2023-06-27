@@ -5,10 +5,7 @@ metadata:
   name: mas-devops-mongodb
 spec:
   params:
-    # Control the image pull policy for the CLI container image
-    - name: image_pull_policy
-      type: string
-      default: IfNotPresent
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
     - name: mas_instance_id
       type: string
@@ -19,19 +16,12 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
-    # Storage Classs
+    # Storage Class
     - name: mongodb_storage_class
       type: string
       default: ""
 
-    # Optional support built into the ansible-devops image
-    # for saving task execution results to a MongoDb instance
-    - name: devops_suite_name
-      type: string
-      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
-      default: ""
-
-    # Other MONGODB parameters
+    # Other mongoDb parameters
     - name: mongodb_namespace
       type: string
       description: Optional configuration for mongodb namespace
