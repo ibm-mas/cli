@@ -5,11 +5,13 @@ metadata:
   name: mas-devops-suite-certs
 spec:
   params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
     - name: dns_provider
       type: string
       default: ""
     - name: mas_instance_id
-      type: string    
+      type: string
     - name: mas_workspace_id
       type: string
       default: ""
@@ -35,7 +37,7 @@ spec:
     - name: cis_proxy
       type: string
       default: ""
-    
+
     # AWS Route 53 support
     - name: aws_access_key_id
       type: string
@@ -56,16 +58,10 @@ spec:
       type: string
       default: ""
 
-    # Optional support built into the ansible-devops image
-    # for saving task execution results to a MongoDb instance
-    - name: devops_suite_name
-      type: string
-      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
-      default: ""
-
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
       # General
       - name: MAS_CONFIG_DIR
         value: /workspace/configs
@@ -73,12 +69,16 @@ spec:
         value: $(params.custom_labels)
       - name: DNS_PROVIDER
         value: $(params.dns_provider)
+
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
       - name: MAS_WORKSPACE_ID
         value: $(params.mas_workspace_id)
+
       - name: MAS_MANUAL_CERT_MGMT
-        value: $(params.mas_manual_cert_mgmt) 
+        value: $(params.mas_manual_cert_mgmt)
+
+      # IBM Cloud Internet Services support
       - name: CIS_CRN
         value: $(params.cis_crn)
       - name: CIS_APIKEY
@@ -87,8 +87,8 @@ spec:
         value: $(params.cis_subdomain)
       - name: CIS_PROXY
         value: $(params.cis_proxy)
-      - name: DEVOPS_SUITE_NAME
-        value: $(params.devops_suite_name)
+
+      # AWS Route 53 support
       - name: AWS_ACCESS_KEY_ID
         value: $(aws_access_key_id)
       - name: AWS_SECRET_ACCESS_KEY
@@ -108,7 +108,7 @@ spec:
         - suite_certs
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
-  
+
   workspaces:
     - name: configs
     - name: certificates
