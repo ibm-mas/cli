@@ -5,10 +5,7 @@ metadata:
   name: mas-devops-must-gather
 spec:
   params:
-    # Control the image pull policy for the CLI container image
-    - name: image_pull_policy
-      type: string
-      default: IfNotPresent
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
     - name: base_output_dir
       type: string
@@ -25,6 +22,8 @@ spec:
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       env:
+        {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(8) }}
+
         # If this secret exists (with both ARTIFACTORY_TOKEN and ARTIFACTORY_UPLOAD_DIR keys set) the must-gather file will be automatically uploaded
         - name: ARTIFACTORY_TOKEN
           valueFrom:
