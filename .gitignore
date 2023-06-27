@@ -2,6 +2,8 @@
 *.DS_Store*
 .vscode
 
+*.pyc
+
 image/cli/mascli/templates/ibm-mas-tekton.yaml
 
 target/
@@ -10,4 +12,3 @@ tmp/
 tekton/test-*.yaml
 tekton/target
 tekton/tmp
-*.pyc
