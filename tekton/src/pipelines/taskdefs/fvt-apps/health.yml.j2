@@ -35,8 +35,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - app-cfg-manage
-    - suite-config-watson-studio
+    - fvt-health-load-dbc
   workspaces:
     - name: configs
       workspace: shared-configs
