@@ -309,6 +309,20 @@
   runAfter:
     - fvt-manage-transportation-user
 
+# Manage FVT - Scheduler - New User
+- name: fvt-manage-scheduler-user
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: scheduler-setup-user
+    - name: fvt_mas_appws_component
+      value: scheduler
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-workflow-designer
+
 # Manage FVT - Scheduler Setup
 - name: fvt-manage-scheduler-setup
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
@@ -322,20 +336,6 @@
       value: tpae
   runAfter:
     - fvt-manage-scheduler-user
-
-# Manage FVT - Scheduler - New User
-- name: fvt-manage-scheduler-user
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: scheduler-setup-user
-    - name: fvt_mas_appws_component
-      value: scheduler
-    - name: fvt_test_driver
-      value: tpae
-  runAfter:
-    - fvt-manage-setup
 
 # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-1
@@ -378,20 +378,6 @@
       value: tpae
   runAfter:
     - fvt-manage-scheduler-setup
-
-# Manage FVT - Health
-- name: fvt-manage-health
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: health-asset-view-table
-    - name: fvt_mas_appws_component
-      value: health
-    - name: fvt_test_driver
-      value: graphite
-  runAfter:
-    - fvt-manage-workflow-designer # See note above
 
 # Manage FVT - Civil Infrastructure Selenium - Setup
 - name: fvt-manage-civil-selenium-setup
@@ -462,7 +448,7 @@
     - name: fvt_test_driver
       value: graphite
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-workflow-designer
 
 # Manage FVT - Maintenance Manager Tests
 - name: fvt-manage-maintmanager

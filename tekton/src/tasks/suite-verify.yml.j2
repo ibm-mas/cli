@@ -5,20 +5,11 @@ metadata:
   name: mas-devops-suite-verify
 spec:
   params:
-    # Control the image pull policy for the CLI container image
-    - name: image_pull_policy
-      type: string
-      default: IfNotPresent
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
+    # General
     - name: mas_instance_id
       type: string
-
-    # Optional support built into the ansible-devops image
-    # for saving task execution results to a MongoDb instance
-    - name: devops_suite_name
-      type: string
-      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
-      default: ""
 
   stepTemplate:
     env:
