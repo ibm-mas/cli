@@ -367,7 +367,7 @@ spec:
     # 27. Application FVT - Health
     # -------------------------------------------------------------------------
     # 27.1 Health Load DBC
-    {{ lookup('template', 'taskdefs/fvt-apps/health-load-dbc.yml.j2') | indent(4) }}
+    # {{ lookup('template', 'taskdefs/fvt-apps/health-load-dbc.yml.j2') | indent(4) }}
 
     # 27.2 Prepare Data * TestNG Test & Python Test
     {{ lookup('template', 'taskdefs/fvt-apps/health.yml.j2') | indent(4) }}
