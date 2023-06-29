@@ -1,4 +1,9 @@
 ## Changes
+- [`5.6`](https://github.com/ibm-mas/cli/releases/tag/5.6.0) Multiple updates (#336):
+    - Rearrange MIF Tests to accomodate Data Dictionary data where Monitor creates data
+    - Fix Manage Monitoring task to use pytest instead of selenium
+    - New Monitor FVT task to run when Manage is installed (fvt-monitor-manage)
+    - Move manage x monitor IVT test resut to monitor section
 - [`5.5`](https://github.com/ibm-mas/cli/releases/tag/5.5.0) Include the fvt-core-trustcas test into FVT Core phase 5, to test setting the Suite trustDefaultCAs flag (#338)
 - [`5.4`](https://github.com/ibm-mas/cli/releases/tag/5.4.0) Multiple updates:
     - Support June Catalog Update
