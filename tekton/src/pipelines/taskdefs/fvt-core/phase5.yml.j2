@@ -89,7 +89,17 @@
   runAfter:
     - fvt-smtp
 
-# FVT 5.9 operatormaturity  ~5m
+# FVT5.9 core-trustcas ~15m
+- name: fvt-core-trustcas
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: test_suite
+      value: core-trustcas
+  runAfter:
+    - fvt-core-scaling
+
+# FVT 5.10 operatormaturity  ~5m
 - name: fvt-operatormaturity
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
@@ -97,4 +107,4 @@
       value: operatormaturity
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
-    - fvt-core-scaling
+    - fvt-core-trustcas
