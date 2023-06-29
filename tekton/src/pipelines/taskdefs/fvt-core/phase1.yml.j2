@@ -61,3 +61,33 @@
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
     - suite-verify
+
+# Core FVT 1.6 useractivation-overall  ~8m
+- name: fvt-useractivation-overall
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: test_suite
+      value: useractivation-overall
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - suite-verify
+
+# Core FVT 1.7 useractivation-expiresat  ~20m
+- name: fvt-useractivation-expiresat
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: test_suite
+      value: useractivation-expiresat
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - suite-verify
+
+# Core FVT 1.8 useractivation-inactivity  ~30m
+- name: fvt-useractivation-inactivity
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: test_suite
+      value: useractivation-inactivity
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - suite-verify
