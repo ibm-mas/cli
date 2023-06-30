@@ -1,4 +1,5 @@
 ## Changes
+- [`5.6`](https://github.com/ibm-mas/cli/releases/tag/5.6.0) Add support for Db2 and Common Services upgrade (#356)
 - [`5.5`](https://github.com/ibm-mas/cli/releases/tag/5.5.0) Add support for MAS 8.9.7 and 230627 catalog (#346)
 - [`5.4`](https://github.com/ibm-mas/cli/releases/tag/5.4.0) Multiple updates:
     - Support June Catalog Update

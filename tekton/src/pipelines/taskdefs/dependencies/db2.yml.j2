@@ -23,8 +23,6 @@
     - name: db2_ldap_password
       value: $(params.db2_ldap_password)
 {% endif %}
-    - name: db2_action
-      value: $(params.db2_action_{{ suffix }})
     - name: db2_namespace
       value: $(params.db2_namespace)
     - name: db2_dbname
@@ -120,7 +118,7 @@
   when:
     - input: "$(params.db2_action_{{ suffix }})"
       operator: in
-      values: ["install", "upgrade"]
+      values: ["install"]
   taskRef:
     name: mas-devops-db2
     kind: Task

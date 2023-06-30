@@ -128,11 +128,11 @@
 {{ lookup('template', params_src_dir ~ '/install-db2.yml.j2') }}
 - name: db2_action_system
   type: string
-  description: Set to 'install' to set up a Db2 instance for the whole suite or 'upgrade' to upgrade Db2
+  description: Set to 'install' to set up a Db2 instance for the whole suite
   default: "none"
 - name: db2_action_manage
   type: string
-  description: Set to 'install' to set up a Db2 instance for Manage or 'upgrade' to upgrade Db2
+  description: Set to 'install' to set up a Db2 instance for Manage
   default: "none"
 - name: db2_binding_manage
   type: string
