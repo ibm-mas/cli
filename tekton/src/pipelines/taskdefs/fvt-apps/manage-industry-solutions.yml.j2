@@ -379,6 +379,42 @@
   runAfter:
     - fvt-manage-scheduler-setup
 
+# Manage FVT - Scheduler - Scheduling Dashboard
+- name: fvt-manage-scheduler-scheduling-dashboard
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: scheduler-scheduling-dashboard
+    - name: fvt_mas_appws_component
+      value: scheduler
+    - name: fvt_test_driver
+      value: graphite
+    - name: fvt_test_graphite_url
+      value: /oslc/graphite/schedulingdashboard
+  runAfter:
+    - fvt-manage-scheduler-1
+    - fvt-manage-scheduler-2
+    - fvt-manage-scheduler-3
+
+# Manage FVT - Scheduler - Scheduling Dashboard
+- name: fvt-manage-scheduler-dispatching-dashboard
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: scheduler-dispatching-dashboard
+    - name: fvt_mas_appws_component
+      value: scheduler
+    - name: fvt_test_driver
+      value: graphite
+    - name: fvt_test_graphite_url
+      value: /oslc/graphite/dispatchingdashboard
+  runAfter:
+    - fvt-manage-scheduler-1
+    - fvt-manage-scheduler-2
+    - fvt-manage-scheduler-3
+
 # Manage FVT - Civil Infrastructure Selenium - Setup
 - name: fvt-manage-civil-selenium-setup
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-civil-selenium.yml.j2') | indent(2) }}
@@ -389,7 +425,7 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_manage_civil_selenium)
     - name: fvt_test_suite
-      value: fvt-ci-setup
+      value: civil-setup-data
   runAfter:
     - fvt-manage-workflow-designer # See note above
 
@@ -403,7 +439,7 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_manage_civil_selenium)
     - name: fvt_test_suite
-      value: cibvt-user
+      value: civil-setup-user
   runAfter:
     - fvt-manage-civil-selenium-setup
 
@@ -418,7 +454,7 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_manage_civil_selenium)
     - name: fvt_test_suite
-      value: cibvt
+      value: civil-bvt
   runAfter:
     - fvt-manage-civil-selenium-user
 
