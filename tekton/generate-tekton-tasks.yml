@@ -51,6 +51,7 @@
         - fvt-core-ui
         - fvt-manage
         - fvt-manage-scan
+        - fvt-manage-pytest
         - fvt-run-suite
         - fvt-wait-for-install
 
