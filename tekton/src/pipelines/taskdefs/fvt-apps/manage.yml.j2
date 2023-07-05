@@ -33,6 +33,7 @@
 # - fvt-manage-metrics-api
 # - fvt-manage-masnavigation
 # - fvt-manage-classification
+# - fvt-manage-helplinks
 # - fvt-manage-mif-setup
 # -------------------------------------------------------------
 
@@ -69,6 +70,17 @@
     - fvt-manage-setup
     - fvt-manage-monitoring
 
+# Manage FVT Help Links
+- name: fvt-manage-helplinks
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: helplinks
+  runAfter:
+    - fvt-manage-setup
+    - fvt-manage-monitoring
+
 # Manage MIF setup
 - name: fvt-manage-mif-setup
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
@@ -101,6 +113,7 @@
     - fvt-manage-metrics-api
     - fvt-manage-masnavigation
     - fvt-manage-classification
+    - fvt-manage-helplinks
     - fvt-manage-mif-setup
 
 # Manage FVT Security Audit Logging
@@ -114,6 +127,7 @@
     - fvt-manage-metrics-api
     - fvt-manage-masnavigation
     - fvt-manage-classification
+    - fvt-manage-helplinks
     - fvt-manage-mif-setup
 
 # Manage FVT Inactive User Authentication
@@ -127,6 +141,7 @@
     - fvt-manage-metrics-api
     - fvt-manage-masnavigation
     - fvt-manage-classification
+    - fvt-manage-helplinks
     - fvt-manage-mif-setup
 
 # Manage FVT Escalation
@@ -140,6 +155,7 @@
     - fvt-manage-metrics-api
     - fvt-manage-masnavigation
     - fvt-manage-classification
+    - fvt-manage-helplinks
     - fvt-manage-mif-setup
     
   # Manage FVT AutoScript to Add Delete WorkOrder
@@ -153,6 +169,7 @@
     - fvt-manage-metrics-api
     - fvt-manage-masnavigation
     - fvt-manage-classification
+    - fvt-manage-helplinks
     - fvt-manage-mif-setup
 
 # Manage JMS Integration - Inbound
@@ -166,6 +183,7 @@
     - fvt-manage-metrics-api
     - fvt-manage-masnavigation
     - fvt-manage-classification
+    - fvt-manage-helplinks
     - fvt-manage-mif-setup
 
 # -------------------------------------------------------------
