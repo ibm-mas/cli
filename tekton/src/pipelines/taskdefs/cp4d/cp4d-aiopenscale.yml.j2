@@ -4,6 +4,9 @@
     - name: devops_suite_name
       value: setup-cp4d-aiopenscale
 
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+
     - name: cpd_product_version
       value: "$(params.cpd_product_version)"
     - name: cpd_service_name
@@ -12,6 +15,8 @@
       value: "$(params.cpd_aiopenscale_storage_class)"
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
+    - name: cpd_install_openscale
+      value: $(params.cpd_install_openscale)
   taskRef:
     kind: Task
     name: mas-devops-cp4d-service
@@ -20,6 +25,9 @@
     - input: "$(params.mas_app_channel_predict)"
       operator: notin
       values: [""]
+    - input: "$(params.cpd_install_openscale)"
+      operator: in
+      values: ["True","true"]
   workspaces:
     - name: configs
       workspace: shared-configs

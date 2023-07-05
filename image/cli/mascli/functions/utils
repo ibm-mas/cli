@@ -13,8 +13,8 @@ TEXT_DIM=$(tput dim)
 TEXT_UNDERLINE=$(tput smul)
 TEXT_RESET=$(tput sgr0)
 
-H2_COUNT=1
-H3_COUNT=1
+H2_COUNT=0
+H3_COUNT=0
 
 function reset_colors() {
   echo -ne "${COLOR_RESET}\033[1K"
@@ -26,16 +26,18 @@ function echo_h1() {
 function echo_h2() {
   msg=$1
   prefix=$2
-  echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}. ${msg}${TEXT_RESET}"
+
   H2_COUNT=$(($H2_COUNT + 1))
-  H3_COUNT=1
+  H3_COUNT=0
+  echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}. ${msg}${TEXT_RESET}"
 }
 
 function echo_h3() {
   msg=$1
   prefix=$2
-  echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}.${H3_COUNT}. ${msg}${TEXT_RESET}"
+
   H3_COUNT=$(($H3_COUNT + 1))
+  echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}.${H3_COUNT}. ${msg}${TEXT_RESET}"
 }
 
 function echo_h4() {
@@ -243,7 +245,7 @@ function update_ansible_collections() {
       echo
       echo_h2 "Updating ansible collection from local build"
       ansible-galaxy collection build ~/ibm-mas/ansible-devops/ibm/mas_devops --force || exit 1
-      ansible-galaxy collection install ibm-mas_devops-14.0.0.tar.gz --force --no-deps || exit 1
+      ansible-galaxy collection install ibm-mas_devops-15.0.0.tar.gz --force --no-deps || exit 1
     else
       echo
       echo_h2 "Updating ansible collections from Galaxy"
@@ -288,5 +290,18 @@ function detect_sno() {
     export SNO_MODE=true
   else
     unset SNO_MODE
+  fi
+}
+
+
+function select_local_config_dir() {
+  if [ "$LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN" != "yes" ]; then
+    # You need to tell us where the configuration file can be found
+    prompt_for_input "Select Local configuration directory" LOCAL_MAS_CONFIG_DIR && export LOCAL_MAS_CONFIG_DIR
+    if [[ ! -e "$LOCAL_MAS_CONFIG_DIR" ]]; then
+      echo_warning "$LOCAL_MAS_CONFIG_DIR does not exist"
+      exit 1
+    fi
+    export LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN=yes
   fi
 }

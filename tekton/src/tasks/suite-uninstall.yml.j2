@@ -5,10 +5,8 @@ metadata:
   name: mas-devops-suite-uninstall
 spec:
   params:
-    # Control the image pull policy for the CLI container image
-    - name: image_pull_policy
-      type: string
-      default: IfNotPresent
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
     - name: mas_instance_id
       type: string
     - name: mas_wipe_mongo_data
@@ -18,6 +16,8 @@ spec:
 
   stepTemplate:
     env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
       - name: MAS_WIPE_MONGO_DATA

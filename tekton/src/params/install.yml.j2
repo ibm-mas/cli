@@ -26,6 +26,9 @@
 
 # Dependencies - MongoDb
 # -----------------------------------------------------------------------------
+- name: mongodb_namespace
+  type: string
+  default: ""
 - name: mongodb_storage_class
   type: string
   default: ""
@@ -177,6 +180,9 @@
 - name: cpd_install_spss
   type: string
   default: "False"
+- name: cpd_install_openscale
+  type: string
+  default: "False"
 
 # Dependencies - UDS
 # -----------------------------------------------------------------------------
@@ -235,6 +241,9 @@
   type: string
   default: ""
 - name: prometheus_userworkload_storage_size
+  type: string
+  default: ""
+- name: grafana_namespace
   type: string
   default: ""
 - name: grafana_instance_storage_class
@@ -356,6 +365,21 @@
   default: ""
   description: Data Dictionary catalog source
 
+# MAS Application Configuration - IoT Application
+# -----------------------------------------------------------------------------
+- name: mas_app_settings_iot_deployment_size
+  type: string
+  description: controls the workload size of iot containers
+  default: ""
+- name: mas_app_settings_iot_mqttbroker_pvc_storage_class
+  type: string
+  description: defines storage class for iot messagesight
+  default: ""
+- name: mas_app_settings_iot_fpl_pvc_storage_class
+  type: string
+  description: defines storage class for iot functions pipeline component
+  default: ""
+
 # MAS Application Configuration - Manage Application
 # -----------------------------------------------------------------------------
 - name: mas_appws_bindings_jdbc_manage
@@ -386,6 +410,30 @@
   type: string
   description: Flag indicating if persistent volumes should be configured by default during Manage Workspace activation. There are two defaulted File Storage Persistent Volumes Claim resources that will be created out of the box for Manage if this flag is set to true.
   default: "False"
+- name: mas_app_settings_jms_queue_pvc_storage_class
+  type: string
+  description: Storage Class for Manage JMS queues.
+  default: ""
+- name: mas_app_settings_jms_queue_pvc_accessmode
+  type: string
+  description: Storage Access Mode for Manage JMS queues.
+  default: ""
+- name: mas_app_settings_bim_pvc_storage_class
+  type: string
+  description: Storage Class for Manage BIM.
+  default: ""
+- name: mas_app_settings_bim_pvc_accessmode
+  type: string
+  description: Storage Access Mode for Manage BIM.
+  default: ""
+- name: mas_app_settings_doclinks_pvc_storage_class
+  type: string
+  description: Storage Class for Manage Doclinks.
+  default: ""
+- name: mas_app_settings_doclinks_pvc_accessmode
+  type: string
+  description: Storage Access Mode for Manage Doclinks.
+  default: ""
 - name: mas_app_settings_server_bundles_size
   type: string
   description: Provides different flavors of server bundle configuration to handle workload for Manage application.

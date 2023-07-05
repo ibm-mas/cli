@@ -4,6 +4,9 @@
     - name: devops_suite_name
       value: dependencies-db2-{{ suffix }}
 
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+
     # Entitlement
     - name: ibm_entitlement_key
       value: $(params.ibm_entitlement_key)
@@ -20,6 +23,8 @@
     - name: db2_ldap_password
       value: $(params.db2_ldap_password)
 {% endif %}
+    - name: db2_namespace
+      value: $(params.db2_namespace)
     - name: db2_dbname
       value: $(params.db2_dbname)
     - name: db2_version
@@ -30,6 +35,18 @@
       value: $(params.db2_4k_device_support)
     - name: db2_table_org
       value: $(params.db2_table_org)
+
+    # Node Scheduling
+    - name: db2_affinity_key
+      value: $(params.db2_affinity_key)
+    - name: db2_affinity_value
+      value: $(params.db2_affinity_value)
+    - name: db2_tolerate_key
+      value: $(params.db2_tolerate_key)
+    - name: db2_tolerate_value
+      value: $(params.db2_tolerate_value)
+    - name: db2_tolerate_effect
+      value: $(params.db2_tolerate_effect)
 
     # Requests and Limits - CPU
     - name: db2_cpu_requests

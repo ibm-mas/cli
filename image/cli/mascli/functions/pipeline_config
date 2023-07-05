@@ -7,10 +7,76 @@
 . $DIR/functions/pipeline_config_sno
 . $DIR/functions/pipeline_config_storage_classes
 . $DIR/functions/pipeline_config_storage_classes_sno
+. $DIR/functions/pipeline_config_manage_storage_classes
+. $DIR/functions/pipeline_config_iot_storage_classes
 . $DIR/functions/pipeline_config_advanced
 
 function pipeline_config() {
-  echo_h2 "Configure Installation"
+  echo_h2 "IBM Maximo Operator Catalog Selection"
+  echo "${TEXT_DIM}Select how you want to manage updates in this cluster:"
+  echo "- For automatic updates select to use the online dynamic catalog.  Updates will be delivered as soon as they are published by IBM"
+  echo "- To take direct control over when updates are applied to the cluster select to use a static catalog instead.  Updates will be delivered only when you update the catalog source in your cluster"
+  echo
+  reset_colors
+
+  if [[ -n "$DEV_MODE" ]]; then
+    # Development mode
+    prompt_for_input "Select Catalog Source" MAS_CATALOG_VERSION "v8-master-amd64"
+    prompt_for_input "Select Subscription Channel" MAS_CHANNEL "8.11.x-dev"
+  elif [[ -z "$AIRGAP_MODE" ]]; then
+    prompt_for_confirm "Enable automatic updates with the online dynamic catalog?" USE_ONLINE_CATALOG
+    if [[ "$USE_ONLINE_CATALOG" == "true" ]]; then
+      # Dynamic Catalog Source (Connected Install)
+      MAS_CATALOG_VERSION=v8-amd64
+
+      echo -e "${COLOR_YELLOW}MAS Version:"
+      echo "  1. 8.10"
+      echo "  2. 8.9"
+      prompt_for_input "Select Subscription Channel" MAS_CHANNEL_SELECTION "1"
+
+      case $MAS_CHANNEL_SELECTION in
+        1|8.10|8.10.x)
+          MAS_CHANNEL=8.10.x
+          ;;
+
+        2|8.9|8.9.x)
+          MAS_CHANNEL=8.9.x
+          ;;
+
+        *)
+          MAS_CHANNEL=$MAS_CHANNEL_SELECTION
+          ;;
+      esac
+    else
+      # Static Catalog Source (Connected Install)
+      choose_mas_version
+    fi
+  else
+    # Static Catalog Source (Disconnected Install)
+    choose_mas_version
+  fi
+
+  # Present a the MAS license information
+  # ---------------------------------------------------------------------------
+  case $MAS_CHANNEL in
+    8.10.x)
+      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
+      ;;
+    8.9.x)
+      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
+      ;;
+  esac
+
+  echo
+  echo_h2 "License Terms"
+  echo -e "${COLOR_YELLOW} For information about your license, see "$MAS_LICENSE_LINK " To continue with the installation, you must accept the license terms."
+  prompt_for_confirm_default_yes "Do you accept the license terms?" LICENSE_RESPONSE
+
+  if [[ "$LICENSE_RESPONSE" == "false" ]]; then
+    exit 1
+  fi
+
+  echo_h2 "Configure MAS Instance"
 
   # MAS instance ID
   if [[ ! -z "$1" ]]; then
@@ -20,134 +86,7 @@ function pipeline_config() {
   prompt_for_input "MAS Workspace ID" MAS_WORKSPACE_ID
   prompt_for_input "MAS Workspace Display Name" MAS_WORKSPACE_NAME
 
-  if [[ -n "$DEV_MODE" ]]; then
-    # Development mode
-    prompt_for_input "Select Catalog Source" MAS_CATALOG_VERSION "v8-master-amd64"
-    prompt_for_input "Select Subscription Channel" MAS_CHANNEL "dev"
-  elif [[ -z "$AIRGAP_MODE" ]]; then
-    # Online (GA) mode
-    prompt_for_confirm "Use online catalog?" USE_ONLINE_CATALOG
-    if [[ "$USE_ONLINE_CATALOG" == "true" ]]; then
-      MAS_CATALOG_VERSION=v8-amd64
-    else
-      echo -e "${COLOR_YELLOW}Catalog Version:"
-      echo "  1. v8 (2023-05-26)"
-      echo "  2. v8 (2023-04-14)"
-      echo "  3. v8 (2023-03-14)"
-      echo "  4. v8 (2023-02-17)"
-      prompt_for_input "Select Catalog Source" MAS_CATALOG_SELECTION "1"
 
-      case $MAS_CATALOG_SELECTION in
-        1|230526)
-          MAS_CATALOG_VERSION=v8-230526-amd64
-          ;;
-        2|230414)
-          MAS_CATALOG_VERSION=v8-230414-amd64
-          ;;
-        3|230314)
-          MAS_CATALOG_VERSION=v8-230314-amd64
-          ;;
-        4|230217)
-          MAS_CATALOG_VERSION=v8-230217-amd64
-          ;;
-        *)
-          exit 1
-          ;;
-      esac
-    fi
-
-    echo -e "${COLOR_YELLOW}MAS Version:"
-    echo "  1. 8.10"
-    echo "  2. 8.9"
-    prompt_for_input "Select Subscription Channel" MAS_CHANNEL_SELECTION "1"
-
-    case $MAS_CHANNEL_SELECTION in
-      1|8.10|8.10.x)
-        MAS_CHANNEL=8.10.x
-        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
-        ;;
-
-      2|8.9|8.9.x)
-        MAS_CHANNEL=8.9.x
-        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
-        ;;
-
-      *)
-        MAS_CHANNEL=$MAS_CHANNEL_SELECTION
-        ;;
-    esac
-  else
-    # Airgap (GA) mode
-    echo -e "${COLOR_YELLOW}MAS Version:"
-    echo "May 26 2023 Update"
-    echo "  1. 8.10.1"
-    echo "  2. 8.9.5"
-    echo "April 14 2023 Update"
-    echo "  3. 8.10.0"
-    echo "  4. 8.9.4"
-    echo "March 14 2023 Update"
-    echo "  5. 8.9.3"
-    echo "February 17 2023 Update"
-    echo "  6. 8.9.2"
-    prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
-
-    case $MAS_CHANNEL_SELECTION in
-      # May 26 2023 Catalog
-      # -----------------------------------------------------------------------
-      1)
-        MAS_CHANNEL=8.10.x
-        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
-        MAS_CATALOG_VERSION=v8-230526-amd64
-        ;;
-      2)
-        MAS_CHANNEL=8.9.x
-        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
-        MAS_CATALOG_VERSION=v8-230526-amd64
-        ;;
-      # April 14 2023 Catalog
-      # -----------------------------------------------------------------------
-      3)
-        MAS_CHANNEL=8.10.x
-        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
-        MAS_CATALOG_VERSION=v8-230414-amd64
-        ;;
-      4)
-        MAS_CHANNEL=8.9.x
-        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
-        MAS_CATALOG_VERSION=v8-230414-amd64
-        ;;
-      # March 14 2023 Catalog
-      # -----------------------------------------------------------------------
-      5)
-        MAS_CHANNEL=8.9.x
-        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
-        MAS_CATALOG_VERSION=v8-230314-amd64
-        ;;
-      # Feb 2023 Catalog
-      # -----------------------------------------------------------------------
-      6)
-        MAS_CHANNEL=8.9.x
-        MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
-        MAS_CATALOG_VERSION=v8-230217-amd64
-        ;;
-      # Oops!
-      # -----------------------------------------------------------------------
-      *)
-        echo_warning "Invalid selection"
-        exit 1
-        ;;
-    esac
-  fi
-  true
-
-  echo
-  echo_h2 "License Terms"
-  echo -e "${COLOR_YELLOW} For information about your license, see "$MAS_LICENSE_LINK " To continue with the installation, you must accept the license terms."
-  prompt_for_confirm "Do you accept the license terms?" LICENSE_RESPONSE
-
-  if [[ "$LICENSE_RESPONSE" == "false" ]]; then
-    exit 1
-  fi
 
   echo
   echo_h2 "Configure Operation Mode"
@@ -163,17 +102,19 @@ function pipeline_config() {
   fi
 
   config_pipeline_sno
-  config_pipeline_dns #5
-  config_pipeline_applications #6
-  config_pipeline_storage_db2 #7
-  config_pipeline_additional_configs #8
+  config_pipeline_dns
+  config_pipeline_applications
+  config_pipeline_db2
+  config_pipeline_additional_configs
 
   if [[ "$SNO_MODE" == "true" ]]; then
-    config_pipeline_storage_classes_sno #9
+    config_pipeline_storage_classes_sno
   else
-    config_pipeline_storage_classes #9
+    config_pipeline_storage_classes
   fi
-  config_pipeline_advanced #  10
+  config_pipeline_iot_storage_classes #10
+  config_pipeline_manage_storage_classes #11
+  config_pipeline_advanced #12
 
   echo ""
   if [[ "$DEV_MODE" == "true" && -z "$AIRGAP_MODE" ]]; then
@@ -234,4 +175,3 @@ function pipeline_config() {
     prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
   fi
 }
-

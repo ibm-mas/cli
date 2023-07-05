@@ -1,0 +1,196 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-ivt-manage-monitor-dd
+spec:
+  params:
+    # Common Test Information
+    # -------------------------------------------------------------------------
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+    - name: mas_instance_id
+      type: string
+      description: Instance ID of the target test environment
+    - name: mas_workspace_id
+      type: string
+      description: Workspace ID in MAS to use for running the tests
+    - name: product_id
+      type: string
+      description: Product ID under test
+      default: ibm-mas-manage
+    - name: product_channel_manage
+      type: string
+      description: "Manage subscription channel for the product"
+      default: ""
+    - name: product_channel_monitor
+      type: string
+      description: "Monitor subscription channel for the product"
+      default: ""
+
+    # Test Containers Information
+    # -------------------------------------------------------------------------
+    - name: fvt_image_registry
+      type: string
+      description: FVT Container Image Registry (required)
+    - name: fvt_image_digest_manage
+      type: string
+      description: Manage FVT Container Image Digest (fvt-ibm-mas-manage)
+    - name: fvt_image_digest_monitor
+      type: string
+      description: Monitor FVT Container Image Digest (common-test-framewor)
+
+    # Manage Specific information
+    # -------------------------------------------------------------------------
+    - name: fvt_enable_debug
+      type: string
+      description: Turn on debug logging (verbose mode)
+      default: "true"
+    - name: fvt_test_driver
+      type: string
+      description: Driver utilized by the manage selenium framework - Can be wither tpae or graphite
+      default: "tpae"
+    - name: fvt_mas_appws_component
+      type: string
+      description: Manage product that will be tested by this task. Use official names as expected by Manage operators
+      default: "base"
+    - name: mas_appws_components
+      type: string
+      description: Manage Workspace component list so ISs tasks can decide if it should be executed base on what is configured
+      default: ""
+    - name: devops_cos_crn
+      type: string
+      description: Object Storage Resource Instance Id in IBM Cloud (optional)
+      default: ""
+    - name: devops_cos_upload_folder
+      type: string
+      description: Directory inside container that will be uploaded to Object Storage (optional)
+      default: ""
+    - name: devops_ibmcloud_apikey
+      description: IBM Cloud API Key to access Object Storage resource (optional)
+      default: ""
+
+    # Common Test Framework Specific information
+    # -------------------------------------------------------------------------
+    - name: ctf_is_local
+      type: string
+      description: Boolean value to check if tests are runninng locally or on fvt
+      default: "false"
+
+  stepTemplate:
+    name: 'fvt-manage'
+    env:
+      - name: PRODUCT_ID
+        value: $(params.product_id)
+      - name: INSTANCE_ID
+        value: "$(params.mas_instance_id)"
+      - name: WORKSPACE_ID
+        value: "$(params.mas_workspace_id)"
+      - name: NAMESPACE
+        value: "mas-$(params.mas_instance_id)-core"
+
+      # Manage Specific information
+      # -------------------------------------------------------------------------
+      - name: FVT_ENABLE_DEBUG
+        value: "$(params.fvt_enable_debug)"
+      - name: FVT_TEST_DRIVER
+        value: $(params.fvt_test_driver)
+      - name: FVT_MAS_APPWS_COMPONENT
+        value: $(params.fvt_mas_appws_component)
+      - name: MAS_APPWS_COMPONENTS
+        value: $(params.mas_appws_components)
+      - name: DEVOPS_COS_CRN
+        value: $(params.devops_cos_crn)
+      - name: DEVOPS_COS_UPLOAD_FOLDER
+        value: $(params.devops_cos_upload_folder)
+      - name: DEVOPS_IBMCLOUD_APIKEY
+        value: $(params.devops_ibmcloud_apikey)
+      
+      # Common Test Framework Specific information
+      # -------------------------------------------------------------------------
+      - name: CTF_IS_LOCAL
+        value: $(params.ctf_is_local)
+      
+      - name: DEVOPS_MONGO_URI
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: DEVOPS_MONGO_URI
+            optional: true
+      - name: BUILD_NUM
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: DEVOPS_BUILD_NUMBER
+            optional: true
+      - name: IBMADMIN_ENABLED
+        value: "true"
+
+  volumes:
+    - name: dshm
+      emptyDir:
+        medium: Memory
+
+  workspaces:
+    - name: configs
+
+  steps:
+    - name: mif-jms-setup
+      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest_manage)'
+      imagePullPolicy: $(params.image_pull_policy)
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      resources: {}
+      workingDir: /opt/ibm/test/src
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+      env:
+        - name: FVT_TEST_SUITE
+          value: mif-jms-setup
+        - name: PRODUCT_CHANNEL
+          value: $(params.product_channel_manage)
+    - name: mif-dd-setup
+      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest_manage)'
+      imagePullPolicy: $(params.image_pull_policy)
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      resources: {}
+      workingDir: /opt/ibm/test/src
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+      env:
+        - name: FVT_TEST_SUITE
+          value: mif-dd-setup
+        - name: PRODUCT_CHANNEL
+          value: $(params.product_channel_manage)
+    - name: mif-dd
+      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest_manage)'
+      imagePullPolicy: $(params.image_pull_policy)
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      resources: {}
+      workingDir: /opt/ibm/test/src
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+      env:
+        - name: FVT_TEST_SUITE
+          value: mif-dd
+        - name: PRODUCT_CHANNEL
+          value: $(params.product_channel_manage)
+    - name: manage-monitor-ivt
+      image: '$(params.fvt_image_registry)/ai-solutions/common-test-framework@$(params.fvt_image_digest_monitor)'
+      imagePullPolicy: $(params.image_pull_policy)
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+      env:
+        - name: FVT_TEST_SUITE
+          value: manage_monitor_ivt
+        - name: PRODUCT_CHANNEL
+          value: $(params.product_channel_monitor)
