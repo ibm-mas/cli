@@ -181,7 +181,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: applicationdesigner-features
+      value: application-designer
   runAfter:
     - fvt-manage-wobasic
     - fvt-manage-security-audit-logging
