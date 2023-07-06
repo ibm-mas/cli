@@ -44,7 +44,17 @@
   runAfter:
     - fvt-coreidp-auth
 
-# Core FVT 1.4 coreapi-workspacemgmt  ~35m
+# Core FVT 1.4 coreapi-apikeymgmt ~3m
+- name: fvt-coreapi-apikeymgmt
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: test_suite
+      value: coreapi-apikeymgmt
+  runAfter:
+    - suite-verify  
+
+# Core FVT 1.5 coreapi-workspacemgmt  ~35m
 - name: fvt-coreapi-workspacemgmt
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
@@ -58,7 +68,7 @@
   runAfter:
     - fvt-coreidp-auth
 
-# Core FVT 1.5 coreapi-graphiteconfigtool  ~15m
+# Core FVT 1.6 coreapi-graphiteconfigtool  ~15m
 - name: fvt-coreapi-graphiteconfigtool
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
@@ -68,7 +78,7 @@
   runAfter:
     - fvt-coreidp-auth
 
-# Core FVT 1.6 useractivation-overall  ~8m
+# Core FVT 1.7 useractivation-overall  ~8m
 - name: fvt-useractivation-overall
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
@@ -78,7 +88,7 @@
   runAfter:
     - fvt-coreidp-auth
 
-# Core FVT 1.7 useractivation-expiresat  ~20m
+# Core FVT 1.8 useractivation-expiresat  ~20m
 - name: fvt-useractivation-expiresat
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
@@ -88,7 +98,7 @@
   runAfter:
     - fvt-coreidp-auth
 
-# Core FVT 1.8 useractivation-inactivity  ~30m
+# Core FVT 1.9 useractivation-inactivity  ~30m
 - name: fvt-useractivation-inactivity
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
