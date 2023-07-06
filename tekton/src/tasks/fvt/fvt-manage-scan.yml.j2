@@ -215,7 +215,12 @@ spec:
     - name: sps-trigger-scan
       script: |
         #!/usr/bin/env bash
-        ibmcloud config --check-version=false && ibmcloud login --apikey $(params.devops_ibmcloud_apikey) -r us-south -g default && ibmcloud dev tekton-trigger 8487528e-4fc0-4a93-9bd5-c60d2d301932 --trigger-name "Manual Trigger" --output json --trigger-properties "{\"fvt-host\":\"fvtsecurity.fvtsecurity-6f1620198115433da1cac8216c06779b-0000.us-south.containers.appdomain.cloud\",\"app-image-name\":\"$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)\",\"app-image-digest\":\"$(params.fvt_image_digest)\",\"app-image-tags\":\"$(params.fvt_image_digest)\"}"
+        
+        ibmcloud config --check-version=false
+        
+        ibmcloud login --apikey $(params.devops_ibmcloud_apikey) -r us-south -g default
+        
+        ibmcloud dev tekton-trigger 8487528e-4fc0-4a93-9bd5-c60d2d301932 --trigger-name "Manual Trigger" --output json --trigger-properties "{\"fvt-host\":\"fvtsecurity.fvtsecurity-6f1620198115433da1cac8216c06779b-0000.us-south.containers.appdomain.cloud\",\"app-image-name\":\"$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)\",\"app-image-digest\":\"$(params.fvt_image_digest)\",\"app-image-tags\":\"$(params.fvt_image_digest)\"}"
       image: quay.io/ibmmas/cli
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
