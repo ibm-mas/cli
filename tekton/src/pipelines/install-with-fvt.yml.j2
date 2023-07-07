@@ -304,6 +304,25 @@ spec:
         - app-install-hputilities
 
 
+    # 12. Install & Configure Assist
+    # -------------------------------------------------------------------------
+    # 12.1 Assist Install
+    {{ lookup('template', 'taskdefs/apps/assist-app.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config-cos
+
+    # 12.2 Configure Watson Discovery in MAS
+    {{ lookup('template', 'taskdefs/core/suite-config-discovery.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-assist
+        - discovery
+
+    # 12.3 Configure Assist workspace
+    {{ lookup('template', 'taskdefs/apps/assist-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config-discovery
+
+
     # 13. Install & Configure Visual Inspection
     # -------------------------------------------------------------------------
     # 13.1 MVI Install
