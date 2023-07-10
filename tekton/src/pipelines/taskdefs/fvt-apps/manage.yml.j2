@@ -239,3 +239,14 @@
   # Update runAfter list with new PHASE 4 tests
   runAfter:
     - fvt-manage-startcenter-config
+  
+# Manage SMTP Configuration Validation
+- name: fvt-manage-smtp-setup
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mas-smtp-setup
+  # Update runAfter list with new PHASE 4 tests
+  runAfter:
+    - fvt-manage-directprint-reports
