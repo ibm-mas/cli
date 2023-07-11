@@ -66,11 +66,11 @@ function pipeline_prepare() {
   echo -e "${COLOR_GREEN}Namespace '$PIPELINES_NS' is ready${COLOR_RESET}"
 
   echo
-  echo_h2 "Installed Task Definitions"
+  echo_h4 "Installed Task Definitions"
   oc -n $PIPELINES_NS get tasks -o=custom-columns='NAME:.metadata.name,IMAGE:.spec.steps[0].image' | grep mas-devops-
 
   echo
-  echo_h2 "Installed Pipeline Definitions"
+  echo_h4 "Installed Pipeline Definitions"
   oc -n $PIPELINES_NS get pipeline
 
   echo ""
