@@ -143,3 +143,120 @@ Regardless of whether you are running a connected or disconnect installation, si
 ```bash
 docker run -ti --pull always quay.io/ibmmas/cli mas install
 ```
+
+!!! tip
+    Wherever you see a `[Y/n]` or `[y/N]` prompt, the option in upper case is the default, and can be accepted just by hitting return.
+
+    Selections are saved to file (`$HOME/.ibm-mas/cli.env`), if you make a mistake use `Ctrl+C` to quit the installer and when you run the install command again it will remember all your choices made to that point.
+
+    In the unlikely event that you are running the install on a shared computer you should delete the `$HOME/.ibm-mas` directory after launching the installation.
+
+
+### Step 1: Set Target OpenShift Cluster
+If you are not already connected to an OpenShift cluster you will be prompted to provide the server URL & token, and whether to verify the server certificate or not,  If you are already connected to a cluster you will be given the option to change to another cluster.
+
+
+### Step 2: Install OpenShift Pipelines Operator
+No input is required during this step.  The Red Hat Pipelines Operator will be installed on the cluster (if it is not already).
+
+
+### Step 3: IBM Maximo Operator Catalog Selection
+You must decide whether to use the online dynamic catalog or an offline static catalog.  The default is to use the static catalog, for more information about catalog choice refer to [Choosing the right catalog](choosing-the-right-catalog.md).
+
+If you selected to use a static catalog then you will be presented with a table of available catalogs and the versions of MAS available in the catalog.  Make the selection using the numbers in the left-most column.
+
+
+### Step 4: License Terms
+Confirm that you accept the IBM Maximo Application Suite license terms
+
+
+### Step 5: Configure MAS Instance
+Provide the basic information about your MAS instance:
+
+- Instance ID
+- Workspace ID
+- Workspace Display Name
+
+
+### Step 6: Configure Operation Mode
+The install will default to a production mode installation, but by choosing "y" at the prompt you will be able to install MAS in non-production mode.
+
+
+### Step 7. Configure Domain & Certificate Management
+By default MAS will be installed in a subdomain of your OpenShift clusters domain matching the MAS instance ID that you chose.  For example if your OpenShift cluster is `myocp.net` and you are installing MAS with an instance ID of `prod1` then MAS will be installed with a default domain something like `prod1.apps.myocp.net`, depending on the exact network configuration of your cluster.
+
+If you wish to use a custom domain for the MAS install you can choose to configure this by selecting "n" at the prompt.  The install supports DNS integrations for Cloudflare, IBM Cloud Internet Services, AWS Route 53 out of the box and is able to configure a certificate issuer using LetsEncrypt (production or staging) or a self-signed certificate authority per your choices.
+
+
+### Step 8. Application Selection
+Select the applications that you would like to install. Note that some applications cannot be installed unless an application they depend on is also installed:
+
+- Monitor is only available for install if IoT is selected
+- Assist and Predict are only available for install if Monitor is selected
+
+
+### Step 9. Configure Datbases
+If you have selected one or more applications that require a JDBC datasource (IoT, Manage, Monitor, & Predict) you must choose how to provide that dependency:
+
+- Use the IBM Db2 Universal Operator
+- Provide a JDBC configuration
+
+If you choose the latter then you will be prompted to select a local directory where the configuration will be staged and requested to provide a display name, the JDBC connection URL, username, password, and whether the endpoint is SSL enabled (if it is then you will also be asked to provide the SSL certificate required to connect to the database).
+
+!!! tip
+    If you have already generated the configuration file (manually, or using the install previously) the CLI will detect this and prompt whether you wish to re-use the existing configuration, or generate a new one.
+
+
+### Step 10. Additional Configurations
+Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step, here you will be asked whether you wish to provide any additional configurations and if you do in what directory they reside.
+
+!!! note
+    If you provided one or more JDBC configurations in step 9 then additional configurations will already be enabled and be pointing at the directory you chose for the JDBC configurations.
+
+
+### Step 11. Configure Storage Class Usage
+MAS requires both a `ReadWriteMany` and a `ReadWriteOnce` capable storage class to be available in the cluster.  The installer has the ability to recognize certain storage class providers and will default to the most appropriate storage class in these cases:
+
+- IBMCloud Storage (`ibmc-block-gold` & `ibmc-file-gold`)
+- OpenShift Container Storage (`ocs-storagecluster-ceph-rbd` & `ocs-storagecluster-cephfs`)
+- Azure Managed Storage (`azurefiles-premium` & `managed-premium`)
+- AWS Storage (`gp2` & `efs`)
+
+Even when a recognized storage provider is detected you will be provided with the option to select your own storages classes anyway.
+
+When selecting storage classes you will be presented with a list of available storage classes and must select both a `ReadWriteMany` and a `ReadWriteOnce` storage class.
+
+!!! warning
+    Unfortunately there is no way for the install to verify that the storage class selected actually supports the appropriate access mode, refer to the documention from the storage class provider to determine whetheryour storage class supports `ReadWriteOnce` and/or `ReadWriteMany`.
+
+
+### Step 12. Advanced Settings
+These settings can generally be ignored for most installations.
+
+### Change Cluster monitoring storage defaults?
+Answering "y" at the prompt will allow you to customize the storage capacity and data retention period in Grafana and Prometheus.
+
+#### Change default install namespaces?
+Answering "y" will allow you to customise the namespace where Db2, Grafana, and MongoDb are installed in the cluster.
+
+
+### Step 13. Configure IBM Container Registry
+Provide your IBM entitlement key.  If you have set the `IBM_ENTITLEMENT_KEY` environment variable then you will first be prompted whether you just want to re-use the saved entitlement key.
+
+
+### Step 14. Configure Product License
+Provide your license ID and the location of your license file.
+
+
+### Step 15. Configure UDS
+Maximo Application Suite's required integration with IBM User Data Services requires your e-mail address and first/last name be provided.
+
+
+### Step 16. Prepare Installation
+No input is required here, the install will prepare the namespace where install will be executed on the cluster and validate that the CLI container image (which will perform the installation) is accessible from your cluster.
+
+!!! note
+    For disconnected installations you may need to provide the digest of the ibmmas/cli container image.
+
+### Step 17. Review Settings
+A summary of all your choices will be presented and you will be prompted to provide a final confirmation as to whether to proceed with the install, or abort.
