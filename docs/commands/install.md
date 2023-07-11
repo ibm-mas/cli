@@ -128,7 +128,7 @@ No input is required during this step.  The Red Hat Pipelines Operator will be i
 
 
 ### Step 3: IBM Maximo Operator Catalog Selection
-You must decide whether to use the online dynamic catalog or an offline static catalog.  The default is to use the static catalog, for more information about catalog choice refer to [Choosing the right catalog](choosing-the-right-catalog.md).
+You must decide whether to use the online dynamic catalog or an offline static catalog.  The default is to use the static catalog, for more information about catalog choice refer to [Choosing the right catalog](../guides/choosing-the-right-catalog.md).
 
 If you selected to use a static catalog then you will be presented with a table of available catalogs and the versions of MAS available in the catalog.  Make the selection using the numbers in the left-most column.
 
