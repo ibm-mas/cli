@@ -39,16 +39,6 @@
   runAfter:
     - fvt-coreidp-saml
 
-# FVT 5.4 coreidp-ssoconfig  ~20m
-- name: fvt-coreidp-ssoconfig
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    - name: test_suite
-      value: coreidp-ssoconfig
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-  runAfter:
-    - fvt-coreidp-saml-ui
-
 # FVT5.5 licensingapi ~20m
 - name: fvt-licensingapi
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -57,7 +47,7 @@
     - name: test_suite
       value: licensingapi
   runAfter:
-    - fvt-coreidp-ssoconfig
+    - fvt-coreidp-saml-ui
 
 # FVT5.6 smtp ~5m
 - name: fvt-smtp
