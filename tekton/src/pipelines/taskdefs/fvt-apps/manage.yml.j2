@@ -162,6 +162,7 @@
 # - fvt-manage-escalation-action
 # - fvt-manage-autoscript-adddeletewo
 # - fvt-manage-jms-inbound
+# - fvt-manage-esig-basic
 # -------------------------------------------------------------
 
 # Manage FVT Work Order Basic Scenario
@@ -220,6 +221,21 @@
     - fvt-manage-mif-setup
     - fvt-manage-directprint-reports
 
+# Manage FVT E-Signature Basic Scenario
+- name: fvt-manage-esig-basic
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: esig-basic
+  runAfter:
+    - fvt-manage-masnavigation
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-mif-setup
+    - fvt-manage-directprint-reports
+
+
 # -------------------------------------------------------------
 # LAST PHASE (in sequence)
 # - fvt-manage-application-designer
@@ -240,6 +256,7 @@
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
+    - fvt-manage-esig-basic
 
 # Manage FVT Start Center
 - name: fvt-manage-startcenter-config
