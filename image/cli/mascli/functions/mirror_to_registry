@@ -8,51 +8,58 @@ Usage:
   mas mirror-images [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
+
 Mirror Mode (Required):
   -m, --mode ${COLOR_YELLOW}MIRROR_MODE${TEXT_RESET}                         Operation mode (direct, to-filesystem, from-filesystem)
   -d, --dir ${COLOR_YELLOW}MIRROR_WORKING_DIR${TEXT_RESET}                   Working directory for the mirror process
+
 Registry Details (Required):
   -H, --host ${COLOR_YELLOW}REGISTRY_PUBLIC_HOST${TEXT_RESET}                 Hostname of the target registry
   -P, --port ${COLOR_YELLOW}REGISTRY_PUBLIC_PORT${TEXT_RESET}                 Port number for the target registry
-Registry Authentication (Optional):
   -u, --username ${COLOR_YELLOW}REGISTRY_USERNAME${TEXT_RESET}                Username to authenticate to the target registry
   -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}                Password to authenticate to the target registry
+
 Source Registry Entitlements (Required based on what content you choose to mirror):
       --ibm-entitlement ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}       IBM Entitlement Key
-      --redhat-username ${COLOR_YELLOW}REDHAT_CONNECT_USERNAME${TEXT_RESET}   Red Hat Connect Username
-      --redhat-password ${COLOR_YELLOW}REDHAT_CONNECT_PASSWORD${TEXT_RESET}   Red Hat Connect Password
+      --redhat-username ${COLOR_YELLOW}REDHAT_CONNECT_USERNAME${TEXT_RESET}   Red Hat Connect Username (only required when mirroring UDS images)
+      --redhat-password ${COLOR_YELLOW}REDHAT_CONNECT_PASSWORD${TEXT_RESET}   Red Hat Connect Password (only required when mirroring UDS images)
       --artifactory-username ${COLOR_YELLOW}ARTIFACTORY_USERNAME${TEXT_RESET} Artifactory Username
       --artifactory-token ${COLOR_YELLOW}ARTIFACTORY_TOKEN${TEXT_RESET}       Artifactory Token
 
 Maximo Operator Catalog Selection (Optional):
   -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v8-221228-amd64)
   -C, --channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                       Maximo Application Suite Channel to mirror (e.g. 8.9.x)
-      --mirror-core                               Mirror images for IBM Maximo Application Suite Core & dependencies
+
+Content Selection (Core Platform):
+      --mirror-catalog                            Mirror the IBM Maximo Operator Catalog
+      --mirror-core                               Mirror images for IBM Maximo Application Suite Core
+
+Content Selection (Applications):
       --mirror-assist                             Mirror images for IBM Maximo Assist
-      --mirror-iot                                Mirror images for IBM Maximo IoT & dependencies
-      --mirror-manage                             Mirror images for IBM Maximo Manage & dependencies
+      --mirror-hputilities                        Mirror images for IBM Maximo Health & Predict Utilities
+      --mirror-iot                                Mirror images for IBM Maximo IoT
+      --mirror-manage                             Mirror images for IBM Maximo Manage
       --mirror-monitor                            Mirror images for IBM Maximo Monitor
       --mirror-optimizer                          Mirror images for IBM Maximo Optimizer
       --mirror-predict                            Mirror images for IBM Maximo Predict
       --mirror-visualinspection                   Mirror images for IBM Maximo Visual Inspection
-Maximo Core Image Mirroring Configuration (Optional):
-      --skip-cfs                                  Skip mirroring images for IBM Cloud Pak Foundation Services
-      --skip-uds                                  Skip mirroring images for IBM User Data Services
-      --skip-sls                                  Skip mirroring images for IBM Suite License Service
-      --skip-tsm                                  Skip mirroring images for IBM Truststore Manager
-      --skip-mongo                                Skip mirroring images for MongoDb Community Edition
-Maximo Assist Image Mirroring Configuration (Optional):
-      --skip-cp4d                                 Skip mirroring images for IBM CP4D
-      --skip-wd                                   Skip mirroring images for IBM Watson Discovery
-Maximo IoT Image Mirroring Configuration (Optional):
-      --skip-db2                                  Skip mirroring images for IBM Db2
-Maximo Manage Image Mirroring Configuration (Optional):
-      --skip-db2                                  Skip mirroring images for IBM Db2
-Maximo Predict Image Mirroring Configuration (Optional):
-      --skip-cp4d                                 Skip mirroring images for IBM CP4D
-      --skip-wsl                                  Skip mirroring images for IBM Watson Studio
-      --skip-wml                                  Skip mirroring images for IBM Watson Machine Learning
-      --skip-spark                                Skip mirroring images for IBM Analytics Engine (Spark)
+
+Content Selection (Cloud Pak for Data):
+      --mirror-cp4d                                 Mirror images for IBM Cloud Pak for Data Platform
+      --mirror-wd                                   Mirror images for IBM Watson Discovery
+      --mirror-wsl                                  Mirror images for IBM Watson Studio Local
+      --mirror-wml                                  Mirror images for IBM Watson Machine Learning
+      --mirror-spark                                Mirror images for IBM Analytics Engine (Spark)
+
+Content Selection (Other Dependencies):
+      --mirror-cfs                                  Mirror images for IBM Cloud Pak Foundation Services
+      --mirror-uds                                  Mirror images for IBM User Data Services
+      --mirror-sls                                  Mirror images for IBM Suite License Service
+      --mirror-tsm                                  Mirror images for IBM Truststore Manager
+      --mirror-mongo                                Mirror images for MongoDb Community Edition
+      --mirror-db2                                  Mirror images for IBM Db2
+      --mirror-appconnect                           Mirror images for IBM AppConnect
+
 Other Commands:
       --no-confirm                                Mirror images without prompting for confirmation
   -h, --help                                      Show this help message
@@ -65,36 +72,43 @@ function mirror_to_registry_noninteractive() {
   # Main content
   MIRROR_MAS_CORE=false
   MIRROR_MAS_ASSIST=false
+  MIRROR_MAS_HPUTILITIES=false
   MIRROR_MAS_IOT=false
   MIRROR_MAS_MANAGE=false
   MIRROR_MAS_MONITOR=false
   MIRROR_MAS_PREDICT=false
   MIRROR_MAS_OPTIMIZER=false
   MIRROR_MAS_VISUALINSPECTION=false
-  MIRROR_MAS_X=false
+
   # Dependencies
-  MIRROR_COMMONSERVICES=true
-  MIRROR_UDS=true
-  MIRROR_SLS=true
-  MIRROR_TRUSTSTOREMGR=true
-  MIRROR_MONGOCE=true
-  MIRROR_DB2U=true
-  MIRROR_CP4D=true
-  MIRROR_WD=true
-  MIRROR_WSL=true
-  MIRROR_WML=true
-  MIRROR_SPARK=true
+  MIRROR_CATALOG=false
+  MIRROR_COMMONSERVICES=false
+  MIRROR_UDS=false
+  MIRROR_SLS=false
+  MIRROR_TRUSTSTOREMGR=false
+  MIRROR_MONGOCE=false
+  MIRROR_DB2U=false
+  MIRROR_CP4D=false
+  MIRROR_WD=false
+  MIRROR_WSL=false
+  MIRROR_WML=false
+  MIRROR_SPARK=false
+  MIRROR_APPCONNECT=false
+
   while [[ $# -gt 0 ]]
   do
     key="$1"
     shift
     case $key in
+      # Mirror Mode
       -m|--mode)
         MIRROR_MODE=$1 && shift
         ;;
       -d|--dir)
         MIRROR_WORKING_DIR=$1 && shift
         ;;
+
+      # Registry Details
       -H|--host)
         REGISTRY_PUBLIC_HOST=$1 && shift
         ;;
@@ -107,6 +121,8 @@ function mirror_to_registry_noninteractive() {
       -p|--password)
         REGISTRY_PASSWORD=$1 && shift
         ;;
+
+      # Source Registry Entitlements
       --ibm-entitlement)
         IBM_ENTITLEMENT_KEY=$1 && shift
         ;;
@@ -122,77 +138,89 @@ function mirror_to_registry_noninteractive() {
       --artifactory-apikey)
         ARTIFACTORY_TOKEN=$1 && shift
         ;;
+
+      # Maximo Operator Catalog Selection
       -c|--catalog)
         MAS_CATALOG_VERSION=$1 && shift
         ;;
       -C|--channel)
         MAS_CHANNEL=$1 && shift
         ;;
+
+      # Content Selection (Core Platform)
+      --mirror-catalog)
+        MIRROR_CATALOG=true
+        ;;
       --mirror-core)
         MIRROR_MAS_CORE=true
-        MIRROR_MAS_X=true
         ;;
+
+      # Content Selection (Applications):
       --mirror-assist)
         MIRROR_MAS_ASSIST=true
-        MIRROR_MAS_X=true
+        ;;
+      --mirror-hputilities)
+        MIRROR_MAS_HPUTILITIES=true
         ;;
       --mirror-iot)
         MIRROR_MAS_IOT=true
-        MIRROR_MAS_X=true
         ;;
       --mirror-manage)
         MIRROR_MAS_MANAGE=true
-        MIRROR_MAS_X=true
         ;;
       --mirror-monitor)
         MIRROR_MAS_MONITOR=true
-        MIRROR_MAS_X=true
         ;;
       --mirror-predict)
         MIRROR_MAS_PREDICT=true
-        MIRROR_MAS_X=true
         ;;
       --mirror-optimizer)
         MIRROR_MAS_OPTIMIZER=true
-        MIRROR_MAS_X=true
         ;;
       --mirror-visualinspection)
         MIRROR_MAS_VISUALINSPECTION=true
-        MIRROR_MAS_X=true
         ;;
-      --skip-cfs)
-        MIRROR_COMMONSERVICES=false
+
+      # Content Selection (Other Dependencies)
+      --mirror-cfs)
+        MIRROR_COMMONSERVICES=true
         ;;
-      --skip-uds)
-        MIRROR_UDS=false
+      --mirror-uds)
+        MIRROR_UDS=true
         ;;
-      --skip-sls)
-        MIRROR_SLS=false
+      --mirror-sls)
+        MIRROR_SLS=true
         ;;
-      --skip-tsm)
-        MIRROR_TRUSTSTOREMGR=false
+      --mirror-tsm)
+        MIRROR_TRUSTSTOREMGR=true
         ;;
-      --skip-mongo)
-        MIRROR_MONGOCE=false
+      --mirror-mongo)
+        MIRROR_MONGOCE=true
         ;;
-      --skip-db2)
-        MIRROR_DB2U=false
+      --mirror-db2)
+        MIRROR_DB2U=true
         ;;
-      --skip-cp4d)
-        MIRROR_CP4D=false
+      --mirror-appconnect)
+        MIRROR_APPCONNECT=true
         ;;
-      --skip-wd)
-        MIRROR_WD=false
+
+      # Content Selection (Cloud Pak for Data)
+      --mirror-cp4d)
+        MIRROR_CP4D=true
         ;;
-      --skip-wsl)
-        MIRROR_WSL=false
+      --mirror-wd)
+        MIRROR_WD=true
         ;;
-      --skip-wml)
-        MIRROR_WML=false
+      --mirror-wsl)
+        MIRROR_WSL=true
         ;;
-      --skip-spark)
-        MIRROR_SPARK=false
+      --mirror-wml)
+        MIRROR_WML=true
         ;;
+      --mirror-spark)
+        MIRROR_SPARK=true
+        ;;
+
       --no-confirm)
         NO_CONFIRM=true
         ;;
@@ -211,18 +239,22 @@ function mirror_to_registry_noninteractive() {
   # Check all args have been set
   [[ -z "$MIRROR_MODE" ]] && mirror_to_registry_help "MIRROR_MODE is not set"
   [[ -z "$MIRROR_WORKING_DIR" ]] && mirror_to_registry_help "MIRROR_WORKING_DIR is not set"
+
+  [[ -z "$MAS_CATALOG_VERSION" ]] && mirror_to_registry_help "MAS_CATALOG_VERSION is not set"
+  [[ -z "$MAS_CHANNEL" ]] && mirror_to_registry_help "MAS_CHANNEL is not set"
+  [[ -z "$IBM_ENTITLEMENT_KEY" ]] && mirror_to_registry_help "IBM_ENTITLEMENT_KEY is not set"
+
   [[ -z "$REGISTRY_PUBLIC_HOST" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_HOST is not set"
   [[ -z "$REGISTRY_PUBLIC_PORT" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_PORT is not set"
-  if [[ $MIRROR_MAS_X == "true" ]]; then
-    [[ -z "$MAS_CATALOG_VERSION" ]] && mirror_to_registry_help "MAS_CATALOG_VERSION is not set"
-    [[ -z "$MAS_CHANNEL" ]] && mirror_to_registry_help "MAS_CHANNEL is not set"
-    [[ -z "$IBM_ENTITLEMENT_KEY" ]] && mirror_to_registry_help "IBM_ENTITLEMENT_KEY is not set"
+
+  if [[ $MIRROR_MODE != "to-filesystem" ]]; then
+    [[ -z "$REGISTRY_USERNAME" ]] && mirror_to_registry_help "REGISTRY_USERNAME is not set"
+    [[ -z "$REGISTRY_PASSWORD" ]] && mirror_to_registry_help "REGISTRY_PASSWORD is not set"
   fi
-  if [[ $MIRROR_MAS_CORE == "true" ]]; then
-    if [[ $MIRROR_UDS == "true" ]]; then
-      [[ -z "$REDHAT_CONNECT_USERNAME" ]] && mirror_to_registry_help "REDHAT_CONNECT_USERNAME is not set"
-      [[ -z "$REDHAT_CONNECT_PASSWORD" ]] && mirror_to_registry_help "REDHAT_CONNECT_PASSWORD is not set"
-    fi
+
+  if [[ $MIRROR_UDS == "true" ]]; then
+    [[ -z "$REDHAT_CONNECT_USERNAME" ]] && mirror_to_registry_help "REDHAT_CONNECT_USERNAME is not set"
+    [[ -z "$REDHAT_CONNECT_PASSWORD" ]] && mirror_to_registry_help "REDHAT_CONNECT_PASSWORD is not set"
   fi
 }
 
@@ -258,10 +290,12 @@ function mirror_to_registry_interactive() {
   prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
   prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
 
-  echo
-  echo_h2 "Configure Authentication"
-  prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME
-  prompt_for_input "Mirror Registry Password" REGISTRY_PASSWORD
+  if [[ $MIRROR_MODE != "to-filesystem" ]]; then
+    echo
+    echo_h2 "Configure Authentication"
+    prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME
+    prompt_for_input "Mirror Registry Password" REGISTRY_PASSWORD
+  fi
 
   echo
   echo_h2 "Configure Static Catalog Version"
@@ -270,26 +304,13 @@ function mirror_to_registry_interactive() {
   echo
   echo_h2 "Configure Images to Mirror"
 
-  prompt_for_confirm "Red Hat OpenShift Container Platform Release" MIRROR_RH_RELEASE
-  if [[ "$MIRROR_RH_RELEASE" == "true" ]]; then
-    prompt_for_input "Release Version (x.y.z)" OPENSHIFT_RELEASE_VERSION "4.10.18"
-  fi
-
-  prompt_for_confirm "Red Hat OpenShift Container Platform Operator Catalog" MIRROR_RH_OPERATORS
-  if [[ "$MIRROR_RH_OPERATORS" == "true" ]]; then
-    prompt_for_input "Operator Catalog Version (x.y)" OPENSHIFT_OPERATORS_VERSION "4.10"
-  fi
-
   prompt_for_confirm "Mirror all MAS images (with dependencies)" MIRROR_EVERYTHING
 
   if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
-    # Core + Dependencies
+    # Core
+    MIRROR_CATALOG=true
     MIRROR_MAS_CORE=true
-    MIRROR_COMMONSERVICES=true
-    MIRROR_UDS=true
-    MIRROR_SLS=true
-    MIRROR_TRUSTSTOREMGR=true
-    MIRROR_MONGOCE=true
+
     # Apps
     MIRROR_MAS_ASSIST=true
     MIRROR_MAS_IOT=true
@@ -298,22 +319,27 @@ function mirror_to_registry_interactive() {
     MIRROR_MAS_OPTIMIZER=true
     MIRROR_MAS_PREDICT=true
     MIRROR_MAS_VISUALINSPECTION=true
-    # App Dependencies
+
+    # Dependencies (Other)
+    MIRROR_CATALOG=true
+    MIRROR_COMMONSERVICES=true
+    MIRROR_UDS=true
+    MIRROR_SLS=true
+    MIRROR_TRUSTSTOREMGR=true
+    MIRROR_MONGOCE=true
     MIRROR_DB2U=true
+    MIRROR_APPCONNECT=true
+
+    # Dependencies (CP4D)
     MIRROR_CP4D=true
     MIRROR_WD=true
     MIRROR_WSL=true
     MIRROR_WML=true
     MIRROR_SPARK=true
   else
+    prompt_for_confirm_default_yes "IBM Maximo Operator Catalog" MIRROR_CATALOG
+
     prompt_for_confirm_default_yes "IBM Maximo Application Suite - Core" MIRROR_MAS_CORE
-    if [[ "$MIRROR_MAS_CORE" == "true" ]]; then
-      prompt_for_confirm_default_yes " + IBM Foundational Services" MIRROR_COMMONSERVICES
-      prompt_for_confirm_default_yes " + IBM User Data Services" MIRROR_UDS
-      prompt_for_confirm_default_yes " + IBM Suite License Service" MIRROR_SLS
-      prompt_for_confirm_default_yes " + IBM Truststore Manager" MIRROR_TRUSTSTOREMGR
-      prompt_for_confirm_default_yes " + MongoDb Community Edition" MIRROR_MONGOCE
-    fi
 
     prompt_for_confirm "IBM Maximo Application Suite - Assist" MIRROR_MAS_ASSIST
     prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_IOT
@@ -322,33 +348,30 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm "IBM Maximo Application Suite - Optimizer" MIRROR_MAS_OPTIMIZER
     prompt_for_confirm "IBM Maximo Application Suite - Predict" MIRROR_MAS_PREDICT
     prompt_for_confirm "IBM Maximo Application Suite - Visual Inspection" MIRROR_MAS_VISUALINSPECTION
-    if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
-      prompt_for_confirm_default_yes " + IBM Db2" MIRROR_DB2U
-    fi
-    if [[ "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_PREDICT" == "true" ]]; then
-      prompt_for_confirm_default_yes " + IBM Cloud Pak for Data (CP4D)" MIRROR_CP4D
-    fi
-    if [[ "$MIRROR_MAS_PREDICT" == "true" ]]; then
-      prompt_for_confirm_default_yes " + IBM Watson Studio" MIRROR_WSL
-    fi
-    if [[ "$MIRROR_MAS_ASSIST" == "true" ]]; then
-      prompt_for_confirm_default_yes " + IBM Watson Discovery" MIRROR_WD
-    fi
-    if [[ "$MIRROR_MAS_PREDICT" == "true" ]]; then
-      prompt_for_confirm_default_yes " + IBM Watson Machine Learning" MIRROR_WML
-      prompt_for_confirm_default_yes " + IBM Analytics Engine (Spark)" MIRROR_SPARK
-    fi
+
+    prompt_for_confirm_default_yes "IBM Foundational Services" MIRROR_COMMONSERVICES
+    prompt_for_confirm_default_yes "IBM User Data Services" MIRROR_UDS
+    prompt_for_confirm_default_yes "IBM Suite License Service" MIRROR_SLS
+    prompt_for_confirm_default_yes "IBM Truststore Manager" MIRROR_TRUSTSTOREMGR
+    prompt_for_confirm_default_yes "MongoDb Community Edition" MIRROR_MONGOCE
+    prompt_for_confirm_default_yes "IBM Db2" MIRROR_DB2U
+    prompt_for_confirm_default_yes "IBM AppConnect" MIRROR_APPCONNECT
+
+    prompt_for_confirm_default_yes "IBM Cloud Pak for Data (CP4D)" MIRROR_CP4D
+    prompt_for_confirm_default_yes "IBM Watson Studio" MIRROR_WSL
+    prompt_for_confirm_default_yes "IBM Watson Discovery" MIRROR_WD
+    prompt_for_confirm_default_yes "IBM Watson Machine Learning" MIRROR_WML
+    prompt_for_confirm_default_yes "IBM Analytics Engine (Spark)" MIRROR_SPARK
   fi
 
   echo
   echo_h2 "Configure Authentication"
   prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY
 
-  if [[ $MIRROR_UDS == "true" || $MIRROR_RH_RELEASE == "true"  || $MIRROR_RH_OPERATORS == "true" ]]; then
+  if [[ $MIRROR_UDS == "true" ]]; then
     prompt_for_input "Red Hat Connect Username" REDHAT_CONNECT_USERNAME
     prompt_for_input "Red Hat Connect Password" REDHAT_CONNECT_PASSWORD
   fi
-
 }
 
 
@@ -397,31 +420,27 @@ function mirror_to_registry() {
   export MIRROR_WORKING_DIR
   export MAS_CATALOG_VERSION
   export MAS_CHANNEL
+
   export REGISTRY_PUBLIC_HOST
   export REGISTRY_PUBLIC_PORT
   export REGISTRY_USERNAME
   export REGISTRY_PASSWORD
-  # Core & Dependencies
-  export MIRROR_MAS_CORE
+
+  # Dependency control
+  export MIRROR_CATALOG
   export MIRROR_COMMONSERVICES
   export MIRROR_UDS
   export MIRROR_SLS
   export MIRROR_TRUSTSTOREMGR
   export MIRROR_MONGOCE
-  # Apps & Dependencies
-  export MIRROR_MAS_ASSIST
-  export MIRROR_MAS_IOT
-  export MIRROR_MAS_MANAGE
-  export MIRROR_MAS_MONITOR
-  export MIRROR_MAS_PREDICT
-  export MIRROR_MAS_OPTIMIZER
-  export MIRROR_MAS_VISUALINSPECTION
   export MIRROR_DB2U
   export MIRROR_CP4D
   export MIRROR_WD
   export MIRROR_WML
   export MIRROR_WSL
   export MIRROR_SPARK
+  export MIRROR_APPCONNECT
+
   # Authentication
   export IBM_ENTITLEMENT_KEY
   export REDHAT_CONNECT_USERNAME
@@ -429,73 +448,89 @@ function mirror_to_registry() {
   export ARTIFACTORY_USERNAME
   export ARTIFACTORY_TOKEN
 
+  if [[ "$MIRROR_CATALOG" == true ||
+    "$MIRROR_COMMONSERVICES" == true ||
+    "$MIRROR_UDS" == true ||
+    "$MIRROR_SLS" == true ||
+    "$MIRROR_TRUSTSTOREMGR" == true ||
+    "$MIRROR_MONGOCE" == true ||
+    "$MIRROR_DB2U" == true ||
+    "$MIRROR_APPCONNECT" == true ||
+    "$MIRROR_CP4D" == true ||
+    "$MIRROR_WD" == true ||
+    "$MIRROR_WSL" == true ||
+    "$MIRROR_WML" == true ||
+    "$MIRROR_SPARK" == true ]]
+  then
+    MIRROR_DEPS=true
+  else
+    MIRROR_DEPS=false
+  fi
+
   echo
   reset_colors
   echo_h2 "Review Settings"
 
-  echo "${TEXT_DIM}"
-  echo_h2 "Target Registry Connection" "    "
-  echo_reset_dim "Registry Host ......................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_HOST}"
-  echo_reset_dim "Registry Port ......................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_PORT}"
+  echo
+  echo_h4 "Settings" "    "
+  echo_reset_dim "Mirror Mode ......................... ${COLOR_MAGENTA}${MIRROR_MODE}"
+  echo_reset_dim "Working Directory ................... ${COLOR_MAGENTA}${MIRROR_WORKING_DIR}"
+
+  echo
   reset_colors
-
-  echo "${TEXT_DIM}"
-  echo_h2 "Target Registry Authentication" "    "
-  echo_reset_dim "Registry Username ..................... ${COLOR_MAGENTA}${REGISTRY_USERNAME}"
-  echo_reset_dim "Registry Password ..................... ${COLOR_MAGENTA}${REGISTRY_PASSWORD:0:4}<snip>"
-  reset_colors
-
-  echo "${TEXT_DIM}"
-  echo_h2 "IBM Operator Catalog" "    "
-  if [[ "$MIRROR_MAS_CORE" == "true" || "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_IOT" == "true" \
-        || "$MIRROR_MAS_MANAGE" == "true" || "$MIRROR_MAS_MONITOR" == "true" || "$MIRROR_MAS_PREDICT" == "true" \
-        || "$MIRROR_MAS_OPTIMIZER" == "true" || "$MIRROR_MAS_VISUALINSPECTION" == "true" ]]
-  then
-    echo_reset_dim "Catalog Version ..................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
-    echo_reset_dim "IBM Authentication .................. ${COLOR_MAGENTA}cp/${IBM_ENTITLEMENT_KEY:0:4}<snip>"
-
-    # Core
-    show_mirror_status "IBM Maximo Application Suite Core ..." $MIRROR_MAS_CORE
-
-    # Applications
-    show_mirror_status "IBM Maximo Assist ..................." $MIRROR_MAS_ASSIST
-    show_mirror_status "IBM Maximo IoT ......................" $MIRROR_MAS_IOT
-    show_mirror_status "IBM Maximo Manage ..................." $MIRROR_MAS_MANAGE
-    show_mirror_status "IBM Maximo Monitor .................." $MIRROR_MAS_MONITOR
-    show_mirror_status "IBM Maximo Predict .................." $MIRROR_MAS_PREDICT
-    show_mirror_status "IBM Maximo Optimizer ................" $MIRROR_MAS_OPTIMIZER
-    show_mirror_status "IBM Maximo Visual Inspection ........" $MIRROR_MAS_VISUALINSPECTION
-
-    # Core Dependencies
-    if [[ "$MIRROR_MAS_CORE" == "true" ]]; then
-      show_mirror_status " + IBM Cloud Pak Foundation Services " $MIRROR_COMMONSERVICES
-      show_mirror_status " + IBM User Data Services ..........." $MIRROR_UDS
-      show_mirror_status " + IBM Suite License Service ........" $MIRROR_SLS
-      show_mirror_status " + IBM Truststore Manager ..........." $MIRROR_TRUSTSTOREMGR
-      show_mirror_status " + MongoDb Community Edition ........" $MIRROR_MONGOCE
-    fi
-    # IoT & Manage Dependencies
-    if [[ "$MIRROR_MAS_IOT" == "true" || "$MIRROR_MAS_MANAGE" == "true" ]]; then
-      show_mirror_status " + IBM Db2 .........................." $MIRROR_DB2U
-    fi
-    # Assist & Predict Dependencies
-    if [[ "$MIRROR_MAS_ASSIST" == "true" || "$MIRROR_MAS_PREDICT" == "true" ]]; then
-      show_mirror_status " + IBM Cloud Pak for Data (CP4D) ...." $MIRROR_CP4D
-    fi
-    # Assist Dependencies
-    if [[ "$MIRROR_MAS_ASSIST" == "true" ]]; then
-      show_mirror_status " + IBM Watson Discovery ............." $MIRROR_WD
-    fi
-    # Predict Dependencies
-    if [[ "$MIRROR_MAS_PREDICT" == "true" ]]; then
-      show_mirror_status " + IBM Watson Studio ................" $MIRROR_WSL
-      show_mirror_status " + IBM Watson Machine Learning ......" $MIRROR_WML
-      show_mirror_status " + IBM Analytics Engine (Spark)......" $MIRROR_SPARK
-    fi
-  else
-    echo_reset_dim "${COLOR_RED}Skip"
+  echo_h4 "Target Registry" "    "
+  echo_reset_dim "Registry Host ....................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_HOST}"
+  echo_reset_dim "Registry Port ....................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_PORT}"
+  if [[ $MIRROR_MODE != "to-filesystem" ]]; then
+    echo_reset_dim "Registry Username ................... ${COLOR_MAGENTA}${REGISTRY_USERNAME}"
+    echo_reset_dim "Registry Password ................... ${COLOR_MAGENTA}${REGISTRY_PASSWORD:0:4}<snip>"
   fi
+
+  echo
   reset_colors
+  echo_h4 "IBM Operator Catalog" "    "
+  echo_reset_dim "Catalog Version ..................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
+  echo_reset_dim "MAS Update Channel .................. ${COLOR_MAGENTA}${MAS_CHANNEL}"
+  echo_reset_dim "IBM Authentication .................. ${COLOR_MAGENTA}cp/${IBM_ENTITLEMENT_KEY:0:4}<snip>"
+
+  # Core
+  echo
+  reset_colors
+  echo_h4 "Content Selection (Core Platform)" "    "
+  show_mirror_status "IBM Maximo Operator Catalog ........." $MIRROR_CATALOG
+  show_mirror_status "IBM Maximo Application Suite Core ..." $MIRROR_MAS_CORE
+
+  # Applications
+  echo
+  reset_colors
+  echo_h4 "Content Selection (Applications)" "    "
+  show_mirror_status "IBM Maximo Assist ..................." $MIRROR_MAS_ASSIST
+  show_mirror_status "IBM Maximo IoT ......................" $MIRROR_MAS_IOT
+  show_mirror_status "IBM Maximo Manage ..................." $MIRROR_MAS_MANAGE
+  show_mirror_status "IBM Maximo Monitor .................." $MIRROR_MAS_MONITOR
+  show_mirror_status "IBM Maximo Predict .................." $MIRROR_MAS_PREDICT
+  show_mirror_status "IBM Maximo Optimizer ................" $MIRROR_MAS_OPTIMIZER
+  show_mirror_status "IBM Maximo Visual Inspection ........" $MIRROR_MAS_VISUALINSPECTION
+
+  echo
+  reset_colors
+  echo_h4 "Content Selection (Cloud Pak for Data)" "    "
+  show_mirror_status "IBM Cloud Pak for Data (CP4D) ......." $MIRROR_CP4D
+  show_mirror_status "IBM Watson Discovery ................" $MIRROR_WD
+  show_mirror_status "IBM Watson Studio ..................." $MIRROR_WSL
+  show_mirror_status "IBM Watson Machine Learning ........." $MIRROR_WML
+  show_mirror_status "IBM Analytics Engine (Spark)........." $MIRROR_SPARK
+
+  echo
+  reset_colors
+  echo_h4 "Content Selection (Other Dependencies)" "    "
+  show_mirror_status "IBM Cloud Pak Foundation Services ..." $MIRROR_COMMONSERVICES
+  show_mirror_status "IBM User Data Services .............." $MIRROR_UDS
+  show_mirror_status "IBM Suite License Service ..........." $MIRROR_SLS
+  show_mirror_status "IBM Truststore Manager .............." $MIRROR_TRUSTSTOREMGR
+  show_mirror_status "MongoDb Community Edition ..........." $MIRROR_MONGOCE
+  show_mirror_status "IBM Db2 ............................." $MIRROR_DB2U
+  show_mirror_status "IBM AppConnect ......................" $MIRROR_APPCONNECT
 
   echo
   reset_colors
@@ -511,12 +546,17 @@ function mirror_to_registry() {
     mkdir -p $MIRROR_WORKING_DIR/logs/
   fi
 
-  mirror_one_thing $MIRROR_MAS_CORE             "IBM Maximo Application Suite Core"  "$LOG_PREFIX-core.log"             mirror_core
-  mirror_one_thing $MIRROR_MAS_ASSIST           "IBM Maximo Assist"                  "$LOG_PREFIX-assist.log"           mirror_add_assist
-  mirror_one_thing $MIRROR_MAS_IOT              "IBM Maximo IoT"                     "$LOG_PREFIX-iot.log"              mirror_add_iot
-  mirror_one_thing $MIRROR_MAS_MANAGE           "IBM Maximo Manage"                  "$LOG_PREFIX-manage.log"           mirror_add_manage
-  mirror_one_thing $MIRROR_MAS_MONITOR          "IBM Maximo Monitor"                 "$LOG_PREFIX-monitor.log"          mirror_add_monitor
-  mirror_one_thing $MIRROR_MAS_PREDICT          "IBM Maximo Predict"                 "$LOG_PREFIX-predict.log"          mirror_add_predict
-  mirror_one_thing $MIRROR_MAS_OPTIMIZER        "IBM Maximo Optimizer"               "$LOG_PREFIX-optimizer.log"        mirror_add_optimizer
-  mirror_one_thing $MIRROR_MAS_VISUALINSPECTION "IBM Maximo Visual Inspection"       "$LOG_PREFIX-visualinspection.log" mirror_add_visualinspection
+  export ARTIFACTORY_USERNAME=""
+  export ARTIFACTORY_TOKEN=""
+
+  mirror_one_thing $MIRROR_MAS_CORE             "IBM Maximo Application Suite Core"     "$LOG_PREFIX-core.log"             mirror_core
+  mirror_one_thing $MIRROR_MAS_ASSIST           "IBM Maximo Assist"                     "$LOG_PREFIX-assist.log"           mirror_add_assist
+  mirror_one_thing $MIRROR_MAS_HPUTILITIES      "IBM Maximo Health & Predict Utilities" "$LOG_PREFIX-hputilities.log"      mirror_add_hputilities
+  mirror_one_thing $MIRROR_MAS_IOT              "IBM Maximo IoT"                        "$LOG_PREFIX-iot.log"              mirror_add_iot
+  mirror_one_thing $MIRROR_MAS_MANAGE           "IBM Maximo Manage"                     "$LOG_PREFIX-manage.log"           mirror_add_manage
+  mirror_one_thing $MIRROR_MAS_MONITOR          "IBM Maximo Monitor"                    "$LOG_PREFIX-monitor.log"          mirror_add_monitor
+  mirror_one_thing $MIRROR_MAS_PREDICT          "IBM Maximo Predict"                    "$LOG_PREFIX-predict.log"          mirror_add_predict
+  mirror_one_thing $MIRROR_MAS_OPTIMIZER        "IBM Maximo Optimizer"                  "$LOG_PREFIX-optimizer.log"        mirror_add_optimizer
+  mirror_one_thing $MIRROR_MAS_VISUALINSPECTION "IBM Maximo Visual Inspection"          "$LOG_PREFIX-visualinspection.log" mirror_add_visualinspection
+  mirror_one_thing $MIRROR_DEPS                 "Selected Dependencies"                 "$LOG_PREFIX-dependencies.log"     mirror_dependencies
 }
