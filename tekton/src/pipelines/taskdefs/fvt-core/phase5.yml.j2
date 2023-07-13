@@ -39,17 +39,7 @@
   runAfter:
     - fvt-coreidp-saml
 
-# FVT5.4 coreidp-auth ~20m - Refresh token and authentication patterns
-- name: fvt-coreidp-auth
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
-      value: coreidp-auth
-  runAfter:
-    - fvt-coreidp-saml-ui
-
-# FVT 5.5 coreidp-ssoconfig  ~20m
+# FVT 5.4 coreidp-ssoconfig  ~20m
 - name: fvt-coreidp-ssoconfig
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
@@ -57,9 +47,9 @@
       value: coreidp-ssoconfig
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
-    - fvt-coreidp-auth
+    - fvt-coreidp-saml-ui
 
-# FVT5.6 licensingapi ~20m
+# FVT5.5 licensingapi ~20m
 - name: fvt-licensingapi
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
@@ -69,7 +59,7 @@
   runAfter:
     - fvt-coreidp-ssoconfig
 
-# FVT5.7 smtp ~5m
+# FVT5.6 smtp ~5m
 - name: fvt-smtp
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
@@ -79,7 +69,7 @@
   runAfter:
     - fvt-licensingapi
 
-# FVT5.8 core-scaling ~25m
+# FVT5.7 core-scaling ~25m
 - name: fvt-core-scaling
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
@@ -89,7 +79,7 @@
   runAfter:
     - fvt-smtp
 
-# FVT5.9 core-trustcas ~15m
+# FVT5.8 core-trustcas ~15m
 - name: fvt-core-trustcas
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
@@ -99,7 +89,7 @@
   runAfter:
     - fvt-core-scaling
 
-# FVT 5.10 operatormaturity  ~5m
+# FVT 5.9 operatormaturity  ~5m
 - name: fvt-operatormaturity
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
