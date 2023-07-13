@@ -4,10 +4,10 @@ kind: PipelineRun
 metadata:
   generateName: update-
   labels:
-    tekton.dev/pipeline: mas-update-after-install
+    tekton.dev/pipeline: mas-update
 spec:
   pipelineRef:
-    name: mas-update-after-install
+    name: mas-update
 
   serviceAccountName: pipeline
   timeout: 1h
