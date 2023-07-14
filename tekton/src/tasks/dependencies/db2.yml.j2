@@ -279,5 +279,7 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
 
+{% if $(params.db2_action) == "install" %}
   workspaces:
     - name: configs
+{% endif %}

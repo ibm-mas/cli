@@ -70,8 +70,9 @@ function update_interactive() {
   echo_h2 "Select IBM Maximo Operator Catalog Version"
   choose_catalog_version
   echo
-  echo_h2 "Dependency Updates"
-  if prompt_for_confirm "Update DB2 operator and instances?"; then
+  echo_h2 "Dependency Updates that Require Actions"
+  echo_h4 "Note: Only update these dependencies if they have already been installed"
+  if prompt_for_confirm "Do you want to update DB2u operator and its instances?"; then
     DB2_ACTION=upgrade
     prompt_for_input "Db2 Namespace" DB2_NAMESPACE "db2u"
   fi
