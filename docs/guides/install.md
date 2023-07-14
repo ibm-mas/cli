@@ -39,7 +39,7 @@ The other values can be left at their defaults.  Finally, click **Generate** and
     For more information about how to access the IBM License Key Center review the [getting started documentation](https://www.ibm.com/support/pages/system/files/inline-files/GettingStartedEnglish_2020.pdf) available from the IBM support website.
 
 ### 1.3 OpenShift Cluster
-You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the [OpenShift Container Platform installation overview](https://docs.openshift.com/container-platform/4.10/installing/index.html).
+You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the [OpenShift Container Platform installation overview](https://docs.openshift.com/container-platform/4.12/installing/index.html).
 
 The CLI also supports OpenShift provisioning in many hyperscaler providers:
 
@@ -58,7 +58,7 @@ If you have not already determined the best catalog source for your installation
 ### 2.1 Disconnected Install Limitations
 Disconnected install for IBM Maximo Application Suite is supported from MAS v8.8 onwards with some restrictions:
 
-| Application                | First Version to Support Air Gap                                |
+| Application                | First Version to Support Disconnected Install                   |
 | -------------------------- | --------------------------------------------------------------- |
 | Core                       |  v8.8.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
 | Assist                     |  No support                                                     |
@@ -67,7 +67,7 @@ Disconnected install for IBM Maximo Application Suite is supported from MAS v8.8
 | Manage                     |  v8.4.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
 | Monitor                    |  v8.10.0 ([v8-230414-amd64](../catalogs/v8-230414-amd64.md))    |
 | Optimizer                  |  v8.2.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
-| Predict                    |  No support                                                     |
+| Predict                    |  v8.8.1 ([v8-230627-amd64](../catalogs/v8-230627-amd64.md))     |
 | Visual Inspection          |  No support                                                     |
 
 
@@ -143,3 +143,5 @@ Regardless of whether you are running a connected or disconnect installation, si
 ```bash
 docker run -ti --pull always quay.io/ibmmas/cli mas install
 ```
+
+Refer to the [Interactive Install](../commands/install.md#interactive-install) section in the install command reference for more information.
