@@ -151,7 +151,7 @@ spec:
 
     # 4. Update Dependencies
     # ---------------------------------------------------------------------------
-    - name: update-common_services
+    - name: update-common-services
       taskRef:
         kind: Task
         name: mas-devops-common-services
@@ -159,7 +159,7 @@ spec:
         - post-update-verify-workloads
       params:
         - name: devops_suite_name
-          value: update-common_services
+          value: update-common-services
         - name: common_services_action
           value: $(params.common_services_action)
 
@@ -168,7 +168,7 @@ spec:
         kind: Task
         name: mas-devops-db2
       runAfter:
-        - update-common_services
+        - update-common-services
       params:
         - name: devops_suite_name
           value: update-db2
