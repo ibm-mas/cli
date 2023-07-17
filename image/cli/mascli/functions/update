@@ -70,11 +70,17 @@ function update_interactive() {
   echo_h2 "Select IBM Maximo Operator Catalog Version"
   choose_catalog_version
   echo
+
   echo_h2 "Dependencies Update"
-  echo "Note: Only update dependencies if they have already been installed"
-  if prompt_for_confirm "Do you want to update DB2u operator and its instances?"; then
-    DB2_ACTION=upgrade
-    prompt_for_input "Target Db2 Namespace" DB2_NAMESPACE "db2u"
+  echo "IBM Common Services will be updated by default"
+
+  # detect db2 in cluster and prompt to update
+  oc get Operators db2u-operator.ibm-common-services > /dev/null 2>&1
+  if [ "$?" == "0" ]; then
+    if prompt_for_confirm "DB2u Operator has been detected. Update?"; then
+      DB2_ACTION=upgrade
+      # get namespace
+      prompt_for_input "Target Db2 Namespace" DB2_NAMESPACE "db2u"
   fi
 }
 
