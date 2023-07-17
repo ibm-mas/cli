@@ -81,6 +81,7 @@ function update_interactive() {
       DB2_ACTION=upgrade
       # get namespace
       prompt_for_input "Target Db2 Namespace" DB2_NAMESPACE "db2u"
+    fi
   fi
 }
 
