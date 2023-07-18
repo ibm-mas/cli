@@ -155,6 +155,10 @@ spec:
         value: $(params.devops_cos_upload_folder)
       - name: DEVOPS_IBMCLOUD_APIKEY
         value: $(params.devops_ibmcloud_apikey)
+      - name: DYNAMIC_SCAN_ENABLED
+        value: $(params.mas_app_dynamic_scan_enabled)
+      - name: FVT_IMAGE
+        value: "$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)"
 
   steps:
     - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
