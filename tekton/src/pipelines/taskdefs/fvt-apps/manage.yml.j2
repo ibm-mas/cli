@@ -1,7 +1,23 @@
 # -------------------------------------------------------------
+# PHASE 0
+# - fvt-manage-usersync
+# -------------------------------------------------------------
+# Manage FVT User Sync
+- name: fvt-manage-usersync
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: usersync
+  runAfter:
+    - ivtcore-manage
+
+# -------------------------------------------------------------
 # PHASE 1
 # - fvt-manage-setup
 # - fvt-manage-monitoring
+# - fvt-manage-security-audit-logging
+# - fvt-manage-security-inactive-auth
 # -------------------------------------------------------------
 
 # Manage FVT Setup
@@ -17,6 +33,7 @@
       value: tpae
   runAfter:
     - fvt-manage-aviation-setup # regression tasks depend on fvt-manage-setup or, eventually, any subsequent task in case of Manage Industry Solutions
+    - fvt-manage-usersync
 
 # Manage FVT Monitoring
 - name: fvt-manage-monitoring
@@ -26,27 +43,37 @@
     - name: fvt_test_suite
       value: monitoring
   runAfter:
-    - ivtcore-manage
+    - fvt-manage-usersync
 
-# -------------------------------------------------------------
-# PHASE 2
-# - fvt-manage-metrics-api
-# - fvt-manage-masnavigation
-# - fvt-manage-classification
-# - fvt-manage-helplinks
-# - fvt-manage-mif-setup
-# -------------------------------------------------------------
-
-# Manage FVT Metrics API
-- name: fvt-manage-metrics-api
+# Manage FVT Security Audit Logging
+- name: fvt-manage-security-audit-logging
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: metrics-api
+      value: security-audit-logging
   runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
+    - fvt-manage-usersync
+
+# Manage FVT Inactive User Authentication
+- name: fvt-manage-security-inactive-auth
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: security-inactiveuser-authentication
+  runAfter:
+    - fvt-manage-usersync
+
+# -------------------------------------------------------------
+# PHASE 2
+# - fvt-manage-masnavigation
+# - fvt-manage-classification
+# - fvt-manage-helplinks
+# - fvt-manage-mif-setup
+# - fvt-manage-directprint-reports
+# - fvt-manage-metrics-api
+# -------------------------------------------------------------
 
 # Manage FVT Mas Navigation Scenario
 - name: fvt-manage-masnavigation
@@ -58,6 +85,8 @@
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
+    - fvt-manage-security-audit-logging
+    - fvt-manage-security-inactive-auth
 
 # Manage FVT Classification
 - name: fvt-manage-classification
@@ -69,6 +98,8 @@
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
+    - fvt-manage-security-audit-logging
+    - fvt-manage-security-inactive-auth
 
 # Manage FVT Help Links
 - name: fvt-manage-helplinks
@@ -80,6 +111,8 @@
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
+    - fvt-manage-security-audit-logging
+    - fvt-manage-security-inactive-auth
 
 # Manage MIF setup
 - name: fvt-manage-mif-setup
@@ -91,15 +124,44 @@
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
+    - fvt-manage-security-audit-logging
+    - fvt-manage-security-inactive-auth
 
+# Manage BIRT Report > Direct Print for Assets, JP and PO
+- name: fvt-manage-directprint-reports
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: directprint-reports
+  # Update runAfter list with new PHASE 4 tests
+  runAfter:
+    - fvt-manage-setup
+    - fvt-manage-monitoring
+    - fvt-manage-security-audit-logging
+    - fvt-manage-security-inactive-auth
+
+# Manage FVT Metrics API
+- name: fvt-manage-metrics-api
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: metrics-api
+  runAfter:
+    - fvt-manage-setup
+    - fvt-manage-monitoring
+    - fvt-manage-security-audit-logging
+    - fvt-manage-security-inactive-auth
+  
 # -------------------------------------------------------------
 # PHASE 3
 # - fvt-manage-wobasic
-# - fvt-manage-security-audit-logging
-# - fvt-manage-security-inactive-auth
 # - fvt-manage-escalation-action
 # - fvt-manage-autoscript-adddeletewo
 # - fvt-manage-jms-inbound
+# - fvt-manage-esig-basic
+# - fvt-manage-wo-attach-docs
 # -------------------------------------------------------------
 
 # Manage FVT Work Order Basic Scenario
@@ -110,39 +172,12 @@
     - name: fvt_test_suite
       value: workorderbasic
   runAfter:
-    - fvt-manage-metrics-api
     - fvt-manage-masnavigation
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup
-
-# Manage FVT Security Audit Logging
-- name: fvt-manage-security-audit-logging
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: security-audit-logging
-  runAfter:
+    - fvt-manage-directprint-reports
     - fvt-manage-metrics-api
-    - fvt-manage-masnavigation
-    - fvt-manage-classification
-    - fvt-manage-helplinks
-    - fvt-manage-mif-setup
-
-# Manage FVT Inactive User Authentication
-- name: fvt-manage-security-inactive-auth
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: security-inactiveuser-authentication
-  runAfter:
-    - fvt-manage-metrics-api
-    - fvt-manage-masnavigation
-    - fvt-manage-classification
-    - fvt-manage-helplinks
-    - fvt-manage-mif-setup
 
 # Manage FVT Escalation
 - name: fvt-manage-escalation-action
@@ -152,11 +187,12 @@
     - name: fvt_test_suite
       value: escalation-action
   runAfter:
-    - fvt-manage-metrics-api
     - fvt-manage-masnavigation
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup
+    - fvt-manage-directprint-reports
+    - fvt-manage-metrics-api
     
   # Manage FVT AutoScript to Add Delete WorkOrder
 - name: fvt-manage-autoscript-adddeletewo
@@ -166,11 +202,12 @@
     - name: fvt_test_suite
       value: autoscript-adddeletewo
   runAfter:
-    - fvt-manage-metrics-api
     - fvt-manage-masnavigation
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup
+    - fvt-manage-directprint-reports
+    - fvt-manage-metrics-api
 
 # Manage JMS Integration - Inbound
 - name: fvt-manage-jms-inbound
@@ -180,17 +217,50 @@
     - name: fvt_test_suite
       value: mif-jms-inbound
   runAfter:
-    - fvt-manage-metrics-api
     - fvt-manage-masnavigation
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup
+    - fvt-manage-directprint-reports
+    - fvt-manage-metrics-api
+
+# Manage FVT E-Signature Basic Scenario
+- name: fvt-manage-esig-basic
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: esig-basic
+  runAfter:
+    - fvt-manage-masnavigation
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-mif-setup
+    - fvt-manage-directprint-reports
+    - fvt-manage-metrics-api
+
+# Manage FVT Work Order Attachments
+- name: fvt-manage-wo-attach-docs
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: wo-configure-attach-docs
+  runAfter:
+    - fvt-manage-masnavigation
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-mif-setup
+    - fvt-manage-directprint-reports
+    - fvt-manage-metrics-api
+
 
 # -------------------------------------------------------------
 # LAST PHASE (in sequence)
-# - fvt-manage-workflow-designer
 # - fvt-manage-application-designer
 # - fvt-manage-startcenter-config
+# - fvt-manage-workflow-designer
+# - fvt-manage-smtp-setup
 # -------------------------------------------------------------
 
 # Manage FVT Application Designer
@@ -202,13 +272,13 @@
       value: application-designer
   runAfter:
     - fvt-manage-wobasic
-    - fvt-manage-security-audit-logging
-    - fvt-manage-security-inactive-auth
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
+    - fvt-manage-jms-inbound
+    - fvt-manage-esig-basic
+    - fvt-manage-wo-attach-docs
 
 # Manage FVT Start Center
-# Keep Start Center as the LAST test
 - name: fvt-manage-startcenter-config
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
@@ -229,13 +299,14 @@
   runAfter:
     - fvt-manage-startcenter-config
 
-# Manage BIRT Report > Direct Print for Assets, JP and PO
-- name: fvt-manage-directprint-reports
+# Manage SMTP Configuration Validation
+# Note: Keep SMTP as the LAST task running for Manage FVT
+- name: fvt-manage-smtp-setup
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: directprint-reports
+      value: mas-smtp-setup
   # Update runAfter list with new PHASE 4 tests
   runAfter:
-    - fvt-manage-startcenter-config
+    - fvt-manage-workflow-designer
