@@ -161,6 +161,7 @@
 # - fvt-manage-autoscript-adddeletewo
 # - fvt-manage-jms-inbound
 # - fvt-manage-esig-basic
+# - fvt-manage-wo-attach-docs
 # -------------------------------------------------------------
 
 # Manage FVT Work Order Basic Scenario
@@ -238,6 +239,22 @@
     - fvt-manage-directprint-reports
     - fvt-manage-metrics-api
 
+# Manage FVT Work Order Attachments
+- name: fvt-manage-wo-attach-docs
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: esig-basic
+  runAfter:
+    - fvt-manage-masnavigation
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-mif-setup
+    - fvt-manage-directprint-reports
+    - fvt-manage-metrics-api
+
+
 # -------------------------------------------------------------
 # LAST PHASE (in sequence)
 # - fvt-manage-application-designer
@@ -259,6 +276,7 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-esig-basic
+    - fvt-manage-wo-attach-docs
 
 # Manage FVT Start Center
 - name: fvt-manage-startcenter-config
