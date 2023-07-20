@@ -1,6 +1,6 @@
-# Note: last FVT test of Manage Core is fvt-manage-workflow-designer to avoid trigger
-# all the tests at the same time, be sure to start industry solution and mobile tests
-# after this test instead of fvt-manage-setup
+# Note: last FVT test of Manage Core is fvt-manage-smtp-setup to avoid trigger
+# all the tests at the same time, be sure to start industry solution, mobile and
+# optimizer tests after this test instead of fvt-manage-setup
 # Manage FVT - ACM Setup
 - name: fvt-manage-acm-setup
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
@@ -13,7 +13,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-workflow-designer # See note above
+    - fvt-manage-smtp-setup # See note above
 
 # Manage FVT - ACM - New User
 - name: fvt-manage-acm-user
@@ -69,7 +69,7 @@
     - name: fvt_test_driver
       value: tpae 
   runAfter:
-    - fvt-manage-workflow-designer # See note above
+    - fvt-manage-smtp-setup # See note above
 
 # Manage FVT - HSE Setup
 - name: fvt-manage-hse-setup
@@ -83,7 +83,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-workflow-designer # See note above
+    - fvt-manage-smtp-setup # See note above
 
 # Manage FVT - HSE - New User
 - name: fvt-manage-hse-user
@@ -125,7 +125,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-workflow-designer # See note above
+    - fvt-manage-smtp-setup # See note above
 
 # Manage FVT - Nuclear - New User
 - name: fvt-manage-nuclear-user
@@ -167,7 +167,7 @@
     - name: fvt_test_driver
       value: tpae      
   runAfter:
-    - fvt-manage-workflow-designer # See note above
+    - fvt-manage-smtp-setup # See note above
 
 # Manage FVT - Service Provider - New User
 - name: fvt-manage-serviceprovider-user
@@ -209,7 +209,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-workflow-designer # See note above
+    - fvt-manage-smtp-setup # See note above
 
 # Manage FVT - Location Base Services - New User
 - name: fvt-manage-lbs-user
@@ -279,7 +279,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-workflow-designer # See note above
+    - fvt-manage-smtp-setup # See note above
 
 # Manage FVT - Transportation - New User
 - name: fvt-manage-transportation-user
@@ -321,7 +321,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-workflow-designer
+    - fvt-manage-smtp-setup
 
 # Manage FVT - Scheduler Setup
 - name: fvt-manage-scheduler-setup
@@ -427,7 +427,7 @@
     - name: fvt_test_suite
       value: civil-setup-data
   runAfter:
-    - fvt-manage-workflow-designer # See note above
+    - fvt-manage-smtp-setup # See note above
 
 # Manage FVT - Civil Infrastructure Selenium - New User
 - name: fvt-manage-civil-selenium-user
@@ -442,7 +442,6 @@
       value: civil-setup-user
   runAfter:
     - fvt-manage-civil-selenium-setup
-
 
 # Manage FVT - Civil Infrastructure Selenium
 - name: fvt-manage-civil-selenium
@@ -484,15 +483,29 @@
     - name: fvt_test_driver
       value: graphite
   runAfter:
-    - fvt-manage-workflow-designer
+    - fvt-manage-smtp-setup
 
-# Manage FVT - Maintenance Manager Tests
+# Manage FVT - Maintenance Manager BVT
 - name: fvt-manage-maintmanager
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: maintmanager-bvt
+    - name: fvt_mas_appws_component
+      value: maintmanager
+    - name: fvt_test_driver
+      value: graphite
+  runAfter:
+    - fvt-manage-maintmanager-setup
+
+# Manage FVT - Maintenance Manager FVT
+- name: fvt-manage-maintmanager
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: maintmanager-fvt
     - name: fvt_mas_appws_component
       value: maintmanager
     - name: fvt_test_driver
