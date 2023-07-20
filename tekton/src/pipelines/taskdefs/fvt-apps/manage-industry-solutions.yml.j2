@@ -450,7 +450,7 @@
     - fvt-manage-smtp-setup
 
 # Manage FVT - Maintenance Manager BVT
-- name: fvt-manage-maintmanager
+- name: fvt-manage-maintmanager-bvt
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
@@ -464,7 +464,7 @@
     - fvt-manage-maintmanager-setup
 
 # Manage FVT - Maintenance Manager FVT
-- name: fvt-manage-maintmanager
+- name: fvt-manage-maintmanager-fvt
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
