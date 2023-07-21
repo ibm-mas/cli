@@ -28,10 +28,10 @@ nav:
       - "configtool-oidc": commands/configtool-oidc.md
   - "Catalogs":
       - "Overview": catalogs/index.md
+      - "Jul 25 2023": catalogs/v8-230725-amd64.md
       - "Jun 27 2023": catalogs/v8-230627-amd64.md
       - "May 26 2023": catalogs/v8-230526-amd64.md
       - "Apr 14 2023": catalogs/v8-230414-amd64.md
-      - "Mar 14 2023": catalogs/v8-230314-amd64.md
 
 theme:
   name: readthedocs

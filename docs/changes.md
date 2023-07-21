@@ -1,4 +1,6 @@
 ## Changes
+- [`6.1`](https://github.com/ibm-mas/cli/releases/tag/6.1.0) Multpleupdates ():
+    - Support July Catalog Update
 - [`5.6`](https://github.com/ibm-mas/cli/releases/tag/5.6.0) Multiple updates (#336):
     - Rearrange MIF Tests to accomodate Data Dictionary data where Monitor creates data
     - Fix Manage Monitoring task to use pytest instead of selenium
