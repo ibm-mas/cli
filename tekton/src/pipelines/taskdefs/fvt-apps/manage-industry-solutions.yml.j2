@@ -44,8 +44,10 @@
     - fvt-manage-acm-user
 
 # Manage FVT - Aviation Setup
+# Note: Manage Setup and Aviation Setup has a special taskref defintion without fvt_digest_manage criteria. We want to run that even when
+# not running the entire FVT suite as applications like Predict depends on it
 - name: fvt-manage-aviation-setup
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-setup.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
