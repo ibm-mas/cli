@@ -31,21 +31,21 @@ spec:
 
         IGNORE_FAILURE=$(params.ignore_failure)
         PIPELINERUN_NAME=$(params.pipelinerun_name)
-        COMPLETION_TIME=$(oc get pipelinerun/$PIPELINERUN_NAME -o jsonpath='{.status.completionTime}')
+        COMPLETION_TIME=$(oc -n $(context.taskRun.namespace) get pipelinerun/$PIPELINERUN_NAME -o jsonpath='{.status.completionTime}')
         # 30 seconds * 1440 = ~12 hours
         MAX_RETRIES=1440
         RETRIES_USED=0
         DELAY=30
-        while [[ "$COMPLETION_TIME" == "" && "$RETRIES_USED" < "$MAX_RETRIES" ]]; do
+        while [[ "$COMPLETION_TIME" == "" && "$RETRIES_USED" -lt "$MAX_RETRIES" ]]; do
           echo "[$RETRIES_USED/$MAX_RETRIES] pipelinerun/$PIPELINERUN_NAME is still running.  Waiting $DELAY seconds before checking again"
           sleep $DELAY
-          COMPLETION_TIME=$(oc get pipelinerun/$PIPELINERUN_NAME -o jsonpath='{.status.completionTime}')
+          COMPLETION_TIME=$(oc -n $(context.taskRun.namespace) get pipelinerun/$PIPELINERUN_NAME -o jsonpath='{.status.completionTime}')
           RETRIES_USED=$((RETRIES_USED + 1))
         done
 
         echo "Completion Time = $COMPLETION_TIME"
         echo "Retries Used    = $RETRIES_USED"
-        RESULT=$(oc get pipelinerun/$PIPELINERUN_NAME -o jsonpath='{.status.conditions[0].status}')
+        RESULT=$(oc -n $(context.taskRun.namespace) get pipelinerun/$PIPELINERUN_NAME -o jsonpath='{.status.conditions[0].status}')
 
         if [[ "$RESULT" == "True" ]]; then
           echo "Result          = PipelineRun completed successfully"
