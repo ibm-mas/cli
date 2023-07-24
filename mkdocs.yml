@@ -9,7 +9,6 @@ edit_uri: blob/master/docs/
 
 nav:
   - "Home": index.md
-  - "Changes": changes.md
   - "Guides":
       - "Choosing the Right Catalog": guides/choosing-the-right-catalog.md
       - "Install": guides/install.md
