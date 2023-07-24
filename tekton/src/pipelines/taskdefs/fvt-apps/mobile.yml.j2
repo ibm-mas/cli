@@ -1,3 +1,6 @@
+# Note: last FVT test of Manage Core is fvt-manage-smtp-setup to avoid trigger
+# all the tests at the same time, be sure to start industry solution, mobile and
+# optimizer tests after this test instead of fvt-manage-setup
 ## Mobile Foundation Manage Setup
 - name: fvt-mobfoundation-setup-data
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-manage.yml.j2') | indent(2) }}
@@ -22,7 +25,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-workflow-designer
+    - fvt-manage-smtp-setup
 
 ## All Mobile Foundation MAS test suites
 - name: fvt-mobfoundation-mvt-android
@@ -103,7 +106,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-workflow-designer
+    - fvt-manage-smtp-setup
 
 ## Minimum Verification Test for Mobile Service Request MAS test suites
 - name: fvt-service-request-mvt-android
@@ -185,7 +188,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-workflow-designer
+    - fvt-manage-smtp-setup
 
 ## Minimum Verification Test for Mobile Technician MAS test suites
 - name: fvt-technician-mvt-android
@@ -267,7 +270,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-workflow-designer
+    - fvt-manage-smtp-setup
 
 ## Minimum Verification Test for Mobile Inspection MAS test suites
 - name: fvt-inspections-mvt-android
@@ -407,7 +410,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-workflow-designer
+    - fvt-manage-smtp-setup
 
 # Mobile FVT - Inventory Counting Android
 - name: fvt-inventorycounting-mvt-android
