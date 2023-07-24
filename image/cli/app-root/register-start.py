@@ -64,7 +64,7 @@ if __name__ == "__main__":
         "name" : suite,
         "skipped" : 0,
         "time" : -1,
-        "failures" : 0
+        "failures" : 0,
         "startTime": datetime.utcnow()
     }
 
