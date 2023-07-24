@@ -19,7 +19,6 @@
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup
-    - fvt-manage-directprint-reports
     - fvt-manage-metrics-api
 
 # Manage FVT Escalation
@@ -34,10 +33,9 @@
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup
-    - fvt-manage-directprint-reports
     - fvt-manage-metrics-api
     
-  # Manage FVT AutoScript to Add Delete WorkOrder
+# Manage FVT AutoScript to Add Delete WorkOrder
 - name: fvt-manage-autoscript-adddeletewo
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   params:
@@ -49,7 +47,6 @@
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup
-    - fvt-manage-directprint-reports
     - fvt-manage-metrics-api
 
 # Manage JMS Integration - Inbound
@@ -64,7 +61,6 @@
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup
-    - fvt-manage-directprint-reports
     - fvt-manage-metrics-api
 
 # Manage FVT E-Signature Basic Scenario
@@ -79,5 +75,4 @@
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup
-    - fvt-manage-directprint-reports
     - fvt-manage-metrics-api
