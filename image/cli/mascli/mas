@@ -64,6 +64,23 @@ mkdir -p $CONFIG_DIR
 . $DIR/functions/configtool_oidc
 # Must Gather
 . $DIR/functions/must_gather
+# GitOps
+. $DIR/functions/gitops_utils
+. $DIR/functions/gitops_bootstrap
+. $DIR/functions/gitops_init_cluster
+. $DIR/functions/gitops_init_license
+. $DIR/functions/gitops_init_mongo
+. $DIR/functions/gitops_init_kafka
+. $DIR/functions/gitops_init_kafka_config
+. $DIR/functions/gitops_init_suite
+. $DIR/functions/gitops_init_suite_config
+. $DIR/functions/gitops_init_suite_workspace
+. $DIR/functions/gitops_init_efs
+. $DIR/functions/gitops_init_db2u
+. $DIR/functions/gitops_init_db2u_jdbc_config
+. $DIR/functions/gitops_db2u_jdbc_config_rotate_password
+. $DIR/functions/gitops_create_mongo_user
+. $DIR/functions/gitops_init_aws_infrastructure
 
 load_config
 case $1 in
@@ -179,7 +196,118 @@ case $1 in
     echo
     mustgather "$@"
     ;;
+  gitops-bootstrap)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_bootstrap "$@"
+    ;;
 
+  gitops-init-mongo)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_init_mongo "$@"
+    ;;
+
+  gitops-init-cluster)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_init_cluster "$@"
+    ;;
+
+
+  gitops-init-license)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_init_license "$@"
+    ;;
+
+  gitops-init-suite)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_init_suite "$@"
+    ;;
+
+  gitops-init-suite-config)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_init_suite_config "$@"
+    ;;
+
+  gitops-init-suite-workspace)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_init_suite_workspace "$@"
+    ;;
+
+  gitops-init-efs)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_init_efs "$@"
+    ;;
+
+  gitops-init-db2u)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_init_db2u "$@"
+    ;;
+
+  gitops-init-db2u-jdbc-config)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_init_db2u_jdbc_config "$@"
+    ;;
+
+  gitops-init-db2u-jdbc-config-rotate-password)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_db2u_jdbc_config_rotate_password "$@"
+    ;;
+
+  gitops-init-aws-infrastructure)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_init_aws_infrastructure "$@"
+    ;;
+
+  gitops-init-kafka)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_init_kafka "$@"
+    ;;
+
+  gitops-init-kafka-config)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_init_kafka_config "$@"
+    ;;
   *)
     echo "unknown parameter"
     exit 1

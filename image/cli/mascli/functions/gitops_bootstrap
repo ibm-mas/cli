@@ -1,0 +1,213 @@
+#!/usr/bin/env bash
+# Install and setup Openshift Gitops
+
+function gitops_bootstrap_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops-init-cluster [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Options:
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}        Cluster ID
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                   Working directory for GitOps repository
+      --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
+
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}        Secrets Manager path
+
+Other Commands:
+      --no-confirm                                Mirror images without prompting for confirmation
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_bootstrap_noninteractive() {
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+
+      # Secret Manager Type
+      -t|--secret-manager-type)
+        export AVP_TYPE=$1 && shift
+        ;;
+
+      # IBM Secret Manager
+      -i|--avp-ibm-instance-url)
+        export AVP_INSTANCE_URL=$1 && shift
+        ;;
+      -b|--avp-ibm-api-key)
+        export AVP_IBM_APIKEY=$1 && shift
+        ;;
+
+      # AWS Secret Manager
+      -r|--avp-aws-secret-region)
+        export AVP_AWS_SECRET_REGION=$1 && shift
+        ;;
+      -s|--avp-aws-secret-key)
+        export AVP_AWS_SECRET_KEY=$1 && shift
+        ;;
+      -a|--avp-aws-access-key)
+        export AVP_AWS_ACCESS_KEY=$1 && shift
+        ;;
+
+      # GitHub Access
+      -p|--github-pat)
+        export APP_WATCHER_REPO_PAT=$1 && shift
+        ;;
+      -u|--github-url)
+        export APP_WATCHER_REPO_URL=$1 && shift
+        ;;
+
+      # Show help
+      -h|--help)
+        gitops_bootstrap_help
+        ;;
+      # Unknown option
+      *)
+        echo -e "\n${COLOR_RED}Usage Error: Unsupported flag \"${key}\" ${COLOR_OFF}\n\n"
+        gitops_bootstrap_help
+        exit 1
+        ;;
+    esac
+  done
+
+  [[ -z "$AVP_TYPE" ]] && gitops_init_cluster_help "AVP_TYPE is not set"
+  if [ $AVP_TYPE == 'aws' ]; then
+    if [ -z $AVP_AWS_SECRET_REGION ] || [ -z $AVP_AWS_SECRET_REGION ] || [ -z $AVP_AWS_SECRET_REGION ]; then
+      echo 'Missing required params for AWS secret manager, make sure to provide --avp-aws-secret-region, --avp-aws-secret-key and --avp-aws-access-key'
+      exit 1
+    fi
+  fi
+  if [ $AVP_TYPE == 'ibm' ]; then
+    if [ -z $AVP_INSTANCE_URL ] || [ -z $AVP_IBM_APIKEY ]; then
+      echo 'Missing required params for AWS secret manager, make sure to provide --avp-ibm-api-key and --avp-ibm-instance-url'
+      exit 1
+    fi
+  fi
+
+  if [ -z $APP_WATCHER_REPO_URL ] || [ -z $APP_WATCHER_REPO_PAT ]; then
+    echo 'No Environment watcher github repository provided, make sure to provide --github-pat and --github-url'
+    exit 1
+  fi
+
+  if [ -z $CLUSTER_ID ]; then
+    echo 'No Environment cluster name provided, make sure to provide --cluster-id'
+    exit 1
+  fi
+}
+
+
+function gitops_bootstrap() {
+  # Take the first parameter off (it will be create-gitops)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_bootstrap_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_bootstrap_interactive
+  fi
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  if [ $AVP_TYPE == 'aws' ]; then
+    echo "${TEXT_DIM}"
+    echo_h2 "Target" "    "
+    echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${AVP_AWS_SECRET_REGION}"
+    echo_reset_dim "Secret Key ............................ ${COLOR_MAGENTA}${AVP_AWS_SECRET_KEY:0:8}<snip>"
+    echo_reset_dim "Access Key ............................ ${COLOR_MAGENTA}${AVP_AWS_ACCESS_KEY:0:8}<snip>"
+    reset_colors
+  fi
+
+  if [ $AVP_TYPE == 'ibm' ]; then
+    echo "${TEXT_DIM}"
+    echo_h2 "Target" "    "
+    echo_reset_dim "Instance URL .......................... ${COLOR_MAGENTA}${AVP_INSTANCE_URL}"
+    echo_reset_dim "API Key ............................... ${COLOR_MAGENTA}${AVP_IBM_APIKEY:0:8}<snip>"
+    reset_colors
+  fi
+
+  echo ""
+  echo "${TEXT_DIM}"
+  echo_h2 "GitHub Repository" "    "
+  echo_reset_dim "GitHub Repository ..................... ${COLOR_MAGENTA}${APP_WATCHER_REPO_URL}"
+  echo_reset_dim "GitHub Personal Access Token .......... ${COLOR_MAGENTA}${APP_WATCHER_REPO_PAT:0:8}<snip>"
+  reset_colors
+
+  echo ""
+  echo "${TEXT_DIM}"
+  echo_h2 "Cluster" "    "
+  echo_reset_dim "Cluster ID ............................. ${COLOR_MAGENTA}${CLUSTER_ID}"
+  reset_colors
+
+  # 1. Install Openshift GitOps Operator
+  echo
+  echo_h2 "Install Openshift GitOps Operator"
+
+  echo -en "\033[s" # Save cursor position
+  echo -n "Installing OpenShift GitOps Operator (latest) ..."
+
+  oc apply  -f ${DIR}/templates/gitops/bootstrap/subscription.yaml &>> $LOGFILE
+
+  oc get crd argocds.argoproj.io &>> $LOGFILE
+  LOOKUP_RESULT=$?
+  while [ "$LOOKUP_RESULT" == "1" ]; do
+    echo "Waiting 5s for argocds.argoproj.io CRD to be installed before checking again ..." &>> $LOGFILE
+    sleep 5
+    oc get crd argocds.argoproj.io &>> $LOGFILE
+    LOOKUP_RESULT=$?
+  done
+
+  echo "Wait for GitOps operator to be ready" &>> $LOGFILE
+  oc wait --for=condition=Established crd/argocds.argoproj.io --timeout=30m &>> $LOGFILE
+
+  # 2. Create Secret Manager secret
+  echo 'Create Secret Manager Backend Secret' &>> $LOGFILE
+  jinja -X .+ ${DIR}/templates/gitops/bootstrap/secret-${AVP_TYPE}.yaml.j2 | oc apply  -f - &>> $LOGFILE
+
+  # 3. Create repo server SA
+  echo 'Create ArgoCD repo server service account' &>> $LOGFILE
+  oc apply  -f ${DIR}/templates/gitops/bootstrap/rbac.yaml &>> $LOGFILE
+
+  # 4. Create ConfigPluginManagement
+  echo 'Create Plugin configmap' &>> $LOGFILE
+  oc apply  -f ${DIR}/templates/gitops/bootstrap/configmap.yaml &>> $LOGFILE
+
+  # 5. Patch openshift-gitops with argocd-vault-plugin
+  echo 'Patch cluster ArgoCD' &>> $LOGFILE
+  oc apply  -f ${DIR}/templates/gitops/bootstrap/argocd.yaml &>> $LOGFILE
+  oc wait --for=jsonpath='{.status.phase}'=Available argocd/openshift-gitops -n openshift-gitops &>> $LOGFILE
+
+  # 6. Add the watcher to the gitops environment repo
+  jinja -X .+ ${DIR}/templates/gitops/bootstrap/watcher.yaml.j2 | oc apply -f - &>> $LOGFILE
+
+  # 7. Patch openshift-marketplace to allow GitOps to manage resources in the namespace
+  echo 'Patch standard namespaces to enable GitOps management' &>> $LOGFILE
+  oc apply  -f ${DIR}/templates/gitops/bootstrap/namespace.yaml &>> $LOGFILE
+
+  echo -en "\033[1K" # Clear current line
+  echo -en "\033[u" # Restore cursor position
+  echo "${COLOR_GREEN}OpenShift GitOps Operator is installed and ready${COLOR_RESET}"
+  echo
+
+  # 8. Fecth Argocd Details
+  export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}')
+  export ARGOCD_USERNAME=admin
+  export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' | base64 -d ; echo)
+
+  echo -en "\033[1K" # Clear current line
+  echo -en "\033[u" # Restore cursor position
+  echo "${COLOR_GREEN}ArgoCD is now available at ${ARGOCD_URL} username is: admin and password: ${ARGOCD_PASSWORD} ${COLOR_RESET}"
+  echo
+  
+}

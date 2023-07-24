@@ -1,0 +1,20 @@
+export VERSION=4.10.40 \
+       ROSA_CLUSTER_NAME=v1-01-abc-usea1 \
+       AWS_ACCOUNT_ID=`aws sts get-caller-identity --query Account --output text` \
+       REGION=us-east-1 \
+       AWS_PAGER="" \
+       PRIVATE_SUBNET=subnet-0a222342f67b5acde,subnet-0511b4c6de34cc945,subnet-0be510674492bd4de
+ 
+rosa create cluster -y --cluster-name ${ROSA_CLUSTER_NAME} \
+   --region ${REGION} --version ${VERSION} \
+   --private-link --multi-az --machine-cidr=10.64.0.0/16 \
+   --subnet-ids=$PRIVATE_SUBNET \
+   --compute-machine-type=m5.4xlarge \
+   --sts
+  
+rosa create operator-roles --cluster ${ROSA_CLUSTER_NAME}
+rosa create oidc-provider --cluster ${ROSA_CLUSTER_NAME}
+rosa create admin --cluster=${ROSA_CLUSTER_NAME}
+
+aws add inbound rules routes to central vpc
+aws modify route53 hosted zone to associate central vpc to the newly created cluster

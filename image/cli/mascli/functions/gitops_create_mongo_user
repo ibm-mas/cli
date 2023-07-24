@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+function gitops_create_mongo_user() {
+  entry=$1
+  echo "Creating Mongo user for entry ${entry}"
+  #TODO
+  export DOCDB_HOST=$(yq -r .config.hosts[0].host $MONGO_CONFIG_FILE)
+  export DOCDB_PORT=$(yq -r .config.hosts[0].port $MONGO_CONFIG_FILE)
+  export DOCDB_MASTER_USERNAME=$MASTER_MONGO_USERNAME
+  export DOCDB_MASTER_PASSWORD=$MASTER_MONGO_PASSWORD
+  MAS_CONFIG_DIR=$TEMP_DIR ROLE_NAME=aws_documentdb_user ansible-playbook ibm.mas_devops.run_role
+
+  cat $TEMP_DIR/docdb-${MAS_INSTANCE_ID}-instance-credentials.yaml
+
+  #Then store the username and password in secrets-manager
+  # store as $entry_username and $entry_password, the actual
+  # username in mongo will be masinst_{{ mas_instance_id }}
+  # see https://github.com/ibm-mas/ansible-devops/blob/master/ibm/mas_devops/roles/aws_documentdb_user/tasks/main.yml#LL30C31-L30C61
+  # If we set MAS_CONFIG_DIR then the new username/password is stored in docdb-{{ mas_instance_id }}-instance-credentials
+  # Retrieve it from there and add to secrets-manager
+}
