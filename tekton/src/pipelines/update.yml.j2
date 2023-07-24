@@ -40,6 +40,22 @@ spec:
       type: string
       description: Required to install development MAS catalogs
 
+    # common services action
+    - name: common_services_action
+      type: string
+      default: "upgrade"
+      description: Set to 'upgrade' to update common_services
+    
+    # db2 update
+    - name: db2_action
+      type: string
+      default: "none"
+      description: Set to 'upgrade' to update db2 instances in specified db2 namespace
+    - name: db2_namespace
+      type: string
+      default: "db2u"
+      description: Namespace where db2 instances will be updated
+
   tasks:
 {% if wait_for_install == true %}
     # 0. Wait for the install pipeline to complete
@@ -131,6 +147,85 @@ spec:
       }) | indent(4) }}
       runAfter:
         - post-update-verify-subscriptions
+
+
+    # 4. Update Dependencies
+    # ---------------------------------------------------------------------------
+    - name: update-common-services
+      taskRef:
+        kind: Task
+        name: mas-devops-common-services
+      runAfter:
+        - post-update-verify-workloads
+      params:
+        - name: devops_suite_name
+          value: update-common-services
+        - name: common_services_action
+          value: $(params.common_services_action)
+
+    - name: update-db2
+      taskRef:
+        kind: Task
+        name: mas-devops-db2
+      runAfter:
+        - update-common-services
+      params:
+        - name: devops_suite_name
+          value: update-db2
+        - name: db2_action
+          value: $(params.db2_action)
+        - name: db2_namespace
+          value: $(params.db2_namespace)
+
+    # 5. Verify health of the cluster after dependencies updates
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'post-deps-update-verify-cluster',
+        'devops_suite_name': 'post-deps-update-verify-cluster',
+        'verify_cluster': 'True',
+        'verify_catalogsources': 'False',
+        'verify_subscriptions': 'False',
+        'verify_workloads': 'False',
+        'verify_ingress': 'False'
+      }) | indent(4) }}
+      runAfter:
+        - update-db2
+
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'post-deps-update-verify-catalogsources',
+        'devops_suite_name': 'post-deps-update-verify-catalogsources',
+        'verify_cluster': 'False',
+        'verify_catalogsources': 'True',
+        'verify_subscriptions': 'False',
+        'verify_workloads': 'False',
+        'verify_ingress': 'False'
+      }) | indent(4) }}
+      runAfter:
+        - post-deps-update-verify-cluster
+
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'post-deps-update-verify-subscriptions',
+        'devops_suite_name': 'post-deps-update-verify-subscriptions',
+        'verify_cluster': 'False',
+        'verify_catalogsources': 'False',
+        'verify_subscriptions': 'True',
+        'verify_workloads': 'False',
+        'verify_ingress': 'False'
+      }) | indent(4) }}
+      runAfter:
+        - post-deps-update-verify-catalogsources
+
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'post-deps-update-verify-workloads',
+        'devops_suite_name': 'post-deps-update-verify-workloads',
+        'verify_cluster': 'False',
+        'verify_catalogsources': 'False',
+        'verify_subscriptions': 'False',
+        'verify_workloads': 'True',
+        'verify_ingress': 'False'
+      }) | indent(4) }}
+      runAfter:
+        - post-deps-update-verify-subscriptions
 
 {% if wait_for_install == true %}
   # Perform must-gather after the update

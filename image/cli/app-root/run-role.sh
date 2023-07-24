@@ -11,6 +11,8 @@ source /opt/app-root/src/env.sh
 # oc whoami
 # oc auth can-i --list
 
+python3 /opt/app-root/src/register-start.py
+
 export ROLE_NAME=$1
 ansible-playbook ibm.mas_devops.run_role
 rc=$?
