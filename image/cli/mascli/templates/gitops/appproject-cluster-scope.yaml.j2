@@ -1,0 +1,26 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: {{ CLUSTER_ID }}-cluster-scope
+  namespace: openshift-gitops
+spec:
+  description: {{ CLUSTER_ID }} Cluster Scoped
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  destinations:
+    - name: '*'
+      namespace: 'ibm-common-services'
+      server: '*'
+    - name: '*'
+      namespace: 'openshift-marketplace'
+      server: '*'
+    - name: '*'
+      namespace: 'kube-system'
+      server: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  sourceRepos:
+    - '*'

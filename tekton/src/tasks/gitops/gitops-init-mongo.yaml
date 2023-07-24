@@ -1,0 +1,79 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-init-mongo
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: vpc_id
+      type: string
+    - name: vpc_ipv4_cidr
+      type: string
+    - name: mongo_provider
+      type: string
+      default: aws
+  stepTemplate:
+    name: gitops-init-mongo
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: AVP_AWS_SECRET_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: AVP_AWS_SECRET_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: AVP_AWS_ACCESS_KEY
+        value: $(params.avp_aws_access_key)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: VPC_ID
+        value: $(params.vpd_id)
+      - name: VPC_IPV4_CIDR
+        value: $(params.vpc_ipv4_cidr)
+      - name: MONGO_PROVIDER
+        value: $(params.mongo_provider)
+  steps:
+    - args:
+      - |-
+        mascli/mas gitops-init-mongo -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        --secrets-path $SECRET_PATH \
+        --mongo-provider $MONGO_PROVIDER \
+        --aws-region $AVP_AWS_SECRET_REGION \
+        --aws-secret-key $AVP_AWS_SECRET_KEY \
+        --aws-access-key $AVP_AWS_ACCESS_KEY \
+        --aws-vpc-id $VPC_ID \
+        --aws-docdb-cluster-name docdb-$CLUSTER_NAME \
+        --aws-docdb-ingress-cidr $VPC_IPV4_CIDR  \
+        --aws-docdb-egress-cidr $VPC_IPV4_CIDR \
+        --aws-docdb-cidr-az1 10.1.0.0/27 \
+        --aws-docdb-cidr-az2 10.1.0.32/27 \
+        --aws-docdb-cidr-az3 10.1.0.64/27 \
+        --aws-docdb-instance_identifier_prefix docdb-$CLUSTER_NAME
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-init-mongo
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:6.1.0-pre.gitops
+  workspaces:
+    - name: configs
+
+
+

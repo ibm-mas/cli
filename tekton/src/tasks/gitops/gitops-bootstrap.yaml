@@ -1,0 +1,67 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-bootstrap
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: avp_type
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
+    - name: github_url
+      type: string
+    - name: github_pat
+      type: string
+    - name: ocp_server
+      type: string
+    - name: rosa_token
+      type: string
+    - name: rosa_admin_password
+  stepTemplate:
+    name: gitops-bootstrap
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: AVP_TYPE
+        value: $(params.avp_type)
+      - name: AVP_AWS_SECRET_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: AVP_AWS_SECRET_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: AVP_AWS_ACCESS_KEY
+        value: $(params.avp_aws_access_key)
+      - name: GITHUB_URL
+        value: $(params.github_url)
+      - name: GITHUB_PAT
+        value: $(params.github_pat)
+  steps:
+    - args:
+      - |-
+        ROLE_NAME=ocp_login
+        export CLUSTER_TYPE=rosa
+        export OCP_SERVER=$(params.ocp_server)
+        export ROSA_TOKEN=$(params.rosa_token)
+        export ROSA_CLUSTER_ADMIN_PASSWORD=$(params.rosa_admin_password)
+        ansible-playbook ibm.mas_devops.run_role
+        export K8S_AUTH_CONTEXT=$(oc whoami -c)
+
+        mas gitops-bootrap --cluster-id $CLUSTER_NAME \
+        -t $AVP_TYPE \
+        --avp-aws-secret-region $SM_AWS_REGION \
+        --avp-aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+        --avp-aws-access-key $SM_AWS_ACCESS_KEY_ID \
+        --github-url $GITHUB_URL \
+        --github-pat $GITHUB_PAT
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-bootstrap
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:6.1.0-pre.gitops

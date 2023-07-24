@@ -1,0 +1,63 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-init-cluster
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: ibm_entitlement_b64
+      type: string
+  stepTemplate:
+    name: gitops-init-cluster
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(parms.github_repo)
+      - name: IBM_ENTITLEMENT_B64
+        value: $(params.ibm_entitlement_b64)
+  steps:
+    - args:
+      - |-
+        mkdir -p /workspace/configs/$GITHUB_REPO
+
+        mascli/mas gitops-init-cluster -a $ACCOUNT -c $CLUSTER_NAME \
+        --dir /workspace/configs/$GITHUB_REPO \
+        --github-push \
+        --github-host $GITHUB_HOST \
+        --github-org  $GITHUB_ORG \
+        --github-repo $GITHUB_REPO \
+        --git-branch $GIT_BRANCH \
+        --secrets-path $SECRET_PATH
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-init-cluster
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:6.1.0-pre.gitops
+  workspaces:
+    - name: configs

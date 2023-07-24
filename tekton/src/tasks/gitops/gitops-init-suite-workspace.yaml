@@ -1,0 +1,73 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-init-suite-workspace
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: workspace_id
+      type: string
+    - name: workspace_name
+      type: string
+      default: aws
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+  stepTemplate:
+    name: gitops-init-suite-workspace
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_PUSH
+        value: $(params.github_push)
+      - name: GITHUB_REPO
+        value: $(parms.github_repo)
+      - name: WORKSPACE_ID
+        value: $(params.workspace_id)
+      - name: WORKSPACE_NAME
+        value: $(params.workspace_name)
+  steps:
+    - args:
+      - |-
+        mkdir -p /workspace/configs/$GITHUB_REPO
+
+        mascli/mas gitops-init-suite-workspace -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        --mas-workspace-id $WORKSPACE_ID \
+        --mas-workspace-name $WORKSPACE_NAME \
+        --dir /workspace/configs/$GITHUB_REPO \
+        --github-push \
+        --github-host $GITHUB_HOST \
+        --github-org $GITHUB_ORG \
+        --github-repo $GITHUB_REPO \
+        --git-branch $GIT_BRANCH
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-init-suite-workspace
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:6.1.0-pre.gitops
+  workspaces:
+    - name: configs

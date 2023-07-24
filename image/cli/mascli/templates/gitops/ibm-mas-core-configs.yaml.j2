@@ -1,0 +1,67 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mas-{{ MAS_INSTANCE_ID }}-core-configs
+  namespace: openshift-gitops
+spec:
+  destination:
+    namespace: mas-{{ MAS_INSTANCE_ID }}-core
+    server: 'https://kubernetes.default.svc'
+  project: {{ MAS_INSTANCE_ID }}
+  source:
+    path: applications/ibm-mas-configs
+    plugin:
+      env:
+        - name: HELM_VALUES
+          value: |
+            mas_instance_id: {{ MAS_INSTANCE_ID }}
+            suite_sls_registration_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLS_REGISTRATION_KEY }}>
+            suite_sls_url: "https://sls.mas-{{ MAS_INSTANCE_ID }}-sls.svc"
+            suite_sls_ca:
+              crt: |
+                {% filter indent(width=16) -%}
+                {{ SLS_CA_CERTIFICATE }}
+                {%- endfilter %}
+            suite_mongo_username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_USERNAME }}>
+            suite_mongo_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_PASSWORD }}>
+            suite_mongo_secret_name: suite-mongo-credentials
+            mongo_config:
+              config:
+                hosts:
+                  {% for mongo_host in config.hosts -%}
+                  - host: {{ mongo_host.host }}
+                    port: {{ mongo_host.port }}
+                  {% endfor %}
+                configDb: admin
+                authMechanism: DEFAULT
+                {% if config.retryWrites is sameas false %}
+                retryWrites: false
+                {% endif %}
+                credentials:
+                  secretName: suite-mongo-credentials
+              certificates:
+                {% if config.certificate %}
+                {% for mongo_certificate in config.certificate -%}
+                - alias: {{ mongo_certificate.alias }}
+                  crt: |
+                    {% filter indent(width=20) -%}
+                    {{ mongo_certificate.crt }}
+                    {%- endfilter %}
+                {% endfor %}
+                {% elif certificates%}
+                {% for mongo_certificate in certificates -%}
+                - alias: {{ mongo_certificate.alias }}
+                  crt: |
+                    {% filter indent(width=20) -%}
+                    {{ mongo_certificate.crt }}
+                    {%- endfilter %}
+                {% endfor %}
+                {% endif %}
+    repoURL: 'https://github.com/ibm-mas/gitops'
+    targetRevision: {{ GITOPS_VERSION }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

@@ -1,0 +1,75 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-init-suite-config
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: mongo_provider
+      type: string
+      default: aws
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+  stepTemplate:
+    name: gitops-init-suite-config
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MONGO_PROVIDER
+        value: $(params.mongo_provider)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_PUSH
+        value: $(params.github_push)
+      - name: GITHUB_REPO
+        value: $(parms.github_repo)
+  steps:
+    - args:
+      - |-
+        mkdir -p /workspace/configs/$GITHUB_REPO
+
+        mascli/mas gitops-init-suite-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        --secrets-path $SECRET_PATH \
+        --mongo-provider $MONGO_PROVIDER \
+        --dir /workspace/configs/$GITHUB_REPO \
+        --github-push \
+        --github-host $GITHUB_HOST \
+        --github-org $GITHUB_ORG \
+        --github-repo $GITHUB_REPO \
+        --git-branch $GIT_BRANCH
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-init-suite-config
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:6.1.0-pre.gitops
+  workspaces:
+    - name: configs
+
+
+
+

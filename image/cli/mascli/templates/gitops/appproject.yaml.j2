@@ -1,0 +1,20 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: {{ MAS_INSTANCE_ID }}
+  namespace: openshift-gitops
+spec:
+  description: MAS Instance {{ MAS_INSTANCE_ID }}
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  destinations:
+    - name: '*'
+      namespace: '*-{{ MAS_INSTANCE_ID }}-*'
+      server: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  sourceRepos:
+    - '*'
