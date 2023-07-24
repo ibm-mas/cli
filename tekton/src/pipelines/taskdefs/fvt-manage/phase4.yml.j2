@@ -1,0 +1,66 @@
+# -------------------------------------------------------------
+# PHASE 4
+# - fvt-manage-mif-kafka-setup
+# - fvt-manage-wo-attach-docs
+# - fvt-manage-directprint-reports
+# -------------------------------------------------------------
+
+# Manage FVT Work Order Basic Scenario
+- name: fvt-manage-mif-kafka-setup
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: workorderbasic
+    - name: kafka_provider
+      value: $(params.kafka_provider)
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage
+  when:
+    - input: "$(params.fvt_digest_manage)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+    - input: "$(params.kafka_provider)"
+      operator: notin
+      values: [""]
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+  runAfter:
+    - fvt-manage-wobasic
+    - fvt-manage-escalation-action
+    - fvt-manage-autoscript-adddeletewo
+    - fvt-manage-jms-inbound
+    - fvt-manage-esig-basic
+
+# Manage FVT Work Order Attachments
+- name: fvt-manage-wo-attach-docs
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: wo-configure-attach-docs
+  runAfter:
+    - fvt-manage-wobasic
+    - fvt-manage-escalation-action
+    - fvt-manage-autoscript-adddeletewo
+    - fvt-manage-jms-inbound
+    - fvt-manage-esig-basic
+
+# Manage BIRT Report > Direct Print for Assets, JP and PO
+- name: fvt-manage-directprint-reports
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: directprint-reports
+  # Update runAfter list with new PHASE 4 tests
+  runAfter:
+    - fvt-manage-wobasic
+    - fvt-manage-escalation-action
+    - fvt-manage-autoscript-adddeletewo
+    - fvt-manage-jms-inbound
+    - fvt-manage-esig-basic

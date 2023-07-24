@@ -381,9 +381,25 @@ spec:
 
     # 19. Application FVT - Manage
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/manage.yml.j2') | indent(4) }}
+    # 19.1 Phase 0: User Sync
+    {{ lookup('template', 'taskdefs/fvt-manage/phase0.yml.j2') | indent(4) }}
 
+    # 19.2 Phase 1: SetupWithMAS, Monitoring and others not depending on setup
+    {{ lookup('template', 'taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
+
+    # 19.3 Phase 2: MIF Setup and others
+    {{ lookup('template', 'taskdefs/fvt-manage/phase2.yml.j2') | indent(4) }}
+
+    # 19.4 Phase 3: JMS Inbound, Work Order Basic and others
+    {{ lookup('template', 'taskdefs/fvt-manage/phase3.yml.j2') | indent(4) }}
+
+    # 19.5 Phase 4: Doclinks, Kafka and others
+    {{ lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
     
+    # 19.6 Phase 5: Single-threaded suites (SMTP and others)
+    {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
+
+
     # 21. Application FVT - Manage Industry Solutions
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-apps/manage-industry-solutions.yml.j2') | indent(4) }}

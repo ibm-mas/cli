@@ -1,0 +1,83 @@
+# -------------------------------------------------------------
+# PHASE 3
+# - fvt-manage-wobasic
+# - fvt-manage-escalation-action
+# - fvt-manage-autoscript-adddeletewo
+# - fvt-manage-jms-inbound
+# - fvt-manage-esig-basic
+# -------------------------------------------------------------
+
+# Manage FVT Work Order Basic Scenario
+- name: fvt-manage-wobasic
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: workorderbasic
+  runAfter:
+    - fvt-manage-masnavigation
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-mif-setup
+    - fvt-manage-directprint-reports
+    - fvt-manage-metrics-api
+
+# Manage FVT Escalation
+- name: fvt-manage-escalation-action
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: escalation-action
+  runAfter:
+    - fvt-manage-masnavigation
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-mif-setup
+    - fvt-manage-directprint-reports
+    - fvt-manage-metrics-api
+    
+  # Manage FVT AutoScript to Add Delete WorkOrder
+- name: fvt-manage-autoscript-adddeletewo
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: autoscript-adddeletewo
+  runAfter:
+    - fvt-manage-masnavigation
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-mif-setup
+    - fvt-manage-directprint-reports
+    - fvt-manage-metrics-api
+
+# Manage JMS Integration - Inbound
+- name: fvt-manage-jms-inbound
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mif-jms-inbound
+  runAfter:
+    - fvt-manage-masnavigation
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-mif-setup
+    - fvt-manage-directprint-reports
+    - fvt-manage-metrics-api
+
+# Manage FVT E-Signature Basic Scenario
+- name: fvt-manage-esig-basic
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: esig-basic
+  runAfter:
+    - fvt-manage-masnavigation
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-mif-setup
+    - fvt-manage-directprint-reports
+    - fvt-manage-metrics-api
