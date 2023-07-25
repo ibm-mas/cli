@@ -80,11 +80,50 @@ spec:
     scopes: '[groups]'
   extraConfig:
     resource.customizations: |
+      sls.ibm.com/LicenseService:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Ready" and condition.status == "False" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = "Waiting for SLS"
+          return hs
+
       core.mas.ibm.com/Suite:
         health.lua: |
           hs = {}
-          hs.status = "Progressingg"
-          hs.message = "Waiting for Suitee"
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Ready" and condition.status == "False" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = "Waiting for Suite"
           return hs
   repo:
     initContainers:
