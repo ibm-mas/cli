@@ -24,6 +24,9 @@ spec:
     - name: rosa_token
       type: string
     - name: rosa_admin_password
+      type: string
+    - name: ocp_token
+      type: string
   stepTemplate:
     name: gitops-bootstrap
     env:
@@ -44,19 +47,23 @@ spec:
   steps:
     - args:
       - |-
-        ROLE_NAME=ocp_login
+        export ROLE_NAME=ocp_login
         export CLUSTER_TYPE=rosa
         export OCP_SERVER=$(params.ocp_server)
+        export OCP_TOKEN=$(params.ocp_token)
         export ROSA_TOKEN=$(params.rosa_token)
         export ROSA_CLUSTER_ADMIN_PASSWORD=$(params.rosa_admin_password)
         ansible-playbook ibm.mas_devops.run_role
+
+        echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
-        mas gitops-bootrap --cluster-id $CLUSTER_NAME \
+        echo "Start Bootstrap"
+        mas gitops-bootstrap --cluster-id $CLUSTER_NAME \
         -t $AVP_TYPE \
-        --avp-aws-secret-region $SM_AWS_REGION \
-        --avp-aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
-        --avp-aws-access-key $SM_AWS_ACCESS_KEY_ID \
+        --avp-aws-secret-region $AVP_AWS_SECRET_REGION \
+        --avp-aws-secret-key $AVP_AWS_SECRET_KEY \
+        --avp-aws-access-key $AVP_AWS_ACCESS_KEY \
         --github-url $GITHUB_URL \
         --github-pat $GITHUB_PAT
       command:

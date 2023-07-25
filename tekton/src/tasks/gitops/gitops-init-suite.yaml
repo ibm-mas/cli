@@ -24,11 +24,27 @@ spec:
       type: string
     - name: github_host
       type: string
+    - name: github_pat
+      type: string
     - name: sls_channel
       type: string
     - name: mas_channel
       type: string
     - name: mas_domain
+      type: string
+    - name: ocp_server
+      type: string
+    - name: rosa_token
+      type: string
+    - name: rosa_admin_password
+      type: string
+    - name: ocp_token
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
       type: string
   stepTemplate:
     name: gitops-init-suite
@@ -49,19 +65,45 @@ spec:
         value: $(params.github_org)
       - name: GITHUB_HOST
         value: $(params.github_host)
-      - name: GITHUB_PUSH
-        value: $(params.github_push)
       - name: GITHUB_REPO
-        value: $(parms.github_repo)
+        value: $(params.github_repo)
+      - name: GITHUB_PAT
+        value: $(params.github_pat)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: SM_AWS_SECRET_ACCESS_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: SM_AWS_ACCESS_KEY_ID
+        value: $(params.avp_aws_access_key)
   steps:
     - args:
       - |-
+
+        git config --global user.name "yourUsername"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+
+        export ROLE_NAME=ocp_login
+        export CLUSTER_TYPE=rosa
+        export OCP_SERVER=$(params.ocp_server)
+        export OCP_TOKEN=$(params.ocp_token)
+        export ROSA_TOKEN=$(params.rosa_token)
+        export ROSA_CLUSTER_ADMIN_PASSWORD=$(params.rosa_admin_password)
+        ansible-playbook ibm.mas_devops.run_role
+
+        echo "Set k8s context"
+        export K8S_AUTH_CONTEXT=$(oc whoami -c)
+
+        export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
+        export ARGOCD_USERNAME=admin
+        export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
+
         mkdir -p /workspace/configs/$GITHUB_REPO
-        mascli/mas gitops-init-suite -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        mas gitops-init-suite -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
         --sls-channel $(params.sls_channel) --mas-channel $(params.mas_channel) --mas-domain $(params.mas_domain) \
         --mongo-provider $MONGO_PROVIDER \
-        -dir /workspace/configs/$GITHUB_REPO \
+        --dir /workspace/configs/$GITHUB_REPO \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org  $GITHUB_ORG \

@@ -40,14 +40,13 @@ spec:
       type: string
     - name: github_host
       type: string
-    - name: vpc_id
-      type: string
-    - name: vpc_ipv4_cidr
-      type: string
-    - name: mongo_provider
-      type: string
-      default: aws
     - name: ibm_entitlement_b64
+      type: string
+    - name: mas_catalog_version
+      type: string
+    - name: common_services_channel
+      type: string
+    - name: ocp_token
       type: string
   tasks:
     - name: gitops-bootstrap
@@ -70,8 +69,10 @@ spec:
           value: $(params.ocp_server)
         - name: rosa_token
           value: $(params.rosa_token)
-        - name: rosa_admin_passwod
+        - name: rosa_admin_password
           value: $(params.rosa_admin_password)
+        - name: ocp_token
+          value: $(params.ocp_token)
       taskRef:
         kind: Task
         name: gitops-bootstrap
@@ -93,9 +94,31 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
-        - name: ibm_entitlement_key
+        - name: ibm_entitlement_b64
           value: $(params.ibm_entitlement_b64)
+        - name: mas_catalog_version
+          value: $(params.mas_catalog_version)
+        - name: common_services_channel
+          value: $(params.common_services_channel)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: ocp_server
+          value: $(params.ocp_server)
+        - name: rosa_token
+          value: $(params.rosa_token)
+        - name: rosa_admin_password
+          value: $(params.rosa_admin_password)
+        - name: ocp_token
+          value: $(params.ocp_token)
       taskRef:
         kind: Task
         name: gitops-init-cluster
-
+      workspaces:
+        - name: configs
+          workspace: configs

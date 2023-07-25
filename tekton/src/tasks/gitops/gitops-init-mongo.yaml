@@ -35,16 +35,16 @@ spec:
         value: $(params.account)
       - name: SECRET_PATH
         value: $(params.secrets_path)
-      - name: AVP_AWS_SECRET_REGION
+      - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: AVP_AWS_SECRET_KEY
+      - name: SM_AWS_SECRET_ACCESS_KEY
         value: $(params.avp_aws_secret_key)
-      - name: AVP_AWS_ACCESS_KEY
+      - name: SM_AWS_ACCESS_KEY_ID
         value: $(params.avp_aws_access_key)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
       - name: VPC_ID
-        value: $(params.vpd_id)
+        value: $(params.vpc_id)
       - name: VPC_IPV4_CIDR
         value: $(params.vpc_ipv4_cidr)
       - name: MONGO_PROVIDER
@@ -52,12 +52,12 @@ spec:
   steps:
     - args:
       - |-
-        mascli/mas gitops-init-mongo -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        mas gitops-init-mongo -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
         --mongo-provider $MONGO_PROVIDER \
-        --aws-region $AVP_AWS_SECRET_REGION \
-        --aws-secret-key $AVP_AWS_SECRET_KEY \
-        --aws-access-key $AVP_AWS_ACCESS_KEY \
+        --aws-region $SM_AWS_REGION \
+        --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+        --aws-access-key $SM_AWS_ACCESS_KEY_ID \
         --aws-vpc-id $VPC_ID \
         --aws-docdb-cluster-name docdb-$CLUSTER_NAME \
         --aws-docdb-ingress-cidr $VPC_IPV4_CIDR  \
