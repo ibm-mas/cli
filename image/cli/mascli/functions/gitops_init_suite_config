@@ -183,7 +183,7 @@ function gitops_init_suite_config() {
     echo_reset_dim "Automatic Push ........................ ${COLOR_RED}Disabled"
     echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
   fi
-  reset_colors  
+  reset_colors
 
   echo "${TEXT_DIM}"
   echo_h2 "IBM Suite License Service" "    "
@@ -213,6 +213,8 @@ function gitops_init_suite_config() {
   export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
   export MONGO_CONFIG_FILE=$TEMP_DIR/mongo-info.yaml
 
+  sm_login
+
   if [ $MONGODB_PROVIDER == 'yaml' ]; then
     sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
   elif [ $MONGODB_PROVIDER == 'aws' ]; then
@@ -239,7 +241,7 @@ function gitops_init_suite_config() {
     if [[ "$LICENSE_SERVICE_READY_STATUS" == "True" ]]; then
       break
     fi
-  done  
+  done
   # wait till SLS licenseservice is in ready state done
 
   # Get the instance-level values to used
