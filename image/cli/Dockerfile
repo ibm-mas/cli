@@ -33,6 +33,10 @@ RUN umask 0002 && \
 ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini /tini
 RUN chmod +x /tini
 
+# 5. Install ArgoCD cli
+RUN curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64 && \
+    sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd && \
+    rm argocd-linux-amd64
 
 # 6. Copy basics
 USER default
@@ -67,7 +71,7 @@ RUN chmod -R ug+rwx ${HOME}/env.sh && \
     chmod +x /opt/app-root/src/.bashrc && \
     chmod +x /usr/bin/gather && \
     chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops && \
-    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops 
+    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops
 
 
 # 10. Switch to root user
