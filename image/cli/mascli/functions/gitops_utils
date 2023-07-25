@@ -134,11 +134,11 @@ function clone_target_git_repo() {
   CURRENT_DIR=$PWD
   cd $LOCAL_DIR
 
-  echo "git: Cloning $GITHUB_HOST:$GITHUB_ORG/$GITHUB_REPO branch $GIT_BRANCH into $LOCAL_DIR working directory"  
-  if [ "$SSH_PATH" == "false" ]; then    
-    git clone https://$GITHUB_HOST/$GITHUB_ORG/$GITHUB_REPO.git -b $GIT_BRANCH || exit 1
-  else    
-    git -c "core.sshCommand=ssh -i $SSH_PATH -F /dev/null" clone git@$GITHUB_HOST:$GITHUB_ORG/$GITHUB_REPO.git -b $GIT_BRANCH || exit 1        
+  echo "git: Cloning $GITHUB_HOST:$GITHUB_ORG/$GITHUB_REPO branch $GIT_BRANCH into $LOCAL_DIR working directory"
+  if [ "$SSH_PATH" == "false" ]; then
+    git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$GITHUB_ORG/$GITHUB_REPO.git -b $GIT_BRANCH || exit 1
+  else
+    git -c "core.sshCommand=ssh -i $SSH_PATH -F /dev/null" clone git@$GITHUB_HOST:$GITHUB_ORG/$GITHUB_REPO.git -b $GIT_BRANCH || exit 1
   fi
   cd $PWD
 }
