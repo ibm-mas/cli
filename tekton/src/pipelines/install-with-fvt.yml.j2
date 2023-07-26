@@ -110,14 +110,14 @@ spec:
         - common-services
 
     # 3.2 Watson Studio
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-wsl.yml.j2') | indent(4) }}
-      runAfter:
-        - cp4d
+    # {{ lookup('template', 'taskdefs/cp4d/cp4d-wsl.yml.j2') | indent(4) }}
+    #   runAfter:
+    #     - cp4d
 
     # 3.3 Watson Machine Learning
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-wml.yml.j2') | indent(4) }}
-      runAfter:
-        - cp4d
+    # {{ lookup('template', 'taskdefs/cp4d/cp4d-wml.yml.j2') | indent(4) }}
+    #   runAfter:
+    #     - cp4d
 
     # 3.4 Analytics Service (Spark)
     {{ lookup('template', 'taskdefs/cp4d/cp4d-spark.yml.j2') | indent(4) }}
@@ -125,9 +125,9 @@ spec:
         - cp4d
 
     # 3.5 Watson OpenScale
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-aiopenscale.yml.j2') | indent(4) }}
-      runAfter:
-        - cp4d
+    # {{ lookup('template', 'taskdefs/cp4d/cp4d-aiopenscale.yml.j2') | indent(4) }}
+    #   runAfter:
+    #     - cp4d
 
     # 3.6 SPSS Statistics
     {{ lookup('template', 'taskdefs/cp4d/cp4d-spss.yml.j2') | indent(4) }}
@@ -135,15 +135,15 @@ spec:
         - cp4d
 
     # 3.7 Watson Discovery
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-discovery.yml.j2') | indent(4) }}
-      runAfter:
-        - cp4d
+    # {{ lookup('template', 'taskdefs/cp4d/cp4d-discovery.yml.j2') | indent(4) }}
+    #   runAfter:
+    #     - cp4d
 
     # 3.8 Configure Watson Studio in MAS
-    {{ lookup('template', 'taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
-      runAfter:
-        - fvt-operatormaturity
-        - watson-studio
+    # {{ lookup('template', 'taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
+    #   runAfter:
+    #     - fvt-operatormaturity
+    #     - watson-studio
 
     # 4. Other Dependecies
     # -------------------------------------------------------------------------
@@ -265,8 +265,8 @@ spec:
       runAfter:
         - app-cfg-manage
         - app-cfg-monitor
-        - suite-config-watson-studio
-        - watson-machine-learning
+        # - suite-config-watson-studio
+        # - watson-machine-learning
         - analytics-service
         - aiopenscale
         - spss
@@ -280,14 +280,14 @@ spec:
     # 10. Install & Configure Optimizer
     # -------------------------------------------------------------------------
     # 10.1 Optimizer Install
-    {{ lookup('template', 'taskdefs/apps/optimizer-app.yml.j2') | indent(4) }}
-      runAfter:
-        - fvt-operatormaturity
+    # {{ lookup('template', 'taskdefs/apps/optimizer-app.yml.j2') | indent(4) }}
+    #   runAfter:
+    #     - fvt-operatormaturity
 
     # 10.2 Configure Optimizer workspace
-    {{ lookup('template', 'taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}
-      runAfter:
-        - app-install-optimizer
+    # {{ lookup('template', 'taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}
+    #   runAfter:
+    #     - app-install-optimizer
 
 
     # 11. Install & Configure Health & Predict Utilities
@@ -296,7 +296,7 @@ spec:
     {{ lookup('template', 'taskdefs/apps/hputilities-app.yml.j2') | indent(4) }}
       runAfter:
         - app-cfg-manage # Requires Health as an add-on
-        - suite-config-watson-studio
+        # - suite-config-watson-studio
 
     # 11.2 Configure HPUtilities workspace
     {{ lookup('template', 'taskdefs/apps/hputilities-workspace.yml.j2') | indent(4) }}
@@ -307,34 +307,34 @@ spec:
     # 12. Install & Configure Assist
     # -------------------------------------------------------------------------
     # 12.1 Assist Install
-    {{ lookup('template', 'taskdefs/apps/assist-app.yml.j2') | indent(4) }}
-      runAfter:
-        - suite-config-cos
+    # {{ lookup('template', 'taskdefs/apps/assist-app.yml.j2') | indent(4) }}
+    #   runAfter:
+    #     - suite-config-cos
 
     # 12.2 Configure Watson Discovery in MAS
-    {{ lookup('template', 'taskdefs/core/suite-config-discovery.yml.j2') | indent(4) }}
-      runAfter:
-        - app-install-assist
-        - discovery
+    # {{ lookup('template', 'taskdefs/core/suite-config-discovery.yml.j2') | indent(4) }}
+    #   runAfter:
+    #     - app-install-assist
+    #     - discovery
 
     # 12.3 Configure Assist workspace
-    {{ lookup('template', 'taskdefs/apps/assist-workspace.yml.j2') | indent(4) }}
-      runAfter:
-        - suite-config-discovery
+    # {{ lookup('template', 'taskdefs/apps/assist-workspace.yml.j2') | indent(4) }}
+    #   runAfter:
+    #     - suite-config-discovery
 
 
     # 13. Install & Configure Visual Inspection
     # -------------------------------------------------------------------------
     # 13.1 MVI Install
-    {{ lookup('template', 'taskdefs/apps/visualinspection-app.yml.j2') | indent(4) }}
-      runAfter:
-        - nvidia-gpu
-        - fvt-operatormaturity
+    # {{ lookup('template', 'taskdefs/apps/visualinspection-app.yml.j2') | indent(4) }}
+    #   runAfter:
+    #     - nvidia-gpu
+    #     - fvt-operatormaturity
 
     # 13.2 Configure MVI workspace
-    {{ lookup('template', 'taskdefs/apps/visualinspection-workspace.yml.j2') | indent(4) }}
-      runAfter:
-        - app-install-visualinspection
+    # {{ lookup('template', 'taskdefs/apps/visualinspection-workspace.yml.j2') | indent(4) }}
+    #   runAfter:
+    #     - app-install-visualinspection
 
 
     # 14. MAS Core FVT
@@ -366,7 +366,7 @@ spec:
 
     # 16. Application FVT - Assist
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/assist.yml.j2') | indent(4) }}
+    # {{ lookup('template', 'taskdefs/fvt-apps/assist.yml.j2') | indent(4) }}
 
 
     # 17. Application FVT - HP Utilities
@@ -411,7 +411,7 @@ spec:
 
     # 26. Application FVT - Optimizer
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/optimizer.yml.j2') | indent(4) }}
+    # {{ lookup('template', 'taskdefs/fvt-apps/optimizer.yml.j2') | indent(4) }}
 
     
     # 27. Applications IVT
