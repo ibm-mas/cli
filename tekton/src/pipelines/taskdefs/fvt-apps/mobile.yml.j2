@@ -359,7 +359,7 @@
     - fvt-technician-mvt-ios
 
 ## Minimum Verification Test for Mobile Asset Manager MAS test suites
-- name: fvt-asset-manager-testng-mas-ios
+- name: fvt-asset-manager-mvt-ios
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}

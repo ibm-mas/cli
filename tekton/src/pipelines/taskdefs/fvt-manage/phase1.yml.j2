@@ -1,0 +1,52 @@
+# -------------------------------------------------------------
+# PHASE 1
+# - fvt-manage-setup
+# - fvt-manage-monitoring
+# - fvt-manage-security-audit-logging
+# - fvt-manage-security-inactive-auth
+# -------------------------------------------------------------
+
+# Manage FVT Setup
+- name: fvt-manage-setup # convention: use fvt-manage-<keyword>, as the value of fvt_test_suite parameter
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: setup
+    - name: fvt_mas_appws_component
+      value: base
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-aviation-setup # regression tasks depend on fvt-manage-setup or, eventually, any subsequent task in case of Manage Industry Solutions
+    - fvt-manage-usersync
+
+# Manage FVT Monitoring
+- name: fvt-manage-monitoring
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: monitoring
+  runAfter:
+    - fvt-manage-usersync
+
+# Manage FVT Security Audit Logging
+- name: fvt-manage-security-audit-logging
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: security-audit-logging
+  runAfter:
+    - fvt-manage-usersync
+
+# Manage FVT Inactive User Authentication
+- name: fvt-manage-security-inactive-auth
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: security-inactiveuser-authentication
+  runAfter:
+    - fvt-manage-usersync
