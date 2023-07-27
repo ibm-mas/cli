@@ -84,23 +84,23 @@
 
 # IVT 5: Core x Optimizer
 # -------------------------------------------------------------------------
-- name: ivtcore-optimizer
-  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
-    - name: product_id
-      value: ibm-mas-optimizer
-    - name: product_channel
-      value: $(params.mas_app_channel_optimizer)
-  when:
-    - input: "$(params.ivt_digest_core)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_optimizer)"
-      operator: notin
-      values: [""]
-  runAfter:
-    - app-cfg-optimizer
+#- name: ivtcore-optimizer
+#  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+#  params:
+#    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+#    - name: product_id
+#      value: ibm-mas-optimizer
+#    - name: product_channel
+#      value: $(params.mas_app_channel_optimizer)
+#  when:
+#    - input: "$(params.ivt_digest_core)"
+#      operator: notin
+#      values: [""]
+#    - input: "$(params.mas_app_channel_optimizer)"
+#      operator: notin
+#      values: [""]
+#  runAfter:
+#    - app-cfg-optimizer
 
 
 # IVT 6: Core x Predict
