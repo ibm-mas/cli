@@ -81,6 +81,7 @@ mkdir -p $CONFIG_DIR
 . $DIR/functions/gitops_db2u_jdbc_config_rotate_password
 . $DIR/functions/gitops_create_mongo_user
 . $DIR/functions/gitops_init_aws_infrastructure
+. $DIR/functions/gitops_init_rosa
 
 load_config
 case $1 in
@@ -307,6 +308,13 @@ case $1 in
     echo
     reset_colors
     gitops_init_kafka_config "$@"
+    ;;
+  gitops-init-rosa)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_init_rosa "$@"
     ;;
   *)
     echo "unknown parameter"

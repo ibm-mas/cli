@@ -1,20 +1,93 @@
-export VERSION=4.10.40 \
-       ROSA_CLUSTER_NAME=v1-01-abc-usea1 \
-       AWS_ACCOUNT_ID=`aws sts get-caller-identity --query Account --output text` \
-       REGION=us-east-1 \
-       AWS_PAGER="" \
-       PRIVATE_SUBNET=subnet-0a222342f67b5acde,subnet-0511b4c6de34cc945,subnet-0be510674492bd4de
- 
-rosa create cluster -y --cluster-name ${ROSA_CLUSTER_NAME} \
-   --region ${REGION} --version ${VERSION} \
-   --private-link --multi-az --machine-cidr=10.64.0.0/16 \
-   --subnet-ids=$PRIVATE_SUBNET \
-   --compute-machine-type=m5.4xlarge \
-   --sts
-  
-rosa create operator-roles --cluster ${ROSA_CLUSTER_NAME}
-rosa create oidc-provider --cluster ${ROSA_CLUSTER_NAME}
-rosa create admin --cluster=${ROSA_CLUSTER_NAME}
 
-aws add inbound rules routes to central vpc
-aws modify route53 hosted zone to associate central vpc to the newly created cluster
+function gitops_init_rosa_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+mas gitops-init-rosa [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Options:
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}      Cluster ID
+  -d, --dir ${COLOR_YELLOW}WORKING_DIR${TEXT_RESET}            Working directory for GitOps repository
+  -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}    Version of Rosa OpenShift to use
+
+Other Commands:
+  -h, --help     Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_init_rosa_noninteractive() {
+  export ROSA_ACTION=${ROSA_ACTION:-"provision"}
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+      -d|--dir)
+        export WORKING_DIR=$1 && shift
+        ;;
+      -v|--ocp-version)
+        export OCP_VERSION=$1 && shift
+        ;;
+      # Show help
+      -h|--help)
+        gitops_init_rosa_help
+        ;;
+      # Unknown option
+      *)
+        echo -e "\n${COLOR_RED}Usage Error: Unsupported flag \"${key}\" ${COLOR_OFF}\n\n"
+        gitops_init_rosa_help
+        exit 1
+        ;;
+    esac
+  done
+  [[ -z "$CLUSTER_ID" ]] && gitops_init_rosa_help "CLUSTER_ID is not set"
+}
+
+function gitops_init_rosa(){
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_init_rosa_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_init_rosa_interactive
+  fi
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+  echo $CLUSTER_ID ">>>"
+  echo ""
+  echo "${TEXT_DIM}"
+  echo_h2 "Cluster Details" "    "
+  echo_reset_dim "Cluster Id ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "OpenShift Version ..................... ${COLOR_MAGENTA}${OCP_VERSION}"
+  echo_reset_dim "ROSA Token .......... ${COLOR_MAGENTA}${ROSA_TOKEN:0:8}<snip>"
+  echo_reset_dim "ROSA Admin Password .......... ${COLOR_MAGENTA}${ROSA_CLUSTER_ADMIN_PASSWORD:0:8}<snip>"echo_reset_dim "ROSA Admin Password .......... ${COLOR_MAGENTA}${ROSA_CLUSTER_ADMIN_PASSWORD:0:8}<snip>"
+  echo_reset_dim "ROSA Action .......... ${COLOR_MAGENTA}${ROSA_ACTION:0:8}<snip>"
+  reset_colors
+
+  echo
+  echo_h2 "Provision Rosa Cluster"
+
+  if [[ -z $ROSA_TOKEN  ]]; then
+    echo_reset_dim "${COLOR_RED} ROSA_TOKEN is required. Export this environment variable before use this function"
+    exit 1
+  fi
+  if [[ -z $ROSA_CLUSTER_ADMIN_PASSWORD  ]]; then
+    echo_reset_dim "${COLOR_RED} ROSA_CLUSTER_ADMIN_PASSWORD is required. Export this environment variable before use this function"
+    exit 1
+  fi
+  export CLUSTER_NAME=${CLUSTER_ID}
+  export ROLE_NAME=ocp_provision
+  export CLUSTER_TYPE=rosa
+  ansible-playbook ibm.mas_devops.run_role
+
+}
