@@ -44,6 +44,8 @@ spec:
       type: string
     - name: mas_catalog_version
       type: string
+    - name: mas_catalog_image
+      type: string
     - name: common_services_channel
       type: string
     - name: ocp_token
@@ -98,6 +100,8 @@ spec:
           value: $(params.ibm_entitlement_b64)
         - name: mas_catalog_version
           value: $(params.mas_catalog_version)
+        - name: mas_catalog_image
+          value: $(params.mas_catalog_image)
         - name: common_services_channel
           value: $(params.common_services_channel)
         - name: avp_aws_secret_region

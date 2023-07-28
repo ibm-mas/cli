@@ -185,8 +185,13 @@ function gitops_bootstrap() {
 
   # 5. Patch openshift-gitops with argocd-vault-plugin
   echo 'Patch cluster ArgoCD' &>> $LOGFILE
-  oc apply  -f ${DIR}/templates/gitops/bootstrap/argocd.yaml &>> $LOGFILE
   oc wait --for=jsonpath='{.status.phase}'=Available argocd/openshift-gitops -n openshift-gitops &>> $LOGFILE
+  oc apply  -f ${DIR}/templates/gitops/bootstrap/argocd.yaml &>> $LOGFILE
+
+  echo 'Wait for ArgoCd to be Ready and Functionl' &>> $LOGFILE
+  oc wait --for=jsonpath='{.status.phase}'=Available argocd/openshift-gitops -n openshift-gitops &>> $LOGFILE
+  oc wait --for=jsonpath='{.status.repo}'=Running argocd/openshift-gitops -n openshift-gitops &>> $LOGFILE
+
 
   # 6. Add the watcher to the gitops environment repo
   jinja -X .+ ${DIR}/templates/gitops/bootstrap/watcher.yaml.j2 | oc apply -f - &>> $LOGFILE
@@ -209,5 +214,5 @@ function gitops_bootstrap() {
   echo -en "\033[u" # Restore cursor position
   echo "${COLOR_GREEN}ArgoCD is now available at ${ARGOCD_URL} username is: admin and password: ${ARGOCD_PASSWORD} ${COLOR_RESET}"
   echo
-  
+
 }
