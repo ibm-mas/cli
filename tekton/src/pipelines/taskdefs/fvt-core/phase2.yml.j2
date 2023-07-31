@@ -80,10 +80,12 @@
     - name: test_suite
       value: coreapi-dependencies
   runAfter:
-    - fvt-coreapi-mobileapi
-    - fvt-coreapi-other
-    - fvt-coreapi-utilities
-    - fvt-coreapi-uiresources
+    - fvt-coreapi-addons
+    - fvt-coreapi-groupmgmt
+    - fvt-coreapi-usermgmt
+    - fvt-coreapi-apikeymgmt
+    - fvt-coreapi-workspacemgmt
+    - fvt-coreapi-graphiteconfigtool
     - fvt-useractivation-overall
     - fvt-useractivation-expiresat
     - fvt-useractivation-inactivity
@@ -96,10 +98,12 @@
     - name: test_suite
       value: coreapi-messages
   runAfter:
-    - fvt-coreapi-mobileapi
-    - fvt-coreapi-other
-    - fvt-coreapi-utilities
-    - fvt-coreapi-uiresources
+    - fvt-coreapi-addons
+    - fvt-coreapi-groupmgmt
+    - fvt-coreapi-usermgmt
+    - fvt-coreapi-apikeymgmt
+    - fvt-coreapi-workspacemgmt
+    - fvt-coreapi-graphiteconfigtool
     - fvt-useractivation-overall
     - fvt-useractivation-expiresat
     - fvt-useractivation-inactivity

@@ -54,7 +54,8 @@ spec:
     # -------------------------------------------------------------------------
     # 1.1 IBM Operator Catalog
     {{ lookup('template', 'taskdefs/cluster-setup/ibm-catalogs.yml.j2') | indent(4) }}
-      - pre-install-check
+      runAfter:
+        - pre-install-check
 
     # 1.2 IBM Cloud Pak Foundational Services
     {{ lookup('template', 'taskdefs/cluster-setup/common-services.yml.j2') | indent(4) }}
@@ -151,7 +152,7 @@ spec:
     # 3.8 Configure Watson Studio in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-operatormaturity
+        - fvt-core-phase4
         - watson-studio
 
 
@@ -165,7 +166,7 @@ spec:
     # 4.2 Configure COS in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-cos.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-operatormaturity
+        - fvt-core-phase4
         - cos
 
     # 4.3 Nvidia GPU Operator
@@ -212,14 +213,14 @@ spec:
     # 5.7 Configure Db2 in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-operatormaturity
+        - fvt-core-phase4
         - db2-system
         - db2-manage
 
     # 5.7 Configure Kafka in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-operatormaturity
+        - fvt-core-phase4
         - kafka
 
 
@@ -296,7 +297,7 @@ spec:
     # 10.1 Optimizer Install
     {{ lookup('template', 'taskdefs/apps/optimizer-app.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-operatormaturity
+        - fvt-core-phase4
 
     # 10.2 Configure Optimizer workspace
     {{ lookup('template', 'taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}
@@ -343,7 +344,7 @@ spec:
     {{ lookup('template', 'taskdefs/apps/visualinspection-app.yml.j2') | indent(4) }}
       runAfter:
         - nvidia-gpu
-        - fvt-operatormaturity
+        - fvt-core-phase4
 
     # 13.2 Configure MVI workspace
     {{ lookup('template', 'taskdefs/apps/visualinspection-workspace.yml.j2') | indent(4) }}
@@ -359,14 +360,11 @@ spec:
     # 14.2 Phase 2 of CoreAPI testing (~10m)
     {{ lookup('template', 'taskdefs/fvt-core/phase2.yml.j2') | indent(4) }}
 
-    # 14.3 Adoptionusage Metering test suite (~30m)
+    # 14.3 Miscellaneous test suites (~10m)
     {{ lookup('template', 'taskdefs/fvt-core/phase3.yml.j2') | indent(4) }}
 
-    # 14.4 Miscellaneous test suites (~10m)
+    # 14.4 Single-threaded suites
     {{ lookup('template', 'taskdefs/fvt-core/phase4.yml.j2') | indent(4) }}
-
-    # 14.5 Single-threaded suites
-    {{ lookup('template', 'taskdefs/fvt-core/phase5.yml.j2') | indent(4) }}
 
 
     # 15. MAS Core IVT

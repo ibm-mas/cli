@@ -1,3 +1,7 @@
+# Dependencies - Turbonomic
+# -----------------------------------------------------------------------------
+{{ lookup('template', params_src_dir ~ '/install-turbonomic.yml.j2') }}
+
 # Dependencies - SLS
 # -----------------------------------------------------------------------------
 - name: sls_namespace
@@ -324,7 +328,7 @@
 - name: route53_subdomain
   type: string
   default: ""
-    
+
 {{ lookup('template', params_src_dir ~ '/install-ibmcatalogs.yml.j2') }}
 
 {{ lookup('template', params_src_dir ~ '/install-workspace.yml.j2') }}

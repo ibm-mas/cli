@@ -40,13 +40,25 @@ function pipeline_install_tasks() {
   # Set up namespace
   sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/namespace.yaml > $CONFIG_DIR/namespace-$MAS_INSTANCE_ID.yaml
   oc apply -f $CONFIG_DIR/namespace-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  if [[ "$?" != "0" ]]; then
+    echo_warning "Unable to create MAS Pipelines namespace"
+    exit 1
+  fi
 
   # Create tasks and pipeline resources in namespace
   oc -n mas-$MAS_INSTANCE_ID-pipelines apply -f $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  if [[ "$?" != "0" ]]; then
+    echo_warning "Unable to install MAS Pipeline and Task definitions"
+    exit 1
+  fi
 
   # Set up RBAC in namespace
   sed "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" $DIR/templates/rbac.yaml > $CONFIG_DIR/rbac-$MAS_INSTANCE_ID.yaml
   oc apply -f $CONFIG_DIR/rbac-$MAS_INSTANCE_ID.yaml &>> $LOGFILE
+  if [[ "$?" != "0" ]]; then
+    echo_warning "Unable to configure MAS Pipeline RBAC"
+    exit 1
+  fi
 }
 
 
