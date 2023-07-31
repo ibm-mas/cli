@@ -36,6 +36,7 @@
         - nvidia-gpu
         - ocp-verify
         - sls
+        - turbonomic
         - uds
 
     # 3. Generate Tasks (FVT)
