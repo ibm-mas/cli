@@ -1,4 +1,4 @@
-# Note: last FVT test of Manage Core is fvt-manage-smtp-setup to avoid trigger
+# Note: last FVT test of Manage Core is fvt-manage-last-phase to avoid trigger
 # all the tests at the same time, be sure to start industry solution, mobile and
 # optimizer tests after this test instead of fvt-manage-setup
 # Manage FVT - ACM Setup
@@ -13,7 +13,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-smtp-setup # See note above
+    - fvt-manage-last-phase # See note above
 
 # Manage FVT - ACM - New User
 - name: fvt-manage-acm-user
@@ -69,7 +69,7 @@
     - name: fvt_test_driver
       value: tpae 
   runAfter:
-    - fvt-manage-smtp-setup # See note above
+    - fvt-manage-last-phase # See note above
 
 # Manage FVT - HSE Setup
 - name: fvt-manage-hse-setup
@@ -83,7 +83,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-smtp-setup # See note above
+    - fvt-manage-last-phase # See note above
 
 # Manage FVT - HSE - New User
 - name: fvt-manage-hse-user
@@ -125,7 +125,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-smtp-setup # See note above
+    - fvt-manage-last-phase # See note above
 
 # Manage FVT - Nuclear - New User
 - name: fvt-manage-nuclear-user
@@ -167,7 +167,7 @@
     - name: fvt_test_driver
       value: tpae      
   runAfter:
-    - fvt-manage-smtp-setup # See note above
+    - fvt-manage-last-phase # See note above
 
 # Manage FVT - Service Provider - New User
 - name: fvt-manage-serviceprovider-user
@@ -209,7 +209,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-smtp-setup # See note above
+    - fvt-manage-last-phase # See note above
 
 # Manage FVT - Location Base Services - New User
 - name: fvt-manage-lbs-user
@@ -279,7 +279,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-smtp-setup # See note above
+    - fvt-manage-last-phase # See note above
 
 # Manage FVT - Transportation - New User
 - name: fvt-manage-transportation-user
@@ -321,7 +321,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-smtp-setup
+    - fvt-manage-last-phase
 
 # Manage FVT - Scheduler Setup
 - name: fvt-manage-scheduler-setup
@@ -391,7 +391,7 @@
     - name: fvt_test_suite
       value: fvt-ci-setup
   runAfter:
-    - fvt-manage-smtp-setup # See note above
+    - fvt-manage-last-phase # See note above
 
 # Manage FVT - Civil Infrastructure Selenium - New User
 - name: fvt-manage-civil-selenium-user
@@ -447,7 +447,7 @@
     - name: fvt_test_driver
       value: graphite
   runAfter:
-    - fvt-manage-smtp-setup
+    - fvt-manage-last-phase
 
 # Manage FVT - Maintenance Manager BVT
 - name: fvt-manage-maintmanager-bvt

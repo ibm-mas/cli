@@ -5,7 +5,7 @@
 # - fvt-manage-directprint-reports
 # -------------------------------------------------------------
 
-# Manage FVT Work Order Basic Scenario
+# Manage FVT Kafka Setup
 - name: fvt-manage-mif-kafka-setup
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
@@ -39,6 +39,7 @@
 # Manage FVT Work Order Attachments
 - name: fvt-manage-wo-attach-docs
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/api/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -50,9 +51,10 @@
     - fvt-manage-jms-inbound
     - fvt-manage-esig-basic
 
-# Manage BIRT Report > Direct Print for Assets, JP and PO
+{# # Manage BIRT Report > Direct Print for Assets, JP and PO
 - name: fvt-manage-directprint-reports
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/api/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -63,4 +65,4 @@
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
-    - fvt-manage-esig-basic
+    - fvt-manage-esig-basic #}

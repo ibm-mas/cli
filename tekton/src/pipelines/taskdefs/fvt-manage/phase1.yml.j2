@@ -9,6 +9,7 @@
 # Manage FVT Setup
 - name: fvt-manage-setup # convention: use fvt-manage-<keyword>, as the value of fvt_test_suite parameter
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/api/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -24,6 +25,7 @@
 # Manage FVT Monitoring
 - name: fvt-manage-monitoring
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/api/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -32,21 +34,23 @@
     - fvt-manage-usersync
 
 # Manage FVT Security Audit Logging
-- name: fvt-manage-security-audit-logging
+{# - name: fvt-manage-security-audit-logging
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/api/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: security-audit-logging
   runAfter:
-    - fvt-manage-usersync
+    - fvt-manage-usersync #}
 
 # Manage FVT Inactive User Authentication
-- name: fvt-manage-security-inactive-auth
+{# - name: fvt-manage-security-inactive-auth
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/api/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: security-inactiveuser-authentication
   runAfter:
-    - fvt-manage-usersync
+    - fvt-manage-usersync #}

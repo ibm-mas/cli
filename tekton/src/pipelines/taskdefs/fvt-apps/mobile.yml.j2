@@ -1,4 +1,4 @@
-# Note: last FVT test of Manage Core is fvt-manage-smtp-setup to avoid trigger
+# Note: last FVT test of Manage Core is fvt-manage-last-phase to avoid trigger
 # all the tests at the same time, be sure to start industry solution, mobile and
 # optimizer tests after this test instead of fvt-manage-setup
 ## Mobile Foundation Manage Setup
@@ -25,7 +25,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-smtp-setup
+    - fvt-manage-last-phase
 
 ## All Mobile Foundation MAS test suites
 - name: fvt-mobfoundation-mvt-android
@@ -106,7 +106,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-smtp-setup
+    - fvt-manage-last-phase
 
 ## Minimum Verification Test for Mobile Service Request MAS test suites
 - name: fvt-service-request-mvt-android
@@ -188,7 +188,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-smtp-setup
+    - fvt-manage-last-phase
 
 ## Minimum Verification Test for Mobile Technician MAS test suites
 - name: fvt-technician-mvt-android
@@ -270,7 +270,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-smtp-setup
+    - fvt-manage-last-phase
 
 ## Minimum Verification Test for Mobile Inspection MAS test suites
 - name: fvt-inspections-mvt-android
@@ -410,7 +410,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-smtp-setup
+    - fvt-manage-last-phase
 
 # Mobile FVT - Inventory Counting Android
 - name: fvt-inventorycounting-mvt-android
