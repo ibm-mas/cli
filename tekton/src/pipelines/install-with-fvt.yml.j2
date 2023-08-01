@@ -214,8 +214,7 @@ spec:
     {{ lookup('template', 'taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
       runAfter:
         - fvt-core-phase4
-        - db2-system
-        - db2-manage
+        - db2-manage  # db2-manage already waits for db2-system so we don't need to list both
 
     # 5.7 Configure Kafka in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
