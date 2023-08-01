@@ -356,6 +356,10 @@ spec:
       value: '$MAS_APP_SETTINGS_INDEXSPACE'
     - name: mas_app_settings_db2_schema
       value: '$MAS_APP_SETTINGS_DB2_SCHEMA'
+    - name: mas_app_settings_customization_archive_url
+      value: '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL'
+    - name: mas_app_settings_customization_archive_name
+      value: '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME'
 
     # Monitor Application
     # -------------------------------------------------------------------------
