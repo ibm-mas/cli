@@ -70,7 +70,7 @@ spec:
 
     # 2. Install Universal Dependencies
     # -------------------------------------------------------------------------
-    # 2.1 MongoDb
+    ## 2.1 MongoDb
     {{ lookup('template', 'taskdefs/dependencies/mongo.yml.j2') | indent(4) }}
       runAfter:
         - cert-manager
