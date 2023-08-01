@@ -80,10 +80,30 @@
     - name: test_suite
       value: coreapi-dependencies
   runAfter:
-    - fvt-coreapi-mobileapi
-    - fvt-coreapi-other
-    - fvt-coreapi-utilities
-    - fvt-coreapi-uiresources
+    - fvt-coreapi-addons
+    - fvt-coreapi-groupmgmt
+    - fvt-coreapi-usermgmt
+    - fvt-coreapi-apikeymgmt
+    - fvt-coreapi-workspacemgmt
+    - fvt-coreapi-graphiteconfigtool
+    - fvt-useractivation-overall
+    - fvt-useractivation-expiresat
+    - fvt-useractivation-inactivity
+
+# Core FVT 2.6 coreapi-messages ~5m
+- name: fvt-coreapi-messages
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: test_suite
+      value: coreapi-messages
+  runAfter:
+    - fvt-coreapi-addons
+    - fvt-coreapi-groupmgmt
+    - fvt-coreapi-usermgmt
+    - fvt-coreapi-apikeymgmt
+    - fvt-coreapi-workspacemgmt
+    - fvt-coreapi-graphiteconfigtool
     - fvt-useractivation-overall
     - fvt-useractivation-expiresat
     - fvt-useractivation-inactivity
