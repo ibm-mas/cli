@@ -29,6 +29,7 @@ IBM Suite License Service:
 IBM Maximo Application Suite:
       --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}  MAS Core Platform Subscription Channel
       --mas-domain ${COLOR_YELLOW}MAS_DOMAIN${TEXT_RESET}    MAS Domain
+      --image-tags ${COLOR_YELLOW}IMAGE_TAGS${TEXT_RESET}    MAS Image tags definition in json format
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
