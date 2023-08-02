@@ -104,8 +104,6 @@ spec:
         value: $(params.product_id)
       - name: PRODUCT_CHANNEL
         value: $(params.product_channel)
-      - name: PRODUCT_CHANNEL
-        value: $(params.product_channel_manage)
       - name: PRODUCT_ID
         value: ibm-mas-manage
 
@@ -176,7 +174,7 @@ spec:
     
     # Manage FVT Application Designer
     - name: fvt-manage-application-designer
-      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest_manage)'
+      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
@@ -191,7 +189,7 @@ spec:
     
     # Manage FVT Start Center
     - name: fvt-manage-startcenter-config
-      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest_manage)'
+      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
@@ -206,7 +204,7 @@ spec:
     
     # Manage FVT Create Workflow Design & Approve WO Assignments
     - name: fvt-manage-workflow-designer
-      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest_manage)'
+      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
@@ -221,7 +219,7 @@ spec:
     
     # Manage SMTP Configuration Validation
     - name: fvt-manage-smtp-setup
-      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest_manage)'
+      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline

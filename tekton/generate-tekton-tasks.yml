@@ -50,6 +50,7 @@
         - fvt-core
         - fvt-core-ui
         - fvt-manage
+        - fvt-manage-last-phase
         - fvt-manage-pytest
         - fvt-run-suite
         - fvt-wait-for-install
