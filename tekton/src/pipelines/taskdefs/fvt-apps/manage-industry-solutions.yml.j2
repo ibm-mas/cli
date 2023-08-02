@@ -347,7 +347,7 @@
     - fvt-manage-last-phase
 
 # Manage FVT - Scheduler Setup
-- name: fvt-manage-scheduler-setup
+{# - name: fvt-manage-scheduler-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
@@ -359,10 +359,10 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-user
+    - fvt-manage-scheduler-user #}
 
 # Manage FVT - Scheduler
-- name: fvt-manage-scheduler-1
+{# - name: fvt-manage-scheduler-1
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
@@ -374,10 +374,10 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-setup
+    - fvt-manage-scheduler-setup #}
 
 # Manage FVT - Scheduler
-- name: fvt-manage-scheduler-2
+{# - name: fvt-manage-scheduler-2
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
@@ -389,10 +389,10 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-setup
+    - fvt-manage-scheduler-setup #}
 
 # Manage FVT - Scheduler
-- name: fvt-manage-scheduler-3
+{# - name: fvt-manage-scheduler-3
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
@@ -404,7 +404,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-setup
+    - fvt-manage-scheduler-setup #}
 
 # Manage FVT - Civil Infrastructure Selenium - Setup
 - name: fvt-manage-civil-selenium-setup
@@ -435,7 +435,7 @@
     - fvt-manage-civil-selenium-setup
 
 # Manage FVT - Civil Infrastructure Selenium
-- name: fvt-manage-civil-selenium
+{# - name: fvt-manage-civil-selenium
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-civil-selenium.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-civil.yml.j2') | indent(4) }}
@@ -446,10 +446,10 @@
     - name: fvt_test_suite
       value: cibvt
   runAfter:
-    - fvt-manage-civil-selenium-user
+    - fvt-manage-civil-selenium-user #}
 
 # Manage FVT - Civil Infrastructure Cypress
-- name: fvt-manage-civil-cypress
+{# - name: fvt-manage-civil-cypress
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-civil-cypress.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-civil.yml.j2') | indent(4) }}
@@ -460,10 +460,10 @@
     - name: fvt_test_suite
       value: web-mas-civil # display purposes only, not a keyword
   runAfter:
-    - fvt-manage-civil-selenium-user
+    - fvt-manage-civil-selenium-user #}
 
 # Manage FVT - Maintenance Manager Setup
-- name: fvt-manage-maintmanager-setup
+{# - name: fvt-manage-maintmanager-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
@@ -475,10 +475,10 @@
     - name: fvt_test_driver
       value: graphite
   runAfter:
-    - fvt-manage-last-phase
+    - fvt-manage-last-phase #}
 
 # Manage FVT - Maintenance Manager BVT
-- name: fvt-manage-maintmanager-bvt
+{# - name: fvt-manage-maintmanager-bvt
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
@@ -490,10 +490,10 @@
     - name: fvt_test_driver
       value: graphite
   runAfter:
-    - fvt-manage-maintmanager-setup
+    - fvt-manage-maintmanager-setup #}
 
 # Manage FVT - Maintenance Manager FVT
-- name: fvt-manage-maintmanager-fvt
+{# - name: fvt-manage-maintmanager-fvt
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
@@ -505,4 +505,4 @@
     - name: fvt_test_driver
       value: graphite
   runAfter:
-    - fvt-manage-maintmanager-setup
+    - fvt-manage-maintmanager-setup #}

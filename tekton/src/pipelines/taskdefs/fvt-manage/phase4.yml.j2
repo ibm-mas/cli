@@ -4,6 +4,7 @@
 # - fvt-manage-wo-attach-docs
 # - fvt-manage-directprint-reports
 # - fvt-manage-newuser-update
+# - fvt-manage-communication-temp
 # -------------------------------------------------------------
 
 # Manage FVT Kafka Setup
@@ -84,6 +85,23 @@
       value: core
     - name: fvt_test_suite
       value: newuser-update-delete-verify
+  runAfter:
+    - fvt-manage-wobasic
+    - fvt-manage-escalation-action
+    - fvt-manage-autoscript-adddeletewo
+    - fvt-manage-jms-inbound
+    - fvt-manage-esig-basic
+
+# Manage FVT New User Update/Delete/Verufy
+- name: fvt-manage-communication-temp
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
+    - name: fvt_test_suite
+      value: communication-temp
   runAfter:
     - fvt-manage-wobasic
     - fvt-manage-escalation-action
