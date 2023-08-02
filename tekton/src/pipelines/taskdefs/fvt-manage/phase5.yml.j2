@@ -7,7 +7,7 @@
 # -------------------------------------------------------------
 
 - name: fvt-manage-last-phase
-  {{ lookup('template', 'taskdefs/fvt-manage/api/when.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   taskRef:
     kind: Task
     name: mas-fvt-manage-last-phase
@@ -17,3 +17,4 @@
     - fvt-manage-mif-kafka-setup
     - fvt-manage-wo-attach-docs
     {# - fvt-manage-directprint-reports #}
+    - fvt-manage-newuser-update

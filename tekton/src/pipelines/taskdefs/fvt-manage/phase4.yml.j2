@@ -3,12 +3,15 @@
 # - fvt-manage-mif-kafka-setup
 # - fvt-manage-wo-attach-docs
 # - fvt-manage-directprint-reports
+# - fvt-manage-newuser-update
 # -------------------------------------------------------------
 
 # Manage FVT Kafka Setup
 - name: fvt-manage-mif-kafka-setup
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
     - name: fvt_test_suite
       value: mif-kafka-setup
     - name: kafka_provider
@@ -39,9 +42,11 @@
 # Manage FVT Work Order Attachments
 - name: fvt-manage-wo-attach-docs
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/api/when.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
     - name: fvt_test_suite
       value: wo-configure-attach-docs
   runAfter:
@@ -54,9 +59,11 @@
 {# # Manage BIRT Report > Direct Print for Assets, JP and PO
 - name: fvt-manage-directprint-reports
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/api/when.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
     - name: fvt_test_suite
       value: directprint-reports
   # Update runAfter list with new PHASE 4 tests
@@ -66,3 +73,20 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-esig-basic #}
+
+# Manage FVT New User Update/Delete/Verufy
+- name: fvt-manage-newuser-update
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
+    - name: fvt_test_suite
+      value: newuser-update-delete-verify
+  runAfter:
+    - fvt-manage-wobasic
+    - fvt-manage-escalation-action
+    - fvt-manage-autoscript-adddeletewo
+    - fvt-manage-jms-inbound
+    - fvt-manage-esig-basic
