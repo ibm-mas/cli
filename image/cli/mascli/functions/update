@@ -13,7 +13,6 @@ Maximo Operator Catalog Selection (Required):
   -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}     Maximo Operator Catalog Version (e.g. v8-221129)
 
 Update Dependencies (Optional):
-  --db2u-upgrade                                                    Update DB2 operator and all instances in namespace
   --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}        DB2 namespace where instances update will be performed
 
 Other Commands:
@@ -25,7 +24,6 @@ EOM
 
 
 function update_noninteractive() {
-  DB2_ACTION=none
 
   detect_airgap
   while [[ $# -gt 0 ]]
@@ -35,9 +33,6 @@ function update_noninteractive() {
     case $key in
       -c|--catalog)
         MAS_CATALOG_VERSION=$1 && shift
-        ;;
-      --db2u-upgrade)
-        DB2_ACTION=upgrade
         ;;
       --db2u-namespace)
         DB2_NAMESPACE=$1 && shift
@@ -62,7 +57,6 @@ function update_noninteractive() {
 }
 
 function update_interactive() {
-  DB2_ACTION=none
   connect
   detect_airgap
 
@@ -74,13 +68,10 @@ function update_interactive() {
   echo_h2 "Dependencies Update"
   echo "IBM Common Services Operator will be updated by default."
   
-  # detect db2 in cluster and prompt to update
+  # Detect db2 in cluster and prompt for namespace
   oc get Operator db2u-operator.ibm-common-services > /dev/null 2>&1
   if [ "$?" == "0" ]; then
-    if prompt_for_confirm "DB2u Operator has been detected. Update?"; then
-      DB2_ACTION=upgrade
-      prompt_for_input "Target Db2 Namespace" DB2_NAMESPACE "db2u"
-    fi
+    prompt_for_input "DB2u operator has been detected. Db2u namespace to update?" DB2_NAMESPACE "db2u"
   fi
 }
 
@@ -95,7 +86,6 @@ function update() {
   fi
 
   export MAS_CATALOG_VERSION
-  export DB2_ACTION
   export DB2_NAMESPACE
   echo
   reset_colors
