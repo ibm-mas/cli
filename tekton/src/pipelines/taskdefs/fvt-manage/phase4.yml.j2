@@ -1,6 +1,6 @@
 # -------------------------------------------------------------
 # PHASE 4
-# - fvt-manage-mif-kafka-setup
+# - fvt-manage-mif-kafka
 # - fvt-manage-wo-attach-docs
 # - fvt-manage-directprint-reports
 # - fvt-manage-newuser-update
@@ -8,13 +8,13 @@
 # -------------------------------------------------------------
 
 # Manage FVT Kafka Setup
-- name: fvt-manage-mif-kafka-setup
+- name: fvt-manage-mif-kafka
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
       value: core
     - name: fvt_test_suite
-      value: mif-kafka-setup
+      value: mif-kafka
     - name: kafka_provider
       value: $(params.kafka_provider)
   taskRef:
@@ -39,6 +39,7 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-esig-basic
+    - fvt-manage-mif-kafka-setup
 
 # Manage FVT Work Order Attachments
 - name: fvt-manage-wo-attach-docs
@@ -56,6 +57,7 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-esig-basic
+    - fvt-manage-mif-kafka-setup
 
 {# # Manage BIRT Report > Direct Print for Assets, JP and PO
 - name: fvt-manage-directprint-reports
@@ -73,7 +75,8 @@
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
-    - fvt-manage-esig-basic #}
+    - fvt-manage-esig-basic
+    - fvt-manage-mif-kafka-setup #}
 
 # Manage FVT New User Update/Delete/Verufy
 - name: fvt-manage-newuser-update
@@ -91,6 +94,7 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-esig-basic
+    - fvt-manage-mif-kafka-setup
 
 # Manage FVT New User Update/Delete/Verufy
 - name: fvt-manage-communication-temp
@@ -108,3 +112,4 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-esig-basic
+    - fvt-manage-mif-kafka-setup
