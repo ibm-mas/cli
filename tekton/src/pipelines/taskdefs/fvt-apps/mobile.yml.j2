@@ -498,7 +498,7 @@
     - name: fvt_image_name
       value: fvt-inventoryreceiving-testng
     - name: fvt_image_digest
-      value: $(params.fvt_digest_inventorycounting_testng)
+      value: $(params.fvt_digest_inventoryreceiving_testng)
     - name: fvt_mas_appws_component
       value: base
     - name: mas_appws_components
@@ -508,7 +508,7 @@
   # Only if we've set a digest of the Mobile IC FVT to run
   when:
     {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_inventorycounting_testng)"
+    - input: "$(params.fvt_digest_inventoryreceiving_testng)"
       operator: notin
       values: [""]
   runAfter:
@@ -525,7 +525,7 @@
     - name: fvt_image_name
       value: fvt-inventoryreceiving-testng
     - name: fvt_image_digest
-      value: $(params.fvt_digest_inventorycounting_testng)
+      value: $(params.fvt_digest_inventoryreceiving_testng)
     - name: fvt_mas_appws_component
       value: base
     - name: mas_appws_components
@@ -535,34 +535,7 @@
   # Only if we've set a digest of the Mobile IC FVT to run
   when:
     {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_inventorycounting_testng)"
-      operator: notin
-      values: [""]
-  runAfter:
-    - fvt-inventorycounting-mvt-ios
-    - fvt-inventorycounting-mvt-android
-    - fvt-inventorycounting-mvt-desktop-chrome
-
-- name: fvt-inventoryreceiving-mvt-desktop-chrome
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-manage.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-inventorycounting
-    - name: fvt_image_name
-      value: fvt-inventoryreceiving-testng
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_inventorycounting_testng)
-    - name: fvt_mas_appws_component
-      value: base
-    - name: mas_appws_components
-      value: $(params.mas_appws_components)
-    - name: fvt_test_suite
-      value: inventory-receiving-mvt-desktop-chrome
-  # Only if we've set a digest of the Mobile IC FVT to run
-  when:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_inventorycounting_testng)"
+    - input: "$(params.fvt_digest_inventoryreceiving_testng)"
       operator: notin
       values: [""]
   runAfter:
