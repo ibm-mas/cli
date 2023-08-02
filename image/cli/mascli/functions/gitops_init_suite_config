@@ -235,7 +235,7 @@ function gitops_init_suite_config() {
       sleep 30
     fi
     #export LICENSE_SERVICE_INITIALIZED_STATUS=`oc get licenseservice/sls -n mas-${MAS_INSTANCE_ID}-sls  -o=jsonpath="{.status.conditions[?(@.type=='Initialized')].status}"`
-    export LICENSE_SERVICE_READY_STATUS=`oc get licenseservice/sls -n mas-${MAS_INSTANCE_ID}-sls  -o=jsonpath="{.status.conditions[?(@.type=='Ready')].status}"`
+    export LICENSE_SERVICE_READY_STATUS=`oc get licenseservices.sls.ibm.com/sls -n mas-${MAS_INSTANCE_ID}-sls  -o=jsonpath="{.status.conditions[?(@.type=='Ready')].status}"`
     echo "LICENSE_SERVICE_INITIALIZED_STATUS .... ${COLOR_MAGENTA}${LICENSE_SERVICE_INITIALIZED_STATUS}"
     echo "LICENSE_SERVICE_READY_STATUS .......... ${COLOR_MAGENTA}${LICENSE_SERVICE_READY_STATUS}"
     if [[ "$LICENSE_SERVICE_READY_STATUS" == "True" ]]; then
