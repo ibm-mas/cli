@@ -1,0 +1,39 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-init-rosa
+spec:
+
+  params:
+    - name: cluster_name
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
+    - name: rosa_token
+      type: string
+  stepTemplate:
+    name: gitops-init-rosa
+    env:
+    - name: SM_AWS_REGION
+      value: $(params.avp_aws_secret_region)
+    - name: SM_AWS_SECRET_ACCESS_KEY
+      value: $(params.avp_aws_secret_key)
+    - name: SM_AWS_ACCESS_KEY_ID
+      value: $(params.avp_aws_access_key)
+  steps:
+    - args:
+      - |-
+        export ROSA_TOKEN=$(params.rosa_token)
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-init-rosa
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:6.1.0-pre.gitops
+  workspaces:
+    - name: configs

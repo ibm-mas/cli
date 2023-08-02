@@ -70,8 +70,7 @@ function gitops_init_rosa(){
   echo_reset_dim "Cluster Id ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "OpenShift Version ..................... ${COLOR_MAGENTA}${OCP_VERSION}"
   echo_reset_dim "ROSA Token .......... ${COLOR_MAGENTA}${ROSA_TOKEN:0:8}<snip>"
-  echo_reset_dim "ROSA Admin Password .......... ${COLOR_MAGENTA}${ROSA_CLUSTER_ADMIN_PASSWORD:0:8}<snip>"echo_reset_dim "ROSA Admin Password .......... ${COLOR_MAGENTA}${ROSA_CLUSTER_ADMIN_PASSWORD:0:8}<snip>"
-  echo_reset_dim "ROSA Action .......... ${COLOR_MAGENTA}${ROSA_ACTION:0:8}<snip>"
+  echo_reset_dim "ROSA Action .......... ${COLOR_MAGENTA}${ROSA_ACTION}<snip>"
   reset_colors
 
   echo
@@ -81,13 +80,18 @@ function gitops_init_rosa(){
     echo_reset_dim "${COLOR_RED} ROSA_TOKEN is required. Export this environment variable before use this function"
     exit 1
   fi
-  if [[ -z $ROSA_CLUSTER_ADMIN_PASSWORD  ]]; then
-    echo_reset_dim "${COLOR_RED} ROSA_CLUSTER_ADMIN_PASSWORD is required. Export this environment variable before use this function"
-    exit 1
-  fi
+  # if [[ -z $ROSA_CLUSTER_ADMIN_PASSWORD  ]]; then
+  #   echo_reset_dim "${COLOR_RED} ROSA_CLUSTER_ADMIN_PASSWORD is required. Export this environment variable before use this function"
+  #   exit 1
+  # fi
+  CURRENT_DIR=$PWD
+  TEMP_DIR=$CURRENT_DIR/tmp-rosa-init
+  rm -rf $TEMP_DIR
+  mkdir -p $TEMP_DIR
+  export ROSA_CONFIG_DIR=$TEMP_DIR
   export CLUSTER_NAME=${CLUSTER_ID}
   export ROLE_NAME=ocp_provision
   export CLUSTER_TYPE=rosa
-  ansible-playbook ibm.mas_devops.run_role
+  ansible-playbook ibm.mas_devops.run_role -vv
 
 }

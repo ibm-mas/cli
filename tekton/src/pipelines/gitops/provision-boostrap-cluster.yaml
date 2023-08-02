@@ -51,6 +51,8 @@ spec:
     - name: ocp_token
       type: string
   tasks:
+    - name: gitops-init-rosa
+
     - name: gitops-bootstrap
       params:
         - name: cluster_name
