@@ -37,10 +37,11 @@ AWS MongoDb Provider:
       --docdb-egress-cidr ${COLOR_YELLOW}DOCDB_EGRESS_CIDR${TEXT_RESET}                   Docdb egress cidr
       --aws-ec2-cidr-az1 ${COLOR_YELLOW}AWS_EC2_CIDR_AZ1${TEXT_RESET}                     Ec2 cidr az1
       --aws-key-pair-name ${COLOR_YELLOW}AWS_KEY_PAIR_NAME${TEXT_RESET}                   Key pair name
-      --deploy-region ${COLOR_YELLOW}AWS_DEFAULT_REGION${TEXT_RESET}                      Aws default region
+      --aws-region ${COLOR_YELLOW}AWS_REGION${TEXT_RESET}                                 Aws default region
       --aws-access-key-id ${COLOR_YELLOW}AWS_ACCESS_KEY_ID${TEXT_RESET}                   Aws access key id
       --aws-secret-access-key ${COLOR_YELLOW}AWS_SECRET_ACCESS_KEY${TEXT_RESET}           Aws secret access key
-      --secret-name-mongo-user ${COLOR_YELLOW}SECRET_NAME_MONGO_USER${TEXT_RESET}         AWS secret manager secret name where instance mongo username and password will be stored
+      --secret-name-mongo-instance ${COLOR_YELLOW}SECRET_NAME_MONGO_INSTANCE${TEXT_RESET} AWS secret manager secret name where instance mongo username and password will be stored
+
 
 Other Commands:
   -h, --help                                      Show this help message
@@ -127,12 +128,11 @@ function gitops_create_mongo_user_noninteractive() {
         export AWS_SECRET_ACCESS_KEY=$1 && shift
         ;;
       --aws-region)
-        export AWS_DEFAULT_REGION=$1 && shift
+        export AWS_REGION=$1 && shift
         ;;
-      --secret-name-mongo-user)
-        export SECRET_NAME_MONGO_USER=$1 && shift
+      --secret-name-mongo-instance)
+        export SECRET_NAME_MONGO_INSTANCE=$1 && shift
         ;;
-
       # Other Commands
       -h|--help)
         gitops_create_mongo_user_help
@@ -153,12 +153,12 @@ function gitops_create_mongo_user_noninteractive() {
   if [ $MONGODB_PROVIDER == 'aws' ]; then
     [[ -z "$MAS_INSTANCE_ID" ]] && gitops_create_mongo_user_help "MAS_INSTANCE_ID is not set"
 
-    if [ -z $AWS_ACCESS_KEY_ID ] || [ -z $AWS_SECRET_ACCESS_KEY ] || [ -z $VPC_ID ] || [ -z $AWS_DEFAULT_REGION ]; then
+    if [ -z $AWS_ACCESS_KEY_ID ] || [ -z $AWS_SECRET_ACCESS_KEY ] || [ -z $VPC_ID ] || [ -z $AWS_REGION ]; then
       echo 'Missing required params for AWS mongo provider, make sure to provide --aws-access-key, --aws-secret-key, --aws-region and --aws-vpc-id'
       exit 1
     fi
-    if [ -z $DOCDB_INGRESS_CIDR ] || [ -z $DOCDB_EGRESS_CIDR ] || [ -z $AWS_EC2_CIDR_AZ1 ] || [ -z $SECRET_NAME_MONGO_USER] || [ -z $AWS_KEY_PAIR_NAME ]; then
-      echo 'Missing required params for AWS mongo provider, make sure to provide --aws-docdb-ingress-cidr, --aws-docdb-egress-cidr, --aws-ec2-cidr-az1, --secret-name-mongo-user, --aws-key-pair-name'
+    if [ -z $DOCDB_INGRESS_CIDR ] || [ -z $DOCDB_EGRESS_CIDR ] || [ -z $AWS_EC2_CIDR_AZ1 ] || [ -z $AWS_KEY_PAIR_NAME ]; then
+      echo 'Missing required params for AWS mongo provider, make sure to provide --aws-docdb-ingress-cidr, --aws-docdb-egress-cidr, --aws-ec2-cidr-az1, --aws-key-pair-name'
       exit 1
     fi
     if [ -z $DOCDB_CLUSTER_NAME ]; then
@@ -236,12 +236,14 @@ function gitops_create_mongo_user() {
     echo -e "Create_mongo_user : DOCDB_HOST=${DOCDB_HOST} \t DOCDB_PORT=${DOCDB_PORT} \t DOCDB_MASTER_USERNAME=${DOCDB_MASTER_USERNAME} \t DOCDB_MASTER_PASSWORD=${DOCDB_MASTER_PASSWORD}"
     
     export DOCDB_INSTANCE_USERNAME=masinst_${MAS_INSTANCE_ID}
-    export SECRET_NAME_MONGO_INSANCE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
+    export SECRET_NAME_MONGO_INSTANCE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
     export ROLE_NAME=aws_ec2_documentdb
     ansible-playbook ibm.mas_devops.run_role
+    rc=$?
+    [ $rc -ne 0 ] && exit $rc
 
     export MONGO_INSTANCE_USER_FILE=$TEMP_DIR/created-mongo-user.json
-    sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_INSTANCE_USER_FILE
+    sm_get_secret_file ${SECRET_NAME_MONGO_INSTANCE} $MONGO_INSTANCE_USER_FILE
     DOCDB_INSTANCE_USERNAME=$(jq -r .username $MONGO_INSTANCE_USER_FILE)
     DOCDB_INSTANCE_PASSWORD=$(jq -r .password $MONGO_INSTANCE_USER_FILE)
     echo -e "Create_mongo_user : DOCDB_INSTANCE_USERNAME=${DOCDB_INSTANCE_USERNAME} \t DOCDB_INSTANCE_PASSWORD=${DOCDB_INSTANCE_PASSWORD}"    
@@ -252,4 +254,5 @@ function gitops_create_mongo_user() {
     fi 
 
   fi
+  exit 0  
 }

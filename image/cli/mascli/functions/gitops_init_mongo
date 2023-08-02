@@ -218,9 +218,10 @@ function gitops_init_mongo() {
     #export MAS_INSTANCE_ID=inst1
     export MONGODB_NAMESPACE=docdb
     export ROLE_NAME=mongodb
-    export DOCDB_INSTANCE_NUMBER=2
+    export DOCDB_INSTANCE_NUMBER=1
     export SLS_MONGO_RETRYWRITES=false
     export AWS_DEFAULT_OUTPUT="json"
+    export MONGODB_ACTION=install
 
     export DOCDB_MASTER_USERNAME=docdbadmin
     export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
