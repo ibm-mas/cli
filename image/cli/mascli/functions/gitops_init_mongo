@@ -18,9 +18,6 @@ Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
-IBM Maximo Application Suite:
-      -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                    IBM Suite Maximo Application Suite Instance ID
-
 MongoDb Provider Selection:
       --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. Only "aws" is supported
 
@@ -71,11 +68,6 @@ function gitops_init_mongo_noninteractive() {
         ;;
       --secrets-key-seperator)
         export SECRETS_KEY_SEPERATOR=$1 && shift
-        ;;
-
-      # MAS
-      -m|--mas-instance-id)
-        export MAS_INSTANCE_ID=$1 && shift
         ;;
 
       # MongoDb Provider Selection
@@ -147,8 +139,6 @@ function gitops_init_mongo_noninteractive() {
   [[ -z "$ACCOUNT_ID" ]] && gitops_init_mongo_help "ACCOUNT_ID is not set"
 
   if [ $MONGODB_PROVIDER == 'aws' ]; then
-    [[ -z "$MAS_INSTANCE_ID" ]] && gitops_init_mongo_help "MAS_INSTANCE_ID is not set"
-
     if [ -z $AWS_ACCESS_KEY_ID ] || [ -z $AWS_SECRET_ACCESS_KEY ] || [ -z $VPC_ID ] || [ -z $AWS_REGION ]; then
       echo 'Missing required params for AWS mongo provider, make sure to provide --aws-access-key, --aws-secret-key, --aws-region and --aws-vpc-id'
       exit 1
@@ -157,8 +147,8 @@ function gitops_init_mongo_noninteractive() {
       echo 'Missing required params for AWS mongo provider, make sure to provide --aws-docdb-ingress-cidr, --aws-docdb-egress-cidr, --aws-docdb-cidr-az1, --aws-docdb-cidr-az2 and --aws-docdb-cidr-az3'
       exit 1
     fi
-    if [ -z $DOCDB_INSTANCE_IDENTIFIER_PREFIX ]; then
-      echo 'Missing required params for AWS mongo provider, make sure to provide --aws-docdb-instance_identifier_prefix'
+    if [ -z $DOCDB_CLUSTER_NAME ] || [ -z $DOCDB_INSTANCE_IDENTIFIER_PREFIX ]; then
+      echo 'Missing required params for AWS mongo provider, make sure to provide --aws-docdb-instance_identifier_prefix, --aws-docdb-cluster-name'
       exit 1
     fi
   fi
@@ -211,11 +201,6 @@ function gitops_init_mongo() {
     echo_reset_dim "YAML Configuration File ............... ${COLOR_MAGENTA}${MONGO_YAML_FILE}"
   fi
 
-  echo "${TEXT_DIM}"
-  echo_h2 "IBM Maximo Application Suite" "    "
-  echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  reset_colors
-
   export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
 
   AVP_TYPE=aws  # Support for IBM will be added later
@@ -232,12 +217,20 @@ function gitops_init_mongo() {
     export MAS_CONFIG_DIR=$TEMP_DIR
     #export MAS_INSTANCE_ID=inst1
     export MONGODB_NAMESPACE=docdb
-
     export ROLE_NAME=mongodb
     export DOCDB_INSTANCE_NUMBER=2
     export SLS_MONGO_RETRYWRITES=false
     export AWS_DEFAULT_OUTPUT="json"
-    export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
+
+    export DOCDB_MASTER_USERNAME=docdbadmin
+    export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
+    sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
+    DOCDB_MASTER_PASSWORD=$(jq -r .password $MONGO_SECRET_FILE)
+    if [[ -n ${DOCDB_MASTER_PASSWORD} ]]; then
+      export DOCDB_MASTER_PASSWORD=${DOCDB_MASTER_PASSWORD}
+      echo "init_mongo : DOCDB_MASTER_PASSWORD=${DOCDB_MASTER_PASSWORD} is available in the secret, use the same while invoking the role again"
+    fi 
+
     ansible-playbook ibm.mas_devops.run_role
     rc=$?
     [ $rc -ne 0 ] && exit $rc
@@ -245,6 +238,8 @@ function gitops_init_mongo() {
     # Extract the required details from the generated mongocfg/secret. For docdb this is in base64 encoded form
     export MONGO_USERNAME=$(yq -sr '.[0].data.username' $TEMP_DIR/mongo-docdb.yml | base64 -d)
     export MONGO_PASSWORD=$(yq -sr '.[0].data.password' $TEMP_DIR/mongo-docdb.yml| base64 -d)
+    export DOCDB_HOST=$(yq -sr '.[1].spec.config.hosts[0].host' $TEMP_DIR/mongo-docdb.yml)
+    export DOCDB_PORT=$(yq -sr '.[1].spec.config.hosts[0].port' $TEMP_DIR/mongo-docdb.yml)    
     yq -sY  '.[1].spec' $TEMP_DIR/mongo-docdb.yml >> $TEMP_DIR/mongo-info.yaml
     yq -iY 'del(.config.credentials)' $TEMP_DIR/mongo-info.yaml
     yq -iY 'del(.displayName)' $TEMP_DIR/mongo-info.yaml
@@ -253,15 +248,15 @@ function gitops_init_mongo() {
     UNESCAPED_INFO="$(cat $TEMP_DIR/mongo-info.yaml)"
     ESCAPED_INFO=${UNESCAPED_INFO//\"/\\\"}
     ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
-    echo "SECRET_NAME_MONGO $SECRET_NAME_MONGO"
-    sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$MONGO_USERNAME\", \"password\": \"$MONGO_PASSWORD\"}"
 
+    echo -e "init_mongo : DOCDB_HOST=$DOCDB_HOST \t DOCDB_PORT=$DOCDB_PORT \t DOCDB_MASTER_USERNAME=$MONGO_USERNAME \t DOCDB_MASTER_PASSWORD=$MONGO_PASSWORD"
+    sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$MONGO_USERNAME\", \"password\": \"$MONGO_PASSWORD\", \"docdb_host\": \"$DOCDB_HOST\", \"docdb_port\": \"$DOCDB_PORT\" }"
     rm -rf $TEMP_DIR
+
   elif [ $MONGODB_PROVIDER == 'yaml' ]; then
     UNESCAPED_INFO="$(cat $MONGO_YAML_FILE)"
     ESCAPED_INFO=${UNESCAPED_INFO//\"/\\\"}
     ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
-
     sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$MONGO_USERNAME\", \"password\": \"$MONGO_PASSWORD\"}"
   fi
 
