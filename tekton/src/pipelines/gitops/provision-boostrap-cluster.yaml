@@ -58,8 +58,6 @@ spec:
       type: string
       default: aws
   tasks:
-    - name: gitops-init-rosa
-
     - name: gitops-bootstrap
       params:
         - name: cluster_name
