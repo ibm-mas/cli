@@ -30,6 +30,7 @@ Usage
 ### Advanced MAS Configuration (Optional):
 - `--additional-configs LOCAL_MAS_CONFIG_DIR`         Path to a directory containing additional configuration files to be applied
 - `--non-prod`                                        Install MAS in Non-production mode
+- `--mas-trust-default-cas MAS_TRUST_DEFAULT_CAS`     Trust certificates signed by well-known CAs
 
 ### Maximo Application Suite Core Platform (Required):
 - `--mas-channel MAS_CHANNEL`                                    Subscription channel for the Core Platform
