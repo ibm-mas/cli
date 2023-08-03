@@ -13,7 +13,9 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-smtp-setup # See note above
+    - fvt-manage-scheduler-1
+    - fvt-manage-scheduler-2
+    - fvt-manage-scheduler-3
 
 # Manage FVT - ACM - New User
 - name: fvt-manage-acm-user
@@ -27,6 +29,12 @@
     - name: fvt_test_driver
       value: tpae      
   runAfter:
+    - fvt-manage-hse-setup
+    - fvt-manage-nuclear-setup
+    - fvt-manage-serviceprovider-setup
+    - fvt-manage-lbs-setup
+    - fvt-manage-transportation-setup
+    - fvt-manage-maintmanager-setup
     - fvt-manage-acm-setup
 
 # Manage FVT - ACM
@@ -42,6 +50,11 @@
       value: tpae 
   runAfter:
     - fvt-manage-acm-user
+    - fvt-manage-hse-user
+    - fvt-manage-nuclear-user
+    - fvt-manage-serviceprovider-user
+    - fvt-manage-lbs-user
+    - fvt-manage-transportation-user
 
 # Manage FVT - Aviation Setup
 - name: fvt-manage-aviation-setup
@@ -83,7 +96,9 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-smtp-setup # See note above
+    - fvt-manage-scheduler-1
+    - fvt-manage-scheduler-2
+    - fvt-manage-scheduler-3
 
 # Manage FVT - HSE - New User
 - name: fvt-manage-hse-user
@@ -98,6 +113,11 @@
       value: tpae 
   runAfter:
     - fvt-manage-hse-setup
+    - fvt-manage-nuclear-setup
+    - fvt-manage-serviceprovider-setup
+    - fvt-manage-lbs-setup
+    - fvt-manage-transportation-setup
+    - fvt-manage-maintmanager-setup
 
 # Manage FVT - HSE
 - name: fvt-manage-hse
@@ -111,7 +131,12 @@
     - name: fvt_test_driver
       value: tpae 
   runAfter:
+    - fvt-manage-acm-user
     - fvt-manage-hse-user
+    - fvt-manage-nuclear-user
+    - fvt-manage-serviceprovider-user
+    - fvt-manage-lbs-user
+    - fvt-manage-transportation-user
 
 # Manage FVT - Nuclear Setup
 - name: fvt-manage-nuclear-setup
@@ -125,7 +150,9 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-smtp-setup # See note above
+    - fvt-manage-scheduler-1
+    - fvt-manage-scheduler-2
+    - fvt-manage-scheduler-3
 
 # Manage FVT - Nuclear - New User
 - name: fvt-manage-nuclear-user
@@ -139,7 +166,12 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
+    - fvt-manage-hse-setup
     - fvt-manage-nuclear-setup
+    - fvt-manage-serviceprovider-setup
+    - fvt-manage-lbs-setup
+    - fvt-manage-transportation-setup
+    - fvt-manage-maintmanager-setup
 
 # Manage FVT - Nuclear
 - name: fvt-manage-nuclear
@@ -153,7 +185,12 @@
     - name: fvt_test_driver
       value: tpae      
   runAfter:
+    - fvt-manage-acm-user
+    - fvt-manage-hse-user
     - fvt-manage-nuclear-user
+    - fvt-manage-serviceprovider-user
+    - fvt-manage-lbs-user
+    - fvt-manage-transportation-user
 
 # Manage FVT - Service Provider Setup
 - name: fvt-manage-serviceprovider-setup
@@ -167,7 +204,9 @@
     - name: fvt_test_driver
       value: tpae      
   runAfter:
-    - fvt-manage-smtp-setup # See note above
+    - fvt-manage-scheduler-1
+    - fvt-manage-scheduler-2
+    - fvt-manage-scheduler-3
 
 # Manage FVT - Service Provider - New User
 - name: fvt-manage-serviceprovider-user
@@ -181,7 +220,12 @@
     - name: fvt_test_driver
       value: tpae      
   runAfter:
+    - fvt-manage-hse-setup
+    - fvt-manage-nuclear-setup
     - fvt-manage-serviceprovider-setup
+    - fvt-manage-lbs-setup
+    - fvt-manage-transportation-setup
+    - fvt-manage-maintmanager-setup
 
 # Manage FVT - Service Provider
 - name: fvt-manage-serviceprovider
@@ -195,7 +239,12 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
+    - fvt-manage-acm-user
+    - fvt-manage-hse-user
+    - fvt-manage-nuclear-user
     - fvt-manage-serviceprovider-user
+    - fvt-manage-lbs-user
+    - fvt-manage-transportation-user
 
 # Manage FVT - Location Base Services - Setup
 - name: fvt-manage-lbs-setup
@@ -209,7 +258,9 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-smtp-setup # See note above
+    - fvt-manage-scheduler-1
+    - fvt-manage-scheduler-2
+    - fvt-manage-scheduler-3
 
 # Manage FVT - Location Base Services - New User
 - name: fvt-manage-lbs-user
@@ -223,7 +274,12 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
+    - fvt-manage-hse-setup
+    - fvt-manage-nuclear-setup
+    - fvt-manage-serviceprovider-setup
     - fvt-manage-lbs-setup
+    - fvt-manage-transportation-setup
+    - fvt-manage-maintmanager-setup
 
 # Manage FVT - Spatial
 - name: fvt-manage-spatial
@@ -237,7 +293,12 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
+    - fvt-manage-acm-user
+    - fvt-manage-hse-user
+    - fvt-manage-nuclear-user
+    - fvt-manage-serviceprovider-user
     - fvt-manage-lbs-user
+    - fvt-manage-transportation-user
 
 # Manage FVT - Utilities
 - name: fvt-manage-utilities
@@ -251,7 +312,12 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
+    - fvt-manage-acm-user
+    - fvt-manage-hse-user
+    - fvt-manage-nuclear-user
+    - fvt-manage-serviceprovider-user
     - fvt-manage-lbs-user
+    - fvt-manage-transportation-user
 
 # Manage FVT - Linear
 - name: fvt-manage-linear
@@ -265,7 +331,12 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
+    - fvt-manage-acm-user
+    - fvt-manage-hse-user
+    - fvt-manage-nuclear-user
+    - fvt-manage-serviceprovider-user
     - fvt-manage-lbs-user
+    - fvt-manage-transportation-user
 
 # Manage FVT - Transportation Setup
 - name: fvt-manage-transportation-setup
@@ -279,7 +350,9 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-smtp-setup # See note above
+    - fvt-manage-scheduler-1
+    - fvt-manage-scheduler-2
+    - fvt-manage-scheduler-3
 
 # Manage FVT - Transportation - New User
 - name: fvt-manage-transportation-user
@@ -293,7 +366,12 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
+    - fvt-manage-hse-setup
+    - fvt-manage-nuclear-setup
+    - fvt-manage-serviceprovider-setup
+    - fvt-manage-lbs-setup
     - fvt-manage-transportation-setup
+    - fvt-manage-maintmanager-setup
 
 # Manage FVT - Transportation
 - name: fvt-manage-transportation
@@ -307,6 +385,11 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
+    - fvt-manage-acm-user
+    - fvt-manage-hse-user
+    - fvt-manage-nuclear-user
+    - fvt-manage-serviceprovider-user
+    - fvt-manage-lbs-user
     - fvt-manage-transportation-user
 
 # Manage FVT - Scheduler - New User
@@ -447,7 +530,9 @@
     - name: fvt_test_driver
       value: graphite
   runAfter:
-    - fvt-manage-smtp-setup
+    - fvt-manage-scheduler-1
+    - fvt-manage-scheduler-2
+    - fvt-manage-scheduler-3
 
 # Manage FVT - Maintenance Manager BVT
 - name: fvt-manage-maintmanager-bvt
@@ -461,7 +546,12 @@
     - name: fvt_test_driver
       value: graphite
   runAfter:
-    - fvt-manage-maintmanager-setup
+    - fvt-manage-acm-user
+    - fvt-manage-hse-user
+    - fvt-manage-nuclear-user
+    - fvt-manage-serviceprovider-user
+    - fvt-manage-lbs-user
+    - fvt-manage-transportation-user
 
 # Manage FVT - Maintenance Manager FVT
 - name: fvt-manage-maintmanager-fvt
