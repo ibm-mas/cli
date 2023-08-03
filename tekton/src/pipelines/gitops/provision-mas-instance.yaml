@@ -61,7 +61,7 @@ spec:
     - name: ocp_token
       type: string
   tasks:
-    - name: gitops-init-mongo
+    - name: gitops-create-mongo-user
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -83,15 +83,17 @@ spec:
           value: $(params.vpc_ipv4_cidr)
         - name: mongo_provider
           value: $(params.mongo_provider)
+        - name: aws_key_pair_name
+          value: $(params.aws_key_pair_name)
       taskRef:
         kind: Task
-        name: gitops-init-mongo
+        name: gitops-create-mongo-user
       workspaces:
         - name: configs
           workspace: configs
     - name: gitops-init-license
       runAfter:
-        - gitops-init-mongo
+        - gitops-create-mongo-user
       params:
         - name: cluster_name
           value: $(params.cluster_name)
