@@ -35,6 +35,7 @@
     - fvt-manage-lbs-setup
     - fvt-manage-transportation-setup
     - fvt-manage-acm-setup
+    - fvt-manage-civil-selenium-setup
 
 # Manage FVT - ACM
 - name: fvt-manage-acm
@@ -55,6 +56,7 @@
     - fvt-manage-serviceprovider-user
     - fvt-manage-lbs-user
     - fvt-manage-transportation-user
+    - fvt-manage-civil-selenium-user
 
 # Manage FVT - Aviation Setup
 - name: fvt-manage-aviation-setup
@@ -120,6 +122,7 @@
     - fvt-manage-serviceprovider-setup
     - fvt-manage-lbs-setup
     - fvt-manage-transportation-setup
+    - fvt-manage-civil-selenium-setup
 
 # Manage FVT - HSE
 - name: fvt-manage-hse
@@ -140,6 +143,7 @@
     - fvt-manage-serviceprovider-user
     - fvt-manage-lbs-user
     - fvt-manage-transportation-user
+    - fvt-manage-civil-selenium-user
 
 # Manage FVT - Nuclear Setup
 - name: fvt-manage-nuclear-setup
@@ -175,6 +179,7 @@
     - fvt-manage-serviceprovider-setup
     - fvt-manage-lbs-setup
     - fvt-manage-transportation-setup
+    - fvt-manage-civil-selenium-setup
 
 # Manage FVT - Nuclear
 - name: fvt-manage-nuclear
@@ -195,6 +200,7 @@
     - fvt-manage-serviceprovider-user
     - fvt-manage-lbs-user
     - fvt-manage-transportation-user
+    - fvt-manage-civil-selenium-user
 
 # Manage FVT - Service Provider Setup
 - name: fvt-manage-serviceprovider-setup
@@ -230,6 +236,7 @@
     - fvt-manage-serviceprovider-setup
     - fvt-manage-lbs-setup
     - fvt-manage-transportation-setup
+    - fvt-manage-civil-selenium-setup
 
 # Manage FVT - Service Provider
 - name: fvt-manage-serviceprovider
@@ -250,6 +257,7 @@
     - fvt-manage-serviceprovider-user
     - fvt-manage-lbs-user
     - fvt-manage-transportation-user
+    - fvt-manage-civil-selenium-user
 
 # Manage FVT - Location Base Services - Setup
 - name: fvt-manage-lbs-setup
@@ -285,6 +293,7 @@
     - fvt-manage-serviceprovider-setup
     - fvt-manage-lbs-setup
     - fvt-manage-transportation-setup
+    - fvt-manage-civil-selenium-setup
 
 # Manage FVT - Spatial
 - name: fvt-manage-spatial
@@ -305,6 +314,7 @@
     - fvt-manage-serviceprovider-user
     - fvt-manage-lbs-user
     - fvt-manage-transportation-user
+    - fvt-manage-civil-selenium-user
 
 # Manage FVT - Utilities
 - name: fvt-manage-utilities
@@ -325,6 +335,7 @@
     - fvt-manage-serviceprovider-user
     - fvt-manage-lbs-user
     - fvt-manage-transportation-user
+    - fvt-manage-civil-selenium-user
 
 # Manage FVT - Linear
 - name: fvt-manage-linear
@@ -345,6 +356,7 @@
     - fvt-manage-serviceprovider-user
     - fvt-manage-lbs-user
     - fvt-manage-transportation-user
+    - fvt-manage-civil-selenium-user
 
 # Manage FVT - Transportation Setup
 - name: fvt-manage-transportation-setup
@@ -380,6 +392,7 @@
     - fvt-manage-serviceprovider-setup
     - fvt-manage-lbs-setup
     - fvt-manage-transportation-setup
+    - fvt-manage-civil-selenium-setup
 
 # Manage FVT - Transportation
 - name: fvt-manage-transportation
@@ -400,6 +413,7 @@
     - fvt-manage-serviceprovider-user
     - fvt-manage-lbs-user
     - fvt-manage-transportation-user
+    - fvt-manage-civil-selenium-user
 
 # Manage FVT - Scheduler - New User
 - name: fvt-manage-scheduler-user
@@ -488,7 +502,7 @@
     - name: fvt_test_suite
       value: civil-setup-data
   runAfter:
-    - fvt-manage-last-phase # See note above
+    - fvt-manage-scheduler-user
 
 # Manage FVT - Civil Infrastructure Selenium - New User
 - name: fvt-manage-civil-selenium-user
@@ -502,6 +516,12 @@
     - name: fvt_test_suite
       value: civil-setup-user
   runAfter:
+    - fvt-manage-acm-setup
+    - fvt-manage-hse-setup
+    - fvt-manage-nuclear-setup
+    - fvt-manage-serviceprovider-setup
+    - fvt-manage-lbs-setup
+    - fvt-manage-transportation-setup
     - fvt-manage-civil-selenium-setup
 
 # Manage FVT - Civil Infrastructure Selenium
