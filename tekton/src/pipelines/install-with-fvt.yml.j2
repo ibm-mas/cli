@@ -265,7 +265,6 @@ spec:
       runAfter:
         - app-cfg-manage
         - app-cfg-monitor
-        - spss
 
     # 9.2 Configure Predict workspace
     {{ lookup('template', 'taskdefs/apps/predict-workspace.yml.j2') | indent(4) }}
