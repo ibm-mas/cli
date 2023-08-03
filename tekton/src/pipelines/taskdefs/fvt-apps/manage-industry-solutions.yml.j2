@@ -1,9 +1,10 @@
-# Note: last FVT test of Manage Core is fvt-manage-smtp-setup to avoid trigger
+# Note: last FVT test of Manage Core is fvt-manage-last-phase to avoid trigger
 # all the tests at the same time, be sure to start industry solution, mobile and
 # optimizer tests after this test instead of fvt-manage-setup
 # Manage FVT - ACM Setup
 - name: fvt-manage-acm-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -13,13 +14,12 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-1
-    - fvt-manage-scheduler-2
-    - fvt-manage-scheduler-3
+    - fvt-manage-scheduler-user
 
 # Manage FVT - ACM - New User
 - name: fvt-manage-acm-user
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -40,6 +40,7 @@
 # Manage FVT - ACM
 - name: fvt-manage-acm
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -59,6 +60,7 @@
 # Manage FVT - Aviation Setup
 - name: fvt-manage-aviation-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -73,6 +75,7 @@
 # Manage FVT - Aviation
 - name: fvt-manage-aviation
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -82,11 +85,12 @@
     - name: fvt_test_driver
       value: tpae 
   runAfter:
-    - fvt-manage-smtp-setup # See note above
+    - fvt-manage-last-phase # See note above
 
 # Manage FVT - HSE Setup
 - name: fvt-manage-hse-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -96,13 +100,12 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-1
-    - fvt-manage-scheduler-2
-    - fvt-manage-scheduler-3
+    - fvt-manage-scheduler-user
 
 # Manage FVT - HSE - New User
 - name: fvt-manage-hse-user
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -123,6 +126,7 @@
 # Manage FVT - HSE
 - name: fvt-manage-hse
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -142,6 +146,7 @@
 # Manage FVT - Nuclear Setup
 - name: fvt-manage-nuclear-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -151,13 +156,12 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-1
-    - fvt-manage-scheduler-2
-    - fvt-manage-scheduler-3
+    - fvt-manage-scheduler-user
 
 # Manage FVT - Nuclear - New User
 - name: fvt-manage-nuclear-user
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -178,6 +182,7 @@
 # Manage FVT - Nuclear
 - name: fvt-manage-nuclear
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -197,6 +202,7 @@
 # Manage FVT - Service Provider Setup
 - name: fvt-manage-serviceprovider-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -206,13 +212,12 @@
     - name: fvt_test_driver
       value: tpae      
   runAfter:
-    - fvt-manage-scheduler-1
-    - fvt-manage-scheduler-2
-    - fvt-manage-scheduler-3
+    - fvt-manage-scheduler-user
 
 # Manage FVT - Service Provider - New User
 - name: fvt-manage-serviceprovider-user
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -233,6 +238,7 @@
 # Manage FVT - Service Provider
 - name: fvt-manage-serviceprovider
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -252,6 +258,7 @@
 # Manage FVT - Location Base Services - Setup
 - name: fvt-manage-lbs-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -261,13 +268,12 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-1
-    - fvt-manage-scheduler-2
-    - fvt-manage-scheduler-3
+    - fvt-manage-scheduler-user
 
 # Manage FVT - Location Base Services - New User
 - name: fvt-manage-lbs-user
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -288,6 +294,7 @@
 # Manage FVT - Spatial
 - name: fvt-manage-spatial
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -307,6 +314,7 @@
 # Manage FVT - Utilities
 - name: fvt-manage-utilities
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -326,6 +334,7 @@
 # Manage FVT - Linear
 - name: fvt-manage-linear
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -345,6 +354,7 @@
 # Manage FVT - Transportation Setup
 - name: fvt-manage-transportation-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -354,13 +364,12 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-1
-    - fvt-manage-scheduler-2
-    - fvt-manage-scheduler-3
+    - fvt-manage-scheduler-user
 
 # Manage FVT - Transportation - New User
 - name: fvt-manage-transportation-user
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -381,6 +390,7 @@
 # Manage FVT - Transportation
 - name: fvt-manage-transportation
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -400,6 +410,7 @@
 # Manage FVT - Scheduler - New User
 - name: fvt-manage-scheduler-user
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -409,11 +420,12 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-smtp-setup
+    - fvt-manage-last-phase
 
 # Manage FVT - Scheduler Setup
-- name: fvt-manage-scheduler-setup
+{# - name: fvt-manage-scheduler-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -423,11 +435,12 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-user
+    - fvt-manage-scheduler-user #}
 
 # Manage FVT - Scheduler
-- name: fvt-manage-scheduler-1
+{# - name: fvt-manage-scheduler-1
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -437,11 +450,12 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-setup
+    - fvt-manage-scheduler-setup #}
 
 # Manage FVT - Scheduler
-- name: fvt-manage-scheduler-2
+{# - name: fvt-manage-scheduler-2
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -451,11 +465,12 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-setup
+    - fvt-manage-scheduler-setup #}
 
 # Manage FVT - Scheduler
-- name: fvt-manage-scheduler-3
+{# - name: fvt-manage-scheduler-3
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -465,7 +480,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-setup
+    - fvt-manage-scheduler-setup #}
 
 # Manage FVT - Civil Infrastructure Selenium - Setup
 - name: fvt-manage-civil-selenium-setup
@@ -477,9 +492,9 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_manage_civil_selenium)
     - name: fvt_test_suite
-      value: fvt-ci-setup
+      value: civil-setup-data
   runAfter:
-    - fvt-manage-smtp-setup # See note above
+    - fvt-manage-last-phase # See note above
 
 # Manage FVT - Civil Infrastructure Selenium - New User
 - name: fvt-manage-civil-selenium-user
@@ -491,12 +506,12 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_manage_civil_selenium)
     - name: fvt_test_suite
-      value: cibvt-user
+      value: civil-setup-user
   runAfter:
     - fvt-manage-civil-selenium-setup
 
 # Manage FVT - Civil Infrastructure Selenium
-- name: fvt-manage-civil-selenium
+{# - name: fvt-manage-civil-selenium
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-civil-selenium.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-civil.yml.j2') | indent(4) }}
@@ -505,12 +520,12 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_manage_civil_selenium)
     - name: fvt_test_suite
-      value: cibvt
+      value: civil-bvt
   runAfter:
-    - fvt-manage-civil-selenium-user
+    - fvt-manage-civil-selenium-user #}
 
 # Manage FVT - Civil Infrastructure Cypress
-- name: fvt-manage-civil-cypress
+{# - name: fvt-manage-civil-cypress
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-manage-civil-cypress.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-manage-civil.yml.j2') | indent(4) }}
@@ -519,13 +534,14 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_manage_civil_cypress)
     - name: fvt_test_suite
-      value: web-mas-civil # display purposes only, not a keyword
+      value: civil-fvt-cypress # display purposes only, not a keyword
   runAfter:
-    - fvt-manage-civil-selenium-user
+    - fvt-manage-civil-selenium-user #}
 
 # Manage FVT - Maintenance Manager Setup
-- name: fvt-manage-maintmanager-setup
+{# - name: fvt-manage-maintmanager-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -535,13 +551,12 @@
     - name: fvt_test_driver
       value: graphite
   runAfter:
-    - fvt-manage-scheduler-1
-    - fvt-manage-scheduler-2
-    - fvt-manage-scheduler-3
+    - fvt-manage-last-phase #}
 
 # Manage FVT - Maintenance Manager BVT
-- name: fvt-manage-maintmanager-bvt
+{# - name: fvt-manage-maintmanager-bvt
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -551,16 +566,12 @@
     - name: fvt_test_driver
       value: graphite
   runAfter:
-    - fvt-manage-acm-user
-    - fvt-manage-hse-user
-    - fvt-manage-nuclear-user
-    - fvt-manage-serviceprovider-user
-    - fvt-manage-lbs-user
-    - fvt-manage-transportation-user
+    - fvt-manage-maintmanager-setup #}
 
 # Manage FVT - Maintenance Manager FVT
-- name: fvt-manage-maintmanager-fvt
+{# - name: fvt-manage-maintmanager-fvt
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
@@ -570,4 +581,4 @@
     - name: fvt_test_driver
       value: graphite
   runAfter:
-    - fvt-manage-maintmanager-bvt
+    - fvt-manage-maintmanager-setup #}

@@ -1,4 +1,4 @@
-# Note: last FVT test of Manage Core is fvt-manage-smtp-setup to avoid trigger
+# Note: last FVT test of Manage Core is fvt-manage-last-phase to avoid trigger
 # all the tests at the same time, be sure to start industry solution, mobile and
 # optimizer tests after this test instead of fvt-manage-setup
 - name: fvt-optimizer
@@ -89,7 +89,7 @@
   - name: configs
     workspace: shared-configs
   runAfter:
-   - fvt-manage-smtp-setup
+   - fvt-manage-last-phase
    - fvt-optimizer
 
 - name: fvt-optimizer-manage-connection-setup
