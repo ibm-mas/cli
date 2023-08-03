@@ -389,7 +389,7 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_manage_civil_selenium)
     - name: fvt_test_suite
-      value: fvt-ci-setup
+      value: civil-setup-data
   runAfter:
     - fvt-manage-smtp-setup # See note above
 
@@ -403,7 +403,7 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_manage_civil_selenium)
     - name: fvt_test_suite
-      value: cibvt-user
+      value: civil-setup-user
   runAfter:
     - fvt-manage-civil-selenium-setup
 
@@ -417,7 +417,7 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_manage_civil_selenium)
     - name: fvt_test_suite
-      value: cibvt
+      value: civil-bvt
   runAfter:
     - fvt-manage-civil-selenium-user
 
@@ -431,7 +431,7 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_manage_civil_cypress)
     - name: fvt_test_suite
-      value: web-mas-civil # display purposes only, not a keyword
+      value: civil-fvt-cypress # display purposes only, not a keyword
   runAfter:
     - fvt-manage-civil-selenium-user
 
