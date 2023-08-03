@@ -187,7 +187,7 @@ spec:
         - name: FVT_TEST_SUITE
           value: application-designer
     
-    {# # Manage FVT Start Center
+    # Manage FVT Start Center
     - name: fvt-manage-startcenter-config
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
@@ -200,7 +200,7 @@ spec:
           name: dshm
       env:
         - name: FVT_TEST_SUITE
-          value: startcenter-config #}
+          value: startcenter-config
     
     # Manage FVT Create Workflow Design & Approve WO Assignments
     - name: fvt-manage-workflow-designer

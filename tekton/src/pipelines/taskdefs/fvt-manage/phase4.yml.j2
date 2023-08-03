@@ -59,7 +59,7 @@
     - fvt-manage-esig-basic
     - fvt-manage-mif-kafka-setup
 
-{# # Manage BIRT Report > Direct Print for Assets, JP and PO
+# Manage BIRT Report > Direct Print for Assets, JP and PO
 - name: fvt-manage-directprint-reports
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
@@ -76,7 +76,7 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-esig-basic
-    - fvt-manage-mif-kafka-setup #}
+    - fvt-manage-mif-kafka-setup
 
 # Manage FVT New User Update/Delete/Verufy
 - name: fvt-manage-newuser-update
