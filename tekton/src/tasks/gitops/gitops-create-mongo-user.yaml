@@ -67,7 +67,7 @@ spec:
         --aws-docdb-cluster-name docdb-$CLUSTER_NAME \
         --aws-docdb-ingress-cidr $VPC_IPV4_CIDR \
         --aws-docdb-egress-cidr $VPC_IPV4_CIDR \
-        --aws-ec2-cidr-az1 10.1.0.96/27 \
+        --aws-ec2-cidr-az1 10.0.0.0/17 \
         --aws-key-pair-name $AWS_KEY_PAIR_NAME
       command:
         - /bin/sh
