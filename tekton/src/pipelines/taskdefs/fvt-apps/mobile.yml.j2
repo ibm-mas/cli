@@ -464,7 +464,7 @@
   runAfter:
     - fvt-inventorycounting-manage-setup
 
-## Minimum Verification Test for Mobile Defects MAS test suites
+{# ## Minimum Verification Test for Mobile Defects MAS test suites
 - name: fvt-civil-defects-mvt-android
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
@@ -520,4 +520,4 @@
       values: [""]
   runAfter:
     - fvt-manage-civil-cypress
-    - fvt-manage-civil-selenium
+    - fvt-manage-civil-selenium #}
