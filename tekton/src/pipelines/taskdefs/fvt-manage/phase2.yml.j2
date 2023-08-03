@@ -10,64 +10,79 @@
 # Manage FVT Mas Navigation Scenario
 - name: fvt-manage-masnavigation
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
     - name: fvt_test_suite
       value: masnavigation
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
-    - fvt-manage-security-audit-logging
-    - fvt-manage-security-inactive-auth
+    {# - fvt-manage-security-audit-logging
+    - fvt-manage-security-inactive-auth #}
 
 # Manage FVT Classification
 - name: fvt-manage-classification
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
     - name: fvt_test_suite
       value: classification
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
-    - fvt-manage-security-audit-logging
-    - fvt-manage-security-inactive-auth
+    {# - fvt-manage-security-audit-logging
+    - fvt-manage-security-inactive-auth #}
 
 # Manage FVT Help Links
 - name: fvt-manage-helplinks
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
     - name: fvt_test_suite
       value: helplinks
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
-    - fvt-manage-security-audit-logging
-    - fvt-manage-security-inactive-auth
+    {# - fvt-manage-security-audit-logging
+    - fvt-manage-security-inactive-auth #}
 
 # Manage MIF setup
 - name: fvt-manage-mif-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
     - name: fvt_test_suite
       value: mif-setup
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
-    - fvt-manage-security-audit-logging
-    - fvt-manage-security-inactive-auth
+    {# - fvt-manage-security-audit-logging
+    - fvt-manage-security-inactive-auth #}
 
 # Manage FVT Metrics API
 - name: fvt-manage-metrics-api
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
     - name: fvt_test_suite
       value: metrics-api
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
-    - fvt-manage-security-audit-logging
-    - fvt-manage-security-inactive-auth
+    {# - fvt-manage-security-audit-logging
+    - fvt-manage-security-inactive-auth #}
