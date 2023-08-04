@@ -83,6 +83,7 @@
         - suite-install
         - suite-uninstall
         - suite-upgrade
+        - suite-rollback
         - suite-verify
 
     # 6. Generate Tasks (OCP)
