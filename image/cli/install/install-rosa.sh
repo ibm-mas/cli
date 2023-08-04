@@ -1,3 +1,4 @@
+#!/bin/bash
 # Install ROSA Cli
 set -e
 
