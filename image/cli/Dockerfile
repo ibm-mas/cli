@@ -26,12 +26,16 @@ RUN umask 0002 && \
     bash /tmp/install/install-skopeo.sh && \
     bash /tmp/install/install-aws.sh && \
     bash /tmp/install/install-helm.sh && \
+    bash /tmp/install/install-rosa.sh && \
     rm -rf /tmp/install && \
     rm /opt/app-root/src/.wget-hsts /opt/app-root/src/README.md /opt/app-root/src/LICENSE
 
 # 4. Install tini
 ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini /tini
 RUN chmod +x /tini
+
+# 5. Install ROSA CLI
+
 
 # 5. Install ArgoCD cli
 RUN curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64 && \
