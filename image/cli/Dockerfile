@@ -30,7 +30,7 @@ RUN umask 0002 && \
     rm -rf /tmp/install && \
     rm /opt/app-root/src/.wget-hsts /opt/app-root/src/README.md /opt/app-root/src/LICENSE
 
-RUN wget -q https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-linux.tar.gz?extIdCarryOver=true&intcmp=701f20000012k69AAA&sc_cid=701f2000001Css5AAC && \
+RUN wget -q https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-linux.tar.gz && \
     tar -xzf tar xvf rosa-linux.tar.gz && \
     sudo mv rosa /usr/local/bin/rosa && \
     rosa version
