@@ -85,6 +85,6 @@ function gitops_init_rosa(){
   export CLUSTER_NAME=${CLUSTER_ID}
   export ROLE_NAME=ocp_provision
   export CLUSTER_TYPE=rosa
-  ansible-playbook ibm.mas_devops.run_role -vv
+  ansible-playbook ibm.mas_devops.run_role
 
 }
