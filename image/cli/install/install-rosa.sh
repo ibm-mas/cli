@@ -6,5 +6,6 @@ wget -q https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-l
 tar -xzf rosa-linux.tar.gz
 mv rosa /usr/local/bin/
 chmod +x /usr/local/bin/rosa
+chown default:root /usr/local/bin/rosa
 rosa version
 rm -rf rosa-linux.tar.gz
