@@ -1,4 +1,4 @@
-# Note: last FVT test of Manage Core is fvt-manage-smtp-setup to avoid trigger
+# Note: last FVT test of Manage Core is fvt-manage-last-phase to avoid trigger
 # all the tests at the same time, be sure to start industry solution, mobile and
 # optimizer tests after this test instead of fvt-manage-setup
 ## Mobile Foundation Manage Setup
@@ -25,7 +25,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-smtp-setup
+    - fvt-manage-last-phase
 
 ## All Mobile Foundation MAS test suites
 - name: fvt-mobfoundation-mvt-android
@@ -106,7 +106,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-smtp-setup
+    - fvt-manage-last-phase
 
 ## Minimum Verification Test for Mobile Service Request MAS test suites
 - name: fvt-service-request-mvt-android
@@ -188,7 +188,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-smtp-setup
+    - fvt-manage-last-phase
 
 ## Minimum Verification Test for Mobile Technician MAS test suites
 - name: fvt-technician-mvt-android
@@ -270,7 +270,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-smtp-setup
+    - fvt-manage-last-phase
 
 ## Minimum Verification Test for Mobile Inspection MAS test suites
 - name: fvt-inspections-mvt-android
@@ -410,7 +410,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-smtp-setup
+    - fvt-manage-last-phase
 
 # Mobile FVT - Inventory Counting Android
 - name: fvt-inventorycounting-mvt-android
@@ -464,7 +464,87 @@
   runAfter:
     - fvt-inventorycounting-manage-setup
 
-## Minimum Verification Test for Mobile Defects MAS test suites
+
+- name: fvt-inventorycounting-mvt-desktop-chrome
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
+    - name: fvt_image_namespace
+      value: fvt-inventorycounting
+    - name: fvt_image_name
+      value: fvt-inventorycounting-testng
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_inventorycounting_testng)
+    - name: fvt_mas_appws_component
+      value: base
+    - name: mas_appws_components
+      value: $(params.mas_appws_components)
+    - name: fvt_test_suite
+      value: inventory-counting-mvt-desktop-chrome # xml for Mobile IC
+  # Only if we've set a digest of the Mobile IC FVT to run
+  when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
+    - input: "$(params.fvt_digest_inventorycounting_testng)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-inventorycounting-manage-setup
+
+- name: fvt-inventoryreceiving-mvt-android
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
+    - name: fvt_image_namespace
+      value: fvt-inventorycounting
+    - name: fvt_image_name
+      value: fvt-inventoryreceiving-testng
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_inventoryreceiving_testng)
+    - name: fvt_mas_appws_component
+      value: base
+    - name: mas_appws_components
+      value: $(params.mas_appws_components)
+    - name: fvt_test_suite
+      value: inventory-receiving-mvt-android
+  # Only if we've set a digest of the Mobile IC FVT to run
+  when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
+    - input: "$(params.fvt_digest_inventoryreceiving_testng)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-inventorycounting-mvt-ios
+    - fvt-inventorycounting-mvt-android
+    - fvt-inventorycounting-mvt-desktop-chrome
+
+- name: fvt-inventoryreceiving-mvt-ios
+  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/params-mobile.yml.j2') | indent(4) }}
+    - name: fvt_image_namespace
+      value: fvt-inventorycounting
+    - name: fvt_image_name
+      value: fvt-inventoryreceiving-testng
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_inventoryreceiving_testng)
+    - name: fvt_mas_appws_component
+      value: base
+    - name: mas_appws_components
+      value: $(params.mas_appws_components)
+    - name: fvt_test_suite
+      value: inventory-receiving-mvt-ios
+  # Only if we've set a digest of the Mobile IC FVT to run
+  when:
+    {{ lookup('template', 'taskdefs/fvt-apps/common/when-mobile.yml.j2') | indent(4) }}
+    - input: "$(params.fvt_digest_inventoryreceiving_testng)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-inventorycounting-mvt-ios
+    - fvt-inventorycounting-mvt-android
+    - fvt-inventorycounting-mvt-desktop-chrome
+
+{# ## Minimum Verification Test for Mobile Defects MAS test suites
 - name: fvt-civil-defects-mvt-android
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
@@ -520,4 +600,4 @@
       values: [""]
   runAfter:
     - fvt-manage-civil-cypress
-    - fvt-manage-civil-selenium
+    - fvt-manage-civil-selenium #}
