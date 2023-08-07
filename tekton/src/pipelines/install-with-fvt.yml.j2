@@ -280,7 +280,7 @@ spec:
     #     - fvt-operatormaturity
 
     # 10.2 Configure Optimizer workspace
-    {{ lookup('template', 'taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}
+    # {{ lookup('template', 'taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}
     #   runAfter:
     #     - app-install-optimizer
 
@@ -327,7 +327,7 @@ spec:
     #     - fvt-operatormaturity
 
     # 13.2 Configure MVI workspace
-    {{ lookup('template', 'taskdefs/apps/visualinspection-workspace.yml.j2') | indent(4) }}
+    # {{ lookup('template', 'taskdefs/apps/visualinspection-workspace.yml.j2') | indent(4) }}
     #   runAfter:
     #     - app-install-visualinspection
 
