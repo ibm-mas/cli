@@ -29,7 +29,7 @@ IBM Suite License Service:
 IBM Maximo Application Suite:
       --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}  MAS Core Platform Subscription Channel
       --mas-domain ${COLOR_YELLOW}MAS_DOMAIN${TEXT_RESET}    MAS Domain
-      --image-tags ${COLOR_YELLOW}IMAGE_TAGS${TEXT_RESET}    MAS Image tags definition in json format
+      --mas-image-tags ${COLOR_YELLOW}MAS_IMAGE_TAGS${TEXT_RESET}    MAS Image tags definition in json format
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -99,7 +99,9 @@ function gitops_init_suite_noninteractive() {
       --mas-domain)
         export MAS_DOMAIN=$1 && shift
         ;;
-
+      --mas-image-tags)
+        export MAS_IMAGE_TAGS=$1 && shift
+        ;;
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -216,6 +218,7 @@ function gitops_init_suite() {
   echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "Subscription Channel .................. ${COLOR_MAGENTA}${MAS_CHANNEL}"
   echo_reset_dim "Domain ................................ ${COLOR_MAGENTA}${MAS_DOMAIN}"
+  echo_reset_dim "Image Tags ............................ ${COLOR_MAGENTA}${MAS_IMAGE_TAGS}"
   reset_colors
 
 

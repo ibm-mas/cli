@@ -22,7 +22,7 @@ spec:
             domain: {{ MAS_DOMAIN }}
             mas_instance_id: {{ MAS_INSTANCE_ID }}
             mas_channel: {{ MAS_CHANNEL }}
-            imageTags: {{ IMAGE_TAGS | toYaml }}
+            imageTags: {{ MAS_IMAGE_TAGS }}
   syncPolicy:
     automated:
       prune: true
