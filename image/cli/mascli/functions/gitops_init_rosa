@@ -77,11 +77,13 @@ function gitops_init_rosa(){
     exit 1
   fi
 
-  CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/tmp-rosa-init
-  rm -rf $TEMP_DIR
-  mkdir -p $TEMP_DIR
-  export ROSA_CONFIG_DIR=$TEMP_DIR
+  if [[ -z $ROSA_CONFIG_DIR  ]]; then
+    CURRENT_DIR=$PWD
+    TEMP_DIR=$CURRENT_DIR/tmp-rosa-init
+    rm -rf $TEMP_DIR
+    mkdir -p $TEMP_DIR
+    export ROSA_CONFIG_DIR=$TEMP_DIR
+  fi
   export CLUSTER_NAME=${CLUSTER_ID}
   export ROLE_NAME=ocp_provision
   export CLUSTER_TYPE=rosa
