@@ -27,13 +27,9 @@ RUN umask 0002 && \
     bash /tmp/install/install-aws.sh && \
     bash /tmp/install/install-helm.sh && \
     bash /tmp/install/install-argocd.sh && \
+    bash /tmp/install/install-rosa.sh && \
     rm -rf /tmp/install && \
     rm /opt/app-root/src/.wget-hsts /opt/app-root/src/README.md /opt/app-root/src/LICENSE
-
-RUN wget -q https://mirror.openshift.com/pub/openshift-v4/clients/rosa/latest/rosa-linux.tar.gz && \
-    tar -xzf rosa-linux.tar.gz && \
-    mv rosa /usr/local/bin/rosa && \
-    rosa version
 
 # 4. Install tini
 ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini /tini
