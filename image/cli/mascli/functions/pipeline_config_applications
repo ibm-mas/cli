@@ -163,9 +163,13 @@ function config_pipeline_applications() {
       prompt_for_input "Indexspace" MAS_APP_SETTINGS_INDEXSPACE
     fi
      if prompt_for_confirm "+ Add custom archive"; then
-      prompt_for_input "Custom archive url" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL
       MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME='manage-custom-archive'
       prompt_for_input "Custom archive name" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME
+      prompt_for_input "Custom archive url" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL
+      if prompt_for_confirm "+ Requires authentication to access custom archive url"; then
+        prompt_for_input "Username" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME
+        prompt_for_input "Password" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD
+      fi
     fi
   fi
 
