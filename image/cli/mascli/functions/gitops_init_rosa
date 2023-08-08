@@ -10,7 +10,6 @@ When no options are specified on the command line, interactive-mode will be enab
 
 Options:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}      Cluster ID
-  -d, --dir ${COLOR_YELLOW}WORKING_DIR${TEXT_RESET}            Working directory for GitOps repository
   -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}    Version of Rosa OpenShift to use
 
 Other Commands:
@@ -28,9 +27,6 @@ function gitops_init_rosa_noninteractive() {
     case $key in
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
-        ;;
-      -d|--dir)
-        export WORKING_DIR=$1 && shift
         ;;
       -v|--ocp-version)
         export OCP_VERSION=$1 && shift
@@ -80,10 +76,7 @@ function gitops_init_rosa(){
     echo_reset_dim "${COLOR_RED} ROSA_TOKEN is required. Export this environment variable before use this function"
     exit 1
   fi
-  # if [[ -z $ROSA_CLUSTER_ADMIN_PASSWORD  ]]; then
-  #   echo_reset_dim "${COLOR_RED} ROSA_CLUSTER_ADMIN_PASSWORD is required. Export this environment variable before use this function"
-  #   exit 1
-  # fi
+
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-rosa-init
   rm -rf $TEMP_DIR
