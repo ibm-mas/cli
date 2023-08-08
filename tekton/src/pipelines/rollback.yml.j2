@@ -102,16 +102,23 @@ spec:
 
     # 4. Verify MAS core version after the rollback complete
     # -------------------------------------------------------------------------
-    {{ lookup('template', './../tasks/suite-rollback.yml.j2', template_vars={
-        'name': 'post-rollback-verify-version',
-        'devops_suite_name': 'post-rollback-verify-version',
-        'mas_core_rollback': 'False',
-        'verify_core_version': 'True',
-        'mas_instance_id': '$(params.mas_instance_id)',
-        'mas_core_version': '$(params.mas_core_version)'
-      }) | indent(4) }}
+    - name: post-rollback-verify-version
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-rollback
       runAfter:
         - post-rollback-verify-cluster
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_core_version
+          value: $(params.mas_core_version)
+        - name: mas_core_rollback
+          value: 'False'
+        - name: verify_core_version
+          value: 'True'
+        - name: devops_suite_name
+          value: post-rollback-verify-version
 
 {% if wait_for_install == true %}
   # Perform must-gather after the rollback
