@@ -102,7 +102,7 @@ spec:
 
     # 4. Verify MAS core version after the rollback complete
     # -------------------------------------------------------------------------
-    {{ lookup('template', '../tasks/suite-rollback.yml.j2', template_vars={
+    {{ lookup('template', './../tasks/suite-rollback.yml.j2', template_vars={
         'name': 'post-rollback-verify-version',
         'devops_suite_name': 'post-rollback-verify-version',
         'mas_core_rollback': 'False',
