@@ -12,18 +12,3 @@
       value: tpae 
   runAfter:
     - ivtcore-manage
-
-# Manage FVT - Aviation
-- name: fvt-manage-aviation
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: mfa-1
-    - name: fvt_mas_appws_component
-      value: aviation
-    - name: fvt_test_driver
-      value: tpae 
-  runAfter:
-    - fvt-manage-last-phase # See note above

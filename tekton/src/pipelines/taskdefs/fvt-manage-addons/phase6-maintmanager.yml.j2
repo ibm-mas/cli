@@ -14,6 +14,7 @@
       value: graphite
   runAfter:
     - fvt-manage-acm
+    - fvt-manage-aviation
     - fvt-manage-hse
     - fvt-manage-nuclear
     - fvt-manage-serviceprovider
@@ -21,7 +22,7 @@
     - fvt-manage-utilities
     - fvt-manage-linear
     - fvt-manage-transportation
-
+    
 # Manage FVT - Maintenance Manager BVT
 - name: fvt-manage-maintmanager-bvt
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
