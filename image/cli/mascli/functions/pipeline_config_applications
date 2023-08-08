@@ -166,7 +166,7 @@ function config_pipeline_applications() {
       MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME='manage-custom-archive'
       prompt_for_input "Customization archive name" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME
       prompt_for_input "Customization archive url" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL
-      if prompt_for_confirm "+ Requires authentication to access customization archive url"; then
+      if prompt_for_confirm "+ Provide authentication to access customization archive url"; then
         prompt_for_input "Username" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME
         prompt_for_input "Password" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD $MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD
       fi
