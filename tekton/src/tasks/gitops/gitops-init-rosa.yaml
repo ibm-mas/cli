@@ -8,32 +8,35 @@ spec:
   params:
     - name: cluster_name
       type: string
-    - name: avp_aws_secret_region
-      type: string
-    - name: avp_aws_secret_key
-      type: string
-    - name: avp_aws_access_key
-      type: string
     - name: rosa_token
+      type: string
+    - name: ocp_version
+      type: string
+    - name: aws_access_key_id
+      type: string
+    - name: aws_secret_access_key
+      type: string
+    - name: aws_region
       type: string
   stepTemplate:
     name: gitops-init-rosa
-    env:
-    - name: SM_AWS_REGION
-      value: $(params.avp_aws_secret_region)
-    - name: SM_AWS_SECRET_ACCESS_KEY
-      value: $(params.avp_aws_secret_key)
-    - name: SM_AWS_ACCESS_KEY_ID
-      value: $(params.avp_aws_access_key)
   steps:
     - args:
       - |-
         export ROSA_TOKEN=$(params.rosa_token)
+
+        aws configure set aws_access_key_id $(params.aws_access_key_id)
+        aws configure set aws_secret_access_key $(params.aws_secret_access_key)
+        aws configure set default.region $(params.aws_region)
+
+        export ROSA_CONFIG_DIR=/workspace/configs/tmp-rosa-init
+        mkdir -p $ROSA_CONFIG_DIR
+        mas gitops-init-rosa -c $(params.cluster_name) -v $(params.ocp_version)
       command:
         - /bin/sh
         - -c
       name: gitops-init-rosa
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:6.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:6.1.0-pre.rosa-init
   workspaces:
     - name: configs
