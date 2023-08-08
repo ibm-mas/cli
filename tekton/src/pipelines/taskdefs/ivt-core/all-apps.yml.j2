@@ -15,8 +15,8 @@
     - input: "$(params.mas_app_channel_assist)"
       operator: notin
       values: [""]
-#   runAfter:
-#     - app-cfg-assist
+  runAfter:
+    - app-cfg-assist
 
 
 # IVT 2: Core x HPUtilities
@@ -99,8 +99,8 @@
     - input: "$(params.mas_app_channel_optimizer)"
       operator: notin
       values: [""]
-#   runAfter:
-#     - app-cfg-optimizer
+  runAfter:
+    - app-cfg-optimizer
 
 
 # IVT 6: Core x Predict
@@ -141,5 +141,5 @@
     - input: "$(params.mas_app_channel_visualinspection)"
       operator: notin
       values: [""]
-#   runAfter:
-#     - app-cfg-visualinspection
+  runAfter:
+    - app-cfg-visualinspection
