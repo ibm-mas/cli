@@ -573,6 +573,12 @@
       value: $(params.mas_appws_components)
     - name: fvt_test_suite
       value: inventory-receiving-mvt-android
+    - name: assist_test_type
+      value: mobileapp
+    - name: assist_device_type
+      value: android
+    - name: assist_server_type
+      value: mas
   # Only if we've set a digest of the Mobile IC FVT to run
   when:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
@@ -602,6 +608,12 @@
       value: $(params.mas_appws_components)
     - name: fvt_test_suite
       value: inventory-receiving-mvt-ios
+    - name: assist_test_type
+      value: mobileapp
+    - name: assist_device_type
+      value: ios
+    - name: assist_server_type
+      value: mas
   # Only if we've set a digest of the Mobile IC FVT to run
   when:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
