@@ -17,3 +17,5 @@ spec:
       value: '$MAS_CATALOG_VERSION'
     - name: db2_namespace
       value: '$DB2_NAMESPACE'
+    - name: mongodb_namespace
+      value: '$MONGODB_NAMESPACE'

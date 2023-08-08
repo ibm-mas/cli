@@ -14,6 +14,7 @@ Maximo Operator Catalog Selection (Required):
 
 Update Dependencies (Optional):
   --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}        DB2 namespace where instances update will be performed
+  --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET} Namespace where MongoCE operator and instance will be updated
 
 Other Commands:
       --no-confirm                      Mirror images without prompting for confirmation
@@ -36,6 +37,9 @@ function update_noninteractive() {
         ;;
       --db2u-namespace)
         DB2_NAMESPACE=$1 && shift
+        ;;
+      --mongodb-namespace)
+        MONGODB_NAMESPACE=$1 && shift
         ;;
       --no-confirm)
         NO_CONFIRM=true
@@ -73,6 +77,13 @@ function update_interactive() {
   if [ "$?" == "0" ]; then
     prompt_for_input "DB2u operator has been detected. Db2u namespace to update?" DB2_NAMESPACE "db2u"
   fi
+
+  # Detect MongoDB in cluster and prompt for namespace
+  MONGODBCOMMUNITY_NS=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+  if [ "$?" == "0" ]; then
+    prompt_for_input "MongoDB deployment has been detected. MongoDB namespace to update?" MONGODB_NAMESPACE ${MONGODBCOMMUNITY_NS}
+  fi
+
 }
 
 
@@ -87,6 +98,7 @@ function update() {
 
   export MAS_CATALOG_VERSION
   export DB2_NAMESPACE
+  export MONGODB_NAMESPACE
   echo
   reset_colors
   echo_h2 "Review Settings"

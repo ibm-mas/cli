@@ -62,10 +62,10 @@ spec:
       description: API Key used to create Mongo instance in IBM Cloud
       default: ""
 
-    # Optional parameter to uninstall MongoDB
+    # Optional parameter to install, upgrade or uninstall MongoDB
     - name: mongodb_action
       type: string
-      description: Optional. Used to uninstall MongoDB
+      description: Optional. Used to install, upgrade or uninstall MongoDB
       default: ""
 
   stepTemplate:
@@ -106,7 +106,7 @@ spec:
       - name: IBMCLOUD_APIKEY
         value: $(params.ibmcloud_apikey)
 
-      # Optional parameter to uninstall MongoDB
+      # Optional parameter to install, upgrade or uninstall MongoDB
       - name: MONGODB_ACTION
         value: $(params.mongodb_action)
 
