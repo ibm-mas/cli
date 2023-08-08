@@ -46,8 +46,6 @@ spec:
       type: string
     - name: common_services_channel
       type: string
-    - name: vpc_id
-      type: string
     - name: vpc_ipv4_cidr
       type: string
     - name: mongo_provider
@@ -154,8 +152,6 @@ spec:
           value: $(params.avp_aws_secret_key)
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
-        - name: vpc_id
-          value: $(params.vpc_id)
         - name: vpc_ipv4_cidr
           value: $(params.vpc_ipv4_cidr)
         - name: mongo_provider

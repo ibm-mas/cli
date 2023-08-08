@@ -17,8 +17,6 @@ spec:
       type: string
     - name: avp_aws_access_key
       type: string
-    - name: vpc_id
-      type: string
     - name: vpc_ipv4_cidr
       type: string
     - name: mongo_provider
@@ -39,8 +37,6 @@ spec:
         value: $(params.avp_aws_secret_key)
       - name: SM_AWS_ACCESS_KEY_ID
         value: $(params.avp_aws_access_key)
-      - name: VPC_ID
-        value: $(params.vpc_id)
       - name: VPC_IPV4_CIDR
         value: $(params.vpc_ipv4_cidr)
       - name: MONGO_PROVIDER
@@ -48,6 +44,13 @@ spec:
   steps:
     - args:
       - |-
+        aws configure set aws_access_key_id $(params.avp_aws_access_key)
+        aws configure set aws_secret_access_key $(params.avp_aws_secret_key)
+        aws configure set default.region $(params.avp_aws_secret_region)
+
+        vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME | yq '.[].Value')
+        export VPC_ID=aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ["'$vpc_name'"]}]'
+
         mas gitops-init-mongo -a $ACCOUNT -c $CLUSTER_NAME \
         --secrets-path $SECRET_PATH \
         --mongo-provider $MONGO_PROVIDER \
