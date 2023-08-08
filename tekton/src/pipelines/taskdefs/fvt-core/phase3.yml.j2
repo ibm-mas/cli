@@ -1,16 +1,93 @@
-# Only start phase 3 test after all suites in phase 2 are complete
-# This testsuite cannot be run in parallel with others
+# Only start phase 3 tests after all suites in phase 2 are complete
 
-# FVT3.1 adoptionusagemetering ~30m
-- name: fvt-adoptionusagemetering
+# FVT3.1 internalapi ~10m
+- name: fvt-internalapi
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: test_suite
-      value: adoptionusagemetering
+      value: internalapi
   runAfter:
     - fvt-coreapi-mobileapi
     - fvt-coreapi-other
     - fvt-coreapi-uiresources
     - fvt-coreapi-dependencies
     - fvt-coreapi-utilities
+    - fvt-coreapi-messages
+
+# FVT3.2 catalogapi ~5m
+- name: fvt-catalogapi
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: test_suite
+      value: catalogapi
+  runAfter:
+    - fvt-coreapi-mobileapi
+    - fvt-coreapi-other
+    - fvt-coreapi-uiresources
+    - fvt-coreapi-dependencies
+    - fvt-coreapi-utilities
+    - fvt-coreapi-messages
+
+# FVT3.3 ibmadminissuer 5m
+- name: fvt-ibmadminissuer
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: test_suite
+      value: ibmadminissuer
+  runAfter:
+    - fvt-coreapi-mobileapi
+    - fvt-coreapi-other
+    - fvt-coreapi-uiresources
+    - fvt-coreapi-dependencies
+    - fvt-coreapi-utilities
+    - fvt-coreapi-messages
+
+# FVT3.4 milestonesapi ~5m
+- name: fvt-milestonesapi
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: test_suite
+      value: milestonesapi
+  runAfter:
+    - fvt-coreapi-mobileapi
+    - fvt-coreapi-other
+    - fvt-coreapi-uiresources
+    - fvt-coreapi-dependencies
+    - fvt-coreapi-utilities
+    - fvt-coreapi-messages
+
+# FVT3.5 adoptionusageapi ~5m
+- name: fvt-adoptionusageapi
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: test_suite
+      value: adoptionusageapi
+  runAfter:
+    - fvt-coreapi-mobileapi
+    - fvt-coreapi-other
+    - fvt-coreapi-uiresources
+    - fvt-coreapi-dependencies
+    - fvt-coreapi-utilities
+    - fvt-coreapi-messages
+
+# FVT3.6 accapppoints ~5m
+- name: fvt-accapppoints
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: test_suite
+      value: accapppoints
+    - name: ddp_apikey
+      value: $(params.ddp_apikey)
+  runAfter:
+    - fvt-coreapi-mobileapi
+    - fvt-coreapi-other
+    - fvt-coreapi-uiresources
+    - fvt-coreapi-dependencies
+    - fvt-coreapi-utilities
+    - fvt-coreapi-messages

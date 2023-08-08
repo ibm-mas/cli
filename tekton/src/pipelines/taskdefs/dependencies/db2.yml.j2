@@ -11,6 +11,10 @@
     - name: ibm_entitlement_key
       value: $(params.ibm_entitlement_key)
 
+    # Operator Subscription
+    - name: db2_channel
+      value: $(params.db2_channel)
+
     # DB2 instance
     - name: db2_instance_name
 {% if suffix == "system" %}
@@ -27,6 +31,7 @@
       value: $(params.db2_namespace)
     - name: db2_dbname
       value: $(params.db2_dbname)
+
     - name: db2_version
       value: $(params.db2_version)
     - name: db2_workload

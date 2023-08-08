@@ -42,11 +42,8 @@ spec:
     # 2.2 Phase 2 of CoreAPI testing (~10m)
     {{ lookup('template', 'taskdefs/fvt-core/phase2.yml.j2') | indent(4) }}
 
-    # 2.3 Adoptionusage Metering test suite (~30m)
+    # 2.3 Miscellaneous test suites (~10m)
     {{ lookup('template', 'taskdefs/fvt-core/phase3.yml.j2') | indent(4) }}
 
-    # 2.4 Miscellaneous test suites (~10m)
+    # 2.4 Single-threaded suites
     {{ lookup('template', 'taskdefs/fvt-core/phase4.yml.j2') | indent(4) }}
-
-    # 2.5 Single-threaded suites
-    {{ lookup('template', 'taskdefs/fvt-core/phase5.yml.j2') | indent(4) }}

@@ -64,6 +64,11 @@ spec:
       runAfter:
         - pre-install-check
 
+    # 1.5 Configure Turbonomic
+    {{ lookup('template', 'taskdefs/cluster-setup/turbonomic.yml.j2') | indent(4) }}
+      runAfter:
+        - pre-install-check
+
 
     # 2. Install Universal Dependencies
     # -------------------------------------------------------------------------
@@ -193,8 +198,7 @@ spec:
     {{ lookup('template', 'taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
-        - db2-system
-        - db2-manage
+        - db2-manage  # db2-manage already waits for db2-system so we don't need to list both
 
     # 5.7 Configure Kafka in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
@@ -341,3 +345,4 @@ spec:
         - app-cfg-predict # infers Manage completed
         - app-cfg-monitor # infers IoT completed
         - app-cfg-visualinspection
+        - turbonomic

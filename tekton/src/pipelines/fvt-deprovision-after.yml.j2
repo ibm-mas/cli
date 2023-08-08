@@ -1,0 +1,63 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-fvt-deprovision-after
+spec:
+  params:
+    # Name of the PipelineRun to wait for
+    - name: pipelinerun_name
+      type: string
+
+    - name: ignore_failure
+      type: string
+      default: "True"
+      description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
+
+    # Tekton Pipeline image pull policy (for ibmmas/cli images)
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+
+    # Cluster to deprovision
+    - name: cluster_name
+      type: string
+      default: ""
+    - name: cluster_type
+      type: string
+      default: "roks"
+
+    - name: ibmcloud_apikey
+      type: string
+      default: ""
+
+
+  tasks:
+    # 0. Wait for the named pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-pipelinerun
+      taskRef:
+        kind: Task
+        name: mas-fvt-wait-for-pipelinerun
+      params:
+        - name: pipelinerun_name
+          value: $(params.pipelinerun_name)
+        - name: ignore_failure
+          value: $(params.ignore_failure)
+
+
+    # 1. Delete the named cluster
+    # -------------------------------------------------------------------------
+    - name: deprovision-cluster
+      taskRef:
+        kind: Task
+        name: mas-devops-ocp-deprovision
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: cluster_type
+          value: $(params.cluster_type)
+        - name: ibmcloud_apikey
+          value: $(params.ibmcloud_apikey)
+      runAfter:
+        - wait-for-pipelinerun
