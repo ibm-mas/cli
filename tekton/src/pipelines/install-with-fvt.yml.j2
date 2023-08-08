@@ -265,13 +265,13 @@ spec:
 
     # 12. Install & Configure Assist
     # -------------------------------------------------------------------------
+    # 12.3 Configure Assist workspace
+    {{ lookup('template', 'taskdefs/apps/assist-workspace.yml.j2') | indent(4) }}
+
     # 12.1 Assist Install
     {{ lookup('template', 'taskdefs/apps/assist-app.yml.j2') | indent(4) }}
       runAfter:
         - suite-config-cos
-
-    # 12.3 Configure Assist workspace
-    {{ lookup('template', 'taskdefs/apps/assist-workspace.yml.j2') | indent(4) }}
 
 
     # 14. MAS Core FVT
