@@ -29,7 +29,6 @@ LOG_DIR="$HOME/.ibm-mas/logs"
 LOGFILE=$LOG_DIR/mas.log
 
 VERSION=latest
-VERSION=6.3.0-pre.turbo
 
 mkdir -p $LOG_DIR
 mkdir -p $CONFIG_DIR
