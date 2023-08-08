@@ -1,3 +1,4 @@
+# Note: fvt-manage-last-phase is the last test of Manage Core. IVT must start after that.
 
 # -------------------------------------------------------------
 # Manage x Monitor - Data Dictionary
@@ -47,5 +48,5 @@
     - name: configs
       workspace: shared-configs
   runAfter:
-    - fvt-manage-workflow-designer
+    - fvt-manage-last-phase
     - ivtcore-monitor

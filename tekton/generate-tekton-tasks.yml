@@ -36,6 +36,7 @@
         - nvidia-gpu
         - ocp-verify
         - sls
+        - turbonomic
         - uds
 
     # 3. Generate Tasks (FVT)
@@ -48,11 +49,14 @@
         - fvt-assist-desktop
         - fvt-assist
         - fvt-core
+        - fvt-core-phase4
         - fvt-core-ui
         - fvt-manage
+        - fvt-manage-last-phase
         - fvt-manage-pytest
         - fvt-run-suite
         - fvt-wait-for-install
+        - fvt-wait-for-pipelinerun
 
     # 4. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
@@ -83,3 +87,12 @@
         - suite-uninstall
         - suite-upgrade
         - suite-verify
+
+    # 6. Generate Tasks (OCP)
+    # -------------------------------------------------------------------------
+    - name: Generate Tasks (Suite)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/ocp/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - ocp-deprovision

@@ -1,3 +1,6 @@
+# Note: last FVT test of Manage Core is fvt-manage-last-phase to avoid trigger
+# all the tests at the same time, be sure to start industry solution, mobile and
+# optimizer tests after this test instead of fvt-manage-setup
 - name: fvt-optimizer
   params:
     - name: mas_instance_id
@@ -86,8 +89,8 @@
   - name: configs
     workspace: shared-configs
   runAfter:
-   - fvt-manage-workflow-designer
-  #  - fvt-optimizer
+   - fvt-manage-last-phase
+   - fvt-optimizer
 
 - name: fvt-optimizer-manage-connection-setup
   taskRef:

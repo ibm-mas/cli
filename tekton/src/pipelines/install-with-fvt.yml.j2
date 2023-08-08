@@ -48,11 +48,14 @@ spec:
     # 12. Install & Configure Assist
     # 13. Install & Configure Visual Inspection
 
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-install-check', 'devops_suite_name': 'pre-install-check'}) | indent(4) }}
 
     # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
     # -------------------------------------------------------------------------
     # 1.1 IBM Operator Catalog
     {{ lookup('template', 'taskdefs/cluster-setup/ibm-catalogs.yml.j2') | indent(4) }}
+      runAfter:
+        - pre-install-check
 
     # 1.2 IBM Cloud Pak Foundational Services
     {{ lookup('template', 'taskdefs/cluster-setup/common-services.yml.j2') | indent(4) }}
@@ -66,6 +69,13 @@ spec:
 
     # 1.4 Configure Cluster Monitoring
     {{ lookup('template', 'taskdefs/cluster-setup/cluster-monitoring.yml.j2') | indent(4) }}
+      runAfter:
+        - pre-install-check
+
+    # 1.5 Configure Turbonomic
+    {{ lookup('template', 'taskdefs/cluster-setup/turbonomic.yml.j2') | indent(4) }}
+      runAfter:
+        - pre-install-check
 
 
     # 2. Install Universal Dependencies
@@ -140,20 +150,23 @@ spec:
     #     - cp4d
 
     # 3.8 Configure Watson Studio in MAS
-    # {{ lookup('template', 'taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
-    #   runAfter:
-    #     - fvt-operatormaturity
-    #     - watson-studio
+    {{ lookup('template', 'taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
+      runAfter:
+        - fvt-core-phase4
+        - watson-studio
+
 
     # 4. Other Dependecies
     # -------------------------------------------------------------------------
     # 4.1 Install Cloud Object Storage (COS)
     {{ lookup('template', 'taskdefs/dependencies/cos.yml.j2') | indent(4) }}
+      runAfter:
+        - pre-install-check
 
     # 4.2 Configure COS in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-cos.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-operatormaturity
+        - fvt-core-phase4
         - cos
 
     # 4.3 Nvidia GPU Operator
@@ -166,12 +179,14 @@ spec:
     # -------------------------------------------------------------------------
     # 5.1 Configure Workspace
     {{ lookup('template', 'taskdefs/core/gencfg-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - pre-install-check
 
     # 5.2 DNS Setup
     {{ lookup('template', 'taskdefs/core/suite-dns.yml.j2') | indent(4) }}
       runAfter:
         - cert-manager
-    
+
     # 5.3 Manual Certificates
     {{ lookup('template', 'taskdefs/core/suite-certs.yml.j2') | indent(4) }}
       runAfter:
@@ -198,14 +213,13 @@ spec:
     # 5.7 Configure Db2 in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-operatormaturity
-        - db2-system
-        - db2-manage
+        - fvt-core-phase4
+        - db2-manage  # db2-manage already waits for db2-system so we don't need to list both
 
     # 5.7 Configure Kafka in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-operatormaturity
+        - fvt-core-phase4
         - kafka
 
 
@@ -275,9 +289,9 @@ spec:
     # 10. Install & Configure Optimizer
     # -------------------------------------------------------------------------
     # 10.1 Optimizer Install
-    # {{ lookup('template', 'taskdefs/apps/optimizer-app.yml.j2') | indent(4) }}
-    #   runAfter:
-    #     - fvt-operatormaturity
+    {{ lookup('template', 'taskdefs/apps/optimizer-app.yml.j2') | indent(4) }}
+      runAfter:
+        - fvt-core-phase4
 
     # 10.2 Configure Optimizer workspace
     # {{ lookup('template', 'taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}
@@ -321,10 +335,10 @@ spec:
     # 13. Install & Configure Visual Inspection
     # -------------------------------------------------------------------------
     # 13.1 MVI Install
-    # {{ lookup('template', 'taskdefs/apps/visualinspection-app.yml.j2') | indent(4) }}
-    #   runAfter:
-    #     - nvidia-gpu
-    #     - fvt-operatormaturity
+    {{ lookup('template', 'taskdefs/apps/visualinspection-app.yml.j2') | indent(4) }}
+      runAfter:
+        - nvidia-gpu
+        - fvt-core-phase4
 
     # 13.2 Configure MVI workspace
     # {{ lookup('template', 'taskdefs/apps/visualinspection-workspace.yml.j2') | indent(4) }}
@@ -340,14 +354,11 @@ spec:
     # 14.2 Phase 2 of CoreAPI testing (~10m)
     {{ lookup('template', 'taskdefs/fvt-core/phase2.yml.j2') | indent(4) }}
 
-    # 14.3 Adoptionusage Metering test suite (~30m)
+    # 14.3 Miscellaneous test suites (~10m)
     {{ lookup('template', 'taskdefs/fvt-core/phase3.yml.j2') | indent(4) }}
 
-    # 14.4 Miscellaneous test suites (~10m)
+    # 14.4 Single-threaded suites
     {{ lookup('template', 'taskdefs/fvt-core/phase4.yml.j2') | indent(4) }}
-
-    # 14.5 Single-threaded suites
-    {{ lookup('template', 'taskdefs/fvt-core/phase5.yml.j2') | indent(4) }}
 
 
     # 15. MAS Core IVT
@@ -376,14 +387,30 @@ spec:
 
     # 19. Application FVT - Manage
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/manage.yml.j2') | indent(4) }}
+    # 19.1 Phase 0: User Sync
+    {{ lookup('template', 'taskdefs/fvt-manage/phase0.yml.j2') | indent(4) }}
 
-    
+    # 19.2 Phase 1: SetupWithMAS, Monitoring and others not depending on setup
+    {{ lookup('template', 'taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
+
+    # 19.3 Phase 2: MIF Setup and others
+    {{ lookup('template', 'taskdefs/fvt-manage/phase2.yml.j2') | indent(4) }}
+
+    # 19.4 Phase 3: JMS Inbound, Work Order Basic and others
+    {{ lookup('template', 'taskdefs/fvt-manage/phase3.yml.j2') | indent(4) }}
+
+    # 19.5 Phase 4: Doclinks, Kafka and others
+    {{ lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
+
+    # 19.6 Phase 5: Single-threaded suites (SMTP and others)
+    {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
+
+
     # 21. Application FVT - Manage Industry Solutions
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-apps/manage-industry-solutions.yml.j2') | indent(4) }}
 
-    
+
     # 22. Application FVT - Mobile Foundation
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-apps/mobile.yml.j2') | indent(4) }}
@@ -408,7 +435,7 @@ spec:
     # -------------------------------------------------------------------------
     # {{ lookup('template', 'taskdefs/fvt-apps/optimizer.yml.j2') | indent(4) }}
 
-    
+
     # 27. Applications IVT
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-apps/ivt.yml.j2') | indent(4) }}
