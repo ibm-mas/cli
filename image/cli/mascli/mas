@@ -28,8 +28,8 @@ CONFIG_DIR="$HOME/.ibm-mas/config"
 LOG_DIR="$HOME/.ibm-mas/logs"
 LOGFILE=$LOG_DIR/mas.log
 
+# Note: "latest" is overwritten with the actual version at build time
 VERSION=latest
-VERSION=6.3.0-pre.turbo
 
 mkdir -p $LOG_DIR
 mkdir -p $CONFIG_DIR
