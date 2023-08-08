@@ -1,0 +1,24 @@
+#!/bin/bash
+
+function config_pipeline_turbonomic() {
+  echo
+  echo_h2 "Configure Turbonomic"
+  echo "${TEXT_DIM}The IBM Turbonomic hybrid cloud cost optimization platform allows you to eliminate this guesswork with solutions that save time and optimize costs. Learn more: https://www.ibm.com/products/turbonomic"
+  reset_colors
+
+  prompt_for_confirm "Configure IBM Turbonomic integration?" CONFIGURE_TURBONOMIC
+
+  if [[ "$CONFIGURE_TURBONOMIC" == "true" ]]; then
+    prompt_for_input "Turbonomic Target Name" TURBONOMIC_TARGET_NAME
+    prompt_for_input "Turbonomic Server URL" TURBONOMIC_SERVER_URL
+    prompt_for_input "Turbonomic Server Version" TURBONOMIC_SERVER_VERSION
+    prompt_for_input "Turbonomic Username" TURBONOMIC_USERNAME
+    prompt_for_secret "Turbonomic Password" TURBONOMIC_PASSWORD
+  else
+    TURBONOMIC_SERVER_URL=""
+    TURBONOMIC_SERVER_VERSION=""
+    TURBONOMIC_TARGET_NAME=""
+    TURBONOMIC_USERNAME=""
+    TURBONOMIC_PASSWORD=""
+  fi
+}
