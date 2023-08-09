@@ -10,11 +10,16 @@ spec:
     # Entitlement
     - name: ibm_entitlement_key
       type: string
+      default: ""
 
     # Db2u Operator
     - name: db2_channel
       type: string
       description: Subscription channel for the Db2 Universal Operator
+      default: ""
+    - name: db2_action
+      type: string
+      description: Action to perform for db2u such as install or upgrade
       default: ""
 
     # Db2 - Instance
@@ -165,6 +170,8 @@ spec:
       # Db2u Operator
       - name: DB2_CHANNEL
         value: $(params.db2_channel)
+      - name: DB2_ACTION
+        value: $(params.db2_action)
 
       # Db2 - Instance
       - name: DB2_NAMESPACE
@@ -274,3 +281,4 @@ spec:
 
   workspaces:
     - name: configs
+      optional: true

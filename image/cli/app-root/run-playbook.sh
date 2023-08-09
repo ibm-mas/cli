@@ -14,6 +14,8 @@ source /opt/app-root/src/env.sh
 # oc whoami
 # oc auth can-i --list
 
+python3 /opt/app-root/src/register-start.py
+
 ansible-playbook ibm.mas_devops."$@"
 rc=$?
 python3 /opt/app-root/src/save-junit-to-mongo.py

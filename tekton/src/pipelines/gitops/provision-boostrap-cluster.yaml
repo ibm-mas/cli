@@ -10,6 +10,8 @@ spec:
   params:
     - name: cluster_name
       type: string
+    - name: ocp_version
+      type: string
     - name: avp_type
       type: string
     - name: avp_aws_secret_region
@@ -22,11 +24,7 @@ spec:
       type: string
     - name: github_pat
       type: string
-    - name: ocp_server
-      type: string
     - name: rosa_token
-      type: string
-    - name: rosa_admin_password
       type: string
     - name: account
       type: string
@@ -48,17 +46,35 @@ spec:
       type: string
     - name: common_services_channel
       type: string
-    - name: ocp_token
-      type: string
-    - name: vpc_id
-      type: string
     - name: vpc_ipv4_cidr
       type: string
     - name: mongo_provider
       type: string
       default: aws
   tasks:
+    - name: gitops-init-rosa
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: aws_region
+          value: $(params.avp_aws_secret_region)
+        - name: aws_secret_access_key
+          value: $(params.avp_aws_secret_key)
+        - name: aws_access_key_id
+          value: $(params.avp_aws_access_key)
+        - name: rosa_token
+          value: $(params.rosa_token)
+        - name: ocp_version
+          value: $(params.ocp_version)
+      taskRef:
+        kind: Task
+        name: gitops-init-rosa
+      workspaces:
+        - name: configs
+          workspace: configs
     - name: gitops-bootstrap
+      runAfter:
+        - gitops-init-rosa
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -74,17 +90,12 @@ spec:
           value: $(params.github_url)
         - name: github_pat
           value: $(params.github_pat)
-        - name: ocp_server
-          value: $(params.ocp_server)
-        - name: rosa_token
-          value: $(params.rosa_token)
-        - name: rosa_admin_password
-          value: $(params.rosa_admin_password)
-        - name: ocp_token
-          value: $(params.ocp_token)
       taskRef:
         kind: Task
         name: gitops-bootstrap
+      workspaces:
+        - name: configs
+          workspace: configs
     - name: gitops-init-cluster
       runAfter:
         - gitops-bootstrap
@@ -119,14 +130,6 @@ spec:
           value: $(params.avp_aws_access_key)
         - name: github_pat
           value: $(params.github_pat)
-        - name: ocp_server
-          value: $(params.ocp_server)
-        - name: rosa_token
-          value: $(params.rosa_token)
-        - name: rosa_admin_password
-          value: $(params.rosa_admin_password)
-        - name: ocp_token
-          value: $(params.ocp_token)
       taskRef:
         kind: Task
         name: gitops-init-cluster
@@ -149,8 +152,6 @@ spec:
           value: $(params.avp_aws_secret_key)
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
-        - name: vpc_id
-          value: $(params.vpc_id)
         - name: vpc_ipv4_cidr
           value: $(params.vpc_ipv4_cidr)
         - name: mongo_provider
