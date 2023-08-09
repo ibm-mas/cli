@@ -159,6 +159,7 @@ Provide the basic information about your MAS instance:
     - Must start with a lowercase letter
 
     Workspace display name restrictions:
+
     - Must be 3-300 characters long
     - Only the space (` `) whitespace character may be used
     - Must not start or end with a whitespace character
