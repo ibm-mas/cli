@@ -13,7 +13,7 @@ spec:
     - name: mas_core_version
       type: string
       description: MAS Core Rollback Version
-    - name: mas_core_rollback
+    - name: rollback_mas_core
       type: string
       default: "True"
       description: Flag to rollback MAS Core
@@ -23,7 +23,7 @@ spec:
       description: Flag to check MAS Core version match
     - name: skip_compatibility_check
       type: string
-      default: "False"
+      default: "True"
 
   stepTemplate:
     env:
@@ -33,8 +33,8 @@ spec:
         value: $(params.mas_instance_id)
       - name: MAS_CORE_VERSION
         value: $(params.mas_core_version)
-      - name: MAS_CORE_ROLLBACK
-        value: $(params.mas_core_rollback)
+      - name: ROLLBACK_MAS_CORE
+        value: $(params.rollback_mas_core)
       - name: VERIFY_CORE_VERSION
         value: $(params.verify_core_version)
       - name: SKIP_COMPATIBILITY_CHECK
