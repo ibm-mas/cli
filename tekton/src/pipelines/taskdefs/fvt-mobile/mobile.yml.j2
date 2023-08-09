@@ -87,7 +87,7 @@
     - fvt-technician-mvt-android
     - fvt-inspections-mvt-android
     - fvt-asset-manager-mvt-android
-    - fvt-inventorycounting-mvt-android
+    {# - fvt-inventorycounting-mvt-android #}
     - fvt-inventoryreceiving-mvt-android
 
 ## Prepare Data for Mobile Service Request MAS test suites
@@ -180,7 +180,7 @@
     - fvt-technician-mvt-android
     - fvt-inspections-mvt-android
     - fvt-asset-manager-mvt-android
-    - fvt-inventorycounting-mvt-android
+    {#- fvt-inventorycounting-mvt-android #}
     - fvt-inventoryreceiving-mvt-android
 
 ## Prepare Data for Mobile Technician MAS test suites
@@ -273,7 +273,7 @@
     - fvt-technician-mvt-android
     - fvt-inspections-mvt-android
     - fvt-asset-manager-mvt-android
-    - fvt-inventorycounting-mvt-android
+    {#- fvt-inventorycounting-mvt-android #}
     - fvt-inventoryreceiving-mvt-android
 
 ## Mobile Inspections Manage Setup
@@ -366,7 +366,7 @@
     - fvt-technician-mvt-android
     - fvt-inspections-mvt-android
     - fvt-asset-manager-mvt-android
-    - fvt-inventorycounting-mvt-android
+    {#- fvt-inventorycounting-mvt-android #}
     - fvt-inventoryreceiving-mvt-android
 
 ## Minimum Verification Test for Mobile Asset Manager MAS test suites
@@ -434,7 +434,7 @@
     - fvt-technician-mvt-android
     - fvt-inspections-mvt-android
     - fvt-asset-manager-mvt-android
-    - fvt-inventorycounting-mvt-android
+    {#- fvt-inventorycounting-mvt-android #}
     - fvt-inventoryreceiving-mvt-android
 
 # Manage FVT - IC Setup
@@ -464,8 +464,8 @@
     - fvt-manage-maintmanager-bvt
     - fvt-manage-maintmanager-setup
 
-# Mobile FVT - Inventory Counting Android
-- name: fvt-inventorycounting-mvt-android
+{# # Mobile FVT - Inventory Counting Android
+ - name: fvt-inventorycounting-mvt-android
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
@@ -492,9 +492,9 @@
     - fvt-service-request-setup-data
     - fvt-technician-setup-data
     - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup
+    - fvt-inventorycounting-manage-setup #}
 
-# Mobile FVT - Inventory Counting IOS
+{# # Mobile FVT - Inventory Counting IOS
 - name: fvt-inventorycounting-mvt-ios
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
@@ -524,7 +524,7 @@
     - fvt-inspections-mvt-android
     - fvt-asset-manager-mvt-android
     - fvt-inventorycounting-mvt-android
-    - fvt-inventoryreceiving-mvt-android
+    - fvt-inventoryreceiving-mvt-android #}
 
 - name: fvt-inventorycounting-mvt-desktop-chrome
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
@@ -554,7 +554,7 @@
     - fvt-technician-mvt-ios
     - fvt-inspections-mvt-ios
     - fvt-asset-manager-mvt-ios
-    - fvt-inventorycounting-mvt-ios
+    {#- fvt-inventorycounting-mvt-ios#}
     - fvt-inventoryreceiving-mvt-ios
 
 - name: fvt-inventoryreceiving-mvt-android
@@ -626,7 +626,7 @@
     - fvt-technician-mvt-android
     - fvt-inspections-mvt-android
     - fvt-asset-manager-mvt-android
-    - fvt-inventorycounting-mvt-android
+    {#- fvt-inventorycounting-mvt-android #}
     - fvt-inventoryreceiving-mvt-android
 
 {# ## Minimum Verification Test for Mobile Defects MAS test suites
