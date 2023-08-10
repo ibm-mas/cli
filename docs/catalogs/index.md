@@ -38,16 +38,23 @@ The static operator catalogs provide a fixed reference point, if you use a stati
 To receive security updates and bug fixes you must periodically update the version of the static catalog that you have installed in the cluster.  Once you do this all operators that you have installed from the catalog will automatically update to the newer version.  We aim to release a catalog update monthly.
 
 #### 2023
-- [v8-230627-amd64](v8-230627-amd64.md)
-- [v8-230616-amd64](v8-230616-amd64.md)
-- [v8-230526-amd64](v8-230526-amd64.md)
-- [v8-230518-amd64](v8-230518-amd64.md)
-- [v8-230414-amd64](v8-230414-amd64.md)
-- [v8-230314-amd64](v8-230314-amd64.md)
+| Catalog                               | OCP Support | End of Support                  |
+| ------------------------------------- | ----------- | ------------------------------- |
+| [v8-230725-amd64](v8-230725-amd64.md) | 4.10 - 4.12 | OCP 4.12 EOS January 17, 2025   |
+| [v8-230721-amd64](v8-230721-amd64.md) | 4.10 - 4.12 | OCP 4.12 EOS January 17, 2025   |
+| [v8-230616-amd64](v8-230616-amd64.md) | 4.10 - 4.12 | OCP 4.12 EOS January 17, 2025   |
+| [v8-230526-amd64](v8-230526-amd64.md) | 4.10        | OCP 4.10 EOS September 10, 2023 |
+| [v8-230518-amd64](v8-230518-amd64.md) | 4.10        | OCP 4.10 EOS September 10, 2023 |
+| [v8-230414-amd64](v8-230414-amd64.md) | 4.8 - 4.10  | OCP 4.10 EOS September 10, 2023 |
+| [v8-230314-amd64](v8-230314-amd64.md) | 4.8 - 4.10  | OCP 4.10 EOS September 10, 2023 |
+| [v8-230217-amd64](v8-230217-amd64.md) | 4.8 - 4.10  | OCP 4.10 EOS September 10, 2023 |
+| [v8-230111-amd64](v8-230111-amd64.md) | 4.8 - 4.10  | OCP 4.10 EOS September 10, 2023 |
 
 #### 2022
-- [v8-221228-amd64](v8-221228-amd64.md)
-- [v8-221129-amd64](v8-221129-amd64.md)
-- [v8-221025-amd64](v8-221025-amd64.md)
-- [v8-220927-amd64](v8-220927-amd64.md)
-- [v8-220805-amd64](v8-220805-amd64.md)
+| Catalog                               | OCP Support | End of Support                  |
+| ------------------------------------- | ----------- | ------------------------------- |
+| [v8-221228-amd64](v8-221228-amd64.md) | 4.6 - 4.10  | OCP 4.10 EOS September 10, 2023 |
+| [v8-221129-amd64](v8-221129-amd64.md) | 4.6 - 4.10  | OCP 4.10 EOS September 10, 2023 |
+| [v8-221025-amd64](v8-221025-amd64.md) | 4.6 - 4.10  | OCP 4.10 EOS September 10, 2023 |
+| [v8-220927-amd64](v8-220927-amd64.md) | 4.6 - 4.10  | OCP 4.10 EOS September 10, 2023 |
+| [v8-220805-amd64](v8-220805-amd64.md) | 4.6 - 4.10  | OCP 4.10 EOS September 10, 2023 |

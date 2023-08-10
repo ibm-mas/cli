@@ -35,14 +35,6 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: ocp_server
-      type: string
-    - name: rosa_token
-      type: string
-    - name: rosa_admin_password
-      type: string
-    - name: ocp_token
-      type: string
   stepTemplate:
     name: gitops-init-cluster
     env:
@@ -83,13 +75,11 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        export ROLE_NAME=ocp_login
-        export CLUSTER_TYPE=rosa
-        export OCP_SERVER=$(params.ocp_server)
-        export OCP_TOKEN=$(params.ocp_token)
-        export ROSA_TOKEN=$(params.rosa_token)
-        export ROSA_CLUSTER_ADMIN_PASSWORD=$(params.rosa_admin_password)
-        ansible-playbook ibm.mas_devops.run_role
+        ROSA_CONFIG=/workspace/configs/tmp-rosa-init/rosa-$(params.cluster_name)-details.yaml
+        export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
+        export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
+        export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
+        oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
 
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)

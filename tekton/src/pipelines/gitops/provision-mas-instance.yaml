@@ -60,6 +60,8 @@ spec:
       type: string
     - name: ocp_token
       type: string
+    - name: aws_key_pair_name
+      type: string
   tasks:
     - name: gitops-create-mongo-user
       params:
