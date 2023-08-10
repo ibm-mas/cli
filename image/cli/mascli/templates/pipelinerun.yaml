@@ -301,6 +301,9 @@ spec:
     - name: mas_icr_cpopen
       value: '$MAS_ICR_CPOPEN'
 
+    - name: mas_trust_default_cas
+      value: '$MAS_TRUST_DEFAULT_CAS'
+
     # MAS Workspace
     # -------------------------------------------------------------------------
     - name: mas_workspace_id
