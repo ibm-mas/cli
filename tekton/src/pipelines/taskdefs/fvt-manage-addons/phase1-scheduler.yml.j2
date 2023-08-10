@@ -73,6 +73,21 @@
   runAfter:
     - fvt-manage-scheduler-setup
 
+# Manage FVT - Scheduler
+- name: fvt-manage-scheduler-4
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: scheduler-4
+    - name: fvt_mas_appws_component
+      value: scheduler
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-scheduler-setup
+
 # Manage FVT - Scheduler - Scheduling Dashboard
 - name: fvt-manage-scheduler-scheduling-dashboard
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
@@ -91,6 +106,7 @@
     - fvt-manage-scheduler-1
     - fvt-manage-scheduler-2
     - fvt-manage-scheduler-3
+    - fvt-manage-scheduler-4
 
 # Manage FVT - Scheduler - Scheduling Dashboard
 - name: fvt-manage-scheduler-dispatching-dashboard
@@ -110,3 +126,4 @@
     - fvt-manage-scheduler-1
     - fvt-manage-scheduler-2
     - fvt-manage-scheduler-3
+    - fvt-manage-scheduler-4
