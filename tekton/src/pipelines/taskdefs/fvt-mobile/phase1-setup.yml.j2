@@ -23,7 +23,8 @@
       values: [""]
   runAfter:
     - fvt-manage-maintmanager-bvt
-    - fvt-manage-maintmanager-setup
+    - fvt-manage-maintmanager-fvt
+    {# - fvt-manage-maintmanager-setup #}
 
 ## Prepare Data for Mobile Service Request MAS test suites
 - name: fvt-service-request-setup-data
@@ -50,7 +51,8 @@
       values: [""]
   runAfter:
     - fvt-manage-maintmanager-bvt
-    - fvt-manage-maintmanager-setup
+    - fvt-manage-maintmanager-fvt
+    {# - fvt-manage-maintmanager-setup #}
 
 ## Prepare Data for Mobile Technician MAS test suites
 - name: fvt-technician-setup-data
@@ -77,7 +79,8 @@
       values: [""]
   runAfter:
     - fvt-manage-maintmanager-bvt
-    - fvt-manage-maintmanager-setup
+    - fvt-manage-maintmanager-fvt
+    {# - fvt-manage-maintmanager-setup #}
 
 ## Mobile Inspections Manage Setup
 - name: fvt-inspections-setup-data
@@ -104,7 +107,8 @@
       values: [""]
   runAfter:
     - fvt-manage-maintmanager-bvt
-    - fvt-manage-maintmanager-setup
+    - fvt-manage-maintmanager-fvt
+    {# - fvt-manage-maintmanager-setup #}
 
 # Manage FVT - IC Setup
 - name: fvt-inventorycounting-manage-setup
@@ -131,5 +135,6 @@
       values: [""]
   runAfter:
     - fvt-manage-maintmanager-bvt
-    - fvt-manage-maintmanager-setup
+    - fvt-manage-maintmanager-fvt
+    {# - fvt-manage-maintmanager-setup #}
 
