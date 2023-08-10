@@ -92,7 +92,7 @@
   runAfter:
     - fvt-manage-avi-reg2-2
 
-# Manage FVT - Scheduler
+{# # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-5
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
@@ -138,7 +138,7 @@
   runAfter:
     - fvt-manage-scheduler-1
     - fvt-manage-scheduler-2
-    - fvt-manage-scheduler-3
+    - fvt-manage-scheduler-3 #}
 
 # Service Provider FVT - Regression Lane 1 - Task 1
 - name: fvt-manage-sp-reg1-1

@@ -363,6 +363,10 @@ spec:
       value: '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL'
     - name: mas_app_settings_customization_archive_name
       value: '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME'
+    - name: mas_app_settings_customization_archive_username
+      value: '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME'
+    - name: mas_app_settings_customization_archive_password
+      value: '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD'
 
     # Monitor Application
     # -------------------------------------------------------------------------

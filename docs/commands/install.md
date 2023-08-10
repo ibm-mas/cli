@@ -145,6 +145,25 @@ Provide the basic information about your MAS instance:
 - Workspace ID
 - Workspace Display Name
 
+!!! important
+    Instance ID restrictions:
+
+    - Must be 3-12 characters long
+    - Must only use lowercase letters, numbers, and hypen (`-`) symbol
+    - Must start with a lowercase letter
+    - Must end with a lowercase letter or a number
+
+    Workspace ID restrictions:
+
+    - Must be 3-12 characters long
+    - Must only use lowercase letters and numbers
+    - Must start with a lowercase letter
+
+    Workspace display name restrictions:
+
+    - Must be 3-300 characters long
+    - Only the space (` `) whitespace character may be used
+    - Must not start or end with a whitespace character
 
 ### Step 6: Configure Operation Mode
 The install will default to a production mode installation, but by choosing "y" at the prompt you will be able to install MAS in non-production mode.

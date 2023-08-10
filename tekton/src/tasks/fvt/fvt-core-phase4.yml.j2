@@ -18,6 +18,9 @@ spec:
     - name: fvt_image_digest
       type: string
       description: FVT Container Image Digest
+    - name: fvt_ui_image_digest
+      type: string
+      description: FVT Container Image Digest for UI container
 
     # Test Framework Information
     # -------------------------------------------------------------------------
@@ -162,7 +165,7 @@ spec:
     # 4. coreidp-saml-ui
     # -------------------------------------------------------------------------
     - name: fvt-coreidp-saml-ui
-      image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'
+      image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas-ui@$(params.fvt_ui_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 2h0m0s # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
