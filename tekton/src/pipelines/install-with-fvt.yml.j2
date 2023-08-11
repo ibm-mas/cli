@@ -375,75 +375,9 @@ spec:
     {{ lookup('template', 'taskdefs/ivt-core/manage.yml.j2') | indent(4) }}
 
 
-    # 16. Application FVT - Assist
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/assist.yml.j2') | indent(4) }}
-
-
-    # 17. Application FVT - HP Utilities
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/hputilities.yml.j2') | indent(4) }}
-
-
-    # 18. Application FVT - IoT
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/iot.yml.j2') | indent(4) }}
-
-
-    # 19. Application FVT - Manage
-    # -------------------------------------------------------------------------
-    # 19.1 Phase 0: User Sync
-    {{ lookup('template', 'taskdefs/fvt-manage/phase0.yml.j2') | indent(4) }}
-
-    # 19.2 Phase 1: SetupWithMAS, Monitoring and others not depending on setup
-    {{ lookup('template', 'taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
-
-    # 19.3 Phase 2: MIF Setup and others
-    {{ lookup('template', 'taskdefs/fvt-manage/phase2.yml.j2') | indent(4) }}
-
-    # 19.4 Phase 3: JMS Inbound, Work Order Basic and others
-    {{ lookup('template', 'taskdefs/fvt-manage/phase3.yml.j2') | indent(4) }}
-
-    # 19.5 Phase 4: Doclinks, Kafka and others
-    {{ lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
-
-    # 19.6 Phase 5: Single-threaded suites (SMTP and others)
-    {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
-
-
-    # 21. Application FVT - Manage Industry Solutions
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/manage-industry-solutions.yml.j2') | indent(4) }}
-
-
-    # 22. Application FVT - Mobile Foundation
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/mobile.yml.j2') | indent(4) }}
-
-
-    # 23. Application FVT - Monitor
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/monitor.yml.j2') | indent(4) }}
-
-
     # 24. Application FVT - Predict
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-apps/predict.yml.j2') | indent(4) }}
-
-
-    # 25. Application FVT - Visual Inspection
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/visualinspection.yml.j2') | indent(4) }}
-
-
-    # 26. Application FVT - Optimizer
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/optimizer.yml.j2') | indent(4) }}
-
-
-    # 27. Applications IVT
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/ivt.yml.j2') | indent(4) }}
 
 
   # Mustgather executed in finally block. Use suite_mustgather_download
