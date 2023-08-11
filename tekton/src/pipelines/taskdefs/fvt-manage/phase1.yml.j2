@@ -2,8 +2,8 @@
 # PHASE 1
 # - fvt-manage-setup
 # - fvt-manage-monitoring
-# - fvt-manage-security-audit-logging
-# - fvt-manage-security-inactive-auth
+# - fvt-manage-sec-audit-log
+# - fvt-manage-sec-inactive-auth
 # -------------------------------------------------------------
 
 # Manage FVT Setup
@@ -37,7 +37,7 @@
     - fvt-manage-usersync
 
 # Manage FVT Security Audit Logging
-- name: fvt-manage-security-audit-logging
+- name: fvt-manage-sec-audit-log
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
@@ -45,12 +45,12 @@
     - name: fvt_test_suite_prefix
       value: core
     - name: fvt_test_suite
-      value: security-audit-logging
+      value: sec-audit-log
   runAfter:
     - fvt-manage-usersync
 
 # Manage FVT Inactive User Authentication
-- name: fvt-manage-security-inactive-auth
+- name: fvt-manage-sec-inactive-auth
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
@@ -58,6 +58,6 @@
     - name: fvt_test_suite_prefix
       value: core
     - name: fvt_test_suite
-      value: security-inactiveuser-authentication
+      value: sec-inactive-auth
   runAfter:
     - fvt-manage-usersync
