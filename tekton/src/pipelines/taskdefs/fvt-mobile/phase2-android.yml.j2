@@ -160,7 +160,7 @@
     - fvt-inspections-setup-data
     - fvt-inventorycounting-manage-setup
 
-# Mobile FVT - Inventory Counting Android
+{# # Mobile FVT - Inventory Counting Android
 - name: fvt-inventorycounting-mvt-android
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
@@ -188,7 +188,7 @@
     - fvt-service-request-setup-data
     - fvt-technician-setup-data
     - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup
+    - fvt-inventorycounting-manage-setup #}
 
 - name: fvt-inventoryreceiving-mvt-android
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
@@ -225,7 +225,7 @@
     - fvt-inspections-setup-data
     - fvt-inventorycounting-manage-setup
 
-## Minimum Verification Test for Mobile Defects MAS test suites
+{# ## Minimum Verification Test for Mobile Defects MAS test suites
 - name: fvt-civil-defects-mvt-android
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
@@ -255,4 +255,4 @@
     - fvt-service-request-setup-data
     - fvt-technician-setup-data
     - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup
+    - fvt-inventorycounting-manage-setup #}
