@@ -379,18 +379,3 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-apps/predict.yml.j2') | indent(4) }}
 
-
-  # Mustgather executed in finally block. Use suite_mustgather_download
-  # playbook to retrieve the output on your local machine
-  # -------------------------------------------------------------------------
-  finally:
-    - name: must-gather
-      params:
-        - name: base_output_dir
-          value: "/workspace/mustgather/$(context.pipelineRun.name)"
-      taskRef:
-        kind: Task
-        name: mas-devops-must-gather
-      workspaces:
-        - name: mustgather
-          workspace: shared-mustgather
