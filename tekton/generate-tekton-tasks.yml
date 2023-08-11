@@ -36,6 +36,7 @@
         - nvidia-gpu
         - ocp-verify
         - sls
+        - turbonomic
         - uds
 
     # 3. Generate Tasks (FVT)
@@ -48,8 +49,10 @@
         - fvt-assist-desktop
         - fvt-assist
         - fvt-core
+        - fvt-core-phase4
         - fvt-core-ui
         - fvt-manage
+        - fvt-manage-last-phase
         - fvt-manage-pytest
         - fvt-run-suite
         - fvt-wait-for-install

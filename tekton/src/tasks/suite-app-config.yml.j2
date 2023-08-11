@@ -91,6 +91,22 @@ spec:
       type: string
       description: Name of the Manage database schema
       default: ""
+    - name: mas_app_settings_customization_archive_url
+      type: string
+      description: URL of the Manage archive
+      default: ""
+    - name: mas_app_settings_customization_archive_name
+      type: string
+      description: Name of the Manage archive
+      default: ""
+    - name: mas_app_settings_customization_archive_username
+      type: string
+      description: Username to authenticate into Manage custom archive url (if required)
+      default: ""
+    - name: mas_app_settings_customization_archive_password
+      type: string
+      description: Password to authenticate into Manage custom archive url (if required)
+      default: ""
 
     # Application Workspace - Operand (Predict)
     - name: predict_deployment_size
@@ -181,6 +197,14 @@ spec:
         value: $(params.mas_app_settings_indexspace)
       - name: MAS_APP_SETTINGS_DB2_SCHEMA
         value: $(params.mas_app_settings_db2_schema)
+      - name: MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL
+        value: $(params.mas_app_settings_customization_archive_url)
+      - name: MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME
+        value: $(params.mas_app_settings_customization_archive_name)
+      - name: MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME
+        value: $(params.mas_app_settings_customization_archive_username)
+      - name: MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD
+        value: $(params.mas_app_settings_customization_archive_password)
 
       # Application Workspace - Operand (Predict)
       - name: PREDICT_DEPLOYMENT_SIZE

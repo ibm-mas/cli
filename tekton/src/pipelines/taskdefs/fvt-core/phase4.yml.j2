@@ -1,63 +1,33 @@
-# Only start phase 4 tests after all suites in phase 3 are complete
-
-# FVT4.1 internalapi ~10m
-- name: fvt-internalapi
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+- name: fvt-core-phase4
+  taskRef:
+    kind: Task
+    name: mas-fvt-core-phase4
+  when:
+    - input: "$(params.fvt_digest_core)"
+      operator: notin
+      values: [""]
+  workspaces:
+    - name: configs
+      workspace: shared-configs
   params:
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
-      value: internalapi
-  runAfter:
-    - fvt-adoptionusagemetering
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+    - name: product_channel
+      value: $(params.mas_channel)
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_core)
+    - name: fvt_ui_image_digest
+      value: $(params.fvt_digest_coreui)
 
-# FVT4.2 catalogapi ~5m
-- name: fvt-catalogapi
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
-      value: catalogapi
   runAfter:
-    - fvt-adoptionusagemetering
-
-# FVT4.3 ibmadminissuer 5m
-- name: fvt-ibmadminissuer
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
-      value: ibmadminissuer
-  runAfter:
-    - fvt-adoptionusagemetering
-
-# FVT4.4 milestonesapi ~5m
-- name: fvt-milestonesapi
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
-      value: milestonesapi
-  runAfter:
-    - fvt-adoptionusagemetering
-
-# FVT4.5 adoptionusageapi ~5m
-- name: fvt-adoptionusageapi
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
-      value: adoptionusageapi
-  runAfter:
-    - fvt-adoptionusagemetering
-
-# FVT4.6 accapppoints ~5m
-- name: fvt-accapppoints
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
-      value: accapppoints
-    - name: ddp_apikey
-      value: $(params.ddp_apikey)
-  runAfter:
-    - fvt-adoptionusagemetering
+    # Only start after all suites in phase 4 are complete
+    - fvt-internalapi
+    - fvt-catalogapi
+    - fvt-ibmadminissuer
+    - fvt-milestonesapi
+    - fvt-adoptionusageapi
+    - fvt-accapppoints

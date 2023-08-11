@@ -1,12 +1,12 @@
 # Only start phase 2 tests after all suites in phase 1 are complete
 
-# Core FVT 2.1 coreapi-mobileapi ~5m
-- name: fvt-coreapi-mobileapi
+# Core FVT 2.0 coreapi-usermgmt-v3 ~30m
+- name: fvt-coreapi-usermgmt-v3
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    - name: test_suite
-      value: coreapi-mobileapi
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: test_suite
+      value: coreapi-usermgmt-v3
   runAfter:
     - fvt-coreapi-addons
     - fvt-coreapi-groupmgmt
@@ -17,6 +17,17 @@
     - fvt-useractivation-overall
     - fvt-useractivation-expiresat
     - fvt-useractivation-inactivity
+
+
+# Core FVT 2.1 coreapi-mobileapi ~5m
+- name: fvt-coreapi-mobileapi
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: test_suite
+      value: coreapi-mobileapi
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - fvt-coreapi-usermgmt-v3
 
 # Core FVT 2.2 coreapi-other ~5m
 - name: fvt-coreapi-other
@@ -26,15 +37,7 @@
     - name: test_suite
       value: coreapi-other
   runAfter:
-    - fvt-coreapi-addons
-    - fvt-coreapi-groupmgmt
-    - fvt-coreapi-usermgmt
-    - fvt-coreapi-apikeymgmt
-    - fvt-coreapi-workspacemgmt
-    - fvt-coreapi-graphiteconfigtool
-    - fvt-useractivation-overall
-    - fvt-useractivation-expiresat
-    - fvt-useractivation-inactivity
+    - fvt-coreapi-usermgmt-v3
 
 # Core FVT 2.3 coreapi-utilities ~5m
 - name: fvt-coreapi-utilities
@@ -44,15 +47,7 @@
     - name: test_suite
       value: coreapi-utilities
   runAfter:
-    - fvt-coreapi-addons
-    - fvt-coreapi-groupmgmt
-    - fvt-coreapi-usermgmt
-    - fvt-coreapi-apikeymgmt
-    - fvt-coreapi-workspacemgmt
-    - fvt-coreapi-graphiteconfigtool
-    - fvt-useractivation-overall
-    - fvt-useractivation-expiresat
-    - fvt-useractivation-inactivity
+    - fvt-coreapi-usermgmt-v3
 
 # Core FVT 2.4 coreapi-uiresources ~5m
 - name: fvt-coreapi-uiresources
@@ -62,15 +57,7 @@
     - name: test_suite
       value: coreapi-uiresources
   runAfter:
-    - fvt-coreapi-addons
-    - fvt-coreapi-groupmgmt
-    - fvt-coreapi-usermgmt
-    - fvt-coreapi-apikeymgmt
-    - fvt-coreapi-workspacemgmt
-    - fvt-coreapi-graphiteconfigtool
-    - fvt-useractivation-overall
-    - fvt-useractivation-expiresat
-    - fvt-useractivation-inactivity
+    - fvt-coreapi-usermgmt-v3
 
 # Core FVT 2.5 coreapi-dependencies ~10m
 - name: fvt-coreapi-dependencies
@@ -80,10 +67,12 @@
     - name: test_suite
       value: coreapi-dependencies
   runAfter:
-    - fvt-coreapi-mobileapi
-    - fvt-coreapi-other
-    - fvt-coreapi-utilities
-    - fvt-coreapi-uiresources
+    - fvt-coreapi-addons
+    - fvt-coreapi-groupmgmt
+    - fvt-coreapi-usermgmt
+    - fvt-coreapi-apikeymgmt
+    - fvt-coreapi-workspacemgmt
+    - fvt-coreapi-graphiteconfigtool
     - fvt-useractivation-overall
     - fvt-useractivation-expiresat
     - fvt-useractivation-inactivity
@@ -96,10 +85,12 @@
     - name: test_suite
       value: coreapi-messages
   runAfter:
-    - fvt-coreapi-mobileapi
-    - fvt-coreapi-other
-    - fvt-coreapi-utilities
-    - fvt-coreapi-uiresources
+    - fvt-coreapi-addons
+    - fvt-coreapi-groupmgmt
+    - fvt-coreapi-usermgmt
+    - fvt-coreapi-apikeymgmt
+    - fvt-coreapi-workspacemgmt
+    - fvt-coreapi-graphiteconfigtool
     - fvt-useractivation-overall
     - fvt-useractivation-expiresat
     - fvt-useractivation-inactivity
