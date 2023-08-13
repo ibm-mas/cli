@@ -354,7 +354,6 @@ function ocp_version_check() {
 
 
 function install() {
-  CLUSTER_MONITORING_INCLUDE_GRAFANA=False
   # Take the first parameter off (it will be mirror-images)
   shift
   if [[ $# -gt 0 ]]; then

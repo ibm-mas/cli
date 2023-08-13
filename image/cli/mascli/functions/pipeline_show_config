@@ -138,6 +138,14 @@ function pipeline_show_config() {
 
   reset_colors
   echo "${TEXT_DIM}"
+  echo_h4 "Cluster Monitoring" "    "
+  if [[ "${MAS_APP_CHANNEL_OPTIMIZER}" == '' ]]
+    then echo_reset_dim "Include Grafana ........... ${COLOR_RED}Package not available"
+    else echo_reset_dim "Include Grafana ........... ${COLOR_MAGENTA}Yes"
+  fi
+
+  reset_colors
+  echo "${TEXT_DIM}"
   echo_h4 "Storage Class Configuration" "    "
   echo_reset_dim "Storage Class Provider ... ${COLOR_MAGENTA}${STORAGE_CLASS_PROVIDER}"
   if [[ "$STORAGE_CLASS_PROVIDER" == "custom" ]]; then
