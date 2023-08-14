@@ -1,9 +1,9 @@
 # -------------------------------------------------------------
 # PHASE 4
 # - fvt-manage-mif-kafka
-# - fvt-manage-wo-attach-docs
+# - fvt-manage-wo-doclink
 # - fvt-manage-directprint-reports
-# - fvt-manage-newuser-update
+# - fvt-manage-user-crud
 # - fvt-manage-communication-temp
 # -------------------------------------------------------------
 
@@ -34,7 +34,7 @@
     - name: configs
       workspace: shared-configs
   runAfter:
-    - fvt-manage-wobasic
+    - fvt-manage-wo-basic
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
@@ -42,7 +42,7 @@
     - fvt-manage-mif-kafka-setup
 
 # Manage FVT Work Order Attachments
-- name: fvt-manage-wo-attach-docs
+- name: fvt-manage-wo-doclink
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
@@ -50,9 +50,9 @@
     - name: fvt_test_suite_prefix
       value: core
     - name: fvt_test_suite
-      value: wo-configure-attach-docs
+      value: wo-doclink
   runAfter:
-    - fvt-manage-wobasic
+    - fvt-manage-wo-basic
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
@@ -71,7 +71,7 @@
       value: directprint-reports
   # Update runAfter list with new PHASE 4 tests
   runAfter:
-    - fvt-manage-wobasic
+    - fvt-manage-wo-basic
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
@@ -79,7 +79,7 @@
     - fvt-manage-mif-kafka-setup
 
 # Manage FVT New User Update/Delete/Verufy
-- name: fvt-manage-newuser-update
+- name: fvt-manage-user-crud
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
@@ -87,9 +87,9 @@
     - name: fvt_test_suite_prefix
       value: core
     - name: fvt_test_suite
-      value: newuser-update-delete-verify
+      value: user-crud
   runAfter:
-    - fvt-manage-wobasic
+    - fvt-manage-wo-basic
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
@@ -107,7 +107,7 @@
     - name: fvt_test_suite
       value: communication-temp
   runAfter:
-    - fvt-manage-wobasic
+    - fvt-manage-wo-basic
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound

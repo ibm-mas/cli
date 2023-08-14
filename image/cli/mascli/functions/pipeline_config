@@ -110,14 +110,12 @@ function pipeline_config() {
   fi
   echo
 
-  # Workspace display name regex: ^[^\ \t\n\r\f\v][^\t\n\r\f\v]{1,298}[^\ \t\n\r\f\v]$
+  # Workspace display name regex: ^.{3,300}$
   echo "${TEXT_DIM}Workspace display name restrictions:"
   echo " - Must be 3-300 characters long"
-  echo " - Only the space ( ) whitespace character may be used"
-  echo " - Must not start or end with a whitespace character"
   reset_colors
   prompt_for_input "MAS Workspace Display Name" MAS_WORKSPACE_NAME
-  if [[ ! "${MAS_WORKSPACE_NAME}" =~ ^[^\ \t\n\r\f\v][^\t\n\r\f\v]{1,298}[^\ \t\n\r\f\v]$ ]]; then
+  if [[ ! "${MAS_WORKSPACE_NAME}" =~ ^.{3,300}$ ]]; then
     echo_warning "Workspace name (${MAS_WORKSPACE_NAME}) does not meet requirements"
     exit 1
   fi
