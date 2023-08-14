@@ -138,8 +138,8 @@ function pipeline_show_config() {
 
   reset_colors
   echo "${TEXT_DIM}"
-  echo_h4 "Cluster Monitoring" "    "
-  if [[ "${MAS_APP_CHANNEL_OPTIMIZER}" == '' ]]
+  echo_h4 "Cluster Monitoring" "    "CLUSTER_MONITORING_INCLUDE_GRAFANA
+  if [[ "${CLUSTER_MONITORING_INCLUDE_GRAFANA}" == 'False' ]]
     then echo_reset_dim "Include Grafana ........... ${COLOR_RED}Package not available"
     else echo_reset_dim "Include Grafana ........... ${COLOR_MAGENTA}Yes"
   fi
