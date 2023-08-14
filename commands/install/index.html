@@ -52,21 +52,29 @@
                   <li class="toctree-l1"><a class="reference internal" href="../../guides/upgrade/">Upgrade</a>
                   </li>
               </ul>
-              <p class="caption"><span class="caption-text">Commands</span></p>
-              <ul class="current">
+              <p class="caption"><span class="caption-text">OpenShift Management</span></p>
+              <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../provision-fyre/">provision-fyre</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../provision-roks/">provision-roks</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../provision-rosa/">provision-rosa</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../configure-airgap/">configure-airgap</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Image Mirroring</span></p>
+              <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../setup-registry/">setup-registry</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../mirror-images/">mirror-images</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../mirror-redhat-images/">mirror-redhat-images</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../configure-airgap/">configure-airgap</a>
+              </ul>
+              <p class="caption"><span class="caption-text">MAS Management</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../configtool-oidc/">configtool-oidc</a>
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">install</a>
     <ul class="current">
@@ -164,14 +172,19 @@
     </li>
     </ul>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../must-gather/">must-gather</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../update/">update</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../configtool-oidc/">configtool-oidc</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../upgrade/">upgrade</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Troubleshooting</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../must-gather/">must-gather</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Catalogs</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/">Overview</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/">All Catalogs</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-230725-amd64/">Jul 25 2023</a>
                   </li>
@@ -196,7 +209,7 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
-          <li>Commands &raquo;</li>
+          <li>MAS Management &raquo;</li>
       <li class="breadcrumb-item active">install</li>
     <li class="wy-breadcrumbs-aside">
           <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/install.md" class="icon icon-github"> Edit on GitHub</a>
@@ -386,11 +399,13 @@ mas install
 <p>If you have already generated the configuration file (manually, or using the install previously) the CLI will detect this and prompt whether you wish to re-use the existing configuration, or generate a new one.</p>
 </div>
 <h3 id="step-10-configure-turbonomic">Step 10. Configure Turbonomic<a class="headerlink" href="#step-10-configure-turbonomic" title="Permanent link"></a></h3>
-<p>Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step, here you will be asked whether you wish to provide any additional configurations and if you do in what directory they reside.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If you provided one or more JDBC configurations in step 9 then additional configurations will already be enabled and be pointing at the directory you chose for the JDBC configurations.</p>
-</div>
+<p>The <a href="https://www.ibm.com/products/turbonomic">IBM Turbonomic</a> hybrid cloud cost optimization platform allows you to eliminate this guesswork with solutions that save time and optimize costs.  To enable Turbonomic integration you must provide the following information:</p>
+<ul>
+<li>Target name</li>
+<li>Server URL</li>
+<li>Server version</li>
+<li>Authentication credentials (username &amp; password)</li>
+</ul>
 <h3 id="step-11-additional-configurations">Step 11. Additional Configurations<a class="headerlink" href="#step-11-additional-configurations" title="Permanent link"></a></h3>
 <p>Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step, here you will be asked whether you wish to provide any additional configurations and if you do in what directory they reside.</p>
 <div class="admonition note">
@@ -516,10 +531,10 @@ mas install
         </span>
     
     
-      <span><a href="../configure-airgap/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../configtool-oidc/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../must-gather/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../update/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

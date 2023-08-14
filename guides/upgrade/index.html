@@ -51,18 +51,16 @@
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">Upgrade</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#update-overview">Update Overview</a>
+    <li class="toctree-l2"><a class="reference internal" href="#upgrade-overview">Upgrade Overview</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#1-update">1 Update</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2-disconnected-upgrade-preparation">2 Disconnected Upgrade Preparation</a>
+    <li class="toctree-l2"><a class="reference internal" href="#1-disconnected-upgrade-preparation">1 Disconnected Upgrade Preparation</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#2-upgrade-maximo-application-suite">2 Upgrade Maximo Application Suite</a>
     </li>
     </ul>
                   </li>
               </ul>
-              <p class="caption"><span class="caption-text">Commands</span></p>
+              <p class="caption"><span class="caption-text">OpenShift Management</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-fyre/">provision-fyre</a>
                   </li>
@@ -70,24 +68,37 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-rosa/">provision-rosa</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configure-airgap/">configure-airgap</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Image Mirroring</span></p>
+              <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../commands/setup-registry/">setup-registry</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-images/">mirror-images</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-redhat-images/">mirror-redhat-images</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configure-airgap/">configure-airgap</a>
+              </ul>
+              <p class="caption"><span class="caption-text">MAS Management</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configtool-oidc/">configtool-oidc</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../commands/install/">install</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/must-gather/">must-gather</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/update/">update</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configtool-oidc/">configtool-oidc</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/upgrade/">upgrade</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Troubleshooting</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/must-gather/">must-gather</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Catalogs</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/">Overview</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/">All Catalogs</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-230725-amd64/">Jul 25 2023</a>
                   </li>
@@ -124,22 +135,24 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="upgrade">Upgrade<a class="headerlink" href="#upgrade" title="Permanent link"></a></h1>
-<h2 id="update-overview">Update Overview<a class="headerlink" href="#update-overview" title="Permanent link"></a></h2>
+<h2 id="upgrade-overview">Upgrade Overview<a class="headerlink" href="#upgrade-overview" title="Permanent link"></a></h2>
 <p>Upgrade is the act of switching a MAS installation to a new subscription channel; it is distinct from an update, which is when new versions are delivered on existing subsciption channels.  New features are always delivered via new subscirption channels, update within a channel will only deliver updates to existing functionality (including security updates) and bug fixes.</p>
 <ol>
-<li><a href="#1-update">Update</a></li>
+<li><a href="#1-upgrade">Upgrade</a></li>
 <li><a href="#1-disconnected-install-preparation">Disconnected Upgrade Preparation</a></li>
 <li><a href="#2-update-maximo-application-suite">Update MAS</a></li>
 </ol>
 <p>When you choose to upgrade to pick up a feature release, the upgrade is targeted at a specific MAS instance in the cluster.  Upgrades must work within an n-1 range, ie. we support MAS 8.10 and 8.9 on a cluster, or 8.9 and 8.8, but not 8.8 and 8.10.</p>
 <p>The process to undo an upgrade varies depending on what version and which applications were being upgraded, e.g. if there are database changes that need to be reversed it's more involved than if it's just a case of stateless runtimes to be reverted to an older version.</p>
-<h2 id="1-update">1 Update<a class="headerlink" href="#1-update" title="Permanent link"></a></h2>
-<p>You can only upgrade to a version of MAS already supported by the <code>ibm-operator-catalog</code> CatalogSource currently installed in the cluster.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>You can only upgrade to a version of MAS already supported by the <code>ibm-maximo-operator-catalog</code> CatalogSource currently installed in the cluster.</p>
 <ul>
 <li>If you are using the static catalog and have not already updated to a catalog that includes the version of MAS you wish to upgrade to then you must first follow the <a href="../update/">update process</a>.</li>
 <li>If you are using the dynamic catalog then no action is required here, the catalog source will automatically update to include new MAS releases.</li>
 </ul>
-<h2 id="2-disconnected-upgrade-preparation">2 Disconnected Upgrade Preparation<a class="headerlink" href="#2-disconnected-upgrade-preparation" title="Permanent link"></a></h2>
+</div>
+<h2 id="1-disconnected-upgrade-preparation">1 Disconnected Upgrade Preparation<a class="headerlink" href="#1-disconnected-upgrade-preparation" title="Permanent link"></a></h2>
 <p>Before you start the upgrade, you must mirror the images for the new catalog that you wish to update to. Mirroring the images is a simple but time consuming process.  Three modes are available for the mirror process:</p>
 <ul>
 <li><strong>direct</strong> mirrors images directly from the source registry to your private registry</li>
@@ -154,14 +167,14 @@
   -m direct \
   -d /mnt/local-mirror/ \
   -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-221129-amd64 -C 8.9.x --mirror-core --mirror-iot --mirror-optimizer --mirror-manage \
+  -c v8-230725-amd64 -C 8.10.x --mirror-core --mirror-cpfs --mirror-uds --mirror-sls --mirror-tsm \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY \
   --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
   --no-confirm
 </code></pre>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>Make sure to select the release of MAS you want to upgrade to instead of the release of MAS you are currently on, for example if you are upgrading from MAS 8.8 to MAS 8.9 you should set <code>-C 8.9.x</code>.</p>
+<p>Make sure to select the release of MAS you want to upgrade to, not the release of MAS you are currently on.  For example if you are upgrading from MAS 8.9 to MAS 8.10 you should set <code>-C 8.10.x</code>.</p>
 </div>
 <h2 id="2-upgrade-maximo-application-suite">2 Upgrade Maximo Application Suite<a class="headerlink" href="#2-upgrade-maximo-application-suite" title="Permanent link"></a></h2>
 <p>Run <code>mas upgrade</code> and choose the MAS instance to upgrade.  The upgrade will automatically detect the installed release, and perform an upgrade to the next available release.</p>
