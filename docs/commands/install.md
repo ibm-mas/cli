@@ -30,6 +30,7 @@ Usage
 ### Advanced MAS Configuration (Optional):
 - `--additional-configs LOCAL_MAS_CONFIG_DIR`         Path to a directory containing additional configuration files to be applied
 - `--non-prod`                                        Install MAS in Non-production mode
+- `--mas-trust-default-cas MAS_TRUST_DEFAULT_CAS`     Trust certificates signed by well-known CAs
 
 ### Maximo Application Suite Core Platform (Required):
 - `--mas-channel MAS_CHANNEL`                                    Subscription channel for the Core Platform
@@ -179,7 +180,7 @@ Select the applications that you would like to install. Note that some applicati
 - Assist and Predict are only available for install if Monitor is selected
 
 
-### Step 9. Configure Datbases
+### Step 9. Configure Databases
 If you have selected one or more applications that require a JDBC datasource (IoT, Manage, Monitor, & Predict) you must choose how to provide that dependency:
 
 - Use the IBM Db2 Universal Operator
@@ -191,14 +192,20 @@ If you choose the latter then you will be prompted to select a local directory w
     If you have already generated the configuration file (manually, or using the install previously) the CLI will detect this and prompt whether you wish to re-use the existing configuration, or generate a new one.
 
 
-### Step 10. Additional Configurations
+### Step 10. Configure Turbonomic
+Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step, here you will be asked whether you wish to provide any additional configurations and if you do in what directory they reside.
+
+!!! note
+    If you provided one or more JDBC configurations in step 9 then additional configurations will already be enabled and be pointing at the directory you chose for the JDBC configurations.
+
+### Step 11. Additional Configurations
 Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step, here you will be asked whether you wish to provide any additional configurations and if you do in what directory they reside.
 
 !!! note
     If you provided one or more JDBC configurations in step 9 then additional configurations will already be enabled and be pointing at the directory you chose for the JDBC configurations.
 
 
-### Step 11. Configure Storage Class Usage
+### Step 12. Configure Storage Class Usage
 MAS requires both a `ReadWriteMany` and a `ReadWriteOnce` capable storage class to be available in the cluster.  The installer has the ability to recognize certain storage class providers and will default to the most appropriate storage class in these cases:
 
 - IBMCloud Storage (`ibmc-block-gold` & `ibmc-file-gold`)
@@ -214,7 +221,7 @@ When selecting storage classes you will be presented with a list of available st
     Unfortunately there is no way for the install to verify that the storage class selected actually supports the appropriate access mode, refer to the documention from the storage class provider to determine whetheryour storage class supports `ReadWriteOnce` and/or `ReadWriteMany`.
 
 
-### Step 12. Advanced Settings
+### Step 13. Advanced Settings
 These settings can generally be ignored for most installations.
 
 #### Change Cluster monitoring storage defaults?
@@ -224,25 +231,25 @@ Answering "y" at the prompt will allow you to customize the storage capacity and
 Answering "y" will allow you to customise the namespace where Db2, Grafana, and MongoDb are installed in the cluster.
 
 
-### Step 13. Configure IBM Container Registry
+### Step 15. Configure IBM Container Registry
 Provide your IBM entitlement key.  If you have set the `IBM_ENTITLEMENT_KEY` environment variable then you will first be prompted whether you just want to re-use the saved entitlement key.
 
 
-### Step 14. Configure Product License
+### Step 16. Configure Product License
 Provide your license ID and the location of your license file.
 
 
-### Step 15. Configure UDS
+### Step 19. Configure UDS
 Maximo Application Suite's required integration with IBM User Data Services requires your e-mail address and first/last name be provided.
 
 
-### Step 16. Prepare Installation
+### Step 20. Prepare Installation
 No input is required here, the install will prepare the namespace where install will be executed on the cluster and validate that the CLI container image (which will perform the installation) is accessible from your cluster.
 
 !!! note
     For disconnected installations you may need to provide the digest of the ibmmas/cli container image.
 
-### Step 17. Review Settings
+### Step 21. Review Settings
 A summary of all your choices will be presented and you will be prompted to provide a final confirmation as to whether to proceed with the install, or abort.
 
 
