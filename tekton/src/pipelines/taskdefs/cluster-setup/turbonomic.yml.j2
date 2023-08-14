@@ -1,0 +1,26 @@
+- name: turbonomic
+  params:
+    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    - name: devops_suite_name
+      value: dependencies-turbonomic
+
+    - name: kubeturbo_namespace
+      value: $(params.kubeturbo_namespace)
+    - name: turbonomic_target_name
+      value: $(params.turbonomic_target_name)
+    - name: turbonomic_server_url
+      value: $(params.turbonomic_server_url)
+    - name: turbonomic_username
+      value: $(params.turbonomic_username)
+    - name: turbonomic_password
+      value: $(params.turbonomic_password)
+  taskRef:
+    kind: Task
+    name: mas-devops-turbonomic
+  when:
+    - input: "$(params.turbonomic_server_url)"
+      operator: notin
+      values: [""]
+    - input: "$(params.turbonomic_target_name)"
+      operator: notin
+      values: [""]

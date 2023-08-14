@@ -3,50 +3,19 @@
 # - fvt-manage-application-designer
 # - fvt-manage-startcenter-config
 # - fvt-manage-workflow-designer
-# - fvt-manage-smtp-setup (last test of Manage FVT)
+# - fvt-manage-smtp-setup
 # -------------------------------------------------------------
 
-# Manage FVT Application Designer
-- name: fvt-manage-application-designer
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+- name: fvt-manage-last-phase
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage-last-phase
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: application-designer
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}    
   runAfter:
-    - fvt-manage-mif-kafka-setup
-    - fvt-manage-wo-attach-docs
+    - fvt-manage-mif-kafka
+    - fvt-manage-wo-doclink
+    - fvt-manage-user-crud
+    - fvt-manage-communication-temp
     - fvt-manage-directprint-reports
-
-# Manage FVT Start Center
-- name: fvt-manage-startcenter-config
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: startcenter-config
-  runAfter:
-    - fvt-manage-application-designer
-
-# Manage FVT Create Workflow Design & Approve WO Assignments
-- name: fvt-manage-workflow-designer
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: workflow-designer
-  # Update runAfter list with new PHASE 4 tests
-  runAfter:
-    - fvt-manage-startcenter-config
-
-# Manage SMTP Configuration Validation
-# Note: Keep SMTP as the LAST task running for Manage FVT
-- name: fvt-manage-smtp-setup
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: mas-smtp-setup
-  # Update runAfter list with new PHASE 4 tests
-  runAfter:
-    - fvt-manage-workflow-designer

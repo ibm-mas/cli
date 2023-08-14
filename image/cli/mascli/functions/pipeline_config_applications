@@ -166,6 +166,16 @@ function config_pipeline_applications() {
     echo_h2 "Maximo IT Add-On"
     echo -e "${COLOR_YELLOW} For information about your license, see "MAXIMO IT LICENSE LINK HERE " You are not required to accept the license terms unless you are installing Maximo IT add-on for Manage."
     prompt_for_confirm_default_yes "Do you accept the license terms?" LICENSE_RESPONSE
+    echo
+     if prompt_for_confirm "+ Include customization archive"; then
+      MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME='manage-custom-archive'
+      prompt_for_input "Customization archive name" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME
+      prompt_for_input "Customization archive url" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL
+      if prompt_for_confirm "+ Provide authentication to access customization archive url"; then
+        prompt_for_input "Username" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME
+        prompt_for_secret "Password" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD
+      fi
+    fi
   fi
 
   if [[ "$SNO_MODE" != "true" ]]; then

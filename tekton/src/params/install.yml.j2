@@ -1,3 +1,7 @@
+# Dependencies - Turbonomic
+# -----------------------------------------------------------------------------
+{{ lookup('template', params_src_dir ~ '/install-turbonomic.yml.j2') }}
+
 # Dependencies - SLS
 # -----------------------------------------------------------------------------
 - name: sls_namespace
@@ -217,7 +221,7 @@
   description: API Key used to create COS instance in IBM Cloud
   default: ""
 
-# MAS Integration - Prometheus
+# MAS Integration - Cluster Monitoring - Prometheus
 # -----------------------------------------------------------------------------
 - name: prometheus_retention_period
   type: string
@@ -241,6 +245,12 @@
   type: string
   default: ""
 - name: prometheus_userworkload_storage_size
+  type: string
+  default: ""
+
+# MAS Integration - Cluster Monitoring - Grafana
+# -----------------------------------------------------------------------------
+- name: cluster_monitoring_include_grafana
   type: string
   default: ""
 - name: grafana_namespace
@@ -324,7 +334,7 @@
 - name: route53_subdomain
   type: string
   default: ""
-    
+
 {{ lookup('template', params_src_dir ~ '/install-ibmcatalogs.yml.j2') }}
 
 {{ lookup('template', params_src_dir ~ '/install-workspace.yml.j2') }}
@@ -348,6 +358,10 @@
 - name: mas_annotations
   type: string
   default: ""
+- name: mas_trust_default_cas
+  type: string
+  default: ""
+  description: Optional boolean parameter that when set to False, disables the normal trust of well known public certificate authorities
 - name: mas_customize_scaling
   type: string
   default: ""
@@ -449,6 +463,22 @@
 - name: mas_app_settings_db2_schema
   type: string
   description: Name of the Manage database schema
+  default: ""
+- name: mas_app_settings_customization_archive_name
+  type: string
+  description: Name of the Manage custom archive
+  default: ""
+- name: mas_app_settings_customization_archive_url
+  type: string
+  description: URL of the Manage custom archive
+  default: ""
+- name: mas_app_settings_customization_archive_username
+  type: string
+  description: Username to authenticate into Manage custom archive url (if required)
+  default: ""
+- name: mas_app_settings_customization_archive_password
+  type: string
+  description: Password to authenticate into Manage custom archive url (if required)
   default: ""
 
 # MAS Application Configuration - Optimizer Application

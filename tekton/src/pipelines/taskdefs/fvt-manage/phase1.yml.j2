@@ -2,15 +2,18 @@
 # PHASE 1
 # - fvt-manage-setup
 # - fvt-manage-monitoring
-# - fvt-manage-security-audit-logging
-# - fvt-manage-security-inactive-auth
+# - fvt-manage-sec-audit-log
+# - fvt-manage-sec-inactive-auth
 # -------------------------------------------------------------
 
 # Manage FVT Setup
 - name: fvt-manage-setup # convention: use fvt-manage-<keyword>, as the value of fvt_test_suite parameter
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
     - name: fvt_test_suite
       value: setup
     - name: fvt_mas_appws_component
@@ -26,27 +29,35 @@
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
     - name: fvt_test_suite
       value: monitoring
   runAfter:
     - fvt-manage-usersync
 
 # Manage FVT Security Audit Logging
-- name: fvt-manage-security-audit-logging
+- name: fvt-manage-sec-audit-log
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
     - name: fvt_test_suite
-      value: security-audit-logging
+      value: sec-audit-log
   runAfter:
     - fvt-manage-usersync
 
 # Manage FVT Inactive User Authentication
-- name: fvt-manage-security-inactive-auth
+- name: fvt-manage-sec-inactive-auth
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
     - name: fvt_test_suite
-      value: security-inactiveuser-authentication
+      value: sec-inactive-auth
   runAfter:
     - fvt-manage-usersync

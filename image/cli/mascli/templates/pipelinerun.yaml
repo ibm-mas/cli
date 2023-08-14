@@ -32,6 +32,19 @@ spec:
     - name: storage_class_rwo
       value: '$STORAGE_CLASS_RWO'
 
+    # Dependencies - Turbonomic
+    # -------------------------------------------------------------------------
+    - name: turbonomic_server_url
+      value: '$TURBONOMIC_SERVER_URL'
+    - name: turbonomic_server_version
+      value: '$TURBONOMIC_SERVER_VERSION'
+    - name: turbonomic_target_name
+      value: '$TURBONOMIC_TARGET_NAME'
+    - name: turbonomic_username
+      value: '$TURBONOMIC_USERNAME'
+    - name: turbonomic_password
+      value: '$TURBONOMIC_PASSWORD'
+
     # Dependencies - Db2u Operator
     # -------------------------------------------------------------------------
     - name: db2_namespace
@@ -288,6 +301,9 @@ spec:
     - name: mas_icr_cpopen
       value: '$MAS_ICR_CPOPEN'
 
+    - name: mas_trust_default_cas
+      value: '$MAS_TRUST_DEFAULT_CAS'
+
     # MAS Workspace
     # -------------------------------------------------------------------------
     - name: mas_workspace_id
@@ -343,6 +359,14 @@ spec:
       value: '$MAS_APP_SETTINGS_INDEXSPACE'
     - name: mas_app_settings_db2_schema
       value: '$MAS_APP_SETTINGS_DB2_SCHEMA'
+    - name: mas_app_settings_customization_archive_url
+      value: '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL'
+    - name: mas_app_settings_customization_archive_name
+      value: '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME'
+    - name: mas_app_settings_customization_archive_username
+      value: '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME'
+    - name: mas_app_settings_customization_archive_password
+      value: '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD'
 
     # Monitor Application
     # -------------------------------------------------------------------------
@@ -393,6 +417,8 @@ spec:
 
     # Grafana
     # -------------------------------------------------------------------------
+    - name: cluster_monitoring_include_grafana
+      value: '$CLUSTER_MONITORING_INCLUDE_GRAFANA'
     - name: grafana_namespace
       value: '$GRAFANA_NAMESPACE'
     - name: grafana_instance_storage_class
