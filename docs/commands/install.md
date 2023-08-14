@@ -159,9 +159,8 @@ Provide the basic information about your MAS instance:
     - Must start with a lowercase letter
 
     Workspace display name restrictions:
+
     - Must be 3-300 characters long
-    - Only the space (` `) whitespace character may be used
-    - Must not start or end with a whitespace character
 
 ### Step 6: Configure Operation Mode
 The install will default to a production mode installation, but by choosing "y" at the prompt you will be able to install MAS in non-production mode.
