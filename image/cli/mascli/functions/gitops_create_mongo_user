@@ -31,7 +31,7 @@ AWS MongoDb Provider:
       --docdb-master-password ${COLOR_YELLOW}DOCDB_MASTER_PASSWORD${TEXT_RESET}           Docdb master password
       --docdb-instance-username ${COLOR_YELLOW}DOCDB_INSTANCE_USERNAME${TEXT_RESET}       Docdb instance username
       --docdb-instance-password ${COLOR_YELLOW}DOCDB_INSTANCE_PASSWORD${TEXT_RESET}       Docdb instancepasswordD
-      --vpc-id ${COLOR_YELLOW}VPC_ID${TEXT_RESET}                                         Vpc_id
+      --aws-vpc-id ${COLOR_YELLOW}VPC_ID${TEXT_RESET}                                     Vpc_id
       --aws-docdb-cluster-name ${COLOR_YELLOW}DOCDB_CLUSTER_NAME${TEXT_RESET}             Cluster Name
       --docdb-ingress-cidr ${COLOR_YELLOW}DOCDB_INGRESS_CIDR${TEXT_RESET}                 Docdb ingress cidr
       --docdb-egress-cidr ${COLOR_YELLOW}DOCDB_EGRESS_CIDR${TEXT_RESET}                   Docdb egress cidr
