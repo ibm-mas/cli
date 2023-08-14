@@ -193,10 +193,13 @@ If you choose the latter then you will be prompted to select a local directory w
 
 
 ### Step 10. Configure Turbonomic
-Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step, here you will be asked whether you wish to provide any additional configurations and if you do in what directory they reside.
+The [IBM Turbonomic](https://www.ibm.com/products/turbonomic) hybrid cloud cost optimization platform allows you to eliminate this guesswork with solutions that save time and optimize costs.  To enable Turbonomic integration you must provide the following information:
 
-!!! note
-    If you provided one or more JDBC configurations in step 9 then additional configurations will already be enabled and be pointing at the directory you chose for the JDBC configurations.
+- Target name
+- Server URL
+- Server version
+- Authentication credentials (username & password)
+
 
 ### Step 11. Additional Configurations
 Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step, here you will be asked whether you wish to provide any additional configurations and if you do in what directory they reside.

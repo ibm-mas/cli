@@ -221,7 +221,7 @@
   description: API Key used to create COS instance in IBM Cloud
   default: ""
 
-# MAS Integration - Prometheus
+# MAS Integration - Cluster Monitoring - Prometheus
 # -----------------------------------------------------------------------------
 - name: prometheus_retention_period
   type: string
@@ -245,6 +245,12 @@
   type: string
   default: ""
 - name: prometheus_userworkload_storage_size
+  type: string
+  default: ""
+
+# MAS Integration - Cluster Monitoring - Grafana
+# -----------------------------------------------------------------------------
+- name: cluster_monitoring_include_grafana
   type: string
   default: ""
 - name: grafana_namespace
