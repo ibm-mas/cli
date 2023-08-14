@@ -27,8 +27,11 @@ IBM Suite License Service:
       --sls-channel ${COLOR_YELLOW}SLS_CHANNEL${TEXT_RESET}  IBM Suite License Service Subscription Channel
 
 IBM Maximo Application Suite:
-      --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}  MAS Core Platform Subscription Channel
-      --mas-domain ${COLOR_YELLOW}MAS_DOMAIN${TEXT_RESET}    MAS Domain
+      --mas-annotations ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}    MAS Annotations definition in json format
+      --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}            MAS Core Platform Subscription Channel
+      --mas-domain ${COLOR_YELLOW}MAS_DOMAIN${TEXT_RESET}              MAS Domain
+      --mas-image-tags ${COLOR_YELLOW}MAS_IMAGE_TAGS${TEXT_RESET}      MAS Image tags definition in json format
+      --mas-labels ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}         MAS Labels definition in json format
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -92,13 +95,21 @@ function gitops_init_suite_noninteractive() {
         ;;
 
       # MAS
+      --mas-annotations)
+        export MAS_ANNOTATIONS=$1 && shift
+        ;;
       --mas-channel)
         export MAS_CHANNEL=$1 && shift
         ;;
       --mas-domain)
         export MAS_DOMAIN=$1 && shift
         ;;
-
+      --mas-image-tags)
+        export MAS_IMAGE_TAGS=$1 && shift
+        ;;
+      --mas-labels)
+        export MAS_LABELS=$1 && shift
+        ;;
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -215,6 +226,9 @@ function gitops_init_suite() {
   echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "Subscription Channel .................. ${COLOR_MAGENTA}${MAS_CHANNEL}"
   echo_reset_dim "Domain ................................ ${COLOR_MAGENTA}${MAS_DOMAIN}"
+  echo_reset_dim "Image Tags ............................ ${COLOR_MAGENTA}${MAS_IMAGE_TAGS}"
+  echo_reset_dim "Annotations ........................... ${COLOR_MAGENTA}${MAS_ANNOTATIONS}"
+  echo_reset_dim "Labels ................................ ${COLOR_MAGENTA}${MAS_LABELS}"
   reset_colors
 
 
@@ -311,9 +325,14 @@ function gitops_init_suite() {
   echo "- IBM Suite License Service"
   jinja -X .+ -d $MONGO_CONFIG_FILE $DIR/templates/gitops/ibm-sls.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-sls.yaml
 
+
+  # Parse MAS variables from json to dict
+  export MAS_ANNOTATIONS=$(echo $MAS_ANNOTATIONS | jq '.' | yq eval -P)
+  export MAS_IMAGE_TAGS=$(echo $MAS_IMAGE_TAGS | jq '.' | yq eval -P)
+  export MAS_LABELS=$(echo $MAS_LABELS | jq '.' | yq eval -P)
+
   echo "- IBM Maximo Application Suite Core Platform"
   jinja -X .+ $DIR/templates/gitops/ibm-mas-core-suite.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-core-suite.yaml
-
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
