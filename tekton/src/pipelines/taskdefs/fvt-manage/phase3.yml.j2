@@ -1,6 +1,6 @@
 # -------------------------------------------------------------
 # PHASE 3
-# - fvt-manage-wobasic
+# - fvt-manage-wo-basic
 # - fvt-manage-escalation-action
 # - fvt-manage-autoscript-adddeletewo
 # - fvt-manage-jms-inbound
@@ -9,7 +9,7 @@
 # -------------------------------------------------------------
 
 # Manage FVT Work Order Basic Scenario
-- name: fvt-manage-wobasic
+- name: fvt-manage-wo-basic
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
@@ -17,9 +17,9 @@
     - name: fvt_test_suite_prefix
       value: core
     - name: fvt_test_suite
-      value: workorderbasic
+      value: wo-basic
   runAfter:
-    - fvt-manage-masnavigation
+    - fvt-manage-mas-navigation
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup
@@ -36,7 +36,7 @@
     - name: fvt_test_suite
       value: escalation-action
   runAfter:
-    - fvt-manage-masnavigation
+    - fvt-manage-mas-navigation
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup
@@ -53,7 +53,7 @@
     - name: fvt_test_suite
       value: autoscript-adddeletewo
   runAfter:
-    - fvt-manage-masnavigation
+    - fvt-manage-mas-navigation
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup
@@ -70,7 +70,7 @@
     - name: fvt_test_suite
       value: mif-jms-inbound
   runAfter:
-    - fvt-manage-masnavigation
+    - fvt-manage-mas-navigation
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup
@@ -87,7 +87,7 @@
     - name: fvt_test_suite
       value: esig-basic
   runAfter:
-    - fvt-manage-masnavigation
+    - fvt-manage-mas-navigation
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup
@@ -120,8 +120,8 @@
     - name: configs
       workspace: shared-configs
   runAfter:
-    - fvt-manage-wobasic
-    - fvt-manage-escalation-action
-    - fvt-manage-autoscript-adddeletewo
-    - fvt-manage-jms-inbound
-    - fvt-manage-esig-basic
+    - fvt-manage-mas-navigation
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-mif-setup
+    - fvt-manage-metrics-api
