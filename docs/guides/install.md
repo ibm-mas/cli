@@ -56,19 +56,19 @@ If you have not already determined the best catalog source for your installation
 -------------------------------------------------------------------------------
 
 ### 2.1 Disconnected Install Limitations
-Disconnected install for IBM Maximo Application Suite is supported from MAS v8.8 onwards with some restrictions:
+Disconnected install for IBM Maximo Application Suite is fully supported as of the July 2023 catalog update, and is supported from MAS v8.8 onwards with some restrictions as detailed below:
 
 | Application                | First Version to Support Disconnected Install                   |
 | -------------------------- | --------------------------------------------------------------- |
 | Core                       |  v8.8.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
-| Assist                     |  No support                                                     |
-| Health & Predict Utilities |  No support                                                     |
+| Assist                     |  v8.7.1 ([v8-230725-amd64](../catalogs/v8-230725-amd64.md))     |
+| Health & Predict Utilities |  v8.6.1 ([v8-230725-amd64](../catalogs/v8-230725-amd64.md))     |
 | IoT                        |  v8.5.1 ([v8-220805-amd64](../catalogs/v8-220805-amd64.md))     |
 | Manage                     |  v8.4.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
 | Monitor                    |  v8.10.0 ([v8-230414-amd64](../catalogs/v8-230414-amd64.md))    |
 | Optimizer                  |  v8.2.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
 | Predict                    |  v8.8.1 ([v8-230627-amd64](../catalogs/v8-230627-amd64.md))     |
-| Visual Inspection          |  No support                                                     |
+| Visual Inspection          |  v8.8.1 ([v8-230725-amd64](../catalogs/v8-230725-amd64.md))     |
 
 
 ### 2.2 Prepare the Private Registry
