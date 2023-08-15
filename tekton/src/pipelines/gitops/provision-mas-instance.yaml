@@ -6,7 +6,7 @@ metadata:
 spec:
   workspaces:
     - name: configs
-    - name: license
+    - name: shared-entitlement
   description: Provision MAS GitOps Instance
   params:
     - name: cluster_name
@@ -52,15 +52,13 @@ spec:
       type: string
     - name: github_host
       type: string
-    - name: ocp_server
-      type: string
-    - name: rosa_token
-      type: string
-    - name: rosa_admin_password
-      type: string
-    - name: ocp_token
-      type: string
     - name: aws_key_pair_name
+      type: string
+    - name: argocd_url
+      type: string
+    - name: argocd_username
+      type: string
+    - name: argocd_password
       type: string
   tasks:
     - name: gitops-create-mongo-user
@@ -87,12 +85,12 @@ spec:
           value: $(params.mongo_provider)
         - name: aws_key_pair_name
           value: $(params.aws_key_pair_name)
-      taskRef:
-        kind: Task
-        name: gitops-create-mongo-user
       workspaces:
         - name: configs
           workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-create-mongo-user
     - name: gitops-init-license
       runAfter:
         - gitops-create-mongo-user
@@ -112,8 +110,8 @@ spec:
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
       workspaces:
-        - name: license
-          workspace: license
+        - name: shared-entitlement
+          workspace: shared-entitlement
       taskRef:
         kind: Task
         name: gitops-init-license
@@ -147,20 +145,18 @@ spec:
           value: $(params.mas_domain)
         - name: github_pat
           value: $(params.github_pat)
-        - name: ocp_server
-          value: $(params.ocp_server)
-        - name: rosa_token
-          value: $(params.rosa_token)
-        - name: rosa_admin_password
-          value: $(params.rosa_admin_password)
-        - name: ocp_token
-          value: $(params.ocp_token)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
         - name: avp_aws_secret_key
           value: $(params.avp_aws_secret_key)
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
+        - name: argocd_url
+          value: $(params.argocd_url)
+        - name: argocd_username
+          value: $(params.argocd_username)
+        - name: argocd_password
+          value: $(params.argocd_password)
       taskRef:
         kind: Task
         name: gitops-init-suite
@@ -191,20 +187,18 @@ spec:
           value: $(params.github_host)
         - name: github_pat
           value: $(params.github_pat)
-        - name: ocp_server
-          value: $(params.ocp_server)
-        - name: rosa_token
-          value: $(params.rosa_token)
-        - name: rosa_admin_password
-          value: $(params.rosa_admin_password)
-        - name: ocp_token
-          value: $(params.ocp_token)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
         - name: avp_aws_secret_key
           value: $(params.avp_aws_secret_key)
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
+        - name: argocd_url
+          value: $(params.argocd_url)
+        - name: argocd_username
+          value: $(params.argocd_username)
+        - name: argocd_password
+          value: $(params.argocd_password)
       workspaces:
         - name: configs
           workspace: configs
@@ -237,14 +231,12 @@ spec:
           value: $(params.github_host)
         - name: github_pat
           value: $(params.github_pat)
-        - name: ocp_server
-          value: $(params.ocp_server)
-        - name: rosa_token
-          value: $(params.rosa_token)
-        - name: rosa_admin_password
-          value: $(params.rosa_admin_password)
-        - name: ocp_token
-          value: $(params.ocp_token)
+        - name: argocd_url
+          value: $(params.argocd_url)
+        - name: argocd_username
+          value: $(params.argocd_username)
+        - name: argocd_password
+          value: $(params.argocd_password)
       taskRef:
         kind: Task
         name: gitops-init-suite-workspace

@@ -41,7 +41,7 @@ spec:
       - |-
         mas gitops-init-license -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
-        --license-file /workspace/license/entitlement.lic
+        --license-file /workspace/shared-entitlement/entitlement.lic
       command:
         - /bin/sh
         - -c
@@ -49,5 +49,5 @@ spec:
       imagePullPolicy: Always
       image: quay.io/ibmmas/cli:6.4.0-pre.gitops
   workspaces:
-    - name: license
+    - name: shared-entitlement
 

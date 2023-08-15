@@ -26,15 +26,13 @@ spec:
       type: string
     - name: github_host
       type: string
-    - name: ocp_server
-      type: string
-    - name: rosa_token
-      type: string
-    - name: rosa_admin_password
-      type: string
-    - name: ocp_token
-      type: string
     - name: github_pat
+      type: string
+    - name: argocd_url
+      type: string
+    - name: argocd_username
+      type: string
+    - name: argocd_password
       type: string
   stepTemplate:
     name: gitops-init-suite-workspace
@@ -59,30 +57,21 @@ spec:
         value: $(params.workspace_name)
       - name: GITHUB_PAT
         value: $(params.github_pat)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
+      - name: ARGOCD_USERNAME
+        value: $(params.argocd_username)
+      - name: ARGOCD_PASSWORD
+        value: $(params.argocd_password) 
   steps:
     - args:
       - |-
+
         mkdir -p /workspace/configs/$GITHUB_REPO
 
         git config --global user.name "yourUsername"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
-
-        export ROLE_NAME=ocp_login
-        export CLUSTER_TYPE=rosa
-        export OCP_SERVER=$(params.ocp_server)
-        export OCP_TOKEN=$(params.ocp_token)
-        export ROSA_TOKEN=$(params.rosa_token)
-        export ROSA_CLUSTER_ADMIN_PASSWORD=$(params.rosa_admin_password)
-        ansible-playbook ibm.mas_devops.run_role
-
-        echo "Set k8s context"
-        export K8S_AUTH_CONTEXT=$(oc whoami -c)
-
-        export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
-        export ARGOCD_USERNAME=admin
-        export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
-
 
         mas gitops-init-suite-workspace -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --mas-workspace-id $WORKSPACE_ID \
