@@ -1,6 +1,6 @@
 # -------------------------------------------------------------
 # PHASE 2
-# - fvt-manage-masnavigation
+# - fvt-manage-mas-navigation
 # - fvt-manage-classification
 # - fvt-manage-helplinks
 # - fvt-manage-mif-setup
@@ -8,7 +8,7 @@
 # -------------------------------------------------------------
 
 # Manage FVT Mas Navigation Scenario
-- name: fvt-manage-masnavigation
+- name: fvt-manage-mas-navigation
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
@@ -16,12 +16,12 @@
     - name: fvt_test_suite_prefix
       value: core
     - name: fvt_test_suite
-      value: masnavigation
+      value: mas-navigation
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
-    {# - fvt-manage-security-audit-logging
-    - fvt-manage-security-inactive-auth #}
+    - fvt-manage-sec-audit-log
+    - fvt-manage-sec-inactive-auth
 
 # Manage FVT Classification
 - name: fvt-manage-classification
@@ -36,8 +36,8 @@
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
-    {# - fvt-manage-security-audit-logging
-    - fvt-manage-security-inactive-auth #}
+    - fvt-manage-sec-audit-log
+    - fvt-manage-sec-inactive-auth
 
 # Manage FVT Help Links
 - name: fvt-manage-helplinks
@@ -52,8 +52,8 @@
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
-    {# - fvt-manage-security-audit-logging
-    - fvt-manage-security-inactive-auth #}
+    - fvt-manage-sec-audit-log
+    - fvt-manage-sec-inactive-auth
 
 # Manage MIF setup
 - name: fvt-manage-mif-setup
@@ -68,8 +68,8 @@
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
-    {# - fvt-manage-security-audit-logging
-    - fvt-manage-security-inactive-auth #}
+    - fvt-manage-sec-audit-log
+    - fvt-manage-sec-inactive-auth
 
 # Manage FVT Metrics API
 - name: fvt-manage-metrics-api
@@ -84,5 +84,5 @@
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
-    {# - fvt-manage-security-audit-logging
-    - fvt-manage-security-inactive-auth #}
+    - fvt-manage-sec-audit-log
+    - fvt-manage-sec-inactive-auth
