@@ -327,9 +327,9 @@ function gitops_init_suite() {
 
 
   # Parse MAS variables from json to dict
-  # export MAS_ANNOTATIONS=$(echo $MAS_ANNOTATIONS | jq '.' | yq eval -P)
-  # export MAS_IMAGE_TAGS=$(echo $MAS_IMAGE_TAGS | jq '.' | yq eval -P)
-  # export MAS_LABELS=$(echo $MAS_LABELS | jq '.' | yq eval -P)
+  export MAS_ANNOTATIONS=$(echo $MAS_ANNOTATIONS | jq '.' | yq eval -P)
+  export MAS_IMAGE_TAGS=$(echo $MAS_IMAGE_TAGS | jq '.' | yq eval -P)
+  export MAS_LABELS=$(echo $MAS_LABELS | jq '.' | yq eval -P)
 
   echo "- IBM Maximo Application Suite Core Platform"
   jinja -X .+ $DIR/templates/gitops/ibm-mas-core-suite.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-core-suite.yaml
