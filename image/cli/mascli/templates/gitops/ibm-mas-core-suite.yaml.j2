@@ -40,12 +40,8 @@ spec:
     automated:
       prune: true
       selfHeal: true
-      allowEmpty: true
     syncOptions:
       - CreateNamespace=false
-      - ApplyOutOfSyncOnly=true
-      - PrunePropagationPolicy=foreground
-      - PruneLast=true
     managedNamespaceMetadata:
       labels:
         argocd.argoproj.io/managed-by: openshift-gitops
