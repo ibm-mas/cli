@@ -5,6 +5,8 @@ kind: Application
 metadata:
   name: ibm-common-services
   namespace: openshift-gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: {{ CLUSTER_ID }}-cluster-scope
   destination:

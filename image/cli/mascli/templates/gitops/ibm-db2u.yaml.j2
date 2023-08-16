@@ -3,6 +3,8 @@ kind: Application
 metadata:
   name: mas-{{ MAS_INSTANCE_ID }}-db2
   namespace: openshift-gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
     namespace: {{DB2_NAMESPACE}}

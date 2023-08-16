@@ -5,6 +5,8 @@ kind: Application
 metadata:
   name: mas-{{ MAS_INSTANCE_ID }}-core-suite
   namespace: openshift-gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: {{ MAS_INSTANCE_ID }}
   destination:
