@@ -33,10 +33,6 @@
     - name: ibmcloud_apikey
       value: $(params.ibmcloud_apikey)
 
-  when:
-    - input: "$(params.mongodb_action)"
-      operator: in
-      values: ["install"]
   taskRef:
     kind: Task
     name: mas-devops-mongodb
