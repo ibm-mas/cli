@@ -47,7 +47,7 @@ spec:
         - -c
       name: gitops-init-license
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:6.4.0-pre.gitops
+      image: quay.io/ibmmas/cli:6.4.0-pre.ajw-gitops-pipeline
   workspaces:
     - name: shared-entitlement
 
