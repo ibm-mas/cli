@@ -126,20 +126,3 @@
 
 # IVT 7: Core x Visual Inspection
 # -------------------------------------------------------------------------
-- name: ivtcore-visualinspection
-  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
-    - name: product_id
-      value: ibm-mas-visualinspection
-    - name: product_channel
-      value: $(params.mas_app_channel_visualinspection)
-  when:
-    - input: "$(params.ivt_digest_core)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_visualinspection)"
-      operator: notin
-      values: [""]
-  runAfter:
-    - app-cfg-visualinspection
