@@ -76,6 +76,7 @@ mkdir -p $CONFIG_DIR
 . $DIR/functions/gitops_init_suite
 . $DIR/functions/gitops_init_suite_config
 . $DIR/functions/gitops_init_suite_workspace
+. $DIR/functions/gitops_deprovision_suite_workspace
 . $DIR/functions/gitops_init_efs
 . $DIR/functions/gitops_init_db2u
 . $DIR/functions/gitops_init_db2u_jdbc_config
@@ -261,6 +262,14 @@ case $1 in
     echo
     reset_colors
     gitops_init_suite_workspace "$@"
+    ;;
+
+  gitops-deprovision-suite-workspace)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_suite_workspace "$@"
     ;;
 
   gitops-init-efs)
