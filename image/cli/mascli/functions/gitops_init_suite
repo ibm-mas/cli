@@ -319,11 +319,11 @@ function gitops_init_suite() {
   # ---------------------------------------------------------------------------
   echo
   echo_h2 "Generating Argo Project and Applications"
-  # echo "- Project"
-  # jinja -X .+ $DIR/templates/gitops/appproject.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.appproject.yaml
+  echo "- Project"
+  jinja -X .+ $DIR/templates/gitops/appproject.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.appproject.yaml
 
-  # echo "- IBM Suite License Service"
-  # jinja -X .+ -d $MONGO_CONFIG_FILE $DIR/templates/gitops/ibm-sls.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-sls.yaml
+  echo "- IBM Suite License Service"
+  jinja -X .+ -d $MONGO_CONFIG_FILE $DIR/templates/gitops/ibm-sls.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-sls.yaml
 
 
   # Parse MAS variables from json to dict
