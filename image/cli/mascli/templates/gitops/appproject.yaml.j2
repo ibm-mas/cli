@@ -4,6 +4,8 @@ kind: AppProject
 metadata:
   name: {{ MAS_INSTANCE_ID }}
   namespace: openshift-gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   description: MAS Instance {{ MAS_INSTANCE_ID }}
   clusterResourceWhitelist:
