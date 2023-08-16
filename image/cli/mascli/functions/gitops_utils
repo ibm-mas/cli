@@ -202,6 +202,22 @@ echo "Force Application Watcher to hard refresh ..."
 argocd app get $APP_NAME --hard-refresh
 }
 
+function check_argo_app_deleted(){
+  APPLICATION=$1
+  PROJECT=$2
+  while true; do
+    echo "argo: Checking if $APPLICATION in project $PROJECT is deleted"
+    APP=$(argocd app list -p $PROJECT -o json 2> /dev/null | jq -r '.[] | select(.metadata.name == "$APPLICATION")')
+    if [ -z "$APP"]; then
+      echo "Application deleted"
+      break
+    else
+      echo "Application still found, Waiting 30s before checking application again"
+      sleep 30
+    fi
+  done
+}
+
 function check_argo_app_synced() {
   APPLICATION=$1
   while true; do
