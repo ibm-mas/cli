@@ -155,12 +155,6 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
-        - name: sls_channel
-          value: $(params.sls_channel)
-        - name: mas_channel
-          value: $(params.mas_channel)
-        - name: mas_domain
-          value: $(params.mas_domain)
         - name: github_pat
           value: $(params.github_pat)
         - name: avp_aws_secret_region

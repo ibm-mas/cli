@@ -56,7 +56,7 @@ spec:
       - name: MONGO_PROVIDER
         value: $(params.mongo_provider)
       - name: USER_ACTION
-        value: $(params.user_Action)
+        value: $(params.user_action)
       - name: AWS_KEY_PAIR_NAME
         value: $(params.aws_key_pair_name)
   steps:
