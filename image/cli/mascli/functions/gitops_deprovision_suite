@@ -275,13 +275,10 @@ function gitops_deprovision_suite() {
   mkdir -p ${GITOPS_APPS_DIR}
 
 
-  # Generate ArgoApps
+  # Delete ArgoApps
   # ---------------------------------------------------------------------------
   echo
-  echo_h2 "Deleting Argo Project and Applications"
-  echo "- Project"
-  rm ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.appproject.yaml
-
+  echo_h2 "Deleting Applications"
   echo "- IBM Suite License Service"
   rm ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-sls.yaml
 
@@ -302,5 +299,26 @@ function gitops_deprovision_suite() {
     argocd_prune_sync_watcher ${CLUSTER_ID}-watcher
     check_argo_app_deleted mas-${MAS_INSTANCE_ID}-sls ${MAS_INSTANCE_ID}
     check_argo_app_deleted mas-${MAS_INSTANCE_ID}-core-suite ${MAS_INSTANCE_ID}
+  fi
+
+  # Deleting AppProject after other apps have been removed
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Deleting Argo Project for ${MAS_INSTANCE_ID}"
+  echo "- Project"
+  rm ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.appproject.yaml
+
+    # Commit and push to github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
+    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+
+    argocd_login
+    argocd_sync_watcher ${CLUSTER_ID}-watcher
+
+    argocd_prune_sync_watcher ${CLUSTER_ID}-watcher
   fi
 }
