@@ -272,12 +272,12 @@ case $1 in
     gitops_deprovision_suite_workspace "$@"
     ;;
 
-  gitops-deprovision-suite-configs)
+  gitops-deprovision-suite-config)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors
-    gitops_deprovision_suite_configs "$@"
+    gitops_deprovision_suite_config "$@"
     ;;
 
   gitops-deprovision-suite)

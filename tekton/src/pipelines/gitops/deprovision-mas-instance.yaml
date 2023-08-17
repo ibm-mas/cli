@@ -176,6 +176,8 @@ spec:
         - name: configs
           workspace: configs
     - name: gitops-process-mongo-user
+      runAfter:
+        - gitops-deprovision-suite
       params:
         - name: cluster_name
           value: $(params.cluster_name)
