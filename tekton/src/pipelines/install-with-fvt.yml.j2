@@ -237,19 +237,6 @@ spec:
         - app-install-predict
 
 
-    # 10. Install & Configure Optimizer
-    # -------------------------------------------------------------------------
-    # 10.1 Optimizer Install
-    {{ lookup('template', 'taskdefs/apps/optimizer-app.yml.j2') | indent(4) }}
-      runAfter:
-        - fvt-core-phase4
-
-    # 10.2 Configure Optimizer workspace
-    {{ lookup('template', 'taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}
-      runAfter:
-        - app-install-optimizer
-
-
     # 11. Install & Configure Health & Predict Utilities
     # -------------------------------------------------------------------------
     # 11.1 HPUtilities Install
@@ -261,21 +248,6 @@ spec:
     {{ lookup('template', 'taskdefs/apps/hputilities-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-hputilities
-
-
-    # 12. Install & Configure Assist
-    # -------------------------------------------------------------------------
-    # 12.1 Assist Install
-    {{ lookup('template', 'taskdefs/apps/assist-app.yml.j2') | indent(4) }}
-      runAfter:
-        - suite-config-cos
-
-    # 12.3 Configure Assist workspace
-    {{ lookup('template', 'taskdefs/apps/assist-workspace.yml.j2') | indent(4) }}
-      runAfter:
-        - sls
-        - uds
-        - gencfg-workspace
 
 
     # 14. MAS Core FVT
