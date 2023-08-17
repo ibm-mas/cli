@@ -34,8 +34,6 @@
     - input: "$(params.mas_app_channel_optimizer)"
       operator: notin
       values: [""]
-  runAfter:
-    - ivtcore-optimizer
   workspaces:
     - name: configs
       workspace: shared-configs
