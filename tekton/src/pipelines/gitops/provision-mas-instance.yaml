@@ -60,8 +60,10 @@ spec:
       type: string
     - name: argocd_password
       type: string
+    - name: docdb_user_action
+      type: string
   tasks:
-    - name: gitops-create-mongo-user
+    - name: gitops-process-mongo-user
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -83,6 +85,8 @@ spec:
           value: $(params.vpc_ipv4_cidr)
         - name: mongo_provider
           value: $(params.mongo_provider)
+        - name: user_action
+          value: $(params.docdb_user_action)
         - name: aws_key_pair_name
           value: $(params.aws_key_pair_name)
       workspaces:
@@ -90,10 +94,10 @@ spec:
           workspace: configs
       taskRef:
         kind: Task
-        name: gitops-create-mongo-user
+        name: gitops-process-mongo-user
     - name: gitops-init-license
       runAfter:
-        - gitops-create-mongo-user
+        - gitops-process-mongo-user
       params:
         - name: cluster_name
           value: $(params.cluster_name)

@@ -81,7 +81,7 @@ mkdir -p $CONFIG_DIR
 . $DIR/functions/gitops_init_db2u
 . $DIR/functions/gitops_init_db2u_jdbc_config
 . $DIR/functions/gitops_db2u_jdbc_config_rotate_password
-. $DIR/functions/gitops_create_mongo_user
+. $DIR/functions/gitops_process_mongo_user
 . $DIR/functions/gitops_init_aws_infrastructure
 . $DIR/functions/gitops_init_rosa
 
@@ -215,12 +215,12 @@ case $1 in
     gitops_init_mongo "$@"
     ;;
 
-  gitops-create-mongo-user)
+  gitops-process-mongo-user)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors
-    gitops_create_mongo_user "$@"
+    gitops_process_mongo_user "$@"
     ;;
 
   gitops-init-cluster)
@@ -270,6 +270,22 @@ case $1 in
     echo
     reset_colors
     gitops_deprovision_suite_workspace "$@"
+    ;;
+
+  gitops-deprovision-suite-configs)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_suite_configs "$@"
+    ;;
+
+  gitops-deprovision-suite)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_suite "$@"
     ;;
 
   gitops-init-efs)
