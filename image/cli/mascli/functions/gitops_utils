@@ -62,7 +62,7 @@ function sm_delete_secret(){
   if [[ "$AVP_TYPE" == "aws" ]]; then
 
     # Delete the secret
-    aws secretsmanager delete-secret --secret-id ${SECRET_NAME} --output json 2> /dev/null
+    aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${SECRET_NAME} --output json 2> /dev/null
 
   elif [[ "$AVP_TYPE" == "ibm" ]]; then
     echo "IBM SecretsManager not yet supported"
