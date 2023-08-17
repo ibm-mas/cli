@@ -76,6 +76,8 @@ mkdir -p $CONFIG_DIR
 . $DIR/functions/gitops_init_suite
 . $DIR/functions/gitops_init_suite_config
 . $DIR/functions/gitops_init_suite_workspace
+. $DIR/functions/gitops_deprovision_suite
+. $DIR/functions/gitops_deprovision_suite_config
 . $DIR/functions/gitops_deprovision_suite_workspace
 . $DIR/functions/gitops_init_efs
 . $DIR/functions/gitops_init_db2u
