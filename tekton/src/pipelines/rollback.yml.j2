@@ -29,9 +29,13 @@ spec:
     # Catalog Version
     - name: mas_catalog_version
       type: string
-    
+
     # MAS Rollback Version
     - name: mas_core_version
+      type: string
+
+    # Manage App Rollback Version
+    - name: mas_app_manage_version
       type: string
 
     # Development Build Support
@@ -64,7 +68,7 @@ spec:
       runAfter:
         - wait-for-install
 {% endif %}
-    
+
     # 2. Rollback suite
     # -------------------------------------------------------------------------
     # Suite Rollback
@@ -85,8 +89,37 @@ spec:
           value: $(params.mas_core_version)
         - name: devops_suite_name
           value: core-rollback
+      when:
+        - input: "$(params.mas_core_version)"
+          operator: notin
+          values: [""]
 
-    # 3. Verify health of the cluster after the rollback complete
+    # 3. Rollback App
+    # -------------------------------------------------------------------------
+    # Manage App Rollback
+    - name: manage-rollback
+      runAfter:
+        - core-rollback
+      params:
+{% if wait_for_install == true %}
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+{% endif %}
+        - name: mas_app_id
+          value: manage
+        - name: mas_app_version
+          value: $(params.mas_app_manage_version)
+        - name: devops_suite_name
+          value: manage-rollback
+      when:
+        - input: "$(params.mas_app_manage_version)"
+          operator: notin
+          values: [""]
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-rollback
+
+    # 4. Verify health of the cluster after the rollback complete
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-rollback-verify-cluster',
@@ -98,18 +131,18 @@ spec:
         'verify_ingress': 'False'
       }) | indent(4) }}
       runAfter:
-        - core-rollback
+        - manage-rollback
 
-    # 4. Verify MAS core version after the rollback complete
+    # 5. Verify MAS core version after the rollback complete
     # -------------------------------------------------------------------------
-    - name: post-rollback-verify-version
+    - name: post-rollback-verify-core-version
       taskRef:
         kind: Task
         name: mas-devops-suite-rollback
       runAfter:
         - post-rollback-verify-cluster
       params:
-{% if wait_for_install == true %}      
+{% if wait_for_install == true %}
         - name: mas_instance_id
           value: $(params.mas_instance_id)
 {% endif %}
@@ -120,7 +153,39 @@ spec:
         - name: verify_core_version
           value: 'True'
         - name: devops_suite_name
-          value: post-rollback-verify-version
+          value: post-rollback-verify-core-version (MAS Core)
+      when:
+        - input: "$(params.mas_core_version)"
+          operator: notin
+          values: [""]
+
+    # 6. Verify MAS Manage App version after the rollback complete
+    # -------------------------------------------------------------------------
+    - name: post-rollback-verify-app-version
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-rollback
+      runAfter:
+        - post-rollback-verify-cluster
+      params:
+{% if wait_for_install == true %}
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+{% endif %}
+        - name: mas_app_id
+          value: manage
+        - name: mas_app_version
+          value: $(params.mas_app_manage_version)
+        - name: rollback_mas_app
+          value: 'False'
+        - name: verify_app_version
+          value: 'True'
+        - name: devops_suite_name
+          value: post-rollback-verify-app-version (MAS Manage)
+      when:
+        - input: "$(params.mas_app_manage_version)"
+          operator: notin
+          values: [""]
 
 {% if wait_for_install == true %}
   # Perform must-gather after the rollback

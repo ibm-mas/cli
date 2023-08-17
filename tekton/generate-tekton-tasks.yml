@@ -79,6 +79,7 @@
         - suite-app-config
         - suite-app-install
         - suite-app-upgrade
+        - suite-app-rollback
         - suite-config
         - suite-db2-setup-for-manage
         - suite-certs
