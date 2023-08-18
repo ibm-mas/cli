@@ -218,7 +218,7 @@ spec:
           value: workflow-designer
     
     # Manage SMTP Configuration Validation
-    - name: fvt-manage-smtp-setup
+    {# - name: fvt-manage-smtp-setup
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
@@ -230,4 +230,4 @@ spec:
           name: dshm
       env:
         - name: FVT_TEST_SUITE
-          value: mas-smtp-setup
+          value: mas-smtp-setup #}

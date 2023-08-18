@@ -1,3 +1,14 @@
 #!/bin/bash
 
-exit 0
+set -e
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+NAMESPACE=$1
+OUTPUT_DIR=$2
+
+# Collect Custom Resources
+# -----------------------------------------------------------------------------
+  for RESOURCE in ManageApp ManageBuild ManageDeployment ManageServerBundle ManageStatusChecker ManageWorkspace HealthextApp HealthextWorkspace
+  do
+    $DIR/mg-collect-resources -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
+  done
