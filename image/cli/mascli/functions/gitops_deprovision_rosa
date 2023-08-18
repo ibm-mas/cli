@@ -10,6 +10,8 @@ When no options are specified on the command line, interactive-mode will be enab
 
 Options:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}      Cluster ID
+      --delete-vpc ${COLOR_YELLOW}DELETE_VPC${TEXT_RESET}      Whether to delete the VPC or not
+      --aws-vpc-id ${COLOR_YELLOW}VPC_ID${TEXT_RESET}          VPC ID
 
 Other Commands:
   -h, --help     Show this help message
@@ -26,6 +28,12 @@ function gitops_deprovision_rosa_noninteractive() {
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
         ;;
+      --delete-vpc)
+        export DELETE_VPC=true
+        ;;
+      --aws-vpc-id)
+        export VPC_ID=$1 && shift
+        ;;
       # Show help
       -h|--help)
         gitops_deprovision_rosa_help
@@ -39,6 +47,10 @@ function gitops_deprovision_rosa_noninteractive() {
     esac
   done
   [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_rosa_help "CLUSTER_ID is not set"
+  
+  if [[ "$DELETE_VPC" == "true" ]]; then
+    [[ -z "$VPC_ID" ]] && gitops_deprovision_rosa_help "VPC_ID is not set"
+  fi
 }
 
 function gitops_deprovision_rosa(){
@@ -59,8 +71,10 @@ function gitops_deprovision_rosa(){
   echo "${TEXT_DIM}"
   echo_h2 "Cluster Details" "    "
   echo_reset_dim "Cluster Id ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "ROSA Token .......... ${COLOR_MAGENTA}${ROSA_TOKEN:0:8}<snip>"
-  echo_reset_dim "ROSA Action .......... ${COLOR_MAGENTA}${ROSA_ACTION}<snip>"
+  echo_reset_dim "ROSA Token ..................... ${COLOR_MAGENTA}${ROSA_TOKEN:0:8}<snip>"
+  echo_reset_dim "ROSA Action .................... ${COLOR_MAGENTA}${ROSA_ACTION}"
+  echo_reset_dim "Delete VPC  .................... ${COLOR_MAGENTA}${DELETE_VPC}"
+  echo_reset_dim "VPC ID  ........................ ${COLOR_MAGENTA}${VPC_ID}"
   reset_colors
 
   echo
@@ -84,4 +98,8 @@ function gitops_deprovision_rosa(){
   export ROSA_ACTION=deprovision
   ansible-playbook ibm.mas_devops.run_role
 
+  if [ "$DELETE_VPC" == "true" ]; then
+    echo_h2 "Removing VPC ${VPC_ID}"
+    aws delete-vpc --vpc-id ${VPC_ID}
+  fi
 }
