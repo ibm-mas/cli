@@ -159,7 +159,7 @@ spec:
     sidecarContainers:
       - command:
           - /var/run/argocd/argocd-cmp-server
-        image: 'quay.io/ibmmas/cli:6.4.0-pre.ajw-gitops-pipeline'
+        image: 'quay.io/ibmmas/cli:6.4.0-pre.gitops'
         imagePullPolicy: Always
         name: avp
         resources: {}
