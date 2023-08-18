@@ -1,0 +1,38 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-ocs
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    - name: ocs_action
+      type: string
+      description: Optional. Set to 'upgrade' to update ocs/odf storage cluster.
+      default: ""
+    - name: lso_device_path
+      type: string
+      description: Optional. The device path needed for the local volume used by the local storage operator.
+      default: ""
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      - name: OCS_ACTION
+        value: $(params.ocs_action)
+      - name: LSO_DEVICE_PATH
+        value: $(params.lso_device_path)
+
+  steps:
+    - name: ocs
+      command:
+        - /opt/app-root/src/run-role.sh
+        - ocs
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/configs
+
+  workspaces:
+    - name: configs
