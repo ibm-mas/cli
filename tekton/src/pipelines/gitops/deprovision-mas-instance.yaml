@@ -2,12 +2,11 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: provision-mas-instance
+  name: deprovision-mas-instance
 spec:
   workspaces:
     - name: configs
-    - name: shared-entitlement
-  description: Provision MAS GitOps Instance
+  description: Deprovision MAS GitOps Instance
   params:
     - name: cluster_name
       type: string
@@ -34,12 +33,6 @@ spec:
     - name: mongo_provider
       type: string
       default: aws
-    - name: sls_channel
-      type: string
-    - name: mas_channel
-      type: string
-    - name: mas_domain
-      type: string
     - name: workspace_id
       type: string
     - name: workspace_name
@@ -62,156 +55,9 @@ spec:
       type: string
     - name: docdb_user_action
       type: string
+      default: remove
   tasks:
-    - name: gitops-process-mongo-user
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: account
-          value: $(params.account)
-        - name: secrets_path
-          value: $(params.secrets_path)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: vpc_id
-          value: $(params.vpc_id)
-        - name: vpc_ipv4_cidr
-          value: $(params.vpc_ipv4_cidr)
-        - name: mongo_provider
-          value: $(params.mongo_provider)
-        - name: user_action
-          value: $(params.docdb_user_action)
-        - name: aws_key_pair_name
-          value: $(params.aws_key_pair_name)
-      workspaces:
-        - name: configs
-          workspace: configs
-      taskRef:
-        kind: Task
-        name: gitops-process-mongo-user
-    - name: gitops-init-license
-      runAfter:
-        - gitops-process-mongo-user
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: account
-          value: $(params.account)
-        - name: secrets_path
-          value: $(params.secrets_path)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
-      workspaces:
-        - name: shared-entitlement
-          workspace: shared-entitlement
-      taskRef:
-        kind: Task
-        name: gitops-init-license
-    - name: gitops-init-suite
-      runAfter:
-        - gitops-init-license
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: account
-          value: $(params.account)
-        - name: secrets_path
-          value: $(params.secrets_path)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mongo_provider
-          value: $(params.mongo_provider)
-        - name: git_branch
-          value: $(params.git_branch)
-        - name: github_org
-          value: $(params.github_org)
-        - name: github_repo
-          value: $(params.github_repo)
-        - name: github_host
-          value: $(params.github_host)
-        - name: sls_channel
-          value: $(params.sls_channel)
-        - name: mas_channel
-          value: $(params.mas_channel)
-        - name: mas_domain
-          value: $(params.mas_domain)
-        - name: github_pat
-          value: $(params.github_pat)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
-        - name: argocd_url
-          value: $(params.argocd_url)
-        - name: argocd_username
-          value: $(params.argocd_username)
-        - name: argocd_password
-          value: $(params.argocd_password)
-      taskRef:
-        kind: Task
-        name: gitops-init-suite
-      workspaces:
-        - name: configs
-          workspace: configs
-    - name: gitops-init-suite-config
-      runAfter:
-        - gitops-init-suite
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: account
-          value: $(params.account)
-        - name: secrets_path
-          value: $(params.secrets_path)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mongo_provider
-          value: $(params.mongo_provider)
-        - name: git_branch
-          value: $(params.git_branch)
-        - name: github_org
-          value: $(params.github_org)
-        - name: github_repo
-          value: $(params.github_repo)
-        - name: github_host
-          value: $(params.github_host)
-        - name: github_pat
-          value: $(params.github_pat)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
-        - name: argocd_url
-          value: $(params.argocd_url)
-        - name: argocd_username
-          value: $(params.argocd_username)
-        - name: argocd_password
-          value: $(params.argocd_password)
-      workspaces:
-        - name: configs
-          workspace: configs
-      taskRef:
-        name: gitops-init-suite-config
-        kind: Task
-    - name: gitops-init-suite-workspace
-      runAfter:
-        - gitops-init-suite-config
+    - name: gitops-deprovision-suite-workspace
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -243,8 +89,123 @@ spec:
           value: $(params.argocd_password)
       taskRef:
         kind: Task
-        name: gitops-init-suite-workspace
+        name: gitops-deprovision-suite-workspace
       workspaces:
         - name: configs
           workspace: configs
-
+    - name: gitops-deprovision-suite-config
+      runAfter:
+        - gitops-deprovision-suite-workspace
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: argocd_url
+          value: $(params.argocd_url)
+        - name: argocd_username
+          value: $(params.argocd_username)
+        - name: argocd_password
+          value: $(params.argocd_password)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        name: gitops-deprovision-suite-config
+        kind: Task
+    - name: gitops-deprovision-suite
+      runAfter:
+        - gitops-deprovision-suite-config
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mongo_provider
+          value: $(params.mongo_provider)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: argocd_url
+          value: $(params.argocd_url)
+        - name: argocd_username
+          value: $(params.argocd_username)
+        - name: argocd_password
+          value: $(params.argocd_password)
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite
+      workspaces:
+        - name: configs
+          workspace: configs
+    - name: gitops-process-mongo-user
+      runAfter:
+        - gitops-deprovision-suite
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: vpc_id
+          value: $(params.vpc_id)
+        - name: vpc_ipv4_cidr
+          value: $(params.vpc_ipv4_cidr)
+        - name: mongo_provider
+          value: $(params.mongo_provider)
+        - name: user_action
+          value: $(params.docdb_user_action)
+        - name: aws_key_pair_name
+          value: $(params.aws_key_pair_name)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-process-mongo-user

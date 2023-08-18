@@ -57,6 +57,18 @@ function sm_update_secret(){
   fi
 }
 
+function sm_delete_secret(){
+  SECRET_NAME=$1
+  if [[ "$AVP_TYPE" == "aws" ]]; then
+
+    # Delete the secret
+    aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${SECRET_NAME} --output json 2> /dev/null
+
+  elif [[ "$AVP_TYPE" == "ibm" ]]; then
+    echo "IBM SecretsManager not yet supported"
+    exit 1
+  fi
+}
 
 function sm_get_secret(){
   SECRET_NAME=$1
@@ -196,10 +208,32 @@ echo "Force Application Watcher to Sync ..."
 argocd app sync $APP_NAME
 }
 
+function argocd_prune_sync_watcher(){
+APP_NAME=$1
+echo "Force Application Watcher to Sync with --prune ..."
+argocd app sync $APP_NAME --prune
+}
+
 function argocd_hard_refresh_watcher(){
 APP_NAME=$1
 echo "Force Application Watcher to hard refresh ..."
 argocd app get $APP_NAME --hard-refresh
+}
+
+function check_argo_app_deleted(){
+  APPLICATION=$1
+  PROJECT=$2
+  while true; do
+    echo "argo: Checking if $APPLICATION in project $PROJECT is deleted"
+    APP=$(argocd app list -p $PROJECT -o json 2> /dev/null | jq -r ".[] | select(.metadata.name == \"$APPLICATION\")")
+    if [ -z "$APP" ]; then
+      echo "Application deleted"
+      break
+    else
+      echo "Application still found, Waiting 30s before checking application again"
+      sleep 30
+    fi
+  done
 }
 
 function check_argo_app_synced() {

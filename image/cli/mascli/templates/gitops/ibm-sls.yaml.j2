@@ -5,6 +5,8 @@ kind: Application
 metadata:
   name: mas-{{ MAS_INSTANCE_ID }}-sls
   namespace: openshift-gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: {{ MAS_INSTANCE_ID }}
   destination:
@@ -60,7 +62,7 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
+      - CreateNamespace=false
     managedNamespaceMetadata:
       labels:
         argocd.argoproj.io/managed-by: openshift-gitops

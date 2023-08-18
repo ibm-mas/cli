@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-function gitops_init_suite_help() {
+function gitops_deprovision_suite_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_init_suite [options]
+  mas gitops_deprovision_suite [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -48,10 +48,10 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_init_suite_noninteractive() {
+function gitops_deprovision_suite_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-init-suite commit"
+  GIT_COMMIT_MSG="gitops-deprovision-suite commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   while [[ $# -gt 0 ]]
@@ -135,38 +135,38 @@ function gitops_init_suite_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_init_suite_help
+        gitops_deprovision_suite_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_init_suite_help
+        gitops_deprovision_suite_help
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$ACCOUNT_ID" ]] && gitops_init_suite_help "ACCOUNT_ID is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_init_suite_help "CLUSTER_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_suite_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_suite_help "CLUSTER_ID is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_init_suite_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_init_suite_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_init_suite_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_init_suite_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_suite_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_deprovision_suite_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_suite_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_suite_help "GIT_BRANCH is not set"
   fi
 
 }
 
-function gitops_init_suite() {
+function gitops_deprovision_suite() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_init_suite_noninteractive "$@"
+    gitops_deprovision_suite_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_init_suite_interactive
+    gitops_deprovision_suite_interactive
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -235,63 +235,30 @@ function gitops_init_suite() {
   # Set up Suite secrets
   # ---------------------------------------------------------------------------
   echo
-  echo_h2 "Configuring Suite secrets"
+  echo_h2 "Deleting Suite secrets"
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
-
-  # Define cluster-level secrets used
-  # ---------------------------------------------------------------------------
-  # Note that this cluster-level secret is set up by gitops-init-cluster
-  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
-
-
-  # Get the cluster-level secrets used
-  # ---------------------------------------------------------------------------
-  # Note that this cluster-level secret is set up by gitops-init-mongo
-  export SECRET_NAME_MASTER_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
   CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/tmp-suite-init
+  TEMP_DIR=$CURRENT_DIR/tmp-suite-deprovision
   rm -rf TEMP_DIR
   mkdir -p $TEMP_DIR
 
-  # by default yaml. pass aws, in case if configuring with DocDB
-  export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"yaml"}
-
-  export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
-  export MONGO_CONFIG_FILE=$TEMP_DIR/mongo-info.yaml
-  
-  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
-
-  jq -r .info $MONGO_SECRET_FILE > $MONGO_CONFIG_FILE
-  MASTER_MONGO_USERNAME=$(jq -r .username $MONGO_SECRET_FILE)
-  MASTER_MONGO_PASSWORD=$(jq -r .password $MONGO_SECRET_FILE)
-  UNESCAPED_MONGO_INFO=$(jq -r .info $MONGO_SECRET_FILE)
-
-
-  # Instance-level secrets to use
-  # ---------------------------------------------------------------------------
-  # Note that these instance-level secrets are set up by gitops-init-license
-  export SECRET_KEY_LICENSE_FILE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}license#license_file
-  export LICENSE_FILE=$TEMP_DIR/license.lic
-  sm_get_secret_file $SECRET_KEY_LICENSE_FILE $LICENSE_FILE
-
-
-  # Instance-level secrets to create
+  # Instance-level secrets to delete
   # ---------------------------------------------------------------------------
   export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
-  export SECRET_KEY_MONGO_USERNAME=${SECRET_NAME_MONGO}#username
-  export SECRET_KEY_MONGO_PASSWORD=${SECRET_NAME_MONGO}#password
+  export SECRET_NAME_LICENSE_FILE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}license
 
-  export MONGO_INSTANCE_SECRET_FILE=$TEMP_DIR/mongo-instance-secret.json
-  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_INSTANCE_SECRET_FILE
-  INSTANCE_MONGO_USERNAME=$(jq -r .username $MONGO_INSTANCE_SECRET_FILE)
-  INSTANCE_MONGO_PASSWORD=$(jq -r .password $MONGO_INSTANCE_SECRET_FILE)
+  # Delete Mongo details for this MAS Instance
+  # ---------------------------------------------------------------------------
+  echo " Deleting $SECRET_NAME_MONGO"
+  sm_delete_secret $SECRET_NAME_MONGO
 
-  # Already mongo instance secret has instance username and password, here we are setting the info field
-  ESCAPED_INFO=${UNESCAPED_MONGO_INFO//\"/\\\"}
-  ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
-  sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$INSTANCE_MONGO_USERNAME\", \"password\": \"$INSTANCE_MONGO_PASSWORD\"}"
+  # Delete SLS Entitlement License details for this MAS Instance
+  # ---------------------------------------------------------------------------
+  echo " Deleting $SECRET_NAME_LICENSE_FILE"
+  sm_delete_secret $SECRET_NAME_LICENSE_FILE 
+
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
@@ -308,26 +275,39 @@ function gitops_init_suite() {
   mkdir -p ${GITOPS_APPS_DIR}
 
 
-  # Generate ArgoApps
+  # Delete ArgoApps
   # ---------------------------------------------------------------------------
   echo
-  echo_h2 "Generating Argo Project and Applications"
-  echo "- Project"
-  jinja -X .+ $DIR/templates/gitops/appproject.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.appproject.yaml
-
+  echo_h2 "Deleting Applications"
   echo "- IBM Suite License Service"
-  jinja -X .+ -d $MONGO_CONFIG_FILE $DIR/templates/gitops/ibm-sls.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-sls.yaml
-
-
-  # Parse MAS variables from json to dict
-  export MAS_ANNOTATIONS=$(echo $MAS_ANNOTATIONS | jq '.' | yq --yaml-output)
-  export MAS_IMAGE_TAGS=$(echo $MAS_IMAGE_TAGS | jq '.' | yq --yaml-output)
-  export MAS_LABELS=$(echo $MAS_LABELS | jq '.' | yq --yaml-output)
+  rm ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-sls.yaml
 
   echo "- IBM Maximo Application Suite Core Platform"
-  jinja -X .+ $DIR/templates/gitops/ibm-mas-core-suite.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-core-suite.yaml
+  rm ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-core-suite.yaml
 
   # Commit and push to github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
+
+    argocd_login
+    argocd_sync_watcher ${CLUSTER_ID}-watcher
+
+    argocd_prune_sync_watcher ${CLUSTER_ID}-watcher
+    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-sls ${MAS_INSTANCE_ID}
+    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-core-suite ${MAS_INSTANCE_ID}
+  fi
+
+  # Deleting AppProject after other apps have been removed
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Deleting Argo Project for ${MAS_INSTANCE_ID}"
+  echo "- Project"
+  rm ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.appproject.yaml
+
+    # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
@@ -338,15 +318,6 @@ function gitops_init_suite() {
     argocd_login
     argocd_sync_watcher ${CLUSTER_ID}-watcher
 
-    argocd_hard_refresh_watcher mas-${MAS_INSTANCE_ID}-sls
-    argocd_hard_refresh_watcher mas-${MAS_INSTANCE_ID}-core-suite
-
-    check_argo_app_synced mas-${MAS_INSTANCE_ID}-core-suite
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-core-suite
-
-    check_argo_app_synced mas-${MAS_INSTANCE_ID}-sls
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-sls
+    argocd_prune_sync_watcher ${CLUSTER_ID}-watcher
   fi
-
-
 }
