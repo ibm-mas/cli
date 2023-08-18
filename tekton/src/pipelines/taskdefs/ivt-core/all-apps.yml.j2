@@ -1,24 +1,3 @@
-# IVT 1: Core x Assist
-# -------------------------------------------------------------------------
-- name: ivtcore-assist
-  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
-    - name: product_id
-      value: ibm-mas-assist
-    - name: product_channel
-      value: $(params.mas_app_channel_assist)
-  when:
-    - input: "$(params.ivt_digest_core)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_assist)"
-      operator: notin
-      values: [""]
-  runAfter:
-    - app-cfg-assist
-
-
 # IVT 2: Core x HPUtilities
 # -------------------------------------------------------------------------
 - name: ivtcore-hputilities

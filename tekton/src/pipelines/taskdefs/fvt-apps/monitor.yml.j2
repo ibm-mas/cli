@@ -34,8 +34,6 @@
     - input: "$(params.mas_app_channel_manage)" # only run when manage is not installed
       operator: in
       values: [""]
-  runAfter:
-    - ivtcore-monitor
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -76,9 +74,6 @@
     - input: "$(params.mas_app_channel_manage)" # only run if manage is also installed
       operator: notin
       values: [""]
-  runAfter:
-    - ivtcore-monitor
-    - ivtcore-manage
   workspaces:
     - name: configs
       workspace: shared-configs

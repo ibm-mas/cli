@@ -6,8 +6,6 @@
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-prepare.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: prepare
-  runAfter:
-    - ivtcore-assist
 
 
 # Python
@@ -56,5 +54,3 @@
   {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist-cucumber.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
-  runAfter:
-    - ivtcore-assist

@@ -263,21 +263,6 @@ spec:
         - app-install-hputilities
 
 
-    # 12. Install & Configure Assist
-    # -------------------------------------------------------------------------
-    # 12.1 Assist Install
-    {{ lookup('template', 'taskdefs/apps/assist-app.yml.j2') | indent(4) }}
-      runAfter:
-        - suite-config-cos
-
-    # 12.3 Configure Assist workspace
-    {{ lookup('template', 'taskdefs/apps/assist-workspace.yml.j2') | indent(4) }}
-      runAfter:
-        - sls
-        - uds
-        - gencfg-workspace
-
-
     # 14. MAS Core FVT
     # -------------------------------------------------------------------------
     # 14.1 Phase 1 of CoreAPI testing (~35m)
