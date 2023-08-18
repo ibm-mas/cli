@@ -30,8 +30,6 @@
     - input: "$(params.mas_app_channel_predict)"
       operator: notin
       values: [""]
-  runAfter:
-    - ivtcore-predict
   workspaces:
     - name: configs
       workspace: shared-configs
