@@ -257,7 +257,7 @@ function gitops_deprovision_suite() {
   # Delete SLS Entitlement License details for this MAS Instance
   # ---------------------------------------------------------------------------
   echo " Deleting $SECRET_NAME_LICENSE_FILE"
-  sm_update_secret $SECRET_NAME_LICENSE_FILE 
+  sm_delete_secret $SECRET_NAME_LICENSE_FILE 
 
 
   if [ -z $GIT_SSH ]; then
