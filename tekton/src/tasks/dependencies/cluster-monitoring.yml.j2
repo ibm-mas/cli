@@ -44,6 +44,12 @@ spec:
       type: string
       default: ""
 
+    # Optional parameter to include/exclude Grafana from the cluster monitoring stack
+    - name: cluster_monitoring_include_grafana
+      type: string
+      description: Optional. Used to declare whether to include Grafana in the cluster monitoring stack (by default it will not be included)
+      default: ""
+
     # Optional parameter to uninstall Cluster Monitoring
     - name: cluster_monitoring_action
       type: string
@@ -73,6 +79,8 @@ spec:
         value: $(params.prometheus_userworkload_storage_size)
 
       # Grafana
+      - name: CLUSTER_MONITORING_INCLUDE_GRAFANA
+        value: $(params.cluster_monitoring_include_grafana)
       - name: GRAFANA_NAMESPACE
         value: $(params.grafana_namespace)
       - name: GRAFANA_INSTANCE_STORAGE_CLASS

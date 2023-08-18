@@ -301,6 +301,9 @@ spec:
     - name: mas_icr_cpopen
       value: '$MAS_ICR_CPOPEN'
 
+    - name: mas_trust_default_cas
+      value: '$MAS_TRUST_DEFAULT_CAS'
+
     # MAS Workspace
     # -------------------------------------------------------------------------
     - name: mas_workspace_id
@@ -414,6 +417,8 @@ spec:
 
     # Grafana
     # -------------------------------------------------------------------------
+    - name: cluster_monitoring_include_grafana
+      value: '$CLUSTER_MONITORING_INCLUDE_GRAFANA'
     - name: grafana_namespace
       value: '$GRAFANA_NAMESPACE'
     - name: grafana_instance_storage_class

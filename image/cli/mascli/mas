@@ -144,9 +144,6 @@ case $1 in
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Installer (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
     echo
-    echo "${TEXT_UNDERLINE}${TEXT_DIM}Current Limitations${TEXT_RESET}"
-    echo "${TEXT_DIM}1. Maximo Assist, Predict, and Visual Inspection are not supported in disconnected installs as of MAS v8.10"
-    echo
     reset_colors
     install "$@"
     ;;

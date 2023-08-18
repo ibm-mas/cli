@@ -46,23 +46,17 @@ function channel_select_manage() {
 }
 
 function channel_select_predict() {
-  if [[ -z "$AIRGAP_MODE" ]]; then
-    case $MAS_CHANNEL in
-      8.10.x)
-        MAS_APP_CHANNEL_PREDICT=8.8.x
-        ;;
-      8.9.x)
-        MAS_APP_CHANNEL_PREDICT=8.7.x
-        ;;
-      *)
-        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_PREDICT
-        ;;
-    esac
-  else
-    MAS_APP_CHANNEL_PREDICT=""
-    echo_warning "Sorry, air gap install of this application is not supported yet"
-    exit 1
-  fi
+  case $MAS_CHANNEL in
+    8.10.x)
+      MAS_APP_CHANNEL_PREDICT=8.8.x
+      ;;
+    8.9.x)
+      MAS_APP_CHANNEL_PREDICT=8.7.x
+      ;;
+    *)
+      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_PREDICT
+      ;;
+  esac
   true
 }
 
@@ -83,23 +77,17 @@ function channel_select_optimizer() {
 }
 
 function channel_select_assist() {
-  if [[ -z "$AIRGAP_MODE" ]]; then
-    case $MAS_CHANNEL in
-      8.10.x)
-        MAS_APP_CHANNEL_ASSIST=8.7.x
-        ;;
-      8.9.x)
-        MAS_APP_CHANNEL_ASSIST=8.6.x
-        ;;
-      *)
-        prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_ASSIST
-        ;;
-    esac
-  else
-    MAS_APP_CHANNEL_ASSIST=""
-    echo_warning "Sorry, air gap install of this application is not supported yet"
-    exit 1
-  fi
+  case $MAS_CHANNEL in
+    8.10.x)
+      MAS_APP_CHANNEL_ASSIST=8.7.x
+      ;;
+    8.9.x)
+      MAS_APP_CHANNEL_ASSIST=8.6.x
+      ;;
+    *)
+      prompt_for_input 'Custom Subscription Channel' MAS_APP_CHANNEL_ASSIST
+      ;;
+  esac
   true
 }
 
@@ -129,8 +117,10 @@ function config_pipeline_applications() {
   MAS_APP_CHANNEL_PREDICT=''
   MAS_APP_CHANNEL_ASSIST=''
   MAS_APP_CHANNEL_VISUALINSPECTION=''
-  MAS_APP_CHANNEL_OPTIMIZER='';        MAS_APP_PLAN_OPTIMIZER=''
+  MAS_APP_CHANNEL_OPTIMIZER='';
+  MAS_APP_PLAN_OPTIMIZER=''
 
+  # IoT and Monitor haven't been tested on Single Node OpenShift
   if [[ "$SNO_MODE" != "true" ]]; then
     # IoT
     if prompt_for_confirm "Install IoT"; then
@@ -173,6 +163,7 @@ function config_pipeline_applications() {
     fi
   fi
 
+  # Optimizer, Predict, Visual Inspection, & Assist haven't been tested on Single Node OpenShift
   if [[ "$SNO_MODE" != "true" ]]; then
     if prompt_for_confirm "Install Optimizer"; then
       channel_select_optimizer || exit 1
@@ -188,28 +179,25 @@ function config_pipeline_applications() {
      channel_select_visualinspection || exit 1
     fi
 
-    # Applications only supported in online installs
-    if [[ -z "$AIRGAP_MODE" ]]; then
-      # Applications that require Manage
-      # TODO: these applications require Health component specifically,
-      # need to review this code when add-ons selection are in place
-      if [[ "$MAS_APP_CHANNEL_MANAGE" != '' ]]; then
-        # Predict
-        if prompt_for_confirm "Install Predict"; then
-          channel_select_predict || exit 1
-          if prompt_for_confirm "+ Install IBM SPSS Statistics"; then
-            CPD_INSTALL_SPSS=true
-          fi
-          if prompt_for_confirm "+ Install Watson OpenScale"; then
-            CPD_INSTALL_OPENSCALE=true
-          fi
+    # Applications that require Manage
+    # TODO: these applications require Health component specifically,
+    # need to review this code when add-ons selection are in place
+    if [[ "$MAS_APP_CHANNEL_MANAGE" != '' ]]; then
+      # Predict
+      if prompt_for_confirm "Install Predict"; then
+        channel_select_predict || exit 1
+        if prompt_for_confirm "+ Install IBM SPSS Statistics"; then
+          CPD_INSTALL_SPSS=true
+        fi
+        if prompt_for_confirm "+ Install Watson OpenScale"; then
+          CPD_INSTALL_OPENSCALE=true
         fi
       fi
+    fi
 
-      # Assist
-      if prompt_for_confirm "Install Assist"; then
-        channel_select_assist || exit 1
-      fi
+    # Assist
+    if prompt_for_confirm "Install Assist"; then
+      channel_select_assist || exit 1
     fi
 
     # Assist Dependencies
