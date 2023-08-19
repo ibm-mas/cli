@@ -152,7 +152,7 @@ function config_pipeline_applications() {
       prompt_for_input "Tablespace" MAS_APP_SETTINGS_TABLESPACE
       prompt_for_input "Indexspace" MAS_APP_SETTINGS_INDEXSPACE
     fi
-     if prompt_for_confirm "+ Include customization archive"; then
+    if prompt_for_confirm "+ Include customization archive"; then
       MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME='manage-custom-archive'
       prompt_for_input "Customization archive name" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME
       prompt_for_input "Customization archive url" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL
@@ -160,6 +160,9 @@ function config_pipeline_applications() {
         prompt_for_input "Username" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME
         prompt_for_secret "Password" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD
       fi
+    fi
+    if prompt_for_confirm "+ Install and bind Watson Studio"; then
+      MAS_APPWS_BINDINGS_HEALTH_WSL='system'
     fi
   fi
 

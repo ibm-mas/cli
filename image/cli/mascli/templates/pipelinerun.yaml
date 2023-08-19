@@ -367,6 +367,8 @@ spec:
       value: '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME'
     - name: mas_app_settings_customization_archive_password
       value: '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD'
+    - name: mas_appws_bindings_health_wsl
+      value: '$MAS_APPWS_BINDINGS_HEALTH_WSL'
 
     # Monitor Application
     # -------------------------------------------------------------------------
