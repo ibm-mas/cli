@@ -1,0 +1,193 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-fvt-mobile-standalone
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+    # Any pre-generated configs that will be copied into the shared-configs workspace during suite-install
+    - name: shared-additional-configs
+    # The SLS entitlement key file that will be installed during install-sls.
+    - name: shared-entitlement
+    # Shared storage to hold mustgather output for tasks
+    - name: shared-mustgather
+
+  params:
+    # 1. Common Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}
+
+    # 2. Installation
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
+    {{ lookup('template', params_src_dir ~ '/install.yml.j2') | indent(4) }}
+
+    # 3. Additional Params for FVT
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/fvt.yml.j2') | indent(4) }}
+
+  tasks:
+    # Content
+    # -------
+    # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
+    # 2. Install Universal Dependencies
+    # 4. Other Dependecies
+    # 5. Install & Configure IBM MAS
+    # 9. Install & Configure Manage
+
+
+    # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
+    # -------------------------------------------------------------------------
+    # 1.1 IBM Operator Catalog
+    {{ lookup('template', 'taskdefs/cluster-setup/ibm-catalogs.yml.j2') | indent(4) }}
+
+    # 1.2 IBM Cloud Pak Foundational Services
+    {{ lookup('template', 'taskdefs/cluster-setup/common-services.yml.j2') | indent(4) }}
+      runAfter:
+        - ibm-catalogs
+
+    # 1.3 IBM Certificate Manager
+    {{ lookup('template', 'taskdefs/cluster-setup/cert-manager.yml.j2') | indent(4) }}
+      runAfter:
+        - common-services
+
+    # 1.4 Configure Cluster Monitoring
+    {{ lookup('template', 'taskdefs/cluster-setup/cluster-monitoring.yml.j2') | indent(4) }}
+
+
+    # 2. Install Universal Dependencies
+    # -------------------------------------------------------------------------
+    # 2.1 MongoDb
+    {{ lookup('template', 'taskdefs/dependencies/mongo.yml.j2') | indent(4) }}
+      runAfter:
+        - cert-manager
+
+    # 2.2 AMQStreams (Kafka)
+    {{ lookup('template', 'taskdefs/dependencies/kafka.yml.j2') | indent(4) }}
+      runAfter:
+        - cluster-monitoring
+
+    # 2.3 Db2
+    # 2.3.1 System Db2
+    {{ lookup('template', 'taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'system'}) | indent(4) }}
+      runAfter:
+        - cert-manager
+
+    # 2.3.2 Dedicated Manage Db2
+    {{ lookup('template', 'taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'manage'}) | indent(4) }}
+      runAfter:
+        - db2-system
+
+    # 2.4 IBM SLS
+    {{ lookup('template', 'taskdefs/dependencies/sls.yml.j2') | indent(4) }}
+      runAfter:
+        - mongodb
+
+    # 2.5 UDS
+    {{ lookup('template', 'taskdefs/dependencies/uds.yml.j2') | indent(4) }}
+      runAfter:
+        - common-services
+
+
+    # 3. Other Dependecies
+    # -------------------------------------------------------------------------
+    # 3.1 Install Cloud Object Storage (COS)
+    {{ lookup('template', 'taskdefs/dependencies/cos.yml.j2') | indent(4) }}
+
+    # 3.2 Configure COS in MAS
+    {{ lookup('template', 'taskdefs/core/suite-config-cos.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-verify
+        - cos
+
+    # 4. Install & Configure IBM MAS
+    # -------------------------------------------------------------------------
+    # 4.1 Configure Workspace
+    {{ lookup('template', 'taskdefs/core/gencfg-workspace.yml.j2') | indent(4) }}
+
+    # 4.2 DNS Setup
+    {{ lookup('template', 'taskdefs/core/suite-dns.yml.j2') | indent(4) }}
+      runAfter:
+        - cert-manager
+
+    # 4.3 Suite Installation
+    {{ lookup('template', 'taskdefs/core/suite-install.yml.j2') | indent(4) }}
+      runAfter:
+        - sls
+        - uds
+        - gencfg-workspace
+        - suite-dns
+
+    # 4.4 Suite Configuration
+    {{ lookup('template', 'taskdefs/core/suite-config.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-install
+
+    # 4.5 Suite Verification
+    {{ lookup('template', 'taskdefs/core/suite-verify.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config
+
+    # 4.6 Configure Db2 in MAS
+    {{ lookup('template', 'taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-verify
+        - db2-system
+        - db2-manage
+
+    # 4.7 Configure Kafka in MAS
+    {{ lookup('template', 'taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-verify
+        - kafka
+
+    # 5. Install & Configure Manage
+    # -------------------------------------------------------------------------
+    # 5.1. Prepare database for Maxinst
+    {{ lookup('template', 'taskdefs/apps/db2-setup-system.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config-db2
+    {{ lookup('template', 'taskdefs/apps/db2-setup-manage.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config-db2
+
+    # 5.2 Manage Install
+    {{ lookup('template', 'taskdefs/apps/manage-app.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-db2-setup-system
+        - suite-db2-setup-manage
+
+    # 5.3 Configure Manage workspace
+    {{ lookup('template', 'taskdefs/apps/manage-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-manage
+
+    # 6. Manage IVT
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/ivt-core/manage.yml.j2') | indent(4) }}
+
+    # 0. Manage Mobile FVT
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-mobile/mobstandalone-phase0-setup-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/mobstandalone-phase1-setup-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase2-android.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase3-ios.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase4.yml.j2') | indent(4) }}
+
+    
+  # Mustgather executed in finally block. Use suite_mustgather_download
+  # playbook to retrieve the output on your local machine
+  # -------------------------------------------------------------------------
+  finally:
+    - name: must-gather
+      params:
+        - name: base_output_dir
+          value: "/workspace/mustgather/$(context.pipelineRun.name)"
+      taskRef:
+        kind: Task
+        name: mas-devops-must-gather
+      workspaces:
+        - name: mustgather
+          workspace: shared-mustgather
