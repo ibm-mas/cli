@@ -32,6 +32,8 @@ spec:
     - name: aws_key_pair_name
       type: string
       default: sre-key-pair
+    - name: ec2_linux_ami_id
+      type: string
   stepTemplate:
     name: gitops-process-mongo-user
     env:
@@ -57,6 +59,8 @@ spec:
         value: $(params.user_action)
       - name: AWS_KEY_PAIR_NAME
         value: $(params.aws_key_pair_name)
+      - name: EC2_LINUX_AMI_ID
+        value: $(params.ec2_linux_ami_id)
   steps:
     - args:
       - |-
@@ -79,7 +83,8 @@ spec:
         --aws-docdb-ingress-cidr $VPC_IPV4_CIDR \
         --aws-docdb-egress-cidr $VPC_IPV4_CIDR \
         --aws-ec2-cidr-az1 10.0.0.0/17 \
-        --aws-key-pair-name $AWS_KEY_PAIR_NAME
+        --aws-key-pair-name $AWS_KEY_PAIR_NAME \
+        --ec2-linux-ami-id $EC2_LINUX_AMI_ID
       command:
         - /bin/sh
         - -c

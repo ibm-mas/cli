@@ -42,6 +42,7 @@ AWS MongoDb Provider:
       --aws-access-key-id ${COLOR_YELLOW}AWS_ACCESS_KEY_ID${TEXT_RESET}                   Aws access key id
       --aws-secret-access-key ${COLOR_YELLOW}AWS_SECRET_ACCESS_KEY${TEXT_RESET}           Aws secret access key
       --secret-name-mongo-instance ${COLOR_YELLOW}SECRET_NAME_MONGO_INSTANCE${TEXT_RESET} AWS secret manager secret name where instance mongo username and password will be stored
+      --ec2-linux-ami-id ${COLOR_YELLOW}SECRET_NAME_MONGO_INSTANCE${TEXT_RESET}           AWS EC2 instance AMI ID
 
 
 Other Commands:
@@ -137,6 +138,9 @@ function gitops_process_mongo_user_noninteractive() {
       --secret-name-mongo-instance)
         export SECRET_NAME_MONGO_INSTANCE=$1 && shift
         ;;
+      --ec2-linux-ami-id)
+        export EC2_LINUX_AMI_ID=$1 && shift
+        ;;        
       # Other Commands
       -h|--help)
         gitops_process_mongo_user_help
@@ -158,6 +162,8 @@ function gitops_process_mongo_user_noninteractive() {
     [[ -z "$USER_ACTION" ]] && gitops_process_mongo_user_help "USER_ACTION is not set"
 
     [[ -z "$MAS_INSTANCE_ID" ]] && gitops_process_mongo_user_help "MAS_INSTANCE_ID is not set"
+
+    [[ -z "$EC2_LINUX_AMI_ID" ]] && gitops_process_mongo_user_help "EC2_LINUX_AMI_ID is not set"
 
     if [ -z $AWS_ACCESS_KEY_ID ] || [ -z $AWS_SECRET_ACCESS_KEY ] || [ -z $VPC_ID ] || [ -z $AWS_REGION ]; then
       echo 'Missing required params for AWS mongo provider, make sure to provide --aws-access-key, --aws-secret-key, --aws-region and --aws-vpc-id'
@@ -211,6 +217,7 @@ function gitops_process_mongo_user() {
     echo_reset_dim "AWS Region  ........................... ${COLOR_MAGENTA}${AWS_REGION}"
     echo_reset_dim "AWS VPC ID  ........................... ${COLOR_MAGENTA}${VPC_ID}"
     echo_reset_dim "AWS DOCDB CLUSTER NAME  ............... ${COLOR_MAGENTA}${DOCDB_CLUSTER_NAME}"
+    echo_reset_dim "AWS EC2 Linux AMI ID  ................. ${COLOR_MAGENTA}${EC2_LINUX_AMI_ID}"
   fi
 
   echo "${TEXT_DIM}"
