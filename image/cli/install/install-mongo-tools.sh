@@ -13,7 +13,7 @@ rm mongodb-mongosh-shared-openssl11-1.10.5.x86_64.rpm
 curl "https://fastdl.mongodb.org/tools/db/mongodb-database-tools-rhel80-x86_64-100.8.0.tgz" -o mongodb-database-tools-rhel80-x86_64-100.8.0.tgz
 tar xvfz mongodb-database-tools-rhel80-x86_64-100.8.0.tgz
 
-mv mongodb-database-tools-rhel80-x86_64-100.8.0/bin/* /usr/local/bin
+mv mongodb-database-tools-rhel80-x86_64-100.8.0/bin/* /usr/local/bin/
 rm -rf mongodb-database-tools-rhel80-x86_64-100.8.0
 rm mongodb-database-tools-rhel80-x86_64-100.8.0.tgz
 
