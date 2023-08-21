@@ -70,7 +70,11 @@ spec:
           vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME | yq '.Value')
         fi
         export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ['$vpc_name']}]' --output yaml | yq -r '.Vpcs[].VpcId' )
-        
+
+        if [ -z "$EC2_LINUX_AMI_ID" ]; then
+          export EC2_LINUX_AMI_ID=$(aws ec2 describe-images --filters "Name=description,Values=Amazon Linux 2023 AMI 2023.1.20230809.0 x86_64 HVM kernel-6.1" --region ${SM_AWS_REGION}  --query 'sort_by(Images, &Name)[-1].ImageId')
+        fi
+
         mas gitops-process-mongo-user -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
         --mongo-provider $MONGO_PROVIDER \
