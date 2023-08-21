@@ -27,6 +27,7 @@ RUN umask 0002 && \
     bash /tmp/install/install-aws.sh && \
     bash /tmp/install/install-helm.sh && \
     bash /tmp/install/install-mongo-tools.sh && \
+    bash /tmp/install/install-yq.sh && \
     rm -rf /tmp/install && \
     rm /opt/app-root/src/.wget-hsts /opt/app-root/src/README.md /opt/app-root/src/LICENSE
 
