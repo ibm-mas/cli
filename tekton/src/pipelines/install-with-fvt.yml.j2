@@ -223,20 +223,6 @@ spec:
         - app-install-manage
 
 
-    # 9. Install & Configure Predict
-    # -------------------------------------------------------------------------
-    # 9.1 Predict Install
-    {{ lookup('template', 'taskdefs/apps/predict-app.yml.j2') | indent(4) }}
-      runAfter:
-        - app-cfg-manage
-        - app-cfg-monitor
-
-    # 9.2 Configure Predict workspace
-    {{ lookup('template', 'taskdefs/apps/predict-workspace.yml.j2') | indent(4) }}
-      runAfter:
-        - app-install-predict
-
-
     # 10. Install & Configure Optimizer
     # -------------------------------------------------------------------------
     # 10.1 Optimizer Install
@@ -261,6 +247,21 @@ spec:
     {{ lookup('template', 'taskdefs/apps/hputilities-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-hputilities
+
+    
+    # 9. Install & Configure Predict
+    # -------------------------------------------------------------------------
+    # 9.1 Predict Install
+    {{ lookup('template', 'taskdefs/apps/predict-app.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-manage
+        - app-cfg-monitor
+
+    # 9.2 Configure Predict workspace
+    {{ lookup('template', 'taskdefs/apps/predict-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-hputilities
+        - app-install-predict
 
 
     # 14. MAS Core FVT
