@@ -55,11 +55,11 @@
     # -------------------------------------------------------------------------
     - name: Generate GitOps Pipelines 
       vars:
-        wait_for_provsion: false
-        wait_for_deprovsion: false
+        wait_for_provision: false
+        wait_for_deprovision: false
       ansible.builtin.template:
         src: "{{ pipeline_src_dir }}/gitops/{{ item }}.yml.j2"
-        dest: "{{ pipeline_target_dir }}/gitops/{{ item }}.yaml"
+        dest: "{{ pipeline_target_dir }}/{{ item }}.yaml"
       with_items:
         - deprovision-cluster
         - deprovision-mas-instance
@@ -73,7 +73,7 @@
         wait_for_deprovision: true
       ansible.builtin.template:
         src: "{{ pipeline_src_dir }}/gitops/{{ item }}.yml.j2"
-        dest: "{{ pipeline_target_dir }}/gitops/{{ item }}-after-deprovision.yaml"
+        dest: "{{ pipeline_target_dir }}/{{ item }}-after-deprovision.yaml"
       with_items:
         - provision-bootstrap-cluster
 
@@ -84,6 +84,6 @@
         wait_for_provision: true
       ansible.builtin.template:
         src: "{{ pipeline_src_dir }}/gitops/{{ item }}.yml.j2"
-        dest: "{{ pipeline_target_dir }}/gitops/{{ item }}-after-provision.yaml"
+        dest: "{{ pipeline_target_dir }}/{{ item }}-after-provision.yaml"
       with_items:
         - provision-mas-instance
