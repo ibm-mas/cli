@@ -12,6 +12,7 @@ spec:
   workspaces:
     - name: configs
   params:
+{% if wait_for_deprovision == true %}
       # Name of the PipelineRun to wait for
     - name: pipelinerun_name
       type: string
@@ -19,7 +20,7 @@ spec:
       type: string
       default: "False"
       description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
-
+{% endif %}
     - name: cluster_name
       type: string
     - name: ocp_version
