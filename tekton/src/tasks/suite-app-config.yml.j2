@@ -37,6 +37,10 @@ spec:
       default: ""
 
     # Application Workspace - Operand (Manage)
+    - name: mas_appws_bindings_health_wsl_flag
+      type: string
+      description: Boolean value indicating if Watson Studio must installed and bound to Manage/Health.
+      default: ""
     - name: mas_app_settings_aio_flag
       type: string
       description: Flag indicating if Asset Investment Optimization (AIO) resource must be loaded or not. It can be loaded only when Optimizer application is installed.
@@ -113,10 +117,6 @@ spec:
       type: string
       description: Password to authenticate into Manage custom archive url (if required)
       default: "" 
-    - name: mas_appws_bindings_health_wsl
-      type: string
-      description: when set to `system`, indicates Watson Studio must be installed and bound to ManageWorkspace
-      default: ""
 
     # Application Workspace - Operand (Predict)
     - name: predict_deployment_size
@@ -177,6 +177,8 @@ spec:
         value: $(params.mas_appws_components)
 
       # Application Workspace - Operand (Manage)
+      - name: MAS_APPWS_BINDINGS_HEALTH_WSL_FLAG
+        value: $(params.mas_appws_bindings_health_wsl_flag)
       - name: MAS_APP_SETTINGS_AIO_FLAG
         value: $(params.mas_app_settings_aio_flag)
       - name: MAS_APP_SETTINGS_DEMODATA
@@ -215,8 +217,6 @@ spec:
         value: $(params.mas_app_settings_customization_archive_username)
       - name: MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD
         value: $(params.mas_app_settings_customization_archive_password)
-      - name: MAS_APPWS_BINDINGS_HEALTH_WSL
-        value: $(params.mas_appws_bindings_health_wsl)
 
       # Application Workspace - Operand (Predict)
       - name: PREDICT_DEPLOYMENT_SIZE
