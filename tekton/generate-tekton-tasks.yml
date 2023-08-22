@@ -105,14 +105,14 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - gitops-bootstrap
-        - gitops-deprovsion-cluster
-        - gitops-deprovsion-mongo
-        - gitops-deprovsion-rosa
-        - gitops-deprovsion-suite-config
-        - gitops-deprovsion-suite-workspace
-        - gitops-deprovsion-suite
+        - gitops-deprovision-cluster
+        - gitops-deprovision-mongo
+        - gitops-deprovision-rosa
+        - gitops-deprovision-suite-config
+        - gitops-deprovision-suite-workspace
+        - gitops-deprovision-suite
         - gitops-init-cluster
-        - gitops-init-licesnse
+        - gitops-init-license
         - gitops-init-mongo
         - gitops-init-rosa
         - gitops-init-suite-config

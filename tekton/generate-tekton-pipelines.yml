@@ -61,29 +61,29 @@
         src: "{{ pipeline_src_dir }}/gitops/{{ item }}.yml.j2"
         dest: "{{ pipeline_target_dir }}/gitops/{{ item }}.yaml"
       with_items:
-        - deprovsion-cluster
-        - deprovsion-mas-instance
+        - deprovision-cluster
+        - deprovision-mas-instance
         - provision-bootstrap-cluster
-        - provsion-mas-instance
+        - provision-mas-instance
 
     # 4. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
-    - name: Generate GitOps Pipelines with wait-after-deprovsion
+    - name: Generate GitOps Pipelines with wait-after-provision
       vars:
-        wait_for_deprovsion: true
+        wait_for_deprovision: true
       ansible.builtin.template:
         src: "{{ pipeline_src_dir }}/gitops/{{ item }}.yml.j2"
-        dest: "{{ pipeline_target_dir }}/gitops/{{ item }}-after-deprovsion.yaml"
+        dest: "{{ pipeline_target_dir }}/gitops/{{ item }}-after-deprovision.yaml"
       with_items:
         - provision-bootstrap-cluster
 
     # 5. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
-    - name: Generate GitOps Pipelines with wait-after-provsion
+    - name: Generate GitOps Pipelines with wait-after-provision
       vars:
-        wait_for_provsion: true
+        wait_for_provision: true
       ansible.builtin.template:
         src: "{{ pipeline_src_dir }}/gitops/{{ item }}.yml.j2"
-        dest: "{{ pipeline_target_dir }}/gitops/{{ item }}-after-provsion.yaml"
+        dest: "{{ pipeline_target_dir }}/gitops/{{ item }}-after-provision.yaml"
       with_items:
-        - provsion-mas-instance
+        - provision-mas-instance
