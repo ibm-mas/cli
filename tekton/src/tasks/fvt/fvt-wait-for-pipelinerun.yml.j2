@@ -12,7 +12,7 @@ spec:
       default: "True"
 
   steps:
-    - name: wait-for-install
+    - name: wait-for-pipelinerun
       image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
       script: |
         #!/usr/bin/env bash
