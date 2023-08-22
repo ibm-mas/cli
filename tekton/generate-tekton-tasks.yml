@@ -80,6 +80,7 @@
         - suite-app-config
         - suite-app-install
         - suite-app-upgrade
+        - suite-app-rollback
         - suite-config
         - suite-db2-setup-for-manage
         - suite-certs
@@ -87,6 +88,7 @@
         - suite-install
         - suite-uninstall
         - suite-upgrade
+        - suite-rollback
         - suite-verify
 
     # 6. Generate Tasks (OCP)
