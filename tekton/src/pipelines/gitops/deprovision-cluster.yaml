@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: deprovision-cluster
+  name: gitops-deprovision-cluster
 spec:
   description: Deprovision ROSA, docDb and GitOps Cluster
   workspaces:
