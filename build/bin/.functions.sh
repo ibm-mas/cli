@@ -44,6 +44,13 @@ function echo_highlight() {
 }
 
 
+# Install yq
+# ----------
+function install_yq() {
+  python -m pip install yq || exit 1
+}
+
+
 # These should be loaded already, but just incase!
 # ------------------------------------------------
 if [[ -z "$BUILD_SYSTEM_ENV_LOADED" ]]; then

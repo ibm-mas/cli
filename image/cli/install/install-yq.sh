@@ -3,8 +3,8 @@
 # Install yq CLI
 set -e
 
-curl -L  "https://github.com/mikefarah/yq/releases/download/v4.35.1/yq_linux_amd64"  > yq
-mv yq /usr/local/bin/
-chmod 755 /usr/local/bin/yq
+mkdir -p /opt/mikefarah/bin
+curl -L  "https://github.com/mikefarah/yq/releases/download/v4.35.1/yq_linux_amd64"  > /opt/mikefarah/bin/yq
+chmod 755 /opt/mikefarah/bin/yq
 
-yq --version
+/opt/mikefarah/bin/yq --version
