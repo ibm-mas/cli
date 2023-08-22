@@ -1,0 +1,48 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-suite-rollback
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+    - name: mas_core_version
+      type: string
+      description: MAS Core Rollback Version
+    - name: rollback_mas_core
+      type: string
+      default: "True"
+      description: Flag to rollback MAS Core
+    - name: verify_core_version
+      type: string
+      default: "False"
+      description: Flag to check MAS Core version match
+    - name: skip_compatibility_check
+      type: string
+      default: "True"
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_CORE_VERSION
+        value: $(params.mas_core_version)
+      - name: ROLLBACK_MAS_CORE
+        value: $(params.rollback_mas_core)
+      - name: VERIFY_CORE_VERSION
+        value: $(params.verify_core_version)
+      - name: SKIP_COMPATIBILITY_CHECK
+        value: $(params.skip_compatibility_check)
+  steps:
+    - name: suite-rollback
+      command:
+        - /opt/app-root/src/run-role.sh
+        - suite_rollback
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
