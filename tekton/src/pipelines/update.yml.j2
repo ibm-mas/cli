@@ -40,6 +40,12 @@ spec:
       type: string
       description: Required to install development MAS catalogs
 
+    # ocs/odf storage action
+    - name: ocs_action
+      type: string
+      default: "upgrade"
+      description: Set to 'upgrade' to update ocs/odf
+
     # common services action
     - name: common_services_action
       type: string
@@ -151,12 +157,24 @@ spec:
 
     # 4. Update Dependencies
     # ---------------------------------------------------------------------------
+    - name: update-ocs
+      taskRef:
+        kind: Task
+        name: mas-devops-ocs
+      runAfter:
+        - post-update-verify-workloads
+      params:
+        - name: devops_suite_name
+          value: update-ocs
+        - name: ocs_action
+          value: $(params.ocs_action)
+
     - name: update-common-services
       taskRef:
         kind: Task
         name: mas-devops-common-services
       runAfter:
-        - post-update-verify-workloads
+        - update-ocs
       params:
         - name: devops_suite_name
           value: update-common-services
