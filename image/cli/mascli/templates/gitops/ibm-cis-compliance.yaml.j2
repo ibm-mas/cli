@@ -1,0 +1,27 @@
+---
+# IBM Cloud Pak Foundational Services
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ibm-cis-compliance
+  namespace: openshift-gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ CLUSTER_ID }}-cluster-scope
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ibm-cis-compliance
+  source:
+    repoURL: https://github.com/ibm-mas/gitops
+    path: applications/ibm-cis-compliance
+    targetRevision: {{ GITOPS_VERSION }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    managedNamespaceMetadata:
+      labels:
+        argocd.argoproj.io/managed-by: openshift-gitops
