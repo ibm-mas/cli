@@ -27,15 +27,15 @@ spec:
         echo ""
         echo "Waiting for pipelinerun/$(params.pipelinerun_name) to complete"
         echo "------------------------------------------------------------------"
-        # oc -n $(context.taskRun.namespace) wait pipelinerun/$(params.pipelinerun_name) --for=condition=Succeeded --timeout=12h
+        # oc -n $(context.taskRun.namespace) wait pipelinerun/$(params.pipelinerun_name) --for=condition=Succeeded --timeout=24h
 
         IGNORE_FAILURE=$(params.ignore_failure)
         PIPELINERUN_NAME=$(params.pipelinerun_name)
         COMPLETION_TIME=$(oc -n $(context.taskRun.namespace) get pipelinerun/$PIPELINERUN_NAME -o jsonpath='{.status.completionTime}')
-        # 1 minute * 720 = ~12 hours
+        # 2 minutes * 720 = ~24 hours
         MAX_RETRIES=720
         RETRIES_USED=0
-        DELAY=60
+        DELAY=120
         while [[ "$COMPLETION_TIME" == "" && "$RETRIES_USED" -lt "$MAX_RETRIES" ]]; do
           echo "[$RETRIES_USED/$MAX_RETRIES] pipelinerun/$PIPELINERUN_NAME is still running.  Waiting $DELAY seconds before checking again"
           sleep $DELAY
