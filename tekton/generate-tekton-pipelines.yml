@@ -37,6 +37,7 @@
         - fvt-mobile-standalone
         - update
         - upgrade
+        - rollback
         - uninstall
 
     # 2. Generate Pipelines
@@ -50,4 +51,5 @@
       with_items:
         - update
         - upgrade
+        - rollback
         - uninstall
