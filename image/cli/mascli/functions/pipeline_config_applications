@@ -169,7 +169,7 @@ function config_pipeline_applications() {
         prompt_for_input "Username" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME
         prompt_for_secret "Password" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD
       fi
-      if prompt_for_confirm "+ Include Industry Solutions or Add-ons"; then
+      if prompt_for_confirm "+ Include industry solutions or add-ons"; then
         echo
         echo_h2 "Configure Manage Industry Solutions and Add-ons to be installed"
         echo "${TEXT_DIM}Define the Manage Industry Solutions and Add-ons to be installed as part of the Manage base install."
