@@ -176,7 +176,7 @@ function install_noninteractive() {
     --manage-channel)
     echo
     echo_h2 "Maximo IT Add-On"
-    echo -e "${COLOR_YELLOW} For information about your license, see "MAXIMO IT LICENSE LINK HERE " You are not required to accept the license terms unless you are installing Maximo IT add-on for Manage."
+    echo -e "${COLOR_YELLOW} For information about your license, see https://ibm.biz/MAXIT81-License You are not required to accept the license terms unless you are installing Maximo IT add-on for Manage."
     prompt_for_confirm_default_yes "Do you accept the license terms?" LICENSE_RESPONSE
 
     export MAS_APP_CHANNEL_MANAGE=$1 && shift
