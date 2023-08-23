@@ -55,26 +55,32 @@ spec:
         fi
         export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ['$vpc_name']}]' --output yaml | yq -r '.Vpcs[].VpcId' )
         
-        export MAS_INSTANCE_ID=gitops
-        
-        aws ec2 associate-vpc-cidr-block \
-        --vpc-id $VPC_ID \
-        --cidr-block 10.1.0.0/23
+        if [ -z "$VPC_ID" ]; then
+          echo "No VPC for $CLUSTER_NAME found, expected to find VPC exiting as error"
+          exit 1
+        else
+          echo "VPC of $VPC_ID found for $CLUSTER_NAME"
+          export MAS_INSTANCE_ID=gitops
+          
+          aws ec2 associate-vpc-cidr-block \
+          --vpc-id $VPC_ID \
+          --cidr-block 10.1.0.0/23
 
-        mas gitops-init-mongo -a $ACCOUNT -c $CLUSTER_NAME \
-        --secrets-path $SECRET_PATH \
-        --mongo-provider $MONGO_PROVIDER \
-        --aws-region $SM_AWS_REGION \
-        --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
-        --aws-access-key $SM_AWS_ACCESS_KEY_ID \
-        --aws-vpc-id $VPC_ID \
-        --aws-docdb-cluster-name docdb-$CLUSTER_NAME \
-        --aws-docdb-ingress-cidr $VPC_IPV4_CIDR  \
-        --aws-docdb-egress-cidr $VPC_IPV4_CIDR \
-        --aws-docdb-cidr-az1 10.1.0.0/27 \
-        --aws-docdb-cidr-az2 10.1.0.32/27 \
-        --aws-docdb-cidr-az3 10.1.0.64/27 \
-        --aws-docdb-instance_identifier_prefix docdb-$CLUSTER_NAME
+          mas gitops-init-mongo -a $ACCOUNT -c $CLUSTER_NAME \
+          --secrets-path $SECRET_PATH \
+          --mongo-provider $MONGO_PROVIDER \
+          --aws-region $SM_AWS_REGION \
+          --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+          --aws-access-key $SM_AWS_ACCESS_KEY_ID \
+          --aws-vpc-id $VPC_ID \
+          --aws-docdb-cluster-name docdb-$CLUSTER_NAME \
+          --aws-docdb-ingress-cidr $VPC_IPV4_CIDR  \
+          --aws-docdb-egress-cidr $VPC_IPV4_CIDR \
+          --aws-docdb-cidr-az1 10.1.0.0/27 \
+          --aws-docdb-cidr-az2 10.1.0.32/27 \
+          --aws-docdb-cidr-az3 10.1.0.64/27 \
+          --aws-docdb-instance_identifier_prefix docdb-$CLUSTER_NAME
+        fi
       command:
         - /bin/sh
         - -c
