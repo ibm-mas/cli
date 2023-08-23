@@ -148,6 +148,9 @@ function config_pipeline_applications() {
       fi
     fi
     if prompt_for_confirm "+ Customize database settings"; then
+      MAS_APP_SETTINGS_DB2_SCHEMA='maximo'
+      MAS_APP_SETTINGS_TABLESPACE='MAXDATA'
+      MAS_APP_SETTINGS_INDEXSPACE='MAXINDEX'
       prompt_for_input "Schema" MAS_APP_SETTINGS_DB2_SCHEMA
       prompt_for_input "Tablespace" MAS_APP_SETTINGS_TABLESPACE
       prompt_for_input "Indexspace" MAS_APP_SETTINGS_INDEXSPACE
@@ -169,20 +172,20 @@ function config_pipeline_applications() {
         prompt_for_input "Username" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME
         prompt_for_secret "Password" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD
       fi
-      if prompt_for_confirm "+ Include industry solutions or add-ons"; then
-        echo
-        echo_h2 "Configure Manage Industry Solutions and Add-ons to be installed"
-        echo "${TEXT_DIM}Define the Manage Industry Solutions and Add-ons to be installed as part of the Manage base install."
-        echo "Include as many Manage component and its corresponding target version to be installed as comma-separated values, following the example:"
-        echo "To install latest Manage including Health & Civil, type 'base=latest,health=latest,civil=latest'"
-        echo ""
-        reset_colors
+    if prompt_for_confirm "+ Include industry solutions or add-ons"; then
+      echo
+      echo_h2 "Configure Manage Industry Solutions and Add-ons to be installed"
+      echo "${TEXT_DIM}Define the Manage Industry Solutions and Add-ons to be installed as part of the Manage base install."
+      echo "Include as many Manage component and its corresponding target version to be installed as comma-separated values, following the example:"
+      echo "To install latest Manage including Health & Civil, type 'base=latest,health=latest,civil=latest'"
+      echo ""
+      reset_colors
+      MAS_APPWS_COMPONENTS="base=latest"
+      prompt_for_input "Manage components to be installed" MAS_APPWS_COMPONENTS
+      if [[ ! -z "$MAS_APPWS_COMPONENTS" ]]; then
         MAS_APPWS_COMPONENTS="base=latest"
-        prompt_for_input "Manage components to be installed" MAS_APPWS_COMPONENTS
-        if [[ ! -z "$MAS_APPWS_COMPONENTS" ]]; then
-          MAS_APPWS_COMPONENTS="base=latest"
-        fi
       fi
+    fi
     fi
   fi
 
