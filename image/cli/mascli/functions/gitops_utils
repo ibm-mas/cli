@@ -236,6 +236,20 @@ function check_argo_app_deleted(){
   done
 }
 
+function delete_oc_resource(){
+  RESOURCE=$1
+  NAMESPACE=$2
+  echo
+  echo " Check if resource $RESOURCE is present in namepsace $NAMESPACE "
+  RESOURCE_NAME=$(oc get $RESOURCE -n $NAMESPACE -o=jsonpath="{.metadata.name}")
+  echo " RESOURCE_NAME $RESOURCE_NAME "
+  if [ -n "$RESOURCE_NAME" ]; then
+    echo " oc delete resource $RESOURCE in namepsace $NAMESPACE "
+    oc delete $RESOURCE -n $NAMESPACE
+  fi
+  
+}
+
 function check_argo_app_synced() {
   APPLICATION=$1
   while true; do
