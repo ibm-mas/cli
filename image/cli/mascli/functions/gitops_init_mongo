@@ -196,6 +196,8 @@ function gitops_init_mongo() {
     echo_reset_dim "AWS Region  ........................... ${COLOR_MAGENTA}${AWS_REGION}"
     echo_reset_dim "AWS VPC ID  ........................... ${COLOR_MAGENTA}${VPC_ID}"
     echo_reset_dim "AWS DOCDB CLUSTER NAME  ............... ${COLOR_MAGENTA}${DOCDB_CLUSTER_NAME}"
+    echo_reset_dim "AWS DOCDB Instance count .............. ${COLOR_MAGENTA}${DOCDB_INSTANCE_NUMBER}"
+    
   fi
   if [ $MONGODB_PROVIDER == 'yaml' ]; then
     echo_reset_dim "YAML Configuration File ............... ${COLOR_MAGENTA}${MONGO_YAML_FILE}"
@@ -218,7 +220,7 @@ function gitops_init_mongo() {
     #export MAS_INSTANCE_ID=inst1
     export MONGODB_NAMESPACE=docdb
     export ROLE_NAME=mongodb
-    export DOCDB_INSTANCE_NUMBER=1
+    export DOCDB_INSTANCE_NUMBER=${DOCDB_INSTANCE_NUMBER:-"1"}
     export SLS_MONGO_RETRYWRITES=false
     export AWS_DEFAULT_OUTPUT="json"
     export MONGODB_ACTION=install
@@ -230,7 +232,7 @@ function gitops_init_mongo() {
     if [[ -n ${DOCDB_MASTER_PASSWORD} ]]; then
       export DOCDB_MASTER_PASSWORD=${DOCDB_MASTER_PASSWORD}
       echo "init_mongo : DOCDB_MASTER_PASSWORD=${DOCDB_MASTER_PASSWORD} is available in the secret, use the same while invoking the role again"
-    fi 
+    fi
 
     ansible-playbook ibm.mas_devops.run_role
     rc=$?
