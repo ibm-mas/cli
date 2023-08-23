@@ -66,12 +66,18 @@ function update_interactive() {
   echo
 
   echo_h2 "Dependencies Update"
-  echo "IBM Common Services Operator will be updated by default."
+  echo -e "${COLOR_GREEN}IBM Common Services Operator will be updated by default as needed.${COLOR_RESET}"
   
   # Detect db2 in cluster and prompt for namespace
   oc get Operator db2u-operator.ibm-common-services > /dev/null 2>&1
   if [ "$?" == "0" ]; then
     prompt_for_input "DB2u operator has been detected. Db2u namespace to update?" DB2_NAMESPACE "db2u"
+  fi
+
+  # Detect OCS/ODF Storage Cluster in cluster and set action
+  oc get StorageCluster -A > /dev/null 2>&1
+  if [ "$?" == "0" ]; then
+    echo -e "${COLOR_GREEN}OCS/ODF Storage Cluster has been detected and will be updated by default as needed.${COLOR_RESET}"
   fi
 }
 
