@@ -29,4 +29,10 @@ echo "--------------------------------------------------------------------------
 oc get manageserverbundle -n $1
 echo ""
 
+echo ""
+echo "IBM Maximo Application Suite - Manage Status Checker"
+echo "--------------------------------------------------------------------------------"
+oc get managestatuschecker -n $1
+echo ""
+
 exit 0
