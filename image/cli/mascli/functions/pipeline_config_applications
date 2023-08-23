@@ -173,12 +173,11 @@ function config_pipeline_applications() {
         prompt_for_secret "Password" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD
       fi
     fi
-    if prompt_for_confirm "+ Include industry solutions or add-ons"; then
+    if prompt_for_confirm "+ Include industry solutions and add-ons"; then
       echo
-      echo_h2 "Configure Manage Industry Solutions and Add-ons to be installed"
-      echo "${TEXT_DIM}Define the Manage Industry Solutions and Add-ons to be installed as part of the Manage base install."
-      echo "Include as many Manage component and its corresponding target version to be installed as comma-separated values, following the example:"
-      echo "To install latest Manage including Health & Civil, type 'base=latest,health=latest,civil=latest'"
+      echo "${TEXT_DIM}Define which Manage Industry Solutions and Add-ons to be installed as part of the Manage base install."
+      echo "Include the Manage components and its corresponding target version to be installed as comma-separated values"
+      echo "As example: To install latest Manage including Health & Civil, type 'base=latest,health=latest,civil=latest'"
       echo ""
       reset_colors
       MAS_APPWS_COMPONENTS="base=latest"
