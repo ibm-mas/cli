@@ -162,7 +162,7 @@ function config_pipeline_applications() {
       fi
     fi
     if prompt_for_confirm "+ Install and bind Watson Studio"; then
-      MAS_APPWS_BINDINGS_HEALTH_WSL='system'
+      MAS_APPWS_BINDINGS_HEALTH_WSL_FLAG=true
     fi
   fi
 
