@@ -3,7 +3,7 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
 {% if wait_for_deprovision == true %}
-  name: gitops-provision-bootstrap-cluster-after-deprovsion
+  name: gitops-provision-bootstrap-cluster-after-deprovision
 {% else %}
   name: gitops-provision-bootstrap-cluster
 {% endif %}

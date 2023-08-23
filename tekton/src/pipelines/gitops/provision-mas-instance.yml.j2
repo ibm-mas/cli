@@ -3,7 +3,7 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
 {% if wait_for_provision == true %}
-  name: gitops-provision-mas-instance-after-provsion
+  name: gitops-provision-mas-instance-after-provision
 {% else %}
   name: gitops-provision-mas-instance
 {% endif %}
