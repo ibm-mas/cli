@@ -161,7 +161,7 @@ function config_pipeline_applications() {
         fi
       fi
     fi
-     if prompt_for_confirm "+ Include customization archive"; then
+    if prompt_for_confirm "+ Include customization archive"; then
       MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME='manage-custom-archive'
       prompt_for_input "Customization archive name" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME
       prompt_for_input "Customization archive url" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL
@@ -182,6 +182,7 @@ function config_pipeline_applications() {
         if [[ ! -z "$MAS_APPWS_COMPONENTS" ]]; then
           MAS_APPWS_COMPONENTS="base=latest"
         fi
+      fi
     fi
   fi
 
