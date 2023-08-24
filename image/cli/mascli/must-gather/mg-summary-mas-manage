@@ -36,15 +36,9 @@ oc get managestatuschecker -n $1
 echo ""
 
 echo ""
-echo "IBM Maximo Application Suite - Maximo Health Application"
+echo "IBM Maximo Application Suite - Maximo Healthext Application"
 echo "--------------------------------------------------------------------------------"
-oc get healthapp -n $1
-echo ""
-
-echo ""
-echo "IBM Maximo Application Suite - Maximo Health Workspace"
-echo "--------------------------------------------------------------------------------"
-oc get healthworkspace -n $1
+oc get healthextapp -n $1
 echo ""
 
 echo ""
