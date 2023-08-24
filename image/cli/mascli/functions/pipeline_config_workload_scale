@@ -26,6 +26,10 @@ function config_pipeline_workload_scale() {
       ;;
     4)
       prompt_for_input "Customer scaling configuration file" MAS_WORKLOAD_SCALE_FILE_LOCAL
+      if [[ ! -e "$MAS_WORKLOAD_SCALE_FILE_LOCAL" ]]; then
+        echo_warning "Error: File does not exist: $MAS_WORKLOAD_SCALE_FILE_LOCAL"
+        exit 1
+      fi
       ;;
     *)
       echo_warning "Invalid selection"
@@ -37,7 +41,8 @@ function config_pipeline_workload_scale() {
     MAS_WORKLOAD_SCALE_FILE="/workspace/shared-pod-templates/$(basename $MAS_WORKLOAD_SCALE_FILE_LOCAL)"
   fi
 
-  # Assign granular variables
+  # For now we will set all supported apps/dependencies to the MAS_WORKLOAD_SCALE
+  # In future, we can add granularity
   SLS_WORKLOAD_SCALE_CLASS=$MAS_WORKLOAD_SCALE_CLASS
   SLS_WORKLOAD_SCALE_FILE=$MAS_WORKLOAD_SCALE_FILE
 

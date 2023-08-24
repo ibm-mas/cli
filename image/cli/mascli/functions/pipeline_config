@@ -11,6 +11,7 @@
 . $DIR/functions/pipeline_config_manage_storage_classes
 . $DIR/functions/pipeline_config_iot_storage_classes
 . $DIR/functions/pipeline_config_advanced
+. $DIR/functions/pipeline_config_workload_scale
 
 function pipeline_config() {
   echo_h2 "IBM Maximo Operator Catalog Selection"
