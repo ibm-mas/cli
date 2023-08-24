@@ -43,12 +43,6 @@ spec:
     - name: mongo_provider
       type: string
       default: aws
-    - name: argocd_url
-      type: string
-    - name: argocd_username
-      type: string
-    - name: argocd_password
-      type: string
   tasks:
     - name: gitops-deprovision-mongo
       params:
@@ -100,12 +94,6 @@ spec:
           value: $(params.avp_aws_access_key)
         - name: github_pat
           value: $(params.github_pat)
-        - name: argocd_url
-          value: $(params.argocd_url)
-        - name: argocd_username
-          value: $(params.argocd_username)
-        - name: argocd_password
-          value: $(params.argocd_password)
       taskRef:
         kind: Task
         name: gitops-deprovision-cluster

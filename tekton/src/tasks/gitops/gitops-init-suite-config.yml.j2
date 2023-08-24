@@ -32,12 +32,6 @@ spec:
       type: string
     - name: avp_aws_access_key
       type: string
-    - name: argocd_url
-      type: string
-    - name: argocd_username
-      type: string
-    - name: argocd_password
-      type: string
   stepTemplate:
     name: gitops-init-suite-config
     env:
@@ -67,12 +61,6 @@ spec:
         value: $(params.avp_aws_secret_key)
       - name: SM_AWS_ACCESS_KEY_ID
         value: $(params.avp_aws_access_key)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
-      - name: ARGOCD_USERNAME
-        value: $(params.argocd_username)
-      - name: ARGOCD_PASSWORD
-        value: $(params.argocd_password) 
   steps:
     - args:
       - |-
@@ -96,7 +84,7 @@ spec:
           export ARGOCD_USERNAME=admin
           export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
         fi
-        
+
         mas gitops-init-suite-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
         --mongo-provider $MONGO_PROVIDER \

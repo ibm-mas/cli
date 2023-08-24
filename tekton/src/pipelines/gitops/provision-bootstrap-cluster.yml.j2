@@ -160,12 +160,6 @@ spec:
           value: $(params.avp_aws_access_key)
         - name: github_pat
           value: $(params.github_pat)
-        - name: argocd_url
-          value: $(params.argocd_url)
-        - name: argocd_username
-          value: $(params.argocd_username)
-        - name: argocd_password
-          value: $(params.argocd_password)
       taskRef:
         kind: Task
         name: gitops-init-cluster
