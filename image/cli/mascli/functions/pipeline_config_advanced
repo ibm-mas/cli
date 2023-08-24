@@ -36,6 +36,8 @@ function config_pipeline_advanced() {
     fi
     echo
 
+    config_pipeline_workload_scale
+
     prompt_for_confirm_default_yes "Trust Default CAs?" MAS_TRUST_DEFAULT_CAS
 
   fi

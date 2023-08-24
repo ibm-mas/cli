@@ -1,0 +1,44 @@
+#!/bin/bash
+
+function config_pipeline_workload_scale() {
+  # Change echo_h3 depending on where we call this func
+  echo_h3 "Configure Scaling Profile"
+  echo "The CLI supports three profiles out of the box, and allows you to define your own custom profile as well."
+  echo "Make a selection from the list below. For more information about the profiles, see https://xxxx"
+  echo
+  echo "1. Guaranteed"
+  echo "2. Burstable (default)"
+  echo "3. BestEffort"
+  echo "4. Customer (define your own/point to a yaml file)"
+  echo
+
+  prompt_for_number "Select Profile" MAS_SCALE_PROFILE_SELECTION 2
+
+  case $MAS_SCALE_PROFILE_SELECTION in
+    1)
+      MAS_WORKLOAD_SCALE_CLASS=Guaranteed
+      ;;
+    2)
+      MAS_WORKLOAD_SCALE_CLASS=Burstable
+      ;;
+    3)
+      MAS_WORKLOAD_SCALE_CLASS=BestEffort
+      ;;
+    4)
+      prompt_for_input "Customer scaling configuration file" MAS_WORKLOAD_SCALE_FILE_LOCAL
+      ;;
+    *)
+      echo_warning "Invalid selection"
+      exit 1
+      ;;
+  esac
+
+  if [ -z "$MAS_WORKLOAD_SCALE_FILE_LOCAL" ]; then
+    MAS_WORKLOAD_SCALE_FILE="/workspace/shared-pod-templates/$(basename $MAS_WORKLOAD_SCALE_FILE_LOCAL)"
+  fi
+
+  # Assign granular variables
+  SLS_WORKLOAD_SCALE_CLASS=$MAS_WORKLOAD_SCALE_CLASS
+  SLS_WORKLOAD_SCALE_FILE=$MAS_WORKLOAD_SCALE_FILE
+
+}

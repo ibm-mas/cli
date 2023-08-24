@@ -27,6 +27,12 @@
 - name: sls_icr_cpopen
   type: string
   default: ""
+- name: sls_workload_scale_class
+  type: string
+  default: "Burstable"
+- name: sls_workload_scale_file
+  type: string
+  default: ""
 
 # Dependencies - MongoDb
 # -----------------------------------------------------------------------------
@@ -378,6 +384,12 @@
   type: string
   default: ""
   description: Data Dictionary catalog source
+- name: mas_workload_scale_class
+  type: string
+  default: "Burstable"
+- name: mas_workload_scale_file
+  type: string
+  default: ""
 
 # MAS Application Configuration - IoT Application
 # -----------------------------------------------------------------------------
