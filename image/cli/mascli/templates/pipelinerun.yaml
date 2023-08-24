@@ -326,6 +326,8 @@ spec:
     # -------------------------------------------------------------------------
     - name: mas_app_channel_manage
       value: '$MAS_APP_CHANNEL_MANAGE'
+    - name: mas_appws_components
+      value: '$MAS_APPWS_COMPONENTS'
 
     - name: mas_app_settings_aio_flag
       value: '$MAS_APP_SETTINGS_AIO_FLAG'
