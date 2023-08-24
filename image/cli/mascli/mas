@@ -69,6 +69,7 @@ mkdir -p $CONFIG_DIR
 . $DIR/functions/gitops_utils
 . $DIR/functions/gitops_bootstrap
 . $DIR/functions/gitops_init_cluster
+. $DIR/functions/gitops_init_cis_compliance
 . $DIR/functions/gitops_init_license
 . $DIR/functions/gitops_init_mongo
 . $DIR/functions/gitops_init_kafka
@@ -236,6 +237,13 @@ case $1 in
     gitops_init_cluster "$@"
     ;;
 
+  gitops-init-cis-compliance)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_init_cis_compliance "$@"
+    ;;
 
   gitops-init-license)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"

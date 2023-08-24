@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ibm-cis-compliance
+  name: cis-compliance
   namespace: openshift-gitops
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -11,10 +11,10 @@ spec:
   project: {{ CLUSTER_ID }}-cluster-scope
   destination:
     server: https://kubernetes.default.svc
-    namespace: ibm-cis-compliance
+    namespace: cis-compliance
   source:
     repoURL: https://github.com/ibm-mas/gitops
-    path: applications/ibm-cis-compliance
+    path: applications/cis-compliance
     targetRevision: {{ GITOPS_VERSION }}
   syncPolicy:
     automated:

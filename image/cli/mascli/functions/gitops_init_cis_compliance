@@ -186,7 +186,7 @@ function gitops_init_cis_compliance() {
   echo
   echo_h2 "Generating Argo Applications"
   echo "- IBM Cis Compliance"
-  jinja -X .+ $DIR/templates/gitops/ibm-cis-compliance.yaml.j2 -o ${GITOPS_APPS_DIR}/ibm-cis-compliance.yaml
+  jinja -X .+ $DIR/templates/gitops/cis-compliance.yaml.j2 -o ${GITOPS_APPS_DIR}/cis-compliance.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -199,8 +199,8 @@ function gitops_init_cis_compliance() {
     argocd_login
     argocd_sync_watcher ${CLUSTER_ID}-watcher
 
-    check_argo_app_synced ibm-cis-compliance
-    check_argo_app_healthy ibm-cis-compliance
+    check_argo_app_synced cis-compliance
+    check_argo_app_healthy cis-compliance
   fi
 
 }
