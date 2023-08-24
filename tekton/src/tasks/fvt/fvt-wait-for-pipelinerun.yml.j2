@@ -20,7 +20,7 @@ spec:
         echo "Waiting for pipelinerun/$(params.pipelinerun_name) in $(context.taskRun.namespace) to complete ..."
 
         echo ""
-        echo "Status of install pipeline"
+        echo "Status of pipelinerun"
         echo "------------------------------------------------------------------"
         oc -n $(context.taskRun.namespace) get pipelinerun/$(params.pipelinerun_name)
 
