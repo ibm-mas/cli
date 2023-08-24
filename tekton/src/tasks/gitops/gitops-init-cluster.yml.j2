@@ -68,6 +68,12 @@ spec:
         value: $(params.avp_aws_secret_region)
       - name: GITHUB_PAT
         value: $(params.github_pat)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
+      - name: ARGOCD_USERNAME
+        value: $(params.argocd_username)
+      - name: ARGOCD_PASSWORD
+        value: $(params.argocd_password) 
   steps:
     - args:
       - |-
@@ -84,10 +90,12 @@ spec:
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
-        export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
-        export ARGOCD_USERNAME=admin
-        export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
-
+        if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
+          export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
+          export ARGOCD_USERNAME=admin
+          export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
+        fi
+        
         mkdir -p /workspace/configs/$GITHUB_REPO
         mas gitops-init-cluster -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /workspace/configs/$GITHUB_REPO \
