@@ -35,6 +35,12 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
+    - name: argocd_url
+      type: string
+    - name: argocd_username
+      type: string
+    - name: argocd_password
+      type: string
   stepTemplate:
     name: gitops-init-cluster
     env:
@@ -95,7 +101,7 @@ spec:
           export ARGOCD_USERNAME=admin
           export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
         fi
-        
+
         mkdir -p /workspace/configs/$GITHUB_REPO
         mas gitops-init-cluster -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /workspace/configs/$GITHUB_REPO \
