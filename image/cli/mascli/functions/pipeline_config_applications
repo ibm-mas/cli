@@ -181,11 +181,8 @@ function config_pipeline_applications() {
       echo "Example: To install latest Manage including Health and Civil as additional components, type 'base=latest,health=latest,civil=latest'"
       echo
       reset_colors
-      MAS_APPWS_COMPONENTS="base=latest"
+      MAS_APPWS_COMPONENTS="base=latest,health=latest"
       prompt_for_input "Manage components to be installed" MAS_APPWS_COMPONENTS
-      if [[ -z "$MAS_APPWS_COMPONENTS" ]]; then
-        MAS_APPWS_COMPONENTS="base=latest"
-      fi
     fi
   fi
 
