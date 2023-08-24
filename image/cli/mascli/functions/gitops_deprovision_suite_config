@@ -231,5 +231,10 @@ function gitops_deprovision_suite_config() {
 
     argocd_prune_sync_watcher ${CLUSTER_ID}-watcher
     check_argo_app_deleted mas-${MAS_INSTANCE_ID}-core-configs ${MAS_INSTANCE_ID}
+
+    # workaround to delete the configs via oc cli as argocd is not deleting them due to owner reference
+    delete_oc_resource slscfgs.config.mas.ibm.com/${MAS_INSTANCE_ID}-sls-system mas-${MAS_INSTANCE_ID}-core
+    delete_oc_resource mongocfg.config.mas.ibm.com/${MAS_INSTANCE_ID}-mongo-system mas-${MAS_INSTANCE_ID}-core
+    delete_oc_resource bascfg.config.mas.ibm.com/${MAS_INSTANCE_ID}-bas-system mas-${MAS_INSTANCE_ID}-core
   fi
 }
