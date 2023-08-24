@@ -182,7 +182,7 @@ function config_pipeline_applications() {
       reset_colors
       MAS_APPWS_COMPONENTS="base=latest"
       prompt_for_input "Manage components to be installed" MAS_APPWS_COMPONENTS
-      if [[ ! -z "$MAS_APPWS_COMPONENTS" ]]; then
+      if [[ -z "$MAS_APPWS_COMPONENTS" ]]; then
         MAS_APPWS_COMPONENTS="base=latest"
       fi
     fi
