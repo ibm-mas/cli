@@ -98,7 +98,7 @@ spec:
 
         if [ -z $MAS_DOMAIN ];then
           echo "No MAS_DOMAIN set, use domain of ROSA cluster and MAS_INSTANCE_ID"
-          CUSTOM_DOMAIN=apps.$(echo -n $OCP_SERVER | sed -n -e "s/^.*api.$CLUSTER_NAME.//p" | cut -d: -f1)
+          CUSTOM_DOMAIN=apps.$CLUSTER_NAME.$(echo -n $OCP_SERVER | sed -n -e "s/^.*api.$CLUSTER_NAME.//p" | cut -d: -f1)
           export MAS_DOMAIN=$MAS_INSTANCE_ID.$CUSTOM_DOMAIN
           echo "MAS_DOMAIN set to $MAS_DOMAIN"
         fi
