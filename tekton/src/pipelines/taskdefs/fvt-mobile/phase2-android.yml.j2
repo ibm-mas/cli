@@ -162,7 +162,7 @@
 
 {# # Mobile FVT - Inventory Counting Android
 - name: fvt-inventorycounting-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
@@ -191,7 +191,7 @@
     - fvt-inventorycounting-manage-setup #}
 
 - name: fvt-inventoryreceiving-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
