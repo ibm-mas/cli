@@ -37,13 +37,15 @@ function config_pipeline_workload_scale() {
       ;;
   esac
 
-  if [ -z "$MAS_WORKLOAD_SCALE_FILE_LOCAL" ]; then
+  if [ -n "${MAS_WORKLOAD_SCALE_FILE_LOCAL}" ]; then
     MAS_WORKLOAD_SCALE_FILE="/workspace/shared-pod-templates/$(basename $MAS_WORKLOAD_SCALE_FILE_LOCAL)"
+
+    # For now we will set all supported apps/dependencies to the MAS_WORKLOAD_SCALE_FILE
+    # In future, we can add granularity
+    SLS_WORKLOAD_SCALE_FILE=$MAS_WORKLOAD_SCALE_FILE
   fi
 
-  # For now we will set all supported apps/dependencies to the MAS_WORKLOAD_SCALE
+  # For now we will set all supported apps/dependencies to the MAS_WORKLOAD_SCALE_CLASS
   # In future, we can add granularity
   SLS_WORKLOAD_SCALE_CLASS=$MAS_WORKLOAD_SCALE_CLASS
-  SLS_WORKLOAD_SCALE_FILE=$MAS_WORKLOAD_SCALE_FILE
-
 }
