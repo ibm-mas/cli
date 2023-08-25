@@ -1,14 +1,27 @@
-
+---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: provision-mas-instance
+{% if wait_for_provision == true %}
+  name: gitops-provision-mas-instance-after-provision
+{% else %}
+  name: gitops-provision-mas-instance
+{% endif %}
 spec:
   workspaces:
     - name: configs
     - name: shared-entitlement
   description: Provision MAS GitOps Instance
   params:
+{% if wait_for_provision == true %}
+      # Name of the PipelineRun to wait for
+    - name: pipelinerun_name
+      type: string
+    - name: ignore_failure
+      type: string
+      default: "False"
+      description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
+{% endif %}
     - name: cluster_name
       type: string
     - name: account
@@ -54,16 +67,29 @@ spec:
       type: string
     - name: ec2_linux_ami_id
       type: string
-    - name: argocd_url
-      type: string
-    - name: argocd_username
-      type: string
-    - name: argocd_password
-      type: string
+      default: ""
     - name: docdb_user_action
       type: string
+      default: add
   tasks:
+{% if wait_for_provision == true %}
+    # 0. Wait for the provsion pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-provision
+      params:
+        - name: pipelinerun_name
+          value: $(params.pipelinerun_name)
+        - name: ignore_failure
+          value: $(params.ignore_failure)
+      taskRef:
+        kind: Task
+        name: mas-fvt-wait-for-pipelinerun
+{% endif %}
     - name: gitops-process-mongo-user
+{% if wait_for_provision == true %}
+      runAfter:
+        - wait-for-provision
+{% endif %}
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -155,12 +181,6 @@ spec:
           value: $(params.avp_aws_secret_key)
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
-        - name: argocd_url
-          value: $(params.argocd_url)
-        - name: argocd_username
-          value: $(params.argocd_username)
-        - name: argocd_password
-          value: $(params.argocd_password)
       taskRef:
         kind: Task
         name: gitops-init-suite
@@ -197,12 +217,6 @@ spec:
           value: $(params.avp_aws_secret_key)
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
-        - name: argocd_url
-          value: $(params.argocd_url)
-        - name: argocd_username
-          value: $(params.argocd_username)
-        - name: argocd_password
-          value: $(params.argocd_password)
       workspaces:
         - name: configs
           workspace: configs
@@ -235,16 +249,9 @@ spec:
           value: $(params.github_host)
         - name: github_pat
           value: $(params.github_pat)
-        - name: argocd_url
-          value: $(params.argocd_url)
-        - name: argocd_username
-          value: $(params.argocd_username)
-        - name: argocd_password
-          value: $(params.argocd_password)
       taskRef:
         kind: Task
         name: gitops-init-suite-workspace
       workspaces:
         - name: configs
           workspace: configs
-

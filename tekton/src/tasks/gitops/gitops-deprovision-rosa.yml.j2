@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-init-rosa
+  name: gitops-deprovision-rosa
 spec:
 
   params:
@@ -19,24 +19,25 @@ spec:
     - name: aws_region
       type: string
   stepTemplate:
-    name: gitops-init-rosa
+    name: gitops-deprovision-rosa
   steps:
     - args:
       - |-
         export ROSA_TOKEN=$(params.rosa_token)
-
+        export OCP_VERSION=$(params.ocp_version)
+  
         aws configure set aws_access_key_id $(params.aws_access_key_id)
         aws configure set aws_secret_access_key $(params.aws_secret_access_key)
         aws configure set default.region $(params.aws_region)
 
-        export ROSA_CONFIG_DIR=/workspace/configs/tmp-rosa-init
+        export ROSA_CONFIG_DIR=/workspace/configs/tmp-rosa-deprovision
         mkdir -p $ROSA_CONFIG_DIR
-        mas gitops-init-rosa -c $(params.cluster_name) -v $(params.ocp_version)
+        mas gitops-deprovision-rosa -c $(params.cluster_name)
       command:
         - /bin/sh
         - -c
-      name: gitops-init-rosa
+      name: gitops-deprovision-rosa
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:6.4.0-pre.gitops
+      image: quay.io/ibmmas/cli:6.4.0-pre.ajw-gitops-fvt
   workspaces:
     - name: configs

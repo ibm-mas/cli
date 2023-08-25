@@ -19,8 +19,6 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
-    - name: vpc_id
-      type: string
     - name: vpc_ipv4_cidr
       type: string
     - name: mongo_provider
@@ -34,6 +32,7 @@ spec:
       default: sre-key-pair
     - name: ec2_linux_ami_id
       type: string
+      default: ""
   stepTemplate:
     name: gitops-process-mongo-user
     env:
@@ -64,6 +63,10 @@ spec:
   steps:
     - args:
       - |-
+        aws configure set aws_access_key_id $(params.avp_aws_access_key)
+        aws configure set aws_secret_access_key $(params.avp_aws_secret_key)
+        aws configure set default.region $(params.avp_aws_secret_region)
+
         vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME | yq '.[].Value')
         if [ -z "$vpc_name" ]; then
           # Needed if there is only one cluster in account
@@ -71,8 +74,18 @@ spec:
         fi
         export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ['$vpc_name']}]' --output yaml | yq -r '.Vpcs[].VpcId' )
 
+        if [ -z "$VPC_ID" ]; then
+          echo "No VPC for $CLUSTER_NAME found, expected to find VPC exiting as error"
+          exit 1
+        fi
+
         if [ -z "$EC2_LINUX_AMI_ID" ]; then
           export EC2_LINUX_AMI_ID=$(aws ec2 describe-images --filters "Name=description,Values=Amazon Linux 2023 AMI 2023.1.20230809.0 x86_64 HVM kernel-6.1" --region ${SM_AWS_REGION}  --query 'sort_by(Images, &Name)[-1].ImageId')
+        fi
+
+        if [ -z "$EC2_LINUX_AMI_ID" ]; then
+          echo "No EC2_LINUX_AMI_ID for $CLUSTER_NAME found, expected to find EC2_LINUX_AMI_ID exiting as error"
+          exit 1
         fi
 
         mas gitops-process-mongo-user -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
@@ -94,6 +107,6 @@ spec:
         - -c
       name: gitops-process-mongo-user
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:6.4.0-pre.gitops
+      image: quay.io/ibmmas/cli:6.4.0-pre.ajw-gitops-fvt
   workspaces:
     - name: configs

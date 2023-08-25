@@ -55,6 +55,12 @@ spec:
         fi
         export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ['$vpc_name']}]' --output yaml | yq -r '.Vpcs[].VpcId' )
         
+        if [ -z "$VPC_ID" ]; then
+          echo "No VPC for $CLUSTER_NAME found so assume there is no docDb to deprovision, exiting.."
+          exit 0
+        fi
+        
+        echo "VPC of $VPC_ID found for $CLUSTER_NAME"
         export MAS_INSTANCE_ID=gitops
         
         aws ec2 associate-vpc-cidr-block \
@@ -80,7 +86,7 @@ spec:
         - -c
       name: gitops-deprovision-mongo
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:6.4.0-pre.ajw-rosa-deprov
+      image: quay.io/ibmmas/cli:6.4.0-pre.ajw-gitops-fvt
   workspaces:
     - name: configs
 
