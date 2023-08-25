@@ -37,6 +37,8 @@ function config_pipeline_workload_scale() {
       ;;
   esac
 
+  echo
+
   if [ -n "${MAS_WORKLOAD_SCALE_FILE_LOCAL}" ]; then
     MAS_WORKLOAD_SCALE_FILE="/workspace/shared-pod-templates/$(basename $MAS_WORKLOAD_SCALE_FILE_LOCAL)"
 

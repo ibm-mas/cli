@@ -154,6 +154,19 @@ function pipeline_show_config() {
   fi
 
   reset_colors
+  echo "${TEXT_DIM}"
+  echo_h4 "Workload Scale Configuration" "    "
+  if [[ -n "${MAS_WORKLOAD_SCALE_FILE_LOCAL}" ]]; then
+    echo_reset_dim "Workload Scale Profile ........... ${COLOR_MAGENTA}Custom"
+    echo_reset_dim "Path to configuration file ....... ${COLOR_MAGENTA}${MAS_WORKLOAD_SCALE_FILE_LOCAL}"
+  else
+    if [[ -n "${MAS_WORKLOAD_SCALE_CLASS}" ]]
+      then echo_reset_dim "Workload Scale Profile ........... ${COLOR_MAGENTA}${MAS_WORKLOAD_SCALE_CLASS}"
+      else echo_reset_dim "Workload Scale Profile ........... ${COLOR_MAGENTA}Burstable"
+    fi
+  fi
+
+  reset_colors
   echo "${TEXT_RESET}"
 
   if [ "$NO_CONFIRM" != "true" ]; then
