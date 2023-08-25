@@ -21,7 +21,9 @@ spec:
         - name: HELM_VALUES
           value: |
             ibm_entitlement_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>
+{%- if MAS_DOMAIN is defined and MAS_DOMAIN !='' %}
             domain: {{ MAS_DOMAIN }}
+{%- endif %}
             mas_instance_id: {{ MAS_INSTANCE_ID }}
             mas_channel: {{ MAS_CHANNEL }}
 {%- if MAS_ANNOTATIONS is defined and MAS_ANNOTATIONS !='' %}

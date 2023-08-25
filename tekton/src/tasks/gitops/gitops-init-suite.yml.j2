@@ -67,6 +67,12 @@ spec:
         value: $(params.avp_aws_secret_key)
       - name: SM_AWS_ACCESS_KEY_ID
         value: $(params.avp_aws_access_key)    
+      - name: MAS_DOMAIN
+        value: $(params.mas_domain)    
+      - name: MAS_CHANNEL
+        value: $(params.mas_channel)   
+      - name: SLS_CHANNEL
+        value: $(params.sls_channel)   
   steps:
     - args:
       - |-
@@ -93,8 +99,6 @@ spec:
         mkdir -p /workspace/configs/$GITHUB_REPO
         mas gitops-init-suite -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
-        --sls-channel $(params.sls_channel) --mas-channel $(params.mas_channel) --mas-domain $(params.mas_domain) \
-        --mongo-provider $MONGO_PROVIDER \
         --dir /workspace/configs/$GITHUB_REPO \
         --github-push \
         --github-host $GITHUB_HOST \
