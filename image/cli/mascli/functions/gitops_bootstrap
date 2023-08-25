@@ -170,6 +170,15 @@ function gitops_bootstrap() {
   echo "Wait for GitOps operator to be ready"
   oc wait --for=condition=Established crd/argocds.argoproj.io --timeout=30m
 
+  oc get namespace openshift-gitops
+  LOOKUP_RESULT=$?
+  while [ "$LOOKUP_RESULT" == "1" ]; do
+    echo "Waiting 5s for openshift-gitops namespace to be installed before checking again ..." 
+    sleep 5
+    oc get namespace openshift-gitops
+    LOOKUP_RESULT=$?
+  done
+
   # 2. Create Secret Manager secret
   echo 'Create Secret Manager Backend Secret'
   jinja -X .+ ${DIR}/templates/gitops/bootstrap/secret-${AVP_TYPE}.yaml.j2 | oc apply  -f -
