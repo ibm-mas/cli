@@ -96,6 +96,14 @@ spec:
           export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
         fi
 
+        if [ -z $MAS_DOMAIN ];then
+          echo "No MAS_DOMAIN set, use domain of ROSA cluster and MAS_INSTANCE_ID
+          CUSTOM_DOMAIN=apps.$(echo -n $OCP_SERVER | sed -n -e "s/^.*api.$CLUSTER_NAME.//p" | cut -d: -f1)
+          export MAS_DOMAIN=$MAS_INSTANCE_ID.$CUSTOM_DOMAIN
+          echo "MAS_DOMAIN set to $MAS_DOMAIN"
+        fi
+
+        sed -n -e 's/^.*api.fvtsaas.//p' | cut -d: -f1
         mkdir -p /workspace/configs/$GITHUB_REPO
         mas gitops-init-suite -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
