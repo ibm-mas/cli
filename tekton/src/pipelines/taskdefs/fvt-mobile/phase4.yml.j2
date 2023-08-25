@@ -1,5 +1,5 @@
 - name: fvt-inventorycounting-mvt-desktop-chrome
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
