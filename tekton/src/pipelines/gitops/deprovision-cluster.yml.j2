@@ -2,12 +2,25 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
+{% if wait_for_deprovision == true %}
+  name: gitops-deprovision-cluster-after-deprovision
+{% else %}
   name: gitops-deprovision-cluster
+{% endif %}
 spec:
   description: Deprovision ROSA, docDb and GitOps Cluster
   workspaces:
     - name: configs
   params:
+{% if wait_for_deprovision == true %}
+      # Name of the PipelineRun to wait for
+    - name: pipelinerun_name
+      type: string
+    - name: ignore_failure
+      type: string
+      default: "False"
+      description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
+{% endif %}
     - name: cluster_name
       type: string    
     - name: ocp_version
@@ -44,7 +57,24 @@ spec:
       type: string
       default: aws
   tasks:
+{% if wait_for_deprovision == true %}
+    # 0. Wait for the deprovsion mas pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-deprovision
+      params:
+        - name: pipelinerun_name
+          value: $(params.pipelinerun_name)
+        - name: ignore_failure
+          value: $(params.ignore_failure)
+      taskRef:
+        kind: Task
+        name: mas-fvt-wait-for-pipelinerun
+{% endif %}
     - name: gitops-deprovision-mongo
+{% if wait_for_deprovision == true %}
+      runAfter:
+        - wait-for-deprovision
+{% endif %}
       params:
         - name: cluster_name
           value: $(params.cluster_name)

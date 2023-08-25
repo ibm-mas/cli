@@ -72,7 +72,24 @@ spec:
       type: string
       default: add
   tasks:
+{% if wait_for_provision == true %}
+    # 0. Wait for the provsion pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-provision
+      params:
+        - name: pipelinerun_name
+          value: $(params.pipelinerun_name)
+        - name: ignore_failure
+          value: $(params.ignore_failure)
+      taskRef:
+        kind: Task
+        name: mas-fvt-wait-for-pipelinerun
+{% endif %}
     - name: gitops-process-mongo-user
+{% if wait_for_provision == true %}
+      runAfter:
+        - wait-for-provision
+{% endif %}
       params:
         - name: cluster_name
           value: $(params.cluster_name)

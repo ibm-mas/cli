@@ -68,7 +68,7 @@
 
     # 4. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
-    - name: Generate GitOps Pipelines with wait-after-provision
+    - name: Generate GitOps Pipelines with wait-after-deprovision
       vars:
         wait_for_deprovision: true
       ansible.builtin.template:
@@ -76,6 +76,7 @@
         dest: "{{ pipeline_target_dir }}/{{ item }}-after-deprovision.yaml"
       with_items:
         - provision-bootstrap-cluster
+        - deprovision-cluster
 
     # 5. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
