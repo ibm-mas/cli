@@ -191,15 +191,19 @@ function gitops_bootstrap() {
   echo 'Create Plugin configmap'
   oc apply  -f ${DIR}/templates/gitops/bootstrap/configmap.yaml
 
-  # 5. Patch openshift-gitops with argocd-vault-plugin
+  # 5. Patch openshift-gitops with argocd-vault-plugin when it is ready
   echo 'Patch cluster ArgoCD'
-  oc wait --for=jsonpath='{.status.phase}'=Available argocd/openshift-gitops -n openshift-gitops
+  oc wait --for=jsonpath='{.status.phase}'=Available argocd/openshift-gitops -n openshift-gitops --timeout=30m
+  oc wait --for=jsonpath='{.status.repo}'=Running argocd/openshift-gitops -n openshift-gitops --timeout=30m
+  oc wait --for=jsonpath='{.status.applicationController}'=Running argocd/openshift-gitops -n openshift-gitops --timeout=30m
   oc apply  -f ${DIR}/templates/gitops/bootstrap/argocd.yaml
 
-  echo 'Wait for ArgoCd to be Ready and Functionl'
-  oc wait --for=jsonpath='{.status.phase}'=Available argocd/openshift-gitops -n openshift-gitops
-  oc wait --for=jsonpath='{.status.repo}'=Running argocd/openshift-gitops -n openshift-gitops
+  sleep 30
 
+  echo 'Wait for ArgoCd to be Ready and Functional'
+  oc wait --for=jsonpath='{.status.phase}'=Available argocd/openshift-gitops -n openshift-gitops --timeout=30m
+  oc wait --for=jsonpath='{.status.repo}'=Running argocd/openshift-gitops -n openshift-gitops --timeout=30m
+  oc wait --for=jsonpath='{.status.applicationController}'=Running argocd/openshift-gitops -n openshift-gitops --timeout=30m
 
   # 6. Add the watcher to the gitops environment repo
   jinja -X .+ ${DIR}/templates/gitops/bootstrap/watcher.yaml.j2 | oc apply -f -
