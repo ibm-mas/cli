@@ -73,6 +73,14 @@ spec:
       type: string
       description: Required to install development MAS catalogs
 
+    # Workload Scaling
+    - name: mas_workload_scale_class
+      type: string
+      default: "Burstable"
+    - name: mas_workload_scale_file
+      type: string
+      default: ""
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -124,6 +132,12 @@ spec:
       - name: MAS_CUSTOMIZE_SCALING
         value: $(params.mas_customize_scaling)
 
+      # Workload Scaling
+      - name: MAS_WORKLOAD_SCALE_CLASS
+        value: $(params.mas_workload_scale_class)
+      - name: MAS_WORKLOAD_SCALE_FILE
+        value: $(params.mas_workload_scale_file)
+
   steps:
     - name: suite-install
       command:
@@ -136,3 +150,5 @@ spec:
   workspaces:
     - name: configs
     - name: additional-configs
+    - name: pod-templates
+      optional: true

@@ -33,6 +33,14 @@ spec:
       type: string
       default: ""
 
+    # Workload Scaling
+    - name: mas_workload_scale_class
+      type: string
+      default: "Burstable"
+    - name: mas_workload_scale_file
+      type: string
+      default: ""
+
     # Optional parameter to uninstall UDS
     - name: uds_action
       type: string
@@ -61,6 +69,12 @@ spec:
       - name: UDS_STORAGE_CLASS
         value: $(params.uds_storage_class)
 
+      # Workload Scaling
+      - name: MAS_WORKLOAD_SCALE_CLASS
+        value: $(params.mas_workload_scale_class)
+      - name: MAS_WORKLOAD_SCALE_FILE
+        value: $(params.mas_workload_scale_file)
+
       # Properties to configure the UDS install
       - name: UDS_EVENT_SCHEDULER_FREQUENCY
         value: $(params.uds_event_scheduler_frequency)
@@ -80,4 +94,6 @@ spec:
 
   workspaces:
     - name: configs
+      optional: true
+    - name: pod-templates
       optional: true
