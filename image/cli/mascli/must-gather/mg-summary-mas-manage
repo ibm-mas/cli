@@ -36,18 +36,6 @@ oc get managestatuschecker -n $1
 echo ""
 
 echo ""
-echo "IBM Maximo Application Suite - Maximo Healthext Application"
-echo "--------------------------------------------------------------------------------"
-oc get healthextapp -n $1
-echo ""
-
-echo ""
-echo "IBM Maximo Application Suite - Maximo Healthext Workspace"
-echo "--------------------------------------------------------------------------------"
-oc get healthextworkspace -n $1
-echo ""
-
-echo ""
 echo "IBM Maximo Application Suite - Image Stitching"
 echo "--------------------------------------------------------------------------------"
 oc get imagestitching -n $1
@@ -57,6 +45,30 @@ echo ""
 echo "IBM Maximo Application Suite - Open Telemetry Deployment"
 echo "--------------------------------------------------------------------------------"
 oc get opentelemetrydeployment -n $1
+echo ""
+
+echo ""
+echo "IBM Maximo Application Suite - Maximo Health Application"
+echo "--------------------------------------------------------------------------------"
+oc get healthapp -n $1
+echo ""
+
+echo ""
+echo "IBM Maximo Application Suite - Maximo Healthext Application"
+echo "--------------------------------------------------------------------------------"
+oc get healthextapp -n $1
+echo ""
+
+echo ""
+echo "IBM Maximo Application Suite - Maximo Health Workspace"
+echo "--------------------------------------------------------------------------------"
+oc get healthworkspace -n $1
+echo ""
+
+echo ""
+echo "IBM Maximo Application Suite - Maximo Healthext Workspace"
+echo "--------------------------------------------------------------------------------"
+oc get healthextworkspace -n $1
 echo ""
 
 exit 0
