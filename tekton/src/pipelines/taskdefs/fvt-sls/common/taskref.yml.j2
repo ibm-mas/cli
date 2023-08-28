@@ -1,0 +1,10 @@
+taskRef:
+  kind: Task
+  name: mas-fvt-sls
+when:
+  - input: "$(params.fvt_digest_sls)"
+    operator: notin
+    values: [""]
+workspaces:
+  - name: configs
+    workspace: shared-configs
