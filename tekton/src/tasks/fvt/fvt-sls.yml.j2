@@ -51,9 +51,7 @@ spec:
       - name: SLS_CHANNEL
         value: $(params.sls_channel)
       - name: SLS_NAMESPACE
-        value: "mas-$(params.sls_instance_name)"
-      - name: SLS_INSTANCE_NAME
-        value: "$(params.sls_instance_name)"
+        value: "$(params.sls_namespace)"
 
       # Enable results to be saved
       - name: DEVOPS_MONGO_URI
