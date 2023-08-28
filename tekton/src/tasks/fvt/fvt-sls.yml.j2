@@ -39,13 +39,6 @@ spec:
       description: "Subscription channel for the product (todo: have the test code look this up instead)"
       default: ""
 
-    - name: mas_instance_id
-      type: string
-      description: Instance ID of the target test environment
-    - name: mas_workspace_id
-      type: string
-      description: Workspace ID in MAS to use for running the tests
-
   stepTemplate:
     name: 'fvt-sls'
     env:
