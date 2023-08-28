@@ -111,6 +111,23 @@ spec:
       runAfter:
         - common-services
 
+    # 3. Cloud Pak for Data
+    # -------------------------------------------------------------------------
+    # 3.1 Cloud Pak for Data Platform
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-platform.yml.j2') | indent(4) }}
+      runAfter:
+        - common-services
+
+    # 3.2 Watson Studio
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-wsl.yml.j2') | indent(4) }}
+      runAfter:
+        - cp4d
+
+    # 3.8 Configure Watson Studio in MAS
+    {{ lookup('template', 'taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
+      runAfter:
+        - fvt-core-phase4
+        - watson-studio
 
     # 4. Other Dependecies
     # -------------------------------------------------------------------------
@@ -223,19 +240,6 @@ spec:
         - app-install-manage
 
 
-    # 10. Install & Configure Optimizer
-    # -------------------------------------------------------------------------
-    # 10.1 Optimizer Install
-    {{ lookup('template', 'taskdefs/apps/optimizer-app.yml.j2') | indent(4) }}
-      runAfter:
-        - fvt-core-phase4
-
-    # 10.2 Configure Optimizer workspace
-    {{ lookup('template', 'taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}
-      runAfter:
-        - app-install-optimizer
-
-    
     # 9. Install & Configure Predict
     # -------------------------------------------------------------------------
     # 9.1 Predict Install
@@ -248,6 +252,32 @@ spec:
     {{ lookup('template', 'taskdefs/apps/predict-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-predict
+
+
+    # 10. Install & Configure Optimizer
+    # -------------------------------------------------------------------------
+    # 10.1 Optimizer Install
+    {{ lookup('template', 'taskdefs/apps/optimizer-app.yml.j2') | indent(4) }}
+      runAfter:
+        - fvt-core-phase4
+
+    # 10.2 Configure Optimizer workspace
+    {{ lookup('template', 'taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-optimizer
+
+
+    # 11. Install & Configure Health & Predict Utilities
+    # -------------------------------------------------------------------------
+    # 11.1 HPUtilities Install
+    {{ lookup('template', 'taskdefs/apps/hputilities-app.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-manage # Requires Health as an add-on
+
+    # 11.2 Configure HPUtilities workspace
+    {{ lookup('template', 'taskdefs/apps/hputilities-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-hputilities
 
 
     # 14. MAS Core FVT
