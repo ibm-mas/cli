@@ -33,7 +33,7 @@ function gitops_deprovision_rosa_noninteractive() {
       # Unknown option
       *)
         echo -e "\n${COLOR_RED}Usage Error: Unsupported flag \"${key}\" ${COLOR_OFF}\n\n"
-        gitops_deprovision_rosa_help
+        gitops_deprovision_rosa_help "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
     esac

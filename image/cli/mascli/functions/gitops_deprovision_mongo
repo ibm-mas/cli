@@ -124,7 +124,7 @@ function gitops_deprovision_mongo_noninteractive() {
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_deprovision_mongo_help
+        gitops_deprovision_mongo_help "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac

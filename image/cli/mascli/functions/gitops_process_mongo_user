@@ -149,7 +149,7 @@ function gitops_process_mongo_user_noninteractive() {
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_process_mongo_user_help "Usage Error: Unsupported option ${key}"
+        gitops_process_mongo_user_help "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
