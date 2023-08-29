@@ -62,8 +62,8 @@ function pipeline_prepare() {
   fi
   oc -n $PIPELINES_NS create secret generic pipeline-sls-entitlement --from-file=$SLS_LICENSE_FILE_LOCAL &>> $LOGFILE
 
-  if [ "$MAS_WORKLOAD_SCALE_FILE" != "" ]; then
-    oc -n $PIPELINES_NS create secret generic pipeline-pod-templates --from-file=$MAS_WORKLOAD_SCALE_FILE_LOCAL &>> $LOGFILE
+  if [ "$WORKLOAD_SCALE_DIR_LOCAL" != "" ]; then
+    oc -n $PIPELINES_NS create secret generic pipeline-pod-templates --from-file=$WORKLOAD_SCALE_DIR_LOCAL &>> $LOGFILE
   else
     # pipeline-pod-templates must exist (otherwise the suite-install step will hang), but can be empty
     oc -n $PIPELINES_NS create secret generic pipeline-pod-templates &>> $LOGFILE

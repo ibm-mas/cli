@@ -185,8 +185,6 @@ spec:
       value: '$SLS_ICR_CP'
     - name: sls_icr_cpopen
       value: '$SLS_ICR_CPOPEN'
-    - name: sls_workload_scale_class
-      value: '$SLS_WORKLOAD_SCALE_CLASS'
     - name: sls_workload_scale_file
       value: '$SLS_WORKLOAD_SCALE_FILE'
 
@@ -308,8 +306,6 @@ spec:
     - name: mas_trust_default_cas
       value: '$MAS_TRUST_DEFAULT_CAS'
 
-    - name: mas_workload_scale_class
-      value: '$MAS_WORKLOAD_SCALE_CLASS'
     - name: mas_workload_scale_file
       value: '$MAS_WORKLOAD_SCALE_FILE'
 

@@ -9,26 +9,50 @@ function config_pipeline_workload_scale() {
   echo "1. Guaranteed"
   echo "2. Burstable (default)"
   echo "3. BestEffort"
-  echo "4. Customer (define your own/point to a yaml file)"
+  echo "4. Custom"
   echo
 
   prompt_for_number "Select Profile" MAS_SCALE_PROFILE_SELECTION 2
 
   case $MAS_SCALE_PROFILE_SELECTION in
     1)
-      MAS_WORKLOAD_SCALE_CLASS=Guaranteed
+      WORKLOAD_SCALE_CLASS=Guaranteed
+      WORKLOAD_SCALE_DIR_NAME=guaranteed
       ;;
     2)
-      MAS_WORKLOAD_SCALE_CLASS=Burstable
+      WORKLOAD_SCALE_CLASS=Burstable
       ;;
     3)
-      MAS_WORKLOAD_SCALE_CLASS=BestEffort
+      WORKLOAD_SCALE_CLASS=BestEffort
+      WORKLOAD_SCALE_DIR_NAME=best-effort
       ;;
     4)
-      prompt_for_input "Customer scaling configuration file" MAS_WORKLOAD_SCALE_FILE_LOCAL
-      if [[ ! -e "$MAS_WORKLOAD_SCALE_FILE_LOCAL" ]]; then
-        echo_warning "Error: File does not exist: $MAS_WORKLOAD_SCALE_FILE_LOCAL"
+      prompt_for_input "Custom configurations directory" WORKLOAD_SCALE_DIR_LOCAL
+      
+      configs_found=false
+
+      if [[ ! -d "$WORKLOAD_SCALE_DIR_LOCAL" ]]; then
+        echo_warning "Error: Directory does not exist: $WORKLOAD_SCALE_DIR_LOCAL"
         exit 1
+      fi
+
+      # Check for valid configuration files within the specified directory
+      if [[ -e "${WORKLOAD_SCALE_DIR_LOCAL}/ibm-mas.yml" ]]; then
+        MAS_WORKLOAD_SCALE_FILE="/workspace/pod-templates/ibm-mas.yml"
+        MAS_WORKLOAD_SCALE_FILE_LOCAL="${WORKLOAD_SCALE_DIR_LOCAL}/ibm-mas.yml"
+        configs_found=true
+      fi
+
+      if [[ -e "${WORKLOAD_SCALE_DIR_LOCAL}/ibm-sls.yml" ]]; then
+        SLS_WORKLOAD_SCALE_FILE="/workspace/pod-templates/ibm-sls.yml"
+        SLS_WORKLOAD_SCALE_FILE_LOCAL="${WORKLOAD_SCALE_DIR_LOCAL}/ibm-sls.yml"
+        configs_found=true
+      fi
+
+      # If no valid configuration files were found exit
+      if [ "$configs_found" == false ]; then
+          echo_warning "Error: No valid workload scaling configurations found"
+          exit 1
       fi
       ;;
     *)
@@ -36,18 +60,14 @@ function config_pipeline_workload_scale() {
       exit 1
       ;;
   esac
-
   echo
 
-  if [ -n "${MAS_WORKLOAD_SCALE_FILE_LOCAL}" ]; then
-    MAS_WORKLOAD_SCALE_FILE="/workspace/pod-templates/$(basename $MAS_WORKLOAD_SCALE_FILE_LOCAL)"
+  # When qosClass of Guaranteed or BestEffort was chosen, use pre-defined configs
+  if [ "$MAS_SCALE_PROFILE_SELECTION" == 1 || "$MAS_SCALE_PROFILE_SELECTION" == 3 ]; then
+      MAS_WORKLOAD_SCALE_FILE="/workspace/pod-templates/ibm-mas.yml"
+      MAS_WORKLOAD_SCALE_FILE_LOCAL="/mascli/templates/pod-templates/${WORKLOAD_SCALE_DIR_NAME}/ibm-mas.yml"
 
-    # For now we will set all supported apps/dependencies to the MAS_WORKLOAD_SCALE_FILE
-    # In future, we can add granularity
-    SLS_WORKLOAD_SCALE_FILE=$MAS_WORKLOAD_SCALE_FILE
+      SLS_WORKLOAD_SCALE_FILE="/workspace/pod-templates/ibm-sls.yml"
+      SLS_WORKLOAD_SCALE_FILE_LOCAL="/mascli/templates/pod-templates/${WORKLOAD_SCALE_DIR_NAME}/ibm-sls.yml"
   fi
-
-  # For now we will set all supported apps/dependencies to the MAS_WORKLOAD_SCALE_CLASS
-  # In future, we can add granularity
-  SLS_WORKLOAD_SCALE_CLASS=$MAS_WORKLOAD_SCALE_CLASS
 }

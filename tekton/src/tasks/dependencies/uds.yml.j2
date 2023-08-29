@@ -34,9 +34,6 @@ spec:
       default: ""
 
     # Workload Scaling
-    - name: mas_workload_scale_class
-      type: string
-      default: "Burstable"
     - name: mas_workload_scale_file
       type: string
       default: ""
@@ -70,8 +67,6 @@ spec:
         value: $(params.uds_storage_class)
 
       # Workload Scaling
-      - name: MAS_WORKLOAD_SCALE_CLASS
-        value: $(params.mas_workload_scale_class)
       - name: MAS_WORKLOAD_SCALE_FILE
         value: $(params.mas_workload_scale_file)
 

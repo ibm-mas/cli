@@ -74,9 +74,6 @@ spec:
       description: Required to install development MAS catalogs
 
     # Workload Scaling
-    - name: mas_workload_scale_class
-      type: string
-      default: "Burstable"
     - name: mas_workload_scale_file
       type: string
       default: ""
@@ -133,8 +130,6 @@ spec:
         value: $(params.mas_customize_scaling)
 
       # Workload Scaling
-      - name: MAS_WORKLOAD_SCALE_CLASS
-        value: $(params.mas_workload_scale_class)
       - name: MAS_WORKLOAD_SCALE_FILE
         value: $(params.mas_workload_scale_file)
 

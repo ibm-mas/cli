@@ -42,15 +42,9 @@ spec:
       default: ""
 
     # Workload Scaling
-    - name: sls_workload_scale_class
-      type: string
-      default: "Burstable"
     - name: sls_workload_scale_file
       type: string
       default: ""
-    - name: mas_workload_scale_class
-      type: string
-      default: "Burstable"
     - name: mas_workload_scale_file
       type: string
       default: ""
@@ -106,12 +100,8 @@ spec:
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
 
-      - name: SLS_WORKLOAD_SCALE_CLASS
-        value: $(params.sls_workload_scale_class)
       - name: SLS_WORKLOAD_SCALE_FILE
         value: $(params.sls_workload_scale_file)
-      - name: MAS_WORKLOAD_SCALE_CLASS
-        value: $(params.mas_workload_scale_class)
       - name: MAS_WORKLOAD_SCALE_FILE
         value: $(params.mas_workload_scale_file)
 
