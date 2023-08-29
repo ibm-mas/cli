@@ -94,14 +94,12 @@ spec:
         --github-org  $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
         --git-branch $GIT_BRANCH
-
-        exit $?
       command:
         - /bin/sh
         - -c
       name: gitops-deprovision-suite
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:6.4.0-pre.ajw-gitops-fvt
+      image: quay.io/ibmmas/cli:6.4.0-pre.gitops
   workspaces:
     - name: configs
 

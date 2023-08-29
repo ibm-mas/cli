@@ -76,7 +76,8 @@ spec:
 
         if [ -z "$VPC_ID" ]; then
           echo "No VPC for $CLUSTER_NAME found, expected to find VPC exiting as error"
-          exit 1
+          # Exit 0 here as we might be trying to cleanup something that is already cleaned up
+          exit 0
         fi
 
         if [ -z "$EC2_LINUX_AMI_ID" ]; then
@@ -107,6 +108,6 @@ spec:
         - -c
       name: gitops-process-mongo-user
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:6.4.0-pre.ajw-gitops-fvt
+      image: quay.io/ibmmas/cli:6.4.0-pre.gitops
   workspaces:
     - name: configs
