@@ -70,7 +70,7 @@ function pipeline_config() {
 
   echo
   echo_h2 "License Terms"
-  echo -e "${COLOR_YELLOW} For information about your license, see "$MAS_LICENSE_LINK " To continue with the installation, you must accept the license terms."
+  echo -e "${COLOR_YELLOW} For information about your license, see "$MAS_LICENSE_LINK and https://ibm.biz/MAXIT81-License" To continue with the installation, you must accept the license terms."
   prompt_for_confirm_default_yes "Do you accept the license terms?" LICENSE_RESPONSE
 
   if [[ "$LICENSE_RESPONSE" == "false" ]]; then
