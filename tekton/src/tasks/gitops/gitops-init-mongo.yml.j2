@@ -59,7 +59,7 @@ spec:
           echo "No VPC for $CLUSTER_NAME found, expected to find VPC exiting as error"
           exit 1
         fi
-        
+
         echo "VPC of $VPC_ID found for $CLUSTER_NAME"
         export MAS_INSTANCE_ID=gitops
         
@@ -86,7 +86,7 @@ spec:
         - -c
       name: gitops-init-mongo
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:6.4.0-pre.ajw-gitops-fvt
+      image: quay.io/ibmmas/cli:6.4.0-pre.gitops
   workspaces:
     - name: configs
 
