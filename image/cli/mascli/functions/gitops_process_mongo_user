@@ -48,6 +48,7 @@ AWS MongoDb Provider:
 Other Commands:
   -h, --help                                      Show this help message
 EOM
+
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
@@ -140,7 +141,7 @@ function gitops_process_mongo_user_noninteractive() {
         ;;
       --ec2-linux-ami-id)
         export EC2_LINUX_AMI_ID=$1 && shift
-        ;;        
+        ;;
       # Other Commands
       -h|--help)
         gitops_process_mongo_user_help
@@ -148,7 +149,7 @@ function gitops_process_mongo_user_noninteractive() {
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_process_mongo_user_help
+        gitops_process_mongo_user_help "Usage Error: Unsupported option ${key}"
         exit 1
         ;;
       esac
@@ -248,20 +249,31 @@ function gitops_process_mongo_user() {
     export DOCDB_MASTER_USERNAME=$(jq -r .username $MONGO_SECRET_FILE)
     export DOCDB_MASTER_PASSWORD=$(jq -r .password $MONGO_SECRET_FILE)    
     echo -e "${USER_ACTION}_mongo_user : DOCDB_HOST=${DOCDB_HOST} \t DOCDB_PORT=${DOCDB_PORT} \t DOCDB_MASTER_USERNAME=${DOCDB_MASTER_USERNAME} \t DOCDB_MASTER_PASSWORD=${DOCDB_MASTER_PASSWORD}"
-    
+
     export DOCDB_INSTANCE_USERNAME=masinst_${MAS_INSTANCE_ID}
     export SECRET_NAME_MONGO_INSTANCE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
+    # Set docdb instance password if present in secret manager
+    if [[ "${USER_ACTION}" == "add" ]]; then
+      MONGO_INSTANCE_USER_FILE=${TEMP_DIR}/lookup-mongo-user.json
+      sm_get_secret_file ${SECRET_NAME_MONGO_INSTANCE} $MONGO_INSTANCE_USER_FILE
+      TEMP_DOCDB_INSTANCE_USERNAME=$(jq -r .username $MONGO_INSTANCE_USER_FILE)
+      TEMP_DOCDB_INSTANCE_PASSWORD=$(jq -r .password $MONGO_INSTANCE_USER_FILE)
+      if [[ -n ${TEMP_DOCDB_INSTANCE_PASSWORD} ]]; then
+        export DOCDB_INSTANCE_PASSWORD=${TEMP_DOCDB_INSTANCE_PASSWORD}
+        echo  -e "${USER_ACTION}_mongo_user : DOCDB INSTANCE USERNAME / PASSWORD : ${TEMP_DOCDB_INSTANCE_USERNAME} / ${TEMP_DOCDB_INSTANCE_PASSWORD} from secret, same used while invoking role again"
+      fi
+    fi
     export ROLE_NAME=aws_ec2_documentdb
     ansible-playbook ibm.mas_devops.run_role
     rc=$?
     [ $rc -ne 0 ] && exit $rc
 
     if [[ "${USER_ACTION}" == "add" ]]; then
-      export MONGO_INSTANCE_USER_FILE=$TEMP_DIR/created-mongo-user.json
+      export MONGO_INSTANCE_USER_FILE=${TEMP_DIR}/created-mongo-user.json
       sm_get_secret_file ${SECRET_NAME_MONGO_INSTANCE} $MONGO_INSTANCE_USER_FILE
       DOCDB_INSTANCE_USERNAME=$(jq -r .username $MONGO_INSTANCE_USER_FILE)
       DOCDB_INSTANCE_PASSWORD=$(jq -r .password $MONGO_INSTANCE_USER_FILE)
-      echo -e "${USER_ACTION}_mongo_user : DOCDB_INSTANCE_USERNAME=${DOCDB_INSTANCE_USERNAME} \t DOCDB_INSTANCE_PASSWORD=${DOCDB_INSTANCE_PASSWORD}"    
+      echo -e "${USER_ACTION}_mongo_user : DOCDB INSTANCE USERNAME / PASSWORD : ${DOCDB_INSTANCE_USERNAME}  / ${DOCDB_INSTANCE_PASSWORD}"
       
       if [[ "${DOCDB_INSTANCE_USERNAME}" != masinst_"${MAS_INSTANCE_ID}" ]]; then
         echo "${USER_ACTION}_mongo_user : DOCDB_INSTANCE_USERNAME is not matching the right value"
@@ -270,5 +282,5 @@ function gitops_process_mongo_user() {
     fi
 
   fi
-  exit 0  
+  exit 0
 }
