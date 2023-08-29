@@ -170,6 +170,8 @@ spec:
       value: '$CPD_INSTALL_SPSS'
     - name: cpd_install_openscale
       value: '$CPD_INSTALL_OPENSCALE'
+    - name: cpd_wsl_project_id
+      value: '$CPD_WSL_PROJECT_ID'
 
     # Dependencies - SLS
     # -------------------------------------------------------------------------
