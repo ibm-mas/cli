@@ -329,6 +329,10 @@ function install_noninteractive() {
     export MAS_APP_SETTINGS_OLD_CRYPTOX_KEY=$1 && shift
     ;;
 
+    --manage-override-encryption-secrets)
+    export MAS_APP_SETTINGS_OVERRIDE_ENCRYPTION_SECRETS_FLAG=true
+    ;;
+
     # Other Commands
     --dev-mode)
       DEV_MODE=true
