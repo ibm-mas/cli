@@ -454,9 +454,8 @@ spec:
       secret:
         secretName: pipeline-sls-entitlement
 
-    # User-provided workload scale config
+    # Workload scale configurations
     # -------------------------------------------------------------------------
-    # The user pre-defined workload scale configuration if provided
     - name: shared-pod-templates
       secret:
         secretName: pipeline-pod-templates
