@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-init-cluster
+  name: gitops-deprovision-cluster
 spec:
   params:
     - name: cluster_name
@@ -21,14 +21,6 @@ spec:
       type: string
     - name: github_pat
       type: string
-    - name: ibm_entitlement_b64
-      type: string
-    - name: mas_catalog_version
-      type: string
-    - name: mas_catalog_image
-      type: string
-    - name: common_services_channel
-      type: string
     - name: avp_aws_access_key
       type: string
     - name: avp_aws_secret_key
@@ -36,7 +28,7 @@ spec:
     - name: avp_aws_secret_region
       type: string
   stepTemplate:
-    name: gitops-init-cluster
+    name: gitops-deprovision-cluster
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -52,14 +44,6 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
-      - name: IBM_ENTITLEMENT_B64
-        value: $(params.ibm_entitlement_b64)
-      - name: MAS_CATALOG_VERSION
-        value: $(params.mas_catalog_version)
-      - name: MAS_CATALOG_IMAGE
-        value: $(params.mas_catalog_image)
-      - name: COMMON_SERVICES_CHANNEL
-        value: $(params.common_services_channel)
       - name: SM_AWS_ACCESS_KEY_ID
         value: $(params.avp_aws_access_key)
       - name: SM_AWS_SECRET_ACCESS_KEY
@@ -67,7 +51,7 @@ spec:
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
       - name: GITHUB_PAT
-        value: $(params.github_pat)
+        value: $(params.github_pat) 
   steps:
     - args:
       - |-
@@ -83,13 +67,15 @@ spec:
 
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
-
-        export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
-        export ARGOCD_USERNAME=admin
-        export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
+        
+        if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
+          export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
+          export ARGOCD_USERNAME=admin
+          export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
+        fi
 
         mkdir -p /workspace/configs/$GITHUB_REPO
-        mas gitops-init-cluster -a $ACCOUNT -c $CLUSTER_NAME \
+        mas gitops-deprovision-cluster -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /workspace/configs/$GITHUB_REPO \
         --github-push \
         --github-host $GITHUB_HOST \
@@ -100,8 +86,8 @@ spec:
       command:
         - /bin/sh
         - -c
-      name: gitops-init-cluster
+      name: gitops-deprovision-cluster
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:6.4.0-pre.gitops
+      image: quay.io/ibmmas/cli:6.4.0-pre.ajw-gitops-fvt
   workspaces:
     - name: configs

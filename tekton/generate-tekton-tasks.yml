@@ -96,3 +96,26 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - ocp-deprovision
+
+    # 6. Generate Tasks (GitOps)
+    # -------------------------------------------------------------------------
+    - name: Generate Tasks (GitOps)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/gitops/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - gitops-bootstrap
+        - gitops-deprovision-cluster
+        - gitops-deprovision-mongo
+        - gitops-deprovision-rosa
+        - gitops-deprovision-suite-config
+        - gitops-deprovision-suite-workspace
+        - gitops-deprovision-suite
+        - gitops-init-cluster
+        - gitops-init-license
+        - gitops-init-mongo
+        - gitops-init-rosa
+        - gitops-init-suite-config
+        - gitops-init-suite-workspace
+        - gitops-init-suite
+        - gitops-process-mongo-user

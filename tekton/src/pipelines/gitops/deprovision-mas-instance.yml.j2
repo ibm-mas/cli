@@ -1,8 +1,8 @@
-
+---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: deprovision-mas-instance
+  name: gitops-deprovision-mas-instance
 spec:
   workspaces:
     - name: configs
@@ -47,12 +47,7 @@ spec:
       type: string
     - name: ec2_linux_ami_id
       type: string
-    - name: argocd_url
-      type: string
-    - name: argocd_username
-      type: string
-    - name: argocd_password
-      type: string
+      default: ""
     - name: docdb_user_action
       type: string
       default: remove
@@ -81,12 +76,6 @@ spec:
           value: $(params.github_host)
         - name: github_pat
           value: $(params.github_pat)
-        - name: argocd_url
-          value: $(params.argocd_url)
-        - name: argocd_username
-          value: $(params.argocd_username)
-        - name: argocd_password
-          value: $(params.argocd_password)
       taskRef:
         kind: Task
         name: gitops-deprovision-suite-workspace
@@ -121,12 +110,6 @@ spec:
           value: $(params.avp_aws_secret_key)
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
-        - name: argocd_url
-          value: $(params.argocd_url)
-        - name: argocd_username
-          value: $(params.argocd_username)
-        - name: argocd_password
-          value: $(params.argocd_password)
       workspaces:
         - name: configs
           workspace: configs
@@ -163,12 +146,6 @@ spec:
           value: $(params.avp_aws_secret_key)
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
-        - name: argocd_url
-          value: $(params.argocd_url)
-        - name: argocd_username
-          value: $(params.argocd_username)
-        - name: argocd_password
-          value: $(params.argocd_password)
       taskRef:
         kind: Task
         name: gitops-deprovision-suite

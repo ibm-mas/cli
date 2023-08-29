@@ -154,54 +154,65 @@ function gitops_bootstrap() {
   echo
   echo_h2 "Install Openshift GitOps Operator"
 
-  echo -en "\033[s" # Save cursor position
-  echo -n "Installing OpenShift GitOps Operator (latest) ..."
+  echo "Installing OpenShift GitOps Operator (latest) ..."
 
-  oc apply  -f ${DIR}/templates/gitops/bootstrap/subscription.yaml &>> $LOGFILE
+  oc apply  -f ${DIR}/templates/gitops/bootstrap/subscription.yaml
 
-  oc get crd argocds.argoproj.io &>> $LOGFILE
+  oc get crd argocds.argoproj.io
   LOOKUP_RESULT=$?
   while [ "$LOOKUP_RESULT" == "1" ]; do
-    echo "Waiting 5s for argocds.argoproj.io CRD to be installed before checking again ..." &>> $LOGFILE
+    echo "Waiting 5s for argocds.argoproj.io CRD to be installed before checking again ..." 
     sleep 5
-    oc get crd argocds.argoproj.io &>> $LOGFILE
+    oc get crd argocds.argoproj.io 
     LOOKUP_RESULT=$?
   done
 
-  echo "Wait for GitOps operator to be ready" &>> $LOGFILE
-  oc wait --for=condition=Established crd/argocds.argoproj.io --timeout=30m &>> $LOGFILE
+  echo "Wait for GitOps operator to be ready"
+  oc wait --for=condition=Established crd/argocds.argoproj.io --timeout=30m
+
+  oc get namespace openshift-gitops
+  LOOKUP_RESULT=$?
+  while [ "$LOOKUP_RESULT" == "1" ]; do
+    echo "Waiting 5s for openshift-gitops namespace to be installed before checking again ..." 
+    sleep 5
+    oc get namespace openshift-gitops
+    LOOKUP_RESULT=$?
+  done
 
   # 2. Create Secret Manager secret
-  echo 'Create Secret Manager Backend Secret' &>> $LOGFILE
-  jinja -X .+ ${DIR}/templates/gitops/bootstrap/secret-${AVP_TYPE}.yaml.j2 | oc apply  -f - &>> $LOGFILE
+  echo 'Create Secret Manager Backend Secret'
+  jinja -X .+ ${DIR}/templates/gitops/bootstrap/secret-${AVP_TYPE}.yaml.j2 | oc apply  -f -
 
   # 3. Create repo server SA
-  echo 'Create ArgoCD repo server service account' &>> $LOGFILE
-  oc apply  -f ${DIR}/templates/gitops/bootstrap/rbac.yaml &>> $LOGFILE
+  echo 'Create ArgoCD repo server service account' 
+  oc apply  -f ${DIR}/templates/gitops/bootstrap/rbac.yaml
 
   # 4. Create ConfigPluginManagement
-  echo 'Create Plugin configmap' &>> $LOGFILE
-  oc apply  -f ${DIR}/templates/gitops/bootstrap/configmap.yaml &>> $LOGFILE
+  echo 'Create Plugin configmap'
+  oc apply  -f ${DIR}/templates/gitops/bootstrap/configmap.yaml
 
-  # 5. Patch openshift-gitops with argocd-vault-plugin
-  echo 'Patch cluster ArgoCD' &>> $LOGFILE
-  oc wait --for=jsonpath='{.status.phase}'=Available argocd/openshift-gitops -n openshift-gitops &>> $LOGFILE
-  oc apply  -f ${DIR}/templates/gitops/bootstrap/argocd.yaml &>> $LOGFILE
+  # 5. Patch openshift-gitops with argocd-vault-plugin when it is ready
+  echo 'Patch cluster ArgoCD'
+  oc wait --for=jsonpath='{.status.phase}'=Available argocd/openshift-gitops -n openshift-gitops --timeout=30m
+  oc wait --for=jsonpath='{.status.repo}'=Running argocd/openshift-gitops -n openshift-gitops --timeout=30m
+  oc wait --for=jsonpath='{.status.applicationController}'=Running argocd/openshift-gitops -n openshift-gitops --timeout=30m
+  oc apply  -f ${DIR}/templates/gitops/bootstrap/argocd.yaml
 
-  echo 'Wait for ArgoCd to be Ready and Functionl' &>> $LOGFILE
-  oc wait --for=jsonpath='{.status.phase}'=Available argocd/openshift-gitops -n openshift-gitops &>> $LOGFILE
-  oc wait --for=jsonpath='{.status.repo}'=Running argocd/openshift-gitops -n openshift-gitops &>> $LOGFILE
+  sleep 30
 
+  echo 'Wait for ArgoCd to be Ready and Functional'
+  oc wait --for=jsonpath='{.status.phase}'=Available argocd/openshift-gitops -n openshift-gitops --timeout=30m
+  oc wait --for=jsonpath='{.status.repo}'=Running argocd/openshift-gitops -n openshift-gitops --timeout=30m
+  oc wait --for=jsonpath='{.status.applicationController}'=Running argocd/openshift-gitops -n openshift-gitops --timeout=30m
 
   # 6. Add the watcher to the gitops environment repo
-  jinja -X .+ ${DIR}/templates/gitops/bootstrap/watcher.yaml.j2 | oc apply -f - &>> $LOGFILE
+  jinja -X .+ ${DIR}/templates/gitops/bootstrap/watcher.yaml.j2 | oc apply -f -
 
   # 7. Patch openshift-marketplace to allow GitOps to manage resources in the namespace
-  echo 'Patch standard namespaces to enable GitOps management' &>> $LOGFILE
-  oc apply  -f ${DIR}/templates/gitops/bootstrap/namespace.yaml &>> $LOGFILE
+  echo 'Patch standard namespaces to enable GitOps management'
+  oc apply  -f ${DIR}/templates/gitops/bootstrap/namespace.yaml
 
-  echo -en "\033[1K" # Clear current line
-  echo -en "\033[u" # Restore cursor position
+  echo 
   echo "${COLOR_GREEN}OpenShift GitOps Operator is installed and ready${COLOR_RESET}"
   echo
 
@@ -211,8 +222,7 @@ function gitops_bootstrap() {
     export ARGOCD_USERNAME=admin
     export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' | base64 -d ; echo)
   fi
-  echo -en "\033[1K" # Clear current line
-  echo -en "\033[u" # Restore cursor position
+
   echo "${COLOR_GREEN}ArgoCD is now available at ${ARGOCD_URL} username is: admin and password: ${ARGOCD_PASSWORD} ${COLOR_RESET}"
   echo
 
