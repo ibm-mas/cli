@@ -66,7 +66,12 @@ spec:
         export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
         export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
         oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
-
+        OC_RC=$?
+        if [ $OC_RC -ne 0 ]; then
+          echo "oc login failed"
+          exit 1
+        fi
+        
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
