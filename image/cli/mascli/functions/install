@@ -285,6 +285,54 @@ function install_noninteractive() {
     export MONGODB_NAMESPACE=$1 && shift
     ;;
 
+    # Manage commands - Server bundle configuration
+    --manage-server-bundle-size)
+    export MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE=$1 && shift
+    ;;
+
+    # Manage commands - Components
+    --manage-components)
+    export MAS_APPWS_COMPONENTS=$1 && shift
+    ;;
+
+    # Manage commands - Customization archive
+    --manage-customization-archive-name)
+    export MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME=$1 && shift
+    ;;
+
+    --manage-customization-archive-url)
+    export MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL=$1 && shift
+    ;;
+
+    --manage-customization-archive-username)
+    export MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME=$1 && shift
+    ;;
+
+    --manage-customization-archive-password)
+    export MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD=$1 && shift
+    ;;
+
+    # Manage commands - Database encryption keys 
+    --manage-crypto-key)
+    export MAS_APP_SETTINGS_CRYPTO_KEY=$1 && shift
+    ;;
+
+    --manage-cryptox-key)
+    export MAS_APP_SETTINGS_CRYPTOX_KEY=$1 && shift
+    ;;
+
+    --manage-old-crypto-key)
+    export MAS_APP_SETTINGS_OLD_CRYPTO_KEY=$1 && shift
+    ;;
+
+    --manage-old-cryptox-key)
+    export MAS_APP_SETTINGS_OLD_CRYPTOX_KEY=$1 && shift
+    ;;
+
+    --manage-override-encryption-secrets)
+    export MAS_APP_SETTINGS_OVERRIDE_ENCRYPTION_SECRETS_FLAG=true
+    ;;
+
     # Other Commands
     --dev-mode)
       DEV_MODE=true
@@ -298,7 +346,6 @@ function install_noninteractive() {
     -h|--help)
       install_help
       ;;
-
 
     *)
     # unknown option

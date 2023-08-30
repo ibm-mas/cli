@@ -107,6 +107,9 @@ spec:
 
   stepTemplate:
     name: 'fvt-manage'
+    securityContext:
+      privileged: true
+      runAsUser: 0
     env:
       - name: PRODUCT_ID
         value: $(params.product_id)
