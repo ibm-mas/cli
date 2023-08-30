@@ -123,7 +123,7 @@ function gitops_init_cluster_noninteractive() {
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_init_cluster_help
+        gitops_init_cluster_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
     esac

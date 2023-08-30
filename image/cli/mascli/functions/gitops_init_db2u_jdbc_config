@@ -133,7 +133,7 @@ function gitops_init_db2u_jdbc_config_noninteractive() {
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_init_db2u_jdbc_config_help
+        gitops_init_db2u_jdbc_config_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
