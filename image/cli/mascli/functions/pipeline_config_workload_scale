@@ -28,6 +28,8 @@ function find_workload_scale_configs_in_dir(){
 }
 
 function set_workload_scale_envs() {
+  WORKLOAD_SCALE_DIR_NAME=guaranteed
+  [ "$WORKLOAD_SCALE_PROFILE" == "BestEffort" ] && WORKLOAD_SCALE_DIR_NAME=best-effort
   WORKLOAD_SCALE_DIR_LOCAL="/mascli/templates/pod-templates/${WORKLOAD_SCALE_DIR_NAME}"
 
   MAS_WORKLOAD_SCALE_FILE="/workspace/pod-templates/ibm-mas.yml"
@@ -57,21 +59,19 @@ function config_pipeline_workload_scale() {
   case $MAS_SCALE_PROFILE_SELECTION in
   1)
     WORKLOAD_SCALE_PROFILE=Guaranteed
-    WORKLOAD_SCALE_DIR_NAME=guaranteed
     ;;
   2)
     WORKLOAD_SCALE_PROFILE=Burstable
     ;;
   3)
     WORKLOAD_SCALE_PROFILE=BestEffort
-    WORKLOAD_SCALE_DIR_NAME=best-effort
     ;;
   4)
     prompt_for_input "Custom configurations directory" WORKLOAD_SCALE_DIR_LOCAL
     find_workload_scale_configs_in_dir
     ;;
   *)
-    echo_warning "Invalid selection"
+    echo_warning "Invalid selection. Choose between 1 and 4"
     exit 1
     ;;
   esac
