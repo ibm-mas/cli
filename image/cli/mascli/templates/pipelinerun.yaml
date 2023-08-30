@@ -326,6 +326,8 @@ spec:
     # -------------------------------------------------------------------------
     - name: mas_app_channel_manage
       value: '$MAS_APP_CHANNEL_MANAGE'
+    - name: mas_appws_components
+      value: '$MAS_APPWS_COMPONENTS'
 
     - name: mas_app_settings_aio_flag
       value: '$MAS_APP_SETTINGS_AIO_FLAG'
@@ -367,6 +369,16 @@ spec:
       value: '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME'
     - name: mas_app_settings_customization_archive_password
       value: '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD'
+    - name: mas_app_settings_crypto_key
+      value: '$MAS_APP_SETTINGS_CRYPTO_KEY'
+    - name: mas_app_settings_cryptox_key
+      value: '$MAS_APP_SETTINGS_CRYPTOX_KEY'
+    - name: mas_app_settings_old_crypto_key
+      value: '$MAS_APP_SETTINGS_OLD_CRYPTO_KEY'
+    - name: mas_app_settings_old_cryptox_key
+      value: '$MAS_APP_SETTINGS_OLD_CRYPTOX_KEY'
+    - name: mas_app_settings_override_encryption_secrets_flag
+      value: '$MAS_APP_SETTINGS_OVERRIDE_ENCRYPTION_SECRETS_FLAG'
 
     # Monitor Application
     # -------------------------------------------------------------------------
