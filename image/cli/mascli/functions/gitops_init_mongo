@@ -32,7 +32,8 @@ AWS MongoDb Provider:
       --aws-docdb-cidr-az1 ${COLOR_YELLOW}DOCDB_CIDR_AZ1${TEXT_RESET}                                      Availability Zone 1 CIDR
       --aws-docdb-cidr-az2 ${COLOR_YELLOW}DOCDB_CIDR_AZ2${TEXT_RESET}                                      Availability Zone 2 CIDR
       --aws-docdb-cidr-az3 ${COLOR_YELLOW}DOCDB_CIDR_AZ3${TEXT_RESET}                                      Availability Zone 3 CIDR
-      --aws-docdb-instance_identifier_prefix ${COLOR_YELLOW}DOCDB_INSTANCE_IDENTIFIER_PREFIX${TEXT_RESET}  Prefix
+      --aws-docdb-instance-identifier-prefix ${COLOR_YELLOW}DOCDB_INSTANCE_IDENTIFIER_PREFIX${TEXT_RESET}  Prefix
+      --aws-docdb-instance-number ${COLOR_YELLOW}DOCDB_INSTANCE_NUMBER${TEXT_RESET}                        DocDB Instance Count
 
 YAML MongoDb Provider:
       --yaml-file ${COLOR_YELLOW}MONGO_YAML_FILE${TEXT_RESET}  Path to configuration file
@@ -106,8 +107,11 @@ function gitops_init_mongo_noninteractive() {
       --aws-docdb-cidr-az3)
         export DOCDB_CIDR_AZ3=$1 && shift
         ;;
-      --aws-docdb-instance_identifier_prefix)
+      --aws-docdb-instance-identifier-prefix)
         export DOCDB_INSTANCE_IDENTIFIER_PREFIX=$1 && shift
+        ;;
+      --aws-docdb-instance-number)
+        export DOCDB_INSTANCE_NUMBER=$1 && shift
         ;;
 
       # YAML MongoDb provider
@@ -148,7 +152,7 @@ function gitops_init_mongo_noninteractive() {
       exit 1
     fi
     if [ -z $DOCDB_CLUSTER_NAME ] || [ -z $DOCDB_INSTANCE_IDENTIFIER_PREFIX ]; then
-      echo 'Missing required params for AWS mongo provider, make sure to provide --aws-docdb-instance_identifier_prefix, --aws-docdb-cluster-name'
+      echo 'Missing required params for AWS mongo provider, make sure to provide --aws-docdb-instance-identifier-prefix, --aws-docdb-cluster-name'
       exit 1
     fi
   fi
@@ -220,7 +224,7 @@ function gitops_init_mongo() {
     #export MAS_INSTANCE_ID=inst1
     export MONGODB_NAMESPACE=docdb
     export ROLE_NAME=mongodb
-    export DOCDB_INSTANCE_NUMBER=${DOCDB_INSTANCE_NUMBER:-"1"}
+    export DOCDB_INSTANCE_NUMBER=${DOCDB_INSTANCE_NUMBER:-"3"}
     export SLS_MONGO_RETRYWRITES=false
     export AWS_DEFAULT_OUTPUT="json"
     export MONGODB_ACTION=install
