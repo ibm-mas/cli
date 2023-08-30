@@ -33,7 +33,8 @@ Advanced MAS Configuration (Optional):
       --additional-configs ${COLOR_YELLOW}LOCAL_MAS_CONFIG_DIR${TEXT_RESET}                    Path to a directory containing additional configuration files to be applied
       --non-prod                                                                               Install MAS in Non-production mode
       --mas-trust-default-cas ${COLOR_YELLOW}MAS_TRUST_DEFAULT_CAS${COLOR_YELLOW}              Trust certificates signed by well-known CAs
-
+      --workload-scale-profile                                                                 Set a pre-defined workload scale profile [Burstable, BestEffort, Guaranteed]
+      --workload-scale-config-dir                                                              Path to directory containing custom workload scale config files to be applied
 Maximo Application Suite Core Platform (Required):
       --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                                    Subscription channel for the Core Platform
 
@@ -157,6 +158,32 @@ function install_noninteractive() {
     --mas-trust-default-cas)
     export MAS_TRUST_DEFAULT_CAS=$1 && shift
     ;;
+    --workload-scale-profile)
+    case $1 && shift in
+    "Guaranteed")
+      WORKLOAD_SCALE_PROFILE=Guaranteed
+      WORKLOAD_SCALE_DIR_NAME=guaranteed
+      set_workload_scale_envs
+      ;;
+    "BestEffort")
+      WORKLOAD_SCALE_PROFILE=BestEffort
+      WORKLOAD_SCALE_DIR_NAME=best-effort
+      set_workload_scale_envs
+      ;;
+    "Burstable")
+      WORKLOAD_SCALE_PROFILE=Burstable
+      ;;
+    *)
+      echo_warning "Invalid workload scale profile. Must be one of [Burstable, BestEffort, Guaranteed]"
+      exit 1
+      ;;
+    esac
+    ;;
+    --workload-scale-config-dir)
+    WORKLOAD_SCALE_DIR_LOCAL=$1 && shift
+    find_workload_scale_configs_in_dir
+    ;;
+
 
     # Core
     --mas-channel)

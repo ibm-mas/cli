@@ -39,6 +39,9 @@ function config_pipeline_advanced() {
     config_pipeline_workload_scale
 
     prompt_for_confirm_default_yes "Trust Default CAs?" MAS_TRUST_DEFAULT_CAS
-
+  else
+    # Clear workload scale env vars when running multiple installs within the same session.
+    # This ensure that when advanced settings are skipped no leftover vars are used.
+    unset_workload_scale_envs
   fi
 }

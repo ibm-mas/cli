@@ -1,5 +1,45 @@
 #!/bin/bash
 
+function find_workload_scale_configs_in_dir(){
+  WORKLOAD_SCALE_PROFILE=Custom
+  configs_found=false
+
+  if [[ ! -d "$WORKLOAD_SCALE_DIR_LOCAL" ]]; then
+    echo_warning "Error: Directory does not exist: $WORKLOAD_SCALE_DIR_LOCAL"
+    exit 1
+  fi
+
+  # Check for valid configuration files within the specified directory
+  if [[ -e "${WORKLOAD_SCALE_DIR_LOCAL}/ibm-mas.yml" ]]; then
+    MAS_WORKLOAD_SCALE_FILE="/workspace/pod-templates/ibm-mas.yml"
+    configs_found=true
+  fi
+
+  if [[ -e "${WORKLOAD_SCALE_DIR_LOCAL}/ibm-sls.yml" ]]; then
+    SLS_WORKLOAD_SCALE_FILE="/workspace/pod-templates/ibm-sls.yml"
+    configs_found=true
+  fi
+
+  # If no valid configuration files were found exit
+  if [ "$configs_found" == false ]; then
+    echo_warning "Error: No valid workload scaling configurations found"
+    exit 1
+  fi
+}
+
+function set_workload_scale_envs() {
+  WORKLOAD_SCALE_DIR_LOCAL="/mascli/templates/pod-templates/${WORKLOAD_SCALE_DIR_NAME}"
+
+  MAS_WORKLOAD_SCALE_FILE="/workspace/pod-templates/ibm-mas.yml"
+  SLS_WORKLOAD_SCALE_FILE="/workspace/pod-templates/ibm-sls.yml"
+}
+
+function unset_workload_scale_envs() {
+  unset WORKLOAD_SCALE_DIR_LOCAL
+  unset MAS_WORKLOAD_SCALE_FILE
+  unset SLS_WORKLOAD_SCALE_FILE
+}
+
 function config_pipeline_workload_scale() {
   # Change echo_h3 depending on where we call this func
   echo_h3 "Configure Scaling Profile"
@@ -15,57 +55,30 @@ function config_pipeline_workload_scale() {
   prompt_for_number "Select Profile" MAS_SCALE_PROFILE_SELECTION 2
 
   case $MAS_SCALE_PROFILE_SELECTION in
-    1)
-      WORKLOAD_SCALE_CLASS=Guaranteed
-      WORKLOAD_SCALE_DIR_NAME=guaranteed
-      ;;
-    2)
-      WORKLOAD_SCALE_CLASS=Burstable
-      ;;
-    3)
-      WORKLOAD_SCALE_CLASS=BestEffort
-      WORKLOAD_SCALE_DIR_NAME=best-effort
-      ;;
-    4)
-      prompt_for_input "Custom configurations directory" WORKLOAD_SCALE_DIR_LOCAL
-      
-      WORKLOAD_SCALE_CLASS=Custom
-      configs_found=false
-
-      if [[ ! -d "$WORKLOAD_SCALE_DIR_LOCAL" ]]; then
-        echo_warning "Error: Directory does not exist: $WORKLOAD_SCALE_DIR_LOCAL"
-        exit 1
-      fi
-
-      # Check for valid configuration files within the specified directory
-      if [[ -e "${WORKLOAD_SCALE_DIR_LOCAL}/ibm-mas.yml" ]]; then
-        MAS_WORKLOAD_SCALE_FILE="/workspace/pod-templates/ibm-mas.yml"
-        configs_found=true
-      fi
-
-      if [[ -e "${WORKLOAD_SCALE_DIR_LOCAL}/ibm-sls.yml" ]]; then
-        SLS_WORKLOAD_SCALE_FILE="/workspace/pod-templates/ibm-sls.yml"
-        configs_found=true
-      fi
-
-      # If no valid configuration files were found exit
-      if [ "$configs_found" == false ]; then
-          echo_warning "Error: No valid workload scaling configurations found"
-          exit 1
-      fi
-      ;;
-    *)
-      echo_warning "Invalid selection"
-      exit 1
-      ;;
+  1)
+    WORKLOAD_SCALE_PROFILE=Guaranteed
+    WORKLOAD_SCALE_DIR_NAME=guaranteed
+    ;;
+  2)
+    WORKLOAD_SCALE_PROFILE=Burstable
+    ;;
+  3)
+    WORKLOAD_SCALE_PROFILE=BestEffort
+    WORKLOAD_SCALE_DIR_NAME=best-effort
+    ;;
+  4)
+    prompt_for_input "Custom configurations directory" WORKLOAD_SCALE_DIR_LOCAL
+    find_workload_scale_configs_in_dir
+    ;;
+  *)
+    echo_warning "Invalid selection"
+    exit 1
+    ;;
   esac
   echo
 
   # When qosClass of Guaranteed or BestEffort was chosen, use pre-defined configs
   if [ "$MAS_SCALE_PROFILE_SELECTION" == 1 ] || [ "$MAS_SCALE_PROFILE_SELECTION" == 3 ]; then
-      WORKLOAD_SCALE_DIR_LOCAL="/mascli/templates/pod-templates/${WORKLOAD_SCALE_DIR_NAME}"
-      
-      MAS_WORKLOAD_SCALE_FILE="/workspace/pod-templates/ibm-mas.yml"
-      SLS_WORKLOAD_SCALE_FILE="/workspace/pod-templates/ibm-sls.yml"
+    set_workload_scale_envs
   fi
 }
