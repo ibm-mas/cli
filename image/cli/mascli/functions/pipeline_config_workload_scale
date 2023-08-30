@@ -29,6 +29,7 @@ function config_pipeline_workload_scale() {
     4)
       prompt_for_input "Custom configurations directory" WORKLOAD_SCALE_DIR_LOCAL
       
+      WORKLOAD_SCALE_CLASS=Custom
       configs_found=false
 
       if [[ ! -d "$WORKLOAD_SCALE_DIR_LOCAL" ]]; then
