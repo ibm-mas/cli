@@ -62,6 +62,16 @@ spec:
       default: "db2u"
       description: Namespace where db2 instances will be updated
 
+    # mongodb update
+    - name: mongodb_action
+      type: string
+      default: "install"
+      description: Set to 'install' to update mongodb instances in specified mongodb namespace
+    - name: mongodb_namespace
+      type: string
+      default: "mongoce"
+      description: Namespace where mongodb instances will be updated
+
   tasks:
 {% if wait_for_install == true %}
     # 0. Wait for the install pipeline to complete
@@ -195,6 +205,20 @@ spec:
         - name: db2_namespace
           value: $(params.db2_namespace)
 
+    - name: update-mongodb
+      taskRef:
+        kind: Task
+        name: mas-devops-mongodb
+      runAfter:
+        - update-db2
+      params:
+        - name: devops_suite_name
+          value: update-mongodb
+        - name: mongodb_action
+          value: $(params.mongodb_action)
+        - name: mongodb_namespace
+          value: $(params.mongodb_namespace)
+
     # 5. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
@@ -207,7 +231,7 @@ spec:
         'verify_ingress': 'False'
       }) | indent(4) }}
       runAfter:
-        - update-db2
+        - update-mongodb
 
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-deps-update-verify-catalogsources',
