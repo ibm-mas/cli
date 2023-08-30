@@ -33,8 +33,8 @@ Advanced MAS Configuration (Optional):
       --additional-configs ${COLOR_YELLOW}LOCAL_MAS_CONFIG_DIR${TEXT_RESET}                    Path to a directory containing additional configuration files to be applied
       --non-prod                                                   Install MAS in Non-production mode
       --mas-trust-default-cas ${COLOR_YELLOW}MAS_TRUST_DEFAULT_CAS${TEXT_RESET}                Trust certificates signed by well-known CAs
-      --workload-scale-profile                                                     Set a pre-defined workload scale profile [Burstable, BestEffort, Guaranteed]
-      --workload-scale-config-dir                                                  Path to directory containing custom workload scale configuration files to be applied. Takes precedence over --workload-scale-profile
+      --workload-scale-profile                                     Set a pre-defined workload scale profile [Burstable, BestEffort, Guaranteed]
+      --workload-scale-config-dir                                  Path to directory containing custom workload scale configuration files to be applied. Takes precedence over --workload-scale-profile
 Maximo Application Suite Core Platform (Required):
       --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                                    Subscription channel for the Core Platform
 
