@@ -335,7 +335,7 @@ function install_noninteractive() {
     export MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD=$1 && shift
     ;;
 
-    # Manage commands - Database encryption keys 
+    # Manage commands - Database encryption keys
     --manage-crypto-key)
     export MAS_APP_SETTINGS_CRYPTO_KEY=$1 && shift
     ;;
