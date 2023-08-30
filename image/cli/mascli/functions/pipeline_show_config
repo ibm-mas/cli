@@ -158,7 +158,7 @@ function pipeline_show_config() {
   echo_h4 "Workload Scale Configuration" "    "
   if [[ -n "${WORKLOAD_SCALE_DIR_LOCAL}" ]]; then
     echo_reset_dim "Workload Scale Profile .... ${COLOR_MAGENTA}Custom"
-    echo_reset_dim "Configuration(s) .......... ${COLOR_MAGENTA}${MAS_WORKLOAD_SCALE_DIR_LOCAL}"
+    echo_reset_dim "Configuration(s) .......... ${COLOR_MAGENTA}${WORKLOAD_SCALE_DIR_LOCAL}"
   else
     if [[ -n "${WORKLOAD_SCALE_CLASS}" ]]
       then echo_reset_dim "Workload Scale Profile .... ${COLOR_MAGENTA}${WORKLOAD_SCALE_CLASS}"
