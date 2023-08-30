@@ -64,10 +64,9 @@ function config_pipeline_workload_scale() {
 
   # When qosClass of Guaranteed or BestEffort was chosen, use pre-defined configs
   if [ "$MAS_SCALE_PROFILE_SELECTION" == 1 ] || [ "$MAS_SCALE_PROFILE_SELECTION" == 3 ]; then
+      WORKLOAD_SCALE_DIR_LOCAL="/mascli/templates/pod-templates/${WORKLOAD_SCALE_DIR_NAME}"
+      
       MAS_WORKLOAD_SCALE_FILE="/workspace/pod-templates/ibm-mas.yml"
-      MAS_WORKLOAD_SCALE_FILE_LOCAL="/mascli/templates/pod-templates/${WORKLOAD_SCALE_DIR_NAME}/ibm-mas.yml"
-
       SLS_WORKLOAD_SCALE_FILE="/workspace/pod-templates/ibm-sls.yml"
-      SLS_WORKLOAD_SCALE_FILE_LOCAL="/mascli/templates/pod-templates/${WORKLOAD_SCALE_DIR_NAME}/ibm-sls.yml"
   fi
 }
