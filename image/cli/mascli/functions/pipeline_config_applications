@@ -137,6 +137,10 @@ function config_pipeline_applications() {
 
   # Manage
   if prompt_for_confirm "Install Manage"; then
+    echo "Maximo IT License Terms"
+    echo -e "${COLOR_YELLOW}Optionally, in case you own entitlement and are planning to install IBM Maximo IT (add-on part to IBM Maximo Application Suite), you accept the terms: \n"https://ibm.biz/MAXIT81-License"."
+    prompt_for_confirm_default_yes "Do you accept the license terms?" LICENSE_RESPONSE #TODO save answer
+
     channel_select_manage || exit 1
     prompt_for_confirm "+ Create demo data" MAS_APP_SETTINGS_DEMODATA
     if prompt_for_confirm "+ Configure JMS"; then
