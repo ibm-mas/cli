@@ -4,10 +4,9 @@
 # assigned a QoS class of BestEffort. More can be found here:
 # https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
 supportedPodTemplates:
-  ibm-sls:
-    licenseservice:
-      podTemplates:
-        - name: api-licensing
-          containers:
-            - name: api-licensing
-              resources: {}
+  licenseservice:
+    podTemplates:
+      - name: api-licensing
+        containers:
+          - name: api-licensing
+            resources: {}
