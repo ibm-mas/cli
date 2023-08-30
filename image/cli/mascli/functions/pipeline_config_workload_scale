@@ -4,7 +4,7 @@ function config_pipeline_workload_scale() {
   # Change echo_h3 depending on where we call this func
   echo_h3 "Configure Scaling Profile"
   echo "The CLI supports three profiles out of the box, and allows you to define your own custom profile as well."
-  echo "Make a selection from the list below. For more information about the profiles, see https://xxxx"
+  echo "Make a selection from the list below. For more information about the profiles, see https://kubernetes.io/docs/concepts/workloads/pods/pod-qos/"
   echo
   echo "1. Guaranteed"
   echo "2. Burstable (default)"
