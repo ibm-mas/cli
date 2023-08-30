@@ -39,13 +39,11 @@ function config_pipeline_workload_scale() {
       # Check for valid configuration files within the specified directory
       if [[ -e "${WORKLOAD_SCALE_DIR_LOCAL}/ibm-mas.yml" ]]; then
         MAS_WORKLOAD_SCALE_FILE="/workspace/pod-templates/ibm-mas.yml"
-        MAS_WORKLOAD_SCALE_FILE_LOCAL="${WORKLOAD_SCALE_DIR_LOCAL}/ibm-mas.yml"
         configs_found=true
       fi
 
       if [[ -e "${WORKLOAD_SCALE_DIR_LOCAL}/ibm-sls.yml" ]]; then
         SLS_WORKLOAD_SCALE_FILE="/workspace/pod-templates/ibm-sls.yml"
-        SLS_WORKLOAD_SCALE_FILE_LOCAL="${WORKLOAD_SCALE_DIR_LOCAL}/ibm-sls.yml"
         configs_found=true
       fi
 
