@@ -22,6 +22,9 @@ spec:
     - name: mongo_provider
       type: string
       default: aws
+    - name: aws_docdb_instance_number
+      type: string
+      default: 3
   stepTemplate:
     name: gitops-deprovision-mongo
     env:
@@ -41,6 +44,8 @@ spec:
         value: $(params.vpc_ipv4_cidr)
       - name: MONGO_PROVIDER
         value: $(params.mongo_provider)
+      - name: AWS_DOCDB_INSTANCE_NUMBER
+        value: $(params.aws_docdb_instance_number)
   steps:
     - args:
       - |-
@@ -80,7 +85,8 @@ spec:
         --aws-docdb-cidr-az1 10.1.0.0/27 \
         --aws-docdb-cidr-az2 10.1.0.32/27 \
         --aws-docdb-cidr-az3 10.1.0.64/27 \
-        --aws-docdb-instance_identifier_prefix docdb-$CLUSTER_NAME
+        --aws-docdb-instance-identifier-prefix docdb-$CLUSTER_NAME \
+        --aws-docdb-instance-number $AWS_DOCDB_INSTANCE_NUMBER
       command:
         - /bin/sh
         - -c
