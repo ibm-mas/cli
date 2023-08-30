@@ -106,6 +106,8 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#advanced-db2u-universal-operator-configuration-storage-optional">Advanced Db2u Universal Operator Configuration - Storage (Optional):</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#manage-application-advanced-configuration-optional">Manage Application - Advanced Configuration (Optional):</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#other-commands">Other Commands:</a>
     </li>
         </ul>
@@ -305,6 +307,20 @@
 <li><code>--db2u-logs-storage DB2_LOGS_STORAGE_SIZE</code>        Customise Db2 storage capacity</li>
 <li><code>--db2u-meta-storage DB2_META_STORAGE_SIZE</code>        Customise Db2 storage capacity</li>
 <li><code>--db2u-temp-storage DB2_TEMP_STORAGE_SIZE</code>        Customise Db2 storage capacity</li>
+</ul>
+<h3 id="manage-application-advanced-configuration-optional">Manage Application - Advanced Configuration (Optional):<a class="headerlink" href="#manage-application-advanced-configuration-optional" title="Permanent link"></a></h3>
+<ul>
+<li><code>--manage-server-bundle-size MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE</code>                        Set Manage server bundle size configuration i.e <code>dev, small, jms or snojms</code></li>
+<li><code>--manage-components MAS_APPWS_COMPONENTS</code>                                                Set Manage Components to be installed i.e <code>base=latest,health=latest,civil=latest</code>                       </li>
+<li><code>--manage-customization-archive-name MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME</code>         Set Manage Archive name</li>
+<li><code>--manage-customization-archive-url MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL</code>           Set Manage Archive url</li>
+<li><code>--manage-customization-archive-username MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME</code> Set Manage Archive username, in case url requires basic authentication to pull the archive</li>
+<li><code>--manage-customization-archive-password MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD</code> Set Manage Archive password, in case url requires basic authentication to download the archive</li>
+<li><code>--manage-crypto-key MAS_APP_SETTINGS_CRYPTO_KEY</code>                                         Set <code>MXE_SECURITY_CRYPTO_KEY</code> value if you want to customize your Manage database encryption keys</li>
+<li><code>--manage-cryptox-key MAS_APP_SETTINGS_CRYPTOX_KEY</code>                                       Set <code>MXE_SECURITY_CRYPTOX_KEY</code> value if you want to customize your Manage database encryption keys</li>
+<li><code>--manage-old-crypto-key MAS_APP_SETTINGS_OLD_CRYPTO_KEY</code>                                 Set <code>MXE_SECURITY_OLD_CRYPTO_KEY</code> value if you want to customize your Manage database encryption keys</li>
+<li><code>--manage-old-cryptox-key MAS_APP_SETTINGS_OLD_CRYPTOX_KEY</code>                               Set <code>MXE_SECURITY_OLD_CRYPTOX_KEY</code> value if you want to customize your Manage database encryption keys                     </li>
+<li><code>--manage-override-encryption-secrets</code>                                                    Overrides any existing Manage database encryption keys. A backup of the original secret holding existing encryption keys is taken prior overriding it with the new defined keys.</li>
 </ul>
 <h3 id="other-commands">Other Commands:<a class="headerlink" href="#other-commands" title="Permanent link"></a></h3>
 <ul>
