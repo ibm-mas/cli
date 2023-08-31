@@ -1,140 +1,25 @@
 ## Mobile Foundation Manage Setup
-- name: fvt-mobfoundation-setup-data
+- name: fvt-mobile-setup-data
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
-      value: fvt-mobilefoundation
+      value: fvt-mobile
     - name: fvt_image_name
-      value: fvt-mobilefoundation-manage-setup
+      value: fvt-mobile-manage-setup
     - name: fvt_image_digest
-      value: $(params.fvt_digest_mobilefoundation_manage_setup)
+      value: $(params.fvt_digest_mobile_manage_setup)
     - name: fvt_mas_appws_component
       value: mobile
     - name: mas_appws_components
       value: $(params.mas_appws_components)
     - name: fvt_test_suite
-      value: mobfoundation-setup-data # Keyword for Mobile FVT
+      value: mobile-setup-data # Keyword for Mobile FVT
   # Only if we've set a digest of the Manage Transportation FVT to run
   when:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_mobilefoundation_manage_setup)"
+    - input: "$(params.fvt_digest_mobile_manage_setup)"
       operator: notin
       values: [""]
   runAfter:
-    - fvt-manage-maintmanager-bvt
-    - fvt-manage-maintmanager-fvt
-    {# - fvt-manage-maintmanager-setup #}
-
-## Prepare Data for Mobile Service Request MAS test suites
-- name: fvt-service-request-setup-data
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-servicerequests
-    - name: fvt_image_name
-      value: fvt-servicerequests-manage-setup
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_servicerequests_manage_setup)
-    - name: fvt_test_suite
-      value: service-request-setup-data
-    - name: fvt_mas_appws_component
-      value: mobile
-    - name: mas_appws_components
-      value: $(params.mas_appws_components)
-  # Only if we've set a digest of the Mobile Foundation FVT to run
-  when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_servicerequests_manage_setup)"
-      operator: notin
-      values: [""]
-  runAfter:
-    - fvt-manage-maintmanager-bvt
-    - fvt-manage-maintmanager-fvt
-    {# - fvt-manage-maintmanager-setup #}
-
-## Prepare Data for Mobile Technician MAS test suites
-- name: fvt-technician-setup-data
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-technician
-    - name: fvt_image_name
-      value: fvt-technician-manage-setup
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_technician_manage_setup)
-    - name: fvt_test_suite
-      value: technician-setup-data
-    - name: fvt_mas_appws_component
-      value: mobile
-    - name: mas_appws_components
-      value: $(params.mas_appws_components)
-  # Only if we've set a digest of the Mobile Foundation FVT to run
-  when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_technician_manage_setup)"
-      operator: notin
-      values: [""]
-  runAfter:
-    - fvt-manage-maintmanager-bvt
-    - fvt-manage-maintmanager-fvt
-    {# - fvt-manage-maintmanager-setup #}
-
-## Mobile Inspections Manage Setup
-- name: fvt-inspections-setup-data
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-inspections
-    - name: fvt_image_name
-      value: fvt-inspections-manage-setup
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_inspection_manage_setup)
-    - name: fvt_mas_appws_component
-      value: mobile
-    - name: mas_appws_components
-      value: $(params.mas_appws_components)
-    - name: fvt_test_suite
-      value: inspections-setup-data # Keyword for Mobile FVT
-  # Only if we've set a digest of the Manage Transportation FVT to run
-  when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_inspection_manage_setup)"
-      operator: notin
-      values: [""]
-  runAfter:
-    - fvt-manage-maintmanager-bvt
-    - fvt-manage-maintmanager-fvt
-    {# - fvt-manage-maintmanager-setup #}
-
-# Manage FVT - IC Setup
-- name: fvt-inventorycounting-manage-setup
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-inventorycounting
-    - name: fvt_image_name
-      value: fvt-inventorycounting-manage-setup
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_inventorycounting_manage_setup)
-    - name: fvt_mas_appws_component
-      value: mobile
-    - name: mas_appws_components
-      value: $(params.mas_appws_components)
-    - name: fvt_test_suite
-      value: inventory-counting-setup-data # Keyword for IC setup
-  # Only if we've set a digest of the IC FVT to run
-  when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_inventorycounting_manage_setup)"
-      operator: notin
-      values: [""]
-  runAfter:
-    - fvt-manage-maintmanager-bvt
-    - fvt-manage-maintmanager-fvt
-    {# - fvt-manage-maintmanager-setup #}
-
+    - fvt-manage-setup

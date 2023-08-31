@@ -24,11 +24,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobfoundation-setup-data
-    - fvt-service-request-setup-data
-    - fvt-technician-setup-data
-    - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup
+    - fvt-mobile-setup-data
 
 ## Minimum Verification Test for Mobile Service Request MAS test suites
 - name: fvt-service-request-mvt-android
@@ -56,11 +52,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobfoundation-setup-data
-    - fvt-service-request-setup-data
-    - fvt-technician-setup-data
-    - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup
+    - fvt-mobile-setup-data
 
 ## Minimum Verification Test for Mobile Technician MAS test suites
 - name: fvt-technician-mvt-android
@@ -88,11 +80,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobfoundation-setup-data
-    - fvt-service-request-setup-data
-    - fvt-technician-setup-data
-    - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup
+    - fvt-mobile-setup-data
 
 ## Minimum Verification Test for Mobile Inspection MAS test suites
 - name: fvt-inspections-mvt-android
@@ -120,11 +108,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobfoundation-setup-data
-    - fvt-service-request-setup-data
-    - fvt-technician-setup-data
-    - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup
+    - fvt-mobile-setup-data
 
 ## Minimum Verification Test for Mobile Asset Manager MAS test suites
 - name: fvt-asset-manager-mvt-android
@@ -154,11 +138,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobfoundation-setup-data
-    - fvt-service-request-setup-data
-    - fvt-technician-setup-data
-    - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup
+    - fvt-mobile-setup-data
 
 {# # Mobile FVT - Inventory Counting Android
 - name: fvt-inventorycounting-mvt-android
@@ -184,11 +164,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobfoundation-setup-data
-    - fvt-service-request-setup-data
-    - fvt-technician-setup-data
-    - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup #}
+    - fvt-mobile-setup-data #}
 
 - name: fvt-inventoryreceiving-mvt-android
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
@@ -219,11 +195,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobfoundation-setup-data
-    - fvt-service-request-setup-data
-    - fvt-technician-setup-data
-    - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup
+    - fvt-mobile-setup-data
 
 {# ## Minimum Verification Test for Mobile Defects MAS test suites
 - name: fvt-civil-defects-mvt-android
@@ -251,8 +223,4 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobfoundation-setup-data
-    - fvt-service-request-setup-data
-    - fvt-technician-setup-data
-    - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup #}
+    - fvt-mobile-setup-data #}
