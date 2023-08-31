@@ -33,7 +33,7 @@ function config_pipeline_advanced() {
         if [[ "$KAFKA_PROVIDER" == "strimzi" ]]; then
           KAFKA_NAMESPACE="strimzi"
         fi
-        if [[ "$KAFKA_PROVIDER" == "redhat" ]]
+        if [[ "$KAFKA_PROVIDER" == "redhat" ]]; then
           KAFKA_NAMESPACE="amq-streams"
         fi
         prompt_for_input "+ Kafka Namespace" KAFKA_NAMESPACE $KAFKA_NAMESPACE
