@@ -102,6 +102,8 @@ function install_noninteractive() {
   DB2_ACTION_SYSTEM=none
   DB2_ACTION_MANAGE=none
 
+  KAFKA_ACTION_SYSTEM=none
+
   LOCAL_MAS_CONFIG_DIR=""
   LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN=yes
   use_additional_configs=no

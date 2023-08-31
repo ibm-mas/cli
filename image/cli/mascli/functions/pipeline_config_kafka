@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# Do we need to set up an IoT kafka?
+# -------------------------------------------------------------------------
+function kafka_for_iot() {
+  if [ "$MAS_APP_CHANNEL_IOT" != "" ]; then
+    # Set up system kafka - using providers or external source
+    echo
+    echo_h3 "Kafka configuration for Maximo IoT"
+    echo "${TEXT_DIM}Maximo IoT requires a shared system-scope Kafka instance."
+    echo " - Supported Kafka providers: Strimzi, Red Hat AMQ Streams or IBM Event Streams"
+    echo ""
+    reset_colors
+
+    if prompt_for_confirm_default_yes "Create system Kafka instance using one of the supported providers?"; then
+      KAFKA_ACTION_SYSTEM=install
+
+      echo -e "${COLOR_YELLOW}Select the Kafka provider:"
+      echo "  1) Strimzi (opensource)"
+      echo "  2) Red Hat AMQ Streams (requires a separate license)"
+      echo "  3) IBM Cloud Event Streams (paid IBM Cloud service)"
+      reset_colors
+      echo
+      prompt_for_input "Kafka provider" KAFKA_PROVIDER "1"
+
+      case $KAFKA_PROVIDER in
+        1)
+          KAFKA_PROVIDER="strimzi"
+          ;;
+        2)
+          KAFKA_PROVIDER=redhat
+          ;;
+        3)
+          KAFKA_PROVIDER="ibm"
+          EVENTSTREAMS_RESOURCEGROUP="Default"
+          EVENTSTREAMS_NAME="event-streams-$MAS_INSTANCE_ID"
+          EVENTSTREAMS_LOCATION="us-east"
+          EVENTSTREAMS_RETENTION=14
+          prompt_for_secret "IBM Cloud API Key" IBMCLOUD_APIKEY
+          prompt_for_input "IBM Event Streams resource group" EVENTSTREAMS_RESOURCEGROUP $EVENTSTREAMS_RESOURCEGROUP
+          prompt_for_input "IBM Event Streams instance name" EVENTSTREAMS_NAME $EVENTSTREAMS_NAME
+          prompt_for_input "IBM Event Streams location" EVENTSTREAMS_LOCATION $EVENTSTREAMS_LOCATION
+          prompt_for_input "IBM Event Streams topic retention period (in days)" EVENTSTREAMS_RETENTION $EVENTSTREAMS_RETENTION
+          EVENTSTREAMS_RETENTION=$((EVENTSTREAMS_RETENTION * 86400000))
+          ;;
+        *)
+          echo_warning "Invalid selection"
+          exit 1
+          ;;
+      esac
+
+    # TO DO: Generate KafkaCfg to be implemented
+    # else
+    #   KAFKA_ACTION_SYSTEM=byo
+
+    #   select_local_config_dir
+
+    #   # Check if a configuration already exists before creating a new one
+    #   kafka_cfg_file=$LOCAL_MAS_CONFIG_DIR/kafka-$MAS_INSTANCE_ID-system.yaml
+    #   if [ -e "$kafka_cfg_file" ]; then
+    #     if prompt_for_confirm "System kafka configuration file 'kafka-$MAS_INSTANCE_ID-system.yaml' already exists.  Do you want to generate a new one?"; then
+    #       python3 $DIR/functions/gencfg kafka $MAS_INSTANCE_ID system $kafka_cfg_file
+    #     fi
+    #   else
+    #     python3 $DIR/functions/gencfg kafka $MAS_INSTANCE_ID system $kafka_cfg_file
+    #   fi
+    å
+    fi
+  else
+    # We don't need a system kafka, IoT is not being installed
+    KAFKA_ACTION_SYSTEM=none
+  fi
+}
+
+
+function config_pipeline_kafka() {
+  echo
+  echo_h2 "Configure Kafka"
+  echo "${TEXT_DIM}The installer can setup one Kafka provider instance (in your OpenShift cluster or in an IBM Cloud account) for the use of applications that require a Kafka configuration (e.g IoT) or you may choose to configure MAS to use an existing Kafka instance."
+  echo
+  reset_colors
+  
+  # Unless we are installing IoT we have nothing to do
+  if [[ "$MAS_APP_CHANNEL_IOT" != "" ]]; then
+    kafka_for_iot
+  else
+    echo_highlight "No applications have been selected that require a Kafka installation"
+    KAFKA_ACTION_SYSTEM=none
+  fi
+}

@@ -3,6 +3,7 @@
 . $DIR/functions/pipeline_config_additional_configs
 . $DIR/functions/pipeline_config_applications
 . $DIR/functions/pipeline_config_db2
+. $DIR/functions/pipeline_config_kafka
 . $DIR/functions/pipeline_config_dns
 . $DIR/functions/pipeline_config_sno
 . $DIR/functions/pipeline_config_storage_classes
@@ -137,6 +138,7 @@ function pipeline_config() {
   config_pipeline_dns
   config_pipeline_applications
   config_pipeline_db2
+  config_pipeline_kafka
   config_pipeline_turbonomic
   config_pipeline_additional_configs
 
@@ -158,7 +160,7 @@ function pipeline_config() {
 
     echo
     echo_h2 "Configure IBM Container Registry"
-    prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
+    prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
 
     echo
     echo_h2 "Configure IBM Container Registry (MAS)"

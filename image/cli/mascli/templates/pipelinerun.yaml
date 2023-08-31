@@ -147,10 +147,15 @@ spec:
     - name: ibm_mongo_admin_password
       value: '$IBM_MONGO_ADMIN_PASSWORD'
 
-    # Dependencies - IBM Cloud Event Streams
+    # Dependencies - Kafka
     # -------------------------------------------------------------------------
     - name: kafka_provider
       value: '$KAFKA_PROVIDER'
+    - name: kafka_namespace
+      value: '$KAFKA_NAMESPACE'
+
+    # Dependencies - IBM Cloud Event Streams
+    # -------------------------------------------------------------------------
     - name: eventstreams_resourcegroup
       value: '$EVENTSTREAMS_RESOURCEGROUP'
     - name: eventstreams_name
