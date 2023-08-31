@@ -51,6 +51,15 @@ Maximo Application Suite Application Selection (Optional):
 IBM Cloud Pak for Data (Required when installing Predict or Assist):
       --cp4d-version ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}                                  Product version of CP4D to use
 
+Kafka (Optional, required to install Maximo IoT thus if not set, a default Kafka provider will be installed):
+      --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}                              Set Kafka provider. Supported options are `redhat` (Red Hat AMQ Streams), `strimzi` and `ibm` (IBM Event Streams)
+      --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}     
+      --ibmcloud-apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                            Set IBM Cloud API Key (Only applicable if installing IBM Event Streams).                       Set Kafka namespace. Only applicable if installing `redhat` (Red Hat AMQ Streams) or `strimzi`
+      --eventstreams-resource-group ${COLOR_YELLOW}EVENTSTREAMS_RESOURCEGROUP${TEXT_RESET}     Set IBM Cloud resource group to target the Event Streams instance provisioning (Only applicable if installing IBM Event Streams).
+      --eventstreams-instance-name ${COLOR_YELLOW}EVENTSTREAMS_NAME${TEXT_RESET}               Set IBM Event Streams instance name (Only applicable if installing IBM Event Streams).
+      --eventstreams-instance-location ${COLOR_YELLOW}EVENTSTREAMS_LOCATION${TEXT_RESET}       Set IBM Event Streams instance location (Only applicable if installing IBM Event Streams).
+      --eventstreams-retention ${COLOR_YELLOW}EVENTSTREAMS_RETENTION${TEXT_RESET}              Set IBM Event Streams topic retention period in days. (Only applicable if installing IBM Event Streams).
+
 IBM Db2 (Optional, required to use IBM Db2 Universal Operator):
       --db2u-channel ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                                   Subscription channel for Db2u (e.g. v110508.0)
       --db2u-system                                                Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)

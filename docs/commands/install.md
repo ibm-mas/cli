@@ -49,6 +49,15 @@ Usage
 ### IBM Cloud Pak for Data (Required when installing Predict or Assist):
 - `--cp4d-version CP4D_VERSION`                                  Product version of CP4D to use
 
+### Kafka (Optional, required to install Maximo IoT):
+- `--kafka-provider KAFKA_PROVIDER`                             Set Kafka provider. Supported options are `redhat` (Red Hat AMQ Streams), `strimzi` and `ibm` (IBM Event Streams)
+- `--kafka-namespace KAFKA_NAMESPACE`                           Set Kafka namespace. Only applicable if installing `redhat` (Red Hat AMQ Streams) or `strimzi`
+- `--ibmcloud-apikey IBMCLOUD_APIKEY`                           Set IBM Cloud API Key (Only applicable if installing IBM Event Streams).
+- `--eventstreams-resource-group EVENTSTREAMS_RESOURCEGROUP`    Set IBM Cloud resource group to target the Event Streams instance provisioning (Only applicable if installing IBM Event Streams).
+- `--eventstreams-instance-name EVENTSTREAMS_NAME`              Set IBM Event Streams instance name (Only applicable if installing IBM Event Streams).
+- `--eventstreams-instance-location EVENTSTREAMS_LOCATION`      Set IBM Event Streams instance location (Only applicable if installing IBM Event Streams).
+- `--eventstreams-retention EVENTSTREAMS_RETENTION`             Set IBM Event Streams topic retention period in days. (Only applicable if installing IBM Event Streams).
+
 ### IBM Db2 (Optional, required to use IBM Db2 Universal Operator):
 - `--db2u-channel DB2_CHANNEL`     Subscription channel for Db2u (e.g. v110508.0)
 - `--db2u-system`                  Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)
