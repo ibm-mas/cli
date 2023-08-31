@@ -18,6 +18,12 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/fvt.yml.j2') | indent(4) }}
 
+    # SLS Namespace
+    - name: sls_namespace
+      type: string
+      description: SLS Namespace
+      default: ""
+
   tasks:
     # Content
     # -------
