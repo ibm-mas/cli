@@ -52,6 +52,8 @@ function gitops_deprovision_rosa(){
     gitops_deprovision_rosa_interactive
   fi
 
+  export ROSA_ACTION=deprovision
+
   echo
   reset_colors
   echo_h2 "Review Settings"
@@ -82,6 +84,5 @@ function gitops_deprovision_rosa(){
   export CLUSTER_NAME=${CLUSTER_ID}
   export ROLE_NAME=ocp_provision
   export CLUSTER_TYPE=rosa
-  export ROSA_ACTION=deprovision
   ansible-playbook ibm.mas_devops.run_role
 }
