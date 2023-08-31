@@ -52,8 +52,6 @@ function gitops_deprovision_rosa(){
     gitops_deprovision_rosa_interactive
   fi
 
-  export ROSA_ACTION=deprovision
-
   echo
   reset_colors
   echo_h2 "Review Settings"
@@ -63,11 +61,10 @@ function gitops_deprovision_rosa(){
   echo_h2 "Cluster Details" "    "
   echo_reset_dim "Cluster Id ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "ROSA Token ..................... ${COLOR_MAGENTA}${ROSA_TOKEN:0:8}<snip>"
-  echo_reset_dim "ROSA Action .................... ${COLOR_MAGENTA}${ROSA_ACTION}"
   reset_colors
 
   echo
-  echo_h2 "Provision Rosa Cluster"
+  echo_h2 "Deprovision Rosa Cluster"
 
   if [[ -z $ROSA_TOKEN  ]]; then
     echo_reset_dim "${COLOR_RED} ROSA_TOKEN is required. Export this environment variable before use this function"
@@ -82,7 +79,7 @@ function gitops_deprovision_rosa(){
     export ROSA_CONFIG_DIR=$TEMP_DIR
   fi
   export CLUSTER_NAME=${CLUSTER_ID}
-  export ROLE_NAME=ocp_provision
+  export ROLE_NAME=ocp_deprovision
   export CLUSTER_TYPE=rosa
   ansible-playbook ibm.mas_devops.run_role
 }
