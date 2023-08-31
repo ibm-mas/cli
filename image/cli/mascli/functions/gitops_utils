@@ -199,6 +199,7 @@ function argocd_login() {
     export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' | base64 -d ; echo)
   fi
   argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+  echo "ArgoCD response: $RC"
 }
 
 
@@ -206,18 +207,22 @@ function argocd_sync_watcher(){
 APP_NAME=$1
 echo "Force Application Watcher to Sync ..."
 argocd app sync $APP_NAME
+RC=$?
+echo "ArgoCD response: $RC"
 }
 
 function argocd_prune_sync_watcher(){
 APP_NAME=$1
 echo "Force Application Watcher to Sync with --prune ..."
 argocd app sync $APP_NAME --prune
+echo "ArgoCD response: $RC"
 }
 
 function argocd_hard_refresh_watcher(){
 APP_NAME=$1
 echo "Force Application Watcher to hard refresh ..."
 argocd app get $APP_NAME --hard-refresh
+echo "ArgoCD response: $RC"
 }
 
 function check_argo_app_deleted(){

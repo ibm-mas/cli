@@ -56,6 +56,9 @@ spec:
     - name: mongo_provider
       type: string
       default: aws
+    - name: aws_docdb_instance_number
+      type: string
+      default: 3
   tasks:
 {% if wait_for_deprovision == true %}
     # 0. Wait for the deprovsion mas pipeline to complete
@@ -92,6 +95,8 @@ spec:
           value: $(params.vpc_ipv4_cidr)
         - name: mongo_provider
           value: $(params.mongo_provider)
+        - name: aws_docdb_instance_number
+          value: $(params.aws_docdb_instance_number)
       taskRef:
         kind: Task
         name: gitops-deprovision-mongo
