@@ -19,10 +19,6 @@ GitOps Configuration:
 MongoDb Provider Selection:
       --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. Only "aws" is supported
 
-Secrets Manager:
-      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
-
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
   -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
@@ -40,7 +36,6 @@ EOM
 
 function gitops_init_cis_compliance_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
-  SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-init-cis-compliance commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
@@ -61,14 +56,6 @@ function gitops_init_cis_compliance_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
-        ;;
-
-      # Secrets Manager
-      --secrets-path)
-        export SECRETS_PATH=$1 && shift
-        ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
 
       # Automatic GitHub Push
