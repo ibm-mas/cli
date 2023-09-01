@@ -59,16 +59,23 @@ function kafka_for_iot() {
       # Check if a configuration already exists
       kafka_cfg_file=$LOCAL_MAS_CONFIG_DIR/kafka-$MAS_INSTANCE_ID-system.yaml
       if [ -e "$kafka_cfg_file" ]; then
-        if prompt_for_confirm "System kafka configuration file 'kafka-$MAS_INSTANCE_ID-system.yaml' already exists. Confirm this Kafka configuration?"; then
-          echo "MAS Kafka configuration will use 'kafka-$MAS_INSTANCE_ID-system.yaml' definitions!"
+        if prompt_for_confirm_default_yes "System kafka configuration file 'kafka-$MAS_INSTANCE_ID-system.yaml' was found. Confirm this as Kafka configuration?"; then
+          echo
+          echo "Provided Kafka configuration file 'kafka-$MAS_INSTANCE_ID-system.yaml' will be used."
+          echo
         else
-          echo_warning "Kafka configuration file not confirmed, please try again..."
+          echo
+          echo_warning "Error: Kafka configuration not confirmed!"
+          echo_warning "In order to continue, provide an existing Kafka configuration file or choose a Kafka provider to be installed."
           echo
           kafka_for_iot
         fi
       else
-        echo_warning "Error: File does not exist: $kafka_cfg_file"
-        exit 1
+        echo
+        echo_warning "Error: Kafka configuration file does not exist: '$kafka_cfg_file'"
+        echo_warning "In order to continue, provide an existing Kafka configuration file or choose a Kafka provider to be installed."
+        echo
+        kafka_for_iot
       fi
     fi
   else
