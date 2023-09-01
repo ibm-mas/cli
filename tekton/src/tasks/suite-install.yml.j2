@@ -59,10 +59,9 @@ spec:
     - name: ibm_entitlement_key
       type: string
 
-    - name: mas_customize_scaling
+    - name: mas_pod_templates_dir
       type: string
       default: ""
-      description: Optional Workload Scaling Custom ConfigMap Name
 
     - name: artifactory_username
       default: ''
@@ -72,11 +71,6 @@ spec:
       default: ''
       type: string
       description: Required to install development MAS catalogs
-
-    # Workload Scaling
-    - name: mas_workload_scale_file
-      type: string
-      default: ""
 
   stepTemplate:
     env:
@@ -123,15 +117,11 @@ spec:
       - name: MAS_ICR_CPOPEN
         value: $(params.mas_icr_cpopen)
 
+      - name: MAS_POD_TEMPLATES_DIR
+        value: $(params.mas_pod_templates_dir)
+
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
-
-      - name: MAS_CUSTOMIZE_SCALING
-        value: $(params.mas_customize_scaling)
-
-      # Workload Scaling
-      - name: MAS_WORKLOAD_SCALE_FILE
-        value: $(params.mas_workload_scale_file)
 
   steps:
     - name: suite-install

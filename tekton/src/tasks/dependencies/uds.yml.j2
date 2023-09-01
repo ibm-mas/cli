@@ -10,6 +10,9 @@ spec:
     - name: mas_instance_id
       type: string
       default: ""
+    - name: mas_pod_templates_dir
+      type: string
+      default: ""
     - name: custom_labels
       type: string
       description: Optional MAS custom labels, comma separated list of key=value pairs
@@ -33,11 +36,6 @@ spec:
       type: string
       default: ""
 
-    # Workload Scaling
-    - name: mas_workload_scale_file
-      type: string
-      default: ""
-
     # Optional parameter to uninstall UDS
     - name: uds_action
       type: string
@@ -53,6 +51,8 @@ spec:
         value: /workspace/configs
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
+      - name: MAS_POD_TEMPLATES_DIR
+        value: $(params.mas_pod_templates_dir)
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
       - name: MAS_SEGMENT_KEY
@@ -65,10 +65,6 @@ spec:
         value: $(params.uds_contact_lastname)
       - name: UDS_STORAGE_CLASS
         value: $(params.uds_storage_class)
-
-      # Workload Scaling
-      - name: MAS_WORKLOAD_SCALE_FILE
-        value: $(params.mas_workload_scale_file)
 
       # Properties to configure the UDS install
       - name: UDS_EVENT_SCHEDULER_FREQUENCY

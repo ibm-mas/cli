@@ -180,13 +180,11 @@ spec:
     - name: sls_license_file
       value: '$SLS_LICENSE_FILE'
     - name: sls_channel
-      value: '3.x'
+      value: '3.x-stable'
     - name: sls_icr_cp
       value: '$SLS_ICR_CP'
     - name: sls_icr_cpopen
       value: '$SLS_ICR_CPOPEN'
-    - name: sls_workload_scale_file
-      value: '$SLS_WORKLOAD_SCALE_FILE'
 
     # Dependencies - UDS (Required, no defaults)
     # -------------------------------------------------------------------------
@@ -221,7 +219,6 @@ spec:
       value: '$MAS_CATALOG_VERSION'
     - name: mas_catalog_digest
       value: '$MAS_CATALOG_DIGEST'
-
 
     # MAS DNS Integrations - General
     # -------------------------------------------------------------------------
@@ -289,25 +286,20 @@ spec:
       value: '$MAS_INSTANCE_ID'
     - name: mas_wipe_mongo_data
       value: '$MAS_WIPE_MONGO_DATA'
-
     - name: mas_domain
       value: '$MAS_DOMAIN'
     - name: mas_cluster_issuer
       value: '$MAS_CLUSTER_ISSUER'
-
     - name: mas_annotations
       value: '$MAS_ANNOTATIONS'
-
     - name: mas_icr_cp
       value: '$MAS_ICR_CP'
     - name: mas_icr_cpopen
       value: '$MAS_ICR_CPOPEN'
-
     - name: mas_trust_default_cas
       value: '$MAS_TRUST_DEFAULT_CAS'
-
-    - name: mas_workload_scale_file
-      value: '$MAS_WORKLOAD_SCALE_FILE'
+    - name: mas_pod_templates_dir
+      value: '$MAS_POD_TEMPLATES_DIR'
 
     # MAS Workspace
     # -------------------------------------------------------------------------
@@ -466,7 +458,7 @@ spec:
       secret:
         secretName: pipeline-sls-entitlement
 
-    # Workload scale configurations
+    # PodTemplates configurations
     # -------------------------------------------------------------------------
     - name: shared-pod-templates
       secret:

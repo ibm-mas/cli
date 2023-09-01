@@ -27,9 +27,6 @@
 - name: sls_icr_cpopen
   type: string
   default: ""
-- name: sls_workload_scale_file
-  type: string
-  default: ""
 
 # Dependencies - MongoDb
 # -----------------------------------------------------------------------------
@@ -365,10 +362,6 @@
   type: string
   default: ""
   description: Optional boolean parameter that when set to False, disables the normal trust of well known public certificate authorities
-- name: mas_customize_scaling
-  type: string
-  default: ""
-  description: Workload Scaling Custom ConfigMap Name
 - name: mas_manual_cert_mgmt
   type: string
   default: "False"
@@ -381,9 +374,6 @@
   type: string
   default: ""
   description: Data Dictionary catalog source
-- name: mas_workload_scale_file
-  type: string
-  default: ""
 
 # MAS Application Configuration - IoT Application
 # -----------------------------------------------------------------------------

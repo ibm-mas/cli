@@ -176,10 +176,9 @@ function install_noninteractive() {
     esac
     ;;
     --workload-scale-config-dir)
-    WORKLOAD_SCALE_DIR_LOCAL=$1 && shift
-    find_workload_scale_configs_in_dir
+    WORKLOAD_SCALE_DIR=$1 && shift
+    check_workload_scale_dir
     ;;
-
 
     # Core
     --mas-channel)
