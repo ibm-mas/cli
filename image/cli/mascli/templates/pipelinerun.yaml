@@ -326,6 +326,8 @@ spec:
     - name: mas_appws_components
       value: '$MAS_APPWS_COMPONENTS'
 
+    - name: mas_appws_bindings_health_wsl_flag
+      value: '$MAS_APPWS_BINDINGS_HEALTH_WSL_FLAG'
     - name: mas_app_settings_aio_flag
       value: '$MAS_APP_SETTINGS_AIO_FLAG'
     - name: mas_app_settings_demodata
