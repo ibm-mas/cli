@@ -142,8 +142,8 @@ function pipeline_show_config() {
     reset_colors
     echo "${TEXT_DIM}"
     echo_h4 "Kafka" "    "
+    echo_reset_dim "Install Namespace ......... ${COLOR_MAGENTA}${KAFKA_NAMESPACE:-<default>}"
     echo_reset_dim "Kafka Provider ............ ${COLOR_MAGENTA}${KAFKA_PROVIDER}"
-    echo_reset_dim "Kafka Namespace ........... ${COLOR_MAGENTA}${KAFKA_NAMESPACE}"
   fi
   if [[ "$KAFKA_ACTION_SYSTEM" == "install" && "$KAFKA_PROVIDER" == "ibm" ]]; then
     reset_colors
