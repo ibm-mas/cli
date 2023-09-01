@@ -149,6 +149,8 @@ spec:
 
     # Dependencies - Kafka
     # -------------------------------------------------------------------------
+    - name: kafka_action_system
+      value: '$KAFKA_ACTION_SYSTEM'
     - name: kafka_provider
       value: '$KAFKA_PROVIDER'
     - name: kafka_namespace

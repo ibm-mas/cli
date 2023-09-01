@@ -72,7 +72,16 @@
   description: IBM Cloud MongoDb admin password
   default: ""
 
-# Dependencies - AMQ Streams (Kafka)
+# Dependencies (Kafka)
+- name: kafka_action_system
+  value: '$KAFKA_ACTION_SYSTEM'
+  description: Set to 'install' to set up a Kafka instance for the whole suite
+  default: "none"
+- name: kafka_provider
+  type: string
+  default: ""
+
+# Dependencies - AMQ Streams / Strimzi (Kafka)
 # -----------------------------------------------------------------------------
 - name: kafka_namespace
   type: string
@@ -89,9 +98,6 @@
 
 # Dependencies - IBM Cloud Event Streams (Kafka)
 # -----------------------------------------------------------------------------
-- name: kafka_provider
-  type: string
-  default: ""
 - name: eventstreams_resourcegroup
   type: string
   default: ""
