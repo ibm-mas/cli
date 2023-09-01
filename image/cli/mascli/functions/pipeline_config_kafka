@@ -22,10 +22,10 @@ function kafka_for_iot() {
       echo "  3) IBM Cloud Event Streams (paid IBM Cloud service)"
       reset_colors
       echo
-      prompt_for_input "Kafka provider" KAFKA_PROVIDER "1"
+      prompt_for_input "Kafka provider" KAFKA_SELECTION "1"
       echo
 
-      case $KAFKA_PROVIDER in
+      case $KAFKA_SELECTION in
         1)
           KAFKA_PROVIDER="strimzi"
           ;;
