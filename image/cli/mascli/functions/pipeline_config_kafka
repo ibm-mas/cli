@@ -23,6 +23,7 @@ function kafka_for_iot() {
       reset_colors
       echo
       prompt_for_input "Kafka provider" KAFKA_PROVIDER "1"
+      echo
 
       case $KAFKA_PROVIDER in
         1)
