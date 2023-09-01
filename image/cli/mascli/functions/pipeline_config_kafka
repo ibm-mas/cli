@@ -77,12 +77,6 @@ function kafka_for_iot() {
   fi
 }
 
-
-    if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
-      echo_warning "Error: File does not exist: $SLS_LICENSE_FILE_LOCAL"
-      exit 1
-    fi
-
 function config_pipeline_kafka() {
   echo
   echo_h2 "Configure Kafka"
