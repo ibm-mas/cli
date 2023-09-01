@@ -51,21 +51,25 @@ function kafka_for_iot() {
           ;;
       esac
 
-    # TO DO: Generate KafkaCfg to be implemented
-    # else
-    #   KAFKA_ACTION_SYSTEM=byo
+    else
+      KAFKA_ACTION_SYSTEM=byo
 
-    #   select_local_config_dir
+      select_local_config_dir
 
-    #   # Check if a configuration already exists before creating a new one
-    #   kafka_cfg_file=$LOCAL_MAS_CONFIG_DIR/kafka-$MAS_INSTANCE_ID-system.yaml
-    #   if [ -e "$kafka_cfg_file" ]; then
-    #     if prompt_for_confirm "System kafka configuration file 'kafka-$MAS_INSTANCE_ID-system.yaml' already exists.  Do you want to generate a new one?"; then
-    #       python3 $DIR/functions/gencfg kafka $MAS_INSTANCE_ID system $kafka_cfg_file
-    #     fi
-    #   else
-    #     python3 $DIR/functions/gencfg kafka $MAS_INSTANCE_ID system $kafka_cfg_file
-    #   fi
+      # Check if a configuration already exists
+      kafka_cfg_file=$LOCAL_MAS_CONFIG_DIR/kafka-$MAS_INSTANCE_ID-system.yaml
+      if [ -e "$kafka_cfg_file" ]; then
+        if prompt_for_confirm "System kafka configuration file 'kafka-$MAS_INSTANCE_ID-system.yaml' already exists. Confirm this Kafka configuration?"; then
+          echo "MAS Kafka configuration will use 'kafka-$MAS_INSTANCE_ID-system.yaml' definitions!"
+        else
+          echo_warning "Kafka configuration file not confirmed, please try again..."
+          echo
+          kafka_for_iot
+        fi
+      else
+        echo_warning "Error: File does not exist: $kafka_cfg_file"
+        exit 1
+      fi
     fi
   else
     # We don't need a system kafka, IoT is not being installed
@@ -73,6 +77,11 @@ function kafka_for_iot() {
   fi
 }
 
+
+    if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
+      echo_warning "Error: File does not exist: $SLS_LICENSE_FILE_LOCAL"
+      exit 1
+    fi
 
 function config_pipeline_kafka() {
   echo
