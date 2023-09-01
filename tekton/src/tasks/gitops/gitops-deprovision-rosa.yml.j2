@@ -33,6 +33,9 @@ spec:
         export ROSA_CONFIG_DIR=/workspace/configs/tmp-rosa-deprovision
         mkdir -p $ROSA_CONFIG_DIR
         mas gitops-deprovision-rosa -c $(params.cluster_name)
+
+        echo "Removing rosa-$(params.cluster_name)-details.yaml"
+        rm /workspace/configs/tmp-rosa-init/rosa-$(params.cluster_name)-details.yaml
       command:
         - /bin/sh
         - -c
