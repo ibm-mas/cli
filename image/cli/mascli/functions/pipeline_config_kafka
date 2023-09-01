@@ -14,8 +14,9 @@ function kafka_for_iot() {
 
     if prompt_for_confirm_default_yes "Create system Kafka instance using one of the supported providers?"; then
       KAFKA_ACTION_SYSTEM=install
-
-      echo -e "${COLOR_YELLOW}Select the Kafka provider:"
+      echo
+      echo -e "${COLOR_YELLOW}Select the Kafka provider to be installed:"
+      echo
       echo "  1) Strimzi (opensource)"
       echo "  2) Red Hat AMQ Streams (requires a separate license)"
       echo "  3) IBM Cloud Event Streams (paid IBM Cloud service)"
@@ -64,7 +65,6 @@ function kafka_for_iot() {
     #   else
     #     python3 $DIR/functions/gencfg kafka $MAS_INSTANCE_ID system $kafka_cfg_file
     #   fi
-    å
     fi
   else
     # We don't need a system kafka, IoT is not being installed
