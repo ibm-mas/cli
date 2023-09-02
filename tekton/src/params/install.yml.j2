@@ -74,11 +74,12 @@
 
 # Dependencies (Kafka)
 - name: kafka_action_system
-  value: '$KAFKA_ACTION_SYSTEM'
+  type: string
   description: Set to 'install' to set up a Kafka instance for the whole suite
   default: "none"
 - name: kafka_provider
   type: string
+  description: Kafka provider
   default: ""
 
 # Dependencies - AMQ Streams / Strimzi (Kafka)
