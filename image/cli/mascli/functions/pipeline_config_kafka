@@ -34,16 +34,11 @@ function kafka_for_iot() {
           ;;
         3)
           KAFKA_PROVIDER="ibm"
-          EVENTSTREAMS_RESOURCEGROUP="Default"
-          EVENTSTREAMS_NAME="event-streams-$MAS_INSTANCE_ID"
-          EVENTSTREAMS_LOCATION="us-east"
-          EVENTSTREAMS_RETENTION=14
           prompt_for_secret "IBM Cloud API Key" IBMCLOUD_APIKEY
           prompt_for_input "IBM Event Streams resource group" EVENTSTREAMS_RESOURCEGROUP $EVENTSTREAMS_RESOURCEGROUP
           prompt_for_input "IBM Event Streams instance name" EVENTSTREAMS_NAME $EVENTSTREAMS_NAME
           prompt_for_input "IBM Event Streams location" EVENTSTREAMS_LOCATION $EVENTSTREAMS_LOCATION
           prompt_for_input "IBM Event Streams topic retention period (in days)" EVENTSTREAMS_RETENTION $EVENTSTREAMS_RETENTION
-          EVENTSTREAMS_RETENTION=$((EVENTSTREAMS_RETENTION * 86400000))
           ;;
         *)
           echo_warning "Invalid selection"
