@@ -1,18 +1,18 @@
 #!/bin/bash
 
-function check_workload_scale_dir(){
-  WORKLOAD_SCALE_PROFILE=Custom
+function check_mas_pod_templates_dir(){
+  MAS_WORKLOAD_SCALE_PROFILE=Custom
 
-  if [[ ! -d "$WORKLOAD_SCALE_DIR" ]]; then
-    echo_warning "Error: Directory does not exist: $WORKLOAD_SCALE_DIR"
+  if [[ ! -d "$MAS_POD_TEMPLATES_DIR" ]]; then
+    echo_warning "Error: Directory does not exist: $MAS_POD_TEMPLATES_DIR"
     exit 1
   fi
 }
 
-function set_workload_scale_envs() {
-  WORKLOAD_SCALE_DIR_NAME=guaranteed
-  [ "$WORKLOAD_SCALE_PROFILE" == "BestEffort" ] && WORKLOAD_SCALE_DIR_NAME=best-effort
-  WORKLOAD_SCALE_DIR="/mascli/templates/pod-templates/${WORKLOAD_SCALE_DIR_NAME}"
+function set_mas_workload_scale_envs() {
+  MAS_WORKLOAD_SCALE_DIR_NAME=guaranteed
+  [ "$MAS_WORKLOAD_SCALE_PROFILE" == "BestEffort" ] && MAS_WORKLOAD_SCALE_DIR_NAME=best-effort
+  MAS_POD_TEMPLATES_DIR="/mascli/templates/pod-templates/${MAS_WORKLOAD_SCALE_DIR_NAME}"
 }
 
 function config_pipeline_workload_scale() {
@@ -27,23 +27,23 @@ function config_pipeline_workload_scale() {
   echo "4. Custom"
   echo
 
-  prompt_for_number "Select Profile" MAS_SCALE_PROFILE_SELECTION 2
+  prompt_for_number "Select Profile" MAS_WORKLOAD_SCALE_PROFILE_SELECTION 2
 
-  case $MAS_SCALE_PROFILE_SELECTION in
+  case $MAS_WORKLOAD_SCALE_PROFILE_SELECTION in
   1)
-    WORKLOAD_SCALE_PROFILE=Guaranteed
-    set_workload_scale_envs
+    MAS_WORKLOAD_SCALE_PROFILE=Guaranteed
+    set_mas_workload_scale_envs
     ;;
   2)
-    WORKLOAD_SCALE_PROFILE=Burstable
+    MAS_WORKLOAD_SCALE_PROFILE=Burstable
     ;;
   3)
-    WORKLOAD_SCALE_PROFILE=BestEffort
-    set_workload_scale_envs
+    MAS_WORKLOAD_SCALE_PROFILE=BestEffort
+    set_mas_workload_scale_envs
     ;;
   4)
-    prompt_for_input "Custom configurations directory" WORKLOAD_SCALE_DIR
-    check_workload_scale_dir
+    prompt_for_input "Custom configurations directory" MAS_POD_TEMPLATES_DIR
+    check_mas_pod_templates_dir
     ;;
   *)
     echo_warning "Invalid selection. Choose between 1 and 4"

@@ -40,7 +40,7 @@ function config_pipeline_advanced() {
 
     prompt_for_confirm_default_yes "Trust Default CAs?" MAS_TRUST_DEFAULT_CAS
   else
-    # Clear WORKLOAD_SCALE_DIR var when running multiple installs within the same session.
-    unset WORKLOAD_SCALE_DIR
+    # Clear MAS_POD_TEMPLATES_DIR var when running multiple installs within the same session.
+    unset MAS_POD_TEMPLATES_DIR
   fi
 }

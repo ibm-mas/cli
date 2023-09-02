@@ -64,8 +64,8 @@ function pipeline_prepare() {
 
   # pipeline-pod-templates must exist (otherwise the suite-install step will hang), but can be empty
   oc -n $PIPELINES_NS create secret generic pipeline-pod-templates \
-    --from-file=${WORKLOAD_SCALE_DIR:+$WORKLOAD_SCALE_DIR/ibm-mas.yml} \
-    --from-file=${WORKLOAD_SCALE_DIR:+$WORKLOAD_SCALE_DIR/ibm-sls.yml} &>> $LOGFILE
+    --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas.yml} \
+    --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-sls.yml} &>> $LOGFILE
 
   echo -en "\033[1K" # Clear current line
   echo -en "\033[u" # Restore cursor position
