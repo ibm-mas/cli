@@ -152,8 +152,7 @@ function pipeline_show_config() {
     echo_reset_dim "Resource group ............ ${COLOR_MAGENTA}${EVENTSTREAMS_RESOURCEGROUP}"
     echo_reset_dim "Instance name ............. ${COLOR_MAGENTA}${EVENTSTREAMS_NAME}"
     echo_reset_dim "Location .................. ${COLOR_MAGENTA}${EVENTSTREAMS_LOCATION}"
-    echo_reset_dim "Topic retention (days) .... ${COLOR_MAGENTA}${EVENTSTREAMS_RETENTION}"
-    export EVENTSTREAMS_RETENTION=$((EVENTSTREAMS_RETENTION * 86400000)) # Event Streams retention period is set in miliseconds thus we convert from days
+    echo_reset_dim "Topic retention (days) .... ${COLOR_MAGENTA}$((EVENTSTREAMS_RETENTION/86400000))" # Event Streams retention period is set in miliseconds thus we convert from days for better viewing
   fi
 
   reset_colors

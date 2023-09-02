@@ -38,7 +38,9 @@ function kafka_for_iot() {
           prompt_for_input "IBM Event Streams resource group" EVENTSTREAMS_RESOURCEGROUP $EVENTSTREAMS_RESOURCEGROUP
           prompt_for_input "IBM Event Streams instance name" EVENTSTREAMS_NAME $EVENTSTREAMS_NAME
           prompt_for_input "IBM Event Streams location" EVENTSTREAMS_LOCATION $EVENTSTREAMS_LOCATION
+          EVENTSTREAMS_RETENTION=14 # miliseconds to days
           prompt_for_input "IBM Event Streams topic retention period (in days)" EVENTSTREAMS_RETENTION $EVENTSTREAMS_RETENTION
+          EVENTSTREAMS_RETENTION=$((EVENTSTREAMS_RETENTION * 86400000)) # convert days to miliseconds
           ;;
         *)
           echo_warning "Invalid selection"
