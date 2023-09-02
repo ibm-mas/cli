@@ -138,7 +138,7 @@ function pipeline_show_config() {
     fi
   fi
 
-  if [[ "$KAFKA_ACTION_SYSTEM" == "install" && "$KAFKA_PROVIDER" == "strimzi" || "$KAFKA_PROVIDER" == "redhat" ]]; then
+  if [[ "$KAFKA_ACTION_SYSTEM" == "install" && ("$KAFKA_PROVIDER" == "strimzi" || "$KAFKA_PROVIDER" == "redhat") ]]; then
     reset_colors
     echo "${TEXT_DIM}"
     echo_h4 "Kafka" "    "

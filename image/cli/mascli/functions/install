@@ -274,10 +274,11 @@ function install_noninteractive() {
 
     # Dependencies - Kafka
     --kafka-provider)
+    export KAFKA_ACTION_SYSTEM=install
     export KAFKA_PROVIDER=$1 && shift
+    ;;
 
     # Dependencies - Kafka (AMQ & Strimzi)
-    ;;
     --kafka-namespace)
     export KAFKA_NAMESPACE=$1 && shift
     ;;
