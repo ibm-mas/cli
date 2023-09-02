@@ -56,7 +56,6 @@ Usage
 - `--eventstreams-resource-group EVENTSTREAMS_RESOURCEGROUP`    Set IBM Cloud resource group to target the Event Streams instance provisioning (Only applicable if installing IBM Event Streams).
 - `--eventstreams-instance-name EVENTSTREAMS_NAME`              Set IBM Event Streams instance name (Only applicable if installing IBM Event Streams).
 - `--eventstreams-instance-location EVENTSTREAMS_LOCATION`      Set IBM Event Streams instance location (Only applicable if installing IBM Event Streams).
-- `--eventstreams-retention EVENTSTREAMS_RETENTION`             Set IBM Event Streams topic retention period in days. (Only applicable if installing IBM Event Streams).
 
 ### IBM Db2 (Optional, required to use IBM Db2 Universal Operator):
 - `--db2u-channel DB2_CHANNEL`     Subscription channel for Db2u (e.g. v110508.0)

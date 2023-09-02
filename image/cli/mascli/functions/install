@@ -62,7 +62,6 @@ Kafka (Required for IBM Cloud Event Streams only):
       --eventstreams-resource-group ${COLOR_YELLOW}EVENTSTREAMS_RESOURCEGROUP${TEXT_RESET}     Set IBM Cloud resource group to target the Event Streams instance provisioning (Only applicable if installing IBM Cloud Event Streams)
       --eventstreams-instance-name ${COLOR_YELLOW}EVENTSTREAMS_NAME${TEXT_RESET}               Set IBM Event Streams instance name (Only applicable if installing IBM Event Streams)
       --eventstreams-instance-location ${COLOR_YELLOW}EVENTSTREAMS_LOCATION${TEXT_RESET}       Set IBM Event Streams instance location (Only applicable if installing IBM Event Streams)
-      --eventstreams-retention ${COLOR_YELLOW}EVENTSTREAMS_RETENTION${TEXT_RESET}              Set IBM Event Streams topic retention period in days. (Only applicable if installing IBM Event Streams)
 
 IBM Db2 (Optional, required to use IBM Db2 Universal Operator):
       --db2u-channel ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                                   Subscription channel for Db2u (e.g. v110508.0)
@@ -121,7 +120,6 @@ function install_noninteractive() {
   EVENTSTREAMS_RESOURCEGROUP=Default
   EVENTSTREAMS_NAME=event-streams-$MAS_INSTANCE_ID
   EVENTSTREAMS_LOCATION=us-east
-  EVENTSTREAMS_RETENTION=1209600000 # 14 days converted in miliseconds
 
   LOCAL_MAS_CONFIG_DIR=""
   LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN=yes
@@ -296,9 +294,6 @@ function install_noninteractive() {
     ;;
     --eventstreams-instance-location)
     export EVENTSTREAMS_LOCATION=$1 && shift
-    ;;
-    --eventstreams-retention)
-    export EVENTSTREAMS_RETENTION=$1 && shift
     ;;
 
     # Licensing & Entitlement
