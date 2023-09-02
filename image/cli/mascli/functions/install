@@ -52,8 +52,8 @@ IBM Cloud Pak for Data (Required when installing Predict or Assist):
       --cp4d-version ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}                                  Product version of CP4D to use
 
 Kafka (Optional, required to install Maximo IoT thus if not set, a default Kafka provider will be installed):
-      --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}                              Set Kafka provider. Supported options are `redhat` (Red Hat AMQ Streams), `strimzi` and `ibm` (IBM Event Streams)
-      --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}                            Set Kafka namespace. Only applicable if installing `redhat` (Red Hat AMQ Streams) or `strimzi`
+      --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}                              Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), 'strimzi' and 'ibm' (IBM Event Streams)
+      --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}                            Set Kafka namespace. Only applicable if installing 'redhat' (Red Hat AMQ Streams) or 'strimzi'
       --ibmcloud-apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                            Set IBM Cloud API Key (Only applicable if installing IBM Event Streams)
       --eventstreams-resource-group ${COLOR_YELLOW}EVENTSTREAMS_RESOURCEGROUP${TEXT_RESET}     Set IBM Cloud resource group to target the Event Streams instance provisioning (Only applicable if installing IBM Event Streams)
       --eventstreams-instance-name ${COLOR_YELLOW}EVENTSTREAMS_NAME${TEXT_RESET}               Set IBM Event Streams instance name (Only applicable if installing IBM Event Streams)

@@ -61,7 +61,7 @@ function kafka_for_iot() {
       echo
       if [ ! -e "$kafka_cfg_file" ]; then
         echo_warning "Error: Kafka configuration file does not exist: '$kafka_cfg_file'"
-        echo_warning "In order to continue, provide an existing Kafka configuration file ($kafka_cfg_file) or choose a Kafka provider to be installed."
+        echo_warning "In order to continue, provide an existing Kafka configuration file ($kafka_cfg_file) or choose one of the supported Kafka providers to be installed."
         exit 1
       else
         echo "Provided Kafka configuration file '$kafka_cfg_file' will be applied."
