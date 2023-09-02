@@ -51,11 +51,15 @@ Maximo Application Suite Application Selection (Optional):
 IBM Cloud Pak for Data (Required when installing Predict or Assist):
       --cp4d-version ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}                                  Product version of CP4D to use
 
-Kafka (Optional, required to install Maximo IoT thus if not set, a default Kafka provider will be installed):
-      --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}                              Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), 'strimzi' and 'ibm' (IBM Event Streams)
-      --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}                            Set Kafka namespace. Only applicable if installing 'redhat' (Red Hat AMQ Streams) or 'strimzi'
-      --ibmcloud-apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                            Set IBM Cloud API Key (Only applicable if installing IBM Event Streams)
-      --eventstreams-resource-group ${COLOR_YELLOW}EVENTSTREAMS_RESOURCEGROUP${TEXT_RESET}     Set IBM Cloud resource group to target the Event Streams instance provisioning (Only applicable if installing IBM Event Streams)
+Kafka (Required to install Maximo IoT thus if not set, a default Kafka provider will be installed):
+      --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}                              Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), 'strimzi' and 'ibm' (IBM Cloud Event Streams)
+
+Kafka (Optional, applicable for Strimzi and Red Hat AMQ Streams only):
+      --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}                            Set Strimzi and Red Hat AMQ Streams namespace
+
+Kafka (Required for IBM Cloud Event Streams only):
+      --ibmcloud-apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                            Set IBM Cloud API Key. Required to provision IBM Cloud services
+      --eventstreams-resource-group ${COLOR_YELLOW}EVENTSTREAMS_RESOURCEGROUP${TEXT_RESET}     Set IBM Cloud resource group to target the Event Streams instance provisioning (Only applicable if installing IBM Cloud Event Streams)
       --eventstreams-instance-name ${COLOR_YELLOW}EVENTSTREAMS_NAME${TEXT_RESET}               Set IBM Event Streams instance name (Only applicable if installing IBM Event Streams)
       --eventstreams-instance-location ${COLOR_YELLOW}EVENTSTREAMS_LOCATION${TEXT_RESET}       Set IBM Event Streams instance location (Only applicable if installing IBM Event Streams)
       --eventstreams-retention ${COLOR_YELLOW}EVENTSTREAMS_RETENTION${TEXT_RESET}              Set IBM Event Streams topic retention period in days. (Only applicable if installing IBM Event Streams)
@@ -91,6 +95,8 @@ Advanced Db2u Universal Operator Configuration - Storage (Optional):
 Advanced MongoDB Configuration (Optional):
       --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET}                        Change namespace where MongoCE operator and instance will be created
 
+Cloud Provider Commands:
+      --ibmcloud-apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                            Set IBM Cloud API Key (Required to provision IBM Cloud services)
 
 Other Commands:
       --dev-mode                                                   Enable developer mode (e.g. for access to pre-release builds)
@@ -266,6 +272,30 @@ function install_noninteractive() {
     export DB2_TEMP_STORAGE_SIZE=$1 && shift
     ;;
 
+    # Dependencies - Kafka
+    --kafka-provider)
+    export KAFKA_PROVIDER=$1 && shift
+
+    # Dependencies - Kafka (AMQ & Strimzi)
+    ;;
+    --kafka-namespace)
+    export KAFKA_NAMESPACE=$1 && shift
+    ;;
+
+    # Dependencies - Kafka (IBM Cloud Event Streams)
+    --eventstreams-resource-group)
+    export EVENTSTREAMS_RESOURCEGROUP=$1 && shift
+    ;;
+    --eventstreams-instance-name)
+    export EVENTSTREAMS_NAME=$1 && shift
+    ;;
+    --eventstreams-instance-location)
+    export EVENTSTREAMS_LOCATION=$1 && shift
+    ;;
+    --eventstreams-retention)
+    export EVENTSTREAMS_RETENTION=$1 && shift
+    ;;
+
     # Licensing & Entitlement
     --ibm-entitlement-key)
     export IBM_ENTITLEMENT_KEY=$1 && shift
@@ -342,6 +372,11 @@ function install_noninteractive() {
 
     --manage-override-encryption-secrets)
     export MAS_APP_SETTINGS_OVERRIDE_ENCRYPTION_SECRETS_FLAG=true
+    ;;
+
+    # Cloud Provider Commands - IBM Cloud
+    --ibmcloud-apikey)
+    export IBMCLOUD_APIKEY=$1 && shift
     ;;
 
     # Other Commands
