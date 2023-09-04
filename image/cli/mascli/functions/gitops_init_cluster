@@ -139,8 +139,8 @@ function gitops_init_cluster_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_init_cluster_help "GIT_BRANCH is not set"
   fi
 
-  if [ -z $ARTIFACTORY_USERNAME ] || [ -z $ARTIFACTORY_TOKEN ] || [ -z $ICR_USERNAME ] || [ -z $ICR_PASSWORD ]; then
-    echo 'Missing required environment variables, make sure to set ARTIFACTORY_USERNAME, ARTIFACTORY_TOKEN, ICR_USERNAME, ICR_PASSWORD'
+  if [ -z $ICR_USERNAME ] || [ -z $ICR_PASSWORD ]; then
+    echo 'Missing required environment variables, make sure to set ICR_USERNAME, ICR_PASSWORD'
     exit 1
   fi
 
@@ -235,8 +235,9 @@ function gitops_init_cluster() {
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
   mkdir -p ${GITOPS_APPS_DIR}
-
-  export ARTIFACTORY_AUTH_TOKEN=$(echo -n $ARTIFACTORY_USERNAME:$ARTIFACTORY_TOKEN | base64 -w 0)
+  if [[ -n ${ARTIFACTORY_USERNAME} && -n ${ARTIFACTORY_TOKEN} ]]; then
+    export ARTIFACTORY_AUTH_TOKEN=$(echo -n $ARTIFACTORY_USERNAME:$ARTIFACTORY_TOKEN | base64 -w 0)
+  fi
   export ICR_AUTH_TOKEN=$(echo -n $ICR_USERNAME:$ICR_PASSWORD | base64 -w 0)
 
   echo "- Generate image pull secret"
