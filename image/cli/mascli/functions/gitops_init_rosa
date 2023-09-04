@@ -19,7 +19,6 @@ EOM
 }
 
 function gitops_init_rosa_noninteractive() {
-  export ROSA_ACTION=${ROSA_ACTION:-"provision"}
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -64,9 +63,8 @@ function gitops_init_rosa(){
   echo "${TEXT_DIM}"
   echo_h2 "Cluster Details" "    "
   echo_reset_dim "Cluster Id ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "OpenShift Version ..................... ${COLOR_MAGENTA}${OCP_VERSION}"
-  echo_reset_dim "ROSA Token .......... ${COLOR_MAGENTA}${ROSA_TOKEN:0:8}<snip>"
-  echo_reset_dim "ROSA Action .......... ${COLOR_MAGENTA}${ROSA_ACTION}<snip>"
+  echo_reset_dim "OpenShift Version .............. ${COLOR_MAGENTA}${OCP_VERSION}"
+  echo_reset_dim "ROSA Token ..................... ${COLOR_MAGENTA}${ROSA_TOKEN:0:8}<snip>"
   reset_colors
 
   echo

@@ -250,6 +250,11 @@ function gitops_process_mongo_user() {
     export DOCDB_MASTER_PASSWORD=$(jq -r .password $MONGO_SECRET_FILE)    
     echo -e "${USER_ACTION}_mongo_user : DOCDB_HOST=${DOCDB_HOST} \t DOCDB_PORT=${DOCDB_PORT} \t DOCDB_MASTER_USERNAME=${DOCDB_MASTER_USERNAME} \t DOCDB_MASTER_PASSWORD=${DOCDB_MASTER_PASSWORD}"
 
+    if [ -z $DOCDB_HOST ]; then
+      echo "DOCDB_HOST not set so exiting as we can't process user action"
+      exit 0
+    fi
+
     export DOCDB_INSTANCE_USERNAME=masinst_${MAS_INSTANCE_ID}
     export SECRET_NAME_MONGO_INSTANCE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
     # Set docdb instance password if present in secret manager
