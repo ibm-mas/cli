@@ -20,6 +20,7 @@ function kafka_for_iot() {
       echo "  1) Strimzi (opensource)"
       echo "  2) Red Hat AMQ Streams (requires a separate license)"
       echo "  3) IBM Cloud Event Streams (paid IBM Cloud service)"
+      echo "  4) AWS MSK (paid AWS service)"
       reset_colors
       echo
       prompt_for_input "Kafka provider" KAFKA_SELECTION "1"
@@ -38,6 +39,31 @@ function kafka_for_iot() {
           prompt_for_input "IBM Event Streams resource group" EVENTSTREAMS_RESOURCEGROUP $EVENTSTREAMS_RESOURCEGROUP
           prompt_for_input "IBM Event Streams instance name" EVENTSTREAMS_NAME $EVENTSTREAMS_NAME
           prompt_for_input "IBM Event Streams location" EVENTSTREAMS_LOCATION $EVENTSTREAMS_LOCATION
+          ;;
+        4)
+          KAFKA_PROVIDER="aws"
+          echo "${TEXT_DIM}"
+          echo "While provisioning the AWS MSK instance, you will be required to provide the AWS Virtual Private Cloud ID and subnet details"
+          echo "where your instance will be deployed to properly configure internal and external (over internet) connections."
+          echo "You should be able to find these information inside your VPC and subnet configurations in AWS account."
+          echo "For more details about AWS subnet/CIDR configuration, refer: https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html"
+          echo ""
+          reset_colors
+          prompt_for_secret "AWS Access Key ID" AWS_ACCESS_KEY_ID "Re-use saved AWS Access Key ID?"
+          prompt_for_secret "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY "Re-use saved AWS Secret Access Key?"
+          prompt_for_input "AWS Region" AWS_REGION $AWS_REGION
+          prompt_for_input "Virtual Private Cloud (VPC) ID" VPC_ID $VPC_ID
+          prompt_for_input "MSK Cluster Name" KAFKA_CLUSTER_NAME $KAFKA_CLUSTER_NAME
+          prompt_for_input "MSK Instance Username" AWS_KAFKA_USER_NAME $AWS_KAFKA_USER_NAME
+          prompt_for_secret "MSK Instance Password" AWS_KAFKA_USER_PASSWORD $AWS_KAFKA_USER_PASSWORD
+          prompt_for_input "MSK Instance Type" AWS_MSK_INSTANCE_TYPE $AWS_MSK_INSTANCE_TYPE
+          prompt_for_input "MSK Instance Replicas" AWS_MSK_INSTANCE_NUMBER $AWS_MSK_INSTANCE_NUMBER
+          prompt_for_input "MSK Storage Size (in GB)" AWS_MSK_VOLUME_SIZE $AWS_MSK_VOLUME_SIZE
+          prompt_for_input "Availability Zone 1 CIDR" AWS_MSK_CIDR_AZ1 $AWS_MSK_CIDR_AZ1
+          prompt_for_input "Availability Zone 2 CIDR" AWS_MSK_CIDR_AZ2 $AWS_MSK_CIDR_AZ2
+          prompt_for_input "Availability Zone 3 CIDR" AWS_MSK_CIDR_AZ3 $AWS_MSK_CIDR_AZ3
+          prompt_for_input "Ingress CIDR" AWS_MSK_INGRESS_CIDR $AWS_MSK_INGRESS_CIDR
+          prompt_for_input "Egress CIDR" AWS_MSK_EGRESS_CIDR $AWS_MSK_EGRESS_CIDR
           ;;
         *)
           echo_warning "Invalid selection"

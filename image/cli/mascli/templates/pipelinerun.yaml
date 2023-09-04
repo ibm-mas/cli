@@ -156,6 +156,33 @@ spec:
     - name: kafka_namespace
       value: '$KAFKA_NAMESPACE'
 
+    # Dependencies - AWS MSK
+    # -------------------------------------------------------------------------
+    - name: vpc_id
+      value: '$VPC_ID'
+    - name: kafka_cluster_name
+      value: '$KAFKA_CLUSTER_NAME'
+    - name: aws_kafka_user_name
+      value: '$AWS_KAFKA_USER_NAME'
+    - name: aws_kafka_user_password
+      value: '$AWS_KAFKA_USER_PASSWORD'
+    - name: aws_msk_instance_type
+      value: '$AWS_MSK_INSTANCE_TYPE'
+    - name: aws_msk_instance_number
+      value: '$AWS_MSK_INSTANCE_NUMBER'
+    - name: aws_msk_volume_size
+      value: '$AWS_MSK_VOLUME_SIZE'
+    - name: aws_msk_cidr_az1
+      value: '$AWS_MSK_CIDR_AZ1'
+    - name: aws_msk_cidr_az1
+      value: '$AWS_MSK_CIDR_AZ2'
+    - name: aws_msk_cidr_az1
+      value: '$AWS_MSK_CIDR_AZ3'
+    - name: aws_msk_ingress_cidr
+      value: '$AWS_MSK_INGRESS_CIDR'
+    - name: aws_msk_egress_cidr
+      value: '$AWS_MSK_EGRESS_CIDR'
+
     # Dependencies - IBM Cloud Event Streams
     # -------------------------------------------------------------------------
     - name: eventstreams_resourcegroup
@@ -266,12 +293,18 @@ spec:
     - name: cis_proxy
       value: '$CIS_PROXY'
 
-    # MAS DNS Integrations - AWS Route 53
+    # AWS basic info
     # -------------------------------------------------------------------------
+
     - name: aws_access_key_id
       value: '$AWS_ACCESS_KEY_ID'
     - name: aws_secret_access_key
       value: '$AWS_SECRET_ACCESS_KEY'
+    - name: aws_region
+      value: '$AWS_REGION'
+
+    # MAS DNS Integrations - AWS Route 53
+    # -------------------------------------------------------------------------
     - name: route53_hosted_zone_name
       value: '$ROUTE53_HOSTED_ZONE_NAME'
     - name: route53_hosted_zone_region
