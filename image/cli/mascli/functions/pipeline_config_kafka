@@ -35,24 +35,42 @@ function kafka_for_iot() {
           ;;
         3)
           # kafka defaults - event streams
-          EVENTSTREAMS_RESOURCEGROUP=Default
-          EVENTSTREAMS_NAME=event-streams-$MAS_INSTANCE_ID
-          EVENTSTREAMS_LOCATION=us-east
+          if [ ! -z $EVENTSTREAMS_RESOURCEGROUP ]; then
+            EVENTSTREAMS_RESOURCEGROUP=Default
+          fi
+          if [ ! -z $EVENTSTREAMS_NAME ]; then
+            EVENTSTREAMS_NAME=event-streams-$MAS_INSTANCE_ID
+          fi
+          if [ ! -z $EVENTSTREAMS_LOCATION ]; then
+            EVENTSTREAMS_LOCATION=us-east
+          fi
 
           KAFKA_PROVIDER="ibm"
-          prompt_for_secret "IBM Cloud API Key" IBMCLOUD_APIKEY
+          prompt_for_secret "IBM Cloud API Key" IBMCLOUD_APIKEY "Re-use saved IBM Cloud API Key?"
           prompt_for_input "IBM Event Streams resource group" EVENTSTREAMS_RESOURCEGROUP $EVENTSTREAMS_RESOURCEGROUP
           prompt_for_input "IBM Event Streams instance name" EVENTSTREAMS_NAME $EVENTSTREAMS_NAME
           prompt_for_input "IBM Event Streams location" EVENTSTREAMS_LOCATION $EVENTSTREAMS_LOCATION
           ;;
         4)
           # kafka defaults - aws msk
-          KAFKA_CLUSTER_NAME=aws-msk-$MAS_INSTANCE_ID
-          AWS_KAFKA_USER_NAME=masuser
-          AWS_MSK_INSTANCE_TYPE=kafka.m5.large
-          AWS_MSK_VOLUME_SIZE=100
-          AWS_MSK_INSTANCE_NUMBER=3
-          AWS_REGION=us-east-1
+          if [ ! -z $KAFKA_CLUSTER_NAME ]; then
+            KAFKA_CLUSTER_NAME=aws-msk-$MAS_INSTANCE_ID
+          fi
+          if [ ! -z $AWS_KAFKA_USER_NAME ]; then
+            AWS_KAFKA_USER_NAME=masuser
+          fi
+          if [ ! -z $AWS_MSK_INSTANCE_TYPE ]; then
+            AWS_MSK_INSTANCE_TYPE=kafka.m5.large
+          fi
+          if [ ! -z $AWS_MSK_VOLUME_SIZE ]; then
+            AWS_MSK_VOLUME_SIZE=100
+          fi
+          if [ ! -z $AWS_MSK_INSTANCE_NUMBER ]; then
+            AWS_MSK_INSTANCE_NUMBER=3
+          fi
+          if [ ! -z $AWS_MSK_INSTANCE_NUMBER ]; then
+            AWS_REGION=us-east-1
+          fi
 
           KAFKA_PROVIDER="aws"
           echo "${TEXT_DIM}"
@@ -68,7 +86,7 @@ function kafka_for_iot() {
           prompt_for_input "Virtual Private Cloud (VPC) ID" VPC_ID $VPC_ID
           prompt_for_input "MSK Cluster Name" KAFKA_CLUSTER_NAME $KAFKA_CLUSTER_NAME
           prompt_for_input "MSK Instance Username" AWS_KAFKA_USER_NAME $AWS_KAFKA_USER_NAME
-          prompt_for_secret "MSK Instance Password" AWS_KAFKA_USER_PASSWORD $AWS_KAFKA_USER_PASSWORD
+          prompt_for_secret "MSK Instance Password" AWS_KAFKA_USER_PASSWORD "Re-use saved MSK Instance Password?"
           prompt_for_input "MSK Instance Type" AWS_MSK_INSTANCE_TYPE $AWS_MSK_INSTANCE_TYPE
           prompt_for_input "MSK Total Number of Broker Nodes" AWS_MSK_INSTANCE_NUMBER $AWS_MSK_INSTANCE_NUMBER
           prompt_for_input "MSK Storage Size (in GB)" AWS_MSK_VOLUME_SIZE $AWS_MSK_VOLUME_SIZE
