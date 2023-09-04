@@ -295,7 +295,6 @@ spec:
 
     # AWS basic info
     # -------------------------------------------------------------------------
-
     - name: aws_access_key_id
       value: '$AWS_ACCESS_KEY_ID'
     - name: aws_secret_access_key
