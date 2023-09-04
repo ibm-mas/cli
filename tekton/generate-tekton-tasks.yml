@@ -111,6 +111,7 @@
         - gitops-deprovision-suite-config
         - gitops-deprovision-suite-workspace
         - gitops-deprovision-suite
+        - gitops-init-cis-compliance
         - gitops-init-cluster
         - gitops-init-license
         - gitops-init-mongo
