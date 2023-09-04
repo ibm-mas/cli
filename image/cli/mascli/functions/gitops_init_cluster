@@ -139,6 +139,11 @@ function gitops_init_cluster_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_init_cluster_help "GIT_BRANCH is not set"
   fi
 
+  if [ -z $ICR_USERNAME ] || [ -z $ICR_PASSWORD ]; then
+    echo 'Missing required environment variables, make sure to set ICR_USERNAME, ICR_PASSWORD'
+    exit 1
+  fi
+
   [[ -z "$COMMON_SERVICES_CHANNEL" ]] && gitops_init_cluster_help "COMMON_SERVICES_CHANNEL is not set"
 }
 
@@ -216,7 +221,7 @@ function gitops_init_cluster() {
 
   export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRET_NAME_IBM_ENTITLEMENT}#image_pull_secret_b64
-  sm_update_secret $SECRET_NAME_IBM_ENTITLEMENT "{\"image_pull_secret_b64\": \"${IBM_ENTITLEMENT_B64}\"}"
+
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
@@ -230,8 +235,20 @@ function gitops_init_cluster() {
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
   mkdir -p ${GITOPS_APPS_DIR}
+  if [[ -n ${ARTIFACTORY_USERNAME} && -n ${ARTIFACTORY_TOKEN} ]]; then
+    export ARTIFACTORY_AUTH_TOKEN=$(echo -n $ARTIFACTORY_USERNAME:$ARTIFACTORY_TOKEN | base64 -w 0)
+  fi
+  export ICR_AUTH_TOKEN=$(echo -n $ICR_USERNAME:$ICR_PASSWORD | base64 -w 0)
 
+  echo "- Generate image pull secret"
+  jinja -X .+ $DIR/templates/gitops/ibm-entitlement-with-artifactory.json.j2 -o ${GITOPS_APPS_DIR}/ibm-entitlement-with-artifactory.json
 
+  IBM_ENTITLEMENT_WITH_ARTIFACTORY=${GITOPS_APPS_DIR}/ibm-entitlement-with-artifactory.json
+  IBM_ENTITLEMENT_WITH_ARTIFACTORY=$(cat $IBM_ENTITLEMENT_WITH_ARTIFACTORY)
+  export IBM_ENTITLEMENT_B64=$(echo -n $IBM_ENTITLEMENT_WITH_ARTIFACTORY | base64  -w 0)
+  # echo -e "- IBM_ENTITLEMENT_B64=${IBM_ENTITLEMENT_B64}"
+  sm_update_secret $SECRET_NAME_IBM_ENTITLEMENT "{\"image_pull_secret_b64\": \"${IBM_ENTITLEMENT_B64}\"}"
+  rm -rf ${GITOPS_APPS_DIR}/ibm-entitlement-with-artifactory.json
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   echo

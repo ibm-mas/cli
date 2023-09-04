@@ -1,0 +1,5 @@
+{"auths":{
+{% if ARTIFACTORY_AUTH_TOKEN is defined and ARTIFACTORY_AUTH_TOKEN != "" %}
+"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local":{"username":"{{ ARTIFACTORY_USERNAME }}","password":"{{ ARTIFACTORY_TOKEN }}","auth":"{{ ARTIFACTORY_AUTH_TOKEN }}"},
+{% endif %}
+"cp.icr.io/cp":{"username":"{{ ICR_USERNAME }}","password":"{{ ICR_PASSWORD }}","auth":"{{ ICR_AUTH_TOKEN }}"}}}
