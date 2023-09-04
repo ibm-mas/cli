@@ -174,9 +174,9 @@ spec:
       value: '$AWS_MSK_VOLUME_SIZE'
     - name: aws_msk_cidr_az1
       value: '$AWS_MSK_CIDR_AZ1'
-    - name: aws_msk_cidr_az1
+    - name: aws_msk_cidr_az2
       value: '$AWS_MSK_CIDR_AZ2'
-    - name: aws_msk_cidr_az1
+    - name: aws_msk_cidr_az3
       value: '$AWS_MSK_CIDR_AZ3'
     - name: aws_msk_ingress_cidr
       value: '$AWS_MSK_INGRESS_CIDR'
