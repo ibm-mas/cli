@@ -118,16 +118,16 @@ function install_noninteractive() {
 
   # kafka - event streams
   KAFKA_ACTION_SYSTEM=none
-  EVENTSTREAMS_RESOURCEGROUP=Default
-  EVENTSTREAMS_NAME=event-streams-$MAS_INSTANCE_ID
-  EVENTSTREAMS_LOCATION=us-east
+  export EVENTSTREAMS_RESOURCEGROUP=Default
+  export EVENTSTREAMS_NAME=event-streams-$MAS_INSTANCE_ID
+  export EVENTSTREAMS_LOCATION=us-east
   # kafka - aws msk
-  KAFKA_CLUSTER_NAME=aws-msk-$MAS_INSTANCE_ID
-  AWS_KAFKA_USER_NAME=masuser
-  AWS_MSK_INSTANCE_TYPE=kafka.m5.large
-  AWS_MSK_VOLUME_SIZE=100
-  AWS_MSK_INSTANCE_NUMBER=3
-  AWS_REGION=us-east-2
+  export KAFKA_CLUSTER_NAME=aws-msk-$MAS_INSTANCE_ID
+  export AWS_KAFKA_USER_NAME=masuser
+  export AWS_MSK_INSTANCE_TYPE=kafka.m5.large
+  export AWS_MSK_VOLUME_SIZE=100
+  export AWS_MSK_INSTANCE_NUMBER=3
+  export AWS_REGION=us-east-2
 
   LOCAL_MAS_CONFIG_DIR=""
   LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN=yes
