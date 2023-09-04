@@ -197,3 +197,27 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+    - name: gitops-init-cis-compliance
+      runAfter:
+        - gitops-init-cluster
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: github_pat
+          value: $(params.github_pat)
+      taskRef:
+        kind: Task
+        name: gitops-init-cis-compliance
+      workspaces:
+        - name: configs
+          workspace: configs
