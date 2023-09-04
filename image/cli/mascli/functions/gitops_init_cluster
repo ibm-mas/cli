@@ -139,6 +139,11 @@ function gitops_init_cluster_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_init_cluster_help "GIT_BRANCH is not set"
   fi
 
+  if [ -z $ARTIFACTORY_USERNAME ] || [ -z $ARTIFACTORY_TOKEN ] || [ -z $ICR_USERNAME ] || [ -z $ICR_PASSWORD ]; then
+    echo 'Missing required environment variables, make sure to set ARTIFACTORY_USERNAME, ARTIFACTORY_TOKEN, ICR_USERNAME, ICR_PASSWORD'
+    exit 1
+  fi
+
   [[ -z "$COMMON_SERVICES_CHANNEL" ]] && gitops_init_cluster_help "COMMON_SERVICES_CHANNEL is not set"
 }
 
