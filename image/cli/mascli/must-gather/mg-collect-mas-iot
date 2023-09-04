@@ -1,3 +1,26 @@
 #!/bin/bash
+set -e
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-exit 0
+NAMESPACE=$1
+OUTPUT_DIR=$2
+
+# Collect Reconcile Logs
+# -----------------------------------------------------------------------------
+# Main IoT Component and workspace
+$DIR/mg-collect-reconcile-logs $NAMESPACE ibm-iot-operator $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE workspace-operator $OUTPUT_DIR
+
+# IoT Component Operator Reconcile logs
+for CONTROL_PLANE in actions-operator auth-operator datapower-operator devops-operator dm-operator dsc-operator edgeconfig-operator fpl-operator guardian-operator mbgx-operator mfgx-operator monitor-operator orgmgmt-operator provision-operator registry-operator state-operator webui-operator workspace-operator
+do
+  $DIR/mg-collect-reconcile-logs -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
+done
+
+
+# Collect IoT Custom Resources
+# -----------------------------------------------------------------------------
+for RESOURCE in IoT IoTWorkspace Truststore Actions Auth DataPower Devops Dm Dsc Edgeconfig Fpl Guardian Mbgx Mfgx Monitor Orgmgmt Provision Registry State WebUI 
+do
+  $DIR/mg-collect-resources -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
+done
