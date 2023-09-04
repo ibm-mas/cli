@@ -72,7 +72,7 @@
   description: IBM Cloud MongoDb admin password
   default: ""
 
-# Dependencies (Kafka)
+# Dependencies (Kafka) - General variables
 - name: kafka_action_system
   type: string
   description: Set to 'install' to set up a Kafka instance for the whole suite
@@ -81,13 +81,13 @@
   type: string
   description: Kafka provider
   default: ""
+- name: kafka_cluster_name
+  type: string
+  default: ""
 
 # Dependencies - AMQ Streams / Strimzi (Kafka)
 # -----------------------------------------------------------------------------
 - name: kafka_namespace
-  type: string
-  default: ""
-- name: kafka_cluster_name
   type: string
   default: ""
 - name: kafka_cluster_size
@@ -100,9 +100,6 @@
 # Dependencies - AWS MSK (Kafka)
 # -------------------------------------------------------------------------
 - name: vpc_id
-  type: string
-  default: ""
-- name: kafka_cluster_name
   type: string
   default: ""
 - name: aws_kafka_user_name
