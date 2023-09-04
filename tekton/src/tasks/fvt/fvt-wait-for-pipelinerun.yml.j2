@@ -10,13 +10,33 @@ spec:
     - name: ignore_failure
       type: string
       default: "True"
+    - name: remote_ocp_cluster
+      type: string 
+    - name: remote_ocp_type
+      type: string
+    - name: remote_api_key
+      type: string
 
   steps:
     - name: wait-for-pipelinerun
-      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:6.4.0-pre.gitops
       script: |
         #!/usr/bin/env bash
 
+        if [ -n $(params.remote_ocp_cluster) ];then
+          echo "Logging into $(params.remote_ocp_cluster) using $(params.remote_ocp_username)"
+          export CLUSTER_NAME=$(params.remote_ocp_cluster)
+          export CLUSTER_TYPE=$(params.remote_ocp_type)
+          export IBMCLOUD_APIKEY=$(params.remote_api_key)
+          ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role 
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed to $(params.remote_ocp_cluster)"
+            exit 1
+          fi
+        fi
+        
         echo "Waiting for pipelinerun/$(params.pipelinerun_name) in $(context.taskRun.namespace) to complete ..."
 
         echo ""
