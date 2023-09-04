@@ -1,5 +1,5 @@
 ---
-# IBM Cloud Pak Foundational Services
+# IBM Cis Compliance
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -22,6 +22,3 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=false
-    managedNamespaceMetadata:
-      labels:
-        argocd.argoproj.io/managed-by: openshift-gitops
