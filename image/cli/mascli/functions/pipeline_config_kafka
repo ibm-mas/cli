@@ -75,8 +75,8 @@ function kafka_for_iot() {
           KAFKA_PROVIDER="aws"
           echo "${TEXT_DIM}"
           echo "While provisioning the AWS MSK instance, you will be required to provide the AWS Virtual Private Cloud ID and subnet details"
-          echo "where your instance will be deployed to properly configure internal and external (over internet) connections."
-          echo "You should be able to find these information inside your VPC and subnet configurations in AWS account."
+          echo "where your instance will be deployed to properly configure inbound and outbound connectivity."
+          echo "You should be able to find these information inside your VPC and subnet configurations in the target AWS account."
           echo "For more details about AWS subnet/CIDR configuration, refer: https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html"
           echo ""
           reset_colors
