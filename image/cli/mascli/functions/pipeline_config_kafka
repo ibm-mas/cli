@@ -8,7 +8,7 @@ function kafka_for_iot() {
     echo
     echo_h3 "Kafka configuration for Maximo IoT"
     echo "${TEXT_DIM}Maximo IoT requires a shared system-scope Kafka instance."
-    echo " - Supported Kafka providers: Strimzi, Red Hat AMQ Streams or IBM Event Streams"
+    echo " - Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK."
     echo ""
     reset_colors
 
