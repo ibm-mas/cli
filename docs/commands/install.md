@@ -63,7 +63,7 @@ Usage
 - `--aws-vpc-id VPC_ID`                                         Required. Set target Virtual Private Cloud ID for the MSK instance
 - `--msk-instance-type AWS_MSK_INSTANCE_TYPE`                   Optional. Set the MSK instance type
 - `--msk-instance-nodes AWS_MSK_INSTANCE_NUMBER`                Optional. Set total number of MSK instance nodes
-- `--msk-instance-volume-size AWS_MSK_VOLUME_SIZE`              Optional .Set storage/volume size for the MSK instance
+- `--msk-instance-volume-size AWS_MSK_VOLUME_SIZE`              Optional. Set storage/volume size for the MSK instance
 - `--msk-cidr-az1 AWS_MSK_CIDR_AZ1`                             Required. Set the CIDR subnet for availability zone 1 for the MSK instance
 - `--msk-cidr-az2 AWS_MSK_CIDR_AZ2`                             Required. Set the CIDR subnet for availability zone 2 for the MSK instance
 - `--msk-cidr-az3 AWS_MSK_CIDR_AZ3`                             Required. Set the CIDR subnet for availability zone 3 for the MSK instance
