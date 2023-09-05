@@ -25,7 +25,7 @@ spec:
         #!/usr/bin/env bash
 
         if [ -n $(params.remote_ocp_cluster) ];then
-          echo "Logging into $(params.remote_ocp_cluster) using $(params.remote_ocp_username)"
+          echo "Logging into $(params.remote_ocp_cluster)"
           export CLUSTER_NAME=$(params.remote_ocp_cluster)
           export CLUSTER_TYPE=$(params.remote_ocp_type)
           export IBMCLOUD_APIKEY=$(params.remote_api_key)
