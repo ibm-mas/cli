@@ -77,6 +77,20 @@ Usage
 - `--db2u-meta-storage DB2_META_STORAGE_SIZE`        Customise Db2 storage capacity
 - `--db2u-temp-storage DB2_TEMP_STORAGE_SIZE`        Customise Db2 storage capacity
 
+### Manage Application - Advanced Configuration (Optional):
+
+- `--manage-server-bundle-size MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE`                        Set Manage server bundle size configuration i.e `dev, small, jms or snojms`
+- `--manage-components MAS_APPWS_COMPONENTS`                                                Set Manage Components to be installed i.e `base=latest,health=latest,civil=latest`                       
+- `--manage-customization-archive-name MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME`         Set Manage Archive name
+- `--manage-customization-archive-url MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL`           Set Manage Archive url
+- `--manage-customization-archive-username MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME` Set Manage Archive username, in case url requires basic authentication to pull the archive
+- `--manage-customization-archive-password MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD` Set Manage Archive password, in case url requires basic authentication to download the archive
+- `--manage-crypto-key MAS_APP_SETTINGS_CRYPTO_KEY`                                         Set `MXE_SECURITY_CRYPTO_KEY` value if you want to customize your Manage database encryption keys
+- `--manage-cryptox-key MAS_APP_SETTINGS_CRYPTOX_KEY`                                       Set `MXE_SECURITY_CRYPTOX_KEY` value if you want to customize your Manage database encryption keys
+- `--manage-old-crypto-key MAS_APP_SETTINGS_OLD_CRYPTO_KEY`                                 Set `MXE_SECURITY_OLD_CRYPTO_KEY` value if you want to customize your Manage database encryption keys
+- `--manage-old-cryptox-key MAS_APP_SETTINGS_OLD_CRYPTOX_KEY`                               Set `MXE_SECURITY_OLD_CRYPTOX_KEY` value if you want to customize your Manage database encryption keys                     
+- `--manage-override-encryption-secrets`                                                    Overrides any existing Manage database encryption keys. A backup of the original secret holding existing encryption keys is taken prior overriding it with the new defined keys.
+
 ### Other Commands:
 - `--no-wait-for-pvcs` If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
 - `--no-confirm`       Mirror images without prompting for confirmation
