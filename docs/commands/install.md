@@ -49,13 +49,32 @@ Usage
 ### IBM Cloud Pak for Data (Required when installing Predict or Assist):
 - `--cp4d-version CP4D_VERSION`                                  Product version of CP4D to use
 
-### Kafka (Optional, required to install Maximo IoT):
-- `--kafka-provider KAFKA_PROVIDER`                             Set Kafka provider. Supported options are `redhat` (Red Hat AMQ Streams), `strimzi` and `ibm` (IBM Event Streams)
-- `--kafka-namespace KAFKA_NAMESPACE`                           Set Kafka namespace. Only applicable if installing `redhat` (Red Hat AMQ Streams) or `strimzi`
-- `--ibmcloud-apikey IBMCLOUD_APIKEY`                           Set IBM Cloud API Key (Only applicable if installing IBM Event Streams).
-- `--eventstreams-resource-group EVENTSTREAMS_RESOURCEGROUP`    Set IBM Cloud resource group to target the Event Streams instance provisioning (Only applicable if installing IBM Event Streams).
-- `--eventstreams-instance-name EVENTSTREAMS_NAME`              Set IBM Event Streams instance name (Only applicable if installing IBM Event Streams).
-- `--eventstreams-instance-location EVENTSTREAMS_LOCATION`      Set IBM Event Streams instance location (Only applicable if installing IBM Event Streams).
+### Kafka - Common Arguments (Optional, required to install Maximo IoT):
+- `--kafka-provider KAFKA_PROVIDER`                             Required. Set Kafka provider. Supported options are `redhat` (Red Hat AMQ Streams), `strimzi` and `ibm` (IBM Event Streams)
+- `--kafka-namespace KAFKA_NAMESPACE`                           Optional. Set Kafka namespace. Only applicable if installing `redhat` (Red Hat AMQ Streams) or `strimzi`
+- `--kafka-cluster-name KAFKA_CLUSTER_NAME`                     Optional. Set Kafka cluster name. Only applicable if installing `redhat` (Red Hat AMQ Streams), `strimzi` or `aws` (AWS MSK)
+- `--kafka-username KAFKA_USER_NAME`                            Required. Set Kafka instance username. Only applicable if installing `redhat` (Red Hat AMQ Streams), `strimzi` or `aws` (AWS MSK)
+- `--kafka-password KAFKA_USER_PASSWORD`                        Required. Set Kafka instance password. Only applicable if installing `redhat` (Red Hat AMQ Streams), `strimzi` or `aws` (AWS MSK)
+
+### Kafka - AWS MSK:
+- `--aws-region AWS_REGION`                                     Required. Set target AWS region for the MSK instance
+- `--aws-access-key-id AWS_ACCESS_KEY_ID`                       Required. Set AWS access key ID for the target AWS account
+- `--aws-secret-access-key AWS_SECRET_ACCESS_KEY`               Required. Set AWS secret access key for the target AWS account
+- `--aws-vpc-id VPC_ID`                                         Required. Set target Virtual Private Cloud ID for the MSK instance
+- `--msk-instance-type AWS_MSK_INSTANCE_TYPE`                   Optional. Set the MSK instance type
+- `--msk-instance-nodes AWS_MSK_INSTANCE_NUMBER`                Optional. Set total number of MSK instance nodes
+- `--msk-instance-volume-size AWS_MSK_VOLUME_SIZE`              Optional .Set storage/volume size for the MSK instance
+- `--msk-cidr-az1 AWS_MSK_CIDR_AZ1`                             Required. Set the CIDR subnet for availability zone 1 for the MSK instance
+- `--msk-cidr-az2 AWS_MSK_CIDR_AZ2`                             Required. Set the CIDR subnet for availability zone 2 for the MSK instance
+- `--msk-cidr-az3 AWS_MSK_CIDR_AZ3`                             Required. Set the CIDR subnet for availability zone 3 for the MSK instance
+- `--msk-cidr-ingress AWS_MSK_INGRESS_CIDR`                     Required. Set the CIDR for ingress connectivity
+- `--msk-cidr-egress AWS_MSK_EGRESS_CIDR`                       Required. Set the CIDR for egress connectivity
+
+### Kafka - IBM Cloud Event Streams:
+- `--ibmcloud-apikey IBMCLOUD_APIKEY`                           Required. Set IBM Cloud API Key.
+- `--eventstreams-resource-group EVENTSTREAMS_RESOURCEGROUP`    Optional. Set IBM Cloud resource group to target the Event Streams instance provisioning.
+- `--eventstreams-instance-name EVENTSTREAMS_NAME`              Optional. Set IBM Event Streams instance name.
+- `--eventstreams-instance-location EVENTSTREAMS_LOCATION`      Optional. Set IBM Event Streams instance location.
 
 ### IBM Db2 (Optional, required to use IBM Db2 Universal Operator):
 - `--db2u-channel DB2_CHANNEL`     Subscription channel for Db2u (e.g. v110508.0)

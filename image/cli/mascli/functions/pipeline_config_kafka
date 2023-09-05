@@ -68,7 +68,7 @@ function kafka_for_iot() {
           if [ ! -z $AWS_MSK_INSTANCE_NUMBER ]; then
             AWS_MSK_INSTANCE_NUMBER=3
           fi
-          if [ ! -z $AWS_MSK_INSTANCE_NUMBER ]; then
+          if [ ! -z $AWS_REGION ]; then
             AWS_REGION=us-east-1
           fi
 
