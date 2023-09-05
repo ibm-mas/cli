@@ -5,6 +5,9 @@ metadata:
   name: mas-fvt-wait-for-pipelinerun
 spec:
   params:
+
+    - timeout: 24h0m0s
+
     - name: pipelinerun_name
       type: string
     - name: ignore_failure
