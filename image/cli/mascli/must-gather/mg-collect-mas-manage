@@ -8,7 +8,7 @@ OUTPUT_DIR=$2
 
 # Collect Reconcile Logs
 # -----------------------------------------------------------------------------
-# Operators
+# Operators - NEED TO CONFIRM IF THEY ARE ALL NEEDED
 $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-manage $OUTPUT_DIR 
 $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType imagestitching-entitymgr-operator $OUTPUT_DIR
 
@@ -25,11 +25,6 @@ $DIR/mg-collect-reconcile-logs $NAMESPACE operator ibm-truststore-mgr $OUTPUT_DI
 #Server Bundle
 $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType serverBundle $OUTPUT_DIR
 
-#Others
-$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType groupSynchAgent $OUTPUT_DIR
-$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType manage-bdi $OUTPUT_DIR
-$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType userSynchAgent $OUTPUT_DIR
-$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType monitorAgent $OUTPUT_DIR
 
 
 # Collect Custom Resources

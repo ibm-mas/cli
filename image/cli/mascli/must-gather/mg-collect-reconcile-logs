@@ -6,11 +6,6 @@ LABEL_SELECTOR=$2
 LABEL_VALUE=$3
 OUTPUT_DIR=$4
 
-echo "    - NAMESPACE $NAMESPACE"
-echo "    - LABEL_SELECTOR $LABEL_SELECTOR"
-echo "    - LABEL_VALUE $LABEL_VALUE"
-echo "    - OUTPUT_DIR $OUTPUT_DIR"
-
 # POD=$(oc -n $NAMESPACE get pods -l "control-plane=$CONTROL_PLANE" -o jsonpath="{.items[0].metadata.name}")
 POD=$(oc -n $NAMESPACE get pods -l "$LABEL_SELECTOR=$LABEL_VALUE" -o jsonpath="{.items[0].metadata.name}")
 
