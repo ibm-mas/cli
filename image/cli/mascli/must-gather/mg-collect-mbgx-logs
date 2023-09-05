@@ -1,0 +1,39 @@
+#!/bin/bash
+set -e
+
+NAMESPACE=$1
+OUTPUT_DIR=$2
+MBGX_PODS=$(oc -n $NAMESPACE get pods -l "app=mbgx-messagesight" -o jsonpath="{.items[*].metadata.name}")
+
+for MBGX_POD in $MBGX_PODS
+do
+  set +e
+  LOGFILES=$(oc -n $NAMESPACE exec $MBGX_POD -- find /var/messagesight/diag/logs/ -name *.log 2>/dev/null)
+  if [[ "$?" == "1" ]]; then
+    exit 0
+  fi
+  set -e
+
+  MBGX_LOG_DESTINATION_DIR=${OUTPUT_DIR}/mbgx-logs/$MBGX_POD
+  mkdir -p $MBGX_LOG_DESTINATION_DIR
+
+  echo "  - Collecting mbgx logs from '$MBGX_POD'"
+  set +e # the tar command may give warnings if files no longer exist, and they get cycled by the operator.
+  oc -n $NAMESPACE exec $MBGX_POD -- tar -czf - $LOGFILES > $MBGX_LOG_DESTINATION_DIR/mbgx-logs-$MBGX_POD.tgz 2> /dev/null
+  if [[ "$?" != "0" ]]; then
+    echo "    - Incomplete mbgx logs from $MBGX_POD"
+  fi
+  tar -xf $MBGX_LOG_DESTINATION_DIR/mbgx-logs-$MBGX_POD.tgz -C $MBGX_LOG_DESTINATION_DIR 2> /dev/null
+
+  if [[ "$?" == "0" ]]; then
+    mv $MBGX_LOG_DESTINATION_DIR/var/messagesight/diag/logs/* $MBGX_LOG_DESTINATION_DIR
+    rm $MBGX_LOG_DESTINATION_DIR/mbgx-logs-$MBGX_POD.tgz 
+    rm -r $MBGX_LOG_DESTINATION_DIR/var
+
+  else
+    echo "    - Unable to get mbgx logs from $MBGX_POD"
+  fi
+  set -e
+
+done  # MBGX_POD
+
