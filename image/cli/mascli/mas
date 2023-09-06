@@ -112,6 +112,16 @@ case $1 in
     setup_mirror_registry
     ;;
 
+  delete-registry|teardown-registry|teardown-mirror-registry|teardown-airgap-registry)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Registry Tear Down (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
+    echo
+    reset_colors
+    update_ansible_collections
+    connect
+    teardown_mirror_registry
+    ;;
+
   mirror|mirror-images)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Image Mirror (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
