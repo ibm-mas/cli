@@ -45,8 +45,27 @@ spec:
         - name: ignore_failure
           value: $(params.ignore_failure)
 
+    # 1. Delete IBM Cloud services
+    # -------------------------------------------------------------------------
+    - name: deprovision-cos
+      taskRef:
+        kind: Task
+        name: mas-devops-cos-deprovision
+      params:
+        - name: ibmcloud_apikey
+          value: $(params.ibmcloud_apikey)
+        - name: ibmcos_resourcegroup
+          value: $(params.ibmcos_resourcegroup)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: cos_type
+          value: $(params.cos_type)
+        - name: cos_action
+          value: $(params.cos_action)
+      runAfter:
+        - wait-for-pipelinerun
 
-    # 1. Delete the named cluster
+    # 2. Delete the named cluster
     # -------------------------------------------------------------------------
     - name: deprovision-cluster
       taskRef:
@@ -60,4 +79,4 @@ spec:
         - name: ibmcloud_apikey
           value: $(params.ibmcloud_apikey)
       runAfter:
-        - wait-for-pipelinerun
+        - deprovision-cos

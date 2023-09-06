@@ -235,8 +235,8 @@ function config_pipeline_applications() {
         [[ "$COS_TYPE" != "ibm" && "$COS_TYPE" != "ocs" ]] || break
       done
       if [[ "$COS_TYPE" == "ibm" ]]; then
-        prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY $IBMCLOUD_APIKEY
-        prompt_for_input "IBM Cloud Resource Group" IBMCLOUD_RESOURCEGROUP $IBMCLOUD_RESOURCEGROUP "Default"
+        prompt_for_secret "IBM Cloud API Key" IBMCLOUD_APIKEY "Re-use saved IBM Cloud API Key?"
+        prompt_for_input "IBM Cloud Resource Group" IBMCOS_RESOURCEGROUP $IBMCOS_RESOURCEGROUP "Default"
       fi
     fi
 
