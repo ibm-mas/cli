@@ -14,7 +14,7 @@ do
   fi
   set -e
 
-  MBGX_LOG_DESTINATION_DIR=${OUTPUT_DIR}/mbgx-logs/$MBGX_POD
+  MBGX_LOG_DESTINATION_DIR=${OUTPUT_DIR}/resources/${NAMESPACE}/mbgx-logs/$MBGX_POD
   mkdir -p $MBGX_LOG_DESTINATION_DIR
 
   echo "  - Collecting mbgx logs from '$MBGX_POD'"
@@ -26,6 +26,8 @@ do
   tar -xf $MBGX_LOG_DESTINATION_DIR/mbgx-logs-$MBGX_POD.tgz -C $MBGX_LOG_DESTINATION_DIR 2> /dev/null
 
   if [[ "$?" == "0" ]]; then
+    # Move the MBGX log files to the correct place in the must gather directory structure
+    #
     mv $MBGX_LOG_DESTINATION_DIR/var/messagesight/diag/logs/* $MBGX_LOG_DESTINATION_DIR
     rm $MBGX_LOG_DESTINATION_DIR/mbgx-logs-$MBGX_POD.tgz 
     rm -r $MBGX_LOG_DESTINATION_DIR/var
