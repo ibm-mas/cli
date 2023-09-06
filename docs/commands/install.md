@@ -238,17 +238,36 @@ Even when a recognized storage provider is detected you will be provided with th
 When selecting storage classes you will be presented with a list of available storage classes and must select both a `ReadWriteMany` and a `ReadWriteOnce` storage class.
 
 !!! warning
-    Unfortunately there is no way for the install to verify that the storage class selected actually supports the appropriate access mode, refer to the documention from the storage class provider to determine whetheryour storage class supports `ReadWriteOnce` and/or `ReadWriteMany`.
+    Unfortunately there is no way for the install to verify that the storage class selected actually supports the appropriate access mode, refer to the documentation from the storage class provider to determine whether your storage class supports `ReadWriteOnce` and/or `ReadWriteMany`.
 
 
 ### Step 13. Advanced Settings
 These settings can generally be ignored for most installations.
 
+#### Configure Scaling Profile
+
+You can choose between three pre-defined workload scaling classes - `Burstable`, `BestEffort` and `Guaranteed`; or choose a custom profile of your own. By default MAS applications use `Burstable`.
+
+When choosing a custom profile you will be prompted for the directory of your config files. For each supported application you will need to create separate config file.
+Currently supported config files:
+- ibm-mas.yml
+- ibm-sls.yml
+
+When defining a custom config yaml use the following structure:
+```yaml
+supportedPodTemplates:
+  <CustomResourceName>:
+    podTemplates:
+      - <podTemplateDefinition>
+```
+For examples on these config files take a look into the pre-defined configs: [BestEffort](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/best-effort) and [Guaranteed](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/guaranteed). More information on podTemplates can be found in our official IBM documentation [here](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=configuring-customizing-workloads).
+
+
 #### Change Cluster monitoring storage defaults?
 Answering "y" at the prompt will allow you to customize the storage capacity and data retention period in Grafana and Prometheus.
 
 #### Change default install namespaces?
-Answering "y" will allow you to customise the namespace where Db2, Grafana, and MongoDb are installed in the cluster.
+Answering "y" will allow you to customize the namespace where Db2, Grafana, and MongoDb are installed in the cluster.
 
 
 ### Step 15. Configure IBM Container Registry
