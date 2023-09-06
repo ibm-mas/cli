@@ -1,3 +1,14 @@
+# IBM Cloud
+# -----------------------------------------------------------------------------
+- name: ibmcloud_apikey
+  type: string
+  description: API Key used to create instances in IBM Cloud
+  default: ""
+- name: ibmcloud_resourcegroup
+  type: string
+  description: IBM Cloud resource group
+  default: ""
+
 # Dependencies - Turbonomic
 # -----------------------------------------------------------------------------
 {{ lookup('template', params_src_dir ~ '/install-turbonomic.yml.j2') }}
@@ -216,9 +227,9 @@
   type: string
   description: COS Provider (ibm or ocs)
   default: ""
-- name: ibmcloud_apikey
+- name: ibmcos_resourcegroup
   type: string
-  description: API Key used to create COS instance in IBM Cloud
+  description: IBM Cloud COS resource group
   default: ""
 - name: ibmcos_resourcegroup
   type: string

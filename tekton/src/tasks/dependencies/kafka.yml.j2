@@ -43,6 +43,10 @@ spec:
     - name: eventstreams_resourcegroup
       type: string
       default: ""
+    - name: ibmcloud_resourcegroup
+      type: string
+      description: IBM Cloud resource group
+      default: ""
     - name: eventstreams_name
       type: string
       default: ""
@@ -100,6 +104,8 @@ spec:
         value: $(params.eventstreams_create_manage_jms_topics)
       - name: IBMCLOUD_APIKEY
         value: $(params.ibmcloud_apikey)
+      - name: IBMCLOUD_RESOURCEGROUP
+        value: $(params.ibmcloud_resourcegroup)
 
   steps:
     - name: kafka

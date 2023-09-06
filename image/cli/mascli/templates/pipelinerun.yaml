@@ -25,6 +25,13 @@ spec:
     - name: ibm_entitlement_key
       value: '$IBM_ENTITLEMENT_KEY'
 
+    # IBM Cloud
+    # -------------------------------------------------------------------------
+    - name: ibmcloud_apikey
+      value: '$IBMCLOUD_APIKEY'
+    - name: ibmcloud_resourcegroup
+      value: '$IBMCLOUD_RESOURCEGROUP'
+
     # Storage Classes
     # -------------------------------------------------------------------------
     - name: storage_class_rwx
