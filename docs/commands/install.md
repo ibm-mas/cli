@@ -68,17 +68,17 @@ Usage
 - `--db2u-tolerate-effect DB2_TOLERATE_EFFECT`       Set the effect that will be tolerated (NoSchedule, PreferNoSchedule, or NoExecute)
 
 ### Advanced Db2u Universal Operator Configuration - Resource Requests (Optional):
-- `--db2u-cpu-request DB2_CPU_REQUESTS`              Customise Db2 CPU request
-- `--db2u-cpu-limit DB2_CPU_LIMITS`                  Customise Db2 CPU limit
-- `--db2u-memory-request DB2_MEMORY_REQUESTS`        Customise Db2 memory request
-- `--db2u-memory-limit DB2_MEMORY_LIMITS`            Customise Db2 memory limit
+- `--db2u-cpu-request DB2_CPU_REQUESTS`              Customize Db2 CPU request
+- `--db2u-cpu-limit DB2_CPU_LIMITS`                  Customize Db2 CPU limit
+- `--db2u-memory-request DB2_MEMORY_REQUESTS`        Customize Db2 memory request
+- `--db2u-memory-limit DB2_MEMORY_LIMITS`            Customize Db2 memory limit
 
 ### Advanced Db2u Universal Operator Configuration - Storage (Optional):
-- `--db2u-backup-storage DB2_BACKUP_STORAGE_SIZE`    Customise Db2 storage capacity
-- `--db2u-data-storage DB2_DATA_STORAGE_SIZE`        Customise Db2 storage capacity
-- `--db2u-logs-storage DB2_LOGS_STORAGE_SIZE`        Customise Db2 storage capacity
-- `--db2u-meta-storage DB2_META_STORAGE_SIZE`        Customise Db2 storage capacity
-- `--db2u-temp-storage DB2_TEMP_STORAGE_SIZE`        Customise Db2 storage capacity
+- `--db2u-backup-storage DB2_BACKUP_STORAGE_SIZE`    Customize Db2 storage capacity
+- `--db2u-data-storage DB2_DATA_STORAGE_SIZE`        Customize Db2 storage capacity
+- `--db2u-logs-storage DB2_LOGS_STORAGE_SIZE`        Customize Db2 storage capacity
+- `--db2u-meta-storage DB2_META_STORAGE_SIZE`        Customize Db2 storage capacity
+- `--db2u-temp-storage DB2_TEMP_STORAGE_SIZE`        Customize Db2 storage capacity
 
 ### Manage Application - Advanced Configuration (Optional):
 
@@ -166,7 +166,7 @@ Provide the basic information about your MAS instance:
     Instance ID restrictions:
 
     - Must be 3-12 characters long
-    - Must only use lowercase letters, numbers, and hypen (`-`) symbol
+    - Must only use lowercase letters, numbers, and hyphen (`-`) symbol
     - Must start with a lowercase letter
     - Must end with a lowercase letter or a number
 

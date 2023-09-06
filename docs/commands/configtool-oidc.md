@@ -4,7 +4,7 @@ Manage OpenID client for Configration Tool
 Overview
 -------------------------------------------------------------------------------
 Configuration Tool can be used to configure and customize MAS apps through OIDC authentication since MAS 8.10.  
-This quick guide is as a reference for customer admininstrator to register/unregister/update OIDC client for this tool.  
+This quick guide is as a reference for customer administrator to register/unregister/update OIDC client for this tool.  
 
 Usage
 -------------------------------------------------------------------------------
