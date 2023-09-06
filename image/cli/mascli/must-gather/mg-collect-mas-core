@@ -28,6 +28,10 @@ $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-cfg-kafka $OUTPU
 $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-cfg-objectstorage $OUTPUT_DIR
 $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-cfg-smtp $OUTPUT_DIR
 
+#Truststore
+$DIR/mg-collect-reconcile-logs $NAMESPACE operator ibm-truststore-mgr $OUTPUT_DIR
+
+
 # Collect Custom Resources
 # -----------------------------------------------------------------------------
   for RESOURCE in Suite Workspace Truststore CoreIDP AppConnect Humai MVIEdge BasCfg SlsCfg IDPCfg ScimCfg JdbcCfg MongoCfg KafkaCfg ObjectStorageCfg SmtpCfg
