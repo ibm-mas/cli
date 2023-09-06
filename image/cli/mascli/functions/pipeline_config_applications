@@ -148,17 +148,45 @@ function config_pipeline_applications() {
       fi
     fi
     if prompt_for_confirm "+ Customize database settings"; then
+      MAS_APP_SETTINGS_DB2_SCHEMA='maximo'
+      MAS_APP_SETTINGS_TABLESPACE='MAXDATA'
+      MAS_APP_SETTINGS_INDEXSPACE='MAXINDEX'
       prompt_for_input "Schema" MAS_APP_SETTINGS_DB2_SCHEMA
       prompt_for_input "Tablespace" MAS_APP_SETTINGS_TABLESPACE
       prompt_for_input "Indexspace" MAS_APP_SETTINGS_INDEXSPACE
+      if prompt_for_confirm "+ Customize database encryption settings"; then
+        prompt_for_input "MXE_SECURITY_CRYPTO_KEY" MAS_APP_SETTINGS_CRYPTO_KEY
+        prompt_for_input "MXE_SECURITY_CRYPTOX_KEY" MAS_APP_SETTINGS_CRYPTOX_KEY
+        prompt_for_input "MXE_SECURITY_OLD_CRYPTO_KEY" MAS_APP_SETTINGS_OLD_CRYPTO_KEY
+        prompt_for_input "MXE_SECURITY_OLD_CRYPTOX_KEY" MAS_APP_SETTINGS_OLD_CRYPTOX_KEY
+        if prompt_for_confirm "Override database encryption secrets with provided keys"; then
+          MAS_APP_SETTINGS_OVERRIDE_ENCRYPTION_SECRETS_FLAG=true
+        fi
+      fi
     fi
-     if prompt_for_confirm "+ Include customization archive"; then
+    if prompt_for_confirm "+ Include customization archive"; then
       MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME='manage-custom-archive'
       prompt_for_input "Customization archive name" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME
       prompt_for_input "Customization archive url" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL
       if prompt_for_confirm "+ Provide authentication to access customization archive url"; then
         prompt_for_input "Username" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME
         prompt_for_secret "Password" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD
+      fi
+    fi
+    if prompt_for_confirm "+ Install and bind Watson Studio"; then
+      MAS_APPWS_BINDINGS_HEALTH_WSL_FLAG=true
+    if prompt_for_confirm "+ Include industry solutions and add-ons"; then
+      echo
+      echo "${TEXT_DIM}Define which Manage Industry Solutions and Add-ons to be installed as part of the Manage base install."
+      echo "Include the Manage components and corresponding target version to be installed using comma-separated values."
+      echo
+      echo "Example: By default, Manage and Health will be installed, however to include Civil as additional component, type 'base=latest,health=latest,civil=latest'"
+      echo
+      reset_colors
+      MAS_APPWS_COMPONENTS="base=latest,health=latest"
+      prompt_for_input "Manage components to be installed" MAS_APPWS_COMPONENTS
+      if [[ -z "$MAS_APPWS_COMPONENTS" ]]; then
+        MAS_APPWS_COMPONENTS="base=latest,health=latest"
       fi
     fi
   fi
