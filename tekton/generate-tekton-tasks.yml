@@ -35,6 +35,7 @@
         - mongodb
         - nvidia-gpu
         - ocp-verify
+        - ocs
         - sls
         - turbonomic
         - uds
@@ -52,6 +53,7 @@
         - fvt-core-phase4
         - fvt-core-ui
         - fvt-manage
+        - fvt-manage-last-phase
         - fvt-manage-pytest
         - fvt-run-suite
         - fvt-wait-for-install
@@ -78,6 +80,7 @@
         - suite-app-config
         - suite-app-install
         - suite-app-upgrade
+        - suite-app-rollback
         - suite-config
         - suite-db2-setup-for-manage
         - suite-certs
@@ -85,6 +88,7 @@
         - suite-install
         - suite-uninstall
         - suite-upgrade
+        - suite-rollback
         - suite-verify
 
     # 6. Generate Tasks (OCP)

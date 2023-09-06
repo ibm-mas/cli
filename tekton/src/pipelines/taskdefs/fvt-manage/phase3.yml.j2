@@ -1,21 +1,25 @@
 # -------------------------------------------------------------
 # PHASE 3
-# - fvt-manage-wobasic
+# - fvt-manage-wo-basic
 # - fvt-manage-escalation-action
 # - fvt-manage-autoscript-adddeletewo
 # - fvt-manage-jms-inbound
 # - fvt-manage-esig-basic
+# - fvt-manage-mif-kafka-setup
 # -------------------------------------------------------------
 
 # Manage FVT Work Order Basic Scenario
-- name: fvt-manage-wobasic
+- name: fvt-manage-wo-basic
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
     - name: fvt_test_suite
-      value: workorderbasic
+      value: wo-basic
   runAfter:
-    - fvt-manage-masnavigation
+    - fvt-manage-mas-navigation
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup
@@ -24,12 +28,15 @@
 # Manage FVT Escalation
 - name: fvt-manage-escalation-action
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
     - name: fvt_test_suite
       value: escalation-action
   runAfter:
-    - fvt-manage-masnavigation
+    - fvt-manage-mas-navigation
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup
@@ -38,12 +45,15 @@
 # Manage FVT AutoScript to Add Delete WorkOrder
 - name: fvt-manage-autoscript-adddeletewo
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
     - name: fvt_test_suite
       value: autoscript-adddeletewo
   runAfter:
-    - fvt-manage-masnavigation
+    - fvt-manage-mas-navigation
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup
@@ -52,12 +62,15 @@
 # Manage JMS Integration - Inbound
 - name: fvt-manage-jms-inbound
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
     - name: fvt_test_suite
       value: mif-jms-inbound
   runAfter:
-    - fvt-manage-masnavigation
+    - fvt-manage-mas-navigation
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup
@@ -66,12 +79,48 @@
 # Manage FVT E-Signature Basic Scenario
 - name: fvt-manage-esig-basic
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
     - name: fvt_test_suite
       value: esig-basic
   runAfter:
-    - fvt-manage-masnavigation
+    - fvt-manage-mas-navigation
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-mif-setup
+    - fvt-manage-metrics-api
+
+# Manage FVT Kafka Setup
+- name: fvt-manage-mif-kafka-setup
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
+    - name: fvt_test_suite
+      value: mif-kafka-setup
+    - name: kafka_provider
+      value: $(params.kafka_provider)
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage
+  when:
+    - input: "$(params.fvt_digest_manage)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+    - input: "$(params.kafka_provider)"
+      operator: notin
+      values: [""]
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+  runAfter:
+    - fvt-manage-mas-navigation
     - fvt-manage-classification
     - fvt-manage-helplinks
     - fvt-manage-mif-setup

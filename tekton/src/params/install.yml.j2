@@ -221,7 +221,7 @@
   description: API Key used to create COS instance in IBM Cloud
   default: ""
 
-# MAS Integration - Prometheus
+# MAS Integration - Cluster Monitoring - Prometheus
 # -----------------------------------------------------------------------------
 - name: prometheus_retention_period
   type: string
@@ -245,6 +245,12 @@
   type: string
   default: ""
 - name: prometheus_userworkload_storage_size
+  type: string
+  default: ""
+
+# MAS Integration - Cluster Monitoring - Grafana
+# -----------------------------------------------------------------------------
+- name: cluster_monitoring_include_grafana
   type: string
   default: ""
 - name: grafana_namespace
@@ -352,6 +358,10 @@
 - name: mas_annotations
   type: string
   default: ""
+- name: mas_trust_default_cas
+  type: string
+  default: ""
+  description: Optional boolean parameter that when set to False, disables the normal trust of well known public certificate authorities
 - name: mas_customize_scaling
   type: string
   default: ""
@@ -461,6 +471,40 @@
 - name: mas_app_settings_customization_archive_url
   type: string
   description: URL of the Manage custom archive
+  default: ""
+- name: mas_app_settings_customization_archive_username
+  type: string
+  description: Username to authenticate into Manage custom archive url (if required)
+  default: ""
+- name: mas_app_settings_customization_archive_password
+  type: string
+  description: Password to authenticate into Manage custom archive url (if required)
+  default: ""
+- name: mas_app_settings_crypto_key
+  type: string
+  description: Manage database encryption key for MXE_SECURITY_CRYPTO_KEY
+  default: ""
+- name: mas_app_settings_cryptox_key
+  type: string
+  description: Manage database encryption key for MXE_SECURITY_CRYPTOX_KEY
+  default: ""
+- name: mas_app_settings_old_crypto_key
+  type: string
+  description: Manage database encryption key for MXE_SECURITY_OLD_CRYPTO_KEY
+  default: ""
+- name: mas_app_settings_old_cryptox_key
+  type: string
+  description: Manage database encryption key for MXE_SECURITY_OLD_CRYPTOX_KEY
+  default: ""
+- name: mas_app_settings_override_encryption_secrets_flag
+  type: string
+  description: Defines if Manage database encryption secret should be overriden with new values provided
+  default: ""
+
+# MAS Application Configuration - Health Application
+- name: mas_appws_bindings_health_wsl_flag
+  type: string
+  description: Boolean value indicating if Watson Studio must installed and bound to Manage/Health.
   default: ""
 
 # MAS Application Configuration - Optimizer Application

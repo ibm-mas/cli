@@ -77,17 +77,48 @@ function pipeline_config() {
     exit 1
   fi
 
+  echo
   echo_h2 "Configure MAS Instance"
 
-  # MAS instance ID
+  # Instance ID regex: ^[a-z][a-z0-9-]{1,10}[a-z0-9]$
   if [[ ! -z "$1" ]]; then
     MAS_INSTANCE_ID=$1
   fi
+  echo "${TEXT_DIM}Instance ID restrictions:"
+  echo " - Must be 3-12 characters long"
+  echo " - Must only use lowercase letters, numbers, and hypen (-) symbol"
+  echo " - Must start with a lowercase letter"
+  echo " - Must end with a lowercase letter or a number"
+  reset_colors
   prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
+  if [[ ! "${MAS_INSTANCE_ID}" =~ ^[a-z][a-z0-9-]{1,10}[a-z0-9]$ ]]; then
+    echo_warning "Instance ID (${MAS_INSTANCE_ID}) does not meet requirements"
+    exit 1
+  fi
+  echo
+
+  # Workspace ID regex: ^[a-z][a-z0-9]{2,11}$
+  echo "${TEXT_DIM}Workspace ID restrictions:"
+  echo " - Must be 3-12 characters long"
+  echo " - Must only use lowercase letters and numbers"
+  echo " - Must start with a lowercase letter"
+  reset_colors
   prompt_for_input "MAS Workspace ID" MAS_WORKSPACE_ID
+  if [[ ! "${MAS_WORKSPACE_ID}" =~ ^[a-z][a-z0-9]{2,11}$ ]]; then
+    echo_warning "Workspace ID (${MAS_WORKSPACE_ID}) does not meet requirements"
+    exit 1
+  fi
+  echo
+
+  # Workspace display name regex: ^.{3,300}$
+  echo "${TEXT_DIM}Workspace display name restrictions:"
+  echo " - Must be 3-300 characters long"
+  reset_colors
   prompt_for_input "MAS Workspace Display Name" MAS_WORKSPACE_NAME
-
-
+  if [[ ! "${MAS_WORKSPACE_NAME}" =~ ^.{3,300}$ ]]; then
+    echo_warning "Workspace name (${MAS_WORKSPACE_NAME}) does not meet requirements"
+    exit 1
+  fi
 
   echo
   echo_h2 "Configure Operation Mode"
