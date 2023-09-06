@@ -35,13 +35,15 @@ spec:
       type: string
       default: "True"
       description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
+{% if wait_for_install == true %}
     - name: remote_ocp_cluster
       type: string 
     - name: remote_ocp_type
       type: string         
     - name: remote_api_key
       type: string   
-  
+{% endif %}
+
   tasks:
 {% if wait_for_install == true %}
     # 0. Wait for the install pipeline to complete
