@@ -27,6 +27,7 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/fvt.yml.j2') | indent(4) }}
 
+{% if wait_for_install == true %}
     # 4. Wait params
     # -------------------------------------------------------------------------
     - name: pipelinerun_name
@@ -35,7 +36,6 @@ spec:
       type: string
       default: "True"
       description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
-{% if wait_for_install == true %}
     - name: remote_ocp_cluster
       type: string 
     - name: remote_ocp_type
