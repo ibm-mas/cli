@@ -133,6 +133,9 @@ spec:
 
   stepTemplate:
     name: 'fvt-run-$(params.fvt_image_name)'
+    securityContext:
+      privileged: true
+      runAsUser: 0
     env:
       - name: PRODUCT_ID
         value: $(params.product_id)
