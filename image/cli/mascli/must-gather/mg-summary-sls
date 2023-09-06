@@ -2,12 +2,14 @@
 
 echo "IBM Suite Licensing Service"
 echo "--------------------------------------------------------------------------------"
+echo ""
 echo "- License Service"
+echo ""
 oc get LicenseService -A
 echo ""
 
 echo "- License Client"
-echo "--------------------------------------------------------------------------------"
+echo ""
 oc get LicenseClient -A
 echo ""
 
