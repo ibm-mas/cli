@@ -215,8 +215,6 @@ spec:
     # -------------------------------------------------------------------------
     - name: cos_type
       value: '$COS_TYPE'
-    - name: ibmcloud_apikey
-      value: '$IBMCLOUD_APIKEY'
     - name: ibmcos_resourcegroup
       value: '$IBMCOS_RESOURCEGROUP'
     - name: cos_action
