@@ -1,0 +1,14 @@
+#!/bin/bash
+
+echo "IBM Suite Licensing Service"
+echo "--------------------------------------------------------------------------------"
+echo "- License Service"
+oc get LicenseService -A
+echo ""
+
+echo "- License Client"
+echo "--------------------------------------------------------------------------------"
+oc get LicenseClient -A
+echo ""
+
+exit 0
