@@ -93,6 +93,24 @@
     - fvt-manage-mif-setup
     - fvt-manage-metrics-api
 
+# Manage FVT E-Audit Basic
+- name: fvt-manage-eaudit-basic
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
+    - name: fvt_test_suite
+      value: eaudit-basic
+  runAfter:
+    - fvt-manage-mas-navigation
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-mif-setup
+    - fvt-manage-metrics-api
+    - fvt-manage-esig-basic
+
 # Manage FVT Kafka Setup
 - name: fvt-manage-mif-kafka-setup
   params:
