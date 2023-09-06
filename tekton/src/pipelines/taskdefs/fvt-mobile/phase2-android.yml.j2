@@ -164,7 +164,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobile-setup-data #}
+    - fvt-mobile-setup-data 
 
 - name: fvt-inventoryreceiving-mvt-android
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
@@ -228,7 +228,7 @@
   runAfter:
     - fvt-mobile-setup-data
 
-{# ## Minimum Verification Test for Mobile Defects MAS test suites
+## Minimum Verification Test for Mobile Defects MAS test suites
 - name: fvt-civil-defects-mvt-android
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
