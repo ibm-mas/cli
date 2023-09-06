@@ -24,11 +24,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobfoundation-setup-data
-    - fvt-service-request-setup-data
-    - fvt-technician-setup-data
-    - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup
+    - fvt-mobile-setup-data
 
 ## Minimum Verification Test for Mobile Service Request MAS test suites
 - name: fvt-service-request-mvt-android
@@ -56,11 +52,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobfoundation-setup-data
-    - fvt-service-request-setup-data
-    - fvt-technician-setup-data
-    - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup
+    - fvt-mobile-setup-data
 
 ## Minimum Verification Test for Mobile Technician MAS test suites
 - name: fvt-technician-mvt-android
@@ -88,11 +80,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobfoundation-setup-data
-    - fvt-service-request-setup-data
-    - fvt-technician-setup-data
-    - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup
+    - fvt-mobile-setup-data
 
 ## Minimum Verification Test for Mobile Inspection MAS test suites
 - name: fvt-inspections-mvt-android
@@ -120,11 +108,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobfoundation-setup-data
-    - fvt-service-request-setup-data
-    - fvt-technician-setup-data
-    - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup
+    - fvt-mobile-setup-data
 
 ## Minimum Verification Test for Mobile Asset Manager MAS test suites
 - name: fvt-asset-manager-mvt-android
@@ -154,15 +138,11 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobfoundation-setup-data
-    - fvt-service-request-setup-data
-    - fvt-technician-setup-data
-    - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup
+    - fvt-mobile-setup-data
 
 {# # Mobile FVT - Inventory Counting Android
 - name: fvt-inventorycounting-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
@@ -184,14 +164,10 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobfoundation-setup-data
-    - fvt-service-request-setup-data
-    - fvt-technician-setup-data
-    - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup #}
+    - fvt-mobile-setup-data 
 
 - name: fvt-inventoryreceiving-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
@@ -219,13 +195,40 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobfoundation-setup-data
-    - fvt-service-request-setup-data
-    - fvt-technician-setup-data
-    - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup
+    - fvt-mobile-setup-data
 
-{# ## Minimum Verification Test for Mobile Defects MAS test suites
+- name: fvt-issuesandtransfers-mvt-android
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
+    - name: fvt_image_namespace
+      value: fvt-inventorycounting
+    - name: fvt_image_name
+      value: fvt-issuesandtransfers-testng
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_issuesandtransfers_testng)
+    - name: fvt_mas_appws_component
+      value: base
+    - name: mas_appws_components
+      value: $(params.mas_appws_components)
+    - name: fvt_test_suite
+      value: issues-transfer-mvt-android
+    - name: assist_test_type
+      value: mobileapp
+    - name: assist_device_type
+      value: android
+    - name: assist_server_type
+      value: mas
+  # Only if we've set a digest of the Mobile IC FVT to run
+  when:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
+    - input: "$(params.fvt_digest_issuesandtransfers_testng)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-mobile-setup-data
+
+## Minimum Verification Test for Mobile Defects MAS test suites
 - name: fvt-civil-defects-mvt-android
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
@@ -251,8 +254,4 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobfoundation-setup-data
-    - fvt-service-request-setup-data
-    - fvt-technician-setup-data
-    - fvt-inspections-setup-data
-    - fvt-inventorycounting-manage-setup #}
+    - fvt-mobile-setup-data #}

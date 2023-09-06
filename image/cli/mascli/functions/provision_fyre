@@ -148,12 +148,12 @@ function provision_fyre_interactive() {
 
   prompt_for_confirm "Use Product Group Quota?" USE_PRODUCT_GROUP_QUOTA
   if [[ "$USE_PRODUCT_GROUP_QUOTA" == "true" ]]; then
-    FYRE_QUOTA_TYPE=product_group
+    FYRE_QUOTA_TYPE="product_group"
     prompt_for_number "Number of Worker Nodes (min 3)" FYRE_WORKER_COUNT
     prompt_for_number "Worker Node CPU (max 16)" FYRE_WORKER_CPU
     prompt_for_number "Worker Node Memory (max 64)" FYRE_WORKER_MEMORY
   else
-    FYRE_QUOTA_TYPE=product_group
+    FYRE_QUOTA_TYPE="quick_burn"
   fi
 
   prompt_for_confirm "Configure networking to simulate air gap" SIMULATE_AIRGAP_NETWORK
