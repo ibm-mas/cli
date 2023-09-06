@@ -12,12 +12,12 @@ spec:
     - name: mas_instance_id
       type: string
     - name: github_repo
-      type: string      
+      type: string
     - name: secrets_path
       type: string
     - name: kafka_provider
       type: string
-      default: aws      
+      default: aws
     - name: avp_aws_secret_region
       type: string
     - name: avp_aws_secret_key
@@ -36,11 +36,11 @@ spec:
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
       - name: GITHUB_REPO
-        value: $(params.github_repo)        
+        value: $(params.github_repo)
       - name: SECRET_PATH
         value: $(params.secrets_path)
       - name: KAFKA_PROVIDER
-        value: $(params.kafka_provider)        
+        value: $(params.kafka_provider)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
       - name: SM_AWS_SECRET_ACCESS_KEY

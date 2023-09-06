@@ -57,6 +57,8 @@
       vars:
         wait_for_provision: false
         wait_for_deprovision: false
+        deprovision_manage_addons: true
+        provision_manage_addons: true
       ansible.builtin.template:
         src: "{{ pipeline_src_dir }}/gitops/{{ item }}.yml.j2"
         dest: "{{ pipeline_target_dir }}/{{ item }}.yaml"
@@ -83,6 +85,7 @@
     - name: Generate GitOps Pipelines with wait-after-provision
       vars:
         wait_for_provision: true
+        provision_manage_addons: true
       ansible.builtin.template:
         src: "{{ pipeline_src_dir }}/gitops/{{ item }}.yml.j2"
         dest: "{{ pipeline_target_dir }}/{{ item }}-after-provision.yaml"
