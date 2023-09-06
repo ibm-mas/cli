@@ -34,7 +34,6 @@
         - fvt-core
         - fvt-deprovision-after
         - fvt-manage-regr
-        - fvt-mobile-standalone
         - update
         - upgrade
         - rollback

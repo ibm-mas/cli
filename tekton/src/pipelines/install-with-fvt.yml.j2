@@ -425,10 +425,10 @@ spec:
 
     # 22. Application FVT - Mobile
     # -------------------------------------------------------------------------
-    {# {{ lookup('template', 'taskdefs/fvt-mobile/phase1-setup.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase1-setup.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-mobile/phase2-android.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-mobile/phase3-ios.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase4.yml.j2') | indent(4) }} #}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase4.yml.j2') | indent(4) }}
 
 
     # 23. Application FVT - Monitor
