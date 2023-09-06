@@ -35,7 +35,7 @@ spec:
       type: string
       default: "True"
       description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
-    - name: remote_ocp_server
+    - name: remote_ocp_cluster
       type: string 
     - name: remote_ocp_type
       type: string         
@@ -52,8 +52,8 @@ spec:
           value: $(params.pipelinerun_name)
         - name: ignore_failure
           value: $(params.ignore_failure)
-        - name: remote_ocp_server
-          value: $(params.remote_ocp_server) 
+        - name: remote_ocp_cluster
+          value: $(params.remote_ocp_cluster) 
         - name: remote_ocp_type
           value: $(params.remote_ocp_type)
         - name: remote_api_key
