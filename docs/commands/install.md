@@ -50,7 +50,7 @@ Usage
 - `--cp4d-version CP4D_VERSION`                                  Product version of CP4D to use
 
 ### Kafka - Common Arguments (Optional, required to install Maximo IoT):
-- `--kafka-provider KAFKA_PROVIDER`                             Required. Set Kafka provider. Supported options are `redhat` (Red Hat AMQ Streams), `strimzi` and `ibm` (IBM Event Streams)
+- `--kafka-provider KAFKA_PROVIDER`                             Required. Set Kafka provider. Supported options are `redhat` (Red Hat AMQ Streams), `strimzi` and `ibm` (IBM Event Streams) and `aws` (AWS MSK)
 - `--kafka-namespace KAFKA_NAMESPACE`                           Optional. Set Kafka namespace. Only applicable if installing `redhat` (Red Hat AMQ Streams) or `strimzi`
 - `--kafka-cluster-name KAFKA_CLUSTER_NAME`                     Optional. Set Kafka cluster name. Only applicable if installing `redhat` (Red Hat AMQ Streams), `strimzi` or `aws` (AWS MSK)
 - `--kafka-username KAFKA_USER_NAME`                            Required. Set Kafka instance username. Only applicable if installing `redhat` (Red Hat AMQ Streams), `strimzi` or `aws` (AWS MSK)

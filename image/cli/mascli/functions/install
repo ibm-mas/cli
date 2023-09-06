@@ -52,7 +52,7 @@ IBM Cloud Pak for Data (Required when installing Predict or Assist):
       --cp4d-version ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}                                  Product version of CP4D to use
 
 Kafka (Required to install Maximo IoT thus if not set, a default Kafka provider will be installed):
-      --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}                              Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), 'strimzi' and 'ibm' (IBM Cloud Event Streams)
+      --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}                              Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), 'strimzi', 'ibm' (IBM Cloud Event Streams) and 'aws' (AWS MSK)
 
 Kafka (Optional, applicable for Strimzi and Red Hat AMQ Streams only):
       --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}                            Set Strimzi and Red Hat AMQ Streams namespace
