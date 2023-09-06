@@ -20,10 +20,14 @@ spec:
       type: string
       description: API Key used to create COS instance in IBM Cloud
       default: ""
+    - name: ibmcloud_resourcegroup
+      type: string
+      description: Name of an existing Resource Group in IBM Cloud account
+      default: "Default"
     - name: ibmcos_resourcegroup
       type: string
       description: Name of an existing COS Resource Group in IBM Cloud account
-      default: "Default"
+      default: ""
     - name: cos_action
       type: string
       description: COS action to be performed (provision or deprovision)
@@ -48,6 +52,8 @@ spec:
         value: $(params.ibmcloud_apikey)
       - name: IBMCOS_RESOURCEGROUP
         value: $(params.ibmcos_resourcegroup)
+      - name: IBMCLOUD_RESOURCEGROUP
+        value: $(params.ibmcloud_resourcegroup)
   steps:
     - name: cos-deprovision
       command:
