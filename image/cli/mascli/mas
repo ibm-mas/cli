@@ -58,6 +58,7 @@ mkdir -p $CONFIG_DIR
 . $DIR/functions/uninstall
 # Airgap support
 . $DIR/functions/setup_mirror_registry
+. $DIR/functions/teardown_mirror_registry
 . $DIR/functions/mirror_to_registry
 . $DIR/functions/mirror_redhat_to_registry
 . $DIR/functions/configure_ocp_for_mirror
