@@ -248,18 +248,17 @@ These settings can generally be ignored for most installations.
 
 You can choose between three pre-defined workload scaling classes - `Burstable`, `BestEffort` and `Guaranteed`; or choose a custom profile of your own. By default MAS applications use `Burstable`.
 
-When choosing a custom profile you will be prompted for the directory of your config files. For each supported application you will need to create separate config file.
-Currently supported config files:
-- ibm-mas.yml
-- ibm-sls.yml
+When choosing a custom profile you will be prompted for the directory of your config files. For each supported application you will need to create separate config file. The naming convention for custom config files is `ibm-<appname>-<customresourcename>.yml`.
 
-When defining a custom config yaml use the following structure:
-```yaml
-supportedPodTemplates:
-  <CustomResourceName>:
-    podTemplates:
-      - <podTemplateDefinition>
-```
+Currently supported config files:
+- ibm-mas-bascfg.yml
+- ibm-mas-pushnotificationcfg.yml
+- ibm-mas-scimcfg.yml
+- ibm-mas-slscfg.yml
+- ibm-mas-smtpcfg.yml
+- ibm-mas-suite.yml
+- ibm-sls-licenseservice.yml
+
 For examples on these config files take a look into the pre-defined configs: [BestEffort](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/best-effort) and [Guaranteed](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/guaranteed). More information on podTemplates can be found in our official IBM documentation [here](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=configuring-customizing-workloads).
 
 
