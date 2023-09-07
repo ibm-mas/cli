@@ -117,6 +117,8 @@
         - gitops-init-mongo
         - gitops-init-rosa
         - gitops-init-suite-config
+        - gitops-init-suite-idp-config
+        - gitops-init-suite-smtp-config
         - gitops-init-suite-workspace
         - gitops-init-suite
         - gitops-process-mongo-user
