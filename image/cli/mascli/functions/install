@@ -168,6 +168,7 @@ function install_noninteractive() {
       set_mas_workload_scale_envs
       ;;
     "Burstable")
+      clear_mas_workload_scale_envs
       ;;
     *)
       echo_warning "Invalid workload scale profile. Must be one of [Burstable, BestEffort, Guaranteed]"
