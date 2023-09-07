@@ -19,7 +19,11 @@ spec:
     - name: remote_api_key
       type: string
       default: ""
-
+  stepTemplate:
+    name: wait-for-pipelinerun
+    env:
+      - name: REMOTE_OCP_CLUSTER
+        value: $(params.remote_ocp_cluster)
   steps:
     - name: wait-for-pipelinerun
       imagePullPolicy: Always
@@ -27,7 +31,7 @@ spec:
       script: |
         #!/usr/bin/env bash
 
-        if [ -n $(params.remote_ocp_cluster) ];then
+        if [ ! -z $REMOTE_OCP_CLUSTER ];then
           echo "Logging into $(params.remote_ocp_cluster)"
           export CLUSTER_NAME=$(params.remote_ocp_cluster)
           export CLUSTER_TYPE=$(params.remote_ocp_type)
