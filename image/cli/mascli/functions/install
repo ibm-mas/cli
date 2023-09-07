@@ -177,7 +177,7 @@ function install_noninteractive() {
     esac
     ;;
     --mas-pod-templates-dir)
-    MAS_POD_TEMPLATES_DIR=$1 && shift
+    MAS_POD_TEMPLATES_DIR_LOCAL=$1 && shift
     check_mas_pod_templates_dir
     ;;
 

@@ -62,10 +62,14 @@ function pipeline_prepare() {
   fi
   oc -n $PIPELINES_NS create secret generic pipeline-sls-entitlement --from-file=$SLS_LICENSE_FILE_LOCAL &>> $LOGFILE
 
-  # pipeline-pod-templates must exist (otherwise the suite-install step will hang), but can be empty
-  oc -n $PIPELINES_NS create secret generic pipeline-pod-templates \
-    --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas.yml} \
-    --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-sls.yml} &>> $LOGFILE
+  if [ "MAS_POD_TEMPLATES_DIR_LOCAL" != "" ]; then
+    oc -n $PIPELINES_NS create secret generic pipeline-pod-templates \
+      --from-file=${MAS_POD_TEMPLATES_DIR_LOCAL:+$MAS_POD_TEMPLATES_DIR_LOCAL/ibm-mas.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR_LOCAL:+$MAS_POD_TEMPLATES_DIR_LOCAL/ibm-sls.yml} &>> $LOGFILE
+  else
+    # pipeline-pod-templates must exist (otherwise the suite-install step will hang), but can be empty
+    oc -n $PIPELINES_NS create secret generic pipeline-pod-templates &>> $LOGFILE
+  fi
 
   echo -en "\033[1K" # Clear current line
   echo -en "\033[u" # Restore cursor position
