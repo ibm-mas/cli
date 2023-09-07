@@ -5,7 +5,7 @@ function teardown_mirror_registry() {
   echo_h2 "Configure Tear Down"
 
   prompt_for_input "Registry Namespace" REGISTRY_NAMESPACE "airgap-registry" && export REGISTRY_NAMESPACE
-  export REGISTRY_ACTION=teardown
+  export REGISTRY_ACTION=tear-down
 
   echo
 
