@@ -59,10 +59,6 @@ spec:
     - name: ibm_entitlement_key
       type: string
 
-    - name: mas_pod_templates_dir
-      type: string
-      default: ""
-
     - name: artifactory_username
       default: ''
       type: string
@@ -117,11 +113,11 @@ spec:
       - name: MAS_ICR_CPOPEN
         value: $(params.mas_icr_cpopen)
 
-      - name: MAS_POD_TEMPLATES_DIR
-        value: $(params.mas_pod_templates_dir)
-
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
+
+      - name: MAS_POD_TEMPLATES_DIR
+        value: /workspace/pod-templates
 
   steps:
     - name: suite-install

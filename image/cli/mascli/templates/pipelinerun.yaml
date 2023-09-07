@@ -298,8 +298,6 @@ spec:
       value: '$MAS_ICR_CPOPEN'
     - name: mas_trust_default_cas
       value: '$MAS_TRUST_DEFAULT_CAS'
-    - name: mas_pod_templates_dir
-      value: '$MAS_POD_TEMPLATES_DIR'
 
     # MAS Workspace
     # -------------------------------------------------------------------------

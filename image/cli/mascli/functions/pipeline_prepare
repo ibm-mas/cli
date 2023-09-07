@@ -62,10 +62,15 @@ function pipeline_prepare() {
   fi
   oc -n $PIPELINES_NS create secret generic pipeline-sls-entitlement --from-file=$SLS_LICENSE_FILE_LOCAL &>> $LOGFILE
 
-  if [ "MAS_POD_TEMPLATES_DIR_LOCAL" != "" ]; then
+  if [ "MAS_POD_TEMPLATES_DIR" != "" ]; then
     oc -n $PIPELINES_NS create secret generic pipeline-pod-templates \
-      --from-file=${MAS_POD_TEMPLATES_DIR_LOCAL:+$MAS_POD_TEMPLATES_DIR_LOCAL/ibm-mas.yml} \
-      --from-file=${MAS_POD_TEMPLATES_DIR_LOCAL:+$MAS_POD_TEMPLATES_DIR_LOCAL/ibm-sls.yml} &>> $LOGFILE
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-bascfg.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-pushnotificationcfg.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-scimcfg.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-slscfg.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-smtpcfg.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-suite.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-sls-licenseservice.yml} &>> $LOGFILE
   else
     # pipeline-pod-templates must exist (otherwise the suite-install step will hang), but can be empty
     oc -n $PIPELINES_NS create secret generic pipeline-pod-templates &>> $LOGFILE

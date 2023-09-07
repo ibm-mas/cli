@@ -7,8 +7,6 @@ function check_mas_pod_templates_dir(){
     echo_warning "Error: Directory does not exist: $MAS_POD_TEMPLATES_DIR_LOCAL"
     exit 1
   fi
-
-  MAS_POD_TEMPLATES_DIR="/workspace/pod-templates"
 }
 
 function set_mas_workload_scale_envs() {
@@ -21,7 +19,6 @@ function clear_mas_workload_scale_envs() {
   unset MAS_WORKLOAD_SCALE_PROFILE
   unset MAS_WORKLOAD_SCALE_DIR_NAME
   unset MAS_POD_TEMPLATES_DIR
-  unset MAS_POD_TEMPLATES_DIR_LOCAL
 }
 
 function config_pipeline_workload_scale() {
@@ -52,7 +49,7 @@ function config_pipeline_workload_scale() {
     set_mas_workload_scale_envs
     ;;
   4)
-    prompt_for_input "Custom configurations directory" MAS_POD_TEMPLATES_DIR_LOCAL
+    prompt_for_input "Custom configurations directory" MAS_POD_TEMPLATES_DIR
     check_mas_pod_templates_dir
     ;;
   *)

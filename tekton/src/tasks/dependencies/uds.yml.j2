@@ -10,9 +10,6 @@ spec:
     - name: mas_instance_id
       type: string
       default: ""
-    - name: mas_pod_templates_dir
-      type: string
-      default: ""
     - name: custom_labels
       type: string
       description: Optional MAS custom labels, comma separated list of key=value pairs
@@ -51,8 +48,6 @@ spec:
         value: /workspace/configs
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
-      - name: MAS_POD_TEMPLATES_DIR
-        value: $(params.mas_pod_templates_dir)
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
       - name: MAS_SEGMENT_KEY
@@ -73,6 +68,9 @@ spec:
       # Optional parameter to uninstall UDS
       - name: UDS_ACTION
         value: $(params.uds_action)
+
+      - name: MAS_POD_TEMPLATES_DIR
+        value: /workspace/pod-templates
 
   steps:
     - name: uds
