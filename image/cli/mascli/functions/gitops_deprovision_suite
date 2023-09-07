@@ -293,9 +293,9 @@ function gitops_deprovision_suite() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
 
     argocd_login
-    argocd_sync_watcher ${CLUSTER_ID}-watcher
+    argocd_sync ${CLUSTER_ID}-watcher
 
-    argocd_prune_sync_watcher ${CLUSTER_ID}-watcher
+    argocd_prune_sync ${CLUSTER_ID}-watcher
     check_argo_app_deleted mas-${MAS_INSTANCE_ID}-sls ${MAS_INSTANCE_ID}
     check_argo_app_deleted mas-${MAS_INSTANCE_ID}-core-suite ${MAS_INSTANCE_ID}
   fi
@@ -316,8 +316,8 @@ function gitops_deprovision_suite() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     argocd_login
-    argocd_sync_watcher ${CLUSTER_ID}-watcher
+    argocd_sync ${CLUSTER_ID}-watcher
 
-    argocd_prune_sync_watcher ${CLUSTER_ID}-watcher
+    argocd_prune_sync ${CLUSTER_ID}-watcher
   fi
 }

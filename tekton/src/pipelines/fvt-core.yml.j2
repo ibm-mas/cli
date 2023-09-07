@@ -45,7 +45,9 @@ spec:
 {% endif %}
 
   tasks:
+
 {% if wait_for_install == true %}
+
     # 0. Wait for the install pipeline to complete
     # -------------------------------------------------------------------------
     - name: wait-for-install
@@ -64,6 +66,7 @@ spec:
         kind: Task
         name: mas-fvt-wait-for-pipelinerun
 {% endif %}
+
     # Content
     # -------
     # 1. MAS Suite Verify

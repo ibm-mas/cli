@@ -287,8 +287,8 @@ function gitops_init_suite_smtp_config() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     argocd_login
-    argocd_sync_watcher ${CLUSTER_ID}-watcher
-    argocd_hard_refresh_watcher mas-${MAS_INSTANCE_ID}-mas-smtp-config
+    argocd_sync ${CLUSTER_ID}-watcher
+    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-mas-smtp-config
     check_argo_app_synced mas-${MAS_INSTANCE_ID}-mas-smtp-config
     check_argo_app_healthy mas-${MAS_INSTANCE_ID}-mas-smtp-config
   fi
