@@ -150,6 +150,13 @@ function gitops_init_suite_idp_config_noninteractive() {
     [[ -z "$GITHUB_REPO" ]] && gitops_init_suite_idp_config_help "GITHUB_REPO is not set"
     [[ -z "$GIT_BRANCH" ]] && gitops_init_suite_idp_config_help "GIT_BRANCH is not set"
   fi
+  [[ -z "$LDAP_URL" ]] && gitops_init_suite_idp_config_help "LDAP_URL is not set"
+  [[ -z "$LDAP_BASEDN" ]] && gitops_init_suite_idp_config_help "LDAP_BASEDN is not set"
+  [[ -z "$LDAP_USERID_MAP" ]] && gitops_init_suite_idp_config_help "LDAP_USERID_MAP is not set"
+  [[ -z "$LDAP_CERTIFICATE_FILE" ]] && gitops_init_suite_idp_config_help "LDAP_CERTIFICATE_FILE is not set"
+  [[ -z "$LDAP_BIND_DN" ]] && gitops_init_suite_idp_config_help "LDAP_BIND_DN is not set"
+  [[ -z "$LDAP_BIND_PASSWORD" ]] && gitops_init_suite_idp_config_help "LDAP_BIND_PASSWORD is not set"
+
 }
 
 function gitops_init_suite_idp_config() {

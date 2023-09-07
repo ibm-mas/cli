@@ -166,6 +166,16 @@ function gitops_init_suite_smtp_config_noninteractive() {
     [[ -z "$GITHUB_REPO" ]] && gitops_init_suite_smtp_config_help "GITHUB_REPO is not set"
     [[ -z "$GIT_BRANCH" ]] && gitops_init_suite_smtp_config_help "GIT_BRANCH is not set"
   fi
+  [[ -z "$SMTP_HOST" ]] && gitops_init_suite_smtp_config_help "SMTP_HOST is not set"
+  [[ -z "$SMTP_PORT" ]] && gitops_init_suite_smtp_config_help "SMTP_PORT is not set"
+  [[ -z "$SMTP_SECURITY" ]] && gitops_init_suite_smtp_config_help "SMTP_SECURITY is not set"
+  [[ -z "$SMTP_AUTHENTICATION" ]] && gitops_init_suite_smtp_config_help "SMTP_AUTHENTICATION is not set"
+  [[ -z "$SMTP_DEFAULT_SENDER_EMAIL" ]] && gitops_init_suite_smtp_config_help "SMTP_DEFAULT_SENDER_EMAIL is not set"
+  [[ -z "$SMTP_DEFAULT_SENDER_NAME" ]] && gitops_init_suite_smtp_config_help "SMTP_DEFAULT_SENDER_NAME is not set"
+  [[ -z "$SMTP_DEFAULT_RECIPIENT_EMAIL" ]] && gitops_init_suite_smtp_config_help "SMTP_DEFAULT_RECIPIENT_EMAIL is not set"
+  [[ -z "$SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS" ]] && gitops_init_suite_smtp_config_help "SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS is not set"
+  [[ -z "$SMTP_USERNAME" ]] && gitops_init_suite_smtp_config_help "SMTP_USERNAME is not set"
+  [[ -z "$SMTP_PASSWORD" ]] && gitops_init_suite_smtp_config_help "SMTP_PASSWORD is not set"
 }
 
 function gitops_init_suite_smtp_config() {
