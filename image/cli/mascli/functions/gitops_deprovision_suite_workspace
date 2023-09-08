@@ -212,7 +212,7 @@ function gitops_deprovision_suite_workspace() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     argocd_login
-    argocd_prune_sync_watcher ${CLUSTER_ID}-watcher
+    argocd_prune_sync ${CLUSTER_ID}-watcher
     check_argo_app_deleted mas-${MAS_INSTANCE_ID}-core-${MAS_WORKSPACE_ID} ${MAS_INSTANCE_ID}
   fi
 

@@ -177,6 +177,7 @@ function save_to_target_git_repo() {
     git commit -m "$COMMIT_MSG" || exit 1
     echo "git: Pushing changes to branch $GIT_BRANCH"
     git push -u origin $GIT_BRANCH || exit 1
+    sleep 10
   else
     echo "No changes found so no commit made"
   fi
@@ -203,24 +204,24 @@ function argocd_login() {
 }
 
 
-function argocd_sync_watcher(){
+function argocd_sync(){
 APP_NAME=$1
-echo "Force Application Watcher to Sync ..."
+echo "Force Application $APP_NAME to Sync ..."
 argocd app sync $APP_NAME
 RC=$?
 echo "ArgoCD response: $RC"
 }
 
-function argocd_prune_sync_watcher(){
+function argocd_prune_sync(){
 APP_NAME=$1
-echo "Force Application Watcher to Sync with --prune ..."
+echo "Force Application $APP_NAME to Sync with --prune ..."
 argocd app sync $APP_NAME --prune
 echo "ArgoCD response: $RC"
 }
 
-function argocd_hard_refresh_watcher(){
+function argocd_hard_refresh(){
 APP_NAME=$1
-echo "Force Application Watcher to hard refresh ..."
+echo "Force Application $APP_NAME to hard refresh ..."
 argocd app get $APP_NAME --hard-refresh
 echo "ArgoCD response: $RC"
 }
@@ -257,6 +258,7 @@ function delete_oc_resource(){
 
 function check_argo_app_synced() {
   APPLICATION=$1
+  COUNT=0
   while true; do
     echo "argo: Checking sync status for $APPLICATION"
     SYNC_STATUS=$(argocd app get $APPLICATION -o json 2> /dev/null | jq -r .status.sync.status)
@@ -265,6 +267,10 @@ function check_argo_app_synced() {
       break
     else
       echo "Sync Status is $SYNC_STATUS, Waiting 30s before checking status again"
+      ((COUNT++))
+      if ! (( $COUNT % 10 )) ; then
+        argocd_sync $APPLICATION
+      fi
       sleep 30
     fi
   done

@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-init-suite-config
+  name: gitops-init-suite-idp-config
 spec:
   params:
     - name: cluster_name
@@ -13,9 +13,6 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
-    - name: mongo_provider
-      type: string
-      default: aws
     - name: git_branch
       type: string
     - name: github_org
@@ -32,8 +29,26 @@ spec:
       type: string
     - name: avp_aws_access_key
       type: string
+    - name: ldap_url
+      type: string
+      default: ""
+    - name: ldap_basedn
+      type: string
+      default: ""
+    - name: ldap_userid_map
+      type: string
+      default: ""
+    - name: ldap_certificate_file
+      type: string
+      default: ""
+    - name: ldap_bind_dn
+      type: string
+      default: ""
+    - name: ldap_bind_password
+      type: string
+      default: ""
   stepTemplate:
-    name: gitops-init-suite-config
+    name: gitops-init-suite-idp-config
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -43,8 +58,6 @@ spec:
         value: $(params.secrets_path)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
-      - name: MONGO_PROVIDER
-        value: $(params.mongo_provider)
       - name: GIT_BRANCH
         value: $(params.git_branch)
       - name: GITHUB_ORG
@@ -61,6 +74,18 @@ spec:
         value: $(params.avp_aws_secret_key)
       - name: SM_AWS_ACCESS_KEY_ID
         value: $(params.avp_aws_access_key)
+      - name: LDAP_URL
+        value: $(params.ldap_url)
+      - name: LDAP_BASEDN
+        value: $(params.ldap_basedn)
+      - name: LDAP_USERID_MAP
+        value: $(params.ldap_userid_map)
+      - name: LDAP_CERTIFICATE_FILE
+        value: $(params.ldap_certificate_file)
+      - name: LDAP_BIND_DN
+        value: $(params.ldap_bind_dn)
+      - name: LDAP_BIND_PASSWORD
+        value: $(params.ldap_bind_password)
   steps:
     - args:
       - |-
@@ -75,11 +100,12 @@ spec:
         export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
         export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
         oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+        OC_RC=$?
         if [ $OC_RC -ne 0 ]; then
           echo "oc login failed to $OCP_SERVER"
           exit 1
         fi
-        
+
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
@@ -89,19 +115,24 @@ spec:
           export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
         fi
 
-        mas gitops-init-suite-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        mas gitops-init-suite-idp-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
-        --mongo-provider $MONGO_PROVIDER \
         --dir /workspace/configs/$GITHUB_REPO \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH
+        --git-branch $GIT_BRANCH \
+        --ldap-url $LDAP_URL \
+        --ldap-basedn $LDAP_BASEDN \
+        --ldap-userid-map $LDAP_USERID_MAP \
+        --ldap-certificate-file $LDAP_CERTIFICATE_FILE \
+        --ldap-bind-dn $LDAP_BIND_DN \
+        --ldap-bind-password $LDAP_BIND_PASSWORD
       command:
         - /bin/sh
         - -c
-      name: gitops-init-suite-config
+      name: gitops-init-suite-idp-config
       imagePullPolicy: Always
       image: quay.io/ibmmas/cli:6.4.0-pre.gitops
   workspaces:

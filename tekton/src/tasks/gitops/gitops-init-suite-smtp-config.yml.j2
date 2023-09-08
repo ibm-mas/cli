@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-init-suite-config
+  name: gitops-init-suite-smtp-config
 spec:
   params:
     - name: cluster_name
@@ -13,9 +13,6 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
-    - name: mongo_provider
-      type: string
-      default: aws
     - name: git_branch
       type: string
     - name: github_org
@@ -32,8 +29,39 @@ spec:
       type: string
     - name: avp_aws_access_key
       type: string
+    - name: smtp_host
+      type: string
+      default: ""
+    - name: smtp_port
+      type: string
+      default: ""
+    - name: smtp_security
+      type: string
+      default: ""
+    - name: smtp_authentication
+      type: string
+      default: ""
+    - name: smtp_default_sender_email
+      type: string
+      default: ""
+    - name: smtp_default_sender_name
+      type: string
+      default: ""
+    - name: smtp_default_recipient_email
+      type: string
+      default: ""
+    - name: smtp_default_should_email_passwords
+      type: string
+      default: ""
+    - name: smtp_username
+      type: string
+      default: ""
+    - name: smtp_password
+      type: string
+      default: ""
+
   stepTemplate:
-    name: gitops-init-suite-config
+    name: gitops-init-suite-smtp-config
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -43,8 +71,6 @@ spec:
         value: $(params.secrets_path)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
-      - name: MONGO_PROVIDER
-        value: $(params.mongo_provider)
       - name: GIT_BRANCH
         value: $(params.git_branch)
       - name: GITHUB_ORG
@@ -61,6 +87,27 @@ spec:
         value: $(params.avp_aws_secret_key)
       - name: SM_AWS_ACCESS_KEY_ID
         value: $(params.avp_aws_access_key)
+      - name: SMTP_HOST
+        value: $(params.smtp_host)
+      - name: SMTP_PORT
+        value: $(params.smtp_port)
+      - name: SMTP_SECURITY
+        value: $(params.smtp_security)
+      - name: SMTP_AUTHENTICATION
+        value: $(params.smtp_authentication)
+      - name: SMTP_DEFAULT_SENDER_EMAIL
+        value: $(params.smtp_default_sender_email)
+      - name: SMTP_DEFAULT_SENDER_NAME
+        value: $(params.smtp_default_sender_name)
+      - name: SMTP_DEFAULT_RECIPIENT_EMAIL
+        value: $(params.smtp_default_recipient_email)
+      - name: SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS
+        value: $(params.smtp_default_should_email_passwords)
+      - name: SMTP_USERNAME
+        value: $(params.smtp_username)
+      - name: SMTP_PASSWORD
+        value: $(params.smtp_password)
+
   steps:
     - args:
       - |-
@@ -89,19 +136,28 @@ spec:
           export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
         fi
 
-        mas gitops-init-suite-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        mas gitops-init-suite-smtp-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
-        --mongo-provider $MONGO_PROVIDER \
         --dir /workspace/configs/$GITHUB_REPO \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH
+        --git-branch $GIT_BRANCH \
+        --smtp-host $SMTP_HOST \
+        --smtp-port $SMTP_PORT \
+        --smtp-security $SMTP_SECURITY \
+        --smtp-authentication $SMTP_AUTHENTICATION \
+        --smtp-default-sender-email $SMTP_DEFAULT_SENDER_EMAIL \
+        --smtp-default-sender-name $SMTP_DEFAULT_SENDER_NAME \
+        --smtp-default-recipient-email $SMTP_DEFAULT_RECIPIENT_EMAIL" \
+        --smtp-default-should-email-passwords $SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS \
+        --smtp-username $SMTP_USERNAME \
+        --smtp-password $SMTP_PASSWORD
       command:
         - /bin/sh
         - -c
-      name: gitops-init-suite-config
+      name: gitops-init-suite-smtp-config
       imagePullPolicy: Always
       image: quay.io/ibmmas/cli:6.4.0-pre.gitops
   workspaces:

@@ -3,7 +3,11 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
+{% if wait_for_install == true %}
+  name: mas-fvt-core-after-install
+{% else %}
   name: mas-fvt-core
+{% endif %}
 spec:
   workspaces:
     # The generated configuration files
@@ -23,7 +27,46 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/fvt.yml.j2') | indent(4) }}
 
+{% if wait_for_install == true %}
+    # 4. Wait params
+    # -------------------------------------------------------------------------
+    - name: pipelinerun_name
+      type: string
+    - name: ignore_failure
+      type: string
+      default: "True"
+      description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
+    - name: remote_ocp_cluster
+      type: string 
+    - name: remote_ocp_type
+      type: string         
+    - name: remote_api_key
+      type: string   
+{% endif %}
+
   tasks:
+
+{% if wait_for_install == true %}
+
+    # 0. Wait for the install pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-install
+      params:
+        - name: pipelinerun_name
+          value: $(params.pipelinerun_name)
+        - name: ignore_failure
+          value: $(params.ignore_failure)
+        - name: remote_ocp_cluster
+          value: $(params.remote_ocp_cluster) 
+        - name: remote_ocp_type
+          value: $(params.remote_ocp_type)
+        - name: remote_api_key
+          value: $(params.remote_api_key)
+      taskRef:
+        kind: Task
+        name: mas-fvt-wait-for-pipelinerun
+{% endif %}
+
     # Content
     # -------
     # 1. MAS Suite Verify
@@ -33,6 +76,10 @@ spec:
     # -------------------------------------------------------------------------
     # 1.1 Suite Verification
     {{ lookup('template', 'taskdefs/core/suite-verify.yml.j2') | indent(4) }}
+{% if wait_for_install == true %}
+      runAfter:
+        - wait-for-install
+{% endif %}
 
     # 2. MAS Core FVT
     # -------------------------------------------------------------------------
