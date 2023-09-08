@@ -18,6 +18,9 @@ spec:
     - name: kafka_provider
       type: string
       default: aws
+    - name: kafka_version
+      type: string
+      default: 3.3.1
     - name: avp_aws_secret_region
       type: string
     - name: avp_aws_secret_key
@@ -41,6 +44,8 @@ spec:
         value: $(params.secrets_path)
       - name: KAFKA_PROVIDER
         value: $(params.kafka_provider)
+      - name: KAFKA_VERSION
+        value: $(params.kafka_version)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
       - name: SM_AWS_SECRET_ACCESS_KEY

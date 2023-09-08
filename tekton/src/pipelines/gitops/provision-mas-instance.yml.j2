@@ -77,6 +77,9 @@ spec:
     - name: kafka_provider
       type: string
       default: aws
+    - name: kafka_version
+      type: string
+      default: 3.3.1
   tasks:
 {% if wait_for_provision == true %}
     # 0. Wait for the provsion pipeline to complete
@@ -261,7 +264,6 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
-{% if provision_manage_addons == true %}
     - name: gitops-init-efs
       runAfter:
         - gitops-init-suite-workspace
@@ -300,6 +302,8 @@ spec:
           value: $(params.secrets_path)
         - name: kafka_provider
           value: $(params.kafka_provider)
+        - name: kafka_version
+          value: $(params.kafka_version)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
         - name: avp_aws_secret_key
@@ -314,6 +318,10 @@ spec:
       taskRef:
         kind: Task
         name: gitops-init-kafka
+      when:
+        - input: "$(params.kafka_action)"
+          operator: notin
+          values: [""]
     - name: gitops-init-kafka-config
       runAfter:
         - gitops-init-kafka
@@ -348,4 +356,7 @@ spec:
       taskRef:
         kind: Task
         name: gitops-init-kafka-config
-{% endif %}
+      when:
+        - input: "$(params.kafka_action)"
+          operator: notin
+          values: [""]

@@ -20,9 +20,9 @@ Secrets Manager:
 IBM Maximo Application Suite:
       -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                    IBM Suite Maximo Application Suite Instance ID  
 
-Kafka Provider Selection:
+Kafka Provider Selection / Version:
       --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}                                          The kafka provider to install. Only "aws" is supported
-
+      --kafka-version ${COLOR_YELLOW}KAFKA_VERSION${TEXT_RESET}                                            The kafka version to install
 AWS Kafka Provider:
       --aws-access-key ${COLOR_YELLOW}AWS_ACCESS_KEY_ID${TEXT_RESET}                                       Access Key
       --aws-secret-key ${COLOR_YELLOW}AWS_SECRET_ACCESS_KEY_ID${TEXT_RESET}                                Secret Key
@@ -83,6 +83,9 @@ function gitops_init_kafka_noninteractive() {
       # Kafka Provider Selection
       --kafka-provider)
         export KAFKA_PROVIDER=$1 && shift
+        ;;
+      --kafka-version)
+        export KAFKA_VERSION=$1 && shift
         ;;
 
     	# AWS MSK Kafka provider
@@ -161,6 +164,7 @@ function gitops_init_kafka_noninteractive() {
 
   [[ -z "$CLUSTER_ID" ]] && gitops_init_kafka_help "CLUSTER_ID is not set"
   [[ -z "$KAFKA_PROVIDER" ]] && gitops_init_kafka_help "KAFKA_PROVIDER is not set"
+  [[ -z "$KAFKA_VERSION" ]] && gitops_init_kafka_help "KAFKA_VERSION is not set"  
   [[ -z "$ACCOUNT_ID" ]] && gitops_init_kafka_help "ACCOUNT_ID is not set"
   #[[ -z "$MAS_INSTANCE_ID" ]] && gitops_init_kafka_help "MAS_INSTANCE_ID is not set"
 
@@ -245,7 +249,7 @@ function gitops_init_kafka() {
     
     export MAS_INSTANCE_ID=${MAS_INSTANCE_ID:-CLUSTER_ID}
     export KAFKA_NAMESPACE="msk-${CLUSTER_ID}"
-    export KAFKA_VERSION="2.8.1"
+    
     
     export AWS_MSK_INSTANCE_TYPE=${AWS_MSK_INSTANCE_TYPE:-"kafka.m5.large"}
     export AWS_MSK_VOLUME_SIZE=${AWS_MSK_VOLUME_SIZE:-"100"}
@@ -297,7 +301,5 @@ function gitops_init_kafka() {
 
     rm -rf $TEMP_DIR
   fi
-
-
   exit 0
 }

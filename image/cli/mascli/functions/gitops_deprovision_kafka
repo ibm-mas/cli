@@ -257,8 +257,7 @@ function gitops_deprovision_kafka() {
     export KAFKA_ACTION="uninstall"
     
     export MAS_INSTANCE_ID=${MAS_INSTANCE_ID:-CLUSTER_ID}
-    export KAFKA_NAMESPACE="msk-${CLUSTER_ID}"  
-    export KAFKA_VERSION="2.8.1"
+    export KAFKA_NAMESPACE="msk-${CLUSTER_ID}"
         
     export AWS_MSK_INSTANCE_TYPE=${AWS_MSK_INSTANCE_TYPE:-"kafka.m5.large"}
     export AWS_MSK_VOLUME_SIZE=${AWS_MSK_VOLUME_SIZE:-"100"}
