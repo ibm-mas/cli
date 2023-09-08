@@ -71,27 +71,6 @@ function gitops_deprovision_db2u_noninteractive() {
         export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
 
-      # SLS
-      --sls-channel)
-        export SLS_CHANNEL=$1 && shift
-        ;;
-
-      # MAS
-      --mas-annotations)
-        export MAS_ANNOTATIONS=$1 && shift
-        ;;
-      --mas-channel)
-        export MAS_CHANNEL=$1 && shift
-        ;;
-      --mas-domain)
-        export MAS_DOMAIN=$1 && shift
-        ;;
-      --mas-image-tags)
-        export MAS_IMAGE_TAGS=$1 && shift
-        ;;
-      --mas-labels)
-        export MAS_LABELS=$1 && shift
-        ;;
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -250,9 +229,9 @@ function gitops_deprovision_db2u() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
 
     argocd_login
-    argocd_sync_watcher ${CLUSTER_ID}-watcher
+    argocd_sync ${CLUSTER_ID}-watcher
 
-    argocd_prune_sync_watcher ${CLUSTER_ID}-watcher
+    argocd_prune_sync ${CLUSTER_ID}-watcher
     check_argo_app_deleted mas-${MAS_INSTANCE_ID}-db2-jdbc-config-rotate-password ${MAS_INSTANCE_ID}
     check_argo_app_deleted mas-${MAS_INSTANCE_ID}-db2-jdbc-config ${MAS_INSTANCE_ID}
     check_argo_app_deleted mas-${MAS_INSTANCE_ID}-db2 ${MAS_INSTANCE_ID}
