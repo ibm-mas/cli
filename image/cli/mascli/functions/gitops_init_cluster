@@ -270,7 +270,7 @@ function gitops_init_cluster() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     argocd_login
-    argocd_sync_watcher ${CLUSTER_ID}-watcher
+    argocd_sync ${CLUSTER_ID}-watcher
     check_argo_app_synced ibm-common-services
     check_argo_app_healthy ibm-common-services
   fi

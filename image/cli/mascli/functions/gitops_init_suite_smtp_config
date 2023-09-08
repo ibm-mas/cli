@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-function gitops_init_kafka_config_help() {
+function gitops_init_suite_smtp_config_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_init_kafka_config [options]
+  mas gitops_init_suite_smtp_config [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -22,6 +22,18 @@ Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
+MAS SMTP Options:
+      --smtp-display-name ${COLOR_YELLOW}SMTP_DISPLAY_NAME${TEXT_RESET}                                       Display name for SmtpCfg resource
+      --smtp-host ${COLOR_YELLOW}SMTP_HOST{TEXT_RESET}                                                        Host of the SMTP server
+      --smtp-port ${COLOR_YELLOW}SMTP_PORT${TEXT_RESET}                                                       Port of the SMTP server
+      --smtp-security ${COLOR_YELLOW}SMTP_SECURITY${TEXT_RESET}                                               Security protocol. None, STARTTLS or SSL
+      --smtp-authentication ${COLOR_YELLOW}SMTP_AUTHENTICATION${TEXT_RESET}                                   true or false on whether to authenticate
+      --smtp-default-sender-email ${COLOR_YELLOW}SMTP_DEFAULT_SENDER_EMAIL${TEXT_RESET}                       The default sender email
+      --smtp-default-sender-name ${COLOR_YELLOW}SMTP_DEFAULT_SENDER_NAME${TEXT_RESET}                         The default sender name
+      --smtp-default-recipient-email ${COLOR_YELLOW}SMTP_DEFAULT_RECIPIENT_EMAIL${TEXT_RESET}                 The default recipient email
+      --smtp-default-should-email-passwords ${COLOR_YELLOW}SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS${TEXT_RESET}   true or false on sending email passwords
+      --smtp-username ${COLOR_YELLOW}SMTP_USERNAME${TEXT_RESET}                                               Username for SMTP server authentication
+      --smtp-password ${COLOR_YELLOW}SMTP_PASSWORD${TEXT_RESET}                                               Password for SMTP server authenticaiton
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -38,11 +50,12 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_init_kafka_config_noninteractive() {
+function gitops_init_suite_smtp_config_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-init-kafka-config commit"
+  GIT_COMMIT_MSG="gitops-init-mas-smtp-config commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
+  export SMTP_DISPLAY_NAME=${SMTP_DISPLAY_NAME:="Suite SMTP"}
 
   while [[ $# -gt 0 ]]
   do
@@ -73,6 +86,41 @@ function gitops_init_kafka_config_noninteractive() {
         export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
 
+      # SMTP
+      --smtp-display-name)
+        export SMTP_DISPLAY_NAME=$1 && shift
+        ;;
+      --smtp-host)
+        export SMTP_HOST=$1 && shift
+        ;;
+      --smtp-port)
+        export SMTP_PORT=$1 && shift
+        ;;
+      --smtp-security)
+        export SMTP_SECURITY=$1 && shift
+        ;;
+      --smtp-authentication)
+        export SMTP_AUTHENTICATION=$1 && shift
+        ;; 
+      --smtp-default-sender-email)
+        export SMTP_DEFAULT_SENDER_EMAIL=$1 && shift
+        ;;
+      --smtp-default-sender-name)
+        export SMTP_DEFAULT_SENDER_NAME=$1 && shift
+        ;;
+      --smtp-default-recipient-email)
+        export SMTP_DEFAULT_RECIPIENT_EMAIL=$1 && shift
+        ;;
+      --smtp-default-should-email-passwords)
+        export SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS=$1 && shift
+        ;;
+      --smtp-username)
+        export SMTP_USERNAME=$1 && shift
+        ;;
+      --smtp-password)
+        export SMTP_PASSWORD=$1 && shift
+        ;;
+
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -97,38 +145,48 @@ function gitops_init_kafka_config_noninteractive() {
         ;;
 
       -h|--help)
-        gitops_init_kafka_config_help
+        gitops_init_suite_smtp_config_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_init_kafka_config_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_init_suite_smtp_config_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_init_kafka_config_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$GITOPS_VERSION" ]] && gitops_init_kafka_config_help "GITOPS_VERSION is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_init_kafka_config_help "CLUSTER_ID is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_init_kafka_config_help "ACCOUNT_ID is not set"
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_init_suite_smtp_config_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$GITOPS_VERSION" ]] && gitops_init_suite_smtp_config_help "GITOPS_VERSION is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_init_suite_smtp_config_help "CLUSTER_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_init_suite_smtp_config_help "ACCOUNT_ID is not set"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_init_kafka_config_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_init_kafka_config_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_init_kafka_config_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_init_kafka_config_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_init_suite_smtp_config_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_init_suite_smtp_config_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_init_suite_smtp_config_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_init_suite_smtp_config_help "GIT_BRANCH is not set"
   fi
+  [[ -z "$SMTP_HOST" ]] && gitops_init_suite_smtp_config_help "SMTP_HOST is not set"
+  [[ -z "$SMTP_PORT" ]] && gitops_init_suite_smtp_config_help "SMTP_PORT is not set"
+  [[ -z "$SMTP_SECURITY" ]] && gitops_init_suite_smtp_config_help "SMTP_SECURITY is not set"
+  [[ -z "$SMTP_AUTHENTICATION" ]] && gitops_init_suite_smtp_config_help "SMTP_AUTHENTICATION is not set"
+  [[ -z "$SMTP_DEFAULT_SENDER_EMAIL" ]] && gitops_init_suite_smtp_config_help "SMTP_DEFAULT_SENDER_EMAIL is not set"
+  [[ -z "$SMTP_DEFAULT_SENDER_NAME" ]] && gitops_init_suite_smtp_config_help "SMTP_DEFAULT_SENDER_NAME is not set"
+  [[ -z "$SMTP_DEFAULT_RECIPIENT_EMAIL" ]] && gitops_init_suite_smtp_config_help "SMTP_DEFAULT_RECIPIENT_EMAIL is not set"
+  [[ -z "$SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS" ]] && gitops_init_suite_smtp_config_help "SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS is not set"
+  [[ -z "$SMTP_USERNAME" ]] && gitops_init_suite_smtp_config_help "SMTP_USERNAME is not set"
+  [[ -z "$SMTP_PASSWORD" ]] && gitops_init_suite_smtp_config_help "SMTP_PASSWORD is not set"
 }
 
-function gitops_init_kafka_config() {
+function gitops_init_suite_smtp_config() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_init_kafka_config_noninteractive "$@"
+    gitops_init_suite_smtp_config_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_init_kafka_config_interactive
+    gitops_init_suite_smtp_config_interactive
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -178,6 +236,20 @@ function gitops_init_kafka_config() {
   echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   reset_colors
 
+  echo "${TEXT_DIM}"
+  echo_h2 "IBM Maximo Application Suite SMTP Config" "    "
+  echo_reset_dim "SmtpCfg Display Name ........................... ${COLOR_MAGENTA}${SMTP_DISPLAY_NAME}"
+  echo_reset_dim "Smtp Server Host ............................... ${COLOR_MAGENTA}${SMTP_HOST}"
+  echo_reset_dim "Smtp Server Port ............................... ${COLOR_MAGENTA}${SMTP_PORT}"
+  echo_reset_dim "Smtp Security Protocol ......................... ${COLOR_MAGENTA}${SMTP_SECURITY}"
+  echo_reset_dim "Smtp Authentication ............................ ${COLOR_MAGENTA}${SMTP_AUTHENTICATION}"
+  echo_reset_dim "Smtp Default Sender Email ...................... ${COLOR_MAGENTA}${SMTP_DEFAULT_SENDER_EMAIL}"
+  echo_reset_dim "Smtp Default Sender Name ....................... ${COLOR_MAGENTA}${SMTP_DEFAULT_SENDER_NAME}"
+  echo_reset_dim "Smtp Default Recipient Email ................... ${COLOR_MAGENTA}${SMTP_DEFAULT_RECIPIENT_EMAIL}"
+  echo_reset_dim "Smtp Should Email Passwords .................... ${COLOR_MAGENTA}${SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS}"
+  echo_reset_dim "Smtp Server Username ........................... ${COLOR_MAGENTA}${SMTP_USERNAME}"
+  echo_reset_dim "Smtp Server Password ........................... ${COLOR_MAGENTA}${SMTP_PASSWORD:0:4}<snip>"
+  reset_colors
 
   # Set up Suite secrets
   # ---------------------------------------------------------------------------
@@ -185,29 +257,18 @@ function gitops_init_kafka_config() {
   echo_h2 "Configuring Suite secrets"
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
-  if [[ "$AVP_TYPE" == "aws" ]]; then
-    # kafka
-    export SECRET_PREFIX="AmazonMSK_"
-  fi
 
-  # Get the cluster-level secrets used
+  # Set the instance-level values to used
   # ---------------------------------------------------------------------------
+  SECRET_NAME_SMTP=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}smtp
+  sm_update_secret $SECRET_NAME_SMTP "{\"username\": \"$SMTP_USERNAME\", \"password\": \"$SMTP_PASSWORD\"}"
+  export SECRET_KEY_SMTP_USERNAME=${SECRET_NAME_SMTP}#username
+  export SECRET_KEY_SMTP_PASSWORD=${SECRET_NAME_SMTP}#password
+
   CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/tmp-kafka-config-init
+  TEMP_DIR=$CURRENT_DIR/tmp-mas-smtp-config-init
   rm -rf $TEMP_DIR
   mkdir -p $TEMP_DIR
-
-  # Get the instance-level values to used
-  # ---------------------------------------------------------------------------
-  export KAFKA_SECRET_FILE=$TEMP_DIR/kafka-secret.json
-  export KAFKA_CONFIG_FILE=$TEMP_DIR/kafka-info.yaml
-
-  sm_get_secret_file ${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka $KAFKA_SECRET_FILE
-  jq -r .info $KAFKA_SECRET_FILE > $KAFKA_CONFIG_FILE
-
-  export AWS_MSK_SECRET=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka
-  export SECRET_KEY_KAFKA_USERNAME=${AWS_MSK_SECRET}#username
-  export SECRET_KEY_KAFKA_PASSWORD=${AWS_MSK_SECRET}#password
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
@@ -225,7 +286,7 @@ function gitops_init_kafka_config() {
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   # Per MAS instance
-  jinja -X .+ -d $KAFKA_CONFIG_FILE $DIR/templates/gitops/ibm-kafka-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-kafka-config.yaml
+  jinja -X .+ $DIR/templates/gitops/ibm-mas-smtp-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-smtp-config.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -237,9 +298,9 @@ function gitops_init_kafka_config() {
 
     argocd_login
     argocd_sync ${CLUSTER_ID}-watcher
-    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-kafka-config
-    check_argo_app_synced mas-${MAS_INSTANCE_ID}-kafka-config
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-kafka-config
+    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-mas-smtp-config
+    check_argo_app_synced mas-${MAS_INSTANCE_ID}-mas-smtp-config
+    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-mas-smtp-config
   fi
 
   rm -rf $TEMP_DIR

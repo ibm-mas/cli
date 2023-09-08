@@ -50,6 +50,7 @@
         - update
         - upgrade
         - uninstall
+        - fvt-core
 
     # 3. Generate Gitops Pipelines
     # -------------------------------------------------------------------------
