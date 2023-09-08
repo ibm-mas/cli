@@ -92,6 +92,9 @@ mkdir -p $CONFIG_DIR
 . $DIR/functions/gitops_deprovision_rosa
 . $DIR/functions/gitops_deprovision_cluster
 . $DIR/functions/gitops_deprovision_mongo
+. $DIR/functions/gitops_delete_kafka_config
+. $DIR/functions/gitops_deprovision_efs
+. $DIR/functions/gitops_deprovision_kafka
 . $DIR/functions/gitops_deprovision_db2u
 
 load_config
@@ -344,6 +347,29 @@ case $1 in
     gitops_deprovision_mongo "$@"
     ;;
 
+  gitops-delete-kafka-config)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_delete_kafka_config "$@"
+    ;;
+
+  gitops-deprovision-efs)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_efs "$@"
+    ;;
+
+  gitops-deprovision-kafka)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_kafka "$@"
+    ;;
   gitops-deprovision-db2u)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"

@@ -103,9 +103,39 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
-    - name: gitops-deprovision-cluster
+    - name: gitops-deprovision-kafka
       runAfter:
         - gitops-deprovision-mongo
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: kafka_provider
+          value: $(params.kafka_provider)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: vpc_ipv4_cidr
+          value: $(params.vpc_ipv4_cidr)
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-kafka
+      workspaces:
+        - name: configs
+          workspace: configs
+    - name: gitops-deprovision-cluster
+      runAfter:
+        - gitops-deprovision-kafka
       params:
         - name: cluster_name
           value: $(params.cluster_name)

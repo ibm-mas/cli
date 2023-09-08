@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-function gitops_init_kafka_config_help() {
+function gitops_delete_kafka_config_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_init_kafka_config [options]
+  mas gitops_delete_kafka_config [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -38,10 +38,10 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_init_kafka_config_noninteractive() {
+function gitops_delete_kafka_config_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-init-kafka-config commit"
+  GIT_COMMIT_MSG="gitops-delete-kafka-config commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   while [[ $# -gt 0 ]]
@@ -97,39 +97,41 @@ function gitops_init_kafka_config_noninteractive() {
         ;;
 
       -h|--help)
-        gitops_init_kafka_config_help
+        gitops_delete_kafka_config_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_init_kafka_config_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_delete_kafka_config_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_init_kafka_config_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$GITOPS_VERSION" ]] && gitops_init_kafka_config_help "GITOPS_VERSION is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_init_kafka_config_help "CLUSTER_ID is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_init_kafka_config_help "ACCOUNT_ID is not set"
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_delete_kafka_config_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$GITOPS_VERSION" ]] && gitops_delete_kafka_config_help "GITOPS_VERSION is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_delete_kafka_config_help "CLUSTER_ID is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_deprovision_kafka_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_delete_kafka_config_help "ACCOUNT_ID is not set"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_init_kafka_config_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_init_kafka_config_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_init_kafka_config_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_init_kafka_config_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_delete_kafka_config_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_delete_kafka_config_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_delete_kafka_config_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_delete_kafka_config_help "GIT_BRANCH is not set"
   fi
 }
 
-function gitops_init_kafka_config() {
+function gitops_delete_kafka_config() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_init_kafka_config_noninteractive "$@"
+    gitops_delete_kafka_config_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_init_kafka_config_interactive
+    gitops_delete_kafka_config_interactive
   fi
+  
   rm -rf ${GITOPS_WORKING_DIR}
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
@@ -179,35 +181,22 @@ function gitops_init_kafka_config() {
   reset_colors
 
 
-  # Set up Suite secrets
+  # Instance level Kafka secrets to delete
   # ---------------------------------------------------------------------------
   echo
-  echo_h2 "Configuring Suite secrets"
+  echo_h2 "Configuring Instance level Kafka secrets to delete"
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
   if [[ "$AVP_TYPE" == "aws" ]]; then
     # kafka
     export SECRET_PREFIX="AmazonMSK_"
   fi
-
-  # Get the cluster-level secrets used
-  # ---------------------------------------------------------------------------
-  CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/tmp-kafka-config-init
-  rm -rf $TEMP_DIR
-  mkdir -p $TEMP_DIR
-
-  # Get the instance-level values to used
-  # ---------------------------------------------------------------------------
-  export KAFKA_SECRET_FILE=$TEMP_DIR/kafka-secret.json
-  export KAFKA_CONFIG_FILE=$TEMP_DIR/kafka-info.yaml
-
-  sm_get_secret_file ${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka $KAFKA_SECRET_FILE
-  jq -r .info $KAFKA_SECRET_FILE > $KAFKA_CONFIG_FILE
-
   export AWS_MSK_SECRET=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka
-  export SECRET_KEY_KAFKA_USERNAME=${AWS_MSK_SECRET}#username
-  export SECRET_KEY_KAFKA_PASSWORD=${AWS_MSK_SECRET}#password
+
+  # Delete AWS MSK secret for this MAS Instance
+  # ---------------------------------------------------------------------------  
+  echo -e "Deleting AWS MSK secret $AWS_MSK_SECRET"
+  sm_delete_secret $AWS_MSK_SECRET
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
@@ -222,10 +211,10 @@ function gitops_init_kafka_config() {
   fi
   mkdir -p ${GITOPS_APPS_DIR}
 
-  # Generate ArgoApps
+  # Delete ArgoApps
   # ---------------------------------------------------------------------------
   # Per MAS instance
-  jinja -X .+ -d $KAFKA_CONFIG_FILE $DIR/templates/gitops/ibm-kafka-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-kafka-config.yaml
+  rm ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-kafka-config.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -236,12 +225,13 @@ function gitops_init_kafka_config() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     argocd_login
-    argocd_sync ${CLUSTER_ID}-watcher
-    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-kafka-config
-    check_argo_app_synced mas-${MAS_INSTANCE_ID}-kafka-config
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-kafka-config
-  fi
 
-  rm -rf $TEMP_DIR
+    argocd_prune_sync_watcher ${CLUSTER_ID}-watcher
+    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-kafka-config ${MAS_INSTANCE_ID}
+
+    # workaround to delete the configs via oc cli as argocd is not deleting them due to owner reference
+    delete_oc_resource kafkacfg.config.mas.ibm.com/${MAS_INSTANCE_ID}-kafka-system mas-${MAS_INSTANCE_ID}-core
+  fi
+  
 
 }

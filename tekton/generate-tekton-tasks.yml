@@ -105,14 +105,20 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - gitops-bootstrap
+        - gitops-delete-kafka-config
         - gitops-deprovision-cluster
         - gitops-deprovision-mongo
+        - gitops-deprovision-efs
+        - gitops-deprovision-kafka
         - gitops-deprovision-rosa
         - gitops-deprovision-suite-config
         - gitops-deprovision-suite-workspace
         - gitops-deprovision-suite
         - gitops-init-cis-compliance
         - gitops-init-cluster
+        - gitops-init-efs
+        - gitops-init-kafka
+        - gitops-init-kafka-config
         - gitops-init-license
         - gitops-init-mongo
         - gitops-init-rosa
