@@ -406,7 +406,7 @@ spec:
           workspace: configs
     - name: gitops-init-efs
       runAfter:
-        - gitops-init-suite-idp-config
+        - gitops-init-suite-config
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -428,7 +428,7 @@ spec:
         name: gitops-init-efs
     - name: gitops-init-kafka
       runAfter:
-        - gitops-init-efs
+        - gitops-init-suite-config
       params:
         - name: cluster_name
           value: $(params.cluster_name)
