@@ -164,7 +164,7 @@ function gitops_init_kafka_noninteractive() {
 
   [[ -z "$CLUSTER_ID" ]] && gitops_init_kafka_help "CLUSTER_ID is not set"
   [[ -z "$KAFKA_PROVIDER" ]] && gitops_init_kafka_help "KAFKA_PROVIDER is not set"
-  [[ -z "$KAFKA_VERSION" ]] && gitops_init_kafka_help "KAFKA_VERSION is not set"  
+  [[ -z "$KAFKA_VERSION" ]] && gitops_init_kafka_help "KAFKA_VERSION is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_init_kafka_help "ACCOUNT_ID is not set"
   #[[ -z "$MAS_INSTANCE_ID" ]] && gitops_init_kafka_help "MAS_INSTANCE_ID is not set"
 
@@ -246,11 +246,8 @@ function gitops_init_kafka() {
     #kafka aws provider role specific env variables
     export MAS_CONFIG_DIR=$TEMP_DIR
     export KAFKA_ACTION="install"
-    
     export MAS_INSTANCE_ID=${MAS_INSTANCE_ID:-CLUSTER_ID}
     export KAFKA_NAMESPACE="msk-${CLUSTER_ID}"
-    
-    
     export AWS_MSK_INSTANCE_TYPE=${AWS_MSK_INSTANCE_TYPE:-"kafka.m5.large"}
     export AWS_MSK_VOLUME_SIZE=${AWS_MSK_VOLUME_SIZE:-"100"}
     export AWS_MSK_INSTANCE_NUMBER=${AWS_MSK_INSTANCE_NUMBER:-"3"}
