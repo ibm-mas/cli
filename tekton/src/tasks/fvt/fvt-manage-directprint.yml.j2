@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-fvt-manage
+  name: mas-fvt-manage-directprint
 spec:
   params:
     # Control the image pull policy for the FVT container image
@@ -34,16 +34,8 @@ spec:
       default: "true"
     - name: fvt_test_driver
       type: string
-      description: Driver utilized by the manage selenium framework - Can be either tpae or graphite
+      description: Driver utilized by the manage selenium framework - Can be wither tpae or graphite
       default: "tpae"
-    - name: fvt_test_graphite_url
-      type: string
-      description: Manage url used by tests that use graphite driver
-      default: ""
-    - name: fvt_test_suite_prefix
-      type: string
-      description: text to prefix fvt_test_suite in devops database followed by hyphen
-      default: ""
     - name: fvt_test_suite
       type: string
       description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
@@ -106,7 +98,7 @@ spec:
       default: ""
 
   stepTemplate:
-    name: fvt-manage
+    name: fvt-manage-directprint
     securityContext:
       privileged: true
       runAsUser: 0
@@ -115,6 +107,8 @@ spec:
         value: $(params.product_id)
       - name: PRODUCT_CHANNEL
         value: $(params.product_channel)
+      - name: PRODUCT_ID
+        value: ibm-mas-manage
 
       - name: DEVOPS_MONGO_URI
         valueFrom:
@@ -143,10 +137,8 @@ spec:
 
       - name: FVT_TEST_DRIVER
         value: $(params.fvt_test_driver)
-      - name: FVT_TEST_GRAPHITE_URL
-        value: $(params.fvt_test_graphite_url)
       - name: FVT_TEST_SUITE_PREFIX
-        value: $(params.fvt_test_suite_prefix)
+        value: core
       - name: FVT_TEST_SUITE
         value: $(params.fvt_test_suite)
       - name: FVT_MAS_APPWS_COMPONENT
@@ -173,16 +165,6 @@ spec:
       - name: DEVOPS_IBMCLOUD_APIKEY
         value: $(params.devops_ibmcloud_apikey)
 
-  steps:
-    - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
-      imagePullPolicy: $(params.image_pull_policy)
-      timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
-      onError: continue # Ensure bad FVTs don't break the pipeline
-      resources: {}
-      workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
   volumes:
     - name: dshm
       emptyDir:
@@ -190,3 +172,50 @@ spec:
 
   workspaces:
     - name: configs
+  
+  steps:
+    
+    # Direct Print - Purchase
+    - name: fvt-manage-jobplan-directprint
+      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
+      imagePullPolicy: $(params.image_pull_policy)
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      resources: {}
+      workingDir: /opt/ibm/test/src
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+      env:
+        - name: FVT_TEST_SUITE
+          value: jobplan-directprint
+    
+    # Direct Print - Assets
+    - name: fvt-manage-assets-directprint
+      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
+      imagePullPolicy: $(params.image_pull_policy)
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      resources: {}
+      workingDir: /opt/ibm/test/src
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+      env:
+        - name: FVT_TEST_SUITE
+          value: assets-directprint
+
+    # Direct Print - Purchase
+    - name: fvt-manage-purchase-directprint
+      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
+      imagePullPolicy: $(params.image_pull_policy)
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      resources: {}
+      workingDir: /opt/ibm/test/src
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+      env:
+        - name: FVT_TEST_SUITE
+          value: purchase-directprint
