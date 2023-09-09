@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/commands/provision-fyre/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/commands/teardown-registry/" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>provision-fyre - MAS CLI</title>
+    <title>teardown-registry - MAS CLI</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -13,9 +13,9 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "provision-fyre";
-        var mkdocs_page_input_path = "commands/provision-fyre.md";
-        var mkdocs_page_url = "/cli/commands/provision-fyre/";
+        var mkdocs_page_name = "teardown-registry";
+        var mkdocs_page_input_path = "commands/teardown-registry.md";
+        var mkdocs_page_url = "/cli/commands/teardown-registry/";
       </script>
     
     <!--[if lt IE 9]>
@@ -53,30 +53,8 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">OpenShift Management</span></p>
-              <ul class="current">
-                  <li class="toctree-l1 current"><a class="reference internal current" href="./">provision-fyre</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#fyre-credentials">FYRE Credentials</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#cluster-configuration">Cluster Configuration</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#worker-node-configuration">Worker Node Configuration</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#other-commands">Other Commands</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#interactive-mode">Interactive Mode</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#non-interactive-mode">Non-Interactive Mode</a>
-    </li>
-        </ul>
-    </li>
-    </ul>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../provision-fyre/">provision-fyre</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../provision-roks/">provision-roks</a>
                   </li>
@@ -86,10 +64,14 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Image Mirroring</span></p>
-              <ul>
+              <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../setup-registry/">setup-registry</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../teardown-registry/">teardown-registry</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">teardown-registry</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
+    </li>
+    </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../mirror-images/">mirror-images</a>
                   </li>
@@ -137,10 +119,10 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
-          <li>OpenShift Management &raquo;</li>
-      <li class="breadcrumb-item active">provision-fyre</li>
+          <li>Image Mirroring &raquo;</li>
+      <li class="breadcrumb-item active">teardown-registry</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/provision-fyre.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/teardown-registry.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -148,47 +130,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="provision-ocp-on-fyre">Provision OCP on FYRE<a class="headerlink" href="#provision-ocp-on-fyre" title="Permanent link"></a></h1>
+                <h1 id="tear-down-private-registry">Tear Down Private Registry<a class="headerlink" href="#tear-down-private-registry" title="Permanent link"></a></h1>
+<p>This function is used to delete a private/mirror registry from a given cluster to enable a clean start.</p>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
-<p><code>mas provision-fyre [options]</code></p>
-<h3 id="fyre-credentials">FYRE Credentials<a class="headerlink" href="#fyre-credentials" title="Permanent link"></a></h3>
-<ul>
-<li><code>-u|--username FYRE_USERNAME</code> FYRE username</li>
-<li><code>-a|--apikey FYRE_APIKEY</code> FYRE API key</li>
-</ul>
-<h3 id="cluster-configuration">Cluster Configuration<a class="headerlink" href="#cluster-configuration" title="Permanent link"></a></h3>
-<ul>
-<li><code>-p|--product-id FYRE_PRODUCT_ID</code> FYRE product group ID that will own the cluster</li>
-<li><code>-q|--quota-type FYRE_QUOTA_TYPE</code> Declare the quota to use when provisioning the cluster ("quick_burn" or "product_group")</li>
-<li><code>-c|--cluster-name CLUSTER_NAME</code> Name of the cluster to be provisioned (lowercase only)</li>
-<li><code>-v|--ocp-version OCP_VERSION</code> OCP version to use (e.g 4.8, 4.10)</li>
-<li><code>-d|--description FYRE_DESCRIPTION</code> Description of the OCP cluster</li>
-</ul>
-<h3 id="worker-node-configuration">Worker Node Configuration<a class="headerlink" href="#worker-node-configuration" title="Permanent link"></a></h3>
-<ul>
-<li><code>--worker-count FYRE_WORKER_COUNT</code> Number of worker nodes to provision</li>
-<li><code>--worker-cpu FYRE_WORKER_CPU</code> How many CPUs to allocate per worker node</li>
-<li><code>--worker-memory FYRE_WORKER_MEMORY</code> How much memory to allocate per worker node</li>
-</ul>
-<h3 id="other-commands">Other Commands<a class="headerlink" href="#other-commands" title="Permanent link"></a></h3>
-<ul>
-<li><code>-s|--simulate-airgap</code> Set flag to apply the simulated airgap network configuration to the cluster after provisioning</li>
-<li><code>--no-confirm</code> Provision the cluster without prompting for confirmation</li>
-<li><code>-h|--help</code> Show this help message</li>
-</ul>
-<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
-<h3 id="interactive-mode">Interactive Mode<a class="headerlink" href="#interactive-mode" title="Permanent link"></a></h3>
-<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-fyre
-</code></pre>
-<h3 id="non-interactive-mode">Non-Interactive Mode<a class="headerlink" href="#non-interactive-mode" title="Permanent link"></a></h3>
-<pre><code class="language-bash">export FYRE_USERNAME=xxx
-export FYRE_APIKEY=xxx
-docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-fyre \
-  -u $FYRE_USERNAME -a $FYRE_APIKEY \
-  -p 225 -q product_group \
-  -c masonfyre -d &quot;My Cluster&quot; -v 4.10 \
-  --worker-count 3 --worker-cpu 8 --worker-memory 32 \
-  --no-confirm
+<p>Note that using the <code>teardown-registry</code> command will delete the registry completely including the PVC storage and the registry namespace. The registry will need to be recreated after running this command if desired. To start up the registry again, run the <code>setup-registry</code>command. Images previously stored in the registry before the teardown will no longer be available and will need to be mirrored again once the registry setup has completed. Take precaution when using this function and expect that images can no longer be accessed from the registry that is being torn down. </p>
+<p><strong>IMPORTANT:</strong> The <code>teardown-registry</code> command permanently deletes all registry data.</p>
+<p>An appropriate time to use this tear-down function is when the registry has too many images that are not being used or when there has been a shift to support newer versions but images of older versions are clogging the registry. The tear-down function frees the disk space and allows for a new registry to be setup.</p>
+<p><strong>Note:</strong> Recreating the registry will create a new ca cert for the new registry.</p>
+<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas teardown-registry
 </code></pre>
               
             </div>
@@ -218,10 +167,10 @@ docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-fyre \
         </span>
     
     
-      <span><a href="../../guides/upgrade/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../setup-registry/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../provision-roks/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../mirror-images/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
