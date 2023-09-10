@@ -18,18 +18,14 @@ set -e
 TMP_DIR=${OUTPUT_DIR}/tmp-$LABEL_VALUE
 mkdir -p $TMP_DIR
 
-echo "  - Collecting reconcile logs from control plane '$CONTROL_PLANE'"
-set +e # the tar command may give warnings if files no longer exist, and they get cycled by the operator.
-oc -n $NAMESPACE exec $POD -- tar -czf - $LOGFILES > $TMP_DIR/ansible-logs-$CONTROL_PLANE.tgz 2> /dev/null
-if [[ "$?" != "0" ]]; then
-  echo "    - Incomplete reconcile logs from $POD"
-fi
-tar -xf $TMP_DIR/ansible-logs-$CONTROL_PLANE.tgz -C $TMP_DIR 2> /dev/null
+echo " - Collecting reconcile logs from '$LABEL_SELECTOR':'$LABEL_VALUE'"
+oc -n $NAMESPACE exec $POD -- tar -czf - $LOGFILES > $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz 2> /dev/null
+tar -xf $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz -C $TMP_DIR 2> /dev/null
 
 if [[ "$?" == "0" ]]; then
   rm $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz
 else
-  echo "    - Unable to get reconcile logs from $POD"
+  echo_warning "    - Unable to get reconcile logs from $POD"
 fi
 set -e
 
