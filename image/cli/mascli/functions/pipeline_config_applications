@@ -140,6 +140,7 @@ function config_pipeline_applications() {
     channel_select_manage || exit 1
     prompt_for_confirm "+ Create demo data" MAS_APP_SETTINGS_DEMODATA
     if prompt_for_confirm "+ Configure JMS"; then
+      MAS_APP_SETTINGS_DEFAULT_JMS=true
       MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
       if [[ "$SNO_MODE" == "true" ]]; then
         MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='snojms' # will just deploy manage with 'all' + 'jms' bundle pods
