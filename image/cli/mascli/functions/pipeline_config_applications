@@ -176,6 +176,7 @@ function config_pipeline_applications() {
     fi
     if prompt_for_confirm "+ Install and bind Watson Studio"; then
       MAS_APPWS_BINDINGS_HEALTH_WSL_FLAG=true
+    fi
     if prompt_for_confirm "+ Include industry solutions and add-ons"; then
       echo
       echo "${TEXT_DIM}Define which Manage Industry Solutions and Add-ons to be installed as part of the Manage base install."
