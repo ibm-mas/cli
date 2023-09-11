@@ -531,6 +531,10 @@
   type: string
   description: Defines if Manage database encryption secret should be overriden with new values provided
   default: ""
+- name: mas_app_settings_default_jms
+  type: string
+  description: Set true if you want to configure JMS queues. It is false by default.
+  default: "" # default is handled by ansible-devops
 
 # MAS Application Configuration - Health Application
 - name: mas_appws_bindings_health_wsl_flag
