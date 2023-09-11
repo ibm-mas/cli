@@ -88,10 +88,10 @@ spec:
         oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
         OC_RC=$?
         if [ $OC_RC -ne 0 ]; then
-          echo "oc login failed"
+          echo "oc login failed, exiting with error.."
           exit 1
         fi
-        
+
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
@@ -109,10 +109,10 @@ spec:
         fi
 
         sed -n -e 's/^.*api.fvtsaas.//p' | cut -d: -f1
-        mkdir -p /workspace/configs/$GITHUB_REPO/init-suite
+        mkdir -p /tmp/init-suite
         mas gitops-init-suite -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
-        --dir /workspace/configs/$GITHUB_REPO/init-suite \
+        --dir /tmp/init-suite \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org  $GITHUB_ORG \

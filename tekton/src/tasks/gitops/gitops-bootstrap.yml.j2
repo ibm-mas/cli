@@ -47,7 +47,7 @@ spec:
         oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
         OC_RC=$?
         if [ $OC_RC -ne 0 ]; then
-          echo "oc login failed"
+          echo "oc login failed, exiting with error.."
           exit 1
         fi
 

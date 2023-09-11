@@ -107,9 +107,9 @@ spec:
           export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
         fi
 
-        mkdir -p /workspace/configs/$GITHUB_REPO/init-cluster
+        mkdir -p /tmp/init-cluster
         mas gitops-init-cluster -a $ACCOUNT -c $CLUSTER_NAME \
-        --dir /workspace/configs/$GITHUB_REPO/init-cluster \
+        --dir /tmp/init-cluster \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org  $GITHUB_ORG \

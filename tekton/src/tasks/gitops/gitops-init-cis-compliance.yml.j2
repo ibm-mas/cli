@@ -61,9 +61,9 @@ spec:
         export ARGOCD_USERNAME=admin
         export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
 
-        mkdir -p /workspace/configs/$GITHUB_REPO/init-cis-compliance
+        mkdir -p /tmp/init-cis-compliance
         mas gitops-init-cis-compliance -a $ACCOUNT -c $CLUSTER_NAME \
-        --dir /workspace/configs/$GITHUB_REPO/init-cis-compliance \
+        --dir /tmp/init-cis-compliance \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org  $GITHUB_ORG \
