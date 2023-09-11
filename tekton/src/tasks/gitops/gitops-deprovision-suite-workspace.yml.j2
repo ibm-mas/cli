@@ -55,7 +55,7 @@ spec:
     - args:
       - |-
 
-        mkdir -p /workspace/configs/$GITHUB_REPO
+        mkdir -p /workspace/configs/$GITHUB_REPO/deprovision-suite-workspace
 
         git config --global user.name "yourUsername"
         git config --global user.email "you@example.com"
@@ -79,7 +79,7 @@ spec:
         mas gitops-deprovision-suite-workspace -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --mas-workspace-id $WORKSPACE_ID \
         --mas-workspace-name $WORKSPACE_NAME \
-        --dir /workspace/configs/$GITHUB_REPO \
+        --dir /workspace/configs/$GITHUB_REPO/deprovision-suite-workspace \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org $GITHUB_ORG \

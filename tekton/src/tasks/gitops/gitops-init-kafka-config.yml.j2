@@ -60,7 +60,7 @@ spec:
   steps:
     - args:
       - |-
-        mkdir -p /workspace/configs/$GITHUB_REPO
+        mkdir -p /workspace/configs/$GITHUB_REPO/init-kafka-config
 
         aws configure set aws_access_key_id $(params.avp_aws_access_key)
         aws configure set aws_secret_access_key $(params.avp_aws_secret_key)
@@ -87,7 +87,7 @@ spec:
 
         mas gitops-init-kafka-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
-        --dir /workspace/configs/$GITHUB_REPO \
+        --dir /workspace/configs/$GITHUB_REPO/init-kafka-config \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org $GITHUB_ORG \

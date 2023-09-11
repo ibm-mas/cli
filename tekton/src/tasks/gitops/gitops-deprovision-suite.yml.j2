@@ -84,11 +84,11 @@ spec:
           export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
         fi
       
-        mkdir -p /workspace/configs/$GITHUB_REPO
+        mkdir -p /workspace/configs/$GITHUB_REPO/deprovision-suite
         mas gitops-deprovision-suite -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
         --mongo-provider $MONGO_PROVIDER \
-        --dir /workspace/configs/$GITHUB_REPO \
+        --dir /workspace/configs/$GITHUB_REPO/deprovision-suite \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org  $GITHUB_ORG \

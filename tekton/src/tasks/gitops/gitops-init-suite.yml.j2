@@ -109,10 +109,10 @@ spec:
         fi
 
         sed -n -e 's/^.*api.fvtsaas.//p' | cut -d: -f1
-        mkdir -p /workspace/configs/$GITHUB_REPO
+        mkdir -p /workspace/configs/$GITHUB_REPO/init-suite
         mas gitops-init-suite -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
-        --dir /workspace/configs/$GITHUB_REPO \
+        --dir /workspace/configs/$GITHUB_REPO/init-suite \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org  $GITHUB_ORG \

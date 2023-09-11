@@ -57,7 +57,7 @@ spec:
   steps:
     - args:
       - |-
-        mkdir -p /workspace/configs/$GITHUB_REPO
+        mkdir -p /workspace/configs/$GITHUB_REPO/init-kafka
 
         aws configure set aws_access_key_id $(params.avp_aws_access_key)
         aws configure set aws_secret_access_key $(params.avp_aws_secret_key)
@@ -82,7 +82,7 @@ spec:
         --cidr-block 10.1.0.0/23
 
         mas gitops-init-kafka -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
-        --dir /workspace/configs/$GITHUB_REPO \
+        --dir /workspace/configs/$GITHUB_REPO/init-kafka \
         --secrets-path $SECRET_PATH \
         --kafka-provider $KAFKA_PROVIDER \
         --aws-region $SM_AWS_REGION \
