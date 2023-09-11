@@ -10,8 +10,6 @@
       value: $(params.mas_workspace_id)
     - name: cos_type
       value: $(params.cos_type)      
-    - name: manage_workspace_cr_name
-      value: $(params.manage_workspace_cr_name)
 
   when:
     - input: "$(params.mas_app_channel_manage)"
