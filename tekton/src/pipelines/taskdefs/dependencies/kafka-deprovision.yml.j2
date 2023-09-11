@@ -10,16 +10,14 @@
     # IBM Cloud Event Streams (Kafka)
     - name: kafka_provider
       value: $(params.kafka_provider)
+    - name: kafka_action
+      value: $(params.kafka_action)
     - name: eventstreams_resourcegroup
       value: $(params.eventstreams_resourcegroup)
     - name: eventstreams_name
       value: $(params.eventstreams_name)
     - name: eventstreams_location
       value: $(params.eventstreams_location)
-    - name: eventstreams_retention
-      value: $(params.eventstreams_retention)
-    - name: eventstreams_create_manage_jms_topics
-      value: $(params.eventstreams_create_manage_jms_topics)
     - name: ibmcloud_apikey
       value: $(params.ibmcloud_apikey)
     - name: ibmcloud_resourcegroup
@@ -40,3 +38,29 @@
   workspaces:
     - name: configs
       workspace: shared-configs
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      # General
+      - name: MAS_CONFIG_DIR
+        value: /workspace/configs
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+
+      # COS Details
+      - name: KAFKA_PROVIDER
+        value: $(params.kafka_provider)
+      - name: KAFKA_ACTION
+        value: $(params.kafka_action)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
+      - name: EVENTSTREAMS_RESOURCEGROUP
+        value: $(params.eventstreams_resourcegroup)
+      - name: EVENTSTREAMS_NAME
+        value: $(params.eventstreams_name)
+      - name: EVENTSTREAMS_LOCATION
+        value: $(params.eventstreams_location)
+      - name: IBMCLOUD_RESOURCEGROUP
+        value: $(params.ibmcloud_resourcegroup)

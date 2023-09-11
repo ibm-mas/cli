@@ -33,6 +33,7 @@
         - db2
         - ibm-catalogs
         - kafka
+        - kafka-deprovision
         - mongodb
         - nvidia-gpu
         - ocp-verify

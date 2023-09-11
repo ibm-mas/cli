@@ -44,6 +44,9 @@ spec:
     - name: ibmcos_resourcegroup
       type: string
       default: ""
+    - name: ibmcos_instance_name
+      type: string
+      default: ""
     - name: cos_type
       type: string
       default: ""
@@ -51,6 +54,22 @@ spec:
       type: string
       default: ""
 
+    # IBM Event Streams
+    - name: eventstreams_resourcegroup
+      type: string
+      default: ""
+    - name: eventstreams_name
+      type: string
+      default: ""
+    - name: eventstreams_location
+      type: string
+      default: ""
+    - name: kafka_provider
+      type: string
+      default: ""
+    - name: kafka_action
+      type: string
+      default: ""
 
   tasks:
     # 0. Wait for the named pipeline to complete
@@ -67,6 +86,8 @@ spec:
 
     # 1. Delete IBM Cloud services
     # -------------------------------------------------------------------------
+    
+    # COS
     - name: deprovision-cos
       taskRef:
         kind: Task
@@ -74,6 +95,8 @@ spec:
       params:
         - name: ibmcloud_apikey
           value: $(params.ibmcloud_apikey)
+        - name: ibmcloud_resourcegroup
+          value: $(params.ibmcloud_resourcegroup)
         - name: ibmcos_resourcegroup
           value: $(params.ibmcos_resourcegroup)
         - name: mas_instance_id
@@ -82,6 +105,31 @@ spec:
           value: $(params.cos_type)
         - name: cos_action
           value: $(params.cos_action)
+      runAfter:
+        - wait-for-pipelinerun
+
+    # Event Streams
+    - name: deprovision-kafka
+      taskRef:
+        kind: Task
+        name: mas-devops-kafka-deprovision
+      params:
+        - name: ibmcloud_apikey
+          value: $(params.ibmcloud_apikey)
+        - name: ibmcloud_resourcegroup
+          value: $(params.ibmcloud_resourcegroup)
+        - name: eventstreams_resourcegroup
+          value: $(params.eventstreams_resourcegroup)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: kafka_provider
+          value: $(params.kafka_provider)
+        - name: kafka_action
+          value: $(params.kafka_action)
+        - name: eventstreams_name
+          value: $(params.eventstreams_name)
+        - name: eventstreams_location
+          value: $(params.eventstreams_location)
       runAfter:
         - wait-for-pipelinerun
 
@@ -100,3 +148,4 @@ spec:
           value: $(params.ibmcloud_apikey)
       runAfter:
         - deprovision-cos
+        - deprovision-kafka

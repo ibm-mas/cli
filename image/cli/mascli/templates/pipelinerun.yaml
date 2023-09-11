@@ -158,6 +158,8 @@ spec:
     # -------------------------------------------------------------------------
     - name: kafka_provider
       value: '$KAFKA_PROVIDER'
+    - name: kafka_action
+      value: '$KAFKA_ACTION'
     - name: eventstreams_resourcegroup
       value: '$EVENTSTREAMS_RESOURCEGROUP'
     - name: eventstreams_name
@@ -217,6 +219,8 @@ spec:
       value: '$COS_TYPE'
     - name: ibmcos_resourcegroup
       value: '$IBMCOS_RESOURCEGROUP'
+    - name: ibmcos_instance_name
+      value: '$COS_INSTANCE_NAME'
     - name: cos_action
       value: '$COS_ACTION'
 

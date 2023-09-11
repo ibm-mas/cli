@@ -101,6 +101,10 @@
 - name: kafka_provider
   type: string
   default: ""
+- name: kafka_action
+  type: string
+  description: Event Streams action to be performed (install or uninstall)
+  default: ""
 - name: eventstreams_resourcegroup
   type: string
   default: ""
@@ -210,6 +214,10 @@
 - name: ibmcos_resourcegroup
   type: string
   description: Name of an existing COS Resource Group in IBM Cloud account
+  default: ""
+- name: ibmcos_instance_name
+  type: string
+  description: Name of COS instance in IBM Cloud account
   default: ""
 - name: cos_action
   type: string
