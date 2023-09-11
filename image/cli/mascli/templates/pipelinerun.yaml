@@ -420,6 +420,8 @@ spec:
       value: '$MAS_APP_SETTINGS_OLD_CRYPTOX_KEY'
     - name: mas_app_settings_override_encryption_secrets_flag
       value: '$MAS_APP_SETTINGS_OVERRIDE_ENCRYPTION_SECRETS_FLAG'
+    - name: mas_app_settings_default_jms
+      value: '$MAS_APP_SETTINGS_DEFAULT_JMS'
 
     # Monitor Application
     # -------------------------------------------------------------------------

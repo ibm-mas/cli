@@ -2,9 +2,11 @@
 set -e
 
 NAMESPACE=$1
-CONTROL_PLANE=$2
-OUTPUT_DIR=$3
-POD=$(oc -n $NAMESPACE get pods -l "control-plane=$CONTROL_PLANE" -o jsonpath="{.items[0].metadata.name}")
+LABEL_SELECTOR=$2
+LABEL_VALUE=$3
+OUTPUT_DIR=$4
+
+POD=$(oc -n $NAMESPACE get pods -l "$LABEL_SELECTOR=$LABEL_VALUE" -o jsonpath="{.items[0].metadata.name}")
 
 set +e
 LOGFILES=$(oc -n $NAMESPACE exec $POD -- find /tmp/ansible-operator/runner/ -name stdout 2>/dev/null)
@@ -13,14 +15,15 @@ if [[ "$?" == "1" ]]; then
 fi
 set -e
 
-TMP_DIR=${OUTPUT_DIR}/tmp-$CONTROL_PLANE
+TMP_DIR=${OUTPUT_DIR}/tmp-$LABEL_VALUE
 mkdir -p $TMP_DIR
 
-echo "  - Collecting reconcile logs from control plane '$CONTROL_PLANE'"
-oc -n $NAMESPACE exec $POD -- tar -czf - $LOGFILES > $TMP_DIR/ansible-logs-$CONTROL_PLANE.tgz 2> /dev/null
-tar -xf $TMP_DIR/ansible-logs-$CONTROL_PLANE.tgz -C $TMP_DIR 2> /dev/null
+echo "  - Collecting reconcile logs from '$LABEL_SELECTOR':'$LABEL_VALUE'"
+oc -n $NAMESPACE exec $POD -- tar -czf - $LOGFILES > $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz 2> /dev/null
+tar -xf $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz -C $TMP_DIR 2> /dev/null
+
 if [[ "$?" == "0" ]]; then
-  rm $TMP_DIR/ansible-logs-$CONTROL_PLANE.tgz
+  rm $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz
 else
   echo_warning "    - Unable to get reconcile logs from $POD"
 fi

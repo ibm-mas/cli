@@ -170,11 +170,11 @@ function mustgather() {
         echo -e "- Performing must-gather in namespace ${MAS_APP_NAMESPACE}"
         # MAS-specific must-gather
         $MG_SCRIPT_DIR/mg-summary-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE &> ${OUTPUT_DIR}/mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}.txt
-        $MG_SCRIPT_DIR/mg-collect-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE $OUTPUT_DIR
 
         # Generic Kubernetes must-gather
         if [[ "$SUMMARY_ONLY" == false ]]
         then
+          $MG_SCRIPT_DIR/mg-collect-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE $OUTPUT_DIR
           $MG_SCRIPT_DIR/mg-collect-pods $MAS_APP_NAMESPACE $POD_LOGS $OUTPUT_DIR/resources
           for RESOURCE in configmaps secrets services routes pvc deployments statefulsets jobs operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings
           do
@@ -183,6 +183,32 @@ function mustgather() {
         fi
       fi
     done
+  done
+
+  # Gather SLS data
+  # -----------------------------------------------------------------------------
+  SLS_NAMESPACES=$(oc get LicenseService --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
+  echo ""
+  for SLS_NAMESPACE in $SLS_NAMESPACES
+  do
+    # assume that there is only one LicenseService in the namespace
+    SLS_NAME=$(oc get LicenseService -n ${SLS_NAMESPACE} --ignore-not-found -o jsonpath='{.items[0].metadata.name}')
+    echo_h2 "Suite Licensing Service Must Gather from ${SLS_NAME} in ${SLS_NAMESPACE}"
+
+    # SLS-specific must-gather
+    $MG_SCRIPT_DIR/mg-summary-sls $SLS_NAMESPACE &> ${OUTPUT_DIR}/${SLS_NAMESPACE}.txt
+
+    # Generic Kubernetes must-gather
+    if [[ "$SUMMARY_ONLY" == false ]]
+    then
+      $MG_SCRIPT_DIR/mg-collect-sls $SLS_NAMESPACE $OUTPUT_DIR
+
+      $MG_SCRIPT_DIR/mg-collect-pods $SLS_NAMESPACE $POD_LOGS $OUTPUT_DIR/resources
+      for RESOURCE in configmaps secrets services routes deployments jobs operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings
+      do
+        $MG_SCRIPT_DIR/mg-collect-resources -n $SLS_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
+      done
+    fi
   done
 
   python3 $MG_SCRIPT_DIR/summarizer/mg-print-summary.py $OUTPUT_DIR | tee $OUTPUT_DIR/summary.txt
