@@ -1,0 +1,25 @@
+- name: manage-setup-doclinks
+  params:
+    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    - name: devops_suite_name
+      value: suite-cos-setup-manage
+    
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+    - name: cos_type
+      value: $(params.cos_type)      
+    - name: manage_workspace_cr_name
+      value: $(params.manage_workspace_cr_name)
+
+  when:
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+    - input: "$(params.cos_setup_for_manage_attachments)"
+      operator: in
+      values: ["true"]
+  taskRef:
+    name: mas-devops-suite-manage-doclinks-config
+    kind: Task

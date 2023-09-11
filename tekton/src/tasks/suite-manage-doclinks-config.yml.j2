@@ -1,0 +1,43 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-suite-manage-doclinks-config
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    - name: mas_instance_id
+      type: string
+      description: Required. The instance ID of Maximo Application Suite. This will be used to lookup for Manage application resources.
+    - name: mas_workspace_id
+      type: string
+      description: Required. The workspace ID of Maximo Application Suite. This will be used to lookup for Manage application resources.
+    - name: cos_type
+      type: string
+      description: Required. Defines the storage provider type to be used to store Manage application's doclinks ('ibm' for IBM Cloud Object Storage or 'aws' for Amazon S3)
+    - name: manage_workspace_cr_name
+      type: string
+      description: Optional. Name of the `ManageWorkspace` Custom Resource that will be targeted to configure the new PVC definitions.
+      default: ""
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
+      - name: COS_TYPE
+        value: $(params.cos_type)
+      - name: MANAGE_WORKSPACE_CR_NAME
+        value: $(params.manage_workspace_cr_name)
+
+  steps:
+    - name: suite-db2-setup-for-manage
+      command:
+        - /opt/app-root/src/run-role.sh
+        - suite_manage_doclinks_config
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
