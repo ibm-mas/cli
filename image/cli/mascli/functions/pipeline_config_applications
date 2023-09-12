@@ -151,17 +151,6 @@ function config_pipeline_applications() {
     if prompt_for_confirm "Install Assist?"; then
       channel_select_assist || exit 1
     fi
-
-    # Assist Dependencies
-    if [[ "$MAS_APP_CHANNEL_ASSIST" != '' ]]; then
-      while : ; do
-        prompt_for_input 'COS Provider [ibm/ocs]' COS_TYPE "ibm"
-        [[ "$COS_TYPE" != "ibm" && "$COS_TYPE" != "ocs" ]] || break
-      done
-      if [[ "$COS_TYPE" == "ibm" ]]; then
-        prompt_for_secret "IBM Cloud API Key" IBMCLOUD_APIKEY "Re-use saved IBM Cloud API Key?"
-        prompt_for_input "IBM Cloud Resource Group" IBMCOS_RESOURCEGROUP $IBMCOS_RESOURCEGROUP "Default"
-      fi
     
     if prompt_for_confirm "Install Optimizer?"; then
       channel_select_optimizer || exit 1
@@ -199,7 +188,7 @@ function assist_settings() {
   done
   if [[ "$COS_TYPE" == "ibm" ]]; then
     prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY $IBMCLOUD_APIKEY
-    prompt_for_input "IBM Cloud Resource Group" IBMCLOUD_RESOURCEGROUP $IBMCLOUD_RESOURCEGROUP "Default"
+    prompt_for_input "IBM Cloud Resource Group" IBMCOS_RESOURCEGROUP $IBMCOS_RESOURCEGROUP "Default"
   fi
 }
 
