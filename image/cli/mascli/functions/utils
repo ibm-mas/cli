@@ -29,7 +29,8 @@ function echo_h2() {
 
   H2_COUNT=$(($H2_COUNT + 1))
   H3_COUNT=0
-  echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}. ${msg}${TEXT_RESET}"
+  echo
+  echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}) ${msg}${TEXT_RESET}"
 }
 
 function echo_h3() {
@@ -37,7 +38,8 @@ function echo_h3() {
   prefix=$2
 
   H3_COUNT=$(($H3_COUNT + 1))
-  echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}.${H3_COUNT}. ${msg}${TEXT_RESET}"
+  echo
+  echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}.${H3_COUNT}) ${msg}${TEXT_RESET}"
 }
 
 function echo_h4() {
