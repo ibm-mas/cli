@@ -5,7 +5,6 @@
 function db2_for_iot() {
   if [ "$MAS_APP_CHANNEL_IOT" != "" ]; then
     # Set up system database - using db2u or external datasource
-    echo
     echo_h3 "Database configuration for Maximo IoT"
     echo "${TEXT_DIM}Maximo IoT requires a shared system-scope Db2 instance because others application in the suite require access to the same database source."
     echo " - Only IBM Db2 is supported for this database"
@@ -39,7 +38,6 @@ function db2_for_iot() {
 # -------------------------------------------------------------------------
 function db2_for_manage() {
   if [ "$MAS_APP_CHANNEL_MANAGE" != "" ]; then
-    echo ""
     echo_h3 "Database configuration for Maximo Manage"
     echo "${TEXT_DIM}Maximo Manage can be configured to share the system Db2 instance or use it's own dedicated database:"
     echo " - Use of a shared instance has a significant footprint reduction but is only recommended for development/test/demo installs"
@@ -49,7 +47,7 @@ function db2_for_manage() {
     reset_colors
 
     # Determine whether to use the system or a dedicated database
-    if [ "$MAS_APP_CHANNEL_IOT" == "" ] && prompt_for_confirm_default_yes "Re-use System Db2 instance for Manage application?"; then
+    if [ "$MAS_APP_CHANNEL_IOT" != "" ] && prompt_for_confirm_default_yes "Re-use System Db2 instance for Manage application?"; then
       # We are going to bind Manage to the system database, which has already been set up in the previous step
       MAS_APPWS_BINDINGS_JDBC_MANAGE=system
       DB2_ACTION_MANAGE=none
