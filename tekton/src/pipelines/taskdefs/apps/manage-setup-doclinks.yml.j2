@@ -2,14 +2,20 @@
   params:
     {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
-      value: suite-cos-setup-manage
+      value: manage-setup-doclinks
     
     - name: mas_instance_id
       value: $(params.mas_instance_id)
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
     - name: cos_type
-      value: $(params.cos_type)      
+      value: $(params.cos_type)
+
+    # Required by cos_bucket role (included during execution)
+    - name: ibmcloud_apikey
+      value: $(params.ibmcloud_apikey)
+    - name: ibmcos_instance_name
+      value: Object Storage for MAS - $(params.mas_instance_id) # as created by cos role
 
   when:
     - input: "$(params.mas_app_channel_manage)"

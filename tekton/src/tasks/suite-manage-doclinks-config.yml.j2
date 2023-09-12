@@ -20,6 +20,14 @@ spec:
       type: string
       description: Optional. Name of the `ManageWorkspace` Custom Resource that will be targeted to configure the new PVC definitions.
       default: ""
+    
+    # Required by cos_bucket role (included during execution)
+    - name: ibmcloud_apikey
+      type: string
+      description: Required when cos_type is set to `ibm`. Provide your IBM Cloud API Key.
+    - name: ibmcos_instance_name
+      type: string
+      description: Provide the Object Storage instance name, will be used to find the targeted COS instance to create/deprovision the buckets. This is only used when cos_type is set to `ibm` for IBM Cloud Object Storage.
 
   stepTemplate:
     env:
@@ -33,6 +41,12 @@ spec:
         value: $(params.cos_type)
       - name: MANAGE_WORKSPACE_CR_NAME
         value: $(params.manage_workspace_cr_name)
+      
+      # Required by cos_bucket role (included during execution)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
+      - name: COS_INSTANCE_NAME
+        value: $(params.ibmcos_instance_name)
 
   steps:
     - name: suite-db2-setup-for-manage
