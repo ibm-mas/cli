@@ -98,6 +98,12 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#ibm-cloud-pak-for-data-required-when-installing-predict-or-assist">IBM Cloud Pak for Data (Required when installing Predict or Assist):</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#kafka-common-arguments-optional-required-to-install-maximo-iot">Kafka - Common Arguments (Optional, required to install Maximo IoT):</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#kafka-aws-msk">Kafka - AWS MSK:</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#kafka-ibm-cloud-event-streams">Kafka - IBM Cloud Event Streams:</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#ibm-db2-optional-required-to-use-ibm-db2-universal-operator">IBM Db2 (Optional, required to use IBM Db2 Universal Operator):</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#advanced-db2u-universal-operator-configuration-optional">Advanced Db2u Universal Operator Configuration (Optional):</a>
@@ -276,6 +282,36 @@
 <h3 id="ibm-cloud-pak-for-data-required-when-installing-predict-or-assist">IBM Cloud Pak for Data (Required when installing Predict or Assist):<a class="headerlink" href="#ibm-cloud-pak-for-data-required-when-installing-predict-or-assist" title="Permanent link"></a></h3>
 <ul>
 <li><code>--cp4d-version CP4D_VERSION</code>                                  Product version of CP4D to use</li>
+</ul>
+<h3 id="kafka-common-arguments-optional-required-to-install-maximo-iot">Kafka - Common Arguments (Optional, required to install Maximo IoT):<a class="headerlink" href="#kafka-common-arguments-optional-required-to-install-maximo-iot" title="Permanent link"></a></h3>
+<ul>
+<li><code>--kafka-provider KAFKA_PROVIDER</code>                             Required. Set Kafka provider. Supported options are <code>redhat</code> (Red Hat AMQ Streams), <code>strimzi</code> and <code>ibm</code> (IBM Event Streams) and <code>aws</code> (AWS MSK)</li>
+<li><code>--kafka-namespace KAFKA_NAMESPACE</code>                           Optional. Set Kafka namespace. Only applicable if installing <code>redhat</code> (Red Hat AMQ Streams) or <code>strimzi</code></li>
+<li><code>--kafka-cluster-name KAFKA_CLUSTER_NAME</code>                     Optional. Set Kafka cluster name. Only applicable if installing <code>redhat</code> (Red Hat AMQ Streams), <code>strimzi</code> or <code>aws</code> (AWS MSK)</li>
+<li><code>--kafka-username KAFKA_USER_NAME</code>                            Required. Set Kafka instance username. Only applicable if installing <code>redhat</code> (Red Hat AMQ Streams), <code>strimzi</code> or <code>aws</code> (AWS MSK)</li>
+<li><code>--kafka-password KAFKA_USER_PASSWORD</code>                        Required. Set Kafka instance password. Only applicable if installing <code>redhat</code> (Red Hat AMQ Streams), <code>strimzi</code> or <code>aws</code> (AWS MSK)</li>
+</ul>
+<h3 id="kafka-aws-msk">Kafka - AWS MSK:<a class="headerlink" href="#kafka-aws-msk" title="Permanent link"></a></h3>
+<ul>
+<li><code>--aws-region AWS_REGION</code>                                     Required. Set target AWS region for the MSK instance</li>
+<li><code>--aws-access-key-id AWS_ACCESS_KEY_ID</code>                       Required. Set AWS access key ID for the target AWS account</li>
+<li><code>--aws-secret-access-key AWS_SECRET_ACCESS_KEY</code>               Required. Set AWS secret access key for the target AWS account</li>
+<li><code>--aws-vpc-id VPC_ID</code>                                         Required. Set target Virtual Private Cloud ID for the MSK instance</li>
+<li><code>--msk-instance-type AWS_MSK_INSTANCE_TYPE</code>                   Optional. Set the MSK instance type</li>
+<li><code>--msk-instance-nodes AWS_MSK_INSTANCE_NUMBER</code>                Optional. Set total number of MSK instance nodes</li>
+<li><code>--msk-instance-volume-size AWS_MSK_VOLUME_SIZE</code>              Optional. Set storage/volume size for the MSK instance</li>
+<li><code>--msk-cidr-az1 AWS_MSK_CIDR_AZ1</code>                             Required. Set the CIDR subnet for availability zone 1 for the MSK instance</li>
+<li><code>--msk-cidr-az2 AWS_MSK_CIDR_AZ2</code>                             Required. Set the CIDR subnet for availability zone 2 for the MSK instance</li>
+<li><code>--msk-cidr-az3 AWS_MSK_CIDR_AZ3</code>                             Required. Set the CIDR subnet for availability zone 3 for the MSK instance</li>
+<li><code>--msk-cidr-ingress AWS_MSK_INGRESS_CIDR</code>                     Required. Set the CIDR for ingress connectivity</li>
+<li><code>--msk-cidr-egress AWS_MSK_EGRESS_CIDR</code>                       Required. Set the CIDR for egress connectivity</li>
+</ul>
+<h3 id="kafka-ibm-cloud-event-streams">Kafka - IBM Cloud Event Streams:<a class="headerlink" href="#kafka-ibm-cloud-event-streams" title="Permanent link"></a></h3>
+<ul>
+<li><code>--ibmcloud-apikey IBMCLOUD_APIKEY</code>                           Required. Set IBM Cloud API Key.</li>
+<li><code>--eventstreams-resource-group EVENTSTREAMS_RESOURCEGROUP</code>    Optional. Set IBM Cloud resource group to target the Event Streams instance provisioning.</li>
+<li><code>--eventstreams-instance-name EVENTSTREAMS_NAME</code>              Optional. Set IBM Event Streams instance name.</li>
+<li><code>--eventstreams-instance-location EVENTSTREAMS_LOCATION</code>      Optional. Set IBM Event Streams instance location.</li>
 </ul>
 <h3 id="ibm-db2-optional-required-to-use-ibm-db2-universal-operator">IBM Db2 (Optional, required to use IBM Db2 Universal Operator):<a class="headerlink" href="#ibm-db2-optional-required-to-use-ibm-db2-universal-operator" title="Permanent link"></a></h3>
 <ul>
