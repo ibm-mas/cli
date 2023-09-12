@@ -489,12 +489,12 @@ function install_noninteractive() {
   if [[ "$DEV_MODE" == "true"  ]]; then
     MAS_ICR_CP=docker-na-public.artifactory.swg-devops.com/wiotp-docker-local
     MAS_ICR_CPOPEN=docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen
-    SLS_ICR_CP=docker-na-public.artifactory.swg-devops.com/wiotp-docker-local
+    SLS_ICR_CP=docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen
     SLS_ICR_CPOPEN=docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen
   else
     MAS_ICR_CP=cp.icr.io/cp
     MAS_ICR_CPOPEN=icr.io/cpopen
-    SLS_ICR_CP=cp.icr.io/cp
+    SLS_ICR_CP=icr.io/cpopen
     SLS_ICR_CPOPEN=icr.io/cpopen
   fi
 
