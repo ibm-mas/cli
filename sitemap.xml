@@ -6,6 +6,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/changes/</loc>
+         <lastmod>2023-09-12</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/catalogs/</loc>
          <lastmod>2023-09-12</lastmod>
          <changefreq>daily</changefreq>
