@@ -244,7 +244,7 @@ function check_argo_app_deleted(){
       WAIT_PERIOD=$(($WAIT_PERIOD+30))
       if [ $WAIT_PERIOD -gt 600 ];then
         echo "Force delete application $APPLICATION as it exceeds 10 minutes timeout"
-        argocd app delete $APPLICATION --cascade=false -y
+        argocd app delete $APPLICATION --cascade=true -y
         RC=$?
         echo "ArgoCD response for Force delete application $APPLICATION : $RC"
         break # exiting
