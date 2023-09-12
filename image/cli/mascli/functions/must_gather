@@ -14,6 +14,7 @@ Collection Options (Optional):
   -k, --keep-files           Do not delete individual files after creating the must-gather compressed tar archive
   --summary-only             Perform a much faster must-gather that only gathers high level summary of resources in the cluster
   --no-pod-logs              Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required
+  --mas-instance-ids         Collects the data for the specifed MAS instances, if not specified will collect for all MAS instances on the cluster
 
 Artifactory Upload (Optional):
   --artifactory-token ${COLOR_YELLOW}ARTIFACTORY_TOKEN${TEXT_RESET}              Provide a token for Artifactory to automatically upload the file to ARTIFACTORY_UPLOAD_DIR
@@ -54,6 +55,9 @@ function mustgather() {
       ;;
     --no-logs|--no-pod-logs)
       POD_LOGS=false
+      ;;
+    --mas-instance-ids)
+      MAS_INSTANCE_IDS=$1; shift 
       ;;
     --artifactory-token)
       ARTIFACTORY_TOKEN=$1; shift
@@ -151,10 +155,13 @@ function mustgather() {
     $MG_SCRIPT_DIR/mg-collect-mongoce $MONGOCE_NAMESPACE $OUTPUT_DIR
   done
 
+  if [[ -z $MAS_INSTANCE_IDS ]]
+  then
+    # Find MAS instances
+    # -----------------------------------------------------------------------------
+    MAS_INSTANCE_IDS=$(oc get suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
+  fi
 
-  # Find MAS instances
-  # -----------------------------------------------------------------------------
-  MAS_INSTANCE_IDS=$(oc get suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
   echo ""
   for MAS_INSTANCE_ID in $MAS_INSTANCE_IDS
   do
