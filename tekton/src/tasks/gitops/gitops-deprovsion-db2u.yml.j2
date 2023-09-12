@@ -79,7 +79,7 @@ spec:
         fi
       
         mkdir -p /workspace/configs/$GITHUB_REPO
-        mascli/mas gitops-deprovision-db2u -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        mas gitops-deprovision-db2u -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
           --dir /workspace/configs/$GITHUB_REPO \
           --github-push \
           --github-host $GITHUB_HOST \
