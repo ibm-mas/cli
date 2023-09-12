@@ -23,6 +23,12 @@ spec:
       type: string
     - name: github_pat
       type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
   stepTemplate:
     name: gitops-deprovsion-db2u
     env:
@@ -44,6 +50,12 @@ spec:
         value: $(params.github_repo)
       - name: GITHUB_PAT
         value: $(params.github_pat)  
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: SM_AWS_SECRET_ACCESS_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: SM_AWS_ACCESS_KEY_ID
+        value: $(params.avp_aws_access_key)  
   steps:
     - args:
       - |-
