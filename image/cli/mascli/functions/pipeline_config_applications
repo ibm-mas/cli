@@ -175,8 +175,9 @@ function config_pipeline_applications() {
       fi
     fi
     
-    # Install Object Storage?
     
+    # Install Object Storage?
+    # MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
     # if prompt_for_confirm "+ Install and bind Watson Studio"; then
     #   while : ; do
     #     prompt_for_input 'COS Provider [ibm/ocs]' COS_TYPE "ibm"
@@ -185,6 +186,8 @@ function config_pipeline_applications() {
     #   if [[ "$COS_TYPE" == "ibm" ]]; then
     #     prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY $IBMCLOUD_APIKEY
     #     prompt_for_input "IBM Cloud Resource Group" IBMCLOUD_RESOURCEGROUP $IBMCLOUD_RESOURCEGROUP "Default"
+
+    # cos_setup_for_manage_attachments
 
     if prompt_for_confirm "+ Install and bind Watson Studio"; then
       MAS_APPWS_BINDINGS_HEALTH_WSL_FLAG=true
