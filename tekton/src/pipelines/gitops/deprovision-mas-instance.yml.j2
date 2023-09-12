@@ -57,6 +57,10 @@ spec:
     - name: kafka_provider
       type: string
       default: aws
+    - name: db2_action
+      type: string
+      default: "remove"
+      description: Only remove when db2 instances is provisioned
   tasks:
     - name: gitops-deprovision-suite-workspace
       params:
@@ -220,12 +224,18 @@ spec:
           value: $(params.github_host)
         - name: github_pat
           value: $(params.github_pat)
+        - name: db2_action
+          value: $(params.db2_action)
       workspaces:
         - name: configs
           workspace: configs
       taskRef:
         kind: Task
         name: gitops-deprovsion-db2u
+      when:
+        - input: "$(params.db2_action)"
+          operator: in
+          values: ["remove"]
     - name: gitops-deprovision-efs
       runAfter:
         - gitops-process-mongo-user
