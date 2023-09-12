@@ -29,6 +29,7 @@ echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas must-gather${TEXT_RESET} to perform must
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas uninstall${TEXT_RESET} to uninstall a MAS instance"
 echo "Disconnected Install Support:"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas setup-registry${TEXT_RESET} to setup a private container registry on an OCP cluster"
+echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas teardown-registry${TEXT_RESET} to delete a private container registry on an OCP cluster"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas mirror-images${TEXT_RESET} to mirror container images required by mas to a private registry"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas configure-mirror${TEXT_RESET} to configure a cluster to use a private registry as a mirror"
 echo "Cluster Management:"

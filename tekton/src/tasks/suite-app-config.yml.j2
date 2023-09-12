@@ -137,6 +137,10 @@ spec:
       type: string
       description: Defines if Manage database encryption secret should be overriden with new values provided
       default: ""
+    - name: mas_app_settings_default_jms
+      type: string
+      description: Set true if you want to configure JMS queues. It is false by default.
+      default: "" # default is handled by ansible-devops
 
     # Application Workspace - Operand (Predict)
     - name: predict_deployment_size
@@ -247,6 +251,8 @@ spec:
         value: $(params.mas_app_settings_old_cryptox_key)
       - name: MAS_APP_SETTINGS_OVERRIDE_ENCRYPTION_SECRETS_FLAG
         value: $(params.mas_app_settings_override_encryption_secrets_flag)
+      - name: MAS_APP_SETTINGS_DEFAULT_JMS
+        value: $(params.mas_app_settings_default_jms)
 
       # Application Workspace - Operand (Predict)
       - name: PREDICT_DEPLOYMENT_SIZE

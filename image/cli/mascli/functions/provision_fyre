@@ -116,7 +116,7 @@ function provision_fyre_interactive() {
     fi
   else
     prompt_for_input "Fyre Username" FYRE_USERNAME
-    prompt_for_input "Fyre API Ney" FYRE_APIKEY
+    prompt_for_input "Fyre API Key" FYRE_APIKEY
   fi
 
   if [[ ! -z "$1" ]]; then
