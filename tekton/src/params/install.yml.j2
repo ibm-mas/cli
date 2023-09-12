@@ -81,12 +81,22 @@
   description: IBM Cloud MongoDb admin password
   default: ""
 
-# Dependencies - AMQ Streams (Kafka)
-# -----------------------------------------------------------------------------
-- name: kafka_namespace
+# Dependencies (Kafka) - General variables
+- name: kafka_action_system
   type: string
+  description: Set to 'install' to set up a Kafka instance for the whole suite
+  default: "none"
+- name: kafka_provider
+  type: string
+  description: Kafka provider
   default: ""
 - name: kafka_cluster_name
+  type: string
+  default: ""
+
+# Dependencies - AMQ Streams / Strimzi (Kafka)
+# -----------------------------------------------------------------------------
+- name: kafka_namespace
   type: string
   default: ""
 - name: kafka_cluster_size
@@ -96,15 +106,48 @@
   type: string
   default: ""
 
-# Dependencies - IBM Cloud Event Streams (Kafka)
-# -----------------------------------------------------------------------------
-- name: kafka_provider
+# Dependencies - AWS MSK (Kafka)
+# -------------------------------------------------------------------------
+- name: vpc_id
   type: string
   default: ""
 - name: kafka_action
   type: string
   description: Event Streams action to be performed (install or uninstall)
   default: ""
+- name: aws_kafka_user_name
+  type: string
+  default: ""
+- name: aws_kafka_user_password
+  type: string
+  default: ""
+- name: aws_msk_instance_type
+  type: string
+  default: ""
+- name: aws_msk_instance_number
+  type: string
+  default: ""
+- name: aws_msk_volume_size
+  type: string
+  default: ""
+- name: aws_msk_cidr_az1
+  type: string
+  default: ""
+- name: aws_msk_cidr_az2
+  type: string
+  default: ""
+- name: aws_msk_cidr_az3
+  type: string
+  default: ""
+- name: aws_msk_ingress_cidr
+  type: string
+  default: ""
+- name: aws_msk_egress_cidr
+  type: string
+  default: ""
+
+# Dependencies - IBM Cloud Event Streams (Kafka)
+# -----------------------------------------------------------------------------
 - name: eventstreams_resourcegroup
   type: string
   default: ""
@@ -317,7 +360,7 @@
   type: string
   default: "false"
 
-# MAS DNS Integrations - AWS Route 53
+# AWS basic info
 # -------------------------------------------------------------------------
 - name: aws_access_key_id
   type: string
@@ -325,6 +368,12 @@
 - name: aws_secret_access_key
   type: string
   default: ""
+- name: aws_region
+  type: string
+  default: ""
+
+# MAS DNS Integrations - AWS Route 53
+# -------------------------------------------------------------------------
 - name: route53_hosted_zone_name
   type: string
   default: ""
@@ -365,10 +414,6 @@
   type: string
   default: ""
   description: Optional boolean parameter that when set to False, disables the normal trust of well known public certificate authorities
-- name: mas_customize_scaling
-  type: string
-  default: ""
-  description: Workload Scaling Custom ConfigMap Name
 - name: mas_manual_cert_mgmt
   type: string
   default: "False"

@@ -138,6 +138,41 @@ function pipeline_show_config() {
     fi
   fi
 
+  if [[ "$KAFKA_ACTION_SYSTEM" == "install" && ("$KAFKA_PROVIDER" == "strimzi" || "$KAFKA_PROVIDER" == "redhat") ]]; then
+    reset_colors
+    echo "${TEXT_DIM}"
+    echo_h4 "Kafka" "    "
+    echo_reset_dim "Install Namespace ......... ${COLOR_MAGENTA}${KAFKA_NAMESPACE:-<default>}"
+    echo_reset_dim "Kafka Provider ............ ${COLOR_MAGENTA}${KAFKA_PROVIDER}"
+  fi
+
+  if [[ "$KAFKA_ACTION_SYSTEM" == "install" && "$KAFKA_PROVIDER" == "ibm" ]]; then
+    reset_colors
+    echo "${TEXT_DIM}"
+    echo_h4 "Kafka - IBM Cloud Event Streams" "    "
+    echo_reset_dim "Resource group ............ ${COLOR_MAGENTA}${EVENTSTREAMS_RESOURCEGROUP}"
+    echo_reset_dim "Instance name ............. ${COLOR_MAGENTA}${EVENTSTREAMS_NAME}"
+    echo_reset_dim "Instance location ......... ${COLOR_MAGENTA}${EVENTSTREAMS_LOCATION}"
+  fi
+
+  if [[ "$KAFKA_ACTION_SYSTEM" == "install" && "$KAFKA_PROVIDER" == "aws" ]]; then
+    reset_colors
+    echo "${TEXT_DIM}"
+    echo_h4 "Kafka - AWS MSK" "    "
+    echo_reset_dim "VPC ID .................... ${COLOR_MAGENTA}${VPC_ID}"
+    echo_reset_dim "Cluster name .............. ${COLOR_MAGENTA}${KAFKA_CLUSTER_NAME}"
+    echo_reset_dim "Instance region ........... ${COLOR_MAGENTA}${AWS_REGION}"
+    echo_reset_dim "Instance username ......... ${COLOR_MAGENTA}${AWS_KAFKA_USER_NAME}"
+    echo_reset_dim "Instance type ............. ${COLOR_MAGENTA}${AWS_MSK_INSTANCE_TYPE}"
+    echo_reset_dim "Number of broker nodes .... ${COLOR_MAGENTA}${AWS_MSK_INSTANCE_NUMBER}"
+    echo_reset_dim "Storage size (GB) ......... ${COLOR_MAGENTA}${AWS_MSK_VOLUME_SIZE}"
+    echo_reset_dim "Availability Zone 1 CIDR .. ${COLOR_MAGENTA}${AWS_MSK_CIDR_AZ1}"
+    echo_reset_dim "Availability Zone 2 CIDR .. ${COLOR_MAGENTA}${AWS_MSK_CIDR_AZ2}"
+    echo_reset_dim "Availability Zone 3 CIDR .. ${COLOR_MAGENTA}${AWS_MSK_CIDR_AZ3}"
+    echo_reset_dim "Ingress CIDR .............. ${COLOR_MAGENTA}${AWS_MSK_INGRESS_CIDR}"
+    echo_reset_dim "Egress CIDR ............... ${COLOR_MAGENTA}${AWS_MSK_EGRESS_CIDR}"
+  fi
+
   reset_colors
   echo "${TEXT_DIM}"
   echo_h4 "Cluster Monitoring" "    "
