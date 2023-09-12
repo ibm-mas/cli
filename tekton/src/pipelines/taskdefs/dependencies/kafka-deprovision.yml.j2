@@ -1,8 +1,8 @@
-- name: cos-deprovision
+- name: kafka-deprovision
   params:
     {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
-      value: dependencies-cos-deprovision
+      value: dependencies-kafka-deprovision
 
     - name: mas_instance_id
       value: $(params.mas_instance_id)
@@ -24,15 +24,15 @@
       value: $(params.ibmcloud_resourcegroup)
   taskRef:
     kind: Task
-    name: mas-devops-cos-deprovision
+    name: mas-devops-kafka-deprovision
   when:
-    - input: "$(params.cos_type)"
+    - input: "$(params.kafka_provider)"
       operator: in
       values: ["ibm"]
-    - input: "$(params.cos_action)"
+    - input: "$(params.kafka_action)"
       operator: in
-      values: ["deprovision"]
-    - input: "$(params.mas_app_channel_assist)"
+      values: ["uninstall"]
+    - input: "$(params.mas_app_channel_iot)"
       operator: notin
       values: [""]
   workspaces:
@@ -49,7 +49,7 @@
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
 
-      # COS Details
+       # IBM Cloud Event Streams (Kafka)
       - name: KAFKA_PROVIDER
         value: $(params.kafka_provider)
       - name: KAFKA_ACTION
