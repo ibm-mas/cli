@@ -49,6 +49,33 @@ Usage
 ### IBM Cloud Pak for Data (Required when installing Predict or Assist):
 - `--cp4d-version CP4D_VERSION`                                  Product version of CP4D to use
 
+### Kafka - Common Arguments (Optional, required to install Maximo IoT):
+- `--kafka-provider KAFKA_PROVIDER`                             Required. Set Kafka provider. Supported options are `redhat` (Red Hat AMQ Streams), `strimzi` and `ibm` (IBM Event Streams) and `aws` (AWS MSK)
+- `--kafka-namespace KAFKA_NAMESPACE`                           Optional. Set Kafka namespace. Only applicable if installing `redhat` (Red Hat AMQ Streams) or `strimzi`
+- `--kafka-cluster-name KAFKA_CLUSTER_NAME`                     Optional. Set Kafka cluster name. Only applicable if installing `redhat` (Red Hat AMQ Streams), `strimzi` or `aws` (AWS MSK)
+- `--kafka-username KAFKA_USER_NAME`                            Required. Set Kafka instance username. Only applicable if installing `redhat` (Red Hat AMQ Streams), `strimzi` or `aws` (AWS MSK)
+- `--kafka-password KAFKA_USER_PASSWORD`                        Required. Set Kafka instance password. Only applicable if installing `redhat` (Red Hat AMQ Streams), `strimzi` or `aws` (AWS MSK)
+
+### Kafka - AWS MSK:
+- `--aws-region AWS_REGION`                                     Required. Set target AWS region for the MSK instance
+- `--aws-access-key-id AWS_ACCESS_KEY_ID`                       Required. Set AWS access key ID for the target AWS account
+- `--aws-secret-access-key AWS_SECRET_ACCESS_KEY`               Required. Set AWS secret access key for the target AWS account
+- `--aws-vpc-id VPC_ID`                                         Required. Set target Virtual Private Cloud ID for the MSK instance
+- `--msk-instance-type AWS_MSK_INSTANCE_TYPE`                   Optional. Set the MSK instance type
+- `--msk-instance-nodes AWS_MSK_INSTANCE_NUMBER`                Optional. Set total number of MSK instance nodes
+- `--msk-instance-volume-size AWS_MSK_VOLUME_SIZE`              Optional. Set storage/volume size for the MSK instance
+- `--msk-cidr-az1 AWS_MSK_CIDR_AZ1`                             Required. Set the CIDR subnet for availability zone 1 for the MSK instance
+- `--msk-cidr-az2 AWS_MSK_CIDR_AZ2`                             Required. Set the CIDR subnet for availability zone 2 for the MSK instance
+- `--msk-cidr-az3 AWS_MSK_CIDR_AZ3`                             Required. Set the CIDR subnet for availability zone 3 for the MSK instance
+- `--msk-cidr-ingress AWS_MSK_INGRESS_CIDR`                     Required. Set the CIDR for ingress connectivity
+- `--msk-cidr-egress AWS_MSK_EGRESS_CIDR`                       Required. Set the CIDR for egress connectivity
+
+### Kafka - IBM Cloud Event Streams:
+- `--ibmcloud-apikey IBMCLOUD_APIKEY`                           Required. Set IBM Cloud API Key.
+- `--eventstreams-resource-group EVENTSTREAMS_RESOURCEGROUP`    Optional. Set IBM Cloud resource group to target the Event Streams instance provisioning.
+- `--eventstreams-instance-name EVENTSTREAMS_NAME`              Optional. Set IBM Event Streams instance name.
+- `--eventstreams-instance-location EVENTSTREAMS_LOCATION`      Optional. Set IBM Event Streams instance location.
+
 ### IBM Db2 (Optional, required to use IBM Db2 Universal Operator):
 - `--db2u-channel DB2_CHANNEL`     Subscription channel for Db2u (e.g. v110508.0)
 - `--db2u-system`                  Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)
@@ -76,6 +103,20 @@ Usage
 - `--db2u-logs-storage DB2_LOGS_STORAGE_SIZE`        Customise Db2 storage capacity
 - `--db2u-meta-storage DB2_META_STORAGE_SIZE`        Customise Db2 storage capacity
 - `--db2u-temp-storage DB2_TEMP_STORAGE_SIZE`        Customise Db2 storage capacity
+
+### Manage Application - Advanced Configuration (Optional):
+
+- `--manage-server-bundle-size MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE`                        Set Manage server bundle size configuration i.e `dev, small, jms or snojms`
+- `--manage-components MAS_APPWS_COMPONENTS`                                                Set Manage Components to be installed i.e `base=latest,health=latest,civil=latest`                       
+- `--manage-customization-archive-name MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME`         Set Manage Archive name
+- `--manage-customization-archive-url MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL`           Set Manage Archive url
+- `--manage-customization-archive-username MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME` Set Manage Archive username, in case url requires basic authentication to pull the archive
+- `--manage-customization-archive-password MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD` Set Manage Archive password, in case url requires basic authentication to download the archive
+- `--manage-crypto-key MAS_APP_SETTINGS_CRYPTO_KEY`                                         Set `MXE_SECURITY_CRYPTO_KEY` value if you want to customize your Manage database encryption keys
+- `--manage-cryptox-key MAS_APP_SETTINGS_CRYPTOX_KEY`                                       Set `MXE_SECURITY_CRYPTOX_KEY` value if you want to customize your Manage database encryption keys
+- `--manage-old-crypto-key MAS_APP_SETTINGS_OLD_CRYPTO_KEY`                                 Set `MXE_SECURITY_OLD_CRYPTO_KEY` value if you want to customize your Manage database encryption keys
+- `--manage-old-cryptox-key MAS_APP_SETTINGS_OLD_CRYPTOX_KEY`                               Set `MXE_SECURITY_OLD_CRYPTOX_KEY` value if you want to customize your Manage database encryption keys                     
+- `--manage-override-encryption-secrets`                                                    Overrides any existing Manage database encryption keys. A backup of the original secret holding existing encryption keys is taken prior overriding it with the new defined keys.
 
 ### Other Commands:
 - `--no-wait-for-pvcs` If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
