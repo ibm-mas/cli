@@ -209,26 +209,29 @@ APP_NAME=$1
 echo "Force Application $APP_NAME to Sync ..."
 argocd app sync $APP_NAME
 RC=$?
-echo "ArgoCD response: $RC"
+echo "ArgoCD response for Force Application $APP_NAME to Sync: $RC"
 }
 
 function argocd_prune_sync(){
 APP_NAME=$1
 echo "Force Application $APP_NAME to Sync with --prune ..."
 argocd app sync $APP_NAME --prune
-echo "ArgoCD response: $RC"
+RC=$?
+echo "ArgoCD response for Force Application $APP_NAME to Sync with --prune: $RC"
 }
 
 function argocd_hard_refresh(){
 APP_NAME=$1
 echo "Force Application $APP_NAME to hard refresh ..."
 argocd app get $APP_NAME --hard-refresh
-echo "ArgoCD response: $RC"
+RC=$?
+echo "ArgoCD response for Force Application $APP_NAME to hard refresh: $RC"
 }
 
 function check_argo_app_deleted(){
   APPLICATION=$1
   PROJECT=$2
+  WAIT_PERIOD=0
   while true; do
     echo "argo: Checking if $APPLICATION in project $PROJECT is deleted"
     APP=$(argocd app list -p $PROJECT -o json 2> /dev/null | jq -r ".[] | select(.metadata.name == \"$APPLICATION\")")
@@ -238,6 +241,14 @@ function check_argo_app_deleted(){
     else
       echo "Application still found, Waiting 30s before checking application again"
       sleep 30
+      WAIT_PERIOD=$(($WAIT_PERIOD+30))
+      if [ $WAIT_PERIOD -gt 600 ];then
+        echo "Force delete application $APPLICATION as it exceeds 10 minutes timeout"
+        argocd app delete $APPLICATION --cascade=false -y
+        RC=$?
+        echo "ArgoCD response for Force delete application $APPLICATION : $RC"
+        break # exiting
+      fi
     fi
   done
 }
