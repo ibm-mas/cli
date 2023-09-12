@@ -83,8 +83,8 @@
       operator: notin
       values: [""]
     - input: "$(params.kafka_action_system)"
-      operator: in
-      values: ["install"]
+      operator: notin
+      values: ["byo"]
     
   taskRef:
     kind: Task
