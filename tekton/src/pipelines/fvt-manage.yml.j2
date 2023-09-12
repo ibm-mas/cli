@@ -46,8 +46,8 @@ spec:
     # 2. Manage IVT Core
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/ivt-core/manage.yml.j2') | indent(4) }}
-    runAfter:
-      - app-verify-manage
+      runAfter:
+        - app-verify-manage
     
     # 3. Manage FVT - Manage
     # -------------------------------------------------------------------------
