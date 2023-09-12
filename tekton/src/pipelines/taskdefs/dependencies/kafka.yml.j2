@@ -73,14 +73,14 @@
     - name: ibmcloud_apikey
       value: $(params.ibmcloud_apikey)
 
-  # Only install Kafka if the IoT application is being installed
+  # Only install Kafka if the IoT application is being installed or if "bring your own" kafka configuration is not defined
   when:
     - input: "$(params.mas_app_channel_iot)"
       operator: notin
       values: [""]
     - input: "$(params.kafka_action_system)"
-      operator: in
-      values: ["install"]
+      operator: notin
+      values: ["byo"]
     
   taskRef:
     kind: Task
