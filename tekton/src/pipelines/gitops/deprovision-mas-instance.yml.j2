@@ -192,6 +192,34 @@ spec:
       taskRef:
         kind: Task
         name: gitops-process-mongo-user
+    - name: gitops-deprovsion-db2u
+      runAfter:
+        - gitops-process-mongo-user
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: github_pat
+          value: $(params.github_pat)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-deprovsion-db2u
     - name: gitops-deprovision-efs
       runAfter:
         - gitops-process-mongo-user
