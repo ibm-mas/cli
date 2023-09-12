@@ -12,6 +12,7 @@ Usage
 - `--no-pod-logs` Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required
 - `--artifactory-token ARTIFACTORY_TOKEN` Provide a token for Artifactory to automatically upload the file to `ARTIFACTORY_UPLOAD_DIRECTORY`
 - `--artifactory-upload-directory ARTIFACTORY_UPLOAD_DIRECTORY` Working URL to the root directory in Artifactory where the must-gather file should be uploaded
+- `--mas-instance-ids` Collects the data for the specifed MAS instances, if not specified will collect for all MAS instances on the cluster
 
 Content
 -------------------------------------------------------------------------------
