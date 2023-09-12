@@ -168,6 +168,8 @@ spec:
     # 6. Manage IVT
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/ivt-core/manage.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-manage
 
     # 7. Application FVT - Manage
     # -------------------------------------------------------------------------

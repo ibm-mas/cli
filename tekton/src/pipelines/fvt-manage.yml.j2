@@ -34,7 +34,36 @@ spec:
     # Content
     # -------
     # 1. Verify if Manage is up and running
+    # 2. Manage IVT Core
+    # 3. Manage FVT - Manage
+    # 4. Manage FVT - Industry Solutions
     # -------
 
     # 1. Verify if Manage is up and running
+    # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/apps/manage-verify.yml.j2') | indent(4) }}
+
+    # 2. Manage IVT Core
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/ivt-core/manage.yml.j2') | indent(4) }}
+    runAfter:
+      - app-verify-manage
+    
+    # 3. Manage FVT - Manage
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-manage/phase0.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase2.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase3.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
+
+    # 4. Manage FVT - Industry Solutions
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase0-aviation.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase1-scheduler.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase2-civil.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase3-all-setup.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase4-all-user.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase5-all-test.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase6-maintmanager.yml.j2') | indent(4) }}
