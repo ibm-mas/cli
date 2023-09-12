@@ -78,8 +78,8 @@ function config_pipeline_dns() {
         echo "Provide your AWS account access key ID & secret access key."
         echo "This will be used to authenticate into the AWS account where your AWS Route 53 hosted zone instance is located."
         echo ""
-        prompt_for_input "AWS access key ID" AWS_ACCESS_KEY_ID && export AWS_ACCESS_KEY_ID
-        prompt_for_input "AWS secret access key" AWS_SECRET_ACCESS_KEY && export AWS_SECRET_ACCESS_KEY
+        prompt_for_secret "AWS Access Key ID" AWS_ACCESS_KEY_ID "Re-use saved AWS Access Key ID?"
+        prompt_for_secret "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY "Re-use saved AWS Secret Access Key?"
         echo ""
         echo "Provide your AWS Route 53 hosted zone instance details."
         echo "This information will be used to create webhook resources between your cluster and your AWS Route 53 instance (cluster issuer and cname records)"
