@@ -65,6 +65,12 @@ spec:
         export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
         oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
 
+        OC_RC=$?
+        if [ $OC_RC -ne 0 ]; then
+          echo "oc login failed so assume there is no cluster to deprovision, exiting.."
+          exit 0
+        fi
+
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
         
@@ -74,9 +80,9 @@ spec:
           export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
         fi
 
-        mkdir -p /workspace/configs/$GITHUB_REPO
+        mkdir -p /tmp/deprovision-cluster
         mas gitops-deprovision-cluster -a $ACCOUNT -c $CLUSTER_NAME \
-        --dir /workspace/configs/$GITHUB_REPO \
+        --dir /tmp/deprovision-cluster \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org  $GITHUB_ORG \

@@ -11,6 +11,8 @@ spec:
   workspaces:
     - name: configs
     - name: shared-entitlement
+    # Any pre-generated configs that will be copied into the shared-configs workspace during suite-install
+    - name: shared-additional-configs
   description: Provision MAS GitOps Instance
   params:
 {% if wait_for_provision == true %}
@@ -406,6 +408,8 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+        - name: shared-additional-configs
+          workspace: shared-additional-configs
     - name: gitops-init-efs
       runAfter:
         - gitops-init-suite-config

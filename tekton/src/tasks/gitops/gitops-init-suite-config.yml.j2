@@ -64,7 +64,7 @@ spec:
   steps:
     - args:
       - |-
-        mkdir -p /workspace/configs/$GITHUB_REPO
+        mkdir -p /tmp/init-suite-config
 
         git config --global user.name "yourUsername"
         git config --global user.email "you@example.com"
@@ -75,6 +75,7 @@ spec:
         export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
         export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
         oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+        OC_RC=$?
         if [ $OC_RC -ne 0 ]; then
           echo "oc login failed to $OCP_SERVER"
           exit 1
@@ -92,7 +93,7 @@ spec:
         mas gitops-init-suite-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
         --mongo-provider $MONGO_PROVIDER \
-        --dir /workspace/configs/$GITHUB_REPO \
+        --dir /tmp/init-suite-config \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org $GITHUB_ORG \

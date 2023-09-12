@@ -52,7 +52,8 @@ spec:
   steps:
     - args:
       - |-
-        mkdir -p /workspace/configs/$GITHUB_REPO
+        
+        mkdir -p /tmp/deprovision-kafka
 
         aws configure set aws_access_key_id $(params.avp_aws_access_key)
         aws configure set aws_secret_access_key $(params.avp_aws_secret_key)
@@ -66,8 +67,8 @@ spec:
         export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ['$vpc_name']}]' --output yaml | yq -r '.Vpcs[].VpcId' )
         
         if [ -z "$VPC_ID" ]; then
-          echo "No VPC for $CLUSTER_NAME found, expected to find VPC exiting as error"
-          exit 1
+          echo "No VPC for $CLUSTER_NAME found so assume there is no kafka to deprovision, exiting.."
+          exit 0
         fi
 
         echo "VPC of $VPC_ID found for $CLUSTER_NAME"
@@ -77,7 +78,7 @@ spec:
         --cidr-block 10.1.0.0/23
 
         mas gitops-deprovision-kafka -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
-        --dir /workspace/configs/$GITHUB_REPO \
+        --dir /tmp/deprovision-kafka \
         --secrets-path $SECRET_PATH \
         --kafka-provider $KAFKA_PROVIDER \
         --aws-region $SM_AWS_REGION \

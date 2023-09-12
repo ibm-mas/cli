@@ -89,7 +89,7 @@ spec:
   steps:
     - args:
       - |-
-        mkdir -p /workspace/configs/$GITHUB_REPO
+        mkdir -p /tmp/init-suite-idp-config
 
         git config --global user.name "yourUsername"
         git config --global user.email "you@example.com"
@@ -117,7 +117,7 @@ spec:
 
         mas gitops-init-suite-idp-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
-        --dir /workspace/configs/$GITHUB_REPO \
+        --dir /tmp/init-suite-idp-config \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org $GITHUB_ORG \
