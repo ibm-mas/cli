@@ -381,7 +381,7 @@ spec:
     # 15.2 Manage IVT
     {{ lookup('template', 'taskdefs/ivt-core/manage.yml.j2') | indent(4) }}
       runAfter:
-        - app-cfg-manage
+        - manage-setup-doclinks
 
 
     # 16. Application FVT - Assist
