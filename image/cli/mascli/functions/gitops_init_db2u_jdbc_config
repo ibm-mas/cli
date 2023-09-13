@@ -185,11 +185,11 @@ function wait_for_db2ucluster_crd(){
 }
 
 function delete_db2u_0_pod(){
-  oc delete pod c-${DB2_INSTANCE_NAME,,}-db2u-0 -n ${DB2_NAMESPACE}
+  oc delete pod c-${DB2_INSTANCE_NAME}-db2u-0 -n ${DB2_NAMESPACE}
   while [[ true ]]
   do
-    # Get pod c-${DB2_INSTANCE_NAME,,}-db2u-0 ContainersReady status
-    export DB2_POD_STATUS=`oc get pod c-${DB2_INSTANCE_NAME,,}-db2u-0 -n ${DB2_NAMESPACE} -o=jsonpath="{.status.conditions[?(@.type=='ContainersReady')].status}"`
+    # Get pod c-${DB2_INSTANCE_NAME}-db2u-0 ContainersReady status
+    export DB2_POD_STATUS=`oc get pod c-${DB2_INSTANCE_NAME}-db2u-0 -n ${DB2_NAMESPACE} -o=jsonpath="{.status.conditions[?(@.type=='ContainersReady')].status}"`
     echo_reset_dim "DB2_POD_STATUS....................... ${COLOR_MAGENTA}${DB2_POD_STATUS}"
     if [[ $DB2_POD_STATUS == 'True' ]]; then
       break
@@ -317,19 +317,19 @@ function gitops_init_db2u_jdbc_config() {
   # delete pod
   delete_db2u_0_pod
   
-  export DB2_LDAP_POD_NAME=`oc get pods -o custom-columns=POD:.metadata.name -l app=${DB2_INSTANCE_NAME,,},role=ldap -n mas-${MAS_INSTANCE_ID}-db2u-manage  --no-headers`
+  export DB2_LDAP_POD_NAME=`oc get pods -o custom-columns=POD:.metadata.name -l app=${DB2_INSTANCE_NAME},role=ldap -n mas-${MAS_INSTANCE_ID}-db2u-manage  --no-headers`
   export DB2_CA_PEM=`oc get secret db2u-certificate -n ${DB2_NAMESPACE} -o "jsonpath={.data['ca\.crt']}"`
   # Get Db2u TLS port
   export DB2_TLS_SERVICEPORT=`oc get svc c-db2wh-${MAS_INSTANCE_ID}-db2u-engn-svc -n mas-${MAS_INSTANCE_ID}-db2u-manage -o=jsonpath="{.spec.ports[?(@.name=='ssl-server')].targetPort}"`
-  export JDBC_URL="jdbc:db2://c-${DB2_INSTANCE_NAME,,}-db2u-engn-svc.${DB2_NAMESPACE}.svc:${DB2_TLS_SERVICEPORT}/${DB2_DBNAME}:sslConnection=true;sslVersion=${TLS_VERSION};"
+  export JDBC_URL="jdbc:db2://c-${DB2_INSTANCE_NAME}-db2u-engn-svc.${DB2_NAMESPACE}.svc:${DB2_TLS_SERVICEPORT}/${DB2_DBNAME}:sslConnection=true;sslVersion=${TLS_VERSION};"
 
   
   # Create db2 user in local LDAP registry : Starts
   if [[ -n ${DB2_LDAP_USERNAME} && -n ${DB2_LDAP_PASSWORD} ]]; then
     # Check if user exist
     echo_reset_dim "Add USERNAME to LDAP .................. ${COLOR_MAGENTA}"
-    echo_reset_dim "oc exec ............................... ${COLOR_MAGENTA}exec -it c-${DB2_INSTANCE_NAME,,}-db2u-0 -n ${DB2_NAMESPACE} -c db2u "
-    oc exec -it c-${DB2_INSTANCE_NAME,,}-db2u-0 -n ${DB2_NAMESPACE} -c db2u -- su -lc "id ${DB2_LDAP_USERNAME}"
+    echo_reset_dim "oc exec ............................... ${COLOR_MAGENTA}exec -it c-${DB2_INSTANCE_NAME}-db2u-0 -n ${DB2_NAMESPACE} -c db2u "
+    oc exec -it c-${DB2_INSTANCE_NAME}-db2u-0 -n ${DB2_NAMESPACE} -c db2u -- su -lc "id ${DB2_LDAP_USERNAME}"
     if [ $? -ne 0 ]; then
       # If user not found, create db2 user in local LDAP registry
       echo_reset_dim "DB2_LDAP_USERNAME ................... ${COLOR_MAGENTA}${DB2_LDAP_USERNAME} not found, creating in local LDAP registry with given password ${DB2_LDAP_PASSWORD}"
@@ -340,7 +340,7 @@ function gitops_init_db2u_jdbc_config() {
     do
       # Test that the newly created user can connect to db2
       echo_reset_dim "Test DB Connection ............... ${COLOR_MAGENTA} for ${DB2_LDAP_USERNAME} with ${DB2_LDAP_USERNAME} "
-      oc exec -it c-${DB2_INSTANCE_NAME,,}-db2u-0 -n ${DB2_NAMESPACE} -c db2u -- su -lc "db2 connect to ${DB2_DBNAME} user ${DB2_LDAP_USERNAME} using ${DB2_LDAP_PASSWORD}" db2inst1
+      oc exec -it c-${DB2_INSTANCE_NAME}-db2u-0 -n ${DB2_NAMESPACE} -c db2u -- su -lc "db2 connect to ${DB2_DBNAME} user ${DB2_LDAP_USERNAME} using ${DB2_LDAP_PASSWORD}" db2inst1
       if [[ $? -eq 0 ]]; then
         echo_reset_dim "DB Connection Successful............... ${COLOR_MAGENTA}"
         break
@@ -363,12 +363,12 @@ function gitops_init_db2u_jdbc_config() {
     do
       #Wait for the statefulset to be ready
       echo_reset_dim "Wait for the statefulset to be ready"
-      export READY_REPLICASE=`oc get statefulset c-${DB2_INSTANCE_NAME,,}-db2u -n ${DB2_NAMESPACE} -o=jsonpath="{.status.readyReplicas}"`
-      export REPLICASE=`oc get statefulset c-${DB2_INSTANCE_NAME,,}-db2u -n ${DB2_NAMESPACE} -o=jsonpath="{.status.replicas}"`
+      export READY_REPLICASE=`oc get statefulset c-${DB2_INSTANCE_NAME}-db2u -n ${DB2_NAMESPACE} -o=jsonpath="{.status.readyReplicas}"`
+      export REPLICASE=`oc get statefulset c-${DB2_INSTANCE_NAME}-db2u -n ${DB2_NAMESPACE} -o=jsonpath="{.status.replicas}"`
       echo_reset_dim "READY_REPLICASE ....................... ${COLOR_MAGENTA}${READY_REPLICASE}"
       echo_reset_dim "REPLICASE ............................. ${COLOR_MAGENTA}${REPLICASE}"
       if [[ ${READY_REPLICASE} -ge 1 && ${REPLICASE} -ge 1 && ${READY_REPLICASE} -eq ${REPLICASE} ]]; then
-        echo_reset_dim "Statefulset ......................... ${COLOR_MAGENTA}c-${DB2_INSTANCE_NAME,,}-db2u is ready"
+        echo_reset_dim "Statefulset ......................... ${COLOR_MAGENTA}c-${DB2_INSTANCE_NAME}-db2u is ready"
         break
       fi
     done
@@ -377,7 +377,7 @@ function gitops_init_db2u_jdbc_config() {
     echo_reset_dim "......................................... ${COLOR_MAGENTA}"
     echo_reset_dim ""
     echo_reset_dim "DB2_LDAP_POD_NAME ....................... ${COLOR_MAGENTA}${DB2_LDAP_POD_NAME}"
-    echo_reset_dim "DB2_INSTANCE_NAME ....................... ${COLOR_MAGENTA}${DB2_INSTANCE_NAME,,}"
+    echo_reset_dim "DB2_INSTANCE_NAME ....................... ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
     echo_reset_dim "DB2_NAMESPACE ........................... ${COLOR_MAGENTA}$DB2_NAMESPACE"
     echo_reset_dim "DB2_CA_PEM .............................. ${COLOR_MAGENTA}$DB2_CA_PEM"    
     echo_reset_dim "DB2_JDBC_USERNAME ....................... ${COLOR_MAGENTA}$DB2_JDBC_USERNAME"
