@@ -57,7 +57,75 @@ spec:
     - name: kafka_provider
       type: string
       default: aws
+    - name: force_removal
+      type: string
+      default: ""
   tasks:
+
+    - name: gitops-deprovision-suite-smtp-config
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite-smtp-config
+      workspaces:
+        - name: configs
+          workspace: configs
+    - name: gitops-deprovision-suite-idp-config
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite-idp-config
+      workspaces:
+        - name: configs
+          workspace: configs
     - name: gitops-deprovision-suite-workspace
       params:
         - name: cluster_name
@@ -90,7 +158,7 @@ spec:
           workspace: configs
     - name: gitops-deprovision-suite-config
       runAfter:
-        - gitops-deprovision-suite-workspace
+        - gitops-delete-kafka-config
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -116,6 +184,8 @@ spec:
           value: $(params.avp_aws_secret_key)
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
+        - name: force_removal
+          value: $(params.force_removal)
       workspaces:
         - name: configs
           workspace: configs
@@ -152,6 +222,8 @@ spec:
           value: $(params.avp_aws_secret_key)
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
+        - name: force_removal
+          value: $(params.force_removal)
       taskRef:
         kind: Task
         name: gitops-deprovision-suite
@@ -160,7 +232,9 @@ spec:
           workspace: configs
     - name: gitops-process-mongo-user
       runAfter:
-        - gitops-deprovision-suite
+        - gitops-deprovision-suite-workspace
+        - gitops-deprovision-suite-smtp-config
+        - gitops-deprovision-suite-idp-config
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -194,7 +268,7 @@ spec:
         name: gitops-process-mongo-user
     - name: gitops-deprovision-efs
       runAfter:
-        - gitops-process-mongo-user
+        - gitops-deprovision-suite
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -216,7 +290,7 @@ spec:
         name: gitops-deprovision-efs
     - name: gitops-delete-kafka-config
       runAfter:
-        - gitops-deprovision-efs
+        - gitops-process-mongo-user
       params:
         - name: cluster_name
           value: $(params.cluster_name)
