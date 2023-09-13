@@ -57,6 +57,9 @@ spec:
     - name: kafka_provider
       type: string
       default: aws
+    - name: force_removal
+      type: string
+      default: ""
   tasks:
 
     - name: gitops-deprovision-suite-smtp-config
@@ -181,6 +184,8 @@ spec:
           value: $(params.avp_aws_secret_key)
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
+        - name: force_removal
+          value: $(params.force_removal)
       workspaces:
         - name: configs
           workspace: configs
@@ -217,6 +222,8 @@ spec:
           value: $(params.avp_aws_secret_key)
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
+        - name: force_removal
+          value: $(params.force_removal)
       taskRef:
         kind: Task
         name: gitops-deprovision-suite
