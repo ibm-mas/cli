@@ -38,8 +38,6 @@ spec:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
 
       # General
-      - name: MAS_CONFIG_DIR
-        value: /workspace/configs
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
 
@@ -62,6 +60,3 @@ spec:
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
-
-  workspaces:
-    - name: configs
