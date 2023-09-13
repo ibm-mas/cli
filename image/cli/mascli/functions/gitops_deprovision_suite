@@ -171,7 +171,7 @@ function gitops_deprovision_suite() {
     exit 1
     gitops_deprovision_suite_interactive
   fi
-  rm -rf ${GITOPS_WORKING_DIR}
+
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
   GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
