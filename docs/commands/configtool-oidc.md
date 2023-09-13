@@ -1,4 +1,4 @@
-Manage OpenID client for Configration Tool
+Manage OpenID client for Configuration Tool
 ===============================================================================
 
 Overview
