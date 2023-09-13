@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-init-suite-smtp-config
+  name: gitops-deprovision-suite-idp-config
 spec:
   params:
     - name: cluster_name
@@ -29,39 +29,8 @@ spec:
       type: string
     - name: avp_aws_access_key
       type: string
-    - name: smtp_host
-      type: string
-      default: ""
-    - name: smtp_port
-      type: string
-      default: ""
-    - name: smtp_security
-      type: string
-      default: ""
-    - name: smtp_authentication
-      type: string
-      default: ""
-    - name: smtp_default_sender_email
-      type: string
-      default: ""
-    - name: smtp_default_sender_name
-      type: string
-      default: ""
-    - name: smtp_default_recipient_email
-      type: string
-      default: ""
-    - name: smtp_default_should_email_passwords
-      type: string
-      default: ""
-    - name: smtp_username
-      type: string
-      default: ""
-    - name: smtp_password
-      type: string
-      default: ""
-
   stepTemplate:
-    name: gitops-init-suite-smtp-config
+    name: gitops-deprovision-suite-idp-config
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -87,31 +56,10 @@ spec:
         value: $(params.avp_aws_secret_key)
       - name: SM_AWS_ACCESS_KEY_ID
         value: $(params.avp_aws_access_key)
-      - name: SMTP_HOST
-        value: $(params.smtp_host)
-      - name: SMTP_PORT
-        value: $(params.smtp_port)
-      - name: SMTP_SECURITY
-        value: $(params.smtp_security)
-      - name: SMTP_AUTHENTICATION
-        value: $(params.smtp_authentication)
-      - name: SMTP_DEFAULT_SENDER_EMAIL
-        value: $(params.smtp_default_sender_email)
-      - name: SMTP_DEFAULT_SENDER_NAME
-        value: $(params.smtp_default_sender_name)
-      - name: SMTP_DEFAULT_RECIPIENT_EMAIL
-        value: $(params.smtp_default_recipient_email)
-      - name: SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS
-        value: $(params.smtp_default_should_email_passwords)
-      - name: SMTP_USERNAME
-        value: $(params.smtp_username)
-      - name: SMTP_PASSWORD
-        value: $(params.smtp_password)
-
   steps:
     - args:
       - |-
-        mkdir -p /tmp/init-suite-smtp-config
+        mkdir -p /tmp/deprovision-suite-idp-config
 
         git config --global user.name "yourUsername"
         git config --global user.email "you@example.com"
@@ -124,10 +72,10 @@ spec:
         oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
         OC_RC=$?
         if [ $OC_RC -ne 0 ]; then
-          echo "oc login failed to $OCP_SERVER"
-          exit 1
+          echo "oc login failed so assume there is no suit idp config to deprovision, exiting.."          
+          exit 0
         fi
-        
+
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
@@ -137,33 +85,19 @@ spec:
           export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
         fi
 
-        mas gitops-init-suite-smtp-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        mas gitops-deprovision-suite-idp-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
-        --dir /tmp/init-suite-smtp-config \
+        --dir /tmp/deprovision-suite-idp-config \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH \
-        --smtp-host $SMTP_HOST \
-        --smtp-port $SMTP_PORT \
-        --smtp-security $SMTP_SECURITY \
-        --smtp-authentication $SMTP_AUTHENTICATION \
-        --smtp-default-sender-email $SMTP_DEFAULT_SENDER_EMAIL \
-        --smtp-default-sender-name $SMTP_DEFAULT_SENDER_NAME \
-        --smtp-default-recipient-email $SMTP_DEFAULT_RECIPIENT_EMAIL \
-        --smtp-default-should-email-passwords $SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS \
-        --smtp-username $SMTP_USERNAME \
-        --smtp-password $SMTP_PASSWORD
+        --git-branch $GIT_BRANCH
       command:
         - /bin/sh
         - -c
-      name: gitops-init-suite-smtp-config
+      name: gitops-deprovision-suite-idp-config
       imagePullPolicy: Always
       image: quay.io/ibmmas/cli:6.4.0-pre.gitops
   workspaces:
     - name: configs
-
-
-
-

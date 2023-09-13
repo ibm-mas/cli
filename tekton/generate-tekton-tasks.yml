@@ -112,6 +112,8 @@
         - gitops-deprovision-kafka
         - gitops-deprovision-rosa
         - gitops-deprovision-suite-config
+        - gitops-deprovision-suite-idp-config
+        - gitops-deprovision-suite-smtp-config
         - gitops-deprovision-suite-workspace
         - gitops-deprovision-suite
         - gitops-init-cis-compliance
