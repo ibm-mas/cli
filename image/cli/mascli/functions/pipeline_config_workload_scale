@@ -3,8 +3,8 @@
 function check_mas_pod_templates_dir(){
   MAS_WORKLOAD_SCALE_PROFILE=Custom
 
-  if [[ ! -d "$MAS_POD_TEMPLATES_DIR_LOCAL" ]]; then
-    echo_warning "Error: Directory does not exist: $MAS_POD_TEMPLATES_DIR_LOCAL"
+  if [[ ! -d "$MAS_POD_TEMPLATES_DIR" ]]; then
+    echo_warning "Error: Directory does not exist: $MAS_POD_TEMPLATES_DIR"
     exit 1
   fi
 }
@@ -49,7 +49,7 @@ function config_pipeline_workload_scale() {
     set_mas_workload_scale_envs
     ;;
   4)
-    prompt_for_input "Custom configurations directory" MAS_POD_TEMPLATES_DIR_LOCAL
+    prompt_for_input "Custom configurations directory" MAS_POD_TEMPLATES_DIR
     check_mas_pod_templates_dir
     ;;
   *)
