@@ -170,7 +170,7 @@ function pipeline_config() {
 
     echo
     echo_h2 "Configure IBM Container Registry (SLS)"
-    prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen override
+    prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP docker-na-public.artifactory.swg-devops.com/wiotp-docker-local override
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen override
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
@@ -181,7 +181,7 @@ function pipeline_config() {
     MAS_ICR_CP=cp.icr.io/cp
     MAS_ICR_CPOPEN=icr.io/cpopen
 
-    SLS_ICR_CP=icr.io/cpopen
+    SLS_ICR_CP=cp.icr.io/cp
     SLS_ICR_CPOPEN=icr.io/cpopen
   fi
 
