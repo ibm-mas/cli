@@ -51,38 +51,6 @@ spec:
     - name: docdb_user_action
       type: string
       default: remove
-    - name: smtp_host
-      type: string
-    - name: smtp_port
-      type: string
-    - name: smtp_security
-      type: string
-    - name: smtp_authentication
-      type: string
-    - name: smtp_default_sender_email
-      type: string
-    - name: smtp_default_sender_name
-      type: string
-    - name: smtp_default_recipient_email
-      type: string
-    - name: smtp_default_should_email_passwords
-      type: string
-    - name: smtp_username
-      type: string
-    - name: smtp_password
-      type: string
-    - name: ldap_url
-      type: string
-    - name: ldap_basedn
-      type: string
-    - name: ldap_userid_map
-      type: string
-    - name: ldap_certificate_file
-      type: string
-    - name: ldap_bind_dn
-      type: string
-    - name: ldap_bind_password
-      type: string
     - name: cloud_provider
       type: string
       default: aws
@@ -117,26 +85,6 @@ spec:
           value: $(params.avp_aws_secret_key)
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
-        - name: smtp_host
-          value: $(params.smtp_host)
-        - name: smtp_port
-          value: $(params.smtp_port)
-        - name: smtp_security
-          value: $(params.smtp_security)
-        - name: smtp_authentication
-          value: $(params.smtp_authentication)
-        - name: smtp_default_sender_email
-          value: $(params.smtp_default_sender_email)
-        - name: smtp_default_sender_name
-          value: $(params.smtp_default_sender_name)
-        - name: smtp_default_recipient_email
-          value: $(params.smtp_default_recipient_email)
-        - name: smtp_default_should_email_passwords
-          value: $(params.smtp_default_should_email_passwords)
-        - name: smtp_username
-          value: $(params.smtp_username)
-        - name: smtp_password
-          value: $(params.smtp_password)
       taskRef:
         kind: Task
         name: gitops-deprovision-suite-smtp-config
@@ -169,18 +117,6 @@ spec:
           value: $(params.avp_aws_secret_key)
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
-        - name: ldap_url
-          value: $(params.ldap_url)
-        - name: ldap_basedn
-          value: $(params.ldap_basedn)
-        - name: ldap_userid_map
-          value: $(params.ldap_userid_map)
-        - name: ldap_certificate_file
-          value: $(params.ldap_certificate_file)
-        - name: ldap_bind_dn
-          value: $(params.ldap_bind_dn)
-        - name: ldap_bind_password
-          value: $(params.ldap_bind_password)
       taskRef:
         kind: Task
         name: gitops-deprovision-suite-idp-config

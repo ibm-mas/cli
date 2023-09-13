@@ -22,14 +22,6 @@ Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
-MAS IDP/LDAP Options:
-      --idpcfg-display-name ${COLOR_YELLOW}IDPCFG_DISPLAY_NAME${TEXT_RESET}            Display name for IDPCfg resource
-      --ldap-url ${COLOR_YELLOW}LDAP_URL${TEXT_RESET}                             Url of the LDAP server. In the form protocol://host:port
-      --ldap-basedn ${COLOR_YELLOW}LDAP_BASEDN${TEXT_RESET}                       The baseDN for the LDAP server
-      --ldap-userid-map ${COLOR_YELLOW}LDAP_USERID_MAP${TEXT_RESET}               LDAP UserId map
-      --ldap-certificate-file ${COLOR_YELLOW}LDAP_CERTIFICATE_FILE${TEXT_RESET}   Path to file containing CA Certificate for LDAP server
-      --ldap-bind-dn ${COLOR_YELLOW}LDAP_BIND_DN${TEXT_RESET}                     DN for LDAP server authentication
-      --ldap-bind-password ${COLOR_YELLOW}LDAP_BIND_PASSWORD${TEXT_RESET}         Password for LDAP server authenticaiton
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -51,7 +43,6 @@ function gitops_deprovision_suite_idp_config_noninteractive() {
   SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-deprovision-mas-idp-config commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
-  export IDPCFG_DISPLAY_NAME=${IDPCFG_DISPLAY_NAME:="Suite IDPCfg"}
 
   while [[ $# -gt 0 ]]
   do
@@ -80,29 +71,6 @@ function gitops_deprovision_suite_idp_config_noninteractive() {
         ;;
       --secrets-key-seperator)
         export SECRETS_KEY_SEPERATOR=$1 && shift
-        ;;
-
-      # LDAP
-      --idpcfg-display-name)
-        export IDPCFG_DISPLAY_NAME=$1 && shift
-        ;;
-      --ldap-url)
-        export LDAP_URL=$1 && shift
-        ;;
-      --ldap-basedn)
-        export LDAP_BASEDN=$1 && shift
-        ;;
-      --ldap-userid-map)
-        export LDAP_USERID_MAP=$1 && shift
-        ;;
-      --ldap-certificate-file)
-        export LDAP_CERTIFICATE_FILE=$1 && shift
-        ;; 
-      --ldap-bind-dn)
-        export LDAP_BIND_DN=$1 && shift
-        ;;
-      --ldap-bind-password)
-        export LDAP_BIND_PASSWORD=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -150,12 +118,6 @@ function gitops_deprovision_suite_idp_config_noninteractive() {
     [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_suite_idp_config_help "GITHUB_REPO is not set"
     [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_suite_idp_config_help "GIT_BRANCH is not set"
   fi
-  [[ -z "$LDAP_URL" ]] && gitops_deprovision_suite_idp_config_help "LDAP_URL is not set"
-  [[ -z "$LDAP_BASEDN" ]] && gitops_deprovision_suite_idp_config_help "LDAP_BASEDN is not set"
-  [[ -z "$LDAP_USERID_MAP" ]] && gitops_deprovision_suite_idp_config_help "LDAP_USERID_MAP is not set"
-  [[ -z "$LDAP_CERTIFICATE_FILE" ]] && gitops_deprovision_suite_idp_config_help "LDAP_CERTIFICATE_FILE is not set"
-  [[ -z "$LDAP_BIND_DN" ]] && gitops_deprovision_suite_idp_config_help "LDAP_BIND_DN is not set"
-  [[ -z "$LDAP_BIND_PASSWORD" ]] && gitops_deprovision_suite_idp_config_help "LDAP_BIND_PASSWORD is not set"
 
 }
 
@@ -215,17 +177,6 @@ function gitops_deprovision_suite_idp_config() {
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  reset_colors
-
-  echo "${TEXT_DIM}"
-  echo_h2 "IBM Maximo Application Suite IDP/LDAP Config" "    "
-  echo_reset_dim "IdpCfg Display Name ............................ ${COLOR_MAGENTA}${IDPCFG_DISPLAY_NAME}"
-  echo_reset_dim "LDAP Server URL ................................ ${COLOR_MAGENTA}${LDAP_URL}"
-  echo_reset_dim "LDAP Server baseDN ............................. ${COLOR_MAGENTA}${LDAP_BASEDN}"
-  echo_reset_dim "LDAP UserId Map ................................ ${COLOR_MAGENTA}${LDAP_USERID_MAP}"
-  echo_reset_dim "Path to LDAP Cert File  ........................ ${COLOR_MAGENTA}${LDAP_CERTIFICATE_FILE}"
-  echo_reset_dim "ldap Server Bind DN ............................ ${COLOR_MAGENTA}${LDAP_BIND_DN}"
-  echo_reset_dim "ldap Server Bind Password ...................... ${COLOR_MAGENTA}${LDAP_BIND_PASSWORD:0:4}<snip>"
   reset_colors
 
   # Set up Suite secrets

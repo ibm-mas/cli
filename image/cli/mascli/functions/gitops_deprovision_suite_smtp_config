@@ -22,18 +22,6 @@ Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
-MAS SMTP Options:
-      --smtp-display-name ${COLOR_YELLOW}SMTP_DISPLAY_NAME${TEXT_RESET}                                       Display name for SmtpCfg resource
-      --smtp-host ${COLOR_YELLOW}SMTP_HOST{TEXT_RESET}                                                        Host of the SMTP server
-      --smtp-port ${COLOR_YELLOW}SMTP_PORT${TEXT_RESET}                                                       Port of the SMTP server
-      --smtp-security ${COLOR_YELLOW}SMTP_SECURITY${TEXT_RESET}                                               Security protocol. None, STARTTLS or SSL
-      --smtp-authentication ${COLOR_YELLOW}SMTP_AUTHENTICATION${TEXT_RESET}                                   true or false on whether to authenticate
-      --smtp-default-sender-email ${COLOR_YELLOW}SMTP_DEFAULT_SENDER_EMAIL${TEXT_RESET}                       The default sender email
-      --smtp-default-sender-name ${COLOR_YELLOW}SMTP_DEFAULT_SENDER_NAME${TEXT_RESET}                         The default sender name
-      --smtp-default-recipient-email ${COLOR_YELLOW}SMTP_DEFAULT_RECIPIENT_EMAIL${TEXT_RESET}                 The default recipient email
-      --smtp-default-should-email-passwords ${COLOR_YELLOW}SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS${TEXT_RESET}   true or false on sending email passwords
-      --smtp-username ${COLOR_YELLOW}SMTP_USERNAME${TEXT_RESET}                                               Username for SMTP server authentication
-      --smtp-password ${COLOR_YELLOW}SMTP_PASSWORD${TEXT_RESET}                                               Password for SMTP server authenticaiton
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -55,7 +43,6 @@ function gitops_deprovision_suite_smtp_config_noninteractive() {
   SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-deprovision-mas-smtp-config commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
-  export SMTP_DISPLAY_NAME=${SMTP_DISPLAY_NAME:="Suite SMTP"}
 
   while [[ $# -gt 0 ]]
   do
@@ -84,41 +71,6 @@ function gitops_deprovision_suite_smtp_config_noninteractive() {
         ;;
       --secrets-key-seperator)
         export SECRETS_KEY_SEPERATOR=$1 && shift
-        ;;
-
-      # SMTP
-      --smtp-display-name)
-        export SMTP_DISPLAY_NAME=$1 && shift
-        ;;
-      --smtp-host)
-        export SMTP_HOST=$1 && shift
-        ;;
-      --smtp-port)
-        export SMTP_PORT=$1 && shift
-        ;;
-      --smtp-security)
-        export SMTP_SECURITY=$1 && shift
-        ;;
-      --smtp-authentication)
-        export SMTP_AUTHENTICATION=$1 && shift
-        ;; 
-      --smtp-default-sender-email)
-        export SMTP_DEFAULT_SENDER_EMAIL=$1 && shift
-        ;;
-      --smtp-default-sender-name)
-        export SMTP_DEFAULT_SENDER_NAME=$1 && shift
-        ;;
-      --smtp-default-recipient-email)
-        export SMTP_DEFAULT_RECIPIENT_EMAIL=$1 && shift
-        ;;
-      --smtp-default-should-email-passwords)
-        export SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS=$1 && shift
-        ;;
-      --smtp-username)
-        export SMTP_USERNAME=$1 && shift
-        ;;
-      --smtp-password)
-        export SMTP_PASSWORD=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -166,16 +118,7 @@ function gitops_deprovision_suite_smtp_config_noninteractive() {
     [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_suite_smtp_config_help "GITHUB_REPO is not set"
     [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_suite_smtp_config_help "GIT_BRANCH is not set"
   fi
-  [[ -z "$SMTP_HOST" ]] && gitops_deprovision_suite_smtp_config_help "SMTP_HOST is not set"
-  [[ -z "$SMTP_PORT" ]] && gitops_deprovision_suite_smtp_config_help "SMTP_PORT is not set"
-  [[ -z "$SMTP_SECURITY" ]] && gitops_deprovision_suite_smtp_config_help "SMTP_SECURITY is not set"
-  [[ -z "$SMTP_AUTHENTICATION" ]] && gitops_deprovision_suite_smtp_config_help "SMTP_AUTHENTICATION is not set"
-  [[ -z "$SMTP_DEFAULT_SENDER_EMAIL" ]] && gitops_deprovision_suite_smtp_config_help "SMTP_DEFAULT_SENDER_EMAIL is not set"
-  [[ -z "$SMTP_DEFAULT_SENDER_NAME" ]] && gitops_deprovision_suite_smtp_config_help "SMTP_DEFAULT_SENDER_NAME is not set"
-  [[ -z "$SMTP_DEFAULT_RECIPIENT_EMAIL" ]] && gitops_deprovision_suite_smtp_config_help "SMTP_DEFAULT_RECIPIENT_EMAIL is not set"
-  [[ -z "$SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS" ]] && gitops_deprovision_suite_smtp_config_help "SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS is not set"
-  [[ -z "$SMTP_USERNAME" ]] && gitops_deprovision_suite_smtp_config_help "SMTP_USERNAME is not set"
-  [[ -z "$SMTP_PASSWORD" ]] && gitops_deprovision_suite_smtp_config_help "SMTP_PASSWORD is not set"
+
 }
 
 function gitops_deprovision_suite_smtp_config() {
@@ -236,20 +179,6 @@ function gitops_deprovision_suite_smtp_config() {
   echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   reset_colors
 
-  echo "${TEXT_DIM}"
-  echo_h2 "IBM Maximo Application Suite SMTP Config" "    "
-  echo_reset_dim "SmtpCfg Display Name ........................... ${COLOR_MAGENTA}${SMTP_DISPLAY_NAME}"
-  echo_reset_dim "Smtp Server Host ............................... ${COLOR_MAGENTA}${SMTP_HOST}"
-  echo_reset_dim "Smtp Server Port ............................... ${COLOR_MAGENTA}${SMTP_PORT}"
-  echo_reset_dim "Smtp Security Protocol ......................... ${COLOR_MAGENTA}${SMTP_SECURITY}"
-  echo_reset_dim "Smtp Authentication ............................ ${COLOR_MAGENTA}${SMTP_AUTHENTICATION}"
-  echo_reset_dim "Smtp Default Sender Email ...................... ${COLOR_MAGENTA}${SMTP_DEFAULT_SENDER_EMAIL}"
-  echo_reset_dim "Smtp Default Sender Name ....................... ${COLOR_MAGENTA}${SMTP_DEFAULT_SENDER_NAME}"
-  echo_reset_dim "Smtp Default Recipient Email ................... ${COLOR_MAGENTA}${SMTP_DEFAULT_RECIPIENT_EMAIL}"
-  echo_reset_dim "Smtp Should Email Passwords .................... ${COLOR_MAGENTA}${SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS}"
-  echo_reset_dim "Smtp Server Username ........................... ${COLOR_MAGENTA}${SMTP_USERNAME}"
-  echo_reset_dim "Smtp Server Password ........................... ${COLOR_MAGENTA}${SMTP_PASSWORD:0:4}<snip>"
-  reset_colors
 
   # Set up Suite secrets
   # ---------------------------------------------------------------------------

@@ -29,24 +29,6 @@ spec:
       type: string
     - name: avp_aws_access_key
       type: string
-    - name: ldap_url
-      type: string
-      default: ""
-    - name: ldap_basedn
-      type: string
-      default: ""
-    - name: ldap_userid_map
-      type: string
-      default: ""
-    - name: ldap_certificate_file
-      type: string
-      default: ""
-    - name: ldap_bind_dn
-      type: string
-      default: ""
-    - name: ldap_bind_password
-      type: string
-      default: ""
   stepTemplate:
     name: gitops-deprovision-suite-idp-config
     env:
@@ -74,18 +56,6 @@ spec:
         value: $(params.avp_aws_secret_key)
       - name: SM_AWS_ACCESS_KEY_ID
         value: $(params.avp_aws_access_key)
-      - name: LDAP_URL
-        value: $(params.ldap_url)
-      - name: LDAP_BASEDN
-        value: $(params.ldap_basedn)
-      - name: LDAP_USERID_MAP
-        value: $(params.ldap_userid_map)
-      - name: LDAP_CERTIFICATE_FILE
-        value: $(params.ldap_certificate_file)
-      - name: LDAP_BIND_DN
-        value: $(params.ldap_bind_dn)
-      - name: LDAP_BIND_PASSWORD
-        value: $(params.ldap_bind_password)
   steps:
     - args:
       - |-
@@ -122,13 +92,7 @@ spec:
         --github-host $GITHUB_HOST \
         --github-org $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH \
-        --ldap-url $LDAP_URL \
-        --ldap-basedn $LDAP_BASEDN \
-        --ldap-userid-map $LDAP_USERID_MAP \
-        --ldap-certificate-file $LDAP_CERTIFICATE_FILE \
-        --ldap-bind-dn $LDAP_BIND_DN \
-        --ldap-bind-password $LDAP_BIND_PASSWORD
+        --git-branch $GIT_BRANCH
       command:
         - /bin/sh
         - -c
