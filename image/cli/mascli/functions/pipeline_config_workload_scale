@@ -49,7 +49,7 @@ function config_pipeline_workload_scale() {
     set_mas_workload_scale_envs
     ;;
   4)
-    prompt_for_input "Custom configurations directory" MAS_POD_TEMPLATES_DIR
+    prompt_for_input "Custom configurations directory" MAS_POD_TEMPLATES_DIR_LOCAL
     check_mas_pod_templates_dir
     ;;
   *)
