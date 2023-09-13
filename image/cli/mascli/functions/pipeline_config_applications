@@ -136,10 +136,6 @@ function config_pipeline_applications() {
 
   # Manage
   if prompt_for_confirm "Install Manage"; then
-    echo "Maximo IT License Terms"
-    echo -e "${COLOR_YELLOW}Optionally, in case you own entitlement and are planning to install IBM Maximo IT (add-on part to IBM Maximo Application Suite), you accept the terms: \n"https://ibm.biz/MAXIT81-License"."
-    prompt_for_confirm_default_yes "Do you accept the license terms?" LICENSE_RESPONSE #TODO save answer
-
     channel_select_manage || exit 1
   fi
 
@@ -227,6 +223,14 @@ function manage_settings() {
     prompt_for_input "Manage components to be installed" MAS_APPWS_COMPONENTS
     if [[ -z "$MAS_APPWS_COMPONENTS" ]]; then
       MAS_APPWS_COMPONENTS="base=latest,health=latest"
+    fi
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"it="* ]]; then
+      echo_h4 "Maximo IT License Terms"
+      echo -e "${COLOR_YELLOW}For information about your Maximo IT License, see "https://ibm.biz/MAXIT81-License". To continue with the installation, you must accept the license terms."
+      prompt_for_confirm_default_yes "Do you accept the license terms?" LICENSE_RESPONSE
+      if [[ "$LICENSE_RESPONSE" == "false" ]]; then
+        exit 1
+      fi
     fi
   fi
 
