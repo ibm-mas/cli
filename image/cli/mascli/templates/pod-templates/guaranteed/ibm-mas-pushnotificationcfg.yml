@@ -1,0 +1,25 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a QoS class of Guaranteed. More can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
+podTemplates:
+  - name: push-notification-service
+    containers:
+      - name: push-notification-service
+        resources:
+          requests:
+            cpu: 0.8
+            memory: 256Mi
+          limits:
+            cpu: 0.8
+            memory: 256Mi
+    initContainers:
+      - name: push-notification-service-init
+        resources:
+          requests:
+            cpu: 0.4
+            memory: 256Mi
+          limits:
+            cpu: 0.4
+            memory: 256Mi

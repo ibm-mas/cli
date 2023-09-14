@@ -69,6 +69,9 @@ spec:
       - name: UDS_ACTION
         value: $(params.uds_action)
 
+      - name: MAS_POD_TEMPLATES_DIR
+        value: /workspace/pod-templates
+
   steps:
     - name: uds
       command:
@@ -80,4 +83,6 @@ spec:
 
   workspaces:
     - name: configs
+      optional: true
+    - name: pod-templates
       optional: true
