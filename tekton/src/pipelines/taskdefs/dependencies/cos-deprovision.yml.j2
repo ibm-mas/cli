@@ -7,19 +7,13 @@
     - name: mas_instance_id
       value: $(params.mas_instance_id)
 
-    # IBM Cloud Event Streams (Kafka)
-    - name: kafka_provider
-      value: $(params.kafka_provider)
-    - name: eventstreams_resourcegroup
-      value: $(params.eventstreams_resourcegroup)
-    - name: eventstreams_name
-      value: $(params.eventstreams_name)
-    - name: eventstreams_location
-      value: $(params.eventstreams_location)
-    - name: eventstreams_retention
-      value: $(params.eventstreams_retention)
-    - name: eventstreams_create_manage_jms_topics
-      value: $(params.eventstreams_create_manage_jms_topics)
+    # COS
+    - name: cos_type
+      value: $(params.cos_type)
+    - name: cos_action
+      value: $(params.cos_action)
+    - name: ibmcos_resourcegroup
+      value: $(params.ibmcos_resourcegroup)
     - name: ibmcloud_apikey
       value: $(params.ibmcloud_apikey)
     - name: ibmcloud_resourcegroup
