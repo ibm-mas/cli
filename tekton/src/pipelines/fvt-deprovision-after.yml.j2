@@ -67,7 +67,7 @@ spec:
     - name: kafka_provider
       type: string
       default: ""
-    - name: kafka_action
+    - name: kafka_action_system
       type: string
       default: ""
 
@@ -124,7 +124,7 @@ spec:
           value: $(params.mas_instance_id)
         - name: kafka_provider
           value: $(params.kafka_provider)
-        - name: kafka_action
+        - name: kafka_action_system
           value: $(params.kafka_action_system)
         - name: eventstreams_name
           value: $(params.eventstreams_name)

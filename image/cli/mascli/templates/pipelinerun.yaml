@@ -160,8 +160,6 @@ spec:
       value: '$KAFKA_ACTION_SYSTEM'
     - name: kafka_provider
       value: '$KAFKA_PROVIDER'
-    - name: kafka_action
-      value: '$KAFKA_ACTION'
     - name: kafka_namespace
       value: '$KAFKA_NAMESPACE'
 
