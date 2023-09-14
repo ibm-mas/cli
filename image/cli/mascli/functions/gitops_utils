@@ -270,6 +270,8 @@ function delete_oc_resource(){
 
 function check_argo_app_synced() {
   APPLICATION=$1
+  CLUSTER_WATCHER=$2
+  FORCE_DELETE=$3
   COUNT=0
   while true; do
     echo "argo: Checking sync status for $APPLICATION"
@@ -281,6 +283,13 @@ function check_argo_app_synced() {
       echo "Sync Status is $SYNC_STATUS, Waiting 30s before checking status again"
       ((COUNT++))
       if ! (( $COUNT % 10 )) ; then
+        if [ "$FORCE_DELETE" == "true" ]; then
+          echo "Force delete application $APPLICATION and try resync"
+          argocd app delete $APPLICATION
+        fi
+        if [ -n "$CLUSTER_WATCHER" ]; then
+          argocd_sync $CLUSTER_WATCHER
+        fi
         argocd_sync $APPLICATION
       fi
       sleep 30
