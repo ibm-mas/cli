@@ -1,0 +1,21 @@
+#!/bin/bash
+
+function teardown_mirror_registry() {
+  echo
+  echo_h2 "Configure Registry Tear Down"
+
+  prompt_for_input "Registry Namespace" REGISTRY_NAMESPACE "airgap-registry" && export REGISTRY_NAMESPACE
+  export REGISTRY_ACTION=tear-down
+
+  echo
+
+  prompt_for_confirm "Proceed with these settings" || exit 0
+  echo
+  
+  prompt_for_confirm "Are you sure you want to permanently delete the registry, all registry data, and the $REGISTRY_NAMESPACE project?" || exit 0
+
+  echo
+  echo_h2 "Run Registry Tear Down"
+  export ROLE_NAME=registry 
+  ansible-playbook ibm.mas_devops.run_role
+}

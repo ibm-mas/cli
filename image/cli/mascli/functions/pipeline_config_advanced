@@ -29,6 +29,14 @@ function config_pipeline_advanced() {
       if [[ "$DB2_ACTION_SYSTEM" == "install" || "$DB2_ACTION_MANAGE" == "install" ]]; then
         prompt_for_input "+ Db2 Namespace" DB2_NAMESPACE "db2u"
       fi
+      if [[ "$KAFKA_ACTION_SYSTEM" == "install" && ("$KAFKA_PROVIDER" == "strimzi" || "$KAFKA_PROVIDER" == "redhat") ]]; then
+        if [[ "$KAFKA_PROVIDER" == "strimzi" ]]; then
+          KAFKA_NAMESPACE="strimzi"
+        else
+          KAFKA_NAMESPACE="amq-streams"
+        fi
+        prompt_for_input "+ Kafka Namespace" KAFKA_NAMESPACE $KAFKA_NAMESPACE
+      fi
       if [[ "$CLUSTER_MONITORING_INCLUDE_GRAFANA" == "True" ]]; then
         prompt_for_input "+ Grafana Namespace" GRAFANA_NAMESPACE "grafana"
       fi
