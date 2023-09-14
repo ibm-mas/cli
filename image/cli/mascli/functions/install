@@ -17,6 +17,7 @@ Entitlement & Licensing (Required):
       --uds-email ${COLOR_YELLOW}UDS_CONTACT_EMAIL${TEXT_RESET}                                Contact e-mail address
       --uds-firstname ${COLOR_YELLOW}UDS_CONTACT_FIRSTNAME${TEXT_RESET}                        Contact first name
       --uds-lastname ${COLOR_YELLOW}UDS_CONTACT_LASTNAME${TEXT_RESET}                          Contact last name
+      --accept-license                                                                         Accept the licenses for IBM Maximo Application Suite and Maximo IT
 
 Storage Class Selection (Required):
       --storage-rwo ${COLOR_YELLOW}STORAGE_CLASS_RWO${TEXT_RESET}                              Read Write Once (RWO) storage class (e.g. ibmc-block-gold)
@@ -111,6 +112,7 @@ EOM
 function install_noninteractive() {
   NON_INTERACTIVE=true
   DEV_MODE=false
+  LICENSE_ACCEPTED=false
 
   # Defaults
   DB2_ACTION_SYSTEM=none
@@ -363,6 +365,9 @@ function install_noninteractive() {
     --uds-lastname)
     export UDS_CONTACT_LASTNAME=$1 && shift
     ;;
+    --accept-license)
+    export LICENSE_ACCEPTED=true && shift
+    ;;
 
     # MongoDB
     --mongodb-namespace)
@@ -475,6 +480,25 @@ function install_noninteractive() {
     SLS_ICR_CPOPEN=icr.io/cpopen
   fi
 
+  # Present a the MAS license information
+  # ---------------------------------------------------------------------------
+  case $MAS_CHANNEL in
+    8.9.x)
+      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
+      ;;
+    *)
+      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
+      ;;
+  esac
+
+  if [[ "$LICENSE_ACCEPTED" == "false" ]]; then
+    echo
+    echo_h2 "License Terms"
+    echo -e "${COLOR_RED}For information about your license, see "$MAS_LICENSE_LINK" and https://ibm.biz/MAXIT81-License. To continue with the installation, you must accept the license terms."
+    install_help
+    exit 1
+
+  fi
 
 }
 
