@@ -51,6 +51,7 @@ function pipeline_prepare() {
   # Clean up existing secrets
   oc -n $PIPELINES_NS delete secret pipeline-additional-configs --ignore-not-found=true &>> $LOGFILE
   oc -n $PIPELINES_NS delete secret pipeline-sls-entitlement --ignore-not-found=true &>> $LOGFILE
+  oc -n $PIPELINES_NS delete secret pipeline-pod-templates --ignore-not-found=true &>> $LOGFILE
 
   # Create new secrets
   if [ "$LOCAL_MAS_CONFIG_DIR" != "" ]; then
@@ -60,6 +61,20 @@ function pipeline_prepare() {
     oc -n $PIPELINES_NS create secret generic pipeline-additional-configs &>> $LOGFILE
   fi
   oc -n $PIPELINES_NS create secret generic pipeline-sls-entitlement --from-file=$SLS_LICENSE_FILE_LOCAL &>> $LOGFILE
+
+  if [ "MAS_POD_TEMPLATES_DIR" != "" ]; then
+    oc -n $PIPELINES_NS create secret generic pipeline-pod-templates \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-bascfg.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-pushnotificationcfg.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-scimcfg.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-slscfg.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-smtpcfg.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-suite.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-sls-licenseservice.yml} &>> $LOGFILE
+  else
+    # pipeline-pod-templates must exist (otherwise the suite-install step will hang), but can be empty
+    oc -n $PIPELINES_NS create secret generic pipeline-pod-templates &>> $LOGFILE
+  fi
 
   echo -en "\033[1K" # Clear current line
   echo -en "\033[u" # Restore cursor position

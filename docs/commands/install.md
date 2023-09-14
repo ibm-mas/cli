@@ -32,6 +32,9 @@ Usage
 - `--additional-configs LOCAL_MAS_CONFIG_DIR`         Path to a directory containing additional configuration files to be applied
 - `--non-prod`                                        Install MAS in Non-production mode
 - `--mas-trust-default-cas MAS_TRUST_DEFAULT_CAS`     Trust certificates signed by well-known CAs
+- `--workload-scale-profile`                          Set a pre-defined workload scale profile [`Burstable`, `BestEffort`, `Guaranteed`]
+- `--mas-pod-templates-dir`                           Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over `--workload-scale-profile`
+
 
 ### Maximo Application Suite Core Platform (Required):
 - `--mas-channel MAS_CHANNEL`                                    Subscription channel for the Core Platform
@@ -93,17 +96,17 @@ Usage
 - `--db2u-tolerate-effect DB2_TOLERATE_EFFECT`       Set the effect that will be tolerated (NoSchedule, PreferNoSchedule, or NoExecute)
 
 ### Advanced Db2u Universal Operator Configuration - Resource Requests (Optional):
-- `--db2u-cpu-request DB2_CPU_REQUESTS`              Customise Db2 CPU request
-- `--db2u-cpu-limit DB2_CPU_LIMITS`                  Customise Db2 CPU limit
-- `--db2u-memory-request DB2_MEMORY_REQUESTS`        Customise Db2 memory request
-- `--db2u-memory-limit DB2_MEMORY_LIMITS`            Customise Db2 memory limit
+- `--db2u-cpu-request DB2_CPU_REQUESTS`              Customize Db2 CPU request
+- `--db2u-cpu-limit DB2_CPU_LIMITS`                  Customize Db2 CPU limit
+- `--db2u-memory-request DB2_MEMORY_REQUESTS`        Customize Db2 memory request
+- `--db2u-memory-limit DB2_MEMORY_LIMITS`            Customize Db2 memory limit
 
 ### Advanced Db2u Universal Operator Configuration - Storage (Optional):
-- `--db2u-backup-storage DB2_BACKUP_STORAGE_SIZE`    Customise Db2 storage capacity
-- `--db2u-data-storage DB2_DATA_STORAGE_SIZE`        Customise Db2 storage capacity
-- `--db2u-logs-storage DB2_LOGS_STORAGE_SIZE`        Customise Db2 storage capacity
-- `--db2u-meta-storage DB2_META_STORAGE_SIZE`        Customise Db2 storage capacity
-- `--db2u-temp-storage DB2_TEMP_STORAGE_SIZE`        Customise Db2 storage capacity
+- `--db2u-backup-storage DB2_BACKUP_STORAGE_SIZE`    Customize Db2 storage capacity
+- `--db2u-data-storage DB2_DATA_STORAGE_SIZE`        Customize Db2 storage capacity
+- `--db2u-logs-storage DB2_LOGS_STORAGE_SIZE`        Customize Db2 storage capacity
+- `--db2u-meta-storage DB2_META_STORAGE_SIZE`        Customize Db2 storage capacity
+- `--db2u-temp-storage DB2_TEMP_STORAGE_SIZE`        Customize Db2 storage capacity
 
 ### Manage Application - Advanced Configuration (Optional):
 
@@ -192,7 +195,7 @@ Provide the basic information about your MAS instance:
     Instance ID restrictions:
 
     - Must be 3-12 characters long
-    - Must only use lowercase letters, numbers, and hypen (`-`) symbol
+    - Must only use lowercase letters, numbers, and hyphen (`-`) symbol
     - Must start with a lowercase letter
     - Must end with a lowercase letter or a number
 
@@ -264,17 +267,36 @@ Even when a recognized storage provider is detected you will be provided with th
 When selecting storage classes you will be presented with a list of available storage classes and must select both a `ReadWriteMany` and a `ReadWriteOnce` storage class.
 
 !!! warning
-    Unfortunately there is no way for the install to verify that the storage class selected actually supports the appropriate access mode, refer to the documention from the storage class provider to determine whetheryour storage class supports `ReadWriteOnce` and/or `ReadWriteMany`.
+    Unfortunately there is no way for the install to verify that the storage class selected actually supports the appropriate access mode, refer to the documentation from the storage class provider to determine whether your storage class supports `ReadWriteOnce` and/or `ReadWriteMany`.
 
 
 ### Step 13. Advanced Settings
 These settings can generally be ignored for most installations.
 
+#### Configure Scaling Profile
+
+You can choose between three pre-defined workload scaling classes - `Burstable`, `BestEffort` and `Guaranteed`; or choose a custom profile of your own. By default MAS applications use `Burstable`.
+
+When choosing a custom profile you will be prompted for the directory of your config files. For each supported application you will need to create separate config file. The naming convention for custom config files is `ibm-<appname>-<customresourcename>.yml`.
+
+Currently supported config files:
+- ibm-mas-bascfg.yml
+- ibm-mas-pushnotificationcfg.yml
+- ibm-mas-scimcfg.yml
+- ibm-mas-slscfg.yml
+- ibm-mas-smtpcfg.yml
+- ibm-mas-suite.yml
+- ibm-sls-licenseservice.yml
+
+For examples on these config files take a look into the pre-defined configs: [BestEffort](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/best-effort) and [Guaranteed](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/guaranteed). More information on podTemplates can be found in our official IBM documentation [here](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=configuring-customizing-workloads).
+
+!!! Note: This feature is only supported starting in MAS 8.11.0 and SLS 3.8.0
+
 #### Change Cluster monitoring storage defaults?
 Answering "y" at the prompt will allow you to customize the storage capacity and data retention period in Grafana and Prometheus.
 
 #### Change default install namespaces?
-Answering "y" will allow you to customise the namespace where Db2, Grafana, and MongoDb are installed in the cluster.
+Answering "y" will allow you to customize the namespace where Db2, Grafana, and MongoDb are installed in the cluster.
 
 
 ### Step 15. Configure IBM Container Registry

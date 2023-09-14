@@ -1,0 +1,56 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a QoS class of BestEffort. More can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
+podTemplates:
+  - name: accapppoints
+    containers:
+      - name: accapppoints
+        resources: {}
+    initContainers:
+      - name: accapppoints-init
+        resources: {}
+  - name: usage-daily
+    containers:
+      - name: usage-daily
+        resources: {}
+    initContainers:
+      - name: adoptionusagemetering-daily-init
+        resources: {}
+  - name: usage-historical
+    containers:
+      - name: usage-historical
+        resources: {}
+    initContainers:
+      - name: adoptionusagemetering-historical-init
+        resources: {}
+  - name: usage-hourly
+    containers:
+      - name: usage-hourly
+        resources: {}
+    initContainers:
+      - name: adoptionusagemetering-hourly-init
+        resources: {}
+  - name: adoptionusage-reporter
+    containers:
+      - name: adoptionusage-reporter
+        resources: {}
+    initContainers:
+      - name: adoptionusagereporter-init
+        resources: {}
+  - name: adoptionusageapi
+    containers:
+      - name: adoptionusageapi
+        resources: {}
+    initContainers:
+      - name: adoptionusageapi-init
+        resources: {}
+  - name: milestonesapi
+    containers:
+      - name: milestonesapi
+        resources: {}
+  - name: suds
+    containers:
+      - name: suds
+        resources: {}
