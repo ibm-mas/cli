@@ -190,7 +190,7 @@
 <h3 id="platform-version-range-optional">Platform Version Range (Optional):<a class="headerlink" href="#platform-version-range-optional" title="Permanent link"></a></h3>
 <ul>
 <li><code>--min-version OCP_MIN_VERSION</code> Minimum version of the OCP release to mirror</li>
-<li><code>--max-version OCP_MAX_VERSION</code> Maximium version of the OCP release to mirror</li>
+<li><code>--max-version OCP_MAX_VERSION</code> Maximum version of the OCP release to mirror</li>
 </ul>
 <h3 id="other-options">Other Options<a class="headerlink" href="#other-options" title="Permanent link"></a></h3>
 <ul>
@@ -198,7 +198,7 @@
 <li><code>-h|--help</code> Show help message</li>
 </ul>
 <h2 id="storage-requirements">Storage Requirements<a class="headerlink" href="#storage-requirements" title="Permanent link"></a></h2>
-<p>The selected content from the three required OpenShift operator catalogs requires approximately 80Gb.  The storage requirements for the OpenShift platform itself will vary dedpending on how many versions of the release you intent to mirror.</p>
+<p>The selected content from the three required OpenShift operator catalogs requires approximately 80Gb.  The storage requirements for the OpenShift platform itself will vary depending on how many versions of the release you intent to mirror.</p>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
 <h3 id="interactive-image-mirroring">Interactive Image Mirroring<a class="headerlink" href="#interactive-image-mirroring" title="Permanent link"></a></h3>
 <pre><code class="language-bash">docker run -ti --rm -v /mnt/storage:/mnt/local --pull always quay.io/ibmmas/cli mas mirror-redhat-images

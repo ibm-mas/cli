@@ -150,6 +150,8 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#step-13-advanced-settings">Step 13. Advanced Settings</a>
         <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#configure-scaling-profile">Configure Scaling Profile</a>
+    </li>
     <li class="toctree-l4"><a class="reference internal" href="#change-cluster-monitoring-storage-defaults">Change Cluster monitoring storage defaults?</a>
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#change-default-install-namespaces">Change default install namespaces?</a>
@@ -262,6 +264,8 @@
 <li><code>--additional-configs LOCAL_MAS_CONFIG_DIR</code>         Path to a directory containing additional configuration files to be applied</li>
 <li><code>--non-prod</code>                                        Install MAS in Non-production mode</li>
 <li><code>--mas-trust-default-cas MAS_TRUST_DEFAULT_CAS</code>     Trust certificates signed by well-known CAs</li>
+<li><code>--workload-scale-profile</code>                          Set a pre-defined workload scale profile [<code>Burstable</code>, <code>BestEffort</code>, <code>Guaranteed</code>]</li>
+<li><code>--mas-pod-templates-dir</code>                           Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over <code>--workload-scale-profile</code></li>
 </ul>
 <h3 id="maximo-application-suite-core-platform-required">Maximo Application Suite Core Platform (Required):<a class="headerlink" href="#maximo-application-suite-core-platform-required" title="Permanent link"></a></h3>
 <ul>
@@ -333,18 +337,18 @@
 </ul>
 <h3 id="advanced-db2u-universal-operator-configuration-resource-requests-optional">Advanced Db2u Universal Operator Configuration - Resource Requests (Optional):<a class="headerlink" href="#advanced-db2u-universal-operator-configuration-resource-requests-optional" title="Permanent link"></a></h3>
 <ul>
-<li><code>--db2u-cpu-request DB2_CPU_REQUESTS</code>              Customise Db2 CPU request</li>
-<li><code>--db2u-cpu-limit DB2_CPU_LIMITS</code>                  Customise Db2 CPU limit</li>
-<li><code>--db2u-memory-request DB2_MEMORY_REQUESTS</code>        Customise Db2 memory request</li>
-<li><code>--db2u-memory-limit DB2_MEMORY_LIMITS</code>            Customise Db2 memory limit</li>
+<li><code>--db2u-cpu-request DB2_CPU_REQUESTS</code>              Customize Db2 CPU request</li>
+<li><code>--db2u-cpu-limit DB2_CPU_LIMITS</code>                  Customize Db2 CPU limit</li>
+<li><code>--db2u-memory-request DB2_MEMORY_REQUESTS</code>        Customize Db2 memory request</li>
+<li><code>--db2u-memory-limit DB2_MEMORY_LIMITS</code>            Customize Db2 memory limit</li>
 </ul>
 <h3 id="advanced-db2u-universal-operator-configuration-storage-optional">Advanced Db2u Universal Operator Configuration - Storage (Optional):<a class="headerlink" href="#advanced-db2u-universal-operator-configuration-storage-optional" title="Permanent link"></a></h3>
 <ul>
-<li><code>--db2u-backup-storage DB2_BACKUP_STORAGE_SIZE</code>    Customise Db2 storage capacity</li>
-<li><code>--db2u-data-storage DB2_DATA_STORAGE_SIZE</code>        Customise Db2 storage capacity</li>
-<li><code>--db2u-logs-storage DB2_LOGS_STORAGE_SIZE</code>        Customise Db2 storage capacity</li>
-<li><code>--db2u-meta-storage DB2_META_STORAGE_SIZE</code>        Customise Db2 storage capacity</li>
-<li><code>--db2u-temp-storage DB2_TEMP_STORAGE_SIZE</code>        Customise Db2 storage capacity</li>
+<li><code>--db2u-backup-storage DB2_BACKUP_STORAGE_SIZE</code>    Customize Db2 storage capacity</li>
+<li><code>--db2u-data-storage DB2_DATA_STORAGE_SIZE</code>        Customize Db2 storage capacity</li>
+<li><code>--db2u-logs-storage DB2_LOGS_STORAGE_SIZE</code>        Customize Db2 storage capacity</li>
+<li><code>--db2u-meta-storage DB2_META_STORAGE_SIZE</code>        Customize Db2 storage capacity</li>
+<li><code>--db2u-temp-storage DB2_TEMP_STORAGE_SIZE</code>        Customize Db2 storage capacity</li>
 </ul>
 <h3 id="manage-application-advanced-configuration-optional">Manage Application - Advanced Configuration (Optional):<a class="headerlink" href="#manage-application-advanced-configuration-optional" title="Permanent link"></a></h3>
 <ul>
@@ -413,7 +417,7 @@ mas install
 <p>Instance ID restrictions:</p>
 <ul>
 <li>Must be 3-12 characters long</li>
-<li>Must only use lowercase letters, numbers, and hypen (<code>-</code>) symbol</li>
+<li>Must only use lowercase letters, numbers, and hyphen (<code>-</code>) symbol</li>
 <li>Must start with a lowercase letter</li>
 <li>Must end with a lowercase letter or a number</li>
 </ul>
@@ -476,14 +480,27 @@ mas install
 <p>When selecting storage classes you will be presented with a list of available storage classes and must select both a <code>ReadWriteMany</code> and a <code>ReadWriteOnce</code> storage class.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Unfortunately there is no way for the install to verify that the storage class selected actually supports the appropriate access mode, refer to the documention from the storage class provider to determine whetheryour storage class supports <code>ReadWriteOnce</code> and/or <code>ReadWriteMany</code>.</p>
+<p>Unfortunately there is no way for the install to verify that the storage class selected actually supports the appropriate access mode, refer to the documentation from the storage class provider to determine whether your storage class supports <code>ReadWriteOnce</code> and/or <code>ReadWriteMany</code>.</p>
 </div>
 <h3 id="step-13-advanced-settings">Step 13. Advanced Settings<a class="headerlink" href="#step-13-advanced-settings" title="Permanent link"></a></h3>
 <p>These settings can generally be ignored for most installations.</p>
+<h4 id="configure-scaling-profile">Configure Scaling Profile<a class="headerlink" href="#configure-scaling-profile" title="Permanent link"></a></h4>
+<p>You can choose between three pre-defined workload scaling classes - <code>Burstable</code>, <code>BestEffort</code> and <code>Guaranteed</code>; or choose a custom profile of your own. By default MAS applications use <code>Burstable</code>.</p>
+<p>When choosing a custom profile you will be prompted for the directory of your config files. For each supported application you will need to create separate config file. The naming convention for custom config files is <code>ibm-&lt;appname&gt;-&lt;customresourcename&gt;.yml</code>.</p>
+<p>Currently supported config files:
+- ibm-mas-bascfg.yml
+- ibm-mas-pushnotificationcfg.yml
+- ibm-mas-scimcfg.yml
+- ibm-mas-slscfg.yml
+- ibm-mas-smtpcfg.yml
+- ibm-mas-suite.yml
+- ibm-sls-licenseservice.yml</p>
+<p>For examples on these config files take a look into the pre-defined configs: <a href="https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/best-effort">BestEffort</a> and <a href="https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/guaranteed">Guaranteed</a>. More information on podTemplates can be found in our official IBM documentation <a href="https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=configuring-customizing-workloads">here</a>.</p>
+<p>!!! Note: This feature is only supported starting in MAS 8.11.0 and SLS 3.8.0</p>
 <h4 id="change-cluster-monitoring-storage-defaults">Change Cluster monitoring storage defaults?<a class="headerlink" href="#change-cluster-monitoring-storage-defaults" title="Permanent link"></a></h4>
 <p>Answering "y" at the prompt will allow you to customize the storage capacity and data retention period in Grafana and Prometheus.</p>
 <h4 id="change-default-install-namespaces">Change default install namespaces?<a class="headerlink" href="#change-default-install-namespaces" title="Permanent link"></a></h4>
-<p>Answering "y" will allow you to customise the namespace where Db2, Grafana, and MongoDb are installed in the cluster.</p>
+<p>Answering "y" will allow you to customize the namespace where Db2, Grafana, and MongoDb are installed in the cluster.</p>
 <h3 id="step-15-configure-ibm-container-registry">Step 15. Configure IBM Container Registry<a class="headerlink" href="#step-15-configure-ibm-container-registry" title="Permanent link"></a></h3>
 <p>Provide your IBM entitlement key.  If you have set the <code>IBM_ENTITLEMENT_KEY</code> environment variable then you will first be prompted whether you just want to re-use the saved entitlement key.</p>
 <h3 id="step-16-configure-product-license">Step 16. Configure Product License<a class="headerlink" href="#step-16-configure-product-license" title="Permanent link"></a></h3>
