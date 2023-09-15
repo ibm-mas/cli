@@ -381,9 +381,9 @@ spec:
     {{ lookup('template', 'taskdefs/fvt-apps/assist.yml.j2') | indent(4) }}
 
 
-    # 17. Application FVT - Health
+    # 17. Application FVT - HP Utilities
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/health.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-apps/hputilities.yml.j2') | indent(4) }}
 
 
     # 18. Application FVT - IoT
@@ -410,6 +410,11 @@ spec:
 
     # 19.6 Phase 5: Single-threaded suites (SMTP and others)
     {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
+
+
+    # 20. Application FVT - Health    
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/health.yml.j2') | indent(4) }}
 
 
     # 21. Application FVT - Manage Industry Solutions
