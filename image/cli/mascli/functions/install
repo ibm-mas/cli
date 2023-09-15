@@ -31,9 +31,10 @@ Maximo Application Suite Instance (Required):
 
 Advanced MAS Configuration (Optional):
       --additional-configs ${COLOR_YELLOW}LOCAL_MAS_CONFIG_DIR${TEXT_RESET}                    Path to a directory containing additional configuration files to be applied
-      --non-prod                                                                               Install MAS in Non-production mode
-      --mas-trust-default-cas ${COLOR_YELLOW}MAS_TRUST_DEFAULT_CAS${COLOR_YELLOW}              Trust certificates signed by well-known CAs
-
+      --non-prod                                                   Install MAS in Non-production mode
+      --mas-trust-default-cas ${COLOR_YELLOW}MAS_TRUST_DEFAULT_CAS${TEXT_RESET}                Trust certificates signed by well-known CAs
+      --workload-scale-profile                                     Set a pre-defined workload scale profile [Burstable, BestEffort, Guaranteed]
+      --mas-pod-templates-dir                                      Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over --workload-scale-profile
 Maximo Application Suite Core Platform (Required):
       --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                                    Subscription channel for the Core Platform
 
@@ -79,17 +80,17 @@ Advanced Db2u Universal Operator Configuration - Node Scheduling (Optional):
       --db2u-tolerate-effect ${COLOR_YELLOW}DB2_TOLERATE_EFFECT${TEXT_RESET}                   Set the effect that will be tolerated (NoSchedule, PreferNoSchedule, or NoExecute)
 
 Advanced Db2u Universal Operator Configuration - Resource Requests (Optional):
-      --db2u-cpu-request ${COLOR_YELLOW}DB2_CPU_REQUESTS${TEXT_RESET}                          Customise Db2 CPU request
-      --db2u-cpu-limit ${COLOR_YELLOW}DB2_CPU_LIMITS${TEXT_RESET}                              Customise Db2 CPU limit
-      --db2u-memory-request ${COLOR_YELLOW}DB2_MEMORY_REQUESTS${TEXT_RESET}                    Customise Db2 memory request
-      --db2u-memory-limit ${COLOR_YELLOW}DB2_MEMORY_LIMITS${TEXT_RESET}                        Customise Db2 memory limit
+      --db2u-cpu-request ${COLOR_YELLOW}DB2_CPU_REQUESTS${TEXT_RESET}                          Customize Db2 CPU request
+      --db2u-cpu-limit ${COLOR_YELLOW}DB2_CPU_LIMITS${TEXT_RESET}                              Customize Db2 CPU limit
+      --db2u-memory-request ${COLOR_YELLOW}DB2_MEMORY_REQUESTS${TEXT_RESET}                    Customize Db2 memory request
+      --db2u-memory-limit ${COLOR_YELLOW}DB2_MEMORY_LIMITS${TEXT_RESET}                        Customize Db2 memory limit
 
 Advanced Db2u Universal Operator Configuration - Storage (Optional):
-      --db2u-backup-storage ${COLOR_YELLOW}DB2_BACKUP_STORAGE_SIZE${TEXT_RESET}                Customise Db2 storage capacity
-      --db2u-data-storage ${COLOR_YELLOW}DB2_DATA_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
-      --db2u-logs-storage ${COLOR_YELLOW}DB2_LOGS_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
-      --db2u-meta-storage ${COLOR_YELLOW}DB2_META_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
-      --db2u-temp-storage ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
+      --db2u-backup-storage ${COLOR_YELLOW}DB2_BACKUP_STORAGE_SIZE${TEXT_RESET}                Customize Db2 storage capacity
+      --db2u-data-storage ${COLOR_YELLOW}DB2_DATA_STORAGE_SIZE${TEXT_RESET}                    Customize Db2 storage capacity
+      --db2u-logs-storage ${COLOR_YELLOW}DB2_LOGS_STORAGE_SIZE${TEXT_RESET}                    Customize Db2 storage capacity
+      --db2u-meta-storage ${COLOR_YELLOW}DB2_META_STORAGE_SIZE${TEXT_RESET}                    Customize Db2 storage capacity
+      --db2u-temp-storage ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}                    Customize Db2 storage capacity
 
 Advanced MongoDB Configuration (Optional):
       --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET}                        Change namespace where MongoCE operator and instance will be created
@@ -171,6 +172,28 @@ function install_noninteractive() {
     ;;
     --mas-trust-default-cas)
     export MAS_TRUST_DEFAULT_CAS=$1 && shift
+    ;;
+    --workload-scale-profile)
+    MAS_WORKLOAD_SCALE_PROFILE=$1 && shift
+    case $MAS_WORKLOAD_SCALE_PROFILE in
+    "Guaranteed")
+      set_mas_workload_scale_envs
+      ;;
+    "BestEffort")
+      set_mas_workload_scale_envs
+      ;;
+    "Burstable")
+      clear_mas_workload_scale_envs
+      ;;
+    *)
+      echo_warning "Invalid workload scale profile. Must be one of [Burstable, BestEffort, Guaranteed]"
+      exit 1
+      ;;
+    esac
+    ;;
+    --mas-pod-templates-dir)
+    MAS_POD_TEMPLATES_DIR=$1 && shift
+    check_mas_pod_templates_dir
     ;;
 
     # Core
@@ -396,7 +419,7 @@ function install_noninteractive() {
     export MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD=$1 && shift
     ;;
 
-    # Manage commands - Database encryption keys 
+    # Manage commands - Database encryption keys
     --manage-crypto-key)
     export MAS_APP_SETTINGS_CRYPTO_KEY=$1 && shift
     ;;

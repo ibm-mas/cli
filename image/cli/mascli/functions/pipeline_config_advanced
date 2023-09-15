@@ -13,6 +13,9 @@ function config_pipeline_advanced() {
   fi
 
   if prompt_for_confirm "Configure Advanced Settings?"; then
+    echo
+    config_pipeline_workload_scale
+
     if prompt_for_confirm "Change Cluster monitoring storage defaults?"; then
       if [[ "$CLUSTER_MONITORING_INCLUDE_GRAFANA" == "True" ]]; then
         prompt_for_input "+ Grafana Storage Size" GRAFANA_INSTANCE_STORAGE_SIZE "10Gi"
@@ -45,6 +48,7 @@ function config_pipeline_advanced() {
     echo
 
     prompt_for_confirm_default_yes "Trust Default CAs?" MAS_TRUST_DEFAULT_CAS
-
+  else
+    clear_mas_workload_scale_envs
   fi
 }

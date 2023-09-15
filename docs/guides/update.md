@@ -58,7 +58,7 @@ docker run -ti --rm --pull always quay.io/ibmmas/cli mas update
 ```
 
 
-The command can akso be ran non-interactive.
+The command can also be ran non-interactive.
 
 ```bash
 mas update -c v8-221129-amd64 --no-confirm
