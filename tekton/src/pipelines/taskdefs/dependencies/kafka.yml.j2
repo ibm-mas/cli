@@ -9,15 +9,15 @@
 
     # Kafka - General variables
     - name: kafka_cluster_name
-      value: "$(params.kafka_cluster_name)"
+      value: $(params.kafka_cluster_name)
 
     # AMQ Streams (Kafka)
     - name: kafka_namespace
-      value: "$(params.kafka_namespace)"
+      value: $(params.kafka_namespace)
     - name: kafka_cluster_size
-      value: "$(params.kafka_cluster_size)"
+      value: $(params.kafka_cluster_size)
     - name: kafka_user_name
-      value: "$(params.kafka_user_name)"
+      value: $(params.kafka_user_name)
     - name: kafka_storage_class
       value: $(params.storage_class_rwo)
     - name: zookeeper_storage_class
@@ -27,35 +27,35 @@
 
     # AWS basic info
     - name: aws_access_key_id
-      value: "$(params.aws_access_key_id)"
+      value: $(params.aws_access_key_id)"
     - name: aws_secret_access_key
-      value: "$(params.aws_secret_access_key)"
+      value: $(params.aws_secret_access_key)"
     - name: aws_region
-      value: "$(params.aws_region)"
+      value: $(params.aws_region)"
 
     # AWS MSK (Kafka)
     - name: vpc_id
-      value: "$(params.vpc_id)"
+      value: $(params.vpc_id)
     - name: aws_kafka_user_name
-      value: "$(params.aws_kafka_user_name)"
+      value: $(params.aws_kafka_user_name)
     - name: aws_kafka_user_password
-      value: "$(params.aws_kafka_user_password)"
+      value: $(params.aws_kafka_user_password)
     - name: aws_msk_instance_type
-      value: "$(params.aws_msk_instance_type)"
+      value: $(params.aws_msk_instance_type)
     - name: aws_msk_instance_number
-      value: "$(params.aws_msk_instance_number)"
+      value: $(params.aws_msk_instance_number)
     - name: aws_msk_volume_size
-      value: "$(params.aws_msk_volume_size)"
+      value: $(params.aws_msk_volume_size)
     - name: aws_msk_cidr_az1
-      value: "$(params.aws_msk_cidr_az1)"
+      value: $(params.aws_msk_cidr_az1)
     - name: aws_msk_cidr_az2
-      value: "$(params.aws_msk_cidr_az2)"
+      value: $(params.aws_msk_cidr_az2)
     - name: aws_msk_cidr_az3
-      value: "$(params.aws_msk_cidr_az3)"
+      value: $(params.aws_msk_cidr_az3)
     - name: aws_msk_ingress_cidr
-      value: "$(params.aws_msk_ingress_cidr)"
+      value: $(params.aws_msk_ingress_cidr)
     - name: aws_msk_egress_cidr
-      value: "$(params.aws_msk_egress_cidr)"
+      value: $(params.aws_msk_egress_cidr)
 
     # IBM Cloud Event Streams (Kafka)
     - name: kafka_provider
