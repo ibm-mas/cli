@@ -116,6 +116,9 @@ spec:
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
 
+      - name: MAS_POD_TEMPLATES_DIR
+        value: /workspace/pod-templates
+
   steps:
     - name: suite-install
       command:
@@ -128,3 +131,5 @@ spec:
   workspaces:
     - name: configs
     - name: additional-configs
+    - name: pod-templates
+      optional: true
