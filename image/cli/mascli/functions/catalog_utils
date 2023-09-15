@@ -55,6 +55,9 @@ function choose_mas_version() {
   echo " │ 5 │ July 21 2023 | 8.10.2 │ 8.7.1  | 8.7.2 | 8.6.2  | 8.10.3  |   8.4.1   |  8.8.1  |   8.8.1    |"
   echo " │ 6 │              │ 8.9.7  │ 8.6.4  | 8.6.7 | 8.5.6  | 8.9.5   |   8.3.3   |  8.7.2  |   8.7.1    |"
   echo " └───┴──────────────┴────────┴────────┴───────┴────────┴─────────┴───────────┴─────────┴────────────┘"
+  reset_colors
+  echo
+  echo "Note: Due to a breaking change introduced to a package in the Red Hat Certified Operator Catalog in July 2023 we can not currently recommend the use of any catalogs prior to the July 21 release, which contains critical compatibility updates to IBM User Data Services.  If you need to use older catalogs you can use an earlier release of this CLI, but may face issues when used in conjunction with the latest versions of the Red Hat Operator Catalogs."
   echo
   prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
 
@@ -76,33 +79,17 @@ function choose_mas_version() {
       ;;
     4)
       MAS_CHANNEL=8.9.x
-      MAS_CATALOG_VERSION=v8-230627-amd64
+      MAS_CATALOG_VERSION=v8-230725-amd64
       ;;
 
     # July 2023
     5)
       MAS_CHANNEL=8.10.x
-      MAS_CATALOG_VERSION=v8-230526-amd64
+      MAS_CATALOG_VERSION=v8-230721-amd64
       ;;
     6)
       MAS_CHANNEL=8.9.x
-      MAS_CATALOG_VERSION=v8-230526-amd64
-      ;;
-
-    # April 2023
-    5)
-      MAS_CHANNEL=8.10.x
-      MAS_CATALOG_VERSION=v8-230414-amd64
-      ;;
-    6)
-      MAS_CHANNEL=8.9.x
-      MAS_CATALOG_VERSION=v8-230414-amd64
-      ;;
-
-    # March 2023
-    7)
-      MAS_CHANNEL=8.9.x
-      MAS_CATALOG_VERSION=v8-230314-amd64
+      MAS_CATALOG_VERSION=v8-230721-amd64
       ;;
 
     # Invalid Selection
