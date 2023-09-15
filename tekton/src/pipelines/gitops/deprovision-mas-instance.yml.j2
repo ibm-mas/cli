@@ -269,7 +269,7 @@ spec:
       taskRef:
         kind: Task
         name: gitops-process-mongo-user
-    - name: gitops-deprovsion-db2u
+    - name: gitops-deprovision-db2u
       runAfter:
         - gitops-deprovision-suite
       params:
@@ -304,7 +304,7 @@ spec:
           workspace: configs
       taskRef:
         kind: Task
-        name: gitops-deprovsion-db2u
+        name: gitops-deprovision-db2u
       when:
         - input: "$(params.db2_action)"
           operator: in

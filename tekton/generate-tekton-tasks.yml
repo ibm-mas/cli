@@ -130,3 +130,4 @@
         - gitops-init-suite-workspace
         - gitops-init-suite
         - gitops-process-mongo-user
+        - gitops-deprovision-db2u
