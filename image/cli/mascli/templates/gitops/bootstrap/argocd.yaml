@@ -125,6 +125,53 @@ spec:
           hs.status = "Progressing"
           hs.message = "Waiting for Suite"
           return hs
+
+      operator.ibm.com/OperandRequest:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Ready" and condition.reason == "operator is ready" and condition.status == "False" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.reason == "operator is ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      operators.coreos.com/Subscription:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "CatalogSourcesUnhealthy" and condition.reason == "AllCatalogSourcesHealthy" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "CatalogSourcesUnhealthy" and condition.reason == "AllCatalogSourcesHealthy" and condition.status == "False" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
   repo:
     initContainers:
       - args:
