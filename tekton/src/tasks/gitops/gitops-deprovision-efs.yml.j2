@@ -51,6 +51,9 @@ spec:
           exit 0
         fi
 
+        echo "Set k8s context"
+        export K8S_AUTH_CONTEXT=$(oc whoami -c)
+
         mas gitops-deprovision-efs -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --cloud-provider $CLOUD_PROVIDER \
         --aws-region $SM_AWS_REGION \
