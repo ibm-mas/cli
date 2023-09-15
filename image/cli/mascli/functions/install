@@ -17,7 +17,6 @@ Entitlement & Licensing (Required):
       --uds-email ${COLOR_YELLOW}UDS_CONTACT_EMAIL${TEXT_RESET}                                Contact e-mail address
       --uds-firstname ${COLOR_YELLOW}UDS_CONTACT_FIRSTNAME${TEXT_RESET}                        Contact first name
       --uds-lastname ${COLOR_YELLOW}UDS_CONTACT_LASTNAME${TEXT_RESET}                          Contact last name
-      --accept-license                                                                         Accept the licenses for IBM Maximo Application Suite and Maximo IT
 
 Storage Class Selection (Required):
       --storage-rwo ${COLOR_YELLOW}STORAGE_CLASS_RWO${TEXT_RESET}                              Read Write Once (RWO) storage class (e.g. ibmc-block-gold)
@@ -103,6 +102,7 @@ Other Commands:
       --dev-mode                                                   Enable developer mode (e.g. for access to pre-release builds)
       --no-wait-for-pvcs                                           If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
       --no-confirm                                                 Mirror images without prompting for confirmation
+      --accept-license                                             Accept the licenses for IBM Maximo Application Suite and Maximo IT
   -h, --help                                                       Show this help message
 
 
@@ -388,9 +388,6 @@ function install_noninteractive() {
     --uds-lastname)
     export UDS_CONTACT_LASTNAME=$1 && shift
     ;;
-    --accept-license)
-    export LICENSE_ACCEPTED=true && shift
-    ;;
 
     # MongoDB
     --mongodb-namespace)
@@ -477,6 +474,9 @@ function install_noninteractive() {
       ;;
     --no-confirm)
       NO_CONFIRM=true
+      ;;
+    --accept-license)
+      LICENSE_ACCEPTED=true
       ;;
     -h|--help)
       install_help

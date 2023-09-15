@@ -15,7 +15,6 @@ Usage
 - `--uds-email UDS_CONTACT_EMAIL`              Contact e-mail address
 - `--uds-firstname UDS_CONTACT_FIRSTNAME`      Contact first name
 - `--uds-lastname UDS_CONTACT_LASTNAME`        Contact last name
-- `--accept-license`                           Accept MAS and Maximo IT (if applicable) licenses
 
 ### Storage Class Selection (Required):
 - `--storage-rwo STORAGE_CLASS_RWO`                   Read Write Once (RWO) storage class (e.g. ibmc-block-gold)
@@ -125,6 +124,7 @@ Usage
 ### Other Commands:
 - `--no-wait-for-pvcs` If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
 - `--no-confirm`       Mirror images without prompting for confirmation
+- `--accept-license`                           Accept MAS and Maximo IT (if applicable) licenses
 - `-h, --help`         Show install help message
 
 
