@@ -254,7 +254,6 @@ spec:
     - name: mas_catalog_digest
       value: '$MAS_CATALOG_DIGEST'
 
-
     # MAS DNS Integrations - General
     # -------------------------------------------------------------------------
     - name: dns_provider
@@ -326,20 +325,16 @@ spec:
       value: '$MAS_INSTANCE_ID'
     - name: mas_wipe_mongo_data
       value: '$MAS_WIPE_MONGO_DATA'
-
     - name: mas_domain
       value: '$MAS_DOMAIN'
     - name: mas_cluster_issuer
       value: '$MAS_CLUSTER_ISSUER'
-
     - name: mas_annotations
       value: '$MAS_ANNOTATIONS'
-
     - name: mas_icr_cp
       value: '$MAS_ICR_CP'
     - name: mas_icr_cpopen
       value: '$MAS_ICR_CPOPEN'
-
     - name: mas_trust_default_cas
       value: '$MAS_TRUST_DEFAULT_CAS'
 
@@ -503,3 +498,9 @@ spec:
     - name: shared-entitlement
       secret:
         secretName: pipeline-sls-entitlement
+
+    # PodTemplates configurations
+    # -------------------------------------------------------------------------
+    - name: shared-pod-templates
+      secret:
+        secretName: pipeline-pod-templates

@@ -26,15 +26,15 @@ This build system is triggered when including specific tags at the beginning of 
 
 `[major]` - This tag triggers a major pre-release version build out of your branch. Only use this tag when there are breaking or potential disruptive changes being introduced i.e existing ansible roles being removed.
 
-**For example:** Latest MAS Command Line Interface version is at `1.0.0`. When submiting a `[major]` commit/pull request, it will build a pre-release version of MAS Command Line Interface as `2.0.0-pre.your-branch`. When merging it to master branch and releasing a new MAS CLI version, it will become `2.0.0` version.
+**For example:** Latest MAS Command Line Interface version is at `1.0.0`. When submitting a `[major]` commit/pull request, it will build a pre-release version of MAS Command Line Interface as `2.0.0-pre.your-branch`. When merging it to master branch and releasing a new MAS CLI version, it will become `2.0.0` version.
 
 `[minor]` - This tag triggers a minor pre-release version build out of your branch. Use this tag when adding new features to existing roles or creating new ansible roles.
 
-**For example:** Latest MAS Command Line Interface version is at `1.0.0`. When submiting a `[minor]` commit/pull request. It will build a pre-release version of MAS Command Line Interface as `1.1.0-pre.your-branch`. When merging it to master branch and releasing a new MAS CLI version, it will become `1.1.0` version.
+**For example:** Latest MAS Command Line Interface version is at `1.0.0`. When submitting a `[minor]` commit/pull request. It will build a pre-release version of MAS Command Line Interface as `1.1.0-pre.your-branch`. When merging it to master branch and releasing a new MAS CLI version, it will become `1.1.0` version.
 
 `[patch]` - This tag triggers a patch pre-release version build out of your branch. Use this tag when making small changes such as code/documentation fixes and non-disruptive changes.
 
-**For example:** Latest MAS Command Line Interface version is at `1.0.0`. When submiting a `[patch]` commit/pull request, it will build a pre-release version of MAS Command Line Interface as `1.0.1-pre.your-branch`. When merging it to master branch and releasing a new MAS CLI version, it will become `1.0.1` version.
+**For example:** Latest MAS Command Line Interface version is at `1.0.0`. When submitting a `[patch]` commit/pull request, it will build a pre-release version of MAS Command Line Interface as `1.0.1-pre.your-branch`. When merging it to master branch and releasing a new MAS CLI version, it will become `1.0.1` version.
 
 ### Pre-requisites for new pull requests
 
