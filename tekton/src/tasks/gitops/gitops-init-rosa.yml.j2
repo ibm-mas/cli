@@ -18,12 +18,15 @@ spec:
       type: string
     - name: aws_region
       type: string
+    - name: rosa_cluster_admin_password
+      type: string
   stepTemplate:
     name: gitops-init-rosa
   steps:
     - args:
       - |-
         export ROSA_TOKEN=$(params.rosa_token)
+        export ROSA_CLUSTER_ADMIN_PASSWORD=$(params.rosa_cluster_admin_password)
 
         aws configure set aws_access_key_id $(params.aws_access_key_id)
         aws configure set aws_secret_access_key $(params.aws_secret_access_key)

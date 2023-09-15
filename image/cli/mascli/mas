@@ -96,6 +96,8 @@ mkdir -p $CONFIG_DIR
 . $DIR/functions/gitops_deprovision_efs
 . $DIR/functions/gitops_deprovision_kafka
 . $DIR/functions/gitops_deprovision_db2u
+. $DIR/functions/gitops_deprovision_suite_idp_config
+. $DIR/functions/gitops_deprovision_suite_smtp_config
 
 load_config
 case $1 in
@@ -376,6 +378,22 @@ case $1 in
     echo
     reset_colors
     gitops_deprovision_db2u "$@"
+    ;;
+
+  gitops-deprovision-suite-idp-config)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_suite_idp_config "$@"
+    ;;
+
+  gitops-deprovision-suite-smtp-config)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_suite_smtp_config "$@"
     ;;
 
   gitops-init-efs)

@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-deprovision-suite-config
+  name: gitops-deprovision-suite-smtp-config
 spec:
   params:
     - name: cluster_name
@@ -29,10 +29,9 @@ spec:
       type: string
     - name: avp_aws_access_key
       type: string
-    - name: force_removal
-      type: string
+
   stepTemplate:
-    name: gitops-deprovision-suite-config
+    name: gitops-deprovision-suite-smtp-config
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -58,12 +57,11 @@ spec:
         value: $(params.avp_aws_secret_key)
       - name: SM_AWS_ACCESS_KEY_ID
         value: $(params.avp_aws_access_key)
-      - name: FORCE_REMOVAL
-        value: $(params.force_removal)
+
   steps:
     - args:
       - |-
-        mkdir -p /tmp/deprovision-suite-config
+        mkdir -p /tmp/deprovision-suite-smtp-config
 
         git config --global user.name "yourUsername"
         git config --global user.email "you@example.com"
@@ -76,9 +74,10 @@ spec:
         oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
         OC_RC=$?
         if [ $OC_RC -ne 0 ]; then
-          echo "oc login failed so assume there is no suit config to deprovision, exiting.."
+          echo "oc login failed so assume there is no suit smtp config to deprovision, exiting.."          
           exit 0
         fi
+        
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
@@ -88,9 +87,9 @@ spec:
           export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
         fi
 
-        mas gitops-deprovision-suite-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        mas gitops-deprovision-suite-smtp-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
-        --dir /tmp/deprovision-suite-config \
+        --dir /tmp/deprovision-suite-smtp-config \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org $GITHUB_ORG \
@@ -99,12 +98,8 @@ spec:
       command:
         - /bin/sh
         - -c
-      name: gitops-deprovision-suite-config
+      name: gitops-deprovision-suite-smtp-config
       imagePullPolicy: Always
       image: quay.io/ibmmas/cli:6.4.0-pre.gitops
   workspaces:
     - name: configs
-
-
-
-

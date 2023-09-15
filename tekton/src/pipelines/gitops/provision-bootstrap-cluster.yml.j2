@@ -73,6 +73,8 @@ spec:
     - name: aws_docdb_instance_number
       type: string
       default: 3
+    - name: rosa_cluster_admin_password
+      type: string
   tasks:
 {% if wait_for_deprovision == true %}
     # 0. Wait for the deprovsion pipeline to complete
@@ -105,6 +107,8 @@ spec:
           value: $(params.rosa_token)
         - name: ocp_version
           value: $(params.ocp_version)
+        - name: rosa_cluster_admin_password
+          value: $(params.rosa_cluster_admin_password)
       taskRef:
         kind: Task
         name: gitops-init-rosa

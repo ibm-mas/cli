@@ -109,8 +109,10 @@ spec:
         - name: configs
           workspace: configs
     - name: gitops-deprovision-kafka
+{% if wait_for_deprovision == true %}
       runAfter:
-        - gitops-deprovision-mongo
+        - wait-for-deprovision
+{% endif %}
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -139,8 +141,10 @@ spec:
         - name: configs
           workspace: configs
     - name: gitops-deprovision-cluster
+{% if wait_for_deprovision == true %}
       runAfter:
-        - gitops-deprovision-kafka
+        - wait-for-deprovision
+{% endif %}
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -173,6 +177,8 @@ spec:
     - name: gitops-deprovision-rosa
       runAfter:
         - gitops-deprovision-cluster
+        - gitops-deprovision-kafka
+        - gitops-deprovision-mongo
       params:
         - name: cluster_name
           value: $(params.cluster_name)

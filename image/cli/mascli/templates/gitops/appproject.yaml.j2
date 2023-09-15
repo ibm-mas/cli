@@ -13,6 +13,12 @@ spec:
     - name: '*'
       namespace: '*-{{ MAS_INSTANCE_ID }}-*'
       server: '*'
+    - name: '*'
+      namespace: 'mas-{{ MAS_INSTANCE_ID }}-core'
+      server: '*'
+    - name: '*'
+      namespace: 'mas-{{ MAS_INSTANCE_ID }}-sls'
+      server: '*'
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'

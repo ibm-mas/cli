@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-function gitops_deprovision_suite_config_help() {
+function gitops_deprovision_suite_idp_config_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_deprovision_suite_config [options]
+  mas gitops_deprovision_suite_idp_config [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -17,11 +17,11 @@ GitOps Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
-  -f, --force-removal ${COLOR_YELLOW}FORCE_REMOVAL${TEXT_RESET}      Force remove the ArgoCD Application, when deletion exceeds timeout  
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
+
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -38,10 +38,10 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_deprovision_suite_config_noninteractive() {
+function gitops_deprovision_suite_idp_config_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-deprovision-suite-config commit"
+  GIT_COMMIT_MSG="gitops-deprovision-mas-idp-config commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   while [[ $# -gt 0 ]]
@@ -64,9 +64,7 @@ function gitops_deprovision_suite_config_noninteractive() {
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
         ;;
-      -f|--force-removal)
-        export FORCE_REMOVAL=$1 && shift
-        ;;
+
       # Secrets Manager
       --secrets-path)
         export SECRETS_PATH=$1 && shift
@@ -99,38 +97,39 @@ function gitops_deprovision_suite_config_noninteractive() {
         ;;
 
       -h|--help)
-        gitops_deprovision_suite_config_help
+        gitops_deprovision_suite_idp_config_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_deprovision_suite_config_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_deprovision_suite_idp_config_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_deprovision_suite_config_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$GITOPS_VERSION" ]] && gitops_deprovision_suite_config_help "GITOPS_VERSION is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_suite_config_help "CLUSTER_ID is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_suite_config_help "ACCOUNT_ID is not set"
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_deprovision_suite_idp_config_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$GITOPS_VERSION" ]] && gitops_deprovision_suite_idp_config_help "GITOPS_VERSION is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_suite_idp_config_help "CLUSTER_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_suite_idp_config_help "ACCOUNT_ID is not set"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_suite_config_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_deprovision_suite_config_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_suite_config_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_suite_config_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_suite_idp_config_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_deprovision_suite_idp_config_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_suite_idp_config_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_suite_idp_config_help "GIT_BRANCH is not set"
   fi
+
 }
 
-function gitops_deprovision_suite_config() {
+function gitops_deprovision_suite_idp_config() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_deprovision_suite_config_noninteractive "$@"
+    gitops_deprovision_suite_idp_config_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_deprovision_suite_config_interactive
+    gitops_deprovision_suite_idp_config_interactive
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -146,7 +145,6 @@ function gitops_deprovision_suite_config() {
   echo_reset_dim "Account ID............................. ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
-  echo_reset_dim "Force Remove Application Flag ......... ${COLOR_MAGENTA}${FORCE_REMOVAL}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -177,37 +175,29 @@ function gitops_deprovision_suite_config() {
   reset_colors
 
   echo "${TEXT_DIM}"
-  echo_h2 "IBM Suite License Service" "    "
-  echo_reset_dim "SLS URL  .............................. ${COLOR_MAGENTA}https://sls.mas-${MAS_INSTANCE_ID}-sls.svc"
-  reset_colors
-
-  echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   reset_colors
 
-  # Get the cluster-level secrets used
+  # Set up Suite secrets
   # ---------------------------------------------------------------------------
-  CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/tmp-suite-config-deprovision
-  rm -rf $TEMP_DIR
-  mkdir -p $TEMP_DIR
-
+  echo
+  echo_h2 "Configuring Suite secrets"
+  AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
-  # Instance-level secrets to delete
+  # Instance-level secret to delete
   # ---------------------------------------------------------------------------
-  export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls
+  SECRET_NAME_LDAP=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ldap
 
-  # Delete SLS Registration key for this MAS Instance
+  # Delete Instance level secret
   # ---------------------------------------------------------------------------
-  echo " Deleting $SECRET_NAME_SLS"
-  sm_delete_secret $SECRET_NAME_SLS 
+  echo " Deleting $SECRET_NAME_LDAP"
+  sm_delete_secret $SECRET_NAME_LDAP 
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
   fi
-
 
   # Clone github target repo
   # ---------------------------------------------------------------------------
@@ -221,7 +211,7 @@ function gitops_deprovision_suite_config() {
   # Delete ArgoApps
   # ---------------------------------------------------------------------------
   # Per MAS instance
-  rm ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-core-configs.yaml
+  rm ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-idp-config.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -232,13 +222,7 @@ function gitops_deprovision_suite_config() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     argocd_login
-
     argocd_prune_sync ${CLUSTER_ID}-watcher
-    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-core-configs ${MAS_INSTANCE_ID} ${FORCE_REMOVAL}
-
-    # workaround to delete the configs via oc cli as argocd is not deleting them due to owner reference
-    delete_oc_resource slscfgs.config.mas.ibm.com/${MAS_INSTANCE_ID}-sls-system mas-${MAS_INSTANCE_ID}-core
-    delete_oc_resource mongocfg.config.mas.ibm.com/${MAS_INSTANCE_ID}-mongo-system mas-${MAS_INSTANCE_ID}-core
-    delete_oc_resource bascfg.config.mas.ibm.com/${MAS_INSTANCE_ID}-bas-system mas-${MAS_INSTANCE_ID}-core
+    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-idp-config ${MAS_INSTANCE_ID}
   fi
 }
