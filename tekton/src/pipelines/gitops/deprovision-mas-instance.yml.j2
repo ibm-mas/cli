@@ -198,7 +198,7 @@ spec:
         name: gitops-process-mongo-user
     - name: gitops-deprovsion-db2u
       runAfter:
-        - gitops-process-mongo-user
+        - gitops-deprovision-suite
       params:
         - name: cluster_name
           value: $(params.cluster_name)
