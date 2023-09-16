@@ -282,11 +282,6 @@ function check_argo_app_synced() {
       echo "Sync Status is $SYNC_STATUS, Waiting 30s before checking status again"
       ((COUNT++))
       if ! (( $COUNT % 10 )) ; then
-        #echo "Restart application-controller and try resync"
-        #oc rollout restart statefulset/openshift-gitops-application-controller -n openshift-gitops
-        #echo 'Waiting for rollout of application-controller to complete'
-        #oc rollout status statefulset/openshift-gitops-application-controller -n openshift-gitops
-
         if [ -n "$CLUSTER_WATCHER" ]; then
           argocd_sync $CLUSTER_WATCHER
         fi
