@@ -2,8 +2,9 @@
 # PHASE 4
 # - fvt-manage-mif-kafka
 # - fvt-manage-wo-doclink
-# - fvt-manage-directprint-reports
+# - fvt-manage-directprint
 # - fvt-manage-user-crud
+# - fvt-manage-user-consumption
 # - fvt-manage-communication-temp
 # -------------------------------------------------------------
 
@@ -39,6 +40,7 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-esig-basic
+    - fvt-manage-eaudit-basic
     - fvt-manage-mif-kafka-setup
 
 # Manage FVT Work Order Attachments
@@ -57,25 +59,24 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-esig-basic
+    - fvt-manage-eaudit-basic
     - fvt-manage-mif-kafka-setup
 
-# Manage BIRT Report > Direct Print for Assets, JP and PO
-- name: fvt-manage-directprint-reports
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+# Manage Direct Print Report Tasks
+- name: fvt-manage-directprint
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage-directprint
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
-    - name: fvt_test_suite
-      value: directprint-reports
-  # Update runAfter list with new PHASE 4 tests
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}    
   runAfter:
     - fvt-manage-wo-basic
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-esig-basic
+    - fvt-manage-eaudit-basic
     - fvt-manage-mif-kafka-setup
 
 # Manage FVT New User Update/Delete/Verufy
@@ -94,9 +95,29 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-esig-basic
+    - fvt-manage-eaudit-basic
     - fvt-manage-mif-kafka-setup
 
-# Manage FVT New User Update/Delete/Verufy
+# Manage FVT User Consumption verification
+- name: fvt-manage-user-consumption
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
+    - name: fvt_test_suite
+      value: user-consumption
+  runAfter:
+    - fvt-manage-wo-basic
+    - fvt-manage-escalation-action
+    - fvt-manage-autoscript-adddeletewo
+    - fvt-manage-jms-inbound
+    - fvt-manage-esig-basic
+    - fvt-manage-eaudit-basic
+    - fvt-manage-mif-kafka-setup
+
+# Manage FVT Communication Template
 - name: fvt-manage-communication-temp
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
@@ -112,4 +133,5 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-esig-basic
+    - fvt-manage-eaudit-basic
     - fvt-manage-mif-kafka-setup
