@@ -21,6 +21,7 @@ mkdir -p $TMP_DIR
 echo "  - Collecting reconcile logs from '$LABEL_SELECTOR':'$LABEL_VALUE'"
 oc -n $NAMESPACE exec $POD -- tar -czf - $LOGFILES > $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz 2> /dev/null
 tar -xf $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz -C $TMP_DIR 2> /dev/null
+
 if [[ "$?" == "0" ]]; then
   rm $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz
 else

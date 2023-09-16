@@ -1,0 +1,16 @@
+# supportedPodKeys
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a QoS class of Guaranteed. More can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
+podTemplates:
+  - name: api-licensing
+    containers:
+      - name: api-licensing
+        resources:
+          requests:
+            cpu: 0.8
+            memory: 2Gi
+          limits:
+            cpu: 0.8
+            memory: 2Gi

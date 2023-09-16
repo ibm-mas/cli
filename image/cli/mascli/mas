@@ -58,6 +58,7 @@ mkdir -p $CONFIG_DIR
 . $DIR/functions/uninstall
 # Airgap support
 . $DIR/functions/setup_mirror_registry
+. $DIR/functions/teardown_mirror_registry
 . $DIR/functions/mirror_to_registry
 . $DIR/functions/mirror_redhat_to_registry
 . $DIR/functions/configure_ocp_for_mirror
@@ -110,6 +111,16 @@ case $1 in
     update_ansible_collections
     connect
     setup_mirror_registry
+    ;;
+
+  delete-registry|teardown-registry|teardown-mirror-registry|teardown-airgap-registry)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Registry Tear Down (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
+    echo
+    reset_colors
+    update_ansible_collections
+    connect
+    teardown_mirror_registry
     ;;
 
   mirror|mirror-images)

@@ -59,11 +59,6 @@ spec:
     - name: ibm_entitlement_key
       type: string
 
-    - name: mas_customize_scaling
-      type: string
-      default: ""
-      description: Optional Workload Scaling Custom ConfigMap Name
-
     - name: artifactory_username
       default: ''
       type: string
@@ -121,8 +116,8 @@ spec:
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
 
-      - name: MAS_CUSTOMIZE_SCALING
-        value: $(params.mas_customize_scaling)
+      - name: MAS_POD_TEMPLATES_DIR
+        value: /workspace/pod-templates
 
   steps:
     - name: suite-install
@@ -136,3 +131,5 @@ spec:
   workspaces:
     - name: configs
     - name: additional-configs
+    - name: pod-templates
+      optional: true

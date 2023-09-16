@@ -99,7 +99,7 @@ As of MAS 8.10 (June 2023) the total capacity requirement to mirror content from
 | **Total**                         |                             | **117G** |
 
 !!! note
-    The total capacity used on the filesytem in the target mirror registry itself may be lower than this due to the use of shared image layers, particularly across applications in IBM Maximo Application Suite itself.
+    The total capacity used on the filesystem in the target mirror registry itself may be lower than this due to the use of shared image layers, particularly across applications in IBM Maximo Application Suite itself.
 
 
 Interactive Image Mirroring

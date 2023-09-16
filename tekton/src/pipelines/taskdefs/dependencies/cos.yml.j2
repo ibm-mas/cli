@@ -20,9 +20,9 @@
     - input: "$(params.cos_type)"
       operator: notin
       values: [""]
-    - input: "$(params.mas_app_channel_assist)"
+    - input: "$(params.mas_app_channel_assist)$(params.cos_setup_for_manage_attachments)"
       operator: notin
-      values: [""]
+      values: ["", "false"]
   workspaces:
     - name: configs
       workspace: shared-configs
