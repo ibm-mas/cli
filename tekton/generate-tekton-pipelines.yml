@@ -33,6 +33,7 @@
         - fvt-assist
         - fvt-core
         - fvt-deprovision-after
+        - fvt-manage
         - fvt-manage-regr
         - fvt-sls
         - update

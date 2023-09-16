@@ -26,7 +26,7 @@ docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
 If you prefer to install the client it can be obtained from the [GitHub releases page](https://github.com/ibm-mas/cli/releases).
 
 ```bash
-wget https://github.com/ibm-mas/cli/releases/download/6.0.0/ibm-mas-cli-6.0.0.tgz
-tar -xvf ibm-mas-cli-6.0.0.tgz
+wget https://github.com/ibm-mas/cli/releases/download/7.0.0/ibm-mas-cli-7.0.0.tgz
+tar -xvf ibm-mas-cli-7.0.0.tgz
 ./mas mirror-images
 ```

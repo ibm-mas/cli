@@ -3,7 +3,7 @@ Upgrade
 
 Upgrade Overview
 -------------------------------------------------------------------------------
-Upgrade is the act of switching a MAS installation to a new subscription channel; it is distinct from an update, which is when new versions are delivered on existing subsciption channels.  New features are always delivered via new subscirption channels, update within a channel will only deliver updates to existing functionality (including security updates) and bug fixes.
+Upgrade is the act of switching a MAS installation to a new subscription channel; it is distinct from an update, which is when new versions are delivered on existing subscription channels.  New features are always delivered via new subscription channels, update within a channel will only deliver updates to existing functionality (including security updates) and bug fixes.
 
 1. [Upgrade](#1-upgrade)
 2. [Disconnected Upgrade Preparation](#1-disconnected-install-preparation)
@@ -11,7 +11,7 @@ Upgrade is the act of switching a MAS installation to a new subscription channel
 
 When you choose to upgrade to pick up a feature release, the upgrade is targeted at a specific MAS instance in the cluster.  Upgrades must work within an n-1 range, ie. we support MAS 8.10 and 8.9 on a cluster, or 8.9 and 8.8, but not 8.8 and 8.10.
 
-The process to undo an upgrade varies depending on what version and which applications were being upgraded, e.g. if there are database changes that need to be reversed it's more involved than if it's just a case of stateless runtimes to be reverted to an older version.
+The process to undo an upgrade varies depending on what version and which applications were being upgraded, e.g. if there are database changes that need to be reversed it's more involved than if it's just a case of stateless runtime to be reverted to an older version.
 
 !!! important
     You can only upgrade to a version of MAS already supported by the `ibm-maximo-operator-catalog` CatalogSource currently installed in the cluster.

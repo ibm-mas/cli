@@ -21,6 +21,7 @@ nav:
       - "configure-airgap": commands/configure-airgap.md
   - "Image Mirroring":
       - "setup-registry": commands/setup-registry.md
+      - "teardown-registry": commands/teardown-registry.md
       - "mirror-images": commands/mirror-images.md
       - "mirror-redhat-images": commands/mirror-redhat-images.md
   - "MAS Management":
@@ -32,10 +33,9 @@ nav:
       - "must-gather": commands/must-gather.md
   - "Catalogs":
       - "All Catalogs": catalogs/index.md
+      - "Aug 29 2023": catalogs/v8-230829-amd64.md
       - "Jul 25 2023": catalogs/v8-230725-amd64.md
       - "Jul 21 2023": catalogs/v8-230721-amd64.md
-      - "May 26 2023": catalogs/v8-230526-amd64.md
-      - "Apr 14 2023": catalogs/v8-230414-amd64.md
 
 theme:
   name: readthedocs

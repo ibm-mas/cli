@@ -14,6 +14,7 @@ Collection Options (Optional):
   -k, --keep-files           Do not delete individual files after creating the must-gather compressed tar archive
   --summary-only             Perform a much faster must-gather that only gathers high level summary of resources in the cluster
   --no-pod-logs              Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required
+  --mas-instance-ids         Collects the data for the specifed MAS instances, if not specified will collect for all MAS instances on the cluster
 
 Artifactory Upload (Optional):
   --artifactory-token ${COLOR_YELLOW}ARTIFACTORY_TOKEN${TEXT_RESET}              Provide a token for Artifactory to automatically upload the file to ARTIFACTORY_UPLOAD_DIR
@@ -54,6 +55,9 @@ function mustgather() {
       ;;
     --no-logs|--no-pod-logs)
       POD_LOGS=false
+      ;;
+    --mas-instance-ids)
+      MAS_INSTANCE_IDS=$1; shift 
       ;;
     --artifactory-token)
       ARTIFACTORY_TOKEN=$1; shift
@@ -151,10 +155,13 @@ function mustgather() {
     $MG_SCRIPT_DIR/mg-collect-mongoce $MONGOCE_NAMESPACE $OUTPUT_DIR
   done
 
+  if [[ -z $MAS_INSTANCE_IDS ]]
+  then
+    # Find MAS instances
+    # -----------------------------------------------------------------------------
+    MAS_INSTANCE_IDS=$(oc get suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
+  fi
 
-  # Find MAS instances
-  # -----------------------------------------------------------------------------
-  MAS_INSTANCE_IDS=$(oc get suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
   echo ""
   for MAS_INSTANCE_ID in $MAS_INSTANCE_IDS
   do
@@ -170,11 +177,11 @@ function mustgather() {
         echo -e "- Performing must-gather in namespace ${MAS_APP_NAMESPACE}"
         # MAS-specific must-gather
         $MG_SCRIPT_DIR/mg-summary-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE &> ${OUTPUT_DIR}/mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}.txt
-        $MG_SCRIPT_DIR/mg-collect-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE $OUTPUT_DIR
 
         # Generic Kubernetes must-gather
         if [[ "$SUMMARY_ONLY" == false ]]
         then
+          $MG_SCRIPT_DIR/mg-collect-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE $OUTPUT_DIR
           $MG_SCRIPT_DIR/mg-collect-pods $MAS_APP_NAMESPACE $POD_LOGS $OUTPUT_DIR/resources
           for RESOURCE in configmaps secrets services routes pvc deployments statefulsets jobs operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings
           do
@@ -183,6 +190,32 @@ function mustgather() {
         fi
       fi
     done
+  done
+
+  # Gather SLS data
+  # -----------------------------------------------------------------------------
+  SLS_NAMESPACES=$(oc get LicenseService --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
+  echo ""
+  for SLS_NAMESPACE in $SLS_NAMESPACES
+  do
+    # assume that there is only one LicenseService in the namespace
+    SLS_NAME=$(oc get LicenseService -n ${SLS_NAMESPACE} --ignore-not-found -o jsonpath='{.items[0].metadata.name}')
+    echo_h2 "Suite Licensing Service Must Gather from ${SLS_NAME} in ${SLS_NAMESPACE}"
+
+    # SLS-specific must-gather
+    $MG_SCRIPT_DIR/mg-summary-sls $SLS_NAMESPACE &> ${OUTPUT_DIR}/${SLS_NAMESPACE}.txt
+
+    # Generic Kubernetes must-gather
+    if [[ "$SUMMARY_ONLY" == false ]]
+    then
+      $MG_SCRIPT_DIR/mg-collect-sls $SLS_NAMESPACE $OUTPUT_DIR
+
+      $MG_SCRIPT_DIR/mg-collect-pods $SLS_NAMESPACE $POD_LOGS $OUTPUT_DIR/resources
+      for RESOURCE in configmaps secrets services routes deployments jobs operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings
+      do
+        $MG_SCRIPT_DIR/mg-collect-resources -n $SLS_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
+      done
+    fi
   done
 
   python3 $MG_SCRIPT_DIR/summarizer/mg-print-summary.py $OUTPUT_DIR | tee $OUTPUT_DIR/summary.txt
