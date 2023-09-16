@@ -37,7 +37,7 @@ EOM
 function gitops_init_cis_compliance_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   GIT_COMMIT_MSG="gitops-init-cis-compliance commit"
-  export GITOPS_VERSION=${GITOPS_VERSION:-poc}
+  export GITOPS_VERSION=${GITOPS_VERSION:-pk-cis-compliance}
 
   while [[ $# -gt 0 ]]
   do
