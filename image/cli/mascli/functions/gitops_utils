@@ -285,7 +285,6 @@ function check_argo_app_synced() {
       if ! (( $COUNT % 10 )) ; then
         if [ -n "${NAMESPACE}" ]; then
           oc adm policy add-role-to-user admin system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller -n ${NAMESPACE}
-          sleep 60
         fi
         if [ -n "$CLUSTER_WATCHER" ]; then
           argocd_sync $CLUSTER_WATCHER
