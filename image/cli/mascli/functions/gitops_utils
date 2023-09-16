@@ -271,6 +271,7 @@ function delete_oc_resource(){
 function check_argo_app_synced() {
   APPLICATION=$1
   CLUSTER_WATCHER=$2
+  NAMESPACE=$3
   COUNT=0
   while true; do
     echo "argo: Checking sync status for $APPLICATION"
@@ -282,6 +283,10 @@ function check_argo_app_synced() {
       echo "Sync Status is $SYNC_STATUS, Waiting 30s before checking status again"
       ((COUNT++))
       if ! (( $COUNT % 10 )) ; then
+        if [ -n "${NAMESPACE}" ]; then
+          oc adm policy add-role-to-user admin system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller -n ${NAMESPACE}
+          sleep 60
+        fi
         if [ -n "$CLUSTER_WATCHER" ]; then
           argocd_sync $CLUSTER_WATCHER
         fi
