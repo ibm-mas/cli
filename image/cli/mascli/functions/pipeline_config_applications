@@ -147,22 +147,6 @@ function config_pipeline_applications() {
       fi
     fi
 
-    if prompt_for_confirm "+ Install and bind Watson Studio"; then
-      MAS_APPWS_BINDINGS_HEALTH_WSL_FLAG=true
-    if prompt_for_confirm "+ Include industry solutions and add-ons"; then
-      echo
-      echo "${TEXT_DIM}Define which Manage Industry Solutions and Add-ons to be installed as part of the Manage base install."
-      echo "Include the Manage components and corresponding target version to be installed using comma-separated values."
-      echo
-      echo "Example: By default, Manage and Health will be installed, however to include Civil as additional component, type 'base=latest,health=latest,civil=latest'"
-      echo
-      reset_colors
-      MAS_APPWS_COMPONENTS="base=latest,health=latest"
-      prompt_for_input "Manage components to be installed" MAS_APPWS_COMPONENTS
-      if [[ -z "$MAS_APPWS_COMPONENTS" ]]; then
-        MAS_APPWS_COMPONENTS="base=latest,health=latest"
-      fi
-
     # Assist
     if prompt_for_confirm "Install Assist?"; then
       channel_select_assist || exit 1
