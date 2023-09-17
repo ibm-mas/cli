@@ -52,7 +52,7 @@ function gitops_init_suite_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-init-suite commit"
-  export GITOPS_VERSION=${GITOPS_VERSION:-pk-cis-compliance}
+  export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   while [[ $# -gt 0 ]]
   do
