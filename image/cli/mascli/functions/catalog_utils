@@ -127,8 +127,12 @@ function db2_channel_selection() {
 # cluster based on the version of the catalog that is being used
 function cp4d_channel_selection() {
   case $MAS_CATALOG_VERSION in
+    # CP4D v4.6.6 was added in the September 2023 catalog update
+    v8-amd64|v8-230926-amd64)
+      CP4D_VERSION=4.6.6
+      ;;
     # CP4D v4.6.4 was added in the June 2023 catalog update
-    v8-amd64|v8-230616-amd64|v8-230627-amd64|v8-230721-amd64|v8-230725-amd64|v8-230829-amd64)
+    v8-230616-amd64|v8-230627-amd64|v8-230721-amd64|v8-230725-amd64|v8-230829-amd64)
       CP4D_VERSION=4.6.4
       ;;
     # CP4D v4.6.3 was added in the April 2023 catalog update
