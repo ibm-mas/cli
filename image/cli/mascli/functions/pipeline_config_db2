@@ -20,7 +20,8 @@ function db2_for_iot() {
 
       # Check if a configuration already exists before creating a new one
       jdbc_cfg_file=$LOCAL_MAS_CONFIG_DIR/jdbc-$MAS_INSTANCE_ID-system.yaml
-      echo_reset_dim "Searching for system database configuration file in $jdbc_cfg_file ..."
+      echo "${TEXT_DIM}Searching for system database configuration file in $jdbc_cfg_file ..."
+      reset_colors
       echo
       if [ -e "$jdbc_cfg_file" ]; then
         if prompt_for_confirm "System database configuration file 'jdbc-$MAS_INSTANCE_ID-system.yaml' already exists.  Do you want to generate a new one?"; then
@@ -67,7 +68,8 @@ function db2_for_manage() {
 
         # Check if a configuration already exists before creating a new one
         jdbc_cfg_file=$LOCAL_MAS_CONFIG_DIR/jdbc-$MAS_INSTANCE_ID-manage.yaml
-        echo_reset_dim "Searching for Manage database configuration file in $jdbc_cfg_file ..."
+        echo "${TEXT_DIM}Searching for Manage database configuration file in $jdbc_cfg_file ..."
+        reset_colors
         echo
         if [ -e "$jdbc_cfg_file" ]; then
           if prompt_for_confirm "Manage database configuration file 'jdbc-$MAS_INSTANCE_ID-manage.yaml' already exists.  Do you want to generate a new one?"; then

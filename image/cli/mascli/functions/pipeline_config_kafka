@@ -109,7 +109,8 @@ function kafka_for_iot() {
 
       # Check if a configuration already exists
       kafka_cfg_file=$LOCAL_MAS_CONFIG_DIR/kafka-$MAS_INSTANCE_ID-system.yaml
-      echo_reset_dim "Searching for system Kafka configuration file in $kafka_cfg_file ..."
+      echo "${TEXT_DIM}Searching for system Kafka configuration file in $kafka_cfg_file ..."
+      reset_colors
       echo
       if [ ! -e "$kafka_cfg_file" ]; then
         echo_warning "Error: Kafka configuration file does not exist: '$kafka_cfg_file'"
