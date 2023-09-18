@@ -273,6 +273,18 @@ function check_argo_app_synced() {
   CLUSTER_WATCHER=$2
   NAMESPACE=$3
   COUNT=0
+  echo "argo: log APPLICATION=$APPLICATION CLUSTER_WATCHER=$CLUSTER_WATCHER NAMESPACE=$NAMESPACE"
+  if [ -n "${NAMESPACE}" ]; then
+    while true; do
+      export NAMESPACE_STATUS=`oc get ns $NAMESPACE -o json | jq .status.phase -r`
+      echo "argo: $NAMESPACE ns status is $NAMESPACE_STATUS"
+      if [ "$NAMESPACE_STATUS" == "Active" ]; then
+        # Fix for Issue : Cannot sync application in OpenShift GitOps. https://access.redhat.com/solutions/6331341
+        oc adm policy add-role-to-user admin system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller -n ${NAMESPACE}
+	break;
+      fi
+    done
+  fi
   while true; do
     echo "argo: Checking sync status for $APPLICATION"
     SYNC_STATUS=$(argocd app get $APPLICATION -o json 2> /dev/null | jq -r .status.sync.status)
