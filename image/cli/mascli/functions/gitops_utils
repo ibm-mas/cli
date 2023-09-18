@@ -284,6 +284,7 @@ function check_argo_app_synced() {
       ((COUNT++))
       if ! (( $COUNT % 10 )) ; then
         if [ -n "${NAMESPACE}" ]; then
+          # Fix for Issue : Cannot sync application in OpenShift GitOps. https://access.redhat.com/solutions/6331341
           oc adm policy add-role-to-user admin system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller -n ${NAMESPACE}
         fi
         if [ -n "$CLUSTER_WATCHER" ]; then
