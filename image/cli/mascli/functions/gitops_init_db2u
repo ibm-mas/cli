@@ -471,7 +471,7 @@ function gitops_init_db2u() {
     argocd_login
     argocd_sync ${CLUSTER_ID}-watcher
     argocd_hard_refresh mas-${MAS_INSTANCE_ID}-db2
-    check_argo_app_synced mas-${MAS_INSTANCE_ID}-db2
+    check_argo_app_synced mas-${MAS_INSTANCE_ID}-db2 ${CLUSTER_ID}-watcher ${DB2_NAMESPACE}
     check_argo_app_healthy mas-${MAS_INSTANCE_ID}-db2
   fi
 

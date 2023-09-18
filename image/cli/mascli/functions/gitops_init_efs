@@ -108,9 +108,9 @@ function gitops_init_efs() {
 
     export CLUSTER_NAME=$CLUSTER_ID
     export EFS_UNIQUE_ID=${MAS_INSTANCE_ID:-CLUSTER_ID}
-    export ROLE_NAME=ocp_efs
-    ansible-playbook ibm.mas_devops.run_role
+    export ROLE_NAME=ocp_efs && ansible-playbook ibm.mas_devops.run_role
     rc=$?
     [ $rc -ne 0 ] && exit $rc
   fi
+  exit 0
 }
