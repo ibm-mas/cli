@@ -101,6 +101,9 @@ spec:
       - name: SLS_ACTION
         value: $(params.sls_action)
 
+      - name: MAS_POD_TEMPLATES_DIR
+        value: /workspace/pod-templates
+
   steps:
     - name: sls
       command:
@@ -114,4 +117,6 @@ spec:
     - name: configs
       optional: true
     - name: entitlement
+      optional: true
+    - name: pod-templates
       optional: true

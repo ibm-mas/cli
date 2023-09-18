@@ -1,0 +1,140 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a QoS class of Guaranteed. More can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
+podTemplates:
+  - name: accapppoints
+    containers:
+      - name: accapppoints
+        resources:
+          requests:
+            cpu: 0.4
+            memory: 1Gi
+          limits:
+            cpu: 0.4
+            memory: 1Gi
+    initContainers:
+      - name: accapppoints-init
+        resources:
+          requests:
+            cpu: 0.4
+            memory: 256Mi
+          limits:
+            cpu: 0.4
+            memory: 256Mi
+  - name: usage-daily
+    containers:
+      - name: usage-daily
+        resources:
+          requests:
+            cpu: 0.4
+            memory: 1Gi
+          limits:
+            cpu: 0.4
+            memory: 1Gi
+    initContainers:
+      - name: adoptionusagemetering-daily-init
+        resources:
+          requests:
+            cpu: 0.4
+            memory: 256Mi
+          limits:
+            cpu: 0.4
+            memory: 256Mi
+  - name: usage-historical
+    containers:
+      - name: usage-historical
+        resources:
+          requests:
+            cpu: 0.4
+            memory: 1Gi
+          limits:
+            cpu: 0.4
+            memory: 1Gi
+    initContainers:
+      - name: adoptionusagemetering-historical-init
+        resources:
+          requests:
+            cpu: 0.4
+            memory: 256Mi
+          limits:
+            cpu: 0.4
+            memory: 256Mi
+  - name: usage-hourly
+    containers:
+      - name: usage-hourly
+        resources:
+          requests:
+            cpu: 0.4
+            memory: 1Gi
+          limits:
+            cpu: 0.4
+            memory: 1Gi
+    initContainers:
+      - name: adoptionusagemetering-hourly-init
+        resources:
+          requests:
+            cpu: 0.4
+            memory: 256Mi
+          limits:
+            cpu: 0.4
+            memory: 256Mi
+  - name: adoptionusage-reporter
+    containers:
+      - name: adoptionusage-reporter
+        resources:
+          requests:
+            cpu: 0.4
+            memory: 1Gi
+          limits:
+            cpu: 0.4
+            memory: 1Gi
+    initContainers:
+      - name: adoptionusagereporter-init
+        resources:
+          requests:
+            cpu: 0.4
+            memory: 256Mi
+          limits:
+            cpu: 0.4
+            memory: 256Mi
+  - name: adoptionusageapi
+    containers:
+      - name: adoptionusageapi
+        resources:
+          requests:
+            cpu: 0.4
+            memory: 1Gi
+          limits:
+            cpu: 0.4
+            memory: 1Gi
+    initContainers:
+      - name: adoptionusageapi-init
+        resources:
+          requests:
+            cpu: 0.4
+            memory: 256Mi
+          limits:
+            cpu: 0.4
+            memory: 256Mi
+  - name: milestonesapi
+    containers:
+      - name: milestonesapi
+        resources:
+          requests:
+            cpu: 0.4
+            memory: 1Gi
+          limits:
+            cpu: 0.4
+            memory: 1Gi
+  - name: suds
+    containers:
+      - name: suds
+        resources:
+          requests:
+            cpu: 0.4
+            memory: 1Gi
+          limits:
+            cpu: 0.4
+            memory: 1Gi

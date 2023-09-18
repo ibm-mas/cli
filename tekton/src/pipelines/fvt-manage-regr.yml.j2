@@ -13,6 +13,8 @@ spec:
     - name: shared-entitlement
     # Shared storage to hold mustgather output for tasks
     - name: shared-mustgather
+    # PodTemplates configurations
+    - name: shared-pod-templates
 
   params:
     # 1. Common Parameters
@@ -168,6 +170,8 @@ spec:
     # 6. Manage IVT
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/ivt-core/manage.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-manage
 
     # 7. Application FVT - Manage
     # -------------------------------------------------------------------------

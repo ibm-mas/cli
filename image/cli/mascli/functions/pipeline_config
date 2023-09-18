@@ -3,6 +3,7 @@
 . $DIR/functions/pipeline_config_additional_configs
 . $DIR/functions/pipeline_config_applications
 . $DIR/functions/pipeline_config_db2
+. $DIR/functions/pipeline_config_kafka
 . $DIR/functions/pipeline_config_dns
 . $DIR/functions/pipeline_config_sno
 . $DIR/functions/pipeline_config_storage_classes
@@ -11,6 +12,7 @@
 . $DIR/functions/pipeline_config_manage_storage_classes
 . $DIR/functions/pipeline_config_iot_storage_classes
 . $DIR/functions/pipeline_config_advanced
+. $DIR/functions/pipeline_config_workload_scale
 
 function pipeline_config() {
   echo_h2 "IBM Maximo Operator Catalog Selection"
@@ -70,7 +72,7 @@ function pipeline_config() {
 
   echo
   echo_h2 "License Terms"
-  echo -e "${COLOR_YELLOW} For information about your license, see "$MAS_LICENSE_LINK " To continue with the installation, you must accept the license terms."
+  echo -e "${COLOR_YELLOW}For information about your license, see "$MAS_LICENSE_LINK " To continue with the installation, you must accept the license terms."
   prompt_for_confirm_default_yes "Do you accept the license terms?" LICENSE_RESPONSE
 
   if [[ "$LICENSE_RESPONSE" == "false" ]]; then
@@ -124,7 +126,7 @@ function pipeline_config() {
   echo_h2 "Configure Operation Mode"
   echo "${TEXT_DIM}Maximo Application Suite can be installed in a non-production mode for internal development and testing, this setting cannot be changed after installation:"
   echo " - All applications, add-ons, and solutions have 0 (zero) installation AppPoints in non-production installations."
-  echo " - These specifications are also visible in the metrics that are shared with IBM® and on the product UI."
+  echo " - These specifications are also visible in the metrics that are shared with IBM and in the product UI."
   echo
   reset_colors
   prompt_for_confirm "Use non-production mode?" USE_NON_PROD_MODE
@@ -137,6 +139,7 @@ function pipeline_config() {
   config_pipeline_dns
   config_pipeline_applications
   config_pipeline_db2
+  config_pipeline_kafka
   config_pipeline_turbonomic
   config_pipeline_additional_configs
 
@@ -158,7 +161,7 @@ function pipeline_config() {
 
     echo
     echo_h2 "Configure IBM Container Registry"
-    prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
+    prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
 
     echo
     echo_h2 "Configure IBM Container Registry (MAS)"
