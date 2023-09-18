@@ -422,6 +422,11 @@ spec:
     {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
 
 
+    # 20. Application FVT - Health    
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/health.yml.j2') | indent(4) }}
+
+
     # 21. Application FVT - Manage Industry Solutions
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-manage-addons/phase0-aviation.yml.j2') | indent(4) }}
