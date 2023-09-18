@@ -20,11 +20,15 @@ function db2_for_iot() {
 
       # Check if a configuration already exists before creating a new one
       jdbc_cfg_file=$LOCAL_MAS_CONFIG_DIR/jdbc-$MAS_INSTANCE_ID-system.yaml
+      echo "Searching for system database configuration file in $jdbc_cfg_file ..."
+      echo
       if [ -e "$jdbc_cfg_file" ]; then
         if prompt_for_confirm "System database configuration file 'jdbc-$MAS_INSTANCE_ID-system.yaml' already exists.  Do you want to generate a new one?"; then
           python3 $DIR/functions/gencfg jdbc $MAS_INSTANCE_ID system $jdbc_cfg_file
         fi
       else
+        echo_warning "Expected $jdbc_cfg_file file was not found, generating a valid system database configuration file now ..."
+        echo
         python3 $DIR/functions/gencfg jdbc $MAS_INSTANCE_ID system $jdbc_cfg_file
       fi
     fi
@@ -63,11 +67,15 @@ function db2_for_manage() {
 
         # Check if a configuration already exists before creating a new one
         jdbc_cfg_file=$LOCAL_MAS_CONFIG_DIR/jdbc-$MAS_INSTANCE_ID-manage.yaml
+        echo "Searching for Manage database configuration file in $jdbc_cfg_file ..."
+        echo
         if [ -e "$jdbc_cfg_file" ]; then
           if prompt_for_confirm "Manage database configuration file 'jdbc-$MAS_INSTANCE_ID-manage.yaml' already exists.  Do you want to generate a new one?"; then
             python3 $DIR/functions/gencfg jdbc $MAS_INSTANCE_ID workspace-application $jdbc_cfg_file --workspace-id $MAS_WORKSPACE_ID --application-id manage
           fi
         else
+          echo_warning "Expected $jdbc_cfg_file file was not found, generating a valid Manage database configuration file now ..."
+          echo
           python3 $DIR/functions/gencfg jdbc $MAS_INSTANCE_ID workspace-application $jdbc_cfg_file --workspace-id $MAS_WORKSPACE_ID --application-id manage
         fi
       fi
