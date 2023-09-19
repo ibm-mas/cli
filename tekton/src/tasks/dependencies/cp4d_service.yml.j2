@@ -28,6 +28,10 @@ spec:
       type: string
       default: ""
 
+    - name: cpd_service_block_storage_class
+      type: string
+      default: ""
+
     # CPD Watson Studio Analytics Project (Optional)
     - name: cpd_wsl_project_name
       type: string
@@ -37,6 +41,7 @@ spec:
     - name: cpd_install_spss
       type: string
       default: "False"
+
     # Whether to install Watson OpenScale or not (Optional for Predict app)
     - name: cpd_install_openscale
       type: string
@@ -74,6 +79,8 @@ spec:
         value: $(params.cpd_service_name)
       - name: CPD_SERVICE_STORAGE_CLASS
         value: $(params.cpd_service_storage_class)
+      - name: CPD_SERVICE_BLOCK_STORAGE_CLASS
+        value: $(params.cpd_service_block_storage_class)
 
       - name: CPD_WSL_PROJECT_NAME
         value: $(params.cpd_wsl_project_name)
