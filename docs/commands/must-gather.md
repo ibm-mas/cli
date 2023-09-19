@@ -13,6 +13,7 @@ Usage
 - `--artifactory-token ARTIFACTORY_TOKEN` Provide a token for Artifactory to automatically upload the file to `ARTIFACTORY_UPLOAD_DIRECTORY`
 - `--artifactory-upload-directory ARTIFACTORY_UPLOAD_DIRECTORY` Working URL to the root directory in Artifactory where the must-gather file should be uploaded
 - `--mas-instance-ids` Collects the data for the specifed MAS instances, if not specified will collect for all MAS instances on the cluster
+- `--secret-data` Collects also the content of the secrets, the default is not to include the data part of the secrets
 
 Content
 -------------------------------------------------------------------------------
@@ -125,3 +126,12 @@ Running this command will save the must-gather file to a must-gather directory i
 docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --summary-only
 ```
 
+### Must-Gather for one MAS instance
+```bash
+docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --mas-instance-ids inst1
+```
+
+### Must-Gather that includes the data of the secrets
+```bash
+docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --secret-data
+```
