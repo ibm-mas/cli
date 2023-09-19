@@ -186,8 +186,8 @@ function pipeline_show_config() {
   echo_h4 "Storage Class Configuration" "    "
   echo_reset_dim "Storage Class Provider .... ${COLOR_MAGENTA}${STORAGE_CLASS_PROVIDER}"
   if [[ "$STORAGE_CLASS_PROVIDER" == "custom" ]]; then
-    echo_reset_dim "ReadWriteOnce ............ ${COLOR_MAGENTA}${STORAGE_CLASS_RWO}"
-    echo_reset_dim "ReadWriteMany ............ ${COLOR_MAGENTA}${STORAGE_CLASS_RWX}"
+    echo_reset_dim "ReadWriteOnce ............. ${COLOR_MAGENTA}${STORAGE_CLASS_RWO}"
+    echo_reset_dim "ReadWriteMany ............. ${COLOR_MAGENTA}${STORAGE_CLASS_RWX}"
   fi
 
   reset_colors

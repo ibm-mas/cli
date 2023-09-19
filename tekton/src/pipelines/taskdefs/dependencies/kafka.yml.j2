@@ -14,6 +14,8 @@
     # AMQ Streams (Kafka)
     - name: kafka_namespace
       value: $(params.kafka_namespace)
+    - name: kafka_action_system
+      value: $(params.kafka_action_system)
     - name: kafka_cluster_size
       value: $(params.kafka_cluster_size)
     - name: kafka_user_name
@@ -27,11 +29,11 @@
 
     # AWS basic info
     - name: aws_access_key_id
-      value: $(params.aws_access_key_id)"
+      value: $(params.aws_access_key_id)
     - name: aws_secret_access_key
-      value: $(params.aws_secret_access_key)"
+      value: $(params.aws_secret_access_key)
     - name: aws_region
-      value: $(params.aws_region)"
+      value: $(params.aws_region)
 
     # AWS MSK (Kafka)
     - name: vpc_id
@@ -72,6 +74,8 @@
       value: $(params.eventstreams_create_manage_jms_topics)
     - name: ibmcloud_apikey
       value: $(params.ibmcloud_apikey)
+    - name: ibmcloud_resourcegroup
+      value: $(params.ibmcloud_resourcegroup)
 
   # Only install Kafka if the IoT application is being installed
   when:

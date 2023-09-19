@@ -397,6 +397,10 @@ function install_noninteractive() {
     export MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE=$1 && shift
     ;;
 
+    --manage-jdbc)
+    export MAS_APPWS_BINDINGS_JDBC_MANAGE=$1 && shift
+    ;;
+
     # Manage commands - Components
     --manage-components)
     export MAS_APPWS_COMPONENTS=$1 && shift
