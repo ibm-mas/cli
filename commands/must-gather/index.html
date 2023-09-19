@@ -103,6 +103,10 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#quick-must-gather">Quick Must-Gather</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#must-gather-for-one-mas-instance">Must-Gather for one MAS instance</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#must-gather-that-includes-the-data-of-the-secrets">Must-Gather that includes the data of the secrets</a>
+    </li>
         </ul>
     </li>
     </ul>
@@ -156,6 +160,7 @@
 <li><code>--artifactory-token ARTIFACTORY_TOKEN</code> Provide a token for Artifactory to automatically upload the file to <code>ARTIFACTORY_UPLOAD_DIRECTORY</code></li>
 <li><code>--artifactory-upload-directory ARTIFACTORY_UPLOAD_DIRECTORY</code> Working URL to the root directory in Artifactory where the must-gather file should be uploaded</li>
 <li><code>--mas-instance-ids</code> Collects the data for the specified MAS instances, if not specified will collect for all MAS instances on the cluster</li>
+<li><code>--secret-data</code> Collects also the content of the secrets, the default is not to include the data part of the secrets</li>
 </ul>
 <h2 id="content">Content<a class="headerlink" href="#content" title="Permanent link"></a></h2>
 <pre><code>/must-gather/
@@ -256,6 +261,12 @@
 <h3 id="quick-must-gather">Quick Must-Gather<a class="headerlink" href="#quick-must-gather" title="Permanent link"></a></h3>
 <p>Running this command will save the must-gather file to a must-gather directory in your home directory.</p>
 <pre><code class="language-bash">docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --summary-only
+</code></pre>
+<h3 id="must-gather-for-one-mas-instance">Must-Gather for one MAS instance<a class="headerlink" href="#must-gather-for-one-mas-instance" title="Permanent link"></a></h3>
+<pre><code class="language-bash">docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --mas-instance-ids inst1
+</code></pre>
+<h3 id="must-gather-that-includes-the-data-of-the-secrets">Must-Gather that includes the data of the secrets<a class="headerlink" href="#must-gather-that-includes-the-data-of-the-secrets" title="Permanent link"></a></h3>
+<pre><code class="language-bash">docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --secret-data
 </code></pre>
               
             </div>
