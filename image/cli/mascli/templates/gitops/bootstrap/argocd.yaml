@@ -172,7 +172,7 @@ spec:
           hs.message = ""
           return hs
 
-      db2u.databases.ibm.com/db2uclusters:
+      db2u.databases.ibm.com/Db2uCluster:
         health.lua: |
           hs = {}
           if obj.status ~= nil then
