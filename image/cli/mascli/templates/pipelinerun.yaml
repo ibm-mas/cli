@@ -25,12 +25,32 @@ spec:
     - name: ibm_entitlement_key
       value: '$IBM_ENTITLEMENT_KEY'
 
+    # IBM Cloud
+    # -------------------------------------------------------------------------
+    - name: ibmcloud_apikey
+      value: '$IBMCLOUD_APIKEY'
+    - name: ibmcloud_resourcegroup
+      value: '$IBMCLOUD_RESOURCEGROUP'
+
     # Storage Classes
     # -------------------------------------------------------------------------
     - name: storage_class_rwx
       value: '$STORAGE_CLASS_RWX'
     - name: storage_class_rwo
       value: '$STORAGE_CLASS_RWO'
+
+    # Dependencies - Turbonomic
+    # -------------------------------------------------------------------------
+    - name: turbonomic_server_url
+      value: '$TURBONOMIC_SERVER_URL'
+    - name: turbonomic_server_version
+      value: '$TURBONOMIC_SERVER_VERSION'
+    - name: turbonomic_target_name
+      value: '$TURBONOMIC_TARGET_NAME'
+    - name: turbonomic_username
+      value: '$TURBONOMIC_USERNAME'
+    - name: turbonomic_password
+      value: '$TURBONOMIC_PASSWORD'
 
     # Dependencies - Db2u Operator
     # -------------------------------------------------------------------------
@@ -134,10 +154,44 @@ spec:
     - name: ibm_mongo_admin_password
       value: '$IBM_MONGO_ADMIN_PASSWORD'
 
-    # Dependencies - IBM Cloud Event Streams
+    # Dependencies - Kafka
     # -------------------------------------------------------------------------
+    - name: kafka_action_system
+      value: '$KAFKA_ACTION_SYSTEM'
     - name: kafka_provider
       value: '$KAFKA_PROVIDER'
+    - name: kafka_namespace
+      value: '$KAFKA_NAMESPACE'
+
+    # Dependencies - AWS MSK
+    # -------------------------------------------------------------------------
+    - name: vpc_id
+      value: '$VPC_ID'
+    - name: kafka_cluster_name
+      value: '$KAFKA_CLUSTER_NAME'
+    - name: aws_kafka_user_name
+      value: '$AWS_KAFKA_USER_NAME'
+    - name: aws_kafka_user_password
+      value: '$AWS_KAFKA_USER_PASSWORD'
+    - name: aws_msk_instance_type
+      value: '$AWS_MSK_INSTANCE_TYPE'
+    - name: aws_msk_instance_number
+      value: '$AWS_MSK_INSTANCE_NUMBER'
+    - name: aws_msk_volume_size
+      value: '$AWS_MSK_VOLUME_SIZE'
+    - name: aws_msk_cidr_az1
+      value: '$AWS_MSK_CIDR_AZ1'
+    - name: aws_msk_cidr_az2
+      value: '$AWS_MSK_CIDR_AZ2'
+    - name: aws_msk_cidr_az3
+      value: '$AWS_MSK_CIDR_AZ3'
+    - name: aws_msk_ingress_cidr
+      value: '$AWS_MSK_INGRESS_CIDR'
+    - name: aws_msk_egress_cidr
+      value: '$AWS_MSK_EGRESS_CIDR'
+
+    # Dependencies - IBM Cloud Event Streams
+    # -------------------------------------------------------------------------
     - name: eventstreams_resourcegroup
       value: '$EVENTSTREAMS_RESOURCEGROUP'
     - name: eventstreams_name
@@ -195,8 +249,12 @@ spec:
     # -------------------------------------------------------------------------
     - name: cos_type
       value: '$COS_TYPE'
-    - name: ibmcloud_apikey
-      value: '$IBMCLOUD_APIKEY'
+    - name: ibmcos_resourcegroup
+      value: '$IBMCOS_RESOURCEGROUP'
+    - name: ibmcos_instance_name
+      value: '$COS_INSTANCE_NAME'
+    - name: cos_action
+      value: '$COS_ACTION'
 
     # MAS Catalog
     # -------------------------------------------------------------------------
@@ -206,7 +264,6 @@ spec:
       value: '$MAS_CATALOG_VERSION'
     - name: mas_catalog_digest
       value: '$MAS_CATALOG_DIGEST'
-
 
     # MAS DNS Integrations - General
     # -------------------------------------------------------------------------
@@ -246,12 +303,17 @@ spec:
     - name: cis_proxy
       value: '$CIS_PROXY'
 
-    # MAS DNS Integrations - AWS Route 53
+    # AWS basic info
     # -------------------------------------------------------------------------
     - name: aws_access_key_id
       value: '$AWS_ACCESS_KEY_ID'
     - name: aws_secret_access_key
       value: '$AWS_SECRET_ACCESS_KEY'
+    - name: aws_region
+      value: '$AWS_REGION'
+
+    # MAS DNS Integrations - AWS Route 53
+    # -------------------------------------------------------------------------
     - name: route53_hosted_zone_name
       value: '$ROUTE53_HOSTED_ZONE_NAME'
     - name: route53_hosted_zone_region
@@ -274,19 +336,18 @@ spec:
       value: '$MAS_INSTANCE_ID'
     - name: mas_wipe_mongo_data
       value: '$MAS_WIPE_MONGO_DATA'
-
     - name: mas_domain
       value: '$MAS_DOMAIN'
     - name: mas_cluster_issuer
       value: '$MAS_CLUSTER_ISSUER'
-
     - name: mas_annotations
       value: '$MAS_ANNOTATIONS'
-
     - name: mas_icr_cp
       value: '$MAS_ICR_CP'
     - name: mas_icr_cpopen
       value: '$MAS_ICR_CPOPEN'
+    - name: mas_trust_default_cas
+      value: '$MAS_TRUST_DEFAULT_CAS'
 
     # MAS Workspace
     # -------------------------------------------------------------------------
@@ -310,7 +371,11 @@ spec:
     # -------------------------------------------------------------------------
     - name: mas_app_channel_manage
       value: '$MAS_APP_CHANNEL_MANAGE'
+    - name: mas_appws_components
+      value: '$MAS_APPWS_COMPONENTS'
 
+    - name: mas_appws_bindings_health_wsl_flag
+      value: '$MAS_APPWS_BINDINGS_HEALTH_WSL_FLAG'
     - name: mas_app_settings_aio_flag
       value: '$MAS_APP_SETTINGS_AIO_FLAG'
     - name: mas_app_settings_demodata
@@ -343,6 +408,26 @@ spec:
       value: '$MAS_APP_SETTINGS_INDEXSPACE'
     - name: mas_app_settings_db2_schema
       value: '$MAS_APP_SETTINGS_DB2_SCHEMA'
+    - name: mas_app_settings_customization_archive_url
+      value: '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL'
+    - name: mas_app_settings_customization_archive_name
+      value: '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME'
+    - name: mas_app_settings_customization_archive_username
+      value: '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME'
+    - name: mas_app_settings_customization_archive_password
+      value: '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD'
+    - name: mas_app_settings_crypto_key
+      value: '$MAS_APP_SETTINGS_CRYPTO_KEY'
+    - name: mas_app_settings_cryptox_key
+      value: '$MAS_APP_SETTINGS_CRYPTOX_KEY'
+    - name: mas_app_settings_old_crypto_key
+      value: '$MAS_APP_SETTINGS_OLD_CRYPTO_KEY'
+    - name: mas_app_settings_old_cryptox_key
+      value: '$MAS_APP_SETTINGS_OLD_CRYPTOX_KEY'
+    - name: mas_app_settings_override_encryption_secrets_flag
+      value: '$MAS_APP_SETTINGS_OVERRIDE_ENCRYPTION_SECRETS_FLAG'
+    - name: mas_app_settings_default_jms
+      value: '$MAS_APP_SETTINGS_DEFAULT_JMS'
 
     # Monitor Application
     # -------------------------------------------------------------------------
@@ -393,6 +478,8 @@ spec:
 
     # Grafana
     # -------------------------------------------------------------------------
+    - name: cluster_monitoring_include_grafana
+      value: '$CLUSTER_MONITORING_INCLUDE_GRAFANA'
     - name: grafana_namespace
       value: '$GRAFANA_NAMESPACE'
     - name: grafana_instance_storage_class
@@ -423,9 +510,8 @@ spec:
       secret:
         secretName: pipeline-sls-entitlement
 
-    # Pipeline must-gather storage
+    # PodTemplates configurations
     # -------------------------------------------------------------------------
-    # The storage to hold mustgather output after the pipeline has completed
-    - name: shared-mustgather
-      persistentVolumeClaim:
-        claimName: shared-mustgather-storage
+    - name: shared-pod-templates
+      secret:
+        secretName: pipeline-pod-templates

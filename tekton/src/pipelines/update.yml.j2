@@ -8,12 +8,23 @@ metadata:
   name: mas-update
 {% endif %}
 spec:
+{% if wait_for_install == true %}
+  workspaces:
+    # Shared storage to hold mustgather output for tasks
+    - name: shared-mustgather
+{% endif %}
+
   params:
 {% if wait_for_install == true %}
     # MAS Instance ID (the instance who's install to wait for)
     - name: mas_instance_id
       type: string
 {% endif %}
+
+    # Tekton Pipeline image pull policy (for ibmmas/cli images)
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
 
     # Catalog Version
     - name: mas_catalog_version
@@ -29,6 +40,38 @@ spec:
       type: string
       description: Required to install development MAS catalogs
 
+    # ocs/odf storage action
+    - name: ocs_action
+      type: string
+      default: "upgrade"
+      description: Set to 'upgrade' to update ocs/odf
+
+    # common services action
+    - name: common_services_action
+      type: string
+      default: "upgrade"
+      description: Set to 'upgrade' to update common_services
+    
+    # db2 update
+    - name: db2_action
+      type: string
+      default: "upgrade"
+      description: Set to 'upgrade' to update db2 instances in specified db2 namespace
+    - name: db2_namespace
+      type: string
+      default: "db2u"
+      description: Namespace where db2 instances will be updated
+
+    # mongodb update
+    - name: mongodb_action
+      type: string
+      default: "install"
+      description: Set to 'install' to update mongodb instances in specified mongodb namespace
+    - name: mongodb_namespace
+      type: string
+      default: "mongoce"
+      description: Namespace where mongodb instances will be updated
+
   tasks:
 {% if wait_for_install == true %}
     # 0. Wait for the install pipeline to complete
@@ -42,16 +85,22 @@ spec:
         name: mas-fvt-wait-for-install
 {% endif %}
 
-    # 1. Run the catalog update
+    # 1. Verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
-    - name: update-catalog
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-update-check', 'devops_suite_name': 'pre-update-check'}) | indent(4) }}
 {% if wait_for_install == true %}
       runAfter:
         - wait-for-install
 {% endif %}
+
+    # 2. Run the catalog update
+    # -------------------------------------------------------------------------
+    - name: update-catalog
       taskRef:
         kind: Task
         name: mas-devops-ibm-catalogs
+      runAfter:
+        - pre-update-check
       params:
         - name: devops_suite_name
           value: update-catalog
@@ -64,3 +113,174 @@ spec:
           value: $(params.artifactory_username)
         - name: artifactory_token
           value: $(params.artifactory_token)
+
+    # 3. Verify health of the cluster before we consider the update complete
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'post-update-verify-cluster',
+        'devops_suite_name': 'post-update-verify-cluster',
+        'verify_cluster': 'True',
+        'verify_catalogsources': 'False',
+        'verify_subscriptions': 'False',
+        'verify_workloads': 'False',
+        'verify_ingress': 'False'
+      }) | indent(4) }}
+      runAfter:
+        - update-catalog
+
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'post-update-verify-catalogsources',
+        'devops_suite_name': 'post-update-verify-catalogsources',
+        'verify_cluster': 'False',
+        'verify_catalogsources': 'True',
+        'verify_subscriptions': 'False',
+        'verify_workloads': 'False',
+        'verify_ingress': 'False'
+      }) | indent(4) }}
+      runAfter:
+        - post-update-verify-cluster
+
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'post-update-verify-subscriptions',
+        'devops_suite_name': 'post-update-verify-subscriptions',
+        'verify_cluster': 'False',
+        'verify_catalogsources': 'False',
+        'verify_subscriptions': 'True',
+        'verify_workloads': 'False',
+        'verify_ingress': 'False'
+      }) | indent(4) }}
+      runAfter:
+        - post-update-verify-catalogsources
+
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'post-update-verify-workloads',
+        'devops_suite_name': 'post-update-verify-workloads',
+        'verify_cluster': 'False',
+        'verify_catalogsources': 'False',
+        'verify_subscriptions': 'False',
+        'verify_workloads': 'True',
+        'verify_ingress': 'False'
+      }) | indent(4) }}
+      runAfter:
+        - post-update-verify-subscriptions
+
+
+    # 4. Update Dependencies
+    # ---------------------------------------------------------------------------
+    - name: update-ocs
+      taskRef:
+        kind: Task
+        name: mas-devops-ocs
+      runAfter:
+        - post-update-verify-workloads
+      params:
+        - name: devops_suite_name
+          value: update-ocs
+        - name: ocs_action
+          value: $(params.ocs_action)
+
+    - name: update-common-services
+      taskRef:
+        kind: Task
+        name: mas-devops-common-services
+      runAfter:
+        - update-ocs
+      params:
+        - name: devops_suite_name
+          value: update-common-services
+        - name: common_services_action
+          value: $(params.common_services_action)
+
+    - name: update-db2
+      taskRef:
+        kind: Task
+        name: mas-devops-db2
+      runAfter:
+        - update-common-services
+      params:
+        - name: devops_suite_name
+          value: update-db2
+        - name: db2_action
+          value: $(params.db2_action)
+        - name: db2_namespace
+          value: $(params.db2_namespace)
+
+    - name: update-mongodb
+      taskRef:
+        kind: Task
+        name: mas-devops-mongodb
+      runAfter:
+        - update-db2
+      params:
+        - name: devops_suite_name
+          value: update-mongodb
+        - name: mongodb_action
+          value: $(params.mongodb_action)
+        - name: mongodb_namespace
+          value: $(params.mongodb_namespace)
+
+    # 5. Verify health of the cluster after dependencies updates
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'post-deps-update-verify-cluster',
+        'devops_suite_name': 'post-deps-update-verify-cluster',
+        'verify_cluster': 'True',
+        'verify_catalogsources': 'False',
+        'verify_subscriptions': 'False',
+        'verify_workloads': 'False',
+        'verify_ingress': 'False'
+      }) | indent(4) }}
+      runAfter:
+        - update-mongodb
+
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'post-deps-update-verify-catalogsources',
+        'devops_suite_name': 'post-deps-update-verify-catalogsources',
+        'verify_cluster': 'False',
+        'verify_catalogsources': 'True',
+        'verify_subscriptions': 'False',
+        'verify_workloads': 'False',
+        'verify_ingress': 'False'
+      }) | indent(4) }}
+      runAfter:
+        - post-deps-update-verify-cluster
+
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'post-deps-update-verify-subscriptions',
+        'devops_suite_name': 'post-deps-update-verify-subscriptions',
+        'verify_cluster': 'False',
+        'verify_catalogsources': 'False',
+        'verify_subscriptions': 'True',
+        'verify_workloads': 'False',
+        'verify_ingress': 'False'
+      }) | indent(4) }}
+      runAfter:
+        - post-deps-update-verify-catalogsources
+
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'post-deps-update-verify-workloads',
+        'devops_suite_name': 'post-deps-update-verify-workloads',
+        'verify_cluster': 'False',
+        'verify_catalogsources': 'False',
+        'verify_subscriptions': 'False',
+        'verify_workloads': 'True',
+        'verify_ingress': 'False'
+      }) | indent(4) }}
+      runAfter:
+        - post-deps-update-verify-subscriptions
+
+{% if wait_for_install == true %}
+  # Perform must-gather after the update
+  # ---------------------------------------------------------------------------
+  finally:
+    - name: must-gather
+      taskRef:
+        kind: Task
+        name: mas-devops-must-gather
+      params:
+        - name: base_output_dir
+          value: "/workspace/mustgather/$(context.pipelineRun.name)"
+      workspaces:
+        - name: mustgather
+          workspace: shared-mustgather
+{% endif %}

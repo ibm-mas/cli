@@ -16,10 +16,6 @@ spec:
     - name: mas_workspace_id
       type: string
       description: Workspace ID in MAS to use for running the tests
-    - name: product_id
-      type: string
-      description: Product ID under test
-      default: ibm-mas-manage
     - name: product_channel_manage
       type: string
       description: "Manage subscription channel for the product"
@@ -81,8 +77,6 @@ spec:
   stepTemplate:
     name: 'fvt-manage'
     env:
-      - name: PRODUCT_ID
-        value: $(params.product_id)
       - name: INSTANCE_ID
         value: "$(params.mas_instance_id)"
       - name: WORKSPACE_ID
@@ -147,10 +141,14 @@ spec:
         - mountPath: /dev/shm
           name: dshm
       env:
+        - name: FVT_TEST_SUITE_PREFIX
+          value: core
         - name: FVT_TEST_SUITE
           value: mif-dd
         - name: PRODUCT_CHANNEL
           value: $(params.product_channel_manage)
+        - name: PRODUCT_ID
+          value: ibm-mas-manage
     - name: manage-monitor-ivt
       image: '$(params.fvt_image_registry)/ai-solutions/common-test-framework@$(params.fvt_image_digest_monitor)'
       imagePullPolicy: $(params.image_pull_policy)
@@ -164,3 +162,5 @@ spec:
           value: manage_monitor_ivt
         - name: PRODUCT_CHANNEL
           value: $(params.product_channel_monitor)
+        - name: PRODUCT_ID
+          value: ibm-mas-monitor

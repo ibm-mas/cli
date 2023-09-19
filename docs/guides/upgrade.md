@@ -1,27 +1,26 @@
 Upgrade
 ===============================================================================
 
-Update Overview
+Upgrade Overview
 -------------------------------------------------------------------------------
-Upgrade is the act of switching a MAS installation to a new subscription channel; it is distinct from an update, which is when new versions are delivered on existing subsciption channels.  New features are always delivered via new subscirption channels, update within a channel will only deliver updates to existing functionality (including security updates) and bug fixes.
+Upgrade is the act of switching a MAS installation to a new subscription channel; it is distinct from an update, which is when new versions are delivered on existing subscription channels.  New features are always delivered via new subscription channels, update within a channel will only deliver updates to existing functionality (including security updates) and bug fixes.
 
-1. [Update](#1-update)
+1. [Upgrade](#1-upgrade)
 2. [Disconnected Upgrade Preparation](#1-disconnected-install-preparation)
 3. [Update MAS](#2-update-maximo-application-suite)
 
 When you choose to upgrade to pick up a feature release, the upgrade is targeted at a specific MAS instance in the cluster.  Upgrades must work within an n-1 range, ie. we support MAS 8.10 and 8.9 on a cluster, or 8.9 and 8.8, but not 8.8 and 8.10.
 
-The process to undo an upgrade varies depending on what version and which applications were being upgraded, e.g. if there are database changes that need to be reversed it's more involved than if it's just a case of stateless runtimes to be reverted to an older version.
+The process to undo an upgrade varies depending on what version and which applications were being upgraded, e.g. if there are database changes that need to be reversed it's more involved than if it's just a case of stateless runtime to be reverted to an older version.
 
-1 Update
--------------------------------------------------------------------------------
-You can only upgrade to a version of MAS already supported by the `ibm-operator-catalog` CatalogSource currently installed in the cluster.
+!!! important
+    You can only upgrade to a version of MAS already supported by the `ibm-maximo-operator-catalog` CatalogSource currently installed in the cluster.
 
-- If you are using the static catalog and have not already updated to a catalog that includes the version of MAS you wish to upgrade to then you must first follow the [update process](update.md).
-- If you are using the dynamic catalog then no action is required here, the catalog source will automatically update to include new MAS releases.
+    - If you are using the static catalog and have not already updated to a catalog that includes the version of MAS you wish to upgrade to then you must first follow the [update process](update.md).
+    - If you are using the dynamic catalog then no action is required here, the catalog source will automatically update to include new MAS releases.
 
 
-2 Disconnected Upgrade Preparation
+1 Disconnected Upgrade Preparation
 -------------------------------------------------------------------------------
 Before you start the upgrade, you must mirror the images for the new catalog that you wish to update to. Mirroring the images is a simple but time consuming process.  Three modes are available for the mirror process:
 
@@ -42,14 +41,14 @@ mas mirror-images \
   -m direct \
   -d /mnt/local-mirror/ \
   -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-221129-amd64 -C 8.9.x --mirror-core --mirror-iot --mirror-optimizer --mirror-manage \
+  -c v8-230725-amd64 -C 8.10.x --mirror-core --mirror-cpfs --mirror-uds --mirror-sls --mirror-tsm \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY \
   --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
   --no-confirm
 ```
 
 !!! important
-    Make sure to select the release of MAS you want to upgrade to instead of the release of MAS you are currently on, for example if you are upgrading from MAS 8.8 to MAS 8.9 you should set `-C 8.9.x`.
+    Make sure to select the release of MAS you want to upgrade to, not the release of MAS you are currently on.  For example if you are upgrading from MAS 8.9 to MAS 8.10 you should set `-C 8.10.x`.
 
 
 2 Upgrade Maximo Application Suite

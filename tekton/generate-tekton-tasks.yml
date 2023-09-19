@@ -27,14 +27,19 @@
         - cluster-monitoring
         - common-services
         - cos
+        - cos-deprovision
         - cp4d_service
         - cp4d
         - db2
         - ibm-catalogs
         - kafka
+        - kafka-deprovision
         - mongodb
         - nvidia-gpu
+        - ocp-verify
+        - ocs
         - sls
+        - turbonomic
         - uds
 
     # 3. Generate Tasks (FVT)
@@ -47,10 +52,16 @@
         - fvt-assist-desktop
         - fvt-assist
         - fvt-core
+        - fvt-core-phase4
         - fvt-core-ui
         - fvt-manage
+        - fvt-manage-directprint
+        - fvt-manage-last-phase
+        - fvt-manage-pytest
+        - fvt-sls
         - fvt-run-suite
         - fvt-wait-for-install
+        - fvt-wait-for-pipelinerun
 
     # 4. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
@@ -60,7 +71,7 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - ivt-manage-monitor-dd
-    
+
     # 5. Generate Tasks (Suite)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (Suite)
@@ -73,11 +84,24 @@
         - suite-app-config
         - suite-app-install
         - suite-app-upgrade
+        - suite-app-rollback
+        - suite-app-verify
+        - suite-certs
         - suite-config
         - suite-db2-setup-for-manage
-        - suite-certs
         - suite-dns
         - suite-install
+        - suite-manage-doclinks-config
+        - suite-rollback
         - suite-uninstall
         - suite-upgrade
         - suite-verify
+
+    # 6. Generate Tasks (OCP)
+    # -------------------------------------------------------------------------
+    - name: Generate Tasks (Suite)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/ocp/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - ocp-deprovision

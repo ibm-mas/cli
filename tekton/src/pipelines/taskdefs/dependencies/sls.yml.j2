@@ -4,6 +4,9 @@
     - name: devops_suite_name
       value: dependencies-sls
 
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+
     - name: artifactory_username
       value: $(params.artifactory_username)
     - name: artifactory_token
@@ -25,6 +28,7 @@
       value: $(params.sls_icr_cp)
     - name: sls_icr_cpopen
       value: $(params.sls_icr_cpopen)
+
     - name: ibm_entitlement_key
       value: $(params.ibm_entitlement_key)
     - name: custom_labels
@@ -37,3 +41,5 @@
       workspace: shared-configs
     - name: entitlement
       workspace: shared-entitlement
+    - name: pod-templates
+      workspace: shared-pod-templates

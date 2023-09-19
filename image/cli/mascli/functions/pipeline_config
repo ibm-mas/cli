@@ -3,13 +3,16 @@
 . $DIR/functions/pipeline_config_additional_configs
 . $DIR/functions/pipeline_config_applications
 . $DIR/functions/pipeline_config_db2
+. $DIR/functions/pipeline_config_kafka
 . $DIR/functions/pipeline_config_dns
 . $DIR/functions/pipeline_config_sno
 . $DIR/functions/pipeline_config_storage_classes
 . $DIR/functions/pipeline_config_storage_classes_sno
+. $DIR/functions/pipeline_config_turbonomic
 . $DIR/functions/pipeline_config_manage_storage_classes
 . $DIR/functions/pipeline_config_iot_storage_classes
 . $DIR/functions/pipeline_config_advanced
+. $DIR/functions/pipeline_config_workload_scale
 
 function pipeline_config() {
   echo_h2 "IBM Maximo Operator Catalog Selection"
@@ -69,30 +72,61 @@ function pipeline_config() {
 
   echo
   echo_h2 "License Terms"
-  echo -e "${COLOR_YELLOW} For information about your license, see "$MAS_LICENSE_LINK " To continue with the installation, you must accept the license terms."
+  echo -e "${COLOR_YELLOW}For information about your license, see "$MAS_LICENSE_LINK " To continue with the installation, you must accept the license terms."
   prompt_for_confirm_default_yes "Do you accept the license terms?" LICENSE_RESPONSE
 
   if [[ "$LICENSE_RESPONSE" == "false" ]]; then
     exit 1
   fi
 
+  echo
   echo_h2 "Configure MAS Instance"
 
-  # MAS instance ID
+  # Instance ID regex: ^[a-z][a-z0-9-]{1,10}[a-z0-9]$
   if [[ ! -z "$1" ]]; then
     MAS_INSTANCE_ID=$1
   fi
+  echo "${TEXT_DIM}Instance ID restrictions:"
+  echo " - Must be 3-12 characters long"
+  echo " - Must only use lowercase letters, numbers, and hypen (-) symbol"
+  echo " - Must start with a lowercase letter"
+  echo " - Must end with a lowercase letter or a number"
+  reset_colors
   prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
+  if [[ ! "${MAS_INSTANCE_ID}" =~ ^[a-z][a-z0-9-]{1,10}[a-z0-9]$ ]]; then
+    echo_warning "Instance ID (${MAS_INSTANCE_ID}) does not meet requirements"
+    exit 1
+  fi
+  echo
+
+  # Workspace ID regex: ^[a-z][a-z0-9]{2,11}$
+  echo "${TEXT_DIM}Workspace ID restrictions:"
+  echo " - Must be 3-12 characters long"
+  echo " - Must only use lowercase letters and numbers"
+  echo " - Must start with a lowercase letter"
+  reset_colors
   prompt_for_input "MAS Workspace ID" MAS_WORKSPACE_ID
+  if [[ ! "${MAS_WORKSPACE_ID}" =~ ^[a-z][a-z0-9]{2,11}$ ]]; then
+    echo_warning "Workspace ID (${MAS_WORKSPACE_ID}) does not meet requirements"
+    exit 1
+  fi
+  echo
+
+  # Workspace display name regex: ^.{3,300}$
+  echo "${TEXT_DIM}Workspace display name restrictions:"
+  echo " - Must be 3-300 characters long"
+  reset_colors
   prompt_for_input "MAS Workspace Display Name" MAS_WORKSPACE_NAME
-
-
+  if [[ ! "${MAS_WORKSPACE_NAME}" =~ ^.{3,300}$ ]]; then
+    echo_warning "Workspace name (${MAS_WORKSPACE_NAME}) does not meet requirements"
+    exit 1
+  fi
 
   echo
   echo_h2 "Configure Operation Mode"
   echo "${TEXT_DIM}Maximo Application Suite can be installed in a non-production mode for internal development and testing, this setting cannot be changed after installation:"
   echo " - All applications, add-ons, and solutions have 0 (zero) installation AppPoints in non-production installations."
-  echo " - These specifications are also visible in the metrics that are shared with IBM® and on the product UI."
+  echo " - These specifications are also visible in the metrics that are shared with IBM and in the product UI."
   echo
   reset_colors
   prompt_for_confirm "Use non-production mode?" USE_NON_PROD_MODE
@@ -105,6 +139,8 @@ function pipeline_config() {
   config_pipeline_dns
   config_pipeline_applications
   config_pipeline_db2
+  config_pipeline_kafka
+  config_pipeline_turbonomic
   config_pipeline_additional_configs
 
   if [[ "$SNO_MODE" == "true" ]]; then
@@ -125,7 +161,7 @@ function pipeline_config() {
 
     echo
     echo_h2 "Configure IBM Container Registry"
-    prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
+    prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
 
     echo
     echo_h2 "Configure IBM Container Registry (MAS)"

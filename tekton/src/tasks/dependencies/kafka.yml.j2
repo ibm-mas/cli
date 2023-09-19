@@ -5,10 +5,7 @@ metadata:
   name: mas-devops-kafka
 spec:
   params:
-    # Control the image pull policy for the CLI container image
-    - name: image_pull_policy
-      type: string
-      default: IfNotPresent
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
     - name: mas_instance_id
       type: string
@@ -38,6 +35,54 @@ spec:
       type: string
       default: ""
 
+    # AWS basic info
+    # -------------------------------------------------------------------------
+    - name: aws_access_key_id
+      type: string
+      default: ""
+    - name: aws_secret_access_key
+      type: string
+      default: ""
+    - name: aws_region
+      type: string
+      default: ""
+
+    # Dependencies - AWS MSK (Kafka)
+    # -------------------------------------------------------------------------
+    - name: vpc_id
+      type: string
+      default: ""
+    - name: aws_kafka_user_name
+      type: string
+      default: ""
+    - name: aws_kafka_user_password
+      type: string
+      default: ""
+    - name: aws_msk_instance_type
+      type: string
+      default: ""
+    - name: aws_msk_instance_number
+      type: string
+      default: ""
+    - name: aws_msk_volume_size
+      type: string
+      default: ""
+    - name: aws_msk_cidr_az1
+      type: string
+      default: ""
+    - name: aws_msk_cidr_az2
+      type: string
+      default: ""
+    - name: aws_msk_cidr_az3
+      type: string
+      default: ""
+    - name: aws_msk_ingress_cidr
+      type: string
+      default: ""
+    - name: aws_msk_egress_cidr
+      type: string
+      default: ""
+
     # Dependencies - IBM Cloud Event Streams (Kafka)
     # -----------------------------------------------------------------------------
     - name: kafka_provider
@@ -45,6 +90,10 @@ spec:
       default: ""
     - name: eventstreams_resourcegroup
       type: string
+      default: ""
+    - name: ibmcloud_resourcegroup
+      type: string
+      description: IBM Cloud resource group
       default: ""
     - name: eventstreams_name
       type: string
@@ -61,13 +110,6 @@ spec:
     - name: ibmcloud_apikey
       type: string
       description: API Key used to create Event Streams instance in IBM Cloud
-      default: ""
-
-    # Optional support built into the ansible-devops image
-    # for saving task execution results to a MongoDb instance
-    - name: devops_suite_name
-      type: string
-      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
       default: ""
 
   stepTemplate:
@@ -95,6 +137,36 @@ spec:
       - name: ZOOKEEPER_STORAGE_CLASS
         value: $(params.zookeeper_storage_class)
 
+      # Optional - AWS MSK (Kafka)
+      - name: AWS_ACCESS_KEY_ID
+        value: $(params.aws_access_key_id)
+      - name: AWS_SECRET_ACCESS_KEY
+        value: $(params.aws_secret_access_key)
+      - name: AWS_REGION
+        value: $(params.aws_region)
+      - name: VPC_ID
+        value: $(params.vpc_id)
+      - name: AWS_KAFKA_USER_NAME
+        value: $(params.aws_kafka_user_name)
+      - name: AWS_KAFKA_USER_PASSWORD
+        value: $(params.aws_kafka_user_password)
+      - name: AWS_MSK_INSTANCE_TYPE
+        value: $(params.aws_msk_instance_type)
+      - name: AWS_MSK_INSTANCE_NUMBER
+        value: $(params.aws_msk_instance_number)
+      - name: AWS_MSK_VOLUME_SIZE
+        value: $(params.aws_msk_volume_size)
+      - name: AWS_MSK_CIDR_AZ1
+        value: $(params.aws_msk_cidr_az1)
+      - name: AWS_MSK_CIDR_AZ2
+        value: $(params.aws_msk_cidr_az2)
+      - name: AWS_MSK_CIDR_AZ3
+        value: $(params.aws_msk_cidr_az3)
+      - name: AWS_MSK_INGRESS_CIDR
+        value: $(params.aws_msk_ingress_cidr)
+      - name: AWS_MSK_EGRESS_CIDR
+        value: $(params.aws_msk_egress_cidr)
+
       # Optional - IBM Cloud Event Streams (Kafka)
       - name: KAFKA_PROVIDER
         value: $(params.kafka_provider)
@@ -110,6 +182,8 @@ spec:
         value: $(params.eventstreams_create_manage_jms_topics)
       - name: IBMCLOUD_APIKEY
         value: $(params.ibmcloud_apikey)
+      - name: IBMCLOUD_RESOURCEGROUP
+        value: $(params.ibmcloud_resourcegroup)
 
   steps:
     - name: kafka

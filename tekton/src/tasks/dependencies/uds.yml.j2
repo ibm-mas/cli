@@ -5,10 +5,7 @@ metadata:
   name: mas-devops-uds
 spec:
   params:
-    # Control the image pull policy for the CLI container image
-    - name: image_pull_policy
-      type: string
-      default: IfNotPresent
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
     - name: mas_instance_id
       type: string
@@ -34,13 +31,6 @@ spec:
       default: ""
     - name: uds_storage_class
       type: string
-      default: ""
-
-    # Optional support built into the ansible-devops image
-    # for saving task execution results to a MongoDb instance
-    - name: devops_suite_name
-      type: string
-      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
       default: ""
 
     # Optional parameter to uninstall UDS
@@ -79,6 +69,9 @@ spec:
       - name: UDS_ACTION
         value: $(params.uds_action)
 
+      - name: MAS_POD_TEMPLATES_DIR
+        value: /workspace/pod-templates
+
   steps:
     - name: uds
       command:
@@ -90,4 +83,6 @@ spec:
 
   workspaces:
     - name: configs
+      optional: true
+    - name: pod-templates
       optional: true

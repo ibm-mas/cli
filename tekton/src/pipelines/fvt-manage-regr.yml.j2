@@ -13,6 +13,8 @@ spec:
     - name: shared-entitlement
     # Shared storage to hold mustgather output for tasks
     - name: shared-mustgather
+    # PodTemplates configurations
+    - name: shared-pod-templates
 
   params:
     # 1. Common Parameters
@@ -168,22 +170,49 @@ spec:
     # 6. Manage IVT
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/ivt-core/manage.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-manage
 
-    # 7. Manage FVT
+    # 7. Application FVT - Manage
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/manage.yml.j2') | indent(4) }}
+    # 7.1 Phase 0: User Sync
+    {{ lookup('template', 'taskdefs/fvt-manage/phase0.yml.j2') | indent(4) }}
+
+    # 7.2 Phase 1: SetupWithMAS, Monitoring and others not depending on setup
+    {{ lookup('template', 'taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
+
+    # 7.3 Phase 2: MIF Setup and others
+    {{ lookup('template', 'taskdefs/fvt-manage/phase2.yml.j2') | indent(4) }}
+
+    # 7.4 Phase 3: JMS Inbound, Work Order Basic and others
+    {{ lookup('template', 'taskdefs/fvt-manage/phase3.yml.j2') | indent(4) }}
+
+    # 7.5 Phase 4: Doclinks, Kafka and others
+    {{ lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
+    
+    # 7.6 Phase 5: Single-threaded suites (SMTP and others)
+    {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
 
     # 8. Manage FVT - Industry Solutions
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/manage-industry-solutions.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase0-aviation.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase1-scheduler.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase2-civil.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase3-all-setup.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase4-all-user.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase5-all-test.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase6-maintmanager.yml.j2') | indent(4) }}
 
     # 9. Manage Mobile FVT
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase1-setup.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase2-android.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase3-ios.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase4.yml.j2') | indent(4) }}
 
     # 10. Manage Regression
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/manage-regr.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-regression/manage-regr.yml.j2') | indent(4) }}
 
 
   # Mustgather executed in finally block. Use suite_mustgather_download

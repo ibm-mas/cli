@@ -1,6 +1,6 @@
 # IBM Maximo Application Suite Tekton Pipelines
 
-These pipelines are all powered by the container image in this same repository, and provide an alternative to running our Ansible roles and playbooks locally.  With Pipelines you can configure your own devops processes directly in the cluster and chain togther the building blocks (ClusterTasks) that we have created.
+These pipelines are all powered by the container image in this same repository, and provide an alternative to running our Ansible roles and playbooks locally.  With Pipelines you can configure your own devops processes directly in the cluster and chain together the building blocks (ClusterTasks) that we have created.
 
 To learn more about Tekton refer to the excellent material here: https://redhat-scholars.github.io/tekton-tutorial/tekton-tutorial/index.html
 
@@ -36,7 +36,7 @@ This aspect of the project is still in active development and should be consider
 ## Build and Install the MAS Pipeline Task Definitions
 ```bash
 export DEV_MODE=true
-export VERSION=14.0.0
+export VERSION=latest
 
 pipelines/bin/build-pipelines.sh
 oc apply -f pipelines/ibm-mas_devops-clustertasks-$VERSION.yaml

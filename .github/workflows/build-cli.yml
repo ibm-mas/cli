@@ -1,5 +1,7 @@
 name: Build CLI
 on:
+  workflow_dispatch:
+  repository_dispatch:
   push:
     branches:
       - '**'

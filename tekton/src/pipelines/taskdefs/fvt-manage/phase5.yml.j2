@@ -1,0 +1,22 @@
+# -------------------------------------------------------------
+# LAST PHASE (tests running one after the other)
+# - fvt-manage-application-designer
+# - fvt-manage-startcenter-config
+# - fvt-manage-workflow-designer
+# - fvt-manage-smtp-setup
+# -------------------------------------------------------------
+
+- name: fvt-manage-last-phase
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage-last-phase
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}    
+  runAfter:
+    - fvt-manage-mif-kafka
+    - fvt-manage-wo-doclink
+    - fvt-manage-directprint
+    - fvt-manage-user-crud
+    - fvt-manage-user-consumption
+    - fvt-manage-communication-temp

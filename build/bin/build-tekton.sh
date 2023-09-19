@@ -17,7 +17,7 @@ if [ "$DEV_MODE" != "true" ]; then
   TARGET_FILE_IN_CLI=$GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yaml
 else
   TARGET_DIR=$DIR/../../tekton/target
-  VERSION=${VERSION:-4.1.0-pre.mg}
+  VERSION=${VERSION:-6.1.0-pre.deprov}
 
   TASK_FILES=$TARGET_DIR/tasks/*.yaml
   PIPELINE_FILES=$TARGET_DIR/pipelines/*.yaml
@@ -26,6 +26,7 @@ else
   TARGET_FILE_FVT=$DIR/../../tekton/target/ibm-mas-tekton-fvt.yaml
   TARGET_FILE_IN_CLI=$DIR/../../image/cli/mascli/templates/ibm-mas-tekton.yaml
 fi
+
 
 # 1. Generate tasks and pipelines
 # -----------------------------------------------------------------------------

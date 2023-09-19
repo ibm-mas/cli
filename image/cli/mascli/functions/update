@@ -12,6 +12,10 @@ When no options are specified on the command line, interactive-mode will be enab
 Maximo Operator Catalog Selection (Required):
   -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}     Maximo Operator Catalog Version (e.g. v8-221129)
 
+Update Dependencies (Optional):
+  --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}        DB2 namespace where instances update will be performed
+  --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET} Namespace where MongoCE operator and instance will be updated
+
 Other Commands:
       --no-confirm                      Mirror images without prompting for confirmation
   -h, --help                            Show this help message
@@ -21,6 +25,7 @@ EOM
 
 
 function update_noninteractive() {
+
   detect_airgap
   while [[ $# -gt 0 ]]
   do
@@ -29,6 +34,12 @@ function update_noninteractive() {
     case $key in
       -c|--catalog)
         MAS_CATALOG_VERSION=$1 && shift
+        ;;
+      --db2u-namespace)
+        DB2_NAMESPACE=$1 && shift
+        ;;
+      --mongodb-namespace)
+        MONGODB_NAMESPACE=$1 && shift
         ;;
       --no-confirm)
         NO_CONFIRM=true
@@ -56,6 +67,28 @@ function update_interactive() {
   echo
   echo_h2 "Select IBM Maximo Operator Catalog Version"
   choose_catalog_version
+  echo
+
+  echo_h2 "Dependencies Update"
+  echo -e "${COLOR_GREEN}IBM Common Services Operator will be updated by default as needed.${COLOR_RESET}"
+  
+  # Detect db2 in cluster and prompt for namespace
+  oc get Operator db2u-operator.ibm-common-services > /dev/null 2>&1
+  if [ "$?" == "0" ]; then
+    prompt_for_input "DB2u operator has been detected. Db2u namespace to update?" DB2_NAMESPACE "db2u"
+  fi
+
+  # Detect OCS/ODF Storage Cluster in cluster and set action
+  oc get StorageCluster -A > /dev/null 2>&1
+  if [ "$?" == "0" ]; then
+    echo -e "${COLOR_GREEN}OCS/ODF Storage Cluster has been detected and will be updated by default as needed.${COLOR_RESET}"
+  fi
+
+  # Detect MongoDB Community Edition in cluster and set namespace
+  MONGODB_NAMESPACE=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+  if [ "$?" == "0" ]; then
+    echo -e "${COLOR_GREEN}MongoDB Community Edition has been detected in ${MONGODB_NAMESPACE} and will be updated as needed.${COLOR_RESET}"
+  fi
 }
 
 
@@ -69,12 +102,14 @@ function update() {
   fi
 
   export MAS_CATALOG_VERSION
+  export DB2_NAMESPACE
+  export MONGODB_NAMESPACE
   echo
   reset_colors
   echo_h2 "Review Settings"
 
   echo "${TEXT_DIM}"
-  echo_h2 "IBM Operator Catalog" "    "
+  echo_h4 "IBM Operator Catalog" "    "
   echo_reset_dim "Catalog Version ..................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
 
   echo

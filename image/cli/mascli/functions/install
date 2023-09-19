@@ -32,7 +32,9 @@ Maximo Application Suite Instance (Required):
 Advanced MAS Configuration (Optional):
       --additional-configs ${COLOR_YELLOW}LOCAL_MAS_CONFIG_DIR${TEXT_RESET}                    Path to a directory containing additional configuration files to be applied
       --non-prod                                                   Install MAS in Non-production mode
-
+      --mas-trust-default-cas ${COLOR_YELLOW}MAS_TRUST_DEFAULT_CAS${TEXT_RESET}                Trust certificates signed by well-known CAs
+      --workload-scale-profile                                     Set a pre-defined workload scale profile [Burstable, BestEffort, Guaranteed]
+      --mas-pod-templates-dir                                      Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over --workload-scale-profile
 Maximo Application Suite Core Platform (Required):
       --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                                    Subscription channel for the Core Platform
 
@@ -50,6 +52,18 @@ Maximo Application Suite Application Selection (Optional):
 IBM Cloud Pak for Data (Required when installing Predict or Assist):
       --cp4d-version ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}                                  Product version of CP4D to use
 
+Kafka (Required to install Maximo IoT thus if not set, a default Kafka provider will be installed):
+      --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}                              Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), 'strimzi', 'ibm' (IBM Cloud Event Streams) and 'aws' (AWS MSK)
+
+Kafka (Optional, applicable for Strimzi and Red Hat AMQ Streams only):
+      --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}                            Set Strimzi and Red Hat AMQ Streams namespace
+
+Kafka (Required for IBM Cloud Event Streams only):
+      --ibmcloud-apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                            Set IBM Cloud API Key. Required to provision IBM Cloud services
+      --eventstreams-resource-group ${COLOR_YELLOW}EVENTSTREAMS_RESOURCEGROUP${TEXT_RESET}     Set IBM Cloud resource group to target the Event Streams instance provisioning (Only applicable if installing IBM Cloud Event Streams)
+      --eventstreams-instance-name ${COLOR_YELLOW}EVENTSTREAMS_NAME${TEXT_RESET}               Set IBM Event Streams instance name (Only applicable if installing IBM Event Streams)
+      --eventstreams-instance-location ${COLOR_YELLOW}EVENTSTREAMS_LOCATION${TEXT_RESET}       Set IBM Event Streams instance location (Only applicable if installing IBM Event Streams)
+
 IBM Db2 (Optional, required to use IBM Db2 Universal Operator):
       --db2u-channel ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                                   Subscription channel for Db2u (e.g. v110508.0)
       --db2u-system                                                Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)
@@ -66,21 +80,23 @@ Advanced Db2u Universal Operator Configuration - Node Scheduling (Optional):
       --db2u-tolerate-effect ${COLOR_YELLOW}DB2_TOLERATE_EFFECT${TEXT_RESET}                   Set the effect that will be tolerated (NoSchedule, PreferNoSchedule, or NoExecute)
 
 Advanced Db2u Universal Operator Configuration - Resource Requests (Optional):
-      --db2u-cpu-request ${COLOR_YELLOW}DB2_CPU_REQUESTS${TEXT_RESET}                          Customise Db2 CPU request
-      --db2u-cpu-limit ${COLOR_YELLOW}DB2_CPU_LIMITS${TEXT_RESET}                              Customise Db2 CPU limit
-      --db2u-memory-request ${COLOR_YELLOW}DB2_MEMORY_REQUESTS${TEXT_RESET}                    Customise Db2 memory request
-      --db2u-memory-limit ${COLOR_YELLOW}DB2_MEMORY_LIMITS${TEXT_RESET}                        Customise Db2 memory limit
+      --db2u-cpu-request ${COLOR_YELLOW}DB2_CPU_REQUESTS${TEXT_RESET}                          Customize Db2 CPU request
+      --db2u-cpu-limit ${COLOR_YELLOW}DB2_CPU_LIMITS${TEXT_RESET}                              Customize Db2 CPU limit
+      --db2u-memory-request ${COLOR_YELLOW}DB2_MEMORY_REQUESTS${TEXT_RESET}                    Customize Db2 memory request
+      --db2u-memory-limit ${COLOR_YELLOW}DB2_MEMORY_LIMITS${TEXT_RESET}                        Customize Db2 memory limit
 
 Advanced Db2u Universal Operator Configuration - Storage (Optional):
-      --db2u-backup-storage ${COLOR_YELLOW}DB2_BACKUP_STORAGE_SIZE${TEXT_RESET}                Customise Db2 storage capacity
-      --db2u-data-storage ${COLOR_YELLOW}DB2_DATA_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
-      --db2u-logs-storage ${COLOR_YELLOW}DB2_LOGS_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
-      --db2u-meta-storage ${COLOR_YELLOW}DB2_META_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
-      --db2u-temp-storage ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}                    Customise Db2 storage capacity
+      --db2u-backup-storage ${COLOR_YELLOW}DB2_BACKUP_STORAGE_SIZE${TEXT_RESET}                Customize Db2 storage capacity
+      --db2u-data-storage ${COLOR_YELLOW}DB2_DATA_STORAGE_SIZE${TEXT_RESET}                    Customize Db2 storage capacity
+      --db2u-logs-storage ${COLOR_YELLOW}DB2_LOGS_STORAGE_SIZE${TEXT_RESET}                    Customize Db2 storage capacity
+      --db2u-meta-storage ${COLOR_YELLOW}DB2_META_STORAGE_SIZE${TEXT_RESET}                    Customize Db2 storage capacity
+      --db2u-temp-storage ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}                    Customize Db2 storage capacity
 
 Advanced MongoDB Configuration (Optional):
       --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET}                        Change namespace where MongoCE operator and instance will be created
 
+Cloud Provider Commands:
+      --ibmcloud-apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                            Set IBM Cloud API Key (Required to provision IBM Cloud services)
 
 Other Commands:
       --dev-mode                                                   Enable developer mode (e.g. for access to pre-release builds)
@@ -100,6 +116,7 @@ function install_noninteractive() {
   # Defaults
   DB2_ACTION_SYSTEM=none
   DB2_ACTION_MANAGE=none
+  KAFKA_ACTION_SYSTEM=none
 
   LOCAL_MAS_CONFIG_DIR=""
   LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN=yes
@@ -152,6 +169,31 @@ function install_noninteractive() {
     --non-prod)
     export USE_NON_PROD_MODE=true
     export MAS_ANNOTATIONS="mas.ibm.com/operationalMode=nonproduction"
+    ;;
+    --mas-trust-default-cas)
+    export MAS_TRUST_DEFAULT_CAS=$1 && shift
+    ;;
+    --workload-scale-profile)
+    MAS_WORKLOAD_SCALE_PROFILE=$1 && shift
+    case $MAS_WORKLOAD_SCALE_PROFILE in
+    "Guaranteed")
+      set_mas_workload_scale_envs
+      ;;
+    "BestEffort")
+      set_mas_workload_scale_envs
+      ;;
+    "Burstable")
+      clear_mas_workload_scale_envs
+      ;;
+    *)
+      echo_warning "Invalid workload scale profile. Must be one of [Burstable, BestEffort, Guaranteed]"
+      exit 1
+      ;;
+    esac
+    ;;
+    --mas-pod-templates-dir)
+    MAS_POD_TEMPLATES_DIR=$1 && shift
+    check_mas_pod_templates_dir
     ;;
 
     # Core
@@ -251,6 +293,75 @@ function install_noninteractive() {
     export DB2_TEMP_STORAGE_SIZE=$1 && shift
     ;;
 
+    # Dependencies - Kafka common arguments
+    --kafka-provider)
+    export KAFKA_ACTION_SYSTEM=install
+    export KAFKA_PROVIDER=$1 && shift
+    ;;
+
+    --kafka-cluster-name)
+    export KAFKA_CLUSTER_NAME=$1 && shift
+    ;;
+
+    --kafka-username)
+    export AWS_KAFKA_USER_NAME=$1
+    export KAFKA_USER_NAME=$1 && shift
+    ;;
+
+    --kafka-password)
+    export AWS_KAFKA_USER_PASSWORD=$1 
+    export KAFKA_USER_PASSWORD=$1 && shift
+    ;;
+
+    # Dependencies - Kafka (AMQ & Strimzi)
+    --kafka-namespace)
+    export KAFKA_NAMESPACE=$1 && shift
+    ;;
+
+    # Dependencies - Kafka (AWS MSK)
+    --msk-instance-type)
+    export AWS_MSK_INSTANCE_TYPE=$1 && shift
+    ;;
+
+    --msk-instance-nodes)
+    export AWS_MSK_INSTANCE_NUMBER=$1 && shift
+    ;;
+
+    --msk-instance-volume-size)
+    export AWS_MSK_VOLUME_SIZE=$1 && shift
+    ;;
+
+    --msk-cidr-az1)
+    export AWS_MSK_CIDR_AZ1=$1 && shift
+    ;;
+
+    --msk-cidr-az2)
+    export AWS_MSK_CIDR_AZ2=$1 && shift
+    ;;
+
+    --msk-cidr-az3)
+    export AWS_MSK_CIDR_AZ3=$1 && shift
+    ;;
+
+    --msk-cidr-ingress)
+    export AWS_MSK_INGRESS_CIDR=$1 && shift
+    ;;
+
+    --msk-cidr-egress)
+    export AWS_MSK_EGRESS_CIDR=$1 && shift
+    ;;
+
+    # Dependencies - Kafka (IBM Cloud Event Streams)
+    --eventstreams-resource-group)
+    export EVENTSTREAMS_RESOURCEGROUP=$1 && shift
+    ;;
+    --eventstreams-instance-name)
+    export EVENTSTREAMS_NAME=$1 && shift
+    ;;
+    --eventstreams-instance-location)
+    export EVENTSTREAMS_LOCATION=$1 && shift
+    ;;
+
     # Licensing & Entitlement
     --ibm-entitlement-key)
     export IBM_ENTITLEMENT_KEY=$1 && shift
@@ -281,6 +392,81 @@ function install_noninteractive() {
     export MONGODB_NAMESPACE=$1 && shift
     ;;
 
+    # Manage commands - Server bundle configuration
+    --manage-server-bundle-size)
+    export MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE=$1 && shift
+    ;;
+
+    --manage-jdbc)
+    export MAS_APPWS_BINDINGS_JDBC_MANAGE=$1 && shift
+    ;;
+
+    # Manage commands - Components
+    --manage-components)
+    export MAS_APPWS_COMPONENTS=$1 && shift
+    ;;
+
+    # Manage commands - Customization archive
+    --manage-customization-archive-name)
+    export MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME=$1 && shift
+    ;;
+
+    --manage-customization-archive-url)
+    export MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL=$1 && shift
+    ;;
+
+    --manage-customization-archive-username)
+    export MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME=$1 && shift
+    ;;
+
+    --manage-customization-archive-password)
+    export MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD=$1 && shift
+    ;;
+
+    # Manage commands - Database encryption keys
+    --manage-crypto-key)
+    export MAS_APP_SETTINGS_CRYPTO_KEY=$1 && shift
+    ;;
+
+    --manage-cryptox-key)
+    export MAS_APP_SETTINGS_CRYPTOX_KEY=$1 && shift
+    ;;
+
+    --manage-old-crypto-key)
+    export MAS_APP_SETTINGS_OLD_CRYPTO_KEY=$1 && shift
+    ;;
+
+    --manage-old-cryptox-key)
+    export MAS_APP_SETTINGS_OLD_CRYPTOX_KEY=$1 && shift
+    ;;
+
+    --manage-override-encryption-secrets)
+    export MAS_APP_SETTINGS_OVERRIDE_ENCRYPTION_SECRETS_FLAG=true
+    ;;
+
+    # Cloud Provider Commands - IBM Cloud
+    --ibmcloud-apikey)
+    export IBMCLOUD_APIKEY=$1 && shift
+    ;;
+
+    # Cloud Provider Commands - AWS
+    --aws-region)
+    export AWS_REGION=$1 && shift
+    ;;
+
+    --aws-access-key-id)
+    export AWS_ACCESS_KEY_ID=$1 && shift
+    ;;
+
+    --aws-secret-access-key)
+    export AWS_SECRET_ACCESS_KEY=$1 && shift
+    ;;
+
+    --aws-vpc-id)
+    export VPC_ID=$1 && shift
+    ;;
+
+
     # Other Commands
     --dev-mode)
       DEV_MODE=true
@@ -294,7 +480,6 @@ function install_noninteractive() {
     -h|--help)
       install_help
       ;;
-
 
     *)
     # unknown option

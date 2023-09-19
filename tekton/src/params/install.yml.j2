@@ -1,3 +1,16 @@
+# IBM Cloud
+# -----------------------------------------------------------------------------
+- name: ibmcloud_apikey
+  type: string
+  default: ""
+- name: ibmcloud_resourcegroup
+  type: string
+  default: ""
+
+# Dependencies - Turbonomic
+# -----------------------------------------------------------------------------
+{{ lookup('template', params_src_dir ~ '/install-turbonomic.yml.j2') }}
+
 # Dependencies - SLS
 # -----------------------------------------------------------------------------
 - name: sls_namespace
@@ -68,12 +81,22 @@
   description: IBM Cloud MongoDb admin password
   default: ""
 
-# Dependencies - AMQ Streams (Kafka)
-# -----------------------------------------------------------------------------
-- name: kafka_namespace
+# Dependencies (Kafka) - General variables
+- name: kafka_action_system
   type: string
+  description: Set to 'install' to set up a Kafka instance for the whole suite
+  default: "none"
+- name: kafka_provider
+  type: string
+  description: Kafka provider
   default: ""
 - name: kafka_cluster_name
+  type: string
+  default: ""
+
+# Dependencies - AMQ Streams / Strimzi (Kafka)
+# -----------------------------------------------------------------------------
+- name: kafka_namespace
   type: string
   default: ""
 - name: kafka_cluster_size
@@ -83,11 +106,44 @@
   type: string
   default: ""
 
-# Dependencies - IBM Cloud Event Streams (Kafka)
-# -----------------------------------------------------------------------------
-- name: kafka_provider
+# Dependencies - AWS MSK (Kafka)
+# -------------------------------------------------------------------------
+- name: vpc_id
   type: string
   default: ""
+- name: aws_kafka_user_name
+  type: string
+  default: ""
+- name: aws_kafka_user_password
+  type: string
+  default: ""
+- name: aws_msk_instance_type
+  type: string
+  default: ""
+- name: aws_msk_instance_number
+  type: string
+  default: ""
+- name: aws_msk_volume_size
+  type: string
+  default: ""
+- name: aws_msk_cidr_az1
+  type: string
+  default: ""
+- name: aws_msk_cidr_az2
+  type: string
+  default: ""
+- name: aws_msk_cidr_az3
+  type: string
+  default: ""
+- name: aws_msk_ingress_cidr
+  type: string
+  default: ""
+- name: aws_msk_egress_cidr
+  type: string
+  default: ""
+
+# Dependencies - IBM Cloud Event Streams (Kafka)
+# -----------------------------------------------------------------------------
 - name: eventstreams_resourcegroup
   type: string
   default: ""
@@ -159,24 +215,6 @@
 - name: cpd_product_version
   type: string
   default: ""
-- name: cpd_wd_storage_class
-  type: string
-  default: ""
-- name: cpd_wml_storage_class
-  type: string
-  default: ""
-- name: cpd_spark_storage_class
-  type: string
-  default: ""
-- name: cpd_wsl_storage_class
-  type: string
-  default: ""
-- name: cpd_aiopenscale_storage_class
-  type: string
-  default: ""
-- name: cpd_spss_storage_class
-  type: string
-  default: ""
 - name: cpd_install_spss
   type: string
   default: "False"
@@ -212,12 +250,24 @@
   type: string
   description: COS Provider (ibm or ocs)
   default: ""
-- name: ibmcloud_apikey
+- name: ibmcos_resourcegroup
   type: string
-  description: API Key used to create COS instance in IBM Cloud
+  description: Name of an existing COS Resource Group in IBM Cloud account
+  default: ""
+- name: ibmcos_instance_name
+  type: string
+  description: Name of COS instance in IBM Cloud account
+  default: ""
+- name: cos_action
+  type: string
+  description: COS action to be performed (provision or deprovision)
+  default: ""
+- name: cos_setup_for_manage_attachments
+  type: string
+  description: set to `true` to configure COS to hold Manage attachments
   default: ""
 
-# MAS Integration - Prometheus
+# MAS Integration - Cluster Monitoring - Prometheus
 # -----------------------------------------------------------------------------
 - name: prometheus_retention_period
   type: string
@@ -241,6 +291,12 @@
   type: string
   default: ""
 - name: prometheus_userworkload_storage_size
+  type: string
+  default: ""
+
+# MAS Integration - Cluster Monitoring - Grafana
+# -----------------------------------------------------------------------------
+- name: cluster_monitoring_include_grafana
   type: string
   default: ""
 - name: grafana_namespace
@@ -304,7 +360,7 @@
   type: string
   default: "false"
 
-# MAS DNS Integrations - AWS Route 53
+# AWS basic info
 # -------------------------------------------------------------------------
 - name: aws_access_key_id
   type: string
@@ -312,6 +368,12 @@
 - name: aws_secret_access_key
   type: string
   default: ""
+- name: aws_region
+  type: string
+  default: ""
+
+# MAS DNS Integrations - AWS Route 53
+# -------------------------------------------------------------------------
 - name: route53_hosted_zone_name
   type: string
   default: ""
@@ -324,7 +386,7 @@
 - name: route53_subdomain
   type: string
   default: ""
-    
+
 {{ lookup('template', params_src_dir ~ '/install-ibmcatalogs.yml.j2') }}
 
 {{ lookup('template', params_src_dir ~ '/install-workspace.yml.j2') }}
@@ -348,10 +410,10 @@
 - name: mas_annotations
   type: string
   default: ""
-- name: mas_customize_scaling
+- name: mas_trust_default_cas
   type: string
   default: ""
-  description: Workload Scaling Custom ConfigMap Name
+  description: Optional boolean parameter that when set to False, disables the normal trust of well known public certificate authorities
 - name: mas_manual_cert_mgmt
   type: string
   default: "False"
@@ -449,6 +511,52 @@
 - name: mas_app_settings_db2_schema
   type: string
   description: Name of the Manage database schema
+  default: ""
+- name: mas_app_settings_customization_archive_name
+  type: string
+  description: Name of the Manage custom archive
+  default: ""
+- name: mas_app_settings_customization_archive_url
+  type: string
+  description: URL of the Manage custom archive
+  default: ""
+- name: mas_app_settings_customization_archive_username
+  type: string
+  description: Username to authenticate into Manage custom archive url (if required)
+  default: ""
+- name: mas_app_settings_customization_archive_password
+  type: string
+  description: Password to authenticate into Manage custom archive url (if required)
+  default: ""
+- name: mas_app_settings_crypto_key
+  type: string
+  description: Manage database encryption key for MXE_SECURITY_CRYPTO_KEY
+  default: ""
+- name: mas_app_settings_cryptox_key
+  type: string
+  description: Manage database encryption key for MXE_SECURITY_CRYPTOX_KEY
+  default: ""
+- name: mas_app_settings_old_crypto_key
+  type: string
+  description: Manage database encryption key for MXE_SECURITY_OLD_CRYPTO_KEY
+  default: ""
+- name: mas_app_settings_old_cryptox_key
+  type: string
+  description: Manage database encryption key for MXE_SECURITY_OLD_CRYPTOX_KEY
+  default: ""
+- name: mas_app_settings_override_encryption_secrets_flag
+  type: string
+  description: Defines if Manage database encryption secret should be overriden with new values provided
+  default: ""
+- name: mas_app_settings_default_jms
+  type: string
+  description: Set true if you want to configure JMS queues. It is false by default.
+  default: "" # default is handled by ansible-devops
+
+# MAS Application Configuration - Health Application
+- name: mas_appws_bindings_health_wsl_flag
+  type: string
+  description: Boolean value indicating if Watson Studio must installed and bound to Manage/Health.
   default: ""
 
 # MAS Application Configuration - Optimizer Application

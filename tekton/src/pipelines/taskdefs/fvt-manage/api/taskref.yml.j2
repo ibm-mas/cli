@@ -1,8 +1,8 @@
 taskRef:
   kind: Task
-  name: mas-fvt-manage
+  name: mas-fvt-manage-pytest
 when:
-  - input: "$(params.fvt_digest_manage)"
+  - input: "$(params.fvt_digest_manage_pytest)"
     operator: notin
     values: [""]
   - input: "$(params.mas_app_channel_manage)"

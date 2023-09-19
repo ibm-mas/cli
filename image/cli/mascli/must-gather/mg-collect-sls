@@ -1,0 +1,20 @@
+#!/bin/bash
+set -e
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+NAMESPACE=$1
+OUTPUT_DIR=$2
+
+# Collect Reconcile Logs
+# -----------------------------------------------------------------------------
+# Primary Resources
+$DIR/mg-collect-reconcile-logs $NAMESPACE controller-manager $OUTPUT_DIR
+
+# Collect SLS Resources
+# -----------------------------------------------------------------------------
+for RESOURCE in LicenseService LicenseClient
+do
+  $DIR/mg-collect-resources -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
+done
+
+exit 0

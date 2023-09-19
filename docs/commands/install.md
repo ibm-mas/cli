@@ -30,6 +30,10 @@ Usage
 ### Advanced MAS Configuration (Optional):
 - `--additional-configs LOCAL_MAS_CONFIG_DIR`         Path to a directory containing additional configuration files to be applied
 - `--non-prod`                                        Install MAS in Non-production mode
+- `--mas-trust-default-cas MAS_TRUST_DEFAULT_CAS`     Trust certificates signed by well-known CAs
+- `--workload-scale-profile`                          Set a pre-defined workload scale profile [`Burstable`, `BestEffort`, `Guaranteed`]
+- `--mas-pod-templates-dir`                           Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over `--workload-scale-profile`
+
 
 ### Maximo Application Suite Core Platform (Required):
 - `--mas-channel MAS_CHANNEL`                                    Subscription channel for the Core Platform
@@ -48,6 +52,33 @@ Usage
 ### IBM Cloud Pak for Data (Required when installing Predict or Assist):
 - `--cp4d-version CP4D_VERSION`                                  Product version of CP4D to use
 
+### Kafka - Common Arguments (Optional, required to install Maximo IoT):
+- `--kafka-provider KAFKA_PROVIDER`                             Required. Set Kafka provider. Supported options are `redhat` (Red Hat AMQ Streams), `strimzi` and `ibm` (IBM Event Streams) and `aws` (AWS MSK)
+- `--kafka-namespace KAFKA_NAMESPACE`                           Optional. Set Kafka namespace. Only applicable if installing `redhat` (Red Hat AMQ Streams) or `strimzi`
+- `--kafka-cluster-name KAFKA_CLUSTER_NAME`                     Optional. Set Kafka cluster name. Only applicable if installing `redhat` (Red Hat AMQ Streams), `strimzi` or `aws` (AWS MSK)
+- `--kafka-username KAFKA_USER_NAME`                            Required. Set Kafka instance username. Only applicable if installing `redhat` (Red Hat AMQ Streams), `strimzi` or `aws` (AWS MSK)
+- `--kafka-password KAFKA_USER_PASSWORD`                        Required. Set Kafka instance password. Only applicable if installing `redhat` (Red Hat AMQ Streams), `strimzi` or `aws` (AWS MSK)
+
+### Kafka - AWS MSK:
+- `--aws-region AWS_REGION`                                     Required. Set target AWS region for the MSK instance
+- `--aws-access-key-id AWS_ACCESS_KEY_ID`                       Required. Set AWS access key ID for the target AWS account
+- `--aws-secret-access-key AWS_SECRET_ACCESS_KEY`               Required. Set AWS secret access key for the target AWS account
+- `--aws-vpc-id VPC_ID`                                         Required. Set target Virtual Private Cloud ID for the MSK instance
+- `--msk-instance-type AWS_MSK_INSTANCE_TYPE`                   Optional. Set the MSK instance type
+- `--msk-instance-nodes AWS_MSK_INSTANCE_NUMBER`                Optional. Set total number of MSK instance nodes
+- `--msk-instance-volume-size AWS_MSK_VOLUME_SIZE`              Optional. Set storage/volume size for the MSK instance
+- `--msk-cidr-az1 AWS_MSK_CIDR_AZ1`                             Required. Set the CIDR subnet for availability zone 1 for the MSK instance
+- `--msk-cidr-az2 AWS_MSK_CIDR_AZ2`                             Required. Set the CIDR subnet for availability zone 2 for the MSK instance
+- `--msk-cidr-az3 AWS_MSK_CIDR_AZ3`                             Required. Set the CIDR subnet for availability zone 3 for the MSK instance
+- `--msk-cidr-ingress AWS_MSK_INGRESS_CIDR`                     Required. Set the CIDR for ingress connectivity
+- `--msk-cidr-egress AWS_MSK_EGRESS_CIDR`                       Required. Set the CIDR for egress connectivity
+
+### Kafka - IBM Cloud Event Streams:
+- `--ibmcloud-apikey IBMCLOUD_APIKEY`                           Required. Set IBM Cloud API Key.
+- `--eventstreams-resource-group EVENTSTREAMS_RESOURCEGROUP`    Optional. Set IBM Cloud resource group to target the Event Streams instance provisioning.
+- `--eventstreams-instance-name EVENTSTREAMS_NAME`              Optional. Set IBM Event Streams instance name.
+- `--eventstreams-instance-location EVENTSTREAMS_LOCATION`      Optional. Set IBM Event Streams instance location.
+
 ### IBM Db2 (Optional, required to use IBM Db2 Universal Operator):
 - `--db2u-channel DB2_CHANNEL`     Subscription channel for Db2u (e.g. v110508.0)
 - `--db2u-system`                  Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)
@@ -64,17 +95,31 @@ Usage
 - `--db2u-tolerate-effect DB2_TOLERATE_EFFECT`       Set the effect that will be tolerated (NoSchedule, PreferNoSchedule, or NoExecute)
 
 ### Advanced Db2u Universal Operator Configuration - Resource Requests (Optional):
-- `--db2u-cpu-request DB2_CPU_REQUESTS`              Customise Db2 CPU request
-- `--db2u-cpu-limit DB2_CPU_LIMITS`                  Customise Db2 CPU limit
-- `--db2u-memory-request DB2_MEMORY_REQUESTS`        Customise Db2 memory request
-- `--db2u-memory-limit DB2_MEMORY_LIMITS`            Customise Db2 memory limit
+- `--db2u-cpu-request DB2_CPU_REQUESTS`              Customize Db2 CPU request
+- `--db2u-cpu-limit DB2_CPU_LIMITS`                  Customize Db2 CPU limit
+- `--db2u-memory-request DB2_MEMORY_REQUESTS`        Customize Db2 memory request
+- `--db2u-memory-limit DB2_MEMORY_LIMITS`            Customize Db2 memory limit
 
 ### Advanced Db2u Universal Operator Configuration - Storage (Optional):
-- `--db2u-backup-storage DB2_BACKUP_STORAGE_SIZE`    Customise Db2 storage capacity
-- `--db2u-data-storage DB2_DATA_STORAGE_SIZE`        Customise Db2 storage capacity
-- `--db2u-logs-storage DB2_LOGS_STORAGE_SIZE`        Customise Db2 storage capacity
-- `--db2u-meta-storage DB2_META_STORAGE_SIZE`        Customise Db2 storage capacity
-- `--db2u-temp-storage DB2_TEMP_STORAGE_SIZE`        Customise Db2 storage capacity
+- `--db2u-backup-storage DB2_BACKUP_STORAGE_SIZE`    Customize Db2 storage capacity
+- `--db2u-data-storage DB2_DATA_STORAGE_SIZE`        Customize Db2 storage capacity
+- `--db2u-logs-storage DB2_LOGS_STORAGE_SIZE`        Customize Db2 storage capacity
+- `--db2u-meta-storage DB2_META_STORAGE_SIZE`        Customize Db2 storage capacity
+- `--db2u-temp-storage DB2_TEMP_STORAGE_SIZE`        Customize Db2 storage capacity
+
+### Manage Application - Advanced Configuration (Optional):
+
+- `--manage-server-bundle-size MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE`                        Set Manage server bundle size configuration i.e `dev, small, jms or snojms`
+- `--manage-components MAS_APPWS_COMPONENTS`                                                Set Manage Components to be installed i.e `base=latest,health=latest,civil=latest`                       
+- `--manage-customization-archive-name MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME`         Set Manage Archive name
+- `--manage-customization-archive-url MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL`           Set Manage Archive url
+- `--manage-customization-archive-username MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME` Set Manage Archive username, in case url requires basic authentication to pull the archive
+- `--manage-customization-archive-password MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD` Set Manage Archive password, in case url requires basic authentication to download the archive
+- `--manage-crypto-key MAS_APP_SETTINGS_CRYPTO_KEY`                                         Set `MXE_SECURITY_CRYPTO_KEY` value if you want to customize your Manage database encryption keys
+- `--manage-cryptox-key MAS_APP_SETTINGS_CRYPTOX_KEY`                                       Set `MXE_SECURITY_CRYPTOX_KEY` value if you want to customize your Manage database encryption keys
+- `--manage-old-crypto-key MAS_APP_SETTINGS_OLD_CRYPTO_KEY`                                 Set `MXE_SECURITY_OLD_CRYPTO_KEY` value if you want to customize your Manage database encryption keys
+- `--manage-old-cryptox-key MAS_APP_SETTINGS_OLD_CRYPTOX_KEY`                               Set `MXE_SECURITY_OLD_CRYPTOX_KEY` value if you want to customize your Manage database encryption keys                     
+- `--manage-override-encryption-secrets`                                                    Overrides any existing Manage database encryption keys. A backup of the original secret holding existing encryption keys is taken prior overriding it with the new defined keys.
 
 ### Other Commands:
 - `--no-wait-for-pvcs` If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
@@ -82,9 +127,8 @@ Usage
 - `-h, --help`         Show install help message
 
 
-Examples
+Non-Interactive Install
 -------------------------------------------------------------------------------
-### Non-Interactive
 ```bash
 docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
 export ENTITLEMENT_KEY=xxx
@@ -97,7 +141,9 @@ mas install -i mas1 -w ws1 -W "My Workspace" -c v8-amd64 --mas-channel 8.10.x \
   --no-confirm
 ```
 
-### Interactive
+
+Interactive Install
+-------------------------------------------------------------------------------
 
 ```bash
 docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
@@ -110,6 +156,170 @@ mas install
     When prompted you will be able to set license file to `/mnt/home/entitlement.lic`
 
 
+!!! tip
+    Wherever you see a `[Y/n]` or `[y/N]` prompt, the option in upper case is the default, and can be accepted just by hitting return.
+
+    Selections are saved to file (`$HOME/.ibm-mas/cli.env`), if you make a mistake use `Ctrl+C` to quit the installer and when you run the install command again it will remember all your choices made to that point.
+
+    In the unlikely event that you are running the install on a shared computer you should delete the `$HOME/.ibm-mas` directory after launching the installation.
+
+
+### Step 1: Set Target OpenShift Cluster
+If you are not already connected to an OpenShift cluster you will be prompted to provide the server URL & token, and whether to verify the server certificate or not,  If you are already connected to a cluster you will be given the option to change to another cluster.
+
+
+### Step 2: Install OpenShift Pipelines Operator
+No input is required during this step.  The Red Hat Pipelines Operator will be installed on the cluster (if it is not already).
+
+
+### Step 3: IBM Maximo Operator Catalog Selection
+You must decide whether to use the online dynamic catalog or an offline static catalog.  The default is to use the static catalog, for more information about catalog choice refer to [Choosing the right catalog](../guides/choosing-the-right-catalog.md).
+
+If you selected to use a static catalog then you will be presented with a table of available catalogs and the versions of MAS available in the catalog.  Make the selection using the numbers in the left-most column.
+
+
+### Step 4: License Terms
+Confirm that you accept the IBM Maximo Application Suite license terms
+
+
+### Step 5: Configure MAS Instance
+Provide the basic information about your MAS instance:
+
+- Instance ID
+- Workspace ID
+- Workspace Display Name
+
+!!! important
+    Instance ID restrictions:
+
+    - Must be 3-12 characters long
+    - Must only use lowercase letters, numbers, and hyphen (`-`) symbol
+    - Must start with a lowercase letter
+    - Must end with a lowercase letter or a number
+
+    Workspace ID restrictions:
+
+    - Must be 3-12 characters long
+    - Must only use lowercase letters and numbers
+    - Must start with a lowercase letter
+
+    Workspace display name restrictions:
+
+    - Must be 3-300 characters long
+
+### Step 6: Configure Operation Mode
+The install will default to a production mode installation, but by choosing "y" at the prompt you will be able to install MAS in non-production mode.
+
+
+### Step 7. Configure Domain & Certificate Management
+By default MAS will be installed in a subdomain of your OpenShift clusters domain matching the MAS instance ID that you chose.  For example if your OpenShift cluster is `myocp.net` and you are installing MAS with an instance ID of `prod1` then MAS will be installed with a default domain something like `prod1.apps.myocp.net`, depending on the exact network configuration of your cluster.
+
+If you wish to use a custom domain for the MAS install you can choose to configure this by selecting "n" at the prompt.  The install supports DNS integrations for Cloudflare, IBM Cloud Internet Services, AWS Route 53 out of the box and is able to configure a certificate issuer using LetsEncrypt (production or staging) or a self-signed certificate authority per your choices.
+
+
+### Step 8. Application Selection
+Select the applications that you would like to install. Note that some applications cannot be installed unless an application they depend on is also installed:
+
+- Monitor is only available for install if IoT is selected
+- Assist and Predict are only available for install if Monitor is selected
+
+
+### Step 9. Configure Databases
+If you have selected one or more applications that require a JDBC datasource (IoT, Manage, Monitor, & Predict) you must choose how to provide that dependency:
+
+- Use the IBM Db2 Universal Operator
+- Provide a JDBC configuration
+
+If you choose the latter then you will be prompted to select a local directory where the configuration will be staged and requested to provide a display name, the JDBC connection URL, username, password, and whether the endpoint is SSL enabled (if it is then you will also be asked to provide the SSL certificate required to connect to the database).
+
+!!! tip
+    If you have already generated the configuration file (manually, or using the install previously) the CLI will detect this and prompt whether you wish to re-use the existing configuration, or generate a new one.
+
+
+### Step 10. Configure Turbonomic
+The [IBM Turbonomic](https://www.ibm.com/products/turbonomic) hybrid cloud cost optimization platform allows you to eliminate this guesswork with solutions that save time and optimize costs.  To enable Turbonomic integration you must provide the following information:
+
+- Target name
+- Server URL
+- Server version
+- Authentication credentials (username & password)
+
+
+### Step 11. Additional Configurations
+Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step, here you will be asked whether you wish to provide any additional configurations and if you do in what directory they reside.
+
+!!! note
+    If you provided one or more JDBC configurations in step 9 then additional configurations will already be enabled and be pointing at the directory you chose for the JDBC configurations.
+
+
+### Step 12. Configure Storage Class Usage
+MAS requires both a `ReadWriteMany` and a `ReadWriteOnce` capable storage class to be available in the cluster.  The installer has the ability to recognize certain storage class providers and will default to the most appropriate storage class in these cases:
+
+- IBMCloud Storage (`ibmc-block-gold` & `ibmc-file-gold`)
+- OpenShift Container Storage (`ocs-storagecluster-ceph-rbd` & `ocs-storagecluster-cephfs`)
+- Azure Managed Storage (`azurefiles-premium` & `managed-premium`)
+- AWS Storage (`gp2` & `efs`)
+
+Even when a recognized storage provider is detected you will be provided with the option to select your own storages classes anyway.
+
+When selecting storage classes you will be presented with a list of available storage classes and must select both a `ReadWriteMany` and a `ReadWriteOnce` storage class.
+
+!!! warning
+    Unfortunately there is no way for the install to verify that the storage class selected actually supports the appropriate access mode, refer to the documentation from the storage class provider to determine whether your storage class supports `ReadWriteOnce` and/or `ReadWriteMany`.
+
+
+### Step 13. Advanced Settings
+These settings can generally be ignored for most installations.
+
+#### Configure Scaling Profile
+
+You can choose between three pre-defined workload scaling classes - `Burstable`, `BestEffort` and `Guaranteed`; or choose a custom profile of your own. By default MAS applications use `Burstable`.
+
+When choosing a custom profile you will be prompted for the directory of your config files. For each supported application you will need to create separate config file. The naming convention for custom config files is `ibm-<appname>-<customresourcename>.yml`.
+
+Currently supported config files:
+- ibm-mas-bascfg.yml
+- ibm-mas-pushnotificationcfg.yml
+- ibm-mas-scimcfg.yml
+- ibm-mas-slscfg.yml
+- ibm-mas-smtpcfg.yml
+- ibm-mas-suite.yml
+- ibm-sls-licenseservice.yml
+
+For examples on these config files take a look into the pre-defined configs: [BestEffort](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/best-effort) and [Guaranteed](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/guaranteed). More information on podTemplates can be found in our official IBM documentation [here](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=configuring-customizing-workloads).
+
+!!! Note: This feature is only supported starting in MAS 8.11.0 and SLS 3.8.0
+
+#### Change Cluster monitoring storage defaults?
+Answering "y" at the prompt will allow you to customize the storage capacity and data retention period in Grafana and Prometheus.
+
+#### Change default install namespaces?
+Answering "y" will allow you to customize the namespace where Db2, Grafana, and MongoDb are installed in the cluster.
+
+
+### Step 15. Configure IBM Container Registry
+Provide your IBM entitlement key.  If you have set the `IBM_ENTITLEMENT_KEY` environment variable then you will first be prompted whether you just want to re-use the saved entitlement key.
+
+
+### Step 16. Configure Product License
+Provide your license ID and the location of your license file.
+
+
+### Step 19. Configure UDS
+Maximo Application Suite's required integration with IBM User Data Services requires your e-mail address and first/last name be provided.
+
+
+### Step 20. Prepare Installation
+No input is required here, the install will prepare the namespace where install will be executed on the cluster and validate that the CLI container image (which will perform the installation) is accessible from your cluster.
+
+!!! note
+    For disconnected installations you may need to provide the digest of the ibmmas/cli container image.
+
+### Step 21. Review Settings
+A summary of all your choices will be presented and you will be prompted to provide a final confirmation as to whether to proceed with the install, or abort.
+
+
+
 Air Gap Support
 -------------------------------------------------------------------------------
 If you have already ran `mas configure-airgap` to install the ImageContentSourcePolicy for IBM Maximo Application Suite then the installer will automatically detect the presence of this and tailor the installation configuration for a disconnected installation.
@@ -118,7 +328,6 @@ A number of applications are not currently available when using a private mirror
 
 - Maximo Assist
 - Maximo Health & Predict Utilities
-- Maximo Predict
 - Maximo Visual Inspection
 
 

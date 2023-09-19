@@ -14,7 +14,12 @@ export K8S_AUTH_VERIFY_SSL=false
 export K8S_AUTH_API_KEY=$(cat /run/secrets/kubernetes.io/serviceaccount/token)
 
 
-# 3. Export everything in /workspace/settings
+# 3. Lookup MAS Devops collection information
+# -----------------------------------------------------------------------------
+export ANSIBLE_DEVOPS_VERSION=$(grep -oP '(?<="version": ")[^"]*' $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops/MANIFEST.json) # get ibm.mas_devops version from manifest.json
+
+
+# 4. Export everything in /workspace/settings
 # -----------------------------------------------------------------------------
 echo "Export all env vars defined in /workspace/settings"
 for file in /workspace/settings/*; do
@@ -29,7 +34,7 @@ for file in /workspace/settings/*; do
 done
 
 
-# 4. Print out all env vars
+# 5. Print out all env vars
 # -----------------------------------------------------------------------------
 # This is great for debugging problems, but generally should not be left enabled
 #

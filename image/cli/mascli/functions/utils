@@ -29,7 +29,8 @@ function echo_h2() {
 
   H2_COUNT=$(($H2_COUNT + 1))
   H3_COUNT=0
-  echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}. ${msg}${TEXT_RESET}"
+  echo
+  echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}) ${msg}${TEXT_RESET}"
 }
 
 function echo_h3() {
@@ -37,7 +38,8 @@ function echo_h3() {
   prefix=$2
 
   H3_COUNT=$(($H3_COUNT + 1))
-  echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}.${H3_COUNT}. ${msg}${TEXT_RESET}"
+  echo
+  echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}.${H3_COUNT}) ${msg}${TEXT_RESET}"
 }
 
 function echo_h4() {
@@ -245,7 +247,7 @@ function update_ansible_collections() {
       echo
       echo_h2 "Updating ansible collection from local build"
       ansible-galaxy collection build ~/ibm-mas/ansible-devops/ibm/mas_devops --force || exit 1
-      ansible-galaxy collection install ibm-mas_devops-14.0.0.tar.gz --force --no-deps || exit 1
+      ansible-galaxy collection install ibm-mas_devops-17.0.0.tar.gz --force --no-deps || exit 1
     else
       echo
       echo_h2 "Updating ansible collections from Galaxy"

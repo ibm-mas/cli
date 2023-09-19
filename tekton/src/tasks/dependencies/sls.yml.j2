@@ -5,10 +5,7 @@ metadata:
   name: mas-devops-sls
 spec:
   params:
-    # Control the image pull policy for the CLI container image
-    - name: image_pull_policy
-      type: string
-      default: IfNotPresent
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
     - name: mas_instance_id
       type: string
@@ -58,13 +55,6 @@ spec:
       type: string
       description: Required to use development MAS builds
 
-    # Optional support built into the ansible-devops image
-    # for saving task execution results to a MongoDb instance
-    - name: devops_suite_name
-      type: string
-      description: Optional name for the junit suite, used to enable save-junit-to-mongo.py
-      default: ""
-
     # Optional parameter to uninstall SLS
     - name: sls_action
       type: string
@@ -111,6 +101,9 @@ spec:
       - name: SLS_ACTION
         value: $(params.sls_action)
 
+      - name: MAS_POD_TEMPLATES_DIR
+        value: /workspace/pod-templates
+
   steps:
     - name: sls
       command:
@@ -124,4 +117,6 @@ spec:
     - name: configs
       optional: true
     - name: entitlement
+      optional: true
+    - name: pod-templates
       optional: true
