@@ -347,6 +347,9 @@ function gitops_init_suite() {
     argocd_hard_refresh mas-${MAS_INSTANCE_ID}-sls
     argocd_hard_refresh mas-${MAS_INSTANCE_ID}-core-suite
 
+    add_role_to_user mas-${MAS_INSTANCE_ID}-core
+    add_role_to_user mas-${MAS_INSTANCE_ID}-sls
+
     check_argo_app_synced mas-${MAS_INSTANCE_ID}-core-suite ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-core
     check_argo_app_healthy mas-${MAS_INSTANCE_ID}-core-suite
 

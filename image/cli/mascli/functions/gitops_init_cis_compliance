@@ -191,7 +191,7 @@ function gitops_init_cis_compliance() {
 
     argocd_login
     argocd_sync ${CLUSTER_ID}-watcher
-
+    add_role_to_user openshift-compliance
     check_argo_app_synced cis-compliance ${CLUSTER_ID}-watcher openshift-compliance
     check_argo_app_healthy cis-compliance
   fi
