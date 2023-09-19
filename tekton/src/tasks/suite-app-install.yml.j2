@@ -59,6 +59,12 @@ spec:
       description: defines storage class for iot functions pipeline component
       default: ""
 
+    # Application - Visual Inspection
+    - name: mas_app_settings_visualinspection_storage_class
+      type: string
+      description: defines storage class for visual inspection application
+      default: ""
+
     # Custom Label Support
     - name: custom_labels
       type: string
@@ -98,6 +104,10 @@ spec:
       # Custom Label Support
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
+
+      # Application - Visual Inspection
+      - name: mas_app_settings_visualinspection_storage_class
+        value: $(params.mas_app_settings_visualinspection_storage_class)
 
   steps:
     - name: suite-app-install

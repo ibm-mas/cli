@@ -27,11 +27,13 @@
         - cluster-monitoring
         - common-services
         - cos
+        - cos-deprovision
         - cp4d_service
         - cp4d
         - db2
         - ibm-catalogs
         - kafka
+        - kafka-deprovision
         - mongodb
         - nvidia-gpu
         - ocp-verify

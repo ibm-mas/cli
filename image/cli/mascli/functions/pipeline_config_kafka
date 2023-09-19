@@ -127,7 +127,7 @@ function kafka_for_iot() {
 function config_pipeline_kafka() {
   echo
   echo_h2 "Configure Kafka"
-  echo "${TEXT_DIM}The installer can setup one Kafka provider instance (in your OpenShift cluster or in an IBM Cloud account) for the use of applications that require a Kafka configuration (e.g IoT) or you may choose to configure MAS to use an existing Kafka instance."
+  echo "${TEXT_DIM}The installer can setup one Kafka provider instance (in your OpenShift cluster or in the chosen cloud provider account) for the use of applications that require a Kafka configuration (e.g IoT) or you may choose to configure MAS to use an existing Kafka instance."
   echo
   reset_colors
   
