@@ -269,6 +269,15 @@ function manage_settings() {
     fi
   fi
 
+  echo
+  echo_h4 "Manage Settings - Install Cognos Analytics"
+  echo "${TEXT_DIM}Manage application supports the integration with Cognos Analytics which is an optional service installed on top of IBM Cloud Pak for Data. Unless requested these will not be installed."
+  reset_colors
+  echo
+  if prompt_for_confirm "Install Cognos Analytics"; then
+    CPD_INSTALL_COGNOS=true
+  fi
+
   # Manage Settings - Attachments
   # TODO after https://github.com/ibm-mas/ansible-devops/issues/1010
   # Following vars should be set depending on answers here
@@ -301,7 +310,7 @@ function manage_settings() {
 function predict_settings() {
   echo
   echo_h3 "Configure Maximo Predict"
-  echo "${TEXT_DIM}Predict supports the use of optional services in IBM Cloud Pak for Data.  Unless requested these will not be installed with Cloud Pak for Data."
+  echo "${TEXT_DIM}Predict application supports the integration with IBM SPSS and Watson Openscale which are optional services installed on top of IBM Cloud Pak for Data. Unless requested these will not be installed."
   reset_colors
   echo
   if prompt_for_confirm "Install IBM SPSS Statistics"; then
