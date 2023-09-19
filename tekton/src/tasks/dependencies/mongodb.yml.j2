@@ -41,6 +41,10 @@ spec:
 
     # Dependencies - IBM Cloud MongoDb
     # -------------------------------------------------------------------------
+    - name: ibmcloud_resourcegroup
+      type: string
+      description: IBM Cloud resource group
+      default: ""
     - name: ibm_mongo_name
       type: string
       description: IBM Cloud MongoDb instance name
@@ -103,6 +107,8 @@ spec:
         value: $(params.ibm_mongo_region)
       - name: IBM_MONGO_RESOURCEGROUP
         value: $(params.ibm_mongo_resourcegroup)
+      - name: IBMCLOUD_RESOURCEGROUP
+        value: $(params.ibmcloud_resourcegroup)
       - name: IBMCLOUD_APIKEY
         value: $(params.ibmcloud_apikey)
 

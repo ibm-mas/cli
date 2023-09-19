@@ -8,6 +8,10 @@
       value: $(params.ibm_entitlement_key)
     - name: cpd_product_version
       value: $(params.cpd_product_version)
+    - name: cpd_primary_storage_class
+      value: $(params.storage_class_rwx)
+    - name: cpd_metadata_storage_class
+      value: $(params.storage_class_rwo)
   taskRef:
     kind: Task
     name: mas-devops-cp4d

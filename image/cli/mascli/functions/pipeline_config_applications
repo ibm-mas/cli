@@ -151,7 +151,7 @@ function config_pipeline_applications() {
     if prompt_for_confirm "Install Assist?"; then
       channel_select_assist || exit 1
     fi
-
+    
     if prompt_for_confirm "Install Optimizer?"; then
       channel_select_optimizer || exit 1
     fi
@@ -187,8 +187,8 @@ function assist_settings() {
     [[ "$COS_TYPE" != "ibm" && "$COS_TYPE" != "ocs" ]] || break
   done
   if [[ "$COS_TYPE" == "ibm" ]]; then
-    prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY $IBMCLOUD_APIKEY
-    prompt_for_input "IBM Cloud Resource Group" IBMCLOUD_RESOURCEGROUP $IBMCLOUD_RESOURCEGROUP "Default"
+    prompt_for_secret "IBM Cloud API Key" IBMCLOUD_APIKEY $IBMCLOUD_APIKEY
+    prompt_for_input "IBM Cloud Resource Group" IBMCOS_RESOURCEGROUP $IBMCOS_RESOURCEGROUP "Default"
   fi
 }
 
@@ -276,6 +276,13 @@ function manage_settings() {
       prompt_for_secret "Password" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD
     fi
   fi
+
+  # Manage Settings - Attachments
+  # TODO after https://github.com/ibm-mas/ansible-devops/issues/1010
+  # Following vars should be set depending on answers here
+  # But we should, first of all, unify the roles so we ahve all the choices in one place (filestorage, ibm, aws)
+  # - COS_TYPE=ibm # Obtained in FVT Configs, including custom
+  # - COS_SETUP_FOR_MANAGE_ATTACHMENTS=true # Obtained in start_pipeline default 
 
   # Manage Settings - Other
   echo

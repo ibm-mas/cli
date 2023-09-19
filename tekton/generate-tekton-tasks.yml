@@ -27,11 +27,13 @@
         - cluster-monitoring
         - common-services
         - cos
+        - cos-deprovision
         - cp4d_service
         - cp4d
         - db2
         - ibm-catalogs
         - kafka
+        - kafka-deprovision
         - mongodb
         - nvidia-gpu
         - ocp-verify
@@ -53,8 +55,10 @@
         - fvt-core-phase4
         - fvt-core-ui
         - fvt-manage
+        - fvt-manage-directprint
         - fvt-manage-last-phase
         - fvt-manage-pytest
+        - fvt-sls
         - fvt-run-suite
         - fvt-wait-for-install
         - fvt-wait-for-pipelinerun
@@ -81,14 +85,16 @@
         - suite-app-install
         - suite-app-upgrade
         - suite-app-rollback
+        - suite-app-verify
+        - suite-certs
         - suite-config
         - suite-db2-setup-for-manage
-        - suite-certs
         - suite-dns
         - suite-install
+        - suite-manage-doclinks-config
+        - suite-rollback
         - suite-uninstall
         - suite-upgrade
-        - suite-rollback
         - suite-verify
 
     # 6. Generate Tasks (OCP)
