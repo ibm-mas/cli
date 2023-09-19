@@ -28,18 +28,15 @@ for POD in ${PODS[@]}
 do
   # echo "    - $POD"
   POD_NAME=$(echo ${POD} | cut -d '/' -f 2)
-  APP_DIR="${POD_DIR}/${POD_NAME}"
-
-  mkdir -p $APP_DIR
 
   # Get summary information for pod
-  oc -n ${NAMESPACE} get ${POD} -o yaml > ${APP_DIR}/${POD_NAME}.yaml
-  oc -n ${NAMESPACE} describe ${POD} > ${APP_DIR}/${POD_NAME}.txt
+  oc -n ${NAMESPACE} get ${POD} -o yaml > ${POD_DIR}/${POD_NAME}.yaml
+  oc -n ${NAMESPACE} describe ${POD} > ${POD_DIR}/${POD_NAME}.txt
 
   # Get container logs
   if [[ "$POD_LOGS" == "true" ]]
   then
-    APP_LOG_DIR="${APP_DIR}/logs"
+    APP_LOG_DIR="${POD_DIR}/logs"
     mkdir -p $APP_LOG_DIR
 
     CONTAINERS=$(oc -n ${NAMESPACE} get ${POD} -o json -o jsonpath='{range .status.containerStatuses[*]}[{.name}] {end}' | tr -d '[]')
