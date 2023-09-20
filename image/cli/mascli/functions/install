@@ -50,7 +50,10 @@ Maximo Application Suite Application Selection (Optional):
       --optimizer-plan ${COLOR_YELLOW}MAS_APP_PLAN_OPTIMIZER${TEXT_RESET}                      Installation plan for Maximo Optimizer (full or limited)
 
 IBM Cloud Pak for Data (Required when installing Predict or Assist):
-      --cp4d-version ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}                                  Product version of CP4D to use
+      --cp4d-version ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}                                  Product version of IBM Cloud Pak for Data to use
+      --cp4d-install-spss                                                                      Includes SPSS service to be installed as part of IBM Cloud Pak for Data (Only applicable if Predict is being installed)
+      --cp4d-install-openscale                                                                 Includes Watson Openscale service to be installed as part of IBM Cloud Pak for Data (Only applicable if Predict is being installed)
+      --cp4d-install-cognos                                                                    Includes Cognos Analytics service to be installed as part of IBM Cloud Pak for Data (Only applicable if Manage is being installed)
 
 Kafka (Required to install Maximo IoT thus if not set, a default Kafka provider will be installed):
       --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}                              Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), 'strimzi', 'ibm' (IBM Cloud Event Streams) and 'aws' (AWS MSK)
@@ -230,6 +233,15 @@ function install_noninteractive() {
     # Dependencies - CP4D
     --cp4d-version)
     export CP4D_VERSION=$1 && shift
+    ;;
+    --cp4d-install-spss)
+    export CPD_INSTALL_SPSS=true
+    ;;
+    --cp4d-install-openscale)
+    export CPD_INSTALL_OPENSCALE=true
+    ;;
+    --cp4d-install-cognos)
+    export CPD_INSTALL_COGNOS=true
     ;;
 
     # Dependencies - Db2
