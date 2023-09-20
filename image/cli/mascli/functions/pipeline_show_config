@@ -63,20 +63,16 @@ function pipeline_show_config() {
     then echo_reset_dim " - Configure JMS .......... ${COLOR_MAGENTA}true"
 
     echo_reset_dim " - Include Demo Data ...... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DEMODATA}"
-    echo_reset_dim " - Include Cognos ......... ${COLOR_MAGENTA}${CPD_INSTALL_COGNOS}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_PREDICT}" == '' ]]
   then echo_reset_dim " - Predict ................ ${COLOR_RED}Skip Installation"
-  else 
-    echo_reset_dim " - Predict ................ ${COLOR_MAGENTA}${MAS_APP_CHANNEL_PREDICT}"
-    echo_reset_dim " - Include SPSS ........... ${COLOR_MAGENTA}${CPD_INSTALL_SPSS}"
-    echo_reset_dim " - Include Openscale ...... ${COLOR_MAGENTA}${CPD_INSTALL_OPENSCALE}"
+  else echo_reset_dim " - Predict ................ ${COLOR_MAGENTA}${MAS_APP_CHANNEL_PREDICT}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_OPTIMIZER}" == '' ]]
-    then echo_reset_dim "Optimizer ................. ${COLOR_RED}Skip Installation"
-    else echo_reset_dim "Optimizer ................. ${COLOR_MAGENTA}${MAS_APP_CHANNEL_OPTIMIZER} (${MAS_APP_PLAN_OPTIMIZER})"
+  then echo_reset_dim "Optimizer ................. ${COLOR_RED}Skip Installation"
+  else echo_reset_dim "Optimizer ................. ${COLOR_MAGENTA}${MAS_APP_CHANNEL_OPTIMIZER} (${MAS_APP_PLAN_OPTIMIZER})"
   fi
 
   if [[ "${MAS_APP_CHANNEL_ASSIST}" == '' ]]
@@ -115,6 +111,9 @@ function pipeline_show_config() {
     echo_h4 "IBM Cloud Pak for Data" "    "
     echo_reset_dim "Entitlement Key ........... ${COLOR_MAGENTA}${IBM_ENTITLEMENT_KEY:0:8}<snip>"
     echo_reset_dim "Product Version ........... ${COLOR_MAGENTA}${CP4D_VERSION}"
+    echo_reset_dim " - Include Cognos ......... ${COLOR_MAGENTA}${CPD_INSTALL_COGNOS:-false}"
+    echo_reset_dim " - Include SPSS ........... ${COLOR_MAGENTA}${CPD_INSTALL_SPSS:-false}"
+    echo_reset_dim " - Include Openscale ...... ${COLOR_MAGENTA}${CPD_INSTALL_OPENSCALE:-false}"
   fi
 
   if [[ "$DB2_ACTION_SYSTEM" == "install" || "$DB2_ACTION_MANAGE" == "install" ]]; then

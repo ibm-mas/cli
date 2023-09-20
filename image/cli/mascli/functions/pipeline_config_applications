@@ -277,6 +277,7 @@ function manage_settings() {
   echo
   if prompt_for_confirm "Install Cognos Analytics"; then
     CPD_INSTALL_COGNOS=true
+    DEPLOY_CP4D=run
   fi
 
   # Manage Settings - Attachments

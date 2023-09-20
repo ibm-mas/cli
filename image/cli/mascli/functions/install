@@ -51,9 +51,9 @@ Maximo Application Suite Application Selection (Optional):
 
 IBM Cloud Pak for Data (Required when installing Predict or Assist):
       --cp4d-version ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}                                  Product version of IBM Cloud Pak for Data to use
-      --cp4d-install-spss                                                                      Includes SPSS service to be installed as part of IBM Cloud Pak for Data (Only applicable if Predict is being installed)
-      --cp4d-install-openscale                                                                 Includes Watson Openscale service to be installed as part of IBM Cloud Pak for Data (Only applicable if Predict is being installed)
-      --cp4d-install-cognos                                                                    Includes Cognos Analytics service to be installed as part of IBM Cloud Pak for Data (Only applicable if Manage is being installed)
+      --cp4d-install-spss                                                                      Includes SPSS service to be installed as part of IBM Cloud Pak for Data (Optional if Predict is being installed)
+      --cp4d-install-openscale                                                                 Includes Watson Openscale service to be installed as part of IBM Cloud Pak for Data (Optional if Predict is being installed)
+      --cp4d-install-cognos                                                                    Includes Cognos Analytics service to be installed as part of IBM Cloud Pak for Data (Optional if Manage is being installed)
 
 Kafka (Required to install Maximo IoT thus if not set, a default Kafka provider will be installed):
       --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}                              Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), 'strimzi', 'ibm' (IBM Cloud Event Streams) and 'aws' (AWS MSK)
@@ -223,6 +223,7 @@ function install_noninteractive() {
 
     # Applications
     --assist-channel)
+    export DEPLOY_CP4D=run
     export MAS_APP_CHANNEL_ASSIST=$1 && shift
     ;;
     --iot-channel)
@@ -235,6 +236,7 @@ function install_noninteractive() {
     export MAS_APP_CHANNEL_MANAGE=$1 && shift
     ;;
     --predict-channel)
+    export DEPLOY_CP4D=run
     export MAS_APP_CHANNEL_PREDICT=$1 && shift
     ;;
     --visualinspection-channel)
@@ -259,6 +261,9 @@ function install_noninteractive() {
     ;;
     --cp4d-install-cognos)
     export CPD_INSTALL_COGNOS=true
+    if [[ "$MAS_APP_CHANNEL_MANAGE" != "" ]]; then 
+      export DEPLOY_CP4D=run
+    fi
     ;;
 
     # Dependencies - Db2
