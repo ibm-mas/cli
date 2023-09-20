@@ -412,7 +412,7 @@ function install_noninteractive() {
     --manage-jdbc)
     export MAS_APPWS_BINDINGS_JDBC_MANAGE=$1 && shift
     ;;
-
+    
     # Manage commands - Components
     --manage-components)
     export MAS_APPWS_COMPONENTS=$1 && shift
