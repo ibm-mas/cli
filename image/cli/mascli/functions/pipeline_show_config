@@ -58,9 +58,11 @@ function pipeline_show_config() {
     
     if [[ "${MAS_APPWS_COMPONENTS}" != '' ]]
     then echo_reset_dim " - Components ............. ${COLOR_MAGENTA}${MAS_APPWS_COMPONENTS}"
+    fi
 
     if [[ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "jms" || "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "snojms" ]]
     then echo_reset_dim " - Configure JMS .......... ${COLOR_MAGENTA}true"
+    fi
 
     echo_reset_dim " - Include Demo Data ...... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DEMODATA}"
   fi
