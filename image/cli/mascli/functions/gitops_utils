@@ -193,14 +193,33 @@ function remove_git_repo_clone() {
 
 
 function argocd_login() {
-  echo "Logging into ArgoCD ..."
+  retries=${1:-20}
+  interval=${2:-30}
+  index=0
+  echo "argo:argocd_login : Logging into ArgoCD ..."
   if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
     export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}')
     export ARGOCD_USERNAME=admin
     export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' | base64 -d ; echo)
   fi
-  argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
-  echo "ArgoCD response: $RC"
+  echo "argo:argocd_login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."  
+  while true; do
+    argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+    return_code=$?
+    echo "argo:argocd_login : return_code=$return_code"
+
+    if [ $return_code -eq 0 ]; then
+      echo "argo:argocd_login : ArgoCD login success"
+      break
+    fi
+
+    if [[ ${index} -eq ${retries} ]]; then
+      echo "argo:argocd_login : Timeout argocd_login failed, exit with error"
+      exit 1
+    fi
+    sleep $interval
+    ((index++))
+  done
 }
 
 
@@ -234,7 +253,7 @@ function check_argo_app_deleted(){
   PROJECT=$2
   FORCE_REMOVAL=$3
   WAIT_PERIOD=0
-  echo "argo: Checking if $APPLICATION in project $PROJECT is deleted, Force removal flag is ${FORCE_REMOVAL}"  
+  echo "argo: Checking if $APPLICATION in project $PROJECT is deleted, Force removal flag is ${FORCE_REMOVAL}"
   while true; do
     APP=$(argocd app list -p $PROJECT -o json 2> /dev/null | jq -r ".[] | select(.metadata.name == \"$APPLICATION\")")
     if [ -z "$APP" ]; then
