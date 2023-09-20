@@ -260,9 +260,11 @@ function install_noninteractive() {
     export CPD_INSTALL_OPENSCALE=true
     ;;
     --cp4d-install-cognos)
-    export CPD_INSTALL_COGNOS=true
-    if [[ "$MAS_APP_CHANNEL_MANAGE" != "" ]]; then 
+    if [[ "$MAS_APP_CHANNEL_MANAGE" != "" ]]; then
+      export CPD_INSTALL_COGNOS=true
       export DEPLOY_CP4D=run
+    else
+      export CPD_INSTALL_COGNOS=false
     fi
     ;;
 
