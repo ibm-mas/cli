@@ -61,3 +61,18 @@
       value: sec-inactive-auth
   runAfter:
     - fvt-manage-usersync
+
+# Manage FVT Inactive User Authentication
+- name: fvt-manage-dynscan
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
+    - name: fvt_test_suite
+      value: dynscan
+    - name: mas_app_dynamic_scan_enabled
+      value: "true"
+  runAfter:
+    - fvt-manage-usersync
