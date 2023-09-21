@@ -120,27 +120,27 @@ function pipeline_show_config() {
       echo_reset_dim "Services to be installed:"
       if [[ "${MAS_APP_CHANNEL_PREDICT}" != '' ]]
       then
-        echo_reset_dim " - Watson Studio (required for Predict)"
-        echo_reset_dim " - Watson Machine Learning (required for Predict)"
-        echo_reset_dim " - Analytics Engine (required for Predict)"
+        echo_reset_dim " - Watson Studio .......... ${COLOR_MAGENTA}required for Predict"
+        echo_reset_dim " - Watson Machine Learning  ${COLOR_MAGENTA}required for Predict"
+        echo_reset_dim " - Analytics Engine ....... ${COLOR_MAGENTA}required for Predict"
       fi
       if [[ "${MAS_APP_CHANNEL_ASSIST}" != '' ]]
       then
-        echo_reset_dim " - Watson Discovery (required for Assist)"
+        echo_reset_dim " - Watson Discovery ....... ${COLOR_MAGENTA}required for Assist"
       fi
       if [[ "${CPD_INSTALL_COGNOS}" != '' || "${CPD_INSTALL_SPSS}" != '' || "${CPD_INSTALL_OPENSCALE}" == '' ]]
       then
         if [[ "${CPD_INSTALL_OPENSCALE}" == 'true' ]]
         then
-          echo_reset_dim " - Watson Openscale (optional for Predict)"      
+          echo_reset_dim " - Watson Openscale ....... ${COLOR_MAGENTA}optional for Predict"      
         fi
         if [[ "${CPD_INSTALL_SPSS}" == 'true' ]]
         then
-          echo_reset_dim " - SPSS Modeler (optional for Predict)"      
+          echo_reset_dim " - SPSS Modeler ........... ${COLOR_MAGENTA}optional for Predict"      
         fi
         if [[ "${CPD_INSTALL_COGNOS}" == 'true' ]]
         then
-          echo_reset_dim " - Cognos Analytics (optional for Manage)"
+          echo_reset_dim " - Cognos Analytics ....... ${COLOR_MAGENTA}optional for Manage"
         fi
       fi
     fi
