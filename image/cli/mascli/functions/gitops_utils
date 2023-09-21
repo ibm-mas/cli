@@ -367,15 +367,10 @@ function force_delete() {
 function add_role_to_user() {
 NAMESPACE=$1
 retries=${2:-5}
-interval=${3:-10} 
+interval=${3:-10}
+index=0
   if [[ -n "${NAMESPACE}" ]]; then
     while true; do
-      if [[ ${index} -eq ${retries} ]]; then
-        echo "argo:add_role_to_user : $NAMESPACE status is not yet active, return"
-        return 1
-      fi
-      sleep $interval
-      ((index++))
       export NAMESPACE_STATUS=`oc get ns $NAMESPACE -o json | jq .status.phase -r`
       echo "argo:add_role_to_user : ns=$NAMESPACE status=$NAMESPACE_STATUS"
       if [[ "$NAMESPACE_STATUS" == "Active" ]]; then
@@ -387,6 +382,13 @@ interval=${3:-10}
         echo "argo:add_role_to_user : $NAMESPACE status is Terminating, return"
         break;
       fi
+
+      if [[ ${index} -eq ${retries} ]]; then
+        echo "argo:add_role_to_user : $NAMESPACE status is not yet active, return"
+        return 1
+      fi
+      sleep $interval
+      ((index++))
     done
   fi
 }
@@ -405,8 +407,8 @@ function check_argo_app_synced() {
       echo "Sync Status is Synced"
       break
     else
-      echo "argo:check_argo_app_synced : Sync Status is $SYNC_STATUS, Waiting 30s before checking status again - $COUNT"
       ((COUNT++))
+      echo "argo:check_argo_app_synced : Sync Status is $SYNC_STATUS, Waiting 30s before checking status again - $COUNT"
       if ! (( $COUNT % 5 )) ; then
         if [[ -n "$CLUSTER_WATCHER" ]]; then
           argocd_sync $CLUSTER_WATCHER

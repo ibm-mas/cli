@@ -6,3 +6,8 @@ if [[ -e /tmp/install-ansible/ibm-mas_devops.tar.gz ]]
 then ansible-galaxy collection install /tmp/install-ansible/ibm-mas_devops.tar.gz -p $ANSIBLE_COLLECTIONS_PATH
 else ansible-galaxy collection install ibm.mas_devops
 fi
+
+if [[ -e /tmp/install-ansible/ibm-mas_fvt.tar.gz ]]
+then ansible-galaxy collection install /tmp/install-ansible/ibm-mas_fvt.tar.gz -p $ANSIBLE_COLLECTIONS_PATH
+else ansible-galaxy collection install ibm.mas_fvt
+fi

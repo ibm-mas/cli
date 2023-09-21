@@ -1,0 +1,101 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-provision-mas-fvt-core
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: pipeline_storage_class
+      type: string
+    - name: aws_region
+      type: string
+    - name: aws_secret_access_key
+      type: string
+    - name: aws_access_key_id
+      type: string
+    - name: fvt_pipeline_name
+      type: string
+    - name: cli_version
+      type: string
+    - name: fvt_artifactory_username
+      type: string
+    - name: fvt_artifactory_token
+      type: string
+    - name: fvt_config
+      type: string
+    - name: fvt_image_registry
+      type: string
+    - name: fvt_version_core
+      type: string
+    - name: ivt_version_core
+      type: string
+
+  stepTemplate:
+    name: gitops-provision-mas-fvt-core
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: PIPELINE_STORAGE_CLASS
+        value: $(params.pipeline_storage_class)
+      - name: AWS_REGION
+        value: $(params.aws_region)
+      - name: AWS_SECRET_ACCESS_KEY
+        value: $(params.aws_secret_access_key)
+      - name: AWS_ACCESS_KEY_ID
+        value: $(params.aws_access_key_id)
+	    - name: FVT_PIPELINE_NAME
+	      value: $(params.fvt_pipeline_name)
+	    - name: CLI_VERSION
+	      value: $(params.cli_version)
+	    - name: FVT_ARTIFACTORY_USERNAME
+	      value: $(params.fvt_artifactory_username)
+	    - name: FVT_ARTIFACTORY_TOKEN
+	      value: $(params.fvt_artifactory_token)
+	    - name: FVT_CONFIG
+	      value: $(params.fvt_config)
+	    - name: FVT_IMAGE_REGISTRY
+	      value: $(params.fvt_image_registry)
+	    - name: FVT_VERSION_CORE
+	      value: $(params.fvt_version_core)
+	    - name: IVT_VERSION_CORE
+	      value: $(params.ivt_version_core)
+  steps:
+    - args:
+      - |-
+
+        export ROSA_CONFIG=/workspace/configs/tmp-rosa-init/rosa-$(params.cluster_name)-details.yaml
+        export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
+        export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
+        export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
+        oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+        OC_RC=$?
+        if [ $OC_RC -ne 0 ]; then
+          echo "oc login failed, exiting with error.."
+          exit 1
+        fi
+
+        echo "Set k8s context"
+        export K8S_AUTH_CONTEXT=$(oc whoami -c)
+
+        export MAS_CONFIG_DIR=/tmp/additional-configs
+        mkdir -p $MAS_CONFIG_DIR
+        
+        cp -r /workspace/shared-entitlement $MAS_CONFIG_DIR
+        ls -ltr /workspace/shared-entitlement
+        cp -r /workspace/shared-additional-configs $MAS_CONFIG_DIR
+        ls -ltr /workspace/shared-additional-configs
+
+        mas gitops-provision-mas-fvt-core --pipeline-storage-class ${PIPELINE_STORAGE_CLASS} \
+        --dir $MAS_CONFIG_DIR
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-provision-mas-fvt-core
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:$CLI_VERSION
+  workspaces:
+    - name: configs
+    - name: shared-entitlement
+    - name: shared-additional-configs
