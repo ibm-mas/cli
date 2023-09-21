@@ -7,6 +7,8 @@ spec:
   params:
     - name: cluster_name
       type: string
+    - name: mas_instance_id
+      type: string
     - name: pipeline_storage_class
       type: string
     - name: aws_region
@@ -37,6 +39,8 @@ spec:
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
       - name: PIPELINE_STORAGE_CLASS
         value: $(params.pipeline_storage_class)
       - name: AWS_REGION
@@ -81,11 +85,26 @@ spec:
 
         export MAS_CONFIG_DIR=/tmp/additional-configs
         mkdir -p $MAS_CONFIG_DIR
-        
-        cp -r /workspace/shared-entitlement $MAS_CONFIG_DIR
-        ls -ltr /workspace/shared-entitlement
-        cp -r /workspace/shared-additional-configs $MAS_CONFIG_DIR
-        ls -ltr /workspace/shared-additional-configs
+
+        if [[ -e /workspace/shared-entitlement/entitlement.lic ]]
+          cat /workspace/shared-entitlement/entitlement.lic > /tmp/additional-configs/entitlement.lic
+        fi
+
+        if [[ -e /workspace/shared-additional-configs/ldapcfg_masdeps1.yaml ]]
+          cat /workspace/shared-additional-configs/ldapcfg_masdeps1.yaml  > /tmp/additional-configs/ldapcfg_masdeps1.yaml
+        fi
+
+        if [[ -e /workspace/shared-additional-configs/smtpcfg_masdeps1.yaml ]]
+          cat /workspace/shared-additional-configs/smtpcfg_masdeps1.yaml  > /tmp/additional-configs/smtpcfg_masdeps1.yaml
+        fi
+
+        if [[ -e /workspace/shared-additional-configs/manage_smtp.properties ]]
+          cat /workspace/shared-additional-configs/manage_smtp.properties > /tmp/additional-configs/manage_smtp.properties
+        fi
+
+        if [[ -e /workspace/shared-additional-configs/ldap_masdeps1_cert.pem ]]
+          cat /workspace/shared-additional-configs/ldap_masdeps1_cert.pem > /tmp/additional-configs/ldap_masdeps1_cert.pem
+        fi
 
         mas gitops-provision-mas-fvt-core --pipeline-storage-class ${PIPELINE_STORAGE_CLASS} \
         --dir $MAS_CONFIG_DIR
@@ -94,7 +113,7 @@ spec:
         - -c
       name: gitops-provision-mas-fvt-core
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:6.4.0-pre.pk-gitops-fvt-pipeline
+      image: quay.io/ibmmas/cli:6.4.0-pre.gitops
   workspaces:
     - name: configs
     - name: shared-entitlement
