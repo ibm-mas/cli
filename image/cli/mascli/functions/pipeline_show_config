@@ -114,9 +114,35 @@ function pipeline_show_config() {
     echo_h4 "IBM Cloud Pak for Data" "    "
     echo_reset_dim "Entitlement Key ........... ${COLOR_MAGENTA}${IBM_ENTITLEMENT_KEY:0:8}<snip>"
     echo_reset_dim "Product Version ........... ${COLOR_MAGENTA}${CP4D_VERSION}"
-    echo_reset_dim " - Install Cognos ......... ${COLOR_MAGENTA}${CPD_INSTALL_COGNOS:-false}"
-    echo_reset_dim " - Install SPSS ........... ${COLOR_MAGENTA}${CPD_INSTALL_SPSS:-false}"
-    echo_reset_dim " - Install Openscale ...... ${COLOR_MAGENTA}${CPD_INSTALL_OPENSCALE:-false}"
+    if [[ "${MAS_APP_CHANNEL_PREDICT}" != '' ]]
+    then
+      echo_reset_dim "Required CPD Services to be installed for Predict application:"
+      echo_reset_dim " - Watson Studio"
+      echo_reset_dim " - Watson Machine Learning"
+      echo_reset_dim " - Analytics Engine"
+
+    fi
+    if [[ "${MAS_APP_CHANNEL_ASSIST}" != '' ]]
+    then
+      echo_reset_dim "Required CPD Services to be installed for Assist application:"
+      echo_reset_dim " - Watson Discovery"
+    fi
+    if [[ "${CPD_INSTALL_COGNOS}" != '' || "${CPD_INSTALL_SPSS}" != '' || "${CPD_INSTALL_OPENSCALE}" == '' ]]
+    then
+      echo_reset_dim "Optional CPD Services to be installed:"
+      if [[ "${CPD_INSTALL_COGNOS}" == 'true' ]]
+      then
+        echo_reset_dim " - Cognos Analytics"
+      fi
+      if [[ "${CPD_INSTALL_SPSS}" == 'true' ]]
+      then
+        echo_reset_dim " - SPSS Modeler"      
+      fi
+      if [[ "${CPD_INSTALL_OPENSCALE}" == 'true' ]]
+      then
+        echo_reset_dim " - Watson Openscale"      
+      fi
+    fi
   fi
 
   if [[ "$DB2_ACTION_SYSTEM" == "install" || "$DB2_ACTION_MANAGE" == "install" ]]; then
