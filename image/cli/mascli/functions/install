@@ -263,8 +263,6 @@ function install_noninteractive() {
     if [[ "$MAS_APP_CHANNEL_MANAGE" != "" ]]; then
       export CPD_INSTALL_COGNOS=true
       export DEPLOY_CP4D=run
-    else
-      export CPD_INSTALL_COGNOS=false
     fi
     ;;
 
