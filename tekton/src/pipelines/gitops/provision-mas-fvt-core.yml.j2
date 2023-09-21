@@ -81,25 +81,29 @@ spec:
           value: $(params.avp_aws_secret_key)
         - name: aws_access_key_id
           value: $(params.avp_aws_access_key)
-	      - name: fvt_pipeline_name
-	        value: $(params.fvt_pipeline_name)
-	      - name: cli_version
-	        value: $(params.cli_version)
-	      - name: fvt_artifactory_username
-	        value: $(params.fvt_artifactory_username)
-	      - name: fvt_artifactory_token
-	        value: $(params.fvt_artifactory_token)
-	      - name: fvt_config
-	        value: $(params.fvt_config)
-	      - name: fvt_image_registry
-	        value: $(params.fvt_image_registry)
-	      - name: fvt_version_core
-	        value: $(params.fvt_version_core)
-	      - name: ivt_version_core
-	        value: $(params.ivt_version_core)
+        - name: fvt_pipeline_name
+          value: $(params.fvt_pipeline_name)
+        - name: cli_version
+          value: $(params.cli_version)
+        - name: fvt_artifactory_username
+          value: $(params.fvt_artifactory_username)
+        - name: fvt_artifactory_token
+          value: $(params.fvt_artifactory_token)
+        - name: fvt_config
+          value: $(params.fvt_config)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_version_core
+          value: $(params.fvt_version_core)
+        - name: ivt_version_core
+          value: $(params.ivt_version_core)
       workspaces:
         - name: configs
           workspace: configs
+        - name: shared-additional-configs
+          workspace: shared-additional-configs
+        - name: shared-entitlement
+          workspace: shared-entitlement
       taskRef:
         kind: Task
         name: gitops-provision-mas-fvt-core

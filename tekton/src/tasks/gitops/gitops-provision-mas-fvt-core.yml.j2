@@ -45,22 +45,22 @@ spec:
         value: $(params.aws_secret_access_key)
       - name: AWS_ACCESS_KEY_ID
         value: $(params.aws_access_key_id)
-	    - name: FVT_PIPELINE_NAME
-	      value: $(params.fvt_pipeline_name)
-	    - name: CLI_VERSION
-	      value: $(params.cli_version)
-	    - name: FVT_ARTIFACTORY_USERNAME
-	      value: $(params.fvt_artifactory_username)
-	    - name: FVT_ARTIFACTORY_TOKEN
-	      value: $(params.fvt_artifactory_token)
-	    - name: FVT_CONFIG
-	      value: $(params.fvt_config)
-	    - name: FVT_IMAGE_REGISTRY
-	      value: $(params.fvt_image_registry)
-	    - name: FVT_VERSION_CORE
-	      value: $(params.fvt_version_core)
-	    - name: IVT_VERSION_CORE
-	      value: $(params.ivt_version_core)
+      - name: FVT_PIPELINE_NAME
+        value: $(params.fvt_pipeline_name)
+      - name: CLI_VERSION
+        value: $(params.cli_version)
+      - name: FVT_ARTIFACTORY_USERNAME
+        value: $(params.fvt_artifactory_username)
+      - name: FVT_ARTIFACTORY_TOKEN
+        value: $(params.fvt_artifactory_token)
+      - name: FVT_CONFIG
+        value: $(params.fvt_config)
+      - name: FVT_IMAGE_REGISTRY
+        value: $(params.fvt_image_registry)
+      - name: FVT_VERSION_CORE
+        value: $(params.fvt_version_core)
+      - name: IVT_VERSION_CORE
+        value: $(params.ivt_version_core)
   steps:
     - args:
       - |-
@@ -94,7 +94,7 @@ spec:
         - -c
       name: gitops-provision-mas-fvt-core
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:$CLI_VERSION
+      image: quay.io/ibmmas/cli:6.4.0-pre.pk-gitops-fvt-pipeline
   workspaces:
     - name: configs
     - name: shared-entitlement
