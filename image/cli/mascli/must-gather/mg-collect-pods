@@ -26,8 +26,12 @@ oc -n ${NAMESPACE} get pods -o wide > ${NAMESPACE_DIR}/pods.txt
 PODS=$(oc get pods -n ${NAMESPACE} -o name)
 for POD in ${PODS[@]}
 do
-  # echo "    - $POD"
+  echo " POD   - $POD"
   POD_NAME=$(echo ${POD} | cut -d '/' -f 2)
+  echo " POD_NAME   - $POD_NAME"
+
+  POD_NAME2=$(echo ${POD_NAME}%-*)
+  echo " POD_NAME2   - $POD_NAME2"
 
   # Get summary information for pod
   oc -n ${NAMESPACE} get ${POD} -o yaml > ${POD_DIR}/${POD_NAME}.yaml
