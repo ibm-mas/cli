@@ -117,16 +117,16 @@ function pipeline_show_config() {
     if [[ "${MAS_APP_CHANNEL_PREDICT}" != '' || "${MAS_APP_CHANNEL_ASSIST}" != '' ]]
     then
       echo
-      echo_reset_dim "CPD Services to be installed:"
+      echo_reset_dim "Services to be installed:"
       if [[ "${MAS_APP_CHANNEL_PREDICT}" != '' ]]
       then
-        echo "${COLOR_MAGENTA} - Watson Studio (required for Predict)"
-        echo "${COLOR_MAGENTA} - Watson Machine Learning (required for Predict)"
-        echo "${COLOR_MAGENTA} - Analytics Engine (required for Predict)"
+        echo_reset_dim " - Watson Studio (required for Predict)"
+        echo_reset_dim " - Watson Machine Learning (required for Predict)"
+        echo_reset_dim " - Analytics Engine (required for Predict)"
       fi
       if [[ "${MAS_APP_CHANNEL_ASSIST}" != '' ]]
       then
-        echo "${COLOR_MAGENTA} - Watson Discovery (required for Assist)"
+        echo_reset_dim " - Watson Discovery (required for Assist)"
       fi
       if [[ "${CPD_INSTALL_COGNOS}" != '' || "${CPD_INSTALL_SPSS}" != '' || "${CPD_INSTALL_OPENSCALE}" == '' ]]
       then
