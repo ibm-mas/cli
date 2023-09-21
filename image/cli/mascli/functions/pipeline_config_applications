@@ -272,7 +272,7 @@ function manage_settings() {
   echo
   echo_h4 "Manage Settings - Report (Cognos Analytics)"
   echo "${TEXT_DIM}Manage application supports the integration with Cognos Analytics for reporting features which is an optional service installed on top of IBM Cloud Pak for Data. Unless requested these will not be installed."
-  echo "Once Manage application and Cognos Analytics are installed, you will be able to configure the integration features following this documentation: https://ibm.biz/BdMuxs"
+  echo "Once Manage application and Cognos Analytics are installed, you will be able to configure the Manage & Cognos integration following this documentation: https://ibm.biz/BdMuxs"
   reset_colors
   echo
   if prompt_for_confirm "Install Cognos Analytics"; then
