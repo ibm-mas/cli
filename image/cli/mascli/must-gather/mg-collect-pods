@@ -9,6 +9,8 @@ NAMESPACE_DIR=${OUTPUT_DIR}/${NAMESPACE}
 POD_DIR=${NAMESPACE_DIR}/pods
 mkdir -p $POD_DIR
 rm -rf $POD_DIR/*
+INSTANCE_ID=$(echo ${NAMESPACE%-*})
+INSTANCE_ID=$(echo ${INSTANCE_ID#*-})
 
 if [[ "$POD_LOGS" == "true" ]]; then
   echo "  - Collecting debug information: pods (with logs)"
@@ -38,6 +40,10 @@ do
   #   APP="_other"
   # fi
   # APP_DIR="${POD_DIR}/${APP}"
+
+  if [["POD_NO_IDS"=="POD_NO_IDS"]]; then
+    POD_NO_IDS=$(echo ${POD_NAME%-*}) #removing 2nd ID
+  fi
 
   APP_DIR="${POD_DIR}/${POD_NO_IDS}"
   mkdir -p $APP_DIR
