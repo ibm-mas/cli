@@ -26,21 +26,30 @@ oc -n ${NAMESPACE} get pods -o wide > ${NAMESPACE_DIR}/pods.txt
 PODS=$(oc get pods -n ${NAMESPACE} -o name)
 for POD in ${PODS[@]}
 do
-  echo " POD   - $POD"
+  # echo "    - $POD"
   POD_NAME=$(echo ${POD} | cut -d '/' -f 2)
-  echo " POD_NAME   - $POD_NAME"
 
-  POD_NAME2=$(echo ${POD_NAME}%-*)
-  echo " POD_NAME2   - $POD_NAME2"
+  #removing POD IDs
+  POD_NO_IDS=$(echo ${POD_NAME%-*}) #removing 2nd ID
+  POD_NO_IDS=$(echo ${POD_NO_IDS%-*}) #removing 1st ID
+
+  # APP="$(oc -n ${NAMESPACE} get $POD -o jsonpath='{.metadata.labels.app}')"
+  # if [[ "$APP" == "" ]]; then
+  #   APP="_other"
+  # fi
+  # APP_DIR="${POD_DIR}/${APP}"
+
+  APP_DIR="${POD_DIR}/${POD_NO_IDS}"
+  mkdir -p $APP_DIR
 
   # Get summary information for pod
-  oc -n ${NAMESPACE} get ${POD} -o yaml > ${POD_DIR}/${POD_NAME}.yaml
-  oc -n ${NAMESPACE} describe ${POD} > ${POD_DIR}/${POD_NAME}.txt
+  oc -n ${NAMESPACE} get ${POD} -o yaml > ${APP_DIR}/${POD_NAME}.yaml
+  oc -n ${NAMESPACE} describe ${POD} > ${APP_DIR}/${POD_NAME}.txt
 
   # Get container logs
   if [[ "$POD_LOGS" == "true" ]]
   then
-    APP_LOG_DIR="${POD_DIR}/logs"
+    APP_LOG_DIR="${POD_DIR}/${POD_NO_IDS}/logs"
     mkdir -p $APP_LOG_DIR
 
     CONTAINERS=$(oc -n ${NAMESPACE} get ${POD} -o json -o jsonpath='{range .status.containerStatuses[*]}[{.name}] {end}' | tr -d '[]')
