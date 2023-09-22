@@ -470,6 +470,11 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-apps/ivt.yml.j2') | indent(4) }}
 
+    # 28. SLS FVT
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-sls/sls.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-verify
 
   # Mustgather executed in finally block. Use suite_mustgather_download
   # playbook to retrieve the output on your local machine

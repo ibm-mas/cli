@@ -15,6 +15,7 @@ Collection Options (Optional):
   --summary-only             Perform a much faster must-gather that only gathers high level summary of resources in the cluster
   --no-pod-logs              Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required
   --mas-instance-ids         Collects the data for the specifed MAS instances, if not specified will collect for all MAS instances on the cluster
+  --secret-data              Collects also the content of the secrets
 
 Artifactory Upload (Optional):
   --artifactory-token ${COLOR_YELLOW}ARTIFACTORY_TOKEN${TEXT_RESET}              Provide a token for Artifactory to automatically upload the file to ARTIFACTORY_UPLOAD_DIR
@@ -34,6 +35,7 @@ function mustgather() {
   # Set defaults
   SUMMARY_ONLY=false
   POD_LOGS=true
+  SECRET_DATA=false
   MG_DIR=/tmp/must-gather
 
   # If a /must-gather directory exists, default to that as the output directory instead
@@ -58,6 +60,9 @@ function mustgather() {
       ;;
     --mas-instance-ids)
       MAS_INSTANCE_IDS=$1; shift 
+      ;;
+    --secret-data)
+      SECRET_DATA=true 
       ;;
     --artifactory-token)
       ARTIFACTORY_TOKEN=$1; shift
@@ -183,10 +188,11 @@ function mustgather() {
         then
           $MG_SCRIPT_DIR/mg-collect-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE $OUTPUT_DIR
           $MG_SCRIPT_DIR/mg-collect-pods $MAS_APP_NAMESPACE $POD_LOGS $OUTPUT_DIR/resources
-          for RESOURCE in configmaps secrets services routes pvc deployments statefulsets jobs operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings
+          for RESOURCE in configmaps services routes pvc deployments statefulsets jobs operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings
           do
             $MG_SCRIPT_DIR/mg-collect-resources -n $MAS_APP_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
           done
+          $MG_SCRIPT_DIR/mg-collect-secrets -n $MAS_APP_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources -s $SECRET_DATA
         fi
       fi
     done
@@ -211,10 +217,11 @@ function mustgather() {
       $MG_SCRIPT_DIR/mg-collect-sls $SLS_NAMESPACE $OUTPUT_DIR
 
       $MG_SCRIPT_DIR/mg-collect-pods $SLS_NAMESPACE $POD_LOGS $OUTPUT_DIR/resources
-      for RESOURCE in configmaps secrets services routes deployments jobs operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings
+      for RESOURCE in configmaps services routes deployments jobs operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings
       do
         $MG_SCRIPT_DIR/mg-collect-resources -n $SLS_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
       done
+      $MG_SCRIPT_DIR/mg-collect-secrets -n $SLS_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources -s $SECRET_DATA
     fi
   done
 

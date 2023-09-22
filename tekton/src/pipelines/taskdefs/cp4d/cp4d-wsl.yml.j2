@@ -12,7 +12,9 @@
     - name: cpd_service_name
       value: wsl
     - name: cpd_service_storage_class
-      value: "$(params.cpd_wsl_storage_class)"
+      value: "$(params.storage_class_rwx)"
+    - name: cpd_service_block_storage_class
+      value: "$(params.storage_class_rwo)"
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
   taskRef:
