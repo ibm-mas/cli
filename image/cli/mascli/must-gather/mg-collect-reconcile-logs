@@ -6,21 +6,20 @@ LABEL_SELECTOR=$2
 LABEL_VALUE=$3
 OUTPUT_DIR=$4
 
-POD=$(oc -n $NAMESPACE get pods -l "$LABEL_SELECTOR=$LABEL_VALUE" -o jsonpath="{.items[0].metadata.name}")
+POD=$(oc -n $NAMESPACE get pods -l "$LABEL_SELECTOR=$LABEL_VALUE" -o jsonpath="{.items[0].metadata.name}" 2>/dev/null) || { echo "   - Error fetching pods with label: $LABEL_SELECTOR=$LABEL_VALUE"; exit 0; }
 
-set +e
 LOGFILES=$(oc -n $NAMESPACE exec $POD -- find /tmp/ansible-operator/runner/ -name stdout 2>/dev/null)
 if [[ "$?" == "1" ]]; then
+  echo "   - Error finding /tmp/ansible-operator/runner/ for: $POD $LABEL_SELECTOR=$LABEL_VALUE"
   exit 0
 fi
-set -e
 
 TMP_DIR=${OUTPUT_DIR}/tmp-$LABEL_VALUE
 mkdir -p $TMP_DIR
 
 echo "  - Collecting reconcile logs from '$LABEL_SELECTOR':'$LABEL_VALUE'"
-oc -n $NAMESPACE exec $POD -- tar -czf - $LOGFILES > $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz 2> /dev/null
-tar -xf $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz -C $TMP_DIR 2> /dev/null
+oc -n $NAMESPACE exec $POD -- tar -czf - $LOGFILES > $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz 2>/dev/null
+tar -xf $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz -C $TMP_DIR  --no-same-owner 2>/dev/null  || { echo "   - Error to untar $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz"; exit 0; }
 
 if [[ "$?" == "0" ]]; then
   rm $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz
