@@ -39,6 +39,42 @@ spec:
       type: string
     - name: artifactory_auth_header
       type: string
+    - name: devops_mongo_uri
+      type: string
+    - name: fvt_travis_build_number
+      type: string
+    - name: fvt_version_assist
+      type: string
+    - name: fvt_version_hputilities
+      type: string
+    - name: fvt_version_iot
+      type: string
+    - name: fvt_version_ctf
+      type: string
+    - name: fvt_version_optimizer
+      type: string
+    - name: fvt_version_manage
+      type: string
+    - name: fvt_version_manage_civil
+      type: string
+    - name: fvt_version_mobilefoundation
+      type: string
+    - name: fvt_version_servicerequests
+      type: string
+    - name: fvt_version_inspection
+      type: string
+    - name: fvt_version_technician
+      type: string
+    - name: fvt_version_asset_manager
+      type: string
+    - name: fvt_version_inventorycounting
+      type: string
+    - name: ddp_apikey
+      type: string
+    - name: partium_username
+      type: string
+    - name: partium_password
+      type: string
 
   stepTemplate:
     name: gitops-provision-mas-fvt-core
@@ -77,6 +113,42 @@ spec:
         value: $(params.fvt_ansible_version)
       - name: ARTIFACTORY_AUTH_HEADER
         value: $(params.artifactory_auth_header)
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: FVT_TRAVIS_BUILD_NUMBER
+        value: $(params.fvt_travis_build_number)
+      - name: FVT_VERSION_ASSIST
+        value: $(params.fvt_version_assist)
+      - name: FVT_VERSION_HPUTILITIES
+        value: $(params.fvt_version_hputilities)
+      - name: FVT_VERSION_IOT
+        value: $(params.fvt_version_iot)
+      - name: FVT_VERSION_CTF
+        value: $(params.fvt_version_ctf)
+      - name: FVT_VERSION_OPTIMIZER
+        value: $(params.fvt_version_optimizer)
+      - name: FVT_VERSION_MANAGE
+        value: $(params.fvt_version_manage)
+      - name: FVT_VERSION_MANAGE_CIVIL
+        value: $(params.fvt_version_manage_civil)
+      - name: FVT_VERSION_MOBILEFOUNDATION
+        value: $(params.fvt_version_mobilefoundation)
+      - name: FVT_VERSION_SERVICEREQUESTS
+        value: $(params.fvt_version_servicerequests)
+      - name: FVT_VERSION_INSPECTION
+        value: $(params.fvt_version_inspection)
+      - name: FVT_VERSION_TECHNICIAN
+        value: $(params.fvt_version_technician)
+      - name: FVT_VERSION_ASSET_MANAGER
+        value: $(params.fvt_version_asset_manager)
+      - name: FVT_VERSION_INVENTORYCOUNTING
+        value: $(params.fvt_version_inventorycounting)
+      - name: DDP_APIKEY
+        value: $(params.ddp_apikey)
+      - name: PARTIUM_USERNAME
+        value: $(params.partium_username)
+      - name: PARTIUM_PASSWORD
+        value: $(params.partium_password)        
   steps:
     - args:
       - |-
