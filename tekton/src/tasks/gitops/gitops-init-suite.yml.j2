@@ -30,6 +30,8 @@ spec:
       type: string
     - name: mas_channel
       type: string
+    - name: mas_annotations
+      type: string
     - name: mas_domain
       type: string
     - name: avp_aws_secret_region
@@ -66,13 +68,15 @@ spec:
       - name: SM_AWS_SECRET_ACCESS_KEY
         value: $(params.avp_aws_secret_key)
       - name: SM_AWS_ACCESS_KEY_ID
-        value: $(params.avp_aws_access_key)    
+        value: $(params.avp_aws_access_key)
       - name: MAS_DOMAIN
-        value: $(params.mas_domain)    
+        value: $(params.mas_domain)
       - name: MAS_CHANNEL
-        value: $(params.mas_channel)   
+        value: $(params.mas_channel)
+      - name: MAS_ANNOTATIONS
+        value: $(params.mas_annotations)
       - name: SLS_CHANNEL
-        value: $(params.sls_channel)   
+        value: $(params.sls_channel)
   steps:
     - args:
       - |-
