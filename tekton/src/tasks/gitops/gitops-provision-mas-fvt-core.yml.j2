@@ -39,6 +39,8 @@ spec:
       type: string
     - name: artifactory_auth_header
       type: string
+    - name: devops_mongo_uri
+      type: string
 
   stepTemplate:
     name: gitops-provision-mas-fvt-core
@@ -77,6 +79,8 @@ spec:
         value: $(params.fvt_ansible_version)
       - name: ARTIFACTORY_AUTH_HEADER
         value: $(params.artifactory_auth_header)
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
   steps:
     - args:
       - |-

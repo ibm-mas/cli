@@ -59,6 +59,8 @@ spec:
       type: string
     - name: artifactory_auth_header
       type: string
+    - name: devops_mongo_uri
+      type: string
   tasks:
 {% if wait_for_provision == true %}
     # 0. Wait for the provsion pipeline to complete
@@ -113,6 +115,8 @@ spec:
           value: $(params.fvt_ansible_version)
         - name: artifactory_auth_header
           value: $(params.artifactory_auth_header)
+        - name: devops_mongo_uri
+          value: $(params.devops_mongo_uri)
       workspaces:
         - name: configs
           workspace: configs
