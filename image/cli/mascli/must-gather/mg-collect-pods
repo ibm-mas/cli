@@ -34,14 +34,8 @@ do
   #removing POD IDs
   POD_NO_IDS=$(echo ${POD_NAME%-*}) #removing 2nd ID
   POD_NO_IDS=$(echo ${POD_NO_IDS%-*}) #removing 1st ID
-
-  # APP="$(oc -n ${NAMESPACE} get $POD -o jsonpath='{.metadata.labels.app}')"
-  # if [[ "$APP" == "" ]]; then
-  #   APP="_other"
-  # fi
-  # APP_DIR="${POD_DIR}/${APP}"
-
-  if [["POD_NO_IDS"=="POD_NO_IDS"]]; then
+  
+  if [[ "$POD_NO_IDS" == "$INSTANCE_ID" ]]; then
     POD_NO_IDS=$(echo ${POD_NAME%-*}) #removing 2nd ID
   fi
 
