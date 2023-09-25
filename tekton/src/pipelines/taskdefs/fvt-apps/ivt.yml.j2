@@ -27,7 +27,7 @@
     - name: devops_cos_crn
       value: $(params.devops_cos_crn)
     - name: devops_ibmcloud_apikey
-      value: $(params.devops_ibmcloud_apikey)      
+      value: $(params.devops_ibmcloud_apikey)
   taskRef:
     kind: Task
     name: mas-ivt-manage-monitor-dd
@@ -50,3 +50,4 @@
   runAfter:
     - fvt-manage-last-phase
     - ivtcore-monitor
+    - cv-monitor
