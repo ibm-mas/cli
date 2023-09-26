@@ -66,6 +66,7 @@
         - deprovision-mas-instance
         - provision-bootstrap-cluster
         - provision-mas-instance
+        - provision-mas-fvt-core
 
     # 4. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
@@ -89,3 +90,4 @@
         dest: "{{ pipeline_target_dir }}/{{ item }}-after-provision.yaml"
       with_items:
         - provision-mas-instance
+        - provision-mas-fvt-core

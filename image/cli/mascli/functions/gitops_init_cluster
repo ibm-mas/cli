@@ -271,7 +271,8 @@ function gitops_init_cluster() {
 
     argocd_login
     argocd_sync ${CLUSTER_ID}-watcher
-    check_argo_app_synced ibm-common-services
+    add_role_to_user ibm-common-services
+    check_argo_app_synced ibm-common-services ${CLUSTER_ID}-watcher ibm-common-services
     check_argo_app_healthy ibm-common-services
   fi
 

@@ -155,12 +155,12 @@ spec:
           if obj.status ~= nil then
             if obj.status.conditions ~= nil then
               for i, condition in ipairs(obj.status.conditions) do
-                if condition.type == "CatalogSourcesUnhealthy" and condition.reason == "AllCatalogSourcesHealthy" and condition.status == "True" then
+                if condition.type == "CatalogSourcesUnhealthy" and condition.status == "True" then
                   hs.status = "Degraded"
                   hs.message = condition.message
                   return hs
                 end
-                if condition.type == "CatalogSourcesUnhealthy" and condition.reason == "AllCatalogSourcesHealthy" and condition.status == "False" then
+                if condition.type == "CatalogSourcesUnhealthy" and condition.status == "False" then
                   hs.status = "Healthy"
                   hs.message = condition.message
                   return hs
@@ -170,6 +170,27 @@ spec:
           end
           hs.status = "Progressing"
           hs.message = ""
+          return hs
+
+      db2u.databases.ibm.com/Db2uCluster:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.state ~= nil then
+              if obj.status.state == "LicenseError" or obj.status.state == "Error" then
+                hs.status = "Degraded"
+                hs.message = "General Error or License Error"
+                return hs
+              end
+              if obj.status.state == "Ready" then
+                hs.status = "Healthy"
+                hs.message = obj.status.conditions.status
+                return hs
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = "Provisioning Db2 instance..."
           return hs
 
   repo:
