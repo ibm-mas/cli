@@ -370,6 +370,7 @@
 <ul>
 <li><code>--no-wait-for-pvcs</code> If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag</li>
 <li><code>--no-confirm</code>       Mirror images without prompting for confirmation</li>
+<li><code>--accept-license</code>   Accept MAS and Maximo IT (if applicable) licenses</li>
 <li><code>-h, --help</code>         Show install help message</li>
 </ul>
 <h2 id="non-interactive-install">Non-Interactive Install<a class="headerlink" href="#non-interactive-install" title="Permanent link"></a></h2>
@@ -381,7 +382,8 @@ mas install -i mas1 -w ws1 -W &quot;My Workspace&quot; -c v8-amd64 --mas-channel
   --uds-email myemail@email.com --uds-firstname John --uds-lastname Barnes \
   --storage-rwo ibmc-block-gold --storage-rwx ibmc-file-gold-gid \
   --storage-pipeline ibmc-file-gold-gid --storage-accessmode ReadWriteMany \
-  --no-confirm
+  --no-confirm \
+  --accept-license
 </code></pre>
 <h2 id="interactive-install">Interactive Install<a class="headerlink" href="#interactive-install" title="Permanent link"></a></h2>
 <pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
