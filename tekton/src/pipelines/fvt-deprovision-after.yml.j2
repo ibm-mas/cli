@@ -111,5 +111,5 @@ spec:
         - name: ibmcloud_apikey
           value: $(params.ibmcloud_apikey)
       runAfter:
-        - deprovision-cos
-        - deprovision-kafka
+        - cos-deprovision
+        - kafka-deprovision
