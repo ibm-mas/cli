@@ -1,3 +1,22 @@
+- name: cv-core
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas
+    - name: product_channel
+      value: $(params.mas_channel)
+    - name: fvt_test_suite
+      value: contentverification
+  when:
+    - input: "$(params.ivt_digest_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - suite-verify
 
 # Core FVT 1.0 coreidp-auth ~20m - Refresh token and authentication patterns
 # We are running this test first since it happens to set the Suite accessTokenTimeout from the default of 30m to 12h
@@ -12,7 +31,7 @@
     - name: test_suite
       value: coreidp-auth
   runAfter:
-    - suite-verify
+    - cv-core
 
 # Core FVT 1.1 coreapi-addons ~20m
 - name: fvt-coreapi-addons
