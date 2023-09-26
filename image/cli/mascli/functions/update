@@ -112,6 +112,11 @@ function update() {
   echo_h4 "IBM Operator Catalog" "    "
   echo_reset_dim "Catalog Version ..................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
 
+  # SLS changed the registry for api-licensing in 3.8.0
+  if [[ "$MAS_CATALOG_VERSION" == "v8-230926-amd64" ]]; then
+    SLS_ICR_CPOPEN=icr.io/cpopen
+  fi
+
   echo
   reset_colors
   if [[ "$NO_CONFIRM" != "true" ]]; then
