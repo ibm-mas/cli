@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-deprovsion-db2u
+  name: gitops-deprovision-db2u
 spec:
   params:
     - name: cluster_name
@@ -30,7 +30,7 @@ spec:
     - name: avp_aws_access_key
       type: string
   stepTemplate:
-    name: gitops-deprovsion-db2u
+    name: gitops-deprovision-db2u
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -94,7 +94,7 @@ spec:
       command:
         - /bin/sh
         - -c
-      name: gitops-deprovsion-db2u
+      name: gitops-deprovision-db2u
       imagePullPolicy: Always
       image: quay.io/ibmmas/cli:6.4.0-pre.gitops
   workspaces:
