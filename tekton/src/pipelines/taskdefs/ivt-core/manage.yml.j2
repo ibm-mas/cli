@@ -8,7 +8,7 @@
       value: ibm-mas-manage
     - name: product_channel
       value: $(params.mas_app_channel_manage)
-    - name: fvt_test_suite
+    - name: test_suite
       value: coreivt
   when:
     - input: "$(params.ivt_digest_core)"
@@ -26,7 +26,7 @@
       value: ibm-mas-manage
     - name: product_channel
       value: $(params.mas_app_channel_manage)
-    - name: fvt_test_suite
+    - name: test_suite
       value: contentverification
   when:
     - input: "$(params.ivt_digest_core)"
