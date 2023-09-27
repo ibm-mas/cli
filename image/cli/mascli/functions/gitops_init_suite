@@ -321,6 +321,7 @@ function gitops_init_suite() {
 
   # Parse MAS variables from json to dict
   export MAS_ANNOTATIONS=$(echo $MAS_ANNOTATIONS | jq '.' | yq --yaml-output)
+  echo " MAS_ANNOTATIONS = $MAS_ANNOTATIONS"
   export MAS_IMAGE_TAGS=$(echo $MAS_IMAGE_TAGS | jq '.' | yq --yaml-output)
   export MAS_LABELS=$(echo $MAS_LABELS | jq '.' | yq --yaml-output)
 
@@ -353,8 +354,8 @@ function gitops_init_suite() {
     check_argo_app_synced mas-${MAS_INSTANCE_ID}-sls ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-sls
     check_argo_app_healthy mas-${MAS_INSTANCE_ID}-sls
 
+    # health check of suite will be done in gitops_init_suite_config
     check_argo_app_synced mas-${MAS_INSTANCE_ID}-core-suite ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-core
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-core-suite
 
   fi
 

@@ -39,17 +39,29 @@ spec:
   steps:
     - args:
       - |-
+        retries=10
+        interval=30
+        index=0
+        while true; do
+          export ROSA_CONFIG=/workspace/configs/tmp-rosa-init/rosa-$(params.cluster_name)-details.yaml
+          export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
+          export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
+          export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
+          oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -eq 0 ]; then
+            echo "oc_login : oc login success ..."
+            break
+          fi
 
-        export ROSA_CONFIG=/workspace/configs/tmp-rosa-init/rosa-$(params.cluster_name)-details.yaml
-        export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
-        export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
-        export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
-        oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
-        OC_RC=$?
-        if [ $OC_RC -ne 0 ]; then
-          echo "oc login failed, exiting with error.."
-          exit 1
-        fi
+          if [[ ${index} -eq ${retries} ]]; then
+            echo "oc_login : oc login failed even after $retries retries, exit with error"
+            exit 1
+          fi
+          echo "oc_login : oc login failed, retry login after $interval sec ..."
+          sleep $interval
+          ((index++))
+        done
 
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
