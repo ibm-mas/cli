@@ -122,6 +122,7 @@ Other Commands:
       --dev-mode                                                   Enable developer mode (e.g. for access to pre-release builds)
       --no-wait-for-pvcs                                           If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
       --no-confirm                                                 Mirror images without prompting for confirmation
+      --accept-license                                             Accept the licenses for IBM Maximo Application Suite and Maximo IT
   -h, --help                                                       Show this help message
 
 
@@ -132,6 +133,7 @@ EOM
 function install_noninteractive() {
   NON_INTERACTIVE=true
   DEV_MODE=false
+  LICENSE_ACCEPTED=false
 
   # Defaults
   DB2_ACTION_SYSTEM=none
@@ -521,6 +523,9 @@ function install_noninteractive() {
     --no-confirm)
       NO_CONFIRM=true
       ;;
+    --accept-license)
+      LICENSE_ACCEPTED=true
+      ;;
     -h|--help)
       install_help
       ;;
@@ -546,6 +551,25 @@ function install_noninteractive() {
     SLS_ICR_CPOPEN=icr.io/cpopen
   fi
 
+  # Present a the MAS license information
+  # ---------------------------------------------------------------------------
+  case $MAS_CHANNEL in
+    8.9.x)
+      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
+      ;;
+    *)
+      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
+      ;;
+  esac
+
+  if [[ "$LICENSE_ACCEPTED" == "false" ]]; then
+    echo
+    echo_h2 "License Terms"
+    echo -e "${COLOR_RED}For information about your license, see "$MAS_LICENSE_LINK" and https://ibm.biz/MAXIT81-License. To continue with the installation, you must accept the license terms."
+    install_help
+    exit 1
+
+  fi
 
 }
 

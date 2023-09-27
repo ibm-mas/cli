@@ -135,7 +135,7 @@ function configtool_oidc() {
 
   # login cluster
   echo Login $CLUSTER_SERVER...
-  #oc login --token=$CLUSTER_TOKEN --server=$CLUSTER_SERVER
+  oc login --token=$CLUSTER_TOKEN --server=$CLUSTER_SERVER
 
   # instance name and domain
   echo preparing for $MAS_HOME...
