@@ -15,6 +15,9 @@ Usage
 - `--uds-email UDS_CONTACT_EMAIL`              Contact e-mail address
 - `--uds-firstname UDS_CONTACT_FIRSTNAME`      Contact first name
 - `--uds-lastname UDS_CONTACT_LASTNAME`        Contact last name
+- `--dro-email DRO_CONTACT_EMAIL`              Contact e-mail address
+- `--dro-firstname DRO_CONTACT_FIRSTNAME`      Contact first name
+- `--dro-lastname DRO_CONTACT_LASTNAME`        Contact last name
 
 ### Storage Class Selection (Required):
 - `--storage-rwo STORAGE_CLASS_RWO`                   Read Write Once (RWO) storage class (e.g. ibmc-block-gold)
@@ -135,7 +138,7 @@ export ENTITLEMENT_KEY=xxx
 mas install -i mas1 -w ws1 -W "My Workspace" -c v8-amd64 --mas-channel 8.10.x \
   --ibm-entitlement-key $ENTITLEMENT_KEY \
   --license-id xxxxxxxxxxxx --license-file /mnt/home/entitlement.lic \
-  --uds-email myemail@email.com --uds-firstname John --uds-lastname Barnes \
+  --dro-email myemail@email.com --dro-firstname John --dro-lastname Barnes \
   --storage-rwo ibmc-block-gold --storage-rwx ibmc-file-gold-gid \
   --storage-pipeline ibmc-file-gold-gid --storage-accessmode ReadWriteMany \
   --no-confirm
@@ -305,8 +308,8 @@ Provide your IBM entitlement key.  If you have set the `IBM_ENTITLEMENT_KEY` env
 Provide your license ID and the location of your license file.
 
 
-### Step 19. Configure UDS
-Maximo Application Suite's required integration with IBM User Data Services requires your e-mail address and first/last name be provided.
+### Step 19. Configure DRO
+Maximo Application Suite's required integration with Data Reporter Operator requires your e-mail address and first/last name be provided.
 
 
 ### Step 20. Prepare Installation

@@ -92,6 +92,11 @@ spec:
       runAfter:
         - common-services
 
+    # 2.6 DRO
+    {{ lookup('template', 'taskdefs/dependencies/dro.yml.j2') | indent(4) }}
+      runAfter:
+        - common-services
+
 
     # 3. Other Dependecies
     # -------------------------------------------------------------------------
@@ -118,7 +123,7 @@ spec:
     {{ lookup('template', 'taskdefs/core/suite-install.yml.j2') | indent(4) }}
       runAfter:
         - sls
-        - uds
+        - dro
         - gencfg-workspace
         - suite-dns
 

@@ -196,6 +196,12 @@ function pipeline_config() {
   SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
 
   echo
+  echo_h2 "Configure DRO"
+  prompt_for_input "DRO Contact Email" DRO_CONTACT_EMAIL
+  prompt_for_input "DRO Contact First Name" DRO_CONTACT_FIRSTNAME
+  prompt_for_input "DRO Contact Last Name" DRO_CONTACT_LASTNAME
+  
+  echo
   echo_h2 "Configure UDS"
   if [[ -n "$DEV_MODE" ]]; then
     echo "${TEXT_DIM}Installing Maximo Application Suite with built-in UDS replacement (SUDS)"

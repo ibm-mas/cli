@@ -240,6 +240,24 @@
   type: string
   default: ""
 
+# Dependencies - DRO
+# -----------------------------------------------------------------------------
+- name: dro_contact_email
+  type: string
+- name: dro_contact_firstname
+  type: string
+- name: dro_contact_lastname
+  type: string
+- name: dro_event_scheduler_frequency
+  type: string
+  default: ""
+- name: dro_action
+  type: string
+  default: "install"
+- name: dro_segment_key
+  type: string
+  default: ""
+
 # Dependencies - AppConnect
 # -----------------------------------------------------------------------------
 {{ lookup('template', params_src_dir ~ '/install-appconnect.yml.j2') }}

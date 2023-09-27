@@ -1,0 +1,35 @@
+- name: dro
+  params:
+    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    - name: devops_suite_name
+      value: dependencies-dro
+
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+
+    - name: dro_action
+      value: "$(params.dro_action)"
+
+    - name: dro_contact_email
+      value: "$(params.dro_contact_email)"
+    - name: dro_contact_firstname
+      value: "$(params.dro_contact_firstname)"
+    - name: dro_contact_lastname
+      value: "$(params.dro_contact_lastname)"
+    - name: dro_event_scheduler_frequency
+      value: "$(params.dro_event_scheduler_frequency)"
+    - name: dro_storage_class
+      value: $(params.storage_class_rwo)
+
+    - name: mas_segment_key
+      value: $(params.mas_segment_key)
+    - name: custom_labels
+      value: $(params.custom_labels)
+  taskRef:
+    kind: Task
+    name: mas-devops-dro
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+    - name: pod-templates
+      workspace: shared-pod-templates

@@ -1,0 +1,88 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-dro
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    - name: mas_instance_id
+      type: string
+      default: ""
+    - name: custom_labels
+      type: string
+      description: Optional MAS custom labels, comma separated list of key=value pairs
+      default: ""
+    - name: mas_segment_key
+      type: string
+      default: ""
+    - name: dro_contact_email
+      type: string
+      default: ""
+    - name: dro_contact_firstname
+      type: string
+      default: ""
+    - name: dro_contact_lastname
+      type: string
+      default: ""
+    - name: dro_event_scheduler_frequency
+      type: string
+      default: ""
+    - name: dro_storage_class
+      type: string
+      default: ""
+
+    # Optional parameter to uninstall dro
+    - name: dro_action
+      type: string
+      description: Optional. Used to uninstall dro
+      default: ""
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      # Properties for generating a MAS configuration
+      - name: MAS_CONFIG_DIR
+        value: /workspace/configs
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: CUSTOM_LABELS
+        value: $(params.custom_labels)
+      - name: MAS_SEGMENT_KEY
+        value: $(params.mas_segment_key)
+      - name: DRO_CONTACT_EMAIL
+        value: $(params.dro_contact_email)
+      - name: DRO_CONTACT_FIRSTNAME
+        value: $(params.dro_contact_firstname)
+      - name: DRO_CONTACT_LASTNAME
+        value: $(params.dro_contact_lastname)
+      - name: DRO_STORAGE_CLASS
+        value: $(params.dro_storage_class)
+
+      # Properties to configure the DRO install
+      - name: DRO_EVENT_SCHEDULER_FREQUENCY
+        value: $(params.dro_event_scheduler_frequency)
+
+      # Optional parameter to uninstall DRO
+      - name: DRO_ACTION
+        value: $(params.dro_action)
+
+      - name: MAS_POD_TEMPLATES_DIR
+        value: /workspace/pod-templates
+
+  steps:
+    - name: dro
+      command:
+        - /opt/app-root/src/run-role.sh
+        - dro
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/configs
+
+  workspaces:
+    - name: configs
+      optional: true
+    - name: pod-templates
+      optional: true

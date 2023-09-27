@@ -157,6 +157,23 @@ spec:
       runAfter:
         - uninstall-mongodb
 
+    # 4. Uninstall Data Reporter Operator
+    # -------------------------------------------------------------------------
+    - name: uninstall-dro
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: uds_action
+          value: $(params.uds_action)
+      taskRef:
+        kind: Task
+        name: mas-devops-dro
+      when:
+        - input: "$(params.uds_action)"
+          operator: in
+          values: ["uninstall"]
+      runAfter:
+        - uninstall-mongodb
 
     # 5. Uninstall IBM Cert Manager
     # -------------------------------------------------------------------------
