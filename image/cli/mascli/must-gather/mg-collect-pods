@@ -9,8 +9,6 @@ NAMESPACE_DIR=${OUTPUT_DIR}/${NAMESPACE}
 POD_DIR=${NAMESPACE_DIR}/pods
 mkdir -p $POD_DIR
 rm -rf $POD_DIR/*
-INSTANCE_ID=$(echo ${NAMESPACE%-*})
-INSTANCE_ID=$(echo ${INSTANCE_ID#*-})
 
 if [[ "$POD_LOGS" == "true" ]]; then
   echo "  - Collecting debug information: pods (with logs)"
@@ -28,19 +26,37 @@ oc -n ${NAMESPACE} get pods -o wide > ${NAMESPACE_DIR}/pods.txt
 PODS=$(oc get pods -n ${NAMESPACE} -o name)
 for POD in ${PODS[@]}
 do
+  # # echo "    - $POD"
+  # POD_NAME=$(echo ${POD} | cut -d '/' -f 2)
+
+  # #removing POD IDs
+  # POD_NO_IDS=$(echo ${POD_NAME%-*}) #removing 2nd ID
+  # POD_NO_IDS=$(echo ${POD_NO_IDS%-*}) #removing 1st ID
+
+  # if [[ "$POD_NO_IDS" == "$INSTANCE_ID" ]]; then
+  #   POD_NO_IDS=$(echo ${POD_NAME%-*}) #removing 2nd ID
+  # fi
+
+  # APP_DIR="${POD_DIR}/${POD_NO_IDS}"
+  # mkdir -p $APP_DIR
+
   # echo "    - $POD"
   POD_NAME=$(echo ${POD} | cut -d '/' -f 2)
+  APP="$(oc -n ${NAMESPACE} get $POD -o jsonpath='{.metadata.labels.app}')"
+  if [[ "$APP" == "" ]]; then
+    INSTANCE_ID=$(echo ${NAMESPACE%-*})
+    INSTANCE_ID=$(echo ${INSTANCE_ID#*-})
+    APP=$(echo ${POD_NAME%-*}) #removing 2nd ID
+    APP=$(echo ${APP%-*}) #removing 1st ID
 
-  #removing POD IDs
-  POD_NO_IDS=$(echo ${POD_NAME%-*}) #removing 2nd ID
-  POD_NO_IDS=$(echo ${POD_NO_IDS%-*}) #removing 1st ID
-  
-  if [[ "$POD_NO_IDS" == "$INSTANCE_ID" ]]; then
-    POD_NO_IDS=$(echo ${POD_NAME%-*}) #removing 2nd ID
+    if [[ "$APP" == "$INSTANCE_ID" ]]; then
+      APP=$(echo ${POD_NAME%-*}) #removing 2nd ID only
+    fi
   fi
 
-  APP_DIR="${POD_DIR}/${POD_NO_IDS}"
+  APP_DIR="${POD_DIR}/${APP}"
   mkdir -p $APP_DIR
+
 
   # Get summary information for pod
   oc -n ${NAMESPACE} get ${POD} -o yaml > ${APP_DIR}/${POD_NAME}.yaml
@@ -49,7 +65,7 @@ do
   # Get container logs
   if [[ "$POD_LOGS" == "true" ]]
   then
-    APP_LOG_DIR="${POD_DIR}/${POD_NO_IDS}/logs"
+    APP_LOG_DIR="${POD_DIR}/${APP}/logs"
     mkdir -p $APP_LOG_DIR
 
     CONTAINERS=$(oc -n ${NAMESPACE} get ${POD} -o json -o jsonpath='{range .status.containerStatuses[*]}[{.name}] {end}' | tr -d '[]')
