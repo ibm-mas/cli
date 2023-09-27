@@ -132,8 +132,8 @@ spec:
         - name: sls_icr_cpopen
           value: $(params.sls_icr_cpopen)
       when:
-        - input: ""
-          operator: notin
+        - input: "icr.io/cpopen"
+          operator: in
           values: ["$(params.sls_icr_cpopen)"]
 
     # 4. Verify health of the cluster before we consider the update complete
