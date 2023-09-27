@@ -19,5 +19,5 @@ spec:
       value: '$DB2_NAMESPACE'
     - name: mongodb_namespace
       value: '$MONGODB_NAMESPACE'
-    - name: sls_icr_cpopen
-      value: '$SLS_ICR_CPOPEN'
+    - name: update_sls_registry
+      value: '$UPDATE_SLS_REGISTRY'

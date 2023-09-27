@@ -73,10 +73,10 @@ spec:
       description: Namespace where mongodb instances will be updated
 
     # SLS 3.8.0 registry change
-    - name: sls_icr_cpopen
+    - name: update_sls_registry
       default: ""
       type: string
-      description: Required when updating SLS to 3.8.0 from a lower version
+      description: Set to 'true' to change all LicenseService CRs' registry to cpopen
 
   tasks:
 {% if wait_for_install == true %}
@@ -128,13 +128,10 @@ spec:
         name: sls-registry-update
       runAfter:
         - update-catalog
-      params:
-        - name: sls_icr_cpopen
-          value: $(params.sls_icr_cpopen)
       when:
-        - input: "icr.io/cpopen"
+        - input: "true"
           operator: in
-          values: ["$(params.sls_icr_cpopen)"]
+          values: ["$(params.update_sls_registry)"]
 
     # 4. Verify health of the cluster before we consider the update complete
     # -------------------------------------------------------------------------

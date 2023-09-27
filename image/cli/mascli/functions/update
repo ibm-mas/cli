@@ -116,7 +116,9 @@ function update() {
   # when updating from a previous version it would not automatically
   # change the value from cp.icr.io/cp hence we need to patch it
   if [[ "$MAS_CATALOG_VERSION" == "v8-230926-amd64" ]]; then
-    SLS_ICR_CPOPEN=icr.io/cpopen
+    UPDATE_SLS_REGISTRY="true"
+  else
+    UPDATE_SLS_REGISTRY="false"
   fi
 
   echo

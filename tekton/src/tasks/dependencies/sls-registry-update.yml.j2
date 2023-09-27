@@ -4,10 +4,6 @@ kind: Task
 metadata:
   name: sls-registry-update
 spec:
-  params:
-    - name: sls_icr_cpopen
-      type: string
-
   steps:
     - name: update-licenseservice
       image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
