@@ -14,10 +14,10 @@ spec:
       script: |
         #!/usr/bin/env bash
 
-        echo "Updating registry for all LicenseService instances..."
+        echo "Updating registry to 'icr.io/cpopen' for all LicenseService CR instances..."
 
         echo ""
-        echo "Get all LicenseService Custom Resource instances..."
+        echo "Get all LicenseService CR instances..."
         echo "------------------------------------------------------------------"
 
         LICENSE_SERVICE_INSTANCES=`oc get LicenseService --all-namespaces`
