@@ -66,6 +66,18 @@ spec:
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
+        # Fix for ErrImagePull: pull QPS exceeded starts
+        # https://access.redhat.com/solutions/4767061 
+
+        crd=KubeletConfig
+        crs=$(oc get ${crd} --no-headers --ignore-not-found  2>/dev/null | awk '{print $1}')
+        for cr in ${crs}; do
+          echo "set registryPullQPS to no limit for resource :: ${crd}/${cr}"
+          oc patch ${crd} ${cr} --type merge -p '{"spec":{"kubeletConfig":{"registryPullQPS":0}}}'  2>/dev/null
+        done
+
+        # Fix for ErrImagePull: pull QPS exceeded ends
+
         echo "Start Bootstrap"
         mas gitops-bootstrap --cluster-id $CLUSTER_NAME \
         -t $AVP_TYPE \
