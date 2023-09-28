@@ -27,11 +27,11 @@ IBM Suite License Service:
       --sls-channel ${COLOR_YELLOW}SLS_CHANNEL${TEXT_RESET}  IBM Suite License Service Subscription Channel
 
 IBM Maximo Application Suite:
-      --mas-annotations ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}    MAS Annotations definition in json format
+      --mas-annotations ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}    MAS Annotations definition in dict format
       --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}            MAS Core Platform Subscription Channel
       --mas-domain ${COLOR_YELLOW}MAS_DOMAIN${TEXT_RESET}              MAS Domain
-      --mas-image-tags ${COLOR_YELLOW}MAS_IMAGE_TAGS${TEXT_RESET}      MAS Image tags definition in json format
-      --mas-labels ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}         MAS Labels definition in json format
+      --mas-image-tags ${COLOR_YELLOW}MAS_IMAGE_TAGS${TEXT_RESET}      MAS Image tags definition in dict format
+      --mas-labels ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}         MAS Labels definition in dict format
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -318,15 +318,6 @@ function gitops_init_suite() {
   echo "- IBM Suite License Service"
   jinja -X .+ -d $MONGO_CONFIG_FILE $DIR/templates/gitops/ibm-sls.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-sls.yaml
 
-
-  # Parse MAS variables from json to dict
-
-  export MAS_ANNOTATIONS=$(echo '$MAS_ANNOTATIONS' | jq -R '.' | yq --yaml-output)
-  echo " MAS_ANNOTATIONS = $MAS_ANNOTATIONS"
-  export MAS_IMAGE_TAGS=$(echo '$MAS_IMAGE_TAGS' | jq -R  '.' | yq --yaml-output)
-  echo " MAS_IMAGE_TAGS = $MAS_IMAGE_TAGS"
-  export MAS_LABELS=$(echo '$MAS_LABELS' | jq -R  '.' | yq --yaml-output)
-  echo " MAS_LABELS = $MAS_LABELS"
 
   echo "- IBM Maximo Application Suite Core Platform"
   jinja -X .+ $DIR/templates/gitops/ibm-mas-core-suite.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-core-suite.yaml
