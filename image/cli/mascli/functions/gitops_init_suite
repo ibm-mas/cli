@@ -346,7 +346,7 @@ function gitops_init_suite() {
     add_role_to_user mas-${MAS_INSTANCE_ID}-core
 
     check_argo_app_synced mas-${MAS_INSTANCE_ID}-sls ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-sls
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-sls
+    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-sls ${CLUSTER_ID}-watcher
 
     # health check of suite will be done in gitops_init_suite_config
     check_argo_app_synced mas-${MAS_INSTANCE_ID}-core-suite ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-core
