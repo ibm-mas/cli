@@ -175,9 +175,36 @@ function save_to_target_git_repo() {
   if [ "$FILES_ADDED" != "0" ]; then
     echo "git: Committing files using message $COMMIT_MSG"
     git commit -m "$COMMIT_MSG" || exit 1
-    echo "git: Pushing changes to branch $GIT_BRANCH"
-    git push -u origin $GIT_BRANCH || exit 1
-    sleep 10
+    retries=5
+    interval=30
+    index=0
+    while true; do
+      echo "git: fetch origin $GIT_BRANCH"
+      git fetch origin $GIT_BRANCH || exit 1
+
+      echo "git: pull origin --rebase"
+      git pull origin --rebase || exit 1
+
+      echo "git: pull origin $GIT_BRANCH --rebase"
+      git pull origin $GIT_BRANCH --rebase || exit 1
+
+      echo "git: Pushing changes to branch $GIT_BRANCH"
+      git push -u origin $GIT_BRANCH
+      return_code=$?
+      if [ $return_code -eq 0 ]; then
+        echo "git: Pushing changes to branch $GIT_BRANCH success"
+        sleep 10
+        break
+      fi
+    
+      if [[ ${index} -eq ${retries} ]]; then
+        echo "git: Pushing changes to branch $GIT_BRANCH failed even after $retries retries, exit with error"
+        exit 1
+      fi
+      echo "git: Pushing changes to branch $GIT_BRANCH failed, retry after $interval sec ..."      
+      sleep $interval
+      ((index++))
+    done
   else
     echo "No changes found so no commit made"
   fi

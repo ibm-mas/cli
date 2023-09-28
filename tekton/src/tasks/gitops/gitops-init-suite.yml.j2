@@ -32,6 +32,13 @@ spec:
       type: string
     - name: mas_annotations
       type: string
+      default: ''
+    - name: mas_image_tags
+      type: string
+      default: ''
+    - name: mas_labels
+      type: string
+      default: ''
     - name: mas_domain
       type: string
     - name: avp_aws_secret_region
@@ -75,6 +82,10 @@ spec:
         value: $(params.mas_channel)
       - name: MAS_ANNOTATIONS
         value: $(params.mas_annotations)
+      - name: MAS_IMAGE_TAGS
+        value: $(params.mas_image_tags)
+      - name: MAS_LABELS
+        value: $(params.mas_labels)
       - name: SLS_CHANNEL
         value: $(params.sls_channel)
   steps:
@@ -111,6 +122,20 @@ spec:
           export MAS_DOMAIN=$MAS_INSTANCE_ID.$CUSTOM_DOMAIN
           echo "MAS_DOMAIN set to $MAS_DOMAIN"
         fi
+
+        echo "Image Tags ............................ ${MAS_IMAGE_TAGS}"
+        echo "Annotations ........................... ${MAS_ANNOTATIONS}"
+        echo "Labels ................................ ${MAS_LABELS}"
+
+        # Parse MAS variables from json to dict        
+        export MAS_ANNOTATIONS=$(echo '$MAS_ANNOTATIONS' | jq -R '.' | yq --yaml-output)
+        echo " MAS_ANNOTATIONS = $MAS_ANNOTATIONS"
+
+        export MAS_IMAGE_TAGS=$(echo '$MAS_IMAGE_TAGS' | jq -R  '.' | yq --yaml-output)
+        echo " MAS_IMAGE_TAGS = $MAS_IMAGE_TAGS"
+
+        export MAS_LABELS=$(echo '$MAS_LABELS' | jq -R  '.' | yq --yaml-output)
+        echo " MAS_LABELS = $MAS_LABELS"
 
         sed -n -e 's/^.*api.fvtsaas.//p' | cut -d: -f1
         mkdir -p /tmp/init-suite
