@@ -18,7 +18,7 @@ fi
 
 # Generate Summary
 # -----------------------------------------------------------------------------
-oc -n ${NAMESPACE} get pods -o wide > ${NAMESPACE_DIR}/pods.txt
+oc -n "${NAMESPACE}" get pods -o wide > "${NAMESPACE_DIR}/pods.txt" || { echo "    - Error generating pod summary"; exit 0; }
 
 # Generate Detailed Report
 # -----------------------------------------------------------------------------
@@ -38,15 +38,14 @@ do
     if [[ "$APP" == "$INSTANCE_ID" ]]; then
       APP=$(echo ${POD_NAME%-*}) #removing 2nd ID only
     fi
-    
   fi
 
   APP_DIR="${POD_DIR}/${APP}"
   mkdir -p $APP_DIR
 
   # Get summary information for pod
-  oc -n ${NAMESPACE} get ${POD} -o yaml > ${APP_DIR}/${POD_NAME}.yaml
-  oc -n ${NAMESPACE} describe ${POD} > ${APP_DIR}/${POD_NAME}.txt
+  oc -n "${NAMESPACE}" get "${POD}" -o yaml > "${APP_DIR}/${POD_NAME}.yaml" || { echo "    - Error fetching pod information for $POD_NAME"; exit 0; }
+  oc -n "${NAMESPACE}" describe "${POD}" > "${APP_DIR}/${POD_NAME}.txt" || { echo "    - Error describing pod $POD_NAME"; continue; }
 
   # Get container logs
   if [[ "$POD_LOGS" == "true" ]]
