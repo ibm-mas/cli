@@ -11,13 +11,16 @@ $DIR/mg-collect-mbgx-logs $NAMESPACE $OUTPUT_DIR
 # Collect Reconcile Logs
 # -----------------------------------------------------------------------------
 # Main IoT Component and workspace
-$DIR/mg-collect-reconcile-logs $NAMESPACE ibm-iot-operator $OUTPUT_DIR
-$DIR/mg-collect-reconcile-logs $NAMESPACE workspace-operator $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-iot-operator $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE control-plane workspace-operator $OUTPUT_DIR
+
+# Truststores
+$DIR/mg-collect-reconcile-logs $NAMESPACE operator ibm-truststore-mgr $OUTPUT_DIR
 
 # IoT Component Operator Reconcile logs
 for CONTROL_PLANE in actions-operator auth-operator datapower-operator devops-operator dm-operator dsc-operator edgeconfig-operator fpl-operator guardian-operator mbgx-operator mfgx-operator monitor-operator orgmgmt-operator provision-operator registry-operator state-operator webui-operator workspace-operator
 do
-  $DIR/mg-collect-reconcile-logs $NAMESPACE $CONTROL_PLANE $OUTPUT_DIR
+  $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane $CONTROL_PLANE $OUTPUT_DIR
 done
 
 # Collect IoT Custom Resources
