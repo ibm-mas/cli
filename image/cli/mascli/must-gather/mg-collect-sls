@@ -10,6 +10,9 @@ OUTPUT_DIR=$2
 # Primary Resources
 $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane controller-manager $OUTPUT_DIR
 
+# Truststores
+$DIR/mg-collect-reconcile-logs $NAMESPACE operator ibm-truststore-mgr $OUTPUT_DIR
+
 # Collect SLS Resources
 # -----------------------------------------------------------------------------
 for RESOURCE in LicenseService LicenseClient
