@@ -26,8 +26,16 @@ for POD in ${PODS[@]}; do
   # Extract POD_NAME and APP
   POD_NAME=$(echo "${POD}" | cut -d '/' -f 2)
   APP="$(oc -n "${NAMESPACE}" get "${POD}" -o jsonpath='{.metadata.labels.app}')"
+  
   if [[ "$APP" == "" ]]; then
-    APP="_other"
+    INSTANCE_ID=$(echo ${NAMESPACE%-*})
+    INSTANCE_ID=$(echo ${INSTANCE_ID#*-})
+    APP=$(echo ${POD_NAME%-*}) #removing 2nd ID
+    APP=$(echo ${APP%-*}) #removing 1st ID
+    
+    if [[ "$APP" == "$INSTANCE_ID" ]]; then
+      APP=$(echo ${POD_NAME%-*}) #removing 2nd ID only
+    fi
   fi
   APP_DIR="${POD_DIR}/${APP}"
   mkdir -p "$APP_DIR" || { echo "    - Error creating directory: $APP_DIR"; exit 0; }
