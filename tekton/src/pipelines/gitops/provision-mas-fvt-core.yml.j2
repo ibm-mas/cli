@@ -95,6 +95,15 @@ spec:
       type: string
     - name: partium_password
       type: string
+    - name: mas_workspace_id
+      type: string
+    - name: ibm_entitlement_key
+      type: string
+    - name: mas_catalog_version
+      type: string
+    - name: mas_trust_default_cas
+      type: string
+
   tasks:
 {% if wait_for_provision == true %}
     # 0. Wait for the provsion pipeline to complete
@@ -185,6 +194,14 @@ spec:
           value: $(params.partium_username)
         - name: partium_password
           value: $(params.partium_password)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
+        - name: mas_catalog_version
+          value: $(params.mas_catalog_version)
+        - name: mas_trust_default_cas
+          value: $(params.mas_trust_default_cas)
       workspaces:
         - name: configs
           workspace: configs

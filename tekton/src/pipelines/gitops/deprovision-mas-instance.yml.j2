@@ -66,6 +66,8 @@ spec:
       default: ""
   tasks:
     - name: gitops-deprovision-suite-smtp-config
+      runAfter:
+        - gitops-deprovision-suite-workspace
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -98,6 +100,8 @@ spec:
         - name: configs
           workspace: configs
     - name: gitops-deprovision-suite-idp-config
+      runAfter:
+        - gitops-deprovision-suite-workspace
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -235,7 +239,6 @@ spec:
           workspace: configs
     - name: gitops-process-mongo-user
       runAfter:
-        - gitops-deprovision-suite-workspace
         - gitops-deprovision-suite-smtp-config
         - gitops-deprovision-suite-idp-config
       params:
