@@ -40,8 +40,6 @@ for POD in ${PODS[@]}; do
   APP_DIR="${POD_DIR}/${APP}"
   mkdir -p "$APP_DIR" || { echo "    - Error creating directory: $APP_DIR"; exit 0; }
   
-  echo "  - testing"
-  
   # Get summary information for pod
   oc -n "${NAMESPACE}" get "${POD}" -o yaml > "${APP_DIR}/${POD_NAME}.yaml" || { echo "    - Error fetching pod information for $POD_NAME"; exit 0; }
   oc -n "${NAMESPACE}" describe "${POD}" > "${APP_DIR}/${POD_NAME}.txt" || { echo "    - Error describing pod $POD_NAME"; continue; }
