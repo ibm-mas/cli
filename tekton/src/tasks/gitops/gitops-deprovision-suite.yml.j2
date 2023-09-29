@@ -102,7 +102,7 @@ spec:
         - /bin/sh
         - -c
       name: gitops-deprovision-suite
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:6.4.0-pre.gitops
   workspaces:
     - name: configs
