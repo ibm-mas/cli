@@ -300,7 +300,7 @@ function gitops_init_suite_smtp_config() {
     argocd_sync ${CLUSTER_ID}-watcher
     argocd_hard_refresh mas-${MAS_INSTANCE_ID}-smtp-config
     check_argo_app_synced mas-${MAS_INSTANCE_ID}-smtp-config ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-core
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-smtp-config
+    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-smtp-config ${CLUSTER_ID}-watcher
   fi
 
   rm -rf $TEMP_DIR
