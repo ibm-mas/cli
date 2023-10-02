@@ -38,6 +38,7 @@
         - nvidia-gpu
         - ocp-verify
         - ocs
+        - sls-registry-update
         - sls
         - turbonomic
         - uds
