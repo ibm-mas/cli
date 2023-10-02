@@ -37,16 +37,6 @@ spec:
       type: string
       default: ""
 
-    # Whether to install SPSS Statistics or not (Optional for Predict app)
-    - name: cpd_install_spss
-      type: string
-      default: "False"
-
-    # Whether to install Watson OpenScale or not (Optional for Predict app)
-    - name: cpd_install_openscale
-      type: string
-      default: "False"
-
     - name: mas_instance_id
       type: string
       description: Instance ID
@@ -84,10 +74,6 @@ spec:
 
       - name: CPD_WSL_PROJECT_NAME
         value: $(params.cpd_wsl_project_name)
-      - name: CPD_INSTALL_SPSS
-        value: $(params.cpd_install_spss)
-      - name: CPD_INSTALL_OPENSCALE
-        value: $(params.cpd_install_openscale)
   steps:
     - name: cp4d-service
       command:
