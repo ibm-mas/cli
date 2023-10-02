@@ -50,7 +50,10 @@ Maximo Application Suite Application Selection (Optional):
       --optimizer-plan ${COLOR_YELLOW}MAS_APP_PLAN_OPTIMIZER${TEXT_RESET}                      Installation plan for Maximo Optimizer (full or limited)
 
 IBM Cloud Pak for Data (Required when installing Predict or Assist):
-      --cp4d-version ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}                                  Product version of CP4D to use
+      --cp4d-version ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}                                  Product version of IBM Cloud Pak for Data to use
+      --cp4d-install-spss                                                                      Includes SPSS service to be installed as part of IBM Cloud Pak for Data (Optional if Predict is being installed)
+      --cp4d-install-openscale                                                                 Includes Watson Openscale service to be installed as part of IBM Cloud Pak for Data (Optional if Predict is being installed)
+      --cp4d-install-cognos                                                                    Includes Cognos Analytics service to be installed as part of IBM Cloud Pak for Data (Optional if Manage is being installed)
 
 Kafka (Required to install Maximo IoT thus if not set, a default Kafka provider will be installed):
       --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}                              Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), 'strimzi', 'ibm' (IBM Cloud Event Streams) and 'aws' (AWS MSK)
@@ -97,6 +100,23 @@ Advanced MongoDB Configuration (Optional):
 
 Cloud Provider Commands:
       --ibmcloud-apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                            Set IBM Cloud API Key (Required to provision IBM Cloud services)
+
+Manage Application - Advanced Configuration (Optional):
+
+      --manage-demodata                                                                                                   Enables demo data for Manage application
+      --manage-jms                                                                                                        Enables JMS queues using local persistent volumes
+      --manage-server-bundle-size ${COLOR_YELLOW}MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE${TEXT_RESET}                        Set Manage server bundle size configuration i.e 'dev', 'small', 'jms' or 'snojms'
+      --manage-components ${COLOR_YELLOW}MAS_APPWS_COMPONENTS${TEXT_RESET}                                                Set Manage Components to be installed i.e 'base=latest,health=latest,civil=latest'                     
+      --manage-customization-archive-name ${COLOR_YELLOW}MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME${TEXT_RESET}         Set Manage Archive name
+      --manage-customization-archive-url ${COLOR_YELLOW}MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL${TEXT_RESET}           Set Manage Archive url
+      --manage-customization-archive-username ${COLOR_YELLOW}MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME${TEXT_RESET} Set Manage Archive username, in case url requires basic authentication to pull the archive
+      --manage-customization-archive-password ${COLOR_YELLOW}MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD${TEXT_RESET} Set Manage Archive password, in case url requires basic authentication to download the archive
+      --manage-crypto-key ${COLOR_YELLOW}MAS_APP_SETTINGS_CRYPTO_KEY${TEXT_RESET}                                         Set 'MXE_SECURITY_CRYPTO_KEY' value if you want to customize your Manage database encryption keys
+      --manage-cryptox-key ${COLOR_YELLOW}MAS_APP_SETTINGS_CRYPTOX_KEY${TEXT_RESET}                                       Set 'MXE_SECURITY_CRYPTOX_KEY' value if you want to customize your Manage database encryption keys
+      --manage-old-crypto-key ${COLOR_YELLOW}MAS_APP_SETTINGS_OLD_CRYPTO_KEY${TEXT_RESET}                                 Set 'MXE_SECURITY_OLD_CRYPTO_KEY' value if you want to customize your Manage database encryption keys
+      --manage-old-cryptox-key ${COLOR_YELLOW}MAS_APP_SETTINGS_OLD_CRYPTOX_KEY${TEXT_RESET}                               Set 'MXE_SECURITY_OLD_CRYPTOX_KEY' value if you want to customize your Manage database encryption keys                     
+      --manage-override-encryption-secrets                                                                                Overrides any existing Manage database encryption keys. A backup of the original secret holding existing encryption keys is taken prior overriding it with the new defined keys.
+
 
 Other Commands:
       --dev-mode                                                   Enable developer mode (e.g. for access to pre-release builds)
@@ -205,6 +225,7 @@ function install_noninteractive() {
 
     # Applications
     --assist-channel)
+    export DEPLOY_CP4D=run
     export MAS_APP_CHANNEL_ASSIST=$1 && shift
     ;;
     --iot-channel)
@@ -217,6 +238,7 @@ function install_noninteractive() {
     export MAS_APP_CHANNEL_MANAGE=$1 && shift
     ;;
     --predict-channel)
+    export DEPLOY_CP4D=run
     export MAS_APP_CHANNEL_PREDICT=$1 && shift
     ;;
     --visualinspection-channel)
@@ -232,6 +254,18 @@ function install_noninteractive() {
     # Dependencies - CP4D
     --cp4d-version)
     export CP4D_VERSION=$1 && shift
+    ;;
+    --cp4d-install-spss)
+    export CPD_INSTALL_SPSS=true
+    ;;
+    --cp4d-install-openscale)
+    export CPD_INSTALL_OPENSCALE=true
+    ;;
+    --cp4d-install-cognos)
+    if [[ "$MAS_APP_CHANNEL_MANAGE" != "" ]]; then
+      export CPD_INSTALL_COGNOS=true
+      export DEPLOY_CP4D=run
+    fi
     ;;
 
     # Dependencies - Db2
@@ -397,6 +431,16 @@ function install_noninteractive() {
     # Manage commands - Server bundle configuration
     --manage-server-bundle-size)
     export MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE=$1 && shift
+    ;;
+
+    --manage-jms)
+    export MAS_APP_SETTINGS_DEFAULT_JMS=true
+    export MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
+    export MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE=jms
+    ;;
+
+    --manage-demodata)
+    export MAS_APP_SETTINGS_DEMODATA=true
     ;;
 
     --manage-jdbc)
