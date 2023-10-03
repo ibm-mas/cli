@@ -25,6 +25,13 @@ spec:
     - name: ibm_entitlement_key
       value: '$IBM_ENTITLEMENT_KEY'
 
+    # IBM Cloud
+    # -------------------------------------------------------------------------
+    - name: ibmcloud_apikey
+      value: '$IBMCLOUD_APIKEY'
+    - name: ibmcloud_resourcegroup
+      value: '$IBMCLOUD_RESOURCEGROUP'
+
     # Storage Classes
     # -------------------------------------------------------------------------
     - name: storage_class_rwx
@@ -204,6 +211,8 @@ spec:
       value: '$CPD_INSTALL_SPSS'
     - name: cpd_install_openscale
       value: '$CPD_INSTALL_OPENSCALE'
+    - name: cpd_install_cognos
+      value: '$CPD_INSTALL_COGNOS'
 
     # Dependencies - SLS
     # -------------------------------------------------------------------------
@@ -242,8 +251,12 @@ spec:
     # -------------------------------------------------------------------------
     - name: cos_type
       value: '$COS_TYPE'
-    - name: ibmcloud_apikey
-      value: '$IBMCLOUD_APIKEY'
+    - name: ibmcos_resourcegroup
+      value: '$IBMCOS_RESOURCEGROUP'
+    - name: ibmcos_instance_name
+      value: '$COS_INSTANCE_NAME'
+    - name: cos_action
+      value: '$COS_ACTION'
 
     # MAS Catalog
     # -------------------------------------------------------------------------

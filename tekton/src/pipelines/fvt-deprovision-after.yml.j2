@@ -19,6 +19,11 @@ spec:
       type: string
       default: IfNotPresent
 
+    # MAS config
+    - name: mas_instance_id
+      type: string
+      default: ""
+
     # Cluster to deprovision
     - name: cluster_name
       type: string
@@ -27,10 +32,44 @@ spec:
       type: string
       default: "roks"
 
+    # IBM Cloud
     - name: ibmcloud_apikey
       type: string
       default: ""
+    - name: ibmcloud_resourcegroup
+      type: string
+      default: ""
+    
+    # COS
+    - name: ibmcos_resourcegroup
+      type: string
+      default: ""
+    - name: ibmcos_instance_name
+      type: string
+      default: ""
+    - name: cos_type
+      type: string
+      default: ""
+    - name: cos_action
+      type: string
+      default: ""
 
+    # IBM Event Streams
+    - name: eventstreams_resourcegroup
+      type: string
+      default: ""
+    - name: eventstreams_name
+      type: string
+      default: ""
+    - name: eventstreams_location
+      type: string
+      default: ""
+    - name: kafka_provider
+      type: string
+      default: ""
+    - name: kafka_action_system
+      type: string
+      default: ""
 
   tasks:
     # 0. Wait for the named pipeline to complete
@@ -45,8 +84,20 @@ spec:
         - name: ignore_failure
           value: $(params.ignore_failure)
 
+    # 1. Delete IBM Cloud services
+    # -------------------------------------------------------------------------
+    
+    # COS
+    {{ lookup('template', 'taskdefs/dependencies/cos-deprovision.yml.j2') | indent(4) }}
+      runAfter:
+        - wait-for-pipelinerun
 
-    # 1. Delete the named cluster
+    # Event Streams
+    {{ lookup('template', 'taskdefs/dependencies/kafka-deprovision.yml.j2') | indent(4) }}
+      runAfter:
+        - wait-for-pipelinerun
+
+    # 2. Delete the named cluster
     # -------------------------------------------------------------------------
     - name: deprovision-cluster
       taskRef:
@@ -60,4 +111,5 @@ spec:
         - name: ibmcloud_apikey
           value: $(params.ibmcloud_apikey)
       runAfter:
-        - wait-for-pipelinerun
+        - cos-deprovision
+        - kafka-deprovision

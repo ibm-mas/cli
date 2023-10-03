@@ -1,3 +1,12 @@
+# IBM Cloud
+# -----------------------------------------------------------------------------
+- name: ibmcloud_apikey
+  type: string
+  default: ""
+- name: ibmcloud_resourcegroup
+  type: string
+  default: ""
+
 # Dependencies - Turbonomic
 # -----------------------------------------------------------------------------
 {{ lookup('template', params_src_dir ~ '/install-turbonomic.yml.j2') }}
@@ -206,30 +215,15 @@
 - name: cpd_product_version
   type: string
   default: ""
-- name: cpd_wd_storage_class
-  type: string
-  default: ""
-- name: cpd_wml_storage_class
-  type: string
-  default: ""
-- name: cpd_spark_storage_class
-  type: string
-  default: ""
-- name: cpd_wsl_storage_class
-  type: string
-  default: ""
-- name: cpd_aiopenscale_storage_class
-  type: string
-  default: ""
-- name: cpd_spss_storage_class
-  type: string
-  default: ""
 - name: cpd_install_spss
   type: string
-  default: "False"
+  default: ""
 - name: cpd_install_openscale
   type: string
-  default: "False"
+  default: ""
+- name: cpd_install_cognos
+  type: string
+  default: ""
 
 # Dependencies - UDS
 # -----------------------------------------------------------------------------
@@ -259,9 +253,17 @@
   type: string
   description: COS Provider (ibm or ocs)
   default: ""
-- name: ibmcloud_apikey
+- name: ibmcos_resourcegroup
   type: string
-  description: API Key used to create COS instance in IBM Cloud
+  description: Name of an existing COS Resource Group in IBM Cloud account
+  default: ""
+- name: ibmcos_instance_name
+  type: string
+  description: Name of COS instance in IBM Cloud account
+  default: ""
+- name: cos_action
+  type: string
+  description: COS action to be performed (provision or deprovision)
   default: ""
 - name: cos_setup_for_manage_attachments
   type: string

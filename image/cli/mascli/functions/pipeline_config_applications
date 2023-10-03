@@ -2,6 +2,9 @@
 
 function channel_select_iot() {
   case $MAS_CHANNEL in
+    8.11.x)
+      MAS_APP_CHANNEL_IOT=8.8.x
+      ;;
     8.10.x)
       MAS_APP_CHANNEL_IOT=8.7.x
       ;;
@@ -17,6 +20,9 @@ function channel_select_iot() {
 
 function channel_select_monitor() {
   case $MAS_CHANNEL in
+    8.11.x)
+      MAS_APP_CHANNEL_MONITOR=8.11.x
+      ;;
     8.10.x)
       MAS_APP_CHANNEL_MONITOR=8.10.x
       ;;
@@ -32,6 +38,9 @@ function channel_select_monitor() {
 
 function channel_select_manage() {
   case $MAS_CHANNEL in
+    8.11.x)
+      MAS_APP_CHANNEL_MANAGE=8.7.x
+      ;;
     8.10.x)
       MAS_APP_CHANNEL_MANAGE=8.6.x
       ;;
@@ -47,6 +56,9 @@ function channel_select_manage() {
 
 function channel_select_predict() {
   case $MAS_CHANNEL in
+    8.11.x)
+      MAS_APP_CHANNEL_PREDICT=8.9.x
+      ;;
     8.10.x)
       MAS_APP_CHANNEL_PREDICT=8.8.x
       ;;
@@ -63,6 +75,9 @@ function channel_select_predict() {
 
 function channel_select_optimizer() {
   case $MAS_CHANNEL in
+    8.11.x)
+      MAS_APP_CHANNEL_OPTIMIZER=8.5.x
+      ;;
     8.10.x)
       MAS_APP_CHANNEL_OPTIMIZER=8.4.x
       ;;
@@ -78,6 +93,9 @@ function channel_select_optimizer() {
 
 function channel_select_assist() {
   case $MAS_CHANNEL in
+    8.11.x)
+      MAS_APP_CHANNEL_ASSIST=8.8.x
+      ;;
     8.10.x)
       MAS_APP_CHANNEL_ASSIST=8.7.x
       ;;
@@ -93,6 +111,9 @@ function channel_select_assist() {
 
 function channel_select_visualinspection() {
   case $MAS_CHANNEL in
+    8.11.x)
+      MAS_APP_CHANNEL_VISUALINSPECTION=8.9.x
+      ;;
     8.10.x)
       MAS_APP_CHANNEL_VISUALINSPECTION=8.8.x
       ;;
@@ -151,7 +172,7 @@ function config_pipeline_applications() {
     if prompt_for_confirm "Install Assist?"; then
       channel_select_assist || exit 1
     fi
-
+    
     if prompt_for_confirm "Install Optimizer?"; then
       channel_select_optimizer || exit 1
     fi
@@ -187,8 +208,8 @@ function assist_settings() {
     [[ "$COS_TYPE" != "ibm" && "$COS_TYPE" != "ocs" ]] || break
   done
   if [[ "$COS_TYPE" == "ibm" ]]; then
-    prompt_for_input "IBM Cloud API Key" IBMCLOUD_APIKEY $IBMCLOUD_APIKEY
-    prompt_for_input "IBM Cloud Resource Group" IBMCLOUD_RESOURCEGROUP $IBMCLOUD_RESOURCEGROUP "Default"
+    prompt_for_secret "IBM Cloud API Key" IBMCLOUD_APIKEY $IBMCLOUD_APIKEY
+    prompt_for_input "IBM Cloud Resource Group" IBMCOS_RESOURCEGROUP $IBMCOS_RESOURCEGROUP "Default"
   fi
 }
 
@@ -223,6 +244,14 @@ function manage_settings() {
     prompt_for_input "Manage components to be installed" MAS_APPWS_COMPONENTS
     if [[ -z "$MAS_APPWS_COMPONENTS" ]]; then
       MAS_APPWS_COMPONENTS="base=latest,health=latest"
+    fi
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"it="* ]]; then
+      echo_h4 "Maximo IT License Terms"
+      echo -e "${COLOR_YELLOW}For information about your Maximo IT License, see "https://ibm.biz/MAXIT81-License". To continue with the installation, you must accept the license terms."
+      prompt_for_confirm_default_yes "Do you accept the license terms?" LICENSE_RESPONSE
+      if [[ "$LICENSE_RESPONSE" == "false" ]]; then
+        exit 1
+      fi
     fi
   fi
 
@@ -269,6 +298,17 @@ function manage_settings() {
     fi
   fi
 
+  echo
+  echo_h4 "Manage Settings - Cognos Analytics"
+  echo "${TEXT_DIM}Manage application supports the integration with Cognos Analytics for reporting features which is an optional service installed on top of IBM Cloud Pak for Data. Unless requested these will not be installed."
+  echo "Once Manage application and Cognos Analytics are installed, you will be able to configure the Manage & Cognos integration following this documentation: https://ibm.biz/BdMuxs"
+  reset_colors
+  echo
+  if prompt_for_confirm "Install Cognos Analytics"; then
+    CPD_INSTALL_COGNOS=true
+    DEPLOY_CP4D=run
+  fi
+
   # Manage Settings - Attachments
   # TODO after https://github.com/ibm-mas/ansible-devops/issues/1010
   # Following vars should be set depending on answers here
@@ -301,7 +341,7 @@ function manage_settings() {
 function predict_settings() {
   echo
   echo_h3 "Configure Maximo Predict"
-  echo "${TEXT_DIM}Predict supports the use of optional services in IBM Cloud Pak for Data.  Unless requested these will not be installed with Cloud Pak for Data."
+  echo "${TEXT_DIM}Predict application supports the integration with IBM SPSS and Watson Openscale which are optional services installed on top of IBM Cloud Pak for Data. Unless requested these will not be installed."
   reset_colors
   echo
   if prompt_for_confirm "Install IBM SPSS Statistics"; then

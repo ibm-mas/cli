@@ -36,6 +36,7 @@
       values: [""]
   runAfter:
     - ivtcore-monitor
+    - cv-monitor
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -78,7 +79,9 @@
       values: [""]
   runAfter:
     - ivtcore-monitor
+    - cv-monitor
     - ivtcore-manage
+    - cv-manage
   workspaces:
     - name: configs
       workspace: shared-configs

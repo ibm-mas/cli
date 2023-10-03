@@ -8,11 +8,15 @@
       value: $(params.ibm_entitlement_key)
     - name: cpd_product_version
       value: $(params.cpd_product_version)
+    - name: cpd_primary_storage_class
+      value: $(params.storage_class_rwx)
+    - name: cpd_metadata_storage_class
+      value: $(params.storage_class_rwo)
   taskRef:
     kind: Task
     name: mas-devops-cp4d
   # Only needed if either Predict, HPUtilities or Assist are being installed
   when:
-    - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)$(params.mas_app_channel_assist)$(params.mas_appws_bindings_health_wsl_flag)"
+    - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)$(params.mas_app_channel_assist)$(params.mas_appws_bindings_health_wsl_flag)$(params.cpd_install_cognos)"
       operator: notin
       values: [""]

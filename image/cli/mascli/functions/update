@@ -112,6 +112,15 @@ function update() {
   echo_h4 "IBM Operator Catalog" "    "
   echo_reset_dim "Catalog Version ..................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
 
+  # In SLS 3.8.0 registry was changed to icr.io/cpopen, however
+  # when updating from a previous version it would not automatically
+  # change the value from cp.icr.io/cp hence we need to patch it
+  if [[ "$MAS_CATALOG_VERSION" == "v8-230926-amd64" ]]; then
+    UPDATE_SLS_REGISTRY="true"
+  else
+    UPDATE_SLS_REGISTRY="false"
+  fi
+
   echo
   reset_colors
   if [[ "$NO_CONFIRM" != "true" ]]; then

@@ -109,6 +109,8 @@ function kafka_for_iot() {
 
       # Check if a configuration already exists
       kafka_cfg_file=$LOCAL_MAS_CONFIG_DIR/kafka-$MAS_INSTANCE_ID-system.yaml
+      echo "${TEXT_DIM}Searching for system Kafka configuration file in $kafka_cfg_file ..."
+      reset_colors
       echo
       if [ ! -e "$kafka_cfg_file" ]; then
         echo_warning "Error: Kafka configuration file does not exist: '$kafka_cfg_file'"
@@ -127,7 +129,7 @@ function kafka_for_iot() {
 function config_pipeline_kafka() {
   echo
   echo_h2 "Configure Kafka"
-  echo "${TEXT_DIM}The installer can setup one Kafka provider instance (in your OpenShift cluster or in an IBM Cloud account) for the use of applications that require a Kafka configuration (e.g IoT) or you may choose to configure MAS to use an existing Kafka instance."
+  echo "${TEXT_DIM}The installer can setup one Kafka provider instance (in your OpenShift cluster or in the chosen cloud provider account) for the use of applications that require a Kafka configuration (e.g IoT) or you may choose to configure MAS to use an existing Kafka instance."
   echo
   reset_colors
   
