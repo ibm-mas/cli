@@ -42,14 +42,14 @@ function config_pipeline_storage_classes() {
   echo ""
   reset_colors
   # 1. ROKS
-  oc get storageclass ibmc-file-gold &>> $LOGFILE
+  oc get storageclass ibmc-file-gold-gid &>> $LOGFILE
   if [[ $? == "0" ]]; then
     echo -e "${COLOR_GREEN}Storage provider auto-detected: IBMCloud ROKS${COLOR_RESET}"
     echo "${TEXT_DIM}  - Storage class (ReadWriteOnce): ibmc-block-gold"
-    echo "${TEXT_DIM}  - Storage class (ReadWriteMany): ibmc-file-gold"
+    echo "${TEXT_DIM}  - Storage class (ReadWriteMany): ibmc-file-gold-gid"
     STORAGE_CLASS_PROVIDER=ibmc
     STORAGE_CLASS_RWO=ibmc-block-gold
-    STORAGE_CLASS_RWX=ibmc-file-gold
+    STORAGE_CLASS_RWX=ibmc-file-gold-gid
   fi
 
   # 2. OCS

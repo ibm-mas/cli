@@ -8,6 +8,28 @@
       value: ibm-mas-assist
     - name: product_channel
       value: $(params.mas_app_channel_assist)
+    - name: test_suite
+      value: coreivt
+  when:
+    - input: "$(params.ivt_digest_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - app-cfg-assist
+
+- name: cv-assist
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas-assist
+    - name: product_channel
+      value: $(params.mas_app_channel_assist)
+    - name: test_suite
+      value: contentverification
   when:
     - input: "$(params.ivt_digest_core)"
       operator: notin
@@ -29,6 +51,28 @@
       value: ibm-mas-hputilities
     - name: product_channel
       value: $(params.mas_app_channel_hputilities)
+    - name: test_suite
+      value: coreivt
+  when:
+    - input: "$(params.ivt_digest_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_hputilities)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - app-cfg-hputilities
+
+- name: cv-hputilities
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas-hputilities
+    - name: product_channel
+      value: $(params.mas_app_channel_hputilities)
+    - name: test_suite
+      value: contentverification
   when:
     - input: "$(params.ivt_digest_core)"
       operator: notin
@@ -50,6 +94,28 @@
       value: ibm-mas-iot
     - name: product_channel
       value: $(params.mas_app_channel_iot)
+    - name: test_suite
+      value: coreivt
+  when:
+    - input: "$(params.ivt_digest_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_iot)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - app-cfg-iot
+
+- name: cv-iot
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas-iot
+    - name: product_channel
+      value: $(params.mas_app_channel_iot)
+    - name: test_suite
+      value: contentverification
   when:
     - input: "$(params.ivt_digest_core)"
       operator: notin
@@ -61,7 +127,50 @@
     - app-cfg-iot
 
 
-# IVT 4: Core x Monitor
+# IVT 4: Core x Manage
+# -------------------------------------------------------------------------
+- name: ivtcore-manage
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas-manage
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: test_suite
+      value: coreivt
+  when:
+    - input: "$(params.ivt_digest_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - manage-setup-doclinks
+
+- name: cv-manage
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas-manage
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: test_suite
+      value: contentverification
+  when:
+    - input: "$(params.ivt_digest_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - manage-setup-doclinks
+
+
+# IVT 5: Core x Monitor
 # -------------------------------------------------------------------------
 - name: ivtcore-monitor
   {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
@@ -71,6 +180,28 @@
       value: ibm-mas-monitor
     - name: product_channel
       value: $(params.mas_app_channel_monitor)
+    - name: test_suite
+      value: coreivt
+  when:
+    - input: "$(params.ivt_digest_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_monitor)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - app-cfg-monitor
+
+- name: cv-monitor
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas-monitor
+    - name: product_channel
+      value: $(params.mas_app_channel_monitor)
+    - name: test_suite
+      value: contentverification
   when:
     - input: "$(params.ivt_digest_core)"
       operator: notin
@@ -82,7 +213,7 @@
     - app-cfg-monitor
 
 
-# IVT 5: Core x Optimizer
+# IVT 6: Core x Optimizer
 # -------------------------------------------------------------------------
 - name: ivtcore-optimizer
   {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
@@ -92,6 +223,28 @@
       value: ibm-mas-optimizer
     - name: product_channel
       value: $(params.mas_app_channel_optimizer)
+    - name: test_suite
+      value: coreivt
+  when:
+    - input: "$(params.ivt_digest_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_optimizer)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - app-cfg-optimizer
+
+- name: cv-optimizer
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas-optimizer
+    - name: product_channel
+      value: $(params.mas_app_channel_optimizer)
+    - name: test_suite
+      value: contentverification
   when:
     - input: "$(params.ivt_digest_core)"
       operator: notin
@@ -103,7 +256,7 @@
     - app-cfg-optimizer
 
 
-# IVT 6: Core x Predict
+# IVT 7: Core x Predict
 # -------------------------------------------------------------------------
 - name: ivtcore-predict
   {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
@@ -113,6 +266,28 @@
       value: ibm-mas-predict
     - name: product_channel
       value: $(params.mas_app_channel_predict)
+    - name: test_suite
+      value: coreivt
+  when:
+    - input: "$(params.ivt_digest_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_predict)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - app-cfg-predict
+
+- name: cv-predict
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas-predict
+    - name: product_channel
+      value: $(params.mas_app_channel_predict)
+    - name: test_suite
+      value: contentverification
   when:
     - input: "$(params.ivt_digest_core)"
       operator: notin
@@ -124,7 +299,7 @@
     - app-cfg-predict
 
 
-# IVT 7: Core x Visual Inspection
+# IVT 8: Core x Visual Inspection
 # -------------------------------------------------------------------------
 - name: ivtcore-visualinspection
   {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
@@ -134,6 +309,28 @@
       value: ibm-mas-visualinspection
     - name: product_channel
       value: $(params.mas_app_channel_visualinspection)
+    - name: test_suite
+      value: coreivt
+  when:
+    - input: "$(params.ivt_digest_core)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_visualinspection)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - app-cfg-visualinspection
+
+- name: cv-visualinspection
+  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    - name: product_id
+      value: ibm-mas-visualinspection
+    - name: product_channel
+      value: $(params.mas_app_channel_visualinspection)
+    - name: test_suite
+      value: contentverification
   when:
     - input: "$(params.ivt_digest_core)"
       operator: notin

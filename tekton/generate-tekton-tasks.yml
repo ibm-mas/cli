@@ -38,6 +38,7 @@
         - nvidia-gpu
         - ocp-verify
         - ocs
+        - sls-registry-update
         - sls
         - turbonomic
         - dro
@@ -70,6 +71,7 @@
         src: "{{ task_src_dir }}/ivt/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
+        - ivt-core
         - ivt-manage-monitor-dd
 
     # 5. Generate Tasks (Suite)

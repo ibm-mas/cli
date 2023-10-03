@@ -12,6 +12,6 @@ do
   $DIR/mg-collect-resources -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
 done
 
-$DIR/mg-collect-pods -n $NAMESPACE true -d $OUTPUT_DIR/resources
+$DIR/mg-collect-pods $NAMESPACE true $OUTPUT_DIR/resources
 
 exit 0
