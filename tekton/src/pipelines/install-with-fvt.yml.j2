@@ -202,7 +202,7 @@ spec:
     {{ lookup('template', 'taskdefs/core/suite-install.yml.j2') | indent(4) }}
       runAfter:
         - sls
-        - uds
+        - dro
         - gencfg-workspace
         - suite-certs
 
