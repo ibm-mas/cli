@@ -310,7 +310,12 @@ function delete_oc_resource(){
   echo " RESOURCE_NAME $RESOURCE_NAME "
   if [ -n "$RESOURCE_NAME" ]; then
     echo " oc delete resource $RESOURCE in namepsace $NAMESPACE "
-    oc delete $RESOURCE -n $NAMESPACE
+    oc delete $RESOURCE -n $NAMESPACE --timeout=300s
+    return_code=$?
+    if [ $return_code -ne 0 ]; then
+      echo " oc patch $RESOURCE -n $NAMESPACE "
+      oc patch $RESOURCE -n $NAMESPACE --type="json" -p '[{"op": "remove", "path":"/metadata/finalizers"}]' 2>/dev/null
+    fi
   fi
   
 }
