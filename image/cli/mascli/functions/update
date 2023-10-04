@@ -15,6 +15,7 @@ Maximo Operator Catalog Selection (Required):
 Update Dependencies (Optional):
   --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}        DB2 namespace where instances update will be performed
   --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET} Namespace where MongoCE operator and instance will be updated
+  --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET} Namespace where Kafka operator and instance will be updated
 
 Other Commands:
       --no-confirm                      Mirror images without prompting for confirmation
@@ -40,6 +41,9 @@ function update_noninteractive() {
         ;;
       --mongodb-namespace)
         MONGODB_NAMESPACE=$1 && shift
+        ;;
+      --kafka-namespace)
+        KAFKA_NAMESPACE=$1 && shift
         ;;
       --no-confirm)
         NO_CONFIRM=true
@@ -89,6 +93,12 @@ function update_interactive() {
   if [ "$?" == "0" ]; then
     echo -e "${COLOR_GREEN}MongoDB Community Edition has been detected in ${MONGODB_NAMESPACE} and will be updated as needed.${COLOR_RESET}"
   fi
+
+  # Detect Kafka in cluster and set namespace
+  KAFKA_NAMESPACE=`oc get Kafka -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+  if [ "$?" == "0" ]; then
+    echo -e "${COLOR_GREEN}Kafka has been detected in ${KAFKA_NAMESPACE} and will be updated as needed.${COLOR_RESET}"
+  fi
 }
 
 
@@ -104,6 +114,7 @@ function update() {
   export MAS_CATALOG_VERSION
   export DB2_NAMESPACE
   export MONGODB_NAMESPACE
+  export KAFKA_NAMESPACE
   echo
   reset_colors
   echo_h2 "Review Settings"
