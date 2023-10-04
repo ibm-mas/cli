@@ -19,7 +19,7 @@ spec:
             mas_instance_id: {{ MAS_INSTANCE_ID }}
             suite_kafka_username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_KAFKA_USERNAME }}>
             suite_kafka_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_KAFKA_PASSWORD }}>
-            suite_kafka_secret_name: aws-msk-credentials-{{ MAS_INSTANCE_ID }}
+            suite_kafka_secret_name: {{ MAS_INSTANCE_ID }}-usersupplied-kafka-creds-system
             kafka_config:
               config:
                 hosts:
@@ -28,7 +28,7 @@ spec:
                     port: {{ kafka_host.port }}
                   {% endfor %}
                 credentials:
-                  secretName: "aws-msk-credentials-{{ MAS_INSTANCE_ID }}"
+                  secretName: "{{ MAS_INSTANCE_ID }}-usersupplied-kafka-creds-system"
                 saslMechanism: SCRAM-SHA-512
               certificates:
                 {% for kafka_certificate in certificates -%}
