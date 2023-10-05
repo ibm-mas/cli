@@ -2,7 +2,7 @@
 
 ansible-galaxy collection install -r /tmp/install-ansible/requirements.yml -p $ANSIBLE_COLLECTIONS_PATH
 
-git clone -b MASCORE-24 https://github.com/YuvrajVansure/ansible-devops.git
+git clone -b MASCORE-24 https://github.com/yuvraj-vansure/ansible-devops.git
 export ANSIBLE_DEVOPS_PATH=ansible-devops/ibm/mas_devops
 
 cd $ANSIBLE_DEVOPS_PATH
