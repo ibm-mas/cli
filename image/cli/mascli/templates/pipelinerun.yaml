@@ -211,6 +211,8 @@ spec:
       value: '$CPD_INSTALL_SPSS'
     - name: cpd_install_openscale
       value: '$CPD_INSTALL_OPENSCALE'
+    - name: cpd_install_cognos
+      value: '$CPD_INSTALL_COGNOS'
 
     # Dependencies - SLS
     # -------------------------------------------------------------------------
