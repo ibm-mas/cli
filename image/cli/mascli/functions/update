@@ -95,7 +95,7 @@ function update_interactive() {
   fi
 
   # Detect Kafka in cluster and set namespace
-  KAFKA_NAMESPACE=`oc get Kafka.kafka.strimizi.io -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+  KAFKA_NAMESPACE=`oc get Kafka.kafka.strimzi.io -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
   if [ "$?" == "0" ]; then
     echo -e "${COLOR_GREEN}Kafka has been detected in ${KAFKA_NAMESPACE} and will be updated as needed.${COLOR_RESET}"
   fi
