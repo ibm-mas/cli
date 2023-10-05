@@ -17,6 +17,9 @@ Entitlement & Licensing (Required):
       --uds-email ${COLOR_YELLOW}UDS_CONTACT_EMAIL${TEXT_RESET}                                Contact e-mail address
       --uds-firstname ${COLOR_YELLOW}UDS_CONTACT_FIRSTNAME${TEXT_RESET}                        Contact first name
       --uds-lastname ${COLOR_YELLOW}UDS_CONTACT_LASTNAME${TEXT_RESET}                          Contact last name
+      --dro-email ${COLOR_YELLOW}DRO_CONTACT_EMAIL${TEXT_RESET}                                Contact e-mail address
+      --dro-firstname ${COLOR_YELLOW}DRO_CONTACT_FIRSTNAME${TEXT_RESET}                        Contact first name
+      --dro-lastname ${COLOR_YELLOW}DRO_CONTACT_LASTNAME${TEXT_RESET}                          Contact last name
 
 Storage Class Selection (Required):
       --storage-rwo ${COLOR_YELLOW}STORAGE_CLASS_RWO${TEXT_RESET}                              Read Write Once (RWO) storage class (e.g. ibmc-block-gold)
@@ -422,7 +425,15 @@ function install_noninteractive() {
     --uds-lastname)
     export UDS_CONTACT_LASTNAME=$1 && shift
     ;;
-
+   --dro-email)
+    export DRO_CONTACT_EMAIL=$1 && shift
+    ;;
+    --dro-firstname)
+    export DRO_CONTACT_FIRSTNAME=$1 && shift
+    ;;
+    --dro-lastname)
+    export DRO_CONTACT_LASTNAME=$1 && shift
+    ;;
     # MongoDB
     --mongodb-namespace)
     export MONGODB_NAMESPACE=$1 && shift
