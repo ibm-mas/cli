@@ -16,6 +16,11 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
+    - name: kafka_action_system
+      type: string
+      description: Optional. Set to 'update' to update kafka.
+      default: ""
+
     - name: kafka_namespace
       type: string
       default: "amq-streams"
