@@ -6,6 +6,7 @@
 # - fvt-manage-user-crud
 # - fvt-manage-user-consumption
 # - fvt-manage-communication-temp
+# - fvt-manage-adhoc-report
 # -------------------------------------------------------------
 
 # Manage FVT Kafka Setup
@@ -42,6 +43,7 @@
     - fvt-manage-esig-basic
     - fvt-manage-eaudit-basic
     - fvt-manage-mif-kafka-setup
+    - fvt-manage-birt-report
 
 # Manage FVT Work Order Attachments
 - name: fvt-manage-wo-doclink
@@ -61,6 +63,7 @@
     - fvt-manage-esig-basic
     - fvt-manage-eaudit-basic
     - fvt-manage-mif-kafka-setup
+    - fvt-manage-birt-report
 
 # Manage Direct Print Report Tasks
 - name: fvt-manage-directprint
@@ -78,6 +81,7 @@
     - fvt-manage-esig-basic
     - fvt-manage-eaudit-basic
     - fvt-manage-mif-kafka-setup
+    - fvt-manage-birt-report
 
 # Manage FVT New User Update/Delete/Verufy
 - name: fvt-manage-user-crud
@@ -97,6 +101,7 @@
     - fvt-manage-esig-basic
     - fvt-manage-eaudit-basic
     - fvt-manage-mif-kafka-setup
+    - fvt-manage-birt-report
 
 # Manage FVT User Consumption verification
 - name: fvt-manage-user-consumption
@@ -116,6 +121,7 @@
     - fvt-manage-esig-basic
     - fvt-manage-eaudit-basic
     - fvt-manage-mif-kafka-setup
+    - fvt-manage-birt-report
 
 # Manage FVT Communication Template
 - name: fvt-manage-communication-temp
@@ -135,3 +141,24 @@
     - fvt-manage-esig-basic
     - fvt-manage-eaudit-basic
     - fvt-manage-mif-kafka-setup
+    - fvt-manage-birt-report
+
+# Manage FVT Adhoc Reports
+- name: fvt-manage-adhoc-report
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
+    - name: fvt_test_suite
+      value: adhoc
+  runAfter:
+    - fvt-manage-wo-basic
+    - fvt-manage-escalation-action
+    - fvt-manage-autoscript-adddeletewo
+    - fvt-manage-jms-inbound
+    - fvt-manage-esig-basic
+    - fvt-manage-eaudit-basic
+    - fvt-manage-mif-kafka-setup
+    - fvt-manage-birt-report
