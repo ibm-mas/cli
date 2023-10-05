@@ -18,6 +18,7 @@ Usage
 - `--dro-email DRO_CONTACT_EMAIL`              Contact e-mail address
 - `--dro-firstname DRO_CONTACT_FIRSTNAME`      Contact first name
 - `--dro-lastname DRO_CONTACT_LASTNAME`        Contact last name
+- `--dro-secret-token DRO_PULL_SECRET_TOKEN`   DRO Pull Secret token
 
 ### Storage Class Selection (Required):
 - `--storage-rwo STORAGE_CLASS_RWO`                   Read Write Once (RWO) storage class (e.g. ibmc-block-gold)

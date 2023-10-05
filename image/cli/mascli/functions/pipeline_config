@@ -200,7 +200,8 @@ function pipeline_config() {
   prompt_for_input "DRO Contact Email" DRO_CONTACT_EMAIL
   prompt_for_input "DRO Contact First Name" DRO_CONTACT_FIRSTNAME
   prompt_for_input "DRO Contact Last Name" DRO_CONTACT_LASTNAME
-  
+  prompt_for_input "DRO Pull Secret Token" DRO_PULL_SECRET_TOKEN
+
   echo
   echo_h2 "Configure UDS"
   if [[ -n "$DEV_MODE" ]]; then

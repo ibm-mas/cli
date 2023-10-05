@@ -20,6 +20,7 @@ Entitlement & Licensing (Required):
       --dro-email ${COLOR_YELLOW}DRO_CONTACT_EMAIL${TEXT_RESET}                                Contact e-mail address
       --dro-firstname ${COLOR_YELLOW}DRO_CONTACT_FIRSTNAME${TEXT_RESET}                        Contact first name
       --dro-lastname ${COLOR_YELLOW}DRO_CONTACT_LASTNAME${TEXT_RESET}                          Contact last name
+      --dro-secret-token ${COLOR_YELLOW}DRO_PULL_SECRET_TOKEN${TEXT_RESET}                     DRO Pull Secret Token
 
 Storage Class Selection (Required):
       --storage-rwo ${COLOR_YELLOW}STORAGE_CLASS_RWO${TEXT_RESET}                              Read Write Once (RWO) storage class (e.g. ibmc-block-gold)
@@ -433,6 +434,9 @@ function install_noninteractive() {
     ;;
     --dro-lastname)
     export DRO_CONTACT_LASTNAME=$1 && shift
+    ;;
+     --dro-secret-token)
+    export DRO_PULL_SECRET_TOKEN=$1 && shift
     ;;
     # MongoDB
     --mongodb-namespace)
