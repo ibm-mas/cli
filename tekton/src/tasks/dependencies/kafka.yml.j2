@@ -16,7 +16,7 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
-    - name: kafka_action_system
+    - name: kafka_action
       type: string
       description: Optional. Set to 'update' to update kafka.
       default: ""
@@ -129,6 +129,8 @@ spec:
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
 
+      - name: KAFKA_ACTION
+        value: $(params.kafka_action)
       - name: KAFKA_NAMESPACE
         value: $(params.kafka_namespace)
       - name: KAFKA_CLUSTER_NAME

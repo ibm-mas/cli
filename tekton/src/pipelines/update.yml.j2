@@ -73,7 +73,7 @@ spec:
       description: Namespace where mongodb instances will be updated
 
     # kafka update
-    - name: kafka_action_system
+    - name: kafka_action
       type: string
       default: "update"
       description: Set to 'update' to update kafka instances in specified namespace
@@ -257,8 +257,8 @@ spec:
       params:
         - name: devops_suite_name
           value: update-kafka
-        - name: kafka_action_system
-          value: $(params.kafka_action_system)
+        - name: kafka_action
+          value: $(params.kafka_action)
         - name: kafka_namespace
           value: $(params.kafka_namespace)
 
