@@ -22,7 +22,7 @@
     - fvt-manage-monitoring
     - fvt-manage-sec-audit-log
     - fvt-manage-sec-inactive-auth
-
+    
 # Manage FVT Classification
 - name: fvt-manage-classification
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
