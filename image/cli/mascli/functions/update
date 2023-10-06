@@ -109,16 +109,19 @@ function update_interactive() {
   fi
 
   # Detect Kafka provider
-  if [ -z "$KAFKA_PROVIDER" ]; then
-    KAFKA_NAME=`oc get subscription -n $KAFKA_NAMESPACE -o jsonpath='{.items[0].spec.name}' 2> /dev/null`
-    if [ "$?" == "0" ] && [ "$KAFKA_NAME" == "amq-streams" ]; then
-      KAFKA_PROVIDER="redhat"
-      echo -e "${COLOR_GREEN}Kafka has been detected with provider ${KAFKA_PROVIDER}.${COLOR_RESET}"
-    elif [ "$?" == "0" ] && [ "$KAFKA_NAME" == "strimzi-kafka-operator" ]; then
-      KAFKA_PROVIDER="strimzi"  
-      echo -e "${COLOR_GREEN}Kafka has been detected with provider ${KAFKA_PROVIDER}.${COLOR_RESET}"
+  if [ -z "$KAFKA_PROVIDER" ] && [ -n "$KAFKA_NAMESPACE" ]; then
+    KAFKA_OPERATOR=`oc get subscription -n $KAFKA_NAMESPACE -o jsonpath='{.items[0].spec.name}' 2> /dev/null`
+    if [ "$?" == "0" ]; then
+      if [ "$KAFKA_OPERATOR" == "amq-streams" ]; then
+        KAFKA_PROVIDER="redhat"
+        echo -e "${COLOR_GREEN}Kafka has been detected with provider ${KAFKA_PROVIDER}.${COLOR_RESET}"
+      elif [ "$KAFKA_OPERATOR" == "strimzi-kafka-operator" ]; then
+        KAFKA_PROVIDER="strimzi"
+        echo -e "${COLOR_GREEN}Kafka has been detected with provider ${KAFKA_PROVIDER}.${COLOR_RESET}"
+      fi
     fi
   fi
+
 }
 
 
