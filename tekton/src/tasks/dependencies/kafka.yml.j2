@@ -23,7 +23,10 @@ spec:
 
     - name: kafka_namespace
       type: string
-      default: "amq-streams"
+      default: "strimzi"
+    - name: kafka_provider
+      type: string
+      default: "strimzi"
     - name: kafka_cluster_name
       type: string
       default: "maskafka"
@@ -90,9 +93,6 @@ spec:
 
     # Dependencies - IBM Cloud Event Streams (Kafka)
     # -----------------------------------------------------------------------------
-    - name: kafka_provider
-      type: string
-      default: ""
     - name: eventstreams_resourcegroup
       type: string
       default: ""
@@ -133,6 +133,8 @@ spec:
         value: $(params.kafka_action)
       - name: KAFKA_NAMESPACE
         value: $(params.kafka_namespace)
+      - name: KAFKA_PROVIDER
+        value: $(params.kafka_provider)
       - name: KAFKA_CLUSTER_NAME
         value: $(params.kafka_cluster_name)
       - name: KAFKA_CLUSTER_SIZE
@@ -175,8 +177,6 @@ spec:
         value: $(params.aws_msk_egress_cidr)
 
       # Optional - IBM Cloud Event Streams (Kafka)
-      - name: KAFKA_PROVIDER
-        value: $(params.kafka_provider)
       - name: EVENTSTREAMS_RESOURCEGROUP
         value: $(params.eventstreams_resourcegroup)
       - name: EVENTSTREAMS_NAME

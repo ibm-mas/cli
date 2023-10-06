@@ -81,6 +81,10 @@ spec:
       type: string
       default: "strimzi"
       description: Namespace where kafka instances will be updated
+    - name: kafka_provider
+      type: string
+      default: "strimzi"
+      description: kafka provider such as 'redhat' or 'strimzi'
 
     # SLS 3.8.0 registry change
     - name: update_sls_registry
