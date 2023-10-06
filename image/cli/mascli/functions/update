@@ -108,18 +108,14 @@ function update_interactive() {
     fi
   fi
 
-  # Detect Kafka provider
+  # Detect Kafka provider, default is 'strimzi'
   if [ -z "$KAFKA_PROVIDER" ]; then
+    KAFKA_PROVIDER="strimzi"  
     KAFKA_NAME=`oc get subscription -n $KAFKA_NAMESPACE -o jsonpath='{.items[0].spec.name}' 2> /dev/null`
-    if [ "$?" == "0" ]; then
-      if [ "$KAFKA_NAME" == "amq-streams" ]; then
-        KAFKA_PROVIDER="redhat"
-        echo -e "${COLOR_GREEN}Kafka has been detected with provider ${KAFKA_PROVIDER}.${COLOR_RESET}"
-      elif [ "$KAFKA_NAME" == "strimzi" ]; then
-        KAFKA_PROVIDER="strimzi"
-        echo -e "${COLOR_GREEN}Kafka has been detected with provider ${KAFKA_PROVIDER}.${COLOR_RESET}"
-      fi
+    if [ "$?" == "0" ] && [ "$KAFKA_NAME" == "amq-streams" ]; then
+      KAFKA_PROVIDER="redhat"
     fi
+    echo -e "${COLOR_GREEN}Kafka has been detected with provider ${KAFKA_PROVIDER}.${COLOR_RESET}"
   fi
 }
 
