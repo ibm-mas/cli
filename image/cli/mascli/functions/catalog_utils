@@ -165,16 +165,16 @@ function sls_prompt_selection() {
     # SLS 3.8.x and up
     v8-amd64|v8-230926-amd64|v8-231004-amd64)
       SLS_PROMPT_LICENSE_ID="false"
-      SLS_PROMPT_ENTITLEMENT="false"
+      SLS_PROMPT_ICR_CP="false"
       ;;
     # SLS 3.7.0
     v8-230518-amd64|v8-230627-amd64|v8-230725-amd64|v8-230829-amd64)
       SLS_PROMPT_LICENSE_ID="false"
-      SLS_PROMPT_ENTITLEMENT="true"
+      SLS_PROMPT_ICR_CP="true"
       ;;
     *)
       SLS_PROMPT_LICENSE_ID="true"
-      SLS_PROMPT_ENTITLEMENT="true"
+      SLS_PROMPT_ICR_CP="true"
       ;;
   esac
 }
