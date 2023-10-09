@@ -398,10 +398,12 @@ function install_noninteractive() {
     export EVENTSTREAMS_LOCATION=$1 && shift
     ;;
 
-    # Licensing & Entitlement
+    # Entitlement
     --ibm-entitlement-key)
     export IBM_ENTITLEMENT_KEY=$1 && shift
     ;;
+
+    # SLS
     --license-id)
     export SLS_LICENSE_ID=$1 && shift
     ;;
@@ -411,8 +413,15 @@ function install_noninteractive() {
       echo_warning "Error: File does not exist: $SLS_LICENSE_FILE_LOCAL"
       exit 1
     fi
-    export SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
+    sls_prompt_selection
+    if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
+      export SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
+    else
+      export SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
+    fi
     ;;
+
+    # UDS
     --uds-email)
     export UDS_CONTACT_EMAIL=$1 && shift
     ;;

@@ -60,6 +60,7 @@ function pipeline_prepare() {
     # pipeline-additional-configs must exist (otherwise the suite-install step will hang), but can be empty
     oc -n $PIPELINES_NS create secret generic pipeline-additional-configs &>> $LOGFILE
   fi
+
   oc -n $PIPELINES_NS create secret generic pipeline-sls-entitlement --from-file=$SLS_LICENSE_FILE_LOCAL &>> $LOGFILE
 
   if [ "MAS_POD_TEMPLATES_DIR" != "" ]; then

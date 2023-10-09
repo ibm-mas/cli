@@ -59,6 +59,9 @@ function pipeline_config() {
     choose_mas_version
   fi
 
+  # Determine SLS version specific prompts
+  sls_prompt_selection
+
   # Present a the MAS license information
   # ---------------------------------------------------------------------------
   case $MAS_CHANNEL in
@@ -187,13 +190,22 @@ function pipeline_config() {
 
   echo
   echo_h2 "Configure Product License"
-  prompt_for_input "License ID" SLS_LICENSE_ID
+
+  if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
+    prompt_for_input "License ID" SLS_LICENSE_ID
+  fi
+
   prompt_for_input "License File" SLS_LICENSE_FILE_LOCAL
   if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
     echo_warning "Error: File does not exist: $SLS_LICENSE_FILE_LOCAL"
     exit 1
   fi
-  SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
+
+  if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
+    SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
+  else
+    SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
+  fi
 
   echo
   echo_h2 "Configure UDS"
