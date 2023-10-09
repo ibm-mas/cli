@@ -113,6 +113,22 @@ function upgrade() {
   # Replace ALL environment variables in templates
   eval "echo \"$(cat $DIR/templates/pipelinerun-upgrade.yaml)\"" > $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-upgrade.yaml
 
+  # Check for UDS presence
+  SUBNAME=$(oc get subscription ibm-user-data-services-operator -n ibm-common-services --no-headers | awk -F" " {'print $1'})
+  #echo $SUBNAME
+  UDS=ibm-user-data-services-operator
+  if [[ "$SUBNAME" == "$UDS" ]]; then
+      #echo "UDS Installed"
+      uninstallUDS=y
+      prompt_for_input "UDS installation exist, do you want to unistall UDS and install DRO (y/N)" uninstallUDS
+      if  [[ "$uninstallUDS" == "y" ]]; then
+        UDS_ACTION = "uninstall"
+        DRO_ACTION = "install"
+      fi
+  else
+      echo "UDS not installed"
+  fi
+
   # Start pipeline execution
   oc -n mas-$MAS_INSTANCE_ID-pipelines create -f $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-upgrade.yaml &>> $LOGFILE || exit 1
   echo -e "${COLOR_GREEN}Upgrade started successfully${COLOR_RESET}"
