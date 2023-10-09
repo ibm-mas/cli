@@ -7,7 +7,7 @@ function pipeline_prepare() {
   PIPELINES_NS="mas-$MAS_INSTANCE_ID-pipelines"
 
   # Replace ALL environment variables in templates
-  eval "echo \"$(cat $DIR/templates/pipelinerun.yaml)\"" > $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID.yaml
+  eval "echo \"$(cat $DIR/templates/pipelinerun-install.yaml)\"" > $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID.yaml
 
   # Replace mas_instance_id and pipeline_storage_class in templates
   sed -e "s/{{mas_instance_id}}/$MAS_INSTANCE_ID/g" \
