@@ -108,12 +108,7 @@ spec:
       runAfter:
         - mongodb
 
-    # 2.5 UDS
-    {{ lookup('template', 'taskdefs/dependencies/uds.yml.j2') | indent(4) }}
-      runAfter:
-        - common-services
-
-    # 2.6 DRO
+    # 2.5 DRO
     {{ lookup('template', 'taskdefs/dependencies/dro.yml.j2') | indent(4) }}
       runAfter:
         - common-services
