@@ -55,6 +55,10 @@ spec:
       type: string
       description: Optional. Used to uninstall UDS
       default: "none"
+    - name: dro_action
+      type: string
+      description: Optional. Used to uninstall DRO
+      default: "none"
 
   tasks:
     # Content
@@ -163,13 +167,13 @@ spec:
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: uds_action
-          value: $(params.uds_action)
+        - name: dro_action
+          value: $(params.dro_action)
       taskRef:
         kind: Task
         name: mas-devops-dro
       when:
-        - input: "$(params.uds_action)"
+        - input: "$(params.dro_action)"
           operator: in
           values: ["uninstall"]
       runAfter:
