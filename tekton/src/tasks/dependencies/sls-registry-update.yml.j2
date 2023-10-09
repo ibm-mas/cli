@@ -1,0 +1,31 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: sls-registry-update
+spec:
+  steps:
+    - name: update-licenseservice
+      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      script: |
+        #!/usr/bin/env bash
+
+        echo "Updating registry to 'icr.io/cpopen' for all LicenseService CR instances..."
+
+        echo ""
+        echo "Get all LicenseService CR instances..."
+        echo "------------------------------------------------------------------"
+
+        LICENSE_SERVICE_INSTANCES=`oc get LicenseService --all-namespaces`
+        INSTANCES_COUNT=$(wc -l <<< "${LICENSE_SERVICE_INSTANCES}" | sed 's/ //g')
+
+        echo ""
+        echo "Patching all LicenseService CR instances..."
+        echo "------------------------------------------------------------------"
+
+        for (( l=2; l<=${INSTANCES_COUNT}; l++ ))
+        do
+          SLS_NAMESPACE=$(echo "$LICENSE_SERVICE_INSTANCES" | awk -v "line=$l" 'NR==line {print $1}')
+          SLS_INSTANCE_ID=$(echo "$LICENSE_SERVICE_INSTANCES" | awk -v "line=$l" 'NR==line {print $2}')
+          oc patch --type=merge LicenseService/${SLS_INSTANCE_ID} -p '{"spec": {"settings": {"registry": "icr.io/cpopen"}}}' -n ${SLS_NAMESPACE}
+        done

@@ -51,7 +51,7 @@ spec:
       type: string
       default: "upgrade"
       description: Set to 'upgrade' to update common_services
-    
+
     # db2 update
     - name: db2_action
       type: string
@@ -71,6 +71,26 @@ spec:
       type: string
       default: "mongoce"
       description: Namespace where mongodb instances will be updated
+
+    # kafka update
+    - name: kafka_action
+      type: string
+      default: "upgrade"
+      description: Set to 'upgrade' to update kafka instances in specified namespace
+    - name: kafka_namespace
+      type: string
+      default: "strimzi"
+      description: Namespace where kafka instances will be updated
+    - name: kafka_provider
+      type: string
+      default: "strimzi"
+      description: kafka provider such as 'redhat' or 'strimzi'
+
+    # SLS 3.8.0 registry change
+    - name: update_sls_registry
+      default: ""
+      type: string
+      description: Set to 'true' to change all LicenseService CRs' registry to cpopen
 
   tasks:
 {% if wait_for_install == true %}
@@ -114,7 +134,20 @@ spec:
         - name: artifactory_token
           value: $(params.artifactory_token)
 
-    # 3. Verify health of the cluster before we consider the update complete
+    # 3. Update SLS LicenseService CR registry if needed
+    # -------------------------------------------------------------------------
+    - name: update-licenseservice
+      taskRef:
+        kind: Task
+        name: sls-registry-update
+      runAfter:
+        - update-catalog
+      when:
+        - input: "true"
+          operator: in
+          values: ["$(params.update_sls_registry)"]
+
+    # 4. Verify health of the cluster before we consider the update complete
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-update-verify-cluster',
@@ -165,7 +198,7 @@ spec:
         - post-update-verify-subscriptions
 
 
-    # 4. Update Dependencies
+    # 5. Update Dependencies
     # ---------------------------------------------------------------------------
     - name: update-ocs
       taskRef:
@@ -219,7 +252,23 @@ spec:
         - name: mongodb_namespace
           value: $(params.mongodb_namespace)
 
-    # 5. Verify health of the cluster after dependencies updates
+    - name: update-kafka
+      taskRef:
+        kind: Task
+        name: mas-devops-kafka
+      runAfter:
+        - update-mongodb
+      params:
+        - name: devops_suite_name
+          value: update-kafka
+        - name: kafka_action
+          value: $(params.kafka_action)
+        - name: kafka_namespace
+          value: $(params.kafka_namespace)
+        - name: kafka_provider
+          value: $(params.kafka_provider)
+
+    # 6. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-deps-update-verify-cluster',
@@ -231,7 +280,7 @@ spec:
         'verify_ingress': 'False'
       }) | indent(4) }}
       runAfter:
-        - update-mongodb
+        - update-kafka
 
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-deps-update-verify-catalogsources',
