@@ -33,17 +33,18 @@ function pipeline_config() {
       MAS_CATALOG_VERSION=v8-amd64
 
       echo -e "${COLOR_YELLOW}MAS Version:"
-      echo "  1. 8.10"
-      echo "  2. 8.9"
+      echo "  1. 8.11"
+      echo "  2. 8.10"
       prompt_for_input "Select Subscription Channel" MAS_CHANNEL_SELECTION "1"
 
       case $MAS_CHANNEL_SELECTION in
-        1|8.10|8.10.x)
-          MAS_CHANNEL=8.10.x
+        1|8.11|8.11.x)
+          MAS_CHANNEL=8.11.x
           ;;
 
-        2|8.9|8.9.x)
-          MAS_CHANNEL=8.9.x
+
+        2|8.10|8.10.x)
+          MAS_CHANNEL=8.10.x
           ;;
 
         *)
@@ -62,11 +63,11 @@ function pipeline_config() {
   # Present a the MAS license information
   # ---------------------------------------------------------------------------
   case $MAS_CHANNEL in
+    8.11.x)
+      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "811" )
+      ;;
     8.10.x)
       MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
-      ;;
-    8.9.x)
-      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
       ;;
   esac
 
