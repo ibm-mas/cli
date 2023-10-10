@@ -47,6 +47,10 @@ spec:
       type: string
     - name: avp_aws_access_key
       type: string
+    - name: icr_cp
+      type: string
+    - name: icr_cp_open
+      type: string
   stepTemplate:
     name: gitops-init-suite
     env:
@@ -78,6 +82,10 @@ spec:
         value: $(params.avp_aws_access_key)
       - name: MAS_DOMAIN
         value: $(params.mas_domain)
+      - name: ICR_CP
+        value: $(params.icr_cp)
+      - name: ICR_CP_OPEN
+        value: $(params.icr_cp_open)
       - name: MAS_CHANNEL
         value: $(params.mas_channel)
       - name: MAS_ANNOTATIONS
