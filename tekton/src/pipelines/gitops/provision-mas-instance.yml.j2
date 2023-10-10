@@ -122,6 +122,10 @@ spec:
       default: 3.3.1
     - name: kafka_action
       type: string
+    - name: icr_cp
+      type: string
+    - name: icr_cp_open
+      type: string
   tasks:
 {% if wait_for_provision == true %}
     # 0. Wait for the provsion pipeline to complete
@@ -238,6 +242,10 @@ spec:
           value: $(params.avp_aws_secret_key)
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
+        - name: icr_cp
+          value: $(params.icr_cp)
+        - name: icr_cp_open
+          value: $(params.icr_cp_open)
       taskRef:
         kind: Task
         name: gitops-init-suite
