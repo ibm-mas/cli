@@ -120,10 +120,10 @@ function upgrade() {
   if [[ "$SUBNAME" == "$UDS" ]]; then
       #echo "UDS Installed"
       uninstallUDS=y
+      DRO_ACTION="install"
       prompt_for_input "UDS installation exist, do you want to unistall UDS and install DRO (y/N)" uninstallUDS
       if  [[ "$uninstallUDS" == "y" ]]; then
-        UDS_ACTION = "uninstall"
-        DRO_ACTION = "install"
+        UDS_ACTION="uninstall"        
       fi
   else
       echo "UDS not installed"
