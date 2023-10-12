@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-function gitops_init_kafka_help() {
+function gitops_kafka_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops-init-kafka [options]
+  mas gitops-kafka [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -47,7 +47,7 @@ EOM
 }
 
 
-function gitops_init_kafka_noninteractive() {
+function gitops_kafka_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir  
   SECRETS_KEY_SEPERATOR="/"
 
@@ -150,23 +150,23 @@ function gitops_init_kafka_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_init_kafka_help
+        gitops_kafka_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_init_kafka_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_kafka_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
 
-  [[ -z "$CLUSTER_ID" ]] && gitops_init_kafka_help "CLUSTER_ID is not set"
-  [[ -z "$KAFKA_PROVIDER" ]] && gitops_init_kafka_help "KAFKA_PROVIDER is not set"
-  [[ -z "$KAFKA_VERSION" ]] && gitops_init_kafka_help "KAFKA_VERSION is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_init_kafka_help "ACCOUNT_ID is not set"
-  #[[ -z "$MAS_INSTANCE_ID" ]] && gitops_init_kafka_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_kafka_help "CLUSTER_ID is not set"
+  [[ -z "$KAFKA_PROVIDER" ]] && gitops_kafka_help "KAFKA_PROVIDER is not set"
+  [[ -z "$KAFKA_VERSION" ]] && gitops_kafka_help "KAFKA_VERSION is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_kafka_help "ACCOUNT_ID is not set"
+  #[[ -z "$MAS_INSTANCE_ID" ]] && gitops_kafka_help "MAS_INSTANCE_ID is not set"
 
   if [ $KAFKA_PROVIDER == 'aws' ]; then
     if [ -z $AWS_ACCESS_KEY_ID ] || [ -z $AWS_SECRET_ACCESS_KEY ] || [ -z $VPC_ID ] || [ -z $AWS_REGION ]; then
@@ -183,20 +183,20 @@ function gitops_init_kafka_noninteractive() {
 
 }
 
-function gitops_init_kafka() {
+function gitops_kafka() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_init_kafka_noninteractive "$@"
+    gitops_kafka_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_init_kafka_interactive
+    gitops_kafka_interactive
   fi
   rm -rf $GITOPS_WORKING_DIR
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
-  TEMP_DIR=$GITOPS_CLUSTER_DIR/tmp-kafka-init
+  TEMP_DIR=$GITOPS_CLUSTER_DIR/tmp-kafka
   mkdir -p ${TEMP_DIR}
   echo
   reset_colors

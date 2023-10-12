@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-init-suite-smtp-config
+  name: gitops-suite
 spec:
   params:
     - name: cluster_name
@@ -13,6 +13,9 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
+    - name: mongo_provider
+      type: string
+      default: aws
     - name: git_branch
       type: string
     - name: github_org
@@ -23,45 +26,33 @@ spec:
       type: string
     - name: github_pat
       type: string
+    - name: sls_channel
+      type: string
+    - name: mas_channel
+      type: string
+    - name: mas_annotations
+      type: string
+      default: ''
+    - name: mas_image_tags
+      type: string
+      default: ''
+    - name: mas_labels
+      type: string
+      default: ''
+    - name: mas_domain
+      type: string
     - name: avp_aws_secret_region
       type: string
     - name: avp_aws_secret_key
       type: string
     - name: avp_aws_access_key
       type: string
-    - name: smtp_host
+    - name: icr_cp
       type: string
-      default: ""
-    - name: smtp_port
+    - name: icr_cp_open
       type: string
-      default: ""
-    - name: smtp_security
-      type: string
-      default: ""
-    - name: smtp_authentication
-      type: string
-      default: ""
-    - name: smtp_default_sender_email
-      type: string
-      default: ""
-    - name: smtp_default_sender_name
-      type: string
-      default: ""
-    - name: smtp_default_recipient_email
-      type: string
-      default: ""
-    - name: smtp_default_should_email_passwords
-      type: string
-      default: ""
-    - name: smtp_username
-      type: string
-      default: ""
-    - name: smtp_password
-      type: string
-      default: ""
-
   stepTemplate:
-    name: gitops-init-suite-smtp-config
+    name: gitops-suite
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -71,6 +62,8 @@ spec:
         value: $(params.secrets_path)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
+      - name: MONGO_PROVIDER
+        value: $(params.mongo_provider)
       - name: GIT_BRANCH
         value: $(params.git_branch)
       - name: GITHUB_ORG
@@ -87,47 +80,41 @@ spec:
         value: $(params.avp_aws_secret_key)
       - name: SM_AWS_ACCESS_KEY_ID
         value: $(params.avp_aws_access_key)
-      - name: SMTP_HOST
-        value: $(params.smtp_host)
-      - name: SMTP_PORT
-        value: $(params.smtp_port)
-      - name: SMTP_SECURITY
-        value: $(params.smtp_security)
-      - name: SMTP_AUTHENTICATION
-        value: $(params.smtp_authentication)
-      - name: SMTP_DEFAULT_SENDER_EMAIL
-        value: $(params.smtp_default_sender_email)
-      - name: SMTP_DEFAULT_SENDER_NAME
-        value: $(params.smtp_default_sender_name)
-      - name: SMTP_DEFAULT_RECIPIENT_EMAIL
-        value: $(params.smtp_default_recipient_email)
-      - name: SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS
-        value: $(params.smtp_default_should_email_passwords)
-      - name: SMTP_USERNAME
-        value: $(params.smtp_username)
-      - name: SMTP_PASSWORD
-        value: $(params.smtp_password)
-
+      - name: MAS_DOMAIN
+        value: $(params.mas_domain)
+      - name: ICR_CP
+        value: $(params.icr_cp)
+      - name: ICR_CP_OPEN
+        value: $(params.icr_cp_open)
+      - name: MAS_CHANNEL
+        value: $(params.mas_channel)
+      - name: MAS_ANNOTATIONS
+        value: $(params.mas_annotations)
+      - name: MAS_IMAGE_TAGS
+        value: $(params.mas_image_tags)
+      - name: MAS_LABELS
+        value: $(params.mas_labels)
+      - name: SLS_CHANNEL
+        value: $(params.sls_channel)
   steps:
     - args:
       - |-
-        mkdir -p /tmp/init-suite-smtp-config
 
         git config --global user.name "yourUsername"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        ROSA_CONFIG=/workspace/configs/tmp-rosa-init/rosa-$(params.cluster_name)-details.yaml
+        ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
         export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
         export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
         export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
         oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
         OC_RC=$?
         if [ $OC_RC -ne 0 ]; then
-          echo "oc login failed to $OCP_SERVER"
+          echo "oc login failed, exiting with error.."
           exit 1
         fi
-        
+
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
@@ -137,33 +124,50 @@ spec:
           export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
         fi
 
-        mas gitops-init-suite-smtp-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        if [ -z $MAS_DOMAIN ];then
+          echo "No MAS_DOMAIN set, use domain of ROSA cluster and MAS_INSTANCE_ID"
+          CUSTOM_DOMAIN=apps.$CLUSTER_NAME.$(echo -n $OCP_SERVER | sed -n -e "s/^.*api.$CLUSTER_NAME.//p" | cut -d: -f1)
+          export MAS_DOMAIN=$MAS_INSTANCE_ID.$CUSTOM_DOMAIN
+          echo "MAS_DOMAIN set to $MAS_DOMAIN"
+        fi
+
+        echo "Image Tags ............................ ${MAS_IMAGE_TAGS}"
+        echo "Annotations ........................... ${MAS_ANNOTATIONS}"
+        echo "Labels ................................ ${MAS_LABELS}"
+
+        # Parse MAS variables from json to dict        
+
+        MAS_ANNOTATIONS=$(echo "${MAS_ANNOTATIONS}" | sed "s/'/\"/g")
+        export MAS_ANNOTATIONS=$(echo "${MAS_ANNOTATIONS}" | yq --yaml-output)
+        echo " MAS_ANNOTATIONS = ${MAS_ANNOTATIONS}"
+
+        MAS_IMAGE_TAGS=$(echo "${MAS_IMAGE_TAGS}" | sed "s/'/\"/g")
+        export MAS_IMAGE_TAGS=$(echo "${MAS_IMAGE_TAGS}" | yq --yaml-output)
+        echo " MAS_IMAGE_TAGS = ${MAS_IMAGE_TAGS}"
+
+        MAS_LABELS=$(echo "${MAS_LABELS}" | sed "s/'/\"/g")
+        export MAS_LABELS=$(echo "${MAS_LABELS}" | yq --yaml-output)
+        echo " MAS_LABELS = ${MAS_LABELS}"
+
+        sed -n -e 's/^.*api.fvtsaas.//p' | cut -d: -f1
+        mkdir -p /tmp/init-suite
+        mas gitops-suite -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
-        --dir /tmp/init-suite-smtp-config \
+        --dir /tmp/init-suite \
         --github-push \
         --github-host $GITHUB_HOST \
-        --github-org $GITHUB_ORG \
+        --github-org  $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH \
-        --smtp-host $SMTP_HOST \
-        --smtp-port $SMTP_PORT \
-        --smtp-security $SMTP_SECURITY \
-        --smtp-authentication $SMTP_AUTHENTICATION \
-        --smtp-default-sender-email $SMTP_DEFAULT_SENDER_EMAIL \
-        --smtp-default-sender-name $SMTP_DEFAULT_SENDER_NAME \
-        --smtp-default-recipient-email $SMTP_DEFAULT_RECIPIENT_EMAIL \
-        --smtp-default-should-email-passwords $SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS \
-        --smtp-username $SMTP_USERNAME \
-        --smtp-password $SMTP_PASSWORD
+        --git-branch $GIT_BRANCH
+
+        exit $?
       command:
         - /bin/sh
         - -c
-      name: gitops-init-suite-smtp-config
+      name: gitops-suite
       imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:6.4.0-pre.gitops
   workspaces:
     - name: configs
-
-
 
 

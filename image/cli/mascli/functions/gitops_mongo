@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-function gitops_init_mongo_help() {
+function gitops_mongo_help() {
   [[ -n "$1" ]] && echo_warning "$1"
 
   reset_colors
   cat << EOM
 Usage:
-  mas gitops-init-mongo [options]
+  mas gitops-mongo [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -47,7 +47,7 @@ EOM
 }
 
 
-function gitops_init_mongo_noninteractive() {
+function gitops_mongo_noninteractive() {
   SECRETS_KEY_SEPERATOR="/"
 
   while [[ $# -gt 0 ]]
@@ -127,20 +127,20 @@ function gitops_init_mongo_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_init_mongo_help
+        gitops_mongo_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_init_mongo_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_mongo_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$CLUSTER_ID" ]] && gitops_init_mongo_help "CLUSTER_ID is not set"
-  [[ -z "$MONGODB_PROVIDER" ]] && gitops_init_mongo_help "MONGODB_PROVIDER is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_init_mongo_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_mongo_help "CLUSTER_ID is not set"
+  [[ -z "$MONGODB_PROVIDER" ]] && gitops_mongo_help "MONGODB_PROVIDER is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_mongo_help "ACCOUNT_ID is not set"
 
   if [ $MONGODB_PROVIDER == 'aws' ]; then
     if [ -z $AWS_ACCESS_KEY_ID ] || [ -z $AWS_SECRET_ACCESS_KEY ] || [ -z $VPC_ID ] || [ -z $AWS_REGION ]; then
@@ -165,15 +165,15 @@ function gitops_init_mongo_noninteractive() {
   fi
 }
 
-function gitops_init_mongo() {
+function gitops_mongo() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_init_mongo_noninteractive "$@"
+    gitops_mongo_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_init_mongo_interactive
+    gitops_mongo_interactive
   fi
 
   echo
@@ -217,7 +217,7 @@ function gitops_init_mongo() {
     # The MAS_INSTANCE_ID doesn't have to be the correct instance id
     # The MONGODB_NAMESPACE defines the name of the config file created
     CURRENT_DIR=$PWD
-    TEMP_DIR=$CURRENT_DIR/tmp-mongo-init
+    TEMP_DIR=$CURRENT_DIR/tmp-mongo
     rm -rf $TEMP_DIR
     mkdir -p $TEMP_DIR
     export MAS_CONFIG_DIR=$TEMP_DIR

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-function gitops_init_suite_idp_config_help() {
+function gitops_suite_smtp_config_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_init_suite_idp_config [options]
+  mas gitops_suite_smtp_config [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -22,14 +22,18 @@ Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
-MAS IDP/LDAP Options:
-      --idpcfg-display-name ${COLOR_YELLOW}IDPCFG_DISPLAY_NAME${TEXT_RESET}            Display name for IDPCfg resource
-      --ldap-url ${COLOR_YELLOW}LDAP_URL${TEXT_RESET}                             Url of the LDAP server. In the form protocol://host:port
-      --ldap-basedn ${COLOR_YELLOW}LDAP_BASEDN${TEXT_RESET}                       The baseDN for the LDAP server
-      --ldap-userid-map ${COLOR_YELLOW}LDAP_USERID_MAP${TEXT_RESET}               LDAP UserId map
-      --ldap-certificate-file ${COLOR_YELLOW}LDAP_CERTIFICATE_FILE${TEXT_RESET}   Path to file containing CA Certificate for LDAP server
-      --ldap-bind-dn ${COLOR_YELLOW}LDAP_BIND_DN${TEXT_RESET}                     DN for LDAP server authentication
-      --ldap-bind-password ${COLOR_YELLOW}LDAP_BIND_PASSWORD${TEXT_RESET}         Password for LDAP server authenticaiton
+MAS SMTP Options:
+      --smtp-display-name ${COLOR_YELLOW}SMTP_DISPLAY_NAME${TEXT_RESET}                                       Display name for SmtpCfg resource
+      --smtp-host ${COLOR_YELLOW}SMTP_HOST{TEXT_RESET}                                                        Host of the SMTP server
+      --smtp-port ${COLOR_YELLOW}SMTP_PORT${TEXT_RESET}                                                       Port of the SMTP server
+      --smtp-security ${COLOR_YELLOW}SMTP_SECURITY${TEXT_RESET}                                               Security protocol. None, STARTTLS or SSL
+      --smtp-authentication ${COLOR_YELLOW}SMTP_AUTHENTICATION${TEXT_RESET}                                   true or false on whether to authenticate
+      --smtp-default-sender-email ${COLOR_YELLOW}SMTP_DEFAULT_SENDER_EMAIL${TEXT_RESET}                       The default sender email
+      --smtp-default-sender-name ${COLOR_YELLOW}SMTP_DEFAULT_SENDER_NAME${TEXT_RESET}                         The default sender name
+      --smtp-default-recipient-email ${COLOR_YELLOW}SMTP_DEFAULT_RECIPIENT_EMAIL${TEXT_RESET}                 The default recipient email
+      --smtp-default-should-email-passwords ${COLOR_YELLOW}SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS${TEXT_RESET}   true or false on sending email passwords
+      --smtp-username ${COLOR_YELLOW}SMTP_USERNAME${TEXT_RESET}                                               Username for SMTP server authentication
+      --smtp-password ${COLOR_YELLOW}SMTP_PASSWORD${TEXT_RESET}                                               Password for SMTP server authenticaiton
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -46,12 +50,12 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_init_suite_idp_config_noninteractive() {
+function gitops_suite_smtp_config_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-init-mas-idp-config commit"
+  GIT_COMMIT_MSG="gitops-mas-smtp-config commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
-  export IDPCFG_DISPLAY_NAME=${IDPCFG_DISPLAY_NAME:="Suite IDPCfg"}
+  export SMTP_DISPLAY_NAME=${SMTP_DISPLAY_NAME:="Suite SMTP"}
 
   while [[ $# -gt 0 ]]
   do
@@ -82,27 +86,39 @@ function gitops_init_suite_idp_config_noninteractive() {
         export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
 
-      # LDAP
-      --idpcfg-display-name)
-        export IDPCFG_DISPLAY_NAME=$1 && shift
+      # SMTP
+      --smtp-display-name)
+        export SMTP_DISPLAY_NAME=$1 && shift
         ;;
-      --ldap-url)
-        export LDAP_URL=$1 && shift
+      --smtp-host)
+        export SMTP_HOST=$1 && shift
         ;;
-      --ldap-basedn)
-        export LDAP_BASEDN=$1 && shift
+      --smtp-port)
+        export SMTP_PORT=$1 && shift
         ;;
-      --ldap-userid-map)
-        export LDAP_USERID_MAP=$1 && shift
+      --smtp-security)
+        export SMTP_SECURITY=$1 && shift
         ;;
-      --ldap-certificate-file)
-        export LDAP_CERTIFICATE_FILE=$1 && shift
+      --smtp-authentication)
+        export SMTP_AUTHENTICATION=$1 && shift
         ;; 
-      --ldap-bind-dn)
-        export LDAP_BIND_DN=$1 && shift
+      --smtp-default-sender-email)
+        export SMTP_DEFAULT_SENDER_EMAIL=$1 && shift
         ;;
-      --ldap-bind-password)
-        export LDAP_BIND_PASSWORD=$1 && shift
+      --smtp-default-sender-name)
+        export SMTP_DEFAULT_SENDER_NAME=$1 && shift
+        ;;
+      --smtp-default-recipient-email)
+        export SMTP_DEFAULT_RECIPIENT_EMAIL=$1 && shift
+        ;;
+      --smtp-default-should-email-passwords)
+        export SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS=$1 && shift
+        ;;
+      --smtp-username)
+        export SMTP_USERNAME=$1 && shift
+        ;;
+      --smtp-password)
+        export SMTP_PASSWORD=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -129,45 +145,48 @@ function gitops_init_suite_idp_config_noninteractive() {
         ;;
 
       -h|--help)
-        gitops_init_suite_idp_config_help
+        gitops_suite_smtp_config_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_init_suite_idp_config_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_suite_smtp_config_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_init_suite_idp_config_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$GITOPS_VERSION" ]] && gitops_init_suite_idp_config_help "GITOPS_VERSION is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_init_suite_idp_config_help "CLUSTER_ID is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_init_suite_idp_config_help "ACCOUNT_ID is not set"
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_suite_smtp_config_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$GITOPS_VERSION" ]] && gitops_suite_smtp_config_help "GITOPS_VERSION is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_suite_smtp_config_help "CLUSTER_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_suite_smtp_config_help "ACCOUNT_ID is not set"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_init_suite_idp_config_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_init_suite_idp_config_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_init_suite_idp_config_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_init_suite_idp_config_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_suite_smtp_config_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_suite_smtp_config_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_suite_smtp_config_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_suite_smtp_config_help "GIT_BRANCH is not set"
   fi
-  [[ -z "$LDAP_URL" ]] && gitops_init_suite_idp_config_help "LDAP_URL is not set"
-  [[ -z "$LDAP_BASEDN" ]] && gitops_init_suite_idp_config_help "LDAP_BASEDN is not set"
-  [[ -z "$LDAP_USERID_MAP" ]] && gitops_init_suite_idp_config_help "LDAP_USERID_MAP is not set"
-  [[ -z "$LDAP_CERTIFICATE_FILE" ]] && gitops_init_suite_idp_config_help "LDAP_CERTIFICATE_FILE is not set"
-  [[ -z "$LDAP_BIND_DN" ]] && gitops_init_suite_idp_config_help "LDAP_BIND_DN is not set"
-  [[ -z "$LDAP_BIND_PASSWORD" ]] && gitops_init_suite_idp_config_help "LDAP_BIND_PASSWORD is not set"
-
+  [[ -z "$SMTP_HOST" ]] && gitops_suite_smtp_config_help "SMTP_HOST is not set"
+  [[ -z "$SMTP_PORT" ]] && gitops_suite_smtp_config_help "SMTP_PORT is not set"
+  [[ -z "$SMTP_SECURITY" ]] && gitops_suite_smtp_config_help "SMTP_SECURITY is not set"
+  [[ -z "$SMTP_AUTHENTICATION" ]] && gitops_suite_smtp_config_help "SMTP_AUTHENTICATION is not set"
+  [[ -z "$SMTP_DEFAULT_SENDER_EMAIL" ]] && gitops_suite_smtp_config_help "SMTP_DEFAULT_SENDER_EMAIL is not set"
+  [[ -z "$SMTP_DEFAULT_SENDER_NAME" ]] && gitops_suite_smtp_config_help "SMTP_DEFAULT_SENDER_NAME is not set"
+  [[ -z "$SMTP_DEFAULT_RECIPIENT_EMAIL" ]] && gitops_suite_smtp_config_help "SMTP_DEFAULT_RECIPIENT_EMAIL is not set"
+  [[ -z "$SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS" ]] && gitops_suite_smtp_config_help "SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS is not set"
+  [[ -z "$SMTP_USERNAME" ]] && gitops_suite_smtp_config_help "SMTP_USERNAME is not set"
+  [[ -z "$SMTP_PASSWORD" ]] && gitops_suite_smtp_config_help "SMTP_PASSWORD is not set"
 }
 
-function gitops_init_suite_idp_config() {
+function gitops_suite_smtp_config() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_init_suite_idp_config_noninteractive "$@"
+    gitops_suite_smtp_config_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_init_suite_idp_config_interactive
+    gitops_suite_smtp_config_interactive
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -218,14 +237,18 @@ function gitops_init_suite_idp_config() {
   reset_colors
 
   echo "${TEXT_DIM}"
-  echo_h2 "IBM Maximo Application Suite IDP/LDAP Config" "    "
-  echo_reset_dim "IdpCfg Display Name ............................ ${COLOR_MAGENTA}${IDPCFG_DISPLAY_NAME}"
-  echo_reset_dim "LDAP Server URL ................................ ${COLOR_MAGENTA}${LDAP_URL}"
-  echo_reset_dim "LDAP Server baseDN ............................. ${COLOR_MAGENTA}${LDAP_BASEDN}"
-  echo_reset_dim "LDAP UserId Map ................................ ${COLOR_MAGENTA}${LDAP_USERID_MAP}"
-  echo_reset_dim "Path to LDAP Cert File  ........................ ${COLOR_MAGENTA}${LDAP_CERTIFICATE_FILE}"
-  echo_reset_dim "ldap Server Bind DN ............................ ${COLOR_MAGENTA}${LDAP_BIND_DN}"
-  echo_reset_dim "ldap Server Bind Password ...................... ${COLOR_MAGENTA}${LDAP_BIND_PASSWORD:0:4}<snip>"
+  echo_h2 "IBM Maximo Application Suite SMTP Config" "    "
+  echo_reset_dim "SmtpCfg Display Name ........................... ${COLOR_MAGENTA}${SMTP_DISPLAY_NAME}"
+  echo_reset_dim "Smtp Server Host ............................... ${COLOR_MAGENTA}${SMTP_HOST}"
+  echo_reset_dim "Smtp Server Port ............................... ${COLOR_MAGENTA}${SMTP_PORT}"
+  echo_reset_dim "Smtp Security Protocol ......................... ${COLOR_MAGENTA}${SMTP_SECURITY}"
+  echo_reset_dim "Smtp Authentication ............................ ${COLOR_MAGENTA}${SMTP_AUTHENTICATION}"
+  echo_reset_dim "Smtp Default Sender Email ...................... ${COLOR_MAGENTA}${SMTP_DEFAULT_SENDER_EMAIL}"
+  echo_reset_dim "Smtp Default Sender Name ....................... ${COLOR_MAGENTA}${SMTP_DEFAULT_SENDER_NAME}"
+  echo_reset_dim "Smtp Default Recipient Email ................... ${COLOR_MAGENTA}${SMTP_DEFAULT_RECIPIENT_EMAIL}"
+  echo_reset_dim "Smtp Should Email Passwords .................... ${COLOR_MAGENTA}${SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS}"
+  echo_reset_dim "Smtp Server Username ........................... ${COLOR_MAGENTA}${SMTP_USERNAME}"
+  echo_reset_dim "Smtp Server Password ........................... ${COLOR_MAGENTA}${SMTP_PASSWORD:0:4}<snip>"
   reset_colors
 
   # Set up Suite secrets
@@ -237,17 +260,13 @@ function gitops_init_suite_idp_config() {
 
   # Set the instance-level values to used
   # ---------------------------------------------------------------------------
-  SECRET_NAME_LDAP=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ldap
-  sm_update_secret $SECRET_NAME_LDAP "{\"bindDN\": \"$LDAP_BIND_DN\", \"bindPassword\": \"$LDAP_BIND_PASSWORD\"}"
-  export SECRET_KEY_LDAP_BIND_DN=${SECRET_NAME_LDAP}#bindDN
-  export SECRET_KEY_LDAP_BIND_PASSWORD=${SECRET_NAME_LDAP}#bindPassword
-  
-  # Get LDAP Certificate File content
-  # ---------------------------------------------------------------------------
-  export LDAP_CERTIFICATE_CONTENT=$(<$LDAP_CERTIFICATE_FILE)
+  SECRET_NAME_SMTP=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}smtp
+  sm_update_secret $SECRET_NAME_SMTP "{\"username\": \"$SMTP_USERNAME\", \"password\": \"$SMTP_PASSWORD\"}"
+  export SECRET_KEY_SMTP_USERNAME=${SECRET_NAME_SMTP}#username
+  export SECRET_KEY_SMTP_PASSWORD=${SECRET_NAME_SMTP}#password
 
   CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/tmp-mas-idp-config-init
+  TEMP_DIR=$CURRENT_DIR/tmp-mas-smtp-config
   rm -rf $TEMP_DIR
   mkdir -p $TEMP_DIR
 
@@ -267,7 +286,7 @@ function gitops_init_suite_idp_config() {
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   # Per MAS instance
-  jinja -X .+ $DIR/templates/gitops/ibm-mas-idp-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-idp-config.yaml
+  jinja -X .+ $DIR/templates/gitops/ibm-mas-smtp-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-smtp-config.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -279,9 +298,9 @@ function gitops_init_suite_idp_config() {
 
     argocd_login
     argocd_sync ${CLUSTER_ID}-watcher
-    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-idp-config
-    check_argo_app_synced mas-${MAS_INSTANCE_ID}-idp-config ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-core
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-idp-config ${CLUSTER_ID}-watcher
+    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-smtp-config
+    check_argo_app_synced mas-${MAS_INSTANCE_ID}-smtp-config ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-core
+    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-smtp-config ${CLUSTER_ID}-watcher
   fi
 
   rm -rf $TEMP_DIR

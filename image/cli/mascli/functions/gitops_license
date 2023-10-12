@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-function gitops_init_license_help() {
+function gitops_license_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops-init-license [options]
+  mas gitops-license [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -25,7 +25,7 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_init_license_noninteractive() {
+function gitops_license_noninteractive() {
   SECRETS_KEY_SEPERATOR="/"
 
   while [[ $# -gt 0 ]]
@@ -58,33 +58,33 @@ function gitops_init_license_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_init_license_help
+        gitops_license_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_init_license_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_license_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$CLUSTER_ID" ]] && gitops_init_license_help "CLUSTER_ID is not set"
-  [[ -z "$LICENSE_FILE" ]] && gitops_init_license_help "LICENSE_FILE is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_init_license_help "ACCOUNT_ID is not set"
-  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_init_license_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_license_help "CLUSTER_ID is not set"
+  [[ -z "$LICENSE_FILE" ]] && gitops_license_help "LICENSE_FILE is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_license_help "ACCOUNT_ID is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_license_help "MAS_INSTANCE_ID is not set"
 
 }
 
-function gitops_init_license() {
+function gitops_license() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_init_license_noninteractive "$@"
+    gitops_license_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_init_license_interactive
+    gitops_license_interactive
   fi
 
   echo

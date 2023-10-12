@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-function gitops_init_cluster_help() {
+function gitops_cluster_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops-init-cluster [options]
+  mas gitops-cluster [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -40,13 +40,13 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_init_cluster_noninteractive() {
+function gitops_cluster_noninteractive() {
   # TODO: Remember to change the defaults to suite public before release!
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
 
   GITHUB_PUSH="false"
-  GIT_COMMIT_MSG="gitops-init-cluster commit"
+  GIT_COMMIT_MSG="gitops-cluster commit"
   export COMMON_SERVICES_CHANNEL=${COMMON_SERVICES_CHANNEL:-"v3.23"}
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
   export MAS_CATALOG_VERSION=${MAS_CATALOG_VERSION:-"v8-230414-amd64"}
@@ -118,25 +118,25 @@ function gitops_init_cluster_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_init_cluster_help
+        gitops_cluster_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_init_cluster_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_cluster_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
     esac
   done
 
-  [[ -z "$ACCOUNT_ID" ]] && gitops_init_cluster_help "ACCOUNT_ID is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_init_cluster_help "CLUSTER_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_cluster_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_cluster_help "CLUSTER_ID is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_init_cluster_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_init_cluster_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_init_cluster_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_init_cluster_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_cluster_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_cluster_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_cluster_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_cluster_help "GIT_BRANCH is not set"
   fi
 
   if [ -z $ICR_USERNAME ] || [ -z $ICR_PASSWORD ]; then
@@ -144,18 +144,18 @@ function gitops_init_cluster_noninteractive() {
     exit 1
   fi
 
-  [[ -z "$COMMON_SERVICES_CHANNEL" ]] && gitops_init_cluster_help "COMMON_SERVICES_CHANNEL is not set"
+  [[ -z "$COMMON_SERVICES_CHANNEL" ]] && gitops_cluster_help "COMMON_SERVICES_CHANNEL is not set"
 }
 
-function gitops_init_cluster() {
+function gitops_cluster() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_init_cluster_noninteractive "$@"
+    gitops_cluster_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_init_cluster_interactive
+    gitops_cluster_interactive
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}

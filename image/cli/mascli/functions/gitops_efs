@@ -2,12 +2,12 @@
 
 
 
-function gitops_init_efs_help() {
+function gitops_efs_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_init_efs [options]
+  mas gitops_efs [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -25,7 +25,7 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_init_efs_noninteractive() {
+function gitops_efs_noninteractive() {
 
   while [[ $# -gt 0 ]]
   do
@@ -57,35 +57,35 @@ function gitops_init_efs_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_init_efs_help
+        gitops_efs_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_init_efs_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_efs_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$CLOUD_PROVIDER" ]] && gitops_init_efs_help "CLOUD_PROVIDER is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_init_efs_help "CLUSTER_ID is not set"
-  #[[ -z "$MAS_INSTANCE_ID" ]] && gitops_init_efs_help "MAS_INSTANCE_ID is not set"
-  [[ -z "$AWS_DEFAULT_REGION" ]] && gitops_init_efs_help "AWS_DEFAULT_REGION is not set"
-  [[ -z "$AWS_ACCESS_KEY_ID" ]] && gitops_init_efs_help "AWS_ACCESS_KEY_ID is not set"
-  [[ -z "$AWS_SECRET_ACCESS_KEY" ]] && gitops_init_efs_help "AWS_SECRET_ACCESS_KEY is not set"
+  [[ -z "$CLOUD_PROVIDER" ]] && gitops_efs_help "CLOUD_PROVIDER is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_efs_help "CLUSTER_ID is not set"
+  #[[ -z "$MAS_INSTANCE_ID" ]] && gitops_efs_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$AWS_DEFAULT_REGION" ]] && gitops_efs_help "AWS_DEFAULT_REGION is not set"
+  [[ -z "$AWS_ACCESS_KEY_ID" ]] && gitops_efs_help "AWS_ACCESS_KEY_ID is not set"
+  [[ -z "$AWS_SECRET_ACCESS_KEY" ]] && gitops_efs_help "AWS_SECRET_ACCESS_KEY is not set"
 
 }
 
-function gitops_init_efs() {
+function gitops_efs() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_init_efs_noninteractive "$@"
+    gitops_efs_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_init_efs_interactive
+    gitops_efs_interactive
   fi
 
   echo

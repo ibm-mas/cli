@@ -6,7 +6,7 @@ function gitops_bootstrap_help() {
   reset_colors
   cat << EOM
 Usage:
-  mas gitops-init-cluster [options]
+  mas gitops-cluster [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -79,7 +79,7 @@ function gitops_bootstrap_noninteractive() {
     esac
   done
 
-  [[ -z "$AVP_TYPE" ]] && gitops_init_cluster_help "AVP_TYPE is not set"
+  [[ -z "$AVP_TYPE" ]] && gitops_cluster_help "AVP_TYPE is not set"
   if [ $AVP_TYPE == 'aws' ]; then
     if [ -z $AVP_AWS_SECRET_REGION ] || [ -z $AVP_AWS_SECRET_REGION ] || [ -z $AVP_AWS_SECRET_REGION ]; then
       echo 'Missing required params for AWS secret manager, make sure to provide --avp-aws-secret-region, --avp-aws-secret-key and --avp-aws-access-key'

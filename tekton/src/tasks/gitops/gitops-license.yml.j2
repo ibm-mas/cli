@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-init-license
+  name: gitops-license
 spec:
   params:
     - name: cluster_name
@@ -20,7 +20,7 @@ spec:
     - name: avp_aws_access_key
       type: string
   stepTemplate:
-    name: gitops-init-license
+    name: gitops-license
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -39,13 +39,13 @@ spec:
   steps:
     - args:
       - |-
-        mas gitops-init-license -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        mas gitops-license -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
         --license-file /workspace/shared-entitlement/entitlement.lic
       command:
         - /bin/sh
         - -c
-      name: gitops-init-license
+      name: gitops-license
       imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:6.4.0-pre.gitops
   workspaces:

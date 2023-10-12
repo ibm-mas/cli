@@ -1,24 +1,27 @@
 #!/usr/bin/env bash
 
-function gitops_init_suite_workspace_help() {
+function gitops_kafka_config_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_init_suite_workspace [options]
+  mas gitops_kafka_config [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Options:
 
 GitOps Configuration:
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                  Working directory for GitOps repository
-  -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}           Version of ibm-mas/gitops to use
-  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                   Account name that the cluster belongs to
-  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                   Cluster ID
-  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}         IBM Suite Maximo Application Suite Instance ID
-  -W, --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}       IBM Suite Maximo Application Suite workspace ID
-  -N, --mas-workspace-name ${COLOR_YELLOW}MAS_WORKSPACE_NAME${TEXT_RESET}   IBM Suite Maximo Application Suite workspace name
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Working directory for GitOps repository
+  -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
+
+Secrets Manager:
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
+      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
+
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -35,10 +38,10 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_init_suite_workspace_noninteractive() {
+function gitops_kafka_config_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-init-suite-workspace commit"
+  GIT_COMMIT_MSG="gitops-kafka-config commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   while [[ $# -gt 0 ]]
@@ -49,6 +52,9 @@ function gitops_init_suite_workspace_noninteractive() {
       -d|--dir)
         export GITOPS_WORKING_DIR=$1 && shift
         ;;
+      -g|--gitops-version)
+        export GITOPS_VERSION=$1 && shift
+        ;;
       -a|--account-id)
         export ACCOUNT_ID=$1 && shift
         ;;
@@ -58,13 +64,15 @@ function gitops_init_suite_workspace_noninteractive() {
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
         ;;
-      # MAS Workspace specific
-      -W|--mas-workspace-id)
-        export MAS_WORKSPACE_ID=$1 && shift
+
+      # Secrets Manager
+      --secrets-path)
+        export SECRETS_PATH=$1 && shift
         ;;
-      -N|--mas-workspace-name)
-        export MAS_WORKSPACE_NAME=$1 && shift
+      --secrets-key-seperator)
+        export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
+
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -89,49 +97,43 @@ function gitops_init_suite_workspace_noninteractive() {
         ;;
 
       -h|--help)
-        gitops_init_suite_workspace_help
+        gitops_kafka_config_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_init_suite_workspace_help "Usage Error: Unsupported option \"${key}\" "
+        gitops_kafka_config_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_init_suite_workspace_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$GITOPS_VERSION" ]] && gitops_init_suite_workspace_help "GITOPS_VERSION is not set"
-  [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_init_suite_workspace_help "MAS_WORKSPACE_ID is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_init_suite_workspace_help "CLUSTER_ID is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_init_suite_workspace_help "ACCOUNT_ID is not set"
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_kafka_config_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$GITOPS_VERSION" ]] && gitops_kafka_config_help "GITOPS_VERSION is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_kafka_config_help "CLUSTER_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_kafka_config_help "ACCOUNT_ID is not set"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_init_suite_workspace_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_init_suite_workspace_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_init_suite_workspace_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_init_suite_workspace_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_kafka_config_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_kafka_config_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_kafka_config_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_kafka_config_help "GIT_BRANCH is not set"
   fi
 }
 
-function gitops_init_suite_workspace() {
+function gitops_kafka_config() {
   # Take the first parameter off (it will be create-gitops)
-  unset MAS_INSTANCE_ID  
-  unset MAS_WORKSPACE_NAME
-  unset MAS_WORKSPACE_ID
-
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_init_suite_workspace_noninteractive "$@"
+    gitops_kafka_config_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_init_suite_workspace_interactive
+    gitops_kafka_config_interactive
   fi
-  
+  rm -rf ${GITOPS_WORKING_DIR}
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
   GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
-
 
   echo
   reset_colors
@@ -139,9 +141,14 @@ function gitops_init_suite_workspace() {
 
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
-  echo_reset_dim "Account ID............................. ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Secrets Manager" "    "
+  echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -169,15 +176,38 @@ function gitops_init_suite_workspace() {
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo_reset_dim "Workspace ID .......................... ${COLOR_MAGENTA}${MAS_WORKSPACE_ID}"
-  echo_reset_dim "Workspace Name ........................ ${COLOR_MAGENTA}${MAS_WORKSPACE_NAME}"
   reset_colors
+
+
+  # Set up Suite secrets
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Configuring Suite secrets"
+  AVP_TYPE=aws  # Support for IBM will be added later
+  sm_login
+  if [[ "$AVP_TYPE" == "aws" ]]; then
+    # kafka
+    export SECRET_PREFIX="AmazonMSK_"
+  fi
 
   # Get the cluster-level secrets used
   # ---------------------------------------------------------------------------
   CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/tmp-suite-workspace-init
+  TEMP_DIR=$CURRENT_DIR/tmp-kafka-config
+  rm -rf $TEMP_DIR
   mkdir -p $TEMP_DIR
+
+  # Get the instance-level values to used
+  # ---------------------------------------------------------------------------
+  export KAFKA_SECRET_FILE=$TEMP_DIR/kafka-secret.json
+  export KAFKA_CONFIG_FILE=$TEMP_DIR/kafka-info.yaml
+
+  sm_get_secret_file ${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka $KAFKA_SECRET_FILE
+  jq -r .info $KAFKA_SECRET_FILE > $KAFKA_CONFIG_FILE
+
+  export AWS_MSK_SECRET=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka
+  export SECRET_KEY_KAFKA_USERNAME=${AWS_MSK_SECRET}#username
+  export SECRET_KEY_KAFKA_PASSWORD=${AWS_MSK_SECRET}#password
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
@@ -195,13 +225,7 @@ function gitops_init_suite_workspace() {
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   # Per MAS instance
-
-  #if not set, use workspace id
-  if [[ -z $MAS_WORKSPACE_NAME ]]; then
-    export MAS_WORKSPACE_NAME=$MAS_WORKSPACE_ID
-  fi
-  echo "Generating IBM Maximo Application Suite Workspace file ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.${MAS_WORKSPACE_ID}.ibm-mas-core-workspace.yaml"
-  jinja -X .+ $DIR/templates/gitops/ibm-mas-core-workspace.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.${MAS_WORKSPACE_ID}.ibm-mas-core-workspace.yaml
+  jinja -X .+ -d $KAFKA_CONFIG_FILE $DIR/templates/gitops/ibm-kafka-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-kafka-config.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -213,9 +237,11 @@ function gitops_init_suite_workspace() {
 
     argocd_login
     argocd_sync ${CLUSTER_ID}-watcher
-    check_argo_app_synced mas-${MAS_INSTANCE_ID}-core-${MAS_WORKSPACE_ID} ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-core
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-core-${MAS_WORKSPACE_ID} ${CLUSTER_ID}-watcher
-    
+    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-kafka-config
+    check_argo_app_synced mas-${MAS_INSTANCE_ID}-kafka-config ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-core
+    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-kafka-config ${CLUSTER_ID}-watcher
   fi
+
+  rm -rf $TEMP_DIR
 
 }

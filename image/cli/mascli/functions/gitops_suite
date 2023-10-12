@@ -1,29 +1,37 @@
 #!/usr/bin/env bash
 
-function gitops_init_suite_config_help() {
+function gitops_suite_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_init_suite_config [options]
+  mas gitops_suite [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
-Options:
-
 GitOps Configuration:
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Working directory for GitOps repository
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
   -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
 
+MongoDb Provider Selection:
+      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. Only "aws" is supported
+
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
-MongoDb Provider Selection:
-      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. Only "aws" is supported
+IBM Suite License Service:
+      --sls-channel ${COLOR_YELLOW}SLS_CHANNEL${TEXT_RESET}  IBM Suite License Service Subscription Channel
+
+IBM Maximo Application Suite:
+      --mas-annotations ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}    MAS Annotations definition in dict format
+      --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}            MAS Core Platform Subscription Channel
+      --mas-domain ${COLOR_YELLOW}MAS_DOMAIN${TEXT_RESET}              MAS Domain
+      --mas-image-tags ${COLOR_YELLOW}MAS_IMAGE_TAGS${TEXT_RESET}      MAS Image tags definition in dict format
+      --mas-labels ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}         MAS Labels definition in dict format
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -40,10 +48,10 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_init_suite_config_noninteractive() {
+function gitops_suite_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-init-suite-config commit"
+  GIT_COMMIT_MSG="gitops-suite commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   while [[ $# -gt 0 ]]
@@ -51,6 +59,7 @@ function gitops_init_suite_config_noninteractive() {
     key="$1"
     shift
     case $key in
+      # GitOps Configuration
       -d|--dir)
         export GITOPS_WORKING_DIR=$1 && shift
         ;;
@@ -67,11 +76,6 @@ function gitops_init_suite_config_noninteractive() {
         export MAS_INSTANCE_ID=$1 && shift
         ;;
 
-      # MongoDb Provider Selection
-      --mongo-provider)
-        export MONGODB_PROVIDER=$1 && shift
-        ;;
-
       # Secrets Manager
       --secrets-path)
         export SECRETS_PATH=$1 && shift
@@ -80,6 +84,32 @@ function gitops_init_suite_config_noninteractive() {
         export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
 
+      # MongoDb Provider Selection
+      --mongo-provider)
+        export MONGODB_PROVIDER=$1 && shift
+        ;;
+
+      # SLS
+      --sls-channel)
+        export SLS_CHANNEL=$1 && shift
+        ;;
+
+      # MAS
+      --mas-annotations)
+        export MAS_ANNOTATIONS=$1 && shift
+        ;;
+      --mas-channel)
+        export MAS_CHANNEL=$1 && shift
+        ;;
+      --mas-domain)
+        export MAS_DOMAIN=$1 && shift
+        ;;
+      --mas-image-tags)
+        export MAS_IMAGE_TAGS=$1 && shift
+        ;;
+      --mas-labels)
+        export MAS_LABELS=$1 && shift
+        ;;
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -103,39 +133,40 @@ function gitops_init_suite_config_noninteractive() {
         export GIT_SSH=$1 && shift
         ;;
 
+      # Other Commands
       -h|--help)
-        gitops_init_suite_config_help
+        gitops_suite_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_init_suite_config_help "Usage Error: Unsupported option \"${key}\" "
+        gitops_suite_help "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_init_suite_config_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$GITOPS_VERSION" ]] && gitops_init_suite_config_help "GITOPS_VERSION is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_init_suite_config_help "CLUSTER_ID is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_init_suite_config_help "ACCOUNT_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_suite_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_suite_help "CLUSTER_ID is not set"
+
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_init_suite_config_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_init_suite_config_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_init_suite_config_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_init_suite_config_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_suite_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_suite_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_suite_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_suite_help "GIT_BRANCH is not set"
   fi
+
 }
 
-function gitops_init_suite_config() {
+function gitops_suite() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_init_suite_config_noninteractive "$@"
+    gitops_suite_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_init_suite_config_interactive
+    gitops_suite_interactive
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -148,7 +179,7 @@ function gitops_init_suite_config() {
 
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
-  echo_reset_dim "Account ID............................. ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
   reset_colors
@@ -187,24 +218,41 @@ function gitops_init_suite_config() {
 
   echo "${TEXT_DIM}"
   echo_h2 "IBM Suite License Service" "    "
-  echo_reset_dim "SLS URL  .............................. ${COLOR_MAGENTA}https://sls.mas-${MAS_INSTANCE_ID}-sls.svc"
+  echo_reset_dim "Subscription Channel .................. ${COLOR_MAGENTA}${SLS_CHANNEL}"
   reset_colors
 
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "Subscription Channel .................. ${COLOR_MAGENTA}${MAS_CHANNEL}"
+  echo_reset_dim "Domain ................................ ${COLOR_MAGENTA}${MAS_DOMAIN}"
+  echo_reset_dim "Image Tags ............................ ${COLOR_MAGENTA}${MAS_IMAGE_TAGS}"
+  echo_reset_dim "Annotations ........................... ${COLOR_MAGENTA}${MAS_ANNOTATIONS}"
+  echo_reset_dim "Labels ................................ ${COLOR_MAGENTA}${MAS_LABELS}"
   reset_colors
+
+
+  # Set up Suite secrets
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Configuring Suite secrets"
+  AVP_TYPE=aws  # Support for IBM will be added later
+  sm_login
+
 
   # Define cluster-level secrets used
   # ---------------------------------------------------------------------------
-  # Note that these cluster-level secrets are set up by gitops-init-mongo
-  export SECRET_KEY_MONGO_INFO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo#info
+  # Note that this cluster-level secret is set up by gitops-cluster
+  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
+
 
   # Get the cluster-level secrets used
   # ---------------------------------------------------------------------------
+  # Note that this cluster-level secret is set up by gitops-mongo
+  export SECRET_NAME_MASTER_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
   CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/tmp-suite-config-init
-  rm -rf $TEMP_DIR
+  TEMP_DIR=$CURRENT_DIR/tmp-suite
+  rm -rf TEMP_DIR
   mkdir -p $TEMP_DIR
 
   # by default yaml. pass aws, in case if configuring with DocDB
@@ -212,57 +260,38 @@ function gitops_init_suite_config() {
 
   export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
   export MONGO_CONFIG_FILE=$TEMP_DIR/mongo-info.yaml
-
-  sm_login
-
-  if [ $MONGODB_PROVIDER == 'yaml' ]; then
-    sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
-  elif [ $MONGODB_PROVIDER == 'aws' ]; then
-    sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
-  fi
+  
+  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
 
   jq -r .info $MONGO_SECRET_FILE > $MONGO_CONFIG_FILE
+  MASTER_MONGO_USERNAME=$(jq -r .username $MONGO_SECRET_FILE)
+  MASTER_MONGO_PASSWORD=$(jq -r .password $MONGO_SECRET_FILE)
+  UNESCAPED_MONGO_INFO=$(jq -r .info $MONGO_SECRET_FILE)
 
-  # wait till SLS licenseservice is in ready state starts
-  wait_period=0
-  while true
-  do
-    wait_period=$(($wait_period+30))
-    if [ $wait_period -gt 600 ];then
-      echo_reset_dim "${COLOR_RED}SLS licenseservice is not  ready, exiting"
-      exit 1
-    else
-      sleep 30
-    fi
-    #export LICENSE_SERVICE_INITIALIZED_STATUS=`oc get licenseservice/sls -n mas-${MAS_INSTANCE_ID}-sls  -o=jsonpath="{.status.conditions[?(@.type=='Initialized')].status}"`
-    export LICENSE_SERVICE_READY_STATUS=`oc get licenseservices.sls.ibm.com/sls -n mas-${MAS_INSTANCE_ID}-sls  -o=jsonpath="{.status.conditions[?(@.type=='Ready')].status}"`
-    echo "LICENSE_SERVICE_INITIALIZED_STATUS .... ${COLOR_MAGENTA}${LICENSE_SERVICE_INITIALIZED_STATUS}"
-    echo "LICENSE_SERVICE_READY_STATUS .......... ${COLOR_MAGENTA}${LICENSE_SERVICE_READY_STATUS}"
-    if [[ "$LICENSE_SERVICE_READY_STATUS" == "True" ]]; then
-      break
-    fi
-  done
-  # wait till SLS licenseservice is in ready state done
 
-  # Get the instance-level values to used
+  # Instance-level secrets to use
   # ---------------------------------------------------------------------------
-  #Need to get the sls CA certificate and the sls registration key from sls-suite-registration configmap
-  # We could move this into a pre-sync job maybe so that changes in sls can be synced with the config via argo
-  export SLS_REGISTRATION_KEY=$(oc get cm sls-suite-registration -n mas-${MAS_INSTANCE_ID}-sls -o jsonpath='{.data.registrationKey}')
-  export SLS_CA_CERTIFICATE=$(oc get cm sls-suite-registration -n mas-${MAS_INSTANCE_ID}-sls -o jsonpath='{.data.ca}')
+  # Note that these instance-level secrets are set up by gitops-license
+  export SECRET_KEY_LICENSE_FILE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}license#license_file
+  export LICENSE_FILE=$TEMP_DIR/license.lic
+  sm_get_secret_file $SECRET_KEY_LICENSE_FILE $LICENSE_FILE
+
+
+  # Instance-level secrets to create
+  # ---------------------------------------------------------------------------
   export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
   export SECRET_KEY_MONGO_USERNAME=${SECRET_NAME_MONGO}#username
   export SECRET_KEY_MONGO_PASSWORD=${SECRET_NAME_MONGO}#password
 
-  # Instance-level secrets to create
-  # ---------------------------------------------------------------------------
-  export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls
-  export SECRET_KEY_SLS_REGISTRATION_KEY=${SECRET_NAME_SLS}#registration_key
+  export MONGO_INSTANCE_SECRET_FILE=$TEMP_DIR/mongo-instance-secret.json
+  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_INSTANCE_SECRET_FILE
+  INSTANCE_MONGO_USERNAME=$(jq -r .username $MONGO_INSTANCE_SECRET_FILE)
+  INSTANCE_MONGO_PASSWORD=$(jq -r .password $MONGO_INSTANCE_SECRET_FILE)
 
-  # Create SLS Registration key for this MAS Instance
-  # ---------------------------------------------------------------------------
-  echo " $SECRET_NAME_SLS "{\"registration_key\": \"$SLS_REGISTRATION_KEY\"}""
-  sm_update_secret $SECRET_NAME_SLS "{\"registration_key\": \"$SLS_REGISTRATION_KEY\" }"
+  # Already mongo instance secret has instance username and password, here we are setting the info field
+  ESCAPED_INFO=${UNESCAPED_MONGO_INFO//\"/\\\"}
+  ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
+  sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$INSTANCE_MONGO_USERNAME\", \"password\": \"$INSTANCE_MONGO_PASSWORD\"}"
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
@@ -278,10 +307,20 @@ function gitops_init_suite_config() {
   fi
   mkdir -p ${GITOPS_APPS_DIR}
 
+
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
-  # Per MAS instance
-  jinja -X .+ -d $MONGO_CONFIG_FILE $DIR/templates/gitops/ibm-mas-core-configs.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-core-configs.yaml
+  echo
+  echo_h2 "Generating Argo Project and Applications"
+  echo "- Project"
+  jinja -X .+ $DIR/templates/gitops/appproject.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.appproject.yaml
+
+  echo "- IBM Suite License Service"
+  jinja -X .+ -d $MONGO_CONFIG_FILE $DIR/templates/gitops/ibm-sls.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-sls.yaml
+
+
+  echo "- IBM Maximo Application Suite Core Platform"
+  jinja -X .+ $DIR/templates/gitops/ibm-mas-core-suite.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-core-suite.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -299,19 +338,20 @@ function gitops_init_suite_config() {
 
     argocd_login
     argocd_sync ${CLUSTER_ID}-watcher
-    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-core-configs
+
     argocd_hard_refresh mas-${MAS_INSTANCE_ID}-sls
     argocd_hard_refresh mas-${MAS_INSTANCE_ID}-core-suite
 
-    check_argo_app_synced mas-${MAS_INSTANCE_ID}-core-configs ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-core
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-core-configs ${CLUSTER_ID}-watcher
+    add_role_to_user mas-${MAS_INSTANCE_ID}-sls
+    add_role_to_user mas-${MAS_INSTANCE_ID}-core
 
     check_argo_app_synced mas-${MAS_INSTANCE_ID}-sls ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-sls
     check_argo_app_healthy mas-${MAS_INSTANCE_ID}-sls ${CLUSTER_ID}-watcher
 
+    # health check of suite will be done in gitops_suite_config
     check_argo_app_synced mas-${MAS_INSTANCE_ID}-core-suite ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-core
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-core-suite ${CLUSTER_ID}-watcher
 
   fi
+
 
 }

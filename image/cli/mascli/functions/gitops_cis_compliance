@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-function gitops_init_cis_compliance_help() {
+function gitops_cis_compliance_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_init_cis_compliance [options]
+  mas gitops_cis_compliance [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -34,9 +34,9 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_init_cis_compliance_noninteractive() {
+function gitops_cis_compliance_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
-  GIT_COMMIT_MSG="gitops-init-cis-compliance commit"
+  GIT_COMMIT_MSG="gitops-cis-compliance commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   while [[ $# -gt 0 ]]
@@ -83,38 +83,38 @@ function gitops_init_cis_compliance_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_init_cis_compliance_help
+        gitops_cis_compliance_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_init_cis_compliance_help "Usage Error: Unsupported option \"${key}\" "
+        gitops_cis_compliance_help "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$ACCOUNT_ID" ]] && gitops_init_cis_compliance_help "ACCOUNT_ID is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_init_cis_compliance_help "CLUSTER_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_cis_compliance_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_cis_compliance_help "CLUSTER_ID is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_init_cis_compliance_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_init_cis_compliance_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_init_cis_compliance_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_init_cis_compliance_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_cis_compliance_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_cis_compliance_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_cis_compliance_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_cis_compliance_help "GIT_BRANCH is not set"
   fi
 
 }
 
-function gitops_init_cis_compliance() {
+function gitops_cis_compliance() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_init_cis_compliance_noninteractive "$@"
+    gitops_cis_compliance_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_init_cis_compliance_interactive
+    gitops_cis_compliance_interactive
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}

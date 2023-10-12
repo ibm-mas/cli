@@ -176,7 +176,7 @@ spec:
       taskRef:
         kind: Task
         name: gitops-process-mongo-user
-    - name: gitops-init-license
+    - name: gitops-license
       runAfter:
         - gitops-process-mongo-user
       params:
@@ -199,10 +199,10 @@ spec:
           workspace: shared-entitlement
       taskRef:
         kind: Task
-        name: gitops-init-license
-    - name: gitops-init-suite
+        name: gitops-license
+    - name: gitops-suite
       runAfter:
-        - gitops-init-license
+        - gitops-license
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -248,13 +248,13 @@ spec:
           value: $(params.icr_cp_open)
       taskRef:
         kind: Task
-        name: gitops-init-suite
+        name: gitops-suite
       workspaces:
         - name: configs
           workspace: configs
-    - name: gitops-init-suite-config
+    - name: gitops-suite-config
       runAfter:
-        - gitops-init-suite
+        - gitops-suite
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -286,11 +286,11 @@ spec:
         - name: configs
           workspace: configs
       taskRef:
-        name: gitops-init-suite-config
+        name: gitops-suite-config
         kind: Task
-    - name: gitops-init-suite-workspace
+    - name: gitops-suite-workspace
       runAfter:
-        - gitops-init-suite-config
+        - gitops-suite-config
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -316,13 +316,13 @@ spec:
           value: $(params.github_pat)
       taskRef:
         kind: Task
-        name: gitops-init-suite-workspace
+        name: gitops-suite-workspace
       workspaces:
         - name: configs
           workspace: configs
-    - name: gitops-init-suite-smtp-config
+    - name: gitops-suite-smtp-config
       runAfter:
-        - gitops-init-suite-config
+        - gitops-suite-config
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -370,7 +370,7 @@ spec:
           value: $(params.smtp_password)
       taskRef:
         kind: Task
-        name: gitops-init-suite-smtp-config
+        name: gitops-suite-smtp-config
       when:
         - input: "$(params.smtp_host)"
           operator: notin
@@ -378,9 +378,9 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
-    - name: gitops-init-suite-idp-config
+    - name: gitops-suite-idp-config
       runAfter:
-        - gitops-init-suite-config
+        - gitops-suite-config
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -420,7 +420,7 @@ spec:
           value: $(params.ldap_bind_password)
       taskRef:
         kind: Task
-        name: gitops-init-suite-idp-config
+        name: gitops-suite-idp-config
       when:
         - input: "$(params.ldap_url)"
           operator: notin
@@ -430,9 +430,9 @@ spec:
           workspace: configs
         - name: shared-additional-configs
           workspace: shared-additional-configs
-    - name: gitops-init-efs
+    - name: gitops-efs
       runAfter:
-        - gitops-init-suite-config
+        - gitops-suite-config
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -451,10 +451,10 @@ spec:
           workspace: configs
       taskRef:
         kind: Task
-        name: gitops-init-efs
-    - name: gitops-init-kafka
+        name: gitops-efs
+    - name: gitops-kafka
       runAfter:
-        - gitops-init-suite-config
+        - gitops-suite-config
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -483,14 +483,14 @@ spec:
           workspace: configs
       taskRef:
         kind: Task
-        name: gitops-init-kafka
+        name: gitops-kafka
       when:
         - input: "$(params.kafka_action)"
           operator: notin
           values: [""]
-    - name: gitops-init-kafka-config
+    - name: gitops-kafka-config
       runAfter:
-        - gitops-init-kafka
+        - gitops-kafka
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -521,7 +521,7 @@ spec:
           workspace: configs
       taskRef:
         kind: Task
-        name: gitops-init-kafka-config
+        name: gitops-kafka-config
       when:
         - input: "$(params.kafka_action)"
           operator: notin

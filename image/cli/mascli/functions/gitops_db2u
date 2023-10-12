@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-function gitops_init_db2u_help() {
+function gitops_db2u_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_init_db2u [options]
+  mas gitops_db2u [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -70,10 +70,10 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_init_db2u_noninteractive() {
+function gitops_db2u_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-init-db2u commit"
+  GIT_COMMIT_MSG="gitops-db2u commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   while [[ $# -gt 0 ]]
@@ -225,52 +225,52 @@ function gitops_init_db2u_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_init_db2u_help
+        gitops_db2u_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_init_db2u_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_db2u_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_init_suite_workspace_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_init_db2u_help "ACCOUNT_ID is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_init_db2u_help "CLUSTER_ID is not set"
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_suite_workspace_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_db2u_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_db2u_help "CLUSTER_ID is not set"
 
 #db2u  
-  [[ -z "$DB2_VERSION" ]] && gitops_init_db2u_help "DB2_VERSION is not set"
-  [[ -z "$DB2_META_STORAGE_CLASS" ]] && gitops_init_db2u_help "DB2_META_STORAGE_CLASS is not set"
-  [[ -z "$DB2_DATA_STORAGE_CLASS" ]] && gitops_init_db2u_help "DB2_DATA_STORAGE_CLASS is not set"
-  [[ -z "$DB2_BACKUP_STORAGE_CLASS" ]] && gitops_init_db2u_help "DB2_BACKUP_STORAGE_CLASS is not set"
-  [[ -z "$DB2_LOGS_STORAGE_CLASS" ]] && gitops_init_db2u_help "DB2_LOGS_STORAGE_CLASS is not set"
-  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_init_db2u_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$DB2_VERSION" ]] && gitops_db2u_help "DB2_VERSION is not set"
+  [[ -z "$DB2_META_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_META_STORAGE_CLASS is not set"
+  [[ -z "$DB2_DATA_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_DATA_STORAGE_CLASS is not set"
+  [[ -z "$DB2_BACKUP_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_BACKUP_STORAGE_CLASS is not set"
+  [[ -z "$DB2_LOGS_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_LOGS_STORAGE_CLASS is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_help "MAS_INSTANCE_ID is not set"
 
-  [[ -z "$MAS_CONFIG_SCOPE" ]] && gitops_init_db2u_help "MAS_CONFIG_SCOPE is not set"
-  [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_init_db2u_help "MAS_WORKSPACE_ID is not set"
-  [[ -z "$MAS_APP_ID" ]] && gitops_init_db2u_help "MAS_APP_ID is not set"
+  [[ -z "$MAS_CONFIG_SCOPE" ]] && gitops_db2u_help "MAS_CONFIG_SCOPE is not set"
+  [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_db2u_help "MAS_WORKSPACE_ID is not set"
+  [[ -z "$MAS_APP_ID" ]] && gitops_db2u_help "MAS_APP_ID is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_init_db2u_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_init_db2u_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_init_db2u_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_init_db2u_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_db2u_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_db2u_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_db2u_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_db2u_help "GIT_BRANCH is not set"
   fi
 
 }
 
-function gitops_init_db2u() {
+function gitops_db2u() {
   # Take the first parameter off (it will be create-gitops)
   shift
   unset MAS_INSTANCE_ID  
   if [[ $# -gt 0 ]]; then
-    gitops_init_db2u_noninteractive "$@"
+    gitops_db2u_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_init_db2u_interactive
+    gitops_db2u_interactive
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -351,13 +351,13 @@ function gitops_init_db2u() {
   reset_colors
 
   CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/tmp-db2u-init
+  TEMP_DIR=$CURRENT_DIR/tmp-db2u
   mkdir -p $TEMP_DIR
 
 
   # Define cluster-level secrets used
   # ---------------------------------------------------------------------------
-  # Note that this cluster-level secret is set up by gitops-init-cluster
+  # Note that this cluster-level secret is set up by gitops-cluster
   export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
 
   if [ -z $GIT_SSH ]; then

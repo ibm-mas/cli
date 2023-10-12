@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-function gitops_init_db2u_jdbc_config_help() {
+function gitops_db2u_jdbc_config_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_init_db2u_jdbc_config [options]
+  mas gitops_db2u_jdbc_config [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -46,10 +46,10 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_init_db2u_jdbc_config_noninteractive() {
+function gitops_db2u_jdbc_config_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-init-db2u-jdbc-config commit"
+  GIT_COMMIT_MSG="gitops-db2u-jdbc-config commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   while [[ $# -gt 0 ]]
@@ -128,37 +128,37 @@ function gitops_init_db2u_jdbc_config_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_init_db2u_jdbc_config_help
+        gitops_db2u_jdbc_config_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_init_db2u_jdbc_config_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_db2u_jdbc_config_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_init_suite_workspace_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_init_db2u_jdbc_config_help "ACCOUNT_ID is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_init_db2u_jdbc_config_help "CLUSTER_ID is not set"
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_suite_workspace_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_db2u_jdbc_config_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_db2u_jdbc_config_help "CLUSTER_ID is not set"
   #db2u
 
-  [[ -z "$DB2_LDAP_USERNAME" ]] && gitops_init_db2u_jdbc_config_help "DB2_LDAP_USERNAME is not set"
-  [[ -z "$DB2_LDAP_PASSWORD" ]] && gitops_init_db2u_jdbc_config_help "DB2_LDAP_PASSWORD is not set"
+  [[ -z "$DB2_LDAP_USERNAME" ]] && gitops_db2u_jdbc_config_help "DB2_LDAP_USERNAME is not set"
+  [[ -z "$DB2_LDAP_PASSWORD" ]] && gitops_db2u_jdbc_config_help "DB2_LDAP_PASSWORD is not set"
   
   #MAS
-  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_init_db2u_jdbc_config_help "MAS_INSTANCE_ID is not set"
-  [[ -z "$MAS_CONFIG_SCOPE" ]] && gitops_init_db2u_jdbc_config_help "MAS_CONFIG_SCOPE is not set"
-  [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_init_db2u_jdbc_config_help "MAS_WORKSPACE_ID is not set"
-  [[ -z "$MAS_APP_ID" ]] && gitops_init_db2u_jdbc_config_help "MAS_APP_ID is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_jdbc_config_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$MAS_CONFIG_SCOPE" ]] && gitops_db2u_jdbc_config_help "MAS_CONFIG_SCOPE is not set"
+  [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_db2u_jdbc_config_help "MAS_WORKSPACE_ID is not set"
+  [[ -z "$MAS_APP_ID" ]] && gitops_db2u_jdbc_config_help "MAS_APP_ID is not set"
   
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_init_db2u_jdbc_config_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_init_db2u_jdbc_config_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_init_db2u_jdbc_config_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_init_db2u_jdbc_config_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_db2u_jdbc_config_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_db2u_jdbc_config_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_db2u_jdbc_config_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_db2u_jdbc_config_help "GIT_BRANCH is not set"
   fi
 
 }
@@ -197,17 +197,17 @@ function delete_db2u_0_pod(){
   done  
 }
 
-function gitops_init_db2u_jdbc_config() {
+function gitops_db2u_jdbc_config() {
   # Take the first parameter off (it will be create-gitops)
   unset MAS_INSTANCE_ID
   unset DB2_LDAP_USERNAME
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_init_db2u_jdbc_config_noninteractive "$@"
+    gitops_db2u_jdbc_config_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_init_db2u_jdbc_config_interactive
+    gitops_db2u_jdbc_config_interactive
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -266,7 +266,7 @@ function gitops_init_db2u_jdbc_config() {
   reset_colors
 
   CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/tmp-db2u-jdbc-config-init
+  TEMP_DIR=$CURRENT_DIR/tmp-db2u-jdbc-config
   mkdir -p $TEMP_DIR
 
 
