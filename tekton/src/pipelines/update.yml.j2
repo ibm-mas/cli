@@ -142,11 +142,36 @@ spec:
         - name: devops_suite_name
           value: update-catalog
 
-        {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(8) }}
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
 
-        {{ lookup('template', params_src_dir ~ '/gitops-avp.yml.j2') | indent(8) }}
+        - name: github_push
+          value: $(params.github_push)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: git_commit_msg
+          values: $(params.git_commit_msg)
 
-        {{ lookup('template', params_src_dir ~ '/gitops-common.yml.j2') | indent(8) }}
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: secrets_key_seperator
+          value: $(params.secrets_key_seperator)
 
         - name: update_mas_catalog
           value: true
