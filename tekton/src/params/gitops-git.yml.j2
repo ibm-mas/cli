@@ -1,0 +1,24 @@
+# Gitops Git Parameters
+# ------------------------------------------------------------------------- 
+- name: github_push
+    type: boolean
+    default: False
+    description: Whether to push changes to github or not
+- name: git_branch
+    type: string
+    description: The git branch to push too
+- name: github_org
+    type: string
+    description: The git org to push too
+- name: github_repo
+    type: string
+    description: The git repo to push too
+- name: github_host
+    type: string
+    description: The git host to push too
+- name: github_pat
+    type: string
+    description: The git personal access token to use on the commit
+- name: git_commit_msg
+    type: string
+    description: The git commit message to use in the push

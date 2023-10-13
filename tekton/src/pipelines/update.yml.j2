@@ -21,6 +21,36 @@ spec:
       type: string
 {% endif %}
 
+    # 1. Gitops git Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
+
+    # 2. Gitops avp Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/gitops-avp.yml.j2') | indent(4) }}
+
+    # 3. Gitops common Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/gitops-common.yml.j2') | indent(4) }}
+
+    - name: mas_catalog_image
+      type: string
+      default: ""
+
+    - name: icr_username
+      type: string
+      default: ""
+
+    - name: icr_password
+      type: string
+      default: ""
+
+    # Running in Gitops mode or not
+    - name: gitops_mode
+      type: boolean
+      default: False
+      description: If running in gitops mode or not. Gitops functions/tasks called if True
+
     # Tekton Pipeline image pull policy (for ibmmas/cli images)
     - name: image_pull_policy
       type: string
@@ -97,6 +127,53 @@ spec:
           value: $(params.artifactory_username)
         - name: artifactory_token
           value: $(params.artifactory_token)
+      when:
+        - input: "$(params.gitops_mode)"
+          operator: in
+          values: ["False"]
+
+    - name: update-catalog-gitops
+      taskRef:
+        kind: Task
+        name: gitops-cluster
+      runAfter:
+        - pre-update-check
+      params:
+        - name: devops_suite_name
+          value: update-catalog
+
+        {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(8) }}
+
+        {{ lookup('template', params_src_dir ~ '/gitops-avp.yml.j2') | indent(8) }}
+
+        {{ lookup('template', params_src_dir ~ '/gitops-common.yml.j2') | indent(8) }}
+
+        - name: update_mas_catalog
+          value: true
+
+        - name: upgrade_common_services
+          value: false
+
+        - name: mas_catalog_version
+          value: $(params.mas_catalog_version)
+
+        - name: mas_catalog_image
+          value: $(params.mas_catalog_image)
+
+        - name: icr_username
+          value: $(params.icr_username)
+        - name: icr_password
+          value: $(params.icr_password)
+
+        # Development catalog support
+        - name: artifactory_username
+          value: $(params.artifactory_username)
+        - name: artifactory_token
+          value: $(params.artifactory_token)
+      when:
+        - input: "$(params.gitops_mode)"
+          operator: in
+          values: ["True"]
 
     # 3. Verify health of the cluster before we consider the update complete
     # -------------------------------------------------------------------------

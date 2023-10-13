@@ -23,23 +23,34 @@ spec:
       type: string
     - name: artifactory_username
       type: string
+      default: ""
     - name: artifactory_token
       type: string
+      default: ""
     - name: icr_username
       type: string
+      default: ""
     - name: icr_password
       type: string
+      default: ""
     - name: mas_catalog_version
       type: string
+      default: ""
     - name: mas_catalog_image
       type: string
+      default: ""
     - name: common_services_channel
       type: string
+      default: ""
     - name: avp_aws_access_key
       type: string
     - name: avp_aws_secret_key
       type: string
     - name: avp_aws_secret_region
+      type: string
+    - name: update_mas_catalog
+      type: string
+    - name: upgrade_common_services
       type: string
   stepTemplate:
     name: gitops-cluster
@@ -80,6 +91,10 @@ spec:
         value: $(params.avp_aws_secret_region)
       - name: GITHUB_PAT
         value: $(params.github_pat)
+      - name: UPDATE_MAS_CATALOG
+        value: $(params.update_mas_catalog)
+      - name: UPGRADE_COMMON_SERVICES
+        value: $(params.upgrade_common_services)
   steps:
     - args:
       - |-

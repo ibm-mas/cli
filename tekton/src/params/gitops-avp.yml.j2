@@ -1,0 +1,17 @@
+# Gitops ArgoCD Vault Plugin Parameters
+# ------------------------------------------------------------------------- 
+- name: avp_aws_access_key
+    type: string
+    description: The ArgoCD Vault Plugin AWS Access Key to access AWS SecretManager
+- name: avp_aws_secret_key
+    type: string
+    description: The ArgoCD Vault Plugin AWS Secret Key to access AWS SecretManager
+- name: avp_aws_secret_region
+    type: string
+    description: The ArgoCD Vault Plugin AWS Region to access AWS SecretManager
+- name: secrets_path
+    type: string
+    description: The root path in SecretManager to find secrets
+- name: secrets_key_seperator
+    type: string
+    description: The SecretManager key seperator string
