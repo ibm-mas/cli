@@ -15,6 +15,8 @@ Maximo Operator Catalog Selection (Required):
 Update Dependencies (Optional):
   --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}        DB2 namespace where instances update will be performed
   --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET} Namespace where MongoCE operator and instance will be updated
+  --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET} Namespace where Kafka operator and instance will be updated
+  --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}  Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), or 'strimzi'
 
 Other Commands:
       --no-confirm                      Mirror images without prompting for confirmation
@@ -40,6 +42,12 @@ function update_noninteractive() {
         ;;
       --mongodb-namespace)
         MONGODB_NAMESPACE=$1 && shift
+        ;;
+      --kafka-namespace)
+        KAFKA_NAMESPACE=$1 && shift
+        ;;
+      --kafka-provider)
+        KAFKA_PROVIDER=$1 && shift
         ;;
       --no-confirm)
         NO_CONFIRM=true
@@ -85,10 +93,35 @@ function update_interactive() {
   fi
 
   # Detect MongoDB Community Edition in cluster and set namespace
-  MONGODB_NAMESPACE=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
-  if [ "$?" == "0" ]; then
-    echo -e "${COLOR_GREEN}MongoDB Community Edition has been detected in ${MONGODB_NAMESPACE} and will be updated as needed.${COLOR_RESET}"
+  if [ -z "$MONGODB_NAMESPACE" ]; then
+    MONGODB_NAMESPACE=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+    if [ "$?" == "0" ]; then
+      echo -e "${COLOR_GREEN}MongoDB Community Edition has been detected in ${MONGODB_NAMESPACE} and will be updated as needed.${COLOR_RESET}"
+    fi
   fi
+
+  # Detect Kafka in cluster and set namespace
+  if [ -z "$KAFKA_NAMESPACE" ]; then
+    KAFKA_NAMESPACE=`oc get Kafka.kafka.strimzi.io -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+    if [ "$?" == "0" ]; then
+      echo -e "${COLOR_GREEN}Kafka has been detected in ${KAFKA_NAMESPACE} and will be updated as needed.${COLOR_RESET}"
+    fi
+  fi
+
+  # Detect Kafka provider
+  if [ -z "$KAFKA_PROVIDER" ] && [ -n "$KAFKA_NAMESPACE" ]; then
+    KAFKA_OPERATOR=`oc get subscription -n $KAFKA_NAMESPACE -o jsonpath='{.items[0].spec.name}' 2> /dev/null`
+    if [ "$?" == "0" ]; then
+      if [ "$KAFKA_OPERATOR" == "amq-streams" ]; then
+        KAFKA_PROVIDER="redhat"
+        echo -e "${COLOR_GREEN}Kafka has been detected with provider ${KAFKA_PROVIDER}.${COLOR_RESET}"
+      elif [ "$KAFKA_OPERATOR" == "strimzi-kafka-operator" ]; then
+        KAFKA_PROVIDER="strimzi"
+        echo -e "${COLOR_GREEN}Kafka has been detected with provider ${KAFKA_PROVIDER}.${COLOR_RESET}"
+      fi
+    fi
+  fi
+
 }
 
 
@@ -104,6 +137,8 @@ function update() {
   export MAS_CATALOG_VERSION
   export DB2_NAMESPACE
   export MONGODB_NAMESPACE
+  export KAFKA_NAMESPACE
+  export KAFKA_PROVIDER
   echo
   reset_colors
   echo_h2 "Review Settings"

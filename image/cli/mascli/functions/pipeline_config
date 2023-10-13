@@ -33,17 +33,18 @@ function pipeline_config() {
       MAS_CATALOG_VERSION=v8-amd64
 
       echo -e "${COLOR_YELLOW}MAS Version:"
-      echo "  1. 8.10"
-      echo "  2. 8.9"
+      echo "  1. 8.11"
+      echo "  2. 8.10"
       prompt_for_input "Select Subscription Channel" MAS_CHANNEL_SELECTION "1"
 
       case $MAS_CHANNEL_SELECTION in
-        1|8.10|8.10.x)
-          MAS_CHANNEL=8.10.x
+        1|8.11|8.11.x)
+          MAS_CHANNEL=8.11.x
           ;;
 
-        2|8.9|8.9.x)
-          MAS_CHANNEL=8.9.x
+
+        2|8.10|8.10.x)
+          MAS_CHANNEL=8.10.x
           ;;
 
         *)
@@ -59,14 +60,17 @@ function pipeline_config() {
     choose_mas_version
   fi
 
+  # Determine SLS version specific prompts
+  sls_prompt_selection
+
   # Present a the MAS license information
   # ---------------------------------------------------------------------------
   case $MAS_CHANNEL in
+    8.11.x)
+      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "811" )
+      ;;
     8.10.x)
       MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
-      ;;
-    8.9.x)
-      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
       ;;
   esac
 
@@ -170,7 +174,9 @@ function pipeline_config() {
 
     echo
     echo_h2 "Configure IBM Container Registry (SLS)"
-    prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP docker-na-public.artifactory.swg-devops.com/wiotp-docker-local override
+    if [[ "$SLS_PROMPT_ICR_CP" == "true" ]]; then
+      prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP docker-na-public.artifactory.swg-devops.com/wiotp-docker-local override
+    fi
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen override
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
@@ -181,19 +187,30 @@ function pipeline_config() {
     MAS_ICR_CP=cp.icr.io/cp
     MAS_ICR_CPOPEN=icr.io/cpopen
 
-    SLS_ICR_CP=cp.icr.io/cp
     SLS_ICR_CPOPEN=icr.io/cpopen
+    if [[ "$SLS_PROMPT_ICR_CP" == "true" ]]; then
+      SLS_ICR_CP=cp.icr.io/cp
+    fi
   fi
 
   echo
   echo_h2 "Configure Product License"
-  prompt_for_input "License ID" SLS_LICENSE_ID
+
+  if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
+    prompt_for_input "License ID" SLS_LICENSE_ID
+  fi
+
   prompt_for_input "License File" SLS_LICENSE_FILE_LOCAL
   if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
     echo_warning "Error: File does not exist: $SLS_LICENSE_FILE_LOCAL"
     exit 1
   fi
-  SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
+
+  if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
+    SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
+  else
+    SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
+  fi
 
   echo
   echo_h2 "Configure DRO"
