@@ -23,7 +23,7 @@ trap trap_exit EXIT
 trap trap_int INT
 
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+CLI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CONFIG_DIR="$HOME/.ibm-mas/config"
 LOG_DIR="$HOME/.ibm-mas/logs"
 LOGFILE=$LOG_DIR/mas.log
@@ -34,38 +34,38 @@ VERSION=latest
 mkdir -p $LOG_DIR
 mkdir -p $CONFIG_DIR
 
-# export ANSIBLE_CONFIG=$DIR/ansible.cfg
+# export ANSIBLE_CONFIG=$CLI_DIR/ansible.cfg
 
 # General purpose
-. $DIR/functions/catalog_utils
-. $DIR/functions/connect
-. $DIR/functions/utils
-. $DIR/functions/save_config
+. $CLI_DIR/functions/catalog_utils
+. $CLI_DIR/functions/connect
+. $CLI_DIR/functions/utils
+. $CLI_DIR/functions/save_config
 # MAS provisioning support
-. $DIR/functions/provision_fyre
-. $DIR/functions/provision_roks
-. $DIR/functions/provision_aws
+. $CLI_DIR/functions/provision_fyre
+. $CLI_DIR/functions/provision_roks
+. $CLI_DIR/functions/provision_aws
 # MAS installation support
-. $DIR/functions/install
-. $DIR/functions/pipeline_config
-. $DIR/functions/pipeline_install_operator
-. $DIR/functions/pipeline_install_tasks
-. $DIR/functions/pipeline_prepare
-. $DIR/functions/pipeline_run
-. $DIR/functions/pipeline_show_config
-. $DIR/functions/update
-. $DIR/functions/upgrade
-. $DIR/functions/uninstall
+. $CLI_DIR/functions/install
+. $CLI_DIR/functions/pipeline_config
+. $CLI_DIR/functions/pipeline_install_operator
+. $CLI_DIR/functions/pipeline_install_tasks
+. $CLI_DIR/functions/pipeline_prepare
+. $CLI_DIR/functions/pipeline_run
+. $CLI_DIR/functions/pipeline_show_config
+. $CLI_DIR/functions/update
+. $CLI_DIR/functions/upgrade
+. $CLI_DIR/functions/uninstall
 # Airgap support
-. $DIR/functions/setup_mirror_registry
-. $DIR/functions/teardown_mirror_registry
-. $DIR/functions/mirror_to_registry
-. $DIR/functions/mirror_redhat_to_registry
-. $DIR/functions/configure_ocp_for_mirror
+. $CLI_DIR/functions/setup_mirror_registry
+. $CLI_DIR/functions/teardown_mirror_registry
+. $CLI_DIR/functions/mirror_to_registry
+. $CLI_DIR/functions/mirror_redhat_to_registry
+. $CLI_DIR/functions/configure_ocp_for_mirror
 # Manage OIDC for configtool
-. $DIR/functions/configtool_oidc
+. $CLI_DIR/functions/configtool_oidc
 # Must Gather
-. $DIR/functions/must_gather
+. $CLI_DIR/functions/must_gather
 
 load_config
 case $1 in

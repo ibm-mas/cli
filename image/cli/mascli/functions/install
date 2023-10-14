@@ -33,8 +33,9 @@ Advanced MAS Configuration (Optional):
       --additional-configs ${COLOR_YELLOW}LOCAL_MAS_CONFIG_DIR${TEXT_RESET}                    Path to a directory containing additional configuration files to be applied
       --non-prod                                                   Install MAS in Non-production mode
       --mas-trust-default-cas ${COLOR_YELLOW}MAS_TRUST_DEFAULT_CAS${TEXT_RESET}                Trust certificates signed by well-known CAs
-      --workload-scale-profile                                     Set a pre-defined workload scale profile [Burstable, BestEffort, Guaranteed]
-      --mas-pod-templates-dir                                      Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over --workload-scale-profile
+      --workload-scale-profile ${COLOR_YELLOW}MAS_WORKLOAD_SCALE_PROFILE${TEXT_RESET}          Set a pre-defined workload scale profile [Burstable, BestEffort, Guaranteed]
+      --mas-pod-templates-dir ${COLOR_YELLOW}MAS_POD_TEMPLATES_DIR${TEXT_RESET}                Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over --workload-scale-profile
+
 Maximo Application Suite Core Platform (Required):
       --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                                    Subscription channel for the Core Platform
 
@@ -102,11 +103,10 @@ Cloud Provider Commands:
       --ibmcloud-apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                            Set IBM Cloud API Key (Required to provision IBM Cloud services)
 
 Manage Application - Advanced Configuration (Optional):
-
       --manage-demodata                                                                                                   Enables demo data for Manage application
       --manage-jms                                                                                                        Enables JMS queues using local persistent volumes
       --manage-server-bundle-size ${COLOR_YELLOW}MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE${TEXT_RESET}                        Set Manage server bundle size configuration i.e 'dev', 'small', 'jms' or 'snojms'
-      --manage-components ${COLOR_YELLOW}MAS_APPWS_COMPONENTS${TEXT_RESET}                                                Set Manage Components to be installed i.e 'base=latest,health=latest,civil=latest'                     
+      --manage-components ${COLOR_YELLOW}MAS_APPWS_COMPONENTS${TEXT_RESET}                                                Set Manage Components to be installed i.e 'base=latest,health=latest,civil=latest'
       --manage-customization-archive-name ${COLOR_YELLOW}MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME${TEXT_RESET}         Set Manage Archive name
       --manage-customization-archive-url ${COLOR_YELLOW}MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL${TEXT_RESET}           Set Manage Archive url
       --manage-customization-archive-username ${COLOR_YELLOW}MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME${TEXT_RESET} Set Manage Archive username, in case url requires basic authentication to pull the archive
@@ -114,9 +114,8 @@ Manage Application - Advanced Configuration (Optional):
       --manage-crypto-key ${COLOR_YELLOW}MAS_APP_SETTINGS_CRYPTO_KEY${TEXT_RESET}                                         Set 'MXE_SECURITY_CRYPTO_KEY' value if you want to customize your Manage database encryption keys
       --manage-cryptox-key ${COLOR_YELLOW}MAS_APP_SETTINGS_CRYPTOX_KEY${TEXT_RESET}                                       Set 'MXE_SECURITY_CRYPTOX_KEY' value if you want to customize your Manage database encryption keys
       --manage-old-crypto-key ${COLOR_YELLOW}MAS_APP_SETTINGS_OLD_CRYPTO_KEY${TEXT_RESET}                                 Set 'MXE_SECURITY_OLD_CRYPTO_KEY' value if you want to customize your Manage database encryption keys
-      --manage-old-cryptox-key ${COLOR_YELLOW}MAS_APP_SETTINGS_OLD_CRYPTOX_KEY${TEXT_RESET}                               Set 'MXE_SECURITY_OLD_CRYPTOX_KEY' value if you want to customize your Manage database encryption keys                     
+      --manage-old-cryptox-key ${COLOR_YELLOW}MAS_APP_SETTINGS_OLD_CRYPTOX_KEY${TEXT_RESET}                               Set 'MXE_SECURITY_OLD_CRYPTOX_KEY' value if you want to customize your Manage database encryption keys
       --manage-override-encryption-secrets                                                                                Overrides any existing Manage database encryption keys. A backup of the original secret holding existing encryption keys is taken prior overriding it with the new defined keys.
-
 
 Other Commands:
       --dev-mode                                                   Enable developer mode (e.g. for access to pre-release builds)
@@ -198,16 +197,13 @@ function install_noninteractive() {
     --workload-scale-profile)
     MAS_WORKLOAD_SCALE_PROFILE=$1 && shift
     case $MAS_WORKLOAD_SCALE_PROFILE in
-    "Guaranteed")
+      Guaranteed|BestEffort)
       set_mas_workload_scale_envs
       ;;
-    "BestEffort")
-      set_mas_workload_scale_envs
-      ;;
-    "Burstable")
+      Burstable)
       clear_mas_workload_scale_envs
       ;;
-    *)
+      *)
       echo_warning "Invalid workload scale profile. Must be one of [Burstable, BestEffort, Guaranteed]"
       exit 1
       ;;
@@ -345,7 +341,7 @@ function install_noninteractive() {
     ;;
 
     --kafka-password)
-    export AWS_KAFKA_USER_PASSWORD=$1 
+    export AWS_KAFKA_USER_PASSWORD=$1
     export KAFKA_USER_PASSWORD=$1 && shift
     ;;
 
@@ -455,7 +451,7 @@ function install_noninteractive() {
     --manage-jdbc)
     export MAS_APPWS_BINDINGS_JDBC_MANAGE=$1 && shift
     ;;
-    
+
     # Manage commands - Components
     --manage-components)
     export MAS_APPWS_COMPONENTS=$1 && shift
@@ -578,7 +574,7 @@ function install_noninteractive() {
   if [[ "$LICENSE_ACCEPTED" == "false" ]]; then
     echo
     echo_h2 "License Terms"
-    echo -e "${COLOR_RED}For information about your license, see "$MAS_LICENSE_LINK" and https://ibm.biz/MAXIT81-License. To continue with the installation, you must accept the license terms."
+    echo -e "For information about your license, see "$MAS_LICENSE_LINK" and https://ibm.biz/MAXIT81-License. To continue with the installation, you must accept the license terms."
     install_help
     exit 1
 
@@ -592,23 +588,23 @@ function install_interactive() {
 
 
 function ocp_version_check() {
-  # Check for OCP 4.8
+  # Check for OCP 4.9 and 4.10
   export OCP_VERSION=$(oc get clusterversion version -o jsonpath="{.status.desired.version}")
-  if [[ "$OCP_VERSION" =~ ^4\.7\.* ]]; then
+  if [[ "$OCP_VERSION" =~ ^4\.9\.* ]]; then
     echo
     echo_warning "Warning: OpenShift Container Platform v${OCP_VERSION} detected!"
     echo_warning " - This version is now out of support by Red Hat and ${TEXT_UNDERLINE}not a supported platform for IBM Maximo Application Suite"
-    echo_warning " - The installation of IBM Maximo Application Suite may not proceed, you must upgrade to OCP v4.10 before installing MAS"
+    echo_warning " - The installation of IBM Maximo Application Suite may not proceed, you must upgrade to at least OCP v4.10 before installing MAS"
     echo
     echo_warning "For more information refer to the Red Hat OpenShift Container Platform Life Cycle Policy:"
     echo "  ${COLOR_CYAN}${TEXT_UNDERLINE}https://access.redhat.com/support/policy/updates/openshift/${COLOR_RESET}${TEXT_RESET}"
     reset_colors
     exit 1
-  elif [[ "$OCP_VERSION" =~ ^4\.8\.* ]]; then
+  elif [[ "$OCP_VERSION" =~ ^4\.10\.* ]]; then
     echo
     echo_warning "Warning: OpenShift Container Platform v${OCP_VERSION} detected!"
     echo_warning " - This version is ${TEXT_UNDERLINE}now out of support by Red Hat"
-    echo_warning " - The installation of IBM Maximo Application Suite may proceed, but we strongly encourage you to upgrade to OCP v4.10 first"
+    echo_warning " - The installation of IBM Maximo Application Suite may proceed, but we strongly encourage you to upgrade to OCP v4.12 first"
     echo
     echo_warning "For more information refer to the Red Hat OpenShift Container Platform Life Cycle Policy:"
     echo "  ${COLOR_CYAN}${TEXT_UNDERLINE}https://access.redhat.com/support/policy/updates/openshift/${COLOR_RESET}${TEXT_RESET}"
