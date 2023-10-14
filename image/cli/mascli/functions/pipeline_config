@@ -177,11 +177,11 @@ function pipeline_config() {
     # Development Mode -- offer the ability to set MAS and SLS source independently
     echo_h2 "Configure Artifactory"
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
-    prompt_for_input "Artifactory Token" ARTIFACTORY_TOKEN
+    prompt_for_secret "Artifactory Token" ARTIFACTORY_TOKEN "Re-use saved Artifactory Token?"
 
     echo
     echo_h2 "Configure IBM Container Registry"
-    prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
+    prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY "Re-use saved IBM Entitlement Key?"
 
     echo
     echo_h2 "Configure IBM Container Registry (MAS)"
@@ -230,17 +230,7 @@ function pipeline_config() {
 
   echo
   echo_h2 "Configure UDS"
-  if [[ -n "$DEV_MODE" ]]; then
-    echo "${TEXT_DIM}Installing Maximo Application Suite with built-in UDS replacement (SUDS)"
-    echo
-    reset_colors
-    UDS_CONTACT_EMAIL=""
-    UDS_CONTACT_FIRSTNAME=""
-    UDS_CONTACT_LASTNAME=""
-    UDS_ACTION="install_suds"
-  else
-    prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
-    prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
-    prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
-  fi
+  prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
+  prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
+  prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
 }

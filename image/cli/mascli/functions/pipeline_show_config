@@ -250,7 +250,7 @@ function pipeline_show_config() {
   # Build non-interactive command
   # export IBM_ENTITLEMENT_KEY=xxx
   # export IBMCLOUD_APIKEY=xxx
-  cmd="mas install --mas-catalog-version $MAS_CATALOG_VERSION --accept-license --no-confirm \\
+  cmd="mas install --mas-catalog-version $MAS_CATALOG_VERSION --accept-license \\
   --license-file $SLS_LICENSE_FILE_LOCAL \\
   --uds-email '$UDS_CONTACT_EMAIL' --uds-firstname '$UDS_CONTACT_FIRSTNAME' --uds-lastname '$UDS_CONTACT_LASTNAME' \\
   --storage-rwo '$STORAGE_CLASS_RWO' --storage-rwx '$STORAGE_CLASS_RWX' --storage-pipeline '$PIPELINE_STORAGE_CLASS' --storage-accessmode '$PIPELINE_STORAGE_ACCESSMODE' \\
