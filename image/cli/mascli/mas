@@ -34,8 +34,6 @@ VERSION=latest
 mkdir -p $LOG_DIR
 mkdir -p $CONFIG_DIR
 
-# export ANSIBLE_CONFIG=$CLI_DIR/ansible.cfg
-
 # General purpose
 . $CLI_DIR/functions/catalog_utils
 . $CLI_DIR/functions/connect
