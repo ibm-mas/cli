@@ -137,6 +137,12 @@ function gitops_init_suite_dns() {
   echo_reset_dim "mas_config_dir .......................... ${COLOR_MAGENTA}${MAS_CONFIG_DIR}"
  
   export ROLE_NAME=suite_dns && ansible-playbook ibm.mas_devops.run_role
+
+  # workaround start - running CIS_ENHANCED_SECURITY with false as there is a failure noticed when ordering certificate with more than 50 hostnames 
+  export CIS_ENHANCED_SECURITY=false
+  export ROLE_NAME=suite_dns && ansible-playbook ibm.mas_devops.run_role
+  # workaround end - running CIS_ENHANCED_SECURITY with false as there is a failure noticed when ordering certificate with more than 50 hostnames
+
   rc=$?
   [ $rc -ne 0 ] && exit $rc
 
