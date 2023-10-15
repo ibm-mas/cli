@@ -84,6 +84,9 @@ spec:
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
+        
+        oc adm policy add-scc-to-user anyuid -z cert-manager-webhook-ibm-cis -n ibm-common-services
+
         mas gitops-init-suite-dns
 
       command:
