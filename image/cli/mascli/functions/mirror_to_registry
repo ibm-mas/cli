@@ -53,6 +53,7 @@ Content Selection (Cloud Pak for Data):
 
 Content Selection (Other Dependencies):
       --mirror-cfs                                  Mirror images for IBM Cloud Pak Foundation Services
+      --mirror-uds                                  Mirror images for IBM User Data Services
       --mirror-dro                                  Mirror images for IBM Data Reprter Operator
       --mirror-sls                                  Mirror images for IBM Suite License Service
       --mirror-tsm                                  Mirror images for IBM Truststore Manager
@@ -83,6 +84,7 @@ function mirror_to_registry_noninteractive() {
   # Dependencies
   MIRROR_CATALOG=false
   MIRROR_COMMONSERVICES=false
+  MIRROR_UDS=false
   MIRROR_DRO=false
   MIRROR_SLS=false
   MIRROR_TRUSTSTOREMGR=false
@@ -185,6 +187,9 @@ function mirror_to_registry_noninteractive() {
       --mirror-cfs)
         MIRROR_COMMONSERVICES=true
         ;;
+      --mirror-uds)
+        MIRROR_UDS=true
+        ;;
       --mirror-dro)
         MIRROR_DRO=true
         ;;
@@ -252,7 +257,7 @@ function mirror_to_registry_noninteractive() {
     [[ -z "$REGISTRY_PASSWORD" ]] && mirror_to_registry_help "REGISTRY_PASSWORD is not set"
   fi
 
-  if [[ $MIRROR_DRO == "true" ]]; then
+  if [[ $MIRROR_UDS == "true" ]]; then
     [[ -z "$REDHAT_CONNECT_USERNAME" ]] && mirror_to_registry_help "REDHAT_CONNECT_USERNAME is not set"
     [[ -z "$REDHAT_CONNECT_PASSWORD" ]] && mirror_to_registry_help "REDHAT_CONNECT_PASSWORD is not set"
   fi
@@ -323,6 +328,7 @@ function mirror_to_registry_interactive() {
     # Dependencies (Other)
     MIRROR_CATALOG=true
     MIRROR_COMMONSERVICES=true
+    MIRROR_UDS=true
     MIRROR_DRO=true
     MIRROR_SLS=true
     MIRROR_TRUSTSTOREMGR=true
@@ -350,6 +356,7 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm "IBM Maximo Application Suite - Visual Inspection" MIRROR_MAS_VISUALINSPECTION
 
     prompt_for_confirm_default_yes "IBM Foundational Services" MIRROR_COMMONSERVICES
+    prompt_for_confirm_default_yes "IBM Data Reorter Operator" MIRROR_UDS
     prompt_for_confirm_default_yes "IBM Data Reorter Operator" MIRROR_DRO
     prompt_for_confirm_default_yes "IBM Suite License Service" MIRROR_SLS
     prompt_for_confirm_default_yes "IBM Truststore Manager" MIRROR_TRUSTSTOREMGR
@@ -368,7 +375,7 @@ function mirror_to_registry_interactive() {
   echo_h2 "Configure Authentication"
   prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY
 
-  if [[ $MIRROR_DRO == "true" ]]; then
+  if [[ $MIRROR_UDS == "true" ]]; then
     prompt_for_input "Red Hat Connect Username" REDHAT_CONNECT_USERNAME
     prompt_for_input "Red Hat Connect Password" REDHAT_CONNECT_PASSWORD
   fi
@@ -429,6 +436,7 @@ function mirror_to_registry() {
   # Dependency control
   export MIRROR_CATALOG
   export MIRROR_COMMONSERVICES
+  export MIRROR_UDS
   export MIRROR_DRO
   export MIRROR_SLS
   export MIRROR_TRUSTSTOREMGR
@@ -450,6 +458,7 @@ function mirror_to_registry() {
 
   if [[ "$MIRROR_CATALOG" == true ||
     "$MIRROR_COMMONSERVICES" == true ||
+    "$MIRROR_UDS" == true ||
     "$MIRROR_DRO" == true ||
     "$MIRROR_SLS" == true ||
     "$MIRROR_TRUSTSTOREMGR" == true ||
@@ -525,7 +534,8 @@ function mirror_to_registry() {
   reset_colors
   echo_h4 "Content Selection (Other Dependencies)" "    "
   show_mirror_status "IBM Cloud Pak Foundation Services ..." $MIRROR_COMMONSERVICES
-  show_mirror_status "IBM Data Reorter Oerator .............." $MIRROR_DRO
+  show_mirror_status "IBM User Data Services .............." $MIRROR_UDS
+  show_mirror_status "IBM Data Reporter Oerator ..........." $MIRROR_DRO
   show_mirror_status "IBM Suite License Service ..........." $MIRROR_SLS
   show_mirror_status "IBM Truststore Manager .............." $MIRROR_TRUSTSTOREMGR
   show_mirror_status "MongoDb Community Edition ..........." $MIRROR_MONGOCE

@@ -138,6 +138,7 @@ function install_noninteractive() {
   NON_INTERACTIVE=true
   DEV_MODE=false
   LICENSE_ACCEPTED=false
+  BAS_ACTION=UDS
 
   # Defaults
   DB2_ACTION_SYSTEM=none
@@ -426,27 +427,30 @@ function install_noninteractive() {
     ;;
 
     # UDS
-    --uds-email)
-    export UDS_CONTACT_EMAIL=$1 && shift
-    ;;
-    --uds-firstname)
-    export UDS_CONTACT_FIRSTNAME=$1 && shift
-    ;;
-    --uds-lastname)
-    export UDS_CONTACT_LASTNAME=$1 && shift
-    ;;
-   --dro-email)
-    export DRO_CONTACT_EMAIL=$1 && shift
-    ;;
-    --dro-firstname)
-    export DRO_CONTACT_FIRSTNAME=$1 && shift
-    ;;
-    --dro-lastname)
-    export DRO_CONTACT_LASTNAME=$1 && shift
-    ;;
-     --dro-secret-token)
-    export DRO_PULL_SECRET_TOKEN=$1 && shift
-    ;;
+    prompt_for_input "Do you want install UDS or DRO ?" BAS_ACTION "UDS"
+    if [[ "$BAS_ACTION" == "UDS" ]]; then
+      --uds-email)
+      export UDS_CONTACT_EMAIL=$1 && shift
+      ;;
+      --uds-firstname)
+      export UDS_CONTACT_FIRSTNAME=$1 && shift
+      ;;
+      --uds-lastname)
+      export UDS_CONTACT_LASTNAME=$1 && shift
+      ;;
+    else
+      --dro-email)
+      export DRO_CONTACT_EMAIL=$1 && shift
+      ;;
+      --dro-firstname)
+      export DRO_CONTACT_FIRSTNAME=$1 && shift
+      ;;
+      --dro-lastname)
+      export DRO_CONTACT_LASTNAME=$1 && shift
+      ;;
+    fi
+    
+   
     # MongoDB
     --mongodb-namespace)
     export MONGODB_NAMESPACE=$1 && shift
