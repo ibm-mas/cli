@@ -141,7 +141,7 @@ function pipeline_config() {
   echo
   prompt_for_input "Select Operational Mode" PROD_MODE_SELECTION "1"
 
-  case $MAS_CHANNEL_SELECTION in
+  case $PROD_MODE_SELECTION in
     1)
       USE_NON_PROD_MODE=false
       ;;
