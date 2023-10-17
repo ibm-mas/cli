@@ -13,6 +13,9 @@ spec:
     # Shared storage to hold mustgather output for tasks
     - name: shared-mustgather
 {% endif %}
+  
+  workspaces:
+    - name: configs
 
   params:
 {% if wait_for_install == true %}
@@ -146,6 +149,10 @@ spec:
           value: $(params.cluster_name)
         - name: account
           value: $(params.account)
+        - name: rosa_token
+          value: $(params.rosa_token)
+        - name: rosa_cluster_admin_password
+          value: $(params.rosa_cluster_admin_password)
 
         - name: github_push
           value: $(params.github_push)
@@ -199,6 +206,9 @@ spec:
         - input: "$(params.gitops_mode)"
           operator: in
           values: ["True"]
+      workspaces:
+        - name: configs
+          workspace: configs
 
     # 3. Verify health of the cluster before we consider the update complete
     # -------------------------------------------------------------------------
@@ -213,6 +223,7 @@ spec:
       }) | indent(4) }}
       runAfter:
         - update-catalog
+        - update-catalog-gitops
 
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-update-verify-catalogsources',

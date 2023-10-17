@@ -9,6 +9,12 @@ spec:
       type: string
     - name: account
       type: string
+    - name: rosa_token
+      type: string
+      default: ""
+    - name: rosa_cluster_admin_password
+      type: string
+      default: ""
     - name: secrets_path
       type: string
     - name: git_branch
@@ -59,6 +65,10 @@ spec:
         value: $(params.cluster_name)
       - name: ACCOUNT
         value: $(params.account)
+      - name: ROSA_TOKEN
+        value: $(params.rosa_token)
+      - name: ROSA_CLUSTER_ADMIN_PASSWORD
+        value: $(params.rosa_cluster_admin_password)
       - name: SECRET_PATH
         value: $(params.secrets_path)
       - name: GIT_BRANCH
@@ -103,14 +113,24 @@ spec:
         git config --global user.password $GITHUB_PAT
 
         ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
-        export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
-        export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
-        export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
-        oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
-        OC_RC=$?
-        if [ $OC_RC -ne 0 ]; then
-          echo "oc login failed"
-          exit 1
+        if [ -f $ROSA_CONFIG ]; then
+          export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
+          export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
+          export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
+          oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
+        else
+          export CLUSTER_TYPE=ROSA
+          ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role 
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed to $(params.remote_ocp_cluster)"
+            exit 1
+          fi
         fi
         
         echo "Set k8s context"
