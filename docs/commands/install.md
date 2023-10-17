@@ -123,7 +123,7 @@ Usage
 
 ### Other Commands:
 - `--no-wait-for-pvcs` If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
-- `--no-confirm`       Mirror images without prompting for confirmation
+- `--no-confirm`       Launch the install without prompting for confirmation
 - `--accept-license`   Accept MAS and Maximo IT (if applicable) licenses
 - `-h, --help`         Show install help message
 
