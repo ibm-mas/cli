@@ -145,13 +145,15 @@ function gitops_cluster_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_cluster_help "GIT_BRANCH is not set"
   fi
 
+  [[ -z "$SECRETS_PATH"]] && gitops_cluster_help "SECRETS_PATH is not set"
+
   if [[ "$UPDATE_MAS_CATALOG" == "true" ]]; then
     if [ -z $ICR_USERNAME ] || [ -z $ICR_PASSWORD ]; then
       echo 'Missing required environment variables, make sure to set ICR_USERNAME, ICR_PASSWORD'
       exit 1
     fi
   fi
-  
+
   if [[ "$UPGRADE_COMMON_SERVICES" == "true" ]]; then
     [[ -z "$COMMON_SERVICES_CHANNEL" ]] && gitops_cluster_help "COMMON_SERVICES_CHANNEL is not set"
   fi

@@ -27,6 +27,8 @@ spec:
       type: string
     - name: github_pat
       type: string
+    - name: git_commit_msg
+      type: string
     - name: artifactory_username
       type: string
       default: ""
@@ -79,6 +81,8 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
+      - name: GIT_COMMIT_MSG
+        value: $(params.git_commit_msg)
       - name: ARTIFACTORY_USERNAME
         value: $(params.artifactory_username)
       - name: ARTIFACTORY_TOKEN
@@ -108,8 +112,8 @@ spec:
   steps:
     - args:
       - |-
-        git config --global user.name "yourUsername"
-        git config --global user.email "you@example.com"
+        git config --global user.name "MAS Automation"
+        git config --global user.email "whitfiea@uk.ibm.com"
         git config --global user.password $GITHUB_PAT
 
         ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
