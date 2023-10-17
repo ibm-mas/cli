@@ -46,7 +46,7 @@ function gitops_cluster_noninteractive() {
   SECRETS_KEY_SEPERATOR="/"
 
   GITHUB_PUSH="false"
-  GIT_COMMIT_MSG="gitops-cluster commit"
+  export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"gitops-cluster commit"}
   export COMMON_SERVICES_CHANNEL=${COMMON_SERVICES_CHANNEL:-"v3.23"}
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
   export MAS_CATALOG_VERSION=${MAS_CATALOG_VERSION:-"v8-230414-amd64"}
