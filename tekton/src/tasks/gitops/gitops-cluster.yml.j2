@@ -128,7 +128,7 @@ spec:
           ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role 
           OC_RC=$?
           if [ $OC_RC -ne 0 ]; then
-            echo "oc login failed to $(params.remote_ocp_cluster)"
+            echo "oc login failed"
             exit 1
           fi
         fi
