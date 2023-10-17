@@ -13,7 +13,7 @@ MAS Instance Selection (Required):
   -i, --id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                         MAS Instance ID to uninstall
 
 Other Commands:
-      --no-confirm                                                 Uninstall without prompting for confirmation
+      --no-confirm                                                 Launch the uninstall without prompting for confirmation
   -h, --help                                                       Show this help message
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0

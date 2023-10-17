@@ -19,7 +19,7 @@ Update Dependencies (Optional):
   --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}  Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), or 'strimzi'
 
 Other Commands:
-      --no-confirm                      Mirror images without prompting for confirmation
+      --no-confirm                      Launch the update without prompting for confirmation
   -h, --help                            Show this help message
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0
