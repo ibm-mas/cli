@@ -124,7 +124,7 @@ spec:
             exit 1
           fi
         else
-          export CLUSTER_TYPE=ROSA
+          export CLUSTER_TYPE=rosa
           ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role 
           OC_RC=$?
           if [ $OC_RC -ne 0 ]; then
