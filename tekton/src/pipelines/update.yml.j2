@@ -14,8 +14,10 @@ spec:
     - name: shared-mustgather
 {% endif %}
   
+{% if wait_for_install == false %}
   workspaces:
     - name: configs
+{% endif %}
 
   params:
 {% if wait_for_install == true %}
