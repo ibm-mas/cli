@@ -212,26 +212,29 @@ function pipeline_config() {
     SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
   fi
 
-  echo
-  echo_h2 "Configure DRO"
-  prompt_for_input "DRO Contact Email" DRO_CONTACT_EMAIL
-  prompt_for_input "DRO Contact First Name" DRO_CONTACT_FIRSTNAME
-  prompt_for_input "DRO Contact Last Name" DRO_CONTACT_LASTNAME
-  prompt_for_input "DRO Pull Secret Token" DRO_PULL_SECRET_TOKEN
-
-  echo
-  echo_h2 "Configure UDS"
-  if [[ -n "$DEV_MODE" ]]; then
-    echo "${TEXT_DIM}Installing Maximo Application Suite with built-in UDS replacement (SUDS)"
-    echo
-    reset_colors
-    UDS_CONTACT_EMAIL=""
-    UDS_CONTACT_FIRSTNAME=""
-    UDS_CONTACT_LASTNAME=""
-    UDS_ACTION="install_suds"
+  echo ""
+  prompt_for_input "Do you want install UDS or DRO ?" BAS_ACTION "UDS"
+  if [[ "$BAS_ACTION" == "DRO" ]]; then
+    echo_h2 "Configure DRO"
+    prompt_for_input "DRO Contact Email" DRO_CONTACT_EMAIL
+    prompt_for_input "DRO Contact First Name" DRO_CONTACT_FIRSTNAME
+    prompt_for_input "DRO Contact Last Name" DRO_CONTACT_LASTNAME
+    prompt_for_input "DRO Pull Secret Token" DRO_PULL_SECRET_TOKEN
   else
-    prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
-    prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
-    prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
+    echo
+    echo_h2 "Configure UDS"
+    if [[ -n "$DEV_MODE" ]]; then
+      echo "${TEXT_DIM}Installing Maximo Application Suite with built-in UDS replacement (SUDS)"
+      echo
+      reset_colors
+      UDS_CONTACT_EMAIL=""
+      UDS_CONTACT_FIRSTNAME=""
+      UDS_CONTACT_LASTNAME=""
+      UDS_ACTION="install_suds"
+    else
+      prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
+      prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
+      prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
+    fi
   fi
 }

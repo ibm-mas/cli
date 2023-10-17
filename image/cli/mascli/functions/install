@@ -427,28 +427,26 @@ function install_noninteractive() {
     ;;
 
     # UDS
-    prompt_for_input "Do you want install UDS or DRO ?" BAS_ACTION "UDS"
-    if [[ "$BAS_ACTION" == "UDS" ]]; then
-      --uds-email)
-      export UDS_CONTACT_EMAIL=$1 && shift
-      ;;
-      --uds-firstname)
-      export UDS_CONTACT_FIRSTNAME=$1 && shift
-      ;;
-      --uds-lastname)
-      export UDS_CONTACT_LASTNAME=$1 && shift
-      ;;
-    else
-      --dro-email)
-      export DRO_CONTACT_EMAIL=$1 && shift
-      ;;
-      --dro-firstname)
-      export DRO_CONTACT_FIRSTNAME=$1 && shift
-      ;;
-      --dro-lastname)
-      export DRO_CONTACT_LASTNAME=$1 && shift
-      ;;
-    fi
+    --uds-email)
+    export UDS_CONTACT_EMAIL=$1 && shift
+    ;;
+    --uds-firstname)
+    export UDS_CONTACT_FIRSTNAME=$1 && shift
+    ;;
+    --uds-lastname)
+    export UDS_CONTACT_LASTNAME=$1 && shift
+    ;;
+  
+    --dro-email)
+    export DRO_CONTACT_EMAIL=$1 && shift
+    ;;
+    --dro-firstname)
+    export DRO_CONTACT_FIRSTNAME=$1 && shift
+    ;;
+    --dro-lastname)
+    export DRO_CONTACT_LASTNAME=$1 && shift
+    ;;
+    
     
    
     # MongoDB
