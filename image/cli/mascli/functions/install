@@ -620,7 +620,7 @@ function install() {
     # Non-interactive mode assumes you are already connected
     detect_airgap
     detect_sno
-    install_noninteractive
+    install_noninteractive "$@"
     pipeline_install_operator
     config_pipeline_additional_configs
   fi
