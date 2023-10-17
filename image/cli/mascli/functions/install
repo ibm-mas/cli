@@ -12,11 +12,13 @@ Catalog Selection (Required):
 
 Entitlement & Licensing (Required):
       --ibm-entitlement-key ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}            IBM entitlement key
-      --license-id ${COLOR_YELLOW}SLS_LICENSE_ID${TEXT_RESET}                          MAS license ID
       --license-file ${COLOR_YELLOW}SLS_LICENSE_FILE_LOCAL${TEXT_RESET}                Path to MAS license file
       --uds-email ${COLOR_YELLOW}UDS_CONTACT_EMAIL${TEXT_RESET}                        Contact e-mail address
       --uds-firstname ${COLOR_YELLOW}UDS_CONTACT_FIRSTNAME${TEXT_RESET}                Contact first name
       --uds-lastname ${COLOR_YELLOW}UDS_CONTACT_LASTNAME${TEXT_RESET}                  Contact last name
+
+Entitlement & Licensing (Only required up to v8-230414-amd64):
+      --license-id ${COLOR_YELLOW}SLS_LICENSE_ID${TEXT_RESET}                          MAS license ID. Required for SLS 3.6.0 and below
 
 Storage Class Selection (Required):
       --storage-rwo ${COLOR_YELLOW}STORAGE_CLASS_RWO${TEXT_RESET}                      Read Write Once (RWO) storage class (e.g. ibmc-block-gold)
@@ -399,12 +401,6 @@ function install_noninteractive() {
           echo_warning "Error: File does not exist: $SLS_LICENSE_FILE_LOCAL"
           exit 1
         fi
-        sls_prompt_selection
-        if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
-          export SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
-        else
-          export SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
-        fi
         ;;
 
       # UDS
@@ -554,12 +550,19 @@ function install_noninteractive() {
     exit 1
   fi
 
+  # Work out which SLS var to use for bootstrap
+  sls_prompt_selection
+  if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
+    export SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
+  else
+    export SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
+  fi
+
 }
 
 function install_interactive() {
   pipeline_config
 }
-
 
 function ocp_version_check() {
   # Check for OCP 4.9 and 4.10
@@ -587,7 +590,6 @@ function ocp_version_check() {
     prompt_for_confirm "Continue anyway?" || exit 0
   fi
 }
-
 
 function install() {
   # Take the first parameter off (it will be "install")
@@ -620,7 +622,7 @@ function install() {
     # Non-interactive mode assumes you are already connected
     detect_airgap
     detect_sno
-    install_noninteractive
+    install_noninteractive "$@"
     pipeline_install_operator
     config_pipeline_additional_configs
   fi
