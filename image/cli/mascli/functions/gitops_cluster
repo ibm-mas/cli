@@ -145,7 +145,7 @@ function gitops_cluster_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_cluster_help "GIT_BRANCH is not set"
   fi
 
-  [[ -z "$SECRETS_PATH"]] && gitops_cluster_help "SECRETS_PATH is not set"
+  [[ -z "$SECRETS_PATH" ]] && gitops_cluster_help "SECRETS_PATH is not set"
 
   if [[ "$UPDATE_MAS_CATALOG" == "true" ]]; then
     if [ -z $ICR_USERNAME ] || [ -z $ICR_PASSWORD ]; then
