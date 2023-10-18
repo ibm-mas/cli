@@ -5,6 +5,8 @@ metadata:
   name: gitops-init-suite-dns
 spec:
   params:
+    - name: cluster_name
+      type: string
     - name: dns_provider
       type: string
       default: cis
