@@ -22,9 +22,11 @@ Secrets Manager:
 Operator Catalog:
       --catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}   Version of ibm-maximo-operator-catalog to use
       --catalog-image ${COLOR_YELLOW}MAS_CATALOG_IMAGE${TEXT_RESET}       Contain image to use for ibm-maximo-operator-catalog
+      --catalog-action ${COLOR_YELLOW}MAS_CATALOG_ACTION${TEXT_RESET}     Action to take on MAS Catalog, either `install`, `update` or `none`. Default is `install`
 
 IBM Cloud Pak Foundational Services:
       --common-services-channel ${COLOR_YELLOW}COMMON_SERVICES_CHANNEL${TEXT_RESET} OLM Channel of the IBM Common Services to install
+      --common-services-action ${COLOR_YELLOW}COMMON_SERVICES_ACTION${TEXT_RESET}   Action to take on common-services, either `install`, `upgrade` or `none`. Default is `install`
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}           Enable automatic push to GitHub
@@ -46,6 +48,8 @@ function gitops_cluster_noninteractive() {
   SECRETS_KEY_SEPERATOR="/"
 
   GITHUB_PUSH="false"
+  export MAS_CATALOG_ACTION=${MAS_CATALOG_ACTION:-"install"}
+  export COMMON_SERVICES_ACTION=${COMMON_SERVICES_ACTION:-"install"}
   export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"gitops-cluster commit"}
   export COMMON_SERVICES_CHANNEL=${COMMON_SERVICES_CHANNEL:-"v3.23"}
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
@@ -110,16 +114,16 @@ function gitops_cluster_noninteractive() {
       --catalog-image)
         export MAS_CATALOG_IMAGE=$1 && shift
         ;;
-      --update-mas-catalog)
-        export UPDATE_MAS_CATALOG=true
+      --mas-catalog-action=$1 && shift)
+        export MAS_CATALOG_ACTION=$1 && shift
         ;;
 
       # IBM Cloud Pak Foundational Services
       --common-services-channel)
         export COMMON_SERVICES_CHANNEL=$1 && shift
         ;;
-      --upgrade-common-services)
-        export UPGRADE_COMMON_SERVICES=true
+      --common_services_action)
+        export COMMON_SERVICES_ACTION=$1 && shift
         ;;
 
       # Other Commands
@@ -147,14 +151,14 @@ function gitops_cluster_noninteractive() {
 
   [[ -z "$SECRETS_PATH" ]] && gitops_cluster_help "SECRETS_PATH is not set"
 
-  if [[ "$UPDATE_MAS_CATALOG" == "true" ]]; then
+  if [[ "$MAS_CATALOG_ACTION" == "update" || "$MAS_CATALOG_ACTION" == "install" ]]; then
     if [ -z $ICR_USERNAME ] || [ -z $ICR_PASSWORD ]; then
       echo 'Missing required environment variables, make sure to set ICR_USERNAME, ICR_PASSWORD'
       exit 1
     fi
   fi
 
-  if [[ "$UPGRADE_COMMON_SERVICES" == "true" ]]; then
+  if [[ "$COMMON_SERVICES_ACTION" == "upgrade" || "$COMMON_SERVICES_ACTION" == "install" ]]; then
     [[ -z "$COMMON_SERVICES_CHANNEL" ]] && gitops_cluster_help "COMMON_SERVICES_CHANNEL is not set"
   fi
 }
@@ -216,13 +220,13 @@ function gitops_cluster() {
   echo_h2 "IBM Maximo Operator Catalog" "    "
   echo_reset_dim "Catalog Version ....................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
   echo_reset_dim "Catalog Image ......................... ${COLOR_MAGENTA}${MAS_CATALOG_IMAGE}"
-  echo_reset_dim "Update Catalog ........................ ${COLOR_MAGENTA}${UPDATE_MAS_CATALOG}"
+  echo_reset_dim "Catalog Action ........................ ${COLOR_MAGENTA}${MAS_CATALOG_ACTION}"
   reset_colors
 
   echo "${TEXT_DIM}"
   echo_h2 "IBM Common Services" "    "
   echo_reset_dim "Common Services Channel  .............. ${COLOR_MAGENTA}${COMMON_SERVICES_CHANNEL}"
-  echo_reset_dim "Upgrade Common Services ............... ${COLOR_MAGENTA}${UPGRADE_COMMON_SERVICES}"
+  echo_reset_dim "Common Services Action ................ ${COLOR_MAGENTA}${COMMON_SERVICES_ACTION}"
   reset_colors
 
 
@@ -269,11 +273,11 @@ function gitops_cluster() {
   echo_h2 "Generating Argo Applications"
   echo "- Cluster Scoped AppProject"
   jinja -X .+ $DIR/templates/gitops/appproject-cluster-scope.yaml.j2 -o ${GITOPS_APPS_DIR}/appproject-cluster-scope.yaml
-  if [[ "$UPDATE_MAS_CATALOG" == "true" ]]; then
+  if [[ "$MAS_CATALOG_ACTION" == "update" || "$MAS_CATALOG_ACTION" == "install" ]]; then
     echo "- IBM Operator Catalog"
     jinja -X .+ $DIR/templates/gitops/ibm-operator-catalog.yaml.j2 -o ${GITOPS_APPS_DIR}/ibm-operator-catalog.yaml
   fi
-  if [[ "$UPGRADE_COMMON_SERVICES" == "true" ]]; then
+  if [[ "$COMMON_SERVICES_ACTION" == "upgrade" || "$COMMON_SERVICES_ACTION" == "install" ]]; then
     echo "- IBM Common Services"
     jinja -X .+ $DIR/templates/gitops/ibm-common-services.yaml.j2 -o ${GITOPS_APPS_DIR}/ibm-common-services.yaml
   fi
@@ -289,12 +293,12 @@ function gitops_cluster() {
     argocd_login
     argocd_sync ${CLUSTER_ID}-watcher
 
-    if [[ "$UPDATE_MAS_CATALOG" == "true" ]]; then
+    if [[ "$MAS_CATALOG_ACTION" == "update" || "$MAS_CATALOG_ACTION" == "install" ]]; then
       check_argo_app_synced ibm-operator-catalog ${CLUSTER_ID}-watcher
       check_argo_app_healthy ibm-operator-catalog ${CLUSTER_ID}-watcher
     fi
 
-    if [[ "$UPGRADE_COMMON_SERVICES" == "true" ]]; then
+    if [[ "$COMMON_SERVICES_ACTION" == "upgrade" || "$COMMON_SERVICES_ACTION" == "install" ]]; then
       add_role_to_user ibm-common-services
       check_argo_app_synced ibm-common-services ${CLUSTER_ID}-watcher ibm-common-services
       check_argo_app_healthy ibm-common-services ${CLUSTER_ID}-watcher

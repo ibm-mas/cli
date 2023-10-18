@@ -56,9 +56,9 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: update_mas_catalog
+    - name: catalog_actiom
       type: string
-    - name: upgrade_common_services
+    - name: common_services_action
       type: string
   stepTemplate:
     name: gitops-cluster
@@ -105,10 +105,10 @@ spec:
         value: $(params.avp_aws_secret_region)
       - name: GITHUB_PAT
         value: $(params.github_pat)
-      - name: UPDATE_MAS_CATALOG
-        value: $(params.update_mas_catalog)
-      - name: UPGRADE_COMMON_SERVICES
-        value: $(params.upgrade_common_services)
+      - name: MAS_CATALOG_ACTION
+        value: $(params.catalog_action)
+      - name: COMMON_SERVICES_ACTION
+        value: $(params.common_services_action)
   steps:
     - args:
       - |-
