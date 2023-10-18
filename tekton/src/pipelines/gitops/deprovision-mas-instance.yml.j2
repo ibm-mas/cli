@@ -93,6 +93,8 @@ spec:
           value: $(params.avp_aws_secret_key)
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
+        - name: force_removal
+          value: $(params.force_removal)
       taskRef:
         kind: Task
         name: gitops-deprovision-suite-smtp-config
@@ -127,6 +129,8 @@ spec:
           value: $(params.avp_aws_secret_key)
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
+        - name: force_removal
+          value: $(params.force_removal)
       taskRef:
         kind: Task
         name: gitops-deprovision-suite-idp-config
@@ -157,6 +161,8 @@ spec:
           value: $(params.github_host)
         - name: github_pat
           value: $(params.github_pat)
+        - name: force_removal
+          value: $(params.force_removal)
       taskRef:
         kind: Task
         name: gitops-deprovision-suite-workspace

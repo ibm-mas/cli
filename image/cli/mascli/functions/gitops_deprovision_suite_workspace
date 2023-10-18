@@ -19,6 +19,7 @@ GitOps Configuration:
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}         IBM Suite Maximo Application Suite Instance ID
   -W, --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}       IBM Suite Maximo Application Suite workspace ID
   -N, --mas-workspace-name ${COLOR_YELLOW}MAS_WORKSPACE_NAME${TEXT_RESET}   IBM Suite Maximo Application Suite workspace name
+  -f, --force-removal ${COLOR_YELLOW}FORCE_REMOVAL${TEXT_RESET}      Force remove the ArgoCD Application, when deletion exceeds timeout
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -58,6 +59,9 @@ function gitops_deprovision_suite_workspace_noninteractive() {
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
         ;;
+      -f|--force-removal)
+        export FORCE_REMOVAL=$1 && shift
+        ;;
       # MAS Workspace specific
       -W|--mas-workspace-id)
         export MAS_WORKSPACE_ID=$1 && shift
@@ -84,7 +88,7 @@ function gitops_deprovision_suite_workspace_noninteractive() {
       -M|--git-commit-msg)
         export GIT_COMMIT_MSG=$1 && shift
         ;;
-       -S|--github-ssh)
+      -S|--github-ssh)
         export GIT_SSH=$1 && shift
         ;;
 
@@ -142,6 +146,7 @@ function gitops_deprovision_suite_workspace() {
   echo_reset_dim "Account ID............................. ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
+  echo_reset_dim "Force Remove Application Flag ......... ${COLOR_MAGENTA}${FORCE_REMOVAL}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -213,7 +218,7 @@ function gitops_deprovision_suite_workspace() {
 
     argocd_login
     argocd_prune_sync ${CLUSTER_ID}-watcher
-    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-core-${MAS_WORKSPACE_ID} ${MAS_INSTANCE_ID}
+    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-core-${MAS_WORKSPACE_ID} ${MAS_INSTANCE_ID} ${FORCE_REMOVAL}
   fi
 
 }
