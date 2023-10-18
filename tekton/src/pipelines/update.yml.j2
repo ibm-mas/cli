@@ -120,10 +120,10 @@ spec:
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'pre-update-check', 
         'devops_suite_name': 'pre-update-check',
-        'remote_ocp_cluster: $(params.remote_ocp_cluster),
-        'remote_ocp_type: $(params.remote_ocp_type),
-        'rosa_cluster_admin_password: $(params.rosa_cluster_admin_password),
-        'rosa_token: $(params.rosa_token)
+        'remote_ocp_cluster': '$(params.remote_ocp_cluster)',
+        'remote_ocp_type': '$(params.remote_ocp_type)',
+        'rosa_cluster_admin_password': '$(params.rosa_cluster_admin_password)',
+        'rosa_token': '$(params.rosa_token)'
       }) | indent(4) }}
 {% if wait_for_install == true %}
       runAfter:
