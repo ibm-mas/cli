@@ -18,11 +18,13 @@
     - name: verify_ingress
       value: {{ verify_ingress | default("True") }}
 
+{% if remote_ocp_cluster is defined and remote_ocp_cluster != '' %}
     - name: remote_ocp_cluster
-      value: {{ remote_ocp_cluster | default("") }}
+      value: {{ remote_ocp_cluster }}
     - name: remote_ocp_type
       value: {{ remote_ocp_type | default("rosa") }}
     - name: rosa_cluster_admin_password
-      value: {{ rosa_cluster_admin_password | default("") }}
+      value: {{ rosa_cluster_admin_password }}
     - name: rosa_token
-      value: {{ rosa_token | default("") }}
+      value: {{ rosa_token }}
+{% endif %}

@@ -95,12 +95,6 @@ spec:
     - name: remote_ocp_type
       type: string
       default: "rosa"
-    - name: rosa_cluster_admin_password
-      type: string
-      default: ""
-    - name: rosa_token
-      type: string
-      default: ""
 
   tasks:
 {% if wait_for_install == true %}

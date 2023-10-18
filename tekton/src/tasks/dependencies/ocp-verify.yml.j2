@@ -58,21 +58,27 @@ spec:
       - name: OCP_INGRESS_TLS_SECRET_NAME
         value: $(params.ocp_ingress_tls_secret_name)
 
+      - name: REMOTE_OCP_CLUSTER
+        value: $(params.remote_ocp_cluster)
+      - name: REMOTE_OCP_TYPE
+        value: $(params.remote_ocp_type)
+      - name: ROSA_CLUSTER_ADMIN_PASSWORD
+        value: $(params.rosa_cluster_admin_password)
+      - name: ROSA_TOKEN
+        value: $(params.rosa_token)
   steps:
     - name: ocp-verify
       script: |
         #!/usr/bin/env bash
 
         if [ ! -z $REMOTE_OCP_CLUSTER ];then
-          echo "Logging into $(params.remote_ocp_cluster)"
-          export CLUSTER_NAME=$(params.remote_ocp_cluster)
-          export CLUSTER_TYPE=$(params.remote_ocp_type)
-          export ROSA_CLUSTER_ADMIN_PASSWORD=$(params.rosa_cluster_admin_password)
-          export ROSA_TOKEN=$(params.rosa_token)
+          echo "Logging into $REMOTE_OCP_CLUSTER"
+          export CLUSTER_NAME=$REMOTE_OCP_CLUSTER
+          export CLUSTER_TYPE=$REMOTE_OCP_TYPE
           ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role 
           OC_RC=$?
           if [ $OC_RC -ne 0 ]; then
-            echo "oc login failed to $(params.remote_ocp_cluster)"
+            echo "oc login failed to $REMOTE_OCP_CLUSTER"
             exit 1
           fi
         fi
