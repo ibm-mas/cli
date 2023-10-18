@@ -231,6 +231,8 @@ spec:
       runAfter:
         - gitops-process-mongo-user
       params:
+        - name: cluster_name
+          value: $(params.cluster_name)
         - name: dns_provider
           value: $(params.dns_provider)
         - name: mas_instance_id
