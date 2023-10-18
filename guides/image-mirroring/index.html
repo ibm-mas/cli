@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/guides/update/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/guides/image-mirroring/" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>Update - MAS CLI</title>
+    <title>Image Mirroring - MAS CLI</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -13,9 +13,9 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Update";
-        var mkdocs_page_input_path = "guides/update.md";
-        var mkdocs_page_url = "/cli/guides/update/";
+        var mkdocs_page_name = "Image Mirroring";
+        var mkdocs_page_input_path = "guides/image-mirroring.md";
+        var mkdocs_page_url = "/cli/guides/image-mirroring/";
       </script>
     
     <!--[if lt IE 9]>
@@ -45,19 +45,25 @@
               <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../choosing-the-right-catalog/">Choosing the Right Catalog</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../image-mirroring/">Image Mirroring</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Image Mirroring</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#image-mirroring-overview">Image Mirroring Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#preparation">Preparation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#stage-1-core">Stage 1 - Core</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#stage-2-apps">Stage 2 - Apps</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#stage-3-cp4d">Stage 3 - CP4D</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#stage-4-other-dependencies">Stage 4 - Other Dependencies</a>
+    </li>
+    </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../install/">Install</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Update</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#update-overview">Update Overview</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#1-disconnected-update-preparation">1 Disconnected Update Preparation</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2-update-maximo-application-suite">2 Update Maximo Application Suite</a>
-    </li>
-    </ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../update/">Update</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../upgrade/">Upgrade</a>
                   </li>
@@ -128,9 +134,9 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Guides</li>
-      <li class="breadcrumb-item active">Update</li>
+      <li class="breadcrumb-item active">Image Mirroring</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/ibm-mas/cli/blob/master/docs/guides/update.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/ibm-mas/cli/blob/master/docs/guides/image-mirroring.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -138,49 +144,70 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="update">Update<a class="headerlink" href="#update" title="Permanent link"></a></h1>
-<h2 id="update-overview">Update Overview<a class="headerlink" href="#update-overview" title="Permanent link"></a></h2>
-<p>This guide is specifically for environments using <strong>static catalogs</strong>.  If you are using the <strong>dynamic catalog</strong> then updates are automatically applied as soon as they are released.</p>
-<ol>
-<li><a href="#1-disconnected-install-preparation">Disconnected Update Preparation</a></li>
-<li><a href="#2-update-maximo-application-suite">Update MAS</a></li>
-</ol>
-<p>The catalog update is applied at a cluster level.  When we update we don't update a specific operator running on the cluster, but rather the cluster as a whole.  Everything in the cluster should be running at the latest version available in the catalog that is currently installed.</p>
-<p>When apply a catalog update it will apply all the latest fixes for everything in the cluster (all MAS instances and all dependencies), ensuring the that you're on a tested combination of patch levels across the board.  There's no option to mix patch levels (e.g. keep one MAS instance on 8.9.4 and another on 8.9.5).</p>
-<p>Undoing an update is a lot of work as it's reversing a lot of changes throughout the cluster.  Generally it shouldn't be needed as updates are just bringing security and bug fixes.  Think of it like applying a windows update, there's no easy "undo" and if something slipped through we would fast track a new update so that rather than needing to revert from 8.9.5 to 8.9.4 there would be an 8.9.6 provided in double quick time that either reverted whatever caused the regression in 8.9.5 or addressed whatever the issue was.</p>
-<h2 id="1-disconnected-update-preparation">1 Disconnected Update Preparation<a class="headerlink" href="#1-disconnected-update-preparation" title="Permanent link"></a></h2>
-<p>Before you start the update, you must mirror the images for the new catalog that you wish to update to. Mirroring the images is a simple but time consuming process.  Three modes are available for the mirror process:</p>
-<ul>
-<li><strong>direct</strong> mirrors images directly from the source registry to your private registry</li>
-<li><strong>to-filesystem</strong> mirrors images from the source to a local directory</li>
-<li><strong>from-filesystem</strong> mirrors images from a local directory to your private registry</li>
-</ul>
-<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas mirror-images
+                <h1 id="image-mirroring">Image Mirroring<a class="headerlink" href="#image-mirroring" title="Permanent link"></a></h1>
+<h2 id="image-mirroring-overview">Image Mirroring Overview<a class="headerlink" href="#image-mirroring-overview" title="Permanent link"></a></h2>
+<p>We recommend the use of two-phase mirroring, it is slower than direct mirroring and requires more storage capacity, but can allow you to more easily recover from network glitches and creates a clean seperation of the tasks of getting the content from the source registry and putting it into the target registry which can make debugging failures easier.</p>
+<p>This guide assumes that you are looking to mirror content for the latest release (<strong>8.11.x</strong>) from the most recent catalog update (<strong>v8-231004-amd64</strong>), and that you are installing all MAS applications.  If you are not installing certain applications or dependencies take care to remove the appropriate <code>--mirror-x</code> flags to avoid mirroring unnecessary images.</p>
+<h2 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link"></a></h2>
+<p>Set the following environment variables that will be used in each stage:</p>
+<pre><code class="language-bash">export IBM_ENTITLEMENT_KEY=xxx
+export LOCAL_DIR=xxx
+export REGISTRY_HOST=xxx
+export REGISTRY_PORT=xxx
+export REGISTRY_USERNAME=xxx
+export REGISTRY_PASSWORD=xxx
+export REDHAT_USERNAME=xxx
+export REDHAT_PASSWORD=xxx
 </code></pre>
-<p>You will be prompted to set the target registry for the image mirroring and to <a href="../choosing-the-right-catalog/">select the version of IBM Maximo Operator Catalog to mirror</a> and the subset of content that you wish to mirror.  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.</p>
-<p>This command can also be ran non-interactive, for full details refer to the <a href="../../commands/mirror-images/">mirror-images</a> command documentation.</p>
-<pre><code class="language-bash">mas mirror-images -m direct -d /mnt/local-mirror \
-  -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+<h2 id="stage-1-core">Stage 1 - Core<a class="headerlink" href="#stage-1-core" title="Permanent link"></a></h2>
+<p>Let's start simple and just get the MAS Core and IBM Maximo Operator Catalog mirrored to the registry, this shouldn't take long and provides an early measure of the download and upload performance to help estimate the time to complete the larger stages.</p>
+<pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/core \
+  -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v8-231004-amd64 -C 8.11.x \
-  --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
-  --mirror-cfs --mirror-uds --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
-  --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
-  --no-confirm
+  --mirror-catalog --mirror-core \
+  --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>Make sure to select the release of MAS you currently have installed in the cluster, if you have multiple instances of MAS in the cluster running different releases then you must run the mirror command multiple time to ensure that you have mirrored the content for all releases of MAS that are in use in the cluster.</p>
-</div>
-<h2 id="2-update-maximo-application-suite">2 Update Maximo Application Suite<a class="headerlink" href="#2-update-maximo-application-suite" title="Permanent link"></a></h2>
-<p>Run <code>mas update</code> and choose the catalog to update to.  This will update the operator catalog installed in your cluster, and the Operator Lifecycle Manager (OLM) will automatically update all installed operators to the newest version available on the current subscription channel.</p>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>You must select a newer catalog than what is already in use.  Updating to an older static catalog is not supported.</p>
-</div>
-<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas update
+<p>Once the images are mirrored to local disk, we will mirror them from local disk to your registry, this should complete in very little time, depends on the speed of your internal network:</p>
+<pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/core \
+  -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+  -c v8-231004-amd64 -C 8.11.x \
+  --mirror-catalog --mirror-core
 </code></pre>
-<p>The command can also be ran non-interactive.</p>
-<pre><code class="language-bash">mas update -c v8-231004-amd64 --no-confirm
+<h2 id="stage-2-apps">Stage 2 - Apps<a class="headerlink" href="#stage-2-apps" title="Permanent link"></a></h2>
+<pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/apps \
+  -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+  -c v8-231004-amd64 -C 8.11.x \
+  --mirror-assist --mirror-hputilities --mirror-iot --mirror-manage --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
+  --ibm-entitlement $IBM_ENTITLEMENT_KEY
+</code></pre>
+<pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/apps \
+  -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+  -c v8-231004-amd64 -C 8.11.x \
+  --mirror-assist --mirror-hputilities --mirror-iot --mirror-manage --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection
+</code></pre>
+<h2 id="stage-3-cp4d">Stage 3 - CP4D<a class="headerlink" href="#stage-3-cp4d" title="Permanent link"></a></h2>
+<pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/cp4d \
+  -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+  -c v8-231004-amd64 -C 8.11.x \
+  --mirror-cp4d --mirror-wd --mirror-spark --mirror-wml --mirror-wsl \
+  --ibm-entitlement $IBM_ENTITLEMENT_KEY
+</code></pre>
+<pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/cp4d \
+  -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+  -c v8-231004-amd64 -C 8.11.x \
+  --mirror-cp4d --mirror-wd --mirror-spark --mirror-wml --mirror-wsl
+</code></pre>
+<h2 id="stage-4-other-dependencies">Stage 4 - Other Dependencies<a class="headerlink" href="#stage-4-other-dependencies" title="Permanent link"></a></h2>
+<pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/other \
+  -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+  -c v8-231004-amd64 -C 8.11.x \
+  --mirror-mongo --mirror-tsm --mirror-uds --mirror-sls --mirror-cfs --mirror-appconnect --mirror-db2 \
+  --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD
+</code></pre>
+<pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/other \
+  -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+  -c v8-231004-amd64 -C 8.11.x \
+  --mirror-mongo --mirror-tsm --mirror-uds --mirror-sls --mirror-cfs --mirror-appconnect --mirror-db2
 </code></pre>
               
             </div>
@@ -210,10 +237,10 @@
         </span>
     
     
-      <span><a href="../install/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../choosing-the-right-catalog/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../upgrade/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../install/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
