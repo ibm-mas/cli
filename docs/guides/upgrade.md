@@ -37,13 +37,12 @@ You will be prompted to set the target registry for the image mirroring and to [
 This command can also be ran non-interactive, for full details refer to the [mirror-images](../commands/mirror-images.md) command documentation.
 
 ```bash
-mas mirror-images \
-  -m direct \
-  -d /mnt/local-mirror/ \
+mas mirror-images -m direct -d /mnt/local-mirror \
   -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-230725-amd64 -C 8.10.x --mirror-core --mirror-cpfs --mirror-uds --mirror-sls --mirror-tsm \
-  --ibm-entitlement $IBM_ENTITLEMENT_KEY \
-  --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
+  -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
+  --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
+  --mirror-cfs --mirror-uds --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
+  --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
   --no-confirm
 ```
 
