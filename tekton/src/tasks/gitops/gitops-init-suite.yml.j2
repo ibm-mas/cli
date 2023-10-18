@@ -5,6 +5,9 @@ metadata:
   name: gitops-init-suite
 spec:
   params:
+    - name: dns_provider
+      type: string
+      default: ''
     - name: cluster_name
       type: string
     - name: account
@@ -54,6 +57,8 @@ spec:
   stepTemplate:
     name: gitops-init-suite
     env:
+      - name: DNS_PROVIDER
+        value: $(params.dns_provider)
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
       - name: ACCOUNT
