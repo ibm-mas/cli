@@ -89,7 +89,7 @@ spec:
         
         oc adm policy add-scc-to-user anyuid -z cert-manager-webhook-ibm-cis -n ibm-common-services
 
-        mas gitops-init-suite-dns
+        mas gitops-init-suite-dns --mas-instance-id $MAS_INSTANCE_ID
 
       command:
         - /bin/sh
