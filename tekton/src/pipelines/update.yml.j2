@@ -88,6 +88,20 @@ spec:
       default: "db2u"
       description: Namespace where db2 instances will be updated
 
+
+    - name: remote_ocp_cluster
+      type: string
+      default: ""
+    - name: remote_ocp_type
+      type: string
+      default: rosa
+    - name: rosa_cluster_admin_password
+      type: string
+      default: ""
+    - name: rosa_token
+      type: string
+      default: ""
+
   tasks:
 {% if wait_for_install == true %}
     # 0. Wait for the install pipeline to complete
@@ -103,7 +117,14 @@ spec:
 
     # 1. Verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-update-check', 'devops_suite_name': 'pre-update-check'}) | indent(4) }}
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'pre-update-check', 
+        'devops_suite_name': 'pre-update-check',
+        'remote_ocp_cluster: $(params.remote_ocp_cluster),
+        'remote_ocp_type: $(params.remote_ocp_type),
+        'rosa_cluster_admin_password: $(params.rosa_cluster_admin_password),
+        'rosa_token: $(params.rosa_token)
+      }) | indent(4) }}
 {% if wait_for_install == true %}
       runAfter:
         - wait-for-install

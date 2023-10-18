@@ -17,3 +17,12 @@
       value: {{ verify_workloads | default("True") }}
     - name: verify_ingress
       value: {{ verify_ingress | default("True") }}
+
+    - name: remote_ocp_cluster
+      value: {{ remote_ocp_cluster | default("") }}
+    - name: remote_ocp_type
+      value: {{ remote_ocp_type | default("rosa") }}
+    - name: rosa_cluster_admin_password
+      value: {{ rosa_cluster_admin_password | default("") }}
+    - name: rosa_token
+      value: {{ rosa_token | default("") }}
