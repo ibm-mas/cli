@@ -29,6 +29,13 @@ function kafka_for_iot() {
       case $KAFKA_SELECTION in
         1)
           KAFKA_PROVIDER="strimzi"
+          
+          echo "${TEXT_DIM}"
+          echo "You may choose the specific Kafka version to be used with your selected Kafka provider (Strimzi)."
+          echo "If not defined, then a default Kafka version that is best compatible with Strimzi operator will be automatically defined."
+          echo ""
+          reset_colors
+          prompt_for_input "Kafka version" KAFKA_VERSION $KAFKA_VERSION
 
           # Clear settings for other providers - IBM
           EVENTSTREAMS_RESOURCEGROUP=""
@@ -45,6 +52,13 @@ function kafka_for_iot() {
           ;;
         2)
           KAFKA_PROVIDER=redhat
+
+          echo "${TEXT_DIM}"
+          echo "You may choose the specific Kafka version to be used with your selected Kafka provider (Red Hat AMQ Streams)."
+          echo "If not defined, then a default Kafka version that is best compatible with Red Hat AMQ Streams operator will be automatically defined."
+          echo ""
+          reset_colors
+          prompt_for_input "Kafka version" KAFKA_VERSION $KAFKA_VERSION
 
           # Clear settings for other providers - IBM
           EVENTSTREAMS_RESOURCEGROUP=""

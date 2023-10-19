@@ -184,6 +184,7 @@ function pipeline_show_config() {
     echo_h4 "Kafka" "    "
     echo_reset_dim "Install Namespace ......... ${COLOR_MAGENTA}${KAFKA_NAMESPACE:-<default>}"
     echo_reset_dim "Kafka Provider ............ ${COLOR_MAGENTA}${KAFKA_PROVIDER}"
+    echo_reset_dim "Kafka Version ............. ${COLOR_MAGENTA}${KAFKA_VERSION:-<default>}"
   fi
 
   if [[ "$KAFKA_ACTION_SYSTEM" == "install" && "$KAFKA_PROVIDER" == "ibm" ]]; then

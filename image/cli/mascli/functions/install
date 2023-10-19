@@ -63,6 +63,7 @@ Kafka (Required to install Maximo IoT thus if not set, a default Kafka provider 
 
 Kafka (Optional, applicable for Strimzi and Red Hat AMQ Streams only):
       --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}    Set Strimzi and Red Hat AMQ Streams namespace
+      --kafka-version ${COLOR_YELLOW}KAFKA_VERSION${TEXT_RESET}        Set Kafka version to be installed with Strimzi or Red Hat AMQ Streams
 
 Kafka (Required for IBM Cloud Event Streams only):
       --ibmcloud-apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                            Set IBM Cloud API Key. Required to provision IBM Cloud services
@@ -331,6 +332,9 @@ function install_noninteractive() {
       --kafka-provider)
         export KAFKA_ACTION_SYSTEM=install
         export KAFKA_PROVIDER=$1 && shift
+        ;;
+      --kafka-version)
+        export KAFKA_VERSION=$1 && shift
         ;;
       --kafka-cluster-name)
         export KAFKA_CLUSTER_NAME=$1 && shift
