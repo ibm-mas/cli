@@ -1,8 +1,8 @@
 ## Mobile Foundation Manage Setup
 - name: fvt-mobfoundation-setup-data
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-mobilefoundation
     - name: fvt_image_name
@@ -17,7 +17,7 @@
       value: mobfoundation-setup-data # Keyword for Mobile FVT
   # Only if we've set a digest of the Manage Transportation FVT to run
   when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_mobilefoundation_manage_setup)"
       operator: notin
       values: [""]
@@ -28,9 +28,9 @@
 
 ## Prepare Data for Mobile Service Request MAS test suites
 - name: fvt-service-request-setup-data
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-servicerequests
     - name: fvt_image_name
@@ -45,7 +45,7 @@
       value: $(params.mas_appws_components)
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_servicerequests_manage_setup)"
       operator: notin
       values: [""]
@@ -56,9 +56,9 @@
 
 ## Prepare Data for Mobile Technician MAS test suites
 - name: fvt-technician-setup-data
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-technician
     - name: fvt_image_name
@@ -73,7 +73,7 @@
       value: $(params.mas_appws_components)
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_technician_manage_setup)"
       operator: notin
       values: [""]
@@ -84,9 +84,9 @@
 
 ## Mobile Inspections Manage Setup
 - name: fvt-inspections-setup-data
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-inspections
     - name: fvt_image_name
@@ -101,7 +101,7 @@
       value: inspections-setup-data # Keyword for Mobile FVT
   # Only if we've set a digest of the Manage Transportation FVT to run
   when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_inspection_manage_setup)"
       operator: notin
       values: [""]
@@ -112,9 +112,9 @@
 
 # Manage FVT - IC Setup
 - name: fvt-inventorycounting-manage-setup
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-inventorycounting
     - name: fvt_image_name
@@ -129,7 +129,7 @@
       value: inventory-counting-setup-data # Keyword for IC setup
   # Only if we've set a digest of the IC FVT to run
   when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_inventorycounting_manage_setup)"
       operator: notin
       values: [""]

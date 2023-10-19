@@ -1,9 +1,9 @@
 # Manage FVT - Scheduler - New User
 - name: fvt-manage-scheduler-user
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: scheduler-setup-user
     - name: fvt_mas_appws_component
@@ -15,10 +15,10 @@
 
 # Manage FVT - Scheduler Setup
 - name: fvt-manage-scheduler-setup
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: scheduler-setup-data
     - name: fvt_mas_appws_component
@@ -30,10 +30,10 @@
 
 # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-1
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: scheduler-1
     - name: fvt_mas_appws_component
@@ -45,10 +45,10 @@
 
 # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-2
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: scheduler-2
     - name: fvt_mas_appws_component
@@ -60,10 +60,10 @@
 
 # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-3
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: scheduler-3
     - name: fvt_mas_appws_component
@@ -75,10 +75,10 @@
 
 # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-4
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: scheduler-4
     - name: fvt_mas_appws_component
@@ -90,10 +90,10 @@
 
 # Manage FVT - Scheduler - Scheduling Dashboard
 - name: fvt-manage-scheduler-scheduling-dashboard
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: scheduler-scheduling-dashboard
     - name: fvt_mas_appws_component
@@ -110,10 +110,10 @@
 
 # Manage FVT - Scheduler - Scheduling Dashboard
 - name: fvt-manage-scheduler-dispatching-dashboard
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: scheduler-dispatching-dashboard
     - name: fvt_mas_appws_component

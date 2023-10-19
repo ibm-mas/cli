@@ -6,9 +6,9 @@
 # This is temporary workaround, the proper fix is to make the accessTokenTimeout field configurable during install
 # See wiotp/tracker#12929 for details
 - name: fvt-coreidp-auth
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: test_suite
       value: coreidp-auth
   runAfter:
@@ -16,9 +16,9 @@
 
 # Core FVT 1.1 coreapi-addons ~20m
 - name: fvt-coreapi-addons
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: test_suite
       value: coreapi-addons
   runAfter:
@@ -26,9 +26,9 @@
 
 # Core FVT 1.2 coreapi-groupmgmt ~30m
 - name: fvt-coreapi-groupmgmt
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: test_suite
       value: coreapi-groupmgmt
   runAfter:
@@ -36,9 +36,9 @@
 
 # Core FVT 1.3 coreapi-usermgmt ~15m
 - name: fvt-coreapi-usermgmt
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: test_suite
       value: coreapi-usermgmt
   runAfter:
@@ -46,9 +46,9 @@
 
 # Core FVT 1.4 coreapi-apikeymgmt ~3m
 - name: fvt-coreapi-apikeymgmt
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: test_suite
       value: coreapi-apikeymgmt
   runAfter:
@@ -56,11 +56,11 @@
 
 # Core FVT 1.5 coreapi-workspacemgmt  ~35m
 - name: fvt-coreapi-workspacemgmt
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     - name: test_suite
       value: coreapi-workspacemgmt
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: partium_username
       value: $(params.partium_username)
     - name: partium_password
@@ -70,40 +70,40 @@
 
 # Core FVT 1.6 coreapi-graphiteconfigtool  ~15m
 - name: fvt-coreapi-graphiteconfigtool
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     - name: test_suite
       value: coreapi-graphiteconfigtool
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
     - fvt-coreidp-auth
 
 # Core FVT 1.7 useractivation-overall  ~8m
 - name: fvt-useractivation-overall
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     - name: test_suite
       value: useractivation-overall
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
     - fvt-coreidp-auth
 
 # Core FVT 1.8 useractivation-expiresat  ~20m
 - name: fvt-useractivation-expiresat
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     - name: test_suite
       value: useractivation-expiresat
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
     - fvt-coreidp-auth
 
 # Core FVT 1.9 useractivation-inactivity  ~30m
 - name: fvt-useractivation-inactivity
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     - name: test_suite
       value: useractivation-inactivity
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
     - fvt-coreidp-auth

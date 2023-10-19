@@ -56,10 +56,12 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: catalog_actiom
+    - name: mas_catalog_action
       type: string
+      default: "install"
     - name: common_services_action
       type: string
+      default: "install"
   stepTemplate:
     name: gitops-cluster
     env:
@@ -106,7 +108,7 @@ spec:
       - name: GITHUB_PAT
         value: $(params.github_pat)
       - name: MAS_CATALOG_ACTION
-        value: $(params.catalog_action)
+        value: $(params.mas_catalog_action)
       - name: COMMON_SERVICES_ACTION
         value: $(params.common_services_action)
   steps:

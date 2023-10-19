@@ -1,9 +1,9 @@
 # Prepare data for Python and Desktop suites
 # -----------------------------------------------------------------------------
 - name: fvt-assist-preparedata
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist-prepare.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-apps/common/taskref-assist-prepare.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-prepare.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-apps/common/params-assist-prepare.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: prepare
   runAfter:
@@ -13,9 +13,9 @@
 # Python
 # -----------------------------------------------------------------------------
 - name: fvt-assist-python
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist-python.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-apps/common/taskref-assist-python.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-python.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-apps/common/params-assist-python.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: unittest_pg_session
   runAfter:
@@ -25,9 +25,9 @@
 # Test NG - Desktop
 # -----------------------------------------------------------------------------
 - name: fvt-assist-testng-desktop
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist-testng.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-apps/common/taskref-assist-testng.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: testng-assist-desktop
   runAfter:
@@ -37,9 +37,9 @@
 # Test NG - Mobile
 # -----------------------------------------------------------------------------
 - name: fvt-assist-testng-mobile
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist-testng.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-apps/common/taskref-assist-testng.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: testng-assist-mobile
     - name: assist_test_type
@@ -53,8 +53,8 @@
 # Cucumber
 # -----------------------------------------------------------------------------
 - name: fvt-assist-cucumber
-  {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist-cucumber.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-apps/common/taskref-assist-cucumber.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
   runAfter:
     - ivtcore-assist

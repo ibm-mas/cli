@@ -9,9 +9,8 @@ metadata:
 {% endif %}
 spec:
 
-  workspaces:
-    - name: configs
 {% if wait_for_install == true %}
+  workspaces:
     # Shared storage to hold mustgather output for tasks
     - name: shared-mustgather
 {% endif %}
@@ -22,18 +21,6 @@ spec:
     - name: mas_instance_id
       type: string
 {% endif %}
-
-    # 1. Gitops git Parameters
-    # -------------------------------------------------------------------------
-    {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
-
-    # 2. Gitops avp Parameters
-    # -------------------------------------------------------------------------
-    {{ lookup('template', params_src_dir ~ '/gitops-avp.yml.j2') | indent(4) }}
-
-    # 3. Gitops common Parameters
-    # -------------------------------------------------------------------------
-    {{ lookup('template', params_src_dir ~ '/gitops-common.yml.j2') | indent(4) }}
 
     - name: mas_catalog_image
       type: string
@@ -46,12 +33,6 @@ spec:
     - name: icr_password
       type: string
       default: ""
-
-    # Running in Gitops mode or not
-    - name: gitops_mode
-      type: string
-      default: "False"
-      description: If running in gitops mode or not. Gitops functions/tasks called if True
 
     # Tekton Pipeline image pull policy (for ibmmas/cli images)
     - name: image_pull_policy
@@ -88,14 +69,6 @@ spec:
       default: "db2u"
       description: Namespace where db2 instances will be updated
 
-    # Remote OCP Cluster verification
-    - name: remote_ocp_cluster
-      type: string
-      default: ""
-    - name: remote_ocp_type
-      type: string
-      default: "rosa"
-
   tasks:
 {% if wait_for_install == true %}
     # 0. Wait for the install pipeline to complete
@@ -111,13 +84,9 @@ spec:
 
     # 1. Verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'pre-update-check', 
-        'devops_suite_name': 'pre-update-check',
-        'remote_ocp_cluster': '$(params.remote_ocp_cluster)',
-        'remote_ocp_type': '$(params.remote_ocp_type)',
-        'rosa_cluster_admin_password': '$(params.rosa_cluster_admin_password)',
-        'rosa_token': '$(params.rosa_token)'
+        'devops_suite_name': 'pre-update-check'
       }) | indent(4) }}
 {% if wait_for_install == true %}
       runAfter:
@@ -144,147 +113,54 @@ spec:
           value: $(params.artifactory_username)
         - name: artifactory_token
           value: $(params.artifactory_token)
-      when:
-        - input: "$(params.gitops_mode)"
-          operator: in
-          values: ["False"]
 
-    - name: update-catalog-gitops
-      taskRef:
-        kind: Task
-        name: gitops-cluster
-      runAfter:
-        - pre-update-check
-      params:
-        - name: devops_suite_name
-          value: update-catalog
-
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: account
-          value: $(params.account)
-        - name: rosa_token
-          value: $(params.rosa_token)
-        - name: rosa_cluster_admin_password
-          value: $(params.rosa_cluster_admin_password)
-
-        - name: github_push
-          value: $(params.github_push)
-        - name: git_branch
-          value: $(params.git_branch)
-        - name: github_org
-          value: $(params.github_org)
-        - name: github_repo
-          value: $(params.github_repo)
-        - name: github_host
-          value: $(params.github_host)
-        - name: github_pat
-          value: $(params.github_pat)
-        - name: git_commit_msg
-          value: $(params.git_commit_msg)
-
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
-        - name: secrets_path
-          value: $(params.secrets_path)
-        - name: secrets_key_seperator
-          value: $(params.secrets_key_seperator)
-
-        - name: mas_catalog_action
-          value: "update"
-        - name: common_services_action
-          value: "none"
-
-        - name: mas_catalog_version
-          value: $(params.mas_catalog_version)
-        - name: mas_catalog_image
-          value: $(params.mas_catalog_image)
-
-        - name: icr_username
-          value: $(params.icr_username)
-        - name: icr_password
-          value: $(params.icr_password)
-
-        # Development catalog support
-        - name: artifactory_username
-          value: $(params.artifactory_username)
-        - name: artifactory_token
-          value: $(params.artifactory_token)
-      when:
-        - input: "$(params.gitops_mode)"
-          operator: in
-          values: ["True"]
-      workspaces:
-        - name: configs
-          workspace: configs
 
     # 3. Verify health of the cluster before we consider the update complete
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-update-verify-cluster',
         'devops_suite_name': 'post-update-verify-cluster',
         'verify_cluster': 'True',
         'verify_catalogsources': 'False',
         'verify_subscriptions': 'False',
         'verify_workloads': 'False',
-        'verify_ingress': 'False',
-        'remote_ocp_cluster': '$(params.remote_ocp_cluster)',
-        'remote_ocp_type': '$(params.remote_ocp_type)',
-        'rosa_cluster_admin_password': '$(params.rosa_cluster_admin_password)',
-        'rosa_token': '$(params.rosa_token)'
+        'verify_ingress': 'False'
       }) | indent(4) }}
       runAfter:
         - update-catalog
-        - update-catalog-gitops
 
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-update-verify-catalogsources',
         'devops_suite_name': 'post-update-verify-catalogsources',
         'verify_cluster': 'False',
         'verify_catalogsources': 'True',
         'verify_subscriptions': 'False',
         'verify_workloads': 'False',
-        'verify_ingress': 'False',
-        'remote_ocp_cluster': '$(params.remote_ocp_cluster)',
-        'remote_ocp_type': '$(params.remote_ocp_type)',
-        'rosa_cluster_admin_password': '$(params.rosa_cluster_admin_password)',
-        'rosa_token': '$(params.rosa_token)'
+        'verify_ingress': 'False'
       }) | indent(4) }}
       runAfter:
         - post-update-verify-cluster
 
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-update-verify-subscriptions',
         'devops_suite_name': 'post-update-verify-subscriptions',
         'verify_cluster': 'False',
         'verify_catalogsources': 'False',
         'verify_subscriptions': 'True',
         'verify_workloads': 'False',
-        'verify_ingress': 'False',
-        'remote_ocp_cluster': '$(params.remote_ocp_cluster)',
-        'remote_ocp_type': '$(params.remote_ocp_type)',
-        'rosa_cluster_admin_password': '$(params.rosa_cluster_admin_password)',
-        'rosa_token': '$(params.rosa_token)'
+        'verify_ingress': 'False'
       }) | indent(4) }}
       runAfter:
         - post-update-verify-catalogsources
 
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-update-verify-workloads',
         'devops_suite_name': 'post-update-verify-workloads',
         'verify_cluster': 'False',
         'verify_catalogsources': 'False',
         'verify_subscriptions': 'False',
         'verify_workloads': 'True',
-        'verify_ingress': 'False',
-        'remote_ocp_cluster': '$(params.remote_ocp_cluster)',
-        'remote_ocp_type': '$(params.remote_ocp_type)',
-        'rosa_cluster_admin_password': '$(params.rosa_cluster_admin_password)',
-        'rosa_token': '$(params.rosa_token)'
+        'verify_ingress': 'False'
       }) | indent(4) }}
       runAfter:
         - post-update-verify-subscriptions
@@ -303,81 +179,6 @@ spec:
           value: update-common-services
         - name: common_services_action
           value: $(params.common_services_action)
-      when:
-        - input: "$(params.gitops_mode)"
-          operator: in
-          values: ["False"]
-        
-   - name: update-common-services-gitops
-      taskRef:
-        kind: Task
-        name: gitops-cluster
-      runAfter:
-        - post-update-verify-workloads
-      params:
-        - name: devops_suite_name
-          value: update-common-services
-
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: account
-          value: $(params.account)
-        - name: rosa_token
-          value: $(params.rosa_token)
-        - name: rosa_cluster_admin_password
-          value: $(params.rosa_cluster_admin_password)
-
-        - name: github_push
-          value: $(params.github_push)
-        - name: git_branch
-          value: $(params.git_branch)
-        - name: github_org
-          value: $(params.github_org)
-        - name: github_repo
-          value: $(params.github_repo)
-        - name: github_host
-          value: $(params.github_host)
-        - name: github_pat
-          value: $(params.github_pat)
-        - name: git_commit_msg
-          value: $(params.git_commit_msg)
-
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
-        - name: secrets_path
-          value: $(params.secrets_path)
-        - name: secrets_key_seperator
-          value: $(params.secrets_key_seperator)
-
-        - name: mas_catalog_action
-          value: "none"
-        - name: common_services_action
-          value: "upgrade"
-
-        - name: common-services-channel
-          value: $(params.common-services-channel)
-
-        - name: icr_username
-          value: $(params.icr_username)
-        - name: icr_password
-          value: $(params.icr_password)
-
-        # Development catalog support
-        - name: artifactory_username
-          value: $(params.artifactory_username)
-        - name: artifactory_token
-          value: $(params.artifactory_token)
-      when:
-        - input: "$(params.gitops_mode)"
-          operator: in
-          values: ["True"]
-      workspaces:
-        - name: configs
-          workspace: configs
 
     - name: update-db2
       taskRef:
@@ -392,73 +193,54 @@ spec:
           value: $(params.db2_action)
         - name: db2_namespace
           value: $(params.db2_namespace)
-      when:
-        - input: "$(params.gitops_mode)"
-          operator: in
-          values: ["False"]
+
 
     # 5. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-deps-update-verify-cluster',
         'devops_suite_name': 'post-deps-update-verify-cluster',
         'verify_cluster': 'True',
         'verify_catalogsources': 'False',
         'verify_subscriptions': 'False',
         'verify_workloads': 'False',
-        'verify_ingress': 'False',
-        'remote_ocp_cluster': '$(params.remote_ocp_cluster)',
-        'remote_ocp_type': '$(params.remote_ocp_type)',
-        'rosa_cluster_admin_password': '$(params.rosa_cluster_admin_password)',
-        'rosa_token': '$(params.rosa_token)'
+        'verify_ingress': 'False'
       }) | indent(4) }}
       runAfter:
         - update-db2
 
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-deps-update-verify-catalogsources',
         'devops_suite_name': 'post-deps-update-verify-catalogsources',
         'verify_cluster': 'False',
         'verify_catalogsources': 'True',
         'verify_subscriptions': 'False',
         'verify_workloads': 'False',
-        'verify_ingress': 'False',
-        'remote_ocp_cluster': '$(params.remote_ocp_cluster)',
-        'remote_ocp_type': '$(params.remote_ocp_type)',
-        'rosa_cluster_admin_password': '$(params.rosa_cluster_admin_password)',
-        'rosa_token': '$(params.rosa_token)'
+        'verify_ingress': 'False'
       }) | indent(4) }}
       runAfter:
         - post-deps-update-verify-cluster
 
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-deps-update-verify-subscriptions',
         'devops_suite_name': 'post-deps-update-verify-subscriptions',
         'verify_cluster': 'False',
         'verify_catalogsources': 'False',
         'verify_subscriptions': 'True',
         'verify_workloads': 'False',
-        'verify_ingress': 'False',
-        'remote_ocp_cluster': '$(params.remote_ocp_cluster)',
-        'remote_ocp_type': '$(params.remote_ocp_type)',
-        'rosa_cluster_admin_password': '$(params.rosa_cluster_admin_password)',
-        'rosa_token': '$(params.rosa_token)'
+        'verify_ingress': 'False'
       }) | indent(4) }}
       runAfter:
         - post-deps-update-verify-catalogsources
 
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-deps-update-verify-workloads',
         'devops_suite_name': 'post-deps-update-verify-workloads',
         'verify_cluster': 'False',
         'verify_catalogsources': 'False',
         'verify_subscriptions': 'False',
         'verify_workloads': 'True',
-        'verify_ingress': 'False',
-        'remote_ocp_cluster': '$(params.remote_ocp_cluster)',
-        'remote_ocp_type': '$(params.remote_ocp_type)',
-        'rosa_cluster_admin_password': '$(params.rosa_cluster_admin_password)',
-        'rosa_token': '$(params.rosa_token)'
+        'verify_ingress': 'False'
       }) | indent(4) }}
       runAfter:
         - post-deps-update-verify-subscriptions

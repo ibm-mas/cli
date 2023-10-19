@@ -1,8 +1,8 @@
 ## All Mobile Foundation MAS test suites
 - name: fvt-mobfoundation-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-mobilefoundation
     - name: fvt_image_name
@@ -19,7 +19,7 @@
       value: mas
   # Only if we've set a digest of the Mobile Foundation FVT to run
   when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_mobilefoundation_testng)"
       operator: notin
       values: [""]
@@ -32,9 +32,9 @@
 
 ## Minimum Verification Test for Mobile Service Request MAS test suites
 - name: fvt-service-request-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-servicerequests
     - name: fvt_image_name
@@ -51,7 +51,7 @@
       value: mas
   # Only if we've set a digest of the Mobile Service Request FVT to run
   when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_servicerequests_testng)"
       operator: notin
       values: [""]
@@ -64,9 +64,9 @@
 
 ## Minimum Verification Test for Mobile Technician MAS test suites
 - name: fvt-technician-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-technician
     - name: fvt_image_name
@@ -83,7 +83,7 @@
       value: mas
   # Only if we've set a digest of the Mobile Technician FVT to run
   when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_technician_testng)"
       operator: notin
       values: [""]
@@ -96,9 +96,9 @@
 
 ## Minimum Verification Test for Mobile Inspection MAS test suites
 - name: fvt-inspections-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-inspections
     - name: fvt_image_name
@@ -115,7 +115,7 @@
       value: mas
   # Only if we've set a digest of the Mobile Inspection FVT to run
   when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_inspection_testng)"
       operator: notin
       values: [""]
@@ -128,9 +128,9 @@
 
 ## Minimum Verification Test for Mobile Asset Manager MAS test suites
 - name: fvt-asset-manager-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-asset-manager
     - name: fvt_image_name
@@ -162,9 +162,9 @@
 
 {# # Mobile FVT - Inventory Counting Android
 - name: fvt-inventorycounting-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-inventorycounting
     - name: fvt_image_name
@@ -179,7 +179,7 @@
       value: inventory-counting-mvt-android # xml for Mobile IC
   # Only if we've set a digest of the Mobile IC FVT to run
   when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_inventorycounting_testng)"
       operator: notin
       values: [""]
@@ -191,9 +191,9 @@
     - fvt-inventorycounting-manage-setup #}
 
 - name: fvt-inventoryreceiving-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/taskref-mobile-manage.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-inventorycounting
     - name: fvt_image_name
@@ -214,7 +214,7 @@
       value: mas
   # Only if we've set a digest of the Mobile IC FVT to run
   when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_inventoryreceiving_testng)"
       operator: notin
       values: [""]
@@ -227,9 +227,9 @@
 
 {# ## Minimum Verification Test for Mobile Defects MAS test suites
 - name: fvt-civil-defects-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
     - name: fvt_image_namespace
       value: fvt-manage-civil
     - name: fvt_image_name
@@ -246,7 +246,7 @@
       value: mas
   # Only if we've set a digest of the Mobile Defects FVT to run
   when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
     - input: "$(params.fvt_digest_manage_defects_testng)"
       operator: notin
       values: [""]
