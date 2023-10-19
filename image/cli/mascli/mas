@@ -75,6 +75,7 @@ mkdir -p $CONFIG_DIR
 . $DIR/functions/gitops_init_kafka
 . $DIR/functions/gitops_init_kafka_config
 . $DIR/functions/gitops_init_suite
+. $DIR/functions/gitops_init_suite_certs
 . $DIR/functions/gitops_init_suite_config
 . $DIR/functions/gitops_init_suite_dns
 . $DIR/functions/gitops_init_suite_idp_config
