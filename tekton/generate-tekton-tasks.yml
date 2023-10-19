@@ -124,7 +124,9 @@
         - gitops-license
         - gitops-mongo
         - gitops-rosa
+        - gitops-suite-certs
         - gitops-suite-config
+        - gitops-suite-dns
         - gitops-suite-idp-config
         - gitops-suite-smtp-config
         - gitops-suite-workspace
