@@ -122,7 +122,7 @@ Manage Application - Advanced Configuration (Optional):
 Other Commands:
       --dev-mode            Enable developer mode (e.g. for access to pre-release builds)
       --no-wait-for-pvcs    If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
-      --no-confirm          Mirror images without prompting for confirmation
+      --no-confirm          Launch the install without prompting for confirmation
       --accept-license      Accept the licenses for IBM Maximo Application Suite and Maximo IT
   -h, --help                Show this help message
 
