@@ -72,6 +72,14 @@ spec:
       type: string
       default: "rosa"
 
+    - name: skip_pre_update_check
+      type: string
+      default: "false"
+
+    - name: skip_post_update_check
+      type: string
+      default: "false"
+  
   tasks:
 
     # 1. Verify health of the cluster before we change anything
@@ -87,6 +95,10 @@ spec:
         'avp_aws_secret_key': '$(params.avp_aws_secret_key)',
         'avp_aws_access_key': '$(params.avp_aws_access_key)'
       }) | indent(4) }}
+      when:
+        - input: "$(params.skip_pre_update_check)"
+          operator: notin
+          values: ["true"]
 
     # 2. Run the catalog update
     # -------------------------------------------------------------------------
@@ -179,6 +191,10 @@ spec:
       }) | indent(4) }}
       runAfter:
         - update-catalog-gitops
+      when:
+        - input: "$(params.skip_post_update_check)"
+          operator: notin
+          values: ["true"]
 
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-update-verify-catalogsources',
@@ -198,6 +214,10 @@ spec:
       }) | indent(4) }}
       runAfter:
         - post-update-verify-cluster
+      when:
+        - input: "$(params.skip_post_update_check)"
+          operator: notin
+          values: ["true"]
 
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-update-verify-subscriptions',
@@ -217,6 +237,10 @@ spec:
       }) | indent(4) }}
       runAfter:
         - post-update-verify-catalogsources
+      when:
+        - input: "$(params.skip_post_update_check)"
+          operator: notin
+          values: ["true"]
 
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-update-verify-workloads',
@@ -236,7 +260,10 @@ spec:
       }) | indent(4) }}
       runAfter:
         - post-update-verify-subscriptions
-
+      when:
+        - input: "$(params.skip_post_update_check)"
+          operator: notin
+          values: ["true"]
 
     # 4. Update Dependencies
     # --------------------------------------------------------------------------=  
@@ -328,6 +355,10 @@ spec:
       }) | indent(4) }}
       runAfter:
         - update-common-services-gitops
+      when:
+        - input: "$(params.skip_post_update_check)"
+          operator: notin
+          values: ["true"]
 
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-deps-update-verify-catalogsources',
@@ -347,6 +378,10 @@ spec:
       }) | indent(4) }}
       runAfter:
         - post-deps-update-verify-cluster
+      when:
+        - input: "$(params.skip_post_update_check)"
+          operator: notin
+          values: ["true"]
 
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-deps-update-verify-subscriptions',
@@ -366,6 +401,10 @@ spec:
       }) | indent(4) }}
       runAfter:
         - post-deps-update-verify-catalogsources
+      when:
+        - input: "$(params.skip_post_update_check)"
+          operator: notin
+          values: ["true"]
 
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-deps-update-verify-workloads',
@@ -385,6 +424,9 @@ spec:
       }) | indent(4) }}
       runAfter:
         - post-deps-update-verify-subscriptions
-
+      when:
+        - input: "$(params.skip_post_update_check)"
+          operator: notin
+          values: ["true"]
 
 
