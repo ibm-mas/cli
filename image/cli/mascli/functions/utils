@@ -225,8 +225,10 @@ function prompt_for_confirm() {
   if [[ "$varname" != "" ]]; then
     if [[ "${!varname}" == "true" ]]; then
       default="y"
-    else
+    elif [[ "${!varname}" == "false" ]]; then
       default="n"
+    else
+      default=""
     fi
   else
     default=""
