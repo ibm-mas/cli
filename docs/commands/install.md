@@ -28,11 +28,12 @@ Usage
 - `-W, --mas-workspace-name MAS_WORKSPACE_ID`         MAS Workspace Name
 
 ### Advanced MAS Configuration (Optional):
-- `--additional-configs LOCAL_MAS_CONFIG_DIR`         Path to a directory containing additional configuration files to be applied
-- `--non-prod`                                        Install MAS in Non-production mode
-- `--mas-trust-default-cas MAS_TRUST_DEFAULT_CAS`     Trust certificates signed by well-known CAs
-- `--workload-scale-profile`                          Set a pre-defined workload scale profile [`Burstable`, `BestEffort`, `Guaranteed`]
-- `--mas-pod-templates-dir`                           Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over `--workload-scale-profile`
+- `--additional-configs LOCAL_MAS_CONFIG_DIR`                       Path to a directory containing additional configuration files to be applied
+- `--non-prod`                                                      Install MAS in Non-production mode
+- `--ocp-ingress-tls-secret-name OCP_INGRESS_TLS_SECRET_NAME`       Name of the secret holding the cluster's ingress certificates
+- `--mas-trust-default-cas MAS_TRUST_DEFAULT_CAS`                   Trust certificates signed by well-known CAs
+- `--workload-scale-profile`                                        Set a pre-defined workload scale profile [`Burstable`, `BestEffort`, `Guaranteed`]
+- `--mas-pod-templates-dir`                                         Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over `--workload-scale-profile`
 
 
 ### Maximo Application Suite Core Platform (Required):

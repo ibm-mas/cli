@@ -3,7 +3,7 @@
 function config_pipeline_advanced() {
   echo
   echo_h2 "Advanced Settings"
-  echo "${TEXT_DIM}Customize cluster monitoring storage settings, workload scaling profile and default namespaces for MAS dependencies."
+  echo "${TEXT_DIM}Customize cluster monitoring storage settings, ingress certificate secret, workload scaling profile and default namespaces for MAS dependencies."
   echo
   reset_colors
   # Determine whether Grafana is available in the cluster based on the available of the operator package
@@ -48,7 +48,8 @@ function config_pipeline_advanced() {
       prompt_for_input "+ MongoDB Namespace" MONGODB_NAMESPACE "mongoce"
     fi
     echo
-
+    OCP_INGRESS_TLS_SECRET_NAME="router-certs-default"
+    prompt_for_input "Default cluster ingress certificate secret" OCP_INGRESS_TLS_SECRET_NAME $OCP_INGRESS_TLS_SECRET_NAME
     prompt_for_confirm_default_yes "Trust Default CAs?" MAS_TRUST_DEFAULT_CAS
   else
     clear_mas_workload_scale_envs
