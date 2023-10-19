@@ -27,9 +27,9 @@ spec:
     # 1. Core x Assist
     # -------------------------------------------------------------------------
     - name: ivtcore-assist
-      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      {{ lookup('template', pipeline_src_dir ~ '/taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
         - name: product_id
           value: ibm-mas-assist
         - name: product_channel
@@ -44,4 +44,4 @@ spec:
 
     # 2. Application FVT - Assist
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/assist.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-apps/assist.yml.j2') | indent(4) }}

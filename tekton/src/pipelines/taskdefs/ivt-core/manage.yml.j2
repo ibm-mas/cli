@@ -1,9 +1,9 @@
 # IVT 4: Core x Manage
 # -------------------------------------------------------------------------
 - name: ivtcore-manage
-  {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
     - name: product_id
       value: ibm-mas-manage
     - name: product_channel

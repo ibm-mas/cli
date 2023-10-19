@@ -41,52 +41,52 @@ spec:
     # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
     # -------------------------------------------------------------------------
     # 1.1 IBM Operator Catalog
-    {{ lookup('template', 'taskdefs/cluster-setup/ibm-catalogs.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ibm-catalogs.yml.j2') | indent(4) }}
 
     # 1.2 IBM Cloud Pak Foundational Services
-    {{ lookup('template', 'taskdefs/cluster-setup/common-services.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/common-services.yml.j2') | indent(4) }}
       runAfter:
         - ibm-catalogs
 
     # 1.3 IBM Certificate Manager
-    {{ lookup('template', 'taskdefs/cluster-setup/cert-manager.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/cert-manager.yml.j2') | indent(4) }}
       runAfter:
         - common-services
 
     # 1.4 Configure Cluster Monitoring
-    {{ lookup('template', 'taskdefs/cluster-setup/cluster-monitoring.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/cluster-monitoring.yml.j2') | indent(4) }}
 
 
     # 2. Install Universal Dependencies
     # -------------------------------------------------------------------------
     # 2.1 MongoDb
-    {{ lookup('template', 'taskdefs/dependencies/mongo.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/mongo.yml.j2') | indent(4) }}
       runAfter:
         - cert-manager
 
     # 2.2 AMQStreams (Kafka)
-    {{ lookup('template', 'taskdefs/dependencies/kafka.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/kafka.yml.j2') | indent(4) }}
       runAfter:
         - cluster-monitoring
 
     # 2.3 Db2
     # 2.3.1 System Db2
-    {{ lookup('template', 'taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'system'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'system'}) | indent(4) }}
       runAfter:
         - cert-manager
 
     # 2.3.2 Dedicated Manage Db2
-    {{ lookup('template', 'taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'manage'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'manage'}) | indent(4) }}
       runAfter:
         - db2-system
 
     # 2.4 IBM SLS
-    {{ lookup('template', 'taskdefs/dependencies/sls.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/sls.yml.j2') | indent(4) }}
       runAfter:
         - mongodb
 
     # 2.5 UDS
-    {{ lookup('template', 'taskdefs/dependencies/uds.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/uds.yml.j2') | indent(4) }}
       runAfter:
         - common-services
 
@@ -94,10 +94,10 @@ spec:
     # 3. Other Dependecies
     # -------------------------------------------------------------------------
     # 3.1 Install Cloud Object Storage (COS)
-    {{ lookup('template', 'taskdefs/dependencies/cos.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/cos.yml.j2') | indent(4) }}
 
     # 3.2 Configure COS in MAS
-    {{ lookup('template', 'taskdefs/core/suite-config-cos.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-cos.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
         - cos
@@ -105,15 +105,15 @@ spec:
     # 4. Install & Configure IBM MAS
     # -------------------------------------------------------------------------
     # 4.1 Configure Workspace
-    {{ lookup('template', 'taskdefs/core/gencfg-workspace.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/gencfg-workspace.yml.j2') | indent(4) }}
 
     # 4.2 DNS Setup
-    {{ lookup('template', 'taskdefs/core/suite-dns.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-dns.yml.j2') | indent(4) }}
       runAfter:
         - cert-manager
 
     # 4.3 Suite Installation
-    {{ lookup('template', 'taskdefs/core/suite-install.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-install.yml.j2') | indent(4) }}
       runAfter:
         - sls
         - uds
@@ -121,24 +121,24 @@ spec:
         - suite-dns
 
     # 4.4 Suite Configuration
-    {{ lookup('template', 'taskdefs/core/suite-config.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config.yml.j2') | indent(4) }}
       runAfter:
         - suite-install
 
     # 4.5 Suite Verification
-    {{ lookup('template', 'taskdefs/core/suite-verify.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-verify.yml.j2') | indent(4) }}
       runAfter:
         - suite-config
 
     # 4.6 Configure Db2 in MAS
-    {{ lookup('template', 'taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
         - db2-system
         - db2-manage
 
     # 4.7 Configure Kafka in MAS
-    {{ lookup('template', 'taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
         - kafka
@@ -146,69 +146,69 @@ spec:
     # 5. Install & Configure Manage
     # -------------------------------------------------------------------------
     # 5.1. Prepare database for Maxinst
-    {{ lookup('template', 'taskdefs/apps/db2-setup-system.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-system.yml.j2') | indent(4) }}
       runAfter:
         - suite-config-db2
-    {{ lookup('template', 'taskdefs/apps/db2-setup-manage.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-manage.yml.j2') | indent(4) }}
       runAfter:
         - suite-config-db2
 
     # 5.2 Manage Install
-    {{ lookup('template', 'taskdefs/apps/manage-app.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-app.yml.j2') | indent(4) }}
       runAfter:
         - suite-db2-setup-system
         - suite-db2-setup-manage
 
     # 5.3 Configure Manage workspace
-    {{ lookup('template', 'taskdefs/apps/manage-workspace.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-manage
 
 
     # 6. Manage IVT
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/ivt-core/manage.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/ivt-core/manage.yml.j2') | indent(4) }}
 
     # 7. Application FVT - Manage
     # -------------------------------------------------------------------------
     # 7.1 Phase 0: User Sync
-    {{ lookup('template', 'taskdefs/fvt-manage/phase0.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/phase0.yml.j2') | indent(4) }}
 
     # 7.2 Phase 1: SetupWithMAS, Monitoring and others not depending on setup
-    {{ lookup('template', 'taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
 
     # 7.3 Phase 2: MIF Setup and others
-    {{ lookup('template', 'taskdefs/fvt-manage/phase2.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/phase2.yml.j2') | indent(4) }}
 
     # 7.4 Phase 3: JMS Inbound, Work Order Basic and others
-    {{ lookup('template', 'taskdefs/fvt-manage/phase3.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/phase3.yml.j2') | indent(4) }}
 
     # 7.5 Phase 4: Doclinks, Kafka and others
-    {{ lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
     
     # 7.6 Phase 5: Single-threaded suites (SMTP and others)
-    {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
 
     # 8. Manage FVT - Industry Solutions
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase0-aviation.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase1-scheduler.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase2-civil.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase3-all-setup.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase4-all-user.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase5-all-test.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase6-maintmanager.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage-addons/phase0-aviation.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage-addons/phase1-scheduler.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage-addons/phase2-civil.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage-addons/phase3-all-setup.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage-addons/phase4-all-user.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage-addons/phase5-all-test.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage-addons/phase6-maintmanager.yml.j2') | indent(4) }}
 
     # 9. Manage Mobile FVT
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase1-setup.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase2-android.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase3-ios.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase4.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/phase1-setup.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/phase2-android.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/phase3-ios.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-mobile/phase4.yml.j2') | indent(4) }}
 
     # 10. Manage Regression
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-manage-regression/manage-regr.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage-regression/manage-regr.yml.j2') | indent(4) }}
 
 
   # Mustgather executed in finally block. Use suite_mustgather_download

@@ -3,7 +3,7 @@
     kind: Task
     name: mas-devops-ocp-verify
   params:
-    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
       value: {{ devops_suite_name }}
 
@@ -17,3 +17,20 @@
       value: {{ verify_workloads | default("True") }}
     - name: verify_ingress
       value: {{ verify_ingress | default("True") }}
+
+{% if remote_ocp_cluster is defined and remote_ocp_cluster != '' %}
+    - name: remote_ocp_cluster
+      value: {{ remote_ocp_cluster }}
+    - name: remote_ocp_type
+      value: {{ remote_ocp_type | default("rosa") }}
+    - name: rosa_cluster_admin_password
+      value: {{ rosa_cluster_admin_password }}
+    - name: rosa_token
+      value: {{ rosa_token }}
+    - name: avp_aws_secret_region
+      value: {{ avp_aws_secret_region }}
+    - name: avp_aws_secret_key
+      value: {{ avp_aws_secret_key }}
+    - name: avp_aws_access_key
+      value: {{ avp_aws_access_key }}
+{% endif %}

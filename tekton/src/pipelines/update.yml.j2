@@ -8,18 +8,31 @@ metadata:
   name: mas-update
 {% endif %}
 spec:
+
 {% if wait_for_install == true %}
   workspaces:
     # Shared storage to hold mustgather output for tasks
     - name: shared-mustgather
 {% endif %}
-
+  
   params:
 {% if wait_for_install == true %}
     # MAS Instance ID (the instance who's install to wait for)
     - name: mas_instance_id
       type: string
 {% endif %}
+
+    - name: mas_catalog_image
+      type: string
+      default: ""
+
+    - name: icr_username
+      type: string
+      default: ""
+
+    - name: icr_password
+      type: string
+      default: ""
 
     # Tekton Pipeline image pull policy (for ibmmas/cli images)
     - name: image_pull_policy
@@ -71,7 +84,10 @@ spec:
 
     # 1. Verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-update-check', 'devops_suite_name': 'pre-update-check'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'pre-update-check', 
+        'devops_suite_name': 'pre-update-check'
+      }) | indent(4) }}
 {% if wait_for_install == true %}
       runAfter:
         - wait-for-install
@@ -98,9 +114,10 @@ spec:
         - name: artifactory_token
           value: $(params.artifactory_token)
 
+
     # 3. Verify health of the cluster before we consider the update complete
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-update-verify-cluster',
         'devops_suite_name': 'post-update-verify-cluster',
         'verify_cluster': 'True',
@@ -112,7 +129,7 @@ spec:
       runAfter:
         - update-catalog
 
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-update-verify-catalogsources',
         'devops_suite_name': 'post-update-verify-catalogsources',
         'verify_cluster': 'False',
@@ -124,7 +141,7 @@ spec:
       runAfter:
         - post-update-verify-cluster
 
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-update-verify-subscriptions',
         'devops_suite_name': 'post-update-verify-subscriptions',
         'verify_cluster': 'False',
@@ -136,7 +153,7 @@ spec:
       runAfter:
         - post-update-verify-catalogsources
 
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-update-verify-workloads',
         'devops_suite_name': 'post-update-verify-workloads',
         'verify_cluster': 'False',
@@ -177,9 +194,10 @@ spec:
         - name: db2_namespace
           value: $(params.db2_namespace)
 
+
     # 5. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-deps-update-verify-cluster',
         'devops_suite_name': 'post-deps-update-verify-cluster',
         'verify_cluster': 'True',
@@ -191,7 +209,7 @@ spec:
       runAfter:
         - update-db2
 
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-deps-update-verify-catalogsources',
         'devops_suite_name': 'post-deps-update-verify-catalogsources',
         'verify_cluster': 'False',
@@ -203,7 +221,7 @@ spec:
       runAfter:
         - post-deps-update-verify-cluster
 
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-deps-update-verify-subscriptions',
         'devops_suite_name': 'post-deps-update-verify-subscriptions',
         'verify_cluster': 'False',
@@ -215,7 +233,7 @@ spec:
       runAfter:
         - post-deps-update-verify-catalogsources
 
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-deps-update-verify-workloads',
         'devops_suite_name': 'post-deps-update-verify-workloads',
         'verify_cluster': 'False',

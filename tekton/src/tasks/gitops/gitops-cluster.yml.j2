@@ -1,0 +1,170 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-cluster
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: rosa_token
+      type: string
+      default: ""
+    - name: rosa_cluster_admin_password
+      type: string
+      default: ""
+    - name: secrets_path
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: github_pat
+      type: string
+    - name: git_commit_msg
+      type: string
+    - name: artifactory_username
+      type: string
+      default: ""
+    - name: artifactory_token
+      type: string
+      default: ""
+    - name: icr_username
+      type: string
+      default: ""
+    - name: icr_password
+      type: string
+      default: ""
+    - name: mas_catalog_version
+      type: string
+      default: ""
+    - name: mas_catalog_image
+      type: string
+      default: ""
+    - name: common_services_channel
+      type: string
+      default: ""
+    - name: avp_aws_access_key
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: mas_catalog_action
+      type: string
+      default: "install"
+    - name: common_services_action
+      type: string
+      default: "install"
+  stepTemplate:
+    name: gitops-cluster
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: ROSA_TOKEN
+        value: $(params.rosa_token)
+      - name: ROSA_CLUSTER_ADMIN_PASSWORD
+        value: $(params.rosa_cluster_admin_password)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: GIT_COMMIT_MSG
+        value: $(params.git_commit_msg)
+      - name: ARTIFACTORY_USERNAME
+        value: $(params.artifactory_username)
+      - name: ARTIFACTORY_TOKEN
+        value: $(params.artifactory_token)
+      - name: ICR_USERNAME
+        value: $(params.icr_username)
+      - name: ICR_PASSWORD
+        value: $(params.icr_password)
+      - name: MAS_CATALOG_VERSION
+        value: $(params.mas_catalog_version)
+      - name: MAS_CATALOG_IMAGE
+        value: $(params.mas_catalog_image)
+      - name: COMMON_SERVICES_CHANNEL
+        value: $(params.common_services_channel)
+      - name: SM_AWS_ACCESS_KEY_ID
+        value: $(params.avp_aws_access_key)
+      - name: SM_AWS_SECRET_ACCESS_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: GITHUB_PAT
+        value: $(params.github_pat)
+      - name: MAS_CATALOG_ACTION
+        value: $(params.mas_catalog_action)
+      - name: COMMON_SERVICES_ACTION
+        value: $(params.common_services_action)
+  steps:
+    - args:
+      - |-
+        git config --global user.name "MAS Automation"
+        git config --global user.email "mas_automation@email.com"
+        git config --global user.password $GITHUB_PAT
+
+        ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
+        if [ -f $ROSA_CONFIG ]; then
+          export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
+          export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
+          export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
+          oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
+        else
+          aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
+          aws configure set default.region $SM_AWS_REGION
+          export CLUSTER_TYPE=rosa
+          ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role 
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
+        fi
+        
+        echo "Set k8s context"
+        export K8S_AUTH_CONTEXT=$(oc whoami -c)
+
+        if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
+          export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
+          export ARGOCD_USERNAME=admin
+          export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
+        fi
+
+        mkdir -p /tmp/init-cluster
+        mas gitops-cluster -a $ACCOUNT -c $CLUSTER_NAME \
+        --dir /tmp/init-cluster \
+        --github-push \
+        --github-host $GITHUB_HOST \
+        --github-org  $GITHUB_ORG \
+        --github-repo $GITHUB_REPO \
+        --git-branch $GIT_BRANCH \
+        --secrets-path $SECRET_PATH
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-cluster
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:6.4.0-pre.gitops
+  workspaces:
+    - name: configs
