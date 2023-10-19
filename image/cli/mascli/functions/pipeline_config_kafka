@@ -45,7 +45,7 @@ function kafka_for_iot() {
           echo "Strimzi: Cluster Version"
           echo -e "${TEXT_DIM}The version of the Strimzi operator available on your cluster will determine the supported versions of Kafka that can be deployed."
           echo " - If you are using the latest available operator catalog then the default version below can be accepted"
-          echo " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in OperatorHub"
+          echo " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in your OperatorHub"
           echo ""
           reset_colors
           prompt_for_input "Kafka version" KAFKA_VERSION "3.5.1"
@@ -70,7 +70,7 @@ function kafka_for_iot() {
           echo "Red Hat AMQ Streams: Cluster Version"
           echo -e "${TEXT_DIM}The version of the Red Hat AMQ Streams operator available on your cluster will determine the supported versions of Kafka that can be deployed."
           echo " - If you are using the latest available operator catalog then the default version below can be accepted"
-          echo " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in OperatorHub"
+          echo " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in your OperatorHub"
           echo ""
           reset_colors
           prompt_for_input "Kafka version" KAFKA_VERSION "3.5.0"
