@@ -79,7 +79,7 @@ function update_interactive() {
 
   echo_h2 "Dependencies Update"
   echo -e "${COLOR_GREEN}IBM Common Services Operator will be updated by default as needed.${COLOR_RESET}"
-  
+
   # Detect db2 in cluster and prompt for namespace
   oc get Operator db2u-operator.ibm-common-services > /dev/null 2>&1
   if [ "$?" == "0" ]; then
@@ -169,7 +169,7 @@ function update() {
   pipeline_install_tasks_shared_namespace || exit 1
 
   # Replace ALL environment variables in templates
-  eval "echo \"$(cat $DIR/templates/pipelinerun-update.yaml)\"" > $CONFIG_DIR/pipelinerun-update.yaml
+  eval "echo \"$(cat $CLI_DIR/templates/pipelinerun-update.yaml)\"" > $CONFIG_DIR/pipelinerun-update.yaml
 
   # Start pipeline execution
   oc -n mas-pipelines create -f $CONFIG_DIR/pipelinerun-update.yaml &>> $LOGFILE || exit 1

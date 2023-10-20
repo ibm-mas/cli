@@ -111,7 +111,7 @@ function upgrade() {
    pipeline_install_tasks|| exit 1
 
   # Replace ALL environment variables in templates
-  eval "echo \"$(cat $DIR/templates/pipelinerun-upgrade.yaml)\"" > $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-upgrade.yaml
+  eval "echo \"$(cat $CLI_DIR/templates/pipelinerun-upgrade.yaml)\"" > $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-upgrade.yaml
 
   # Check for UDS presence
   SUBNAME=$(oc get subscription ibm-user-data-services-operator -n ibm-common-services --no-headers | awk -F" " {'print $1'})
