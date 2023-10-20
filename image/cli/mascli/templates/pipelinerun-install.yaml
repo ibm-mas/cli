@@ -252,8 +252,6 @@ spec:
       value: '$DRO_CONTACT_LASTNAME'
     - name: dro_action
       value: '$DRO_ACTION'
-    - name: dro-secret-token
-      value: '$DRO_PULL_SECRET_TOKEN'
 
     # Dependencies - AppConnect
     # -------------------------------------------------------------------------

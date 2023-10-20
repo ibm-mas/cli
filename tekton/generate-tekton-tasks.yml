@@ -41,6 +41,7 @@
         - sls-registry-update
         - sls
         - turbonomic
+        - uds
         - dro
 
     # 3. Generate Tasks (FVT)

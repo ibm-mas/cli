@@ -9,7 +9,6 @@
 
     - name: uds_action
       value: "$(params.uds_action)"
-
     - name: uds_contact_email
       value: "$(params.uds_contact_email)"
     - name: uds_contact_firstname
@@ -20,11 +19,14 @@
       value: "$(params.uds_event_scheduler_frequency)"
     - name: uds_storage_class
       value: $(params.storage_class_rwo)
-
     - name: mas_segment_key
       value: $(params.mas_segment_key)
     - name: custom_labels
       value: $(params.custom_labels)
+  when:
+    - input: "$(params.uds_action_{{ suffix }})"
+      operator: in
+      values: ["install"]
   taskRef:
     kind: Task
     name: mas-devops-uds

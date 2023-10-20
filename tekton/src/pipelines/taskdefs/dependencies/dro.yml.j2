@@ -16,9 +16,12 @@
       value: "$(params.dro_contact_firstname)"
     - name: dro_contact_lastname
       value: "$(params.dro_contact_lastname)"
-
     - name: custom_labels
       value: $(params.custom_labels)
+  when:
+    - input: "$(params.dro_action_{{ suffix }})"
+      operator: in
+      values: ["install"]
   taskRef:
     kind: Task
     name: mas-devops-dro
