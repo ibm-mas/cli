@@ -18,6 +18,8 @@
       value: "$(params.dro_contact_lastname)"
     - name: custom_labels
       value: $(params.custom_labels)
+    - name: ibm_entitlement_key
+      value: $(params.ibm_entitlement_key)
   when:
     - input: "$(params.dro_action)"
       operator: in
