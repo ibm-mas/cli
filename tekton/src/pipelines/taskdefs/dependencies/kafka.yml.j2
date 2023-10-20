@@ -12,6 +12,8 @@
       value: $(params.kafka_cluster_name)
 
     # AMQ Streams (Kafka)
+    - name: kafka_version
+      value: $(params.kafka_version)
     - name: kafka_namespace
       value: $(params.kafka_namespace)
     - name: kafka_version
@@ -87,7 +89,7 @@
     - input: "$(params.kafka_action_system)"
       operator: in
       values: ["install"]
-    
+
   taskRef:
     kind: Task
     name: mas-devops-kafka

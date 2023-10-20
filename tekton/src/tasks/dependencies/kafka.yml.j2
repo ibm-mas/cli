@@ -21,10 +21,14 @@ spec:
       description: Optional. Set to 'update' to update kafka.
       default: ""
 
+    - name: kafka_provider
+      type: string
+      default: "strimzi"
+
     - name: kafka_namespace
       type: string
       default: "strimzi"
-    - name: kafka_provider
+    - name: kafka_version
       type: string
       default: "strimzi"
     - name: kafka_version
@@ -134,10 +138,11 @@ spec:
 
       - name: KAFKA_ACTION
         value: $(params.kafka_action)
-      - name: KAFKA_NAMESPACE
-        value: $(params.kafka_namespace)
       - name: KAFKA_PROVIDER
         value: $(params.kafka_provider)
+
+      - name: KAFKA_NAMESPACE
+        value: $(params.kafka_namespace)
       - name: KAFKA_VERSION
         value: $(params.kafka_version)
       - name: KAFKA_CLUSTER_NAME
