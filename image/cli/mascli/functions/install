@@ -67,6 +67,7 @@ Kafka (Required to install Maximo IoT thus if not set, a default Kafka provider 
 
 Kafka (Optional, applicable for Strimzi and Red Hat AMQ Streams only):
       --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}    Set Strimzi and Red Hat AMQ Streams namespace
+      --kafka-version ${COLOR_YELLOW}KAFKA_VERSION${TEXT_RESET}        Set version of the Kafka cluster that the Strimzi or AMQ Streams operator will create
 
 Kafka (Required for IBM Cloud Event Streams only):
       --ibmcloud-apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                            Set IBM Cloud API Key. Required to provision IBM Cloud services
@@ -126,7 +127,7 @@ Manage Application - Advanced Configuration (Optional):
 Other Commands:
       --dev-mode            Enable developer mode (e.g. for access to pre-release builds)
       --no-wait-for-pvcs    If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
-      --no-confirm          Mirror images without prompting for confirmation
+      --no-confirm          Launch the install without prompting for confirmation
       --accept-license      Accept the licenses for IBM Maximo Application Suite and Maximo IT
   -h, --help                Show this help message
 
@@ -352,6 +353,9 @@ function install_noninteractive() {
       # Dependencies - Kafka (AMQ & Strimzi)
       --kafka-namespace)
         export KAFKA_NAMESPACE=$1 && shift
+        ;;
+      --kafka-version)
+        export KAFKA_VERSION=$1 && shift
         ;;
 
       # Dependencies - Kafka (AWS MSK)

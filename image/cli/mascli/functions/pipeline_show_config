@@ -192,6 +192,7 @@ function pipeline_show_config() {
     echo_h4 "Kafka" "    "
     echo_reset_dim "Install Namespace ......... ${COLOR_MAGENTA}${KAFKA_NAMESPACE:-<default>}"
     echo_reset_dim "Kafka Provider ............ ${COLOR_MAGENTA}${KAFKA_PROVIDER}"
+    echo_reset_dim "Kafka Version ............. ${COLOR_MAGENTA}${KAFKA_VERSION}"
   fi
 
   if [[ "$KAFKA_ACTION_SYSTEM" == "install" && "$KAFKA_PROVIDER" == "ibm" ]]; then
@@ -295,6 +296,7 @@ function pipeline_show_config() {
   [ "$KAFKA_PROVIDER" != "" ] && cmd+=" \\
   --kafka-provider $KAFKA_PROVIDER"
   [ "$KAFKA_NAMESPACE" != "" ] && cmd+=" --kafka-namespace $KAFKA_NAMESPACE"
+  [ "$KAFKA_VERSION" != "" ] && cmd+=" --kafka-version $KAFKA_VERSION"
   [ "$EVENTSTREAMS_RESOURCEGROUP" != "" ] && cmd+=" --eventstreams-resource-group $EVENTSTREAMS_RESOURCEGROUP"
   [ "$EVENTSTREAMS_NAME" != "" ] && cmd+=" --eventstreams-instance-name $EVENTSTREAMS_NAME"
   [ "$EVENTSTREAMS_LOCATION" != "" ] && cmd+=" --eventstreams-instance-location $EVENTSTREAMS_LOCATION"
