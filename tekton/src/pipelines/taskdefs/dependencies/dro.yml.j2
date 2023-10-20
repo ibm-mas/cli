@@ -19,7 +19,7 @@
     - name: custom_labels
       value: $(params.custom_labels)
   when:
-    - input: "$(params.dro_action_{{ suffix }})"
+    - input: "$(params.dro_action)"
       operator: in
       values: ["install"]
   taskRef:

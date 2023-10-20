@@ -24,7 +24,7 @@
     - name: custom_labels
       value: $(params.custom_labels)
   when:
-    - input: "$(params.uds_action_{{ suffix }})"
+    - input: "$(params.uds_action)"
       operator: in
       values: ["install"]
   taskRef:
