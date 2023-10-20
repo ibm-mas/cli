@@ -28,7 +28,7 @@ User-Controlled Updates
 
 The packages available in these catalogs are fixed. Multiple installations at different times will always result in exactly the same version of all operators being installed.
 
-When you are ready to apply updates you simply modify the CatalogSource installed in your cluster, changing it from e.g. `v8-220717-amd64` to `v8-220805-amd64`.  No further action is required, after a brief delay all installed operators will update automatically to the latest versions in the new catalog source.
+When you are ready to apply updates you simply modify the CatalogSource installed in your cluster, changing it from e.g. `@@MAS_PREVIOUS_CATALOG@@` to `@@MAS_LATEST_CATALOG@@`.  No further action is required, after a brief delay all installed operators will update automatically to the latest versions in the new catalog source.
 
 
 Multi-Cluster Version Equivalency

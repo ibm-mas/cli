@@ -9,7 +9,7 @@ Usage
 - `-i|--id MAS_INSTANCE_ID` MAS Instance ID to upgrade
 
 ### Other Options
-- `--no-confirm` Mirror images without prompting for confirmation
+- `--no-confirm` Launch the upgrade without prompting for confirmation
 - `-h|--help` Show help message
 
 
