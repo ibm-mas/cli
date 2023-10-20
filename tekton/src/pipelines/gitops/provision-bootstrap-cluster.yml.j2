@@ -33,23 +33,18 @@ spec:
       type: string
     - name: avp_aws_access_key
       type: string
+
+    # 1. Gitops git Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
+
     - name: github_url
-      type: string
-    - name: github_pat
       type: string
     - name: rosa_token
       type: string
     - name: account
       type: string
     - name: secrets_path
-      type: string
-    - name: git_branch
-      type: string
-    - name: github_org
-      type: string
-    - name: github_repo
-      type: string
-    - name: github_host
       type: string
     - name: artifactory_username
       type: string
@@ -157,6 +152,8 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
         - name: artifactory_username
           value: $(params.artifactory_username)
         - name: artifactory_token
@@ -229,6 +226,8 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
         - name: github_pat
           value: $(params.github_pat)
       taskRef:

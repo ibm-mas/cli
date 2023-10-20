@@ -20,9 +20,12 @@ spec:
       type: string
     - name: avp_aws_access_key
       type: string
+
+    # 1. Gitops git Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
+
     - name: github_url
-      type: string
-    - name: github_pat
       type: string
     - name: mas_instance_id
       type: string
@@ -34,14 +37,6 @@ spec:
     - name: workspace_id
       type: string
     - name: workspace_name
-      type: string
-    - name: git_branch
-      type: string
-    - name: github_org
-      type: string
-    - name: github_repo
-      type: string
-    - name: github_host
       type: string
     - name: aws_key_pair_name
       type: string
@@ -85,6 +80,8 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
         - name: github_pat
           value: $(params.github_pat)
         - name: avp_aws_secret_region
@@ -121,6 +118,8 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
         - name: github_pat
           value: $(params.github_pat)
         - name: avp_aws_secret_region
@@ -159,6 +158,8 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
         - name: github_pat
           value: $(params.github_pat)
         - name: force_removal
@@ -189,6 +190,8 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
         - name: github_pat
           value: $(params.github_pat)
         - name: avp_aws_secret_region
@@ -227,6 +230,8 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
         - name: github_pat
           value: $(params.github_pat)
         - name: avp_aws_secret_region
@@ -303,6 +308,8 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
         - name: github_pat
           value: $(params.github_pat)
         - name: db2_action
@@ -360,6 +367,8 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
         - name: github_pat
           value: $(params.github_pat)
         - name: avp_aws_secret_region
