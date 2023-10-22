@@ -1,8 +1,6 @@
 # IBM Maximo Application Suite CLI Utility
 [![GitHub release](https://img.shields.io/github/v/release/ibm-mas/cli)](https://github.com/ibm-mas/cli/releases/latest)
 [![Build CLI](https://github.com/ibm-mas/cli/actions/workflows/build-cli.yml/badge.svg)](https://github.com/ibm-mas/cli/actions/workflows/build-cli.yml)
-[![Ansible Galaxy Release](https://img.shields.io/badge/dynamic/json?style=flat&label=ibm.mas_devops&prefix=v&url=https://galaxy.ansible.com/api/v2/collections/ibm/mas_devops/&query=latest_version.version)](https://galaxy.ansible.com/ibm/mas_devops)
-
 
 ## Introduction
 There are minimal dependencies to meet on your own computer to use the CLI:
@@ -25,7 +23,7 @@ The engine that performs all tasks is written in Ansible, you can directly use t
 [https://ibm-mas.github.io/cli/](https://ibm-mas.github.io/cli/)
 
 ## Want to contribute to MAS Command Line Interface?
-
 We welcome every Maximo Application Suite users, developers and enthusiasts to contribute to the MAS Command Line Interface while fixing code issues and implementing new automated functionalities.
 
 You can contribute to this collection by raising [a new issue](https://github.com/ibm-mas/cli/issues) with suggestions on how to make our MAS automation engine even better, or if you want to become a new code contributor, please refer to the [Contributing section](CONTRIBUTING.md) and learn more about how to get started.
+

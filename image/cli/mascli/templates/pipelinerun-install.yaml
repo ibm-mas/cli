@@ -162,6 +162,8 @@ spec:
       value: '$KAFKA_PROVIDER'
     - name: kafka_namespace
       value: '$KAFKA_NAMESPACE'
+    - name: kafka_version
+      value: '$KAFKA_VERSION'
 
     # Dependencies - AWS MSK
     # -------------------------------------------------------------------------

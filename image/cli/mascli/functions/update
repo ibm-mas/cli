@@ -15,11 +15,11 @@ Maximo Operator Catalog Selection (Required):
 Update Dependencies (Optional):
   --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}        DB2 namespace where instances update will be performed
   --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET} Namespace where MongoCE operator and instance will be updated
-  --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET} Namespace where Kafka operator and instance will be updated
-  --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}  Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), or 'strimzi'
+  --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}     Namespace where Kafka operator and instance will be updated
+  --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}       Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), or 'strimzi'
 
 Other Commands:
-      --no-confirm                      Mirror images without prompting for confirmation
+      --no-confirm                      Launch the update without prompting for confirmation
   -h, --help                            Show this help message
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0
@@ -79,7 +79,7 @@ function update_interactive() {
 
   echo_h2 "Dependencies Update"
   echo -e "${COLOR_GREEN}IBM Common Services Operator will be updated by default as needed.${COLOR_RESET}"
-  
+
   # Detect db2 in cluster and prompt for namespace
   oc get Operator db2u-operator.ibm-common-services > /dev/null 2>&1
   if [ "$?" == "0" ]; then
@@ -169,7 +169,7 @@ function update() {
   pipeline_install_tasks_shared_namespace || exit 1
 
   # Replace ALL environment variables in templates
-  eval "echo \"$(cat $DIR/templates/pipelinerun-update.yaml)\"" > $CONFIG_DIR/pipelinerun-update.yaml
+  eval "echo \"$(cat $CLI_DIR/templates/pipelinerun-update.yaml)\"" > $CONFIG_DIR/pipelinerun-update.yaml
 
   # Start pipeline execution
   oc -n mas-pipelines create -f $CONFIG_DIR/pipelinerun-update.yaml &>> $LOGFILE || exit 1
