@@ -228,9 +228,12 @@ function pipeline_config() {
     SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
   fi
 
+  # Check for DRO support in MAS
+  # ---------------------------------------------------------------------------
   echo ""
   prompt_for_input "Do you want install UDS or DRO ?" BAS_PROVIDER "UDS"
-  if [[ "$BAS_PROVIDER" == "DRO" ]]; then
+  if [[ "$BAS_PROVIDER" == "DRO" ] and 
+  ["$MAS_CHANNEL" == "8.10.6" or "$MAS_CHANNEL" == "8.11.2" or "$MAS_CHANNEL" == "9.0"]]; then
     echo_h2 "Configure DRO"
     prompt_for_input "DRO Contact Email" DRO_CONTACT_EMAIL
     prompt_for_input "DRO Contact First Name" DRO_CONTACT_FIRSTNAME
@@ -239,18 +242,8 @@ function pipeline_config() {
   else
     echo
     echo_h2 "Configure UDS"
-    if [[ -n "$DEV_MODE" ]]; then
-      echo "${TEXT_DIM}Installing Maximo Application Suite with built-in UDS replacement (SUDS)"
-      echo
-      reset_colors
-      UDS_CONTACT_EMAIL=""
-      UDS_CONTACT_FIRSTNAME=""
-      UDS_CONTACT_LASTNAME=""
-      UDS_ACTION="install_suds"
-    else
-      prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
-      prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
-      prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
-    fi
+    prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
+    prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
+    prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
   fi
 }
