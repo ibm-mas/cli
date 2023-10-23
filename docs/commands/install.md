@@ -18,7 +18,6 @@ Usage
 - `--dro-email DRO_CONTACT_EMAIL`              Contact e-mail address
 - `--dro-firstname DRO_CONTACT_FIRSTNAME`      Contact first name
 - `--dro-lastname DRO_CONTACT_LASTNAME`        Contact last name
-- `--dro-secret-token DRO_PULL_SECRET_TOKEN`   DRO Pull Secret token
 
 ### Storage Class Selection (Required):
 - `--storage-rwo STORAGE_CLASS_RWO`                   Read Write Once (RWO) storage class (e.g. ibmc-block-gold)
@@ -311,8 +310,8 @@ Provide your IBM entitlement key.  If you have set the `IBM_ENTITLEMENT_KEY` env
 Provide your license ID and the location of your license file.
 
 
-### Step 19. Configure DRO
-Maximo Application Suite's required integration with Data Reporter Operator requires your e-mail address and first/last name be provided.
+### Step 19. Configure UDS/DRO
+Maximo Application Suite's required integration with either IBM User Data Services OR IBM Data Reporter Operator requires your e-mail address and first/last name be provided.
 
 
 ### Step 20. Prepare Installation

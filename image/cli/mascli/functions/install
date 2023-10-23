@@ -19,7 +19,6 @@ Entitlement & Licensing (Required):
       --dro-email ${COLOR_YELLOW}DRO_CONTACT_EMAIL${TEXT_RESET}                                Contact e-mail address
       --dro-firstname ${COLOR_YELLOW}DRO_CONTACT_FIRSTNAME${TEXT_RESET}                        Contact first name
       --dro-lastname ${COLOR_YELLOW}DRO_CONTACT_LASTNAME${TEXT_RESET}                          Contact last name
-      --dro-secret-token ${COLOR_YELLOW}DRO_PULL_SECRET_TOKEN${TEXT_RESET}                     DRO Pull Secret Token
 
 Entitlement & Licensing (Only required up to v8-230414-amd64):
       --license-id ${COLOR_YELLOW}SLS_LICENSE_ID${TEXT_RESET}                          MAS license ID. Required for SLS 3.6.0 and below
