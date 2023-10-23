@@ -93,6 +93,10 @@
   type: string
   description: Kafka provider
   default: ""
+- name: kafka_version
+  type: string
+  description: Kafka version
+  default: ""
 - name: kafka_cluster_name
   type: string
   default: ""
@@ -232,16 +236,19 @@
 # -----------------------------------------------------------------------------
 - name: uds_contact_email
   type: string
+  default: ""
 - name: uds_contact_firstname
   type: string
+  default: ""
 - name: uds_contact_lastname
   type: string
+  default: ""
 - name: uds_event_scheduler_frequency
   type: string
   default: ""
 - name: uds_action
   type: string
-  default: "install"
+  default: ""
 - name: mas_segment_key
   type: string
   default: ""
@@ -250,13 +257,16 @@
 # -----------------------------------------------------------------------------
 - name: dro_contact_email
   type: string
+  default: ""
 - name: dro_contact_firstname
   type: string
+  default: ""
 - name: dro_contact_lastname
   type: string
+  default: ""
 - name: dro_action
   type: string
-  default: "install"
+  default: ""
 
 # Dependencies - AppConnect
 # -----------------------------------------------------------------------------
