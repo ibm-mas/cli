@@ -19,6 +19,19 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
+function list_mas_instances() {
+  oc get suite --all-namespaces --ignore-not-found
+}
+
+function verify_mas_instance() {
+  oc get suite $MAS_INSTANCE_ID --namespace mas-${MAS_INSTANCE_ID}-core &> /dev/null
+  if [[ "$?" != "0" ]]; then
+    echo
+    echo_warning "Unable to upgrade MAS instance '$MAS_INSTANCE_ID' because it can not be found on the cluster, run \"oc get suite --all-namespaces\" to see a list of installed MAS instances."
+    echo
+    exit 1
+  fi
+}
 
 function upgrade_noninteractive() {
   detect_airgap
@@ -55,8 +68,13 @@ function upgrade_interactive() {
 
   echo
   echo_h2 "Select IBM Maximo Application Suite Upgrade"
-
+  echo -e "${TEXT_DIM}Select the MAS instance to upgrade from the list below"
+  reset_colors
+  echo
+  list_mas_instances
+  echo
   prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
+  verify_mas_instance
 
   # echo -e "${COLOR_YELLOW}MAS Version:"
   # echo "  1. 8.8.x"
