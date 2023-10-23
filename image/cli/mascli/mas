@@ -3,12 +3,9 @@
 # Usage: mas install
 
 function trap_exit {
-  RC=$?
-  if [[ $RC != "0" ]]; then
-    echo_warning "\nFatal Error[$RC]  See $LOGFILE for details"
-  fi
   save_config
 }
+
 function trap_int {
   # Reset any modifications made to the terminal
   tset
