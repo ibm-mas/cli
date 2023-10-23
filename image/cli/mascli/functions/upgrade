@@ -60,6 +60,8 @@ function upgrade_noninteractive() {
 
   # Check all args have been set
   [[ -z "$MAS_INSTANCE_ID" ]] && upgrade_help "MAS_INSTANCE_ID is not set"
+
+  verify_mas_instance
 }
 
 function upgrade_interactive() {
@@ -75,24 +77,6 @@ function upgrade_interactive() {
   echo
   prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
   verify_mas_instance
-
-  # echo -e "${COLOR_YELLOW}MAS Version:"
-  # echo "  1. 8.8.x"
-  # echo "  2. 8.7.x"
-  # prompt_for_input "Select MAS Version" MAS_CHANNEL_SELECTION "1"
-
-  # case $MAS_CHANNEL_SELECTION in
-  #   1|8.8|8.8.x)
-  #     MAS_CHANNEL=8.8.x
-  #     ;;
-  #   2|8.7|8.7.x)
-  #     MAS_CHANNEL=8.7.x
-  #     ;;
-  #   *)
-  #     echo_warning "Invalid selection"
-  #     exit 1
-  #     ;;
-  # esac
 }
 
 
@@ -114,7 +98,6 @@ function upgrade() {
   echo "${TEXT_DIM}"
   echo_h2 "Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ..................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  #echo_reset_dim "Target Channel ..................... ${COLOR_MAGENTA}${MAS_CHANNEL}"
 
   echo
   reset_colors
