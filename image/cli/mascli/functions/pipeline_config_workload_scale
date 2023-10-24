@@ -12,7 +12,7 @@ function check_mas_pod_templates_dir(){
 function set_mas_workload_scale_envs() {
   MAS_WORKLOAD_SCALE_DIR_NAME=guaranteed
   [ "$MAS_WORKLOAD_SCALE_PROFILE" == "BestEffort" ] && MAS_WORKLOAD_SCALE_DIR_NAME=best-effort
-  MAS_POD_TEMPLATES_DIR="/mascli/templates/pod-templates/${MAS_WORKLOAD_SCALE_DIR_NAME}"
+  MAS_POD_TEMPLATES_DIR="${CLI_DIR}/templates/pod-templates/${MAS_WORKLOAD_SCALE_DIR_NAME}"
 }
 
 function clear_mas_workload_scale_envs() {

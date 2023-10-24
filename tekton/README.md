@@ -39,5 +39,5 @@ export DEV_MODE=true
 export VERSION=latest
 
 build/bin/build-tekton.sh
-oc apply -f pipelines/ibm-mas_devops-clustertasks-$VERSION.yaml
+oc apply -f tekton/target/ibm-mas-tekton-fvt.yaml
 ```

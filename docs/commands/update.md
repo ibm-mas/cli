@@ -9,7 +9,7 @@ Usage
 - `-c|--catalog MAS_CATALOG_VERSION` Maximo Operator Catalog Version to mirror (e.g. v8-221129)
 
 ### Other Options
-- `--no-confirm` Mirror images without prompting for confirmation
+- `--no-confirm` Launch the update without prompting for confirmation
 - `-h|--help` Show help message
 
 

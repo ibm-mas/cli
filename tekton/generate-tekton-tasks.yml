@@ -37,6 +37,7 @@
         - mongodb
         - nvidia-gpu
         - ocp-verify
+        - ocp-verify-all
         - ocs
         - sls-registry-update
         - sls
