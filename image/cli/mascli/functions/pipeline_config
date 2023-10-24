@@ -231,19 +231,10 @@ function pipeline_config() {
   # Check for DRO support in MAS
   # ---------------------------------------------------------------------------
   echo ""
-  prompt_for_input "Do you want install UDS or DRO ?" BAS_PROVIDER "UDS"
-  if [[ "$BAS_PROVIDER" == "DRO" ] and 
-  ["$MAS_CHANNEL" == "8.10.6" or "$MAS_CHANNEL" == "8.11.2" or "$MAS_CHANNEL" == "9.0"]]; then
-    echo_h2 "Configure DRO"
-    prompt_for_input "DRO Contact Email" DRO_CONTACT_EMAIL
-    prompt_for_input "DRO Contact First Name" DRO_CONTACT_FIRSTNAME
-    prompt_for_input "DRO Contact Last Name" DRO_CONTACT_LASTNAME
-    prompt_for_input "DRO Pull Secret Token" DRO_PULL_SECRET_TOKEN
-  else
-    echo
-    echo_h2 "Configure UDS"
-    prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
-    prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
-    prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
-  fi
+  uds_dro_selection
+  echo_h2 "Configure UDS"
+  prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
+  prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
+  prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
+
 }

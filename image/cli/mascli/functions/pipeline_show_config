@@ -108,13 +108,6 @@ function pipeline_show_config() {
 
   reset_colors
   echo "${TEXT_DIM}"
-  echo_h4 "Data Reporter Operator" "    "
-  echo_reset_dim "Contact Email ............. ${COLOR_MAGENTA}${DRO_CONTACT_EMAIL}"
-  echo_reset_dim "First Name ................ ${COLOR_MAGENTA}${DRO_CONTACT_FIRSTNAME}"
-  echo_reset_dim "Last Name ................. ${COLOR_MAGENTA}${DRO_CONTACT_LASTNAME}"
-  
-  reset_colors
-  echo "${TEXT_DIM}"
   echo_h4 "IBM User Data Services" "    "
   echo_reset_dim "Contact Email ............. ${COLOR_MAGENTA}${UDS_CONTACT_EMAIL}"
   echo_reset_dim "First Name ................ ${COLOR_MAGENTA}${UDS_CONTACT_FIRSTNAME}"

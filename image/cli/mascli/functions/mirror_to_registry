@@ -356,8 +356,8 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm "IBM Maximo Application Suite - Visual Inspection" MIRROR_MAS_VISUALINSPECTION
 
     prompt_for_confirm_default_yes "IBM Foundational Services" MIRROR_COMMONSERVICES
-    prompt_for_confirm_default_yes "IBM Data Reorter Operator" MIRROR_UDS
-    prompt_for_confirm_default_yes "IBM Data Reorter Operator" MIRROR_DRO
+    prompt_for_confirm_default_yes "IBM User Data Services" MIRROR_UDS
+    prompt_for_confirm_default_yes "IBM Data Reporter Operator" MIRROR_DRO
     prompt_for_confirm_default_yes "IBM Suite License Service" MIRROR_SLS
     prompt_for_confirm_default_yes "IBM Truststore Manager" MIRROR_TRUSTSTOREMGR
     prompt_for_confirm_default_yes "MongoDb Community Edition" MIRROR_MONGOCE
