@@ -217,7 +217,6 @@ function assist_settings() {
 # Manage then their install is going to fail, so let's just prevent the install
 # starting in the first place.
 function manage_validate_internal_registry() {
-  echo "Checking Internal Registry"
   if [[ "$MAS_APP_CHANNEL_MANAGE" != "" ]]; then
     oc -n openshift-image-registry get service image-registry &> /dev/null
     if [[ "$?" != "0" ]]; then
