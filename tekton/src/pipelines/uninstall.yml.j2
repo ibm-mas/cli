@@ -205,15 +205,21 @@ spec:
     # -------------------------------------------------------------------------
     - name: uninstall-suite
       runAfter:
-        - uninstall-apps
+        - app-uninstall-iot
+        - app-uninstall-visualinspection
+        - app-uninstall-assist
+        - app-uninstall-optimizer
+        - app-uninstall-manage
       taskRef:
         kind: Task
-        name: mas-devops-suite-apps-uninstall
+        name: mas-devops-suite-uninstall
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
         - name: mas_instance_id
           value: $(params.mas_instance_id)
+        - name: mas_wipe_mongo_data
+          value: $(params.mas_wipe_mongo_data)
 
 
     # 3. Uninstall IBM Suite Licensing Service
