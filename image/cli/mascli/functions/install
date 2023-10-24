@@ -520,6 +520,9 @@ function install_noninteractive() {
     esac
   done
 
+  # Run validations
+  manage_validate_internal_registry
+
   if [[ "$DEV_MODE" == "true"  ]]; then
     MAS_ICR_CP=docker-na-public.artifactory.swg-devops.com/wiotp-docker-local
     MAS_ICR_CPOPEN=docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen
