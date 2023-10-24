@@ -5,7 +5,6 @@
 function kafka_for_iot() {
   if [ "$MAS_APP_CHANNEL_IOT" != "" ]; then
     # Set up system kafka - using providers or external source
-    echo
     echo_h3 "Kafka configuration for Maximo IoT"
     echo "${TEXT_DIM}Maximo IoT requires a shared system-scope Kafka instance."
     echo " - Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK."
@@ -15,64 +14,100 @@ function kafka_for_iot() {
     if prompt_for_confirm_default_yes "Create system Kafka instance using one of the supported providers?"; then
       KAFKA_ACTION_SYSTEM=install
       echo
-      echo -e "${COLOR_YELLOW}Select the Kafka provider to be installed:"
-      echo
-      echo "  1) Strimzi (opensource)"
-      echo "  2) Red Hat AMQ Streams (requires a separate license)"
-      echo "  3) IBM Cloud Event Streams (paid IBM Cloud service)"
-      echo "  4) AWS MSK (paid AWS service)"
+      echo "Kafka Provider:"
+      echo "  1. Strimzi (opensource)"
+      echo "  2. Red Hat AMQ Streams (requires a separate license)"
+      echo "  3. IBM Cloud Event Streams (paid IBM Cloud service)"
+      echo "  4. AWS MSK (paid AWS service)"
       reset_colors
       echo
-      prompt_for_input "Kafka provider" KAFKA_SELECTION "1"
+      prompt_for_input "Select Kafka provider" KAFKA_SELECTION "1"
       echo
 
       case $KAFKA_SELECTION in
         1)
           KAFKA_PROVIDER="strimzi"
+
+          # Clear settings for other providers - IBM
+          EVENTSTREAMS_RESOURCEGROUP=""
+          EVENTSTREAMS_NAME=""
+          EVENTSTREAMS_LOCATION=""
+
+          # Clear settings for other providers - AWS
+          KAFKA_CLUSTER_NAME=""
+          AWS_KAFKA_USER_NAME=""
+          AWS_MSK_INSTANCE_TYPE=""
+          AWS_MSK_VOLUME_SIZE=""
+          AWS_MSK_INSTANCE_NUMBER=""
+          AWS_REGION=""
+
+          # Ask the user to choose the version of Kafka to use
+          echo "Strimzi: Cluster Version"
+          echo -e "${TEXT_DIM}The version of the Strimzi operator available on your cluster will determine the supported versions of Kafka that can be deployed."
+          echo " - If you are using the latest available operator catalog then the default version below can be accepted"
+          echo " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in your OperatorHub"
+          echo ""
+          reset_colors
+          prompt_for_input "Kafka version" KAFKA_VERSION "3.5.1"
           ;;
         2)
           KAFKA_PROVIDER=redhat
+
+          # Clear settings for other providers - IBM
+          EVENTSTREAMS_RESOURCEGROUP=""
+          EVENTSTREAMS_NAME=""
+          EVENTSTREAMS_LOCATION=""
+
+          # Clear settings for other providers - AWS
+          KAFKA_CLUSTER_NAME=""  # We want to use the generated name
+          AWS_KAFKA_USER_NAME=""
+          AWS_MSK_INSTANCE_TYPE=""
+          AWS_MSK_VOLUME_SIZE=""
+          AWS_MSK_INSTANCE_NUMBER=""
+          AWS_REGION=""
+
+          # Ask the user to choose the version of Kafka to use
+          echo "Red Hat AMQ Streams: Cluster Version"
+          echo -e "${TEXT_DIM}The version of the Red Hat AMQ Streams operator available on your cluster will determine the supported versions of Kafka that can be deployed."
+          echo " - If you are using the latest available operator catalog then the default version below can be accepted"
+          echo " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in your OperatorHub"
+          echo ""
+          reset_colors
+          prompt_for_input "Kafka version" KAFKA_VERSION "3.5.0"
           ;;
         3)
-          # kafka defaults - event streams
-          if [ ! -z $EVENTSTREAMS_RESOURCEGROUP ]; then
-            EVENTSTREAMS_RESOURCEGROUP=Default
-          fi
-          if [ ! -z $EVENTSTREAMS_NAME ]; then
-            EVENTSTREAMS_NAME=event-streams-$MAS_INSTANCE_ID
-          fi
-          if [ ! -z $EVENTSTREAMS_LOCATION ]; then
-            EVENTSTREAMS_LOCATION=us-east
-          fi
-
           KAFKA_PROVIDER="ibm"
+          # kafka defaults - event streams
+          [ ! -z $EVENTSTREAMS_RESOURCEGROUP ] && EVENTSTREAMS_RESOURCEGROUP=Default
+          [ ! -z $EVENTSTREAMS_NAME ] && EVENTSTREAMS_NAME=event-streams-$MAS_INSTANCE_ID
+          [ ! -z $EVENTSTREAMS_LOCATION ] && EVENTSTREAMS_LOCATION=us-east
+
           prompt_for_secret "IBM Cloud API Key" IBMCLOUD_APIKEY "Re-use saved IBM Cloud API Key?"
           prompt_for_input "IBM Event Streams resource group" EVENTSTREAMS_RESOURCEGROUP $EVENTSTREAMS_RESOURCEGROUP
           prompt_for_input "IBM Event Streams instance name" EVENTSTREAMS_NAME $EVENTSTREAMS_NAME
           prompt_for_input "IBM Event Streams location" EVENTSTREAMS_LOCATION $EVENTSTREAMS_LOCATION
+
+          # Clear settings for other providers - AMQ Streams & Strimzi
+          KAFKA_VERSION=""
+
+          # Clear settings for other providers - AWS
+          KAFKA_CLUSTER_NAME=""  # We want to use the generated name
+          AWS_KAFKA_USER_NAME=""
+          AWS_MSK_INSTANCE_TYPE=""
+          AWS_MSK_VOLUME_SIZE=""
+          AWS_MSK_INSTANCE_NUMBER=""
+          AWS_REGION=""
           ;;
         4)
-          # kafka defaults - aws msk
-          if [ ! -z $KAFKA_CLUSTER_NAME ]; then
-            KAFKA_CLUSTER_NAME=aws-msk-$MAS_INSTANCE_ID
-          fi
-          if [ ! -z $AWS_KAFKA_USER_NAME ]; then
-            AWS_KAFKA_USER_NAME=masuser
-          fi
-          if [ ! -z $AWS_MSK_INSTANCE_TYPE ]; then
-            AWS_MSK_INSTANCE_TYPE=kafka.m5.large
-          fi
-          if [ ! -z $AWS_MSK_VOLUME_SIZE ]; then
-            AWS_MSK_VOLUME_SIZE=100
-          fi
-          if [ ! -z $AWS_MSK_INSTANCE_NUMBER ]; then
-            AWS_MSK_INSTANCE_NUMBER=3
-          fi
-          if [ ! -z $AWS_REGION ]; then
-            AWS_REGION=us-east-1
-          fi
-
           KAFKA_PROVIDER="aws"
+          # kafka defaults - aws msk
+          [ ! -z $KAFKA_CLUSTER_NAME ] && KAFKA_CLUSTER_NAME=aws-msk-$MAS_INSTANCE_ID
+          [ ! -z $AWS_KAFKA_USER_NAME ] && AWS_KAFKA_USER_NAME=masuser
+          [ ! -z $AWS_MSK_INSTANCE_TYPE ] && AWS_MSK_INSTANCE_TYPE=kafka.m5.large
+          [ ! -z $AWS_MSK_VOLUME_SIZE ] && AWS_MSK_VOLUME_SIZE=100
+          [ ! -z $AWS_MSK_INSTANCE_NUMBER ] && AWS_MSK_INSTANCE_NUMBER=3
+          [ ! -z $AWS_REGION ] && AWS_REGION=us-east-1
+
           echo "${TEXT_DIM}"
           echo "While provisioning the AWS MSK instance, you will be required to provide the AWS Virtual Private Cloud ID and subnet details"
           echo "where your instance will be deployed to properly configure inbound and outbound connectivity."
@@ -95,6 +130,14 @@ function kafka_for_iot() {
           prompt_for_input "Availability Zone 3 CIDR" AWS_MSK_CIDR_AZ3 $AWS_MSK_CIDR_AZ3
           prompt_for_input "Ingress CIDR" AWS_MSK_INGRESS_CIDR $AWS_MSK_INGRESS_CIDR
           prompt_for_input "Egress CIDR" AWS_MSK_EGRESS_CIDR $AWS_MSK_EGRESS_CIDR
+
+          # Clear settings for other providers - AMQ Streams & Strimzi
+          KAFKA_VERSION=""
+
+          # Clear settings for other providers - IBM
+          EVENTSTREAMS_RESOURCEGROUP=""
+          EVENTSTREAMS_NAME=""
+          EVENTSTREAMS_LOCATION=""
           ;;
         *)
           echo_warning "Invalid selection"
@@ -132,7 +175,7 @@ function config_pipeline_kafka() {
   echo "${TEXT_DIM}The installer can setup one Kafka provider instance (in your OpenShift cluster or in the chosen cloud provider account) for the use of applications that require a Kafka configuration (e.g IoT) or you may choose to configure MAS to use an existing Kafka instance."
   echo
   reset_colors
-  
+
   # Unless we are installing IoT we have nothing to do
   if [[ "$MAS_APP_CHANNEL_IOT" != "" ]]; then
     kafka_for_iot

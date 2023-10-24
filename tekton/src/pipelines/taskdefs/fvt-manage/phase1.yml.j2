@@ -21,8 +21,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-aviation-setup # regression tasks depend on fvt-manage-setup or, eventually, any subsequent task in case of Manage Industry Solutions
-    - fvt-manage-usersync
+    - fvt-manage-aviation-setup
 
 # Manage FVT Monitoring
 - name: fvt-manage-monitoring
@@ -34,7 +33,7 @@
     - name: fvt_test_suite
       value: monitoring
   runAfter:
-    - fvt-manage-usersync
+    - fvt-manage-aviation-setup
 
 # Manage FVT Security Audit Logging
 - name: fvt-manage-sec-audit-log
@@ -47,7 +46,7 @@
     - name: fvt_test_suite
       value: sec-audit-log
   runAfter:
-    - fvt-manage-usersync
+    - fvt-manage-aviation-setup
 
 # Manage FVT Inactive User Authentication
 - name: fvt-manage-sec-inactive-auth
@@ -60,4 +59,4 @@
     - name: fvt_test_suite
       value: sec-inactive-auth
   runAfter:
-    - fvt-manage-usersync
+    - fvt-manage-aviation-setup

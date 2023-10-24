@@ -11,6 +11,7 @@ nav:
   - "Home": index.md
   - "Guides":
       - "Choosing the Right Catalog": guides/choosing-the-right-catalog.md
+      - "Image Mirroring": guides/image-mirroring.md
       - "Install": guides/install.md
       - "Update": guides/update.md
       - "Upgrade": guides/upgrade.md
@@ -33,7 +34,7 @@ nav:
       - "must-gather": commands/must-gather.md
   - "Catalogs":
       - "All Catalogs": catalogs/index.md
-      - "Sept 26 2023": catalogs/v8-230926-amd64.md
+      - "Oct 04 2023": catalogs/v8-231004-amd64.md
       - "Aug 29 2023": catalogs/v8-230829-amd64.md
       - "Jul 25 2023": catalogs/v8-230725-amd64.md
       - "Jul 21 2023": catalogs/v8-230721-amd64.md

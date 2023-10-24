@@ -8,6 +8,7 @@
       value: prepare
   runAfter:
     - ivtcore-assist
+    - cv-assist
 
 
 # Python
@@ -58,3 +59,4 @@
     {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-cucumber.yml.j2') | indent(4) }}
   runAfter:
     - ivtcore-assist
+    - cv-assist

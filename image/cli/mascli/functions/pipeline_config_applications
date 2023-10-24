@@ -2,6 +2,9 @@
 
 function channel_select_iot() {
   case $MAS_CHANNEL in
+    8.11.x)
+      MAS_APP_CHANNEL_IOT=8.8.x
+      ;;
     8.10.x)
       MAS_APP_CHANNEL_IOT=8.7.x
       ;;
@@ -17,6 +20,9 @@ function channel_select_iot() {
 
 function channel_select_monitor() {
   case $MAS_CHANNEL in
+    8.11.x)
+      MAS_APP_CHANNEL_MONITOR=8.11.x
+      ;;
     8.10.x)
       MAS_APP_CHANNEL_MONITOR=8.10.x
       ;;
@@ -32,6 +38,9 @@ function channel_select_monitor() {
 
 function channel_select_manage() {
   case $MAS_CHANNEL in
+    8.11.x)
+      MAS_APP_CHANNEL_MANAGE=8.7.x
+      ;;
     8.10.x)
       MAS_APP_CHANNEL_MANAGE=8.6.x
       ;;
@@ -47,6 +56,9 @@ function channel_select_manage() {
 
 function channel_select_predict() {
   case $MAS_CHANNEL in
+    8.11.x)
+      MAS_APP_CHANNEL_PREDICT=8.9.x
+      ;;
     8.10.x)
       MAS_APP_CHANNEL_PREDICT=8.8.x
       ;;
@@ -63,6 +75,9 @@ function channel_select_predict() {
 
 function channel_select_optimizer() {
   case $MAS_CHANNEL in
+    8.11.x)
+      MAS_APP_CHANNEL_OPTIMIZER=8.5.x
+      ;;
     8.10.x)
       MAS_APP_CHANNEL_OPTIMIZER=8.4.x
       ;;
@@ -78,6 +93,9 @@ function channel_select_optimizer() {
 
 function channel_select_assist() {
   case $MAS_CHANNEL in
+    8.11.x)
+      MAS_APP_CHANNEL_ASSIST=8.8.x
+      ;;
     8.10.x)
       MAS_APP_CHANNEL_ASSIST=8.7.x
       ;;
@@ -93,6 +111,9 @@ function channel_select_assist() {
 
 function channel_select_visualinspection() {
   case $MAS_CHANNEL in
+    8.11.x)
+      MAS_APP_CHANNEL_VISUALINSPECTION=8.9.x
+      ;;
     8.10.x)
       MAS_APP_CHANNEL_VISUALINSPECTION=8.8.x
       ;;
@@ -111,55 +132,59 @@ function config_pipeline_applications() {
   echo
   echo_h2 "Application Selection"
   # Default all applications to "do not deploy"
-  MAS_APP_CHANNEL_IOT=''
-  MAS_APP_CHANNEL_MONITOR=''
-  MAS_APP_CHANNEL_MANAGE=''
-  MAS_APP_CHANNEL_PREDICT=''
-  MAS_APP_CHANNEL_ASSIST=''
-  MAS_APP_CHANNEL_VISUALINSPECTION=''
-  MAS_APP_CHANNEL_OPTIMIZER='';
-  MAS_APP_PLAN_OPTIMIZER=''
+  # MAS_APP_CHANNEL_IOT=''
+  # MAS_APP_CHANNEL_MONITOR=''
+  # MAS_APP_CHANNEL_MANAGE=''
+  # MAS_APP_CHANNEL_PREDICT=''
+  # MAS_APP_CHANNEL_ASSIST=''
+  # MAS_APP_CHANNEL_VISUALINSPECTION=''
+  # MAS_APP_CHANNEL_OPTIMIZER='';
+  # MAS_APP_PLAN_OPTIMIZER=''
 
-  if [[ "$SNO_MODE" != "true" ]]; then
-    # IoT
-    if prompt_for_confirm "Install IoT?"; then
-      channel_select_iot || exit 1
-    fi
+  if prompt_for_confirm "Install IoT?" MAS_APP_INSTALL_IOT; then
+    channel_select_iot || exit 1
 
-    if [[ "$MAS_APP_CHANNEL_IOT" != '' ]]; then
-      # Monitor
-      if prompt_for_confirm "Install Monitor?"; then
-        channel_select_monitor || exit 1
-      fi
+    if prompt_for_confirm "Install Monitor?" MAS_APP_INSTALL_MONITOR; then
+      channel_select_monitor || exit 1
+    else
+      MAS_APP_CHANNEL_MONITOR=""
     fi
+  else
+    MAS_APP_CHANNEL_IOT=""
+    MAS_APP_CHANNEL_MONITOR=""
   fi
 
-  # Manage
-  if prompt_for_confirm "Install Manage?"; then
+  if prompt_for_confirm "Install Manage?" MAS_APP_INSTALL_MANAGE; then
     channel_select_manage || exit 1
+    if prompt_for_confirm "Install Predict?" MAS_APP_INSTALL_PREDICT; then
+      channel_select_predict || exit 1
+    else
+      MAS_APP_CHANNEL_PREDICT=""
+    fi
+  else
+    # Wipe *all* Manage-related variables
+    MAS_APP_CHANNEL_MANAGE=""
+    MAS_APPWS_BINDINGS_JDBC_MANAGE=""
+
+    MAS_APP_CHANNEL_PREDICT=""
   fi
 
-  if [[ "$SNO_MODE" != "true" ]]; then
-    if [[ "$MAS_APP_CHANNEL_MANAGE" != '' ]]; then
-      # Predict
-      if prompt_for_confirm "Install Predict?"; then
-        channel_select_predict || exit 1
-      fi
-    fi
+  if prompt_for_confirm "Install Assist?" MAS_APP_INSTALL_ASSIST; then
+    channel_select_assist || exit 1
+  else
+    MAS_APP_CHANNEL_ASSIST=""
+  fi
 
-    # Assist
-    if prompt_for_confirm "Install Assist?"; then
-      channel_select_assist || exit 1
-    fi
-    
-    if prompt_for_confirm "Install Optimizer?"; then
-      channel_select_optimizer || exit 1
-    fi
+  if prompt_for_confirm "Install Optimizer?" MAS_APP_INSTALL_OPTIMIZER; then
+    channel_select_optimizer || exit 1
+  else
+    MAS_APP_CHANNEL_OPTIMIZER=""
+  fi
 
-    # Maximo Visual Inspection
-    if prompt_for_confirm "Install Visual Inspection?"; then
-     channel_select_visualinspection || exit 1
-    fi
+  if prompt_for_confirm "Install Visual Inspection?" MAS_APP_INSTALL_VISUALINSPECTION; then
+    channel_select_visualinspection || exit 1
+  else
+    MAS_APP_CHANNEL_VISUALINSPECTION=""
   fi
 
   if [[ "$MAS_APP_CHANNEL_ASSIST" != '' ]]; then assist_settings; fi
@@ -187,7 +212,7 @@ function assist_settings() {
     [[ "$COS_TYPE" != "ibm" && "$COS_TYPE" != "ocs" ]] || break
   done
   if [[ "$COS_TYPE" == "ibm" ]]; then
-    prompt_for_secret "IBM Cloud API Key" IBMCLOUD_APIKEY $IBMCLOUD_APIKEY
+    prompt_for_secret "IBM Cloud API Key" IBMCLOUD_APIKEY
     prompt_for_input "IBM Cloud Resource Group" IBMCOS_RESOURCEGROUP $IBMCOS_RESOURCEGROUP "Default"
   fi
 }
@@ -277,12 +302,23 @@ function manage_settings() {
     fi
   fi
 
+  echo
+  echo_h4 "Manage Settings - Cognos Analytics"
+  echo "${TEXT_DIM}Manage application supports the integration with Cognos Analytics for reporting features which is an optional service installed on top of IBM Cloud Pak for Data. Unless requested these will not be installed."
+  echo "Once Manage application and Cognos Analytics are installed, you will be able to configure the Manage & Cognos integration following this documentation: https://ibm.biz/BdMuxs"
+  reset_colors
+  echo
+  if prompt_for_confirm "Install Cognos Analytics"; then
+    CPD_INSTALL_COGNOS=true
+    DEPLOY_CP4D=run
+  fi
+
   # Manage Settings - Attachments
   # TODO after https://github.com/ibm-mas/ansible-devops/issues/1010
   # Following vars should be set depending on answers here
   # But we should, first of all, unify the roles so we ahve all the choices in one place (filestorage, ibm, aws)
   # - COS_TYPE=ibm # Obtained in FVT Configs, including custom
-  # - COS_SETUP_FOR_MANAGE_ATTACHMENTS=true # Obtained in start_pipeline default 
+  # - COS_SETUP_FOR_MANAGE_ATTACHMENTS=true # Obtained in start_pipeline default
 
   # Manage Settings - Other
   echo
@@ -309,7 +345,7 @@ function manage_settings() {
 function predict_settings() {
   echo
   echo_h3 "Configure Maximo Predict"
-  echo "${TEXT_DIM}Predict supports the use of optional services in IBM Cloud Pak for Data.  Unless requested these will not be installed with Cloud Pak for Data."
+  echo "${TEXT_DIM}Predict application supports the integration with IBM SPSS and Watson Openscale which are optional services installed on top of IBM Cloud Pak for Data. Unless requested these will not be installed."
   reset_colors
   echo
   if prompt_for_confirm "Install IBM SPSS Statistics"; then

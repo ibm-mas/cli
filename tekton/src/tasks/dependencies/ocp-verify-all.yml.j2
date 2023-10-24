@@ -1,0 +1,135 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-ocp-verify-all
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    - name: ocp_ingress_tls_secret_name
+      type: string
+      default: ""
+
+  steps:
+    # Verify Cluster
+    # -------------------------------------------------------------------------
+    - name: ocp-verify-cluster
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - /opt/app-root/src/run-role.sh
+        - ocp_verify
+      env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env-nosuitename.yml.j2') | indent(6) }}
+      - name: DEVOPS_SUITE_NAME
+        value: "$(params.devops_suite_name)-cluster"
+
+      - name: VERIFY_CLUSTER
+        value: "True"
+      - name: VERIFY_CATALOGSOURCES
+        value: "False"
+      - name: VERIFY_SUBSCRIPTIONS
+        value: "False"
+      - name: VERIFY_WORKLOADS
+        value: "False"
+      - name: VERIFY_INGRESS
+        value: "False"
+
+    # Verify Catalogs
+    # -------------------------------------------------------------------------
+    - name: ocp-verify-catalogs
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - /opt/app-root/src/run-role.sh
+        - ocp_verify
+      env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env-nosuitename.yml.j2') | indent(6) }}
+      - name: DEVOPS_SUITE_NAME
+        value: "$(params.devops_suite_name)-catalogs"
+
+      - name: VERIFY_CLUSTER
+        value: "False"
+      - name: VERIFY_CATALOGSOURCES
+        value: "True"
+      - name: VERIFY_SUBSCRIPTIONS
+        value: "False"
+      - name: VERIFY_WORKLOADS
+        value: "False"
+      - name: VERIFY_INGRESS
+        value: "False"
+
+    # Verify Subscriptions
+    # -------------------------------------------------------------------------
+    - name: ocp-verify-subscriptions
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - /opt/app-root/src/run-role.sh
+        - ocp_verify
+      env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env-nosuitename.yml.j2') | indent(6) }}
+      - name: DEVOPS_SUITE_NAME
+        value: "$(params.devops_suite_name)-subscriptions"
+
+      - name: VERIFY_CLUSTER
+        value: "False"
+      - name: VERIFY_CATALOGSOURCES
+        value: "False"
+      - name: VERIFY_SUBSCRIPTIONS
+        value: "True"
+      - name: VERIFY_WORKLOADS
+        value: "False"
+      - name: VERIFY_INGRESS
+        value: "False"
+
+    # Verify Workloads
+    # -------------------------------------------------------------------------
+    - name: ocp-verify-workloads
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - /opt/app-root/src/run-role.sh
+        - ocp_verify
+      env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env-nosuitename.yml.j2') | indent(6) }}
+      - name: DEVOPS_SUITE_NAME
+        value: "$(params.devops_suite_name)-workloads"
+
+      - name: VERIFY_CLUSTER
+        value: "False"
+      - name: VERIFY_CATALOGSOURCES
+        value: "False"
+      - name: VERIFY_SUBSCRIPTIONS
+        value: "False"
+      - name: VERIFY_WORKLOADS
+        value: "True"
+      - name: VERIFY_INGRESS
+        value: "False"
+
+    # Verify Catalogs - Ingress TLS
+    # -------------------------------------------------------------------------
+    - name: ocp-verify-ingress
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - /opt/app-root/src/run-role.sh
+        - ocp_verify
+      env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env-nosuitename.yml.j2') | indent(6) }}
+      - name: DEVOPS_SUITE_NAME
+        value: "$(params.devops_suite_name)-ingress"
+
+      - name: VERIFY_CLUSTER
+        value: "False"
+      - name: VERIFY_CATALOGSOURCES
+        value: "False"
+      - name: VERIFY_SUBSCRIPTIONS
+        value: "False"
+      - name: VERIFY_WORKLOADS
+        value: "False"
+      - name: VERIFY_INGRESS
+        value: "True"
+      - name: OCP_INGRESS_TLS_SECRET_NAME
+        value: $(params.ocp_ingress_tls_secret_name)

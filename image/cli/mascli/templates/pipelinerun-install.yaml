@@ -162,6 +162,8 @@ spec:
       value: '$KAFKA_PROVIDER'
     - name: kafka_namespace
       value: '$KAFKA_NAMESPACE'
+    - name: kafka_version
+      value: '$KAFKA_VERSION'
 
     # Dependencies - AWS MSK
     # -------------------------------------------------------------------------
@@ -211,6 +213,8 @@ spec:
       value: '$CPD_INSTALL_SPSS'
     - name: cpd_install_openscale
       value: '$CPD_INSTALL_OPENSCALE'
+    - name: cpd_install_cognos
+      value: '$CPD_INSTALL_COGNOS'
 
     # Dependencies - SLS
     # -------------------------------------------------------------------------
@@ -220,6 +224,8 @@ spec:
       value: '$SLS_LICENSE_ID'
     - name: sls_license_file
       value: '$SLS_LICENSE_FILE'
+    - name: sls_entitlement_file
+      value: '$SLS_ENTITLEMENT_FILE'
     - name: sls_channel
       value: '3.x'
     - name: sls_icr_cp

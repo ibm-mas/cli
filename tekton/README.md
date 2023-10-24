@@ -38,6 +38,6 @@ This aspect of the project is still in active development and should be consider
 export DEV_MODE=true
 export VERSION=latest
 
-pipelines/bin/build-pipelines.sh
-oc apply -f pipelines/ibm-mas_devops-clustertasks-$VERSION.yaml
+build/bin/build-tekton.sh
+oc apply -f tekton/target/ibm-mas-tekton-fvt.yaml
 ```

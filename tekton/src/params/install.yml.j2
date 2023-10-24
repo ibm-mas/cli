@@ -21,6 +21,9 @@
 - name: sls_license_file
   type: string
   default: "/workspace/entitlement/entitlement.lic"
+- name: sls_entitlement_file
+  type: string
+  default: "/workspace/entitlement/entitlement.lic"
 - name: sls_mongodb_cfg_file
   type: string
   default: "/workspace/configs/mongo-mongoce.yml"
@@ -89,6 +92,10 @@
 - name: kafka_provider
   type: string
   description: Kafka provider
+  default: ""
+- name: kafka_version
+  type: string
+  description: Kafka version
   default: ""
 - name: kafka_cluster_name
   type: string
@@ -217,10 +224,13 @@
   default: ""
 - name: cpd_install_spss
   type: string
-  default: "False"
+  default: ""
 - name: cpd_install_openscale
   type: string
-  default: "False"
+  default: ""
+- name: cpd_install_cognos
+  type: string
+  default: ""
 
 # Dependencies - UDS
 # -----------------------------------------------------------------------------
