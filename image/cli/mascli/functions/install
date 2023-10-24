@@ -418,16 +418,6 @@ function install_noninteractive() {
       --uds-lastname)
         export UDS_CONTACT_LASTNAME=$1 && shift
         ;;
-        
-      --dro-email)
-        export DRO_CONTACT_EMAIL=$1 && shift
-        ;;
-      --dro-firstname)
-        export DRO_CONTACT_FIRSTNAME=$1 && shift
-        ;;
-      --dro-lastname)
-        export DRO_CONTACT_LASTNAME=$1 && shift
-        ;;
 
       # MongoDB
       --mongodb-namespace)

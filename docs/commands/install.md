@@ -15,9 +15,6 @@ Usage
 - `--uds-email UDS_CONTACT_EMAIL`              Contact e-mail address
 - `--uds-firstname UDS_CONTACT_FIRSTNAME`      Contact first name
 - `--uds-lastname UDS_CONTACT_LASTNAME`        Contact last name
-- `--dro-email DRO_CONTACT_EMAIL`              Contact e-mail address
-- `--dro-firstname DRO_CONTACT_FIRSTNAME`      Contact first name
-- `--dro-lastname DRO_CONTACT_LASTNAME`        Contact last name
 
 ### Storage Class Selection (Required):
 - `--storage-rwo STORAGE_CLASS_RWO`                   Read Write Once (RWO) storage class (e.g. ibmc-block-gold)
@@ -139,7 +136,7 @@ export ENTITLEMENT_KEY=xxx
 mas install -i mas1 -w ws1 -W "My Workspace" -c v8-amd64 --mas-channel 8.10.x \
   --ibm-entitlement-key $ENTITLEMENT_KEY \
   --license-id xxxxxxxxxxxx --license-file /mnt/home/entitlement.lic \
-  --dro-email myemail@email.com --dro-firstname John --dro-lastname Barnes \
+  --uds-email myemail@email.com --uds-firstname John --uds-lastname Barnes \
   --storage-rwo ibmc-block-gold --storage-rwx ibmc-file-gold-gid \
   --storage-pipeline ibmc-file-gold-gid --storage-accessmode ReadWriteMany \
   --no-confirm \

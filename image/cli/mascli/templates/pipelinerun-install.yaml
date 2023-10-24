@@ -246,12 +246,6 @@ spec:
 
     # Dependencies - DRO (Required, no defaults)
     # -------------------------------------------------------------------------
-    - name: dro_contact_email
-      value: '$DRO_CONTACT_EMAIL'
-    - name: dro_contact_firstname
-      value: '$DRO_CONTACT_FIRSTNAME'
-    - name: dro_contact_lastname
-      value: '$DRO_CONTACT_LASTNAME'
     - name: dro_action
       value: '$DRO_ACTION'
 
