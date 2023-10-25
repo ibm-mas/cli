@@ -140,7 +140,7 @@
   runAfter:
     - fvt-mobile-setup-data
 
-{# # Mobile FVT - Inventory Counting Android
+ # Mobile FVT - Inventory Counting Android
 - name: fvt-inventorycounting-mvt-android
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
   params:
@@ -240,7 +240,7 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_manage_defects_testng)
     - name: fvt_test_suite
-      value: civil-defects-mvt-android
+      value: civil-defects-android-mvt
     - name: assist_test_type
       value: mobileapp
     - name: assist_device_type
@@ -254,4 +254,5 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobile-setup-data #}
+    - fvt-mobile-setup-data
+    
