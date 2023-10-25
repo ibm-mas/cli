@@ -4,7 +4,6 @@
 # - fvt-manage-wo-doclink
 # - fvt-manage-directprint
 # - fvt-manage-adhoc-report
-# - fvt-manage-mas-usertimeout
 # - fvt-manage-jms-outbound
 # -------------------------------------------------------------
 
@@ -92,26 +91,6 @@
       value: core
     - name: fvt_test_suite
       value: adhoc
-  runAfter:
-    - fvt-manage-escalation-action
-    - fvt-manage-autoscript-adddeletewo
-    - fvt-manage-jms-inbound
-    - fvt-manage-mif-kafka-setup
-    - fvt-manage-birt-report
-    - fvt-manage-user-crud
-    - fvt-manage-user-consumption
-    - fvt-manage-communication-temp
-
-   # Manage FVT MAS UserTimeout
-- name: fvt-manage-mas-usertimeout
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
-    - name: fvt_test_suite
-      value: masuser-timeout
   runAfter:
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
