@@ -14,7 +14,45 @@
 . $CLI_DIR/functions/pipeline_config_advanced
 . $CLI_DIR/functions/pipeline_config_workload_scale
 
+
+function pipeline_config_sso_properties() {
+  echo
+  echo_h2 "Configure SSO default properties"
+  prompt_for_confirm "Do you want to configure SSO default properties?" SSO_RESPONSE
+  if [[ "$SSO_RESPONSE" == "false" ]]; then
+    echo -e "Using SSO default properties"
+  else
+    prompt_for_number "Select your idleTimeout" idleTimeout 1800
+    export IDLE_TIMEOUT="${idleTimeout}"
+    echo "$IDLE_TIMEOUT"
+
+    prompt_for_input "Select your idpSessionTimeout" idpSessionTimeout "12h"
+    validate_pattern_sso idpSessionTimeout "^([0-9]+)([hm])$"
+    export IDP_SESSION_TIMEOUT="${idpSessionTimeout}"
+    echo "$IDP_SESSION_TIMEOUT"
+
+    prompt_for_input "Select your accessTokenTimeout" accessTokenTimeout "30m"
+    validate_pattern_sso accessTokenTimeout "^([0-9]+)([hm])$"
+    export ACCESS_TOKEN_TIMEOUT="${accessTokenTimeout}"
+    echo "$ACCESS_TOKEN_TIMEOUT"
+
+    prompt_for_input "Select your refreshTokenTimeout" refreshTokenTimeout "12h"
+    validate_pattern_sso refreshTokenTimeout "^([0-9]+)([hm])$"
+    export REFRESH_TOKEN_TIMEOUT="${refreshTokenTimeout}"
+    echo "$REFRESH_TOKEN_TIMEOUT"
+
+    prompt_for_input "Select your defaultIDP" defaultIDP "local"
+    export DEFAULT_IDP="${defaultIDP}"
+    echo "$DEFAULT_IDP"
+
+    prompt_for_input "Select your seamlessLogin" seamlessLogin "false"
+    export SEAMLESS_LOGIN="${seamlessLogin}"
+    echo "$SEAMLESS_LOGIN"
+  fi
+}
+
 function pipeline_config() {
+  
   echo_h2 "IBM Maximo Operator Catalog Selection"
   echo "${TEXT_DIM}Select how you want to manage updates in this cluster:"
   echo "- For automatic updates select to use the online dynamic catalog.  Updates will be delivered as soon as they are published by IBM"
@@ -84,6 +122,8 @@ function pipeline_config() {
   if [[ "$LICENSE_RESPONSE" == "false" ]]; then
     exit 1
   fi
+
+  
 
   echo
   echo_h2 "Configure MAS Instance"
@@ -228,6 +268,9 @@ function pipeline_config() {
     SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
   fi
 
+
+  pipeline_config_sso_properties
+  
   echo
   echo_h2 "Configure UDS"
   prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
