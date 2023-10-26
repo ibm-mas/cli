@@ -17,37 +17,37 @@
 
 function pipeline_config_sso_properties() {
   echo
-  echo_h2 "Configure SSO default properties"
-  prompt_for_confirm "Do you want to configure SSO default properties?" SSO_RESPONSE
+  echo_h2 "Configure Single Sign-On (SSO) Default Properties"
+  prompt_for_confirm "Would you like to configure default SSO properties?" SSO_RESPONSE
   if [[ "$SSO_RESPONSE" == "false" ]]; then
-    echo -e "Using SSO default properties"
+    echo -e "Using default SSO properties"
   else
-    prompt_for_number "Select your idleTimeout" idleTimeout 1800
+    prompt_for_number "Enter the idleTimeout (in seconds)" idleTimeout 1800
     export IDLE_TIMEOUT="${idleTimeout}"
-    echo "$IDLE_TIMEOUT"
+    echo "Idle Timeout set to: $IDLE_TIMEOUT seconds"
 
-    prompt_for_input "Select your idpSessionTimeout" idpSessionTimeout "12h"
+    prompt_for_input "Enter the IDP session timeout (e.g., '12h' for 12 hours)" idpSessionTimeout "12h"
     validate_pattern_sso idpSessionTimeout "^([0-9]+)([hm])$"
     export IDP_SESSION_TIMEOUT="${idpSessionTimeout}"
-    echo "$IDP_SESSION_TIMEOUT"
+    echo "IDP Session Timeout set to: $IDP_SESSION_TIMEOUT"
 
-    prompt_for_input "Select your accessTokenTimeout" accessTokenTimeout "30m"
+    prompt_for_input "Enter the access token timeout (e.g., '30m' for 30 minutes)" accessTokenTimeout "30m"
     validate_pattern_sso accessTokenTimeout "^([0-9]+)([hm])$"
     export ACCESS_TOKEN_TIMEOUT="${accessTokenTimeout}"
-    echo "$ACCESS_TOKEN_TIMEOUT"
+    echo "Access Token Timeout set to: $ACCESS_TOKEN_TIMEOUT"
 
-    prompt_for_input "Select your refreshTokenTimeout" refreshTokenTimeout "12h"
+    prompt_for_input "Enter the refresh token timeout (e.g., '12h' for 12 hours)" refreshTokenTimeout "12h"
     validate_pattern_sso refreshTokenTimeout "^([0-9]+)([hm])$"
     export REFRESH_TOKEN_TIMEOUT="${refreshTokenTimeout}"
-    echo "$REFRESH_TOKEN_TIMEOUT"
+    echo "Refresh Token Timeout set to: $REFRESH_TOKEN_TIMEOUT"
 
-    prompt_for_input "Select your defaultIDP" defaultIDP "local"
+    prompt_for_input "Enter the default Identity Provider (IDP)" defaultIDP "local"
     export DEFAULT_IDP="${defaultIDP}"
-    echo "$DEFAULT_IDP"
+    echo "Default IDP set to: $DEFAULT_IDP"
 
-    prompt_for_input "Select your seamlessLogin" seamlessLogin "false"
+    prompt_for_input "Enable seamless login? (true/false)" seamlessLogin "false"
     export SEAMLESS_LOGIN="${seamlessLogin}"
-    echo "$SEAMLESS_LOGIN"
+    echo "Seamless Login set to: $SEAMLESS_LOGIN"
   fi
 }
 
@@ -270,7 +270,7 @@ function pipeline_config() {
 
 
   pipeline_config_sso_properties
-  
+
   echo
   echo_h2 "Configure UDS"
   prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
