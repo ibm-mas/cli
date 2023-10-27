@@ -283,13 +283,6 @@ spec:
       runAfter:
         - app-install-manage
 
-    # 8.4 Configure Manage Doclinks (Attachments)
-    {{ lookup('template', 'taskdefs/apps/manage-setup-doclinks.yml.j2') | indent(4) }}
-      runAfter:
-        - cos
-        - app-cfg-manage
-
-
     # 9. Install & Configure Predict
     # -------------------------------------------------------------------------
     # 9.1 Predict Install

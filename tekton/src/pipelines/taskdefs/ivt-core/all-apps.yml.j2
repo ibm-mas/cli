@@ -147,7 +147,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - manage-setup-doclinks
+    - app-cfg-manage
 
 - name: cv-manage
   {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
@@ -167,7 +167,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - manage-setup-doclinks
+    - app-cfg-manage
 
 
 # IVT 5: Core x Monitor

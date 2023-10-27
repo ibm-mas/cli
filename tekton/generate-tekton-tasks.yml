@@ -95,7 +95,6 @@
         - suite-db2-setup-for-manage
         - suite-dns
         - suite-install
-        - suite-manage-doclinks-config
         - suite-rollback
         - suite-uninstall
         - suite-upgrade
