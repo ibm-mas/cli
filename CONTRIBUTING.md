@@ -42,7 +42,6 @@ For `major` and `minor` pull requests mainly, make sure you follow the standard 
 
 - Ensure you have tested your changes and they do what is supposed to from an "end-to-end" perspective. Attaching screenshots of the end goal in your `pull request` are always welcome so everyone knows what to expect by the change, and that it does not break existing role functionalities around your change (basic regression test).
 - Ensure that a MAS install test runs successfully from an `end-to-end` via cli (basic regression test). See more information about it in [MAS CLI documentation](https://github.com/ibm-mas/cli).
-- Ensure a `change log` entry is created in [docs/changes.md](docs/changes.md).
 
 Here's how you could get started with a new pull request from your branch:
 
