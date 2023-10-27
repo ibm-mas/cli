@@ -7,3 +7,4 @@ openshift==0.12.1
 jmespath==1.0.0
 click==8.1.3
 prettytable==3.7.0
+yq==3.2.2
