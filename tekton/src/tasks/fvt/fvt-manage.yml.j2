@@ -48,6 +48,10 @@ spec:
       type: string
       description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
       default: ""
+    - name: fvt_manage_automation_version
+      type: string
+      description: Version of Manage Selenium Test Scripts to run in pipeline
+      default: ""
     - name: fvt_mas_appws_component
       type: string
       description: Manage product that will be tested by this task. Use official names as expected by Manage operators
@@ -149,6 +153,8 @@ spec:
         value: $(params.fvt_test_suite_prefix)
       - name: FVT_TEST_SUITE
         value: $(params.fvt_test_suite)
+      - name: FVT_MANAGE_AUTOMATION_VERSION
+        value: $(params.fvt_manage_automation_version)
       - name: FVT_MAS_APPWS_COMPONENT
         value: $(params.fvt_mas_appws_component)
       - name: MAS_APPWS_COMPONENTS
