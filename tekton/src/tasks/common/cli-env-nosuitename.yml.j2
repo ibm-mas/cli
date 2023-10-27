@@ -1,0 +1,18 @@
+- name: DEVOPS_MONGO_URI
+  valueFrom:
+    secretKeyRef:
+      name: mas-devops
+      key: DEVOPS_MONGO_URI
+      optional: true
+- name: DEVOPS_BUILD_NUMBER
+  valueFrom:
+    secretKeyRef:
+      name: mas-devops
+      key: DEVOPS_BUILD_NUMBER
+      optional: true
+- name: DEVOPS_ENVIRONMENT
+  valueFrom:
+    secretKeyRef:
+      name: mas-devops
+      key: MAS_INSTANCE_ID
+      optional: true

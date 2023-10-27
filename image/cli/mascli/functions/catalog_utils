@@ -3,6 +3,12 @@
 # This file contains all the code that needs to change whenever a new catalog is released
 # Make sure to update every function in this file when adding support for a new catalog
 
+# This is used when determining whether a user can convert from the dynamic catalog to
+# a static catalog.  We only support converting from v8-amd64 to the latest static catalog
+# because any other change would be a downgrade and would result in the HEAD bundle in
+# our packages regressing, which would confuse OLM.
+MOST_RECENT_CATALOG=v8-231004-amd64
+
 # Choose a catalog only
 # -----------------------------------------------------------------------------
 # Currently only used in the mas update function.  The user does not need to select
@@ -80,7 +86,7 @@ function choose_mas_version() {
       MAS_CHANNEL=8.9.x
       MAS_CATALOG_VERSION=v8-230829-amd64
       ;;
-    
+
     # July 2023
     5)
       MAS_CHANNEL=8.10.x
