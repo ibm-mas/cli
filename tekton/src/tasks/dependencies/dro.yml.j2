@@ -23,6 +23,15 @@ spec:
       type: string
       description: Optional. Used to uninstall dro
       default: ""
+    - name: dro_contact_email
+      type: string
+      default: ""
+    - name: dro_contact_firstname
+      type: string
+      default: ""
+    - name: dro_contact_lastname
+      type: string
+      default: ""
 
   stepTemplate:
     env:
@@ -41,6 +50,12 @@ spec:
       # Optional parameter to uninstall DRO
       - name: DRO_ACTION
         value: $(params.dro_action)
+      - name: DRO_CONTACT_EMAIL
+        value: $(params.dro_contact_email)
+      - name: DRO_CONTACT_FIRSTNAME
+        value: $(params.dro_contact_firstname)
+      - name: DRO_CONTACT_LASTNAME
+        value: $(params.dro_contact_lastname)
 
       - name: MAS_POD_TEMPLATES_DIR
         value: /workspace/pod-templates
