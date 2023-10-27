@@ -71,6 +71,10 @@ spec:
       type: string
       default: "mongoce"
       description: Namespace where mongodb instances will be updated
+    - name: mongodb_v5_version
+      type: string
+      description: Approves the MongoDb upgrade to version 5 if needed
+      default: ""
 
     # kafka update
     - name: kafka_action
@@ -212,6 +216,8 @@ spec:
           value: $(params.mongodb_action)
         - name: mongodb_namespace
           value: $(params.mongodb_namespace)
+        - name: mongodb_v5_upgrade
+          value: $(params.mongodb_v5_upgrade)
 
     - name: update-kafka
       taskRef:

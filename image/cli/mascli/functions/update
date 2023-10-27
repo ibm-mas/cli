@@ -13,10 +13,11 @@ Maximo Operator Catalog Selection (Required):
   -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}     Maximo Operator Catalog Version (e.g. v8-221129)
 
 Update Dependencies (Optional):
-  --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}        DB2 namespace where instances update will be performed
-  --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET} Namespace where MongoCE operator and instance will be updated
-  --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}     Namespace where Kafka operator and instance will be updated
-  --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}       Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), or 'strimzi'
+  --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}          DB2 namespace where instances update will be performed
+  --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET}   Namespace where MongoCE operator and instance will be updated
+  --mongodb-v5-upgrade ${COLOR_YELLOW}MONGODB_V5_UPGRADE${TEXT_RESET} Confirms that Mongo can be upgraded to version 5 if needed as part of the update
+  --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}       Namespace where Kafka operator and instance will be updated
+  --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}         Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), or 'strimzi'
 
 Other Commands:
       --no-confirm                      Launch the update without prompting for confirmation
@@ -108,6 +109,9 @@ function update_noninteractive() {
       --mongodb-namespace)
         MONGODB_NAMESPACE=$1 && shift
         ;;
+      --mongodb-v5-update)
+        MONGODB_V5_UPGRADE=true
+        ;;
       --kafka-namespace)
         KAFKA_NAMESPACE=$1 && shift
         ;;
@@ -176,6 +180,13 @@ function update_interactive() {
     fi
   fi
 
+  MONGODB_CURRENT_VERSION=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].status.version}' 2> /dev/null)`
+  MONGODB_REQUIRED_VERSION="6.0.21" # required version for Nov 2023 catalog
+  if [ ! "$(printf '%s\n' "$MONGODB_REQUIRED_VERSION" "$MONGODB_CURRENT_VERSION" | sort -V | head -n1)" = "$MONGODB_REQUIRED_VERSION" ]; then 
+    echo -e "${COLOR_YELLOW}MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and will be upgraded to version ${MONGODB_REQUIRED_VERSION}.${COLOR_RESET}"
+    MONGODB_V5_UPGRADE=true
+  fi
+
   # Detect Kafka in cluster and set namespace
   if [ -z "$KAFKA_NAMESPACE" ]; then
     KAFKA_NAMESPACE=`oc get Kafka.kafka.strimzi.io -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
@@ -215,6 +226,7 @@ function update() {
   export MAS_CATALOG_VERSION
   export DB2_NAMESPACE
   export MONGODB_NAMESPACE
+  export MONGODB_V5_UPGRADE
   export KAFKA_NAMESPACE
   export KAFKA_PROVIDER
   echo
