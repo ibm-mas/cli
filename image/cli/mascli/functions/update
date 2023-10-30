@@ -181,7 +181,8 @@ function update_interactive() {
   fi
 
   MONGODB_CURRENT_VERSION=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].status.version}' 2> /dev/null`
-  MONGODB_REQUIRED_VERSION="6.0.21" # required version for Nov 2023 catalog
+  MONGODB_REQUIRED_VERSION="5.0.21" # required version for Nov 2023 catalog
+  
   if [ ! "$(printf '%s\n' "$MONGODB_REQUIRED_VERSION" "$MONGODB_CURRENT_VERSION" | sort -V | head -n1)" = "$MONGODB_REQUIRED_VERSION" ]; then 
     echo -e "${COLOR_YELLOW}MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and will be upgraded to version ${MONGODB_REQUIRED_VERSION}.${COLOR_RESET}"
     echo -e "${COLOR_YELLOW}It is recommended that you backup your MongoDB instance before proceeding:${COLOR_RESET}"
