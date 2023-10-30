@@ -23,13 +23,13 @@ spec:
       type: string
       description: Optional. Used to uninstall dro
       default: ""
-    - name: dro_contact_email
+    - name: uds_contact_email
       type: string
       default: ""
-    - name: dro_contact_firstname
+    - name: uds_contact_firstname
       type: string
       default: ""
-    - name: dro_contact_lastname
+    - name: uds_contact_lastname
       type: string
       default: ""
 
@@ -51,11 +51,11 @@ spec:
       - name: DRO_ACTION
         value: $(params.dro_action)
       - name: DRO_CONTACT_EMAIL
-        value: $(params.dro_contact_email)
+        value: $(params.uds_contact_email)
       - name: DRO_CONTACT_FIRSTNAME
-        value: $(params.dro_contact_firstname)
+        value: $(params.uds_contact_firstname)
       - name: DRO_CONTACT_LASTNAME
-        value: $(params.dro_contact_lastname)
+        value: $(params.uds_contact_lastname)
 
       - name: MAS_POD_TEMPLATES_DIR
         value: /workspace/pod-templates
