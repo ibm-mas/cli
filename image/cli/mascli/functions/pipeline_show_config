@@ -284,9 +284,7 @@ function pipeline_show_config() {
   [ "$MAS_APP_CHANNEL_VISUALINSPECTION" != "" ] && cmd+=" \\
   --visualinspection-channel $MAS_APP_CHANNEL_VISUALINSPECTION"
   [ "$MAS_APP_CHANNEL_OPTIMIZER" != "" ] && cmd+=" \\
-  --optimizer-channel $MAS_APP_CHANNEL_OPTIMIZER"
-  [ "$MAS_APP_CHANNEL_OPTIMIZER" != "" ] && [ "$MAS_APP_PLAN_OPTIMIZER" != "" ] && cmd+=" --optimizer-plan $MAS_APP_PLAN_OPTIMIZER"
-
+  --optimizer-channel $MAS_APP_CHANNEL_OPTIMIZER --optimizer-plan $MAS_APP_PLAN_OPTIMIZER"
 
   # Kafka
   [ "$KAFKA_PROVIDER" != "" ] && cmd+=" \\
