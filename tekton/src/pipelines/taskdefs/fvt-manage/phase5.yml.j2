@@ -15,6 +15,8 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}    
   runAfter:
+    - fvt-manage-sec-audit-log
+    - fvt-manage-sec-inactive-auth
     - fvt-manage-mif-kafka
     - fvt-manage-wo-doclink
     - fvt-manage-directprint
