@@ -40,6 +40,10 @@ spec:
       type: string
       description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
       default: ""
+    - name: fvt_manage_automation_version
+      type: string
+      description: Version of Manage Selenium Test Scripts to run in pipeline
+      default: ""
     - name: fvt_mas_appws_component
       type: string
       description: Manage product that will be tested by this task. Use official names as expected by Manage operators
@@ -141,6 +145,8 @@ spec:
         value: core
       - name: FVT_TEST_SUITE
         value: $(params.fvt_test_suite)
+      - name: FVT_MANAGE_AUTOMATION_VERSION
+        value: $(params.fvt_manage_automation_version)
       - name: FVT_MAS_APPWS_COMPONENT
         value: $(params.fvt_mas_appws_component)
       - name: MAS_APPWS_COMPONENTS
@@ -174,6 +180,21 @@ spec:
     - name: configs
   
   steps:
+
+    # Manage FVT MAS UserTimeout
+    - name: fvt-manage-mas-usertimeout
+      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
+      imagePullPolicy: $(params.image_pull_policy)
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      resources: {}
+      workingDir: /opt/ibm/test/src
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+      env:
+        - name: FVT_TEST_SUITE
+          value: masuser-timeout
     
     # Manage FVT Application Designer
     - name: fvt-manage-application-designer
