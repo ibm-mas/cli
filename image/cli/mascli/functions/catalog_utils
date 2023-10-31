@@ -114,9 +114,6 @@ function uds_dro_selection() {
   case $MAS_CATALOG_VERSION in
     # UDS/DRO selection
     # -------------------------------------------------------------------------
-    v8-amd64|v8-230111-amd64|v8-230217-amd64|v8-230314-amd64|v8-230328-amd64|v8-230414-amd64|v8-230518-amd64|v8-230526-amd64|v8-230616-amd64|v8-230627-amd64|v8-230721-amd64|v8-230725-amd64|v8-230829-amd64|v8-230926-amd64|v8-231004-amd64)
-      BAS_PROVIDER="UDS"
-      ;;
     v8-240111-amd64)
       BAS_PROVIDER="DRO"
       ;;
