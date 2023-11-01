@@ -20,6 +20,7 @@ Cluster Configuration (Required):
   -c, --cluster-name ${COLOR_YELLOW}CLUSTER_NAME${TEXT_RESET}         Name of the cluster to be provisioned (lowercase only)
   -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}           OCP version to use (e.g 4.8, 4.10)
   -d, --description ${COLOR_YELLOW}FYRE_DESCRIPTION${TEXT_RESET}      Description of the OCP cluster
+  -l, --location ${COLOR_YELLOW}FYRE_SITE${TEXT_RESET}                FYRE site where cluster will be provisioned (default is svl)
 
 Worker Node Configuration (Optional, only takes effect when quota-type is set to "product_group"):
       --worker-count ${COLOR_YELLOW}FYRE_WORKER_COUNT${TEXT_RESET}    Number of worker nodes to provision
@@ -63,6 +64,9 @@ function provision_fyre_noninteractive() {
       -d|--description)
         FYRE_CLUSTER_DESCRIPTION=$1 && shift
         ;;
+      -l|--location)
+        FYRE_SITE=$1 && shift
+        ;;
       --worker-count)
         FYRE_WORKER_COUNT=$1 && shift
         ;;
@@ -102,6 +106,9 @@ function provision_fyre_noninteractive() {
   [[ -z "$FYRE_PRODUCT_ID" ]] && provision_fyre_help "FYRE_PRODUCT_ID is not set"
   [[ -z "$FYRE_QUOTA_TYPE" ]] && provision_fyre_help "FYRE_QUOTA_TYPE is not set"
 
+  if [[ -z "$FYRE_SITE" ]]; then
+    FYRE_SITE=svl
+  fi
   if [[ "$SIMULATE_AIRGAP_NETWORK" == "true" ]]; then
     [[ -z "$REGISTRY_PRIVATE_CA_FILE" ]] && provision_fyre_help "REGISTRY_PRIVATE_CA_FILE is not set"
   fi
@@ -142,8 +149,9 @@ function provision_fyre_interactive() {
   esac
 
 
-  prompt_for_input "Cluster Description" FYRE_CLUSTER_DESCRIPTION
+  prompt_for_input "Cluster Description" FYRE_CLUSTER_DESCRIPTION  
   prompt_for_input "FYRE Product ID" FYRE_PRODUCT_ID
+  prompt_for_input "FYRE Site" FYRE_SITE
 
 
   prompt_for_confirm "Use Product Group Quota?" USE_PRODUCT_GROUP_QUOTA
@@ -192,6 +200,7 @@ function provision_fyre() {
   export CLUSTER_NAME
   export OCP_VERSION
   export FYRE_CLUSTER_DESCRIPTION
+  export FYRE_SITE
   export FYRE_WORKER_COUNT
   export FYRE_WORKER_CPU
   export FYRE_WORKER_MEMORY
@@ -210,6 +219,7 @@ function provision_fyre() {
   echo_h2 "FYRE Accounting" "    "
   echo_reset_dim "Product Group ID .......... ${COLOR_MAGENTA}${FYRE_PRODUCT_ID}"
   echo_reset_dim "Quota Type ................ ${COLOR_MAGENTA}${FYRE_QUOTA_TYPE}"
+  echo_reset_dim "Site ...................... ${COLOR_MAGENTA}${FYRE_SITE}"
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "Cluster Configuration" "    "
