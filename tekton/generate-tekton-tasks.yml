@@ -56,6 +56,7 @@
         - fvt-core
         - fvt-core-phase4
         - fvt-core-ui
+        - fvt-finalize
         - fvt-manage
         - fvt-manage-directprint
         - fvt-manage-last-phase
