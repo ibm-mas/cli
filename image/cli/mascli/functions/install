@@ -336,9 +336,6 @@ function install_noninteractive() {
         export KAFKA_ACTION_SYSTEM=install
         export KAFKA_PROVIDER=$1 && shift
         ;;
-      --kafka-version)
-        export KAFKA_VERSION=$1 && shift
-        ;;
       --kafka-cluster-name)
         export KAFKA_CLUSTER_NAME=$1 && shift
         ;;
