@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
         # Lookup version
         try:
-            crs = k8sUtil.dynClient.resources.get(api_version=apiVersion, kind=kind)
+            crs = dynClient.resources.get(api_version=apiVersion, kind=kind)
             cr = crs.get(name=instanceId, namespace=deploymentNamespace)
             if cr.status and cr.status.versions:
                 productVersion = cr.status.versions.reconciled
