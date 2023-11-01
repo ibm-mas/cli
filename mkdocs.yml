@@ -15,6 +15,7 @@ nav:
       - "Install": guides/install.md
       - "Update": guides/update.md
       - "Upgrade": guides/upgrade.md
+      - "Uninstall": guides/uninstall.md
   - "OpenShift Management":
       - "provision-fyre": commands/provision-fyre.md
       - "provision-roks": commands/provision-roks.md
@@ -30,6 +31,7 @@ nav:
       - "install": commands/install.md
       - "update": commands/update.md
       - "upgrade": commands/upgrade.md
+      - "upgrade": commands/uninstall.md
   - "Troubleshooting":
       - "must-gather": commands/must-gather.md
   - "Catalogs":
