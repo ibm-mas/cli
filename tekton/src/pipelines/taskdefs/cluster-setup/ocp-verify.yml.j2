@@ -17,3 +17,5 @@
       value: {{ verify_workloads | default("True") }}
     - name: verify_ingress
       value: {{ verify_ingress | default("True") }}
+    - name: ocp_ingress_tls_secret_name
+      value: {{ verify_ingress | default("router-certs-default") }}
