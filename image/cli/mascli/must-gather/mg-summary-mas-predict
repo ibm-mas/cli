@@ -1,3 +1,13 @@
 #!/bin/bash
 
+echo "IBM Maximo Application Suite - Predict Application"
+echo "--------------------------------------------------------------------------------"
+oc get predictapp -n $1
+echo ""
+
+echo "IBM Maximo Application Suite - Predict Workspace Configuration"
+echo "--------------------------------------------------------------------------------"
+oc get predictworkspace -n $1
+echo ""
+
 exit 0
