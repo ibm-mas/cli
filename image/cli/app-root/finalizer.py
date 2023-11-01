@@ -117,15 +117,15 @@ if __name__ == "__main__":
     }
 
     for productId in knownProductIds:
-        apiVersion = knownProductIds[args.productId]["apiVersion"]
-        kind = knownProductIds[args.productId]["kind"]
-        deploymentName = knownProductIds[args.productId]["deployment"]
-        deploymentNamespace = knownProductIds[args.productId]["namespace"]
+        apiVersion = knownProductIds[productId]["apiVersion"]
+        kind = knownProductIds[productId]["kind"]
+        deploymentName = knownProductIds[productId]["deployment"]
+        deploymentNamespace = knownProductIds[productId]["namespace"]
 
         # Lookup version
         try:
             crs = k8sUtil.dynClient.resources.get(api_version=apiVersion, kind=kind)
-            cr = crs.get(name=args.instanceId, namespace=deploymentNamespace)
+            cr = crs.get(name=instanceId, namespace=deploymentNamespace)
             if cr.status and cr.status.versions:
                 productVersion = cr.status.versions.reconciled
 
@@ -147,11 +147,11 @@ if __name__ == "__main__":
                     else:
                         print(f"Unable to determine {deploymentName} build information: deployment is none")
                 except Exception as e:
-                    print(f"Unable to determine {args.productId} build information: {e}")
+                    print(f"Unable to determine {productId} build information: {e}")
             else:
-                print(f"Unable to determine {args.productId} version: status.versions.reconciled unavailable")
+                print(f"Unable to determine {productId} version: status.versions.reconciled unavailable")
         except Exception as e:
-            print(f"Unable to determine {args.productId} version: {e}")
+            print(f"Unable to determine {productId} version: {e}")
 
     # Connect to mongoDb
     # -------------------------------------------------------------------------
