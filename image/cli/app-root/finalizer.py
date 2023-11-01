@@ -21,7 +21,7 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     # Note: We don't use MAS_INSTANCE_ID to remove the confusion between when a role actually
     # needs MAS_INSTANCE_ID and when we are providing it just for the reporting framework
-    instanceId = os.getenv("DEVOPS_ENVIRONMENT", "none")
+    instanceId = os.getenv("DEVOPS_ENVIRONMENT")
     build = os.getenv("DEVOPS_BUILD_NUMBER")
 
     if instanceId is None:
@@ -122,6 +122,7 @@ if __name__ == "__main__":
         deploymentName = knownProductIds[productId]["deployment"]
         deploymentNamespace = knownProductIds[productId]["namespace"]
 
+        print(f"Looking for info about {productId}")
         # Lookup version
         try:
             crs = dynClient.resources.get(api_version=apiVersion, kind=kind)
