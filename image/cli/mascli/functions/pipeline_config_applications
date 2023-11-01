@@ -270,6 +270,8 @@ function manage_settings() {
         exit 1
       fi
     fi
+  else
+    MAS_APPWS_COMPONENTS="base=latest,health=latest"
   fi
 
   # Manage Settings - Database
