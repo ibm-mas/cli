@@ -106,6 +106,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/catalogs/v8-231031-amd64/</loc>
+         <lastmod>2023-11-01</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/commands/configtool-oidc/</loc>
          <lastmod>2023-11-01</lastmod>
          <changefreq>daily</changefreq>
