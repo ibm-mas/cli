@@ -37,19 +37,18 @@ function config_pipeline_additional_configs() {
     done
 
     echo
-    if [[ "$NO_CONFIRM" != true ]]; then
-      # if NO_CONFIRM is not true, prompt to confirm configuration files to apply
+    if [[ "$NO_CONFIRM" != "true" ]]; then 
       if prompt_for_confirm "Are these the correct configuration files to apply?"; then
-        COPY_ADDITIONAL_CONFIGS=true
+        cp $CLI_DIR/templates/additional-configs.yaml $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml
+        python3 $CLI_DIR/tools/cfgmgr add $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml $LOCAL_MAS_CONFIG_DIR
+        echo
       else
         echo_warning "Additional configuration files were not confirmed! Aborting ..."
         exit 0
       fi
     else
-      # if NO_CONFIRM is true, no need to prompt to confirm
-      COPY_ADDITIONAL_CONFIGS=true
-    fi
-    if [[ "$COPY_ADDITIONAL_CONFIGS" == true ]]; then
+      echo "$CLI_DIR/templates/additional-configs.yaml $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml"
+      echo "python3 $CLI_DIR/tools/cfgmgr add $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml $LOCAL_MAS_CONFIG_DIR"
       cp $CLI_DIR/templates/additional-configs.yaml $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml
       python3 $CLI_DIR/tools/cfgmgr add $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml $LOCAL_MAS_CONFIG_DIR
     fi
