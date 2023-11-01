@@ -15,6 +15,9 @@ function pipeline_prepare() {
       -e "s/{{pipeline_storage_accessmode}}/$PIPELINE_STORAGE_ACCESSMODE/g" \
       $CLI_DIR/templates/pvc.yaml > $CONFIG_DIR/pvc-$MAS_INSTANCE_ID.yaml
 
+  echo "ALREADY_CONFIRMED: $ALREADY_CONFIRMED"
+  echo "NO_CONFIRM: $NO_CONFIRM"
+
   if [ "$ALREADY_CONFIRMED" != "true" ] && [ "$NO_CONFIRM" != "true" ]; then
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
     echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}${COLOR_RESET}"
