@@ -46,11 +46,11 @@ function config_pipeline_additional_configs() {
         echo_warning "Additional configuration files were not confirmed! Aborting ..."
         exit 0
       fi
-    else
-      echo "$CLI_DIR/templates/additional-configs.yaml $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml"
-      echo "python3 $CLI_DIR/tools/cfgmgr add $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml $LOCAL_MAS_CONFIG_DIR"
-      cp $CLI_DIR/templates/additional-configs.yaml $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml
-      python3 $CLI_DIR/tools/cfgmgr add $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml $LOCAL_MAS_CONFIG_DIR
+    # else
+    #   echo "$CLI_DIR/templates/additional-configs.yaml $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml"
+    #   echo "python3 $CLI_DIR/tools/cfgmgr add $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml $LOCAL_MAS_CONFIG_DIR"
+    #   cp $CLI_DIR/templates/additional-configs.yaml $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml
+    #   python3 $CLI_DIR/tools/cfgmgr add $CONFIG_DIR/additional-configs-$MAS_INSTANCE_ID.yaml $LOCAL_MAS_CONFIG_DIR
     fi
   else
     LOCAL_MAS_CONFIG_DIR=""
