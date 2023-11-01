@@ -86,6 +86,7 @@
         - must-gather
         - suite-app-config
         - suite-app-install
+        - suite-app-uninstall
         - suite-app-upgrade
         - suite-app-rollback
         - suite-app-verify
