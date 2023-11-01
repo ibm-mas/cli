@@ -17,10 +17,12 @@ Examples
 -------------------------------------------------------------------------------
 ### Interactive Uninstall
 ```bash
-docker run -ti --rm --pull always quay.io/ibmmas/cli mas uninstall
+mas uninstall
 ```
 
 ### Non-Interactive Uninstall
 ```bash
-docker run -ti --rm --pull always quay.io/ibmmas/cli mas uninstall -i inst1 --no-confirm
+mas uninstall -i inst1 --no-confirm
 ```
+
+Note: If you are not already connected to an OpenShift cluster you will be prompted to provide the server URL & token, and whether to verify the server certificate or not,  If you are already connected to a cluster you will be given the option to change to another cluster.
