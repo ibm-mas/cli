@@ -50,6 +50,7 @@ function config_pipeline_advanced() {
     echo
     if [[ -z "$OCP_INGRESS_TLS_SECRET_NAME" ]]; then
       OCP_INGRESS_TLS_SECRET_NAME="router-certs-default"
+    fi
     prompt_for_input "Default cluster ingress certificate secret" OCP_INGRESS_TLS_SECRET_NAME $OCP_INGRESS_TLS_SECRET_NAME
     prompt_for_confirm_default_yes "Trust Default CAs?" MAS_TRUST_DEFAULT_CAS
   else
