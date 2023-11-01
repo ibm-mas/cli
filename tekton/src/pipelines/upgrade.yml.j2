@@ -8,6 +8,12 @@ metadata:
   name: mas-upgrade
 {% endif %}
 spec:
+{% if wait_for_install == true %}
+  workspaces:
+    # Shared storage to hold mustgather output for tasks
+    - name: shared-mustgather
+{% endif %}
+
   params:
     # 1. Common Parameters
     # -------------------------------------------------------------------------
