@@ -205,6 +205,17 @@ spec:
           ((ATTEMPT++))
         done
 
+        echo "Setting up ArgoCD sync window to allow FVT tests to run without interuption"
+        if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
+          export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}')
+          export ARGOCD_USERNAME=admin
+          export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' | base64 -d ; echo)
+        fi
+        echo "argo:argocd login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."    
+        argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+        echo "argo:argocd proj window add $MAS_INSTANCE_ID --kind deny --schedule * * * * * --duration 4h --applications *"  
+        argocd proj windows add $MAS_INSTANCE_ID --kind deny --schedule "* * * * *" --duration 4h --applications "*"
+
         mas gitops-provision-mas-fvt-core --pipeline-storage-class ${PIPELINE_STORAGE_CLASS} \
         --dir $MAS_CONFIG_DIR
       command:
