@@ -16,19 +16,24 @@ function connect() {
   fi
 
   if [[ $PROMPT_FOR_LOGIN == "true" ]]; then
-    prompt_for_input "Server URL" OCP_LOGIN_URL
-    prompt_for_secret "Login Token" OCP_LOGIN_TOKEN
-    prompt_for_confirm "Disable TLS Verify?" OCP_DISABLE_TLS_VERIFY
-    echo -ne "${COLOR_RESET}\033[1K"
+    if [[ "$OCP_LOGIN_URL" == "" ]] || [[ "$OCP_LOGIN_TOKEN" == "" ]]; then
+      NON_INTERACTIVE=true
+      prompt_for_input "Server URL" OCP_LOGIN_URL
+      prompt_for_secret "Login Token" OCP_LOGIN_TOKEN
+      prompt_for_confirm "Disable TLS Verify?" OCP_DISABLE_TLS_VERIFY
+      echo -ne "${COLOR_RESET}\033[1K"
+    fi
 
-    oc login --token=$OCP_LOGIN_TOKEN --server=$OCP_LOGIN_URL --insecure-skip-tls-verify=$OCP_DISABLE_TLS_VERIFY &>> $LOGFILE
+    oc login --token=$OCP_LOGIN_TOKEN --server=$OCP_LOGIN_URL --insecure-skip-tls-verify=$OCP_DISABLE_TLS_VERIFY 2> $LOGFILE
     if [[ $? != "0" ]]; then
       echo_warning "Login to $OCP_LOGIN_URL failed"
       exit 1
     fi
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
     echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}${COLOR_RESET}" | tee $LOGFILE
-    prompt_for_confirm "Proceed with installation on this cluster?" || exit 0
+    if [[ $NON_INTERACTIVE == true ]]; then
+      prompt_for_confirm "Proceed with execution on this cluster?" || exit 0
+    fi
   fi
   ALREADY_CONFIRMED=true
   echo -ne "${COLOR_RESET}\033[1K"

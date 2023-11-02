@@ -16,7 +16,9 @@ Collection Options (Optional):
   --no-pod-logs              Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required
   --mas-instance-ids         Collects the data for the specifed MAS instances, if not specified will collect for all MAS instances on the cluster
   --secret-data              Collects also the content of the secrets
-
+  -u, --ocp-login-url        provide the ocp server url for authentication, can be obtained with oc whoami --show-server
+  -t, --ocp-login-token      provide the login token, can be obtained with oc whoami -t
+  -v, --ocp-tls-verify       if specified, the server's certificate will be checked for validity
 Artifactory Upload (Optional):
   --artifactory-token ${COLOR_YELLOW}ARTIFACTORY_TOKEN${TEXT_RESET}              Provide a token for Artifactory to automatically upload the file to ARTIFACTORY_UPLOAD_DIR
   --artifactory-upload-dir ${COLOR_YELLOW}ARTIFACTORY_UPLOAD_DIR${TEXT_RESET}    Working URL to the root directory in Artifactory where the must-gather file should be uploaded
@@ -37,6 +39,9 @@ function mustgather() {
   POD_LOGS=true
   SECRET_DATA=false
   MG_DIR=/tmp/must-gather
+  OCP_LOGIN_URL=""
+  OCP_LOGIN_TOKEN=""
+  OCP_DISABLE_TLS_VERIFY=true
 
   # If a /must-gather directory exists, default to that as the output directory instead
   if [[ -d "/must-gather" ]]; then
@@ -64,6 +69,15 @@ function mustgather() {
     --secret-data)
       SECRET_DATA=true 
       ;;
+    -u|--ocp-login-url)
+      OCP_LOGIN_URL=$1; shift 
+      ;;
+    -t|--ocp-login-token)
+      OCP_LOGIN_TOKEN=$1; shift 
+      ;;
+    -v|--ocp-tls-verify)
+      OCP_DISABLE_TLS_VERIFY=false
+      ;;
     --artifactory-token)
       ARTIFACTORY_TOKEN=$1; shift
       ;;
@@ -87,6 +101,13 @@ function mustgather() {
   done
 
   TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
+
+  # use the provided login details to authenticate against OCP
+  export OCP_LOGIN_URL=$OCP_LOGIN_URL
+  export OCP_LOGIN_TOKEN=$OCP_LOGIN_TOKEN
+  export OCP_DISABLE_TLS_VERIFY=$OCP_DISABLE_TLS_VERIFY
+
+  connect
 
   # All the output is generated here
   OUTPUT_DIR=${MG_DIR}/${TIMESTAMP}
