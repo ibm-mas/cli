@@ -14,6 +14,10 @@ Usage
 - `--artifactory-upload-directory ARTIFACTORY_UPLOAD_DIRECTORY` Working URL to the root directory in Artifactory where the must-gather file should be uploaded
 - `--mas-instance-ids` Collects the data for the specified MAS instances, if not specified will collect for all MAS instances on the cluster
 - `--secret-data` Collects also the content of the secrets, the default is not to include the data part of the secrets
+- `-u, --ocp-login-url`        provide the ocp server url for authentication, can be obtained with oc whoami --show-server
+- `-t, --ocp-login-token`      provide the login token, can be obtained with oc whoami -t
+- `-v, --ocp-tls-verify`       if specified, the server's certificate will be checked for validity
+
 
 Content
 -------------------------------------------------------------------------------
@@ -116,22 +120,27 @@ Examples
 Running this command will save the must-gather file to a must-gather directory in your home directory.
 
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather
+docker run -ti --rm -v /data:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather
 ```
 
 ### Quick Must-Gather
 Running this command will save the must-gather file to a must-gather directory in your home directory.
 
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --summary-only
+docker run -ti --rm -v /data:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --summary-only
 ```
 
 ### Must-Gather for one MAS instance
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --mas-instance-ids inst1
+docker run -ti --rm -v /data:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --mas-instance-ids inst1
 ```
 
 ### Must-Gather that includes the data of the secrets
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --secret-data
+docker run -ti --rm -v /data:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --secret-data
+```
+
+### Must-Gather when specifying the server and token for login
+```bash
+docker run -ti --rm -v /data:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather -u $(oc whoami --show-server) -t $(oc whoami -t)
 ```
