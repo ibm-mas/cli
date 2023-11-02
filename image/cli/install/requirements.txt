@@ -1,9 +1,0 @@
-junit_xml==1.9
-pymongo==4.5.0
-xmljson==0.2.1
-ansible==8.5.0
-kubernetes==28.1.0
-openshift==0.13.2
-jmespath==1.0.1
-click==8.1.7
-prettytable==3.9.0
