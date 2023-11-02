@@ -1,4 +1,4 @@
-FROM quay.io/ibmmas/cli-base:latest
+FROM quay.io/ibmmas/cli-base:1.0.1-pre.squash2
 ARG VERSION_LABEL
 
 # 1. Copy basics
@@ -15,13 +15,12 @@ ENV ANSIBLE_COLLECTIONS_PATH=/opt/app-root/lib64/python3.9/site-packages/ansible
     VIRTUAL_ENV_DISABLE_PROMPT=1
 
 # 3. Install Ansible collections -- do this last for efficient dev builds
+# 4. Set file permissions to be developer (hack) friendly
 COPY install-ansible /tmp/install-ansible
 RUN umask 0002 && \
     bash /tmp/install-ansible/install-ansible-collections.sh && \
-    rm -rf /tmp/install-ansible
-
-# 4. Set file permissions to be developer (hack) friendly
-RUN chmod -R ug+rwx ${HOME}/env.sh && \
+    rm -rf /tmp/install-ansible && \
+    chmod -R ug+rwx ${HOME}/env.sh && \
     chmod -R ug+rwx ${HOME}/.ansible && \
     chmod +x ${HOME}/run-playbook.sh && \
     chmod +x ${HOME}/run-role.sh && \
