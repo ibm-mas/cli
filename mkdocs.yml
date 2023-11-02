@@ -31,7 +31,7 @@ nav:
       - "install": commands/install.md
       - "update": commands/update.md
       - "upgrade": commands/upgrade.md
-      - "upgrade": commands/uninstall.md
+      - "uninstall": commands/uninstall.md
   - "Troubleshooting":
       - "must-gather": commands/must-gather.md
   - "Catalogs":
