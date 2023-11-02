@@ -364,6 +364,8 @@ function pipeline_show_config() {
   echo "${TEXT_DIM}$cmd"
   echo
 
+  reset_colors
+  echo "${TEXT_RESET}"
   if [ "$NO_CONFIRM" != "true" ]; then
     prompt_for_confirm "Proceed with these settings" || exit 0
   fi
