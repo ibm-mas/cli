@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/guides/image-mirroring/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/guides/uninstall/" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>Image Mirroring - MAS CLI</title>
+    <title>Uninstall - MAS CLI</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -13,9 +13,9 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Image Mirroring";
-        var mkdocs_page_input_path = "guides/image-mirroring.md";
-        var mkdocs_page_url = "/cli/guides/image-mirroring/";
+        var mkdocs_page_name = "Uninstall";
+        var mkdocs_page_input_path = "guides/uninstall.md";
+        var mkdocs_page_url = "/cli/guides/uninstall/";
       </script>
     
     <!--[if lt IE 9]>
@@ -45,21 +45,7 @@
               <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../choosing-the-right-catalog/">Choosing the Right Catalog</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Image Mirroring</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#image-mirroring-overview">Image Mirroring Overview</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#preparation">Preparation</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#stage-1-core">Stage 1 - Core</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#stage-2-apps">Stage 2 - Apps</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#stage-3-cp4d">Stage 3 - CP4D</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#stage-4-other-dependencies">Stage 4 - Other Dependencies</a>
-    </li>
-    </ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../image-mirroring/">Image Mirroring</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../install/">Install</a>
                   </li>
@@ -67,7 +53,13 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../upgrade/">Upgrade</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../uninstall/">Uninstall</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Uninstall</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#uninstall-overview">Uninstall Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#1-uninstall-maximo-application-suite">1 Uninstall Maximo Application Suite</a>
+    </li>
+    </ul>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">OpenShift Management</span></p>
@@ -138,9 +130,9 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Guides</li>
-      <li class="breadcrumb-item active">Image Mirroring</li>
+      <li class="breadcrumb-item active">Uninstall</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/ibm-mas/cli/blob/master/docs/guides/image-mirroring.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/ibm-mas/cli/blob/master/docs/guides/uninstall.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -148,71 +140,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="image-mirroring">Image Mirroring<a class="headerlink" href="#image-mirroring" title="Permanent link"></a></h1>
-<h2 id="image-mirroring-overview">Image Mirroring Overview<a class="headerlink" href="#image-mirroring-overview" title="Permanent link"></a></h2>
-<p>We recommend the use of two-phase mirroring, it is slower than direct mirroring and requires more storage capacity, but can allow you to more easily recover from network glitches and creates a clean seperation of the tasks of getting the content from the source registry and putting it into the target registry which can make debugging failures easier.</p>
-<p>This guide assumes that you are looking to mirror content for the latest release (<strong>8.11.x</strong>) from the most recent catalog update (<strong>v8-231004-amd64</strong>), and that you are installing all MAS applications.  If you are not installing certain applications or dependencies take care to remove the appropriate <code>--mirror-x</code> flags to avoid mirroring unnecessary images.</p>
-<h2 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link"></a></h2>
-<p>Set the following environment variables that will be used in each stage:</p>
-<pre><code class="language-bash">export IBM_ENTITLEMENT_KEY=xxx
-export LOCAL_DIR=xxx
-export REGISTRY_HOST=xxx
-export REGISTRY_PORT=xxx
-export REGISTRY_USERNAME=xxx
-export REGISTRY_PASSWORD=xxx
-export REDHAT_USERNAME=xxx
-export REDHAT_PASSWORD=xxx
+                <h1 id="uninstall">Uninstall<a class="headerlink" href="#uninstall" title="Permanent link"></a></h1>
+<h2 id="uninstall-overview">Uninstall Overview<a class="headerlink" href="#uninstall-overview" title="Permanent link"></a></h2>
+<p>Uninstall will remove an entire MAS installation from a cluster, including all installed applications.</p>
+<h2 id="1-uninstall-maximo-application-suite">1 Uninstall Maximo Application Suite<a class="headerlink" href="#1-uninstall-maximo-application-suite" title="Permanent link"></a></h2>
+<p>Run <code>mas uninstall</code> and select the MAS installation instance that you want to uninstall.</p>
+<pre><code class="language-bash">mas uninstall
 </code></pre>
-<h2 id="stage-1-core">Stage 1 - Core<a class="headerlink" href="#stage-1-core" title="Permanent link"></a></h2>
-<p>Let's start simple and just get the MAS Core and IBM Maximo Operator Catalog mirrored to the registry, this shouldn't take long and provides an early measure of the download and upload performance to help estimate the time to complete the larger stages.</p>
-<pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/core \
-  -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-231004-amd64 -C 8.11.x \
-  --mirror-catalog --mirror-core \
-  --ibm-entitlement $IBM_ENTITLEMENT_KEY
+<p>The command can also be ran non-interactive.</p>
+<pre><code class="language-bash">mas uninstall -i @@MAS_INSTANCE@@ --no-confirm
 </code></pre>
-<p>Once the images are mirrored to local disk, we will mirror them from local disk to your registry, this should complete in very little time, depends on the speed of your internal network:</p>
-<pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/core \
-  -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-231004-amd64 -C 8.11.x \
-  --mirror-catalog --mirror-core
+<p>The command can be ran in a prebuilt CLI docker container.</p>
+<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas uninstall
 </code></pre>
-<h2 id="stage-2-apps">Stage 2 - Apps<a class="headerlink" href="#stage-2-apps" title="Permanent link"></a></h2>
-<pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/apps \
-  -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-231004-amd64 -C 8.11.x \
-  --mirror-assist --mirror-hputilities --mirror-iot --mirror-manage --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
-  --ibm-entitlement $IBM_ENTITLEMENT_KEY
-</code></pre>
-<pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/apps \
-  -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-231004-amd64 -C 8.11.x \
-  --mirror-assist --mirror-hputilities --mirror-iot --mirror-manage --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection
-</code></pre>
-<h2 id="stage-3-cp4d">Stage 3 - CP4D<a class="headerlink" href="#stage-3-cp4d" title="Permanent link"></a></h2>
-<pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/cp4d \
-  -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-231004-amd64 -C 8.11.x \
-  --mirror-cp4d --mirror-wd --mirror-spark --mirror-wml --mirror-wsl \
-  --ibm-entitlement $IBM_ENTITLEMENT_KEY
-</code></pre>
-<pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/cp4d \
-  -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-231004-amd64 -C 8.11.x \
-  --mirror-cp4d --mirror-wd --mirror-spark --mirror-wml --mirror-wsl
-</code></pre>
-<h2 id="stage-4-other-dependencies">Stage 4 - Other Dependencies<a class="headerlink" href="#stage-4-other-dependencies" title="Permanent link"></a></h2>
-<pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/other \
-  -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-231004-amd64 -C 8.11.x \
-  --mirror-mongo --mirror-tsm --mirror-uds --mirror-sls --mirror-cfs --mirror-appconnect --mirror-db2 \
-  --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD
-</code></pre>
-<pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/other \
-  -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-231004-amd64 -C 8.11.x \
-  --mirror-mongo --mirror-tsm --mirror-uds --mirror-sls --mirror-cfs --mirror-appconnect --mirror-db2
-</code></pre>
+<p>Note: If you are not already connected to an OpenShift cluster you will be prompted to provide the server URL &amp; token, and whether to verify the server certificate or not,  If you are already connected to a cluster you will be given the option to change to another cluster.</p>
               
             </div>
           </div><footer>
@@ -241,10 +182,10 @@ export REDHAT_PASSWORD=xxx
         </span>
     
     
-      <span><a href="../choosing-the-right-catalog/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../upgrade/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../install/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../../commands/provision-fyre/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

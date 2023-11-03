@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/commands/provision-fyre/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/commands/uninstall/" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>provision-fyre - MAS CLI</title>
+    <title>uninstall - MAS CLI</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -13,9 +13,9 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "provision-fyre";
-        var mkdocs_page_input_path = "commands/provision-fyre.md";
-        var mkdocs_page_url = "/cli/commands/provision-fyre/";
+        var mkdocs_page_name = "uninstall";
+        var mkdocs_page_input_path = "commands/uninstall.md";
+        var mkdocs_page_url = "/cli/commands/uninstall/";
       </script>
     
     <!--[if lt IE 9]>
@@ -57,30 +57,8 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">OpenShift Management</span></p>
-              <ul class="current">
-                  <li class="toctree-l1 current"><a class="reference internal current" href="./">provision-fyre</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#fyre-credentials">FYRE Credentials</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#cluster-configuration">Cluster Configuration</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#worker-node-configuration">Worker Node Configuration</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#other-commands">Other Commands</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#interactive-mode">Interactive Mode</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#non-interactive-mode">Non-Interactive Mode</a>
-    </li>
-        </ul>
-    </li>
-    </ul>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../provision-fyre/">provision-fyre</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../provision-roks/">provision-roks</a>
                   </li>
@@ -101,7 +79,7 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">MAS Management</span></p>
-              <ul>
+              <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../configtool-oidc/">configtool-oidc</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../install/">install</a>
@@ -110,7 +88,25 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../upgrade/">upgrade</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../uninstall/">uninstall</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">uninstall</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#mas-instance-selection">MAS Instance Selection</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#other-options">Other Options</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#interactive-uninstall">Interactive Uninstall</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#non-interactive-uninstall">Non-Interactive Uninstall</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Troubleshooting</span></p>
@@ -145,10 +141,10 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
-          <li class="breadcrumb-item">OpenShift Management</li>
-      <li class="breadcrumb-item active">provision-fyre</li>
+          <li class="breadcrumb-item">MAS Management</li>
+      <li class="breadcrumb-item active">uninstall</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/provision-fyre.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/uninstall.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -156,48 +152,26 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="provision-ocp-on-fyre">Provision OCP on FYRE<a class="headerlink" href="#provision-ocp-on-fyre" title="Permanent link"></a></h1>
+                <h1 id="uninstall">Uninstall<a class="headerlink" href="#uninstall" title="Permanent link"></a></h1>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
-<p><code>mas provision-fyre [options]</code></p>
-<h3 id="fyre-credentials">FYRE Credentials<a class="headerlink" href="#fyre-credentials" title="Permanent link"></a></h3>
+<p><code>mas uninstall [options]</code></p>
+<h3 id="mas-instance-selection">MAS Instance Selection<a class="headerlink" href="#mas-instance-selection" title="Permanent link"></a></h3>
 <ul>
-<li><code>-u|--username FYRE_USERNAME</code> FYRE username</li>
-<li><code>-a|--apikey FYRE_APIKEY</code> FYRE API key</li>
+<li><code>-i|--id MAS_INSTANCE_ID</code> MAS Instance ID to uninstall</li>
 </ul>
-<h3 id="cluster-configuration">Cluster Configuration<a class="headerlink" href="#cluster-configuration" title="Permanent link"></a></h3>
+<h3 id="other-options">Other Options<a class="headerlink" href="#other-options" title="Permanent link"></a></h3>
 <ul>
-<li><code>-p|--product-id FYRE_PRODUCT_ID</code> FYRE product group ID that will own the cluster</li>
-<li><code>-q|--quota-type FYRE_QUOTA_TYPE</code> Declare the quota to use when provisioning the cluster ("quick_burn" or "product_group")</li>
-<li><code>-c|--cluster-name CLUSTER_NAME</code> Name of the cluster to be provisioned (lowercase only)</li>
-<li><code>-v|--ocp-version OCP_VERSION</code> OCP version to use (e.g 4.8, 4.10)</li>
-<li><code>-d|--description FYRE_DESCRIPTION</code> Description of the OCP cluster</li>
-</ul>
-<h3 id="worker-node-configuration">Worker Node Configuration<a class="headerlink" href="#worker-node-configuration" title="Permanent link"></a></h3>
-<ul>
-<li><code>--worker-count FYRE_WORKER_COUNT</code> Number of worker nodes to provision</li>
-<li><code>--worker-cpu FYRE_WORKER_CPU</code> How many CPUs to allocate per worker node</li>
-<li><code>--worker-memory FYRE_WORKER_MEMORY</code> How much memory to allocate per worker node</li>
-</ul>
-<h3 id="other-commands">Other Commands<a class="headerlink" href="#other-commands" title="Permanent link"></a></h3>
-<ul>
-<li><code>-s|--simulate-airgap</code> Set flag to apply the simulated airgap network configuration to the cluster after provisioning</li>
-<li><code>--no-confirm</code> Provision the cluster without prompting for confirmation</li>
-<li><code>-h|--help</code> Show this help message</li>
+<li><code>--no-confirm</code> Launch the upgrade without prompting for confirmation</li>
+<li><code>-h|--help</code> Show help message</li>
 </ul>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
-<h3 id="interactive-mode">Interactive Mode<a class="headerlink" href="#interactive-mode" title="Permanent link"></a></h3>
-<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-fyre
+<h3 id="interactive-uninstall">Interactive Uninstall<a class="headerlink" href="#interactive-uninstall" title="Permanent link"></a></h3>
+<pre><code class="language-bash">mas uninstall
 </code></pre>
-<h3 id="non-interactive-mode">Non-Interactive Mode<a class="headerlink" href="#non-interactive-mode" title="Permanent link"></a></h3>
-<pre><code class="language-bash">export FYRE_USERNAME=xxx
-export FYRE_APIKEY=xxx
-docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-fyre \
-  -u $FYRE_USERNAME -a $FYRE_APIKEY \
-  -p 225 -q product_group \
-  -c masonfyre -d &quot;My Cluster&quot; -v 4.10 \
-  --worker-count 3 --worker-cpu 8 --worker-memory 32 \
-  --no-confirm
+<h3 id="non-interactive-uninstall">Non-Interactive Uninstall<a class="headerlink" href="#non-interactive-uninstall" title="Permanent link"></a></h3>
+<pre><code class="language-bash">mas uninstall -i inst1 --no-confirm
 </code></pre>
+<p>Note: If you are not already connected to an OpenShift cluster you will be prompted to provide the server URL &amp; token, and whether to verify the server certificate or not,  If you are already connected to a cluster you will be given the option to change to another cluster.</p>
               
             </div>
           </div><footer>
@@ -226,10 +200,10 @@ docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-fyre \
         </span>
     
     
-      <span><a href="../../guides/uninstall/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../upgrade/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../provision-roks/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../must-gather/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
