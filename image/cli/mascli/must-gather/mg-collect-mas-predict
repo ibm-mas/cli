@@ -1,20 +1,35 @@
 #!/bin/bash
 set -e
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 NAMESPACE=$1
 OUTPUT_DIR=$2
 
-RESOURCES=$(oc get -n $NAMESPACE $(oc get crd -o=custom-columns=NAME:.metadata.name | grep ibm | tr '\n' ',' | rev |cut -c2- | rev ) -o jsonpath='{ .items[*].kind}' | tr ' ' '\n' | sort | uniq | tr '\n' ' ')
+# Collect Reconcile Logs
+# -----------------------------------------------------------------------------
+# Main Operator
+$DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-predict $OUTPUT_DIR
+
+# Truststore
+$DIR/mg-collect-reconcile-logs $NAMESPACE operator ibm-truststore-mgr $OUTPUT_DIR
+
+# Aiexpts
+$DIR/mg-collect-reconcile-logs $NAMESPACE app aiexpts-service $OUTPUT_DIR
+
+# Mat service
+$DIR/mg-collect-reconcile-logs $NAMESPACE io.kompose.service mat-service $OUTPUT_DIR
+
+# Predict API
+$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType predict-api $OUTPUT_DIR
+
+# Workspace Operator
+$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType entitymgr-ws-operator $OUTPUT_DIR
 
 # Collect Custom Resources
 # -----------------------------------------------------------------------------
-
-for RESOURCE in ${RESOURCES[@]}; do
-
-    $DIR/mg-collect-resources -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources    
-
+for RESOURCE in PredictApp PredictWorkspace Truststore; do
+    $DIR/mg-collect-resources -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
 done
 
 exit 0
