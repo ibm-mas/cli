@@ -19,6 +19,8 @@ Collection Options (Optional):
   -u, --ocp-login-url        provide the ocp server url for authentication, can be obtained with oc whoami --show-server
   -t, --ocp-login-token      provide the login token, can be obtained with oc whoami -t
   -v, --ocp-tls-verify       if specified, the server's certificate will be checked for validity
+  --extra-namespaces         Collects data for additional namespaces, like ibm-common-services or db2u, must be separated by a coma
+
 Artifactory Upload (Optional):
   --artifactory-token ${COLOR_YELLOW}ARTIFACTORY_TOKEN${TEXT_RESET}              Provide a token for Artifactory to automatically upload the file to ARTIFACTORY_UPLOAD_DIR
   --artifactory-upload-dir ${COLOR_YELLOW}ARTIFACTORY_UPLOAD_DIR${TEXT_RESET}    Working URL to the root directory in Artifactory where the must-gather file should be uploaded
@@ -42,6 +44,7 @@ function mustgather() {
   OCP_LOGIN_URL=""
   OCP_LOGIN_TOKEN=""
   OCP_DISABLE_TLS_VERIFY=true
+  EXTRA_NAMESPACES=""
 
   # If a /must-gather directory exists, default to that as the output directory instead
   if [[ -d "/must-gather" ]]; then
@@ -65,6 +68,9 @@ function mustgather() {
       ;;
     --mas-instance-ids)
       MAS_INSTANCE_IDS=$1; shift 
+      ;;
+    --extra-namespaces)
+      EXTRA_NAMESPACES=$1; shift 
       ;;
     --secret-data)
       SECRET_DATA=true 
@@ -180,6 +186,25 @@ function mustgather() {
     $MG_SCRIPT_DIR/mg-summary-mongoce $MONGOCE_NAMESPACE &> ${OUTPUT_DIR}/mongoce-${MONGOCE_NAMESPACE}.txt
     $MG_SCRIPT_DIR/mg-collect-mongoce $MONGOCE_NAMESPACE $OUTPUT_DIR
   done
+
+  if [[ "$EXTRA_NAMESPACES" != "" ]]
+  then
+    for EXTRA_NAMESPACE in $(echo $EXTRA_NAMESPACES | tr "," " ")
+    do
+      echo_h2 "${EXTRA_NAMESPACE}"
+        # Generic Kubernetes must-gather
+        if [[ "$SUMMARY_ONLY" == false ]]
+        then
+          $MG_SCRIPT_DIR/mg-collect-extra-namespace $EXTRA_NAMESPACE $OUTPUT_DIR
+          $MG_SCRIPT_DIR/mg-collect-pods $EXTRA_NAMESPACE $POD_LOGS $OUTPUT_DIR/resources
+          for RESOURCE in configmaps services routes pvc deployments statefulsets jobs operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings
+          do
+            $MG_SCRIPT_DIR/mg-collect-resources -n $EXTRA_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
+          done
+          $MG_SCRIPT_DIR/mg-collect-secrets -n $EXTRA_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources -s $SECRET_DATA
+        fi
+    done
+  fi
 
   if [[ -z $MAS_INSTANCE_IDS ]]
   then
