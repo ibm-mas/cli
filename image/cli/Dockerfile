@@ -1,4 +1,4 @@
-FROM quay.io/ibmmas/cli-base:1.0.1-pre.squash2
+FROM quay.io/ibmmas/cli-base:latest
 ARG VERSION_LABEL
 
 # 1. Copy basics
