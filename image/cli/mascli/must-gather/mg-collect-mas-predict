@@ -11,7 +11,7 @@ OUTPUT_DIR=$2
 # Main Operator
 $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-predict $OUTPUT_DIR
 
-#Truststore
+# Truststore
 $DIR/mg-collect-reconcile-logs $NAMESPACE operator ibm-truststore-mgr $OUTPUT_DIR
 
 # Aiexpts
@@ -20,7 +20,7 @@ $DIR/mg-collect-reconcile-logs $NAMESPACE app aiexpts-service $OUTPUT_DIR
 # Mat service
 $DIR/mg-collect-reconcile-logs $NAMESPACE io.kompose.service mat-service $OUTPUT_DIR
 
-# Predict Api
+# Predict API
 $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType predict-api $OUTPUT_DIR
 
 # Workspace Operator
@@ -28,8 +28,7 @@ $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType entitymgr-ws-opera
 
 # Collect Custom Resources
 # -----------------------------------------------------------------------------
-
-for RESOURCE in PredictApp PredictWorkspace; do
+for RESOURCE in PredictApp PredictWorkspace Truststore; do
     $DIR/mg-collect-resources -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
 done
 
