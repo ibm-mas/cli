@@ -81,7 +81,7 @@ spec:
         fi
 
         if [ -z "$EC2_LINUX_AMI_ID" ]; then
-          export EC2_LINUX_AMI_ID=$(aws ec2 describe-images --region ${SM_AWS_REGION} --filters "Name=owner-alias,Values=amazon" "Name=description,Values='*Amazon Linux 2023 AMI 2023*'" "Name=name,Values='*al2023-ami-2023*'" --query 'sort_by(Images, &Name)[-1].ImageId')
+          export EC2_LINUX_AMI_ID=$(aws ec2 describe-images --region ${SM_AWS_REGION} --filters "Name=architecture,Values=x86_64" "Name=owner-alias,Values=amazon" "Name=description,Values='*Amazon Linux 202*'" "Name=name,Values='*-ami-202*'" --query 'sort_by(Images, &Name)[-1].ImageId')
           echo 'EC2_LINUX_AMI_ID='$EC2_LINUX_AMI_ID
         fi
 
