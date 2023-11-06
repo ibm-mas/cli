@@ -19,12 +19,6 @@ spec:
     - name: sls_namespace
       type: string
       default: ""
-    - name: sls_license_id
-      type: string
-      default: ""
-    - name: sls_license_file
-      type: string
-      default: ""
     - name: sls_mongodb_cfg_file
       type: string
       default: ""
@@ -34,14 +28,29 @@ spec:
     - name: sls_channel
       type: string
       default: ""
-    - name: sls_icr_cp
-      type: string
-      default: ""
     - name: sls_icr_cpopen
       type: string
       default: ""
 
-    # Entitlement
+    # SLS_ICR_CP is no longer used since SLS 3.8.0
+    - name: sls_icr_cp
+      type: string
+      default: ""
+
+    # Deprecated way of bootstrapping license file
+    - name: sls_license_id
+      type: string
+      default: ""
+    - name: sls_license_file
+      type: string
+      default: ""
+
+    # New way of bootstrapping license file since SLS 3.7.0
+    - name: sls_entitlement_file
+      type: string
+      default: ""
+
+    # Entitlement (only used for artifactory auth since 3.8.0)
     - name: ibm_entitlement_key
       type: string
       default: ""
@@ -77,18 +86,28 @@ spec:
         value: $(params.sls_namespace)
       - name: SLS_MONGODB_CFG_FILE
         value: $(params.sls_mongodb_cfg_file)
-      - name: SLS_LICENSE_ID
-        value: $(params.sls_license_id)
-      - name: SLS_LICENSE_FILE
-        value: $(params.sls_license_file)
       - name: SLS_CATALOG_SOURCE
         value: $(params.sls_catalog_source)
       - name: SLS_CHANNEL
         value: $(params.sls_channel)
-      - name: SLS_ICR_CP
-        value: $(params.sls_icr_cp)
       - name: SLS_ICR_CPOPEN
         value: $(params.sls_icr_cpopen)
+
+      # SLS_ICR_CP is no longer used since SLS 3.8.0
+      - name: SLS_ICR_CP
+        value: $(params.sls_icr_cp)
+
+      # Deprecated way of bootstrapping license file
+      - name: SLS_LICENSE_ID
+        value: $(params.sls_license_id)
+      - name: SLS_LICENSE_FILE
+        value: $(params.sls_license_file)
+
+      # New way of bootstrapping license file since SLS 3.7.0
+      - name: SLS_ENTITLEMENT_FILE
+        value: $(params.sls_entitlement_file)
+
+      # Entitlement (only used for artifactory auth since 3.8.0)
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
 
@@ -100,6 +119,9 @@ spec:
       # Optional parameter to uninstall SLS
       - name: SLS_ACTION
         value: $(params.sls_action)
+
+      - name: MAS_POD_TEMPLATES_DIR
+        value: /workspace/pod-templates
 
   steps:
     - name: sls
@@ -114,4 +136,6 @@ spec:
     - name: configs
       optional: true
     - name: entitlement
+      optional: true
+    - name: pod-templates
       optional: true

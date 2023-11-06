@@ -56,19 +56,19 @@ If you have not already determined the best catalog source for your installation
 -------------------------------------------------------------------------------
 
 ### 2.1 Disconnected Install Limitations
-Disconnected install for IBM Maximo Application Suite is supported from MAS v8.8 onwards with some restrictions:
+Disconnected install for IBM Maximo Application Suite is fully supported as of the July 2023 catalog update, and is supported from MAS v8.8 onwards with some restrictions as detailed below:
 
 | Application                | First Version to Support Disconnected Install                   |
 | -------------------------- | --------------------------------------------------------------- |
 | Core                       |  v8.8.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
-| Assist                     |  No support                                                     |
-| Health & Predict Utilities |  No support                                                     |
+| Assist                     |  v8.7.1 ([v8-230725-amd64](../catalogs/v8-230725-amd64.md))     |
+| Health & Predict Utilities |  v8.6.1 ([v8-230725-amd64](../catalogs/v8-230725-amd64.md))     |
 | IoT                        |  v8.5.1 ([v8-220805-amd64](../catalogs/v8-220805-amd64.md))     |
 | Manage                     |  v8.4.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
 | Monitor                    |  v8.10.0 ([v8-230414-amd64](../catalogs/v8-230414-amd64.md))    |
 | Optimizer                  |  v8.2.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
 | Predict                    |  v8.8.1 ([v8-230627-amd64](../catalogs/v8-230627-amd64.md))     |
-| Visual Inspection          |  No support                                                     |
+| Visual Inspection          |  v8.8.1 ([v8-230725-amd64](../catalogs/v8-230725-amd64.md))     |
 
 
 ### 2.2 Prepare the Private Registry
@@ -104,14 +104,13 @@ docker run -ti --pull always quay.io/ibmmas/cli mas mirror-images
 
 You will be prompted to set the target registry for the image mirroring and to [select the version of IBM Maximo Operator Catalog to mirror](choosing-the-right-catalog.md) and the subset of content that you wish to mirror.  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.
 
-This command can also be ran non-interactive, for full details refer to the [mirror-images](../commands/mirror-images.md) command documentation.
+This command can also be ran non-interactive, for full usgae information refer to the [mirror-images](../commands/mirror-images.md) command documentation, if you are looking for more detailed guidance on how to approach this activity refer to the [image mirroring guide](image-mirroring.md).
 
 ```bash
-mas mirror-images \
-  -m direct \
-  -d /mnt/local-mirror/ \
+mas mirror-images -m direct -d /mnt/local-mirror \
   -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-221025-amd64 --mirror-core --mirror-iot --mirror-optimizer --mirror-manage \
+  -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
+  --mirror-catalog --mirror-core --mirror-manage --mirror-mongo --mirror-tsm --mirror-uds --mirror-sls --mirror-cfs \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY \
   --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
   --no-confirm

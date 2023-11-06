@@ -29,7 +29,8 @@ function echo_h2() {
 
   H2_COUNT=$(($H2_COUNT + 1))
   H3_COUNT=0
-  echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}. ${msg}${TEXT_RESET}"
+  echo
+  echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}) ${msg}${TEXT_RESET}"
 }
 
 function echo_h3() {
@@ -37,7 +38,8 @@ function echo_h3() {
   prefix=$2
 
   H3_COUNT=$(($H3_COUNT + 1))
-  echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}.${H3_COUNT}. ${msg}${TEXT_RESET}"
+  echo
+  echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}.${H3_COUNT}) ${msg}${TEXT_RESET}"
 }
 
 function echo_h4() {
@@ -62,6 +64,10 @@ function echo_blue() {
   echo "${COLOR_BLUE}$1${COLOR_RESET}"
 }
 
+function echo_reset_dim() {
+  echo "${COLOR_RESET}${TEXT_DIM}    $1"
+}
+
 function echo_hr1() {
   echo "==============================================================================="
 }
@@ -78,8 +84,18 @@ function build_license_link_by_mas_version() {
 
 # Prompt for confirmation to continue
 # -----------------------------------------------------------------------------
+# Usage:
+#  confirm "Do you want to continue" $SAVED_RESPONSE_FROM_LAST_TIME
+#  confirm "Do you want to continue"
 confirm() {
-  read -r -p "${COLOR_YELLOW}${1:-Proceed? [y/N]} ${COLOR_MAGENTA}" response
+  prompt=$1
+  default=$2
+  if [[ "${default}" != "" ]]; then
+    read -e -p "${COLOR_YELLOW}${prompt:-Proceed? [y/N]} ${COLOR_MAGENTA}" -i "${default}" response
+  else
+    read -p "${COLOR_YELLOW}${prompt:-Proceed? [y/N]} ${COLOR_MAGENTA}" response
+  fi
+
   case "$response" in
     [yY][eE][sS]|[yY])
       export ALREADY_CONFIRMED="true"
@@ -206,14 +222,30 @@ function check_project_exists(){
 function prompt_for_confirm() {
   msg=$1
   varname=$2
-  if confirm "${COLOR_YELLOW}$msg ${COLOR_MAGENTA}[y/N]"; then
+  if [[ "$varname" != "" ]]; then
+    if [[ "${!varname}" == "true" ]]; then
+      default="y"
+    elif [[ "${!varname}" == "false" ]]; then
+      default="n"
+    else
+      default=""
+    fi
+  else
+    default=""
+  fi
+
+  if confirm "${COLOR_YELLOW}$msg ${COLOR_MAGENTA}[y/N]" $default; then
+    # Reset colours and clear the current line (\033[1K)
     echo -ne "${COLOR_RESET}\033[1K"
+    # Set the variable named "$varname" to "true"
     if [[ "$varname" != "" ]]; then
       printf -v "$varname" "%s" "true"
     fi
     true
   else
+    # Reset colours and clear the current line (\033[1K)
     echo -ne "${COLOR_RESET}\033[1K"
+    # Set the variable named "$varname" to "false"
     if [[ "$varname" != "" ]]; then
       printf -v "$varname" "%s" "false"
     fi
@@ -225,12 +257,14 @@ function prompt_for_confirm_default_yes() {
   msg=$1
   varname=$2
   if confirm_default_yes "${COLOR_YELLOW}$msg ${COLOR_MAGENTA}[Y/n]"; then
+    # Reset colours and clear the current line (\033[1K)
     echo -ne "${COLOR_RESET}\033[1K"
     if [[ "$varname" != "" ]]; then
       printf -v "$varname" "%s" "true"
     fi
     true
   else
+    # Reset colours and clear the current line (\033[1K)
     echo -ne "${COLOR_RESET}\033[1K"
     if [[ "$varname" != "" ]]; then
       printf -v "$varname" "%s" "false"
@@ -245,7 +279,7 @@ function update_ansible_collections() {
       echo
       echo_h2 "Updating ansible collection from local build"
       ansible-galaxy collection build ~/ibm-mas/ansible-devops/ibm/mas_devops --force || exit 1
-      ansible-galaxy collection install ibm-mas_devops-16.0.0.tar.gz --force --no-deps || exit 1
+      ansible-galaxy collection install ibm-mas_devops-17.0.0.tar.gz --force --no-deps || exit 1
     else
       echo
       echo_h2 "Updating ansible collections from Galaxy"

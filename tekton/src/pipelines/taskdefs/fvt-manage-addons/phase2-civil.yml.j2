@@ -40,17 +40,3 @@
       value: civil-bvt
   runAfter:
     - fvt-manage-civil-selenium-user
-
-# Manage FVT - Civil Infrastructure Cypress
-- name: fvt-manage-civil-cypress
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage-addons/common/taskref-manage-civil-cypress.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage-addons/common/params-manage-civil.yml.j2') | indent(4) }}
-    - name: fvt_image_name
-      value: fvt-ibm-mas-manage-civil-cypress
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_manage_civil_cypress)
-    - name: fvt_test_suite
-      value: civil-fvt-cypress # display purposes only, not a keyword
-  runAfter:
-    - fvt-manage-civil-selenium-user

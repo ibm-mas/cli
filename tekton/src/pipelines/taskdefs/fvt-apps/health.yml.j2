@@ -17,7 +17,7 @@
     - name: fvt_test_suite
       value: prepare
     - name: product_channel
-      value: $(params.mas_app_channel_health)
+      value: $(params.mas_app_channel_manage)
     - name: product_id
       value: ibm-mas-health
     - name: browserstack_remoteserver
@@ -31,11 +31,12 @@
     - input: "$(params.fvt_digest_health_preparedata)"
       operator: notin
       values: [""]
-    - input: "$(params.mas_app_channel_health)"
+    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
-    - ivtcore-health
+    - app-cfg-manage
+    - suite-config-watson-studio
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -59,7 +60,7 @@
     - name: fvt_test_suite
       value: testng-health-minimal
     - name: product_channel
-      value: $(params.mas_app_channel_health)
+      value: $(params.mas_app_channel_manage)
     - name: product_id
       value: ibm-mas-health
     - name: browserstack_remoteserver
@@ -73,7 +74,7 @@
     - input: "$(params.fvt_digest_health_testng)"
       operator: notin
       values: [""]
-    - input: "$(params.mas_app_channel_health)"
+    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:
@@ -99,7 +100,7 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_health_python)
     - name: product_channel
-      value: $(params.mas_app_channel_health)
+      value: $(params.mas_app_channel_manage)
     - name: product_id
       value: ibm-mas-health
 
@@ -111,7 +112,7 @@
     - input: "$(params.fvt_digest_health_python)"
       operator: notin
       values: [""]
-    - input: "$(params.mas_app_channel_health)"
+    - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   runAfter:

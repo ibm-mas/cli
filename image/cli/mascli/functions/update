@@ -14,17 +14,85 @@ Maximo Operator Catalog Selection (Required):
 
 Update Dependencies (Optional):
   --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}        DB2 namespace where instances update will be performed
+  --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET} Namespace where MongoCE operator and instance will be updated
+  --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}     Namespace where Kafka operator and instance will be updated
+  --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}       Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), or 'strimzi'
 
 Other Commands:
-      --no-confirm                      Mirror images without prompting for confirmation
+      --no-confirm                      Launch the update without prompting for confirmation
   -h, --help                            Show this help message
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
+# Validate Selected Catalog
+# -----------------------------------------------------------------------------
+# Validates that the selected catalog version is one that is suitable to use
+# based on the currently installed catalog source
+#
+# - You can't update to an older catalog source
+# - The dynamic catalog can only be updated to the most recent static catalog
+#
+# Note: We don't currently support conversion from static to dynamic
+#
+function validate_update() {
+  if [[ "$catalogVersion" != "" ]] && [[ "$catalogId" > "$MAS_CATALOG_VERSION" ]]; then
+    echo
+    if [[ "$catalogIsDynamic" == "true" ]];
+      then echo_warning "Selected catalog is older than the currently installed catalog.  Dynamic catalog can only be updated to the latest static catalog ($MOST_RECENT_CATALOG)"
+      else echo_warning "Selected catalog is older than the currently installed catalog.  Unable to update catalog from $catalogId to $MAS_CATALOG_VERSION"
+    fi
+    echo
+    exit 1
+  fi
+}
 
+
+# Inspect Installed Catalog
+# -----------------------------------------------------------------------------
+# Lookup details of the installed catalog source to determine:
+#
+# - Whether a dynamic or static catalog source is in use
+# - The version of the catalog source in use
+#
+# This information is shown the user, along with a message indicating that
+# this command would switch a dynamic catalog install to a static catalog install
+# if they proceed.
+#
+# If we cannot determine the version of the catalog we show an error message
+# but allow the install to proceed as this is not a fatal issue.
+#
+function show_current_catalog() {
+  catalogDisplayName=$(oc -n openshift-marketplace get catalogsource ibm-operator-catalog -o yaml | yq -r ".spec.displayName")
+  catalogImage=$(oc -n openshift-marketplace get catalogsource ibm-operator-catalog -o yaml | yq -r ".spec.image")
+
+  echo_h2 "Review Installed Catalog"
+  echo "${catalogDisplayName}"
+  echo -e "   ${COLOR_CYAN}${TEXT_UNDERLINE}${catalogImage}"
+  reset_colors
+
+  if [[ "$catalogDisplayName" =~ .+(v8-[0-9]+-amd64) ]]; then
+    catalogId=$(sed -E "s/.+\\((v8-[0-9]+-amd64)\\)/\1/" <<< $catalogDisplayName)
+    catalogVersion=$(sed -E "s/.+\\(v8-([0-9]+)-amd64\\)/\1/" <<< $catalogDisplayName)
+    catalogIsDynamic=false
+  elif [[ "$catalogDisplayName" =~ .+(v8-amd64) ]]; then
+    catalogId=$MOST_RECENT_CATALOG
+    catalogVersion=$(sed -E "s/.+\\(v8-([0-9]+)-amd64\\)/\1/" <<< $MOST_RECENT_CATALOG)
+    catalogIsDynamic=true
+
+    echo
+    echo "Automatic catalog updates are currently enabled on this cluster, completing this update will switch to a manually managed catalog source"
+    echo "For more information refer to: ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm-mas.github.io/cli/guides/choosing-the-right-catalog/"
+    reset_colors
+  else
+    echo_warning "Unable to determine identity & version of currently installed ibm-operator-catalog"
+  fi
+}
+
+
+# Perform non-interative update
+# -----------------------------------------------------------------------------
 function update_noninteractive() {
-
   detect_airgap
   while [[ $# -gt 0 ]]
   do
@@ -36,6 +104,15 @@ function update_noninteractive() {
         ;;
       --db2u-namespace)
         DB2_NAMESPACE=$1 && shift
+        ;;
+      --mongodb-namespace)
+        MONGODB_NAMESPACE=$1 && shift
+        ;;
+      --kafka-namespace)
+        KAFKA_NAMESPACE=$1 && shift
+        ;;
+      --kafka-provider)
+        KAFKA_PROVIDER=$1 && shift
         ;;
       --no-confirm)
         NO_CONFIRM=true
@@ -54,28 +131,78 @@ function update_noninteractive() {
 
   # Check all args have been set
   [[ -z "$MAS_CATALOG_VERSION" ]] && update_help "MAS_CATALOG_VERSION is not set"
+
+  show_current_catalog
+  validate_update
 }
 
+
+# Perform interative update
+# -----------------------------------------------------------------------------
 function update_interactive() {
   connect
   detect_airgap
+
+  show_current_catalog
 
   echo
   echo_h2 "Select IBM Maximo Operator Catalog Version"
   choose_catalog_version
   echo
 
+  validate_update
+  echo
+
   echo_h2 "Dependencies Update"
-  echo "IBM Common Services Operator will be updated by default."
-  
+  echo -e "${COLOR_GREEN}IBM Common Services Operator will be updated by default as needed.${COLOR_RESET}"
+
   # Detect db2 in cluster and prompt for namespace
   oc get Operator db2u-operator.ibm-common-services > /dev/null 2>&1
   if [ "$?" == "0" ]; then
     prompt_for_input "DB2u operator has been detected. Db2u namespace to update?" DB2_NAMESPACE "db2u"
   fi
+
+  # Detect OCS/ODF Storage Cluster in cluster and set action
+  oc get StorageCluster -A > /dev/null 2>&1
+  if [ "$?" == "0" ]; then
+    echo -e "${COLOR_GREEN}OCS/ODF Storage Cluster has been detected and will be updated by default as needed.${COLOR_RESET}"
+  fi
+
+  # Detect MongoDB Community Edition in cluster and set namespace
+  if [ -z "$MONGODB_NAMESPACE" ]; then
+    MONGODB_NAMESPACE=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+    if [ "$?" == "0" ]; then
+      echo -e "${COLOR_GREEN}MongoDB Community Edition has been detected in ${MONGODB_NAMESPACE} and will be updated as needed.${COLOR_RESET}"
+    fi
+  fi
+
+  # Detect Kafka in cluster and set namespace
+  if [ -z "$KAFKA_NAMESPACE" ]; then
+    KAFKA_NAMESPACE=`oc get Kafka.kafka.strimzi.io -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+    if [ "$?" == "0" ]; then
+      echo -e "${COLOR_GREEN}Kafka has been detected in ${KAFKA_NAMESPACE} and will be updated as needed.${COLOR_RESET}"
+    fi
+  fi
+
+  # Detect Kafka provider
+  if [ -z "$KAFKA_PROVIDER" ] && [ -n "$KAFKA_NAMESPACE" ]; then
+    KAFKA_OPERATOR=`oc get subscription -n $KAFKA_NAMESPACE -o jsonpath='{.items[0].spec.name}' 2> /dev/null`
+    if [ "$?" == "0" ]; then
+      if [ "$KAFKA_OPERATOR" == "amq-streams" ]; then
+        KAFKA_PROVIDER="redhat"
+        echo -e "${COLOR_GREEN}Kafka has been detected with provider ${KAFKA_PROVIDER}.${COLOR_RESET}"
+      elif [ "$KAFKA_OPERATOR" == "strimzi-kafka-operator" ]; then
+        KAFKA_PROVIDER="strimzi"
+        echo -e "${COLOR_GREEN}Kafka has been detected with provider ${KAFKA_PROVIDER}.${COLOR_RESET}"
+      fi
+    fi
+  fi
+
 }
 
 
+# Main function
+# -----------------------------------------------------------------------------
 function update() {
   # Take the first parameter off (it will be "update")
   shift
@@ -87,6 +214,9 @@ function update() {
 
   export MAS_CATALOG_VERSION
   export DB2_NAMESPACE
+  export MONGODB_NAMESPACE
+  export KAFKA_NAMESPACE
+  export KAFKA_PROVIDER
   echo
   reset_colors
   echo_h2 "Review Settings"
@@ -94,6 +224,15 @@ function update() {
   echo "${TEXT_DIM}"
   echo_h4 "IBM Operator Catalog" "    "
   echo_reset_dim "Catalog Version ..................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
+
+  # In SLS 3.8.0 registry was changed to icr.io/cpopen, however
+  # when updating from a previous version it would not automatically
+  # change the value from cp.icr.io/cp hence we need to patch it
+  if [[ "$MAS_CATALOG_VERSION" == "v8-230926-amd64" ]]; then
+    UPDATE_SLS_REGISTRY="true"
+  else
+    UPDATE_SLS_REGISTRY="false"
+  fi
 
   echo
   reset_colors
@@ -108,7 +247,7 @@ function update() {
   pipeline_install_tasks_shared_namespace || exit 1
 
   # Replace ALL environment variables in templates
-  eval "echo \"$(cat $DIR/templates/pipelinerun-update.yaml)\"" > $CONFIG_DIR/pipelinerun-update.yaml
+  eval "echo \"$(cat $CLI_DIR/templates/pipelinerun-update.yaml)\"" > $CONFIG_DIR/pipelinerun-update.yaml
 
   # Start pipeline execution
   oc -n mas-pipelines create -f $CONFIG_DIR/pipelinerun-update.yaml &>> $LOGFILE || exit 1

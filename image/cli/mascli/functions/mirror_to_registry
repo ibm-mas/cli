@@ -366,7 +366,7 @@ function mirror_to_registry_interactive() {
 
   echo
   echo_h2 "Configure Authentication"
-  prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY
+  prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY
 
   if [[ $MIRROR_UDS == "true" ]]; then
     prompt_for_input "Red Hat Connect Username" REDHAT_CONNECT_USERNAME

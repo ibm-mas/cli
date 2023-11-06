@@ -16,9 +16,21 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
+    - name: kafka_action
+      type: string
+      description: Optional. Set to 'update' to update kafka.
+      default: ""
+
+    - name: kafka_provider
+      type: string
+      default: "strimzi"
+
     - name: kafka_namespace
       type: string
-      default: "amq-streams"
+      default: "strimzi"
+    - name: kafka_version
+      type: string
+      default: "strimzi"
     - name: kafka_cluster_name
       type: string
       default: "maskafka"
@@ -35,13 +47,62 @@ spec:
       type: string
       default: ""
 
-    # Dependencies - IBM Cloud Event Streams (Kafka)
-    # -----------------------------------------------------------------------------
-    - name: kafka_provider
+    # AWS basic info
+    # -------------------------------------------------------------------------
+    - name: aws_access_key_id
       type: string
       default: ""
+    - name: aws_secret_access_key
+      type: string
+      default: ""
+    - name: aws_region
+      type: string
+      default: ""
+
+    # Dependencies - AWS MSK (Kafka)
+    # -------------------------------------------------------------------------
+    - name: vpc_id
+      type: string
+      default: ""
+    - name: aws_kafka_user_name
+      type: string
+      default: ""
+    - name: aws_kafka_user_password
+      type: string
+      default: ""
+    - name: aws_msk_instance_type
+      type: string
+      default: ""
+    - name: aws_msk_instance_number
+      type: string
+      default: ""
+    - name: aws_msk_volume_size
+      type: string
+      default: ""
+    - name: aws_msk_cidr_az1
+      type: string
+      default: ""
+    - name: aws_msk_cidr_az2
+      type: string
+      default: ""
+    - name: aws_msk_cidr_az3
+      type: string
+      default: ""
+    - name: aws_msk_ingress_cidr
+      type: string
+      default: ""
+    - name: aws_msk_egress_cidr
+      type: string
+      default: ""
+
+    # Dependencies - IBM Cloud Event Streams (Kafka)
+    # -----------------------------------------------------------------------------
     - name: eventstreams_resourcegroup
       type: string
+      default: ""
+    - name: ibmcloud_resourcegroup
+      type: string
+      description: IBM Cloud resource group
       default: ""
     - name: eventstreams_name
       type: string
@@ -72,8 +133,15 @@ spec:
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
 
+      - name: KAFKA_ACTION
+        value: $(params.kafka_action)
+      - name: KAFKA_PROVIDER
+        value: $(params.kafka_provider)
+
       - name: KAFKA_NAMESPACE
         value: $(params.kafka_namespace)
+      - name: KAFKA_VERSION
+        value: $(params.kafka_version)
       - name: KAFKA_CLUSTER_NAME
         value: $(params.kafka_cluster_name)
       - name: KAFKA_CLUSTER_SIZE
@@ -85,9 +153,37 @@ spec:
       - name: ZOOKEEPER_STORAGE_CLASS
         value: $(params.zookeeper_storage_class)
 
+      # Optional - AWS MSK (Kafka)
+      - name: AWS_ACCESS_KEY_ID
+        value: $(params.aws_access_key_id)
+      - name: AWS_SECRET_ACCESS_KEY
+        value: $(params.aws_secret_access_key)
+      - name: AWS_REGION
+        value: $(params.aws_region)
+      - name: VPC_ID
+        value: $(params.vpc_id)
+      - name: AWS_KAFKA_USER_NAME
+        value: $(params.aws_kafka_user_name)
+      - name: AWS_KAFKA_USER_PASSWORD
+        value: $(params.aws_kafka_user_password)
+      - name: AWS_MSK_INSTANCE_TYPE
+        value: $(params.aws_msk_instance_type)
+      - name: AWS_MSK_INSTANCE_NUMBER
+        value: $(params.aws_msk_instance_number)
+      - name: AWS_MSK_VOLUME_SIZE
+        value: $(params.aws_msk_volume_size)
+      - name: AWS_MSK_CIDR_AZ1
+        value: $(params.aws_msk_cidr_az1)
+      - name: AWS_MSK_CIDR_AZ2
+        value: $(params.aws_msk_cidr_az2)
+      - name: AWS_MSK_CIDR_AZ3
+        value: $(params.aws_msk_cidr_az3)
+      - name: AWS_MSK_INGRESS_CIDR
+        value: $(params.aws_msk_ingress_cidr)
+      - name: AWS_MSK_EGRESS_CIDR
+        value: $(params.aws_msk_egress_cidr)
+
       # Optional - IBM Cloud Event Streams (Kafka)
-      - name: KAFKA_PROVIDER
-        value: $(params.kafka_provider)
       - name: EVENTSTREAMS_RESOURCEGROUP
         value: $(params.eventstreams_resourcegroup)
       - name: EVENTSTREAMS_NAME
@@ -100,6 +196,8 @@ spec:
         value: $(params.eventstreams_create_manage_jms_topics)
       - name: IBMCLOUD_APIKEY
         value: $(params.ibmcloud_apikey)
+      - name: IBMCLOUD_RESOURCEGROUP
+        value: $(params.ibmcloud_resourcegroup)
 
   steps:
     - name: kafka
@@ -112,3 +210,4 @@ spec:
 
   workspaces:
     - name: configs
+      optional: true

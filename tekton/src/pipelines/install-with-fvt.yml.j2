@@ -16,6 +16,8 @@ spec:
     - name: shared-mustgather
     # Pre-generated certificates that will be copied into certs folder of shared-configs workspace to be used by suite-certs task
     - name: shared-certificates
+    # PodTemplates configurations
+    - name: shared-pod-templates
 
   params:
     # 1. Common Parameters
@@ -149,7 +151,12 @@ spec:
       runAfter:
         - cp4d
 
-    # 3.8 Configure Watson Studio in MAS
+    # 3.8 Cognos Analytics
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-cognos.yml.j2') | indent(4) }}
+      runAfter:
+        - cp4d
+
+    # 3.9 Configure Watson Studio in MAS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
       runAfter:
         - fvt-core-phase4
@@ -265,12 +272,12 @@ spec:
       runAfter:
         - suite-db2-setup-system
         - suite-db2-setup-manage
+        - suite-config-watson-studio
 
     # 8.3 Configure Manage workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-manage
-
 
     # 9. Install & Configure Predict
     # -------------------------------------------------------------------------
@@ -368,11 +375,7 @@ spec:
 
     # 15. MAS Core IVT
     # -------------------------------------------------------------------------
-    # 15.1 All Apps IVT (except Manage)
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/ivt-core/all-apps.yml.j2') | indent(4) }}
-
-    # 15.2 Manage IVT
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/ivt-core/manage.yml.j2') | indent(4) }}
 
 
     # 16. Application FVT - Assist
@@ -407,8 +410,13 @@ spec:
     # 19.5 Phase 4: Doclinks, Kafka and others
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
 
-    # 19.6 Phase 5: Single-threaded suites (SMTP and others)
+    # 19.6 Phase 5: Single-threaded suites (SMTP, Birt and others)
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
+
+
+    # 20. Application FVT - Health
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-apps/health.yml.j2') | indent(4) }}
 
 
     # 21. Application FVT - Manage Industry Solutions
@@ -454,18 +462,30 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-apps/ivt.yml.j2') | indent(4) }}
 
+    # 28. SLS FVT
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-sls/sls.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-verify
 
-  # Mustgather executed in finally block. Use suite_mustgather_download
-  # playbook to retrieve the output on your local machine
-  # -------------------------------------------------------------------------
+
   finally:
+    # Collect must-gather
+    # -------------------------------------------------------------------------
     - name: must-gather
-      params:
-        - name: base_output_dir
-          value: "/workspace/mustgather/$(context.pipelineRun.name)"
       taskRef:
         kind: Task
         name: mas-devops-must-gather
+      params:
+        - name: base_output_dir
+          value: "/workspace/mustgather/$(context.pipelineRun.name)"
       workspaces:
         - name: mustgather
           workspace: shared-mustgather
+
+    # Finalize the record in the FVT database
+    # -------------------------------------------------------------------------
+    - name: finalize
+      taskRef:
+        kind: Task
+        name: mas-fvt-finalize

@@ -33,9 +33,13 @@
         - fvt-assist
         - fvt-core
         - fvt-deprovision-after
+        - fvt-manage
         - fvt-manage-regr
+        - fvt-sls
+        - fvt-uninstall-after
         - update
         - upgrade
+        - rollback
         - uninstall
 
     # 2. Generate Pipelines
@@ -49,6 +53,7 @@
       with_items:
         - update
         - upgrade
+        - rollback
         - uninstall
         - fvt-core
 

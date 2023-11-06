@@ -27,7 +27,15 @@
       value: coreapi-mobileapi
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
-    - fvt-coreapi-usermgmt-v3
+    - fvt-coreapi-addons
+    - fvt-coreapi-groupmgmt
+    - fvt-coreapi-usermgmt
+    - fvt-coreapi-apikeymgmt
+    - fvt-coreapi-workspacemgmt
+    - fvt-coreapi-graphiteconfigtool
+    - fvt-useractivation-overall
+    - fvt-useractivation-expiresat
+    - fvt-useractivation-inactivity
 
 # Core FVT 2.2 coreapi-other ~5m
 - name: fvt-coreapi-other
@@ -37,7 +45,15 @@
     - name: test_suite
       value: coreapi-other
   runAfter:
-    - fvt-coreapi-usermgmt-v3
+    - fvt-coreapi-addons
+    - fvt-coreapi-groupmgmt
+    - fvt-coreapi-usermgmt
+    - fvt-coreapi-apikeymgmt
+    - fvt-coreapi-workspacemgmt
+    - fvt-coreapi-graphiteconfigtool
+    - fvt-useractivation-overall
+    - fvt-useractivation-expiresat
+    - fvt-useractivation-inactivity
 
 # Core FVT 2.3 coreapi-utilities ~5m
 - name: fvt-coreapi-utilities
@@ -47,7 +63,15 @@
     - name: test_suite
       value: coreapi-utilities
   runAfter:
-    - fvt-coreapi-usermgmt-v3
+    - fvt-coreapi-addons
+    - fvt-coreapi-groupmgmt
+    - fvt-coreapi-usermgmt
+    - fvt-coreapi-apikeymgmt
+    - fvt-coreapi-workspacemgmt
+    - fvt-coreapi-graphiteconfigtool
+    - fvt-useractivation-overall
+    - fvt-useractivation-expiresat
+    - fvt-useractivation-inactivity
 
 # Core FVT 2.4 coreapi-uiresources ~5m
 - name: fvt-coreapi-uiresources
@@ -57,7 +81,15 @@
     - name: test_suite
       value: coreapi-uiresources
   runAfter:
-    - fvt-coreapi-usermgmt-v3
+    - fvt-coreapi-addons
+    - fvt-coreapi-groupmgmt
+    - fvt-coreapi-usermgmt
+    - fvt-coreapi-apikeymgmt
+    - fvt-coreapi-workspacemgmt
+    - fvt-coreapi-graphiteconfigtool
+    - fvt-useractivation-overall
+    - fvt-useractivation-expiresat
+    - fvt-useractivation-inactivity
 
 # Core FVT 2.5 coreapi-dependencies ~10m
 - name: fvt-coreapi-dependencies

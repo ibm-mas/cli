@@ -10,18 +10,20 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 MAS Instance Selection (Required):
-  -i, --id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}     MAS Instance ID to uninstall
+  -i, --id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                         MAS Instance ID to uninstall
 
 Other Commands:
-      --no-confirm                      Uninstall without prompting for confirmation
-
-  -h, --help                            Show this help message
+      --no-confirm                                                 Launch the uninstall without prompting for confirmation
+  -h, --help                                                       Show this help message
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
 function check_mas_project_exists() {
-  MAS_NS="mas-$MAS_INSTANCE_ID-core"
+  if [ -z "${MAS_NS}" ]; then
+    prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
+    MAS_NS="mas-$MAS_INSTANCE_ID-core"
+  fi
 
   if check_project_exists $MAS_NS; then
     export MAS_NS
@@ -172,7 +174,7 @@ function launch_uninstall() {
   pipeline_install_tasks || exit 1
 
   # Replace ALL environment variables in templates
-  eval "echo \"$(cat $DIR/templates/pipelinerun-uninstall.yaml)\"" >$CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-uninstall.yaml
+  eval "echo \"$(cat $CLI_DIR/templates/pipelinerun-uninstall.yaml)\"" >$CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-uninstall.yaml
 
   # Start pipeline execution
   oc -n mas-$MAS_INSTANCE_ID-pipelines create -f $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-uninstall.yaml &>>$LOGFILE || exit 1
@@ -182,16 +184,13 @@ function launch_uninstall() {
 }
 
 function uninstall() {
-  connect
-
   # Take the first parameter off (it will be uninstall)
   shift
   if [[ $# -gt 0 ]]; then
     uninstall_noninteractive "$@"
-  else
-    prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
   fi
 
+  connect
   check_mas_project_exists
   prompt_for_deps_to_uninstall
   review_uninstall_settings

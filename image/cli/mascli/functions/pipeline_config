@@ -1,16 +1,18 @@
 #!/bin/bash
 
-. $DIR/functions/pipeline_config_additional_configs
-. $DIR/functions/pipeline_config_applications
-. $DIR/functions/pipeline_config_db2
-. $DIR/functions/pipeline_config_dns
-. $DIR/functions/pipeline_config_sno
-. $DIR/functions/pipeline_config_storage_classes
-. $DIR/functions/pipeline_config_storage_classes_sno
-. $DIR/functions/pipeline_config_turbonomic
-. $DIR/functions/pipeline_config_manage_storage_classes
-. $DIR/functions/pipeline_config_iot_storage_classes
-. $DIR/functions/pipeline_config_advanced
+. $CLI_DIR/functions/pipeline_config_additional_configs
+. $CLI_DIR/functions/pipeline_config_applications
+. $CLI_DIR/functions/pipeline_config_db2
+. $CLI_DIR/functions/pipeline_config_kafka
+. $CLI_DIR/functions/pipeline_config_dns
+. $CLI_DIR/functions/pipeline_config_sno
+. $CLI_DIR/functions/pipeline_config_storage_classes
+. $CLI_DIR/functions/pipeline_config_storage_classes_sno
+. $CLI_DIR/functions/pipeline_config_turbonomic
+. $CLI_DIR/functions/pipeline_config_manage_storage_classes
+. $CLI_DIR/functions/pipeline_config_iot_storage_classes
+. $CLI_DIR/functions/pipeline_config_advanced
+. $CLI_DIR/functions/pipeline_config_workload_scale
 
 function pipeline_config() {
   echo_h2 "IBM Maximo Operator Catalog Selection"
@@ -31,17 +33,18 @@ function pipeline_config() {
       MAS_CATALOG_VERSION=v8-amd64
 
       echo -e "${COLOR_YELLOW}MAS Version:"
-      echo "  1. 8.10"
-      echo "  2. 8.9"
+      echo "  1. 8.11"
+      echo "  2. 8.10"
       prompt_for_input "Select Subscription Channel" MAS_CHANNEL_SELECTION "1"
 
       case $MAS_CHANNEL_SELECTION in
-        1|8.10|8.10.x)
-          MAS_CHANNEL=8.10.x
+        1|8.11|8.11.x)
+          MAS_CHANNEL=8.11.x
           ;;
 
-        2|8.9|8.9.x)
-          MAS_CHANNEL=8.9.x
+
+        2|8.10|8.10.x)
+          MAS_CHANNEL=8.10.x
           ;;
 
         *)
@@ -57,20 +60,25 @@ function pipeline_config() {
     choose_mas_version
   fi
 
+  # Determine SLS version specific prompts
+  sls_prompt_selection
+
   # Present a the MAS license information
   # ---------------------------------------------------------------------------
   case $MAS_CHANNEL in
+    8.11.x)
+      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "811" )
+      ;;
     8.10.x)
       MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
-      ;;
-    8.9.x)
-      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
       ;;
   esac
 
   echo
   echo_h2 "License Terms"
-  echo -e "${COLOR_YELLOW} For information about your license, see "$MAS_LICENSE_LINK " To continue with the installation, you must accept the license terms."
+  echo -e "To continue with the installation, you must accept the license terms: ${COLOR_CYAN}${TEXT_UNDERLINE}${MAS_LICENSE_LINK}"
+  echo
+  reset_colors
   prompt_for_confirm_default_yes "Do you accept the license terms?" LICENSE_RESPONSE
 
   if [[ "$LICENSE_RESPONSE" == "false" ]]; then
@@ -124,19 +132,34 @@ function pipeline_config() {
   echo_h2 "Configure Operation Mode"
   echo "${TEXT_DIM}Maximo Application Suite can be installed in a non-production mode for internal development and testing, this setting cannot be changed after installation:"
   echo " - All applications, add-ons, and solutions have 0 (zero) installation AppPoints in non-production installations."
-  echo " - These specifications are also visible in the metrics that are shared with IBM® and on the product UI."
+  echo " - These specifications are also visible in the metrics that are shared with IBM and in the product UI."
   echo
   reset_colors
-  prompt_for_confirm "Use non-production mode?" USE_NON_PROD_MODE
+  echo -e "Operational Mode:"
+  echo "  1. Production Mode (default)"
+  echo "  2. Non-Production Mode"
+  echo
+  prompt_for_input "Select Operational Mode" PROD_MODE_SELECTION "1"
 
-  if [[ "$USE_NON_PROD_MODE" == "true" ]]; then
-    MAS_ANNOTATIONS="mas.ibm.com/operationalMode=nonproduction"
-  fi
+  case $PROD_MODE_SELECTION in
+    1)
+      USE_NON_PROD_MODE=false
+      ;;
+    2)
+      USE_NON_PROD_MODE=true
+      MAS_ANNOTATIONS="mas.ibm.com/operationalMode=nonproduction"
+      ;;
+    *)
+      echo_warning "Invalid Selection"
+      exit 1
+      ;;
+  esac
 
   config_pipeline_sno
   config_pipeline_dns
   config_pipeline_applications
   config_pipeline_db2
+  config_pipeline_kafka
   config_pipeline_turbonomic
   config_pipeline_additional_configs
 
@@ -154,11 +177,11 @@ function pipeline_config() {
     # Development Mode -- offer the ability to set MAS and SLS source independently
     echo_h2 "Configure Artifactory"
     prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
-    prompt_for_input "Artifactory Token" ARTIFACTORY_TOKEN
+    prompt_for_secret "Artifactory Token" ARTIFACTORY_TOKEN "Re-use saved Artifactory Token?"
 
     echo
     echo_h2 "Configure IBM Container Registry"
-    prompt_for_input "IBM Entitlement Key" IBM_ENTITLEMENT_KEY $IBM_ENTITLEMENT_KEY
+    prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY "Re-use saved IBM Entitlement Key?"
 
     echo
     echo_h2 "Configure IBM Container Registry (MAS)"
@@ -167,7 +190,9 @@ function pipeline_config() {
 
     echo
     echo_h2 "Configure IBM Container Registry (SLS)"
-    prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP docker-na-public.artifactory.swg-devops.com/wiotp-docker-local override
+    if [[ "$SLS_PROMPT_ICR_CP" == "true" ]]; then
+      prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP docker-na-public.artifactory.swg-devops.com/wiotp-docker-local override
+    fi
     prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen override
   else
     # Production Mode -- everything comes from the same registry (IBM container registry)
@@ -178,33 +203,34 @@ function pipeline_config() {
     MAS_ICR_CP=cp.icr.io/cp
     MAS_ICR_CPOPEN=icr.io/cpopen
 
-    SLS_ICR_CP=cp.icr.io/cp
     SLS_ICR_CPOPEN=icr.io/cpopen
+    if [[ "$SLS_PROMPT_ICR_CP" == "true" ]]; then
+      SLS_ICR_CP=cp.icr.io/cp
+    fi
   fi
 
   echo
   echo_h2 "Configure Product License"
-  prompt_for_input "License ID" SLS_LICENSE_ID
+
+  if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
+    prompt_for_input "License ID" SLS_LICENSE_ID
+  fi
+
   prompt_for_input "License File" SLS_LICENSE_FILE_LOCAL
   if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
     echo_warning "Error: File does not exist: $SLS_LICENSE_FILE_LOCAL"
     exit 1
   fi
-  SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
+
+  if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
+    SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
+  else
+    SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
+  fi
 
   echo
   echo_h2 "Configure UDS"
-  if [[ -n "$DEV_MODE" ]]; then
-    echo "${TEXT_DIM}Installing Maximo Application Suite with built-in UDS replacement (SUDS)"
-    echo
-    reset_colors
-    UDS_CONTACT_EMAIL=""
-    UDS_CONTACT_FIRSTNAME=""
-    UDS_CONTACT_LASTNAME=""
-    UDS_ACTION="install_suds"
-  else
-    prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
-    prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
-    prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
-  fi
+  prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
+  prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
+  prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
 }

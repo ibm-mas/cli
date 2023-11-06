@@ -1,0 +1,213 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+{% if wait_for_install == true %}
+  name: mas-rollback-after-install
+{% else %}
+  name: mas-rollback
+{% endif %}
+spec:
+{% if wait_for_install == true %}
+  workspaces:
+    # Shared storage to hold mustgather output for tasks
+    - name: shared-mustgather
+{% endif %}
+
+  params:
+{% if wait_for_install == true %}
+    # MAS Instance ID (the instance who's install to wait for)
+    - name: mas_instance_id
+      type: string
+{% endif %}
+
+    # Tekton Pipeline image pull policy (for ibmmas/cli images)
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+
+    # Catalog Version
+    - name: mas_catalog_version
+      type: string
+
+    # MAS Rollback Version
+    - name: mas_core_version
+      type: string
+
+    # Manage App Rollback Version
+    - name: mas_app_manage_version
+      type: string
+
+    # Development Build Support
+    - name: artifactory_username
+      default: ""
+      type: string
+      description: Required to install development MAS catalogs
+    - name: artifactory_token
+      default: ""
+      type: string
+      description: Required to install development MAS catalogs
+
+  tasks:
+{% if wait_for_install == true %}
+    # 0. Wait for the install pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-install
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      taskRef:
+        kind: Task
+        name: mas-fvt-wait-for-install
+{% endif %}
+
+    # 1. Verify health of the cluster before we change anything
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-rollback-check', 'devops_suite_name': 'pre-rollback-check'}) | indent(4) }}
+{% if wait_for_install == true %}
+      runAfter:
+        - wait-for-install
+{% endif %}
+
+    # 2. Rollback suite
+    # -------------------------------------------------------------------------
+    # Suite Rollback
+    - name: core-rollback
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-rollback
+{% if wait_for_install == true %}
+      runAfter:
+        - pre-rollback-check
+{% endif %}
+      params:
+{% if wait_for_install == true %}
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+{% endif %}
+        - name: mas_core_version
+          value: $(params.mas_core_version)
+        - name: devops_suite_name
+          value: core-rollback
+      when:
+        - input: "$(params.mas_core_version)"
+          operator: notin
+          values: [""]
+
+    # 3. Rollback App
+    # -------------------------------------------------------------------------
+    # Manage App Rollback
+    - name: manage-rollback
+      runAfter:
+        - core-rollback
+      params:
+{% if wait_for_install == true %}
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+{% endif %}
+        - name: mas_app_id
+          value: manage
+        - name: mas_app_version
+          value: $(params.mas_app_manage_version)
+        - name: devops_suite_name
+          value: manage-rollback
+      when:
+        - input: "$(params.mas_app_manage_version)"
+          operator: notin
+          values: [""]
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-rollback
+
+    # 4. Verify health of the cluster after the rollback complete
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
+        'name': 'post-rollback-verify-cluster',
+        'devops_suite_name': 'post-rollback-verify-cluster',
+        'verify_cluster': 'True',
+        'verify_catalogsources': 'False',
+        'verify_subscriptions': 'False',
+        'verify_workloads': 'False',
+        'verify_ingress': 'False'
+      }) | indent(4) }}
+      runAfter:
+        - manage-rollback
+
+    # 5. Verify MAS core version after the rollback complete
+    # -------------------------------------------------------------------------
+    - name: post-rollback-verify-core-version
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-rollback
+      runAfter:
+        - post-rollback-verify-cluster
+      params:
+{% if wait_for_install == true %}
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+{% endif %}
+        - name: mas_core_version
+          value: $(params.mas_core_version)
+        - name: rollback_mas_core
+          value: 'False'
+        - name: verify_core_version
+          value: 'True'
+        - name: devops_suite_name
+          value: post-rollback-verify-core-version (MAS Core)
+      when:
+        - input: "$(params.mas_core_version)"
+          operator: notin
+          values: [""]
+
+    # 6. Verify MAS Manage App version after the rollback complete
+    # -------------------------------------------------------------------------
+    - name: post-rollback-verify-app-version
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-rollback
+      runAfter:
+        - post-rollback-verify-cluster
+      params:
+{% if wait_for_install == true %}
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+{% endif %}
+        - name: mas_app_id
+          value: manage
+        - name: mas_app_version
+          value: $(params.mas_app_manage_version)
+        - name: rollback_mas_app
+          value: 'False'
+        - name: verify_app_version
+          value: 'True'
+        - name: devops_suite_name
+          value: post-rollback-verify-app-version (MAS Manage)
+      when:
+        - input: "$(params.mas_app_manage_version)"
+          operator: notin
+          values: [""]
+
+{% if wait_for_install == true %}
+  # In FVT only this is the time to take a must-gather and finalize the result
+  # ---------------------------------------------------------------------------
+  finally:
+    # Collect must-gather
+    # -------------------------------------------------------------------------
+    - name: must-gather
+      taskRef:
+        kind: Task
+        name: mas-devops-must-gather
+      params:
+        - name: base_output_dir
+          value: "/workspace/mustgather/$(context.pipelineRun.name)"
+      workspaces:
+        - name: mustgather
+          workspace: shared-mustgather
+
+    # Finalize the record in the FVT database
+    # -------------------------------------------------------------------------
+    - name: finalize
+      taskRef:
+        kind: Task
+        name: mas-fvt-finalize
+{% endif %}

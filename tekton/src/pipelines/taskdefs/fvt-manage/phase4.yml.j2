@@ -1,11 +1,53 @@
 # -------------------------------------------------------------
 # PHASE 4
+# - fvt-manage-sec-audit-log
+# - fvt-manage-sec-inactive-auth
 # - fvt-manage-mif-kafka
 # - fvt-manage-wo-doclink
-# - fvt-manage-directprint-reports
-# - fvt-manage-user-crud
-# - fvt-manage-communication-temp
+# - fvt-manage-directprint
+# - fvt-manage-adhoc-report
+# - fvt-manage-jms-outbound
 # -------------------------------------------------------------
+
+# Manage FVT Security Audit Logging
+- name: fvt-manage-sec-audit-log
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
+    - name: fvt_test_suite
+      value: sec-audit-log
+  runAfter:
+    - fvt-manage-escalation-action
+    - fvt-manage-autoscript-adddeletewo
+    - fvt-manage-jms-inbound
+    - fvt-manage-mif-kafka-setup
+    - fvt-manage-birt-report
+    - fvt-manage-user-crud
+    - fvt-manage-user-consumption
+    - fvt-manage-communication-temp
+
+# Manage FVT Inactive User Authentication
+- name: fvt-manage-sec-inactive-auth
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
+    - name: fvt_test_suite
+      value: sec-inactive-auth
+  runAfter:
+    - fvt-manage-escalation-action
+    - fvt-manage-autoscript-adddeletewo
+    - fvt-manage-jms-inbound
+    - fvt-manage-mif-kafka-setup
+    - fvt-manage-birt-report
+    - fvt-manage-user-crud
+    - fvt-manage-user-consumption
+    - fvt-manage-communication-temp
 
 # Manage FVT Kafka Setup
 - name: fvt-manage-mif-kafka
@@ -34,12 +76,14 @@
     - name: configs
       workspace: shared-configs
   runAfter:
-    - fvt-manage-wo-basic
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
-    - fvt-manage-esig-basic
     - fvt-manage-mif-kafka-setup
+    - fvt-manage-birt-report
+    - fvt-manage-user-crud
+    - fvt-manage-user-consumption
+    - fvt-manage-communication-temp
 
 # Manage FVT Work Order Attachments
 - name: fvt-manage-wo-doclink
@@ -52,64 +96,69 @@
     - name: fvt_test_suite
       value: wo-doclink
   runAfter:
-    - fvt-manage-wo-basic
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
-    - fvt-manage-esig-basic
     - fvt-manage-mif-kafka-setup
+    - fvt-manage-birt-report
+    - fvt-manage-user-crud
+    - fvt-manage-user-consumption
+    - fvt-manage-communication-temp
 
-# Manage BIRT Report > Direct Print for Assets, JP and PO
-- name: fvt-manage-directprint-reports
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+# Manage Direct Print Report Tasks
+- name: fvt-manage-directprint
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage-directprint
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}    
+  runAfter:
+    - fvt-manage-escalation-action
+    - fvt-manage-autoscript-adddeletewo
+    - fvt-manage-jms-inbound
+    - fvt-manage-mif-kafka-setup
+    - fvt-manage-birt-report
+    - fvt-manage-user-crud
+    - fvt-manage-user-consumption
+    - fvt-manage-communication-temp
+
+# Manage FVT Adhoc Reports
+- name: fvt-manage-adhoc-report
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
       value: core
     - name: fvt_test_suite
-      value: directprint-reports
-  # Update runAfter list with new PHASE 4 tests
+      value: adhoc
   runAfter:
-    - fvt-manage-wo-basic
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
-    - fvt-manage-esig-basic
     - fvt-manage-mif-kafka-setup
+    - fvt-manage-birt-report
+    - fvt-manage-user-crud
+    - fvt-manage-user-consumption
+    - fvt-manage-communication-temp
 
-# Manage FVT New User Update/Delete/Verufy
-- name: fvt-manage-user-crud
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+# Manage JMS Integration - Outbound
+- name: fvt-manage-jms-outbound
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
       value: core
     - name: fvt_test_suite
-      value: user-crud
+      value: mif-jms-outbound
   runAfter:
-    - fvt-manage-wo-basic
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
-    - fvt-manage-esig-basic
     - fvt-manage-mif-kafka-setup
-
-# Manage FVT New User Update/Delete/Verufy
-- name: fvt-manage-communication-temp
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
-    - name: fvt_test_suite
-      value: communication-temp
-  runAfter:
-    - fvt-manage-wo-basic
-    - fvt-manage-escalation-action
-    - fvt-manage-autoscript-adddeletewo
-    - fvt-manage-jms-inbound
-    - fvt-manage-esig-basic
-    - fvt-manage-mif-kafka-setup
+    - fvt-manage-birt-report
+    - fvt-manage-user-crud
+    - fvt-manage-user-consumption
+    - fvt-manage-communication-temp

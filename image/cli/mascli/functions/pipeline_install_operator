@@ -18,7 +18,7 @@ function pipeline_install_operator() {
     -e "s/{{pipelines_channel}}/$PIPELINES_CHANNEL/g" \
     -e "s/{{pipelines_source}}/$PIPELINES_SOURCE/g" \
     -e "s/{{pipelines_source_namespace}}/$PIPELINES_SOURCE_NAMESPACE/g" \
-    $DIR/templates/subscription.yaml | oc apply -f - &>> $LOGFILE
+    $CLI_DIR/templates/subscription.yaml | oc apply -f - &>> $LOGFILE
 
   echo -en "\033[s" # Save cursor position
   echo -n "Installing OpenShift Pipelines Operator ($PIPELINES_CHANNEL) ..."

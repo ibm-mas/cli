@@ -12,6 +12,8 @@ spec:
     - name: shared-additional-configs
     # The SLS entitlement key file that will be installed during install-sls.
     - name: shared-entitlement
+    # PodTemplates configurations
+    - name: shared-pod-templates
 
   params:
     # 1. Common Parameters
@@ -141,7 +143,12 @@ spec:
       runAfter:
         - cp4d
 
-    # 3.8 Configure Watson Studio in MAS
+    # 3.8 Cognos Analytics
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-cognos.yml.j2') | indent(4) }}
+      runAfter:
+        - cp4d
+
+    # 3.9 Configure Watson Studio in MAS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
@@ -249,6 +256,7 @@ spec:
       runAfter:
         - suite-db2-setup-system
         - suite-db2-setup-manage
+        - suite-config-watson-studio
 
     # 8.3 Configure Manage workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-workspace.yml.j2') | indent(4) }}

@@ -25,7 +25,7 @@ Usage
 
 ### Platform Version Range (Optional):
 - `--min-version OCP_MIN_VERSION` Minimum version of the OCP release to mirror
-- `--max-version OCP_MAX_VERSION` Maximium version of the OCP release to mirror
+- `--max-version OCP_MAX_VERSION` Maximum version of the OCP release to mirror
 
 ### Other Options
 - `--no-confirm` Mirror images without prompting for confirmation
@@ -34,7 +34,7 @@ Usage
 
 Storage Requirements
 -------------------------------------------------------------------------------
-The selected content from the three required OpenShift operator catalogs requires approximately 80Gb.  The storage requirements for the OpenShift platform itself will vary dedpending on how many versions of the release you intent to mirror.
+The selected content from the three required OpenShift operator catalogs requires approximately 80Gb.  The storage requirements for the OpenShift platform itself will vary depending on how many versions of the release you intent to mirror.
 
 Examples
 -------------------------------------------------------------------------------
