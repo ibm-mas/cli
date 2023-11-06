@@ -1,4 +1,4 @@
-FROM quay.io/ibmmas/cli-base:gitops
+FROM quay.io/ibmmas/cli-base:1.1.0-pre.gitops
 ARG VERSION_LABEL
 
 # 1. Copy basics
