@@ -14,7 +14,45 @@
 . $CLI_DIR/functions/pipeline_config_advanced
 . $CLI_DIR/functions/pipeline_config_workload_scale
 
+
+function pipeline_config_sso_properties() {
+  echo
+  echo_h2 "Configure Single Sign-On (SSO) Default Properties"
+  prompt_for_confirm "Would you like to configure default SSO properties?" SSO_RESPONSE
+  if [[ "$SSO_RESPONSE" == "false" ]]; then
+    echo -e "Using default SSO properties"
+  else
+    prompt_for_number "Enter the idleTimeout (in seconds)" idleTimeout 1800
+    export IDLE_TIMEOUT="${idleTimeout}"
+    echo "Idle Timeout set to: $IDLE_TIMEOUT seconds"
+
+    prompt_for_input "Enter the IDP session timeout (e.g., '12h' for 12 hours)" idpSessionTimeout "12h"
+    validate_pattern_sso idpSessionTimeout "^([0-9]+)([hm])$"
+    export IDP_SESSION_TIMEOUT="${idpSessionTimeout}"
+    echo "IDP Session Timeout set to: $IDP_SESSION_TIMEOUT"
+
+    prompt_for_input "Enter the access token timeout (e.g., '30m' for 30 minutes)" accessTokenTimeout "30m"
+    validate_pattern_sso accessTokenTimeout "^([0-9]+)([hm])$"
+    export ACCESS_TOKEN_TIMEOUT="${accessTokenTimeout}"
+    echo "Access Token Timeout set to: $ACCESS_TOKEN_TIMEOUT"
+
+    prompt_for_input "Enter the refresh token timeout (e.g., '12h' for 12 hours)" refreshTokenTimeout "12h"
+    validate_pattern_sso refreshTokenTimeout "^([0-9]+)([hm])$"
+    export REFRESH_TOKEN_TIMEOUT="${refreshTokenTimeout}"
+    echo "Refresh Token Timeout set to: $REFRESH_TOKEN_TIMEOUT"
+
+    prompt_for_input "Enter the default Identity Provider (IDP)" defaultIDP "local"
+    export DEFAULT_IDP="${defaultIDP}"
+    echo "Default IDP set to: $DEFAULT_IDP"
+
+    prompt_for_input "Enable seamless login? (true/false)" seamlessLogin "false"
+    export SEAMLESS_LOGIN="${seamlessLogin}"
+    echo "Seamless Login set to: $SEAMLESS_LOGIN"
+  fi
+}
+
 function pipeline_config() {
+  
   echo_h2 "IBM Maximo Operator Catalog Selection"
   echo "${TEXT_DIM}Select how you want to manage updates in this cluster:"
   echo "- For automatic updates select to use the online dynamic catalog.  Updates will be delivered as soon as they are published by IBM"
@@ -84,6 +122,8 @@ function pipeline_config() {
   if [[ "$LICENSE_RESPONSE" == "false" ]]; then
     exit 1
   fi
+
+  
 
   echo
   echo_h2 "Configure MAS Instance"
@@ -227,6 +267,9 @@ function pipeline_config() {
   else
     SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
   fi
+
+
+  pipeline_config_sso_properties
 
   echo
   echo_h2 "Configure UDS"

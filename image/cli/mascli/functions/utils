@@ -339,3 +339,12 @@ function select_local_config_dir() {
     export LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN=yes
   fi
 }
+
+function validate_pattern_sso() {
+  input_var=$1
+  pattern=$2
+  if [[ ! "${input_var}" =~ "${pattern}" ]]; then
+    echo_warning "Error: Your input: ${input_var} does not meet the required pattern. Please use it in hours or minutes format (e.g., 12h, 12m)."
+    exit 1
+  fi
+}
