@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-function gitops_deprovision_db2u_help() {
+function gitops_suite_app_install_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_deprovision_db2u [options]
+  mas gitops_suite_app_install [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -15,6 +15,13 @@ GitOps Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
+  --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                IBM Suite Maximo Application Suite Application ID
+  --mas-app-channel ${COLOR_YELLOW}MAS_APP_CHANNEL${TEXT_RESET}      IBM Suite Maximo Application Suite Application Channel
+  --mas-app-catalog-source ${COLOR_YELLOW}MAS_APP_CATALOG_SOURCE${TEXT_RESET}      IBM Suite Maximo Application Suite Application Catalog Source
+  --mas-app-api-version ${COLOR_YELLOW}MAS_APP_API_VERSION${TEXT_RESET}      IBM Suite Maximo Application Suite Application API Version
+  --mas-app-kind ${COLOR_YELLOW}MAS_APP_KIND${TEXT_RESET}      IBM Suite Maximo Application Suite Application Kind
+  --mas-app-spec ${COLOR_YELLOW}MAS_APP_SPEC${TEXT_RESET}      IBM Suite Maximo Application Suite Application Spec
+  --ibm-entitlement-key ${COLOR_YELLOW}ibm_entitlement_key${TEXT_RESET}      IBM Entitlement Key
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -35,10 +42,10 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_deprovision_db2u_noninteractive() {
+function gitops_suite_app_install_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-deprovision-db2u commit"
+  GIT_COMMIT_MSG="gitops-suite commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   while [[ $# -gt 0 ]]
@@ -71,6 +78,29 @@ function gitops_deprovision_db2u_noninteractive() {
         export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
 
+      # MAS
+      --mas-app-id)
+        export MAS_APP_ID=$1 && shift
+        ;;
+      --mas-app-channel)
+        export MAS_APP_CHANNEL=$1 && shift
+        ;;
+      --mas-app-catalog-source)
+        export MAS_APP_CATALOG_SOURCE=$1 && shift
+        ;;
+      --mas-app-api-version)
+        export MAS_APP_API_VERSION=$1 && shift
+        ;;
+      --mas-app-kind)
+        export MAS_APP_KIND=$1 && shift
+        ;;
+      --mas-app-spec)
+        export MAS_APP_SPEC=$1 && shift
+        ;;
+      --ibm-entitlement-key)
+        export IBM_ENTITLEMENT_KEY=$1 && shift
+        ;;
+
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -96,43 +126,57 @@ function gitops_deprovision_db2u_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_deprovision_db2u_help
+        gitops_suite_app_install_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_deprovision_db2u_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_suite_app_install_help "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_db2u_help "ACCOUNT_ID is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_db2u_help "CLUSTER_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_suite_app_install_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_suite_app_install_help "CLUSTER_ID is not set"
+
+
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_suite_app_install_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$MAS_APP_ID" ]] && gitops_suite_app_install_help "MAS_APP_ID is not set"
+  [[ -z "$MAS_APP_CHANNEL" ]] && gitops_suite_app_install_help "MAS_APP_CHANNEL is not set"
+  [[ -z "$MAS_APP_CATALOG_SOURCE" ]] && gitops_suite_app_install_help "MAS_APP_CATALOG_SOURCE is not set"
+  [[ -z "$MAS_APP_API_VERSION" ]] && gitops_suite_app_install_help "MAS_APP_API_VERSION is not set"
+  [[ -z "$MAS_APP_KIND" ]] && gitops_suite_app_install_help "MAS_APP_KIND is not set"
+  #[[ -z "$MAS_APP_SPEC" ]] && gitops_suite_app_install_help "MAS_APP_SPEC is not set"
+  [[ -z "$IBM_ENTITLEMENT_KEY" ]] && gitops_suite_app_install_help "IBM_ENTITLEMENT_KEY is not set"
+
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_db2u_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_deprovision_db2u_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_db2u_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_db2u_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_suite_app_install_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_suite_app_install_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_suite_app_install_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_suite_app_install_help "GIT_BRANCH is not set"
   fi
 
 }
 
-function gitops_deprovision_db2u() {
+function gitops_suite_app_install() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_deprovision_db2u_noninteractive "$@"
+    gitops_suite_app_install_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_deprovision_db2u_interactive
+    gitops_suite_app_install_interactive
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
   GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
+
+  
+  export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
 
   echo
   reset_colors
@@ -177,24 +221,36 @@ function gitops_deprovision_db2u() {
   echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   reset_colors
 
-  # Set up DB2 secrets
+
+  # Set up Suite secrets
   # ---------------------------------------------------------------------------
   echo
-  echo_h2 "Deleting BD2 secrets"
+  echo_h2 "Configuring Suite secrets"
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
-  # Instance-level secrets to delete
+
+  # Define cluster-level secrets used
   # ---------------------------------------------------------------------------
-  export AWS_DB2_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2
-  echo_reset_dim "AWS_DB2_SECRET_ID ......................... ${COLOR_MAGENTA}$AWS_DB2_SECRET_ID"
+  # Note that this cluster-level secret is set up by gitops-cluster
 
-  # Delete DB2 ldap password in aws secret manager
+
+
+  # Get the cluster-level secrets used
   # ---------------------------------------------------------------------------
-  echo " Deleting $AWS_DB2_SECRET_ID"
-  sm_delete_secret $AWS_DB2_SECRET_ID
+  # Note that this cluster-level secret is set up by gitops-mongo
+  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
 
 
+
+  # Instance-level secrets to use
+  # ---------------------------------------------------------------------------
+  # Note that these instance-level secrets are set up by gitops-license
+
+
+
+  # Instance-level secrets to create
+  # ---------------------------------------------------------------------------
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
   fi
@@ -210,30 +266,49 @@ function gitops_deprovision_db2u() {
   mkdir -p ${GITOPS_APPS_DIR}
 
 
-  # Delete ArgoApps
+  # Generate ArgoApps
   # ---------------------------------------------------------------------------
   echo
-  echo_h2 "Deleting Applications"
-  echo "- IBM DB2U JDBC Config Rotate Password"
-  rm ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-db2u-jdbc-config-rotate-password.yaml
-  echo "- IBM DB2U JDBC Config"
-  rm ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-db2u-jdbc-config.yaml
-  echo "- IBM DB2U"
-  rm ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-db2u.yaml
+  echo_h2 "Generating Argo Project and Applications"
+  echo "- Project"
+  jinja -X .+ $DIR/templates/gitops/appproject.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.appproject.yaml
+
+  echo "- IBM Maximo Application Suite Core Platform"
+  jinja -X .+ $DIR/templates/gitops/ibm-mas-core-suite-app-install.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-core-suite-${MAS_APP_ID}-app-install.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
+    echo_h2 "Restart application-controller ..."
+    oc rollout restart statefulset/openshift-gitops-application-controller -n openshift-gitops
+    echo_h2 'Waiting for rollout of application-controller to complete'
+    oc rollout status statefulset/openshift-gitops-application-controller -n openshift-gitops
+
+    # Add anyuid permissions to visualinspection service account
+    if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
+      oc adm policy add-scc-to-user anyuid system:serviceaccount:${MAS_APP_NAMESPACE}:ibm-mas-visualinspection-operator
+    fi
+
+    echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
+    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     argocd_login
     argocd_sync ${CLUSTER_ID}-watcher
+    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-app-install
+    add_role_to_user mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
 
-    argocd_prune_sync ${CLUSTER_ID}-watcher
-    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-db2-jdbc-config-rotate-password ${MAS_INSTANCE_ID} ${FORCE_REMOVAL}
-    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-db2-jdbc-config ${MAS_INSTANCE_ID} ${FORCE_REMOVAL}
-    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-db2 ${MAS_INSTANCE_ID} ${FORCE_REMOVAL}
+    check_argo_app_synced mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-app-install ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-app-install ${CLUSTER_ID}-watcher
+
+    # Remove anyuid permissions from visualinspection service account
+    if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
+      oc adm policy remove-scc-from-user anyuid system:serviceaccount:${MAS_APP_NAMESPACE}:ibm-mas-visualinspection-operator
+    fi
+
   fi
+
+
 }

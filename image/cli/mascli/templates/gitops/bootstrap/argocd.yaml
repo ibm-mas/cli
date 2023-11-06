@@ -103,7 +103,7 @@ spec:
           hs.message = "Waiting for SLS"
           return hs
 
-      core.mas.ibm.com/Suite:
+      ".mas.ibm.com/*"":
         health.lua: |
           hs = {}
           if obj.status ~= nil then
@@ -123,7 +123,7 @@ spec:
             end
           end
           hs.status = "Progressing"
-          hs.message = "Waiting for Suite"
+          hs.message = ""
           return hs
 
       operator.ibm.com/OperandRequest:
