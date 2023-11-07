@@ -156,7 +156,7 @@ function gitops_bootstrap() {
 
   echo "Installing OpenShift GitOps Operator (latest) ..."
 
-  oc apply  -f ${DIR}/templates/gitops/bootstrap/subscription.yaml
+  oc apply  -f ${CLI_DIR}/templates/gitops/bootstrap/subscription.yaml
 
   oc get crd argocds.argoproj.io
   LOOKUP_RESULT=$?
@@ -181,22 +181,22 @@ function gitops_bootstrap() {
 
   # 2. Create Secret Manager secret
   echo 'Create Secret Manager Backend Secret'
-  jinja -X .+ ${DIR}/templates/gitops/bootstrap/secret-${AVP_TYPE}.yaml.j2 | oc apply  -f -
+  jinja -X .+ ${CLI_DIR}/templates/gitops/bootstrap/secret-${AVP_TYPE}.yaml.j2 | oc apply  -f -
 
   # 3. Create repo server SA
   echo 'Create ArgoCD repo server service account' 
-  oc apply  -f ${DIR}/templates/gitops/bootstrap/rbac.yaml
+  oc apply  -f ${CLI_DIR}/templates/gitops/bootstrap/rbac.yaml
 
   # 4. Create ConfigPluginManagement
   echo 'Create Plugin configmap'
-  oc apply  -f ${DIR}/templates/gitops/bootstrap/configmap.yaml
+  oc apply  -f ${CLI_DIR}/templates/gitops/bootstrap/configmap.yaml
 
   # 5. Patch openshift-gitops with argocd-vault-plugin when it is ready
   echo 'Patch cluster ArgoCD'
   oc wait --for=jsonpath='{.status.phase}'=Available argocd/openshift-gitops -n openshift-gitops --timeout=30m
   oc wait --for=jsonpath='{.status.repo}'=Running argocd/openshift-gitops -n openshift-gitops --timeout=30m
   oc wait --for=jsonpath='{.status.applicationController}'=Running argocd/openshift-gitops -n openshift-gitops --timeout=30m
-  oc apply  -f ${DIR}/templates/gitops/bootstrap/argocd.yaml
+  oc apply  -f ${CLI_DIR}/templates/gitops/bootstrap/argocd.yaml
 
   sleep 30
 
@@ -206,11 +206,11 @@ function gitops_bootstrap() {
   oc wait --for=jsonpath='{.status.applicationController}'=Running argocd/openshift-gitops -n openshift-gitops --timeout=30m
 
   # 6. Add the watcher to the gitops environment repo
-  jinja -X .+ ${DIR}/templates/gitops/bootstrap/watcher.yaml.j2 | oc apply -f -
+  jinja -X .+ ${CLI_DIR}/templates/gitops/bootstrap/watcher.yaml.j2 | oc apply -f -
 
   # 7. Patch openshift-marketplace to allow GitOps to manage resources in the namespace
   echo 'Patch standard namespaces to enable GitOps management'
-  oc apply  -f ${DIR}/templates/gitops/bootstrap/namespace.yaml
+  oc apply  -f ${CLI_DIR}/templates/gitops/bootstrap/namespace.yaml
 
   # 8. For some reason the application-controller needs restarting to pickup the RBAC changes
   echo 'Restart application-controller'

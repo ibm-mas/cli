@@ -21,7 +21,7 @@ GitOps Configuration:
   --mas-app-api-version ${COLOR_YELLOW}MAS_APP_API_VERSION${TEXT_RESET}      IBM Suite Maximo Application Suite Application API Version
   --mas-app-kind ${COLOR_YELLOW}MAS_APP_KIND${TEXT_RESET}      IBM Suite Maximo Application Suite Application Kind
   --mas-app-spec ${COLOR_YELLOW}MAS_APP_SPEC${TEXT_RESET}      IBM Suite Maximo Application Suite Application Spec
-  --ibm-entitlement-key ${COLOR_YELLOW}ibm_entitlement_key${TEXT_RESET}      IBM Entitlement Key
+
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -45,7 +45,7 @@ EOM
 function gitops_suite_app_install_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-suite commit"
+  GIT_COMMIT_MSG="gitops-suite-app-install commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   while [[ $# -gt 0 ]]
@@ -97,9 +97,7 @@ function gitops_suite_app_install_noninteractive() {
       --mas-app-spec)
         export MAS_APP_SPEC=$1 && shift
         ;;
-      --ibm-entitlement-key)
-        export IBM_ENTITLEMENT_KEY=$1 && shift
-        ;;
+
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -148,7 +146,7 @@ function gitops_suite_app_install_noninteractive() {
   [[ -z "$MAS_APP_API_VERSION" ]] && gitops_suite_app_install_help "MAS_APP_API_VERSION is not set"
   [[ -z "$MAS_APP_KIND" ]] && gitops_suite_app_install_help "MAS_APP_KIND is not set"
   #[[ -z "$MAS_APP_SPEC" ]] && gitops_suite_app_install_help "MAS_APP_SPEC is not set"
-  [[ -z "$IBM_ENTITLEMENT_KEY" ]] && gitops_suite_app_install_help "IBM_ENTITLEMENT_KEY is not set"
+  
 
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
@@ -160,6 +158,35 @@ function gitops_suite_app_install_noninteractive() {
 
 }
 
+fetchDefaultMASAppSpec() {
+  MAS_APP_ID=$1
+  if [[ -n ${MAS_APP_ID} ]]; then
+    if [[ "${MAS_APP_ID}" == "assist" ]]; then
+      export DEFAULT_MAS_APP_SPEC="{bindings: {objectstorage: system}}"
+    elif [[ "${MAS_APP_ID}" == "health" || "${MAS_APP_ID}" == "manage" ]]; then
+      export DEFAULT_MAS_APP_SPEC="{}"
+    elif [[ "${MAS_APP_ID}" == "hputilities" ]]; then
+      export DEFAULT_MAS_APP_SPEC="{bindings: {appconnect: system, health: workspace}, components: {}, settings: {}}"
+    elif [[ "${MAS_APP_ID}" == "iot" ]]; then
+      export DEFAULT_MAS_APP_SPEC="{}"
+    elif [[ "${MAS_APP_ID}" == "monitor" ]]; then
+      export DEFAULT_MAS_APP_SPEC="{bindings: {mongo: system}, settings: {deployment: {size: '${MAS_APP_SETTINGS_MONITOR_DEPLOYMENT_SIZE}'}}}"
+    elif [[ "${MAS_APP_ID}" == "mso" ]]; then
+      export DEFAULT_MAS_APP_SPEC="{bindings: {mongo: system}}"
+    elif [[ "${MAS_APP_ID}" == "optimizer" ]]; then
+      export DEFAULT_MAS_APP_SPEC="{bindings: {mongo: system}, plan: '${MAS_APP_PLAN}'}"
+    elif [[ "${MAS_APP_ID}" == "predict" ]]; then
+      export DEFAULT_MAS_APP_SPEC="{bindings: {jdbc: '${MAS_APP_BINDINGS_JDBC}'}, components: {}, settings: {deployment: {size: '${MAS_APP_SETTINGS_PREDICT_DEPLOYMENT_SIZE}'}}, displayName: Predict Workspace}"
+    elif [[ "${MAS_APP_ID}" == "safety" ]]; then
+      export DEFAULT_MAS_APP_SPEC="{bindings: {jdbc: '${MAS_APP_BINDINGS_JDBC}'}, components: {}}"
+    elif [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
+      export DEFAULT_MAS_APP_SPEC="{settings: {storage: {size: '${MAS_APP_SETTINGS_VISUALINSPECTION_STORAGE_SIZE}', storageClassName: '${MAS_APP_SETTINGS_VISUALINSPECTION_STORAGE_CLASS}'}}}"
+    fi  
+  fi
+
+
+
+}
 function gitops_suite_app_install() {
   # Take the first parameter off (it will be create-gitops)
   shift
@@ -175,8 +202,27 @@ function gitops_suite_app_install() {
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
   GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
 
-  
   export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
+  export MAS_APP_SETTINGS_MONITOR_DEPLOYMENT_SIZE=${MAS_APP_SETTINGS_MONITOR_DEPLOYMENT_SIZE:-dev}
+  #default value MAS_APP_PLAN=full specific to optimizer
+  export MAS_APP_PLAN=${MAS_APP_PLAN:-full}
+  export MAS_APP_SETTINGS_PREDICT_DEPLOYMENT_SIZE=${MAS_APP_SETTINGS_PREDICT_DEPLOYMENT_SIZE:-small}
+  export MAS_APP_BINDINGS_JDBC=${MAS_APP_BINDINGS_JDBC:-system}
+  export MAS_APP_SETTINGS_VISUALINSPECTION_STORAGE_SIZE=${MAS_APP_SETTINGS_VISUALINSPECTION_STORAGE_SIZE:-100Gi}
+  export MAS_APP_SETTINGS_VISUALINSPECTION_STORAGE_CLASS=${MAS_APP_SETTINGS_VISUALINSPECTION_STORAGE_CLASS:-$DEFAULT_STORAGE_CLASS}
+
+
+  #Fetch Default MAS App Spec
+  fetchDefaultMASAppSpec ${MAS_APP_ID}
+
+  #if [[ -n ${MAS_APP_SPEC} ]]; then
+   # echo "Before-"${MAS_APP_SPEC}
+    #export MAS_APP_SPEC=$(echo ${MAS_APP_SPEC} | yq -r '.')
+   # echo "After-"${MAS_APP_SPEC}
+  #fi
+  echo "MAS App Spec ID ....................... ${COLOR_MAGENTA}${MAS_APP_SPEC}"
+  export MAS_APP_SPEC=${MAS_APP_SPEC:-$DEFAULT_MAS_APP_SPEC}
+
 
   echo
   reset_colors
@@ -219,6 +265,8 @@ function gitops_suite_app_install() {
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "MAS App Spec ID ....................... ${COLOR_MAGENTA}${MAS_APP_SPEC}"
+  echo_reset_dim "Default MAS App Spec ID ............... ${COLOR_MAGENTA}${DEFAULT_MAS_APP_SPEC}"
   reset_colors
 
 
@@ -271,10 +319,10 @@ function gitops_suite_app_install() {
   echo
   echo_h2 "Generating Argo Project and Applications"
   echo "- Project"
-  jinja -X .+ $DIR/templates/gitops/appproject.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.appproject.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/appproject.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.appproject.yaml
 
-  echo "- IBM Maximo Application Suite Core Platform"
-  jinja -X .+ $DIR/templates/gitops/ibm-mas-core-suite-app-install.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-core-suite-${MAS_APP_ID}-app-install.yaml
+  echo "- IBM Maximo Application Suite Core Platform $CLI_DIR/templates/gitops/ibm-mas-core-suite-app-install.yaml.j2"
+  jinja -X .+ $CLI_DIR/templates/gitops/ibm-mas-core-suite-app-install.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-core-suite-${MAS_APP_ID}-app-install.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------

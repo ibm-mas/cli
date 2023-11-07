@@ -173,7 +173,7 @@ function gitops_cis_compliance() {
   echo
   echo_h2 "Generating Argo Applications"
   echo "- IBM Cis Compliance"
-  jinja -X .+ $DIR/templates/gitops/cis-compliance.yaml.j2 -o ${GITOPS_APPS_DIR}/cis-compliance.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/cis-compliance.yaml.j2 -o ${GITOPS_APPS_DIR}/cis-compliance.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
