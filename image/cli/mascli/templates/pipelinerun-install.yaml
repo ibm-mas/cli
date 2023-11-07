@@ -145,6 +145,8 @@ spec:
       value: '$MONGODB_CPU_REQUESTS'
     - name: mongodb_provider
       value: '$MONGODB_PROVIDER'
+    - name: mongodb_version
+      value: '$MONGODB_VERSION'
     - name: mongodb_action
       value: '$MONGODB_ACTION'
 

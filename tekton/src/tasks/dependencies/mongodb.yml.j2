@@ -38,6 +38,18 @@ spec:
       type: string
       description: MongoDb provider
       default: ""
+    - name: mongodb_version
+      type: string
+      description: MongoDb version
+      default: ""
+    - name: mongodb_action
+      type: string
+      description: Optional. Used to uninstall MongoDB
+      default: ""
+    - name: mongodb_v5_upgrade
+      type: string
+      description: Approves the MongoDb upgrade to version 5 if needed
+      default: ""
 
     # Dependencies - IBM Cloud MongoDb
     # -------------------------------------------------------------------------
@@ -66,12 +78,6 @@ spec:
       description: API Key used to create Mongo instance in IBM Cloud
       default: ""
 
-    # Optional parameter to uninstall MongoDB
-    - name: mongodb_action
-      type: string
-      description: Optional. Used to uninstall MongoDB
-      default: ""
-
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -97,6 +103,12 @@ spec:
         value: $(params.mongodb_cpu_requests)
       - name: MONGODB_PROVIDER
         value: $(params.mongodb_provider)
+      - name: MONGODB_ACTION
+        value: $(params.mongodb_action)
+      - name: MONGODB_VERSION
+        value: $(params.mongodb_version)
+      - name: MONGODB_V5_UPGRADE
+        value: $(params.mongodb_v5_upgrade)
 
       # Dependencies - IBM Cloud MongoDb
       - name: IBM_MONGO_NAME
@@ -111,10 +123,6 @@ spec:
         value: $(params.ibmcloud_resourcegroup)
       - name: IBMCLOUD_APIKEY
         value: $(params.ibmcloud_apikey)
-
-      # Optional parameter to uninstall MongoDB
-      - name: MONGODB_ACTION
-        value: $(params.mongodb_action)
 
   steps:
     - name: mongodb
