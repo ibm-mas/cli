@@ -49,8 +49,8 @@ function config_pipeline_advanced() {
     fi
     echo
     
-    if prompt_for_confirm "Override the cluster ingress certificate secret?"; then
-        prompt_for_input "Cluster ingress certificate secret" OCP_INGRESS_TLS_SECRET_NAME $OCP_INGRESS_TLS_SECRET_NAME
+    if prompt_for_confirm "Change default cluster ingress certificate secret?"; then
+        prompt_for_input "+ Cluster ingress certificate secret" OCP_INGRESS_TLS_SECRET_NAME $OCP_INGRESS_TLS_SECRET_NAME
     fi
 
     prompt_for_confirm_default_yes "Trust Default CAs?" MAS_TRUST_DEFAULT_CAS
