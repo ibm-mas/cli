@@ -48,10 +48,10 @@ spec:
       type: string
       description: Optional boolean parameter that when set to False, disables the normal trust of well known public certificate authorities
       default: ""
-    - name: ipv6_test
-      type: string
-      description: Optional boolean parameter that when set to True, enables dual stack for IPv6 testing
-      default: "False"
+#    - name: enable_ipv6
+#      type: string
+#      description: Optional boolean parameter that when set to True, enables dual stack for IPv6 testing
+#      default: "False"
 
     - name: mas_icr_cp
       type: string
@@ -106,8 +106,8 @@ spec:
         value: $(params.mas_manual_cert_mgmt)
       - name: MAS_TRUST_DEFAULT_CAS
         value: $(params.mas_trust_default_cas)
-      - name: IPV6_TEST
-        value: $(params.ipv6_test)
+      - name: ENABLE_IPV6
+        value: $(params.enable_ipv6)
 
       - name: ARTIFACTORY_USERNAME
         value: $(params.artifactory_username)

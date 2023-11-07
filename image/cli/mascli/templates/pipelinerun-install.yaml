@@ -354,8 +354,8 @@ spec:
       value: '$MAS_ICR_CPOPEN'
     - name: mas_trust_default_cas
       value: '$MAS_TRUST_DEFAULT_CAS'
-    - name: ipv6_test
-      value: '$IPV6_TEST'
+    - name: enable_ipv6
+      value: '$ENABLE_IPV6'
 
     # MAS Workspace
     # -------------------------------------------------------------------------
