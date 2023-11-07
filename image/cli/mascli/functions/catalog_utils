@@ -7,7 +7,7 @@
 # a static catalog.  We only support converting from v8-amd64 to the latest static catalog
 # because any other change would be a downgrade and would result in the HEAD bundle in
 # our packages regressing, which would confuse OLM.
-MOST_RECENT_CATALOG=v8-231031-amd64
+MOST_RECENT_CATALOG=v8-231128-amd64
 
 # Choose a catalog only
 # -----------------------------------------------------------------------------
@@ -15,9 +15,10 @@ MOST_RECENT_CATALOG=v8-231031-amd64
 # the version of MAS, only the version of the catalog to update to.
 function choose_catalog_version() {
   echo -e "${COLOR_YELLOW}Select MAS Catalog:"
-  echo "  1) October 31 2023 Update (MAS 8.11.2 & 8.10.6)"
-  echo "  2) October 04 2023 Update (MAS 8.11.1 & 8.10.5)"
-  echo "  3) August 29 2023 Update (MAS 8.10.4 & 8.9.9)"
+  echo "  1) November 28 2023 Update (MAS 8.11.3 & 8.10.7)"
+  echo "  2) October 31 2023 Update (MAS 8.11.2 & 8.10.6)"
+  echo "  3) October 04 2023 Update (MAS 8.11.1 & 8.10.5)"
+  echo "  4) August 29 2023 Update (MAS 8.10.4 & 8.9.9)"
   reset_colors
   echo
   echo "Note: Due to a severe bug in the 8.11.0 version of the Core Platform we have released an important update (8.11.1) and the 4 October catalog has replaced the 26 September catalog option."
@@ -27,12 +28,15 @@ function choose_catalog_version() {
 
   case $MAS_CATALOG_SELECTION in
     1)
-      MAS_CATALOG_VERSION=v8-231031-amd64
+      MAS_CATALOG_VERSION=v8-231128-amd64
       ;;
     2)
-      MAS_CATALOG_VERSION=v8-231004-amd64
+      MAS_CATALOG_VERSION=v8-231031-amd64
       ;;
     3)
+      MAS_CATALOG_VERSION=v8-231004-amd64
+      ;;
+    4)
       MAS_CATALOG_VERSION=v8-230829-amd64
       ;;
     *)
@@ -42,6 +46,7 @@ function choose_catalog_version() {
   esac
 }
 
+#TODO: UPDATE BELOW
 
 # Choose a catalog and the MAS channel
 # -----------------------------------------------------------------------------
@@ -52,14 +57,17 @@ function choose_mas_version() {
   echo " ┌───┬──────────────┬────────┬──────────────────────────────────────────────────────────────────────┐"
   echo " │ # │ Catalog      │  Core  │ Assist |  IoT  | Manage | Monitor | Optimizer | Predict | Inspection |"
   echo " ├───┼──────────────┼────────┼────────┤───────┼────────┼─────────┼───────────┼─────────┼────────────┤"
-  echo " │ 1 │ Oct 31 2023  | 8.11.2 │ 8.8.1  | 8.8.1 | 8.7.1  | 8.11.1  |   8.5.0   |  8.9.0  |   8.9.0    |"
-  echo " │ 2 │              │ 8.10.6 │ 8.7.2  | 8.7.5 | 8.6.6  | 8.10.4  |   8.4.1   |  8.8.2  |   8.8.1    |"
+  echo " │ 1 │ Nov 28 2023  | 8.11.? │ 8.8.?  | 8.8.? | 8.7.?  | 8.11.?  |   8.5.?   |  8.9.?  |   8.9.?    |"
+  echo " │ 2 │              │ 8.10.? │ 8.7.?  | 8.7.? | 8.6.?  | 8.10.?  |   8.4.?   |  8.8.?  |   8.8.?    |"
   echo " ├───┼──────────────┼────────┼────────┤───────┼────────┼─────────┼───────────┼─────────┼────────────┤"
-  echo " │ 3 │ Oct 04 2023  | 8.11.1 │ 8.8.0  | 8.8.0 | 8.7.0  | 8.11.0  |   8.5.0   |  8.9.0  |   8.9.0    |"
-  echo " │ 4 │              │ 8.10.5 │ 8.7.2  | 8.7.4 | 8.6.5  | 8.10.4  |   8.4.1   |  8.8.2  |   8.8.1    |"
+  echo " │ 3 │ Oct 31 2023  | 8.11.2 │ 8.8.1  | 8.8.1 | 8.7.1  | 8.11.1  |   8.5.0   |  8.9.0  |   8.9.0    |"
+  echo " │ 4 │              │ 8.10.6 │ 8.7.2  | 8.7.5 | 8.6.6  | 8.10.4  |   8.4.1   |  8.8.2  |   8.8.1    |"
   echo " ├───┼──────────────┼────────┼────────┤───────┼────────┼─────────┼───────────┼─────────┼────────────┤"
-  echo " │ 5 │ Aug 29 2023  | 8.10.4 │ 8.7.2  | 8.7.4 | 8.6.4  | 8.10.4  |   8.4.1   |  8.8.2  |   8.8.1    |"
-  echo " │ 6 │              │ 8.9.9  │ 8.6.5  | 8.6.9 | 8.5.8  | 8.9.6   |   8.3.3   |  8.7.2  |   8.7.1    |"
+  echo " │ 5 │ Oct 04 2023  | 8.11.1 │ 8.8.0  | 8.8.0 | 8.7.0  | 8.11.0  |   8.5.0   |  8.9.0  |   8.9.0    |"
+  echo " │ 6 │              │ 8.10.5 │ 8.7.2  | 8.7.4 | 8.6.5  | 8.10.4  |   8.4.1   |  8.8.2  |   8.8.1    |"
+  echo " ├───┼──────────────┼────────┼────────┤───────┼────────┼─────────┼───────────┼─────────┼────────────┤"
+  echo " │ 7 │ Aug 29 2023  | 8.10.4 │ 8.7.2  | 8.7.4 | 8.6.4  | 8.10.4  |   8.4.1   |  8.8.2  |   8.8.1    |"
+  echo " │ 8 │              │ 8.9.9  │ 8.6.5  | 8.6.9 | 8.5.8  | 8.9.6   |   8.3.3   |  8.7.2  |   8.7.1    |"
   echo " ├───┼──────────────┼────────┼────────┤───────┼────────┼─────────┼───────────┼─────────┼────────────┤"
   reset_colors
   echo
@@ -68,29 +76,38 @@ function choose_mas_version() {
   prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
 
   case $MAS_CHANNEL_SELECTION in
-    # October 2023
+    # November 2023
     1)
       MAS_CHANNEL=8.11.x
-      MAS_CATALOG_VERSION=v8-231031-amd64
+      MAS_CATALOG_VERSION=v8-231128-amd64
       ;;
     2)
       MAS_CHANNEL=8.10.x
+      MAS_CATALOG_VERSION=v8-231128-amd64
+      ;;
+    # October 2023
+    3)
+      MAS_CHANNEL=8.11.x
       MAS_CATALOG_VERSION=v8-231031-amd64
       ;;
-    3)
+    4)
+      MAS_CHANNEL=8.10.x
+      MAS_CATALOG_VERSION=v8-231031-amd64
+      ;;
+    5)
       MAS_CHANNEL=8.11.x
       MAS_CATALOG_VERSION=v8-231004-amd64
       ;;
-    4)
+    6)
       MAS_CHANNEL=8.10.x
       MAS_CATALOG_VERSION=v8-231004-amd64
       ;;
     # August 2023
-    5)
+    7)
       MAS_CHANNEL=8.10.x
       MAS_CATALOG_VERSION=v8-230829-amd64
       ;;
-    6)
+    8)
       MAS_CHANNEL=8.9.x
       MAS_CATALOG_VERSION=v8-230829-amd64
       ;;
@@ -112,7 +129,7 @@ function db2_channel_selection() {
   case $MAS_CATALOG_VERSION in
     # Db2 Channel selection
     # -------------------------------------------------------------------------
-    v8-amd64|v8-230414-amd64|v8-230518-amd64|v8-230526-amd64|v8-230616-amd64|v8-230627-amd64|v8-230721-amd64|v8-230725-amd64|v8-230829-amd64|v8-230926-amd64|v8-231004-amd64|v8-231031-amd64)
+    v8-amd64|v8-230414-amd64|v8-230518-amd64|v8-230526-amd64|v8-230616-amd64|v8-230627-amd64|v8-230721-amd64|v8-230725-amd64|v8-230829-amd64|v8-230926-amd64|v8-231004-amd64|v8-231031-amd64|v8-231128-amd64)
       DB2_CHANNEL=v110508.0
       ;;
     v8-230111-amd64|v8-230217-amd64|v8-230314-amd64|v8-230328-amd64)
@@ -132,7 +149,7 @@ function db2_channel_selection() {
 function cp4d_channel_selection() {
   case $MAS_CATALOG_VERSION in
     # CP4D v4.6.6 was added in the September 2023 catalog update
-    v8-amd64|v8-230926-amd64|v8-231004-amd64|v8-231031-amd64)
+    v8-amd64|v8-230926-amd64|v8-231004-amd64|v8-231031-amd64|v8-231128-amd64)
       CP4D_VERSION=4.6.6
       ;;
     # CP4D v4.6.4 was added in the June 2023 catalog update
@@ -167,7 +184,7 @@ function cp4d_channel_selection() {
 function sls_prompt_selection() {
   case $MAS_CATALOG_VERSION in
     # SLS 3.8.x and up
-    v8-amd64|v8-230926-amd64|v8-231004-amd64|v8-231031-amd64)
+    v8-amd64|v8-230926-amd64|v8-231004-amd64|v8-231031-amd64|v8-231128-amd64)
       SLS_PROMPT_LICENSE_ID="false"
       SLS_PROMPT_ICR_CP="false"
       ;;
