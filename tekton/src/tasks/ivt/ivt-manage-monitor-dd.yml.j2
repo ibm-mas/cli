@@ -55,6 +55,10 @@ spec:
       type: string
       description: Manage Workspace component list so ISs tasks can decide if it should be executed base on what is configured
       default: ""
+    - name: fvt_manage_automation_version
+      type: string
+      description: Version of Manage Selenium Test Scripts to run in pipeline
+      default: ""
     - name: devops_cos_crn
       type: string
       description: Object Storage Resource Instance Id in IBM Cloud (optional)
@@ -94,6 +98,8 @@ spec:
         value: $(params.fvt_mas_appws_component)
       - name: MAS_APPWS_COMPONENTS
         value: $(params.mas_appws_components)
+      - name: FVT_MANAGE_AUTOMATION_VERSION
+        value: $(params.fvt_manage_automation_version)
       - name: DEVOPS_COS_CRN
         value: $(params.devops_cos_crn)
       - name: DEVOPS_COS_UPLOAD_FOLDER

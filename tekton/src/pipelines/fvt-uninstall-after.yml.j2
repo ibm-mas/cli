@@ -2,19 +2,19 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-{% if wait_for_install == true %}
-  name: mas-uninstall-after-install
-{% else %}
-  name: mas-uninstall
-{% endif %}
+  name: mas-fvt-uninstall-after
 spec:
-{% if wait_for_install == true %}
-  workspaces:
-    # Shared storage to hold mustgather output for tasks
-    - name: shared-mustgather
-{% endif %}
-
   params:
+    # Name of the PipelineRun to wait for
+    - name: pipelinerun_name
+      type: string
+
+    - name: ignore_failure
+      type: string
+      default: "True"
+      description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
+
+
     - name: image_pull_policy
       type: string
       default: IfNotPresent
@@ -76,17 +76,17 @@ spec:
     # 9. Uninstall Cluster Monitoring
 
 
-{% if wait_for_install == true %}
-    # 0. Wait for the install pipeline to complete
+    # 0. Wait for the named pipeline to complete
     # -------------------------------------------------------------------------
-    - name: wait-for-install
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+    - name: wait-for-pipelinerun
       taskRef:
         kind: Task
-        name: mas-fvt-wait-for-install
-{% endif %}
+        name: mas-fvt-wait-for-pipelinerun
+      params:
+        - name: pipelinerun_name
+          value: $(params.pipelinerun_name)
+        - name: ignore_failure
+          value: $(params.ignore_failure)
 
     # 1. Uninstall IBM Maximo Application Suite Applications
     # -------------------------------------------------------------------------
@@ -94,10 +94,8 @@ spec:
 
     # 1.1 Uninstall Visual Inspection
     - name: app-uninstall-visualinspection
-{% if wait_for_install == true %}
       runAfter:
-        - wait-for-install
-{% endif %}
+        - wait-for-pipelinerun
       taskRef:
         kind: Task
         name: mas-devops-suite-app-uninstall
@@ -111,10 +109,8 @@ spec:
 
     # 1.2 Uninstall Assist
     - name: app-uninstall-assist
-{% if wait_for_install == true %}
       runAfter:
-        - wait-for-install
-{% endif %}
+        - wait-for-pipelinerun
       taskRef:
         kind: Task
         name: mas-devops-suite-app-uninstall
@@ -128,10 +124,8 @@ spec:
 
     # 1.3 Uninstall Health & Predict Utilities
     - name: app-uninstall-hputilities
-{% if wait_for_install == true %}
       runAfter:
-        - wait-for-install
-{% endif %}
+        - wait-for-pipelinerun
       taskRef:
         kind: Task
         name: mas-devops-suite-app-uninstall
@@ -145,10 +139,8 @@ spec:
 
     # 1.4 Uninstall Optimizer
     - name: app-uninstall-optimizer
-{% if wait_for_install == true %}
       runAfter:
-        - wait-for-install
-{% endif %}
+        - wait-for-pipelinerun
       taskRef:
         kind: Task
         name: mas-devops-suite-app-uninstall
@@ -162,10 +154,8 @@ spec:
 
     # 1.5 Uninstall Predict
     - name: app-uninstall-predict
-{% if wait_for_install == true %}
       runAfter:
-        - wait-for-install
-{% endif %}
+        - wait-for-pipelinerun
       taskRef:
         kind: Task
         name: mas-devops-suite-app-uninstall
@@ -244,7 +234,6 @@ spec:
           value: $(params.mas_wipe_mongo_data)
         - name: devops_suite_name
           value: suite-uninstall
-
 
     # 3. Uninstall IBM Suite Licensing Service
     # -------------------------------------------------------------------------
@@ -391,29 +380,3 @@ spec:
           values: ["uninstall"]
       runAfter:
         - uninstall-ibm-catalogs
-
-
-{% if wait_for_install == true %}
-  # In FVT only this is the time to take a must-gather and finalize the result
-  # ---------------------------------------------------------------------------
-  finally:
-    # Collect must-gather
-    # -------------------------------------------------------------------------
-    - name: must-gather
-      taskRef:
-        kind: Task
-        name: mas-devops-must-gather
-      params:
-        - name: base_output_dir
-          value: "/workspace/mustgather/$(context.pipelineRun.name)"
-      workspaces:
-        - name: mustgather
-          workspace: shared-mustgather
-
-    # Finalize the record in the FVT database
-    # -------------------------------------------------------------------------
-    - name: finalize
-      taskRef:
-        kind: Task
-        name: mas-fvt-finalize
-{% endif %}

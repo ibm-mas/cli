@@ -20,7 +20,7 @@ EOM
 }
 
 function check_mas_project_exists() {
-  if [ -n "${MAS_NS}" ]; then
+  if [ -z "${MAS_NS}" ]; then
     prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
     MAS_NS="mas-$MAS_INSTANCE_ID-core"
   fi
