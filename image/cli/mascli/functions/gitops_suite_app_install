@@ -10,18 +10,17 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 GitOps Configuration:
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
-  -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
-  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
-  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
-  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
-  --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                IBM Suite Maximo Application Suite Application ID
-  --mas-app-channel ${COLOR_YELLOW}MAS_APP_CHANNEL${TEXT_RESET}      IBM Suite Maximo Application Suite Application Channel
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                         Directory for GitOps repository
+  -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}                  Version of ibm-mas/gitops to use
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                          Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                          Cluster ID
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                IBM Suite Maximo Application Suite Instance ID
+  --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                              IBM Suite Maximo Application Suite Application ID
+  --mas-app-channel ${COLOR_YELLOW}MAS_APP_CHANNEL${TEXT_RESET}                    IBM Suite Maximo Application Suite Application Channel
   --mas-app-catalog-source ${COLOR_YELLOW}MAS_APP_CATALOG_SOURCE${TEXT_RESET}      IBM Suite Maximo Application Suite Application Catalog Source
-  --mas-app-api-version ${COLOR_YELLOW}MAS_APP_API_VERSION${TEXT_RESET}      IBM Suite Maximo Application Suite Application API Version
-  --mas-app-kind ${COLOR_YELLOW}MAS_APP_KIND${TEXT_RESET}      IBM Suite Maximo Application Suite Application Kind
-  --mas-app-spec ${COLOR_YELLOW}MAS_APP_SPEC${TEXT_RESET}      IBM Suite Maximo Application Suite Application Spec
-
+  --mas-app-api-version ${COLOR_YELLOW}MAS_APP_API_VERSION${TEXT_RESET}            IBM Suite Maximo Application Suite Application API Version
+  --mas-app-kind ${COLOR_YELLOW}MAS_APP_KIND${TEXT_RESET}                          IBM Suite Maximo Application Suite Application Kind
+  --mas-app-spec-yaml ${COLOR_YELLOW}MAS_APP_SPEC_YAML${TEXT_RESET}                Yaml file location containing IBM Suite Maximo Application Suite Application Spec
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -94,10 +93,9 @@ function gitops_suite_app_install_noninteractive() {
       --mas-app-kind)
         export MAS_APP_KIND=$1 && shift
         ;;
-      --mas-app-spec)
-        export MAS_APP_SPEC=$1 && shift
+      --mas-app-spec-yaml)
+        export MAS_APP_SPEC_YAML=$1 && shift
         ;;
-
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -145,8 +143,6 @@ function gitops_suite_app_install_noninteractive() {
   [[ -z "$MAS_APP_CATALOG_SOURCE" ]] && gitops_suite_app_install_help "MAS_APP_CATALOG_SOURCE is not set"
   [[ -z "$MAS_APP_API_VERSION" ]] && gitops_suite_app_install_help "MAS_APP_API_VERSION is not set"
   [[ -z "$MAS_APP_KIND" ]] && gitops_suite_app_install_help "MAS_APP_KIND is not set"
-  #[[ -z "$MAS_APP_SPEC" ]] && gitops_suite_app_install_help "MAS_APP_SPEC is not set"
-  
 
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
@@ -158,35 +154,6 @@ function gitops_suite_app_install_noninteractive() {
 
 }
 
-fetchDefaultMASAppSpec() {
-  MAS_APP_ID=$1
-  if [[ -n ${MAS_APP_ID} ]]; then
-    if [[ "${MAS_APP_ID}" == "assist" ]]; then
-      export DEFAULT_MAS_APP_SPEC="{bindings: {objectstorage: system}}"
-    elif [[ "${MAS_APP_ID}" == "health" || "${MAS_APP_ID}" == "manage" ]]; then
-      export DEFAULT_MAS_APP_SPEC="{}"
-    elif [[ "${MAS_APP_ID}" == "hputilities" ]]; then
-      export DEFAULT_MAS_APP_SPEC="{bindings: {appconnect: system, health: workspace}, components: {}, settings: {}}"
-    elif [[ "${MAS_APP_ID}" == "iot" ]]; then
-      export DEFAULT_MAS_APP_SPEC="{}"
-    elif [[ "${MAS_APP_ID}" == "monitor" ]]; then
-      export DEFAULT_MAS_APP_SPEC="{bindings: {mongo: system}, settings: {deployment: {size: '${MAS_APP_SETTINGS_MONITOR_DEPLOYMENT_SIZE}'}}}"
-    elif [[ "${MAS_APP_ID}" == "mso" ]]; then
-      export DEFAULT_MAS_APP_SPEC="{bindings: {mongo: system}}"
-    elif [[ "${MAS_APP_ID}" == "optimizer" ]]; then
-      export DEFAULT_MAS_APP_SPEC="{bindings: {mongo: system}, plan: '${MAS_APP_PLAN}'}"
-    elif [[ "${MAS_APP_ID}" == "predict" ]]; then
-      export DEFAULT_MAS_APP_SPEC="{bindings: {jdbc: '${MAS_APP_BINDINGS_JDBC}'}, components: {}, settings: {deployment: {size: '${MAS_APP_SETTINGS_PREDICT_DEPLOYMENT_SIZE}'}}, displayName: Predict Workspace}"
-    elif [[ "${MAS_APP_ID}" == "safety" ]]; then
-      export DEFAULT_MAS_APP_SPEC="{bindings: {jdbc: '${MAS_APP_BINDINGS_JDBC}'}, components: {}}"
-    elif [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
-      export DEFAULT_MAS_APP_SPEC="{settings: {storage: {size: '${MAS_APP_SETTINGS_VISUALINSPECTION_STORAGE_SIZE}', storageClassName: '${MAS_APP_SETTINGS_VISUALINSPECTION_STORAGE_CLASS}'}}}"
-    fi  
-  fi
-
-
-
-}
 function gitops_suite_app_install() {
   # Take the first parameter off (it will be create-gitops)
   shift
@@ -201,28 +168,7 @@ function gitops_suite_app_install() {
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
   GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
-
   export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
-  export MAS_APP_SETTINGS_MONITOR_DEPLOYMENT_SIZE=${MAS_APP_SETTINGS_MONITOR_DEPLOYMENT_SIZE:-dev}
-  #default value MAS_APP_PLAN=full specific to optimizer
-  export MAS_APP_PLAN=${MAS_APP_PLAN:-full}
-  export MAS_APP_SETTINGS_PREDICT_DEPLOYMENT_SIZE=${MAS_APP_SETTINGS_PREDICT_DEPLOYMENT_SIZE:-small}
-  export MAS_APP_BINDINGS_JDBC=${MAS_APP_BINDINGS_JDBC:-system}
-  export MAS_APP_SETTINGS_VISUALINSPECTION_STORAGE_SIZE=${MAS_APP_SETTINGS_VISUALINSPECTION_STORAGE_SIZE:-100Gi}
-  export MAS_APP_SETTINGS_VISUALINSPECTION_STORAGE_CLASS=${MAS_APP_SETTINGS_VISUALINSPECTION_STORAGE_CLASS:-$DEFAULT_STORAGE_CLASS}
-
-
-  #Fetch Default MAS App Spec
-  fetchDefaultMASAppSpec ${MAS_APP_ID}
-
-  #if [[ -n ${MAS_APP_SPEC} ]]; then
-   # echo "Before-"${MAS_APP_SPEC}
-    #export MAS_APP_SPEC=$(echo ${MAS_APP_SPEC} | yq -r '.')
-   # echo "After-"${MAS_APP_SPEC}
-  #fi
-  echo "MAS App Spec ID ....................... ${COLOR_MAGENTA}${MAS_APP_SPEC}"
-  export MAS_APP_SPEC=${MAS_APP_SPEC:-$DEFAULT_MAS_APP_SPEC}
-
 
   echo
   reset_colors
@@ -265,8 +211,18 @@ function gitops_suite_app_install() {
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo_reset_dim "MAS App Spec ID ....................... ${COLOR_MAGENTA}${MAS_APP_SPEC}"
-  echo_reset_dim "Default MAS App Spec ID ............... ${COLOR_MAGENTA}${DEFAULT_MAS_APP_SPEC}"
+  echo_reset_dim "Default MAS App Spec  ................. ${COLOR_MAGENTA}${DEFAULT_MAS_APP_SPEC}"
+  echo_reset_dim "Application ID ........................ ${COLOR_MAGENTA}${MAS_APP_ID}"
+  echo_reset_dim "Application Channel ................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL}"
+  echo_reset_dim "Application Catalog Source ............ ${COLOR_MAGENTA}${MAS_APP_CATALOG_SOURCE}"
+  echo_reset_dim "Application API Version ............... ${COLOR_MAGENTA}${MAS_APP_API_VERSION}"
+  echo_reset_dim "Application Kind ...................... ${COLOR_MAGENTA}${MAS_APP_KIND}"
+  echo_reset_dim "Application Spec Yaml file ............ ${COLOR_MAGENTA}${MAS_APP_SPEC_YAML}"
+  if [[ -n "$MAS_APP_SPEC_YAML" ]]; then
+    echo_reset_dim "Using Default Application Spec ........ ${COLOR_MAGENTA}False"
+  else
+    echo_reset_dim "Using Default Application Spec ........ ${COLOR_MAGENTA}True"
+  fi
   reset_colors
 
 
@@ -277,6 +233,10 @@ function gitops_suite_app_install() {
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
+  CURRENT_DIR=$PWD
+  TEMP_DIR=$CURRENT_DIR/tmp-suite-app-install
+  rm -rf $TEMP_DIR
+  mkdir -p $TEMP_DIR
 
   # Define cluster-level secrets used
   # ---------------------------------------------------------------------------
@@ -313,6 +273,18 @@ function gitops_suite_app_install() {
   fi
   mkdir -p ${GITOPS_APPS_DIR}
 
+  # Getting app spec, either default or provided
+  # ---------------------------------------------------------------------------
+  if [[ -n "$MAS_APP_SPEC_YAML" ]]; then
+    echo
+    echo_h2 "Using application spec provided for $MAS_APP_ID at $MAS_APP_SPEC_YAML"
+    export MAS_APP_SPEC=$(cat ${MAS_APP_SPEC_YAML} | yq -r '.' --yaml-output)
+  else
+    echo
+    echo_h2 "Using default application spec for $MAS_APP_ID"
+    jinja -X .+ $CLI_DIR/templates/gitops/app-spec-defaults/${MAS_APP_ID}-app-spec.yaml.j2 -o ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml
+    export MAS_APP_SPEC=$(cat ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml | yq -r '.' --yaml-output)
+  fi
 
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
