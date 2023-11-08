@@ -61,6 +61,10 @@ spec:
       type: string
       description: Optional. Used to uninstall UDS
       default: "none"
+    - name: dro_action
+      type: string
+      description: Optional. Used to uninstall DRO
+      default: "none"
 
   tasks:
     # Content
@@ -308,6 +312,23 @@ spec:
       runAfter:
         - uninstall-mongodb
 
+    # 4. Uninstall Data Reporter Operator
+    # -------------------------------------------------------------------------
+    - name: uninstall-dro
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: dro_action
+          value: $(params.dro_action)
+      taskRef:
+        kind: Task
+        name: mas-devops-dro
+      when:
+        - input: "$(params.dro_action)"
+          operator: in
+          values: ["uninstall"]
+      runAfter:
+        - uninstall-mongodb
 
     # 6. Uninstall IBM Cert Manager
     # -------------------------------------------------------------------------

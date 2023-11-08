@@ -308,7 +308,7 @@ Provide your license ID and the location of your license file.
 
 
 ### Step 19. Configure UDS
-Maximo Application Suite's required integration with IBM User Data Services requires your e-mail address and first/last name be provided.
+Maximo Application Suite's required integration with either IBM User Data Services OR IBM Data Reporter Operator requires your e-mail address and first/last name be provided.
 
 
 ### Step 20. Prepare Installation

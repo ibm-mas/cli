@@ -246,6 +246,11 @@ spec:
     - name: uds_action
       value: '$UDS_ACTION'
 
+    # Dependencies - DRO (Required, no defaults)
+    # -------------------------------------------------------------------------
+    - name: dro_action
+      value: '$DRO_ACTION'
+
     # Dependencies - AppConnect
     # -------------------------------------------------------------------------
     - name: appconnect_entitlement_username
