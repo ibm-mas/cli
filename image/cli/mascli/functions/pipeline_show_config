@@ -47,8 +47,8 @@ function pipeline_show_config() {
   then echo_reset_dim "IoT ....................... ${COLOR_RED}Skip Installation"
   else 
     echo_reset_dim "IoT ....................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_IOT}"
-    echo_reset_dim "IoT MQTT Storage Class .... ${COLOR_MAGENTA}${STORAGE_CLASS_RWO:-<default>}"
-    echo_reset_dim "IoT FPL Storage Class ..... ${COLOR_MAGENTA}${STORAGE_CLASS_RWO:-<default>}"
+    echo_reset_dim " - MQTT Storage Class ..... ${COLOR_MAGENTA}${STORAGE_CLASS_RWO:-<default>}"
+    echo_reset_dim " - FPL Storage Class ...... ${COLOR_MAGENTA}${STORAGE_CLASS_RWO:-<default>}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_MONITOR}" == '' ]]
@@ -89,7 +89,9 @@ function pipeline_show_config() {
 
   if [[ "${MAS_APP_CHANNEL_VISUALINSPECTION}" == '' ]]
   then echo_reset_dim "Visual Inspection ......... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "Visual Inspection ......... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_VISUALINSPECTION}"
+  else 
+    echo_reset_dim "Visual Inspection ......... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_VISUALINSPECTION}"
+    echo_reset_dim " - Storage Class .......... ${COLOR_MAGENTA}${STORAGE_CLASS_RWX:-<default>}"
   fi
 
   reset_colors
