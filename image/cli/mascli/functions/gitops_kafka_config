@@ -225,7 +225,7 @@ function gitops_kafka_config() {
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   # Per MAS instance
-  jinja -X .+ -d $KAFKA_CONFIG_FILE $DIR/templates/gitops/ibm-kafka-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-kafka-config.yaml
+  jinja -X .+ -d $KAFKA_CONFIG_FILE $CLI_DIR/templates/gitops/ibm-kafka-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-kafka-config.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------

@@ -401,7 +401,7 @@ function gitops_db2u_jdbc_config() {
 
     echo
     echo_reset_dim "Generating DB2U JDBC Config file ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-db2u-jdbc-config.yaml"
-    jinja -X .+ $DIR/templates/gitops/ibm-db2u-jdbc-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-db2u-jdbc-config.yaml
+    jinja -X .+ $CLI_DIR/templates/gitops/ibm-db2u-jdbc-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-db2u-jdbc-config.yaml
   fi
 
   # Commit and push to github target repo

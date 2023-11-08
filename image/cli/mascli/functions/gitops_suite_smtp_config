@@ -286,7 +286,7 @@ function gitops_suite_smtp_config() {
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   # Per MAS instance
-  jinja -X .+ $DIR/templates/gitops/ibm-mas-smtp-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-smtp-config.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/ibm-mas-smtp-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-smtp-config.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------

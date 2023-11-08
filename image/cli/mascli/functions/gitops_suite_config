@@ -281,7 +281,7 @@ function gitops_suite_config() {
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   # Per MAS instance
-  jinja -X .+ -d $MONGO_CONFIG_FILE $DIR/templates/gitops/ibm-mas-core-configs.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-core-configs.yaml
+  jinja -X .+ -d $MONGO_CONFIG_FILE $CLI_DIR/templates/gitops/ibm-mas-core-configs.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-core-configs.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
