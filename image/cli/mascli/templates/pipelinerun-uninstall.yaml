@@ -29,3 +29,5 @@ spec:
       value: "$SLS_ACTION"
     - name: uds_action
       value: "$UDS_ACTION"
+    - name: dro_action
+      value: "$DRO_ACTION"
