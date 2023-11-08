@@ -267,7 +267,7 @@ function gitops_suite_idp_config() {
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   # Per MAS instance
-  jinja -X .+ $DIR/templates/gitops/ibm-mas-idp-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-idp-config.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/ibm-mas-idp-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-idp-config.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------

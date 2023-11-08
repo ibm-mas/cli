@@ -232,8 +232,8 @@ function gitops_deprovision_db2u() {
     argocd_sync ${CLUSTER_ID}-watcher
 
     argocd_prune_sync ${CLUSTER_ID}-watcher
-    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-db2-jdbc-config-rotate-password ${MAS_INSTANCE_ID}
-    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-db2-jdbc-config ${MAS_INSTANCE_ID}
-    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-db2 ${MAS_INSTANCE_ID}
+    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-db2-jdbc-config-rotate-password ${MAS_INSTANCE_ID} ${FORCE_REMOVAL}
+    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-db2-jdbc-config ${MAS_INSTANCE_ID} ${FORCE_REMOVAL}
+    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-db2 ${MAS_INSTANCE_ID} ${FORCE_REMOVAL}
   fi
 }

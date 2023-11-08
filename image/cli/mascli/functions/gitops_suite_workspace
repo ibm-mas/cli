@@ -201,7 +201,7 @@ function gitops_suite_workspace() {
     export MAS_WORKSPACE_NAME=$MAS_WORKSPACE_ID
   fi
   echo "Generating IBM Maximo Application Suite Workspace file ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.${MAS_WORKSPACE_ID}.ibm-mas-core-workspace.yaml"
-  jinja -X .+ $DIR/templates/gitops/ibm-mas-core-workspace.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.${MAS_WORKSPACE_ID}.ibm-mas-core-workspace.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/ibm-mas-core-workspace.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.${MAS_WORKSPACE_ID}.ibm-mas-core-workspace.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
