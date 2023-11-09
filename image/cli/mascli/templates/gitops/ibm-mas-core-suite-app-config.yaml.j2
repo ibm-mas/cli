@@ -1,0 +1,44 @@
+---
+# Maximo Application Configuration
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mas-{{ MAS_INSTANCE_ID }}-{{ MAS_APP_ID }}-app-config
+  namespace: openshift-gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ MAS_INSTANCE_ID }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mas-{{ MAS_INSTANCE_ID }}-{{ MAS_APP_ID }}
+  source:
+    repoURL: https://github.com/ibm-mas/gitops
+    path: applications/ibm-mas-suite-app-config
+    targetRevision: {{ GITOPS_VERSION }}
+    plugin:
+      env:
+        - name: HELM_VALUES
+          value: |
+            mas_instance_id: {{ MAS_INSTANCE_ID }}
+            mas_app_id: {{ MAS_APP_ID }}
+            mas_app_namespace: {{ MAS_APP_NAMESPACE }}
+            mas_app_channel: {{ MAS_APP_CHANNEL }}
+            mas_app_catalog_source: {{ MAS_APP_CATALOG_SOURCE }}
+            mas_app_api_version: {{ MAS_APP_API_VERSION }}
+            mas_app_kind: {{ MAS_APP_KIND }}
+
+            mas_app_ws_apiversion: {{ MAS_APP_WS_APIVERSION }}
+            mas_app_ws_kind: {{ MAS_APP_WS_KIND }}
+            mas_workspace_id: {{ MAS_WORKSPACE_ID }}
+            server_bundles_add_server_config_no_activation_content: {{ SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT }}
+            server_bundles_add_server_config_content: {{ SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT }}
+            server_bundles_jms_add_server_config_content: {{ SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT }}
+            {{ MAS_APPWS_SPEC | indent(12) }}
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

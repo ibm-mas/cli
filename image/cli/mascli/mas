@@ -71,6 +71,8 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_kafka
 . $CLI_DIR/functions/gitops_kafka_config
 . $CLI_DIR/functions/gitops_suite
+. $CLI_DIR/functions/gitops_suite_app_install
+. $CLI_DIR/functions/gitops_suite_app_config
 . $CLI_DIR/functions/gitops_suite_certs
 . $CLI_DIR/functions/gitops_suite_config
 . $CLI_DIR/functions/gitops_suite_dns
@@ -275,6 +277,21 @@ case $1 in
     gitops_suite "$@"
     ;;
 
+  gitops-suite-app-install)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_suite_app_install "$@"
+    ;;
+
+  gitops-suite-app-config)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_suite_app_config "$@"
+    ;;
   gitops-suite-config)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
