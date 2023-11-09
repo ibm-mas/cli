@@ -152,6 +152,15 @@ function gitops_suite_app_install_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_suite_app_install_help "GIT_BRANCH is not set"
   fi
 
+  if [[ -z "$MAS_APP_SPEC_YAML" ]]; then
+    if [[ "${MAS_APP_ID}" == "iot" ]]; then
+      [[ "${DEFAULT_BLOCK_STORAGE_CLASS}" == "" ]] && gitops_suite_app_install_help "DEFAULT_BLOCK_STORAGE_CLASS is not set"
+    fi
+    if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
+      [[ "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_install_help "DEFAULT_FILE_STORAGE_CLASS is not set"
+    fi    
+  fi
+
 }
 
 function gitops_suite_app_install() {
@@ -169,6 +178,11 @@ function gitops_suite_app_install() {
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
   GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
   export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
+
+  CURRENT_DIR=$PWD
+  TEMP_DIR=$CURRENT_DIR/tmp-suite-app-install
+  rm -rf $TEMP_DIR
+  mkdir -p $TEMP_DIR
 
   echo
   reset_colors
@@ -211,7 +225,6 @@ function gitops_suite_app_install() {
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo_reset_dim "Default MAS App Spec  ................. ${COLOR_MAGENTA}${DEFAULT_MAS_APP_SPEC}"
   echo_reset_dim "Application ID ........................ ${COLOR_MAGENTA}${MAS_APP_ID}"
   echo_reset_dim "Application Channel ................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL}"
   echo_reset_dim "Application Catalog Source ............ ${COLOR_MAGENTA}${MAS_APP_CATALOG_SOURCE}"
@@ -219,10 +232,13 @@ function gitops_suite_app_install() {
   echo_reset_dim "Application Kind ...................... ${COLOR_MAGENTA}${MAS_APP_KIND}"
   echo_reset_dim "Application Spec Yaml file ............ ${COLOR_MAGENTA}${MAS_APP_SPEC_YAML}"
   if [[ -n "$MAS_APP_SPEC_YAML" ]]; then
-    echo_reset_dim "Using Default Application Spec ........ ${COLOR_MAGENTA}False"
+    echo_reset_dim "Using Default Application Spec ...... ${COLOR_MAGENTA}False"
   else
-    echo_reset_dim "Using Default Application Spec ........ ${COLOR_MAGENTA}True"
+    echo_reset_dim "Using Default Application Spec ...... ${COLOR_MAGENTA}True"
   fi
+  echo_reset_dim "Default File Storage Class ............ ${COLOR_MAGENTA}${DEFAULT_FILE_STORAGE_CLASS}"
+  echo_reset_dim "Default Block Storage Class ........... ${COLOR_MAGENTA}${DEFAULT_BLOCK_STORAGE_CLASS}"
+    
   reset_colors
 
 
@@ -233,10 +249,6 @@ function gitops_suite_app_install() {
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
-  CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/tmp-suite-app-install
-  rm -rf $TEMP_DIR
-  mkdir -p $TEMP_DIR
 
   # Define cluster-level secrets used
   # ---------------------------------------------------------------------------
@@ -282,7 +294,7 @@ function gitops_suite_app_install() {
   else
     echo
     echo_h2 "Using default application spec for $MAS_APP_ID"
-    jinja -X .+ $CLI_DIR/templates/gitops/app-spec-defaults/${MAS_APP_ID}-app-spec.yaml.j2 -o ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml
+    jinja -X .+ $CLI_DIR/templates/gitops/app-spec-defaults/${MAS_APP_ID}.yaml.j2 -o ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml
     export MAS_APP_SPEC=$(cat ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml | yq -r '.' --yaml-output)
   fi
 
@@ -293,7 +305,7 @@ function gitops_suite_app_install() {
   echo "- Project"
   jinja -X .+ $CLI_DIR/templates/gitops/appproject.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.appproject.yaml
 
-  echo "- IBM Maximo Application Suite Core Platform $CLI_DIR/templates/gitops/ibm-mas-core-suite-app-install.yaml.j2"
+  echo "- IBM Maximo Application Suite Application Platform"
   jinja -X .+ $CLI_DIR/templates/gitops/ibm-mas-core-suite-app-install.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-core-suite-${MAS_APP_ID}-app-install.yaml
 
   # Commit and push to github target repo
