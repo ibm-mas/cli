@@ -9,6 +9,8 @@ function sm_login() {
     aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
     aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
     aws configure set default.region $SM_AWS_REGION
+    export AWS_REGION=$SM_AWS_REGION
+    aws configure list
   elif [[ "$AVP_TYPE" == "ibm" ]]; then
     echo "IBM SecretsManager not yet supported"
     exit 1

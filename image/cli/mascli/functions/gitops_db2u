@@ -15,45 +15,12 @@ GitOps Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
 
-IBM Maximo Application Suite:
-      -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}   IBM Suite Maximo Application Suite Instance ID      
-
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
 IBM DB2U:
-      --db2-channel ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                                       DB2 Channel
-      --db2-dbname ${COLOR_YELLOW}DB2_DBNAME${TEXT_RESET}                                         DB2 DB Name
-      --db2-version ${COLOR_YELLOW}DB2_VERSION${TEXT_RESET}                                       DB2 Version
-      --db2-table-org ${COLOR_YELLOW}DB2_TABLE_ORG${TEXT_RESET}                                   DB2 table org
-      --db2-4k-device-support ${COLOR_YELLOW}DB2_4K_DEVICE_SUPPORT${TEXT_RESET}                   DB2 4k device support
-      --db2-workload ${COLOR_YELLOW}DB2_WORKLOAD${TEXT_RESET}                                     DB2 workload
-      --db2-mln-count ${COLOR_YELLOW}DB2_MLN_COUNT${TEXT_RESET}                                   DB2 logical nodes count 
-      --db2-num-pods ${COLOR_YELLOW}DB2_NUM_PODS${TEXT_RESET}                                     DB2 number of pods
-      --db2-meta-storage-class ${COLOR_YELLOW}DB2_META_STORAGE_CLASS${TEXT_RESET}                 DB2 meta storage class
-      --db2-meta-storage-size ${COLOR_YELLOW}DB2_META_STORAGE_SIZE${TEXT_RESET}                   DB2 meta storage size
-      --db2-meta-storage-accessmode ${COLOR_YELLOW}DB2_META_STORAGE_ACCESSMODE${TEXT_RESET}       DB2 meta storage accessmode
-      --db2-data-storage-class ${COLOR_YELLOW}DB2_DATA_STORAGE_CLASS${TEXT_RESET}                 DB2 data storage class
-      --db2-data-storage-size ${COLOR_YELLOW}DB2_DATA_STORAGE_SIZE${TEXT_RESET}                   DB2 data storage size
-      --db2-data-storage-accessmode ${COLOR_YELLOW}DB2_DATA_STORAGE_ACCESSMODE${TEXT_RESET}       DB2 data storage accessmode
-      --db2-backup-storage-class ${COLOR_YELLOW}DB2_BACKUP_STORAGE_CLASS${TEXT_RESET}             DB2 backup storage class
-      --db2-backup-storage-size ${COLOR_YELLOW}DB2_BACKUP_STORAGE_SIZE${TEXT_RESET}               DB2 backup storage size
-      --db2-backup-storage-accessmode ${COLOR_YELLOW}DB2_BACKUP_STORAGE_ACCESSMODE${TEXT_RESET}   DB2 backup storage accessmode
-      --db2-logs-storage-class ${COLOR_YELLOW}DB2_LOGS_STORAGE_CLASS${TEXT_RESET}                 DB2 logs storage class
-      --db2-logs-storage-size ${COLOR_YELLOW}DB2_LOGS_STORAGE_SIZE${TEXT_RESET}                   DB2 logs storage size
-      --db2-logs-storage-accessmode ${COLOR_YELLOW}DB2_LOGS_STORAGE_ACCESSMODE${TEXT_RESET}       DB2 logs storage accessmode
-      --db2-temp-storage-class ${COLOR_YELLOW}DB2_TEMP_STORAGE_CLASS${TEXT_RESET}                 DB2 temp storage class
-      --db2-temp-storage-size ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}                   DB2 temp storage size
-      --db2-temp-storage-accessmode ${COLOR_YELLOW}DB2_TEMP_STORAGE_ACCESSMODE${TEXT_RESET}       DB2 temp storage accessmode
-      --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG_SCOPE${TEXT_RESET}                             Supported values are `system`, `ws`, `app`, or `wsapp`
-      -W, --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}                         IBM Suite Maximo Application Suite workspace ID
-      --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                                         IBM Suite Maximo Application Suite Application ID, eg: manage
-      --db2-cpu-requests ${COLOR_YELLOW}DB2_CPU_REQUESTS${TEXT_RESET}                             Define the Kubernetes CPU request for the Db2 pod.
-      --db2-cpu-limits ${COLOR_YELLOW}DB2_CPU_LIMITS${TEXT_RESET}                                 Define the Kubernetes CPU limit for the Db2 pod.
-      --db2-memory-requests ${COLOR_YELLOW}DB2_MEMORY_REQUESTS${TEXT_RESET}                       Define the Kubernetes memory request for the Db2 pod.
-      --db2-memory-limits ${COLOR_YELLOW}DB2_MEMORY_LIMITS${TEXT_RESET}                           Define the Kubernetes memory limit for the Db2 pod.
-      
+      --db2-channel ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}        DB2 Channel, defaults to default channel in catalog
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -102,101 +69,10 @@ function gitops_db2u_noninteractive() {
       --secrets-key-seperator)
         export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
-      # MAS
-      -m|--mas-instance-id)
-        export MAS_INSTANCE_ID=$1 && shift
-        ;;
 
       # DB2
       --db2-channel)
-        export DB2_CHANNEL=$1 && shift
-        ;;
-      --db2-dbname)
-        export DB2_DBNAME=$1 && shift
-        ;;
-      --db2-version)
-        export DB2_VERSION=$1 && shift
-        ;;
-      --db2-table-org)
-        export DB2_TABLE_ORG=$1 && shift
-        ;;
-      --db2-4k-device-support)
-        export DB2_4K_DEVICE_SUPPORT=$1 && shift
-        ;;
-      --db2-workload)
-        export DB2_WORKLOAD=$1 && shift
-        ;;
-      --db2-mln-count)
-        export DB2_MLN_COUNT=$1 && shift
-        ;;
-      --db2-num-pods)
-        export DB2_NUM_PODS=$1 && shift
-        ;;
-      --db2-meta-storage-class)
-        export DB2_META_STORAGE_CLASS=$1 && shift
-        ;;
-      --db2-meta-storage-size)
-        export DB2_META_STORAGE_SIZE=$1 && shift
-        ;;
-      --db2-meta-storage-accessmode) 
-        export DB2_META_STORAGE_ACCESSMODE=$1 && shift
-        ;;
-      --db2-data-storage-class) 
-        export DB2_DATA_STORAGE_CLASS=$1 && shift
-        ;;
-      --db2-data-storage-size)
-        export DB2_DATA_STORAGE_SIZE=$1 && shift
-        ;;
-      --db2-data-storage-accessmode)
-        export DB2_DATA_STORAGE_ACCESSMODE=$1 && shift
-        ;;
-      --db2-backup-storage-class)
-        export DB2_BACKUP_STORAGE_CLASS=$1 && shift
-        ;;
-      --db2-backup-storage-size)
-        export DB2_BACKUP_STORAGE_SIZE=$1 && shift
-        ;;
-      --db2-backup-storage-accessmode)
-        export DB2_BACKUP_STORAGE_ACCESSMODE=$1 && shift
-        ;;
-      --db2-logs-storage-class)
-        export DB2_LOGS_STORAGE_CLASS=$1 && shift
-        ;;
-      --db2-logs-storage-size)
-        export DB2_LOGS_STORAGE_SIZE=$1 && shift
-        ;;
-      --db2-logs-storage-accessmode)
-        export DB2_LOGS_STORAGE_ACCESSMODE=$1 && shift
-        ;;
-      --db2-temp-storage-class)
-        export DB2_TEMP_STORAGE_CLASS=$1 && shift
-        ;;
-      --db2-temp-storage-size)
-        export DB2_TEMP_STORAGE_SIZE=$1 && shift
-        ;;
-      --db2-temp-storage-accessmode)
-        export DB2_TEMP_STORAGE_ACCESSMODE=$1 && shift
-        ;;
-      --mas-config-scope)
-        export MAS_CONFIG_SCOPE=$1 && shift
-        ;;
-      -W|--mas-workspace-id)
-        export MAS_WORKSPACE_ID=$1 && shift
-        ;;
-      --mas-app-id)
-        export MAS_APP_ID=$1 && shift
-        ;;
-      --db2-cpu-requests)
-        export DB2_CPU_REQUESTS=$1 && shift
-        ;;
-      --db2-cpu-limits)
-        export DB2_CPU_LIMITS=$1 && shift
-        ;;
-      --db2-memory-requests)
-        export DB2_MEMORY_REQUESTS=$1 && shift
-        ;;
-      --db2-memory-limits)
-        export DB2_MEMORY_LIMITS=$1 && shift
+      export DB2_CHANNEL=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -240,17 +116,6 @@ function gitops_db2u_noninteractive() {
   [[ -z "$ACCOUNT_ID" ]] && gitops_db2u_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_db2u_help "CLUSTER_ID is not set"
 
-#db2u  
-  [[ -z "$DB2_VERSION" ]] && gitops_db2u_help "DB2_VERSION is not set"
-  [[ -z "$DB2_META_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_META_STORAGE_CLASS is not set"
-  [[ -z "$DB2_DATA_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_DATA_STORAGE_CLASS is not set"
-  [[ -z "$DB2_BACKUP_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_BACKUP_STORAGE_CLASS is not set"
-  [[ -z "$DB2_LOGS_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_LOGS_STORAGE_CLASS is not set"
-  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_help "MAS_INSTANCE_ID is not set"
-
-  [[ -z "$MAS_CONFIG_SCOPE" ]] && gitops_db2u_help "MAS_CONFIG_SCOPE is not set"
-  [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_db2u_help "MAS_WORKSPACE_ID is not set"
-  [[ -z "$MAS_APP_ID" ]] && gitops_db2u_help "MAS_APP_ID is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_db2u_help "GITHUB_HOST is not set"
@@ -264,7 +129,6 @@ function gitops_db2u_noninteractive() {
 function gitops_db2u() {
   # Take the first parameter off (it will be create-gitops)
   shift
-  unset MAS_INSTANCE_ID  
   if [[ $# -gt 0 ]]; then
     gitops_db2u_noninteractive "$@"
   else
@@ -276,6 +140,9 @@ function gitops_db2u() {
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
   GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
+
+  export DB2_NAMESPACE=db2u
+  export DB2_CHANNEL=${DB2_CHANNEL:-`oc get PackageManifest db2u-operator -n ibm-common-services  -o=jsonpath="{.status.defaultChannel}"`}
 
   echo
   reset_colors
@@ -316,38 +183,9 @@ function gitops_db2u() {
   reset_colors
 
   echo "${TEXT_DIM}"
-  echo_h2 "IBM Maximo Application Suite" "    "
-  echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo_reset_dim "db2-channel  ............................ ${COLOR_MAGENTA}${DB2_CHANNEL}"
-  echo_reset_dim "db2-dbname  ............................. ${COLOR_MAGENTA}${DB2_DBNAME}"
-  echo_reset_dim "db2-version  ............................ ${COLOR_MAGENTA}${DB2_VERSION}"
-  echo_reset_dim "db2-table-org  .......................... ${COLOR_MAGENTA}${DB2_TABLE_ORG}"
-  echo_reset_dim "db2-4k-device-support  .................. ${COLOR_MAGENTA}${DB2_4K_DEVICE_SUPPORT}"
-  echo_reset_dim "db2-workload  ........................... ${COLOR_MAGENTA}${DB2_WORKLOAD}"
-  echo_reset_dim "db2-mln-count  .......................... ${COLOR_MAGENTA}${DB2_MLN_COUNT}"
-  echo_reset_dim "db2-num-pods  ........................... ${COLOR_MAGENTA}${DB2_NUM_PODS}"
-  echo_reset_dim "db2-meta-storage-class  ................. ${COLOR_MAGENTA}${DB2_META_STORAGE_CLASS}"
-  echo_reset_dim "db2-meta-storage-size  .................. ${COLOR_MAGENTA}${DB2_META_STORAGE_SIZE}"
-  echo_reset_dim "db2-meta-storage-accessmode  ............ ${COLOR_MAGENTA}${DB2_META_STORAGE_ACCESSMODE}"
-  echo_reset_dim "db2-data-storage-class  ................. ${COLOR_MAGENTA}${DB2_DATA_STORAGE_CLASS}"
-  echo_reset_dim "db2-data-storage-size  .................. ${COLOR_MAGENTA}${DB2_DATA_STORAGE_SIZE}"
-  echo_reset_dim "db2-data-storage-accessmode  ............ ${COLOR_MAGENTA}${DB2_DATA_STORAGE_ACCESSMODE}"
-  echo_reset_dim "db2-backup-storage-class  ............... ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_CLASS}"
-  echo_reset_dim "db2-backup-storage-size  ................ ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_SIZE}"
-  echo_reset_dim "db2-backup-storage-accessmode  .......... ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_ACCESSMODE}"
-  echo_reset_dim "db2-logs-storage-class  ................. ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_CLASS}"
-  echo_reset_dim "db2-logs-storage-size  .................. ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_SIZE}"
-  echo_reset_dim "db2-logs-storage-accessmode  ............ ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_ACCESSMODE}"
-  echo_reset_dim "db2-temp-storage-class  ................. ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_CLASS}"
-  echo_reset_dim "db2-temp-storage-size  .................. ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_SIZE}"
-  echo_reset_dim "db2-temp-storage-accessmode  ............ ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_ACCESSMODE}"
-  echo_reset_dim "mas-config-scope  ....................... ${COLOR_MAGENTA}${MAS_CONFIG_SCOPE}"
-  echo_reset_dim "mas-workspace-id  ....................... ${COLOR_MAGENTA}${MAS_WORKSPACE_ID}"
-  echo_reset_dim "mas-app-id  ............................. ${COLOR_MAGENTA}${MAS_APP_ID}"
-  echo_reset_dim "db2-cpu-requests  ....................... ${COLOR_MAGENTA}${DB2_CPU_REQUESTS}"
-  echo_reset_dim "db2-cpu-limits  ......................... ${COLOR_MAGENTA}${DB2_CPU_LIMITS}"
-  echo_reset_dim "db2-memory-requests  .................... ${COLOR_MAGENTA}${DB2_MEMORY_REQUESTS}"
-  echo_reset_dim "db2-memory-limits  ...................... ${COLOR_MAGENTA}${DB2_MEMORY_LIMITS}"
+  echo_h2 "DB2u Operator" "    "
+  echo_reset_dim "DB2_NAMESPACE  .......................... ${COLOR_MAGENTA}${DB2_NAMESPACE}"
+  echo_reset_dim "DB2_CHANNEL  ............................ ${COLOR_MAGENTA}${DB2_CHANNEL}"
   reset_colors
 
   CURRENT_DIR=$PWD
@@ -379,86 +217,11 @@ function gitops_db2u() {
   echo
   echo_h2 "Generating DB2U operator Applications"
   echo "- DB2U operator"
-  export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}
-  export DB2_NAMESPACE=mas-${MAS_INSTANCE_ID}-db2u-manage
-  
-  export DB2_CHANNEL=${DB2_CHANNEL:-`oc get PackageManifest db2u-operator -n ibm-common-services  -o=jsonpath="{.status.defaultChannel}"`}
-  export CLUSTER_DOMAIN=`oc get ingress.config.openshift.io  cluster -o=jsonpath='{.spec.domain}'`
-  echo_reset_dim "DB2_CHANNEL  ............................ ${COLOR_MAGENTA}${DB2_CHANNEL}"
-  echo_reset_dim "CLUSTER_DOMAIN .......................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
 
-  reset_colors
-
-  if [[ -z $DB2_DBNAME ]]; then
-    export DB2_DBNAME=BLUDB
-  fi
-  if [[ -z $DB2_TABLE_ORG ]]; then
-    export DB2_TABLE_ORG=ROW
-  fi 
-  if [[ -z $DB2_4K_DEVICE_SUPPORT ]]; then
-    export DB2_4K_DEVICE_SUPPORT=ON
-  fi 
-  if [[ -z $DB2_WORKLOAD ]]; then
-    export DB2_WORKLOAD=ANALYTICS
-  fi 
-  if [[ -z $DB2_MLN_COUNT ]]; then
-    export DB2_MLN_COUNT=1
-  fi 
-  if [[ -z $DB2_NUM_PODS ]]; then
-    export DB2_NUM_PODS=1
-  fi 
-  if [[ -z $DB2_META_STORAGE_SIZE ]]; then
-    export DB2_META_STORAGE_SIZE=20Gi
-  fi 
-  if [[ -z $DB2_META_STORAGE_ACCESSMODE ]]; then
-    export DB2_META_STORAGE_ACCESSMODE=ReadWriteMany
-  fi 
-  if [[ -z $DB2_DATA_STORAGE_SIZE ]]; then
-    export DB2_DATA_STORAGE_SIZE=100Gi
-  fi 
-  if [[ -z $DB2_DATA_STORAGE_ACCESSMODE ]]; then
-    export DB2_DATA_STORAGE_ACCESSMODE=ReadWriteOnce
-  fi 
-  if [[ -z $DB2_BACKUP_STORAGE_SIZE ]]; then
-    export DB2_BACKUP_STORAGE_SIZE=100Gi
-  fi 
-  if [[ -z $DB2_BACKUP_STORAGE_ACCESSMODE ]]; then
-    export DB2_BACKUP_STORAGE_ACCESSMODE=ReadWriteMany
-  fi 
-  if [[ -z $DB2_LOGS_STORAGE_SIZE ]]; then
-    export DB2_LOGS_STORAGE_SIZE=100Gi
-  fi 
-  if [[ -z $DB2_LOGS_STORAGE_ACCESSMODE ]]; then
-    export DB2_LOGS_STORAGE_ACCESSMODE=ReadWriteOnce
-  fi  
-  if [[ -z $DB2_TEMP_STORAGE_SIZE ]]; then
-    export DB2_TEMP_STORAGE_SIZE=100Gi
-  fi 
-  if [[ -z $DB2_TEMP_STORAGE_ACCESSMODE ]]; then
-    export DB2_TEMP_STORAGE_ACCESSMODE=ReadWriteOnce
-  fi
-
-  if [[ -z $DB2_CPU_REQUESTS ]]; then
-    export DB2_CPU_REQUESTS=4000m
-  fi 
-  if [[ -z $DB2_CPU_LIMITS ]]; then
-    export DB2_CPU_LIMITS=6000m
-  fi  
-  if [[ -z $DB2_MEMORY_REQUESTS ]]; then
-    export DB2_MEMORY_REQUESTS=8Gi
-  fi 
-  if [[ -z $DB2_MEMORY_LIMITS ]]; then
-    export DB2_MEMORY_LIMITS=16Gi
-  fi
-
-  export DB2_ENTITLEMENT_KEY=$SECRET_KEY_IBM_ENTITLEMENT
   export IBM_ENTITLEMENT_KEY=$SECRET_KEY_IBM_ENTITLEMENT
 
-  
-
-  echo "Generating DB2U file ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-db2u.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/ibm-db2u.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-db2u.yaml
-
+  echo "Generating DB2U file ${GITOPS_APPS_DIR}/ibm-db2u.yaml"
+  jinja -X .+ $CLI_DIR/templates/gitops/ibm-db2u.yaml.j2 -o ${GITOPS_APPS_DIR}/ibm-db2u.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -470,10 +233,10 @@ function gitops_db2u() {
 
     argocd_login
     argocd_sync ${CLUSTER_ID}-watcher
-    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-db2
+    argocd_hard_refresh mas-db2-${CLUSTER_ID}
     add_role_to_user ${DB2_NAMESPACE}
-    check_argo_app_synced mas-${MAS_INSTANCE_ID}-db2 ${CLUSTER_ID}-watcher ${DB2_NAMESPACE}
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-db2 ${CLUSTER_ID}-watcher
+    check_argo_app_synced mas-db2-${CLUSTER_ID} ${CLUSTER_ID}-watcher ${DB2_NAMESPACE}
+    check_argo_app_healthy mas-db2-${CLUSTER_ID} ${CLUSTER_ID}-watcher
   fi
 
 }

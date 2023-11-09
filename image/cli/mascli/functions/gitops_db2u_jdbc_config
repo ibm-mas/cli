@@ -16,20 +16,21 @@ GitOps Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
 
 IBM Maximo Application Suite:
-      -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID      
+      -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}   IBM Suite Maximo Application Suite Instance ID      
+      --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                 IBM Suite Maximo Application Suite App that will use this db2u instance      
+      --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}     MAS WORKSPACE ID
+
+IBM DB2U:                       
+      --tls-version ${COLOR_YELLOW}TLS_VERSION${TEXT_RESET}                                       TLS Version
+      --db2-ldap-username ${COLOR_YELLOW}DB2_LDAP_USERNAME${TEXT_RESET}                           DB2 LDAP Username to create
+      --db2-ldap-password ${COLOR_YELLOW}DB2_LDAP_PASSWORD${TEXT_RESET}                           DB2 LDAP Password to create
 
 IBM DB2U JDBC Configuration:
-      --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG_SCOPE${TEXT_RESET}         Supported values are 'system', 'ws', 'app', or 'wsapp'
-      --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}         MAS WORKSPACE ID
-      --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                     MAS APPLICATION ID
-      --tls-version ${COLOR_YELLOW}TLS_VERSION${TEXT_RESET}                   TLS Version
-      --db2-ldap-username ${COLOR_YELLOW}DB2_LDAP_USERNAME${TEXT_RESET}       DB2 LDAP Username
-      --db2-ldap-password ${COLOR_YELLOW}DB2_LDAP_PASSWORD${TEXT_RESET}       DB2 LDAP Password
+      --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG_SCOPE${TEXT_RESET}             Supported values are 'system', 'ws', 'app', or 'wsapp'
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}   Secrets Manager key seperator string      
-
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -92,6 +93,7 @@ function gitops_db2u_jdbc_config_noninteractive() {
       --secrets-key-seperator)
         export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
+
       # DB2
       --tls-version )
         export TLS_VERSION=$1 && shift
@@ -142,22 +144,22 @@ function gitops_db2u_jdbc_config_noninteractive() {
       esac
   done
 
-  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_suite_workspace_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$SM_AWS_ACCESS_KEY_ID" ]] &&  gitops_db2u_jdbc_config_help "SM_AWS_ACCESS_KEY_ID is not set"
+  [[ -z "$SM_AWS_SECRET_ACCESS_KEY" ]] && gitops_db2u_jdbc_config_help "SM_AWS_SECRET_ACCESS_KEY is not set"
+  [[ -z "$SM_AWS_REGION" ]] && gitops_db2u_jdbc_config_help "SM_AWS_REGION is not set"
+
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_db2u_jdbc_config_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_db2u_jdbc_config_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_db2u_jdbc_config_help "CLUSTER_ID is not set"
-  #db2u
-
-  #[[ -z "$DB2_INTERNAL" ]] && gitops_db2u_jdbc_config_help "DB2_INTERNAL is not set"
-  #[[ -z "$DB2_LDAP_USERNAME" ]] && gitops_db2u_jdbc_config_help "DB2_LDAP_USERNAME is not set"
-  #[[ -z "$DB2_LDAP_PASSWORD" ]] && gitops_db2u_jdbc_config_help "DB2_LDAP_PASSWORD is not set"
   
   #MAS
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_jdbc_config_help "MAS_INSTANCE_ID is not set"
   [[ -z "$MAS_CONFIG_SCOPE" ]] && gitops_db2u_jdbc_config_help "MAS_CONFIG_SCOPE is not set"
-  [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_db2u_jdbc_config_help "MAS_WORKSPACE_ID is not set"
+  if [[ "$MAS_CONFIG_SCOPE" == "wsapp" || "$MAS_CONFIG_SCOPE" == "ws" ]]; then
+    [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_db2u_jdbc_config_help "MAS_WORKSPACE_ID is not set"
+  fi
   [[ -z "$MAS_APP_ID" ]] && gitops_db2u_jdbc_config_help "MAS_APP_ID is not set"
   
-
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_db2u_jdbc_config_help "GITHUB_HOST is not set"
     [[ -z "$GITHUB_ORG" ]] && gitops_db2u_jdbc_config_help "GITHUB_ORG is not set"
@@ -214,8 +216,6 @@ function invoke_suite_db2_setup_for_manage(){
 
 function gitops_db2u_jdbc_config() {
   # Take the first parameter off (it will be create-gitops)
-  unset MAS_INSTANCE_ID
-  unset DB2_LDAP_USERNAME
   shift
   if [[ $# -gt 0 ]]; then
     gitops_db2u_jdbc_config_noninteractive "$@"
@@ -229,6 +229,17 @@ function gitops_db2u_jdbc_config() {
   rm -rf $GITOPS_WORKING_DIR/$GITHUB_REPO
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
   GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
+
+  #Defaults
+  if [[ -z $DB2_DBNAME ]]; then
+    export DB2_DBNAME=BLUDB
+  fi
+  export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+  export DB2_NAMESPACE=db2u
+  export TLS_VERSION=${TLS_VERSION:-"TLSv1.2"}
+  # by default db2 internal is true, set it to false if db2 is external
+  export DB2_INTERNAL=${DB2_INTERNAL:-"true"}
+  export CLUSTER_DOMAIN=`oc get ingress.config.openshift.io  cluster -o=jsonpath='{.spec.domain}'`
 
   echo
   reset_colors
@@ -270,14 +281,20 @@ function gitops_db2u_jdbc_config() {
 
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
-  echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo_reset_dim "DB2_DBNAME .............................. ${COLOR_MAGENTA}${DB2_DBNAME}"
-  echo_reset_dim "TLS_VERSION ............................. ${COLOR_MAGENTA}${TLS_VERSION}"
-  echo_reset_dim "DB2_LDAP_USERNAME ....................... ${COLOR_MAGENTA}${DB2_LDAP_USERNAME}"
-  echo_reset_dim "DB2_LDAP_PASSWORD ....................... ${COLOR_MAGENTA}${DB2_LDAP_PASSWORD}"
+  echo_reset_dim "MAS Instance ID ......................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "MAS_CONFIG_SCOPE ........................ ${COLOR_MAGENTA}${MAS_CONFIG_SCOPE}"
   echo_reset_dim "MAS_WORKSPACE_ID ........................ ${COLOR_MAGENTA}${MAS_WORKSPACE_ID}"
   echo_reset_dim "MAS_APP_ID .............................. ${COLOR_MAGENTA}${MAS_APP_ID}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "DB2 Cluster Configuration" "    "
+  echo_reset_dim "db2-instance-name ....................... ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
+  echo_reset_dim "db2-dbname  ............................. ${COLOR_MAGENTA}${DB2_DBNAME}"
+  echo_reset_dim "TLS_VERSION ............................. ${COLOR_MAGENTA}${TLS_VERSION}"
+  echo_reset_dim "DB2_LDAP_USERNAME ....................... ${COLOR_MAGENTA}${DB2_LDAP_USERNAME}"
+  echo_reset_dim "DB2_LDAP_PASSWORD ....................... ${COLOR_MAGENTA}${DB2_LDAP_PASSWORD:0:4}<snip>"
+  echo_reset_dim "CLUSTER_DOMAIN .......................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   reset_colors
 
   CURRENT_DIR=$PWD
@@ -319,34 +336,23 @@ function gitops_db2u_jdbc_config() {
   elif [[ "$MAS_CONFIG_SCOPE" == "wsapp" ]]; then
     export SUITE_JDBCCFG_NAME="$MAS_INSTANCE_ID-jdbc-wsapp-$MAS_WORKSPACE_ID-$MAS_APP_ID"
   fi
-  export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}
-  export DB2_NAMESPACE=mas-${MAS_INSTANCE_ID}-db2u-manage
-  export DB2_JDBC_USERNAME=db2inst1
-  export DB2_DBNAME=${DB2_DBNAME:-"BLUDB"}
-  export TLS_VERSION=${TLS_VERSION:-"TLSv1.2"}
-
-  # by default db2 internal is true, set it to false if db2 is external
-  export DB2_INTERNAL=${DB2_INTERNAL:-"true"}
-  
-  export CLUSTER_DOMAIN=`oc get ingress.config.openshift.io  cluster -o=jsonpath='{.spec.domain}'`
-  echo_reset_dim "CLUSTER_DOMAIN .............................. ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   
   # wait till CRD db2uclusters.db2u.databases.ibm.com NamesAccepted=True 
   wait_for_db2ucluster_crd
   # delete pod
-  delete_db2u_0_pod
+  # delete_db2u_0_pod
   
   if [[ -z ${DB2_LDAP_USERNAME} && -z ${DB2_LDAP_PASSWORD} ]]; then
     export DB2_LDAP_USERNAME=db2inst1
-    export DB2_LDAP_PASSWORD=`oc get secret  c-db2wh-${MAS_INSTANCE_ID}-instancepassword  -n ${DB2_NAMESPACE} -o "jsonpath={.data['password']}" | base64 -d`
+    export DB2_LDAP_PASSWORD=`oc get secret  c-${DB2_INSTANCE_NAME}-instancepassword  -n ${DB2_NAMESPACE} -o "jsonpath={.data['password']}" | base64 -d`
     echo_reset_dim "DB2_LDAP_USERNAME ....................... ${COLOR_MAGENTA}${DB2_LDAP_USERNAME}"
     echo_reset_dim "DB2_LDAP_PASSWORD ....................... ${COLOR_MAGENTA}${DB2_LDAP_PASSWORD:0:6}<snip>"
   fi  
 
-  export DB2_LDAP_POD_NAME=`oc get pods -o custom-columns=POD:.metadata.name -l app=${DB2_INSTANCE_NAME},role=ldap -n mas-${MAS_INSTANCE_ID}-db2u-manage  --no-headers`
+  export DB2_LDAP_POD_NAME=`oc get pods -o custom-columns=POD:.metadata.name -l app=${DB2_INSTANCE_NAME},role=ldap -n ${DB2_NAMESPACE}  --no-headers`
   export DB2_CA_PEM=`oc get secret db2u-certificate -n ${DB2_NAMESPACE} -o "jsonpath={.data['ca\.crt']}"`
   # Get Db2u TLS port
-  export DB2_TLS_SERVICEPORT=`oc get svc c-db2wh-${MAS_INSTANCE_ID}-db2u-engn-svc -n mas-${MAS_INSTANCE_ID}-db2u-manage -o=jsonpath="{.spec.ports[?(@.name=='ssl-server')].targetPort}"`
+  export DB2_TLS_SERVICEPORT=`oc get svc c-${DB2_INSTANCE_NAME}-db2u-engn-svc -n ${DB2_NAMESPACE} -o=jsonpath="{.spec.ports[?(@.name=='ssl-server')].targetPort}"`
   export JDBC_URL="jdbc:db2://c-${DB2_INSTANCE_NAME}-db2u-engn-svc.${DB2_NAMESPACE}.svc:${DB2_TLS_SERVICEPORT}/${DB2_DBNAME}:sslConnection=true;sslVersion=${TLS_VERSION};"
 
   
@@ -365,7 +371,7 @@ function gitops_db2u_jdbc_config() {
     while [[ true ]]
     do
       # Test that the newly created user can connect to db2
-      echo_reset_dim "Test DB Connection ............... ${COLOR_MAGENTA} for ${DB2_LDAP_USERNAME} with ${DB2_LDAP_USERNAME} "
+      echo_reset_dim "Test DB Connection ............... ${COLOR_MAGENTA} for ${DB2_DBNAME} with ${DB2_LDAP_USERNAME} "
       oc exec -it c-${DB2_INSTANCE_NAME}-db2u-0 -n ${DB2_NAMESPACE} -c db2u -- su -lc "db2 connect to ${DB2_DBNAME} user ${DB2_LDAP_USERNAME} using ${DB2_LDAP_PASSWORD}" db2inst1
       if [[ $? -eq 0 ]]; then
         echo_reset_dim "DB Connection Successful............... ${COLOR_MAGENTA}"
@@ -378,7 +384,7 @@ function gitops_db2u_jdbc_config() {
     # set db2 ldap password into jdbc usenname / password variables.
     export DB2_JDBC_USERNAME=$DB2_LDAP_USERNAME
     export JDBC_INSTANCE_PASSWORD=$DB2_LDAP_PASSWORD
-  # Create db2 user in local LDAP registry : Ends
+    # Create db2 user in local LDAP registry : Ends
 
     echo_reset_dim "......................................... ${COLOR_MAGENTA}"    
     export AWS_DB2_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2
@@ -419,6 +425,8 @@ function gitops_db2u_jdbc_config() {
 
     ### Update Ldap Username / Password in AWS secret manager Starts
     if [[ -n ${DB2_JDBC_USERNAME} && -n ${JDBC_INSTANCE_PASSWORD} ]]; then
+      AVP_TYPE=aws  # Support for IBM will be added later
+      sm_login
       sm_update_secret $AWS_DB2_SECRET_ID "{ \"username\": \"$DB2_JDBC_USERNAME\", \"password\": \"$JDBC_INSTANCE_PASSWORD\"}"
       export SECRET_KEY_DB2_USERNAME=${AWS_DB2_SECRET_ID}#username
       export SECRET_KEY_DB2_PASSWORD=${AWS_DB2_SECRET_ID}#password
@@ -439,12 +447,9 @@ function gitops_db2u_jdbc_config() {
 
     argocd_login
     argocd_sync ${CLUSTER_ID}-watcher
-    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-db2-jdbc-config
-    check_argo_app_synced mas-${MAS_INSTANCE_ID}-db2-jdbc-config ${CLUSTER_ID}-watcher ${DB2_NAMESPACE}
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-db2-jdbc-config ${CLUSTER_ID}-watcher
-  fi
-  if [ "$DB2_INTERNAL" == "true" ]; then
-    invoke_suite_db2_setup_for_manage ${MAS_INSTANCE_ID} 
+    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-jdbc-config
+    check_argo_app_synced mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-jdbc-config ${CLUSTER_ID}-watcher ${DB2_NAMESPACE}
+    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-jdbc-config ${CLUSTER_ID}-watcher
   fi
   if [ "$GITHUB_PUSH" == "true" ]; then  
 	  remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
