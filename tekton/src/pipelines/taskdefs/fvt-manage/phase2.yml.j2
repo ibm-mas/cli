@@ -6,8 +6,6 @@
 # - fvt-manage-mif-setup
 # - fvt-manage-metrics-api
 # - fvt-manage-wo-basic
-# - fvt-manage-esig-basic
-# - fvt-manage-eaudit-basic
 # -------------------------------------------------------------
 
 # Manage FVT Mas Navigation Scenario
@@ -90,34 +88,6 @@
       value: core
     - name: fvt_test_suite
       value: wo-basic
-  runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
-
-# Manage FVT E-Signature Basic Scenario
-- name: fvt-manage-esig-basic
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
-    - name: fvt_test_suite
-      value: esig-basic
-  runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
-
-# Manage FVT E-Audit Basic
-- name: fvt-manage-eaudit-basic
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
-    - name: fvt_test_suite
-      value: eaudit-basic
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
