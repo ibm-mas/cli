@@ -43,8 +43,6 @@ spec:
     # 13. Install & Configure Visual Inspection
 
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-install-check', 'devops_suite_name': 'pre-install-check'}) | indent(4) }}
-    - name: ocp_ingress_tls_secret_name
-      value: $(params.ocp_ingress_tls_secret_name)
 
     # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
     # -------------------------------------------------------------------------
