@@ -9,14 +9,14 @@ mas_app_spec:
       size: small
     messagesight:
       storage:
-        class: {{ DEFAULT_STORAGE_CLASS }}
+        class: {{ DEFAULT_BLOCK_STORAGE_CLASS }}  
         size: 100Gi
     fpl:
       functionsexecutor:
         storage:
-          class: {{ DEFAULT_STORAGE_CLASS }}
+          class: {{ DEFAULT_BLOCK_STORAGE_CLASS }}
           size: 100Gi
       pipelinerouter:
         storage:
-          class: {{ DEFAULT_STORAGE_CLASS }}
+          class: {{ DEFAULT_BLOCK_STORAGE_CLASS }}
           size: 100Gi

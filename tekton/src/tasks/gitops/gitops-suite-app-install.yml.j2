@@ -18,7 +18,10 @@ spec:
     - name: mas_app_spec_yml
       type: string
       default: ""
-    - name: default_storage_class
+    - name: default_block_storage_class
+      type: string
+      default: ""
+    - name: default_file_storage_class
       type: string
       default: ""
     - name: cluster_name
@@ -61,8 +64,10 @@ spec:
         value: $(params.mas_app_kind)
       - name: MAS_APP_SPEC_YML
         value: $(params.mas_app_spec_yml)
-      - name: DEFAULT_STORAGE_CLASS
-        value: $(params.default_storage_class)
+      - name: DEFAULT_BLOCK_STORAGE_CLASS
+        value: $(params.default_block_storage_class)
+      - name: DEFAULT_FILE_STORAGE_CLASS
+        value: $(params.default_file_storage_class)
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
       - name: ACCOUNT

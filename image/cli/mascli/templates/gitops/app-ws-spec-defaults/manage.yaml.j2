@@ -12,31 +12,31 @@ mas_appws_spec:
           mountPath: /DOCLINKS
           pvcName: manage-doclinks
           size: 20Gi
-          storageClassName: {{ DEFAULT_STORAGE_CLASS }}
+          storageClassName: {{ DEFAULT_FILE_STORAGE_CLASS }}
         - accessModes:
             - ReadWriteMany
           mountPath: /bim
           pvcName: manage-bim
           size: 20Gi
-          storageClassName: {{ DEFAULT_STORAGE_CLASS }}
+          storageClassName: {{ DEFAULT_FILE_STORAGE_CLASS }}
         - accessModes:
             - ReadWriteMany
           mountPath: /jms
           pvcName: manage-jms
           size: 20Gi
-          storageClassName: {{ DEFAULT_STORAGE_CLASS }}
+          storageClassName: {{ DEFAULT_FILE_STORAGE_CLASS }}
         - accessModes:
             - ReadWriteMany
           mountPath: /imagestitching
           pvcName: manage-imagestitching
           size: 20Gi
-          storageClassName: {{ DEFAULT_STORAGE_CLASS }}
+          storageClassName: {{ DEFAULT_FILE_STORAGE_CLASS }}
         - accessModes:
             - ReadWriteMany
           mountPath: /mm
           pvcName: manage-mm
           size: 20Gi
-          storageClassName: {{ DEFAULT_STORAGE_CLASS }}
+          storageClassName: {{ DEFAULT_FILE_STORAGE_CLASS }}
 {%- if MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE == "small" %}
       serverBundles:
         - bundleType: ui

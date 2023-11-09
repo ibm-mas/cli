@@ -21,7 +21,7 @@ spec:
     - name: mas_appws_spec_yaml
       type: string
       default: ""
-    - name: default_storage_class
+    - name: default_file_storage_class
       type: string
       default: ""
     - name: mas_app_settings_server_bundles_size
@@ -96,8 +96,8 @@ spec:
         value: $(params.mas_app_kind)
       - name: MAS_APPWS_SPEC_YAML 
         value: $(params.mas_appws_spec_yaml)
-      - name: DEFAULT_STORAGE_CLASS
-        value: $(params.default_storage_class)
+      - name: DEFAULT_FILE_STORAGE_CLASS
+        value: $(params.default_file_storage_class)
       - name: MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE
         value: $(params.mas_app_settings_server_bundles_size)
       - name: MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH
@@ -196,5 +196,3 @@ spec:
       image: quay.io/ibmmas/cli:7.7.0-pre.gitops
   workspaces:
     - name: configs
-
-

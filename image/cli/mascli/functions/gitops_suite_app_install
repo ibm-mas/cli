@@ -153,9 +153,12 @@ function gitops_suite_app_install_noninteractive() {
   fi
 
   if [[ -z "$MAS_APP_SPEC_YAML" ]]; then
-    if [[ "${MAS_APP_ID}" == "iot" || "${MAS_APP_ID}" == "visualinspection" ]]; then
-      [[ "$DEFAULT_STORAGE_CLASS" == "" ]] && gitops_suite_app_install_help "DEFAULT_STORAGE_CLASS is not set"
+    if [[ "${MAS_APP_ID}" == "iot" ]]; then
+      [[ "${DEFAULT_BLOCK_STORAGE_CLASS}" == "" ]] && gitops_suite_app_install_help "DEFAULT_BLOCK_STORAGE_CLASS is not set"
     fi
+    if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
+      [[ "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_install_help "DEFAULT_FILE_STORAGE_CLASS is not set"
+    fi    
   fi
 
 }
@@ -229,10 +232,13 @@ function gitops_suite_app_install() {
   echo_reset_dim "Application Kind ...................... ${COLOR_MAGENTA}${MAS_APP_KIND}"
   echo_reset_dim "Application Spec Yaml file ............ ${COLOR_MAGENTA}${MAS_APP_SPEC_YAML}"
   if [[ -n "$MAS_APP_SPEC_YAML" ]]; then
-    echo_reset_dim "Using Default Application Spec ........ ${COLOR_MAGENTA}False"
+    echo_reset_dim "Using Default Application Spec ...... ${COLOR_MAGENTA}False"
   else
-    echo_reset_dim "Using Default Application Spec ........ ${COLOR_MAGENTA}True"
+    echo_reset_dim "Using Default Application Spec ...... ${COLOR_MAGENTA}True"
   fi
+  echo_reset_dim "Default File Storage Class ............ ${COLOR_MAGENTA}${DEFAULT_FILE_STORAGE_CLASS}"
+  echo_reset_dim "Default Block Storage Class ........... ${COLOR_MAGENTA}${DEFAULT_BLOCK_STORAGE_CLASS}"
+    
   reset_colors
 
 
