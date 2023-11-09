@@ -324,7 +324,7 @@ function gitops_suite_app_config() {
     export MAS_APPWS_SPEC=$(cat ${TEMP_DIR}/${MAS_APP_ID}-appws-spec.yaml | yq -r '.' --yaml-output)
   fi
 
-  # valid values jms, snojms
+
   export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
 
   if [[ "${MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE}" == "snojms" || "${MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE}" == "dev" ]]; then
@@ -333,28 +333,33 @@ function gitops_suite_app_config() {
     export SERVER_BUNDLE_EAR_FILENAME="maximomea"
   fi
   export SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-jms.mas-${MAS_INSTANCE_ID}-manage.svc:7276"
-  #TODO export MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH="/jms"
-  # these settings will be applied to ui, cron and report - these server bundles don't need the activation specification in the JMS config xml
-  echo "- Generate SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT "
-  sed "s#SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT#$SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT#g" $CLI_DIR/templates/gitops/files/manage/manage-additional-server-config-no-activation.xml.j2 > ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config-no-activation.xml  
-    SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT=${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config-no-activation.xml
-  SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT=$(cat $SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT)
-  export SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT=$(echo -n $SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT | base64  -w 0)
- 
 
-  # this setting will be applied to mea - this server bundles will need the activation specification in the JMS config xml
-  echo "- Generate SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT"
-   sed -e "s#SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT#$SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT#g" -e "s#SERVER_BUNDLE_EAR_FILENAME#$SERVER_BUNDLE_EAR_FILENAME#g" $CLI_DIR/templates/gitops/files/manage/manage-additional-server-config.xml.j2 > ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config.xml
-  SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT=${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config.xml
-  SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT=$(cat $SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT)
-  export SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT=$(echo -n $SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT | base64  -w 0)
 
-  # this setting will be applied to jms - this server bundle will have special config for JMS queues in the xml
-  echo "- Generate SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT"
-  sed -e "s#MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH#$MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH#g" $CLI_DIR/templates/gitops/files/manage/manage-jms-additional-server-config.xml.j2 > ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-jms-additional-server-config.xml
-  SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT=${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-jms-additional-server-config.xml
-  SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT=$(cat $SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT)
-  export SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT=$(echo -n $SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT | base64  -w 0)
+
+  if [ "$MAS_APP_ID" == "manage" ]; then
+    # these settings will be applied to ui, cron and report - these server bundles don't need the activation specification in the JMS config xml
+    echo "- Generate SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT "
+    sed "s#SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT#$SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT#g" $CLI_DIR/templates/gitops/files/manage/manage-additional-server-config-no-activation.xml.j2 > ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config-no-activation.xml  
+      SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT=${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config-no-activation.xml
+    SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT=$(cat $SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT)
+    export SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT=$(echo -n $SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT | base64  -w 0)
+  
+
+    # this setting will be applied to mea - this server bundles will need the activation specification in the JMS config xml
+    echo "- Generate SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT"
+    sed -e "s#SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT#$SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT#g" -e "s#SERVER_BUNDLE_EAR_FILENAME#$SERVER_BUNDLE_EAR_FILENAME#g" $CLI_DIR/templates/gitops/files/manage/manage-additional-server-config.xml.j2 > ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config.xml
+    SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT=${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config.xml
+    SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT=$(cat $SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT)
+    export SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT=$(echo -n $SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT | base64  -w 0)
+
+    # this setting will be applied to jms - this server bundle will have special config for JMS queues in the xml
+    echo "- Generate SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT"
+    sed -e "s#MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH#$MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH#g" $CLI_DIR/templates/gitops/files/manage/manage-jms-additional-server-config.xml.j2 > ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-jms-additional-server-config.xml
+    SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT=${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-jms-additional-server-config.xml
+    SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT=$(cat $SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT)
+    export SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT=$(echo -n $SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT | base64  -w 0)
+  fi
+
 
   # wait till CR MASS_APP_KIND is in ready status
   wait_till_cr_ready $MAS_APP_KIND $MAS_APP_NAMESPACE
