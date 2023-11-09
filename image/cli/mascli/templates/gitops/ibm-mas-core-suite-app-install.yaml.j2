@@ -1,0 +1,51 @@
+---
+# Maximo Application
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mas-{{ MAS_INSTANCE_ID }}-{{ MAS_APP_ID }}-app-install
+  namespace: openshift-gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ MAS_INSTANCE_ID }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mas-{{ MAS_INSTANCE_ID }}-{{ MAS_APP_ID }}
+  source:
+    repoURL: https://github.com/ibm-mas/gitops
+    path: applications/ibm-mas-suite-app-install
+    targetRevision: {{ GITOPS_VERSION }}
+    plugin:
+      env:
+        - name: HELM_VALUES
+          value: |
+            ibm_entitlement_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>
+            mas_instance_id: {{ MAS_INSTANCE_ID }}
+            mas_app_id: {{ MAS_APP_ID }}
+            mas_app_namespace: {{ MAS_APP_NAMESPACE }}
+            mas_app_channel: {{ MAS_APP_CHANNEL }}
+            mas_app_catalog_source: {{ MAS_APP_CATALOG_SOURCE }}
+            mas_app_api_version: {{ MAS_APP_API_VERSION }}
+            mas_app_kind: {{ MAS_APP_KIND }}
+            {{ MAS_APP_SPEC | indent(12) }}
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+
+
+
+
+
+
+
+
+
+
+
+
+

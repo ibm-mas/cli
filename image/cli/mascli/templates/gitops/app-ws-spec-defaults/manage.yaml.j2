@@ -1,0 +1,166 @@
+mas_appws_spec:
+  bindings:
+    jdbc: system
+  components:
+    base:
+      version: latest
+  settings:
+    deployment:
+      persistentVolumes:
+        - accessModes:
+            - ReadWriteMany
+          mountPath: /DOCLINKS
+          pvcName: manage-doclinks
+          size: 20Gi
+          storageClassName: {{ DEFAULT_STORAGE_CLASS }}
+        - accessModes:
+            - ReadWriteMany
+          mountPath: /bim
+          pvcName: manage-bim
+          size: 20Gi
+          storageClassName: {{ DEFAULT_STORAGE_CLASS }}
+        - accessModes:
+            - ReadWriteMany
+          mountPath: /jms
+          pvcName: manage-jms
+          size: 20Gi
+          storageClassName: {{ DEFAULT_STORAGE_CLASS }}
+        - accessModes:
+            - ReadWriteMany
+          mountPath: /imagestitching
+          pvcName: manage-imagestitching
+          size: 20Gi
+          storageClassName: {{ DEFAULT_STORAGE_CLASS }}
+        - accessModes:
+            - ReadWriteMany
+          mountPath: /mm
+          pvcName: manage-mm
+          size: 20Gi
+          storageClassName: {{ DEFAULT_STORAGE_CLASS }}
+{%- if MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE == "small" %}
+      serverBundles:
+        - bundleType: ui
+          isDefault: true
+          isMobileTarget: true
+          isUserSyncTarget: false
+          name: ui
+          replica: 1
+          routeSubDomain: ui
+        - bundleType: mea
+          isDefault: false
+          isMobileTarget: false
+          isUserSyncTarget: true
+          name: mea
+          replica: 1
+          routeSubDomain: mea
+        - bundleType: report
+          isDefault: false
+          isMobileTarget: false
+          isUserSyncTarget: false
+          name: rpt
+          replica: 1
+          routeSubDomain: rpt
+        - bundleType: cron
+          isDefault: false
+          isMobileTarget: false
+          isUserSyncTarget: false
+          name: cron
+          replica: 1
+          routeSubDomain: cron
+{%- elif MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE == "jms" %}
+      serverBundles:
+        - additionalServerConfig:
+            secretName: "{{ MAS_WORKSPACE_ID }}-{{ MAS_APP_ID }}-d--sb0--asc--sn"
+          bundleType: ui
+          isDefault: true
+          isMobileTarget: true
+          isUserSyncTarget: false
+          name: ui
+          replica: 1
+          routeSubDomain: ui
+        - additionalServerConfig:
+            secretName: "{{ MAS_WORKSPACE_ID }}-{{ MAS_APP_ID }}-d--sb1--asc--sn"
+          bundleType: mea
+          isDefault: false
+          isMobileTarget: false
+          isUserSyncTarget: true
+          name: mea
+          replica: 1
+          routeSubDomain: mea
+        - additionalServerConfig:
+            secretName: "{{ MAS_WORKSPACE_ID }}-{{ MAS_APP_ID }}-d--sb2--asc--sn"
+          bundleType: report
+          isDefault: false
+          isMobileTarget: false
+          isUserSyncTarget: false
+          name: rpt
+          replica: 1
+          routeSubDomain: rpt
+        - additionalServerConfig:
+            secretName: "{{ MAS_WORKSPACE_ID }}-{{ MAS_APP_ID }}-d--sb3--asc--sn"
+          bundleType: cron
+          isDefault: false
+          isMobileTarget: false
+          isUserSyncTarget: false
+          name: cron
+          replica: 1
+          routeSubDomain: cron
+        - additionalServerConfig:
+            secretName: "{{ MAS_WORKSPACE_ID }}-{{ MAS_APP_ID }}-d--sb4--asc--sn"
+          bundleType: standalonejms
+          isDefault: false
+          isMobileTarget: false
+          isUserSyncTarget: false
+          name: jms
+          replica: 1
+          routeSubDomain: jms
+{%- elif MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE == "snojms" %}
+      serverBundles:
+        - additionalServerConfig:
+            secretName: "{{ MAS_WORKSPACE_ID }}-{{ MAS_APP_ID }}-d--sb0--asc--sn"
+          bundleType: all
+          isDefault: true
+          isMobileTarget: true
+          isUserSyncTarget: true
+          name: all
+          replica: 1
+          routeSubDomain: all
+        - additionalServerConfig:
+            secretName: "{{ MAS_WORKSPACE_ID }}-{{ MAS_APP_ID }}-d--sb1--asc--sn"
+          bundleType: standalonejms
+          isDefault: false
+          isMobileTarget: false
+          isUserSyncTarget: false
+          name: jms
+          replica: 1
+          routeSubDomain: jms
+{%- else %}
+      serverBundles:
+        - bundleType: all
+          isDefault: true
+          isMobileTarget: true
+          isUserSyncTarget: true
+          name: all
+          replica: 1
+          routeSubDomain: all
+{%- endif %}
+    languages:
+      baseLang: EN
+      secondaryLangs: []
+    aio:
+      install: true
+    db:
+      dbSchema: maximo
+      maxinst:
+        demodata: true
+        db2Vargraphic: true
+        tableSpace: MAXDATA
+        indexSpace: MAXINDEX
+        bypassUpgradeVersionCheck: false
+{%- if MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL == "" %}
+    customizationList:  []
+{%- else %}
+    customizationList:
+      - customizationArchiveName: "{{ MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME }}"
+        customizationArchiveUrl: "{{ MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL }}"
+{%- endif %}

@@ -1,0 +1,18 @@
+{%- if CPD_WSL_PROJECT_ID == "" or CPD_PRODUCT_VERSION == "" %}
+mas_appws_spec: {}
+{%- else %}
+mas_appws_spec:
+  bindings:
+    jdbc: system
+    watsonstudio: system
+  settings:
+    watsonstudio:
+      projectid: "{{ CPD_WSL_PROJECT_ID }}"
+    wml:
+      instance_id: "{{ CPD_WML_INSTANCE_ID }}"
+      url: "{{ CPD_WML_URL }}"
+      version: "{{ CPD_PRODUCT_VERSION }}"
+    deployment:
+      size: "{{ MAS_APPWS_SETTINGS_DEPLOYMENT_SIZE }}"
+{%- endif %}
+

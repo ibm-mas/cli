@@ -102,6 +102,9 @@ function gitops_db2u_jdbc_config_noninteractive() {
       --db2-ldap-password )
         export DB2_LDAP_PASSWORD=$1 && shift
         ;;
+      --db2-internal )
+        export DB2_INTERNAL=$1 && shift
+        ;;
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -144,8 +147,9 @@ function gitops_db2u_jdbc_config_noninteractive() {
   [[ -z "$CLUSTER_ID" ]] && gitops_db2u_jdbc_config_help "CLUSTER_ID is not set"
   #db2u
 
-  [[ -z "$DB2_LDAP_USERNAME" ]] && gitops_db2u_jdbc_config_help "DB2_LDAP_USERNAME is not set"
-  [[ -z "$DB2_LDAP_PASSWORD" ]] && gitops_db2u_jdbc_config_help "DB2_LDAP_PASSWORD is not set"
+  #[[ -z "$DB2_INTERNAL" ]] && gitops_db2u_jdbc_config_help "DB2_INTERNAL is not set"
+  #[[ -z "$DB2_LDAP_USERNAME" ]] && gitops_db2u_jdbc_config_help "DB2_LDAP_USERNAME is not set"
+  #[[ -z "$DB2_LDAP_PASSWORD" ]] && gitops_db2u_jdbc_config_help "DB2_LDAP_PASSWORD is not set"
   
   #MAS
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_jdbc_config_help "MAS_INSTANCE_ID is not set"
@@ -177,6 +181,7 @@ function wait_for_db2ucluster_crd(){
     fi
     export DB2_CRD_NAMES_ACCEPTED_STATUS=`oc get crd  db2uclusters.db2u.databases.ibm.com -o=jsonpath="{.status.conditions[?(@.type=='NamesAccepted')].status}"`
     echo_reset_dim "DB2_CRD_NAMES_ACCEPTED_STATUS .... ${COLOR_MAGENTA}${DB2_CRD_NAMES_ACCEPTED_STATUS}"
+
     if [[ "$DB2_CRD_NAMES_ACCEPTED_STATUS" == "True" ]]; then
       break
     fi
@@ -195,6 +200,16 @@ function delete_db2u_0_pod(){
       break
     fi
   done  
+}
+
+# Invoke suite_db2_setup_for_manage
+function invoke_suite_db2_setup_for_manage(){
+  export MAS_INSTANCE_ID=$1
+  export DB2_NAMESPACE=mas-${MAS_INSTANCE_ID}-db2u-manage
+  export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}
+  export ROLE_NAME=suite_db2_setup_for_manage && ansible-playbook ibm.mas_devops.run_role
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
 }
 
 function gitops_db2u_jdbc_config() {
@@ -309,6 +324,10 @@ function gitops_db2u_jdbc_config() {
   export DB2_JDBC_USERNAME=db2inst1
   export DB2_DBNAME=${DB2_DBNAME:-"BLUDB"}
   export TLS_VERSION=${TLS_VERSION:-"TLSv1.2"}
+
+  # by default db2 internal is true, set it to false if db2 is external
+  export DB2_INTERNAL=${DB2_INTERNAL:-"true"}
+  
   export CLUSTER_DOMAIN=`oc get ingress.config.openshift.io  cluster -o=jsonpath='{.spec.domain}'`
   echo_reset_dim "CLUSTER_DOMAIN .............................. ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   
@@ -317,6 +336,13 @@ function gitops_db2u_jdbc_config() {
   # delete pod
   delete_db2u_0_pod
   
+  if [[ -z ${DB2_LDAP_USERNAME} && -z ${DB2_LDAP_PASSWORD} ]]; then
+    export DB2_LDAP_USERNAME=db2inst1
+    export DB2_LDAP_PASSWORD=`oc get secret  c-db2wh-${MAS_INSTANCE_ID}-instancepassword  -n ${DB2_NAMESPACE} -o "jsonpath={.data['password']}" | base64 -d`
+    echo_reset_dim "DB2_LDAP_USERNAME ....................... ${COLOR_MAGENTA}${DB2_LDAP_USERNAME}"
+    echo_reset_dim "DB2_LDAP_PASSWORD ....................... ${COLOR_MAGENTA}${DB2_LDAP_PASSWORD:0:6}<snip>"
+  fi  
+
   export DB2_LDAP_POD_NAME=`oc get pods -o custom-columns=POD:.metadata.name -l app=${DB2_INSTANCE_NAME},role=ldap -n mas-${MAS_INSTANCE_ID}-db2u-manage  --no-headers`
   export DB2_CA_PEM=`oc get secret db2u-certificate -n ${DB2_NAMESPACE} -o "jsonpath={.data['ca\.crt']}"`
   # Get Db2u TLS port
@@ -410,7 +436,6 @@ function gitops_db2u_jdbc_config() {
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
-    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     argocd_login
     argocd_sync ${CLUSTER_ID}-watcher
@@ -418,4 +443,11 @@ function gitops_db2u_jdbc_config() {
     check_argo_app_synced mas-${MAS_INSTANCE_ID}-db2-jdbc-config ${CLUSTER_ID}-watcher ${DB2_NAMESPACE}
     check_argo_app_healthy mas-${MAS_INSTANCE_ID}-db2-jdbc-config ${CLUSTER_ID}-watcher
   fi
+  if [ "$DB2_INTERNAL" == "true" ]; then
+    invoke_suite_db2_setup_for_manage ${MAS_INSTANCE_ID} 
+  fi
+  if [ "$GITHUB_PUSH" == "true" ]; then  
+	  remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+  fi
+  exit 0
 }
