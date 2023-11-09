@@ -136,6 +136,7 @@ function install_noninteractive() {
   NON_INTERACTIVE=true
   DEV_MODE=false
   LICENSE_ACCEPTED=false
+  BAS_PROVIDER=UDS
 
   # Defaults
   DB2_ACTION_SYSTEM=none

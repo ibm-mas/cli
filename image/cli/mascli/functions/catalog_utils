@@ -103,6 +103,23 @@ function choose_mas_version() {
   esac
 }
 
+# Determine whether UDS or DRO Operator to use
+# -----------------------------------------------------------------------------
+# We automatically select the UDS or DRO operator to install in the
+# cluster based on the version of the catalog that is being used
+# TODO: Need to know the latest catalog version name
+function uds_dro_selection() {
+  case $MAS_CATALOG_VERSION in
+    # UDS/DRO selection
+    # -------------------------------------------------------------------------
+    v8-240111-amd64)
+      BAS_PROVIDER="DRO"
+      ;;
+    *)
+      BAS_PROVIDER="UDS" # The default channel will be used
+      ;;
+  esac
+}
 
 # Determine the version of Db2u Operator to use
 # -----------------------------------------------------------------------------
