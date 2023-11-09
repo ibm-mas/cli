@@ -1,7 +1,10 @@
----
-# Default application spec for Visual Inspection
+{%- if DEFAULT_STORAGE_CLASS == "" %}
+mas_app_spec: {}
+{%- else %}
 mas_app_spec:
   settings:
     storage:
       size: 100Gi
       storageClassName: {{ DEFAULT_STORAGE_CLASS }}
+{%- endif %}
+
