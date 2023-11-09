@@ -152,6 +152,12 @@ function gitops_suite_app_install_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_suite_app_install_help "GIT_BRANCH is not set"
   fi
 
+  if [[ -z "$MAS_APP_SPEC_YAML" ]]; then
+    if [[ "${MAS_APP_ID}" == "iot" || "${MAS_APP_ID}" == "visualinspection" ]]; then
+      [[ "$DEFAULT_STORAGE_CLASS" == "" ]] && gitops_suite_app_install_help "DEFAULT_STORAGE_CLASS is not set"
+    fi
+  fi
+
 }
 
 function gitops_suite_app_install() {

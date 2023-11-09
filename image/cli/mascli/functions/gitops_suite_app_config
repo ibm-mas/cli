@@ -144,6 +144,11 @@ function gitops_suite_app_config_noninteractive() {
   [[ -z "$MAS_APP_API_VERSION" ]] && gitops_suite_app_config_help "MAS_APP_API_VERSION is not set"
   [[ -z "$MAS_APP_KIND" ]] && gitops_suite_app_config_help "MAS_APP_KIND is not set"
 
+  if [[ -z "${MAS_APPWS_SPEC_YAML}" ]]; then
+    if [[ "${MAS_APP_ID}" == "manage"  ]]; then
+      [[ "${DEFAULT_STORAGE_CLASS}" == "" ]] && gitops_suite_app_config_help "DEFAULT_STORAGE_CLASS is not set"
+    fi
+  fi
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_suite_app_config_help "GITHUB_HOST is not set"
@@ -333,8 +338,6 @@ function gitops_suite_app_config() {
     export SERVER_BUNDLE_EAR_FILENAME="maximomea"
   fi
   export SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-jms.mas-${MAS_INSTANCE_ID}-manage.svc:7276"
-
-
 
   if [ "$MAS_APP_ID" == "manage" ]; then
     # these settings will be applied to ui, cron and report - these server bundles don't need the activation specification in the JMS config xml
