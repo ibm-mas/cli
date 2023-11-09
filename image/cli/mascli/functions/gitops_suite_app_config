@@ -14,13 +14,14 @@ GitOps Configuration:
   -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}                  Version of ibm-mas/gitops to use
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                          Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                          Cluster ID
+
+Maximo Application Suite:
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                IBM Suite Maximo Application Suite Instance ID
   --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                              IBM Suite Maximo Application Suite Application ID
-  --mas-app-channel ${COLOR_YELLOW}MAS_APP_CHANNEL${TEXT_RESET}                    IBM Suite Maximo Application Suite Application Channel
-  --mas-app-catalog-source ${COLOR_YELLOW}MAS_APP_CATALOG_SOURCE${TEXT_RESET}      IBM Suite Maximo Application Suite Application Catalog Source
-  --mas-app-api-version ${COLOR_YELLOW}MAS_APP_API_VERSION${TEXT_RESET}            IBM Suite Maximo Application Suite Application API Version
   --mas-app-kind ${COLOR_YELLOW}MAS_APP_KIND${TEXT_RESET}                          IBM Suite Maximo Application Suite Application Kind
   --mas-appws-spec-yaml ${COLOR_YELLOW}MAS_APPWS_SPEC_YAML${TEXT_RESET}            Yaml file location containing IBM Suite Maximo Application Suite Application Spec
+  --mas-appws-api-version ${COLOR_YELLOW}MAS_APP_WS_API_VERSION${TEXT_RESET}        IBM Suite Maximo Application Suite Application Workspace API Version
+  --mas-appws-kind ${COLOR_YELLOW}MAS_APP_WS_KIND${TEXT_RESET}                      IBM Suite Maximo Application Suite Application Workspace Kind
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -81,17 +82,14 @@ function gitops_suite_app_config_noninteractive() {
       --mas-app-id)
         export MAS_APP_ID=$1 && shift
         ;;
-      --mas-app-channel)
-        export MAS_APP_CHANNEL=$1 && shift
-        ;;
-      --mas-app-catalog-source)
-        export MAS_APP_CATALOG_SOURCE=$1 && shift
-        ;;
-      --mas-app-api-version)
-        export MAS_APP_API_VERSION=$1 && shift
-        ;;
       --mas-app-kind)
         export MAS_APP_KIND=$1 && shift
+        ;;
+      --mas-appws-api-version)
+        export MAS_APP_WS_API_VERSION=$1 && shift
+        ;;
+      --mas-appws-kind)
+        export MAS_APP_WS_KIND=$1 && shift
         ;;
       --mas-appws-spec-yaml)
         export MAS_APPWS_SPEC_YAML=$1 && shift
@@ -139,10 +137,9 @@ function gitops_suite_app_config_noninteractive() {
 
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_suite_app_config_help "MAS_INSTANCE_ID is not set"
   [[ -z "$MAS_APP_ID" ]] && gitops_suite_app_config_help "MAS_APP_ID is not set"
-  [[ -z "$MAS_APP_CHANNEL" ]] && gitops_suite_app_config_help "MAS_APP_CHANNEL is not set"
-  [[ -z "$MAS_APP_CATALOG_SOURCE" ]] && gitops_suite_app_config_help "MAS_APP_CATALOG_SOURCE is not set"
-  [[ -z "$MAS_APP_API_VERSION" ]] && gitops_suite_app_config_help "MAS_APP_API_VERSION is not set"
   [[ -z "$MAS_APP_KIND" ]] && gitops_suite_app_config_help "MAS_APP_KIND is not set"
+  [[ -z "$MAS_APP_WS_API_VERSION" ]] && gitops_suite_app_config_help "MAS_APP_WS_API_VERSION is not set"
+  [[ -z "$MAS_APP_WS_KIND" ]] && gitops_suite_app_config_help "MAS_APP_WS_KIND is not set"
 
   if [[ -z "${MAS_APPWS_SPEC_YAML}" ]]; then
     if [[ "${MAS_APP_ID}" == "manage"  ]]; then
@@ -249,11 +246,9 @@ function gitops_suite_app_config() {
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "Application ID ........................ ${COLOR_MAGENTA}${MAS_APP_ID}"
-  echo_reset_dim "Application Channel ................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL}"
-  echo_reset_dim "Application Catalog Source ............ ${COLOR_MAGENTA}${MAS_APP_CATALOG_SOURCE}"
-  echo_reset_dim "Application API Version ............... ${COLOR_MAGENTA}${MAS_APP_API_VERSION}"
-  echo_reset_dim "Application Kind ...................... ${COLOR_MAGENTA}${MAS_APP_KIND}"
-  echo_reset_dim "Application Spec Yaml file ............ ${COLOR_MAGENTA}${MAS_APPWS_SPEC_YAML}"
+  echo_reset_dim "Application WS API Version ............ ${COLOR_MAGENTA}${MAS_APP_WS_API_VERSION}"
+  echo_reset_dim "Application WS Kind ................... ${COLOR_MAGENTA}${MAS_APP_WS_KIND}"
+  echo_reset_dim "Application WS Spec Yaml file ......... ${COLOR_MAGENTA}${MAS_APPWS_SPEC_YAML}"
   if [[ -n "$MAS_APPWS_SPEC_YAML" ]]; then
     echo_reset_dim "Using Default Application Spec ........ ${COLOR_MAGENTA}False"
   else
