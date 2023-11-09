@@ -18,7 +18,7 @@ spec:
       type: string
     - name: mas_app_kind
       type: string
-    - name: mas_app_spec_yml
+    - name: mas_appws_spec_yaml
       type: string
       default: ""
     - name: default_storage_class
@@ -94,8 +94,8 @@ spec:
         value: $(params.mas_app_api_version)
       - name: MAS_APP_KIND
         value: $(params.mas_app_kind)
-      - name: MAS_APP_SPEC_YML
-        value: $(params.mas_app_spec_yml)
+      - name: MAS_APPWS_SPEC_YAML 
+        value: $(params.mas_appws_spec_yaml)
       - name: DEFAULT_STORAGE_CLASS
         value: $(params.default_storage_class)
       - name: MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE
@@ -165,11 +165,7 @@ spec:
         # mas app install specific 
         export MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
 
-        #TODO need to check this change
-        if [[ -z "${DEFAULT_STORAGE_CLASS}" ]]; then
-          export DEFAULT_STORAGE_CLASS=efs${MAS_INSTANCE_ID}
-        fi
-        
+       
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 

@@ -112,10 +112,6 @@ spec:
         # mas app install specific 
         export MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
 
-        #TODO need to check this change
-        if [[ -z "${DEFAULT_STORAGE_CLASS}" ]]; then
-          export DEFAULT_STORAGE_CLASS=efs${MAS_INSTANCE_ID}
-        fi
         
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)

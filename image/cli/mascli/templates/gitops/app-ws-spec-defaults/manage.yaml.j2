@@ -6,6 +6,10 @@ mas_appws_spec:
       version: latest
   settings:
     deployment:
+
+{%- if DEFAULT_STORAGE_CLASS == "" %}
+      persistentVolumes: []
+{%- else %}
       persistentVolumes:
         - accessModes:
             - ReadWriteMany
@@ -37,6 +41,8 @@ mas_appws_spec:
           pvcName: manage-mm
           size: 20Gi
           storageClassName: {{ DEFAULT_STORAGE_CLASS }}
+{%- endif %}
+
 {%- if MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE == "small" %}
       serverBundles:
         - bundleType: ui

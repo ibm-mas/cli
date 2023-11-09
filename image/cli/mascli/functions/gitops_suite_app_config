@@ -254,6 +254,18 @@ function gitops_suite_app_config() {
   else
     echo_reset_dim "Using Default Application Spec ........ ${COLOR_MAGENTA}True"
   fi
+  echo_reset_dim "Workspace ID ........................ ${COLOR_MAGENTA}${MAS_WORKSPACE_ID}"
+  echo_reset_dim "Default Storage Class ............... ${COLOR_MAGENTA}${DEFAULT_STORAGE_CLASS}"
+  echo_reset_dim "SERVER_BUNDLES_SIZE ................. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE}"
+  echo_reset_dim "JMS_QUEUE_MOUNT_PATH ................ ${COLOR_MAGENTA}${MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH}"
+  echo_reset_dim "CUSTOMIZATION_ARCHIVE_URL ........... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL}"
+  echo_reset_dim "CUSTOMIZATION_ARCHIVE_NAME .......... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME}"
+  echo_reset_dim "MAS_APPWS_COMPONENTS ................ ${COLOR_MAGENTA}${MAS_APPWS_COMPONENTS}"
+  echo_reset_dim "CPD_WSL_PROJECT_ID .................. ${COLOR_MAGENTA}${CPD_WSL_PROJECT_ID}"
+  echo_reset_dim "CPD_PRODUCT_VERSION ................. ${COLOR_MAGENTA}${CPD_PRODUCT_VERSION}"
+  echo_reset_dim "MAS_APPWS_SETTINGS_DEPLOYMENT_SIZE .. ${COLOR_MAGENTA}${MAS_APPWS_SETTINGS_DEPLOYMENT_SIZE}"
+  echo_reset_dim "CPD_WML_URL ......................... ${COLOR_MAGENTA}${CPD_WML_URL}"
+  echo_reset_dim "CPD_WML_INSTANCE_ID ................. ${COLOR_MAGENTA}${CPD_WML_INSTANCE_ID}"
   reset_colors
 
 
@@ -313,7 +325,6 @@ function gitops_suite_app_config() {
   fi
 
   # valid values jms, snojms
-  export MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE=jms
   export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
 
   if [[ "${MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE}" == "snojms" || "${MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE}" == "dev" ]]; then
