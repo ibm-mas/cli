@@ -12,3 +12,5 @@ tmp/
 tekton/test-*.yaml
 tekton/target
 tekton/tmp
+
+image/cli/tmp-*
