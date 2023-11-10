@@ -269,11 +269,12 @@
 </ul>
 <h3 id="advanced-mas-configuration-optional">Advanced MAS Configuration (Optional):<a class="headerlink" href="#advanced-mas-configuration-optional" title="Permanent link"></a></h3>
 <ul>
-<li><code>--additional-configs LOCAL_MAS_CONFIG_DIR</code>         Path to a directory containing additional configuration files to be applied</li>
-<li><code>--non-prod</code>                                        Install MAS in Non-production mode</li>
-<li><code>--mas-trust-default-cas MAS_TRUST_DEFAULT_CAS</code>     Trust certificates signed by well-known CAs</li>
-<li><code>--workload-scale-profile</code>                          Set a pre-defined workload scale profile [<code>Burstable</code>, <code>BestEffort</code>, <code>Guaranteed</code>]</li>
-<li><code>--mas-pod-templates-dir</code>                           Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over <code>--workload-scale-profile</code></li>
+<li><code>--additional-configs LOCAL_MAS_CONFIG_DIR</code>                       Path to a directory containing additional configuration files to be applied</li>
+<li><code>--non-prod</code>                                                      Install MAS in Non-production mode</li>
+<li><code>--ocp-ingress-tls-secret-name OCP_INGRESS_TLS_SECRET_NAME</code>       Name of the secret holding the cluster's ingress certificates</li>
+<li><code>--mas-trust-default-cas MAS_TRUST_DEFAULT_CAS</code>                   Trust certificates signed by well-known CAs</li>
+<li><code>--workload-scale-profile</code>                                        Set a pre-defined workload scale profile [<code>Burstable</code>, <code>BestEffort</code>, <code>Guaranteed</code>]</li>
+<li><code>--mas-pod-templates-dir</code>                                         Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over <code>--workload-scale-profile</code></li>
 </ul>
 <h3 id="maximo-application-suite-core-platform-required">Maximo Application Suite Core Platform (Required):<a class="headerlink" href="#maximo-application-suite-core-platform-required" title="Permanent link"></a></h3>
 <ul>
