@@ -59,6 +59,7 @@
         - fvt-core-ui
         - fvt-finalize
         - fvt-manage
+        - fvt-mobile
         - fvt-manage-directprint
         - fvt-manage-last-phase
         - fvt-manage-pytest
