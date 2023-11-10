@@ -101,7 +101,7 @@ spec:
             name: mas-devops
             key: DEVOPS_BUILD_NUMBER
             optional: true
-       - name: MANAGECACRT
+      - name: MANAGECACRT
         valueFrom:
           secretKeyRef:
             name: pipeline-certificates
@@ -137,10 +137,6 @@ spec:
 
       - name: MOBILE_TEST_TYPE
         value: $(params.mobile_test_type)
-
-      # Mobile Foundation Specific information
-      - name: FOUNDATION_SERVER_TYPE
-        value: $(params.foundation_server_type)
   steps:
     - image: '$(params.fvt_image_registry)/fvt-mobile/fvt-mobile-testng@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
