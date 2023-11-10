@@ -18,6 +18,10 @@ spec:
       type: string
     - name: mas_app_kind
       type: string
+    - name: mas_app_ws_api_version
+      type: string
+    - name: mas_app_ws_kind
+      type: string
     - name: mas_appws_spec_yaml
       type: string
       default: ""
@@ -94,6 +98,10 @@ spec:
         value: $(params.mas_app_api_version)
       - name: MAS_APP_KIND
         value: $(params.mas_app_kind)
+      - name: MAS_APP_WS_API_VERSION
+        value: $(params.mas_app_ws_api_version)
+      - name: MAS_APP_WS_KIND
+        value: $(params.mas_app_ws_kind)
       - name: MAS_APPWS_SPEC_YAML 
         value: $(params.mas_appws_spec_yaml)
       - name: DEFAULT_FILE_STORAGE_CLASS
