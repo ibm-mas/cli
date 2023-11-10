@@ -50,7 +50,7 @@ function config_pipeline_advanced() {
     echo
 
     prompt_for_confirm_default_yes "Trust Default CAs?" MAS_TRUST_DEFAULT_CAS
-    prompt_for_confirm_default_no "Enable IPv6 for internal testing?" ENABLE_IPV6
+    prompt_for_confirm "Enable IPv6 for internal testing?" ENABLE_IPV6
   else
     clear_mas_workload_scale_envs
   fi
