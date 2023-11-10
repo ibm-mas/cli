@@ -33,7 +33,6 @@ Usage
 - `--mas-trust-default-cas MAS_TRUST_DEFAULT_CAS`     Trust certificates signed by well-known CAs
 - `--workload-scale-profile`                          Set a pre-defined workload scale profile [`Burstable`, `BestEffort`, `Guaranteed`]
 - `--mas-pod-templates-dir`                           Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over `--workload-scale-profile`
-- `--enable-ipv6 ENABLE_IPV6`                         Enable IPv6 for internal testing with fyre cluster at RTP site
 
 ### Maximo Application Suite Core Platform (Required):
 - `--mas-channel MAS_CHANNEL`                                    Subscription channel for the Core Platform

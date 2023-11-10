@@ -264,7 +264,6 @@ function pipeline_show_config() {
   [ "$MAS_TRUST_DEFAULT_CAS" == "true" ] && cmd+=" --mas-trust-default-cas"
   [ "$MAS_WORKLOAD_SCALE_PROFILE" != "" ] && cmd+=" --workload-scale-profile $MAS_WORKLOAD_SCALE_PROFILE"
   [ "$MAS_POD_TEMPLATES_DIR" != "" ] && cmd+=" --mas-pod-templates-dir $MAS_POD_TEMPLATES_DIR"
-  [ "$ENABLE_IPV6" == "true" ] && cmd+=" --enable-ipv6"
 
   # Applications
   [ "$MAS_APP_CHANNEL_IOT" != "" ] && cmd+=" \\
