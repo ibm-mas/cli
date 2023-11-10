@@ -195,6 +195,9 @@ function install_noninteractive() {
         export USE_NON_PROD_MODE=true
         export MAS_ANNOTATIONS="mas.ibm.com/operationalMode=nonproduction"
         ;;
+      --ocp-ingress-tls-secret-name)
+        export OCP_INGRESS_TLS_SECRET_NAME=$1 && shift
+        ;;
       --mas-trust-default-cas)
         export MAS_TRUST_DEFAULT_CAS=$1 && shift
         ;;

@@ -45,7 +45,10 @@ function pipeline_show_config() {
   echo_h4 "IBM Maximo Application Suite Applications" "    "
   if [[ "${MAS_APP_CHANNEL_IOT}" == '' ]]
   then echo_reset_dim "IoT ....................... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "IoT ....................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_IOT}"
+  else 
+    echo_reset_dim "IoT ....................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_IOT}"
+    echo_reset_dim " - MQTT Storage Class ..... ${COLOR_MAGENTA}${STORAGE_CLASS_RWO:-<default>}"
+    echo_reset_dim " - FPL Storage Class ...... ${COLOR_MAGENTA}${STORAGE_CLASS_RWO:-<default>}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_MONITOR}" == '' ]]
@@ -86,7 +89,9 @@ function pipeline_show_config() {
 
   if [[ "${MAS_APP_CHANNEL_VISUALINSPECTION}" == '' ]]
   then echo_reset_dim "Visual Inspection ......... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "Visual Inspection ......... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_VISUALINSPECTION}"
+  else 
+    echo_reset_dim "Visual Inspection ......... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_VISUALINSPECTION}"
+    echo_reset_dim " - Storage Class .......... ${COLOR_MAGENTA}${STORAGE_CLASS_RWX:-<default>}"
   fi
 
   reset_colors
@@ -246,6 +251,11 @@ function pipeline_show_config() {
   fi
 
   reset_colors
+  echo "${TEXT_DIM}"
+  echo_h4 "Cluster Ingress Configuration" "    "
+  echo_reset_dim "Certificate Secret ........ ${COLOR_MAGENTA}${OCP_INGRESS_TLS_SECRET_NAME:-<default>}"
+
+  reset_colors
   echo "${TEXT_RESET}"
 
   # Build non-interactive command
@@ -262,6 +272,7 @@ function pipeline_show_config() {
   [ "$LOCAL_MAS_CONFIG_DIR" != "" ] && cmd+=" --additional-configs $LOCAL_MAS_CONFIG_DIR"
   [ "$USE_NON_PROD_MODE" == "true" ] && cmd+=" --non-prod"
   [ "$MAS_TRUST_DEFAULT_CAS" == "true" ] && cmd+=" --mas-trust-default-cas"
+  [ "$OCP_INGRESS_TLS_SECRET_NAME" != "" ] && cmd+=" --ocp-ingress-tls-secret-name $OCP_INGRESS_TLS_SECRET_NAME"
   [ "$MAS_WORKLOAD_SCALE_PROFILE" != "" ] && cmd+=" --workload-scale-profile $MAS_WORKLOAD_SCALE_PROFILE"
   [ "$MAS_POD_TEMPLATES_DIR" != "" ] && cmd+=" --mas-pod-templates-dir $MAS_POD_TEMPLATES_DIR"
 
@@ -358,6 +369,8 @@ function pipeline_show_config() {
   echo "${TEXT_DIM}$cmd"
   echo
 
+  reset_colors
+  echo "${TEXT_RESET}"
   if [ "$NO_CONFIRM" != "true" ]; then
     prompt_for_confirm "Proceed with these settings" || exit 0
   fi

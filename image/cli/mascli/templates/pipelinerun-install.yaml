@@ -13,6 +13,11 @@ spec:
   timeout: 24h
 
   params:
+    # Cluster config
+    # -------------------------------------------------------------------------
+    - name: ocp_ingress_tls_secret_name
+      value: '$OCP_INGRESS_TLS_SECRET_NAME'
+
     # Enable development catalogs
     # -------------------------------------------------------------------------
     - name: artifactory_username
