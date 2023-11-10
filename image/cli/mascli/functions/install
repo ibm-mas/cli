@@ -37,6 +37,7 @@ Advanced MAS Configuration (Optional):
       --mas-trust-default-cas ${COLOR_YELLOW}MAS_TRUST_DEFAULT_CAS${TEXT_RESET}        Trust certificates signed by well-known CAs
       --workload-scale-profile ${COLOR_YELLOW}MAS_WORKLOAD_SCALE_PROFILE${TEXT_RESET}  Set a pre-defined workload scale profile [Burstable, BestEffort, Guaranteed]
       --mas-pod-templates-dir ${COLOR_YELLOW}MAS_POD_TEMPLATES_DIR${TEXT_RESET}        Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over --workload-scale-profile
+      --enable-ipv6 ${COLOR_YELLOW}ENABLE_IPV6${TEXT_RESET}                            Enable IPv6 for internal testing with fyre cluster at RTP site
 
 Maximo Application Suite Core Platform (Required):
       --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                            Subscription channel for the Core Platform
@@ -216,6 +217,9 @@ function install_noninteractive() {
       --mas-pod-templates-dir)
         MAS_POD_TEMPLATES_DIR=$1 && shift
         check_mas_pod_templates_dir
+        ;;
+      --enable-ipv6)
+        export ENABLE_IPV6=$1 && shift
         ;;
 
       # Core
