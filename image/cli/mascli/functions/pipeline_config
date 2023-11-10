@@ -228,9 +228,13 @@ function pipeline_config() {
     SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
   fi
 
-  echo
+  # Check for DRO support in MAS
+  # ---------------------------------------------------------------------------
+  echo ""
+  uds_dro_selection
   echo_h2 "Configure UDS"
   prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
   prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
   prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
+
 }

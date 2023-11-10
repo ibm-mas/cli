@@ -45,7 +45,10 @@ function pipeline_show_config() {
   echo_h4 "IBM Maximo Application Suite Applications" "    "
   if [[ "${MAS_APP_CHANNEL_IOT}" == '' ]]
   then echo_reset_dim "IoT ....................... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "IoT ....................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_IOT}"
+  else 
+    echo_reset_dim "IoT ....................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_IOT}"
+    echo_reset_dim " - MQTT Storage Class ..... ${COLOR_MAGENTA}${STORAGE_CLASS_RWO:-<default>}"
+    echo_reset_dim " - FPL Storage Class ...... ${COLOR_MAGENTA}${STORAGE_CLASS_RWO:-<default>}"
   fi
 
   if [[ "${MAS_APP_CHANNEL_MONITOR}" == '' ]]
@@ -86,7 +89,9 @@ function pipeline_show_config() {
 
   if [[ "${MAS_APP_CHANNEL_VISUALINSPECTION}" == '' ]]
   then echo_reset_dim "Visual Inspection ......... ${COLOR_RED}Skip Installation"
-  else echo_reset_dim "Visual Inspection ......... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_VISUALINSPECTION}"
+  else 
+    echo_reset_dim "Visual Inspection ......... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_VISUALINSPECTION}"
+    echo_reset_dim " - Storage Class .......... ${COLOR_MAGENTA}${STORAGE_CLASS_RWX:-<default>}"
   fi
 
   reset_colors
@@ -184,6 +189,7 @@ function pipeline_show_config() {
     echo_h4 "Kafka" "    "
     echo_reset_dim "Install Namespace ......... ${COLOR_MAGENTA}${KAFKA_NAMESPACE:-<default>}"
     echo_reset_dim "Kafka Provider ............ ${COLOR_MAGENTA}${KAFKA_PROVIDER}"
+    echo_reset_dim "Kafka Version ............. ${COLOR_MAGENTA}${KAFKA_VERSION}"
   fi
 
   if [[ "$KAFKA_ACTION_SYSTEM" == "install" && "$KAFKA_PROVIDER" == "ibm" ]]; then
@@ -245,6 +251,11 @@ function pipeline_show_config() {
   fi
 
   reset_colors
+  echo "${TEXT_DIM}"
+  echo_h4 "Cluster Ingress Configuration" "    "
+  echo_reset_dim "Certificate Secret ........ ${COLOR_MAGENTA}${OCP_INGRESS_TLS_SECRET_NAME:-<default>}"
+
+  reset_colors
   echo "${TEXT_RESET}"
 
   # Build non-interactive command
@@ -261,6 +272,7 @@ function pipeline_show_config() {
   [ "$LOCAL_MAS_CONFIG_DIR" != "" ] && cmd+=" --additional-configs $LOCAL_MAS_CONFIG_DIR"
   [ "$USE_NON_PROD_MODE" == "true" ] && cmd+=" --non-prod"
   [ "$MAS_TRUST_DEFAULT_CAS" == "true" ] && cmd+=" --mas-trust-default-cas"
+  [ "$OCP_INGRESS_TLS_SECRET_NAME" != "" ] && cmd+=" --ocp-ingress-tls-secret-name $OCP_INGRESS_TLS_SECRET_NAME"
   [ "$MAS_WORKLOAD_SCALE_PROFILE" != "" ] && cmd+=" --workload-scale-profile $MAS_WORKLOAD_SCALE_PROFILE"
   [ "$MAS_POD_TEMPLATES_DIR" != "" ] && cmd+=" --mas-pod-templates-dir $MAS_POD_TEMPLATES_DIR"
 
@@ -273,6 +285,9 @@ function pipeline_show_config() {
   --manage-channel $MAS_APP_CHANNEL_MANAGE"
   [ "$MAS_APPWS_BINDINGS_JDBC_MANAGE" != "" ] && cmd+=" \\
   --manage-jdbc $MAS_APPWS_BINDINGS_JDBC_MANAGE"
+  [ "$MAS_APPWS_COMPONENTS" != "" ] && cmd+=" --manage-components $MAS_APPWS_COMPONENTS"
+  [ "$MAS_APP_SETTINGS_DEMODATA" == "true" ] && cmd+=" --manage-demodata"
+
   [ "$MAS_APP_CHANNEL_PREDICT" != "" ] && cmd+=" \\
   --predict-channel $MAS_APP_CHANNEL_PREDICT"
   [ "$MAS_APP_CHANNEL_ASSIST" != "" ] && cmd+=" \\
@@ -280,13 +295,13 @@ function pipeline_show_config() {
   [ "$MAS_APP_CHANNEL_VISUALINSPECTION" != "" ] && cmd+=" \\
   --visualinspection-channel $MAS_APP_CHANNEL_VISUALINSPECTION"
   [ "$MAS_APP_CHANNEL_OPTIMIZER" != "" ] && cmd+=" \\
-  --optimizer-channel $MAS_APP_CHANNEL_OPTIMIZER"
-  [ "$MAS_APP_PLAN_OPTIMIZER" != "" ] && cmd+=" --optimizer-plan $MAS_APP_PLAN_OPTIMIZER"
+  --optimizer-channel $MAS_APP_CHANNEL_OPTIMIZER --optimizer-plan $MAS_APP_PLAN_OPTIMIZER"
 
   # Kafka
   [ "$KAFKA_PROVIDER" != "" ] && cmd+=" \\
   --kafka-provider $KAFKA_PROVIDER"
   [ "$KAFKA_NAMESPACE" != "" ] && cmd+=" --kafka-namespace $KAFKA_NAMESPACE"
+  [ "$KAFKA_VERSION" != "" ] && cmd+=" --kafka-version $KAFKA_VERSION"
   [ "$EVENTSTREAMS_RESOURCEGROUP" != "" ] && cmd+=" --eventstreams-resource-group $EVENTSTREAMS_RESOURCEGROUP"
   [ "$EVENTSTREAMS_NAME" != "" ] && cmd+=" --eventstreams-instance-name $EVENTSTREAMS_NAME"
   [ "$EVENTSTREAMS_LOCATION" != "" ] && cmd+=" --eventstreams-instance-location $EVENTSTREAMS_LOCATION"
@@ -333,10 +348,8 @@ function pipeline_show_config() {
   # --cp4d-install-cognos
 
   # Manage Application - Advanced Configuration (Optional):
-  #       --manage-demodata                                                                                                   Enables demo data for Manage application
   #       --manage-jms                                                                                                        Enables JMS queues using local persistent volumes
   #       --manage-server-bundle-size ${COLOR_YELLOW}MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE${TEXT_RESET}                        Set Manage server bundle size configuration i.e 'dev', 'small', 'jms' or 'snojms'
-  #       --manage-components ${COLOR_YELLOW}MAS_APPWS_COMPONENTS${TEXT_RESET}                                                Set Manage Components to be installed i.e 'base=latest,health=latest,civil=latest'
   #       --manage-customization-archive-name ${COLOR_YELLOW}MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME${TEXT_RESET}         Set Manage Archive name
   #       --manage-customization-archive-url ${COLOR_YELLOW}MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL${TEXT_RESET}           Set Manage Archive url
   #       --manage-customization-archive-username ${COLOR_YELLOW}MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME${TEXT_RESET} Set Manage Archive username, in case url requires basic authentication to pull the archive
@@ -356,6 +369,8 @@ function pipeline_show_config() {
   echo "${TEXT_DIM}$cmd"
   echo
 
+  reset_colors
+  echo "${TEXT_RESET}"
   if [ "$NO_CONFIRM" != "true" ]; then
     prompt_for_confirm "Proceed with these settings" || exit 0
   fi

@@ -15,6 +15,7 @@ nav:
       - "Install": guides/install.md
       - "Update": guides/update.md
       - "Upgrade": guides/upgrade.md
+      - "Uninstall": guides/uninstall.md
   - "OpenShift Management":
       - "provision-fyre": commands/provision-fyre.md
       - "provision-roks": commands/provision-roks.md
@@ -30,14 +31,15 @@ nav:
       - "install": commands/install.md
       - "update": commands/update.md
       - "upgrade": commands/upgrade.md
+      - "uninstall": commands/uninstall.md
   - "Troubleshooting":
       - "must-gather": commands/must-gather.md
   - "Catalogs":
       - "All Catalogs": catalogs/index.md
+      - "Oct 31 2023": catalogs/v8-231031-amd64.md
       - "Oct 04 2023": catalogs/v8-231004-amd64.md
       - "Aug 29 2023": catalogs/v8-230829-amd64.md
       - "Jul 25 2023": catalogs/v8-230725-amd64.md
-      - "Jul 21 2023": catalogs/v8-230721-amd64.md
 
 theme:
   name: readthedocs

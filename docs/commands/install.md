@@ -28,12 +28,12 @@ Usage
 - `-W, --mas-workspace-name MAS_WORKSPACE_ID`         MAS Workspace Name
 
 ### Advanced MAS Configuration (Optional):
-- `--additional-configs LOCAL_MAS_CONFIG_DIR`         Path to a directory containing additional configuration files to be applied
-- `--non-prod`                                        Install MAS in Non-production mode
-- `--mas-trust-default-cas MAS_TRUST_DEFAULT_CAS`     Trust certificates signed by well-known CAs
-- `--workload-scale-profile`                          Set a pre-defined workload scale profile [`Burstable`, `BestEffort`, `Guaranteed`]
-- `--mas-pod-templates-dir`                           Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over `--workload-scale-profile`
-
+- `--additional-configs LOCAL_MAS_CONFIG_DIR`                       Path to a directory containing additional configuration files to be applied
+- `--non-prod`                                                      Install MAS in Non-production mode
+- `--ocp-ingress-tls-secret-name OCP_INGRESS_TLS_SECRET_NAME`       Name of the secret holding the cluster's ingress certificates
+- `--mas-trust-default-cas MAS_TRUST_DEFAULT_CAS`                   Trust certificates signed by well-known CAs
+- `--workload-scale-profile`                                        Set a pre-defined workload scale profile [`Burstable`, `BestEffort`, `Guaranteed`]
+- `--mas-pod-templates-dir`                                         Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over `--workload-scale-profile`
 
 ### Maximo Application Suite Core Platform (Required):
 - `--mas-channel MAS_CHANNEL`                                    Subscription channel for the Core Platform
@@ -54,6 +54,7 @@ Usage
 
 ### Kafka - Common Arguments (Optional, required to install Maximo IoT):
 - `--kafka-provider KAFKA_PROVIDER`                             Required. Set Kafka provider. Supported options are `redhat` (Red Hat AMQ Streams), `strimzi` and `ibm` (IBM Event Streams) and `aws` (AWS MSK)
+- `--kafka-version KAFKA_VERSION`                               Optional. Set version of the Kafka cluster that the Strimzi or AMQ Streams operator will create
 - `--kafka-namespace KAFKA_NAMESPACE`                           Optional. Set Kafka namespace. Only applicable if installing `redhat` (Red Hat AMQ Streams) or `strimzi`
 - `--kafka-cluster-name KAFKA_CLUSTER_NAME`                     Optional. Set Kafka cluster name. Only applicable if installing `redhat` (Red Hat AMQ Streams), `strimzi` or `aws` (AWS MSK)
 - `--kafka-username KAFKA_USER_NAME`                            Required. Set Kafka instance username. Only applicable if installing `redhat` (Red Hat AMQ Streams), `strimzi` or `aws` (AWS MSK)
@@ -110,7 +111,7 @@ Usage
 ### Manage Application - Advanced Configuration (Optional):
 
 - `--manage-server-bundle-size MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE`                        Set Manage server bundle size configuration i.e `dev, small, jms or snojms`
-- `--manage-components MAS_APPWS_COMPONENTS`                                                Set Manage Components to be installed i.e `base=latest,health=latest,civil=latest`                       
+- `--manage-components MAS_APPWS_COMPONENTS`                                                Set Manage Components to be installed i.e `base=latest,health=latest,civil=latest`
 - `--manage-customization-archive-name MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME`         Set Manage Archive name
 - `--manage-customization-archive-url MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL`           Set Manage Archive url
 - `--manage-customization-archive-username MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME` Set Manage Archive username, in case url requires basic authentication to pull the archive
@@ -118,7 +119,7 @@ Usage
 - `--manage-crypto-key MAS_APP_SETTINGS_CRYPTO_KEY`                                         Set `MXE_SECURITY_CRYPTO_KEY` value if you want to customize your Manage database encryption keys
 - `--manage-cryptox-key MAS_APP_SETTINGS_CRYPTOX_KEY`                                       Set `MXE_SECURITY_CRYPTOX_KEY` value if you want to customize your Manage database encryption keys
 - `--manage-old-crypto-key MAS_APP_SETTINGS_OLD_CRYPTO_KEY`                                 Set `MXE_SECURITY_OLD_CRYPTO_KEY` value if you want to customize your Manage database encryption keys
-- `--manage-old-cryptox-key MAS_APP_SETTINGS_OLD_CRYPTOX_KEY`                               Set `MXE_SECURITY_OLD_CRYPTOX_KEY` value if you want to customize your Manage database encryption keys                     
+- `--manage-old-cryptox-key MAS_APP_SETTINGS_OLD_CRYPTOX_KEY`                               Set `MXE_SECURITY_OLD_CRYPTOX_KEY` value if you want to customize your Manage database encryption keys
 - `--manage-override-encryption-secrets`                                                    Overrides any existing Manage database encryption keys. A backup of the original secret holding existing encryption keys is taken prior overriding it with the new defined keys.
 
 ### Other Commands:
@@ -308,7 +309,7 @@ Provide your license ID and the location of your license file.
 
 
 ### Step 19. Configure UDS
-Maximo Application Suite's required integration with IBM User Data Services requires your e-mail address and first/last name be provided.
+Maximo Application Suite's required integration with either IBM User Data Services OR IBM Data Reporter Operator requires your e-mail address and first/last name be provided.
 
 
 ### Step 20. Prepare Installation

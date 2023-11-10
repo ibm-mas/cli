@@ -131,16 +131,6 @@ function channel_select_visualinspection() {
 function config_pipeline_applications() {
   echo
   echo_h2 "Application Selection"
-  # Default all applications to "do not deploy"
-  # MAS_APP_CHANNEL_IOT=''
-  # MAS_APP_CHANNEL_MONITOR=''
-  # MAS_APP_CHANNEL_MANAGE=''
-  # MAS_APP_CHANNEL_PREDICT=''
-  # MAS_APP_CHANNEL_ASSIST=''
-  # MAS_APP_CHANNEL_VISUALINSPECTION=''
-  # MAS_APP_CHANNEL_OPTIMIZER='';
-  # MAS_APP_PLAN_OPTIMIZER=''
-
   if prompt_for_confirm "Install IoT?" MAS_APP_INSTALL_IOT; then
     channel_select_iot || exit 1
 
@@ -187,6 +177,8 @@ function config_pipeline_applications() {
     MAS_APP_CHANNEL_VISUALINSPECTION=""
   fi
 
+  manage_validate_internal_registry
+
   if [[ "$MAS_APP_CHANNEL_ASSIST" != '' ]]; then assist_settings; fi
   if [[ "$MAS_APP_CHANNEL_MANAGE" != '' ]]; then manage_settings; fi
   if [[ "$MAS_APP_CHANNEL_OPTIMIZER" != '' ]]; then optimizer_settings; fi
@@ -214,6 +206,27 @@ function assist_settings() {
   if [[ "$COS_TYPE" == "ibm" ]]; then
     prompt_for_secret "IBM Cloud API Key" IBMCLOUD_APIKEY
     prompt_for_input "IBM Cloud Resource Group" IBMCOS_RESOURCEGROUP $IBMCOS_RESOURCEGROUP "Default"
+  fi
+}
+
+
+# Manage builds containers at install-time
+# -----------------------------------------------------------------------------
+# We can save customers wasted time by detecting if the image-registry service
+# is available in the cluster.  If it's not, and they've selected to install
+# Manage then their install is going to fail, so let's just prevent the install
+# starting in the first place.
+function manage_validate_internal_registry() {
+  if [[ "$MAS_APP_CHANNEL_MANAGE" != "" ]]; then
+    oc -n openshift-image-registry get service image-registry &> /dev/null
+    if [[ "$?" != "0" ]]; then
+      echo
+      echo_warning "Unable to proceed with installation of Maximo Manage.  Could not detect the required \"image-registry\" service in the openshift-image-registry namespace."
+      echo_warning "  For more inforomation refer to ${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/masv-and-l/continuous-delivery?topic=installing-enabling-openshift-internal-image-registry"
+      reset_colors
+      echo
+      exit 1
+    fi
   fi
 }
 
@@ -257,6 +270,8 @@ function manage_settings() {
         exit 1
       fi
     fi
+  else
+    MAS_APPWS_COMPONENTS="base=latest,health=latest"
   fi
 
   # Manage Settings - Database
@@ -312,13 +327,6 @@ function manage_settings() {
     CPD_INSTALL_COGNOS=true
     DEPLOY_CP4D=run
   fi
-
-  # Manage Settings - Attachments
-  # TODO after https://github.com/ibm-mas/ansible-devops/issues/1010
-  # Following vars should be set depending on answers here
-  # But we should, first of all, unify the roles so we ahve all the choices in one place (filestorage, ibm, aws)
-  # - COS_TYPE=ibm # Obtained in FVT Configs, including custom
-  # - COS_SETUP_FOR_MANAGE_ATTACHMENTS=true # Obtained in start_pipeline default
 
   # Manage Settings - Other
   echo

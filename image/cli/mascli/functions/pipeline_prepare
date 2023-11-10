@@ -15,12 +15,11 @@ function pipeline_prepare() {
       -e "s/{{pipeline_storage_accessmode}}/$PIPELINE_STORAGE_ACCESSMODE/g" \
       $CLI_DIR/templates/pvc.yaml > $CONFIG_DIR/pvc-$MAS_INSTANCE_ID.yaml
 
+  OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}') # lookup ocp url regardless
   if [ "$ALREADY_CONFIRMED" != "true" ] && [ "$NO_CONFIRM" != "true" ]; then
-    OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
     echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}${COLOR_RESET}"
     prompt_for_confirm "Proceed with pipeline setup on this cluster" || exit 0
   fi
-
 
   if [ "$ALREADY_CONFIRMED" != "true" ] && [ "$NO_CONFIRM" != "true" ]; then
     echo "${COLOR_YELLOW}If you are using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"

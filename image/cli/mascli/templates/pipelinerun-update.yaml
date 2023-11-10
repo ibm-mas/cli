@@ -19,6 +19,8 @@ spec:
       value: '$DB2_NAMESPACE'
     - name: mongodb_namespace
       value: '$MONGODB_NAMESPACE'
+    - name: mongodb_v5_upgrade
+      value: '$MONGODB_V5_UPGRADE'
     - name: kafka_namespace
       value: '$KAFKA_NAMESPACE'
     - name: kafka_provider

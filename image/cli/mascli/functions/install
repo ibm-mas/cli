@@ -63,6 +63,7 @@ Kafka (Required to install Maximo IoT thus if not set, a default Kafka provider 
 
 Kafka (Optional, applicable for Strimzi and Red Hat AMQ Streams only):
       --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}    Set Strimzi and Red Hat AMQ Streams namespace
+      --kafka-version ${COLOR_YELLOW}KAFKA_VERSION${TEXT_RESET}        Set version of the Kafka cluster that the Strimzi or AMQ Streams operator will create
 
 Kafka (Required for IBM Cloud Event Streams only):
       --ibmcloud-apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                            Set IBM Cloud API Key. Required to provision IBM Cloud services
@@ -135,6 +136,7 @@ function install_noninteractive() {
   NON_INTERACTIVE=true
   DEV_MODE=false
   LICENSE_ACCEPTED=false
+  BAS_PROVIDER=UDS
 
   # Defaults
   DB2_ACTION_SYSTEM=none
@@ -192,6 +194,9 @@ function install_noninteractive() {
       --non-prod)
         export USE_NON_PROD_MODE=true
         export MAS_ANNOTATIONS="mas.ibm.com/operationalMode=nonproduction"
+        ;;
+      --ocp-ingress-tls-secret-name)
+        export OCP_INGRESS_TLS_SECRET_NAME=$1 && shift
         ;;
       --mas-trust-default-cas)
         export MAS_TRUST_DEFAULT_CAS=$1 && shift
@@ -347,6 +352,9 @@ function install_noninteractive() {
       # Dependencies - Kafka (AMQ & Strimzi)
       --kafka-namespace)
         export KAFKA_NAMESPACE=$1 && shift
+        ;;
+      --kafka-version)
+        export KAFKA_VERSION=$1 && shift
         ;;
 
       # Dependencies - Kafka (AWS MSK)
@@ -514,6 +522,9 @@ function install_noninteractive() {
         ;;
     esac
   done
+
+  # Run validations
+  manage_validate_internal_registry
 
   if [[ "$DEV_MODE" == "true"  ]]; then
     MAS_ICR_CP=docker-na-public.artifactory.swg-devops.com/wiotp-docker-local

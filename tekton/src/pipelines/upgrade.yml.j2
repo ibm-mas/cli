@@ -8,6 +8,12 @@ metadata:
   name: mas-upgrade
 {% endif %}
 spec:
+{% if wait_for_install == true %}
+  workspaces:
+    # Shared storage to hold mustgather output for tasks
+    - name: shared-mustgather
+{% endif %}
+
   params:
     # 1. Common Parameters
     # -------------------------------------------------------------------------
@@ -24,7 +30,7 @@ spec:
 
   tasks:
 {% if wait_for_install == true %}
-    # Wait for the install pipeline to complete
+    # 0. Wait for the install pipeline to complete
     # -------------------------------------------------------------------------
     - name: wait-for-install
       params:
@@ -35,17 +41,27 @@ spec:
         name: mas-fvt-wait-for-install
 {% endif %}
 
-    # Phase 1
+
+    # 1. Verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
-    # Suite Upgrade
-    - name: core-upgrade
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-upgrade
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
+        'name': 'pre-upgrade-check',
+        'devops_suite_name': 'pre-upgrade-check'
+      }) | indent(4) }}
 {% if wait_for_install == true %}
       runAfter:
         - wait-for-install
 {% endif %}
+
+
+    # 2. Suite Upgrade (Phase 1)
+    # -------------------------------------------------------------------------
+    - name: core-upgrade
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-upgrade
+      runAfter:
+        - pre-upgrade-check
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -73,9 +89,8 @@ spec:
         - core-upgrade
 
 
-    # Phase 2 - Apps with no dependencies
+    # 3. IoT Upgrade (Phase 2)
     # -------------------------------------------------------------------------
-    # IoT Upgrade
     - name: iot-upgrade
       params:
         - name: mas_instance_id
@@ -94,7 +109,9 @@ spec:
       runAfter:
         - core-verify
 
-    # Manage Upgrade
+
+    # 4. Manage Upgrade (Phase 2)
+    # -------------------------------------------------------------------------
     - name: manage-upgrade
       params:
         - name: mas_instance_id
@@ -113,7 +130,9 @@ spec:
       runAfter:
         - core-verify
 
-    # Visual Inspection Upgrade
+
+    # 5. Visual Inspection Upgrade (Phase 2)
+    # -------------------------------------------------------------------------
     - name: visualinspection-upgrade
       params:
         - name: mas_instance_id
@@ -132,7 +151,9 @@ spec:
       runAfter:
         - core-verify
 
-    # Assist Upgrade
+
+    # 6. Assist Upgrade (Phase 2)
+    # -------------------------------------------------------------------------
     - name: assist-upgrade
       params:
         - name: mas_instance_id
@@ -151,7 +172,9 @@ spec:
       runAfter:
         - core-verify
 
-    # Optimizer Upgrade
+
+    # 7. Optimizer Upgrade (Phase 2)
+    # -------------------------------------------------------------------------
     - name: optimizer-upgrade
       params:
         - name: mas_instance_id
@@ -171,9 +194,8 @@ spec:
         - core-verify
 
 
-    # Phase 3 - Apps dependant on upgrades in Phase 2
+    # 8. Monitor Upgrade (Phase 3 - after IoT)
     # -------------------------------------------------------------------------
-    # Monitor Upgrade (after IoT)
     - name: monitor-upgrade
       params:
         - name: mas_instance_id
@@ -192,7 +214,9 @@ spec:
       runAfter:
         - iot-upgrade
 
-    # Predict Upgrade (after Manage)
+
+    # 9. Predict Upgrade (Phase 3 - after Manage)
+    # -------------------------------------------------------------------------
     - name: predict-upgrade
       params:
         - name: mas_instance_id
@@ -211,7 +235,9 @@ spec:
       runAfter:
         - manage-upgrade
 
-    # HP Utilities Upgrade (after Manage)
+
+    # 10. HP Utilities Upgrade (Phase 3 - after Manage)
+    # -------------------------------------------------------------------------
     - name: hputilities-upgrade
       params:
         - name: mas_instance_id
@@ -229,3 +255,46 @@ spec:
         name: mas-devops-suite-app-upgrade
       runAfter:
         - manage-upgrade
+
+
+    # 11. Verify health of the cluster after upgrade
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
+        'name': 'post-upgrade-verify',
+        'devops_suite_name': 'post-upgrade-verify'
+      }) | indent(4) }}
+      runAfter:
+        # Phase 2 apps that don't have a phase 3 app following it
+        - assist-upgrade
+        - optimizer-upgrade
+        - visualinspection-upgrade
+        # Phase 3 apps
+        - hputilities-upgrade
+        - predict-upgrade
+        - monitor-upgrade
+
+
+{% if wait_for_install == true %}
+  # In FVT only this is the time to take a must-gather and finalize the result
+  # ---------------------------------------------------------------------------
+  finally:
+    # Collect must-gather
+    # -------------------------------------------------------------------------
+    - name: must-gather
+      taskRef:
+        kind: Task
+        name: mas-devops-must-gather
+      params:
+        - name: base_output_dir
+          value: "/workspace/mustgather/$(context.pipelineRun.name)"
+      workspaces:
+        - name: mustgather
+          workspace: shared-mustgather
+
+    # Finalize the record in the FVT database
+    # -------------------------------------------------------------------------
+    - name: finalize
+      taskRef:
+        kind: Task
+        name: mas-fvt-finalize
+{% endif %}

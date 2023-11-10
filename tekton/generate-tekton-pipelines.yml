@@ -36,6 +36,7 @@
         - fvt-manage
         - fvt-manage-regr
         - fvt-sls
+        - fvt-uninstall-after
         - update
         - upgrade
         - rollback

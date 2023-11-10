@@ -19,6 +19,19 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
+function list_mas_instances() {
+  oc get suite --all-namespaces --ignore-not-found
+}
+
+function verify_mas_instance() {
+  oc get suite $MAS_INSTANCE_ID --namespace mas-${MAS_INSTANCE_ID}-core &> /dev/null
+  if [[ "$?" != "0" ]]; then
+    echo
+    echo_warning "Unable to upgrade MAS instance '$MAS_INSTANCE_ID' because it can not be found on the cluster, run \"oc get suite --all-namespaces\" to see a list of installed MAS instances."
+    echo
+    exit 1
+  fi
+}
 
 function upgrade_noninteractive() {
   detect_airgap
@@ -47,6 +60,8 @@ function upgrade_noninteractive() {
 
   # Check all args have been set
   [[ -z "$MAS_INSTANCE_ID" ]] && upgrade_help "MAS_INSTANCE_ID is not set"
+
+  verify_mas_instance
 }
 
 function upgrade_interactive() {
@@ -55,26 +70,13 @@ function upgrade_interactive() {
 
   echo
   echo_h2 "Select IBM Maximo Application Suite Upgrade"
-
+  echo -e "${TEXT_DIM}Select the MAS instance to upgrade from the list below"
+  reset_colors
+  echo
+  list_mas_instances
+  echo
   prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
-
-  # echo -e "${COLOR_YELLOW}MAS Version:"
-  # echo "  1. 8.8.x"
-  # echo "  2. 8.7.x"
-  # prompt_for_input "Select MAS Version" MAS_CHANNEL_SELECTION "1"
-
-  # case $MAS_CHANNEL_SELECTION in
-  #   1|8.8|8.8.x)
-  #     MAS_CHANNEL=8.8.x
-  #     ;;
-  #   2|8.7|8.7.x)
-  #     MAS_CHANNEL=8.7.x
-  #     ;;
-  #   *)
-  #     echo_warning "Invalid selection"
-  #     exit 1
-  #     ;;
-  # esac
+  verify_mas_instance
 }
 
 
@@ -96,7 +98,6 @@ function upgrade() {
   echo "${TEXT_DIM}"
   echo_h2 "Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ..................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  #echo_reset_dim "Target Channel ..................... ${COLOR_MAGENTA}${MAS_CHANNEL}"
 
   echo
   reset_colors
@@ -112,6 +113,22 @@ function upgrade() {
 
   # Replace ALL environment variables in templates
   eval "echo \"$(cat $CLI_DIR/templates/pipelinerun-upgrade.yaml)\"" > $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-upgrade.yaml
+
+  # Check for UDS presence
+  SUBNAME=$(oc get subscription ibm-user-data-services-operator -n ibm-common-services --no-headers | awk -F" " {'print $1'})
+  #echo $SUBNAME
+  UDS=ibm-user-data-services-operator
+  if [[ "$SUBNAME" == "$UDS" ]]; then
+      #echo "UDS Installed"
+      uninstallUDS=y
+      DRO_ACTION="install"
+      prompt_for_input "UDS installation exist, do you want to unistall UDS and install DRO (y/N)" uninstallUDS
+      if  [[ "$uninstallUDS" == "y" ]]; then
+        UDS_ACTION="uninstall"        
+      fi
+  else
+      echo "UDS not installed"
+  fi
 
   # Start pipeline execution
   oc -n mas-$MAS_INSTANCE_ID-pipelines create -f $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-upgrade.yaml &>> $LOGFILE || exit 1

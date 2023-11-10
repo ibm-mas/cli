@@ -21,6 +21,11 @@ spec:
       type: string
 {% endif %}
 
+    # Cluster config
+    - name: ocp_ingress_tls_secret_name
+      type: string
+      default: ""
+
     # Tekton Pipeline image pull policy (for ibmmas/cli images)
     - name: image_pull_policy
       type: string
@@ -188,9 +193,11 @@ spec:
           values: [""]
 
 {% if wait_for_install == true %}
-  # Perform must-gather after the rollback
+  # In FVT only this is the time to take a must-gather and finalize the result
   # ---------------------------------------------------------------------------
   finally:
+    # Collect must-gather
+    # -------------------------------------------------------------------------
     - name: must-gather
       taskRef:
         kind: Task
@@ -201,4 +208,11 @@ spec:
       workspaces:
         - name: mustgather
           workspace: shared-mustgather
+
+    # Finalize the record in the FVT database
+    # -------------------------------------------------------------------------
+    - name: finalize
+      taskRef:
+        kind: Task
+        name: mas-fvt-finalize
 {% endif %}

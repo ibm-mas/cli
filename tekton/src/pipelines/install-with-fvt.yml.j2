@@ -113,6 +113,10 @@ spec:
       runAfter:
         - common-services
 
+    # 2.6 DRO
+    {{ lookup('template', 'taskdefs/dependencies/dro.yml.j2') | indent(4) }}
+      runAfter:
+        - common-services
 
     # 3. Cloud Pak for Data
     # -------------------------------------------------------------------------
@@ -278,13 +282,6 @@ spec:
     {{ lookup('template', 'taskdefs/apps/manage-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-manage
-
-    # 8.4 Configure Manage Doclinks (Attachments)
-    {{ lookup('template', 'taskdefs/apps/manage-setup-doclinks.yml.j2') | indent(4) }}
-      runAfter:
-        - cos
-        - app-cfg-manage
-
 
     # 9. Install & Configure Predict
     # -------------------------------------------------------------------------
@@ -475,17 +472,24 @@ spec:
       runAfter:
         - suite-verify
 
-  # Mustgather executed in finally block. Use suite_mustgather_download
-  # playbook to retrieve the output on your local machine
-  # -------------------------------------------------------------------------
+
   finally:
+    # Collect must-gather
+    # -------------------------------------------------------------------------
     - name: must-gather
-      params:
-        - name: base_output_dir
-          value: "/workspace/mustgather/$(context.pipelineRun.name)"
       taskRef:
         kind: Task
         name: mas-devops-must-gather
+      params:
+        - name: base_output_dir
+          value: "/workspace/mustgather/$(context.pipelineRun.name)"
       workspaces:
         - name: mustgather
           workspace: shared-mustgather
+
+    # Finalize the record in the FVT database
+    # -------------------------------------------------------------------------
+    - name: finalize
+      taskRef:
+        kind: Task
+        name: mas-fvt-finalize

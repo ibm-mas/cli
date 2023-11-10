@@ -71,6 +71,10 @@ spec:
       type: string
       default: "mongoce"
       description: Namespace where mongodb instances will be updated
+    - name: mongodb_v5_upgrade
+      type: string
+      description: Approves the MongoDb upgrade to version 5 if needed
+      default: ""
 
     # kafka update
     - name: kafka_action
@@ -107,7 +111,10 @@ spec:
 
     # 1. Verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-update-check', 'devops_suite_name': 'pre-update-check'}) | indent(4) }}
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
+        'name': 'pre-update-check',
+        'devops_suite_name': 'pre-update-check'
+      }) | indent(4) }}
 {% if wait_for_install == true %}
       runAfter:
         - wait-for-install
@@ -149,54 +156,12 @@ spec:
 
     # 4. Verify health of the cluster before we consider the update complete
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
-        'name': 'post-update-verify-cluster',
-        'devops_suite_name': 'post-update-verify-cluster',
-        'verify_cluster': 'True',
-        'verify_catalogsources': 'False',
-        'verify_subscriptions': 'False',
-        'verify_workloads': 'False',
-        'verify_ingress': 'False'
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
+        'name': 'post-update-verify',
+        'devops_suite_name': 'post-update-verify'
       }) | indent(4) }}
       runAfter:
         - update-catalog
-
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
-        'name': 'post-update-verify-catalogsources',
-        'devops_suite_name': 'post-update-verify-catalogsources',
-        'verify_cluster': 'False',
-        'verify_catalogsources': 'True',
-        'verify_subscriptions': 'False',
-        'verify_workloads': 'False',
-        'verify_ingress': 'False'
-      }) | indent(4) }}
-      runAfter:
-        - post-update-verify-cluster
-
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
-        'name': 'post-update-verify-subscriptions',
-        'devops_suite_name': 'post-update-verify-subscriptions',
-        'verify_cluster': 'False',
-        'verify_catalogsources': 'False',
-        'verify_subscriptions': 'True',
-        'verify_workloads': 'False',
-        'verify_ingress': 'False'
-      }) | indent(4) }}
-      runAfter:
-        - post-update-verify-catalogsources
-
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
-        'name': 'post-update-verify-workloads',
-        'devops_suite_name': 'post-update-verify-workloads',
-        'verify_cluster': 'False',
-        'verify_catalogsources': 'False',
-        'verify_subscriptions': 'False',
-        'verify_workloads': 'True',
-        'verify_ingress': 'False'
-      }) | indent(4) }}
-      runAfter:
-        - post-update-verify-subscriptions
-
 
     # 5. Update Dependencies
     # ---------------------------------------------------------------------------
@@ -205,7 +170,7 @@ spec:
         kind: Task
         name: mas-devops-ocs
       runAfter:
-        - post-update-verify-workloads
+        - post-update-verify
       params:
         - name: devops_suite_name
           value: update-ocs
@@ -243,7 +208,7 @@ spec:
         kind: Task
         name: mas-devops-mongodb
       runAfter:
-        - update-db2
+        - update-common-services
       params:
         - name: devops_suite_name
           value: update-mongodb
@@ -251,13 +216,15 @@ spec:
           value: $(params.mongodb_action)
         - name: mongodb_namespace
           value: $(params.mongodb_namespace)
+        - name: mongodb_v5_upgrade
+          value: $(params.mongodb_v5_upgrade)
 
     - name: update-kafka
       taskRef:
         kind: Task
         name: mas-devops-kafka
       runAfter:
-        - update-mongodb
+        - update-common-services
       params:
         - name: devops_suite_name
           value: update-kafka
@@ -270,58 +237,22 @@ spec:
 
     # 6. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
-        'name': 'post-deps-update-verify-cluster',
-        'devops_suite_name': 'post-deps-update-verify-cluster',
-        'verify_cluster': 'True',
-        'verify_catalogsources': 'False',
-        'verify_subscriptions': 'False',
-        'verify_workloads': 'False',
-        'verify_ingress': 'False'
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
+        'name': 'post-deps-update-verify',
+        'devops_suite_name': 'post-deps-update-verify'
       }) | indent(4) }}
       runAfter:
+        - update-db2
+        - update-mongodb
         - update-kafka
 
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
-        'name': 'post-deps-update-verify-catalogsources',
-        'devops_suite_name': 'post-deps-update-verify-catalogsources',
-        'verify_cluster': 'False',
-        'verify_catalogsources': 'True',
-        'verify_subscriptions': 'False',
-        'verify_workloads': 'False',
-        'verify_ingress': 'False'
-      }) | indent(4) }}
-      runAfter:
-        - post-deps-update-verify-cluster
-
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
-        'name': 'post-deps-update-verify-subscriptions',
-        'devops_suite_name': 'post-deps-update-verify-subscriptions',
-        'verify_cluster': 'False',
-        'verify_catalogsources': 'False',
-        'verify_subscriptions': 'True',
-        'verify_workloads': 'False',
-        'verify_ingress': 'False'
-      }) | indent(4) }}
-      runAfter:
-        - post-deps-update-verify-catalogsources
-
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
-        'name': 'post-deps-update-verify-workloads',
-        'devops_suite_name': 'post-deps-update-verify-workloads',
-        'verify_cluster': 'False',
-        'verify_catalogsources': 'False',
-        'verify_subscriptions': 'False',
-        'verify_workloads': 'True',
-        'verify_ingress': 'False'
-      }) | indent(4) }}
-      runAfter:
-        - post-deps-update-verify-subscriptions
 
 {% if wait_for_install == true %}
-  # Perform must-gather after the update
+  # In FVT only this is the time to take a must-gather and finalize the result
   # ---------------------------------------------------------------------------
   finally:
+    # Collect must-gather
+    # -------------------------------------------------------------------------
     - name: must-gather
       taskRef:
         kind: Task
@@ -332,4 +263,11 @@ spec:
       workspaces:
         - name: mustgather
           workspace: shared-mustgather
+
+    # Finalize the record in the FVT database
+    # -------------------------------------------------------------------------
+    - name: finalize
+      taskRef:
+        kind: Task
+        name: mas-fvt-finalize
 {% endif %}

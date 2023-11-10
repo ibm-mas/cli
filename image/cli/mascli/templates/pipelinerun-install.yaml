@@ -13,6 +13,11 @@ spec:
   timeout: 24h
 
   params:
+    # Cluster config
+    # -------------------------------------------------------------------------
+    - name: ocp_ingress_tls_secret_name
+      value: '$OCP_INGRESS_TLS_SECRET_NAME'
+
     # Enable development catalogs
     # -------------------------------------------------------------------------
     - name: artifactory_username
@@ -140,6 +145,8 @@ spec:
       value: '$MONGODB_CPU_REQUESTS'
     - name: mongodb_provider
       value: '$MONGODB_PROVIDER'
+    - name: mongodb_version
+      value: '$MONGODB_VERSION'
     - name: mongodb_action
       value: '$MONGODB_ACTION'
 
@@ -162,6 +169,8 @@ spec:
       value: '$KAFKA_PROVIDER'
     - name: kafka_namespace
       value: '$KAFKA_NAMESPACE'
+    - name: kafka_version
+      value: '$KAFKA_VERSION'
 
     # Dependencies - AWS MSK
     # -------------------------------------------------------------------------
@@ -241,6 +250,11 @@ spec:
       value: '$UDS_CONTACT_LASTNAME'
     - name: uds_action
       value: '$UDS_ACTION'
+
+    # Dependencies - DRO (Required, no defaults)
+    # -------------------------------------------------------------------------
+    - name: dro_action
+      value: '$DRO_ACTION'
 
     # Dependencies - AppConnect
     # -------------------------------------------------------------------------

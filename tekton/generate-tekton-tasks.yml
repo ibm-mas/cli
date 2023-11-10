@@ -37,11 +37,13 @@
         - mongodb
         - nvidia-gpu
         - ocp-verify
+        - ocp-verify-all
         - ocs
         - sls-registry-update
         - sls
         - turbonomic
         - uds
+        - dro
 
     # 3. Generate Tasks (FVT)
     # -------------------------------------------------------------------------
@@ -55,6 +57,7 @@
         - fvt-core
         - fvt-core-phase4
         - fvt-core-ui
+        - fvt-finalize
         - fvt-manage
         - fvt-manage-directprint
         - fvt-manage-last-phase
@@ -85,6 +88,7 @@
         - must-gather
         - suite-app-config
         - suite-app-install
+        - suite-app-uninstall
         - suite-app-upgrade
         - suite-app-rollback
         - suite-app-verify
@@ -93,7 +97,6 @@
         - suite-db2-setup-for-manage
         - suite-dns
         - suite-install
-        - suite-manage-doclinks-config
         - suite-rollback
         - suite-uninstall
         - suite-upgrade
