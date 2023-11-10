@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-fvt-run-suite
+  name: mas-fvt-mobile
 spec:
   params:
     # Control the image pull policy for the FVT container image
@@ -25,6 +25,10 @@ spec:
       type: string
       description: Turn on debug logging (verbose mode)
       default: "true"
+    - name: fvt_mobile_app
+      type: string
+      description: The app that will be the target of the tests
+      default: ""
     - name: fvt_test_suite
       type: string
       description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
@@ -111,7 +115,8 @@ spec:
         value: "$(params.mas_instance_id)"
       - name: WORKSPACE_ID
         value: "$(params.mas_workspace_id)"
-
+      - name: FVT_MOBILE_APP
+        value: $(params.fvt_mobile_app)
       - name: FVT_TEST_SUITE
         value: $(params.fvt_test_suite)
       - name: FVT_ENABLE_DEBUG
