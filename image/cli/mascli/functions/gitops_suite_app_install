@@ -14,6 +14,8 @@ GitOps Configuration:
   -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}                  Version of ibm-mas/gitops to use
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                          Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                          Cluster ID
+
+Maximo Application Suite:
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                IBM Suite Maximo Application Suite Instance ID
   --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                              IBM Suite Maximo Application Suite Application ID
   --mas-app-channel ${COLOR_YELLOW}MAS_APP_CHANNEL${TEXT_RESET}                    IBM Suite Maximo Application Suite Application Channel

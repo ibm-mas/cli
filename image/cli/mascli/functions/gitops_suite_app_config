@@ -17,11 +17,12 @@ GitOps Configuration:
 
 Maximo Application Suite:
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                IBM Suite Maximo Application Suite Instance ID
+  -W, --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}              IBM Suite Maximo Application Suite workspace ID
   --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                              IBM Suite Maximo Application Suite Application ID
   --mas-app-kind ${COLOR_YELLOW}MAS_APP_KIND${TEXT_RESET}                          IBM Suite Maximo Application Suite Application Kind
   --mas-appws-spec-yaml ${COLOR_YELLOW}MAS_APPWS_SPEC_YAML${TEXT_RESET}            Yaml file location containing IBM Suite Maximo Application Suite Application Spec
-  --mas-appws-api-version ${COLOR_YELLOW}MAS_APP_WS_API_VERSION${TEXT_RESET}        IBM Suite Maximo Application Suite Application Workspace API Version
-  --mas-appws-kind ${COLOR_YELLOW}MAS_APP_WS_KIND${TEXT_RESET}                      IBM Suite Maximo Application Suite Application Workspace Kind
+  --mas-appws-api-version ${COLOR_YELLOW}MAS_APP_WS_API_VERSION${TEXT_RESET}       IBM Suite Maximo Application Suite Application Workspace API Version
+  --mas-appws-kind ${COLOR_YELLOW}MAS_APP_WS_KIND${TEXT_RESET}                     IBM Suite Maximo Application Suite Application Workspace Kind
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -66,9 +67,6 @@ function gitops_suite_app_config_noninteractive() {
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
         ;;
-      -m|--mas-instance-id)
-        export MAS_INSTANCE_ID=$1 && shift
-        ;;
 
       # Secrets Manager
       --secrets-path)
@@ -79,6 +77,12 @@ function gitops_suite_app_config_noninteractive() {
         ;;
 
       # MAS
+      -m|--mas-instance-id)
+        export MAS_INSTANCE_ID=$1 && shift
+        ;;
+      -W|--mas-workspace-id)
+        export MAS_WORKSPACE_ID=$1 && shift
+        ;;
       --mas-app-id)
         export MAS_APP_ID=$1 && shift
         ;;
@@ -136,6 +140,7 @@ function gitops_suite_app_config_noninteractive() {
 
 
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_suite_app_config_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_suite_app_config_help "MAS_WORKSPACE_ID is not set"
   [[ -z "$MAS_APP_ID" ]] && gitops_suite_app_config_help "MAS_APP_ID is not set"
   [[ -z "$MAS_APP_KIND" ]] && gitops_suite_app_config_help "MAS_APP_KIND is not set"
   [[ -z "$MAS_APP_WS_API_VERSION" ]] && gitops_suite_app_config_help "MAS_APP_WS_API_VERSION is not set"
