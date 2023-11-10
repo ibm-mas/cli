@@ -78,12 +78,6 @@ spec:
       description: Mobile UI test type. Can be mobileapp, mobilebrowser or desktop. Default is desktop
       default: "mobileapp"
 
-    # Mobile Foundation Specific information
-    - name: foundation_server_type
-      type: string
-      description: Mobile Foundation server type. Can be mas, eam. Default is mas
-      default: ""
-
   stepTemplate:
     name: 'fvt-run-$(params.fvt_image_name)'
     securityContext:
@@ -106,6 +100,12 @@ spec:
           secretKeyRef:
             name: mas-devops
             key: DEVOPS_BUILD_NUMBER
+            optional: true
+       - name: MANAGECACRT
+        valueFrom:
+          secretKeyRef:
+            name: pipeline-certificates
+            key: manage.ca.crt
             optional: true
 
       - name: IBMADMIN_ENABLED
