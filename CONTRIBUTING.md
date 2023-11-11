@@ -14,8 +14,10 @@ The tekton defintions can be built locally using `build/bin/build-tekton.sh`:
 
 ```bash
 # Build and Install the MAS Pipeline Task Definitions
-DEV_MODE=true VERSION=7.6.0-pre.fvtfinalizer build/bin/build-tekton.sh
-oc apply -f tekton/target/ibm-mas-tekton-fvt.yaml
+DEV_MODE=true VERSION=7.7.0-pre.udsfix build/bin/build-tekton.sh && oc apply -f tekton/target/ibm-mas-tekton-fvt.yaml
+
+# Build and Install the MAS Pipeline Task Definitions 1-by-1
+DEV_MODE=true VERSION=7.7.0-pre.udsfix build/bin/build-tekton.sh && tekton/test.sh
 ```
 
 Once built, use `tekton/test-install.sh` to apply the definitions to a cluster one-by-one.  This makes it much easier to determine where any problems in the built definition lay versus applying the combined `ibm-mas-tekton.yaml` file directly (although both achieves the same end result):

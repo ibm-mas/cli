@@ -32,6 +32,11 @@ spec:
       type: string
       default: ""
 
+    # Only used by DRO
+    - name: ibm_entitlement_key
+      type: string
+      default: ""
+
     # Used by UDS & DRO
     - name: uds_contact_email
       type: string
@@ -54,7 +59,7 @@ spec:
         - /opt/app-root/src/run-role.sh
         - uds
       env:
-        {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+        {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(8) }}
 
         # What action to take
         - name: UDS_ACTION
@@ -94,7 +99,7 @@ spec:
         - /opt/app-root/src/run-role.sh
         - dro
       env:
-        {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+        {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(8) }}
 
         # What action to take
         - name: DRO_ACTION
