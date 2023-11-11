@@ -183,7 +183,7 @@ spec:
     # 4.3 Nvidia GPU Operator
     {{ lookup('template', 'taskdefs/dependencies/nvidia.yml.j2') | indent(4) }}
       runAfter:
-        - ibm-catalogs
+        - pre-install-check
 
 
     # 5. Install & Configure IBM MAS
