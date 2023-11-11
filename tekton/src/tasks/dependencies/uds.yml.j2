@@ -7,6 +7,12 @@ spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
+    # What action to take
+    - name: uds_action
+      type: string
+      description: What action to take (install, uninstall, install_dro)
+      default: "install"
+
     - name: mas_instance_id
       type: string
       default: ""
@@ -14,16 +20,9 @@ spec:
       type: string
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
+
+    # Only used by UDS
     - name: mas_segment_key
-      type: string
-      default: ""
-    - name: uds_contact_email
-      type: string
-      default: ""
-    - name: uds_contact_firstname
-      type: string
-      default: ""
-    - name: uds_contact_lastname
       type: string
       default: ""
     - name: uds_event_scheduler_frequency
@@ -33,53 +32,91 @@ spec:
       type: string
       default: ""
 
-    # Optional parameter to uninstall UDS
-    - name: uds_action
+    # Used by UDS & DRO
+    - name: uds_contact_email
       type: string
-      description: Optional. Used to uninstall UDS
+      default: ""
+    - name: uds_contact_firstname
+      type: string
+      default: ""
+    - name: uds_contact_lastname
+      type: string
       default: ""
 
-  stepTemplate:
-    env:
-      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
-
-      # Properties for generating a MAS configuration
-      - name: MAS_CONFIG_DIR
-        value: /workspace/configs
-      - name: MAS_INSTANCE_ID
-        value: $(params.mas_instance_id)
-      - name: CUSTOM_LABELS
-        value: $(params.custom_labels)
-      - name: MAS_SEGMENT_KEY
-        value: $(params.mas_segment_key)
-      - name: UDS_CONTACT_EMAIL
-        value: $(params.uds_contact_email)
-      - name: UDS_CONTACT_FIRSTNAME
-        value: $(params.uds_contact_firstname)
-      - name: UDS_CONTACT_LASTNAME
-        value: $(params.uds_contact_lastname)
-      - name: UDS_STORAGE_CLASS
-        value: $(params.uds_storage_class)
-
-      # Properties to configure the UDS install
-      - name: UDS_EVENT_SCHEDULER_FREQUENCY
-        value: $(params.uds_event_scheduler_frequency)
-
-      # Optional parameter to uninstall UDS
-      - name: UDS_ACTION
-        value: $(params.uds_action)
-
-      - name: MAS_POD_TEMPLATES_DIR
-        value: /workspace/pod-templates
-
   steps:
+    # IBM User Data Services (UDS)
+    # -------------------------------------------------------------------------
     - name: uds
-      command:
-        - /opt/app-root/src/run-role.sh
-        - uds
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
+      command:
+        - /opt/app-root/src/run-role.sh
+        - uds
+      env:
+        {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+        # What action to take
+        - name: UDS_ACTION
+          value: $(params.uds_action)
+
+        # Configure storage & scheduling (on install)
+        - name: UDS_STORAGE_CLASS
+          value: $(params.uds_storage_class)
+        - name: UDS_EVENT_SCHEDULER_FREQUENCY
+          value: $(params.uds_event_scheduler_frequency)
+
+        # Properties for generating a MAS configuration
+        - name: MAS_CONFIG_DIR
+          value: /workspace/configs
+        - name: MAS_INSTANCE_ID
+          value: $(params.mas_instance_id)
+        - name: MAS_POD_TEMPLATES_DIR
+          value: /workspace/pod-templates
+        - name: CUSTOM_LABELS
+          value: $(params.custom_labels)
+        - name: MAS_SEGMENT_KEY
+          value: $(params.mas_segment_key)
+        - name: UDS_CONTACT_EMAIL
+          value: $(params.uds_contact_email)
+        - name: UDS_CONTACT_FIRSTNAME
+          value: $(params.uds_contact_firstname)
+        - name: UDS_CONTACT_LASTNAME
+          value: $(params.uds_contact_lastname)
+
+    # IBM Data Reporter Operator (DRO)
+    # -------------------------------------------------------------------------
+    - name: dro
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/configs
+      command:
+        - /opt/app-root/src/run-role.sh
+        - dro
+      env:
+        {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+        # What action to take
+        - name: DRO_ACTION
+          value: $(params.uds_action)
+
+        # Properties for generating a MAS configuration
+        - name: MAS_CONFIG_DIR
+          value: /workspace/configs
+        - name: MAS_INSTANCE_ID
+          value: $(params.mas_instance_id)
+        - name: MAS_POD_TEMPLATES_DIR
+          value: /workspace/pod-templates
+        - name: CUSTOM_LABELS
+          value: $(params.custom_labels)
+        - name: IBM_ENTITLEMENT_KEY
+          value: $(params.ibm_entitlement_key)
+        - name: DRO_CONTACT_EMAIL
+          value: $(params.uds_contact_email)
+        - name: DRO_CONTACT_FIRSTNAME
+          value: $(params.uds_contact_firstname)
+        - name: DRO_CONTACT_LASTNAME
+          value: $(params.uds_contact_lastname)
 
   workspaces:
     - name: configs

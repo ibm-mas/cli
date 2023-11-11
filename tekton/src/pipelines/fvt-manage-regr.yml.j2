@@ -92,11 +92,6 @@ spec:
       runAfter:
         - common-services
 
-    # 2.6 DRO
-    {{ lookup('template', 'taskdefs/dependencies/dro.yml.j2') | indent(4) }}
-      runAfter:
-        - common-services
-
 
     # 3. Other Dependecies
     # -------------------------------------------------------------------------
@@ -108,6 +103,7 @@ spec:
       runAfter:
         - suite-verify
         - cos
+
 
     # 4. Install & Configure IBM MAS
     # -------------------------------------------------------------------------
@@ -194,7 +190,7 @@ spec:
 
     # 7.5 Phase 4: Doclinks, Kafka and others
     {{ lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
-    
+
     # 7.6 Phase 5: Single-threaded suites (SMTP, Birt and others)
     {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
 
