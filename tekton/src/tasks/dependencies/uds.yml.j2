@@ -104,7 +104,7 @@ spec:
         - /opt/app-root/src/run-role.sh
         - dro
       env:
-        {{ lookup('template', task_src_dir ~ '/common/cli-env-nosuite-name.yml.j2') | indent(8) }}
+        {{ lookup('template', task_src_dir ~ '/common/cli-env-nosuitename.yml.j2') | indent(8) }}
         - name: DEVOPS_SUITE_NAME
           value: dependencies-dro-$(params.uds_action)
 
