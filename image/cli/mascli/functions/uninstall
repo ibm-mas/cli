@@ -85,13 +85,6 @@ function deps_prompt_conditions() {
       false
     fi
     ;;
-  DRO_ACTION)
-    if [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]] || [[ ${COMMON_SERVICES_ACTION} == "uninstall" ]]; then
-      true
-    else
-      false
-    fi
-    ;;
   CERT_MANAGER_ACTION)
     if [[ ${IBM_CATALOGS_ACTION} == "uninstall" ]] || [[ ${COMMON_SERVICES_ACTION} == "uninstall" ]]; then
       true
@@ -139,7 +132,6 @@ function prompt_for_deps_to_uninstall() {
   validate_action_param "Uninstall IBM Common Services?" COMMON_SERVICES_ACTION
   validate_action_param "Uninstall IBM Cert Manager?" CERT_MANAGER_ACTION
   validate_action_param "Uninstall IBM User Data Services?" UDS_ACTION
-  validate_action_param "Uninstall IBM Data Reporter Operator?" DRO_ACTION
   validate_action_param "Uninstall MongoDB?" MONGODB_ACTION
   validate_action_param "Uninstall IBM Suite Licensing Service?" SLS_ACTION
 }
@@ -164,7 +156,6 @@ function review_uninstall_settings() {
   echo_reset_dim "IBM Common Services ............. Action: ${COLOR_MAGENTA}${COMMON_SERVICES_ACTION}"
   echo_reset_dim "IBM Cert Manager ................ Action: ${COLOR_MAGENTA}${CERT_MANAGER_ACTION}"
   echo_reset_dim "IBM User Data Services .......... Action: ${COLOR_MAGENTA}${UDS_ACTION}"
-  echo_reset_dim "IBM Data Reporter Operator....... Action: ${COLOR_MAGENTA}${DRO_ACTION}"
   echo_reset_dim "MongoDB ......................... Action: ${COLOR_MAGENTA}${MONGODB_ACTION}"
   echo_reset_dim "IBM Suite Licensing Service ..... Action: ${COLOR_MAGENTA}${SLS_ACTION}"
 
