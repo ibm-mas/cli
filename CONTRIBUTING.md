@@ -13,10 +13,10 @@
 The tekton defintions can be built locally using `build/bin/build-tekton.sh`:
 
 ```bash
-# Build and Install the MAS Pipeline Task Definitions
+# Build, and install the MAS Pipeline & Task definitions
 DEV_MODE=true VERSION=7.7.0-pre.udsfix build/bin/build-tekton.sh && oc apply -f tekton/target/ibm-mas-tekton-fvt.yaml
 
-# Build and Install the MAS Pipeline Task Definitions 1-by-1
+# Build, and install the MAS Pipeline & Task definitions 1-by-1
 DEV_MODE=true VERSION=7.7.0-pre.udsfix build/bin/build-tekton.sh && tekton/test.sh
 ```
 
