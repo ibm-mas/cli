@@ -12,8 +12,6 @@
     - input: "$(params.ivt_digest_core)"
       operator: notin
       values: [""]
-  runAfter:
-    - suite-verify
 
 # Core FVT 1.0 coreidp-auth ~20m - Refresh token and authentication patterns
 # We are running this test first since it happens to set the Suite accessTokenTimeout from the default of 30m to 12h

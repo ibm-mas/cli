@@ -12,7 +12,7 @@ spec:
       default: "True"
 
   steps:
-    - name: wait-for-install
+    - name: wait
       image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
       script: |
         #!/usr/bin/env bash
@@ -20,7 +20,7 @@ spec:
         echo "Waiting for pipelinerun/$(params.pipelinerun_name) in $(context.taskRun.namespace) to complete ..."
 
         echo ""
-        echo "Status of install pipeline"
+        echo "Status of pipelinerun"
         echo "------------------------------------------------------------------"
         oc -n $(context.taskRun.namespace) get pipelinerun/$(params.pipelinerun_name)
 

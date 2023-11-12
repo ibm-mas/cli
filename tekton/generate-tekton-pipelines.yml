@@ -27,31 +27,31 @@
         src: "{{ pipeline_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ pipeline_target_dir }}/{{ item }}.yaml"
       with_items:
-        - db2
-        - install
+        # - db2
+        # - install
         - install-with-fvt
-        - fvt-assist
+        # - fvt-assist
         - fvt-core
-        - fvt-deprovision-after
-        - fvt-manage
-        - fvt-manage-regr
-        - fvt-sls
-        - fvt-uninstall-after
-        - update
-        - upgrade
-        - rollback
-        - uninstall
+        # - fvt-deprovision-after
+        # - fvt-manage
+        # - fvt-manage-regr
+        # - fvt-sls
+        # - fvt-uninstall-after
+        # - update
+        # - upgrade
+        # - rollback
+        # - uninstall
 
     # 2. Generate Pipelines
     # -------------------------------------------------------------------------
-    - name: Generate Pipelines (wait-for-install versions)
-      vars:
-        wait_for_install: true
-      ansible.builtin.template:
-        src: "{{ pipeline_src_dir }}/{{ item }}.yml.j2"
-        dest: "{{ pipeline_target_dir }}/{{ item }}-after-install.yaml"
-      with_items:
-        - update
-        - upgrade
-        - rollback
-        - uninstall
+    # - name: Generate Pipelines (wait-for-install versions)
+    #   vars:
+    #     wait_for_install: true
+    #   ansible.builtin.template:
+    #     src: "{{ pipeline_src_dir }}/{{ item }}.yml.j2"
+    #     dest: "{{ pipeline_target_dir }}/{{ item }}-after-install.yaml"
+    #   with_items:
+    #     - update
+    #     - upgrade
+    #     - rollback
+    #     - uninstall

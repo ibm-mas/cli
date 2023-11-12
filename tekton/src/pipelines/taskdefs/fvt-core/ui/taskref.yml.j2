@@ -1,10 +1,6 @@
 taskRef:
   kind: Task
   name: mas-fvt-core-ui
-when:
-  - input: "$(params.fvt_digest_coreui)"
-    operator: notin
-    values: [""]
 workspaces:
   - name: configs
     workspace: shared-configs
