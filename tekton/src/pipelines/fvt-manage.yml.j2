@@ -49,6 +49,10 @@ spec:
       runAfter:
         - app-verify-manage
     
+    {{ lookup('template', 'taskdefs/ivt-core/manage-cv.yml.j2') | indent(4) }}
+      runAfter:
+        - app-verify-manage
+        
     # 3. Manage FVT - Manage
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-manage/phase0.yml.j2') | indent(4) }}

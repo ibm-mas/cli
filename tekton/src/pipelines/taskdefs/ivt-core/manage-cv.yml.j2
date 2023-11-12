@@ -1,6 +1,6 @@
 # This task has different runAfter depending on the pipeline so task must keep isolated in 1 file
 # -------------------------------------------------------------------------
-- name: ivtcore-manage
+- name: cv-manage
   {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(4) }}
@@ -9,7 +9,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: test_suite
-      value: coreivt
+      value: contentverification
   when:
     - input: "$(params.ivt_digest_core)"
       operator: notin

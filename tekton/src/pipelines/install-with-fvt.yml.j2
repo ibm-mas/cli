@@ -113,6 +113,10 @@ spec:
       runAfter:
         - common-services
 
+    # 2.6 DRO
+    {{ lookup('template', 'taskdefs/dependencies/dro.yml.j2') | indent(4) }}
+      runAfter:
+        - common-services
 
     # 3. Cloud Pak for Data
     # -------------------------------------------------------------------------
@@ -179,7 +183,7 @@ spec:
     # 4.3 Nvidia GPU Operator
     {{ lookup('template', 'taskdefs/dependencies/nvidia.yml.j2') | indent(4) }}
       runAfter:
-        - pre-install-check
+        - ibm-catalogs
 
 
     # 5. Install & Configure IBM MAS
@@ -376,7 +380,14 @@ spec:
     # 15. MAS Core IVT
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/ivt-core/all-apps.yml.j2') | indent(4) }}
+    
+    {{ lookup('template', 'taskdefs/ivt-core/manage.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-manage
 
+    {{ lookup('template', 'taskdefs/ivt-core/manage-cv.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-manage
 
     # 16. Application FVT - Assist
     # -------------------------------------------------------------------------
