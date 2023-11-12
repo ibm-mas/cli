@@ -128,7 +128,7 @@ function channel_select_visualinspection() {
 }
 
 
-function config_pipeline_applications() {
+function install_config_applications() {
   echo
   echo_h2 "Application Selection"
   if prompt_for_confirm "Install IoT?" MAS_APP_INSTALL_IOT; then

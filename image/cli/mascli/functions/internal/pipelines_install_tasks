@@ -3,7 +3,7 @@
 # - Set up namespace
 # - Create tasks and pipeline resources
 # - Set up RBAC
-function pipeline_install_tasks() {
+function pipelines_install_tasks() {
   # Install the MAS Tekton definitions
   cp $CLI_DIR/templates/ibm-mas-tekton.yaml $CONFIG_DIR/ibm-mas-tekton-$MAS_INSTANCE_ID.yaml
   sed -e "s/cli:latest/cli:$VERSION/g" $CLI_DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-$MAS_INSTANCE_ID.yaml
