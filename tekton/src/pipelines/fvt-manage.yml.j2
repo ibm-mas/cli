@@ -67,3 +67,25 @@ spec:
     {{ lookup('template', 'taskdefs/fvt-manage-addons/phase4-all-user.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-manage-addons/phase5-all-test.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-manage-addons/phase6-maintmanager.yml.j2') | indent(4) }}
+
+  finally:
+
+    # Collect must-gather
+    # -------------------------------------------------------------------------
+    - name: must-gather
+      taskRef:
+        kind: Task
+        name: mas-devops-must-gather
+      params:
+        - name: base_output_dir
+          value: "/workspace/mustgather/$(context.pipelineRun.name)"
+      workspaces:
+        - name: mustgather
+          workspace: shared-mustgather
+
+    # Finalize the record in the FVT database
+    # -------------------------------------------------------------------------
+    - name: finalize
+      taskRef:
+        kind: Task
+        name: mas-fvt-finalize
