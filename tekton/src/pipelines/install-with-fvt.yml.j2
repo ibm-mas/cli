@@ -373,6 +373,8 @@ spec:
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-core"
       taskRef:
         kind: Task
         name: mas-launchfvt-core
@@ -395,6 +397,8 @@ spec:
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-assist"
       taskRef:
         kind: Task
         name: mas-launchfvt-assist
