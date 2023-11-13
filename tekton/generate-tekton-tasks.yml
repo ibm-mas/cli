@@ -73,6 +73,7 @@
       with_items:
         - launchfvt-assist
         - launchfvt-core
+        - launchfvt-manage
 
     # 4. Generate Tasks (IVT)
     # -------------------------------------------------------------------------

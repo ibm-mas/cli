@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: mas-fvt-manage
+  name: mas-fvt-manage-mobile
 spec:
   workspaces:
     # The generated configuration files
@@ -61,10 +61,34 @@ spec:
       default: ""
 
     # TODO: Consolidate these FVT images already!!
-    - name: fvt_digest_manage
+    - name: fvt_digest_manage_civil_defects_testng
       type: string
       default: ""
-    - name: fvt_digest_manage_pytest
+    - name: fvt_digest_mobile_manage_setup
+      type: string
+      default: ""
+    - name: fvt_digest_mobilefoundation_testng
+      type: string
+      default: ""
+    - name: fvt_digest_servicerequests_testng
+      type: string
+      default: ""
+    - name: fvt_digest_inspection_testng
+      type: string
+      default: ""
+    - name: fvt_digest_technician_testng
+      type: string
+      default: ""
+    - name: fvt_digest_asset_manager_testng
+      type: string
+      default: ""
+    - name: fvt_digest_inventorycounting_testng
+      type: string
+      default: ""
+    - name: fvt_digest_inventoryreceiving_testng
+      type: string
+      default: ""
+    - name: fvt_digest_issuesandtransfers_testng
       type: string
       default: ""
 
@@ -73,47 +97,7 @@ spec:
       default: ""
 
   tasks:
-    # 1. Core x Manage
-    # -------------------------------------------------------------------------
-    - name: ivtcore-manage
-      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
-        - name: product_id
-          value: ibm-mas-manage
-        - name: product_channel
-          value: $(params.mas_app_channel_manage)
-      when:
-        - input: "$(params.ivt_digest_core)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: notin
-          values: [""]
-
-    - name: cv-manage
-      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
-        - name: product_id
-          value: ibm-mas-manage
-        - name: product_channel
-          value: $(params.mas_app_channel_manage)
-        - name: fvt_test_suite
-          value: contentverification
-      when:
-        - input: "$(params.ivt_digest_core)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: notin
-          values: [""]
-
-    # 2. Manage FVT - Manage
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-manage/phase0.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase2.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase3.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase1-setup.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase2-android.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase3-ios.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase4.yml.j2') | indent(4) }}

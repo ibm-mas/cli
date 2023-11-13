@@ -1,5 +1,3 @@
-# Note: last FVT test of Manage Core is fvt-manage-last-phase
-
 # Manage FVT - Maintenance Manager Setup
 - name: fvt-manage-maintmanager-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
@@ -22,7 +20,7 @@
     - fvt-manage-utilities
     - fvt-manage-linear
     - fvt-manage-transportation
-    
+
 # Manage FVT - Maintenance Manager BVT
 - name: fvt-manage-maintmanager-bvt
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}

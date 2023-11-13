@@ -41,6 +41,10 @@ spec:
       type: string
       default: "true"
       description: "Set this to any falue other than 'true' to disable lauch of the Assist FVT Pipeline after app-cfg-assist completes"
+    - name: launchfvt_manage
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-manage completes (does not control the additional Industry Solution, Mobile, or Regression Manage suites)"
 
   tasks:
     # Content
@@ -422,74 +426,53 @@ spec:
 
     # 19. Application FVT - Manage
     # -------------------------------------------------------------------------
-    # 19.1 Phase 0: User Sync
-    {{ lookup('template', 'taskdefs/fvt-manage/phase0.yml.j2') | indent(4) }}
-
-    # 19.2 Phase 1: SetupWithMAS, Monitoring and others not depending on setup
-    {{ lookup('template', 'taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
-
-    # 19.3 Phase 2: MIF Setup and others
-    {{ lookup('template', 'taskdefs/fvt-manage/phase2.yml.j2') | indent(4) }}
-
-    # 19.4 Phase 3: JMS Inbound, Work Order Basic and others
-    {{ lookup('template', 'taskdefs/fvt-manage/phase3.yml.j2') | indent(4) }}
-
-    # 19.5 Phase 4: Doclinks, Kafka and others
-    {{ lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
-
-    # 19.6 Phase 5: Single-threaded suites (SMTP, Birt and others)
-    {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
-
+    - name: launchfvt-manage
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-manage"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-manage
+      when:
+        - input: $(params.launchfvt_manage)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-cfg-manage
 
     # 20. Application FVT - Health
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-apps/health.yml.j2') | indent(4) }}
 
 
-    # 21. Application FVT - Manage Industry Solutions
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase0-aviation.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase1-scheduler.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase2-civil.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase3-all-setup.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase4-all-user.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase5-all-test.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase6-maintmanager.yml.j2') | indent(4) }}
-
-
-    # 22. Application FVT - Mobile
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase1-setup.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase2-android.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase3-ios.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase4.yml.j2') | indent(4) }}
-
-
-    # 23. Application FVT - Monitor
+    # 21. Application FVT - Monitor
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-apps/monitor.yml.j2') | indent(4) }}
 
 
-    # 24. Application FVT - Predict
+    # 22. Application FVT - Predict
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-apps/predict.yml.j2') | indent(4) }}
 
 
-    # 25. Application FVT - Visual Inspection
+    # 23. Application FVT - Visual Inspection
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-apps/visualinspection.yml.j2') | indent(4) }}
 
 
-    # 26. Application FVT - Optimizer
+    # 24. Application FVT - Optimizer
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-apps/optimizer.yml.j2') | indent(4) }}
 
 
-    # 27. Applications IVT
+    # 25. Applications IVT
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-apps/ivt.yml.j2') | indent(4) }}
 
-    # 28. SLS FVT
+
+    # 26. SLS FVT
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-sls/sls.yml.j2') | indent(4) }}
       runAfter:
