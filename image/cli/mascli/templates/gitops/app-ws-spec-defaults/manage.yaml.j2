@@ -1,6 +1,5 @@
 mas_appws_spec:
-  bindings:
-    jdbc: {{ MAS_APPWS_BINDINGS_JDBC | default( 'workspace-application' , true) }}
+  bindings: {{ MAS_APPWS_BINDINGS_JDBC | default( {'jdbc': 'workspace-application'}, true) }}
   components: {{ MAS_APPWS_COMPONENTS | default({'base':{'version':'latest'}}, true) }}
 
 {%- if MAS_APPWS_SETTINGS is defined and MAS_APPWS_SETTINGS != "" %}

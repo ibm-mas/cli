@@ -1,6 +1,5 @@
 mas_appws_spec:
-  bindings:
-    jdbc: {{ MAS_APPWS_BINDINGS_JDBC | default( 'system' , true) }}
+  bindings: {{ MAS_APPWS_BINDINGS_JDBC | default( {'jdbc': 'system'}, true) }}
   components: {{ MAS_APPWS_COMPONENTS | default({'health':{'version':'latest'}}, true) }}
 {%- if MAS_APPWS_SETTINGS is defined and MAS_APPWS_SETTINGS != "" %}
   settings: {{ MAS_APPWS_SETTINGS }}
