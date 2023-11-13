@@ -1,3 +1,8 @@
+# Cluster config
+- name: ocp_ingress_tls_secret_name
+  type: string
+  default: ""
+
 # IBM Cloud
 # -----------------------------------------------------------------------------
 - name: ibmcloud_apikey
@@ -254,12 +259,6 @@
   type: string
   default: ""
 - name: mas_segment_key
-  type: string
-  default: ""
-
-# Dependencies - DRO
-# -----------------------------------------------------------------------------
-- name: dro_action
   type: string
   default: ""
 

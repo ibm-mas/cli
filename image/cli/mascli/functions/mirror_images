@@ -264,6 +264,7 @@ function mirror_to_registry_noninteractive() {
 }
 
 function mirror_to_registry_interactive() {
+  load_config
   echo
   echo_h2 "Configure Mirror Mode"
   prompt_for_input "Working Directory" MIRROR_WORKING_DIR

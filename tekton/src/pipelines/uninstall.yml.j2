@@ -59,11 +59,7 @@ spec:
       default: "none"
     - name: uds_action
       type: string
-      description: Optional. Used to uninstall UDS
-      default: "none"
-    - name: dro_action
-      type: string
-      description: Optional. Used to uninstall DRO
+      description: Optional. Used to uninstall UDS or DRO
       default: "none"
 
   tasks:
@@ -292,7 +288,7 @@ spec:
         - uninstall-sls
 
 
-    # 5. Uninstall IBM User Data Services
+    # 5. Uninstall IBM User Data Services (or DRO)
     # -------------------------------------------------------------------------
     - name: uninstall-uds
       params:
@@ -300,31 +296,11 @@ spec:
           value: $(params.image_pull_policy)
         - name: uds_action
           value: $(params.uds_action)
-        - name: devops_suite_name
-          value: dependencies-uds
       taskRef:
         kind: Task
         name: mas-devops-uds
       when:
         - input: "$(params.uds_action)"
-          operator: in
-          values: ["uninstall"]
-      runAfter:
-        - uninstall-mongodb
-
-    # 4. Uninstall Data Reporter Operator
-    # -------------------------------------------------------------------------
-    - name: uninstall-dro
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: dro_action
-          value: $(params.dro_action)
-      taskRef:
-        kind: Task
-        name: mas-devops-dro
-      when:
-        - input: "$(params.dro_action)"
           operator: in
           values: ["uninstall"]
       runAfter:

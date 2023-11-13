@@ -23,7 +23,7 @@
 # - cpd_primary_storage_class [ibmc-file-gold-gid, ocs-storagecluster-cephfs, azurefiles-premium]
 # - cpd_service_storage_class [ibmc-file-gold-gid, ocs-storagecluster-cephfs, azurefiles-premium] / WD: [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
 
-function config_pipeline_storage_classes_sno() {
+function install_config_storage_classes_sno() {
   if [[ "$SNO_MODE" == "true" ]]; then
     echo
     echo_h2 "Configure Storage Class Usage"

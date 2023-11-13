@@ -13,6 +13,11 @@ spec:
   timeout: 24h
 
   params:
+    # Cluster config
+    # -------------------------------------------------------------------------
+    - name: ocp_ingress_tls_secret_name
+      value: '$OCP_INGRESS_TLS_SECRET_NAME'
+
     # Enable development catalogs
     # -------------------------------------------------------------------------
     - name: artifactory_username
@@ -245,11 +250,6 @@ spec:
       value: '$UDS_CONTACT_LASTNAME'
     - name: uds_action
       value: '$UDS_ACTION'
-
-    # Dependencies - DRO (Required, no defaults)
-    # -------------------------------------------------------------------------
-    - name: dro_action
-      value: '$DRO_ACTION'
 
     # Dependencies - AppConnect
     # -------------------------------------------------------------------------
