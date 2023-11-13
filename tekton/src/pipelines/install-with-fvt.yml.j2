@@ -168,7 +168,7 @@ spec:
     # 3.9 Configure Watson Studio in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
       runAfter:
-        - core-fvt
+        - launchfvt-core
         - watson-studio
 
 
@@ -182,7 +182,7 @@ spec:
     # 4.2 Configure COS in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-cos.yml.j2') | indent(4) }}
       runAfter:
-        - core-fvt
+        - launchfvt-core
         - cos
 
     # 4.3 Nvidia GPU Operator
@@ -229,13 +229,13 @@ spec:
     # 5.7 Configure Db2 in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
       runAfter:
-        - core-fvt
+        - launchfvt-core
         - db2-manage  # db2-manage already waits for db2-system so we don't need to list both
 
     # 5.7 Configure Kafka in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
       runAfter:
-        - core-fvt
+        - launchfvt-core
         - kafka
 
 
@@ -312,7 +312,7 @@ spec:
     # 10.1 Optimizer Install
     {{ lookup('template', 'taskdefs/apps/optimizer-app.yml.j2') | indent(4) }}
       runAfter:
-        - core-fvt
+        - launchfvt-core
 
     # 10.2 Configure Optimizer workspace
     {{ lookup('template', 'taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}
@@ -359,7 +359,7 @@ spec:
     {{ lookup('template', 'taskdefs/apps/visualinspection-app.yml.j2') | indent(4) }}
       runAfter:
         - nvidia-gpu
-        - core-fvt
+        - launchfvt-core
 
     # 13.2 Configure MVI workspace
     {{ lookup('template', 'taskdefs/apps/visualinspection-workspace.yml.j2') | indent(4) }}
@@ -369,7 +369,7 @@ spec:
 
     # 14. MAS Core FVT
     # -------------------------------------------------------------------------
-    - name: core-fvt
+    - name: launchfvt-core
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
