@@ -19,7 +19,7 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - ansible-playbook
-        - /opt/app-root/fvt/fvt-assist.yml
+        - /masfvt/fvt-assist.yml
       env:
         - name: IMAGE_PULL_POLICY
           value: $(params.image_pull_policy)
@@ -115,7 +115,7 @@ spec:
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       command:
-        - /opt/app-root/fvt/wait-for-pipelinerun.sh
+        - /opt/app-root/src/wait-for-pipelinerun.sh
         - $PIPELINERUN_NAME
         - $PIPELINERUN_NAMESPACE
       env:
