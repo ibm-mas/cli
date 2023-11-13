@@ -37,6 +37,11 @@ spec:
       type: string
       default: "true"
       description: "Set this to any falue other than 'true' to disable lauch of the Core FVT Pipeline after suite-verify completes"
+    - name: launchfvt_assist
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Assist FVT Pipeline after app-cfg-assist completes"
+
   tasks:
     # Content
     # -------
@@ -386,7 +391,19 @@ spec:
 
     # 16. Application FVT - Assist
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/assist.yml.j2') | indent(4) }}
+    - name: launchfvt-assist
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-assist
+      when:
+        - input: $(params.launchfvt_assist)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-cfg-assist
 
 
     # 17. Application FVT - HP Utilities
