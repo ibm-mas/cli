@@ -16,7 +16,9 @@ GitOps Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                 Cluster ID
 
 Maximo Application Suite:
+
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                       IBM Suite Maximo Application Suite Instance ID
+  -W, --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}              IBM Suite Maximo Application Suite workspace ID  
   --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                                                     IBM Suite Maximo Application Suite Application ID
   --mas-app-kind ${COLOR_YELLOW}MAS_APP_KIND${TEXT_RESET}                                                 IBM Suite Maximo Application Suite Application Kind
   --mas-appws-spec-yaml ${COLOR_YELLOW}MAS_APPWS_SPEC_YAML${TEXT_RESET}                                   Yaml file location containing IBM Suite Maximo Application Suite Application Spec
@@ -34,6 +36,8 @@ Maximo Application Suite:
   --mas-app-settings-base-language ${COLOR_YELLOW}MAS_APP_SETTINGS_BASE_LANGUAGE${TEXT_RESET}             Base Language
   --mas-app-settings-secondary-languages ${COLOR_YELLOW}MAS_APP_SETTINGS_SECONDARY_LANGUAGES${TEXT_RESET} Secondary Languages
   --mas-app-settings-aio-flag ${COLOR_YELLOW}MAS_APP_SETTINGS_AIO_FLAG${TEXT_RESET}                       AIO Flag
+  --mas-app-settings-server-bundles-size ${COLOR_YELLOW}MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE${TEXT_RESET} Server bundles size
+  --mas-app-settings-jms-queue-mount-path ${COLOR_YELLOW}MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH${TEXT_RESET} JMS queue mount path
 
   --mas-app-settings-pvs-flag ${COLOR_YELLOW}MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG${TEXT_RESET}        PERSISTENT VOLUMES FLAG
 
@@ -46,6 +50,15 @@ Maximo Application Suite:
   --mas-app-settings-bim-mount-path ${COLOR_YELLOW}MAS_APP_SETTINGS_BIM_MOUNT_PATH${TEXT_RESET}           BIM mount path
   --mas-app-settings-bim-pvc-name ${COLOR_YELLOW}MAS_APP_SETTINGS_BIM_PVC_NAME${TEXT_RESET}               BIM pvc name
   --mas-app-settings-bim-pvc-size ${COLOR_YELLOW}MAS_APP_SETTINGS_BIM_PVC_SIZE${TEXT_RESET}               BIM pvc size
+
+
+  --mas-app-settings-jms-queue-pvc-accessmode ${COLOR_YELLOW}MAS_APP_SETTINGS_JMS_QUEUE_PVC_ACCESSMODE${TEXT_RESET}   JMS queue pvc access mode
+  --mas-app-settings-jms-queue-mount-path ${COLOR_YELLOW}MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH${TEXT_RESET}           JMS queue mount path
+  --mas-app-settings-jms-queue-pvc-name ${COLOR_YELLOW}MAS_APP_SETTINGS_JMS_QUEUE_PVC_NAME${TEXT_RESET}               JMS queue pvc name
+  --mas-app-settings-jms-queue-pvc-size ${COLOR_YELLOW}MAS_APP_SETTINGS_JMS_QUEUE_PVC_SIZE${TEXT_RESET}               JMS queue pvc size
+
+
+
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                             Secrets Manager path
@@ -90,18 +103,7 @@ function gitops_suite_app_config_noninteractive() {
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
         ;;
-      -m|--mas-instance-id)
-        export MAS_INSTANCE_ID=$1 && shift
-        ;;
-      --mas-app-settings-base-language)
-        export MAS_APP_SETTINGS_BASE_LANGUAGE=$1 && shift
-        ;;
-      --mas-app-settings-secondary-languages)
-        export MAS_APP_SETTINGS_SECONDARY_LANGUAGES=$1 && shift
-        ;;
-      --mas-app-settings-aio-flag)
-        export MAS_APP_SETTINGS_AIO_FLAG=$1 && shift
-        ;;
+
       --mas-appws-bindings-jdbc)
         export MAS_APPWS_BINDINGS_JDBC=$1 && shift
         ;;
@@ -111,7 +113,6 @@ function gitops_suite_app_config_noninteractive() {
       --mas-appws-settings)
         export MAS_APPWS_SETTINGS=$1 && shift
         ;;
-
 
       --mas-app-settings-db2-schema)
         export MAS_APP_SETTINGS_DB2_SCHEMA=$1 && shift
@@ -124,6 +125,28 @@ function gitops_suite_app_config_noninteractive() {
         ;;
       --mas-app-settings-indexspace)
         export MAS_APP_SETTINGS_INDEXSPACE=$1 && shift
+        ;;
+
+      --mas-app-settings-base-language)
+        export MAS_APP_SETTINGS_BASE_LANGUAGE=$1 && shift
+        ;;
+      --mas-app-settings-secondary-languages)
+        export MAS_APP_SETTINGS_SECONDARY_LANGUAGES=$1 && shift
+        ;;
+
+      --mas-app-settings-aio-flag)
+        export MAS_APP_SETTINGS_AIO_FLAG=$1 && shift
+        ;;
+
+      --mas-app-settings-server-bundles-size)
+        export MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE=$1 && shift
+        ;;
+      --mas-app-settings-jms-queue-mount-path)
+        export MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH=$1 && shift
+        ;;
+
+      --mas-app-settings-pvs-flag)
+        export MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=$1 && shift
         ;;
 
       --mas-app-settings-doclinks-pvc-accessmode)
@@ -152,6 +175,19 @@ function gitops_suite_app_config_noninteractive() {
         export MAS_APP_SETTINGS_BIM_PVC_SIZE=$1 && shift
         ;;
 
+      --mas-app-settings-jms-queue-pvc-accessmode)
+        export MAS_APP_SETTINGS_JMS_QUEUE_PVC_ACCESSMODE=$1 && shift
+        ;;
+      --mas-app-settings-jms-queue-mount-path)
+        export MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH=$1 && shift
+        ;;
+      --mas-app-settings-jms-queue-pvc-name)
+        export MAS_APP_SETTINGS_JMS_QUEUE_PVC_NAME=$1 && shift
+        ;;
+      --mas-app-settings-jms-queue-pvc-size)
+        export MAS_APP_SETTINGS_JMS_QUEUE_PVC_SIZE=$1 && shift
+        ;;
+
       # Secrets Manager
       --secrets-path)
         export SECRETS_PATH=$1 && shift
@@ -161,6 +197,12 @@ function gitops_suite_app_config_noninteractive() {
         ;;
 
       # MAS
+      -m|--mas-instance-id)
+        export MAS_INSTANCE_ID=$1 && shift
+        ;;
+      -W|--mas-workspace-id)
+        export MAS_WORKSPACE_ID=$1 && shift
+        ;;
       --mas-app-id)
         export MAS_APP_ID=$1 && shift
         ;;
@@ -217,7 +259,9 @@ function gitops_suite_app_config_noninteractive() {
   [[ -z "${CLUSTER_ID}" ]] && gitops_suite_app_config_help "CLUSTER_ID is not set"
 
 
+
   [[ -z "${MAS_INSTANCE_ID}" ]] && gitops_suite_app_config_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_suite_app_config_help "MAS_WORKSPACE_ID is not set"
   [[ -z "${MAS_APP_ID}" ]] && gitops_suite_app_config_help "MAS_APP_ID is not set"
   [[ -z "${MAS_APP_KIND}" ]] && gitops_suite_app_config_help "MAS_APP_KIND is not set"
   [[ -z "${MAS_APP_WS_API_VERSION}" ]] && gitops_suite_app_config_help "MAS_APP_WS_API_VERSION is not set"
@@ -228,6 +272,7 @@ function gitops_suite_app_config_noninteractive() {
     [[ -z "${DEFAULT_FILE_STORAGE_CLASS}" || "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_config_help "DEFAULT_FILE_STORAGE_CLASS is not set"
   fi
   
+
 
   if [[ -z "${MAS_APPWS_SPEC_YAML}" ]]; then
     if [[ "${MAS_APP_ID}" == "manage" || "${MAS_APP_ID}" == "health" ]]; then
@@ -303,20 +348,20 @@ function gitops_suite_app_config() {
 
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
-  echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
-  echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
+  echo_reset_dim "Account ID .............................. ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Cluster ID .............................. ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Application Directory ................... ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
   echo_h2 "Secrets Manager" "    "
-  echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  echo_reset_dim "Secrets Path ............................ ${COLOR_MAGENTA}${SECRETS_PATH}"
   reset_colors
 
   echo "${TEXT_DIM}"
   echo_h2 "GitOps Source" "    "
-  echo_reset_dim "GitOps URL ............................ ${COLOR_MAGENTA}https://github.com/ibm-mas/gitops"
-  echo_reset_dim "GitOps Version ........................ ${COLOR_MAGENTA}${GITOPS_VERSION}"
+  echo_reset_dim "GitOps URL .............................. ${COLOR_MAGENTA}https://github.com/ibm-mas/gitops"
+  echo_reset_dim "GitOps Version .......................... ${COLOR_MAGENTA}${GITOPS_VERSION}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -337,53 +382,61 @@ function gitops_suite_app_config() {
 
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
-  echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo_reset_dim "Application ID ........................ ${COLOR_MAGENTA}${MAS_APP_ID}"
-  echo_reset_dim "Application WS API Version ............ ${COLOR_MAGENTA}${MAS_APP_WS_API_VERSION}"
-  echo_reset_dim "Application WS Kind ................... ${COLOR_MAGENTA}${MAS_APP_WS_KIND}"
-  echo_reset_dim "Application WS Spec Yaml file ......... ${COLOR_MAGENTA}${MAS_APPWS_SPEC_YAML}"
+  echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "Application ID .......................... ${COLOR_MAGENTA}${MAS_APP_ID}"
+  echo_reset_dim "Application WS API Version .............. ${COLOR_MAGENTA}${MAS_APP_WS_API_VERSION}"
+  echo_reset_dim "Application WS Kind ..................... ${COLOR_MAGENTA}${MAS_APP_WS_KIND}"
+  echo_reset_dim "Application WS Spec Yaml file ........... ${COLOR_MAGENTA}${MAS_APPWS_SPEC_YAML}"
   if [[ -n "$MAS_APPWS_SPEC_YAML" ]]; then
     echo_reset_dim "Using Default Application Spec ........ ${COLOR_MAGENTA}False"
   else
     echo_reset_dim "Using Default Application Spec ........ ${COLOR_MAGENTA}True"
   fi
-  echo_reset_dim "Workspace ID ........................ ${COLOR_MAGENTA}${MAS_WORKSPACE_ID}"
-  echo_reset_dim "Default File Storage Class .......... ${COLOR_MAGENTA}${DEFAULT_FILE_STORAGE_CLASS}"
+  echo_reset_dim "Workspace ID ............................ ${COLOR_MAGENTA}${MAS_WORKSPACE_ID}"
+  echo_reset_dim "Default File Storage Class .............. ${COLOR_MAGENTA}${DEFAULT_FILE_STORAGE_CLASS}"
 
-  echo_reset_dim "CPD_WSL_PROJECT_ID .................. ${COLOR_MAGENTA}${CPD_WSL_PROJECT_ID}"
-  echo_reset_dim "CPD_PRODUCT_VERSION ................. ${COLOR_MAGENTA}${CPD_PRODUCT_VERSION}"
-  echo_reset_dim "MAS_APPWS_SETTINGS_DEPLOYMENT_SIZE .. ${COLOR_MAGENTA}${MAS_APPWS_SETTINGS_DEPLOYMENT_SIZE}"
-  echo_reset_dim "CPD_WML_URL ......................... ${COLOR_MAGENTA}${CPD_WML_URL}"
-  echo_reset_dim "CPD_WML_INSTANCE_ID ................. ${COLOR_MAGENTA}${CPD_WML_INSTANCE_ID}"
+  echo_reset_dim "CPD_WSL_PROJECT_ID ...................... ${COLOR_MAGENTA}${CPD_WSL_PROJECT_ID}"
+  echo_reset_dim "CPD_PRODUCT_VERSION ..................... ${COLOR_MAGENTA}${CPD_PRODUCT_VERSION}"
+  echo_reset_dim "MAS_APPWS_SETTINGS_DEPLOYMENT_SIZE ...... ${COLOR_MAGENTA}${MAS_APPWS_SETTINGS_DEPLOYMENT_SIZE}"
+  echo_reset_dim "CPD_WML_URL ............................. ${COLOR_MAGENTA}${CPD_WML_URL}"
+  echo_reset_dim "CPD_WML_INSTANCE_ID ..................... ${COLOR_MAGENTA}${CPD_WML_INSTANCE_ID}"
 
-  echo_reset_dim "MAS_APPWS_BINDINGS_JDBC ............. ${COLOR_MAGENTA}${MAS_APPWS_BINDINGS_JDBC}"
-  echo_reset_dim "MAS_APPWS_COMPONENTS ................ ${COLOR_MAGENTA}${MAS_APPWS_COMPONENTS}"
-  echo_reset_dim "MAS_APPWS_SETTINGS .................. ${COLOR_MAGENTA}${MAS_APPWS_SETTINGS}"
+  echo_reset_dim "MAS_APPWS_BINDINGS_JDBC ................. ${COLOR_MAGENTA}${MAS_APPWS_BINDINGS_JDBC}"
+  echo_reset_dim "MAS_APPWS_COMPONENTS .................... ${COLOR_MAGENTA}${MAS_APPWS_COMPONENTS}"
+  echo_reset_dim "MAS_APPWS_SETTINGS ...................... ${COLOR_MAGENTA}${MAS_APPWS_SETTINGS}"
 
-  echo_reset_dim "SERVER_BUNDLES_SIZE ................. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE}"
-  echo_reset_dim "JMS_QUEUE_MOUNT_PATH ................ ${COLOR_MAGENTA}${MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH}"
-  echo_reset_dim "CUSTOMIZATION_ARCHIVE_URL ........... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL}"
-  echo_reset_dim "CUSTOMIZATION_ARCHIVE_NAME .......... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME}"  
-  echo_reset_dim "DB2_SCHEMA........................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DB2_SCHEMA}"
-  echo_reset_dim "DEMODATA............................. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DEMODATA}"
-  echo_reset_dim "TABLESPACE........................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_TABLESPACE}"
-  echo_reset_dim "INDEXSPACE........................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_INDEXSPACE}"
-  echo_reset_dim "BASE_LANGUAGE ....................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_BASE_LANGUAGE}"
-  echo_reset_dim "SECONDARY_LANGUAGES ................. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_SECONDARY_LANGUAGES}"
-  echo_reset_dim "AIO_FLAG ............................ ${COLOR_MAGENTA}${MAS_APP_SETTINGS_AIO_FLAG}"
+  echo_reset_dim "DB2_SCHEMA............................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DB2_SCHEMA}"
+  echo_reset_dim "DEMODATA................................. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DEMODATA}"
+  echo_reset_dim "TABLESPACE............................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_TABLESPACE}"
+  echo_reset_dim "INDEXSPACE............................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_INDEXSPACE}"
+  echo_reset_dim "BASE_LANGUAGE ........................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_BASE_LANGUAGE}"
+  echo_reset_dim "SECONDARY_LANGUAGES ..................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_SECONDARY_LANGUAGES}"
+  echo_reset_dim "AIO_FLAG ................................ ${COLOR_MAGENTA}${MAS_APP_SETTINGS_AIO_FLAG}"
 
-  echo_reset_dim "PV FLAG ............................. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG}"
+  echo_reset_dim "SERVER_BUNDLES_SIZE ..................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE}"
+  echo_reset_dim "JMS_QUEUE_MOUNT_PATH .................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH}"
 
-  echo_reset_dim "DOCLINKS_PVC_ACCESSMODE ............. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DOCLINKS_PVC_ACCESSMODE}"	
-  echo_reset_dim "DOCLINKS_MOUNT_PATH	................. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DOCLINKS_MOUNT_PATH}"
-  echo_reset_dim "DOCLINKS_PVC_NAME ................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DOCLINKS_PVC_NAME}"	
-  echo_reset_dim "DOCLINKS_PVC_SIZE ................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DOCLINKS_PVC_SIZE}"			
-  echo_reset_dim "BIM_PVC_ACCESSMODE .................. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_BIM_PVC_ACCESSMODE}"			
-  echo_reset_dim "BIM_MOUNT_PATH ...................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_BIM_MOUNT_PATH}"			
-  echo_reset_dim "BIM_PVC_NAME ........................ ${COLOR_MAGENTA}${MAS_APP_SETTINGS_BIM_PVC_NAME}"			
-  echo_reset_dim "BIM_PVC_SIZE ........................ ${COLOR_MAGENTA}${MAS_APP_SETTINGS_BIM_PVC_SIZE}"	
+  echo_reset_dim "PV FLAG ................................. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG}"
+
+  echo_reset_dim "JMS_QUEUE_PVC_ACCESSMODE ................ ${COLOR_MAGENTA}${MAS_APP_SETTINGS_JMS_QUEUE_PVC_ACCESSMODE}"	
+  echo_reset_dim "JMS_QUEUE_MOUNT_PATH	................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH}"
+  echo_reset_dim "JMS_QUEUE_PVC_NAME ...................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_JMS_QUEUE_PVC_NAME}"	
+  echo_reset_dim "JMS_QUEUE_PVC_SIZE ...................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_JMS_QUEUE_PVC_SIZE}"	
+
+  echo_reset_dim "DOCLINKS_PVC_ACCESSMODE ................. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DOCLINKS_PVC_ACCESSMODE}"	
+  echo_reset_dim "DOCLINKS_MOUNT_PATH	..................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DOCLINKS_MOUNT_PATH}"
+  echo_reset_dim "DOCLINKS_PVC_NAME ....................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DOCLINKS_PVC_NAME}"	
+  echo_reset_dim "DOCLINKS_PVC_SIZE ....................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DOCLINKS_PVC_SIZE}"	
+
+  echo_reset_dim "BIM_PVC_ACCESSMODE ...................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_BIM_PVC_ACCESSMODE}"			
+  echo_reset_dim "BIM_MOUNT_PATH .......................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_BIM_MOUNT_PATH}"			
+  echo_reset_dim "BIM_PVC_NAME ............................ ${COLOR_MAGENTA}${MAS_APP_SETTINGS_BIM_PVC_NAME}"			
+  echo_reset_dim "BIM_PVC_SIZE ............................ ${COLOR_MAGENTA}${MAS_APP_SETTINGS_BIM_PVC_SIZE}"
+
+  echo_reset_dim "CUSTOMIZATION_ARCHIVE_URL ............... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL}"
+  echo_reset_dim "CUSTOMIZATION_ARCHIVE_NAME .............. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME}"  
+	
   reset_colors
-
 
   # Set up Suite secrets
   # ---------------------------------------------------------------------------
