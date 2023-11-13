@@ -80,29 +80,29 @@ spec:
               key: FVT_IMAGE_REGISTRY
               optional: false
         # Digests
-        - name: FVT_VERSION_ASSIST_CUCUMBER
+        - name: FVT_DIGEST_ASSIST_CUCUMBER
           valueFrom:
             secretKeyRef:
               name: mas-fvt-assist
-              key: FVT_VERSION_ASSIST_CUCUMBER
+              key: FVT_DIGEST_ASSIST_CUCUMBER
               optional: false
-        - name: FVT_VERSION_ASSIST_PREPAREDATA
+        - name: FVT_DIGEST_ASSIST_PREPAREDATA
           valueFrom:
             secretKeyRef:
               name: mas-fvt-assist
-              key: FVT_VERSION_ASSIST_PREPAREDATA
+              key: FVT_DIGEST_ASSIST_PREPAREDATA
               optional: false
-        - name: FVT_VERSION_ASSIST_PYTHON
+        - name: FVT_DIGEST_ASSIST_PYTHON
           valueFrom:
             secretKeyRef:
               name: mas-fvt-assist
-              key: FVT_VERSION_ASSIST_PYTHON
+              key: FVT_DIGEST_ASSIST_PYTHON
               optional: false
-        - name: FVT_VERSION_ASSIST_TESTNG
+        - name: FVT_DIGEST_ASSIST_TESTNG
           valueFrom:
             secretKeyRef:
               name: mas-fvt-assist
-              key: FVT_VERSION_ASSIST_TESTNG
+              key: FVT_DIGEST_ASSIST_TESTNG
               optional: false
         - name: IVT_DIGEST_CORE
           valueFrom:
