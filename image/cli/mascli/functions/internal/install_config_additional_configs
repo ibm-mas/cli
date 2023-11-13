@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-function config_pipeline_additional_configs() {
+function install_config_additional_configs() {
   if [[ -z "$NON_INTERACTIVE" ]]; then
     echo
     echo_h2 "Additional Configuration"

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function pipeline_show_config() {
+function install_pipelinerun_preview() {
   if [[ ! -e "$CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID.yaml" ]]; then
     echo_warning "No pipelinerun configuration exists for '$MAS_INSTANCE_ID'"
     exit 1
@@ -14,6 +14,7 @@ function pipeline_show_config() {
   echo_reset_dim "Instance ID ............... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "Workspace ID .............. ${COLOR_MAGENTA}${MAS_WORKSPACE_ID}"
   echo_reset_dim "Workspace Name ............ ${COLOR_MAGENTA}${MAS_WORKSPACE_NAME}"
+  echo
   if [[ "${USE_NON_PROD_MODE}" == "true" ]]; then
     echo_reset_dim "Operation Mode ............ ${COLOR_MAGENTA}Non-production"
   else
@@ -45,7 +46,7 @@ function pipeline_show_config() {
   echo_h4 "IBM Maximo Application Suite Applications" "    "
   if [[ "${MAS_APP_CHANNEL_IOT}" == '' ]]
   then echo_reset_dim "IoT ....................... ${COLOR_RED}Skip Installation"
-  else 
+  else
     echo_reset_dim "IoT ....................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_IOT}"
     echo_reset_dim " - MQTT Storage Class ..... ${COLOR_MAGENTA}${STORAGE_CLASS_RWO:-<default>}"
     echo_reset_dim " - FPL Storage Class ...... ${COLOR_MAGENTA}${STORAGE_CLASS_RWO:-<default>}"
@@ -89,7 +90,7 @@ function pipeline_show_config() {
 
   if [[ "${MAS_APP_CHANNEL_VISUALINSPECTION}" == '' ]]
   then echo_reset_dim "Visual Inspection ......... ${COLOR_RED}Skip Installation"
-  else 
+  else
     echo_reset_dim "Visual Inspection ......... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_VISUALINSPECTION}"
     echo_reset_dim " - Storage Class .......... ${COLOR_MAGENTA}${STORAGE_CLASS_RWX:-<default>}"
   fi
@@ -113,7 +114,8 @@ function pipeline_show_config() {
 
   reset_colors
   echo "${TEXT_DIM}"
-  echo_h4 "IBM User Data Services" "    "
+  [[ "$UDS_ACTION" == "install" ]] && echo_h4 "IBM User Data Services (UDS) Configuration" "    "
+  [[ "$UDS_ACTION" == "install_dro" ]] && echo_h4 "IBM Data Reporter Operator (DRO) Configuration" "    "
   echo_reset_dim "Contact Email ............. ${COLOR_MAGENTA}${UDS_CONTACT_EMAIL}"
   echo_reset_dim "First Name ................ ${COLOR_MAGENTA}${UDS_CONTACT_FIRSTNAME}"
   echo_reset_dim "Last Name ................. ${COLOR_MAGENTA}${UDS_CONTACT_LASTNAME}"

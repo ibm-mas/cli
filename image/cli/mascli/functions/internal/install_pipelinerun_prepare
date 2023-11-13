@@ -1,5 +1,5 @@
 #!/bin/bash
-function pipeline_prepare() {
+function install_pipelinerun_prepare() {
   echo
   echo_h2 "Prepare Installation"
 
@@ -34,7 +34,7 @@ function pipeline_prepare() {
   echo_hr1 >> $LOGFILE
 
   # Install the MAS Tekton definitions
-  pipeline_install_tasks
+  pipelines_install_tasks
 
   # Create the PVCs that we need
   oc apply -f $CONFIG_DIR/pvc-$MAS_INSTANCE_ID.yaml &>> $LOGFILE

@@ -244,7 +244,7 @@ function update() {
   echo_h2 "Launch Update"
 
   # Create namespace, install MAS Tekton definitions, configure RBAC
-  pipeline_install_tasks_shared_namespace || exit 1
+  pipelines_install_tasks_shared_namespace || exit 1
 
   # Replace ALL environment variables in templates
   eval "echo \"$(cat $CLI_DIR/templates/pipelinerun-update.yaml)\"" > $CONFIG_DIR/pipelinerun-update.yaml

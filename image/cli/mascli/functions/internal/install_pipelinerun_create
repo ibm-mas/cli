@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function pipeline_run() {
+function install_pipelinerun_create() {
   echo
   echo_h2 "Launch Installation"
   # Start pipeline execution

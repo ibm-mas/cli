@@ -105,10 +105,6 @@ spec:
       runAfter:
         - common-services
 
-    # 2.6 DRO
-    {{ lookup('template', 'taskdefs/dependencies/dro.yml.j2') | indent(4) }}
-      runAfter:
-        - common-services
 
     # 3. Cloud Pak for Data
     # -------------------------------------------------------------------------
@@ -174,7 +170,7 @@ spec:
     # 4.3 Nvidia GPU Operator
     {{ lookup('template', 'taskdefs/dependencies/nvidia.yml.j2') | indent(4) }}
       runAfter:
-        - ibm-catalogs
+        - pre-install-check
 
 
     # 5. Install & Configure IBM MAS
@@ -358,3 +354,4 @@ spec:
         - app-cfg-monitor # infers IoT completed
         - app-cfg-visualinspection
         - turbonomic
+        - cognos

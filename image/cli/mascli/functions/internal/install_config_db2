@@ -25,12 +25,12 @@ function db2_for_iot() {
       echo
       if [ -e "$jdbc_cfg_file" ]; then
         if prompt_for_confirm "System database configuration file 'jdbc-$MAS_INSTANCE_ID-system.yaml' already exists.  Do you want to generate a new one?"; then
-          python3 $CLI_DIR/functions/gencfg jdbc $MAS_INSTANCE_ID system $jdbc_cfg_file
+          python3 $CLI_DIR/tools/gencfg jdbc $MAS_INSTANCE_ID system $jdbc_cfg_file
         fi
       else
         echo_warning "Expected $jdbc_cfg_file file was not found, generating a valid system database configuration file now ..."
         echo
-        python3 $CLI_DIR/functions/gencfg jdbc $MAS_INSTANCE_ID system $jdbc_cfg_file
+        python3 $CLI_DIR/tools/gencfg jdbc $MAS_INSTANCE_ID system $jdbc_cfg_file
       fi
     fi
   else
@@ -73,12 +73,12 @@ function db2_for_manage() {
         echo
         if [ -e "$jdbc_cfg_file" ]; then
           if prompt_for_confirm "Manage database configuration file 'jdbc-$MAS_INSTANCE_ID-manage.yaml' already exists.  Do you want to generate a new one?"; then
-            python3 $CLI_DIR/functions/gencfg jdbc $MAS_INSTANCE_ID workspace-application $jdbc_cfg_file --workspace-id $MAS_WORKSPACE_ID --application-id manage
+            python3 $CLI_DIR/tools/gencfg jdbc $MAS_INSTANCE_ID workspace-application $jdbc_cfg_file --workspace-id $MAS_WORKSPACE_ID --application-id manage
           fi
         else
           echo_warning "Expected $jdbc_cfg_file file was not found, generating a valid Manage database configuration file now ..."
           echo
-          python3 $CLI_DIR/functions/gencfg jdbc $MAS_INSTANCE_ID workspace-application $jdbc_cfg_file --workspace-id $MAS_WORKSPACE_ID --application-id manage
+          python3 $CLI_DIR/tools/gencfg jdbc $MAS_INSTANCE_ID workspace-application $jdbc_cfg_file --workspace-id $MAS_WORKSPACE_ID --application-id manage
         fi
       fi
     fi
@@ -169,7 +169,7 @@ function db2u_configuration() {
   fi
 }
 
-function config_pipeline_db2() {
+function install_config_db2() {
   echo
   echo_h2 "Configure Databases"
   echo "${TEXT_DIM}The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, Manage, Monitor, & Predict) or you may choose to configure MAS to use an existing database."

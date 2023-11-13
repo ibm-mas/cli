@@ -262,12 +262,6 @@
   type: string
   default: ""
 
-# Dependencies - DRO
-# -----------------------------------------------------------------------------
-- name: dro_action
-  type: string
-  default: ""
-
 # Dependencies - AppConnect
 # -----------------------------------------------------------------------------
 {{ lookup('template', params_src_dir ~ '/install-appconnect.yml.j2') }}

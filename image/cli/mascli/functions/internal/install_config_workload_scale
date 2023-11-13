@@ -21,7 +21,7 @@ function clear_mas_workload_scale_envs() {
   unset MAS_POD_TEMPLATES_DIR
 }
 
-function config_pipeline_workload_scale() {
+function install_config_workload_scale() {
   # Change echo_h3 depending on where we call this func
   echo_h3 "Configure Scaling Profile"
   echo "The CLI supports three profiles out of the box, and allows you to define your own custom profile as well."

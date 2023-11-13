@@ -1,5 +1,5 @@
 #!/bin/bash
-function config_pipeline_dns() {
+function install_config_dns() {
   echo
   echo_h2 "Configure Domain & Certificate Management"
   if prompt_for_confirm "Configure Custom Domain?"; then

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function config_pipeline_turbonomic() {
+function install_config_turbonomic() {
   echo
   echo_h2 "Configure Turbonomic"
   echo "${TEXT_DIM}The IBM Turbonomic hybrid cloud cost optimization platform allows you to eliminate this guesswork with solutions that save time and optimize costs."
