@@ -29,6 +29,10 @@ spec:
       type: string
     - name: vpc_ipv4_cidr
       type: string
+    - name: kafkacfg_file_name
+      type: string
+      default: ""
+
   stepTemplate:
     name: gitops-kafka
     env:
@@ -54,6 +58,8 @@ spec:
         value: $(params.avp_aws_access_key)
       - name: VPC_IPV4_CIDR
         value: $(params.vpc_ipv4_cidr)
+      - name: KAFKACFG_FILE_NAME
+        value: $(params.kafkacfg_file_name)
   steps:
     - args:
       - |-

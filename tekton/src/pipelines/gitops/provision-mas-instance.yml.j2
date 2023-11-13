@@ -593,6 +593,8 @@ spec:
           value: $(params.avp_aws_access_key)
         - name: vpc_ipv4_cidr
           value: $(params.vpc_ipv4_cidr)
+        - name: kafkacfg_file_name
+          value: $(params.kafkacfg_file_name)
       workspaces:
         - name: configs
           workspace: configs
