@@ -111,6 +111,9 @@ spec:
       - name: IBMADMIN_ENABLED
         value: "true"
 
+
+      - name: NAMESPACE
+        value: "mas-$(params.mas_instance_id)-core"
       - name: INSTANCE_ID
         value: "$(params.mas_instance_id)"
       - name: WORKSPACE_ID
