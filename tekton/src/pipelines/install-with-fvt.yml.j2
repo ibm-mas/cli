@@ -372,9 +372,9 @@ spec:
         kind: Task
         name: mas-launchfvt-core
       when:
-        input: $(params.launchfvt_core)
-        operator: in
-        values: ["true", "True"]
+        - input: $(params.launchfvt_core)
+          operator: in
+          values: ["true", "True"]
       runAfter:
         - suite-verify
 
