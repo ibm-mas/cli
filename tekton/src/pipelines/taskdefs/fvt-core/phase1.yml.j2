@@ -75,10 +75,6 @@
     - name: test_suite
       value: coreapi-workspacemgmt
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: partium_username
-      value: $(params.partium_username)
-    - name: partium_password
-      value: $(params.partium_password)
   runAfter:
     - fvt-coreidp-auth
 
