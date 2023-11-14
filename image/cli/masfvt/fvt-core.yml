@@ -13,7 +13,7 @@
     fvt_artifactory_username: "{{ lookup('env', 'FVT_ARTIFACTORY_USERNAME') }}"
     fvt_artifactory_token: "{{ lookup('env', 'FVT_ARTIFACTORY_TOKEN') }}"
     fvt_digest_core: "{{ lookup('env', 'FVT_DIGEST_CORE') }}"
-    fvt_digest_coreui: "{{ lookup('env', 'FVT_DIGEST_COREAPI') }}"
+    fvt_digest_coreui: "{{ lookup('env', 'FVT_DIGEST_COREUI') }}"
     ivt_digest_core: "{{ lookup('env', 'IVT_DIGEST_CORE') }}"
     # Test Data
     ddp_apikey: "{{ lookup('env', 'DDP_APIKEY') }}"
