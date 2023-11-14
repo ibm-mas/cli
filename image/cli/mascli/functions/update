@@ -213,7 +213,7 @@ function update() {
 
   echo "${TEXT_DIM}"
   echo_h4 "IBM Operator Catalog" "    "
-  echo_reset_dim "Current Catalog Version .................... ${COLOR_MAGENTA}${catalogVersion}${COLOR_RESET}"
+  echo_reset_dim "Current Catalog Version .................... ${COLOR_MAGENTA}${catalogVersion:-unknown}${COLOR_RESET}"
   echo_reset_dim "Updated Catalog Version .................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}${COLOR_RESET}"
   echo "${TEXT_DIM}"
   echo_h4 "Updates" "    "
