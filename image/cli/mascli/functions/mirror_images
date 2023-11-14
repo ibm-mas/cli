@@ -91,6 +91,7 @@ function mirror_to_registry_noninteractive() {
   MIRROR_SLS=false
   MIRROR_TRUSTSTOREMGR=false
   MIRROR_MONGOCE=false
+  MIRROR_MONGOCE_V4=false
   MIRROR_MONGOCE_V5=false
   MIRROR_MONGOCE_V6=false
   MIRROR_DB2U=false
@@ -205,6 +206,9 @@ function mirror_to_registry_noninteractive() {
         ;;
       --mirror-mongo)
         MIRROR_MONGOCE=true
+        ;;
+      --mirror-mongo-v4)
+        MIRROR_MONGOCE_V4=true
         ;;
       --mirror-mongo-v5)
         MIRROR_MONGOCE_V5=true
@@ -344,6 +348,7 @@ function mirror_to_registry_interactive() {
     MIRROR_SLS=true
     MIRROR_TRUSTSTOREMGR=true
     MIRROR_MONGOCE=true
+    MIRROR_MONGOCE_V4=true
     MIRROR_MONGOCE_V5=true
     MIRROR_MONGOCE_V6=true
 
@@ -455,6 +460,7 @@ function mirror_to_registry() {
   export MIRROR_SLS
   export MIRROR_TRUSTSTOREMGR
   export MIRROR_MONGOCE
+  export MIRROR_MONGOCE_V4
   export MIRROR_MONGOCE_V5
   export MIRROR_MONGOCE_V6
   export MIRROR_DB2U
@@ -479,6 +485,7 @@ function mirror_to_registry() {
     "$MIRROR_SLS" == true ||
     "$MIRROR_TRUSTSTOREMGR" == true ||
     "$MIRROR_MONGOCE" == true ||
+    "$MIRROR_MONGOCE_V4" == true ||
     "$MIRROR_MONGOCE_V5" == true ||
     "$MIRROR_MONGOCE_V6" == true ||
     "$MIRROR_DB2U" == true ||
