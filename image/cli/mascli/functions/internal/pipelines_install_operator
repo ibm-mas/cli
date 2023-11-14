@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function pipeline_install_operator() {
+function pipelines_install_operator() {
   # Install pipelines support
   echo
   echo_h2 "Install OpenShift Pipelines Operator"

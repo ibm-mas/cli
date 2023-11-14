@@ -124,16 +124,14 @@ function choose_mas_version() {
 # -----------------------------------------------------------------------------
 # We automatically select the UDS or DRO operator to install in the
 # cluster based on the version of the catalog that is being used
-# TODO: Need to know the latest catalog version name
-function uds_dro_selection() {
+function uds_action_selection() {
   case $MAS_CATALOG_VERSION in
-    # UDS/DRO selection
-    # -------------------------------------------------------------------------
-    v8-240111-amd64)
-      BAS_PROVIDER="DRO"
+    v8-TBC-amd64)
+      # UDS_ACTION=install_dro will result in any existing install of UDS being removed, and DRO being installed in it's place
+      UDS_ACTION="install_dro"
       ;;
     *)
-      BAS_PROVIDER="UDS" # The default channel will be used
+      UDS_ACTION="install"
       ;;
   esac
 }

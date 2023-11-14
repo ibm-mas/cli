@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # Manage Storage Classes for Doclinks, BIM and JMS
-
-function config_pipeline_manage_storage_classes() {
+function install_config_manage_storage_classes() {
 
   MAS_APP_SETTINGS_DOCLINKS_PVC_STORAGE_CLASS=$STORAGE_CLASS_RWX
   MAS_APP_SETTINGS_BIM_PVC_STORAGE_CLASS=$STORAGE_CLASS_RWX
