@@ -3,34 +3,63 @@
 # Usage
 # -----
 # Fail if the pipelinerun failed:
-#   wait-for-pipelinerun.sh pipelinerunname namespace True
+#   wait-for-pipelinerun.sh --name mypipelinerun --namespace mynamespace
 # Ignore failures in the pipelinerun:
-#   wait-for-pipelinerun.sh pipelinerunname namespace False
+#   wait-for-pipelinerun.sh --name mypipelinerun --namespace mynamespace --ignore-failure
 
-PIPELINERUN_NAME=$1
-NAMESPACE=$2
-IGNORE_FAILURE=$3
-echo "Waiting for pipelinerun/${PIPELINERUN_NAME} in ${NAMESPACE} to complete ..."
+
+MAX_RETRIES=50  # Just over 4 hours hours
+DELAY=300  # 5 minute interval
+while [[ $# -gt 0 ]]
+do
+  key="$1"
+  shift
+  case $key in
+    --name)
+      PIPELINERUN_NAME=$1
+      shift
+      ;;
+    --namespace)
+      PIPELINERUN_NAMESPACE=$1
+      shift
+      ;;
+    --max-retries)
+      MAX_RETRIES=$1
+      shift
+      ;;
+    --delay)
+      DELAY=$1
+      shift
+      ;;
+    --ignore-failure)
+      IGNORE_FAILURE=True
+      ;;
+    *)
+      # Unknown option
+      echo "Usage Error: Unsupported option \"${key}\""
+      exit 1
+      ;;
+  esac
+done
+
+echo "Waiting for pipelinerun/${PIPELINERUN_NAME} in ${PIPELINERUN_NAMESPACE} to complete ..."
 
 echo ""
 echo "Status of pipelinerun"
 echo "------------------------------------------------------------------"
-oc -n ${NAMESPACE} get pipelinerun/${PIPELINERUN_NAME}
+oc -n ${PIPELINERUN_NAMESPACE} get pipelinerun/${PIPELINERUN_NAME}
 
 echo ""
 echo "Waiting for pipelinerun/${PIPELINERUN_NAME} to complete"
 echo "------------------------------------------------------------------"
-# oc -n ${NAMESPACE} wait pipelinerun/${PIPELINERUN_NAME} --for=condition=Succeeded --timeout=24h
+# oc -n ${PIPELINERUN_NAMESPACE} wait pipelinerun/${PIPELINERUN_NAME} --for=condition=Succeeded --timeout=24h
 
-COMPLETION_TIME=$(oc -n ${NAMESPACE} get pipelinerun/$PIPELINERUN_NAME -o jsonpath='{.status.completionTime}')
-# 2 minutes * 720 = ~24 hours
-MAX_RETRIES=720
+COMPLETION_TIME=$(oc -n ${PIPELINERUN_NAMESPACE} get pipelinerun/$PIPELINERUN_NAME -o jsonpath='{.status.completionTime}')
 RETRIES_USED=0
-DELAY=120
 while [[ "$COMPLETION_TIME" == "" && "$RETRIES_USED" -lt "$MAX_RETRIES" ]]; do
   echo "[$RETRIES_USED/$MAX_RETRIES] pipelinerun/$PIPELINERUN_NAME is still running.  Waiting $DELAY seconds before checking again"
   sleep $DELAY
-  COMPLETION_TIME=$(oc -n ${NAMESPACE} get pipelinerun/$PIPELINERUN_NAME -o jsonpath='{.status.completionTime}')
+  COMPLETION_TIME=$(oc -n ${PIPELINERUN_NAMESPACE} get pipelinerun/$PIPELINERUN_NAME -o jsonpath='{.status.completionTime}')
   RETRIES_USED=$((RETRIES_USED + 1))
 done
 

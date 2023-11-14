@@ -114,10 +114,9 @@ spec:
     - name: wait-for-pipelinerun
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
+      # 50 retries at 5 minute intervals = just over 4 hours
       command:
-        - /opt/app-root/src/wait-for-pipelinerun.sh
-        - $PIPELINERUN_NAME
-        - $PIPELINERUN_NAMESPACE
+        - /opt/app-root/src/wait-for-pipelinerun.sh --delay 300 --max-retries 50 --ignore-failure
       env:
         - name: PIPELINERUN_NAME
           value: $(params.pipelinerun_name)
