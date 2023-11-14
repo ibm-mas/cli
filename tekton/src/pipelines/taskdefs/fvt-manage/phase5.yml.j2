@@ -1,9 +1,12 @@
 # -------------------------------------------------------------
 # LAST PHASE (tests running one after the other)
+# - fvt-manage-mas-usertimeout
 # - fvt-manage-application-designer
 # - fvt-manage-startcenter-config
 # - fvt-manage-workflow-designer
 # - fvt-manage-smtp-setup
+# - fvt-manage-esig-basic
+# - fvt-manage-eaudit-basic
 # -------------------------------------------------------------
 
 - name: fvt-manage-last-phase
@@ -14,9 +17,10 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}    
   runAfter:
+    - fvt-manage-sec-audit-log
+    - fvt-manage-sec-inactive-auth
     - fvt-manage-mif-kafka
     - fvt-manage-wo-doclink
     - fvt-manage-directprint
-    - fvt-manage-user-crud
-    - fvt-manage-user-consumption
-    - fvt-manage-communication-temp
+    - fvt-manage-adhoc-report
+    - fvt-manage-jms-outbound

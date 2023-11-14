@@ -34,8 +34,11 @@
         - fvt-core
         - fvt-deprovision-after
         - fvt-manage
+        - fvt-manage-mobile
+        - fvt-manage-is
         - fvt-manage-regr
         - fvt-sls
+        - fvt-uninstall-after
         - update
         - upgrade
         - rollback

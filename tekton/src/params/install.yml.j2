@@ -1,3 +1,8 @@
+# Cluster config
+- name: ocp_ingress_tls_secret_name
+  type: string
+  default: ""
+
 # IBM Cloud
 # -----------------------------------------------------------------------------
 - name: ibmcloud_apikey
@@ -19,6 +24,9 @@
 - name: sls_license_id
   type: string
 - name: sls_license_file
+  type: string
+  default: "/workspace/entitlement/entitlement.lic"
+- name: sls_entitlement_file
   type: string
   default: "/workspace/entitlement/entitlement.lic"
 - name: sls_mongodb_cfg_file
@@ -57,6 +65,10 @@
   type: string
   description: MongoDb provider
   default: ""
+- name: mongodb_version
+  type: string
+  description: MongoDb version
+  default: ""
 - name: mongodb_action
   type: string
   description: MongoDb action
@@ -89,6 +101,10 @@
 - name: kafka_provider
   type: string
   description: Kafka provider
+  default: ""
+- name: kafka_version
+  type: string
+  description: Kafka version
   default: ""
 - name: kafka_cluster_name
   type: string
@@ -217,25 +233,31 @@
   default: ""
 - name: cpd_install_spss
   type: string
-  default: "False"
+  default: ""
 - name: cpd_install_openscale
   type: string
-  default: "False"
+  default: ""
+- name: cpd_install_cognos
+  type: string
+  default: ""
 
 # Dependencies - UDS
 # -----------------------------------------------------------------------------
 - name: uds_contact_email
   type: string
+  default: ""
 - name: uds_contact_firstname
   type: string
+  default: ""
 - name: uds_contact_lastname
   type: string
+  default: ""
 - name: uds_event_scheduler_frequency
   type: string
   default: ""
 - name: uds_action
   type: string
-  default: "install"
+  default: ""
 - name: mas_segment_key
   type: string
   default: ""
@@ -261,10 +283,6 @@
 - name: cos_action
   type: string
   description: COS action to be performed (provision or deprovision)
-  default: ""
-- name: cos_setup_for_manage_attachments
-  type: string
-  description: set to `true` to configure COS to hold Manage attachments
   default: ""
 
 # MAS Integration - Cluster Monitoring - Prometheus
@@ -414,6 +432,10 @@
   type: string
   default: ""
   description: Optional boolean parameter that when set to False, disables the normal trust of well known public certificate authorities
+- name: enable_ipv6
+  type: string
+  default: "False"
+  description: Optional boolean parameter that when set to True, enables IPv6
 - name: mas_manual_cert_mgmt
   type: string
   default: "False"

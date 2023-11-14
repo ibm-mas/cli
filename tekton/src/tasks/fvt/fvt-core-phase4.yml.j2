@@ -41,21 +41,6 @@ spec:
       type: string
       description: Workspace ID in MAS to use for running the tests
 
-    # Test-specific Information (all optional)
-    # -------------------------------------------------------------------------
-    - name: ddp_apikey
-      type: string
-      description: Partium username (required by fvt-adoptionusagereporter)
-      default: ""
-    - name: partium_username
-      type: string
-      description: Partium username (required by fvt-coreapi-workspacemgmt)
-      default: ""
-    - name: partium_password
-      type: string
-      description: Partium password (required by fvt-coreapi-workspacemgmt)
-      default: ""
-
   stepTemplate:
     name: 'fvt-core'
     env:
@@ -93,12 +78,25 @@ spec:
       - name: IBMADMIN_ENABLED
         value: "true"
 
+      # Test Data
       - name: DDP_APIKEY
-        value: $(params.ddp_apikey)
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: DDP_APIKEY
+            optional: true
       - name: PARTIUM_USERNAME
-        value: $(params.partium_username)
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: PARTIUM_USERNAME
+            optional: true
       - name: PARTIUM_PASSWORD
-        value: $(params.partium_password)
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: PARTIUM_PASSWORD
+            optional: true
 
   steps:
     # These tests cannot be ran alongside other tests
@@ -110,9 +108,8 @@ spec:
     # 5. CoreIDP - SSO Config ... ???
     # 6. Licensing API .......... ???
     # 7. SMTP ................... Temporarily disables SMTP integration
-    # 8. Podtemplates ........... Affects resources (cpu, mem), number of replicas and affinity configuration
-    # 9. Trust CAs .............. ???
-    # 10. Operator Maturity ...... Other tests result in generation of resources in the cluster that we want to test
+    # 8. Trust CAs .............. ???
+    # 9. Operator Maturity ...... Other tests result in generation of resources in the cluster that we want to test
 
     # 1. adoptionusagemetering
     # -------------------------------------------------------------------------
@@ -226,23 +223,7 @@ spec:
         - name: TEST_SUITE
           value: smtp
 
-    # 8. podtemplates
-    # -------------------------------------------------------------------------
-    - name: fvt-podtemplates
-      image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'
-      imagePullPolicy: $(params.image_pull_policy)
-      timeout: 2h0m0s # Ensure bad FVTs don't run forever
-      onError: continue # Ensure bad FVTs don't break the pipeline
-      resources: {}
-      workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
-      env:
-        - name: TEST_SUITE
-          value: podtemplates
-
-    # 9. core-trustcas
+    # 8. core-trustcas
     # -------------------------------------------------------------------------
     - name: fvt-core-trustcas
       image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'
@@ -282,3 +263,5 @@ spec:
 
   workspaces:
     - name: configs
+    - name: pod-templates
+      optional: true

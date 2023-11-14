@@ -5,6 +5,7 @@
 # - fvt-manage-helplinks
 # - fvt-manage-mif-setup
 # - fvt-manage-metrics-api
+# - fvt-manage-wo-basic
 # -------------------------------------------------------------
 
 # Manage FVT Mas Navigation Scenario
@@ -20,9 +21,7 @@
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
-    - fvt-manage-sec-audit-log
-    - fvt-manage-sec-inactive-auth
-
+    
 # Manage FVT Classification
 - name: fvt-manage-classification
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
@@ -36,8 +35,6 @@
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
-    - fvt-manage-sec-audit-log
-    - fvt-manage-sec-inactive-auth
 
 # Manage FVT Help Links
 - name: fvt-manage-helplinks
@@ -52,8 +49,6 @@
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
-    - fvt-manage-sec-audit-log
-    - fvt-manage-sec-inactive-auth
 
 # Manage MIF setup
 - name: fvt-manage-mif-setup
@@ -68,8 +63,6 @@
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
-    - fvt-manage-sec-audit-log
-    - fvt-manage-sec-inactive-auth
 
 # Manage FVT Metrics API
 - name: fvt-manage-metrics-api
@@ -84,5 +77,17 @@
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
-    - fvt-manage-sec-audit-log
-    - fvt-manage-sec-inactive-auth
+
+# Manage FVT Work Order Basic Scenario
+- name: fvt-manage-wo-basic
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
+    - name: fvt_test_suite
+      value: wo-basic
+  runAfter:
+    - fvt-manage-setup
+    - fvt-manage-monitoring

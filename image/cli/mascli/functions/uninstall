@@ -13,14 +13,14 @@ MAS Instance Selection (Required):
   -i, --id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                         MAS Instance ID to uninstall
 
 Other Commands:
-      --no-confirm                                                 Uninstall without prompting for confirmation
+      --no-confirm                                                 Launch the uninstall without prompting for confirmation
   -h, --help                                                       Show this help message
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
 function check_mas_project_exists() {
-  if [ -n "${MAS_NS}" ]; then
+  if [ -z "${MAS_NS}" ]; then
     prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
     MAS_NS="mas-$MAS_INSTANCE_ID-core"
   fi
@@ -171,10 +171,10 @@ function launch_uninstall() {
   echo_h2 "Launch Uninstall"
 
   # Create namespace, install MAS Tekton definitions, configure RBAC
-  pipeline_install_tasks || exit 1
+  pipelines_install_tasks || exit 1
 
   # Replace ALL environment variables in templates
-  eval "echo \"$(cat $DIR/templates/pipelinerun-uninstall.yaml)\"" >$CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-uninstall.yaml
+  eval "echo \"$(cat $CLI_DIR/templates/pipelinerun-uninstall.yaml)\"" >$CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-uninstall.yaml
 
   # Start pipeline execution
   oc -n mas-$MAS_INSTANCE_ID-pipelines create -f $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-uninstall.yaml &>>$LOGFILE || exit 1

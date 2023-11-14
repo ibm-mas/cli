@@ -80,18 +80,6 @@ spec:
 
     # Test-specific Information (all optional)
     # -------------------------------------------------------------------------
-    - name: ddp_apikey
-      type: string
-      description: Partium username (required by fvt-adoptionusagereporter)
-      default: ""
-    - name: partium_username
-      type: string
-      description: Partium username (required by fvt-coreapi-workspacemgmt)
-      default: ""
-    - name: partium_password
-      type: string
-      description: Partium password (required by fvt-coreapi-workspacemgmt)
-      default: ""
     - name: artifactory_token
       type: string
       description: Artifactory API Key (required by fvt-ibm-mas-manage to pull test container content)
@@ -141,6 +129,12 @@ spec:
         value: core
       - name: FVT_TEST_SUITE
         value: $(params.fvt_test_suite)
+      - name: FVT_MANAGE_AUTOMATION_VERSION
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_MANAGE_AUTOMATION_VERSION
+            optional: true
       - name: FVT_MAS_APPWS_COMPONENT
         value: $(params.fvt_mas_appws_component)
       - name: MAS_APPWS_COMPONENTS
@@ -149,12 +143,6 @@ spec:
       - name: FVT_ENABLE_DEBUG
         value: "$(params.fvt_enable_debug)"
 
-      - name: DDP_APIKEY
-        value: $(params.ddp_apikey)
-      - name: PARTIUM_USERNAME
-        value: $(params.partium_username)
-      - name: PARTIUM_PASSWORD
-        value: $(params.partium_password)
       - name: ARTIFACTORY_TOKEN
         value: $(params.artifactory_token)
 
@@ -172,9 +160,24 @@ spec:
 
   workspaces:
     - name: configs
-  
+
   steps:
-    
+
+    # Manage FVT MAS UserTimeout
+    - name: fvt-manage-mas-usertimeout
+      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
+      imagePullPolicy: $(params.image_pull_policy)
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      resources: {}
+      workingDir: /opt/ibm/test/src
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+      env:
+        - name: FVT_TEST_SUITE
+          value: masuser-timeout
+
     # Manage FVT Application Designer
     - name: fvt-manage-application-designer
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
@@ -189,7 +192,7 @@ spec:
       env:
         - name: FVT_TEST_SUITE
           value: application-designer
-    
+
     # Manage FVT Start Center
     - name: fvt-manage-startcenter-config
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
@@ -204,7 +207,7 @@ spec:
       env:
         - name: FVT_TEST_SUITE
           value: startcenter-config
-    
+
     # Manage FVT Create Workflow Design & Approve WO Assignments
     - name: fvt-manage-workflow-designer
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
@@ -219,7 +222,7 @@ spec:
       env:
         - name: FVT_TEST_SUITE
           value: workflow-designer
-    
+
     # Manage SMTP Configuration Validation
     - name: fvt-manage-smtp-setup
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
@@ -234,3 +237,33 @@ spec:
       env:
         - name: FVT_TEST_SUITE
           value: mas-smtp-setup
+
+    # Manage FVT E-Signature Basic Scenario
+    - name: fvt-manage-esig-basic
+      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
+      imagePullPolicy: $(params.image_pull_policy)
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      resources: {}
+      workingDir: /opt/ibm/test/src
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+      env:
+        - name: FVT_TEST_SUITE
+          value: esig-basic
+
+    # Manage FVT E-Audit Basic
+    - name: fvt-manage-eaudit-basic
+      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
+      imagePullPolicy: $(params.image_pull_policy)
+      timeout: 90m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      resources: {}
+      workingDir: /opt/ibm/test/src
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+      env:
+        - name: FVT_TEST_SUITE
+          value: eaudit-basic

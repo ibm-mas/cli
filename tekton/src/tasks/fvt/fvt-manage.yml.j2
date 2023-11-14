@@ -88,18 +88,6 @@ spec:
 
     # Test-specific Information (all optional)
     # -------------------------------------------------------------------------
-    - name: ddp_apikey
-      type: string
-      description: Partium username (required by fvt-adoptionusagereporter)
-      default: ""
-    - name: partium_username
-      type: string
-      description: Partium username (required by fvt-coreapi-workspacemgmt)
-      default: ""
-    - name: partium_password
-      type: string
-      description: Partium password (required by fvt-coreapi-workspacemgmt)
-      default: ""
     - name: artifactory_token
       type: string
       description: Artifactory API Key (required by fvt-ibm-mas-manage to pull test container content)
@@ -149,6 +137,12 @@ spec:
         value: $(params.fvt_test_suite_prefix)
       - name: FVT_TEST_SUITE
         value: $(params.fvt_test_suite)
+      - name: FVT_MANAGE_AUTOMATION_VERSION
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_MANAGE_AUTOMATION_VERSION
+            optional: true
       - name: FVT_MAS_APPWS_COMPONENT
         value: $(params.fvt_mas_appws_component)
       - name: MAS_APPWS_COMPONENTS
@@ -157,12 +151,6 @@ spec:
       - name: FVT_ENABLE_DEBUG
         value: "$(params.fvt_enable_debug)"
 
-      - name: DDP_APIKEY
-        value: $(params.ddp_apikey)
-      - name: PARTIUM_USERNAME
-        value: $(params.partium_username)
-      - name: PARTIUM_PASSWORD
-        value: $(params.partium_password)
       - name: ARTIFACTORY_TOKEN
         value: $(params.artifactory_token)
 

@@ -37,7 +37,9 @@
         - mongodb
         - nvidia-gpu
         - ocp-verify
+        - ocp-verify-all
         - ocs
+        - sls-registry-update
         - sls
         - turbonomic
         - uds
@@ -54,6 +56,7 @@
         - fvt-core
         - fvt-core-phase4
         - fvt-core-ui
+        - fvt-finalize
         - fvt-manage
         - fvt-manage-directprint
         - fvt-manage-last-phase
@@ -63,6 +66,15 @@
         - fvt-wait-for-install
         - fvt-wait-for-pipelinerun
 
+    - name: Generate Tasks (FVT Launchers)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/fvt-launcher/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - launchfvt-assist
+        - launchfvt-core
+        - launchfvt-manage
+
     # 4. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (IVT)
@@ -70,6 +82,7 @@
         src: "{{ task_src_dir }}/ivt/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
+        - ivt-core
         - ivt-manage-monitor-dd
 
     # 5. Generate Tasks (Suite)
@@ -83,6 +96,7 @@
         - must-gather
         - suite-app-config
         - suite-app-install
+        - suite-app-uninstall
         - suite-app-upgrade
         - suite-app-rollback
         - suite-app-verify
@@ -91,7 +105,6 @@
         - suite-db2-setup-for-manage
         - suite-dns
         - suite-install
-        - suite-manage-doclinks-config
         - suite-rollback
         - suite-uninstall
         - suite-upgrade

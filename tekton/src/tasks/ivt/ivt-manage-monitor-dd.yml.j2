@@ -94,18 +94,24 @@ spec:
         value: $(params.fvt_mas_appws_component)
       - name: MAS_APPWS_COMPONENTS
         value: $(params.mas_appws_components)
+      - name: FVT_MANAGE_AUTOMATION_VERSION
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_MANAGE_AUTOMATION_VERSION
+            optional: true
       - name: DEVOPS_COS_CRN
         value: $(params.devops_cos_crn)
       - name: DEVOPS_COS_UPLOAD_FOLDER
         value: $(params.devops_cos_upload_folder)
       - name: DEVOPS_IBMCLOUD_APIKEY
         value: $(params.devops_ibmcloud_apikey)
-      
+
       # Common Test Framework Specific information
       # -------------------------------------------------------------------------
       - name: CTF_IS_LOCAL
         value: $(params.ctf_is_local)
-      
+
       - name: DEVOPS_MONGO_URI
         valueFrom:
           secretKeyRef:
