@@ -41,21 +41,6 @@ spec:
       type: string
       description: Workspace ID in MAS to use for running the tests
 
-    # Test-specific Information (all optional)
-    # -------------------------------------------------------------------------
-    - name: ddp_apikey
-      type: string
-      description: Partium username (required by fvt-adoptionusagereporter)
-      default: ""
-    - name: partium_username
-      type: string
-      description: Partium username (required by fvt-coreapi-workspacemgmt)
-      default: ""
-    - name: partium_password
-      type: string
-      description: Partium password (required by fvt-coreapi-workspacemgmt)
-      default: ""
-
   stepTemplate:
     name: 'fvt-core'
     env:
@@ -93,12 +78,25 @@ spec:
       - name: IBMADMIN_ENABLED
         value: "true"
 
+      # Test Data
       - name: DDP_APIKEY
-        value: $(params.ddp_apikey)
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: DDP_APIKEY
+            optional: true
       - name: PARTIUM_USERNAME
-        value: $(params.partium_username)
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: PARTIUM_USERNAME
+            optional: true
       - name: PARTIUM_PASSWORD
-        value: $(params.partium_password)
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: PARTIUM_PASSWORD
+            optional: true
 
   steps:
     # These tests cannot be ran alongside other tests
