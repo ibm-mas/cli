@@ -149,6 +149,8 @@ spec:
       value: '$MONGODB_VERSION'
     - name: mongodb_action
       value: '$MONGODB_ACTION'
+    - name: mongodb_storage_class
+      value: '$MONGODB_STORAGE_CLASS'
 
     # Dependencies - IBM Cloud MongoDb
     # -------------------------------------------------------------------------
