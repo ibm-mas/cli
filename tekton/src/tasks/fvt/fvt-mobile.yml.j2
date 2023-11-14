@@ -51,21 +51,9 @@ spec:
 
     # Test-specific Information (all optional)
     # -------------------------------------------------------------------------
-    - name: ddp_apikey
-      type: string
-      description: Partium username (required by fvt-adoptionusagereporter)
-      default: ""
-    - name: partium_username
-      type: string
-      description: Partium username (required by fvt-coreapi-workspacemgmt)
-      default: ""
-    - name: partium_password
-      type: string
-      description: Partium password (required by fvt-coreapi-workspacemgmt)
-      default: ""
     - name: artifactory_token
       type: string
-      description: Artifactory Token (required by fvt-ibm-mas-manage to pull test container content)
+      description: Artifactory Token (required by fvt-ibm-mas-mobile to pull/push test container content)
       default: ""
 
     # Mobile Specific information
@@ -73,11 +61,7 @@ spec:
       type: string
       description: Mobile UI test device type. Can be android, ios, chrome, edge, firefox or safari. Default is chrome
       default: ""
-    - name: mobile_test_type
-      type: string
-      description: Mobile UI test type. Can be mobileapp, mobilebrowser or desktop. Default is desktop
-      default: "mobileapp"
-
+    
   stepTemplate:
     name: 'fvt-mobile'
     securityContext:
@@ -110,8 +94,7 @@ spec:
 
       - name: IBMADMIN_ENABLED
         value: "true"
-
-
+      
       - name: NAMESPACE
         value: "mas-$(params.mas_instance_id)-core"
       - name: INSTANCE_ID
@@ -125,12 +108,6 @@ spec:
       - name: FVT_ENABLE_DEBUG
         value: "$(params.fvt_enable_debug)"
 
-      - name: DDP_APIKEY
-        value: $(params.ddp_apikey)
-      - name: PARTIUM_USERNAME
-        value: $(params.partium_username)
-      - name: PARTIUM_PASSWORD
-        value: $(params.partium_password)
       - name: ARTIFACTORY_TOKEN
         value: $(params.artifactory_token)
 
@@ -138,8 +115,6 @@ spec:
       - name: MOBILE_DEVICE_TYPE
         value: $(params.mobile_device_type)
 
-      - name: MOBILE_TEST_TYPE
-        value: $(params.mobile_test_type)
   steps:
     - image: '$(params.fvt_image_registry)/fvt-mobile/fvt-mobile-testng@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
