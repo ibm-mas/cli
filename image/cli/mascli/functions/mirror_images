@@ -58,6 +58,8 @@ Content Selection (Other Dependencies):
       --mirror-sls                                  Mirror images for IBM Suite License Service
       --mirror-tsm                                  Mirror images for IBM Truststore Manager
       --mirror-mongo                                Mirror images for MongoDb Community Edition
+      --mirror-mongo-v5                             Mirror images for MongoDb Community Edition version 5
+      --mirror-mongo-v6                             Mirror images for MongoDb Community Edition version 6
       --mirror-db2                                  Mirror images for IBM Db2
       --mirror-appconnect                           Mirror images for IBM AppConnect
 
@@ -89,6 +91,8 @@ function mirror_to_registry_noninteractive() {
   MIRROR_SLS=false
   MIRROR_TRUSTSTOREMGR=false
   MIRROR_MONGOCE=false
+  MIRROR_MONGOCE_V5=false
+  MIRROR_MONGOCE_V6=false
   MIRROR_DB2U=false
   MIRROR_CP4D=false
   MIRROR_WD=false
@@ -201,6 +205,12 @@ function mirror_to_registry_noninteractive() {
         ;;
       --mirror-mongo)
         MIRROR_MONGOCE=true
+        ;;
+      --mirror-mongo-v5)
+        MIRROR_MONGOCE_V5=true
+        ;;
+      --mirror-mongo-v6)
+        MIRROR_MONGOCE_V6=true
         ;;
       --mirror-db2)
         MIRROR_DB2U=true
@@ -442,6 +452,8 @@ function mirror_to_registry() {
   export MIRROR_SLS
   export MIRROR_TRUSTSTOREMGR
   export MIRROR_MONGOCE
+  export MIRROR_MONGOCE_V5
+  export MIRROR_MONGOCE_V6
   export MIRROR_DB2U
   export MIRROR_CP4D
   export MIRROR_WD
