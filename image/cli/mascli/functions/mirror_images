@@ -344,6 +344,9 @@ function mirror_to_registry_interactive() {
     MIRROR_SLS=true
     MIRROR_TRUSTSTOREMGR=true
     MIRROR_MONGOCE=true
+    MIRROR_MONGOCE_V5=true
+    MIRROR_MONGOCE_V6=true
+
     MIRROR_DB2U=true
     MIRROR_APPCONNECT=true
 
@@ -476,6 +479,8 @@ function mirror_to_registry() {
     "$MIRROR_SLS" == true ||
     "$MIRROR_TRUSTSTOREMGR" == true ||
     "$MIRROR_MONGOCE" == true ||
+    "$MIRROR_MONGOCE_V5" == true ||
+    "$MIRROR_MONGOCE_V6" == true ||
     "$MIRROR_DB2U" == true ||
     "$MIRROR_APPCONNECT" == true ||
     "$MIRROR_CP4D" == true ||
@@ -552,6 +557,8 @@ function mirror_to_registry() {
   show_mirror_status "IBM Suite License Service ..........." $MIRROR_SLS
   show_mirror_status "IBM Truststore Manager .............." $MIRROR_TRUSTSTOREMGR
   show_mirror_status "MongoDb Community Edition ..........." $MIRROR_MONGOCE
+  show_mirror_status " + Version 5 ........................" $MIRROR_MONGOCE_V5
+  show_mirror_status " + Version 6 ........................" $MIRROR_MONGOCE_V6
   show_mirror_status "IBM Db2 ............................." $MIRROR_DB2U
   show_mirror_status "IBM AppConnect ......................" $MIRROR_APPCONNECT
 
