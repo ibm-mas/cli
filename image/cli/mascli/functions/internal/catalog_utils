@@ -108,8 +108,8 @@ function choose_mas_version() {
 function uds_action_selection() {
   case $MAS_CATALOG_VERSION in
     v8-TBC-amd64)
-      # UDS_ACTION=install_dro will result in any existing install of UDS being removed, and DRO being installed in it's place
-      UDS_ACTION="install_dro"
+      # UDS_ACTION=install-dro will result in any existing install of UDS being removed, and DRO being installed in it's place
+      UDS_ACTION="install-dro"
       ;;
     *)
       UDS_ACTION="install"

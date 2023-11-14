@@ -2,10 +2,6 @@
   taskRef:
     kind: Task
     name: mas-fvt-core-phase4
-  when:
-    - input: "$(params.fvt_digest_core)"
-      operator: notin
-      values: [""]
   workspaces:
     - name: configs
       workspace: shared-configs
