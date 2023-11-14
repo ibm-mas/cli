@@ -67,6 +67,7 @@ function show_current_catalog() {
   catalogDisplayName=$(oc -n openshift-marketplace get catalogsource ibm-operator-catalog -o yaml | yq -r ".spec.displayName")
   catalogImage=$(oc -n openshift-marketplace get catalogsource ibm-operator-catalog -o yaml | yq -r ".spec.image")
 
+  echo
   echo_h2 "Review Installed Catalog"
   echo "${catalogDisplayName}"
   echo -e "   ${COLOR_CYAN}${TEXT_UNDERLINE}${catalogImage}"
@@ -86,7 +87,8 @@ function show_current_catalog() {
     echo "For more information refer to: ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm-mas.github.io/cli/guides/choosing-the-right-catalog/"
     reset_colors
   else
-    echo_warning "Unable to determine identity & version of currently installed ibm-operator-catalog"
+    echo
+    echo_warning "Unable to determine identity & version of currently installed ibm-maximo-operator-catalog"
   fi
 }
 
@@ -153,33 +155,26 @@ function update_interactive() {
   echo_h2 "Select IBM Maximo Operator Catalog Version"
   choose_catalog_version
   echo
-
   validate_update
-  echo
 
-  echo_h2 "Dependencies Update"
-  echo -e "${COLOR_GREEN}IBM Common Services Operator will be updated by default as needed.${COLOR_RESET}"
+  # Auto-detect Db2
+  # ---------------------------------------------------------------------------
+  if [ -z "$MONGODB_NAMESPACE" ]; then
+    MONGODB_NAMESPACE=`oc get db2ucluster.db2u.databases.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+  fi
 
-  # Detect db2 in cluster and prompt for namespace
   oc get Operator db2u-operator.ibm-common-services > /dev/null 2>&1
   if [ "$?" == "0" ]; then
-    prompt_for_input "DB2u operator has been detected. Db2u namespace to update?" DB2_NAMESPACE "db2u"
+    prompt_for_input "Db2u Universal Operator detected. Db2u namespace to update?" DB2_NAMESPACE "db2u"
   fi
 
-  # Detect OCS/ODF Storage Cluster in cluster and set action
-  oc get StorageCluster -A > /dev/null 2>&1
-  if [ "$?" == "0" ]; then
-    echo -e "${COLOR_GREEN}OCS/ODF Storage Cluster has been detected and will be updated by default as needed.${COLOR_RESET}"
-  fi
-
-  # Detect MongoDB Community Edition in cluster and set namespace
+  # Auto-detect MongoDb
+  # ---------------------------------------------------------------------------
   if [ -z "$MONGODB_NAMESPACE" ]; then
     MONGODB_NAMESPACE=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
-    if [ "$?" == "0" ]; then
-      echo -e "${COLOR_GREEN}MongoDB Community Edition has been detected in ${MONGODB_NAMESPACE} and will be updated as needed.${COLOR_RESET}"
-    fi
   fi
 
+  # Lookup existing MongoDb instance
   MONGODB_CURRENT_VERSION=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].status.version}' 2> /dev/null`
   MONGODB_REQUIRED_VERSION="5.0.21" # required version for Nov 2023 catalog
   
@@ -190,24 +185,25 @@ function update_interactive() {
     MONGODB_V5_UPGRADE=true
   fi
 
+  MONGODB_CURRENT_VERSION=$(oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].status.version}' 2> /dev/null)
+
+
   # Detect Kafka in cluster and set namespace
+  # Auto-detect Kafka
+  # ---------------------------------------------------------------------------
   if [ -z "$KAFKA_NAMESPACE" ]; then
     KAFKA_NAMESPACE=`oc get Kafka.kafka.strimzi.io -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
-    if [ "$?" == "0" ]; then
-      echo -e "${COLOR_GREEN}Kafka has been detected in ${KAFKA_NAMESPACE} and will be updated as needed.${COLOR_RESET}"
-    fi
   fi
 
-  # Detect Kafka provider
   if [ -z "$KAFKA_PROVIDER" ] && [ -n "$KAFKA_NAMESPACE" ]; then
     KAFKA_OPERATOR=`oc get subscription -n $KAFKA_NAMESPACE -o jsonpath='{.items[0].spec.name}' 2> /dev/null`
     if [ "$?" == "0" ]; then
       if [ "$KAFKA_OPERATOR" == "amq-streams" ]; then
         KAFKA_PROVIDER="redhat"
-        echo -e "${COLOR_GREEN}Kafka has been detected with provider ${KAFKA_PROVIDER}.${COLOR_RESET}"
+        KAFKA_PROVIDER_NAME="AMQ Streams ................................"
       elif [ "$KAFKA_OPERATOR" == "strimzi-kafka-operator" ]; then
         KAFKA_PROVIDER="strimzi"
-        echo -e "${COLOR_GREEN}Kafka has been detected with provider ${KAFKA_PROVIDER}.${COLOR_RESET}"
+        KAFKA_PROVIDER_NAME="Strimzi ...................................."
       fi
     fi
   fi
@@ -232,13 +228,46 @@ function update() {
   export MONGODB_V5_UPGRADE
   export KAFKA_NAMESPACE
   export KAFKA_PROVIDER
-  echo
-  reset_colors
+
   echo_h2 "Review Settings"
 
   echo "${TEXT_DIM}"
   echo_h4 "IBM Operator Catalog" "    "
-  echo_reset_dim "Catalog Version ..................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
+  echo_reset_dim "Current Catalog Version .................... ${COLOR_MAGENTA}${catalogVersion:-unknown}${COLOR_RESET}"
+  echo_reset_dim "Updated Catalog Version .................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}${COLOR_RESET}"
+  echo "${TEXT_DIM}"
+  echo_h4 "Updates" "    "
+  echo_reset_dim "IBM Maximo Application Suite ............... ${COLOR_GREEN}Yes (all MAS instances)${COLOR_RESET}"
+  echo_reset_dim "IBM Cloud Pak Foundational Services ........ ${COLOR_GREEN}Yes (ibm-common-services)${COLOR_RESET}"
+
+  # Detect OCS/ODF Storage Cluster in cluster and set action
+  oc get StorageCluster -A > /dev/null 2>&1
+  if [ "$?" == "0" ]; then
+    echo_reset_dim "OpenShift Data Foundation  ................. ${COLOR_GREEN}Yes${COLOR_RESET}"
+  else
+    echo_reset_dim "OpenShift Data Foundation  ................. ${COLOR_RED}No${COLOR_RESET}"
+  fi
+
+  # IBM Db2
+  if [ "$DB2_NAMESPACE" != "" ]; then
+    echo_reset_dim "IBM Db2 Universal Operator ................. ${COLOR_GREEN}Yes ($DB2_NAMESPACE)${COLOR_RESET}"
+  else
+    echo_reset_dim "IBM Db2 Universal Operator ................. ${COLOR_RED}No${COLOR_RESET}"
+  fi
+
+  # IBM Db2
+  if [ "$MONGODB_NAMESPACE" != "" ]; then
+    echo_reset_dim "MongoDb Community Edition .................. ${COLOR_GREEN}Yes ($MONGODB_NAMESPACE)${COLOR_RESET}"
+  else
+    echo_reset_dim "MongoDb Community Edition .................. ${COLOR_RED}No${COLOR_RESET}"
+  fi
+
+  # Kafka (Strimzi/AMQ Streams)
+  if [ "$KAFKA_NAMESPACE" != "" ]; then
+    echo_reset_dim "Kafka ($KAFKA_PROVIDER_NAME) ${COLOR_GREEN}Yes ($KAFKA_NAMESPACE)${COLOR_RESET}"
+  else
+    echo_reset_dim "Kafka ...................................... ${COLOR_RED}No${COLOR_RESET}"
+  fi
 
   # In SLS 3.8.0 registry was changed to icr.io/cpopen, however
   # when updating from a previous version it would not automatically
