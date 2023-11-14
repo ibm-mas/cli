@@ -62,7 +62,7 @@ function pipelines_install_tasks() {
 }
 
 
-function pipeline_install_tasks_shared_namespace() {
+function pipelines_install_tasks_shared_namespace() {
   # Install the MAS Tekton definitions
   cp $CLI_DIR/templates/ibm-mas-tekton.yaml $CONFIG_DIR/ibm-mas-tekton-cluster.yaml
   sed -e "s/cli:latest/cli:$VERSION/g" $CLI_DIR/templates/deployment.yaml > $CONFIG_DIR/deployment-cluster.yaml

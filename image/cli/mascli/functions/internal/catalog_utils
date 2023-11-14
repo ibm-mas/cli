@@ -19,8 +19,6 @@ function choose_catalog_version() {
   echo "  2) October 04 2023 Update (MAS 8.11.1 & 8.10.5)"
   echo "  3) August 29 2023 Update (MAS 8.10.4 & 8.9.9)"
   reset_colors
-  echo
-  echo "Note: Due to a severe bug in the 8.11.0 version of the Core Platform we have released an important update (8.11.1) and the 4 October catalog has replaced the 26 September catalog option."
 
   echo
   prompt_for_input "Select Catalog Version" MAS_CATALOG_SELECTION "1"
