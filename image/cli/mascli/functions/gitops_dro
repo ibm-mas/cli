@@ -194,7 +194,9 @@ function gitops_dro() {
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-dro
   mkdir -p $TEMP_DIR
-
+  AVP_TYPE=aws  # Support for IBM will be added later
+  sm_login
+  
   export SECRET_NAME_DRO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro
   export DRO_API_TOKEN=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20`
 
