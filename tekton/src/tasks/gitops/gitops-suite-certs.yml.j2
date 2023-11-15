@@ -71,7 +71,7 @@ spec:
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
         mas gitops-suite-certs --mas-instance-id $MAS_INSTANCE_ID  \
-        --mas-config-dir /workspace/shared-certificates
+        --mas-config-dir /workspace/configs
 
       command:
         - /bin/sh
@@ -81,4 +81,4 @@ spec:
       image: quay.io/ibmmas/cli:7.7.0-pre.gitops
   workspaces:
     - name: configs
-    - name: shared-certificates
+    - name: certificates

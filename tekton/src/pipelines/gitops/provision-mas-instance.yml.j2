@@ -11,7 +11,7 @@ spec:
   workspaces:
     - name: configs
     - name: shared-entitlement
-    - name: shared-certificates
+    - name: certificates
     # Any pre-generated configs that will be copied into the shared-configs workspace during suite-install
     - name: shared-additional-configs
   description: Provision MAS GitOps Instance
@@ -308,7 +308,7 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
-        - name: shared-certificates
+        - name: certificates
           workspace: shared-certificates
     - name: gitops-suite
       runAfter:
