@@ -112,11 +112,11 @@ spec:
           export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
         fi
 
-        if [ -z $DRO_URL ]
+        if [ -z $DRO_URL ]; then
           export DRO_URL=$(oc get route ibm-data-reporter -n redhat-marketplace -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
         fi
 
-        if [ -z $DRO_CA_CERTIFICATE_FILE ]
+        if [ -z $DRO_CA_CERTIFICATE_FILE ]; then
           oc get secret $CLUSTER_NAME-primary-cert-bundle-secret -n openshift-ingress -ojsonpath='{.data.tls\.crt}' --context $K8S_AUTH_CONTEXT | base64 -d > /tmp/init-suite-config/dro_ca.crt
           export DRO_CA_CERTIFICATE_FILE=/tmp/init-suite-config/dro_ca.crt
         fi
