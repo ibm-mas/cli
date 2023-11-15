@@ -17,6 +17,17 @@ spec:
         - name: HELM_VALUES
           value: |
             mas_instance_id: {{ MAS_INSTANCE_ID }}
+            dro_api_token: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DRO_API_TOKEN }}>
+            dro_endpoint_url: {{ DRO_URL }}
+            dro_contact:
+              email: {{ DRO_CONTACT_EMAIL }}
+              first_name: {{ DRO_CONTACT_FIRSTNAME }}
+              last_name: {{ DRO_CONTACT_LASTNAME }}
+            dro_ca:
+              crt: |
+                {% filter indent(width=16) -%}
+                {{ DRO_CA_CERTIFICATE }}
+                {%- endfilter %}
             suite_sls_registration_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLS_REGISTRATION_KEY }}>
             suite_sls_url: "https://sls.mas-{{ MAS_INSTANCE_ID }}-sls.svc"
             suite_sls_ca:

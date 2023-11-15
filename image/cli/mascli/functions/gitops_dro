@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-function gitops_db2u_help() {
+function gitops_dro_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_db2u [options]
+  mas gitops_dro [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -19,8 +19,9 @@ Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
-IBM DB2U:
-      --db2-channel ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}        DB2 Channel, defaults to default channel in catalog
+IBM DRO:
+      --dro-namespace ${COLOR_YELLOW}DRO_NAMESPACE${TEXT_RESET}    Namepsace to install DRO subscription, defaults to redhat-marketplace
+      --dro-csv ${COLOR_YELLOW}DRO_CSV${TEXT_RESET}                DRO Starting CSV to set, defaults to default channel in catalog
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -37,10 +38,10 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_db2u_noninteractive() {
+function gitops_dro_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-db2u commit"
+  GIT_COMMIT_MSG="gitops-dro commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   while [[ $# -gt 0 ]]
@@ -70,9 +71,12 @@ function gitops_db2u_noninteractive() {
         export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
 
-      # DB2
-      --db2-channel)
-      export DB2_CHANNEL=$1 && shift
+      # DRO
+      --dro-namespace)
+      export DRO_NAMESPACE=$1 && shift
+        ;;
+      --dro-csv)
+      export DRO_CSV=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -101,48 +105,47 @@ function gitops_db2u_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_db2u_help
+        gitops_dro_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_db2u_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_dro_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_db2u_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_db2u_help "ACCOUNT_ID is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_db2u_help "CLUSTER_ID is not set"
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_dro_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_dro_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_dro_help "CLUSTER_ID is not set"
 
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_db2u_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_db2u_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_db2u_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_db2u_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_dro_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_dro_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_dro_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_dro_help "GIT_BRANCH is not set"
   fi
 
 }
 
-function gitops_db2u() {
+function gitops_dro() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_db2u_noninteractive "$@"
+    gitops_dro_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_db2u_interactive
+    gitops_dro_interactive
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
   GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
 
-  export DB2_NAMESPACE=db2u
-  export DB2_CHANNEL=${DB2_CHANNEL:-`oc get PackageManifest db2u-operator -n ibm-common-services  -o=jsonpath="{.status.defaultChannel}"`}
+  export DRO_NAMESPACE=redhat-marketplace
 
   echo
   reset_colors
@@ -183,20 +186,25 @@ function gitops_db2u() {
   reset_colors
 
   echo "${TEXT_DIM}"
-  echo_h2 "DB2u Operator" "    "
-  echo_reset_dim "DB2_NAMESPACE  .......................... ${COLOR_MAGENTA}${DB2_NAMESPACE}"
-  echo_reset_dim "DB2_CHANNEL  ............................ ${COLOR_MAGENTA}${DB2_CHANNEL}"
+  echo_h2 "DRO Operator" "    "
+  echo_reset_dim "DRO_NAMESPACE  .......................... ${COLOR_MAGENTA}${DRO_NAMESPACE}"
+  echo_reset_dim "DRO_CSV  ................................ ${COLOR_MAGENTA}${DRO_CSV}"
   reset_colors
 
   CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/tmp-db2u
+  TEMP_DIR=$CURRENT_DIR/tmp-dro
   mkdir -p $TEMP_DIR
 
+  export SECRET_NAME_DRO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro
+  export DRO_API_TOKEN=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20`
 
   # Define cluster-level secrets used
   # ---------------------------------------------------------------------------
-  # Note that this cluster-level secret is set up by gitops-cluster
-  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
+  # Note that SECRET_KEY_IBM_ENTITLEMENT cluster-level secret is set up by gitops-cluster
+  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#entitlement_key
+  export SECRET_KEY_DRO_API_TOKEN=${SECRET_NAME_DRO}#dro_api_token
+
+  sm_update_secret $SECRET_NAME_DRO "{\"dro_api_token\": \"$DRO_API_TOKEN\" }"
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
@@ -215,13 +223,13 @@ function gitops_db2u() {
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   echo
-  echo_h2 "Generating DB2U operator Applications"
-  echo "- DB2U operator"
+  echo_h2 "Generating dro operator Applications"
+  echo "- dro operator"
 
   export IBM_ENTITLEMENT_KEY=$SECRET_KEY_IBM_ENTITLEMENT
 
-  echo "Generating DB2U file ${GITOPS_APPS_DIR}/ibm-db2u.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/ibm-db2u.yaml.j2 -o ${GITOPS_APPS_DIR}/ibm-db2u.yaml
+  echo "Generating dro file ${GITOPS_APPS_DIR}/ibm-dro.yaml"
+  jinja -X .+ $CLI_DIR/templates/gitops/ibm-dro.yaml.j2 -o ${GITOPS_APPS_DIR}/ibm-dro.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -233,10 +241,10 @@ function gitops_db2u() {
 
     argocd_login
     argocd_sync ${CLUSTER_ID}-watcher
-    argocd_hard_refresh mas-db2-${CLUSTER_ID}
-    add_role_to_user ${DB2_NAMESPACE}
-    check_argo_app_synced mas-db2-${CLUSTER_ID} ${CLUSTER_ID}-watcher ${DB2_NAMESPACE}
-    check_argo_app_healthy mas-db2-${CLUSTER_ID} ${CLUSTER_ID}-watcher
+    argocd_hard_refresh mas-dro-${CLUSTER_ID}
+    add_role_to_user ${DRO_NAMESPACE}
+    check_argo_app_synced mas-dro-${CLUSTER_ID} ${CLUSTER_ID}-watcher ${DRO_NAMESPACE}
+    check_argo_app_healthy mas-dro-${CLUSTER_ID} ${CLUSTER_ID}-watcher
   fi
 
 }

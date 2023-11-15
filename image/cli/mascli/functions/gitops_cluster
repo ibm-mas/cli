@@ -263,10 +263,13 @@ function gitops_cluster() {
 
   IBM_ENTITLEMENT_WITH_ARTIFACTORY=${GITOPS_APPS_DIR}/ibm-entitlement-with-artifactory.json
   IBM_ENTITLEMENT_WITH_ARTIFACTORY=$(cat $IBM_ENTITLEMENT_WITH_ARTIFACTORY)
-  export IBM_ENTITLEMENT_B64=$(echo -n $IBM_ENTITLEMENT_WITH_ARTIFACTORY | base64  -w 0)
-  # echo -e "- IBM_ENTITLEMENT_B64=${IBM_ENTITLEMENT_B64}"
-  sm_update_secret $SECRET_NAME_IBM_ENTITLEMENT "{\"image_pull_secret_b64\": \"${IBM_ENTITLEMENT_B64}\"}"
+  export IBM_ENTITLEMENT_PULL_SECRET_B64=$(echo -n $IBM_ENTITLEMENT_WITH_ARTIFACTORY | base64 -w 0)
+  export IBM_ENTITLEMENT_B64=$(echo -n $ICR_PASSWORD | base64 -w 0)
+
+  sm_update_secret $SECRET_NAME_IBM_ENTITLEMENT "{\"image_pull_secret_b64\": \"${IBM_ENTITLEMENT_PULL_SECRET_B64}\", \"entitlement_key\": \"${IBM_ENTITLEMENT_B64}\"}"
+
   rm -rf ${GITOPS_APPS_DIR}/ibm-entitlement-with-artifactory.json
+
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   echo
