@@ -113,7 +113,7 @@ spec:
         fi
 
         if [ -z $DRO_URL ]; then
-          export DRO_URL=$(oc get route ibm-data-reporter -n redhat-marketplace -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
+          export DRO_URL=https://$(oc get route ibm-data-reporter -n redhat-marketplace -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
         fi
 
         if [ -z $DRO_CA_CERTIFICATE_FILE ]; then
