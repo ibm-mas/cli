@@ -75,6 +75,20 @@ spec:
     - name: docdb_user_action
       type: string
       default: add
+
+    - name: dro_url
+      type: string
+      default: ""
+    - name: dro_contact_email
+      type: string
+    - name: dro_contact_firstname
+      type: string
+    - name: dro_contact_lastname
+      type: string
+    - name: dro_ca_certificate_file
+      type: string
+      default: ""
+
     - name: smtp_host
       type: string
     - name: smtp_port
@@ -396,6 +410,16 @@ spec:
           value: $(params.avp_aws_secret_key)
         - name: avp_aws_access_key
           value: $(params.avp_aws_access_key)
+        - name: dro_url
+          value: $(params.dro_url)
+        - name: dro_contact_email
+          value: $(params.dro_contact_email)
+        - name: dro_contact_firstname
+          value: $(params.dro_contact_firstname)
+        - name: dro_contact_lastname
+          value: $(params.dro_contact_lastname)
+        - name: dro_ca_certificate_file
+          value: $(params.dro_ca_certificate_file)
       workspaces:
         - name: configs
           workspace: configs

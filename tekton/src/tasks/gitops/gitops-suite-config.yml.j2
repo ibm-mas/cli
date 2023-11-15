@@ -32,6 +32,18 @@ spec:
       type: string
     - name: avp_aws_access_key
       type: string
+    - name: dro_url
+      type: string
+      default: ""
+    - name: dro_contact_email
+      type: string
+    - name: dro_contact_firstname
+      type: string
+    - name: dro_contact_lastname
+      type: string
+    - name: dro_ca_certificate_file
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite-config
     env:
@@ -61,12 +73,22 @@ spec:
         value: $(params.avp_aws_secret_key)
       - name: SM_AWS_ACCESS_KEY_ID
         value: $(params.avp_aws_access_key)
+      - name: DRO_URL
+        value: $(params.dro_url)
+      - name: DRO_CONTACT_EMAIL
+        value: $(params.dro_contact_email)
+      - name: DRO_CONTACT_FIRSTNAME
+        value: $(params.dro_contact_firstname)
+      - name: DRO_CONTACT_LASTNAME
+        value: $(params.dro_contact_lastname)
+      - name: DRO_CA_CERTIFICATE_FILE
+        value: $(params.dro_ca_certificate_file)
   steps:
     - args:
       - |-
         mkdir -p /tmp/init-suite-config
 
-        git config --global user.name "yourUsername"
+        git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
@@ -88,6 +110,15 @@ spec:
           export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
           export ARGOCD_USERNAME=admin
           export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
+        fi
+
+        if [ -z $DRO_URL ]
+          export DRO_URL=$(oc get route ibm-data-reporter -n redhat-marketplace -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
+        fi
+
+        if [ -z $DRO_CA_CERTIFICATE_FILE ]
+          oc get secret $CLUSTER_NAME-primary-cert-bundle-secret -n openshift-ingress -ojsonpath='{.data.tls\.crt}' --context $K8S_AUTH_CONTEXT | base64 -d > /tmp/init-suite-config/dro_ca.crt
+          export DRO_CA_CERTIFICATE_FILE=/tmp/init-suite-config/dro_ca.crt
         fi
 
         mas gitops-suite-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
