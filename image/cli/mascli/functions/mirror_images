@@ -381,11 +381,11 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm_default_yes "IBM Truststore Manager" MIRROR_TRUSTSTOREMGR
     if prompt_for_confirm_default_yes "MongoDb Community Edition"; then
       echo
-      echo "Available MongoDb versions:"
-      echo "  1. Default version set by catalog source (recommended)"
+      echo "Available MongoDb versions for mirroring:"
+      echo "  1. Default MongoDb version set by catalog source (recommended)"
       echo "  2. MongoDb version 4"
       echo "  3. MongoDb version 5"
-      echo "  4. MongoDb version 6"
+      echo "  4. Mirror all supported MongoDb images"
       reset_colors
       echo
       prompt_for_input "Select the MongoDb Community Edition version" MONGOCE_SELECTION "1"
@@ -402,7 +402,9 @@ function mirror_to_registry_interactive() {
           MIRROR_MONGOCE_V5=true
           ;;
         4)
-          MIRROR_MONGOCE_V6=true
+          MIRROR_MONGOCE=true
+          MIRROR_MONGOCE_V4=true
+          MIRROR_MONGOCE_V5=true
           ;;
 
         # Invalid Selection
