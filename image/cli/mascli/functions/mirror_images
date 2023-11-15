@@ -411,6 +411,7 @@ function mirror_to_registry_interactive() {
           exit 1
           ;;
       esac
+    fi
 
     prompt_for_confirm_default_yes "IBM Db2" MIRROR_DB2U
     prompt_for_confirm_default_yes "IBM AppConnect" MIRROR_APPCONNECT
