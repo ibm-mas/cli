@@ -11,6 +11,7 @@ spec:
   workspaces:
     - name: configs
     - name: shared-entitlement
+    - name: shared-certificates
     # Any pre-generated configs that will be copied into the shared-configs workspace during suite-install
     - name: shared-additional-configs
   description: Provision MAS GitOps Instance
@@ -135,7 +136,9 @@ spec:
       type: string
     - name: icr_cp_open
       type: string
-
+    - name: kafkacfg_file_name
+      type: string
+      default: ""
     - name: dns_provider
       type: string
       default: cis
@@ -319,6 +322,8 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+        - name: certificates
+          workspace: shared-certificates
     - name: gitops-suite
       runAfter:
         - gitops-license
@@ -617,6 +622,8 @@ spec:
           value: $(params.avp_aws_access_key)
         - name: vpc_ipv4_cidr
           value: $(params.vpc_ipv4_cidr)
+        - name: kafkacfg_file_name
+          value: $(params.kafkacfg_file_name)
       workspaces:
         - name: configs
           workspace: configs

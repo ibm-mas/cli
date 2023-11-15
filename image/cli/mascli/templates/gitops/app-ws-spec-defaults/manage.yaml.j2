@@ -1,43 +1,41 @@
 mas_appws_spec:
-  bindings:
-    jdbc: system
-  components:
-    base:
-      version: latest
+  bindings: {{ MAS_APPWS_BINDINGS_JDBC | default( {'jdbc': 'workspace-application'}, true) }}
+  components: {{ MAS_APPWS_COMPONENTS | default({'base':{'version':'latest'}}, true) }}
+
+{%- if MAS_APPWS_SETTINGS is defined and MAS_APPWS_SETTINGS != "" %}
+  settings: {{ MAS_APPWS_SETTINGS }}
+{%- else %}
   settings:
     deployment:
+      {%- if MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG == "true" or MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE in ["jms" , "snojms"] %}
       persistentVolumes:
+        {%- if MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG == "true" %}
         - accessModes:
-            - ReadWriteMany
-          mountPath: /DOCLINKS
-          pvcName: manage-doclinks
-          size: 20Gi
-          storageClassName: {{ DEFAULT_FILE_STORAGE_CLASS }}
+            - "{{ MAS_APP_SETTINGS_DOCLINKS_PVC_ACCESSMODE | default( 'ReadWriteMany' , true) }}"
+          mountPath: "{{ MAS_APP_SETTINGS_DOCLINKS_MOUNT_PATH | default( '/DOCLINKS' , true) }}"
+          pvcName: "{{ MAS_APP_SETTINGS_DOCLINKS_PVC_NAME | default( 'manage-doclinks' , true) }}"
+          size: "{{ MAS_APP_SETTINGS_DOCLINKS_PVC_SIZE | default('20Gi', true) }}"
+          storageClassName: "{{ DEFAULT_FILE_STORAGE_CLASS }}"
         - accessModes:
-            - ReadWriteMany
-          mountPath: /bim
-          pvcName: manage-bim
-          size: 20Gi
-          storageClassName: {{ DEFAULT_FILE_STORAGE_CLASS }}
+            - "{{ MAS_APP_SETTINGS_BIM_PVC_ACCESSMODE | default( 'ReadWriteMany' , true) }}"
+          mountPath: "{{ MAS_APP_SETTINGS_BIM_MOUNT_PATH | default('/bim', true) }}"
+          pvcName: "{{ MAS_APP_SETTINGS_BIM_PVC_NAME | default('manage-bim', true) }}"
+          size: "{{ MAS_APP_SETTINGS_BIM_PVC_SIZE | default('20Gi', true) }}"
+          storageClassName: "{{ DEFAULT_FILE_STORAGE_CLASS }}"
+        {%- endif %}
+        {%- if MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE in ["jms" , "snojms"] %}
         - accessModes:
-            - ReadWriteMany
-          mountPath: /jms
-          pvcName: manage-jms
-          size: 20Gi
-          storageClassName: {{ DEFAULT_FILE_STORAGE_CLASS }}
-        - accessModes:
-            - ReadWriteMany
-          mountPath: /imagestitching
-          pvcName: manage-imagestitching
-          size: 20Gi
-          storageClassName: {{ DEFAULT_FILE_STORAGE_CLASS }}
-        - accessModes:
-            - ReadWriteMany
-          mountPath: /mm
-          pvcName: manage-mm
-          size: 20Gi
-          storageClassName: {{ DEFAULT_FILE_STORAGE_CLASS }}
-{%- if MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE == "small" %}
+            - "{{ MAS_APP_SETTINGS_JMS_QUEUE_PVC_ACCESSMODE | default( 'ReadWriteMany' , true) }}"
+          mountPath: "{{ MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH | default( '/jms' , true) }}"
+          pvcName: "{{ MAS_APP_SETTINGS_JMS_QUEUE_PVC_NAME | default( 'manage-jms' , true) }}"
+          size: "{{ MAS_APP_SETTINGS_JMS_QUEUE_PVC_SIZE | default('20Gi', true) }}"
+          storageClassName: "{{ DEFAULT_FILE_STORAGE_CLASS }}"
+        {%- endif %}
+      {%- else %}
+      persistentVolumes: []
+      {%- endif %}
+
+      {%- if MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE == "small" %}
       serverBundles:
         - bundleType: ui
           isDefault: true
@@ -67,7 +65,7 @@ mas_appws_spec:
           name: cron
           replica: 1
           routeSubDomain: cron
-{%- elif MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE == "jms" %}
+      {%- elif MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE == "jms" %}
       serverBundles:
         - additionalServerConfig:
             secretName: "{{ MAS_WORKSPACE_ID }}-{{ MAS_APP_ID }}-d--sb0--asc--sn"
@@ -114,7 +112,7 @@ mas_appws_spec:
           name: jms
           replica: 1
           routeSubDomain: jms
-{%- elif MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE == "snojms" %}
+      {%- elif MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE == "snojms" %}
       serverBundles:
         - additionalServerConfig:
             secretName: "{{ MAS_WORKSPACE_ID }}-{{ MAS_APP_ID }}-d--sb0--asc--sn"
@@ -134,7 +132,7 @@ mas_appws_spec:
           name: jms
           replica: 1
           routeSubDomain: jms
-{%- else %}
+      {%- else %}
       serverBundles:
         - bundleType: all
           isDefault: true
@@ -143,24 +141,30 @@ mas_appws_spec:
           name: all
           replica: 1
           routeSubDomain: all
-{%- endif %}
+      {%- endif %}
+
     languages:
-      baseLang: EN
+      baseLang: {{ MAS_APP_SETTINGS_BASE_LANGUAGE }}
+      {%- if MAS_APP_SETTINGS_SECONDARY_LANGUAGES is defined and MAS_APP_SETTINGS_SECONDARY_LANGUAGES != "" %}
+      secondaryLangs: {{ MAS_APP_SETTINGS_SECONDARY_LANGUAGES.split(',') }}
+      {%- else %}
       secondaryLangs: []
+      {%- endif %}
     aio:
-      install: true
+      install: {{ MAS_APP_SETTINGS_AIO_FLAG | default( 'true' , true) }}
     db:
-      dbSchema: maximo
+      dbSchema: {{ MAS_APP_SETTINGS_DB2_SCHEMA | default( 'maximo' , true) }}
       maxinst:
-        demodata: true
+        demodata: {{ MAS_APP_SETTINGS_DEMODATA | default( 'true' , true) }}
         db2Vargraphic: true
-        tableSpace: MAXDATA
-        indexSpace: MAXINDEX
+        tableSpace: {{ MAS_APP_SETTINGS_TABLESPACE | default( 'MAXDATA' , true) }}
+        indexSpace: {{ MAS_APP_SETTINGS_INDEXSPACE | default( 'MAXINDEX' , true) }}
         bypassUpgradeVersionCheck: false
-{%- if MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL == "" %}
-    customizationList:  []
-{%- else %}
+    {%- if MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL is defined and MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL != ""  %}
     customizationList:
-      - customizationArchiveName: "{{ MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME }}"
-        customizationArchiveUrl: "{{ MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL }}"
+      - customizationArchiveName: {{ MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME | default('manage-custom-archive', true) }}
+        customizationArchiveUrl: {{ MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL }}
+    {%- else %}
+    customizationList:  []
+    {%- endif %}
 {%- endif %}
