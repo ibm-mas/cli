@@ -379,7 +379,39 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm_default_yes "IBM Data Reporter Operator" MIRROR_DRO
     prompt_for_confirm_default_yes "IBM Suite License Service" MIRROR_SLS
     prompt_for_confirm_default_yes "IBM Truststore Manager" MIRROR_TRUSTSTOREMGR
-    prompt_for_confirm_default_yes "MongoDb Community Edition" MIRROR_MONGOCE
+    if prompt_for_confirm_default_yes "MongoDb Community Edition"; then
+      echo
+      echo "Available MongoDb versions:"
+      echo "  1. Default version set by catalog source (recommended)"
+      echo "  2. MongoDb version 4"
+      echo "  3. MongoDb version 5"
+      echo "  4. MongoDb version 6"
+      reset_colors
+      echo
+      prompt_for_input "Select the MongoDb Community Edition version" MONGOCE_SELECTION "1"
+      echo
+
+      case $MONGOCE_SELECTION in
+        1)
+          MIRROR_MONGOCE=true
+          ;;
+        2)
+          MIRROR_MONGOCE_V4=true
+          ;;
+        3)
+          MIRROR_MONGOCE_V5=true
+          ;;
+        4)
+          MIRROR_MONGOCE_V6=true
+          ;;
+
+        # Invalid Selection
+        *)
+          echo_warning "Invalid selection"
+          exit 1
+          ;;
+      esac
+
     prompt_for_confirm_default_yes "IBM Db2" MIRROR_DB2U
     prompt_for_confirm_default_yes "IBM AppConnect" MIRROR_APPCONNECT
 
