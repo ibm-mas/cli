@@ -79,6 +79,7 @@ spec:
 
         mkdir -p /tmp/init-dro
         mas gitops-dro -a $ACCOUNT -c $CLUSTER_NAME \
+        --secrets-path $SECRET_PATH \
         --dir /tmp/init-dro \
         --github-push \
         --github-host $GITHUB_HOST \
