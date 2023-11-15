@@ -601,7 +601,6 @@ function mirror_to_registry() {
   show_mirror_status "MongoDb Community Edition ..........." $MIRROR_MONGOCE
   show_mirror_status "+ Version 4 ........................." $MIRROR_MONGOCE_V4
   show_mirror_status "+ Version 5 ........................." $MIRROR_MONGOCE_V5
-  show_mirror_status "+ Version 6 ........................." $MIRROR_MONGOCE_V6
   show_mirror_status "IBM Db2 ............................." $MIRROR_DB2U
   show_mirror_status "IBM AppConnect ......................" $MIRROR_APPCONNECT
 
