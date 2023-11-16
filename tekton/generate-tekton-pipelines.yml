@@ -33,11 +33,13 @@
         - fvt-assist
         - fvt-core
         - fvt-deprovision-after
+        - fvt-iot
         - fvt-manage
         - fvt-manage-mobile
         - fvt-manage-is
         - fvt-manage-regr
         - fvt-monitor
+        - fvt-optimizer
         - fvt-sls
         - fvt-uninstall-after
         - update

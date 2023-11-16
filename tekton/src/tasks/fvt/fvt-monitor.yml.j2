@@ -48,7 +48,8 @@ spec:
       default: "false"
 
   steps:
-    - image: '$(params.fvt_image_registry)/ai-solutions/common-test-framework@$(params.fvt_image_digest)'
+    - name: fvt-monitor
+      image: '$(params.fvt_image_registry)/ai-solutions/common-test-framework@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
       onError: continue # Ensure bad FVTs don't break the pipeline
@@ -91,7 +92,6 @@ spec:
       volumeMounts:
         - mountPath: /dev/shm
           name: dshm
-          name: 'fvt-run-$(params.fvt_image_name)'
       securityContext:
         privileged: true
         runAsUser: 0
