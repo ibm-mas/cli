@@ -79,6 +79,8 @@
         - launchfvt-manage
         - launchfvt-monitor
         - launchfvt-optimizer
+        - launchfvt-predict
+        - launchfvt-visualinspection
 
     # 4. Generate Tasks (IVT)
     # -------------------------------------------------------------------------

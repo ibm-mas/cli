@@ -453,12 +453,7 @@ spec:
         - app-cfg-manage
 
 
-    # 17. Application FVT - Health
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/health.yml.j2') | indent(4) }}
-
-
-    # 18. Application FVT - Monitor
+    # 17. Application FVT - Monitor
     # -------------------------------------------------------------------------
     - name: launchfvt-monitor
       params:
@@ -477,7 +472,7 @@ spec:
         - app-cfg-monitor
 
 
-    # 19. Application FVT - Predict
+    # 18. Application FVT - Predict
     # -------------------------------------------------------------------------
     - name: launchfvt-predict
       params:
@@ -496,7 +491,7 @@ spec:
         - app-cfg-predict
 
 
-    # 20. Application FVT - Visual Inspection
+    # 19. Application FVT - Visual Inspection
     # -------------------------------------------------------------------------
     - name: launchfvt-visualinspection
       params:
@@ -515,7 +510,7 @@ spec:
         - app-cfg-visualinspection
 
 
-    # 21. Application FVT - Optimizer
+    # 20. Application FVT - Optimizer
     # -------------------------------------------------------------------------
     - name: launchfvt-optimizer
       params:
@@ -534,7 +529,7 @@ spec:
         - app-cfg-optimizer
 
 
-    # 22. SLS FVT
+    # 21. SLS FVT
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-sls/sls.yml.j2') | indent(4) }}
       runAfter:

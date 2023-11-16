@@ -48,6 +48,7 @@
         - upgrade
         - rollback
         - uninstall
+        - fvt-launcher
 
     # 2. Generate Pipelines
     # -------------------------------------------------------------------------

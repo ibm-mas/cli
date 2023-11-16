@@ -64,51 +64,58 @@ spec:
               key: FVT_ARTIFACTORY_TOKEN
               optional: false
 
-        # Lookups from mas-fvt-assist
+        # Lookups from mas-fvt-optimizer
         # -----------------------------------------------------------------------
         # Framework Information
-        - name: MAS_APP_CHANNEL_ASSIST
+        - name: MAS_APP_CHANNEL_OPTIMIZER
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-assist
-              key: MAS_APP_CHANNEL_ASSIST
+              name: mas-fvt-optimizer
+              key: MAS_APP_CHANNEL_OPTIMIZER
+              optional: false
+        - name: MAS_APP_CHANNEL_MANAGE
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-optimizer
+              key: MAS_APP_CHANNEL_MANAGE
               optional: false
         - name: MAS_WORKSPACE_ID
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-assist
+              name: mas-fvt-optimizer
               key: MAS_WORKSPACE_ID
               optional: false
         # Digests
-        - name: FVT_DIGEST_ASSIST_CUCUMBER
+        - name: FVT_DIGEST_CTF
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-assist
-              key: FVT_DIGEST_ASSIST_CUCUMBER
+              name: mas-fvt-optimizer
+              key: FVT_DIGEST_CTF
               optional: false
-        - name: FVT_DIGEST_ASSIST_PREPAREDATA
+        - name: FVT_DIGEST_OPTIMIZER
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-assist
-              key: FVT_DIGEST_ASSIST_PREPAREDATA
-              optional: false
-        - name: FVT_DIGEST_ASSIST_PYTHON
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-assist
-              key: FVT_DIGEST_ASSIST_PYTHON
-              optional: false
-        - name: FVT_DIGEST_ASSIST_TESTNG
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-assist
-              key: FVT_DIGEST_ASSIST_TESTNG
+              name: mas-fvt-optimizer
+              key: FVT_DIGEST_OPTIMIZER
               optional: false
         - name: IVT_DIGEST_CORE
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-assist
+              name: mas-fvt-optimizer
               key: IVT_DIGEST_CORE
+              optional: false
+
+        - name: DEVOPS_COS_CRN
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-optimizer
+              key: DEVOPS_COS_CRN
+              optional: false
+        - name: DEVOPS_IBMCLOUD_APIKEY
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-optimizer
+              key: DEVOPS_IBMCLOUD_APIKEY
               optional: false
 
     - name: wait-for-pipelinerun

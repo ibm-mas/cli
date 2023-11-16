@@ -64,14 +64,14 @@ spec:
               key: FVT_ARTIFACTORY_TOKEN
               optional: false
 
-        # Lookups from mas-fvt-assist
+        # Lookups from mas-fvt-iot
         # -----------------------------------------------------------------------
         # Framework Information
-        - name: MAS_APP_CHANNEL_ASSIST
+        - name: MAS_APP_CHANNEL_IOT
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-assist
-              key: MAS_APP_CHANNEL_ASSIST
+              name: mas-fvt-iot
+              key: MAS_APP_CHANNEL_IOT
               optional: false
         - name: MAS_WORKSPACE_ID
           valueFrom:
@@ -80,29 +80,11 @@ spec:
               key: MAS_WORKSPACE_ID
               optional: false
         # Digests
-        - name: FVT_DIGEST_ASSIST_CUCUMBER
+        - name: FVT_DIGEST_IOT
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-assist
-              key: FVT_DIGEST_ASSIST_CUCUMBER
-              optional: false
-        - name: FVT_DIGEST_ASSIST_PREPAREDATA
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-assist
-              key: FVT_DIGEST_ASSIST_PREPAREDATA
-              optional: false
-        - name: FVT_DIGEST_ASSIST_PYTHON
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-assist
-              key: FVT_DIGEST_ASSIST_PYTHON
-              optional: false
-        - name: FVT_DIGEST_ASSIST_TESTNG
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-assist
-              key: FVT_DIGEST_ASSIST_TESTNG
+              name: mas-fvt-iot
+              key: FVT_DIGEST_IOT
               optional: false
         - name: IVT_DIGEST_CORE
           valueFrom:
