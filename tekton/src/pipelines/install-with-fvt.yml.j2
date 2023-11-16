@@ -449,7 +449,21 @@ spec:
 
     # 21. Application FVT - Monitor
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/monitor.yml.j2') | indent(4) }}
+    - name: launchfvt-monitor
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-monitor"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-monitor
+      when:
+        - input: $(params.launchfvt_monitor)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-cfg-monitor
 
 
     # 22. Application FVT - Predict

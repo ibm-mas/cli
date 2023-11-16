@@ -61,6 +61,7 @@
         - fvt-manage-directprint
         - fvt-manage-last-phase
         - fvt-manage-pytest
+        - fvt-monitor
         - fvt-sls
         - fvt-run-suite
         - fvt-wait-for-install
@@ -74,6 +75,7 @@
         - launchfvt-assist
         - launchfvt-core
         - launchfvt-manage
+        - launchfvt-monitor
 
     # 4. Generate Tasks (IVT)
     # -------------------------------------------------------------------------

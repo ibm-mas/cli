@@ -37,6 +37,7 @@
         - fvt-manage-mobile
         - fvt-manage-is
         - fvt-manage-regr
+        - fvt-monitor
         - fvt-sls
         - fvt-uninstall-after
         - update
