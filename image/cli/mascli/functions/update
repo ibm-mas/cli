@@ -73,6 +73,8 @@ function show_current_catalog() {
   reset_colors
 
   if [[ "$catalogDisplayName" =~ .+(v8-[0-9]+-amd64) ]]; then
+    # catalogId = v8-yymmdd-amd64
+    # catalogVersion = yymmdd
     catalogId=$(sed -E "s/.+\\((v8-[0-9]+-amd64)\\)/\1/" <<< $catalogDisplayName)
     catalogVersion=$(sed -E "s/.+\\(v8-([0-9]+)-amd64\\)/\1/" <<< $catalogDisplayName)
     catalogIsDynamic=false
@@ -213,7 +215,7 @@ function update() {
 
   echo "${TEXT_DIM}"
   echo_h4 "IBM Operator Catalog" "    "
-  echo_reset_dim "Current Catalog Version .................... ${COLOR_MAGENTA}${catalogVersion:-unknown}${COLOR_RESET}"
+  echo_reset_dim "Current Catalog Version .................... ${COLOR_MAGENTA}${catalogId:-unknown}${COLOR_RESET}"
   echo_reset_dim "Updated Catalog Version .................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}${COLOR_RESET}"
   echo "${TEXT_DIM}"
   echo_h4 "Updates" "    "
