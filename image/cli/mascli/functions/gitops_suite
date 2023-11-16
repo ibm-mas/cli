@@ -27,12 +27,12 @@ IBM Suite License Service:
       --sls-channel ${COLOR_YELLOW}SLS_CHANNEL${TEXT_RESET}  IBM Suite License Service Subscription Channel
 
 IBM Maximo Application Suite:
-      --mas-annotations ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}    MAS Annotations definition in dict format
-      --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}            MAS Core Platform Subscription Channel
-      --mas-domain ${COLOR_YELLOW}MAS_DOMAIN${TEXT_RESET}              MAS Domain
-      --mas-image-tags ${COLOR_YELLOW}MAS_IMAGE_TAGS${TEXT_RESET}      MAS Image tags definition in dict format
-      --mas-labels ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}         MAS Labels definition in dict format
-
+      --mas-annotations ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}                   MAS Annotations definition in dict format
+      --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                           MAS Core Platform Subscription Channel
+      --mas-domain ${COLOR_YELLOW}MAS_DOMAIN${TEXT_RESET}                             MAS Domain
+      --mas-image-tags ${COLOR_YELLOW}MAS_IMAGE_TAGS${TEXT_RESET}                     MAS Image tags definition in dict format
+      --mas-labels ${COLOR_YELLOW}MAS_LABELS${TEXT_RESET}                             MAS Labels definition in dict format
+      --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}         MAS Manual Cert Management
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
   -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
@@ -109,6 +109,9 @@ function gitops_suite_noninteractive() {
         ;;
       --mas-labels)
         export MAS_LABELS=$1 && shift
+        ;;
+      --mas-manual-cert-mgmt)
+        export MAS_MANUAL_CERT_MGMT=$1 && shift
         ;;
       # Automatic GitHub Push
       -P|--github-push)
@@ -229,6 +232,7 @@ function gitops_suite() {
   echo_reset_dim "Image Tags ............................ ${COLOR_MAGENTA}${MAS_IMAGE_TAGS}"
   echo_reset_dim "Annotations ........................... ${COLOR_MAGENTA}${MAS_ANNOTATIONS}"
   echo_reset_dim "Labels ................................ ${COLOR_MAGENTA}${MAS_LABELS}"
+  echo_reset_dim "MAS Manual Cert Mgt ................... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
   reset_colors
 
 
