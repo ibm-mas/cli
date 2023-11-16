@@ -5,7 +5,7 @@
     # Image Pull Policy
     image_pull_policy: "{{ lookup('env', 'IMAGE_PULL_POLICY') }}"
     # MAS Details
-    mas_app_channel: "{{ lookup('env', 'MAS_APP_CHANNEL') }}"
+    mas_app_channel_manage: "{{ lookup('env', 'MAS_APP_CHANNEL_MANAGE') }}"
     mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
     mas_workspace_id: "{{ lookup('env', 'MAS_WORKSPACE_ID') }}"
     # FVT Configuration
@@ -15,6 +15,8 @@
     fvt_digest_manage: "{{ lookup('env', 'FVT_DIGEST_MANAGE') }}"
     fvt_digest_manage_pytest: "{{ lookup('env', 'FVT_DIGEST_MANAGE_PYTEST') }}"
     ivt_digest_core: "{{ lookup('env', 'IVT_DIGEST_CORE') }}"
+    # Tests
+    fvt_manage_automation_version: "{{ lookup('env', 'FVT_MANAGE_AUTOMATION_VERSION') }}"
     # Pipeline Run Info
     pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-manage', True) }}"
     pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
@@ -25,7 +27,7 @@
           - "pipelinerun_name ................ {{ pipelinerun_name }}"
           - "pipelinerun_namespace ........... {{ pipelinerun_namespace }}"
           - ""
-          - "mas_app_channel ................. {{ mas_app_channel }}"
+          - "mas_app_channel_manage .......... {{ mas_app_channel_manage }}"
           - "mas_instance_id ................. {{ mas_instance_id }}"
           - "mas_workspace_id ................ {{ mas_workspace_id }}"
           - ""
@@ -35,6 +37,8 @@
           - "fvt_digest_manage ............... {{ fvt_digest_manage }}"
           - "fvt_digest_manage_pytest ........ {{ fvt_digest_manage_pytest }}"
           - "ivt_digest_core ................. {{ ivt_digest_core }}"
+          - ""
+          - "fvt_manage_automation_version ... {{ fvt_manage_automation_version }}"
 
     - name: "Start fvt-manage pipeline"
       kubernetes.core.k8s:
