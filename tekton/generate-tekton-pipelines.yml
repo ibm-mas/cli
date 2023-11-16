@@ -40,8 +40,10 @@
         - fvt-manage-regr
         - fvt-monitor
         - fvt-optimizer
+        - fvt-predict
         - fvt-sls
         - fvt-uninstall-after
+        - fvt-visualinspection
         - update
         - upgrade
         - rollback

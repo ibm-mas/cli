@@ -396,12 +396,7 @@ spec:
         - suite-verify
 
 
-    # 14. MAS Core IVT
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/ivt-core/all-apps.yml.j2') | indent(4) }}
-
-
-    # 15. Application FVT - Assist
+    # 14. Application FVT - Assist
     # -------------------------------------------------------------------------
     - name: launchfvt-assist
       params:
@@ -420,7 +415,7 @@ spec:
         - app-cfg-assist
 
 
-    # 16. Application FVT - IoT
+    # 15. Application FVT - IoT
     # -------------------------------------------------------------------------
     - name: launchfvt-iot
       params:
@@ -439,7 +434,7 @@ spec:
         - app-cfg-iot
 
 
-    # 17. Application FVT - Manage
+    # 16. Application FVT - Manage
     # -------------------------------------------------------------------------
     - name: launchfvt-manage
       params:
@@ -458,12 +453,12 @@ spec:
         - app-cfg-manage
 
 
-    # 18. Application FVT - Health
+    # 17. Application FVT - Health
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-apps/health.yml.j2') | indent(4) }}
 
 
-    # 19. Application FVT - Monitor
+    # 18. Application FVT - Monitor
     # -------------------------------------------------------------------------
     - name: launchfvt-monitor
       params:
@@ -482,17 +477,45 @@ spec:
         - app-cfg-monitor
 
 
-    # 20. Application FVT - Predict
+    # 19. Application FVT - Predict
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/predict.yml.j2') | indent(4) }}
+    - name: launchfvt-predict
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-predict"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-predict
+      when:
+        - input: $(params.launchfvt_predict)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-cfg-predict
 
 
-    # 21. Application FVT - Visual Inspection
+    # 20. Application FVT - Visual Inspection
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/visualinspection.yml.j2') | indent(4) }}
+    - name: launchfvt-visualinspection
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-visualinspection"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-visualinspection
+      when:
+        - input: $(params.launchfvt_visualinspection)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-cfg-visualinspection
 
 
-    # 22. Application FVT - Optimizer
+    # 21. Application FVT - Optimizer
     # -------------------------------------------------------------------------
     - name: launchfvt-optimizer
       params:
@@ -511,12 +534,7 @@ spec:
         - app-cfg-optimizer
 
 
-    # 23. Applications IVT
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/ivt.yml.j2') | indent(4) }}
-
-
-    # 24. SLS FVT
+    # 22. SLS FVT
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-sls/sls.yml.j2') | indent(4) }}
       runAfter:
