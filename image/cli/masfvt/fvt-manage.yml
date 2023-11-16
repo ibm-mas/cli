@@ -36,7 +36,7 @@
           - "fvt_digest_manage_pytest ........ {{ fvt_digest_manage_pytest }}"
           - "ivt_digest_core ................. {{ ivt_digest_core }}"
 
-    - name: "Start fvt-assist pipeline"
+    - name: "Start fvt-manage pipeline"
       kubernetes.core.k8s:
         apply: true
         template: templates/mas-fvt-manage.yml.j2
