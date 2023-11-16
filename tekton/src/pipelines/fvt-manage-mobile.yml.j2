@@ -61,6 +61,9 @@ spec:
       default: ""
 
     # TODO: Consolidate these FVT images already!!
+    - name: fvt_digest_manage
+      type: string
+      default: ""
     - name: fvt_digest_manage_civil_defects_testng
       type: string
       default: ""
@@ -92,11 +95,10 @@ spec:
       type: string
       default: ""
 
-    - name: ivt_digest_core
-      type: string
-      default: ""
-
   tasks:
+    # 2. Manage FVT - Manage Mobile
+    # -------------------------------------------------------------------------
+    
     {{ lookup('template', 'taskdefs/fvt-mobile/phase1-setup.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-mobile/phase2-android.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-mobile/phase3-ios.yml.j2') | indent(4) }}

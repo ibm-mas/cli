@@ -74,6 +74,7 @@
         - launchfvt-assist
         - launchfvt-core
         - launchfvt-manage
+        - launchfvt-mobile
 
     # 4. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
