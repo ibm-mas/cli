@@ -1,0 +1,70 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a value from Turbo and Performance Benchmark to reduct the foot print.
+podTemplates:
+  - containers:
+    - name: vision-video-microservice
+      resources:
+        limits:
+          cpu: "5"
+          memory: 10Gi
+        requests:
+          cpu: 100m
+          memory: 2Gi
+    name: video-microservice
+  - containers:
+    - name: vision-dataset-feature
+      resources:
+        limits:
+          cpu: "2"
+          memory: 10Gi
+        requests:
+          cpu: 100m
+          memory: 1Gi
+    name: dataset-feature
+    replicas: 1
+  - containers:
+    - name: vision-service
+      resources:
+        limits:
+          cpu: "5"
+          memory: 10Gi
+        requests:
+          cpu: 200m
+          memory: 2Gi
+    name: service
+    replicas: 1
+  - containers:
+    - name: vision-ui
+      resources:
+        limits:
+          cpu: "1"
+          memory: 1024Mi
+        requests:
+          cpu: 200m
+          memory: 256Mi
+    name: ui
+    replicas: 1
+  - containers:
+    - name: vision-model-conversion
+      resources:
+        limits:
+          cpu: "2"
+          memory: 6Gi
+        requests:
+          cpu: 200m
+          memory: 4Gi
+    name: model-conversion
+    replicas: 1
+  - containers:
+    - name: vision-edgeman
+      resources:
+        limits:
+          cpu: "1"
+          memory: 1Gi
+        requests:
+          cpu: 200m
+          memory: 256Mi
+    name: edgeman
+    replicas: 1

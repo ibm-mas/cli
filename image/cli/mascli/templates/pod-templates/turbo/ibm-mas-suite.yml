@@ -1,0 +1,15 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a value from Turbo and Performance Benchmark to reduct the foot print.
+podTemplates:
+  - name: entitymgr-suite
+    containers:
+      - name: manager
+        resources:
+          requests:
+            cpu: 1.5
+            memory: 512Mi
+          limits:
+            cpu: 0.2
+            memory: 64Mi

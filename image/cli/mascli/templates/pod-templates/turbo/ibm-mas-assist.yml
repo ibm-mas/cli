@@ -1,0 +1,38 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a value from Turbo and Performance Benchmark to reduct the foot print.
+podTemplates:
+  - containers:
+    - name: ema-crawler
+      resources:
+        limits:
+          cpu: 0.9
+          memory: 512Mi
+        requests:
+          cpu: 0.01
+          memory: 196Mi
+    name: crawler
+    replicas: 1
+  - containers:
+    - name: ema-api
+      resources:
+        limits:
+          cpu: 1000m
+          memory: 2Gi
+        requests:
+          cpu: 200m
+          memory: 576Mi
+    name: api
+    replicas: 1
+  - containers:
+    - name: ema-diagnosis-engine-bn
+      resources:
+        limits:
+          cpu: 3
+          memory: 3Gi
+        requests:
+          cpu: 200m
+          memory: 160Mi
+    name: diagnosisengine
+    replicas: 1

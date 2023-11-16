@@ -1,0 +1,12 @@
+resources:
+  Manage Admin:
+    Limits:
+      Cpu:     2
+      Memory:  2Gi
+    Requests:
+      Cpu:     0.2
+      Memory:  500Mi
+  Server Bundles:
+    Requests:
+      Cpu:     0.25
+      Memory:  1Gi

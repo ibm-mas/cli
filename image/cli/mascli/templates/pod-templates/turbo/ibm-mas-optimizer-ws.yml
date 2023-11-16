@@ -1,0 +1,14 @@
+executionService:
+  logLevel: info
+  memoryMax: 16
+  maxWorkerMemory: 8
+  queueWorkers: 3
+  cpuMinUnits: Millicores
+  cpuMin: 100
+  memoryMaxUnits: Gi
+  maxWorkerMemoryUnits: Gb
+  memoryMin: 4
+  cpuMaxUnits: Cores
+  replicas: 3
+  cpuMax: 4
+  memoryMinUnits: Gi
