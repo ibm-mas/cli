@@ -166,6 +166,7 @@ function update_interactive() {
   oc get Operator db2u-operator.ibm-common-services > /dev/null 2>&1
   if [ "$?" == "0" ]; then
     prompt_for_input "Db2u Universal Operator detected. Db2u namespace to update?" DB2_NAMESPACE "db2u"
+    echo
   fi
 
   # Auto-detect MongoDb
@@ -183,6 +184,7 @@ function update_interactive() {
     echo -e "${COLOR_YELLOW}MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and will be upgraded to version ${MONGODB_REQUIRED_VERSION}.${COLOR_RESET}"
     echo -e "${COLOR_YELLOW}It is recommended that you backup your MongoDB instance before proceeding:${COLOR_RESET}"
     echo -e "${COLOR_YELLOW}https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-backing-up-mongodb-maximo-application ${COLOR_RESET}"
+    echo
     MONGODB_V5_UPGRADE=true
   fi
 
