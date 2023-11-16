@@ -54,6 +54,8 @@ spec:
       type: string
     - name: icr_cp_open
       type: string
+    - name: mas_manual_cert_mgmt
+      type: string
   stepTemplate:
     name: gitops-suite
     env:
@@ -101,6 +103,8 @@ spec:
         value: $(params.mas_labels)
       - name: SLS_CHANNEL
         value: $(params.sls_channel)
+      - name: MAS_MANUAL_CERT_MGMT
+        value: $(params.mas_manual_cert_mgmt)
   steps:
     - args:
       - |-
