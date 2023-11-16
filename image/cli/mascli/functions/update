@@ -157,8 +157,8 @@ function update_interactive() {
 
   # Auto-detect Db2
   # ---------------------------------------------------------------------------
-  if [ -z "$MONGODB_NAMESPACE" ]; then
-    MONGODB_NAMESPACE=`oc get db2ucluster.db2u.databases.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+  if [ -z "$DB2_NAMESPACE" ]; then
+    DB2_NAMESPACE=`oc get db2ucluster.db2u.databases.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
   fi
 
   oc get Operator db2u-operator.ibm-common-services > /dev/null 2>&1
