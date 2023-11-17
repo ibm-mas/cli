@@ -32,10 +32,10 @@ spec:
     - name: fvt_artifactory_token
       value: "{{ fvt_artifactory_token }}"
     # Digests
-    - name: fvt_digest_manage
-      value: "{{ fvt_digest_manage }}"
     - name: fvt_digest_mobile_manage_setup
       value: "{{ fvt_digest_mobile_manage_setup }}"
+    - name: fvt_digest_mobilefoundation_testng
+      value: "{{ fvt_digest_mobilefoundation_testng }}"
     - name: fvt_digest_manage_civil_defects_testng
       value: "{{ fvt_digest_manage_civil_defects_testng }}"
     - name: fvt_digest_servicerequests_testng
@@ -53,10 +53,6 @@ spec:
     - name: fvt_digest_issuesandtransfers_testng
       value: "{{ fvt_digest_issuesandtransfers_testng }}"
         
-    # Test data
-    - name: fvt_manage_automation_version
-      value: "{{ fvt_manage_automation_version }}"
-
   workspaces:
     # The generated configuration files
     - name: shared-configs
