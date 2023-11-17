@@ -9,5 +9,5 @@
   {{ lookup('template', 'taskdefs/fvt-sls/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-sls/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
+    - name: fvt_test_suite
       value: operatormaturity
