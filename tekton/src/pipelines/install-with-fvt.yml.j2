@@ -470,9 +470,9 @@ spec:
           values: ["true", "True"]
       runAfter:
         - app-cfg-monitor
-        # When Manage is being installed we want to make sure that we wait until
-        # both Manage and Monitor are ready
-        - app-cfg-manage
+        # When Manage is being installed as well we want to make sure that we
+        # wait until Manage FVT has already ran
+        - launchfvt-manage
 
     # 18. Application FVT - Predict
     # -------------------------------------------------------------------------
