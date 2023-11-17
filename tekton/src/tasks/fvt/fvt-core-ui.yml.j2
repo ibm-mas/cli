@@ -21,7 +21,7 @@ spec:
 
     # Test Framework Information
     # -------------------------------------------------------------------------
-    - name: test_suite
+    - name: fvt_test_suite
       type: string
       description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
       default: ""
@@ -74,7 +74,7 @@ spec:
 
       # The name of the test suite inside the container we will execute (/opt/ibm/test/suites/{TEST_SUITE})
       - name: TEST_SUITE
-        value: $(params.test_suite)
+        value: $(params.fvt_test_suite)
 
       # Set the logging level to debug if this is set to true
       - name: FVT_ENABLE_DEBUG

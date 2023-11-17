@@ -1,0 +1,34 @@
+# supportedPodKeys
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a QoS class of Guaranteed. More can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
+podTemplates:
+  - name: vision-service
+    containers:
+      - name: vision-service
+        resources: {}
+  - name: vision-ui
+    containers:
+      - name: vision-ui
+        resources: {}
+  - name: vision-video-microservice
+    containers:
+      - name: vision-video-microservice
+        resources: {}
+  - name: vision-dataset-summarization
+    containers:
+      - name: vision-dataset-summarization
+        resources: {}
+  - name: vision-edgeman
+    containers:
+      - name: vision-edgeman
+        resources: {}
+  - name: vision-dataset-feature
+    containers:
+      - name: vision-dataset-feature
+        resources: {}
+  - name: vision-model-conversion
+    containers:
+      - name: vision-model-conversion
+        resources: {}
