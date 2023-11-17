@@ -29,11 +29,7 @@ spec:
       type: string
       description: Which Manage components are being installed?
       default: ""
-    # TODO: Why do Manage tests need to know the Kafka provider?
-    - name: kafka_provider
-      type: string
-      description: kafka provider used during installation (ibm, aws or redhat)
-      default: ""
+
 
     # FVT Configuration
     - name: fvt_image_registry
@@ -61,9 +57,6 @@ spec:
       default: ""
 
     # TODO: Consolidate these FVT images already!!
-    - name: fvt_digest_manage
-      type: string
-      default: ""
     - name: fvt_digest_manage_civil_defects_testng
       type: string
       default: ""

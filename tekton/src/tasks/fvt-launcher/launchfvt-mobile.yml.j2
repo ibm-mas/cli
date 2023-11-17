@@ -80,12 +80,6 @@ spec:
               key: MAS_WORKSPACE_ID
               optional: false
         # Digests
-        - name: FVT_DIGEST_MANAGE
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-manage
-              key: FVT_DIGEST_MANAGE
-              optional: false
         - name: FVT_DIGEST_MOBILE_MANAGE_SETUP
           valueFrom:
             secretKeyRef:
@@ -146,14 +140,7 @@ spec:
               name: mas-fvt-mobile
               key: FVT_DIGEST_ISSUESANDTRANSFERS_TESTNG
               optional: false
-        # Test Data
-        - name: FVT_MANAGE_AUTOMATION_VERSION
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-manage
-              key: FVT_MANAGE_AUTOMATION_VERSION
-              optional: false
-
+    
     - name: wait-for-pipelinerun
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
