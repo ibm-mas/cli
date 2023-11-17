@@ -1,0 +1,45 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a QoS class of Guaranteed. More can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
+podTemplates:
+  - name: coreidp
+    containers:
+      - name: coreidp
+        resources:
+          requests:
+            cpu: 1.5
+            memory: 1Gi
+          limits:
+            cpu: 1.5
+            memory: 1Gi
+    initContainers:
+      - name: coreidp-init
+        resources:
+          requests:
+            cpu: 0.4
+            memory: 512Mi
+          limits:
+            cpu: 0.4
+            memory: 512Mi
+  - name: coreidp-login
+    containers:
+      - name: coreidp-login
+        resources:
+          requests:
+            cpu: 0.8
+            memory: 512Mi
+          limits:
+            cpu: 0.8
+            memory: 512Mi
+  - name: oidcclientreg
+    containers:
+      - name: liberty
+        resources:
+          requests:
+            cpu: 0.2
+            memory: 256Mi
+          limits:
+            cpu: 0.2
+            memory: 256Mi
