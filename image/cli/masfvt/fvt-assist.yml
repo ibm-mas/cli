@@ -35,7 +35,7 @@
           - "fvt_artifactory_username ........ {{ fvt_artifactory_username }}"
           - "fvt_artifactory_token ........... {{ fvt_artifactory_token }}"
           - "fvt_digest_assist_cucumber ...... {{ fvt_digest_assist_cucumber }}"
-          - "fvt_digest_assist_preparedata ... {{ fvt_digestfvt_digest_assist_preparedata_coreui }}"
+          - "fvt_digest_assist_preparedata ... {{ fvt_digest_assist_preparedata }}"
           - "fvt_digest_assist_python ........ {{ fvt_digest_assist_python }}"
           - "fvt_digest_assist_testng ........ {{ fvt_digest_assist_testng }}"
           - "ivt_digest_core ................. {{ ivt_digest_core }}"
