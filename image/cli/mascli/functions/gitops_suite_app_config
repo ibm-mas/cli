@@ -529,7 +529,7 @@ function gitops_suite_app_config() {
   jinja -X .+ $CLI_DIR/templates/gitops/appproject.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.appproject.yaml
 
   echo "- IBM Maximo Application Suite Application Platform"
-  jinja -X .+ $CLI_DIR/templates/gitops/ibm-mas-core-suite-app-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-core-suite-${MAS_APP_ID}-app-config.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/ibm-mas-app-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.${MAS_WORKSPACE_ID}.ibm-mas-${MAS_APP_ID}-app-config.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -547,11 +547,11 @@ function gitops_suite_app_config() {
 
     argocd_login
     argocd_sync ${CLUSTER_ID}-watcher
-    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-app-config
+    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-app-config-${MAS_WORKSPACE_ID}
     add_role_to_user mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
 
-    check_argo_app_synced mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-app-config ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-app-config ${CLUSTER_ID}-watcher
+    check_argo_app_synced mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-app-config-${MAS_WORKSPACE_ID} ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-app-config-${MAS_WORKSPACE_ID} ${CLUSTER_ID}-watcher
 
   fi
 

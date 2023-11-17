@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: mas-{{ MAS_INSTANCE_ID }}-{{ MAS_APP_ID }}-app-config
+  name: mas-{{ MAS_INSTANCE_ID }}-{{ MAS_APP_ID }}-app-config-{{ MAS_WORKSPACE_ID }}
   namespace: openshift-gitops
   finalizers:
     - resources-finalizer.argocd.argoproj.io

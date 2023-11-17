@@ -308,7 +308,7 @@ function gitops_suite_app_install() {
   jinja -X .+ $CLI_DIR/templates/gitops/appproject.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.appproject.yaml
 
   echo "- IBM Maximo Application Suite Application Platform"
-  jinja -X .+ $CLI_DIR/templates/gitops/ibm-mas-core-suite-app-install.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-core-suite-${MAS_APP_ID}-app-install.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/ibm-mas-app-install.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-${MAS_APP_ID}-app-install.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
