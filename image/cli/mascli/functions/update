@@ -73,6 +73,8 @@ function show_current_catalog() {
   reset_colors
 
   if [[ "$catalogDisplayName" =~ .+(v8-[0-9]+-amd64) ]]; then
+    # catalogId = v8-yymmdd-amd64
+    # catalogVersion = yymmdd
     catalogId=$(sed -E "s/.+\\((v8-[0-9]+-amd64)\\)/\1/" <<< $catalogDisplayName)
     catalogVersion=$(sed -E "s/.+\\(v8-([0-9]+)-amd64\\)/\1/" <<< $catalogDisplayName)
     catalogIsDynamic=false
@@ -155,8 +157,8 @@ function update_interactive() {
 
   # Auto-detect Db2
   # ---------------------------------------------------------------------------
-  if [ -z "$MONGODB_NAMESPACE" ]; then
-    MONGODB_NAMESPACE=`oc get db2ucluster.db2u.databases.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+  if [ -z "$DB2_NAMESPACE" ]; then
+    DB2_NAMESPACE=`oc get db2ucluster.db2u.databases.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
   fi
 
   oc get Operator db2u-operator.ibm-common-services > /dev/null 2>&1
@@ -181,10 +183,10 @@ function update_interactive() {
     if [ "$?" == "0" ]; then
       if [ "$KAFKA_OPERATOR" == "amq-streams" ]; then
         KAFKA_PROVIDER="redhat"
-        KAFKA_PROVIDER_NAME="AMQ Streams ................................"
+        KAFKA_PROVIDER_NAME="AMQ Streams) ........................"
       elif [ "$KAFKA_OPERATOR" == "strimzi-kafka-operator" ]; then
         KAFKA_PROVIDER="strimzi"
-        KAFKA_PROVIDER_NAME="Strimzi ...................................."
+        KAFKA_PROVIDER_NAME="Strimzi) ............................"
       fi
     fi
   fi
@@ -213,7 +215,7 @@ function update() {
 
   echo "${TEXT_DIM}"
   echo_h4 "IBM Operator Catalog" "    "
-  echo_reset_dim "Current Catalog Version .................... ${COLOR_MAGENTA}${catalogVersion:-unknown}${COLOR_RESET}"
+  echo_reset_dim "Current Catalog Version .................... ${COLOR_MAGENTA}${catalogId:-unknown}${COLOR_RESET}"
   echo_reset_dim "Updated Catalog Version .................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}${COLOR_RESET}"
   echo "${TEXT_DIM}"
   echo_h4 "Updates" "    "
@@ -244,7 +246,7 @@ function update() {
 
   # Kafka (Strimzi/AMQ Streams)
   if [ "$KAFKA_NAMESPACE" != "" ]; then
-    echo_reset_dim "Kafka ($KAFKA_PROVIDER_NAME) ${COLOR_GREEN}Yes ($KAFKA_NAMESPACE)${COLOR_RESET}"
+    echo_reset_dim "Kafka ($KAFKA_PROVIDER_NAME ${COLOR_GREEN}Yes ($KAFKA_NAMESPACE)${COLOR_RESET}"
   else
     echo_reset_dim "Kafka ...................................... ${COLOR_RED}No${COLOR_RESET}"
   fi

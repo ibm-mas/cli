@@ -242,6 +242,7 @@ spec:
         'devops_suite_name': 'post-deps-update-verify'
       }) | indent(4) }}
       runAfter:
+        - update-licenseservice
         - update-db2
         - update-mongodb
         - update-kafka
