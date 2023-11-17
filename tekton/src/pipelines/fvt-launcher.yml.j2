@@ -1,0 +1,201 @@
+---
+# Don't edit install.yaml directly -- modify install.yml.j2, and the content in parts/, then run "ansible-playbook generate-install.yaml"
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-fvt-launcher
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+    # Any pre-generated configs that will be copied into the shared-configs workspace during suite-install
+    - name: shared-additional-configs
+    # The SLS entitlement key file that will be installed during install-sls.
+    - name: shared-entitlement
+    # Shared storage to hold mustgather output for tasks
+    - name: shared-mustgather
+    # Pre-generated certificates that will be copied into certs folder of shared-configs workspace to be used by suite-certs task
+    - name: shared-certificates
+    # PodTemplates configurations
+    - name: shared-pod-templates
+
+  params:
+    - name: fvt_image_registry
+      type: string
+      default: ""
+    - name: image_pull_policy
+      type: string
+      default: ""
+
+    - name: mas_instance_id
+      type: string
+      default: ""
+
+    - name: launchfvt_core
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Core FVT Pipeline after suite-verify completes"
+    - name: launchfvt_assist
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Assist FVT Pipeline after app-cfg-assist completes"
+    - name: launchfvt_iot
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the IoT FVT Pipeline after app-cfg-iot completes"
+    - name: launchfvt_manage
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-manage completes (does not control the additional Industry Solution, Mobile, or Regression Manage suites)"
+    - name: launchfvt_monitor
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-monitor completes"
+    - name: launchfvt_optimizer
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Optimizer FVT Pipeline after app-cfg-optimizer completes"
+    - name: launchfvt_predict
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Predict FVT Pipeline after app-cfg-predict completes"
+    - name: launchfvt_visualinspection
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Visual Inspection FVT Pipeline after app-cfg-visualinspection completes"
+
+  tasks:
+    # 13. MAS Core FVT
+    # -------------------------------------------------------------------------
+    - name: launchfvt-core
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-core"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-core
+      when:
+        - input: $(params.launchfvt_core)
+          operator: in
+          values: ["true", "True"]
+
+
+    # 14. Application FVT - Assist
+    # -------------------------------------------------------------------------
+    - name: launchfvt-assist
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-assist"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-assist
+      when:
+        - input: $(params.launchfvt_assist)
+          operator: in
+          values: ["true", "True"]
+
+
+    # 15. Application FVT - IoT
+    # -------------------------------------------------------------------------
+    - name: launchfvt-iot
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-iot"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-iot
+      when:
+        - input: $(params.launchfvt_iot)
+          operator: in
+          values: ["true", "True"]
+
+
+    # 16. Application FVT - Manage
+    # -------------------------------------------------------------------------
+    - name: launchfvt-manage
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-manage"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-manage
+      when:
+        - input: $(params.launchfvt_manage)
+          operator: in
+          values: ["true", "True"]
+
+
+    # 17. Application FVT - Monitor
+    # -------------------------------------------------------------------------
+    - name: launchfvt-monitor
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-monitor"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-monitor
+      when:
+        - input: $(params.launchfvt_monitor)
+          operator: in
+          values: ["true", "True"]
+
+
+    # 18. Application FVT - Predict
+    # -------------------------------------------------------------------------
+    - name: launchfvt-predict
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-predict"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-predict
+      when:
+        - input: $(params.launchfvt_predict)
+          operator: in
+          values: ["true", "True"]
+
+
+    # 19. Application FVT - Visual Inspection
+    # -------------------------------------------------------------------------
+    - name: launchfvt-visualinspection
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-visualinspection"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-visualinspection
+      when:
+        - input: $(params.launchfvt_visualinspection)
+          operator: in
+          values: ["true", "True"]
+
+
+    # 20. Application FVT - Optimizer
+    # -------------------------------------------------------------------------
+    - name: launchfvt-optimizer
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-optimizer"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-optimizer
+      when:
+        - input: $(params.launchfvt_optimizer)
+          operator: in
+          values: ["true", "True"]
