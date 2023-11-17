@@ -470,10 +470,14 @@ spec:
           values: ["true", "True"]
       runAfter:
         - app-cfg-monitor
-
+        # When Manage is being installed we want to make sure that we wait until
+        # both Manage and Monitor are ready
+        - app-cfg-manage
 
     # 18. Application FVT - Predict
     # -------------------------------------------------------------------------
+    # Predict FVT has a dependency on fvt-manage-setup in the Manage FVT pipeline
+    # We can't run Predict FVT unless Manage FVT has already ran
     - name: launchfvt-predict
       params:
         - name: image_pull_policy
@@ -489,6 +493,7 @@ spec:
           values: ["true", "True"]
       runAfter:
         - app-cfg-predict
+        - launchfvt-manage
 
 
     # 19. Application FVT - Visual Inspection
@@ -512,6 +517,8 @@ spec:
 
     # 20. Application FVT - Optimizer
     # -------------------------------------------------------------------------
+    # Optimizer FVT has a dependency on fvt-manage-setup in the Manage FVT pipeline
+    # We can't run Optimizer FVT unless Manage FVT has already ran
     - name: launchfvt-optimizer
       params:
         - name: image_pull_policy
@@ -527,7 +534,7 @@ spec:
           values: ["true", "True"]
       runAfter:
         - app-cfg-optimizer
-
+        - launchfvt-manage
 
     # 21. SLS FVT
     # -------------------------------------------------------------------------
