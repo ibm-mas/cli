@@ -62,6 +62,8 @@ spec:
           value: ibm-mas-monitor
         - name: product_channel
           value: $(params.mas_app_channel_monitor)
+        - name: fvt_test_suite
+          value: coreivt
       when:
         - input: "$(params.ivt_digest_core)"
           operator: notin
