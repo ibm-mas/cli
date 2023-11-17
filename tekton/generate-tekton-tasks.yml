@@ -58,6 +58,7 @@
         - fvt-core-ui
         - fvt-finalize
         - fvt-manage
+        - fvt-mobile
         - fvt-manage-directprint
         - fvt-manage-last-phase
         - fvt-manage-pytest
@@ -65,6 +66,15 @@
         - fvt-run-suite
         - fvt-wait-for-install
         - fvt-wait-for-pipelinerun
+
+    - name: Generate Tasks (FVT Launchers)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/fvt-launcher/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - launchfvt-assist
+        - launchfvt-core
+        - launchfvt-manage
 
     # 4. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
