@@ -38,6 +38,9 @@ spec:
       value: "{{ fvt_digest_ctf }}"
     - name: ivt_digest_core
       value: "{{ ivt_digest_core }}"
+    # Which FVT suite to run ('monitor_fvt' or 'monitor_fvt_with_manage')
+    - name: fvt_test_suite
+      value: "{{ fvt_test_suite }}"
 
   workspaces:
     # The generated configuration files
