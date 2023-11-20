@@ -1,0 +1,21 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a QoS class of BestEffort. More can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
+podTemplates:
+  - name: coreidp
+    containers:
+      - name: coreidp
+        resources: {}
+    initContainers:
+      - name: coreidp-init
+        resources: {}
+  - name: coreidp-login
+    containers:
+      - name: coreidp-login
+        resources: {}
+  - name: oidcclientreg
+    containers:
+      - name: liberty
+        resources: {}
