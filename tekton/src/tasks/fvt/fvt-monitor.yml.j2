@@ -40,8 +40,7 @@ spec:
       default: "true"
     - name: fvt_test_suite
       type: string
-      description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
-      default: ""
+      description: Which Monitor FVT suite to run ('monitor_fvt' or 'monitor_fvt_with_manage')
     - name: ctf_is_local
       type: string
       description: Boolean value to check if tests are runninng locally or on fvt

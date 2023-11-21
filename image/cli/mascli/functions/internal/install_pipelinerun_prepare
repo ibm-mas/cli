@@ -69,8 +69,9 @@ function install_pipelinerun_prepare() {
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-scimcfg.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-slscfg.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-smtpcfg.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-coreidp.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-suite.yml} \
-      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-visualinspection.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-data-dictionary-assetdatadictionary.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-sls-licenseservice.yml} &>> $LOGFILE
   else
     # pipeline-pod-templates must exist (otherwise the suite-install step will hang), but can be empty
