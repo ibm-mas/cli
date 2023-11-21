@@ -109,7 +109,7 @@ spec:
     - name: wait-for-pipelinerun
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
-      # 55 retries at 10 minute intervals = 10 hours
+      # 60 retries at 10 minute intervals = 10 hours
       command:
         - /opt/app-root/src/wait-for-pipelinerun.sh
         - --delay
