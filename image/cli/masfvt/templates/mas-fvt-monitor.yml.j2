@@ -5,10 +5,10 @@ metadata:
   name: "{{ pipelinerun_name }}"
   namespace: "{{ pipelinerun_namespace }}"
   labels:
-    tekton.dev/pipeline: mas-fvt-manage
+    tekton.dev/pipeline: mas-fvt-monitor
 spec:
   pipelineRef:
-    name: mas-fvt-manage
+    name: mas-fvt-monitor
 
   serviceAccountName: pipeline
   timeout: "8h"
@@ -18,6 +18,8 @@ spec:
     - name: image_pull_policy
       value: "{{ image_pull_policy }}"
     # MAS Info
+    - name: mas_app_channel_monitor
+      value: "{{ mas_app_channel_monitor }}"
     - name: mas_app_channel_manage
       value: "{{ mas_app_channel_manage }}"
     - name: mas_instance_id
@@ -32,18 +34,20 @@ spec:
     - name: fvt_artifactory_token
       value: "{{ fvt_artifactory_token }}"
     # Digests
-    - name: fvt_digest_manage
-      value: "{{ fvt_digest_manage }}"
-    - name: fvt_digest_manage_pytest
-      value: "{{ fvt_digest_manage_pytest }}"
+    - name: fvt_digest_ctf
+      value: "{{ fvt_digest_ctf }}"
     - name: ivt_digest_core
-      value: "{{ fvt_digest_core }}"
-    # Test data
-    - name: fvt_manage_automation_version
-      value: "{{ fvt_manage_automation_version }}"
+      value: "{{ ivt_digest_core }}"
+    # Which FVT suite to run ('monitor_fvt' or 'monitor_fvt_with_manage')
+    - name: fvt_test_suite
+      value: "{{ fvt_test_suite }}"
 
   workspaces:
     # The generated configuration files
     - name: shared-configs
       persistentVolumeClaim:
         claimName: config-pvc
+    # PodTemplates configurations
+    - name: shared-pod-templates
+      secret:
+        secretName: pipeline-pod-templates

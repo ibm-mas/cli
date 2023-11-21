@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-fvt-core
+  name: mas-fvt-mobile
 spec:
   params:
     # Control the image pull policy for the FVT container image
@@ -21,43 +21,58 @@ spec:
 
     # Test Framework Information
     # -------------------------------------------------------------------------
-    - name: fvt_test_suite
-      type: string
-      description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
-      default: ""
     - name: fvt_enable_debug
       type: string
       description: Turn on debug logging (verbose mode)
       default: "true"
-
+    - name: fvt_mobile_app
+      type: string
+      description: The app that will be the target of the tests
+      default: ""
+    - name: fvt_test_suite
+      type: string
+      description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
+      default: ""
+    - name: product_id
+      type: string
+      description: Product ID under test
+      default: ibm-mas-mobile
     - name: product_channel
       type: string
       description: "Subscription channel for the product (todo: have the test code look this up instead)"
       default: ""
-
     - name: mas_instance_id
       type: string
       description: Instance ID of the target test environment
     - name: mas_workspace_id
       type: string
       description: Workspace ID in MAS to use for running the tests
+      default: "masdev"
 
+    # Test-specific Information (all optional)
+    # -------------------------------------------------------------------------
+    - name: artifactory_token
+      type: string
+      description: Artifactory Token (required by fvt-ibm-mas-mobile to pull/push test container content)
+      default: ""
+
+    # Mobile Specific information
+    - name: mobile_device_type
+      type: string
+      description: Mobile UI test device type. Can be android, ios, chrome, edge, firefox or safari. Default is chrome
+      default: ""
+    
   stepTemplate:
-    name: 'fvt-core'
+    name: 'fvt-mobile'
+    securityContext:
+      privileged: true
+      runAsUser: 0
     env:
-      # What are we testing?
       - name: PRODUCT_ID
-        value: ibm-mas
+        value: $(params.product_id)
       - name: PRODUCT_CHANNEL
         value: $(params.product_channel)
-      - name: NAMESPACE
-        value: "mas-$(params.mas_instance_id)-core"
-      - name: INSTANCE_ID
-        value: "$(params.mas_instance_id)"
-      - name: WORKSPACE_ID
-        value: "$(params.mas_workspace_id)"
 
-      # Enable results to be saved
       - name: DEVOPS_MONGO_URI
         valueFrom:
           secretKeyRef:
@@ -70,43 +85,40 @@ spec:
             name: mas-devops
             key: DEVOPS_BUILD_NUMBER
             optional: true
+      - name: MANAGECACRT
+        valueFrom:
+          secretKeyRef:
+            name: pipeline-certificates
+            key: manage.ca.crt
+            optional: true
 
-      # The name of the test suite inside the container we will execute (/opt/ibm/test/suites/{TEST_SUITE})
-      - name: TEST_SUITE
+      - name: IBMADMIN_ENABLED
+        value: "true"
+      
+      - name: NAMESPACE
+        value: "mas-$(params.mas_instance_id)-core"
+      - name: INSTANCE_ID
+        value: "$(params.mas_instance_id)"
+      - name: WORKSPACE_ID
+        value: "$(params.mas_workspace_id)"
+      - name: FVT_MOBILE_APP
+        value: $(params.fvt_mobile_app)
+      - name: FVT_TEST_SUITE
         value: $(params.fvt_test_suite)
-
-      # Set the logging level to debug if this is set to true
       - name: FVT_ENABLE_DEBUG
         value: "$(params.fvt_enable_debug)"
 
-      # Parameters for tests
-      - name: IBMADMIN_ENABLED
-        value: "true"
+      - name: ARTIFACTORY_TOKEN
+        value: $(params.artifactory_token)
 
-      # Test Data
-      - name: DDP_APIKEY
-        valueFrom:
-          secretKeyRef:
-            name: mas-fvt-core
-            key: DDP_APIKEY
-            optional: true
-      - name: PARTIUM_USERNAME
-        valueFrom:
-          secretKeyRef:
-            name: mas-fvt-core
-            key: PARTIUM_USERNAME
-            optional: true
-      - name: PARTIUM_PASSWORD
-        valueFrom:
-          secretKeyRef:
-            name: mas-fvt-core
-            key: PARTIUM_PASSWORD
-            optional: true
+      # Assist Specific information
+      - name: MOBILE_DEVICE_TYPE
+        value: $(params.mobile_device_type)
 
   steps:
-    - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'
+    - image: '$(params.fvt_image_registry)/fvt-mobile/fvt-mobile-testng@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 2h0m0s # Ensure bad FVTs don't run forever
+      timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
