@@ -21,6 +21,11 @@ spec:
       type: string
 {% endif %}
 
+    # Cluster config
+    - name: ocp_ingress_tls_secret_name
+      type: string
+      default: ""
+
     # Tekton Pipeline image pull policy (for ibmmas/cli images)
     - name: image_pull_policy
       type: string

@@ -28,11 +28,12 @@ Usage
 - `-W, --mas-workspace-name MAS_WORKSPACE_ID`         MAS Workspace Name
 
 ### Advanced MAS Configuration (Optional):
-- `--additional-configs LOCAL_MAS_CONFIG_DIR`         Path to a directory containing additional configuration files to be applied
-- `--non-prod`                                        Install MAS in Non-production mode
-- `--mas-trust-default-cas MAS_TRUST_DEFAULT_CAS`     Trust certificates signed by well-known CAs
-- `--workload-scale-profile`                          Set a pre-defined workload scale profile [`Burstable`, `BestEffort`, `Guaranteed`]
-- `--mas-pod-templates-dir`                           Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over `--workload-scale-profile`
+- `--additional-configs LOCAL_MAS_CONFIG_DIR`                       Path to a directory containing additional configuration files to be applied
+- `--non-prod`                                                      Install MAS in Non-production mode
+- `--ocp-ingress-tls-secret-name OCP_INGRESS_TLS_SECRET_NAME`       Name of the secret holding the cluster's ingress certificates
+- `--mas-trust-default-cas MAS_TRUST_DEFAULT_CAS`                   Trust certificates signed by well-known CAs
+- `--workload-scale-profile`                                        Set a pre-defined workload scale profile [`Burstable`, `BestEffort`, `Guaranteed`]
+- `--mas-pod-templates-dir`                                         Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over `--workload-scale-profile`
 
 ### Maximo Application Suite Core Platform (Required):
 - `--mas-channel MAS_CHANNEL`                                    Subscription channel for the Core Platform
@@ -280,13 +281,18 @@ You can choose between three pre-defined workload scaling classes - `Burstable`,
 When choosing a custom profile you will be prompted for the directory of your config files. For each supported application you will need to create separate config file. The naming convention for custom config files is `ibm-<appname>-<customresourcename>.yml`.
 
 Currently supported config files:
-- ibm-mas-bascfg.yml
-- ibm-mas-pushnotificationcfg.yml
-- ibm-mas-scimcfg.yml
-- ibm-mas-slscfg.yml
-- ibm-mas-smtpcfg.yml
-- ibm-mas-suite.yml
-- ibm-sls-licenseservice.yml
+- ibm-mas
+  - ibm-mas-bascfg.yml
+  - ibm-mas-pushnotificationcfg.yml
+  - ibm-mas-scimcfg.yml
+  - ibm-mas-slscfg.yml
+  - ibm-mas-smtpcfg.yml
+  - ibm-mas-coreidp.yml
+  - ibm-mas-suite.yml
+- ibm-sls
+  - ibm-sls-licenseservice.yml
+- ibm-data-dictionary
+  - ibm-data-dictionary-assetdatadictionary.yml
 
 For examples on these config files take a look into the pre-defined configs: [BestEffort](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/best-effort) and [Guaranteed](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/guaranteed). More information on podTemplates can be found in our official IBM documentation [here](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=configuring-customizing-workloads).
 

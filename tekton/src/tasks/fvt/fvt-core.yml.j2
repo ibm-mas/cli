@@ -21,7 +21,7 @@ spec:
 
     # Test Framework Information
     # -------------------------------------------------------------------------
-    - name: test_suite
+    - name: fvt_test_suite
       type: string
       description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
       default: ""
@@ -41,21 +41,6 @@ spec:
     - name: mas_workspace_id
       type: string
       description: Workspace ID in MAS to use for running the tests
-
-    # Test-specific Information (all optional)
-    # -------------------------------------------------------------------------
-    - name: ddp_apikey
-      type: string
-      description: Partium username (required by fvt-adoptionusagereporter)
-      default: ""
-    - name: partium_username
-      type: string
-      description: Partium username (required by fvt-coreapi-workspacemgmt)
-      default: ""
-    - name: partium_password
-      type: string
-      description: Partium password (required by fvt-coreapi-workspacemgmt)
-      default: ""
 
   stepTemplate:
     name: 'fvt-core'
@@ -88,7 +73,7 @@ spec:
 
       # The name of the test suite inside the container we will execute (/opt/ibm/test/suites/{TEST_SUITE})
       - name: TEST_SUITE
-        value: $(params.test_suite)
+        value: $(params.fvt_test_suite)
 
       # Set the logging level to debug if this is set to true
       - name: FVT_ENABLE_DEBUG
@@ -98,12 +83,25 @@ spec:
       - name: IBMADMIN_ENABLED
         value: "true"
 
+      # Test Data
       - name: DDP_APIKEY
-        value: $(params.ddp_apikey)
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: DDP_APIKEY
+            optional: true
       - name: PARTIUM_USERNAME
-        value: $(params.partium_username)
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: PARTIUM_USERNAME
+            optional: true
       - name: PARTIUM_PASSWORD
-        value: $(params.partium_password)
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: PARTIUM_PASSWORD
+            optional: true
 
   steps:
     - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'

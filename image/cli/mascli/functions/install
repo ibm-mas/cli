@@ -1,5 +1,24 @@
 #!/bin/bash
 
+. $CLI_DIR/functions/internal/install_config_additional_configs
+. $CLI_DIR/functions/internal/install_config_applications
+. $CLI_DIR/functions/internal/install_config_db2
+. $CLI_DIR/functions/internal/install_config_kafka
+. $CLI_DIR/functions/internal/install_config_dns
+. $CLI_DIR/functions/internal/install_config_sno
+. $CLI_DIR/functions/internal/install_config_storage_classes
+. $CLI_DIR/functions/internal/install_config_storage_classes_sno
+. $CLI_DIR/functions/internal/install_config_turbonomic
+. $CLI_DIR/functions/internal/install_config_manage_storage_classes
+. $CLI_DIR/functions/internal/install_config_iot_storage_classes
+. $CLI_DIR/functions/internal/install_config_advanced
+. $CLI_DIR/functions/internal/install_config_workload_scale
+
+. $CLI_DIR/functions/internal/install_pipelinerun_prepare
+. $CLI_DIR/functions/internal/install_pipelinerun_preview
+. $CLI_DIR/functions/internal/install_pipelinerun_create
+
+
 function install_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
@@ -136,7 +155,6 @@ function install_noninteractive() {
   NON_INTERACTIVE=true
   DEV_MODE=false
   LICENSE_ACCEPTED=false
-  BAS_PROVIDER=UDS
 
   # Defaults
   DB2_ACTION_SYSTEM=none
@@ -194,6 +212,9 @@ function install_noninteractive() {
       --non-prod)
         export USE_NON_PROD_MODE=true
         export MAS_ANNOTATIONS="mas.ibm.com/operationalMode=nonproduction"
+        ;;
+      --ocp-ingress-tls-secret-name)
+        export OCP_INGRESS_TLS_SECRET_NAME=$1 && shift
         ;;
       --mas-trust-default-cas)
         export MAS_TRUST_DEFAULT_CAS=$1 && shift
@@ -521,6 +542,8 @@ function install_noninteractive() {
   done
 
   # Run validations
+  [[ -z "$SLS_LICENSE_FILE_LOCAL" ]] && install_help "SLS_LICENSE_FILE_LOCAL is not set"
+
   manage_validate_internal_registry
 
   if [[ "$DEV_MODE" == "true"  ]]; then
@@ -541,22 +564,7 @@ function install_noninteractive() {
 
   # Present a the MAS license information
   # ---------------------------------------------------------------------------
-  case $MAS_CHANNEL in
-    8.9.x)
-      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
-      ;;
-    *)
-      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
-      ;;
-  esac
-
-  if [[ "$LICENSE_ACCEPTED" == "false" ]]; then
-    echo
-    echo_h2 "License Terms"
-    echo -e "For information about your license, see "$MAS_LICENSE_LINK" and https://ibm.biz/MAXIT81-License. To continue with the installation, you must accept the license terms."
-    install_help
-    exit 1
-  fi
+  license_prompt
 
   # Work out which SLS var to use for bootstrap
   sls_prompt_selection
@@ -565,11 +573,211 @@ function install_noninteractive() {
   else
     export SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
   fi
-
 }
 
 function install_interactive() {
-  pipeline_config
+  echo_h2 "IBM Maximo Operator Catalog Selection"
+  echo "${TEXT_DIM}Select how you want to manage updates in this cluster:"
+  echo "- For automatic updates select to use the online dynamic catalog.  Updates will be delivered as soon as they are published by IBM"
+  echo "- To take direct control over when updates are applied to the cluster select to use a static catalog instead.  Updates will be delivered only when you update the catalog source in your cluster"
+  echo
+  reset_colors
+
+  if [[ -n "$DEV_MODE" ]]; then
+    # Development mode
+    prompt_for_input "Select Catalog Source" MAS_CATALOG_VERSION "v8-master-amd64"
+    prompt_for_input "Select Subscription Channel" MAS_CHANNEL "8.11.x-dev"
+  elif [[ -z "$AIRGAP_MODE" ]]; then
+    prompt_for_confirm "Enable automatic updates with the online dynamic catalog?" USE_ONLINE_CATALOG
+    if [[ "$USE_ONLINE_CATALOG" == "true" ]]; then
+      # Dynamic Catalog Source (Connected Install)
+      MAS_CATALOG_VERSION=v8-amd64
+
+      echo -e "${COLOR_YELLOW}MAS Version:"
+      echo "  1. 8.11"
+      echo "  2. 8.10"
+      prompt_for_input "Select Subscription Channel" MAS_CHANNEL_SELECTION "1"
+
+      case $MAS_CHANNEL_SELECTION in
+        1|8.11|8.11.x)
+          MAS_CHANNEL=8.11.x
+          ;;
+
+
+        2|8.10|8.10.x)
+          MAS_CHANNEL=8.10.x
+          ;;
+
+        *)
+          MAS_CHANNEL=$MAS_CHANNEL_SELECTION
+          ;;
+      esac
+    else
+      # Static Catalog Source (Connected Install)
+      choose_mas_version
+    fi
+  else
+    # Static Catalog Source (Disconnected Install)
+    choose_mas_version
+  fi
+
+  # Determine SLS version specific prompts
+  sls_prompt_selection
+
+  # Present a the MAS license information
+  license_prompt
+
+  # Configure the MAS instance
+  echo
+  echo_h2 "Configure MAS Instance"
+
+  # Instance ID regex: ^[a-z][a-z0-9-]{1,10}[a-z0-9]$
+  if [[ ! -z "$1" ]]; then
+    MAS_INSTANCE_ID=$1
+  fi
+  echo "${TEXT_DIM}Instance ID restrictions:"
+  echo " - Must be 3-12 characters long"
+  echo " - Must only use lowercase letters, numbers, and hypen (-) symbol"
+  echo " - Must start with a lowercase letter"
+  echo " - Must end with a lowercase letter or a number"
+  reset_colors
+  prompt_for_input "MAS Instance ID" MAS_INSTANCE_ID
+  if [[ ! "${MAS_INSTANCE_ID}" =~ ^[a-z][a-z0-9-]{1,10}[a-z0-9]$ ]]; then
+    echo_warning "Instance ID (${MAS_INSTANCE_ID}) does not meet requirements"
+    exit 1
+  fi
+  echo
+
+  # Workspace ID regex: ^[a-z][a-z0-9]{2,11}$
+  echo "${TEXT_DIM}Workspace ID restrictions:"
+  echo " - Must be 3-12 characters long"
+  echo " - Must only use lowercase letters and numbers"
+  echo " - Must start with a lowercase letter"
+  reset_colors
+  prompt_for_input "MAS Workspace ID" MAS_WORKSPACE_ID
+  if [[ ! "${MAS_WORKSPACE_ID}" =~ ^[a-z][a-z0-9]{2,11}$ ]]; then
+    echo_warning "Workspace ID (${MAS_WORKSPACE_ID}) does not meet requirements"
+    exit 1
+  fi
+  echo
+
+  # Workspace display name regex: ^.{3,300}$
+  echo "${TEXT_DIM}Workspace display name restrictions:"
+  echo " - Must be 3-300 characters long"
+  reset_colors
+  prompt_for_input "MAS Workspace Display Name" MAS_WORKSPACE_NAME
+  if [[ ! "${MAS_WORKSPACE_NAME}" =~ ^.{3,300}$ ]]; then
+    echo_warning "Workspace name (${MAS_WORKSPACE_NAME}) does not meet requirements"
+    exit 1
+  fi
+
+  echo
+  echo_h2 "Configure Operation Mode"
+  echo "${TEXT_DIM}Maximo Application Suite can be installed in a non-production mode for internal development and testing, this setting cannot be changed after installation:"
+  echo " - All applications, add-ons, and solutions have 0 (zero) installation AppPoints in non-production installations."
+  echo " - These specifications are also visible in the metrics that are shared with IBM and in the product UI."
+  echo
+  reset_colors
+  echo -e "Operational Mode:"
+  echo "  1. Production Mode (default)"
+  echo "  2. Non-Production Mode"
+  echo
+  prompt_for_input "Select Operational Mode" PROD_MODE_SELECTION "1"
+
+  case $PROD_MODE_SELECTION in
+    1)
+      USE_NON_PROD_MODE=false
+      ;;
+    2)
+      USE_NON_PROD_MODE=true
+      MAS_ANNOTATIONS="mas.ibm.com/operationalMode=nonproduction"
+      ;;
+    *)
+      echo_warning "Invalid Selection"
+      exit 1
+      ;;
+  esac
+
+  install_config_sno
+  install_config_dns
+  install_config_applications
+  install_config_db2
+  install_config_kafka
+  install_config_turbonomic
+  install_config_additional_configs
+
+  if [[ "$SNO_MODE" == "true" ]]; then
+    install_config_storage_classes_sno
+  else
+    install_config_storage_classes
+  fi
+  install_config_iot_storage_classes #10
+  install_config_manage_storage_classes #11
+  install_config_advanced #12
+
+  echo ""
+  if [[ "$DEV_MODE" == "true" && -z "$AIRGAP_MODE" ]]; then
+    # Development Mode -- offer the ability to set MAS and SLS source independently
+    echo_h2 "Configure Artifactory"
+    prompt_for_input "Artifactory Username" ARTIFACTORY_USERNAME
+    prompt_for_secret "Artifactory Token" ARTIFACTORY_TOKEN "Re-use saved Artifactory Token?"
+
+    echo
+    echo_h2 "Configure IBM Container Registry"
+    prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY "Re-use saved IBM Entitlement Key?"
+
+    echo
+    echo_h2 "Configure IBM Container Registry (MAS)"
+    prompt_for_input "IBM Container Registry (cp)" MAS_ICR_CP docker-na-public.artifactory.swg-devops.com/wiotp-docker-local override
+    prompt_for_input "IBM Container Registry (cpopen)" MAS_ICR_CPOPEN docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen override
+
+    echo
+    echo_h2 "Configure IBM Container Registry (SLS)"
+    if [[ "$SLS_PROMPT_ICR_CP" == "true" ]]; then
+      prompt_for_input "IBM Container Registry (cp)" SLS_ICR_CP docker-na-public.artifactory.swg-devops.com/wiotp-docker-local override
+    fi
+    prompt_for_input "IBM Container Registry (cpopen)" SLS_ICR_CPOPEN docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen override
+  else
+    # Production Mode -- everything comes from the same registry (IBM container registry)
+    echo_h2 "Configure IBM Container Registry"
+    prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY "Re-use saved IBM Entitlement Key?"
+
+    # Use defaults
+    MAS_ICR_CP=cp.icr.io/cp
+    MAS_ICR_CPOPEN=icr.io/cpopen
+
+    SLS_ICR_CPOPEN=icr.io/cpopen
+    if [[ "$SLS_PROMPT_ICR_CP" == "true" ]]; then
+      SLS_ICR_CP=cp.icr.io/cp
+    fi
+  fi
+
+  echo
+  echo_h2 "Configure Product License"
+
+  if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
+    prompt_for_input "License ID" SLS_LICENSE_ID
+  fi
+
+  prompt_for_input "License File" SLS_LICENSE_FILE_LOCAL
+  if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
+    echo_warning "Error: File does not exist: $SLS_LICENSE_FILE_LOCAL"
+    exit 1
+  fi
+
+  if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
+    SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
+  else
+    SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
+  fi
+
+  # Check for DRO support in MAS
+  # ---------------------------------------------------------------------------
+  echo ""
+  echo_h2 "Configure UDS"
+  prompt_for_input "UDS Contact Email" UDS_CONTACT_EMAIL
+  prompt_for_input "UDS Contact First Name" UDS_CONTACT_FIRSTNAME
+  prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
 }
 
 function ocp_version_check() {
@@ -600,6 +808,10 @@ function ocp_version_check() {
 }
 
 function install() {
+  echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Installer (v${VERSION})${TEXT_RESET}"
+  echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
+  reset_colors
+
   # Take the first parameter off (it will be "install")
   shift
 
@@ -620,23 +832,28 @@ function install() {
     esac
   done
 
+  # Determine whether UDS, SUDS, or DRO will be installed
+  # If DRO is being installed, any existing UDS install will be removed first
+  uds_action_selection
+
   if [[ "$INTERACTIVE_MODE" == "true" ]]; then
+    load_config
     connect
     detect_airgap
     detect_sno
-    pipeline_install_operator
+    pipelines_install_operator
     install_interactive
   else
     # Non-interactive mode assumes you are already connected
     detect_airgap
     detect_sno
     install_noninteractive "$@"
-    pipeline_install_operator
-    config_pipeline_additional_configs
+    pipelines_install_operator
+    install_config_additional_configs
   fi
 
   # Prepare and launch the Tekton pipeline
-  pipeline_prepare
-  pipeline_show_config
-  pipeline_run
+  install_pipelinerun_prepare
+  install_pipelinerun_preview
+  install_pipelinerun_create
 }

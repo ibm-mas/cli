@@ -33,6 +33,39 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/fvt.yml.j2') | indent(4) }}
 
+    - name: launchfvt_core
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Core FVT Pipeline after suite-verify completes"
+    - name: launchfvt_assist
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Assist FVT Pipeline after app-cfg-assist completes"
+    - name: launchfvt_iot
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the IoT FVT Pipeline after app-cfg-iot completes"
+    - name: launchfvt_manage
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-manage completes (does not control the additional Industry Solution, Mobile, or Regression Manage suites)"
+    - name: launchfvt_monitor
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-monitor completes"
+    - name: launchfvt_optimizer
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Optimizer FVT Pipeline after app-cfg-optimizer completes"
+    - name: launchfvt_predict
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Predict FVT Pipeline after app-cfg-predict completes"
+    - name: launchfvt_visualinspection
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Visual Inspection FVT Pipeline after app-cfg-visualinspection completes"
+
   tasks:
     # Content
     # -------
@@ -113,10 +146,6 @@ spec:
       runAfter:
         - common-services
 
-    # 2.6 DRO
-    {{ lookup('template', 'taskdefs/dependencies/dro.yml.j2') | indent(4) }}
-      runAfter:
-        - common-services
 
     # 3. Cloud Pak for Data
     # -------------------------------------------------------------------------
@@ -163,7 +192,7 @@ spec:
     # 3.9 Configure Watson Studio in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-core-phase4
+        - launchfvt-core
         - watson-studio
 
 
@@ -177,13 +206,13 @@ spec:
     # 4.2 Configure COS in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-cos.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-core-phase4
+        - launchfvt-core
         - cos
 
     # 4.3 Nvidia GPU Operator
     {{ lookup('template', 'taskdefs/dependencies/nvidia.yml.j2') | indent(4) }}
       runAfter:
-        - ibm-catalogs
+        - pre-install-check
 
 
     # 5. Install & Configure IBM MAS
@@ -224,13 +253,13 @@ spec:
     # 5.7 Configure Db2 in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-core-phase4
+        - launchfvt-core
         - db2-manage  # db2-manage already waits for db2-system so we don't need to list both
 
     # 5.7 Configure Kafka in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-core-phase4
+        - launchfvt-core
         - kafka
 
 
@@ -307,7 +336,7 @@ spec:
     # 10.1 Optimizer Install
     {{ lookup('template', 'taskdefs/apps/optimizer-app.yml.j2') | indent(4) }}
       runAfter:
-        - fvt-core-phase4
+        - launchfvt-core
 
     # 10.2 Configure Optimizer workspace
     {{ lookup('template', 'taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}
@@ -315,158 +344,199 @@ spec:
         - app-install-optimizer
 
 
-    # 11. Install & Configure Health & Predict Utilities
+    # 11. Install & Configure Assist
     # -------------------------------------------------------------------------
-    # 11.1 HPUtilities Install
-    {{ lookup('template', 'taskdefs/apps/hputilities-app.yml.j2') | indent(4) }}
-      runAfter:
-        - app-cfg-manage # Requires Health as an add-on
-        - suite-config-watson-studio
-
-    # 11.2 Configure HPUtilities workspace
-    {{ lookup('template', 'taskdefs/apps/hputilities-workspace.yml.j2') | indent(4) }}
-      runAfter:
-        - app-install-hputilities
-
-
-    # 12. Install & Configure Assist
-    # -------------------------------------------------------------------------
-    # 12.1 Assist Install
+    # 11.1 Assist Install
     {{ lookup('template', 'taskdefs/apps/assist-app.yml.j2') | indent(4) }}
       runAfter:
         - suite-config-cos
 
-    # 12.2 Configure Watson Discovery in MAS
+    # 11.2 Configure Watson Discovery in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-discovery.yml.j2') | indent(4) }}
       runAfter:
         - app-install-assist
         - discovery
 
-    # 12.3 Configure Assist workspace
+    # 11.3 Configure Assist workspace
     {{ lookup('template', 'taskdefs/apps/assist-workspace.yml.j2') | indent(4) }}
       runAfter:
         - suite-config-discovery
 
 
-    # 13. Install & Configure Visual Inspection
+    # 12. Install & Configure Visual Inspection
     # -------------------------------------------------------------------------
-    # 13.1 MVI Install
+    # 12.1 MVI Install
     {{ lookup('template', 'taskdefs/apps/visualinspection-app.yml.j2') | indent(4) }}
       runAfter:
         - nvidia-gpu
-        - fvt-core-phase4
+        - launchfvt-core
 
-    # 13.2 Configure MVI workspace
+    # 12.2 Configure MVI workspace
     {{ lookup('template', 'taskdefs/apps/visualinspection-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-visualinspection
 
 
-    # 14. MAS Core FVT
+    # 13. MAS Core FVT
     # -------------------------------------------------------------------------
-    # 14.1 Phase 1 of CoreAPI testing (~35m)
-    {{ lookup('template', 'taskdefs/fvt-core/phase1.yml.j2') | indent(4) }}
+    - name: launchfvt-core
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-core"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-core
+      when:
+        - input: $(params.launchfvt_core)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - suite-verify
 
-    # 14.2 Phase 2 of CoreAPI testing (~10m)
-    {{ lookup('template', 'taskdefs/fvt-core/phase2.yml.j2') | indent(4) }}
 
-    # 14.3 Miscellaneous test suites (~10m)
-    {{ lookup('template', 'taskdefs/fvt-core/phase3.yml.j2') | indent(4) }}
-
-    # 14.4 Single-threaded suites
-    {{ lookup('template', 'taskdefs/fvt-core/phase4.yml.j2') | indent(4) }}
-
-
-    # 15. MAS Core IVT
+    # 14. Application FVT - Assist
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/ivt-core/all-apps.yml.j2') | indent(4) }}
+    - name: launchfvt-assist
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-assist"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-assist
+      when:
+        - input: $(params.launchfvt_assist)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-cfg-assist
 
 
-    # 16. Application FVT - Assist
+    # 15. Application FVT - IoT
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/assist.yml.j2') | indent(4) }}
+    - name: launchfvt-iot
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-iot"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-iot
+      when:
+        - input: $(params.launchfvt_iot)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-cfg-iot
 
 
-    # 17. Application FVT - HP Utilities
+    # 16. Application FVT - Manage
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/hputilities.yml.j2') | indent(4) }}
+    - name: launchfvt-manage
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-manage"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-manage
+      when:
+        - input: $(params.launchfvt_manage)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-cfg-manage
 
 
-    # 18. Application FVT - IoT
+    # 17. Application FVT - Monitor
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/iot.yml.j2') | indent(4) }}
+    - name: launchfvt-monitor
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-monitor"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-monitor
+      when:
+        - input: $(params.launchfvt_monitor)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-cfg-monitor
+        # When Manage is being installed as well we want to make sure that we
+        # wait until Manage FVT has already ran
+        - launchfvt-manage
 
-
-    # 19. Application FVT - Manage
+    # 18. Application FVT - Predict
     # -------------------------------------------------------------------------
-    # 19.1 Phase 0: User Sync
-    {{ lookup('template', 'taskdefs/fvt-manage/phase0.yml.j2') | indent(4) }}
+    # Predict FVT has a dependency on fvt-manage-setup in the Manage FVT pipeline
+    # We can't run Predict FVT unless Manage FVT has already ran
+    - name: launchfvt-predict
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-predict"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-predict
+      when:
+        - input: $(params.launchfvt_predict)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-cfg-predict
+        - launchfvt-manage
 
-    # 19.2 Phase 1: SetupWithMAS, Monitoring and others not depending on setup
-    {{ lookup('template', 'taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
 
-    # 19.3 Phase 2: MIF Setup and others
-    {{ lookup('template', 'taskdefs/fvt-manage/phase2.yml.j2') | indent(4) }}
-
-    # 19.4 Phase 3: JMS Inbound, Work Order Basic and others
-    {{ lookup('template', 'taskdefs/fvt-manage/phase3.yml.j2') | indent(4) }}
-
-    # 19.5 Phase 4: Doclinks, Kafka and others
-    {{ lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
-
-    # 19.6 Phase 5: Single-threaded suites (SMTP, Birt and others)
-    {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
-
-
-    # 20. Application FVT - Health
+    # 19. Application FVT - Visual Inspection
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/health.yml.j2') | indent(4) }}
+    - name: launchfvt-visualinspection
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-visualinspection"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-visualinspection
+      when:
+        - input: $(params.launchfvt_visualinspection)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-cfg-visualinspection
 
 
-    # 21. Application FVT - Manage Industry Solutions
+    # 20. Application FVT - Optimizer
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase0-aviation.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase1-scheduler.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase2-civil.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase3-all-setup.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase4-all-user.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase5-all-test.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase6-maintmanager.yml.j2') | indent(4) }}
+    # Optimizer FVT has a dependency on fvt-manage-setup in the Manage FVT pipeline
+    # We can't run Optimizer FVT unless Manage FVT has already ran
+    - name: launchfvt-optimizer
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-optimizer"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-optimizer
+      when:
+        - input: $(params.launchfvt_optimizer)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-cfg-optimizer
+        - launchfvt-manage
 
-
-    # 22. Application FVT - Mobile
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase1-setup.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase2-android.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase3-ios.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase4.yml.j2') | indent(4) }}
-
-
-    # 23. Application FVT - Monitor
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/monitor.yml.j2') | indent(4) }}
-
-
-    # 24. Application FVT - Predict
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/predict.yml.j2') | indent(4) }}
-
-
-    # 25. Application FVT - Visual Inspection
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/visualinspection.yml.j2') | indent(4) }}
-
-
-    # 26. Application FVT - Optimizer
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/optimizer.yml.j2') | indent(4) }}
-
-
-    # 27. Applications IVT
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-apps/ivt.yml.j2') | indent(4) }}
-
-    # 28. SLS FVT
+    # 21. SLS FVT
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-sls/sls.yml.j2') | indent(4) }}
       runAfter:
