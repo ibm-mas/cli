@@ -46,9 +46,9 @@ To receive security updates and bug fixes you must periodically update the versi
 #### 2023
 | Catalog                               | OCP Support | Recommended CLI | End of Support                  |
 | ------------------------------------- | ----------- | --------------- | ------------------------------- |
-| [v8-231031-amd64](v8-231031-amd64.md) | 4.10 - 4.12 | latest          | OCP 4.12 EOS January 17, 2025   |
-| [v8-231004-amd64](v8-231004-amd64.md) | 4.10 - 4.12 | latest          | OCP 4.12 EOS January 17, 2025   |
-| [v8-230926-amd64](v8-230926-amd64.md) | 4.10 - 4.12 | latest          | OCP 4.12 EOS January 17, 2025   |
+| [v8-231031-amd64](v8-231031-amd64.md) | 4.11 - 4.12 | latest          | OCP 4.12 EOS January 17, 2025   |
+| [v8-231004-amd64](v8-231004-amd64.md) | 4.11 - 4.12 | latest          | OCP 4.12 EOS January 17, 2025   |
+| [v8-230926-amd64](v8-230926-amd64.md) | 4.11 - 4.12 | latest          | OCP 4.12 EOS January 17, 2025   |
 | [v8-230829-amd64](v8-230829-amd64.md) | 4.10 - 4.12 | latest          | OCP 4.12 EOS January 17, 2025   |
 | [v8-230725-amd64](v8-230725-amd64.md) | 4.10 - 4.12 | latest          | OCP 4.12 EOS January 17, 2025   |
 | [v8-230721-amd64](v8-230721-amd64.md) | 4.10 - 4.12 | latest          | OCP 4.12 EOS January 17, 2025   |
