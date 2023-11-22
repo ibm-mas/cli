@@ -47,6 +47,8 @@ spec:
         value: ibm-data-dictionary
       - name: INSTANCE_ID
         value: $(params.mas_instance_id)
+      - name: NAMESPACE
+        value: mas-$(params.mas_instance_id)-core
       - name: DATA_DICTIONARY_NAMESPACE
         value: $(params.data_dictionary_namespace)
 
