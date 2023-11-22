@@ -18,7 +18,6 @@ GitOps Configuration:
 IBM Maximo Application Suite:
       -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}   IBM Suite Maximo Application Suite Instance ID      
       --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                 IBM Suite Maximo Application Suite App that will use this db2u instance      
-      --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}     MAS WORKSPACE ID
 
 IBM DB2U:
       --db2-dbname ${COLOR_YELLOW}DB2_DBNAME${TEXT_RESET}                                         DB2 DB Name
@@ -47,9 +46,6 @@ IBM DB2U:
       --db2-cpu-limits ${COLOR_YELLOW}DB2_CPU_LIMITS${TEXT_RESET}                                 Define the Kubernetes CPU limit for the Db2 pod.
       --db2-memory-requests ${COLOR_YELLOW}DB2_MEMORY_REQUESTS${TEXT_RESET}                       Define the Kubernetes memory request for the Db2 pod.
       --db2-memory-limits ${COLOR_YELLOW}DB2_MEMORY_LIMITS${TEXT_RESET}                           Define the Kubernetes memory limit for the Db2 pod.
-      --tls-version ${COLOR_YELLOW}TLS_VERSION${TEXT_RESET}                                       TLS Version
-      --db2-ldap-username ${COLOR_YELLOW}DB2_LDAP_USERNAME${TEXT_RESET}                           DB2 LDAP Username to create
-      --db2-ldap-password ${COLOR_YELLOW}DB2_LDAP_PASSWORD${TEXT_RESET}                           DB2 LDAP Password to create
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -98,9 +94,6 @@ function gitops_db2u_database_noninteractive() {
       # MAS
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
-        ;;
-      -W|--mas-workspace-id)
-        export MAS_WORKSPACE_ID=$1 && shift
         ;;
       --mas-app-id)
         export MAS_APP_ID=$1 && shift
@@ -195,15 +188,6 @@ function gitops_db2u_database_noninteractive() {
         ;;
       --db2-memory-limits)
         export DB2_MEMORY_LIMITS=$1 && shift
-        ;;
-      --tls-version )
-        export TLS_VERSION=$1 && shift
-        ;;
-      --db2-ldap-username )
-        export DB2_LDAP_USERNAME=$1 && shift
-        ;;
-      --db2-ldap-password )
-        export DB2_LDAP_PASSWORD=$1 && shift
         ;;
       --db2-internal )
         export DB2_INTERNAL=$1 && shift
@@ -387,7 +371,6 @@ function gitops_db2u_database() {
   export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
   export DB2_NAMESPACE=db2u
   export DB2_DBNAME=${DB2_DBNAME:-"BLUDB"}
-  export TLS_VERSION=${TLS_VERSION:-"TLSv1.2"}
 
   # by default db2 internal is true, set it to false if db2 is external
   export DB2_INTERNAL=${DB2_INTERNAL:-"true"}

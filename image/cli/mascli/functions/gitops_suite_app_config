@@ -22,8 +22,8 @@ Maximo Application Suite:
   --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                                                     IBM Suite Maximo Application Suite Application ID
   --mas-app-kind ${COLOR_YELLOW}MAS_APP_KIND${TEXT_RESET}                                                 IBM Suite Maximo Application Suite Application Kind
   --mas-appws-spec-yaml ${COLOR_YELLOW}MAS_APPWS_SPEC_YAML${TEXT_RESET}                                   Yaml file location containing IBM Suite Maximo Application Suite Application Spec
-  --mas-appws-api-version ${COLOR_YELLOW}MAS_APP_WS_API_VERSION${TEXT_RESET}                              IBM Suite Maximo Application Suite Application Workspace API Version
-  --mas-appws-kind ${COLOR_YELLOW}MAS_APP_WS_KIND${TEXT_RESET}                                            IBM Suite Maximo Application Suite Application Workspace Kind
+  --mas-appws-api-version ${COLOR_YELLOW}MAS_APPWS_API_VERSION${TEXT_RESET}                              IBM Suite Maximo Application Suite Application Workspace API Version
+  --mas-appws-kind ${COLOR_YELLOW}MAS_APPWS_KIND${TEXT_RESET}                                            IBM Suite Maximo Application Suite Application Workspace Kind
 
   --mas-appws-bindings-jdbc ${COLOR_YELLOW}MAS_APPWS_BINDINGS_JDBC${TEXT_RESET}                           APP WS JDBC Binding
   --mas-appws-components ${COLOR_YELLOW}MAS_APPWS_COMPONENTS${TEXT_RESET}                                 APP WS Components
@@ -206,10 +206,10 @@ function gitops_suite_app_config_noninteractive() {
         export MAS_APP_KIND=$1 && shift
         ;;
       --mas-appws-api-version)
-        export MAS_APP_WS_API_VERSION=$1 && shift
+        export MAS_APPWS_API_VERSION=$1 && shift
         ;;
       --mas-appws-kind)
-        export MAS_APP_WS_KIND=$1 && shift
+        export MAS_APPWS_KIND=$1 && shift
         ;;
       --mas-appws-spec-yaml)
         export MAS_APPWS_SPEC_YAML=$1 && shift
@@ -258,8 +258,8 @@ function gitops_suite_app_config_noninteractive() {
   [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_suite_app_config_help "MAS_WORKSPACE_ID is not set"
   [[ -z "${MAS_APP_ID}" ]] && gitops_suite_app_config_help "MAS_APP_ID is not set"
   [[ -z "${MAS_APP_KIND}" ]] && gitops_suite_app_config_help "MAS_APP_KIND is not set"
-  [[ -z "${MAS_APP_WS_API_VERSION}" ]] && gitops_suite_app_config_help "MAS_APP_WS_API_VERSION is not set"
-  [[ -z "${MAS_APP_WS_KIND}" ]] && gitops_suite_app_config_help "MAS_APP_WS_KIND is not set"
+  [[ -z "${MAS_APPWS_API_VERSION}" ]] && gitops_suite_app_config_help "MAS_APPWS_API_VERSION is not set"
+  [[ -z "${MAS_APPWS_KIND}" ]] && gitops_suite_app_config_help "MAS_APPWS_KIND is not set"
 
   if [[ "${MAS_APP_ID}" == "manage" || "${MAS_APP_ID}" == "health" ]]; then
     [[ -z "${DEFAULT_FILE_STORAGE_CLASS}" || "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_config_help "DEFAULT_FILE_STORAGE_CLASS is not set"
@@ -371,8 +371,8 @@ function gitops_suite_app_config() {
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "Application ID .......................... ${COLOR_MAGENTA}${MAS_APP_ID}"
-  echo_reset_dim "Application WS API Version .............. ${COLOR_MAGENTA}${MAS_APP_WS_API_VERSION}"
-  echo_reset_dim "Application WS Kind ..................... ${COLOR_MAGENTA}${MAS_APP_WS_KIND}"
+  echo_reset_dim "Application WS API Version .............. ${COLOR_MAGENTA}${MAS_APPWS_API_VERSION}"
+  echo_reset_dim "Application WS Kind ..................... ${COLOR_MAGENTA}${MAS_APPWS_KIND}"
   echo_reset_dim "Application WS Spec Yaml file ........... ${COLOR_MAGENTA}${MAS_APPWS_SPEC_YAML}"
   if [[ -n "$MAS_APPWS_SPEC_YAML" ]]; then
     echo_reset_dim "Using Default Application Spec ........ ${COLOR_MAGENTA}False"
