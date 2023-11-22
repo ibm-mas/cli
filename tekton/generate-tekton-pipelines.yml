@@ -35,7 +35,7 @@
         - fvt-deprovision-after
         - fvt-iot
         - fvt-manage
-        - fvt-manage-mobile
+        - fvt-mobile
         - fvt-manage-is
         - fvt-manage-regr
         - fvt-monitor
