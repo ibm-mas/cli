@@ -30,11 +30,6 @@ spec:
       description: Turn on debug logging (verbose mode)
       default: "true"
 
-    - name: data_dictionary_namespace
-      type: string
-      description: "ADD Namespace"
-      default: ""
-
     - name: mas_instance_id
       type: string
       description: Instance ID of the target test environment
@@ -49,8 +44,6 @@ spec:
         value: $(params.mas_instance_id)
       - name: NAMESPACE
         value: mas-$(params.mas_instance_id)-core
-      - name: DATA_DICTIONARY_NAMESPACE
-        value: $(params.data_dictionary_namespace)
 
       # Enable results to be saved
       - name: DEVOPS_MONGO_URI
