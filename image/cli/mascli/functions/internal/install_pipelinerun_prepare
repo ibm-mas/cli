@@ -116,7 +116,7 @@ function install_pipelinerun_prepare() {
     echo "- It could also mean that your cluster's ImageContentSourcePolicy is misconfigured and does not contain an entry for quay.io/ibmmas"
     echo "- Check the deployment status of mas-cli in your pipeline namespace. This will provide you with more information about the issue."
 
-    echo -e "\n\n[WARNING] $CLI_IMAGE is unavailable from the target OCP cluster" >> $LOGFILE
+    echo -e "\n\n[WARNING] Failed to validate $CLI_IMAGE in the target OCP cluster" >> $LOGFILE
     echo_hr1 >> $LOGFILE
     oc -n $PIPELINES_NS get pods --selector="app=mas-cli" -o yaml >> $LOGFILE
     exit 1
