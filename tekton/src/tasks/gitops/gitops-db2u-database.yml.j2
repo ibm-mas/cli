@@ -35,6 +35,8 @@ spec:
       type: string
     - name: db2_data_storage_class
       type: string
+    - name: db2_backup_storage_class
+      type: string
     - name: db2_version
       type: string
     - name: mas_instance_id
@@ -77,6 +79,8 @@ spec:
         value: $(params.db2_logs_storage_class)
       - name: DB2_DATA_STORAGE_CLASS
         value: $(params.db2_data_storage_class)
+      - name: DB2_BACKUP_STORAGE_CLASS
+        value: $(params.db2_backup_storage_class)
       - name: DB2_VERSION
         value: $(params.db2_version)
       - name: MAS_APP_ID
