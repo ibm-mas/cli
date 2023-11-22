@@ -23,7 +23,7 @@
     fvt_digest_inventoryreceiving_testng: "{{ lookup('env', 'FVT_DIGEST_INVENTORYRECEIVING_TESTNG') }}"
     fvt_digest_issuesandtransfers_testng: "{{ lookup('env', 'FVT_DIGEST_ISSUESANDTRANSFERS_TESTNG') }}"
     # Pipeline Run Info
-    pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-manage', True) }}"
+    pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-mobile', True) }}"
     pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
   tasks:
     - name: "Debug"
