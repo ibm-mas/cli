@@ -277,13 +277,25 @@ spec:
         - name: configs
           workspace: configs
     - name: gitops-db2u
+      runAfter:
+        - gitops-cluster
       params:
         - name: cluster_name
           value: $(params.cluster_name)
         - name: account
           value: $(params.account)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
         - name: github_repo
           value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
         - name: secrets_path
           value: $(params.secrets_path)
         - name: db2_channel
