@@ -9,7 +9,15 @@ spec:
       type: string
     - name: account
       type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
     - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: github_pat
       type: string
     - name: secrets_path
       type: string
@@ -32,6 +40,16 @@ spec:
         value: $(params.github_repo)
       - name: SECRET_PATH
         value: $(params.secrets_path)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: GITHUB_PAT
+        value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
       - name: SM_AWS_SECRET_ACCESS_KEY
@@ -67,7 +85,7 @@ spec:
         --secrets-path $SECRET_PATH \
         --github-push \
         --github-host $GITHUB_HOST \
-        --github-org  $GITHUB_ORG \
+        --github-org $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
         --git-branch $GIT_BRANCH
 
