@@ -56,9 +56,6 @@ spec:
             db2_temp_storage_class: {{DB2_TEMP_STORAGE_CLASS}}
             db2_temp_storage_size: {{DB2_TEMP_STORAGE_SIZE}}
             db2_temp_storage_accessmode: {{DB2_TEMP_STORAGE_ACCESSMODE}}
-            db2_ldap_username: {{DB2_LDAP_USERNAME}}
-            db2_ldap_password: {{DB2_LDAP_PASSWORD}}
-            db2_rotate_password: {{DB2_LDAP_ROTATE_PASSWORD}}
             db2_cpu_requests: {{DB2_CPU_REQUESTS}}
             db2_cpu_limits: {{DB2_CPU_LIMITS}}
             db2_memory_requests: {{DB2_MEMORY_REQUESTS}}
@@ -66,7 +63,6 @@ spec:
             cluster_domain: {{CLUSTER_DOMAIN}}
             mas_instance_id: {{MAS_INSTANCE_ID}}
             mas_application_id: {{MAS_APP_ID}}
-            db2_ca_pem: {{DB2_CA_PEM}}
   syncPolicy:
     automated:
       prune: true

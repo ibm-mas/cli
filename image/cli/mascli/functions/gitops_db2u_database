@@ -500,7 +500,7 @@ function gitops_db2u_database() {
     check_argo_app_healthy mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-database ${CLUSTER_ID}-watcher
   fi
   if [[ "$DB2_INTERNAL" == "true" && "$MAS_APP_ID" == "manage" ]]; then
-    invoke_suite_db2_setup_for_manage ${MAS_INSTANCE_ID} 
+    invoke_suite_db2_setup_for_manage 
   fi
   if [ "$GITHUB_PUSH" == "true" ]; then  
 	  remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO

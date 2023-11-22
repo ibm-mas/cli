@@ -204,16 +204,6 @@ function delete_db2u_0_pod(){
   done  
 }
 
-# Invoke suite_db2_setup_for_manage
-function invoke_suite_db2_setup_for_manage(){
-  export MAS_INSTANCE_ID=$1
-  export DB2_NAMESPACE=mas-${MAS_INSTANCE_ID}-db2u-manage
-  export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}
-  export ROLE_NAME=suite_db2_setup_for_manage && ansible-playbook ibm.mas_devops.run_role
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-}
-
 function gitops_db2u_jdbc_config() {
   # Take the first parameter off (it will be create-gitops)
   shift
