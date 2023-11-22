@@ -73,14 +73,12 @@ spec:
       default: ""
 
   tasks:
-    # 1. Core x Manage
-    # -------------------------------------------------------------------------
-    # Manage FVT Setup
+    
     - name: fvt-manage-setup # convention: use fvt-manage-<keyword>, as the value of fvt_test_suite parameter
-      {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-      {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+      {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(6) }}
+      {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(6) }}
       params:
-        {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+        {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite_prefix
           value: core
         - name: fvt_test_suite
