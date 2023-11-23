@@ -37,6 +37,8 @@ spec:
       type: string
     - name: mas_config_scope
       type: string
+    - name: mas_workspace_id
+      type: string
     - name: tls_version
       type: string
   stepTemplate:
@@ -76,6 +78,8 @@ spec:
         value: $(params.mas_app_id)
       - name: MAS_CONFIG_SCOPE
         value: $(params.mas_config_scope)
+      - name: MAS_WORKSPACE_ID
+        value: ${params.mas_workspace_id)
       - name: TLS_VERSION
         value: $(params.tls_version)
   steps:
