@@ -32,16 +32,16 @@ spec:
             db2_table_org: {{DB2_TABLE_ORG}}
             db2_node_label: {{DB2_NODE_LABEL}}
             db2_dedicated_node: {{DB2_DEDICATED_NODE}}
-            db2_instance_registry: |
+            db2_instance_registry:
               {% filter indent(width=14) -%}
               {{ DB2_INSTANCE_REGISTRY }}
               {%- endfilter %}
-            db2_database_db_config: |
+            db2_database_db_config:
               {% filter indent(width=14) -%}
               {{ DB2_DATABASE_DB_CONFIG }}
               {%- endfilter %}
             {% if DB2_INSTANCE_DBM_CONFIG %}
-            db2_instance_dbm_config: |
+            db2_instance_dbm_config:
               {% filter indent(width=14) -%}
               {{ DB2_INSTANCE_DBM_CONFIG }}
               {%- endfilter %}
