@@ -283,8 +283,16 @@ function wait_for_db2ucluster_crd(){
 
 # Invoke suite_db2_setup_for_manage
 function invoke_suite_db2_setup_for_manage(){
-  #TODO I don't think we want to call ansible here. We need to set the db2ucluster for manage
-  export ROLE_NAME=suite_db2_setup_for_manage && ansible-playbook ibm.mas_devops.run_role
+  # This should really be in the manage operator
+  oc exec -n ${DB2_NAMESPACE } c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/backup/MIRRORLOGPATH" db2inst1
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
+
+  oc exec -n ${DB2_NAMESPACE } c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/bludata0/db2/archive_log/" db2inst1
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
+
+  oc exec -n ${DB2_NAMESPACE } c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/backup/staging" db2inst1
   rc=$?
   [ $rc -ne 0 ] && exit $rc
 }
@@ -366,6 +374,15 @@ function gitops_db2u_database() {
   fi 
   if [[ -z $DB2_MEMORY_LIMITS ]]; then
     export DB2_MEMORY_LIMITS=16Gi
+  fi
+  if [[ -z $DB2_DATABASE_DB_CONFIG ]]; then
+    export DB2_DATABASE_DB_CONFIG="APPLHEAPSZ: '8192 AUTOMATIC'"
+  fi
+  if [[ -z $DB2_INSTANCE_REGISTRY ]]; then
+    export DB2_INSTANCE_REGISTRY="DB2AUTH: 'OSAUTHDB,ALLOW_LOCAL_FALLBACK,PLUGIN_AUTO_RELOAD'
+DB2_4K_DEVICE_SUPPORT: '${DB2_4K_DEVICE_SUPPORT}'
+DB2_FMP_RUN_AS_CONNECTED_USER: 'NO'
+DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   fi
 
   export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
