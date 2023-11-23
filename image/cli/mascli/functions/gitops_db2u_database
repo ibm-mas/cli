@@ -296,6 +296,27 @@ function wait_for_db2ucluster_crd(){
 # Invoke suite_db2_setup_for_manage
 function invoke_suite_db2_setup_for_manage(){
   # This should really be in the manage operator
+
+  echo
+  echo_h2 "Creating setup.sh file"
+  jinja -X .+ $CLI_DIR/templates/gitops/files/manage/setupdb.sh.j2 -o ${TEMP_DIR}/setup.sh
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
+  
+  chmod +x ${TEMP_DIR}/setup.sh
+
+  echo
+  echo_h2 "Copying setup.sh file to ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
+  oc cp ${TEMP_DIR}/setupdb.sh ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0:/tmp/setupdb.sh -c db2u
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
+
+  echo
+  echo_h2 "Executing setup.sh file on ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
+  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0 -- su -lc '/tmp/setupdb.sh | tee /tmp/setupdb.log' db2inst1
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
+
   echo
   echo_h2 "Creating /mnt/backup/MIRRORLOGPATH in c-${DB2_INSTANCE_NAME}-db2u-0"
   oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/backup/MIRRORLOGPATH" db2inst1
