@@ -46,6 +46,9 @@ IBM DB2U:
       --db2-cpu-limits ${COLOR_YELLOW}DB2_CPU_LIMITS${TEXT_RESET}                                 Define the Kubernetes CPU limit for the Db2 pod.
       --db2-memory-requests ${COLOR_YELLOW}DB2_MEMORY_REQUESTS${TEXT_RESET}                       Define the Kubernetes memory request for the Db2 pod.
       --db2-memory-limits ${COLOR_YELLOW}DB2_MEMORY_LIMITS${TEXT_RESET}                           Define the Kubernetes memory limit for the Db2 pod.
+      --db2-instance-registry-yaml ${COLOR_YELLOW}DB2_INSTANCE_REGISTRY_YAML${TEXT_RESET}         Yaml file containing the db2ucluster instance registry section.
+      --db2-instance-dbm-config-yaml ${COLOR_YELLOW}DB2_INSTANCE_DBM_CONFIG_YAML${TEXT_RESET}     Yaml file containing the db2ucluster instance dbm config section.
+      --db2-database-db-config-yaml ${COLOR_YELLOW}DB2_DATABASE_DB_CONFIG_YAML${TEXT_RESET}       Yaml file containing the db2ucluster database db config section.
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -189,8 +192,17 @@ function gitops_db2u_database_noninteractive() {
       --db2-memory-limits)
         export DB2_MEMORY_LIMITS=$1 && shift
         ;;
-      --db2-internal )
+      --db2-internal)
         export DB2_INTERNAL=$1 && shift
+        ;;
+      --db2-instance-registry-yaml)
+        export DB2_INSTANCE_REGISTRY_YAML=$1 && shift
+        ;;
+      --db2-instance-dbm-config-yaml)
+        export DB2_INSTANCE_DBM_CONFIG_YAML=$1 && shift
+        ;;
+      --db2-database-db-config-yaml)
+        export DB2_DATABASE_DB_CONFIG_YAML=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -375,10 +387,10 @@ function gitops_db2u_database() {
   if [[ -z $DB2_MEMORY_LIMITS ]]; then
     export DB2_MEMORY_LIMITS=16Gi
   fi
-  if [[ -z $DB2_DATABASE_DB_CONFIG ]]; then
+  if [[ -z $DB2_DATABASE_DB_CONFIG_YAML ]]; then
     export DB2_DATABASE_DB_CONFIG="APPLHEAPSZ: '8192 AUTOMATIC'"
   fi
-  if [[ -z $DB2_INSTANCE_REGISTRY ]]; then
+  if [[ -z $DB2_INSTANCE_REGISTRY_YAML ]]; then
     export DB2_INSTANCE_REGISTRY="DB2AUTH: 'OSAUTHDB,ALLOW_LOCAL_FALLBACK,PLUGIN_AUTO_RELOAD'
 DB2_4K_DEVICE_SUPPORT: '${DB2_4K_DEVICE_SUPPORT}'
 DB2_FMP_RUN_AS_CONNECTED_USER: 'NO'
@@ -472,13 +484,33 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "db2-cpu-limits  ......................... ${COLOR_MAGENTA}${DB2_CPU_LIMITS}"
   echo_reset_dim "db2-memory-requests  .................... ${COLOR_MAGENTA}${DB2_MEMORY_REQUESTS}"
   echo_reset_dim "db2-memory-limits  ...................... ${COLOR_MAGENTA}${DB2_MEMORY_LIMITS}"
-  echo_reset_dim "CLUSTER_DOMAIN .......................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
+  echo_reset_dim "cluster_domain .......................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
+  echo_reset_dim "db2-instance-registry-yaml .............. ${COLOR_MAGENTA}${DB2_INSTANCE_REGISTRY_YAML}"
+  echo_reset_dim "db2-instance-dbm-config-yaml ............ ${COLOR_MAGENTA}${DB2_INSTANCE_DBM_CONFIG_YAML}"
+  echo_reset_dim "db2-database-db-config-yaml ............. ${COLOR_MAGENTA}${DB2_DATABASE_DB_CONFIG_YAML}"
   reset_colors
 
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-db2u-database
   mkdir -p $TEMP_DIR
 
+  # Getting provided db2cluster configs
+  # ---------------------------------------------------------------------------
+  if [[ -n "$DB2_DATABASE_DB_CONFIG_YAML" ]]; then
+    echo
+    echo_h2 "Using db2 database db config provided for $MAS_APP_ID at $DB2_DATABASE_DB_CONFIG_YAML"
+    export DB2_DATABASE_DB_CONFIG=$(cat ${DB2_DATABASE_DB_CONFIG_YAML} | yq -r '.' --yaml-output)
+  fi
+  if [[ -n "$DB2_INSTANCE_DBM_CONFIG_YAML" ]]; then
+    echo
+    echo_h2 "Using db2 instance dm config provided for $MAS_APP_ID at $DB2_INSTANCE_DBM_CONFIG_YAML"
+    export DB2_INSTANCE_DBM_CONFIG=$(cat ${DB2_INSTANCE_DBM_CONFIG_YAML} | yq -r '.' --yaml-output)
+  fi
+  if [[ -n "$DB2_INSTANCE_REGISTRY_YAML" ]]; then
+    echo
+    echo_h2 "Using db2 instance registry config provided for $MAS_APP_ID at $DB2_INSTANCE_REGISTRY_YAML"
+    export DB2_INSTANCE_REGISTRY=$(cat ${DB2_INSTANCE_REGISTRY_YAML} | yq -r '.' --yaml-output)
+  fi
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
