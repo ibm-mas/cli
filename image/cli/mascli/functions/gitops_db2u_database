@@ -296,15 +296,15 @@ function wait_for_db2ucluster_crd(){
 # Invoke suite_db2_setup_for_manage
 function invoke_suite_db2_setup_for_manage(){
   # This should really be in the manage operator
-  oc exec -n ${DB2_NAMESPACE } c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/backup/MIRRORLOGPATH" db2inst1
+  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/backup/MIRRORLOGPATH" db2inst1
   rc=$?
   [ $rc -ne 0 ] && exit $rc
 
-  oc exec -n ${DB2_NAMESPACE } c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/bludata0/db2/archive_log/" db2inst1
+  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/bludata0/db2/archive_log/" db2inst1
   rc=$?
   [ $rc -ne 0 ] && exit $rc
 
-  oc exec -n ${DB2_NAMESPACE } c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/backup/staging" db2inst1
+  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/backup/staging" db2inst1
   rc=$?
   [ $rc -ne 0 ] && exit $rc
 }
