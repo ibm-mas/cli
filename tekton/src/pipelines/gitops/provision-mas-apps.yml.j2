@@ -95,6 +95,11 @@ spec:
     - name: custom_labels
       type: string
 
+    - name: default_block_storage_class
+      type: string
+    - name: default_file_storage_class
+      type: string
+      
     - name: mas_app_channel_iot
       type: string
     - name: mas_app_catalog_source_iot
@@ -517,7 +522,10 @@ spec:
           value: $(params.mas_app_api_version_iot)
         - name: mas_app_kind
           value: $(params.mas_app_kind_iot)
-  
+        - name: default_block_storage_class
+          value: $(params.default_block_storage_class)
+        - name: default_file_storage_class
+          value: $(params.default_file_storage_class)
       taskRef:
         name: gitops-suite-app-install
         kind: Task
