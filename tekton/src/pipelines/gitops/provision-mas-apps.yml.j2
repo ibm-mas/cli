@@ -10,10 +10,8 @@ metadata:
 spec:
   workspaces:
     - name: configs
-    - name: shared-entitlement
     - name: shared-certificates
-    # Any pre-generated configs that will be copied into the shared-configs workspace during suite-install
-    - name: shared-additional-configs
+    - name: shared-gitops-configs
   description: Provision MAS GitOps Instance
   params:
 {% if wait_for_provision == true %}
@@ -318,6 +316,8 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
       taskRef:
         kind: Task
         name: gitops-db2u-database
@@ -438,6 +438,8 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
       taskRef:
         kind: Task
         name: gitops-db2u-database
@@ -569,6 +571,8 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
       runAfter:
         - gitops-kafka-config
         - gitops-db2u-config-iot
@@ -632,6 +636,8 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
       runAfter:
         - app-install-iot
 
@@ -697,6 +703,8 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
       runAfter:
         - gitops-db2u-config-manage
 
@@ -748,7 +756,10 @@ spec:
           value: $(params.mas_appws_kind_manage) 
         - name: mas_app_kind
           value: $(params.mas_app_kind_manage) 
-
+        - name: default_block_storage_class
+          value: $(params.default_block_storage_class)
+        - name: default_file_storage_class
+          value: $(params.default_file_storage_class)
       taskRef:
         name: gitops-suite-app-config
         kind: Task
@@ -760,5 +771,7 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
       runAfter:
         - app-install-manage
