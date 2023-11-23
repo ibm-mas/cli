@@ -39,6 +39,12 @@ spec:
       type: string
     - name: db2_version
       type: string
+    - name: db2_instance_registry
+      type: string
+    - name: db2_instance_dbm_config
+      type: string
+    - name: db2_database_db_config
+      type: string
     - name: mas_instance_id
       type: string
     - name: mas_app_id
@@ -83,6 +89,12 @@ spec:
         value: $(params.db2_backup_storage_class)
       - name: DB2_VERSION
         value: $(params.db2_version)
+      - name: DB2_INSTANCE_REGISTRY
+        value: $(params.db2_instance_registry)
+      - name: DB2_INSTANCE_DBM_CONFIG
+        value: $(params.db2_instance_dbm_config)
+      - name: DB2_DATABASE_DB_CONFIG
+        value: $(params.db2_database_db_config)
       - name: MAS_APP_ID
         value: $(params.mas_app_id)
   steps:
