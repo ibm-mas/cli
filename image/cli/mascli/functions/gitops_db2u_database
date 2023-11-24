@@ -298,12 +298,12 @@ function invoke_suite_db2_setup_for_manage(){
   # This should really be in the manage operator
 
   echo
-  echo_h2 "Creating setup.sh file"
-  jinja -X .+ $CLI_DIR/templates/gitops/files/manage/setupdb.sh.j2 -o ${TEMP_DIR}/setup.sh
+  echo_h2 "Creating setupdb.sh file"
+  jinja -X .+ $CLI_DIR/templates/gitops/files/manage/setupdb.sh.j2 -o ${TEMP_DIR}/setupdb.sh
   rc=$?
   [ $rc -ne 0 ] && exit $rc
-  
-  chmod +x ${TEMP_DIR}/setup.sh
+
+  chmod +x ${TEMP_DIR}/setupdb.sh
 
   echo
   echo_h2 "Copying setup.sh file to ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
