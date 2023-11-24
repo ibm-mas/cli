@@ -17,6 +17,14 @@ Collection Options (Optional):
   --mas-instance-ids         Collects the data for the specifed MAS instances, if not specified will collect for all MAS instances on the cluster
   --secret-data              Collects also the content of the secrets
   --extra-namespaces         Collects data for additional namespaces, like ibm-common-services or db2u, must be separated by a coma
+  --ocp-report               Collects the collection of OCP data
+  --dependency-report        Collects the collection of custom resources for dependencies (like db2 or cloud pak services)
+  --mongo-report             Collects the collection of Mongo data
+  --sls-report               Collects the collection of SLS data
+  --mas-app-ids              Collects for the specified apps instead of for all apps for the MAS instance id, specify values from: 
+                             core add assist iot monitor manage optimizer predict visualinspection pipelines 
+                             separated by a coma, for example "core,manage"
+  --all                      Collects all MAS related data, OCP report, dependency report, mongo, sls and all Mas instances namespaces
 
 Artifactory Upload (Optional):
   --artifactory-token ${COLOR_YELLOW}ARTIFACTORY_TOKEN${TEXT_RESET}              Provide a token for Artifactory to automatically upload the file to ARTIFACTORY_UPLOAD_DIR
@@ -39,6 +47,11 @@ function mustgather() {
   SECRET_DATA=false
   MG_DIR=/tmp/must-gather
   EXTRA_NAMESPACES=""
+  OCP_REPORT=false 
+  DEPENDENCY_REPORT=false 
+  MONGO_REPORT=false 
+  SLS_REPORT=false
+  MAS_APP_IDS="core,add,assist,iot,monitor,manage,optimizer,predict,visualinspection,pipelines"
 
   # If a /must-gather directory exists, default to that as the output directory instead
   if [[ -d "/must-gather" ]]; then
@@ -66,8 +79,29 @@ function mustgather() {
     --extra-namespaces)
       EXTRA_NAMESPACES=$1; shift 
       ;;
+    --mas-app-ids)
+      MAS_APP_IDS=$1; shift 
+      ;;
     --secret-data)
       SECRET_DATA=true 
+      ;;
+    --ocp-report)
+      OCP_REPORT=true 
+      ;;
+    --dependency-report)
+      DEPENDENCY_REPORT=true 
+      ;;
+    --mongo-report)
+      MONGO_REPORT=true 
+      ;;
+    --sls-report)
+      SLS_REPORT=true 
+      ;;
+    --all)
+      OCP_REPORT=true 
+      DEPENDENCY_REPORT=true 
+      MONGO_REPORT=true 
+      SLS_REPORT=true
       ;;
     --artifactory-token)
       ARTIFACTORY_TOKEN=$1; shift
@@ -110,60 +144,64 @@ function mustgather() {
   echo "Must gather will be saved to: $OUTPUT_FILE"
   echo ""
 
-  # Generate OCP Report
-  # -----------------------------------------------------------------------------
-  echo_h2 "Generate OCP Report"
+  if [[ "$OCP_REPORT" == "true" ]]; then
+    # Generate OCP Report
+    # -----------------------------------------------------------------------------
+    echo_h2 "Generate OCP Report"
 
-  echo "- Cluster Resources"
-  for RESOURCE in nodes storageclasses clusterversions
-  do
-    $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources
-  done
+    echo "- Cluster Resources"
+    for RESOURCE in nodes storageclasses clusterversions
+    do
+      $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources
+    done
 
-  for RESOURCE in namespaces packagemanifests clusterroles clusterrolebindings
-  do
-    $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources --no-detail
-  done
+    for RESOURCE in namespaces packagemanifests clusterroles clusterrolebindings
+    do
+      $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources --no-detail
+    done
 
-  echo "- OpenShift Marketplace"
-  for RESOURCE in catalogsources jobs
-  do
-    $MG_SCRIPT_DIR/mg-collect-resources -n openshift-marketplace -r $RESOURCE -d $OUTPUT_DIR/resources
-  done
+    echo "- OpenShift Marketplace"
+    for RESOURCE in catalogsources jobs
+    do
+      $MG_SCRIPT_DIR/mg-collect-resources -n openshift-marketplace -r $RESOURCE -d $OUTPUT_DIR/resources
+    done
 
-  echo "- Operators"
-  echo "  - Collecting debug information: operatorconditions"
-  oc get operatorconditions --all-namespaces &> ${OUTPUT_DIR}/operatorconditions.txt
-  for RESOURCE in subscriptions installplans
-  do
-    $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources -a
-  done
+    echo "- Operators"
+    echo "  - Collecting debug information: operatorconditions"
+    oc get operatorconditions --all-namespaces &> ${OUTPUT_DIR}/operatorconditions.txt
+    for RESOURCE in subscriptions installplans
+    do
+      $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources -a
+    done
+  fi
 
+  if [[ "$DEPENDENCY_REPORT" == "true" ]]; then
+    # Generate Dependency Report
+    # -----------------------------------------------------------------------------
+    echo ""
+    echo_h2 "Generate Dependency Report"
+    echo "- IBM CloudPak Foundation Services"
+    $MG_SCRIPT_DIR/mg-summary-ibm-common-services &> ${OUTPUT_DIR}/ibm-common-services.txt
 
-  # Generate Dependency Report
-  # -----------------------------------------------------------------------------
-  echo ""
-  echo_h2 "Generate Dependency Report"
-  echo "- IBM CloudPak Foundation Services"
-  $MG_SCRIPT_DIR/mg-summary-ibm-common-services &> ${OUTPUT_DIR}/ibm-common-services.txt
+    echo "- IBM CloudPak for Data"
+    $MG_SCRIPT_DIR/mg-summary-cp4d &> ${OUTPUT_DIR}/cp4d.txt
 
-  echo "- IBM CloudPak for Data"
-  $MG_SCRIPT_DIR/mg-summary-cp4d &> ${OUTPUT_DIR}/cp4d.txt
+    echo "- IBM Db2 Universal Operator"
+    $MG_SCRIPT_DIR/mg-summary-db2u &> ${OUTPUT_DIR}/db2u.txt
+  fi
 
-  echo "- IBM Db2 Universal Operator"
-  $MG_SCRIPT_DIR/mg-summary-db2u &> ${OUTPUT_DIR}/db2u.txt
-
-
-  # Find MongoCE
-  # -----------------------------------------------------------------------------
-  MONGOCE_NAMESPACES=$(oc get mongodbcommunity --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
-  echo ""
-  for MONGOCE_NAMESPACE in $MONGOCE_NAMESPACES
-  do
-    echo_h2 "MongoCE: ${MONGOCE_NAMESPACE}"
-    $MG_SCRIPT_DIR/mg-summary-mongoce $MONGOCE_NAMESPACE &> ${OUTPUT_DIR}/mongoce-${MONGOCE_NAMESPACE}.txt
-    $MG_SCRIPT_DIR/mg-collect-mongoce $MONGOCE_NAMESPACE $OUTPUT_DIR
-  done
+  if [[ "$MONGO_REPORT" == "true" ]]; then
+    # Find MongoCE
+    # -----------------------------------------------------------------------------
+    MONGOCE_NAMESPACES=$(oc get mongodbcommunity --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
+    echo ""
+    for MONGOCE_NAMESPACE in $MONGOCE_NAMESPACES
+    do
+      echo_h2 "MongoCE: ${MONGOCE_NAMESPACE}"
+      $MG_SCRIPT_DIR/mg-summary-mongoce $MONGOCE_NAMESPACE &> ${OUTPUT_DIR}/mongoce-${MONGOCE_NAMESPACE}.txt
+      $MG_SCRIPT_DIR/mg-collect-mongoce $MONGOCE_NAMESPACE $OUTPUT_DIR
+    done
+  fi
 
   if [[ "$EXTRA_NAMESPACES" != "" ]]
   then
@@ -196,7 +234,7 @@ function mustgather() {
   do
     echo_h2 "Maximo Application Suite Must Gather: ${MAS_INSTANCE_ID}"
 
-    for MAS_APP_ID in core add assist iot monitor manage optimizer predict visualinspection pipelines
+    for MAS_APP_ID in $(echo $MAS_APP_IDS | tr "," " ")
     do
       MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
       NAMESPACE_LOOKUP=$(oc get namespace $MAS_APP_NAMESPACE --ignore-not-found)
@@ -222,35 +260,39 @@ function mustgather() {
     done
   done
 
-  # Gather SLS data
-  # -----------------------------------------------------------------------------
-  SLS_NAMESPACES=$(oc get LicenseService --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
-  echo ""
-  for SLS_NAMESPACE in $SLS_NAMESPACES
-  do
-    # assume that there is only one LicenseService in the namespace
-    SLS_NAME=$(oc get LicenseService -n ${SLS_NAMESPACE} --ignore-not-found -o jsonpath='{.items[0].metadata.name}')
-    echo_h2 "Suite Licensing Service Must Gather from ${SLS_NAME} in ${SLS_NAMESPACE}"
+  if [[ "$SLS_REPORT" == "true" ]]; then
+    # Gather SLS data
+    # -----------------------------------------------------------------------------
+    SLS_NAMESPACES=$(oc get LicenseService --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
+    echo ""
+    for SLS_NAMESPACE in $SLS_NAMESPACES
+    do
+      # assume that there is only one LicenseService in the namespace
+      SLS_NAME=$(oc get LicenseService -n ${SLS_NAMESPACE} --ignore-not-found -o jsonpath='{.items[0].metadata.name}')
+      echo_h2 "Suite Licensing Service Must Gather from ${SLS_NAME} in ${SLS_NAMESPACE}"
 
-    # SLS-specific must-gather
-    $MG_SCRIPT_DIR/mg-summary-sls $SLS_NAMESPACE &> ${OUTPUT_DIR}/${SLS_NAMESPACE}.txt
+      # SLS-specific must-gather
+      $MG_SCRIPT_DIR/mg-summary-sls $SLS_NAMESPACE &> ${OUTPUT_DIR}/${SLS_NAMESPACE}.txt
 
-    # Generic Kubernetes must-gather
-    if [[ "$SUMMARY_ONLY" == false ]]
-    then
-      $MG_SCRIPT_DIR/mg-collect-sls $SLS_NAMESPACE $OUTPUT_DIR
+      # Generic Kubernetes must-gather
+      if [[ "$SUMMARY_ONLY" == false ]]
+      then
+        $MG_SCRIPT_DIR/mg-collect-sls $SLS_NAMESPACE $OUTPUT_DIR
 
-      $MG_SCRIPT_DIR/mg-collect-pods $SLS_NAMESPACE $POD_LOGS $OUTPUT_DIR/resources
-      for RESOURCE in configmaps services routes deployments jobs operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings
-      do
-        $MG_SCRIPT_DIR/mg-collect-resources -n $SLS_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
-      done
-      $MG_SCRIPT_DIR/mg-collect-secrets -n $SLS_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources -s $SECRET_DATA
-    fi
-  done
+        $MG_SCRIPT_DIR/mg-collect-pods $SLS_NAMESPACE $POD_LOGS $OUTPUT_DIR/resources
+        for RESOURCE in configmaps services routes deployments jobs operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings
+        do
+          $MG_SCRIPT_DIR/mg-collect-resources -n $SLS_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
+        done
+        $MG_SCRIPT_DIR/mg-collect-secrets -n $SLS_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources -s $SECRET_DATA
+      fi
+    done
+  fi
 
-  python3 $MG_SCRIPT_DIR/summarizer/mg-print-summary.py $OUTPUT_DIR | tee $OUTPUT_DIR/summary.txt
-
+  if [[ "$OCP_REPORT" == "true" ]]; then
+    python3 $MG_SCRIPT_DIR/summarizer/mg-print-summary.py $OUTPUT_DIR | tee $OUTPUT_DIR/summary.txt
+  fi
+  
   tar -czf $OUTPUT_FILE -C $MG_DIR $TIMESTAMP
   if [[ -n "$ARTIFACTORY_TOKEN" && -n "$ARTIFACTORY_UPLOAD_DIR" ]]; then
     set -e

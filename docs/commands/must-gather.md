@@ -14,6 +14,16 @@ Usage
 - `--artifactory-upload-directory ARTIFACTORY_UPLOAD_DIRECTORY` Working URL to the root directory in Artifactory where the must-gather file should be uploaded
 - `--mas-instance-ids` Collects the data for the specified MAS instances, if not specified will collect for all MAS instances on the cluster
 - `--secret-data` Collects also the content of the secrets, the default is not to include the data part of the secrets
+- `--extra-namespaces`         Collects data for additional namespaces, like ibm-common-services or db2u, must be separated by a coma
+- `--ocp-report`               Collects the collection of OCP data
+- `--dependency-report`        Collects the collection of custom resources for dependencies (like db2 or cloud pak services)
+- `--mongo-report`             Collects the collection of Mongo data
+- `--sls-report`               Collects the collection of SLS data
+- `--mas-app-ids`              Collects for the specified apps instead of for all apps for the MAS instance id, specify values from: 
+                               core add assist iot monitor manage optimizer predict visualinspection pipelines 
+                               separated by a coma, for example "core,manage"
+- `--all`                      Collects all MAS related data, OCP report, dependency report, mongo, sls and all Mas instances namespaces, it is the same as 
+                               including --ocp-report --dependency-report --mongo-report and --sls-report options together
 
 Content
 -------------------------------------------------------------------------------
@@ -123,15 +133,40 @@ docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-ga
 Running this command will save the must-gather file to a must-gather directory in your home directory.
 
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --summary-only
+docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --all --summary-only
 ```
 
 ### Must-Gather for one MAS instance
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --mas-instance-ids inst1
+docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --all --mas-instance-ids inst1
 ```
 
 ### Must-Gather that includes the data of the secrets
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --secret-data
+docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --all --secret-data
+```
+
+### Must-Gather that collects everything, including data for db2 and ibm-common-services namespaces and data for all secrets
+```bash
+docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --all --secret-data --extra-namespaces "db2u,ibm-common-services"
+```
+
+### Must-Gather that collects only data for mas core for MAS instance "inst1"
+```bash
+docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather -mas-instance-ids "inst1" --mas-app-ids "core"
+```
+
+### Must-Gather that collects only data for mas core and mas manage for MAS instance "inst1" and mongo data
+```bash
+docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather -mas-instance-ids "inst1" --mas-app-ids "core,manage" --mongo-report
+```
+
+### Execute the Must-Gather in non-interactive mode
+```bash
+docker run --rm -v /~:/mnt/home:z quay.io/ibmmas/cli /bin/bash -c "oc login --token=sha256~XFnSk...fc8U --server=https://api.<openshift domain>:6443/ --insecure-skip-tls-verify; mas must-gather -d /mnt/home/must-gather"
+```
+
+### Execute the Must-Gather in non-interactive mode using podman
+```bash
+podman run --rm -v /data:/mnt/home:z quay.io/ibmmas/cli /bin/bash -c "oc login --token=sha256~XFnSk...fc8U --server=https://api.<openshift domain>:6443/ --insecure-skip-tls-verify; mas must-gather -d /mnt/home/must-gather"
 ```

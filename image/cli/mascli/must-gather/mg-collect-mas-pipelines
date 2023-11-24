@@ -9,7 +9,7 @@ OUTPUT_DIR=$2
 # -----------------------------------------------------------------------------
 for RESOURCE in tasks taskruns pipelines pipelineruns
 do
-  $MG_SCRIPT_DIR/mg-collect-resources -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
+  $DIR/mg-collect-resources -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
 done
 
 
