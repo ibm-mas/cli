@@ -105,6 +105,12 @@
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">Oct 04 2023</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#details">Details</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#issue-2">Issue 2</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#issue-1">Issue 1</a>
+    </li>
+        </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#manual-installation">Manual Installation</a>
     </li>
@@ -172,9 +178,23 @@
               
                 <h1 id="ibm-maximo-operator-catalog-v8-231004">IBM Maximo Operator Catalog v8 (231004)<a class="headerlink" href="#ibm-maximo-operator-catalog-v8-231004" title="Permanent link"></a></h1>
 <h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link"></a></h2>
+<h3 id="issue-2">Issue 2<a class="headerlink" href="#issue-2" title="Permanent link"></a></h3>
 <table>
   <tr><td>Image</td><td>icr.io/cpopen/ibm-maximo-operator-catalog</tr></tr>
   <tr><td>Tag</td><td>v8-231004-amd64</tr></tr>
+  <tr><td>Digest</td><td>sha256:32b28d56327215dcab58664f10987b3e961c0ee9630744b9f66b710e9d879dca</tr></tr>
+</table>
+
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>On 24th November 2023, we re-issued this catalog with an updated channel graph that resolves <a href="https://www.ibm.com/mysupport/s/defect/aCI3p0000004LXZGA2/dt246802">DT246802</a>. This update resolves an edge condition impacting disconnected installations where an intermediate version was required to update in certain scenarios.</p>
+<p>The content of the catalog has not changed, if you already mirrored images using the original issue you do not need to mirror anything new.</p>
+<p>MAS CLI versions v7.9.0 or newer will automatically use this new issue.</p>
+</div>
+<h3 id="issue-1">Issue 1<a class="headerlink" href="#issue-1" title="Permanent link"></a></h3>
+<table>
+  <tr><td>Image</td><td>icr.io/cpopen/ibm-maximo-operator-catalog</tr></tr>
+  <tr><td>Tag</td><td>v8-231004-amd64-issue1</tr></tr>
   <tr><td>Digest</td><td>sha256:57dfc24fe5c87a0304b4fb9c283a9b0b753e41acfffe61ffac5ca1359a579bdf</tr></tr>
 </table>
 
@@ -191,7 +211,7 @@ spec:
   publisher: IBM
   description: Static Catalog Source for IBM Maximo Application Suite
   sourceType: grpc
-  image: icr.io/cpopen/ibm-maximo-operator-catalog@sha256:57dfc24fe5c87a0304b4fb9c283a9b0b753e41acfffe61ffac5ca1359a579bdf
+  image: icr.io/cpopen/ibm-maximo-operator-catalog@sha256:32b28d56327215dcab58664f10987b3e961c0ee9630744b9f66b710e9d879dca
   priority: 90
 </code></pre>
 <h2 id="red-hat-openshift-container-platform-support">Red Hat OpenShift Container Platform Support<a class="headerlink" href="#red-hat-openshift-container-platform-support" title="Permanent link"></a></h2>
@@ -231,7 +251,6 @@ spec:
 </ul>
 <p>The following packages from this catalog are used in the Maximo Application Suite install:</p>
 <ul>
-<li><strong>strimzi-kafka-operator</strong> required by <code>ibm.mas_devops.kafka</code> role (if using Strimzi as Kakfa provider)</li>
 <li><strong>crunchy-postgres-operator</strong> required by <code>ibm.mas_devops.uds</code> role</li>
 <li><strong>gpu-operator-certified</strong> required by <code>ibm.mas_devops.nvidia_gpu</code> role</li>
 <li><strong>kubeturbo-certified</strong> required by <code>ibm.mas_devops.kubeturbo</code> role</li>
@@ -245,6 +264,7 @@ spec:
 <ul>
 <li><strong>grafana-operator</strong> required by <code>ibm.mas_devops.cluster_monitoring</code> role</li>
 <li><strong>opentelemetry-operator</strong> required by <code>ibm.mas_devops.cluster_monitoring</code> role</li>
+<li><strong>strimzi-kafka-operator</strong> required by <code>ibm.mas_devops.kafka</code> role (if using Strimzi as Kakfa provider)</li>
 </ul>
 <h3 id="red-hat-operators">Red Hat Operators<a class="headerlink" href="#red-hat-operators" title="Permanent link"></a></h3>
 <ul>
