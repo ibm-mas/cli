@@ -340,7 +340,7 @@ function gitops_db2u_jdbc_config() {
   fi  
 
   export DB2_LDAP_POD_NAME=`oc get pods -o custom-columns=POD:.metadata.name -l app=${DB2_INSTANCE_NAME},role=ldap -n ${DB2_NAMESPACE}  --no-headers`
-  export DB2_CA_PEM=`oc get secret db2u-certificate -n ${DB2_NAMESPACE} -o "jsonpath={.data['ca\.crt']}"`
+  export DB2_CA_PEM=`oc get secret db2u-certificate-${DB2_INSTANCE_NAME} -n ${DB2_NAMESPACE} -o "jsonpath={.data['ca\.crt']}"`
   # Get Db2u TLS port
   export DB2_TLS_SERVICEPORT=`oc get svc c-${DB2_INSTANCE_NAME}-db2u-engn-svc -n ${DB2_NAMESPACE} -o=jsonpath="{.spec.ports[?(@.name=='ssl-server')].targetPort}"`
   export JDBC_URL="jdbc:db2://c-${DB2_INSTANCE_NAME}-db2u-engn-svc.${DB2_NAMESPACE}.svc:${DB2_TLS_SERVICEPORT}/${DB2_DBNAME}:sslConnection=true;sslVersion=${TLS_VERSION};"
