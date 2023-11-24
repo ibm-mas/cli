@@ -164,6 +164,8 @@ spec:
       type: string
     - name: cis_service_name
       type: string
+    - name: mas_app_id
+      type: string
 
   tasks:
 {% if wait_for_provision == true %}
@@ -312,6 +314,8 @@ spec:
           value: $(params.cis_apikey)
         - name: mas_config_dir
           value: $(params.mas_config_dir)
+        - name: mas_app_id
+          value: core
       taskRef:
         kind: Task
         name: gitops-suite-certs

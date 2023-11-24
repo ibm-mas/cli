@@ -20,6 +20,7 @@ Options:
   --cis-crn ${COLOR_YELLOW}CIS_CRN${TEXT_RESET}                             CIS_CRN
   --cis-apikey ${COLOR_YELLOW}CIS_APIKEY${TEXT_RESET}                       CIS_APIKEY
   --mas-config-dir ${COLOR_YELLOW}MAS_CONFIG_DIR${TEXT_RESET}               MAS_CONFIG_DIR
+  --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                       MAS_APP_ID
 
 Other Commands:
   -h, --help                                                                Show this help message
@@ -54,6 +55,9 @@ function gitops_suite_certs_noninteractive() {
         ;;
       --mas-manual-cert-mgmt)
         export MAS_MANUAL_CERT_MGMT=$1 && shift
+        ;;
+      --mas-app-id)
+        export MAS_APP_ID=$1 && shift
         ;;
 
       # CIS specific
@@ -120,7 +124,19 @@ function gitops_suite_certs() {
   echo_reset_dim "cis_crn ................................. ${COLOR_MAGENTA}${CIS_CRN}"
   echo_reset_dim "cis_apikey .............................. ${COLOR_MAGENTA}${CIS_APIKEY:0:8}<snip>"
   echo_reset_dim "mas_config_dir .......................... ${COLOR_MAGENTA}${MAS_CONFIG_DIR}"
- 
+  echo_reset_dim "mas_app_id .............................. ${COLOR_MAGENTA}${MAS_APP_ID}"
+  echo_reset_dim "mas_app_namespace ....................... ${COLOR_MAGENTA}mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
+
+  export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
+  while : ; do
+    oc get ns ${MAS_APP_NAMESPACE}
+    if [[ $? != 0 ]]; then
+      echo 'Namespace "${MAS_APP_NAMESPACE}" not found'
+      sleep 30s
+    else 
+      break
+    fi
+  done
   export ROLE_NAME=suite_certs && ansible-playbook ibm.mas_devops.run_role
 
   rc=$?
