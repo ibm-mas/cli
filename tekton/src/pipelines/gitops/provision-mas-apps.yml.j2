@@ -18,10 +18,33 @@ spec:
       # Name of the PipelineRun to wait for
     - name: pipelinerun_name
       type: string
+    - name: second_pipelinerun_name
+      type: string
     - name: ignore_failure
       type: string
       default: "False"
       description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
+    - name: remote_ocp_cluster
+      type: string
+      default: ""
+    - name: remote_ocp_type
+      type: string
+      default: "rosa"
+    - name: remote_rosa_token
+      type: string
+      default: ""
+    - name: remote_rosa_cluster_admin_password
+      type: string
+      default: ""
+    - name: aws_region
+      type: string
+      default: ""
+    - name: aws_secret_access_key
+      type: string
+      default: ""
+    - name: aws_access_key_id
+      type: string
+      default: ""
 {% endif %}
     - name: cluster_name
       type: string
@@ -56,6 +79,8 @@ spec:
     - name: cis_crn
       type: string
     - name: cis_apikey
+      type: string
+    - name: mas_config_dir
       type: string
 
     - name: github_url
@@ -178,9 +203,9 @@ spec:
 
   tasks:
 {% if wait_for_provision == true %}
-    # 0. Wait for the provsion pipeline to complete
+    # 0. Wait for the fvt start pipeline to complete
     # -------------------------------------------------------------------------
-    - name: wait-for-provision
+    - name: wait-for-fvt-start
       params:
         - name: pipelinerun_name
           value: $(params.pipelinerun_name)
@@ -189,14 +214,42 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-wait-for-pipelinerun
+
+    # 1. Wait for the remote fvt pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-fvt-complete
+      runAfter:
+        - wait-for-fvt-start
+      params:
+        - name: pipelinerun_name
+          value: $(params.second_pipelinerun_name)
+        - name: ignore_failure
+          value: $(params.ignore_failure)
+        - name: remote_ocp_cluster
+          value: $(params.remote_ocp_cluster)
+        - name: remote_ocp_type
+          value: $(params.remote_ocp_type)
+        - name: remote_rosa_token
+          value: $(params.remote_rosa_token)
+        - name: remote_rosa_cluster_admin_password
+          value: $(params.remote_rosa_cluster_admin_password)
+        - name: aws_region
+          value: $(params.aws_region)
+        - name: aws_secret_access_key
+          value: $(params.aws_secret_access_key)
+        - name: aws_access_key_id
+          value: $(params.aws_access_key_id)
+      taskRef:
+        kind: Task
+        name: mas-fvt-wait-for-pipelinerun
 {% endif %}
 
-    # 1. Kafka
+    # 2. Kafka
     # -------------------------------------------------------------------------
     - name: gitops-kafka
 {% if wait_for_provision == true %}
       runAfter:
-        - wait-for-provision
+        - wait-for-fvt-complete
 {% endif %}
       params:
         - name: cluster_name
@@ -274,13 +327,13 @@ spec:
           operator: notin
           values: [""]
 
-    # 2. DB2 for IoT and Manage
+    # 3. DB2 for IoT and Manage
     # -------------------------------------------------------------------------
-    # 2.1 DB2 for IoT
+    # 3.1 DB2 for IoT
     - name: gitops-db2u-database-iot
 {% if wait_for_provision == true %}
       runAfter:
-        - wait-for-provision
+        - wait-for-fvt-complete
 {% endif %}
       params:
         - name: cluster_name
@@ -398,11 +451,11 @@ spec:
           operator: notin
           values: [""]
 
-    # 2.2 DB2 for Manage
+    # 3.2 DB2 for Manage
     - name: gitops-db2u-database-manage
 {% if wait_for_provision == true %}
       runAfter:
-        - wait-for-provision
+        - wait-for-fvt-complete
 {% endif %}
       params:
         - name: cluster_name
@@ -522,9 +575,9 @@ spec:
           operator: notin
           values: [""]
       
-    # 3. Install & Configure IoT
+    # 4. Install & Configure IoT
     # -------------------------------------------------------------------------
-    # 3.1 Install IoT
+    # 4.1 Install IoT
     - name: app-install-iot
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
@@ -593,7 +646,7 @@ spec:
         - gitops-kafka-config
         - gitops-db2u-config-iot
 
-    # 3.2 Install IoT certs
+    # 4.2 Install IoT certs
     - name: gitops-suite-certs-iot
       runAfter:
         - gitops-kafka-config
@@ -636,7 +689,7 @@ spec:
         - name: certificates
           workspace: shared-certificates
 
-    # 3.3 Configure IoT workspace
+    # 4.3 Configure IoT workspace
     - name: app-cfg-iot
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
@@ -700,9 +753,9 @@ spec:
       runAfter:
         - app-install-iot
 
-    # 4. Install & Configure Manage
+    # 5. Install & Configure Manage
     # -------------------------------------------------------------------------
-    # 4.1 Install Manage
+    # 5.1 Install Manage
     - name: app-install-manage
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
@@ -767,7 +820,7 @@ spec:
       runAfter:
         - gitops-db2u-config-manage
 
-    # 4.2 Install Manage certs
+    # 5.2 Install Manage certs
     - name: gitops-suite-certs-manage
       runAfter:
         - gitops-db2u-config-manage
@@ -809,7 +862,7 @@ spec:
         - name: certificates
           workspace: shared-certificates
 
-    # 4.3 Configure Manage workspace
+    # 5.3 Configure Manage workspace
     - name: app-cfg-manage
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
