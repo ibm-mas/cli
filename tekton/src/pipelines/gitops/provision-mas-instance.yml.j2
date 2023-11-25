@@ -14,6 +14,7 @@ spec:
     - name: shared-certificates
     # Any pre-generated configs that will be copied into the shared-configs workspace during suite-install
     - name: shared-additional-configs
+    - name: shared-gitops-configs
   description: Provision MAS GitOps Instance
   params:
 {% if wait_for_provision == true %}
@@ -431,6 +432,8 @@ spec:
           workspace: configs
         - name: shared-additional-configs
           workspace: shared-additional-configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
       taskRef:
         name: gitops-suite-config
         kind: Task
