@@ -526,17 +526,17 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   if [[ -n "$DB2_DATABASE_DB_CONFIG_YAML" ]]; then
     echo
     echo_h2 "Using db2 database db config provided for $MAS_APP_ID at $DB2_DATABASE_DB_CONFIG_YAML"
-    export DB2_DATABASE_DB_CONFIG=$(cat ${DB2_DATABASE_DB_CONFIG_YAML} | yq -r '.' --yaml-output)
+    export DB2_DATABASE_DB_CONFIG=$(cat ${DB2_DATABASE_DB_CONFIG_YAML})
   fi
   if [[ -n "$DB2_INSTANCE_DBM_CONFIG_YAML" ]]; then
     echo
     echo_h2 "Using db2 instance dm config provided for $MAS_APP_ID at $DB2_INSTANCE_DBM_CONFIG_YAML"
-    export DB2_INSTANCE_DBM_CONFIG=$(cat ${DB2_INSTANCE_DBM_CONFIG_YAML} | yq -r '.' --yaml-output)
+    export DB2_INSTANCE_DBM_CONFIG=$(cat ${DB2_INSTANCE_DBM_CONFIG_YAML})
   fi
   if [[ -n "$DB2_INSTANCE_REGISTRY_YAML" ]]; then
     echo
     echo_h2 "Using db2 instance registry config provided for $MAS_APP_ID at $DB2_INSTANCE_REGISTRY_YAML"
-    export DB2_INSTANCE_REGISTRY=$(cat ${DB2_INSTANCE_REGISTRY_YAML} | yq -r '.' --yaml-output)
+    export DB2_INSTANCE_REGISTRY=$(cat ${DB2_INSTANCE_REGISTRY_YAML})
   fi
 
   if [ -z $GIT_SSH ]; then
