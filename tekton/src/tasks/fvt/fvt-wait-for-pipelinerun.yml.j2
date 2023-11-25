@@ -34,11 +34,16 @@ spec:
     - name: aws_access_key_id
       type: string
       default: ""
+    - name: argocd_remove_deny_window
+      type: string
+      default: "False"
   stepTemplate:
     name: wait-for-pipelinerun
     env:
       - name: REMOTE_OCP_CLUSTER
         value: $(params.remote_ocp_cluster)
+      - name: ARGOCD_REMOVE_DENY_WINDOW
+        value: $(params.argocd_remove_deny_window)
   steps:
     - name: wait-for-pipelinerun
       imagePullPolicy: Always
@@ -97,6 +102,19 @@ spec:
         echo "Completion Time = $COMPLETION_TIME"
         echo "Retries Used    = $RETRIES_USED"
         RESULT=$(oc -n $(context.taskRun.namespace) get pipelinerun/$PIPELINERUN_NAME -o jsonpath='{.status.conditions[0].status}')
+
+        if [[ "$ARGOCD_REMOVE_DENY_WINDOW" == "True" ]]; then
+          echo "Deleting ArgoCD sync window after FVT tests have completed"
+          if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
+            export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}')
+            export ARGOCD_USERNAME=admin
+            export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' | base64 -d ; echo)
+          fi
+          echo "argo:argocd login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."
+          argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+          echo "argo:argocd proj window delete $MAS_INSTANCE_ID 0"
+          argocd proj windows delete $MAS_INSTANCE_ID 0
+        fi
 
         if [[ "$RESULT" == "True" ]]; then
           echo "Result          = PipelineRun completed successfully"
