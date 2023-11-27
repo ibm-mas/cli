@@ -67,11 +67,11 @@ spec:
         # Lookups from mas-fvt-mobile
         # -----------------------------------------------------------------------
         # Framework Information
-        - name: MAS_APP_CHANNEL_MANAGE
+        - name: MAS_CHANNEL
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-manage
-              key: MAS_APP_CHANNEL_MANAGE
+              name: mas-fvt-core
+              key: MAS_CHANNEL
               optional: false
         - name: MAS_WORKSPACE_ID
           valueFrom:
