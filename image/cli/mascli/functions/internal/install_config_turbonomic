@@ -15,7 +15,7 @@ function install_config_turbonomic() {
     prompt_for_input "Turbonomic Server URL" TURBONOMIC_SERVER_URL
     prompt_for_input "Turbonomic Server Version" TURBONOMIC_SERVER_VERSION
     prompt_for_input "Turbonomic Username" TURBONOMIC_USERNAME
-    prompt_for_secret "Turbonomic Password" TURBONOMIC_PASSWORD
+    prompt_for_secret "Turbonomic Password" TURBONOMIC_PASSWORD "Re-use saved Turbonomic password?"
   else
     TURBONOMIC_SERVER_URL=""
     TURBONOMIC_SERVER_VERSION=""
