@@ -9,27 +9,27 @@ Usage:
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
-${COLOR_YELLOW}1. Cluster credentials${TEXT_RESET}  
-Log in to your cluster with your IBMid by using the following method, browse to the OpenShift web console. 
+${COLOR_YELLOW}1. Cluster credentials${TEXT_RESET}
+Log in to your cluster with your IBMid by using the following method, browse to the OpenShift web console.
 From the dropdown menu in the upper right of the page, click Copy Login Command.
-- CLUSTER_TOKEN=sha256~COA8-2Hd6G45rUN0HZLLh47sFByoX8QCC8j92jWB3to  
+- CLUSTER_TOKEN=sha256~COA8-2Hd6G45rUN0HZLLh47sFByoX8QCC8j92jWB3to
 - CLUSTER_SERVER=https://c130-e.us-south.containers.cloud.ibm.com:32250
 example: oc login --token=sha256~COA8-2Hd6G45rUN0HZLLh47sFByoX8QCC8j92jWB3to --server=https://c130-e.us-south.containers.cloud.ibm.com:32250
 
 ${COLOR_YELLOW}2. MAS home URL and trust ui prefix${TEXT_RESET}
-- MAS_HOME=masdev.home.mobfound1.masdev.suite.maximo.com  
-- TRUST_UI_PREFIX="http://localhost:3000, http://localhost:3001"          
+- MAS_HOME=masdev.home.mobfound1.masdev.suite.maximo.com
+- TRUST_UI_PREFIX="http://localhost:3000, http://localhost:3001"
 
 ${COLOR_YELLOW}3. Command operation${TEXT_RESET}
 ### mas oidc register
 Register oidc client for config tool.
-If client ever registered, it will be deleted firstly. 
+If client ever registered, it will be deleted firstly.
 
 ${COLOR_YELLOW}### mas oidc unregister${TEXT_RESET}
 Unregister oidc client for config tool previously registered.
 
 ${COLOR_YELLOW}### mas oidc update${TEXT_RESET}
-So far only trust ui prefix is supported to update. Same as register command. 
+So far only trust ui prefix is supported to update. Same as register command.
 
 ${COLOR_YELLOW}### mas oidc [-h|--help]${TEXT_RESET}
 Show this help message
@@ -66,7 +66,7 @@ function configtool_oidc_noninteractive() {
         ;;
       *)
         # unknown option
-        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${TEXT_RESET}\n"
         configtool_oidc_help
         exit 1
         ;;
@@ -83,7 +83,7 @@ function configtool_oidc_noninteractive() {
 function configtool_oidc_interactive() {
 
   echo_h2 "Cluster Credentials"
-  echo "Log in to your cluster with your IBMid by using the following method, browse to the OpenShift web console." 
+  echo "Log in to your cluster with your IBMid by using the following method, browse to the OpenShift web console."
   echo "From the dropdown menu in the upper right of the page, click Copy Login Command."
   echo ""
   prompt_for_input "Cluster Token" CLUSTER_TOKEN && export CLUSTER_TOKEN
@@ -115,13 +115,13 @@ function configtool_oidc() {
         ;;
       *)
         # unknown option
-        echo -e "${COLOR_RED}Usage Error: Unsupported operation \"${OIDC_OP}\"${COLOR_RESET}\n"
+        echo -e "${COLOR_RED}Usage Error: Unsupported operation \"${OIDC_OP}\"${TEXT_RESET}\n"
         configtool_oidc_help
         exit 1
         ;;
       esac
   fi
-  
+
   # noneinteractive if more parameters
   if [[ $# -gt 0 ]]; then
     configtool_oidc_noninteractive "$@"
@@ -140,7 +140,7 @@ function configtool_oidc() {
   # instance name and domain
   echo preparing for $MAS_HOME...
   if [[ -z $MAS_HOME ]]; then
-    echo "${COLOR_RED}MAS_HOME must be provided and not empty. sample: export MAS_HOME=\"masdev.home.mobfound1.masdev.suite.maximo.com\"${COLOR_RESET}"
+    echo "${COLOR_RED}MAS_HOME must be provided and not empty. sample: export MAS_HOME=\"masdev.home.mobfound1.masdev.suite.maximo.com\"${TEXT_RESET}"
     exit 0
   fi
   MAS_PARTS=(`echo $MAS_HOME | tr "." " "`)
@@ -160,7 +160,7 @@ function configtool_oidc() {
     i=$((i + 1))
   done
   if [[ $i -lt 4 ]]; then
-    echo "${COLOR_RED}MAS_HOME is incorrect. sample: \"masdev.home.mobfound1.masdev.suite.maximo.com\"${COLOR_RESET}"
+    echo "${COLOR_RED}MAS_HOME is incorrect. sample: \"masdev.home.mobfound1.masdev.suite.maximo.com\"${TEXT_RESET}"
     exit 0
   fi
 
@@ -199,12 +199,12 @@ function configtool_oidc() {
   # trust ui prefix
   echo TRUST_UI_PREFIX: $TRUST_UI_PREFIX
   if [[ -z $TRUST_UI_PREFIX ]]; then
-    echo "${COLOR_RED}TRUST_UI_PREFIX must be provided and not empty. sample: export TRUST_UI_PREFIX=\"http://localhost:3000,http://localhost:3001\"${COLOR_RESET}"
+    echo "${COLOR_RED}TRUST_UI_PREFIX must be provided and not empty. sample: export TRUST_UI_PREFIX=\"http://localhost:3000,http://localhost:3001\"${TEXT_RESET}"
     exit 0
   fi
   TRUST_UI_PARTS=(`echo $TRUST_UI_PREFIX | tr "," " "`)
   if [[ ${#TRUST_UI_PARTS[@]} -eq 0 ]]; then
-    echo "${COLOR_RED}TRUST_UI_PREFIX is empty, at least define one URL. \"http://localhost:3000\"${COLOR_RESET}"
+    echo "${COLOR_RED}TRUST_UI_PREFIX is empty, at least define one URL. \"http://localhost:3000\"${TEXT_RESET}"
     exit 0
   fi
   CALLBACK="/auth/callback"
@@ -221,7 +221,7 @@ function configtool_oidc() {
       REDIRECT_UIS+="\""$ELE$CALLBACK"\""
     fi
     j=$((j + 1))
-  done 
+  done
   TRUST_UIS+="]"
   REDIRECT_UIS+="]"
 
