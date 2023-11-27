@@ -17,7 +17,7 @@ function install_pipelinerun_prepare() {
 
   OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}') # lookup ocp url regardless
   if [ "$ALREADY_CONFIRMED" != "true" ] && [ "$NO_CONFIRM" != "true" ]; then
-    echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}${COLOR_RESET}"
+    echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}${TEXT_RESET}"
     prompt_for_confirm "Proceed with pipeline setup on this cluster" || exit 0
   fi
 
@@ -80,7 +80,7 @@ function install_pipelinerun_prepare() {
 
   echo -en "\033[1K" # Clear current line
   echo -en "\033[u" # Restore cursor position
-  echo -e "${COLOR_GREEN}Namespace '$PIPELINES_NS' is ready${COLOR_RESET}"
+  echo -e "${COLOR_GREEN}Namespace '$PIPELINES_NS' is ready${TEXT_RESET}"
 
   echo
   echo_h4 "Installed Task Definitions"
@@ -104,18 +104,19 @@ function install_pipelinerun_prepare() {
     # All is good
     echo -en "\033[1K" # Clear current line
     echo -en "\033[u" # Restore cursor position
-    echo -e "${COLOR_GREEN}$CLI_IMAGE is available from the target OCP cluster${COLOR_RESET}"
+    echo -e "${COLOR_GREEN}$CLI_IMAGE is available from the target OCP cluster${TEXT_RESET}"
   else
     echo -en "\033[1K" # Clear current line
     echo -en "\033[u" # Restore cursor position
 
     # We can't get the image, so there's no point running the pipeline
-    echo_warning "$CLI_IMAGE is unavailable from the target OCP cluster"
+    echo_warning "Failed to validate $CLI_IMAGE in the target OCP cluster"
     echo "This image must be accessible from your OpenShift cluster to run the installation:"
     echo "- If you are running an offline (air gap) installation this likely means you have not mirrored this image to your private registry"
     echo "- It could also mean that your cluster's ImageContentSourcePolicy is misconfigured and does not contain an entry for quay.io/ibmmas"
+    echo "- Check the deployment status of mas-cli in your pipeline namespace. This will provide you with more information about the issue."
 
-    echo -e "\n\n[WARNING] $CLI_IMAGE is unavailable from the target OCP cluster" >> $LOGFILE
+    echo -e "\n\n[WARNING] Failed to validate $CLI_IMAGE in the target OCP cluster" >> $LOGFILE
     echo_hr1 >> $LOGFILE
     oc -n $PIPELINES_NS get pods --selector="app=mas-cli" -o yaml >> $LOGFILE
     exit 1
