@@ -51,7 +51,7 @@ function upgrade_noninteractive() {
         ;;
       *)
         # unknown option
-        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${TEXT_RESET}\n"
         upgrade_help
         exit 1
         ;;
@@ -116,8 +116,8 @@ function upgrade() {
 
   # Start pipeline execution
   oc -n mas-$MAS_INSTANCE_ID-pipelines create -f $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-upgrade.yaml &>> $LOGFILE || exit 1
-  echo -e "${COLOR_GREEN}Upgrade started successfully${COLOR_RESET}"
-  echo -e "\nView progress:\n  ${COLOR_CYAN}${TEXT_UNDERLINE}https://${OCP_CONSOLE_ROUTE}/pipelines/ns/mas-$MAS_INSTANCE_ID-pipelines${TEXT_RESET}${COLOR_RESET}"
+  echo -e "${COLOR_GREEN}Upgrade started successfully${TEXT_RESET}"
+  echo -e "\nView progress:\n  ${COLOR_CYAN}${TEXT_UNDERLINE}https://${OCP_CONSOLE_ROUTE}/pipelines/ns/mas-$MAS_INSTANCE_ID-pipelines${TEXT_RESET}${TEXT_RESET}"
   echo
 
 }

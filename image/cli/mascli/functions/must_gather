@@ -61,13 +61,13 @@ function mustgather() {
       POD_LOGS=false
       ;;
     --mas-instance-ids)
-      MAS_INSTANCE_IDS=$1; shift 
+      MAS_INSTANCE_IDS=$1; shift
       ;;
     --extra-namespaces)
-      EXTRA_NAMESPACES=$1; shift 
+      EXTRA_NAMESPACES=$1; shift
       ;;
     --secret-data)
-      SECRET_DATA=true 
+      SECRET_DATA=true
       ;;
     --artifactory-token)
       ARTIFACTORY_TOKEN=$1; shift
@@ -84,7 +84,7 @@ function mustgather() {
       ;;
     *)
       # unknown option
-      echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+      echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${TEXT_RESET}\n"
       must_gather_help
       exit 1
       ;;
