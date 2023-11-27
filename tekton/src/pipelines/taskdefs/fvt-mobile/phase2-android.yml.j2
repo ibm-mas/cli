@@ -134,9 +134,6 @@
     - input: "$(params.fvt_digest_asset_manager_testng)"
       operator: notin
       values: [""]
-    - input: "$(params.mas_app_channel_manage)"
-      operator: notin
-      values: [""]
   runAfter:
     - fvt-mobile-setup-data
 
@@ -153,8 +150,6 @@
       value: $(params.fvt_digest_inventorycounting_testng)
     - name: fvt_mas_appws_component
       value: base
-    - name: mas_appws_components
-      value: $(params.mas_appws_components)
     - name: fvt_test_suite
       value: inventory-counting-mvt-android # xml for Mobile IC
   # Only if we've set a digest of the Mobile IC FVT to run
@@ -178,8 +173,6 @@
       value: $(params.fvt_digest_inventoryreceiving_testng)
     - name: fvt_mas_appws_component
       value: base
-    - name: mas_appws_components
-      value: $(params.mas_appws_components)
     - name: fvt_test_suite
       value: inventory-receiving-mvt-android
     - name: assist_test_type
@@ -209,8 +202,6 @@
       value: $(params.fvt_digest_issuesandtransfers_testng)
     - name: fvt_mas_appws_component
       value: base
-    - name: mas_appws_components
-      value: $(params.mas_appws_components)
     - name: fvt_test_suite
       value: issues-transfer-mvt-android
     - name: assist_test_type
