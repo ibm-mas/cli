@@ -8,6 +8,8 @@ spec:
   workspaces:
     # The generated configuration files
     - name: shared-configs
+    # PodTemplates configurations
+    - name: shared-pod-templates
 
   params:
     # Tekton Pipeline image pull policy (for ibmmas/cli images)
@@ -44,6 +46,11 @@ spec:
     - name: ivt_digest_core
       type: string
       description: IVT Digest - Core
+      default: ""
+    # Data Dictionary Digest
+    - name: fvt_digest_data_dictionary
+      type: string
+      description: Data Dictionary Digest
       default: ""
 
     - name: fvt_test_suite
@@ -130,3 +137,9 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
+
+    # 3. Data Dictionary FVT
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-data-dictionary/data-dictionary.yml.j2') | indent(4) }}
+      runAfter:
+        - fvt-monitor
