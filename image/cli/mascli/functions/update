@@ -26,6 +26,36 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
+# Auto-detect MongoDB
+# -----------------------------------------------------------------------------
+# Validates the existance of installed MongoDB Community Edition in the target cluster
+# and prints a warning message if MongoDB is supposed to be upgraded
+
+function validate_existing_mongo() {
+
+  if [ -z "$MONGODB_NAMESPACE" ]; then
+    MONGODB_NAMESPACE=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+  fi
+
+  # We just check current MongoDB version and warn about Mongo upgrade if MAS catalog is more recent than November 2023
+  MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
+
+  if [[ $MAS_CATALOG_DATE -ge 231128 ]]; then
+    # Lookup existing MongoDb instance
+    MONGODB_CURRENT_VERSION=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].status.version}' 2> /dev/null`
+    MONGODB_REQUIRED_VERSION="5.0.21" # required version for Nov 2023 catalog
+    
+    # If existing MongoDb instance version is lower than the minimum version required, then let users know that Mongo will be upgraded
+    if [ ! "$(printf '%s\n' "$MONGODB_REQUIRED_VERSION" "$MONGODB_CURRENT_VERSION" | sort -V | head -n1)" = "$MONGODB_REQUIRED_VERSION" ]; then 
+      echo -e "${COLOR_YELLOW}MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and will be upgraded to version ${MONGODB_REQUIRED_VERSION}.${COLOR_RESET}"
+      echo -e "${COLOR_YELLOW}It is recommended that you backup your MongoDB instance before proceeding:${COLOR_RESET}"
+      echo -e "${COLOR_YELLOW}https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-backing-up-mongodb-maximo-application ${COLOR_RESET}"
+      echo
+      MONGODB_V5_UPGRADE=true
+    fi
+  fi
+}
+
 # Validate Selected Catalog
 # -----------------------------------------------------------------------------
 # Validates that the selected catalog version is one that is suitable to use
@@ -46,8 +76,20 @@ function validate_update() {
     echo
     exit 1
   fi
-}
 
+  # Validates MongoDB upgrade is confirmed while using November catalog
+  MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
+  if [[ $MAS_CATALOG_DATE -ge 231128 ]]; then # checks if MAS catalog >= November 2023
+    if [[ -z "$NO_CONFIRM" ]] ; then
+      validate_existing_mongo
+    else
+      if [[ -z "$MONGODB_V5_UPGRADE" ]] ; then
+        echo -e "${COLOR_RED}By choosing 'v8-231128-amd64' catalog, you must confirm MongoDB upgrade to version 5. Add '--mongodb-v5-upgrade' argument to the 'mas update' command in order to continue.${TEXT_RESET}"
+        exit 1
+      fi
+    fi
+  fi
+}
 
 # Inspect Installed Catalog
 # -----------------------------------------------------------------------------
@@ -113,7 +155,7 @@ function update_noninteractive() {
       --mongodb-namespace)
         MONGODB_NAMESPACE=$1 && shift
         ;;
-      --mongodb-v5-update)
+      --mongodb-v5-upgrade)
         MONGODB_V5_UPGRADE=true
         ;;
       --kafka-namespace)
@@ -170,27 +212,6 @@ function update_interactive() {
     prompt_for_input "Db2u Universal Operator detected. Db2u namespace to update?" DB2_NAMESPACE "db2u"
     echo
   fi
-
-  # Auto-detect MongoDb
-  # ---------------------------------------------------------------------------
-  if [ -z "$MONGODB_NAMESPACE" ]; then
-    MONGODB_NAMESPACE=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
-  fi
-
-  # Lookup existing MongoDb instance
-  MONGODB_CURRENT_VERSION=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].status.version}' 2> /dev/null`
-  MONGODB_REQUIRED_VERSION="5.0.21" # required version for Nov 2023 catalog
-  
-  # If existing MongoDb instance version is lower than the minimum version required, then let users know that Mongo will be upgraded
-  if [ ! "$(printf '%s\n' "$MONGODB_REQUIRED_VERSION" "$MONGODB_CURRENT_VERSION" | sort -V | head -n1)" = "$MONGODB_REQUIRED_VERSION" ]; then 
-    echo -e "${COLOR_YELLOW}MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and will be upgraded to version ${MONGODB_REQUIRED_VERSION}.${COLOR_RESET}"
-    echo -e "${COLOR_YELLOW}It is recommended that you backup your MongoDB instance before proceeding:${COLOR_RESET}"
-    echo -e "${COLOR_YELLOW}https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-backing-up-mongodb-maximo-application ${COLOR_RESET}"
-    echo
-    MONGODB_V5_UPGRADE=true
-  fi
-
-  MONGODB_CURRENT_VERSION=$(oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].status.version}' 2> /dev/null)
 
 
   # Detect Kafka in cluster and set namespace
@@ -261,7 +282,7 @@ function update() {
     echo_reset_dim "IBM Db2 Universal Operator ................. ${COLOR_RED}No${TEXT_RESET}"
   fi
 
-  # IBM Db2
+  # MongoDB Community Edition
   if [ "$MONGODB_NAMESPACE" != "" ]; then
     echo_reset_dim "MongoDb Community Edition .................. ${COLOR_GREEN}Yes ($MONGODB_NAMESPACE)${TEXT_RESET}"
   else
