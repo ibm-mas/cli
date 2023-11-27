@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: mas-fvt-manage-mobile
+  name: mas-fvt-mobile
 spec:
   workspaces:
     # The generated configuration files
@@ -29,11 +29,7 @@ spec:
       type: string
       description: Which Manage components are being installed?
       default: ""
-    # TODO: Why do Manage tests need to know the Kafka provider?
-    - name: kafka_provider
-      type: string
-      description: kafka provider used during installation (ibm, aws or redhat)
-      default: ""
+
 
     # FVT Configuration
     - name: fvt_image_registry
@@ -92,11 +88,10 @@ spec:
       type: string
       default: ""
 
-    - name: ivt_digest_core
-      type: string
-      default: ""
-
   tasks:
+    # 2. Manage FVT - Manage Mobile
+    # -------------------------------------------------------------------------
+    
     {{ lookup('template', 'taskdefs/fvt-mobile/phase1-setup.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-mobile/phase2-android.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-mobile/phase3-ios.yml.j2') | indent(4) }}
