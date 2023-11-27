@@ -81,10 +81,12 @@ function validate_update() {
   MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
   if [[ $MAS_CATALOG_DATE -ge 231128 ]]; then # checks if MAS catalog >= November 2023
     if [[ -z "$NO_CONFIRM" ]] ; then
+      echo
       validate_existing_mongo
     else
       if [[ -z "$MONGODB_V5_UPGRADE" ]] ; then
-        echo -e "${COLOR_RED}By choosing 'v8-231128-amd64' catalog, you must confirm MongoDB upgrade to version 5. Add '--mongodb-v5-upgrade' argument to the 'mas update' command in order to continue.${TEXT_RESET}"
+        echo -e "${COLOR_RED}By choosing 'v8-231128-amd64' catalog, you must confirm MongoDB upgrade to version 5.${TEXT_RESET}"
+        echo -e "${COLOR_RED}Add '--mongodb-v5-upgrade' argument to the 'mas update' command in order to continue.${TEXT_RESET}"
         exit 1
       fi
     fi
