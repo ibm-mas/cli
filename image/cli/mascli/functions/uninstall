@@ -28,7 +28,7 @@ function check_mas_project_exists() {
   if check_project_exists $MAS_NS; then
     export MAS_NS
   else
-    echo -e "${COLOR_RED}Error: The project \"${MAS_NS}\"${COLOR_RESET} does not exist.\n"
+    echo -e "${COLOR_RED}Error: The project \"${MAS_NS}\"${TEXT_RESET} does not exist.\n"
     exit 1
   fi
 }
@@ -49,7 +49,7 @@ function uninstall_noninteractive() {
       ;;
     *)
       # unknown option
-      echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+      echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${TEXT_RESET}\n"
       uninstall_help
       exit 1
       ;;
@@ -178,8 +178,8 @@ function launch_uninstall() {
 
   # Start pipeline execution
   oc -n mas-$MAS_INSTANCE_ID-pipelines create -f $CONFIG_DIR/pipelinerun-$MAS_INSTANCE_ID-uninstall.yaml &>>$LOGFILE || exit 1
-  echo -e "${COLOR_GREEN}Uninstall started successfully${COLOR_RESET}"
-  echo -e "\nView progress:\n  ${COLOR_CYAN}${TEXT_UNDERLINE}https://${OCP_CONSOLE_ROUTE}/pipelines/ns/mas-$MAS_INSTANCE_ID-pipelines${TEXT_RESET}${COLOR_RESET}"
+  echo -e "${COLOR_GREEN}Uninstall started successfully${TEXT_RESET}"
+  echo -e "\nView progress:\n  ${COLOR_CYAN}${TEXT_UNDERLINE}https://${OCP_CONSOLE_ROUTE}/pipelines/ns/mas-$MAS_INSTANCE_ID-pipelines${TEXT_RESET}${TEXT_RESET}"
   echo
 }
 

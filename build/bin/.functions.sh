@@ -8,7 +8,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # COLOR_BLUE=`tput setaf 4`
 # COLOR_MAGENTA=`tput setaf 5`
 # COLOR_CYAN=`tput setaf 6`
-# COLOR_RESET=`tput sgr0`
+# TEXT_RESET=`tput sgr0`
 
 # tput doesn't work in GitHub actions
 # TODO: Integrate properly with GitHub actions to annotate the output as errors etc
@@ -18,7 +18,7 @@ COLOR_YELLOW=""
 COLOR_BLUE=""
 COLOR_MAGENTA=""
 COLOR_CYAN=""
-COLOR_RESET=""
+TEXT_RESET=""
 
 
 function echo_h1() {
