@@ -36,6 +36,7 @@ nav:
       - "must-gather": commands/must-gather.md
   - "Catalogs":
       - "All Catalogs": catalogs/index.md
+      - "Nov 28 2023": catalogs/v8-231128-amd64.md
       - "Oct 31 2023": catalogs/v8-231031-amd64.md
       - "Oct 04 2023": catalogs/v8-231004-amd64.md
       - "Aug 29 2023": catalogs/v8-230829-amd64.md
