@@ -42,6 +42,18 @@ spec:
               name: mas-devops
               key: MAS_INSTANCE_ID
               optional: false
+        - name: DEVOPS_COS_CRN
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_COS_CRN
+              optional: false
+        - name: DEVOPS_IBMCLOUD_APIKEY
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_IBMCLOUD_APIKEY
+              optional: false
 
         # Lookups from mas-fvt
         # -----------------------------------------------------------------------
@@ -66,13 +78,20 @@ spec:
 
         # Lookups from mas-fvt-mobile
         # -----------------------------------------------------------------------
-        # Framework Information
+        # Framework Information        
+        - name: MAS_CHANNEL
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-core
+              key: MAS_CHANNEL
+              optional: false
         - name: MAS_APP_CHANNEL_MANAGE
           valueFrom:
             secretKeyRef:
               name: mas-fvt-manage
               key: MAS_APP_CHANNEL_MANAGE
               optional: false
+
         - name: MAS_WORKSPACE_ID
           valueFrom:
             secretKeyRef:
