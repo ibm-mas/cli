@@ -7,9 +7,9 @@ podTemplates:
     containers:
       - name: manager
         resources:
-          requests:
+          limits:
             cpu: 1.5
             memory: 512Mi
-          limits:
+          requests:
             cpu: 0.2
             memory: 64Mi
