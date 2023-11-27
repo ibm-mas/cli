@@ -46,7 +46,8 @@ function validate_existing_mongo() {
     MONGODB_REQUIRED_VERSION="5.0.21" # required version for Nov 2023 catalog
     
     # If existing MongoDb instance version is lower than the minimum version required, then let users know that Mongo will be upgraded
-    if [ ! "$(printf '%s\n' "$MONGODB_REQUIRED_VERSION" "$MONGODB_CURRENT_VERSION" | sort -V | head -n1)" = "$MONGODB_REQUIRED_VERSION" ]; then 
+    if [ ! "$(printf '%s\n' "$MONGODB_REQUIRED_VERSION" "$MONGODB_CURRENT_VERSION" | sort -V | head -n1)" = "$MONGODB_REQUIRED_VERSION" ]; then
+      echo
       echo -e "${COLOR_YELLOW}MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and will be upgraded to version ${MONGODB_REQUIRED_VERSION}.${COLOR_RESET}"
       echo -e "${COLOR_YELLOW}It is recommended that you backup your MongoDB instance before proceeding:${COLOR_RESET}"
       echo -e "${COLOR_YELLOW}https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-backing-up-mongodb-maximo-application ${COLOR_RESET}"
@@ -81,7 +82,6 @@ function validate_update() {
   MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
   if [[ $MAS_CATALOG_DATE -ge 231128 ]]; then # checks if MAS catalog >= November 2023
     if [[ -z "$NO_CONFIRM" ]] ; then # if 'mas update -c v8-231128-amd64', then we proceed and check existing mongo and warn user of the mongodb upgrade
-      echo
       validate_existing_mongo
     else
       if [[ -z "$MONGODB_V5_UPGRADE" ]] ; then # if 'mas update -c v8-231128-amd64 --no-confirm' but no '--mongodb-v5-upgrade' then we fail as user must consent about the mongodb upgrade
