@@ -42,6 +42,7 @@
         - fvt-optimizer
         - fvt-predict
         - fvt-sls
+        - fvt-data-dictionary
         - fvt-uninstall-after
         - fvt-visualinspection
         - update

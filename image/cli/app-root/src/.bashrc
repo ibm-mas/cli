@@ -9,7 +9,6 @@ COLOR_YELLOW=`tput setaf 3`
 COLOR_BLUE=`tput setaf 4`
 COLOR_MAGENTA=`tput setaf 5`
 COLOR_CYAN=`tput setaf 6`
-COLOR_RESET=`tput sgr0`
 
 TEXT_BOLD=$(tput bold)
 TEXT_DIM=$(tput dim)

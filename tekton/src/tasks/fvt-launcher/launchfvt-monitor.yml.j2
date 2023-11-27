@@ -92,6 +92,12 @@ spec:
               name: mas-fvt-monitor
               key: IVT_DIGEST_CORE
               optional: false
+        - name: FVT_DIGEST_DATA_DICTIONARY
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-monitor
+              key: FVT_DIGEST_DATA_DICTIONARY
+              optional: false
 
     - name: wait-for-pipelinerun
       image: quay.io/ibmmas/cli:latest
