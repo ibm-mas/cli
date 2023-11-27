@@ -224,7 +224,6 @@ function update_interactive() {
     echo
   fi
 
-
   # Detect Kafka in cluster and set namespace
   # Auto-detect Kafka
   # ---------------------------------------------------------------------------

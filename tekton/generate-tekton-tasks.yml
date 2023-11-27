@@ -65,6 +65,7 @@
         - fvt-manage-pytest
         - fvt-monitor
         - fvt-sls
+        - fvt-data-dictionary
         - fvt-run-suite
         - fvt-wait-for-install
         - fvt-wait-for-pipelinerun
@@ -78,6 +79,7 @@
         - launchfvt-core
         - launchfvt-iot
         - launchfvt-manage
+        - launchfvt-mobile
         - launchfvt-monitor
         - launchfvt-optimizer
         - launchfvt-predict
