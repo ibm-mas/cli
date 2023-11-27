@@ -18,12 +18,21 @@ spec:
     - name: image_pull_policy
       value: "{{ image_pull_policy }}"
     # MAS Info
+    - name: mas_channel
+      value: "{{ mas_channel }}"
     - name: mas_app_channel_manage
       value: "{{ mas_app_channel_manage }}"
     - name: mas_instance_id
       value: "{{ mas_instance_id }}"
     - name: mas_workspace_id
       value: "{{ mas_workspace_id }}"
+    # mas-devops
+    - name: devops_build_number
+      value: "{{ devops_build_number }}"
+    - name: devops_cos_crn 
+      value: "{{ devops_cos_crn }}"
+    - name: devops_ibmcloud_apikey
+      value: "{{ devops_ibmcloud_apikey }}"
     # Registry
     - name: fvt_image_registry
       value: "{{ fvt_image_registry }}"
