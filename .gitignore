@@ -14,3 +14,8 @@ tekton/target
 tekton/tmp
 
 image/cli/tmp-*
+
+
+image/cli/mascli/tmp_params
+image/cli/mascli/.env
+image/cli/mascli/working-dir
