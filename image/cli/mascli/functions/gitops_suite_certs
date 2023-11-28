@@ -21,13 +21,6 @@ Options:
   --cis-apikey ${COLOR_YELLOW}CIS_APIKEY${TEXT_RESET}                       CIS_APIKEY
   --mas-config-dir ${COLOR_YELLOW}MAS_CONFIG_DIR${TEXT_RESET}               MAS_CONFIG_DIR
   --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                       MAS_APP_ID
-  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                   Account name that the cluster belongs to
-  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                   Cluster ID
-  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}         IBM Suite Maximo Application Suite Instance ID  
-
-Secrets Manager:
-      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
 Other Commands:
   -h, --help                                                                Show this help message
@@ -36,7 +29,6 @@ EOM
 }
 
 function gitops_suite_certs_noninteractive() {
-  SECRETS_KEY_SEPERATOR="/"
 
   while [[ $# -gt 0 ]]
   do
@@ -48,14 +40,6 @@ function gitops_suite_certs_noninteractive() {
       --dns-provider)
         export DNS_PROVIDER=$1 && shift
         ;;
-
-      -a|--account-id)
-        export ACCOUNT_ID=$1 && shift
-        ;;
-      -c|--cluster-id)
-        export CLUSTER_ID=$1 && shift
-        ;;
-
 
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
@@ -74,14 +58,6 @@ function gitops_suite_certs_noninteractive() {
         ;;
       --mas-app-id)
         export MAS_APP_ID=$1 && shift
-        ;;
-
-      # Secrets Manager
-      --secrets-path)
-        export SECRETS_PATH=$1 && shift
-        ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
 
       # CIS specific
@@ -118,9 +94,6 @@ function gitops_suite_certs_noninteractive() {
     fi
   fi
 
-  [[ -z "$CLUSTER_ID" ]] && gitops_kafka_config_help "CLUSTER_ID is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_kafka_config_help "ACCOUNT_ID is not set"
-  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_kafka_help "MAS_INSTANCE_ID is not set"
 }
 
 function gitops_suite_certs() {
@@ -164,39 +137,10 @@ function gitops_suite_certs() {
       break
     fi
   done
-
-
   export ROLE_NAME=suite_certs && ansible-playbook ibm.mas_devops.run_role
 
   rc=$?
   [ $rc -ne 0 ] && exit $rc
-
-  appList=(
-    "core"
-    "assist" 
-    "iot"
-    "manage"
-    "monitor"
-    "optimizer"  
-    "predict"
-    "visualinspection"
-  ) 
-  APP_CERTS_PATH=${MAS_CONFIG_DIR}/app/certs
-  if [ -e "${APP_CERTS_PATH}" ]; then
-    for app in ${appList[@]}; do
-      PUBLIC_CERT_FILE_PATH=${APP_CERTS_PATH}/${app}/public-cert-${app}.yml
-      if [[ -f "${PUBLIC_CERT_FILE_PATH}" ]]; then  
-        echo "Copying public certs from ${PUBLIC_CERT_FILE_PATH} into SM ${SECRET_NAME_APP_CERT}"
-        export SECRET_NAME_APP_CERT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}certs${SECRETS_KEY_SEPERATOR}${app}
-        UNESCAPED_PUBLIC_CERT=$(cat $PUBLIC_CERT_FILE_PATH)
-        ESCAPED_PUBLIC_CERT=${UNESCAPED_PUBLIC_CERT//\"/\\\"}
-        ESCAPED_PUBLIC_CERT=${ESCAPED_PUBLIC_CERT//$'\n'/\\n}
-        sm_update_secret ${SECRET_NAME_APP_CERT} "{\"${app}\": \"$ESCAPED_PUBLIC_CERT\"}"
-
-        echo "Done"
-      fi    
-    done  
-  fi
 
   exit 0
 }

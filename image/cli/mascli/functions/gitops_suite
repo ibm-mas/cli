@@ -280,10 +280,6 @@ function gitops_suite() {
   export LICENSE_FILE=$TEMP_DIR/license.lic
   sm_get_secret_file $SECRET_KEY_LICENSE_FILE $LICENSE_FILE
 
-  export SECRET_KEY_CORE_CERT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}certs${SECRETS_KEY_SEPERATOR}core
-  export CORE_CERT_FILE=$TEMP_DIR/core-cert.yml
-  sm_get_secret_file $SECRET_KEY_CORE_CERT $CORE_CERT_FILE
-  export CORE_CRT=$(cat ${CORE_CERT_FILE})
 
   # Instance-level secrets to create
   # ---------------------------------------------------------------------------
