@@ -28,10 +28,19 @@ spec:
       type: string
     - name: mas_config_dir
       type: string
-    - name: mas_app_id
+    - name: account
       type: string
-      default: core
-
+    - name: secrets_path
+      type: string
+    - name: gitops
+      type: string
+      default: True
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
   stepTemplate:
     name: gitops-suite-certs
     env:
@@ -39,6 +48,18 @@ spec:
         value: $(params.dns_provider)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: SM_AWS_SECRET_ACCESS_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: SM_AWS_ACCESS_KEY_ID
+        value: $(params.avp_aws_access_key)
       - name: MAS_DOMAIN
         value: $(params.mas_domain)
       - name: CIS_SUBDOMAIN
@@ -55,8 +76,8 @@ spec:
         value: $(params.cis_apikey)
       - name: MAS_CONFIG_DIR
         value: $(params.mas_config_dir)
-      - name: MAS_APP_ID
-        value: $(params.mas_app_id)
+      - name: GITOPS
+        value: $(params.gitops)
 
   steps:
     - args:
@@ -78,7 +99,8 @@ spec:
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
-        mas gitops-suite-certs --mas-instance-id $MAS_INSTANCE_ID  \
+        mas gitops-suite-certs -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        --secrets-path $SECRET_PATH \
         --mas-config-dir /workspace/configs
 
       command:

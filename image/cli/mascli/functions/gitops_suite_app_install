@@ -267,9 +267,33 @@ function gitops_suite_app_install() {
 
   # Instance-level secrets to use
   # ---------------------------------------------------------------------------
-  # Note that these instance-level secrets are set up by gitops-license
 
+  # Set certs only if manual cert is True
+  if [ "${MAS_MANUAL_CERT_MGMT}" = "True" ] ; then
+    export PUBLIC_CERT_SECRET_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}certs${SECRETS_KEY_SEPERATOR}${MAS_APP_ID}
+    export CERT_FILE=$TEMP_DIR/cert.yml
+    export CA_CERT_FILE=$TEMP_DIR/ca_cert.yml
+    export TLS_CERT_FILE=$TEMP_DIR/tls_cert.yml
+    export TLS_KEY_FILE=$TEMP_DIR/tls_key.yml
 
+    sm_get_secret_file $PUBLIC_CERT_SECRET_NAME $CERT_FILE
+    jq -r .cert_ca $CERT_FILE > $CA_CERT_FILE
+    jq -r .cert_tls $CERT_FILE > $TLS_CERT_FILE
+    jq -r .tls_key $CERT_FILE > $TLS_KEY_FILE
+
+    if [[ -n "$CA_CERT_FILE" ]]; then
+      export CA_CERT=$(cat ${CA_CERT_FILE})
+      echo_reset_dim "CA_CERT ............................... ${COLOR_MAGENTA}${CA_CERT}"
+    fi
+    if [[ -n "$TLS_CERT_FILE" ]]; then
+      export TLS_CERT=$(cat ${TLS_CERT_FILE})
+      echo_reset_dim "TLS_CERT .............................. ${COLOR_MAGENTA}${TLS_CERT}"
+    fi
+    if [[ -n "$TLS_KEY_FILE" ]]; then
+      export TLS_KEY=$(cat ${TLS_KEY_FILE})
+      echo_reset_dim "TLS_KEY ............................... ${COLOR_MAGENTA}${TLS_KEY}"    
+    fi
+  fi
 
   # Instance-level secrets to create
   # ---------------------------------------------------------------------------

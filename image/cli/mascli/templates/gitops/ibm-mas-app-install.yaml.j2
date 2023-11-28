@@ -30,6 +30,15 @@ spec:
             mas_app_kind: {{ MAS_APP_KIND }}
             {{ MAS_APP_SPEC | indent(12) }}
 
+{%- if CA_CERT is defined and CA_CERT !='' %}
+            ca_cert: {{ CA_CERT }}
+{%- endif %}
+{%- if TLS_CERT is defined and TLS_CERT !='' %}
+            tls_cert: {{ TLS_CERT }}
+{%- endif %}
+{%- if TLS_KEY is defined and TLS_KEY !='' %}
+            tls_key: {{ TLS_KEY }}
+{%- endif %}
   syncPolicy:
     automated:
       prune: true

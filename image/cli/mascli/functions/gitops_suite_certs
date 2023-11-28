@@ -20,7 +20,14 @@ Options:
   --cis-crn ${COLOR_YELLOW}CIS_CRN${TEXT_RESET}                             CIS_CRN
   --cis-apikey ${COLOR_YELLOW}CIS_APIKEY${TEXT_RESET}                       CIS_APIKEY
   --mas-config-dir ${COLOR_YELLOW}MAS_CONFIG_DIR${TEXT_RESET}               MAS_CONFIG_DIR
-  --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                       MAS_APP_ID
+  --gitops ${COLOR_YELLOW}GITOPS${TEXT_RESET}                               Gitops flag to be used by Ansible role to control OC resources creation
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                   Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                   Cluster ID
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}         IBM Suite Maximo Application Suite Instance ID  
+
+Secrets Manager:
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
+      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
 Other Commands:
   -h, --help                                                                Show this help message
@@ -29,6 +36,7 @@ EOM
 }
 
 function gitops_suite_certs_noninteractive() {
+  SECRETS_KEY_SEPERATOR="/"
 
   while [[ $# -gt 0 ]]
   do
@@ -39,6 +47,16 @@ function gitops_suite_certs_noninteractive() {
       # DNS provider,  cis and route53 is supported to provision suite_dns
       --dns-provider)
         export DNS_PROVIDER=$1 && shift
+        ;;
+
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+      --gitops)
+        export GITOPS=$1 && shift
         ;;
 
       -m|--mas-instance-id)
@@ -56,8 +74,13 @@ function gitops_suite_certs_noninteractive() {
       --mas-manual-cert-mgmt)
         export MAS_MANUAL_CERT_MGMT=$1 && shift
         ;;
-      --mas-app-id)
-        export MAS_APP_ID=$1 && shift
+
+      # Secrets Manager
+      --secrets-path)
+        export SECRETS_PATH=$1 && shift
+        ;;
+      --secrets-key-seperator)
+        export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
 
       # CIS specific
@@ -94,7 +117,11 @@ function gitops_suite_certs_noninteractive() {
     fi
   fi
 
+  [[ -z "$CLUSTER_ID" ]] && gitops_kafka_config_help "CLUSTER_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_kafka_config_help "ACCOUNT_ID is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_kafka_help "MAS_INSTANCE_ID is not set"
 }
+
 
 function gitops_suite_certs() {
   # Take the first parameter off (it will be create-gitops)
@@ -124,23 +151,70 @@ function gitops_suite_certs() {
   echo_reset_dim "cis_crn ................................. ${COLOR_MAGENTA}${CIS_CRN}"
   echo_reset_dim "cis_apikey .............................. ${COLOR_MAGENTA}${CIS_APIKEY:0:8}<snip>"
   echo_reset_dim "mas_config_dir .......................... ${COLOR_MAGENTA}${MAS_CONFIG_DIR}"
-  echo_reset_dim "mas_app_id .............................. ${COLOR_MAGENTA}${MAS_APP_ID}"
-  echo_reset_dim "mas_app_namespace ....................... ${COLOR_MAGENTA}mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
+  echo_reset_dim "gitops .................................. ${COLOR_MAGENTA}${GITOPS}"
 
-  export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
-  while : ; do
-    oc get ns ${MAS_APP_NAMESPACE}
-    if [[ $? != 0 ]]; then
-      echo 'Namespace "${MAS_APP_NAMESPACE}" not found'
-      sleep 30s
-    else 
-      break
-    fi
-  done
   export ROLE_NAME=suite_certs && ansible-playbook ibm.mas_devops.run_role
 
   rc=$?
   [ $rc -ne 0 ] && exit $rc
 
+  if [ "${MAS_MANUAL_CERT_MGMT}" = "True" ] ; then
+
+    echo
+    echo "Move Certs to Secret Manager"
+    AVP_TYPE=aws  # Support for IBM will be added later
+    sm_login
+
+    appList=(
+      "core"
+      "assist" 
+      "iot"
+      "manage"
+      "monitor"
+      "optimizer"  
+      "predict"
+      "visualinspection"
+    ) 
+    APP_CERTS_PATH=${MAS_CONFIG_DIR}/app/certs
+
+    if [ -e "${APP_CERTS_PATH}" ]; then
+
+      for app in ${appList[@]}; do
+
+        PUBLIC_CERT_CA_FILE_PATH=${APP_CERTS_PATH}/${app}/public-cert-ca.yml
+        PUBLIC_CERT_TLS_FILE_PATH=${APP_CERTS_PATH}/${app}/public-cert-tls.yml
+        PUBLIC_TLS_KEY_FILE_PATH=${APP_CERTS_PATH}/${app}/public-tls-key.yml
+
+        PUBLIC_CERT_CA=""
+        PUBLIC_CERT_TLS=""
+        PUBLIC_TLS_KEY=""
+
+        export PUBLIC_CERT_SECRET_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}certs${SECRETS_KEY_SEPERATOR}${app}
+
+        if [[ -s "${PUBLIC_CERT_CA_FILE_PATH}" ]]; then
+          echo "File Path :  ${PUBLIC_CERT_CA_FILE_PATH}"
+          PUBLIC_CERT_CA=$(cat $PUBLIC_CERT_CA_FILE_PATH)
+          PUBLIC_CERT_CA=${PUBLIC_CERT_CA//\"/\\\"}
+          PUBLIC_CERT_CA=${PUBLIC_CERT_CA//$'\n'/\\n}  
+        fi
+
+        if [[ -s "${PUBLIC_CERT_TLS_FILE_PATH}" ]]; then
+          echo "File Path :  ${PUBLIC_CERT_TLS_FILE_PATH}"
+          PUBLIC_CERT_TLS=$(cat $PUBLIC_CERT_TLS_FILE_PATH)
+          PUBLIC_CERT_TLS=${PUBLIC_CERT_TLS//\"/\\\"}
+          PUBLIC_CERT_TLS=${PUBLIC_CERT_TLS//$'\n'/\\n}
+        fi
+
+        if [[ -s "${PUBLIC_TLS_KEY_FILE_PATH}" ]]; then  
+          echo "File Path :  $PUBLIC_TLS_KEY_FILE_PATH"
+          PUBLIC_TLS_KEY=$(cat $PUBLIC_TLS_KEY_FILE_PATH)
+          PUBLIC_TLS_KEY=${PUBLIC_TLS_KEY//\"/\\\"}
+          PUBLIC_TLS_KEY=${PUBLIC_TLS_KEY//$'\n'/\\n}
+        fi
+        sm_update_secret $PUBLIC_CERT_SECRET_NAME "{\"cert_ca\": \"$PUBLIC_CERT_CA\", \"cert_tls\": \"$PUBLIC_CERT_TLS\", \"tls_key\": \"$PUBLIC_TLS_KEY\"}"
+      done  
+    fi
+
+  fi
   exit 0
 }
