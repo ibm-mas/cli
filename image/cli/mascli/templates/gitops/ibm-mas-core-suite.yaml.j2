@@ -42,6 +42,14 @@ spec:
             mas_image_tags: 
               {{ MAS_IMAGE_TAGS | indent(14) }}
 {%- endif %}
+
+{%- if CORE_CRT is defined and CORE_CRT !='' %}
+            core_crt:
+              {% filter indent(width=14 -%}
+              {{ CORE_CRT }}
+              {%- endfilter %}
+{%- endif %}
+
   syncPolicy:
     automated:
       prune: true
