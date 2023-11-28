@@ -108,6 +108,8 @@ spec:
         value: $(params.fvt_test_suite_prefix)
       - name: FVT_TEST_SUITE
         value: $(params.fvt_test_suite)
+      - name: FVT_MAS_APPWS_COMPONENT
+        value: $(params.fvt_mas_appws_component)
       
       # If this secret exists (with both ARTIFACTORY_TOKEN and ARTIFACTORY_UPLOAD_DIR keys set) Maximo Automation Framework logs will be automatically uploaded
       - name: ARTIFACTORY_TOKEN
