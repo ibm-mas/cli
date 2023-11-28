@@ -9,6 +9,8 @@ spec:
       type: string
     - name: mas_workspace_id
       type: string
+    - name: mas_app_kind
+      type: string
     - name: mas_appws_bindings_jdbc
       type: string
       default: ""
@@ -18,17 +20,9 @@ spec:
     - name: mas_appws_settings
       type: string
       default: ""
-    - name: mas_app_channel
+    - name: mas_appws_api_version
       type: string
-    - name: mas_app_catalog_source
-      type: string
-    - name: mas_app_api_version
-      type: string
-    - name: mas_app_kind
-      type: string
-    - name: mas_app_ws_api_version
-      type: string
-    - name: mas_app_ws_kind
+    - name: mas_appws_kind
       type: string
     - name: mas_appws_spec_yaml
       type: string
@@ -36,9 +30,6 @@ spec:
     - name: default_file_storage_class
       type: string
       default: ""
-    - name: mas_app_settings_jms_queue_mount_path
-      type: string
-      default: "/jms"
     - name: mas_app_settings_customization_archive_url
       type: string
       default: ""
@@ -161,26 +152,18 @@ spec:
         value: $(params.mas_appws_components)
       - name: MAS_APPWS_SETTINGS
         value: $(params.mas_appws_settings)
-      - name: MAS_APP_CHANNEL
-        value: $(params.mas_app_channel)
-      - name: MAS_APP_CATALOG_SOURCE
-        value: $(params.mas_app_catalog_source)
-      - name: MAS_APP_API_VERSION
-        value: $(params.mas_app_api_version)
       - name: MAS_APP_KIND
         value: $(params.mas_app_kind)
-      - name: MAS_APP_WS_API_VERSION
-        value: $(params.mas_app_ws_api_version)
-      - name: MAS_APP_WS_KIND
-        value: $(params.mas_app_ws_kind)
+      - name: MAS_APPWS_API_VERSION
+        value: $(params.mas_appws_api_version)
+      - name: MAS_APPWS_KIND
+        value: $(params.mas_appws_kind)
       - name: MAS_APPWS_SPEC_YAML 
         value: $(params.mas_appws_spec_yaml)
       - name: DEFAULT_FILE_STORAGE_CLASS
         value: $(params.default_file_storage_class)
       - name: MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE
         value: $(params.mas_app_settings_server_bundles_size)
-      - name: MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH
-        value: $(params.mas_app_settings_jms_queue_mount_path)
       - name: MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL
         value: $(params.mas_app_settings_customization_archive_url)
       - name: MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME
@@ -315,3 +298,4 @@ spec:
       image: quay.io/ibmmas/cli:7.7.0-pre.gitops
   workspaces:
     - name: configs
+    - name: shared-gitops-configs

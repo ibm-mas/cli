@@ -10,14 +10,14 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Options:
-  -a, --account_id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}              Account name that the cluster belongs to
-  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}              Cluster ID
-  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}    IBM Suite Maximo Application Suite Instance ID
+  -a, --account_id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                        Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                        Cluster ID
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}              IBM Suite Maximo Application Suite Instance ID
 
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
-      --license-file ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}    Path to IBM SLS License File
+      --license-file ${COLOR_YELLOW}LICENSE_FILE${TEXT_RESET}                    Path to IBM SLS License File
 
 Other Commands:
   -h, --help                                      Show this help message

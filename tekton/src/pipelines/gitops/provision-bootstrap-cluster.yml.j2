@@ -70,6 +70,16 @@ spec:
       default: 3
     - name: rosa_cluster_admin_password
       type: string
+    - name: rosa_compute_nodes
+      type: string
+    - name: rosa_compute_machine_type
+      type: string
+    - name: db2_channel
+      type: string
+      default: ""
+    - name: db2_action
+      type: string
+      default: ""
   tasks:
 {% if wait_for_deprovision == true %}
     # 0. Wait for the deprovsion pipeline to complete
@@ -104,6 +114,10 @@ spec:
           value: $(params.ocp_version)
         - name: rosa_cluster_admin_password
           value: $(params.rosa_cluster_admin_password)
+        - name: rosa_compute_nodes
+          value: $(params.rosa_compute_nodes)
+        - name: rosa_compute_machine_type
+          value: $(params.rosa_compute_machine_type)
       taskRef:
         kind: Task
         name: gitops-rosa
@@ -270,3 +284,43 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+    - name: gitops-db2u
+      runAfter:
+        - gitops-cluster
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: db2_channel
+          value: $(params.db2_channel)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-db2u
+      when:
+        - input: "$(params.db2_action)"
+          operator: notin
+          values: [""]

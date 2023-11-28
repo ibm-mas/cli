@@ -14,6 +14,7 @@ spec:
     - name: shared-certificates
     # Any pre-generated configs that will be copied into the shared-configs workspace during suite-install
     - name: shared-additional-configs
+    - name: shared-gitops-configs
   description: Provision MAS GitOps Instance
   params:
 {% if wait_for_provision == true %}
@@ -164,6 +165,8 @@ spec:
       type: string
     - name: cis_service_name
       type: string
+    - name: mas_app_id
+      type: string
 
   tasks:
 {% if wait_for_provision == true %}
@@ -312,6 +315,8 @@ spec:
           value: $(params.cis_apikey)
         - name: mas_config_dir
           value: $(params.mas_config_dir)
+        - name: mas_app_id
+          value: core
       taskRef:
         kind: Task
         name: gitops-suite-certs
@@ -427,6 +432,8 @@ spec:
           workspace: configs
         - name: shared-additional-configs
           workspace: shared-additional-configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
       taskRef:
         name: gitops-suite-config
         kind: Task
@@ -600,81 +607,3 @@ spec:
       taskRef:
         kind: Task
         name: gitops-efs
-    - name: gitops-kafka
-      runAfter:
-        - gitops-suite-config
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: account
-          value: $(params.account)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: github_repo
-          value: $(params.github_repo)
-        - name: secrets_path
-          value: $(params.secrets_path)
-        - name: kafka_provider
-          value: $(params.kafka_provider)
-        - name: kafka_version
-          value: $(params.kafka_version)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
-        - name: vpc_ipv4_cidr
-          value: $(params.vpc_ipv4_cidr)
-        - name: kafkacfg_file_name
-          value: $(params.kafkacfg_file_name)
-      workspaces:
-        - name: configs
-          workspace: configs
-      taskRef:
-        kind: Task
-        name: gitops-kafka
-      when:
-        - input: "$(params.kafka_action)"
-          operator: notin
-          values: [""]
-    - name: gitops-kafka-config
-      runAfter:
-        - gitops-kafka
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: account
-          value: $(params.account)
-        - name: secrets_path
-          value: $(params.secrets_path)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: git_branch
-          value: $(params.git_branch)
-        - name: github_org
-          value: $(params.github_org)
-        - name: github_repo
-          value: $(params.github_repo)
-        - name: github_host
-          value: $(params.github_host)
-        - name: git_commit_msg
-          value: $(params.git_commit_msg)
-        - name: github_pat
-          value: $(params.github_pat)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
-      workspaces:
-        - name: configs
-          workspace: configs
-      taskRef:
-        kind: Task
-        name: gitops-kafka-config
-      when:
-        - input: "$(params.kafka_action)"
-          operator: notin
-          values: [""]

@@ -16,14 +16,34 @@ spec:
     - name: remote_ocp_type
       type: string
       default: ""
-    - name: remote_api_key
+    - name: remote_ibmcloud_api_key
       type: string
       default: ""
+    - name: remote_rosa_token
+      type: string
+      default: ""
+    - name: remote_rosa_cluster_admin_password
+      type: string
+      default: ""
+    - name: aws_region
+      type: string
+      default: ""
+    - name: aws_secret_access_key
+      type: string
+      default: ""
+    - name: aws_access_key_id
+      type: string
+      default: ""
+    - name: argocd_remove_deny_window
+      type: string
+      default: "False"
   stepTemplate:
     name: wait-for-pipelinerun
     env:
       - name: REMOTE_OCP_CLUSTER
         value: $(params.remote_ocp_cluster)
+      - name: ARGOCD_REMOVE_DENY_WINDOW
+        value: $(params.argocd_remove_deny_window)
   steps:
     - name: wait-for-pipelinerun
       imagePullPolicy: Always
@@ -35,7 +55,16 @@ spec:
           echo "Logging into $(params.remote_ocp_cluster)"
           export CLUSTER_NAME=$(params.remote_ocp_cluster)
           export CLUSTER_TYPE=$(params.remote_ocp_type)
-          export IBMCLOUD_APIKEY=$(params.remote_api_key)
+          export IBMCLOUD_APIKEY=$(params.remote_ibmcloud_api_key)
+          export ROSA_TOKEN=$(params.remote_rosa_token)
+          export ROSA_CLUSTER_ADMIN_PASSWORD=$(params.remote_rosa_cluster_admin_password)
+
+          if [ $CLUSTER_TYPE == 'rosa' ];then
+            aws configure set aws_access_key_id $(params.aws_access_key_id)
+            aws configure set aws_secret_access_key $(params.aws_secret_access_key)
+            aws configure set default.region $(params.aws_region)
+          fi
+
           ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role 
           OC_RC=$?
           if [ $OC_RC -ne 0 ]; then
@@ -73,6 +102,19 @@ spec:
         echo "Completion Time = $COMPLETION_TIME"
         echo "Retries Used    = $RETRIES_USED"
         RESULT=$(oc -n $(context.taskRun.namespace) get pipelinerun/$PIPELINERUN_NAME -o jsonpath='{.status.conditions[0].status}')
+
+        if [[ "$ARGOCD_REMOVE_DENY_WINDOW" == "True" ]]; then
+          echo "Deleting ArgoCD sync window after FVT tests have completed"
+          if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
+            export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}')
+            export ARGOCD_USERNAME=admin
+            export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' | base64 -d ; echo)
+          fi
+          echo "argo:argocd login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."
+          argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+          echo "argo:argocd proj window delete $MAS_INSTANCE_ID 0"
+          argocd proj windows delete $MAS_INSTANCE_ID 0
+        fi
 
         if [[ "$RESULT" == "True" ]]; then
           echo "Result          = PipelineRun completed successfully"

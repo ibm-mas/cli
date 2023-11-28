@@ -204,16 +204,6 @@ function delete_db2u_0_pod(){
   done  
 }
 
-# Invoke suite_db2_setup_for_manage
-function invoke_suite_db2_setup_for_manage(){
-  export MAS_INSTANCE_ID=$1
-  export DB2_NAMESPACE=mas-${MAS_INSTANCE_ID}-db2u-manage
-  export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}
-  export ROLE_NAME=suite_db2_setup_for_manage && ansible-playbook ibm.mas_devops.run_role
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-}
-
 function gitops_db2u_jdbc_config() {
   # Take the first parameter off (it will be create-gitops)
   shift
@@ -350,7 +340,7 @@ function gitops_db2u_jdbc_config() {
   fi  
 
   export DB2_LDAP_POD_NAME=`oc get pods -o custom-columns=POD:.metadata.name -l app=${DB2_INSTANCE_NAME},role=ldap -n ${DB2_NAMESPACE}  --no-headers`
-  export DB2_CA_PEM=`oc get secret db2u-certificate -n ${DB2_NAMESPACE} -o "jsonpath={.data['ca\.crt']}"`
+  export DB2_CA_PEM=`oc get secret db2u-certificate-${DB2_INSTANCE_NAME} -n ${DB2_NAMESPACE} -o "jsonpath={.data['ca\.crt']}"`
   # Get Db2u TLS port
   export DB2_TLS_SERVICEPORT=`oc get svc c-${DB2_INSTANCE_NAME}-db2u-engn-svc -n ${DB2_NAMESPACE} -o=jsonpath="{.spec.ports[?(@.name=='ssl-server')].targetPort}"`
   export JDBC_URL="jdbc:db2://c-${DB2_INSTANCE_NAME}-db2u-engn-svc.${DB2_NAMESPACE}.svc:${DB2_TLS_SERVICEPORT}/${DB2_DBNAME}:sslConnection=true;sslVersion=${TLS_VERSION};"
@@ -434,8 +424,8 @@ function gitops_db2u_jdbc_config() {
     ### Update Ldap Username / Password in AWS secret manager Ends
 
     echo
-    echo_reset_dim "Generating DB2U JDBC Config file ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-db2u-jdbc-config.yaml"
-    jinja -X .+ $CLI_DIR/templates/gitops/ibm-db2u-jdbc-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-db2u-jdbc-config.yaml
+    echo_reset_dim "Generating DB2U JDBC Config file ${GITOPS_APPS_DIR}/${SUITE_JDBCCFG_NAME}.ibm-db2u-jdbc-config.yaml"
+    jinja -X .+ $CLI_DIR/templates/gitops/ibm-db2u-jdbc-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${SUITE_JDBCCFG_NAME}.ibm-db2u-jdbc-config.yaml
   fi
 
   # Commit and push to github target repo
@@ -447,9 +437,9 @@ function gitops_db2u_jdbc_config() {
 
     argocd_login
     argocd_sync ${CLUSTER_ID}-watcher
-    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-jdbc-config
-    check_argo_app_synced mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-jdbc-config ${CLUSTER_ID}-watcher ${DB2_NAMESPACE}
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-jdbc-config ${CLUSTER_ID}-watcher
+    argocd_hard_refresh mas-${SUITE_JDBCCFG_NAME}
+    check_argo_app_synced mas-${SUITE_JDBCCFG_NAME} ${CLUSTER_ID}-watcher ${DB2_NAMESPACE}
+    check_argo_app_healthy mas-${SUITE_JDBCCFG_NAME} ${CLUSTER_ID}-watcher
   fi
   if [ "$GITHUB_PUSH" == "true" ]; then  
 	  remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO

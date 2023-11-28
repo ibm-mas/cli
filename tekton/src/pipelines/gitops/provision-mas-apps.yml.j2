@@ -1,0 +1,1141 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+{% if wait_for_provision == true %}
+  name: gitops-provision-mas-apps-after-provision
+{% else %}
+  name: gitops-provision-mas-apps
+{% endif %}
+spec:
+  workspaces:
+    - name: configs
+    - name: shared-certificates
+    - name: shared-gitops-configs
+  description: Provision MAS GitOps Instance
+  params:
+{% if wait_for_provision == true %}
+      # Name of the PipelineRun to wait for
+    - name: pipelinerun_name
+      type: string
+    - name: second_pipelinerun_name
+      type: string
+    - name: ignore_failure
+      type: string
+      default: "False"
+      description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
+    - name: remote_ocp_cluster
+      type: string
+      default: ""
+    - name: remote_ocp_type
+      type: string
+      default: "rosa"
+    - name: remote_rosa_token
+      type: string
+      default: ""
+    - name: remote_rosa_cluster_admin_password
+      type: string
+      default: ""
+    - name: aws_region
+      type: string
+      default: ""
+    - name: aws_secret_access_key
+      type: string
+      default: ""
+    - name: aws_access_key_id
+      type: string
+      default: ""
+    - name: argocd_remove_deny_window
+      type: string
+      default: "True"
+{% endif %}
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: image_pull_policy
+      type: string
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
+
+    # 1. Gitops git Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
+
+    - name: dns_provider
+      type: string
+      default: cis
+    - name: mas_domain
+      type: string
+    - name: cis_subdomain
+      type: string
+    - name: mas_manual_cert_mgmt
+      type: string
+    - name: cis_proxy
+      type: string
+    - name: cis_crn
+      type: string
+    - name: cis_apikey
+      type: string
+    - name: mas_config_dir
+      type: string
+
+    - name: github_url
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: mas_workspace_id
+      type: string
+
+    - name: kafka_provider
+      type: string
+      default: aws
+    - name: kafka_version
+      type: string
+      default: 3.3.1
+    - name: kafka_action
+      type: string
+    - name: vpc_ipv4_cidr
+      type: string
+    - name: icr_cp
+      type: string
+    - name: icr_cp_open
+      type: string
+    - name: kafkacfg_file_name
+      type: string
+      default: ""
+
+    - name: db2_meta_storage_class
+      type: string
+    - name: db2_temp_storage_class
+      type: string
+    - name: db2_logs_storage_class
+      type: string
+    - name: db2_data_storage_class
+      type: string
+    - name: db2_backup_storage_class
+      type: string
+    - name: db2_version
+      type: string
+    - name: db2_action
+      type: string
+    - name: db2_instance_registry_yaml_manage
+      type: string
+      default: ""
+    - name: db2_instance_dbm_config_yaml_manage
+      type: string
+      default: ""
+    - name: db2_database_db_config_yaml_manage
+      type: string
+      default: ""
+    - name: db2_instance_registry_yaml_iot
+      type: string
+      default: ""
+    - name: db2_instance_dbm_config_yaml_iot
+      type: string
+      default: ""
+    - name: db2_database_db_config_yaml_iot
+      type: string
+      default: ""
+
+    - name: tls_version
+      type: string
+      default: TLSv1.2
+    - name: db2_ldap_username
+      type: string
+    - name: db2_ldap_password
+      type: string
+
+    - name: custom_labels
+      type: string
+
+    - name: default_block_storage_class
+      type: string
+    - name: default_file_storage_class
+      type: string
+      
+    - name: mas_app_channel_iot
+      type: string
+    - name: mas_app_catalog_source_iot
+      type: string
+      default: ibm-operator-catalog
+    - name: mas_app_api_version_iot
+      type: string
+      default: iot.ibm.com/v1
+    - name: mas_app_kind_iot
+      type: string
+      default: IoT
+    - name: mas_appws_api_version_iot
+      type: string
+      default: iot.ibm.com/v1
+    - name: mas_appws_kind_iot
+      type: string
+      default: IoTWorkspace
+    - name: mas_app_spec_yaml_iot
+      type: string
+    - name: mas_appws_spec_yaml_iot
+      type: string
+
+    - name: mas_app_channel_manage
+      type: string
+    - name: mas_app_catalog_source_manage
+      type: string
+      default: ibm-operator-catalog
+    - name: mas_app_api_version_manage
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_app_kind_manage
+      type: string
+      default: ManageApp
+    - name: mas_appws_api_version_manage
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_appws_kind_manage
+      type: string
+      default: ManageWorkspace
+    - name: mas_app_spec_yaml_manage
+      type: string
+    - name: mas_appws_spec_yaml_manage
+      type: string
+
+    - name: mas_app_channel_monitor
+      type: string
+    - name: mas_app_catalog_source_monitor
+      type: string
+      default: ibm-operator-catalog
+    - name: mas_app_api_version_monitor
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_app_kind_monitor
+      type: string
+      default: MonitorApp
+    - name: mas_appws_api_version_monitor
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_appws_kind_monitor
+      type: string
+      default: MonitorWorkspace
+    - name: mas_app_spec_yaml_monitor
+      type: string
+    - name: mas_appws_spec_yaml_monitor
+      type: string
+
+  tasks:
+{% if wait_for_provision == true %}
+    # 0. Wait for the fvt start pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-fvt-start
+      params:
+        - name: pipelinerun_name
+          value: $(params.pipelinerun_name)
+        - name: ignore_failure
+          value: $(params.ignore_failure)
+      taskRef:
+        kind: Task
+        name: mas-fvt-wait-for-pipelinerun
+
+    # 1. Wait for the remote fvt pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-fvt-complete
+      runAfter:
+        - wait-for-fvt-start
+      params:
+        - name: pipelinerun_name
+          value: $(params.second_pipelinerun_name)
+        - name: ignore_failure
+          value: $(params.ignore_failure)
+        - name: remote_ocp_cluster
+          value: $(params.remote_ocp_cluster)
+        - name: remote_ocp_type
+          value: $(params.remote_ocp_type)
+        - name: remote_rosa_token
+          value: $(params.remote_rosa_token)
+        - name: remote_rosa_cluster_admin_password
+          value: $(params.remote_rosa_cluster_admin_password)
+        - name: aws_region
+          value: $(params.aws_region)
+        - name: aws_secret_access_key
+          value: $(params.aws_secret_access_key)
+        - name: aws_access_key_id
+          value: $(params.aws_access_key_id)
+      taskRef:
+        kind: Task
+        name: mas-fvt-wait-for-pipelinerun
+{% endif %}
+
+    # 2. Kafka
+    # -------------------------------------------------------------------------
+    - name: gitops-kafka
+{% if wait_for_provision == true %}
+      runAfter:
+        - wait-for-fvt-complete
+{% endif %}
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: kafka_provider
+          value: $(params.kafka_provider)
+        - name: kafka_version
+          value: $(params.kafka_version)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: vpc_ipv4_cidr
+          value: $(params.vpc_ipv4_cidr)
+        - name: kafkacfg_file_name
+          value: $(params.kafkacfg_file_name)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-kafka
+      when:
+        - input: "$(params.kafka_action)"
+          operator: notin
+          values: [""]
+    - name: gitops-kafka-config
+      runAfter:
+        - gitops-kafka
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-kafka-config
+      when:
+        - input: "$(params.kafka_action)"
+          operator: notin
+          values: [""]
+
+    # 3. DB2 for IoT and Manage
+    # -------------------------------------------------------------------------
+    # 3.1 DB2 for IoT
+    - name: gitops-db2u-database-iot
+{% if wait_for_provision == true %}
+      runAfter:
+        - wait-for-fvt-complete
+{% endif %}
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: db2_meta_storage_class
+          value: $(params.db2_meta_storage_class)
+        - name: db2_temp_storage_class
+          value: $(params.db2_temp_storage_class)
+        - name: db2_logs_storage_class
+          value: $(params.db2_logs_storage_class)
+        - name: db2_data_storage_class
+          value: $(params.db2_data_storage_class)
+        - name: db2_backup_storage_class
+          value: $(params.db2_backup_storage_class)
+        - name: db2_version
+          value: $(params.db2_version)
+        - name: db2_instance_registry_yaml
+          value: $(params.db2_instance_registry_yaml_iot)
+        - name: db2_instance_dbm_config_yaml
+          value: $(params.db2_instance_dbm_config_yaml_iot)
+        - name: db2_database_db_config_yaml
+          value: $(params.db2_database_db_config_yaml_iot)
+        - name: mas_app_id
+          value: iot
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-db2u-database
+      when:
+        - input: "$(params.db2_action)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_iot)"
+          operator: notin
+          values: [""]
+    - name: gitops-db2u-config-iot
+      runAfter:
+        - gitops-db2u-database-iot
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: db2_ldap_username
+          value: $(params.db2_ldap_username)
+        - name: db2_ldap_password
+          value: $(params.db2_ldap_password)
+        - name: mas_app_id
+          value: iot
+        - name: mas_config_scope
+          value: system
+        - name: tls_version
+          value: $(params.tls_version)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-db2u-config
+      when:
+        - input: "$(params.db2_action)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_iot)"
+          operator: notin
+          values: [""]
+
+    # 3.2 DB2 for Manage
+    - name: gitops-db2u-database-manage
+{% if wait_for_provision == true %}
+      runAfter:
+        - wait-for-fvt-complete
+{% endif %}
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: db2_meta_storage_class
+          value: $(params.db2_meta_storage_class)
+        - name: db2_temp_storage_class
+          value: $(params.db2_temp_storage_class)
+        - name: db2_logs_storage_class
+          value: $(params.db2_logs_storage_class)
+        - name: db2_data_storage_class
+          value: $(params.db2_data_storage_class)
+        - name: db2_backup_storage_class
+          value: $(params.db2_backup_storage_class)
+        - name: db2_version
+          value: $(params.db2_version)
+        - name: db2_instance_registry_yaml
+          value: $(params.db2_instance_registry_yaml_manage)
+        - name: db2_instance_dbm_config_yaml
+          value: $(params.db2_instance_dbm_config_yaml_manage)
+        - name: db2_database_db_config_yaml
+          value: $(params.db2_database_db_config_yaml_manage)
+        - name: mas_app_id
+          value: manage
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-db2u-database
+      when:
+        - input: "$(params.db2_action)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+    - name: gitops-db2u-config-manage
+      runAfter:
+        - gitops-db2u-database-manage
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: db2_ldap_username
+          value: $(params.db2_ldap_username)
+        - name: db2_ldap_password
+          value: $(params.db2_ldap_password)
+        - name: mas_app_id
+          value: manage
+        - name: mas_config_scope
+          value: wsapp
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: tls_version
+          value: $(params.tls_version)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-db2u-config
+      when:
+        - input: "$(params.db2_action)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+      
+    # 4. Install & Configure IoT
+    # -------------------------------------------------------------------------
+    # 4.1 Install IoT
+    - name: app-install-iot
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        - name: devops_suite_name
+          value: app-iot-install
+
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: iot
+        - name: mas_app_channel
+          value: $(params.mas_app_channel_iot)
+        - name: custom_labels
+          value: $(params.custom_labels)
+        - name: mas_app_spec_yaml
+          value: $(params.mas_app_spec_yaml_iot)
+        - name: mas_app_catalog_source
+          value: $(params.mas_app_catalog_source_iot)
+        - name: mas_app_api_version
+          value: $(params.mas_app_api_version_iot)
+        - name: mas_app_kind
+          value: $(params.mas_app_kind_iot)
+        - name: default_block_storage_class
+          value: $(params.default_block_storage_class)
+        - name: default_file_storage_class
+          value: $(params.default_file_storage_class)
+      taskRef:
+        name: gitops-suite-app-install
+        kind: Task
+      # Only install IoT if a channel has been chosen
+      when:
+        - input: "$(params.mas_app_channel_iot)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      runAfter:
+        - gitops-kafka-config
+        - gitops-db2u-config-iot
+
+    # 4.2 Install IoT certs
+    - name: gitops-suite-certs-iot
+      runAfter:
+        - gitops-kafka-config
+        - gitops-db2u-config-iot
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: dns_provider
+          value: $(params.dns_provider)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_domain
+          value: $(params.mas_domain)
+        - name: cis_subdomain
+          value: $(params.cis_subdomain)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_manual_cert_mgmt
+          value: $(params.mas_manual_cert_mgmt)
+        - name: cis_proxy
+          value: $(params.cis_proxy)
+        - name: cis_crn
+          value: $(params.cis_crn)
+        - name: cis_apikey
+          value: $(params.cis_apikey)
+        - name: mas_config_dir
+          value: $(params.mas_config_dir)
+        - name: mas_app_id
+          value: iot
+      taskRef:
+        kind: Task
+        name: gitops-suite-certs
+      when:
+        - input: "$(params.mas_manual_cert_mgmt)"
+          operator: in
+          values: ["True"]
+        - input: "$(params.mas_app_channel_iot)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: certificates
+          workspace: shared-certificates
+
+    # 4.3 Configure IoT workspace
+    - name: app-cfg-iot
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        - name: devops_suite_name
+          value: app-iot-cfg
+
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: iot
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: custom_labels
+          value: $(params.custom_labels)
+        - name: mas_appws_spec_yaml
+          value: $(params.mas_appws_spec_yaml_iot)
+        - name: mas_appws_api_version
+          value: $(params.mas_appws_api_version_iot)
+        - name: mas_appws_kind
+          value: $(params.mas_appws_kind_iot)
+        - name: mas_app_kind
+          value: $(params.mas_app_kind_iot)
+      taskRef:
+        name: gitops-suite-app-config
+        kind: Task
+      # Only configure a workspace for IoT if a channel has been chosen
+      when:
+        - input: "$(params.mas_app_channel_iot)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      runAfter:
+        - app-install-iot
+
+    # 5. Install & Configure Manage
+    # -------------------------------------------------------------------------
+    # 5.1 Install Manage
+    - name: app-install-manage
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        - name: devops_suite_name
+          value: app-manage-install
+
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: manage
+        - name: mas_app_channel
+          value: $(params.mas_app_channel_manage)
+        - name: custom_labels
+          value: $(params.custom_labels)
+        - name: mas_app_spec_yaml
+          value: $(params.mas_app_spec_yaml_manage)
+        - name: mas_app_catalog_source
+          value: $(params.mas_app_catalog_source_manage)    
+        - name: mas_app_api_version
+          value: $(params.mas_app_api_version_manage)    
+        - name: mas_app_kind
+          value: $(params.mas_app_kind_manage) 
+
+      taskRef:
+        name: gitops-suite-app-install
+        kind: Task
+      # Only install Manage if a channel has been chosen
+      when:
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      runAfter:
+        - gitops-db2u-config-manage
+
+    # 5.2 Install Manage certs
+    - name: gitops-suite-certs-manage
+      runAfter:
+        - gitops-db2u-config-manage
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: dns_provider
+          value: $(params.dns_provider)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_domain
+          value: $(params.mas_domain)
+        - name: cis_subdomain
+          value: $(params.cis_subdomain)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_manual_cert_mgmt
+          value: $(params.mas_manual_cert_mgmt)
+        - name: cis_proxy
+          value: $(params.cis_proxy)
+        - name: cis_crn
+          value: $(params.cis_crn)
+        - name: cis_apikey
+          value: $(params.cis_apikey)
+        - name: mas_config_dir
+          value: $(params.mas_config_dir)
+        - name: mas_app_id
+          value: manage
+      taskRef:
+        kind: Task
+        name: gitops-suite-certs
+      when:
+        - input: "$(params.mas_manual_cert_mgmt)"
+          operator: in
+          values: ["True"]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: certificates
+          workspace: shared-certificates
+
+    # 5.3 Configure Manage workspace
+    - name: app-cfg-manage
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        - name: devops_suite_name
+          value: app-manage-cfg
+
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: manage
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: custom_labels
+          value: $(params.custom_labels)
+        - name: mas_appws_spec_yaml
+          value: $(params.mas_appws_spec_yaml_manage)
+        - name: mas_appws_api_version
+          value: $(params.mas_appws_api_version_manage)
+        - name: mas_appws_kind
+          value: $(params.mas_appws_kind_manage) 
+        - name: mas_app_kind
+          value: $(params.mas_app_kind_manage) 
+        - name: default_block_storage_class
+          value: $(params.default_block_storage_class)
+        - name: default_file_storage_class
+          value: $(params.default_file_storage_class)
+      taskRef:
+        name: gitops-suite-app-config
+        kind: Task
+      # Only configure a workspace for Manage if a channel has been chosen
+      when:
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      runAfter:
+        - app-install-manage
+
+    # 6. Install & Configure Monitor
+    # -------------------------------------------------------------------------
+    # 6.1 Install Monitor
+    - name: app-install-monitor
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        - name: devops_suite_name
+          value: app-monitor-install
+
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: monitor
+        - name: mas_app_channel
+          value: $(params.mas_app_channel_monitor)
+        - name: custom_labels
+          value: $(params.custom_labels)
+        - name: mas_app_spec_yaml
+          value: $(params.mas_app_spec_yaml_monitor)
+        - name: mas_app_catalog_source
+          value: $(params.mas_app_catalog_source_monitor)
+        - name: mas_app_api_version
+          value: $(params.mas_app_api_version_monitor)
+        - name: mas_app_kind
+          value: $(params.mas_app_kind_monitor)
+        - name: default_block_storage_class
+          value: $(params.default_block_storage_class)
+        - name: default_file_storage_class
+          value: $(params.default_file_storage_class)
+      taskRef:
+        name: gitops-suite-app-install
+        kind: Task
+      # Only install Monitor if a channel has been chosen
+      when:
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      runAfter:
+        - app-cfg-iot
+
+    # 6.2 Install Monitor certs
+    - name: gitops-suite-certs-monitor
+      runAfter:
+        - app-cfg-iot
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: dns_provider
+          value: $(params.dns_provider)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_domain
+          value: $(params.mas_domain)
+        - name: cis_subdomain
+          value: $(params.cis_subdomain)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_manual_cert_mgmt
+          value: $(params.mas_manual_cert_mgmt)
+        - name: cis_proxy
+          value: $(params.cis_proxy)
+        - name: cis_crn
+          value: $(params.cis_crn)
+        - name: cis_apikey
+          value: $(params.cis_apikey)
+        - name: mas_config_dir
+          value: $(params.mas_config_dir)
+        - name: mas_app_id
+          value: monitor
+      taskRef:
+        kind: Task
+        name: gitops-suite-certs
+      when:
+        - input: "$(params.mas_manual_cert_mgmt)"
+          operator: in
+          values: ["True"]
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: certificates
+          workspace: shared-certificates
+
+    # 6.3 Configure Monitor workspace
+    - name: app-cfg-monitor
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        - name: devops_suite_name
+          value: app-monitor-cfg
+
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: monitor
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: custom_labels
+          value: $(params.custom_labels)
+        - name: mas_appws_spec_yaml
+          value: $(params.mas_appws_spec_yaml_monitor)
+        - name: mas_appws_api_version
+          value: $(params.mas_appws_api_version_monitor)
+        - name: mas_appws_kind
+          value: $(params.mas_appws_kind_monitor)
+        - name: mas_app_kind
+          value: $(params.mas_app_kind_monitor)
+      taskRef:
+        name: gitops-suite-app-config
+        kind: Task
+      # Only configure a workspace for Monitor if a channel has been chosen
+      when:
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      runAfter:
+        - app-install-monitor

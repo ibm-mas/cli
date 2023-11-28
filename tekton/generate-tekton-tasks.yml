@@ -118,6 +118,9 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - gitops-bootstrap
+        - gitops-db2u
+        - gitops-db2u-config
+        - gitops-db2u-database
         - gitops-delete-kafka-config
         - gitops-deprovision-cluster
         - gitops-deprovision-mongo
@@ -137,6 +140,8 @@
         - gitops-license
         - gitops-mongo
         - gitops-rosa
+        - gitops-suite-app-install
+        - gitops-suite-app-config
         - gitops-suite-certs
         - gitops-suite-config
         - gitops-suite-dns

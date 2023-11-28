@@ -42,7 +42,7 @@ spec:
       type: string 
     - name: remote_ocp_type
       type: string         
-    - name: remote_api_key
+    - name: remote_ibmcloud_api_key
       type: string   
 {% endif %}
 
@@ -62,8 +62,8 @@ spec:
           value: $(params.remote_ocp_cluster) 
         - name: remote_ocp_type
           value: $(params.remote_ocp_type)
-        - name: remote_api_key
-          value: $(params.remote_api_key)
+        - name: remote_ibmcloud_api_key
+          value: $(params.remote_ibmcloud_api_key)
       taskRef:
         kind: Task
         name: mas-fvt-wait-for-pipelinerun

@@ -9,8 +9,10 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Options:
-  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}      Cluster ID
-  -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}    Version of Rosa OpenShift to use
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                 Cluster ID
+  -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}                               Version of Rosa OpenShift to use
+      --rosa-compute-machine-type ${COLOR_YELLOW}ROSA_COMPUTE_MACHINE_TYPE${TEXT_RESET}   Machine Type to use, optional
+      --rosa-compute-nodes ${COLOR_YELLOW}ROSA_COMPUTE_NODES${TEXT_RESET}                 Number of compute nodes to use, optional
 
 Other Commands:
   -h, --help     Show this help message
@@ -29,6 +31,12 @@ function gitops_rosa_noninteractive() {
         ;;
       -v|--ocp-version)
         export OCP_VERSION=$1 && shift
+        ;;
+      --rosa-compute-machine-type)
+        export ROSA_COMPUTE_MACHINE_TYPE=$1 && shift
+        ;;
+      --rosa-compute-nodes)
+        export ROSA_COMPUTE_NODES=$1 && shift
         ;;
       # Show help
       -h|--help)
@@ -65,6 +73,8 @@ function gitops_rosa(){
   echo_reset_dim "Cluster Id ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "OpenShift Version .............. ${COLOR_MAGENTA}${OCP_VERSION}"
   echo_reset_dim "ROSA Token ..................... ${COLOR_MAGENTA}${ROSA_TOKEN:0:8}<snip>"
+  echo_reset_dim "ROSA Compute Machine Type ...... ${COLOR_MAGENTA}${ROSA_COMPUTE_MACHINE_TYPE}"
+  echo_reset_dim "ROSA Compute nodes ............. ${COLOR_MAGENTA}${ROSA_COMPUTE_NODES}"
   reset_colors
 
   echo

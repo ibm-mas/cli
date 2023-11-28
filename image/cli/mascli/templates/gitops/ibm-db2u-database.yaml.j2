@@ -33,12 +33,19 @@ spec:
             db2_node_label: {{DB2_NODE_LABEL}}
             db2_dedicated_node: {{DB2_DEDICATED_NODE}}
             db2_instance_registry:
-              DB2AUTH: 'OSAUTHDB,ALLOW_LOCAL_FALLBACK,PLUGIN_AUTO_RELOAD'
-              DB2_4K_DEVICE_SUPPORT: '{{ DB2_4K_DEVICE_SUPPORT }}'
-              DB2_FMP_RUN_AS_CONNECTED_USER: 'NO'
-              DB2_WORKLOAD: '{{ DB2_WORKLOAD }}'
+              {% filter indent(width=14) -%}
+              {{ DB2_INSTANCE_REGISTRY }}
+              {%- endfilter %}
             db2_database_db_config:
-              APPLHEAPSZ: '8192 AUTOMATIC'
+              {% filter indent(width=14) -%}
+              {{ DB2_DATABASE_DB_CONFIG }}
+              {%- endfilter %}
+            {% if DB2_INSTANCE_DBM_CONFIG %}
+            db2_instance_dbm_config:
+              {% filter indent(width=14) -%}
+              {{ DB2_INSTANCE_DBM_CONFIG }}
+              {%- endfilter %}
+            {% endif %}
             db2_mln_count: {{DB2_MLN_COUNT}}
             db2_num_pods: {{DB2_NUM_PODS}}
             db2_meta_storage_class: {{DB2_META_STORAGE_CLASS}}
@@ -56,9 +63,6 @@ spec:
             db2_temp_storage_class: {{DB2_TEMP_STORAGE_CLASS}}
             db2_temp_storage_size: {{DB2_TEMP_STORAGE_SIZE}}
             db2_temp_storage_accessmode: {{DB2_TEMP_STORAGE_ACCESSMODE}}
-            db2_ldap_username: {{DB2_LDAP_USERNAME}}
-            db2_ldap_password: {{DB2_LDAP_PASSWORD}}
-            db2_rotate_password: {{DB2_LDAP_ROTATE_PASSWORD}}
             db2_cpu_requests: {{DB2_CPU_REQUESTS}}
             db2_cpu_limits: {{DB2_CPU_LIMITS}}
             db2_memory_requests: {{DB2_MEMORY_REQUESTS}}
@@ -66,7 +70,6 @@ spec:
             cluster_domain: {{CLUSTER_DOMAIN}}
             mas_instance_id: {{MAS_INSTANCE_ID}}
             mas_application_id: {{MAS_APP_ID}}
-            db2_ca_pem: {{DB2_CA_PEM}}
   syncPolicy:
     automated:
       prune: true
