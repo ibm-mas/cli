@@ -12,9 +12,7 @@
     
     #$ Mas Devops
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') }}"
-    devops_cos_crn: "{{ lookup('env', 'DEVOPS_COS_CRN') }}"
-    devops_ibmcloud_apikey: "{{ lookup('env', 'DEVOPS_IBMCLOUD_APIKEY') }}"
-
+    
     # FVT Configuration
     fvt_image_registry: "{{ lookup('env', 'FVT_IMAGE_REGISTRY') }}"
     fvt_artifactory_username: "{{ lookup('env', 'FVT_ARTIFACTORY_USERNAME') }}"
@@ -45,8 +43,6 @@
           - "mas_workspace_id ......................... {{ mas_workspace_id }}"
           - ""
           - "devops_build_number: ..................... {{ devops_build_number }}"
-          - "devops_cos_crn ........................... {{ devops_cos_crn }}"
-          - "devops_ibmcloud_apikey ................... {{ devops_ibmcloud_apikey }}"
           - ""
           - "fvt_image_registry ....................... {{ fvt_image_registry }}"
           - "fvt_artifactory_username ................. {{ fvt_artifactory_username }}"

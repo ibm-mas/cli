@@ -42,18 +42,6 @@ spec:
               name: mas-devops
               key: MAS_INSTANCE_ID
               optional: false
-        - name: DEVOPS_COS_CRN
-          valueFrom:
-            secretKeyRef:
-              name: mas-devops
-              key: DEVOPS_COS_CRN
-              optional: false
-        - name: DEVOPS_IBMCLOUD_APIKEY
-          valueFrom:
-            secretKeyRef:
-              name: mas-devops
-              key: DEVOPS_IBMCLOUD_APIKEY
-              optional: false
 
         # Lookups from mas-fvt
         # -----------------------------------------------------------------------
