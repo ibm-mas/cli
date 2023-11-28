@@ -615,6 +615,8 @@ spec:
           value: $(params.account)
         - name: secrets_path
           value: $(params.secrets_path)
+        - name: mas_manual_cert_mgmt
+          value: $(params.mas_manual_cert_mgmt)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
         - name: avp_aws_secret_key
@@ -671,53 +673,7 @@ spec:
         - gitops-kafka-config
         - gitops-db2u-config-iot
 
-    # 4.2 Install IoT certs
-    - name: gitops-suite-certs-iot
-      runAfter:
-        - gitops-kafka-config
-        - gitops-db2u-config-iot
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: dns_provider
-          value: $(params.dns_provider)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_domain
-          value: $(params.mas_domain)
-        - name: cis_subdomain
-          value: $(params.cis_subdomain)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: mas_manual_cert_mgmt
-          value: $(params.mas_manual_cert_mgmt)
-        - name: cis_proxy
-          value: $(params.cis_proxy)
-        - name: cis_crn
-          value: $(params.cis_crn)
-        - name: cis_apikey
-          value: $(params.cis_apikey)
-        - name: mas_config_dir
-          value: $(params.mas_config_dir)
-        - name: mas_app_id
-          value: iot
-      taskRef:
-        kind: Task
-        name: gitops-suite-certs
-      when:
-        - input: "$(params.mas_manual_cert_mgmt)"
-          operator: in
-          values: ["True"]
-        - input: "$(params.mas_app_channel_iot)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: configs
-        - name: certificates
-          workspace: shared-certificates
-
-    # 4.3 Configure IoT workspace
+    # 4.2 Configure IoT workspace
     - name: app-cfg-iot
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
@@ -796,6 +752,8 @@ spec:
           value: $(params.account)
         - name: secrets_path
           value: $(params.secrets_path)
+        - name: mas_manual_cert_mgmt
+          value: $(params.mas_manual_cert_mgmt)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
         - name: avp_aws_secret_key
@@ -848,52 +806,7 @@ spec:
       runAfter:
         - gitops-db2u-config-manage
 
-    # 5.2 Install Manage certs
-    - name: gitops-suite-certs-manage
-      runAfter:
-        - gitops-db2u-config-manage
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: dns_provider
-          value: $(params.dns_provider)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_domain
-          value: $(params.mas_domain)
-        - name: cis_subdomain
-          value: $(params.cis_subdomain)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: mas_manual_cert_mgmt
-          value: $(params.mas_manual_cert_mgmt)
-        - name: cis_proxy
-          value: $(params.cis_proxy)
-        - name: cis_crn
-          value: $(params.cis_crn)
-        - name: cis_apikey
-          value: $(params.cis_apikey)
-        - name: mas_config_dir
-          value: $(params.mas_config_dir)
-        - name: mas_app_id
-          value: manage
-      taskRef:
-        kind: Task
-        name: gitops-suite-certs
-      when:
-        - input: "$(params.mas_manual_cert_mgmt)"
-          operator: in
-          values: ["True"]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: configs
-        - name: certificates
-          workspace: shared-certificates
-
-    # 5.3 Configure Manage workspace
+    # 5.2 Configure Manage workspace
     - name: app-cfg-manage
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
@@ -976,6 +889,8 @@ spec:
           value: $(params.account)
         - name: secrets_path
           value: $(params.secrets_path)
+        - name: mas_manual_cert_mgmt
+          value: $(params.mas_manual_cert_mgmt)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
         - name: avp_aws_secret_key
@@ -1031,52 +946,7 @@ spec:
       runAfter:
         - app-cfg-iot
 
-    # 6.2 Install Monitor certs
-    - name: gitops-suite-certs-monitor
-      runAfter:
-        - app-cfg-iot
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: dns_provider
-          value: $(params.dns_provider)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_domain
-          value: $(params.mas_domain)
-        - name: cis_subdomain
-          value: $(params.cis_subdomain)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: mas_manual_cert_mgmt
-          value: $(params.mas_manual_cert_mgmt)
-        - name: cis_proxy
-          value: $(params.cis_proxy)
-        - name: cis_crn
-          value: $(params.cis_crn)
-        - name: cis_apikey
-          value: $(params.cis_apikey)
-        - name: mas_config_dir
-          value: $(params.mas_config_dir)
-        - name: mas_app_id
-          value: monitor
-      taskRef:
-        kind: Task
-        name: gitops-suite-certs
-      when:
-        - input: "$(params.mas_manual_cert_mgmt)"
-          operator: in
-          values: ["True"]
-        - input: "$(params.mas_app_channel_monitor)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: configs
-        - name: certificates
-          workspace: shared-certificates
-
-    # 6.3 Configure Monitor workspace
+    # 6.2 Configure Monitor workspace
     - name: app-cfg-monitor
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
