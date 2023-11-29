@@ -55,6 +55,10 @@ spec:
       type: string
       description: Artifactory Token (required by fvt-ibm-mas-mobile to pull/push test container content)
       default: ""
+    - name: artifactory_upload_dir
+      type: string
+      description: Artifactory upload directory
+      default: ""
 
     # Mobile Specific information
     - name: mobile_device_type
@@ -110,6 +114,8 @@ spec:
 
       - name: ARTIFACTORY_TOKEN
         value: $(params.artifactory_token)
+      - name: ARTIFACTORY_UPLOAD_DIR
+        value: $(params.artifactory_upload_dir)
 
       # Assist Specific information
       - name: MOBILE_DEVICE_TYPE
