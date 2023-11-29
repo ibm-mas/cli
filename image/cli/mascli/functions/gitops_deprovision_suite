@@ -252,6 +252,7 @@ function gitops_deprovision_suite() {
   # ---------------------------------------------------------------------------
   export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
   export SECRET_NAME_LICENSE_FILE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}license
+  export PUBLIC_CERT_SECRET_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}certs${SECRETS_KEY_SEPERATOR}core
 
   # Delete Mongo details for this MAS Instance
   # ---------------------------------------------------------------------------
@@ -261,8 +262,12 @@ function gitops_deprovision_suite() {
   # Delete SLS Entitlement License details for this MAS Instance
   # ---------------------------------------------------------------------------
   echo " Deleting $SECRET_NAME_LICENSE_FILE"
-  sm_delete_secret $SECRET_NAME_LICENSE_FILE 
+  sm_delete_secret $SECRET_NAME_LICENSE_FILE
 
+  # Delete Public Certificate for this MAS Instance
+  # ---------------------------------------------------------------------------
+  echo " Deleting $PUBLIC_CERT_SECRET_NAME"
+  sm_delete_secret $PUBLIC_CERT_SECRET_NAME 
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
