@@ -63,6 +63,13 @@ spec:
               name: mas-fvt
               key: FVT_ARTIFACTORY_TOKEN
               optional: false
+        - name: ARTIFACTORY_UPLOAD_DIR
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: ARTIFACTORY_UPLOAD_DIR
+              optional: false
+
 
         # Lookups from mas-fvt-mobile
         # -----------------------------------------------------------------------

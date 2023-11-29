@@ -12,11 +12,12 @@
     
     #$ Mas Devops
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') }}"
-    
+
     # FVT Configuration
     fvt_image_registry: "{{ lookup('env', 'FVT_IMAGE_REGISTRY') }}"
     fvt_artifactory_username: "{{ lookup('env', 'FVT_ARTIFACTORY_USERNAME') }}"
     fvt_artifactory_token: "{{ lookup('env', 'FVT_ARTIFACTORY_TOKEN') }}"
+    artifactory_upload_dir: "{{ lookup('env', 'ARTIFACTORY_UPLOAD_DIR') }}"
     fvt_digest_mobile_manage_setup: "{{ lookup('env', 'FVT_DIGEST_MOBILE_MANAGE_SETUP') }}"
     fvt_digest_mobilefoundation_testng: "{{ lookup('env', 'FVT_DIGEST_MOBILEFOUNDATION_TESTNG') }}"
     fvt_digest_manage_civil_defects_testng: "{{ lookup('env', 'FVT_DIGEST_MANAGE_CIVIL_DEFECTS_TESTNG') }}"
@@ -47,6 +48,7 @@
           - "fvt_image_registry ....................... {{ fvt_image_registry }}"
           - "fvt_artifactory_username ................. {{ fvt_artifactory_username }}"
           - "fvt_artifactory_token .................... {{ fvt_artifactory_token }}"
+          - "artifactory_upload_dir .................... {{ artifactory_upload_dir }}"
           - "fvt_digest_mobile_manage_setup ........... {{ fvt_digest_mobile_manage_setup }}"
           - "fvt_digest_mobilefoundation_testng ....... {{ fvt_digest_mobilefoundation_testng }}"
           - "fvt_digest_manage_civil_defects_testng ... {{ fvt_digest_manage_civil_defects_testng }}"
