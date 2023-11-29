@@ -73,18 +73,49 @@ spec:
       default: ""
 
   tasks:
-    
-    - name: fvt-manage-setup # convention: use fvt-manage-<keyword>, as the value of fvt_test_suite parameter
-      {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(6) }}
-      {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(6) }}
+    # 1. Core x Manage
+    # -------------------------------------------------------------------------
+    - name: ivtcore-manage
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
-        {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(8) }}
-        - name: fvt_test_suite_prefix
-          value: core
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-manage
+        - name: product_channel
+          value: $(params.mas_app_channel_manage)
         - name: fvt_test_suite
-          value: setup
-        - name: fvt_mas_appws_component
-          value: base
-        - name: fvt_test_driver
-          value: tpae
-    
+          value: coreivt
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+
+    - name: cv-manage
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-manage
+        - name: product_channel
+          value: $(params.mas_app_channel_manage)
+        - name: fvt_test_suite
+          value: contentverification
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+
+    # 2. Manage FVT - Manage
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-manage/phase0.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase2.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase3.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
