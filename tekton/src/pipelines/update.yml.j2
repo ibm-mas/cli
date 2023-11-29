@@ -272,3 +272,15 @@ spec:
         kind: Task
         name: mas-fvt-finalize
 {% endif %}
+
+{% if wait_for_install == true %}
+    # 7. Test for outages during mongo update
+    # -------------------------------------------------------------------------
+    - name: fvt-mongo-update
+      taskRef:
+        kind: Task
+        name: mas-ivt-core
+      params:
+        - name: fvt_test_suite
+          value: mongohealth
+{% endif %}
