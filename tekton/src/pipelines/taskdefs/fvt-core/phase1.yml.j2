@@ -6,7 +6,7 @@
       value: ibm-mas
     - name: product_channel
       value: $(params.mas_channel)
-    - name: test_suite
+    - name: fvt_test_suite
       value: contentverification
   when:
     - input: "$(params.ivt_digest_core)"
@@ -23,7 +23,7 @@
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
+    - name: fvt_test_suite
       value: coreidp-auth
   runAfter:
     - cv-core
@@ -33,7 +33,7 @@
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
+    - name: fvt_test_suite
       value: coreapi-addons
   runAfter:
     - fvt-coreidp-auth
@@ -43,7 +43,7 @@
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
+    - name: fvt_test_suite
       value: coreapi-groupmgmt
   runAfter:
     - fvt-coreidp-auth
@@ -53,7 +53,7 @@
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
+    - name: fvt_test_suite
       value: coreapi-usermgmt
   runAfter:
     - fvt-coreidp-auth
@@ -63,7 +63,7 @@
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
+    - name: fvt_test_suite
       value: coreapi-apikeymgmt
   runAfter:
     - fvt-coreidp-auth
@@ -72,7 +72,7 @@
 - name: fvt-coreapi-workspacemgmt
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    - name: test_suite
+    - name: fvt_test_suite
       value: coreapi-workspacemgmt
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
@@ -82,7 +82,7 @@
 - name: fvt-coreapi-graphiteconfigtool
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    - name: test_suite
+    - name: fvt_test_suite
       value: coreapi-graphiteconfigtool
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
@@ -92,7 +92,7 @@
 - name: fvt-useractivation-overall
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    - name: test_suite
+    - name: fvt_test_suite
       value: useractivation-overall
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
@@ -102,7 +102,7 @@
 - name: fvt-useractivation-expiresat
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    - name: test_suite
+    - name: fvt_test_suite
       value: useractivation-expiresat
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
@@ -112,7 +112,7 @@
 - name: fvt-useractivation-inactivity
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    - name: test_suite
+    - name: fvt_test_suite
       value: useractivation-inactivity
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:

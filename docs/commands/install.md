@@ -281,13 +281,18 @@ You can choose between three pre-defined workload scaling classes - `Burstable`,
 When choosing a custom profile you will be prompted for the directory of your config files. For each supported application you will need to create separate config file. The naming convention for custom config files is `ibm-<appname>-<customresourcename>.yml`.
 
 Currently supported config files:
-- ibm-mas-bascfg.yml
-- ibm-mas-pushnotificationcfg.yml
-- ibm-mas-scimcfg.yml
-- ibm-mas-slscfg.yml
-- ibm-mas-smtpcfg.yml
-- ibm-mas-suite.yml
-- ibm-sls-licenseservice.yml
+- ibm-mas
+  - ibm-mas-bascfg.yml
+  - ibm-mas-pushnotificationcfg.yml
+  - ibm-mas-scimcfg.yml
+  - ibm-mas-slscfg.yml
+  - ibm-mas-smtpcfg.yml
+  - ibm-mas-coreidp.yml
+  - ibm-mas-suite.yml
+- ibm-sls
+  - ibm-sls-licenseservice.yml
+- ibm-data-dictionary
+  - ibm-data-dictionary-assetdatadictionary.yml
 
 For examples on these config files take a look into the pre-defined configs: [BestEffort](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/best-effort) and [Guaranteed](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/guaranteed). More information on podTemplates can be found in our official IBM documentation [here](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=configuring-customizing-workloads).
 

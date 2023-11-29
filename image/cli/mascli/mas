@@ -51,7 +51,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/setup_registry
 . $CLI_DIR/functions/teardown_registry
 . $CLI_DIR/functions/mirror_images
-. $CLI_DIR/functions/mirror_redhat_images
+. $CLI_DIR/functions/mirror_redhat
 . $CLI_DIR/functions/configure_mirror
 # Manage OIDC for configtool
 . $CLI_DIR/functions/configtool_oidc
@@ -64,7 +64,6 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    update_ansible_collections
     provision_fyre "$@"
     ;;
 
@@ -73,7 +72,6 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    update_ansible_collections
     provision_roks "$@"
     ;;
 
@@ -82,7 +80,6 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    update_ansible_collections
     provision_aws "$@"
     ;;
 
@@ -98,7 +95,6 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    update_ansible_collections
     connect
     setup_mirror_registry
     ;;
@@ -108,7 +104,6 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    update_ansible_collections
     connect
     teardown_mirror_registry
     ;;
@@ -118,7 +113,6 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    update_ansible_collections
     mirror_to_registry "$@"
     ;;
 
@@ -127,8 +121,7 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    update_ansible_collections
-    mirror_redhat_to_registry "$@"
+    mirror_redhat "$@"
     ;;
 
 
@@ -137,7 +130,6 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    update_ansible_collections
     configure_ocp_for_mirror "$@"
     ;;
 

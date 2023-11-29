@@ -57,12 +57,15 @@
         - fvt-core-phase4
         - fvt-core-ui
         - fvt-finalize
+        - fvt-iot
         - fvt-manage
         - fvt-mobile
         - fvt-manage-directprint
         - fvt-manage-last-phase
         - fvt-manage-pytest
+        - fvt-monitor
         - fvt-sls
+        - fvt-data-dictionary
         - fvt-run-suite
         - fvt-wait-for-install
         - fvt-wait-for-pipelinerun
@@ -74,7 +77,13 @@
       with_items:
         - launchfvt-assist
         - launchfvt-core
+        - launchfvt-iot
         - launchfvt-manage
+        - launchfvt-mobile
+        - launchfvt-monitor
+        - launchfvt-optimizer
+        - launchfvt-predict
+        - launchfvt-visualinspection
 
     # 4. Generate Tasks (IVT)
     # -------------------------------------------------------------------------

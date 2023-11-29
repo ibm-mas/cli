@@ -36,7 +36,7 @@ function install_config_storage_classes_sno() {
     if [[ "$STORAGE_CLASS_RWX" == "" ]]; then
       oc get storageclass gp2 &>> $LOGFILE
       if [[ $? == "0" ]]; then
-        echo -e "${COLOR_GREEN}Storage provider auto-detected: AWS gp2${COLOR_RESET}"
+        echo -e "${COLOR_GREEN}Storage provider auto-detected: AWS gp2${TEXT_RESET}"
         echo "${TEXT_DIM}  - Storage class (ReadWriteOnce): gp2"
         #echo "${TEXT_DIM}  - Storage class (ReadWriteMany): efs"
         STORAGE_CLASS_PROVIDER=aws

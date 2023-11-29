@@ -1,0 +1,26 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a QoS class of BestEffort. More can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
+podTemplates:
+  - name: graph-store
+    containers:
+      - name: graph-store
+        resources: {}
+  - name: user-store
+    containers:
+      - name: user-store
+        resources: {}
+  - name: series-store
+    containers:
+      - name: series-store
+        resources: {}
+  - name: router
+    containers:
+      - name: router
+        resources: {}
+  - name: maximo-connector
+    containers:
+      - name: maximo-connector
+        resources: {}

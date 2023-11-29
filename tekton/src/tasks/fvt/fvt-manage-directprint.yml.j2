@@ -28,10 +28,6 @@ spec:
 
     # Test Framework Information
     # -------------------------------------------------------------------------
-    - name: fvt_enable_debug
-      type: string
-      description: Turn on debug logging (verbose mode)
-      default: "true"
     - name: fvt_test_driver
       type: string
       description: Driver utilized by the manage selenium framework - Can be wither tpae or graphite
@@ -129,29 +125,22 @@ spec:
         value: core
       - name: FVT_TEST_SUITE
         value: $(params.fvt_test_suite)
-      - name: FVT_MANAGE_AUTOMATION_VERSION
-        valueFrom:
-          secretKeyRef:
-            name: mas-fvt-manage
-            key: FVT_MANAGE_AUTOMATION_VERSION
-            optional: true
       - name: FVT_MAS_APPWS_COMPONENT
         value: $(params.fvt_mas_appws_component)
-      - name: MAS_APPWS_COMPONENTS
-        value: $(params.mas_appws_components)
-
-      - name: FVT_ENABLE_DEBUG
-        value: "$(params.fvt_enable_debug)"
-
+      
+      # If this secret exists (with both ARTIFACTORY_TOKEN and ARTIFACTORY_UPLOAD_DIR keys set) Maximo Automation Framework logs will be automatically uploaded
       - name: ARTIFACTORY_TOKEN
-        value: $(params.artifactory_token)
-
-      - name: DEVOPS_COS_CRN
-        value: $(params.devops_cos_crn)
-      - name: DEVOPS_COS_UPLOAD_FOLDER
-        value: $(params.devops_cos_upload_folder)
-      - name: DEVOPS_IBMCLOUD_APIKEY
-        value: $(params.devops_ibmcloud_apikey)
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_TOKEN
+            optional: true
+      - name: ARTIFACTORY_UPLOAD_DIR
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_UPLOAD_DIR
+            optional: true
 
   volumes:
     - name: dshm

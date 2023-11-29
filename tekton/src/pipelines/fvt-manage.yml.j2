@@ -60,7 +60,7 @@ spec:
       description: IBM Cloud API Key to access Object Storage resource (optional)
       default: ""
 
-    # TODO: Consolidate these FVT images already!!
+    # Image Digests
     - name: fvt_digest_manage
       type: string
       default: ""
@@ -83,6 +83,8 @@ spec:
           value: ibm-mas-manage
         - name: product_channel
           value: $(params.mas_app_channel_manage)
+        - name: fvt_test_suite
+          value: coreivt
       when:
         - input: "$(params.ivt_digest_core)"
           operator: notin
