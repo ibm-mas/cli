@@ -26,7 +26,6 @@ spec:
             {% if DRO_CSV %}
             dro_csv: {{DRO_CSV}}
             {% endif %}
-            dro_api_token: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DRO_API_TOKEN }}>
     repoURL: 'https://github.com/ibm-mas/gitops'
     targetRevision: {{ GITOPS_VERSION }}
   syncPolicy:

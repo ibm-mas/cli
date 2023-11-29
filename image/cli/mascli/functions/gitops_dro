@@ -197,16 +197,10 @@ function gitops_dro() {
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
   
-  export SECRET_NAME_DRO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro
-  export DRO_API_TOKEN=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20`
-
   # Define cluster-level secrets used
   # ---------------------------------------------------------------------------
   # Note that SECRET_KEY_IBM_ENTITLEMENT cluster-level secret is set up by gitops-cluster
   export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#entitlement_key
-  export SECRET_KEY_DRO_API_TOKEN=${SECRET_NAME_DRO}#dro_api_token
-
-  sm_update_secret $SECRET_NAME_DRO "{\"dro_api_token\": \"$DRO_API_TOKEN\" }"
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
@@ -249,4 +243,10 @@ function gitops_dro() {
     check_argo_app_healthy mas-dro-${CLUSTER_ID} ${CLUSTER_ID}-watcher
   fi
 
+  # Get generated DRO API Token
+  # ---------------------------------------------------------------------------
+  export SECRET_NAME_DRO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro
+  export DRO_API_TOKEN=$(oc get secret ibm-data-reporter-operator-api-token -n ${DRO_NAMESPACE} -o jsonpath='{.data.token}' | base64 -d ; echo)
+  export SECRET_KEY_DRO_API_TOKEN=${SECRET_NAME_DRO}#dro_api_token
+  sm_update_secret $SECRET_NAME_DRO "{\"dro_api_token\": \"$DRO_API_TOKEN\" }"
 }
