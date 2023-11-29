@@ -264,6 +264,8 @@ spec:
           value: $(params.aws_secret_access_key)
         - name: aws_access_key_id
           value: $(params.aws_access_key_id)
+        - name: argocd_remove_deny_window
+          value: $(params.argocd_remove_deny_window)
       taskRef:
         kind: Task
         name: mas-fvt-wait-for-pipelinerun
