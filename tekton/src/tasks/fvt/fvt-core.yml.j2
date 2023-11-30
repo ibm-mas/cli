@@ -83,6 +83,20 @@ spec:
       - name: IBMADMIN_ENABLED
         value: "true"
 
+      # Black and white listing
+      - name: FVT_BLACKLIST
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: FVT_BLACKLIST
+            optional: false
+      - name: FVT_WHITELIST
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: FVT_WHITELIST
+            optional: false
+
       # Test Data
       - name: DDP_APIKEY
         valueFrom:
