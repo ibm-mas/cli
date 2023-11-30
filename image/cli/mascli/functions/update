@@ -191,6 +191,7 @@ function update_interactive() {
   fi
 
   MONGODB_CURRENT_VERSION=$(oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].status.version}' 2> /dev/null)
+  MONGODB_STORAGE_CLASS=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].spec.statefulSet.spec.volumeClaimTemplates[0].spec.storageClassName}' 2> /dev/null`
 
 
   # Detect Kafka in cluster and set namespace
@@ -231,6 +232,7 @@ function update() {
   export MAS_CATALOG_VERSION
   export DB2_NAMESPACE
   export MONGODB_NAMESPACE
+  export MONGODB_STORAGE_CLASS
   export MONGODB_V5_UPGRADE
   export KAFKA_NAMESPACE
   export KAFKA_PROVIDER
@@ -261,7 +263,7 @@ function update() {
     echo_reset_dim "IBM Db2 Universal Operator ................. ${COLOR_RED}No${TEXT_RESET}"
   fi
 
-  # IBM Db2
+  # MongoDB CE
   if [ "$MONGODB_NAMESPACE" != "" ]; then
     echo_reset_dim "MongoDb Community Edition .................. ${COLOR_GREEN}Yes ($MONGODB_NAMESPACE)${TEXT_RESET}"
   else
