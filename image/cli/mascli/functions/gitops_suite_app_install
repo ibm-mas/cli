@@ -23,6 +23,7 @@ Maximo Application Suite:
   --mas-app-api-version ${COLOR_YELLOW}MAS_APP_API_VERSION${TEXT_RESET}            IBM Suite Maximo Application Suite Application API Version
   --mas-app-kind ${COLOR_YELLOW}MAS_APP_KIND${TEXT_RESET}                          IBM Suite Maximo Application Suite Application Kind
   --mas-app-spec-yaml ${COLOR_YELLOW}MAS_APP_SPEC_YAML${TEXT_RESET}                Yaml file location containing IBM Suite Maximo Application Suite Application Spec
+  --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}          MAS Manual Cert Management
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -69,6 +70,9 @@ function gitops_suite_app_install_noninteractive() {
         ;;
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
+        ;;
+      --mas-manual-cert-mgmt)
+        export MAS_MANUAL_CERT_MGMT=$1 && shift
         ;;
 
       # Secrets Manager
@@ -240,6 +244,7 @@ function gitops_suite_app_install() {
   fi
   echo_reset_dim "Default File Storage Class ............ ${COLOR_MAGENTA}${DEFAULT_FILE_STORAGE_CLASS}"
   echo_reset_dim "Default Block Storage Class ........... ${COLOR_MAGENTA}${DEFAULT_BLOCK_STORAGE_CLASS}"
+  echo_reset_dim "MAS Manual Cert Mgt ................... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
     
   reset_colors
 
@@ -267,9 +272,21 @@ function gitops_suite_app_install() {
 
   # Instance-level secrets to use
   # ---------------------------------------------------------------------------
-
   # Set certs only if manual cert is True
-  if [ "${MAS_MANUAL_CERT_MGMT}" = "True" ] ; then
+
+  declare -A tls_secret_name
+  tls_secret_name['iot']="${MAS_INSTANCE_ID}-public-tls"
+  tls_secret_name['add']="${MAS_INSTANCE_ID}-add-cert-public"
+  tls_secret_name['assist']="public-assist-tls"
+  tls_secret_name['monitor']="${MAS_INSTANCE_ID}-public-tls"
+  tls_secret_name['optimizer']="${MAS_INSTANCE_ID}-cert-optimizer-public"
+  tls_secret_name['predict']="${MAS_INSTANCE_ID}-public-predict-tls"
+  tls_secret_name['visualinspection']="public-visualinspection-tls"
+
+  if [[ "${MAS_MANUAL_CERT_MGMT}" = "True" && -n "${tls_secret_name[$MAS_APP_ID]}" ]]; then
+
+    export PUBLIC_TLS_SECRET_NAME=${tls_secret_name[$MAS_APP_ID]}
+    
     export PUBLIC_CERT_SECRET_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}certs${SECRETS_KEY_SEPERATOR}${MAS_APP_ID}
     export CERT_FILE=$TEMP_DIR/cert.yml
     export CA_CERT_FILE=$TEMP_DIR/ca_cert.yml
