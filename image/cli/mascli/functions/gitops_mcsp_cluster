@@ -17,10 +17,6 @@ GitOps Configuration:
   -r, --region ${COLOR_YELLOW}REGION${TEXT_RESET}                     Region
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Cluster ID
 
-Secrets Manager:
-      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}   Secrets Manager key seperator string
-
 Operator Catalog:
       --catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}   Version of ibm-maximo-operator-catalog to use
       --catalog-image ${COLOR_YELLOW}MAS_CATALOG_IMAGE${TEXT_RESET}       Contain image to use for ibm-maximo-operator-catalog
@@ -81,9 +77,6 @@ function gitops_mcsp_cluster_noninteractive() {
         ;;
 
       # Secrets Manager
-      --secrets-path)
-        export SECRETS_PATH=$1 && shift
-        ;;
       --secrets-key-seperator)
         export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
@@ -112,28 +105,6 @@ function gitops_mcsp_cluster_noninteractive() {
         export GIT_SSH=$1 && shift
         ;;
 
-      # Operator Catalog
-      --catalog-version)
-        export MAS_CATALOG_VERSION=$1 && shift
-        ;;
-      --catalog-image)
-        export MAS_CATALOG_IMAGE=$1 && shift
-        ;;
-      --mas-catalog-action)
-        export MAS_CATALOG_ACTION=$1 && shift
-        ;;
-
-      # IBM Cloud Pak Foundational Services
-      --common-services-channel)
-        export COMMON_SERVICES_CHANNEL=$1 && shift
-        ;;
-      --common_services_action)
-        export COMMON_SERVICES_ACTION=$1 && shift
-        ;;
-
-      --use-env)
-        echo "Non-interactive, using env vars"
-        ;;
 
       # Other Commands
       -h|--help)
@@ -159,19 +130,6 @@ function gitops_mcsp_cluster_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_cluster_help "GIT_BRANCH is not set"
   fi
 
-  # Secrets path is inferred from ACCOUNT_ID, CLUSTER_ID right? or is this something different?
-  # [[ -z "$SECRETS_PATH" ]] && gitops_cluster_help "SECRETS_PATH is not set"
-
-  # if [[ "$MAS_CATALOG_ACTION" == "update" || "$MAS_CATALOG_ACTION" == "install" ]]; then
-  #   if [ -z $ICR_USERNAME ] || [ -z $ICR_PASSWORD ]; then
-  #     echo 'Missing required environment variables, make sure to set ICR_USERNAME, ICR_PASSWORD'
-  #     exit 1
-  #   fi
-  # fi
-
-  # if [[ "$COMMON_SERVICES_ACTION" == "upgrade" || "$COMMON_SERVICES_ACTION" == "install" ]]; then
-  #   [[ -z "$COMMON_SERVICES_CHANNEL" ]] && gitops_cluster_help "COMMON_SERVICES_CHANNEL is not set"
-  # fi
 }
 
 function gitops_mcsp_cluster() {
@@ -224,24 +182,6 @@ function gitops_mcsp_cluster() {
   fi
   reset_colors
 
-  # echo "${TEXT_DIM}"
-  # echo_h2 "Secrets Manager" "    "
-  # echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
-  # reset_colors
-
-  # echo "${TEXT_DIM}"
-  # echo_h2 "IBM Maximo Operator Catalog" "    "
-  # echo_reset_dim "Catalog Version ....................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
-  # echo_reset_dim "Catalog Image ......................... ${COLOR_MAGENTA}${MAS_CATALOG_IMAGE}"
-  # echo_reset_dim "Catalog Action ........................ ${COLOR_MAGENTA}${MAS_CATALOG_ACTION}"
-  # reset_colors
-
-  # echo "${TEXT_DIM}"
-  # echo_h2 "IBM Common Services" "    "
-  # echo_reset_dim "Common Services Channel  .............. ${COLOR_MAGENTA}${COMMON_SERVICES_CHANNEL}"
-  # echo_reset_dim "Common Services Action ................ ${COLOR_MAGENTA}${COMMON_SERVICES_ACTION}"
-  # reset_colors
-
 
   # Get Cluster URL from ArgoCD worker
   # ---------------------------------------------------------------------------
@@ -249,7 +189,6 @@ function gitops_mcsp_cluster() {
   argocd_login
   export CLUSTER_URL=$(argocd cluster get ${CLUSTER_ID} -o server)
   echo "Cluster URL: ${CLUSTER_URL}"
-
 
 
   # Set up secrets
@@ -315,20 +254,6 @@ function gitops_mcsp_cluster() {
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_CLUSTER_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
-
-    # argocd_login
-    # argocd_sync ${CLUSTER_ID}-watcher
-
-    # if [[ "$MAS_CATALOG_ACTION" == "update" || "$MAS_CATALOG_ACTION" == "install" ]]; then
-    #   check_argo_app_synced ibm-operator-catalog ${CLUSTER_ID}-watcher
-    #   check_argo_app_healthy ibm-operator-catalog ${CLUSTER_ID}-watcher
-    # fi
-
-    # if [[ "$COMMON_SERVICES_ACTION" == "upgrade" || "$COMMON_SERVICES_ACTION" == "install" ]]; then
-    #   add_role_to_user ibm-common-services
-    #   check_argo_app_synced ibm-common-services ${CLUSTER_ID}-watcher ibm-common-services
-    #   check_argo_app_healthy ibm-common-services ${CLUSTER_ID}-watcher
-    # fi
   fi
 
 }
