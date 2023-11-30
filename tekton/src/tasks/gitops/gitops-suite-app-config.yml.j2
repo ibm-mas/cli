@@ -138,6 +138,8 @@ spec:
     - name: mas_app_settings_bim_pvc_size
       type: string
       default: "20Gi"
+    - name: mas_manual_cert_mgmt
+      type: string
 
   stepTemplate:
     name: gitops-suite-app-config
@@ -244,6 +246,8 @@ spec:
         value: $(params.mas_app_settings_bim_pvc_name)
       - name: MAS_APP_SETTINGS_BIM_PVC_SIZE
         value: $(params.mas_app_settings_bim_pvc_size)
+      - name: MAS_MANUAL_CERT_MGMT
+        value: $(params.mas_manual_cert_mgmt)
 
   steps:
     - args:

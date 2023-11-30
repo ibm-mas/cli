@@ -18,12 +18,13 @@ GitOps Configuration:
 Maximo Application Suite:
 
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                       IBM Suite Maximo Application Suite Instance ID
-  -W, --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}              IBM Suite Maximo Application Suite workspace ID  
+  -W, --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}                                     IBM Suite Maximo Application Suite workspace ID  
   --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                                                     IBM Suite Maximo Application Suite Application ID
   --mas-app-kind ${COLOR_YELLOW}MAS_APP_KIND${TEXT_RESET}                                                 IBM Suite Maximo Application Suite Application Kind
   --mas-appws-spec-yaml ${COLOR_YELLOW}MAS_APPWS_SPEC_YAML${TEXT_RESET}                                   Yaml file location containing IBM Suite Maximo Application Suite Application Spec
-  --mas-appws-api-version ${COLOR_YELLOW}MAS_APPWS_API_VERSION${TEXT_RESET}                              IBM Suite Maximo Application Suite Application Workspace API Version
-  --mas-appws-kind ${COLOR_YELLOW}MAS_APPWS_KIND${TEXT_RESET}                                            IBM Suite Maximo Application Suite Application Workspace Kind
+  --mas-appws-api-version ${COLOR_YELLOW}MAS_APPWS_API_VERSION${TEXT_RESET}                               IBM Suite Maximo Application Suite Application Workspace API Version
+  --mas-appws-kind ${COLOR_YELLOW}MAS_APPWS_KIND${TEXT_RESET}                                             IBM Suite Maximo Application Suite Application Workspace Kind
+  --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}                                 MAS Manual Cert Management
 
   --mas-appws-bindings-jdbc ${COLOR_YELLOW}MAS_APPWS_BINDINGS_JDBC${TEXT_RESET}                           APP WS JDBC Binding
   --mas-appws-components ${COLOR_YELLOW}MAS_APPWS_COMPONENTS${TEXT_RESET}                                 APP WS Components
@@ -98,6 +99,9 @@ function gitops_suite_app_config_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
+        ;;
+      --mas-manual-cert-mgmt)
+        export MAS_MANUAL_CERT_MGMT=$1 && shift
         ;;
 
       --mas-appws-bindings-jdbc)
@@ -422,7 +426,9 @@ function gitops_suite_app_config() {
 
   echo_reset_dim "CUSTOMIZATION_ARCHIVE_URL ............... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL}"
   echo_reset_dim "CUSTOMIZATION_ARCHIVE_NAME .............. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME}"
-	
+
+  echo_reset_dim "MAS Manual Cert Mgt ................... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
+
   reset_colors
 
   # Set up Suite secrets
@@ -447,9 +453,39 @@ function gitops_suite_app_config() {
 
   # Instance-level secrets to use
   # ---------------------------------------------------------------------------
-  # Note that these instance-level secrets are set up by gitops-license
+  declare -A tls_secret_name
+  tls_secret_name['health']="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-cert-public-81"
+  tls_secret_name['manage']="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-cert-public-81"
 
+  # Set certs only if manual cert is True
+  if [[ "${MAS_MANUAL_CERT_MGMT}" = "True" && -n "${tls_secret_name[$MAS_APP_ID]}" ]]; then
 
+    export PUBLIC_TLS_SECRET_NAME=${tls_secret_name[$MAS_APP_ID]}
+
+    export PUBLIC_CERT_SECRET_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}certs${SECRETS_KEY_SEPERATOR}${MAS_APP_ID}
+    export CERT_FILE=$TEMP_DIR/cert.yml
+    export CA_CERT_FILE=$TEMP_DIR/ca_cert.yml
+    export TLS_CERT_FILE=$TEMP_DIR/tls_cert.yml
+    export TLS_KEY_FILE=$TEMP_DIR/tls_key.yml
+
+    sm_get_secret_file $PUBLIC_CERT_SECRET_NAME $CERT_FILE
+    jq -r .cert_ca $CERT_FILE > $CA_CERT_FILE
+    jq -r .cert_tls $CERT_FILE > $TLS_CERT_FILE
+    jq -r .tls_key $CERT_FILE > $TLS_KEY_FILE
+
+    if [[ -n "$CA_CERT_FILE" ]]; then
+      export CA_CERT=$(cat ${CA_CERT_FILE})
+      echo_reset_dim "CA_CERT ............................... ${COLOR_MAGENTA}${CA_CERT}"
+    fi
+    if [[ -n "$TLS_CERT_FILE" ]]; then
+      export TLS_CERT=$(cat ${TLS_CERT_FILE})
+      echo_reset_dim "TLS_CERT .............................. ${COLOR_MAGENTA}${TLS_CERT}"
+    fi
+    if [[ -n "$TLS_KEY_FILE" ]]; then
+      export TLS_KEY=$(cat ${TLS_KEY_FILE})
+      echo_reset_dim "TLS_KEY ............................... ${COLOR_MAGENTA}${TLS_KEY}"    
+    fi
+  fi
 
   # Instance-level secrets to create
   # ---------------------------------------------------------------------------
