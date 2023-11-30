@@ -23,6 +23,7 @@ spec:
             mas_instance_id: {{ MAS_INSTANCE_ID }}
             mas_app_id: {{ MAS_APP_ID }}
             mas_app_namespace: {{ MAS_APP_NAMESPACE }}
+
             {% if MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE %}
             mas_app_settings_server_bundles_size: {{ MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE }}
             {% endif %}
@@ -39,6 +40,23 @@ spec:
             server_bundles_jms_add_server_config_content: {{ SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT }}
             {% endif %}
             {{ MAS_APPWS_SPEC | indent(12) }}
+
+            mas_manual_cert_mgmt: {{ MAS_MANUAL_CERT_MGMT }}
+            {% if PUBLIC_TLS_SECRET_NAME is defined and PUBLIC_TLS_SECRET_NAME !='' %}
+            public_tls_secret_name: {{ PUBLIC_TLS_SECRET_NAME }}
+            {% endif %}
+
+            {% if CA_CERT is defined and CA_CERT !='' %}
+            ca_cert: {{ CA_CERT }}
+            {% endif %}
+
+            {% if TLS_CERT is defined and TLS_CERT !='' %}
+            tls_cert: {{ TLS_CERT }}
+            {% endif %}
+
+            {% if TLS_KEY is defined and TLS_KEY !='' %}
+            tls_key: {{ TLS_KEY }}
+            {% endif %}
 
   syncPolicy:
     automated:
