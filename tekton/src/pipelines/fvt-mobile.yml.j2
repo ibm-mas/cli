@@ -80,6 +80,8 @@ spec:
     # -------------------------------------------------------------------------
     
     {{ lookup('template', 'taskdefs/fvt-mobile/phase1-setup.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase2-android.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase3-ios.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase4.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase2-android-part1.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase3-android-part2.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase4-ios-part1.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase5-ios-part2.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase6-desktop.yml.j2') | indent(4) }}

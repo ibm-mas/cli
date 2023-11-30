@@ -11,12 +11,19 @@ spec:
     name: mas-fvt-mobile
 
   serviceAccountName: pipeline
-  timeout: "8h"
+  timeout: "12h"
 
   params:
     # Pull Policy
     - name: image_pull_policy
       value: "{{ image_pull_policy }}"
+    
+    # Registry
+    - name: fvt_image_registry
+      value: "{{ fvt_image_registry }}"
+    - name: fvt_artifactory_token
+      value: "{{ fvt_artifactory_token }}"
+    
     # MAS Info
     - name: mas_channel
       value: "{{ mas_channel }}"
@@ -26,19 +33,7 @@ spec:
       value: "{{ mas_instance_id }}"
     - name: mas_workspace_id
       value: "{{ mas_workspace_id }}"
-    # mas-devops
-    - name: devops_build_number
-      value: "{{ devops_build_number }}"    
-    # Registry
-    - name: fvt_image_registry
-      value: "{{ fvt_image_registry }}"
-    - name: fvt_artifactory_username
-      value: "{{ fvt_artifactory_username }}"
-    - name: fvt_artifactory_token
-      value: "{{ fvt_artifactory_token }}"
-    - name: artifactory_upload_dir
-      value: "{{ artifactory_upload_dir }}"
-
+        
     # Digests
     - name: fvt_digest_mobile_manage_setup
       value: "{{ fvt_digest_mobile_manage_setup }}"

@@ -1,0 +1,110 @@
+## All Mobile Foundation MAS test suites
+- name: fvt-mobfoundation-mvt-android
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
+    - name: fvt_image_namespace
+      value: fvt-mobilefoundation
+    - name: fvt_image_name
+      value: fvt-mobilefoundation-testng
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_mobilefoundation_testng)
+    - name: fvt_test_suite
+      value: mobfoundation-mvt-android
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+    - name: foundation_device_type
+      value: android
+    - name: foundation_server_type
+      value: mas
+  # Only if we've set a digest of the Mobile Foundation FVT to run
+  when:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
+    - input: "$(params.fvt_digest_mobilefoundation_testng)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-mobile-setup-data
+
+## Minimum Verification Test for Mobile Service Request MAS test suites
+- name: fvt-service-request-mvt-android
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
+    - name: fvt_image_namespace
+      value: fvt-servicerequests
+    - name: fvt_image_name
+      value: fvt-servicerequests-testng
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_servicerequests_testng)
+    - name: fvt_test_suite
+      value: service-request-mvt-android
+    - name: assist_test_type
+      value: mobileapp
+    - name: assist_device_type
+      value: android
+    - name: assist_server_type
+      value: mas
+  # Only if we've set a digest of the Mobile Service Request FVT to run
+  when:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
+    - input: "$(params.fvt_digest_servicerequests_testng)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-mobile-setup-data
+
+## Minimum Verification Test for Mobile Inspection MAS test suites
+- name: fvt-inspections-mvt-android
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
+    - name: fvt_image_namespace
+      value: fvt-inspections
+    - name: fvt_image_name
+      value: fvt-inspections-testng
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_inspection_testng)
+    - name: fvt_test_suite
+      value: inspections-mvt-android
+    - name: assist_test_type
+      value: mobileapp
+    - name: assist_device_type
+      value: android
+    - name: assist_server_type
+      value: mas
+  # Only if we've set a digest of the Mobile Inspection FVT to run
+  when:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
+    - input: "$(params.fvt_digest_inspection_testng)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-mobile-setup-data
+
+## Minimum Verification Test for Mobile Asset Manager MAS test suites
+- name: fvt-asset-manager-mvt-android
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
+    - name: fvt_image_namespace
+      value: fvt-asset-manager
+    - name: fvt_image_name
+      value: fvt-asset-manager-testng
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_asset_manager_testng)
+    - name: fvt_test_suite
+      value: asset-manager-mvt-android
+    - name: assist_test_type
+      value: mobileapp
+    - name: assist_device_type
+      value: android
+    - name: assist_server_type
+      value: mas
+  # Only if we've set a digest of the Mobile Asset Manager FVT to run
+  when:
+    - input: "$(params.fvt_digest_asset_manager_testng)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-mobile-setup-data
