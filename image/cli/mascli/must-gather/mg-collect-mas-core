@@ -1,12 +1,14 @@
 #!/bin/bash
 set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $DIR/../functions/internal/utils
 
 NAMESPACE=$1
 OUTPUT_DIR=$2
 
 # Collect Reconcile Logs
 # -----------------------------------------------------------------------------
+echo_h4 "Collect Reconcile Logs"
 # Primary Resources
 $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas $OUTPUT_DIR
 $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-ws $OUTPUT_DIR
@@ -30,11 +32,3 @@ $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-cfg-smtp $OUTPUT
 
 #Truststore
 $DIR/mg-collect-reconcile-logs $NAMESPACE operator ibm-truststore-mgr $OUTPUT_DIR
-
-
-# Collect Custom Resources
-# -----------------------------------------------------------------------------
-  for RESOURCE in Suite Workspace Truststore CoreIDP AppConnect Humai MVIEdge BasCfg SlsCfg IDPCfg ScimCfg JdbcCfg MongoCfg KafkaCfg ObjectStorageCfg SmtpCfg
-  do
-    $DIR/mg-collect-resources -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
-  done
