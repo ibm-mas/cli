@@ -58,19 +58,19 @@ spec:
         - name: MAS_CHANNEL
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-core
+              name: mas-fvt-mobile
               key: MAS_CHANNEL
               optional: false
         - name: MAS_APP_CHANNEL_MANAGE
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-manage
+              name: mas-fvt-mobile
               key: MAS_APP_CHANNEL_MANAGE
               optional: false
         - name: MAS_WORKSPACE_ID
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-core
+              name: mas-fvt-mobile
               key: MAS_WORKSPACE_ID
               optional: false
         
