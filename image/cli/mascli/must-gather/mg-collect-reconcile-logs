@@ -8,7 +8,7 @@ LABEL_SELECTOR=$2
 LABEL_VALUE=$3
 OUTPUT_DIR=$4
 
-echo "- ${COLOR_BLUE}$LABEL_SELECTOR:$LABEL_VALUE${COLOR_RESET}"
+echo "- ${COLOR_BLUE}$LABEL_SELECTOR:$LABEL_VALUE${TEXT_RESET}"
 
 POD=$(oc -n $NAMESPACE get pods -l "$LABEL_SELECTOR=$LABEL_VALUE" -o jsonpath="{.items[0].metadata.name}" 2>/dev/null) || { echo_warning "  - Error fetching pods with label: $LABEL_SELECTOR=$LABEL_VALUE"; exit 0; }
 

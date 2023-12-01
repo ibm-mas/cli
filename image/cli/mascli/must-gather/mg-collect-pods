@@ -41,12 +41,12 @@ mkdir -p "$POD_DIR"
 rm -rf "$POD_DIR"/*
 
 if [[ "$NO_DETAIL" == "true" ]]; then
-    echo "- ${COLOR_BLUE}pods${COLOR_RESET} (summary only)"
+    echo "- ${COLOR_BLUE}pods${TEXT_RESET} (summary only)"
 else
   if [[ "$POD_LOGS" == "true" ]]; then
-    echo "- ${COLOR_BLUE}pods${COLOR_RESET} (detailed with logs)"
+    echo "- ${COLOR_BLUE}pods${TEXT_RESET} (detailed with logs)"
   else
-    echo "- ${COLOR_BLUE}pods${COLOR_RESET} (detailed without logs)"
+    echo "- ${COLOR_BLUE}pods${TEXT_RESET} (detailed without logs)"
   fi
 fi
 # Generate Summary

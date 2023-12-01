@@ -50,8 +50,8 @@ if [[ "$NO_DETAIL" == "false" ]]; then
 fi
 
 if [[ "$NO_DETAIL" == "false" ]]
-then echo "- ${COLOR_BLUE}${RESOURCE_TYPE}${COLOR_RESET} (detailed)"
-else echo "- ${COLOR_BLUE}${RESOURCE_TYPE}${COLOR_RESET} (summary only)"
+then echo "- ${COLOR_BLUE}${RESOURCE_TYPE}${TEXT_RESET} (detailed)"
+else echo "- ${COLOR_BLUE}${RESOURCE_TYPE}${TEXT_RESET} (summary only)"
 fi
 # Generate Summary
 # -----------------------------------------------------------------------------
