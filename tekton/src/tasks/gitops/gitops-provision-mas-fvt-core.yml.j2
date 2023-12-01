@@ -214,7 +214,7 @@ spec:
         fi
         echo "argo:argocd login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."    
         argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
-        echo "argo:argocd proj window add $MAS_INSTANCE_ID --kind deny --schedule * * * * * --duration 4h --applications *"  
+        echo "argo:argocd proj windows add $MAS_INSTANCE_ID --kind deny --schedule * * * * * --duration 4h --applications *"  
         argocd proj windows add $MAS_INSTANCE_ID --kind deny --schedule "* * * * *" --duration 4h --applications "*"
 
         mas gitops-provision-mas-fvt-core --pipeline-storage-class ${PIPELINE_STORAGE_CLASS} \

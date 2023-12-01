@@ -112,8 +112,8 @@ spec:
           fi
           echo "argo:argocd login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."
           argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
-          echo "argo:argocd proj window delete $MAS_INSTANCE_ID 0"
-          argocd proj windows delete $MAS_INSTANCE_ID 0
+          echo "argo:argocd proj windows delete $REMOTE_OCP_CLUSTER 0"
+          argocd proj windows delete $REMOTE_OCP_CLUSTER 0
         fi
 
         if [[ "$RESULT" == "True" ]]; then
