@@ -2,6 +2,7 @@
 [![GitHub release](https://img.shields.io/github/v/release/ibm-mas/cli)](https://github.com/ibm-mas/cli/releases/latest)
 [![Build CLI](https://github.com/ibm-mas/cli/actions/workflows/build-cli.yml/badge.svg)](https://github.com/ibm-mas/cli/actions/workflows/build-cli.yml)
 
+
 ## Introduction
 There are minimal dependencies to meet on your own computer to use the CLI:
 

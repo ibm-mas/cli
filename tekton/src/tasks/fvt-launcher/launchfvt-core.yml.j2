@@ -86,17 +86,24 @@ spec:
               name: mas-fvt-core
               key: FVT_DIGEST_CORE
               optional: false
-        - name: FVT_DIGEST_COREUI
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-core
-              key: FVT_DIGEST_COREUI
-              optional: false
         - name: IVT_DIGEST_CORE
           valueFrom:
             secretKeyRef:
               name: mas-fvt-core
               key: IVT_DIGEST_CORE
+              optional: false
+        # Black and white listing
+        - name: FVT_BLACKLIST
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-core
+              key: FVT_BLACKLIST
+              optional: false
+        - name: FVT_WHITELIST
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-core
+              key: FVT_WHITELIST
               optional: false
         # Test Data
         - name: DDP_APIKEY

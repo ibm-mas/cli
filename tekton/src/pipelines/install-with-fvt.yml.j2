@@ -65,6 +65,10 @@ spec:
       type: string
       default: "true"
       description: "Set this to any falue other than 'true' to disable lauch of the Visual Inspection FVT Pipeline after app-cfg-visualinspection completes"
+    - name: launchfvt_mobile
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Mobile FVT Pipeline after app-cfg-manage completes"
 
   tasks:
     # Content
@@ -452,7 +456,6 @@ spec:
       runAfter:
         - app-cfg-manage
 
-
     # 17. Application FVT - Monitor
     # -------------------------------------------------------------------------
     - name: launchfvt-monitor
@@ -536,7 +539,26 @@ spec:
         - app-cfg-optimizer
         - launchfvt-manage
 
-    # 21. SLS FVT
+    # 21. Application FVT - Mobile
+    # -------------------------------------------------------------------------
+    - name: launchfvt-mobile
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-mobile"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-mobile
+      when:
+        - input: $(params.launchfvt_mobile)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-manage
+
+
+    # 22. SLS FVT
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-sls/sls.yml.j2') | indent(4) }}
       runAfter:

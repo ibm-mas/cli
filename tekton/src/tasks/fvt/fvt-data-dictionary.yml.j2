@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-fvt-core-ui
+  name: mas-fvt-data-dictionary
 spec:
   params:
     # Control the image pull policy for the FVT container image
@@ -30,33 +30,20 @@ spec:
       description: Turn on debug logging (verbose mode)
       default: "true"
 
-    - name: product_channel
-      type: string
-      description: "Subscription channel for the product (todo: have the test code look this up instead)"
-      default: ""
-
     - name: mas_instance_id
       type: string
       description: Instance ID of the target test environment
-    - name: mas_workspace_id
-      type: string
-      description: Workspace ID in MAS to use for running the tests
-
 
   stepTemplate:
-    name: 'fvt-core-ui'
+    name: 'fvt-data-dictionary'
     env:
       # What are we testing?
       - name: PRODUCT_ID
-        value: ibm-mas
-      - name: PRODUCT_CHANNEL
-        value: $(params.product_channel)
-      - name: NAMESPACE
-        value: "mas-$(params.mas_instance_id)-core"
+        value: ibm-data-dictionary
       - name: INSTANCE_ID
-        value: "$(params.mas_instance_id)"
-      - name: WORKSPACE_ID
-        value: "$(params.mas_workspace_id)"
+        value: $(params.mas_instance_id)
+      - name: NAMESPACE
+        value: mas-$(params.mas_instance_id)-core
 
       # Enable results to be saved
       - name: DEVOPS_MONGO_URI
@@ -85,9 +72,9 @@ spec:
         value: "true"
 
   steps:
-    - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas-ui@$(params.fvt_image_digest)'
+    - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-data-dictionary@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 90m # Ensure bad FVTs don't run forever
+      timeout: 2h0m0s # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
@@ -101,3 +88,5 @@ spec:
 
   workspaces:
     - name: configs
+    - name: pod-templates
+      optional: true

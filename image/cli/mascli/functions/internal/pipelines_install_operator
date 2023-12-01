@@ -55,6 +55,6 @@ function pipelines_install_operator() {
 
   echo -en "\033[1K" # Clear current line
   echo -en "\033[u" # Restore cursor position
-  echo "${COLOR_GREEN}OpenShift Pipelines Operator is installed and ready${COLOR_RESET}"
+  echo "${COLOR_GREEN}OpenShift Pipelines Operator is installed and ready${TEXT_RESET}"
   echo
 }

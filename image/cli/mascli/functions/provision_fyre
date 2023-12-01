@@ -90,7 +90,7 @@ function provision_fyre_noninteractive() {
         ;;
       *)
         # unknown option
-        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${TEXT_RESET}\n"
         provision_fyre_help
         exit 1
         ;;
@@ -152,7 +152,7 @@ function provision_fyre_interactive() {
   esac
 
 
-  prompt_for_input "Cluster Description" FYRE_CLUSTER_DESCRIPTION  
+  prompt_for_input "Cluster Description" FYRE_CLUSTER_DESCRIPTION
   prompt_for_input "FYRE Product ID" FYRE_PRODUCT_ID
   prompt_for_input "FYRE Site" FYRE_SITE
 
