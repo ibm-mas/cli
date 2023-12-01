@@ -18,9 +18,6 @@ spec:
     - name: fvt_image_digest
       type: string
       description: FVT Container Image Digest
-    - name: fvt_ui_image_digest
-      type: string
-      description: FVT Container Image Digest for UI container
 
     # Test Framework Information
     # -------------------------------------------------------------------------
@@ -78,6 +75,20 @@ spec:
       - name: IBMADMIN_ENABLED
         value: "true"
 
+      # Black and white listing
+      - name: FVT_BLACKLIST
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: FVT_BLACKLIST
+            optional: false
+      - name: FVT_WHITELIST
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: FVT_WHITELIST
+            optional: false
+
       # Test Data
       - name: DDP_APIKEY
         valueFrom:
@@ -120,9 +131,6 @@ spec:
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
       env:
         - name: TEST_SUITE
           value: adoptionusagemetering
@@ -136,9 +144,6 @@ spec:
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
       env:
         - name: TEST_SUITE
           value: coreidp-ldap
@@ -152,9 +157,6 @@ spec:
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
       env:
         - name: TEST_SUITE
           value: coreidp-saml
@@ -162,15 +164,12 @@ spec:
     # 4. coreidp-saml-ui
     # -------------------------------------------------------------------------
     - name: fvt-coreidp-saml-ui
-      image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas-ui@$(params.fvt_ui_image_digest)'
+      image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 2h0m0s # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
       env:
         - name: TEST_SUITE
           value: coreidp-saml-ui
@@ -184,9 +183,6 @@ spec:
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
       env:
         - name: TEST_SUITE
           value: coreidp-ssoconfig
@@ -200,9 +196,6 @@ spec:
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
       env:
         - name: TEST_SUITE
           value: licensingapi
@@ -216,9 +209,6 @@ spec:
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
       env:
         - name: TEST_SUITE
           value: smtp
@@ -232,9 +222,6 @@ spec:
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
       env:
         - name: TEST_SUITE
           value: core-trustcas
@@ -248,18 +235,9 @@ spec:
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
       env:
         - name: TEST_SUITE
           value: operatormaturity
-
-
-  volumes:
-    - name: dshm
-      emptyDir:
-        medium: Memory
 
   workspaces:
     - name: configs

@@ -115,6 +115,7 @@ function mustgather() {
     # caused by anything on the cluster, including other MAS instances
     --mas-instance-ids)
       MAS_INSTANCE_IDS=$1; shift
+      MAS_INSTANCE_IDS=$1; shift
       ;;
 
     # Limit the must-gather to only specific MAS applications, again highly discouraged as a problem in one application may be caused by something
@@ -163,7 +164,7 @@ function mustgather() {
       ;;
     *)
       # unknown option
-      echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+      echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${TEXT_RESET}\n"
       must_gather_help
       exit 1
       ;;
