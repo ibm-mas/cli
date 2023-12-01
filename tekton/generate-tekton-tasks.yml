@@ -148,4 +148,5 @@
         - gitops-deprovision-db2u
         - gitops-provision-mas-fvt-core
         - gitops-dro
+        - gitops-mcsp-cluster
 
