@@ -10,7 +10,7 @@ OUTPUT_DIR=$4
 
 echo "- ${COLOR_BLUE}$LABEL_SELECTOR:$LABEL_VALUE${TEXT_RESET}"
 
-POD=$(oc -n $NAMESPACE get pods -l "$LABEL_SELECTOR=$LABEL_VALUE" -o jsonpath="{.items[0].metadata.name}" 2>/dev/null) || { echo_warning "  - Error fetching pods with label: $LABEL_SELECTOR=$LABEL_VALUE"; exit 0; }
+POD=$(oc -n $NAMESPACE get pods -l "$LABEL_SELECTOR=$LABEL_VALUE" -o jsonpath="{.items[0].metadata.name}" 2>/dev/null) || { echo_warning "  Error fetching pods with label: $LABEL_SELECTOR=$LABEL_VALUE"; exit 0; }
 
 LOGFILES=$(oc -n $NAMESPACE exec $POD -- find /tmp/ansible-operator/runner/ -name stdout 2>/dev/null)
 if [[ "$?" == "1" ]]; then
@@ -21,14 +21,21 @@ fi
 TMP_DIR=${OUTPUT_DIR}/tmp-$LABEL_VALUE
 mkdir -p $TMP_DIR
 
+oc -n $NAMESPACE exec $POD -- tar -czf - $LOGFILES > $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz 2> /dev/null
+if [[ ! -e "$TMP_DIR/ansible-logs-$LABEL_VALUE.tgz" ]]; then
+  # Fail if the archive wasn't created
+  echo_warning "  Error generating tgz in $POD"
+  echo_warning "  NAMESPACE/POD: $NAMESPACE/$POD"
+  echo_warning "  LOGFILES: $LOGFILES"
+  exit 0
+fi
 
-oc -n $NAMESPACE exec $POD -- tar -czf - $LOGFILES > $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz 2> /dev/null || { echo_warning "  - Error generating tgz in $POD"; exit 0; }
-tar -xf $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz -C $TMP_DIR --no-same-owner 2>/dev/null
-
+tar -xf $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz -C $TMP_DIR --no-same-owner 2> /dev/null
 if [[ "$?" == "0" ]]; then
   rm $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz
 else
-  echo_warning "  - Unable to extract reconcile logs from $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz"
+  # Fail if we couldn't unpack the archive
+  echo_warning "  Unable to extract logs from $TMP_DIR/ansible-logs-$LABEL_VALUE.tgz"
   exit 0
 fi
 

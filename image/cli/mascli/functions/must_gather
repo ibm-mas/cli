@@ -276,7 +276,7 @@ function mustgather() {
     do
       # assume that there is only one LicenseService in the namespace
       SLS_NAME=$(oc get LicenseService -n ${SLS_NAMESPACE} --ignore-not-found -o jsonpath='{.items[0].metadata.name}')
-      echo_h2 "Suite Licensing Service Must Gather from ${SLS_NAME} in ${SLS_NAMESPACE}"
+      echo_h3 "Namespace: ${SLS_NAMESPACE}"
 
       # SLS-specific must-gather
       $MG_SCRIPT_DIR/mg-summary-sls $SLS_NAMESPACE &> ${OUTPUT_DIR}/${SLS_NAMESPACE}.txt
