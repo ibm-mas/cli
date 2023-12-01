@@ -5,25 +5,31 @@ Usage
 -------------------------------------------------------------------------------
 `mas must-gather [options]`
 
-### Options
+### Destination
 - `-d|--directory MG_DIR` Directory where the must-gather will be saved, defaults to `/tmp/must-gather` (or `/must-gather` if the directory exists)
 - `-k|--keep-files` Do not delete individual files after creating the must-gather compressed tar archive
-- `--summary-only` Perform a much faster must-gather that only gathers high level summary of resources in the cluster
-- `--no-pod-logs` Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required
+
+### General Controls
+- `--summary-only` Perform a much faster must-gather that only gathers high level summary information
+- `--no-logs` Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required
+- `--secret-data` Include secrets content in the must-gather
+
+### MAS Content Controls:
+- `--mas-instance-ids` Limit must-gather to a list of MAS instance IDs (comma-seperated list)
+- `--mas-app-ids` Limit must-gather to a subset of MAS namespaces (comma-seperated list)
+
+### Disable Collectors:
+- `--no-ocp` Disable must-gather for the OCP cluster itself
+- `--no-dependencies` Disable must-gather for in-cluster dependencies (Db2, Cloud Pak for Data, Cloud Pak Foundational Services, Mongo)
+- `--no-sls` Disable must-gather for IBM Suite License Service
+
+### Additional Collectors:
+- `--extra-namespaces` Enable must-gather in custom namespaces (comma-seperated list)
+
+### Artifactory Upload:
 - `--artifactory-token ARTIFACTORY_TOKEN` Provide a token for Artifactory to automatically upload the file to `ARTIFACTORY_UPLOAD_DIRECTORY`
 - `--artifactory-upload-directory ARTIFACTORY_UPLOAD_DIRECTORY` Working URL to the root directory in Artifactory where the must-gather file should be uploaded
-- `--mas-instance-ids` Collects the data for the specified MAS instances, if not specified will collect for all MAS instances on the cluster
-- `--secret-data` Collects also the content of the secrets, the default is not to include the data part of the secrets
-- `--extra-namespaces`         Collects data for additional namespaces, like ibm-common-services or db2u, must be separated by a coma
-- `--ocp-report`               Collects the collection of OCP data
-- `--dependency-report`        Collects the collection of custom resources for dependencies (like db2 or cloud pak services)
-- `--mongo-report`             Collects the collection of Mongo data
-- `--sls-report`               Collects the collection of SLS data
-- `--mas-app-ids`              Collects for the specified apps instead of for all apps for the MAS instance id, specify values from: 
-                               core add assist iot monitor manage optimizer predict visualinspection pipelines 
-                               separated by a coma, for example "core,manage"
-- `--all`                      Collects all MAS related data, OCP report, dependency report, mongo, sls and all Mas instances namespaces, it is the same as 
-                               including --ocp-report --dependency-report --mongo-report and --sls-report options together
+
 
 Content
 -------------------------------------------------------------------------------
