@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $DIR/../functions/internal/utils
+
 # Process command flags
 NAMESPACE_FLAG=""
 NAMESPACE=""
@@ -9,60 +12,64 @@ ALL_NAMESPACES=""
 
 while [[ $# -gt 0 ]]
 do
-    key="$1"
-    shift
-    case $key in
-    -n)
-        NAMESPACE=$1; shift
-        NAMESPACE_FLAG="-n $NAMESPACE"
-        ;;
-    -r)
-        RESOURCE_TYPE=$1; shift
-        ;;
-    -d)
-        OUTPUT_DIR=$1; shift
-        ;;
-    --no-detail)
-        NO_DETAIL=true
-        ;;
-    -a)
-        ALL_NAMESPACES="--all-namespaces"
-        ;;
-    esac
+  key="$1"
+  shift
+  case $key in
+  -n)
+    # Convert the namespaceto lowercase
+    NAMESPACE=${1,,}; shift
+    NAMESPACE_FLAG="-n $NAMESPACE"
+    ;;
+  -r)
+    # Convert the resource type to lowercase
+    RESOURCE_TYPE=${1,,}; shift
+    ;;
+  -d)
+    OUTPUT_DIR=$1; shift
+    ;;
+  --no-detail)
+    NO_DETAIL=true
+    ;;
+  -a)
+    ALL_NAMESPACES="--all-namespaces"
+    ;;
+  esac
 done
 
 if [[ "$NAMESPACE" != "" ]]; then
-    NAMESPACE_DIR=${OUTPUT_DIR}/${NAMESPACE}
+  NAMESPACE_DIR=${OUTPUT_DIR}/${NAMESPACE}
 else
-    NAMESPACE_DIR=${OUTPUT_DIR}/_cluster
+  NAMESPACE_DIR=${OUTPUT_DIR}/_cluster
 fi
 
 mkdir -p $NAMESPACE_DIR
 
 if [[ "$NO_DETAIL" == "false" ]]; then
-    RESOURCE_DIR=${NAMESPACE_DIR}/${RESOURCE_TYPE}
-    mkdir -p $RESOURCE_DIR
+  RESOURCE_DIR=${NAMESPACE_DIR}/${RESOURCE_TYPE}
+  mkdir -p $RESOURCE_DIR
 fi
 
-echo "  - Collecting debug information: ${RESOURCE_TYPE}"
-
+if [[ "$NO_DETAIL" == "false" ]]
+then echo "- ${COLOR_BLUE}${RESOURCE_TYPE}${TEXT_RESET} (detailed)"
+else echo "- ${COLOR_BLUE}${RESOURCE_TYPE}${TEXT_RESET} (summary only)"
+fi
 # Generate Summary
 # -----------------------------------------------------------------------------
-oc ${NAMESPACE_FLAG} get ${RESOURCE_TYPE} ${ALL_NAMESPACES} -o wide > ${NAMESPACE_DIR}/${RESOURCE_TYPE}.txt || { echo "    - Error fetching resource: ${RESOURCE_TYPE}"; exit 0; }
+oc ${NAMESPACE_FLAG} get ${RESOURCE_TYPE} ${ALL_NAMESPACES} -o wide &> ${NAMESPACE_DIR}/${RESOURCE_TYPE}.txt || { echo_warning "    - Error fetching resource: ${RESOURCE_TYPE}"; exit 0; }
 
 # Generate Detailed Report
 # -----------------------------------------------------------------------------
 if [[ "$NO_DETAIL" == "false" ]]; then
-    if [[ -z "$ALL_NAMESPACES" ]]; then
-        RESOURCES=$(oc ${NAMESPACE_FLAG} get ${RESOURCE_TYPE} -o name)
-        for RESOURCE in ${RESOURCES[@]}
-        do
-            # echo "    - Collecting $RESOURCE"
-            RESOURCE_NAME=$(echo ${RESOURCE} | cut -d '/' -f 2)
+  if [[ -z "$ALL_NAMESPACES" ]]; then
+    RESOURCES=$(oc ${NAMESPACE_FLAG} get ${RESOURCE_TYPE} -o name)
+    for RESOURCE in ${RESOURCES[@]}
+    do
+      # echo "    - Collecting $RESOURCE"
+      RESOURCE_NAME=$(echo ${RESOURCE} | cut -d '/' -f 2)
 
-            oc ${NAMESPACE_FLAG} get ${RESOURCE} -o yaml > ${RESOURCE_DIR}/${RESOURCE_NAME}.yaml 2> /dev/null || { echo "    - Error fetching resource: ${RESOURCE}"; exit 0; }
-        done
-    else
-        oc get ${RESOURCE_TYPE} ${ALL_NAMESPACES} -o yaml > ${RESOURCE_DIR}/all-namespaces.yaml 2> /dev/null || { echo "    - Error fetching resource: ${RESOURCE_TYPE}"; exit 0; }
-    fi
+      oc ${NAMESPACE_FLAG} get ${RESOURCE} -o yaml > ${RESOURCE_DIR}/${RESOURCE_NAME//:/_}.yaml 2> /dev/null || { echo_warning "    - Error fetching resource: ${RESOURCE}"; exit 0; }
+    done
+  else
+    oc get ${RESOURCE_TYPE} ${ALL_NAMESPACES} -o yaml > ${RESOURCE_DIR}/all-namespaces.yaml 2> /dev/null || { echo_warning "    - Error fetching resource: ${RESOURCE_TYPE}"; exit 0; }
+  fi
 fi

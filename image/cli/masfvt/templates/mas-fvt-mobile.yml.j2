@@ -11,7 +11,8 @@ spec:
     name: mas-fvt-mobile
 
   serviceAccountName: pipeline
-  timeout: "12h"
+  timeouts:
+    pipeline: "8h"
 
   params:
     # Pull Policy
@@ -55,7 +56,7 @@ spec:
       value: "{{ fvt_digest_inventoryreceiving_testng }}"
     - name: fvt_digest_issuesandtransfers_testng
       value: "{{ fvt_digest_issuesandtransfers_testng }}"
-        
+
   workspaces:
     # The generated configuration files
     - name: shared-configs
