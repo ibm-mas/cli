@@ -72,22 +72,22 @@ for POD in ${PODS[@]}; do
     fi
   fi
   APP_DIR="${POD_DIR}/${APP}"
-  mkdir -p "$APP_DIR" || { echo "    - Error creating directory: $APP_DIR"; exit 0; }
+  mkdir -p "$APP_DIR" || { echo_warning "  Error creating directory: $APP_DIR"; exit 0; }
 
   # Get summary information for pod
-  oc -n "${NAMESPACE}" describe "${POD}" &> "${APP_DIR}/${POD_NAME}.txt" || { echo "    - Error describing pod $POD_NAME"; continue; }
+  oc -n "${NAMESPACE}" describe "${POD}" &> "${APP_DIR}/${POD_NAME}.txt" || { echo_warning "  Error describing pod $POD_NAME"; continue; }
 
   if [[ "$NO_DETAIL" == "false" ]]; then
-    oc -n "${NAMESPACE}" get "${POD}" -o yaml &> "${APP_DIR}/${POD_NAME}.yaml" || { echo "    - Error fetching pod information for $POD_NAME"; exit 0; }
+    oc -n "${NAMESPACE}" get "${POD}" -o yaml &> "${APP_DIR}/${POD_NAME}.yaml" || { echo_warning "  Error fetching pod information for $POD_NAME"; continue; }
 
     # Get container logs
     if [[ "$POD_LOGS" == "true" ]]; then
       APP_LOG_DIR="${POD_DIR}/${APP}/logs"
-      mkdir -p "$APP_LOG_DIR" || { echo "Error creating directory: $APP_LOG_DIR"; continue; }
+      mkdir -p "$APP_LOG_DIR" || { echo_warning "  Error creating directory: $APP_LOG_DIR"; continue; }
 
       CONTAINERS=$(oc -n "${NAMESPACE}" get "${POD}" -o json -o jsonpath='{range .status.containerStatuses[*]}[{.name}] {end}' | tr -d '[]')
       for CONTAINER in ${CONTAINERS[@]}; do
-        oc -n "${NAMESPACE}" logs "${POD}" -c "${CONTAINER}" &> "${APP_LOG_DIR}/${POD_NAME}_${CONTAINER}.log" || { echo "    - Error fetching logs for container ${CONTAINER} in pod $POD_NAME"; continue; }
+        oc -n "${NAMESPACE}" logs "${POD}" -c "${CONTAINER}" &> "${APP_LOG_DIR}/${POD_NAME}_${CONTAINER}.log" || { echo_warning "  Error fetching logs for container ${CONTAINER} in pod $POD_NAME"; continue; }
       done
     fi
   fi
