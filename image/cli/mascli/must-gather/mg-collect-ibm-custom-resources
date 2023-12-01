@@ -1,0 +1,35 @@
+#!/bin/bash
+set -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $DIR/../functions/internal/utils
+
+NO_DETAIL=false
+while [[ $# -gt 0 ]]
+do
+  key="$1"
+  shift
+  case $key in
+  -n)
+    NAMESPACE=${1,,}; shift
+    ;;
+  -d)
+    OUTPUT_DIR=$1; shift
+    ;;
+  --no-detail)
+    NO_DETAIL=true
+    NO_DETAIL_FLAG="--no-detail"
+    ;;
+  esac
+done
+
+RESOURCES=$(oc get -n $NAMESPACE $(oc get crd -o=custom-columns=NAME:.metadata.name | grep ibm | tr '\n' ',' | rev |cut -c2- | rev ) -o jsonpath='{ .items[*].kind}' | tr ' ' '\n' | sort | uniq | tr '\n' ' ')
+
+# Collect IBM Custom Resources
+# -----------------------------------------------------------------------------
+echo_h4 "Collect IBM Custom Resources"
+for RESOURCE in ${RESOURCES[@]}; do
+  $DIR/mg-collect-resources -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources $NO_DETAIL_FLAG
+done
+
+exit 0
