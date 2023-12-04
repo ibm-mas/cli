@@ -84,6 +84,14 @@ spec:
       type: string
       default: "mongoce"
       description: Namespace where mongodb instances will be updated
+    - name: mongodb_v5_upgrade
+      type: string
+      description: Approves the MongoDb upgrade to version 5 if needed
+      default: ""
+    - name: mongodb_storage_class
+      type: string
+      default: ""
+      description: MongoDB Storage class for data and logs
 
     # kafka update
     - name: kafka_action
@@ -225,6 +233,10 @@ spec:
           value: $(params.mongodb_action)
         - name: mongodb_namespace
           value: $(params.mongodb_namespace)
+        - name: mongodb_v5_upgrade
+          value: $(params.mongodb_v5_upgrade)
+        - name: mongodb_storage_class
+          value: $(params.mongodb_storage_class)
 
     - name: update-kafka
       taskRef:
@@ -249,6 +261,7 @@ spec:
         'devops_suite_name': 'post-deps-update-verify'
       }) | indent(4) }}
       runAfter:
+        - update-licenseservice
         - update-db2
         - update-mongodb
         - update-kafka
@@ -277,4 +290,16 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-finalize
+{% endif %}
+
+{% if wait_for_install == true %}
+    # 7. Test for outages during mongo update
+    # -------------------------------------------------------------------------
+    - name: fvt-mongo-update
+      taskRef:
+        kind: Task
+        name: mas-ivt-core
+      params:
+        - name: fvt_test_suite
+          value: mongohealth
 {% endif %}

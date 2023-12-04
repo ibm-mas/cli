@@ -19,7 +19,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-aviation-setup
+    - fvt-manage-usersync
 
 # Manage FVT Monitoring
 - name: fvt-manage-monitoring
@@ -31,4 +31,4 @@
     - name: fvt_test_suite
       value: monitoring
   runAfter:
-    - fvt-manage-aviation-setup
+    - fvt-manage-usersync

@@ -34,3 +34,5 @@
     - name: avp_aws_access_key
       value: {{ avp_aws_access_key }}
 {% endif %}
+    - name: ocp_ingress_tls_secret_name
+      value: $(params.ocp_ingress_tls_secret_name)

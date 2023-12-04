@@ -59,7 +59,7 @@ spec:
       default: "none"
     - name: uds_action
       type: string
-      description: Optional. Used to uninstall UDS
+      description: Optional. Used to uninstall UDS or DRO
       default: "none"
 
   tasks:
@@ -288,7 +288,7 @@ spec:
         - uninstall-sls
 
 
-    # 5. Uninstall IBM User Data Services
+    # 5. Uninstall IBM User Data Services (or DRO)
     # -------------------------------------------------------------------------
     - name: uninstall-uds
       params:
@@ -296,8 +296,6 @@ spec:
           value: $(params.image_pull_policy)
         - name: uds_action
           value: $(params.uds_action)
-        - name: devops_suite_name
-          value: dependencies-uds
       taskRef:
         kind: Task
         name: mas-devops-uds
@@ -307,7 +305,6 @@ spec:
           values: ["uninstall"]
       runAfter:
         - uninstall-mongodb
-
 
     # 6. Uninstall IBM Cert Manager
     # -------------------------------------------------------------------------

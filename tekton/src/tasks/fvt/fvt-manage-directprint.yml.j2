@@ -28,10 +28,6 @@ spec:
 
     # Test Framework Information
     # -------------------------------------------------------------------------
-    - name: fvt_enable_debug
-      type: string
-      description: Turn on debug logging (verbose mode)
-      default: "true"
     - name: fvt_test_driver
       type: string
       description: Driver utilized by the manage selenium framework - Can be wither tpae or graphite
@@ -39,10 +35,6 @@ spec:
     - name: fvt_test_suite
       type: string
       description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
-      default: ""
-    - name: fvt_manage_automation_version
-      type: string
-      description: Version of Manage Selenium Test Scripts to run in pipeline
       default: ""
     - name: fvt_mas_appws_component
       type: string
@@ -84,18 +76,6 @@ spec:
 
     # Test-specific Information (all optional)
     # -------------------------------------------------------------------------
-    - name: ddp_apikey
-      type: string
-      description: Partium username (required by fvt-adoptionusagereporter)
-      default: ""
-    - name: partium_username
-      type: string
-      description: Partium username (required by fvt-coreapi-workspacemgmt)
-      default: ""
-    - name: partium_password
-      type: string
-      description: Partium password (required by fvt-coreapi-workspacemgmt)
-      default: ""
     - name: artifactory_token
       type: string
       description: Artifactory API Key (required by fvt-ibm-mas-manage to pull test container content)
@@ -145,31 +125,22 @@ spec:
         value: core
       - name: FVT_TEST_SUITE
         value: $(params.fvt_test_suite)
-      - name: FVT_MANAGE_AUTOMATION_VERSION
-        value: $(params.fvt_manage_automation_version)
       - name: FVT_MAS_APPWS_COMPONENT
         value: $(params.fvt_mas_appws_component)
-      - name: MAS_APPWS_COMPONENTS
-        value: $(params.mas_appws_components)
-
-      - name: FVT_ENABLE_DEBUG
-        value: "$(params.fvt_enable_debug)"
-
-      - name: DDP_APIKEY
-        value: $(params.ddp_apikey)
-      - name: PARTIUM_USERNAME
-        value: $(params.partium_username)
-      - name: PARTIUM_PASSWORD
-        value: $(params.partium_password)
+      
+      # If this secret exists (with both ARTIFACTORY_TOKEN and ARTIFACTORY_UPLOAD_DIR keys set) Maximo Automation Framework logs will be automatically uploaded
       - name: ARTIFACTORY_TOKEN
-        value: $(params.artifactory_token)
-
-      - name: DEVOPS_COS_CRN
-        value: $(params.devops_cos_crn)
-      - name: DEVOPS_COS_UPLOAD_FOLDER
-        value: $(params.devops_cos_upload_folder)
-      - name: DEVOPS_IBMCLOUD_APIKEY
-        value: $(params.devops_ibmcloud_apikey)
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_TOKEN
+            optional: true
+      - name: ARTIFACTORY_UPLOAD_DIR
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_UPLOAD_DIR
+            optional: true
 
   volumes:
     - name: dshm
@@ -178,9 +149,9 @@ spec:
 
   workspaces:
     - name: configs
-  
+
   steps:
-    
+
     # Direct Print - Job Plan
     - name: fvt-manage-jobplan-directprint
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
@@ -195,7 +166,7 @@ spec:
       env:
         - name: FVT_TEST_SUITE
           value: jobplan-directprint
-    
+
     # Direct Print - Assets
     - name: fvt-manage-assets-directprint
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'

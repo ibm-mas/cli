@@ -79,7 +79,7 @@ function provision_roks_noninteractive() {
         ;;
       *)
         # unknown option
-        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${TEXT_RESET}\n"
         provision_roks_help
         exit 1
         ;;
