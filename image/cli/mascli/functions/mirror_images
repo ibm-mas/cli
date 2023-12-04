@@ -275,6 +275,10 @@ function mirror_to_registry_noninteractive() {
     [[ -z "$REDHAT_CONNECT_USERNAME" ]] && mirror_to_registry_help "REDHAT_CONNECT_USERNAME is not set"
     [[ -z "$REDHAT_CONNECT_PASSWORD" ]] && mirror_to_registry_help "REDHAT_CONNECT_PASSWORD is not set"
   fi
+  if [[ $MIRROR_DRO == "true" ]]; then
+    [[ -z "$REDHAT_CONNECT_USERNAME" ]] && mirror_to_registry_help "REDHAT_CONNECT_USERNAME is not set"
+    [[ -z "$REDHAT_CONNECT_PASSWORD" ]] && mirror_to_registry_help "REDHAT_CONNECT_PASSWORD is not set"
+  fi
 }
 
 function mirror_to_registry_interactive() {
@@ -430,6 +434,11 @@ function mirror_to_registry_interactive() {
   prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY "Re-use saved IBM Entitlement Key?"
 
   if [[ $MIRROR_UDS == "true" ]]; then
+    prompt_for_input "Red Hat Connect Username" REDHAT_CONNECT_USERNAME
+    prompt_for_input "Red Hat Connect Password" REDHAT_CONNECT_PASSWORD
+  fi
+
+  if [[ $MIRROR_DRO == "true" ]]; then
     prompt_for_input "Red Hat Connect Username" REDHAT_CONNECT_USERNAME
     prompt_for_input "Red Hat Connect Password" REDHAT_CONNECT_PASSWORD
   fi
@@ -595,7 +604,7 @@ function mirror_to_registry() {
   echo_h4 "Content Selection (Other Dependencies)" "    "
   show_mirror_status "IBM Cloud Pak Foundation Services ..." $MIRROR_COMMONSERVICES
   show_mirror_status "IBM User Data Services .............." $MIRROR_UDS
-  show_mirror_status "IBM Data Reporter Oerator ..........." $MIRROR_DRO
+  show_mirror_status "IBM Data Reporter Operator..........." $MIRROR_DRO
   show_mirror_status "IBM Suite License Service ..........." $MIRROR_SLS
   show_mirror_status "IBM Truststore Manager .............." $MIRROR_TRUSTSTOREMGR
   show_mirror_status "MongoDb Community Edition ..........." $MIRROR_MONGOCE
