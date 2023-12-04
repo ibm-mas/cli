@@ -4,7 +4,7 @@
 - name: fvt-internalapi
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', pipeline_src_dir ~ 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: internalapi
   runAfter:
@@ -20,7 +20,7 @@
 - name: fvt-catalogapi
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', pipeline_src_dir ~ 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: catalogapi
   runAfter:
@@ -36,7 +36,7 @@
 - name: fvt-ibmadminissuer
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', pipeline_src_dir ~ 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: ibmadminissuer
   runAfter:
@@ -52,7 +52,7 @@
 - name: fvt-milestonesapi
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', pipeline_src_dir ~ 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: milestonesapi
   runAfter:
@@ -68,7 +68,7 @@
 - name: fvt-adoptionusageapi
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', pipeline_src_dir ~ 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: adoptionusageapi
   runAfter:
@@ -84,7 +84,7 @@
 - name: fvt-accapppoints
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', pipeline_src_dir ~ 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: accapppoints
   runAfter:

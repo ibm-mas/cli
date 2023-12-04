@@ -22,7 +22,7 @@
 - name: fvt-coreidp-auth
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', pipeline_src_dir ~ 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: coreidp-auth
   runAfter:
@@ -32,7 +32,7 @@
 - name: fvt-coreapi-addons
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', pipeline_src_dir ~ 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: coreapi-addons
   runAfter:
@@ -42,7 +42,7 @@
 - name: fvt-coreapi-groupmgmt
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', pipeline_src_dir ~ 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: coreapi-groupmgmt
   runAfter:
@@ -52,7 +52,7 @@
 - name: fvt-coreapi-usermgmt
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', pipeline_src_dir ~ 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: coreapi-usermgmt
   runAfter:
@@ -62,7 +62,7 @@
 - name: fvt-coreapi-apikeymgmt
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', pipeline_src_dir ~ 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: coreapi-apikeymgmt
   runAfter:
@@ -74,7 +74,7 @@
   params:
     - name: fvt_test_suite
       value: coreapi-workspacemgmt
-    {{ lookup('template', pipeline_src_dir ~ 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
     - fvt-coreidp-auth
 

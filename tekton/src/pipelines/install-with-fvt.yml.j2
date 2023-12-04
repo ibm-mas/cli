@@ -351,18 +351,18 @@ spec:
     # 11. Install & Configure Assist
     # -------------------------------------------------------------------------
     # 11.1 Assist Install
-    {{ lookup('template', pipeline_src_dir ~ 'taskdefs/apps/assist-app.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/assist-app.yml.j2') | indent(4) }}
       runAfter:
         - suite-config-cos
 
     # 11.2 Configure Watson Discovery in MAS
-    {{ lookup('template', pipeline_src_dir ~ 'taskdefs/core/suite-config-discovery.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-discovery.yml.j2') | indent(4) }}
       runAfter:
         - app-install-assist
         - discovery
 
     # 11.3 Configure Assist workspace
-    {{ lookup('template', pipeline_src_dir ~ 'taskdefs/apps/assist-workspace.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/assist-workspace.yml.j2') | indent(4) }}
       runAfter:
         - suite-config-discovery
 
@@ -370,13 +370,13 @@ spec:
     # 12. Install & Configure Visual Inspection
     # -------------------------------------------------------------------------
     # 12.1 MVI Install
-    {{ lookup('template', pipeline_src_dir ~ 'taskdefs/apps/visualinspection-app.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/visualinspection-app.yml.j2') | indent(4) }}
       runAfter:
         - nvidia-gpu
         - launchfvt-core
 
     # 12.2 Configure MVI workspace
-    {{ lookup('template', pipeline_src_dir ~ 'taskdefs/apps/visualinspection-workspace.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/visualinspection-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-visualinspection
 
