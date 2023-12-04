@@ -63,6 +63,10 @@ function echo_blue() {
   echo "${COLOR_BLUE}$1${TEXT_RESET}"
 }
 
+function echo_dim() {
+  echo "${TEXT_DIM}$1${TEXT_RESET}"
+}
+
 function echo_reset_dim() {
   echo "${TEXT_RESET}${TEXT_DIM}    $1"
 }
