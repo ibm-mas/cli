@@ -107,7 +107,7 @@ spec:
         - /bin/sh
         - -c
       name: gitops-mcsp-cluster
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: Always
       image: quay.io/ibmmas/cli:7.7.0-pre.mascore962
   workspaces:
     - name: configs
