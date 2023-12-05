@@ -55,6 +55,10 @@ spec:
       type: string
       description: Artifactory Token (required by fvt-ibm-mas-mobile to pull/push test container content)
       default: ""
+    - name: artifactory_upload_dir
+      type: string
+      description: Artifactory upload directory
+      default: ""
 
     # Mobile Specific information
     - name: mobile_device_type
@@ -110,6 +114,8 @@ spec:
 
       - name: ARTIFACTORY_TOKEN
         value: $(params.artifactory_token)
+      - name: ARTIFACTORY_UPLOAD_DIR
+        value: $(params.artifactory_upload_dir)
 
       # Assist Specific information
       - name: MOBILE_DEVICE_TYPE
@@ -118,7 +124,7 @@ spec:
   steps:
     - image: '$(params.fvt_image_registry)/fvt-mobile/fvt-mobile-testng@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
+      timeout: 4h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
