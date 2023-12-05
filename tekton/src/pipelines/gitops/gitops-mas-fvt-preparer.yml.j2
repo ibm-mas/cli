@@ -3,9 +3,9 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
 {% if wait_for_provision == true %}
-  name: gitops-provision-mas-fvt-core-after-provision
+  name: gitops-mas-fvt-preparer-after-provision
 {% else %}
-  name: gitops-provision-mas-fvt-core
+  name: gitops-mas-fvt-preparer
 {% endif %}
 spec:
   workspaces:
@@ -15,7 +15,7 @@ spec:
     - name: shared-gitops-configs
     # The SLS entitlement key file that will be installed during install-sls.
     - name: shared-entitlement
-  description: Provision MAS FVT core pipeline
+  description: Gitops MAS FVT pipeline
   params:
 {% if wait_for_provision == true %}
       # Name of the PipelineRun to wait for
@@ -119,7 +119,7 @@ spec:
         kind: Task
         name: mas-fvt-wait-for-pipelinerun
 {% endif %}
-    - name: gitops-provision-mas-fvt-core
+    - name: mas-launchfvt
 {% if wait_for_provision == true %}
       runAfter:
         - wait-for-provision
@@ -214,4 +214,4 @@ spec:
           workspace: shared-entitlement
       taskRef:
         kind: Task
-        name: gitops-provision-mas-fvt-core
+        name: gitops-mas-fvt-preparer

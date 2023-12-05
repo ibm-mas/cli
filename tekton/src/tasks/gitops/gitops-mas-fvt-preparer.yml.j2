@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-provision-mas-fvt-core
+  name: gitops-mas-fvt-preparer
 spec:
   params:
     - name: cluster_name
@@ -85,7 +85,7 @@ spec:
       type: string
 
   stepTemplate:
-    name: gitops-provision-mas-fvt-core
+    name: gitops-mas-fvt-preparer
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -217,14 +217,14 @@ spec:
         echo "argo:argocd proj windows add $MAS_INSTANCE_ID --kind deny --schedule * * * * * --duration 4h --applications *"  
         argocd proj windows add $MAS_INSTANCE_ID --kind deny --schedule "* * * * *" --duration 4h --applications "*"
 
-        mas gitops-provision-mas-fvt-core --pipeline-storage-class ${PIPELINE_STORAGE_CLASS} \
+        mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS} \
         --dir $MAS_CONFIG_DIR
       command:
         - /bin/sh
         - -c
-      name: gitops-provision-mas-fvt-core
+      name: gitops-mas-fvt-preparer
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
+      image: quay.io/ibmmas/cli:7.10.0-pre.ajw-mascore781
   workspaces:
     - name: configs
     - name: shared-entitlement
