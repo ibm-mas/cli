@@ -125,6 +125,23 @@ Content
 │   ├── mas-inst2-appId.txt
 └── must-gather-20230423-204411.tgz
 ```
+You can execute the must gather from the cli image or in non-interactive mode.
+To execute the must-gather from the cli image, start a mas cli container using docker or podman 
+```bash
+docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli
+```
+
+```bash
+podman run -ti --rm -v /data:/mnt/home:z --pull always quay.io/ibmmas/cli
+```
+
+Before running the must-gather command, you must authenticate to OCP with oc login command
+for more details you can refer to https://www.ibm.com/support/pages/node/6998647
+
+For non-interactive mode, you need to provide the oc login command before the mas must gather command as shown in the example below:
+```bash
+podman run --rm -v /data:/mnt/home:z quay.io/ibmmas/cli /bin/bash -c "oc login --token=sha256~XFnSk...fc8U --server=https://api.<openshift domain>:6443/ --insecure-skip-tls-verify; mas must-gather -d /mnt/home/must-gather"
+```
 
 Examples
 -------------------------------------------------------------------------------
@@ -132,39 +149,39 @@ Examples
 Running this command will save the must-gather file to a must-gather directory in your home directory.
 
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather
+mas must-gather -d /mnt/home/must-gather
 ```
 
 ### Quick Must-Gather
 Running this command will save the must-gather file to a must-gather directory in your home directory.
 
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --all --summary-only
+mas must-gather -d /mnt/home/must-gather --summary-only
 ```
 
 ### Must-Gather for one MAS instance
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --all --mas-instance-ids inst1
+mas must-gather -d /mnt/home/must-gather --mas-instance-ids inst1
 ```
 
 ### Must-Gather that includes the data of the secrets
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --all --secret-data
+mas must-gather -d /mnt/home/must-gather --secret-data
 ```
 
 ### Must-Gather that collects everything, including data for db2 and ibm-common-services namespaces and data for all secrets
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --all --secret-data --extra-namespaces "db2u,ibm-common-services"
+mas must-gather -d /mnt/home/must-gather --secret-data --extra-namespaces "db2u,ibm-common-services"
 ```
 
 ### Must-Gather that collects only data for mas core for MAS instance "inst1"
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather -mas-instance-ids "inst1" --mas-app-ids "core"
+mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst1" --mas-app-ids "core"
 ```
 
-### Must-Gather that collects only data for mas core and mas manage for MAS instance "inst1" and mongo data
+### Must-Gather that collects only data for mas core and mas manage for MAS instance "inst1"
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather -mas-instance-ids "inst1" --mas-app-ids "core,manage" --mongo-report
+mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst1" --mas-app-ids "core,manage"
 ```
 
 ### Execute the Must-Gather in non-interactive mode
