@@ -47,6 +47,8 @@ spec:
 
     - name: mas_catalog_version
       type: string
+    - name: mas_catalog_image
+      type: string
   tasks:
     - name: gitops-mcsp-cluster
       params:
@@ -87,6 +89,8 @@ spec:
 
         - name: mas_catalog_version
           value: $(params.mas_catalog_version)
+        - name: mas_catalog_image
+          value: $(params.mas_catalog_image)
 
       taskRef:
         kind: Task

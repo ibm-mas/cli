@@ -44,6 +44,8 @@ spec:
 
     - name: mas_catalog_version
       type: string
+    - name: mas_catalog_image
+      type: string
   stepTemplate:
     name: gitops-mcsp-cluster
     env:
@@ -84,6 +86,8 @@ spec:
 
       - name: MAS_CATALOG_VERSION
         value: $(params.mas_catalog_version)
+      - name: MAS_CATALOG_IMAGE
+        value: $(params.mas_catalog_image)
   steps:
     - args:
       - |-

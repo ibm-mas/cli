@@ -109,6 +109,10 @@ function gitops_mcsp_cluster_noninteractive() {
       --catalog-version)
         export MAS_CATALOG_VERSION=$1 && shift
         ;;
+      --catalog-image)
+        export MAS_CATALOG_IMAGE=$1 && shift
+        ;;
+
 
       # Other Commands
       -h|--help)
