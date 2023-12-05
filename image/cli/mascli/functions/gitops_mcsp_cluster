@@ -105,6 +105,10 @@ function gitops_mcsp_cluster_noninteractive() {
         export GIT_SSH=$1 && shift
         ;;
 
+      # Operator Catalog
+      --catalog-version)
+        export MAS_CATALOG_VERSION=$1 && shift
+        ;;
 
       # Other Commands
       -h|--help)
