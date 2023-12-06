@@ -158,7 +158,6 @@ function gitops_mcsp_cluster() {
 
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}
-  CLUSTER_CONFIG_YAML="${GITOPS_CLUSTER_DIR}/cluster-config.yaml"
 
   echo
   reset_colors
@@ -170,7 +169,6 @@ function gitops_mcsp_cluster() {
   echo_reset_dim "Region     ............................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Cluster Directory ..................... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
-  echo_reset_dim "Cluster Config File ................... ${COLOR_MAGENTA}${CLUSTER_CONFIG_YAML}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -256,7 +254,8 @@ function gitops_mcsp_cluster() {
   # Generate shared-config.yaml
   echo
   echo_h2 "Generating Cluster Configuration"
-  jinja -X .+ $CLI_DIR/templates/gitops/mcsp/cluster-config.yaml.j2 -o ${CLUSTER_CONFIG_YAML}
+  jinja -X .+ $CLI_DIR/templates/gitops/mcsp/ibm-operator-catalog.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/mcsp/ibm-common-services.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-common-services.yaml
 
 
   
