@@ -103,6 +103,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_provision_mas_fvt_core
 # GitOps / MCSP
 . $CLI_DIR/functions/gitops_mcsp_cluster
+. $CLI_DIR/functions/gitops_mcsp_dro
 
 load_config
 case $1 in
@@ -532,6 +533,14 @@ case $1 in
     echo
     reset_colors
     gitops_mcsp_cluster "$@"
+    ;;
+
+  gitops-mcsp-dro)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (MCSP) (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_mcsp_dro "$@"
     ;;
 
   *)

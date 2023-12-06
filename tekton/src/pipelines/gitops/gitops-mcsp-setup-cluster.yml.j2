@@ -52,6 +52,13 @@ spec:
 
     - name: common_services_channel
       type: string
+
+    - name: dro_namespace
+      type: string
+      default: "redhat-marketplace"
+    - name: dro_csv
+      type: string
+      default: ""
   tasks:
     - name: gitops-mcsp-cluster
       params:
@@ -101,6 +108,45 @@ spec:
       taskRef:
         kind: Task
         name: gitops-mcsp-cluster
+      workspaces:
+        - name: configs
+          workspace: configs
+
+    - name: gitops-mcsp-dro
+      runAfter:
+        - gitops-mcsp-cluster
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: dro_namespace
+          value: $(params.dro_namespace)
+        - name: dro_csv
+          value: $(params.dro_csv)
+      taskRef:
+        kind: Task
+        name: gitops-mcsp-dro
       workspaces:
         - name: configs
           workspace: configs

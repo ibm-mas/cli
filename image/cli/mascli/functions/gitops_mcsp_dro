@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 
-function gitops_cluster_help() {
+function gitops_mcsp_dro_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops-mcsp-cluster [options]
+  mas gitops-mcsp-dro[options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -40,19 +40,14 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_mcsp_cluster_noninteractive() {
+function gitops_mcsp_dro_noninteractive() {
   # TODO: Remember to change the defaults to suite public before release!
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
 
   GITHUB_PUSH="false"
-  export MAS_CATALOG_ACTION=${MAS_CATALOG_ACTION:-"install"}
-  export COMMON_SERVICES_ACTION=${COMMON_SERVICES_ACTION:-"install"}
-  export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"gitops-cluster commit"}
-  export COMMON_SERVICES_CHANNEL=${COMMON_SERVICES_CHANNEL:-"v3.23"}
+  export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"gitops-mcsp-dro commit"}
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
-  export MAS_CATALOG_VERSION=${MAS_CATALOG_VERSION:-"v8-230414-amd64"}
-  export MAS_CATALOG_IMAGE=${MAS_CATALOG_IMAGE:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen/ibm-maximo-operator-catalog"}
 
   while [[ $# -gt 0 ]]
   do
@@ -105,19 +100,14 @@ function gitops_mcsp_cluster_noninteractive() {
         export GIT_SSH=$1 && shift
         ;;
 
-      # Operator Catalog
-      --catalog-version)
-        export MAS_CATALOG_VERSION=$1 && shift
-        ;;
-      --catalog-image)
-        export MAS_CATALOG_IMAGE=$1 && shift
-        ;;
 
-      # IBM Cloud Pak Foundational Services
-      --common-services-channel)
-        export COMMON_SERVICES_CHANNEL=$1 && shift
+      # DRO
+      --dro-namespace)
+        export DRO_NAMESPACE=$1 && shift
         ;;
-
+      --dro-csv)
+        export DRO_CSV=$1 && shift
+        ;;
 
       # Other Commands
       -h|--help)
@@ -126,34 +116,34 @@ function gitops_mcsp_cluster_noninteractive() {
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_cluster_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_mcsp_dro_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
     esac
   done
 
-  [[ -z "$ACCOUNT_ID" ]] && gitops_cluster_help "ACCOUNT_ID is not set"
-  [[ -z "$REGION" ]] && gitops_cluster_help "REGION is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_cluster_help "CLUSTER_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_mcsp_dro_help "ACCOUNT_ID is not set"
+  [[ -z "$REGION" ]] && gitops_mcsp_dro_help "REGION is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_mcsp_dro_help "CLUSTER_ID is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_cluster_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_cluster_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_cluster_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_cluster_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_mcsp_dro_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_mcsp_dro_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_mcsp_dro_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_mcsp_dro_help "GIT_BRANCH is not set"
   fi
 
 }
 
-function gitops_mcsp_cluster() {
+function gitops_mcsp_dro() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_mcsp_cluster_noninteractive "$@"
+    gitops_mcsp_dro_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_mcsp_cluster_interactive
+    gitops_dro_cluster_interactive
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -204,13 +194,32 @@ function gitops_mcsp_cluster() {
 
   # Set up secrets
   # ---------------------------------------------------------------------------
+  # Note that SECRET_KEY_IBM_ENTITLEMENT cluster-level secret is set up by gitops-mcsp-cluster
+
+
   echo
   echo_h2 "Configuring Cluster secrets"
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
+
+  # Describe the secret and yoink the ARN from the JSON printed to stdout
+  # We need this due to the random suffix e.g. "-fdP1Lx" that AWS seems to apply to the secret ARN
+  # TODO: add this as a function to gitops_utils.sh
   export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRET_NAME_IBM_ENTITLEMENT}#image_pull_secret_b64
+  export SECRET_ARN_IBM_ENTITLEMENT=$(aws secretsmanager describe-secret --secret-id "${SECRET_NAME_IBM_ENTITLEMENT}" --output json | jq -r .ARN)
+
+
+
+  # Create the dro_api_token secret
+  export SECRET_NAME_DRO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro
+  export DRO_API_TOKEN=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20`
+  export SECRET_KEY_DRO_API_TOKEN=${SECRET_NAME_DRO}#dro_api_token
+  sm_update_secret $SECRET_NAME_DRO "{\"dro_api_token\": \"$DRO_API_TOKEN\" }"
+  export SECRET_ARN_DRO=$(aws secretsmanager describe-secret --secret-id "${SECRET_NAME_DRO}" --output json | jq -r .ARN)
+
+
 
 
   if [ -z $GIT_SSH ]; then
@@ -231,31 +240,10 @@ function gitops_mcsp_cluster() {
   fi
   export ICR_AUTH_TOKEN=$(echo -n $ICR_USERNAME:$ICR_PASSWORD | base64 -w 0)
 
-  echo "- Generate image pull secret"
-  jinja -X .+ $CLI_DIR/templates/gitops/ibm-entitlement-with-artifactory.json.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
-
-  IBM_ENTITLEMENT_WITH_ARTIFACTORY=${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
-  IBM_ENTITLEMENT_WITH_ARTIFACTORY=$(cat $IBM_ENTITLEMENT_WITH_ARTIFACTORY)
-  export IBM_ENTITLEMENT_PULL_SECRET_B64=$(echo -n $IBM_ENTITLEMENT_WITH_ARTIFACTORY | base64 -w 0)
-  export IBM_ENTITLEMENT_B64=$(echo -n $ICR_PASSWORD | base64 -w 0)
-
-  sm_update_secret $SECRET_NAME_IBM_ENTITLEMENT "{\"image_pull_secret_b64\": \"${IBM_ENTITLEMENT_PULL_SECRET_B64}\", \"entitlement_key\": \"${IBM_ENTITLEMENT_B64}\"}"
-
-
-  # Describe the secret and yoink the ARN from the JSON printed to stdout
-  # We need this due to the random suffix e.g. "-fdP1Lx" that AWS seems to apply to the secret ARN
-  # TODO: add this as a function to gitops_utils.sh
-  export SECRET_ARN_IBM_ENTITLEMENT=$(aws secretsmanager describe-secret --secret-id "${SECRET_NAME_IBM_ENTITLEMENT}" --output json | jq -r .ARN)
-
-  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
-
-
   # Generate config files
   echo
   echo_h2 "Generating Cluster Configuration"
-  jinja -X .+ $CLI_DIR/templates/gitops/mcsp/ibm-operator-catalog.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
-  jinja -X .+ $CLI_DIR/templates/gitops/mcsp/ibm-common-services.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-common-services.yaml
-
+  jinja -X .+ $CLI_DIR/templates/gitops/mcsp/ibm-dro.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-dro.yaml
 
   
   # Commit and push to github target repo
