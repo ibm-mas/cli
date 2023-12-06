@@ -7,8 +7,6 @@ spec:
   params:
     - name: cluster_name
       type: string
-    - name: mas_instance_id
-      type: string
     - name: pipeline_storage_class
       type: string
     - name: aws_region
@@ -154,6 +152,14 @@ spec:
         value: $(params.mas_workspace_id)
       - name: MAS_CHANNEL
         value: $(params.mas_channel)
+      - name: FVT_DIGEST_CORE
+        value: $(params.fvt_digest_core)
+      - name: IVT_DIGEST_CORE
+        value: $(params.ivt_digest_core)
+      - name: FVT_BLACKLIST_CORE
+        value: $(params.fvt_blacklist_core)
+      - name: FVT_WHITELIST_CORE
+        value: $(params.fvt_whitelist_core)
 
   steps:
     - args:

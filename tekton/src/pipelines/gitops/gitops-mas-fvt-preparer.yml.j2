@@ -63,6 +63,15 @@ spec:
     - name: devops_mongo_uri
       type: string
 
+    - name: fvt_digest_core
+      type: string
+    - name: ivt_digest_core
+      type: string
+    - name: fvt_blacklist_core
+      type: string
+    - name: fvt_whitelist_core
+      type: string
+
     - name: ddp_apikey
       type: string
     - name: partium_username
@@ -131,6 +140,15 @@ spec:
           value: $(params.artifactory_auth_header)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+
+        - name: fvt_digest_core
+          value: $(params.fvt_digest_core)
+        - name: ivt_digest_core
+          value: $(params.ivt_digest_core)
+        - name: fvt_blacklist_core
+          value: $(params.fvt_blacklist_core)
+        - name: fvt_whitelist_core
+          value: $(params.fvt_whitelist_core)
 
         - name: ddp_apikey
           value: $(params.ddp_apikey)
