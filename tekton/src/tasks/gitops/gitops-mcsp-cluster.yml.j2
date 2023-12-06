@@ -46,6 +46,9 @@ spec:
       type: string
     - name: mas_catalog_image
       type: string
+
+    - name: common_services_channel
+      type: string
   stepTemplate:
     name: gitops-mcsp-cluster
     env:
@@ -88,6 +91,9 @@ spec:
         value: $(params.mas_catalog_version)
       - name: MAS_CATALOG_IMAGE
         value: $(params.mas_catalog_image)
+
+      - name: COMMON_SERVICES_CHANNEL
+        value: $(params.common_services_channel)
   steps:
     - args:
       - |-
