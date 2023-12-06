@@ -83,6 +83,42 @@ spec:
     - name: mas_channel
       type: string
 
+    - name: launchfvt_core
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Core FVT Pipeline after suite-verify completes"
+    - name: launchfvt_assist
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Assist FVT Pipeline after app-cfg-assist completes"
+    - name: launchfvt_iot
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the IoT FVT Pipeline after app-cfg-iot completes"
+    - name: launchfvt_manage
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-manage completes (does not control the additional Industry Solution, Mobile, or Regression Manage suites)"
+    - name: launchfvt_monitor
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-monitor completes"
+    - name: launchfvt_optimizer
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Optimizer FVT Pipeline after app-cfg-optimizer completes"
+    - name: launchfvt_predict
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Predict FVT Pipeline after app-cfg-predict completes"
+    - name: launchfvt_visualinspection
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Visual Inspection FVT Pipeline after app-cfg-visualinspection completes"
+    - name: launchfvt_mobile
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Mobile FVT Pipeline after app-cfg-manage completes"
 
   tasks:
 {% if wait_for_provision == true %}
@@ -160,6 +196,25 @@ spec:
           value: $(params.mas_workspace_id)
         - name: mas_channel
           value: $(params.mas_channel)
+
+        - name: launchfvt_core
+          value: $(params.launchfvt_core)
+        - name: launchfvt_assist
+          value: $(params.launchfvt_assist)
+        - name: launchfvt_iot
+          value: $(params.launchfvt_iot)
+        - name: launchfvt_manage
+          value: $(params.launchfvt_manage)
+        - name: launchfvt_mobile
+          value: $(params.launchfvt_mobile)
+        - name: launchfvt_monitor
+          value: $(params.launchfvt_monitor)
+        - name: launchfvt_optimizer
+          value: $(params.launchfvt_optimizer)
+        - name: launchfvt_predict
+          value: $(params.launchfvt_predict)
+        - name: launchfvt_visualinspection
+          value: $(params.launchfvt_visualinspection)
 
       workspaces:
         - name: configs
