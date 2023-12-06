@@ -27,12 +27,25 @@ spec:
       type: string
     - name: fvt_config
       type: string
-    - name: fvt_image_registry
-      type: string
     - name: fvt_version_core
       type: string
     - name: ivt_version_core
       type: string
+    - name: fvt_digest_core
+      type: string
+    - name: ivt_digest_core
+      type: string
+    - name: fvt_blacklist_core
+      type: string
+    - name: fvt_whitelist_core
+      type: string
+    - name: ddp_apikey
+      type: string
+    - name: partium_username
+      type: string
+    - name: partium_password
+      type: string
+
     - name: artifactory_generic_release_url
       type: string
     - name: fvt_ansible_version
@@ -41,48 +54,56 @@ spec:
       type: string
     - name: devops_mongo_uri
       type: string
-    - name: fvt_travis_build_number
+
+    - name: fvt_image_registry
       type: string
-    - name: fvt_version_assist
+      default: ""
+    - name: image_pull_policy
       type: string
-    - name: fvt_version_hputilities
+      default: ""
+
+    - name: mas_instance_id
       type: string
-    - name: fvt_version_iot
-      type: string
-    - name: fvt_version_ctf
-      type: string
-    - name: fvt_version_optimizer
-      type: string
-    - name: fvt_version_manage
-      type: string
-    - name: fvt_version_manage_civil
-      type: string
-    - name: fvt_version_mobilefoundation
-      type: string
-    - name: fvt_version_servicerequests
-      type: string
-    - name: fvt_version_inspection
-      type: string
-    - name: fvt_version_technician
-      type: string
-    - name: fvt_version_asset_manager
-      type: string
-    - name: fvt_version_inventorycounting
-      type: string
-    - name: ddp_apikey
-      type: string
-    - name: partium_username
-      type: string
-    - name: partium_password
-      type: string
+      default: ""
     - name: mas_workspace_id
       type: string
-    - name: ibm_entitlement_key
+      default: ""
+    - name: mas_channel
       type: string
-    - name: mas_catalog_version
+      default: ""
+
+    - name: launchfvt_core
       type: string
-    - name: mas_trust_default_cas
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Core FVT Pipeline after suite-verify completes"
+    - name: launchfvt_assist
       type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Assist FVT Pipeline after app-cfg-assist completes"
+    - name: launchfvt_iot
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the IoT FVT Pipeline after app-cfg-iot completes"
+    - name: launchfvt_manage
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-manage completes (does not control the additional Industry Solution, Mobile, or Regression Manage suites)"
+    - name: launchfvt_monitor
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-monitor completes"
+    - name: launchfvt_optimizer
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Optimizer FVT Pipeline after app-cfg-optimizer completes"
+    - name: launchfvt_predict
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Predict FVT Pipeline after app-cfg-predict completes"
+    - name: launchfvt_visualinspection
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Visual Inspection FVT Pipeline after app-cfg-visualinspection completes"
 
   stepTemplate:
     name: gitops-mas-fvt-preparer
@@ -123,34 +144,6 @@ spec:
         value: $(params.artifactory_auth_header)
       - name: DEVOPS_MONGO_URI
         value: $(params.devops_mongo_uri)
-      - name: TRAVIS_BUILD_NUMBER
-        value: $(params.fvt_travis_build_number)
-      - name: FVT_VERSION_ASSIST
-        value: $(params.fvt_version_assist)
-      - name: FVT_VERSION_HPUTILITIES
-        value: $(params.fvt_version_hputilities)
-      - name: FVT_VERSION_IOT
-        value: $(params.fvt_version_iot)
-      - name: FVT_VERSION_CTF
-        value: $(params.fvt_version_ctf)
-      - name: FVT_VERSION_OPTIMIZER
-        value: $(params.fvt_version_optimizer)
-      - name: FVT_VERSION_MANAGE
-        value: $(params.fvt_version_manage)
-      - name: FVT_VERSION_MANAGE_CIVIL
-        value: $(params.fvt_version_manage_civil)
-      - name: FVT_VERSION_MOBILEFOUNDATION
-        value: $(params.fvt_version_mobilefoundation)
-      - name: FVT_VERSION_SERVICEREQUESTS
-        value: $(params.fvt_version_servicerequests)
-      - name: FVT_VERSION_INSPECTION
-        value: $(params.fvt_version_inspection)
-      - name: FVT_VERSION_TECHNICIAN
-        value: $(params.fvt_version_technician)
-      - name: FVT_VERSION_ASSET_MANAGER
-        value: $(params.fvt_version_asset_manager)
-      - name: FVT_VERSION_INVENTORYCOUNTING
-        value: $(params.fvt_version_inventorycounting)
       - name: DDP_APIKEY
         value: $(params.ddp_apikey)
       - name: PARTIUM_USERNAME
@@ -159,12 +152,9 @@ spec:
         value: $(params.partium_password)
       - name: MAS_WORKSPACE_ID
         value: $(params.mas_workspace_id)
-      - name: IBM_ENTITLEMENT_KEY
-        value: $(params.ibm_entitlement_key)
-      - name: MAS_CATALOG_VERSION
-        value: $(params.mas_catalog_version)
-      - name: MAS_TRUST_DEFAULT_CAS
-        value: $(params.mas_trust_default_cas)
+      - name: MAS_CHANNEL
+        value: $(params.mas_channel)
+
   steps:
     - args:
       - |-
