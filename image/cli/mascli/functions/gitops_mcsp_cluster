@@ -221,10 +221,9 @@ function gitops_mcsp_cluster() {
   export ICR_AUTH_TOKEN=$(echo -n $ICR_USERNAME:$ICR_PASSWORD | base64 -w 0)
 
   echo "- Generate image pull secret"
-  jinja -X .+ $CLI_DIR/templates/gitops/ibm-entitlement-with-artifactory.json.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
-  IBM_ENTITLEMENT_WITH_ARTIFACTORY=${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
-  IBM_ENTITLEMENT_WITH_ARTIFACTORY=$(cat $IBM_ENTITLEMENT_WITH_ARTIFACTORY)
-  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
+  jinja -X .+ $CLI_DIR/templates/gitops/ibm-entitlement-with-artifactory.json.j2 -o ${GITOPS_WORKING_DIR}/ibm-entitlement-with-artifactory.json
+  IBM_ENTITLEMENT_WITH_ARTIFACTORY=$(cat ${GITOPS_WORKING_DIR}/ibm-entitlement-with-artifactory.json)
+  rm -f ${GITOPS_WORKING_DIR}/ibm-entitlement-with-artifactory.json
 
   export IBM_ENTITLEMENT_PULL_SECRET_B64=$(echo -n $IBM_ENTITLEMENT_WITH_ARTIFACTORY | base64 -w 0)
   export IBM_ENTITLEMENT_B64=$(echo -n $ICR_PASSWORD | base64 -w 0)
