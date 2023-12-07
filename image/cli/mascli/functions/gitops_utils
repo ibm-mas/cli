@@ -303,6 +303,27 @@ function check_argo_app_deleted(){
   done
 }
 
+
+# Fetches URL for cluster with cluster id supplied in the first param (e.g. "mas-c6") and sets it as the value of the variable named in the second param
+# exit 1 if something goes wrong
+# Example usage:
+#   export CLUSTER_URL
+#   argocd_get_cluster_url "${CLUSTER_ID}" "CLUSTER_URL"
+#   echo "Cluster URL: ${CLUSTER_URL}"
+function argocd_get_cluster_url(){
+  local _CLUSTER_ID=$1
+  local _CLUSTER_URL=$(argocd cluster get ${_CLUSTER_ID} -o server)
+
+  # can't check RC of the call inside $(), so we'll have to make do with checking for empty output instead
+   if [ -z "${_CLUSTER_URL}" ]; then
+    echo "Failed to get URL for cluster ${_CLUSTER_ID} from ArgoCD"
+    exit 1
+   fi
+
+   eval "$2=${_CLUSTER_URL}"
+
+}
+
 function delete_oc_resource(){
   RESOURCE=$1
   NAMESPACE=$2

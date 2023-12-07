@@ -184,13 +184,14 @@ function gitops_mcsp_dro() {
   reset_colors
 
 
-  # Get Cluster URL from ArgoCD worker
+  # Get Cluster details from ArgoCD worker
   # ---------------------------------------------------------------------------
-  # TODO: add this as a function to gitops_utils.sh
+  echo_h2 "Get Cluster details from ArgoCD worker"
   argocd_login
-  export CLUSTER_URL=$(argocd cluster get ${CLUSTER_ID} -o server)
-  echo "Cluster URL: ${CLUSTER_URL}"
 
+  export CLUSTER_URL
+  argocd_get_cluster_url "${CLUSTER_ID}" "CLUSTER_URL"
+  echo "Cluster URL: ${CLUSTER_URL}"
 
   # Set up secrets
   # ---------------------------------------------------------------------------

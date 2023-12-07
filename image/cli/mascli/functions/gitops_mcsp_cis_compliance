@@ -161,11 +161,13 @@ function gitops_mcsp_cis_compliance() {
   reset_colors
 
 
-  # Get Cluster URL from ArgoCD worker
+  # Get Cluster details from ArgoCD worker
   # ---------------------------------------------------------------------------
-  # TODO: add this as a function to gitops_utils.sh
+  echo_h2 "Get Cluster details from ArgoCD worker"
   argocd_login
-  export CLUSTER_URL=$(argocd cluster get ${CLUSTER_ID} -o server)
+
+  export CLUSTER_URL
+  argocd_get_cluster_url "${CLUSTER_ID}" "CLUSTER_URL"
   echo "Cluster URL: ${CLUSTER_URL}"
 
   if [ -z $GIT_SSH ]; then
@@ -181,10 +183,14 @@ function gitops_mcsp_cis_compliance() {
   fi
   mkdir -p ${GITOPS_CLUSTER_DIR}
 
-  # Generate config files
+  # Generating Cluster Configuration
+  # ---------------------------------------------------------------------------
   echo
   echo_h2 "Generating Cluster Configuration"
   jinja -X .+ $CLI_DIR/templates/gitops/mcsp/ibm-cis-compliance.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-cis-compliance.yaml
+  echo
+  echo "${GITOPS_CLUSTER_DIR}/ibm-cis-compliance.yaml:"
+  cat ${GITOPS_CLUSTER_DIR}/ibm-cis-compliance.yaml
 
   
   # Commit and push to github target repo
