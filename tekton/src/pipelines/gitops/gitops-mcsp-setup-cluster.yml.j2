@@ -38,6 +38,7 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
+    
     - name: argocd_url
       type: string
     - name: argocd_username
@@ -138,6 +139,12 @@ spec:
           value: $(params.git_commit_msg)
         - name: github_pat
           value: $(params.github_pat)
+        - name: argocd_url
+          value: $(params.argocd_url)
+        - name: argocd_username
+          value: $(params.argocd_username)
+        - name: argocd_password
+          value: $(params.argocd_password)
         - name: dro_namespace
           value: $(params.dro_namespace)
         - name: dro_csv
@@ -175,6 +182,13 @@ spec:
           value: $(params.git_commit_msg)
         - name: github_pat
           value: $(params.github_pat)
+
+        - name: argocd_url
+          value: $(params.argocd_url)
+        - name: argocd_username
+          value: $(params.argocd_username)
+        - name: argocd_password
+          value: $(params.argocd_password)
       taskRef:
         kind: Task
         name: gitops-mcsp-cis-compliance
