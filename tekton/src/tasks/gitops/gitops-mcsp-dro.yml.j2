@@ -35,7 +35,7 @@ spec:
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
-      - name: ACCOUNT
+      - name: ACCOUNT_ID
         value: $(params.account)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
@@ -67,14 +67,15 @@ spec:
 
         mkdir -p /tmp/init-dro
         mas gitops-mcsp-dro \
-        -a $ACCOUNT \
-        -c $CLUSTER_NAME \
+        -a "${ACCOUNT_ID}" \
+        -c "${CLUSTER_NAME}" \
+        -r "${SM_AWS_REGION}" \
         --dir /tmp/init-dro \
         --github-push \
-        --github-host $GITHUB_HOST \
-        --github-org  $GITHUB_ORG \
-        --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH
+        --github-host "${GITHUB_HOST}" \
+        --github-org  "${GITHUB_ORG}" \
+        --github-repo "${GITHUB_REPO}" \
+        --git-branch "${GIT_BRANCH}"
       command:
         - /bin/sh
         - -c
