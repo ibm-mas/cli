@@ -25,14 +25,44 @@ spec:
       type: string
     - name: fvt_config
       type: string
+
     - name: fvt_version_core
       type: string
     - name: ivt_version_core
       type: string
-    - name: fvt_digest_core
+    - name: fvt_version_ctf
       type: string
-    - name: ivt_digest_core
+    - name: fvt_version_assist
       type: string
+    - name: fvt_version_health
+      type: string
+    - name: fvt_version_iot
+      type: string
+    - name: fvt_version_optimizer
+      type: string
+    - name: fvt_version_manage
+      type: string
+    - name: fvt_manage_automation_version
+      type: string
+    - name: fvt_version_manage_civil
+      type: string
+    - name: fvt_version_mobile
+      type: string
+    - name: fvt_version_mobilefoundation
+      type: string
+    - name: fvt_version_servicerequests
+      type: string
+    - name: fvt_version_inspection
+      type: string
+    - name: fvt_version_technician
+      type: string
+    - name: fvt_version_asset_manager
+      type: string
+    - name: fvt_version_inventorycounting
+      type: string
+    - name: fvt_version_data_dictionary
+      type: string
+
     - name: fvt_blacklist_core
       type: string
     - name: fvt_whitelist_core
@@ -51,6 +81,10 @@ spec:
     - name: artifactory_auth_header
       type: string
     - name: devops_mongo_uri
+      type: string
+    - name: devops_build_number
+      type: string
+    - name: devops_job_number
       type: string
 
     - name: fvt_image_registry
@@ -106,7 +140,7 @@ spec:
       type: string
       default: "true"
       description: "Set this to any falue other than 'true' to disable lauch of the Mobile FVT Pipeline after app-cfg-manage completes"
-      
+
   stepTemplate:
     name: gitops-mas-fvt-preparer
     env:
@@ -134,10 +168,6 @@ spec:
         value: $(params.fvt_config)
       - name: FVT_IMAGE_REGISTRY
         value: $(params.fvt_image_registry)
-      - name: FVT_VERSION_CORE
-        value: $(params.fvt_version_core)
-      - name: IVT_VERSION_CORE
-        value: $(params.ivt_version_core)
       - name: ARTIFACTORY_GENERIC_RELEASE_URL
         value: $(params.artifactory_generic_release_url)
       - name: FVT_ANSIBLE_VERSION
@@ -156,10 +186,42 @@ spec:
         value: $(params.mas_workspace_id)
       - name: MAS_CHANNEL
         value: $(params.mas_channel)
-      - name: FVT_DIGEST_CORE
-        value: $(params.fvt_digest_core)
-      - name: IVT_DIGEST_CORE
-        value: $(params.ivt_digest_core)
+      - name: FVT_VERSION_CORE
+        value: $(params.fvt_version_core)
+      - name: IVT_VERSION_CORE
+        value: $(params.ivt_version_core)
+      - name: FVT_VERSION_CTF
+        value: $(params.fvt_version_ctf)
+      - name: FVT_VERSION_ASSIST
+        value: $(params.fvt_version_assist)
+      - name: FVT_VERSION_HEALTH
+        value: $(params.fvt_version_health)
+      - name: FVT_VERSION_IOT
+        value: $(params.fvt_version_iot)
+      - name: FVT_VERSION_OPTIMIZER
+        value: $(params.fvt_version_optimizer)
+      - name: FVT_VERSION_MANAGE
+        value: $(params.fvt_version_manage)
+      - name: FVT_MANAGE_AUTOMATION_VERSION
+        value: $(params.fvt_manage_automation_version)
+      - name: FVT_VERSION_MANAGE_CIVIL
+        value: $(params.fvt_version_manage_civil)
+      - name: FVT_VERSION_MOBILE
+        value: $(params.fvt_version_mobile)
+      - name: FVT_VERSION_MOBILEFOUNDATION
+        value: $(params.fvt_version_mobilefoundation)
+      - name: FVT_VERSION_SERVICEREQUESTS
+        value: $(params.fvt_version_servicerequests)
+      - name: FVT_VERSION_INSPECTION
+        value: $(params.fvt_version_inspection)
+      - name: FVT_VERSION_TECHNICIAN
+        value: $(params.fvt_version_technician)
+      - name: FVT_VERSION_ASSET_MANAGER
+        value: $(params.fvt_version_asset_manager)
+      - name: FVT_VERSION_INVENTORYCOUNTING
+        value: $(params.fvt_version_inventorycounting)
+      - name: FVT_VERSION_DATA_DICTIONARY
+        value: $(params.fvt_version_data_dictionary)
       - name: FVT_BLACKLIST_CORE
         value: $(params.fvt_blacklist_core)
       - name: FVT_WHITELIST_CORE

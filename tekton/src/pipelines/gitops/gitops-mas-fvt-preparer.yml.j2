@@ -50,10 +50,6 @@ spec:
       type: string
     - name: fvt_image_registry
       type: string
-    - name: fvt_version_core
-      type: string
-    - name: ivt_version_core
-      type: string
     - name: artifactory_generic_release_url
       type: string
     - name: fvt_ansible_version
@@ -62,11 +58,48 @@ spec:
       type: string
     - name: devops_mongo_uri
       type: string
+    - name: devops_build_number
+      type: string
+    - name: devops_job_number
+      type: string
 
-    - name: fvt_digest_core
+    - name: fvt_version_core
       type: string
-    - name: ivt_digest_core
+    - name: ivt_version_core
       type: string
+    - name: fvt_version_ctf
+      type: string
+    - name: fvt_version_assist
+      type: string
+    - name: fvt_version_health
+      type: string
+    - name: fvt_version_iot
+      type: string
+    - name: fvt_version_optimizer
+      type: string
+    - name: fvt_version_manage
+      type: string
+    - name: fvt_manage_automation_version
+      type: string
+    - name: fvt_version_manage_civil
+      type: string
+    - name: fvt_version_mobile
+      type: string
+    - name: fvt_version_mobilefoundation
+      type: string
+    - name: fvt_version_servicerequests
+      type: string
+    - name: fvt_version_inspection
+      type: string
+    - name: fvt_version_technician
+      type: string
+    - name: fvt_version_asset_manager
+      type: string
+    - name: fvt_version_inventorycounting
+      type: string
+    - name: fvt_version_data_dictionary
+      type: string
+
     - name: fvt_blacklist_core
       type: string
     - name: fvt_whitelist_core
@@ -164,10 +197,7 @@ spec:
           value: $(params.fvt_config)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
-        - name: fvt_version_core
-          value: $(params.fvt_version_core)
-        - name: ivt_version_core
-          value: $(params.ivt_version_core)
+
         - name: artifactory_generic_release_url
           value: $(params.artifactory_generic_release_url)
         - name: fvt_ansible_version
@@ -176,11 +206,48 @@ spec:
           value: $(params.artifactory_auth_header)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_job_number
+          value: $(params.devops_job_number)
 
-        - name: fvt_digest_core
-          value: $(params.fvt_digest_core)
-        - name: ivt_digest_core
-          value: $(params.ivt_digest_core)
+        - name: fvt_version_core
+          value: $(params.fvt_version_core)
+        - name: ivt_version_core
+          value: $(params.ivt_version_core)
+        - name: fvt_version_ctf
+          value: $(params.fvt_version_ctf)
+        - name: fvt_version_assist
+          value: $(params.fvt_version_assist)
+        - name: fvt_version_health
+          value: $(params.fvt_version_health)
+        - name: fvt_version_iot
+          value: $(params.fvt_version_iot)
+        - name: fvt_version_optimizer
+          value: $(params.fvt_version_optimizer)
+        - name: fvt_version_manage
+          value: $(params.fvt_version_manage)
+        - name: fvt_manage_automation_version
+          value: $(params.fvt_manage_automation_version)
+        - name: fvt_version_manage_civil
+          value: $(params.fvt_version_manage_civil)
+        - name: fvt_version_mobile
+          value: $(params.fvt_version_mobile)
+        - name: fvt_version_mobilefoundation
+          value: $(params.fvt_version_mobilefoundation)
+        - name: fvt_version_servicerequests
+          value: $(params.fvt_version_servicerequests)
+        - name: fvt_version_inspection
+          value: $(params.fvt_version_inspection)
+        - name: fvt_version_technician
+          value: $(params.fvt_version_technician)
+        - name: fvt_version_asset_manager
+          value: $(params.fvt_version_asset_manager)
+        - name: fvt_version_inventorycounting
+          value: $(params.fvt_version_inventorycounting)
+        - name: fvt_version_data_dictionary
+          value: $(params.fvt_version_data_dictionary)
+
         - name: fvt_blacklist_core
           value: $(params.fvt_blacklist_core)
         - name: fvt_whitelist_core
