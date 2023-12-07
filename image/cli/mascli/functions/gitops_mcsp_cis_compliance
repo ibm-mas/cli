@@ -170,12 +170,12 @@ function gitops_mcsp_cis_compliance() {
   argocd_get_cluster_url "${CLUSTER_ID}" "CLUSTER_URL"
   echo "Cluster URL: ${CLUSTER_URL}"
 
-  if [ -z $GIT_SSH ]; then
-    export GIT_SSH="false"
-  fi
 
   # Clone github target repo
   # ---------------------------------------------------------------------------
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH="false"
+  fi
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
@@ -189,7 +189,8 @@ function gitops_mcsp_cis_compliance() {
   echo_h2 "Generating Cluster Configuration"
   jinja -X .+ $CLI_DIR/templates/gitops/mcsp/ibm-cis-compliance.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-cis-compliance.yaml
   echo
-  echo "${GITOPS_CLUSTER_DIR}/ibm-cis-compliance.yaml:"
+  echo "ibm-cis-compliance.yaml"
+  echo "---"
   cat ${GITOPS_CLUSTER_DIR}/ibm-cis-compliance.yaml
 
   

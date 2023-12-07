@@ -138,6 +138,28 @@ function sm_get_cluster_secret() {
   sm_get_secret ${ACCOUNT}${DELIMIITER}${CLUSTER_ID}${DELIMIITER}${SECRET_NAME} ${SECRET_ENV_VAR}
 }
 
+
+# Fetches ARN of secret named in first param (e.g. "development/mas-c6/ibm_entitlement") and sets it as the value of the variable named in the second param.
+# This is often needed due to the random suffix e.g. "-fdP1Lx" that AWS seems to apply when secrets are created
+# exit 1 if something goes wrong
+# Example usage:
+#   export SECRET_ARN_IBM_ENTITLEMENT
+#   sm_get_secret_arn "${SECRET_NAME_IBM_ENTITLEMENT}" "SECRET_ARN_IBM_ENTITLEMENT"
+#   echo "${SECRET_NAME_IBM_ENTITLEMENT} ARN: ${SECRET_ARN_IBM_ENTITLEMENT}"
+function sm_get_secret_arn() {
+  local _SECRET_NAME="$1"
+  local _SECRET_ARN=$(aws secretsmanager describe-secret --secret-id "${_SECRET_NAME}" --output json | jq -r .ARN)
+
+  # can't check RC of the call inside $(), so we'll have to make do with checking for empty output instead
+   if [ -z "${_SECRET_ARN}" ]; then
+    echo "Failed to get ARN for AWS SM secret named ${_SECRET_NAME}"
+    exit 1
+   fi
+
+   eval "$2=${_SECRET_ARN}"
+
+}
+
 function clone_target_git_repo() {
   GITHUB_HOST=$1
   GITHUB_ORG=$2

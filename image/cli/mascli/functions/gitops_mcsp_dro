@@ -197,19 +197,17 @@ function gitops_mcsp_dro() {
   # ---------------------------------------------------------------------------
   # Note that SECRET_KEY_IBM_ENTITLEMENT cluster-level secret is set up by gitops-mcsp-cluster
 
-
   echo
   echo_h2 "Configuring Cluster secrets"
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
 
-  # Describe the secret and yoink the ARN from the JSON printed to stdout
-  # We need this due to the random suffix e.g. "-fdP1Lx" that AWS seems to apply to the secret ARN
-  # TODO: add this as a function to gitops_utils.sh
   export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
-  export SECRET_KEY_IBM_ENTITLEMENT=${SECRET_NAME_IBM_ENTITLEMENT}#image_pull_secret_b64
-  export SECRET_ARN_IBM_ENTITLEMENT=$(aws secretsmanager describe-secret --secret-id "${SECRET_NAME_IBM_ENTITLEMENT}" --output json | jq -r .ARN)
+  export SECRET_ARN_IBM_ENTITLEMENT
+  sm_get_secret_arn "${SECRET_NAME_IBM_ENTITLEMENT}" "SECRET_ARN_IBM_ENTITLEMENT"
+  echo "${SECRET_NAME_IBM_ENTITLEMENT} ARN: ${SECRET_ARN_IBM_ENTITLEMENT}"
+
 
 
   # Create the dro_api_token secret
@@ -217,16 +215,17 @@ function gitops_mcsp_dro() {
   export DRO_API_TOKEN=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20`
   export SECRET_KEY_DRO_API_TOKEN=${SECRET_NAME_DRO}#dro_api_token
   sm_update_secret $SECRET_NAME_DRO "{\"dro_api_token\": \"$DRO_API_TOKEN\" }"
-  export SECRET_ARN_DRO=$(aws secretsmanager describe-secret --secret-id "${SECRET_NAME_DRO}" --output json | jq -r .ARN)
+  export SECRET_ARN_DRO
+  sm_get_secret_arn "${SECRET_NAME_DRO}" "SECRET_ARN_DRO"
+  echo "${SECRET_NAME_DRO} ARN: ${SECRET_ARN_DRO}"
 
 
-
-  if [ -z $GIT_SSH ]; then
-    export GIT_SSH="false"
-  fi
 
   # Clone github target repo
   # ---------------------------------------------------------------------------
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH="false"
+  fi
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
@@ -237,7 +236,11 @@ function gitops_mcsp_dro() {
   # Generate config files
   echo
   echo_h2 "Generating Cluster Configuration"
+  echo
   jinja -X .+ $CLI_DIR/templates/gitops/mcsp/ibm-dro.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-dro.yaml
+  echo "ibm-dro.yaml"
+  echo "---"
+  cat ${GITOPS_CLUSTER_DIR}/ibm-dro.yaml
 
   
   # Commit and push to github target repo

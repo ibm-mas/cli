@@ -215,19 +215,6 @@ function gitops_mcsp_cluster() {
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRET_NAME_IBM_ENTITLEMENT}#image_pull_secret_b64
 
 
-  if [ -z $GIT_SSH ]; then
-    export GIT_SSH="false"
-  fi
-
-  # Clone github target repo
-  # ---------------------------------------------------------------------------
-  if [ "$GITHUB_PUSH" == "true" ]; then
-    echo
-    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
-  fi
-  mkdir -p ${GITOPS_CLUSTER_DIR}
-
   if [[ -n ${ARTIFACTORY_USERNAME} && -n ${ARTIFACTORY_TOKEN} ]]; then
     export ARTIFACTORY_AUTH_TOKEN=$(echo -n $ARTIFACTORY_USERNAME:$ARTIFACTORY_TOKEN | base64 -w 0)
   fi
@@ -235,29 +222,50 @@ function gitops_mcsp_cluster() {
 
   echo "- Generate image pull secret"
   jinja -X .+ $CLI_DIR/templates/gitops/ibm-entitlement-with-artifactory.json.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
-
   IBM_ENTITLEMENT_WITH_ARTIFACTORY=${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
   IBM_ENTITLEMENT_WITH_ARTIFACTORY=$(cat $IBM_ENTITLEMENT_WITH_ARTIFACTORY)
+  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
+
   export IBM_ENTITLEMENT_PULL_SECRET_B64=$(echo -n $IBM_ENTITLEMENT_WITH_ARTIFACTORY | base64 -w 0)
   export IBM_ENTITLEMENT_B64=$(echo -n $ICR_PASSWORD | base64 -w 0)
 
   sm_update_secret $SECRET_NAME_IBM_ENTITLEMENT "{\"image_pull_secret_b64\": \"${IBM_ENTITLEMENT_PULL_SECRET_B64}\", \"entitlement_key\": \"${IBM_ENTITLEMENT_B64}\"}"
 
+  export SECRET_ARN_IBM_ENTITLEMENT
+  sm_get_secret_arn "${SECRET_NAME_IBM_ENTITLEMENT}" "SECRET_ARN_IBM_ENTITLEMENT"
+  echo "${SECRET_NAME_IBM_ENTITLEMENT} ARN: ${SECRET_ARN_IBM_ENTITLEMENT}"
 
-  # Describe the secret and yoink the ARN from the JSON printed to stdout
-  # We need this due to the random suffix e.g. "-fdP1Lx" that AWS seems to apply to the secret ARN
-  # TODO: add this as a function to gitops_utils.sh
-  export SECRET_ARN_IBM_ENTITLEMENT=$(aws secretsmanager describe-secret --secret-id "${SECRET_NAME_IBM_ENTITLEMENT}" --output json | jq -r .ARN)
 
-  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
+
+
+  # Clone github target repo
+  # ---------------------------------------------------------------------------
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH="false"
+  fi
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+  fi
+  mkdir -p ${GITOPS_CLUSTER_DIR}
 
 
   # Generate config files
   echo
   echo_h2 "Generating Cluster Configuration"
+  echo
   jinja -X .+ $CLI_DIR/templates/gitops/mcsp/ibm-operator-catalog.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
-  jinja -X .+ $CLI_DIR/templates/gitops/mcsp/ibm-common-services.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-common-services.yaml
+  echo "ibm-operator-catalog.yaml"
+  echo "---"
+  cat ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
 
+  echo
+  echo
+  jinja -X .+ $CLI_DIR/templates/gitops/mcsp/ibm-common-services.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-common-services.yaml
+  echo "ibm-common-services.yaml"
+  echo "---"
+  cat ${GITOPS_CLUSTER_DIR}/ibm-common-services.yaml
 
   
   # Commit and push to github target repo
