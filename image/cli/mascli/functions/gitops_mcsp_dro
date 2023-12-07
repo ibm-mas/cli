@@ -211,14 +211,12 @@ function gitops_mcsp_dro() {
   export SECRET_ARN_IBM_ENTITLEMENT=$(aws secretsmanager describe-secret --secret-id "${SECRET_NAME_IBM_ENTITLEMENT}" --output json | jq -r .ARN)
 
 
-
   # Create the dro_api_token secret
   export SECRET_NAME_DRO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro
   export DRO_API_TOKEN=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20`
   export SECRET_KEY_DRO_API_TOKEN=${SECRET_NAME_DRO}#dro_api_token
   sm_update_secret $SECRET_NAME_DRO "{\"dro_api_token\": \"$DRO_API_TOKEN\" }"
   export SECRET_ARN_DRO=$(aws secretsmanager describe-secret --secret-id "${SECRET_NAME_DRO}" --output json | jq -r .ARN)
-
 
 
 
@@ -234,11 +232,6 @@ function gitops_mcsp_dro() {
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
   mkdir -p ${GITOPS_CLUSTER_DIR}
-
-  if [[ -n ${ARTIFACTORY_USERNAME} && -n ${ARTIFACTORY_TOKEN} ]]; then
-    export ARTIFACTORY_AUTH_TOKEN=$(echo -n $ARTIFACTORY_USERNAME:$ARTIFACTORY_TOKEN | base64 -w 0)
-  fi
-  export ICR_AUTH_TOKEN=$(echo -n $ICR_USERNAME:$ICR_PASSWORD | base64 -w 0)
 
   # Generate config files
   echo
