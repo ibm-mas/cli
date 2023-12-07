@@ -46,7 +46,8 @@ spec:
         value: $(params.argocd_remove_deny_window)
   steps:
     - name: wait-for-pipelinerun
-      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
       script: |
         #!/usr/bin/env bash
 
