@@ -150,4 +150,5 @@
         - gitops-dro
         - gitops-mcsp-cluster
         - gitops-mcsp-dro
+        - gitops-mcsp-cis-compliance
 

@@ -149,3 +149,36 @@ spec:
         - name: configs
           workspace: configs
 
+    - name: gitops-mcsp-cis-compliance
+      runAfter:
+        - gitops-mcsp-cluster
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+      taskRef:
+        kind: Task
+        name: gitops-mcsp-cis-compliance
+      workspaces:
+        - name: configs
+          workspace: configs
+

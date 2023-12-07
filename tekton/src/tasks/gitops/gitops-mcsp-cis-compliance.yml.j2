@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-mcsp-dro
+  name: gitops-mcsp-cis-compliance
 spec:
   params:
     - name: cluster_name
@@ -25,13 +25,8 @@ spec:
       type: string
     - name: github_pat
       type: string
-
-    - name: dro_namespace
-      type: string
-    - name: dro_csv
-      type: string
   stepTemplate:
-    name: gitops-dro
+    name: gitops-mcsp-cis-compliance
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -53,11 +48,6 @@ spec:
         value: $(params.github_repo)
       - name: GITHUB_PAT
         value: $(params.github_pat)
-
-      - name: DRO_NAMESPACE
-        value: $(params.dro_namespace)
-      - name: DRO_CSV
-        value: $(params.dro_csv)
   steps:
     - args:
       - |-
@@ -65,12 +55,12 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        mkdir -p /tmp/init-dro
-        mas gitops-mcsp-dro \
+        mkdir -p /tmp/init-cis-compliance
+        mas gitops-mcsp-cis-compliance \
         -a "${ACCOUNT_ID}" \
         -c "${CLUSTER_NAME}" \
         -r "${SM_AWS_REGION}" \
-        --dir /tmp/init-dro \
+        --dir /tmp/init-cis-compliance \
         --github-push \
         --github-host "${GITHUB_HOST}" \
         --github-org  "${GITHUB_ORG}" \
@@ -79,7 +69,7 @@ spec:
       command:
         - /bin/sh
         - -c
-      name: gitops-mcsp-dro
+      name: gitops-mcsp-cis-compliance
       imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:7.7.0-pre.mascore962
   workspaces:

@@ -104,6 +104,7 @@ mkdir -p $CONFIG_DIR
 # GitOps / MCSP
 . $CLI_DIR/functions/gitops_mcsp_cluster
 . $CLI_DIR/functions/gitops_mcsp_dro
+. $CLI_DIR/functions/gitops_mcsp_cis_compliance
 
 load_config
 case $1 in
@@ -541,6 +542,14 @@ case $1 in
     echo
     reset_colors
     gitops_mcsp_dro "$@"
+    ;;
+  
+  gitops-mcsp-cis-compliance)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (MCSP) (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_mcsp_cis_compliance "$@"
     ;;
 
   *)
