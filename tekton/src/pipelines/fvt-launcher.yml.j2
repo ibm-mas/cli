@@ -63,7 +63,11 @@ spec:
       type: string
       default: "true"
       description: "Set this to any falue other than 'true' to disable lauch of the Visual Inspection FVT Pipeline after app-cfg-visualinspection completes"
-
+    - name: launchfvt_mobile
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Mobile FVT Pipeline after app-cfg-manage completes"
+      
   tasks:
     # 13. MAS Core FVT
     # -------------------------------------------------------------------------

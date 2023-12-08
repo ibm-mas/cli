@@ -3,9 +3,9 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
 {% if wait_for_provision == true %}
-  name: gitops-provision-mas-fvt-core-after-provision
+  name: gitops-mas-fvt-preparer-after-provision
 {% else %}
-  name: gitops-provision-mas-fvt-core
+  name: gitops-mas-fvt-preparer
 {% endif %}
 spec:
   workspaces:
@@ -15,7 +15,7 @@ spec:
     - name: shared-gitops-configs
     # The SLS entitlement key file that will be installed during install-sls.
     - name: shared-entitlement
-  description: Provision MAS FVT core pipeline
+  description: Gitops MAS FVT pipeline
   params:
 {% if wait_for_provision == true %}
       # Name of the PipelineRun to wait for
@@ -50,10 +50,6 @@ spec:
       type: string
     - name: fvt_image_registry
       type: string
-    - name: fvt_version_core
-      type: string
-    - name: ivt_version_core
-      type: string
     - name: artifactory_generic_release_url
       type: string
     - name: fvt_ansible_version
@@ -62,21 +58,32 @@ spec:
       type: string
     - name: devops_mongo_uri
       type: string
-    - name: fvt_travis_build_number
+    - name: devops_build_number
+      type: string
+    - name: devops_job_number
+      type: string
+
+    - name: fvt_version_core
+      type: string
+    - name: ivt_version_core
+      type: string
+    - name: fvt_version_ctf
       type: string
     - name: fvt_version_assist
       type: string
-    - name: fvt_version_hputilities
+    - name: fvt_version_health
       type: string
     - name: fvt_version_iot
-      type: string
-    - name: fvt_version_ctf
       type: string
     - name: fvt_version_optimizer
       type: string
     - name: fvt_version_manage
       type: string
+    - name: fvt_manage_automation_version
+      type: string
     - name: fvt_version_manage_civil
+      type: string
+    - name: fvt_version_mobile
       type: string
     - name: fvt_version_mobilefoundation
       type: string
@@ -90,6 +97,14 @@ spec:
       type: string
     - name: fvt_version_inventorycounting
       type: string
+    - name: fvt_version_data_dictionary
+      type: string
+
+    - name: fvt_blacklist_core
+      type: string
+    - name: fvt_whitelist_core
+      type: string
+
     - name: ddp_apikey
       type: string
     - name: partium_username
@@ -98,12 +113,45 @@ spec:
       type: string
     - name: mas_workspace_id
       type: string
-    - name: ibm_entitlement_key
+    - name: mas_channel
       type: string
-    - name: mas_catalog_version
+
+    - name: launchfvt_core
       type: string
-    - name: mas_trust_default_cas
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Core FVT Pipeline after suite-verify completes"
+    - name: launchfvt_assist
       type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Assist FVT Pipeline after app-cfg-assist completes"
+    - name: launchfvt_iot
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the IoT FVT Pipeline after app-cfg-iot completes"
+    - name: launchfvt_manage
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-manage completes (does not control the additional Industry Solution, Mobile, or Regression Manage suites)"
+    - name: launchfvt_monitor
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-monitor completes"
+    - name: launchfvt_optimizer
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Optimizer FVT Pipeline after app-cfg-optimizer completes"
+    - name: launchfvt_predict
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Predict FVT Pipeline after app-cfg-predict completes"
+    - name: launchfvt_visualinspection
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Visual Inspection FVT Pipeline after app-cfg-visualinspection completes"
+    - name: launchfvt_mobile
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Mobile FVT Pipeline after app-cfg-manage completes"
 
   tasks:
 {% if wait_for_provision == true %}
@@ -119,7 +167,7 @@ spec:
         kind: Task
         name: mas-fvt-wait-for-pipelinerun
 {% endif %}
-    - name: gitops-provision-mas-fvt-core
+    - name: mas-launchfvt
 {% if wait_for_provision == true %}
       runAfter:
         - wait-for-provision
@@ -149,10 +197,7 @@ spec:
           value: $(params.fvt_config)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
-        - name: fvt_version_core
-          value: $(params.fvt_version_core)
-        - name: ivt_version_core
-          value: $(params.ivt_version_core)
+
         - name: artifactory_generic_release_url
           value: $(params.artifactory_generic_release_url)
         - name: fvt_ansible_version
@@ -161,22 +206,33 @@ spec:
           value: $(params.artifactory_auth_header)
         - name: devops_mongo_uri
           value: $(params.devops_mongo_uri)
-        - name: fvt_travis_build_number
-          value: $(params.fvt_travis_build_number)
-        - name: fvt_version_assist
-          value: $(params.fvt_version_assist)
-        - name: fvt_version_hputilities
-          value: $(params.fvt_version_hputilities)
-        - name: fvt_version_iot
-          value: $(params.fvt_version_iot)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
+        - name: devops_job_number
+          value: $(params.devops_job_number)
+
+        - name: fvt_version_core
+          value: $(params.fvt_version_core)
+        - name: ivt_version_core
+          value: $(params.ivt_version_core)
         - name: fvt_version_ctf
           value: $(params.fvt_version_ctf)
+        - name: fvt_version_assist
+          value: $(params.fvt_version_assist)
+        - name: fvt_version_health
+          value: $(params.fvt_version_health)
+        - name: fvt_version_iot
+          value: $(params.fvt_version_iot)
         - name: fvt_version_optimizer
           value: $(params.fvt_version_optimizer)
         - name: fvt_version_manage
           value: $(params.fvt_version_manage)
+        - name: fvt_manage_automation_version
+          value: $(params.fvt_manage_automation_version)
         - name: fvt_version_manage_civil
           value: $(params.fvt_version_manage_civil)
+        - name: fvt_version_mobile
+          value: $(params.fvt_version_mobile)
         - name: fvt_version_mobilefoundation
           value: $(params.fvt_version_mobilefoundation)
         - name: fvt_version_servicerequests
@@ -189,6 +245,14 @@ spec:
           value: $(params.fvt_version_asset_manager)
         - name: fvt_version_inventorycounting
           value: $(params.fvt_version_inventorycounting)
+        - name: fvt_version_data_dictionary
+          value: $(params.fvt_version_data_dictionary)
+
+        - name: fvt_blacklist_core
+          value: $(params.fvt_blacklist_core)
+        - name: fvt_whitelist_core
+          value: $(params.fvt_whitelist_core)
+
         - name: ddp_apikey
           value: $(params.ddp_apikey)
         - name: partium_username
@@ -197,12 +261,28 @@ spec:
           value: $(params.partium_password)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
-        - name: mas_catalog_version
-          value: $(params.mas_catalog_version)
-        - name: mas_trust_default_cas
-          value: $(params.mas_trust_default_cas)
+        - name: mas_channel
+          value: $(params.mas_channel)
+
+        - name: launchfvt_core
+          value: $(params.launchfvt_core)
+        - name: launchfvt_assist
+          value: $(params.launchfvt_assist)
+        - name: launchfvt_iot
+          value: $(params.launchfvt_iot)
+        - name: launchfvt_manage
+          value: $(params.launchfvt_manage)
+        - name: launchfvt_mobile
+          value: $(params.launchfvt_mobile)
+        - name: launchfvt_monitor
+          value: $(params.launchfvt_monitor)
+        - name: launchfvt_optimizer
+          value: $(params.launchfvt_optimizer)
+        - name: launchfvt_predict
+          value: $(params.launchfvt_predict)
+        - name: launchfvt_visualinspection
+          value: $(params.launchfvt_visualinspection)
+
       workspaces:
         - name: configs
           workspace: configs
@@ -214,4 +294,4 @@ spec:
           workspace: shared-entitlement
       taskRef:
         kind: Task
-        name: gitops-provision-mas-fvt-core
+        name: gitops-mas-fvt-preparer

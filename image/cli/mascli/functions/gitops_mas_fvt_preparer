@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-function gitops_provision_mas_fvt_core_help() {
+function gitops_mas_fvt_preparer_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_provision_mas_fvt_core [options]
+  mas gitops_mas_fvt_preparer [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -19,8 +19,8 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_provision_mas_fvt_core_noninteractive() {
-  GITOPS_WORKING_DIR=$PWD/provision-mas-fvt-core
+function gitops_mas_fvt_preparer_noninteractive() {
+  GITOPS_WORKING_DIR=$PWD/mas-fvt
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -35,36 +35,36 @@ function gitops_provision_mas_fvt_core_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_provision_mas_fvt_core_help
+        gitops_mas_fvt_preparer_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_provision_mas_fvt_core_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_mas_fvt_preparer_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
-  [[ -z "$PIPELINE_STORAGE_CLASS" ]] && gitops_provision_mas_fvt_core_help "PIPELINE_STORAGE_CLASS is not set"
-  [[ -z "$FVT_PIPELINE_NAME" ]] && gitops_provision_mas_fvt_core_help "FVT_PIPELINE_NAME is not set"
-  [[ -z "$CLI_VERSION" ]] && gitops_provision_mas_fvt_core_help "CLI_VERSION is not set"
-  [[ -z "$FVT_ARTIFACTORY_USERNAME" ]] && gitops_provision_mas_fvt_core_help "FVT_ARTIFACTORY_USERNAME is not set"
-  [[ -z "$FVT_ARTIFACTORY_TOKEN" ]] && gitops_provision_mas_fvt_core_help "FVT_ARTIFACTORY_TOKEN is not set"
-  [[ -z "$FVT_CONFIG" ]] && gitops_provision_mas_fvt_core_help "FVT_CONFIG is not set"
-  [[ -z "$FVT_IMAGE_REGISTRY" ]] && gitops_provision_mas_fvt_core_help "FVT_IMAGE_REGISTRY is not set"
-  [[ -z "$FVT_VERSION_CORE" ]] && gitops_provision_mas_fvt_core_help "FVT_VERSION_CORE is not set"
-  [[ -z "$IVT_VERSION_CORE" ]] && gitops_provision_mas_fvt_core_help "IVT_VERSION_CORE is not set"
+  [[ -z "$PIPELINE_STORAGE_CLASS" ]] && gitops_mas_fvt_preparer_help "PIPELINE_STORAGE_CLASS is not set"
+  [[ -z "$FVT_PIPELINE_NAME" ]] && gitops_mas_fvt_preparer_help "FVT_PIPELINE_NAME is not set"
+  [[ -z "$CLI_VERSION" ]] && gitops_mas_fvt_preparer_help "CLI_VERSION is not set"
+  [[ -z "$FVT_ARTIFACTORY_USERNAME" ]] && gitops_mas_fvt_preparer_help "FVT_ARTIFACTORY_USERNAME is not set"
+  [[ -z "$FVT_ARTIFACTORY_TOKEN" ]] && gitops_mas_fvt_preparer_help "FVT_ARTIFACTORY_TOKEN is not set"
+  [[ -z "$FVT_CONFIG" ]] && gitops_mas_fvt_preparer_help "FVT_CONFIG is not set"
+  [[ -z "$FVT_IMAGE_REGISTRY" ]] && gitops_mas_fvt_preparer_help "FVT_IMAGE_REGISTRY is not set"
+  [[ -z "$FVT_VERSION_CORE" ]] && gitops_mas_fvt_preparer_help "FVT_VERSION_CORE is not set"
+  [[ -z "$IVT_VERSION_CORE" ]] && gitops_mas_fvt_preparer_help "IVT_VERSION_CORE is not set"
 }
 
-function gitops_provision_mas_fvt_core() {
+function gitops_mas_fvt_preparer() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_provision_mas_fvt_core_noninteractive "$@"
+    gitops_mas_fvt_preparer_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_provision_mas_fvt_core_interactive
+    gitops_mas_fvt_preparer_interactive
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
