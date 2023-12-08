@@ -176,6 +176,14 @@ spec:
         value: $(params.artifactory_auth_header)
       - name: DEVOPS_MONGO_URI
         value: $(params.devops_mongo_uri)
+      - name: TRAVIS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+      - name: TRAVIS_JOB_NUMBER
+        value: $(params.devops_job_number)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+      - name: DEVOPS_JOB_NUMBER
+        value: $(params.devops_job_number)
       - name: DDP_APIKEY
         value: $(params.ddp_apikey)
       - name: PARTIUM_USERNAME
