@@ -33,14 +33,23 @@
         - fvt-assist
         - fvt-core
         - fvt-deprovision-after
+        - fvt-iot
         - fvt-manage
+        - fvt-mobile
+        - fvt-manage-is
         - fvt-manage-regr
+        - fvt-monitor
+        - fvt-optimizer
+        - fvt-predict
         - fvt-sls
+        - fvt-data-dictionary
         - fvt-uninstall-after
+        - fvt-visualinspection
         - update
         - upgrade
         - rollback
         - uninstall
+        - fvt-launcher
 
     # 2. Generate Pipelines
     # -------------------------------------------------------------------------
@@ -71,9 +80,11 @@
         - deprovision-mas-instance
         - provision-bootstrap-cluster
         - provision-mas-instance
-        - provision-mas-fvt-core
+        - gitops-mas-fvt-preparer
         - gitops-update
+        - provision-mas-apps
         - gitops-mcsp-setup-cluster
+        
 
     # 4. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
@@ -97,4 +108,5 @@
         dest: "{{ pipeline_target_dir }}/{{ item }}-after-provision.yaml"
       with_items:
         - provision-mas-instance
-        - provision-mas-fvt-core
+        - provision-mas-apps
+        - gitops-mas-fvt-preparer

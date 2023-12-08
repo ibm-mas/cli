@@ -193,7 +193,7 @@ function save_to_target_git_repo() {
   cd $LOCAL_DIR || exit 1
 
   echo "git: Adding all files in $LOCAL_DIR working directory"
-  FILES_ADDED=$(git add -v . | wc -l | xargs)
+  export FILES_ADDED=$(git add -v . | wc -l | xargs)
   echo "git: Added ${FILES_ADDED} files"
 
   if [ "$FILES_ADDED" != "0" ]; then

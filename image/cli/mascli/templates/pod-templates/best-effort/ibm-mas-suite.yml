@@ -134,18 +134,3 @@ podTemplates:
     containers:
       - name: liberty
         resources: {}
-  - name: coreidp
-    containers:
-      - name: coreidp
-        resources: {}
-    initContainers:
-      - name: coreidp-init
-        resources: {}
-  - name: coreidp-login
-    containers:
-      - name: coreidp-login
-        resources: {}
-  - name: oidcclientreg
-    containers:
-      - name: liberty
-        resources: {}

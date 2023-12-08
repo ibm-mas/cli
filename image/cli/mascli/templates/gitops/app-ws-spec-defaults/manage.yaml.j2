@@ -144,7 +144,7 @@ mas_appws_spec:
       {%- endif %}
 
     languages:
-      baseLang: {{ MAS_APP_SETTINGS_BASE_LANGUAGE }}
+      baseLang: {{ MAS_APP_SETTINGS_BASE_LANGUAGE  | default( 'EN' , true) }}
       {%- if MAS_APP_SETTINGS_SECONDARY_LANGUAGES is defined and MAS_APP_SETTINGS_SECONDARY_LANGUAGES != "" %}
       secondaryLangs: {{ MAS_APP_SETTINGS_SECONDARY_LANGUAGES.split(',') }}
       {%- else %}

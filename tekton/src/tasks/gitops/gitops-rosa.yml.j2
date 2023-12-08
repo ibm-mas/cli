@@ -20,6 +20,10 @@ spec:
       type: string
     - name: rosa_cluster_admin_password
       type: string
+    - name: rosa_compute_nodes
+      type: string
+    - name: rosa_compute_machine_type
+      type: string
   stepTemplate:
     name: gitops-rosa
   steps:
@@ -27,6 +31,8 @@ spec:
       - |-
         export ROSA_TOKEN=$(params.rosa_token)
         export ROSA_CLUSTER_ADMIN_PASSWORD=$(params.rosa_cluster_admin_password)
+        export ROSA_COMPUTE_NODES=$(params.rosa_compute_nodes)
+        export ROSA_COMPUTE_MACHINE_TYPE=$(params.rosa_compute_machine_type)
 
         aws configure set aws_access_key_id $(params.aws_access_key_id)
         aws configure set aws_secret_access_key $(params.aws_secret_access_key)
@@ -40,6 +46,6 @@ spec:
         - -c
       name: gitops-rosa
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:7.7.0-pre.gitops
+      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
   workspaces:
     - name: configs

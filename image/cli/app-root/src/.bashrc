@@ -9,7 +9,6 @@ COLOR_YELLOW=`tput setaf 3`
 COLOR_BLUE=`tput setaf 4`
 COLOR_MAGENTA=`tput setaf 5`
 COLOR_CYAN=`tput setaf 6`
-COLOR_RESET=`tput sgr0`
 
 TEXT_BOLD=$(tput bold)
 TEXT_DIM=$(tput dim)
@@ -27,10 +26,11 @@ echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas update${TEXT_RESET} to apply a new catal
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas upgrade${TEXT_RESET} to upgrade an existing MAS install to a new release"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas must-gather${TEXT_RESET} to perform must-gather against the target cluster"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas uninstall${TEXT_RESET} to uninstall a MAS instance"
+echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas configtool-oidc${TEXT_RESET} to configure OIDC integration"
 echo "Disconnected Install Support:"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas setup-registry${TEXT_RESET} to setup a private container registry on an OCP cluster"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas teardown-registry${TEXT_RESET} to delete a private container registry on an OCP cluster"
-echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas mirror-images${TEXT_RESET} to mirror container images required by mas to a private registry"
+echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas mirror-images${TEXT_RESET} to mirror container images required by MAS to a private registry"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas configure-mirror${TEXT_RESET} to configure a cluster to use a private registry as a mirror"
 echo "Cluster Management:"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-fyre${TEXT_RESET} to provision an OCP cluster on IBM DevIT Fyre (internal)"

@@ -55,16 +55,34 @@
         - fvt-assist
         - fvt-core
         - fvt-core-phase4
-        - fvt-core-ui
         - fvt-finalize
+        - fvt-iot
         - fvt-manage
+        - fvt-mobile
         - fvt-manage-directprint
         - fvt-manage-last-phase
         - fvt-manage-pytest
+        - fvt-monitor
         - fvt-sls
+        - fvt-data-dictionary
         - fvt-run-suite
         - fvt-wait-for-install
         - fvt-wait-for-pipelinerun
+
+    - name: Generate Tasks (FVT Launchers)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/fvt-launcher/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - launchfvt-assist
+        - launchfvt-core
+        - launchfvt-iot
+        - launchfvt-manage
+        - launchfvt-mobile
+        - launchfvt-monitor
+        - launchfvt-optimizer
+        - launchfvt-predict
+        - launchfvt-visualinspection
 
     # 4. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
@@ -118,6 +136,9 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - gitops-bootstrap
+        - gitops-db2u
+        - gitops-db2u-config
+        - gitops-db2u-database
         - gitops-delete-kafka-config
         - gitops-deprovision-cluster
         - gitops-deprovision-mongo
@@ -137,6 +158,8 @@
         - gitops-license
         - gitops-mongo
         - gitops-rosa
+        - gitops-suite-app-install
+        - gitops-suite-app-config
         - gitops-suite-certs
         - gitops-suite-config
         - gitops-suite-dns
@@ -146,7 +169,7 @@
         - gitops-suite
         - gitops-process-mongo-user
         - gitops-deprovision-db2u
-        - gitops-provision-mas-fvt-core
+        - gitops-mas-fvt-preparer
         - gitops-dro
         - gitops-mcsp-cluster
         - gitops-mcsp-dro

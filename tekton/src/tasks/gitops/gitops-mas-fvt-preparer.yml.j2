@@ -1,0 +1,319 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-mas-fvt-preparer
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: pipeline_storage_class
+      type: string
+    - name: aws_region
+      type: string
+    - name: aws_secret_access_key
+      type: string
+    - name: aws_access_key_id
+      type: string
+    - name: fvt_pipeline_name
+      type: string
+    - name: cli_version
+      type: string
+    - name: fvt_artifactory_username
+      type: string
+    - name: fvt_artifactory_token
+      type: string
+    - name: fvt_config
+      type: string
+
+    - name: fvt_version_core
+      type: string
+    - name: ivt_version_core
+      type: string
+    - name: fvt_version_ctf
+      type: string
+    - name: fvt_version_assist
+      type: string
+    - name: fvt_version_health
+      type: string
+    - name: fvt_version_iot
+      type: string
+    - name: fvt_version_optimizer
+      type: string
+    - name: fvt_version_manage
+      type: string
+    - name: fvt_manage_automation_version
+      type: string
+    - name: fvt_version_manage_civil
+      type: string
+    - name: fvt_version_mobile
+      type: string
+    - name: fvt_version_mobilefoundation
+      type: string
+    - name: fvt_version_servicerequests
+      type: string
+    - name: fvt_version_inspection
+      type: string
+    - name: fvt_version_technician
+      type: string
+    - name: fvt_version_asset_manager
+      type: string
+    - name: fvt_version_inventorycounting
+      type: string
+    - name: fvt_version_data_dictionary
+      type: string
+
+    - name: fvt_blacklist_core
+      type: string
+    - name: fvt_whitelist_core
+      type: string
+    - name: ddp_apikey
+      type: string
+    - name: partium_username
+      type: string
+    - name: partium_password
+      type: string
+
+    - name: artifactory_generic_release_url
+      type: string
+    - name: fvt_ansible_version
+      type: string
+    - name: artifactory_auth_header
+      type: string
+    - name: devops_mongo_uri
+      type: string
+    - name: devops_build_number
+      type: string
+    - name: devops_job_number
+      type: string
+
+    - name: fvt_image_registry
+      type: string
+      default: ""
+    - name: image_pull_policy
+      type: string
+      default: ""
+
+    - name: mas_instance_id
+      type: string
+      default: ""
+    - name: mas_workspace_id
+      type: string
+      default: ""
+    - name: mas_channel
+      type: string
+      default: ""
+
+    - name: launchfvt_core
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Core FVT Pipeline after suite-verify completes"
+    - name: launchfvt_assist
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Assist FVT Pipeline after app-cfg-assist completes"
+    - name: launchfvt_iot
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the IoT FVT Pipeline after app-cfg-iot completes"
+    - name: launchfvt_manage
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-manage completes (does not control the additional Industry Solution, Mobile, or Regression Manage suites)"
+    - name: launchfvt_monitor
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-monitor completes"
+    - name: launchfvt_optimizer
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Optimizer FVT Pipeline after app-cfg-optimizer completes"
+    - name: launchfvt_predict
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Predict FVT Pipeline after app-cfg-predict completes"
+    - name: launchfvt_visualinspection
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Visual Inspection FVT Pipeline after app-cfg-visualinspection completes"
+    - name: launchfvt_mobile
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Mobile FVT Pipeline after app-cfg-manage completes"
+
+  stepTemplate:
+    name: gitops-mas-fvt-preparer
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: PIPELINE_STORAGE_CLASS
+        value: $(params.pipeline_storage_class)
+      - name: AWS_REGION
+        value: $(params.aws_region)
+      - name: AWS_SECRET_ACCESS_KEY
+        value: $(params.aws_secret_access_key)
+      - name: AWS_ACCESS_KEY_ID
+        value: $(params.aws_access_key_id)
+      - name: FVT_PIPELINE_NAME
+        value: $(params.fvt_pipeline_name)
+      - name: CLI_VERSION
+        value: $(params.cli_version)
+      - name: FVT_ARTIFACTORY_USERNAME
+        value: $(params.fvt_artifactory_username)
+      - name: FVT_ARTIFACTORY_TOKEN
+        value: $(params.fvt_artifactory_token)
+      - name: FVT_CONFIG
+        value: $(params.fvt_config)
+      - name: FVT_IMAGE_REGISTRY
+        value: $(params.fvt_image_registry)
+      - name: ARTIFACTORY_GENERIC_RELEASE_URL
+        value: $(params.artifactory_generic_release_url)
+      - name: FVT_ANSIBLE_VERSION
+        value: $(params.fvt_ansible_version)
+      - name: ARTIFACTORY_AUTH_HEADER
+        value: $(params.artifactory_auth_header)
+      - name: DEVOPS_MONGO_URI
+        value: $(params.devops_mongo_uri)
+      - name: TRAVIS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+      - name: TRAVIS_JOB_NUMBER
+        value: $(params.devops_job_number)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+      - name: DEVOPS_JOB_NUMBER
+        value: $(params.devops_job_number)
+      - name: DDP_APIKEY
+        value: $(params.ddp_apikey)
+      - name: PARTIUM_USERNAME
+        value: $(params.partium_username)
+      - name: PARTIUM_PASSWORD
+        value: $(params.partium_password)
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
+      - name: MAS_CHANNEL
+        value: $(params.mas_channel)
+      - name: FVT_VERSION_CORE
+        value: $(params.fvt_version_core)
+      - name: IVT_VERSION_CORE
+        value: $(params.ivt_version_core)
+      - name: FVT_VERSION_CTF
+        value: $(params.fvt_version_ctf)
+      - name: FVT_VERSION_ASSIST
+        value: $(params.fvt_version_assist)
+      - name: FVT_VERSION_HEALTH
+        value: $(params.fvt_version_health)
+      - name: FVT_VERSION_IOT
+        value: $(params.fvt_version_iot)
+      - name: FVT_VERSION_OPTIMIZER
+        value: $(params.fvt_version_optimizer)
+      - name: FVT_VERSION_MANAGE
+        value: $(params.fvt_version_manage)
+      - name: FVT_MANAGE_AUTOMATION_VERSION
+        value: $(params.fvt_manage_automation_version)
+      - name: FVT_VERSION_MANAGE_CIVIL
+        value: $(params.fvt_version_manage_civil)
+      - name: FVT_VERSION_MOBILE
+        value: $(params.fvt_version_mobile)
+      - name: FVT_VERSION_MOBILEFOUNDATION
+        value: $(params.fvt_version_mobilefoundation)
+      - name: FVT_VERSION_SERVICEREQUESTS
+        value: $(params.fvt_version_servicerequests)
+      - name: FVT_VERSION_INSPECTION
+        value: $(params.fvt_version_inspection)
+      - name: FVT_VERSION_TECHNICIAN
+        value: $(params.fvt_version_technician)
+      - name: FVT_VERSION_ASSET_MANAGER
+        value: $(params.fvt_version_asset_manager)
+      - name: FVT_VERSION_INVENTORYCOUNTING
+        value: $(params.fvt_version_inventorycounting)
+      - name: FVT_VERSION_DATA_DICTIONARY
+        value: $(params.fvt_version_data_dictionary)
+      - name: FVT_BLACKLIST_CORE
+        value: $(params.fvt_blacklist_core)
+      - name: FVT_WHITELIST_CORE
+        value: $(params.fvt_whitelist_core)
+      - name: LAUNCHFVT_CORE
+        value: $(params.launchfvt_core)
+      - name: LAUNCHFVT_ASSIST
+        value: $(params.launchfvt_assist)
+      - name: LAUNCHFVT_IOT
+        value: $(params.launchfvt_iot)
+      - name: LAUNCHFVT_MANAGE
+        value: $(params.launchfvt_manage)
+      - name: LAUNCHFVT_MOBILE
+        value: $(params.launchfvt_mobile)
+      - name: LAUNCHFVT_MONITOR
+        value: $(params.launchfvt_monitor)
+      - name: LAUNCHFVT_OPTIMIZER
+        value: $(params.launchfvt_optimizer)
+      - name: LAUNCHFVT_PREDICT
+        value: $(params.launchfvt_predict)
+      - name: LAUNCHFVT_VISUALINSPECTION
+        value: $(params.launchfvt_visualinspection)
+  steps:
+    - args:
+      - |-
+
+        export ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
+        export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
+        export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
+        export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
+        oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+        OC_RC=$?
+        if [ $OC_RC -ne 0 ]; then
+          echo "oc login failed, exiting with error.."
+          exit 1
+        fi
+
+        echo "Set k8s context"
+        export K8S_AUTH_CONTEXT=$(oc whoami -c)
+
+        export MAS_CONFIG_DIR=/tmp/additional-configs
+        mkdir -p $MAS_CONFIG_DIR
+
+        cp -rL /workspace/shared-entitlement/. /tmp/additional-configs/
+        cp -rL /workspace/shared-additional-configs/. /tmp/additional-configs/
+        cp -rL /workspace/shared-gitops-configs/. /tmp/additional-configs/
+
+        echo "Installing ibm.mas_fvt ansible collection (with retries)"
+        wget --header="$ARTIFACTORY_AUTH_HEADER" ${ARTIFACTORY_GENERIC_RELEASE_URL}/maximoappsuite/ansible-fvt/${FVT_ANSIBLE_VERSION}/ibm-mas_fvt-${FVT_ANSIBLE_VERSION}.tar.gz || exit 1
+
+        MAX_ATTEMPTS=5
+        ATTEMPT=1
+        until ansible-galaxy collection install ibm-mas_fvt-${FVT_ANSIBLE_VERSION}.tar.gz; [[ $? -eq 0 ]];
+        do
+          if [[ $ATTEMPT -eq $MAX_ATTEMPTS ]]; then
+            echo "All $MAX_ATTEMPTS attempts to install the collection have failed"
+            break
+          fi
+          echo "Attempt $ATTEMPT failed.  Sleeping for 30 seconds before retry"
+          sleep 30
+          ((ATTEMPT++))
+        done
+
+        echo "Setting up ArgoCD sync window to allow FVT tests to run without interuption"
+        if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
+          export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}')
+          export ARGOCD_USERNAME=admin
+          export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' | base64 -d ; echo)
+        fi
+        echo "argo:argocd login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."    
+        argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+        echo "argo:argocd proj windows add $MAS_INSTANCE_ID --kind deny --schedule * * * * * --duration 4h --applications *"  
+        argocd proj windows add $MAS_INSTANCE_ID --kind deny --schedule "* * * * *" --duration 4h --applications "*"
+
+        mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS} \
+        --dir $MAS_CONFIG_DIR
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-mas-fvt-preparer
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
+  workspaces:
+    - name: configs
+    - name: shared-entitlement
+    - name: shared-additional-configs
+    - name: shared-gitops-configs

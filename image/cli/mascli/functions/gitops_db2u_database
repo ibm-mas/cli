@@ -18,7 +18,6 @@ GitOps Configuration:
 IBM Maximo Application Suite:
       -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}   IBM Suite Maximo Application Suite Instance ID      
       --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                 IBM Suite Maximo Application Suite App that will use this db2u instance      
-      --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}     MAS WORKSPACE ID
 
 IBM DB2U:
       --db2-dbname ${COLOR_YELLOW}DB2_DBNAME${TEXT_RESET}                                         DB2 DB Name
@@ -47,9 +46,9 @@ IBM DB2U:
       --db2-cpu-limits ${COLOR_YELLOW}DB2_CPU_LIMITS${TEXT_RESET}                                 Define the Kubernetes CPU limit for the Db2 pod.
       --db2-memory-requests ${COLOR_YELLOW}DB2_MEMORY_REQUESTS${TEXT_RESET}                       Define the Kubernetes memory request for the Db2 pod.
       --db2-memory-limits ${COLOR_YELLOW}DB2_MEMORY_LIMITS${TEXT_RESET}                           Define the Kubernetes memory limit for the Db2 pod.
-      --tls-version ${COLOR_YELLOW}TLS_VERSION${TEXT_RESET}                                       TLS Version
-      --db2-ldap-username ${COLOR_YELLOW}DB2_LDAP_USERNAME${TEXT_RESET}                           DB2 LDAP Username to create
-      --db2-ldap-password ${COLOR_YELLOW}DB2_LDAP_PASSWORD${TEXT_RESET}                           DB2 LDAP Password to create
+      --db2-instance-registry-yaml ${COLOR_YELLOW}DB2_INSTANCE_REGISTRY_YAML${TEXT_RESET}         Yaml file containing the db2ucluster instance registry section.
+      --db2-instance-dbm-config-yaml ${COLOR_YELLOW}DB2_INSTANCE_DBM_CONFIG_YAML${TEXT_RESET}     Yaml file containing the db2ucluster instance dbm config section.
+      --db2-database-db-config-yaml ${COLOR_YELLOW}DB2_DATABASE_DB_CONFIG_YAML${TEXT_RESET}       Yaml file containing the db2ucluster database db config section.
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -98,9 +97,6 @@ function gitops_db2u_database_noninteractive() {
       # MAS
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
-        ;;
-      -W|--mas-workspace-id)
-        export MAS_WORKSPACE_ID=$1 && shift
         ;;
       --mas-app-id)
         export MAS_APP_ID=$1 && shift
@@ -196,17 +192,17 @@ function gitops_db2u_database_noninteractive() {
       --db2-memory-limits)
         export DB2_MEMORY_LIMITS=$1 && shift
         ;;
-      --tls-version )
-        export TLS_VERSION=$1 && shift
-        ;;
-      --db2-ldap-username )
-        export DB2_LDAP_USERNAME=$1 && shift
-        ;;
-      --db2-ldap-password )
-        export DB2_LDAP_PASSWORD=$1 && shift
-        ;;
-      --db2-internal )
+      --db2-internal)
         export DB2_INTERNAL=$1 && shift
+        ;;
+      --db2-instance-registry-yaml)
+        export DB2_INSTANCE_REGISTRY_YAML=$1 && shift
+        ;;
+      --db2-instance-dbm-config-yaml)
+        export DB2_INSTANCE_DBM_CONFIG_YAML=$1 && shift
+        ;;
+      --db2-database-db-config-yaml)
+        export DB2_DATABASE_DB_CONFIG_YAML=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -299,8 +295,43 @@ function wait_for_db2ucluster_crd(){
 
 # Invoke suite_db2_setup_for_manage
 function invoke_suite_db2_setup_for_manage(){
-  #TODO I don't think we want to call ansible here. We need to set the db2ucluster for manage
-  export ROLE_NAME=suite_db2_setup_for_manage && ansible-playbook ibm.mas_devops.run_role
+  # This should really be in the manage operator
+
+  echo
+  echo_h2 "Creating setupdb.sh file"
+  jinja -X .+ $CLI_DIR/templates/gitops/files/manage/setupdb.sh.j2 -o ${TEMP_DIR}/setupdb.sh
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
+
+  chmod +x ${TEMP_DIR}/setupdb.sh
+
+  echo
+  echo_h2 "Copying setup.sh file to ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
+  oc cp ${TEMP_DIR}/setupdb.sh ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0:/tmp/setupdb.sh -c db2u
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
+
+  echo
+  echo_h2 "Executing setup.sh file on ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
+  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0 -- su -lc '/tmp/setupdb.sh | tee /tmp/setupdb.log' db2inst1
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
+
+  echo
+  echo_h2 "Creating /mnt/backup/MIRRORLOGPATH in c-${DB2_INSTANCE_NAME}-db2u-0"
+  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/backup/MIRRORLOGPATH" db2inst1
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
+
+  echo
+  echo_h2 "Creating /mnt/bludata0/db2/archive_log in c-${DB2_INSTANCE_NAME}-db2u-0"
+  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/bludata0/db2/archive_log/" db2inst1
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
+
+  echo
+  echo_h2 "Creating /mnt/backup/staging in c-${DB2_INSTANCE_NAME}-db2u-0"
+  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/backup/staging" db2inst1
   rc=$?
   [ $rc -ne 0 ] && exit $rc
 }
@@ -383,11 +414,19 @@ function gitops_db2u_database() {
   if [[ -z $DB2_MEMORY_LIMITS ]]; then
     export DB2_MEMORY_LIMITS=16Gi
   fi
+  if [[ -z $DB2_DATABASE_DB_CONFIG_YAML ]]; then
+    export DB2_DATABASE_DB_CONFIG="APPLHEAPSZ: '8192 AUTOMATIC'"
+  fi
+  if [[ -z $DB2_INSTANCE_REGISTRY_YAML ]]; then
+    export DB2_INSTANCE_REGISTRY="DB2AUTH: 'OSAUTHDB,ALLOW_LOCAL_FALLBACK,PLUGIN_AUTO_RELOAD'
+DB2_4K_DEVICE_SUPPORT: '${DB2_4K_DEVICE_SUPPORT}'
+DB2_FMP_RUN_AS_CONNECTED_USER: 'NO'
+DB2_WORKLOAD: '${DB2_WORKLOAD}'"
+  fi
 
   export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
   export DB2_NAMESPACE=db2u
   export DB2_DBNAME=${DB2_DBNAME:-"BLUDB"}
-  export TLS_VERSION=${TLS_VERSION:-"TLSv1.2"}
 
   # by default db2 internal is true, set it to false if db2 is external
   export DB2_INTERNAL=${DB2_INTERNAL:-"true"}
@@ -472,13 +511,33 @@ function gitops_db2u_database() {
   echo_reset_dim "db2-cpu-limits  ......................... ${COLOR_MAGENTA}${DB2_CPU_LIMITS}"
   echo_reset_dim "db2-memory-requests  .................... ${COLOR_MAGENTA}${DB2_MEMORY_REQUESTS}"
   echo_reset_dim "db2-memory-limits  ...................... ${COLOR_MAGENTA}${DB2_MEMORY_LIMITS}"
-  echo_reset_dim "CLUSTER_DOMAIN .......................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
+  echo_reset_dim "cluster_domain .......................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
+  echo_reset_dim "db2-instance-registry-yaml .............. ${COLOR_MAGENTA}${DB2_INSTANCE_REGISTRY_YAML}"
+  echo_reset_dim "db2-instance-dbm-config-yaml ............ ${COLOR_MAGENTA}${DB2_INSTANCE_DBM_CONFIG_YAML}"
+  echo_reset_dim "db2-database-db-config-yaml ............. ${COLOR_MAGENTA}${DB2_DATABASE_DB_CONFIG_YAML}"
   reset_colors
 
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-db2u-database
   mkdir -p $TEMP_DIR
 
+  # Getting provided db2cluster configs
+  # ---------------------------------------------------------------------------
+  if [[ -n "$DB2_DATABASE_DB_CONFIG_YAML" ]]; then
+    echo
+    echo_h2 "Using db2 database db config provided for $MAS_APP_ID at $DB2_DATABASE_DB_CONFIG_YAML"
+    export DB2_DATABASE_DB_CONFIG=$(cat ${DB2_DATABASE_DB_CONFIG_YAML})
+  fi
+  if [[ -n "$DB2_INSTANCE_DBM_CONFIG_YAML" ]]; then
+    echo
+    echo_h2 "Using db2 instance dm config provided for $MAS_APP_ID at $DB2_INSTANCE_DBM_CONFIG_YAML"
+    export DB2_INSTANCE_DBM_CONFIG=$(cat ${DB2_INSTANCE_DBM_CONFIG_YAML})
+  fi
+  if [[ -n "$DB2_INSTANCE_REGISTRY_YAML" ]]; then
+    echo
+    echo_h2 "Using db2 instance registry config provided for $MAS_APP_ID at $DB2_INSTANCE_REGISTRY_YAML"
+    export DB2_INSTANCE_REGISTRY=$(cat ${DB2_INSTANCE_REGISTRY_YAML})
+  fi
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
@@ -509,6 +568,7 @@ function gitops_db2u_database() {
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
+    echo "git: Added ${FILES_ADDED} files"
 
     argocd_login
     argocd_sync ${CLUSTER_ID}-watcher
@@ -517,7 +577,10 @@ function gitops_db2u_database() {
     check_argo_app_healthy mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-database ${CLUSTER_ID}-watcher
   fi
   if [[ "$DB2_INTERNAL" == "true" && "$MAS_APP_ID" == "manage" ]]; then
-    invoke_suite_db2_setup_for_manage ${MAS_INSTANCE_ID} 
+    invoke_suite_db2_setup_for_manage 
+  fi
+  if [[ "$DB2_INTERNAL" == "true" && "$FILES_ADDED" != "0" ]]; then
+    oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0 -- su -lc '/db2u/scripts/apply-db2cfg-settings.sh | tee /tmp/apply-db2cfg-settings.log' db2inst1
   fi
   if [ "$GITHUB_PUSH" == "true" ]; then  
 	  remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO

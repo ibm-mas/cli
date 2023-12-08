@@ -16,18 +16,41 @@ spec:
     - name: shared-pod-templates
 
   params:
-    # 1. Common Parameters
-    # -------------------------------------------------------------------------
-    {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}
+    # Tekton Pipeline image pull policy (for ibmmas/cli images)
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+      description: Pull policy for pipeline container images
 
-    # 2. Installation
-    # -------------------------------------------------------------------------
-    {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
-    {{ lookup('template', params_src_dir ~ '/install.yml.j2') | indent(4) }}
+    # MAS Configuration
+    - name: mas_channel
+      type: string
+      default: ""
+    - name: mas_instance_id
+      type: string
+      default: ""
+    - name: mas_workspace_id
+      type: string
+      default: ""
 
-    # 3. Additional Params for FVT
-    # -------------------------------------------------------------------------
-    {{ lookup('template', params_src_dir ~ '/fvt.yml.j2') | indent(4) }}
+    # FVT Configuration
+    - name: fvt_image_registry
+      type: string
+      default: ""
+    - name: fvt_artifactory_username
+      type: string
+      default: ""
+    - name: fvt_artifactory_token
+      type: string
+      default: ""
+    - name: fvt_digest_core
+      type: string
+      description: FVT digest - Core
+      default: ""
+    - name: ivt_digest_core
+      type: string
+      description: IVT Digest - Core
+      default: ""
 
 {% if wait_for_install == true %}
     # 4. Wait params
@@ -42,7 +65,7 @@ spec:
       type: string 
     - name: remote_ocp_type
       type: string         
-    - name: remote_api_key
+    - name: remote_ibmcloud_api_key
       type: string   
 {% endif %}
 
@@ -62,8 +85,8 @@ spec:
           value: $(params.remote_ocp_cluster) 
         - name: remote_ocp_type
           value: $(params.remote_ocp_type)
-        - name: remote_api_key
-          value: $(params.remote_api_key)
+        - name: remote_ibmcloud_api_key
+          value: $(params.remote_ibmcloud_api_key)
       taskRef:
         kind: Task
         name: mas-fvt-wait-for-pipelinerun

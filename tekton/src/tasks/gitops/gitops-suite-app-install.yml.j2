@@ -48,6 +48,8 @@ spec:
       type: string
     - name: avp_aws_access_key
       type: string
+    - name: mas_manual_cert_mgmt
+      type: string
 
   stepTemplate:
     name: gitops-suite-app-install
@@ -92,7 +94,8 @@ spec:
         value: $(params.avp_aws_secret_key)
       - name: SM_AWS_ACCESS_KEY_ID
         value: $(params.avp_aws_access_key)
-
+      - name: MAS_MANUAL_CERT_MGMT
+        value: $(params.mas_manual_cert_mgmt)
 
 
   steps:
@@ -145,8 +148,8 @@ spec:
         - -c
       name: gitops-suite-app-install
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.7.0-pre.gitops
+      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
   workspaces:
     - name: configs
-
+    - name: shared-gitops-configs
 

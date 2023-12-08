@@ -31,32 +31,28 @@ VERSION=latest
 mkdir -p $LOG_DIR
 mkdir -p $CONFIG_DIR
 
-# General purpose
-. $CLI_DIR/functions/catalog_utils
-. $CLI_DIR/functions/connect
-. $CLI_DIR/functions/utils
-. $CLI_DIR/functions/save_config
+# General purpose internals
+. $CLI_DIR/functions/internal/pipelines_install_operator
+. $CLI_DIR/functions/internal/pipelines_install_tasks
+. $CLI_DIR/functions/internal/catalog_utils
+. $CLI_DIR/functions/internal/connect
+. $CLI_DIR/functions/internal/utils
+. $CLI_DIR/functions/internal/save_config
 # MAS provisioning support
 . $CLI_DIR/functions/provision_fyre
 . $CLI_DIR/functions/provision_roks
 . $CLI_DIR/functions/provision_aws
 # MAS installation support
 . $CLI_DIR/functions/install
-. $CLI_DIR/functions/pipeline_config
-. $CLI_DIR/functions/pipeline_install_operator
-. $CLI_DIR/functions/pipeline_install_tasks
-. $CLI_DIR/functions/pipeline_prepare
-. $CLI_DIR/functions/pipeline_run
-. $CLI_DIR/functions/pipeline_show_config
 . $CLI_DIR/functions/update
 . $CLI_DIR/functions/upgrade
 . $CLI_DIR/functions/uninstall
 # Airgap support
-. $CLI_DIR/functions/setup_mirror_registry
-. $CLI_DIR/functions/teardown_mirror_registry
-. $CLI_DIR/functions/mirror_to_registry
-. $CLI_DIR/functions/mirror_redhat_to_registry
-. $CLI_DIR/functions/configure_ocp_for_mirror
+. $CLI_DIR/functions/setup_registry
+. $CLI_DIR/functions/teardown_registry
+. $CLI_DIR/functions/mirror_images
+. $CLI_DIR/functions/mirror_redhat
+. $CLI_DIR/functions/configure_mirror
 # Manage OIDC for configtool
 . $CLI_DIR/functions/configtool_oidc
 # Must Gather
@@ -101,19 +97,19 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_suite_idp_config
 . $CLI_DIR/functions/gitops_deprovision_suite_smtp_config
 . $CLI_DIR/functions/gitops_provision_mas_fvt_core
+. $CLI_DIR/functions/gitops_mas_fvt_preparer
 # GitOps / MCSP
 . $CLI_DIR/functions/gitops_mcsp_cluster
 . $CLI_DIR/functions/gitops_mcsp_dro
 . $CLI_DIR/functions/gitops_mcsp_cis_compliance
 
-load_config
+
 case $1 in
   fyre|provision-fyre)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite FYRE Cluster Provisioner (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    update_ansible_collections
     provision_fyre "$@"
     ;;
 
@@ -122,7 +118,6 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    update_ansible_collections
     provision_roks "$@"
     ;;
 
@@ -131,7 +126,6 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    update_ansible_collections
     provision_aws "$@"
     ;;
 
@@ -147,7 +141,6 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    update_ansible_collections
     connect
     setup_mirror_registry
     ;;
@@ -157,7 +150,6 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    update_ansible_collections
     connect
     teardown_mirror_registry
     ;;
@@ -167,7 +159,6 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    update_ansible_collections
     mirror_to_registry "$@"
     ;;
 
@@ -176,8 +167,7 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    update_ansible_collections
-    mirror_redhat_to_registry "$@"
+    mirror_redhat "$@"
     ;;
 
 
@@ -186,15 +176,10 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    update_ansible_collections
     configure_ocp_for_mirror "$@"
     ;;
 
   install)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Installer (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
-    echo
-    reset_colors
     install "$@"
     ;;
 
@@ -520,12 +505,12 @@ case $1 in
     reset_colors
     gitops_rosa "$@"
     ;;
-  gitops-provision-mas-fvt-core)
+  gitops-mas-fvt-preparer)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors
-    gitops_provision_mas_fvt_core "$@"
+    gitops_mas_fvt_preparer "$@"
     ;;
 
   gitops-mcsp-cluster)

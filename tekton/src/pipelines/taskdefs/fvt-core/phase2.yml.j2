@@ -5,7 +5,7 @@
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
+    - name: fvt_test_suite
       value: coreapi-usermgmt-v3
   runAfter:
     - fvt-coreapi-addons
@@ -23,7 +23,7 @@
 - name: fvt-coreapi-mobileapi
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
-    - name: test_suite
+    - name: fvt_test_suite
       value: coreapi-mobileapi
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
@@ -42,7 +42,7 @@
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
+    - name: fvt_test_suite
       value: coreapi-other
   runAfter:
     - fvt-coreapi-addons
@@ -60,7 +60,7 @@
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
+    - name: fvt_test_suite
       value: coreapi-utilities
   runAfter:
     - fvt-coreapi-addons
@@ -78,7 +78,7 @@
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
+    - name: fvt_test_suite
       value: coreapi-uiresources
   runAfter:
     - fvt-coreapi-addons
@@ -96,7 +96,7 @@
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
+    - name: fvt_test_suite
       value: coreapi-dependencies
   runAfter:
     - fvt-coreapi-addons
@@ -114,7 +114,7 @@
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: test_suite
+    - name: fvt_test_suite
       value: coreapi-messages
   runAfter:
     - fvt-coreapi-addons

@@ -212,7 +212,11 @@ function gitops_bootstrap() {
   echo 'Patch standard namespaces to enable GitOps management'
   oc apply  -f ${CLI_DIR}/templates/gitops/bootstrap/namespace.yaml
 
-  # 8. For some reason the application-controller needs restarting to pickup the RBAC changes
+  # 8. Add cluster-admin access to openshift-gitops service account. Need to created securitycontextcontraints
+  echo 'Add cluster-admin access to openshift-gitops service account'
+  oc adm policy add-cluster-role-to-user cluster-admin system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller
+
+  # 9. For some reason the application-controller needs restarting to pickup the RBAC changes
   echo 'Restart application-controller'
   oc rollout restart statefulset/openshift-gitops-application-controller -n openshift-gitops
   
@@ -223,7 +227,7 @@ function gitops_bootstrap() {
   echo "${COLOR_GREEN}OpenShift GitOps Operator is installed and ready${COLOR_RESET}"
   echo
 
-  # 8. Fecth Argocd Details
+  # 10. Fecth Argocd Details
   if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
     export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}')
     export ARGOCD_USERNAME=admin
