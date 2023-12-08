@@ -274,6 +274,22 @@ function gitops_mcsp_cluster() {
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_CLUSTER_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+
+    # Sync the top-level ArgoCD app registered with the worker that points at our app sets
+    # Assume this is called "mas" .. may want to parameterise this in future if necessary
+    # Syncing this will ensure all the appsets pointing at the configs above will generate the corresponding applications
+    argocd_sync mas
+
+    argocd_sync "ibm-operator-catalog-${CLUSTER_ID}"
+    mcsp_check_argo_app_synced "ibm-operator-catalog-${CLUSTER_ID}" mas
+    check_argo_app_healthy "ibm-operator-catalog-${CLUSTER_ID}" mas
+
+    argocd_sync "ibm-common-services-${CLUSTER_ID}"
+    mcsp_check_argo_app_synced "ibm-common-services-${CLUSTER_ID}" mas ibm-common-services
+    check_argo_app_healthy "ibm-common-services-${CLUSTER_ID}" mas
+
+
+
   fi
 
 }
