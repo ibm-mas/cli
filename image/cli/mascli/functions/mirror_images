@@ -39,6 +39,7 @@ Content Selection (Applications):
       --mirror-hputilities                        Mirror images for IBM Maximo Health & Predict Utilities
       --mirror-iot                                Mirror images for IBM Maximo IoT
       --mirror-manage                             Mirror images for IBM Maximo Manage
+      --mirror-icd                                Mirror image  for IBM Maximo IT ( Seperately entitled IBM Maximo Manage Manage extension )
       --mirror-monitor                            Mirror images for IBM Maximo Monitor
       --mirror-optimizer                          Mirror images for IBM Maximo Optimizer
       --mirror-predict                            Mirror images for IBM Maximo Predict
@@ -328,7 +329,7 @@ function mirror_to_registry_interactive() {
   echo
   echo_h2 "Configure Images to Mirror"
 
-  prompt_for_confirm "Mirror all MAS images (with dependencies)" MIRROR_EVERYTHING
+  prompt_for_confirm "Mirror all MAS images (with dependencies, including Manage extension IBM Maximo IT, a sperately entitled product)" MIRROR_EVERYTHING
 
   if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
     # Core
@@ -339,7 +340,7 @@ function mirror_to_registry_interactive() {
     MIRROR_MAS_ASSIST=true
     MIRROR_MAS_IOT=true
     MIRROR_MAS_MANAGE=true
-    #TODO: ICD? 
+    MIRROR_MAS_ICD=true
     MIRROR_MAS_MONITOR=true
     MIRROR_MAS_OPTIMIZER=true
     MIRROR_MAS_PREDICT=true
@@ -374,7 +375,7 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm "IBM Maximo Application Suite - Assist" MIRROR_MAS_ASSIST
     prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_IOT
     prompt_for_confirm "IBM Maximo Application Suite - Manage" MIRROR_MAS_MANAGE
-    prompt_for_confirm "IBM Maximo Application Suite - Maximo IT" MIRROR_MAS_ICD
+    prompt_for_confirm "IBM Maximo Application Suite - Maximo IT ( Seperately entitled Manage extension )" MIRROR_MAS_ICD
     prompt_for_confirm "IBM Maximo Application Suite - Monitor" MIRROR_MAS_MONITOR
     prompt_for_confirm "IBM Maximo Application Suite - Optimizer" MIRROR_MAS_OPTIMIZER
     prompt_for_confirm "IBM Maximo Application Suite - Predict" MIRROR_MAS_PREDICT
@@ -440,7 +441,7 @@ function mirror_to_registry_interactive() {
     prompt_for_input "Red Hat Connect Password" REDHAT_CONNECT_PASSWORD
   fi
 }
-
+#  mirror_one_thing $MIRROR_MAS_CORE             "IBM Maximo Application Suite Core"     "$LOG_PREFIX-core.log"             mirror_core
 
 function mirror_one_thing() {
     MOT_RUNMIRROR=$1
@@ -511,6 +512,7 @@ function mirror_to_registry() {
   export MIRROR_WSL
   export MIRROR_SPARK
   export MIRROR_APPCONNECT
+  export MIRROR_MAS_ICD
 
   # Authentication
   export IBM_ENTITLEMENT_KEY
@@ -582,7 +584,6 @@ function mirror_to_registry() {
   show_mirror_status "IBM Maximo Assist ..................." $MIRROR_MAS_ASSIST
   show_mirror_status "IBM Maximo IoT ......................" $MIRROR_MAS_IOT
   show_mirror_status "IBM Maximo Manage ..................." $MIRROR_MAS_MANAGE
-  show_mirror_status "IBM Maximo Maximo IT ................" $MIRROR_MAS_ICD
   show_mirror_status "IBM Maximo Monitor .................." $MIRROR_MAS_MONITOR
   show_mirror_status "IBM Maximo Predict .................." $MIRROR_MAS_PREDICT
   show_mirror_status "IBM Maximo Optimizer ................" $MIRROR_MAS_OPTIMIZER
@@ -633,7 +634,6 @@ function mirror_to_registry() {
   mirror_one_thing $MIRROR_MAS_HPUTILITIES      "IBM Maximo Health & Predict Utilities" "$LOG_PREFIX-hputilities.log"      mirror_add_hputilities
   mirror_one_thing $MIRROR_MAS_IOT              "IBM Maximo IoT"                        "$LOG_PREFIX-iot.log"              mirror_add_iot
   mirror_one_thing $MIRROR_MAS_MANAGE           "IBM Maximo Manage"                     "$LOG_PREFIX-manage.log"           mirror_add_manage
-  mirror_one_thing $MIRROR_MAS_ICD              "IBM Maximo Maximo IT"                  "$LOG_PREFIX-icd.log"              mirror_add_icd
   mirror_one_thing $MIRROR_MAS_MONITOR          "IBM Maximo Monitor"                    "$LOG_PREFIX-monitor.log"          mirror_add_monitor
   mirror_one_thing $MIRROR_MAS_PREDICT          "IBM Maximo Predict"                    "$LOG_PREFIX-predict.log"          mirror_add_predict
   mirror_one_thing $MIRROR_MAS_OPTIMIZER        "IBM Maximo Optimizer"                  "$LOG_PREFIX-optimizer.log"        mirror_add_optimizer

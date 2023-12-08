@@ -124,7 +124,6 @@ case $1 in
     mirror_redhat "$@"
     ;;
 
-
   configure-ocp-for-mirror|configure-airgap|configure-mirror|config-airgap|config-mirror)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap OCP Setup (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
