@@ -171,4 +171,7 @@
         - gitops-deprovision-db2u
         - gitops-mas-fvt-preparer
         - gitops-dro
+        - gitops-mcsp-cluster
+        - gitops-mcsp-dro
+        - gitops-mcsp-cis-compliance
 
