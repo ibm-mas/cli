@@ -608,7 +608,6 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     if [[ "${DB2CFG_SETTINGS_APPLIED}" != "true" ]]; then
       export DB2CFG_SETTINGS_APPLIED="true"
       sm_update_secret ${DB2CFG_SETTINGS_APPLIED_SECRET} "{ \"db2cfg_settings_applied\": \"${DB2CFG_SETTINGS_APPLIED}\" }"
-      export SECRET_KEY_DB2CFG_SETTINGS_APPLIED=${DB2CFG_SETTINGS_APPLIED_SECRET}#db2cfg_settings_applied
 
       echo
       echo_reset_dim "- Re-generating DB2U Database file ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.${MAS_APP_ID}.ibm-db2u-database.yaml"
@@ -619,10 +618,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
       save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
       echo "git: Added ${FILES_ADDED} files"
     fi
-  fi  
-
-
-
+  fi
 
   if [ "$GITHUB_PUSH" == "true" ]; then
 	  remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
