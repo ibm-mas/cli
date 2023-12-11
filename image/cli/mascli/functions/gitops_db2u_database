@@ -306,13 +306,13 @@ function invoke_suite_db2_setup_for_manage(){
   chmod +x ${TEMP_DIR}/setupdb.sh
 
   echo
-  echo_h2 "Copying setup.sh file to ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
+  echo_h2 "Copying setupdb.sh file to ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
   oc cp ${TEMP_DIR}/setupdb.sh ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0:/tmp/setupdb.sh -c db2u
   rc=$?
   [ $rc -ne 0 ] && exit $rc
 
   echo
-  echo_h2 "Executing setup.sh file on ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
+  echo_h2 "Executing setupdb.sh file on ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
   oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0 -- su -lc '/tmp/setupdb.sh | tee /tmp/setupdb.log' db2inst1
   rc=$?
   [ $rc -ne 0 ] && exit $rc
@@ -332,6 +332,29 @@ function invoke_suite_db2_setup_for_manage(){
   echo
   echo_h2 "Creating /mnt/backup/staging in c-${DB2_INSTANCE_NAME}-db2u-0"
   oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/backup/staging" db2inst1
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
+}
+
+# Invoke the DB2 backup when needed
+invoke_suite_db2_backup() {
+  echo
+  echo_h2 "Creating backupdb.sh file"
+  jinja -X .+ $CLI_DIR/templates/gitops/files/manage/backupdb.sh.j2 -o ${TEMP_DIR}/backupdb.sh
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
+
+  chmod +x ${TEMP_DIR}/backupdb.sh
+
+  echo
+  echo_h2 "Copying backupdb.sh file to ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
+  oc cp ${TEMP_DIR}/backupdb.sh ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0:/tmp/backupdb.sh -c db2u
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
+
+  echo
+  echo_h2 "Executing backupdb.sh file on ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
+  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0 -- su -lc '/tmp/backupdb.sh | tee /tmp/backupdb.log' db2inst1
   rc=$?
   [ $rc -ne 0 ] && exit $rc
 }
@@ -585,9 +608,10 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0 -- su -lc '/db2u/scripts/apply-db2cfg-settings.sh | tee /tmp/apply-db2cfg-settings.log' db2inst1
     rc=$?
     [ $rc -ne 0 ] && exit $rc
-    oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0 -- su -lc '/db2u/scripts/apply-db2cfg-settings.sh | tee /tmp/apply-db2cfg-settings.log' db2inst1
-    rc=$?
-    [ $rc -ne 0 ] && exit $rc
+    # Some parameters like LOGARCHMETH1 being set can cause a backup to be needed as it moves
+    # to archival logging. Do that backup now if we are in that state. The function checks that
+    # SQL1116N is being return from connect, and does nothin otherwise
+    invoke_suite_db2_backup
   fi
   if [ "$GITHUB_PUSH" == "true" ]; then
 	  remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
