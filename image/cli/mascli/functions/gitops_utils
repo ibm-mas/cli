@@ -138,6 +138,28 @@ function sm_get_cluster_secret() {
   sm_get_secret ${ACCOUNT}${DELIMIITER}${CLUSTER_ID}${DELIMIITER}${SECRET_NAME} ${SECRET_ENV_VAR}
 }
 
+
+# Fetches ARN of secret named in first param (e.g. "development/mas-c6/ibm_entitlement") and sets it as the value of the variable named in the second param.
+# This is often needed due to the random suffix e.g. "-fdP1Lx" that AWS seems to apply when secrets are created
+# exit 1 if something goes wrong
+# Example usage:
+#   export SECRET_ARN_IBM_ENTITLEMENT
+#   sm_get_secret_arn "${SECRET_NAME_IBM_ENTITLEMENT}" "SECRET_ARN_IBM_ENTITLEMENT"
+#   echo "${SECRET_NAME_IBM_ENTITLEMENT} ARN: ${SECRET_ARN_IBM_ENTITLEMENT}"
+function sm_get_secret_arn() {
+  local _SECRET_NAME="$1"
+  local _SECRET_ARN=$(aws secretsmanager describe-secret --secret-id "${_SECRET_NAME}" --output json | jq -r .ARN)
+
+  # can't check RC of the call inside $(), so we'll have to make do with checking for empty output instead
+   if [ -z "${_SECRET_ARN}" ]; then
+    echo "Failed to get ARN for AWS SM secret named ${_SECRET_NAME}"
+    exit 1
+   fi
+
+   eval "$2=${_SECRET_ARN}"
+
+}
+
 function clone_target_git_repo() {
   GITHUB_HOST=$1
   GITHUB_ORG=$2
@@ -303,6 +325,27 @@ function check_argo_app_deleted(){
   done
 }
 
+
+# Fetches URL for cluster with cluster id supplied in the first param (e.g. "mas-c6") and sets it as the value of the variable named in the second param
+# exit 1 if something goes wrong
+# Example usage:
+#   export CLUSTER_URL
+#   argocd_get_cluster_url "${CLUSTER_ID}" "CLUSTER_URL"
+#   echo "Cluster URL: ${CLUSTER_URL}"
+function argocd_get_cluster_url(){
+  local _CLUSTER_ID=$1
+  local _CLUSTER_URL=$(argocd cluster get ${_CLUSTER_ID} -o server)
+
+  # can't check RC of the call inside $(), so we'll have to make do with checking for empty output instead
+   if [ -z "${_CLUSTER_URL}" ]; then
+    echo "Failed to get URL for cluster ${_CLUSTER_ID} from ArgoCD"
+    exit 1
+   fi
+
+   eval "$2=${_CLUSTER_URL}"
+
+}
+
 function delete_oc_resource(){
   RESOURCE=$1
   NAMESPACE=$2
@@ -466,6 +509,55 @@ function check_argo_app_synced() {
         argocd_sync $APPLICATION
       fi
     fi
+    # Workaround calling force_delete to delete resource if namespace status is Terminating - ENDS 
+  done
+}
+
+# Variant of the function above; removes the calls to "add_role_to_user".
+# Not exactly sure what this is doing at present, or how it might apply to the MCSP ArgoCD setup.
+# (where the ArgoCD worker is running in a remote MCSP-owned ROSA cluster that we have only limit access to)
+function mcsp_check_argo_app_synced() {
+  APPLICATION=$1
+  CLUSTER_WATCHER=$2
+  NAMESPACE=$3
+  COUNT=0
+  echo "argo:check_argo_app_synced : APPLICATION=$APPLICATION CLUSTER_WATCHER=$CLUSTER_WATCHER NAMESPACE=$NAMESPACE"
+  while true; do
+    echo "argo:check_argo_app_synced : Checking sync status for $APPLICATION"
+    SYNC_STATUS=$(argocd app get $APPLICATION -o json 2> /dev/null | jq -r .status.sync.status)
+    echo "argo:check_argo_app_synced : SYNC_STATUS=$SYNC_STATUS"
+    if [[ "$SYNC_STATUS" == "Synced" ]]; then
+      echo "Sync Status is Synced"
+      break
+    else
+      ((COUNT++))
+      echo "argo:check_argo_app_synced : Sync Status is $SYNC_STATUS, Waiting 30s before checking status again - $COUNT"
+      if ! (( $COUNT % 5 )) ; then
+        if [[ -n "$CLUSTER_WATCHER" ]]; then
+          argocd_sync $CLUSTER_WATCHER
+        fi
+        # add_role_to_user ${NAMESPACE}
+        argocd_sync $APPLICATION
+      fi
+      sleep 30
+    fi
+
+    # The following requires usw nto login to the target ROSA cluster
+    # Was trying to avoid having to do this in the MCSP version - hoping that all interaction with the cluster
+    # can be done indirectly via the MCSP ArgoCD worker. If this workaround is still definitely necessary, will re-enable it
+    # Workaround calling force_delete to delete resource if namespace status is Terminating - STARTS
+    # if [[ -n "${NAMESPACE}" ]]; then
+    #   export NAMESPACE_STATUS=`oc get ns $NAMESPACE -o json | jq .status.phase -r`
+    #   if [[ "$NAMESPACE_STATUS" == "Terminating" ]]; then
+    #     echo "argo:check_argo_app_synced : ns=$NAMESPACE status=$NAMESPACE_STATUS"
+    #     force_delete ${NAMESPACE}
+    #     if [[ -n "$CLUSTER_WATCHER" ]]; then
+    #       argocd_sync $CLUSTER_WATCHER
+    #     fi
+    #     # add_role_to_user ${NAMESPACE}
+    #     argocd_sync $APPLICATION
+    #   fi
+    # fi
     # Workaround calling force_delete to delete resource if namespace status is Terminating - ENDS 
   done
 }
