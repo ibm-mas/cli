@@ -70,6 +70,7 @@ spec:
             cluster_domain: {{CLUSTER_DOMAIN}}
             mas_instance_id: {{MAS_INSTANCE_ID}}
             mas_application_id: {{MAS_APP_ID}}
+            db2cfg_settings_applied: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2CFG_SETTINGS_APPLIED }}>
   syncPolicy:
     automated:
       prune: true
