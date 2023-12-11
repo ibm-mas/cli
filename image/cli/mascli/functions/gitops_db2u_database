@@ -590,6 +590,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     check_argo_app_synced mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-database ${CLUSTER_ID}-watcher ${DB2_NAMESPACE}
     check_argo_app_healthy mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-database ${CLUSTER_ID}-watcher
   fi
+  echo "DB2CFG_SETTINGS_APPLIED= ${FILES_ADDED} FILES_ADDED= ${FILES_ADDED} DB2_INTERNAL=${DB2_INTERNAL} MAS_APP_ID=${MAS_APP_ID}"  
   if [[ "${DB2CFG_SETTINGS_APPLIED}" != "true" || "${FILES_ADDED}" != "0" ]]; then
     # Run specific setupcmds for Manage only if we have made changes.
     if [[ "$DB2_INTERNAL" == "true" && "$MAS_APP_ID" == "manage" ]]; then
