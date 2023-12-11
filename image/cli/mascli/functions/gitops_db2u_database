@@ -605,6 +605,8 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   fi
   # Run DB2 apply script if we have made any changes. Needs to be run twice for DB2 Standalone as that is what ansible-devops role does
   if [[ "$DB2_INTERNAL" == "true" && "$FILES_ADDED" != "0" ]]; then
+    echo
+    echo_h2 "Calling apply-db2cfg-settings.sh file on c-${DB2_INSTANCE_NAME}-db2u-0"
     oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0 -- su -lc '/db2u/scripts/apply-db2cfg-settings.sh | tee /tmp/apply-db2cfg-settings.log' db2inst1
     rc=$?
     [ $rc -ne 0 ] && exit $rc

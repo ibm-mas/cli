@@ -1,76 +1,67 @@
 #!/bin/bash
 
-BACKUPDB_SQL="/tmp/.backupdb.sql"
-
-if [ -f $BACKUPDB_SQL ]
-then
-
-    rm $BACKUPDB_SQL
-
-fi
-
 # Check that connect returns SQL1116N which means BACKUP PENDING state
 if db2 connect to {{ DB2_DBNAME }} | grep SQL1116N >/dev/null
 then
 
-    echo "Database connect returning SQL1116N, do backup now"
+    echo "backupdb.sh: Database connect returning SQL1116N, do backup now"
 
-    echo "Creating backup folder /mnt/backup/backup_001"
-    mkdir -p /mnt/backup/backup_001 >$BACKUPDB_SQL
+    echo "backupdb.sh: Creating backup folder /mnt/backup"
+    mkdir -p /mnt/backup >$BACKUPDB_SQL
     rc=$?
     [ $rc -ne 0 ] && exit $rc
 
-    echo "db2 force applications"
-    db2 force application all >>$BACKUPDB_SQL
+    echo "backupdb.sh: db2 force applications"
+    db2 force application all
     rc=$?
     [ $rc -ne 0 ] && exit $rc
 
-    echo "Turn off comms manager"
-    db2set -null DB2COMM >>$BACKUPDB_SQL
+    echo "backupdb.sh: Turn off comms manager"
+    db2set -null DB2COMM
     rc=$?
     [ $rc -ne 0 ] && exit $rc
 
-    echo "Deactivate database"
-    db2 deactivate database BLUDB >>$BACKUPDB_SQL
+    echo "backupdb.sh: Deactivate database"
+    db2 deactivate database BLUDB
     rc=$?
     [ $rc -ne 0 ] && exit $rc
 
-    echo "db2stop"
-    db2stop force >>$BACKUPDB_SQL
+    echo "backupdb.sh: db2stop"
+    db2stop force
     rc=$?
     [ $rc -ne 0 ] && exit $rc
 
-    echo "db2start in admin mode"
-    db2start admin mode restricted access >>$BACKUPDB_SQL
+    echo "backupdb.sh: db2start in admin mode"
+    db2start admin mode restricted access
     rc=$?
     [ $rc -ne 0 ] && exit $rc
 
     # dbstart doesn't always start straight away, wait 20 seconds
     sleep 20
 
-    echo "db2 backup db BLUDB on all dbpartitionnums"
-    db2 backup db BLUDB on all dbpartitionnums to /mnt/backup/backup_001 >>$BACKUPDB_SQL
+    echo "backupdb.sh: db2 backup db BLUDB on all dbpartitionnums"
+    db2 backup db BLUDB on all dbpartitionnums to /mnt/backup
     rc=$?
     [ $rc -ne 0 ] && exit $rc
 
-    echo "db2stop"
-    db2stop force >>$BACKUPDB_SQL
+    echo "backupdb.sh: db2stop"
+    db2stop force
     rc=$?
     [ $rc -ne 0 ] && exit $rc
 
-    echo "db2set comms manager"
-    db2set DB2COMM=TCPIP >>$BACKUPDB_SQL
+    echo "backupdb.sh: db2set comms manager"
+    db2set DB2COMM=TCPIP
     rc=$?
     [ $rc -ne 0 ] && exit $rc
 
-    echo "db2start"
-    db2start >>$BACKUPDB_SQL
+    echo "backupdb.sh: db2start"
+    db2start
     rc=$?
     [ $rc -ne 0 ] && exit $rc
 
 else
 
-    echo "Database connect not returning SQL1116N, nothing to do"
+    echo "backupdb.sh: Database connect not returning SQL1116N, nothing to do"
     exit 0
 
 fi
