@@ -445,7 +445,7 @@ function mirror_to_registry_interactive() {
     prompt_for_input "Red Hat Connect Password" REDHAT_CONNECT_PASSWORD
   fi
 }
-#  mirror_one_thing $MIRROR_MAS_CORE             "IBM Maximo Application Suite Core"     "$LOG_PREFIX-core.log"             mirror_core
+
 
 function mirror_one_thing() {
     MOT_RUNMIRROR=$1
