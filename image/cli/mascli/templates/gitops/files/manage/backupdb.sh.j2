@@ -22,7 +22,7 @@ then
     [ $rc -ne 0 ] && exit $rc
 
     echo "backupdb.sh: Deactivate database"
-    db2 deactivate database BLUDB
+    db2 deactivate database {{ DB2_DBNAME }}
     rc=$?
     [ $rc -ne 0 ] && exit $rc
 
@@ -39,8 +39,8 @@ then
     # dbstart doesn't always start straight away, wait 20 seconds
     sleep 20
 
-    echo "backupdb.sh: db2 backup db BLUDB on all dbpartitionnums"
-    db2 backup db BLUDB on all dbpartitionnums to /mnt/backup
+    echo "backupdb.sh: db2 backup db {{ DB2_DBNAME }} on all dbpartitionnums"
+    db2 backup db {{ DB2_DBNAME }} on all dbpartitionnums to /mnt/backup
     rc=$?
     [ $rc -ne 0 ] && exit $rc
 
