@@ -616,15 +616,6 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
       echo "sm_update_secret ...DB2CFG_SETTINGS_APPLIED with true"
       export DB2CFG_SETTINGS_APPLIED="true"
       sm_update_secret ${DB2CFG_SETTINGS_APPLIED_SECRET} "{ \"db2cfg_settings_applied\": \"${DB2CFG_SETTINGS_APPLIED}\" }"
-
-      echo
-      echo_reset_dim "- Re-generating DB2U Database file ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.${MAS_APP_ID}.ibm-db2u-database.yaml"
-      jinja -X .+ $CLI_DIR/templates/gitops/ibm-db2u-database.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.${MAS_APP_ID}.ibm-db2u-database.yaml
-
-      echo
-      echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-      save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
-      echo "git: Added ${FILES_ADDED} files"
     fi
 
   fi
