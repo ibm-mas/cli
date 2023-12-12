@@ -28,8 +28,7 @@ Worker Node Configuration (Optional, only takes effect when quota-type is set to
       --worker-memory ${COLOR_YELLOW}FYRE_WORKER_MEMORY${TEXT_RESET}  How much memory to allocate per worker node
 
 Other Commands:
-  -s, --simulate-airgap                   Set flag to apply the simulated airgap network configuration to the cluster after provisioning
-  -C, --ca-file                           Private Registry CA certificate file location (required when using --simulate-airgap)
+      --no-storage                        Disable automatic configuration of storage in the cluster
       --no-confirm                        Provision the cluster without prompting for confirmation
   -h, --help                              Show this help message
 
@@ -38,6 +37,9 @@ EOM
 }
 
 function provision_fyre_noninteractive() {
+  # Default to provisioning with storage enabled
+  FYRE_CONFIG_STORAGE=true
+
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -76,14 +78,11 @@ function provision_fyre_noninteractive() {
       --worker-memory)
         FYRE_WORKER_MEMORY=$1 && shift
         ;;
+      --no-storage)
+        FYRE_CONFIG_STORAGE=false
+        ;;
       --no-confirm)
         NO_CONFIRM=true
-        ;;
-      -s|--simulate-airgap)
-        SIMULATE_AIRGAP_NETWORK=true
-        ;;
-      -C|--ca-file)
-        REGISTRY_PRIVATE_CA_FILE=$1 && shift
         ;;
       -h|--help)
         provision_fyre_help
@@ -108,9 +107,6 @@ function provision_fyre_noninteractive() {
 
   if [[ -z "$FYRE_SITE" ]]; then
     FYRE_SITE=svl
-  fi
-  if [[ "$SIMULATE_AIRGAP_NETWORK" == "true" ]]; then
-    [[ -z "$REGISTRY_PRIVATE_CA_FILE" ]] && provision_fyre_help "REGISTRY_PRIVATE_CA_FILE is not set"
   fi
 }
 
@@ -151,11 +147,9 @@ function provision_fyre_interactive() {
       ;;
   esac
 
-
   prompt_for_input "Cluster Description" FYRE_CLUSTER_DESCRIPTION
   prompt_for_input "FYRE Product ID" FYRE_PRODUCT_ID
   prompt_for_input "FYRE Site" FYRE_SITE
-
 
   prompt_for_confirm "Use Product Group Quota?" USE_PRODUCT_GROUP_QUOTA
   if [[ "$USE_PRODUCT_GROUP_QUOTA" == "true" ]]; then
@@ -167,11 +161,8 @@ function provision_fyre_interactive() {
     FYRE_QUOTA_TYPE="quick_burn"
   fi
 
-  prompt_for_confirm "Configure networking to simulate air gap" SIMULATE_AIRGAP_NETWORK
+  prompt_for_input "Configure Storage (ODF)" FYRE_CONFIG_STORAGE
 
-  if [[ "$SIMULATE_AIRGAP_NETWORK" == "true" ]]; then
-    prompt_for_input "Private Registry CA File Location" REGISTRY_PRIVATE_CA_FILE
-  fi
 }
 
 
@@ -208,7 +199,7 @@ function provision_fyre() {
   export FYRE_WORKER_CPU
   export FYRE_WORKER_MEMORY
 
-  export REGISTRY_PRIVATE_CA_FILE
+  export FYRE_CONFIG_STORAGE
 
   echo
   reset_colors
@@ -245,14 +236,7 @@ function provision_fyre() {
     prompt_for_confirm "Proceed with these settings" || exit 0
   fi
 
-  # Set OCP_RELEASE environment variable for the ocs role
-  # This only works because we are only setting OCP_VERSION at the minor level
-  export OCP_RELEASE=$OCP_VERSION
   ansible-playbook ibm.mas_devops.ocp_fyre_provision || exit 1
-
-  if [[ "$SIMULATE_AIRGAP_NETWORK" == "true" ]]; then
-    ROLE_NAME=ocp_simulate_disconnected_network ansible-playbook ibm.mas_devops.run_role || exit 1
-  fi
 
   echo ""
   echo "IBM DevIT Fyre OCP cluster is ready to use"
