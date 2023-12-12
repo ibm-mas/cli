@@ -329,7 +329,7 @@ function mirror_to_registry_interactive() {
   echo
   echo_h2 "Configure Images to Mirror"
 
-  prompt_for_confirm "Mirror all MAS images (with dependencies, including Manage extension IBM Maximo IT, a sperately entitled product)" MIRROR_EVERYTHING
+  prompt_for_confirm "Mirror all MAS images (with dependencies)" MIRROR_EVERYTHING
 
   if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
     # Core
@@ -340,7 +340,6 @@ function mirror_to_registry_interactive() {
     MIRROR_MAS_ASSIST=true
     MIRROR_MAS_IOT=true
     MIRROR_MAS_MANAGE=true
-    MIRROR_MAS_ICD=true
     MIRROR_MAS_MONITOR=true
     MIRROR_MAS_OPTIMIZER=true
     MIRROR_MAS_PREDICT=true
@@ -431,6 +430,11 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm_default_yes "IBM Watson Machine Learning" MIRROR_WML
     prompt_for_confirm_default_yes "IBM Analytics Engine (Spark)" MIRROR_SPARK
   fi
+
+  echo
+  echo_h2 "Maximo IT - Installation"
+  echo_h4 "IBM Maximo IT is a seperately entitled IBM Manage extension that doesn't use the APP POINT entitlement system. If you confirm and have not puchased Maximo IT, you will not be able to complete the installation. "
+  prompt_for_confirm "Install IBM Maximo IT?" MIRROR_MAS_ICD
 
   echo
   echo_h2 "Configure Authentication"
