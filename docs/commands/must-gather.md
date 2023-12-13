@@ -125,63 +125,64 @@ Content
 │   ├── mas-inst2-appId.txt
 └── must-gather-20230423-204411.tgz
 ```
-You can execute the must gather from the cli image or in non-interactive mode.
-To execute the must-gather from the cli image, start a mas cli container using docker or podman 
+
+
+Usage
+-------------------------------------------------------------------------------
+As with other CLI functions, the must-gather will run against the currently connected cluster, use `oc login` to connect to a cluster before running `mas must-gather`.
+
 ```bash
+# Start the container in docker
 docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli
+# Login to the cluster and run the must-gather, which will be available in the home directory on the local system
+oc login --token=xxx --server=https://xxx:xxx
+mas must-gather -d /mnt/home/must-gather
 ```
 
 ```bash
-podman run -ti --rm -v /data:/mnt/home:z --pull always quay.io/ibmmas/cli
+# Start the container in podman
+podman run -ti --rm -v /~:/mnt/home:z --pull always quay.io/ibmmas/cli
+# Login to the cluster and run the must-gather, which will be available in the home directory on the local system
+oc login --token=xxx --server=https://xxx:xxx
+mas must-gather -d /mnt/home/must-gather
 ```
 
-Before running the must-gather command, you must authenticate to OCP with oc login command
-for more details you can refer to https://www.ibm.com/support/pages/node/6998647
-
-For non-interactive mode, you need to provide the oc login command before the mas must gather command as shown in the example below:
-```bash
-podman run --rm -v /data:/mnt/home:z quay.io/ibmmas/cli /bin/bash -c "oc login --token=sha256~XFnSk...fc8U --server=https://api.<openshift domain>:6443/ --insecure-skip-tls-verify; mas must-gather -d /mnt/home/must-gather"
-```
 
 Examples
 -------------------------------------------------------------------------------
-### Complete Must-Gather
-Running this command will save the must-gather file to a must-gather directory in your home directory.
+
+**Cluster-scoped must-gather:** Collect data for all MAS instances, critical cluster resources, and most MAS dependencies (Db2, Cloud Pak Foundational Services, Cloud Pak for Data, etc).
 
 ```bash
 mas must-gather -d /mnt/home/must-gather
 ```
 
-### Quick Must-Gather
-Running this command will save the must-gather file to a must-gather directory in your home directory.
+**Include secret data:** By default secret data is not included in the must-gather archive, only the existence of the secret is recorded and how many fields it contains.  Adding the `--secret-data` flag will trigger the inclusion of the secret data as well.
+
+```bash
+mas must-gather -d /mnt/home/must-gather --secret-data
+```
+
+**Quick must-gather:** This must-gather will omit pod logs and details of standard Kubernetes resources, it runs incredibly fast but it's usage is situational.
 
 ```bash
 mas must-gather -d /mnt/home/must-gather --summary-only
 ```
 
-### Must-Gather for one MAS instance
+**Target a specific MAS instance:** By setting `---mas-instance-ids` to a comma-separated list of instance IDs you can instruct the must-gather to focus on specific instances only.
+
 ```bash
 mas must-gather -d /mnt/home/must-gather --mas-instance-ids inst1
 ```
 
-### Must-Gather that includes the data of the secrets
-```bash
-mas must-gather -d /mnt/home/must-gather --secret-data
-```
+**Target specific applications:**  Setting `--mas-app-ids` to a comma-separated list of MAS application IDs will restict the MAS-specific must-gather to those applications only, which can be combined with `--no-ocp`, `--no-dependencies`, `--no-sls`, & `--mas-instance-ids` to focus the collection to a specific namespace/MAS application.
 
-### Must-Gather that collects everything, including data for db2 and ibm-common-services namespaces and data for all secrets
 ```bash
-mas must-gather -d /mnt/home/must-gather --secret-data --extra-namespaces "db2u,ibm-common-services"
-```
-
-### Must-Gather that collects only data for mas core for MAS instance "inst1"
-```bash
+# Target Core in inst1
 mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst1" --mas-app-ids "core"
-```
 
-### Must-Gather that collects only data for mas core and mas manage for MAS instance "inst1"
-```bash
-mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst1" --mas-app-ids "core,manage"
+# Target Core + Manage in inst2
+mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst2" --mas-app-ids "core,manage"
 ```
 
 ### Execute the Must-Gather in non-interactive mode
