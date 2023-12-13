@@ -50,15 +50,11 @@ function choose_catalog_version() {
 # -----------------------------------------------------------------------------
 # Currently only in the mas install and mirror-images functions.  The user must
 # select both a version of the catalog and a version of MAS within the catalog.
-#
-# Nicer looking box characters with ANSI:
-# \e[14m = turn on graphical mode
-# \e[15m = turn off graphical mode
 function choose_mas_version() {
-  b="\e[14m│\e[15m"
-  header=" \e[14m┌───┬──────────────┬────────┬────────┬───────┬────────┬─────────┬───────────┬─────────┬────────────┐\e[15m"
-  divider=" \e[14m├───┼──────────────┼────────┼────────┤───────┼────────┼─────────┼───────────┼─────────┼────────────┤\e[15m"
-  footer=" \e[14m└───┴──────────────┴────────┴────────┴───────┴────────┴─────────┴───────────┴─────────┴────────────┘\e[15m"
+  b="│"
+  header=" ┌───┬──────────────┬────────┬────────┬───────┬────────┬─────────┬───────────┬─────────┬────────────┐"
+  divider=" ├───┼──────────────┼────────┼────────┼───────┼────────┼─────────┼───────────┼─────────┼────────────┤"
+  footer=" └───┴──────────────┴────────┴────────┴───────┴────────┴─────────┴───────────┴─────────┴────────────┘"
   echo ""
   echo -e "$header"
   echo -e " $b # $b Catalog      $b  Core  $b Assist $b  IoT  $b Manage $b Monitor $b Optimizer $b Predict $b Inspection $b"
