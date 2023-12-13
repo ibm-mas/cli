@@ -39,7 +39,7 @@ Content Selection (Applications):
       --mirror-hputilities                        Mirror images for IBM Maximo Health & Predict Utilities
       --mirror-iot                                Mirror images for IBM Maximo IoT
       --mirror-manage                             Mirror images for IBM Maximo Manage
-      --mirror-icd                                Mirror image  for IBM Maximo IT ( Seperately entitled IBM Maximo Manage extension )
+      --mirror-icd                                Mirror image  for IBM Maximo IT (Separately entitled IBM Maximo Manage extension)
       --mirror-monitor                            Mirror images for IBM Maximo Monitor
       --mirror-optimizer                          Mirror images for IBM Maximo Optimizer
       --mirror-predict                            Mirror images for IBM Maximo Predict
@@ -374,7 +374,9 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm "IBM Maximo Application Suite - Assist" MIRROR_MAS_ASSIST
     prompt_for_confirm "IBM Maximo Application Suite - IoT" MIRROR_MAS_IOT
     prompt_for_confirm "IBM Maximo Application Suite - Manage" MIRROR_MAS_MANAGE
-    prompt_for_confirm "IBM Maximo Application Suite - Maximo IT ( Seperately entitled Manage extension )" MIRROR_MAS_ICD
+    if [[ "$MIRROR_MAS_MANAGE" == "true" ]]; then
+      prompt_for_confirm "IBM Maximo Application Suite - Maximo IT (Separately entitled Manage extension)" MIRROR_MAS_ICD
+    fi
     prompt_for_confirm "IBM Maximo Application Suite - Monitor" MIRROR_MAS_MONITOR
     prompt_for_confirm "IBM Maximo Application Suite - Optimizer" MIRROR_MAS_OPTIMIZER
     prompt_for_confirm "IBM Maximo Application Suite - Predict" MIRROR_MAS_PREDICT
@@ -431,10 +433,12 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm_default_yes "IBM Analytics Engine (Spark)" MIRROR_SPARK
   fi
 
-  echo
-  echo_h2 "Maximo IT - Installation"
-  echo_h4 "IBM Maximo IT is a seperately entitled IBM Manage extension that doesn't use the APP POINT entitlement system. If you confirm and have not puchased Maximo IT, you will not be able to complete the installation. "
-  prompt_for_confirm "Install IBM Maximo IT?" MIRROR_MAS_ICD
+  if [[ "$MIRROR_MAS_ICD" == "true" ]]; then
+    echo
+    echo_h2 "Maximo IT Entitlement"
+    echo_reset_dim "IBM Maximo IT is a separately entitled IBM Manage extension. The image mirroring process will fail unless you have purchased this separate entitlement"
+    prompt_for_confirm "Confirm IBM Maximo IT entitlement" MIRROR_MAS_ICD
+  fi
 
   echo
   echo_h2 "Configure Authentication"
@@ -588,6 +592,7 @@ function mirror_to_registry() {
   show_mirror_status "IBM Maximo Assist ..................." $MIRROR_MAS_ASSIST
   show_mirror_status "IBM Maximo IoT ......................" $MIRROR_MAS_IOT
   show_mirror_status "IBM Maximo Manage ..................." $MIRROR_MAS_MANAGE
+  show_mirror_status "+ IBM Maximo IT ....................." $MIRROR_MAS_ICD
   show_mirror_status "IBM Maximo Monitor .................." $MIRROR_MAS_MONITOR
   show_mirror_status "IBM Maximo Predict .................." $MIRROR_MAS_PREDICT
   show_mirror_status "IBM Maximo Optimizer ................" $MIRROR_MAS_OPTIMIZER
@@ -613,6 +618,7 @@ function mirror_to_registry() {
   show_mirror_status "MongoDb Community Edition ..........." $MIRROR_MONGOCE
   show_mirror_status "+ Version 4 ........................." $MIRROR_MONGOCE_V4
   show_mirror_status "+ Version 5 ........................." $MIRROR_MONGOCE_V5
+  show_mirror_status "+ Version 6 ........................." $MIRROR_MONGOCE_V6
   show_mirror_status "IBM Db2 ............................." $MIRROR_DB2U
   show_mirror_status "IBM AppConnect ......................" $MIRROR_APPCONNECT
 
