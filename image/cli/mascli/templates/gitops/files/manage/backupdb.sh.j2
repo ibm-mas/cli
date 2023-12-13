@@ -7,7 +7,7 @@ then
     echo "backupdb.sh: Database connect returning SQL1116N, do backup now"
 
     echo "backupdb.sh: Creating backup folder /mnt/backup"
-    mkdir -p /mnt/backup >$BACKUPDB_SQL
+    mkdir -p /mnt/backup
     rc=$?
     [ $rc -ne 0 ] && exit $rc
 
@@ -50,7 +50,7 @@ then
     [ $rc -ne 0 ] && exit $rc
 
     echo "backupdb.sh: db2set comms manager"
-    db2set DB2COMM=TCPIP
+    db2set DB2COMM=TCPIP,SSL
     rc=$?
     [ $rc -ne 0 ] && exit $rc
 
