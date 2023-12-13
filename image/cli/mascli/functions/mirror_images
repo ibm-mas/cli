@@ -436,8 +436,10 @@ function mirror_to_registry_interactive() {
   if [[ "$MIRROR_MAS_ICD" == "true" ]]; then
     echo
     echo_h2 "Maximo IT Entitlement"
-    echo_reset_dim "IBM Maximo IT is a separately entitled IBM Manage extension. The image mirroring process will fail unless you have purchased this separate entitlement"
-    prompt_for_confirm "Confirm IBM Maximo IT entitlement" MIRROR_MAS_ICD
+    echo "${TEXT_DIM}IBM Maximo IT is a separately entitled IBM Manage extension. The image mirroring process will fail unless you have purchased this separate entitlement"
+    echo
+    reset_colors
+    prompt_for_confirm "Confirm IBM Maximo IT entitlement" CONFIRM_ICD || exit 0
   fi
 
   echo
