@@ -82,7 +82,8 @@ else
     semver bump ${SEMVER_RELEASE_LEVEL} ${SEMVER_LAST_TAG} > $VERSION_FILE
     echo "Configuring semver for ${SEMVER_RELEASE_LEVEL} bump from ${SEMVER_LAST_TAG} to $(cat $VERSION_FILE)"
   else
-    semver bump build build.$GITHUB_RUN_ID > $VERSION_FILE
+    # Default to a patch revision
+    semver bump patch ${SEMVER_LAST_TAG} > $VERSION_FILE
     echo "Configuring semver for rebuild of ${SEMVER_LAST_TAG}: $(cat $VERSION_FILE)"
   fi
 fi
