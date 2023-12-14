@@ -35,40 +35,40 @@ spec:
 
     - name: launchfvt_core
       type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Core FVT Pipeline after suite-verify completes"
+      default: "false"
+      description: "Set this to 'true' to enable launch of the Core FVT Pipeline after suite-verify completes"
     - name: launchfvt_assist
       type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Assist FVT Pipeline after app-cfg-assist completes"
+      default: "false"
+      description: "Set this to 'true' to enable launch of the Assist FVT Pipeline after app-cfg-assist completes"
     - name: launchfvt_iot
       type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the IoT FVT Pipeline after app-cfg-iot completes"
+      default: "false"
+      description: "Set this to 'true' to enable launch of the IoT FVT Pipeline after app-cfg-iot completes"
     - name: launchfvt_manage
       type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-manage completes (does not control the additional Industry Solution, Mobile, or Regression Manage suites)"
+      default: "false"
+      description: "Set this to 'true' to enable launch of the Manage FVT Pipeline after app-cfg-manage completes (does not control the additional Industry Solution, Mobile, or Regression Manage suites)"
     - name: launchfvt_monitor
       type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-monitor completes"
+      default: "false"
+      description: "Set this to 'true' to enable launch of the Manage FVT Pipeline after app-cfg-monitor completes"
     - name: launchfvt_optimizer
       type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Optimizer FVT Pipeline after app-cfg-optimizer completes"
+      default: "false"
+      description: "Set this to 'true' to enable launch of the Optimizer FVT Pipeline after app-cfg-optimizer completes"
     - name: launchfvt_predict
       type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Predict FVT Pipeline after app-cfg-predict completes"
+      default: "false"
+      description: "Set this to 'true' to enable launch of the Predict FVT Pipeline after app-cfg-predict completes"
     - name: launchfvt_visualinspection
       type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Visual Inspection FVT Pipeline after app-cfg-visualinspection completes"
+      default: "false"
+      description: "Set this to 'true' to enable launch of the Visual Inspection FVT Pipeline after app-cfg-visualinspection completes"
     - name: launchfvt_mobile
       type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Mobile FVT Pipeline after app-cfg-manage completes"
+      default: "false"
+      description: "Set this to 'true' to enable launch of the Mobile FVT Pipeline after app-cfg-manage completes"
 
   tasks:
     # Content

@@ -11,7 +11,8 @@ spec:
     name: mas-fvt-predict
 
   serviceAccountName: pipeline
-  timeout: "8h"
+  timeouts:
+    pipeline: "8h"
 
   params:
     # Pull Policy

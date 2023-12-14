@@ -1,23 +1,57 @@
 #!/bin/bash
 
-NAMESPACE=$1
-POD_LOGS=$2
-OUTPUT_DIR=$3
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $DIR/../functions/internal/utils
+
+POD_LOGS=false
+NO_DETAIL=false
+while [[ $# -gt 0 ]]
+do
+  key="$1"
+  shift
+  case $key in
+  -n)
+    NAMESPACE=${1,,}; shift
+    ;;
+  -d)
+    OUTPUT_DIR=$1; shift
+    ;;
+  -p)
+    POD_LOGS=true
+    ;;
+  --no-detail)
+    NO_DETAIL=true
+    ;;
+  esac
+done
+
+if [[ "$NAMESPACE" == "" ]]; then
+  echo_warning "Unexpected error in mg-collect-pods: -n parameter is not set"
+  exit 1
+fi
+
+if [[ "$OUTPUT_DIR" == "" ]]; then
+  echo_warning "Unexpected error in mg-collect-pods: -d parameter is not set"
+  exit 1
+fi
 
 NAMESPACE_DIR="${OUTPUT_DIR}/${NAMESPACE}"
 POD_DIR="${NAMESPACE_DIR}/pods"
 mkdir -p "$POD_DIR"
 rm -rf "$POD_DIR"/*
 
-if [[ "$POD_LOGS" == "true" ]]; then
-  echo "  - Collecting debug information: pods (with logs)"
+if [[ "$NO_DETAIL" == "true" ]]; then
+    echo "- ${COLOR_BLUE}pods${TEXT_RESET} (summary only)"
 else
-  echo "  - Collecting debug information: pods (without logs)"
+  if [[ "$POD_LOGS" == "true" ]]; then
+    echo "- ${COLOR_BLUE}pods${TEXT_RESET} (detailed with logs)"
+  else
+    echo "- ${COLOR_BLUE}pods${TEXT_RESET} (detailed without logs)"
+  fi
 fi
-
 # Generate Summary
 # -----------------------------------------------------------------------------
-oc -n "${NAMESPACE}" get pods -o wide > "${NAMESPACE_DIR}/pods.txt" || { echo "    - Error generating pod summary"; exit 0; }
+oc -n "${NAMESPACE}" get pods -o wide &> "${NAMESPACE_DIR}/pods.txt" || { echo "    - Error generating pod summary"; exit 0; }
 
 # Generate Detailed Report
 # -----------------------------------------------------------------------------
@@ -26,34 +60,36 @@ for POD in ${PODS[@]}; do
   # Extract POD_NAME and APP
   POD_NAME=$(echo "${POD}" | cut -d '/' -f 2)
   APP="$(oc -n "${NAMESPACE}" get "${POD}" -o jsonpath='{.metadata.labels.app}')"
-  
+
   if [[ "$APP" == "" ]]; then
     INSTANCE_ID=$(echo ${NAMESPACE%-*})
     INSTANCE_ID=$(echo ${INSTANCE_ID#*-})
     APP=$(echo ${POD_NAME%-*}) #removing 2nd ID
     APP=$(echo ${APP%-*}) #removing 1st ID
-    
+
     if [[ "$APP" == "$INSTANCE_ID" ]]; then
       APP=$(echo ${POD_NAME%-*}) #removing 2nd ID only
     fi
   fi
   APP_DIR="${POD_DIR}/${APP}"
-  mkdir -p "$APP_DIR" || { echo "    - Error creating directory: $APP_DIR"; exit 0; }
-  
+  mkdir -p "$APP_DIR" || { echo_warning "  Error creating directory: $APP_DIR"; exit 0; }
+
   # Get summary information for pod
-  oc -n "${NAMESPACE}" get "${POD}" -o yaml > "${APP_DIR}/${POD_NAME}.yaml" || { echo "    - Error fetching pod information for $POD_NAME"; exit 0; }
-  oc -n "${NAMESPACE}" describe "${POD}" > "${APP_DIR}/${POD_NAME}.txt" || { echo "    - Error describing pod $POD_NAME"; continue; }
+  oc -n "${NAMESPACE}" describe "${POD}" &> "${APP_DIR}/${POD_NAME}.txt" || { echo_warning "  Error describing pod $POD_NAME"; continue; }
 
-  # Get container logs
-  if [[ "$POD_LOGS" == "true" ]]; then
-    APP_LOG_DIR="${POD_DIR}/${APP}/logs"
-    mkdir -p "$APP_LOG_DIR" || { echo "Error creating directory: $APP_LOG_DIR"; continue; }
+  if [[ "$NO_DETAIL" == "false" ]]; then
+    oc -n "${NAMESPACE}" get "${POD}" -o yaml &> "${APP_DIR}/${POD_NAME}.yaml" || { echo_warning "  Error fetching pod information for $POD_NAME"; continue; }
 
-    CONTAINERS=$(oc -n "${NAMESPACE}" get "${POD}" -o json -o jsonpath='{range .status.containerStatuses[*]}[{.name}] {end}' | tr -d '[]')
-    for CONTAINER in ${CONTAINERS[@]}; do
-      oc -n "${NAMESPACE}" logs "${POD}" -c "${CONTAINER}" > "${APP_LOG_DIR}/${POD_NAME}_${CONTAINER}.log" || { echo "    - Error fetching logs for container ${CONTAINER} in pod $POD_NAME"; continue; }
-    done
+    # Get container logs
+    if [[ "$POD_LOGS" == "true" ]]; then
+      APP_LOG_DIR="${POD_DIR}/${APP}/logs"
+      mkdir -p "$APP_LOG_DIR" || { echo_warning "  Error creating directory: $APP_LOG_DIR"; continue; }
+
+      CONTAINERS=$(oc -n "${NAMESPACE}" get "${POD}" -o json -o jsonpath='{range .status.containerStatuses[*]}[{.name}] {end}' | tr -d '[]')
+      for CONTAINER in ${CONTAINERS[@]}; do
+        oc -n "${NAMESPACE}" logs "${POD}" -c "${CONTAINER}" &> "${APP_LOG_DIR}/${POD_NAME}_${CONTAINER}.log" || { echo_warning "  Error fetching logs for container ${CONTAINER} in pod $POD_NAME"; continue; }
+      done
+    fi
   fi
 done
-
 exit 0

@@ -5,15 +5,31 @@ Usage
 -------------------------------------------------------------------------------
 `mas must-gather [options]`
 
-### Options
+### Destination
 - `-d|--directory MG_DIR` Directory where the must-gather will be saved, defaults to `/tmp/must-gather` (or `/must-gather` if the directory exists)
 - `-k|--keep-files` Do not delete individual files after creating the must-gather compressed tar archive
-- `--summary-only` Perform a much faster must-gather that only gathers high level summary of resources in the cluster
-- `--no-pod-logs` Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required
+
+### General Controls
+- `--summary-only` Perform a much faster must-gather that only gathers high level summary information
+- `--no-logs` Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required
+- `--secret-data` Include secrets content in the must-gather
+
+### MAS Content Controls:
+- `--mas-instance-ids` Limit must-gather to a list of MAS instance IDs (comma-seperated list)
+- `--mas-app-ids` Limit must-gather to a subset of MAS namespaces (comma-seperated list)
+
+### Disable Collectors:
+- `--no-ocp` Disable must-gather for the OCP cluster itself
+- `--no-dependencies` Disable must-gather for in-cluster dependencies (Db2, Cloud Pak for Data, Cloud Pak Foundational Services, Mongo)
+- `--no-sls` Disable must-gather for IBM Suite License Service
+
+### Additional Collectors:
+- `--extra-namespaces` Enable must-gather in custom namespaces (comma-seperated list)
+
+### Artifactory Upload:
 - `--artifactory-token ARTIFACTORY_TOKEN` Provide a token for Artifactory to automatically upload the file to `ARTIFACTORY_UPLOAD_DIRECTORY`
 - `--artifactory-upload-directory ARTIFACTORY_UPLOAD_DIRECTORY` Working URL to the root directory in Artifactory where the must-gather file should be uploaded
-- `--mas-instance-ids` Collects the data for the specified MAS instances, if not specified will collect for all MAS instances on the cluster
-- `--secret-data` Collects also the content of the secrets, the default is not to include the data part of the secrets
+
 
 Content
 -------------------------------------------------------------------------------
@@ -110,28 +126,71 @@ Content
 └── must-gather-20230423-204411.tgz
 ```
 
+
+Usage
+-------------------------------------------------------------------------------
+As with other CLI functions, the must-gather will run against the currently connected cluster, use `oc login` to connect to a cluster before running `mas must-gather`.
+
+```bash
+# Start the container in docker
+docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli
+# Login to the cluster and run the must-gather, which will be available in the home directory on the local system
+oc login --token=xxx --server=https://xxx:xxx
+mas must-gather -d /mnt/home/must-gather
+```
+
+```bash
+# Start the container in podman
+podman run -ti --rm -v /~:/mnt/home:z --pull always quay.io/ibmmas/cli
+# Login to the cluster and run the must-gather, which will be available in the home directory on the local system
+oc login --token=xxx --server=https://xxx:xxx
+mas must-gather -d /mnt/home/must-gather
+```
+
+
 Examples
 -------------------------------------------------------------------------------
-### Complete Must-Gather
-Running this command will save the must-gather file to a must-gather directory in your home directory.
+
+**Cluster-scoped must-gather:** Collect data for all MAS instances, critical cluster resources, and most MAS dependencies (Db2, Cloud Pak Foundational Services, Cloud Pak for Data, etc).
 
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather
+mas must-gather -d /mnt/home/must-gather
 ```
 
-### Quick Must-Gather
-Running this command will save the must-gather file to a must-gather directory in your home directory.
+**Include secret data:** By default secret data is not included in the must-gather archive, only the existence of the secret is recorded and how many fields it contains.  Adding the `--secret-data` flag will trigger the inclusion of the secret data as well.
 
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --summary-only
+mas must-gather -d /mnt/home/must-gather --secret-data
 ```
 
-### Must-Gather for one MAS instance
+**Quick must-gather:** This must-gather will omit pod logs and details of standard Kubernetes resources, it runs incredibly fast but it's usage is situational.
+
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --mas-instance-ids inst1
+mas must-gather -d /mnt/home/must-gather --summary-only
 ```
 
-### Must-Gather that includes the data of the secrets
+**Target a specific MAS instance:** By setting `---mas-instance-ids` to a comma-separated list of instance IDs you can instruct the must-gather to focus on specific instances only.
+
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --secret-data
+mas must-gather -d /mnt/home/must-gather --mas-instance-ids inst1
+```
+
+**Target specific applications:**  Setting `--mas-app-ids` to a comma-separated list of MAS application IDs will restict the MAS-specific must-gather to those applications only, which can be combined with `--no-ocp`, `--no-dependencies`, `--no-sls`, & `--mas-instance-ids` to focus the collection to a specific namespace/MAS application.
+
+```bash
+# Target Core in inst1
+mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst1" --mas-app-ids "core"
+
+# Target Core + Manage in inst2
+mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst2" --mas-app-ids "core,manage"
+```
+
+### Execute the Must-Gather in non-interactive mode
+```bash
+docker run --rm -v /~:/mnt/home:z quay.io/ibmmas/cli /bin/bash -c "oc login --token=sha256~XFnSk...fc8U --server=https://api.<openshift domain>:6443/ --insecure-skip-tls-verify; mas must-gather -d /mnt/home/must-gather"
+```
+
+### Execute the Must-Gather in non-interactive mode using podman
+```bash
+podman run --rm -v /data:/mnt/home:z quay.io/ibmmas/cli /bin/bash -c "oc login --token=sha256~XFnSk...fc8U --server=https://api.<openshift domain>:6443/ --insecure-skip-tls-verify; mas must-gather -d /mnt/home/must-gather"
 ```

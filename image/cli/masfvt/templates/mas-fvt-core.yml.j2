@@ -11,7 +11,8 @@ spec:
     name: mas-fvt-core
 
   serviceAccountName: pipeline
-  timeout: "8h"
+  timeouts:
+    pipeline: "8h"
 
   params:
     # Pull Policy
@@ -34,8 +35,6 @@ spec:
     # Digests
     - name: fvt_digest_core
       value: "{{ fvt_digest_core }}"
-    - name: fvt_digest_coreui
-      value: "{{ fvt_digest_coreui }}"
     - name: ivt_digest_core
       value: "{{ ivt_digest_core }}"
 

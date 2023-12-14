@@ -8,10 +8,6 @@
       value: fvt-inventorycounting-testng
     - name: fvt_image_digest
       value: $(params.fvt_digest_inventorycounting_testng)
-    - name: fvt_mas_appws_component
-      value: base
-    - name: mas_appws_components
-      value: $(params.mas_appws_components)
     - name: fvt_test_suite
       value: inventory-counting-mvt-desktop
   # Only if we've set a digest of the Mobile IC FVT to run
@@ -21,11 +17,7 @@
       operator: notin
       values: [""]
   runAfter:
-    - fvt-mobfoundation-mvt-ios
-    - fvt-service-request-mvt-ios
     - fvt-technician-mvt-ios
-    - fvt-inspections-mvt-ios
-    - fvt-asset-manager-mvt-ios
     - fvt-inventoryreceiving-mvt-ios
     - fvt-issuesandtransfers-mvt-ios
     - fvt-inventorycounting-mvt-ios

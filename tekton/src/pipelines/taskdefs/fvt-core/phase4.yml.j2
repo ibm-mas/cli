@@ -18,8 +18,6 @@
       value: $(params.fvt_image_registry)
     - name: fvt_image_digest
       value: $(params.fvt_digest_core)
-    - name: fvt_ui_image_digest
-      value: $(params.fvt_digest_coreui)
 
   runAfter:
     # Only start after all suites in phase 4 are complete

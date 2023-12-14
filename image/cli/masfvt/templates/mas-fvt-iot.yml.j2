@@ -11,7 +11,8 @@ spec:
     name: mas-fvt-iot
 
   serviceAccountName: pipeline
-  timeout: "8h"
+  timeouts:
+    pipeline: "8h"
 
   params:
     # Pull Policy

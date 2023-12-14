@@ -1,15 +1,18 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $DIR/../functions/internal/utils
 
 NAMESPACE=$1
 OUTPUT_DIR=$2
 
 # Collect MBGX Logs
 # -----------------------------------------------------------------------------
+echo_h4 "Collect Message Broker Logs"
 $DIR/mg-collect-mbgx-logs $NAMESPACE $OUTPUT_DIR
 
 # Collect Reconcile Logs
 # -----------------------------------------------------------------------------
+echo_h4 "Collect Reconcile Logs"
 # Main IoT Component and workspace
 $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-iot-operator $OUTPUT_DIR
 $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane workspace-operator $OUTPUT_DIR
@@ -21,11 +24,4 @@ $DIR/mg-collect-reconcile-logs $NAMESPACE operator ibm-truststore-mgr $OUTPUT_DI
 for CONTROL_PLANE in actions-operator auth-operator datapower-operator devops-operator dm-operator dsc-operator edgeconfig-operator fpl-operator guardian-operator mbgx-operator mfgx-operator monitor-operator orgmgmt-operator provision-operator registry-operator state-operator webui-operator workspace-operator
 do
   $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane $CONTROL_PLANE $OUTPUT_DIR
-done
-
-# Collect IoT Custom Resources
-# -----------------------------------------------------------------------------
-for RESOURCE in IoT IoTWorkspace Truststore Actions Auth DataPower Devops Dm Dsc Edgeconfig Fpl Guardian Mbgx Mfgx Monitor Orgmgmt Provision Registry State WebUI 
-do
-  $DIR/mg-collect-resources -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
 done

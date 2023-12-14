@@ -243,10 +243,7 @@ function update_interactive() {
       fi
     fi
   fi
-
-
 }
-
 
 # Main function
 # -----------------------------------------------------------------------------
@@ -262,6 +259,7 @@ function update() {
   export MAS_CATALOG_VERSION
   export DB2_NAMESPACE
   export MONGODB_NAMESPACE
+  export MONGODB_STORAGE_CLASS
   export MONGODB_V5_UPGRADE
   export KAFKA_NAMESPACE
   export KAFKA_PROVIDER

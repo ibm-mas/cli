@@ -9,16 +9,28 @@ Usage:
   mas must-gather [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 
-Collection Options (Optional):
+Destination:
   -d, --directory ${COLOR_YELLOW}MG_DIR${TEXT_RESET}     Directory where the must-gather will be saved, defaults to /tmp/must-gather
   -k, --keep-files           Do not delete individual files after creating the must-gather compressed tar archive
-  --summary-only             Perform a much faster must-gather that only gathers high level summary of resources in the cluster
-  --no-pod-logs              Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required
-  --mas-instance-ids         Collects the data for the specifed MAS instances, if not specified will collect for all MAS instances on the cluster
-  --secret-data              Collects also the content of the secrets
-  --extra-namespaces         Collects data for additional namespaces, like ibm-common-services or db2u, must be separated by a coma
 
-Artifactory Upload (Optional):
+General Controls:
+  --summary-only             Perform a much faster must-gather that only gathers high level summary information
+  --no-logs                  Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required
+  --secret-data              Include secrets content in the must-gather
+
+MAS Content Controls:
+  --mas-instance-ids         Limit must-gather to a list of MAS instance IDs (comma-seperated list)
+  --mas-app-ids              Limit must-gather to a subset of MAS namespaces (comma-seperated list)
+
+Disable Collectors:
+  --no-ocp                   Disable must-gather for the OCP cluster itself
+  --no-dependencies          Disable must-gather for in-cluster dependencies (Db2, Cloud Pak for Data, Cloud Pak Foundational Services, Mongo)
+  --no-sls                   Disable must-gather for IBM Suite License Service
+
+Additional Collectors:
+  --extra-namespaces         Enable must-gather in custom namespaces (comma-seperated list)
+
+Artifactory Upload:
   --artifactory-token ${COLOR_YELLOW}ARTIFACTORY_TOKEN${TEXT_RESET}              Provide a token for Artifactory to automatically upload the file to ARTIFACTORY_UPLOAD_DIR
   --artifactory-upload-dir ${COLOR_YELLOW}ARTIFACTORY_UPLOAD_DIR${TEXT_RESET}    Working URL to the root directory in Artifactory where the must-gather file should be uploaded
 
@@ -28,6 +40,28 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
+function startTimer() {
+  TIMER_START=`date +%s`
+}
+function endTimer() {
+  TIMER_END=`date +%s`
+  echo
+  echo_green "Collection for $1 completed in $(expr $TIMER_END - $TIMER_START) seconds"
+}
+
+function genericMustGather() {
+  echo
+  $MG_SCRIPT_DIR/mg-collect-ibm-custom-resources -n $1 -d $OUTPUT_DIR $POD_LOGS_FLAG $NO_DETAIL_FLAG
+  echo
+  echo_h4 "Collect Standard Kubernetes Resources"
+  ADDITIONAL_RESOURCES=$(echo "$2" | tr "," " ")
+  for RESOURCE in $ADDITIONAL_RESOURCES configmaps services routes deployments jobs pvc operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings
+  do
+    $MG_SCRIPT_DIR/mg-collect-resources -n $1 -r $RESOURCE -d $OUTPUT_DIR/resources $NO_DETAIL_FLAG
+  done
+  $MG_SCRIPT_DIR/mg-collect-pods -n $1 -d $OUTPUT_DIR/resources $POD_LOGS_FLAG $NO_DETAIL_FLAG
+  $MG_SCRIPT_DIR/mg-collect-secrets -n $1 -r $RESOURCE -d $OUTPUT_DIR/resources -s $SECRET_DATA
+}
 
 function mustgather() {
   # Take the first parameter off (it will be "must-gather")
@@ -35,12 +69,20 @@ function mustgather() {
 
   # Set defaults
   SUMMARY_ONLY=false
+  NO_DETAIL_FLAG=""
   POD_LOGS=true
+  POD_LOGS_FLAG="-p"
   SECRET_DATA=false
-  MG_DIR=/tmp/must-gather
+  OCP_REPORT=true
+  DEPENDENCY_REPORT=true
+  SLS_REPORT=true
+  MAS_APP_IDS="core,add,assist,iot,monitor,manage,optimizer,predict,visualinspection,pipelines"
   EXTRA_NAMESPACES=""
 
-  # If a /must-gather directory exists, default to that as the output directory instead
+
+  # If a /must-gather directory exists, default to that as the output directory, otherwise
+  # the default is /tmp/must-gather
+  MG_DIR=/tmp/must-gather
   if [[ -d "/must-gather" ]]; then
     MG_DIR=/must-gather
   fi
@@ -54,30 +96,67 @@ function mustgather() {
     -d|--directory)
       MG_DIR=$1; shift
       ;;
+
+    # Summary only mode will omit all the generic Kubernetes resources from the must-gather (pods, deployments, secrets, configmaps etc)
+    # It results in an incredibly fast gather, but the result is of limited use
     --summary-only)
       SUMMARY_ONLY=true
+      NO_DETAIL_FLAG="--no-detail"
       ;;
+
+    # Omitting the logs from the must-gather can significantly reduce the time to generate and size of the must-gather file, in many cases
+    # it will also result in key information being missing from the must-gather collection
     --no-logs|--no-pod-logs)
       POD_LOGS=false
+      POD_LOGS_FLAG=""
       ;;
+
+    # Restict the gather to processing a specific list of MAS instance IDs, generally discouraged as problems in one MAS instance may be
+    # caused by anything on the cluster, including other MAS instances
     --mas-instance-ids)
       MAS_INSTANCE_IDS=$1; shift
       ;;
+
+    # Limit the must-gather to only specific MAS applications, again highly discouraged as a problem in one application may be caused by something
+    # in another application and without the full picture we may not be able to diagnose the problem
+    --mas-app-ids)
+      MAS_APP_IDS=$1; shift
+      ;;
+
+    # Provide a list of additional namespaces where generic Kubernetes must-gather will be collected from
     --extra-namespaces)
       EXTRA_NAMESPACES=$1; shift
       ;;
+
+    # By default the contents of secrets are not included in the must-gather, in most cases you will not need to use this option.
     --secret-data)
       SECRET_DATA=true
       ;;
+
+    # Disable parts of the must-gather process
+    --no-ocp)
+      OCP_REPORT=false
+      ;;
+    --no-dependencies)
+      DEPENDENCY_REPORT=false
+      ;;
+    --no-sls)
+      SLS_REPORT=false
+      ;;
+
+    # Automatic upload of the must-gather to Artifactory (primarily used in MAS FVT)
     --artifactory-token)
       ARTIFACTORY_TOKEN=$1; shift
       ;;
     --artifactory-upload-dir)
       ARTIFACTORY_UPLOAD_DIR=$1; shift
       ;;
+
+    # Retain the source files after generating the tgz (for easy local analysis of the must-gather)
     -k|--keep-files)
       KEEP_FILES=true;
       ;;
+
     -h|--help)
       must_gather_help
       exit 0
@@ -106,152 +185,175 @@ function mustgather() {
   OUTPUT_FILENAME=must-gather-${TIMESTAMP}.tgz
   OUTPUT_FILE=${MG_DIR}/${OUTPUT_FILENAME}
 
+  LOG_FILE=${OUTPUT_DIR}/must-gather.log
+  exec > >(tee ${LOG_FILE}) 2>&1
 
   echo "Must gather will be saved to: $OUTPUT_FILE"
-  echo ""
 
+  # ---------------------------------------------------------------------------
   # Generate OCP Report
-  # -----------------------------------------------------------------------------
-  echo_h2 "Generate OCP Report"
+  # ---------------------------------------------------------------------------
+  echo_h2 "OpenShift Container Platform"
+  if [[ "$OCP_REPORT" == "true" ]]; then
+    echo_h3 "Cluster Resources"
+    startTimer
 
-  echo "- Cluster Resources"
-  for RESOURCE in nodes storageclasses clusterversions
-  do
-    $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources
-  done
-
-  for RESOURCE in namespaces packagemanifests clusterroles clusterrolebindings
-  do
-    $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources --no-detail
-  done
-
-  echo "- OpenShift Marketplace"
-  for RESOURCE in catalogsources jobs
-  do
-    $MG_SCRIPT_DIR/mg-collect-resources -n openshift-marketplace -r $RESOURCE -d $OUTPUT_DIR/resources
-  done
-
-  echo "- Operators"
-  echo "  - Collecting debug information: operatorconditions"
-  oc get operatorconditions --all-namespaces &> ${OUTPUT_DIR}/operatorconditions.txt
-  for RESOURCE in subscriptions installplans
-  do
-    $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources -a
-  done
-
-
-  # Generate Dependency Report
-  # -----------------------------------------------------------------------------
-  echo ""
-  echo_h2 "Generate Dependency Report"
-  echo "- IBM CloudPak Foundation Services"
-  $MG_SCRIPT_DIR/mg-summary-ibm-common-services &> ${OUTPUT_DIR}/ibm-common-services.txt
-
-  echo "- IBM CloudPak for Data"
-  $MG_SCRIPT_DIR/mg-summary-cp4d &> ${OUTPUT_DIR}/cp4d.txt
-
-  echo "- IBM Db2 Universal Operator"
-  $MG_SCRIPT_DIR/mg-summary-db2u &> ${OUTPUT_DIR}/db2u.txt
-
-
-  # Find MongoCE
-  # -----------------------------------------------------------------------------
-  MONGOCE_NAMESPACES=$(oc get mongodbcommunity --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
-  echo ""
-  for MONGOCE_NAMESPACE in $MONGOCE_NAMESPACES
-  do
-    echo_h2 "MongoCE: ${MONGOCE_NAMESPACE}"
-    $MG_SCRIPT_DIR/mg-summary-mongoce $MONGOCE_NAMESPACE &> ${OUTPUT_DIR}/mongoce-${MONGOCE_NAMESPACE}.txt
-    $MG_SCRIPT_DIR/mg-collect-mongoce $MONGOCE_NAMESPACE $OUTPUT_DIR
-  done
-
-  if [[ "$EXTRA_NAMESPACES" != "" ]]
-  then
-    for EXTRA_NAMESPACE in $(echo $EXTRA_NAMESPACES | tr "," " ")
+    for RESOURCE in nodes storageclasses clusterversions
     do
-      echo_h2 "${EXTRA_NAMESPACE}"
-        # Generic Kubernetes must-gather
-        if [[ "$SUMMARY_ONLY" == false ]]
-        then
-          $MG_SCRIPT_DIR/mg-collect-extra-namespace $EXTRA_NAMESPACE $OUTPUT_DIR
-          $MG_SCRIPT_DIR/mg-collect-pods $EXTRA_NAMESPACE $POD_LOGS $OUTPUT_DIR/resources
-          for RESOURCE in configmaps services routes pvc deployments statefulsets jobs operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings
-          do
-            $MG_SCRIPT_DIR/mg-collect-resources -n $EXTRA_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
-          done
-          $MG_SCRIPT_DIR/mg-collect-secrets -n $EXTRA_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources -s $SECRET_DATA
-        fi
+      $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources
     done
+
+    for RESOURCE in namespaces packagemanifests clusterroles clusterrolebindings
+    do
+      $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources --no-detail
+    done
+
+    echo_h3 "OpenShift Marketplace"
+    for RESOURCE in catalogsources jobs
+    do
+      $MG_SCRIPT_DIR/mg-collect-resources -n openshift-marketplace -r $RESOURCE -d $OUTPUT_DIR/resources
+    done
+
+    echo_h3 "Kubernetes Operators"
+    for RESOURCE in subscriptions installplans operatorconditions
+    do
+      $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources -a
+    done
+    endTimer "OCP"
+  else
+    echo_warning "OpenShift Container Platform must-gather disabled"
   fi
 
-  if [[ -z $MAS_INSTANCE_IDS ]]
-  then
+  # ---------------------------------------------------------------------------
+  # MAS Dependencies
+  # ---------------------------------------------------------------------------
+  echo_h2 "In-Cluster Dependencies"
+  if [[ "$DEPENDENCY_REPORT" == "true" ]]; then
+    startTimer
+    echo_h3 "IBM CloudPak Foundation Services"
+    $MG_SCRIPT_DIR/mg-summary-ibm-common-services &> ${OUTPUT_DIR}/ibm-common-services.txt
+    genericMustGather ibm-common-services
+
+    echo_h3 "IBM CloudPak for Data"
+    NAMESPACE_LOOKUP=$(oc get namespace ibm-cpd-operators --ignore-not-found)
+    if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
+      $MG_SCRIPT_DIR/mg-summary-cp4d &> ${OUTPUT_DIR}/cp4d.txt
+      genericMustGather ibm-cpd
+      genericMustGather ibm-cpd-operators
+    else
+      echo_highlight "Unable to find ibm-cpd-operators namespace"
+    fi
+
+    echo_h3 "IBM Db2 Universal Operator"
+    NAMESPACE_LOOKUP=$(oc get namespace db2u --ignore-not-found)
+    if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
+      $MG_SCRIPT_DIR/mg-summary-db2u &> ${OUTPUT_DIR}/db2u.txt
+      genericMustGather db2u
+    else
+      echo_highlight "Unable to find db2u namespace"
+    fi
+
+    MONGOCE_NAMESPACES=$(oc get mongodbcommunity --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
+    for MONGOCE_NAMESPACE in $MONGOCE_NAMESPACES
+    do
+      echo_h3 "MongoCE: ${MONGOCE_NAMESPACE}"
+      $MG_SCRIPT_DIR/mg-summary-mongoce $MONGOCE_NAMESPACE &> ${OUTPUT_DIR}/mongoce-${MONGOCE_NAMESPACE}.txt
+      genericMustGather $MONGOCE_NAMESPACE mongodbcommunity
+    done
+    endTimer "in-cluster dependencies"
+  else
+    echo_warning "Maximo Application Suite dependency must-gather disabled"
+  fi
+
+  # ---------------------------------------------------------------------------
+  # SLS Must-Gather
+  # ---------------------------------------------------------------------------
+  echo_h2 "Suite License Service"
+  if [[ "$SLS_REPORT" == "true" ]]; then
+    startTimer
+    SLS_NAMESPACES=$(oc get LicenseService --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
+    echo ""
+    for SLS_NAMESPACE in $SLS_NAMESPACES
+    do
+      # assume that there is only one LicenseService in the namespace
+      SLS_NAME=$(oc get LicenseService -n ${SLS_NAMESPACE} --ignore-not-found -o jsonpath='{.items[0].metadata.name}')
+      echo_h3 "Namespace: ${SLS_NAMESPACE}"
+
+      # SLS-specific must-gather
+      $MG_SCRIPT_DIR/mg-summary-sls $SLS_NAMESPACE &> ${OUTPUT_DIR}/${SLS_NAMESPACE}.txt
+      genericMustGather $SLS_NAMESPACE
+    done
+    endTimer "SLS"
+  else
+    echo_warning "IBM Suite License Service must-gather disabled"
+  fi
+
+
+  # ---------------------------------------------------------------------------
+  # MAS Must-Gather
+  # ---------------------------------------------------------------------------
+  if [[ -z $MAS_INSTANCE_IDS ]]; then
     # Find MAS instances
-    # -----------------------------------------------------------------------------
     MAS_INSTANCE_IDS=$(oc get suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
   fi
 
   echo ""
   for MAS_INSTANCE_ID in $MAS_INSTANCE_IDS
   do
-    echo_h2 "Maximo Application Suite Must Gather: ${MAS_INSTANCE_ID}"
-
-    for MAS_APP_ID in core add assist iot monitor manage optimizer predict visualinspection pipelines
+    echo_h2 "Maximo Application Suite: ${MAS_INSTANCE_ID}"
+    startTimer
+    for MAS_APP_ID in $(echo $MAS_APP_IDS | tr "," " ")
     do
       MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
       NAMESPACE_LOOKUP=$(oc get namespace $MAS_APP_NAMESPACE --ignore-not-found)
 
-      if [[ "$NAMESPACE_LOOKUP" != "" ]]
-      then
-        echo -e "- Performing must-gather in namespace ${MAS_APP_NAMESPACE}"
+      if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
+        echo_h3 "Namespace: ${MAS_APP_NAMESPACE}"
+        echo
         # MAS-specific must-gather
         $MG_SCRIPT_DIR/mg-summary-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE &> ${OUTPUT_DIR}/mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}.txt
+        $MG_SCRIPT_DIR/mg-collect-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE $OUTPUT_DIR
 
-        # Generic Kubernetes must-gather
-        if [[ "$SUMMARY_ONLY" == false ]]
-        then
-          $MG_SCRIPT_DIR/mg-collect-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE $OUTPUT_DIR
-          $MG_SCRIPT_DIR/mg-collect-pods $MAS_APP_NAMESPACE $POD_LOGS $OUTPUT_DIR/resources
-          for RESOURCE in configmaps services routes pvc deployments statefulsets jobs operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings
-          do
-            $MG_SCRIPT_DIR/mg-collect-resources -n $MAS_APP_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
-          done
-          $MG_SCRIPT_DIR/mg-collect-secrets -n $MAS_APP_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources -s $SECRET_DATA
-        fi
+        genericMustGather $MAS_APP_NAMESPACE
       fi
     done
+    endTimer "${MAS_INSTANCE_ID}:${MAS_APP_ID}"
   done
 
-  # Gather SLS data
-  # -----------------------------------------------------------------------------
-  SLS_NAMESPACES=$(oc get LicenseService --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
-  echo ""
-  for SLS_NAMESPACE in $SLS_NAMESPACES
-  do
-    # assume that there is only one LicenseService in the namespace
-    SLS_NAME=$(oc get LicenseService -n ${SLS_NAMESPACE} --ignore-not-found -o jsonpath='{.items[0].metadata.name}')
-    echo_h2 "Suite Licensing Service Must Gather from ${SLS_NAME} in ${SLS_NAMESPACE}"
 
-    # SLS-specific must-gather
-    $MG_SCRIPT_DIR/mg-summary-sls $SLS_NAMESPACE &> ${OUTPUT_DIR}/${SLS_NAMESPACE}.txt
+  # ---------------------------------------------------------------------------
+  # Extra Namespaces Must-Gather
+  # ---------------------------------------------------------------------------
+  if [[ "$EXTRA_NAMESPACES" != "" ]] && [[ "$SUMMARY_ONLY" == false ]]; then
+    echo_h2 "Extra Namespaces"
+    for EXTRA_NAMESPACE in $(echo $EXTRA_NAMESPACES | tr "," " ")
+    do
+      echo_h3 "Namespace: ${EXTRA_NAMESPACE}"
+      startTimer
+      NAMESPACE_LOOKUP=$(oc get namespace $EXTRA_NAMESPACE --ignore-not-found)
+      if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
+        genericMustGather $EXTRA_NAMESPACE
+      else
+        echo_highlight "Unable to find $EXTRA_NAMESPACE namespace"
+      fi
+      endTimer "namespace $EXTRA_NAMESPACE"
+    done
+  fi
 
-    # Generic Kubernetes must-gather
-    if [[ "$SUMMARY_ONLY" == false ]]
-    then
-      $MG_SCRIPT_DIR/mg-collect-sls $SLS_NAMESPACE $OUTPUT_DIR
 
-      $MG_SCRIPT_DIR/mg-collect-pods $SLS_NAMESPACE $POD_LOGS $OUTPUT_DIR/resources
-      for RESOURCE in configmaps services routes deployments jobs operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings
-      do
-        $MG_SCRIPT_DIR/mg-collect-resources -n $SLS_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
-      done
-      $MG_SCRIPT_DIR/mg-collect-secrets -n $SLS_NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources -s $SECRET_DATA
-    fi
-  done
-
-  python3 $MG_SCRIPT_DIR/summarizer/mg-print-summary.py $OUTPUT_DIR | tee $OUTPUT_DIR/summary.txt
+  # ---------------------------------------------------------------------------
+  # Generate Summary Report (we can't generate a report for partial must-gather)
+  # ---------------------------------------------------------------------------
+  if [[ "$OCP_REPORT" == "true" ]]; then
+    python3 $MG_SCRIPT_DIR/summarizer/mg-print-summary.py $OUTPUT_DIR >  $OUTPUT_DIR/summary.txt
+  fi
 
   tar -czf $OUTPUT_FILE -C $MG_DIR $TIMESTAMP
+
+
+  # ---------------------------------------------------------------------------
+  # Artifactory Upload
+  # ---------------------------------------------------------------------------
   if [[ -n "$ARTIFACTORY_TOKEN" && -n "$ARTIFACTORY_UPLOAD_DIR" ]]; then
     set -e
     ARTIFACTORY_AUTH_HEADER="Authorization:Bearer $ARTIFACTORY_TOKEN"
@@ -268,12 +370,16 @@ function mustgather() {
     set +e
   fi
 
+  # ---------------------------------------------------------------------------
+  # Cleanup
+  # ---------------------------------------------------------------------------
   if [[ "$KEEP_FILES" != "true" ]]; then
     rm -rf "$OUTPUT_DIR"
   fi
 
   echo
   echo_green "Must gather successfully saved to: $OUTPUT_FILE"
+  echo
 
   true
 }

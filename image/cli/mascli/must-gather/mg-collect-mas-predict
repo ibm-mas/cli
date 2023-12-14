@@ -8,6 +8,7 @@ OUTPUT_DIR=$2
 
 # Collect Reconcile Logs
 # -----------------------------------------------------------------------------
+echo_h4 "Collect Reconcile Logs"
 # Main Operator
 $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-predict $OUTPUT_DIR
 
@@ -25,11 +26,5 @@ $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType predict-api $OUTPU
 
 # Workspace Operator
 $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType entitymgr-ws-operator $OUTPUT_DIR
-
-# Collect Custom Resources
-# -----------------------------------------------------------------------------
-for RESOURCE in PredictApp PredictWorkspace Truststore; do
-    $DIR/mg-collect-resources -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
-done
 
 exit 0

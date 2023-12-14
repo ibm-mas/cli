@@ -55,7 +55,6 @@
         - fvt-assist
         - fvt-core
         - fvt-core-phase4
-        - fvt-core-ui
         - fvt-finalize
         - fvt-iot
         - fvt-manage
