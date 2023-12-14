@@ -622,3 +622,4 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/optimizer-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-optimizer
+
