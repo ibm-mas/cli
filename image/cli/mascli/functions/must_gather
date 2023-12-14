@@ -185,11 +185,10 @@ function mustgather() {
   OUTPUT_FILENAME=must-gather-${TIMESTAMP}.tgz
   OUTPUT_FILE=${MG_DIR}/${OUTPUT_FILENAME}
 
-  LOG_FILE=${OUTPUT_DIR}/must-gather-${TIMESTAMP}.log
+  LOG_FILE=${OUTPUT_DIR}/must-gather.log
   exec > >(tee ${LOG_FILE}) 2>&1
-  
-  echo "Must gather will be saved to: $OUTPUT_FILE"
 
+  echo "Must gather will be saved to: $OUTPUT_FILE"
 
   # ---------------------------------------------------------------------------
   # Generate OCP Report
