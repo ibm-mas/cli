@@ -136,17 +136,22 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - gitops-bootstrap
+        - gitops-cos
+        - gitops-cp4d
+        - gitops-cp4d-service
         - gitops-db2u
         - gitops-db2u-config
         - gitops-db2u-database
         - gitops-delete-kafka-config
         - gitops-deprovision-cluster
+        - gitops-deprovision-cos
         - gitops-deprovision-mongo
         - gitops-deprovision-efs
         - gitops-deprovision-kafka
         - gitops-deprovision-rosa
         - gitops-deprovision-suite-config
         - gitops-deprovision-suite-idp-config
+        - gitops-deprovision-suite-objectstorage-config
         - gitops-deprovision-suite-smtp-config
         - gitops-deprovision-suite-workspace
         - gitops-deprovision-suite
@@ -164,6 +169,7 @@
         - gitops-suite-config
         - gitops-suite-dns
         - gitops-suite-idp-config
+        - gitops-suite-objectstorage-config
         - gitops-suite-smtp-config
         - gitops-suite-workspace
         - gitops-suite

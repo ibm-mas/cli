@@ -62,6 +62,10 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_bootstrap
 . $CLI_DIR/functions/gitops_cluster
 . $CLI_DIR/functions/gitops_cis_compliance
+. $CLI_DIR/functions/gitops_cos
+. $CLI_DIR/functions/gitops_objectstorage_config
+. $CLI_DIR/functions/gitops_cp4d
+. $CLI_DIR/functions/gitops_cp4d_service
 . $CLI_DIR/functions/gitops_license
 . $CLI_DIR/functions/gitops_mongo
 . $CLI_DIR/functions/gitops_kafka
@@ -75,8 +79,10 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_suite_idp_config
 . $CLI_DIR/functions/gitops_suite_smtp_config
 . $CLI_DIR/functions/gitops_suite_workspace
+. $CLI_DIR/functions/gitops_deprovision_cos
 . $CLI_DIR/functions/gitops_deprovision_suite
 . $CLI_DIR/functions/gitops_deprovision_suite_config
+. $CLI_DIR/functions/gitops_deprovision_suite_objectstorage_config
 . $CLI_DIR/functions/gitops_deprovision_suite_workspace
 . $CLI_DIR/functions/gitops_efs
 . $CLI_DIR/functions/gitops_dro
@@ -252,6 +258,38 @@ case $1 in
     gitops_cis_compliance "$@"
     ;;
 
+  gitops-cos)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_cos "$@"
+    ;;
+
+  gitops-suite-objectstorage-config)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_suite_objectstorage_config "$@"
+    ;;
+
+  gitops-cp4d)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_cp4d "$@"
+    ;;
+
+  gitops-cp4d-service)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_cp4d_service "$@"
+    ;;
+
   gitops-license)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
@@ -378,6 +416,22 @@ case $1 in
     echo
     reset_colors
     gitops_deprovision_mongo "$@"
+    ;;
+
+  gitops-deprovision-cos)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_cos "$@"
+    ;;
+
+  gitops-deprovision-suite-objectstorage-config)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_suite_objectstorage_config "$@"
     ;;
 
   gitops-delete-kafka-config)

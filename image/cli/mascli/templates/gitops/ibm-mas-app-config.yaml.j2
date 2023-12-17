@@ -58,6 +58,12 @@ spec:
             tls_key: {{ TLS_KEY }}
             {% endif %}
 
+            {% if MAS_APP_ID == "assist" %}
+            cpd_admin_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CPD_ADMIN_PASSWORD }}>
+            cpd_admin_username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CPD_ADMIN_USERNAME }}>
+            wd_yaml: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WD_YAML }}>
+            {% endif %}
+
   syncPolicy:
     automated:
       prune: true
