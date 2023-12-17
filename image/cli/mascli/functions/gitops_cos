@@ -170,11 +170,12 @@ function gitops_cos() {
 
   export MAS_CONFIG_DIR=$TEMP_DIR
   export MAS_INSTANCE_ID=${MAS_INSTANCE_ID:-CLUSTER_ID}
-  export ROLE_NAME=cos && ansible-playbook ibm.mas_devops.run_role
   export COS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cos
+  export ROLE_NAME=cos && ansible-playbook ibm.mas_devops.run_role
 
   rc=$?
   [ $rc -ne 0 ] && exit $rc
+  
   # Extract the required details from the generated coscfg/secret.
   export COS_USERNAME=$(yq -sr '.[0].stringData.username' $TEMP_DIR/cos-ibm-system.yml)
   export COS_PASSWORD=$(yq -sr '.[0].stringData.password' $TEMP_DIR/cos-ibm-system.yml)
@@ -188,5 +189,9 @@ function gitops_cos() {
   ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
   sm_update_secret $COS_SECRET "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$COS_USERNAME\", \"password\": \"$COS_PASSWORD\"}"
 
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
+  
   rm -rf $TEMP_DIR
+  exit 0
 }

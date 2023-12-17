@@ -251,47 +251,8 @@ function gitops_cp4d() {
   export ROLE_NAME=cp4d
   ansible-playbook ibm.mas_devops.run_role
 
-  # # Define cluster-level secrets used
-  # # ---------------------------------------------------------------------------
-  # # Note that this cluster-level secret is set up by gitops-cluster
-  # export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
 
-  # if [ -z $GIT_SSH ]; then
-  #   export GIT_SSH=false
-  # fi
-
-  # # Clone github target repo
-  # # ---------------------------------------------------------------------------
-  # if [ "$GITHUB_PUSH" == "true" ]; then
-  #   echo
-  #   echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
-  #   clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
-  # fi
-  # mkdir -p ${GITOPS_APPS_DIR}
-
-
-  # # Generate ArgoApps
-  # # ---------------------------------------------------------------------------
-  # echo
-  # echo_h2 "Generating cp4d Applications"
-  # echo "Generating cp4d file ${GITOPS_APPS_DIR}/ibm-cp4d.yaml"
-  # jinja -X .+ $CLI_DIR/templates/gitops/ibm-cp4d.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-cp4d.yaml
-
-  # # Commit and push to github target repo
-  # # ---------------------------------------------------------------------------
-  # if [ "$GITHUB_PUSH" == "true" ]; then
-  #   echo
-  #   echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-  #   save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
-  #   remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
-
-  #   argocd_login
-  #   argocd_sync ${CLUSTER_ID}-watcher
-  #   argocd_hard_refresh mas-${MAS_INSTANCE_ID}-cp4d
-  #   add_role_to_user ${CPD_OPERATORS_NAMESPACE}
-  #   add_role_to_user ${CPD_INSTANCE_NAMESPACE}
-  #   check_argo_app_synced mas-${MAS_INSTANCE_ID}-cp4d ${CLUSTER_ID}-watcher ${CPD_INSTANCE_NAMESPACE}
-  #   check_argo_app_healthy mas-${MAS_INSTANCE_ID}-cp4d ${CLUSTER_ID}-watcher
-  # fi
-
+  exit 0
 }

@@ -263,13 +263,14 @@ function gitops_cp4d_service() {
   export ROLE_NAME=cp4d_service
   ansible-playbook ibm.mas_devops.run_role
 
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
+
   export CPD_USER_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cp4d
   export SECRET_KEY_CPD_ADMIN_USERNAME=${CPD_USER_SECRET}#username
   export SECRET_KEY_CPD_ADMIN_PASSWORD=${CPD_USER_SECRET}#password
   export SECRET_KEY_WD_YAML=${CPD_USER_SECRET}#wd_yaml
 
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
   # Extract the required details from the generated coscfg/secret.
   export CPD_ADMIN_USERNAME=$(yq -sr '.[2].stringData.username' $TEMP_DIR/${MAS_INSTANCE_ID}-wd-config.yml)
   export CPD_ADMIN_PASSWORD=$(yq -sr '.[2].stringData.password' $TEMP_DIR/${MAS_INSTANCE_ID}-wd-config.yml)
@@ -277,37 +278,8 @@ function gitops_cp4d_service() {
 
   sm_update_secret $CPD_USER_SECRET "{\"wd_yaml\": \"$WD_YAML\", \"username\": \"$CPD_ADMIN_USERNAME\", \"password\": \"$CPD_ADMIN_PASSWORD\"}"
 
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
 
-  # # Clone github target repo
-  # # ---------------------------------------------------------------------------
-  # if [ "$GITHUB_PUSH" == "true" ]; then
-  #   echo
-  #   echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
-  #   clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
-  # fi
-  # mkdir -p ${GITOPS_APPS_DIR}
-
-
-  # # Generate ArgoApps
-  # # ---------------------------------------------------------------------------
-  # echo
-  # echo_h2 "Generating cp4d-wd Applications"
-  # echo "Generating cp4d-wd file ${GITOPS_APPS_DIR}/ibm-cp4d-wd.yaml"
-  # jinja -X .+ $CLI_DIR/templates/gitops/ibm-cp4d-wd.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-cp4d-wd.yaml
-
-  # # Commit and push to github target repo
-  # # ---------------------------------------------------------------------------
-  # if [ "$GITHUB_PUSH" == "true" ]; then
-  #   echo
-  #   echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-  #   save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
-  #   remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
-
-  #   argocd_login
-  #   argocd_sync ${CLUSTER_ID}-watcher
-  #   argocd_hard_refresh mas-${MAS_INSTANCE_ID}-cp4d-wd
-  #   check_argo_app_synced mas-${MAS_INSTANCE_ID}-cp4d-wd ${CLUSTER_ID}-watcher ${CPD_INSTANCE_NAMESPACE}
-  #   check_argo_app_healthy mas-${MAS_INSTANCE_ID}-cp4d-wd ${CLUSTER_ID}-watcher
-  # fi
-
+  exit 0
 }
