@@ -540,6 +540,9 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "db2-database-db-config-yaml ............. ${COLOR_MAGENTA}${DB2_DATABASE_DB_CONFIG_YAML}"
   reset_colors
 
+  AVP_TYPE=aws  # Support for IBM will be added later
+  sm_login
+
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-db2u-database
   mkdir -p $TEMP_DIR
@@ -577,6 +580,20 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   # wait till CRD db2uclusters.db2u.databases.ibm.com NamesAccepted=True 
   wait_for_db2ucluster_crd
 
+  GITOPS_TMP_DIR=${GITOPS_CLUSTER_DIR}/tmp
+  mkdir -p ${GITOPS_TMP_DIR}
+
+  export DB2CFG_SETTINGS_APPLIED_FILE=${GITOPS_TMP_DIR}/db2cfg-settings-applied.json
+  export DB2CFG_SETTINGS_APPLIED_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}${MAS_APP_ID}${SECRETS_KEY_SEPERATOR}db2cfg
+  sm_get_secret_file ${DB2CFG_SETTINGS_APPLIED_SECRET} ${DB2CFG_SETTINGS_APPLIED_FILE}
+
+  export DB2CFG_SETTINGS_APPLIED=$(jq -r .'db2cfg_settings_applied' ${DB2CFG_SETTINGS_APPLIED_FILE})
+  echo "DB2CFG_SETTINGS_APPLIED=${DB2CFG_SETTINGS_APPLIED}"
+  if [[ "${DB2CFG_SETTINGS_APPLIED}" != "true" ]]; then
+    echo_h2 "setting DB2CFG_SETTINGS_APPLIED to false "
+    export DB2CFG_SETTINGS_APPLIED="false"
+  fi
+
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   echo
@@ -592,19 +609,24 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
     echo "git: Added ${FILES_ADDED} files"
-
+    if [[ "$FILES_ADDED" != "0" ]]; then
+      echo_h2 "setting DB2CFG_SETTINGS_APPLIED to false"
+      export DB2CFG_SETTINGS_APPLIED="false"
+    fi
     argocd_login
     argocd_sync ${CLUSTER_ID}-watcher
     argocd_hard_refresh mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-database
     check_argo_app_synced mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-database ${CLUSTER_ID}-watcher ${DB2_NAMESPACE}
     check_argo_app_healthy mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-database ${CLUSTER_ID}-watcher
   fi
+  echo "DB2CFG_SETTINGS_APPLIED= ${DB2CFG_SETTINGS_APPLIED} FILES_ADDED= ${FILES_ADDED} DB2_INTERNAL=${DB2_INTERNAL} MAS_APP_ID=${MAS_APP_ID}"  
   # Run specific setupcmds for Manage only if we have made changes.
-  if [[ "$DB2_INTERNAL" == "true" && "$FILES_ADDED" != "0" && "$MAS_APP_ID" == "manage" ]]; then
+  if [[ "$DB2_INTERNAL" == "true" && "${DB2CFG_SETTINGS_APPLIED}" != "true" && "$MAS_APP_ID" == "manage" ]]; then
     invoke_suite_db2_setup_for_manage 
   fi
+
   # Run DB2 apply script if we have made any changes.
-  if [[ "$DB2_INTERNAL" == "true" && "$FILES_ADDED" != "0" ]]; then
+  if [[ "$DB2_INTERNAL" == "true" && "${DB2CFG_SETTINGS_APPLIED}" != "true" ]]; then
     echo
     echo_h2 "Calling apply-db2cfg-settings.sh file on c-${DB2_INSTANCE_NAME}-db2u-0"
     oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0 -- su -lc '/db2u/scripts/apply-db2cfg-settings.sh --setting all | tee /tmp/apply-db2cfg-settings.log' db2inst1
@@ -614,6 +636,11 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     # to archival logging. Do that backup now if we are in that state. The function checks that
     # SQL1116N is being return from connect, and does nothin otherwise
     invoke_suite_db2_backup
+
+    echo "sm_update_secret ...DB2CFG_SETTINGS_APPLIED with true"
+    export DB2CFG_SETTINGS_APPLIED="true"
+    sm_update_secret ${DB2CFG_SETTINGS_APPLIED_SECRET} "{ \"db2cfg_settings_applied\": \"${DB2CFG_SETTINGS_APPLIED}\" }"
+
   fi
   if [ "$GITHUB_PUSH" == "true" ]; then
 	  remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO

@@ -310,6 +310,28 @@ spec:
     - name: mas_appws_spec_yaml_assist
       type: string
 
+    - name: mas_app_channel_optimizer
+      type: string
+    - name: mas_app_catalog_source_optimizer
+      type: string
+      default: ibm-operator-catalog
+    - name: mas_app_api_version_optimizer
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_app_kind_optimizer
+      type: string
+      default: OptimizerApp
+    - name: mas_appws_api_version_optimizer
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_appws_kind_optimizer
+      type: string
+      default: OptimizerWorkspace
+    - name: mas_app_spec_yaml_optimizer
+      type: string
+    - name: mas_appws_spec_yaml_optimizer
+      type: string
+
   tasks:
 {% if wait_for_provision == true %}
     # 0. Wait for the fvt start pipeline to complete
@@ -816,3 +838,16 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/assist-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-assist
+
+    # 11. Install & Configure Optimizer
+    # -------------------------------------------------------------------------
+    # 11.1 Install Optimizer
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/optimizer-app.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-manage
+
+    # 11.2 Configure Optimizer workspace
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/optimizer-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-optimizer
+

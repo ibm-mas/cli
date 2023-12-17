@@ -15,7 +15,7 @@ spec:
       type: string
     - name: mas_app_kind
       type: string
-    - name: mas_app_spec_yml
+    - name: mas_app_spec_yaml
       type: string
       default: ""
     - name: default_block_storage_class
@@ -64,8 +64,8 @@ spec:
         value: $(params.mas_app_api_version)
       - name: MAS_APP_KIND
         value: $(params.mas_app_kind)
-      - name: MAS_APP_SPEC_YML
-        value: $(params.mas_app_spec_yml)
+      - name: MAS_APP_SPEC_YAML
+        value: $(params.mas_app_spec_yaml)
       - name: DEFAULT_BLOCK_STORAGE_CLASS
         value: $(params.default_block_storage_class)
       - name: DEFAULT_FILE_STORAGE_CLASS
