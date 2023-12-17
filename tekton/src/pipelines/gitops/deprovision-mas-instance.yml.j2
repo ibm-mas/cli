@@ -404,13 +404,11 @@ spec:
         name: gitops-delete-kafka-config
     - name: gitops-deprovision-suite-objectstorage-config
       params:
-
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
-
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
-
+        - name: force_removal
+          value: $(params.force_removal)
         - name: mas_instance_id
           value: $(params.mas_instance_id)
 
@@ -425,9 +423,7 @@ spec:
         - gitops-deprovision-suite-objectstorage-config
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
-
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
