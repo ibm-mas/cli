@@ -1,0 +1,47 @@
+- name: app-install-assist
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
+  
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(4) }}
+
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(4) }}
+
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(4) }}
+
+    - name: devops_suite_name
+      value: app-assist-install
+    - name: mas_manual_cert_mgmt
+      value: $(params.mas_manual_cert_mgmt)
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_app_id
+      value: assist
+    - name: mas_app_channel
+      value: $(params.mas_app_channel_assist)
+    - name: custom_labels
+      value: $(params.custom_labels)
+    - name: mas_app_spec_yaml
+      value: $(params.mas_app_spec_yaml_assist)
+    - name: mas_app_catalog_source
+      value: $(params.mas_app_catalog_source_assist)
+    - name: mas_app_api_version
+      value: $(params.mas_app_api_version_assist)
+    - name: mas_app_kind
+      value: $(params.mas_app_kind_assist)
+    - name: default_block_storage_class
+      value: $(params.default_block_storage_class)
+    - name: default_file_storage_class
+      value: $(params.default_file_storage_class)
+  taskRef:
+    name: gitops-suite-app-install
+    kind: Task
+  # Only install assist if a channel has been chosen
+  when:
+    - input: "$(params.mas_app_channel_assist)"
+      operator: notin
+      values: [""]
+  workspaces:
+    - name: configs
+      workspace: configs
+    - name: shared-gitops-configs
+      workspace: shared-gitops-configs

@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-db2u
+  name: gitops-cp4d-service
 spec:
   params:
     - name: cluster_name
@@ -27,10 +27,19 @@ spec:
       type: string
     - name: avp_aws_access_key
       type: string
-    - name: db2_channel
+    - name: mas_instance_id
       type: string
+    - name: cpd_product_version
+      type: string
+    - name: cpd_service_name
+      type: string
+    - name: cpd_service_block_storage_class
+      type: string
+    - name: cpd_service_storage_class
+      type: string
+
   stepTemplate:
-    name: gitops-db2u
+    name: gitops-cp4d-service
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -56,8 +65,16 @@ spec:
         value: $(params.avp_aws_secret_key)
       - name: SM_AWS_ACCESS_KEY_ID
         value: $(params.avp_aws_access_key)
-      - name: DB2_CHANNEL
-        value: $(params.db2_channel)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: CPD_PRODUCT_VERSION
+        value: $(params.cpd_product_version)
+      - name: CPD_SERVICE_NAME
+        value: $(params.cpd_service_name)
+      - name: CPD_SERVICE_BLOCK_STORAGE_CLASS
+        value: $(params.cpd_service_block_storage_class)
+      - name: CPD_SERVICE_STORAGE_CLASS
+        value: $(params.cpd_service_storage_class)
   steps:
     - args:
       - |-
@@ -79,9 +96,9 @@ spec:
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
-        mkdir -p /tmp/init-db2u
-        mas gitops-db2u -a $ACCOUNT -c $CLUSTER_NAME \
-        --dir /tmp/init-db2u \
+        mkdir -p /tmp/init-cp4d-service
+        mas gitops-cp4d-service -a $ACCOUNT -c $CLUSTER_NAME \
+        --dir /tmp/init-cp4d-service \
         --secrets-path $SECRET_PATH \
         --github-push \
         --github-host $GITHUB_HOST \
@@ -93,8 +110,9 @@ spec:
       command:
         - /bin/sh
         - -c
-      name: gitops-db2u
+      name: gitops-cp4d-service
       imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:7.10.0-pre.gitops
   workspaces:
     - name: configs
+    - name: shared-gitops-configs

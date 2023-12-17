@@ -527,8 +527,6 @@ function gitops_suite_app_config() {
   export SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-jms.mas-${MAS_INSTANCE_ID}-manage.svc:7276"
 
 
-
-
   if [ "$MAS_APP_ID" == "manage" ]; then
     # these settings will be applied to ui, cron and report - these server bundles don't need the activation specification in the JMS config xml
     echo "- Generate SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT "
@@ -553,6 +551,12 @@ function gitops_suite_app_config() {
     export SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT=$(echo -n $SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT | base64  -w 0)
   fi
 
+  if [ "$MAS_APP_ID" == "assist" ]; then
+    export CPD_USER_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cp4d
+    export SECRET_KEY_CPD_ADMIN_USERNAME=${CPD_USER_SECRET}#username
+    export SECRET_KEY_CPD_ADMIN_PASSWORD=${CPD_USER_SECRET}#password
+    export SECRET_KEY_WD_YAML=${CPD_USER_SECRET}#wd_yaml
+  fi
 
   # wait till CR MASS_APP_KIND is in ready status
   wait_till_cr_ready $MAS_APP_KIND $MAS_APP_NAMESPACE
@@ -570,11 +574,6 @@ function gitops_suite_app_config() {
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
-    echo
-    echo_h2 "Restart application-controller ..."
-    oc rollout restart statefulset/openshift-gitops-application-controller -n openshift-gitops
-    echo_h2 'Waiting for rollout of application-controller to complete'
-    oc rollout status statefulset/openshift-gitops-application-controller -n openshift-gitops
 
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"

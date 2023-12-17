@@ -1,23 +1,27 @@
 #!/usr/bin/env bash
 
-function gitops_cis_compliance_help() {
+function gitops_suite_objectstorage_config_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_cis_compliance [options]
+  mas gitops_suite_objectstorage_config [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
+Options:
+
 GitOps Configuration:
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Working directory for GitOps repository
   -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
 
-MongoDb Provider Selection:
-      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. Only "aws" is supported
+Secrets Manager:
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
+      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
+
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -34,9 +38,10 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_cis_compliance_noninteractive() {
+function gitops_suite_objectstorage_config_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
-  GIT_COMMIT_MSG="gitops-cis-compliance commit"
+  SECRETS_KEY_SEPERATOR="/"
+  GIT_COMMIT_MSG="gitops-cos-config commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   while [[ $# -gt 0 ]]
@@ -44,7 +49,6 @@ function gitops_cis_compliance_noninteractive() {
     key="$1"
     shift
     case $key in
-      # GitOps Configuration
       -d|--dir)
         export GITOPS_WORKING_DIR=$1 && shift
         ;;
@@ -56,6 +60,17 @@ function gitops_cis_compliance_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
+        ;;
+      -m|--mas-instance-id)
+        export MAS_INSTANCE_ID=$1 && shift
+        ;;
+
+      # Secrets Manager
+      --secrets-path)
+        export SECRETS_PATH=$1 && shift
+        ;;
+      --secrets-key-seperator)
+        export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -81,42 +96,41 @@ function gitops_cis_compliance_noninteractive() {
         export GIT_SSH=$1 && shift
         ;;
 
-      # Other Commands
       -h|--help)
-        gitops_cis_compliance_help
+        gitops_suite_objectstorage_config_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_cis_compliance_help "Usage Error: Unsupported option \"${key}\" "
+        gitops_suite_objectstorage_config_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$ACCOUNT_ID" ]] && gitops_cis_compliance_help "ACCOUNT_ID is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_cis_compliance_help "CLUSTER_ID is not set"
-
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_suite_objectstorage_config_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$GITOPS_VERSION" ]] && gitops_suite_objectstorage_config_help "GITOPS_VERSION is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_suite_objectstorage_config_help "CLUSTER_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_suite_objectstorage_config_help "ACCOUNT_ID is not set"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_cis_compliance_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_cis_compliance_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_cis_compliance_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_cis_compliance_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_suite_objectstorage_config_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_suite_objectstorage_config_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_suite_objectstorage_config_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_suite_objectstorage_config_help "GIT_BRANCH is not set"
   fi
-
 }
 
-function gitops_cis_compliance() {
+function gitops_suite_objectstorage_config() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_cis_compliance_noninteractive "$@"
+    gitops_suite_objectstorage_config_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_cis_compliance_interactive
+    gitops_suite_objectstorage_config_interactive
   fi
-
+  rm -rf ${GITOPS_WORKING_DIR}
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
   GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
@@ -130,6 +144,11 @@ function gitops_cis_compliance() {
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Secrets Manager" "    "
+  echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -152,8 +171,39 @@ function gitops_cis_compliance() {
     echo_reset_dim "Automatic Push ........................ ${COLOR_RED}Disabled"
     echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
   fi
+  reset_colors  
+
+  echo "${TEXT_DIM}"
+  echo_h2 "IBM Maximo Application Suite" "    "
+  echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   reset_colors
 
+
+  # Set up Suite secrets
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Configuring Suite secrets"
+  AVP_TYPE=aws  # Support for IBM will be added later
+  sm_login
+
+  # Get the cluster-level secrets used
+  # ---------------------------------------------------------------------------
+  CURRENT_DIR=$PWD
+  TEMP_DIR=$CURRENT_DIR/tmp-cos-config
+  rm -rf $TEMP_DIR
+  mkdir -p $TEMP_DIR
+
+  # Get the instance-level values to used
+  # ---------------------------------------------------------------------------
+  export suite_objectstorage_SECRET_FILE=$TEMP_DIR/cos-secret.json
+  export suite_objectstorage_CONFIG_FILE=$TEMP_DIR/cos-info.yaml
+
+  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cos $suite_objectstorage_SECRET_FILE
+  jq -r .info $suite_objectstorage_SECRET_FILE > $suite_objectstorage_CONFIG_FILE
+
+  export OBJECTSTORAGE_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cos
+  export SECRET_KEY_OBJECTSTORAGE_USERNAME=${OBJECTSTORAGE_SECRET}#username
+  export SECRET_KEY_OBJECTSTORAGE_PASSWORD=${OBJECTSTORAGE_SECRET}#password
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
@@ -170,15 +220,12 @@ function gitops_cis_compliance() {
 
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
-  echo
-  echo_h2 "Generating Argo Applications"
-  echo "- IBM Cis Compliance"
-  jinja -X .+ $CLI_DIR/templates/gitops/cis-compliance.yaml.j2 -o ${GITOPS_APPS_DIR}/cis-compliance.yaml
+  # Per MAS instance
+  jinja -X .+ -d $suite_objectstorage_CONFIG_FILE $CLI_DIR/templates/gitops/ibm-objectstorage-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-objectstorage-config.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
-
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
@@ -186,10 +233,11 @@ function gitops_cis_compliance() {
 
     argocd_login
     argocd_sync ${CLUSTER_ID}-watcher
-    argocd_hard_refresh cis-compliance
-    add_role_to_user openshift-compliance
-    check_argo_app_synced cis-compliance ${CLUSTER_ID}-watcher openshift-compliance
-    check_argo_app_healthy cis-compliance ${CLUSTER_ID}-watcher
+    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-objectstorage-config
+    check_argo_app_synced mas-${MAS_INSTANCE_ID}-objectstorage-config ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-core
+    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-objectstorage-config ${CLUSTER_ID}-watcher
   fi
+
+  rm -rf $TEMP_DIR
 
 }

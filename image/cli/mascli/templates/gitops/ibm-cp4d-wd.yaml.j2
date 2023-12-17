@@ -1,0 +1,46 @@
+---
+# CP4D Configuration
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mas-{{MAS_INSTANCE_ID}}-cp4d-wd
+  namespace: openshift-gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ MAS_INSTANCE_ID }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{CPD_INSTANCE_NAMESPACE}}
+  source:
+    repoURL: https://github.com/ibm-mas/gitops
+    path: applications/ibm-cp4d-wd
+    targetRevision: {{ GITOPS_VERSION }}
+    plugin:
+      env:
+        - name: HELM_VALUES
+          value: |
+            mas_instance_id: {{MAS_INSTANCE_ID}}
+            cpd_instance_namespace: {{CPD_INSTANCE_NAMESPACE}}
+            cpd_operators_namespace: {{CPD_OPERATORS_NAMESPACE}}
+            cpd_wd_service_block_storage_class: {{CPD_WD_SERVICE_BLOCK_STORAGE_CLASS}}
+            cpd_wd_service_storage_class: {{CPD_METADATA_STORAGE_CLASS}}
+
+            {% if CPD_WD_SERVICE_CHANNEL %}
+            cpd_wd_service_channel: {{CPD_WD_SERVICE_CHANNEL}}
+            {% endif %}
+            {% if CPD_WD_SERVICE_CR_VERSION %}
+            cpd_wd_service_cr_version: {{CPD_WD_SERVICE_CR_VERSION}}
+            {% endif %}
+            {% if CPD_WD_SERVICE_INSTALLPLAN_APPROVAL %}
+            cpd_wd_service_installplan_approval: {{CPD_WD_SERVICE_INSTALLPLAN_APPROVAL}}
+            {% endif %}
+            {% if CPD_WD_SERVICE_DEPLOYMENT_TYPE %}
+            cpd_wd_service_deployment_type: {{CPD_WD_SERVICE_DEPLOYMENT_TYPE}}
+            {% endif %}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

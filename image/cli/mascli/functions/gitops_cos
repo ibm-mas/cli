@@ -1,0 +1,192 @@
+#!/usr/bin/env bash
+
+function gitops_cos_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops-cos [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+GitOps Configuration:
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                  Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                  Cluster ID
+
+Secrets Manager:
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
+      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key seperator string
+
+IBM Maximo Application Suite:
+      -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                    IBM Suite Maximo Application Suite Instance ID  
+
+COS Provider:
+      --cos-action ${COLOR_YELLOW}COS_ACTION${TEXT_RESET}                                                  provision or deprovision
+      --cos-type ${COLOR_YELLOW}COS_TYPE${TEXT_RESET}                                                      COS type, only ibm supported
+      --ibmcloud-resourcegroup ${COLOR_YELLOW}IBMCLOUD_RESOURCEGROUP${TEXT_RESET}                          IBM Cloud resource group to set
+      --ibmcloud-apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                                        IBM Cloud APIkey
+
+Other Commands:
+      -h, --help                                                                                           Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+
+function gitops_cos_noninteractive() {
+  GITOPS_WORKING_DIR=$PWD/working-dir  
+  SECRETS_KEY_SEPERATOR="/"
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # GitOps Configuration
+      -d|--dir)
+        export GITOPS_WORKING_DIR=$1 && shift
+        ;;
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+
+      # Secrets Manager
+      --secrets-path)
+        export SECRETS_PATH=$1 && shift
+        ;;
+      --secrets-key-seperator)
+        export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
+
+      # MAS
+      -m|--mas-instance-id)
+        export MAS_INSTANCE_ID=$1 && shift
+        ;;
+
+      # COS Provider Selection
+      --cos-action)
+        export COS_ACTION=$1 && shift
+        ;;
+      --cos-type)
+        export COS_TYPE=$1 && shift
+        ;;
+      --ibmcloud-resourcegroup)
+        export IBMCLOUD_RESOURCEGROUP=$1 && shift
+        ;;
+      --ibmcloud-apikey)
+        export IBMCLOUD_APIKEY=$1 && shift
+        ;;
+
+      # Automatic GitHub Push
+      -P|--github-push)
+        export GITHUB_PUSH=true
+        ;;
+      -H|--github-host)
+        export GITHUB_HOST=$1 && shift
+        ;;
+      -O|--github-org)
+        export GITHUB_ORG=$1 && shift
+        ;;
+      -R|--github-repo)
+        export GITHUB_REPO=$1 && shift
+        ;;
+      -B|--git-branch)
+        export GIT_BRANCH=$1 && shift
+        ;;
+      -M|--git-commit-msg)
+        export GIT_COMMIT_MSG=$1 && shift
+        ;;
+
+      # Other Commands
+      -h|--help)
+        gitops_cos_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        gitops_cos_help  "Usage Error: Unsupported option \"${key}\" "
+        exit 1
+        ;;
+      esac
+  done
+
+
+  [[ -z "$CLUSTER_ID" ]] && gitops_cos_help "CLUSTER_ID is not set"
+  [[ -z "$COS_TYPE" ]] && gitops_cos_help "COS_TYPE is not set"
+  [[ -z "$IBMCLOUD_APIKEY" ]] && gitops_cos_help "IBMCLOUD_APIKEY is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_cos_help "ACCOUNT_ID is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_cos_help "MAS_INSTANCE_ID is not set"
+}
+
+function gitops_cos() {
+  # Take the first parameter off (it will be create-gitops)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_cos_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_cos_interactive
+  fi
+  rm -rf $GITOPS_WORKING_DIR
+  mkdir -p ${GITOPS_WORKING_DIR}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
+  TEMP_DIR=$GITOPS_CLUSTER_DIR/tmp-cos
+  mkdir -p ${TEMP_DIR}
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Target" "    "
+  echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${TEMP_DIR}"  
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Secrets Manager" "    "
+  echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "COS" "    "
+  echo_reset_dim "COS action  ........................... ${COLOR_MAGENTA}${COS_ACTION}"
+  echo_reset_dim "COS type  ............................. ${COLOR_MAGENTA}${COS_TYPE}"
+  echo_reset_dim "IBMCLOUD Resource Group  .............. ${COLOR_MAGENTA}${IBMCLOUD_RESOURCEGROUP}"
+  echo_reset_dim "IBMCLOUD ApiKey ....................... ${COLOR_MAGENTA}${IBMCLOUD_APIKEY:0:8}<snip>"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "IBM Maximo Application Suite" "    "
+  echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+
+  reset_colors
+
+  AVP_TYPE=aws  # Support for IBM will be added later
+  sm_login
+
+  export MAS_CONFIG_DIR=$TEMP_DIR
+  export MAS_INSTANCE_ID=${MAS_INSTANCE_ID:-CLUSTER_ID}
+  export ROLE_NAME=cos && ansible-playbook ibm.mas_devops.run_role
+  export COS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cos
+
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
+  # Extract the required details from the generated coscfg/secret.
+  export COS_USERNAME=$(yq -sr '.[0].stringData.username' $TEMP_DIR/cos-ibm-system.yml)
+  export COS_PASSWORD=$(yq -sr '.[0].stringData.password' $TEMP_DIR/cos-ibm-system.yml)
+  yq -sY  '.[1].spec' $TEMP_DIR/cos-ibm-system.yml >> $TEMP_DIR/cos-info.yaml
+  yq -iY 'del(.config.credentials)' $TEMP_DIR/cos-info.yaml
+  yq -iY 'del(.displayName)' $TEMP_DIR/cos-info.yaml
+
+  UNESCAPED_INFO="$(cat $TEMP_DIR/cos-info.yaml)"
+  
+  ESCAPED_INFO=${UNESCAPED_INFO//\"/\\\"}
+  ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
+  sm_update_secret $COS_SECRET "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$COS_USERNAME\", \"password\": \"$COS_PASSWORD\"}"
+
+  rm -rf $TEMP_DIR
+}

@@ -2,12 +2,16 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-db2u
+  name: gitops-suite-objectstorage-config
 spec:
   params:
     - name: cluster_name
       type: string
     - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: mas_instance_id
       type: string
     - name: git_branch
       type: string
@@ -19,27 +23,24 @@ spec:
       type: string
     - name: github_pat
       type: string
-    - name: secrets_path
-      type: string
     - name: avp_aws_secret_region
       type: string
     - name: avp_aws_secret_key
       type: string
     - name: avp_aws_access_key
       type: string
-    - name: db2_channel
-      type: string
+
   stepTemplate:
-    name: gitops-db2u
+    name: gitops-suite-objectstorage-config
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
       - name: ACCOUNT
         value: $(params.account)
-      - name: GITHUB_REPO
-        value: $(params.github_repo)
       - name: SECRET_PATH
         value: $(params.secrets_path)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
       - name: GIT_BRANCH
         value: $(params.git_branch)
       - name: GITHUB_ORG
@@ -56,15 +57,16 @@ spec:
         value: $(params.avp_aws_secret_key)
       - name: SM_AWS_ACCESS_KEY_ID
         value: $(params.avp_aws_access_key)
-      - name: DB2_CHANNEL
-        value: $(params.db2_channel)
+
   steps:
     - args:
       - |-
+        mkdir -p /tmp/init-suite-objectstorage-config
+
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
-        
+
         ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
         export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
         export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
@@ -72,29 +74,34 @@ spec:
         oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
         OC_RC=$?
         if [ $OC_RC -ne 0 ]; then
-          echo "oc login failed"
+          echo "oc login failed to $OCP_SERVER"
           exit 1
         fi
         
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
-        mkdir -p /tmp/init-db2u
-        mas gitops-db2u -a $ACCOUNT -c $CLUSTER_NAME \
-        --dir /tmp/init-db2u \
+        if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
+          export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
+          export ARGOCD_USERNAME=admin
+          export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
+        fi
+
+        mas gitops-suite-objectstorage-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
+        --dir /tmp/init-suite-objectstorage-config \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
         --git-branch $GIT_BRANCH
 
-        exit $?
       command:
         - /bin/sh
         - -c
-      name: gitops-db2u
+      name: gitops-suite-objectstorage-config
       imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:7.10.0-pre.gitops
   workspaces:
     - name: configs
+    - name: shared-gitops-configs

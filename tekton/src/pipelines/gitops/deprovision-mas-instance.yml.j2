@@ -56,6 +56,25 @@ spec:
       type: string
       default: "remove"
       description: Only remove when db2 instances is provisioned
+
+    # Dependencies - COS
+    # -----------------------------------------------------------------------------
+    - name: cos_type
+      type: string
+      description: COS Provider (ibm or ocs)
+      default: ""
+    - name: ibmcloud_resourcegroup
+      type: string
+      description: Name of an existing COS Resource Group in IBM Cloud account
+      default: ""
+    - name: cos_action
+      type: string
+      description: COS action to be performed (provision or deprovision)
+      default: ""
+    - name: ibmcloud_apikey
+      type: string
+      default: ""
+
     - name: force_removal
       type: string
       default: ""
@@ -383,3 +402,56 @@ spec:
       taskRef:
         kind: Task
         name: gitops-delete-kafka-config
+    - name: gitops-deprovision-suite-objectstorage-config
+      params:
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite-objectstorage-config
+      workspaces:
+        - name: configs
+          workspace: configs
+    - name: gitops-deprovision-cos
+      runAfter:
+        - gitops-deprovision-suite-objectstorage-config
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cos_action
+          value: $(params.cos_action)
+        - name: cos_type
+          value: $(params.cos_type)
+        - name: ibmcloud_resourcegroup
+          value: $(params.ibmcloud_resourcegroup)
+        - name: ibmcloud_apikey
+          value: $(params.ibmcloud_apikey)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-cos
+      when:
+        - input: "$(params.cos_action)"
+          operator: notin
+          values: [""]
+        - input: "$(params.cos_action)"
+          operator: in
+          values: ["deprovision"]

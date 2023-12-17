@@ -603,11 +603,11 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   if [[ "$DB2_INTERNAL" == "true" && "$FILES_ADDED" != "0" && "$MAS_APP_ID" == "manage" ]]; then
     invoke_suite_db2_setup_for_manage 
   fi
-  # Run DB2 apply script if we have made any changes. Needs to be run twice for DB2 Standalone as that is what ansible-devops role does
+  # Run DB2 apply script if we have made any changes.
   if [[ "$DB2_INTERNAL" == "true" && "$FILES_ADDED" != "0" ]]; then
     echo
     echo_h2 "Calling apply-db2cfg-settings.sh file on c-${DB2_INSTANCE_NAME}-db2u-0"
-    oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0 -- su -lc '/db2u/scripts/apply-db2cfg-settings.sh | tee /tmp/apply-db2cfg-settings.log' db2inst1
+    oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0 -- su -lc '/db2u/scripts/apply-db2cfg-settings.sh --setting all | tee /tmp/apply-db2cfg-settings.log' db2inst1
     rc=$?
     [ $rc -ne 0 ] && exit $rc
     # Some parameters like LOGARCHMETH1 being set can cause a backup to be needed as it moves
