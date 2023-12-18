@@ -640,7 +640,8 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     echo "sm_update_secret ...DB2CFG_SETTINGS_APPLIED with true"
     export DB2CFG_SETTINGS_APPLIED="true"
     sm_update_secret ${DB2CFG_SETTINGS_APPLIED_SECRET} "{ \"db2cfg_settings_applied\": \"${DB2CFG_SETTINGS_APPLIED}\" }"
-
+    rc=$?
+    [ $rc -ne 0 ] && exit $rc
   fi
   if [ "$GITHUB_PUSH" == "true" ]; then
 	  remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
