@@ -14,7 +14,7 @@ GitOps Configuration:
   -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}                                         Version of ibm-mas/gitops to use
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                 Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                 Cluster ID
-      --config-dir ${COLOR_YELLOW}CONFIG_DIR${TEXT_RESET}            Directory that holds configuration to use
+      --gitops-config-dir ${COLOR_YELLOW}GITOPS_CONFIG_DIR${TEXT_RESET}                                   Directory that holds configuration to use
 
 Maximo Application Suite:
 
@@ -104,8 +104,8 @@ function gitops_suite_app_config_noninteractive() {
       --mas-manual-cert-mgmt)
         export MAS_MANUAL_CERT_MGMT=$1 && shift
         ;;
-      --config-dir)
-        export CONFIG_DIR=$1 && shift
+      --gitops-config-dir)
+        export GITOPS_CONFIG_DIR=$1 && shift
         ;;
 
       --mas-appws-bindings-jdbc)
@@ -346,7 +346,7 @@ function gitops_suite_app_config() {
   echo_reset_dim "Account ID .............................. ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID .............................. ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Application Directory ................... ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
-  echo_reset_dim "Config Directory ........................ ${COLOR_MAGENTA}${CONFIG_DIR}"
+  echo_reset_dim "Config Directory ........................ ${COLOR_MAGENTA}${GITOPS_CONFIG_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -562,10 +562,16 @@ function gitops_suite_app_config() {
     export SECRET_KEY_CPD_ADMIN_PASSWORD=${CPD_SECRET}#password
 
     export WD_YAML=$TEMP_DIR/wd_yaml.yaml
-    export WD_CONFIG=$CONFIG_DIR/$MAS_INSTANCE_ID-cp4d-service-wd/$MAS_INSTANCE_ID-wd-config.yml
+    export WD_CONFIG=$GITOPS_CONFIG_DIR/$MAS_INSTANCE_ID-cp4d-service-wd/$MAS_INSTANCE_ID-wd-config.yml
     jq -r .[1].data."wd.yaml" $WD_CONFIG > $WD_YAML
+    rc=$?
+    [ $rc -ne 0 ] && exit $rc
     export WD_URL=$(yq -sr '.[0].url' $WD_YAML)
+    rc=$?
+    [ $rc -ne 0 ] && exit $rc
     export WD_VERSION=$(yq -sr '.[0].version' $WD_YAML)
+    rc=$?
+    [ $rc -ne 0 ] && exit $rc
   fi
 
   # wait till CR MASS_APP_KIND is in ready status

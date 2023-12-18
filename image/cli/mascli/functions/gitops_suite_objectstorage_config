@@ -12,12 +12,12 @@ When no options are specified on the command line, interactive-mode will be enab
 Options:
 
 GitOps Configuration:
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Working directory for GitOps repository
-  -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
-  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
-  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
-  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
-      --config-dir ${COLOR_YELLOW}CONFIG_DIR${TEXT_RESET}            Directory that holds configuration to use
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                  Working directory for GitOps repository
+  -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}           Version of ibm-mas/gitops to use
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                   Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                   Cluster ID
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}         IBM Suite Maximo Application Suite Instance ID
+      --gitops-config-dir ${COLOR_YELLOW}GITOPS_CONFIG_DIR${TEXT_RESET}     Directory that holds configuration to use
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -62,8 +62,8 @@ function gitops_suite_objectstorage_config_noninteractive() {
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
         ;;
-      --config-dir)
-        export CONFIG_DIR=$1 && shift
+      --gitops-config-dir)
+        export GITOPS_CONFIG_DIR=$1 && shift
         ;;
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
@@ -113,7 +113,7 @@ function gitops_suite_objectstorage_config_noninteractive() {
   done
 
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_suite_objectstorage_config_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$CONFIG_DIR" ]] && gitops_suite_objectstorage_config_help "CONFIG_DIR is not set"
+  [[ -z "$GITOPS_CONFIG_DIR" ]] && gitops_suite_objectstorage_config_help "GITOPS_CONFIG_DIR is not set"
   [[ -z "$GITOPS_VERSION" ]] && gitops_suite_objectstorage_config_help "GITOPS_VERSION is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_suite_objectstorage_config_help "CLUSTER_ID is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_suite_objectstorage_config_help "ACCOUNT_ID is not set"
@@ -149,7 +149,7 @@ function gitops_suite_objectstorage_config() {
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
-  echo_reset_dim "Config Directory ...................... ${COLOR_MAGENTA}${CONFIG_DIR}"
+  echo_reset_dim "Config Directory ...................... ${COLOR_MAGENTA}${GITOPS_CONFIG_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -201,7 +201,7 @@ function gitops_suite_objectstorage_config() {
 
   # Get the instance-level values to used
   # ---------------------------------------------------------------------------
-  export COS_CONFIG=$CONFIG_DIR/$MAS_INSTANCE_ID-cos/cos-ibm-system.yml
+  export COS_CONFIG=$GITOPS_CONFIG_DIR/$MAS_INSTANCE_ID-cos/cos-ibm-system.yml
   yq -sY  '.[1].spec' $COS_CONFIG >> $TEMP_DIR/cos-info.yaml
   rc=$?
   [ $rc -ne 0 ] && exit $rc

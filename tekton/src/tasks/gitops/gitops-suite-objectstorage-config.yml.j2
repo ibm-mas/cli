@@ -87,7 +87,7 @@ spec:
           export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
         fi
 
-        export CONFIG_DIR=/workspace/configs
+        export GITOPS_CONFIG_DIR=/workspace/configs
 
         mas gitops-suite-objectstorage-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
