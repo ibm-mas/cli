@@ -203,6 +203,8 @@ function gitops_suite_objectstorage_config() {
   # ---------------------------------------------------------------------------
   export COS_CONFIG=$CONFIG_DIR/$MAS_INSTANCE_ID-cos/cos-ibm-system.yml
   yq -sY  '.[1].spec' $COS_CONFIG >> $TEMP_DIR/cos-info.yaml
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
   yq -iY 'del(.config.credentials)' $TEMP_DIR/cos-info.yaml
   yq -iY 'del(.displayName)' $TEMP_DIR/cos-info.yaml
   export OBJECTSTORAGE_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cos
