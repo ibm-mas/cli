@@ -17,6 +17,7 @@ GitOps Configuration:
 
 IBM Maximo Application Suite:
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}   IBM Suite Maximo Application Suite Instance ID
+      --mas-config-dir ${COLOR_YELLOW}MAS_CONFIG_DIR${TEXT_RESET}     IBM Suite Maximo Application Suite config dir to hold config
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -76,6 +77,9 @@ function gitops_cp4d_service_noninteractive() {
       # MAS
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
+        ;;
+      --mas-config-dir)
+        export MAS_CONFIG_DIR=$1 && shift
         ;;
 
       # Secrets Manager
@@ -158,6 +162,7 @@ function gitops_cp4d_service_noninteractive() {
 
   #MAS
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_cp4d_service_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$MAS_CONFIG_DIR" ]] && gitops_cp4d_service_help "MAS_CONFIG_DIR is not set"
 
   [[ -z "$CPD_SERVICE_NAME" ]] && gitops_cp4d_service_help "CPD_SERVICE_NAME is not set"
   [[ -z "$CPD_PRODUCT_VERSION" ]] && gitops_cp4d_service_help "CPD_PRODUCT_VERSION is not set"
@@ -205,6 +210,12 @@ function gitops_cp4d_service() {
   echo "${TEXT_DIM}"
   echo_h2 "Secrets Manager" "    "
   echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "IBM Maximo Application Suite" "    "
+  echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "Config Dir  ............................. ${COLOR_MAGENTA}${MAS_CONFIG_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -258,7 +269,6 @@ function gitops_cp4d_service() {
   export SECRET_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
   sm_get_secret_file $SECRET_IBM_ENTITLEMENT $IBM_ENTITLEMENT_KEY_FILE
 
-  export MAS_CONFIG_DIR=$TEMP_DIR
   export IBM_ENTITLEMENT_KEY=$(jq -r .entitlement_key $IBM_ENTITLEMENT_KEY_FILE | base64 -d ; echo)
   export ROLE_NAME=cp4d_service
   ansible-playbook ibm.mas_devops.run_role
@@ -269,14 +279,12 @@ function gitops_cp4d_service() {
   export CPD_USER_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cp4d
   export SECRET_KEY_CPD_ADMIN_USERNAME=${CPD_USER_SECRET}#username
   export SECRET_KEY_CPD_ADMIN_PASSWORD=${CPD_USER_SECRET}#password
-  export SECRET_KEY_WD_YAML=${CPD_USER_SECRET}#wd_yaml
 
   # Extract the required details from the generated coscfg/secret.
-  export CPD_ADMIN_USERNAME=$(yq -sr '.[2].stringData.username' $TEMP_DIR/${MAS_INSTANCE_ID}-wd-config.yml)
-  export CPD_ADMIN_PASSWORD=$(yq -sr '.[2].stringData.password' $TEMP_DIR/${MAS_INSTANCE_ID}-wd-config.yml)
-  export WD_YAML=$(yq -sr '.[1].data."wd.yaml"' $TEMP_DIR/${MAS_INSTANCE_ID}-wd-config.yml)
+  export CPD_ADMIN_USERNAME=$(yq -sr '.[2].stringData.username' $MAS_CONFIG_DIR/${MAS_INSTANCE_ID}-wd-config.yml)
+  export CPD_ADMIN_PASSWORD=$(yq -sr '.[2].stringData.password' $MAS_CONFIG_DIR/${MAS_INSTANCE_ID}-wd-config.yml)
 
-  sm_update_secret $CPD_USER_SECRET "{\"wd_yaml\": \"$WD_YAML\", \"username\": \"$CPD_ADMIN_USERNAME\", \"password\": \"$CPD_ADMIN_PASSWORD\"}"
+  sm_update_secret $CPD_USER_SECRET "{\"username\": \"$CPD_ADMIN_USERNAME\", \"password\": \"$CPD_ADMIN_PASSWORD\"}"
 
   rc=$?
   [ $rc -ne 0 ] && exit $rc

@@ -282,6 +282,8 @@ spec:
           export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
         fi
 
+        # Any external config is stored here
+        export CONFIG_DIR=/workspace/configs
 
         mkdir -p /tmp/suite-app-config
 

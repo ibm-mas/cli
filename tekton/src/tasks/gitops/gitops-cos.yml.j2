@@ -96,7 +96,10 @@ spec:
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
+        export MAS_CONFIG_DIR=/workspace/configs/$MAS_INSTANCE_ID-cos
+        mkdir -p /workspace/configs/$MAS_INSTANCE_ID-cos
         mkdir -p /tmp/init-cos
+        
         mas gitops-cos -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /tmp/init-cos \
         --secrets-path $SECRET_PATH \

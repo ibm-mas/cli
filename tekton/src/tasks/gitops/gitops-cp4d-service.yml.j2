@@ -96,7 +96,10 @@ spec:
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
+        export MAS_CONFIG_DIR=/workspace/configs/$MAS_INSTANCE_ID-cp4d-service-$CPD_SERVICE_NAME
+        mkdir -p /workspace/configs/$MAS_INSTANCE_ID-cp4d-service-$CPD_SERVICE_NAME
         mkdir -p /tmp/init-cp4d-service
+        
         mas gitops-cp4d-service -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /tmp/init-cp4d-service \
         --secrets-path $SECRET_PATH \

@@ -61,7 +61,10 @@ spec:
             {% if MAS_APP_ID == "assist" %}
             cpd_admin_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CPD_ADMIN_PASSWORD }}>
             cpd_admin_username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CPD_ADMIN_USERNAME }}>
-            wd_yaml: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WD_YAML }}>
+            wd_yaml:
+              wd.yaml: |
+                url: {{ WD_URL }}
+                version: {{ WD_VERSION }}
             {% endif %}
 
   syncPolicy:

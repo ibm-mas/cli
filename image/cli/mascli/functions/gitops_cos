@@ -18,7 +18,8 @@ Secrets Manager:
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key seperator string
 
 IBM Maximo Application Suite:
-      -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                    IBM Suite Maximo Application Suite Instance ID  
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                    IBM Suite Maximo Application Suite Instance ID  
+      --mas-config-dir ${COLOR_YELLOW}MAS_CONFIG_DIR${TEXT_RESET}                                      IBM Suite Maximo Application Suite config dir to hold config
 
 COS Provider:
       --cos-action ${COLOR_YELLOW}COS_ACTION${TEXT_RESET}                                                  provision or deprovision
@@ -64,6 +65,9 @@ function gitops_cos_noninteractive() {
       # MAS
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
+        ;;
+      --mas-config-dir)
+        export MAS_CONFIG_DIR=$1 && shift
         ;;
 
       # COS Provider Selection
@@ -119,6 +123,8 @@ function gitops_cos_noninteractive() {
   [[ -z "$IBMCLOUD_APIKEY" ]] && gitops_cos_help "IBMCLOUD_APIKEY is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_cos_help "ACCOUNT_ID is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_cos_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$MAS_CONFIG_DIR" ]] && gitops_cp4d_service_help "MAS_CONFIG_DIR is not set"
+
 }
 
 function gitops_cos() {
@@ -162,13 +168,13 @@ function gitops_cos() {
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "Config Dir  ............................. ${COLOR_MAGENTA}${MAS_CONFIG_DIR}"
 
   reset_colors
 
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
-  export MAS_CONFIG_DIR=$TEMP_DIR
   export MAS_INSTANCE_ID=${MAS_INSTANCE_ID:-CLUSTER_ID}
   export COS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cos
   export ROLE_NAME=cos && ansible-playbook ibm.mas_devops.run_role
