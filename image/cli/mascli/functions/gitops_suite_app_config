@@ -567,11 +567,9 @@ function gitops_suite_app_config() {
     export WD_CONFIG=$GITOPS_CONFIG_DIR/$MAS_INSTANCE_ID-cp4d-service-wd/$MAS_INSTANCE_ID-wd-config.yml
     echo "- Reading config data from $WD_CONFIG"
     cat $WD_CONFIG
-    jq -sr .[1].data."wd.yaml" $WD_CONFIG > $WD_YAML
+    yq -sr '.[1].data."wd.yaml"' $WD_CONFIG > $WD_YAML
     rc=$?
     [ $rc -ne 0 ] && exit $rc
-    echo "- wd.yaml data is:"
-    cat $WD_YAML
 
     echo ""
     echo "- Getting WD URL"
