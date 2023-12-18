@@ -114,7 +114,7 @@ spec:
         - /bin/sh
         - -c
       name: gitops-cos
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:7.10.0-pre.gitops
   workspaces:
     - name: configs
