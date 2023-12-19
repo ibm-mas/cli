@@ -34,6 +34,9 @@
     - input: "$(params.mas_app_channel_optimizer)"
       operator: notin
       values: [""]
+    - input: "$(params.optimizer_workspace_action)"
+      operator: in
+      values: ["activate"]
   workspaces:
     - name: configs
       workspace: configs

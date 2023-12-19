@@ -1,0 +1,96 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-deprovision-app-install
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: github_pat
+      type: string
+    - name: force_removal
+      type: string
+    - name: mas_app_id
+      type: string
+  stepTemplate:
+    name: gitops-deprovision-app-install
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: GITHUB_PAT
+        value: $(params.github_pat) 
+      - name: FORCE_REMOVAL
+        value: $(params.force_removal)
+      - name: MAS_APP_ID
+        value: $(params.mas_app_id)
+  steps:
+    - args:
+      - |-
+
+        mkdir -p /tmp/deprovision-app-install
+
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+
+        ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
+        export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
+        export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
+        export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
+        oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+        OC_RC=$?
+        if [ $OC_RC -ne 0 ]; then
+          echo "oc login failed so assume there is no app to deprovision, exiting.."
+          exit 0
+        fi
+        echo "Set k8s context"
+        export K8S_AUTH_CONTEXT=$(oc whoami -c)
+
+        if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
+          export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
+          export ARGOCD_USERNAME=admin
+          export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
+        fi
+
+        mas gitops-deprovision-app-install -a $ACCOUNT -c $CLUSTER_NAME \
+        --dir /tmp/deprovision-app-install \
+        --github-push \
+        --github-host $GITHUB_HOST \
+        --github-org $GITHUB_ORG \
+        --github-repo $GITHUB_REPO \
+        --git-branch $GIT_BRANCH
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-deprovision-app-install
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:7.10.0-pre.mascore-63
+  workspaces:
+    - name: configs

@@ -79,6 +79,8 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_suite_objectstorage_config
 . $CLI_DIR/functions/gitops_suite_smtp_config
 . $CLI_DIR/functions/gitops_suite_workspace
+. $CLI_DIR/functions/gitops_deprovision_app_config
+. $CLI_DIR/functions/gitops_deprovision_app_install
 . $CLI_DIR/functions/gitops_deprovision_cos
 . $CLI_DIR/functions/gitops_deprovision_suite
 . $CLI_DIR/functions/gitops_deprovision_suite_config
@@ -367,6 +369,22 @@ case $1 in
     echo
     reset_colors
     gitops_suite_workspace "$@"
+    ;;
+
+  gitops-deprovision-app-config)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_app_config "$@"
+    ;;
+
+  gitops-deprovision-app-install)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_app_install "$@"
     ;;
 
   gitops-deprovision-suite-workspace)

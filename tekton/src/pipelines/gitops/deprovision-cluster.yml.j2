@@ -8,7 +8,7 @@ metadata:
   name: gitops-deprovision-cluster
 {% endif %}
 spec:
-  description: Deprovision ROSA, docDb and GitOps Cluster
+  description: Deprovision ROSA, docDb, kafka and GitOps Cluster
   workspaces:
     - name: configs
   params:
@@ -22,7 +22,7 @@ spec:
       description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
 {% endif %}
     - name: cluster_name
-      type: string    
+      type: string
     - name: ocp_version
       type: string
     - name: avp_type

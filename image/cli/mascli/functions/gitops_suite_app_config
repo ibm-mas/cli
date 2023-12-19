@@ -298,7 +298,7 @@ function wait_till_cr_ready(){
   # wait till CR Ready status turns to true
   while true
   do
-    export APP_CR_STATUS=`oc get  ${crd} ${cr} -n ${ns} -o=jsonpath="{.status.conditions[?(@.type=='Ready')].status}"`    
+    export APP_CR_STATUS=`oc get  ${crd} ${cr} -n ${ns} -o=jsonpath="{.status.conditions[?(@.type=='Ready')].status}"`
     echo_reset_dim "APP_CR_STATUS .... ${COLOR_MAGENTA}${APP_CR_STATUS}"
     if [[ "$APP_CR_STATUS" == "True" ]]; then
       break
@@ -535,7 +535,7 @@ function gitops_suite_app_config() {
   if [ "$MAS_APP_ID" == "manage" ]; then
     # these settings will be applied to ui, cron and report - these server bundles don't need the activation specification in the JMS config xml
     echo "- Generate SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT "
-    sed "s#SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT#$SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT#g" $CLI_DIR/templates/gitops/files/manage/manage-additional-server-config-no-activation.xml.j2 > ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config-no-activation.xml  
+    sed "s#SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT#$SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT#g" $CLI_DIR/templates/gitops/files/manage/manage-additional-server-config-no-activation.xml.j2 > ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config-no-activation.xml
       SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT=${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config-no-activation.xml
     SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT=$(cat $SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT)
     export SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT=$(echo -n $SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT | base64  -w 0)

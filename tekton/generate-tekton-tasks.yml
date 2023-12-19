@@ -143,6 +143,8 @@
         - gitops-db2u-config
         - gitops-db2u-database
         - gitops-delete-kafka-config
+        - gitops-deprovision-app-config
+        - gitops-deprovision-app-install
         - gitops-deprovision-cluster
         - gitops-deprovision-cos
         - gitops-deprovision-mongo
