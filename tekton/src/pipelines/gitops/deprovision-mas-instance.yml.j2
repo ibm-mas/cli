@@ -310,6 +310,7 @@ spec:
       runAfter:
         - gitops-deprovision-suite-smtp-config
         - gitops-deprovision-suite-idp-config
+        - gitops-deprovision-suite-objectstorage-config
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
@@ -328,10 +329,8 @@ spec:
     # 10. Deprovision Objectstorage config
     # -------------------------------------------------------------------------
     - name: gitops-deprovision-suite-objectstorage-config
-{% if wait_for_deprovision == true %}
       runAfter:
-        - wait-for-deprovision
-{% endif %}
+        - gitops-deprovision-suite-workspace
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}

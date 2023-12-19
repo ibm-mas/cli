@@ -83,6 +83,11 @@ spec:
           export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
         fi
 
+        echo "argo:argocd login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."
+        argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+        echo "argo:argocd proj windows delete $CLUSTER_NAME 0"
+        argocd proj windows delete $CLUSTER_NAME 0
+
         mas gitops-deprovision-app-config -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /tmp/deprovision-app-config \
         --github-push \
