@@ -221,6 +221,9 @@ spec:
       type: string
     - name: mas_appws_spec_yaml_iot
       type: string
+    - name: iot_workspace_id
+      type: string
+      default: ""
 
     - name: mas_app_channel_manage
       type: string
@@ -243,6 +246,9 @@ spec:
       type: string
     - name: mas_appws_spec_yaml_manage
       type: string
+    - name: manage_workspace_id
+      type: string
+      default: ""
 
     - name: mas_app_channel_monitor
       type: string
@@ -265,6 +271,9 @@ spec:
       type: string
     - name: mas_appws_spec_yaml_monitor
       type: string
+    - name: monitor_workspace_id
+      type: string
+      default: ""
 
     - name: mas_app_channel_visualinspection
       type: string
@@ -287,6 +296,9 @@ spec:
       type: string
     - name: mas_appws_spec_yaml_visualinspection
       type: string
+    - name: visualinspection_workspace_id
+      type: string
+      default: ""
 
     - name: mas_app_channel_assist
       type: string
@@ -309,6 +321,9 @@ spec:
       type: string
     - name: mas_appws_spec_yaml_assist
       type: string
+    - name: assist_workspace_id
+      type: string
+      default: ""
 
     - name: mas_app_channel_optimizer
       type: string
@@ -331,6 +346,9 @@ spec:
       type: string
     - name: mas_appws_spec_yaml_optimizer
       type: string
+    - name: optimizer_workspace_id
+      type: string
+      default: ""
 
   tasks:
 {% if wait_for_provision == true %}
