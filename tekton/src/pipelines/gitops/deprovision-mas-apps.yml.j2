@@ -34,50 +34,53 @@ spec:
       type: string
       default: ""
 
-    # If no <app>_workspace_id is set then we deprovision any config/workspace found for that app
-    # If no <app> channel is set then we deprovsion the app itself
-    # If there is a <app>_workspace_id but no <app> channel then nothing is deprovisioned for that app
-    # If there is no <app>_workspace_id but a <app> channel then just the config/workspace is deprovisioned
+    - name: mas_workspace_id
+      type: string
+      default: ""
+
+    # If no <app> channel is set then we deprovsion the app itself only when "deactivate" is set for the workspace_action
+    # If there is a <app>_workspace_action that is not "deactivate" but no <app> channel then nothing is deprovisioned for that app
+    # If there is no <app>_workspace_action of "deactivate" but a <app> channel then just the config/workspace is deprovisioned
     - name: mas_app_channel_iot
       type: string
       default: ""
-    - name: iot_workspace_id
+    - name: iot_workspace_action
       type: string
       default: ""
     - name: mas_app_channel_monitor
       type: string
       default: ""
-    - name: monitor_workspace_id
+    - name: monitor_workspace_action
       type: string
       default: ""
     - name: mas_app_channel_manage
       type: string
       default: ""
-    - name: manage_workspace_id
+    - name: manage_workspace_action
       type: string
       default: ""
     - name: mas_app_channel_assist
       type: string
       default: ""
-    - name: assist_workspace_id
+    - name: assist_workspace_action
       type: string
       default: ""
     - name: mas_app_channel_predict
       type: string
       default: ""
-    - name: predict_workspace_id
+    - name: predict_workspace_action
       type: string
       default: ""
     - name: mas_app_channel_visualinspection
       type: string
       default: ""
-    - name: visualinspection_workspace_id
+    - name: visualinspection_workspace_action
       type: string
       default: ""
     - name: mas_app_channel_optimizer
       type: string
       default: ""
-    - name: optimizer_workspace_id
+    - name: optimizer_workspace_action
       type: string
       default: ""
 
@@ -95,7 +98,7 @@ spec:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
-          value: $(params.monitor_workspace_id)
+          value: $(params.mas_workspace_id)
         - name: force_removal
           value: $(params.force_removal)
         - name: mas_app_id
@@ -108,9 +111,9 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.monitor_workspace_id)"
+        - input: "$(params.monitor_workspace_action)"
           operator: in
-          values: [""]
+          values: ["deactivate"]
 
     # 1.2 Monitor App
     - name: gitops-deprovision-mas-app-install-monitor
@@ -135,9 +138,9 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.monitor_workspace_id)"
+        - input: "$(params.monitor_workspace_action)"
           operator: in
-          values: [""]
+          values: ["deactivate"]
         - input: "$(params.mas_app_channel_monitor)"
           operator: in
           values: [""]
@@ -154,7 +157,7 @@ spec:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
-          value: $(params.predict_workspace_id)
+          value: $(params.mas_workspace_id)
         - name: force_removal
           value: $(params.force_removal)
         - name: mas_app_id
@@ -167,9 +170,9 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.predict_workspace_id)"
+        - input: "$(params.predict_workspace_action)"
           operator: in
-          values: [""]
+          values: ["deactivate"]
 
     # 2.2 Predict App
     - name: gitops-deprovision-mas-app-install-predict
@@ -194,9 +197,9 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.predict_workspace_id)"
+        - input: "$(params.predict_workspace_action)"
           operator: in
-          values: [""]
+          values: ["deactivate"]
         - input: "$(params.mas_app_channel_predict)"
           operator: in
           values: [""]
@@ -213,7 +216,7 @@ spec:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
-          value: $(params.visualinspection_workspace_id)
+          value: $(params.mas_workspace_id)
         - name: force_removal
           value: $(params.force_removal)
         - name: mas_app_id
@@ -226,9 +229,9 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.visualinspection_workspace_id)"
+        - input: "$(params.visualinspection_workspace_action)"
           operator: in
-          values: [""]
+          values: ["deactivate"]
 
     # 3.2 Visualinspection App
     - name: gitops-deprovision-mas-app-install-visualinspection
@@ -253,9 +256,9 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.visualinspection_workspace_id)"
+        - input: "$(params.visualinspection_workspace_action)"
           operator: in
-          values: [""]
+          values: ["deactivate"]
         - input: "$(params.mas_app_channel_visualinspection)"
           operator: in
           values: [""]
@@ -272,7 +275,7 @@ spec:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
-          value: $(params.optimizer_workspace_id)
+          value: $(params.mas_workspace_id)
         - name: force_removal
           value: $(params.force_removal)
         - name: mas_app_id
@@ -285,9 +288,9 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.optimizer_workspace_id)"
+        - input: "$(params.optimizer_workspace_action)"
           operator: in
-          values: [""]
+          values: ["deactivate"]
 
     # 4.2 Optimizer App
     - name: gitops-deprovision-mas-app-install-optimizer
@@ -312,9 +315,9 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.optimizer_workspace_id)"
+        - input: "$(params.optimizer_workspace_action)"
           operator: in
-          values: [""]
+          values: ["deactivate"]
         - input: "$(params.mas_app_channel_optimizer)"
           operator: in
           values: [""]
@@ -331,7 +334,7 @@ spec:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
-          value: $(params.assist_workspace_id)
+          value: $(params.mas_workspace_id)
         - name: force_removal
           value: $(params.force_removal)
         - name: mas_app_id
@@ -344,9 +347,9 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.assist_workspace_id)"
+        - input: "$(params.assist_workspace_action)"
           operator: in
-          values: [""]
+          values: ["deactivate"]
 
     # 5.2 Assist App
     - name: gitops-deprovision-mas-app-install-assist
@@ -371,9 +374,9 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.assist_workspace_id)"
+        - input: "$(params.assist_workspace_action)"
           operator: in
-          values: [""]
+          values: ["deactivate"]
         - input: "$(params.mas_app_channel_assist)"
           operator: in
           values: [""]
@@ -394,7 +397,7 @@ spec:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
-          value: $(params.manage_workspace_id)
+          value: $(params.mas_workspace_id)
         - name: force_removal
           value: $(params.force_removal)
         - name: mas_app_id
@@ -407,9 +410,9 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.manage_workspace_id)"
+        - input: "$(params.manage_workspace_action)"
           operator: in
-          values: [""]
+          values: ["deactivate"]
 
     # 6.2 Manage App
     - name: gitops-deprovision-mas-app-install-manage
@@ -434,9 +437,9 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.manage_workspace_id)"
+        - input: "$(params.manage_workspace_action)"
           operator: in
-          values: [""]
+          values: ["deactivate"]
         - input: "$(params.mas_app_channel_manage)"
           operator: in
           values: [""]
@@ -455,7 +458,7 @@ spec:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
-          value: $(params.iot_workspace_id)
+          value: $(params.mas_workspace_id)
         - name: force_removal
           value: $(params.force_removal)
         - name: mas_app_id
@@ -468,9 +471,9 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.iot_workspace_id)"
+        - input: "$(params.iot_workspace_action)"
           operator: in
-          values: [""]
+          values: ["deactivate"]
 
     # 7.2 IoT App
     - name: gitops-deprovision-mas-app-install-iot
@@ -495,9 +498,9 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.iot_workspace_id)"
+        - input: "$(params.iot_workspace_action)"
           operator: in
-          values: [""]
+          values: ["deactivate"]
         - input: "$(params.mas_app_channel_iot)"
           operator: in
           values: [""]
