@@ -13,7 +13,7 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
-    - name: workspace_id
+    - name: mas_workspace_id
       type: string
     - name: git_branch
       type: string
@@ -46,8 +46,8 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
-      - name: WORKSPACE_ID
-        value: $(params.workspace_id)
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
       - name: GITHUB_PAT
         value: $(params.github_pat) 
       - name: FORCE_REMOVAL
