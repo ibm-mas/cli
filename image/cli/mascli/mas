@@ -79,8 +79,8 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_suite_objectstorage_config
 . $CLI_DIR/functions/gitops_suite_smtp_config
 . $CLI_DIR/functions/gitops_suite_workspace
-. $CLI_DIR/functions/gitops-deprovision-app-config
-. $CLI_DIR/functions/gitops-deprovision-app-install
+. $CLI_DIR/functions/gitops_deprovision_app_config
+. $CLI_DIR/functions/gitops_deprovision_app_install
 . $CLI_DIR/functions/gitops_deprovision_cos
 . $CLI_DIR/functions/gitops_deprovision_suite
 . $CLI_DIR/functions/gitops_deprovision_suite_config
