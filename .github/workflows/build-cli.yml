@@ -33,8 +33,8 @@ jobs:
           if [[ -e $GITHUB_WORKSPACE/image/cli/install-ansible/ibm-mas_devops.tar.gz ]]; then
             echo "Found a local Ansible collection to be used in $GITHUB_WORKSPACE/image/cli/install-ansible/ibm-mas_devops.tar.gz! Skip download from Artifactory..."
           else
-            echo "Downloading from ***/ibm-mas/ansible-devops/18.9.3-pre.dro-airgap/ibm-mas_devops-18.9.3-pre.dro-airgap.tar.gz"
-            wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/18.9.3-pre.dro-airgap/ibm-mas_devops-18.9.3-pre.dro-airgap.tar.gz -O $GITHUB_WORKSPACE/image/cli/install-ansible/ibm-mas_devops.tar.gz
+            echo "Downloading from ***/ibm-mas/ansible-devops/8.10.2-pre.dro-airgap/ibm-mas_devops-8.10.2-pre.dro-airgap.tar.gz"
+            wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/8.10.2-pre.dro-airgap/ibm-mas_devops-8.10.2-pre.dro-airgap.tar.gz -O $GITHUB_WORKSPACE/image/cli/install-ansible/ibm-mas_devops.tar.gz
           fi
 
       # 2. Tekton
