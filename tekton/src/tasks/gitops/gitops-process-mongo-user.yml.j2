@@ -108,7 +108,7 @@ spec:
         - /bin/sh
         - -c
       name: gitops-process-mongo-user
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:7.10.0-pre.gitops
   workspaces:
     - name: configs
