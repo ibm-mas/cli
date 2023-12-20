@@ -781,23 +781,23 @@ function install_interactive() {
 }
 
 function ocp_version_check() {
-  # Check for OCP 4.9 and 4.10
+  # Check for OCP 4.10 and 4.11
   export OCP_VERSION=$(oc get clusterversion version -o jsonpath="{.status.desired.version}")
-  if [[ "$OCP_VERSION" =~ ^4\.9\.* ]]; then
+  if [[ "$OCP_VERSION" =~ ^4\.10\.* ]]; then
     echo
     echo_warning "Warning: OpenShift Container Platform v${OCP_VERSION} detected!"
     echo_warning " - This version is now out of support by Red Hat and ${TEXT_UNDERLINE}not a supported platform for IBM Maximo Application Suite"
-    echo_warning " - The installation of IBM Maximo Application Suite may not proceed, you must upgrade to at least OCP v4.10 before installing MAS"
+    echo_warning " - The installation of IBM Maximo Application Suite may not proceed, you must upgrade to at least OCP v4.11 before installing MAS"
     echo
     echo_warning "For more information refer to the Red Hat OpenShift Container Platform Life Cycle Policy:"
     echo "  ${COLOR_CYAN}${TEXT_UNDERLINE}https://access.redhat.com/support/policy/updates/openshift/${TEXT_RESET}${TEXT_RESET}"
     reset_colors
     exit 1
-  elif [[ "$OCP_VERSION" =~ ^4\.10\.* ]]; then
+  elif [[ "$OCP_VERSION" =~ ^4\.11\.* ]]; then
     echo
     echo_warning "Warning: OpenShift Container Platform v${OCP_VERSION} detected!"
     echo_warning " - This version is ${TEXT_UNDERLINE}now out of support by Red Hat"
-    echo_warning " - The installation of IBM Maximo Application Suite may proceed, but we strongly encourage you to upgrade to OCP v4.12 first"
+    echo_warning " - The installation of IBM Maximo Application Suite may proceed, but we strongly encourage you to upgrade to OCP v4.14 first"
     echo
     echo_warning "For more information refer to the Red Hat OpenShift Container Platform Life Cycle Policy:"
     echo "  ${COLOR_CYAN}${TEXT_UNDERLINE}https://access.redhat.com/support/policy/updates/openshift/${TEXT_RESET}${TEXT_RESET}"

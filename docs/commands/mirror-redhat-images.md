@@ -21,7 +21,7 @@ Usage
 - `--pullsecret REDHAT_PULLSECRET` [Red Hat OpenShift Pull Secret](https://console.redhat.com/openshift/install/pull-secret)
 
 ### Content Selection (Optional):
-- `--release OCP_RELEASE` OCP Release to mirror content for (e.g. 4.10, 4.12)
+- `--release OCP_RELEASE` OCP Release to mirror content for (e.g. 4.13, 4.14)
 
 ### Platform Version Range (Optional):
 - `--min-version OCP_MIN_VERSION` Minimum version of the OCP release to mirror
@@ -106,6 +106,6 @@ docker run -ti --rm -v /mnt/storage:/mnt/workspace --pull always quay.io/ibmmas/
   -u admin -p password \
   --mirror-platform \
   --mirror-operators \
-  --ocp-release 4.10 \
+  --ocp-release 4.14 \
   --no-confirm
 ```
