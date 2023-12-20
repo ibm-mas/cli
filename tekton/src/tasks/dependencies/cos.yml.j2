@@ -14,6 +14,9 @@ spec:
       type: string
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
+    - name: ocp_ingress_tls_secret_name
+      type: string
+      default: ""
 
     # COS Details
     - name: cos_type
@@ -53,6 +56,8 @@ spec:
         value: $(params.mas_instance_id)
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
+      - name: OCP_INGRESS_TLS_SECRET_NAME
+        value: $(params.ocp_ingress_tls_secret_name)
 
       # COS Details
       - name: COS_TYPE
