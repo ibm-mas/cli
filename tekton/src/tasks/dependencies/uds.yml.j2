@@ -23,6 +23,9 @@ spec:
       type: string
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
+    - name: ocp_ingress_tls_secret_name
+      type: string
+      default: ""
 
     # Only used by UDS
     - name: mas_segment_key
@@ -81,6 +84,8 @@ spec:
           value: /workspace/configs
         - name: MAS_INSTANCE_ID
           value: $(params.mas_instance_id)
+        - name: OCP_INGRESS_TLS_SECRET_NAME
+          value: $(params.ocp_ingress_tls_secret_name)
         - name: MAS_POD_TEMPLATES_DIR
           value: /workspace/pod-templates
         - name: CUSTOM_LABELS
@@ -117,6 +122,8 @@ spec:
           value: /workspace/configs
         - name: MAS_INSTANCE_ID
           value: $(params.mas_instance_id)
+        - name: OCP_INGRESS_TLS_SECRET_NAME
+          value: $(params.ocp_ingress_tls_secret_name)
         - name: MAS_POD_TEMPLATES_DIR
           value: /workspace/pod-templates
         - name: CUSTOM_LABELS
