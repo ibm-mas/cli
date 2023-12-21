@@ -56,6 +56,14 @@ function gitops_cluster_noninteractive() {
   export MAS_CATALOG_VERSION=${MAS_CATALOG_VERSION:-"v8-230414-amd64"}
   export MAS_CATALOG_IMAGE=${MAS_CATALOG_IMAGE:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen/ibm-maximo-operator-catalog"}
 
+
+  # defaults for fvtsaas
+  # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
+  export REGION=${REGION:-${SM_AWS_REGION}}
+  export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"} # use an in-cluster argocd worker (which fvtsaas does)
+  # alternatively for CLUSTER_URL, we could look it up from ArgoCD like this:
+  # export CLUSTER_URL
+  # argocd_get_cluster_url "${CLUSTER_ID}" "CLUSTER_URL"
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -73,6 +81,12 @@ function gitops_cluster_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
+        ;;
+      -r|--region)
+        export REGION=$1 && shift
+        ;;
+      -u|--cluster-url)
+        export CLUSTER_URL=$1 && shift
         ;;
 
       # Secrets Manager
@@ -274,16 +288,19 @@ function gitops_cluster() {
   # ---------------------------------------------------------------------------
   echo
   echo_h2 "Generating Argo Applications"
-  echo "- Cluster Scoped AppProject"
-  jinja -X .+ $CLI_DIR/templates/gitops/appproject-cluster-scope.yaml.j2 -o ${GITOPS_APPS_DIR}/appproject-cluster-scope.yaml
+
+  # TODO: configure global "mas" and "mas-argoproj-resources" projects to align with MCSP
+  # this probably step probably belongs in the gitops-bootstrap task?
+
   if [[ "$MAS_CATALOG_ACTION" == "update" || "$MAS_CATALOG_ACTION" == "install" ]]; then
     echo "- IBM Operator Catalog"
-    jinja -X .+ $CLI_DIR/templates/gitops/ibm-operator-catalog.yaml.j2 -o ${GITOPS_APPS_DIR}/ibm-operator-catalog.yaml
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-cluster/ibm-operator-catalog.yaml.j2 -o ${GITOPS_APPS_DIR}/ibm-operator-catalog.yaml
   fi
   if [[ "$COMMON_SERVICES_ACTION" == "upgrade" || "$COMMON_SERVICES_ACTION" == "install" ]]; then
     echo "- IBM Common Services"
-    jinja -X .+ $CLI_DIR/templates/gitops/ibm-common-services.yaml.j2 -o ${GITOPS_APPS_DIR}/ibm-common-services.yaml
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-cluster/ibm-common-services.yaml.j2 -o ${GITOPS_APPS_DIR}/ibm-common-services.yaml
   fi
+
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -294,17 +311,20 @@ function gitops_cluster() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     argocd_login
-    argocd_sync ${CLUSTER_ID}-watcher
+    argocd_sync mas-root
+
+    # Needs to align with this: https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/application-sets/ibm-mas-cluster.yaml#L45
+    GENERATED_APP_NAME="ibm-mas-cluster-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}"
 
     if [[ "$MAS_CATALOG_ACTION" == "update" || "$MAS_CATALOG_ACTION" == "install" ]]; then
-      check_argo_app_synced ibm-operator-catalog ${CLUSTER_ID}-watcher
-      check_argo_app_healthy ibm-operator-catalog ${CLUSTER_ID}-watcher
+      check_argo_app_synced "${GENERATED_APP_NAME}" mas-root
+      check_argo_app_healthy "${GENERATED_APP_NAME}" mas-root
     fi
 
     if [[ "$COMMON_SERVICES_ACTION" == "upgrade" || "$COMMON_SERVICES_ACTION" == "install" ]]; then
-      add_role_to_user ibm-common-services
-      check_argo_app_synced ibm-common-services ${CLUSTER_ID}-watcher ibm-common-services
-      check_argo_app_healthy ibm-common-services ${CLUSTER_ID}-watcher
+      add_role_to_user ibm-common-services # Is this defintely necessary? Didn't seem to be - at least on MCSP-provisioned ROSA clusters
+      check_argo_app_synced "${GENERATED_APP_NAME}" mas-root ibm-common-services
+      check_argo_app_healthy "${GENERATED_APP_NAME}" mas-root
     fi
   fi
 
