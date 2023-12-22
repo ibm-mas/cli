@@ -189,8 +189,7 @@ function gitops_cluster() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
-  GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}
 
   echo
   reset_colors
@@ -200,7 +199,7 @@ function gitops_cluster() {
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
+  echo_reset_dim "Cluster Config Directory ................. ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -251,9 +250,10 @@ function gitops_cluster() {
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
+  
+
   export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRET_NAME_IBM_ENTITLEMENT}#image_pull_secret_b64
-
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
@@ -266,23 +266,23 @@ function gitops_cluster() {
     echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
-  mkdir -p ${GITOPS_APPS_DIR}
+  mkdir -p ${GITOPS_CLUSTER_DIR}
   if [[ -n ${ARTIFACTORY_USERNAME} && -n ${ARTIFACTORY_TOKEN} ]]; then
     export ARTIFACTORY_AUTH_TOKEN=$(echo -n $ARTIFACTORY_USERNAME:$ARTIFACTORY_TOKEN | base64 -w 0)
   fi
   export ICR_AUTH_TOKEN=$(echo -n $ICR_USERNAME:$ICR_PASSWORD | base64 -w 0)
 
   echo "- Generate image pull secret"
-  jinja -X .+ $CLI_DIR/templates/gitops/ibm-entitlement-with-artifactory.json.j2 -o ${GITOPS_APPS_DIR}/ibm-entitlement-with-artifactory.json
+  jinja -X .+ $CLI_DIR/templates/gitops/ibm-entitlement-with-artifactory.json.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
 
-  IBM_ENTITLEMENT_WITH_ARTIFACTORY=${GITOPS_APPS_DIR}/ibm-entitlement-with-artifactory.json
+  IBM_ENTITLEMENT_WITH_ARTIFACTORY=${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
   IBM_ENTITLEMENT_WITH_ARTIFACTORY=$(cat $IBM_ENTITLEMENT_WITH_ARTIFACTORY)
   export IBM_ENTITLEMENT_PULL_SECRET_B64=$(echo -n $IBM_ENTITLEMENT_WITH_ARTIFACTORY | base64 -w 0)
   export IBM_ENTITLEMENT_B64=$(echo -n $ICR_PASSWORD | base64 -w 0)
 
   sm_update_secret $SECRET_NAME_IBM_ENTITLEMENT "{\"image_pull_secret_b64\": \"${IBM_ENTITLEMENT_PULL_SECRET_B64}\", \"entitlement_key\": \"${IBM_ENTITLEMENT_B64}\"}"
 
-  rm -rf ${GITOPS_APPS_DIR}/ibm-entitlement-with-artifactory.json
+  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
 
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
@@ -292,13 +292,16 @@ function gitops_cluster() {
   # TODO: configure global "mas" and "mas-argoproj-resources" projects to align with MCSP
   # this probably step probably belongs in the gitops-bootstrap task?
 
+
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-cluster/ibm-mas-cluster-base.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-mas-cluster-base.yaml
+
   if [[ "$MAS_CATALOG_ACTION" == "update" || "$MAS_CATALOG_ACTION" == "install" ]]; then
     echo "- IBM Operator Catalog"
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-cluster/ibm-operator-catalog.yaml.j2 -o ${GITOPS_APPS_DIR}/ibm-operator-catalog.yaml
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-cluster/ibm-operator-catalog.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
   fi
   if [[ "$COMMON_SERVICES_ACTION" == "upgrade" || "$COMMON_SERVICES_ACTION" == "install" ]]; then
     echo "- IBM Common Services"
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-cluster/ibm-common-services.yaml.j2 -o ${GITOPS_APPS_DIR}/ibm-common-services.yaml
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-cluster/ibm-common-services.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-common-services.yaml
   fi
 
 
@@ -307,7 +310,7 @@ function gitops_cluster() {
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_CLUSTER_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     argocd_login

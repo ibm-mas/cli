@@ -1,0 +1,9 @@
+{% include 'common-config.yaml.j2' %}
+
+ibm-db2u:
+    db2_namespace: "db2u"
+    db2_channel: "v110508.0"
+    ibm_entitlement_key: "<path:arn:aws:secretsmanager:us-east-2:435377327995:secret:development/fvtsaas/ibm_entitlement#image_pull_secret_b64>"
+
+tags:
+    ibm-db2u: true
