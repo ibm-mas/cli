@@ -1,0 +1,29 @@
+# coreapi-usermgmt-v3 ~30m
+# ------------------------------------------------------------------------------
+- name: coreapi-usermgmt-v3
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: coreapi-usermgmt-v3
+  runAfter: {{ runAfter }}
+
+# coreapi-other ~45m
+# ------------------------------------------------------------------------------
+- name: coreapi-other
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: coreapi-other
+  runAfter: {{ runAfter }}
+
+# coreapi-usermgmt ~40m
+# ------------------------------------------------------------------------------
+- name: coreapi-usermgmt
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: coreapi-usermgmt
+  runAfter: {{ runAfter }}

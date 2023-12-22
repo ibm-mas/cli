@@ -1,0 +1,103 @@
+# Looking at the smtp and trustcas and adoptionusagemetering suites ...
+# Although they are disruptive, they appear to my eyes to bedisruptive to different parts of MAS with no impact on one another ... I think all three (each have about a 30 minute runtime) should be able to run in parallel ...
+# - smtp: only test_smtpcfg is disruptive (deletes and recreates SMTPCfg multiple times, but I don't think that would impact the other two)
+# - trustcas: changes Suite config and verifies using SCIM whether defult CAs are included (or not) in the truststore
+# - adoptionusagemetering: honestly not even sure why this is disruptive at all, seems to just be checking data that's already in the system
+
+# 1. adoptionusagemetering
+# -------------------------------------------------------------------------
+- name: adoptionusagemetering
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: adoptionusagemetering
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter: {{ runAfter }}
+
+# 2. smtp
+# -------------------------------------------------------------------------
+- name: smtp
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: smtp
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter: {{ runAfter }}
+
+# 3. core-trustcas
+# -------------------------------------------------------------------------
+- name: core-trustcas
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: core-trustcas
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter: {{ runAfter }}
+
+# 4. coreidp-ldap
+# -------------------------------------------------------------------------
+- name: coreidp-ldap
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: coreidp-ldap
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - adoptionusagemetering
+    - smtp
+    - core-trustcas
+
+# 5. coreidp-saml
+# -------------------------------------------------------------------------
+- name: coreidp-saml
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: coreidp-saml
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - coreidp-ldap
+
+# 6. coreidp-saml-ui
+# -------------------------------------------------------------------------
+- name: coreidp-saml-ui
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: coreidp-saml-ui
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - coreidp-saml
+
+# 7. coreidp-ssoconfig
+# -------------------------------------------------------------------------
+- name: coreidp-ssoconfig
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: coreidp-ssoconfig
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - coreidp-saml-ui
+
+# 8. licensingapi
+# -------------------------------------------------------------------------
+- name: licensingapi
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: licensingapi
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - coreidp-ssoconfig
+
+# 9. operatormaturity
+# -------------------------------------------------------------------------
+- name: operatormaturity
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: operatormaturity
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - licensingapi
