@@ -17,15 +17,8 @@
     
     # FVT Configuration
     fvt_digest_mobile_manage_setup: "{{ lookup('env', 'FVT_DIGEST_MOBILE_MANAGE_SETUP') }}"
-    fvt_digest_mobilefoundation_testng: "{{ lookup('env', 'FVT_DIGEST_MOBILEFOUNDATION_TESTNG') }}"
-    fvt_digest_manage_civil_defects_testng: "{{ lookup('env', 'FVT_DIGEST_MANAGE_CIVIL_DEFECTS_TESTNG') }}"
-    fvt_digest_servicerequests_testng: "{{ lookup('env', 'FVT_DIGEST_SERVICEREQUESTS_TESTNG') }}"
-    fvt_digest_inspection_testng: "{{ lookup('env', 'FVT_DIGEST_INSPECTION_TESTNG') }}"
-    fvt_digest_technician_testng: "{{ lookup('env', 'FVT_DIGEST_TECHNICIAN_TESTNG') }}"
-    fvt_digest_asset_manager_testng: "{{ lookup('env', 'FVT_DIGEST_ASSET_MANAGER_TESTNG') }}"
-    fvt_digest_inventorycounting_testng: "{{ lookup('env', 'FVT_DIGEST_INVENTORYCOUNTING_TESTNG') }}"
-    fvt_digest_inventoryreceiving_testng: "{{ lookup('env', 'FVT_DIGEST_INVENTORYRECEIVING_TESTNG') }}"
-    fvt_digest_issuesandtransfers_testng: "{{ lookup('env', 'FVT_DIGEST_ISSUESANDTRANSFERS_TESTNG') }}"
+    fvt_digest_mobile_testng: "{{ lookup('env', 'FVT_DIGEST_MOBILE_TESTNG') }}"
+    
     # Pipeline Run Info
     pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-mobile', True) }}"
     pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
@@ -44,15 +37,7 @@
           - "fvt_image_registry ....................... {{ fvt_image_registry }}"
           - "fvt_artifactory_token .................... {{ fvt_artifactory_token }}"
           - "fvt_digest_mobile_manage_setup ........... {{ fvt_digest_mobile_manage_setup }}"
-          - "fvt_digest_mobilefoundation_testng ....... {{ fvt_digest_mobilefoundation_testng }}"
-          - "fvt_digest_manage_civil_defects_testng ... {{ fvt_digest_manage_civil_defects_testng }}"
-          - "fvt_digest_servicerequests_testng ........ {{ fvt_digest_servicerequests_testng }}"
-          - "fvt_digest_inspection_testng ............. {{ fvt_digest_inspection_testng }}"
-          - "fvt_digest_technician_testng ............. {{ fvt_digest_technician_testng }}"
-          - "fvt_digest_asset_manager_testng .......... {{ fvt_digest_asset_manager_testng }}"
-          - "fvt_digest_inventorycounting_testng ...... {{ fvt_digest_inventorycounting_testng }}"
-          - "fvt_digest_inventoryreceiving_testng ..... {{ fvt_digest_inventoryreceiving_testng }}"
-          - "fvt_digest_issuesandtransfers_testng ..... {{ fvt_digest_issuesandtransfers_testng }}"
+          - "fvt_digest_mobile_testng ................. {{ fvt_digest_mobile_testng }}"
 
     - name: "Start fvt-mobile pipeline"
       kubernetes.core.k8s:
