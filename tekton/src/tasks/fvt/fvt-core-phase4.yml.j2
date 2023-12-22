@@ -135,12 +135,12 @@ spec:
         - name: TEST_SUITE
           value: adoptionusagemetering
 
-    # 2. coreidp-saml
+    # 2. coreidp-ldap
     # -------------------------------------------------------------------------
     - name: fvt-coreidp-ldap
       image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 2h0m0s # Ensure bad FVTs don't run forever
+      timeout: 3h0m0s # Ensure bad FVTs don't run forever (increased to 3h due to increase in suite runtime)
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
@@ -187,12 +187,12 @@ spec:
         - name: TEST_SUITE
           value: coreidp-ssoconfig
 
-    # 6. clicensingapi
+    # 6. licensingapi
     # -------------------------------------------------------------------------
     - name: fvt-licensingapi
       image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 2h0m0s # Ensure bad FVTs don't run forever
+      timeout: 3h0m0s # Ensure bad FVTs don't run forever (increased to 3h due to https://jsw.ibm.com/browse/MASCORE-1172)
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
