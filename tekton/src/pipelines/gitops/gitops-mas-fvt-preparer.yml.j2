@@ -153,6 +153,28 @@ spec:
       default: "true"
       description: "Set this to any falue other than 'true' to disable lauch of the Mobile FVT Pipeline after app-cfg-manage completes"
 
+    - name: mas_app_channel_iot
+      type: string
+      default: ""
+    - name: mas_app_channel_manage
+      type: string
+      default: ""
+    - name: mas_app_channel_monitor
+      type: string
+      default: ""
+    - name: mas_app_channel_visualinspection
+      type: string
+      default: ""
+    - name: mas_app_channel_assist
+      type: string
+      default: ""
+    - name: mas_app_channel_optimizer
+      type: string
+      default: ""
+    - name: mas_app_channel_predict
+      type: string
+      default: ""
+
   tasks:
 {% if wait_for_provision == true %}
     # 0. Wait for the provsion pipeline to complete
@@ -282,6 +304,21 @@ spec:
           value: $(params.launchfvt_predict)
         - name: launchfvt_visualinspection
           value: $(params.launchfvt_visualinspection)
+
+        - name: mas_app_channel_iot
+          value: $(params.mas_app_channel_iot)
+        - name: mas_app_channel_manage
+          value: $(params.mas_app_channel_manage)
+        - name: mas_app_channel_monitor
+          value: $(params.mas_app_channel_monitor)
+        - name: mas_app_channel_visualinspection
+          value: $(params.mas_app_channel_visualinspection)
+        - name: mas_app_channel_assist
+          value: $(params.mas_app_channel_assist)
+        - name: mas_app_channel_optimizer
+          value: $(params.mas_app_channel_optimizer)
+        - name: mas_app_channel_predict
+          value: $(params.mas_app_channel_predict)
 
       workspaces:
         - name: configs
