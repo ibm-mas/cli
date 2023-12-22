@@ -112,11 +112,10 @@ spec:
       - name: WORKSPACE_ID
         value: "$(params.mas_workspace_id)"
 
-      # The name of the test suite inside the container we will execute (/opt/ibm/test/suites/{TEST_SUITE})
-      - name: TEST_SUITE
-        value: $(params.fvt_test_suite)
       - name: FVT_TEST_SUITE_PREFIX
         value: $(params.fvt_test_suite_prefix)
+      - name: FVT_TEST_SUITE
+        value: $(params.fvt_test_suite)
       - name: FVT_MAS_APPWS_COMPONENT
         value: $(params.fvt_mas_appws_component)
       - name: MAS_APPWS_COMPONENTS
