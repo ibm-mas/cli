@@ -47,23 +47,3 @@
       value: useractivation-inactivity
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter: {{ runAfter }}
-
-# coreapi-dependencies ~10m
-# ------------------------------------------------------------------------------
-- name: coreapi-dependencies
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: coreapi-dependencies
-  runAfter: {{ runAfter }}
-
-# internalapi ~20m
-# ------------------------------------------------------------------------------
-- name: internalapi
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: internalapi
-  runAfter: {{ runAfter }}

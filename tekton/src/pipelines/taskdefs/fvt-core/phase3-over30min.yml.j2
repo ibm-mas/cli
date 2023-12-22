@@ -1,22 +1,10 @@
-# coreapi-usermgmt-v3 ~30m
-# ------------------------------------------------------------------------------
-- name: coreapi-usermgmt-v3
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: coreapi-usermgmt-v3
-  runAfter: {{ runAfter }}
-
-# coreapi-other ~45m
-# ------------------------------------------------------------------------------
-- name: coreapi-other
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: coreapi-other
-  runAfter: {{ runAfter }}
+# Mutually exclusive suites warning!
+# -------------------------------------------------------------------------
+# The usermgmt and usermgmt-v3 suites create conflicting users
+# they can't run at the same time without updates (which we should make)
+# particularly visible in the bulk user test scenarios in these suites
+#
+# TODO: We could improve this by having the suites use different userIds
 
 # coreapi-usermgmt ~40m
 # ------------------------------------------------------------------------------
@@ -26,4 +14,53 @@
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: coreapi-usermgmt
+  runAfter: {{ runAfter }}
+
+# coreapi-usermgmt-v3 ~30m
+# ------------------------------------------------------------------------------
+- name: coreapi-usermgmt-v3
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: coreapi-usermgmt-v3
+  runAfter:
+    - coreapi-usermgmt
+
+# Mutually exclusive suites warning!
+# -----------------------------------------------------------------------------
+# internalapi and dependencies suites both attempt to modify the same JDBCCfg
+# and thus cannot be ran at the same time
+#
+# TODO: We could improve this by having them work with different JDBCCfg resources
+
+# internalapi ~20m
+# ------------------------------------------------------------------------------
+- name: internalapi
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: internalapi
+  runAfter: {{ runAfter }}
+
+# coreapi-dependencies ~10m
+# ------------------------------------------------------------------------------
+- name: coreapi-dependencies
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: coreapi-dependencies
+  runAfter:
+    - internalapi
+
+# coreapi-other ~45m
+# ------------------------------------------------------------------------------
+- name: coreapi-other
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: coreapi-other
   runAfter: {{ runAfter }}

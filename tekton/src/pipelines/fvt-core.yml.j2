@@ -80,16 +80,20 @@ spec:
         - cv-core
 
     # Phase 1
+    # -------------------------------------------------------------------------
     # Only suites that take less than 5 minutes
     {{ lookup('template', 'taskdefs/fvt-core/phase1-under5min.yml.j2', template_vars={'runAfter': ['coreidp-auth']}) | indent(4) }}
 
     # Phase 2
+    # -------------------------------------------------------------------------
     # Suites that take less than 25 minutes
     {{ lookup('template', 'taskdefs/fvt-core/phase2-under30min.yml.j2', template_vars={'runAfter': [ 'ibmadminissuer', 'adoptionusageapi', 'coreapi-apikeymgmt', 'coreapi-mobileapi', 'coreapi-messages', 'coreapi-graphiteconfigtool']}) | indent(4) }}
 
     # Phase 3
+    # -------------------------------------------------------------------------
     # Suites that take more than 25 minutes
     {{ lookup('template', 'taskdefs/fvt-core/phase3-over30min.yml.j2', template_vars={'runAfter': ['coreidp-auth']}) | indent(4) }}
 
-    # Single-threaded suites
-    {{ lookup('template', 'taskdefs/fvt-core/phase4-disruptive.yml.j2', template_vars={'runAfter': ['coreapi-groupmgmt', 'coreapi-workspacemgmt', 'useractivation-overall', 'useractivation-expiresat', 'useractivation-inactivity', 'coreapi-dependencies', 'internalapi', 'coreapi-usermgmt-v3', 'coreapi-other', 'coreapi-usermgmt']}) | indent(4) }}
+    # Disruptive suites ran in serial mode
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-core/phase4-disruptive.yml.j2', template_vars={'runAfter': ['coreapi-groupmgmt', 'coreapi-workspacemgmt', 'useractivation-overall', 'useractivation-expiresat', 'useractivation-inactivity', 'coreapi-dependencies', 'coreapi-usermgmt-v3', 'coreapi-other']}) | indent(4) }}
