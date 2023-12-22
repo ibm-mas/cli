@@ -1,20 +1,9 @@
-# Looking at the smtp and trustcas and adoptionusagemetering suites ...
-# Although they are disruptive, they appear to my eyes to bedisruptive to different parts of MAS with no impact on one another ... I think all three (each have about a 30 minute runtime) should be able to run in parallel ...
-# - smtp: only test_smtpcfg is disruptive (deletes and recreates SMTPCfg multiple times, but I don't think that would impact the other two)
+# Looking at the smtp and trustcas suites ...
+# Although they are disruptive, they appear to my eyes to bedisruptive to different parts of MAS with no impact on one another ...
+# - smtp: only test_smtpcfg is disruptive - deletes and recreates SMTPCfg multiple times
 # - trustcas: changes Suite config and verifies using SCIM whether defult CAs are included (or not) in the truststore
-# - adoptionusagemetering: honestly not even sure why this is disruptive at all, seems to just be checking data that's already in the system
 
-# 1. adoptionusagemetering
-# -------------------------------------------------------------------------
-- name: adoptionusagemetering
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    - name: fvt_test_suite
-      value: adoptionusagemetering
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-  runAfter: {{ runAfter }}
-
-# 2. smtp
+# 1. smtp
 # -------------------------------------------------------------------------
 - name: smtp
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -24,7 +13,7 @@
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter: {{ runAfter }}
 
-# 3. core-trustcas
+# 2. core-trustcas
 # -------------------------------------------------------------------------
 - name: core-trustcas
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -33,6 +22,18 @@
       value: core-trustcas
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter: {{ runAfter }}
+
+# 3. adoptionusagemetering
+# -------------------------------------------------------------------------
+- name: adoptionusagemetering
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: adoptionusagemetering
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - smtp
+    - core-trustcas
 
 # 4. coreidp-ldap
 # -------------------------------------------------------------------------
@@ -44,8 +45,6 @@
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
     - adoptionusagemetering
-    - smtp
-    - core-trustcas
 
 # 5. coreidp-saml
 # -------------------------------------------------------------------------
