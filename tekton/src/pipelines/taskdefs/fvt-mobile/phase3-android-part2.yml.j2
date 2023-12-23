@@ -1,28 +1,14 @@
 ## Minimum Verification Test for Mobile Technician MAS test suites
 - name: fvt-technician-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-technician
-    - name: fvt_image_name
-      value: fvt-technician-testng
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_technician_testng)
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: technician-app
+    - name: mobile_device_type
+      value: android
     - name: fvt_test_suite
       value: technician-mvt-android
-    - name: assist_test_type
-      value: mobileapp
-    - name: assist_device_type
-      value: android
-    - name: assist_server_type
-      value: mas
-  # Only if we've set a digest of the Mobile Technician FVT to run
-  when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_technician_testng)"
-      operator: notin
-      values: [""]
   runAfter:
     - fvt-mobfoundation-mvt-android
     - fvt-service-request-mvt-android
@@ -31,25 +17,15 @@
 
 ## Mobile FVT - Inventory Counting Android
 - name: fvt-inventorycounting-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-inventorycounting
-    - name: fvt_image_name
-      value: fvt-inventorycounting-testng
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_inventorycounting_testng)
-    - name: fvt_mas_appws_component
-      value: base
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: ic-automation-testcases
+    - name: mobile_device_type
+      value: android
     - name: fvt_test_suite
       value: inventory-counting-mvt-android # xml for Mobile IC
-  # Only if we've set a digest of the Mobile IC FVT to run
-  when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_inventorycounting_testng)"
-      operator: notin
-      values: [""]
   runAfter:
     - fvt-mobfoundation-mvt-android
     - fvt-service-request-mvt-android
@@ -58,31 +34,15 @@
 
 ## Mobile FVT - Inventory Receiving Android
 - name: fvt-inventoryreceiving-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-inventorycounting
-    - name: fvt_image_name
-      value: fvt-inventoryreceiving-testng
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_inventoryreceiving_testng)
-    - name: fvt_mas_appws_component
-      value: base
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: ir-automation-testcases
+    - name: mobile_device_type
+      value: android
     - name: fvt_test_suite
       value: inventory-receiving-mvt-android
-    - name: assist_test_type
-      value: mobileapp
-    - name: assist_device_type
-      value: android
-    - name: assist_server_type
-      value: mas
-  # Only if we've set a digest of the Mobile IC FVT to run
-  when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_inventoryreceiving_testng)"
-      operator: notin
-      values: [""]
   runAfter:
     - fvt-mobfoundation-mvt-android
     - fvt-service-request-mvt-android
@@ -91,31 +51,15 @@
 
 ## Mobile FVT - Issues and Transfers Android
 - name: fvt-issuesandtransfers-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-inventorycounting
-    - name: fvt_image_name
-      value: fvt-issuesandtransfers-testng
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_issuesandtransfers_testng)
-    - name: fvt_mas_appws_component
-      value: base
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: it-automation-testcases
+    - name: mobile_device_type
+      value: android
     - name: fvt_test_suite
       value: issues-transfer-mvt-android
-    - name: assist_test_type
-      value: mobileapp
-    - name: assist_device_type
-      value: android
-    - name: assist_server_type
-      value: mas
-  # Only if we've set a digest of the Mobile IC FVT to run
-  when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_issuesandtransfers_testng)"
-      operator: notin
-      values: [""]
   runAfter:
     - fvt-mobfoundation-mvt-android
     - fvt-service-request-mvt-android
@@ -124,29 +68,15 @@
 
 ## Minimum Verification Test for Mobile Defects MAS test suites
 - name: fvt-civil-defects-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-mobile-run-suite.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-mobile.yml.j2') | indent(4) }}
-    - name: fvt_image_namespace
-      value: fvt-manage-civil
-    - name: fvt_image_name
-      value: fvt-ibm-mas-manage-civil-defects-testng
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_manage_civil_defects_testng)
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: civil-defects-app
+    - name: mobile_device_type
+      value: android
     - name: fvt_test_suite
       value: civil-defects-mvt-android
-    - name: assist_test_type
-      value: mobileapp
-    - name: assist_device_type
-      value: android
-    - name: assist_server_type
-      value: mas
-  # Only if we've set a digest of the Mobile Defects FVT to run
-  when:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/when-mobile.yml.j2') | indent(4) }}
-    - input: "$(params.fvt_digest_manage_civil_defects_testng)"
-      operator: notin
-      values: [""]
   runAfter:
     - fvt-mobfoundation-mvt-android
     - fvt-service-request-mvt-android
