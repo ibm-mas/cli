@@ -531,6 +531,9 @@ function install_interactive() {
   # Present a the MAS license information
   license_prompt
 
+  # Determine Certificate Manager provider
+  cert_manager_selection
+
   # Configure the MAS instance
   echo
   echo_h2 "Configure MAS Instance"

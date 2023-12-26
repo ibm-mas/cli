@@ -26,6 +26,41 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
+# Auto-detect Certificate Manager
+# -----------------------------------------------------------------------------
+# Validates the existance of installed IBM Certificate Manager in the target cluster
+
+function validate_existing_cert_manager() {
+
+  # We just check current MongoDB version and warn about Mongo upgrade if MAS catalog is more recent than January 2024
+  MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
+  CERT_MANAGER_ACTION=none # initialise var
+
+  if [[ $MAS_CATALOG_DATE -ge 231228 ]]; then #TODO: Change here when January catalog is available
+    # Lookup existing Certificate Manager instance
+      if [ -z "$CERT_MANAGER_NAMESPACE" ]; then
+        CERT_MANAGER_NAMESPACE=`oc get pods -A | grep cert-manager-cainjector | awk '{print $1}'`
+      fi
+
+    # Check that there's only one Certificate Manager instance running in the cluster
+      count=`echo $CERT_MANAGER_NAMESPACE | wc -w`  
+      if [ $count -eq 1 ]
+      then
+      # if the running Certificate Manager is the one from IBM Cloud Pak Foundational Services, let users know it will be migrated to Red Hat
+        if [ "$CERT_MANAGER_NAMESPACE" == "ibm-common-services" ]; then
+          CERT_MANAGER_ACTION=install
+          CERT_MANAGER_PROVIDER=redhat
+          echo -e "${COLOR_YELLOW}Certificate Manager is currently running in namespace ${CERT_MANAGER_NAMESPACE} and will be migrated to Red Hat Certificate Manager.${COLOR_RESET}"
+        fi
+      else
+      # if multiple Certificate Manager instances, just alert user and skip Certificate Manager update
+          echo -e "${COLOR_YELLOW}There are multiple instances of Certificate Manager running in the cluster.${COLOR_RESET}"
+          echo -e "${COLOR_YELLOW}Make sure you just have one Certificate Manager instance running.${COLOR_RESET}"
+          echo -e "${COLOR_YELLOW}Certificate Manager namespaces identified: $CERT_MANAGER_NAMESPACE${COLOR_RESET}"
+      fi
+  fi
+}
+
 # Auto-detect MongoDB
 # -----------------------------------------------------------------------------
 # Validates the existance of installed MongoDB Community Edition in the target cluster
@@ -78,6 +113,9 @@ function validate_update() {
     exit 1
   fi
 
+  # Validates Red Hat Cerficate Manager migration only if January catalog or more recent used
+  validate_existing_cert_manager
+
   # Validates MongoDB upgrade is confirmed while using November catalog
   MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
   if [[ $MAS_CATALOG_DATE -ge 231128 ]]; then # checks if MAS catalog >= November 2023
@@ -86,7 +124,7 @@ function validate_update() {
     else
       if [[ -z "$MONGODB_V5_UPGRADE" ]] ; then # if 'mas update -c v8-231128-amd64 --no-confirm' but no '--mongodb-v5-upgrade' then we fail as user must consent about the mongodb upgrade
         echo
-        echo -e "${COLOR_RED}By choosing 'v8-231128-amd64' catalog, you must confirm MongoDB upgrade to version 5.${TEXT_RESET}"
+        echo -e "${COLOR_RED}By choosing '$MAS_CATALOG_VERSION' catalog, you must confirm MongoDB upgrade to version 5.${TEXT_RESET}"
         echo -e "${COLOR_RED}Add '--mongodb-v5-upgrade' argument to the 'mas update' command in order to continue.${TEXT_RESET}"
         exit 1
       else # if 'mas update -c v8-231128-amd64 --mongodb-v5-upgrade --no-confirm' then we proceed and check existing mongo and warn user of the mongodb upgrade

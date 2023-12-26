@@ -304,6 +304,8 @@ spec:
           value: $(params.image_pull_policy)
         - name: cert_manager_action
           value: $(params.cert_manager_action)
+        - name: cert_manager_provider
+          value: $(params.cert_manager_provider)
         - name: devops_suite_name
           value: setup-cert-manager
       taskRef:
