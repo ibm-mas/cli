@@ -324,9 +324,9 @@ function update() {
 
   # Certificate Manager
   if [ "$CERT_MANAGER_PROVIDER" == "redhat" ]; then
-    echo_reset_dim "Certificate Manager ...................... ${COLOR_GREEN}Yes ($CERT_MANAGER_ACTION $CERT_MANAGER_PROVIDER"
+    echo_reset_dim "Certificate Manager ........................ ${COLOR_GREEN}Yes ($CERT_MANAGER_ACTION $CERT_MANAGER_PROVIDER)"
   else
-    echo_reset_dim "Certificate Manager ...................... ${COLOR_RED}No${TEXT_RESET}"
+    echo_reset_dim "Certificate Manager ........................ ${COLOR_RED}No${TEXT_RESET}"
   fi
 
   # Detect OCS/ODF Storage Cluster in cluster and set action
