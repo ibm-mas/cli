@@ -34,7 +34,6 @@ function validate_existing_cert_manager() {
 
   # We just check current MongoDB version and warn about Mongo upgrade if MAS catalog is more recent than January 2024
   MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
-  CERT_MANAGER_ACTION=none # initialise var
 
   if [[ $MAS_CATALOG_DATE -ge 231228 ]]; then #TODO: Change here when January catalog is available
     # Lookup existing Certificate Manager instance
@@ -42,9 +41,15 @@ function validate_existing_cert_manager() {
         CERT_MANAGER_NAMESPACE=`oc get pods -A | grep cert-manager-cainjector | awk '{print $1}'`
       fi
 
+    # Check that Certificate Manager instance is running in the cluster
+      count=`echo $CERT_MANAGER_NAMESPACE | wc -w`
+      if [ $count -eq 0 ]
+      then
+        CERT_MANAGER_ACTION=install
+        CERT_MANAGER_PROVIDER=redhat
+        echo -e "${COLOR_YELLOW}Certificate Manager is not installed yet! Red Hat Certificate Manager will be installed.${COLOR_RESET}"
     # Check that there's only one Certificate Manager instance running in the cluster
-      count=`echo $CERT_MANAGER_NAMESPACE | wc -w`  
-      if [ $count -eq 1 ]
+      elif [ $count -eq 1 ]
       then
       # if the running Certificate Manager is the one from IBM Cloud Pak Foundational Services, let users know it will be migrated to Red Hat
         if [ "$CERT_MANAGER_NAMESPACE" == "ibm-common-services" ]; then
@@ -52,13 +57,15 @@ function validate_existing_cert_manager() {
           CERT_MANAGER_PROVIDER=redhat
           echo -e "${COLOR_YELLOW}Certificate Manager is currently running in namespace ${CERT_MANAGER_NAMESPACE} and will be migrated to Red Hat Certificate Manager.${COLOR_RESET}"
         fi
-      else
+      elif [ $count -ge 1 ]
+      then
       # if multiple Certificate Manager instances, just alert user and skip Certificate Manager update
           echo -e "${COLOR_YELLOW}There are multiple instances of Certificate Manager running in the cluster.${COLOR_RESET}"
           echo -e "${COLOR_YELLOW}Make sure you just have one Certificate Manager instance running.${COLOR_RESET}"
           echo -e "${COLOR_YELLOW}Certificate Manager namespaces identified: $CERT_MANAGER_NAMESPACE${COLOR_RESET}"
       fi
   fi
+  echo
 }
 
 # Auto-detect MongoDB
@@ -301,6 +308,8 @@ function update() {
   export MONGODB_V5_UPGRADE
   export KAFKA_NAMESPACE
   export KAFKA_PROVIDER
+  export CERT_MANAGER_PROVIDER
+  export CERT_MANAGER_ACTION
 
   echo_h2 "Review Settings"
 
@@ -312,6 +321,13 @@ function update() {
   echo_h4 "Updates" "    "
   echo_reset_dim "IBM Maximo Application Suite ............... ${COLOR_GREEN}Yes (all MAS instances)${TEXT_RESET}"
   echo_reset_dim "IBM Cloud Pak Foundational Services ........ ${COLOR_GREEN}Yes (ibm-common-services)${TEXT_RESET}"
+
+  # Certificate Manager
+  if [ "$CERT_MANAGER_PROVIDER" == "redhat" ]; then
+    echo_reset_dim "Certificate Manager ...................... ${COLOR_GREEN}Yes ($CERT_MANAGER_ACTION $CERT_MANAGER_PROVIDER"
+  else
+    echo_reset_dim "Certificate Manager ...................... ${COLOR_RED}No${TEXT_RESET}"
+  fi
 
   # Detect OCS/ODF Storage Cluster in cluster and set action
   oc get StorageCluster -A > /dev/null 2>&1

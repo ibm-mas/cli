@@ -25,9 +25,8 @@ function install_pipelinerun_preview() {
   else
     echo_reset_dim "Installation Mode ......... ${COLOR_MAGENTA}Connected Install"
   fi
-  if [[ "${CERT_MANAGER_PROVIDER}" != "" ]]; then
-    echo_reset_dim "Cert Manager Provider ..... ${COLOR_MAGENTA}${CERT_MANAGER_PROVIDER}"
-    echo_reset_dim "Cert Manager Action ....... ${COLOR_MAGENTA}${CERT_MANAGER_ACTION}"
+  if [[ "${CERT_MANAGER_PROVIDER}" != "" && $CERT_MANAGER_ACTION != "" ]]; then
+    echo_reset_dim "Certificate Manager ....... ${COLOR_MAGENTA}${CERT_MANAGER_PROVIDER} (${CERT_MANAGER_ACTION})"
   fi
 
   if [[ "${MAS_DOMAIN}" != "" ]]; then
