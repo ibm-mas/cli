@@ -55,7 +55,8 @@ function validate_existing_cert_manager() {
         if [ "$CERT_MANAGER_NAMESPACE" == "ibm-common-services" ]; then
           CERT_MANAGER_ACTION=install
           CERT_MANAGER_PROVIDER=redhat
-          echo -e "${COLOR_YELLOW}Certificate Manager is currently running in namespace ${CERT_MANAGER_NAMESPACE} and will be migrated to Red Hat Certificate Manager.${COLOR_RESET}"
+          echo -e "${COLOR_YELLOW}Certificate Manager is currently running in namespace ${CERT_MANAGER_NAMESPACE}."
+          echo -e "${COLOR_YELLOW}The existing Certificate Manager will be uninstalled and migrated to Red Hat Certificate Manager.${COLOR_RESET}"
         fi
       elif [ $count -ge 1 ]
       then
