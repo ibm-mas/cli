@@ -64,8 +64,8 @@ function validate_existing_cert_manager() {
           echo -e "${COLOR_YELLOW}Make sure you just have one Certificate Manager instance running.${COLOR_RESET}"
           echo -e "${COLOR_YELLOW}Certificate Manager namespaces identified: $CERT_MANAGER_NAMESPACE${COLOR_RESET}"
       fi
+    echo
   fi
-  echo
 }
 
 # Auto-detect MongoDB
