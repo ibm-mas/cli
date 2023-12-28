@@ -120,7 +120,7 @@ spec:
   steps:
     - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 2h0m0s # Ensure bad FVTs don't run forever
+      timeout: 3h0m0s # Ensure bad FVTs don't run forever - want this to be lower, but a couple of suites are now pushing 2 hours as standard :(
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
