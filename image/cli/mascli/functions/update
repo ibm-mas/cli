@@ -29,7 +29,7 @@ EOM
 # Auto-detect Certificate Manager
 # -----------------------------------------------------------------------------
 # Validates the existance of installed IBM Certificate Manager in the target cluster
-
+# If so, then set parameters to prepare the migration to Red Hat Certificate Manager
 function validate_existing_cert_manager() {
 
   # We just check current MongoDB version and warn about Mongo upgrade if MAS catalog is more recent than January 2024

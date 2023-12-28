@@ -33,12 +33,9 @@ function check_mas_project_exists() {
   fi
 }
 
-# Auto-detect Certificate Manager
-# -----------------------------------------------------------------------------
 # Check which Certificate Manager is currently installed to determine 
 # which CERT_MANAGER_PROVIDER is supposed to be uninstalled
-
-function check_existing_cert_manager() {
+function define_cert_manager_to_uninstall() {
     
   if [ "$CERT_MANAGER_ACTION" == "uninstall" ]; then
     # Lookup existing Certificate Manager instance
@@ -224,7 +221,7 @@ function uninstall() {
   connect
   check_mas_project_exists
   prompt_for_deps_to_uninstall
-  check_existing_cert_manager
+  define_cert_manager_to_uninstall
   review_uninstall_settings
   launch_uninstall
 }
