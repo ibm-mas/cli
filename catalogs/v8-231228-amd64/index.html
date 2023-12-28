@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/catalogs/v8-231228-amd64/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>IBM Maximo Operator Catalog v8 (231228) - MAS CLI</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "IBM Maximo Operator Catalog v8 (231228)";
+        var mkdocs_page_input_path = "catalogs/v8-231228-amd64.md";
+        var mkdocs_page_url = "/cli/catalogs/v8-231228-amd64/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> MAS CLI
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/choosing-the-right-catalog/">Choosing the Right Catalog</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/image-mirroring/">Image Mirroring</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/install/">Install</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/update/">Update</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/upgrade/">Upgrade</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/uninstall/">Uninstall</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">OpenShift Management</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-fyre/">provision-fyre</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-roks/">provision-roks</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-rosa/">provision-rosa</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configure-airgap/">configure-airgap</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Image Mirroring</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/setup-registry/">setup-registry</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/teardown-registry/">teardown-registry</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-images/">mirror-images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-redhat-images/">mirror-redhat-images</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">MAS Management</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configtool-oidc/">configtool-oidc</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/install/">install</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/update/">update</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/upgrade/">upgrade</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/uninstall/">uninstall</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Troubleshooting</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/must-gather/">must-gather</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Catalogs</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../">All Catalogs</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../v8-231128-amd64/">Nov 28 2023</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../v8-231031-amd64/">Oct 31 2023</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../v8-231004-amd64/">Oct 04 2023</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../v8-230829-amd64/">Aug 29 2023</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../v8-230725-amd64/">Jul 25 2023</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">MAS CLI</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">IBM Maximo Operator Catalog v8 (231228)</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/ibm-mas/cli/blob/master/docs/catalogs/v8-231228-amd64.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="ibm-maximo-operator-catalog-v8-231228">IBM Maximo Operator Catalog v8 (231228)<a class="headerlink" href="#ibm-maximo-operator-catalog-v8-231228" title="Permanent link"></a></h1>
+<h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link"></a></h2>
+<table>
+  <tr><td>Image</td><td>icr.io/cpopen/ibm-maximo-operator-catalog</tr></tr>
+  <tr><td>Tag</td><td>v8-231228-amd64</tr></tr>
+  <tr><td>Digest</td><td>sha256:431656fe80e0d565d9b130bb53e6ef12ec0370e3422975f6f4ddbfe95f728cda</tr></tr>
+</table>
+
+<h2 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link"></a></h2>
+<p><code>oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v8-231228-amd64.yaml</code></p>
+<h2 id="source">Source<a class="headerlink" href="#source" title="Permanent link"></a></h2>
+<pre><code class="language-yaml">apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: IBM Maximo Operators (v8-231228-amd64)
+  publisher: IBM
+  description: Static Catalog Source for IBM Maximo Application Suite
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-maximo-operator-catalog@sha256:431656fe80e0d565d9b130bb53e6ef12ec0370e3422975f6f4ddbfe95f728cda
+  priority: 90
+</code></pre>
+<h2 id="red-hat-openshift-container-platform-support">Red Hat OpenShift Container Platform Support<a class="headerlink" href="#red-hat-openshift-container-platform-support" title="Permanent link"></a></h2>
+<p>IBM Maximo Application Suite will run anywhere that you can run a supported OpenShift release on AMD64 architecture, including:</p>
+<ul>
+<li><a href="https://aws.amazon.com/rosa/">AWS</a></li>
+<li><a href="https://azure.microsoft.com/en-gb/services/openshift/">Azure</a></li>
+<li><a href="https://cloud.google.com/architecture/partners/openshift-on-gcp">Google Cloud Platform</a></li>
+<li><a href="https://www.ibm.com/cloud/openshift">IBM Cloud</a></li>
+</ul>
+<p>For more information about the OCP lifecycle refer to the <a href="https://access.redhat.com/support/policy/updates/openshift/">Red Hat OpenShift Container Platform Life Cycle Policy</a>.</p>
+<table class="compatabilityMatrix">
+  <tr>
+    <th>OCP</th><td rowspan="3" class="spacer"></td>
+    <th>General Availability</th>
+    <th>End of Support</th>
+    <th>Supported MAS Releases</th>
+  </tr>
+  <tr>
+    <td class="firstColumn">4.11<sup>1</sup></td>
+    <td>August 10, 2022</td>
+    <td>February 10, 2024</td>
+    <td>8.9 - 8.11</td>
+  </tr>
+  <tr>
+    <td class="firstColumn">4.12</td>
+    <td>January 17, 2023</td>
+    <td>January 17, 2025</td>
+    <td>8.9 - 8.11</td>
+  </tr>
+</table>
+
+<h3 id="certified-operators">Certified Operators<a class="headerlink" href="#certified-operators" title="Permanent link"></a></h3>
+<ul>
+<li><code>registry.redhat.io/redhat/certified-operator-index:v4.11</code></li>
+<li><code>registry.redhat.io/redhat/certified-operator-index:v4.12</code></li>
+</ul>
+<p>The following packages from this catalog are used in the Maximo Application Suite install:</p>
+<ul>
+<li><strong>crunchy-postgres-operator</strong> required by <code>ibm.mas_devops.uds</code> role</li>
+<li><strong>gpu-operator-certified</strong> required by <code>ibm.mas_devops.nvidia_gpu</code> role</li>
+<li><strong>kubeturbo-certified</strong> required by <code>ibm.mas_devops.kubeturbo</code> role</li>
+</ul>
+<h3 id="community-operators">Community Operators<a class="headerlink" href="#community-operators" title="Permanent link"></a></h3>
+<ul>
+<li><code>registry.redhat.io/redhat/community-operator-index:v4.11</code></li>
+<li><code>registry.redhat.io/redhat/community-operator-index:v4.12</code></li>
+</ul>
+<p>The following packages from this catalog are used in the Maximo Application Suite install:</p>
+<ul>
+<li><strong>grafana-operator</strong> required by <code>ibm.mas_devops.cluster_monitoring</code> role</li>
+<li><strong>opentelemetry-operator</strong> required by <code>ibm.mas_devops.cluster_monitoring</code> role</li>
+<li><strong>strimzi-kafka-operator</strong> required by <code>ibm.mas_devops.kafka</code> role (if using Strimzi as Kakfa provider)</li>
+</ul>
+<h3 id="red-hat-operators">Red Hat Operators<a class="headerlink" href="#red-hat-operators" title="Permanent link"></a></h3>
+<ul>
+<li><code>registry.redhat.io/redhat/redhat-operator-index:v4.11</code></li>
+<li><code>registry.redhat.io/redhat/redhat-operator-index:v4.12</code></li>
+</ul>
+<p>The following packages from this catalog are used in the Maximo Application Suite install:</p>
+<ul>
+<li><strong>amq-streams</strong> required by <code>ibm.mas_devops.kafka</code> role (if using AMQ Streams as Kakfa provider)</li>
+<li><strong>openshift-pipelines-operator-rh</strong> required by the MAS CLI</li>
+<li><strong>nfd</strong> required by <code>ibm.mas_devops.nvidia_gpu</code> role</li>
+<li><strong>aws-efs-csi-driver-operator</strong>  required by <code>ibm.mas_devops.ocp_efs</code> role</li>
+<li><strong>local-storage-operator</strong>  required by <code>ibm.mas_devops.ocs</code> role</li>
+<li><strong>odf-operator</strong>  required by <code>ibm.mas_devops.ocs</code> role</li>
+</ul>
+<h2 id="ibm-cloud-pak-for-data-compatibility">IBM Cloud Pak for Data Compatibility<a class="headerlink" href="#ibm-cloud-pak-for-data-compatibility" title="Permanent link"></a></h2>
+<p>Maximo application compatibility with Cloud Pak for Data (CP4D) is complicated by limited OpenShift Container Platform support in CP4D (only even numbered OCP releases are supported) and minor updates to CP4D services not always being backwards compatible.  For more information on Cloud Pak for Data's support policy review this <a href="https://www.ibm.com/support/pages/node/6593147">IBM Cloud Pak for Data Software Support Lifecycle Addendum</a>.</p>
+<p>Cloud Pak for Data covers the following application's dependencies:</p>
+<ul>
+<li><strong>Assist</strong>: Watson Discovery, Watson Text to Speak, Watson Speach to Text, Watson Assistant</li>
+<li><strong>Predict</strong>: Watson Studio, Watson Machine Learning, Watson Analytics Service, Watson Openscale</li>
+</ul>
+<table class="compatabilityMatrix">
+  <tr>
+    <th class="firstColumn" rowspan="2">OCP</th>
+    <td rowspan="8" class="spacer"></td>
+    <th colspan="3">Cloud Pak for Data</th>
+    <td rowspan="9" class="spacer"></td>
+    <th rowspan="2">Supported MAS Releases</th>
+  </tr>
+  <tr>
+    <th class="firstColumn">Release</th>
+    <th>General Availability</th>
+    <th>End of Support</th>
+  </tr>
+  <tr> <td class="firstColumn" rowspan="1">4.11 - 4.12</td><td>4.6.6</td>            <td>February, 2023</td>    <td>TBD</td> <td>8.9 - 8.11</td> </tr>
+</table>
+
+<h2 id="package-manifest">Package Manifest<a class="headerlink" href="#package-manifest" title="Permanent link"></a></h2>
+<h3 id="ibm-maximo-application-suite">IBM Maximo Application Suite<a class="headerlink" href="#ibm-maximo-application-suite" title="Permanent link"></a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Default Channel</th>
+<th>Channel</th>
+<th>Latest Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ibm-mas</td>
+<td>8.11.x</td>
+<td>8.10.x</td>
+<td>8.10.8</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>8.11.x</td>
+<td>8.11.5</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>8.9.x</td>
+<td>8.9.10</td>
+</tr>
+<tr>
+<td>ibm-mas-assist</td>
+<td>8.8.x</td>
+<td>8.8.x</td>
+<td>8.8.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>8.7.x</td>
+<td>8.7.2</td>
+</tr>
+<tr>
+<td></td>
+<td>8.6.x</td>
+<td>8.6.5</td>
+<td></td>
+</tr>
+<tr>
+<td>ibm-mas-hputilities</td>
+<td>8.6.x</td>
+<td>8.4.x</td>
+<td>8.4.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>8.5.x</td>
+<td>8.5.3</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>8.6.x</td>
+<td>8.6.2</td>
+</tr>
+<tr>
+<td>ibm-mas-iot</td>
+<td>8.8.x</td>
+<td>8.8.x</td>
+<td>8.8.3</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>8.6.x</td>
+<td>8.6.9</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>8.7.x</td>
+<td>8.7.7</td>
+</tr>
+<tr>
+<td>ibm-mas-manage</td>
+<td>8.7.x</td>
+<td>8.7.x</td>
+<td>8.7.3</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>8.5.x</td>
+<td>8.5.9</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>8.6.x</td>
+<td>8.6.8</td>
+</tr>
+<tr>
+<td>ibm-mas-monitor</td>
+<td>8.11.x</td>
+<td>8.10.x</td>
+<td>8.10.6</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>8.11.x</td>
+<td>8.11.2</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>8.9.x</td>
+<td>8.9.6</td>
+</tr>
+<tr>
+<td>ibm-mas-optimizer</td>
+<td>8.5.x</td>
+<td>8.5.x</td>
+<td>8.5.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>8.3.x</td>
+<td>8.3.3</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>8.4.x</td>
+<td>8.4.2</td>
+</tr>
+<tr>
+<td>ibm-mas-predict</td>
+<td>8.9.x</td>
+<td>8.9.x</td>
+<td>8.9.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>8.7.x</td>
+<td>8.7.2</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>8.8.x</td>
+<td>8.8.2</td>
+</tr>
+<tr>
+<td>ibm-mas-visualinspection</td>
+<td>8.9.x</td>
+<td>8.9.x</td>
+<td>8.9.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>8.7.x</td>
+<td>8.7.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>8.8.x</td>
+<td>8.8.1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ibm-utilities">IBM Utilities<a class="headerlink" href="#ibm-utilities" title="Permanent link"></a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Default Channel</th>
+<th>Channel</th>
+<th>Latest Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ibm-data-dictionary</td>
+<td>1.1.x</td>
+<td>1.1.x</td>
+<td>1.1.5</td>
+</tr>
+<tr>
+<td>ibm-sls</td>
+<td>3.x</td>
+<td>3.x</td>
+<td>3.8.1</td>
+</tr>
+<tr>
+<td>ibm-truststore-mgr</td>
+<td>1.x</td>
+<td>1.x</td>
+<td>1.5.1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ibm-cloud-pak-foundational-services">IBM Cloud Pak Foundational Services<a class="headerlink" href="#ibm-cloud-pak-foundational-services" title="Permanent link"></a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Default Channel</th>
+<th>Channel</th>
+<th>Latest Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cloud-native-postgresql</td>
+<td>stable-v1.18</td>
+<td>fast</td>
+<td>1.9.2</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>stable</td>
+<td>1.9.2</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>stable-v1.15</td>
+<td>1.9.2</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>stable-v1.17</td>
+<td>1.9.2</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>stable-v1.18</td>
+<td>1.18.7</td>
+</tr>
+<tr>
+<td>db2u-operator</td>
+<td>v110508.0</td>
+<td>v1.0</td>
+<td>1.0.9</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v1.1</td>
+<td>1.1.9</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v110508.0</td>
+<td>110508.0.3</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.0</td>
+<td>2.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.1</td>
+<td>2.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.2</td>
+<td>2.2.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.0</td>
+<td>3.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.1</td>
+<td>3.1.0</td>
+</tr>
+<tr>
+<td>ibm-cert-manager-operator</td>
+<td>v3.23</td>
+<td>beta</td>
+<td>3.9.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3</td>
+<td>3.9.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.20</td>
+<td>3.22.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.21</td>
+<td>3.23.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.22</td>
+<td>3.24.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.23</td>
+<td>3.25.0</td>
+</tr>
+<tr>
+<td>ibm-common-service-operator</td>
+<td>v3.23</td>
+<td>beta</td>
+<td>103.103.103</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3</td>
+<td>3.9.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.20</td>
+<td>3.20.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.21</td>
+<td>3.21.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.22</td>
+<td>3.22.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.23</td>
+<td>3.23.10</td>
+</tr>
+<tr>
+<td>ibm-commonui-operator-app</td>
+<td>v3.23</td>
+<td>beta</td>
+<td>1.5.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3</td>
+<td>1.9.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.20</td>
+<td>1.18.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.21</td>
+<td>1.19.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.22</td>
+<td>1.20.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.23</td>
+<td>1.21.0</td>
+</tr>
+<tr>
+<td>ibm-events-operator</td>
+<td>v3</td>
+<td>beta</td>
+<td>3.7.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v4</td>
+<td>4.9.0</td>
+</tr>
+<tr>
+<td>ibm-ingress-nginx-operator-app</td>
+<td>v3.23</td>
+<td>beta</td>
+<td>1.5.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3</td>
+<td>1.9.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.20</td>
+<td>1.17.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.21</td>
+<td>1.18.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.22</td>
+<td>1.19.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.23</td>
+<td>1.20.0</td>
+</tr>
+<tr>
+<td>ibm-licensing-operator-app</td>
+<td>v3.23</td>
+<td>beta</td>
+<td>1.4.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3</td>
+<td>1.9.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.20</td>
+<td>1.17.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.21</td>
+<td>1.18.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.22</td>
+<td>1.19.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.23</td>
+<td>1.20.0</td>
+</tr>
+<tr>
+<td>ibm-management-ingress-operator-app</td>
+<td>v3.23</td>
+<td>beta</td>
+<td>1.5.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3</td>
+<td>1.9.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.20</td>
+<td>1.17.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.21</td>
+<td>1.18.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.22</td>
+<td>1.19.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.23</td>
+<td>1.20.0</td>
+</tr>
+<tr>
+<td>ibm-mongodb-operator-app</td>
+<td>v3.23</td>
+<td>beta</td>
+<td>1.3.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3</td>
+<td>1.9.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.20</td>
+<td>1.15.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.21</td>
+<td>1.16.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.22</td>
+<td>1.17.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.23</td>
+<td>1.18.0</td>
+</tr>
+<tr>
+<td>ibm-namespace-scope-operator</td>
+<td>v3.23</td>
+<td>beta</td>
+<td>1.1.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3</td>
+<td>1.9.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.20</td>
+<td>1.14.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.21</td>
+<td>1.15.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.22</td>
+<td>1.16.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.23</td>
+<td>1.17.0</td>
+</tr>
+<tr>
+<td>ibm-odlm</td>
+<td>v3.23</td>
+<td>beta</td>
+<td>1.5.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3</td>
+<td>1.9.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.20</td>
+<td>1.18.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.21</td>
+<td>1.19.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.22</td>
+<td>1.20.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.23</td>
+<td>1.21.0</td>
+</tr>
+<tr>
+<td>ibm-platform-api-operator-app</td>
+<td>v3.23</td>
+<td>beta</td>
+<td>3.9.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3</td>
+<td>3.9.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.20</td>
+<td>3.22.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.21</td>
+<td>3.23.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.22</td>
+<td>3.24.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.23</td>
+<td>3.25.0</td>
+</tr>
+<tr>
+<td>ibm-user-data-services-operator</td>
+<td>alpha</td>
+<td>alpha</td>
+<td>2.0.12</td>
+</tr>
+<tr>
+<td>ibm-zen-operator</td>
+<td>v3.23</td>
+<td>beta</td>
+<td>1.0.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3</td>
+<td>1.6.8</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.20</td>
+<td>1.7.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.21</td>
+<td>1.7.2</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.22</td>
+<td>1.8.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.23</td>
+<td>1.8.1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ibm-cloud-pak-for-data">IBM Cloud Pak for Data<a class="headerlink" href="#ibm-cloud-pak-for-data" title="Permanent link"></a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Default Channel</th>
+<th>Channel</th>
+<th>Latest Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>analyticsengine-operator</td>
+<td>v3.3</td>
+<td>beta</td>
+<td>1.0.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>stable-v1</td>
+<td>1.0.9</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.0</td>
+<td>2.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.1</td>
+<td>2.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.2</td>
+<td>2.2.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.3</td>
+<td>2.3.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.0</td>
+<td>3.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.1</td>
+<td>3.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.3</td>
+<td>3.3.0</td>
+</tr>
+<tr>
+<td>cpd-platform-operator</td>
+<td>v3.8</td>
+<td>beta</td>
+<td>2.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>stable-v1</td>
+<td>2.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.0</td>
+<td>3.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.1</td>
+<td>3.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.2</td>
+<td>3.2.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.8</td>
+<td>3.8.0</td>
+</tr>
+<tr>
+<td>ibm-ca-operator</td>
+<td>v23.3</td>
+<td>v22.0</td>
+<td>22.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v22.1</td>
+<td>22.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v22.2</td>
+<td>22.2.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v22.3</td>
+<td>22.3.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v23.0</td>
+<td>23.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v23.1</td>
+<td>23.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v23.3</td>
+<td>23.3.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v4.0</td>
+<td>4.0.8</td>
+</tr>
+<tr>
+<td>ibm-cpd-ccs</td>
+<td>v6.5</td>
+<td>v1.0</td>
+<td>1.0.9</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.0</td>
+<td>6.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.1</td>
+<td>6.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.3</td>
+<td>6.3.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.5</td>
+<td>6.5.0</td>
+</tr>
+<tr>
+<td>ibm-cpd-datarefinery</td>
+<td>v6.3</td>
+<td>v1.0</td>
+<td>1.0.9</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.0</td>
+<td>2.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.1</td>
+<td>2.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.2</td>
+<td>2.2.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.3</td>
+<td>2.3.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.0</td>
+<td>6.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.1</td>
+<td>6.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.3</td>
+<td>6.3.0</td>
+</tr>
+<tr>
+<td>ibm-cpd-spss</td>
+<td>v6.3</td>
+<td>v1.0</td>
+<td>1.0.9</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.0</td>
+<td>2.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.1</td>
+<td>2.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.2</td>
+<td>2.2.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.3</td>
+<td>2.3.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.0</td>
+<td>6.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.1</td>
+<td>6.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.3</td>
+<td>6.3.0</td>
+</tr>
+<tr>
+<td>ibm-cpd-wml-operator</td>
+<td>v3.3</td>
+<td>alpha</td>
+<td>1.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>beta</td>
+<td>1.0.1486</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v1.1</td>
+<td>1.1.8</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.0</td>
+<td>2.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.1</td>
+<td>2.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.2</td>
+<td>2.2.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.3</td>
+<td>2.3.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.0</td>
+<td>3.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.1</td>
+<td>3.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.3</td>
+<td>3.3.0</td>
+</tr>
+<tr>
+<td>ibm-cpd-wos</td>
+<td>v3.3</td>
+<td>alpha</td>
+<td>1.2.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v1</td>
+<td>1.5.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v1.5</td>
+<td>1.5.4</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.0</td>
+<td>2.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.1</td>
+<td>2.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.2</td>
+<td>2.2.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.3</td>
+<td>2.3.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.0</td>
+<td>3.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.1</td>
+<td>3.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.3</td>
+<td>3.3.0</td>
+</tr>
+<tr>
+<td>ibm-cpd-ws-runtimes</td>
+<td>v6.3</td>
+<td>v1.0</td>
+<td>1.0.9</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v5.0</td>
+<td>5.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v5.1</td>
+<td>5.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v5.2</td>
+<td>5.2.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v5.3</td>
+<td>5.3.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.0</td>
+<td>6.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.1</td>
+<td>6.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.3</td>
+<td>6.3.0</td>
+</tr>
+<tr>
+<td>ibm-cpd-wsl</td>
+<td>v6.3</td>
+<td>v2.0</td>
+<td>2.0.9</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.0</td>
+<td>3.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.1</td>
+<td>3.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.2</td>
+<td>3.2.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.3</td>
+<td>3.3.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.0</td>
+<td>6.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.1</td>
+<td>6.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.3</td>
+<td>6.3.0</td>
+</tr>
+<tr>
+<td>ibm-elasticsearch-operator</td>
+<td>v1.1</td>
+<td>v1.1</td>
+<td>1.1.1336</td>
+</tr>
+<tr>
+<td>ibm-etcd-operator</td>
+<td>v1.0</td>
+<td>v1.0</td>
+<td>1.0.8</td>
+</tr>
+<tr>
+<td>ibm-iam-operator</td>
+<td>v3.23</td>
+<td>beta</td>
+<td>3.9.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3</td>
+<td>3.9.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.20</td>
+<td>3.20.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.21</td>
+<td>3.21.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.22</td>
+<td>3.22.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.23</td>
+<td>3.23.0</td>
+</tr>
+<tr>
+<td>ibm-minio-operator</td>
+<td>v1.0</td>
+<td>v1.0</td>
+<td>1.0.9</td>
+</tr>
+<tr>
+<td>ibm-model-train-operator</td>
+<td>v1.1</td>
+<td>v1.1</td>
+<td>1.1.7</td>
+</tr>
+<tr>
+<td>ibm-rabbitmq-operator</td>
+<td>v1.0</td>
+<td>v1.0</td>
+<td>1.0.9</td>
+</tr>
+<tr>
+<td>ibm-watson-discovery-operator</td>
+<td>v5.3</td>
+<td>v4.0</td>
+<td>4.0.9</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v4.5</td>
+<td>4.5.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v4.6</td>
+<td>4.6.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v4.7</td>
+<td>4.7.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v5.0</td>
+<td>5.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v5.2</td>
+<td>5.2.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v5.3</td>
+<td>5.3.0</td>
+</tr>
+<tr>
+<td>ibm-watson-gateway-operator</td>
+<td>v1.0</td>
+<td>v1.0</td>
+<td>1.0.9</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ibm-appconnect">IBM AppConnect<a class="headerlink" href="#ibm-appconnect" title="Permanent link"></a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Default Channel</th>
+<th>Channel</th>
+<th>Latest Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>couchdb-operator</td>
+<td>v2.2</td>
+<td>beta</td>
+<td>1.4.2</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>stable</td>
+<td>2.2.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v1.0</td>
+<td>1.0.14</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v1.1</td>
+<td>1.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v1.2</td>
+<td>1.2.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v1.3</td>
+<td>1.3.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v1.4</td>
+<td>1.4.4</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.0</td>
+<td>2.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.1</td>
+<td>2.0.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.2</td>
+<td>2.2.1</td>
+</tr>
+<tr>
+<td>ibm-appconnect</td>
+<td>v7.1</td>
+<td>cd</td>
+<td>5.2.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v1.0</td>
+<td>1.0.5</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v1.1-eus</td>
+<td>1.1.9</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v1.2</td>
+<td>1.2.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v1.3</td>
+<td>1.3.2</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v1.4</td>
+<td>1.4.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v1.5</td>
+<td>1.5.2</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.0</td>
+<td>2.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.1</td>
+<td>2.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.0</td>
+<td>3.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.1</td>
+<td>3.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v4.0</td>
+<td>4.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v4.1</td>
+<td>4.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v4.2</td>
+<td>4.2.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v5.0-lts</td>
+<td>5.0.4</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v5.1</td>
+<td>5.1.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v5.2</td>
+<td>5.2.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.0</td>
+<td>6.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.1</td>
+<td>6.1.1</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.2</td>
+<td>6.2.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v7.0</td>
+<td>7.0.0</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v7.1</td>
+<td>7.1.0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="eclipse-amlen">Eclipse Amlen<a class="headerlink" href="#eclipse-amlen" title="Permanent link"></a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Default Channel</th>
+<th>Channel</th>
+<th>Latest Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>eclipse-amlen-operator</td>
+<td>1.x</td>
+<td>1.x</td>
+<td>1.0.2</td>
+</tr>
+</tbody>
+</table>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/ibm-mas/cli" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
