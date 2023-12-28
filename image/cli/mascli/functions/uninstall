@@ -182,7 +182,7 @@ function review_uninstall_settings() {
   echo_reset_dim "Cluster Monitoring .............. Action: ${COLOR_MAGENTA}${CLUSTER_MONITORING_ACTION}"
   echo_reset_dim "IBM Catalogs .................... Action: ${COLOR_MAGENTA}${IBM_CATALOGS_ACTION}"
   echo_reset_dim "IBM Common Services ............. Action: ${COLOR_MAGENTA}${COMMON_SERVICES_ACTION}"
-  echo_reset_dim "Certificate Manager ............. Action: ${COLOR_MAGENTA}${CERT_MANAGER_ACTION} ($CERT_MANAGER_PROVIDER:-<default>)"
+  echo_reset_dim "Certificate Manager ............. Action: ${COLOR_MAGENTA}${CERT_MANAGER_ACTION} (${CERT_MANAGER_PROVIDER:-<default>})"
   echo_reset_dim "IBM User Data Services .......... Action: ${COLOR_MAGENTA}${UDS_ACTION}"
   echo_reset_dim "MongoDB ......................... Action: ${COLOR_MAGENTA}${MONGODB_ACTION}"
   echo_reset_dim "IBM Suite Licensing Service ..... Action: ${COLOR_MAGENTA}${SLS_ACTION}"
