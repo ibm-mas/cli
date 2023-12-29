@@ -12,11 +12,11 @@
     - name: artifactory_token
       value: $(params.fvt_artifactory_token)
     - name: fvt_image_namespace
-      value: fvt-mobile
+      value: fvt-manage
     - name: fvt_image_name
-      value: fvt-mobile-manage-setup
+      value: fvt-ibm-mas-manage
     - name: fvt_image_digest
-      value: $(params.fvt_digest_mobile_manage_setup)
+      value: $(params.fvt_digest_manage)
     - name: fvt_mas_appws_component
       value: mobile
     - name: fvt_test_suite
@@ -26,13 +26,13 @@
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
     - name: product_channel
-      value: $(params.mas_channel)
+      value: $(params.mas_app_channel_manage)
     - name: product_id
       value: ibm-mas-mobile
   when:
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
-    - input: "$(params.fvt_digest_mobile_manage_setup)"
+    - input: "$(params.fvt_digest_manage)"
       operator: notin
       values: [""]

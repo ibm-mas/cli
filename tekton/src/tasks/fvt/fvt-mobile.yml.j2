@@ -89,6 +89,19 @@ spec:
             name: mas-devops
             key: DEVOPS_BUILD_NUMBER
             optional: true
+
+      - name: ARTIFACTORY_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_TOKEN
+            optional: true
+      - name: ARTIFACTORY_UPLOAD_DIR
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_UPLOAD_DIR
+            optional: true
       
       - name: MANAGECACRT
         valueFrom:
