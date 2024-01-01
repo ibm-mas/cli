@@ -39,7 +39,7 @@ function validate_catalog_source {
     catalogVersion=v8-amd64
   fi
 
-  if [[ "$catalogImage" != "" ]] && [[ "$catalogId" != "$MAS_CATALOG_VERSION" ]]; then
+  if [[ "$catalogImage" != "null" ]] && [[ "$catalogId" != "$MAS_CATALOG_VERSION" ]]; then
     echo
     echo_warning "Error: IBM Maximo Operator Catalog $catalogVersion is already installed on this cluster."
     echo_warning "If you wish to install a new MAS instance using the $MAS_CATALOG_VERSION catalog please first run \"mas update\" to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update."
