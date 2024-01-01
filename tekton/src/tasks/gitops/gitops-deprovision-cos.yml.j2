@@ -89,8 +89,8 @@ spec:
         oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
         OC_RC=$?
         if [ $OC_RC -ne 0 ]; then
-          echo "oc login failed"
-          exit 1
+          echo "oc login failed, so assume there is no cos to deprovision, exiting.."
+          exit 0
         fi
         
         echo "Set k8s context"
