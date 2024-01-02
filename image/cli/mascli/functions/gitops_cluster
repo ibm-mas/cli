@@ -252,7 +252,7 @@ function gitops_cluster() {
 
   
 
-  export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
+  export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${REGION}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRET_NAME_IBM_ENTITLEMENT}#image_pull_secret_b64
 
   if [ -z $GIT_SSH ]; then
@@ -313,21 +313,24 @@ function gitops_cluster() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_CLUSTER_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-    argocd_login
-    argocd_sync mas-root
+    # Align with this: https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/README.md?plain=1#L11
+    export ROOT_APP_NAME="mas-root"
 
-    # Needs to align with this: https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/application-sets/ibm-mas-cluster.yaml#L45
+    argocd_login
+    argocd_sync "${ROOT_APP_NAME}"
+
+    # Align with this: https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/application-sets/ibm-mas-cluster.yaml#L45
     GENERATED_APP_NAME="ibm-mas-cluster-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}"
 
     if [[ "$MAS_CATALOG_ACTION" == "update" || "$MAS_CATALOG_ACTION" == "install" ]]; then
-      check_argo_app_synced "${GENERATED_APP_NAME}" mas-root
-      check_argo_app_healthy "${GENERATED_APP_NAME}" mas-root
+      check_argo_app_synced "${GENERATED_APP_NAME}" "${ROOT_APP_NAME}"
+      check_argo_app_healthy "${GENERATED_APP_NAME}" "${ROOT_APP_NAME}"
     fi
 
     if [[ "$COMMON_SERVICES_ACTION" == "upgrade" || "$COMMON_SERVICES_ACTION" == "install" ]]; then
       add_role_to_user ibm-common-services # Is this defintely necessary? Didn't seem to be - at least on MCSP-provisioned ROSA clusters
-      check_argo_app_synced "${GENERATED_APP_NAME}" mas-root ibm-common-services
-      check_argo_app_healthy "${GENERATED_APP_NAME}" mas-root
+      check_argo_app_synced "${GENERATED_APP_NAME}" "${ROOT_APP_NAME}" ibm-common-services
+      check_argo_app_healthy "${GENERATED_APP_NAME}" "${ROOT_APP_NAME}"
     fi
   fi
 

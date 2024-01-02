@@ -44,6 +44,12 @@ function gitops_dro_noninteractive() {
   GIT_COMMIT_MSG="gitops-dro commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
+  export DRO_NAMESPACE=${DRO_NAMESPACE:-"redhat-marketplace"}
+
+  # defaults for fvtsaas
+  # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
+  export REGION=${REGION:-${SM_AWS_REGION}}
+
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -61,6 +67,9 @@ function gitops_dro_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
+        ;;
+      -r|--region)
+        export REGION=$1 && shift
         ;;
 
       # Secrets Manager
@@ -142,10 +151,7 @@ function gitops_dro() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
-  GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
-
-  export DRO_NAMESPACE=redhat-marketplace
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}
 
   echo
   reset_colors
@@ -155,7 +161,7 @@ function gitops_dro() {
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
+  echo_reset_dim "Cluster Config Directory .............. ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -200,7 +206,7 @@ function gitops_dro() {
   # Define cluster-level secrets used
   # ---------------------------------------------------------------------------
   # Note that SECRET_KEY_IBM_ENTITLEMENT cluster-level secret is set up by gitops-cluster
-  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#entitlement_key
+  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${REGION}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#entitlement_key
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
@@ -213,7 +219,7 @@ function gitops_dro() {
     echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
-  mkdir -p ${GITOPS_APPS_DIR}
+  mkdir -p ${GITOPS_CLUSTER_DIR}
 
 
   # Generate ArgoApps
@@ -224,28 +230,35 @@ function gitops_dro() {
 
   export IBM_ENTITLEMENT_KEY=$SECRET_KEY_IBM_ENTITLEMENT
 
-  echo "Generating dro file ${GITOPS_APPS_DIR}/ibm-dro.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/ibm-dro.yaml.j2 -o ${GITOPS_APPS_DIR}/ibm-dro.yaml
+  echo "Generating dro file ${GITOPS_CLUSTER_DIR}/ibm-dro.yaml"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-cluster/ibm-dro.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-dro.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_CLUSTER_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
+    # Align with this: https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/README.md?plain=1#L11
+    export ROOT_APP_NAME="mas-root"
+
     argocd_login
-    argocd_sync ${CLUSTER_ID}-watcher
-    argocd_hard_refresh mas-dro-${CLUSTER_ID}
-    add_role_to_user ${DRO_NAMESPACE}
-    check_argo_app_synced mas-dro-${CLUSTER_ID} ${CLUSTER_ID}-watcher ${DRO_NAMESPACE}
-    check_argo_app_healthy mas-dro-${CLUSTER_ID} ${CLUSTER_ID}-watcher
+    argocd_sync "${ROOT_APP_NAME}"
+
+    # Align with this: https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/application-sets/ibm-mas-cluster.yaml#L45
+    GENERATED_APP_NAME="ibm-mas-cluster-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}"
+
+    argocd_hard_refresh "${GENERATED_APP_NAME}"
+    add_role_to_user ${DRO_NAMESPACE} # Is this defintely necessary? Didn't seem to be - at least on MCSP-provisioned ROSA clusters
+    check_argo_app_synced "${GENERATED_APP_NAME}" "${ROOT_APP_NAME}" ${DRO_NAMESPACE}
+    check_argo_app_healthy "${GENERATED_APP_NAME}" "${ROOT_APP_NAME}"
   fi
 
-  # Get generated DRO API Token
+  # Get generated DRO API Token and set it in AWS SM
   # ---------------------------------------------------------------------------
-  export SECRET_NAME_DRO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro
+  export SECRET_NAME_DRO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${REGION}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro
   export DRO_API_TOKEN=$(oc get secret ibm-data-reporter-operator-api-token -n ${DRO_NAMESPACE} -o jsonpath='{.data.token}' | base64 -d ; echo)
   export SECRET_KEY_DRO_API_TOKEN=${SECRET_NAME_DRO}#dro_api_token
   sm_update_secret $SECRET_NAME_DRO "{\"dro_api_token\": \"$DRO_API_TOKEN\" }"
