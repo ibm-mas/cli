@@ -33,10 +33,10 @@ function check_mas_project_exists() {
   fi
 }
 
-# Check which Certificate Manager is currently installed to determine 
+# Check which Certificate Manager is currently installed to determine
 # which CERT_MANAGER_PROVIDER is supposed to be uninstalled
 function define_cert_manager_to_uninstall() {
-    
+
   if [ "$CERT_MANAGER_ACTION" == "uninstall" ]; then
     # Lookup existing Certificate Manager instance
       if [ -z "$CERT_MANAGER_NAMESPACE" ]; then
@@ -51,9 +51,9 @@ function define_cert_manager_to_uninstall() {
     # Check that there's only one Certificate Manager instance running in the cluster
       elif [ $count -eq 1 ]
       then
-      # set $CERT_MANAGER_PROVIDER acordingly to the $CERT_MANAGER_NAMESPACE it's running 
+      # set $CERT_MANAGER_PROVIDER acordingly to the $CERT_MANAGER_NAMESPACE it's running
         if [ "$CERT_MANAGER_NAMESPACE" == "ibm-common-services" ]; then
-          CERT_MANAGER_PROVIDER=cpfs
+          CERT_MANAGER_PROVIDER=ibm
         else
           CERT_MANAGER_PROVIDER=redhat
         fi
