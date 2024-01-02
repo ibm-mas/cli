@@ -33,6 +33,34 @@ function check_mas_project_exists() {
   fi
 }
 
+# Check which Certificate Manager is currently installed to determine
+# which CERT_MANAGER_PROVIDER is supposed to be uninstalled
+function define_cert_manager_to_uninstall() {
+
+  if [ "$CERT_MANAGER_ACTION" == "uninstall" ]; then
+    # Lookup existing Certificate Manager instance
+      if [ -z "$CERT_MANAGER_NAMESPACE" ]; then
+        CERT_MANAGER_NAMESPACE=`oc get pods -A | grep cert-manager-cainjector | awk '{print $1}'`
+      fi
+    # Check that Certificate Manager instance is running in the cluster
+    # if there's no Certificate Manager running, then skip uninstall
+      count=`echo $CERT_MANAGER_NAMESPACE | wc -w`
+      if [ $count -eq 0 ]
+      then
+        CERT_MANAGER_ACTION=none
+    # Check that there's only one Certificate Manager instance running in the cluster
+      elif [ $count -eq 1 ]
+      then
+      # set $CERT_MANAGER_PROVIDER acordingly to the $CERT_MANAGER_NAMESPACE it's running
+        if [ "$CERT_MANAGER_NAMESPACE" == "ibm-common-services" ]; then
+          CERT_MANAGER_PROVIDER=ibm
+        else
+          CERT_MANAGER_PROVIDER=redhat
+        fi
+      fi
+  fi
+}
+
 function uninstall_noninteractive() {
   while [[ $# -gt 0 ]]; do
     key="$1"
@@ -130,7 +158,7 @@ function prompt_for_deps_to_uninstall() {
   validate_action_param "Uninstall Cluster Monitoring?" CLUSTER_MONITORING_ACTION
   validate_action_param "Uninstall IBM Catalogs?" IBM_CATALOGS_ACTION
   validate_action_param "Uninstall IBM Common Services?" COMMON_SERVICES_ACTION
-  validate_action_param "Uninstall IBM Cert Manager?" CERT_MANAGER_ACTION
+  validate_action_param "Uninstall Certificate Manager?" CERT_MANAGER_ACTION
   validate_action_param "Uninstall IBM User Data Services?" UDS_ACTION
   validate_action_param "Uninstall MongoDB?" MONGODB_ACTION
   validate_action_param "Uninstall IBM Suite Licensing Service?" SLS_ACTION
@@ -154,7 +182,7 @@ function review_uninstall_settings() {
   echo_reset_dim "Cluster Monitoring .............. Action: ${COLOR_MAGENTA}${CLUSTER_MONITORING_ACTION}"
   echo_reset_dim "IBM Catalogs .................... Action: ${COLOR_MAGENTA}${IBM_CATALOGS_ACTION}"
   echo_reset_dim "IBM Common Services ............. Action: ${COLOR_MAGENTA}${COMMON_SERVICES_ACTION}"
-  echo_reset_dim "IBM Cert Manager ................ Action: ${COLOR_MAGENTA}${CERT_MANAGER_ACTION}"
+  echo_reset_dim "Certificate Manager ............. Action: ${COLOR_MAGENTA}${CERT_MANAGER_ACTION} (${CERT_MANAGER_PROVIDER:-<default>})"
   echo_reset_dim "IBM User Data Services .......... Action: ${COLOR_MAGENTA}${UDS_ACTION}"
   echo_reset_dim "MongoDB ......................... Action: ${COLOR_MAGENTA}${MONGODB_ACTION}"
   echo_reset_dim "IBM Suite Licensing Service ..... Action: ${COLOR_MAGENTA}${SLS_ACTION}"
@@ -193,6 +221,7 @@ function uninstall() {
   connect
   check_mas_project_exists
   prompt_for_deps_to_uninstall
+  define_cert_manager_to_uninstall
   review_uninstall_settings
   launch_uninstall
 }

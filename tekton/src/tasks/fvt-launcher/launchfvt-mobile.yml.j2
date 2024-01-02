@@ -75,66 +75,19 @@ spec:
               optional: false
         
         # Digests
-        - name: FVT_DIGEST_MOBILE_MANAGE_SETUP
+        - name: FVT_DIGEST_MANAGE
           valueFrom:
             secretKeyRef:
               name: mas-fvt-mobile
-              key: FVT_DIGEST_MOBILE_MANAGE_SETUP
+              key: FVT_DIGEST_MANAGE
               optional: false
-        - name: FVT_DIGEST_MOBILEFOUNDATION_TESTNG
+        - name: FVT_DIGEST_MOBILE_TESTNG
           valueFrom:
             secretKeyRef:
               name: mas-fvt-mobile
-              key: FVT_DIGEST_MOBILEFOUNDATION_TESTNG
+              key: FVT_DIGEST_MOBILE_TESTNG
               optional: false
-        - name: FVT_DIGEST_MANAGE_CIVIL_DEFECTS_TESTNG
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-mobile
-              key: FVT_DIGEST_MANAGE_CIVIL_DEFECTS_TESTNG
-              optional: false
-        - name: FVT_DIGEST_SERVICEREQUESTS_TESTNG
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-mobile
-              key: FVT_DIGEST_SERVICEREQUESTS_TESTNG
-              optional: false
-        - name: FVT_DIGEST_INSPECTION_TESTNG
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-mobile
-              key: FVT_DIGEST_INSPECTION_TESTNG
-              optional: false
-        - name: FVT_DIGEST_TECHNICIAN_TESTNG
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-mobile
-              key: FVT_DIGEST_TECHNICIAN_TESTNG
-              optional: false
-        - name: FVT_DIGEST_ASSET_MANAGER_TESTNG
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-mobile
-              key: FVT_DIGEST_ASSET_MANAGER_TESTNG
-              optional: false
-        - name: FVT_DIGEST_INVENTORYCOUNTING_TESTNG
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-mobile
-              key: FVT_DIGEST_INVENTORYCOUNTING_TESTNG
-              optional: false
-        - name: FVT_DIGEST_INVENTORYRECEIVING_TESTNG
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-mobile
-              key: FVT_DIGEST_INVENTORYRECEIVING_TESTNG
-              optional: false
-        - name: FVT_DIGEST_ISSUESANDTRANSFERS_TESTNG
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-mobile
-              key: FVT_DIGEST_ISSUESANDTRANSFERS_TESTNG
-              optional: false
+       
     
     - name: wait-for-pipelinerun
       image: quay.io/ibmmas/cli:latest
