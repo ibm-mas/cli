@@ -25,7 +25,7 @@ spec:
               mas.ibm.com/instanceId: "{{ MAS_INSTANCE_ID }}"
               mas.ibm.com/workspaceId: "{{ MAS_WORKSPACE_ID }}"
 
-            {% if CP4D_WATSON_STUDIO_ACTION == "true" %}
+            {% if CP4D_WATSON_STUDIO_ACTION == "install" %}
             suite_watson_studio_username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WATSON_STUDIO_USERNAME }}>
             suite_watson_studio_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WATSON_STUDIO_PASSWORD }}>
             watson_studio_config:
@@ -37,7 +37,7 @@ spec:
               type: external
             {% endif %}
 
-            {% if CP4D_WATSON_STUDIO_ACTION != "true" %}
+            {% if CP4D_WATSON_STUDIO_ACTION == "config" %}
             suite_watson_studio_username: {{ WATSON_STUDIO_USERNAME }}
             suite_watson_studio_password: {{ WATSON_STUDIO_PASSWORD }}
             watson_studio_config:

@@ -583,34 +583,6 @@ function gitops_suite_app_config() {
     [ $rc -ne 0 ] && exit $rc
   fi
 
-
-  if [ "$MAS_APP_ID" == "predict" ]; then
-    echo "- Configuring for Predict App"
-
-    export CPD_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cp4d
-    export SECRET_KEY_CPD_ADMIN_USERNAME=${CPD_SECRET}#username
-    export SECRET_KEY_CPD_ADMIN_PASSWORD=${CPD_SECRET}#password
-
-
-    export WSL_YAML=$TEMP_DIR/wsl_yaml.yaml
-    export WSL_CONFIG=$GITOPS_CONFIG_DIR/$MAS_INSTANCE_ID-cp4d-service-wsl/$MAS_INSTANCE_ID-watsonstudio-system.yml
-    echo "- Reading config data from $WSL_CONFIG"
-    yq -sr '.[1].data."wd.yaml"' $WD_CONFIG > $WD_YAML
-    rc=$?
-    [ $rc -ne 0 ] && exit $rc
-
-    echo ""
-    echo "- Getting WD URL"
-    export WD_URL
-    WD_URL=$(yq -sr '.[0].url' $WD_YAML)
-    rc=$?
-    [ $rc -ne 0 ] && exit $rc
-    echo "- Getting WD Version"
-    export WD_VERSION
-    WD_VERSION=$(yq -sr '.[0].version' $WD_YAML)
-    rc=$?
-    [ $rc -ne 0 ] && exit $rc
-  fi
   # wait till CR MASS_APP_KIND is in ready status
   wait_till_cr_ready $MAS_APP_KIND $MAS_APP_NAMESPACE
 
