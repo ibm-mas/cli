@@ -466,6 +466,9 @@ function install_noninteractive() {
   # Present the MAS license information
   license_prompt
 
+  # Determine Certificate Manager provider
+  cert_manager_selection
+
   # Work out which SLS var to use for bootstrap
   sls_prompt_selection
   if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
@@ -530,6 +533,9 @@ function install_interactive() {
 
   # Present a the MAS license information
   license_prompt
+
+  # Determine Certificate Manager provider
+  cert_manager_selection
 
   # Configure the MAS instance
   echo

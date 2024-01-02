@@ -213,3 +213,25 @@ function sls_prompt_selection() {
       ;;
   esac
 }
+
+# Determine the Certificate Manager provider to use
+# -----------------------------------------------------------------------------
+# With January 2024 catalog source, Red Hat Certificate Manager
+# will be used as default Certificate Manager provider
+# Older catalog source will continue to use IBM Certificate Manager
+# provided by IBM Cloud Pak Foundational Services
+
+function cert_manager_selection() {
+  case $MAS_CATALOG_VERSION in
+    # Cert-Manager Channel selection
+    # -------------------------------------------------------------------------
+    v8-240130-amd64)
+      CERT_MANAGER_PROVIDER=redhat
+      CERT_MANAGER_ACTION=install
+      ;;
+    *)
+      CERT_MANAGER_PROVIDER=ibm
+      CERT_MANAGER_ACTION=install
+      ;;
+  esac
+}

@@ -56,6 +56,16 @@ spec:
       default: "upgrade"
       description: Set to 'upgrade' to update common_services
 
+    # cert-manager update
+    - name: cert_manager_action
+      type: string
+      default: ""
+      description: Set to 'install' to update to red hat certificate manager
+    - name: cert_manager_provider
+      type: string
+      default: ""
+      description: Certificate manager provider (ibm or redhat)
+
     # db2 update
     - name: db2_action
       type: string
@@ -197,6 +207,28 @@ spec:
         - name: common_services_action
           value: $(params.common_services_action)
 
+    # Only migrate to Red Hat Certificate Manager if identified that IBM Cloud Pak Foundational Services Certificate Manager is running
+    - name: update-cert-manager
+      taskRef:
+        kind: Task
+        name: mas-devops-cert-manager
+      runAfter:
+        - update-common-services
+      params:
+        - name: devops_suite_name
+          value: update-cert-manager
+        - name: cert_manager_action
+          value: $(params.cert_manager_action)
+        - name: cert_manager_provider
+          value: $(params.cert_manager_provider)
+      when:
+        - input: "$(params.cert_manager_action)"
+          operator: in
+          values: ["install"]
+        - input: "$(params.cert_manager_provider)"
+          operator: in
+          values: ["redhat"]
+
     - name: update-db2
       taskRef:
         kind: Task
@@ -256,6 +288,7 @@ spec:
         - update-db2
         - update-mongodb
         - update-kafka
+        - update-cert-manager
 
 
 {% if wait_for_install == true %}
