@@ -225,7 +225,7 @@ function cert_manager_selection() {
   case $MAS_CATALOG_VERSION in
     # Cert-Manager Channel selection
     # -------------------------------------------------------------------------
-    v8-240130-amd64)
+    v8-240130-amd64) # TODO: update here to include v8-amd64 when january catalog is released so that online catalog also installs redhat cert manager 
       CERT_MANAGER_PROVIDER=redhat
       CERT_MANAGER_ACTION=install
       ;;

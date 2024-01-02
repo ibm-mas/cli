@@ -35,7 +35,7 @@ function validate_existing_cert_manager() {
   # We just check current MongoDB version and warn about Mongo upgrade if MAS catalog is more recent than January 2024
   MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
 
-  if [[ $MAS_CATALOG_DATE -ge 231228 ]]; then #TODO: Change here when January catalog is available
+  if [[ $MAS_CATALOG_DATE -ge 240130 ]]; then
     # Lookup existing Certificate Manager instance
       if [ -z "$CERT_MANAGER_NAMESPACE" ]; then
         CERT_MANAGER_NAMESPACE=`oc get pods -A | grep cert-manager-cainjector | awk '{print $1}'`
