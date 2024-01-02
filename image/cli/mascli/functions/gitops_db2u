@@ -43,6 +43,10 @@ function gitops_db2u_noninteractive() {
   GIT_COMMIT_MSG="gitops-db2u commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
+  # defaults for fvtsaas
+  # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
+  export REGION=${REGION:-${SM_AWS_REGION}}
+
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -60,6 +64,9 @@ function gitops_db2u_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
+        ;;
+      -r|--region)
+        export REGION=$1 && shift
         ;;
 
       # Secrets Manager
@@ -138,8 +145,7 @@ function gitops_db2u() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
-  GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}
 
   export DB2_NAMESPACE=db2u
   export DB2_CHANNEL=${DB2_CHANNEL:-`oc get PackageManifest db2u-operator -n ibm-common-services  -o=jsonpath="{.status.defaultChannel}"`}
@@ -152,7 +158,7 @@ function gitops_db2u() {
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
+  echo_reset_dim "Cluster Config Directory .............. ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -196,7 +202,7 @@ function gitops_db2u() {
   # Define cluster-level secrets used
   # ---------------------------------------------------------------------------
   # Note that this cluster-level secret is set up by gitops-cluster
-  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
+  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${REGION}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
@@ -209,7 +215,7 @@ function gitops_db2u() {
     echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
-  mkdir -p ${GITOPS_APPS_DIR}
+  mkdir -p ${GITOPS_CLUSTER_DIR}
 
 
   # Generate ArgoApps
@@ -220,23 +226,30 @@ function gitops_db2u() {
 
   export IBM_ENTITLEMENT_KEY=$SECRET_KEY_IBM_ENTITLEMENT
 
-  echo "Generating DB2U file ${GITOPS_APPS_DIR}/ibm-db2u.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/ibm-db2u.yaml.j2 -o ${GITOPS_APPS_DIR}/ibm-db2u.yaml
+  echo "Generating DB2U file ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-cluster/ibm-db2u.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_CLUSTER_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+    
+    # Align with this: https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/README.md?plain=1#L11
+    export ROOT_APP_NAME="mas-root"
 
     argocd_login
-    argocd_sync ${CLUSTER_ID}-watcher
-    argocd_hard_refresh mas-db2-${CLUSTER_ID}
+    argocd_sync "${ROOT_APP_NAME}"
+
+      # Align with this: https://github.com/ibm-mas/gitops/blob/d209d45014a3d8d0f09d2eeb1c3ec4e59eda2257/application-sets/ibm-db2u.yaml#L37
+    GENERATED_APP_NAME="ibm-db2u-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}"
+
+    argocd_hard_refresh "${GENERATED_APP_NAME}"
     add_role_to_user ${DB2_NAMESPACE}
-    check_argo_app_synced mas-db2-${CLUSTER_ID} ${CLUSTER_ID}-watcher ${DB2_NAMESPACE}
-    check_argo_app_healthy mas-db2-${CLUSTER_ID} ${CLUSTER_ID}-watcher
+    check_argo_app_synced "${GENERATED_APP_NAME}" "${ROOT_APP_NAME}" ${DB2_NAMESPACE}
+    check_argo_app_healthy "${GENERATED_APP_NAME}" "${ROOT_APP_NAME}"
   fi
 
 }
