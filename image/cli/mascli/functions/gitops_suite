@@ -383,18 +383,25 @@ function gitops_suite() {
     argocd_sync "${ROOT_APP_NAME}"
 
     # Align with https://github.com/ibm-mas/gitops/blob/f057eb850c455ad34e067b1e79c752af8f745aa2/application-sets/ibm-mas-core.yaml#L41
-    GENERATED_APP_NAME="ibm-mas-core-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}-${MAS_INSTANCE_ID}"
+    GENERATED_APP_NAME_CORE="ibm-mas-core-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}-${MAS_INSTANCE_ID}"
 
-    argocd_hard_refresh "${GENERATED_APP_NAME}"
+    # Align with https://github.com/ibm-mas/gitops/blob/14a6f2367176e99de561d07bc16607aabe03199f/application-sets/ibm-sls.yaml#L38
+    GENERATED_APP_NAME_SLS="ibm-sls-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}-${MAS_INSTANCE_ID}"
+
+    argocd_hard_refresh "${GENERATED_APP_NAME_CORE}"
+    argocd_hard_refresh "${GENERATED_APP_NAME_SLS}"
 
     add_role_to_user mas-${MAS_INSTANCE_ID}-sls
     add_role_to_user mas-${MAS_INSTANCE_ID}-core
 
-    check_argo_app_synced "${GENERATED_APP_NAME}" "${ROOT_APP_NAME}" mas-${MAS_INSTANCE_ID}-sls
-    check_argo_app_healthy "${GENERATED_APP_NAME}" "${ROOT_APP_NAME}"
+    check_argo_app_synced "${GENERATED_APP_NAME_SLS}" "${ROOT_APP_NAME}" mas-${MAS_INSTANCE_ID}-sls
+    check_argo_app_healthy "${GENERATED_APP_NAME_SLS}" "${ROOT_APP_NAME}"
 
     # health check of suite will be done in gitops_suite_config
-    # ^ --- this may be an issue since our sls and core health status is now combined...
+    # (suite will not be healthy until core configs are established)
+    check_argo_app_synced "${GENERATED_APP_NAME_CORE}" "${ROOT_APP_NAME}" mas-${MAS_INSTANCE_ID}-core
+    # This is one of the reasons we split out ibm-sls into a separate app instead of bundling it into the ibm-mas-core umbrella chart
+    # (so we are able to verify its health independently of core in this task run)
   fi
 
 
