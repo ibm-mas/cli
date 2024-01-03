@@ -23,7 +23,7 @@ GitOps Configuration:
       --watson-studio-username ${COLOR_YELLOW}WATSON_STUDIO_USERNAME${TEXT_RESET}     Watson Studio username
       --watson-studio-password ${COLOR_YELLOW}WATSON_STUDIO_PASSWORD${TEXT_RESET}     Watson Studio password
       --watson-studio-url ${COLOR_YELLOW}WATSON_STUDIO_URL${TEXT_RESET}               Watson Studio url
-      --cp4d-watson-studio-action ${COLOR_YELLOW}CP4D_WATSON_STUDIO_ACTION${TEXT_RESET}       Install Watson Studio expected value - install, config
+      --cp4d-wsl-action ${COLOR_YELLOW}CP4D_WSL_ACTION${TEXT_RESET}                   Allowed Watson Studio action - install, config
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -92,8 +92,8 @@ function gitops_suite_watson_studio_config_noninteractive() {
       --watson-studio-url)
         export WATSON_STUDIO_URL=$1 && shift
         ;;
-      --cp4d-watson-studio-action)
-        export CP4D_WATSON_STUDIO_ACTION=$1 && shift
+      --cp4d-wsl-action)
+        export CP4D_WSL_ACTION=$1 && shift
         ;;
 
       # Secrets Manager
@@ -148,7 +148,7 @@ function gitops_suite_watson_studio_config_noninteractive() {
   [[ -z "$MAS_APP_ID" ]] && gitops_suite_app_install_help "MAS_APP_ID is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_suite_app_install_help "MAS_INSTANCE_ID is not set"
 
-  if [[ "${CP4D_WATSON_STUDIO_ACTION}" == "config" ]]; then
+  if [[ "${CP4D_WSL_ACTION}" == "config" ]]; then
     [[ -z "${WATSON_STUDIO_USERNAME}" ]] && gitops_suite_watson_studio_config_help "WATSON_STUDIO_USERNAME is not set"
     [[ -z "${WATSON_STUDIO_PASSWORD}" ]] && gitops_suite_watson_studio_config_help "WATSON_STUDIO_PASSWORD is not set"
     [[ -z "${WATSON_STUDIO_URL}" ]] && gitops_suite_watson_studio_config_help "WATSON_STUDIO_URL is not set"
@@ -243,7 +243,7 @@ function gitops_suite_watson_studio_config() {
   #PADMAN TODO - if passed in parameter use that.
   # set individual flag for all the service.
   
-  if [ "$CP4D_WATSON_STUDIO_ACTION" == "install" ]; then
+  if [ "$CP4D_WSL_ACTION" == "install" ]; then
     export WATSON_STUDIO_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cp4d
     export SECRET_KEY_WATSON_STUDIO_USERNAME=${WATSON_STUDIO_SECRET}#username
     export SECRET_KEY_WATSON_STUDIO_PASSWORD=${WATSON_STUDIO_SECRET}#password

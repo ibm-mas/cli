@@ -41,9 +41,9 @@ spec:
       type: string
     - name: watson_studio_url
       type: string
-    - name: cp4d_watson_studio_action
+    - name: cp4d_wsl_action
       type: string
-      default: "install"
+      default: ""
 
   stepTemplate:
     name: gitops-suite-watson-studio-config
@@ -84,8 +84,8 @@ spec:
         value: $(params.watson_studio_password)
       - name: WATSON_STUDIO_URL
         value: $(params.watson_studio_url)
-      - name: CP4D_WATSON_STUDIO_ACTION
-        value: $(params.cp4d_watson_studio_action)
+      - name: CP4D_WSL_ACTION
+        value: $(params.cp4d_wsl_action)
 
   steps:
     - args:

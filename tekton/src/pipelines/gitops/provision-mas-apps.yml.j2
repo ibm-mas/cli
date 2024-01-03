@@ -73,6 +73,11 @@ spec:
     - name: watson_studio_url
       type: string
       default: ""
+    - name: cp4d_wsl_action
+      type: string
+      default: ""
+
+      
 
     # 1. Gitops git Parameters
     # -------------------------------------------------------------------------
@@ -990,8 +995,8 @@ spec:
           value: $(params.watson_studio_password)
         - name: watson_studio_url
           value: $(params.watson_studio_url)
-        - name: cp4d_watson_studio_action
-          value: $(params.cp4d_watson_studio_action)
+        - name: cp4d_wsl_action
+          value: $(params.cp4d_wsl_action)
 
       taskRef:
         kind: Task
@@ -1000,7 +1005,7 @@ spec:
         - input: "$(params.mas_app_channel_predict)"
           operator: notin
           values: [""]
-        - input: "$(params.cp4d_watson_studio_action)"
+        - input: "$(params.cp4d_wsl_action)"
           operator: in
           values: ["install"]
           
