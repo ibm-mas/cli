@@ -56,6 +56,10 @@ function gitops_suite_noninteractive() {
 
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
   export REGION=${REGION:-${SM_AWS_REGION}}
+  export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"} # use an in-cluster argocd worker (which fvtsaas does)
+  # alternatively for CLUSTER_URL, we could look it up from ArgoCD like this:
+  # export CLUSTER_URL
+  # argocd_get_cluster_url "${CLUSTER_ID}" "CLUSTER_URL"
 
   while [[ $# -gt 0 ]]
   do
@@ -77,6 +81,9 @@ function gitops_suite_noninteractive() {
         ;;
       -r|--region)
         export REGION=$1 && shift
+        ;;
+      -u|--cluster-url)
+        export CLUSTER_URL=$1 && shift
         ;;
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
@@ -349,12 +356,16 @@ function gitops_suite() {
   # echo "- Project"
   # jinja -X .+ $CLI_DIR/templates/gitops/appproject.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/${MAS_INSTANCE_ID}.appproject.yaml
 
-  echo "- IBM Suite License Service"
-  jinja -X .+ -d $MONGO_CONFIG_FILE $CLI_DIR/templates/gitops/asset-configs/ibm-mas-core/ibm-sls.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
+  echo "- Base Config"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-core/ibm-mas-core-base.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-core-base.yaml
 
+  echo "- IBM Suite License Service"
+  jinja -X .+ -d $MONGO_CONFIG_FILE $CLI_DIR/templates/gitops/appset-configs/ibm-mas-core/ibm-sls.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
 
   echo "- IBM Maximo Application Suite Core Platform"
   jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-core/ibm-mas-suite.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-suite.yaml
+
+
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------

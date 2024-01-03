@@ -292,7 +292,7 @@ function gitops_cluster() {
   # TODO: configure global "mas" and "mas-argoproj-resources" projects to align with MCSP
   # this probably step probably belongs in the gitops-bootstrap task?
 
-
+  echo "- Base Config"
   jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-cluster/ibm-mas-cluster-base.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-mas-cluster-base.yaml
 
   if [[ "$MAS_CATALOG_ACTION" == "update" || "$MAS_CATALOG_ACTION" == "install" ]]; then

@@ -1,0 +1,44 @@
+{% include 'common-config.yaml.j2' %}
+
+ibm-sls:
+  mas_instance_id: {{ MAS_INSTANCE_ID }}
+  sls_channel: {{ SLS_CHANNEL }}
+  sls_entitlement_file: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LICENSE_FILE }}>
+  ibm_entitlement_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>
+  sls_mongo_username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_USERNAME }}>
+  sls_mongo_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_PASSWORD }}>
+  sls_mongo_secret_name: sls-mongo-credentials
+  mongo_spec:
+    authMechanism: DEFAULT
+    configDb: admin
+    secretName: sls-mongo-credentials
+    {% if config.retryWrites is sameas false %}
+    retryWrites: false
+    {% endif %}
+    nodes:
+      {% for mongo_host in config.hosts -%}
+      - host: {{ mongo_host.host }}
+        port: {{ mongo_host.port }}
+      {% endfor %}
+    certificates:
+      {% if config.certificate -%}
+      {% for mongo_certificate in config.certificate -%}
+      - alias: {{ mongo_certificate.alias }}
+        crt: |
+          {% filter indent(width=10) -%}
+          {{ mongo_certificate.crt }}
+          {%- endfilter %}
+      {% endfor %}
+      {% elif certificates -%}
+      {% for mongo_certificate in certificates -%}
+      - alias: {{ mongo_certificate.alias }}
+        crt: |
+          {% filter indent(width=10) -%}
+          {{ mongo_certificate.crt }}
+          {%- endfilter %}
+      {% endfor %}
+      {% endif %}
+
+tags:
+  ibm-sls: true
+
