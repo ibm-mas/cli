@@ -117,6 +117,8 @@ spec:
         fi
 
         if [ -z $DRO_CA_CERTIFICATE_FILE ]; then
+
+          # NOTE: the name of this secret is Hyperscaler specific I think? In Fyre it's called "router-certs-default".
           oc get secret $CLUSTER_NAME-primary-cert-bundle-secret -n openshift-ingress -ojsonpath='{.data.tls\.crt}' --context $K8S_AUTH_CONTEXT | base64 -d > /tmp/init-suite-config/dro_ca.crt
           export DRO_CA_CERTIFICATE_FILE=/tmp/init-suite-config/dro_ca.crt
         fi
