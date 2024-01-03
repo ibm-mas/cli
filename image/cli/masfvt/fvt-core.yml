@@ -21,6 +21,13 @@
     ddp_apikey: "{{ lookup('env', 'DDP_APIKEY') }}"
     partium_username: "{{ lookup('env', 'PARTIUM_USERNAME') }}"
     partium_password: "{{ lookup('env', 'PARTIUM_PASSWORD') }}"
+    ldap_url: "{{ lookup('env', 'LDAP_URL') }}"
+    ldap_base_dn: "{{ lookup('env', 'LDAP_BASE_DN') }}"
+    ldap_bind_dn: "{{ lookup('env', 'LDAP_BIND_DN') }}"
+    ldap_bind_password: "{{ lookup('env', 'LDAP_BIND_PASSWORD') }}"
+    ldap_user_map: "{{ lookup('env', 'LDAP_USER_MAP') }}"
+    ldap_cert_alias: "{{ lookup('env', 'LDAP_CERT_ALIAS') }}"
+    ldap_crt: "{{ lookup('env', 'LDAP_CRT') }}"
     # Pipeline Run Info
     pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-core', True) }}"
     pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"

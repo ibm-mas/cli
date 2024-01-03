@@ -116,6 +116,48 @@ spec:
             name: mas-fvt-core
             key: PARTIUM_PASSWORD
             optional: true
+      - name: LDAP_URL
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: LDAP_URL
+            optional: false
+      - name: LDAP_BASE_DN
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: LDAP_BASE_DN
+            optional: false
+      - name: LDAP_BIND_DN
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: LDAP_BIND_DN
+            optional: false
+      - name: LDAP_BIND_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: LDAP_BIND_PASSWORD
+            optional: false
+      - name: LDAP_USER_MAP
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: LDAP_USER_MAP
+            optional: false
+      - name: LDAP_CERT_ALIAS
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: LDAP_CERT_ALIAS
+            optional: false
+      - name: LDAP_CRT
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: LDAP_CRT
+            optional: false
 
   steps:
     - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'

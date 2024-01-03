@@ -7,6 +7,11 @@ spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
+    - name: cert_manager_provider
+      type: string
+      description: Optional. Cert Manager provider (ibm or redhat)
+      default: ""
+
     # Optional parameter to uninstall Cert Manager
     - name: cert_manager_action
       type: string
@@ -16,6 +21,9 @@ spec:
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      - name: CERT_MANAGER_PROVIDER
+        value: $(params.cert_manager_provider)
 
       # Optional parameter to uninstall Cert Manager
       - name: CERT_MANAGER_ACTION
