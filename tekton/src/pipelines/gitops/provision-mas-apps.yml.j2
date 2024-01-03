@@ -959,9 +959,12 @@ spec:
         kind: Task
         name: gitops-cp4d-service
       when:
-        - input: "$(params.cp4d_wsl_action)"
+        - input: "$(params.mas_app_channel_predict)"
           operator: notin
           values: [""]
+        - input: "$(params.cp4d_wsl_action)"
+          operator: in
+          values: ["install"]
 
     # 13.1.b Configure WSL in MAS Core
     - name: gitops-suite-watson-studio-config
