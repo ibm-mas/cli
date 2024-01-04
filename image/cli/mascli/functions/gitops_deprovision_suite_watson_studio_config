@@ -1,27 +1,28 @@
 #!/usr/bin/env bash
 
-function gitops_deprovision_suite_objectstorage_config_help() {
+function gitops_deprovision_suite_watson_studio_config_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_deprovision_suite_objectstorage_config [options]
+  mas gitops_deprovision_suite_watson_studio_config [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Options:
 
 GitOps Configuration:
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Working directory for GitOps repository
-  -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
-  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
-  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
-  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
-  -f, --force-removal ${COLOR_YELLOW}FORCE_REMOVAL${TEXT_RESET}      Force remove the ArgoCD Application, when deletion exceeds timeout
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                  Working directory for GitOps repository
+  -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}           Version of ibm-mas/gitops to use
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                   Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                   Cluster ID
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}         IBM Suite Maximo Application Suite Instance ID
+  -f, --force-removal ${COLOR_YELLOW}FORCE_REMOVAL${TEXT_RESET}             Force remove the ArgoCD Application, when deletion exceeds timeout
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
+
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -38,10 +39,10 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_deprovision_suite_objectstorage_config_noninteractive() {
+function gitops_deprovision_suite_watson_studio_config_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-deprovision-objectstorage-config commit"
+  GIT_COMMIT_MSG="gitops-deprovision-watson-studio-config commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   while [[ $# -gt 0 ]]
@@ -61,6 +62,7 @@ function gitops_deprovision_suite_objectstorage_config_noninteractive() {
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
         ;;
+
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
         ;;
@@ -100,38 +102,38 @@ function gitops_deprovision_suite_objectstorage_config_noninteractive() {
         ;;
 
       -h|--help)
-        gitops_deprovision_suite_objectstorage_config_help
+        gitops_deprovision_suite_watson_studio_config_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_deprovision_suite_objectstorage_config_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_deprovision_suite_watson_studio_config_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_deprovision_suite_objectstorage_config_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$GITOPS_VERSION" ]] && gitops_deprovision_suite_objectstorage_config_help "GITOPS_VERSION is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_suite_objectstorage_config_help "CLUSTER_ID is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_suite_objectstorage_config_help "ACCOUNT_ID is not set"
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_deprovision_suite_watson_studio_config_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$GITOPS_VERSION" ]] && gitops_deprovision_suite_watson_studio_config_help "GITOPS_VERSION is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_suite_watson_studio_config_help "CLUSTER_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_suite_watson_studio_config_help "ACCOUNT_ID is not set"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_suite_objectstorage_config_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_deprovision_suite_objectstorage_config_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_suite_objectstorage_config_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_suite_objectstorage_config_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_suite_watson_studio_config_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_deprovision_suite_watson_studio_config_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_suite_watson_studio_config_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_suite_watson_studio_config_help "GIT_BRANCH is not set"
   fi
 }
 
-function gitops_deprovision_suite_objectstorage_config() {
+function gitops_deprovision_suite_watson_studio_config() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_deprovision_suite_objectstorage_config_noninteractive "$@"
+    gitops_deprovision_suite_watson_studio_config_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_deprovision_suite_objectstorage_config_interactive
+    gitops_deprovision_suite_watson_studio_config_interactive
   fi
   rm -rf ${GITOPS_WORKING_DIR}
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -193,7 +195,7 @@ function gitops_deprovision_suite_objectstorage_config() {
   # Get the cluster-level secrets used
   # ---------------------------------------------------------------------------
   CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/tmp-cos-deprovision-config
+  TEMP_DIR=$CURRENT_DIR/tmp-deprovision-watson-studio-config
   rm -rf $TEMP_DIR
   mkdir -p $TEMP_DIR
 
@@ -210,11 +212,10 @@ function gitops_deprovision_suite_objectstorage_config() {
   fi
   mkdir -p ${GITOPS_APPS_DIR}
 
- 
   # Delete ArgoApps
   # ---------------------------------------------------------------------------
   # Per MAS instance
-  rm ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-objectstorage-config.yaml
+  rm ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-watson-studio-config.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -226,7 +227,7 @@ function gitops_deprovision_suite_objectstorage_config() {
 
     argocd_login
     argocd_prune_sync ${CLUSTER_ID}-watcher
-    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-objectstorage-config ${MAS_INSTANCE_ID} ${FORCE_REMOVAL}
+    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-watson-studio-config ${MAS_INSTANCE_ID} ${FORCE_REMOVAL}
   fi
 
   rm -rf $TEMP_DIR

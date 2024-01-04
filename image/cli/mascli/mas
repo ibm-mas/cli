@@ -105,6 +105,9 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_suite_idp_config
 . $CLI_DIR/functions/gitops_deprovision_suite_smtp_config
 . $CLI_DIR/functions/gitops_mas_fvt_preparer
+. $CLI_DIR/functions/gitops_suite_watson_studio_config
+. $CLI_DIR/functions/gitops_deprovision_suite_watson_studio_config
+
 # GitOps / MCSP
 . $CLI_DIR/functions/gitops_mcsp_cluster
 . $CLI_DIR/functions/gitops_mcsp_dro
@@ -289,6 +292,22 @@ case $1 in
     echo
     reset_colors
     gitops_cp4d_service "$@"
+    ;;
+
+  gitops-suite-watson-studio-config)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_suite_watson_studio_config "$@"
+    ;;
+
+  gitops-deprovision-suite-watson-studio-config)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_suite_watson_studio_config "$@"
     ;;
 
   gitops-license)

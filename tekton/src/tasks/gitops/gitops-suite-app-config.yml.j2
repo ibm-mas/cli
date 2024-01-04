@@ -51,6 +51,11 @@ spec:
     - name: cpd_wml_instance_id
       type: string
       default: "openshift"
+
+    - name: cpd_instance_namespace
+      type: string
+      default: ""
+
     - name: cluster_name
       type: string
     - name: account
@@ -181,6 +186,8 @@ spec:
         value: $(params.cpd_wml_url)
       - name: CPD_WML_INSTANCE_ID
         value: $(params.cpd_wml_instance_id)
+      - name: CPD_INSTANCE_NAMESPACE
+        value: $(params.cpd_instance_namespace)
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
       - name: ACCOUNT

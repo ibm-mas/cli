@@ -64,6 +64,8 @@ spec:
     - name: avp_aws_access_key
       type: string
 
+
+
     # 1. Gitops git Parameters
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
@@ -174,12 +176,32 @@ spec:
     - name: cp4d_action
       type: string
 
-      #CP4D WD
+      #CP4D Services
     - name: cpd_service_block_storage_class
       type: string
     - name: cpd_service_storage_class
       type: string
     - name: cp4d_wd_action
+      type: string
+    - name: cp4d_analytics_engine_action
+      type: string
+    - name: cp4d_spss_modeler_action
+      type: string
+    - name: cp4d_watson_machine_learning_action
+      type: string
+    - name: cp4d_watson_openscale_action
+      type: string
+
+      #CP4D wml, analytics, openscale, spss modeler
+    - name: cp4d_wsl_action
+      type: string
+    - name: cp4d_watson_machine_learning_action
+      type: string
+    - name: cp4d_analytics_engine_action
+      type: string
+    - name: cp4d_watson_openscale_action
+      type: string
+    - name: cp4d_spss_modeler_action
       type: string
 
     # Dependencies - COS
@@ -347,6 +369,54 @@ spec:
     - name: mas_appws_spec_yaml_optimizer
       type: string
     - name: optimizer_workspace_action
+      type: string
+      default: ""
+
+    - name: mas_app_channel_predict
+      type: string
+    - name: mas_app_catalog_source_predict
+      type: string
+      default: ibm-operator-catalog
+    - name: mas_app_api_version_predict
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_app_kind_predict
+      type: string
+      default: PredictApp
+    - name: mas_appws_api_version_predict
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_appws_kind_predict
+      type: string
+      default: PredictWorkspace
+    - name: mas_app_spec_yaml_predict
+      type: string
+    - name: mas_appws_spec_yaml_predict
+      type: string
+    - name: predict_workspace_action
+      type: string
+      default: ""
+
+    - name: watson_studio_username
+      type: string
+      default: ""
+    - name: watson_studio_password
+      type: string
+      default: ""
+    - name: watson_studio_url
+      type: string
+      default: ""
+
+    - name: cpd_wsl_project_id
+      type: string
+      default: ""
+    - name: cpd_wml_url
+      type: string
+      default: ""
+    - name: cpd_wml_instance_id
+      type: string
+      default: ""
+    - name: cpd_instance_namespace
       type: string
       default: ""
 
@@ -868,4 +938,268 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/optimizer-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-optimizer
+
+    # 12. Install & Configure Predict
+    # -------------------------------------------------------------------------
+    # 12.1 Install Predict
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/predict-app.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-manage
+        - app-cfg-monitor
+        - gitops-cp4d
+        - gitops-cp4d-wsl
+        - gitops-suite-watson-studio-config-predict
+        - gitops-cp4d-wml
+        - gitops-cp4d-spark
+        - gitops-cp4d-aiopenscale
+        - gitops-cp4d-spss
+
+
+    # 12.2 Configure Predict workspace
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/predict-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-predict
+
+    # 13. CP4D WSL,  for Predict
+    # -------------------------------------------------------------------------
+    # 13.1.a CP4D wsl
+    - name: gitops-cp4d-wsl
+      runAfter:
+        - gitops-cp4d
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cpd_service_name
+          value: wsl
+        - name: cpd_product_version
+          value: $(params.cpd_product_version)
+        - name: cpd_service_block_storage_class
+          value: $(params.cpd_service_block_storage_class)
+        - name: cpd_service_storage_class
+          value: $(params.cpd_service_storage_class)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-cp4d-service
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+        - input: "$(params.cp4d_wsl_action)"
+          operator: in
+          values: ["install"]
+
+    # 13.1.b Configure WSL in MAS Core
+    - name: gitops-suite-watson-studio-config-predict
+      runAfter:
+        - gitops-cp4d-wsl
+      params:
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: predict
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_config_scope
+          value: wsapp
+
+        - name: watson_studio_username
+          value: $(params.watson_studio_username)
+        - name: watson_studio_password
+          value: $(params.watson_studio_password)
+        - name: watson_studio_url
+          value: $(params.watson_studio_url)
+        - name: cp4d_wsl_action
+          value: $(params.cp4d_wsl_action)
+
+      taskRef:
+        kind: Task
+        name: gitops-suite-watson-studio-config
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+        - input: "$(params.cp4d_wsl_action)"
+          operator: in
+          values: ["install"]
+          
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+
+    # 13.2 CP4D wml
+    - name: gitops-cp4d-wml
+      runAfter:
+        - gitops-cp4d
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cpd_service_name
+          value: wml
+        - name: cpd_product_version
+          value: $(params.cpd_product_version)
+        - name: cpd_service_block_storage_class
+          value: $(params.cpd_service_block_storage_class)
+        - name: cpd_service_storage_class
+          value: $(params.cpd_service_storage_class)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-cp4d-service
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+        - input: "$(params.cp4d_watson_machine_learning_action)"
+          operator: in
+          values: ["install"]
+    # 13.3 CP4D spark
+    - name: gitops-cp4d-spark
+      runAfter:
+        - gitops-cp4d
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cpd_service_name
+          value: spark
+        - name: cpd_product_version
+          value: $(params.cpd_product_version)
+        - name: cpd_service_block_storage_class
+          value: $(params.cpd_service_block_storage_class)
+        - name: cpd_service_storage_class
+          value: $(params.cpd_service_storage_class)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-cp4d-service
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+        - input: "$(params.cp4d_analytics_engine_action)"
+          operator: in
+          values: ["install"]
+
+    # 13.4 CP4D aiopenscale
+    - name: gitops-cp4d-aiopenscale
+      runAfter:
+        - gitops-cp4d
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cpd_service_name
+          value: aiopenscale
+        - name: cpd_product_version
+          value: $(params.cpd_product_version)
+        - name: cpd_service_block_storage_class
+          value: $(params.cpd_service_block_storage_class)
+        - name: cpd_service_storage_class
+          value: $(params.cpd_service_storage_class)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-cp4d-service
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+        - input: "$(params.cp4d_watson_openscale_action)"
+          operator: in
+          values: ["install"]
+
+    # 13.5 CP4D spss
+    - name: gitops-cp4d-spss
+      runAfter:
+        - gitops-cp4d
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cpd_service_name
+          value: spss
+        - name: cpd_product_version
+          value: $(params.cpd_product_version)
+        - name: cpd_service_block_storage_class
+          value: $(params.cpd_service_block_storage_class)
+        - name: cpd_service_storage_class
+          value: $(params.cpd_service_storage_class)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-cp4d-service
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+        - input: "$(params.cp4d_spss_modeler_action)"
+          operator: in
+          values: ["install"]
 
