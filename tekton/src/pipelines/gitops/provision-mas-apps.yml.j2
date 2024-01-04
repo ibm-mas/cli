@@ -407,6 +407,16 @@ spec:
       type: string
       default: ""
 
+    - name: cpd_wsl_project_id
+      type: string
+      default: ""
+    - name: cpd_wml_url
+      type: string
+      default: ""
+    - name: cpd_wml_instance_id
+      type: string
+      default: ""
+
   tasks:
 {% if wait_for_provision == true %}
     # 0. Wait for the fvt start pipeline to complete

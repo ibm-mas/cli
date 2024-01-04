@@ -1,6 +1,3 @@
-{%- if CPD_WSL_PROJECT_ID == "" or CPD_PRODUCT_VERSION == "" %}
-mas_appws_spec: {}
-{%- else %}
 mas_appws_spec:
   bindings:
     jdbc: system
@@ -12,4 +9,3 @@ mas_appws_spec:
       instance_id: "{{ CPD_WML_INSTANCE_ID }}"
       url: "{{ CPD_WML_URL }}"
       version: "{{ CPD_PRODUCT_VERSION }}"
-{%- endif %}
