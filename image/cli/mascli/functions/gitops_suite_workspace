@@ -41,6 +41,9 @@ function gitops_suite_workspace_noninteractive() {
   GIT_COMMIT_MSG="gitops-suite-workspace commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
+  # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
+  export REGION=${REGION:-${SM_AWS_REGION}}
+
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -54,6 +57,9 @@ function gitops_suite_workspace_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
+        ;;
+      -r|--region)
+        export REGION=$1 && shift
         ;;
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
@@ -115,11 +121,15 @@ function gitops_suite_workspace_noninteractive() {
 
 function gitops_suite_workspace() {
   # Take the first parameter off (it will be create-gitops)
-  unset MAS_INSTANCE_ID  
+  shift
+  
+  # Why are we deliberately unsetting these environment variables in this script (but not the other similar scripts)?
+  # NOTE: this is fine when used from the Tekton task since these are passed in as CLI args
+  # Leaving this be for now in case I missed something
+  unset MAS_INSTANCE_ID
   unset MAS_WORKSPACE_NAME
   unset MAS_WORKSPACE_ID
 
-  shift
   if [[ $# -gt 0 ]]; then
     gitops_suite_workspace_noninteractive "$@"
   else
@@ -129,8 +139,8 @@ function gitops_suite_workspace() {
   fi
   
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
-  GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
+  mkdir -p ${GITOPS_WORKING_DIR}
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
 
 
   echo
@@ -141,7 +151,7 @@ function gitops_suite_workspace() {
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID............................. ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
+  echo_reset_dim "Instance Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -190,7 +200,7 @@ function gitops_suite_workspace() {
     echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
-  mkdir -p ${GITOPS_APPS_DIR}
+  mkdir -p ${GITOPS_INSTANCE_DIR}
 
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
@@ -200,21 +210,40 @@ function gitops_suite_workspace() {
   if [[ -z $MAS_WORKSPACE_NAME ]]; then
     export MAS_WORKSPACE_NAME=$MAS_WORKSPACE_ID
   fi
-  echo "Generating IBM Maximo Application Suite Workspace file ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.${MAS_WORKSPACE_ID}.ibm-mas-core-workspace.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/ibm-mas-core-workspace.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.${MAS_WORKSPACE_ID}.ibm-mas-core-workspace.yaml
+  echo "Generating IBM Maximo Application Suite Workspace file ${GITOPS_INSTANCE_DIR}/ibm-mas-workspace.yaml"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-core/ibm-mas-workspace.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-workspace.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
+    # Align with https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/README.md?plain=1#L11
+    export ROOT_APP_NAME="mas-root"
+
     argocd_login
-    argocd_sync ${CLUSTER_ID}-watcher
-    check_argo_app_synced mas-${MAS_INSTANCE_ID}-core-${MAS_WORKSPACE_ID} ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-core
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-core-${MAS_WORKSPACE_ID} ${CLUSTER_ID}-watcher
+    argocd_sync "${ROOT_APP_NAME}"
+
+    # Align with https://github.com/ibm-mas/gitops/blob/f057eb850c455ad34e067b1e79c752af8f745aa2/application-sets/ibm-mas-core.yaml#L41
+    CORE_APP_NAME="ibm-mas-core-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}-${MAS_INSTANCE_ID}"
+
+    argocd_hard_refresh "${CORE_APP_NAME}"
+    check_argo_app_synced "${CORE_APP_NAME}" "${ROOT_APP_NAME}" mas-${MAS_INSTANCE_ID}-core
+
+    # Possible race condition here; although the app has synced, argocd may not have updated app health to "progressing" yet
+    # I've only seen this for the Workspace resource, but this may apply to others too.
+    # Sufficient to add a short sleep here, or do we need something more controlled?
+    # Is this only an issue now the core charts are now all bundled into a single Argo App?
+    sleep 10
+    check_argo_app_healthy "${CORE_APP_NAME}" "${ROOT_APP_NAME}"
+
+    # Random idea:
+    # Have a separate Argo App (set) for workspaces. Their config files could live in a <workspace-id> subdirectory of the instance dir.
+    # Once (if) we ever support multi-workspace, this could offer a clean approach to configuring these, include workspace-level bindings.
+    # Not going to do it now since 1. I want to limit the impact of the refactor to appsets and 2. we only ever have a single workspace at the mo.
     
   fi
 
