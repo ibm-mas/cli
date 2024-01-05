@@ -8,6 +8,8 @@
 
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(4) }}
 
+
+
     - name: devops_suite_name
       value: app-manage-cfg
     - name: mas_manual_cert_mgmt
@@ -32,6 +34,14 @@
       value: $(params.default_block_storage_class)
     - name: default_file_storage_class
       value: $(params.default_file_storage_class)
+
+    - name: mas_appws_bindings_jdbc
+      value: $(params.mas_appws_bindings_jdbc)
+    - name: mas_appws_components
+      value: $(params.mas_appws_components)
+    - name: mas_appws_settings
+      value: $(params.mas_appws_settings)
+
   taskRef:
     name: gitops-suite-app-config
     kind: Task
