@@ -1,0 +1,21 @@
+{% include 'common-config.yaml.j2' %}
+
+ibm-mas-smtp-config:
+  mas_instance_id: {{ MAS_INSTANCE_ID }}
+  suite_smtp_username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SMTP_USERNAME }}>
+  suite_smtp_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SMTP_PASSWORD }}>
+  suite_smtp_secret_name: smtp-system-credentials-{{ MAS_INSTANCE_ID }}
+  suite_smtp_display_name: {{ SMTP_DISPLAY_NAME }}
+  suite_smtp_host: {{ SMTP_HOST }}
+  suite_smtp_port: {{ SMTP_PORT }}
+  suite_smtp_security: {{ SMTP_SECURITY }}
+  suite_smtp_authentication: {{ SMTP_AUTHENTICATION }}
+  suite_smtp_default_sender_email: {{ SMTP_DEFAULT_SENDER_EMAIL }}
+  suite_smtp_default_sender_name: {{ SMTP_DEFAULT_SENDER_NAME }}
+  suite_smtp_default_recipient_email: {{ SMTP_DEFAULT_RECIPIENT_EMAIL }}
+  suite_smtp_default_should_email_passwords: {{ SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS }}
+
+
+tags:
+  ibm-mas-smtp-config: true
+
