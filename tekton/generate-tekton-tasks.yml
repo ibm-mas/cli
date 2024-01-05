@@ -31,6 +31,7 @@
         - cp4d_service
         - cp4d
         - db2
+        - gencfg-jdbc
         - ibm-catalogs
         - kafka
         - kafka-deprovision
