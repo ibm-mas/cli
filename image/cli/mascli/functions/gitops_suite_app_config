@@ -530,6 +530,41 @@ function gitops_suite_app_config() {
 
   # Getting app spec, either default or provided
   # ---------------------------------------------------------------------------
+
+  if [ "$MAS_APP_ID" == "predict" ]; then
+    echo "- Configuring for Predict App"
+
+    if [ -z $CPD_WSL_PROJECT_ID ]; then
+      export CPD_WSL_PROJECT_ID=$(cat $GITOPS_CONFIG_DIR/$MAS_INSTANCE_ID-cp4d-service-wsl/wsl-mas-$MAS_INSTANCE_ID-hputilities.id)
+    fi
+    if [ -z $CPD_WML_URL ]; then
+      export CPD_WML_URL="https://internal-nginx-svc.${CPD_INSTANCE_NAMESPACE}.svc.cluster.local:12443"
+    fi
+    if [ -z $CPD_WML_INSTANCE_ID ]; then
+      export CPD_WML_INSTANCE_ID="openshift"
+    fi
+
+    echo "- CPD_WSL_PROJECT_ID=${CPD_WSL_PROJECT_ID}"
+    echo "- CPD_WML_URL=${CPD_WML_URL}"
+    echo "- CPD_WML_INSTANCE_ID=${CPD_WML_INSTANCE_ID}"
+    echo "- CPD_PRODUCT_VERSION=${CPD_PRODUCT_VERSION}"
+
+    if [ -n $CPD_PRODUCT_VERSION ]; then
+      DOTS_COUNT=$(echo $CPD_PRODUCT_VERSION | grep -o "\." | wc -l)
+      echo $DOTS_COUNT
+
+      if [ $DOTS_COUNT -gt 1 ]; then
+        export CPD_PRODUCT_VERSION=${CPD_PRODUCT_VERSION%.*}
+        echo CPD_PRODUCT_VERSION=$CPD_PRODUCT_VERSION
+      fi
+    fi
+
+    if [[ -z "${CPD_WSL_PROJECT_ID}" || "${CPD_WSL_PROJECT_ID}" == "" ]]; then
+      echo "- CPD_WSL_PROJECT_ID is empty, exiting ..."
+      exit 1
+    fi
+  fi
+
   if [[ -n "$MAS_APPWS_SPEC_YAML" ]]; then
     echo
     echo_h2 "Using application spec provided for $MAS_APP_ID at $MAS_APPWS_SPEC_YAML"
@@ -603,39 +638,7 @@ function gitops_suite_app_config() {
     [ $rc -ne 0 ] && exit $rc
   fi
 
-  if [ "$MAS_APP_ID" == "predict" ]; then
-      echo "- Configuring for Predict App"
 
-      if [ -z $CPD_WSL_PROJECT_ID ]; then
-        export CPD_WSL_PROJECT_ID=$(cat $GITOPS_CONFIG_DIR/$MAS_INSTANCE_ID-cp4d-service-wsl/wsl-mas-$MAS_INSTANCE_ID-hputilities.id)
-      fi
-      if [ -z $CPD_WML_URL ]; then
-        export CPD_WML_URL="https://internal-nginx-svc.${CPD_INSTANCE_NAMESPACE}.svc.cluster.local:12443"
-      fi
-      if [ -z $CPD_WML_INSTANCE_ID ]; then
-        export CPD_WML_INSTANCE_ID="openshift"
-      fi
-
-      echo "- CPD_WSL_PROJECT_ID=${CPD_WSL_PROJECT_ID}"
-      echo "- CPD_WML_URL=${CPD_WML_URL}"
-      echo "- CPD_WML_INSTANCE_ID=${CPD_WML_INSTANCE_ID}"
-      echo "- CPD_PRODUCT_VERSION=${CPD_PRODUCT_VERSION}"
-
-      if [ -n $CPD_PRODUCT_VERSION ]; then
-        DOTS_COUNT=$(echo $CPD_PRODUCT_VERSION | grep -o "\." | wc -l)
-        echo $DOTS_COUNT
-
-        if [ $DOTS_COUNT -gt 1 ]; then
-          export CPD_PRODUCT_VERSION=${CPD_PRODUCT_VERSION%.*}
-          echo CPD_PRODUCT_VERSION=$CPD_PRODUCT_VERSION
-        fi
-      fi
-
-      if [[ -z "${CPD_WSL_PROJECT_ID}" || "${CPD_WSL_PROJECT_ID}" == "" ]]; then
-        echo "- CPD_WSL_PROJECT_ID is empty, exiting ..."
-        exit 1
-      fi
-  fi
 
   # wait till CR MASS_APP_KIND is in ready status
   wait_till_cr_ready $MAS_APP_KIND $MAS_APP_NAMESPACE
