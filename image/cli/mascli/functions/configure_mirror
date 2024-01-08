@@ -157,11 +157,6 @@ function configure_ocp_for_mirror() {
   echo_reset_dim "CA File ................... ${COLOR_MAGENTA}${REGISTRY_PRIVATE_CA_FILE}"
   echo "${TEXT_RESET}${TEXT_DIM}"
 
-  echo_h4 "Private Registry Authentication" "    "
-  echo_reset_dim "Username .................. ${COLOR_MAGENTA}${REGISTRY_USERNAME:0:2}********"
-  echo_reset_dim "Password .................. ${COLOR_MAGENTA}${REGISTRY_PASSWORD:0:2}********"
-  echo "${TEXT_RESET}${TEXT_DIM}"
-
   echo_h4 "Red Hat Catalog Management" "    "
   if [[ "${SETUP_REDHAT_CATALOGS}" == "true" ]]; then
     echo_reset_dim "Management Mode ........... ${COLOR_MAGENTA}IBM Managed/Configured"
