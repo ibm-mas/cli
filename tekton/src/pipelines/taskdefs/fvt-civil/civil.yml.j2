@@ -1,0 +1,51 @@
+# Manage FVT - Civil Infrastructure Selenium - Setup
+- name: fvt-manage-civil-selenium-setup
+  {{ lookup('template', 'taskdefs/fvt-civil/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-civil/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: civil-setup-data
+
+# Manage FVT - Civil Infrastructure Selenium - New User
+- name: fvt-manage-civil-selenium-user
+  {{ lookup('template', 'taskdefs/fvt-civil/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-civil/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: civil-setup-user
+  runAfter:
+    - fvt-manage-civil-selenium-setup
+
+# Manage FVT - Civil Infrastructure Selenium
+- name: fvt-manage-civil-selenium
+  {{ lookup('template', 'taskdefs/fvt-civil/common/taskref-manage.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-civil/common/params-manage.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: civil-bvt
+  runAfter:
+    - fvt-manage-civil-selenium-user
+
+## Minimum Verification Test for Mobile Defects MAS test suites
+- name: fvt-civil-defects-mvt-android
+  {{ lookup('template', 'taskdefs/fvt-civil/common/taskref-mobile.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-civil/common/params-mobile.yml.j2') | indent(4) }}
+    - name: mobile_device_type
+      value: android
+    - name: fvt_test_suite
+      value: civil-defects-mvt-android
+  runAfter:
+    - fvt-manage-civil-selenium
+
+# Minimum Verification Test for Mobile Defects MAS test suites
+- name: fvt-civil-defects-mvt-ios
+  {{ lookup('template', 'taskdefs/fvt-civil/common/taskref-mobile.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-civil/common/params-mobile.yml.j2') | indent(4) }}
+    - name: mobile_device_type
+      value: ios
+    - name: fvt_test_suite
+      value: civil-defects-mvt-ios
+  runAfter:
+    - fvt-civil-defects-mvt-android

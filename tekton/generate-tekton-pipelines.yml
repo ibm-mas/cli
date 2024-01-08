@@ -31,6 +31,7 @@
         - install
         - install-with-fvt
         - fvt-assist
+        - fvt-civil
         - fvt-core
         - fvt-deprovision-after
         - fvt-iot
