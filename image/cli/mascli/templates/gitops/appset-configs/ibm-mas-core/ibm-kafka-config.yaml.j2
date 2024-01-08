@@ -1,0 +1,30 @@
+{% include 'common-config.yaml.j2' %}
+
+ibm-kafka-config:
+  mas_instance_id: {{ MAS_INSTANCE_ID }}
+  suite_kafka_username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_KAFKA_USERNAME }}>
+  suite_kafka_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_KAFKA_PASSWORD }}>
+  suite_kafka_secret_name: {{ MAS_INSTANCE_ID }}-usersupplied-kafka-creds-system
+  kafka_config:
+    config:
+      hosts:
+        {% for kafka_host in config.hosts -%}
+        - host: {{ kafka_host.host }}
+          port: {{ kafka_host.port }}
+        {% endfor %}
+      credentials:
+        secretName: "{{ MAS_INSTANCE_ID }}-usersupplied-kafka-creds-system"
+      saslMechanism: SCRAM-SHA-512
+    certificates:
+      {% for kafka_certificate in certificates -%}
+      - alias: {{ kafka_certificate.alias }}
+        crt: |
+          {% filter indent(width=10) -%}
+          {{ kafka_certificate.crt }}
+          {%- endfilter %}
+      {% endfor %}
+
+
+tags:
+  ibm-kafka-config: true
+
