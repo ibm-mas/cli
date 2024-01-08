@@ -74,6 +74,7 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - launchfvt-assist
+        - launchfvt-civil
         - launchfvt-core
         - launchfvt-iot
         - launchfvt-manage
