@@ -75,6 +75,9 @@ function gitops_db2u_database_noninteractive() {
   GIT_COMMIT_MSG="gitops-db2u-database commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
+  # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
+  export REGION=${REGION:-${SM_AWS_REGION}}
+
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -372,8 +375,7 @@ function gitops_db2u_database() {
 
   mkdir -p ${GITOPS_WORKING_DIR}
   rm -rf $GITOPS_WORKING_DIR/$GITHUB_REPO
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
-  GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
 
   #Defaults
   if [[ -z $DB2_DBNAME ]]; then
@@ -455,7 +457,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   export DB2_INTERNAL=${DB2_INTERNAL:-"true"}
   export WHOAMI=`oc whoami`
   if [[ -z ${WHOAMI} ]]; then
-    echo_reset_dim "${COLOR_RED} Please do 'oc login' to the cluster ArgoCD is to be installed on"
+    echo_reset_dim "${COLOR_RED} Please do 'oc login' to the cluster DB2 is to be installed on"
     exit 1
   fi
   export CLUSTER_DOMAIN=`oc get ingress.config.openshift.io  cluster -o=jsonpath='{.spec.domain}'`
@@ -468,7 +470,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
+  echo_reset_dim "Instance Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -575,7 +577,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
-  mkdir -p ${GITOPS_APPS_DIR}
+  mkdir -p ${GITOPS_INSTANCE_DIR}
 
   # wait till CRD db2uclusters.db2u.databases.ibm.com NamesAccepted=True 
   wait_for_db2ucluster_crd
@@ -599,25 +601,32 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo
   echo_h2 "Generating DB2U Database Configuraton"
   echo
-  echo_reset_dim "- Generating DB2U Database file ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.${MAS_APP_ID}.ibm-db2u-database.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/ibm-db2u-database.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.${MAS_APP_ID}.ibm-db2u-database.yaml
+  echo_reset_dim "- Generating DB2U Database file ${GITOPS_INSTANCE_DIR}/ibm-db2u-database-${MAS_APP_ID}.yaml"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-core/ibm-db2u-database.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-db2u-database-${MAS_APP_ID}.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     echo "git: Added ${FILES_ADDED} files"
     if [[ "$FILES_ADDED" != "0" ]]; then
       echo_h2 "setting DB2CFG_SETTINGS_APPLIED to false"
       export DB2CFG_SETTINGS_APPLIED="false"
     fi
+    # Align with https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/README.md?plain=1#L11
+    export ROOT_APP_NAME="mas-root"
+
     argocd_login
-    argocd_sync ${CLUSTER_ID}-watcher
-    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-database
-    check_argo_app_synced mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-database ${CLUSTER_ID}-watcher ${DB2_NAMESPACE}
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-database ${CLUSTER_ID}-watcher
+    argocd_sync "${ROOT_APP_NAME}"
+
+    # Align with https://github.com/ibm-mas/gitops/blob/d1e927f1bc919858e8d4e0afaeedcad7bc095139/application-sets/ibm-db2u-database-iot.yaml#L38
+    DB2_APP_NAME="ibm-db2-db-iot-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}-${MAS_INSTANCE_ID}"
+
+    argocd_hard_refresh "${DB2_APP_NAME}"
+    check_argo_app_synced "${DB2_APP_NAME}" "${ROOT_APP_NAME}" ${DB2_NAMESPACE}
+    check_argo_app_healthy "${DB2_APP_NAME}" "${ROOT_APP_NAME}"
   fi
   echo "DB2CFG_SETTINGS_APPLIED= ${DB2CFG_SETTINGS_APPLIED} FILES_ADDED= ${FILES_ADDED} DB2_INTERNAL=${DB2_INTERNAL} MAS_APP_ID=${MAS_APP_ID}"  
   # Run specific setupcmds for Manage only if we have made changes.
