@@ -6,15 +6,27 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 NAMESPACE=$1
 OUTPUT_DIR=$2
-MAXINST_POD=$(oc -n $NAMESPACE get pods -l "mas.ibm.com/appType: maxinstudb" -o jsonpath="{.items[*].metadata.name}")
+
+# =========================
+MAXINST_POD=$(oc -n $NAMESPACE get pods -l "mas.ibm.com/appType= maxinstudb" -o jsonpath="{.items[*].metadata.name}")
 
 echo "Maxinst pod $MAXINST_POD"
-# oc cp mas-codesmtp-manage/codesmtp-masdev-all-7874d45bf9-gtx9t:/logs /Users/alicenahas/Github/ibm-mas_cli/tst2
 
-echo "oc cp -n $NAMESPACE/$MAXINST_POD:/log /$OUTPUT_DIR/$MAXINST_POD/alice"
+echo "oc cp $NAMESPACE/$MAXINST_POD:log $OUTPUT_DIR/$MAXINST_POD/logs"
 
-oc cp -n $NAMESPACE/$MAXINST_POD:/log /$OUTPUT_DIR/$MAXINST_POD/alice
+mkdir -p "$OUTPUT_DIR/$MAXINST_POD/logs"
 
+oc cp $NAMESPACE/$MAXINST_POD:log $OUTPUT_DIR/$MAXINST_POD/logs
+# =========================
+SERVER_POD=$(oc -n $NAMESPACE get pods -l "mas.ibm.com/appType= serverBundle" -o jsonpath="{.items[*].metadata.name}")
+
+echo "Maxinst pod $SERVER_POD"
+
+echo "oc cp $NAMESPACE/$SERVER_POD:logs $OUTPUT_DIR/$SERVER_POD/logs"
+
+mkdir -p "$OUTPUT_DIR/$SERVER_POD/logs"
+
+oc cp $NAMESPACE/$SERVER_POD:logs $OUTPUT_DIR/$SERVER_POD/logs
 
 
 
