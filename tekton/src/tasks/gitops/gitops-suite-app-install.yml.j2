@@ -50,6 +50,9 @@ spec:
       type: string
     - name: mas_manual_cert_mgmt
       type: string
+    - name: optimizer_plan
+      type: string
+      default: "full"
 
   stepTemplate:
     name: gitops-suite-app-install
@@ -96,6 +99,8 @@ spec:
         value: $(params.avp_aws_access_key)
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
+      - name: OPTIMIZER_PLAN
+        value: $(params.optimizer_plan)
 
 
   steps:
