@@ -7,18 +7,6 @@ podTemplates:
   - name: api-devops
     containers:
       - name: api-devops
-        resources:
-          requests:
-            cpu: 0.2
-            memory: 512Mi
-          limits:
-            cpu: 0.2
-            memory: 512Mi
+        resources: {}
       - name: api-status
-        resources:
-          requests:
-            cpu: 0.2
-            memory: 512Mi
-          limits:
-            cpu: 0.2
-            memory: 512Mi
+        resources: {}

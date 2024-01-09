@@ -7,74 +7,26 @@ podTemplates:
   - name: api-authentication
     containers:
       - name: api-authentication
-        resources:
-          requests:
-            cpu: 0.2
-            memory: 512Mi
-          limits:
-            cpu: 0.2
-            memory: 512Mi
+        resources: {}
       - name: statsd
-        resources:
-          requests:
-            cpu: 0.2
-            memory: 512Mi
-          limits:
-            cpu: 0.2
-            memory: 512Mi
+        resources: {}
   - name: api-authorization
     containers:
       - name: api-authorization
-        resources:
-          requests:
-            cpu: 0.2
-            memory: 512Mi
-          limits:
-            cpu: 0.2
-            memory: 512Mi
+        resources: {}
       - name: statsd
-        resources:
-          requests:
-            cpu: 0.2
-            memory: 512Mi
-          limits:
-            cpu: 0.2
-            memory: 512Mi
+        resources: {}
   - name: auth-store
     containers:
       - name: auth-store
-        resources:
-          requests:
-            cpu: 0.2
-            memory: 512Mi
-          limits:
-            cpu: 0.2
-            memory: 512Mi
+        resources: {}
       - name: statsd
-        resources:
-          requests:
-            cpu: 0.2
-            memory: 512Mi
-          limits:
-            cpu: 0.2
-            memory: 512Mi
+        resources: {}
   - name: deprovagent-auth
     containers:
       - name: deprovagent-auth
-        resources:
-          requests:
-            cpu: 0.2
-            memory: 512Mi
-          limits:
-            cpu: 0.2
-            memory: 512Mi
+        resources: {}
   - name: masuseragent
     containers:
       - name: masuseragent
-        resources:
-          requests:
-            cpu: 0.2
-            memory: 512Mi
-          limits:
-            cpu: 0.2
-            memory: 512Mi
+        resources: {}

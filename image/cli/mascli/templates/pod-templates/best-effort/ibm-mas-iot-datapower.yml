@@ -7,18 +7,6 @@ podTemplates:
   - name: datapower
     containers:
       - name: datapower
-        resources:
-          requests:
-            cpu: 0.2
-            memory: 512Mi
-          limits:
-            cpu: 0.2
-            memory: 512Mi
+        resources: {}
       - name: datapower-config
-        resources:
-          requests:
-            cpu: 0.2
-            memory: 512Mi
-          limits:
-            cpu: 0.2
-            memory: 512Mi
+        resources: {}
