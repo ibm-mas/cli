@@ -611,7 +611,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo
   echo_h2 "Generating DB2U Database Configuraton"
   echo
-  GENERATED_CONFIG_FILE="${GITOPS_INSTANCE_DIR}/${DB2_INSTANCE_NAME}/ibm-db2u-database.yaml"
+  GENERATED_CONFIG_FILE="${GITOPS_INSTANCE_DIR}/${DB2_INSTANCE_NAME}.ibm-db2u-database.yaml"
   echo_reset_dim "- Generating DB2U Database file ${GENERATED_CONFIG_FILE}"
   jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-core/ibm-db2u-database.yaml.j2 -o ${GENERATED_CONFIG_FILE}
 
@@ -633,7 +633,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     argocd_sync "${ROOT_APP_NAME}"
 
     # Align with https://github.com/ibm-mas/gitops/blob/3283a932692644eb2fb53b0f48bbdc4def8a54ee/application-sets/ibm-db2u-database.yaml#L19
-    DB2_APP_NAME="db2u-db-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}-${MAS_INSTANCE_ID}-${DB2_INSTANCE_NAME}"
+    DB2_APP_NAME="${DB2_INSTANCE_NAME}"
 
     argocd_hard_refresh "${DB2_APP_NAME}"
     check_argo_app_synced "${DB2_APP_NAME}" "${ROOT_APP_NAME}" ${DB2_NAMESPACE}
