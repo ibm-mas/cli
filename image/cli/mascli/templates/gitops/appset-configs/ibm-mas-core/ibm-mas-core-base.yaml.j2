@@ -1,14 +1,3 @@
 {% include 'common-config.yaml.j2' %}
 
-account:
-  id: {{ ACCOUNT_ID }}
-
-region: 
-  id: {{ REGION }}
-
-cluster:
-  id: {{ CLUSTER_ID }}
-  url: {{ CLUSTER_URL }}
-
-instance:
-  id: {{ MAS_INSTANCE_ID }}
+{% include 'base-config.yaml.j2' %}
