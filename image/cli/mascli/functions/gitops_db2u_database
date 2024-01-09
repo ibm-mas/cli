@@ -77,6 +77,10 @@ function gitops_db2u_database_noninteractive() {
 
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
   export REGION=${REGION:-${SM_AWS_REGION}}
+  export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"} # use an in-cluster argocd worker (which fvtsaas does)
+  # alternatively for CLUSTER_URL, we could look it up from ArgoCD like this:
+  # export CLUSTER_URL
+  # argocd_get_cluster_url "${CLUSTER_ID}" "CLUSTER_URL"
 
   while [[ $# -gt 0 ]]
   do
@@ -95,6 +99,12 @@ function gitops_db2u_database_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
+        ;;
+      -r|--region)
+        export REGION=$1 && shift
+        ;;
+      -u|--cluster-url)
+        export CLUSTER_URL=$1 && shift
         ;;
 
       # MAS
@@ -601,8 +611,9 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo
   echo_h2 "Generating DB2U Database Configuraton"
   echo
-  echo_reset_dim "- Generating DB2U Database file ${GITOPS_INSTANCE_DIR}/ibm-db2u-database-${MAS_APP_ID}.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-core/ibm-db2u-database.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-db2u-database-${MAS_APP_ID}.yaml
+  GENERATED_CONFIG_FILE="${GITOPS_INSTANCE_DIR}/${DB2_INSTANCE_NAME}/ibm-db2u-database.yaml"
+  echo_reset_dim "- Generating DB2U Database file ${GENERATED_CONFIG_FILE}"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-core/ibm-db2u-database.yaml.j2 -o ${GENERATED_CONFIG_FILE}
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -621,8 +632,8 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     argocd_login
     argocd_sync "${ROOT_APP_NAME}"
 
-    # Align with https://github.com/ibm-mas/gitops/blob/d1e927f1bc919858e8d4e0afaeedcad7bc095139/application-sets/ibm-db2u-database-iot.yaml#L38
-    DB2_APP_NAME="ibm-db2-db-iot-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}-${MAS_INSTANCE_ID}"
+    # Align with https://github.com/ibm-mas/gitops/blob/3283a932692644eb2fb53b0f48bbdc4def8a54ee/application-sets/ibm-db2u-database.yaml#L19
+    DB2_APP_NAME="db2u-db-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}-${MAS_INSTANCE_ID}-${DB2_INSTANCE_NAME}"
 
     argocd_hard_refresh "${DB2_APP_NAME}"
     check_argo_app_synced "${DB2_APP_NAME}" "${ROOT_APP_NAME}" ${DB2_NAMESPACE}
