@@ -55,6 +55,10 @@ function gitops_db2u_jdbc_config_noninteractive() {
 
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
   export REGION=${REGION:-${SM_AWS_REGION}}
+  export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"} # use an in-cluster argocd worker (which fvtsaas does)
+  # alternatively for CLUSTER_URL, we could look it up from ArgoCD like this:
+  # export CLUSTER_URL
+  # argocd_get_cluster_url "${CLUSTER_ID}" "CLUSTER_URL"
 
   while [[ $# -gt 0 ]]
   do
@@ -76,6 +80,9 @@ function gitops_db2u_jdbc_config_noninteractive() {
         ;;
       -r|--region)
         export REGION=$1 && shift
+        ;;
+      -u|--cluster-url)
+        export CLUSTER_URL=$1 && shift
         ;;
 
       # MAS
@@ -223,7 +230,7 @@ function gitops_db2u_jdbc_config() {
 
   mkdir -p ${GITOPS_WORKING_DIR}
   rm -rf $GITOPS_WORKING_DIR/$GITHUB_REPO
-  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/jdbc-configs
 
   #Defaults
   if [[ -z $DB2_DBNAME ]]; then
@@ -429,8 +436,8 @@ function gitops_db2u_jdbc_config() {
     ### Update Ldap Username / Password in AWS secret manager Ends
 
     echo
-    echo_reset_dim "Generating DB2U JDBC Config file ${GITOPS_INSTANCE_DIR}/${SUITE_JDBCCFG_NAME}.ibm-db2u-jdbc-config.yaml"
-    jinja -X .+ $CLI_DIR/templates/gitops/ibm-db2u-jdbc-config.yaml.j2 -o "${GITOPS_INSTANCE_DIR}/${SUITE_JDBCCFG_NAME}.ibm-db2u-jdbc-config.yaml"
+    echo_reset_dim "Generating DB2U JDBC Config file ${GITOPS_INSTANCE_DIR}/${SUITE_JDBCCFG_NAME}.yaml"
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-core/ibm-db2u-jdbc-config.yaml.j2 -o "${GITOPS_INSTANCE_DIR}/${SUITE_JDBCCFG_NAME}.yaml"
   fi
 
   # Commit and push to github target repo
@@ -448,11 +455,10 @@ function gitops_db2u_jdbc_config() {
 
 
     # Align with https://github.com/ibm-mas/gitops/blob/f057eb850c455ad34e067b1e79c752af8f745aa2/application-sets/ibm-mas-core.yaml#L41
-    CORE_APP_NAME="ibm-mas-core-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}-${MAS_INSTANCE_ID}"
+    APP_NAME="${SUITE_JDBCCFG_NAME}"
 
-
-    argocd_hard_refresh "${CORE_APP_NAME}"
-    check_argo_app_synced "${CORE_APP_NAME}" ${ROOT_APP_NAME} "mas-${MAS_INSTANCE_ID}-core"
+    argocd_hard_refresh "${APP_NAME}"
+    check_argo_app_synced "${APP_NAME}" ${ROOT_APP_NAME} "mas-${MAS_INSTANCE_ID}-core"
   fi
   if [ "$GITHUB_PUSH" == "true" ]; then  
 	  remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
