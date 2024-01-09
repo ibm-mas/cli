@@ -44,6 +44,11 @@ spec:
       type: string
       default: ""
 
+    # Optional parameter to override the default Grafana operator version
+    - name: grafana_major_version
+      type: string
+      default: ""
+
     # Optional parameter to include/exclude Grafana from the cluster monitoring stack
     - name: cluster_monitoring_include_grafana
       type: string
@@ -87,6 +92,8 @@ spec:
         value: $(params.grafana_instance_storage_class)
       - name: GRAFANA_INSTANCE_STORAGE_SIZE
         value: $(params.grafana_instance_storage_size)
+      - name: GRAFANA_MAJOR_VERSION
+        value: $(params.grafana_major_version)
 
       # Optional parameter to uninstall Cluster Monitoring
       - name: CLUSTER_MONITORING_ACTION

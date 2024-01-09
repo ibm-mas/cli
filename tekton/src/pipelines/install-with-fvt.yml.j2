@@ -123,6 +123,7 @@ spec:
     {{ lookup('template', 'taskdefs/dependencies/mongo.yml.j2') | indent(4) }}
       runAfter:
         - cert-manager
+        - cluster-monitoring
 
     # 2.2 AMQStreams (Kafka)
     {{ lookup('template', 'taskdefs/dependencies/kafka.yml.j2') | indent(4) }}
