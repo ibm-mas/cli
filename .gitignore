@@ -25,3 +25,5 @@ image/cli/mascli/tmp-suite
 image/cli/mascli/tmp-suite-config
 image/cli/mascli/tmp-kafka-config
 image/cli/mascli/tmp-db2u-database
+image/cli/mascli/tmp-suite-app-install
+image/cli/mascli/tmp-suite-app-config

@@ -1,0 +1,48 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ REGION }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}/{{ MAS_APP_ID }}"
+
+account:
+  id: {{ ACCOUNT_ID }}
+
+region: 
+  id: {{ REGION }}
+
+cluster:
+  id: {{ CLUSTER_ID }}
+  url: {{ CLUSTER_URL }}
+
+instance:
+    id: {{ MAS_INSTANCE_ID }}
+
+app:
+    id: {{ MAS_APP_ID }}
+
+ibm-mas-suite-app-install:
+    ibm_entitlement_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>
+    mas_instance_id: {{ MAS_INSTANCE_ID }}
+    mas_app_id: {{ MAS_APP_ID }}
+    mas_app_namespace: {{ MAS_APP_NAMESPACE }}
+    mas_app_channel: {{ MAS_APP_CHANNEL }}
+    mas_app_catalog_source: {{ MAS_APP_CATALOG_SOURCE }}
+    mas_app_api_version: {{ MAS_APP_API_VERSION }}
+    mas_app_kind: {{ MAS_APP_KIND }}
+    {{ MAS_APP_SPEC | indent(2) }}
+
+    mas_manual_cert_mgmt: {{ MAS_MANUAL_CERT_MGMT }}
+    {% if PUBLIC_TLS_SECRET_NAME is defined and PUBLIC_TLS_SECRET_NAME !='' %}
+    public_tls_secret_name: {{ PUBLIC_TLS_SECRET_NAME }}
+    {% endif %}
+
+    {% if CA_CERT is defined and CA_CERT !='' %}
+    ca_cert: {{ CA_CERT }}
+    {% endif %}
+
+    {% if TLS_CERT is defined and TLS_CERT !='' %}
+    tls_cert: {{ TLS_CERT }}
+    {% endif %}
+
+    {% if TLS_KEY is defined and TLS_KEY !='' %}
+    tls_key: {{ TLS_KEY }}
+    {% endif %}
+
+tags:
+    ibm-mas-suite-app-install: true
