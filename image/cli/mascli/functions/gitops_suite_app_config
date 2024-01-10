@@ -620,7 +620,7 @@ function gitops_suite_app_config() {
     argocd_sync "${ROOT_APP_NAME}"
 
     # Align with https://github.com/ibm-mas/gitops/blob/f5432760ef23cc1a1691408c2d72bdd9cfb508b6/application-sets/ibm-mas-app.yaml#L34
-    export APP_NAME="${ACCOUNT_ID}-${REGION_ID}-${CLUSTER_ID}-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
+    export APP_NAME="${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
 
     argocd_hard_refresh ${APP_NAME}
     add_role_to_user mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
