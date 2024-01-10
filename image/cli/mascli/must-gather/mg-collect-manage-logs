@@ -29,17 +29,19 @@ oc cp $NAMESPACE/$POD_NAME:log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/
 # Getting Server Bundle Pod Files
 # =========================
 POD_NAME=$(oc -n $NAMESPACE get pods -l "mas.ibm.com/appType= serverBundle" -o jsonpath="{.items[*].metadata.name}")
+for POD in ${POD_NAME[@]}; do
+  if [[ "$POD_NAME" == "" ]]; then
+    echo_warning "Server Bundle pod was not found"
+    exit 1
+  fi
 
-if [[ "$POD_NAME" == "" ]]; then
-  echo_warning "Server Bundle pod was not found"
-  exit 1
-fi
+  # Creating folder
+  APP=$(echo ${POD%-*}) #removing 2nd ID
+  APP=$(echo ${APP%-*}) #removing 1st ID
+  # mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods/$APP/logs" #it will be overwritten when a new Pods folder will be created to keeps pods info (yaml, txt and logs)
+  mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files" 
 
-# Creating folder
-APP=$(echo ${POD_NAME%-*}) #removing 2nd ID
-APP=$(echo ${APP%-*}) #removing 1st ID
-# mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods/$APP/logs" #it will be overwritten when a new Pods folder will be created to keeps pods info (yaml, txt and logs)
-mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files" 
-
-# Copying files to folder
-oc cp $NAMESPACE/$POD_NAME:log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files
+  # Copying files to folder
+  oc cp $NAMESPACE/$POD:logs $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files
+done
+exit 0
