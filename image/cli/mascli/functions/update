@@ -107,7 +107,7 @@ function validate_dro_migration(){
   # warn about DRO migration if UDS is running and MAS catalog is January 2024 or newer
   MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
 
-  if [[ $MAS_CATALOG_DATE -ge 240130 ]] || [[ $DRO_TEST == "true"]]; then
+  if [[ $MAS_CATALOG_DATE -ge 231228 ]] || [[ $DRO_TEST == "true"]]; then
     # If Jan catalog is detected, set DRO_MIGRATION Flag to True
     UDS_NAMESPACE="ibm-common-services"
     UDS_CSV=`oc get csv | grep user-data-services  | awk '{print $1}'`
