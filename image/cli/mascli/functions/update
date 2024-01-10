@@ -107,15 +107,23 @@ function validate_dro_migration(){
   # warn about DRO migration if UDS is running and MAS catalog is January 2024 or newer
   MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
 
-  if [[ $MAS_CATALOG_DATE -ge 231228 ]] || [[ $DRO_TEST == "true"]]; then
+  if [[ $MAS_CATALOG_DATE -ge 231228 ]]; then
+    echo -e "${COLOR_YELLOW}Verifing UDS status..."
     # If Jan catalog is detected, set DRO_MIGRATION Flag to True
     UDS_NAMESPACE="ibm-common-services"
-    UDS_CSV=`oc get csv | grep user-data-services  | awk '{print $1}'`
-    UDS_STATUS=`oc get csv -n "${UDS_NAMESPACE}" "${UDS_CSV}" -o jsonpath='{.status.phase}'`
-    if [[ $UDS_STATUS = *'Succeeded'* ]]; then
-      DRO_MIGRATION="true"
-      echo -e "${COLOR_YELLOW}UDS is currently running in namespace ${UDS_NAMESPACE}."
-      echo -e "${COLOR_YELLOW}The existing UDS will be uninstalled and migrated to DRO (Data Reporter Operator).${COLOR_RESET}"
+    UDS_CSV=`oc get csv -n "${UDS_NAMESPACE}" | grep user-data-services  | awk '{print $1}'`
+    if [[ -n $UDS_CSV ]]; then
+      UDS_STATUS=`oc get csv -n "${UDS_NAMESPACE}" "${UDS_CSV}" -o jsonpath='{.status.phase}'`
+      if [[ $UDS_STATUS = *'Succeeded'* ]]; then
+        DRO_MIGRATION="true"
+        echo -e "${COLOR_YELLOW}UDS is currently running in namespace ${UDS_NAMESPACE}."
+        echo -e "${COLOR_YELLOW}The existing UDS will be uninstalled and migrated to DRO (Data Reporter Operator).${COLOR_RESET}"
+        echo
+      else
+        DRO_MIGRATION="false"
+      fi
+    else 
+      DRO_MIGRATION="false"
     fi
   else
     DRO_MIGRATION="false"
@@ -384,6 +392,14 @@ function update() {
     echo_reset_dim "Kafka ...................................... ${COLOR_RED}No${TEXT_RESET}"
   fi
 
+  # DRO Migration 
+
+  if [ "$DRO_MIGRATION" = "true" ]; then 
+    echo_reset_dim "DRO Migration .............................. ${COLOR_GREEN}Yes${TEXT_RESET}"
+  else
+    echo_reset_dim "DRO Migration .............................. ${COLOR_RED}No${TEXT_RESET}"
+
+  fi
   # In SLS 3.8.0 registry was changed to icr.io/cpopen, however
   # when updating from a previous version it would not automatically
   # change the value from cp.icr.io/cp hence we need to patch it
