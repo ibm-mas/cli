@@ -8,7 +8,7 @@ OUTPUT_DIR=$2
 
 # Collect Maxinst Logs
 # -----------------------------------------------------------------------------
-echo_h4 "Collect Maxinst Logs"
+echo_h4 "Collect Manage Logs"
 $DIR/mg-collect-manage-logs $NAMESPACE $OUTPUT_DIR
 
 # Collect Reconcile Logs
