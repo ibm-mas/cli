@@ -23,7 +23,7 @@ APP=$(echo ${APP%-*}) #removing 1st ID
 mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files" 
 
 # Copying files to folder
-oc cp $NAMESPACE/$POD_NAME:log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files
+oc cp $NAMESPACE/$POD_NAME:log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries=-1
 
 
 # Getting Server Bundle Pod Files
@@ -36,12 +36,17 @@ for POD in ${POD_NAME[@]}; do
   fi
 
   # Creating folder
+  INSTANCE_ID=$(echo ${NAMESPACE%-*})
+  INSTANCE_ID=$(echo ${INSTANCE_ID#*-})
   APP=$(echo ${POD%-*}) #removing 2nd ID
   APP=$(echo ${APP%-*}) #removing 1st ID
+    if [[ "$APP" == "$INSTANCE_ID" ]]; then
+       APP=$(echo ${POD%-*}) #removing 2nd ID
+    fi
   # mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods/$APP/logs" #it will be overwritten when a new Pods folder will be created to keeps pods info (yaml, txt and logs)
   mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files" 
 
   # Copying files to folder
-  oc cp $NAMESPACE/$POD:logs $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files
+  oc cp $NAMESPACE/$POD:logs $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries=-1
 done
 exit 0
