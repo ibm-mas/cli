@@ -284,8 +284,7 @@ spec:
           value: $(params.kafka_provider)
     
     # UDS/DRO
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/dependencies/uds.yml.j2'}) | indent(4) }}
+    {{ lookup('template', 'taskdefs/dependencies/uds.yml.j2') | indent(4) }}
       runAfter:
         - common-services
 
