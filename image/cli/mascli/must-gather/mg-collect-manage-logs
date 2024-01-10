@@ -7,50 +7,39 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 NAMESPACE=$1
 OUTPUT_DIR=$2
 
+# Getting Maxinst Pod Files
 # =========================
 POD_NAME=$(oc -n $NAMESPACE get pods -l "mas.ibm.com/appType= maxinstudb" -o jsonpath="{.items[*].metadata.name}")
 
 if [[ "$POD_NAME" == "" ]]; then
-  echo_warning "POD $POD_NAME was not found"
+  echo_warning "Maxinst pod was not found"
   exit 1
 fi
 
-echo "POD NAME $POD_NAME"
+# Creating folder
+APP=$(echo ${POD_NAME%-*}) #removing 2nd ID
+APP=$(echo ${APP%-*}) #removing 1st ID
+# mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods/$APP/logs" #it will be overwritten when a new Pods folder will be created to keeps pods info (yaml, txt and logs)
+mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files" 
 
-# echo "oc cp $NAMESPACE/$MAXINST_POD:log $OUTPUT_DIR/$MAXINST_POD/logs"
-# mkdir -p "$OUTPUT_DIR/$MAXINST_POD/logs"
+# Copying files to folder
+oc cp $NAMESPACE/$POD_NAME:log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files
 
-# Creating folder on the same pattern as mg-collect-pods
-# -----------------------------------------------------------------------------
 
-APP="$(oc -n "${NAMESPACE}" get "${POD_NAME}" -o jsonpath='{.metadata.labels.app}')"
-echo "APP 1 $APP"
+# Getting Server Bundle Pod Files
+# =========================
+POD_NAME=$(oc -n $NAMESPACE get pods -l "mas.ibm.com/appType= serverBundle" -o jsonpath="{.items[*].metadata.name}")
 
-  if [[ "$APP" == "" ]]; then
-    INSTANCE_ID=$(echo ${NAMESPACE%-*})
-    INSTANCE_ID=$(echo ${INSTANCE_ID#*-})
-    APP=$(echo ${POD_NAME%-*}) #removing 2nd ID
-    APP=$(echo ${APP%-*}) #removing 1st ID
+if [[ "$POD_NAME" == "" ]]; then
+  echo_warning "Server Bundle pod was not found"
+  exit 1
+fi
 
-    if [[ "$APP" == "$INSTANCE_ID" ]]; then
-      APP=$(echo ${POD_NAME%-*}) #removing 2nd ID only
-    fi
-  fi
+# Creating folder
+APP=$(echo ${POD_NAME%-*}) #removing 2nd ID
+APP=$(echo ${APP%-*}) #removing 1st ID
+# mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods/$APP/logs" #it will be overwritten when a new Pods folder will be created to keeps pods info (yaml, txt and logs)
+mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files" 
 
-mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods/$APP/logs"
-echo "mkdir -p $OUTPUT_DIR/resources/$NAMESPACE/pods/$APP/logs"
-
-oc cp $NAMESPACE/$POD_NAME:log $OUTPUT_DIR/resources/$NAMESPACE/pods/$APP/logs
-echo "oc cp $NAMESPACE/$POD_NAME:log $OUTPUT_DIR/resources/$NAMESPACE/pods/$APP/logs"
-
-# oc cp $NAMESPACE/$MAXINST_POD:log $OUTPUT_DIR/$MAXINST_POD/logs
-# # =========================
-# SERVER_POD=$(oc -n $NAMESPACE get pods -l "mas.ibm.com/appType= serverBundle" -o jsonpath="{.items[*].metadata.name}")
-
-# echo "Maxinst pod $SERVER_POD"
-
-# echo "oc cp $NAMESPACE/$SERVER_POD:logs $OUTPUT_DIR/$SERVER_POD/logs"
-
-# mkdir -p "$OUTPUT_DIR/$SERVER_POD/logs"
-
-# oc cp $NAMESPACE/$SERVER_POD:logs $OUTPUT_DIR/$SERVER_POD/logs
+# Copying files to folder
+oc cp $NAMESPACE/$POD_NAME:log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files
