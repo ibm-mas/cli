@@ -560,17 +560,12 @@ function mirror_to_registry() {
   echo_h4 "Target Registry" "    "
   echo_reset_dim "Registry Host ....................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_HOST}"
   echo_reset_dim "Registry Port ....................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_PORT}"
-  if [[ $MIRROR_MODE != "to-filesystem" ]]; then
-    echo_reset_dim "Registry Username ................... ${COLOR_MAGENTA}${REGISTRY_USERNAME}"
-    echo_reset_dim "Registry Password ................... ${COLOR_MAGENTA}${REGISTRY_PASSWORD:0:4}<snip>"
-  fi
 
   echo
   reset_colors
   echo_h4 "IBM Operator Catalog" "    "
   echo_reset_dim "Catalog Version ..................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
   echo_reset_dim "MAS Update Channel .................. ${COLOR_MAGENTA}${MAS_CHANNEL}"
-  echo_reset_dim "IBM Authentication .................. ${COLOR_MAGENTA}cp/${IBM_ENTITLEMENT_KEY:0:4}<snip>"
 
   # Core
   echo

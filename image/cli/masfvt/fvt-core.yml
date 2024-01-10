@@ -43,8 +43,8 @@
           - "mas_workspace_id ............ {{ mas_workspace_id }}"
           - ""
           - "fvt_image_registry .......... {{ fvt_image_registry }}"
-          - "fvt_artifactory_username .... {{ fvt_artifactory_username }}"
-          - "fvt_artifactory_token ....... {{ fvt_artifactory_token }}"
+          - "fvt_artifactory_username .... ********"
+          - "fvt_artifactory_token ....... ********"
           - "fvt_digest_core ............. {{ fvt_digest_core }}"
           - "ivt_digest_core ............. {{ ivt_digest_core }}"
           - ""
@@ -52,8 +52,8 @@
           - "fvt_whitelist ............... {{ fvt_whitelist }}"
           - ""
           - "ddp_apikey .................. {{ ddp_apikey }}"
-          - "partium_username ............ {{ partium_username }}"
-          - "partium_password ............ {{ partium_password }}"
+          - "partium_username ............ ********"
+          - "partium_password ............ ********"
 
     - name: "Start FVT-core pipeline"
       kubernetes.core.k8s:
