@@ -280,6 +280,15 @@ function gitops_cp4d_service() {
   export SECRET_KEY_CPD_ADMIN_USERNAME=${CPD_USER_SECRET}#username
   export SECRET_KEY_CPD_ADMIN_PASSWORD=${CPD_USER_SECRET}#password
 
+  export CPD_SECRET_FILE=$TEMP_DIR/cpd-secret.json
+  sm_get_secret_file ${CPD_USER_SECRET} ${CPD_SECRET_FILE}
+  export CURRENT_CPD_ADMIN_USERNAME=$(jq -r .username ${CPD_SECRET_FILE})
+  export CURRENT_CPD_ADMIN_PASSWORD=$(jq -r .password ${CPD_SECRET_FILE})
+  export CURRENT_CPD_URL=$(jq -r .url ${CPD_SECRET_FILE})
+  echo "CURRENT_CPD_ADMIN_USERNAME  ................ ${CURRENT_CPD_ADMIN_USERNAME}"
+  echo "CURRENT_CPD_ADMIN_PASSWORD  ................ ${CURRENT_CPD_ADMIN_PASSWORD:0:5}<snip>"
+  echo "CURRENT_CPD_URL  ........................... ${CURRENT_CPD_URL}"
+
   if [[ "$CPD_SERVICE_NAME" == "wd" ]]; then
     # Extract the required details from the generated coscfg/secret.
     export CPD_ADMIN_USERNAME
@@ -292,7 +301,7 @@ function gitops_cp4d_service() {
     rc=$?
     [ $rc -ne 0 ] && exit $rc
 
-    sm_update_secret $CPD_USER_SECRET "{\"username\": \"$CPD_ADMIN_USERNAME\", \"password\": \"$CPD_ADMIN_PASSWORD\"}"
+    sm_update_secret $CPD_USER_SECRET "{\"username\": \"$CPD_ADMIN_USERNAME\", \"password\": \"$CPD_ADMIN_PASSWORD\", \"url\": \"$CURRENT_CPD_URL\"}"
 
     rc=$?
     [ $rc -ne 0 ] && exit $rc
