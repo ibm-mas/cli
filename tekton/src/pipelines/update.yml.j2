@@ -113,6 +113,12 @@ spec:
       default: ""
       type: string
       description: Set to 'true' to change all LicenseService CRs' registry to cpopen
+    
+    # UDS/DRO Migration
+    - name: dro_migration
+      default: ""
+      type: string
+      description: Set to 'true' to Migration UDS to DRO 
 
   tasks:
 {% if wait_for_install == true %}
@@ -276,6 +282,13 @@ spec:
           value: $(params.kafka_namespace)
         - name: kafka_provider
           value: $(params.kafka_provider)
+    
+    # UDS/DRO
+    {{ lookup('template', 'taskdefs/dependencies/uds.yml.j2', template_vars={
+        'dro_migration': $(params.dro_migration)
+      }) | indent(4) }}
+      runAfter:
+        - common-services
 
     # 6. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
