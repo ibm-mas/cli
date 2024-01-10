@@ -49,6 +49,17 @@ spec:
       description: Workspace ID in MAS to use for running the tests
       default: "masdev"
 
+    # Test-specific Information (all optional)
+    # -------------------------------------------------------------------------
+    - name: artifactory_token
+      type: string
+      description: Artifactory Token (required by fvt-ibm-mas-mobile to pull/push test container content)
+      default: ""
+    - name: artifactory_upload_dir
+      type: string
+      description: Artifactory upload directory
+      default: ""
+
     # Mobile Specific information
     - name: mobile_device_type
       type: string
