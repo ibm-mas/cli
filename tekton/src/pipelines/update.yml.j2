@@ -283,10 +283,16 @@ spec:
         - name: kafka_provider
           value: $(params.kafka_provider)
     
-    # UDS/DRO
-    {{ lookup('template', 'taskdefs/dependencies/uds.yml.j2') | indent(4) }}
+    # UDS/DRO Migration
+    - name: update-uds
+      taskRef:
+        kind: Task
+        name: mas-devops-uds
       runAfter:
-        - common-services
+        - update-common-services
+      params:
+        - name: dro_migration
+          value: $(params.dro_migration)
 
     # 6. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
