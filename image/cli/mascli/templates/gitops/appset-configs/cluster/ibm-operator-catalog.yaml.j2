@@ -1,0 +1,6 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ REGION }}/{{ CLUSTER_ID }}"
+
+ibm-operator-catalog:
+    mas_catalog_version: {{ MAS_CATALOG_VERSION }}
+    mas_catalog_image: {{ MAS_CATALOG_IMAGE }}
+    ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
