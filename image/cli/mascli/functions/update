@@ -344,6 +344,7 @@ function update() {
   export KAFKA_PROVIDER
   export CERT_MANAGER_PROVIDER
   export CERT_MANAGER_ACTION
+  export DRO_MIGRATION
 
   echo_h2 "Review Settings"
 
