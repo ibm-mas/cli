@@ -55,17 +55,6 @@ spec:
       type: string
       description: Manage Workspace component list so ISs tasks can decide if it should be executed base on what is configured
       default: ""
-    - name: devops_cos_crn
-      type: string
-      description: Object Storage Resource Instance Id in IBM Cloud (optional)
-      default: ""
-    - name: devops_cos_upload_folder
-      type: string
-      description: Directory inside container that will be uploaded to Object Storage (optional)
-      default: ""
-    - name: devops_ibmcloud_apikey
-      description: IBM Cloud API Key to access Object Storage resource (optional)
-      default: ""
 
     # Common Test Framework Specific information
     # -------------------------------------------------------------------------
@@ -94,12 +83,6 @@ spec:
         value: $(params.fvt_mas_appws_component)
       - name: MAS_APPWS_COMPONENTS
         value: $(params.mas_appws_components)
-      - name: DEVOPS_COS_CRN
-        value: $(params.devops_cos_crn)
-      - name: DEVOPS_COS_UPLOAD_FOLDER
-        value: $(params.devops_cos_upload_folder)
-      - name: DEVOPS_IBMCLOUD_APIKEY
-        value: $(params.devops_ibmcloud_apikey)
 
       # Common Test Framework Specific information
       # -------------------------------------------------------------------------
