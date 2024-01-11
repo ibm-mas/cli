@@ -46,20 +46,6 @@ spec:
       type: string
       default: ""
 
-    # Support for upload to Cloud Object Storage
-    # TODO: Can we not replace this with the must-gather in Artifactory, why do we need a seperate system (which costs $$$$) for Manage FVT?
-    - name: devops_cos_crn
-      type: string
-      description: Object Storage Resource Instance Id in IBM Cloud (optional)
-      default: ""
-    - name: devops_cos_upload_folder
-      type: string
-      description: Directory inside container that will be uploaded to Object Storage (optional)
-      default: ""
-    - name: devops_ibmcloud_apikey
-      description: IBM Cloud API Key to access Object Storage resource (optional)
-      default: ""
-
     # Image Digests
     - name: fvt_digest_manage
       type: string
