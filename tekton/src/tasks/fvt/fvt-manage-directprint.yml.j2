@@ -62,23 +62,12 @@ spec:
       type: string
       description: kafka provider used during installation (ibm, aws or redhat)
       default: ""
-    - name: devops_cos_crn
-      type: string
-      description: Object Storage Resource Instance Id in IBM Cloud (optional)
-      default: ""
-    - name: devops_cos_upload_folder
-      type: string
-      description: Directory inside container that will be uploaded to Object Storage (optional)
-      default: ""
-    - name: devops_ibmcloud_apikey
-      description: IBM Cloud API Key to access Object Storage resource (optional)
-      default: ""
 
     # Test-specific Information (all optional)
     # -------------------------------------------------------------------------
     - name: artifactory_token
       type: string
-      description: Artifactory API Key (required by fvt-ibm-mas-manage to pull test container content)
+      description: Artifactory API Key (required by fvt-ibm-mas-manage to upload test framework logs)
       default: ""
 
   stepTemplate:
@@ -107,9 +96,6 @@ spec:
             key: DEVOPS_BUILD_NUMBER
             optional: true
 
-      - name: IBMADMIN_ENABLED
-        value: "true"
-
       - name: NAMESPACE
         value: "mas-$(params.mas_instance_id)-core"
       - name: INSTANCE_ID
@@ -127,6 +113,20 @@ spec:
         value: $(params.fvt_test_suite)
       - name: FVT_MAS_APPWS_COMPONENT
         value: $(params.fvt_mas_appws_component)
+      
+      # Black and white listing
+      - name: FVT_BLACKLIST
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_BLACKLIST
+            optional: false
+      - name: FVT_WHITELIST
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_WHITELIST
+            optional: false
       
       # If this secret exists (with both ARTIFACTORY_TOKEN and ARTIFACTORY_UPLOAD_DIR keys set) Maximo Automation Framework logs will be automatically uploaded
       - name: ARTIFACTORY_TOKEN

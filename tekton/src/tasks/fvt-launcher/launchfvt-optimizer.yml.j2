@@ -105,19 +105,6 @@ spec:
               key: IVT_DIGEST_CORE
               optional: false
 
-        - name: DEVOPS_COS_CRN
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-optimizer
-              key: DEVOPS_COS_CRN
-              optional: false
-        - name: DEVOPS_IBMCLOUD_APIKEY
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-optimizer
-              key: DEVOPS_IBMCLOUD_APIKEY
-              optional: false
-
     - name: wait-for-pipelinerun
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
