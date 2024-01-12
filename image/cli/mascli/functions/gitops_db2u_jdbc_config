@@ -163,6 +163,7 @@ function gitops_db2u_jdbc_config_noninteractive() {
 
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_db2u_jdbc_config_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_db2u_jdbc_config_help "ACCOUNT_ID is not set"
+  [[ -z "$REGION" ]] && gitops_cluster_help "REGION_ is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_db2u_jdbc_config_help "CLUSTER_ID is not set"
   
   #MAS
@@ -230,7 +231,8 @@ function gitops_db2u_jdbc_config() {
 
   mkdir -p ${GITOPS_WORKING_DIR}
   rm -rf $GITOPS_WORKING_DIR/$GITHUB_REPO
-  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/jdbc-configs
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+
 
   #Defaults
   if [[ -z $DB2_DBNAME ]]; then
@@ -250,8 +252,9 @@ function gitops_db2u_jdbc_config() {
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Instance Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
+  echo_reset_dim "Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -328,17 +331,28 @@ function gitops_db2u_jdbc_config() {
     exit 1
   fi
   
+
   echo
   if [[ "$MAS_CONFIG_SCOPE" == "app" ]]; then
-    export SUITE_JDBCCFG_NAME="$MAS_INSTANCE_ID-jdbc-app-$MAS_APP_ID"
+      echo_reset_dim "${COLOR_RED} App-level JDBC configuration not supported yet"
+      exit 1
   elif [[ "$MAS_CONFIG_SCOPE" == "system" ]]; then
-    export SUITE_JDBCCFG_NAME="$MAS_INSTANCE_ID-jdbc-system"
+    export SUITE_JDBCCFG_NAME="system.ibm-mas-jdbc-config"
+    export JDBCCFG_DIR="${GITOPS_INSTANCE_DIR}/system-configs"
+    export JDBCCFG_FILENAME="system.ibm-mas-jdbc-config.yaml"
+    export JDBCCFG_TEMPLATE="$CLI_DIR/templates/gitops/appset-configs/cluster/instance/system-configs/system.ibm-mas-jdbc-config.yaml.j2"
   elif [[ "$MAS_CONFIG_SCOPE" == "ws" ]]; then
-    export SUITE_JDBCCFG_NAME="$MAS_INSTANCE_ID-jdbc-ws-$MAS_WORKSPACE_ID"
+      echo_reset_dim "${COLOR_RED} Workspace-level JDBC configuration not supported yet"
+      exit 1
   elif [[ "$MAS_CONFIG_SCOPE" == "wsapp" ]]; then
-    export SUITE_JDBCCFG_NAME="$MAS_INSTANCE_ID-jdbc-wsapp-$MAS_WORKSPACE_ID-$MAS_APP_ID"
+    export SUITE_JDBCCFG_NAME="wsapp.${MAS_WORKSPACE_ID}.${MAS_APP_ID}.ibm-mas-jdbc-config"
+    export JDBCCFG_DIR="${GITOPS_INSTANCE_DIR}/masapps/${MAS_APP_ID}/wsapp-configs"
+    export JDBCCFG_FILENAME="wsapp.ibm-mas-jdbc-config.yaml"
+    export JDBCCFG_TEMPLATE="$CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/wsapp-configs/wsapp.ibm-mas-jdbc-config.yaml.j2"
   fi
   
+  mkdir -p "${JDBCCFG_DIR}"
+
   # wait till CRD db2uclusters.db2u.databases.ibm.com NamesAccepted=True 
   wait_for_db2ucluster_crd
   # delete pod
@@ -420,7 +434,9 @@ function gitops_db2u_jdbc_config() {
     echo_reset_dim "TLS_VERSION ............................. ${COLOR_MAGENTA}$TLS_VERSION"
     echo_reset_dim "DB2_TLS_SERVICEPORT ..................... ${COLOR_MAGENTA}$DB2_TLS_SERVICEPORT"
     echo_reset_dim "JDBC_URL ................................ ${COLOR_MAGENTA}$JDBC_URL"
-    echo_reset_dim "SUITE_JDBCCFG_NAME ...................... ${COLOR_MAGENTA}$SUITE_JDBCCFG_NAME"  
+    echo_reset_dim "SUITE_JDBCCFG_NAME ...................... ${COLOR_MAGENTA}$SUITE_JDBCCFG_NAME"
+    echo_reset_dim "JDBCCFG_DIR ............................. ${COLOR_MAGENTA}$JDBCCFG_DIR"
+    echo_reset_dim "JDBCCFG_FILENAME ........................ ${COLOR_MAGENTA}$JDBCCFG_FILENAME"  
     echo_reset_dim "......................................... ${COLOR_MAGENTA}"
     echo_reset_dim ""
     reset_colors
@@ -436,8 +452,8 @@ function gitops_db2u_jdbc_config() {
     ### Update Ldap Username / Password in AWS secret manager Ends
 
     echo
-    echo_reset_dim "Generating DB2U JDBC Config file ${GITOPS_INSTANCE_DIR}/${SUITE_JDBCCFG_NAME}.yaml"
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-core/ibm-db2u-jdbc-config.yaml.j2 -o "${GITOPS_INSTANCE_DIR}/${SUITE_JDBCCFG_NAME}.yaml"
+    echo_reset_dim "Generating DB2U JDBC Config file ${JDBCCFG_DIR}/${JDBCCFG_FILENAME}"
+    jinja -X .+ $JDBCCFG_TEMPLATE -o "${JDBCCFG_DIR}/${JDBCCFG_FILENAME}"
   fi
 
   # Commit and push to github target repo
@@ -447,18 +463,34 @@ function gitops_db2u_jdbc_config() {
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
 
-    # Align with https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/README.md?plain=1#L11
-    export ROOT_APP_NAME="mas-root"
-
     argocd_login
-    argocd_sync "${ROOT_APP_NAME}"
 
 
-    # Align with https://github.com/ibm-mas/gitops/blob/f057eb850c455ad34e067b1e79c752af8f745aa2/application-sets/ibm-mas-core.yaml#L41
-    APP_NAME="${SUITE_JDBCCFG_NAME}"
+    if [[ "$MAS_CONFIG_SCOPE" == "system" ]]; then
+      CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+      INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      SYSTEM_CONFIGS_APP="system-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      argocd_sync "${CLUSTER_ROOT_APP}" ## trigger the instance appset to pick up the new config files
+      check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 
-    argocd_hard_refresh "${APP_NAME}"
-    check_argo_app_synced "${APP_NAME}" ${ROOT_APP_NAME} "mas-${MAS_INSTANCE_ID}-core"
+      argocd_hard_refresh "${SYSTEM_CONFIGS_APP}"
+
+      check_argo_app_synced "${SYSTEM_CONFIGS_APP}" "${INSTANCE_ROOT_APP}"
+      check_argo_app_healthy "${SYSTEM_CONFIGS_APP}" "${INSTANCE_ROOT_APP}"
+    elif [[ "$MAS_CONFIG_SCOPE" == "wsapp" ]]; then
+      INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      MASAPP_ROOT_APP="masapp.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
+      MASAPP_APP="masapp-i.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
+
+      argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the masapp appset to pick up the new config files
+      check_argo_app_synced "${MASAPP_ROOT_APP}" "${INSTANCE_ROOT_APP}" # wait for the masapp root app to sync
+
+      argocd_hard_refresh "${MASAPP_APP}"
+
+      check_argo_app_synced "${MASAPP_APP}" "${MASAPP_ROOT_APP}"
+      check_argo_app_healthy "${MASAPP_APP}" "${MASAPP_ROOT_APP}"
+    fi
+
   fi
   if [ "$GITHUB_PUSH" == "true" ]; then  
 	  remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
