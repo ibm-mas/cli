@@ -9,6 +9,7 @@ OUTPUT_DIR=$2
 
 # Getting Maxinst Pod Files
 # =========================
+echo "- ${COLOR_BLUE} Getting Maxinst Pod Files${TEXT_RESET}"
 POD_NAME=$(oc -n $NAMESPACE get pods -l "mas.ibm.com/appType= maxinstudb" -o jsonpath="{.items[*].metadata.name}")
 
 if [[ "$POD_NAME" == "" ]]; then
@@ -28,14 +29,14 @@ oc cp $NAMESPACE/$POD_NAME:log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/
 
 # Getting Server Bundle Pod Files
 # =========================
+echo "- ${COLOR_BLUE} Getting Server Bundle Pod Files${TEXT_RESET}"
 POD_NAME=$(oc -n $NAMESPACE get pods -l "mas.ibm.com/appType= serverBundle" -o jsonpath="{.items[*].metadata.name}")
 for POD in ${POD_NAME[@]}; do
   if [[ "$POD_NAME" == "" ]]; then
     echo_warning "Server Bundle pod was not found"
     exit 1
   fi
-
-  # Creating folder
+  # Creating folder(s)
   INSTANCE_ID=$(echo ${NAMESPACE%-*})
   INSTANCE_ID=$(echo ${INSTANCE_ID#*-})
   APP=$(echo ${POD%-*}) #removing 2nd ID
