@@ -404,7 +404,7 @@ function gitops_suite() {
 
     # Wait for Suite to become healthy
     # health check of suite will be done in gitops_suite_config (suite will not be healthy until core configs are established)
-    check_argo_app_synced "${SUITE_APP_NAME}" "${ROOT_APP_NAME}" mas-${MAS_INSTANCE_ID}-core
+    check_argo_app_synced "${SUITE_APP_NAME}" "${INSTANCE_ROOT_APP}" mas-${MAS_INSTANCE_ID}-core
 
   fi
 

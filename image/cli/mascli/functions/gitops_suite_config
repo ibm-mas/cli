@@ -155,6 +155,7 @@ function gitops_suite_config_noninteractive() {
   [[ -z "$GITOPS_VERSION" ]] && gitops_suite_config_help "GITOPS_VERSION is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_suite_config_help "CLUSTER_ID is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_suite_config_help "ACCOUNT_ID is not set"
+  [[ -z "$REGION" ]] && gitops_cluster_help "REGION_ is not set"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_suite_config_help "GITHUB_HOST is not set"
     [[ -z "$GITHUB_ORG" ]] && gitops_suite_config_help "GITHUB_ORG is not set"
@@ -175,7 +176,7 @@ function gitops_suite_config() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/system-configs
 
   echo
   reset_colors
@@ -184,8 +185,9 @@ function gitops_suite_config() {
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID............................. ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Instance Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
+  echo_reset_dim "System Config Directory ............... ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -327,8 +329,14 @@ function gitops_suite_config() {
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   # Per MAS instance
-  echo "- IBM MAS Core Configs"
-  jinja -X .+ -d $MONGO_CONFIG_FILE $CLI_DIR/templates/gitops/appset-configs/ibm-mas-core/ibm-mas-configs.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-configs.yaml
+  echo "- IBM MAS System Mongo Config"
+  jinja -X .+ -d $MONGO_CONFIG_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/system-configs/system.ibm-mas-mongo-config.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/system.ibm-mas-mongo-config.yaml
+
+  echo "- IBM MAS System BAS Config"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/system-configs/system.ibm-mas-bas-config.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/system.ibm-mas-bas-config.yaml
+
+  echo "- IBM MAS System SLS Config"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/system-configs/system.ibm-mas-sls-config.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/system.ibm-mas-sls-config.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -339,26 +347,29 @@ function gitops_suite_config() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-    # Align with https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/README.md?plain=1#L11
-    export ROOT_APP_NAME="mas-root"
-
-    # Align with https://github.com/ibm-mas/gitops/blob/f057eb850c455ad34e067b1e79c752af8f745aa2/application-sets/ibm-mas-core.yaml#L41
-    GENERATED_APP_NAME_CORE="ibm-mas-core-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}-${MAS_INSTANCE_ID}"
-
-    # Align with https://github.com/ibm-mas/gitops/blob/14a6f2367176e99de561d07bc16607aabe03199f/application-sets/ibm-sls.yaml#L38
-    GENERATED_APP_NAME_SLS="ibm-sls-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}-${MAS_INSTANCE_ID}"
-
+    CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+    INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    SYSTEM_CONFIGS_APP="system-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
     argocd_login
-    argocd_sync "${ROOT_APP_NAME}"
-    argocd_hard_refresh "${GENERATED_APP_NAME_CORE}"
-    argocd_hard_refresh "${GENERATED_APP_NAME_SLS}"
+    argocd_sync "${CLUSTER_ROOT_APP}" ## trigger the instance appset to pick up the new config files
+    check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 
-    check_argo_app_synced "${GENERATED_APP_NAME_CORE}" "${ROOT_APP_NAME}" mas-${MAS_INSTANCE_ID}-core
-    check_argo_app_healthy "${GENERATED_APP_NAME_CORE}" "${ROOT_APP_NAME}"
+    argocd_hard_refresh "${SYSTEM_CONFIGS_APP}"
 
-    check_argo_app_synced "${GENERATED_APP_NAME_SLS}" "${ROOT_APP_NAME}" mas-${MAS_INSTANCE_ID}-sls
-    check_argo_app_healthy "${GENERATED_APP_NAME_SLS}" "${ROOT_APP_NAME}"
+    check_argo_app_synced "${SYSTEM_CONFIGS_APP}" "${INSTANCE_ROOT_APP}"
+    check_argo_app_healthy "${SYSTEM_CONFIGS_APP}" "${INSTANCE_ROOT_APP}"
+
+    # Wait for SLS to sync and become healthy
+    check_argo_app_synced "${SLS_APP_NAME}" "${INSTANCE_ROOT_APP}" mas-${MAS_INSTANCE_ID}-sls
+    check_argo_app_healthy "${SLS_APP_NAME}" "${INSTANCE_ROOT_APP}"
+
+    # Wait for Suite to become healthy
+    # health check of suite will be done in gitops_suite_config (suite will not be healthy until core configs are established)
+    check_argo_app_synced "${SUITE_APP_NAME}" "${INSTANCE_ROOT_APP}" mas-${MAS_INSTANCE_ID}-core
+    check_argo_app_healthy "${SUITE_APP_NAME}" "${INSTANCE_ROOT_APP}"
 
 
   fi
