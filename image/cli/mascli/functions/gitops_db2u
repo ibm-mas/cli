@@ -121,6 +121,7 @@ function gitops_db2u_noninteractive() {
 
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_db2u_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_db2u_help "ACCOUNT_ID is not set"
+  [[ -z "$REGION" ]] && gitops_cluster_help "REGION_ is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_db2u_help "CLUSTER_ID is not set"
 
 
@@ -157,6 +158,7 @@ function gitops_db2u() {
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Cluster Config Directory .............. ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
   reset_colors
@@ -227,7 +229,7 @@ function gitops_db2u() {
   export IBM_ENTITLEMENT_KEY=$SECRET_KEY_IBM_ENTITLEMENT
 
   echo "Generating DB2U file ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-cluster/ibm-db2u.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-db2u.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -236,20 +238,17 @@ function gitops_db2u() {
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_CLUSTER_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
-    
-    # Align with this: https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/README.md?plain=1#L11
-    export ROOT_APP_NAME="mas-root"
+
+    CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+    DB2U_APP_NAME="db2u.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
 
     argocd_login
-    argocd_sync "${ROOT_APP_NAME}"
+    argocd_sync "${CLUSTER_APP_NAME}"
+    argocd_hard_refresh "${CLUSTER_APP_NAME}"
+    # add_role_to_user ${DB2_NAMESPACE} 
+    check_argo_app_synced "${DB2U_APP_NAME}" "${CLUSTER_APP_NAME}" "${DB2_NAMESPACE}"
+    check_argo_app_healthy "${DB2U_APP_NAME}" "${CLUSTER_APP_NAME}"
 
-      # Align with this: https://github.com/ibm-mas/gitops/blob/d209d45014a3d8d0f09d2eeb1c3ec4e59eda2257/application-sets/ibm-db2u.yaml#L37
-    GENERATED_APP_NAME="ibm-db2u-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}"
-
-    argocd_hard_refresh "${GENERATED_APP_NAME}"
-    add_role_to_user ${DB2_NAMESPACE}
-    check_argo_app_synced "${GENERATED_APP_NAME}" "${ROOT_APP_NAME}" ${DB2_NAMESPACE}
-    check_argo_app_healthy "${GENERATED_APP_NAME}" "${ROOT_APP_NAME}"
   fi
 
 }

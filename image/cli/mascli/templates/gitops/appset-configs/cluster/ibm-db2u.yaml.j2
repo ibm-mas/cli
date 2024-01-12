@@ -1,0 +1,6 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ REGION }}/{{ CLUSTER_ID }}"
+
+ibm-db2u:
+  db2_namespace: {{ DB2_NAMESPACE }}
+  db2_channel: {{ DB2_CHANNEL }}
+  ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
