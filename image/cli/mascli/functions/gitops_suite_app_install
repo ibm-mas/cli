@@ -151,6 +151,7 @@ function gitops_suite_app_install_noninteractive() {
 
   [[ -z "$ACCOUNT_ID" ]] && gitops_suite_app_install_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_suite_app_install_help "CLUSTER_ID is not set"
+  [[ -z "$REGION" ]] && gitops_cluster_help "REGION_ is not set"
 
 
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_suite_app_install_help "MAS_INSTANCE_ID is not set"
@@ -191,7 +192,7 @@ function gitops_suite_app_install() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/apps/${MAS_APP_ID}
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/masapps/${MAS_APP_ID}
 
   export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
 
@@ -207,6 +208,7 @@ function gitops_suite_app_install() {
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Instance Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   reset_colors
@@ -356,8 +358,11 @@ function gitops_suite_app_install() {
   echo
   echo_h2 "Generating Argo Project and Applications"
 
-  echo "- IBM Maximo Application Suite Application Platform"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-app-install.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-app-install.yaml
+  echo "- IBM MAS Application Base Config"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-base.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-masapp-base.yaml
+
+  echo "- IBM MAS Application Install"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-install.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-masapp-install.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -373,20 +378,17 @@ function gitops_suite_app_install() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-    # Align with https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/README.md?plain=1#L11
-    export ROOT_APP_NAME="mas-root"
+    INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    MASAPP_ROOT_APP="masapp.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
+    MASAPP_APP="masapp-i.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
 
-    argocd_login
-    argocd_sync "${ROOT_APP_NAME}"
+    argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the masapp appset to pick up the new config files
+    check_argo_app_synced "${MASAPP_ROOT_APP}" "${INSTANCE_ROOT_APP}" # wait for the masapp root app to sync
 
-    # Align with https://github.com/ibm-mas/gitops/blob/f5432760ef23cc1a1691408c2d72bdd9cfb508b6/application-sets/ibm-mas-app.yaml#L34
-    export APP_NAME="${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
+    argocd_hard_refresh "${MASAPP_APP}"
 
-    argocd_hard_refresh ${APP_NAME}
-    add_role_to_user mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
-
-    check_argo_app_synced ${APP_NAME} ${ROOT_APP_NAME} mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
-    check_argo_app_healthy ${APP_NAME} ${ROOT_APP_NAME}
+    check_argo_app_synced "${MASAPP_APP}" "${MASAPP_ROOT_APP}"
+    check_argo_app_healthy "${MASAPP_APP}" "${MASAPP_ROOT_APP}"
 
     # Remove anyuid permissions from visualinspection service account
     if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
