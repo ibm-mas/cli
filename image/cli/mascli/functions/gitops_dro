@@ -128,6 +128,7 @@ function gitops_dro_noninteractive() {
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_dro_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_dro_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_dro_help "CLUSTER_ID is not set"
+  [[ -z "$REGION" ]] && gitops_cluster_help "REGION_ is not set"
 
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
@@ -160,6 +161,7 @@ function gitops_dro() {
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Cluster Config Directory .............. ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
   reset_colors
@@ -231,7 +233,7 @@ function gitops_dro() {
   export IBM_ENTITLEMENT_KEY=$SECRET_KEY_IBM_ENTITLEMENT
 
   echo "Generating dro file ${GITOPS_CLUSTER_DIR}/ibm-dro.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-cluster/ibm-dro.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-dro.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-dro.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-dro.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -241,19 +243,17 @@ function gitops_dro() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_CLUSTER_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-    # Align with this: https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/README.md?plain=1#L11
-    export ROOT_APP_NAME="mas-root"
+
+    CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+    DRO_APP_NAME="dro.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
 
     argocd_login
-    argocd_sync "${ROOT_APP_NAME}"
-
-    # Align with this: https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/application-sets/ibm-mas-cluster.yaml#L45
-    GENERATED_APP_NAME="ibm-mas-cluster-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}"
-
-    argocd_hard_refresh "${GENERATED_APP_NAME}"
-    add_role_to_user ${DRO_NAMESPACE} # Is this defintely necessary? Didn't seem to be - at least on MCSP-provisioned ROSA clusters
-    check_argo_app_synced "${GENERATED_APP_NAME}" "${ROOT_APP_NAME}" ${DRO_NAMESPACE}
-    check_argo_app_healthy "${GENERATED_APP_NAME}" "${ROOT_APP_NAME}"
+    argocd_sync "${CLUSTER_APP_NAME}"
+    argocd_hard_refresh "${CLUSTER_APP_NAME}"
+    # add_role_to_user ${DRO_NAMESPACE} 
+    check_argo_app_synced "${DRO_APP_NAME}" "${CLUSTER_APP_NAME}" "${DRO_NAMESPACE}"
+    check_argo_app_healthy "${DRO_APP_NAME}" "${CLUSTER_APP_NAME}"
+    
   fi
 
   # Get generated DRO API Token and set it in AWS SM

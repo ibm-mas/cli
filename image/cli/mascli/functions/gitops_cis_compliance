@@ -193,7 +193,7 @@ function gitops_cis_compliance() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-    CIS_COMPLIANCE_APP_NAME="cis-compliance-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}"
+    CIS_COMPLIANCE_APP_NAME="cis-compliance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
 
     argocd_login
     argocd_sync "${CLUSTER_APP_NAME}"
