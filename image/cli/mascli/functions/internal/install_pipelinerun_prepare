@@ -81,6 +81,7 @@ function install_pipelinerun_prepare() {
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-edgeconfig.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-fpl.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-guardian.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-iot.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-mbgx.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-mfgx.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-monitor.yml} \
