@@ -165,6 +165,7 @@ function gitops_suite_smtp_config_noninteractive() {
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_suite_smtp_config_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$GITOPS_VERSION" ]] && gitops_suite_smtp_config_help "GITOPS_VERSION is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_suite_smtp_config_help "CLUSTER_ID is not set"
+  [[ -z "$REGION" ]] && gitops_cluster_help "REGION_ is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_suite_smtp_config_help "ACCOUNT_ID is not set"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_suite_smtp_config_help "GITHUB_HOST is not set"
@@ -196,7 +197,7 @@ function gitops_suite_smtp_config() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/system-configs
 
   echo
   reset_colors
@@ -205,8 +206,9 @@ function gitops_suite_smtp_config() {
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID............................. ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Instance Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
+  echo_reset_dim "System Config Directory ............... ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -292,7 +294,7 @@ function gitops_suite_smtp_config() {
   # ---------------------------------------------------------------------------
   # Per MAS instance
   echo "- IBM MAS SMTP Config"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-core/ibm-mas-smtp-config.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-smtp-config.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/system-configs/system.ibm-mas-smtp-config.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/system.ibm-mas-smtp-config.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -302,18 +304,18 @@ function gitops_suite_smtp_config() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-    # Align with https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/README.md?plain=1#L11
-    export ROOT_APP_NAME="mas-root"
+    CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+    INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    SYSTEM_CONFIGS_APP="system-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
     argocd_login
-    argocd_sync "${ROOT_APP_NAME}"
+    argocd_sync "${CLUSTER_ROOT_APP}" ## trigger the instance appset to pick up the new config files
+    check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 
-    # Align with https://github.com/ibm-mas/gitops/blob/f057eb850c455ad34e067b1e79c752af8f745aa2/application-sets/ibm-mas-core.yaml#L41
-    CORE_APP_NAME="ibm-mas-core-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}-${MAS_INSTANCE_ID}"
+    argocd_hard_refresh "${SYSTEM_CONFIGS_APP}"
 
-    argocd_hard_refresh "${CORE_APP_NAME}"
-    check_argo_app_synced "${CORE_APP_NAME}" "${ROOT_APP_NAME}" mas-${MAS_INSTANCE_ID}-core
-    check_argo_app_healthy "${CORE_APP_NAME}" "${ROOT_APP_NAME}"
+    check_argo_app_synced "${SYSTEM_CONFIGS_APP}" "${INSTANCE_ROOT_APP}"
+    check_argo_app_healthy "${SYSTEM_CONFIGS_APP}" "${INSTANCE_ROOT_APP}"
   fi
 
   rm -rf $TEMP_DIR
