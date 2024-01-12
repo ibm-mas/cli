@@ -164,6 +164,8 @@ function gitops_suite_noninteractive() {
 
   [[ -z "$ACCOUNT_ID" ]] && gitops_suite_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_suite_help "CLUSTER_ID is not set"
+  [[ -z "$REGION" ]] && gitops_cluster_help "REGION_ is not set"
+  [[ -z "$CLUSTER_URL" ]] && gitops_cluster_help "CLUSTER_URL is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_suite_help "GITHUB_HOST is not set"
@@ -195,7 +197,9 @@ function gitops_suite() {
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Cluster URL ........................... ${COLOR_MAGENTA}${CLUSTER_URL}"
   echo_reset_dim "Instance Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   reset_colors
 
@@ -357,14 +361,13 @@ function gitops_suite() {
   # jinja -X .+ $CLI_DIR/templates/gitops/appproject.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/${MAS_INSTANCE_ID}.appproject.yaml
 
   echo "- Base Config"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-core/ibm-mas-core-base.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-core-base.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-instance-base.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-instance-base.yaml
 
   echo "- IBM Suite License Service"
-  jinja -X .+ -d $MONGO_CONFIG_FILE $CLI_DIR/templates/gitops/appset-configs/ibm-mas-core/ibm-sls.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
+  jinja -X .+ -d $MONGO_CONFIG_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-sls.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
 
   echo "- IBM Maximo Application Suite Core Platform"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-core/ibm-mas-suite.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-suite.yaml
-
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-suite.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-suite.yaml
 
 
   # Commit and push to github target repo
@@ -376,32 +379,33 @@ function gitops_suite() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-    # Align with https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/README.md?plain=1#L11
-    export ROOT_APP_NAME="mas-root"
+
+    CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+    INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
     argocd_login
-    argocd_sync "${ROOT_APP_NAME}"
+    argocd_sync "${CLUSTER_ROOT_APP}" ## trigger the instance appset to pick up the new config files
+    check_argo_app_synced "${INSTANCE_ROOT_APP}"  "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 
-    # Align with https://github.com/ibm-mas/gitops/blob/f057eb850c455ad34e067b1e79c752af8f745aa2/application-sets/ibm-mas-core.yaml#L41
-    GENERATED_APP_NAME_CORE="ibm-mas-core-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}-${MAS_INSTANCE_ID}"
+    # ensure the Vault plugin picks up latest secrets from AWS SM
+    argocd_hard_refresh "${SUITE_APP_NAME}"
+    argocd_hard_refresh "${SLS_APP_NAME}"
 
-    # Align with https://github.com/ibm-mas/gitops/blob/14a6f2367176e99de561d07bc16607aabe03199f/application-sets/ibm-sls.yaml#L38
-    GENERATED_APP_NAME_SLS="ibm-sls-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}-${MAS_INSTANCE_ID}"
+    # TODO: are these necessary?
+    # add_role_to_user mas-${MAS_INSTANCE_ID}-sls
+    # add_role_to_user mas-${MAS_INSTANCE_ID}-core
 
-    argocd_hard_refresh "${GENERATED_APP_NAME_CORE}"
-    argocd_hard_refresh "${GENERATED_APP_NAME_SLS}"
+    # Wait for SLS to sync and become healthy
+    check_argo_app_synced "${SLS_APP_NAME}" "${INSTANCE_ROOT_APP}" mas-${MAS_INSTANCE_ID}-sls
+    check_argo_app_healthy "${SLS_APP_NAME}" "${INSTANCE_ROOT_APP}"
 
-    add_role_to_user mas-${MAS_INSTANCE_ID}-sls
-    add_role_to_user mas-${MAS_INSTANCE_ID}-core
 
-    check_argo_app_synced "${GENERATED_APP_NAME_SLS}" "${ROOT_APP_NAME}" mas-${MAS_INSTANCE_ID}-sls
-    check_argo_app_healthy "${GENERATED_APP_NAME_SLS}" "${ROOT_APP_NAME}"
+    # Wait for Suite to become healthy
+    # health check of suite will be done in gitops_suite_config (suite will not be healthy until core configs are established)
+    check_argo_app_synced "${SUITE_APP_NAME}" "${ROOT_APP_NAME}" mas-${MAS_INSTANCE_ID}-core
 
-    # health check of suite will be done in gitops_suite_config
-    # (suite will not be healthy until core configs are established)
-    check_argo_app_synced "${GENERATED_APP_NAME_CORE}" "${ROOT_APP_NAME}" mas-${MAS_INSTANCE_ID}-core
-    # This is one of the reasons we split out ibm-sls into a separate app instead of bundling it into the ibm-mas-core umbrella chart
-    # (so we are able to verify its health independently of core in this task run)
   fi
 
 
