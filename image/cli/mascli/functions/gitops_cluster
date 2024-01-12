@@ -155,6 +155,8 @@ function gitops_cluster_noninteractive() {
 
   [[ -z "$ACCOUNT_ID" ]] && gitops_cluster_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_cluster_help "CLUSTER_ID is not set"
+  [[ -z "$REGION" ]] && gitops_cluster_help "REGION_ is not set"
+  [[ -z "$CLUSTER_URL" ]] && gitops_cluster_help "CLUSTER_URL is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_cluster_help "GITHUB_HOST is not set"
@@ -198,8 +200,10 @@ function gitops_cluster() {
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Cluster Config Directory ................. ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
+  echo_reset_dim "Cluster URL ........................... ${COLOR_MAGENTA}${CLUSTER_URL}"
+  echo_reset_dim "Cluster Config Directory .............. ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -315,11 +319,14 @@ function gitops_cluster() {
 
     argocd_login
 
-    export ROOT_APP_NAME="cluster-appset"
+    ROOT_APP_NAME="root"
+    CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
     OPERATOR_CATALOG_APP_NAME="operator-catalog.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
     COMMON_SERVICES_APP_NAME="common-services.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
 
     argocd_sync "${ROOT_APP_NAME}"
+
+    check_argo_app_synced "${CLUSTER_APP_NAME}" "${ROOT_APP_NAME}"
 
 
     if [[ "$MAS_CATALOG_ACTION" == "update" || "$MAS_CATALOG_ACTION" == "install" ]]; then
