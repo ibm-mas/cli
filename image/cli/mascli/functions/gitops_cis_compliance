@@ -103,6 +103,7 @@ function gitops_cis_compliance_noninteractive() {
 
   [[ -z "$ACCOUNT_ID" ]] && gitops_cis_compliance_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_cis_compliance_help "CLUSTER_ID is not set"
+  [[ -z "$REGION" ]] && gitops_cluster_help "REGION_ is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_cis_compliance_help "GITHUB_HOST is not set"
@@ -134,6 +135,7 @@ function gitops_cis_compliance() {
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Cluster Config Directory .............. ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
   reset_colors
@@ -179,7 +181,7 @@ function gitops_cis_compliance() {
   echo
   echo_h2 "Generating Argo Applications"
   echo "- IBM Cis Compliance"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-cluster/cis-compliance.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/cis-compliance.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/cis-compliance.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/cis-compliance.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -190,19 +192,15 @@ function gitops_cis_compliance() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_CLUSTER_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-    # Align with this: https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/README.md?plain=1#L11
-    export ROOT_APP_NAME="mas-root"
-
-
-    # Align with this: https://github.com/ibm-mas/gitops/blob/7853babc67700bc500947066963f4e9e7ec7fa95/application-sets/cis-compliance.yaml#L19
-    export GENERATED_APP_NAME="cis-compliance-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}"
+    CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+    CIS_COMPLIANCE_APP_NAME="cis-compliance-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}"
 
     argocd_login
-    argocd_sync "${ROOT_APP_NAME}"
-    argocd_hard_refresh "${GENERATED_APP_NAME}"
-    add_role_to_user openshift-compliance
-    check_argo_app_synced "${GENERATED_APP_NAME}" "${ROOT_APP_NAME}" openshift-compliance
-    check_argo_app_healthy "${GENERATED_APP_NAME}" "${ROOT_APP_NAME}"
+    argocd_sync "${CLUSTER_APP_NAME}"
+    argocd_hard_refresh "${CLUSTER_APP_NAME}"
+    # add_role_to_user openshift-compliance
+    check_argo_app_synced "${CIS_COMPLIANCE_APP_NAME}" "${CLUSTER_APP_NAME}" openshift-compliance
+    check_argo_app_healthy "${CIS_COMPLIANCE_APP_NAME}" "${CLUSTER_APP_NAME}"
   fi
 
 }
