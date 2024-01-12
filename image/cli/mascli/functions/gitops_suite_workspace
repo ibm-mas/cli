@@ -110,6 +110,7 @@ function gitops_suite_workspace_noninteractive() {
   [[ -z "$GITOPS_VERSION" ]] && gitops_suite_workspace_help "GITOPS_VERSION is not set"
   [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_suite_workspace_help "MAS_WORKSPACE_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_suite_workspace_help "CLUSTER_ID is not set"
+  [[ -z "$REGION" ]] && gitops_cluster_help "REGION_ is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_suite_workspace_help "ACCOUNT_ID is not set"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_suite_workspace_help "GITHUB_HOST is not set"
@@ -211,7 +212,7 @@ function gitops_suite_workspace() {
     export MAS_WORKSPACE_NAME=$MAS_WORKSPACE_ID
   fi
   echo "Generating IBM Maximo Application Suite Workspace file ${GITOPS_INSTANCE_DIR}/ibm-mas-workspace.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/ibm-mas-core/ibm-mas-workspace.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-workspace.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-workspace.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-workspace.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -221,30 +222,20 @@ function gitops_suite_workspace() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-    # Align with https://github.com/ibm-mas/gitops/blob/0adcff6b58e267ea016a513012ecddc0dfabfc66/README.md?plain=1#L11
-    export ROOT_APP_NAME="mas-root"
+
+    CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+    INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    WORKSPACE_APP="workspace.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
     argocd_login
-    argocd_sync "${ROOT_APP_NAME}"
+    argocd_sync "${CLUSTER_ROOT_APP}" ## trigger the instance appset to pick up the new config files
+    check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 
-    # Align with https://github.com/ibm-mas/gitops/blob/f057eb850c455ad34e067b1e79c752af8f745aa2/application-sets/ibm-mas-core.yaml#L41
-    CORE_APP_NAME="ibm-mas-core-${ACCOUNT_ID}-${REGION}-${CLUSTER_ID}-${MAS_INSTANCE_ID}"
+    argocd_hard_refresh "${WORKSPACE_APP}"
 
-    argocd_hard_refresh "${CORE_APP_NAME}"
-    check_argo_app_synced "${CORE_APP_NAME}" "${ROOT_APP_NAME}" mas-${MAS_INSTANCE_ID}-core
+    check_argo_app_synced "${WORKSPACE_APP}" "${INSTANCE_ROOT_APP}"
+    check_argo_app_healthy "${WORKSPACE_APP}" "${INSTANCE_ROOT_APP}"
 
-    # Possible race condition here; although the app has synced, argocd may not have updated app health to "progressing" yet
-    # I've only seen this for the Workspace resource, but this may apply to others too.
-    # Sufficient to add a short sleep here, or do we need something more controlled?
-    # Is this only an issue now the core charts are now all bundled into a single Argo App?
-    sleep 10
-    check_argo_app_healthy "${CORE_APP_NAME}" "${ROOT_APP_NAME}"
-
-    # Random idea:
-    # Have a separate Argo App (set) for workspaces. Their config files could live in a <workspace-id> subdirectory of the instance dir.
-    # Once (if) we ever support multi-workspace, this could offer a clean approach to configuring these, include workspace-level bindings.
-    # Not going to do it now since 1. I want to limit the impact of the refactor to appsets and 2. we only ever have a single workspace at the mo.
-    
   fi
 
 }
