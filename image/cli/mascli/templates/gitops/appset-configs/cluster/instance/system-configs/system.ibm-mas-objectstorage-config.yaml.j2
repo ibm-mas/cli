@@ -1,0 +1,21 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ REGION }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
+
+system-configs:
+  objectstorage:
+    mas_instance_id: {{ MAS_INSTANCE_ID }}
+    suite_objectstorage_username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_OBJECTSTORAGE_USERNAME }}>
+    suite_objectstorage_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_OBJECTSTORAGE_PASSWORD }}>
+    suite_objectstorage_secret_name: ibmcos-credentials-system
+    objectstorage_config:
+      config:
+        url: {{ config.url }}
+        credentials:
+          secretName: "ibmcos-credentials-system"
+      certificates:
+        {% for objectstorage_certificate in certificates -%}
+        - alias: {{ objectstorage_certificate.alias }}
+          crt: |
+            {% filter indent(width=12) -%}
+            {{ objectstorage_certificate.crt }}
+            {%- endfilter %}
+        {% endfor %}
