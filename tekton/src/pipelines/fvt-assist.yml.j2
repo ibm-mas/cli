@@ -172,9 +172,9 @@ spec:
     # 4. Test NG - Desktop
     # -----------------------------------------------------------------------------
     - name: fvt-assist-testng-desktop
-      {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist-testng.yml.j2') | indent(6) }}
+      {{ lookup('template', 'taskdefs/fvt-assist/common/taskref-testng.yml.j2') | indent(6) }}
       params:
-        {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(8) }}
+        {{ lookup('template', 'taskdefs/fvt-assist/common/params-testng.yml.j2') | indent(8) }}
         - name: fvt_test_suite
           value: testng-assist-desktop
       runAfter:
@@ -184,9 +184,9 @@ spec:
     # 5. Test NG - Mobile
     # -----------------------------------------------------------------------------
     - name: fvt-assist-testng-mobile
-      {{ lookup('template', 'taskdefs/fvt-apps/common/taskref-assist-testng.yml.j2') | indent(6) }}
+      {{ lookup('template', 'taskdefs/fvt-assist/common/taskref-testng.yml.j2') | indent(6) }}
       params:
-        {{ lookup('template', 'taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(8) }}
+        {{ lookup('template', 'taskdefs/fvt-assist/common/params-testng.yml.j2') | indent(8) }}
         - name: fvt_test_suite
           value: testng-assist-mobile
         - name: assist_test_type
