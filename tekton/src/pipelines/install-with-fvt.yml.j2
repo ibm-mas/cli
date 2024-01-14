@@ -61,6 +61,10 @@ spec:
       type: string
       default: "true"
       description: "Set this to any falue other than 'true' to disable launch of the Manage Industry Solutions FVT Pipeline after launchfvt-manage completes"
+    - name: launchfvt_mobile
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable launch of the Mobile FVT Pipeline after app-cfg-manage completes"
     - name: launchfvt_monitor
       type: string
       default: "true"
@@ -443,6 +447,7 @@ spec:
           values: ["true", "True"]
       runAfter:
         - launchfvt-manage
+        - suite-config-watson-studio
 
     # 16. Application FVT - IoT
     # -------------------------------------------------------------------------

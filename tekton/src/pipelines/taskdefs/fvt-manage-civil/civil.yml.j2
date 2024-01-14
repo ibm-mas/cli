@@ -1,8 +1,8 @@
 # Manage FVT - Civil Infrastructure Selenium - Setup
 - name: fvt-manage-civil-selenium-setup
-  {{ lookup('template', 'taskdefs/fvt-manage-is/ui/taskref-civil.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage-civil/ui/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage-is/ui/params-civil.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-civil/ui/params.yml.j2') | indent(4) }}
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-civil-selenium
     - name: fvt_image_digest
@@ -12,9 +12,9 @@
 
 # Manage FVT - Civil Infrastructure Selenium - New User
 - name: fvt-manage-civil-selenium-user
-  {{ lookup('template', 'taskdefs/fvt-manage-is/ui/taskref-civil.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage-civil/ui/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage-is/ui/params-civil.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-civil/ui/params.yml.j2') | indent(4) }}
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-civil-selenium
     - name: fvt_image_digest
@@ -26,9 +26,9 @@
 
 # Manage FVT - Civil Infrastructure Selenium
 - name: fvt-manage-civil-selenium
-  {{ lookup('template', 'taskdefs/fvt-manage-is/ui/taskref-civil.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage-civil/ui/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage-is/ui/params-civil.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-civil/ui/params.yml.j2') | indent(4) }}
     - name: fvt_image_name
       value: fvt-ibm-mas-manage-civil-selenium
     - name: fvt_image_digest
