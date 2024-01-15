@@ -92,24 +92,18 @@ spec:
               name: mas-fvt-manage
               key: FVT_DIGEST_MANAGE_PYTEST
               optional: false
-        - name: IVT_DIGEST_CORE
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-manage
-              key: IVT_DIGEST_CORE
-              optional: false
         # Black and white listing
         - name: FVT_BLACKLIST
           valueFrom:
             secretKeyRef:
               name: mas-fvt-manage
-              key: FVT_BLACKLIST
+              key: FVT_BLACKLIST_IS
               optional: false
         - name: FVT_WHITELIST
           valueFrom:
             secretKeyRef:
               name: mas-fvt-manage
-              key: FVT_WHITELIST
+              key: FVT_WHITELIST_IS
               optional: false
 
     - name: wait-for-pipelinerun

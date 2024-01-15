@@ -91,13 +91,13 @@ spec:
           valueFrom:
             secretKeyRef:
               name: mas-fvt-manage
-              key: FVT_BLACKLIST
+              key: FVT_BLACKLIST_IS
               optional: false
         - name: FVT_WHITELIST
           valueFrom:
             secretKeyRef:
               name: mas-fvt-manage
-              key: FVT_WHITELIST
+              key: FVT_WHITELIST_IS
               optional: false
 
     - name: wait-for-pipelinerun

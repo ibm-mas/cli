@@ -44,10 +44,6 @@ spec:
       type: string
       description: Manage product that will be tested by this task. Use official names as expected by Manage operators
       default: "base"
-    - name: mas_appws_components
-      type: string
-      description: Manage Workspace component list so ISs tasks can decide if it should be executed base on what is configured
-      default: ""
     - name: product_id
       type: string
       description: Product ID under test
@@ -126,6 +122,18 @@ spec:
           secretKeyRef:
             name: mas-fvt-manage
             key: FVT_WHITELIST
+            optional: false
+      - name: FVT_BLACKLIST_IS
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_BLACKLIST_IS
+            optional: false
+      - name: FVT_WHITELIST_IS
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_WHITELIST_IS
             optional: false
 
   steps:
