@@ -84,7 +84,7 @@
         - gitops-mas-fvt-preparer
         - gitops-update
         - provision-mas-apps
-        - gitops-mcsp-setup-cluster
+        - gitops-mas-cluster
         
 
     # 4. Generate Gitops Pipelines with waits
