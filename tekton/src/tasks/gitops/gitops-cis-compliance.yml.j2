@@ -19,8 +19,17 @@ spec:
       type: string
     - name: github_pat
       type: string
+      default: ""
     - name: avp_aws_secret_region
       type: string
+    - name: argocd_url
+      type: string
+    - name: argocd_username
+      type: string
+      default: ""
+    - name: argocd_password
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-cis-compliance
     env:
@@ -40,6 +49,17 @@ spec:
         value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
+      - name: ARGOCD_USERNAME
+        value: $(params.argocd_username)
+      - name: ARGOCD_PASSWORD
+        value: $(params.argocd_password)
+    envFrom:
+      - configMapRef:
+        name: environment-properties
+      - secretRef:
+        name: secure-properties
   steps:
     - args:
       - |-
@@ -61,9 +81,11 @@ spec:
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
-        export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
-        export ARGOCD_USERNAME=admin
-        export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
+        if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
+          export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
+          export ARGOCD_USERNAME=admin
+          export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
+        fi
 
         mkdir -p /tmp/init-cis-compliance
         mas gitops-cis-compliance -a $ACCOUNT -c $CLUSTER_NAME \

@@ -27,6 +27,7 @@ spec:
       type: string
     - name: github_pat
       type: string
+      default: ""
     - name: git_commit_msg
       type: string
     - name: artifactory_username
@@ -52,8 +53,10 @@ spec:
       default: ""
     - name: avp_aws_access_key
       type: string
+      default: ""
     - name: avp_aws_secret_key
       type: string
+      default: ""
     - name: avp_aws_secret_region
       type: string
     - name: mas_catalog_action
@@ -62,6 +65,14 @@ spec:
     - name: common_services_action
       type: string
       default: "install"
+    - name: argocd_url
+      type: string
+    - name: argocd_username
+      type: string
+      default: ""
+    - name: argocd_password
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-cluster
     env:
@@ -111,6 +122,19 @@ spec:
         value: $(params.mas_catalog_action)
       - name: COMMON_SERVICES_ACTION
         value: $(params.common_services_action)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
+      - name: ARGOCD_USERNAME
+        value: $(params.argocd_username)
+      - name: ARGOCD_PASSWORD
+        value: $(params.argocd_password)
+    envFrom:
+      - configMapRef:
+        name: environment-properties
+      - secretRef:
+        name: secure-properties
   steps:
     - args:
       - |-
