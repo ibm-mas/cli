@@ -18,6 +18,7 @@
     # FVT Configuration
     fvt_digest_manage: "{{ lookup('env', 'FVT_DIGEST_MANAGE') }}"
     fvt_digest_mobile_testng: "{{ lookup('env', 'FVT_DIGEST_MOBILE_TESTNG') }}"
+    fvt_digest_manage_civil_selenium: "{{ lookup('env', 'FVT_DIGEST_MANAGE_CIVIL_SELENIUM') }}"
     
     # Pipeline Run Info
     pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-mobile', True) }}"
@@ -38,6 +39,7 @@
           - "fvt_artifactory_token .................... {{ fvt_artifactory_token }}"
           - "fvt_digest_manage ........................ {{ fvt_digest_manage }}"
           - "fvt_digest_mobile_testng ................. {{ fvt_digest_mobile_testng }}"
+          - "fvt_digest_manage_civil_selenium ......... {{ fvt_digest_manage_civil_selenium }}"
 
     - name: "Start fvt-civil pipeline"
       kubernetes.core.k8s:
