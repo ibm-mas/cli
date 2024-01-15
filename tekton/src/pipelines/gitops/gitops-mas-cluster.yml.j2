@@ -2,9 +2,9 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: gitops-mcsp-setup-cluster
+  name: gitops-mas-cluster
 spec:
-  description: Setup MCSP Cluster
+  description: MAS Cluster scope
   workspaces:
     - name: configs
   params:
@@ -24,6 +24,7 @@ spec:
       type: string
     - name: github_pat
       type: string
+      default: ""
     - name: git_commit_msg
       type: string
     - name: artifactory_username
@@ -43,8 +44,10 @@ spec:
       type: string
     - name: argocd_username
       type: string
+      default: ""
     - name: argocd_password
       type: string
+      default: ""
 
     - name: mas_catalog_version
       type: string
@@ -61,7 +64,7 @@ spec:
       type: string
       default: ""
   tasks:
-    - name: gitops-mcsp-cluster
+    - name: gitops-cluster
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -108,14 +111,14 @@ spec:
 
       taskRef:
         kind: Task
-        name: gitops-mcsp-cluster
+        name: gitops-cluster
       workspaces:
         - name: configs
           workspace: configs
 
-    - name: gitops-mcsp-dro
+    - name: gitops-dro
       runAfter:
-        - gitops-mcsp-cluster
+        - gitops-cluster
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -151,14 +154,14 @@ spec:
           value: $(params.dro_csv)
       taskRef:
         kind: Task
-        name: gitops-mcsp-dro
+        name: gitops-dro
       workspaces:
         - name: configs
           workspace: configs
 
-    - name: gitops-mcsp-cis-compliance
+    - name: gitops-cis-compliance
       runAfter:
-        - gitops-mcsp-cluster
+        - gitops-cluster
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -191,7 +194,7 @@ spec:
           value: $(params.argocd_password)
       taskRef:
         kind: Task
-        name: gitops-mcsp-cis-compliance
+        name: gitops-cis-compliance
       workspaces:
         - name: configs
           workspace: configs
