@@ -15,8 +15,9 @@
     fvt_digest_manage: "{{ lookup('env', 'FVT_DIGEST_MANAGE') }}"
     fvt_digest_manage_pytest: "{{ lookup('env', 'FVT_DIGEST_MANAGE_PYTEST') }}"
     ivt_digest_core: "{{ lookup('env', 'IVT_DIGEST_CORE') }}"
-    # Tests
-    fvt_manage_automation_version: "{{ lookup('env', 'FVT_MANAGE_AUTOMATION_VERSION') }}"
+    # Black and white listing
+    fvt_blacklist: "{{ lookup('env', 'FVT_BLACKLIST') }}"
+    fvt_whitelist: "{{ lookup('env', 'FVT_WHITELIST') }}"
     # Pipeline Run Info
     pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-manage', True) }}"
     pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
@@ -38,7 +39,8 @@
           - "fvt_digest_manage_pytest ........ {{ fvt_digest_manage_pytest }}"
           - "ivt_digest_core ................. {{ ivt_digest_core }}"
           - ""
-          - "fvt_manage_automation_version ... {{ fvt_manage_automation_version }}"
+          - "fvt_blacklist ................... {{ fvt_blacklist }}"
+          - "fvt_whitelist ................... {{ fvt_whitelist }}"
 
     - name: "Start fvt-manage pipeline"
       kubernetes.core.k8s:

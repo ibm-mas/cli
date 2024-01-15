@@ -89,7 +89,6 @@ function mirror_to_registry_noninteractive() {
   MIRROR_CATALOG=false
   MIRROR_COMMONSERVICES=false
   MIRROR_UDS=false
-  MIRROR_DRO=false
   MIRROR_SLS=false
   MIRROR_TRUSTSTOREMGR=false
   MIRROR_MONGOCE=false
@@ -199,9 +198,6 @@ function mirror_to_registry_noninteractive() {
         ;;
       --mirror-uds)
         MIRROR_UDS=true
-        ;;
-      --mirror-dro)
-        MIRROR_DRO=true
         ;;
       --mirror-sls)
         MIRROR_SLS=true
@@ -349,7 +345,6 @@ function mirror_to_registry_interactive() {
     MIRROR_CATALOG=true
     MIRROR_COMMONSERVICES=true
     MIRROR_UDS=true
-    MIRROR_DRO=true
     MIRROR_SLS=true
     MIRROR_TRUSTSTOREMGR=true
     MIRROR_MONGOCE=true
@@ -384,7 +379,6 @@ function mirror_to_registry_interactive() {
 
     prompt_for_confirm_default_yes "IBM Foundational Services" MIRROR_COMMONSERVICES
     prompt_for_confirm_default_yes "IBM User Data Services" MIRROR_UDS
-    prompt_for_confirm_default_yes "IBM Data Reporter Operator" MIRROR_DRO
     prompt_for_confirm_default_yes "IBM Suite License Service" MIRROR_SLS
     prompt_for_confirm_default_yes "IBM Truststore Manager" MIRROR_TRUSTSTOREMGR
     if prompt_for_confirm_default_yes "MongoDb Community Edition"; then
@@ -508,7 +502,6 @@ function mirror_to_registry() {
   export MIRROR_CATALOG
   export MIRROR_COMMONSERVICES
   export MIRROR_UDS
-  export MIRROR_DRO
   export MIRROR_SLS
   export MIRROR_TRUSTSTOREMGR
   export MIRROR_MONGOCE
@@ -534,7 +527,6 @@ function mirror_to_registry() {
   if [[ "$MIRROR_CATALOG" == true ||
     "$MIRROR_COMMONSERVICES" == true ||
     "$MIRROR_UDS" == true ||
-    "$MIRROR_DRO" == true ||
     "$MIRROR_SLS" == true ||
     "$MIRROR_TRUSTSTOREMGR" == true ||
     "$MIRROR_MONGOCE" == true ||
@@ -568,17 +560,12 @@ function mirror_to_registry() {
   echo_h4 "Target Registry" "    "
   echo_reset_dim "Registry Host ....................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_HOST}"
   echo_reset_dim "Registry Port ....................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_PORT}"
-  if [[ $MIRROR_MODE != "to-filesystem" ]]; then
-    echo_reset_dim "Registry Username ................... ${COLOR_MAGENTA}${REGISTRY_USERNAME}"
-    echo_reset_dim "Registry Password ................... ${COLOR_MAGENTA}${REGISTRY_PASSWORD:0:4}<snip>"
-  fi
 
   echo
   reset_colors
   echo_h4 "IBM Operator Catalog" "    "
   echo_reset_dim "Catalog Version ..................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
   echo_reset_dim "MAS Update Channel .................. ${COLOR_MAGENTA}${MAS_CHANNEL}"
-  echo_reset_dim "IBM Authentication .................. ${COLOR_MAGENTA}cp/${IBM_ENTITLEMENT_KEY:0:4}<snip>"
 
   # Core
   echo
@@ -614,7 +601,6 @@ function mirror_to_registry() {
   echo_h4 "Content Selection (Other Dependencies)" "    "
   show_mirror_status "IBM Cloud Pak Foundation Services ..." $MIRROR_COMMONSERVICES
   show_mirror_status "IBM User Data Services .............." $MIRROR_UDS
-  show_mirror_status "IBM Data Reporter Oerator ..........." $MIRROR_DRO
   show_mirror_status "IBM Suite License Service ..........." $MIRROR_SLS
   show_mirror_status "IBM Truststore Manager .............." $MIRROR_TRUSTSTOREMGR
   show_mirror_status "MongoDb Community Edition ..........." $MIRROR_MONGOCE

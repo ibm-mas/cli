@@ -49,21 +49,10 @@ spec:
       description: Workspace ID in MAS to use for running the tests
       default: "masdev"
 
-    # Test-specific Information (all optional)
-    # -------------------------------------------------------------------------
-    - name: artifactory_token
-      type: string
-      description: Artifactory Token (required by fvt-ibm-mas-mobile to pull/push test container content)
-      default: ""
-    - name: artifactory_upload_dir
-      type: string
-      description: Artifactory upload directory
-      default: ""
-
     # Mobile Specific information
     - name: mobile_device_type
       type: string
-      description: Mobile UI test device type. Can be android, ios, chrome, edge, firefox or safari. Default is chrome
+      description: Mobile UI test device type. Can be android, ios, chrome, edge, firefox or safari.
       default: ""
     
   stepTemplate:
@@ -89,6 +78,20 @@ spec:
             name: mas-devops
             key: DEVOPS_BUILD_NUMBER
             optional: true
+
+      - name: ARTIFACTORY_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_TOKEN
+            optional: true
+      - name: ARTIFACTORY_UPLOAD_DIR
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_UPLOAD_DIR
+            optional: true
+      
       - name: MANAGECACRT
         valueFrom:
           secretKeyRef:
@@ -98,7 +101,57 @@ spec:
 
       - name: IBMADMIN_ENABLED
         value: "true"
+
+      # Black and white listing
+      - name: FVT_BLACKLIST
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-mobile
+            key: FVT_BLACKLIST
+            optional: false
+      - name: FVT_WHITELIST
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-mobile
+            key: FVT_WHITELIST
+            optional: false
+
+      # Browserstack users and keys
+      - name: FVT_BSTACK_MOBFOUND
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-mobile
+            key: FVT_BSTACK_MOBFOUND
+            optional: true
       
+      - name: FVT_BSTACK_INSP_SR
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-mobile
+            key: FVT_BSTACK_INSP_SR
+            optional: true
+           
+      - name: FVT_BSTACK_ASSET_TECH
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-mobile
+            key: FVT_BSTACK_ASSET_TECH
+            optional: true
+
+      - name: FVT_BSTACK_IC_IR_IT
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-mobile
+            key: FVT_BSTACK_IC_IR_IT
+            optional: true
+
+      - name: FVT_BSTACK_CIVIL
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-mobile
+            key: FVT_BSTACK_CIVIL
+            optional: true
+
       - name: NAMESPACE
         value: "mas-$(params.mas_instance_id)-core"
       - name: INSTANCE_ID
@@ -112,11 +165,6 @@ spec:
       - name: FVT_ENABLE_DEBUG
         value: "$(params.fvt_enable_debug)"
 
-      - name: ARTIFACTORY_TOKEN
-        value: $(params.artifactory_token)
-      - name: ARTIFACTORY_UPLOAD_DIR
-        value: $(params.artifactory_upload_dir)
-
       # Assist Specific information
       - name: MOBILE_DEVICE_TYPE
         value: $(params.mobile_device_type)
@@ -124,7 +172,7 @@ spec:
   steps:
     - image: '$(params.fvt_image_registry)/fvt-mobile/fvt-mobile-testng@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 4h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
+      timeout: 2h # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
@@ -135,6 +183,5 @@ spec:
     - name: dshm
       emptyDir:
         medium: Memory
-
   workspaces:
     - name: configs
