@@ -296,7 +296,7 @@ spec:
     sidecarContainers:
       - command:
           - /var/run/argocd/argocd-cmp-server
-        image: 'quay.io/ibmmas/cli:7.10.0-pre.gitops'
+        image: 'quay.io/ibmmas/cli:7.10.0-pre.mascore1032v2'
         imagePullPolicy: Always
         name: avp
         resources: {}

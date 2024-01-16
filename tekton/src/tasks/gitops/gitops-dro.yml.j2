@@ -100,7 +100,7 @@ spec:
           export ARGOCD_USERNAME=admin
           export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
         fi
-        
+
         mkdir -p /tmp/init-dro
         mas gitops-dro -a $ACCOUNT -c $CLUSTER_NAME \
         --secrets-path $SECRET_PATH \
@@ -115,6 +115,6 @@ spec:
         - -c
       name: gitops-dro
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
+      image: quay.io/ibmmas/cli:7.10.0-pre.mascore1032v2
   workspaces:
     - name: configs
