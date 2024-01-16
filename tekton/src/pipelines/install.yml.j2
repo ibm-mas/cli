@@ -95,11 +95,6 @@ spec:
       runAfter:
         - db2-system
 
-    # 2.3.3 External Manage DB
-    {{ lookup('template', 'taskdefs/dependencies/extdb-manage.yml.j2') | indent(4) }}
-      runAfter:
-        - db2-system
-
     # 2.4 IBM SLS
     {{ lookup('template', 'taskdefs/dependencies/sls.yml.j2') | indent(4) }}
       runAfter:
@@ -211,7 +206,6 @@ spec:
       runAfter:
         - suite-verify
         - db2-manage  # db2-manage already waits for db2-system so we don't need to list both
-        - extdb-manage
 
     # 5.7 Configure Kafka in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
