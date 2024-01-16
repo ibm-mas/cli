@@ -10,6 +10,8 @@ spec:
   params:
     - name: cluster_name
       type: string
+    - name: cluster_url
+      type: string
     - name: account
       type: string
     - name: git_branch
@@ -22,32 +24,15 @@ spec:
       type: string
     - name: github_user
       type: string
-    - name: github_pat
-      type: string
-      default: ""
     - name: git_commit_msg
       type: string
-    - name: artifactory_username
-      type: string
-      default: ""
-    - name: artifactory_token
-      type: string
-      default: ""
-    - name: avp_aws_access_key
-      type: string
-    - name: avp_aws_secret_key
+    - name: secrets_path
       type: string
     - name: avp_aws_secret_region
       type: string
     
     - name: argocd_url
       type: string
-    - name: argocd_username
-      type: string
-      default: ""
-    - name: argocd_password
-      type: string
-      default: ""
 
     - name: mas_catalog_version
       type: string
@@ -63,11 +48,21 @@ spec:
     - name: dro_csv
       type: string
       default: ""
+
+    - name: db2_channel
+      type: string
+      default: ""
+    - name: db2_action
+      type: string
+      default: ""
+
   tasks:
     - name: gitops-cluster
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: cluster_url
+          value: $(params.cluster_url)
         - name: account
           value: $(params.account)
         - name: git_branch
@@ -80,26 +75,14 @@ spec:
           value: $(params.github_host)
         - name: github_user
           value: $(params.github_user)
-        - name: github_pat
-          value: $(params.github_pat)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
-        - name: artifactory_username
-          value: $(params.artifactory_username)
-        - name: artifactory_token
-          value: $(params.artifactory_token)
+        - name: secrets_path
+          value: $(params.secrets_path)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
         - name: argocd_url
           value: $(params.argocd_url)
-        - name: argocd_username
-          value: $(params.argocd_username)
-        - name: argocd_password
-          value: $(params.argocd_password)
 
         - name: mas_catalog_version
           value: $(params.mas_catalog_version)
@@ -122,14 +105,14 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: cluster_url
+          value: $(params.cluster_url)
         - name: account
           value: $(params.account)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
+        - name: secrets_path
+          value: $(params.secrets_path)
         - name: git_branch
           value: $(params.git_branch)
         - name: github_org
@@ -140,14 +123,8 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
-        - name: github_pat
-          value: $(params.github_pat)
         - name: argocd_url
           value: $(params.argocd_url)
-        - name: argocd_username
-          value: $(params.argocd_username)
-        - name: argocd_password
-          value: $(params.argocd_password)
         - name: dro_namespace
           value: $(params.dro_namespace)
         - name: dro_csv
@@ -165,14 +142,14 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: cluster_url
+          value: $(params.cluster_url)
         - name: account
           value: $(params.account)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
+        - name: secrets_path
+          value: $(params.secrets_path)
         - name: git_branch
           value: $(params.git_branch)
         - name: github_org
@@ -183,15 +160,8 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
-        - name: github_pat
-          value: $(params.github_pat)
-
         - name: argocd_url
           value: $(params.argocd_url)
-        - name: argocd_username
-          value: $(params.argocd_username)
-        - name: argocd_password
-          value: $(params.argocd_password)
       taskRef:
         kind: Task
         name: gitops-cis-compliance
@@ -199,3 +169,41 @@ spec:
         - name: configs
           workspace: configs
 
+    - name: gitops-db2u
+      runAfter:
+        - gitops-cluster
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: account
+          value: $(params.account)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: db2_channel
+          value: $(params.db2_channel)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: argocd_url
+          value: $(params.argocd_url)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-db2u
+      when:
+        - input: "$(params.db2_action)"
+          operator: notin
+          values: [""]

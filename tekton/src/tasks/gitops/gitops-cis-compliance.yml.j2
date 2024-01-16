@@ -17,19 +17,10 @@ spec:
       type: string
     - name: github_host
       type: string
-    - name: github_pat
-      type: string
-      default: ""
     - name: avp_aws_secret_region
       type: string
     - name: argocd_url
       type: string
-    - name: argocd_username
-      type: string
-      default: ""
-    - name: argocd_password
-      type: string
-      default: ""
   stepTemplate:
     name: gitops-cis-compliance
     env:
@@ -45,21 +36,16 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
-      - name: GITHUB_PAT
-        value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
       - name: ARGOCD_URL
         value: $(params.argocd_url)
-      - name: ARGOCD_USERNAME
-        value: $(params.argocd_username)
-      - name: ARGOCD_PASSWORD
-        value: $(params.argocd_password)
     envFrom:
       - configMapRef:
-        name: environment-properties
+          name: environment-properties
+          optional: true
       - secretRef:
-        name: secure-properties
+          name: secure-properties
   steps:
     - args:
       - |-
@@ -68,14 +54,16 @@ spec:
         git config --global user.password $GITHUB_PAT
 
         ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
-        export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
-        export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
-        export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
-        oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
-        OC_RC=$?
-        if [ $OC_RC -ne 0 ]; then
-          echo "oc login failed"
-          exit 1
+        if [ -f $ROSA_CONFIG ]; then
+          export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
+          export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
+          export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
+          oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
         fi
         
         echo "Set k8s context"
