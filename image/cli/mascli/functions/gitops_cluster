@@ -319,7 +319,7 @@ function gitops_cluster() {
 
     argocd_login
 
-    ROOT_APP_NAME="root"
+    ROOT_APP_NAME="root.${ACCOUNT_ID}"
     CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
     OPERATOR_CATALOG_APP_NAME="operator-catalog.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
     COMMON_SERVICES_APP_NAME="common-services.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
