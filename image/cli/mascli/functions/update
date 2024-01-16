@@ -86,11 +86,10 @@ function validate_existing_mongo() {
   if [[ $MAS_CATALOG_DATE -ge 231128 ]]; then
     # Lookup existing MongoDb instance
     MONGODB_CURRENT_VERSION=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].status.version}' 2> /dev/null`
-    # MONGODB_REQUIRED_VERSION="5.0.21" # required version for Nov 2023 catalog
+    # Target mongo version will be defined by chosen catalog/casebundle
     MONGODB_TARGET_VERSION=`yq -r .mongo_extras_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml`
 
     # If existing MongoDb instance version is lower than the minimum version required, then let users know that Mongo will be upgraded
-    # if [ ! "$(printf '%s\n' "$MONGODB_REQUIRED_VERSION" "$MONGODB_CURRENT_VERSION" | sort -V | head -n1)" = "$MONGODB_REQUIRED_VERSION" ]; then
     if [ ! "$(printf '%s\n' "$MONGODB_TARGET_VERSION" "$MONGODB_CURRENT_VERSION" | sort -V | head -n1)" = "$MONGODB_TARGET_VERSION" ]; then
       echo
       echo -e "${COLOR_YELLOW}MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and will be upgraded to version ${MONGODB_TARGET_VERSION}.${COLOR_RESET}"
