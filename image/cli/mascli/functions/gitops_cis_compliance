@@ -192,11 +192,16 @@ function gitops_cis_compliance() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_CLUSTER_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
+    argocd_login
+
+    ROOT_APP_NAME="root.${ACCOUNT_ID}"
     CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
     CIS_COMPLIANCE_APP_NAME="cis-compliance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+    
+    argocd_sync "${ROOT_APP_NAME}"
 
-    argocd_login
-    argocd_sync "${CLUSTER_APP_NAME}"
+    check_argo_app_synced "${CLUSTER_APP_NAME}" "${ROOT_APP_NAME}"
+
     argocd_hard_refresh "${CLUSTER_APP_NAME}"
     # add_role_to_user openshift-compliance
     check_argo_app_synced "${CIS_COMPLIANCE_APP_NAME}" "${CLUSTER_APP_NAME}" openshift-compliance
