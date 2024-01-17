@@ -83,21 +83,21 @@ spec:
         - name: FVT_DIGEST_MANAGE_CIVIL_SELENIUM
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-manage
+              name: mas-fvt-manage-civil
               key: FVT_DIGEST_MANAGE_CIVIL_SELENIUM
               optional: false
         # Black and white listing
         - name: FVT_BLACKLIST
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-manage
-              key: FVT_BLACKLIST_IS
+              name: mas-fvt-manage-civil
+              key: FVT_BLACKLIST
               optional: false
         - name: FVT_WHITELIST
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-manage
-              key: FVT_WHITELIST_IS
+              name: mas-fvt-manage-civil
+              key: FVT_WHITELIST
               optional: false
 
     - name: wait-for-pipelinerun
