@@ -95,6 +95,8 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#storage-requirements">Storage Requirements</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#video-walkthrough">Video Walkthrough</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#interactive-image-mirroring">Interactive Image Mirroring</a>
@@ -172,7 +174,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="mirror-images">Mirror Images<a class="headerlink" href="#mirror-images" title="Permanent link"></a></h1>
+                <h1 id="mirror-red-hat-images">Mirror Red Hat Images<a class="headerlink" href="#mirror-red-hat-images" title="Permanent link"></a></h1>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
 <p><code>mas mirror-redhat-images [options]</code></p>
 <h3 id="mirror-mode">Mirror Mode<a class="headerlink" href="#mirror-mode" title="Permanent link"></a></h3>
@@ -209,6 +211,9 @@
 </ul>
 <h2 id="storage-requirements">Storage Requirements<a class="headerlink" href="#storage-requirements" title="Permanent link"></a></h2>
 <p>The selected content from the three required OpenShift operator catalogs requires approximately 80Gb.  The storage requirements for the OpenShift platform itself will vary depending on how many versions of the release you intent to mirror.</p>
+<h2 id="video-walkthrough">Video Walkthrough<a class="headerlink" href="#video-walkthrough" title="Permanent link"></a></h2>
+<iframe width="720" height="405" src="https://www.youtube.com/embed/d0qCF8qGumc?si=mWV0vmnnLnWvuicA" title="Video Walkthough: Mirror Red Hat Images" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<p><br /></p>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
 <h3 id="interactive-image-mirroring">Interactive Image Mirroring<a class="headerlink" href="#interactive-image-mirroring" title="Permanent link"></a></h3>
 <pre><code class="language-bash">docker run -ti --rm -v /mnt/storage:/mnt/local --pull always quay.io/ibmmas/cli mas mirror-redhat-images
