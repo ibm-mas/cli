@@ -2,28 +2,9 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-suite-app-install
+  name: gitops-deprovision-suite-watson-studio-config
 spec:
   params:
-    - name: mas_app_id
-      type: string
-    - name: mas_app_channel
-      type: string
-    - name: mas_app_catalog_source
-      type: string
-    - name: mas_app_api_version
-      type: string
-    - name: mas_app_kind
-      type: string
-    - name: mas_app_spec_yaml
-      type: string
-      default: ""
-    - name: default_block_storage_class
-      type: string
-      default: ""
-    - name: default_file_storage_class
-      type: string
-      default: ""
     - name: cluster_name
       type: string
     - name: account
@@ -48,31 +29,11 @@ spec:
       type: string
     - name: avp_aws_access_key
       type: string
-    - name: mas_manual_cert_mgmt
+    - name: force_removal
       type: string
-    - name: optimizer_plan
-      type: string
-      default: "full"
-
   stepTemplate:
-    name: gitops-suite-app-install
+    name: gitops-deprovision-suite-watson-studio-config
     env:
-      - name: MAS_APP_ID
-        value: $(params.mas_app_id)
-      - name: MAS_APP_CHANNEL
-        value: $(params.mas_app_channel)
-      - name: MAS_APP_CATALOG_SOURCE
-        value: $(params.mas_app_catalog_source)
-      - name: MAS_APP_API_VERSION
-        value: $(params.mas_app_api_version)
-      - name: MAS_APP_KIND
-        value: $(params.mas_app_kind)
-      - name: MAS_APP_SPEC_YAML
-        value: $(params.mas_app_spec_yaml)
-      - name: DEFAULT_BLOCK_STORAGE_CLASS
-        value: $(params.default_block_storage_class)
-      - name: DEFAULT_FILE_STORAGE_CLASS
-        value: $(params.default_file_storage_class)
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
       - name: ACCOUNT
@@ -97,15 +58,12 @@ spec:
         value: $(params.avp_aws_secret_key)
       - name: SM_AWS_ACCESS_KEY_ID
         value: $(params.avp_aws_access_key)
-      - name: MAS_MANUAL_CERT_MGMT
-        value: $(params.mas_manual_cert_mgmt)
-      - name: OPTIMIZER_PLAN
-        value: $(params.optimizer_plan)
-
-
+      - name: FORCE_REMOVAL
+        value: $(params.force_removal)
   steps:
     - args:
       - |-
+        mkdir -p /tmp/deprovision-suite-watson-studio-config
 
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
@@ -118,14 +76,10 @@ spec:
         oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
         OC_RC=$?
         if [ $OC_RC -ne 0 ]; then
-          echo "oc login failed, exiting with error.."
-          exit 1
+          echo "oc login failed so assume there is no suite watson-studio config to deprovision, exiting.."          
+          exit 0
         fi
 
-        # mas app install specific 
-        export MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
-
-        
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
@@ -135,26 +89,19 @@ spec:
           export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
         fi
 
-
-        mkdir -p /tmp/suite-app-install
-
-        mas gitops-suite-app-install -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        mas gitops-deprovision-suite-watson-studio-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
-        --dir /tmp/suite-app-install \
+        --dir /tmp/deprovision-suite-watson-studio-config \
         --github-push \
         --github-host $GITHUB_HOST \
-        --github-org  $GITHUB_ORG \
+        --github-org $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
         --git-branch $GIT_BRANCH
-
-        exit $?
       command:
         - /bin/sh
         - -c
-      name: gitops-suite-app-install
+      name: gitops-deprovision-suite-watson-studio-config
       imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:7.10.0-pre.mascore1032v2
   workspaces:
     - name: configs
-    - name: shared-gitops-configs
-

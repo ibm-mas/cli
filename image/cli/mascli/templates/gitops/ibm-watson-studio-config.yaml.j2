@@ -1,0 +1,61 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mas-{{ MAS_INSTANCE_ID }}-watson-studio-config
+  namespace: openshift-gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: mas-{{ MAS_INSTANCE_ID }}-core
+    server: 'https://kubernetes.default.svc'
+  project: {{ MAS_INSTANCE_ID }}
+  source:
+    path: applications/ibm-watson-studio-config
+    plugin:
+      env:
+        - name: HELM_VALUES
+          value: |
+            mas_instance_id: {{ MAS_INSTANCE_ID }}
+            suite_watson_studio_secret_name: "{{ MAS_INSTANCE_ID }}-usersupplied-watsonstudio-creds-system"
+
+            suite_wscfg_labels:
+              mas.ibm.com/applicationId: "{{ MAS_APP_ID }}"
+              mas.ibm.com/configScope: workspace-application
+              mas.ibm.com/instanceId: "{{ MAS_INSTANCE_ID }}"
+              mas.ibm.com/workspaceId: "{{ MAS_WORKSPACE_ID }}"
+
+            {% if CP4D_WSL_ACTION == "install" %}
+            suite_watson_studio_username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WATSON_STUDIO_USERNAME }}>
+            suite_watson_studio_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WATSON_STUDIO_PASSWORD }}>
+            watson_studio_config:
+              config:
+                credentials:
+                  secretName: "{{ MAS_INSTANCE_ID }}-usersupplied-watsonstudio-creds-system"
+                endpoint: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WATSON_STUDIO_URL }}>
+              displayName: "MAS - Watson Studio configuration"
+              type: external
+            {% endif %}
+
+            {% if CP4D_WSL_ACTION == "config" %}
+            suite_watson_studio_username: {{ WATSON_STUDIO_USERNAME }}
+            suite_watson_studio_password: {{ WATSON_STUDIO_PASSWORD }}
+            watson_studio_config:
+              config:
+                credentials:
+                  secretName: "{{ MAS_INSTANCE_ID }}-usersupplied-watsonstudio-creds-system"
+                endpoint: {{ WATSON_STUDIO_URL }}
+              displayName: "MAS - Watson Studio configuration"
+              type: external
+            {% endif %}
+
+    repoURL: 'https://github.com/ibm-mas/gitops'
+    targetRevision: {{ GITOPS_VERSION }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: true
+    syncOptions:
+      - CreateNamespace=false
+      - Validate=false

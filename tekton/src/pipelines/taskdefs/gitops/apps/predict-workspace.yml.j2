@@ -1,4 +1,4 @@
-- name: app-cfg-manage
+- name: app-cfg-predict
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
   
@@ -8,49 +8,42 @@
 
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(4) }}
 
-
-
     - name: devops_suite_name
-      value: app-manage-cfg
-    - name: mas_manual_cert_mgmt
-      value: $(params.mas_manual_cert_mgmt)
+      value: app-predict-cfg
     - name: mas_instance_id
       value: $(params.mas_instance_id)
     - name: mas_app_id
-      value: manage
+      value: predict
     - name: mas_workspace_id
       value: $(params.mas_workspace_id)
+    - name: cpd_product_version
+      value: $(params.cpd_product_version)
+    - name: cpd_wsl_project_id
+      value: $(params.cpd_wsl_project_id)
+    - name: cpd_wml_url
+      value: $(params.cpd_wml_url)
+    - name: cpd_wml_instance_id
+      value: $(params.cpd_wml_instance_id)
+
     - name: custom_labels
       value: $(params.custom_labels)
     - name: mas_appws_spec_yaml
-      value: $(params.mas_appws_spec_yaml_manage)
+      value: $(params.mas_appws_spec_yaml_predict)
     - name: mas_appws_api_version
-      value: $(params.mas_appws_api_version_manage)
+      value: $(params.mas_appws_api_version_predict)
     - name: mas_appws_kind
-      value: $(params.mas_appws_kind_manage) 
+      value: $(params.mas_appws_kind_predict)
     - name: mas_app_kind
-      value: $(params.mas_app_kind_manage) 
-    - name: default_block_storage_class
-      value: $(params.default_block_storage_class)
-    - name: default_file_storage_class
-      value: $(params.default_file_storage_class)
-
-    - name: mas_appws_bindings_jdbc
-      value: $(params.mas_appws_bindings_jdbc)
-    - name: mas_appws_components
-      value: $(params.mas_appws_components)
-    - name: mas_appws_settings
-      value: $(params.mas_appws_settings)
-
+      value: $(params.mas_app_kind_predict)
   taskRef:
     name: gitops-suite-app-config
     kind: Task
-  # Only configure a workspace for Manage if a channel has been chosen
+  # Only configure a workspace for predict if a channel has been chosen
   when:
-    - input: "$(params.mas_app_channel_manage)"
+    - input: "$(params.mas_app_channel_predict)"
       operator: notin
       values: [""]
-    - input: "$(params.manage_workspace_action)"
+    - input: "$(params.predict_workspace_action)"
       operator: in
       values: ["activate"]
   workspaces:
