@@ -510,6 +510,12 @@ spec:
       value: '$GRAFANA_INSTANCE_STORAGE_SIZE'
     - name: grafana_major_version
       value: '$GRAFANA_MAJOR_VERSION'
+
+    # Open Telemetry
+    # -------------------------------------------------------------------------
+    - name: cluster_monitoring_include_opentelemetry
+      value: '$CLUSTER_MONITORING_INCLUDE_OPENTELEMETRY'
+
   workspaces:
     # The generated configuration files
     # -------------------------------------------------------------------------

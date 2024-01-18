@@ -25,6 +25,8 @@
 
     - name: cluster_monitoring_include_grafana
       value: $(params.cluster_monitoring_include_grafana)
+    - name: cluster_monitoring_include_opentelemetry
+      value: $(params.cluster_monitoring_include_opentelemetry)
     - name: grafana_namespace
       value: $(params.grafana_namespace)
     - name: grafana_instance_storage_class
