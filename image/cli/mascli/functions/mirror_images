@@ -387,7 +387,7 @@ function mirror_to_registry_interactive() {
       echo "  1. Default MongoDb version set by catalog source (recommended)"
       echo "  2. MongoDb version 4"
       echo "  3. MongoDb version 5"
-      echo "  4. Mirror all supported MongoDb images versions"
+      echo "  4. Mirror all supported MongoDb versions"
       reset_colors
       echo
       prompt_for_input "Select the MongoDb Community Edition mirroring option" MONGOCE_SELECTION "1"
@@ -418,13 +418,14 @@ function mirror_to_registry_interactive() {
     fi
 
     prompt_for_confirm_default_yes "IBM Db2" MIRROR_DB2U
-    prompt_for_confirm_default_yes "IBM AppConnect" MIRROR_APPCONNECT
 
-    prompt_for_confirm_default_yes "IBM Cloud Pak for Data (CP4D)" MIRROR_CP4D
-    prompt_for_confirm_default_yes "IBM Watson Studio" MIRROR_WSL
-    prompt_for_confirm_default_yes "IBM Watson Discovery" MIRROR_WD
-    prompt_for_confirm_default_yes "IBM Watson Machine Learning" MIRROR_WML
-    prompt_for_confirm_default_yes "IBM Analytics Engine (Spark)" MIRROR_SPARK
+    prompt_for_confirm_default "IBM Cloud Pak for Data (CP4D)" MIRROR_CP4D
+    prompt_for_confirm_default "IBM Watson Studio Local" MIRROR_WSL
+    prompt_for_confirm_default "IBM Watson Discovery" MIRROR_WD
+    prompt_for_confirm_default "IBM Watson Machine Learning" MIRROR_WML
+    prompt_for_confirm_default "IBM Analytics Engine (Spark)" MIRROR_SPARK
+
+    prompt_for_confirm_default "IBM AppConnect" MIRROR_APPCONNECT
   fi
 
   if [[ "$MIRROR_MAS_ICD" == "true" ]]; then
@@ -442,7 +443,7 @@ function mirror_to_registry_interactive() {
 
   if [[ $MIRROR_UDS == "true" ]]; then
     prompt_for_input "Red Hat Connect Username" REDHAT_CONNECT_USERNAME
-    prompt_for_input "Red Hat Connect Password" REDHAT_CONNECT_PASSWORD
+    prompt_for_secret "Red Hat Connect Password" REDHAT_CONNECT_PASSWORD "Re-use saved password?"
   fi
 }
 
