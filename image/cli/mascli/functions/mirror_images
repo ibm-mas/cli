@@ -315,7 +315,7 @@ function mirror_to_registry_interactive() {
     echo
     echo_h2 "Configure Authentication"
     prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME
-    prompt_for_input "Mirror Registry Password" REGISTRY_PASSWORD
+    prompt_for_secret "Mirror Registry Password" REGISTRY_PASSWORD "Re-use saved registry password?"
   fi
 
   echo
