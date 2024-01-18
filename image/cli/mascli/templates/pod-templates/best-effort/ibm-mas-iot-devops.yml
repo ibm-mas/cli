@@ -8,5 +8,7 @@ podTemplates:
     containers:
       - name: api-devops
         resources: {}
+  - name: api-status
+    containers:
       - name: api-status
         resources: {}
