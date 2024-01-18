@@ -1,0 +1,48 @@
+---
+- hosts: localhost
+  any_errors_fatal: true
+  vars:
+    # Image Pull Policy
+    image_pull_policy: "{{ lookup('env', 'IMAGE_PULL_POLICY') }}"
+    # MAS Details
+    mas_app_channel_manage: "{{ lookup('env', 'MAS_APP_CHANNEL_MANAGE') }}"
+    mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
+    mas_workspace_id: "{{ lookup('env', 'MAS_WORKSPACE_ID') }}"
+    # FVT Configuration
+    fvt_image_registry: "{{ lookup('env', 'FVT_IMAGE_REGISTRY') }}"
+    fvt_artifactory_username: "{{ lookup('env', 'FVT_ARTIFACTORY_USERNAME') }}"
+    fvt_artifactory_token: "{{ lookup('env', 'FVT_ARTIFACTORY_TOKEN') }}"
+    fvt_digest_health_preparedata: "{{ lookup('env', 'FVT_DIGEST_HEALTH_PREPAREDATA') }}"
+    fvt_digest_health_testng: "{{ lookup('env', 'FVT_DIGEST_HEALTH_TESTNG') }}"
+    fvt_digest_health_python: "{{ lookup('env', 'FVT_DIGEST_HEALTH_PYTHON') }}"
+    # Black and white listing
+    fvt_blacklist: "{{ lookup('env', 'FVT_BLACKLIST') }}"
+    fvt_whitelist: "{{ lookup('env', 'FVT_WHITELIST') }}"
+    # Pipeline Run Info
+    pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-health', True) }}"
+    pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
+  tasks:
+    - name: "Debug"
+      debug:
+        msg:
+          - "pipelinerun_name ................ {{ pipelinerun_name }}"
+          - "pipelinerun_namespace ........... {{ pipelinerun_namespace }}"
+          - ""
+          - "mas_app_channel_manage .......... {{ mas_app_channel_manage }}"
+          - "mas_instance_id ................. {{ mas_instance_id }}"
+          - "mas_workspace_id ................ {{ mas_workspace_id }}"
+          - ""
+          - "fvt_image_registry .............. {{ fvt_image_registry }}"
+          - "fvt_artifactory_username ........ {{ fvt_artifactory_username }}"
+          - "fvt_artifactory_token ........... {{ fvt_artifactory_token }}"
+          - "fvt_digest_health_preparedata ... {{ fvt_digest_health_preparedata }}"
+          - "fvt_digest_health_testng ........ {{ fvt_digest_health_testng }}"
+          - "fvt_digest_health_python ........ {{ fvt_digest_health_python }}"
+          - ""
+          - "fvt_blacklist ................... {{ fvt_blacklist }}"
+          - "fvt_whitelist ................... {{ fvt_whitelist }}"
+
+    - name: "Start fvt-manage pipeline"
+      kubernetes.core.k8s:
+        apply: true
+        template: templates/mas-fvt-health.yml.j2
