@@ -9,3 +9,7 @@ region:
 cluster:
   id: {{ CLUSTER_ID }}
   url: {{ CLUSTER_URL }}
+
+sm:
+  aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ACCOUNT_ID}}/{{CLUSTER_ID}}/aws#aws_access_key_id>"
+  aws_secret_access_key: "<path:{{ SECRETS_PATH }}:{{ACCOUNT_ID}}/{{CLUSTER_ID}}/aws#aws_secret_access_key>"
