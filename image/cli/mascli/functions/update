@@ -42,7 +42,7 @@ function validate_existing_cert_manager() {
     # Check that Certificate Manager instance is running in the cluster
     count=`echo $CERT_MANAGER_NAMESPACE | wc -w`
     if [ $count -eq 0 ]; then
-      echo_warning "No Certificate Manager was found on the cluster!"
+      echo_warning "No Certificate-Manager instance was found on the cluster, unable to proceed with the update"
       exit 1
     elif [ $count -eq 1 ]; then
       # Check that there's only one Certificate Manager instance running in the cluster
@@ -50,17 +50,17 @@ function validate_existing_cert_manager() {
       if [ "$CERT_MANAGER_NAMESPACE" == "ibm-common-services" ]; then
         CERT_MANAGER_ACTION=install
         CERT_MANAGER_PROVIDER=redhat
-        echo -e "IBM Certificate-Manager is currently running in the ${CERT_MANAGER_NAMESPACE} namespace"
-        echo -e "This will be uninstalled and replaced by Red Hat Certificate-Manager as part of this update"
+        echo_highlight "Dependency Upgrade Notice!"
+        echo_highlight "IBM Certificate-Manager is currently running in the ${CERT_MANAGER_NAMESPACE} namespace"
+        echo_highlight "This will be uninstalled and replaced by Red Hat Certificate-Manager as part of this update"
+        echo
       fi
     elif [ $count -ge 1 ]; then
       # if multiple Certificate Manager instances, just alert user and skip Certificate Manager update
-      echo_warning -e "There are multiple instances of Certificate-Manager running in the cluster"
-      echo_warning -e "Make sure you have only one Certificate-Manager instance running before starting the update process"
+      echo_warning -e "There are multiple instances of Certificate-Manager running in the cluster, unable to proceed with the update"
       echo_warning -e "Certificate Manager namespaces identified: $CERT_MANAGER_NAMESPACE"
       exit 1
     fi
-    echo
   fi
 }
 
@@ -82,12 +82,16 @@ function validate_existing_mongo() {
     # Target mongo version will be defined by chosen catalog/casebundle
     MONGODB_TARGET_VERSION=`yq -r .mongo_extras_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml`
 
-    # If existing MongoDb instance version is lower than the minimum version required, then let users know that Mongo will be upgraded
-    if [ ! "$(printf '%s\n' "$MONGODB_TARGET_VERSION" "$MONGODB_CURRENT_VERSION" | sort -V | head -n1)" = "$MONGODB_TARGET_VERSION" ]; then
+    MONGODB_CURRENT_MAJOR_VERSION=${MONGODB_CURRENT_VERSION:0:1}
+    MONGODB_TARGET_MAJOR_VERSION=${MONGODB_TARGET_VERSION:0:1}
+
+    # Let users know that Mongo will be upgraded if existing MongoDb major version is lower than the target major version
+    # We don't show this message for normal updates 5.x.y to 5.x.y
+    if [ ! "$(printf '%s\n' "$MONGODB_TARGET_MAJOR_VERSION" "$MONGODB_CURRENT_MAJOR_VERSION" | sort -V | head -n1)" = "$MONGODB_TARGET_MAJOR_VERSION" ]; then
+      echo_highlight "Dependency Upgrade Notice!"
+      echo_highlight "MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and will be upgraded to version ${MONGODB_TARGET_VERSION}"
       echo
-      echo -e "MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and will be upgraded to version ${MONGODB_TARGET_VERSION}"
-      echo
-      echo -e "It is recommended that you backup your MongoDB instance before proceeding:"
+      echo_highlight "It is recommended that you backup your MongoDB instance before proceeding:"
       echo -e "${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-backing-up-mongodb-maximo-application${TEXT_RESET}"
       MONGODB_V5_UPGRADE=true
       echo
@@ -234,6 +238,7 @@ function update_noninteractive() {
   # Check all args have been set
   [[ -z "$MAS_CATALOG_VERSION" ]] && update_help "MAS_CATALOG_VERSION is not set"
 
+  ocp_version_check
   show_current_catalog
   validate_update
 }
@@ -243,6 +248,7 @@ function update_noninteractive() {
 # -----------------------------------------------------------------------------
 function update_interactive() {
   connect
+  ocp_version_check
   detect_airgap
 
   show_current_catalog

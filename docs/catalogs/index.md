@@ -43,18 +43,22 @@ The static operator catalogs provide a fixed reference point, if you use a stati
 
 To receive security updates and bug fixes you must periodically update the version of the static catalog that you have installed in the cluster.  Once you do this all operators that you have installed from the catalog will automatically update to the newer version.  We aim to release a catalog update monthly.
 
+#### 2024
+| Catalog                               | OCP Support | Recommended CLI | End of Support                  |
+| ------------------------------------- | ----------- | --------------- | ------------------------------- |
+| [v8-240130-amd64](v8-240130-amd64.md) | 4.12        | latest          | OCP 4.12 EOS January 17, 2025   |
+
 #### 2023
 | Catalog                               | OCP Support | Recommended CLI | End of Support                  |
 | ------------------------------------- | ----------- | --------------- | ------------------------------- |
-| [v8-231228-amd64](v8-231228-amd64.md) | 4.12 - 4.14 | latest          | OCP 4.12 EOS January 17, 2025   |
 | [v8-231228-amd64](v8-231228-amd64.md) | 4.11 - 4.12 | latest          | OCP 4.12 EOS January 17, 2025   |
 | [v8-231128-amd64](v8-231128-amd64.md) | 4.11 - 4.12 | latest          | OCP 4.12 EOS January 17, 2025   |
-| [v8-231031-amd64](v8-231031-amd64.md) | 4.11 - 4.12 | latest          | OCP 4.12 EOS January 17, 2025   |
-| [v8-231004-amd64](v8-231004-amd64.md) | 4.11 - 4.12 | latest          | OCP 4.12 EOS January 17, 2025   |
-| [v8-230926-amd64](v8-230926-amd64.md) | 4.11 - 4.12 | latest          | OCP 4.12 EOS January 17, 2025   |
-| [v8-230829-amd64](v8-230829-amd64.md) | 4.10 - 4.12 | latest          | OCP 4.12 EOS January 17, 2025   |
-| [v8-230725-amd64](v8-230725-amd64.md) | 4.10 - 4.12 | latest          | OCP 4.12 EOS January 17, 2025   |
-| [v8-230721-amd64](v8-230721-amd64.md) | 4.10 - 4.12 | latest          | OCP 4.12 EOS January 17, 2025   |
+| [v8-231031-amd64](v8-231031-amd64.md) | 4.11 - 4.12 | 7.12.1          | OCP 4.12 EOS January 17, 2025   |
+| [v8-231004-amd64](v8-231004-amd64.md) | 4.11 - 4.12 | 7.12.1          | OCP 4.12 EOS January 17, 2025   |
+| [v8-230926-amd64](v8-230926-amd64.md) | 4.11 - 4.12 | 7.12.1          | OCP 4.12 EOS January 17, 2025   |
+| [v8-230829-amd64](v8-230829-amd64.md) | 4.10 - 4.12 | 7.12.1          | OCP 4.12 EOS January 17, 2025   |
+| [v8-230725-amd64](v8-230725-amd64.md) | 4.10 - 4.12 | 7.12.1          | OCP 4.12 EOS January 17, 2025   |
+| [v8-230721-amd64](v8-230721-amd64.md) | 4.10 - 4.12 | 7.12.1          | OCP 4.12 EOS January 17, 2025   |
 | [v8-230627-amd64](v8-230627-amd64.md) | 4.10 - 4.12 | 5.5.0           | OCP 4.12 EOS January 17, 2025   |
 | [v8-230616-amd64](v8-230616-amd64.md) | 4.10 - 4.12 | 5.5.0           | OCP 4.12 EOS January 17, 2025   |
 | [v8-230526-amd64](v8-230526-amd64.md) | 4.10        | 5.5.0           | OCP 4.10 EOS September 10, 2023 |
