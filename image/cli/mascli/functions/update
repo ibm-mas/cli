@@ -28,43 +28,38 @@ EOM
 
 # Auto-detect Certificate Manager
 # -----------------------------------------------------------------------------
-# Validates the existance of installed IBM Certificate Manager in the target cluster
+# Validates the existence of installed IBM Certificate Manager in the target cluster
 # If so, then set parameters to prepare the migration to Red Hat Certificate Manager
 function validate_existing_cert_manager() {
-
-  # We just check current MongoDB version and warn about Mongo upgrade if MAS catalog is more recent than January 2024
   MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
 
   if [[ $MAS_CATALOG_DATE -ge 240130 ]]; then
     # Lookup existing Certificate Manager instance
-      if [ -z "$CERT_MANAGER_NAMESPACE" ]; then
-        CERT_MANAGER_NAMESPACE=`oc get pods -A | grep cert-manager-cainjector | awk '{print $1}'`
-      fi
+    if [ -z "$CERT_MANAGER_NAMESPACE" ]; then
+      CERT_MANAGER_NAMESPACE=`oc get pods -A | grep cert-manager-cainjector | awk '{print $1}'`
+    fi
 
     # Check that Certificate Manager instance is running in the cluster
-      count=`echo $CERT_MANAGER_NAMESPACE | wc -w`
-      if [ $count -eq 0 ]
-      then
+    count=`echo $CERT_MANAGER_NAMESPACE | wc -w`
+    if [ $count -eq 0 ]; then
+      echo_warning "No Certificate Manager was found on the cluster!"
+      exit 1
+    elif [ $count -eq 1 ]; then
+      # Check that there's only one Certificate Manager instance running in the cluster
+      # If the running Certificate Manager is the one from IBM Cloud Pak Foundational Services, let users know it will be migrated to Red Hat
+      if [ "$CERT_MANAGER_NAMESPACE" == "ibm-common-services" ]; then
         CERT_MANAGER_ACTION=install
         CERT_MANAGER_PROVIDER=redhat
-        echo -e "${COLOR_YELLOW}Certificate Manager is not installed yet! Red Hat Certificate Manager will be installed.${COLOR_RESET}"
-    # Check that there's only one Certificate Manager instance running in the cluster
-      elif [ $count -eq 1 ]
-      then
-      # if the running Certificate Manager is the one from IBM Cloud Pak Foundational Services, let users know it will be migrated to Red Hat
-        if [ "$CERT_MANAGER_NAMESPACE" == "ibm-common-services" ]; then
-          CERT_MANAGER_ACTION=install
-          CERT_MANAGER_PROVIDER=redhat
-          echo -e "${COLOR_YELLOW}Certificate Manager is currently running in namespace ${CERT_MANAGER_NAMESPACE}."
-          echo -e "${COLOR_YELLOW}The existing Certificate Manager will be uninstalled and migrated to Red Hat Certificate Manager.${COLOR_RESET}"
-        fi
-      elif [ $count -ge 1 ]
-      then
-      # if multiple Certificate Manager instances, just alert user and skip Certificate Manager update
-          echo -e "${COLOR_YELLOW}There are multiple instances of Certificate Manager running in the cluster.${COLOR_RESET}"
-          echo -e "${COLOR_YELLOW}Make sure you just have one Certificate Manager instance running.${COLOR_RESET}"
-          echo -e "${COLOR_YELLOW}Certificate Manager namespaces identified: $CERT_MANAGER_NAMESPACE${COLOR_RESET}"
+        echo -e "IBM Certificate-Manager is currently running in the ${CERT_MANAGER_NAMESPACE} namespace"
+        echo -e "This will be uninstalled and replaced by Red Hat Certificate-Manager as part of this update"
       fi
+    elif [ $count -ge 1 ]; then
+      # if multiple Certificate Manager instances, just alert user and skip Certificate Manager update
+      echo_warning -e "There are multiple instances of Certificate-Manager running in the cluster"
+      echo_warning -e "Make sure you have only one Certificate-Manager instance running before starting the update process"
+      echo_warning -e "Certificate Manager namespaces identified: $CERT_MANAGER_NAMESPACE"
+      exit 1
+    fi
     echo
   fi
 }
@@ -73,9 +68,7 @@ function validate_existing_cert_manager() {
 # -----------------------------------------------------------------------------
 # Validates the existance of installed MongoDB Community Edition in the target cluster
 # and prints a warning message if MongoDB is supposed to be upgraded
-
 function validate_existing_mongo() {
-
   if [ -z "$MONGODB_NAMESPACE" ]; then
     MONGODB_NAMESPACE=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
   fi
