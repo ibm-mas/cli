@@ -82,12 +82,12 @@ function validate_existing_mongo() {
     # Target mongo version will be defined by chosen catalog/casebundle
     MONGODB_TARGET_VERSION=`yq -r .mongo_extras_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml`
 
-    MONGODB_CURRENT_MAJOR_VERSION=${MONGODB_CURRENT_VERSION:0:1}
-    MONGODB_TARGET_MAJOR_VERSION=${MONGODB_TARGET_VERSION:0:1}
+    MONGODB_CURRENT_MAJORMINOR_VERSION=${MONGODB_CURRENT_VERSION:0:3}
+    MONGODB_TARGET_MAJORMINOR_VERSION=${MONGODB_TARGET_VERSION:0:3}
 
-    # Let users know that Mongo will be upgraded if existing MongoDb major version is lower than the target major version
-    # We don't show this message for normal updates 5.x.y to 5.x.y
-    if [ ! "$(printf '%s\n' "$MONGODB_TARGET_MAJOR_VERSION" "$MONGODB_CURRENT_MAJOR_VERSION" | sort -V | head -n1)" = "$MONGODB_TARGET_MAJOR_VERSION" ]; then
+    # Let users know that Mongo will be upgraded if existing MongoDb major.minor version is lower than the target major version
+    # We don't show this message for normal updates, e.g. 5.0.1 to 5.0.2
+    if [ ! "$(printf '%s\n' "$MONGODB_TARGET_MAJORMINOR_VERSION" "$MONGODB_CURRENT_MAJORMINOR_VERSION" | sort -V | head -n1)" = "$MONGODB_TARGET_MAJORMINOR_VERSION" ]; then
       echo_highlight "Dependency Upgrade Notice!"
       echo_highlight "MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and will be upgraded to version ${MONGODB_TARGET_VERSION}"
       echo
@@ -347,7 +347,7 @@ function update() {
 
   # MongoDB Community Edition
   if [ "$MONGODB_NAMESPACE" != "" ]; then
-    echo_reset_dim "MongoDb Community Edition .................. ${COLOR_GREEN}Yes ($MONGODB_NAMESPACE)${TEXT_RESET}"
+    echo_reset_dim "MongoDb Community Edition .................. ${COLOR_GREEN}${MONGODB_CURRENT_VERSION} to ${MONGODB_TARGET_VERSION} ($MONGODB_NAMESPACE)${TEXT_RESET}"
   else
     echo_reset_dim "MongoDb Community Edition .................. ${COLOR_RED}No${TEXT_RESET}"
   fi
