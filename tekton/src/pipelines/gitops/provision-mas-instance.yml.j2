@@ -148,8 +148,6 @@ spec:
       type: string
     - name: cis_crn
       type: string
-    - name: cis_apikey
-      type: string
     - name: mas_config_dir
       type: string
     - name: cis_service_name
@@ -221,10 +219,6 @@ spec:
           value: $(params.mas_instance_id)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
       workspaces:
         - name: shared-entitlement
           workspace: shared-entitlement
@@ -259,8 +253,6 @@ spec:
           value: $(params.cis_email)
         - name: cis_crn
           value: $(params.cis_crn)
-        - name: cis_apikey
-          value: $(params.cis_apikey)
         - name: mas_config_dir
           value: $(params.mas_config_dir)
         - name: cis_service_name
@@ -300,8 +292,6 @@ spec:
           value: $(params.cis_proxy)
         - name: cis_crn
           value: $(params.cis_crn)
-        - name: cis_apikey
-          value: $(params.cis_apikey)
         - name: mas_config_dir
           value: $(params.mas_config_dir)
         - name: gitops
@@ -312,10 +302,6 @@ spec:
           value: $(params.secrets_path)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
       taskRef:
         kind: Task
         name: gitops-suite-certs

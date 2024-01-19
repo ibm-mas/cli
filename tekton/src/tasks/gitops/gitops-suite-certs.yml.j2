@@ -24,8 +24,6 @@ spec:
       type: string
     - name: cis_crn
       type: string
-    - name: cis_apikey
-      type: string
     - name: mas_config_dir
       type: string
     - name: account
@@ -74,8 +72,6 @@ spec:
         value: $(params.cis_proxy)
       - name: CIS_CRN
         value: $(params.cis_crn)
-      - name: CIS_APIKEY
-        value: $(params.cis_apikey)
       - name: MAS_CONFIG_DIR
         value: $(params.mas_config_dir)
       - name: GITOPS

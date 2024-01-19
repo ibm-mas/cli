@@ -43,8 +43,8 @@ spec:
   steps:
     - args:
       - |-
-        aws configure set aws_access_key_id $(params.avp_aws_access_key)
-        aws configure set aws_secret_access_key $(params.avp_aws_secret_key)
+        aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
+        aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
         aws configure set default.region $(params.avp_aws_secret_region)
 
         export ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
