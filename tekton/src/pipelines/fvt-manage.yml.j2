@@ -25,14 +25,11 @@ spec:
     - name: mas_workspace_id
       type: string
       default: ""
-    - name: mas_appws_components
-      type: string
-      description: Which Manage components are being installed?
-      default: ""
-    # TODO: Why do Manage tests need to know the Kafka provider?
+    
+    # Test Requirements
     - name: kafka_provider
       type: string
-      description: kafka provider used during installation (ibm, aws or redhat)
+      description: kafka provider used during installation (ibm, aws or redhat) to pick up right MIF tests
       default: ""
 
     # FVT Configuration

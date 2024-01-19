@@ -1,4 +1,4 @@
-Mirror Images
+Mirror Red Hat Images
 ===============================================================================
 
 Usage
@@ -35,6 +35,12 @@ Usage
 Storage Requirements
 -------------------------------------------------------------------------------
 The selected content from the three required OpenShift operator catalogs requires approximately 80Gb.  The storage requirements for the OpenShift platform itself will vary depending on how many versions of the release you intent to mirror.
+
+
+Video Walkthrough
+-------------------------------------------------------------------------------
+<iframe width="720" height="405" src="https://www.youtube.com/embed/d0qCF8qGumc?si=mWV0vmnnLnWvuicA" title="Video Walkthough: Mirror Red Hat Images" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<br />
 
 Examples
 -------------------------------------------------------------------------------
