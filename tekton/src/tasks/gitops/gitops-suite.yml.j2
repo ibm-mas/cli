@@ -53,15 +53,11 @@ spec:
     - name: cluster_url
       type: string
       default: ""
-    - name: argocd_url
-      type: string
   stepTemplate:
     name: gitops-suite
     env:
       - name: OCP_SERVER
         value: $(params.cluster_url)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
       - name: DNS_PROVIDER
         value: $(params.dns_provider)
       - name: CLUSTER_NAME

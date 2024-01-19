@@ -33,7 +33,7 @@ spec:
     - name: secrets_path
       type: string
     - name: avp_aws_secret_region
-
+      type: string
     # 1. Gitops git Parameters
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}

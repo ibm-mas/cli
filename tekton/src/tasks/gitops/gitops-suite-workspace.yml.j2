@@ -29,8 +29,6 @@ spec:
     - name: cluster_url
       type: string
       default: ""
-    - name: argocd_url
-      type: string
   stepTemplate:
     name: gitops-suite-workspace
     env:
@@ -38,8 +36,6 @@ spec:
         value: $(params.cluster_name)
       - name: OCP_SERVER
         value: $(params.cluster_url)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
       - name: ACCOUNT
         value: $(params.account)
       - name: MAS_INSTANCE_ID

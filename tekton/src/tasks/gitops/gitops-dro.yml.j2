@@ -24,8 +24,6 @@ spec:
       type: string
     - name: github_host
       type: string
-    - name: argocd_url
-      type: string
   stepTemplate:
     name: gitops-dro
     env:
@@ -47,8 +45,6 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
     envFrom:
       - configMapRef:
           name: environment-properties
