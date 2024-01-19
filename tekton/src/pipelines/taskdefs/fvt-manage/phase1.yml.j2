@@ -1,26 +1,22 @@
+
 # -------------------------------------------------------------
 # PHASE 1
 # - fvt-manage-setup
 # - fvt-manage-monitoring
+# - fvt-manage-ancestors
+# - fvt-manage-automationscripts
 # -------------------------------------------------------------
-
 # Manage FVT Setup
 - name: fvt-manage-setup # convention: use fvt-manage-<keyword>, as the value of fvt_test_suite parameter
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
       value: core
     - name: fvt_test_suite
-      value: setup
-    - name: fvt_mas_appws_component
-      value: base
-    - name: fvt_test_driver
-      value: tpae
+      value: bvt
   runAfter:
     - fvt-manage-usersync
-
 # Manage FVT Monitoring
 - name: fvt-manage-monitoring
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
@@ -32,3 +28,25 @@
       value: monitoring
   runAfter:
     - fvt-manage-usersync
+# Manage FVT Ancestors
+- name: fvt-manage-ancestors
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
+    - name: fvt_test_suite
+      value: ancestors
+  runAfter:
+    - fvt-manage-bvt
+# Manage FVT AutomationScript
+- name: fvt-manage-automationscripts
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
+    - name: fvt_test_suite
+      value: automationscripts
+  runAfter:
+    - fvt-manage-bvt
