@@ -76,10 +76,6 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: avp_aws_secret_key
-      type: string
-    - name: avp_aws_access_key
-      type: string
     - name: mas_app_settings_db2_schema
       type: string
       default: ""
@@ -208,10 +204,6 @@ spec:
         value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: SM_AWS_SECRET_ACCESS_KEY
-        value: $(params.avp_aws_secret_key)
-      - name: SM_AWS_ACCESS_KEY_ID
-        value: $(params.avp_aws_access_key)
       - name: MAS_APP_ID
         value: $(params.mas_app_id)
       - name: MAS_APP_SETTINGS_DB2_SCHEMA
@@ -256,6 +248,12 @@ spec:
         value: $(params.mas_app_settings_bim_pvc_size)
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
 
   steps:
     - args:

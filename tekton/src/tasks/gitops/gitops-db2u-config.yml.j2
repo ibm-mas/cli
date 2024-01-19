@@ -23,10 +23,6 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: avp_aws_secret_key
-      type: string
-    - name: avp_aws_access_key
-      type: string
     - name: mas_instance_id
       type: string
     - name: db2_ldap_username
@@ -65,10 +61,6 @@ spec:
         value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: SM_AWS_SECRET_ACCESS_KEY
-        value: $(params.avp_aws_secret_key)
-      - name: SM_AWS_ACCESS_KEY_ID
-        value: $(params.avp_aws_access_key)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
       - name: DB2_LDAP_USERNAME
@@ -83,6 +75,12 @@ spec:
         value: $(params.mas_workspace_id)
       - name: TLS_VERSION
         value: $(params.tls_version)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
   steps:
     - args:
       - |-

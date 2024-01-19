@@ -52,6 +52,12 @@ spec:
         value: $(params.vpc_ipv4_cidr)
       - name: KAFKACFG_FILE_NAME
         value: $(params.kafkacfg_file_name)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
   steps:
     - args:
       - |-

@@ -38,6 +38,12 @@ spec:
         value: $(params.mongo_provider)
       - name: AWS_DOCDB_INSTANCE_NUMBER
         value: $(params.aws_docdb_instance_number)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
   steps:
     - args:
       - |-

@@ -271,7 +271,7 @@ function gitops_suite_app_config_noninteractive() {
   done
 
   [[ -z "${ACCOUNT_ID}" ]] && gitops_suite_app_config_help "ACCOUNT_ID is not set"
-  [[ -z "$REGION" ]] && gitops_cluster_help "REGION_ is not set"
+  [[ -z "$REGION" ]] && gitops_suite_app_config_help "REGION is not set"
   [[ -z "${CLUSTER_ID}" ]] && gitops_suite_app_config_help "CLUSTER_ID is not set"
 
   [[ -z "${MAS_INSTANCE_ID}" ]] && gitops_suite_app_config_help "MAS_INSTANCE_ID is not set"

@@ -44,10 +44,6 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: avp_aws_secret_key
-      type: string
-    - name: avp_aws_access_key
-      type: string
     - name: mas_manual_cert_mgmt
       type: string
     - name: optimizer_plan
@@ -93,15 +89,16 @@ spec:
         value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: SM_AWS_SECRET_ACCESS_KEY
-        value: $(params.avp_aws_secret_key)
-      - name: SM_AWS_ACCESS_KEY_ID
-        value: $(params.avp_aws_access_key)
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
       - name: OPTIMIZER_PLAN
         value: $(params.optimizer_plan)
-
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
 
   steps:
     - args:

@@ -44,10 +44,10 @@ spec:
   stepTemplate:
     name: gitops-suite-config
     env:
-      - name: CLUSTER_NAME
-        value: $(params.cluster_name)
       - name: OCP_SERVER
         value: $(params.cluster_url)
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
       - name: ACCOUNT
         value: $(params.account)
       - name: SECRET_PATH

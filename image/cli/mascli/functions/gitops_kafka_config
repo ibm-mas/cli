@@ -118,7 +118,7 @@ function gitops_kafka_config_noninteractive() {
   [[ -z "$GITOPS_VERSION" ]] && gitops_kafka_config_help "GITOPS_VERSION is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_kafka_config_help "CLUSTER_ID is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_kafka_config_help "ACCOUNT_ID is not set"
-  [[ -z "$REGION" ]] && gitops_cluster_help "REGION_ is not set"
+  [[ -z "$REGION" ]] && gitops_kafka_config_help "REGION is not set"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_kafka_config_help "GITHUB_HOST is not set"
     [[ -z "$GITHUB_ORG" ]] && gitops_kafka_config_help "GITHUB_ORG is not set"

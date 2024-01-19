@@ -164,7 +164,7 @@ function gitops_suite_noninteractive() {
 
   [[ -z "$ACCOUNT_ID" ]] && gitops_suite_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_suite_help "CLUSTER_ID is not set"
-  [[ -z "$REGION" ]] && gitops_cluster_help "REGION_ is not set"
+  [[ -z "$REGION" ]] && gitops_cluster_help "REGION is not set"
   [[ -z "$CLUSTER_URL" ]] && gitops_cluster_help "CLUSTER_URL is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then

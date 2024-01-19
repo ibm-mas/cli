@@ -133,6 +133,8 @@ spec:
       type: string
     - name: mas_manual_cert_mgmt
       type: string
+    - name: cluster_url
+      type: string
     - name: cis_enhanced_security
       type: string
     - name: cis_proxy
@@ -352,6 +354,9 @@ spec:
           value: $(params.icr_cp_open)
         - name: mas_manual_cert_mgmt
           value: $(params.mas_manual_cert_mgmt)
+        - name: cluster_url
+          value: $(params.cluster_url)
+
       taskRef:
         kind: Task
         name: gitops-suite
@@ -396,6 +401,8 @@ spec:
           value: $(params.dro_contact_lastname)
         - name: dro_ca_certificate_file
           value: $(params.dro_ca_certificate_file)
+        - name: cluster_url
+          value: $(params.cluster_url)
       workspaces:
         - name: configs
           workspace: configs
@@ -434,6 +441,8 @@ spec:
           value: $(params.git_commit_msg)
         - name: github_pat
           value: $(params.github_pat)
+        - name: cluster_url
+          value: $(params.cluster_url)
       taskRef:
         kind: Task
         name: gitops-suite-workspace
@@ -486,6 +495,8 @@ spec:
           value: $(params.smtp_username)
         - name: smtp_password
           value: $(params.smtp_password)
+        - name: cluster_url
+          value: $(params.cluster_url)
       taskRef:
         kind: Task
         name: gitops-suite-smtp-config
@@ -534,6 +545,8 @@ spec:
           value: $(params.ldap_bind_dn)
         - name: ldap_bind_password
           value: $(params.ldap_bind_password)
+        - name: cluster_url
+          value: $(params.cluster_url)
       taskRef:
         kind: Task
         name: gitops-suite-idp-config
@@ -558,6 +571,8 @@ spec:
           value: $(params.mas_instance_id)
         - name: cloud_provider
           value: $(params.cloud_provider)
+        - name: cluster_url
+          value: $(params.cluster_url)
       workspaces:
         - name: configs
           workspace: configs

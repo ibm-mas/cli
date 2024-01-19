@@ -49,6 +49,12 @@ spec:
         value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
   steps:
     - args:
       - |-

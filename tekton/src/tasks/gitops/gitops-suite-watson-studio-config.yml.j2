@@ -30,10 +30,6 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: avp_aws_secret_key
-      type: string
-    - name: avp_aws_access_key
-      type: string
 
     - name: watson_studio_username
       type: string
@@ -73,10 +69,6 @@ spec:
         value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: SM_AWS_SECRET_ACCESS_KEY
-        value: $(params.avp_aws_secret_key)
-      - name: SM_AWS_ACCESS_KEY_ID
-        value: $(params.avp_aws_access_key)
 
       - name: WATSON_STUDIO_USERNAME
         value: $(params.watson_studio_username)
@@ -86,6 +78,12 @@ spec:
         value: $(params.watson_studio_url)
       - name: CP4D_WSL_ACTION
         value: $(params.cp4d_wsl_action)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
 
   steps:
     - args:

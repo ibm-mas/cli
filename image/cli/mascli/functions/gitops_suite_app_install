@@ -151,7 +151,7 @@ function gitops_suite_app_install_noninteractive() {
 
   [[ -z "$ACCOUNT_ID" ]] && gitops_suite_app_install_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_suite_app_install_help "CLUSTER_ID is not set"
-  [[ -z "$REGION" ]] && gitops_cluster_help "REGION_ is not set"
+  [[ -z "$REGION" ]] && gitops_suite_app_install_help "REGION is not set"
 
 
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_suite_app_install_help "MAS_INSTANCE_ID is not set"
