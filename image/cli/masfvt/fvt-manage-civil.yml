@@ -24,7 +24,7 @@
     fvt_whitelist: "{{ lookup('env', 'FVT_WHITELIST') }}"
     
     # Pipeline Run Info
-    pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-mobile', True) }}"
+    pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-manage-civil', True) }}"
     pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
   tasks:
     - name: "Debug"

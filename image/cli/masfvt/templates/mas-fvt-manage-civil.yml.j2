@@ -5,10 +5,10 @@ metadata:
   name: "{{ pipelinerun_name }}"
   namespace: "{{ pipelinerun_namespace }}"
   labels:
-    tekton.dev/pipeline: mas-fvt-civil
+    tekton.dev/pipeline: mas-fvt-manage-civil
 spec:
   pipelineRef:
-    name: mas-fvt-civil
+    name: mas-fvt-manage-civil
 
   serviceAccountName: pipeline
   timeouts:
