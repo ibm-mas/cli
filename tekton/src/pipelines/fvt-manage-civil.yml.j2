@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: mas-fvt-civil
+  name: mas-fvt-manage-civil
 spec:
   workspaces:
     # The generated configuration files
@@ -33,23 +33,22 @@ spec:
     - name: fvt_image_registry
       type: string
       default: ""
+    - name: fvt_artifactory_username
+      type: string
+      default: ""
     - name: fvt_artifactory_token
       type: string
       default: ""
-    
+
     # FVT: Mobile Digests
     - name: fvt_digest_mobile_testng
       type: string
       default: ""
-
-    # FVT: Civil Manage Digests
+    
+    # Image Digests
     - name: fvt_digest_manage_civil_selenium
       type: string
-      default: "" 
-  
-  tasks:
-    # 2. Manage FVT - Manage Mobile
-    # -------------------------------------------------------------------------
-    
-    {{ lookup('template', 'taskdefs/fvt-civil/civil.yml.j2') | indent(4) }}
+      default: ""
 
+  tasks:
+    {{ lookup('template', 'taskdefs/fvt-manage-civil/civil.yml.j2') | indent(4) }}

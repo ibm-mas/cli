@@ -11,7 +11,8 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-civil-selenium
+    - fvt-manage-scheduler-scheduling-dashboard
+    - fvt-manage-scheduler-dispatching-dashboard
 
 # Manage FVT - HSE Setup
 - name: fvt-manage-hse-setup
@@ -26,7 +27,8 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-civil-selenium
+    - fvt-manage-scheduler-scheduling-dashboard
+    - fvt-manage-scheduler-dispatching-dashboard
 
 # Manage FVT - Nuclear Setup
 - name: fvt-manage-nuclear-setup
@@ -41,7 +43,8 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-civil-selenium
+    - fvt-manage-scheduler-scheduling-dashboard
+    - fvt-manage-scheduler-dispatching-dashboard
 
 # Manage FVT - Service Provider Setup
 - name: fvt-manage-serviceprovider-setup
@@ -56,7 +59,8 @@
     - name: fvt_test_driver
       value: tpae      
   runAfter:
-    - fvt-manage-civil-selenium
+    - fvt-manage-scheduler-scheduling-dashboard
+    - fvt-manage-scheduler-dispatching-dashboard
 
 # Manage FVT - Location Base Services - Setup
 - name: fvt-manage-lbs-setup
@@ -71,7 +75,8 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-civil-selenium
+    - fvt-manage-scheduler-scheduling-dashboard
+    - fvt-manage-scheduler-dispatching-dashboard
 
 # Manage FVT - Transportation Setup
 - name: fvt-manage-transportation-setup
@@ -86,4 +91,5 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-civil-selenium
+    - fvt-manage-scheduler-scheduling-dashboard
+    - fvt-manage-scheduler-dispatching-dashboard

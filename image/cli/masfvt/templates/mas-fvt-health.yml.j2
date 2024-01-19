@@ -1,0 +1,47 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: "{{ pipelinerun_name }}"
+  namespace: "{{ pipelinerun_namespace }}"
+  labels:
+    tekton.dev/pipeline: mas-fvt-health
+spec:
+  pipelineRef:
+    name: mas-fvt-health
+
+  serviceAccountName: pipeline
+  timeouts:
+    pipeline: "8h"
+
+  params:
+    # Pull Policy
+    - name: image_pull_policy
+      value: "{{ image_pull_policy }}"
+    # MAS Info
+    - name: mas_app_channel_manage
+      value: "{{ mas_app_channel_manage }}"
+    - name: mas_instance_id
+      value: "{{ mas_instance_id }}"
+    - name: mas_workspace_id
+      value: "{{ mas_workspace_id }}"
+    # Registry
+    - name: fvt_image_registry
+      value: "{{ fvt_image_registry }}"
+    - name: fvt_artifactory_username
+      value: "{{ fvt_artifactory_username }}"
+    - name: fvt_artifactory_token
+      value: "{{ fvt_artifactory_token }}"
+    # Digests
+    - name: fvt_digest_health_preparedata
+      value: "{{ fvt_digest_health_preparedata }}"
+    - name: fvt_digest_health_testng
+      value: "{{ fvt_digest_health_testng }}"
+    - name: fvt_digest_health_python
+      value: "{{ fvt_digest_health_python }}"
+
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+      persistentVolumeClaim:
+        claimName: config-pvc

@@ -31,14 +31,15 @@
         - install
         - install-with-fvt
         - fvt-assist
-        - fvt-civil
         - fvt-core
         - fvt-deprovision-after
+        - fvt-health
         - fvt-iot
         - fvt-manage
-        - fvt-mobile
+        - fvt-manage-civil
         - fvt-manage-is
         - fvt-manage-regr
+        - fvt-mobile
         - fvt-monitor
         - fvt-optimizer
         - fvt-predict
