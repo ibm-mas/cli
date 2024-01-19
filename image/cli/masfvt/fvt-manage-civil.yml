@@ -46,7 +46,7 @@
           - "fvt_blacklist ..................... {{ fvt_blacklist }}"
           - "fvt_whitelist ..................... {{ fvt_whitelist }}"
 
-    - name: "Start fvt-civil pipeline"
+    - name: "Start fvt-manage-civil pipeline"
       kubernetes.core.k8s:
         apply: true
         template: templates/mas-fvt-manage-civil.yml.j2
