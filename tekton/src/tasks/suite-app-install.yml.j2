@@ -126,3 +126,7 @@ spec:
         - suite_app_install
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
+
+  workspaces:
+    - name: pod-templates
+      optional: true
