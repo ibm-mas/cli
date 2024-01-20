@@ -58,19 +58,19 @@ spec:
         - name: MAS_CHANNEL
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-civil
+              name: mas-fvt-manage-civil
               key: MAS_CHANNEL
               optional: false
         - name: MAS_APP_CHANNEL_MANAGE
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-civil
+              name: mas-fvt-manage-civil
               key: MAS_APP_CHANNEL_MANAGE
               optional: false
         - name: MAS_WORKSPACE_ID
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-civil
+              name: mas-fvt-manage-civil
               key: MAS_WORKSPACE_ID
               optional: false
         
@@ -78,14 +78,14 @@ spec:
         - name: FVT_DIGEST_MOBILE_TESTNG
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-civil
+              name: mas-fvt-manage-civil
               key: FVT_DIGEST_MOBILE_TESTNG
               optional: false
 
         - name: FVT_DIGEST_MANAGE_CIVIL_SELENIUM
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-civil
+              name: mas-fvt-manage-civil
               key: FVT_DIGEST_MANAGE_CIVIL_SELENIUM
               optional: false
         
