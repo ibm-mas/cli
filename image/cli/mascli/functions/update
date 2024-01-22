@@ -92,9 +92,10 @@ function validate_existing_mongo() {
     # If existing MongoDb instance version is lower than the minimum version required, then let users know that Mongo will be upgraded
     if [ ! "$(printf '%s\n' "$MONGODB_TARGET_VERSION" "$MONGODB_CURRENT_VERSION" | sort -V | head -n1)" = "$MONGODB_TARGET_VERSION" ]; then
       echo
-      echo -e "${COLOR_YELLOW}MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and will be upgraded to version ${MONGODB_TARGET_VERSION}.${COLOR_RESET}"
-      echo -e "${COLOR_YELLOW}It is recommended that you backup your MongoDB instance before proceeding:${COLOR_RESET}"
-      echo -e "${COLOR_YELLOW}https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-backing-up-mongodb-maximo-application ${COLOR_RESET}"
+      echo -e "MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and will be upgraded to version ${MONGODB_TARGET_VERSION}"
+      echo
+      echo -e "It is recommended that you backup your MongoDB instance before proceeding:"
+      echo -e "${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-backing-up-mongodb-maximo-application${TEXT_RESET}"
       MONGODB_V5_UPGRADE=true
       echo
     fi
@@ -306,7 +307,6 @@ function update() {
   export MAS_CATALOG_VERSION
   export DB2_NAMESPACE
   export MONGODB_NAMESPACE
-  export MONGODB_STORAGE_CLASS
   export MONGODB_V5_UPGRADE
   export KAFKA_NAMESPACE
   export KAFKA_PROVIDER
