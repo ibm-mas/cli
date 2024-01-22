@@ -21,8 +21,6 @@ spec:
       type: string
     - name: github_host
       type: string
-    - name: github_pat
-      type: string
     - name: avp_aws_secret_region
       type: string
 
@@ -45,8 +43,6 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
-      - name: GITHUB_PAT
-        value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
     envFrom:

@@ -37,12 +37,10 @@ spec:
   steps:
     - args:
       - |-
-        mkdir -p /tmp/init-license      
-        echo "$LICENSE_FILE" >> /tmp/init-license/entitlement.lic
 
         mas gitops-license -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
-        --license-file /tmp/init-license/entitlement.lic
+        --license-file /workspace/shared-entitlement/entitlement.lic
       command:
         - /bin/sh
         - -c

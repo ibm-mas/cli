@@ -113,10 +113,6 @@ spec:
       type: string
     - name: ldap_certificate_file
       type: string
-    - name: ldap_bind_dn
-      type: string
-    - name: ldap_bind_password
-      type: string
     - name: cloud_provider
       type: string
       default: aws
@@ -250,6 +246,8 @@ spec:
           value: $(params.mas_config_dir)
         - name: cis_service_name
           value: $(params.cis_service_name)
+        - name: cluster_url
+          value: $(params.cluster_url)
       taskRef:
         kind: Task
         name: gitops-suite-dns
@@ -443,6 +441,8 @@ spec:
           value: $(params.github_pat)
         - name: cluster_url
           value: $(params.cluster_url)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
       taskRef:
         kind: Task
         name: gitops-suite-workspace
@@ -541,10 +541,11 @@ spec:
           value: $(params.ldap_userid_map)
         - name: ldap_certificate_file
           value: $(params.ldap_certificate_file)
-        - name: ldap_bind_dn
-          value: $(params.ldap_bind_dn)
-        - name: ldap_bind_password
-          value: $(params.ldap_bind_password)
+        # instance trigger level secret  
+        #- name: ldap_bind_dn
+        #  value: $(params.ldap_bind_dn)
+        #- name: ldap_bind_password
+        #  value: $(params.ldap_bind_password)
         - name: cluster_url
           value: $(params.cluster_url)
       taskRef:

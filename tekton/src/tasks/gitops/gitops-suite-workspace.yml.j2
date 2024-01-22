@@ -17,7 +17,6 @@ spec:
       type: string
     - name: workspace_name
       type: string
-      default: aws
     - name: git_branch
       type: string
     - name: github_org
@@ -29,6 +28,9 @@ spec:
     - name: cluster_url
       type: string
       default: ""
+    - name: avp_aws_secret_region
+      type: string
+
   stepTemplate:
     name: gitops-suite-workspace
     env:
@@ -52,6 +54,8 @@ spec:
         value: $(params.workspace_id)
       - name: WORKSPACE_NAME
         value: $(params.workspace_name)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
     envFrom:
       - configMapRef:
           name: environment-properties

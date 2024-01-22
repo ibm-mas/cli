@@ -35,15 +35,10 @@ spec:
       default: "True"
     - name: avp_aws_secret_region
       type: string
-    - name: cluster_url
-      type: string
-      default: ""
 
   stepTemplate:
     name: gitops-suite-certs
     env:
-      - name: OCP_SERVER
-        value: $(params.cluster_url)
       - name: DNS_PROVIDER
         value: $(params.dns_provider)
       - name: MAS_INSTANCE_ID
