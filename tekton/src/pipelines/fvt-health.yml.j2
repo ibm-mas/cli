@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: mas-fvt-manage-is
+  name: mas-fvt-health
 spec:
   workspaces:
     # The generated configuration files
@@ -38,14 +38,15 @@ spec:
       default: ""
 
     # Image Digests
-    - name: fvt_digest_manage
+    - name: fvt_digest_health_preparedata
+      type: string
+      default: ""
+    - name: fvt_digest_health_testng
+      type: string
+      default: ""
+    - name: fvt_digest_health_python
       type: string
       default: ""
 
   tasks:
-    {{ lookup('template', 'taskdefs/fvt-manage-is/phase0-aviation.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/phase1-scheduler.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/phase2-all-setup.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/phase3-all-user.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/phase4-all-test.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/phase5-maintmanager.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-health/health.yml.j2') | indent(4) }}

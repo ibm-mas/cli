@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-launchfvt-core
+  name: mas-launchfvt-manage-civil
 spec:
   params:
     # Control the image pull policy for the FVT container image
@@ -19,7 +19,7 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - ansible-playbook
-        - /masfvt/fvt-core.yml
+        - /masfvt/fvt-manage-civil.yml
       env:
         - name: IMAGE_PULL_POLICY
           value: $(params.image_pull_policy)
@@ -64,119 +64,52 @@ spec:
               key: FVT_ARTIFACTORY_TOKEN
               optional: false
 
-        # Lookups from mas-fvt-core
+        # Lookups from mas-fvt-manage
         # -----------------------------------------------------------------------
         # Framework Information
-        - name: MAS_CHANNEL
+        - name: MAS_APP_CHANNEL_MANAGE
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-core
-              key: MAS_CHANNEL
+              name: mas-fvt-manage
+              key: MAS_APP_CHANNEL_MANAGE
               optional: false
         - name: MAS_WORKSPACE_ID
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-core
+              name: mas-fvt-manage
               key: MAS_WORKSPACE_ID
               optional: false
         # Digests
-        - name: FVT_DIGEST_CORE
+        - name: FVT_DIGEST_MANAGE_CIVIL_SELENIUM
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-core
-              key: FVT_DIGEST_CORE
-              optional: false
-        - name: IVT_DIGEST_CORE
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-core
-              key: IVT_DIGEST_CORE
+              name: mas-fvt-manage-civil
+              key: FVT_DIGEST_MANAGE_CIVIL_SELENIUM
               optional: false
         # Black and white listing
         - name: FVT_BLACKLIST
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-core
+              name: mas-fvt-manage-civil
               key: FVT_BLACKLIST
               optional: false
         - name: FVT_WHITELIST
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-core
+              name: mas-fvt-manage-civil
               key: FVT_WHITELIST
-              optional: false
-        # Test Data
-        - name: DDP_APIKEY
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-core
-              key: DDP_APIKEY
-              optional: false
-        - name: PARTIUM_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-core
-              key: PARTIUM_USERNAME
-              optional: false
-        - name: PARTIUM_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-core
-              key: PARTIUM_PASSWORD
-              optional: false
-        - name: LDAP_URL
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-core
-              key: LDAP_URL
-              optional: false
-        - name: LDAP_BASE_DN
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-core
-              key: LDAP_BASE_DN
-              optional: false
-        - name: LDAP_BIND_DN
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-core
-              key: LDAP_BIND_DN
-              optional: false
-        - name: LDAP_BIND_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-core
-              key: LDAP_BIND_PASSWORD
-              optional: false
-        - name: LDAP_USER_MAP
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-core
-              key: LDAP_USER_MAP
-              optional: false
-        - name: LDAP_CERT_ALIAS
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-core
-              key: LDAP_CERT_ALIAS
-              optional: false
-        - name: LDAP_CRT
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-core
-              key: LDAP_CRT
               optional: false
 
     - name: wait-for-pipelinerun
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
-      # 65 retries at 10 minute intervals = just over 10 hours
+      # 60 retries at 10 minute intervals = 10 hours
       command:
         - /opt/app-root/src/wait-for-pipelinerun.sh
         - --delay
         - "600"
         - --max-retries
-        - "65"
+        - "60"
         - --ignore-failure
       env:
         - name: PIPELINERUN_NAME
