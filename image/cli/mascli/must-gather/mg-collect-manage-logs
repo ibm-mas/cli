@@ -26,23 +26,35 @@ mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files"
 # Copying files to folder
 oc cp $NAMESPACE/$POD_NAME:log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries=-1
 
+
 # Getting db2u Pod Files
 # =========================
 echo "- ${COLOR_BLUE} Getting db2u Pod Files${TEXT_RESET}"
-POD_NAME=$(oc -n db2u get pods -l "type=engine" -o jsonpath="{.items[*].metadata.name}")
+ NAMESPACE_LOOKUP=$(oc get namespace db2u --ignore-not-found)
+  if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
+    POD_NAME=$(oc -n $NAMESPACE_LOOKUP get pods -l "type=engine" -o jsonpath="{.items[*].metadata.name}")
+    for POD in ${POD_NAME[@]}; do
+      if [[ "$POD_NAME" == "" ]]; then
+        echo_warning "DB2U pod was not found"
+        exit 1
+      fi
+      # Creating folder(s)
+      INSTANCE_ID=$(echo ${NAMESPACE%-*})
+      INSTANCE_ID=$(echo ${INSTANCE_ID#*-})
+      APP=$(echo ${POD%-*}) #removing 2nd ID
+      APP=$(echo ${APP%-*}) #removing 1st ID
+        if [[ "$APP" == "$INSTANCE_ID" ]]; then
+          APP=$(echo ${POD%-*}) #removing 2nd ID
+        fi
+      # mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods/$APP/logs" #it will be overwritten when a new Pods folder will be created to keeps pods info (yaml, txt and logs)
+      mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE_LOOKUP/pods_files/$APP/files" 
 
-if [[ "$POD_NAME" == "" ]]; then
-  echo_warning "db2u pod was not found"
-  exit 1
-fi
-
-# Creating folder
-APP=$(echo ${POD_NAME%-*}) #removing 2nd ID
-APP=$(echo ${APP%-*}) #removing 1st ID
-mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files" 
-
-# Copying files to folder
-oc cp $NAMESPACE/$POD_NAME:log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries=-1
+      # Copying files to folder
+      oc cp $NAMESPACE_LOOKUP/$POD:logs $OUTPUT_DIR/resources/$NAMESPACE_LOOKUP/pods_files/$APP/files --retries=-1
+    done
+  else
+    echo_highlight "Unable to find db2u namespace"
+  fi
 
 
 # # Getting Server Bundle Pod Files
@@ -67,5 +79,5 @@ oc cp $NAMESPACE/$POD_NAME:log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/
 
 #   # Copying files to folder
 #   oc cp $NAMESPACE/$POD:logs $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries=-1
-done
+# done
 exit 0
