@@ -322,6 +322,24 @@ function mustgather() {
 
 
   # ---------------------------------------------------------------------------
+  # Cluster Pipeline Namespace (update pipeline)
+  # ---------------------------------------------------------------------------
+  NAMESPACE_LOOKUP=$(oc get namespace mas-pipelines --ignore-not-found)
+  if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
+    echo_h2 "Maximo Application Suite: Cluster"
+    startTimer
+    echo_h3 "Namespace: mas-pipelines"
+    echo
+    # MAS-specific must-gather
+    $MG_SCRIPT_DIR/mg-summary-mas-pipelines mas-pipelines &> ${OUTPUT_DIR}/mas-pipelines.txt
+    $MG_SCRIPT_DIR/mg-collect-mas-pipelines mas-pipelines $OUTPUT_DIR
+
+    genericMustGather mas-pipelines
+    endTimer "mas-pipelines"
+  fi
+
+
+  # ---------------------------------------------------------------------------
   # Extra Namespaces Must-Gather
   # ---------------------------------------------------------------------------
   if [[ "$EXTRA_NAMESPACES" != "" ]] && [[ "$SUMMARY_ONLY" == false ]]; then
