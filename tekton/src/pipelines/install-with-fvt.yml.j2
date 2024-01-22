@@ -487,6 +487,8 @@ spec:
     
     # 18. Application FVT - Manage Civil
     # -------------------------------------------------------------------------
+    # 22. Application FVT - Civil
+    # -------------------------------------------------------------------------
     - name: launchfvt-manage-civil
       params:
         - name: image_pull_policy
@@ -621,7 +623,6 @@ spec:
           values: ["true", "True"]
       runAfter:
         - launchfvt-manage
-
 
     # 25. SLS FVT
     # -------------------------------------------------------------------------
