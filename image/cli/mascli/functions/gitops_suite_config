@@ -271,46 +271,22 @@ function gitops_suite_config() {
 
   jq -r .info $MONGO_SECRET_FILE > $MONGO_CONFIG_FILE
 
-  # wait till SLS licenseservice is in ready state starts
-  wait_period=0
-  while true
-  do
-    wait_period=$(($wait_period+30))
-    if [ $wait_period -gt 600 ];then
-      echo_reset_dim "${COLOR_RED}SLS licenseservice is not  ready, exiting"
-      exit 1
-    else
-      sleep 30
-    fi
-    #export LICENSE_SERVICE_INITIALIZED_STATUS=`oc get licenseservice/sls -n mas-${MAS_INSTANCE_ID}-sls  -o=jsonpath="{.status.conditions[?(@.type=='Initialized')].status}"`
-    export LICENSE_SERVICE_READY_STATUS=`oc get licenseservices.sls.ibm.com/sls -n mas-${MAS_INSTANCE_ID}-sls  -o=jsonpath="{.status.conditions[?(@.type=='Ready')].status}"`
-    echo "LICENSE_SERVICE_INITIALIZED_STATUS .... ${COLOR_MAGENTA}${LICENSE_SERVICE_INITIALIZED_STATUS}"
-    echo "LICENSE_SERVICE_READY_STATUS .......... ${COLOR_MAGENTA}${LICENSE_SERVICE_READY_STATUS}"
-    if [[ "$LICENSE_SERVICE_READY_STATUS" == "True" ]]; then
-      break
-    fi
-  done
-  # wait till SLS licenseservice is in ready state done
 
   # Get the instance-level values to used
   # ---------------------------------------------------------------------------
-  #Need to get the sls CA certificate and the sls registration key from sls-suite-registration configmap
-  # We could move this into a pre-sync job maybe so that changes in sls can be synced with the config via argo
-  export SLS_REGISTRATION_KEY=$(oc get cm sls-suite-registration -n mas-${MAS_INSTANCE_ID}-sls -o jsonpath='{.data.registrationKey}')
-  export SLS_CA_CERTIFICATE=$(oc get cm sls-suite-registration -n mas-${MAS_INSTANCE_ID}-sls -o jsonpath='{.data.ca}')
+  # Instead of being fetched via oc here, SLS registration key and ca.certs are now put to secrets manager by post-sync job on ibm-sls chart
+
   export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
   export SECRET_KEY_MONGO_USERNAME=${SECRET_NAME_MONGO}#username
   export SECRET_KEY_MONGO_PASSWORD=${SECRET_NAME_MONGO}#password
 
-  # Instance-level secrets to create
-  # ---------------------------------------------------------------------------
   export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls
   export SECRET_KEY_SLS_REGISTRATION_KEY=${SECRET_NAME_SLS}#registration_key
 
-  # Create SLS Registration key for this MAS Instance
-  # ---------------------------------------------------------------------------
-  echo " $SECRET_NAME_SLS "{\"registration_key\": \"$SLS_REGISTRATION_KEY\"}""
-  sm_update_secret $SECRET_NAME_SLS "{\"registration_key\": \"$SLS_REGISTRATION_KEY\" }"
+  # SECRET_KEY_SLS_CA isn't really a secret 
+  # (we just use SM as a means for passing this runtime-generated value from the cluster as a workaround for the fact that we cannot interact with the cluster directly here),
+  # so we can safely fetch it here and embed its value  in the SLS config in plaintext (which makes it easier to render it in the SLS chart as properly indented YAML)
+  export SLS_CA_CERTIFICATE=$(sm_get_secret_value ${SECRET_NAME_SLS} "ca_b64" | base64 -d)
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
@@ -365,6 +341,7 @@ function gitops_suite_config() {
     # Wait for SLS to sync and become healthy
     check_argo_app_synced "${SLS_APP_NAME}" "${INSTANCE_ROOT_APP}" mas-${MAS_INSTANCE_ID}-sls
     check_argo_app_healthy "${SLS_APP_NAME}" "${INSTANCE_ROOT_APP}"
+
 
     # Wait for Suite to become healthy
     # health check of suite will be done in gitops_suite_config (suite will not be healthy until core configs are established)
