@@ -100,6 +100,30 @@ function validate_existing_mongo() {
   fi
 }
 
+# Auto-detect Grafana
+# -----------------------------------------------------------------------------
+# Detects whether Grafana V4 Operator is in the target cluster and prints a 
+# warning message if the Grafana Operator will be updated to V5
+
+function detect_grafana_update() {
+
+  # We just check the Grafana Operator version and warn about Grafana upgrade if MAS catalog is more recent than February 2024
+  MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
+
+  if [[ $MAS_CATALOG_DATE -ge 240201 ]]; then #TODO set this value to the february release catalog date when it is known.
+    # This catalog version should install grafana operator V5 so check if V4 is installed.
+
+    # See if the Grafana Operator v4 api versions are supported in the cluster
+    if [[ "$(oc api-versions | grep '^integreatly.org/v1alpha1$'| wc -l)" -gt 0 ]]; then
+      echo
+      echo -e "${COLOR_YELLOW}Grafana Operator V4 is currently installed and will be updated to V5. ${COLOR_RESET}"
+      echo -e "${COLOR_YELLOW}You will need a new web address and password for Grafana. ${COLOR_RESET}"
+      echo
+      GRAFANA_V5_UPGRADE=true
+    fi
+  fi
+}
+
 # Validate Selected Catalog
 # -----------------------------------------------------------------------------
 # Validates that the selected catalog version is one that is suitable to use
@@ -140,6 +164,9 @@ function validate_update() {
       fi
     fi
   fi
+
+  # Confirm Grafana Operator upgrade
+  detect_grafana_update
 
   # Lookup for OCP console route
   if [[ -z "$OCP_CONSOLE_ROUTE" ]]; then
@@ -311,6 +338,7 @@ function update() {
   export KAFKA_PROVIDER
   export CERT_MANAGER_PROVIDER
   export CERT_MANAGER_ACTION
+  export GRAFANA_V5_UPGRADE
 
   echo_h2 "Review Settings"
 
@@ -357,6 +385,11 @@ function update() {
     echo_reset_dim "Kafka ($KAFKA_PROVIDER_NAME ${COLOR_GREEN}Yes ($KAFKA_NAMESPACE)${TEXT_RESET}"
   else
     echo_reset_dim "Kafka ...................................... ${COLOR_RED}No${TEXT_RESET}"
+  fi
+
+  # Grafana Operator
+  if [ "$GRAFANA_V5_UPGRADE" == true ]; then
+    echo_reset_dim "Grafana Operator V5 ........................ ${COLOR_GREEN}Yes (grafanav5)${TEXT_RESET}"
   fi
 
   # In SLS 3.8.0 registry was changed to icr.io/cpopen, however

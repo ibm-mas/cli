@@ -31,7 +31,7 @@ tekton/test-install.sh
 ```bash
 # Build & install ansible collections, save them to image/cli/, build the docker container, then run the container
 make
-docker run -ti --rm quay.io/ibmmas:local
+docker run -ti --rm quay.io/ibmmas/cli:local
 ```
 
 
