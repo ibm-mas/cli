@@ -136,6 +136,51 @@ spec:
             key: FVT_WHITELIST_IS
             optional: false
 
+      # Test Data
+      - name: LDAP_URL
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: LDAP_URL
+            optional: false
+      - name: LDAP_BASE_DN
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: LDAP_BASE_DN
+            optional: false
+      - name: LDAP_BIND_DN
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: LDAP_BIND_DN
+            optional: false
+      - name: LDAP_BIND_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: LDAP_BIND_PASSWORD
+            optional: false
+      - name: LDAP_USER_MAP
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: LDAP_USER_MAP
+            optional: false
+      - name: LDAP_CERT_ALIAS
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: LDAP_CERT_ALIAS
+            optional: false
+      - name: LDAP_CRT
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: LDAP_CRT
+            optional: false
+
+
   steps:
     - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
