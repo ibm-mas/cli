@@ -1,0 +1,16 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a QoS class of Guaranteed. More can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
+podTemplates:
+  - name: monagent-iot
+    containers:
+      - name: monagent-iot
+        resources:
+          requests:
+            cpu: 0.5
+            memory: 512Mi
+          limits:
+            cpu: 0.5
+            memory: 512Mi
