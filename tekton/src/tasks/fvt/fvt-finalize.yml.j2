@@ -16,3 +16,23 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
       env:
         {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(8) }}
+
+        # The following optional environment variables enable reporting of FVT results via Slack
+        - name: FVT_SLACK_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FVT_SLACK_TOKEN
+              optional: true
+        - name: FVT_SLACK_CHANNEL
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FVT_SLACK_CHANNEL
+              optional: true
+        - name: FVT_JIRA_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FVT_JIRA_TOKEN
+              optional: true

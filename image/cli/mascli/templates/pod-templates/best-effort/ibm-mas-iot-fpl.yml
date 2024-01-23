@@ -1,0 +1,24 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a QoS class of BestEffort. More can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
+podTemplates:
+  - name: api-pipeline
+    containers:
+      - name: api-pipeline
+        resources: {}
+  - name: deprovagent-fpl
+    containers:
+      - name: deprovagent-fpl
+        resources: {}
+  - name: functionsexecutor
+    containers:
+      - name: functionsexecutor
+        resources: {}
+      - name: statsd
+        resources: {}
+  - name: pipelinerouter
+    containers:
+      - name: pipelinerouter
+        resources: {}
