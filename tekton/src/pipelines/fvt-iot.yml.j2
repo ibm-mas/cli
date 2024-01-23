@@ -8,6 +8,8 @@ spec:
   workspaces:
     # The generated configuration files
     - name: shared-configs
+    # PodTemplates configurations
+    - name: shared-pod-templates
 
   params:
     # Tekton Pipeline image pull policy (for ibmmas/cli images)
@@ -112,3 +114,5 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
+        - name: pod-templates
+          workspace: shared-pod-templates
