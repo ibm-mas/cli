@@ -149,7 +149,9 @@ function gitops_db2u() {
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}
 
   export DB2_NAMESPACE=db2u
-  export DB2_CHANNEL=${DB2_CHANNEL:-`oc get PackageManifest db2u-operator -n ibm-common-services  -o=jsonpath="{.status.defaultChannel}"`}
+
+
+
 
   echo
   reset_colors
@@ -190,11 +192,7 @@ function gitops_db2u() {
   fi
   reset_colors
 
-  echo "${TEXT_DIM}"
-  echo_h2 "DB2u Operator" "    "
-  echo_reset_dim "DB2_NAMESPACE  .......................... ${COLOR_MAGENTA}${DB2_NAMESPACE}"
-  echo_reset_dim "DB2_CHANNEL  ............................ ${COLOR_MAGENTA}${DB2_CHANNEL}"
-  reset_colors
+
 
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-db2u
@@ -205,6 +203,22 @@ function gitops_db2u() {
   # ---------------------------------------------------------------------------
   # Note that this cluster-level secret is set up by gitops-cluster
   export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
+  
+
+  # If DB2_CHANNEL has not been specified, fetch the default set in secrets manager by the postsync job on ibm-common-services
+  if [[ -z "${DB2_CHANNEL}" ]]; then
+    echo "DB2_CHANNEL not specified, fetching from secrets manager"
+    AVP_TYPE=aws  # Support for IBM will be added later
+    sm_login
+    export SECRET_NAME_DB2_DEFAULT_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}db2_default_channel
+    export DB2_CHANNEL=$(sm_get_secret_value ${SECRET_NAME_DB2_DEFAULT_CHANNEL} "db2_default_channel")
+  fi
+
+  echo "${TEXT_DIM}"
+  echo_h2 "DB2u Operator" "    "
+  echo_reset_dim "DB2_NAMESPACE  .......................... ${COLOR_MAGENTA}${DB2_NAMESPACE}"
+  echo_reset_dim "DB2_CHANNEL  ............................ ${COLOR_MAGENTA}${DB2_CHANNEL}"
+  reset_colors
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
