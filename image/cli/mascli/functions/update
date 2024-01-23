@@ -115,10 +115,50 @@ function validate_dro_migration(){
     if [[ -n $UDS_CSV ]]; then
       UDS_STATUS=`oc get csv -n "${UDS_NAMESPACE}" "${UDS_CSV}" -o jsonpath='{.status.phase}'`
       if [[ $UDS_STATUS = *'Succeeded'* ]]; then
-        DRO_MIGRATION="true"
         echo -e "${COLOR_YELLOW}UDS is currently running in namespace ${UDS_NAMESPACE}."
-        echo -e "${COLOR_YELLOW}The existing UDS will be uninstalled and migrated to DRO (Data Reporter Operator).${COLOR_RESET}"
+        echo -e " UDS will be uninstalled and MAS will migrate to use DRO (Data Reporter Operator). All compatible bascfg configuration will be updated and configured to use DRO ${COLOR_RESET}"
         echo
+        prompt_for_confirm_default_yes "Do you want to proceed with uninstalling UDS and migrate to DRO?" DRO_MIGRATION
+        if [[ "$DRO_MIGRATION" == "true" ]]; then
+          DRO_MIGRATION="true"
+          ## Check all avaliable Suite Instances versions , if any of them is 8.9.x cancel the dro migration. Exit mas update throw error. 
+          for suite_namespace in $(oc get Suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
+          do
+            echo "Suite namespace: ${suite_namespace}"
+            suite_name=`oc get Suite -n ${suite_namespace}  -o NAME`
+            suite_version=`oc get ${suite_name} -n ${suite_namespace} -o jsonpath='{.status.versions.reconciled}'`
+            echo "Suite version: ${suite_version}"
+            if [[ $suite_version = 9.* ]] || [[ $suite_version = 8.11.* ]] || [[ $suite_version = 8.10.* ]]
+            then
+              echo -e "${COLOR_YELLOW}${suite_namespace} with MAS version ${suite_version} is compatible for DRO migration"
+              
+              ## Check if the BASCFG url has a local UDS on all instances, if not then exit and throw error 
+              bascfg_name=`oc get BasCfg -n ${suite_namespace} -o NAME`
+              echo "BAScfg name: ${bascfg_name}"
+              bas_url=`oc get ${bascfg_name} -n ${suite_namespace} -o jsonpath='{.spec.config.url}'`
+              echo "BAS url: ${bas_url}"
+
+              uds_url=`oc get route uds-endpoint -n ibm-common-services -o jsonpath='{.spec.host}'`
+              echo "UDS url: ${uds_url}"
+              if [[ -z ${uds_url} ]]
+              then 
+                echo -e "${COLOR_RED}UDS route is empty, Please fix your UDS installation to proceed with DRO migration. exiting mas update"
+                exit 1
+              fi
+              if [[ ${bas_url} == *${uds_url}* ]]
+              then
+                echo -e "${COLOR_YELLOW}${suite_namespace} is using a compatible UDS"
+              else
+                echo -e "${COLOR_RED}${suite_namespace} appears to use a Remote UDS that is not running locally on this cluster. This setup is not compatible for DRO migration, exiting mas update"
+                exit 1
+              fi
+            else
+              echo -e "${COLOR_RED}${suite_namespace} with MAS version ${suite_version} is not compatible for DRO migration, exiting mas update"
+              exit 1
+            fi
+            echo
+          done
+        fi
       else
         DRO_MIGRATION="false"
       fi
