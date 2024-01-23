@@ -1,0 +1,70 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a QoS class of Guaranteed. More can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
+podTemplates:
+  - name: api-resourcecontroller
+    containers:
+      - name: api-resourcecontroller
+        resources:
+          requests:
+            cpu: 1
+            memory: 2Gi
+          limits:
+            cpu: 1
+            memory: 2Gi
+      - name: statsd
+        resources:
+          requests:
+            cpu: 0.2
+            memory: 512Mi
+          limits:
+            cpu: 0.2
+            memory: 512Mi
+  - name: api-s2s
+    containers:
+      - name: api-s2s
+        resources:
+          requests:
+            cpu: 1
+            memory: 2Gi
+          limits:
+            cpu: 1
+            memory: 2Gi
+      - name: statsd
+        resources:
+          requests:
+            cpu: 0.2
+            memory: 512Mi
+          limits:
+            cpu: 0.2
+            memory: 512Mi
+  - name: deprovagent-provision
+    containers:
+      - name: deprovagent-provision
+        resources:
+          requests:
+            cpu: 0.25
+            memory: 256Mi
+          limits:
+            cpu: 0.25
+            memory: 256Mi
+  - name: s2s-store
+    containers:
+      - name: s2s-store
+        resources:
+          requests:
+            cpu: 1
+            memory: 2Gi
+          limits:
+            cpu: 1
+            memory: 2Gi
+      - name: statsd
+        resources:
+          requests:
+            cpu: 0.2
+            memory: 512Mi
+          limits:
+            cpu: 0.2
+            memory: 512Mi
