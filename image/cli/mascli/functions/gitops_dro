@@ -262,8 +262,5 @@ function gitops_dro() {
 
   # Get generated DRO API Token and set it in AWS SM
   # ---------------------------------------------------------------------------
-  export SECRET_NAME_DRO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro
-  export DRO_API_TOKEN=$(oc get secret ibm-data-reporter-operator-api-token -n ${DRO_NAMESPACE} -o jsonpath='{.data.token}' | base64 -d ; echo)
-  export SECRET_KEY_DRO_API_TOKEN=${SECRET_NAME_DRO}#dro_api_token
-  sm_update_secret $SECRET_NAME_DRO "{\"dro_api_token\": \"$DRO_API_TOKEN\" }"
+  # This is now handled by a postsync job in the ibm-dro chart
 }
