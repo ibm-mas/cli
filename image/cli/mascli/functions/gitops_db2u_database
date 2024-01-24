@@ -285,28 +285,6 @@ function gitops_db2u_database_noninteractive() {
 
 }
 
-function wait_for_db2ucluster_crd(){
-  # wait till CRD db2uclusters.db2u.databases.ibm.com NamesAccepted=True STARTS  
-  wait_period=0
-  while true
-  do
-    wait_period=$(($wait_period+10))
-    if [ $wait_period -gt 300 ];then
-      echo_reset_dim "${COLOR_RED}CRD db2uclusters.db2u.databases.ibm.com is not ready with in 300 sec, exiting"
-      exit 1
-    else
-      sleep 10
-    fi
-    export DB2_CRD_NAMES_ACCEPTED_STATUS=`oc get crd  db2uclusters.db2u.databases.ibm.com -o=jsonpath="{.status.conditions[?(@.type=='NamesAccepted')].status}"`
-    echo_reset_dim "DB2_CRD_NAMES_ACCEPTED_STATUS .... ${COLOR_MAGENTA}${DB2_CRD_NAMES_ACCEPTED_STATUS}"
-
-    if [[ "$DB2_CRD_NAMES_ACCEPTED_STATUS" == "True" ]]; then
-      break
-    fi
-  done  
-  # wait till CRD db2uclusters.db2u.databases.ibm.com NamesAccepted=True DONE
-}
-
 # Invoke suite_db2_setup_for_manage
 function invoke_suite_db2_setup_for_manage(){
   # This should really be in the manage operator
@@ -466,12 +444,6 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   # by default db2 internal is true, set it to false if db2 is external
   export DB2_INTERNAL=${DB2_INTERNAL:-"true"}
-  export WHOAMI=`oc whoami`
-  if [[ -z ${WHOAMI} ]]; then
-    echo_reset_dim "${COLOR_RED} Please do 'oc login' to the cluster DB2 is to be installed on"
-    exit 1
-  fi
-  export CLUSTER_DOMAIN=`oc get ingress.config.openshift.io  cluster -o=jsonpath='{.spec.domain}'`
 
   echo
   reset_colors
@@ -548,7 +520,6 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "db2-cpu-limits  ......................... ${COLOR_MAGENTA}${DB2_CPU_LIMITS}"
   echo_reset_dim "db2-memory-requests  .................... ${COLOR_MAGENTA}${DB2_MEMORY_REQUESTS}"
   echo_reset_dim "db2-memory-limits  ...................... ${COLOR_MAGENTA}${DB2_MEMORY_LIMITS}"
-  echo_reset_dim "cluster_domain .......................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   echo_reset_dim "db2-instance-registry-yaml .............. ${COLOR_MAGENTA}${DB2_INSTANCE_REGISTRY_YAML}"
   echo_reset_dim "db2-instance-dbm-config-yaml ............ ${COLOR_MAGENTA}${DB2_INSTANCE_DBM_CONFIG_YAML}"
   echo_reset_dim "db2-database-db-config-yaml ............. ${COLOR_MAGENTA}${DB2_DATABASE_DB_CONFIG_YAML}"
@@ -556,6 +527,21 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
+
+
+  # Set by postsync job in ibm-common-services chart
+  # This is a workaround for the fact that we cannot interact with the cluster directly (see https://jsw.ibm.com/browse/MASCORE-1425)
+  # NOTE: this isn't a secret value, so it's safe to fetch it here and embed it in our config in the clear
+  echo "Fetching cluster domain from Secrets manager"
+  export CLUSTER_DOMAIN=`oc get ingress.config.openshift.io  cluster -o=jsonpath='{.spec.domain}'`
+  export SECRET_NAME_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain
+  export CLUSTER_DOMAIN=$(sm_get_secret_value ${SECRET_NAME_CLUSTER_DOMAIN} "cluster_domain")
+  echo "cluster domain: ${CLUSTER_DOMAIN}"
+  if [[ -z "${CLUSTER_DOMAIN}" ]]; then
+    echo "Failed to fetch cluster domain from secrets manager"
+    exit
+  fi
+
 
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-db2u-database
@@ -592,7 +578,10 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   mkdir -p ${GITOPS_INSTANCE_DIR}
 
   # wait till CRD db2uclusters.db2u.databases.ibm.com NamesAccepted=True 
-  wait_for_db2ucluster_crd
+  # This is now performed as a presync hook in the ibm-db2u-database chart
+  # as a workaround for the fact that we can no longer directly call the cluster
+  # See: https://jsw.ibm.com/browse/MASCORE-1425
+  # wait_for_db2ucluster_crd
 
   GITOPS_TMP_DIR=${GITOPS_CLUSTER_DIR}/tmp
   mkdir -p ${GITOPS_TMP_DIR}
@@ -644,6 +633,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   
   
   
+  exit 0 # TODO: replace below with post sync job
   
   echo "DB2CFG_SETTINGS_APPLIED= ${DB2CFG_SETTINGS_APPLIED} FILES_ADDED= ${FILES_ADDED} DB2_INTERNAL=${DB2_INTERNAL} MAS_APP_ID=${MAS_APP_ID}"  
   # Run specific setupcmds for Manage only if we have made changes.
