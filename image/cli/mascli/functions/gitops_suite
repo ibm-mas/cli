@@ -264,8 +264,11 @@ function gitops_suite() {
   # ---------------------------------------------------------------------------
   # Note that this cluster-level secret is set up by gitops-cluster
   export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
-  export SECRET_KEY_AWS_ACCESS_KEY_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}aws#sm_aws_access_key_id
-  export SECRET_KEY_AWS_SECRET_ACCESS_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}aws#sm_aws_secret_access_key
+  
+  export SECRET_NAME_AWS_ACCESS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}aws
+  export SECRET_KEY_AWS_ACCESS_KEY_ID=${SECRET_NAME_AWS_ACCESS}#sm_aws_access_key_id
+  export SECRET_KEY_AWS_SECRET_ACCESS_KEY=${SECRET_NAME_AWS_ACCESS}#sm_aws_secret_access_key
+  sm_update_secret ${SECRET_NAME_AWS_ACCESS} "{\"sm_aws_access_key_id\": \"$SM_AWS_ACCESS_KEY_ID\", \"sm_aws_secret_access_key\": \"$SM_AWS_SECRET_ACCESS_KEY\"}"
 
   # Get the cluster-level secrets used
   # ---------------------------------------------------------------------------
