@@ -23,9 +23,6 @@ spec:
     - name: mas_app_channel_manage
       type: string
       default: ""
-    - name: mas_appws_components
-      type: string
-      default: ""
     - name: mas_instance_id
       type: string
       default: ""
@@ -159,9 +156,6 @@ spec:
         - name: artifactory_token
           value: $(params.fvt_artifactory_token)
 
-        - name: mas_appws_components
-          value: $(params.mas_appws_components)
-
         - name: fvt_test_suite
           value: optimizer-manage-user
         - name: fvt_mas_appws_component
@@ -207,8 +201,6 @@ spec:
           value: ibm-mas-optimizer
         - name: artifactory_token
           value: $(params.fvt_artifactory_token)
-        - name: mas_appws_components
-          value: $(params.mas_appws_components)
         - name: fvt_test_suite
           value: optimizer-manage-setup
         - name: fvt_mas_appws_component
@@ -253,8 +245,6 @@ spec:
           value: ibm-mas-optimizer
         - name: artifactory_token
           value: $(params.fvt_artifactory_token)
-        - name: mas_appws_components
-          value: $(params.mas_appws_components)
         - name: fvt_test_suite
           value: optimizer-gs-resource-leveling
         - name: fvt_mas_appws_component

@@ -16,21 +16,17 @@
   type: string
   description: FVT Digest - IoT
   default: ""
+- name: fvt_digest_manage
+  type: string
+  description: FVT Digest - Manage
+  default: ""
+- name: fvt_digest_manage_civil_selenium
+  type: string
+  description: FVT Digest - Manage Civil
+  default: ""
 - name: fvt_digest_ctf
   type: string
   description: FVT Digest - Common Test Framework (Predict, Monitor, Optimizer, Visual Inspection)
-  default: ""
-- name: fvt_digest_hputilities_preparedata
-  type: string
-  description: FVT Digest - Health & Predict Utilities - Preparedata
-  default: ""
-- name: fvt_digest_hputilities_testng
-  type: string
-  description: FVT Digest - Health & Predict Utilities - Testng
-  default: ""
-- name: fvt_digest_hputilities_python
-  type: string
-  description: FVT Digest - Health & Predict Utilities - Python
   default: ""
 - name: fvt_digest_health_preparedata
   type: string
@@ -49,12 +45,6 @@
   description: FVT Digest - Optimizer
   default: ""
 
-# FVT Digests - Required for Manage x Monitor IVT suite (until it's moved into it's own pipeline)
-- name: fvt_digest_manage
-  type: string
-  description: FVT Digest - Manage
-  default: ""
-
 # IVT Digests
 - name: ivt_digest_core
   type: string
@@ -71,14 +61,4 @@
 - name: fvt_digest_data_dictionary
   type: string
   description: Data Dictionary Digest
-  default: ""
-
-# Where are these used?
-- name: fvt_test_driver
-  type: string
-  description: FVT Driver for Manage - graphite/tpae
-  default: ""
-- name: fvt_test_graphite_url
-  type: string
-  description: FVT Graphite Driver URL for Manage
   default: ""

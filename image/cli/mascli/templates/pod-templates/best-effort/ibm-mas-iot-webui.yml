@@ -1,0 +1,22 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a QoS class of BestEffort. More can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
+podTemplates:
+  - name: api-dashboard
+    containers:
+      - name: api-dashboard
+        resources: {}
+      - name: statsd
+        resources: {}
+  - name: dashboard
+    containers:
+      - name: dashboard
+        resources: {}
+      - name: statsd
+        resources: {}
+  - name: deprovagent-webui
+    containers:
+      - name: deprovagent-webui
+        resources: {}

@@ -1,0 +1,126 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a QoS class of Guaranteed. More can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
+podTemplates:
+  - name: api-organizations
+    containers:
+      - name: api-organizations
+        resources:
+          requests:
+            cpu: 2
+            memory: 2Gi
+          limits:
+            cpu: 2
+            memory: 2Gi
+      - name: statsd
+        resources:
+          requests:
+            cpu: 0.2
+            memory: 512Mi
+          limits:
+            cpu: 0.2
+            memory: 512Mi
+  - name: config-store
+    containers:
+      - name: config-store
+        resources:
+          requests:
+            cpu: 2
+            memory: 2Gi
+          limits:
+            cpu: 2
+            memory: 2Gi
+      - name: statsd
+        resources:
+          requests:
+            cpu: 0.2
+            memory: 512Mi
+          limits:
+            cpu: 0.2
+            memory: 512Mi
+  - name: deprovagent-orgmgmt
+    containers:
+      - name: deprovagent-orgmgmt
+        resources:
+          requests:
+            cpu: 2
+            memory: 2Gi
+          limits:
+            cpu: 2
+            memory: 2Gi
+  - name: monagent-org
+    containers:
+      - name: monagent-org
+        resources:
+          requests:
+            cpu: 2
+            memory: 2Gi
+          limits:
+            cpu: 2
+            memory: 2Gi
+      - name: statsd
+        resources:
+          requests:
+            cpu: 0.2
+            memory: 512Mi
+          limits:
+            cpu: 0.2
+            memory: 512Mi
+  - name: org-store
+    containers:
+      - name: org-store
+        resources:
+          requests:
+            cpu: 2
+            memory: 2Gi
+          limits:
+            cpu: 2
+            memory: 2Gi
+      - name: statsd
+        resources:
+          requests:
+            cpu: 0.2
+            memory: 512Mi
+          limits:
+            cpu: 0.2
+            memory: 512Mi
+  - name: orgdeprovmgr
+    containers:
+      - name: orgdeprovmgr
+        resources:
+          requests:
+            cpu: 2
+            memory: 2Gi
+          limits:
+            cpu: 2
+            memory: 2Gi
+  - name: orgpoolmgr
+    containers:
+      - name: orgpoolmgr
+        resources:
+          requests:
+            cpu: 2
+            memory: 2Gi
+          limits:
+            cpu: 2
+            memory: 2Gi
+      - name: statsd
+        resources:
+          requests:
+            cpu: 0.2
+            memory: 512Mi
+          limits:
+            cpu: 0.2
+            memory: 512Mi
+  - name: orgprovmgr
+    containers:
+      - name: orgprovmgr
+        resources:
+          requests:
+            cpu: 2
+            memory: 2Gi
+          limits:
+            cpu: 2
+            memory: 2Gi
