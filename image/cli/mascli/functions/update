@@ -18,6 +18,7 @@ Update Dependencies (Optional):
   --mongodb-v5-upgrade ${COLOR_YELLOW}MONGODB_V5_UPGRADE${TEXT_RESET} Confirms that Mongo can be upgraded to version 5 if needed as part of the update
   --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}       Namespace where Kafka operator and instance will be updated
   --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}         Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), or 'strimzi'
+  --dro-migration  ${COLOR_YELLOW}DRO_MIGRATION${TEXT_RESET}          Enable DRO Migration, By passing this flag, you will be enabling and setting DRO_MIGRATION to true
 
 Other Commands:
       --no-confirm                      Launch the update without prompting for confirmation
@@ -108,46 +109,50 @@ function validate_dro_migration(){
   MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
 
   if [[ $MAS_CATALOG_DATE -ge 231228 ]]; then
-    echo -e "${COLOR_YELLOW}Verifing UDS status..."
+    echo -e "${COLOR_YELLOW}Verifing UDS status."
     # If Jan catalog is detected, set DRO_MIGRATION Flag to True
     UDS_NAMESPACE="ibm-common-services"
     UDS_CSV=`oc get csv -n "${UDS_NAMESPACE}" | grep user-data-services  | awk '{print $1}'`
+    
     if [[ -n $UDS_CSV ]]; then
       UDS_STATUS=`oc get csv -n "${UDS_NAMESPACE}" "${UDS_CSV}" -o jsonpath='{.status.phase}'`
+      
       if [[ $UDS_STATUS = *'Succeeded'* ]]; then
         echo -e "${COLOR_YELLOW}UDS is currently running in namespace ${UDS_NAMESPACE}."
-        echo -e " UDS will be uninstalled and MAS will migrate to use DRO (Data Reporter Operator). All compatible bascfg configuration will be updated and configured to use DRO ${COLOR_RESET}"
+        echo -e "UDS will be uninstalled and MAS will migrate to use DRO (Data Reporter Operator). All compatible bascfg configuration will be updated and configured to use DRO ${COLOR_RESET}"
         echo
-        prompt_for_confirm_default_yes "Do you want to proceed with uninstalling UDS and migrate to DRO?" DRO_MIGRATION
+        
+        if [[ "$NO_CONFIRM" != "true" ]]; then
+          prompt_for_confirm_default_yes "Do you want to proceed with uninstalling UDS and migrate to DRO?" DRO_MIGRATION
+        fi
+        
         if [[ "$DRO_MIGRATION" == "true" ]]; then
           DRO_MIGRATION="true"
+          
           ## Check all avaliable Suite Instances versions , if any of them is 8.9.x cancel the dro migration. Exit mas update throw error. 
           for suite_namespace in $(oc get Suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
           do
-            echo "Suite namespace: ${suite_namespace}"
             suite_name=`oc get Suite -n ${suite_namespace}  -o NAME`
             suite_version=`oc get ${suite_name} -n ${suite_namespace} -o jsonpath='{.status.versions.reconciled}'`
-            echo "Suite version: ${suite_version}"
+            
             if [[ $suite_version = 9.* ]] || [[ $suite_version = 8.11.* ]] || [[ $suite_version = 8.10.* ]]
             then
               echo -e "${COLOR_YELLOW}${suite_namespace} with MAS version ${suite_version} is compatible for DRO migration"
               
               ## Check if the BASCFG url has a local UDS on all instances, if not then exit and throw error 
               bascfg_name=`oc get BasCfg -n ${suite_namespace} -o NAME`
-              echo "BAScfg name: ${bascfg_name}"
               bas_url=`oc get ${bascfg_name} -n ${suite_namespace} -o jsonpath='{.spec.config.url}'`
-              echo "BAS url: ${bas_url}"
-
               uds_url=`oc get route uds-endpoint -n ibm-common-services -o jsonpath='{.spec.host}'`
-              echo "UDS url: ${uds_url}"
+              
               if [[ -z ${uds_url} ]]
               then 
-                echo -e "${COLOR_RED}UDS route is empty, Please fix your UDS installation to proceed with DRO migration. exiting mas update"
+                echo -e "${COLOR_RED}UDS route is empty, Please fix your UDS installation to proceed with DRO migration, exiting mas update"
                 exit 1
               fi
+              
               if [[ ${bas_url} == *${uds_url}* ]]
               then
-                echo -e "${COLOR_YELLOW}${suite_namespace} is using a compatible UDS"
+                echo -e "${COLOR_YELLOW}UDS Configuration on ${suite_namespace} is compatible for DRO migration"
               else
                 echo -e "${COLOR_RED}${suite_namespace} appears to use a Remote UDS that is not running locally on this cluster. This setup is not compatible for DRO migration, exiting mas update"
                 exit 1
@@ -161,9 +166,12 @@ function validate_dro_migration(){
         fi
       else
         DRO_MIGRATION="false"
+        echo -e "${COLOR_YELLO}UDS Migration is set to false."
       fi
     else 
       DRO_MIGRATION="false"
+      echo -e "${COLOR_RED}UDS is not running locally on the cluster. Please fix your UDS installation to proceed with DRO migration, exiting mas update"
+      exit 1
     fi
   else
     DRO_MIGRATION="false"
@@ -293,6 +301,9 @@ function update_noninteractive() {
         ;;
       --kafka-provider)
         KAFKA_PROVIDER=$1 && shift
+        ;;
+      --dro-migration)
+        DRO_MIGRATION=true
         ;;
       --no-confirm)
         NO_CONFIRM=true
