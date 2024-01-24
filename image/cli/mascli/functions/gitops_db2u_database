@@ -586,16 +586,17 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   GITOPS_TMP_DIR=${GITOPS_CLUSTER_DIR}/tmp
   mkdir -p ${GITOPS_TMP_DIR}
 
-  export DB2CFG_SETTINGS_APPLIED_FILE=${GITOPS_TMP_DIR}/db2cfg-settings-applied.json
-  export DB2CFG_SETTINGS_APPLIED_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}${MAS_APP_ID}${SECRETS_KEY_SEPERATOR}db2cfg
-  sm_get_secret_file ${DB2CFG_SETTINGS_APPLIED_SECRET} ${DB2CFG_SETTINGS_APPLIED_FILE}
+  # TODO: use this logic (or some alternative) in the postsync job
+  # export DB2CFG_SETTINGS_APPLIED_FILE=${GITOPS_TMP_DIR}/db2cfg-settings-applied.json
+  # export DB2CFG_SETTINGS_APPLIED_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}${MAS_APP_ID}${SECRETS_KEY_SEPERATOR}db2cfg
+  # sm_get_secret_file ${DB2CFG_SETTINGS_APPLIED_SECRET} ${DB2CFG_SETTINGS_APPLIED_FILE}
 
-  export DB2CFG_SETTINGS_APPLIED=$(jq -r .'db2cfg_settings_applied' ${DB2CFG_SETTINGS_APPLIED_FILE})
-  echo "DB2CFG_SETTINGS_APPLIED=${DB2CFG_SETTINGS_APPLIED}"
-  if [[ "${DB2CFG_SETTINGS_APPLIED}" != "true" ]]; then
-    echo_h2 "setting DB2CFG_SETTINGS_APPLIED to false "
-    export DB2CFG_SETTINGS_APPLIED="false"
-  fi
+  # export DB2CFG_SETTINGS_APPLIED=$(jq -r .'db2cfg_settings_applied' ${DB2CFG_SETTINGS_APPLIED_FILE})
+  # echo "DB2CFG_SETTINGS_APPLIED=${DB2CFG_SETTINGS_APPLIED}"
+  # if [[ "${DB2CFG_SETTINGS_APPLIED}" != "true" ]]; then
+  #   echo_h2 "setting DB2CFG_SETTINGS_APPLIED to false "
+  #   export DB2CFG_SETTINGS_APPLIED="false"
+  # fi
 
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
@@ -613,10 +614,12 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     echo "git: Added ${FILES_ADDED} files"
-    if [[ "$FILES_ADDED" != "0" ]]; then
-      echo_h2 "setting DB2CFG_SETTINGS_APPLIED to false"
-      export DB2CFG_SETTINGS_APPLIED="false"
-    fi
+
+    # TODO: use this logic (or some alternative) in the postsync job
+    # if [[ "$FILES_ADDED" != "0" ]]; then
+    #   echo_h2 "setting DB2CFG_SETTINGS_APPLIED to false"
+    #   export DB2CFG_SETTINGS_APPLIED="false"
+    # fi
 
     INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
     DB2_DATABASE_APP="db2-db.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${DB2_INSTANCE_NAME}"
@@ -633,31 +636,36 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   
   
   
-  exit 0 # TODO: replace below with post sync job
   
   echo "DB2CFG_SETTINGS_APPLIED= ${DB2CFG_SETTINGS_APPLIED} FILES_ADDED= ${FILES_ADDED} DB2_INTERNAL=${DB2_INTERNAL} MAS_APP_ID=${MAS_APP_ID}"  
   # Run specific setupcmds for Manage only if we have made changes.
   if [[ "$DB2_INTERNAL" == "true" && "${DB2CFG_SETTINGS_APPLIED}" != "true" && "$MAS_APP_ID" == "manage" ]]; then
-    invoke_suite_db2_setup_for_manage 
+    # TODO: replace with postsync job
+    # invoke_suite_db2_setup_for_manage 
   fi
 
   # Run DB2 apply script if we have made any changes.
   if [[ "$DB2_INTERNAL" == "true" && "${DB2CFG_SETTINGS_APPLIED}" != "true" ]]; then
-    echo
-    echo_h2 "Calling apply-db2cfg-settings.sh file on c-${DB2_INSTANCE_NAME}-db2u-0"
-    oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0 -- su -lc '/db2u/scripts/apply-db2cfg-settings.sh --setting all | tee /tmp/apply-db2cfg-settings.log' db2inst1
-    rc=$?
-    [ $rc -ne 0 ] && exit $rc
+    # TODO: replace with postsync job
+    # echo
+    # echo_h2 "Calling apply-db2cfg-settings.sh file on c-${DB2_INSTANCE_NAME}-db2u-0"
+    # oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0 -- su -lc '/db2u/scripts/apply-db2cfg-settings.sh --setting all | tee /tmp/apply-db2cfg-settings.log' db2inst1
+    # rc=$?
+    # [ $rc -ne 0 ] && exit $rc
+
     # Some parameters like LOGARCHMETH1 being set can cause a backup to be needed as it moves
     # to archival logging. Do that backup now if we are in that state. The function checks that
     # SQL1116N is being return from connect, and does nothin otherwise
-    invoke_suite_db2_backup
+    # TODO: replace with postsync job
+    # invoke_suite_db2_backup
 
-    echo "sm_update_secret ...DB2CFG_SETTINGS_APPLIED with true"
-    export DB2CFG_SETTINGS_APPLIED="true"
-    sm_update_secret ${DB2CFG_SETTINGS_APPLIED_SECRET} "{ \"db2cfg_settings_applied\": \"${DB2CFG_SETTINGS_APPLIED}\" }"
-    rc=$?
-    [ $rc -ne 0 ] && exit $rc
+
+    # TODO: apply this update (or some alternative) in the postsync job
+    # echo "sm_update_secret ...DB2CFG_SETTINGS_APPLIED with true"
+    # export DB2CFG_SETTINGS_APPLIED="true"
+    # sm_update_secret ${DB2CFG_SETTINGS_APPLIED_SECRET} "{ \"db2cfg_settings_applied\": \"${DB2CFG_SETTINGS_APPLIED}\" }"
+    # rc=$?
+    # [ $rc -ne 0 ] && exit $rc
   fi
   if [ "$GITHUB_PUSH" == "true" ]; then
 	  remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
