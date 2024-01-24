@@ -639,13 +639,15 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   
   echo "DB2CFG_SETTINGS_APPLIED= ${DB2CFG_SETTINGS_APPLIED} FILES_ADDED= ${FILES_ADDED} DB2_INTERNAL=${DB2_INTERNAL} MAS_APP_ID=${MAS_APP_ID}"  
   # Run specific setupcmds for Manage only if we have made changes.
-  if [[ "$DB2_INTERNAL" == "true" && "${DB2CFG_SETTINGS_APPLIED}" != "true" && "$MAS_APP_ID" == "manage" ]]; then
-    # TODO: replace with postsync job
+  # TODO: replace with postsync job
+  # if [[ "$DB2_INTERNAL" == "true" && "${DB2CFG_SETTINGS_APPLIED}" != "true" && "$MAS_APP_ID" == "manage" ]]; then
     # invoke_suite_db2_setup_for_manage 
-  fi
+  # fi
 
+
+  # TODO: replace with postsync job
   # Run DB2 apply script if we have made any changes.
-  if [[ "$DB2_INTERNAL" == "true" && "${DB2CFG_SETTINGS_APPLIED}" != "true" ]]; then
+  # if [[ "$DB2_INTERNAL" == "true" && "${DB2CFG_SETTINGS_APPLIED}" != "true" ]]; then
     # TODO: replace with postsync job
     # echo
     # echo_h2 "Calling apply-db2cfg-settings.sh file on c-${DB2_INSTANCE_NAME}-db2u-0"
@@ -666,7 +668,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     # sm_update_secret ${DB2CFG_SETTINGS_APPLIED_SECRET} "{ \"db2cfg_settings_applied\": \"${DB2CFG_SETTINGS_APPLIED}\" }"
     # rc=$?
     # [ $rc -ne 0 ] && exit $rc
-  fi
+  # fi
   if [ "$GITHUB_PUSH" == "true" ]; then
 	  remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
