@@ -153,6 +153,8 @@ spec:
         value: $(params.cluster_name)
       - name: OCP_SERVER
         value: $(params.cluster_url)
+      - name: TRAVIS_BUILD_NUMBER
+        value: $(params.devops_build_number)
       - name: DEVOPS_BUILD_NUMBER
         value: $(params.devops_build_number)
       - name: MAS_INSTANCE_ID
