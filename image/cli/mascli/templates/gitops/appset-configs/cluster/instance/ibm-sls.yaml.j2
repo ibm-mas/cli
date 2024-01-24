@@ -9,6 +9,7 @@ ibm-sls:
   sls_mongo_username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_USERNAME }}>
   sls_mongo_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_PASSWORD }}>
   sls_mongo_secret_name: sls-mongo-credentials
+  icr_cp_open: {{ ICR_CP_OPEN }}
   mongo_spec:
     authMechanism: DEFAULT
     configDb: admin
