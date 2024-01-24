@@ -144,22 +144,6 @@ spec:
         - wait-for-install
 {% endif %}
 
-    # 2. Install Grafana Operator V5
-    # -------------------------------------------------------------------------
-    - name: update-grafana
-      taskRef:
-        kind: Task
-        name: mas-devops-cluster-monitoring
-      when:
-        - input: $(params.grafana_v5_upgrade)
-          operator: in
-          values: ["true", "True"]
-      params:
-        - name: grafana_major_version
-          value: 5
-      runAfter:
-        - pre-update-check
-
     # 2. Run the catalog update
     # -------------------------------------------------------------------------
     - name: update-catalog
@@ -167,7 +151,7 @@ spec:
         kind: Task
         name: mas-devops-ibm-catalogs
       runAfter:
-        - update-grafana
+        - pre-update-check
       params:
         - name: devops_suite_name
           value: update-catalog
@@ -251,7 +235,7 @@ spec:
           operator: in
           values: ["redhat"]
 
-    - name: uninstall-grafana-v4
+    - name: update-grafana
       taskRef:
         kind: Task
         name: mas-devops-cluster-monitoring
@@ -261,7 +245,7 @@ spec:
           values: ["true", "True"]
       params:
         - name: cluster_monitoring_action
-          value: uninstall_grafanav4
+          value: update_grafana
       runAfter:
         - update-common-services
 
