@@ -290,7 +290,7 @@ spec:
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
         echo "Installing ibm.mas_fvt ansible collection (with retries)"
-        wget --header="$ARTIFACTORY_AUTH_HEADER" ${ARTIFACTORY_GENERIC_RELEASE_URL}/maximoappsuite/ansible-fvt/${FVT_ANSIBLE_VERSION}/ibm-mas_fvt-${FVT_ANSIBLE_VERSION}.tar.gz || exit 1
+        wget --header="Authorization:Bearer $FVT_ARTIFACTORY_TOKEN" ${ARTIFACTORY_GENERIC_RELEASE_URL}/maximoappsuite/ansible-fvt/${FVT_ANSIBLE_VERSION}/ibm-mas_fvt-${FVT_ANSIBLE_VERSION}.tar.gz || exit 1
 
         MAX_ATTEMPTS=5
         ATTEMPT=1
