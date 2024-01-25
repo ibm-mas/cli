@@ -285,72 +285,6 @@ function gitops_db2u_database_noninteractive() {
 
 }
 
-# Invoke suite_db2_setup_for_manage
-function invoke_suite_db2_setup_for_manage(){
-  # This should really be in the manage operator
-
-  echo
-  echo_h2 "Creating setupdb.sh file"
-  jinja -X .+ $CLI_DIR/templates/gitops/files/manage/setupdb.sh.j2 -o ${TEMP_DIR}/setupdb.sh
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-
-  chmod +x ${TEMP_DIR}/setupdb.sh
-
-  echo
-  echo_h2 "Copying setupdb.sh file to ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
-  oc cp ${TEMP_DIR}/setupdb.sh ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0:/tmp/setupdb.sh -c db2u
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-
-  echo
-  echo_h2 "Executing setupdb.sh file on ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
-  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0 -- su -lc '/tmp/setupdb.sh | tee /tmp/setupdb.log' db2inst1
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-
-  echo
-  echo_h2 "Creating /mnt/backup/MIRRORLOGPATH in c-${DB2_INSTANCE_NAME}-db2u-0"
-  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/backup/MIRRORLOGPATH" db2inst1
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-
-  echo
-  echo_h2 "Creating /mnt/bludata0/db2/archive_log in c-${DB2_INSTANCE_NAME}-db2u-0"
-  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/bludata0/db2/archive_log/" db2inst1
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-
-  echo
-  echo_h2 "Creating /mnt/backup/staging in c-${DB2_INSTANCE_NAME}-db2u-0"
-  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/backup/staging" db2inst1
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-}
-
-# Invoke the DB2 backup when needed
-invoke_suite_db2_backup() {
-  echo
-  echo_h2 "Creating backupdb.sh file"
-  jinja -X .+ $CLI_DIR/templates/gitops/files/manage/backupdb.sh.j2 -o ${TEMP_DIR}/backupdb.sh
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-
-  chmod +x ${TEMP_DIR}/backupdb.sh
-
-  echo
-  echo_h2 "Copying backupdb.sh file to ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
-  oc cp ${TEMP_DIR}/backupdb.sh ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0:/tmp/backupdb.sh -c db2u
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-
-  echo
-  echo_h2 "Executing backupdb.sh file on ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
-  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0 -- su -lc '/tmp/backupdb.sh | tee /tmp/backupdb.log' db2inst1
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-}
-
 function gitops_db2u_database() {
   # Take the first parameter off (it will be create-gitops)
   shift
@@ -628,31 +562,6 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   fi
   
-  
-  
-  
-  # echo "DB2CFG_SETTINGS_APPLIED= ${DB2CFG_SETTINGS_APPLIED} FILES_ADDED= ${FILES_ADDED} DB2_INTERNAL=${DB2_INTERNAL} MAS_APP_ID=${MAS_APP_ID}"  
-  # Run specific setupcmds for Manage only if we have made changes.
-  # TODO: replace with postsync job
-  # if [[ "$DB2_INTERNAL" == "true" && "${DB2CFG_SETTINGS_APPLIED}" != "true" && "$MAS_APP_ID" == "manage" ]]; then
-    # invoke_suite_db2_setup_for_manage 
-  # fi
-
-
-  # TODO: replace with postsync job
-  # Run DB2 apply script if we have made any changes.
-  # if [[ "$DB2_INTERNAL" == "true" && "${DB2CFG_SETTINGS_APPLIED}" != "true" ]]; then
-
-
-    # Some parameters like LOGARCHMETH1 being set can cause a backup to be needed as it moves
-    # to archival logging. Do that backup now if we are in that state. The function checks that
-    # SQL1116N is being return from connect, and does nothin otherwise
-    # TODO: replace with postsync job
-    # invoke_suite_db2_backup
-
-
-
-  # fi
   if [ "$GITHUB_PUSH" == "true" ]; then
 	  remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
