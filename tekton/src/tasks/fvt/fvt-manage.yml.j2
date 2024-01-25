@@ -111,6 +111,32 @@ spec:
       - name: FVT_MAS_APPWS_COMPONENT
         value: $(params.fvt_mas_appws_component)
       
+      # Black and white listing
+      - name: FVT_BLACKLIST
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_BLACKLIST
+            optional: false
+      - name: FVT_WHITELIST
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_WHITELIST
+            optional: false
+      - name: FVT_BLACKLIST_IS
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_BLACKLIST_IS
+            optional: false
+      - name: FVT_WHITELIST_IS
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_WHITELIST_IS
+            optional: false
+      
       # If this secret exists (with both ARTIFACTORY_TOKEN and ARTIFACTORY_UPLOAD_DIR keys set) Maximo Automation Framework logs will be automatically uploaded
       - name: ARTIFACTORY_TOKEN
         valueFrom:

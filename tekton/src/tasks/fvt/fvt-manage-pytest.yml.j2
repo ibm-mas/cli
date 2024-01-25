@@ -44,10 +44,6 @@ spec:
       type: string
       description: Manage product that will be tested by this task. Use official names as expected by Manage operators
       default: "base"
-    - name: mas_appws_components
-      type: string
-      description: Manage Workspace component list so ISs tasks can decide if it should be executed base on what is configured
-      default: ""
     - name: product_id
       type: string
       description: Product ID under test
@@ -62,17 +58,6 @@ spec:
     - name: mas_workspace_id
       type: string
       description: Workspace ID in MAS to use for running the tests
-    - name: devops_cos_crn
-      type: string
-      description: Object Storage Resource Instance Id in IBM Cloud (optional)
-      default: ""
-    - name: devops_cos_upload_folder
-      type: string
-      description: Directory inside container that will be uploaded to Object Storage (optional)
-      default: ""
-    - name: devops_ibmcloud_apikey
-      description: IBM Cloud API Key to access Object Storage resource (optional)
-      default: ""
 
     # Test-specific Information (all optional)
     # -------------------------------------------------------------------------
@@ -118,21 +103,38 @@ spec:
         value: $(params.fvt_test_suite)
       - name: FVT_MAS_APPWS_COMPONENT
         value: $(params.fvt_mas_appws_component)
-      - name: MAS_APPWS_COMPONENTS
-        value: $(params.mas_appws_components)
 
       - name: FVT_ENABLE_DEBUG
         value: "$(params.fvt_enable_debug)"
 
       - name: ARTIFACTORY_TOKEN
         value: $(params.artifactory_token)
-
-      - name: DEVOPS_COS_CRN
-        value: $(params.devops_cos_crn)
-      - name: DEVOPS_COS_UPLOAD_FOLDER
-        value: $(params.devops_cos_upload_folder)
-      - name: DEVOPS_IBMCLOUD_APIKEY
-        value: $(params.devops_ibmcloud_apikey)
+      
+      # Black and white listing
+      - name: FVT_BLACKLIST
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_BLACKLIST
+            optional: false
+      - name: FVT_WHITELIST
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_WHITELIST
+            optional: false
+      - name: FVT_BLACKLIST_IS
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_BLACKLIST_IS
+            optional: false
+      - name: FVT_WHITELIST_IS
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_WHITELIST_IS
+            optional: false
 
   steps:
     - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'

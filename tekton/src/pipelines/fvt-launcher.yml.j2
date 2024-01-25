@@ -34,35 +34,51 @@ spec:
     - name: launchfvt_core
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Core FVT Pipeline after suite-verify completes"
+      description: "Set this to any falue other than 'true' to disable launch of the Core FVT Pipeline after suite-verify completes"
     - name: launchfvt_assist
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Assist FVT Pipeline after app-cfg-assist completes"
+      description: "Set this to any falue other than 'true' to disable launch of the Assist FVT Pipeline after app-cfg-assist completes"
+    - name: launchfvt_health
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable launch of the Health FVT Pipeline after app-cfg-manage completes"
     - name: launchfvt_iot
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the IoT FVT Pipeline after app-cfg-iot completes"
+      description: "Set this to any falue other than 'true' to disable launch of the IoT FVT Pipeline after app-cfg-iot completes"
     - name: launchfvt_manage
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-manage completes (does not control the additional Industry Solution, Mobile, or Regression Manage suites)"
+      description: "Set this to any falue other than 'true' to disable launch of the Manage FVT Pipeline after app-cfg-manage completes (does not control the additional Industry Solution, Mobile, or Regression Manage suites)"
+    - name: launchfvt_manage_civil
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable launch of the Manage Civil FVT Pipeline after launchfvt-manage completes (does not control Civil Industry Solution suites)"
+    - name: launchfvt_manage_is
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable launch of the Manage Industry Solutions FVT Pipeline after launchfvt-manage completes"
+    - name: launchfvt_mobile
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable launch of the Mobile FVT Pipeline after app-cfg-manage completes"
     - name: launchfvt_monitor
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-monitor completes"
+      description: "Set this to any falue other than 'true' to disable launch of the Manage FVT Pipeline after app-cfg-monitor completes"
     - name: launchfvt_optimizer
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Optimizer FVT Pipeline after app-cfg-optimizer completes"
+      description: "Set this to any falue other than 'true' to disable launch of the Optimizer FVT Pipeline after app-cfg-optimizer completes"
     - name: launchfvt_predict
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Predict FVT Pipeline after app-cfg-predict completes"
+      description: "Set this to any falue other than 'true' to disable launch of the Predict FVT Pipeline after app-cfg-predict completes"
     - name: launchfvt_visualinspection
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable lauch of the Visual Inspection FVT Pipeline after app-cfg-visualinspection completes"
+      description: "Set this to any falue other than 'true' to disable launch of the Visual Inspection FVT Pipeline after app-cfg-visualinspection completes"
 
   tasks:
     # 13. MAS Core FVT
@@ -97,9 +113,25 @@ spec:
         - input: $(params.launchfvt_assist)
           operator: in
           values: ["true", "True"]
+    
+    # 15. Application FVT - Health
+    # -------------------------------------------------------------------------
+    - name: launchfvt-health
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-health"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-health
+      when:
+        - input: $(params.launchfvt_health)
+          operator: in
+          values: ["true", "True"]
 
 
-    # 15. Application FVT - IoT
+    # 16. Application FVT - IoT
     # -------------------------------------------------------------------------
     - name: launchfvt-iot
       params:
@@ -116,7 +148,7 @@ spec:
           values: ["true", "True"]
 
 
-    # 16. Application FVT - Manage
+    # 17. Application FVT - Manage
     # -------------------------------------------------------------------------
     - name: launchfvt-manage
       params:
@@ -132,8 +164,39 @@ spec:
           operator: in
           values: ["true", "True"]
 
+    # 18. Application FVT - Manage Civil
+    # -------------------------------------------------------------------------
+    - name: launchfvt-manage-civil
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-manage-civil"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-manage-civil
+      when:
+        - input: $(params.launchfvt_manage_civil)
+          operator: in
+          values: ["true", "True"]
+    
+    # 19. Application FVT - Manage IS (Industry Solutions)
+    # -------------------------------------------------------------------------
+    - name: launchfvt-manage-is
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-manage-is"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-manage-is
+      when:
+        - input: $(params.launchfvt_manage_is)
+          operator: in
+          values: ["true", "True"]
 
-    # 17. Application FVT - Monitor
+    # 20. Application FVT - Monitor
     # -------------------------------------------------------------------------
     - name: launchfvt-monitor
       params:
@@ -150,7 +213,7 @@ spec:
           values: ["true", "True"]
 
 
-    # 18. Application FVT - Predict
+    # 21. Application FVT - Predict
     # -------------------------------------------------------------------------
     - name: launchfvt-predict
       params:
@@ -167,7 +230,7 @@ spec:
           values: ["true", "True"]
 
 
-    # 19. Application FVT - Visual Inspection
+    # 22. Application FVT - Visual Inspection
     # -------------------------------------------------------------------------
     - name: launchfvt-visualinspection
       params:
@@ -183,8 +246,7 @@ spec:
           operator: in
           values: ["true", "True"]
 
-
-    # 20. Application FVT - Optimizer
+    # 23. Application FVT - Optimizer
     # -------------------------------------------------------------------------
     - name: launchfvt-optimizer
       params:
@@ -199,3 +261,21 @@ spec:
         - input: $(params.launchfvt_optimizer)
           operator: in
           values: ["true", "True"]
+    
+    # 24. Application FVT - Mobile
+    # -------------------------------------------------------------------------
+    - name: launchfvt-mobile
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-mobile"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-mobile
+      when:
+        - input: $(params.launchfvt_mobile)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-manage

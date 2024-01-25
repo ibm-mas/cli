@@ -1,11 +1,15 @@
 #!/bin/bash
-
 set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . $DIR/../functions/internal/utils
 
 NAMESPACE=$1
 OUTPUT_DIR=$2
+
+# Collect Manage Logs
+# -----------------------------------------------------------------------------
+echo_h4 "Collect Manage Files"
+$DIR/mg-collect-manage-logs $NAMESPACE $OUTPUT_DIR
 
 # Collect Reconcile Logs
 # -----------------------------------------------------------------------------

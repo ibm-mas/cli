@@ -23,9 +23,6 @@ spec:
     - name: mas_app_channel_manage
       type: string
       default: ""
-    - name: mas_appws_components
-      type: string
-      default: ""
     - name: mas_instance_id
       type: string
       default: ""
@@ -54,13 +51,6 @@ spec:
     - name: ivt_digest_core
       type: string
       description: IVT Digest - Core
-      default: ""
-
-    - name: devops_cos_crn
-      type: string
-      default: ""
-    - name: devops_ibmcloud_apikey
-      type: string
       default: ""
 
   tasks:
@@ -149,11 +139,6 @@ spec:
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
 
-        - name: devops_cos_crn
-          value: $(params.devops_cos_crn)
-        - name: devops_ibmcloud_apikey
-          value: $(params.devops_ibmcloud_apikey)
-
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
         - name: fvt_image_namespace
@@ -170,9 +155,6 @@ spec:
 
         - name: artifactory_token
           value: $(params.fvt_artifactory_token)
-
-        - name: mas_appws_components
-          value: $(params.mas_appws_components)
 
         - name: fvt_test_suite
           value: optimizer-manage-user
@@ -205,10 +187,6 @@ spec:
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
-        - name: devops_cos_crn
-          value: $(params.devops_cos_crn)
-        - name: devops_ibmcloud_apikey
-          value: $(params.devops_ibmcloud_apikey)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
         - name: fvt_image_namespace
@@ -223,8 +201,6 @@ spec:
           value: ibm-mas-optimizer
         - name: artifactory_token
           value: $(params.fvt_artifactory_token)
-        - name: mas_appws_components
-          value: $(params.mas_appws_components)
         - name: fvt_test_suite
           value: optimizer-manage-setup
         - name: fvt_mas_appws_component
@@ -255,10 +231,6 @@ spec:
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
-        - name: devops_cos_crn
-          value: $(params.devops_cos_crn)
-        - name: devops_ibmcloud_apikey
-          value: $(params.devops_ibmcloud_apikey)
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
         - name: fvt_image_namespace
@@ -273,8 +245,6 @@ spec:
           value: ibm-mas-optimizer
         - name: artifactory_token
           value: $(params.fvt_artifactory_token)
-        - name: mas_appws_components
-          value: $(params.mas_appws_components)
         - name: fvt_test_suite
           value: optimizer-gs-resource-leveling
         - name: fvt_mas_appws_component
