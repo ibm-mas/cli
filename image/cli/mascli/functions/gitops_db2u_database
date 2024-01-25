@@ -550,7 +550,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     fi
 
     INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    DB2_DATABASE_APP="db2-db.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${DB2_INSTANCE_NAME}"
+    DB2_DATABASE_APP="db2-db.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
 
     argocd_login
     argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the db2-db appset to pick up the new config files
