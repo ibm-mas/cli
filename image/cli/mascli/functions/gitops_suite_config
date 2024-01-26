@@ -283,9 +283,9 @@ function gitops_suite_config() {
   export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls
   export SECRET_KEY_SLS_REGISTRATION_KEY=${SECRET_NAME_SLS}#registration_key
 
-  # SECRET_KEY_SLS_CA isn't really a secret 
-  # (we just use SM as a means for passing this runtime-generated value from the cluster as a workaround for the fact that we cannot interact with the cluster directly here),
-  # so we can safely fetch it here and embed its value  in the SLS config in plaintext (which makes it easier to render it in the SLS chart as properly indented YAML)
+  # Note: tthis value isn't really a secret, so we can safely fetch it here and embed them in the generated config file as plaintext.
+  # We just use SM as a means for passing this runtime-generated value from the cluster as a workaround for the fact that we cannot interact with the cluster directly here.
+  # See https://jsw.ibm.com/browse/MASCORE-1425
   export SLS_CA_CERTIFICATE=$(sm_get_secret_value ${SECRET_NAME_SLS} "ca_b64" | base64 -d)
 
   if [ -z $GIT_SSH ]; then
