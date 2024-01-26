@@ -490,14 +490,19 @@ function check_argo_app_synced() {
   echo "argo:check_argo_app_synced : APPLICATION=$APPLICATION CLUSTER_WATCHER=$CLUSTER_WATCHER NAMESPACE=$NAMESPACE"
   while true; do
     echo "argo:check_argo_app_synced : Checking sync status for $APPLICATION"
-    SYNC_STATUS=$(argocd app get $APPLICATION -o json 2> /dev/null | jq -r .status.sync.status)
-    echo "argo:check_argo_app_synced : SYNC_STATUS=$SYNC_STATUS"
-    if [[ "$SYNC_STATUS" == "Synced" ]]; then
-      echo "Sync Status is Synced"
+    APP_RES_YAML=$(argocd app get $APPLICATION -o json 2> /dev/null)
+    SYNC_STATUS=$(echo $APP_RES_YAML | jq -r .status.sync.status)
+
+    # We also check phase is "Succeeded" (not e.g. "Running") to ensure we wait for any post-sync hooks to complete
+    PHASE=$(echo $APP_RES_YAML | jq -r .status.operationState.phase)
+
+    echo "argo:check_argo_app_synced : SYNC_STATUS=$SYNC_STATUS PHASE=${PHASE}"
+    if [[ "$SYNC_STATUS" == "Synced" && "${PHASE}" == "Succeeded" ]]; then
+      echo "Sync Status is Synced and Phase is Succeeded"
       break
     else
       ((COUNT++))
-      echo "argo:check_argo_app_synced : Sync Status is $SYNC_STATUS, Waiting 30s before checking status again - $COUNT"
+      echo "argo:check_argo_app_synced : Sync Status is $SYNC_STATUS, Phase is ${PHASE}. Waiting 30s before checking status and phase again - $COUNT"
       if ! (( $COUNT % 5 )) ; then
         if [[ -n "$CLUSTER_WATCHER" ]]; then
           argocd_sync $CLUSTER_WATCHER
