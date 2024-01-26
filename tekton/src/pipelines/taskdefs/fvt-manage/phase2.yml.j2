@@ -17,7 +17,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: mas-navigation
   runAfter:
@@ -31,7 +31,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: classification
   runAfter:
@@ -45,7 +45,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: helplinks
   runAfter:
@@ -59,7 +59,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: mif-setup
   runAfter:
@@ -73,7 +73,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: metrics-api
   runAfter:
@@ -87,7 +87,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: wo-basic
   runAfter:
@@ -100,7 +100,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: ancestors
   runAfter:
@@ -113,7 +113,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: automationscripts
   runAfter:

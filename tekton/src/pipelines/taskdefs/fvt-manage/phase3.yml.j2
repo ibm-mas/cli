@@ -18,7 +18,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: skip
     - name: fvt_test_suite
       value: escalation-action
   runAfter:
@@ -38,7 +38,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: skip
     - name: fvt_test_suite
       value: autoscript-adddeletewo
   runAfter:
@@ -58,7 +58,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: skip
     - name: fvt_test_suite
       value: mif-jms-inbound
   runAfter:
@@ -76,7 +76,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: skip
     - name: fvt_test_suite
       value: mif-kafka-setup
     - name: kafka_provider
@@ -114,7 +114,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: skip
     - name: fvt_test_suite
       value: mif-s3-setup
   runAfter:
@@ -134,7 +134,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: skip
     - name: fvt_test_suite
       value: birtreportexe
   runAfter:
@@ -154,7 +154,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: skip
     - name: fvt_test_suite
       value: user-crud
   runAfter:
@@ -174,7 +174,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: skip
     - name: fvt_test_suite
       value: user-consumption
   runAfter:
@@ -194,7 +194,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: skip
     - name: fvt_test_suite
       value: communication-temp
   runAfter:

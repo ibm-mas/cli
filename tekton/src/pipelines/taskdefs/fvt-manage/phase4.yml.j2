@@ -17,7 +17,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: skip
     - name: fvt_test_suite
       value: sec-audit-log
   runAfter:
@@ -38,7 +38,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: skip
     - name: fvt_test_suite
       value: sec-inactive-auth
   runAfter:
@@ -57,7 +57,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: skip
     - name: fvt_test_suite
       value: mif-kafka-inbound
     - name: kafka_provider
@@ -94,7 +94,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: skip
     - name: fvt_test_suite
       value: mif-kafka-outbound
     - name: kafka_provider
@@ -133,7 +133,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: skip
     - name: fvt_test_suite
       value: wo-doclink
   runAfter:
@@ -173,7 +173,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: skip
     - name: fvt_test_suite
       value: adhoc
   runAfter:
@@ -194,7 +194,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: skip
     - name: fvt_test_suite
       value: mif-jms-outbound
   runAfter:

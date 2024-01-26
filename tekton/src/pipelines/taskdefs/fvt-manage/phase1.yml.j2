@@ -11,7 +11,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: bvt
   runAfter:
@@ -23,7 +23,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: monitoring
   runAfter:
