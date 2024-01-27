@@ -268,13 +268,14 @@ if __name__ == "__main__":
         skipped = 0
         errors = 0
         failures = 0
-        for suite in result["products"][product]["results"]:
-            suiteResults = result["products"][product]["results"][suite]
+        if "results" in result["products"][product]:
+            for suite in result["products"][product]["results"]:
+                suiteResults = result["products"][product]["results"][suite]
 
-            tests += suiteResults["tests"]
-            skipped += suiteResults["skipped"]
-            errors += suiteResults["errors"]
-            failures += suiteResults["failures"]
+                tests += suiteResults["tests"]
+                skipped += suiteResults["skipped"]
+                errors += suiteResults["errors"]
+                failures += suiteResults["failures"]
 
         # print(f"{product} - {tests} tests {skipped} skipped {errors} errors {failures} failures")
 
