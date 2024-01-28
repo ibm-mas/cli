@@ -212,6 +212,19 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"Unable to determine {productId} version: {e}")
 
+    # Get Manage Components
+    # -------------------------------------------------------------------------
+    # Note: Only works for workspace "masdev"
+    try:
+        crs = dynClient.resources.get(api_version="apps.mas.ibm.com/v1", kind="ManageWorkspace")
+        cr = crs.get(name=f"{instanceId}-masdev", namespace=f"mas-{instanceId}-manage")
+        if cr.status and cr.status.components:
+            setObject[f"products.ibm-mas-manage.components"] = cr.status.components
+        else:
+            print(f"Unable to determine Manage installed components: status.components unavailable")
+    except Exception as e:
+        print(f"Unable to determine Manage installed components: {e}")
+
     # Connect to mongoDb
     # -------------------------------------------------------------------------
     client = MongoClient(os.getenv("DEVOPS_MONGO_URI"))
