@@ -368,11 +368,6 @@ function gitops_suite_app_install() {
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
 
-    # Add anyuid permissions to visualinspection service account
-    if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
-      oc adm policy add-scc-to-user anyuid system:serviceaccount:${MAS_APP_NAMESPACE}:ibm-mas-visualinspection-operator
-    fi
-
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
@@ -389,11 +384,6 @@ function gitops_suite_app_install() {
 
     check_argo_app_synced "${MASAPP_APP}" "${MASAPP_ROOT_APP}"
     check_argo_app_healthy "${MASAPP_APP}" "${MASAPP_ROOT_APP}"
-
-    # Remove anyuid permissions from visualinspection service account
-    if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
-      oc adm policy remove-scc-from-user anyuid system:serviceaccount:${MAS_APP_NAMESPACE}:ibm-mas-visualinspection-operator
-    fi
 
   fi
 
