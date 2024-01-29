@@ -300,33 +300,6 @@ function gitops_suite_app_config_noninteractive() {
 
 }
 
-function wait_till_cr_ready(){
-  crd=$1 #MAS_APP_KIND
-  ns=$2 #MAS_APP_NAMESPACE
-  cr=$(oc get ${crd} --no-headers --ignore-not-found -n ${ns} 2>/dev/null | awk '{print $1}')
-  wait_period=0  
-  echo "argo:gitops_suite_app_config check app_cr_status : ${crd}/${cr}"
-
-  # wait till CR Ready status turns to true
-  while true
-  do
-    export APP_CR_STATUS=`oc get  ${crd} ${cr} -n ${ns} -o=jsonpath="{.status.conditions[?(@.type=='Ready')].status}"`
-    echo_reset_dim "APP_CR_STATUS .... ${COLOR_MAGENTA}${APP_CR_STATUS}"
-    if [[ "$APP_CR_STATUS" == "True" ]]; then
-      break
-    fi
-
-    wait_period=$(($wait_period+30))
-    if [ $wait_period -gt 3600 ];then
-      echo_reset_dim "${COLOR_RED}CR ${crd}/${cr} is not ready with in 3600 sec, exiting"
-      exit 1
-    else
-      sleep 30
-    fi
-  done  
-  
-}
-
 function gitops_suite_app_config() {
   # Take the first parameter off (it will be create-gitops)
   shift
@@ -594,9 +567,6 @@ function gitops_suite_app_config() {
     rc=$?
     [ $rc -ne 0 ] && exit $rc
   fi
-
-  # wait till CR MASS_APP_KIND is in ready status
-  wait_till_cr_ready $MAS_APP_KIND $MAS_APP_NAMESPACE
 
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
