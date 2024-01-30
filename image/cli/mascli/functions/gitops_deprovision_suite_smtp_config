@@ -15,6 +15,7 @@ GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Working directory for GitOps repository
   -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
+  -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
   -f, --force-removal ${COLOR_YELLOW}FORCE_REMOVAL${TEXT_RESET}      Force remove the ArgoCD Application, when deletion exceeds timeout
@@ -45,6 +46,9 @@ function gitops_deprovision_suite_smtp_config_noninteractive() {
   GIT_COMMIT_MSG="gitops-deprovision-mas-smtp-config commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
+  export REGION=${REGION:-${SM_AWS_REGION}}
+
+
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -58,6 +62,9 @@ function gitops_deprovision_suite_smtp_config_noninteractive() {
         ;;
       -a|--account-id)
         export ACCOUNT_ID=$1 && shift
+        ;;
+      -r|--region-id)
+        export REGION=$1 && shift
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
@@ -115,6 +122,7 @@ function gitops_deprovision_suite_smtp_config_noninteractive() {
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_deprovision_suite_smtp_config_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$GITOPS_VERSION" ]] && gitops_deprovision_suite_smtp_config_help "GITOPS_VERSION is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_suite_smtp_config_help "CLUSTER_ID is not set"
+  [[ -z "$REGION" ]] && gitops_deprovision_app_config_help "REGION is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_suite_smtp_config_help "ACCOUNT_ID is not set"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_suite_smtp_config_help "GITHUB_HOST is not set"
@@ -137,8 +145,7 @@ function gitops_deprovision_suite_smtp_config() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
-  GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/system-configs
 
   echo
   reset_colors
@@ -148,7 +155,7 @@ function gitops_deprovision_suite_smtp_config() {
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID............................. ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
+  echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   echo_reset_dim "Force Remove Application Flag ......... ${COLOR_MAGENTA}${FORCE_REMOVAL}"
   reset_colors
 
@@ -212,23 +219,41 @@ function gitops_deprovision_suite_smtp_config() {
     echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
-  mkdir -p ${GITOPS_APPS_DIR}
+  mkdir -p ${GITOPS_INSTANCE_DIR}
 
   # Delete ArgoApps
   # ---------------------------------------------------------------------------
   # Per MAS instance
-  rm ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-mas-smtp-config.yaml
+  rm ${GITOPS_INSTANCE_DIR}/system.ibm-mas-smtp-config.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
+
+    INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    SYSTEM_CONFIGS_APP="system-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+
+
     argocd_login
-    argocd_prune_sync ${CLUSTER_ID}-watcher
-    check_argo_app_deleted mas-${MAS_INSTANCE_ID}-smtp-config ${MAS_INSTANCE_ID} ${FORCE_REMOVAL}
+    argocd_prune_sync "${INSTANCE_ROOT_APP}" ## trigger the system-configws appset to notice the deletion of the config file
+    argocd_prune_sync "${SYSTEM_CONFIGS_APP}" ## trigger the system-configs root app to notice the updates to its helm values
+
+
+    # App won't be deleted until the last system-config yaml file is deleted
+    # We *could* check the subresources of the Argo app and wait till the SmtpCfg CR is gone
+    # However, there would be no sensible way of *forcing* deletion of this so this would run of the risk of a hung deprovision pipeline
+
+    # Alternatively, we could combine all the deprovision system config steps into a single gitops function
+    # and check (and possibly force) argocd app removal at the end as per usual.
+
+    # Is it enough to check app sync status? (again, no way of forcing deletion though)
+    # TODO: add the ability of this function to resend prune syncs?
+    check_argo_app_synced ${SYSTEM_CONFIGS_APP}
+
   fi
 }
