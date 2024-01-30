@@ -4,8 +4,9 @@
 # - fvt-manage-classification
 # - fvt-manage-helplinks
 # - fvt-manage-mif-setup
-# - fvt-manage-metrics-api
 # - fvt-manage-wo-basic
+# - fvt-manage-ancestors
+# - fvt-manage-automationscripts
 # -------------------------------------------------------------
 
 # Manage FVT Mas Navigation Scenario
@@ -64,20 +65,6 @@
     - fvt-manage-setup
     - fvt-manage-monitoring
 
-# Manage FVT Metrics API
-- name: fvt-manage-metrics-api
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
-    - name: fvt_test_suite
-      value: metrics-api
-  runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
-
 # Manage FVT Work Order Basic Scenario
 - name: fvt-manage-wo-basic
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
@@ -88,6 +75,32 @@
       value: core
     - name: fvt_test_suite
       value: wo-basic
+  runAfter:
+    - fvt-manage-setup
+    - fvt-manage-monitoring
+
+# Manage FVT Ancestors
+- name: fvt-manage-ancestors
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
+    - name: fvt_test_suite
+      value: ancestors
+  runAfter:
+    - fvt-manage-setup
+    - fvt-manage-monitoring
+
+# Manage FVT AutomationScript
+- name: fvt-manage-automationscripts
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: core
+    - name: fvt_test_suite
+      value: automationscripts
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring

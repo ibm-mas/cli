@@ -268,13 +268,14 @@ if __name__ == "__main__":
         skipped = 0
         errors = 0
         failures = 0
-        for suite in result["products"][product]["results"]:
-            suiteResults = result["products"][product]["results"][suite]
+        if "results" in result["products"][product]:
+            for suite in result["products"][product]["results"]:
+                suiteResults = result["products"][product]["results"][suite]
 
-            tests += suiteResults["tests"]
-            skipped += suiteResults["skipped"]
-            errors += suiteResults["errors"]
-            failures += suiteResults["failures"]
+                tests += suiteResults["tests"]
+                skipped += suiteResults["skipped"]
+                errors += suiteResults["errors"]
+                failures += suiteResults["failures"]
 
         # print(f"{product} - {tests} tests {skipped} skipped {errors} errors {failures} failures")
 
@@ -310,72 +311,73 @@ if __name__ == "__main__":
         messageBlocks.append(buildHeader(f"{product}"))
         messageBlocks.append(buildSection(f"The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
 
-        for suite in result["products"][product]["results"]:
-            suiteResults = result["products"][product]["results"][suite]
+        if "results" in result["products"][product]:
+            for suite in result["products"][product]["results"]:
+                suiteResults = result["products"][product]["results"][suite]
 
-            tests = suiteResults["tests"]
-            skipped = suiteResults["skipped"]
-            errors = suiteResults["errors"]
-            failures = suiteResults["failures"]
+                tests = suiteResults["tests"]
+                skipped = suiteResults["skipped"]
+                errors = suiteResults["errors"]
+                failures = suiteResults["failures"]
 
-            if errors > 0 or failures > 0:
-                if failures > 0:
-                    icon = ":large_red_square:"
-                elif errors > 0:
-                    icon = ":large_yellow_square:"
+                if errors > 0 or failures > 0:
+                    if failures > 0:
+                        icon = ":large_red_square:"
+                    elif errors > 0:
+                        icon = ":large_yellow_square:"
 
-                # Find Jira issues
-                openIssues = []
-                results = jira.search_issues(f'status != "Done" AND status != "Cancelled" AND type = "Bug" AND labels = "masfvt" AND labels="suite:{product}/{suite}" ORDER BY team,severity', maxResults=-1)
-                for issue in results:
-                    key = issue.key
-                    summary = issue.fields.summary
-                    summary = summary.replace(">", "&gt;")
-                    if len(summary) > 60:
-                        summary = summary[:57] + "..."
+                    # Find Jira issues
+                    openIssues = []
+                    results = jira.search_issues(f'status != "Done" AND status != "Cancelled" AND type = "Bug" AND labels = "masfvt" AND labels="suite:{product}/{suite}" ORDER BY team,severity', maxResults=-1)
+                    for issue in results:
+                        key = issue.key
+                        summary = issue.fields.summary
+                        summary = summary.replace(">", "&gt;")
+                        if len(summary) > 60:
+                            summary = summary[:57] + "..."
 
-                    if issue.fields.assignee is None:
-                        assignee = ":interrobang: Unassigned Person"
-                        assignedType = "unassigned"
+                        if issue.fields.assignee is None:
+                            assignee = ":interrobang: Unassigned Person"
+                            assignedType = "unassigned"
+                        else:
+                            assignee = issue.fields.assignee.displayName
+                            assignedType = "assigned"
+
+                        if issue.fields.customfield_11600 is None:
+                            team = ":interrobang: Unassigned Team"
+                        else:
+                            team = issue.fields.customfield_11600.name
+
+                        if issue.fields.customfield_10700 is None:
+                            severity = ":interrobang: Unknown"
+                        else:
+                            severity = issue.fields.customfield_10700.value
+
+                        status = issue.fields.status.statusCategory.name
+
+                        if status == "To Do":
+                            statusIcon = ":black_circle:"
+                        elif status in ["In Progress","Reviewing"]:
+                            statusIcon = ":large_blue_circle:"
+                        elif status == "Blocked":
+                            statusIcon = ":large_red_circle:"
+                        else:
+                            statusIcon = ":interrobang:"
+
+                        openIssues.append(f"{statusIcon} <https://jsw.ibm.com/browse/{key}|{key}> {summary} ({assignee})")
+
+                    context = [
+                        f"{icon} *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}/testsuite/{product}/{suite}|{product}/{suite}>*",
+                        f"*{tests}* tests",
+                        f"*{skipped}* skipped",
+                        f"*{errors}* errors",
+                        f"*{failures}* failures"
+                    ]
+                    messageBlocks.append(buildContext(context))
+                    if len(openIssues) > 0:
+                        messageBlocks.append(buildContext(["\n".join(openIssues)]))
                     else:
-                        assignee = issue.fields.assignee.displayName
-                        assignedType = "assigned"
-
-                    if issue.fields.customfield_11600 is None:
-                        team = ":interrobang: Unassigned Team"
-                    else:
-                        team = issue.fields.customfield_11600.name
-
-                    if issue.fields.customfield_10700 is None:
-                        severity = ":interrobang: Unknown"
-                    else:
-                        severity = issue.fields.customfield_10700.value
-
-                    status = issue.fields.status.statusCategory.name
-
-                    if status == "To Do":
-                        statusIcon = ":black_circle:"
-                    elif status in ["In Progress","Reviewing"]:
-                        statusIcon = ":large_blue_circle:"
-                    elif status == "Blocked":
-                        statusIcon = ":large_red_circle:"
-                    else:
-                        statusIcon = ":interrobang:"
-
-                    openIssues.append(f"{statusIcon} <https://jsw.ibm.com/browse/{key}|{key}> {summary} ({assignee})")
-
-                context = [
-                    f"{icon} *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}/testsuite/{product}/{suite}|{product}/{suite}>*",
-                    f"*{tests}* tests",
-                    f"*{skipped}* skipped",
-                    f"*{errors}* errors",
-                    f"*{failures}* failures"
-                ]
-                messageBlocks.append(buildContext(context))
-                if len(openIssues) > 0:
-                    messageBlocks.append(buildContext(["\n".join(openIssues)]))
-                else:
-                    messageBlocks.append(buildContext(["• No open issues - <https://jsw.ibm.com/secure/CreateIssue!default.jspa|create one>"]))
+                        messageBlocks.append(buildContext(["• No open issues - <https://jsw.ibm.com/secure/CreateIssue!default.jspa|create one>"]))
 
         if len(messageBlocks) > 2 and len(messageBlocks) <= 50:
             postMessage(FVT_SLACK_CHANNEL, messageBlocks, threadId)
