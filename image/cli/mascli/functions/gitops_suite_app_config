@@ -589,6 +589,7 @@ function gitops_suite_app_config() {
     MASAPP_ROOT_APP="ma.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
     MASAPP_APP="mai.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
 
+    argocd_login
     argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the masapp appset to pick up the new config files
     check_argo_app_synced "${MASAPP_ROOT_APP}" "${INSTANCE_ROOT_APP}" # wait for the masapp root app to sync
 
