@@ -7,6 +7,9 @@ spec:
   params:
     - name: cluster_name
       type: string
+    - name: cluster_url
+      type: string
+      default: ""
     - name: account
       type: string
     - name: secrets_path
@@ -23,10 +26,6 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
-    - name: db2_ldap_username
-      type: string
-    - name: db2_ldap_password
-      type: string
     - name: mas_app_id
       type: string
     - name: mas_config_scope
@@ -36,11 +35,16 @@ spec:
       default: ""
     - name: tls_version
       type: string
+    - name: argocd_url
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-db2u-config
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
+      - name: OCP_SERVER
+        value: $(params.cluster_url)
       - name: ACCOUNT
         value: $(params.account)
       - name: GITHUB_REPO
@@ -59,10 +63,6 @@ spec:
         value: $(params.avp_aws_secret_region)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
-      - name: DB2_LDAP_USERNAME
-        value: $(params.db2_ldap_username)
-      - name: DB2_LDAP_PASSWORD
-        value: $(params.db2_ldap_password)
       - name: MAS_APP_ID
         value: $(params.mas_app_id)
       - name: MAS_CONFIG_SCOPE
@@ -71,6 +71,8 @@ spec:
         value: $(params.mas_workspace_id)
       - name: TLS_VERSION
         value: $(params.tls_version)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -85,18 +87,54 @@ spec:
         git config --global user.password $GITHUB_PAT
         
         ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
-        export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
-        export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
-        export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
-        oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
-        OC_RC=$?
-        if [ $OC_RC -ne 0 ]; then
-          echo "oc login failed"
-          exit 1
+        if [ -f $ROSA_CONFIG ]; then
+          echo "oc login : via ROSA_CONFIG"
+          export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
+          export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
+          export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
+          oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed to $OCP_SERVER"
+            exit 1
+          fi
+        elif [ -n $OCP_SERVER ]; then
+          echo "oc login : OCP_USERNAME=$OCP_USERNAME OCP_SERVER=$OCP_SERVER OCP_PASSWORD=${OCP_PASSWORD:0:8}<snip> ..."
+          oc login -u $OCP_USERNAME -p $OCP_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
+        else
+          echo "oc login : via ocp_login"
+          aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
+          aws configure set default.region $SM_AWS_REGION
+          export CLUSTER_TYPE=rosa
+          ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role 
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
         fi
         
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
+
+        if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
+          export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
+          export ARGOCD_USERNAME=admin
+          export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
+        fi
+
+        # A DB2 LDAP Username/Password are set per App on the pipeline secure properties.
+        # The below logic is to determine which to use here.
+        DB2_USER_VAR=$(eval echo "DB2_LDAP_USERNAME_${MAS_APP_ID^^}")
+        DB2_PASSWORD_VAR=$(eval echo "DB2_LDAP_PASSWORD_${MAS_APP_ID^^}")
+        export DB2_LDAP_USERNAME=${!DB2_USER_VAR}
+        export DB2_LDAP_PASSWORD=${!DB2_PASSWORD_VAR}
 
         mkdir -p /tmp/init-db2u-jdbc-config-$MAS_APP_ID
         mas gitops-db2u-jdbc-config -a $ACCOUNT -c $CLUSTER_NAME \

@@ -56,7 +56,9 @@ spec:
     - name: cluster_url
       type: string
       default: ""
-
+    - name: argocd_url
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite-smtp-config
     env:
@@ -100,6 +102,8 @@ spec:
         value: $(params.smtp_username)
       - name: SMTP_PASSWORD
         value: $(params.smtp_password)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
     envFrom:
       - configMapRef:
           name: environment-properties

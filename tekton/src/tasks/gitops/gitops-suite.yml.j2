@@ -53,6 +53,9 @@ spec:
     - name: cluster_url
       type: string
       default: ""
+    - name: argocd_url
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite
     env:
@@ -98,6 +101,8 @@ spec:
         value: $(params.sls_channel)
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
     envFrom:
       - configMapRef:
           name: environment-properties

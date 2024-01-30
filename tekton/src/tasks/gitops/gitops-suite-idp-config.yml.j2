@@ -44,6 +44,9 @@ spec:
     - name: cluster_url
       type: string
       default: ""
+    - name: argocd_url
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite-idp-config
     env:
@@ -75,6 +78,8 @@ spec:
         value: $(params.ldap_userid_map)
       - name: LDAP_CERTIFICATE_FILE
         value: $(params.ldap_certificate_file)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
       #- name: LDAP_BIND_DN
       #  value: $(params.ldap_bind_dn)
       #- name: LDAP_BIND_PASSWORD

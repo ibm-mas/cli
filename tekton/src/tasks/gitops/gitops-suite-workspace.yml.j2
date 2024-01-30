@@ -30,7 +30,9 @@ spec:
       default: ""
     - name: avp_aws_secret_region
       type: string
-
+    - name: argocd_url
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite-workspace
     env:
@@ -56,6 +58,8 @@ spec:
         value: $(params.workspace_name)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
     envFrom:
       - configMapRef:
           name: environment-properties

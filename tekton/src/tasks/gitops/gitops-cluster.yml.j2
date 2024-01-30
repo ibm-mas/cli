@@ -41,6 +41,9 @@ spec:
     - name: common_services_action
       type: string
       default: "install"
+    - name: argocd_url
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-cluster
     env:
@@ -76,6 +79,8 @@ spec:
         value: $(params.common_services_action)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
     envFrom:
       - configMapRef:
           name: environment-properties

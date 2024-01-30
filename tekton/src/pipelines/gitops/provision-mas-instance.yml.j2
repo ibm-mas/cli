@@ -28,6 +28,8 @@ spec:
 {% endif %}
     - name: cluster_name
       type: string
+    - name: argocd_url
+      type: string
     - name: account
       type: string
     - name: secrets_path
@@ -170,6 +172,8 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: account
           value: $(params.account)
         - name: secrets_path
@@ -200,6 +204,8 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: account
           value: $(params.account)
         - name: secrets_path
@@ -220,6 +226,8 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: dns_provider
           value: $(params.dns_provider)
         - name: mas_instance_id
@@ -267,6 +275,8 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: dns_provider
           value: $(params.dns_provider)
         - name: mas_instance_id
@@ -312,6 +322,8 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: account
           value: $(params.account)
         - name: secrets_path
@@ -367,6 +379,8 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: account
           value: $(params.account)
         - name: secrets_path
@@ -417,6 +431,8 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: account
           value: $(params.account)
         - name: secrets_path
@@ -455,6 +471,8 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: account
           value: $(params.account)
         - name: secrets_path
@@ -513,6 +531,8 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: account
           value: $(params.account)
         - name: secrets_path
@@ -566,6 +586,8 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
         - name: mas_instance_id

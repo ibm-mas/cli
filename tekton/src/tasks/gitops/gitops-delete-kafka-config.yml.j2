@@ -26,6 +26,9 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
+    - name: argocd_url
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-delete-kafka-config
     env:
@@ -49,6 +52,8 @@ spec:
         value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
   steps:
     - args:
       - |-

@@ -22,6 +22,9 @@ spec:
     - name: cluster_url
       type: string
       default: ""
+    - name: argocd_url
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-cis-compliance
     env:
@@ -41,6 +44,8 @@ spec:
         value: $(params.github_repo)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
     envFrom:
       - configMapRef:
           name: environment-properties

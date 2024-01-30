@@ -41,6 +41,9 @@ spec:
     - name: cluster_url
       type: string
       default: ""
+    - name: argocd_url
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite-config
     env:
@@ -76,6 +79,8 @@ spec:
         value: $(params.dro_contact_lastname)
       - name: DRO_CA_CERTIFICATE_FILE
         value: $(params.dro_ca_certificate_file)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
     envFrom:
       - configMapRef:
           name: environment-properties
