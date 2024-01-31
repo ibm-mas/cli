@@ -112,3 +112,4 @@
         - provision-mas-instance
         - provision-mas-apps
         - gitops-mas-fvt-preparer
+        - gitops-mas-deps
