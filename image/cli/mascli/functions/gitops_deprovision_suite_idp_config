@@ -220,9 +220,8 @@ function gitops_deprovision_suite_idp_config() {
   fi
   mkdir -p ${GITOPS_INSTANCE_DIR}
 
-  # Delete ArgoApps
+  # Delete config file that triggers system-configs ArgoCD application to render charts for this config type
   # ---------------------------------------------------------------------------
-  # Per MAS instance
   rm ${GITOPS_INSTANCE_DIR}/system.ibm-mas-idp-config.yaml
 
   # Commit and push to github target repo
