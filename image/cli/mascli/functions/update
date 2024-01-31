@@ -18,7 +18,7 @@ Update Dependencies (Optional):
   --mongodb-v5-upgrade ${COLOR_YELLOW}MONGODB_V5_UPGRADE${TEXT_RESET} Confirms that Mongo can be upgraded to version 5 if needed as part of the update
   --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}       Namespace where Kafka operator and instance will be updated
   --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}         Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), or 'strimzi'
-  --dro-migration  ${COLOR_YELLOW}DRO_MIGRATION${TEXT_RESET}          Enable DRO Migration, By passing this flag, you will be enabling and setting DRO_MIGRATION to true
+  --dro-migration  ${COLOR_YELLOW}DRO_MIGRATION${TEXT_RESET}          Confirm the removal of UDS and replacement with DRO as part of the update
 
 Other Commands:
       --no-confirm                      Launch the update without prompting for confirmation
@@ -110,7 +110,7 @@ function validate_dro_migration(){
   # warn about DRO migration if UDS is running and MAS catalog is January 2024 or newer
   MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
 
-  if [[ $MAS_CATALOG_DATE -ge 240130 ]]; then
+  if [[ $MAS_CATALOG_DATE -ge 240227 ]]; then
     echo -e "${COLOR_YELLOW}Verifing UDS status."
     # If Jan catalog is detected, set DRO_MIGRATION Flag to True
     UDS_NAMESPACE="ibm-common-services"
@@ -129,8 +129,6 @@ function validate_dro_migration(){
         fi
         
         if [[ "$DRO_MIGRATION" == "true" ]]; then
-          DRO_MIGRATION="true"
-          
           ## Check all avaliable Suite Instances versions , if any of them is 8.9.x cancel the dro migration. Exit mas update throw error. 
           for suite_namespace in $(oc get Suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
           do
@@ -160,7 +158,7 @@ function validate_dro_migration(){
                 exit 1
               fi
             else
-              echo -e "${COLOR_RED}${suite_namespace} with MAS version ${suite_version} is not compatible for DRO migration, exiting mas update"
+              echo -e "${COLOR_RED}${suite_namespace} with MAS version ${suite_version} does not support DRO, you must run mas upgrade to upgrade this instance to at least MAS 8.10, exiting mas update"
               exit 1
             fi
             echo
@@ -168,12 +166,12 @@ function validate_dro_migration(){
         fi
       else
         DRO_MIGRATION="false"
-        echo -e "${COLOR_YELLO}UDS Migration is set to false."
+        echo -e "${COLOR_RED}UDS is in Error state. Please fix your UDS installation to proceed with DRO migration, exiting mas update"
+        exit 1
       fi
     else 
-      DRO_MIGRATION="false"
-      echo -e "${COLOR_RED}UDS is not running locally on the cluster. Please fix your UDS installation to proceed with DRO migration, exiting mas update"
-      exit 1
+      DRO_MIGRATION=""
+      echo -e "${COLOR_YELLOW}UDS does not exist, skipping DRO migration and proceeding with mas update"
     fi
   else
     DRO_MIGRATION="false"
