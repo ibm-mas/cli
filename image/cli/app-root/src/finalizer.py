@@ -219,7 +219,8 @@ if __name__ == "__main__":
         crs = dynClient.resources.get(api_version="apps.mas.ibm.com/v1", kind="ManageWorkspace")
         cr = crs.get(name=f"{instanceId}-masdev", namespace=f"mas-{instanceId}-manage")
         if cr.status and cr.status.components:
-            setObject[f"products.ibm-mas-manage.components"] = cr.status.components
+            componentsDict = cr.to_dict()['status']['components']
+            setObject[f"products.ibm-mas-manage.components"] = componentsDict
         else:
             print(f"Unable to determine Manage installed components: status.components unavailable")
     except Exception as e:
