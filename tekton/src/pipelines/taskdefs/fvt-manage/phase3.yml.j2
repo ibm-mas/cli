@@ -1,14 +1,14 @@
 # -------------------------------------------------------------
 # PHASE 3
-# - fvt-manage-escalation-action
-# - fvt-manage-autoscript-adddeletewo
-# - fvt-manage-jms-inbound
-# - fvt-manage-mif-kafka-setup
-# - fvt-manage-mif-s3-setup
-# - fvt-manage-birt-report
-# - fvt-manage-user-crud
-# - fvt-manage-user-consumption
-# - fvt-manage-communication-temp
+# - fvt-manage-escalation-action (selenium)
+# - fvt-manage-autoscript-adddeletewo (selenium)
+# - fvt-manage-jms-inbound (selenium)
+# - fvt-manage-mif-kafka-setup (selenium)
+# - fvt-manage-mif-s3-setup (selenium)
+# - fvt-manage-birt-report (selenium)
+# - fvt-manage-user-crud (selenium)
+# - fvt-manage-user-consumption (selenium)
+# - fvt-manage-communication-temp (selenium)
 # -------------------------------------------------------------
 
 # Manage FVT Escalation
@@ -18,7 +18,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: escalation-action
   runAfter:
@@ -37,7 +37,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: autoscript-adddeletewo
   runAfter:
@@ -56,7 +56,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: mif-jms-inbound
   runAfter:
@@ -73,7 +73,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: mif-kafka-setup
     - name: kafka_provider
@@ -110,7 +110,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: mif-s3-setup
   runAfter:
@@ -129,7 +129,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: birtreportexe
   runAfter:
@@ -148,7 +148,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: user-crud
   runAfter:
@@ -167,7 +167,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: user-consumption
   runAfter:
@@ -186,7 +186,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: communication-temp
   runAfter:

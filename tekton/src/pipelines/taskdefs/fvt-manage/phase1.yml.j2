@@ -1,8 +1,10 @@
 
 # -------------------------------------------------------------
 # PHASE 1
-# - fvt-manage-setup
-# - fvt-manage-monitoring
+# - fvt-manage-setup (selenium):
+#   - Required by all tests after phase 1 in fvt-manage pipeline 
+#   - Required by fvt-manage-is, fvt-manage-civil, fvt-manage-health, fvt-mobile pipelines and fvt-predict pipelines
+# - fvt-manage-monitoring (pytest)
 # -------------------------------------------------------------
 
 # Manage FVT Setup
@@ -11,7 +13,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: bvt
   runAfter:
@@ -23,7 +25,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base
     - name: fvt_test_suite
       value: monitoring
   runAfter:
