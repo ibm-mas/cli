@@ -99,6 +99,7 @@
         - provision-bootstrap-cluster
         - deprovision-cluster
         - deprovision-mas-instance
+        - deprovision-mas-deps
 
     # 5. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
