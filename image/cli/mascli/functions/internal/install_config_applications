@@ -262,7 +262,7 @@ function manage_settings() {
     if [[ -z "$MAS_APPWS_COMPONENTS" ]]; then
       MAS_APPWS_COMPONENTS="base=latest,health=latest"
     fi
-    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"it="* ]]; then
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"icd="* ]]; then
       echo_h4 "Maximo IT License Terms"
       echo -e "${COLOR_YELLOW}For information about your Maximo IT License, see "https://ibm.biz/MAXIT81-License". To continue with the installation, you must accept the license terms."
       prompt_for_confirm_default_yes "Do you accept the license terms?" LICENSE_RESPONSE
