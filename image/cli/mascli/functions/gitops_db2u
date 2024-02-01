@@ -13,6 +13,7 @@ GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
   -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
+  -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
 
 Secrets Manager:
