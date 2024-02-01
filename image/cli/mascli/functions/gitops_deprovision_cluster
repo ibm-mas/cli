@@ -12,6 +12,7 @@ When no options are specified on the command line, interactive-mode will be enab
 GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}            Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}             Account ID
+  -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}              Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Cluster ID
 
 Secrets Manager:
@@ -37,8 +38,9 @@ function gitops_deprovision_cluster_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
 
-  GITHUB_PUSH="false"
   GIT_COMMIT_MSG="gitops-deprovision-cluster commit"
+
+  export REGION=${REGION:-${SM_AWS_REGION}}
 
   while [[ $# -gt 0 ]]
   do
@@ -51,6 +53,9 @@ function gitops_deprovision_cluster_noninteractive() {
         ;;
       -a|--account-id)
         export ACCOUNT_ID=$1 && shift
+        ;;
+      -r|--region)
+        export REGION=$1 && shift
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
@@ -103,6 +108,7 @@ function gitops_deprovision_cluster_noninteractive() {
   done
 
   [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_cluster_help "ACCOUNT_ID is not set"
+  [[ -z "$REGION" ]] && gitops_cluster_help "REGION_ is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_cluster_help "CLUSTER_ID is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
@@ -126,8 +132,8 @@ function gitops_deprovision_cluster() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
-  GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}
+
 
   echo
   reset_colors
@@ -136,8 +142,9 @@ function gitops_deprovision_cluster() {
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
+  echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -168,10 +175,25 @@ function gitops_deprovision_cluster() {
   echo_h2 "Deleting Cluster secrets"
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
-
+  
+  # Created by gitops_cluster task
   export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
+  sm_delete_secret $SECRET_NAME_IBM_ENTITLEMENT
 
-  sm_delete_secret $SECRET_NAME_IBM_ENTITLEMENT 
+  # Created by postsync hook in ibm-common-services chart
+  export SECRET_NAME_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain
+  echo "Delete $SECRET_NAME_CLUSTER_DOMAIN from Secrets Manager"
+  sm_delete_secret $SECRET_NAME_CLUSTER_DOMAIN
+
+  export SECRET_NAME_DB2_DEFAULT_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}db2_default_channel
+  echo "Delete $SECRET_NAME_DB2_DEFAULT_CHANNEL from Secrets Manager"
+  sm_delete_secret $SECRET_NAME_DB2_DEFAULT_CHANNEL
+
+  # Created by postsync hook in ibm-dro chart
+  export SECRET_NAME_DRO=${ACCOUNT_ID}/${CLUSTER_ID}/dro
+  echo "Delete $SECRET_NAME_DRO from Secrets Manager"
+  sm_delete_secret $SECRET_NAME_DRO
+
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
   fi
@@ -183,61 +205,105 @@ function gitops_deprovision_cluster() {
     echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
-  mkdir -p ${GITOPS_APPS_DIR}
+  mkdir -p ${GITOPS_CLUSTER_DIR}
 
 
-  # Deleting ArgoApps
+  # Delete Application config
   # ---------------------------------------------------------------------------
   echo
-  echo_h2 "Deleting Argo Applications"
-  echo "- IBM Operator Catalog"
-  rm ${GITOPS_APPS_DIR}/ibm-operator-catalog.yaml
-  echo "- IBM Common Services"
-  rm ${GITOPS_APPS_DIR}/ibm-common-services.yaml
+  echo_h2 "Deleting application configuration files"
+
+  ROOT_APP_NAME="root.${ACCOUNT_ID}"
+  CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+  OPERATOR_CATALOG_APP_NAME="operator-catalog.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+  COMMON_SERVICES_APP_NAME="common-services.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+  DRO_APP_NAME="dro.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+  CIS_COMPLIANCE_APP_NAME="cis-compliance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+  DB2U_APP_NAME="db2u.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
 
 
-  # Commit and push to github target repo
-  # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
-    echo
-    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
-
     argocd_login
-    argocd_sync ${CLUSTER_ID}-watcher
-    argocd_prune_sync ${CLUSTER_ID}-watcher
-    check_argo_app_deleted ibm-common-services ${CLUSTER_ID}-cluster-scope
-    check_argo_app_deleted ibm-operator-catalog ${CLUSTER_ID}-cluster-scope
   fi
-
-  # Deleting Argo AppProject
-  # ---------------------------------------------------------------------------
-  echo
-  echo_h2 "Deleting Argo AppProject"
-  echo "- Cluster Scoped AppProject"
-  rm ${GITOPS_APPS_DIR}/appproject-cluster-scope.yaml
-
-  # Commit and push to github target repo
-  # ---------------------------------------------------------------------------
-  if [ "$GITHUB_PUSH" == "true" ]; then
-    echo
-    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
-  fi
-
-  # Deleting any other remaining files
-  # ---------------------------------------------------------------------------
-  echo
-  echo_h2 "Deleting any other files"
-  echo "- Deleting GITOPS_CLUSTER_DIR $GITOPS_CLUSTER_DIR"  
-  rm -rf ${GITOPS_CLUSTER_DIR}
   
-  # Commit and push to github target repo
-  # ---------------------------------------------------------------------------
+  # We'll do these one at a time so we can verify that each app disappears from ArgoCD as we go along
+
+  echo "- Delete CIS Compliance"
+  rm ${GITOPS_CLUSTER_DIR}/cis-compliance.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR/$GITHUB_REPO "${GIT_COMMIT_MSG}"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_CLUSTER_DIR "${GIT_COMMIT_MSG}"
+    argocd_prune_sync "${ROOT_APP_NAME}" # trigger the cluster appset to notice the deletion of the config file
+    
+    # The app generated by the cluster root app should disappear
+    check_argo_app_deleted ${CIS_COMPLIANCE_APP_NAME} "mas"
+  fi
+
+  echo "- Delete DB2U"
+  rm ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_CLUSTER_DIR "${GIT_COMMIT_MSG}"
+    argocd_prune_sync "${ROOT_APP_NAME}" # trigger the cluster appset to notice the deletion of the config file
+    
+    # The app generated by the cluster root app should disappear
+    check_argo_app_deleted ${DB2U_APP_NAME} "mas"
+  fi
+
+  echo "- Delete DRO"
+  rm ${GITOPS_CLUSTER_DIR}/ibm-dro.yaml
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_CLUSTER_DIR "${GIT_COMMIT_MSG}"
+    argocd_prune_sync "${ROOT_APP_NAME}" # trigger the cluster appset to notice the deletion of the config file
+    
+    # The app generated by the cluster root app should disappear
+    check_argo_app_deleted ${DRO_APP_NAME} "mas"
+  fi
+
+  echo "- Delete IBM Common Services"
+  rm ${GITOPS_CLUSTER_DIR}/ibm-common-services.yaml
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_CLUSTER_DIR "${GIT_COMMIT_MSG}"
+    argocd_prune_sync "${ROOT_APP_NAME}" # trigger the cluster appset to notice the deletion of the config file
+    
+    # The app generated by the cluster root app should disappear
+    check_argo_app_deleted ${COMMON_SERVICES_APP_NAME} "mas"
+  fi
+
+
+  echo "- Delete IBM Operator Catalog"
+  rm ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_CLUSTER_DIR "${GIT_COMMIT_MSG}"
+    argocd_prune_sync "${ROOT_APP_NAME}" # trigger the cluster appset to notice the deletion of the config file
+
+    # The app generated by the cluster root app should disappear
+    check_argo_app_deleted ${OPERATOR_CATALOG_APP_NAME} "mas"
+  fi
+
+
+  echo "- Delete base MAS cluster config"
+  rm ${GITOPS_CLUSTER_DIR}/ibm-mas-cluster-base.yaml
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_CLUSTER_DIR "${GIT_COMMIT_MSG}"
+    argocd_prune_sync "${ROOT_APP_NAME}" # trigger the cluster appset to notice the deletion of the config file
+
+    # The app generated by the account root app (i.e. the cluster root app)
+    check_argo_app_deleted ${CLUSTER_ROOT_APP} "mas"
+  fi
+
+
+  if [ "$GITHUB_PUSH" == "true" ]; then
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
 }

@@ -293,16 +293,18 @@ function gitops_deprovision_suite() {
 
   # Delete Application config
   # ---------------------------------------------------------------------------
-
+  echo
+  echo_h2 "Deleting application configuration files"
   CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
   INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
   SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
   SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
-  # We'll do these one at a time so we can verify that each app disappears from ArgoCD as we go along
   if [ "$GITHUB_PUSH" == "true" ]; then
     argocd_login
   fi
+
+  # We'll do these one at a time so we can verify that each app disappears from ArgoCD as we go along
 
   echo
   echo "- Delete MAS Suite"
@@ -329,7 +331,7 @@ function gitops_deprovision_suite() {
   fi
 
   echo
-  echo "- Delete MAS base instance config"
+  echo "- Delete base MAS instance config"
   rm ${GITOPS_INSTANCE_DIR}/ibm-mas-instance-base.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
