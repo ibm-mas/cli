@@ -1,0 +1,94 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+{% if wait_for_provision == true %}
+  name: gitops-mas-initiator-after-provision
+{% else %}
+  name: gitops-mas-initiator
+{% endif %}
+spec:
+  description: Initials the gitops deployment of MAS
+  workspaces:
+    - name: configs
+  params:
+{% if wait_for_provision == true %}
+      # Name of the PipelineRun to wait for
+    - name: pipelinerun_name
+      type: string
+    - name: ignore_failure
+      type: string
+      default: "False"
+      description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
+{% endif %}
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: region
+      type: string
+    - name: github_host
+      type: string
+    - name: target_git_branch
+      type: string
+    - name: target_github_org
+      type: string
+    - name: target_github_repo
+      type: string
+    - name: source_git_branch
+      type: string
+    - name: source_github_org
+      type: string
+    - name: source_github_repo
+      type: string
+    - name: github_pat
+      type: string
+
+  tasks:
+{% if wait_for_provision == true %}
+    # 0. Wait for the provsion pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-provision
+      params:
+        - name: pipelinerun_name
+          value: $(params.pipelinerun_name)
+        - name: ignore_failure
+          value: $(params.ignore_failure)
+      taskRef:
+        kind: Task
+        name: mas-fvt-wait-for-pipelinerun
+{% endif %}
+    - name: gitops-mas-initiator
+{% if wait_for_provision == true %}
+      runAfter:
+        - wait-for-provision
+{% endif %}
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: region
+          value: $(params.region)
+        - name: github_host
+          value: $(params.github_host)
+        - name: target_git_branch
+          value: $(params.target_git_branch)
+        - name: target_github_org
+          value: $(params.target_github_org)
+        - name: target_github_repo
+          value: $(params.target_github_repo)
+        - name: source_git_branch
+          value: $(params.source_git_branch)
+        - name: source_github_org
+          value: $(params.source_github_org)
+        - name: source_github_repo
+          value: $(params.source_github_repo)
+        - name: github_pat
+          value: $(params.github_pat)
+      taskRef:
+        kind: Task
+        name: gitops-mas-initiator
+      workspaces:
+        - name: configs
+          workspace: configs

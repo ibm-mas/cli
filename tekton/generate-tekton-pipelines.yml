@@ -113,3 +113,4 @@
         - provision-mas-apps
         - gitops-mas-fvt-preparer
         - gitops-mas-deps
+        - gitops-mas-initiator
