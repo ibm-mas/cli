@@ -6,8 +6,42 @@ from kubernetes import client, config
 from kubernetes.client import Configuration
 from openshift.dynamic import DynamicClient
 from slackclient import SlackClient
+from subprocess import PIPE, Popen, TimeoutExpired
+import threading
 from jira import JIRA
 
+class RunCmdResult(object):
+    def __init__(self, returnCode, output, error):
+        self.rc = returnCode
+        self.out = output
+        self.err = error
+
+    def successful(self):
+        return self.rc == 0
+
+    def failed(self):
+        return self.rc != 0
+
+def runCmd(cmdArray, timeout=630):
+    """
+    Run a command on the local host.  This drives all the helm operations,
+    as there is no python Helm client available.
+    # Parameters
+    cmdArray (list<string>): Command to execute
+    timeout (int): How long to allow for the command to complete
+    # Returns
+    [int, string, string]: `returnCode`, `stdOut`, `stdErr`
+    """
+
+    lock = threading.Lock()
+
+    with lock:
+        p = Popen(cmdArray, stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=-1)
+        try:
+            output, error = p.communicate(timeout=timeout)
+            return RunCmdResult(p.returncode, output, error)
+        except TimeoutExpired as e:
+            return RunCmdResult(127, 'TimeoutExpired', str(e))
 
 # Post message to Slack
 # -----------------------------------------------------------------------------
@@ -225,6 +259,23 @@ if __name__ == "__main__":
             print(f"Unable to determine Manage installed components: status.components unavailable")
     except Exception as e:
         print(f"Unable to determine Manage installed components: {e}")
+
+    # Get Maximo Process Automation Engine (MPAE) version
+    # -------------------------------------------------------------------------
+    try:
+        pods = dynClient.resources.get(api_version="v1", kind="Pod")
+        podList = pods.get(namespace=f"mas-{instanceId}-manage", label_selector=f'mas.ibm.com/appType=maxinstudb')
+
+        if podList is None or podList.items is None or len(podList.items) == 0:
+            pass
+        else:
+            podName = podList.items[0].metadata.name
+            ocExecCommand = ["oc", "exec", "-n", f"mas-{instanceId}-manage", podName, "--", "cat", "/opt/IBM/SMP/maximo/build.num"]
+            result = runCmd(ocExecCommand)
+            maximoBuildNumber = result.out.decode('utf-8')
+            setObject[f"products.ibm-mas-manage.maximoBuildVersion"] = maximoBuildNumber
+    except Exception as e:
+        print(f"Unable to determine Maximo Process Automation Engine (MPAE) version: {e}")
 
     # Connect to mongoDb
     # -------------------------------------------------------------------------
