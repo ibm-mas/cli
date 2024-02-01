@@ -78,6 +78,7 @@
       with_items:
         - deprovision-cluster
         - deprovision-mas-apps
+        - deprovision-mas-deps
         - deprovision-mas-instance
         - provision-bootstrap-cluster
         - provision-mas-instance
