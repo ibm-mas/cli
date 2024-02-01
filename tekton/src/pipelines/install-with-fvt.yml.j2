@@ -282,9 +282,12 @@ spec:
     # 6. Install & Configure IoT
     # -------------------------------------------------------------------------
     # 6.1 Install IoT
+    #
+    # Note: In the case of manage using the shared Db2 instance only start the
+    # IoT install *after* any Manage database preparation has completed
     {{ lookup('template', 'taskdefs/apps/iot-app.yml.j2') | indent(4) }}
       runAfter:
-        - suite-config-db2
+        - suite-db2-setup-system
         - suite-config-kafka
 
     # 6.2 Configure IoT workspace
@@ -484,7 +487,7 @@ spec:
           values: ["true", "True"]
       runAfter:
         - app-cfg-manage
-    
+
     # 18. Application FVT - Manage Civil
     # -------------------------------------------------------------------------
     # 22. Application FVT - Civil
@@ -504,7 +507,7 @@ spec:
           values: ["true", "True"]
       runAfter:
         - launchfvt-manage
-    
+
     # 19. Application FVT - Manage IS (Industry Solutions)
     # -------------------------------------------------------------------------
     - name: launchfvt-manage-is
