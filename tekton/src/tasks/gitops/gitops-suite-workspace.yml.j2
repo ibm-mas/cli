@@ -13,9 +13,9 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
-    - name: workspace_id
+    - name: mas_workspace_id
       type: string
-    - name: workspace_name
+    - name: mas_workspace_name
       type: string
     - name: git_branch
       type: string
@@ -53,9 +53,9 @@ spec:
       - name: GITHUB_REPO
         value: $(params.github_repo)
       - name: WORKSPACE_ID
-        value: $(params.workspace_id)
+        value: $(params.mas_workspace_id)
       - name: WORKSPACE_NAME
-        value: $(params.workspace_name)
+        value: $(params.mas_workspace_name)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
       - name: ARGOCD_URL

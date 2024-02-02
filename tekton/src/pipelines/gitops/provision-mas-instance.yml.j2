@@ -61,9 +61,9 @@ spec:
       type: string
     - name: mas_domain
       type: string
-    - name: workspace_id
+    - name: mas_workspace_id
       type: string
-    - name: workspace_name
+    - name: mas_workspace_name
       type: string
     - name: aws_key_pair_name
       type: string
@@ -440,9 +440,9 @@ spec:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: workspace_id
-          value: $(params.workspace_id)
+          value: $(params.mas_workspace_id)
         - name: workspace_name
-          value: $(params.workspace_name)
+          value: $(params.mas_workspace_name)
         - name: git_branch
           value: $(params.git_branch)
         - name: github_org

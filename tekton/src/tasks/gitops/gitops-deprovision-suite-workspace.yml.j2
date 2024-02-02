@@ -13,9 +13,9 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
-    - name: workspace_id
+    - name: mas_workspace_id
       type: string
-    - name: workspace_name
+    - name: mas_workspace_name
       type: string
       default: aws
     - name: git_branch
@@ -51,9 +51,9 @@ spec:
       - name: GITHUB_REPO
         value: $(params.github_repo)
       - name: WORKSPACE_ID
-        value: $(params.workspace_id)
+        value: $(params.mas_workspace_id)
       - name: WORKSPACE_NAME
-        value: $(params.workspace_name)
+        value: $(params.mas_workspace_name)
       - name: GITHUB_PAT
         value: $(params.github_pat) 
       - name: FORCE_REMOVAL
