@@ -119,7 +119,8 @@ function detect_grafana_update() {
     if [[ "$(oc api-versions | grep '^integreatly.org/v1alpha1$'| wc -l)" -gt 0 ]]; then
       echo
       echo -e "${COLOR_YELLOW}Grafana Operator V4 is currently installed and will be updated to V5. ${COLOR_RESET}"
-      echo -e "${COLOR_YELLOW}You will need a new web address and password for Grafana. ${COLOR_RESET}"
+      echo -e "${COLOR_YELLOW}When Grafana v5 is installed it will have a new URL and the admin password. ${COLOR_RESET}"
+      echo -e "${COLOR_YELLOW}User accounts set up in the v4 instance will need to be recreated in the v5 instance. ${COLOR_RESET}"
       echo
       GRAFANA_V5_UPGRADE=true
     fi
