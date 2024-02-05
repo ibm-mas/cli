@@ -289,6 +289,13 @@ function gitops_cluster() {
 
   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
 
+
+  echo "- Generate AWS secret"
+  # This is used by some of the ArgoCD sync hooks to make updates to AWS SM from within the cluster
+  export SECRET_NAME_AWS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}aws
+  sm_update_secret $SECRET_NAME_AWS "{\"aws_access_key_id\": \"${SM_AWS_ACCESS_KEY_ID}\", \"aws_secret_access_key\": \"${SM_AWS_SECRET_ACCESS_KEY}\"}"
+
+
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   echo
