@@ -81,14 +81,14 @@ function gitops_mcsp_cis_compliance_noninteractive() {
       -M|--git-commit-msg)
         export GIT_COMMIT_MSG=$1 && shift
         ;;
-      
+
       -S|--github-ssh)
         export GIT_SSH=$1 && shift
         ;;
 
       # Other Commands
       -h|--help)
-        gitops_cluster_help
+        gitops_mcsp_cis_compliance_help
         ;;
       *)
         # unknown option
@@ -193,7 +193,7 @@ function gitops_mcsp_cis_compliance() {
   echo "---"
   cat ${GITOPS_CLUSTER_DIR}/ibm-cis-compliance.yaml
 
-  
+
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
