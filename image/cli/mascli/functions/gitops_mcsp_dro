@@ -95,7 +95,7 @@ function gitops_mcsp_dro_noninteractive() {
       -M|--git-commit-msg)
         export GIT_COMMIT_MSG=$1 && shift
         ;;
-      
+
       -S|--github-ssh)
         export GIT_SSH=$1 && shift
         ;;
@@ -111,7 +111,7 @@ function gitops_mcsp_dro_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_cluster_help
+        gitops_mcsp_dro_help
         ;;
       *)
         # unknown option
@@ -242,7 +242,7 @@ function gitops_mcsp_dro() {
   echo "---"
   cat ${GITOPS_CLUSTER_DIR}/ibm-dro.yaml
 
-  
+
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then

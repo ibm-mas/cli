@@ -6,7 +6,7 @@ function gitops_bootstrap_help() {
   reset_colors
   cat << EOM
 Usage:
-  mas gitops-cluster [options]
+  mas gitops-bootstrap [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -79,7 +79,7 @@ function gitops_bootstrap_noninteractive() {
     esac
   done
 
-  [[ -z "$AVP_TYPE" ]] && gitops_cluster_help "AVP_TYPE is not set"
+  [[ -z "$AVP_TYPE" ]] && gitops_bootstrap_help "AVP_TYPE is not set"
   if [ $AVP_TYPE == 'aws' ]; then
     if [ -z $AVP_AWS_SECRET_REGION ] || [ -z $AVP_AWS_SECRET_REGION ] || [ -z $AVP_AWS_SECRET_REGION ]; then
       echo 'Missing required params for AWS secret manager, make sure to provide --avp-aws-secret-region, --avp-aws-secret-key and --avp-aws-access-key'
@@ -161,9 +161,9 @@ function gitops_bootstrap() {
   oc get crd argocds.argoproj.io
   LOOKUP_RESULT=$?
   while [ "$LOOKUP_RESULT" == "1" ]; do
-    echo "Waiting 5s for argocds.argoproj.io CRD to be installed before checking again ..." 
+    echo "Waiting 5s for argocds.argoproj.io CRD to be installed before checking again ..."
     sleep 5
-    oc get crd argocds.argoproj.io 
+    oc get crd argocds.argoproj.io
     LOOKUP_RESULT=$?
   done
 
@@ -173,7 +173,7 @@ function gitops_bootstrap() {
   oc get namespace openshift-gitops
   LOOKUP_RESULT=$?
   while [ "$LOOKUP_RESULT" == "1" ]; do
-    echo "Waiting 5s for openshift-gitops namespace to be installed before checking again ..." 
+    echo "Waiting 5s for openshift-gitops namespace to be installed before checking again ..."
     sleep 5
     oc get namespace openshift-gitops
     LOOKUP_RESULT=$?
@@ -184,7 +184,7 @@ function gitops_bootstrap() {
   jinja -X .+ ${CLI_DIR}/templates/gitops/bootstrap/secret-${AVP_TYPE}.yaml.j2 | oc apply  -f -
 
   # 3. Create repo server SA
-  echo 'Create ArgoCD repo server service account' 
+  echo 'Create ArgoCD repo server service account'
   oc apply  -f ${CLI_DIR}/templates/gitops/bootstrap/rbac.yaml
 
   # 4. Create ConfigPluginManagement
@@ -219,11 +219,11 @@ function gitops_bootstrap() {
   # 9. For some reason the application-controller needs restarting to pickup the RBAC changes
   echo 'Restart application-controller'
   oc rollout restart statefulset/openshift-gitops-application-controller -n openshift-gitops
-  
+
   echo 'Waiting for rollout of application-controller to complete'
   oc rollout status statefulset/openshift-gitops-application-controller -n openshift-gitops
 
-  echo 
+  echo
   echo "${COLOR_GREEN}OpenShift GitOps Operator is installed and ready${COLOR_RESET}"
   echo
 

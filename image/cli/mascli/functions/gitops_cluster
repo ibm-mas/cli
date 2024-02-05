@@ -22,11 +22,11 @@ Secrets Manager:
 Operator Catalog:
       --catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}   Version of ibm-maximo-operator-catalog to use
       --catalog-image ${COLOR_YELLOW}MAS_CATALOG_IMAGE${TEXT_RESET}       Contain image to use for ibm-maximo-operator-catalog
-      --catalog-action ${COLOR_YELLOW}MAS_CATALOG_ACTION${TEXT_RESET}     Action to take on MAS Catalog, either `install`, `update` or `none`. Default is `install`
+      --catalog-action ${COLOR_YELLOW}MAS_CATALOG_ACTION${TEXT_RESET}     Action to take on MAS Catalog, either 'install', 'update' or 'none'. Default is 'install'
 
 IBM Cloud Pak Foundational Services:
       --common-services-channel ${COLOR_YELLOW}COMMON_SERVICES_CHANNEL${TEXT_RESET} OLM Channel of the IBM Common Services to install
-      --common-services-action ${COLOR_YELLOW}COMMON_SERVICES_ACTION${TEXT_RESET}   Action to take on common-services, either `install`, `upgrade` or `none`. Default is `install`
+      --common-services-action ${COLOR_YELLOW}COMMON_SERVICES_ACTION${TEXT_RESET}   Action to take on common-services, either 'install', 'upgrade' or 'none'. Default is 'install'
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}           Enable automatic push to GitHub
@@ -39,6 +39,7 @@ Automatic GitHub Push:
 Other Commands:
   -h, --help                              Show this help message
 EOM
+
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
@@ -102,7 +103,7 @@ function gitops_cluster_noninteractive() {
       -M|--git-commit-msg)
         export GIT_COMMIT_MSG=$1 && shift
         ;;
-      
+
       -S|--github-ssh)
         export GIT_SSH=$1 && shift
         ;;
@@ -114,7 +115,7 @@ function gitops_cluster_noninteractive() {
       --catalog-image)
         export MAS_CATALOG_IMAGE=$1 && shift
         ;;
-      --mas-catalog-action)
+      --catalog-action)
         export MAS_CATALOG_ACTION=$1 && shift
         ;;
 
@@ -122,7 +123,7 @@ function gitops_cluster_noninteractive() {
       --common-services-channel)
         export COMMON_SERVICES_CHANNEL=$1 && shift
         ;;
-      --common_services_action)
+      --common-services-action)
         export COMMON_SERVICES_ACTION=$1 && shift
         ;;
 
@@ -132,9 +133,7 @@ function gitops_cluster_noninteractive() {
         ;;
       *)
         # unknown option
-        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_cluster_help  "Usage Error: Unsupported option \"${key}\" "
-        exit 1
+        gitops_cluster_help  "Usage Error: Unsupported option \"${key}\""
         ;;
     esac
   done
