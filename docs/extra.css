@@ -67,7 +67,7 @@ table.clusterExtensions tr th {
   padding: 5px;
 }
 table.clusterExtensions tr td {
-  vertical-align: top;
+  vertical-align: top !important;
   padding: 5px;
 }
 
@@ -77,8 +77,8 @@ table.clusterExtensions tr:nth-child(even) {
 table.clusterExtensions tr:nth-child(odd) {
   background-color: #f3f6f6;
 }
-table.clusterExtensions tr.alt {
-  background-color: #eee;
+table.clusterExtensions tr.alt td {
+  background-color: #eee !important;
 }
 
 
