@@ -333,17 +333,19 @@ function gitops_cluster() {
     COMMON_SERVICES_APP_NAME="common-services.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
 
     argocd_sync "${ROOT_APP_NAME}"
+    argocd_hard_refresh "${ROOT_APP_NAME}" # refresh any secrets fetched from AWS SM
 
     check_argo_app_synced "${CLUSTER_APP_NAME}" "${ROOT_APP_NAME}"
 
 
     if [[ "$MAS_CATALOG_ACTION" == "update" || "$MAS_CATALOG_ACTION" == "install" ]]; then
+      c
       check_argo_app_synced "${OPERATOR_CATALOG_APP_NAME}" "${ROOT_APP_NAME}"
       check_argo_app_healthy "${OPERATOR_CATALOG_APP_NAME}" "${ROOT_APP_NAME}"
     fi
 
     if [[ "$COMMON_SERVICES_ACTION" == "upgrade" || "$COMMON_SERVICES_ACTION" == "install" ]]; then
-      add_role_to_user ibm-common-services # Is this defintely necessary? Didn't seem to be - at least on MCSP-provisioned ROSA clusters
+      argocd_hard_refresh "${COMMON_SERVICES_APP_NAME}" # refresh any secrets fetched from AWS SM
       check_argo_app_synced "${COMMON_SERVICES_APP_NAME}" "${ROOT_APP_NAME}" ibm-common-services
       check_argo_app_healthy "${COMMON_SERVICES_APP_NAME}" "${ROOT_APP_NAME}"
     fi
