@@ -110,6 +110,12 @@ spec:
       type: string
       description: Set to 'true' to change all LicenseService CRs' registry to cpopen
 
+    # grafana operator update
+    - name: grafana_v5_upgrade
+      type: string
+      description: Approves the Grafana Operator upgrade to version 5
+      default: ""
+
   tasks:
 {% if wait_for_install == true %}
     # 0. Wait for the install pipeline to complete
@@ -225,6 +231,20 @@ spec:
           operator: in
           values: ["redhat"]
 
+    - name: update-grafana
+      taskRef:
+        kind: Task
+        name: mas-devops-cluster-monitoring
+      when:
+        - input: $(params.grafana_v5_upgrade)
+          operator: in
+          values: ["true", "True"]
+      params:
+        - name: cluster_monitoring_action
+          value: update_grafana
+      runAfter:
+        - update-common-services
+
     - name: update-db2
       taskRef:
         kind: Task
@@ -283,6 +303,7 @@ spec:
         - update-mongodb
         - update-kafka
         - update-cert-manager
+        - update-grafana
 
 
 {% if wait_for_install == true %}

@@ -25,12 +25,16 @@
 
     - name: cluster_monitoring_include_grafana
       value: $(params.cluster_monitoring_include_grafana)
+    - name: cluster_monitoring_include_opentelemetry
+      value: $(params.cluster_monitoring_include_opentelemetry)
     - name: grafana_namespace
       value: $(params.grafana_namespace)
     - name: grafana_instance_storage_class
       value: $(params.storage_class_rwo)
     - name: grafana_instance_storage_size
       value: $(params.grafana_instance_storage_size)
+    - name: grafana_major_version
+      value: $(params.grafana_major_version)
 
   taskRef:
     kind: Task

@@ -145,6 +145,7 @@ function configure_ocp_for_mirror() {
 
   export SETUP_REDHAT_CATALOGS
   export OCP_OPERATORHUB_DISABLE_REDHAT_SOURCES
+  export OCP_RELEASE
 
   echo
   reset_colors
