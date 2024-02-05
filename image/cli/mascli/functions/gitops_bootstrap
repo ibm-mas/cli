@@ -93,10 +93,10 @@ function gitops_bootstrap_noninteractive() {
     fi
   fi
 
-  if [ -z $APP_WATCHER_REPO_URL ] || [ -z $APP_WATCHER_REPO_PAT ]; then
-    echo 'No Environment watcher github repository provided, make sure to provide --github-pat and --github-url'
-    exit 1
-  fi
+  # if [ -z $APP_WATCHER_REPO_URL ] || [ -z $APP_WATCHER_REPO_PAT ]; then
+  #   echo 'No Environment watcher github repository provided, make sure to provide --github-pat and --github-url'
+  #   exit 1
+  # fi
 
   if [ -z $CLUSTER_ID ]; then
     echo 'No Environment cluster name provided, make sure to provide --cluster-id'
@@ -207,7 +207,7 @@ function gitops_bootstrap() {
 
   # 6. Add the watcher to the gitops environment repo
   # TODO: replace watcher app with multi-cluster mas-root application
-  jinja -X .+ ${CLI_DIR}/templates/gitops/bootstrap/watcher.yaml.j2 | oc apply -f -
+  # jinja -X .+ ${CLI_DIR}/templates/gitops/bootstrap/watcher.yaml.j2 | oc apply -f -
 
   # 7. Patch openshift-marketplace to allow GitOps to manage resources in the namespace
   echo 'Patch standard namespaces to enable GitOps management'
