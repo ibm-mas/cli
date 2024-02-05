@@ -184,6 +184,7 @@ This quick guide is as a reference for customer administrator to register/unregi
 <ul>
 <li><code>-m|--mas-home MAS_HOME</code>                      MAS Home Url</li>
 <li><code>-p|--ui-prefix TRUST_UI_PREFIX</code>              Trust UI prefix to receive OIDC callback</li>
+<li><code>-i|--instance-id</code>                            MAS Instance id specified if not derived from MAS_HOME url (Optional)</li>
 </ul>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
 <h3 id="interactive-mode">Interactive Mode<a class="headerlink" href="#interactive-mode" title="Permanent link"></a></h3>
@@ -192,14 +193,15 @@ This quick guide is as a reference for customer administrator to register/unregi
 <h3 id="non-interactive-mode">Non-Interactive Mode<a class="headerlink" href="#non-interactive-mode" title="Permanent link"></a></h3>
 <pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas oidc register \
   -t sha256~dOnviPZtgCfJqUfUFLiSlsmXjzxtXpedhdxyXZ0F0X4 -s https://c118-e.us-south.containers.cloud.ibm.com:30221 \
-  -m masdev.home.mobfound1.masdev.suite.maximo.com -p &quot;http://localhost:3000, http://localhost:3001&quot;
+  -m masdev.home.mobfound1.masdev.suite.maximo.com -p &quot;http://localhost:3000, http://localhost:3001&quot; -i &quot;mobfnd&quot;
 </code></pre>
 <pre><code class="language-bash">export CLUSTER_TOKEN=sha256~COA8-2Hd6G45rUN0HZLLh47sFByoX8QCC8j92jWB3to  
 export CLUSTER_SERVER=https://c130-e.us-south.containers.cloud.ibm.com:32250
 export MAS_HOME=masdev.home.mobfound1.masdev.suite.maximo.com  
 export TRUST_UI_PREFIX=&quot;http://localhost:3000, http://localhost:3001&quot;
+export MAS_INSTANCE_ID=mobfnd
 docker run -ti --rm --pull always quay.io/ibmmas/cli mas oidc register \
-  -t $CLUSTER_TOKEN -s $CLUSTER_SERVEr -m $MAS_HOME -p $TRUEST_UI_PREFIX
+  -t $CLUSTER_TOKEN -s $CLUSTER_SERVEr -m $MAS_HOME -p $TRUEST_UI_PREFIX -i $MAS_INSTANCE_ID
 </code></pre>
 <h2 id="appendix">Appendix<a class="headerlink" href="#appendix" title="Permanent link"></a></h2>
 <h3 id="1-cluster-credentials">1. Cluster Credentials.<a class="headerlink" href="#1-cluster-credentials" title="Permanent link"></a></h3>
@@ -214,6 +216,7 @@ example: <code>oc login --token=sha256~COA8-2Hd6G45rUN0HZLLh47sFByoX8QCC8j92jWB3
 <ul>
 <li>MAS_HOME=main.home.ivt15rel89.ivt.suite.maximo.com</li>
 <li>TRUST_UI_PREFIX="http://localhost:3000, http://localhost:3001"</li>
+<li>MAS_INSTANCE_ID=ivt15xx</li>
 </ul>
               
             </div>
