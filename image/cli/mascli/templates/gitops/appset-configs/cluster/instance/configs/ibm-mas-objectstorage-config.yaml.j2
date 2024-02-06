@@ -18,7 +18,7 @@ objectstorage_config:
     {% for objectstorage_certificate in certificates -%}
     - alias: {{ objectstorage_certificate.alias }}
       crt: |
-        {% filter indent(width=12) -%}
+        {% filter indent(width=8) -%}
         {{ objectstorage_certificate.crt }}
         {%- endfilter %}
     {% endfor %}

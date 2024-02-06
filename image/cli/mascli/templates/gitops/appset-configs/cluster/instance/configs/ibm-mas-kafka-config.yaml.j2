@@ -22,7 +22,7 @@ kafka_config:
     {% for kafka_certificate in certificates -%}
     - alias: {{ kafka_certificate.alias }}
       crt: |
-        {% filter indent(width=12) -%}
+        {% filter indent(width=8) -%}
         {{ kafka_certificate.crt }}
         {%- endfilter %}
     {% endfor %}

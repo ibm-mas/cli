@@ -25,7 +25,7 @@ certificates:
   {% for mongo_certificate in config.certificate -%}
   - alias: {{ mongo_certificate.alias }}
     crt: |
-      {% filter indent(width=10) -%}
+      {% filter indent(width=6) -%}
       {{ mongo_certificate.crt }}
       {%- endfilter %}
   {% endfor %}
@@ -33,7 +33,7 @@ certificates:
   {% for mongo_certificate in certificates -%}
   - alias: {{ mongo_certificate.alias }}
     crt: |
-      {% filter indent(width=10) -%}
+      {% filter indent(width=6) -%}
       {{ mongo_certificate.crt }}
       {%- endfilter %}
   {% endfor %}
