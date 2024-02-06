@@ -314,6 +314,8 @@ function gitops_suite_smtp_config() {
 
     argocd_hard_refresh "${SYSTEM_CONFIGS_APP}"
 
+    argocd_sync "${SYSTEM_CONFIGS_APP}"
+
     check_argo_app_synced "${SYSTEM_CONFIGS_APP}" "${INSTANCE_ROOT_APP}"
     check_argo_app_healthy "${SYSTEM_CONFIGS_APP}" "${INSTANCE_ROOT_APP}"
   fi
