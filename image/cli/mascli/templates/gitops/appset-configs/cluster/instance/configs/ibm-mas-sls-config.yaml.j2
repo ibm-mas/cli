@@ -1,0 +1,14 @@
+mas_config_name: "{{ MAS_CONFIG_SCOPE }}-{% if MAS_CONFIG_SCOPE == "ws" or MAS_CONFIG_SCOPE == "wsapp" %}{{ MAS_WORKSPACE_ID }}-{% endif %}{% if MAS_CONFIG_SCOPE == "app" or MAS_CONFIG_SCOPE == "wsapp" %}{{ MAS_APP_ID }}-{% endif %}sls"
+mas_config_chart: ibm-mas-sls-config
+mas_config_scope: {{ MAS_CONFIG_SCOPE }}
+mas_workspace_id: {{MAS_WORKSPACE_ID}}
+mas_application_id: {{MAS_APP_ID}}
+
+mas_instance_id: {{ MAS_INSTANCE_ID }}
+registration_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLS_REGISTRATION_KEY }}>
+url: "https://sls.mas-{{ MAS_INSTANCE_ID }}-sls.svc"
+ca:
+  crt: |
+    {% filter indent(width=4) -%}
+    {{ SLS_CA_CERTIFICATE }}
+    {%- endfilter %}

@@ -145,7 +145,7 @@ function gitops_deprovision_suite_smtp_config() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/system-configs
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/configs
 
   echo
   reset_colors
@@ -234,17 +234,12 @@ function gitops_deprovision_suite_smtp_config() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-
     INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    SYSTEM_CONFIGS_APP="system-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-
+    SMTP_CONFIG_APP="system-smtp.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
     argocd_login
-    argocd_prune_sync "${INSTANCE_ROOT_APP}" ## trigger the instance root app to notice the deletion of the config file
-    argocd_prune_sync "${SYSTEM_CONFIGS_APP}" ## trigger the system-configs app to notice the updates to its helm values
+    argocd_prune_sync "${INSTANCE_ROOT_APP}" ## trigger the config appset to notice the deletion of the config file
 
-    # postsync hook takes care of ensuring the config CR is actually deleted
-    check_argo_app_synced ${SYSTEM_CONFIGS_APP}
-
+    check_argo_app_deleted ${SMTP_CONFIG_APP} "mas"
   fi
 }

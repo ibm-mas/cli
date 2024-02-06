@@ -1,0 +1,20 @@
+mas_config_name: "{{ MAS_CONFIG_SCOPE }}-{% if MAS_CONFIG_SCOPE == "ws" or MAS_CONFIG_SCOPE == "wsapp" %}{{ MAS_WORKSPACE_ID }}-{% endif %}{% if MAS_CONFIG_SCOPE == "app" or MAS_CONFIG_SCOPE == "wsapp" %}{{ MAS_APP_ID }}-{% endif %}idp"
+mas_config_chart: ibm-mas-idp-config
+mas_config_scope: {{ MAS_CONFIG_SCOPE }}
+mas_workspace_id: {{MAS_WORKSPACE_ID}}
+mas_application_id: {{MAS_APP_ID}}
+
+
+mas_instance_id: {{ MAS_INSTANCE_ID }}
+suite_ldap_bind_dn: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LDAP_BIND_DN }}>
+suite_ldap_bind_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LDAP_BIND_PASSWORD }}>
+suite_ldap_secret_name: ldap-system-credentials-{{ MAS_INSTANCE_ID }}
+suite_ldap_display_name: {{ IDPCFG_DISPLAY_NAME }}
+suite_ldap_url: {{ LDAP_URL }}
+suite_ldap_basedn: {{ LDAP_BASEDN }}
+suite_ldap_userid_map: {{ LDAP_USERID_MAP }}
+suite_ldap_certificate:
+  crt: |
+    {% filter indent(width=4) -%}
+    {{ LDAP_CERTIFICATE_CONTENT }}
+    {%- endfilter %}

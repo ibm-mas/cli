@@ -317,17 +317,17 @@ function gitops_db2u_jdbc_config() {
       exit 1
   elif [[ "$MAS_CONFIG_SCOPE" == "system" ]]; then
     export SUITE_JDBCCFG_NAME="system.ibm-mas-jdbc-config"
-    export JDBCCFG_DIR="${GITOPS_INSTANCE_DIR}/system-configs"
-    export JDBCCFG_FILENAME="system.ibm-mas-jdbc-config.yaml"
-    export JDBCCFG_TEMPLATE="$CLI_DIR/templates/gitops/appset-configs/cluster/instance/system-configs/system.ibm-mas-jdbc-config.yaml.j2"
+    export JDBCCFG_DIR="${GITOPS_INSTANCE_DIR}/configs"
+    export JDBCCFG_FILENAME="${SUITE_JDBCCFG_NAME}.yaml"
+    export JDBCCFG_TEMPLATE="$CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-jdbc-config.yaml.j2"
   elif [[ "$MAS_CONFIG_SCOPE" == "ws" ]]; then
       echo_reset_dim "${COLOR_RED} Workspace-level JDBC configuration not supported yet"
       exit 1
   elif [[ "$MAS_CONFIG_SCOPE" == "wsapp" ]]; then
     export SUITE_JDBCCFG_NAME="wsapp.${MAS_WORKSPACE_ID}.${MAS_APP_ID}.ibm-mas-jdbc-config"
-    export JDBCCFG_DIR="${GITOPS_INSTANCE_DIR}/masapps/${MAS_APP_ID}/wsapp-configs"
-    export JDBCCFG_FILENAME="wsapp.ibm-mas-jdbc-config.yaml"
-    export JDBCCFG_TEMPLATE="$CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/wsapp-configs/wsapp.ibm-mas-jdbc-config.yaml.j2"
+    export JDBCCFG_DIR="${GITOPS_INSTANCE_DIR}/configs"
+    export JDBCCFG_FILENAME="${SUITE_JDBCCFG_NAME}.yaml"
+    export JDBCCFG_TEMPLATE="$CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-jdbc-config.yaml.j2"
   fi
   
   mkdir -p "${JDBCCFG_DIR}"
@@ -381,30 +381,28 @@ function gitops_db2u_jdbc_config() {
 
     argocd_login
 
-
     if [[ "$MAS_CONFIG_SCOPE" == "system" ]]; then
       CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
       INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-      SYSTEM_CONFIGS_APP="system-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-      argocd_sync "${CLUSTER_ROOT_APP}" ## trigger the instance appset to pick up the new config files
+      JDBC_CONFIG_APP="system-jdbc.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the config appset to pick up the new config files
       check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 
-      argocd_hard_refresh "${SYSTEM_CONFIGS_APP}"
-
-      check_argo_app_synced "${SYSTEM_CONFIGS_APP}" "${INSTANCE_ROOT_APP}"
-      check_argo_app_healthy "${SYSTEM_CONFIGS_APP}" "${INSTANCE_ROOT_APP}"
+      argocd_hard_refresh "${JDBC_CONFIG_APP}"
+      check_argo_app_synced "${JDBC_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+      check_argo_app_healthy "${JDBC_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
     elif [[ "$MAS_CONFIG_SCOPE" == "wsapp" ]]; then
+
+      CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
       INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-      MASAPP_ROOT_APP="ma.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
-      MASAPP_APP="mai.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
+      JDBC_CONFIG_APP="wsapp-${MAS_WORKSPACE_ID}-${MAS_APP_ID}-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      argocd_sync "${INSTANCE_ROOT_APP}" # trigger the config appset to pick up the new config files
+      check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 
-      argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the masapp appset to pick up the new config files
-      check_argo_app_synced "${MASAPP_ROOT_APP}" "${INSTANCE_ROOT_APP}" # wait for the masapp root app to sync
+      argocd_hard_refresh "${JDBC_CONFIG_APP}"
+      check_argo_app_synced "${JDBC_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+      check_argo_app_healthy "${JDBC_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
 
-      argocd_hard_refresh "${MASAPP_APP}"
-
-      check_argo_app_synced "${MASAPP_APP}" "${MASAPP_ROOT_APP}"
-      check_argo_app_healthy "${MASAPP_APP}" "${MASAPP_ROOT_APP}"
     fi
 
   fi

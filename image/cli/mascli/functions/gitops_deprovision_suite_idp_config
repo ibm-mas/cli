@@ -144,7 +144,7 @@ function gitops_deprovision_suite_idp_config() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/system-configs
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/configs
 
   echo
   reset_colors
@@ -233,13 +233,11 @@ function gitops_deprovision_suite_idp_config() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    SYSTEM_CONFIGS_APP="system-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    IDP_CONFIG_APP="system-idp.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
     argocd_login
-    argocd_prune_sync "${INSTANCE_ROOT_APP}" ## trigger the instance root app to notice the deletion of the config file
-    argocd_prune_sync "${SYSTEM_CONFIGS_APP}" ## trigger the system-configs app to notice the updates to its helm values
+    argocd_prune_sync "${INSTANCE_ROOT_APP}" ## trigger the config appset to notice the deletion of the config file
 
-    # postsync hook takes care of ensuring the config CR is actually deleted
-    check_argo_app_synced ${SYSTEM_CONFIGS_APP}
+    check_argo_app_deleted ${IDP_CONFIG_APP} "mas"
   fi
 }
