@@ -394,11 +394,13 @@ function gitops_suite() {
     argocd_hard_refresh "${SLS_APP_NAME}"
 
     # Wait for SLS to sync and become healthy
+    argocd_sync "${SLS_APP_NAME}"
     check_argo_app_synced "${SLS_APP_NAME}" "${INSTANCE_ROOT_APP}" mas-${MAS_INSTANCE_ID}-sls
     check_argo_app_healthy "${SLS_APP_NAME}" "${INSTANCE_ROOT_APP}"
 
     # Wait for Suite to become healthy
     # health check of suite will be done in gitops_suite_config (suite will not be healthy until core configs are established)
+    argocd_sync "${SUITE_APP_NAME}"
     check_argo_app_synced "${SUITE_APP_NAME}" "${INSTANCE_ROOT_APP}" mas-${MAS_INSTANCE_ID}-core
 
   fi
