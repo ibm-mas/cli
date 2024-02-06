@@ -380,7 +380,6 @@ function gitops_suite() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-
     CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
     INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
     SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
@@ -394,14 +393,9 @@ function gitops_suite() {
     argocd_hard_refresh "${SUITE_APP_NAME}"
     argocd_hard_refresh "${SLS_APP_NAME}"
 
-    # TODO: are these necessary?
-    # add_role_to_user mas-${MAS_INSTANCE_ID}-sls
-    # add_role_to_user mas-${MAS_INSTANCE_ID}-core
-
     # Wait for SLS to sync and become healthy
     check_argo_app_synced "${SLS_APP_NAME}" "${INSTANCE_ROOT_APP}" mas-${MAS_INSTANCE_ID}-sls
     check_argo_app_healthy "${SLS_APP_NAME}" "${INSTANCE_ROOT_APP}"
-
 
     # Wait for Suite to become healthy
     # health check of suite will be done in gitops_suite_config (suite will not be healthy until core configs are established)
