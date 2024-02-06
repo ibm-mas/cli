@@ -363,17 +363,18 @@ function gitops_suite() {
   export SECRET_KEY_MONGO_PASSWORD=${SECRET_NAME_MONGO}#password
   export SECRET_KEY_MONGO_INFO=${SECRET_NAME_MONGO}#info
 
-  # Below logic moved to presync hook gitops/applications/ibm-sls/templates/01-ibm-aws_docdb_process_mongo_user_presync_hook.yaml STARTS
-  #  export MONGO_INSTANCE_SECRET_FILE=$TEMP_DIR/mongo-instance-secret.json
-  #  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_INSTANCE_SECRET_FILE
-  #  INSTANCE_MONGO_USERNAME=$(jq -r .username $MONGO_INSTANCE_SECRET_FILE)
-  #  INSTANCE_MONGO_PASSWORD=$(jq -r .password $MONGO_INSTANCE_SECRET_FILE)
+  
+  export MONGO_INSTANCE_SECRET_FILE=$TEMP_DIR/mongo-instance-secret.json
+  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_INSTANCE_SECRET_FILE
+  INSTANCE_MONGO_USERNAME=$(jq -r .username $MONGO_INSTANCE_SECRET_FILE)
+  INSTANCE_MONGO_PASSWORD=$(jq -r .password $MONGO_INSTANCE_SECRET_FILE)
 
-  # Already mongo instance secret has instance username and password, here we are setting the info field
-  #  ESCAPED_INFO=${UNESCAPED_MONGO_INFO//\"/\\\"}
-  #  ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
-  #  sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$INSTANCE_MONGO_USERNAME\", \"password\": \"$INSTANCE_MONGO_PASSWORD\"}"
-  # logic moved to presync hook ENDS
+  # Setting mongo instance secret with info field copied from the cluster level secret, 
+  # Instance username and password will be created in presync hook 
+
+  ESCAPED_INFO=${UNESCAPED_MONGO_INFO//\"/\\\"}
+  ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
+  sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$INSTANCE_MONGO_USERNAME\", \"password\": \"$INSTANCE_MONGO_PASSWORD\"}"
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
