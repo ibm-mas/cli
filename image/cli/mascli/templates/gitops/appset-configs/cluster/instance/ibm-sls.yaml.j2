@@ -4,6 +4,8 @@ merge-key: "{{ ACCOUNT_ID }}/{{ REGION }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}
 # ibm-sls is *not* an umbrella chart; values should be specified at the root
 ibm-sls:
   mas_instance_id: {{ MAS_INSTANCE_ID }}
+  account_id: {{ ACCOUNT_ID }}
+  cluster_id: {{ CLUSTER_ID }}
   sls_channel: {{ SLS_CHANNEL }}
   sls_entitlement_file: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LICENSE_FILE }}>
   ibm_entitlement_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>
