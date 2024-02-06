@@ -19,6 +19,9 @@ spec:
     - name: mongo_provider
       type: string
       default: aws
+    - name: user_action
+      type: string
+      default: add
     - name: git_branch
       type: string
     - name: github_org
@@ -71,8 +74,10 @@ spec:
         value: $(params.secrets_path)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
-      - name: MONGO_PROVIDER
+      - name: MONGODB_PROVIDER
         value: $(params.mongo_provider)
+      - name: USER_ACTION
+        value: $(params.user_action)
       - name: GIT_BRANCH
         value: $(params.git_branch)
       - name: GITHUB_ORG
