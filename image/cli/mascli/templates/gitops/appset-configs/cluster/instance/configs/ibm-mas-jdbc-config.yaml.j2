@@ -3,6 +3,8 @@ mas_config_chart: ibm-db2u-jdbc-config
 mas_config_scope: {{ MAS_CONFIG_SCOPE }}
 mas_workspace_id: {{MAS_WORKSPACE_ID}}
 mas_application_id: {{MAS_APP_ID}} 
+mas_config_kind: "jdbccfgs"
+mas_config_api_version: "config.mas.ibm.com"
 
 db2_instance_name: {{DB2_INSTANCE_NAME}}
 mas_instance_id: {{MAS_INSTANCE_ID}}
@@ -12,8 +14,6 @@ mas_config_dir: {{MAS_CONFIG_DIR}}
 jdbc_url: {{JDBC_URL}}
 db2_dbname: {{DB2_DBNAME}}
 db2_namespace: {{DB2_NAMESPACE}}
-
-suite_jdbccfg_name: "{{ SUITE_JDBCCFG_NAME }}"
 
 app_suite_jdbccfg_labels:
     mas.ibm.com/applicationId: "{{ MAS_APP_ID }}"
