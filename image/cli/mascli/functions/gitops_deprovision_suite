@@ -93,32 +93,6 @@ function gitops_deprovision_suite_noninteractive() {
         export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
 
-      # MongoDb Provider Selection
-      --mongo-provider)
-        export MONGODB_PROVIDER=$1 && shift
-        ;;
-
-      # SLS
-      --sls-channel)
-        export SLS_CHANNEL=$1 && shift
-        ;;
-
-      # MAS
-      --mas-annotations)
-        export MAS_ANNOTATIONS=$1 && shift
-        ;;
-      --mas-channel)
-        export MAS_CHANNEL=$1 && shift
-        ;;
-      --mas-domain)
-        export MAS_DOMAIN=$1 && shift
-        ;;
-      --mas-image-tags)
-        export MAS_IMAGE_TAGS=$1 && shift
-        ;;
-      --mas-labels)
-        export MAS_LABELS=$1 && shift
-        ;;
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -201,11 +175,6 @@ function gitops_deprovision_suite() {
   reset_colors
 
   echo "${TEXT_DIM}"
-  echo_h2 "Mongo" "    "
-  echo_reset_dim "Mongo Provider  ....................... ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
-  reset_colors
-
-  echo "${TEXT_DIM}"
   echo_h2 "GitOps Source" "    "
   echo_reset_dim "GitOps URL ............................ ${COLOR_MAGENTA}https://github.com/ibm-mas/gitops"
   echo_reset_dim "GitOps Version ........................ ${COLOR_MAGENTA}${GITOPS_VERSION}"
@@ -228,18 +197,8 @@ function gitops_deprovision_suite() {
   reset_colors
 
   echo "${TEXT_DIM}"
-  echo_h2 "IBM Suite License Service" "    "
-  echo_reset_dim "Subscription Channel .................. ${COLOR_MAGENTA}${SLS_CHANNEL}"
-  reset_colors
-
-  echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo_reset_dim "Subscription Channel .................. ${COLOR_MAGENTA}${MAS_CHANNEL}"
-  echo_reset_dim "Domain ................................ ${COLOR_MAGENTA}${MAS_DOMAIN}"
-  echo_reset_dim "Image Tags ............................ ${COLOR_MAGENTA}${MAS_IMAGE_TAGS}"
-  echo_reset_dim "Annotations ........................... ${COLOR_MAGENTA}${MAS_ANNOTATIONS}"
-  echo_reset_dim "Labels ................................ ${COLOR_MAGENTA}${MAS_LABELS}"
   reset_colors
 
 
