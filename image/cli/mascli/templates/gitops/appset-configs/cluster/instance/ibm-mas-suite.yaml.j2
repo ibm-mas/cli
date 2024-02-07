@@ -1,12 +1,13 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ REGION }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
 
-ibm-mas-suite:
+ibm_mas_suite:
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
   domain: "{{ MAS_DOMAIN }}"
   mas_instance_id: "{{ MAS_INSTANCE_ID }}"
   mas_channel: "{{ MAS_CHANNEL }}"
   icr_cp: {{ ICR_CP }}
   icr_cp_open: {{ ICR_CP_OPEN }}
+  run_sync_hooks: true
 {%- if DNS_PROVIDER is defined and DNS_PROVIDER !='' %}
   dns_provider: {{ DNS_PROVIDER }}
 {%- endif %}

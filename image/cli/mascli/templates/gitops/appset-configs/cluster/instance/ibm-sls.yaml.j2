@@ -1,6 +1,6 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ REGION }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
 
-ibm-sls:
+ibm_sls:
   mas_instance_id: {{ MAS_INSTANCE_ID }}
   sls_channel: {{ SLS_CHANNEL }}
   sls_entitlement_file: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LICENSE_FILE }}>
@@ -9,6 +9,7 @@ ibm-sls:
   sls_mongo_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_PASSWORD }}>
   sls_mongo_secret_name: sls-mongo-credentials
   icr_cp_open: {{ ICR_CP_OPEN }}
+  run_sync_hooks: true
   mongo_spec:
     authMechanism: DEFAULT
     configDb: admin

@@ -384,7 +384,7 @@ function gitops_db2u_jdbc_config() {
     if [[ "$MAS_CONFIG_SCOPE" == "system" ]]; then
       CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
       INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-      JDBC_CONFIG_APP="system-jdbc.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
       argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the config appset to pick up the new config files
       check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 
@@ -395,7 +395,7 @@ function gitops_db2u_jdbc_config() {
 
       CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
       INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-      JDBC_CONFIG_APP="wsapp-${MAS_WORKSPACE_ID}-${MAS_APP_ID}-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-wsapp-${MAS_WORKSPACE_ID}-${MAS_APP_ID}-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
       argocd_sync "${INSTANCE_ROOT_APP}" # trigger the config appset to pick up the new config files
       check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 

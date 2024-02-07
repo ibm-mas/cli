@@ -289,7 +289,7 @@ function gitops_suite_idp_config() {
 
     CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
     INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    IDP_CONFIG_APP="system-idp.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    IDP_CONFIG_APP="${MAS_INSTANCE_ID}-ldap-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
     argocd_login
     argocd_sync "${INSTANCE_ROOT_APP}" # trigger the configs appset to pick up the new config files

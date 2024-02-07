@@ -247,7 +247,7 @@ function gitops_kafka_config() {
 
     CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
     INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    KAFKA_CONFIG_APP="system-kafka.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    KAFKA_CONFIG_APP="${MAS_INSTANCE_ID}-kafka-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
     argocd_login
     argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the config appset to pick up the new config files
