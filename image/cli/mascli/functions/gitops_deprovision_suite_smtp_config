@@ -234,24 +234,29 @@ function gitops_deprovision_suite_smtp_config() {
     argocd_login
   fi
 
-  # Append the delete: true flag if it's not there already
-  if [[ -z $(grep '^delete: true$' ${GITOPS_INSTANCE_DIR}/system.ibm-mas-smtp-config.yaml) ]]; then
-    echo "Adding delete: true flag to config"
-    echo -e "\n\ndelete: true" >> ${GITOPS_INSTANCE_DIR}/system.ibm-mas-smtp-config.yaml
+  # Append the ;delete: true' flag iff the config file exists and the flag is not in there already
+  if [[ -f "${GITOPS_INSTANCE_DIR}/system.ibm-mas-smtp-config.yaml" ]]; then
+    if [[ -z $(grep '^delete: true$' ${GITOPS_INSTANCE_DIR}/system.ibm-mas-smtp-config.yaml) ]]; then
+      echo "Adding delete: true flag to config"
+      echo -e "\n\ndelete: true" >> ${GITOPS_INSTANCE_DIR}/system.ibm-mas-smtp-config.yaml
 
-    # Commit and push to github target repo
-    # ---------------------------------------------------------------------------
-    if [ "$GITHUB_PUSH" == "true" ]; then
-      echo
-      echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-      save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
+      # Commit and push to github target repo
+      # ---------------------------------------------------------------------------
+      if [ "$GITHUB_PUSH" == "true" ]; then
+        echo
+        echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+        save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
 
-      SMTP_CONFIG_APP="system-smtp.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+        SMTP_CONFIG_APP="${MAS_INSTANCE_ID}-smtp-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
-      argocd_sync "${SMTP_CONFIG_APP}" # Trigger the cleanup job to run
+        argocd_sync "${SMTP_CONFIG_APP}" # Trigger the cleanup job to run
+
+        # wait for it to finish syncing now the delete: true flag has been set
+        check_argo_app_synced "${SMTP_CONFIG_APP}"
+        # once synced, the CR will have been deleted and we can move on
+      fi
     fi
   fi
-  
 
   # Delete config file that triggers system-configs ArgoCD application to render charts for this config type
   # ---------------------------------------------------------------------------
@@ -266,7 +271,7 @@ function gitops_deprovision_suite_smtp_config() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    SMTP_CONFIG_APP="system-smtp.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    SMTP_CONFIG_APP="${MAS_INSTANCE_ID}-smtp-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
     argocd_prune_sync "${INSTANCE_ROOT_APP}" ## trigger the config appset to notice the deletion of the config file
 
