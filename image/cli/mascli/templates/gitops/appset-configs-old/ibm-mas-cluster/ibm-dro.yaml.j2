@@ -1,9 +1,0 @@
-{% include 'common-config.yaml.j2' %}
-
-ibm-dro:
-    dro_namespace: {{ DRO_NAMESPACE }}
-    dro_csv: {{ DRO_CSV }}
-    ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
-
-tags:
-    ibm-dro: true

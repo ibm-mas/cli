@@ -1,6 +1,0 @@
-{% include 'common-config.yaml.j2' %}
-
-# ibm-db2u is *not* an umbrella chart; values should be specified at the root
-db2_namespace: {{ DB2_NAMESPACE }}
-db2_channel: {{ DB2_CHANNEL }}
-ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
