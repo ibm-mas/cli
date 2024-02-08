@@ -20,6 +20,7 @@ GitOps Configuration:
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}         IBM Suite Maximo Application Suite Instance ID
   -W, --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}       IBM Suite Maximo Application Suite workspace ID
   -N, --mas-workspace-name ${COLOR_YELLOW}MAS_WORKSPACE_NAME${TEXT_RESET}   IBM Suite Maximo Application Suite workspace name
+  --install-efs                                                             Install aws-efs on the cluster
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -44,6 +45,8 @@ function gitops_suite_workspace_noninteractive() {
 
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
   export REGION=${REGION:-${SM_AWS_REGION}}
+  
+  export INSTALL_EFS=${INSTALL_EFS:-"false"}
 
   while [[ $# -gt 0 ]]
   do
@@ -72,6 +75,11 @@ function gitops_suite_workspace_noninteractive() {
       -N|--mas-workspace-name)
         export MAS_WORKSPACE_NAME=$1 && shift
         ;;
+
+      --install-aws-efs)
+        export INSTALL_EFS="true" && shift
+        ;;
+
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -184,6 +192,11 @@ function gitops_suite_workspace() {
   echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "Workspace ID .......................... ${COLOR_MAGENTA}${MAS_WORKSPACE_ID}"
   echo_reset_dim "Workspace Name ........................ ${COLOR_MAGENTA}${MAS_WORKSPACE_NAME}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Additional Steps" "    "
+  echo_reset_dim "Install EFS ........................... ${COLOR_MAGENTA}${INSTALL_EFS}"
   reset_colors
 
   # Get the cluster-level secrets used
