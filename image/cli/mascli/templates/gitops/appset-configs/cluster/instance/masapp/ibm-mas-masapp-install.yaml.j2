@@ -1,6 +1,6 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ REGION }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}/{{ MAS_APP_ID }}"
 
-ibm-suite-app-install:
+ibm_suite_app_install:
   ibm_entitlement_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>
   mas_instance_id: {{ MAS_INSTANCE_ID }}
   mas_app_id: {{ MAS_APP_ID }}
@@ -9,6 +9,7 @@ ibm-suite-app-install:
   mas_app_catalog_source: {{ MAS_APP_CATALOG_SOURCE }}
   mas_app_api_version: {{ MAS_APP_API_VERSION }}
   mas_app_kind: {{ MAS_APP_KIND }}
+  run_sync_hooks: true
   {{ MAS_APP_SPEC | indent(2) }}
 
   mas_manual_cert_mgmt: {{ MAS_MANUAL_CERT_MGMT }}

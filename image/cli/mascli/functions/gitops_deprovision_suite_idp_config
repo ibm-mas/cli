@@ -220,6 +220,42 @@ function gitops_deprovision_suite_idp_config() {
   fi
   mkdir -p ${GITOPS_INSTANCE_DIR}
 
+
+  # Because the CR has an owner (Suite), ArgoCD won't cleanup the CR when the application is removed,
+  # so we need to call oc delete ourselves (and we have to do this from within the cluster itself as our deprovision scripts cannot access oc directly.
+  # For now, as a temporary solution: conditionally render templates containing a Job that deletes the CR when the "delete" flag is set by our provision scripts
+  # prior to deletion of the config itself.
+  # TODO: change to OnDelete hook once we have access to ArgoCD 2.10
+  # See https://jsw.ibm.com/browse/MASCORE-1643
+  
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    argocd_login
+  fi
+
+  # Append the ;delete: true' flag iff the config file exists and the flag is not in there already
+  if [[ -f "${GITOPS_INSTANCE_DIR}/system.ibm-mas-idp-config.yaml" ]]; then
+    if [[ -z $(grep '^delete: true$' ${GITOPS_INSTANCE_DIR}/system.ibm-mas-idp-config.yaml) ]]; then
+      echo "Adding delete: true flag to config"
+      echo -e "\n\ndelete: true" >> ${GITOPS_INSTANCE_DIR}/system.ibm-mas-idp-config.yaml
+
+      # Commit and push to github target repo
+      # ---------------------------------------------------------------------------
+      if [ "$GITHUB_PUSH" == "true" ]; then
+        echo
+        echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+        save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
+
+        IDP_CONFIG_APP="${MAS_INSTANCE_ID}-ldap-default-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+
+        argocd_sync "${IDP_CONFIG_APP}" # Trigger the cleanup job to run
+
+        # wait for it to finish syncing now the delete: true flag has been set
+        check_argo_app_synced "${IDP_CONFIG_APP}"
+        # once synced, the CR will have been deleted and we can move on
+      fi
+    fi
+  fi
+
   # Delete config file that triggers system-configs ArgoCD application to render charts for this config type
   # ---------------------------------------------------------------------------
   rm ${GITOPS_INSTANCE_DIR}/system.ibm-mas-idp-config.yaml
@@ -233,7 +269,7 @@ function gitops_deprovision_suite_idp_config() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    IDP_CONFIG_APP="system-idp.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    IDP_CONFIG_APP="${MAS_INSTANCE_ID}-ldap-default-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
     argocd_login
     argocd_prune_sync "${INSTANCE_ROOT_APP}" ## trigger the config appset to notice the deletion of the config file
