@@ -1,4 +1,4 @@
-merge-key: "{{ ACCOUNT_ID }}/{{ REGION }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
+merge-key: "{{ ACCOUNT_ID }}/{{ REGION_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
 
 ibm_sls:
   mas_instance_id: {{ MAS_INSTANCE_ID }}
@@ -14,32 +14,29 @@ ibm_sls:
     authMechanism: DEFAULT
     configDb: admin
     secretName: sls-mongo-credentials
-    {% if config.retryWrites is sameas false %}
+{%- if config.retryWrites is sameas false %}
     retryWrites: false
-    {% endif %}
+{%- endif %}
     nodes:
-      {% for mongo_host in config.hosts -%}
+{%- for mongo_host in config.hosts %}
       - host: {{ mongo_host.host }}
         port: {{ mongo_host.port }}
-      {% endfor %}
+{%- endfor %}
     certificates:
-      {% if config.certificate -%}
-      {% for mongo_certificate in config.certificate -%}
+{%- if config.certificate %}
+{%- for mongo_certificate in config.certificate %}
       - alias: {{ mongo_certificate.alias }}
         crt: |
           {% filter indent(width=10) -%}
           {{ mongo_certificate.crt }}
           {%- endfilter %}
-      {% endfor %}
-      {% elif certificates -%}
-      {% for mongo_certificate in certificates -%}
+{%- endfor %}
+{%- elif certificates %}
+{%- for mongo_certificate in certificates %}
       - alias: {{ mongo_certificate.alias }}
         crt: |
           {% filter indent(width=10) -%}
           {{ mongo_certificate.crt }}
           {%- endfilter %}
-      {% endfor %}
-      {% endif %}
-
-        
-        
+{%- endfor -%}
+{%- endif -%}
