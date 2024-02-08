@@ -76,19 +76,15 @@ function gitops_bootstrap_noninteractive() {
         ;;
 
       # GitHub Repository Configuration
-      --github-pat)
-        export APP_REPO_PAT=$1 && shift
+      --github-url)
+        export APP_REPO_URL=$1 && shift
         ;;
       --github-revision)
         export APP_REPO_REVISION=$1 && shift
         ;;
-      --github-url)
-        export APP_REPO_URL=$1 && shift
+      --github-pat)
+        export APP_REPO_PAT=$1 && shift
         ;;
-
-      --github-pat ${COLOR_YELLOW}APP_REPO_PAT${TEXT_RESET}            Personal Access Token to access your GitHub repository
-      --github-url ${COLOR_YELLOW}APP_REPO_URL${TEXT_RESET}            URL to the GitHub repository holding your ArgoCD applications
-      --github-revision ${COLOR_YELLOW}APP_REPO_REVISION${TEXT_RESET}  Revision (branch or tag) of your application repository to use
 
       # Show help
       -h|--help)
