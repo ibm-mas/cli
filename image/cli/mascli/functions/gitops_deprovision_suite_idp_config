@@ -245,7 +245,7 @@ function gitops_deprovision_suite_idp_config() {
         echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
         save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
 
-        IDP_CONFIG_APP="${MAS_INSTANCE_ID}-ldap-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+        IDP_CONFIG_APP="${MAS_INSTANCE_ID}-ldap-default-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
         argocd_sync "${IDP_CONFIG_APP}" # Trigger the cleanup job to run
 
@@ -269,7 +269,7 @@ function gitops_deprovision_suite_idp_config() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    IDP_CONFIG_APP="${MAS_INSTANCE_ID}-ldap-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    IDP_CONFIG_APP="${MAS_INSTANCE_ID}-ldap-default-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
     argocd_login
     argocd_prune_sync "${INSTANCE_ROOT_APP}" ## trigger the config appset to notice the deletion of the config file
