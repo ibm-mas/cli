@@ -15,7 +15,18 @@ spec:
     targetRevision: {{ APP_REVISION }}
     helm:
       values: |
-        { "account": { "id": "{{ ACCOUNT_ID }}" } }
+        {
+          "account": {
+            "id": "{{ ACCOUNT_ID }}"
+          },
+          "generator": {
+            "repoURL": "{{ GENERATOR_REPO_URL }}",
+            "revision": "{{ GENERATOR_REPO_REVISION }}"
+          },
+          "source": {
+            "targetRevision": "{{ APP_REVISION }}"
+          }
+        }
   syncPolicy:
     syncOptions:
       - CreateNamespace=false

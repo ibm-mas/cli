@@ -26,8 +26,9 @@ AWS Secrets Manager Configuration:
       --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
 
 GitHub Repository Configuration:
-      --github-pat ${COLOR_YELLOW}APP_WATCHER_REPO_PAT${TEXT_RESET}    Personal Access Token to access your GitHub repository
-      --github-url ${COLOR_YELLOW}APP_WATCHER_REPO_URL${TEXT_RESET}    URL to the GitHub repository holding your ArgoCD applications
+      --github-url ${COLOR_YELLOW}APP_REPO_URL${TEXT_RESET}            URL to the GitHub repository holding your ArgoCD applications
+      --github-revision ${COLOR_YELLOW}APP_REPO_REVISION${TEXT_RESET}  Revision (branch or tag) of your application repository to use
+      --github-pat ${COLOR_YELLOW}APP_REPO_PAT${TEXT_RESET}            Personal Access Token to access your GitHub repository
 
 Other Commands:
       --no-confirm                                Mirror images without prompting for confirmation
@@ -76,11 +77,18 @@ function gitops_bootstrap_noninteractive() {
 
       # GitHub Repository Configuration
       --github-pat)
-        export APP_WATCHER_REPO_PAT=$1 && shift
+        export APP_REPO_PAT=$1 && shift
+        ;;
+      --github-revision)
+        export APP_REPO_REVISION=$1 && shift
         ;;
       --github-url)
-        export APP_WATCHER_REPO_URL=$1 && shift
+        export APP_REPO_URL=$1 && shift
         ;;
+
+      --github-pat ${COLOR_YELLOW}APP_REPO_PAT${TEXT_RESET}            Personal Access Token to access your GitHub repository
+      --github-url ${COLOR_YELLOW}APP_REPO_URL${TEXT_RESET}            URL to the GitHub repository holding your ArgoCD applications
+      --github-revision ${COLOR_YELLOW}APP_REPO_REVISION${TEXT_RESET}  Revision (branch or tag) of your application repository to use
 
       # Show help
       -h|--help)
@@ -107,10 +115,10 @@ function gitops_bootstrap_noninteractive() {
     fi
   fi
 
-  # if [ -z $APP_WATCHER_REPO_URL ] || [ -z $APP_WATCHER_REPO_PAT ]; then
-  #   echo 'No Environment watcher github repository provided, make sure to provide --github-pat and --github-url'
-  #   exit 1
-  # fi
+  if [ -z $APP_REPO_URL ] || [ -z $APP_REPO_PAT ]|| [ -z $APP_REPO_REVISION ]; then
+    echo 'No Environment watcher github repository provided, make sure to provide --github-pat, --github-url, and  --github-revision'
+    exit 1
+  fi
 
   if [ -z $CLUSTER_ID ]; then
     echo 'No Environment cluster name provided, make sure to provide --cluster-id'
@@ -154,8 +162,9 @@ function gitops_bootstrap() {
   echo ""
   echo "${TEXT_DIM}"
   echo_h2 "GitHub Repository" "    "
-  echo_reset_dim "GitHub Repository ..................... ${COLOR_MAGENTA}${APP_WATCHER_REPO_URL}"
-  echo_reset_dim "GitHub Personal Access Token .......... ${COLOR_MAGENTA}${APP_WATCHER_REPO_PAT:0:4}<snip>"
+  echo_reset_dim "GitHub Repository ..................... ${COLOR_MAGENTA}${APP_REPO_URL}"
+  echo_reset_dim "GitHub Repository Revision ............ ${COLOR_MAGENTA}${APP_REPO_REVISION}"
+  echo_reset_dim "GitHub Personal Access Token .......... ${COLOR_MAGENTA}${APP_REPO_PAT:0:4}<snip>"
   reset_colors
 
   echo ""
