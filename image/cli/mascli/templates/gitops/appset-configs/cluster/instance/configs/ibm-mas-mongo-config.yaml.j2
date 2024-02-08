@@ -1,8 +1,8 @@
 mas_config_name: "{{ MAS_INSTANCE_ID }}-mongo-{{ MAS_CONFIG_SCOPE }}{% if MAS_CONFIG_SCOPE == "ws" or MAS_CONFIG_SCOPE == "wsapp" %}-{{ MAS_WORKSPACE_ID }}{% endif %}{% if MAS_CONFIG_SCOPE == "app" or MAS_CONFIG_SCOPE == "wsapp" %}-{{ MAS_APP_ID }}{% endif %}"
 mas_config_chart: ibm-mas-mongo-config
 mas_config_scope: {{ MAS_CONFIG_SCOPE }}
-mas_workspace_id: {{MAS_WORKSPACE_ID}}
-mas_application_id: {{MAS_APP_ID}}
+mas_workspace_id: {{ MAS_WORKSPACE_ID }}
+mas_application_id: {{ MAS_APP_ID }}
 mas_config_kind: "mongocfgs"
 mas_config_api_version: "config.mas.ibm.com"
 
@@ -11,32 +11,32 @@ username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_USERNAME }}>
 password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_PASSWORD }}>
 config:
   hosts:
-    {% for mongo_host in config.hosts -%}
+    {%- for mongo_host in config.hosts %}
     - host: {{ mongo_host.host }}
       port: {{ mongo_host.port }}
-    {% endfor %}
+    {%- endfor %}
   configDb: admin
   authMechanism: DEFAULT
-  {% if config.retryWrites is sameas false %}
+  {%- if config.retryWrites is sameas false %}
   retryWrites: false
-  {% endif %}
+  {%- endif %}
   credentials:
     secretName: "{{ MAS_CONFIG_SCOPE }}-{% if MAS_CONFIG_SCOPE == "ws" or MAS_CONFIG_SCOPE == "wsapp" %}{{ MAS_WORKSPACE_ID }}-{% endif %}{% if MAS_CONFIG_SCOPE == "app" or MAS_CONFIG_SCOPE == "wsapp" %}{{ MAS_APP_ID }}-{% endif %}mongo-credentials"
 certificates:
-  {% if config.certificate %}
-  {% for mongo_certificate in config.certificate -%}
+  {%- if config.certificate %}
+  {%- for mongo_certificate in config.certificate %}
   - alias: {{ mongo_certificate.alias }}
     crt: |
       {% filter indent(width=6) -%}
       {{ mongo_certificate.crt }}
       {%- endfilter %}
-  {% endfor %}
-  {% elif certificates%}
-  {% for mongo_certificate in certificates -%}
+  {%- endfor %}
+  {%- elif certificates %}
+  {%- for mongo_certificate in certificates %}
   - alias: {{ mongo_certificate.alias }}
     crt: |
       {% filter indent(width=6) -%}
       {{ mongo_certificate.crt }}
       {%- endfilter %}
-  {% endfor %}
-  {% endif %}
+  {%- endfor -%}
+  {%- endif -%}
