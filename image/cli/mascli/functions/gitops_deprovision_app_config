@@ -247,12 +247,10 @@ function gitops_deprovision_app_config() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    MASAPP_ROOT_APP="ma.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
-    MASAPP_APP="mai.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
+    MASAPP_APP="ma.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
     
     argocd_login
     argocd_prune_sync "${INSTANCE_ROOT_APP}" ## trigger the masapp appset to notice the deletion of the config file
-    argocd_prune_sync "${MASAPP_ROOT_APP}" ## trigger the masapp root app to notice the updates to its helm values
 
 
     # App won't be deleted until gitops_deprovision_app_install runs
