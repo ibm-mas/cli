@@ -81,7 +81,7 @@
         - deprovision-mas-instance
         - provision-bootstrap-cluster
         - provision-mas-instance
-        - gitops-mas-fvt-preparer
+        - gitops-mas-fvt-preparer-pipeline
         - gitops-update
         - provision-mas-apps
         - gitops-mas-cluster
@@ -111,4 +111,4 @@
       with_items:
         - provision-mas-instance
         - provision-mas-apps
-        - gitops-mas-fvt-preparer
+        - gitops-mas-fvt-preparer-pipeline

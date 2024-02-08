@@ -21,8 +21,6 @@ spec:
       type: string
     - name: github_host
       type: string
-    - name: github_pat
-      type: string
     - name: avp_aws_secret_region
       type: string
     - name: smtp_host
@@ -60,7 +58,7 @@ spec:
       default: ""
     - name: argocd_url
       type: string
-
+      default: ""
   stepTemplate:
     name: gitops-suite-smtp-config
     env:
@@ -68,8 +66,6 @@ spec:
         value: $(params.cluster_name)
       - name: OCP_SERVER
         value: $(params.cluster_url)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
       - name: ACCOUNT
         value: $(params.account)
       - name: SECRET_PATH
@@ -84,8 +80,6 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
-      - name: GITHUB_PAT
-        value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
       - name: SMTP_HOST
@@ -108,6 +102,8 @@ spec:
         value: $(params.smtp_username)
       - name: SMTP_PASSWORD
         value: $(params.smtp_password)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
     envFrom:
       - configMapRef:
           name: environment-properties

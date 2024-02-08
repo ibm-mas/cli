@@ -24,8 +24,6 @@ spec:
       type: string
     - name: cis_crn
       type: string
-    - name: cis_apikey
-      type: string
     - name: mas_config_dir
       type: string
     - name: account
@@ -37,19 +35,10 @@ spec:
       default: "True"
     - name: avp_aws_secret_region
       type: string
-    - name: cluster_url
-      type: string
-      default: ""
-    - name: argocd_url
-      type: string
 
   stepTemplate:
     name: gitops-suite-certs
     env:
-      - name: OCP_SERVER
-        value: $(params.cluster_url)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
       - name: DNS_PROVIDER
         value: $(params.dns_provider)
       - name: MAS_INSTANCE_ID
@@ -74,8 +63,6 @@ spec:
         value: $(params.cis_proxy)
       - name: CIS_CRN
         value: $(params.cis_crn)
-      - name: CIS_APIKEY
-        value: $(params.cis_apikey)
       - name: MAS_CONFIG_DIR
         value: $(params.mas_config_dir)
       - name: GITOPS

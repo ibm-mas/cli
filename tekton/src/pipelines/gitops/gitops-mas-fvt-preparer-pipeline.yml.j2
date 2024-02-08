@@ -5,16 +5,11 @@ metadata:
 {% if wait_for_provision == true %}
   name: gitops-mas-fvt-preparer-after-provision
 {% else %}
-  name: gitops-mas-fvt-preparer
+  name: gitops-mas-fvt-preparer-pipeline
 {% endif %}
 spec:
   workspaces:
     - name: configs
-    # Any pre-generated configs that will be copied into the shared-configs workspace during suite-install
-    - name: shared-additional-configs
-    - name: shared-gitops-configs
-    # The SLS entitlement key file that will be installed during install-sls.
-    - name: shared-entitlement
   description: Gitops MAS FVT pipeline
   params:
 {% if wait_for_provision == true %}
@@ -28,23 +23,19 @@ spec:
 {% endif %}
     - name: cluster_name
       type: string
+    - name: cluster_url
+      type: string
+    - name: devops_build_number
+      type: string
     - name: mas_instance_id
       type: string
     - name: pipeline_storage_class
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: avp_aws_secret_key
-      type: string
-    - name: avp_aws_access_key
-      type: string
     - name: fvt_pipeline_name
       type: string
     - name: cli_version
-      type: string
-    - name: fvt_artifactory_username
-      type: string
-    - name: fvt_artifactory_token
       type: string
     - name: fvt_config
       type: string
@@ -53,14 +44,6 @@ spec:
     - name: artifactory_generic_release_url
       type: string
     - name: fvt_ansible_version
-      type: string
-    - name: artifactory_auth_header
-      type: string
-    - name: devops_mongo_uri
-      type: string
-    - name: devops_build_number
-      type: string
-    - name: devops_job_number
       type: string
 
     - name: fvt_version_core
@@ -105,12 +88,6 @@ spec:
     - name: fvt_whitelist_core
       type: string
 
-    - name: ddp_apikey
-      type: string
-    - name: partium_username
-      type: string
-    - name: partium_password
-      type: string
     - name: mas_workspace_id
       type: string
     - name: mas_channel
@@ -197,24 +174,20 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: pipeline_storage_class
           value: $(params.pipeline_storage_class)
         - name: aws_region
           value: $(params.avp_aws_secret_region)
-        - name: aws_secret_access_key
-          value: $(params.avp_aws_secret_key)
-        - name: aws_access_key_id
-          value: $(params.avp_aws_access_key)
         - name: fvt_pipeline_name
           value: $(params.fvt_pipeline_name)
         - name: cli_version
           value: $(params.cli_version)
-        - name: fvt_artifactory_username
-          value: $(params.fvt_artifactory_username)
-        - name: fvt_artifactory_token
-          value: $(params.fvt_artifactory_token)
         - name: fvt_config
           value: $(params.fvt_config)
         - name: fvt_image_registry
@@ -224,14 +197,6 @@ spec:
           value: $(params.artifactory_generic_release_url)
         - name: fvt_ansible_version
           value: $(params.fvt_ansible_version)
-        - name: artifactory_auth_header
-          value: $(params.artifactory_auth_header)
-        - name: devops_mongo_uri
-          value: $(params.devops_mongo_uri)
-        - name: devops_build_number
-          value: $(params.devops_build_number)
-        - name: devops_job_number
-          value: $(params.devops_job_number)
 
         - name: fvt_version_core
           value: $(params.fvt_version_core)
@@ -275,12 +240,6 @@ spec:
         - name: fvt_whitelist_core
           value: $(params.fvt_whitelist_core)
 
-        - name: ddp_apikey
-          value: $(params.ddp_apikey)
-        - name: partium_username
-          value: $(params.partium_username)
-        - name: partium_password
-          value: $(params.partium_password)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
         - name: mas_channel
@@ -323,12 +282,6 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
-        - name: shared-additional-configs
-          workspace: shared-additional-configs
-        - name: shared-gitops-configs
-          workspace: shared-gitops-configs
-        - name: shared-entitlement
-          workspace: shared-entitlement
       taskRef:
         kind: Task
         name: gitops-mas-fvt-preparer

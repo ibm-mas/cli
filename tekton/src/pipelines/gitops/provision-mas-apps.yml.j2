@@ -51,6 +51,10 @@ spec:
 {% endif %}
     - name: cluster_name
       type: string
+    - name: cluster_url
+      type: string
+    - name: argocd_url
+      type: string
     - name: account
       type: string
     - name: image_pull_policy
@@ -59,32 +63,15 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: avp_aws_secret_key
-      type: string
-    - name: avp_aws_access_key
-      type: string
-
-
 
     # 1. Gitops git Parameters
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
 
-    - name: dns_provider
-      type: string
-      default: cis
-    - name: mas_domain
-      type: string
-    - name: cis_subdomain
-      type: string
+
     - name: mas_manual_cert_mgmt
       type: string
-    - name: cis_proxy
-      type: string
-    - name: cis_crn
-      type: string
-    - name: cis_apikey
-      type: string
+
     - name: mas_config_dir
       type: string
 
@@ -149,10 +136,6 @@ spec:
     - name: tls_version
       type: string
       default: TLSv1.2
-    - name: db2_ldap_username
-      type: string
-    - name: db2_ldap_password
-      type: string
 
     - name: custom_labels
       type: string
@@ -603,10 +586,6 @@ spec:
         - name: mas_config_scope
           value: system
 
-        - name: db2_ldap_username
-          value: $(params.db2_ldap_username)
-        - name: db2_ldap_password
-          value: $(params.db2_ldap_password)
         - name: tls_version
           value: $(params.tls_version)
 
@@ -695,10 +674,6 @@ spec:
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
 
-        - name: db2_ldap_username
-          value: $(params.db2_ldap_username)
-        - name: db2_ldap_password
-          value: $(params.db2_ldap_password)
         - name: tls_version
           value: $(params.tls_version)
       workspaces:

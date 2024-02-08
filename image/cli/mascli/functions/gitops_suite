@@ -20,6 +20,9 @@ GitOps Configuration:
 MongoDb Provider Selection:
       --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. Only "aws" is supported
 
+AWS MongoDb Provider:
+      --user-action ${COLOR_YELLOW}USER_ACTION${TEXT_RESET}          The action to take, add or remove user
+
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
@@ -103,6 +106,11 @@ function gitops_suite_noninteractive() {
         export MONGODB_PROVIDER=$1 && shift
         ;;
 
+      # AWS MongoDb provider
+      --user-action)
+        export USER_ACTION=$1 && shift
+        ;;
+
       # SLS
       --sls-channel)
         export SLS_CHANNEL=$1 && shift
@@ -167,6 +175,16 @@ function gitops_suite_noninteractive() {
   [[ -z "$CLUSTER_ID" ]] && gitops_suite_help "CLUSTER_ID is not set"
   [[ -z "$REGION" ]] && gitops_cluster_help "REGION is not set"
   [[ -z "$CLUSTER_URL" ]] && gitops_cluster_help "CLUSTER_URL is not set"
+  [[ -z "$MONGODB_PROVIDER" ]] && gitops_process_mongo_user_help "MONGODB_PROVIDER is not set"
+
+  if [ $MONGODB_PROVIDER == 'aws' ]; then
+    [[ -z "$USER_ACTION" ]] && gitops_process_mongo_user_help "USER_ACTION is not set"
+    [[ -z "$MAS_INSTANCE_ID" ]] && gitops_process_mongo_user_help "MAS_INSTANCE_ID is not set"
+    if [ -z $SM_AWS_ACCESS_KEY_ID ] || [ -z $SM_AWS_SECRET_ACCESS_KEY ] || [ -z $SM_AWS_REGION ]; then
+      echo 'Missing required params for AWS mongo provider, make sure to provide --aws-access-key, --aws-secret-key, --aws-region'
+      exit 1
+    fi
+  fi
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_suite_help "GITHUB_HOST is not set"
@@ -197,27 +215,33 @@ function gitops_suite() {
 
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
-  echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
-  echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
-  echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Cluster URL ........................... ${COLOR_MAGENTA}${CLUSTER_URL}"
-  echo_reset_dim "Instance Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
+  echo_reset_dim "Account ID .............................. ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region .................................. ${COLOR_MAGENTA}${REGION}"
+  echo_reset_dim "Cluster ID .............................. ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Cluster URL ............................. ${COLOR_MAGENTA}${CLUSTER_URL}"
+  echo_reset_dim "Instance Config Directory ............... ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
   echo_h2 "Secrets Manager" "    "
-  echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  echo_reset_dim "Secrets Path ............................ ${COLOR_MAGENTA}${SECRETS_PATH}"
   reset_colors
 
   echo "${TEXT_DIM}"
   echo_h2 "Mongo" "    "
-  echo_reset_dim "Mongo Provider  ....................... ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
+  echo_reset_dim "Mongo Provider  ......................... ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
+  if [ $MONGODB_PROVIDER == 'aws' ]; then
+    echo_reset_dim "User Action  .......................... ${COLOR_MAGENTA}${USER_ACTION}"
+    echo_reset_dim "AWS Access Key ID  .................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+    echo_reset_dim "AWS Secret Access Key  ................ ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:8}<snip>"
+    echo_reset_dim "AWS Region  ........................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
+  fi
   reset_colors
 
   echo "${TEXT_DIM}"
   echo_h2 "GitOps Source" "    "
-  echo_reset_dim "GitOps URL ............................ ${COLOR_MAGENTA}https://github.com/ibm-mas/gitops"
-  echo_reset_dim "GitOps Version ........................ ${COLOR_MAGENTA}${GITOPS_VERSION}"
+  echo_reset_dim "GitOps URL .............................. ${COLOR_MAGENTA}https://github.com/ibm-mas/gitops"
+  echo_reset_dim "GitOps Version .......................... ${COLOR_MAGENTA}${GITOPS_VERSION}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -238,18 +262,18 @@ function gitops_suite() {
 
   echo "${TEXT_DIM}"
   echo_h2 "IBM Suite License Service" "    "
-  echo_reset_dim "Subscription Channel .................. ${COLOR_MAGENTA}${SLS_CHANNEL}"
+  echo_reset_dim "Subscription Channel .................... ${COLOR_MAGENTA}${SLS_CHANNEL}"
   reset_colors
 
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
-  echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo_reset_dim "Subscription Channel .................. ${COLOR_MAGENTA}${MAS_CHANNEL}"
-  echo_reset_dim "Domain ................................ ${COLOR_MAGENTA}${MAS_DOMAIN}"
-  echo_reset_dim "Image Tags ............................ ${COLOR_MAGENTA}${MAS_IMAGE_TAGS}"
-  echo_reset_dim "Annotations ........................... ${COLOR_MAGENTA}${MAS_ANNOTATIONS}"
-  echo_reset_dim "Labels ................................ ${COLOR_MAGENTA}${MAS_LABELS}"
-  echo_reset_dim "MAS Manual Cert Mgt ................... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
+  echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "Subscription Channel .................... ${COLOR_MAGENTA}${MAS_CHANNEL}"
+  echo_reset_dim "Domain .................................. ${COLOR_MAGENTA}${MAS_DOMAIN}"
+  echo_reset_dim "Image Tags .............................. ${COLOR_MAGENTA}${MAS_IMAGE_TAGS}"
+  echo_reset_dim "Annotations ............................. ${COLOR_MAGENTA}${MAS_ANNOTATIONS}"
+  echo_reset_dim "Labels .................................. ${COLOR_MAGENTA}${MAS_LABELS}"
+  echo_reset_dim "MAS Manual Cert Mgt ..................... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
   reset_colors
 
 
@@ -265,12 +289,22 @@ function gitops_suite() {
   # ---------------------------------------------------------------------------
   # Note that this cluster-level secret is set up by gitops-cluster
   export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
-
+  
+  export SECRET_NAME_AWS_ACCESS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}aws
+  export SECRET_KEY_AWS_ACCESS_KEY_ID=${SECRET_NAME_AWS_ACCESS}#sm_aws_access_key_id
+  export SECRET_KEY_AWS_SECRET_ACCESS_KEY=${SECRET_NAME_AWS_ACCESS}#sm_aws_secret_access_key
+  sm_update_secret ${SECRET_NAME_AWS_ACCESS} "{\"sm_aws_access_key_id\": \"$SM_AWS_ACCESS_KEY_ID\", \"sm_aws_secret_access_key\": \"$SM_AWS_SECRET_ACCESS_KEY\"}"
 
   # Get the cluster-level secrets used
   # ---------------------------------------------------------------------------
   # Note that this cluster-level secret is set up by gitops-mongo
   export SECRET_NAME_MASTER_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
+  export SECRET_KEY_DOCDB_HOST=${SECRET_NAME_MASTER_MONGO}#docdb_host
+  export SECRET_KEY_DOCDB_PORT=${SECRET_NAME_MASTER_MONGO}#docdb_port
+  export SECRET_KEY_DOCDB_MASTER_USERNAME=${SECRET_NAME_MASTER_MONGO}#username
+  export SECRET_KEY_DOCDB_MASTER_PASSWORD=${SECRET_NAME_MASTER_MONGO}#password
+  export SECRET_KEY_DOCDB_MASTER_INFO=${SECRET_NAME_MASTER_MONGO}#info
+
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-suite
   rm -rf TEMP_DIR
@@ -328,13 +362,17 @@ function gitops_suite() {
   export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
   export SECRET_KEY_MONGO_USERNAME=${SECRET_NAME_MONGO}#username
   export SECRET_KEY_MONGO_PASSWORD=${SECRET_NAME_MONGO}#password
+  export SECRET_KEY_MONGO_INFO=${SECRET_NAME_MONGO}#info
 
+  
   export MONGO_INSTANCE_SECRET_FILE=$TEMP_DIR/mongo-instance-secret.json
   sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_INSTANCE_SECRET_FILE
   INSTANCE_MONGO_USERNAME=$(jq -r .username $MONGO_INSTANCE_SECRET_FILE)
   INSTANCE_MONGO_PASSWORD=$(jq -r .password $MONGO_INSTANCE_SECRET_FILE)
 
-  # Already mongo instance secret has instance username and password, here we are setting the info field
+  # Setting mongo instance secret with info field copied from the cluster level secret, 
+  # Instance username and password will be created in presync hook 
+
   ESCAPED_INFO=${UNESCAPED_MONGO_INFO//\"/\\\"}
   ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
   sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$INSTANCE_MONGO_USERNAME\", \"password\": \"$INSTANCE_MONGO_PASSWORD\"}"

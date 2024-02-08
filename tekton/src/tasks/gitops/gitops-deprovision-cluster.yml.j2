@@ -27,6 +27,9 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
+    - name: argocd_url
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-deprovision-cluster
     env:
@@ -50,8 +53,8 @@ spec:
         value: $(params.avp_aws_secret_key)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: GITHUB_PAT
-        value: $(params.github_pat) 
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
   steps:
     - args:
       - |-

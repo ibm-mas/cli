@@ -30,8 +30,8 @@ spec:
       type: string
     - name: cis_crn
       type: string
-    - name: cis_apikey
-      type: string
+    #- name: cis_apikey
+    #  type: string
     - name: mas_config_dir
       type: string
     - name: cis_service_name
@@ -39,16 +39,12 @@ spec:
     - name: cluster_url
       type: string
       default: ""
-    - name: argocd_url
-      type: string
 
   stepTemplate:
     name: gitops-suite-dns
     env:
       - name: OCP_SERVER
         value: $(params.cluster_url)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
       - name: DNS_PROVIDER
         value: $(params.dns_provider)
       - name: MAS_INSTANCE_ID
@@ -71,8 +67,8 @@ spec:
         value: $(params.cis_email)
       - name: CIS_CRN
         value: $(params.cis_crn)
-      - name: CIS_APIKEY
-        value: $(params.cis_apikey)
+      #- name: CIS_APIKEY
+      #  value: $(params.cis_apikey)
       - name: MAS_CONFIG_DIR
         value: $(params.mas_config_dir)
       - name: CIS_SERVICE_NAME
@@ -87,6 +83,8 @@ spec:
   steps:
     - args:
       - |-
+        echo "ARGOCD_URL=$ARGOCD_URL"
+        echo "CIS_APIKEY=$CIS_APIKEY"
         export ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
         if [ -f $ROSA_CONFIG ]; then
           echo "oc login : via ROSA_CONFIG"

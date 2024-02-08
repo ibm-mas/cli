@@ -2,11 +2,28 @@ merge-key: "{{ ACCOUNT_ID }}/{{ REGION }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}
 
 ibm_sls:
   mas_instance_id: {{ MAS_INSTANCE_ID }}
+  account_id: {{ ACCOUNT_ID }}
+  cluster_id: {{ CLUSTER_ID }}
   sls_channel: {{ SLS_CHANNEL }}
   sls_entitlement_file: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LICENSE_FILE }}>
   ibm_entitlement_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>
-  sls_mongo_username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_USERNAME }}>
-  sls_mongo_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_PASSWORD }}>
+
+  # aws docdb
+  mongodb_provider: "{{ MONGODB_PROVIDER }}"
+  user_action: "{{ USER_ACTION }}"
+  docdb_host: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DOCDB_HOST }}>"
+  docdb_port: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DOCDB_PORT }}>"
+  docdb_master_username: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DOCDB_MASTER_USERNAME }}>"
+  docdb_master_password: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DOCDB_MASTER_PASSWORD }}>"
+  docdb_master_info: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DOCDB_MASTER_INFO }}>"
+  sls_mongo_username: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_USERNAME }}>"
+  sls_mongo_password: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_PASSWORD }}>"
+
+  # aws access
+  sm_aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AWS_ACCESS_KEY_ID }}>"
+  sm_aws_secret_access_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AWS_SECRET_ACCESS_KEY }}>"
+  sm_aws_region: "{{ SM_AWS_REGION }}"
+
   sls_mongo_secret_name: sls-mongo-credentials
   icr_cp_open: {{ ICR_CP_OPEN }}
   run_sync_hooks: true

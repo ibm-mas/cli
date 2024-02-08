@@ -19,6 +19,9 @@ spec:
     - name: mongo_provider
       type: string
       default: aws
+    - name: user_action
+      type: string
+      default: add
     - name: git_branch
       type: string
     - name: github_org
@@ -55,13 +58,12 @@ spec:
       default: ""
     - name: argocd_url
       type: string
+      default: ""
   stepTemplate:
     name: gitops-suite
     env:
       - name: OCP_SERVER
         value: $(params.cluster_url)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
       - name: DNS_PROVIDER
         value: $(params.dns_provider)
       - name: CLUSTER_NAME
@@ -72,8 +74,10 @@ spec:
         value: $(params.secrets_path)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
-      - name: MONGO_PROVIDER
+      - name: MONGODB_PROVIDER
         value: $(params.mongo_provider)
+      - name: USER_ACTION
+        value: $(params.user_action)
       - name: GIT_BRANCH
         value: $(params.git_branch)
       - name: GITHUB_ORG
@@ -102,6 +106,8 @@ spec:
         value: $(params.sls_channel)
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
     envFrom:
       - configMapRef:
           name: environment-properties

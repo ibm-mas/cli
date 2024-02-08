@@ -80,6 +80,8 @@ spec:
     - name: db2_action
       type: string
       default: ""
+    - name: cluster_url
+      type: string
   tasks:
 {% if wait_for_deprovision == true %}
     # 0. Wait for the deprovsion pipeline to complete
@@ -242,8 +244,8 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
-        - name: github_pat
-          value: $(params.github_pat)
+        - name: cluster_url
+          value: $(params.cluster_url)
       taskRef:
         kind: Task
         name: gitops-cis-compliance
@@ -262,10 +264,6 @@ spec:
           value: $(params.secrets_path)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
         - name: git_branch
           value: $(params.git_branch)
         - name: github_org
@@ -276,8 +274,8 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
-        - name: github_pat
-          value: $(params.github_pat)
+        - name: cluster_url
+          value: $(params.cluster_url)
       taskRef:
         kind: Task
         name: gitops-dro
@@ -302,18 +300,14 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
-        - name: github_pat
-          value: $(params.github_pat)
         - name: secrets_path
           value: $(params.secrets_path)
         - name: db2_channel
           value: $(params.db2_channel)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
+        - name: cluster_url
+          value: $(params.cluster_url)
       workspaces:
         - name: configs
           workspace: configs

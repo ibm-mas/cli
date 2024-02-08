@@ -21,8 +21,6 @@ spec:
       type: string
     - name: github_host
       type: string
-    - name: github_pat
-      type: string
     - name: avp_aws_secret_region
       type: string
     - name: ldap_url
@@ -37,17 +35,18 @@ spec:
     - name: ldap_certificate_file
       type: string
       default: ""
-    - name: ldap_bind_dn
-      type: string
-      default: ""
-    - name: ldap_bind_password
-      type: string
-      default: ""
+    #- name: ldap_bind_dn
+    #  type: string
+    #  default: ""
+    #- name: ldap_bind_password
+    #  type: string
+    #  default: ""
     - name: cluster_url
       type: string
       default: ""
     - name: argocd_url
       type: string
+      default: ""
   stepTemplate:
     name: gitops-suite-idp-config
     env:
@@ -55,8 +54,6 @@ spec:
         value: $(params.cluster_name)
       - name: OCP_SERVER
         value: $(params.cluster_url)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
       - name: ACCOUNT
         value: $(params.account)
       - name: SECRET_PATH
@@ -71,8 +68,6 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
-      - name: GITHUB_PAT
-        value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
       - name: LDAP_URL
@@ -83,10 +78,12 @@ spec:
         value: $(params.ldap_userid_map)
       - name: LDAP_CERTIFICATE_FILE
         value: $(params.ldap_certificate_file)
-      - name: LDAP_BIND_DN
-        value: $(params.ldap_bind_dn)
-      - name: LDAP_BIND_PASSWORD
-        value: $(params.ldap_bind_password)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
+      #- name: LDAP_BIND_DN
+      #  value: $(params.ldap_bind_dn)
+      #- name: LDAP_BIND_PASSWORD
+      #  value: $(params.ldap_bind_password)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -156,7 +153,7 @@ spec:
         --ldap-url $LDAP_URL \
         --ldap-basedn $LDAP_BASEDN \
         --ldap-userid-map $LDAP_USERID_MAP \
-        --ldap-certificate-file $LDAP_CERTIFICATE_FILE \
+        --ldap-certificate-file /workspace/shared-additional-configs/ldap_masdeps1_cert.pem \
         --ldap-bind-dn $LDAP_BIND_DN \
         --ldap-bind-password $LDAP_BIND_PASSWORD
       command:

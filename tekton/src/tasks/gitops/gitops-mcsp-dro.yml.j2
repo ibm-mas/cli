@@ -25,9 +25,6 @@ spec:
       type: string
     - name: github_pat
       type: string
-
-    - name: argocd_url
-      type: string
     - name: argocd_username
       type: string
     - name: argocd_password
@@ -60,9 +57,6 @@ spec:
         value: $(params.github_repo)
       - name: GITHUB_PAT
         value: $(params.github_pat)
-
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
       - name: ARGOCD_USERNAME
         value: $(params.argocd_username)
       - name: ARGOCD_PASSWORD

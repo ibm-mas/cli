@@ -28,6 +28,7 @@ spec:
       type: string
     - name: argocd_url
       type: string
+      default: ""
   stepTemplate:
     name: gitops-db2u
     env:
@@ -51,10 +52,10 @@ spec:
         value: $(params.github_repo)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
       - name: DB2_CHANNEL
         value: $(params.db2_channel)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
     envFrom:
       - configMapRef:
           name: environment-properties

@@ -111,7 +111,7 @@ function gitops_suite_workspace_noninteractive() {
   [[ -z "$GITOPS_VERSION" ]] && gitops_suite_workspace_help "GITOPS_VERSION is not set"
   [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_suite_workspace_help "MAS_WORKSPACE_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_suite_workspace_help "CLUSTER_ID is not set"
-  [[ -z "$REGION" ]] && gitops_cluster_help "REGION_ is not set"
+  [[ -z "$REGION" ]] && gitops_suite_workspace_help "REGION is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_suite_workspace_help "ACCOUNT_ID is not set"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_suite_workspace_help "GITHUB_HOST is not set"
