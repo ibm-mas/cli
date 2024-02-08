@@ -14,11 +14,6 @@ Options:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}          Account ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}          Cluster ID
       --app-revision ${COLOR_YELLOW}APP_REVISION${TEXT_RESET}      Revision (branch or tag) of ibm-mas/gitops to use
-      --secret-manager-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}   Secrets Manager to use ("ibm" or "aws")
-
-IBM Secrets Manager Configuration:
-      --sm-ibm-instance-url ${COLOR_YELLOW}AVP_INSTANCE_URL${TEXT_RESET}  URL to IBM Secrets Manager
-      --sm-ibm-api-key ${COLOR_YELLOW}AVP_IBM_APIKEY${TEXT_RESET}         IBM Cloud API key with access to IBM Secrets Manager
 
 AWS Secrets Manager Configuration:
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
@@ -38,6 +33,8 @@ EOM
 }
 
 function gitops_bootstrap_noninteractive() {
+  AVP_TYPE=aws
+
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -49,29 +46,18 @@ function gitops_bootstrap_noninteractive() {
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
         ;;
-      --secret-manager-type)
-        export AVP_TYPE=$1 && shift
-        ;;
       --app-revision)
         export APP_REVISION=$1 && shift
-        ;;
-
-      # IBM Secrets Manager Configuration
-      --sm-ibm-instance-url)
-        export AVP_INSTANCE_URL=$1 && shift
-        ;;
-      --sm-ibm-api-key)
-        export AVP_IBM_APIKEY=$1 && shift
         ;;
 
       # AWS Secrets Manager Configuration
       --sm-aws-secret-region)
         export SM_AWS_REGION=$1 && shift
         ;;
-      --sm-aws-secret-key)
+      --sm-aws-access-key)
         export SM_AWS_ACCESS_KEY_ID=$1 && shift
         ;;
-      --sm-aws-access-key)
+      --sm-aws-secret-key)
         export SM_AWS_SECRET_ACCESS_KEY=$1 && shift
         ;;
 
@@ -97,18 +83,9 @@ function gitops_bootstrap_noninteractive() {
     esac
   done
 
-  [[ -z "$AVP_TYPE" ]] && gitops_bootstrap_help "AVP_TYPE is not set"
-  if [ $AVP_TYPE == 'aws' ]; then
-    if [ -z $SM_AWS_REGION ] || [ -z $SM_AWS_SECRET_ACCESS_KEY ] || [ -z $SM_AWS_ACCESS_KEY_ID ]; then
-      echo 'Missing required params for AWS secret manager, make sure to provide --avp-aws-secret-region, --avp-aws-secret-key and --avp-aws-access-key'
-      exit 1
-    fi
-  fi
-  if [ $AVP_TYPE == 'ibm' ]; then
-    if [ -z $AVP_INSTANCE_URL ] || [ -z $AVP_IBM_APIKEY ]; then
-      echo 'Missing required params for AWS secret manager, make sure to provide --avp-ibm-api-key and --avp-ibm-instance-url'
-      exit 1
-    fi
+  if [ -z $SM_AWS_REGION ] || [ -z $SM_AWS_SECRET_ACCESS_KEY ] || [ -z $SM_AWS_ACCESS_KEY_ID ]; then
+    echo 'Missing required params for AWS secret manager, make sure to provide --sm-aws-secret-region, --sm-aws-secret-key and --sm-aws-access-key'
+    exit 1
   fi
 
   if [ -z $APP_REPO_URL ] || [ -z $APP_REPO_PAT ]|| [ -z $APP_REPO_REVISION ]; then
@@ -138,35 +115,33 @@ function gitops_bootstrap() {
   reset_colors
   echo_h2 "Review Settings"
 
-  if [ $AVP_TYPE == 'aws' ]; then
-    echo "${TEXT_DIM}"
-    echo_h2 "Target" "    "
-    echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${SM_AWS_REGION}"
-    echo_reset_dim "Secret Key ............................ ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
-    echo_reset_dim "Access Key ............................ ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
-    reset_colors
-  fi
+  echo "${TEXT_DIM}"
+  echo_h2 "Target" "    "
+  echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}<snip>"
+  echo_reset_dim "Applicaton Revision ............ ${COLOR_MAGENTA}${APP_REVISION}<snip>"
+  reset_colors
 
-  if [ $AVP_TYPE == 'ibm' ]; then
-    echo "${TEXT_DIM}"
-    echo_h2 "Target" "    "
-    echo_reset_dim "Instance URL .......................... ${COLOR_MAGENTA}${AVP_INSTANCE_URL}"
-    echo_reset_dim "API Key ............................... ${COLOR_MAGENTA}${AVP_IBM_APIKEY:0:4}<snip>"
-    reset_colors
-  fi
+  echo ""
+  echo "${TEXT_DIM}"
+  echo_h2 "AWS Secret Manager" "    "
+  echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
+  echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+  echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
+  reset_colors
 
   echo ""
   echo "${TEXT_DIM}"
   echo_h2 "GitHub Repository" "    "
-  echo_reset_dim "GitHub Repository ..................... ${COLOR_MAGENTA}${APP_REPO_URL}"
-  echo_reset_dim "GitHub Repository Revision ............ ${COLOR_MAGENTA}${APP_REPO_REVISION}"
-  echo_reset_dim "GitHub Personal Access Token .......... ${COLOR_MAGENTA}${APP_REPO_PAT:0:4}<snip>"
+  echo_reset_dim "Repository URL ................. ${COLOR_MAGENTA}${APP_REPO_URL}"
+  echo_reset_dim "Repository Revision ............ ${COLOR_MAGENTA}${APP_REPO_REVISION}"
+  echo_reset_dim "Personal Access Token .......... ${COLOR_MAGENTA}${APP_REPO_PAT:0:4}<snip>"
   reset_colors
 
   echo ""
   echo "${TEXT_DIM}"
   echo_h2 "Cluster" "    "
-  echo_reset_dim "Cluster ID ............................. ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
   reset_colors
 
   # 1. Install Openshift GitOps Operator
