@@ -12,7 +12,6 @@ When no options are specified on the command line, interactive-mode will be enab
 
 Options:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}          Account ID
-  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}          Cluster ID
       --app-revision ${COLOR_YELLOW}APP_REVISION${TEXT_RESET}      Revision (branch or tag) of ibm-mas/gitops to use
 
 AWS Secrets Manager Configuration:
@@ -42,9 +41,6 @@ function gitops_bootstrap_noninteractive() {
     case $key in
       -a|--account-id)
         export ACCOUNT_ID=$1 && shift
-        ;;
-      -c|--cluster-id)
-        export CLUSTER_ID=$1 && shift
         ;;
       --app-revision)
         export APP_REVISION=$1 && shift
@@ -93,10 +89,6 @@ function gitops_bootstrap_noninteractive() {
     exit 1
   fi
 
-  if [ -z $CLUSTER_ID ]; then
-    echo 'No Environment cluster name provided, make sure to provide --cluster-id'
-    exit 1
-  fi
 }
 
 
@@ -118,8 +110,7 @@ function gitops_bootstrap() {
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
-  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}<snip>"
-  echo_reset_dim "Applicaton Revision ............ ${COLOR_MAGENTA}${APP_REVISION}<snip>"
+  echo_reset_dim "Applicaton Revision ............ ${COLOR_MAGENTA}${APP_REVISION}"
   reset_colors
 
   echo ""
@@ -136,12 +127,6 @@ function gitops_bootstrap() {
   echo_reset_dim "Repository URL ................. ${COLOR_MAGENTA}${APP_REPO_URL}"
   echo_reset_dim "Repository Revision ............ ${COLOR_MAGENTA}${APP_REPO_REVISION}"
   echo_reset_dim "Personal Access Token .......... ${COLOR_MAGENTA}${APP_REPO_PAT:0:4}<snip>"
-  reset_colors
-
-  echo ""
-  echo "${TEXT_DIM}"
-  echo_h2 "Cluster" "    "
-  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
   reset_colors
 
   # 1. Install Openshift GitOps Operator
