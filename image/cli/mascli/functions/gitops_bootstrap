@@ -11,11 +11,23 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Options:
-  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}        Cluster ID
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                   Working directory for GitOps repository
-      --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}          Account ID
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}          Cluster ID
+      --app-revision ${COLOR_YELLOW}APP_REVISION${TEXT_RESET}      Revision (branch or tag) of ibm-mas/gitops to use
+      --secret-manager-type ${COLOR_YELLOW}AVP_TYPE${TEXT_RESET}   Secrets Manager to use ("ibm" or "aws")
 
-      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}        Secrets Manager path
+IBM Secrets Manager Configuration:
+      --sm-ibm-instance-url ${COLOR_YELLOW}AVP_INSTANCE_URL${TEXT_RESET}  URL to IBM Secrets Manager
+      --sm-ibm-api-key ${COLOR_YELLOW}AVP_IBM_APIKEY${TEXT_RESET}         IBM Cloud API key with access to IBM Secrets Manager
+
+AWS Secrets Manager Configuration:
+      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
+      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
+      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
+
+GitHub Repository Configuration:
+      --github-pat ${COLOR_YELLOW}APP_WATCHER_REPO_PAT${TEXT_RESET}    Personal Access Token to access your GitHub repository
+      --github-url ${COLOR_YELLOW}APP_WATCHER_REPO_URL${TEXT_RESET}    URL to the GitHub repository holding your ArgoCD applications
 
 Other Commands:
       --no-confirm                                Mirror images without prompting for confirmation
@@ -30,39 +42,43 @@ function gitops_bootstrap_noninteractive() {
     key="$1"
     shift
     case $key in
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
         ;;
-
-      # Secret Manager Type
-      -t|--secret-manager-type)
+      --secret-manager-type)
         export AVP_TYPE=$1 && shift
         ;;
+      --app-revision)
+        export APP_REVISION=$1 && shift
+        ;;
 
-      # IBM Secret Manager
-      -i|--avp-ibm-instance-url)
+      # IBM Secrets Manager Configuration
+      --sm-ibm-instance-url)
         export AVP_INSTANCE_URL=$1 && shift
         ;;
-      -b|--avp-ibm-api-key)
+      --sm-ibm-api-key)
         export AVP_IBM_APIKEY=$1 && shift
         ;;
 
-      # AWS Secret Manager
-      -r|--avp-aws-secret-region)
-        export AVP_AWS_SECRET_REGION=$1 && shift
+      # AWS Secrets Manager Configuration
+      --sm-aws-secret-region)
+        export SM_AWS_REGION=$1 && shift
         ;;
-      -s|--avp-aws-secret-key)
-        export AVP_AWS_SECRET_KEY=$1 && shift
+      --sm-aws-secret-key)
+        export SM_AWS_ACCESS_KEY_ID=$1 && shift
         ;;
-      -a|--avp-aws-access-key)
-        export AVP_AWS_ACCESS_KEY=$1 && shift
+      --sm-aws-access-key)
+        export SM_AWS_SECRET_ACCESS_KEY=$1 && shift
         ;;
 
-      # GitHub Access
-      -p|--github-pat)
+      # GitHub Repository Configuration
+      --github-pat)
         export APP_WATCHER_REPO_PAT=$1 && shift
         ;;
-      -u|--github-url)
+      --github-url)
         export APP_WATCHER_REPO_URL=$1 && shift
         ;;
 
@@ -72,16 +88,14 @@ function gitops_bootstrap_noninteractive() {
         ;;
       # Unknown option
       *)
-        echo -e "\n${COLOR_RED}Usage Error: Unsupported flag \"${key}\" ${COLOR_OFF}\n\n"
         gitops_bootstrap_help "Usage Error: Unsupported option \"${key}\" "
-        exit 1
         ;;
     esac
   done
 
   [[ -z "$AVP_TYPE" ]] && gitops_bootstrap_help "AVP_TYPE is not set"
   if [ $AVP_TYPE == 'aws' ]; then
-    if [ -z $AVP_AWS_SECRET_REGION ] || [ -z $AVP_AWS_SECRET_REGION ] || [ -z $AVP_AWS_SECRET_REGION ]; then
+    if [ -z $SM_AWS_REGION ] || [ -z $SM_AWS_SECRET_ACCESS_KEY ] || [ -z $SM_AWS_ACCESS_KEY_ID ]; then
       echo 'Missing required params for AWS secret manager, make sure to provide --avp-aws-secret-region, --avp-aws-secret-key and --avp-aws-access-key'
       exit 1
     fi
@@ -123,9 +137,9 @@ function gitops_bootstrap() {
   if [ $AVP_TYPE == 'aws' ]; then
     echo "${TEXT_DIM}"
     echo_h2 "Target" "    "
-    echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${AVP_AWS_SECRET_REGION}"
-    echo_reset_dim "Secret Key ............................ ${COLOR_MAGENTA}${AVP_AWS_SECRET_KEY:0:8}<snip>"
-    echo_reset_dim "Access Key ............................ ${COLOR_MAGENTA}${AVP_AWS_ACCESS_KEY:0:8}<snip>"
+    echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${SM_AWS_REGION}"
+    echo_reset_dim "Secret Key ............................ ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+    echo_reset_dim "Access Key ............................ ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
     reset_colors
   fi
 
@@ -133,7 +147,7 @@ function gitops_bootstrap() {
     echo "${TEXT_DIM}"
     echo_h2 "Target" "    "
     echo_reset_dim "Instance URL .......................... ${COLOR_MAGENTA}${AVP_INSTANCE_URL}"
-    echo_reset_dim "API Key ............................... ${COLOR_MAGENTA}${AVP_IBM_APIKEY:0:8}<snip>"
+    echo_reset_dim "API Key ............................... ${COLOR_MAGENTA}${AVP_IBM_APIKEY:0:4}<snip>"
     reset_colors
   fi
 
@@ -141,7 +155,7 @@ function gitops_bootstrap() {
   echo "${TEXT_DIM}"
   echo_h2 "GitHub Repository" "    "
   echo_reset_dim "GitHub Repository ..................... ${COLOR_MAGENTA}${APP_WATCHER_REPO_URL}"
-  echo_reset_dim "GitHub Personal Access Token .......... ${COLOR_MAGENTA}${APP_WATCHER_REPO_PAT:0:8}<snip>"
+  echo_reset_dim "GitHub Personal Access Token .......... ${COLOR_MAGENTA}${APP_WATCHER_REPO_PAT:0:4}<snip>"
   reset_colors
 
   echo ""
@@ -205,26 +219,27 @@ function gitops_bootstrap() {
   oc wait --for=jsonpath='{.status.repo}'=Running argocd/openshift-gitops -n openshift-gitops --timeout=30m
   oc wait --for=jsonpath='{.status.applicationController}'=Running argocd/openshift-gitops -n openshift-gitops --timeout=30m
 
-  # 6. Add the watcher to the gitops environment repo
-  # TODO: replace watcher app with multi-cluster mas-root application
-  # jinja -X .+ ${CLI_DIR}/templates/gitops/bootstrap/watcher.yaml.j2 | oc apply -f -
+  # 6. Add the GitHub PAT secret (used to authenticate to your environment repository, which is assumed to be private)
+  jinja -X .+ ${CLI_DIR}/templates/gitops/bootstrap/secret-github.yaml.j2 | oc apply -f -
 
-  # 7. Patch openshift-marketplace to allow GitOps to manage resources in the namespace
+  # 7. Add the root project and application
+  oc apply  -f ${CLI_DIR}/templates/gitops/bootstrap/mas-appproject.yaml
+  jinja -X .+ ${CLI_DIR}/templates/gitops/bootstrap/root-application.yaml.j2 | oc apply -f -
+
+  # 8. Patch openshift-marketplace and kube-system to allow GitOps to manage resources in the namespace
   echo 'Patch standard namespaces to enable GitOps management'
   oc apply  -f ${CLI_DIR}/templates/gitops/bootstrap/namespace.yaml
 
-  # 8. Add cluster-admin access to openshift-gitops service account. Need to created securitycontextcontraints
+  # 9. Add cluster-admin access to openshift-gitops service account. Need to created securitycontextcontraints
   echo 'Add cluster-admin access to openshift-gitops service account'
   oc adm policy add-cluster-role-to-user cluster-admin system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller
 
-  # 9. For some reason the application-controller needs restarting to pickup the RBAC changes
+  # 10. For some reason the application-controller needs restarting to pickup the RBAC changes
   echo 'Restart application-controller'
   oc rollout restart statefulset/openshift-gitops-application-controller -n openshift-gitops
 
   echo 'Waiting for rollout of application-controller to complete'
   oc rollout status statefulset/openshift-gitops-application-controller -n openshift-gitops
-
-  # TODO: if necessary, create global "mas" and "mas-argoproj-resources" projects to align with those in MCSP
 
   echo
   echo "${COLOR_GREEN}OpenShift GitOps Operator is installed and ready${COLOR_RESET}"
@@ -237,7 +252,7 @@ function gitops_bootstrap() {
     export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' | base64 -d ; echo)
   fi
 
-  echo "${COLOR_GREEN}ArgoCD is now available at ${ARGOCD_URL} username is: admin and password: ${ARGOCD_PASSWORD} ${COLOR_RESET}"
+  echo "${COLOR_GREEN}ArgoCD is now available at https://${ARGOCD_URL} username is: admin and password: ${ARGOCD_PASSWORD} ${COLOR_RESET}"
   echo
 
 }
