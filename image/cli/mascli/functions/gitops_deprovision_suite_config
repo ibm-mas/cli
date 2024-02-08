@@ -225,6 +225,130 @@ function gitops_deprovision_suite_config() {
   fi
   mkdir -p ${GITOPS_INSTANCE_DIR}
 
+    
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    argocd_login
+  fi
+
+
+  # Append the ;delete: true' flag iff the config file exists and the flag is not in there already
+
+  # TODO: move this logic into a function for re-use - maybe even into gitops_utils for use in all the deprovision scripts
+  if [[ -f "${GITOPS_INSTANCE_DIR}/wsapp-masdev-manage.ibm-mas-jdbc-config.yaml" ]]; then
+    if [[ -z $(grep '^delete: true$' ${GITOPS_INSTANCE_DIR}/wsapp-masdev-manage.ibm-mas-jdbc-config.yaml) ]]; then
+      echo "Adding delete: true flag to config"
+      echo -e "\n\ndelete: true" >> ${GITOPS_INSTANCE_DIR}/wsapp-masdev-manage.ibm-mas-jdbc-config.yaml
+
+      # Commit and push to github target repo
+      # ---------------------------------------------------------------------------
+      if [ "$GITHUB_PUSH" == "true" ]; then
+        echo
+        echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+        save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
+
+        WSAPP_JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-wsapp-${MAS_WORKSPACE_ID}-${MAS_APP_ID}-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+
+        argocd_sync "${WSAPP_JDBC_CONFIG_APP}" # Trigger the cleanup job to run
+
+        # wait for it to finish syncing now the delete: true flag has been set
+        check_argo_app_synced "${WSAPP_JDBC_CONFIG_APP}"
+        # once synced, the CR will have been deleted and we can move on
+      fi
+    fi
+  fi
+
+  if [[ -f "${GITOPS_INSTANCE_DIR}/system.ibm-mas-jdbc-config.yaml" ]]; then
+    if [[ -z $(grep '^delete: true$' ${GITOPS_INSTANCE_DIR}/system.ibm-mas-jdbc-config.yaml) ]]; then
+      echo "Adding delete: true flag to config"
+      echo -e "\n\ndelete: true" >> ${GITOPS_INSTANCE_DIR}/system.ibm-mas-jdbc-config.yaml
+
+      # Commit and push to github target repo
+      # ---------------------------------------------------------------------------
+      if [ "$GITHUB_PUSH" == "true" ]; then
+        echo
+        echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+        save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
+
+        SYSTEM_JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+
+        argocd_sync "${SYSTEM_JDBC_CONFIG_APP}" # Trigger the cleanup job to run
+
+        # wait for it to finish syncing now the delete: true flag has been set
+        check_argo_app_synced "${SYSTEM_JDBC_CONFIG_APP}"
+        # once synced, the CR will have been deleted and we can move on
+      fi
+    fi
+  fi
+
+  if [[ -f "${GITOPS_INSTANCE_DIR}/system.ibm-mas-sls-config.yaml" ]]; then
+    if [[ -z $(grep '^delete: true$' ${GITOPS_INSTANCE_DIR}/system.ibm-mas-sls-config.yaml) ]]; then
+      echo "Adding delete: true flag to config"
+      echo -e "\n\ndelete: true" >> ${GITOPS_INSTANCE_DIR}/system.ibm-mas-sls-config.yaml
+
+      # Commit and push to github target repo
+      # ---------------------------------------------------------------------------
+      if [ "$GITHUB_PUSH" == "true" ]; then
+        echo
+        echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+        save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
+
+        SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+
+        argocd_sync "${SLS_CONFIG_APP}" # Trigger the cleanup job to run
+
+        # wait for it to finish syncing now the delete: true flag has been set
+        check_argo_app_synced "${SLS_CONFIG_APP}"
+        # once synced, the CR will have been deleted and we can move on
+      fi
+    fi
+  fi
+
+
+  if [[ -f "${GITOPS_INSTANCE_DIR}/system.ibm-mas-mongo-config.yaml" ]]; then
+    if [[ -z $(grep '^delete: true$' ${GITOPS_INSTANCE_DIR}/system.ibm-mas-mongo-config.yaml) ]]; then
+      echo "Adding delete: true flag to config"
+      echo -e "\n\ndelete: true" >> ${GITOPS_INSTANCE_DIR}/system.ibm-mas-mongo-config.yaml
+
+      # Commit and push to github target repo
+      # ---------------------------------------------------------------------------
+      if [ "$GITHUB_PUSH" == "true" ]; then
+        echo
+        echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+        save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
+
+        MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+
+        argocd_sync "${MONGO_CONFIG_APP}" # Trigger the cleanup job to run
+
+        # wait for it to finish syncing now the delete: true flag has been set
+        check_argo_app_synced "${MONGO_CONFIG_APP}"
+        # once synced, the CR will have been deleted and we can move on
+      fi
+    fi
+  fi
+
+  if [[ -f "${GITOPS_INSTANCE_DIR}/system.ibm-mas-bas-config.yaml" ]]; then
+    if [[ -z $(grep '^delete: true$' ${GITOPS_INSTANCE_DIR}/system.ibm-mas-bas-config.yaml) ]]; then
+      echo "Adding delete: true flag to config"
+      echo -e "\n\ndelete: true" >> ${GITOPS_INSTANCE_DIR}/system.ibm-mas-bas-config.yaml
+
+      # Commit and push to github target repo
+      # ---------------------------------------------------------------------------
+      if [ "$GITHUB_PUSH" == "true" ]; then
+        echo
+        echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+        save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
+
+        BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+
+        argocd_sync "${BAS_CONFIG_APP}" # Trigger the cleanup job to run
+
+        # wait for it to finish syncing now the delete: true flag has been set
+        check_argo_app_synced "${BAS_CONFIG_APP}"
+        # once synced, the CR will have been deleted and we can move on
+      fi
+    fi
+  fi
 
   # Delete config file that triggers system-configs ArgoCD application to render charts for this config type
   # ---------------------------------------------------------------------------
@@ -245,11 +369,11 @@ function gitops_deprovision_suite_config() {
     INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
     # TODO: currently hard-coded to support only the known system/wsapp JDBC bindings
-    WSAPP_JDBC_CONFIG_APP="wsapp-masdev-manage-jdbc.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    SYSTEM_JDBC_CONFIG_APP="system-jdbc.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    MONGO_CONFIG_APP="system-mongo.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    BAS_CONFIG_APP="system-bas.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    SLS_CONFIG_APP="system-sls.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    WSAPP_JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-wsapp-${MAS_WORKSPACE_ID}-${MAS_APP_ID}-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    SYSTEM_JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
     argocd_login
     argocd_prune_sync "${INSTANCE_ROOT_APP}" ## trigger the config app set to notice the deletion of the config file
