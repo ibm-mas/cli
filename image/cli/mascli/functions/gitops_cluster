@@ -12,7 +12,6 @@ When no options are specified on the command line, interactive-mode will be enab
 Basic Configuration (Required):
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}        Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}         Account ID
-  -r, --region-id ${COLOR_YELLOW}REGION_ID${TEXT_RESET}           Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}         Cluster ID
 
 AWS Secrets Manager Configuration (Required):
@@ -86,13 +85,12 @@ function gitops_cluster_noninteractive() {
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
         ;;
-      -r|--region-id)
-        export REGION_ID=$1 && shift
-        ;;
 
       # AWS Secrets Manager Configuration
       --sm-aws-secret-region)
-        export SM_AWS_REGION=$1 && shift
+        export SM_AWS_REGION=$1
+        export REGION_ID=$1
+        shift
         ;;
       --sm-aws-access-key)
         export SM_AWS_ACCESS_KEY_ID=$1 && shift
