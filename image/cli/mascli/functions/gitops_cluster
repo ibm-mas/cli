@@ -10,15 +10,15 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Basic Configuration (Required):
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}        Directory for GitOps repository
-  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}         Account ID
-  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}         Cluster ID
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}         Directory for GitOps repository
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}          Account ID
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}          Cluster ID
 
 AWS Secrets Manager Configuration (Required):
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
       --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
       --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
-      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}     Secrets Manager path
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                   Secrets Manager path
 
 IBM Container Registry Entitlement (Required):
       --icr-username ${COLOR_YELLOW}ICR_USERNAME${TEXT_RESET}  Username to authenticate with IBM Container Registry (defaults to 'cp')
@@ -31,7 +31,6 @@ Operator Catalog (Optional):
       --catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}   Set the version of IBM Maximo Operator Catalog (defaults to 'v8-240130-amd64')
       --catalog-image ${COLOR_YELLOW}MAS_CATALOG_IMAGE${TEXT_RESET}       Container image to use for IBM Maximo Operator Catalog (defaults to 'icr.io/cpopen/ibm-maximo-operator-catalog')
       --catalog-action ${COLOR_YELLOW}MAS_CATALOG_ACTION${TEXT_RESET}     Action to take for IBM Maximo Operator Catalog ('install', 'update' or 'none'. Default is 'install')
-
 
 IBM Cloud Pak Foundational Services (Optional):
       --common-services-channel ${COLOR_YELLOW}COMMON_SERVICES_CHANNEL${TEXT_RESET} Subscription channel for IBM Cloud Pak Foundation Services (defaults to 'v3.23')
@@ -263,7 +262,7 @@ function gitops_cluster() {
   # ---------------------------------------------------------------------------
   echo
   echo_h2 "Configuring Cluster secrets"
-  AVP_TYPE=aws  # Support for IBM will be added later
+  AVP_TYPE=aws
   sm_login
 
   export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}ibm_entitlement

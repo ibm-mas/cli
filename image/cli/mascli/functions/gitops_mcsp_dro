@@ -100,13 +100,9 @@ function gitops_mcsp_dro_noninteractive() {
         export GIT_SSH=$1 && shift
         ;;
 
-
       # DRO
       --dro-namespace)
         export DRO_NAMESPACE=$1 && shift
-        ;;
-      --dro-csv)
-        export DRO_CSV=$1 && shift
         ;;
 
       # Other Commands
