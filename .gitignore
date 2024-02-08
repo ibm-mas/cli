@@ -35,3 +35,5 @@ image/cli/mascli/fyre-dev.noble3.tgkb-env.sh
 image/cli/mascli/gitops-mas-deploy.sh
 image/cli/mascli/gitops-mas-deploy.env.sh
 image/cli/mascli/fyre-dev.noble3.tgkc-env.sh
+image/cli/mascli/fyre-dev.noble3.tgkd-env.sh
+image/cli/mascli/gitops-mas-deploy-merged.sh

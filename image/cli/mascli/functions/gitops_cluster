@@ -301,7 +301,7 @@ function gitops_cluster() {
   echo "- Generate AWS secret"
   # This is used by some of the ArgoCD sync hooks to make updates to AWS SM from within the cluster
   export SECRET_NAME_AWS=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}aws
-  sm_update_secret $SECRET_NAME_AWS "{\"aws_access_key_id\": \"${SM_AWS_ACCESS_KEY_ID}\", \"aws_secret_access_key\": \"${SM_AWS_SECRET_ACCESS_KEY}\"}"
+  sm_update_secret $SECRET_NAME_AWS "{\"sm_aws_access_key_id\": \"${SM_AWS_ACCESS_KEY_ID}\", \"sm_aws_secret_access_key\": \"${SM_AWS_SECRET_ACCESS_KEY}\"}"
 
 
   # Generate ArgoApps

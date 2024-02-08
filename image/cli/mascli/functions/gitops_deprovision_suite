@@ -268,8 +268,7 @@ function gitops_deprovision_suite() {
   export SECRET_NAME_AWS_ACCESS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}aws
   export SECRET_KEY_AWS_ACCESS_KEY_ID=${SECRET_NAME_AWS_ACCESS}#sm_aws_access_key_id
   export SECRET_KEY_AWS_SECRET_ACCESS_KEY=${SECRET_NAME_AWS_ACCESS}#sm_aws_secret_access_key
-  sm_update_secret ${SECRET_NAME_AWS_ACCESS} "{\"sm_aws_access_key_id\": \"$SM_AWS_ACCESS_KEY_ID\", \"sm_aws_secret_access_key\": \"$SM_AWS_SECRET_ACCESS_KEY\"}"
-
+  # The AWS secret is established by the gitops_cluster step
   # Get the cluster-level secrets used
   # ---------------------------------------------------------------------------
   # Note that this cluster-level secret is set up by gitops-mongo
