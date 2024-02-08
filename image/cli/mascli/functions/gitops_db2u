@@ -266,7 +266,6 @@ function gitops_db2u() {
     check_argo_app_synced "${CLUSTER_APP_NAME}" "${ROOT_APP_NAME}"
     
     argocd_hard_refresh "${CLUSTER_APP_NAME}"
-    # add_role_to_user ${DB2_NAMESPACE} 
     check_argo_app_synced "${DB2U_APP_NAME}" "${CLUSTER_APP_NAME}" "${DB2_NAMESPACE}"
     check_argo_app_healthy "${DB2U_APP_NAME}" "${CLUSTER_APP_NAME}"
 

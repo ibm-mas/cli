@@ -254,7 +254,6 @@ function gitops_dro() {
     check_argo_app_synced "${CLUSTER_APP_NAME}" "${ROOT_APP_NAME}"
     
     argocd_hard_refresh "${CLUSTER_APP_NAME}"
-    # add_role_to_user ${DRO_NAMESPACE} 
     check_argo_app_synced "${DRO_APP_NAME}" "${CLUSTER_APP_NAME}" "${DRO_NAMESPACE}"
     check_argo_app_healthy "${DRO_APP_NAME}" "${CLUSTER_APP_NAME}"
     

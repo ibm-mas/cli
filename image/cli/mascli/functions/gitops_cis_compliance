@@ -203,7 +203,6 @@ function gitops_cis_compliance() {
     check_argo_app_synced "${CLUSTER_APP_NAME}" "${ROOT_APP_NAME}"
 
     argocd_hard_refresh "${CLUSTER_APP_NAME}"
-    # add_role_to_user openshift-compliance
     check_argo_app_synced "${CIS_COMPLIANCE_APP_NAME}" "${CLUSTER_APP_NAME}" openshift-compliance
     check_argo_app_healthy "${CIS_COMPLIANCE_APP_NAME}" "${CLUSTER_APP_NAME}"
   fi
