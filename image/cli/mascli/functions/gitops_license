@@ -9,15 +9,16 @@ Usage:
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
-Options:
+Basic Configuration:
   -a, --account_id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                        Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                        Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}              IBM Suite Maximo Application Suite Instance ID
-
-      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
-
       --license-file ${COLOR_YELLOW}LICENSE_FILE${TEXT_RESET}                    Path to IBM SLS License File
+
+AWS Secrets Manager Configuration:
+      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
+      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
+      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
 
 Other Commands:
   -h, --help                                      Show this help message
@@ -33,7 +34,7 @@ function gitops_license_noninteractive() {
     key="$1"
     shift
     case $key in
-      # GitOps Configuration:
+      # Basic Configuration:
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
         ;;
@@ -43,17 +44,21 @@ function gitops_license_noninteractive() {
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
         ;;
-
-      # Secrets Manger
-      --secrets-path)
-        export SECRETS_PATH=$1 && shift
-        ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
-        ;;
-
       --license-file)
         export LICENSE_FILE=$1 && shift
+        ;;
+
+      # AWS Secrets Manager Configuration:
+      --sm-aws-secret-region)
+        export SM_AWS_REGION=$1
+        export REGION_ID=$1
+        shift
+        ;;
+      --sm-aws-access-key)
+        export SM_AWS_ACCESS_KEY_ID=$1 && shift
+        ;;
+      --sm-aws-secret-key)
+        export SM_AWS_SECRET_ACCESS_KEY=$1 && shift
         ;;
 
       # Other Commands
@@ -62,17 +67,15 @@ function gitops_license_noninteractive() {
         ;;
       *)
         # unknown option
-        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
         gitops_license_help  "Usage Error: Unsupported option \"${key}\" "
-        exit 1
         ;;
       esac
   done
 
-  [[ -z "$CLUSTER_ID" ]] && gitops_license_help "CLUSTER_ID is not set"
-  [[ -z "$LICENSE_FILE" ]] && gitops_license_help "LICENSE_FILE is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_license_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_license_help "CLUSTER_ID is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_license_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$LICENSE_FILE" ]] && gitops_license_help "LICENSE_FILE is not set"
 
 }
 
@@ -92,27 +95,25 @@ function gitops_license() {
   echo_h2 "Review Settings"
 
   echo "${TEXT_DIM}"
-  echo_h2 "Target" "    "
-  echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
-  echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_h4 "Target" "    "
+  echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "MAS Instance ID ................ ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   reset_colors
 
   echo "${TEXT_DIM}"
-  echo_h2 "Secrets Manager" "    "
-  echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  echo_h4 "AWS Secrets Manager" "    "
+  echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
+  echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+  echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
   reset_colors
 
   echo "${TEXT_DIM}"
-  echo_h2 "SLS License File" "    "
-  echo_reset_dim "SLS License File  ..................... ${COLOR_MAGENTA}${LICENSE_FILE}"
+  echo_h4 "SLS License File" "    "
+  echo_reset_dim "SLS License File  .............. ${COLOR_MAGENTA}${LICENSE_FILE}"
   reset_colors
 
-  echo "${TEXT_DIM}"
-  echo_h2 "IBM Maximo Application Suite" "    "
-  echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  reset_colors
-
-  AVP_TYPE=aws  # Support for IBM will be added later
+  AVP_TYPE=aws
   sm_login
 
   export SECRET_NAME_LICENSE_FILE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}license

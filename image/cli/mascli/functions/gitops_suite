@@ -9,23 +9,20 @@ Usage:
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
-GitOps Configuration:
+Basic Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
-  -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
-  -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
 
-MongoDb Provider Selection:
-      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. Only "aws" is supported
+AWS Secrets Manager Configuration (Required):
+      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
+      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
+      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                   Secrets Manager path
 
-AWS MongoDb Provider:
-      --user-action ${COLOR_YELLOW}USER_ACTION${TEXT_RESET}          The action to take, add or remove user
-
-Secrets Manager:
-      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
+MongoDb Provider Selection (Required):
+      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install ('aws' or 'yaml')
 
 IBM Suite License Service:
       --sls-channel ${COLOR_YELLOW}SLS_CHANNEL${TEXT_RESET}  IBM Suite License Service Subscription Channel
@@ -37,6 +34,10 @@ IBM Maximo Application Suite:
       --mas-image-tags ${COLOR_YELLOW}MAS_IMAGE_TAGS${TEXT_RESET}                     MAS Image tags definition in dict format
       --mas-labels ${COLOR_YELLOW}MAS_LABELS${TEXT_RESET}                             MAS Labels definition in dict format
       --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}         MAS Manual Cert Management
+
+Target Cluster (Optional):
+      --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
+
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
   -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
@@ -53,17 +54,21 @@ EOM
 }
 
 function gitops_suite_noninteractive() {
+  # Set defaults
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-suite commit"
-  export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
-  # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
-  export REGION=${REGION:-${SM_AWS_REGION}}
-  export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"} # use an in-cluster argocd worker (which fvtsaas does)
-  # alternatively for CLUSTER_URL, we could look it up from ArgoCD like this:
-  # export CLUSTER_URL
-  # argocd_get_cluster_url "${CLUSTER_ID}" "CLUSTER_URL"
+  GIT_COMMIT_MSG="gitops-suite commit"
+
+  # Target the local (to ArgoCD) cluster
+  export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
+
+  # Disable manual certificate management by default
+  export MAS_MANUAL_CERT_MGMT=${MAS_MANUAL_CERT_MGMT:-"False"}
+
+  # Target IBM Container Registry by default
+  export ICR_CP=${ICR_CP:-"cp.icr.io/cp"}
+  export ICR_CP_OPEN=${ICR_CP_OPEN:-"icr.io/cpopen"}
 
   while [[ $# -gt 0 ]]
   do
@@ -74,31 +79,30 @@ function gitops_suite_noninteractive() {
       -d|--dir)
         export GITOPS_WORKING_DIR=$1 && shift
         ;;
-      -g|--gitops-version)
-        export GITOPS_VERSION=$1 && shift
-        ;;
       -a|--account-id)
         export ACCOUNT_ID=$1 && shift
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
         ;;
-      -r|--region)
-        export REGION=$1 && shift
-        ;;
-      -u|--cluster-url)
-        export CLUSTER_URL=$1 && shift
-        ;;
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
         ;;
 
-      # Secrets Manager
+      # AWS Secrets Manager Configuration
+      --sm-aws-secret-region)
+        export SM_AWS_REGION=$1
+        export REGION_ID=$1
+        shift
+        ;;
+      --sm-aws-access-key)
+        export SM_AWS_ACCESS_KEY_ID=$1 && shift
+        ;;
+      --sm-aws-secret-key)
+        export SM_AWS_SECRET_ACCESS_KEY=$1 && shift
+        ;;
       --secrets-path)
         export SECRETS_PATH=$1 && shift
-        ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
 
       # MongoDb Provider Selection
@@ -135,6 +139,12 @@ function gitops_suite_noninteractive() {
       --mas-manual-cert-mgmt)
         export MAS_MANUAL_CERT_MGMT=$1 && shift
         ;;
+
+      # Target Cluster (Optional)
+      --cluster-url)
+        export CLUSTER_URL=$1 && shift
+        ;;
+
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -164,16 +174,14 @@ function gitops_suite_noninteractive() {
         ;;
       *)
         # unknown option
-        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
         gitops_suite_help "Usage Error: Unsupported option \"${key}\" "
-        exit 1
         ;;
       esac
   done
 
   [[ -z "$ACCOUNT_ID" ]] && gitops_suite_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_suite_help "CLUSTER_ID is not set"
-  [[ -z "$REGION" ]] && gitops_cluster_help "REGION is not set"
+  [[ -z "$REGION_ID" ]] && gitops_cluster_help "REGION_ID is not set"
   [[ -z "$CLUSTER_URL" ]] && gitops_cluster_help "CLUSTER_URL is not set"
   [[ -z "$MONGODB_PROVIDER" ]] && gitops_process_mongo_user_help "MONGODB_PROVIDER is not set"
 
@@ -207,81 +215,71 @@ function gitops_suite() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
 
   echo
   reset_colors
   echo_h2 "Review Settings"
 
   echo "${TEXT_DIM}"
-  echo_h2 "Target" "    "
-  echo_reset_dim "Account ID .............................. ${COLOR_MAGENTA}${ACCOUNT_ID}"
-  echo_reset_dim "Region .................................. ${COLOR_MAGENTA}${REGION}"
-  echo_reset_dim "Cluster ID .............................. ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Cluster URL ............................. ${COLOR_MAGENTA}${CLUSTER_URL}"
-  echo_reset_dim "Instance Config Directory ............... ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
+  echo_h4 "Target" "    "
+  echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ID ...................... ${COLOR_MAGENTA}${REGION_ID}"
+  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
+  echo_reset_dim "MAS Instance ID ................ ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "Instance Config Directory ...... ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
-  echo_h2 "Secrets Manager" "    "
-  echo_reset_dim "Secrets Path ............................ ${COLOR_MAGENTA}${SECRETS_PATH}"
+  echo_h4 "AWS Secrets Manager" "    "
+  echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
+  echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+  echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
+  echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
   reset_colors
 
   echo "${TEXT_DIM}"
-  echo_h2 "Mongo" "    "
-  echo_reset_dim "Mongo Provider  ......................... ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
-  if [ $MONGODB_PROVIDER == 'aws' ]; then
-    echo_reset_dim "User Action  .......................... ${COLOR_MAGENTA}${USER_ACTION}"
-    echo_reset_dim "AWS Access Key ID  .................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
-    echo_reset_dim "AWS Secret Access Key  ................ ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:8}<snip>"
-    echo_reset_dim "AWS Region  ........................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
-  fi
+  echo_h4 "Mongo" "    "
+  echo_reset_dim "Mongo Provider  ................ ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
   reset_colors
 
   echo "${TEXT_DIM}"
-  echo_h2 "GitOps Source" "    "
-  echo_reset_dim "GitOps URL .............................. ${COLOR_MAGENTA}https://github.com/ibm-mas/gitops"
-  echo_reset_dim "GitOps Version .......................... ${COLOR_MAGENTA}${GITOPS_VERSION}"
+  echo_h4 "IBM Suite License Service" "    "
+  echo_reset_dim "Subscription Channel ........... ${COLOR_MAGENTA}${SLS_CHANNEL}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h4 "IBM Maximo Application Suite" "    "
+  echo_reset_dim "Subscription Channel ........... ${COLOR_MAGENTA}${MAS_CHANNEL}"
+  echo_reset_dim "Domain ......................... ${COLOR_MAGENTA}${MAS_DOMAIN}"
+  echo_reset_dim "Image Tags ..................... ${COLOR_MAGENTA}${MAS_IMAGE_TAGS}"
+  echo_reset_dim "Annotations .................... ${COLOR_MAGENTA}${MAS_ANNOTATIONS}"
+  echo_reset_dim "Labels ......................... ${COLOR_MAGENTA}${MAS_LABELS}"
+  echo_reset_dim "MAS Manual Cert Mgt ............ ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
   reset_colors
 
   echo "${TEXT_DIM}"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    echo_h2 "GitOps Target" "    "
-    echo_reset_dim "Automatic Push ........................ ${COLOR_GREEN}Enabled"
-    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
-    echo_reset_dim "Host .................................. ${COLOR_MAGENTA}${GITHUB_HOST}"
-    echo_reset_dim "Organization .......................... ${COLOR_MAGENTA}${GITHUB_ORG}"
-    echo_reset_dim "Repository ............................ ${COLOR_MAGENTA}${GITHUB_REPO}"
-    echo_reset_dim "Branch ................................ ${COLOR_MAGENTA}${GIT_BRANCH}"
+    echo_h4 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ................. ${COLOR_GREEN}Enabled"
+    echo_reset_dim "Working Directory .............. ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+    echo_reset_dim "Host ........................... ${COLOR_MAGENTA}${GITHUB_HOST}"
+    echo_reset_dim "Organization ................... ${COLOR_MAGENTA}${GITHUB_ORG}"
+    echo_reset_dim "Repository ..................... ${COLOR_MAGENTA}${GITHUB_REPO}"
+    echo_reset_dim "Branch ......................... ${COLOR_MAGENTA}${GIT_BRANCH}"
   else
-    echo_h2 "GitOps Target" "    "
-    echo_reset_dim "Automatic Push ........................ ${COLOR_RED}Disabled"
-    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+    echo_h4 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ................. ${COLOR_RED}Disabled"
+    echo_reset_dim "Working Directory .............. ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
   fi
   reset_colors
-
-  echo "${TEXT_DIM}"
-  echo_h2 "IBM Suite License Service" "    "
-  echo_reset_dim "Subscription Channel .................... ${COLOR_MAGENTA}${SLS_CHANNEL}"
-  reset_colors
-
-  echo "${TEXT_DIM}"
-  echo_h2 "IBM Maximo Application Suite" "    "
-  echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo_reset_dim "Subscription Channel .................... ${COLOR_MAGENTA}${MAS_CHANNEL}"
-  echo_reset_dim "Domain .................................. ${COLOR_MAGENTA}${MAS_DOMAIN}"
-  echo_reset_dim "Image Tags .............................. ${COLOR_MAGENTA}${MAS_IMAGE_TAGS}"
-  echo_reset_dim "Annotations ............................. ${COLOR_MAGENTA}${MAS_ANNOTATIONS}"
-  echo_reset_dim "Labels .................................. ${COLOR_MAGENTA}${MAS_LABELS}"
-  echo_reset_dim "MAS Manual Cert Mgt ..................... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
-  reset_colors
-
 
   # Set up Suite secrets
   # ---------------------------------------------------------------------------
   echo
   echo_h2 "Configuring Suite secrets"
-  AVP_TYPE=aws  # Support for IBM will be added later
+  AVP_TYPE=aws
   sm_login
 
 
@@ -315,7 +313,7 @@ function gitops_suite() {
 
   export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
   export MONGO_CONFIG_FILE=$TEMP_DIR/mongo-info.yaml
-  
+
   sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
 
   jq -r .info $MONGO_SECRET_FILE > $MONGO_CONFIG_FILE
@@ -354,7 +352,7 @@ function gitops_suite() {
     fi
     if [[ -n "$TLS_KEY_FILE" ]]; then
       export TLS_KEY=$(cat ${TLS_KEY_FILE})
-      echo_reset_dim "TLS_KEY ............................... ${COLOR_MAGENTA}${TLS_KEY}"    
+      echo_reset_dim "TLS_KEY ............................... ${COLOR_MAGENTA}${TLS_KEY}"
     fi
   fi
   # Instance-level secrets to create
@@ -396,8 +394,6 @@ function gitops_suite() {
   # ---------------------------------------------------------------------------
   echo
   echo_h2 "Generating Argo Project and Applications"
-  # echo "- Project"
-  # jinja -X .+ $CLI_DIR/templates/gitops/appproject.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/${MAS_INSTANCE_ID}.appproject.yaml
 
   echo "- Base Config"
   jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-instance-base.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-instance-base.yaml
@@ -418,10 +414,10 @@ function gitops_suite() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-    CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-    INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
+    INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
     argocd_login
     argocd_sync "${CLUSTER_ROOT_APP}" ## trigger the instance appset to pick up the new config files

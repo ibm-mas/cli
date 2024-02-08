@@ -1,4 +1,4 @@
-merge-key: "{{ ACCOUNT_ID }}/{{ REGION }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
+merge-key: "{{ ACCOUNT_ID }}/{{ REGION_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
 
 ibm_mas_suite:
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
@@ -29,15 +29,15 @@ ibm_mas_suite:
 {%- endif %}
   mas_manual_cert_mgmt: {{ MAS_MANUAL_CERT_MGMT }}
 {%- if MAS_ANNOTATIONS is defined and MAS_ANNOTATIONS !='' %}
-  mas_annotations: 
+  mas_annotations:
     {{ MAS_ANNOTATIONS | indent(4) }}
 {%- endif %}
 {%- if MAS_LABELS is defined and MAS_LABELS !='' %}
-  mas_labels: 
+  mas_labels:
     {{ MAS_LABELS | indent(4) }}
 {%- endif %}
 {%- if MAS_IMAGE_TAGS is defined and MAS_IMAGE_TAGS !='' %}
-  mas_image_tags: 
+  mas_image_tags:
     {{ MAS_IMAGE_TAGS | indent(4) }}
 {%- endif %}
 
