@@ -33,3 +33,5 @@ spec:
       value: "$CERT_MANAGER_ACTION"
     - name: dro_migration
       value: '$DRO_MIGRATION'
+    - name: grafana_v5_upgrade
+      value: '$GRAFANA_V5_UPGRADE'
