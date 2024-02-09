@@ -109,6 +109,12 @@ spec:
       default: ""
       type: string
       description: Set to 'true' to change all LicenseService CRs' registry to cpopen
+    
+    # UDS/DRO Migration
+    - name: dro_migration
+      default: ""
+      type: string
+      description: Set to 'true' to Migration UDS to DRO 
 
     # grafana operator update
     - name: grafana_v5_upgrade
@@ -290,6 +296,17 @@ spec:
           value: $(params.kafka_namespace)
         - name: kafka_provider
           value: $(params.kafka_provider)
+    
+    # UDS/DRO Migration
+    - name: update-uds
+      taskRef:
+        kind: Task
+        name: mas-devops-uds
+      runAfter:
+        - update-common-services
+      params:
+        - name: dro_migration
+          value: $(params.dro_migration)
 
     # 6. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
@@ -303,6 +320,7 @@ spec:
         - update-mongodb
         - update-kafka
         - update-cert-manager
+        - update-uds
         - update-grafana
 
 
