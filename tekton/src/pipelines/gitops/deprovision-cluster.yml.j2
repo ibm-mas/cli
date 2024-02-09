@@ -29,10 +29,6 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: avp_aws_secret_key
-      type: string
-    - name: avp_aws_access_key
-      type: string
 
     # 1. Gitops git Parameters
     # -------------------------------------------------------------------------
@@ -87,10 +83,6 @@ spec:
           value: $(params.secrets_path)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
         - name: vpc_ipv4_cidr
           value: $(params.vpc_ipv4_cidr)
         - name: mongo_provider
@@ -123,10 +115,6 @@ spec:
           value: $(params.kafka_provider)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
         - name: vpc_ipv4_cidr
           value: $(params.vpc_ipv4_cidr)
       taskRef:
@@ -159,12 +147,6 @@ spec:
           value: $(params.git_commit_msg)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
-        - name: github_pat
-          value: $(params.github_pat)
       taskRef:
         kind: Task
         name: gitops-deprovision-cluster
@@ -181,10 +163,6 @@ spec:
           value: $(params.cluster_name)
         - name: aws_region
           value: $(params.avp_aws_secret_region)
-        - name: aws_secret_access_key
-          value: $(params.avp_aws_secret_key)
-        - name: aws_access_key_id
-          value: $(params.avp_aws_access_key)
         - name: rosa_token
           value: $(params.rosa_token)
         - name: ocp_version

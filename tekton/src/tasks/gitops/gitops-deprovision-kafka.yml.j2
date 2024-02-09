@@ -41,6 +41,12 @@ spec:
         value: $(params.avp_aws_secret_region)
       - name: VPC_IPV4_CIDR
         value: $(params.vpc_ipv4_cidr)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
   steps:
     - args:
       - |-

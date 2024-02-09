@@ -31,6 +31,9 @@ spec:
       type: string
     - name: force_removal
       type: string
+    - name: cluster_url
+      type: string
+      default: ""
     - name: argocd_url
       type: string
       default: ""
@@ -63,8 +66,16 @@ spec:
         value: $(params.avp_aws_access_key)
       - name: FORCE_REMOVAL
         value: $(params.force_removal)
+      - name: OCP_SERVER
+        value: $(params.cluster_url)
       - name: ARGOCD_URL
         value: $(params.argocd_url)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
   steps:
     - args:
       - |-
@@ -75,15 +86,39 @@ spec:
         git config --global user.password $GITHUB_PAT
 
         ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
-        export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
-        export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
-        export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
-        oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
-        OC_RC=$?
-        if [ $OC_RC -ne 0 ]; then
-          echo "oc login failed so assume there is no suite objectstorage config to deprovision, exiting.."          
-          exit 0
+        if [ -f $ROSA_CONFIG ]; then
+          echo "oc login : via ROSA_CONFIG"
+          export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
+          export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
+          export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
+          oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed so assume there is no suite objectstorage config to deprovision, exiting.."
+            exit 0
+          fi
+        elif [ -n $OCP_SERVER ]; then
+          echo "oc login : OCP_USERNAME=$OCP_USERNAME OCP_SERVER=$OCP_SERVER OCP_PASSWORD=${OCP_PASSWORD:0:4}<snip> ..."
+          oc login -u $OCP_USERNAME -p $OCP_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed so assume there is no suite objectstorage config to deprovision, exiting.."
+            exit 0
+          fi
+        else
+          echo "oc login : via ocp_login"
+          aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
+          aws configure set default.region $SM_AWS_REGION
+          export CLUSTER_TYPE=rosa
+          ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role 
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed so assume there is no suite objectstorage config to deprovision, exiting.."
+            exit 0
+          fi
         fi
+
 
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)

@@ -33,10 +33,6 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: avp_aws_secret_key
-      type: string
-    - name: avp_aws_access_key
-      type: string
 
     # 1. Gitops git Parameters
     # -------------------------------------------------------------------------
@@ -88,9 +84,9 @@ spec:
       type: string
       description: COS action to be performed (provision or deprovision)
       default: ""
-    - name: ibmcloud_apikey
-      type: string
-      default: ""
+    #- name: ibmcloud_apikey
+    #  type: string
+    #  default: ""
 
     - name: force_removal
       type: string
@@ -343,8 +339,9 @@ spec:
           value: $(params.cos_type)
         - name: ibmcloud_resourcegroup
           value: $(params.ibmcloud_resourcegroup)
-        - name: ibmcloud_apikey
-          value: $(params.ibmcloud_apikey)
+        #TODO set this at trigger ibmcloud_apikey  
+        #- name: ibmcloud_apikey
+        #  value: $(params.ibmcloud_apikey)
 
       workspaces:
         - name: configs
