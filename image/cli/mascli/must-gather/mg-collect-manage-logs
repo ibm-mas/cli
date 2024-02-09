@@ -28,7 +28,7 @@ if [[ "$POD" != "" ]]; then
   if [[ "$FILE" != "" ]]; then
     createFolder
     oc -n $NAMESPACE exec -it $POD -- cp /tmp/route_manager.log /opt/ansible/route_manager.log
-    oc cp $NAMESPACE/$POD:route_manager.log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files/route_manager.log --retries 50
+    oc cp $NAMESPACE/$POD:route_manager.log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files/route_manager.log --retries 20
   else
     echo_warning "route_manager.log not available on $POD pod"
   fi
@@ -43,7 +43,7 @@ POD=$(oc -n $NAMESPACE get pods -l "mas.ibm.com/appType= maxinstudb" -o jsonpath
 
 if [[ "$POD" != "" ]]; then
   createFolder 
-  oc cp $NAMESPACE/$POD:log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries 50
+  oc cp $NAMESPACE/$POD:log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries 20
 else
   echo_warning "Maxinst pod was not found"
 fi
@@ -57,7 +57,7 @@ echo "- ${COLOR_BLUE} Getting db2u Pod Files${TEXT_RESET}"
     if [[ "$POD_NAME" != "" ]]; then
       for POD in ${POD_NAME[@]}; do
         createFolder
-        oc cp $NAMESPACE/$POD:tmp $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries 50
+        oc cp $NAMESPACE/$POD:tmp $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries 20
       done
     else
       echo_warning "DB2U pod was not found"
@@ -75,7 +75,7 @@ if [[ "$POD_NAME" != "" ]]; then
   for POD in ${POD_NAME[@]}; do
     createFolder
     oc -n $NAMESPACE exec -it $POD -- /bin/sh -c "cp -R ./logs ./tmp/bundle"
-    oc cp $NAMESPACE/$POD:tmp/bundle $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries 50
+    oc cp $NAMESPACE/$POD:tmp/bundle $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries 20
     oc -n $NAMESPACE exec -it $POD -- /bin/sh -c "rm -rf ./tmp/bundle"
   done
 else
