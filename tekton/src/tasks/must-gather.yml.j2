@@ -19,6 +19,8 @@ spec:
         - must-gather
         - --directory
         - $(params.base_output_dir)
+        - --extra-namespaces
+        - selenium
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       env:

@@ -251,8 +251,6 @@ function mirror_redhat() {
     echo_h4 "Target Registry" "    "
     echo_reset_dim "Registry Host ......................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_HOST}"
     echo_reset_dim "Registry Port ......................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_PORT}"
-    echo_reset_dim "Registry Username ..................... ${COLOR_MAGENTA}${REGISTRY_USERNAME:0:2}********"
-    echo_reset_dim "Registry Password ..................... ${COLOR_MAGENTA}${REGISTRY_PASSWORD:0:2}********"
     reset_colors
   fi
 

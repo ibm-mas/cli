@@ -688,33 +688,6 @@ function install_interactive() {
   prompt_for_input "UDS Contact Last Name" UDS_CONTACT_LASTNAME
 }
 
-function ocp_version_check() {
-  # Check for OCP 4.9 and 4.10
-  export OCP_VERSION=$(oc get clusterversion version -o jsonpath="{.status.desired.version}")
-  if [[ "$OCP_VERSION" =~ ^4\.9\.* ]]; then
-    echo
-    echo_warning "Warning: OpenShift Container Platform v${OCP_VERSION} detected!"
-    echo_warning " - This version is now out of support by Red Hat and ${TEXT_UNDERLINE}not a supported platform for IBM Maximo Application Suite"
-    echo_warning " - The installation of IBM Maximo Application Suite may not proceed, you must upgrade to at least OCP v4.10 before installing MAS"
-    echo
-    echo_warning "For more information refer to the Red Hat OpenShift Container Platform Life Cycle Policy:"
-    echo "  ${COLOR_CYAN}${TEXT_UNDERLINE}https://access.redhat.com/support/policy/updates/openshift/${TEXT_RESET}${TEXT_RESET}"
-    reset_colors
-    exit 1
-  elif [[ "$OCP_VERSION" =~ ^4\.10\.* ]]; then
-    echo
-    echo_warning "Warning: OpenShift Container Platform v${OCP_VERSION} detected!"
-    echo_warning " - This version is ${TEXT_UNDERLINE}now out of support by Red Hat"
-    echo_warning " - The installation of IBM Maximo Application Suite may proceed, but we strongly encourage you to upgrade to OCP v4.12 first"
-    echo
-    echo_warning "For more information refer to the Red Hat OpenShift Container Platform Life Cycle Policy:"
-    echo "  ${COLOR_CYAN}${TEXT_UNDERLINE}https://access.redhat.com/support/policy/updates/openshift/${TEXT_RESET}${TEXT_RESET}"
-    reset_colors
-    echo
-    prompt_for_confirm "Continue anyway?" || exit 0
-  fi
-}
-
 function install() {
   echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Installer (v${VERSION})${TEXT_RESET}"
   echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
@@ -744,15 +717,25 @@ function install() {
   # If DRO is being installed, any existing UDS install will be removed first
   uds_action_selection
 
+  # Determine whether Grafana is available in the cluster based on the available of the operator package
+  oc get packagemanifest grafana-operator &> /dev/null
+  if [[ "$?" == "1" ]]; then
+    CLUSTER_MONITORING_INCLUDE_GRAFANA="False"
+  else
+    CLUSTER_MONITORING_INCLUDE_GRAFANA="True"
+  fi
+
   if [[ "$INTERACTIVE_MODE" == "true" ]]; then
     load_config
     connect
+    ocp_version_check
     detect_airgap
     detect_sno
     pipelines_install_operator
     install_interactive
   else
     # Non-interactive mode assumes you are already connected
+    ocp_version_check
     detect_airgap
     detect_sno
     install_noninteractive "$@"

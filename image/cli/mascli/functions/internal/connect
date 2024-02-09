@@ -7,7 +7,7 @@ function connect() {
   oc whoami &>> $LOGFILE
   if [[ $? == "0" ]]; then
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
-    echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}${TEXT_RESET}" | tee $LOGFILE
+    echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}" | tee $LOGFILE
     if ! prompt_for_confirm_default_yes "Proceed with this cluster?"; then
       PROMPT_FOR_LOGIN=true
     fi
@@ -27,7 +27,7 @@ function connect() {
       exit 1
     fi
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
-    echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}${TEXT_RESET}" | tee $LOGFILE
+    echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}" | tee $LOGFILE
     prompt_for_confirm "Proceed with installation on this cluster?" || exit 0
   fi
   ALREADY_CONFIRMED=true
@@ -39,7 +39,7 @@ function confirm_connection() {
   oc whoami &>> $LOGFILE
   if [[ $? == "0" ]]; then
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
-    echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}${TEXT_RESET}" | tee $LOGFILE
+    echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}" | tee $LOGFILE
   else
     echo_warning "You are not connected to an OCP cluster.  Run oc login, or use the CLI interactive mode."
     exit 1

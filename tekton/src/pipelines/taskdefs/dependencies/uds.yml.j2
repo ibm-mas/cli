@@ -3,7 +3,6 @@
     {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: uds_action
       value: "$(params.uds_action)"
-
     - name: mas_instance_id
       value: $(params.mas_instance_id)
     - name: custom_labels

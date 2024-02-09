@@ -62,6 +62,26 @@ table tr td.spacer {
   padding: 0 !important;
 }
 
+table.clusterExtensions tr th {
+  text-align: left;
+  padding: 5px;
+}
+table.clusterExtensions tr td {
+  vertical-align: top !important;
+  padding: 5px;
+}
+
+table.clusterExtensions tr:nth-child(even) {
+  background-color: #f3f6f6;
+}
+table.clusterExtensions tr:nth-child(odd) {
+  background-color: #f3f6f6;
+}
+table.clusterExtensions tr.alt td {
+  background-color: #eee !important;
+}
+
+
 /* If an unordered list immediately follows a normal paragraph, set negative
    margin so that it flows better */
 div[role=main] p + ul {

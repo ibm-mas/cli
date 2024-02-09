@@ -19,8 +19,6 @@ spec:
       value: '$DB2_NAMESPACE'
     - name: mongodb_namespace
       value: '$MONGODB_NAMESPACE'
-    - name: mongodb_storage_class
-      value: '$MONGODB_STORAGE_CLASS'
     - name: mongodb_v5_upgrade
       value: '$MONGODB_V5_UPGRADE'
     - name: kafka_namespace
@@ -33,3 +31,7 @@ spec:
       value: "$CERT_MANAGER_PROVIDER"
     - name: cert_manager_action
       value: "$CERT_MANAGER_ACTION"
+    - name: dro_migration
+      value: '$DRO_MIGRATION'
+    - name: grafana_v5_upgrade
+      value: '$GRAFANA_V5_UPGRADE'
