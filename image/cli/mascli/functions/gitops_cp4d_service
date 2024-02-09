@@ -276,6 +276,7 @@ function gitops_cp4d_service() {
   rc=$?
   [ $rc -ne 0 ] && exit $rc
 
+
   if [[ "$CPD_SERVICE_NAME" == "wd" ]]; then
     export CPD_USER_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cp4d
     export SECRET_KEY_CPD_ADMIN_USERNAME=${CPD_USER_SECRET}#username
