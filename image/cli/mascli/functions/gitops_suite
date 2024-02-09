@@ -60,6 +60,8 @@ function gitops_suite_noninteractive() {
 
   GIT_COMMIT_MSG="gitops-suite commit"
 
+  export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
+
   # Target the local (to ArgoCD) cluster
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
 

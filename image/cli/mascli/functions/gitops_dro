@@ -42,6 +42,7 @@ function gitops_dro_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-dro commit"
+  export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
   export DRO_NAMESPACE=${DRO_NAMESPACE:-"redhat-marketplace"}
 
