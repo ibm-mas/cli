@@ -169,7 +169,7 @@ function gitops_cluster_noninteractive() {
 
   [[ -z "$ACCOUNT_ID" ]] && gitops_cluster_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_cluster_help "CLUSTER_ID is not set"
-  [[ -z "$REGION_ID" ]] && gitops_cluster_help "REGION_ID is not set"
+  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_cluster_help "REGION_ID or SM_AWS_REGION is not set"
   [[ -z "$CLUSTER_URL" ]] && gitops_cluster_help "CLUSTER_URL is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
