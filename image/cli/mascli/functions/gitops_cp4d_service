@@ -281,7 +281,6 @@ function gitops_cp4d_service() {
     export SECRET_KEY_CPD_ADMIN_USERNAME=${CPD_USER_SECRET}#username
     export SECRET_KEY_CPD_ADMIN_PASSWORD=${CPD_USER_SECRET}#password
 
-  if [[ "$CPD_SERVICE_NAME" == "wd" ]]; then
     # Extract the required details from the generated coscfg/secret.
     export CPD_ADMIN_USERNAME
     CPD_ADMIN_USERNAME=$(yq -sr '.[2].stringData.username' $MAS_CONFIG_DIR/${MAS_INSTANCE_ID}-wd-config.yml)
@@ -321,7 +320,6 @@ function gitops_cp4d_service() {
     rc=$?
     [ $rc -ne 0 ] && exit $rc
   fi
-
 
   exit 0
 }
