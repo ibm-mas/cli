@@ -64,6 +64,8 @@ spec:
     - name: avp_aws_secret_region
       type: string
 
+
+
     # 1. Gitops git Parameters
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
@@ -82,23 +84,12 @@ spec:
     - name: mas_workspace_id
       type: string
 
-    - name: kafka_provider
-      type: string
-      default: aws
-    - name: kafka_version
-      type: string
-      default: 3.3.1
-    - name: kafka_action
-      type: string
     - name: vpc_ipv4_cidr
       type: string
     - name: icr_cp
       type: string
     - name: icr_cp_open
       type: string
-    - name: kafkacfg_file_name
-      type: string
-      default: ""
 
     - name: db2_meta_storage_class
       type: string
@@ -178,24 +169,6 @@ spec:
       type: string
     - name: cp4d_spss_modeler_action
       type: string
-
-    # Dependencies - COS
-    # -----------------------------------------------------------------------------
-    - name: cos_type
-      type: string
-      description: COS Provider (ibm or ocs)
-      default: ""
-    - name: ibmcloud_resourcegroup
-      type: string
-      description: Name of an existing COS Resource Group in IBM Cloud account
-      default: ""
-    - name: cos_action
-      type: string
-      description: COS action to be performed (provision or deprovision)
-      default: ""
-    - name: ibmcloud_apikey
-      type: string
-      default: ""
 
     - name: mas_app_channel_iot
       type: string
@@ -455,44 +428,11 @@ spec:
 
     # 2. Kafka
     # -------------------------------------------------------------------------
-    - name: gitops-kafka
+    - name: gitops-kafka-config
 {% if wait_for_provision == true %}
       runAfter:
         - wait-for-fvt-complete
 {% endif %}
-      params:
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
-
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-
-        - name: kafka_provider
-          value: $(params.kafka_provider)
-        - name: kafka_version
-          value: $(params.kafka_version)
-        - name: vpc_ipv4_cidr
-          value: $(params.vpc_ipv4_cidr)
-        - name: kafkacfg_file_name
-          value: $(params.kafkacfg_file_name)
-
-      workspaces:
-        - name: configs
-          workspace: configs
-      taskRef:
-        kind: Task
-        name: gitops-kafka
-      when:
-        - input: "$(params.kafka_action)"
-          operator: notin
-          values: [""]
-
-    - name: gitops-kafka-config
-      runAfter:
-        - gitops-kafka
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
@@ -510,7 +450,7 @@ spec:
         kind: Task
         name: gitops-kafka-config
       when:
-        - input: "$(params.kafka_action)"
+        - input: "$(params.mas_app_channel_iot)"
           operator: notin
           values: [""]
 
@@ -824,51 +764,9 @@ spec:
           operator: notin
           values: [""]
 
-    # Install Cloud Object Storage (COS)
-    - name: gitops-cos
-{% if wait_for_provision == true %}
-      runAfter:
-        - wait-for-fvt-complete
-{% endif %}
-      params:
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
-
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-
-        - name: cos_action
-          value: $(params.cos_action)
-        - name: cos_type
-          value: $(params.cos_type)
-        - name: ibmcloud_resourcegroup
-          value: $(params.ibmcloud_resourcegroup)
-        - name: ibmcloud_apikey
-          value: $(params.ibmcloud_apikey)
-
-      workspaces:
-        - name: configs
-          workspace: configs
-        - name: shared-gitops-configs
-          workspace: shared-gitops-configs
-      taskRef:
-        kind: Task
-        name: gitops-cos
-      when:
-        - input: "$(params.cos_action)"
-          operator: notin
-          values: [""]
-        - input: "$(params.cos_action)"
-          operator: in
-          values: ["provision"]
 
     # Configure COS in MAS
     - name: gitops-suite-objectstorage-config
-      runAfter:
-        - gitops-cos
       params:
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}

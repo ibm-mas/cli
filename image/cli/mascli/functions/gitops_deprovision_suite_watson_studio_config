@@ -97,12 +97,21 @@ function gitops_deprovision_suite_watson_studio_config_noninteractive() {
       -M|--git-commit-msg)
         export GIT_COMMIT_MSG=$1 && shift
         ;;
+<<<<<<<< HEAD:image/cli/mascli/functions/gitops_deprovision_suite_watson_studio_config
        -S|--github-ssh)
+========
+
+      -S|--github-ssh)
+>>>>>>>> gitops:image/cli/mascli/functions/gitops_mcsp_cis_compliance
         export GIT_SSH=$1 && shift
         ;;
 
       -h|--help)
+<<<<<<<< HEAD:image/cli/mascli/functions/gitops_deprovision_suite_watson_studio_config
         gitops_deprovision_suite_watson_studio_config_help
+========
+        gitops_mcsp_cis_compliance_help
+>>>>>>>> gitops:image/cli/mascli/functions/gitops_mcsp_cis_compliance
         ;;
       *)
         # unknown option
@@ -217,6 +226,10 @@ function gitops_deprovision_suite_watson_studio_config() {
   # Per MAS instance
   rm ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-watson-studio-config.yaml
 
+<<<<<<<< HEAD:image/cli/mascli/functions/gitops_deprovision_suite_watson_studio_config
+========
+
+>>>>>>>> gitops:image/cli/mascli/functions/gitops_mcsp_cis_compliance
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then

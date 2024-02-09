@@ -78,6 +78,7 @@
       with_items:
         - deprovision-cluster
         - deprovision-mas-apps
+        - deprovision-mas-deps
         - deprovision-mas-instance
         - provision-bootstrap-cluster
         - provision-mas-instance
@@ -99,6 +100,7 @@
         - provision-bootstrap-cluster
         - deprovision-cluster
         - deprovision-mas-instance
+        - deprovision-mas-deps
 
     # 5. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
@@ -112,3 +114,5 @@
         - provision-mas-instance
         - provision-mas-apps
         - gitops-mas-fvt-preparer-pipeline
+        - gitops-mas-deps
+        - gitops-mas-initiator

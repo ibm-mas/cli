@@ -1,0 +1,194 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+{% if wait_for_deprovision == true %}
+  name: gitops-deprovision-mas-deps-after-deprovision
+{% else %}
+  name: gitops-deprovision-mas-deps
+{% endif %}
+spec:
+  description: Deprovision docDb, kafka and COS
+  workspaces:
+    - name: configs
+  params:
+{% if wait_for_deprovision == true %}
+      # Name of the PipelineRun to wait for
+    - name: pipelinerun_name
+      type: string
+    - name: ignore_failure
+      type: string
+      default: "False"
+      description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
+{% endif %}
+    - name: cluster_name
+      type: string
+    - name: ocp_version
+      type: string
+    - name: avp_type
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
+
+    # 1. Gitops git Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
+
+    - name: github_url
+      type: string
+    - name: rosa_token
+      type: string
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: vpc_ipv4_cidr
+      type: string
+    - name: mongo_provider
+      type: string
+      default: aws
+    - name: aws_docdb_instance_number
+      type: string
+      default: 3
+    - name: kafka_provider
+      type: string
+      default: aws
+    - name: mas_instance_id
+      type: string
+
+    # Dependencies - COS
+    # -----------------------------------------------------------------------------
+    - name: cos_type
+      type: string
+      description: COS Provider (ibm or ocs)
+      default: ""
+    - name: ibmcloud_resourcegroup
+      type: string
+      description: Name of an existing COS Resource Group in IBM Cloud account
+      default: ""
+    - name: cos_action
+      type: string
+      description: COS action to be performed (provision or deprovision)
+      default: ""
+    - name: ibmcloud_apikey
+      type: string
+      default: ""
+
+  tasks:
+{% if wait_for_deprovision == true %}
+    # 0. Wait for the deprovsion mas pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-deprovision
+      params:
+        - name: pipelinerun_name
+          value: $(params.pipelinerun_name)
+        - name: ignore_failure
+          value: $(params.ignore_failure)
+      taskRef:
+        kind: Task
+        name: mas-fvt-wait-for-pipelinerun
+{% endif %}
+    - name: gitops-deprovision-mongo
+{% if wait_for_deprovision == true %}
+      runAfter:
+        - wait-for-deprovision
+{% endif %}
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: vpc_ipv4_cidr
+          value: $(params.vpc_ipv4_cidr)
+        - name: mongo_provider
+          value: $(params.mongo_provider)
+        - name: aws_docdb_instance_number
+          value: $(params.aws_docdb_instance_number)
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-mongo
+      workspaces:
+        - name: configs
+          workspace: configs
+    - name: gitops-deprovision-kafka
+{% if wait_for_deprovision == true %}
+      runAfter:
+        - wait-for-deprovision
+{% endif %}
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: kafka_provider
+          value: $(params.kafka_provider)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: vpc_ipv4_cidr
+          value: $(params.vpc_ipv4_cidr)
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-kafka
+      workspaces:
+        - name: configs
+          workspace: configs
+
+    # 11. Deprovision COS
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-cos
+{% if wait_for_deprovision == true %}
+      runAfter:
+        - wait-for-deprovision
+{% endif %}
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cos_action
+          value: $(params.cos_action)
+        - name: cos_type
+          value: $(params.cos_type)
+        - name: ibmcloud_resourcegroup
+          value: $(params.ibmcloud_resourcegroup)
+        - name: ibmcloud_apikey
+          value: $(params.ibmcloud_apikey)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-cos
+      when:
+        - input: "$(params.cos_action)"
+          operator: notin
+          values: [""]
+        - input: "$(params.cos_action)"
+          operator: in
+          values: ["deprovision"]
