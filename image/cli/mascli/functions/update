@@ -18,6 +18,7 @@ Update Dependencies (Optional):
   --mongodb-v5-upgrade ${COLOR_YELLOW}MONGODB_V5_UPGRADE${TEXT_RESET} Confirms that Mongo can be upgraded to version 5 if needed as part of the update
   --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}       Namespace where Kafka operator and instance will be updated
   --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}         Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), or 'strimzi'
+  --dro-migration  ${COLOR_YELLOW}DRO_MIGRATION${TEXT_RESET}          Confirm the removal of UDS and replacement with DRO as part of the update
 
 Other Commands:
       --no-confirm                      Launch the update without prompting for confirmation
@@ -28,44 +29,39 @@ EOM
 
 # Auto-detect Certificate Manager
 # -----------------------------------------------------------------------------
-# Validates the existance of installed IBM Certificate Manager in the target cluster
+# Validates the existence of installed IBM Certificate Manager in the target cluster
 # If so, then set parameters to prepare the migration to Red Hat Certificate Manager
 function validate_existing_cert_manager() {
-
-  # We just check current MongoDB version and warn about Mongo upgrade if MAS catalog is more recent than January 2024
   MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
 
   if [[ $MAS_CATALOG_DATE -ge 240130 ]]; then
     # Lookup existing Certificate Manager instance
-      if [ -z "$CERT_MANAGER_NAMESPACE" ]; then
-        CERT_MANAGER_NAMESPACE=`oc get pods -A | grep cert-manager-cainjector | awk '{print $1}'`
-      fi
+    if [ -z "$CERT_MANAGER_NAMESPACE" ]; then
+      CERT_MANAGER_NAMESPACE=`oc get pods -A | grep cert-manager-cainjector | awk '{print $1}'`
+    fi
 
     # Check that Certificate Manager instance is running in the cluster
-      count=`echo $CERT_MANAGER_NAMESPACE | wc -w`
-      if [ $count -eq 0 ]
-      then
+    count=`echo $CERT_MANAGER_NAMESPACE | wc -w`
+    if [ $count -eq 0 ]; then
+      echo_warning "No Certificate-Manager instance was found on the cluster, unable to proceed with the update"
+      exit 1
+    elif [ $count -eq 1 ]; then
+      # Check that there's only one Certificate Manager instance running in the cluster
+      # If the running Certificate Manager is the one from IBM Cloud Pak Foundational Services, let users know it will be migrated to Red Hat
+      if [ "$CERT_MANAGER_NAMESPACE" == "ibm-common-services" ]; then
         CERT_MANAGER_ACTION=install
         CERT_MANAGER_PROVIDER=redhat
-        echo -e "${COLOR_YELLOW}Certificate Manager is not installed yet! Red Hat Certificate Manager will be installed.${COLOR_RESET}"
-    # Check that there's only one Certificate Manager instance running in the cluster
-      elif [ $count -eq 1 ]
-      then
-      # if the running Certificate Manager is the one from IBM Cloud Pak Foundational Services, let users know it will be migrated to Red Hat
-        if [ "$CERT_MANAGER_NAMESPACE" == "ibm-common-services" ]; then
-          CERT_MANAGER_ACTION=install
-          CERT_MANAGER_PROVIDER=redhat
-          echo -e "${COLOR_YELLOW}Certificate Manager is currently running in namespace ${CERT_MANAGER_NAMESPACE}."
-          echo -e "${COLOR_YELLOW}The existing Certificate Manager will be uninstalled and migrated to Red Hat Certificate Manager.${COLOR_RESET}"
-        fi
-      elif [ $count -ge 1 ]
-      then
-      # if multiple Certificate Manager instances, just alert user and skip Certificate Manager update
-          echo -e "${COLOR_YELLOW}There are multiple instances of Certificate Manager running in the cluster.${COLOR_RESET}"
-          echo -e "${COLOR_YELLOW}Make sure you just have one Certificate Manager instance running.${COLOR_RESET}"
-          echo -e "${COLOR_YELLOW}Certificate Manager namespaces identified: $CERT_MANAGER_NAMESPACE${COLOR_RESET}"
+        echo_highlight "Dependency Upgrade Notice!"
+        echo_highlight "IBM Certificate-Manager is currently running in the ${CERT_MANAGER_NAMESPACE} namespace"
+        echo_highlight "This will be uninstalled and replaced by Red Hat Certificate-Manager as part of this update"
+        echo
       fi
-    echo
+    elif [ $count -ge 1 ]; then
+      # if multiple Certificate Manager instances, just alert user and skip Certificate Manager update
+      echo_warning -e "There are multiple instances of Certificate-Manager running in the cluster, unable to proceed with the update"
+      echo_warning -e "Certificate Manager namespaces identified: $CERT_MANAGER_NAMESPACE"
+      exit 1
+    fi
   fi
 }
 
@@ -73,9 +69,7 @@ function validate_existing_cert_manager() {
 # -----------------------------------------------------------------------------
 # Validates the existance of installed MongoDB Community Edition in the target cluster
 # and prints a warning message if MongoDB is supposed to be upgraded
-
 function validate_existing_mongo() {
-
   if [ -z "$MONGODB_NAMESPACE" ]; then
     MONGODB_NAMESPACE=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
   fi
@@ -89,15 +83,122 @@ function validate_existing_mongo() {
     # Target mongo version will be defined by chosen catalog/casebundle
     MONGODB_TARGET_VERSION=`yq -r .mongo_extras_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml`
 
-    # If existing MongoDb instance version is lower than the minimum version required, then let users know that Mongo will be upgraded
-    if [ ! "$(printf '%s\n' "$MONGODB_TARGET_VERSION" "$MONGODB_CURRENT_VERSION" | sort -V | head -n1)" = "$MONGODB_TARGET_VERSION" ]; then
+    MONGODB_CURRENT_MAJORMINOR_VERSION=${MONGODB_CURRENT_VERSION:0:3}
+    MONGODB_TARGET_MAJORMINOR_VERSION=${MONGODB_TARGET_VERSION:0:3}
+
+    # Let users know that Mongo will be upgraded if existing MongoDb major.minor version is lower than the target major version
+    # We don't show this message for normal updates, e.g. 5.0.1 to 5.0.2
+    if [ ! "$(printf '%s\n' "$MONGODB_TARGET_MAJORMINOR_VERSION" "$MONGODB_CURRENT_MAJORMINOR_VERSION" | sort -V | head -n1)" = "$MONGODB_TARGET_MAJORMINOR_VERSION" ]; then
+      echo_highlight "Dependency Upgrade Notice!"
+      echo_highlight "MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and will be upgraded to version ${MONGODB_TARGET_VERSION}"
       echo
-      echo -e "MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and will be upgraded to version ${MONGODB_TARGET_VERSION}"
-      echo
-      echo -e "It is recommended that you backup your MongoDB instance before proceeding:"
+      echo_highlight "It is recommended that you backup your MongoDB instance before proceeding:"
       echo -e "${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-backing-up-mongodb-maximo-application${TEXT_RESET}"
       MONGODB_V5_UPGRADE=true
       echo
+    fi
+  fi
+}
+
+# Validate UDS to DRO Migration
+# -----------------------------------------------------------------------------
+
+function validate_dro_migration(){
+  # warn about DRO migration if UDS is running and MAS catalog is January 2024 or newer
+  MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
+
+  if [[ $MAS_CATALOG_DATE -ge 240227 ]]; then
+    echo -e "${COLOR_YELLOW}Verifing UDS status."
+    # If Jan catalog is detected, set DRO_MIGRATION Flag to True
+    UDS_NAMESPACE="ibm-common-services"
+    UDS_CSV=`oc get csv -n "${UDS_NAMESPACE}" | grep user-data-services  | awk '{print $1}'`
+
+    if [[ -n $UDS_CSV ]]; then
+      UDS_STATUS=`oc get csv -n "${UDS_NAMESPACE}" "${UDS_CSV}" -o jsonpath='{.status.phase}'`
+
+      if [[ $UDS_STATUS = *'Succeeded'* ]]; then
+        echo -e "${COLOR_YELLOW}UDS is currently running in namespace ${UDS_NAMESPACE}."
+        echo -e "UDS will be uninstalled and MAS will migrate to use DRO (Data Reporter Operator). All compatible bascfg configuration will be updated and configured to use DRO ${COLOR_RESET}"
+        echo
+
+        if [[ "$NO_CONFIRM" != "true" ]]; then
+          prompt_for_confirm_default_yes "Do you want to proceed with uninstalling UDS and migrate to DRO?" DRO_MIGRATION
+        fi
+
+        if [[ "$DRO_MIGRATION" == "true" ]]; then
+          ## Check all avaliable Suite Instances versions , if any of them is 8.9.x cancel the dro migration. Exit mas update throw error.
+          for suite_namespace in $(oc get Suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
+          do
+            suite_name=`oc get Suite -n ${suite_namespace}  -o NAME`
+            suite_version=`oc get ${suite_name} -n ${suite_namespace} -o jsonpath='{.status.versions.reconciled}'`
+
+            if [[ $suite_version = 9.* ]] || [[ $suite_version = 8.11.* ]] || [[ $suite_version = 8.10.* ]]
+            then
+              echo -e "${COLOR_YELLOW}${suite_namespace} with MAS version ${suite_version} is compatible for DRO migration"
+
+              ## Check if the BASCFG url has a local UDS on all instances, if not then exit and throw error
+              bascfg_name=`oc get BasCfg -n ${suite_namespace} -o NAME`
+              bas_url=`oc get ${bascfg_name} -n ${suite_namespace} -o jsonpath='{.spec.config.url}'`
+              uds_url=`oc get route uds-endpoint -n ibm-common-services -o jsonpath='{.spec.host}'`
+
+              if [[ -z ${uds_url} ]]
+              then
+                echo -e "${COLOR_RED}UDS route is empty, Please fix your UDS installation to proceed with DRO migration, exiting mas update"
+                exit 1
+              fi
+
+              if [[ ${bas_url} == *${uds_url}* ]]
+              then
+                echo -e "${COLOR_YELLOW}UDS Configuration on ${suite_namespace} is compatible for DRO migration"
+              else
+                echo -e "${COLOR_RED}${suite_namespace} appears to use a Remote UDS that is not running locally on this cluster. This setup is not compatible for DRO migration, exiting mas update"
+                exit 1
+              fi
+            else
+              echo -e "${COLOR_RED}${suite_namespace} with MAS version ${suite_version} does not support DRO, you must run mas upgrade to upgrade this instance to at least MAS 8.10, exiting mas update"
+              exit 1
+            fi
+            echo
+          done
+        else
+          echo -e "${COLOR_RED}You must accept the migration from UDS to DRO to continue with the update to ${MAS_CATALOG_VERSION}"
+          exit 1
+        fi
+      else
+        echo -e "${COLOR_RED}UDS is in Error state. Please fix your UDS installation to proceed with DRO migration, exiting mas update"
+        exit 1
+      fi
+    else
+      DRO_MIGRATION="false"
+      echo -e "${COLOR_YELLOW}UDS does not exist, skipping DRO migration and proceeding with mas update"
+    fi
+  else
+    DRO_MIGRATION="false"
+  fi
+
+}
+
+# Auto-detect Grafana
+# -----------------------------------------------------------------------------
+# Detects whether Grafana V4 Operator is in the target cluster and prints a
+# warning message if the Grafana Operator will be updated to V5
+
+function detect_grafana_update() {
+
+  # We just check the Grafana Operator version and warn about Grafana upgrade if MAS catalog is more recent than February 2024
+  MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
+
+  if [[ $MAS_CATALOG_DATE -ge 240227 ]]; then
+    # This catalog version should install grafana operator V5 so check if V4 is installed.
+
+    # See if the Grafana Operator v4 api versions are supported in the cluster
+    if [[ "$(oc api-versions | grep '^integreatly.org/v1alpha1$'| wc -l)" -gt 0 ]]; then
+      echo_highlight "Dependency Upgrade Notice!"
+      echo_highlight "Grafana Operator v4 is currently installed and will be updated to v5"
+      echo_highlight "- Grafana v5 instance will have a new URL and admin password"
+      echo_highlight "- User accounts set up in the v4 instance will not be migrated"
+      echo
+      GRAFANA_V5_UPGRADE=true
     fi
   fi
 }
@@ -142,6 +243,14 @@ function validate_update() {
       fi
     fi
   fi
+
+
+  # Validates UDS to DRO migration only if UDS is running and January catalog or more recent is used
+  validate_dro_migration
+
+  # Confirm Grafana Operator upgrade
+  detect_grafana_update
+
 
   # Lookup for OCP console route
   if [[ -z "$OCP_CONSOLE_ROUTE" ]]; then
@@ -223,6 +332,9 @@ function update_noninteractive() {
       --kafka-provider)
         KAFKA_PROVIDER=$1 && shift
         ;;
+      --dro-migration)
+        DRO_MIGRATION=true
+        ;;
       --no-confirm)
         NO_CONFIRM=true
         ;;
@@ -241,6 +353,7 @@ function update_noninteractive() {
   # Check all args have been set
   [[ -z "$MAS_CATALOG_VERSION" ]] && update_help "MAS_CATALOG_VERSION is not set"
 
+  ocp_version_check
   show_current_catalog
   validate_update
 }
@@ -250,6 +363,7 @@ function update_noninteractive() {
 # -----------------------------------------------------------------------------
 function update_interactive() {
   connect
+  ocp_version_check
   detect_airgap
 
   show_current_catalog
@@ -312,6 +426,8 @@ function update() {
   export KAFKA_PROVIDER
   export CERT_MANAGER_PROVIDER
   export CERT_MANAGER_ACTION
+  export DRO_MIGRATION
+  export GRAFANA_V5_UPGRADE
 
   echo_h2 "Review Settings"
 
@@ -348,7 +464,7 @@ function update() {
 
   # MongoDB Community Edition
   if [ "$MONGODB_NAMESPACE" != "" ]; then
-    echo_reset_dim "MongoDb Community Edition .................. ${COLOR_GREEN}Yes ($MONGODB_NAMESPACE)${TEXT_RESET}"
+    echo_reset_dim "MongoDb Community Edition .................. ${COLOR_GREEN}${MONGODB_CURRENT_VERSION} to ${MONGODB_TARGET_VERSION} ($MONGODB_NAMESPACE)${TEXT_RESET}"
   else
     echo_reset_dim "MongoDb Community Edition .................. ${COLOR_RED}No${TEXT_RESET}"
   fi
@@ -358,6 +474,20 @@ function update() {
     echo_reset_dim "Kafka ($KAFKA_PROVIDER_NAME ${COLOR_GREEN}Yes ($KAFKA_NAMESPACE)${TEXT_RESET}"
   else
     echo_reset_dim "Kafka ...................................... ${COLOR_RED}No${TEXT_RESET}"
+  fi
+
+  # DRO Migration
+
+  if [ "$DRO_MIGRATION" = "true" ]; then
+    echo_reset_dim "DRO Migration .............................. ${COLOR_GREEN}Yes${TEXT_RESET}"
+  else
+    echo_reset_dim "DRO Migration .............................. ${COLOR_RED}No${TEXT_RESET}"
+
+  fi
+
+  # Grafana Operator
+  if [ "$GRAFANA_V5_UPGRADE" == true ]; then
+    echo_reset_dim "Grafana 5 Upgrade .......................... ${COLOR_GREEN}Yes (grafana5)${TEXT_RESET}"
   fi
 
   # In SLS 3.8.0 registry was changed to icr.io/cpopen, however

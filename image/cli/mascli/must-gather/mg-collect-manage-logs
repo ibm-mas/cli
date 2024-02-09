@@ -1,0 +1,57 @@
+#!/bin/bash
+set -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $DIR/../functions/internal/utils
+
+NAMESPACE=$1
+OUTPUT_DIR=$2
+
+createFolder () {
+  INSTANCE_ID=$(echo ${NAMESPACE%-*})
+  INSTANCE_ID=$(echo ${INSTANCE_ID#*-})
+  APP=$(echo ${POD%-*}) #removing 2nd ID
+  APP=$(echo ${APP%-*}) #removing 1st ID
+     if [[ "$APP" == "$INSTANCE_ID" ]]; then
+       APP=$(echo ${POD%-*}) #removing 2nd ID
+     fi
+  mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files"
+}
+
+# Getting Maxinst Pod Files
+# =========================
+echo "- ${COLOR_BLUE} Getting Maxinst Pod Files${TEXT_RESET}"
+POD=$(oc -n $NAMESPACE get pods -l "mas.ibm.com/appType= maxinstudb" -o jsonpath="{.items[*].metadata.name}")
+
+if [[ "$POD" == "" ]]; then
+  echo_warning "Maxinst pod was not found"
+  exit 1
+fi
+createFolder 
+
+# Copying files to folder
+oc cp $NAMESPACE/$POD:log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries=-1
+
+
+# Getting db2u Pod Files
+# =========================
+echo "- ${COLOR_BLUE} Getting db2u Pod Files${TEXT_RESET}"
+#  NAMESPACE_LOOKUP=$(oc get namespace db2u --ignore-not-found)
+ NAMESPACE=$(oc get namespace db2u -o jsonpath='{.metadata.name}' --ignore-not-found)
+  if [[ "$NAMESPACE" != "" ]]; then
+    POD_NAME=$(oc -n $NAMESPACE get pods -l "type=engine" -o jsonpath="{.items[*].metadata.name}")
+    for POD in ${POD_NAME[@]}; do
+      if [[ "$POD_NAME" == "" ]]; then
+        echo_warning "DB2U pod was not found"
+        exit 1
+      fi
+      createFolder
+      
+      # Copying files to folder
+      oc cp $NAMESPACE/$POD:tmp $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries=-1
+    done
+  else
+    echo_highlight "Unable to find db2u namespace"
+  fi
+
+exit 0

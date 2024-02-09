@@ -21,6 +21,14 @@
     # Pipeline Run Info
     pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-manage', True) }}"
     pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
+    # Test Data
+    ldap_url: "{{ lookup('env', 'LDAP_URL') }}"
+    ldap_base_dn: "{{ lookup('env', 'LDAP_BASE_DN') }}"
+    ldap_bind_dn: "{{ lookup('env', 'LDAP_BIND_DN') }}"
+    ldap_bind_password: "{{ lookup('env', 'LDAP_BIND_PASSWORD') }}"
+    ldap_user_map: "{{ lookup('env', 'LDAP_USER_MAP') }}"
+    ldap_cert_alias: "{{ lookup('env', 'LDAP_CERT_ALIAS') }}"
+    ldap_crt: "{{ lookup('env', 'LDAP_CRT') }}"
   tasks:
     - name: "Debug"
       debug:
