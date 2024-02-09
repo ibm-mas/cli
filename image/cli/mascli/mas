@@ -108,12 +108,6 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_suite_watson_studio_config
 . $CLI_DIR/functions/gitops_deprovision_db2u_database
 
-# GitOps / MCSP
-. $CLI_DIR/functions/gitops_mcsp_cluster
-. $CLI_DIR/functions/gitops_mcsp_dro
-. $CLI_DIR/functions/gitops_mcsp_cis_compliance
-
-
 case $1 in
   fyre|provision-fyre)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite FYRE Cluster Provisioner (v${VERSION})${TEXT_RESET}"
@@ -594,30 +588,6 @@ case $1 in
     echo
     reset_colors
     gitops_mas_fvt_preparer "$@"
-    ;;
-
-  gitops-mcsp-cluster)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (MCSP) (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_mcsp_cluster "$@"
-    ;;
-
-  gitops-mcsp-dro)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (MCSP) (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_mcsp_dro "$@"
-    ;;
-  
-  gitops-mcsp-cis-compliance)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (MCSP) (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_mcsp_cis_compliance "$@"
     ;;
 
   gitops-deprovision-db2u-database)
