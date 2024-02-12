@@ -15,8 +15,11 @@
     - name: fvt_test_suite
       value: mas-navigation
   runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
 
 # Manage MIF setup
 - name: fvt-manage-mif-setup
