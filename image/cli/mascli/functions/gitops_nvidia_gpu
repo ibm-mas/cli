@@ -13,6 +13,7 @@ GitOps Configuration:
     -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
     -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
     -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
+    -r, --region-id ${COLOR_YELLOW}REGION_ID${TEXT_RESET}              Region ID
     -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
 
 Secrets Manager:
@@ -52,7 +53,6 @@ function gitops_nvidia_gpu_noninteractive() {
     # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
     export REGION=${REGION:-${SM_AWS_REGION}}
 
-
     while [[ $# -gt 0 ]]
     do
         key="$1"
@@ -67,6 +67,9 @@ function gitops_nvidia_gpu_noninteractive() {
                 ;;
             -a|--account-id)
                 export ACCOUNT_ID=$1 && shift
+                ;;
+            -r|--region-id)
+                export REGION_ID=$1 && shift
                 ;;
             -c|--cluster-id)
                 export CLUSTER_ID=$1 && shift
@@ -190,12 +193,6 @@ function gitops_nvidia_gpu() {
     reset_colors
 
     echo "${TEXT_DIM}"
-    echo_h2 "GitOps Source" "    "
-    echo_reset_dim "GitOps URL ............................ ${COLOR_MAGENTA}https://github.com/ibm-mas/gitops"
-    echo_reset_dim "GitOps Version ........................ ${COLOR_MAGENTA}${GITOPS_VERSION}"
-    reset_colors
-
-    echo "${TEXT_DIM}"
     if [[ "$GITHUB_PUSH" == "true" ]]; then
         echo_h2 "GitOps Target" "    "
         echo_reset_dim "Automatic Push ........................ ${COLOR_GREEN}Enabled"
@@ -210,6 +207,27 @@ function gitops_nvidia_gpu() {
         echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
     fi
     reset_colors
+
+    # set default values of envs if not provided
+    if [[ -z "${NFD_NAMESPACE}" ]]; then
+        export NFD_NAMESPACE=openshift-nfd
+    fi
+    if [[ -z "${NFD_CHANNEL}" ]]; then
+        export NFD_CHANNEL=stable
+    fi
+    if [[ -z "${GPU_NAMESPACE}" ]]; then
+        export GPU_NAMESPACE=nvidia-gpu-operator
+    fi
+    if [[ -z "${GPU_CHANNEL}" ]]; then
+        export GPU_CHANNEL=v23.3
+    fi
+    if [[ -z "${GPU_DRIVER_VERSION}" ]]; then
+        export GPU_DRIVER_VERSION="525.105.17"
+    fi
+    if [[ -z "${GPU_DRIVER_REPOSITORY_PATH}" ]]; then
+        export GPU_DRIVER_REPOSITORY_PATH=nvcr.io/nvidia
+    fi
+
 
     echo "${TEXT_DIM}"
     echo_h2 "Nvidia GPU Operator" "    "
@@ -267,8 +285,6 @@ function gitops_nvidia_gpu() {
         check_argo_app_synced "${CLUSTER_APP_NAME}" "${ROOT_APP_NAME}"
         
         argocd_hard_refresh "${CLUSTER_APP_NAME}"
-        # add_role_to_user ${NFD_NAMESPACE}
-        # add_role_to_user ${GPU_NAMESPACE} 
         check_argo_app_synced "${NVIDIA_GPU_APP_NAME}" "${CLUSTER_APP_NAME}" "${NFD_NAMESPACE}"
         check_argo_app_synced "${NVIDIA_GPU_APP_NAME}" "${CLUSTER_APP_NAME}" "${GPU_NAMESPACE}"
         check_argo_app_healthy "${NVIDIA_GPU_APP_NAME}" "${CLUSTER_APP_NAME}"
