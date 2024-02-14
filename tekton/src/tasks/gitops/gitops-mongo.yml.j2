@@ -13,6 +13,10 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
     - name: vpc_ipv4_cidr
       type: string
     - name: mongo_provider
@@ -32,23 +36,21 @@ spec:
         value: $(params.secrets_path)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
+      - name: SM_AWS_SECRET_ACCESS_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: SM_AWS_ACCESS_KEY_ID
+        value: $(params.avp_aws_access_key)
       - name: VPC_IPV4_CIDR
         value: $(params.vpc_ipv4_cidr)
       - name: MONGO_PROVIDER
         value: $(params.mongo_provider)
       - name: AWS_DOCDB_INSTANCE_NUMBER
         value: $(params.aws_docdb_instance_number)
-    envFrom:
-      - configMapRef:
-          name: environment-properties
-          optional: true
-      - secretRef:
-          name: secure-properties
   steps:
     - args:
       - |-
-        aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
-        aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
+        aws configure set aws_access_key_id $(params.avp_aws_access_key)
+        aws configure set aws_secret_access_key $(params.avp_aws_secret_key)
         aws configure set default.region $(params.avp_aws_secret_region)
 
         vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME | yq '.[].Value')
@@ -90,7 +92,7 @@ spec:
         - -c
       name: gitops-mongo
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.10.0-pre.mascore1032v2
+      image: quay.io/ibmmas/cli:7.10.0-pre.mascore1425
   workspaces:
     - name: configs
 

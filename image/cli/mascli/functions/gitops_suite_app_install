@@ -368,32 +368,22 @@ function gitops_suite_app_install() {
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
 
-    # Add anyuid permissions to visualinspection service account
-    if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
-      oc adm policy add-scc-to-user anyuid system:serviceaccount:${MAS_APP_NAMESPACE}:ibm-mas-visualinspection-operator
-    fi
-
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    MASAPP_ROOT_APP="masapp.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
-    MASAPP_APP="masapp-i.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
+    MASAPP_APP="ma.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
 
+    argocd_login
     argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the masapp appset to pick up the new config files
-    check_argo_app_synced "${MASAPP_ROOT_APP}" "${INSTANCE_ROOT_APP}" # wait for the masapp root app to sync
+    argocd_sync "${MASAPP_APP}"
 
     argocd_hard_refresh "${MASAPP_APP}"
 
-    check_argo_app_synced "${MASAPP_APP}" "${MASAPP_ROOT_APP}"
-    check_argo_app_healthy "${MASAPP_APP}" "${MASAPP_ROOT_APP}"
-
-    # Remove anyuid permissions from visualinspection service account
-    if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
-      oc adm policy remove-scc-from-user anyuid system:serviceaccount:${MAS_APP_NAMESPACE}:ibm-mas-visualinspection-operator
-    fi
+    check_argo_app_synced "${MASAPP_APP}" "${INSTANCE_ROOT_APP}"
+    check_argo_app_healthy "${MASAPP_APP}" "${INSTANCE_ROOT_APP}"
 
   fi
 

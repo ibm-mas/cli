@@ -1,0 +1,135 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-mas-initiator
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: region
+      type: string
+    - name: github_host
+      type: string
+    - name: target_git_branch
+      type: string
+    - name: target_github_org
+      type: string
+    - name: target_github_repo
+      type: string
+    - name: source_git_branch
+      type: string
+    - name: source_github_org
+      type: string
+    - name: source_github_repo
+      type: string
+    - name: github_pat
+      type: string
+  stepTemplate:
+    name: gitops-mas-initiator
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: REGION
+        value: $(params.region)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: TARGET_GIT_BRANCH
+        value: $(params.target_git_branch)
+      - name: TARGET_GITHUB_ORG
+        value: $(params.target_github_org)
+      - name: TARGET_GITHUB_REPO
+        value: $(params.target_github_repo)
+      - name: SOURCE_GIT_BRANCH
+        value: $(params.source_git_branch)
+      - name: SOURCE_GITHUB_ORG
+        value: $(params.source_github_org)
+      - name: SOURCE_GITHUB_REPO
+        value: $(params.source_github_repo)
+      - name: GITHUB_PAT
+        value: $(params.github_pat)
+  steps:
+    - args:
+      - |-
+
+      
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+
+        if [ "$ACCOUNT" != "aws-dev" ]; then
+          echo "Account is not aws-dev, this task is not allowed for $ACCOUNT"
+          exit 1
+        fi
+
+        export TARGET_LOCAL_DIR="/tmp/target_repo"
+        mkdir -p $TARGET_LOCAL_DIR
+        cd $TARGET_LOCAL_DIR
+        echo "git: Cloning $GITHUB_HOST:$TARGET_GITHUB_ORG/$TARGET_GITHUB_REPO branch $TARGET_GIT_BRANCH into $TARGET_LOCAL_DIR working directory"
+        git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$TARGET_GITHUB_ORG/$TARGET_GITHUB_REPO.git -b $TARGET_GIT_BRANCH || exit 
+
+        export SOURCE_LOCAL_DIR="/tmp/source_repo"
+        mkdir -p $SOURCE_LOCAL_DIR
+        cd $SOURCE_LOCAL_DIR
+        echo "git: Cloning $GITHUB_HOST:$SOURCE_GITHUB_ORG/$SOURCE_GITHUB_REPO branch $SOURCE_GIT_BRANCH into $SOURCE_LOCAL_DIR working directory"
+        git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$SOURCE_GITHUB_ORG/$SOURCE_GITHUB_REPO.git -b $SOURCE_GIT_BRANCH || exit 
+
+        echo "copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME"
+        cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME
+
+        cd $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO
+            
+        echo "git: Adding all files in $TARGET_LOCAL_DIR working directory"
+        export FILES_ADDED=$(git add -v . | wc -l | xargs)
+        echo "git: Added ${FILES_ADDED} files"
+
+        export COMMIT_MSG="gitops-initiator deploy for $CLUSTER_NAME"
+        if [ "$FILES_ADDED" != "0" ]; then
+          echo "git: Committing files using message $COMMIT_MSG"
+          git commit -m "$COMMIT_MSG" || exit 1
+          retries=5
+          interval=30
+          index=0
+          while true; do
+            echo "git: fetch origin $TARGET_GIT_BRANCH"
+            git fetch origin $TARGET_GIT_BRANCH || exit 1
+
+            echo "git: pull origin --rebase"
+            git pull origin --rebase || exit 1
+
+            echo "git: pull origin $TARGET_GIT_BRANCH --rebase"
+            git pull origin $TARGET_GIT_BRANCH --rebase || exit 1
+
+            echo "git: Pushing changes to branch $TARGET_GIT_BRANCH"
+            git push -u origin $TARGET_GIT_BRANCH
+            return_code=$?
+            if [ $return_code -eq 0 ]; then
+              echo "git: Pushing changes to branch $TARGET_GIT_BRANCH success"
+              sleep 10
+              break
+            fi
+          
+            if [[ ${index} -eq ${retries} ]]; then
+              echo "git: Pushing changes to branch $TARGET_GIT_BRANCH failed even after $retries retries, exit with error"
+              exit 1
+            fi
+            echo "git: Pushing changes to branch $TARGET_GIT_BRANCH failed, retry after $interval sec ..."      
+            sleep $interval
+            ((index++))
+          done
+        else
+          echo "No changes found so no commit made"
+        fi
+
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-mas-initiator
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:7.10.0-pre.mascore1425
+  workspaces:
+    - name: configs

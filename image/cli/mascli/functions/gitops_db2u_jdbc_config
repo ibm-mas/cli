@@ -13,6 +13,7 @@ GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
   -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
+  -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
 
 IBM Maximo Application Suite:
@@ -173,6 +174,9 @@ function gitops_db2u_jdbc_config_noninteractive() {
     [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_db2u_jdbc_config_help "MAS_WORKSPACE_ID is not set"
   fi
   [[ -z "$MAS_APP_ID" ]] && gitops_db2u_jdbc_config_help "MAS_APP_ID is not set"
+
+  [[ -z "$DB2_LDAP_USERNAME" ]] && gitops_db2u_jdbc_config_help "DB2_LDAP_USERNAME is not set"
+  [[ -z "$DB2_LDAP_PASSWORD" ]] && gitops_db2u_jdbc_config_help "DB2_LDAP_PASSWORD is not set"
   
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_db2u_jdbc_config_help "GITHUB_HOST is not set"
@@ -183,40 +187,6 @@ function gitops_db2u_jdbc_config_noninteractive() {
 
 }
 
-function wait_for_db2ucluster_crd(){
-  # wait till CRD db2uclusters.db2u.databases.ibm.com NamesAccepted=True STARTS  
-  wait_period=0
-  while true
-  do
-    wait_period=$(($wait_period+10))
-    if [ $wait_period -gt 300 ];then
-      echo_reset_dim "${COLOR_RED}CRD db2uclusters.db2u.databases.ibm.com is not ready with in 300 sec, exiting"
-      exit 1
-    else
-      sleep 10
-    fi
-    export DB2_CRD_NAMES_ACCEPTED_STATUS=`oc get crd  db2uclusters.db2u.databases.ibm.com -o=jsonpath="{.status.conditions[?(@.type=='NamesAccepted')].status}"`
-    echo_reset_dim "DB2_CRD_NAMES_ACCEPTED_STATUS .... ${COLOR_MAGENTA}${DB2_CRD_NAMES_ACCEPTED_STATUS}"
-
-    if [[ "$DB2_CRD_NAMES_ACCEPTED_STATUS" == "True" ]]; then
-      break
-    fi
-  done  
-  # wait till CRD db2uclusters.db2u.databases.ibm.com NamesAccepted=True DONE
-}
-
-function delete_db2u_0_pod(){
-  oc delete pod c-${DB2_INSTANCE_NAME}-db2u-0 -n ${DB2_NAMESPACE}
-  while [[ true ]]
-  do
-    # Get pod c-${DB2_INSTANCE_NAME}-db2u-0 ContainersReady status
-    export DB2_POD_STATUS=`oc get pod c-${DB2_INSTANCE_NAME}-db2u-0 -n ${DB2_NAMESPACE} -o=jsonpath="{.status.conditions[?(@.type=='ContainersReady')].status}"`
-    echo_reset_dim "DB2_POD_STATUS....................... ${COLOR_MAGENTA}${DB2_POD_STATUS}"
-    if [[ $DB2_POD_STATUS == 'True' ]]; then
-      break
-    fi
-  done  
-}
 
 function gitops_db2u_jdbc_config() {
   # Take the first parameter off (it will be create-gitops)
@@ -243,7 +213,6 @@ function gitops_db2u_jdbc_config() {
   export TLS_VERSION=${TLS_VERSION:-"TLSv1.2"}
   # by default db2 internal is true, set it to false if db2 is external
   export DB2_INTERNAL=${DB2_INTERNAL:-"true"}
-  export CLUSTER_DOMAIN=`oc get ingress.config.openshift.io  cluster -o=jsonpath='{.spec.domain}'`
 
   echo
   reset_colors
@@ -299,8 +268,24 @@ function gitops_db2u_jdbc_config() {
   echo_reset_dim "TLS_VERSION ............................. ${COLOR_MAGENTA}${TLS_VERSION}"
   echo_reset_dim "DB2_LDAP_USERNAME ....................... ${COLOR_MAGENTA}${DB2_LDAP_USERNAME}"
   echo_reset_dim "DB2_LDAP_PASSWORD ....................... ${COLOR_MAGENTA}${DB2_LDAP_PASSWORD:0:4}<snip>"
-  echo_reset_dim "CLUSTER_DOMAIN .......................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   reset_colors
+
+
+  AVP_TYPE=aws  # Support for IBM will be added later
+  sm_login
+
+  # Set by postsync job in ibm-common-services chart
+  # This is a workaround for the fact that we cannot interact with the cluster directly (see https://jsw.ibm.com/browse/MASCORE-1425)
+  # NOTE: this isn't a secret value, so it's safe to fetch it here and embed it in our config in the clear
+  echo "Fetching cluster domain from Secrets manager"
+  export CLUSTER_DOMAIN=`oc get ingress.config.openshift.io  cluster -o=jsonpath='{.spec.domain}'`
+  export SECRET_NAME_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain
+  export CLUSTER_DOMAIN=$(sm_get_secret_value ${SECRET_NAME_CLUSTER_DOMAIN} "cluster_domain")
+  echo "cluster domain: ${CLUSTER_DOMAIN}"
+  if [[ -z "${CLUSTER_DOMAIN}" ]]; then
+    echo "Failed to fetch cluster domain from secrets manager"
+    exit
+  fi
 
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-db2u-jdbc-config
@@ -325,12 +310,6 @@ function gitops_db2u_jdbc_config() {
   echo
   echo_h2 "Generating DB2U JDBC Configuraton"
 
-  export WHOAMI=`oc whoami`
-  if [[ -z ${WHOAMI} ]]; then
-    echo_reset_dim "${COLOR_RED} Please do 'oc login' to the cluster ArgoCD is to be installed on"
-    exit 1
-  fi
-  
 
   echo
   if [[ "$MAS_CONFIG_SCOPE" == "app" ]]; then
@@ -338,123 +317,60 @@ function gitops_db2u_jdbc_config() {
       exit 1
   elif [[ "$MAS_CONFIG_SCOPE" == "system" ]]; then
     export SUITE_JDBCCFG_NAME="system.ibm-mas-jdbc-config"
-    export JDBCCFG_DIR="${GITOPS_INSTANCE_DIR}/system-configs"
-    export JDBCCFG_FILENAME="system.ibm-mas-jdbc-config.yaml"
-    export JDBCCFG_TEMPLATE="$CLI_DIR/templates/gitops/appset-configs/cluster/instance/system-configs/system.ibm-mas-jdbc-config.yaml.j2"
+    export JDBCCFG_DIR="${GITOPS_INSTANCE_DIR}/configs"
+    export JDBCCFG_FILENAME="${SUITE_JDBCCFG_NAME}.yaml"
+    export JDBCCFG_TEMPLATE="$CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-jdbc-config.yaml.j2"
   elif [[ "$MAS_CONFIG_SCOPE" == "ws" ]]; then
       echo_reset_dim "${COLOR_RED} Workspace-level JDBC configuration not supported yet"
       exit 1
   elif [[ "$MAS_CONFIG_SCOPE" == "wsapp" ]]; then
     export SUITE_JDBCCFG_NAME="wsapp.${MAS_WORKSPACE_ID}.${MAS_APP_ID}.ibm-mas-jdbc-config"
-    export JDBCCFG_DIR="${GITOPS_INSTANCE_DIR}/masapps/${MAS_APP_ID}/wsapp-configs"
-    export JDBCCFG_FILENAME="wsapp.ibm-mas-jdbc-config.yaml"
-    export JDBCCFG_TEMPLATE="$CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/wsapp-configs/wsapp.ibm-mas-jdbc-config.yaml.j2"
+    export JDBCCFG_DIR="${GITOPS_INSTANCE_DIR}/configs"
+    export JDBCCFG_FILENAME="${SUITE_JDBCCFG_NAME}.yaml"
+    export JDBCCFG_TEMPLATE="$CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-jdbc-config.yaml.j2"
   fi
   
   mkdir -p "${JDBCCFG_DIR}"
 
-  # wait till CRD db2uclusters.db2u.databases.ibm.com NamesAccepted=True 
-  wait_for_db2ucluster_crd
-  # delete pod
-  # delete_db2u_0_pod
-  
-  if [[ -z ${DB2_LDAP_USERNAME} && -z ${DB2_LDAP_PASSWORD} ]]; then
-    export DB2_LDAP_USERNAME=db2inst1
-    export DB2_LDAP_PASSWORD=`oc get secret  c-${DB2_INSTANCE_NAME}-instancepassword  -n ${DB2_NAMESPACE} -o "jsonpath={.data['password']}" | base64 -d`
-    echo_reset_dim "DB2_LDAP_USERNAME ....................... ${COLOR_MAGENTA}${DB2_LDAP_USERNAME}"
-    echo_reset_dim "DB2_LDAP_PASSWORD ....................... ${COLOR_MAGENTA}${DB2_LDAP_PASSWORD:0:6}<snip>"
-  fi  
 
-  export DB2_LDAP_POD_NAME=`oc get pods -o custom-columns=POD:.metadata.name -l app=${DB2_INSTANCE_NAME},role=ldap -n ${DB2_NAMESPACE}  --no-headers`
-  export DB2_CA_PEM=`oc get secret db2u-certificate-${DB2_INSTANCE_NAME} -n ${DB2_NAMESPACE} -o "jsonpath={.data['ca\.crt']}"`
-  # Get Db2u TLS port
-  export DB2_TLS_SERVICEPORT=`oc get svc c-${DB2_INSTANCE_NAME}-db2u-engn-svc -n ${DB2_NAMESPACE} -o=jsonpath="{.spec.ports[?(@.name=='ssl-server')].targetPort}"`
+  # Create a secret in SM containing the username/password for this specific DB2 database instance.
+  # A presync hook on the jdbccfg chart will take care of ensuring the user added to the database's LDAP registry
+  export DB2_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2${SECRETS_KEY_SEPERATOR}${DB2_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}credentials
+  echo_reset_dim "DB2_CREDENTIALS_SECRET_ID ......................... ${COLOR_MAGENTA}$DB2_CREDENTIALS_SECRET_ID"
+  sm_update_secret $DB2_CREDENTIALS_SECRET_ID "{ \"username\": \"$DB2_LDAP_USERNAME\", \"password\": \"$DB2_LDAP_PASSWORD\"}"
+  export SECRET_KEY_DB2_USERNAME=${DB2_CREDENTIALS_SECRET_ID}#username
+  export SECRET_KEY_DB2_PASSWORD=${DB2_CREDENTIALS_SECRET_ID}#password
+
+
+  # Fetch the CA and target port for the instance set by the postsync job in the ibm-db2u-database chart
+  # Note: these aren't really secrets, so we can safely fetch them here and embed them in the generated config file as plaintext.
+  # We just use SM as a means for passing this runtime-generated value from the cluster as a workaround for the fact that we cannot interact with the cluster directly here.
+  # See https://jsw.ibm.com/browse/MASCORE-1425
+  export DB2_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2${SECRETS_KEY_SEPERATOR}${DB2_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
+  export DB2_CA_PEM=$(sm_get_secret_value ${DB2_CONFIG_SECRET_ID} "ca_b64")
+  export DB2_TLS_SERVICEPORT=$(sm_get_secret_value ${DB2_CONFIG_SECRET_ID} "tls_serviceport")
   export JDBC_URL="jdbc:db2://c-${DB2_INSTANCE_NAME}-db2u-engn-svc.${DB2_NAMESPACE}.svc:${DB2_TLS_SERVICEPORT}/${DB2_DBNAME}:sslConnection=true;sslVersion=${TLS_VERSION};"
 
-  
-  # Create db2 user in local LDAP registry : Starts
-  if [[ -n ${DB2_LDAP_USERNAME} && -n ${DB2_LDAP_PASSWORD} ]]; then
-    # Check if user exist
-    echo_reset_dim "Add USERNAME to LDAP .................. ${COLOR_MAGENTA}"
-    echo_reset_dim "oc exec ............................... ${COLOR_MAGENTA}exec -it c-${DB2_INSTANCE_NAME}-db2u-0 -n ${DB2_NAMESPACE} -c db2u "
-    oc exec -it c-${DB2_INSTANCE_NAME}-db2u-0 -n ${DB2_NAMESPACE} -c db2u -- su -lc "id ${DB2_LDAP_USERNAME}"
-    if [ $? -ne 0 ]; then
-      # If user not found, create db2 user in local LDAP registry
-      echo_reset_dim "DB2_LDAP_USERNAME ................... ${COLOR_MAGENTA}${DB2_LDAP_USERNAME} not found, creating in local LDAP registry with given password ${DB2_LDAP_PASSWORD}"
-      oc exec -it -n ${DB2_NAMESPACE} ${DB2_LDAP_POD_NAME} -- /opt/ibm/ldap_scripts/addLdapUser.py -u ${DB2_LDAP_USERNAME} -r admin -p ${DB2_LDAP_PASSWORD}
-    fi
+  echo_reset_dim "......................................... ${COLOR_MAGENTA}"
+  echo_reset_dim ""
+  echo_reset_dim "DB2_INSTANCE_NAME ....................... ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
+  echo_reset_dim "DB2_NAMESPACE ........................... ${COLOR_MAGENTA}$DB2_NAMESPACE"
+  echo_reset_dim "DB2_CA_PEM .............................. ${COLOR_MAGENTA}$DB2_CA_PEM"    
+  echo_reset_dim "DB2_DBNAME .............................. ${COLOR_MAGENTA}$DB2_DBNAME"
+  echo_reset_dim "TLS_VERSION ............................. ${COLOR_MAGENTA}$TLS_VERSION"
+  echo_reset_dim "DB2_TLS_SERVICEPORT ..................... ${COLOR_MAGENTA}$DB2_TLS_SERVICEPORT"
+  echo_reset_dim "JDBC_URL ................................ ${COLOR_MAGENTA}$JDBC_URL"
+  echo_reset_dim "SUITE_JDBCCFG_NAME ...................... ${COLOR_MAGENTA}$SUITE_JDBCCFG_NAME"
+  echo_reset_dim "JDBCCFG_DIR ............................. ${COLOR_MAGENTA}$JDBCCFG_DIR"
+  echo_reset_dim "JDBCCFG_FILENAME ........................ ${COLOR_MAGENTA}$JDBCCFG_FILENAME"  
+  echo_reset_dim "......................................... ${COLOR_MAGENTA}"
+  echo_reset_dim ""
+  reset_colors
 
-    while [[ true ]]
-    do
-      # Test that the newly created user can connect to db2
-      echo_reset_dim "Test DB Connection ............... ${COLOR_MAGENTA} for ${DB2_DBNAME} with ${DB2_LDAP_USERNAME} "
-      oc exec -it c-${DB2_INSTANCE_NAME}-db2u-0 -n ${DB2_NAMESPACE} -c db2u -- su -lc "db2 connect to ${DB2_DBNAME} user ${DB2_LDAP_USERNAME} using ${DB2_LDAP_PASSWORD}" db2inst1
-      if [[ $? -eq 0 ]]; then
-        echo_reset_dim "DB Connection Successful............... ${COLOR_MAGENTA}"
-        break
-      else
-        echo_reset_dim "${COLOR_RED} DB Connection Failed"
-        exit 1
-      fi
-    done
-    # set db2 ldap password into jdbc usenname / password variables.
-    export DB2_JDBC_USERNAME=$DB2_LDAP_USERNAME
-    export JDBC_INSTANCE_PASSWORD=$DB2_LDAP_PASSWORD
-    # Create db2 user in local LDAP registry : Ends
 
-    echo_reset_dim "......................................... ${COLOR_MAGENTA}"    
-    export AWS_DB2_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2
-    echo_reset_dim "AWS_DB2_SECRET_ID ......................... ${COLOR_MAGENTA}$AWS_DB2_SECRET_ID"
-    
-    ### Wait for the statefulset to be ready : Starts ###
-    while [[ true ]]
-    do
-      #Wait for the statefulset to be ready
-      echo_reset_dim "Wait for the statefulset to be ready"
-      export READY_REPLICASE=`oc get statefulset c-${DB2_INSTANCE_NAME}-db2u -n ${DB2_NAMESPACE} -o=jsonpath="{.status.readyReplicas}"`
-      export REPLICASE=`oc get statefulset c-${DB2_INSTANCE_NAME}-db2u -n ${DB2_NAMESPACE} -o=jsonpath="{.status.replicas}"`
-      echo_reset_dim "READY_REPLICASE ....................... ${COLOR_MAGENTA}${READY_REPLICASE}"
-      echo_reset_dim "REPLICASE ............................. ${COLOR_MAGENTA}${REPLICASE}"
-      if [[ ${READY_REPLICASE} -ge 1 && ${REPLICASE} -ge 1 && ${READY_REPLICASE} -eq ${REPLICASE} ]]; then
-        echo_reset_dim "Statefulset ......................... ${COLOR_MAGENTA}c-${DB2_INSTANCE_NAME}-db2u is ready"
-        break
-      fi
-    done
-    ### Wait for the statefulset to be ready : Ends ###
-
-    echo_reset_dim "......................................... ${COLOR_MAGENTA}"
-    echo_reset_dim ""
-    echo_reset_dim "DB2_LDAP_POD_NAME ....................... ${COLOR_MAGENTA}${DB2_LDAP_POD_NAME}"
-    echo_reset_dim "DB2_INSTANCE_NAME ....................... ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
-    echo_reset_dim "DB2_NAMESPACE ........................... ${COLOR_MAGENTA}$DB2_NAMESPACE"
-    echo_reset_dim "DB2_CA_PEM .............................. ${COLOR_MAGENTA}$DB2_CA_PEM"    
-    echo_reset_dim "DB2_JDBC_USERNAME ....................... ${COLOR_MAGENTA}$DB2_JDBC_USERNAME"
-    echo_reset_dim "JDBC_INSTANCE_PASSWORD .................. ${COLOR_MAGENTA}$JDBC_INSTANCE_PASSWORD"
-    echo_reset_dim "DB2_DBNAME .............................. ${COLOR_MAGENTA}$DB2_DBNAME"
-    echo_reset_dim "TLS_VERSION ............................. ${COLOR_MAGENTA}$TLS_VERSION"
-    echo_reset_dim "DB2_TLS_SERVICEPORT ..................... ${COLOR_MAGENTA}$DB2_TLS_SERVICEPORT"
-    echo_reset_dim "JDBC_URL ................................ ${COLOR_MAGENTA}$JDBC_URL"
-    echo_reset_dim "SUITE_JDBCCFG_NAME ...................... ${COLOR_MAGENTA}$SUITE_JDBCCFG_NAME"
-    echo_reset_dim "JDBCCFG_DIR ............................. ${COLOR_MAGENTA}$JDBCCFG_DIR"
-    echo_reset_dim "JDBCCFG_FILENAME ........................ ${COLOR_MAGENTA}$JDBCCFG_FILENAME"  
-    echo_reset_dim "......................................... ${COLOR_MAGENTA}"
-    echo_reset_dim ""
-    reset_colors
-
-    ### Update Ldap Username / Password in AWS secret manager Starts
-    if [[ -n ${DB2_JDBC_USERNAME} && -n ${JDBC_INSTANCE_PASSWORD} ]]; then
-      AVP_TYPE=aws  # Support for IBM will be added later
-      sm_login
-      sm_update_secret $AWS_DB2_SECRET_ID "{ \"username\": \"$DB2_JDBC_USERNAME\", \"password\": \"$JDBC_INSTANCE_PASSWORD\"}"
-      export SECRET_KEY_DB2_USERNAME=${AWS_DB2_SECRET_ID}#username
-      export SECRET_KEY_DB2_PASSWORD=${AWS_DB2_SECRET_ID}#password
-    fi
-    ### Update Ldap Username / Password in AWS secret manager Ends
-
-    echo
-    echo_reset_dim "Generating DB2U JDBC Config file ${JDBCCFG_DIR}/${JDBCCFG_FILENAME}"
-    jinja -X .+ $JDBCCFG_TEMPLATE -o "${JDBCCFG_DIR}/${JDBCCFG_FILENAME}"
-  fi
+  echo
+  echo_reset_dim "Generating DB2U JDBC Config file ${JDBCCFG_DIR}/${JDBCCFG_FILENAME}"
+  jinja -X .+ $JDBCCFG_TEMPLATE -o "${JDBCCFG_DIR}/${JDBCCFG_FILENAME}"
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -465,30 +381,28 @@ function gitops_db2u_jdbc_config() {
 
     argocd_login
 
-
     if [[ "$MAS_CONFIG_SCOPE" == "system" ]]; then
       CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
       INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-      SYSTEM_CONFIGS_APP="system-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-      argocd_sync "${CLUSTER_ROOT_APP}" ## trigger the instance appset to pick up the new config files
+      JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the config appset to pick up the new config files
       check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 
-      argocd_hard_refresh "${SYSTEM_CONFIGS_APP}"
-
-      check_argo_app_synced "${SYSTEM_CONFIGS_APP}" "${INSTANCE_ROOT_APP}"
-      check_argo_app_healthy "${SYSTEM_CONFIGS_APP}" "${INSTANCE_ROOT_APP}"
+      argocd_hard_refresh "${JDBC_CONFIG_APP}"
+      check_argo_app_synced "${JDBC_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+      check_argo_app_healthy "${JDBC_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
     elif [[ "$MAS_CONFIG_SCOPE" == "wsapp" ]]; then
+
+      CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
       INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-      MASAPP_ROOT_APP="masapp.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
-      MASAPP_APP="masapp-i.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
+      JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-wsapp-${MAS_WORKSPACE_ID}-${MAS_APP_ID}-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      argocd_sync "${INSTANCE_ROOT_APP}" # trigger the config appset to pick up the new config files
+      check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 
-      argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the masapp appset to pick up the new config files
-      check_argo_app_synced "${MASAPP_ROOT_APP}" "${INSTANCE_ROOT_APP}" # wait for the masapp root app to sync
+      argocd_hard_refresh "${JDBC_CONFIG_APP}"
+      check_argo_app_synced "${JDBC_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+      check_argo_app_healthy "${JDBC_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
 
-      argocd_hard_refresh "${MASAPP_APP}"
-
-      check_argo_app_synced "${MASAPP_APP}" "${MASAPP_ROOT_APP}"
-      check_argo_app_healthy "${MASAPP_APP}" "${MASAPP_ROOT_APP}"
     fi
 
   fi

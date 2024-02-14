@@ -29,3 +29,12 @@ image/cli/mascli/tmp-suite-app-install
 image/cli/mascli/tmp-suite-app-config
 image/cli/mascli/mas-local-tgk.sh
 image/cli/mascli/tmp-cos-config
+image/cli/mascli/mas-local-tgka.sh
+image/cli/mascli/fyre-dev.noble3.tgka-env.sh
+image/cli/mascli/fyre-dev.noble3.tgkb-env.sh
+image/cli/mascli/gitops-mas-deploy.sh
+image/cli/mascli/gitops-mas-deploy.env.sh
+image/cli/mascli/fyre-dev.noble3.tgkc-env.sh
+image/cli/mascli/fyre-dev.noble3.tgkd-env.sh
+image/cli/mascli/gitops-mas-deploy-merged.sh
+image/cli/mascli/tmp-suite-deprovision

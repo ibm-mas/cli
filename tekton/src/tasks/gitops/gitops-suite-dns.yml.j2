@@ -30,8 +30,6 @@ spec:
       type: string
     - name: cis_crn
       type: string
-    #- name: cis_apikey
-    #  type: string
     - name: mas_config_dir
       type: string
     - name: cis_service_name
@@ -67,8 +65,6 @@ spec:
         value: $(params.cis_email)
       - name: CIS_CRN
         value: $(params.cis_crn)
-      #- name: CIS_APIKEY
-      #  value: $(params.cis_apikey)
       - name: MAS_CONFIG_DIR
         value: $(params.mas_config_dir)
       - name: CIS_SERVICE_NAME
@@ -132,7 +128,7 @@ spec:
         - -c
       name: gitops-suite-dns
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.10.0-pre.mascore1032v2
+      image: quay.io/ibmmas/cli:7.10.0-pre.mascore1425
   workspaces:
     - name: configs
 

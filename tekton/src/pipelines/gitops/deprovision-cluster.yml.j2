@@ -8,7 +8,7 @@ metadata:
   name: gitops-deprovision-cluster
 {% endif %}
 spec:
-  description: Deprovision ROSA, docDb, kafka and GitOps Cluster
+  description: Deprovision ROSA Cluster
   workspaces:
     - name: configs
   params:
@@ -42,23 +42,7 @@ spec:
       type: string
     - name: rosa_token
       type: string
-    - name: account
-      type: string
-    - name: secrets_path
-      type: string
-    - name: vpc_ipv4_cidr
-      type: string
-    - name: mongo_provider
-      type: string
-      default: aws
-    - name: aws_docdb_instance_number
-      type: string
-      default: 3
-    - name: kafka_provider
-      type: string
-      default: aws
-    - name: mas_instance_id
-      type: string
+
   tasks:
 {% if wait_for_deprovision == true %}
     # 0. Wait for the deprovsion mas pipeline to complete
@@ -73,109 +57,12 @@ spec:
         kind: Task
         name: mas-fvt-wait-for-pipelinerun
 {% endif %}
-    - name: gitops-deprovision-mongo
-{% if wait_for_deprovision == true %}
-      runAfter:
-        - wait-for-deprovision
-{% endif %}
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: account
-          value: $(params.account)
-        - name: secrets_path
-          value: $(params.secrets_path)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
-        - name: vpc_ipv4_cidr
-          value: $(params.vpc_ipv4_cidr)
-        - name: mongo_provider
-          value: $(params.mongo_provider)
-        - name: aws_docdb_instance_number
-          value: $(params.aws_docdb_instance_number)
-      taskRef:
-        kind: Task
-        name: gitops-deprovision-mongo
-      workspaces:
-        - name: configs
-          workspace: configs
-    - name: gitops-deprovision-kafka
-{% if wait_for_deprovision == true %}
-      runAfter:
-        - wait-for-deprovision
-{% endif %}
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: account
-          value: $(params.account)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: github_repo
-          value: $(params.github_repo)
-        - name: secrets_path
-          value: $(params.secrets_path)
-        - name: kafka_provider
-          value: $(params.kafka_provider)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
-        - name: vpc_ipv4_cidr
-          value: $(params.vpc_ipv4_cidr)
-      taskRef:
-        kind: Task
-        name: gitops-deprovision-kafka
-      workspaces:
-        - name: configs
-          workspace: configs
-    - name: gitops-deprovision-cluster
-{% if wait_for_deprovision == true %}
-      runAfter:
-        - wait-for-deprovision
-{% endif %}
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: account
-          value: $(params.account)
-        - name: secrets_path
-          value: $(params.secrets_path)
-        - name: git_branch
-          value: $(params.git_branch)
-        - name: github_org
-          value: $(params.github_org)
-        - name: github_repo
-          value: $(params.github_repo)
-        - name: github_host
-          value: $(params.github_host)
-        - name: git_commit_msg
-          value: $(params.git_commit_msg)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
-        - name: github_pat
-          value: $(params.github_pat)
-      taskRef:
-        kind: Task
-        name: gitops-deprovision-cluster
-      workspaces:
-        - name: configs
-          workspace: configs
+
     - name: gitops-deprovision-rosa
+{% if wait_for_deprovision == true %}
       runAfter:
-        - gitops-deprovision-cluster
-        - gitops-deprovision-kafka
-        - gitops-deprovision-mongo
+        - wait-for-deprovision
+{% endif %}
       params:
         - name: cluster_name
           value: $(params.cluster_name)

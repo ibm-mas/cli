@@ -101,18 +101,12 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_delete_kafka_config
 . $CLI_DIR/functions/gitops_deprovision_efs
 . $CLI_DIR/functions/gitops_deprovision_kafka
-. $CLI_DIR/functions/gitops_deprovision_db2u
 . $CLI_DIR/functions/gitops_deprovision_suite_idp_config
 . $CLI_DIR/functions/gitops_deprovision_suite_smtp_config
 . $CLI_DIR/functions/gitops_mas_fvt_preparer
 . $CLI_DIR/functions/gitops_suite_watson_studio_config
 . $CLI_DIR/functions/gitops_deprovision_suite_watson_studio_config
-
-# GitOps / MCSP
-. $CLI_DIR/functions/gitops_mcsp_cluster
-. $CLI_DIR/functions/gitops_mcsp_dro
-. $CLI_DIR/functions/gitops_mcsp_cis_compliance
-
+. $CLI_DIR/functions/gitops_deprovision_db2u_database
 
 case $1 in
   fyre|provision-fyre)
@@ -493,13 +487,6 @@ case $1 in
     reset_colors
     gitops_deprovision_kafka "$@"
     ;;
-  gitops-deprovision-db2u)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_deprovision_db2u "$@"
-    ;;
 
   gitops-deprovision-suite-idp-config)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
@@ -603,28 +590,12 @@ case $1 in
     gitops_mas_fvt_preparer "$@"
     ;;
 
-  gitops-mcsp-cluster)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (MCSP) (v${VERSION})${TEXT_RESET}"
+  gitops-deprovision-db2u-database)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors
-    gitops_mcsp_cluster "$@"
-    ;;
-
-  gitops-mcsp-dro)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (MCSP) (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_mcsp_dro "$@"
-    ;;
-  
-  gitops-mcsp-cis-compliance)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (MCSP) (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_mcsp_cis_compliance "$@"
+    gitops_deprovision_db2u_database "$@"
     ;;
 
   *)

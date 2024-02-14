@@ -16,6 +16,11 @@ GitOps Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                 Cluster ID
       --gitops-config-dir ${COLOR_YELLOW}GITOPS_CONFIG_DIR${TEXT_RESET}                                   Directory that holds configuration to use
 
+
+IBM CP4D Service:
+      --cpd_product-version ${COLOR_YELLOW}CPD_PRODUCT_VERSION${TEXT_RESET}                             CP4D Product Version
+      --cpd-instance-namespace ${COLOR_YELLOW}CPD_INSTANCE_NAMESPACE${TEXT_RESET}                       CP4D Instance namespace to use
+
 Maximo Application Suite:
 
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                       IBM Suite Maximo Application Suite Instance ID
@@ -203,6 +208,14 @@ function gitops_suite_app_config_noninteractive() {
         export MAS_APP_SETTINGS_JMS_QUEUE_PVC_SIZE=$1 && shift
         ;;
 
+      # CP4D Service
+      --cpd-product-version)
+      export CPD_PRODUCT_VERSION=$1 && shift
+        ;;
+      --cpd-instance-namespace)
+      export CPD_INSTANCE_NAMESPACE=$1 && shift
+        ;;
+
       # Secrets Manager
       --secrets-path)
         export SECRETS_PATH=$1 && shift
@@ -300,33 +313,6 @@ function gitops_suite_app_config_noninteractive() {
 
 }
 
-function wait_till_cr_ready(){
-  crd=$1 #MAS_APP_KIND
-  ns=$2 #MAS_APP_NAMESPACE
-  cr=$(oc get ${crd} --no-headers --ignore-not-found -n ${ns} 2>/dev/null | awk '{print $1}')
-  wait_period=0  
-  echo "argo:gitops_suite_app_config check app_cr_status : ${crd}/${cr}"
-
-  # wait till CR Ready status turns to true
-  while true
-  do
-    export APP_CR_STATUS=`oc get  ${crd} ${cr} -n ${ns} -o=jsonpath="{.status.conditions[?(@.type=='Ready')].status}"`
-    echo_reset_dim "APP_CR_STATUS .... ${COLOR_MAGENTA}${APP_CR_STATUS}"
-    if [[ "$APP_CR_STATUS" == "True" ]]; then
-      break
-    fi
-
-    wait_period=$(($wait_period+30))
-    if [ $wait_period -gt 3600 ];then
-      echo_reset_dim "${COLOR_RED}CR ${crd}/${cr} is not ready with in 3600 sec, exiting"
-      exit 1
-    else
-      sleep 30
-    fi
-  done  
-  
-}
-
 function gitops_suite_app_config() {
   # Take the first parameter off (it will be create-gitops)
   shift
@@ -347,6 +333,7 @@ function gitops_suite_app_config() {
   rm -rf $TEMP_DIR
   mkdir -p $TEMP_DIR
 
+  export CPD_INSTANCE_NAMESPACE=${CPD_INSTANCE_NAMESPACE:-"ibm-cpd-${MAS_INSTANCE_ID}-instance"}
 
   echo
   reset_colors
@@ -448,6 +435,12 @@ function gitops_suite_app_config() {
 
   reset_colors
 
+  echo "${TEXT_DIM}"
+  echo_h2 "CP4D Service" "    "
+  echo_reset_dim "CPD_PRODUCT_VERSION  ........................ ${COLOR_MAGENTA}${CPD_PRODUCT_VERSION}"
+  echo_reset_dim "CPD_INSTANCE_NAMESPACE  ..................... ${COLOR_MAGENTA}${CPD_INSTANCE_NAMESPACE}"
+  reset_colors
+
   # Set up Suite secrets
   # ---------------------------------------------------------------------------
   echo
@@ -522,6 +515,41 @@ function gitops_suite_app_config() {
 
   # Getting app spec, either default or provided
   # ---------------------------------------------------------------------------
+
+  if [ "$MAS_APP_ID" == "predict" ]; then
+    echo "- Configuring for Predict App"
+
+    if [ -z $CPD_WSL_PROJECT_ID ]; then
+      export CPD_WSL_PROJECT_ID=$(cat $GITOPS_CONFIG_DIR/$MAS_INSTANCE_ID-cp4d-service-wsl/wsl-mas-$MAS_INSTANCE_ID-hputilities.id)
+    fi
+    if [ -z $CPD_WML_URL ]; then
+      export CPD_WML_URL="https://internal-nginx-svc.${CPD_INSTANCE_NAMESPACE}.svc.cluster.local:12443"
+    fi
+    if [ -z $CPD_WML_INSTANCE_ID ]; then
+      export CPD_WML_INSTANCE_ID="openshift"
+    fi
+
+    echo "- CPD_WSL_PROJECT_ID=${CPD_WSL_PROJECT_ID}"
+    echo "- CPD_WML_URL=${CPD_WML_URL}"
+    echo "- CPD_WML_INSTANCE_ID=${CPD_WML_INSTANCE_ID}"
+    echo "- CPD_PRODUCT_VERSION=${CPD_PRODUCT_VERSION}"
+
+    if [ -n $CPD_PRODUCT_VERSION ]; then
+      DOTS_COUNT=$(echo $CPD_PRODUCT_VERSION | grep -o "\." | wc -l)
+      echo $DOTS_COUNT
+
+      if [ $DOTS_COUNT -gt 1 ]; then
+        export CPD_PRODUCT_VERSION=${CPD_PRODUCT_VERSION%.*}
+        echo CPD_PRODUCT_VERSION=$CPD_PRODUCT_VERSION
+      fi
+    fi
+
+    if [[ -z "${CPD_WSL_PROJECT_ID}" || "${CPD_WSL_PROJECT_ID}" == "" ]]; then
+      echo "- CPD_WSL_PROJECT_ID is empty, exiting ..."
+      exit 1
+    fi
+  fi
+
   if [[ -n "$MAS_APPWS_SPEC_YAML" ]]; then
     echo
     echo_h2 "Using application spec provided for $MAS_APP_ID at $MAS_APPWS_SPEC_YAML"
@@ -595,9 +623,6 @@ function gitops_suite_app_config() {
     [ $rc -ne 0 ] && exit $rc
   fi
 
-  # wait till CR MASS_APP_KIND is in ready status
-  wait_till_cr_ready $MAS_APP_KIND $MAS_APP_NAMESPACE
-
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   echo
@@ -616,16 +641,16 @@ function gitops_suite_app_config() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    MASAPP_ROOT_APP="masapp.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
-    MASAPP_APP="masapp-i.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
+    MASAPP_APP="ma.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
 
+    argocd_login
     argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the masapp appset to pick up the new config files
-    check_argo_app_synced "${MASAPP_ROOT_APP}" "${INSTANCE_ROOT_APP}" # wait for the masapp root app to sync
+    argocd_sync "${MASAPP_APP}"
 
     argocd_hard_refresh "${MASAPP_APP}"
 
-    check_argo_app_synced "${MASAPP_APP}" "${MASAPP_ROOT_APP}"
-    check_argo_app_healthy "${MASAPP_APP}" "${MASAPP_ROOT_APP}"
+    check_argo_app_synced "${MASAPP_APP}" "${INSTANCE_ROOT_APP}"
+    check_argo_app_healthy "${MASAPP_APP}" "${INSTANCE_ROOT_APP}"
   fi
 
 

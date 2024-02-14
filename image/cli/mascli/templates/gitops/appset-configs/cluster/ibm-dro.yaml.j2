@@ -1,6 +1,6 @@
-merge-key: "{{ ACCOUNT_ID }}/{{ REGION }}/{{ CLUSTER_ID }}"
+merge-key: "{{ ACCOUNT_ID }}/{{ REGION_ID }}/{{ CLUSTER_ID }}"
 
-ibm-dro:
+ibm_dro:
     dro_namespace: {{ DRO_NAMESPACE }}
-    dro_csv: {{ DRO_CSV }}
     ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
+    run_sync_hooks: true

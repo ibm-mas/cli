@@ -178,7 +178,7 @@ function gitops_suite_idp_config() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/system-configs
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/configs
 
   echo
   reset_colors
@@ -271,11 +271,13 @@ function gitops_suite_idp_config() {
   fi
   mkdir -p ${GITOPS_INSTANCE_DIR}
 
+  export MAS_CONFIG_SCOPE="system"
+
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   # Per MAS instance
   echo "- IBM MAS IDP Config"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/system-configs/system.ibm-mas-idp-config.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/system.ibm-mas-idp-config.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-idp-config.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/system.ibm-mas-idp-config.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -287,16 +289,16 @@ function gitops_suite_idp_config() {
 
     CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
     INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    SYSTEM_CONFIGS_APP="system-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    IDP_CONFIG_APP="${MAS_INSTANCE_ID}-ldap-default-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
     argocd_login
-    argocd_sync "${CLUSTER_ROOT_APP}" ## trigger the instance appset to pick up the new config files
+    argocd_sync "${INSTANCE_ROOT_APP}" # trigger the configs appset to pick up the new config files
     check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 
-    argocd_hard_refresh "${SYSTEM_CONFIGS_APP}"
-
-    check_argo_app_synced "${SYSTEM_CONFIGS_APP}" "${INSTANCE_ROOT_APP}"
-    check_argo_app_healthy "${SYSTEM_CONFIGS_APP}" "${INSTANCE_ROOT_APP}"
+    argocd_hard_refresh "${IDP_CONFIG_APP}"
+    argocd_sync "${IDP_CONFIG_APP}"
+    check_argo_app_synced "${IDP_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+    check_argo_app_healthy "${IDP_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
   fi
 
   rm -rf $TEMP_DIR

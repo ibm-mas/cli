@@ -11,8 +11,6 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
-    - name: github_repo
-      type: string
     - name: secrets_path
       type: string
     - name: kafka_provider
@@ -22,6 +20,10 @@ spec:
       type: string
       default: 3.3.1
     - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
       type: string
     - name: vpc_ipv4_cidr
       type: string
@@ -38,8 +40,6 @@ spec:
         value: $(params.account)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
-      - name: GITHUB_REPO
-        value: $(params.github_repo)
       - name: SECRET_PATH
         value: $(params.secrets_path)
       - name: KAFKA_PROVIDER
@@ -48,23 +48,21 @@ spec:
         value: $(params.kafka_version)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
+      - name: SM_AWS_SECRET_ACCESS_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: SM_AWS_ACCESS_KEY_ID
+        value: $(params.avp_aws_access_key)
       - name: VPC_IPV4_CIDR
         value: $(params.vpc_ipv4_cidr)
       - name: KAFKACFG_FILE_NAME
         value: $(params.kafkacfg_file_name)
-    envFrom:
-      - configMapRef:
-          name: environment-properties
-          optional: true
-      - secretRef:
-          name: secure-properties
   steps:
     - args:
       - |-
         mkdir -p /tmp/init-kafka
 
-        aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
-        aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
+        aws configure set aws_access_key_id $(params.avp_aws_access_key)
+        aws configure set aws_secret_access_key $(params.avp_aws_secret_key)
         aws configure set default.region $(params.avp_aws_secret_region)
 
         vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME | yq '.[].Value')
@@ -104,6 +102,6 @@ spec:
         - -c
       name: gitops-kafka
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.10.0-pre.mascore1032v2
+      image: quay.io/ibmmas/cli:7.10.0-pre.mascore1425
   workspaces:
     - name: configs

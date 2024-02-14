@@ -32,6 +32,8 @@ function sm_list_cluster_secrets() {
 function sm_update_secret(){
   SECRET_NAME=$1
   SECRET_VALUE=$2
+
+  echo "Secret Manager: Updating $SECRET_NAME"
   if [[ "$AVP_TYPE" == "aws" ]]; then
     # There's a different command to run depending on whether we are creating or updating a secret
     # It's annoying there isn't an upsert/idemopotent command as we don't really care either way, but
@@ -43,12 +45,12 @@ function sm_update_secret(){
 
     if [[ "$CURRENT_SECRET_VALUE" == "" ]]; then
       # Create the secret
-      aws secretsmanager create-secret --name ${SECRET_NAME} --secret-string "${SECRET_VALUE}"
+      aws secretsmanager create-secret --name ${SECRET_NAME} --secret-string "${SECRET_VALUE}" || exit 1
       echo "- Secret $SECRET_NAME created"
     elif [[ "$SECRET_VALUE" != "$CURRENT_SECRET_VALUE" ]]; then
       # Update the secret
       echo "- Secret $SECRET_NAME updated"
-      aws secretsmanager update-secret --secret-id ${SECRET_NAME} --secret-string "${SECRET_VALUE}"
+      aws secretsmanager update-secret --secret-id ${SECRET_NAME} --secret-string "${SECRET_VALUE}" || exit 1
     else
       # No change
       echo "- Secret $SECRET_NAME unchanged"
@@ -81,6 +83,18 @@ function sm_get_secret(){
     # export $SECRET_ENV_VAR=$(aws secretsmanager get-secret-value --secret-id ${SECRET_NAME} --output json 2> /dev/null | jq -r .SecretString)
     aws secretsmanager get-secret-value --secret-id ${SECRET_NAME} --output json 2> /dev/null | jq -r .SecretString
 
+  elif [[ "$AVP_TYPE" == "ibm" ]]; then
+    # echo "IBM SecretsManager not yet supported"
+    echo ""
+    exit 1
+  fi
+}
+
+function sm_get_secret_value(){
+  SECRET_NAME=$1
+  SECRET_KEY=$2
+  if [[ "$AVP_TYPE" == "aws" ]]; then
+    aws secretsmanager get-secret-value --secret-id ${SECRET_NAME} --output json 2> /dev/null | jq -r .SecretString | jq -r .${SECRET_KEY}
   elif [[ "$AVP_TYPE" == "ibm" ]]; then
     # echo "IBM SecretsManager not yet supported"
     echo ""
@@ -220,12 +234,12 @@ function save_to_target_git_repo() {
         sleep 10
         break
       fi
-    
+
       if [[ ${index} -eq ${retries} ]]; then
         echo "git: Pushing changes to branch $GIT_BRANCH failed even after $retries retries, exit with error"
         exit 1
       fi
-      echo "git: Pushing changes to branch $GIT_BRANCH failed, retry after $interval sec ..."      
+      echo "git: Pushing changes to branch $GIT_BRANCH failed, retry after $interval sec ..."
       sleep $interval
       ((index++))
     done
@@ -250,11 +264,10 @@ function argocd_login() {
   echo "argo:argocd_login : Logging into ArgoCD ..."
   while true; do
     if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
-      export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}')
-      export ARGOCD_USERNAME=admin
-      export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' | base64 -d ; echo)
+      echo "argo:argocd_login : ARGOCD_URL, ARGOCD_USERNAME and ARGOCD_PASSWORD environment variables must be set"
+      exit 1
     fi
-    echo "argo:argocd_login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."    
+    echo "argo:argocd_login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."
     argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
     return_code=$?
     echo "argo:argocd_login : return_code=$return_code"
@@ -275,28 +288,28 @@ function argocd_login() {
 
 
 function argocd_sync(){
-APP_NAME=$1
-echo
-echo "Force Application $APP_NAME to Sync ..."
-argocd app sync $APP_NAME --force --timeout 30 --assumeYes
-RC=$?
-echo "ArgoCD response for Force Application $APP_NAME to Sync: $RC"
+  APP_NAME=$1
+  echo
+  echo "Force Application $APP_NAME to Sync ..."
+  argocd app sync $APP_NAME --force --timeout 30 --assumeYes
+  RC=$?
+  echo "ArgoCD response for Force Application $APP_NAME to Sync: $RC"
 }
 
-function argocd_prune_sync(){
-APP_NAME=$1
-echo "Force Application $APP_NAME to Sync with --prune ..."
-argocd app sync $APP_NAME --prune
-RC=$?
-echo "ArgoCD response for Force Application $APP_NAME to Sync with --prune: $RC"
+  function argocd_prune_sync(){
+  APP_NAME=$1
+  echo "Force Application $APP_NAME to Sync with --prune ..."
+  argocd app sync $APP_NAME --prune
+  RC=$?
+  echo "ArgoCD response for Force Application $APP_NAME to Sync with --prune: $RC"
 }
 
 function argocd_hard_refresh(){
-APP_NAME=$1
-echo "Force Application $APP_NAME to hard refresh ..."
-argocd app get $APP_NAME --hard-refresh
-RC=$?
-echo "ArgoCD response for Force Application $APP_NAME to hard refresh: $RC"
+  APP_NAME=$1
+  echo "Force Application $APP_NAME to hard refresh ..."
+  argocd app get $APP_NAME --hard-refresh
+  RC=$?
+  echo "ArgoCD response for Force Application $APP_NAME to hard refresh: $RC"
 }
 
 function check_argo_app_deleted(){
@@ -346,129 +359,7 @@ function argocd_get_cluster_url(){
 
 }
 
-function delete_oc_resource(){
-  RESOURCE=$1
-  NAMESPACE=$2
-  echo
-  echo " Check if resource $RESOURCE is present in namepsace $NAMESPACE "
-  RESOURCE_NAME=$(oc get $RESOURCE -n $NAMESPACE -o=jsonpath="{.metadata.name}")
-  echo " RESOURCE_NAME $RESOURCE_NAME "
-  if [ -n "$RESOURCE_NAME" ]; then
-    echo " oc delete resource $RESOURCE in namepsace $NAMESPACE "
-    oc delete $RESOURCE -n $NAMESPACE --timeout=300s
-    return_code=$?
-    if [ $return_code -ne 0 ]; then
-      echo " oc patch $RESOURCE -n $NAMESPACE "
-      oc patch $RESOURCE -n $NAMESPACE --type="json" -p '[{"op": "remove", "path":"/metadata/finalizers"}]' 2>/dev/null
-    fi
-  fi
-  
-}
 
-# Force delete resources in namespace starts
-function update_remaining_resources() {
-  local remaining=$1
-  local ns="--all-namespaces"
-  local new_remaining=
-  [[ "X$2" != "X" ]] && ns="-n $2"
-  for kind in ${remaining}; do
-    if [[ "X$(oc get ${kind} --all-namespaces --ignore-not-found)" != "X" ]]; then
-      new_remaining="${new_remaining} ${kind}"
-    fi
-  done
-  echo $new_remaining
-}
-
-function wait_for_deleted() {
-  local remaining=${1}
-  retries=${2:-10}
-  interval=${3:-30}
-  index=0
-  while true; do
-    remaining=$(update_remaining_resources "$remaining")
-    if [[ "X$remaining" != "X" ]]; then
-      if [[ ${index} -eq ${retries} ]]; then
-        echo "argo:wait_for_deleted : Timeout delete resources: $remaining"
-        return 1
-      fi
-      sleep $interval
-      ((index++))
-      echo "argo:wait_for_deleted : DELETE - Waiting: resource ${remaining} delete complete [$(($retries - $index)) retries left]"
-    else
-      break
-    fi
-  done
-}
-
-function delete_operand_finalizer() {
-  local crds=$1
-  local ns=$2
-  for crd in ${crds}; do
-    crs=$(oc get ${crd} --no-headers --ignore-not-found -n ${ns} 2>/dev/null | awk '{print $1}')
-    for cr in ${crs}; do
-      echo "argo:delete_operand_finalizer Removing the finalizers for resource: ${crd}/${cr}"
-      oc patch ${crd} ${cr} -n ${ns} --type="json" -p '[{"op": "remove", "path":"/metadata/finalizers"}]' 2>/dev/null
-    done
-  done
-}
-
-# Sometime delete namespace stuck due to some reources remaining, use this method to get these
-# remaining resources to force delete them.
-function get_remaining_resources_from_namespace() {
-  local namespace=$1
-  local remaining=
-
-  if oc get namespace ${namespace} &>/dev/null; then
-    message=$(oc get namespace ${namespace} -o=jsonpath='{.status.conditions[?(@.type=="NamespaceContentRemaining")].message}' | awk -F': ' '{print $2}')
-    [[ "X$message" == "X" ]] && return 0
-    remaining=$(echo $message | awk '{len=split($0, a, ", ");for(i=1;i<=len;i++)print a[i]" "}' | while read res; do
-      [[ "$res" =~ "pod" ]] && continue
-      echo ${res} | awk '{print $1}'
-    done)
-  fi
-  echo $remaining
-}
-
-function force_delete() {
-  local namespace=$1
-  local remaining=$(get_remaining_resources_from_namespace "$namespace")
-  if [[ "X$remaining" != "X" ]]; then
-    echo "argo:force_delete : Some resources are remaining: $remaining"
-    echo "argo:force_delete : Deleting finalizer for these resources ..."
-    delete_operand_finalizer "${remaining}" "$namespace"
-    wait_for_deleted "${remaining}" 5 10
-  fi
-}
-# Force delete resources in namespace ends
-
-function add_role_to_user() {
-NAMESPACE=$1
-retries=${2:-5}
-interval=${3:-10}
-index=0
-  if [[ -n "${NAMESPACE}" ]]; then
-    while true; do
-      export NAMESPACE_STATUS=`oc get ns $NAMESPACE -o json | jq .status.phase -r`
-      echo "argo:add_role_to_user : ns=$NAMESPACE status=$NAMESPACE_STATUS"
-      if [[ "$NAMESPACE_STATUS" == "Active" ]]; then
-        # Fix for Issue : Cannot sync application in OpenShift GitOps. https://access.redhat.com/solutions/6331341
-        oc adm policy add-role-to-user admin system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller -n ${NAMESPACE}
-	      break;
-      fi
-      if [[ "$NAMESPACE_STATUS" == "Terminating" ]]; then
-        echo "argo:add_role_to_user : $NAMESPACE status is Terminating, return"
-        break;
-      fi
-
-      if [[ ${index} -eq ${retries} ]]; then
-        echo "argo:add_role_to_user : $NAMESPACE status is not yet active, return"
-        return 1
-      fi
-      sleep $interval
-      ((index++))
-    done
-  fi
-}
 
 function check_argo_app_synced() {
   APPLICATION=$1
@@ -478,89 +369,30 @@ function check_argo_app_synced() {
   echo "argo:check_argo_app_synced : APPLICATION=$APPLICATION CLUSTER_WATCHER=$CLUSTER_WATCHER NAMESPACE=$NAMESPACE"
   while true; do
     echo "argo:check_argo_app_synced : Checking sync status for $APPLICATION"
-    SYNC_STATUS=$(argocd app get $APPLICATION -o json 2> /dev/null | jq -r .status.sync.status)
-    echo "argo:check_argo_app_synced : SYNC_STATUS=$SYNC_STATUS"
-    if [[ "$SYNC_STATUS" == "Synced" ]]; then
-      echo "Sync Status is Synced"
+    APP_RES_YAML=$(argocd app get $APPLICATION -o json 2> /dev/null)
+    SYNC_STATUS=$(echo $APP_RES_YAML | jq -r .status.sync.status)
+
+    # We also check phase is "Succeeded" (not e.g. "Running") to ensure we wait for any post-sync hooks to complete
+    PHASE=$(echo $APP_RES_YAML | jq -r .status.operationState.phase)
+
+    echo "argo:check_argo_app_synced : SYNC_STATUS=$SYNC_STATUS PHASE=${PHASE}"
+    if [[ "$SYNC_STATUS" == "Synced" && "${PHASE}" == "Succeeded" ]]; then
+      echo "Sync Status is Synced and Phase is Succeeded"
       break
     else
       ((COUNT++))
-      echo "argo:check_argo_app_synced : Sync Status is $SYNC_STATUS, Waiting 30s before checking status again - $COUNT"
+      echo "argo:check_argo_app_synced : Sync Status is $SYNC_STATUS, Phase is ${PHASE}. Waiting 30s before checking status and phase again - $COUNT"
       if ! (( $COUNT % 5 )) ; then
         if [[ -n "$CLUSTER_WATCHER" ]]; then
           argocd_sync $CLUSTER_WATCHER
         fi
-        add_role_to_user ${NAMESPACE}
         argocd_sync $APPLICATION
       fi
       sleep 30
     fi
-
-    # Workaround calling force_delete to delete resource if namespace status is Terminating - STARTS
-    if [[ -n "${NAMESPACE}" ]]; then
-      export NAMESPACE_STATUS=`oc get ns $NAMESPACE -o json | jq .status.phase -r`
-      if [[ "$NAMESPACE_STATUS" == "Terminating" ]]; then
-        echo "argo:check_argo_app_synced : ns=$NAMESPACE status=$NAMESPACE_STATUS"
-        force_delete ${NAMESPACE}
-        if [[ -n "$CLUSTER_WATCHER" ]]; then
-          argocd_sync $CLUSTER_WATCHER
-        fi
-        add_role_to_user ${NAMESPACE}
-        argocd_sync $APPLICATION
-      fi
-    fi
-    # Workaround calling force_delete to delete resource if namespace status is Terminating - ENDS 
   done
 }
 
-# Variant of the function above; removes the calls to "add_role_to_user".
-# Not exactly sure what this is doing at present, or how it might apply to the MCSP ArgoCD setup.
-# (where the ArgoCD worker is running in a remote MCSP-owned ROSA cluster that we have only limit access to)
-function mcsp_check_argo_app_synced() {
-  APPLICATION=$1
-  CLUSTER_WATCHER=$2
-  NAMESPACE=$3
-  COUNT=0
-  echo "argo:check_argo_app_synced : APPLICATION=$APPLICATION CLUSTER_WATCHER=$CLUSTER_WATCHER NAMESPACE=$NAMESPACE"
-  while true; do
-    echo "argo:check_argo_app_synced : Checking sync status for $APPLICATION"
-    SYNC_STATUS=$(argocd app get $APPLICATION -o json 2> /dev/null | jq -r .status.sync.status)
-    echo "argo:check_argo_app_synced : SYNC_STATUS=$SYNC_STATUS"
-    if [[ "$SYNC_STATUS" == "Synced" ]]; then
-      echo "Sync Status is Synced"
-      break
-    else
-      ((COUNT++))
-      echo "argo:check_argo_app_synced : Sync Status is $SYNC_STATUS, Waiting 30s before checking status again - $COUNT"
-      if ! (( $COUNT % 5 )) ; then
-        if [[ -n "$CLUSTER_WATCHER" ]]; then
-          argocd_sync $CLUSTER_WATCHER
-        fi
-        # add_role_to_user ${NAMESPACE}
-        argocd_sync $APPLICATION
-      fi
-      sleep 30
-    fi
-
-    # The following requires usw nto login to the target ROSA cluster
-    # Was trying to avoid having to do this in the MCSP version - hoping that all interaction with the cluster
-    # can be done indirectly via the MCSP ArgoCD worker. If this workaround is still definitely necessary, will re-enable it
-    # Workaround calling force_delete to delete resource if namespace status is Terminating - STARTS
-    # if [[ -n "${NAMESPACE}" ]]; then
-    #   export NAMESPACE_STATUS=`oc get ns $NAMESPACE -o json | jq .status.phase -r`
-    #   if [[ "$NAMESPACE_STATUS" == "Terminating" ]]; then
-    #     echo "argo:check_argo_app_synced : ns=$NAMESPACE status=$NAMESPACE_STATUS"
-    #     force_delete ${NAMESPACE}
-    #     if [[ -n "$CLUSTER_WATCHER" ]]; then
-    #       argocd_sync $CLUSTER_WATCHER
-    #     fi
-    #     # add_role_to_user ${NAMESPACE}
-    #     argocd_sync $APPLICATION
-    #   fi
-    # fi
-    # Workaround calling force_delete to delete resource if namespace status is Terminating - ENDS 
-  done
-}
 
 function check_argo_app_healthy() {
   APPLICATION=$1

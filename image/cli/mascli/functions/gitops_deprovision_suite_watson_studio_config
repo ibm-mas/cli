@@ -97,7 +97,7 @@ function gitops_deprovision_suite_watson_studio_config_noninteractive() {
       -M|--git-commit-msg)
         export GIT_COMMIT_MSG=$1 && shift
         ;;
-       -S|--github-ssh)
+      -S|--github-ssh)
         export GIT_SSH=$1 && shift
         ;;
 

@@ -109,16 +109,6 @@ function gitops_deprovision_mongo_noninteractive() {
         export DOCDB_INSTANCE_NUMBER=$1 && shift
         ;;
 
-      # YAML MongoDb provider
-      --yaml-file)
-        export MONGO_YAML_FILE=$1 && shift
-        ;;
-      --mongo-username)
-        export MONGO_USERNAME=$1 && shift
-        ;;
-      --mongo-password)
-        export MONGO_PASSWORD=$1 && shift
-        ;;
 
       # Other Commands
       -h|--help)
@@ -152,12 +142,6 @@ function gitops_deprovision_mongo_noninteractive() {
     fi
   fi
 
-  if [ $MONGODB_PROVIDER == 'yaml' ]; then
-    if [ -z $MONGO_YAML_FILE ] || [ -z $MONGO_USERNAME ] || [ -z $MONGO_PASSWORD ]; then
-      echo 'Missing required params for AWS mongo provider, make sure to provide --yaml-file, --mongo-username, --mongo-password'
-      exit 1
-    fi
-  fi
 }
 
 function gitops_deprovision_mongo() {
