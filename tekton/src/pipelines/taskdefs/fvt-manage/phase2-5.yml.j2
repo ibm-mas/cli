@@ -15,18 +15,22 @@
     - name: fvt_test_suite
       value: mas-navigation
   runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
 
+# TODO: Disabled due to session management problems ("Unable to find session with ID") in Manage test framework
 # Manage MIF setup
-- name: fvt-manage-mif-setup
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base
-    - name: fvt_test_suite
-      value: mif-setup
-  runAfter:
-    - fvt-manage-mas-navigation
+# - name: fvt-manage-mif-setup
+#   { { lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) } }
+#   { { lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) } }
+#   params:
+#     { { lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) } }
+#     - name: fvt_test_suite_prefix
+#       value: base
+#     - name: fvt_test_suite
+#       value: mif-setup
+#   runAfter:
+#     - fvt-manage-mas-navigation
