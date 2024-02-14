@@ -488,6 +488,8 @@ function update() {
   # Grafana Operator
   if [ "$GRAFANA_V5_UPGRADE" == true ]; then
     echo_reset_dim "Grafana 5 Upgrade .......................... ${COLOR_GREEN}Yes (grafana5)${TEXT_RESET}"
+  else
+    echo_reset_dim "Grafana 5 Upgrade .......................... ${COLOR_RED}No${TEXT_RESET}"
   fi
 
   # In SLS 3.8.0 registry was changed to icr.io/cpopen, however
