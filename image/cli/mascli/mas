@@ -107,6 +107,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_suite_watson_studio_config
 . $CLI_DIR/functions/gitops_deprovision_suite_watson_studio_config
 . $CLI_DIR/functions/gitops_deprovision_db2u_database
+. $CLI_DIR/functions/gitops_nvidia_gpu
 
 case $1 in
   fyre|provision-fyre)
@@ -596,6 +597,14 @@ case $1 in
     echo
     reset_colors
     gitops_deprovision_db2u_database "$@"
+    ;;
+  
+  gitops-nvidia-gpu)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_nvidia_gpu "$@"
     ;;
 
   *)

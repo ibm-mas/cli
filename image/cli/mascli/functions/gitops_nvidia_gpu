@@ -5,7 +5,7 @@ function gitops_nvidia_gpu_help() {
     reset_colors
     cat << EOM
 Usage:
-    mas gitops_nvidia_gpu [options]
+    mas gitops-nvidia-gpu [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
