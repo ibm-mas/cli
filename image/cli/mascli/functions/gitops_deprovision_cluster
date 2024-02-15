@@ -12,7 +12,7 @@ When no options are specified on the command line, interactive-mode will be enab
 GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}            Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}             Account ID
-  -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}              Region ID
+  -r, --region-id ${COLOR_YELLOW}REGION${TEXT_RESET}                  Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Cluster ID
 
 Secrets Manager:
@@ -108,7 +108,7 @@ function gitops_deprovision_cluster_noninteractive() {
   done
 
   [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_cluster_help "ACCOUNT_ID is not set"
-  [[ -z "$REGION" ]] && gitops_cluster_help "REGION_ is not set"
+  [[ -z "$REGION" ]] && gitops_cluster_help "REGION is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_cluster_help "CLUSTER_ID is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then

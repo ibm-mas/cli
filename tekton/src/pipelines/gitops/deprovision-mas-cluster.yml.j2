@@ -1,0 +1,77 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: gitops-deprovision-mas-cluster
+spec:
+  description: Deprovision MAS Cluster scope
+  workspaces:
+    - name: configs
+  params:
+
+    - name: cluster_name
+      type: string
+    - name: cluster_url
+      type: string
+    - name: account
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: github_user
+      type: string
+    - name: git_commit_msg
+      type: string
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+
+    - name: argocd_url
+      type: string
+
+    - name: db2_action
+      type: string
+      default: ""
+
+  tasks:
+    - name: gitops-deprovision-mas-cluster
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: account
+          value: $(params.account)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: github_user
+          value: $(params.github_user)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: argocd_url
+          value: $(params.argocd_url)
+        - name: db2_action
+          value: $(params.db2_action)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-cluster
+      workspaces:
+        - name: configs
+          workspace: configs
