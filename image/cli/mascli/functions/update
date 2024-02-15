@@ -69,7 +69,7 @@ function validate_existing_cert_manager() {
 # -----------------------------------------------------------------------------
 # Validates the existance of installed MongoDB Community Edition in the target cluster
 # and prints a warning message if MongoDB is supposed to be upgraded
-function validate_existing_mongo() {
+function  mongo_upgrade_required() {
   if [ -z "$MONGODB_NAMESPACE" ]; then
     MONGODB_NAMESPACE=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
   fi
@@ -89,14 +89,26 @@ function validate_existing_mongo() {
     # Let users know that Mongo will be upgraded if existing MongoDb major.minor version is lower than the target major version
     # We don't show this message for normal updates, e.g. 5.0.1 to 5.0.2
     if [ ! "$(printf '%s\n' "$MONGODB_TARGET_MAJORMINOR_VERSION" "$MONGODB_CURRENT_MAJORMINOR_VERSION" | sort -V | head -n1)" = "$MONGODB_TARGET_MAJORMINOR_VERSION" ]; then
-      echo_highlight "Dependency Upgrade Notice!"
-      echo_highlight "MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and will be upgraded to version ${MONGODB_TARGET_VERSION}"
-      echo
-      echo_highlight "It is recommended that you backup your MongoDB instance before proceeding:"
-      echo -e "${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-backing-up-mongodb-maximo-application${TEXT_RESET}"
-      MONGODB_V5_UPGRADE=true
-      echo
+      # Mongo Upgrade is required
+      return 0
     fi
+  fi
+  # Mongo Upgrade is not required
+  return 1
+}
+
+function validate_existing_mongo() {
+  if mongo_upgrade_required; then
+    # Let users know that Mongo will be upgraded if existing MongoDb major.minor version is lower than the target major version
+    # We don't show this message for normal updates, e.g. 5.0.1 to 5.0.2
+
+    echo_highlight "Dependency Upgrade Notice!"
+    echo_highlight "MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and will be upgraded to version ${MONGODB_TARGET_VERSION}"
+    echo
+    echo_highlight "It is recommended that you backup your MongoDB instance before proceeding:"
+    echo -e "${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-backing-up-mongodb-maximo-application${TEXT_RESET}"
+    MONGODB_V5_UPGRADE=true
+    echo
   fi
 }
 
@@ -233,7 +245,7 @@ function validate_update() {
     if [[ -z "$NO_CONFIRM" ]] ; then # if 'mas update -c v8-231128-amd64', then we proceed and check existing mongo and warn user of the mongodb upgrade
       validate_existing_mongo
     else
-      if [[ -z "$MONGODB_V5_UPGRADE" ]] ; then # if 'mas update -c v8-231128-amd64 --no-confirm' but no '--mongodb-v5-upgrade' then we fail as user must consent about the mongodb upgrade
+      if mongo_upgrade_required && [[ -z "$MONGODB_V5_UPGRADE" ]]; then # if 'mas update -c v8-231128-amd64 --no-confirm' but no '--mongodb-v5-upgrade' then we fail as user must consent about the mongodb upgrade
         echo
         echo -e "${COLOR_RED}By choosing '$MAS_CATALOG_VERSION' catalog, you must confirm MongoDB upgrade to version 5.${TEXT_RESET}"
         echo -e "${COLOR_RED}Add '--mongodb-v5-upgrade' argument to the 'mas update' command in order to continue.${TEXT_RESET}"
