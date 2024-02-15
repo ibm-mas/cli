@@ -13,7 +13,7 @@ GitOps Configuration:
     -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
     -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
     -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
-    -r, --region-id ${COLOR_YELLOW}REGION_ID${TEXT_RESET}              Region ID
+    -r, --region ${COLOR_YELLOW}REGION${TEXT_RESET}                    Region
     -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
 
 Secrets Manager:
@@ -68,8 +68,8 @@ function gitops_nvidia_gpu_noninteractive() {
             -a|--account-id)
                 export ACCOUNT_ID=$1 && shift
                 ;;
-            -r|--region-id)
-                export REGION_ID=$1 && shift
+            -r|--region)
+                export REGION=$1 && shift
                 ;;
             -c|--cluster-id)
                 export CLUSTER_ID=$1 && shift
