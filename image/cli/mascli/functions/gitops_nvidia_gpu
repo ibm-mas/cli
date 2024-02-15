@@ -236,7 +236,7 @@ function gitops_nvidia_gpu() {
     echo_reset_dim "GPU_NAMESPACE ............................. ${COLOR_MAGENTA}${GPU_NAMESPACE}"
     echo_reset_dim "GPU_CHANNEL ............................... ${COLOR_MAGENTA}${GPU_CHANNEL}"
     echo_reset_dim "GPU_DRIVER_VERSION ........................ ${COLOR_MAGENTA}${GPU_DRIVER_VERSION}"
-    echo_reset_dim "GPU_DRIVER_REPOSITORY_PATH ............... ${COLOR_MAGENTA}${GPU_DRIVER_REPOSITORY_PATH}"
+    echo_reset_dim "GPU_DRIVER_REPOSITORY_PATH ................ ${COLOR_MAGENTA}${GPU_DRIVER_REPOSITORY_PATH}"
     reset_colors
 
     CURRENT_DIR=$PWD
