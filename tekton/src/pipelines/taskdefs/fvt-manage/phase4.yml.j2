@@ -8,6 +8,7 @@
 # - fvt-manage-directprint (selenium)
 # - fvt-manage-adhoc-report (selenium)
 # - fvt-manage-jms-outbound (selenium)
+# - fvt-manage-kafka (pytest)
 # -------------------------------------------------------------
 
 # Manage FVT Security Audit Logging
@@ -30,6 +31,11 @@
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
     - fvt-manage-communication-temp
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-externalsystem
+    - fvt-manage-s3fileandbucketoperations
+    - fvt-manage-s3doclinksupport
 
 # Manage FVT Inactive User Authentication
 - name: fvt-manage-sec-inactive-auth
@@ -51,6 +57,11 @@
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
     - fvt-manage-communication-temp
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-externalsystem
+    - fvt-manage-s3fileandbucketoperations
+    - fvt-manage-s3doclinksupport
 
 # Manage FVT Kafka inbound
 - name: fvt-manage-mif-kafka-inbound
@@ -88,6 +99,11 @@
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
     - fvt-manage-communication-temp
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-externalsystem
+    - fvt-manage-s3fileandbucketoperations
+    - fvt-manage-s3doclinksupport
 
 # Manage FVT Kafka outbound
 - name: fvt-manage-mif-kafka-outbound
@@ -125,6 +141,11 @@
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
     - fvt-manage-communication-temp
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-externalsystem
+    - fvt-manage-s3fileandbucketoperations
+    - fvt-manage-s3doclinksupport
 
 # Manage FVT Work Order Attachments
 - name: fvt-manage-wo-doclink
@@ -146,6 +167,11 @@
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
     - fvt-manage-communication-temp
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-externalsystem
+    - fvt-manage-s3fileandbucketoperations
+    - fvt-manage-s3doclinksupport
 
 # Manage Direct Print Report Tasks
 - name: fvt-manage-directprint
@@ -165,6 +191,11 @@
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
     - fvt-manage-communication-temp
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-externalsystem
+    - fvt-manage-s3fileandbucketoperations
+    - fvt-manage-s3doclinksupport
 
 # Manage FVT Adhoc Reports
 - name: fvt-manage-adhoc-report
@@ -186,6 +217,11 @@
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
     - fvt-manage-communication-temp
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-externalsystem
+    - fvt-manage-s3fileandbucketoperations
+    - fvt-manage-s3doclinksupport
 
 # Manage JMS Integration - Outbound
 - name: fvt-manage-jms-outbound
@@ -207,6 +243,11 @@
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
     - fvt-manage-communication-temp
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-externalsystem
+    - fvt-manage-s3fileandbucketoperations
+    - fvt-manage-s3doclinksupport
 
 # Manage FVT kafka
 - name: fvt-manage-kafka
@@ -218,5 +259,18 @@
     - name: fvt_test_suite
       value: kafka
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-escalation-action
+    - fvt-manage-autoscript-adddeletewo
+    - fvt-manage-jms-inbound
+    - fvt-manage-mif-kafka-setup
+    - fvt-manage-mif-s3-setup
+    - fvt-manage-birt-report
+    - fvt-manage-user-crud
+    - fvt-manage-user-consumption
+    - fvt-manage-communication-temp
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-externalsystem
+    - fvt-manage-s3fileandbucketoperations
+    - fvt-manage-s3doclinksupport
 

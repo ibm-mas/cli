@@ -7,6 +7,7 @@
 # - fvt-manage-smtp-setup (selenium)
 # - fvt-manage-esig-basic (selenium)
 # - fvt-manage-eaudit-basic (selenium)
+# - fvt-manage-esigauth-mas-nativeuser (pytest)
 # -------------------------------------------------------------
 
 - name: fvt-manage-last-phase
@@ -25,6 +26,7 @@
     - fvt-manage-directprint
     - fvt-manage-adhoc-report
     - fvt-manage-jms-outbound
+    - fvt-manage-kafka
 
 # Manage FVT toolsapi
 - name: fvt-manage-toolsapi
@@ -36,10 +38,18 @@
     - name: fvt_test_suite
       value: toolsapi
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-sec-audit-log
+    - fvt-manage-sec-inactive-auth
+    - fvt-manage-mif-kafka-inbound
+    - fvt-manage-mif-kafka-outbound
+    - fvt-manage-wo-doclink
+    - fvt-manage-directprint
+    - fvt-manage-adhoc-report
+    - fvt-manage-jms-outbound
+    - fvt-manage-kafka
 
-# Manage FVT esig
-- name: fvt-manage-esig
+# Manage FVT esig-esigauth-mas-nativeuser
+- name: fvt-manage-esigauth-mas-nativeuser
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
@@ -48,4 +58,12 @@
     - name: fvt_test_suite
       value: esig
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-sec-audit-log
+    - fvt-manage-sec-inactive-auth
+    - fvt-manage-mif-kafka-inbound
+    - fvt-manage-mif-kafka-outbound
+    - fvt-manage-wo-doclink
+    - fvt-manage-directprint
+    - fvt-manage-adhoc-report
+    - fvt-manage-jms-outbound
+    - fvt-manage-kafka

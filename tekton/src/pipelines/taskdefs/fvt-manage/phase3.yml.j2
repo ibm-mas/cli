@@ -9,6 +9,11 @@
 # - fvt-manage-user-crud (selenium)
 # - fvt-manage-user-consumption (selenium)
 # - fvt-manage-communication-temp (selenium)
+# - fvt-manage-crontask (pytest)
+# - fvt-manage-endpoint (pytest)
+# - fvt-manage-externalsystem (pytest)
+# - fvt-manage-s3fileandbucketoperations (pytest)
+# - fvt-manage-s3doclinksupport (pytest)
 # -------------------------------------------------------------
 
 # Manage FVT Escalation
@@ -208,7 +213,13 @@
     - name: fvt_test_suite
       value: crontask
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-mas-navigation
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-mif-setup
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
 
 # Manage FVT endpoint
 - name: fvt-manage-endpoint
@@ -220,7 +231,13 @@
     - name: fvt_test_suite
       value: endpoint
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-mas-navigation
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-mif-setup
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
 
 # Manage FVT externalsystem
 - name: fvt-manage-externalsystem
@@ -232,7 +249,13 @@
     - name: fvt_test_suite
       value: externalsystem
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-mas-navigation
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-mif-setup
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
 
  # Manage FVT S3 COSAPI
 - name: fvt-manage-s3fileandbucketoperations
@@ -244,7 +267,13 @@
     - name: fvt_test_suite
       value: s3fileandbucketoperations
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-mas-navigation
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-mif-setup
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
 
  # Manage FVT S3 DoclinkSupport
 - name: fvt-manage-s3doclinksupport
@@ -256,4 +285,10 @@
     - name: fvt_test_suite
       value: s3doclinksupport
   runAfter:
-    - fvt-manage-setup
+    - fvt-manage-mas-navigation
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-mif-setup
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
