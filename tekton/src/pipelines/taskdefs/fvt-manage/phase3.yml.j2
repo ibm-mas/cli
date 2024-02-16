@@ -197,3 +197,63 @@
     - fvt-manage-wo-basic
     - fvt-manage-ancestors
     - fvt-manage-automationscripts
+
+# Manage FVT crontask
+- name: fvt-manage-crontask
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base
+    - name: fvt_test_suite
+      value: crontask
+  runAfter:
+    - fvt-manage-setup
+
+# Manage FVT endpoint
+- name: fvt-manage-endpoint
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base
+    - name: fvt_test_suite
+      value: endpoint
+  runAfter:
+    - fvt-manage-setup
+
+# Manage FVT externalsystem
+- name: fvt-manage-externalsystem
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base
+    - name: fvt_test_suite
+      value: externalsystem
+  runAfter:
+    - fvt-manage-setup
+
+ # Manage FVT S3 COSAPI
+- name: fvt-manage-s3fileandbucketoperations
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base
+    - name: fvt_test_suite
+      value: s3fileandbucketoperations
+  runAfter:
+    - fvt-manage-setup
+
+ # Manage FVT S3 DoclinkSupport
+- name: fvt-manage-s3doclinksupport
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base
+    - name: fvt_test_suite
+      value: s3doclinksupport
+  runAfter:
+    - fvt-manage-setup

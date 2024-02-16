@@ -25,3 +25,27 @@
     - fvt-manage-directprint
     - fvt-manage-adhoc-report
     - fvt-manage-jms-outbound
+
+# Manage FVT toolsapi
+- name: fvt-manage-toolsapi
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base
+    - name: fvt_test_suite
+      value: toolsapi
+  runAfter:
+    - fvt-manage-setup
+
+# Manage FVT esig
+- name: fvt-manage-esig
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base
+    - name: fvt_test_suite
+      value: esig
+  runAfter:
+    - fvt-manage-setup

@@ -207,3 +207,16 @@
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
     - fvt-manage-communication-temp
+
+# Manage FVT kafka
+- name: fvt-manage-kafka
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base
+    - name: fvt_test_suite
+      value: kafka
+  runAfter:
+    - fvt-manage-setup
+
