@@ -463,7 +463,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   sm_login
 
 
-  # Set by postsync job in ibm-common-services chart
+  # Set by postsync job in redhat-cert-manager chart
   # This is a workaround for the fact that we cannot interact with the cluster directly (see https://jsw.ibm.com/browse/MASCORE-1425)
   # NOTE: this isn't a secret value, so it's safe to fetch it here and embed it in our config in the clear
   echo "Fetching cluster domain from Secrets manager"

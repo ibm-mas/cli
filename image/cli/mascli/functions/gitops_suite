@@ -72,6 +72,9 @@ function gitops_suite_noninteractive() {
   export ICR_CP=${ICR_CP:-"cp.icr.io/cp"}
   export ICR_CP_OPEN=${ICR_CP_OPEN:-"icr.io/cpopen"}
 
+  # cert-manager namespace, in case redhat default value is cert-manager
+  export CERT_MANAGER_NAMESPACE=${CERT_MANAGER_NAMESPACE:-"cert-manager"}
+        
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -105,6 +108,11 @@ function gitops_suite_noninteractive() {
         ;;
       --secrets-path)
         export SECRETS_PATH=$1 && shift
+        ;;
+
+      # cert manager
+      --cert-manager-namespace)
+        export CERT_MANAGER_NAMESPACE=$1 && shift
         ;;
 
       # MongoDb Provider Selection
