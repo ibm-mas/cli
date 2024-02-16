@@ -1,28 +1,14 @@
 # -------------------------------------------------------------
 # PHASE 2
-# - fvt-manage-mas-navigation (selenium)
+# - fvt-manage-mas-navigation (selenium) (temp moved to 2-5.yml.j2)
 # - fvt-manage-classification (selenium)
 # - fvt-manage-helplinks (selenium)
-# - fvt-manage-mif-setup (selenium)
+# - fvt-manage-mif-setup (selenium) (temp moved to 2-5.yml.j2)
 # - fvt-manage-wo-basic (selenium)
 # - fvt-manage-ancestors (pytest)
 # - fvt-manage-automationscripts (pytest)
 # -------------------------------------------------------------
 
-# Manage FVT Mas Navigation Scenario
-- name: fvt-manage-mas-navigation
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base
-    - name: fvt_test_suite
-      value: mas-navigation
-  runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
-    
 # Manage FVT Classification
 - name: fvt-manage-classification
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
@@ -47,20 +33,6 @@
       value: base
     - name: fvt_test_suite
       value: helplinks
-  runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
-
-# Manage MIF setup
-- name: fvt-manage-mif-setup
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base
-    - name: fvt_test_suite
-      value: mif-setup
   runAfter:
     - fvt-manage-setup
     - fvt-manage-monitoring
