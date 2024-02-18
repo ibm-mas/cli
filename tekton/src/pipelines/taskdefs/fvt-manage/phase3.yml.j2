@@ -1,14 +1,16 @@
 # -------------------------------------------------------------
 # PHASE 3
-# 1. fvt-manage-escalation-action (selenium)
-# 2. fvt-manage-autoscript-adddeletewo (selenium)
-# 3. fvt-manage-jms-inbound (selenium)
-# 4. fvt-manage-mif-kafka-setup (selenium)
-# 5. fvt-manage-mif-s3-setup (selenium)
-# 6. fvt-manage-birt-report (selenium)
-# 7. fvt-manage-user-crud (selenium)
-# 8. fvt-manage-user-consumption (selenium)
-# 9. fvt-manage-communication-temp (selenium)
+# - fvt-manage-escalation-action (selenium)
+# - fvt-manage-autoscript-adddeletewo (selenium)
+# - fvt-manage-jms-inbound (selenium)
+# - fvt-manage-mif-kafka-setup (selenium)
+# - fvt-manage-mif-s3-setup (selenium)
+# - fvt-manage-birt-report (selenium)
+# - fvt-manage-user-crud (selenium)
+# - fvt-manage-user-consumption (selenium)
+# - fvt-manage-communication-temp (selenium)
+# - fvt-manage-externalsystem (pytest)
+# - fvt-manage-kafka (pytest)
 # -------------------------------------------------------------
 
 # Manage FVT Escalation
@@ -141,5 +143,29 @@
       value: base
     - name: fvt_test_suite
       value: communication-temp
+  runAfter:
+    - fvt-manage-mas-navigation
+
+# Manage FVT externalsystem
+- name: fvt-manage-externalsystem
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base
+    - name: fvt_test_suite
+      value: externalsystem
+  runAfter:
+    - fvt-manage-mas-navigation
+
+# Manage FVT kafka
+- name: fvt-manage-kafka
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base
+    - name: fvt_test_suite
+      value: kafka
   runAfter:
     - fvt-manage-mas-navigation

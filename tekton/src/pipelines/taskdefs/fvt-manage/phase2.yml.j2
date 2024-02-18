@@ -6,6 +6,8 @@
 # - fvt-manage-ancestors (pytest)
 # - fvt-manage-automationscripts (pytest)
 # - fvt-manage-mif-setup (selenium)
+# - fvt-manage-crontask (pytest)
+# - fvt-manage-endpoint (pytest)
 # - fvt-manage-mas-navigation (selenium) - temporarily in sequence
 # -------------------------------------------------------------
 
@@ -91,6 +93,32 @@
     - fvt-manage-setup
     - fvt-manage-monitoring
 
+# Manage FVT crontask
+- name: fvt-manage-crontask
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base
+    - name: fvt_test_suite
+      value: crontask
+  runAfter:
+    - fvt-manage-setup
+    - fvt-manage-monitoring
+
+# Manage FVT endpoint
+- name: fvt-manage-endpoint
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base
+    - name: fvt_test_suite
+      value: endpoint
+  runAfter:
+    - fvt-manage-setup
+    - fvt-manage-monitoring
+
 # Manage FVT Mas Navigation Scenario
 - name: fvt-manage-mas-navigation
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
@@ -108,3 +136,5 @@
     - fvt-manage-ancestors
     - fvt-manage-automationscripts
     - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
