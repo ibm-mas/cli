@@ -9,8 +9,6 @@
 # - fvt-manage-user-crud (selenium)
 # - fvt-manage-user-consumption (selenium)
 # - fvt-manage-communication-temp (selenium)
-# - fvt-manage-crontask (pytest)
-# - fvt-manage-endpoint (pytest)
 # - fvt-manage-externalsystem (pytest)
 # - fvt-manage-s3fileandbucketoperations (pytest)
 # - fvt-manage-s3doclinksupport (pytest)
@@ -194,42 +192,6 @@
       value: base
     - name: fvt_test_suite
       value: communication-temp
-  runAfter:
-    - fvt-manage-mas-navigation
-    - fvt-manage-classification
-    - fvt-manage-helplinks
-    - fvt-manage-mif-setup
-    - fvt-manage-wo-basic
-    - fvt-manage-ancestors
-    - fvt-manage-automationscripts
-
-# Manage FVT crontask
-- name: fvt-manage-crontask
-  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base
-    - name: fvt_test_suite
-      value: crontask
-  runAfter:
-    - fvt-manage-mas-navigation
-    - fvt-manage-classification
-    - fvt-manage-helplinks
-    - fvt-manage-mif-setup
-    - fvt-manage-wo-basic
-    - fvt-manage-ancestors
-    - fvt-manage-automationscripts
-
-# Manage FVT endpoint
-- name: fvt-manage-endpoint
-  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base
-    - name: fvt_test_suite
-      value: endpoint
   runAfter:
     - fvt-manage-mas-navigation
     - fvt-manage-classification
