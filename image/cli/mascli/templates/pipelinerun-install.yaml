@@ -176,8 +176,6 @@ spec:
     # -------------------------------------------------------------------------
     - name: vpc_id
       value: '$VPC_ID'
-    - name: kafka_cluster_name
-      value: '$KAFKA_CLUSTER_NAME'
     - name: aws_kafka_user_name
       value: '$AWS_KAFKA_USER_NAME'
     - name: aws_kafka_user_password
