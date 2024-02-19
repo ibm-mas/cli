@@ -59,7 +59,7 @@ echo "- ${COLOR_BLUE} Getting db2u Pod Files${TEXT_RESET}"
         createFolder
         FILES=$(oc -n db2u exec -i $POD -- /bin/sh -c "find tmp -type f -not -name 'ks*' -not -name 'tmp*'")
         for FILE in ${FILES[@]}; do
-          oc cp $NAMESPACE/$POD:$FILE $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files/$FILE --retries 20
+          oc cp $NAMESPACE/$POD:$FILE $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files/$FILE --retries 20  > /dev/null 2>&1
         done
       done
     else
@@ -77,9 +77,9 @@ POD_NAME=$(oc -n $NAMESPACE get pods -l "mas.ibm.com/appType= serverBundle" -o j
 if [[ "$POD_NAME" != "" ]]; then
   for POD in ${POD_NAME[@]}; do
     createFolder
-    oc -n $NAMESPACE exec -i $POD -- /bin/sh -c "cp -R ./logs ./tmp/bundle"
-    oc cp $NAMESPACE/$POD:tmp/bundle $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries 20
-    oc -n $NAMESPACE exec -i $POD -- /bin/sh -c "rm -rf ./tmp/bundle"
+    oc -n $NAMESPACE exec -i $POD -- /bin/sh -c "cp -R ./logs ./tmp/bundle"  > /dev/null 2>&1
+    oc cp $NAMESPACE/$POD:tmp/bundle $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries 20  > /dev/null 2>&1
+    oc -n $NAMESPACE exec -i $POD -- /bin/sh -c "rm -rf ./tmp/bundle"  > /dev/null 2>&1
   done
 else
   echo_warning "Server Bundle pod was not found"
