@@ -336,7 +336,7 @@ function gitops_cluster() {
     ROOT_APP_NAME="root.${ACCOUNT_ID}"
     CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
     OPERATOR_CATALOG_APP_NAME="operator-catalog.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
-    COMMON_SERVICES_APP_NAME="common-services.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
+    COMMON_SERVICES_APP_NAME="redhat-cert-manager.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
 
     argocd_sync "${ROOT_APP_NAME}"
     argocd_hard_refresh "${ROOT_APP_NAME}" # refresh any secrets fetched from AWS SM
