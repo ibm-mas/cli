@@ -102,9 +102,16 @@ function validate_existing_mongo() {
         echo
         echo -e "${COLOR_RED}By choosing '$MAS_CATALOG_VERSION' catalog, you must confirm MongoDB upgrade to version 5.${TEXT_RESET}"
         echo -e "${COLOR_RED}Add '--mongodb-v5-upgrade' argument to the 'mas update' command in order to continue.${TEXT_RESET}"
-        exit 1
+        # exit 1
         fi
       fi
+    fi
+
+    # Check that current mongo version is lower or equal than target mongo version, if not block user from downgrading mongo
+    if [ ! "$(printf '%s\n' "$MONGODB_CURRENT_VERSION" "$MONGODB_TARGET_VERSION" | sort -V | head -n1)" = "$MONGODB_CURRENT_VERSION" ]; then
+        echo
+        echo -e "${COLOR_RED}MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and cannot be downgraded to version ${MONGODB_TARGET_VERSION}"
+        exit 1
     fi
   fi
 }
