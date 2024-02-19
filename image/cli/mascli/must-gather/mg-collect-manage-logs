@@ -57,7 +57,10 @@ echo "- ${COLOR_BLUE} Getting db2u Pod Files${TEXT_RESET}"
     if [[ "$POD_NAME" != "" ]]; then
       for POD in ${POD_NAME[@]}; do
         createFolder
-        oc cp $NAMESPACE/$POD:tmp $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries 20
+        FILES=$(oc -n db2u exec -i $POD -- /bin/sh -c "find tmp -type f -not -name 'ks*' -not -name 'tmp*'")
+        for FILE in ${FILES[@]}; do
+          oc cp $NAMESPACE/$POD:$FILE $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files/$FILE --retries 20
+        done
       done
     else
       echo_warning "DB2U pod was not found"
