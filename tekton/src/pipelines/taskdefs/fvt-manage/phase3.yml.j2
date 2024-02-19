@@ -4,7 +4,6 @@
 # - fvt-manage-autoscript-adddeletewo (selenium)
 # - fvt-manage-jms-inbound (selenium)
 # - fvt-manage-mif-kafka-setup (selenium)
-# - fvt-manage-mif-s3-setup (selenium)
 # - fvt-manage-birt-report (selenium)
 # - fvt-manage-user-crud (selenium)
 # - fvt-manage-user-consumption (selenium)
@@ -78,19 +77,6 @@
   workspaces:
     - name: configs
       workspace: shared-configs
-  runAfter:
-    - fvt-manage-mas-navigation
-
-# Manage MIF S3 setup
-- name: fvt-manage-mif-s3-setup
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base
-    - name: fvt_test_suite
-      value: mif-s3-setup
   runAfter:
     - fvt-manage-mas-navigation
 

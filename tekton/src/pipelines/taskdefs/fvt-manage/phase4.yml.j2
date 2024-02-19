@@ -27,7 +27,6 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
-    - fvt-manage-mif-s3-setup
     - fvt-manage-birt-report
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
@@ -50,7 +49,6 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
-    - fvt-manage-mif-s3-setup
     - fvt-manage-birt-report
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
@@ -89,7 +87,6 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
-    - fvt-manage-mif-s3-setup
     - fvt-manage-birt-report
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
@@ -128,7 +125,6 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
-    - fvt-manage-mif-s3-setup
     - fvt-manage-birt-report
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
@@ -151,7 +147,6 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
-    - fvt-manage-mif-s3-setup
     - fvt-manage-birt-report
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
@@ -166,13 +161,12 @@
     kind: Task
     name: mas-fvt-manage-directprint
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}    
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
   runAfter:
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
-    - fvt-manage-mif-s3-setup
     - fvt-manage-birt-report
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
@@ -195,7 +189,6 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
-    - fvt-manage-mif-s3-setup
     - fvt-manage-birt-report
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
@@ -218,7 +211,6 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
-    - fvt-manage-mif-s3-setup
     - fvt-manage-birt-report
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
@@ -240,7 +232,6 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
-    - fvt-manage-mif-s3-setup
     - fvt-manage-birt-report
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
@@ -262,7 +253,6 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
-    - fvt-manage-mif-s3-setup
     - fvt-manage-birt-report
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
