@@ -108,7 +108,17 @@ spec:
         value: "$(params.fvt_enable_debug)"
 
       - name: ARTIFACTORY_TOKEN
-        value: $(params.artifactory_token)
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_TOKEN
+            optional: true
+      - name: ARTIFACTORY_UPLOAD_DIR
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_UPLOAD_DIR
+            optional: true
       
       # Black and white listing
       - name: FVT_BLACKLIST
