@@ -81,7 +81,7 @@ function validate_existing_mongo() {
     # Lookup existing MongoDb instance
     MONGODB_CURRENT_VERSION=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].status.version}' 2> /dev/null`
     # Target mongo version will be defined by chosen catalog/casebundle
-    MONGODB_TARGET_VERSION=`yq -r .mongo_extras_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml` || echo -e "Not able to find MongoDB version from '$MAS_CATALOG_VERSION', make sure you are choosing a valid MAS catalog!" && exit 1
+    MONGODB_TARGET_VERSION=`yq -r .mongo_extras_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml`
 
     MONGODB_CURRENT_MAJORMINOR_VERSION=${MONGODB_CURRENT_VERSION:0:3}
     MONGODB_TARGET_MAJORMINOR_VERSION=${MONGODB_TARGET_VERSION:0:3}
