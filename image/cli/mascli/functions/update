@@ -110,7 +110,7 @@ function validate_existing_mongo() {
     # Check that current mongo version is lower or equal than target mongo version, if not block user from downgrading mongo
     if [ ! "$(printf '%s\n' "$MONGODB_CURRENT_VERSION" "$MONGODB_TARGET_VERSION" | sort -V | head -n1)" = "$MONGODB_CURRENT_VERSION" ]; then
         echo
-        echo -e "${COLOR_RED}MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and cannot be downgraded to version ${MONGODB_TARGET_VERSION}"
+        echo -e "${COLOR_RED}MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and cannot be downgraded to target version ${MONGODB_TARGET_VERSION}, which is the MongoDB version you would get when choosing MAS catalog '$MAS_CATALOG_VERSION'"
         exit 1
     fi
   fi
