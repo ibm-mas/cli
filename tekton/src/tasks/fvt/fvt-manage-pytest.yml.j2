@@ -109,6 +109,13 @@ spec:
 
       - name: ARTIFACTORY_TOKEN
         value: $(params.artifactory_token)
+        
+      - name: ARTIFACTORY_UPLOAD_DIR
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_UPLOAD_DIR
+            optional: true
       
       # Black and white listing
       - name: FVT_BLACKLIST
