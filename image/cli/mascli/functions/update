@@ -102,7 +102,7 @@ function validate_existing_mongo() {
         echo
         echo -e "${COLOR_RED}By choosing '$MAS_CATALOG_VERSION' catalog, you must confirm MongoDB upgrade to version 5.${TEXT_RESET}"
         echo -e "${COLOR_RED}Add '--mongodb-v5-upgrade' argument to the 'mas update' command in order to continue.${TEXT_RESET}"
-        # exit 1
+        exit 1
         fi
       fi
     fi
