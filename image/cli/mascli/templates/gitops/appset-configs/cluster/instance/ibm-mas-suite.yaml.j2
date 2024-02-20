@@ -1,6 +1,7 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ REGION_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
 
 ibm_mas_suite:
+  cert_manager_namespace: "{{ CERT_MANAGER_NAMESPACE }}"
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
   domain: "{{ MAS_DOMAIN }}"
   mas_instance_id: "{{ MAS_INSTANCE_ID }}"

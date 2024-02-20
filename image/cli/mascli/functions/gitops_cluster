@@ -319,7 +319,7 @@ function gitops_cluster() {
   fi
   if [[ "$COMMON_SERVICES_ACTION" == "upgrade" || "$COMMON_SERVICES_ACTION" == "install" ]]; then
     echo "- IBM Common Services"
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-common-services.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-common-services.yaml
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/redhat-cert-manager.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/redhat-cert-manager.yaml
   fi
 
 
@@ -336,7 +336,7 @@ function gitops_cluster() {
     ROOT_APP_NAME="root.${ACCOUNT_ID}"
     CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
     OPERATOR_CATALOG_APP_NAME="operator-catalog.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
-    COMMON_SERVICES_APP_NAME="common-services.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
+    COMMON_SERVICES_APP_NAME="redhat-cert-manager.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
 
     argocd_sync "${ROOT_APP_NAME}"
     argocd_hard_refresh "${ROOT_APP_NAME}" # refresh any secrets fetched from AWS SM
@@ -351,7 +351,7 @@ function gitops_cluster() {
 
     if [[ "$COMMON_SERVICES_ACTION" == "upgrade" || "$COMMON_SERVICES_ACTION" == "install" ]]; then
       argocd_hard_refresh "${COMMON_SERVICES_APP_NAME}" # refresh any secrets fetched from AWS SM
-      check_argo_app_synced "${COMMON_SERVICES_APP_NAME}" "${ROOT_APP_NAME}" ibm-common-services
+      check_argo_app_synced "${COMMON_SERVICES_APP_NAME}" "${ROOT_APP_NAME}" redhat-cert-manager
       check_argo_app_healthy "${COMMON_SERVICES_APP_NAME}" "${ROOT_APP_NAME}"
     fi
   fi

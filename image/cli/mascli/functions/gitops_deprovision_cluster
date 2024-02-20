@@ -180,7 +180,7 @@ function gitops_deprovision_cluster() {
   export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
   sm_delete_secret $SECRET_NAME_IBM_ENTITLEMENT
 
-  # Created by postsync hook in ibm-common-services chart
+  # Created by postsync hook in redhat-cert-manager chart
   export SECRET_NAME_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain
   echo "Delete $SECRET_NAME_CLUSTER_DOMAIN from Secrets Manager"
   sm_delete_secret $SECRET_NAME_CLUSTER_DOMAIN
@@ -220,7 +220,7 @@ function gitops_deprovision_cluster() {
   ROOT_APP_NAME="root.${ACCOUNT_ID}"
   CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
   OPERATOR_CATALOG_APP_NAME="operator-catalog.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-  COMMON_SERVICES_APP_NAME="common-services.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+  COMMON_SERVICES_APP_NAME="redhat-cert-manager.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
   DRO_APP_NAME="dro.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
   CIS_COMPLIANCE_APP_NAME="cis-compliance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
   DB2U_APP_NAME="db2u.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
@@ -291,8 +291,8 @@ function gitops_deprovision_cluster() {
     # check_argo_app_deleted ${DRO_APP_NAME} "mas"
   fi
 
-  echo "- Delete IBM Common Services"
-  rm ${GITOPS_CLUSTER_DIR}/ibm-common-services.yaml
+  echo "- Delete Redhat Cert manager"
+  rm ${GITOPS_CLUSTER_DIR}/redhat-cert-manager.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
