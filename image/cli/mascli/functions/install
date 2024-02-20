@@ -253,9 +253,6 @@ function install_noninteractive() {
         export KAFKA_ACTION_SYSTEM=install
         export KAFKA_PROVIDER=$1 && shift
         ;;
-      --kafka-cluster-name)
-        export KAFKA_CLUSTER_NAME=$1 && shift
-        ;;
       --kafka-username)
         export AWS_KAFKA_USER_NAME=$1
         export KAFKA_USER_NAME=$1 && shift
@@ -716,6 +713,14 @@ function install() {
   # Determine whether UDS, SUDS, or DRO will be installed
   # If DRO is being installed, any existing UDS install will be removed first
   uds_action_selection
+
+  # Determine whether Grafana is available in the cluster based on the available of the operator package
+  oc get packagemanifest grafana-operator &> /dev/null
+  if [[ "$?" == "1" ]]; then
+    CLUSTER_MONITORING_INCLUDE_GRAFANA="False"
+  else
+    CLUSTER_MONITORING_INCLUDE_GRAFANA="True"
+  fi
 
   if [[ "$INTERACTIVE_MODE" == "true" ]]; then
     load_config

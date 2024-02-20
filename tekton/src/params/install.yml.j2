@@ -106,9 +106,6 @@
   type: string
   description: Kafka version
   default: ""
-- name: kafka_cluster_name
-  type: string
-  default: ""
 
 # Dependencies - AMQ Streams / Strimzi (Kafka)
 # -----------------------------------------------------------------------------
@@ -324,6 +321,15 @@
   type: string
   default: ""
 - name: grafana_instance_storage_size
+  type: string
+  default: ""
+- name: grafana_major_version
+  type: string
+  default: ""
+
+# MAS Integration - Cluster Monitoring - Open Telemetry
+# -----------------------------------------------------------------------------
+- name: cluster_monitoring_include_opentelemetry
   type: string
   default: ""
 
