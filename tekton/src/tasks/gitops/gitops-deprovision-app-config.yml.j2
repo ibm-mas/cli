@@ -29,6 +29,9 @@ spec:
       type: string
     - name: mas_app_id
       type: string
+    - name: argocd_url
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-deprovision-app-config
     env:
@@ -54,6 +57,8 @@ spec:
         value: $(params.force_removal)
       - name: MAS_APP_ID
         value: $(params.mas_app_id)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
   steps:
     - args:
       - |-
@@ -100,6 +105,6 @@ spec:
         - -c
       name: gitops-deprovision-app-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
+      image: quay.io/ibmmas/cli:7.10.0-pre.mascore1425
   workspaces:
     - name: configs

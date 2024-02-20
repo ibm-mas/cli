@@ -9,10 +9,6 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: avp_aws_secret_key
-      type: string
-    - name: avp_aws_access_key
-      type: string
     - name: mas_instance_id
       type: string
     - name: cloud_provider
@@ -25,10 +21,6 @@ spec:
         value: $(params.cluster_name)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: SM_AWS_SECRET_ACCESS_KEY
-        value: $(params.avp_aws_secret_key)
-      - name: SM_AWS_ACCESS_KEY_ID
-        value: $(params.avp_aws_access_key)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
       - name: CLOUD_PROVIDER
@@ -36,8 +28,8 @@ spec:
   steps:
     - args:
       - |-
-        aws configure set aws_access_key_id $(params.avp_aws_access_key)
-        aws configure set aws_secret_access_key $(params.avp_aws_secret_key)
+        aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
+        aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
         aws configure set default.region $(params.avp_aws_secret_region)
         
         export ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
@@ -64,7 +56,7 @@ spec:
         - -c
       name: gitops-deprovision-efs
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
+      image: quay.io/ibmmas/cli:7.10.0-pre.mascore1425
   workspaces:
     - name: configs
 

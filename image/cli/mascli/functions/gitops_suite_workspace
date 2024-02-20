@@ -15,10 +15,12 @@ GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                  Working directory for GitOps repository
   -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}           Version of ibm-mas/gitops to use
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                   Account name that the cluster belongs to
+  -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                   Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}         IBM Suite Maximo Application Suite Instance ID
   -W, --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}       IBM Suite Maximo Application Suite workspace ID
   -N, --mas-workspace-name ${COLOR_YELLOW}MAS_WORKSPACE_NAME${TEXT_RESET}   IBM Suite Maximo Application Suite workspace name
+  --install-efs                                                             Install aws-efs on the cluster
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -41,6 +43,11 @@ function gitops_suite_workspace_noninteractive() {
   GIT_COMMIT_MSG="gitops-suite-workspace commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
+  # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
+  export REGION=${REGION:-${SM_AWS_REGION}}
+  
+  export INSTALL_EFS=${INSTALL_EFS:-"false"}
+
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -55,6 +62,9 @@ function gitops_suite_workspace_noninteractive() {
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
         ;;
+      -r|--region)
+        export REGION=$1 && shift
+        ;;
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
         ;;
@@ -65,6 +75,11 @@ function gitops_suite_workspace_noninteractive() {
       -N|--mas-workspace-name)
         export MAS_WORKSPACE_NAME=$1 && shift
         ;;
+
+      --install-aws-efs)
+        export INSTALL_EFS="true" && shift
+        ;;
+
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -104,6 +119,7 @@ function gitops_suite_workspace_noninteractive() {
   [[ -z "$GITOPS_VERSION" ]] && gitops_suite_workspace_help "GITOPS_VERSION is not set"
   [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_suite_workspace_help "MAS_WORKSPACE_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_suite_workspace_help "CLUSTER_ID is not set"
+  [[ -z "$REGION" ]] && gitops_suite_workspace_help "REGION is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_suite_workspace_help "ACCOUNT_ID is not set"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_suite_workspace_help "GITHUB_HOST is not set"
@@ -115,11 +131,15 @@ function gitops_suite_workspace_noninteractive() {
 
 function gitops_suite_workspace() {
   # Take the first parameter off (it will be create-gitops)
-  unset MAS_INSTANCE_ID  
+  shift
+  
+  # Why are we deliberately unsetting these environment variables in this script (but not the other similar scripts)?
+  # NOTE: this is fine when used from the Tekton task since these are passed in as CLI args
+  # Leaving this be for now in case I missed something
+  unset MAS_INSTANCE_ID
   unset MAS_WORKSPACE_NAME
   unset MAS_WORKSPACE_ID
 
-  shift
   if [[ $# -gt 0 ]]; then
     gitops_suite_workspace_noninteractive "$@"
   else
@@ -129,8 +149,8 @@ function gitops_suite_workspace() {
   fi
   
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
-  GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
+  mkdir -p ${GITOPS_WORKING_DIR}
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
 
 
   echo
@@ -141,7 +161,8 @@ function gitops_suite_workspace() {
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID............................. ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
+  echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
+  echo_reset_dim "Instance Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -173,6 +194,11 @@ function gitops_suite_workspace() {
   echo_reset_dim "Workspace Name ........................ ${COLOR_MAGENTA}${MAS_WORKSPACE_NAME}"
   reset_colors
 
+  echo "${TEXT_DIM}"
+  echo_h2 "Additional Steps" "    "
+  echo_reset_dim "Install EFS ........................... ${COLOR_MAGENTA}${INSTALL_EFS}"
+  reset_colors
+
   # Get the cluster-level secrets used
   # ---------------------------------------------------------------------------
   CURRENT_DIR=$PWD
@@ -190,7 +216,7 @@ function gitops_suite_workspace() {
     echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
-  mkdir -p ${GITOPS_APPS_DIR}
+  mkdir -p ${GITOPS_INSTANCE_DIR}
 
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
@@ -200,22 +226,31 @@ function gitops_suite_workspace() {
   if [[ -z $MAS_WORKSPACE_NAME ]]; then
     export MAS_WORKSPACE_NAME=$MAS_WORKSPACE_ID
   fi
-  echo "Generating IBM Maximo Application Suite Workspace file ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.${MAS_WORKSPACE_ID}.ibm-mas-core-workspace.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/ibm-mas-core-workspace.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.${MAS_WORKSPACE_ID}.ibm-mas-core-workspace.yaml
+  echo "Generating IBM Maximo Application Suite Workspace file ${GITOPS_INSTANCE_DIR}/ibm-mas-workspace.yaml"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-workspace.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-workspace.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
+
+    CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+    INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    WORKSPACE_APP="workspace.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+
     argocd_login
-    argocd_sync ${CLUSTER_ID}-watcher
-    check_argo_app_synced mas-${MAS_INSTANCE_ID}-core-${MAS_WORKSPACE_ID} ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-core
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-core-${MAS_WORKSPACE_ID} ${CLUSTER_ID}-watcher
-    
+    argocd_sync "${CLUSTER_ROOT_APP}" ## trigger the instance appset to pick up the new config files
+    check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
+
+    argocd_hard_refresh "${WORKSPACE_APP}"
+
+    check_argo_app_synced "${WORKSPACE_APP}" "${INSTANCE_ROOT_APP}"
+    check_argo_app_healthy "${WORKSPACE_APP}" "${INSTANCE_ROOT_APP}"
+
   fi
 
 }

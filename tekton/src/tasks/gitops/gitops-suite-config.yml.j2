@@ -24,13 +24,7 @@ spec:
       type: string
     - name: github_host
       type: string
-    - name: github_pat
-      type: string
     - name: avp_aws_secret_region
-      type: string
-    - name: avp_aws_secret_key
-      type: string
-    - name: avp_aws_access_key
       type: string
     - name: dro_url
       type: string
@@ -44,9 +38,17 @@ spec:
     - name: dro_ca_certificate_file
       type: string
       default: ""
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: argocd_url
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite-config
     env:
+      - name: OCP_SERVER
+        value: $(params.cluster_url)
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
       - name: ACCOUNT
@@ -65,14 +67,10 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
-      - name: GITHUB_PAT
-        value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: SM_AWS_SECRET_ACCESS_KEY
-        value: $(params.avp_aws_secret_key)
-      - name: SM_AWS_ACCESS_KEY_ID
-        value: $(params.avp_aws_access_key)
+      - name: REGION_ID
+        value: $(params.avp_aws_secret_region)
       - name: DRO_URL
         value: $(params.dro_url)
       - name: DRO_CONTACT_EMAIL
@@ -83,6 +81,14 @@ spec:
         value: $(params.dro_contact_lastname)
       - name: DRO_CA_CERTIFICATE_FILE
         value: $(params.dro_ca_certificate_file)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
   steps:
     - args:
       - |-
@@ -93,14 +99,37 @@ spec:
         git config --global user.password $GITHUB_PAT
 
         ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
-        export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
-        export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
-        export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
-        oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
-        OC_RC=$?
-        if [ $OC_RC -ne 0 ]; then
-          echo "oc login failed to $OCP_SERVER"
-          exit 1
+        if [ -f $ROSA_CONFIG ]; then
+          echo "oc login : via ROSA_CONFIG"
+          export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
+          export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
+          export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
+          oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed to $OCP_SERVER"
+            exit 1
+          fi
+        elif [ -n $OCP_SERVER ]; then
+          echo "oc login : OCP_USERNAME=$OCP_USERNAME OCP_SERVER=$OCP_SERVER OCP_PASSWORD=${OCP_PASSWORD:0:8}<snip> ..."
+          oc login -u $OCP_USERNAME -p $OCP_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
+        else
+          echo "oc login : via ocp_login"
+          aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
+          aws configure set default.region $SM_AWS_REGION
+          export CLUSTER_TYPE=rosa
+          ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role 
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
         fi
         
         echo "Set k8s context"
@@ -117,6 +146,8 @@ spec:
         fi
 
         if [ -z $DRO_CA_CERTIFICATE_FILE ]; then
+
+          # NOTE: the name of this secret is Hyperscaler specific I think? In Fyre it's called "router-certs-default".
           oc get secret $CLUSTER_NAME-primary-cert-bundle-secret -n openshift-ingress -ojsonpath='{.data.tls\.crt}' --context $K8S_AUTH_CONTEXT | base64 -d > /tmp/init-suite-config/dro_ca.crt
           export DRO_CA_CERTIFICATE_FILE=/tmp/init-suite-config/dro_ca.crt
         fi
@@ -135,7 +166,7 @@ spec:
         - -c
       name: gitops-suite-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
+      image: quay.io/ibmmas/cli:7.10.0-pre.mascore1425
   workspaces:
     - name: configs
     - name: shared-additional-configs

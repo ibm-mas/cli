@@ -10,7 +10,6 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Options:
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
   --pipeline-storage-class ${COLOR_YELLOW}PIPELINE_STORAGE_CLASS${TEXT_RESET}            Storge class which the Pipeline will use
 
 Other Commands:
@@ -28,9 +27,6 @@ function gitops_mas_fvt_preparer_noninteractive() {
     case $key in
       --pipeline-storage-class)
         export PIPELINE_STORAGE_CLASS=$1 && shift
-        ;;
-      -d|--dir)
-        export GITOPS_WORKING_DIR=$1 && shift
         ;;
 
       # Other Commands
@@ -79,7 +75,6 @@ function gitops_mas_fvt_preparer() {
 
   #FVT pipeline to run
   export PIPELINE_NAME=$FVT_PIPELINE_NAME
-  export MAS_CONFIG_DIR=${GITOPS_WORKING_DIR}
   ansible-playbook ibm.mas_fvt.setup_pipeline
   
   rc=$?

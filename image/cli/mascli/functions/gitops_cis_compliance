@@ -39,6 +39,10 @@ function gitops_cis_compliance_noninteractive() {
   GIT_COMMIT_MSG="gitops-cis-compliance commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
+  # defaults for fvtsaas
+  # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
+  export REGION=${REGION:-${SM_AWS_REGION}}
+
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -56,6 +60,9 @@ function gitops_cis_compliance_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
+        ;;
+      -r|--region)
+        export REGION=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -96,6 +103,7 @@ function gitops_cis_compliance_noninteractive() {
 
   [[ -z "$ACCOUNT_ID" ]] && gitops_cis_compliance_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_cis_compliance_help "CLUSTER_ID is not set"
+  [[ -z "$REGION" ]] && gitops_cis_compliance_help "REGION is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_cis_compliance_help "GITHUB_HOST is not set"
@@ -118,8 +126,7 @@ function gitops_cis_compliance() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
-  GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}
 
   echo
   reset_colors
@@ -128,8 +135,9 @@ function gitops_cis_compliance() {
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
+  echo_reset_dim "Cluster Config Directory .............. ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -166,14 +174,14 @@ function gitops_cis_compliance() {
     echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
-  mkdir -p ${GITOPS_APPS_DIR}
+  mkdir -p ${GITOPS_CLUSTER_DIR}
 
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   echo
   echo_h2 "Generating Argo Applications"
   echo "- IBM Cis Compliance"
-  jinja -X .+ $CLI_DIR/templates/gitops/cis-compliance.yaml.j2 -o ${GITOPS_APPS_DIR}/cis-compliance.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/cis-compliance.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/cis-compliance.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
@@ -181,15 +189,22 @@ function gitops_cis_compliance() {
 
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_CLUSTER_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     argocd_login
-    argocd_sync ${CLUSTER_ID}-watcher
-    argocd_hard_refresh cis-compliance
-    add_role_to_user openshift-compliance
-    check_argo_app_synced cis-compliance ${CLUSTER_ID}-watcher openshift-compliance
-    check_argo_app_healthy cis-compliance ${CLUSTER_ID}-watcher
+
+    ROOT_APP_NAME="root.${ACCOUNT_ID}"
+    CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+    CIS_COMPLIANCE_APP_NAME="cis-compliance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+    
+    argocd_sync "${ROOT_APP_NAME}"
+
+    check_argo_app_synced "${CLUSTER_APP_NAME}" "${ROOT_APP_NAME}"
+
+    argocd_hard_refresh "${CLUSTER_APP_NAME}"
+    check_argo_app_synced "${CIS_COMPLIANCE_APP_NAME}" "${CLUSTER_APP_NAME}" openshift-compliance
+    check_argo_app_healthy "${CIS_COMPLIANCE_APP_NAME}" "${CLUSTER_APP_NAME}"
   fi
 
 }

@@ -70,9 +70,9 @@ spec:
         echo "Start Bootstrap"
         mas gitops-bootstrap --cluster-id $CLUSTER_NAME \
         -t $AVP_TYPE \
-        --avp-aws-secret-region $AVP_AWS_SECRET_REGION \
-        --avp-aws-secret-key $AVP_AWS_SECRET_KEY \
-        --avp-aws-access-key $AVP_AWS_ACCESS_KEY \
+        --sm-aws-secret-region $AVP_AWS_SECRET_REGION \
+        --sm-aws-secret-key $AVP_AWS_SECRET_KEY \
+        --sm-aws-access-key $AVP_AWS_ACCESS_KEY \
         --github-url $GITHUB_URL \
         --github-pat $GITHUB_PAT
       command:
@@ -80,6 +80,6 @@ spec:
         - -c
       name: gitops-bootstrap
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
+      image: quay.io/ibmmas/cli:7.10.0-pre.mascore1425
   workspaces:
     - name: configs

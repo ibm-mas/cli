@@ -28,17 +28,14 @@ spec:
 {% endif %}
     - name: cluster_name
       type: string
+    - name: argocd_url
+      type: string
     - name: account
       type: string
     - name: secrets_path
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: avp_aws_secret_key
-      type: string
-    - name: avp_aws_access_key
-      type: string
-
     # 1. Gitops git Parameters
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
@@ -64,9 +61,9 @@ spec:
       type: string
     - name: mas_domain
       type: string
-    - name: workspace_id
+    - name: mas_workspace_id
       type: string
-    - name: workspace_name
+    - name: mas_workspace_name
       type: string
     - name: aws_key_pair_name
       type: string
@@ -118,10 +115,6 @@ spec:
       type: string
     - name: ldap_certificate_file
       type: string
-    - name: ldap_bind_dn
-      type: string
-    - name: ldap_bind_password
-      type: string
     - name: cloud_provider
       type: string
       default: aws
@@ -134,9 +127,9 @@ spec:
       default: cis
     - name: cis_subdomain
       type: string
-    - name: mas_workspace_id
-      type: string
     - name: mas_manual_cert_mgmt
+      type: string
+    - name: cluster_url
       type: string
     - name: cis_enhanced_security
       type: string
@@ -147,8 +140,6 @@ spec:
     - name: cis_email
       type: string
     - name: cis_crn
-      type: string
-    - name: cis_apikey
       type: string
     - name: mas_config_dir
       type: string
@@ -171,7 +162,7 @@ spec:
         kind: Task
         name: mas-fvt-wait-for-pipelinerun
 {% endif %}
-    - name: gitops-process-mongo-user
+    - name: gitops-license
 {% if wait_for_provision == true %}
       runAfter:
         - wait-for-provision
@@ -179,52 +170,14 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: account
           value: $(params.account)
-        - name: secrets_path
-          value: $(params.secrets_path)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: vpc_ipv4_cidr
-          value: $(params.vpc_ipv4_cidr)
-        - name: mongo_provider
-          value: $(params.mongo_provider)
-        - name: user_action
-          value: $(params.docdb_user_action)
-        - name: aws_key_pair_name
-          value: $(params.aws_key_pair_name)
-        - name: ec2_linux_ami_id
-          value: $(params.ec2_linux_ami_id)
-      workspaces:
-        - name: configs
-          workspace: configs
-      taskRef:
-        kind: Task
-        name: gitops-process-mongo-user
-    - name: gitops-license
-      runAfter:
-        - gitops-process-mongo-user
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: account
-          value: $(params.account)
-        - name: secrets_path
-          value: $(params.secrets_path)
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
       workspaces:
         - name: shared-entitlement
           workspace: shared-entitlement
@@ -232,11 +185,15 @@ spec:
         kind: Task
         name: gitops-license
     - name: gitops-suite-dns
+{% if wait_for_provision == true %}
       runAfter:
-        - gitops-process-mongo-user
+        - wait-for-provision
+{% endif %}
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: dns_provider
           value: $(params.dns_provider)
         - name: mas_instance_id
@@ -259,12 +216,12 @@ spec:
           value: $(params.cis_email)
         - name: cis_crn
           value: $(params.cis_crn)
-        - name: cis_apikey
-          value: $(params.cis_apikey)
         - name: mas_config_dir
           value: $(params.mas_config_dir)
         - name: cis_service_name
           value: $(params.cis_service_name)
+        - name: cluster_url
+          value: $(params.cluster_url)
       taskRef:
         kind: Task
         name: gitops-suite-dns
@@ -279,11 +236,15 @@ spec:
         - name: configs
           workspace: configs
     - name: gitops-suite-certs
+{% if wait_for_provision == true %}
       runAfter:
-        - gitops-process-mongo-user
+        - wait-for-provision
+{% endif %}
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: dns_provider
           value: $(params.dns_provider)
         - name: mas_instance_id
@@ -300,8 +261,6 @@ spec:
           value: $(params.cis_proxy)
         - name: cis_crn
           value: $(params.cis_crn)
-        - name: cis_apikey
-          value: $(params.cis_apikey)
         - name: mas_config_dir
           value: $(params.mas_config_dir)
         - name: gitops
@@ -312,10 +271,6 @@ spec:
           value: $(params.secrets_path)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
       taskRef:
         kind: Task
         name: gitops-suite-certs
@@ -335,6 +290,8 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: account
           value: $(params.account)
         - name: secrets_path
@@ -343,6 +300,8 @@ spec:
           value: $(params.mas_instance_id)
         - name: mongo_provider
           value: $(params.mongo_provider)
+        - name: user_action
+          value: $(params.docdb_user_action)
         - name: git_branch
           value: $(params.git_branch)
         - name: github_org
@@ -369,16 +328,15 @@ spec:
           value: $(params.github_pat)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
         - name: icr_cp
           value: $(params.icr_cp)
         - name: icr_cp_open
           value: $(params.icr_cp_open)
         - name: mas_manual_cert_mgmt
           value: $(params.mas_manual_cert_mgmt)
+        - name: cluster_url
+          value: $(params.cluster_url)
+
       taskRef:
         kind: Task
         name: gitops-suite
@@ -391,6 +349,8 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: account
           value: $(params.account)
         - name: secrets_path
@@ -413,10 +373,6 @@ spec:
           value: $(params.github_pat)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
         - name: dro_url
           value: $(params.dro_url)
         - name: dro_contact_email
@@ -427,6 +383,8 @@ spec:
           value: $(params.dro_contact_lastname)
         - name: dro_ca_certificate_file
           value: $(params.dro_ca_certificate_file)
+        - name: cluster_url
+          value: $(params.cluster_url)
       workspaces:
         - name: configs
           workspace: configs
@@ -443,16 +401,18 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: account
           value: $(params.account)
         - name: secrets_path
           value: $(params.secrets_path)
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: workspace_id
-          value: $(params.workspace_id)
-        - name: workspace_name
-          value: $(params.workspace_name)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_workspace_name
+          value: $(params.mas_workspace_name)
         - name: git_branch
           value: $(params.git_branch)
         - name: github_org
@@ -465,6 +425,10 @@ spec:
           value: $(params.git_commit_msg)
         - name: github_pat
           value: $(params.github_pat)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
       taskRef:
         kind: Task
         name: gitops-suite-workspace
@@ -477,6 +441,8 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: account
           value: $(params.account)
         - name: secrets_path
@@ -497,10 +463,6 @@ spec:
           value: $(params.github_pat)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
         - name: smtp_host
           value: $(params.smtp_host)
         - name: smtp_port
@@ -521,6 +483,8 @@ spec:
           value: $(params.smtp_username)
         - name: smtp_password
           value: $(params.smtp_password)
+        - name: cluster_url
+          value: $(params.cluster_url)
       taskRef:
         kind: Task
         name: gitops-suite-smtp-config
@@ -537,6 +501,8 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: account
           value: $(params.account)
         - name: secrets_path
@@ -557,10 +523,6 @@ spec:
           value: $(params.github_pat)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
         - name: ldap_url
           value: $(params.ldap_url)
         - name: ldap_basedn
@@ -569,10 +531,13 @@ spec:
           value: $(params.ldap_userid_map)
         - name: ldap_certificate_file
           value: $(params.ldap_certificate_file)
-        - name: ldap_bind_dn
-          value: $(params.ldap_bind_dn)
-        - name: ldap_bind_password
-          value: $(params.ldap_bind_password)
+        # instance trigger level secret  
+        #- name: ldap_bind_dn
+        #  value: $(params.ldap_bind_dn)
+        #- name: ldap_bind_password
+        #  value: $(params.ldap_bind_password)
+        - name: cluster_url
+          value: $(params.cluster_url)
       taskRef:
         kind: Task
         name: gitops-suite-idp-config
@@ -591,16 +556,16 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: argocd_url
+          value: $(params.argocd_url)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: cloud_provider
           value: $(params.cloud_provider)
+        - name: cluster_url
+          value: $(params.cluster_url)
       workspaces:
         - name: configs
           workspace: configs

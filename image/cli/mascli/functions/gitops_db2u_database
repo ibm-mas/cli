@@ -75,6 +75,13 @@ function gitops_db2u_database_noninteractive() {
   GIT_COMMIT_MSG="gitops-db2u-database commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
+  # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
+  export REGION=${REGION:-${SM_AWS_REGION}}
+  export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"} # use an in-cluster argocd worker (which fvtsaas does)
+  # alternatively for CLUSTER_URL, we could look it up from ArgoCD like this:
+  # export CLUSTER_URL
+  # argocd_get_cluster_url "${CLUSTER_ID}" "CLUSTER_URL"
+
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -92,6 +99,12 @@ function gitops_db2u_database_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
+        ;;
+      -r|--region)
+        export REGION=$1 && shift
+        ;;
+      -u|--cluster-url)
+        export CLUSTER_URL=$1 && shift
         ;;
 
       # MAS
@@ -247,6 +260,7 @@ function gitops_db2u_database_noninteractive() {
 
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_db2u_database_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_db2u_database_help "ACCOUNT_ID is not set"
+  [[ -z "$REGION" ]] && gitops_db2u_database_help "REGION is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_db2u_database_help "CLUSTER_ID is not set"
   
   #db2u
@@ -271,94 +285,6 @@ function gitops_db2u_database_noninteractive() {
 
 }
 
-function wait_for_db2ucluster_crd(){
-  # wait till CRD db2uclusters.db2u.databases.ibm.com NamesAccepted=True STARTS  
-  wait_period=0
-  while true
-  do
-    wait_period=$(($wait_period+10))
-    if [ $wait_period -gt 300 ];then
-      echo_reset_dim "${COLOR_RED}CRD db2uclusters.db2u.databases.ibm.com is not ready with in 300 sec, exiting"
-      exit 1
-    else
-      sleep 10
-    fi
-    export DB2_CRD_NAMES_ACCEPTED_STATUS=`oc get crd  db2uclusters.db2u.databases.ibm.com -o=jsonpath="{.status.conditions[?(@.type=='NamesAccepted')].status}"`
-    echo_reset_dim "DB2_CRD_NAMES_ACCEPTED_STATUS .... ${COLOR_MAGENTA}${DB2_CRD_NAMES_ACCEPTED_STATUS}"
-
-    if [[ "$DB2_CRD_NAMES_ACCEPTED_STATUS" == "True" ]]; then
-      break
-    fi
-  done  
-  # wait till CRD db2uclusters.db2u.databases.ibm.com NamesAccepted=True DONE
-}
-
-# Invoke suite_db2_setup_for_manage
-function invoke_suite_db2_setup_for_manage(){
-  # This should really be in the manage operator
-
-  echo
-  echo_h2 "Creating setupdb.sh file"
-  jinja -X .+ $CLI_DIR/templates/gitops/files/manage/setupdb.sh.j2 -o ${TEMP_DIR}/setupdb.sh
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-
-  chmod +x ${TEMP_DIR}/setupdb.sh
-
-  echo
-  echo_h2 "Copying setupdb.sh file to ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
-  oc cp ${TEMP_DIR}/setupdb.sh ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0:/tmp/setupdb.sh -c db2u
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-
-  echo
-  echo_h2 "Executing setupdb.sh file on ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
-  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0 -- su -lc '/tmp/setupdb.sh | tee /tmp/setupdb.log' db2inst1
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-
-  echo
-  echo_h2 "Creating /mnt/backup/MIRRORLOGPATH in c-${DB2_INSTANCE_NAME}-db2u-0"
-  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/backup/MIRRORLOGPATH" db2inst1
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-
-  echo
-  echo_h2 "Creating /mnt/bludata0/db2/archive_log in c-${DB2_INSTANCE_NAME}-db2u-0"
-  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/bludata0/db2/archive_log/" db2inst1
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-
-  echo
-  echo_h2 "Creating /mnt/backup/staging in c-${DB2_INSTANCE_NAME}-db2u-0"
-  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0  -- su -lc "mkdir -p /mnt/backup/staging" db2inst1
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-}
-
-# Invoke the DB2 backup when needed
-invoke_suite_db2_backup() {
-  echo
-  echo_h2 "Creating backupdb.sh file"
-  jinja -X .+ $CLI_DIR/templates/gitops/files/manage/backupdb.sh.j2 -o ${TEMP_DIR}/backupdb.sh
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-
-  chmod +x ${TEMP_DIR}/backupdb.sh
-
-  echo
-  echo_h2 "Copying backupdb.sh file to ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
-  oc cp ${TEMP_DIR}/backupdb.sh ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0:/tmp/backupdb.sh -c db2u
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-
-  echo
-  echo_h2 "Executing backupdb.sh file on ${DB2_NAMESPACE}/c-${DB2_INSTANCE_NAME}-db2u-0"
-  oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0 -- su -lc '/tmp/backupdb.sh | tee /tmp/backupdb.log' db2inst1
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-}
-
 function gitops_db2u_database() {
   # Take the first parameter off (it will be create-gitops)
   shift
@@ -372,8 +298,7 @@ function gitops_db2u_database() {
 
   mkdir -p ${GITOPS_WORKING_DIR}
   rm -rf $GITOPS_WORKING_DIR/$GITHUB_REPO
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
-  GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/db2-databases
 
   #Defaults
   if [[ -z $DB2_DBNAME ]]; then
@@ -453,12 +378,6 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   # by default db2 internal is true, set it to false if db2 is external
   export DB2_INTERNAL=${DB2_INTERNAL:-"true"}
-  export WHOAMI=`oc whoami`
-  if [[ -z ${WHOAMI} ]]; then
-    echo_reset_dim "${COLOR_RED} Please do 'oc login' to the cluster ArgoCD is to be installed on"
-    exit 1
-  fi
-  export CLUSTER_DOMAIN=`oc get ingress.config.openshift.io  cluster -o=jsonpath='{.spec.domain}'`
 
   echo
   reset_colors
@@ -467,8 +386,9 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
+  echo_reset_dim "Instance Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -534,7 +454,6 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "db2-cpu-limits  ......................... ${COLOR_MAGENTA}${DB2_CPU_LIMITS}"
   echo_reset_dim "db2-memory-requests  .................... ${COLOR_MAGENTA}${DB2_MEMORY_REQUESTS}"
   echo_reset_dim "db2-memory-limits  ...................... ${COLOR_MAGENTA}${DB2_MEMORY_LIMITS}"
-  echo_reset_dim "cluster_domain .......................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   echo_reset_dim "db2-instance-registry-yaml .............. ${COLOR_MAGENTA}${DB2_INSTANCE_REGISTRY_YAML}"
   echo_reset_dim "db2-instance-dbm-config-yaml ............ ${COLOR_MAGENTA}${DB2_INSTANCE_DBM_CONFIG_YAML}"
   echo_reset_dim "db2-database-db-config-yaml ............. ${COLOR_MAGENTA}${DB2_DATABASE_DB_CONFIG_YAML}"
@@ -542,6 +461,21 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
+
+
+  # Set by postsync job in redhat-cert-manager chart
+  # This is a workaround for the fact that we cannot interact with the cluster directly (see https://jsw.ibm.com/browse/MASCORE-1425)
+  # NOTE: this isn't a secret value, so it's safe to fetch it here and embed it in our config in the clear
+  echo "Fetching cluster domain from Secrets manager"
+  export CLUSTER_DOMAIN=`oc get ingress.config.openshift.io  cluster -o=jsonpath='{.spec.domain}'`
+  export SECRET_NAME_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain
+  export CLUSTER_DOMAIN=$(sm_get_secret_value ${SECRET_NAME_CLUSTER_DOMAIN} "cluster_domain")
+  echo "cluster domain: ${CLUSTER_DOMAIN}"
+  if [[ -z "${CLUSTER_DOMAIN}" ]]; then
+    echo "Failed to fetch cluster domain from secrets manager"
+    exit
+  fi
+
 
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-db2u-database
@@ -575,74 +509,59 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
-  mkdir -p ${GITOPS_APPS_DIR}
+  mkdir -p ${GITOPS_INSTANCE_DIR}
 
   # wait till CRD db2uclusters.db2u.databases.ibm.com NamesAccepted=True 
-  wait_for_db2ucluster_crd
+  # This is now performed as a presync hook in the ibm-db2u-database chart
+  # as a workaround for the fact that we can no longer directly call the cluster
+  # See: https://jsw.ibm.com/browse/MASCORE-1425
+  # wait_for_db2ucluster_crd
 
   GITOPS_TMP_DIR=${GITOPS_CLUSTER_DIR}/tmp
   mkdir -p ${GITOPS_TMP_DIR}
-
-  export DB2CFG_SETTINGS_APPLIED_FILE=${GITOPS_TMP_DIR}/db2cfg-settings-applied.json
-  export DB2CFG_SETTINGS_APPLIED_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}${MAS_APP_ID}${SECRETS_KEY_SEPERATOR}db2cfg
-  sm_get_secret_file ${DB2CFG_SETTINGS_APPLIED_SECRET} ${DB2CFG_SETTINGS_APPLIED_FILE}
-
-  export DB2CFG_SETTINGS_APPLIED=$(jq -r .'db2cfg_settings_applied' ${DB2CFG_SETTINGS_APPLIED_FILE})
-  echo "DB2CFG_SETTINGS_APPLIED=${DB2CFG_SETTINGS_APPLIED}"
-  if [[ "${DB2CFG_SETTINGS_APPLIED}" != "true" ]]; then
-    echo_h2 "setting DB2CFG_SETTINGS_APPLIED to false "
-    export DB2CFG_SETTINGS_APPLIED="false"
-  fi
 
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   echo
   echo_h2 "Generating DB2U Database Configuraton"
   echo
-  echo_reset_dim "- Generating DB2U Database file ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.${MAS_APP_ID}.ibm-db2u-database.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/ibm-db2u-database.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.${MAS_APP_ID}.ibm-db2u-database.yaml
+  GENERATED_CONFIG_FILE="${GITOPS_INSTANCE_DIR}/${DB2_INSTANCE_NAME}.ibm-db2u-database.yaml"
+  echo_reset_dim "- Generating DB2U Database file ${GENERATED_CONFIG_FILE}"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database.yaml.j2 -o ${GENERATED_CONFIG_FILE}
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     echo "git: Added ${FILES_ADDED} files"
+
+    # The DB2CFG_SETTINGS_APPLIED secret is read by the postsync hook in the ibm-db2u-database chart
+    # Since we have made changes to the db2u-database config here, we want the postsync hook to rerun,
+    # so set the secret to false
     if [[ "$FILES_ADDED" != "0" ]]; then
-      echo_h2 "setting DB2CFG_SETTINGS_APPLIED to false"
+      echo_h2 "setting DB2CFG_SETTINGS_APPLIED to false to prompt postsync hooks to run"
       export DB2CFG_SETTINGS_APPLIED="false"
+      export DB2CFG_SETTINGS_APPLIED_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2${SECRETS_KEY_SEPERATOR}${DB2_INSTANCE_NAME}/settings_applied
+      sm_update_secret ${DB2CFG_SETTINGS_APPLIED_SECRET} "{ \"db2cfg_settings_applied\": \"${DB2CFG_SETTINGS_APPLIED}\" }"
+      rc=$?
+      [ $rc -ne 0 ] && exit $rc
     fi
+
+    INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    DB2_DATABASE_APP="db2-db.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
+
     argocd_login
-    argocd_sync ${CLUSTER_ID}-watcher
-    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-database
-    check_argo_app_synced mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-database ${CLUSTER_ID}-watcher ${DB2_NAMESPACE}
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}-db2-database ${CLUSTER_ID}-watcher
-  fi
-  echo "DB2CFG_SETTINGS_APPLIED= ${DB2CFG_SETTINGS_APPLIED} FILES_ADDED= ${FILES_ADDED} DB2_INTERNAL=${DB2_INTERNAL} MAS_APP_ID=${MAS_APP_ID}"  
-  # Run specific setupcmds for Manage only if we have made changes.
-  if [[ "$DB2_INTERNAL" == "true" && "${DB2CFG_SETTINGS_APPLIED}" != "true" && "$MAS_APP_ID" == "manage" ]]; then
-    invoke_suite_db2_setup_for_manage 
-  fi
+    argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the db2-db appset to pick up the new config files
+    check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 
-  # Run DB2 apply script if we have made any changes.
-  if [[ "$DB2_INTERNAL" == "true" && "${DB2CFG_SETTINGS_APPLIED}" != "true" ]]; then
-    echo
-    echo_h2 "Calling apply-db2cfg-settings.sh file on c-${DB2_INSTANCE_NAME}-db2u-0"
-    oc exec -n ${DB2_NAMESPACE} c-${DB2_INSTANCE_NAME}-db2u-0 -- su -lc '/db2u/scripts/apply-db2cfg-settings.sh --setting all | tee /tmp/apply-db2cfg-settings.log' db2inst1
-    rc=$?
-    [ $rc -ne 0 ] && exit $rc
-    # Some parameters like LOGARCHMETH1 being set can cause a backup to be needed as it moves
-    # to archival logging. Do that backup now if we are in that state. The function checks that
-    # SQL1116N is being return from connect, and does nothin otherwise
-    invoke_suite_db2_backup
+    argocd_hard_refresh "${DB2_DATABASE_APP}"
+    check_argo_app_synced "${DB2_DATABASE_APP}" "${INSTANCE_ROOT_APP}"
+    check_argo_app_healthy "${DB2_DATABASE_APP}" "${INSTANCE_ROOT_APP}"
 
-    echo "sm_update_secret ...DB2CFG_SETTINGS_APPLIED with true"
-    export DB2CFG_SETTINGS_APPLIED="true"
-    sm_update_secret ${DB2CFG_SETTINGS_APPLIED_SECRET} "{ \"db2cfg_settings_applied\": \"${DB2CFG_SETTINGS_APPLIED}\" }"
-    rc=$?
-    [ $rc -ne 0 ] && exit $rc
   fi
+  
   if [ "$GITHUB_PUSH" == "true" ]; then
 	  remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi

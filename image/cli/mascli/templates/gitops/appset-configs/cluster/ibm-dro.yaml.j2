@@ -1,0 +1,6 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ REGION_ID }}/{{ CLUSTER_ID }}"
+
+ibm_dro:
+    dro_namespace: {{ DRO_NAMESPACE }}
+    ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
+    run_sync_hooks: true

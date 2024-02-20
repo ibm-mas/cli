@@ -31,6 +31,9 @@ spec:
       type: string
     - name: force_removal
       type: string
+    - name: argocd_url
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-deprovision-suite-watson-studio-config
     env:
@@ -60,6 +63,8 @@ spec:
         value: $(params.avp_aws_access_key)
       - name: FORCE_REMOVAL
         value: $(params.force_removal)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
   steps:
     - args:
       - |-
@@ -102,6 +107,6 @@ spec:
         - -c
       name: gitops-deprovision-suite-watson-studio-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
+      image: quay.io/ibmmas/cli:7.10.0-pre.mascore1425
   workspaces:
     - name: configs

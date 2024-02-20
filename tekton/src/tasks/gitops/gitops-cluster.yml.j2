@@ -9,10 +9,7 @@ spec:
       type: string
     - name: account
       type: string
-    - name: rosa_token
-      type: string
-      default: ""
-    - name: rosa_cluster_admin_password
+    - name: cluster_url
       type: string
       default: ""
     - name: secrets_path
@@ -25,22 +22,8 @@ spec:
       type: string
     - name: github_host
       type: string
-    - name: github_pat
-      type: string
     - name: git_commit_msg
       type: string
-    - name: artifactory_username
-      type: string
-      default: ""
-    - name: artifactory_token
-      type: string
-      default: ""
-    - name: icr_username
-      type: string
-      default: ""
-    - name: icr_password
-      type: string
-      default: ""
     - name: mas_catalog_version
       type: string
       default: ""
@@ -50,10 +33,6 @@ spec:
     - name: common_services_channel
       type: string
       default: ""
-    - name: avp_aws_access_key
-      type: string
-    - name: avp_aws_secret_key
-      type: string
     - name: avp_aws_secret_region
       type: string
     - name: mas_catalog_action
@@ -62,6 +41,9 @@ spec:
     - name: common_services_action
       type: string
       default: "install"
+    - name: argocd_url
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-cluster
     env:
@@ -69,10 +51,8 @@ spec:
         value: $(params.cluster_name)
       - name: ACCOUNT
         value: $(params.account)
-      - name: ROSA_TOKEN
-        value: $(params.rosa_token)
-      - name: ROSA_CLUSTER_ADMIN_PASSWORD
-        value: $(params.rosa_cluster_admin_password)
+      - name: OCP_SERVER
+        value: $(params.cluster_url)
       - name: SECRET_PATH
         value: $(params.secrets_path)
       - name: GIT_BRANCH
@@ -85,32 +65,28 @@ spec:
         value: $(params.github_repo)
       - name: GIT_COMMIT_MSG
         value: $(params.git_commit_msg)
-      - name: ARTIFACTORY_USERNAME
-        value: $(params.artifactory_username)
-      - name: ARTIFACTORY_TOKEN
-        value: $(params.artifactory_token)
-      - name: ICR_USERNAME
-        value: $(params.icr_username)
-      - name: ICR_PASSWORD
-        value: $(params.icr_password)
       - name: MAS_CATALOG_VERSION
         value: $(params.mas_catalog_version)
       - name: MAS_CATALOG_IMAGE
         value: $(params.mas_catalog_image)
       - name: COMMON_SERVICES_CHANNEL
         value: $(params.common_services_channel)
-      - name: SM_AWS_ACCESS_KEY_ID
-        value: $(params.avp_aws_access_key)
-      - name: SM_AWS_SECRET_ACCESS_KEY
-        value: $(params.avp_aws_secret_key)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: GITHUB_PAT
-        value: $(params.github_pat)
       - name: MAS_CATALOG_ACTION
         value: $(params.mas_catalog_action)
       - name: COMMON_SERVICES_ACTION
         value: $(params.common_services_action)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
   steps:
     - args:
       - |-
@@ -129,6 +105,13 @@ spec:
             echo "oc login failed"
             exit 1
           fi
+        elif [ -n $OCP_SERVER ]; then
+          oc login -u $OCP_USERNAME -p $OCP_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
         else
           aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
           aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
@@ -141,7 +124,6 @@ spec:
             exit 1
           fi
         fi
-        
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
@@ -165,6 +147,6 @@ spec:
         - -c
       name: gitops-cluster
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
+      image: quay.io/ibmmas/cli:7.10.0-pre.mascore1425
   workspaces:
     - name: configs

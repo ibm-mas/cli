@@ -29,6 +29,9 @@ spec:
       type: string
     - name: avp_aws_access_key
       type: string
+    - name: argocd_url
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-deprovision-db2u
     env:
@@ -55,7 +58,9 @@ spec:
       - name: SM_AWS_SECRET_ACCESS_KEY
         value: $(params.avp_aws_secret_key)
       - name: SM_AWS_ACCESS_KEY_ID
-        value: $(params.avp_aws_access_key)  
+        value: $(params.avp_aws_access_key)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
   steps:
     - args:
       - |-
@@ -96,7 +101,7 @@ spec:
         - -c
       name: gitops-deprovision-db2u
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
+      image: quay.io/ibmmas/cli:7.10.0-pre.mascore1425
   workspaces:
     - name: configs
 

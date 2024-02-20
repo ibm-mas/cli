@@ -26,10 +26,9 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: avp_aws_secret_key
+    - name: argocd_url
       type: string
-    - name: avp_aws_access_key
-      type: string
+      default: ""
   stepTemplate:
     name: gitops-delete-kafka-config
     env:
@@ -53,17 +52,15 @@ spec:
         value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: SM_AWS_SECRET_ACCESS_KEY
-        value: $(params.avp_aws_secret_key)
-      - name: SM_AWS_ACCESS_KEY_ID
-        value: $(params.avp_aws_access_key)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
   steps:
     - args:
       - |-
         mkdir -p /tmp/delete-kafka-config
 
-        aws configure set aws_access_key_id $(params.avp_aws_access_key)
-        aws configure set aws_secret_access_key $(params.avp_aws_secret_key)
+        aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
+        aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
         aws configure set default.region $(params.avp_aws_secret_region)
 
         git config --global user.name "MAS Automation"
@@ -103,7 +100,7 @@ spec:
         - -c
       name: gitops-delete-kafka-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
+      image: quay.io/ibmmas/cli:7.10.0-pre.mascore1425
   workspaces:
     - name: configs
 

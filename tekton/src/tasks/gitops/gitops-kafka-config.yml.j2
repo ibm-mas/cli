@@ -8,6 +8,9 @@ spec:
   params:
     - name: cluster_name
       type: string
+    - name: cluster_url
+      type: string
+      default: ""
     - name: account
       type: string
     - name: secrets_path
@@ -22,19 +25,18 @@ spec:
       type: string
     - name: github_host
       type: string
-    - name: github_pat
-      type: string
     - name: avp_aws_secret_region
       type: string
-    - name: avp_aws_secret_key
+    - name: argocd_url
       type: string
-    - name: avp_aws_access_key
-      type: string
+      default: ""
   stepTemplate:
     name: gitops-kafka-config
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
+      - name: OCP_SERVER
+        value: $(params.cluster_url)
       - name: ACCOUNT
         value: $(params.account)
       - name: SECRET_PATH
@@ -49,36 +51,57 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
-      - name: GITHUB_PAT
-        value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: SM_AWS_SECRET_ACCESS_KEY
-        value: $(params.avp_aws_secret_key)
-      - name: SM_AWS_ACCESS_KEY_ID
-        value: $(params.avp_aws_access_key)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
   steps:
     - args:
       - |-
         mkdir -p /tmp/init-kafka-config
-
-        aws configure set aws_access_key_id $(params.avp_aws_access_key)
-        aws configure set aws_secret_access_key $(params.avp_aws_secret_key)
-        aws configure set default.region $(params.avp_aws_secret_region)
 
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
         ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
-        export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
-        export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
-        export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
-        oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
-        OC_RC=$?
-        if [ $OC_RC -ne 0 ]; then
-          echo "oc login failed , exiting with error.."
-          exit 1
+        if [ -f $ROSA_CONFIG ]; then
+          echo "oc login : via ROSA_CONFIG"
+          export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
+          export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
+          export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
+          oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed to $OCP_SERVER"
+            exit 1
+          fi
+        elif [ -n $OCP_SERVER ]; then
+          echo "oc login : OCP_USERNAME=$OCP_USERNAME OCP_SERVER=$OCP_SERVER OCP_PASSWORD=${OCP_PASSWORD:0:8}<snip> ..."
+          oc login -u $OCP_USERNAME -p $OCP_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
+        else
+          echo "oc login : via ocp_login"
+          aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
+          aws configure set default.region $SM_AWS_REGION
+          export CLUSTER_TYPE=rosa
+          ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role 
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
         fi
 
         echo "Set k8s context"
@@ -103,7 +126,7 @@ spec:
         - -c
       name: gitops-kafka-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
+      image: quay.io/ibmmas/cli:7.10.0-pre.mascore1425
   workspaces:
     - name: configs
 

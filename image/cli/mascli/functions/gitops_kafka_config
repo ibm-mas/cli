@@ -44,6 +44,9 @@ function gitops_kafka_config_noninteractive() {
   GIT_COMMIT_MSG="gitops-kafka-config commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
+  # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
+  export REGION=${REGION:-${SM_AWS_REGION}}
+
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -60,6 +63,9 @@ function gitops_kafka_config_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
+        ;;
+      -r|--region)
+        export REGION=$1 && shift
         ;;
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
@@ -112,6 +118,7 @@ function gitops_kafka_config_noninteractive() {
   [[ -z "$GITOPS_VERSION" ]] && gitops_kafka_config_help "GITOPS_VERSION is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_kafka_config_help "CLUSTER_ID is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_kafka_config_help "ACCOUNT_ID is not set"
+  [[ -z "$REGION" ]] && gitops_kafka_config_help "REGION is not set"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_kafka_config_help "GITHUB_HOST is not set"
     [[ -z "$GITHUB_ORG" ]] && gitops_kafka_config_help "GITHUB_ORG is not set"
@@ -132,8 +139,7 @@ function gitops_kafka_config() {
   fi
   rm -rf ${GITOPS_WORKING_DIR}
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
-  GITOPS_APPS_DIR=${GITOPS_CLUSTER_DIR}/apps
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/configs
 
   echo
   reset_colors
@@ -142,8 +148,9 @@ function gitops_kafka_config() {
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_APPS_DIR}"
+  echo_reset_dim "System Config Directory................ ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -220,26 +227,35 @@ function gitops_kafka_config() {
     echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
-  mkdir -p ${GITOPS_APPS_DIR}
+  mkdir -p ${GITOPS_INSTANCE_DIR}
+
+  export MAS_CONFIG_SCOPE="system"
 
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   # Per MAS instance
-  jinja -X .+ -d $KAFKA_CONFIG_FILE $CLI_DIR/templates/gitops/ibm-kafka-config.yaml.j2 -o ${GITOPS_APPS_DIR}/${MAS_INSTANCE_ID}.ibm-kafka-config.yaml
+  echo "- IBM MAS System Kafka Config"
+  jinja -X .+ -d $KAFKA_CONFIG_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-kafka-config.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/system.ibm-mas-kafka-config.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_APPS_DIR "${GIT_COMMIT_MSG}"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
+    CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+    INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    KAFKA_CONFIG_APP="${MAS_INSTANCE_ID}-kafka-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+
     argocd_login
-    argocd_sync ${CLUSTER_ID}-watcher
-    argocd_hard_refresh mas-${MAS_INSTANCE_ID}-kafka-config
-    check_argo_app_synced mas-${MAS_INSTANCE_ID}-kafka-config ${CLUSTER_ID}-watcher mas-${MAS_INSTANCE_ID}-core
-    check_argo_app_healthy mas-${MAS_INSTANCE_ID}-kafka-config ${CLUSTER_ID}-watcher
+    argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the config appset to pick up the new config files
+    check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
+
+    argocd_hard_refresh "${KAFKA_CONFIG_APP}"
+    check_argo_app_synced "${KAFKA_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+    check_argo_app_healthy "${KAFKA_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
   fi
 
   rm -rf $TEMP_DIR

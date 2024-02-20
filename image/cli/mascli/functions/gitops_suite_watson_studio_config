@@ -240,7 +240,6 @@ function gitops_suite_watson_studio_config() {
 
   # Get the instance-level values to used
   # ---------------------------------------------------------------------------
-  #PADMAN TODO - if passed in parameter use that.
   # set individual flag for all the service.
   
   if [ "$CP4D_WSL_ACTION" == "install" ]; then

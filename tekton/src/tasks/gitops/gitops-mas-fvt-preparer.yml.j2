@@ -7,24 +7,24 @@ spec:
   params:
     - name: cluster_name
       type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: devops_build_number
+      type: string
     - name: pipeline_storage_class
       type: string
     - name: aws_region
-      type: string
-    - name: aws_secret_access_key
-      type: string
-    - name: aws_access_key_id
       type: string
     - name: fvt_pipeline_name
       type: string
     - name: cli_version
       type: string
-    - name: fvt_artifactory_username
-      type: string
-    - name: fvt_artifactory_token
-      type: string
     - name: fvt_config
       type: string
+    - name: argocd_url
+      type: string
+      default: ""
 
     - name: fvt_version_core
       type: string
@@ -67,24 +67,10 @@ spec:
       type: string
     - name: fvt_whitelist_core
       type: string
-    - name: ddp_apikey
-      type: string
-    - name: partium_username
-      type: string
-    - name: partium_password
-      type: string
 
     - name: artifactory_generic_release_url
       type: string
     - name: fvt_ansible_version
-      type: string
-    - name: artifactory_auth_header
-      type: string
-    - name: devops_mongo_uri
-      type: string
-    - name: devops_build_number
-      type: string
-    - name: devops_job_number
       type: string
 
     - name: fvt_image_registry
@@ -168,24 +154,22 @@ spec:
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
+      - name: OCP_SERVER
+        value: $(params.cluster_url)
+      - name: TRAVIS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
       - name: PIPELINE_STORAGE_CLASS
         value: $(params.pipeline_storage_class)
       - name: AWS_REGION
         value: $(params.aws_region)
-      - name: AWS_SECRET_ACCESS_KEY
-        value: $(params.aws_secret_access_key)
-      - name: AWS_ACCESS_KEY_ID
-        value: $(params.aws_access_key_id)
       - name: FVT_PIPELINE_NAME
         value: $(params.fvt_pipeline_name)
       - name: CLI_VERSION
         value: $(params.cli_version)
-      - name: FVT_ARTIFACTORY_USERNAME
-        value: $(params.fvt_artifactory_username)
-      - name: FVT_ARTIFACTORY_TOKEN
-        value: $(params.fvt_artifactory_token)
       - name: FVT_CONFIG
         value: $(params.fvt_config)
       - name: FVT_IMAGE_REGISTRY
@@ -194,24 +178,6 @@ spec:
         value: $(params.artifactory_generic_release_url)
       - name: FVT_ANSIBLE_VERSION
         value: $(params.fvt_ansible_version)
-      - name: ARTIFACTORY_AUTH_HEADER
-        value: $(params.artifactory_auth_header)
-      - name: DEVOPS_MONGO_URI
-        value: $(params.devops_mongo_uri)
-      - name: TRAVIS_BUILD_NUMBER
-        value: $(params.devops_build_number)
-      - name: TRAVIS_JOB_NUMBER
-        value: $(params.devops_job_number)
-      - name: DEVOPS_BUILD_NUMBER
-        value: $(params.devops_build_number)
-      - name: DEVOPS_JOB_NUMBER
-        value: $(params.devops_job_number)
-      - name: DDP_APIKEY
-        value: $(params.ddp_apikey)
-      - name: PARTIUM_USERNAME
-        value: $(params.partium_username)
-      - name: PARTIUM_PASSWORD
-        value: $(params.partium_password)
       - name: MAS_WORKSPACE_ID
         value: $(params.mas_workspace_id)
       - name: MAS_CHANNEL
@@ -288,33 +254,54 @@ spec:
         value: $(params.mas_app_channel_optimizer)
       - name: MAS_APP_CHANNEL_PREDICT
         value: $(params.mas_app_channel_predict)
+      - name: ARGOCD_URL
+        value: $(params.argocd_url)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
   steps:
     - args:
       - |-
 
-        export ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
-        export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
-        export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
-        export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
-        oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
-        OC_RC=$?
-        if [ $OC_RC -ne 0 ]; then
-          echo "oc login failed, exiting with error.."
-          exit 1
+        ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
+        if [ -f $ROSA_CONFIG ]; then
+          export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
+          export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
+          export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
+          oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
+        elif [ -n $OCP_SERVER ]; then
+          oc login -u $OCP_USERNAME -p $OCP_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
+        else
+          aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
+          aws configure set default.region $SM_AWS_REGION
+          export CLUSTER_TYPE=rosa
+          ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role 
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
         fi
 
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
-        export MAS_CONFIG_DIR=/tmp/additional-configs
-        mkdir -p $MAS_CONFIG_DIR
-
-        cp -rL /workspace/shared-entitlement/. /tmp/additional-configs/
-        cp -rL /workspace/shared-additional-configs/. /tmp/additional-configs/
-        cp -rL /workspace/shared-gitops-configs/. /tmp/additional-configs/
-
         echo "Installing ibm.mas_fvt ansible collection (with retries)"
-        wget --header="$ARTIFACTORY_AUTH_HEADER" ${ARTIFACTORY_GENERIC_RELEASE_URL}/maximoappsuite/ansible-fvt/${FVT_ANSIBLE_VERSION}/ibm-mas_fvt-${FVT_ANSIBLE_VERSION}.tar.gz || exit 1
+        wget --header="Authorization:Bearer $FVT_ARTIFACTORY_TOKEN" ${ARTIFACTORY_GENERIC_RELEASE_URL}/maximoappsuite/ansible-fvt/${FVT_ANSIBLE_VERSION}/ibm-mas_fvt-${FVT_ANSIBLE_VERSION}.tar.gz || exit 1
 
         MAX_ATTEMPTS=5
         ATTEMPT=1
@@ -337,19 +324,26 @@ spec:
         fi
         echo "argo:argocd login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."    
         argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
-        echo "argo:argocd proj windows add $MAS_INSTANCE_ID --kind deny --schedule * * * * * --duration 4h --applications *"  
-        argocd proj windows add $MAS_INSTANCE_ID --kind deny --schedule "* * * * *" --duration 4h --applications "*"
+        echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration 4h --applications *"  
+        argocd proj windows add mas --kind deny --schedule "* * * * *" --duration 4h --applications "*.$MAS_INSTANCE_ID"
 
-        mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS} \
-        --dir $MAS_CONFIG_DIR
+        mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS}
+
+        # Wait for launcher to complete
+        /opt/app-root/src/wait-for-pipelinerun.sh --name $MAS_INSTANCE_ID-fvt-launcher-$DEVOPS_BUILD_NUMBER --namespace mas-$MAS_INSTANCE_ID-pipelines
+
+        # Remove argocd window
+        echo "argo:argocd login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."
+        argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+        ARGOWINDOW=$(argocd proj windows list mas | grep "*.$MAS_INSTANCE_ID" | cut -c1-1)
+        echo "argo:argocd proj windows delete mas $ARGOWINDOW"
+        argocd proj windows delete mas $ARGOWINDOW
+
       command:
         - /bin/sh
         - -c
       name: gitops-mas-fvt-preparer
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
+      image: quay.io/ibmmas/cli:7.10.0-pre.mascore1425
   workspaces:
     - name: configs
-    - name: shared-entitlement
-    - name: shared-additional-configs
-    - name: shared-gitops-configs
