@@ -53,15 +53,15 @@ fi
 # Getting db2u Pod Files
 # =========================
 echo "- ${COLOR_BLUE} Getting db2u Pod Files${TEXT_RESET}"
- NAMESPACE=$(oc get namespace db2u -o jsonpath='{.metadata.name}' --ignore-not-found 2> /dev/null)
+ NAMESPACE=$(oc get namespace db2u -o jsonpath='{.metadata.name}' --ignore-not-found)
   if [[ "$NAMESPACE" != "" ]]; then
-    POD_NAME=$(oc -n $NAMESPACE get pods -l "type=engine" -o jsonpath="{.items[*].metadata.name}" 2> /dev/null)
+    POD_NAME=$(oc -n $NAMESPACE get pods -l "type=engine" -o jsonpath="{.items[*].metadata.name}")
     if [[ "$POD_NAME" != "" ]]; then
       for POD in ${POD_NAME[@]}; do
         createFolder
-        FILES=$(oc -n db2u exec -i $POD -- /bin/sh -c "find tmp -type f -not -name 'ks*' -not -name 'tmp*'" 2> /dev/null)
+        FILES=$(oc -n db2u exec -i $POD -- /bin/sh -c "find tmp -type f -not -name 'ks*' -not -name 'tmp*'")
         for FILE in ${FILES[@]}; do
-          oc cp $NAMESPACE/$POD:$FILE $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files/$FILE --retries 20 2> /dev/null
+          oc cp $NAMESPACE/$POD:$FILE $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files/$FILE --retries 20 > /dev/null 2>&1
         done
       done
     else
@@ -75,13 +75,13 @@ echo "- ${COLOR_BLUE} Getting db2u Pod Files${TEXT_RESET}"
 # =========================
 echo "- ${COLOR_BLUE} Getting Server Bundle Pod Files${TEXT_RESET}"
 NAMESPACE=$1
-POD_NAME=$(oc -n $NAMESPACE get pods -l "mas.ibm.com/appType= serverBundle" -o jsonpath="{.items[*].metadata.name}" 2> /dev/null)
+POD_NAME=$(oc -n $NAMESPACE get pods -l "mas.ibm.com/appType= serverBundle" -o jsonpath="{.items[*].metadata.name}")
 if [[ "$POD_NAME" != "" ]]; then
   for POD in ${POD_NAME[@]}; do
     createFolder
-    oc -n $NAMESPACE exec -i $POD -- /bin/sh -c "cp -R ./logs ./tmp/bundle"  2> /dev/null
-    oc cp $NAMESPACE/$POD:tmp/bundle $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries 20  2> /dev/null
-    oc -n $NAMESPACE exec -i $POD -- /bin/sh -c "rm -rf ./tmp/bundle"  2> /dev/null
+    oc -n $NAMESPACE exec -i $POD -- /bin/sh -c "cp -R ./logs ./tmp/bundle" > /dev/null 2>&1
+    oc cp $NAMESPACE/$POD:tmp/bundle $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries 20 > /dev/null 2>&1
+    oc -n $NAMESPACE exec -i $POD -- /bin/sh -c "rm -rf ./tmp/bundle" > /dev/null 2>&1
   done
 else
   echo_warning "Server Bundle pod was not found"
