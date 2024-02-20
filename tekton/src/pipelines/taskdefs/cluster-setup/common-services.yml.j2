@@ -7,4 +7,4 @@
     - name: devops_suite_name
       value: setup-common-services
   when:
-    - cel: "'$(params.cpd_product_version)' < '4.8.0'" # only install common-services when CPD is older than 4.8
+    - cel: "'$(params.cpd_product_version)' < '4.8'" # only install common-services when CPD is older than 4.8
