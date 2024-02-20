@@ -7,7 +7,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 NAMESPACE=$1
 OUTPUT_DIR=$2
 
-
 createFolder () {
   INSTANCE_ID=$(echo ${NAMESPACE%-*})
   INSTANCE_ID=$(echo ${INSTANCE_ID#*-})
