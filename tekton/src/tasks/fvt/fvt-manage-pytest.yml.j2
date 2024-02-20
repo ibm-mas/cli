@@ -109,14 +109,14 @@ spec:
 
       - name: ARTIFACTORY_TOKEN
         value: $(params.artifactory_token)
-        
+
       - name: ARTIFACTORY_UPLOAD_DIR
         valueFrom:
           secretKeyRef:
             name: mas-devops
             key: ARTIFACTORY_UPLOAD_DIR
             optional: true
-      
+
       # Black and white listing
       - name: FVT_BLACKLIST
         valueFrom:
@@ -191,8 +191,8 @@ spec:
   steps:
     - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 1h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
-      onError: continue # Ensure bad FVTs don't break the pipeline
+      timeout: 1h  # Ensure bad FVTs don't run forever
+      onError: continue  # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
       volumeMounts:
