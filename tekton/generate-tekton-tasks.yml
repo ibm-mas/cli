@@ -165,6 +165,7 @@
         - gitops-kafka-config
         - gitops-license
         - gitops-mongo
+        - gitops-nvidia-gpu
         - gitops-rosa
         - gitops-suite-app-install
         - gitops-suite-app-config
