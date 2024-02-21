@@ -58,6 +58,28 @@ spec:
       type: string
       default: ""
 
+    - name: nvidia_gpu_action
+      type: string
+      default: ""
+    - name: nfd_namespace
+      type: string
+      default: openshift-nfd
+    - name: nfd_channel
+      type: string
+      default: stable
+    - name: gpu_namespace
+      type: string
+      default: nvidia-gpu-operator
+    - name: gpu_channel
+      type: string
+      default: v23.3
+    - name: gpu_driver_version
+      type: string
+      default: 525.105.17
+    - name: gpu_driver_repository_path
+      type: string
+      default: nvcr.io/nvidia
+
   tasks:
     - name: gitops-cluster
       params:
@@ -215,5 +237,56 @@ spec:
         name: gitops-db2u
       when:
         - input: "$(params.db2_action)"
-          operator: notin
-          values: [""]
+          operator: in
+          values: ["install"]
+
+    - name: gitops-nvidia-gpu
+      runAfter:
+        - gitops-cluster
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: account
+          value: $(params.account)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: argocd_url
+          value: $(params.argocd_url)
+        - name: argocd_check
+          value: $(params.argocd_check)
+        - name: nfd_namespace
+          value: $(params.nfd_namespace)
+        - name: nfd_channel
+          value: $(params.nfd_channel)
+        - name: gpu_namespace
+          value: $(params.gpu_namespace)
+        - name: gpu_channel
+          value: $(params.gpu_channel)
+        - name: gpu_driver_version
+          value: $(params.gpu_driver_version)
+        - name: gpu_driver_repository_path
+          value: $(params.gpu_driver_repository_path)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-nvidia-gpu
+      when:
+        - input: "$(params.nvidia_gpu_action)"
+          operator: in
+          values: ["install"]
