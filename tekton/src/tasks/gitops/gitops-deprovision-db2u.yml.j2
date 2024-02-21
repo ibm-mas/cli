@@ -32,6 +32,9 @@ spec:
     - name: argocd_url
       type: string
       default: ""
+    - name: argocd_check
+      type: string
+      default: "false"
   stepTemplate:
     name: gitops-deprovision-db2u
     env:
@@ -61,6 +64,8 @@ spec:
         value: $(params.avp_aws_access_key)
       - name: ARGOCD_URL
         value: $(params.argocd_url)
+      - name: ARGOCD_CHECK
+        value: $(params.argocd_check)
   steps:
     - args:
       - |-

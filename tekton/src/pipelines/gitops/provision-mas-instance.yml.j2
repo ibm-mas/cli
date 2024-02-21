@@ -30,6 +30,8 @@ spec:
       type: string
     - name: argocd_url
       type: string
+    - name: argocd_check
+      type: string
     - name: account
       type: string
     - name: secrets_path
@@ -129,6 +131,8 @@ spec:
       type: string
     - name: mas_manual_cert_mgmt
       type: string
+    - name: cert_manager_namespace
+      type: string
     - name: cluster_url
       type: string
     - name: cis_enhanced_security
@@ -172,6 +176,9 @@ spec:
           value: $(params.cluster_name)
         - name: argocd_url
           value: $(params.argocd_url)
+        - name: argocd_check
+          value: $(params.argocd_check)
+          
         - name: account
           value: $(params.account)
         - name: mas_instance_id
@@ -194,6 +201,8 @@ spec:
           value: $(params.cluster_name)
         - name: argocd_url
           value: $(params.argocd_url)
+        - name: argocd_check
+          value: $(params.argocd_check)
         - name: dns_provider
           value: $(params.dns_provider)
         - name: mas_instance_id
@@ -245,6 +254,8 @@ spec:
           value: $(params.cluster_name)
         - name: argocd_url
           value: $(params.argocd_url)
+        - name: argocd_check
+          value: $(params.argocd_check)
         - name: dns_provider
           value: $(params.dns_provider)
         - name: mas_instance_id
@@ -292,6 +303,8 @@ spec:
           value: $(params.cluster_name)
         - name: argocd_url
           value: $(params.argocd_url)
+        - name: argocd_check
+          value: $(params.argocd_check)
         - name: account
           value: $(params.account)
         - name: secrets_path
@@ -336,6 +349,8 @@ spec:
           value: $(params.mas_manual_cert_mgmt)
         - name: cluster_url
           value: $(params.cluster_url)
+        - name: cert_manager_namespace
+          value: $(params.cert_manager_namespace)
 
       taskRef:
         kind: Task
@@ -351,6 +366,8 @@ spec:
           value: $(params.cluster_name)
         - name: argocd_url
           value: $(params.argocd_url)
+        - name: argocd_check
+          value: $(params.argocd_check)
         - name: account
           value: $(params.account)
         - name: secrets_path
@@ -403,6 +420,8 @@ spec:
           value: $(params.cluster_name)
         - name: argocd_url
           value: $(params.argocd_url)
+        - name: argocd_check
+          value: $(params.argocd_check)
         - name: account
           value: $(params.account)
         - name: secrets_path
@@ -443,6 +462,8 @@ spec:
           value: $(params.cluster_name)
         - name: argocd_url
           value: $(params.argocd_url)
+        - name: argocd_check
+          value: $(params.argocd_check)
         - name: account
           value: $(params.account)
         - name: secrets_path
@@ -503,6 +524,8 @@ spec:
           value: $(params.cluster_name)
         - name: argocd_url
           value: $(params.argocd_url)
+        - name: argocd_check
+          value: $(params.argocd_check)
         - name: account
           value: $(params.account)
         - name: secrets_path
@@ -558,6 +581,8 @@ spec:
           value: $(params.cluster_name)
         - name: argocd_url
           value: $(params.argocd_url)
+        - name: argocd_check
+          value: $(params.argocd_check)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
         - name: mas_instance_id
