@@ -20,7 +20,8 @@ GitOps Configuration:
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}         IBM Suite Maximo Application Suite Instance ID
   -W, --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}       IBM Suite Maximo Application Suite workspace ID
   -N, --mas-workspace-name ${COLOR_YELLOW}MAS_WORKSPACE_NAME${TEXT_RESET}   IBM Suite Maximo Application Suite workspace name
-  --install-efs                                                             Install aws-efs on the cluster
+  --install-aws-efs ${COLOR_YELLOW}INSTALL_EFS${TEXT_RESET}                 Install aws-efs on the cluster
+  -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}               ArgoCD check flag, when set to true will make ArgoCD calls  
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -47,6 +48,7 @@ function gitops_suite_workspace_noninteractive() {
   export REGION=${REGION:-${SM_AWS_REGION}}
   
   export INSTALL_EFS=${INSTALL_EFS:-"false"}
+  export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
 
   while [[ $# -gt 0 ]]
   do
@@ -78,6 +80,9 @@ function gitops_suite_workspace_noninteractive() {
 
       --install-aws-efs)
         export INSTALL_EFS="true" && shift
+        ;;
+      -A|--argocd-check)
+        export ARGOCD_CHECK=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -163,6 +168,7 @@ function gitops_suite_workspace() {
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Instance Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
+  echo_reset_dim "ArgoCD Check .......................... ${COLOR_MAGENTA}${ARGOCD_CHECK}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -237,19 +243,20 @@ function gitops_suite_workspace() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
+    if [ "${ARGOCD_CHECK}" == "true" ]; then
+      CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+      INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      WORKSPACE_APP="workspace.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
-    CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-    INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    WORKSPACE_APP="workspace.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      argocd_login
+      argocd_sync "${CLUSTER_ROOT_APP}" ## trigger the instance appset to pick up the new config files
+      check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 
-    argocd_login
-    argocd_sync "${CLUSTER_ROOT_APP}" ## trigger the instance appset to pick up the new config files
-    check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
+      argocd_hard_refresh "${WORKSPACE_APP}"
 
-    argocd_hard_refresh "${WORKSPACE_APP}"
-
-    check_argo_app_synced "${WORKSPACE_APP}" "${INSTANCE_ROOT_APP}"
-    check_argo_app_healthy "${WORKSPACE_APP}" "${INSTANCE_ROOT_APP}"
+      check_argo_app_synced "${WORKSPACE_APP}" "${INSTANCE_ROOT_APP}"
+      check_argo_app_healthy "${WORKSPACE_APP}" "${INSTANCE_ROOT_APP}"
+    fi
 
   fi
 

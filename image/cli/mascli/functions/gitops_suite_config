@@ -16,6 +16,7 @@ GitOps Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
+  -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}        ArgoCD check flag, when set to true will make ArgoCD calls
 
 AWS Secrets Manager Configuration (Required):
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
@@ -56,6 +57,7 @@ function gitops_suite_config_noninteractive() {
   GIT_COMMIT_MSG="gitops-suite-config commit"
 
   export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"yaml"}
+  export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
 
   while [[ $# -gt 0 ]]
   do
@@ -73,6 +75,9 @@ function gitops_suite_config_noninteractive() {
         ;;
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
+        ;;
+      -A|--argocd-check)
+        export ARGOCD_CHECK=$1 && shift
         ;;
 
       # MongoDb Provider Selection
@@ -193,6 +198,7 @@ function gitops_suite_config() {
   echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "MAS Instance ID ................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "System Config Directory ........ ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
+  echo_reset_dim "ArgoCD Check ................... ${COLOR_MAGENTA}${ARGOCD_CHECK}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -316,41 +322,44 @@ function gitops_suite_config() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-    CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
-    INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    if [ "${ARGOCD_CHECK}" == "true" ]; then
+      CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
+      INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
-    argocd_login
-    argocd_sync "${INSTANCE_ROOT_APP}" # trigger the configs appset to pick up the new config files
-    check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
+      argocd_login
+      argocd_sync "${INSTANCE_ROOT_APP}" # trigger the configs appset to pick up the new config files
+      check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 
-    argocd_hard_refresh "${MONGO_CONFIG_APP}"
-    argocd_sync "${MONGO_CONFIG_APP}"
-    check_argo_app_synced "${MONGO_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
-    check_argo_app_healthy "${MONGO_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+      argocd_hard_refresh "${MONGO_CONFIG_APP}"
+      argocd_sync "${MONGO_CONFIG_APP}"
+      check_argo_app_synced "${MONGO_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+      check_argo_app_healthy "${MONGO_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
 
-    argocd_hard_refresh "${SLS_CONFIG_APP}"
-    argocd_sync "${SLS_CONFIG_APP}"
-    check_argo_app_synced "${SLS_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
-    check_argo_app_healthy "${SLS_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+      argocd_hard_refresh "${SLS_CONFIG_APP}"
+      argocd_sync "${SLS_CONFIG_APP}"
+      check_argo_app_synced "${SLS_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+      check_argo_app_healthy "${SLS_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
 
-    argocd_hard_refresh "${BAS_CONFIG_APP}"
-    argocd_sync "${BAS_CONFIG_APP}"
-    check_argo_app_synced "${BAS_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
-    check_argo_app_healthy "${BAS_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+      argocd_hard_refresh "${BAS_CONFIG_APP}"
+      argocd_sync "${BAS_CONFIG_APP}"
+      check_argo_app_synced "${BAS_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+      check_argo_app_healthy "${BAS_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
 
-    # Wait for SLS to sync and become healthy
-    check_argo_app_synced "${SLS_APP_NAME}" "${INSTANCE_ROOT_APP}" mas-${MAS_INSTANCE_ID}-sls
-    check_argo_app_healthy "${SLS_APP_NAME}" "${INSTANCE_ROOT_APP}"
+      # Wait for SLS to sync and become healthy
+      check_argo_app_synced "${SLS_APP_NAME}" "${INSTANCE_ROOT_APP}" mas-${MAS_INSTANCE_ID}-sls
+      check_argo_app_healthy "${SLS_APP_NAME}" "${INSTANCE_ROOT_APP}"
 
-    # Wait for Suite to become healthy
-    # health check of suite will be done in gitops_suite_config (suite will not be healthy until core configs are established)
-    check_argo_app_synced "${SUITE_APP_NAME}" "${INSTANCE_ROOT_APP}" mas-${MAS_INSTANCE_ID}-core
-    check_argo_app_healthy "${SUITE_APP_NAME}" "${INSTANCE_ROOT_APP}"
+      # Wait for Suite to become healthy
+      # health check of suite will be done in gitops_suite_config (suite will not be healthy until core configs are established)
+      check_argo_app_synced "${SUITE_APP_NAME}" "${INSTANCE_ROOT_APP}" mas-${MAS_INSTANCE_ID}-core
+      check_argo_app_healthy "${SUITE_APP_NAME}" "${INSTANCE_ROOT_APP}"
+    fi
+
   fi
 
 }

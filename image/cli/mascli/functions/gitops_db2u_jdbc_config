@@ -15,6 +15,7 @@ GitOps Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
+  -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}        ArgoCD check flag, when set to true, will make ArgoCD calls
 
 IBM Maximo Application Suite:
       -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}   IBM Suite Maximo Application Suite Instance ID      
@@ -61,6 +62,8 @@ function gitops_db2u_jdbc_config_noninteractive() {
   # export CLUSTER_URL
   # argocd_get_cluster_url "${CLUSTER_ID}" "CLUSTER_URL"
 
+  export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
+
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -84,6 +87,9 @@ function gitops_db2u_jdbc_config_noninteractive() {
         ;;
       -u|--cluster-url)
         export CLUSTER_URL=$1 && shift
+        ;;
+      -A|--argocd-check)
+        export ARGOCD_CHECK=$1 && shift
         ;;
 
       # MAS
@@ -223,7 +229,9 @@ function gitops_db2u_jdbc_config() {
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
+  echo_reset_dim "Config Directory ...................... ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
+  echo_reset_dim "ArgoCD Check .......................... ${COLOR_MAGENTA}${ARGOCD_CHECK}"
+
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -379,29 +387,31 @@ function gitops_db2u_jdbc_config() {
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
 
-    argocd_login
+    if [ "${ARGOCD_CHECK}" == "true" ]; then
+      argocd_login
 
-    if [[ "$MAS_CONFIG_SCOPE" == "system" ]]; then
-      CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-      INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-      JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-      argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the config appset to pick up the new config files
-      check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
+      if [[ "$MAS_CONFIG_SCOPE" == "system" ]]; then
+        CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+        INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+        JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+        argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the config appset to pick up the new config files
+        check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 
-      argocd_hard_refresh "${JDBC_CONFIG_APP}"
-      check_argo_app_synced "${JDBC_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
-      check_argo_app_healthy "${JDBC_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
-    elif [[ "$MAS_CONFIG_SCOPE" == "wsapp" ]]; then
+        argocd_hard_refresh "${JDBC_CONFIG_APP}"
+        check_argo_app_synced "${JDBC_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+        check_argo_app_healthy "${JDBC_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+      elif [[ "$MAS_CONFIG_SCOPE" == "wsapp" ]]; then
 
-      CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-      INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-      JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-wsapp-${MAS_WORKSPACE_ID}-${MAS_APP_ID}-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-      argocd_sync "${INSTANCE_ROOT_APP}" # trigger the config appset to pick up the new config files
-      check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
+        CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+        INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+        JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-wsapp-${MAS_WORKSPACE_ID}-${MAS_APP_ID}-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+        argocd_sync "${INSTANCE_ROOT_APP}" # trigger the config appset to pick up the new config files
+        check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 
-      argocd_hard_refresh "${JDBC_CONFIG_APP}"
-      check_argo_app_synced "${JDBC_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
-      check_argo_app_healthy "${JDBC_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+        argocd_hard_refresh "${JDBC_CONFIG_APP}"
+        check_argo_app_synced "${JDBC_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+        check_argo_app_healthy "${JDBC_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+    fi
 
     fi
 

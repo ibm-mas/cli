@@ -14,6 +14,7 @@ Basic Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
+  -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}        ArgoCD check flag, when set to true will make ArgoCD calls
 
 AWS Secrets Manager Configuration (Required):
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
@@ -74,6 +75,7 @@ function gitops_suite_noninteractive() {
 
   # cert-manager namespace, in case redhat default value is cert-manager
   export CERT_MANAGER_NAMESPACE=${CERT_MANAGER_NAMESPACE:-"cert-manager"}
+  export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
         
   while [[ $# -gt 0 ]]
   do
@@ -92,6 +94,9 @@ function gitops_suite_noninteractive() {
         ;;
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
+        ;;
+      -A|--argocd-check)
+        export ARGOCD_CHECK=$1 && shift
         ;;
 
       # AWS Secrets Manager Configuration
@@ -174,7 +179,7 @@ function gitops_suite_noninteractive() {
       -M|--git-commit-msg)
         export GIT_COMMIT_MSG=$1 && shift
         ;;
-       -S|--github-ssh)
+      -S|--github-ssh)
         export GIT_SSH=$1 && shift
         ;;
 
@@ -239,6 +244,7 @@ function gitops_suite() {
   echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
   echo_reset_dim "MAS Instance ID ................ ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "Instance Config Directory ...... ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
+  echo_reset_dim "ArgoCD Check ................... ${COLOR_MAGENTA}${ARGOCD_CHECK}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -267,6 +273,7 @@ function gitops_suite() {
   echo_reset_dim "Annotations .................... ${COLOR_MAGENTA}${MAS_ANNOTATIONS}"
   echo_reset_dim "Labels ......................... ${COLOR_MAGENTA}${MAS_LABELS}"
   echo_reset_dim "MAS Manual Cert Mgt ............ ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
+  echo_reset_dim "Cert Manager Namespace ......... ${COLOR_MAGENTA}${CERT_MANAGER_NAMESPACE}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -424,28 +431,31 @@ function gitops_suite() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-    CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
-    INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    if [ "${ARGOCD_CHECK}" == "true" ]; then
+      CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
+      INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
-    argocd_login
-    argocd_sync "${CLUSTER_ROOT_APP}" ## trigger the instance appset to pick up the new config files
-    check_argo_app_synced "${INSTANCE_ROOT_APP}"  "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
+      argocd_login
+      argocd_sync "${CLUSTER_ROOT_APP}" ## trigger the instance appset to pick up the new config files
+      check_argo_app_synced "${INSTANCE_ROOT_APP}"  "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 
-    # ensure the Vault plugin picks up latest secrets from AWS SM
-    argocd_hard_refresh "${SUITE_APP_NAME}"
-    argocd_hard_refresh "${SLS_APP_NAME}"
+      # ensure the Vault plugin picks up latest secrets from AWS SM
+      argocd_hard_refresh "${SUITE_APP_NAME}"
+      argocd_hard_refresh "${SLS_APP_NAME}"
 
-    # Wait for SLS to sync and become healthy
-    argocd_sync "${SLS_APP_NAME}"
-    check_argo_app_synced "${SLS_APP_NAME}" "${INSTANCE_ROOT_APP}" mas-${MAS_INSTANCE_ID}-sls
-    check_argo_app_healthy "${SLS_APP_NAME}" "${INSTANCE_ROOT_APP}"
+      # Wait for SLS to sync and become healthy
+      argocd_sync "${SLS_APP_NAME}"
+      check_argo_app_synced "${SLS_APP_NAME}" "${INSTANCE_ROOT_APP}" mas-${MAS_INSTANCE_ID}-sls
+      check_argo_app_healthy "${SLS_APP_NAME}" "${INSTANCE_ROOT_APP}"
 
-    # Wait for Suite to become healthy
-    # health check of suite will be done in gitops_suite_config (suite will not be healthy until core configs are established)
-    argocd_sync "${SUITE_APP_NAME}"
-    check_argo_app_synced "${SUITE_APP_NAME}" "${INSTANCE_ROOT_APP}" mas-${MAS_INSTANCE_ID}-core
+      # Wait for Suite to become healthy
+      # health check of suite will be done in gitops_suite_config (suite will not be healthy until core configs are established)
+      argocd_sync "${SUITE_APP_NAME}"
+      check_argo_app_synced "${SUITE_APP_NAME}" "${INSTANCE_ROOT_APP}" mas-${MAS_INSTANCE_ID}-core
+    fi
+
 
   fi
 

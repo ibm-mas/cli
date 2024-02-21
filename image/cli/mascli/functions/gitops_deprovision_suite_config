@@ -19,6 +19,7 @@ GitOps Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
   -f, --force-removal ${COLOR_YELLOW}FORCE_REMOVAL${TEXT_RESET}      Force remove the ArgoCD Application, when deletion exceeds timeout  
+  -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}        ArgoCD check flag, when set to true will make ArgoCD calls
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -46,6 +47,7 @@ function gitops_deprovision_suite_config_noninteractive() {
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   export REGION=${REGION:-${SM_AWS_REGION}}
+  export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
 
   while [[ $# -gt 0 ]]
   do
@@ -80,6 +82,9 @@ function gitops_deprovision_suite_config_noninteractive() {
       --secrets-key-seperator)
         export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
+      -A|--argocd-check)
+        export ARGOCD_CHECK=$1 && shift
+        ;;
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -100,7 +105,7 @@ function gitops_deprovision_suite_config_noninteractive() {
       -M|--git-commit-msg)
         export GIT_COMMIT_MSG=$1 && shift
         ;;
-       -S|--github-ssh)
+      -S|--github-ssh)
         export GIT_SSH=$1 && shift
         ;;
 
@@ -154,6 +159,7 @@ function gitops_deprovision_suite_config() {
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   echo_reset_dim "Force Remove Application Flag ......... ${COLOR_MAGENTA}${FORCE_REMOVAL}"
+  echo_reset_dim "ArgoCD Check .......................... ${COLOR_MAGENTA}${ARGOCD_CHECK}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -226,7 +232,7 @@ function gitops_deprovision_suite_config() {
   mkdir -p ${GITOPS_INSTANCE_DIR}
 
     
-  if [ "$GITHUB_PUSH" == "true" ]; then
+  if [[ "$GITHUB_PUSH" == "true" && "${ARGOCD_CHECK}" == "true" ]]; then
     argocd_login
   fi
 
@@ -246,13 +252,15 @@ function gitops_deprovision_suite_config() {
         echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
         save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
 
-        WSAPP_JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-wsapp-${MAS_WORKSPACE_ID}-${MAS_APP_ID}-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+        if [ "${ARGOCD_CHECK}" == "true" ]; then
+          WSAPP_JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-wsapp-${MAS_WORKSPACE_ID}-${MAS_APP_ID}-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
-        argocd_sync "${WSAPP_JDBC_CONFIG_APP}" # Trigger the cleanup job to run
+          argocd_sync "${WSAPP_JDBC_CONFIG_APP}" # Trigger the cleanup job to run
 
-        # wait for it to finish syncing now the delete: true flag has been set
-        check_argo_app_synced "${WSAPP_JDBC_CONFIG_APP}"
-        # once synced, the CR will have been deleted and we can move on
+          # wait for it to finish syncing now the delete: true flag has been set
+          check_argo_app_synced "${WSAPP_JDBC_CONFIG_APP}"
+          # once synced, the CR will have been deleted and we can move on
+        fi
       fi
     fi
   fi
@@ -269,13 +277,15 @@ function gitops_deprovision_suite_config() {
         echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
         save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
 
-        SYSTEM_JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+        if [ "${ARGOCD_CHECK}" == "true" ]; then
+          SYSTEM_JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
-        argocd_sync "${SYSTEM_JDBC_CONFIG_APP}" # Trigger the cleanup job to run
+          argocd_sync "${SYSTEM_JDBC_CONFIG_APP}" # Trigger the cleanup job to run
 
-        # wait for it to finish syncing now the delete: true flag has been set
-        check_argo_app_synced "${SYSTEM_JDBC_CONFIG_APP}"
-        # once synced, the CR will have been deleted and we can move on
+          # wait for it to finish syncing now the delete: true flag has been set
+          check_argo_app_synced "${SYSTEM_JDBC_CONFIG_APP}"
+          # once synced, the CR will have been deleted and we can move on
+        fi
       fi
     fi
   fi
@@ -292,13 +302,15 @@ function gitops_deprovision_suite_config() {
         echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
         save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
 
-        SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+        if [ "${ARGOCD_CHECK}" == "true" ]; then
+          SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
-        argocd_sync "${SLS_CONFIG_APP}" # Trigger the cleanup job to run
+          argocd_sync "${SLS_CONFIG_APP}" # Trigger the cleanup job to run
 
-        # wait for it to finish syncing now the delete: true flag has been set
-        check_argo_app_synced "${SLS_CONFIG_APP}"
-        # once synced, the CR will have been deleted and we can move on
+          # wait for it to finish syncing now the delete: true flag has been set
+          check_argo_app_synced "${SLS_CONFIG_APP}"
+          # once synced, the CR will have been deleted and we can move on
+        fi
       fi
     fi
   fi
@@ -316,13 +328,15 @@ function gitops_deprovision_suite_config() {
         echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
         save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
 
-        MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+        if [ "${ARGOCD_CHECK}" == "true" ]; then
+          MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
-        argocd_sync "${MONGO_CONFIG_APP}" # Trigger the cleanup job to run
+          argocd_sync "${MONGO_CONFIG_APP}" # Trigger the cleanup job to run
 
-        # wait for it to finish syncing now the delete: true flag has been set
-        check_argo_app_synced "${MONGO_CONFIG_APP}"
-        # once synced, the CR will have been deleted and we can move on
+          # wait for it to finish syncing now the delete: true flag has been set
+          check_argo_app_synced "${MONGO_CONFIG_APP}"
+          # once synced, the CR will have been deleted and we can move on
+        fi
       fi
     fi
   fi
@@ -339,13 +353,15 @@ function gitops_deprovision_suite_config() {
         echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
         save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
 
-        BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+        if [ "${ARGOCD_CHECK}" == "true" ]; then
+          BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
-        argocd_sync "${BAS_CONFIG_APP}" # Trigger the cleanup job to run
+          argocd_sync "${BAS_CONFIG_APP}" # Trigger the cleanup job to run
 
-        # wait for it to finish syncing now the delete: true flag has been set
-        check_argo_app_synced "${BAS_CONFIG_APP}"
-        # once synced, the CR will have been deleted and we can move on
+          # wait for it to finish syncing now the delete: true flag has been set
+          check_argo_app_synced "${BAS_CONFIG_APP}"
+          # once synced, the CR will have been deleted and we can move on
+        fi
       fi
     fi
   fi
@@ -366,23 +382,26 @@ function gitops_deprovision_suite_config() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-    INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    if [ "${ARGOCD_CHECK}" == "true" ]; then
+      INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
-    # TODO: currently hard-coded to support only the known system/wsapp JDBC bindings
-    WSAPP_JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-wsapp-${MAS_WORKSPACE_ID}-${MAS_APP_ID}-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    SYSTEM_JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      # TODO: currently hard-coded to support only the known system/wsapp JDBC bindings
+      WSAPP_JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-wsapp-${MAS_WORKSPACE_ID}-${MAS_APP_ID}-configs.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      SYSTEM_JDBC_CONFIG_APP="${MAS_INSTANCE_ID}-jdbc-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
-    argocd_login
-    argocd_prune_sync "${INSTANCE_ROOT_APP}" ## trigger the config app set to notice the deletion of the config file
+      argocd_login
+      argocd_prune_sync "${INSTANCE_ROOT_APP}" ## trigger the config app set to notice the deletion of the config file
 
-    check_argo_app_deleted ${WSAPP_JDBC_CONFIG_APP} "mas"
-    check_argo_app_deleted ${SYSTEM_JDBC_CONFIG_APP} "mas"
-    check_argo_app_deleted ${MONGO_CONFIG_APP} "mas"
-    check_argo_app_deleted ${BAS_CONFIG_APP} "mas"
-    check_argo_app_deleted ${SLS_CONFIG_APP} "mas"
+      check_argo_app_deleted ${WSAPP_JDBC_CONFIG_APP} "mas"
+      check_argo_app_deleted ${SYSTEM_JDBC_CONFIG_APP} "mas"
+      check_argo_app_deleted ${MONGO_CONFIG_APP} "mas"
+      check_argo_app_deleted ${BAS_CONFIG_APP} "mas"
+      check_argo_app_deleted ${SLS_CONFIG_APP} "mas"
+    fi
+
     
   fi
 }
