@@ -18,6 +18,7 @@ GitOps Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                   Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}         IBM Suite Maximo Application Suite Instance ID
       --gitops-config-dir ${COLOR_YELLOW}GITOPS_CONFIG_DIR${TEXT_RESET}     Directory that holds configuration to use
+  -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}               ArgoCD check flag, when set to true will make ArgoCD calls
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -46,6 +47,7 @@ function gitops_suite_objectstorage_config_noninteractive() {
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   export REGION=${REGION:-${SM_AWS_REGION}}
+  export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
 
   while [[ $# -gt 0 ]]
   do
@@ -72,6 +74,9 @@ function gitops_suite_objectstorage_config_noninteractive() {
         ;;
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
+        ;;
+      -A|--argocd-check)
+        export ARGOCD_CHECK=$1 && shift
         ;;
 
       # Secrets Manager
@@ -101,7 +106,7 @@ function gitops_suite_objectstorage_config_noninteractive() {
       -M|--git-commit-msg)
         export GIT_COMMIT_MSG=$1 && shift
         ;;
-       -S|--github-ssh)
+      -S|--github-ssh)
         export GIT_SSH=$1 && shift
         ;;
 
@@ -155,6 +160,7 @@ function gitops_suite_objectstorage_config() {
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "System Config Directory................ ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   echo_reset_dim "Config Directory ...................... ${COLOR_MAGENTA}${GITOPS_CONFIG_DIR}"
+  echo_reset_dim "ArgoCD Check .......................... ${COLOR_MAGENTA}${ARGOCD_CHECK}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -244,18 +250,21 @@ function gitops_suite_objectstorage_config() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-    CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-    INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    COS_CONFIG_APP="${MAS_INSTANCE_ID}-objectstorage-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+    if [ "${ARGOCD_CHECK}" == "true" ]; then
+      CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+      INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      COS_CONFIG_APP="${MAS_INSTANCE_ID}-objectstorage-system.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
-    argocd_login
-    argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the configs appset to pick up the new config files
-    check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
+      argocd_login
+      argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the configs appset to pick up the new config files
+      check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
 
-    argocd_hard_refresh "${COS_CONFIG_APP}"
-    argocd_sync "${COS_CONFIG_APP}"
-    check_argo_app_synced "${COS_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
-    check_argo_app_healthy "${COS_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+      argocd_hard_refresh "${COS_CONFIG_APP}"
+      argocd_sync "${COS_CONFIG_APP}"
+      check_argo_app_synced "${COS_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+      check_argo_app_healthy "${COS_CONFIG_APP}" "${INSTANCE_ROOT_APP}"
+    fi
+
   fi
 
   rm -rf $TEMP_DIR

@@ -37,6 +37,9 @@ spec:
     - name: argocd_url
       type: string
       default: ""
+    - name: argocd_check
+      type: string
+      default: "false"
   stepTemplate:
     name: gitops-cp4d-service
     env:
@@ -72,6 +75,8 @@ spec:
         value: $(params.cpd_service_storage_class)
       - name: ARGOCD_URL
         value: $(params.argocd_url)
+      - name: ARGOCD_CHECK
+        value: $(params.argocd_check)
     envFrom:
       - configMapRef:
           name: environment-properties

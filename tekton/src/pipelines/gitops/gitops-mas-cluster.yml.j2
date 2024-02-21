@@ -33,6 +33,8 @@ spec:
     
     - name: argocd_url
       type: string
+    - name: argocd_check
+      type: string
 
     - name: mas_catalog_version
       type: string
@@ -83,6 +85,8 @@ spec:
           value: $(params.avp_aws_secret_region)
         - name: argocd_url
           value: $(params.argocd_url)
+        - name: argocd_check
+          value: $(params.argocd_check)
 
         - name: mas_catalog_version
           value: $(params.mas_catalog_version)
@@ -125,6 +129,8 @@ spec:
           value: $(params.git_commit_msg)
         - name: argocd_url
           value: $(params.argocd_url)
+        - name: argocd_check
+          value: $(params.argocd_check)
         - name: dro_namespace
           value: $(params.dro_namespace)
         - name: dro_csv
@@ -162,6 +168,8 @@ spec:
           value: $(params.git_commit_msg)
         - name: argocd_url
           value: $(params.argocd_url)
+        - name: argocd_check
+          value: $(params.argocd_check)
       taskRef:
         kind: Task
         name: gitops-cis-compliance
@@ -197,6 +205,8 @@ spec:
           value: $(params.avp_aws_secret_region)
         - name: argocd_url
           value: $(params.argocd_url)
+        - name: argocd_check
+          value: $(params.argocd_check)
       workspaces:
         - name: configs
           workspace: configs

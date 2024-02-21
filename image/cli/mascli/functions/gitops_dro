@@ -13,6 +13,7 @@ Basic Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}         Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}          Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}          Cluster ID
+  -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}      ArgoCD check flag, when set to true will make ArgoCD calls
 
 IBM DRO (Required):
       --dro-namespace ${COLOR_YELLOW}DRO_NAMESPACE${TEXT_RESET}    Namespace to install DRO subscription (defaults to 'redhat-marketplace')
@@ -45,6 +46,7 @@ function gitops_dro_noninteractive() {
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
   export DRO_NAMESPACE=${DRO_NAMESPACE:-"redhat-marketplace"}
+  export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
 
   while [[ $# -gt 0 ]]
   do
@@ -60,6 +62,9 @@ function gitops_dro_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
+        ;;
+      -A|--argocd-check)
+        export ARGOCD_CHECK=$1 && shift
         ;;
 
       # AWS Secrets Manager Configuration
@@ -156,6 +161,7 @@ function gitops_dro() {
   echo_reset_dim "Region ID ...................... ${COLOR_MAGENTA}${REGION_ID}"
   echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
+  echo_reset_dim "ArgoCD Check ................... ${COLOR_MAGENTA}${ARGOCD_CHECK}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -233,19 +239,22 @@ function gitops_dro() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_CLUSTER_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-    argocd_login
+    if [ "${ARGOCD_CHECK}" == "true" ]; then
+      argocd_login
 
-    ROOT_APP_NAME="root.${ACCOUNT_ID}"
-    CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
-    DRO_APP_NAME="dro.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
+      ROOT_APP_NAME="root.${ACCOUNT_ID}"
+      CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
+      DRO_APP_NAME="dro.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
 
-    argocd_sync "${ROOT_APP_NAME}"
+      argocd_sync "${ROOT_APP_NAME}"
 
-    check_argo_app_synced "${CLUSTER_APP_NAME}" "${ROOT_APP_NAME}"
+      check_argo_app_synced "${CLUSTER_APP_NAME}" "${ROOT_APP_NAME}"
 
-    argocd_hard_refresh "${CLUSTER_APP_NAME}"
-    check_argo_app_synced "${DRO_APP_NAME}" "${CLUSTER_APP_NAME}" "${DRO_NAMESPACE}"
-    check_argo_app_healthy "${DRO_APP_NAME}" "${CLUSTER_APP_NAME}"
+      argocd_hard_refresh "${CLUSTER_APP_NAME}"
+      check_argo_app_synced "${DRO_APP_NAME}" "${CLUSTER_APP_NAME}" "${DRO_NAMESPACE}"
+      check_argo_app_healthy "${DRO_APP_NAME}" "${CLUSTER_APP_NAME}"
+    fi
+
 
   fi
 

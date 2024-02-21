@@ -31,6 +31,7 @@ Maximo Application Suite:
   --mas-appws-api-version ${COLOR_YELLOW}MAS_APPWS_API_VERSION${TEXT_RESET}                               IBM Suite Maximo Application Suite Application Workspace API Version
   --mas-appws-kind ${COLOR_YELLOW}MAS_APPWS_KIND${TEXT_RESET}                                             IBM Suite Maximo Application Suite Application Workspace Kind
   --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}                                 MAS Manual Cert Management
+  -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}                                             ArgoCD check flag, when set to true will make ArgoCD calls
 
   --mas-appws-bindings-jdbc ${COLOR_YELLOW}MAS_APPWS_BINDINGS_JDBC${TEXT_RESET}                           APP WS JDBC Binding
   --mas-appws-components ${COLOR_YELLOW}MAS_APPWS_COMPONENTS${TEXT_RESET}                                 APP WS Components
@@ -87,6 +88,7 @@ function gitops_suite_app_config_noninteractive() {
   SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-suite-app-config commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
+  export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
 
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
   export REGION=${REGION:-${SM_AWS_REGION}}
@@ -122,6 +124,9 @@ function gitops_suite_app_config_noninteractive() {
         ;;
       --gitops-config-dir)
         export GITOPS_CONFIG_DIR=$1 && shift
+        ;;
+      -A|--argocd-check)
+        export ARGOCD_CHECK=$1 && shift
         ;;
 
       --mas-appws-bindings-jdbc)
@@ -266,7 +271,7 @@ function gitops_suite_app_config_noninteractive() {
       -M|--git-commit-msg)
         export GIT_COMMIT_MSG=$1 && shift
         ;;
-       -S|--github-ssh)
+      -S|--github-ssh)
         export GIT_SSH=$1 && shift
         ;;
 
@@ -346,6 +351,7 @@ function gitops_suite_app_config() {
   echo_reset_dim "Cluster ID .............................. ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Application Directory ................... ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   echo_reset_dim "Config Directory ........................ ${COLOR_MAGENTA}${GITOPS_CONFIG_DIR}"
+  echo_reset_dim "ArgoCD Check ............................ ${COLOR_MAGENTA}${ARGOCD_CHECK}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -640,17 +646,20 @@ function gitops_suite_app_config() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-    INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-    MASAPP_APP="ma.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
+    if [ "${ARGOCD_CHECK}" == "true" ]; then
+      INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+      MASAPP_APP="ma.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
 
-    argocd_login
-    argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the masapp appset to pick up the new config files
-    argocd_sync "${MASAPP_APP}"
+      argocd_login
+      argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the masapp appset to pick up the new config files
+      argocd_sync "${MASAPP_APP}"
 
-    argocd_hard_refresh "${MASAPP_APP}"
+      argocd_hard_refresh "${MASAPP_APP}"
 
-    check_argo_app_synced "${MASAPP_APP}" "${INSTANCE_ROOT_APP}"
-    check_argo_app_healthy "${MASAPP_APP}" "${INSTANCE_ROOT_APP}"
+      check_argo_app_synced "${MASAPP_APP}" "${INSTANCE_ROOT_APP}"
+      check_argo_app_healthy "${MASAPP_APP}" "${INSTANCE_ROOT_APP}"
+    fi
+
   fi
 
 
