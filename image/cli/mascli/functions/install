@@ -253,9 +253,6 @@ function install_noninteractive() {
         export KAFKA_ACTION_SYSTEM=install
         export KAFKA_PROVIDER=$1 && shift
         ;;
-      --kafka-cluster-name)
-        export KAFKA_CLUSTER_NAME=$1 && shift
-        ;;
       --kafka-username)
         export AWS_KAFKA_USER_NAME=$1
         export KAFKA_USER_NAME=$1 && shift
