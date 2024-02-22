@@ -27,10 +27,6 @@ spec:
       type: string
     - name: avp_type
       type: string
-    - name: avp_aws_secret_region
-      type: string
-    - name: avp_aws_secret_key
-      type: string
     - name: avp_aws_access_key
       type: string
 
@@ -68,10 +64,6 @@ spec:
           value: $(params.cluster_name)
         - name: aws_region
           value: $(params.avp_aws_secret_region)
-        - name: aws_secret_access_key
-          value: $(params.avp_aws_secret_key)
-        - name: aws_access_key_id
-          value: $(params.avp_aws_access_key)
         - name: rosa_token
           value: $(params.rosa_token)
         - name: ocp_version
