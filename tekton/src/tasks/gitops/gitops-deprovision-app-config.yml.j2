@@ -74,10 +74,12 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        echo "argo:argocd login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."
-        argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
-        echo "argo:argocd proj windows delete $CLUSTER_NAME 0"
-        argocd proj windows delete $CLUSTER_NAME 0
+        if [ "${ARGOCD_CHECK}" == "true" ]; then
+          echo "argo:argocd login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."
+          argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+          echo "argo:argocd proj windows delete $CLUSTER_NAME 0"
+          argocd proj windows delete $CLUSTER_NAME 0
+        fi
 
         mas gitops-deprovision-app-config -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /tmp/deprovision-app-config \
