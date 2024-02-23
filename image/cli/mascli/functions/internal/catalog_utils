@@ -56,22 +56,20 @@ function choose_mas_version() {
   divider=" ├───┼──────────────┼────────┼────────┼───────┼────────┼─────────┼───────────┼─────────┼────────────┤"
   footer=" └───┴──────────────┴────────┴────────┴───────┴────────┴─────────┴───────────┴─────────┴────────────┘"
   echo ""
-  echo "REMINDER: Update the versions for Feb 27 catalog once finalized"
-  echo ""
   echo -e "$header"
-  echo -e " $b # $b Catalog      $b  Core  $b Assist $b  IoT  $b Manage $b Monitor $b Optimizer $b Predict $b Inspection $b"
+  echo -e " $b # $b Catalog      $b  Core   $b Assist $b  IoT  $b Manage $b Monitor $b Optimizer $b Predict $b Inspection $b"
   echo -e "$divider"
-  echo -e " $b 1 $b Feb 27 2024  $b 8.11.6 $b 8.8.1  $b 8.8.4 $b 8.7.4  $b 8.11.2  $b   8.5.1   $b  8.9.0  $b   8.9.0    $b"
-  echo -e " $b 2 $b              $b 8.10.9 $b 8.7.2  $b 8.7.8 $b 8.6.9  $b 8.10.6  $b   8.4.2   $b  8.8.2  $b   8.8.1    $b"
+  echo -e " $b 1 $b Feb 27 2024  $b 8.11.7  $b 8.8.2  $b 8.8.5 $b 8.7.5  $b 8.11.4  $b   8.5.1   $b  8.9.2  $b   8.9.1    $b"
+  echo -e " $b 2 $b              $b 8.10.10 $b 8.7.3  $b 8.7.9 $b 8.6.10 $b 8.10.7  $b   8.4.2   $b  8.8.2  $b   8.8.2    $b"
   echo -e "$divider"
-  echo -e " $b 3 $b Jan 30 2024  $b 8.11.6 $b 8.8.1  $b 8.8.4 $b 8.7.4  $b 8.11.2  $b   8.5.1   $b  8.9.0  $b   8.9.0    $b"
-  echo -e " $b 4 $b              $b 8.10.9 $b 8.7.2  $b 8.7.8 $b 8.6.9  $b 8.10.6  $b   8.4.2   $b  8.8.2  $b   8.8.1    $b"
+  echo -e " $b 3 $b Jan 30 2024  $b 8.11.6  $b 8.8.1  $b 8.8.4 $b 8.7.4  $b 8.11.3  $b   8.5.1   $b  8.9.1  $b   8.9.0    $b"
+  echo -e " $b 4 $b              $b 8.10.9  $b 8.7.2  $b 8.7.8 $b 8.6.9  $b 8.10.6  $b   8.4.2   $b  8.8.2  $b   8.8.1    $b"
   echo -e "$divider"
-  echo -e " $b 5 $b Dec 28 2023  $b 8.11.5 $b 8.8.1  $b 8.8.3 $b 8.7.3  $b 8.11.2  $b   8.5.1   $b  8.9.0  $b   8.9.0    $b"
-  echo -e " $b 6 $b              $b 8.10.8 $b 8.7.2  $b 8.7.7 $b 8.6.8  $b 8.10.6  $b   8.4.2   $b  8.8.2  $b   8.8.1    $b"
+  echo -e " $b 5 $b Dec 28 2023  $b 8.11.5  $b 8.8.1  $b 8.8.3 $b 8.7.3  $b 8.11.2  $b   8.5.1   $b  8.9.0  $b   8.9.0    $b"
+  echo -e " $b 6 $b              $b 8.10.8  $b 8.7.2  $b 8.7.7 $b 8.6.8  $b 8.10.6  $b   8.4.2   $b  8.8.2  $b   8.8.1    $b"
   echo -e "$divider"
-  echo -e " $b 7 $b Nov 28 2023  $b 8.11.3 $b 8.8.1  $b 8.8.2 $b 8.7.2  $b 8.11.2  $b   8.5.0   $b  8.9.0  $b   8.9.0    $b"
-  echo -e " $b 8 $b              $b 8.10.7 $b 8.7.2  $b 8.7.6 $b 8.6.7  $b 8.10.6  $b   8.4.1   $b  8.8.2  $b   8.8.1    $b"
+  echo -e " $b 7 $b Nov 28 2023  $b 8.11.3  $b 8.8.1  $b 8.8.2 $b 8.7.2  $b 8.11.2  $b   8.5.0   $b  8.9.0  $b   8.9.0    $b"
+  echo -e " $b 8 $b              $b 8.10.7  $b 8.7.2  $b 8.7.6 $b 8.6.7  $b 8.10.6  $b   8.4.1   $b  8.8.2  $b   8.8.1    $b"
   echo -e "$divider"
   reset_colors
   echo
@@ -228,7 +226,7 @@ function cert_manager_selection() {
   case $MAS_CATALOG_VERSION in
     # Cert-Manager Channel selection
     # -------------------------------------------------------------------------
-    v8-amd64|v8-240130-amd64|v8-240130-amd64)
+    v8-amd64|v8-240130-amd64|v8-240227-amd64)
       CERT_MANAGER_PROVIDER=redhat
       CERT_MANAGER_ACTION=install
       ;;
