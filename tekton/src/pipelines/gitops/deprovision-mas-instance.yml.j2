@@ -35,10 +35,6 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: avp_aws_secret_key
-      type: string
-    - name: avp_aws_access_key
-      type: string
 
     # 1. Gitops git Parameters
     # -------------------------------------------------------------------------
@@ -250,10 +246,6 @@ spec:
           value: $(params.cluster_name)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: avp_aws_secret_key
-          value: $(params.avp_aws_secret_key)
-        - name: avp_aws_access_key
-          value: $(params.avp_aws_access_key)
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: cloud_provider

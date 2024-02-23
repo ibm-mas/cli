@@ -30,6 +30,9 @@ spec:
       type: string
     - name: force_removal
       type: string
+    - name: cluster_url
+      type: string
+      default: ""
     - name: argocd_url
       type: string
       default: ""
@@ -61,10 +64,18 @@ spec:
         value: $(params.github_pat) 
       - name: FORCE_REMOVAL
         value: $(params.force_removal)
+      - name: OCP_SERVER
+        value: $(params.cluster_url)
       - name: ARGOCD_URL
         value: $(params.argocd_url)
       - name: ARGOCD_CHECK
         value: $(params.argocd_check)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
   steps:
     - args:
       - |-
