@@ -262,6 +262,107 @@ spec:
           hs.message = ""
           return hs
 
+      operators.coreos.com/CatalogSource:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.connectionState ~= nil then
+              if obj.status.connectionState.lastObservedState ~= "READY" then
+                hs.status = "Degraded"
+                hs.message = "Error"
+                return hs
+              end
+              if obj.status.connectionState.lastObservedState == "READY" then
+                hs.status = "Healthy"
+                hs.message = obj.status.connectionState.lastObservedState
+                return hs
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = "Provisioning CatalogSource instance..."
+          return hs
+
+      argoproj.io/Application:
+        health.lua: |
+          hs = {}
+          hs.status = "Progressing"
+          hs.message = ""
+          if obj.status ~= nil then
+            if obj.status.health ~= nil then
+              hs.status = obj.status.health.status
+              if obj.status.health.message ~= nil then
+                hs.message = obj.status.health.message
+              end
+            end
+          end
+          return hs
+
+      nvidia.com/ClusterPolicy:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.state ~= nil then
+              if obj.status.state ~= "ready" then
+                hs.status = "Degraded"
+                hs.message = "Error"
+                return hs
+              end
+              if obj.status.state == "ready" then
+                hs.status = "Healthy"
+                hs.message = obj.status.state
+                return hs
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = "Provisioning nvidia ClusterPolicy instance..."
+          return hs
+
+      compliance.openshift.io/TailoredProfile:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.state ~= nil then
+              if obj.status.state ~= "READY" then
+                hs.status = "Degraded"
+                hs.message = "Error"
+                return hs
+              end
+              if obj.status.state == "READY" then
+                hs.status = "Healthy"
+                hs.message = obj.status.state
+                return hs
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = "Provisioning TailoredProfile instance..."
+          return hs
+
+      compliance.openshift.io/ScanSettingBinding:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
   repo:
     initContainers:
       - args:
