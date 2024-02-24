@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/catalogs/v8-240227-amd64/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Feb 27 2024 - MAS CLI</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Feb 27 2024";
+        var mkdocs_page_input_path = "catalogs/v8-240227-amd64.md";
+        var mkdocs_page_url = "/cli/catalogs/v8-240227-amd64/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> MAS CLI
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/choosing-the-right-catalog/">Choosing the Right Catalog</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/image-mirroring/">Image Mirroring</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/install/">Install</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/update/">Update</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/upgrade/">Upgrade</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/uninstall/">Uninstall</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">OpenShift Management</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-fyre/">provision-fyre</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-roks/">provision-roks</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-rosa/">provision-rosa</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configure-airgap/">configure-airgap</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Image Mirroring</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/setup-registry/">setup-registry</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/teardown-registry/">teardown-registry</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-images/">mirror-images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-redhat-images/">mirror-redhat-images</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">MAS Management</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configtool-oidc/">configtool-oidc</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/install/">install</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/update/">update</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/upgrade/">upgrade</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/uninstall/">uninstall</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Troubleshooting</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/must-gather/">must-gather</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Catalogs</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../">All Catalogs</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Feb 27 2024</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#details">Details</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#whats-new">What's New</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#manual-installation">Manual Installation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#source">Source</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#red-hat-openshift-container-platform-support">Red Hat OpenShift Container Platform Support</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#certified-operators">Certified Operators</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#community-operators">Community Operators</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#red-hat-operators">Red Hat Operators</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#ibm-cloud-pak-for-data-compatibility">IBM Cloud Pak for Data Compatibility</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#package-manifest">Package Manifest</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../v8-240130-amd64/">Jan 30 2024</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../v8-231228-amd64/">Dec 28 2023</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../v8-231128-amd64/">Nov 28 2023</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/topology/">Topology</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/cluster-extensions/">Cluster Extensions</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">MAS CLI</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Catalogs</li>
+      <li class="breadcrumb-item active">Feb 27 2024</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/ibm-mas/cli/blob/master/docs/catalogs/v8-240227-amd64.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="ibm-maximo-operator-catalog-v8-240227">IBM Maximo Operator Catalog v8 (240227)<a class="headerlink" href="#ibm-maximo-operator-catalog-v8-240227" title="Permanent link"></a></h1>
+<h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link"></a></h2>
+<table>
+  <tr><td>Image</td><td>icr.io/cpopen/ibm-maximo-operator-catalog</tr></tr>
+  <tr><td>Tag</td><td>v8-240227-amd64</tr></tr>
+  <tr><td>Digest</td><td>sha256:8a2f2226b4aa47d42ccb564083d2a6e365fc4b116fb9a82ea83e269383a1efa1</tr></tr>
+</table>
+
+<h2 id="whats-new">What's New<a class="headerlink" href="#whats-new" title="Permanent link"></a></h2>
+<ul>
+<li><strong>Removal of Maximo Application Suite v8.9 Channels</strong> Maximo Application Suite v8.9 support ended with the release of v8.11, customers must upgrade to MAS 8.10 before applying this catalog update.</li>
+<li><strong>Migration from IBM User Data Services Operator (UDS) to IBM Data Reporter Operator (DRO)</strong> TODO: Lokesh to write a high-level summary.</li>
+<li><strong>Upgrade from Grafana v4 Operator to v5</strong> Grafana Operator v4 is no longer receiving bug fixes and security updates. As a default v5 will be installed, starting with the <a href="./">February 2024</a> Maximo Operator Catalog. Running <code>mas update</code> will automatically install Grafana Operator v5, uninstall v4 and update all MAS grafana dashboards to be compatible with v5.</li>
+<li><strong>Security updates and bug fixes</strong><ul>
+<li>IBM Maximo Application Suite Core Platform v8.10 and v8.11</li>
+<li>Security updates in base image and python modules</li>
+<li><a href="https://www.ibm.com/mysupport/aCI3p000000LIZn">DT260164</a> - MAS LDAP Groups with Time_out status not been synced</li>
+<li><a href="https://www.ibm.com/mysupport/aCI3p0000000HwA">DT259636</a> - Forgot password should be able to work with username != userID</li>
+<li><a href="https://www.ibm.com/mysupport/aCI3p0000004Lhy">DT247391</a> - Increase public Lets Encrypt key length to 4096</li>
+<li><a href="https://www.ibm.com/mysupport/aCI3p0000008e2y">DT260685</a> - The API v2/bulk/users/manageuseridmigrate fails with status 413</li>
+</ul>
+</li>
+</ul>
+<h2 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link"></a></h2>
+<p><code>oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v8-240227-amd64.yaml</code></p>
+<h2 id="source">Source<a class="headerlink" href="#source" title="Permanent link"></a></h2>
+<pre><code class="language-yaml">apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: IBM Maximo Operators (v8-240227-amd64)
+  publisher: IBM
+  description: Static Catalog Source for IBM Maximo Application Suite
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-maximo-operator-catalog@sha256:8a2f2226b4aa47d42ccb564083d2a6e365fc4b116fb9a82ea83e269383a1efa1
+  priority: 90
+</code></pre>
+<h2 id="red-hat-openshift-container-platform-support">Red Hat OpenShift Container Platform Support<a class="headerlink" href="#red-hat-openshift-container-platform-support" title="Permanent link"></a></h2>
+<p>IBM Maximo Application Suite will run anywhere that you can run a supported OpenShift release on AMD64 architecture, including:</p>
+<ul>
+<li><a href="https://aws.amazon.com/rosa/">AWS</a></li>
+<li><a href="https://azure.microsoft.com/en-gb/services/openshift/">Azure</a></li>
+<li><a href="https://cloud.google.com/architecture/partners/openshift-on-gcp">Google Cloud Platform</a></li>
+<li><a href="https://www.ibm.com/cloud/openshift">IBM Cloud</a></li>
+</ul>
+<p>For more information about the OCP lifecycle refer to the <a href="https://access.redhat.com/support/policy/updates/openshift/">Red Hat OpenShift Container Platform Life Cycle Policy</a>.</p>
+<table class="compatabilityMatrix">
+  <tr>
+    <th>OCP</th><td rowspan="3" class="spacer"></td>
+    <th>General Availability</th>
+    <th>End of Support</th>
+    <th>Supported MAS Releases</th>
+  </tr>
+  <tr>
+    <td class="firstColumn">4.12</td>
+    <td>January 17, 2023</td>
+    <td>January 17, 2025</td>
+    <td>8.10 - 8.11</td>
+  </tr>
+</table>
+
+<h3 id="certified-operators">Certified Operators<a class="headerlink" href="#certified-operators" title="Permanent link"></a></h3>
+<ul>
+<li><code>registry.redhat.io/redhat/certified-operator-index:v4.12</code></li>
+</ul>
+<p>The following packages from this catalog are used in the Maximo Application Suite install:</p>
+<ul>
+<li><strong>crunchy-postgres-operator</strong> required by <code>ibm.mas_devops.uds</code> role</li>
+<li><strong>gpu-operator-certified</strong> required by <code>ibm.mas_devops.nvidia_gpu</code> role</li>
+<li><strong>kubeturbo-certified</strong> required by <code>ibm.mas_devops.kubeturbo</code> role</li>
+</ul>
+<h3 id="community-operators">Community Operators<a class="headerlink" href="#community-operators" title="Permanent link"></a></h3>
+<ul>
+<li><code>registry.redhat.io/redhat/community-operator-index:v4.12</code></li>
+</ul>
+<p>The following packages from this catalog are used in the Maximo Application Suite install:</p>
+<ul>
+<li><strong>grafana-operator</strong> required by <code>ibm.mas_devops.cluster_monitoring</code> role</li>
+<li><strong>opentelemetry-operator</strong> required by <code>ibm.mas_devops.cluster_monitoring</code> role</li>
+<li><strong>strimzi-kafka-operator</strong> required by <code>ibm.mas_devops.kafka</code> role (if using Strimzi as Kakfa provider)</li>
+</ul>
+<h3 id="red-hat-operators">Red Hat Operators<a class="headerlink" href="#red-hat-operators" title="Permanent link"></a></h3>
+<ul>
+<li><code>registry.redhat.io/redhat/redhat-operator-index:v4.12</code></li>
+</ul>
+<p>The following packages from this catalog are used in the Maximo Application Suite install:</p>
+<ul>
+<li><strong>amq-streams</strong> required by <code>ibm.mas_devops.kafka</code> role (if using AMQ Streams as Kakfa provider)</li>
+<li><strong>openshift-pipelines-operator-rh</strong> required by the MAS CLI</li>
+<li><strong>nfd</strong> required by <code>ibm.mas_devops.nvidia_gpu</code> role</li>
+<li><strong>aws-efs-csi-driver-operator</strong>  required by <code>ibm.mas_devops.ocp_efs</code> role</li>
+<li><strong>local-storage-operator</strong>  required by <code>ibm.mas_devops.ocs</code> role</li>
+<li><strong>odf-operator</strong>  required by <code>ibm.mas_devops.ocs</code> role</li>
+</ul>
+<h2 id="ibm-cloud-pak-for-data-compatibility">IBM Cloud Pak for Data Compatibility<a class="headerlink" href="#ibm-cloud-pak-for-data-compatibility" title="Permanent link"></a></h2>
+<p>For more information on Cloud Pak for Data's support policy review this <a href="https://www.ibm.com/support/pages/node/6593147">IBM Cloud Pak for Data Software Support Lifecycle Addendum</a>.</p>
+<p>Cloud Pak for Data covers the following application's dependencies:</p>
+<ul>
+<li><strong>Assist</strong>: Watson Discovery, Watson Text to Speak, Watson Speach to Text, Watson Assistant</li>
+<li><strong>Predict</strong>: Watson Studio, Watson Machine Learning, Watson Analytics Service, Watson Openscale</li>
+</ul>
+<table class="compatabilityMatrix">
+  <tr>
+    <th class="firstColumn" rowspan="2">OCP</th>
+    <td rowspan="8" class="spacer"></td>
+    <th colspan="3">Cloud Pak for Data</th>
+    <td rowspan="9" class="spacer"></td>
+    <th rowspan="2">Supported MAS Releases</th>
+  </tr>
+  <tr>
+    <th class="firstColumn">Release</th>
+    <th>General Availability</th>
+    <th>End of Support</th>
+  </tr>
+  <tr> <td class="firstColumn" rowspan="1">4.12</td><td>4.6.6</td>            <td>February, 2023</td>    <td>TBD</td> <td>8.9 - 8.11</td> </tr>
+</table>
+
+<h2 id="package-manifest">Package Manifest<a class="headerlink" href="#package-manifest" title="Permanent link"></a></h2>
+<p>TBD</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/ibm-mas/cli" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../v8-240130-amd64/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
