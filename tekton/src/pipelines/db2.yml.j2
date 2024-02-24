@@ -20,7 +20,7 @@ spec:
       default: ""
     - name: cpd_product_version # common-services will only be installed with specific cpd versions or if set to 'none'
       type: string
-      default: "none"
+      default: ""
 
     {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
 
