@@ -63,9 +63,6 @@
       value: mif-kafka-setup
     - name: kafka_provider
       value: $(params.kafka_provider)
-  workspaces:
-    - name: configs
-      workspace: shared-configs
   runAfter:
     - fvt-manage-mas-navigation
 
