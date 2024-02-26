@@ -53,30 +53,14 @@
 
 # Manage FVT Kafka Setup
 - name: fvt-manage-mif-kafka-setup
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
       value: base
     - name: fvt_test_suite
       value: mif-kafka-setup
-    - name: kafka_provider
-      value: $(params.kafka_provider)
-  taskRef:
-    kind: Task
-    name: mas-fvt-manage
-  when:
-    - input: "$(params.fvt_digest_manage)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
-      operator: notin
-      values: [""]
-    - input: "$(params.kafka_provider)"
-      operator: notin
-      values: [""]
-  workspaces:
-    - name: configs
-      workspace: shared-configs
   runAfter:
     - fvt-manage-mas-navigation
 
