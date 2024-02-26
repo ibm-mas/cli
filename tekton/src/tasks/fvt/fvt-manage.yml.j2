@@ -110,7 +110,7 @@ spec:
         value: $(params.fvt_test_suite)
       - name: FVT_MAS_APPWS_COMPONENT
         value: $(params.fvt_mas_appws_component)
-      
+
       # Black and white listing
       - name: FVT_BLACKLIST
         valueFrom:
@@ -136,7 +136,7 @@ spec:
             name: mas-fvt-manage
             key: FVT_WHITELIST_IS
             optional: false
-      
+
       # If this secret exists (with both ARTIFACTORY_TOKEN and ARTIFACTORY_UPLOAD_DIR keys set) Maximo Automation Framework logs will be automatically uploaded
       - name: ARTIFACTORY_TOKEN
         valueFrom:
@@ -154,8 +154,8 @@ spec:
   steps:
     - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
-      onError: continue # Ensure bad FVTs don't break the pipeline
+      timeout: 1h  # Ensure bad FVTs don't run forever
+      onError: continue  # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
       volumeMounts:
