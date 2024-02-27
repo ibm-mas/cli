@@ -96,6 +96,12 @@ spec:
       # Parameters for tests
       - name: IBMADMIN_ENABLED
         value: "true"
+      - name: IMAGE_SCAN_ENABLED
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: FVT_ENABLE_IMAGE_SCAN
+            optional: True
 
       # Black and white listing
       - name: FVT_BLACKLIST
