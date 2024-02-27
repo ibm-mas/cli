@@ -348,23 +348,3 @@ spec:
         kind: Task
         name: mas-fvt-finalize
 {% endif %}
-
-{% if wait_for_install == true %}
-    # 7. Test for outages during mongo update
-    # -------------------------------------------------------------------------
-    - name: fvt-mongo-update
-      taskRef:
-        kind: Task
-        name: mas-ivt-core
-      params:
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_digest
-          value: $(params.fvt_image_digest)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value:  "NOT_USED"
-        - name: fvt_test_suite
-          value: "mongohealth"
-{% endif %}
