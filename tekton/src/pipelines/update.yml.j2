@@ -248,6 +248,8 @@ spec:
       params:
         - name: cluster_monitoring_action
           value: update_grafana
+        - name: devops_suite_name
+          value: update-grafana
       runAfter:
         - update-common-services
 
@@ -307,6 +309,8 @@ spec:
       params:
         - name: dro_migration
           value: $(params.dro_migration)
+        - name: devops_suite_name
+          value: update-uds
 
     # 6. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
