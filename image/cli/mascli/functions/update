@@ -150,7 +150,6 @@ function validate_dro_migration(){
 
             if [[ $suite_version = 9.* ]] || [[ $suite_version = 8.11.* ]] || [[ $suite_version = 8.10.* ]]
             then
-              echo -e "${COLOR_YELLOW}${suite_namespace} with MAS version ${suite_version} is compatible for DRO migration"
 
               ## Check if the BASCFG url has a local UDS on all instances, if not then exit and throw error
               bascfg_name=`oc get BasCfg -n ${suite_namespace} -o NAME`
@@ -165,7 +164,12 @@ function validate_dro_migration(){
 
               if [[ ${bas_url} == *${uds_url}* ]]
               then
-                echo -e "${COLOR_YELLOW}UDS Configuration on ${suite_namespace} is compatible for DRO migration"
+                echo -e "${COLOR_YELLOW}UDS Configuration on ${suite_namespace} with MAS version ${suite_version} is compatible for DRO migration"
+              
+              elif [[ ${bas_url} == *ibm-data-reporter* ]]
+              then
+                echo -e "${COLOR_YELLOW}${suite_namespace} is already configured with DRO"
+              
               else
                 echo -e "${COLOR_RED}${suite_namespace} appears to use a Remote UDS that is not running locally on this cluster. This setup is not compatible for DRO migration, exiting mas update"
                 exit 1
