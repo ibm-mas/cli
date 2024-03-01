@@ -75,11 +75,11 @@ spec:
               optional: false
         
         # Digests
-        - name: FVT_DIGEST_MANAGE
+        - name: FVT_DIGEST_MOBILE_PYTEST
           valueFrom:
             secretKeyRef:
               name: mas-fvt-mobile
-              key: FVT_DIGEST_MANAGE
+              key: FVT_DIGEST_MOBILE_PYTEST
               optional: false
         - name: FVT_DIGEST_MOBILE_TESTNG
           valueFrom:
