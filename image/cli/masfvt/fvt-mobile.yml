@@ -16,7 +16,7 @@
     mas_workspace_id: "{{ lookup('env', 'MAS_WORKSPACE_ID') }}"
     
     # FVT Configuration
-    fvt_digest_manage_pytest: "{{ lookup('env', 'FVT_DIGEST_MOBILE_PYTEST') }}"
+    fvt_digest_mobile_pytest: "{{ lookup('env', 'FVT_DIGEST_MOBILE_PYTEST') }}"
     fvt_digest_mobile_testng: "{{ lookup('env', 'FVT_DIGEST_MOBILE_TESTNG') }}"
     
     # Pipeline Run Info
