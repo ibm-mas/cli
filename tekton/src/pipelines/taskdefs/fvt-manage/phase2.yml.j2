@@ -8,7 +8,7 @@
 # - fvt-manage-mif-setup (selenium)
 # - fvt-manage-crontask (pytest)
 # - fvt-manage-endpoint (pytest)
-# - fvt-manage-mas-navigation (selenium) - temporarily in sequence
+# - fvt-manage-mas-navigation (selenium)
 # -------------------------------------------------------------
 
 # Manage FVT Classification
@@ -130,11 +130,5 @@
     - name: fvt_test_suite
       value: mas-navigation
   runAfter:
-    - fvt-manage-classification
-    - fvt-manage-helplinks
-    - fvt-manage-wo-basic
-    - fvt-manage-ancestors
-    - fvt-manage-automationscripts
-    - fvt-manage-mif-setup
-    - fvt-manage-crontask
-    - fvt-manage-endpoint
+    - fvt-manage-setup
+    - fvt-manage-monitoring

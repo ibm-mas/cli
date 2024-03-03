@@ -23,6 +23,14 @@
     - name: fvt_test_suite
       value: escalation-action
   runAfter:
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
     - fvt-manage-mas-navigation
 
 # Manage FVT AutoScript to Add Delete WorkOrder
@@ -36,6 +44,14 @@
     - name: fvt_test_suite
       value: autoscript-adddeletewo
   runAfter:
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
     - fvt-manage-mas-navigation
 
 # Manage JMS Integration - Inbound
@@ -49,6 +65,14 @@
     - name: fvt_test_suite
       value: mif-jms-inbound
   runAfter:
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
     - fvt-manage-mas-navigation
 
 # Manage FVT Kafka Setup
@@ -62,6 +86,14 @@
     - name: fvt_test_suite
       value: mif-kafka-setup
   runAfter:
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
     - fvt-manage-mas-navigation
 
 # Manage FVT BIRT Reports
@@ -75,6 +107,14 @@
     - name: fvt_test_suite
       value: birtreportexe
   runAfter:
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
     - fvt-manage-mas-navigation
 
 # Manage FVT New User Update/Delete/Verufy
@@ -88,6 +128,14 @@
     - name: fvt_test_suite
       value: user-crud
   runAfter:
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
     - fvt-manage-mas-navigation
 
 # Manage FVT User Consumption verification
@@ -101,6 +149,14 @@
     - name: fvt_test_suite
       value: user-consumption
   runAfter:
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
     - fvt-manage-mas-navigation
 
 # Manage FVT Communication Template
@@ -114,6 +170,14 @@
     - name: fvt_test_suite
       value: communication-temp
   runAfter:
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
     - fvt-manage-mas-navigation
 
 # Manage FVT externalsystem
@@ -126,6 +190,14 @@
     - name: fvt_test_suite
       value: externalsystem
   runAfter:
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
     - fvt-manage-mas-navigation
 
 # Manage FVT kafka
@@ -138,4 +210,12 @@
     - name: fvt_test_suite
       value: kafka
   runAfter:
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
     - fvt-manage-mas-navigation
