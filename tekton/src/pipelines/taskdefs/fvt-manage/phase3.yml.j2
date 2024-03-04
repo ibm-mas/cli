@@ -4,11 +4,12 @@
 # - fvt-manage-autoscript-adddeletewo (selenium)
 # - fvt-manage-jms-inbound (selenium)
 # - fvt-manage-mif-kafka-setup (selenium)
-# - fvt-manage-mif-s3-setup (selenium)
 # - fvt-manage-birt-report (selenium)
 # - fvt-manage-user-crud (selenium)
 # - fvt-manage-user-consumption (selenium)
 # - fvt-manage-communication-temp (selenium)
+# - fvt-manage-externalsystem (pytest)
+# - fvt-manage-kafka (pytest)
 # -------------------------------------------------------------
 
 # Manage FVT Escalation
@@ -22,14 +23,16 @@
     - name: fvt_test_suite
       value: escalation-action
   runAfter:
-    - fvt-manage-mas-navigation
     - fvt-manage-classification
     - fvt-manage-helplinks
-    - fvt-manage-mif-setup
     - fvt-manage-wo-basic
     - fvt-manage-ancestors
     - fvt-manage-automationscripts
-    
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-mas-navigation
+
 # Manage FVT AutoScript to Add Delete WorkOrder
 - name: fvt-manage-autoscript-adddeletewo
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
@@ -41,13 +44,15 @@
     - name: fvt_test_suite
       value: autoscript-adddeletewo
   runAfter:
-    - fvt-manage-mas-navigation
     - fvt-manage-classification
     - fvt-manage-helplinks
-    - fvt-manage-mif-setup
     - fvt-manage-wo-basic
     - fvt-manage-ancestors
     - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-mas-navigation
 
 # Manage JMS Integration - Inbound
 - name: fvt-manage-jms-inbound
@@ -60,51 +65,18 @@
     - name: fvt_test_suite
       value: mif-jms-inbound
   runAfter:
-    - fvt-manage-mas-navigation
     - fvt-manage-classification
     - fvt-manage-helplinks
-    - fvt-manage-mif-setup
     - fvt-manage-wo-basic
     - fvt-manage-ancestors
     - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-mas-navigation
 
 # Manage FVT Kafka Setup
 - name: fvt-manage-mif-kafka-setup
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base
-    - name: fvt_test_suite
-      value: mif-kafka-setup
-    - name: kafka_provider
-      value: $(params.kafka_provider)
-  taskRef:
-    kind: Task
-    name: mas-fvt-manage
-  when:
-    - input: "$(params.fvt_digest_manage)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
-      operator: notin
-      values: [""]
-    - input: "$(params.kafka_provider)"
-      operator: notin
-      values: [""]
-  workspaces:
-    - name: configs
-      workspace: shared-configs
-  runAfter:
-    - fvt-manage-mas-navigation
-    - fvt-manage-classification
-    - fvt-manage-helplinks
-    - fvt-manage-mif-setup
-    - fvt-manage-wo-basic
-    - fvt-manage-ancestors
-    - fvt-manage-automationscripts
-
-# Manage MIF S3 setup
-- name: fvt-manage-mif-s3-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
@@ -112,15 +84,17 @@
     - name: fvt_test_suite_prefix
       value: base
     - name: fvt_test_suite
-      value: mif-s3-setup
+      value: mif-kafka-setup
   runAfter:
-    - fvt-manage-mas-navigation
     - fvt-manage-classification
     - fvt-manage-helplinks
-    - fvt-manage-mif-setup
     - fvt-manage-wo-basic
     - fvt-manage-ancestors
     - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-mas-navigation
 
 # Manage FVT BIRT Reports
 - name: fvt-manage-birt-report
@@ -133,13 +107,15 @@
     - name: fvt_test_suite
       value: birtreportexe
   runAfter:
-    - fvt-manage-mas-navigation
     - fvt-manage-classification
     - fvt-manage-helplinks
-    - fvt-manage-mif-setup
     - fvt-manage-wo-basic
     - fvt-manage-ancestors
     - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-mas-navigation
 
 # Manage FVT New User Update/Delete/Verufy
 - name: fvt-manage-user-crud
@@ -152,13 +128,15 @@
     - name: fvt_test_suite
       value: user-crud
   runAfter:
-    - fvt-manage-mas-navigation
     - fvt-manage-classification
     - fvt-manage-helplinks
-    - fvt-manage-mif-setup
     - fvt-manage-wo-basic
     - fvt-manage-ancestors
     - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-mas-navigation
 
 # Manage FVT User Consumption verification
 - name: fvt-manage-user-consumption
@@ -171,13 +149,15 @@
     - name: fvt_test_suite
       value: user-consumption
   runAfter:
-    - fvt-manage-mas-navigation
     - fvt-manage-classification
     - fvt-manage-helplinks
-    - fvt-manage-mif-setup
     - fvt-manage-wo-basic
     - fvt-manage-ancestors
     - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-mas-navigation
 
 # Manage FVT Communication Template
 - name: fvt-manage-communication-temp
@@ -190,10 +170,52 @@
     - name: fvt_test_suite
       value: communication-temp
   runAfter:
-    - fvt-manage-mas-navigation
     - fvt-manage-classification
     - fvt-manage-helplinks
-    - fvt-manage-mif-setup
     - fvt-manage-wo-basic
     - fvt-manage-ancestors
     - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-mas-navigation
+
+# Manage FVT externalsystem
+- name: fvt-manage-externalsystem
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base
+    - name: fvt_test_suite
+      value: externalsystem
+  runAfter:
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-mas-navigation
+
+# Manage FVT kafka
+- name: fvt-manage-kafka
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base
+    - name: fvt_test_suite
+      value: kafka
+  runAfter:
+    - fvt-manage-classification
+    - fvt-manage-helplinks
+    - fvt-manage-wo-basic
+    - fvt-manage-ancestors
+    - fvt-manage-automationscripts
+    - fvt-manage-mif-setup
+    - fvt-manage-crontask
+    - fvt-manage-endpoint
+    - fvt-manage-mas-navigation

@@ -54,10 +54,6 @@ spec:
     - name: mas_workspace_id
       type: string
       description: Workspace ID in MAS to use for running the tests
-    - name: kafka_provider
-      type: string
-      description: kafka provider used during installation (ibm, aws or redhat)
-      default: ""
 
     # Test-specific Information (all optional)
     # -------------------------------------------------------------------------
@@ -98,8 +94,6 @@ spec:
         value: "$(params.mas_instance_id)"
       - name: WORKSPACE_ID
         value: "$(params.mas_workspace_id)"
-      - name: KAFKA_PROVIDER
-        value: $(params.kafka_provider)
 
       - name: FVT_TEST_DRIVER
         value: $(params.fvt_test_driver)
