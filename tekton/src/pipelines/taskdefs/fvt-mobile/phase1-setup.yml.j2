@@ -2,7 +2,7 @@
 - name: fvt-mobile-setup-data
   taskRef:
     kind: Task
-    name: mas-fvt-manage
+    name: mas-fvt-manage-pytest
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -12,13 +12,11 @@
     - name: artifactory_token
       value: $(params.fvt_artifactory_token)
     - name: fvt_image_namespace
-      value: fvt-manage
+      value: fvt-mobile
     - name: fvt_image_name
-      value: fvt-ibm-mas-manage
+      value: fvt-mobile-pytest
     - name: fvt_image_digest
-      value: $(params.fvt_digest_manage)
-    - name: fvt_mas_appws_component
-      value: mobile
+      value: $(params.fvt_digest_mobile_pytest)
     - name: fvt_test_suite
       value: mobile-setup-data
     - name: mas_instance_id
@@ -33,6 +31,6 @@
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
-    - input: "$(params.fvt_digest_manage)"
+    - input: "$(params.fvt_digest_mobile_pytest)"
       operator: notin
       values: [""]
