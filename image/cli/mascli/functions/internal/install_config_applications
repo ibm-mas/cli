@@ -184,7 +184,7 @@ function install_config_applications() {
   if [[ "$MAS_APP_CHANNEL_OPTIMIZER" != '' ]]; then optimizer_settings; fi
   if [[ "$MAS_APP_CHANNEL_PREDICT" != '' ]]; then predict_settings; fi
 
-  if [[ "$MAS_APP_CHANNEL_PREDICT" != "" || "$MAS_APP_CHANNEL_ASSIST" != "" ]]; then
+  if [[ "$MAS_APP_CHANNEL_PREDICT" != "" || "$MAS_APP_CHANNEL_ASSIST" != "" || "$CPD_INSTALL_COGNOS" == "true" ]]; then
     cp4d_channel_selection
   fi
 
