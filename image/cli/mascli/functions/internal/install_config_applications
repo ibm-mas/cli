@@ -325,7 +325,10 @@ function manage_settings() {
   echo
   if prompt_for_confirm "Install Cognos Analytics"; then
     CPD_INSTALL_COGNOS=true
+    echo "CPD version before: $CPD_PRODUCT_VERSION"
+    CPD_PRODUCT_VERSION=$CP4D_VERSION
     DEPLOY_CP4D=run
+    echo "CPD version after: $CPD_PRODUCT_VERSION"
   fi
 
   # Manage Settings - Other
