@@ -27,6 +27,10 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
+function list_mas_instances() {
+  oc get suite --all-namespaces --ignore-not-found
+}
+
 # Auto-detect Certificate Manager
 # -----------------------------------------------------------------------------
 # Validates the existence of installed IBM Certificate Manager in the target cluster
@@ -374,6 +378,7 @@ function update_interactive() {
   show_current_catalog
 
   echo
+  list_mas_instances
   echo_h2 "Select IBM Maximo Operator Catalog Version"
   choose_catalog_version
   echo
