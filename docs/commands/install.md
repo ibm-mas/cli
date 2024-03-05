@@ -133,6 +133,8 @@ Usage
     - `utilities (Utilities)`
     - `workday (Workday Applications)`
 
+    - `For detailed information about each of the available Manage Industry Solutions or Add-ons, please check the [Maximo Manage components](https://www.ibm.com/docs/en/mas-cd/maximo-manage/continuous-delivery?topic=overview-maximo-manage-components) documentation.`
+
 - `--manage-customization-archive-name MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME`         Set Manage Archive name
 - `--manage-customization-archive-url MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL`           Set Manage Archive url
 - `--manage-customization-archive-username MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME` Set Manage Archive username, in case url requires basic authentication to pull the archive
