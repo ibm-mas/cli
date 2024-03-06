@@ -382,7 +382,7 @@ function update_interactive() {
   choose_catalog_version
   echo
   echo "${TEXT_DIM}List of MAS instances that might be affected by the catalog update"
-  echo_reset_dim
+  reset_colors
   list_mas_instances
   echo
   validate_update
