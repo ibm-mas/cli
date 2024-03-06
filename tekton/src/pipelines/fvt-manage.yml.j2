@@ -99,11 +99,10 @@ spec:
     {{ lookup('template', 'taskdefs/fvt-manage/phase0.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-manage/phase2.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase2-5.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase3.yml.j2') | indent(4) }}
 
-    # Phases 3-5 disabled.  Focus on getting phase 0-2 suites 100% reliable
+    # Phases 4-5 disabled.  Focus on getting phase 0-3 suites 100% reliable
     # -------------------------------------------------------------------------
     # Re-introduce phases 1-by-1 while maintaining a stable state
-    # lookup('template', 'taskdefs/fvt-manage/phase3.yml.j2') | indent(4)
     # lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4)
     # lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4)
