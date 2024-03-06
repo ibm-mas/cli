@@ -324,12 +324,10 @@ function manage_settings() {
   reset_colors
   echo
   if prompt_for_confirm "Install Cognos Analytics"; then
-    echo "CPD version before: $CPD_PRODUCT_VERSION"
     CPD_INSTALL_COGNOS=true
     cp4d_channel_selection
     CPD_PRODUCT_VERSION=$CP4D_VERSION
     DEPLOY_CP4D=run
-    echo "CPD version after: $CPD_PRODUCT_VERSION"
   fi
 
   # Manage Settings - Other

@@ -18,9 +18,6 @@ spec:
     - name: mas_workspace_id
       type: string
       default: ""
-    - name: cpd_product_version # common-services will only be installed with specific cpd versions or if set to 'none'
-      type: string
-      default: ""
 
     {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
 
