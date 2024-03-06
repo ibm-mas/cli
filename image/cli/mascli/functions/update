@@ -378,9 +378,11 @@ function update_interactive() {
   show_current_catalog
 
   echo
-  list_mas_instances
   echo_h2 "Select IBM Maximo Operator Catalog Version"
   choose_catalog_version
+  echo
+  echo "${TEXT_DIM}List of MAS instances that might be affected by the catalog update"
+  list_mas_instances
   echo
   validate_update
 
