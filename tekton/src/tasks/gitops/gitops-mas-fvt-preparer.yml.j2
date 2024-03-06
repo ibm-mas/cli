@@ -289,7 +289,7 @@ spec:
 
         if [ "${ARGOCD_CHECK}" == "true" ]; then
           echo "Setting up ArgoCD sync window to allow FVT tests to run without interuption"
-          echo "argo:argocd login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."    
+          echo "argo:argocd login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."
           argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
           echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration 4h --applications *"  
           argocd proj windows add mas --kind deny --schedule "* * * * *" --duration 4h --applications "*.$MAS_INSTANCE_ID"
