@@ -254,12 +254,7 @@ function manage_settings() {
   echo
   echo_h4 "Manage Component Selection"
   echo "${TEXT_DIM}Define which Manage Industry Solutions and Add-ons will be configured in the Manage install."
-  echo
-  echo "Provide a comma-separated list of component=version values, as example: 'base=latest,health=latest,civil=latest'"
-  echo
-  echo "For a complete list of available industry solutions and add-ons that can be installed:"
-  echo "https://ibm-mas.github.io/cli/commands/install/#manage-application-advanced-configuration-optional"
-  echo
+  echo "Provide a comma-separated list of component=version values, e.g. 'base=latest,health=latest,civil=latest'"
   reset_colors
   echo
   if prompt_for_confirm "Customize Manage components?"; then
