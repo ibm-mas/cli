@@ -669,7 +669,12 @@ function install_interactive() {
   prompt_for_input "License File" SLS_LICENSE_FILE_LOCAL
   if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
     echo_warning "Error: File does not exist: $SLS_LICENSE_FILE_LOCAL"
-    exit 1
+    prompt_for_confirm "Configure IBM Turbonomic integration?" YEY
+    if [["$YEY == true"]]; then
+      mkdir SLS_LICENSE_ID
+    else    
+      exit 1
+    fi
   fi
 
   if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
