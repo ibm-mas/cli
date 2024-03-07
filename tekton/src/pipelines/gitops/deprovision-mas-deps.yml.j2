@@ -167,6 +167,9 @@ spec:
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
 
+        - name: github_pat
+          value: $(params.github_pat)
+
         - name: cluster_name
           value: $(params.cluster_name)
         - name: account
