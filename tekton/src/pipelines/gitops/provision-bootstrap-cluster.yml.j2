@@ -25,6 +25,8 @@ spec:
       type: string
     - name: ocp_version
       type: string
+    - name: account_id
+      type: string
     - name: avp_type
       type: string
     - name: avp_aws_secret_region
@@ -38,6 +40,9 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
 
+    - name: github_revision
+      type: string
+      default: "poc"
     - name: github_url
       type: string
     - name: rosa_token
@@ -131,6 +136,8 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: account_id
+          value: $(params.account_id)
         - name: avp_type
           value: $(params.avp_type)
         - name: avp_aws_secret_region
@@ -141,6 +148,8 @@ spec:
           value: $(params.avp_aws_access_key)
         - name: github_url
           value: $(params.github_url)
+        - name: github_revision
+          value: $(params.github_revision)
         - name: github_pat
           value: $(params.github_pat)
       taskRef:

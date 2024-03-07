@@ -7,6 +7,7 @@ spec:
   params:
     - name: cluster_name
       type: string
+    - name: account_id
     - name: avp_type
       type: string
     - name: avp_aws_secret_region
@@ -17,6 +18,8 @@ spec:
       type: string
     - name: github_url
       type: string
+    - name: github_revision
+      type: string
     - name: github_pat
       type: string
   stepTemplate:
@@ -24,8 +27,8 @@ spec:
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
-      - name: AVP_TYPE
-        value: $(params.avp_type)
+      - name: ACCOUNT_ID
+        value: $(params.account_id)
       - name: AVP_AWS_SECRET_REGION
         value: $(params.avp_aws_secret_region)
       - name: AVP_AWS_SECRET_KEY
@@ -34,6 +37,8 @@ spec:
         value: $(params.avp_aws_access_key)
       - name: GITHUB_URL
         value: $(params.github_url)
+      - name: GITHUB_REVISION
+        value: $(params.github_revision)
       - name: GITHUB_PAT
         value: $(params.github_pat)
   steps:
@@ -68,13 +73,14 @@ spec:
 
 
         echo "Start Bootstrap"
-        mas gitops-bootstrap --cluster-id $CLUSTER_NAME \
-        -t $AVP_TYPE \
+        mas gitops-bootstrap \
+        --account-id $ACCOUNT_ID
         --sm-aws-secret-region $AVP_AWS_SECRET_REGION \
         --sm-aws-secret-key $AVP_AWS_SECRET_KEY \
         --sm-aws-access-key $AVP_AWS_ACCESS_KEY \
         --github-url $GITHUB_URL \
-        --github-pat $GITHUB_PAT
+        --github-pat $GITHUB_PAT \
+        --github-revision $GITHUB_REVISION
       command:
         - /bin/sh
         - -c
