@@ -73,7 +73,6 @@ spec:
         --cidr-block 10.1.0.0/23
 
         mas gitops-mongo -a $ACCOUNT -c $CLUSTER_NAME \
-        --secrets-path $SECRET_PATH \
         --mongo-provider $MONGO_PROVIDER \
         --aws-region $SM_AWS_REGION \
         --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
