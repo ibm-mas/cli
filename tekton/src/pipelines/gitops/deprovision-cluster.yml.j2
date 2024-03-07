@@ -29,7 +29,9 @@ spec:
       type: string
     - name: avp_aws_access_key
       type: string
-
+    - name: aws_region
+      type: string
+      default: ""
     # 1. Gitops git Parameters
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
@@ -63,7 +65,7 @@ spec:
         - name: cluster_name
           value: $(params.cluster_name)
         - name: aws_region
-          value: $(params.avp_aws_secret_region)
+          value: $(params.aws_region)
         - name: rosa_token
           value: $(params.rosa_token)
         - name: ocp_version
