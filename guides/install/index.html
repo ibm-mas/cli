@@ -65,13 +65,11 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#2-disconnected-install-preparation">2 Disconnected Install Preparation</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#21-disconnected-install-limitations">2.1 Disconnected Install Limitations</a>
+    <li class="toctree-l3"><a class="reference internal" href="#21-prepare-the-private-registry">2.1 Prepare the Private Registry</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#22-prepare-the-private-registry">2.2 Prepare the Private Registry</a>
+    <li class="toctree-l3"><a class="reference internal" href="#22-mirror-container-images">2.2 Mirror Container Images</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#23-mirror-container-images">2.3 Mirror Container Images</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#24-configure-openshift-to-use-your-private-registry-for-mas">2.4 Configure OpenShift to use your Private Registry for MAS</a>
+    <li class="toctree-l3"><a class="reference internal" href="#23-configure-openshift-to-use-your-private-registry-for-mas">2.3 Configure OpenShift to use your Private Registry for MAS</a>
     </li>
         </ul>
     </li>
@@ -182,10 +180,9 @@
 </ul>
 </li>
 <li><a href="#2-disconnected-install-preparation">Disconnected Install Preparation</a><ul>
-<li>2.1 <a href="#21-disconnected-install-limitations">Disconnected Install Limitations</a></li>
-<li>2.2 <a href="#22-prepare-the-private-registry">Prepare your Private Registry</a></li>
-<li>2.3 <a href="#23-mirror-container-images">Mirror Container Images</a></li>
-<li>2.4 <a href="#24-configure-openshift-to-use-your-private-registry-for-mas">Configure OpenShift to use your Private Registry for MAS</a></li>
+<li>2.1 <a href="#21-prepare-the-private-registry">Prepare your Private Registry</a></li>
+<li>2.2 <a href="#22-mirror-container-images">Mirror Container Images</a></li>
+<li>2.3 <a href="#23-configure-openshift-to-use-your-private-registry-for-mas">Configure OpenShift to use your Private Registry for MAS</a></li>
 </ul>
 </li>
 <li><a href="#3-install-maximo-application-suite">Install MAS</a></li>
@@ -241,55 +238,7 @@
 <h3 id="14-operator-catalog-selection">1.4 Operator Catalog Selection<a class="headerlink" href="#14-operator-catalog-selection" title="Permanent link"></a></h3>
 <p>If you have not already determined the best catalog source for your installation, refer to the information in the <a href="../choosing-the-right-catalog/">choosing the right IBM Maximo Operator Catalog to meet your requirements</a> guide, or contact IBM Support for guidance.</p>
 <h2 id="2-disconnected-install-preparation">2 Disconnected Install Preparation<a class="headerlink" href="#2-disconnected-install-preparation" title="Permanent link"></a></h2>
-<h3 id="21-disconnected-install-limitations">2.1 Disconnected Install Limitations<a class="headerlink" href="#21-disconnected-install-limitations" title="Permanent link"></a></h3>
-<p>Disconnected install for IBM Maximo Application Suite is fully supported as of the July 2023 catalog update, and is supported from MAS v8.8 onwards with some restrictions as detailed below:</p>
-<table>
-<thead>
-<tr>
-<th>Application</th>
-<th>First Version to Support Disconnected Install</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Core</td>
-<td>v8.8.0 (<a href="../../catalogs/v8-220717-amd64/">v8-220717-amd64</a>)</td>
-</tr>
-<tr>
-<td>Assist</td>
-<td>v8.7.1 (<a href="../../catalogs/v8-230725-amd64/">v8-230725-amd64</a>)</td>
-</tr>
-<tr>
-<td>Health &amp; Predict Utilities</td>
-<td>v8.6.1 (<a href="../../catalogs/v8-230725-amd64/">v8-230725-amd64</a>)</td>
-</tr>
-<tr>
-<td>IoT</td>
-<td>v8.5.1 (<a href="../../catalogs/v8-220805-amd64/">v8-220805-amd64</a>)</td>
-</tr>
-<tr>
-<td>Manage</td>
-<td>v8.4.0 (<a href="../../catalogs/v8-220717-amd64/">v8-220717-amd64</a>)</td>
-</tr>
-<tr>
-<td>Monitor</td>
-<td>v8.10.0 (<a href="../../catalogs/v8-230414-amd64/">v8-230414-amd64</a>)</td>
-</tr>
-<tr>
-<td>Optimizer</td>
-<td>v8.2.0 (<a href="../../catalogs/v8-220717-amd64/">v8-220717-amd64</a>)</td>
-</tr>
-<tr>
-<td>Predict</td>
-<td>v8.8.1 (<a href="../../catalogs/v8-230627-amd64/">v8-230627-amd64</a>)</td>
-</tr>
-<tr>
-<td>Visual Inspection</td>
-<td>v8.8.1 (<a href="../../catalogs/v8-230725-amd64/">v8-230725-amd64</a>)</td>
-</tr>
-</tbody>
-</table>
-<h3 id="22-prepare-the-private-registry">2.2 Prepare the Private Registry<a class="headerlink" href="#22-prepare-the-private-registry" title="Permanent link"></a></h3>
+<h3 id="21-prepare-the-private-registry">2.1 Prepare the Private Registry<a class="headerlink" href="#21-prepare-the-private-registry" title="Permanent link"></a></h3>
 <p>You must have a production grade Docker v2 compatible registry such as <a href="https://www.redhat.com/en/technologies/cloud-computing/quay">Quay Enterprise</a>, <a href="https://jfrog.com/integration/docker-registry/">JFrog Artifactory</a>, or <a href="https://docs.docker.com/registry/">Docker Registry</a>.  If you do not already have a private registry available to use as your mirror then you can use the <code>setup-mirror</code> function to deploy a private registry using the <a href="https://hub.docker.com/_/registry">Docker registry container image</a> inside a target OpenShift cluster.</p>
 <pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas setup-registry
 </code></pre>
@@ -332,7 +281,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="23-mirror-container-images">2.3 Mirror Container Images<a class="headerlink" href="#23-mirror-container-images" title="Permanent link"></a></h3>
+<h3 id="22-mirror-container-images">2.2 Mirror Container Images<a class="headerlink" href="#22-mirror-container-images" title="Permanent link"></a></h3>
 <p>Mirroring the images is a simple but time consuming process, this step must be performed from a system with internet connectivity and network access your private registry, but does not need access to your target OpenShift cluster.  Three modes are available for the mirror process:</p>
 <ul>
 <li><strong>direct</strong> mirrors images directly from the source registry to your private registry</li>
@@ -351,7 +300,7 @@
   --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
   --no-confirm
 </code></pre>
-<h3 id="24-configure-openshift-to-use-your-private-registry-for-mas">2.4 Configure OpenShift to use your Private Registry for MAS<a class="headerlink" href="#24-configure-openshift-to-use-your-private-registry-for-mas" title="Permanent link"></a></h3>
+<h3 id="23-configure-openshift-to-use-your-private-registry-for-mas">2.3 Configure OpenShift to use your Private Registry for MAS<a class="headerlink" href="#23-configure-openshift-to-use-your-private-registry-for-mas" title="Permanent link"></a></h3>
 <p>Your cluster must be configured to use the private registry as a mirror for the MAS container images.  An <code>ImageContentSourcePolicy</code> named <code>mas-and-dependencies</code> will be created in the cluster, this is also the resource that the MAS install will use to detect whether the installation is a disconnected install and tailor the options presented when you run the <code>mas install</code> command.</p>
 <pre><code class="language-bash">docker run -ti --pull always quay.io/ibmmas/cli mas configure-airgap
 </code></pre>
