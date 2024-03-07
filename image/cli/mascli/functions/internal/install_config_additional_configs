@@ -16,6 +16,16 @@ function install_config_additional_configs() {
         # Select local MAS_CONFIG_DIR
         prompt_for_input "+ Local config directory" LOCAL_MAS_CONFIG_DIR && export LOCAL_MAS_CONFIG_DIR
         echo
+        if [[ ! -d "$LOCAL_MAS_CONFIG_DIR" ]]; then
+          echo_warning "Error: The directory $LOCAL_MAS_CONFIG_DIR does not exist"
+          if prompt_for_confirm "create dir $SLS_LICENSE_FILE_LOCAL ??"; then
+            echo "primeira parte"
+            mkdir $SLS_LICENSE_FILE_LOCAL
+            echo "pasta $SLS_LICENSE_FILE_LOCAL criada"
+          else
+            echo "falhou vey"
+            exit 1
+          fi
         use_additional_configs=yes
       fi
     else
