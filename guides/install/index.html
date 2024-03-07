@@ -290,7 +290,7 @@
 </tbody>
 </table>
 <h3 id="22-prepare-the-private-registry">2.2 Prepare the Private Registry<a class="headerlink" href="#22-prepare-the-private-registry" title="Permanent link"></a></h3>
-<p>If you do not already have a private registry available to use as your mirror then you can use the <code>setup-mirror</code> function to deploy a private registry inside a target OpenShift cluster.</p>
+<p>You must have a production grade Docker v2 compatible registry such as <a href="https://www.redhat.com/en/technologies/cloud-computing/quay">Quay Enterprise</a>, <a href="https://jfrog.com/integration/docker-registry/">JFrog Artifactory</a>, or <a href="https://docs.docker.com/registry/">Docker Registry</a>.  If you do not already have a private registry available to use as your mirror then you can use the <code>setup-mirror</code> function to deploy a private registry using the <a href="https://hub.docker.com/_/registry">Docker registry container image</a> inside a target OpenShift cluster.</p>
 <pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas setup-registry
 </code></pre>
 <p>The registry will be setup running on port 32500.  For more details on this step, refer to the <a href="../../commands/setup-registry/">setup-registry</a> command's documentation.  Regardless of whether you set up a new registry or already had one, you need to collect the following information about your private registry:</p>
