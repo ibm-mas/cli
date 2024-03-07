@@ -72,7 +72,7 @@ Disconnected install for IBM Maximo Application Suite is fully supported as of t
 
 
 ### 2.2 Prepare the Private Registry
-If you do not already have a private registry available to use as your mirror then you can use the `setup-mirror` function to deploy a private registry inside a target OpenShift cluster.
+You must have a production grade Docker v2 compatible registry such as [Quay Enterprise](https://www.redhat.com/en/technologies/cloud-computing/quay), [JFrog Artifactory](https://jfrog.com/integration/docker-registry/), or [Docker Registry](https://docs.docker.com/registry/).  If you do not already have a private registry available to use as your mirror then you can use the `setup-mirror` function to deploy a private registry using the [Docker registry container image](https://hub.docker.com/_/registry) inside a target OpenShift cluster.
 
 ```bash
 docker run -ti --rm --pull always quay.io/ibmmas/cli mas setup-registry
