@@ -29,6 +29,8 @@ spec:
       type: string
     - name: avp_aws_access_key
       type: string
+    - name: avp_aws_secret_key
+      type: string
     - name: aws_region
       type: string
       default: ""
@@ -70,6 +72,10 @@ spec:
           value: $(params.rosa_token)
         - name: ocp_version
           value: $(params.ocp_version)
+        - name: aws_secret_access_key
+          value: $(params.avp_aws_secret_key)
+        - name: aws_access_key_id
+          value: $(params.avp_aws_access_key)
       taskRef:
         kind: Task
         name: gitops-deprovision-rosa
