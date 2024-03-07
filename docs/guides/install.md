@@ -9,10 +9,9 @@ Installation Overview
     - 1.3 [OpenShift Cluster](#13-openshift-cluster)
     - 1.4 [Operator Catalog Selection](#14-operator-catalog-selection)
 2. [Disconnected Install Preparation](#2-disconnected-install-preparation)
-    - 2.1 [Disconnected Install Limitations](#21-disconnected-install-limitations)
-    - 2.2 [Prepare your Private Registry](#22-prepare-the-private-registry)
-    - 2.3 [Mirror Container Images](#23-mirror-container-images)
-    - 2.4 [Configure OpenShift to use your Private Registry for MAS](#24-configure-openshift-to-use-your-private-registry-for-mas)
+    - 2.1 [Prepare your Private Registry](#21-prepare-the-private-registry)
+    - 2.2 [Mirror Container Images](#22-mirror-container-images)
+    - 2.3 [Configure OpenShift to use your Private Registry for MAS](#23-configure-openshift-to-use-your-private-registry-for-mas)
 3. [Install MAS](#3-install-maximo-application-suite)
 
 
@@ -54,24 +53,7 @@ If you have not already determined the best catalog source for your installation
 
 2 Disconnected Install Preparation
 -------------------------------------------------------------------------------
-
-### 2.1 Disconnected Install Limitations
-Disconnected install for IBM Maximo Application Suite is fully supported as of the July 2023 catalog update, and is supported from MAS v8.8 onwards with some restrictions as detailed below:
-
-| Application                | First Version to Support Disconnected Install                   |
-| -------------------------- | --------------------------------------------------------------- |
-| Core                       |  v8.8.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
-| Assist                     |  v8.7.1 ([v8-230725-amd64](../catalogs/v8-230725-amd64.md))     |
-| Health & Predict Utilities |  v8.6.1 ([v8-230725-amd64](../catalogs/v8-230725-amd64.md))     |
-| IoT                        |  v8.5.1 ([v8-220805-amd64](../catalogs/v8-220805-amd64.md))     |
-| Manage                     |  v8.4.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
-| Monitor                    |  v8.10.0 ([v8-230414-amd64](../catalogs/v8-230414-amd64.md))    |
-| Optimizer                  |  v8.2.0 ([v8-220717-amd64](../catalogs/v8-220717-amd64.md))     |
-| Predict                    |  v8.8.1 ([v8-230627-amd64](../catalogs/v8-230627-amd64.md))     |
-| Visual Inspection          |  v8.8.1 ([v8-230725-amd64](../catalogs/v8-230725-amd64.md))     |
-
-
-### 2.2 Prepare the Private Registry
+### 2.1 Prepare the Private Registry
 You must have a production grade Docker v2 compatible registry such as [Quay Enterprise](https://www.redhat.com/en/technologies/cloud-computing/quay), [JFrog Artifactory](https://jfrog.com/integration/docker-registry/), or [Docker Registry](https://docs.docker.com/registry/).  If you do not already have a private registry available to use as your mirror then you can use the `setup-mirror` function to deploy a private registry using the [Docker registry container image](https://hub.docker.com/_/registry) inside a target OpenShift cluster.
 
 ```bash
@@ -91,7 +73,7 @@ The registry will be setup running on port 32500.  For more details on this step
 | Password            | Optional.  Authentication password for the registry.                                                               |
 
 
-### 2.3 Mirror Container Images
+### 2.2 Mirror Container Images
 Mirroring the images is a simple but time consuming process, this step must be performed from a system with internet connectivity and network access your private registry, but does not need access to your target OpenShift cluster.  Three modes are available for the mirror process:
 
 - **direct** mirrors images directly from the source registry to your private registry
@@ -116,7 +98,7 @@ mas mirror-images -m direct -d /mnt/local-mirror \
   --no-confirm
 ```
 
-### 2.4 Configure OpenShift to use your Private Registry for MAS
+### 2.3 Configure OpenShift to use your Private Registry for MAS
 Your cluster must be configured to use the private registry as a mirror for the MAS container images.  An `ImageContentSourcePolicy` named `mas-and-dependencies` will be created in the cluster, this is also the resource that the MAS install will use to detect whether the installation is a disconnected install and tailor the options presented when you run the `mas install` command.
 
 ```bash
