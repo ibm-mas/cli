@@ -76,9 +76,6 @@ spec:
       type: string
       default: add
 
-    - name: dro_url
-      type: string
-      default: ""
     - name: dro_contact_email
       type: string
     - name: dro_contact_firstname
@@ -391,8 +388,6 @@ spec:
           value: $(params.github_pat)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: dro_url
-          value: $(params.dro_url)
         - name: dro_contact_email
           value: $(params.dro_contact_email)
         - name: dro_contact_firstname
