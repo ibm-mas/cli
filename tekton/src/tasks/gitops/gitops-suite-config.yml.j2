@@ -26,9 +26,6 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: dro_url
-      type: string
-      default: ""
     - name: dro_contact_email
       type: string
     - name: dro_contact_firstname
@@ -74,8 +71,6 @@ spec:
         value: $(params.avp_aws_secret_region)
       - name: REGION_ID
         value: $(params.avp_aws_secret_region)
-      - name: DRO_URL
-        value: $(params.dro_url)
       - name: DRO_CONTACT_EMAIL
         value: $(params.dro_contact_email)
       - name: DRO_CONTACT_FIRSTNAME

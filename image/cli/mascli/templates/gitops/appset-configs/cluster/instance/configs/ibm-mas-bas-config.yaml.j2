@@ -8,7 +8,7 @@ mas_config_api_version: "config.mas.ibm.com"
 
 mas_instance_id: {{ MAS_INSTANCE_ID }}
 dro_api_token: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DRO_API_TOKEN }}>
-dro_endpoint_url: {{ DRO_URL }}
+dro_endpoint_url: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DRO_URL }}>
 dro_contact:
   email: {{ DRO_CONTACT_EMAIL }}
   first_name: {{ DRO_CONTACT_FIRSTNAME }}

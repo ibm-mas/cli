@@ -28,7 +28,6 @@ MongoDb Provider Selection:
       --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. Only "aws" is supported
 
 DRO Configuration:
-      --dro-url ${COLOR_YELLOW}DRO_URL${TEXT_RESET}                                 The URL for the DRO instance
       --dro-contact-email ${COLOR_YELLOW}DRO_CONTACT_EMAIL${TEXT_RESET}             The email address to register with DRO
       --dro-contact-firstname ${COLOR_YELLOW}DRO_CONTACT_FIRSTNAME${TEXT_RESET}     The first name to register with DRO
       --dro-contact-lastname ${COLOR_YELLOW}DRO_CONTACT_LASTNAME${TEXT_RESET}       The last name to register with DRO
@@ -86,9 +85,6 @@ function gitops_suite_config_noninteractive() {
         ;;
 
       # DRO
-      --dro-url)
-        export DRO_URL=$1 && shift
-        ;;
       --dro-contact-email)
         export DRO_CONTACT_EMAIL=$1 && shift
         ;;
@@ -151,7 +147,6 @@ function gitops_suite_config_noninteractive() {
       esac
   done
 
-  [[ -z "$DRO_URL" ]] && gitops_suite_config_help "DRO_URL is not set"
   [[ -z "$DRO_CONTACT_EMAIL" ]] && gitops_suite_config_help "DRO_CONTACT_EMAIL is not set"
   [[ -z "$DRO_CONTACT_FIRSTNAME" ]] && gitops_suite_config_help "DRO_CONTACT_FIRSTNAME is not set"
   [[ -z "$DRO_CONTACT_LASTNAME" ]] && gitops_suite_config_help "DRO_CONTACT_LASTNAME is not set"
@@ -216,7 +211,6 @@ function gitops_suite_config() {
 
   echo "${TEXT_DIM}"
   echo_h4 "DRO" "    "
-  echo_reset_dim "DRO Url  ....................... ${COLOR_MAGENTA}${DRO_URL}"
   echo_reset_dim "DRO Contact Email  ............. ${COLOR_MAGENTA}${DRO_CONTACT_EMAIL}"
   echo_reset_dim "DRO Contact First Name  ........ ${COLOR_MAGENTA}${DRO_CONTACT_FIRSTNAME}"
   echo_reset_dim "DRO Contact Last Name  ......... ${COLOR_MAGENTA}${DRO_CONTACT_LASTNAME}"
@@ -250,6 +244,8 @@ function gitops_suite_config() {
   # Note that these cluster-level secrets are set up by gitops-mongo
   export SECRET_KEY_MONGO_INFO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo#info
   export SECRET_KEY_DRO_API_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#dro_api_token
+  export SECRET_KEY_DRO_URL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#dro_url
+
   export DRO_CA_CERTIFICATE=$(cat ${DRO_CA_CERTIFICATE_FILE})
 
   # Get the cluster-level secrets used
