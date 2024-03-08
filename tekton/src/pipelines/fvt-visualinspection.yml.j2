@@ -67,24 +67,6 @@ spec:
           operator: notin
           values: [""]
 
-    - name: cv-visualinspection
-      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
-        - name: product_id
-          value: ibm-mas-visualinspection
-        - name: product_channel
-          value: $(params.mas_app_channel_visualinspection)
-        - name: fvt_test_suite
-          value: contentverification
-      when:
-        - input: "$(params.ivt_digest_core)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_visualinspection)"
-          operator: notin
-          values: [""]
-
 
     # 2. Prepare data for Python and Desktop suites
     # -----------------------------------------------------------------------------
@@ -119,7 +101,27 @@ spec:
           values: [""]
       runAfter:
         - ivtcore-visualinspection
-        - cv-visualinspection
       workspaces:
         - name: configs
           workspace: shared-configs
+
+  finally:
+    # 3. Run CV
+    # -----------------------------------------------------------------------------
+    - name: cv-visualinspection
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-visualinspection
+        - name: product_channel
+          value: $(params.mas_app_channel_visualinspection)
+        - name: fvt_test_suite
+          value: contentverification
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_visualinspection)"
+          operator: notin
+          values: [""]
