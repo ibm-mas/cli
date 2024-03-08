@@ -71,7 +71,7 @@ spec:
     # Phase 2
     # -------------------------------------------------------------------------
     # Suites that take less than 25 minutes
-    {{ lookup('template', 'taskdefs/fvt-core/phase2-under30min.yml.j2', template_vars={'runAfter': [ 'ibmadminissuer', 'adoptionusageapi', 'coreapi-apikeymgmt', 'coreapi-mobileapi', 'coreapi-messages', 'coreapi-graphiteconfigtool', 'coreapi-scimv2']}) | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-core/phase2-under30min.yml.j2', template_vars={'runAfter': [ 'ibmadminissuer', 'adoptionusageapi', 'coreapi-apikeymgmt', 'coreapi-mobileapi', 'coreapi-messages', 'coreapi-graphiteconfigtool', 'coreapi-scimv2', 'coreapi-uicustomizations']}) | indent(4) }}
 
     # Phase 3
     # -------------------------------------------------------------------------
