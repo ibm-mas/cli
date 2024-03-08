@@ -22,6 +22,8 @@ spec:
       type: string
     - name: github_pat
       type: string
+    - name: app_revision
+      type: string
   stepTemplate:
     name: gitops-bootstrap
     env:
@@ -41,6 +43,8 @@ spec:
         value: $(params.github_revision)
       - name: GITHUB_PAT
         value: $(params.github_pat)
+      - name: APP_REVISION
+        value: $(params.app_revision)
   steps:
     - args:
       - |-
@@ -80,7 +84,8 @@ spec:
         --sm-aws-access-key $AVP_AWS_ACCESS_KEY \
         --github-url $GITHUB_URL \
         --github-pat $GITHUB_PAT \
-        --github-revision $GITHUB_REVISION
+        --github-revision $GITHUB_REVISION \
+        -- app-revision $APP_REVISION
       command:
         - /bin/sh
         - -c

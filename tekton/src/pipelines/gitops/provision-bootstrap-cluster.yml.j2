@@ -42,7 +42,8 @@ spec:
 
     - name: github_revision
       type: string
-      default: "poc"
+    - name: app_revision
+      type: string
     - name: github_url
       type: string
     - name: rosa_token
@@ -152,6 +153,8 @@ spec:
           value: $(params.github_revision)
         - name: github_pat
           value: $(params.github_pat)
+        - name: app_revision
+          value: $(params.app_revision)
       taskRef:
         kind: Task
         name: gitops-bootstrap

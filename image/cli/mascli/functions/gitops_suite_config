@@ -30,8 +30,8 @@ MongoDb Provider Selection:
 DRO Configuration:
       --dro-url ${COLOR_YELLOW}DRO_URL${TEXT_RESET}                                 The URL for the DRO instance
       --dro-contact-email ${COLOR_YELLOW}DRO_CONTACT_EMAIL${TEXT_RESET}             The email address to register with DRO
-      --dro-contact-firstname ${COLOR_YELLOW}DRO_URL${TEXT_RESET}                   The first name to register with DRO
-      --dro-contact-lastname ${COLOR_YELLOW}DRO_URL${TEXT_RESET}                    The last name to register with DRO
+      --dro-contact-firstname ${COLOR_YELLOW}DRO_CONTACT_FIRSTNAME${TEXT_RESET}     The first name to register with DRO
+      --dro-contact-lastname ${COLOR_YELLOW}DRO_CONTACT_LASTNAME${TEXT_RESET}       The last name to register with DRO
       --dro-ca-certificate-file ${COLOR_YELLOW}DRO_CA_CERTIFICATE_FILE${TEXT_RESET} The location of a file containing the DRO CA certificate
 
 Automatic GitHub Push:
