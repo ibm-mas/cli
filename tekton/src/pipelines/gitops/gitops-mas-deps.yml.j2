@@ -71,7 +71,10 @@ spec:
       type: string
       description: efs action to be performed (provision or deprovision)
       default: ""
-
+    - name: cloud_provider
+      type: string
+      default: aws
+      
     - name: cos_type
       type: string
       description: COS Provider (ibm or ocs)
