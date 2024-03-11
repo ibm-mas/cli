@@ -212,9 +212,9 @@ spec:
 
     # Uninstall AWS Elastic File Service (EFS)
     - name: gitops-deprovision-efs
-{% if wait_for_provision == true %}
+{% if wait_for_deprovision == true %}
       runAfter:
-        - wait-for-provision
+        - wait-for-deprovision
 {% endif %}
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
