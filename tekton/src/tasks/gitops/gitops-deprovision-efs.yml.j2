@@ -9,6 +9,10 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
     - name: mas_instance_id
       type: string
     - name: cloud_provider
@@ -21,16 +25,14 @@ spec:
         value: $(params.cluster_name)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
+      - name: SM_AWS_SECRET_ACCESS_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: SM_AWS_ACCESS_KEY_ID
+        value: $(params.avp_aws_access_key)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
       - name: CLOUD_PROVIDER
         value: $(params.cloud_provider)
-    envFrom:
-      - configMapRef:
-          name: environment-properties
-          optional: true
-      - secretRef:
-          name: secure-properties
   steps:
     - args:
       - |-
