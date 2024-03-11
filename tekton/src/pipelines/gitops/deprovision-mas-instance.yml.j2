@@ -236,28 +236,7 @@ spec:
           operator: in
           values: ["remove"]
 
-    # 8. Deprovision EFS
-    # -------------------------------------------------------------------------
-    - name: gitops-deprovision-efs
-      runAfter:
-        - gitops-deprovision-suite
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: cloud_provider
-          value: $(params.cloud_provider)
-      workspaces:
-        - name: configs
-          workspace: configs
-      taskRef:
-        kind: Task
-        name: gitops-deprovision-efs
-
-    # 9. Deprovision Kafka config
+    # 8. Deprovision Kafka config
     # -------------------------------------------------------------------------
     - name: gitops-delete-kafka-config
       runAfter:
@@ -279,7 +258,7 @@ spec:
         kind: Task
         name: gitops-delete-kafka-config
 
-    # 10. Deprovision Objectstorage config
+    # 9. Deprovision Objectstorage config
     # -------------------------------------------------------------------------
     - name: gitops-deprovision-suite-objectstorage-config
       runAfter:
@@ -300,7 +279,7 @@ spec:
         - name: configs
           workspace: configs
 
-    # 12. Deprovision Watson Studio config
+    # 10. Deprovision Watson Studio config
     # -------------------------------------------------------------------------
     - name: gitops-deprovision-suite-watson-studio-config
       runAfter:
