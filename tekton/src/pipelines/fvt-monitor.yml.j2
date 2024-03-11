@@ -79,23 +79,6 @@ spec:
           operator: notin
           values: [""]
 
-    - name: cv-monitor
-      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
-        - name: product_id
-          value: ibm-mas-monitor
-        - name: product_channel
-          value: $(params.mas_app_channel_monitor)
-        - name: fvt_test_suite
-          value: contentverification
-      when:
-        - input: "$(params.ivt_digest_core)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
-          operator: notin
-          values: [""]
 
     # 2. Monitor FVT (with or without Manage Integration)
     # -----------------------------------------------------------------------------
@@ -133,7 +116,6 @@ spec:
           values: [""]
       runAfter:
         - ivtcore-monitor
-        - cv-monitor
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -143,3 +125,24 @@ spec:
     {{ lookup('template', 'taskdefs/fvt-data-dictionary/data-dictionary.yml.j2') | indent(4) }}
       runAfter:
         - fvt-monitor
+
+  finally:
+    # 3. Run CV
+    # -----------------------------------------------------------------------------
+    - name: cv-monitor
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-monitor
+        - name: product_channel
+          value: $(params.mas_app_channel_monitor)
+        - name: fvt_test_suite
+          value: contentverification
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: [""]
