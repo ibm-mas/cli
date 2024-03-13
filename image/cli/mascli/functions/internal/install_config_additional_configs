@@ -17,6 +17,16 @@ function install_config_additional_configs() {
         prompt_for_input "+ Local config directory" LOCAL_MAS_CONFIG_DIR && export LOCAL_MAS_CONFIG_DIR
         echo
         use_additional_configs=yes
+        if [[ ! -d "$LOCAL_MAS_CONFIG_DIR" ]]; then
+          echo_warning "Error: The directory $LOCAL_MAS_CONFIG_DIR does not exist"
+          if prompt_for_confirm "Create directory $LOCAL_MAS_CONFIG_DIR instead?"; then
+            mkdir $LOCAL_MAS_CONFIG_DIR
+            echo "Directory $LOCAL_MAS_CONFIG_DIR has been created"
+            echo
+          else
+            exit 1
+          fi
+        fi
       fi
     else
       # If the user has already generated a config then we will lose additional configs
