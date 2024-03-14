@@ -3,10 +3,10 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: root.{{ ACCOUNT_ID }}
-  namespace: openshift-gitops
+  namespace: {{ ARGOAPP_NAMESPACE }}
 spec:
   destination:
-    namespace: openshift-gitops
+    namespace: {{ ARGOAPP_NAMESPACE }}
     server: 'https://kubernetes.default.svc'
   project: mas
   source:
@@ -25,7 +25,8 @@ spec:
           },
           "source": {
             "targetRevision": "{{ APP_REVISION }}"
-          }
+          },
+          "argoapp_namespace": "{{ ARGOAPP_NAMESPACE }}"
         }
   syncPolicy:
     automated: {}
