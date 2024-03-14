@@ -384,3 +384,27 @@ spec:
           values: ["uninstall"]
       runAfter:
         - uninstall-ibm-catalogs
+
+
+  # In FVT only this is the time to take a must-gather and finalize the result
+  # ---------------------------------------------------------------------------
+  finally:
+    # Collect must-gather
+    # -------------------------------------------------------------------------
+    - name: must-gather
+      taskRef:
+        kind: Task
+        name: mas-devops-must-gather
+      params:
+        - name: base_output_dir
+          value: "/workspace/mustgather/$(context.pipelineRun.name)"
+      workspaces:
+        - name: mustgather
+          workspace: shared-mustgather
+
+    # Finalize the record in the FVT database
+    # -------------------------------------------------------------------------
+    - name: finalize
+      taskRef:
+        kind: Task
+        name: mas-fvt-finalize
