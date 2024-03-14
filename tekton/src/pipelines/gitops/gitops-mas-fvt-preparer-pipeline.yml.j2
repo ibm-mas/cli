@@ -23,9 +23,15 @@ spec:
 {% endif %}
     - name: cluster_name
       type: string
+    - name: account_id
+      type: string
+    - name: region_id
+      type: string
     - name: cluster_url
       type: string
     - name: devops_build_number
+      type: string
+    - name: launcher_id
       type: string
     - name: mas_instance_id
       type: string
@@ -174,10 +180,16 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: account_id
+          value: $(params.account_id)
+        - name: region_id
+          value: $(params.region_id)
         - name: cluster_url
           value: $(params.cluster_url)
         - name: devops_build_number
           value: $(params.devops_build_number)
+        - name: launcher_id
+          value: $(params.launcher_id)
         - name: mas_instance_id
           value: $(params.mas_instance_id)
         - name: pipeline_storage_class
