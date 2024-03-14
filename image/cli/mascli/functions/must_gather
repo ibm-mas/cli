@@ -253,6 +253,15 @@ function mustgather() {
       echo_highlight "Unable to find db2u namespace"
     fi
 
+    echo_h3 "IBM Data Reporter Operator"
+    NAMESPACE_LOOKUP=$(oc get namespace redhat-marketplace --ignore-not-found)
+    if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
+      $MG_SCRIPT_DIR/mg-summary-dro &> ${OUTPUT_DIR}/dro.txt
+      genericMustGather redhat-marketplace DataReporterConfig,MarketplaceConfig,MeterReport,MeterBase,RazeeDeployment,MeterDefinition
+    else
+      echo_highlight "Unable to find redhat-marketplace namespace"
+    fi
+
     MONGOCE_NAMESPACES=$(oc get mongodbcommunity --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
     for MONGOCE_NAMESPACE in $MONGOCE_NAMESPACES
     do
