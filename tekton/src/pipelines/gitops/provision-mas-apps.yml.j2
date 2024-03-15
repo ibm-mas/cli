@@ -681,7 +681,11 @@ spec:
       runAfter:
         - wait-for-fvt-complete
         - gitops-suite-objectstorage-config
+{% else %}
+      runAfter:
+        - gitops-suite-objectstorage-config
 {% endif %}
+
 
     # 7.2 Configure VisualInspection workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/visualinspection-workspace.yml.j2') | indent(4) }}
