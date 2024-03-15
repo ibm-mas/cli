@@ -346,17 +346,54 @@ spec:
 
         argocd_login
       
-        MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-        BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-        SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-        SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-        SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-        check_argo_app_healthy "${MONGO_CONFIG_APP}" 
-        check_argo_app_healthy "${SLS_CONFIG_APP}"
-        check_argo_app_healthy "${BAS_CONFIG_APP}"
-        check_argo_app_healthy "${SLS_APP_NAME}"
-        check_argo_app_healthy "${SUITE_APP_NAME}"
+        if [[ "$LAUNCHER_ID" == "core" ]]; then
+          MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          check_argo_app_healthy "${MONGO_CONFIG_APP}" 
+          check_argo_app_healthy "${SLS_CONFIG_APP}"
+          check_argo_app_healthy "${BAS_CONFIG_APP}"
+          check_argo_app_healthy "${SLS_APP_NAME}"
+          check_argo_app_healthy "${SUITE_APP_NAME}"
+        fi
       
+        if [[ "$LAUNCHER_ID" == "apps" ]]; then
+          if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
+            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.assist"
+            check_argo_app_healthy "${MASAPP_APP}"
+          fi
+          if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
+            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.iot"
+            check_argo_app_healthy "${MASAPP_APP}"
+          fi
+          if [[ "$LAUNCHFVT_MANAGE" == "true" ]]; then
+            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.manage"
+            check_argo_app_healthy "${MASAPP_APP}"
+          fi
+          if [[ "$LAUNCHFVT_MOBILE" == "true" ]]; then
+            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.manage"
+            check_argo_app_healthy "${MASAPP_APP}"
+          fi
+          if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
+            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.monitor"
+            check_argo_app_healthy "${MASAPP_APP}"
+          fi
+          if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
+            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.optimizer"
+            check_argo_app_healthy "${MASAPP_APP}"
+          fi
+          if [[ "$LAUNCHFVT_PREDICT" == "true" ]]; then
+            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.predict"
+            check_argo_app_healthy "${MASAPP_APP}"
+          fi
+          if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
+            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.visualinspection"
+            check_argo_app_healthy "${MASAPP_APP}"
+          fi
+        fi
+
         echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration 4h --applications *"  
         argocd proj windows add mas --kind deny --schedule "* * * * *" --duration 4h --applications "*.$MAS_INSTANCE_ID"
 
