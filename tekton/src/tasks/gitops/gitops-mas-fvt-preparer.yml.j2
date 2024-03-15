@@ -345,8 +345,16 @@ spec:
         fi
 
         argocd_login
-
+      
+        MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+        BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+        SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+        SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
         SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+        check_argo_app_healthy "${MONGO_CONFIG_APP}" 
+        check_argo_app_healthy "${SLS_CONFIG_APP}"
+        check_argo_app_healthy "${BAS_CONFIG_APP}"
+        check_argo_app_healthy "${SLS_APP_NAME}"
         check_argo_app_healthy "${SUITE_APP_NAME}"
       
         echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration 4h --applications *"  
