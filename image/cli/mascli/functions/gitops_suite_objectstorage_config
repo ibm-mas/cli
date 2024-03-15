@@ -43,7 +43,7 @@ EOM
 function gitops_suite_objectstorage_config_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-cos-config commit"
+  GIT_COMMIT_MSG="gitops-suite-objectstorage-config commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   export REGION=${REGION:-${SM_AWS_REGION}}
