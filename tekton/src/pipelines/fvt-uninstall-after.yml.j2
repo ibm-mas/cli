@@ -4,6 +4,10 @@ kind: Pipeline
 metadata:
   name: mas-fvt-uninstall-after
 spec:
+  workspaces:
+    # Shared storage to hold mustgather output for tasks
+    - name: shared-mustgather
+
   params:
     # Name of the PipelineRun to wait for
     - name: pipelinerun_name
