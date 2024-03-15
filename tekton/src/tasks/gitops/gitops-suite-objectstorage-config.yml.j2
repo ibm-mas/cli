@@ -83,9 +83,9 @@ spec:
         # export GITOPS_CONFIG_DIR=/workspace/configs
         echo "GITOPS_CONFIG_DIR=${GITOPS_CONFIG_DIR}"
 
-        if [ -f "${GITOPS_CONFIG_DIR}/cos-ibm-system.yml" ]; then
+        if [ -f "${GITOPS_CONFIG_DIR}/cos_ibm_system.yml" ]; then
           export COS_CONFIG=${GITOPS_CONFIG_DIR}/${MAS_INSTANCE_ID}-cos/cos-ibm-system.yml
-          cp ${GITOPS_CONFIG_DIR}/cos-ibm-system.yml ${COS_CONFIG}
+          cp ${GITOPS_CONFIG_DIR}/cos_ibm_system.yml ${COS_CONFIG}
         fi
 
         mas gitops-suite-objectstorage-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \

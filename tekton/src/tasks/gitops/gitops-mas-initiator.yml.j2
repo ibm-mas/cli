@@ -106,11 +106,11 @@ spec:
         yq -iY 'del(.stringData)' $TEMP_COS_CONFIG
         cp $TEMP_COS_CONFIG gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/cos-ibm-system.yml
 
-        yq -sY '.[1].spec' $COS_CONFIG > $TEMP_MASCONFIG_DIR/cos-info.yaml
-        export COS_URL=$(cat $TEMP_MASCONFIG_DIR/cos-info.yaml | yq -r '.config.url')
-        echo "COS_URL=$COS_URL"
-        yq --arg URL $COS_URL -iY '.cos.url= $URL' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
-        rm -rf $TEMP_MASCONFIG_DIR/cos-info.yaml
+        # yq -sY '.[1].spec' $COS_CONFIG > $TEMP_MASCONFIG_DIR/cos-info.yaml
+        # export COS_URL=$(cat $TEMP_MASCONFIG_DIR/cos-info.yaml | yq -r '.config.url')
+        # echo "COS_URL=$COS_URL"
+        # yq --arg URL $COS_URL -iY '.cos.url= $URL' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+        # rm -rf $TEMP_MASCONFIG_DIR/cos-info.yaml
 
         echo "git: Adding all files in $TARGET_LOCAL_DIR working directory"
         export FILES_ADDED=$(git add -v . | wc -l | xargs)
