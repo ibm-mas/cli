@@ -8,8 +8,6 @@
 # - fvt-manage-directprint (selenium)
 # - fvt-manage-adhoc-report (selenium)
 # - fvt-manage-jms-outbound (selenium)
-# - fvt-manage-s3fileandbucketoperations (pytest)
-# - fvt-manage-s3doclinksupport (pytest)
 # -------------------------------------------------------------
 
 # Manage FVT Security Audit Logging
@@ -174,48 +172,6 @@
       value: base
     - name: fvt_test_suite
       value: mif-jms-outbound
-  runAfter:
-    - fvt-manage-escalation-action
-    - fvt-manage-autoscript-adddeletewo
-    - fvt-manage-jms-inbound
-    - fvt-manage-mif-kafka-setup
-    - fvt-manage-birt-report
-    - fvt-manage-user-crud
-    - fvt-manage-user-consumption
-    - fvt-manage-communication-temp
-    - fvt-manage-externalsystem
-    - fvt-manage-kafka
-
-# Manage FVT S3 COSAPI
-- name: fvt-manage-s3fileandbucketoperations
-  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base
-    - name: fvt_test_suite
-      value: s3fileandbucketoperations
-  runAfter:
-    - fvt-manage-escalation-action
-    - fvt-manage-autoscript-adddeletewo
-    - fvt-manage-jms-inbound
-    - fvt-manage-mif-kafka-setup
-    - fvt-manage-birt-report
-    - fvt-manage-user-crud
-    - fvt-manage-user-consumption
-    - fvt-manage-communication-temp
-    - fvt-manage-externalsystem
-    - fvt-manage-kafka
-
- # Manage FVT S3 DoclinkSupport
-- name: fvt-manage-s3doclinksupport
-  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base
-    - name: fvt_test_suite
-      value: s3doclinksupport
   runAfter:
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
