@@ -3,11 +3,9 @@
 # - fvt-manage-sec-audit-log (selenium)
 # - fvt-manage-sec-inactive-auth (selenium)
 # - fvt-manage-mif-kafka-inbound (selenium)
-# - fvt-manage-mif-kafka-outbound (selenium)
 # - fvt-manage-wo-doclink (selenium)
 # - fvt-manage-directprint (selenium)
 # - fvt-manage-adhoc-report (selenium)
-# - fvt-manage-jms-outbound (selenium)
 # -------------------------------------------------------------
 
 # Manage FVT Security Audit Logging
@@ -76,28 +74,6 @@
     - fvt-manage-externalsystem
     - fvt-manage-kafka
 
-# Manage FVT Kafka outbound
-- name: fvt-manage-mif-kafka-outbound
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base
-    - name: fvt_test_suite
-      value: mif-kafka-outbound
-  runAfter:
-    - fvt-manage-escalation-action
-    - fvt-manage-autoscript-adddeletewo
-    - fvt-manage-jms-inbound
-    - fvt-manage-mif-kafka-setup
-    - fvt-manage-birt-report
-    - fvt-manage-user-crud
-    - fvt-manage-user-consumption
-    - fvt-manage-communication-temp
-    - fvt-manage-externalsystem
-    - fvt-manage-kafka
-
 # Manage FVT Work Order Attachments
 - name: fvt-manage-wo-doclink
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
@@ -150,28 +126,6 @@
       value: base
     - name: fvt_test_suite
       value: adhoc
-  runAfter:
-    - fvt-manage-escalation-action
-    - fvt-manage-autoscript-adddeletewo
-    - fvt-manage-jms-inbound
-    - fvt-manage-mif-kafka-setup
-    - fvt-manage-birt-report
-    - fvt-manage-user-crud
-    - fvt-manage-user-consumption
-    - fvt-manage-communication-temp
-    - fvt-manage-externalsystem
-    - fvt-manage-kafka
-
-# Manage JMS Integration - Outbound
-- name: fvt-manage-jms-outbound
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base
-    - name: fvt_test_suite
-      value: mif-jms-outbound
   runAfter:
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
