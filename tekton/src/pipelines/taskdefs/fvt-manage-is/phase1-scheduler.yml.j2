@@ -1,17 +1,8 @@
 # Manage FVT - Scheduler - New User
-- name: fvt-manage-scheduler-user
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: scheduler-setup-user
-    - name: fvt_mas_appws_component
-      value: scheduler
-    - name: fvt_test_driver
-      value: tpae
+# >>> Replaced by user created in bvt (manage phase 1)
 
 # Manage FVT - Scheduler Setup
+# >>> TODO - Move to pytest
 - name: fvt-manage-scheduler-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
@@ -23,8 +14,6 @@
       value: scheduler
     - name: fvt_test_driver
       value: tpae
-  runAfter:
-    - fvt-manage-scheduler-user
 
 # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-1
@@ -41,7 +30,7 @@
   runAfter:
     - fvt-manage-scheduler-setup
 
-# Manage FVT - Scheduler
+{# # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-2
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
@@ -124,4 +113,4 @@
     - fvt-manage-scheduler-1
     - fvt-manage-scheduler-2
     - fvt-manage-scheduler-3
-    - fvt-manage-scheduler-4
+    - fvt-manage-scheduler-4 #}
