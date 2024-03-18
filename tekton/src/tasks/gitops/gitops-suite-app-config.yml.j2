@@ -276,10 +276,12 @@ spec:
         # mas app install specific 
         export MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
 
-        if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
-          export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
-          export ARGOCD_USERNAME=admin
-          export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
+        if [ "${ARGOCD_CHECK}" == "true" ]; then
+          if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
+            export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
+            export ARGOCD_USERNAME=admin
+            export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
+          fi
         fi
 
         # Any external config is stored here
