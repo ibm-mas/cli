@@ -49,7 +49,7 @@ EOM
 function gitops_suite_watson_studio_config_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-cos-config commit"
+  GIT_COMMIT_MSG="gitops-suite-watson-studio-config commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
   export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
 

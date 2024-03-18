@@ -32,6 +32,9 @@ spec:
     - name: argocd_check
       type: string
       default: "false"
+    - name: gitops_config_dir
+      type: string
+      default: "/workspace/configs"
   stepTemplate:
     name: gitops-suite-objectstorage-config
     env:
@@ -59,6 +62,8 @@ spec:
         value: $(params.argocd_url)
       - name: ARGOCD_CHECK
         value: $(params.argocd_check)
+      - name: GITOPS_CONFIG_DIR
+        value: $(params.gitops_config_dir)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -75,7 +80,13 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        export GITOPS_CONFIG_DIR=/workspace/configs
+        # export GITOPS_CONFIG_DIR=/workspace/configs
+        echo "GITOPS_CONFIG_DIR=${GITOPS_CONFIG_DIR}"
+
+        if [ -f "${GITOPS_CONFIG_DIR}/cos_ibm_system.yml" ]; then
+          export COS_CONFIG=${GITOPS_CONFIG_DIR}/${MAS_INSTANCE_ID}-cos/cos-ibm-system.yml
+          cp ${GITOPS_CONFIG_DIR}/cos_ibm_system.yml ${COS_CONFIG}
+        fi
 
         mas gitops-suite-objectstorage-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --secrets-path $SECRET_PATH \
