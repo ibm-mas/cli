@@ -11,7 +11,8 @@ mas_instance_id: {{ MAS_INSTANCE_ID }}
 db2_jdbc_username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_USERNAME }}>
 jdbc_instance_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_PASSWORD }}>
 mas_config_dir: {{ MAS_CONFIG_DIR }}
-jdbc_url: {{ JDBC_URL }}
+db2_tls_serviceport: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_TLS_SERVICEPORT }}>
+tls_version:  {{ TLS_VERSION }}
 db2_dbname: {{ DB2_DBNAME }}
 db2_namespace: {{ DB2_NAMESPACE }}
 
@@ -35,4 +36,4 @@ wsapp_suite_jdbccfg_labels:
     mas.ibm.com/instanceId: "{{ MAS_INSTANCE_ID }}"
     mas.ibm.com/workspaceId: "{{ MAS_WORKSPACE_ID }}"
 
-db2_ca_pem: {{ DB2_CA_PEM }}
+db2_ca_pem: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_CA_PEM }}>

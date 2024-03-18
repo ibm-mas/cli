@@ -469,20 +469,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
-
-  # Set by postsync job in redhat-cert-manager chart
-  # This is a workaround for the fact that we cannot interact with the cluster directly (see https://jsw.ibm.com/browse/MASCORE-1425)
-  # NOTE: this isn't a secret value, so it's safe to fetch it here and embed it in our config in the clear
-  echo "Fetching cluster domain from Secrets manager"
-  export CLUSTER_DOMAIN=`oc get ingress.config.openshift.io  cluster -o=jsonpath='{.spec.domain}'`
-  export SECRET_NAME_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain
-  export CLUSTER_DOMAIN=$(sm_get_secret_value ${SECRET_NAME_CLUSTER_DOMAIN} "cluster_domain")
-  echo "cluster domain: ${CLUSTER_DOMAIN}"
-  if [[ -z "${CLUSTER_DOMAIN}" ]]; then
-    echo "Failed to fetch cluster domain from secrets manager"
-    exit
-  fi
-
+  export SECRET_KEY_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain#cluster_domain
 
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-db2u-database

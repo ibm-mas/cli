@@ -2,5 +2,9 @@ merge-key: "{{ ACCOUNT_ID }}/{{ REGION }}/{{ CLUSTER_ID }}"
 
 ibm_db2u:
   db2_namespace: {{ DB2_NAMESPACE }}
+{% if DB2_CHANNEL is defined and DB2_CHANNEL !='' %}
   db2_channel: {{ DB2_CHANNEL }}
+{% else %}
+  db2_channel: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_DEFAULT_CHANNEL }}>
+{% endif %}
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
