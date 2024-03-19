@@ -9,6 +9,8 @@ spec:
       type: string
     - name: account
       type: string
+    - name: region
+      type: string
     - name: secrets_path
       type: string
     - name: mas_instance_id
@@ -44,6 +46,8 @@ spec:
         value: $(params.cluster_name)
       - name: ACCOUNT
         value: $(params.account)
+      - name: REGION
+        value: $(params.region)
       - name: SECRET_PATH
         value: $(params.secrets_path)
       - name: MAS_INSTANCE_ID

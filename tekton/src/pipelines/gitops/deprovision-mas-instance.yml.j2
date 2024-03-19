@@ -46,8 +46,6 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
-    - name: vpc_ipv4_cidr
-      type: string
     - name: mongo_provider
       type: string
       default: aws
@@ -55,24 +53,6 @@ spec:
       type: string
     - name: mas_workspace_name
       type: string
-    - name: aws_key_pair_name
-      type: string
-    - name: ec2_linux_ami_id
-      type: string
-      default: ""
-    - name: docdb_user_action
-      type: string
-      default: remove
-    - name: cloud_provider
-      type: string
-      default: aws
-    - name: kafka_provider
-      type: string
-      default: aws
-    - name: db2_action
-      type: string
-      default: "remove"
-      description: Only remove when db2 instances is provisioned
 
     - name: force_removal
       type: string
@@ -106,9 +86,9 @@ spec:
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: workspace_id
+        - name: mas_workspace_id
           value: $(params.mas_workspace_id)
-        - name: workspace_name
+        - name: mas_workspace_name
           value: $(params.mas_workspace_name)
         - name: force_removal
           value: $(params.force_removal)
@@ -202,8 +182,6 @@ spec:
           value: $(params.mongo_provider)
         - name: force_removal
           value: $(params.force_removal)
-        - name: user_action
-          value: $(params.docdb_user_action)
 
       taskRef:
         kind: Task
@@ -211,32 +189,6 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
-
-    # 7. Deprovision db2u operator
-    # -------------------------------------------------------------------------
-    - name: gitops-deprovision-db2u
-      runAfter:
-        - gitops-deprovision-suite
-      params:
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: db2_action
-          value: $(params.db2_action)
-
-      workspaces:
-        - name: configs
-          workspace: configs
-      taskRef:
-        kind: Task
-        name: gitops-deprovision-db2u
-      when:
-        - input: "$(params.db2_action)"
-          operator: in
-          values: ["remove"]
 
     # 8. Deprovision Kafka config
     # -------------------------------------------------------------------------

@@ -9,6 +9,8 @@ spec:
       type: string
     - name: account
       type: string
+    - name: region
+      type: string
     - name: cluster_url
       type: string
       default: ""
@@ -39,6 +41,8 @@ spec:
         value: $(params.cluster_name)
       - name: ACCOUNT
         value: $(params.account)
+      - name: REGION
+        value: $(params.region)
       - name: OCP_SERVER
         value: $(params.cluster_url)
       - name: SECRET_PATH

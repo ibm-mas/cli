@@ -113,7 +113,7 @@ function gitops_deprovision_cluster_noninteractive() {
   done
 
   [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_cluster_help "ACCOUNT_ID is not set"
-  [[ -z "$REGION" ]] && gitops_cluster_help "REGION is not set"
+  [[ -z "$REGION" ]] && gitops_deprovision_cluster_help "REGION is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_cluster_help "CLUSTER_ID is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
