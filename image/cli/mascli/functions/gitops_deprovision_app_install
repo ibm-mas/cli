@@ -15,7 +15,7 @@ GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Working directory for GitOps repository
   -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
-  -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
+  -r, --region-id ${COLOR_YELLOW}REGION${TEXT_RESET}                 Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -f, --force-removal ${COLOR_YELLOW}FORCE_REMOVAL${TEXT_RESET}      Force remove the ArgoCD Application, when deletion exceeds timeout  
   -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}        ArgoCD check flag, when set to true will make ArgoCD calls
@@ -136,7 +136,7 @@ function gitops_deprovision_app_install_noninteractive() {
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_deprovision_app_install_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$GITOPS_VERSION" ]] && gitops_deprovision_app_install_help "GITOPS_VERSION is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_app_install_help "CLUSTER_ID is not set"
-  [[ -z "$REGION" ]] && gitops_deprovision_app_config_help "REGION is not set"
+  [[ -z "$REGION" ]] && gitops_deprovision_app_install_help "REGION is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_app_install_help "ACCOUNT_ID is not set"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_app_install_help "GITHUB_HOST is not set"

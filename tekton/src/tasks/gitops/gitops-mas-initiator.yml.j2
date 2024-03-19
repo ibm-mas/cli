@@ -90,6 +90,28 @@ spec:
         yq --arg MASDOMAIN fvtsaas.apps.$DOMAIN -iY '.mas_instance.domain= $MASDOMAIN' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
         yq --arg URL $OCP_SERVER -iY '.cluster.url= $URL' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
 
+        # Update cos details in mas-instance.yaml. Assume fvtsaas here
+        export TEMP_MASCONFIG_DIR="/tmp/masconfig/"
+        mkdir -p $TEMP_MASCONFIG_DIR
+        export COS_CONFIG=/workspace/configs/$(params.cluster_name)-cos/cos-ibm-system.yml
+        export TEMP_COS_CONFIG=$TEMP_MASCONFIG_DIR/cos-ibm-system.yml
+
+        cp $COS_CONFIG $TEMP_COS_CONFIG
+        yq -iY 'del(.spec.config.credentials)' $TEMP_COS_CONFIG
+        yq -iY 'del(.spec.displayName)' $TEMP_COS_CONFIG
+        yq -iY 'del(.apiVersion)' $TEMP_COS_CONFIG
+        yq -iY 'del(.kind)' $TEMP_COS_CONFIG
+        yq -iY 'del(.type)' $TEMP_COS_CONFIG
+        yq -iY 'del(.metadata)' $TEMP_COS_CONFIG
+        yq -iY 'del(.stringData)' $TEMP_COS_CONFIG
+        cp $TEMP_COS_CONFIG gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/cos-ibm-system.yml
+
+        # yq -sY '.[1].spec' $COS_CONFIG > $TEMP_MASCONFIG_DIR/cos-info.yaml
+        # export COS_URL=$(cat $TEMP_MASCONFIG_DIR/cos-info.yaml | yq -r '.config.url')
+        # echo "COS_URL=$COS_URL"
+        # yq --arg URL $COS_URL -iY '.cos.url= $URL' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+        # rm -rf $TEMP_MASCONFIG_DIR/cos-info.yaml
+
         echo "git: Adding all files in $TARGET_LOCAL_DIR working directory"
         export FILES_ADDED=$(git add -v . | wc -l | xargs)
         echo "git: Added ${FILES_ADDED} files"

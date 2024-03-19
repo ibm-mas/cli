@@ -9,6 +9,8 @@ spec:
       type: string
     - name: account
       type: string
+    - name: region
+      type: string
     - name: secrets_path
       type: string
     - name: mas_instance_id
@@ -20,8 +22,6 @@ spec:
     - name: github_repo
       type: string
     - name: github_host
-      type: string
-    - name: github_pat
       type: string
     - name: avp_aws_secret_region
       type: string
@@ -43,6 +43,8 @@ spec:
         value: $(params.cluster_name)
       - name: ACCOUNT
         value: $(params.account)
+      - name: REGION
+        value: $(params.region)
       - name: SECRET_PATH
         value: $(params.secrets_path)
       - name: MAS_INSTANCE_ID
@@ -55,8 +57,6 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
-      - name: GITHUB_PAT
-        value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
       - name: FORCE_REMOVAL

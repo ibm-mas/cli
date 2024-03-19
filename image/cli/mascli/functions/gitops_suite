@@ -198,11 +198,11 @@ function gitops_suite_noninteractive() {
   [[ -z "$CLUSTER_ID" ]] && gitops_suite_help "CLUSTER_ID is not set"
   [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_cluster_help "REGION_ID or SM_AWS_REGION is not set"
   [[ -z "$CLUSTER_URL" ]] && gitops_cluster_help "CLUSTER_URL is not set"
-  [[ -z "$MONGODB_PROVIDER" ]] && gitops_process_mongo_user_help "MONGODB_PROVIDER is not set"
+  [[ -z "$MONGODB_PROVIDER" ]] && gitops_cluster_help "MONGODB_PROVIDER is not set"
 
   if [ $MONGODB_PROVIDER == 'aws' ]; then
-    [[ -z "$USER_ACTION" ]] && gitops_process_mongo_user_help "USER_ACTION is not set"
-    [[ -z "$MAS_INSTANCE_ID" ]] && gitops_process_mongo_user_help "MAS_INSTANCE_ID is not set"
+    [[ -z "$USER_ACTION" ]] && gitops_cluster_help "USER_ACTION is not set"
+    [[ -z "$MAS_INSTANCE_ID" ]] && gitops_cluster_help "MAS_INSTANCE_ID is not set"
     if [ -z $SM_AWS_ACCESS_KEY_ID ] || [ -z $SM_AWS_SECRET_ACCESS_KEY ] || [ -z $SM_AWS_REGION ]; then
       echo 'Missing required params for AWS mongo provider, make sure to provide --aws-access-key, --aws-secret-key, --aws-region'
       exit 1
