@@ -333,15 +333,15 @@ function gitops_mas_config() {
   # Certain configurations require additional parameters to be passed in when
   # rendering the configuration template file (e.g. Mongo)
   # Put these parameters into this YAML file.
-  export ADDITIONAL_JINJA_PARAMS_FILE="additional-jinja-params.yaml"
+  export ADDITIONAL_JINJA_PARAMS_FILE="$TEMP_DIR/additional-jinja-params.yaml"
   touch $ADDITIONAL_JINJA_PARAMS_FILE
 
   # Source: gitops_suite_config
   # ---------------------------------------------------------------------------
   if [ "${MAS_CONFIG_TYPE}" == "mongo" ]; then
-    sm_login
     export SECRET_KEY_MONGO_INFO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo#info
     export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
+    sm_login
     if [ $MONGODB_PROVIDER == 'yaml' ]; then
       sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
     elif [ $MONGODB_PROVIDER == 'aws' ]; then
@@ -369,7 +369,49 @@ function gitops_mas_config() {
     export SLS_CA_CERTIFICATE=$(sm_get_secret_value ${SECRET_NAME_SLS} "ca_b64" | base64 -d)
       # TODO: this has changed in mascore-2025
   fi
+
+  # Source: gitops_kafka_config
+  # ---------------------------------------------------------------------------
+  if [ "${MAS_CONFIG_TYPE}" == "kafka" ]; then
+    if [[ "$AVP_TYPE" == "aws" ]]; then
+      # kafka
+      export SECRET_PREFIX="AmazonMSK_"
+    fi
+    export KAFKA_SECRET_FILE=$TEMP_DIR/kafka-secret.json
+    sm_login
+    sm_get_secret_file ${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka $KAFKA_SECRET_FILE
+    jq -r .info $KAFKA_SECRET_FILE > $ADDITIONAL_JINJA_PARAMS_FILE
+    export AWS_MSK_SECRET=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka
+    export SECRET_KEY_KAFKA_USERNAME=${AWS_MSK_SECRET}#username
+    export SECRET_KEY_KAFKA_PASSWORD=${AWS_MSK_SECRET}#password
+  fi
+
+  # Source: gitops_suite_idp_config
+  # ---------------------------------------------------------------------------
+  if [ "${MAS_CONFIG_TYPE}" == "ldap-default" ]; then
+    echo "TODO"
+  fi
   
+  # Source: gitops_suite_objectstorage_config
+  # ---------------------------------------------------------------------------
+  if [ "${MAS_CONFIG_TYPE}" == "objectstorage" ]; then
+    echo "TODO"
+  fi
+
+
+  # Source: gitops_db2u_jdbc_config
+  # ---------------------------------------------------------------------------
+  if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
+    echo "TODO"
+  fi
+ 
+
+
+  # Source: gitops_suite_smtp_config
+  # ---------------------------------------------------------------------------
+  if [ "${MAS_CONFIG_TYPE}" == "smtp" ]; then
+    echo "TODO"
+  fi
 
   echo
   echo_h2 "Updating configuration file"
