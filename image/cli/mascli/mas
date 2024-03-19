@@ -74,6 +74,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_suite_app_config
 . $CLI_DIR/functions/gitops_suite_certs
 . $CLI_DIR/functions/gitops_suite_config
+. $CLI_DIR/functions/gitops_mas_config
 . $CLI_DIR/functions/gitops_suite_dns
 . $CLI_DIR/functions/gitops_suite_idp_config
 . $CLI_DIR/functions/gitops_suite_objectstorage_config
@@ -343,7 +344,13 @@ case $1 in
     reset_colors
     gitops_suite_config "$@"
     ;;
-
+  gitops-mas-config)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_mas_config "$@"
+    ;;
  
   gitops-suite-dns)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"

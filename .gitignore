@@ -38,3 +38,5 @@ image/cli/mascli/fyre-dev.noble3.tgkc-env.sh
 image/cli/mascli/fyre-dev.noble3.tgkd-env.sh
 image/cli/mascli/gitops-mas-deploy-merged.sh
 image/cli/mascli/tmp-suite-deprovision
+image/cli/mascli/fyre-dev.noble3.tgke-env.sh
+image/cli/mascli/tmp-mas-config
