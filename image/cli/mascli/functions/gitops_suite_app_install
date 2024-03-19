@@ -25,6 +25,7 @@ Maximo Application Suite:
   --mas-app-kind ${COLOR_YELLOW}MAS_APP_KIND${TEXT_RESET}                          IBM Suite Maximo Application Suite Application Kind
   --mas-app-spec-yaml ${COLOR_YELLOW}MAS_APP_SPEC_YAML${TEXT_RESET}                Yaml file location containing IBM Suite Maximo Application Suite Application Spec
   --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}          MAS Manual Cert Management
+  --pod-template ${COLOR_YELLOW}POD_TEMPLATE${TEXT_RESET}                          Name of the Pod template to use
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -88,6 +89,9 @@ function gitops_suite_app_install_noninteractive() {
         ;;
       -A|--argocd-check)
         export ARGOCD_CHECK=$1 && shift
+        ;;
+      --pod-template)
+        export POD_TEMPLATE=$1 && shift
         ;;
 
       # Secrets Manager
@@ -255,6 +259,8 @@ function gitops_suite_app_install() {
   echo_reset_dim "Application API Version ............... ${COLOR_MAGENTA}${MAS_APP_API_VERSION}"
   echo_reset_dim "Application Kind ...................... ${COLOR_MAGENTA}${MAS_APP_KIND}"
   echo_reset_dim "Application Spec Yaml file ............ ${COLOR_MAGENTA}${MAS_APP_SPEC_YAML}"
+  echo_reset_dim "POD template name ..................... ${COLOR_MAGENTA}${POD_TEMPLATE}"
+  
   if [[ -n "$MAS_APP_SPEC_YAML" ]]; then
     echo_reset_dim "Using Default Application Spec ...... ${COLOR_MAGENTA}False"
   else

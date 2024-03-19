@@ -56,6 +56,10 @@ spec:
     - name: argocd_check
       type: string
       default: "false"
+
+    - name: pod_template
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite-app-install
     env:
@@ -103,6 +107,9 @@ spec:
         value: $(params.argocd_url)
       - name: ARGOCD_CHECK
         value: $(params.argocd_check)
+
+      - name: POD_TEMPLATE
+        value: $(params.pod_template)
     envFrom:
       - configMapRef:
           name: environment-properties

@@ -28,6 +28,8 @@
       value: $(params.mas_app_api_version_manage)
     - name: mas_app_kind
       value: $(params.mas_app_kind_manage)
+    - name: pod_template
+      value: $(params.manage_pod_template)
   taskRef:
     name: gitops-suite-app-install
     kind: Task

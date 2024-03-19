@@ -32,6 +32,8 @@
       value: $(params.default_file_storage_class)
     - name: optimizer_plan
       value: $(params.optimizer_plan)
+    - name: pod_template
+      value: $(params.optimizer_pod_template)
   taskRef:
     name: gitops-suite-app-install
     kind: Task
