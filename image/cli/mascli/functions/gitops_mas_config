@@ -53,7 +53,7 @@ function gitops_mas_config_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
 
-  GIT_COMMIT_MSG="gitops-suite-config commit"
+  GIT_COMMIT_MSG="gitops-mas-config commit"
 
   export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"yaml"}
   export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
@@ -196,6 +196,11 @@ function gitops_mas_config_noninteractive() {
   fi
 
 
+  # TODO: per config-type parameter validation
+
+
+
+
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_mas_config_help "GITHUB_HOST is not set"
     [[ -z "$GITHUB_ORG" ]] && gitops_mas_config_help "GITHUB_ORG is not set"
@@ -306,6 +311,7 @@ function gitops_mas_config() {
       echo_reset_dim "SLS URL  ....................... ${COLOR_MAGENTA}https://sls.mas-${MAS_INSTANCE_ID}-sls.svc"
       reset_colors
     fi
+
   fi
 
 
@@ -315,6 +321,58 @@ function gitops_mas_config() {
   echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
   # clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   mkdir -p ${GITOPS_INSTANCE_DIR}
+
+
+  echo
+  echo_h2 "Defining secrets"
+
+  # Define/lookup secrets that may be used depending on which config we are upserting
+  # TODO: merge in Rick's work in this area under mascore-2025 once complete
+  # ---------------------------------------------------------------------------
+
+  # Certain configurations require additional parameters to be passed in when
+  # rendering the configuration template file (e.g. Mongo)
+  # Put these parameters into this YAML file.
+  export ADDITIONAL_JINJA_PARAMS_FILE="additional-jinja-params.yaml"
+  touch $ADDITIONAL_JINJA_PARAMS_FILE
+
+  # Source: gitops_suite_config
+  # ---------------------------------------------------------------------------
+  if [ "${MAS_CONFIG_TYPE}" == "mongo" ]; then
+    sm_login
+    export SECRET_KEY_MONGO_INFO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo#info
+    export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
+    if [ $MONGODB_PROVIDER == 'yaml' ]; then
+      sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
+    elif [ $MONGODB_PROVIDER == 'aws' ]; then
+      sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
+    fi
+
+    jq -r .info $MONGO_SECRET_FILE > $ADDITIONAL_JINJA_PARAMS_FILE
+
+    export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
+    export SECRET_KEY_MONGO_USERNAME=${SECRET_NAME_MONGO}#username
+    export SECRET_KEY_MONGO_PASSWORD=${SECRET_NAME_MONGO}#password
+  fi
+
+
+  if [ "${MAS_CONFIG_TYPE}" == "bas" ]; then
+    export SECRET_KEY_DRO_API_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#dro_api_token
+    export SECRET_KEY_DRO_URL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#dro_url
+    export DRO_CA_CERTIFICATE=$(cat ${DRO_CA_CERTIFICATE_FILE})
+    # TODO: this has changed in mascore-2025
+  fi
+
+  if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
+    export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls
+    export SECRET_KEY_SLS_REGISTRATION_KEY=${SECRET_NAME_SLS}#registration_key
+    export SLS_CA_CERTIFICATE=$(sm_get_secret_value ${SECRET_NAME_SLS} "ca_b64" | base64 -d)
+      # TODO: this has changed in mascore-2025
+  fi
+  
+
+  echo
+  echo_h2 "Updating configuration file"
   
 
   if [ "${CONFIG_ACTION}" == "upsert" ]; then
@@ -328,7 +386,7 @@ function gitops_mas_config() {
     yq 'del(.ibm_mas_suite_configs[] | select(.mas_config_name == "'${MAS_CONFIG_NAME}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
 
     # Render the appropriate template for the config into a new file
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-${MAS_CONFIG_TYPE}-config.yaml.j2 | yq '{"ibm_mas_suite_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+    jinja -X .+ -d $ADDITIONAL_JINJA_PARAMS_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-${MAS_CONFIG_TYPE}-config.yaml.j2 | yq '{"ibm_mas_suite_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
 
     # Merge the two files
     yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
