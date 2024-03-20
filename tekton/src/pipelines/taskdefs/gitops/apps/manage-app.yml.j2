@@ -28,6 +28,8 @@
       value: $(params.mas_app_api_version_manage)
     - name: mas_app_kind
       value: $(params.mas_app_kind_manage)
+    - name: mas_edition
+      value: $(params.mas_edition)
   taskRef:
     name: gitops-suite-app-install
     kind: Task
