@@ -141,7 +141,7 @@ function install_pipelinerun_preview() {
       if [[ "${MAS_APP_CHANNEL_ASSIST}" != '' ]]
       then echo_reset_dim " - Watson Discovery ....... ${COLOR_MAGENTA}required for Assist"
       fi
-      if [[ "${CPD_INSTALL_COGNOS}" != '' || "${CPD_INSTALL_SPSS}" != '' || "${CPD_INSTALL_OPENSCALE}" == '' ]]
+      if [[ "${CPD_INSTALL_SPSS}" != '' || "${CPD_INSTALL_OPENSCALE}" == '' ]]
       then
         if [[ "${CPD_INSTALL_OPENSCALE}" == 'true' ]]
         then echo_reset_dim " - Watson Openscale ....... ${COLOR_MAGENTA}optional for Predict"
@@ -149,10 +149,10 @@ function install_pipelinerun_preview() {
         if [[ "${CPD_INSTALL_SPSS}" == 'true' ]]
         then echo_reset_dim " - SPSS Modeler ........... ${COLOR_MAGENTA}optional for Predict"
         fi
-        if [[ "${CPD_INSTALL_COGNOS}" == 'true' ]]
-        then echo_reset_dim " - Cognos Analytics ....... ${COLOR_MAGENTA}optional for Manage"
-        fi
       fi
+    fi
+    if [[ "${CPD_INSTALL_COGNOS}" == 'true' ]]
+    then echo_reset_dim " - Cognos Analytics ....... ${COLOR_MAGENTA}optional for Manage"
     fi
   fi
 

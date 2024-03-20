@@ -1,5 +1,7 @@
 # -------------------------------------------------------------
 # LAST PHASE: tests running one after the other due to its disruptive characteristic
+# - fvt-manage-toolsapi (pytest)
+# - fvt-manage-esigauth-mas-nativeuser (pytest)
 # - fvt-manage-mas-usertimeout (selenium)
 # - fvt-manage-application-designer (selenium)
 # - fvt-manage-startcenter-config (selenium)
@@ -9,6 +11,35 @@
 # - fvt-manage-eaudit-basic (selenium)
 # -------------------------------------------------------------
 
+# Manage FVT toolsapi
+- name: fvt-manage-toolsapi
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base
+    - name: fvt_test_suite
+      value: toolsapi
+  runAfter:
+    - fvt-manage-sec-audit-log
+    - fvt-manage-sec-inactive-auth
+    - fvt-manage-mif-kafka-inbound
+    - fvt-manage-wo-doclink
+    - fvt-manage-directprint
+    - fvt-manage-adhoc-report
+
+# Manage FVT esig-esigauth-mas-nativeuser
+- name: fvt-manage-esigauth-mas-nativeuser
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base
+    - name: fvt_test_suite
+      value: esig
+  runAfter:
+    - fvt-manage-toolsapi
+
 - name: fvt-manage-last-phase
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   taskRef:
@@ -17,11 +48,4 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}    
   runAfter:
-    - fvt-manage-sec-audit-log
-    - fvt-manage-sec-inactive-auth
-    - fvt-manage-mif-kafka-inbound
-    - fvt-manage-mif-kafka-outbound
-    - fvt-manage-wo-doclink
-    - fvt-manage-directprint
-    - fvt-manage-adhoc-report
-    - fvt-manage-jms-outbound
+    - fvt-manage-esigauth-mas-nativeuser

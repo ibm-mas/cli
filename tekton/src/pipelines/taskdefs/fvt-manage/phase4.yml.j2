@@ -3,11 +3,9 @@
 # - fvt-manage-sec-audit-log (selenium)
 # - fvt-manage-sec-inactive-auth (selenium)
 # - fvt-manage-mif-kafka-inbound (selenium)
-# - fvt-manage-mif-kafka-outbound (selenium)
 # - fvt-manage-wo-doclink (selenium)
 # - fvt-manage-directprint (selenium)
 # - fvt-manage-adhoc-report (selenium)
-# - fvt-manage-jms-outbound (selenium)
 # -------------------------------------------------------------
 
 # Manage FVT Security Audit Logging
@@ -25,11 +23,12 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
-    - fvt-manage-mif-s3-setup
     - fvt-manage-birt-report
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
     - fvt-manage-communication-temp
+    - fvt-manage-externalsystem
+    - fvt-manage-kafka
 
 # Manage FVT Inactive User Authentication
 - name: fvt-manage-sec-inactive-auth
@@ -46,85 +45,34 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
-    - fvt-manage-mif-s3-setup
     - fvt-manage-birt-report
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
     - fvt-manage-communication-temp
+    - fvt-manage-externalsystem
+    - fvt-manage-kafka
 
 # Manage FVT Kafka inbound
 - name: fvt-manage-mif-kafka-inbound
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
       value: base
     - name: fvt_test_suite
       value: mif-kafka-inbound
-    - name: kafka_provider
-      value: $(params.kafka_provider)
-  taskRef:
-    kind: Task
-    name: mas-fvt-manage
-  when:
-    - input: "$(params.fvt_digest_manage)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
-      operator: notin
-      values: [""]
-    - input: "$(params.kafka_provider)"
-      operator: notin
-      values: [""]
-  workspaces:
-    - name: configs
-      workspace: shared-configs
   runAfter:
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
-    - fvt-manage-mif-s3-setup
     - fvt-manage-birt-report
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
     - fvt-manage-communication-temp
-
-# Manage FVT Kafka outbound
-- name: fvt-manage-mif-kafka-outbound
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base
-    - name: fvt_test_suite
-      value: mif-kafka-outbound
-    - name: kafka_provider
-      value: $(params.kafka_provider)
-  taskRef:
-    kind: Task
-    name: mas-fvt-manage
-  when:
-    - input: "$(params.fvt_digest_manage)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
-      operator: notin
-      values: [""]
-    - input: "$(params.kafka_provider)"
-      operator: notin
-      values: [""]
-  workspaces:
-    - name: configs
-      workspace: shared-configs
-  runAfter:
-    - fvt-manage-escalation-action
-    - fvt-manage-autoscript-adddeletewo
-    - fvt-manage-jms-inbound
-    - fvt-manage-mif-kafka-setup
-    - fvt-manage-mif-s3-setup
-    - fvt-manage-birt-report
-    - fvt-manage-user-crud
-    - fvt-manage-user-consumption
-    - fvt-manage-communication-temp
+    - fvt-manage-externalsystem
+    - fvt-manage-kafka
 
 # Manage FVT Work Order Attachments
 - name: fvt-manage-wo-doclink
@@ -141,11 +89,12 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
-    - fvt-manage-mif-s3-setup
     - fvt-manage-birt-report
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
     - fvt-manage-communication-temp
+    - fvt-manage-externalsystem
+    - fvt-manage-kafka
 
 # Manage Direct Print Report Tasks
 - name: fvt-manage-directprint
@@ -154,17 +103,18 @@
     kind: Task
     name: mas-fvt-manage-directprint
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}    
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
   runAfter:
     - fvt-manage-escalation-action
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
-    - fvt-manage-mif-s3-setup
     - fvt-manage-birt-report
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
     - fvt-manage-communication-temp
+    - fvt-manage-externalsystem
+    - fvt-manage-kafka
 
 # Manage FVT Adhoc Reports
 - name: fvt-manage-adhoc-report
@@ -181,29 +131,9 @@
     - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
-    - fvt-manage-mif-s3-setup
     - fvt-manage-birt-report
     - fvt-manage-user-crud
     - fvt-manage-user-consumption
     - fvt-manage-communication-temp
-
-# Manage JMS Integration - Outbound
-- name: fvt-manage-jms-outbound
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base
-    - name: fvt_test_suite
-      value: mif-jms-outbound
-  runAfter:
-    - fvt-manage-escalation-action
-    - fvt-manage-autoscript-adddeletewo
-    - fvt-manage-jms-inbound
-    - fvt-manage-mif-kafka-setup
-    - fvt-manage-mif-s3-setup
-    - fvt-manage-birt-report
-    - fvt-manage-user-crud
-    - fvt-manage-user-consumption
-    - fvt-manage-communication-temp
+    - fvt-manage-externalsystem
+    - fvt-manage-kafka
