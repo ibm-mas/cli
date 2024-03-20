@@ -359,10 +359,10 @@ function gitops_suite_app_install() {
     echo_h2 "Using application spec provided for $MAS_APP_ID at $MAS_APP_SPEC_YAML"
     export POD_TEMPLATE_PATH=$CLI_DIR/templates/pod-templates/$MAS_EDITION/ibm-mas-$MAS_APP_ID.yml
     if [[ -n "${MAS_EDITION}" && -f "${POD_TEMPLATE_PATH}"]]; then
-      echo_h2 "Apply pod template from $POD_TEMPLATE_PATH for edition ${MAS_EDITION}"
-      export POD_TEMPLATE=$(cat ${POD_TEMPLATE_PATH} | yq -r '.podTemplates' --yaml-output)
-      yq --arg PODTEMPLATES "$POD_TEMPLATE" -iY '.mas_app_spec.podTemplates= $PODTEMPLATES' $MAS_APP_SPEC_YAML
-      echo_reset_dim "Application Spec Yaml file .......... ${COLOR_MAGENTA}${MAS_APP_SPEC_YAML}"
+      echo_h2 "Apply pod template from ${POD_TEMPLATE_PATH} for edition ${MAS_EDITION}"
+      yq -Y '.mas_app_spec+= input' ${MAS_APP_SPEC_YAML} ${POD_TEMPLATE_PATH} > ${TEMP_DIR}/mas-app-spec.yaml
+      export MAS_APP_SPEC_YAML=${TEMP_DIR}/mas-app-spec.yaml      
+      echo_reset_dim "Updated App Spec Yaml file .......... ${COLOR_MAGENTA}${MAS_APP_SPEC_YAML}"
     fi
     export MAS_APP_SPEC=$(cat ${MAS_APP_SPEC_YAML} | yq -r '.' --yaml-output)
   else
