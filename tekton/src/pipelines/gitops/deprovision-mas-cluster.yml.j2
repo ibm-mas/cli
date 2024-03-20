@@ -13,6 +13,8 @@ spec:
       type: string
     - name: cluster_url
       type: string
+    - name: region
+      type: string
     - name: account
       type: string
     - name: git_branch
@@ -50,6 +52,8 @@ spec:
           value: $(params.cluster_url)
         - name: account
           value: $(params.account)
+        - name: region
+          value: $(params.region)
         - name: git_branch
           value: $(params.git_branch)
         - name: github_org

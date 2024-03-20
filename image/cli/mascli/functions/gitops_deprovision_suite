@@ -22,9 +22,6 @@ GitOps Configuration:
 MongoDb Provider Selection:
       --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. Only "aws" is supported
 
-AWS MongoDb Provider:
-      --user-action ${COLOR_YELLOW}USER_ACTION${TEXT_RESET}          The action to take, add or remove user
-
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
@@ -107,11 +104,6 @@ function gitops_deprovision_suite_noninteractive() {
         export MONGODB_PROVIDER=$1 && shift
         ;;
 
-      # AWS MongoDb provider
-      --user-action)
-        export USER_ACTION=$1 && shift
-        ;;
-
       # SLS
       --sls-channel)
         export SLS_CHANNEL=$1 && shift
@@ -170,11 +162,10 @@ function gitops_deprovision_suite_noninteractive() {
   done
 
   [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_suite_help "ACCOUNT_ID is not set"
-  [[ -z "$REGION" ]] && gitops_deprovision_app_config_help "REGION is not set"
+  [[ -z "$REGION" ]] && gitops_deprovision_suite_help "REGION is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_suite_help "CLUSTER_ID is not set"
   [[ -z "$MONGODB_PROVIDER" ]] && gitops_deprovision_suite_help "MONGODB_PROVIDER is not set"
   if [ $MONGODB_PROVIDER == 'aws' ]; then
-    [[ -z "$USER_ACTION" ]] && gitops_deprovision_suite_help "USER_ACTION is not set"
     [[ -z "$MAS_INSTANCE_ID" ]] && gitops_deprovision_suite_help "MAS_INSTANCE_ID is not set"
     if [ -z $SM_AWS_ACCESS_KEY_ID ] || [ -z $SM_AWS_SECRET_ACCESS_KEY ] || [ -z $SM_AWS_REGION ]; then
       echo 'Missing required params for AWS mongo provider, make sure to provide --aws-access-key, --aws-secret-key, --aws-region'
@@ -228,7 +219,6 @@ function gitops_deprovision_suite() {
   echo_h2 "Mongo" "    "
   echo_reset_dim "Mongo Provider  ....................... ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
   if [ $MONGODB_PROVIDER == 'aws' ]; then
-    echo_reset_dim "User Action  .......................... ${COLOR_MAGENTA}${USER_ACTION}"
     echo_reset_dim "AWS Access Key ID  .................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
     echo_reset_dim "AWS Secret Access Key  ................ ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:8}<snip>"
     echo_reset_dim "AWS Region  ........................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
