@@ -147,7 +147,7 @@ function validate_dro_migration(){
 
         if [[ "$DRO_MIGRATION" == "true" ]]; then
           if prompt_for_confirm_default_yes "Do you want to use your own storage class?"; then
-            prompt_for_input "Storage Class Name" && export DRO_STORAGE_CLASS
+            prompt_for_input "Storage Class Name:" DRO_STORAGE_CLASS
           fi
           ## Check all avaliable Suite Instances versions , if any of them is 8.9.x cancel the dro migration. Exit mas update throw error.
           for suite_namespace in $(oc get Suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
