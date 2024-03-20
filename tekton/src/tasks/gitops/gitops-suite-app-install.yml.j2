@@ -57,7 +57,7 @@ spec:
       type: string
       default: "false"
 
-    - name: pod_template
+    - name: mas_edition
       type: string
       default: ""
   stepTemplate:
@@ -108,8 +108,8 @@ spec:
       - name: ARGOCD_CHECK
         value: $(params.argocd_check)
 
-      - name: POD_TEMPLATE
-        value: $(params.pod_template)
+      - name: MAS_EDITION
+        value: $(params.mas_edition)
     envFrom:
       - configMapRef:
           name: environment-properties

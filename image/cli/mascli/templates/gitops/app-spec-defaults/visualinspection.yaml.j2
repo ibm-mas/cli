@@ -4,8 +4,8 @@ mas_app_spec:
       size: 100Gi
       storageClassName: {{ DEFAULT_FILE_STORAGE_CLASS }}
 
-{%- if POD_TEMPLATE is defined and POD_TEMPLATE != "" %}
+{%- if MAS_EDITION is defined and MAS_EDITION != "" %}
     {% filter indent(width=4) -%}
-    {% include '../../pod-templates/{{ POD_TEMPLATE }}/ibm-mas-visualinspection.yml' %}
+    {% include '../../pod-templates/{{ MAS_EDITION }}/ibm-mas-visualinspection.yml' %}
     {%- endfilter %}
 {%- endif %}

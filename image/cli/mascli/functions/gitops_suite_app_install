@@ -25,7 +25,7 @@ Maximo Application Suite:
   --mas-app-kind ${COLOR_YELLOW}MAS_APP_KIND${TEXT_RESET}                          IBM Suite Maximo Application Suite Application Kind
   --mas-app-spec-yaml ${COLOR_YELLOW}MAS_APP_SPEC_YAML${TEXT_RESET}                Yaml file location containing IBM Suite Maximo Application Suite Application Spec
   --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}          MAS Manual Cert Management
-  --pod-template ${COLOR_YELLOW}POD_TEMPLATE${TEXT_RESET}                          Name of the Pod template to use
+  --mas-edition ${COLOR_YELLOW}MAS_EDITION${TEXT_RESET}                            MAS EDITION
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -90,8 +90,8 @@ function gitops_suite_app_install_noninteractive() {
       -A|--argocd-check)
         export ARGOCD_CHECK=$1 && shift
         ;;
-      --pod-template)
-        export POD_TEMPLATE=$1 && shift
+      --mas-edition)
+        export MAS_EDITION=$1 && shift
         ;;
 
       # Secrets Manager
@@ -259,7 +259,7 @@ function gitops_suite_app_install() {
   echo_reset_dim "Application API Version ............... ${COLOR_MAGENTA}${MAS_APP_API_VERSION}"
   echo_reset_dim "Application Kind ...................... ${COLOR_MAGENTA}${MAS_APP_KIND}"
   echo_reset_dim "Application Spec Yaml file ............ ${COLOR_MAGENTA}${MAS_APP_SPEC_YAML}"
-  echo_reset_dim "POD template name ..................... ${COLOR_MAGENTA}${POD_TEMPLATE}"
+  echo_reset_dim "MAS Edition ........................... ${COLOR_MAGENTA}${MAS_EDITION}"
   
   if [[ -n "$MAS_APP_SPEC_YAML" ]]; then
     echo_reset_dim "Using Default Application Spec ...... ${COLOR_MAGENTA}False"
@@ -357,6 +357,13 @@ function gitops_suite_app_install() {
   if [[ -n "$MAS_APP_SPEC_YAML" ]]; then
     echo
     echo_h2 "Using application spec provided for $MAS_APP_ID at $MAS_APP_SPEC_YAML"
+    export POD_TEMPLATE_PATH=$CLI_DIR/templates/pod-templates/$MAS_EDITION/ibm-mas-$MAS_APP_ID.yml
+    if [[ -n "${MAS_EDITION}" && -f "${POD_TEMPLATE_PATH}"]]; then
+      echo_h2 "Apply pod template from $POD_TEMPLATE_PATH for edition ${MAS_EDITION}"
+      export POD_TEMPLATE=$(cat ${POD_TEMPLATE_PATH} | yq -r '.podTemplates' --yaml-output)
+      yq --arg PODTEMPLATES "$POD_TEMPLATE" -iY '.mas_app_spec.podTemplates= $PODTEMPLATES' $MAS_APP_SPEC_YAML
+      echo_reset_dim "Application Spec Yaml file .......... ${COLOR_MAGENTA}${MAS_APP_SPEC_YAML}"
+    fi
     export MAS_APP_SPEC=$(cat ${MAS_APP_SPEC_YAML} | yq -r '.' --yaml-output)
   else
     echo
@@ -364,6 +371,8 @@ function gitops_suite_app_install() {
     jinja -X .+ $CLI_DIR/templates/gitops/app-spec-defaults/${MAS_APP_ID}.yaml.j2 -o ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml
     export MAS_APP_SPEC=$(cat ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml | yq -r '.' --yaml-output)
   fi
+  echo_reset_dim "MAS_APP_SPEC ............................ ${COLOR_MAGENTA}${MAS_APP_SPEC}"
+  reset_colors
 
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
