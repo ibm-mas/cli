@@ -56,6 +56,10 @@ spec:
     - name: argocd_check
       type: string
       default: "false"
+
+    - name: mas_edition
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite-app-install
     env:
@@ -103,6 +107,9 @@ spec:
         value: $(params.argocd_url)
       - name: ARGOCD_CHECK
         value: $(params.argocd_check)
+
+      - name: MAS_EDITION
+        value: $(params.mas_edition)
     envFrom:
       - configMapRef:
           name: environment-properties
