@@ -73,6 +73,18 @@ function install_pipelinerun_preview() {
     then echo_reset_dim " - Configure JMS .......... ${COLOR_MAGENTA}true"
     fi
 
+    if [[ "$MAS_APP_SETTINGS_SERVER_TIMEZONE" != "" ]]
+    then echo_reset_dim " - Server Timezone ........ ${COLOR_MAGENTA}${MAS_APP_SETTINGS_SERVER_TIMEZONE}"
+    fi
+
+    if [[ "$MAS_APP_SETTINGS_BASE_LANG" != "" ]]
+    then echo_reset_dim " - Base Language .......... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_BASE_LANG}"
+    fi
+
+    if [[ "$MAS_APP_SETTINGS_SECONDARY_LANGS" != "" ]]
+    then echo_reset_dim " - Additional Languages ... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_SECONDARY_LANGS}"
+    fi
+
     echo_reset_dim " - Include Demo Data ...... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DEMODATA}"
   fi
 
