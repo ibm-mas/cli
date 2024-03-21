@@ -405,6 +405,23 @@ function gitops_mas_config_noninteractive() {
     [[ -z "$GITHUB_REPO" ]] && gitops_mas_config_help "GITHUB_REPO is not set"
     [[ -z "$GIT_BRANCH" ]] && gitops_mas_config_help "GIT_BRANCH is not set"
   fi
+
+
+  # TODO: because we now support ws/app/wsapp bindings as well as system, I think we will need to
+  # add additional delimiters to the secret names we use
+  # For instance, there might be a system binding to kafka_a and a wsapp binding to kafka_b. These cannot both use the same secret from secrets manager
+  # JDBC is the only wsapp binding we actually use at the moment, and this includes DB2_INSTANCE_NAME in the secrets path so it works for now
+  # To avoid changing too much at once, I do not want to attempt to fix this problem now. Instead, I'm going to restrict this script
+  # to only support wsapp bindings for jdbc.
+  # We should remove this restriction once this issue is resolved.
+  if [[ "$MAS_CONFIG_SCOPE" =~ ^(app|ws)$ ]]; then
+    gitops_mas_config_help "MAS_CONFIG_SCOPE ${MAS_CONFIG_SCOPE} is not currently supported this script"
+  fi
+  if [[ "$MAS_CONFIG_SCOPE" == "wsapp" && "$MAS_CONFIG_TYPE" != "jdbc" ]]; then
+    gitops_mas_config_help "MAS_CONFIG_SCOPE ${MAS_CONFIG_SCOPE} is only supported for MAS_CONFIG_TYPE jdbc at present"
+  fi
+  
+
 }
 
 function gitops_mas_config() {
@@ -579,6 +596,7 @@ function gitops_mas_config() {
     echo
     echo_h2 "Fetching/Updating secrets specific to ${MAS_CONFIG_TYPE}"
 
+
     # Define/lookup secrets that may be used depending on which config we are upserting
     # TODO: merge in Rick's work in this area under mascore-2025 once complete
     # ---------------------------------------------------------------------------
@@ -734,6 +752,7 @@ function gitops_mas_config() {
 
 
   if [ "${CONFIG_ACTION}" == "remove" ]; then
+
     # If the file doesn't exist, nothing to remove, so no-op
     if [ -f ${CONFIGS_FILE} ]; then
       yq 'del(.ibm_mas_suite_configs[] | select(.mas_config_name == "'${MAS_CONFIG_NAME}'"))' $CONFIGS_FILE > ${TEMP_DIR}/configs.yaml
