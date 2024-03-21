@@ -23,9 +23,6 @@ spec:
     - name: mas_app_channel_manage
       type: string
       default: ""
-    - name: mas_appws_components
-      type: string
-      default: ""
     - name: mas_instance_id
       type: string
       default: ""
@@ -74,21 +71,6 @@ spec:
           operator: notin
           values: [""]
 
-    - name: cv-optimizer
-      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
-        - name: product_id
-          value: ibm-mas-optimizer
-        - name: product_channel
-          value: $(params.mas_app_channel_optimizer)
-        - name: fvt_test_suite
-          value: contentverification
-      when:
-        - input: "$(params.ivt_digest_core)"
-          operator: notin
-          values: [""]
-
 
     # 2. Run "optimizer_fvt" (CTF)
     # -----------------------------------------------------------------------------
@@ -124,7 +106,6 @@ spec:
           values: [""]
       runAfter:
         - ivtcore-optimizer
-        - cv-optimizer
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -158,9 +139,6 @@ spec:
 
         - name: artifactory_token
           value: $(params.fvt_artifactory_token)
-
-        - name: mas_appws_components
-          value: $(params.mas_appws_components)
 
         - name: fvt_test_suite
           value: optimizer-manage-user
@@ -207,8 +185,6 @@ spec:
           value: ibm-mas-optimizer
         - name: artifactory_token
           value: $(params.fvt_artifactory_token)
-        - name: mas_appws_components
-          value: $(params.mas_appws_components)
         - name: fvt_test_suite
           value: optimizer-manage-setup
         - name: fvt_mas_appws_component
@@ -253,8 +229,6 @@ spec:
           value: ibm-mas-optimizer
         - name: artifactory_token
           value: $(params.fvt_artifactory_token)
-        - name: mas_appws_components
-          value: $(params.mas_appws_components)
         - name: fvt_test_suite
           value: optimizer-gs-resource-leveling
         - name: fvt_mas_appws_component
@@ -273,3 +247,21 @@ spec:
           workspace: shared-configs
       runAfter:
         - fvt-optimizer-manage-connection-setup
+
+  finally:
+    # 3. Run CV
+    # -----------------------------------------------------------------------------
+    - name: cv-optimizer
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-optimizer
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: fvt_test_suite
+          value: contentverification
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]

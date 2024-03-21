@@ -25,14 +25,11 @@ spec:
     - name: mas_workspace_id
       type: string
       default: ""
-    - name: mas_appws_components
-      type: string
-      description: Which Manage components are being installed?
-      default: ""
-    # TODO: Why do Manage tests need to know the Kafka provider?
+
+    # Test Requirements
     - name: kafka_provider
       type: string
-      description: kafka provider used during installation (ibm, aws or redhat)
+      description: kafka provider used during installation (ibm, aws or redhat) to pick up right MIF tests
       default: ""
 
     # FVT Configuration
@@ -79,6 +76,23 @@ spec:
           operator: notin
           values: [""]
 
+
+    # 2. Manage FVT - Manage
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-manage/phase0.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase2.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase3.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
+
+    # Phase 5 disabled.  Focus on getting phase 0-4 suites 100% reliable
+    # -------------------------------------------------------------------------
+    # Re-introduce phases 1-by-1 while maintaining a stable state
+    # lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4)
+
+  finally:
+    # 3. Run CV
+    # -----------------------------------------------------------------------------
     - name: cv-manage
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
@@ -96,13 +110,3 @@ spec:
         - input: "$(params.mas_app_channel_manage)"
           operator: notin
           values: [""]
-
-    # 2. Manage FVT - Manage
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-manage/phase0.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase2.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase3.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
-    

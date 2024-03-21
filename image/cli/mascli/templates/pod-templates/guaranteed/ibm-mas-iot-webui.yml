@@ -1,0 +1,52 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a QoS class of Guaranteed. More can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
+podTemplates:
+  - name: api-dashboard
+    containers:
+      - name: api-dashboard
+        resources:
+          requests:
+            cpu: 2
+            memory: 2Gi
+          limits:
+            cpu: 2
+            memory: 2Gi
+      - name: statsd
+        resources:
+          requests:
+            cpu: 0.2
+            memory: 512Mi
+          limits:
+            cpu: 0.2
+            memory: 512Mi
+  - name: dashboard
+    containers:
+      - name: dashboard
+        resources:
+          requests:
+            cpu: 0.8
+            memory: 512Mi
+          limits:
+            cpu: 0.8
+            memory: 512Mi
+      - name: statsd
+        resources:
+          requests:
+            cpu: 0.2
+            memory: 512Mi
+          limits:
+            cpu: 0.2
+            memory: 512Mi
+  - name: deprovagent-webui
+    containers:
+      - name: deprovagent-webui
+        resources:
+          requests:
+            cpu: 0.25
+            memory: 256Mi
+          limits:
+            cpu: 0.25
+            memory: 256Mi

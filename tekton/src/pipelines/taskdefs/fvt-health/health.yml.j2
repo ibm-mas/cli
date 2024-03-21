@@ -1,4 +1,3 @@
-# TODO: Integrate this into a new fvt-manage-health pipeline (once we have manage-base healthy, no point atm)
 ## Health Prepare User Data
 - name: fvt-health-testng-preparedata
   params:
@@ -35,9 +34,6 @@
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
-  runAfter:
-    - app-cfg-manage
-    - suite-config-watson-studio
   workspaces:
     - name: configs
       workspace: shared-configs

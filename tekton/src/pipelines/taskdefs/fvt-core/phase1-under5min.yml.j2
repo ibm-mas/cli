@@ -92,6 +92,16 @@
       value: coreapi-uiresources
   runAfter: {{ runAfter }}
 
+# coreapi-uicustomizations ~5m
+# -----------------------------------------------------------------------------
+- name: coreapi-uicustomizations
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: coreapi-uicustomizations
+  runAfter: {{ runAfter }}
+
 # coreapi-messages ~5m
 # -----------------------------------------------------------------------------
 - name: coreapi-messages
@@ -123,3 +133,13 @@
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
     - coreapi-utilities
+
+# coreapi-scimv2 ~1m
+# -----------------------------------------------------------------------------
+- name: coreapi-scimv2
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: coreapi-scimv2
+  runAfter: {{ runAfter }}

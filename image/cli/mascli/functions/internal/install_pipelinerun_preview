@@ -141,7 +141,7 @@ function install_pipelinerun_preview() {
       if [[ "${MAS_APP_CHANNEL_ASSIST}" != '' ]]
       then echo_reset_dim " - Watson Discovery ....... ${COLOR_MAGENTA}required for Assist"
       fi
-      if [[ "${CPD_INSTALL_COGNOS}" != '' || "${CPD_INSTALL_SPSS}" != '' || "${CPD_INSTALL_OPENSCALE}" == '' ]]
+      if [[ "${CPD_INSTALL_SPSS}" != '' || "${CPD_INSTALL_OPENSCALE}" == '' ]]
       then
         if [[ "${CPD_INSTALL_OPENSCALE}" == 'true' ]]
         then echo_reset_dim " - Watson Openscale ....... ${COLOR_MAGENTA}optional for Predict"
@@ -149,10 +149,10 @@ function install_pipelinerun_preview() {
         if [[ "${CPD_INSTALL_SPSS}" == 'true' ]]
         then echo_reset_dim " - SPSS Modeler ........... ${COLOR_MAGENTA}optional for Predict"
         fi
-        if [[ "${CPD_INSTALL_COGNOS}" == 'true' ]]
-        then echo_reset_dim " - Cognos Analytics ....... ${COLOR_MAGENTA}optional for Manage"
-        fi
       fi
+    fi
+    if [[ "${CPD_INSTALL_COGNOS}" == 'true' ]]
+    then echo_reset_dim " - Cognos Analytics ....... ${COLOR_MAGENTA}optional for Manage"
     fi
   fi
 
@@ -211,7 +211,6 @@ function install_pipelinerun_preview() {
     echo "${TEXT_DIM}"
     echo_h4 "Kafka - AWS MSK" "    "
     echo_reset_dim "VPC ID .................... ${COLOR_MAGENTA}${VPC_ID}"
-    echo_reset_dim "Cluster name .............. ${COLOR_MAGENTA}${KAFKA_CLUSTER_NAME}"
     echo_reset_dim "Instance region ........... ${COLOR_MAGENTA}${AWS_REGION}"
     echo_reset_dim "Instance username ......... ${COLOR_MAGENTA}${AWS_KAFKA_USER_NAME}"
     echo_reset_dim "Instance type ............. ${COLOR_MAGENTA}${AWS_MSK_INSTANCE_TYPE}"

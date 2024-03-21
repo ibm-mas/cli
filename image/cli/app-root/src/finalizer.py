@@ -1,8 +1,3 @@
-# This script allows you to record the results of the pipeline in a MongoDb database.
-# To enable this capability you must set additional environment variables as follows:
-#
-# - DEVOPS_MONGO_URI="mongodb://user:password@host1:port1,host2:port2/admin?tls=true&tlsAllowInvalidCertificates=true"
-#
 import os
 import sys
 from datetime import datetime
@@ -10,10 +5,107 @@ from pymongo import MongoClient
 from kubernetes import client, config
 from kubernetes.client import Configuration
 from openshift.dynamic import DynamicClient
+from slackclient import SlackClient
+from subprocess import PIPE, Popen, TimeoutExpired
+import threading
+from jira import JIRA
 
+class RunCmdResult(object):
+    def __init__(self, returnCode, output, error):
+        self.rc = returnCode
+        self.out = output
+        self.err = error
+
+    def successful(self):
+        return self.rc == 0
+
+    def failed(self):
+        return self.rc != 0
+
+def runCmd(cmdArray, timeout=630):
+    """
+    Run a command on the local host.  This drives all the helm operations,
+    as there is no python Helm client available.
+    # Parameters
+    cmdArray (list<string>): Command to execute
+    timeout (int): How long to allow for the command to complete
+    # Returns
+    [int, string, string]: `returnCode`, `stdOut`, `stdErr`
+    """
+
+    lock = threading.Lock()
+
+    with lock:
+        p = Popen(cmdArray, stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=-1)
+        try:
+            output, error = p.communicate(timeout=timeout)
+            return RunCmdResult(p.returncode, output, error)
+        except TimeoutExpired as e:
+            return RunCmdResult(127, 'TimeoutExpired', str(e))
+
+# Post message to Slack
+# -----------------------------------------------------------------------------
+def postMessage(channelName, messageBlocks, threadId=None):
+    if threadId is None:
+        print(f"Posting {len(messageBlocks)} block message to {channelName} in Slack")
+        response = sc.api_call("chat.postMessage", channel=channelName, blocks=messageBlocks, mrkdwn=True, parse="none", as_user=True )
+    else:
+        print(f"Posting {len(messageBlocks)} block message to {channelName} on thread {threadId} in Slack")
+        response = sc.api_call("chat.postMessage", channel=channelName, thread_ts=threadId, blocks=messageBlocks, mrkdwn=True, parse="none", as_user=True )
+
+    if not response['ok']:
+      print(response)
+      print("Failed to call Slack API")
+    return response
+
+
+# Build header block for Slack message
+# -----------------------------------------------------------------------------
+def buildHeader(title):
+    return {
+        "type": "header",
+        "text": {
+            "type": "plain_text",
+                "text": title,
+                "emoji": True
+        }
+    }
+
+
+# Build section block for Slack message
+# -----------------------------------------------------------------------------
+def buildSection(text):
+  return {
+    "type": "section",
+    "text": {
+      "type": "mrkdwn",
+      "text": text
+    }
+  }
+
+
+# Build context block for Slack message
+# -----------------------------------------------------------------------------
+def buildContext(texts):
+    elements = []
+    for text in texts:
+        elements.append({ "type": "mrkdwn", "text": text })
+
+    return {
+        "type": "context",
+        "elements": elements
+    }
+
+
+# Script start
+# -----------------------------------------------------------------------------
 if __name__ == "__main__":
     if "DEVOPS_MONGO_URI" not in os.environ or os.environ['DEVOPS_MONGO_URI'] == "":
         sys.exit(0)
+
+    DRY_RUN = False
+    if "DRY_RUN" in os.environ:
+        DRY_RUN = True
 
     print("MongoDb integration enabled (v2 data model)")
 
@@ -154,6 +246,37 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"Unable to determine {productId} version: {e}")
 
+    # Get Manage Components
+    # -------------------------------------------------------------------------
+    # Note: Only works for workspace "masdev"
+    try:
+        crs = dynClient.resources.get(api_version="apps.mas.ibm.com/v1", kind="ManageWorkspace")
+        cr = crs.get(name=f"{instanceId}-masdev", namespace=f"mas-{instanceId}-manage")
+        if cr.status and cr.status.components:
+            componentsDict = cr.to_dict()['status']['components']
+            setObject[f"products.ibm-mas-manage.components"] = componentsDict
+        else:
+            print(f"Unable to determine Manage installed components: status.components unavailable")
+    except Exception as e:
+        print(f"Unable to determine Manage installed components: {e}")
+
+    # Get Maximo Process Automation Engine (MPAE) version
+    # -------------------------------------------------------------------------
+    try:
+        pods = dynClient.resources.get(api_version="v1", kind="Pod")
+        podList = pods.get(namespace=f"mas-{instanceId}-manage", label_selector=f'mas.ibm.com/appType=maxinstudb')
+
+        if podList is None or podList.items is None or len(podList.items) == 0:
+            pass
+        else:
+            podName = podList.items[0].metadata.name
+            ocExecCommand = ["oc", "exec", "-n", f"mas-{instanceId}-manage", podName, "--", "cat", "/opt/IBM/SMP/maximo/build.num"]
+            result = runCmd(ocExecCommand)
+            maximoBuildNumber = result.out.decode('utf-8')
+            setObject[f"products.ibm-mas-manage.maximoBuildVersion"] = maximoBuildNumber
+    except Exception as e:
+        print(f"Unable to determine Maximo Process Automation Engine (MPAE) version: {e}")
+
     # Connect to mongoDb
     # -------------------------------------------------------------------------
     client = MongoClient(os.getenv("DEVOPS_MONGO_URI"))
@@ -161,10 +284,172 @@ if __name__ == "__main__":
 
     # Update the summary document
     # -------------------------------------------------------------------------
-    result1 = db.runsv2.find_one_and_update(
-        {"_id": runId},
-        {'$set': setObject},
-        upsert=False
-    )
+    if not DRY_RUN:
+        result1 = db.runsv2.find_one_and_update(
+            {"_id": runId},
+            {'$set': setObject},
+            upsert=False
+        )
+        print(f"Run information updated in MongoDb (v2 data model) {setObject}")
+    else:
+        print(f"Run information NOT updated in MongoDb because DRY_RUN is set")
 
-    print("Run information updated in MongoDb (v2 data model)")
+
+    # Check pre-reqs for Slack integration
+    # -------------------------------------------------------------------------
+    FVT_SLACK_TOKEN = os.getenv("FVT_SLACK_TOKEN")
+    if FVT_SLACK_TOKEN is None or FVT_SLACK_TOKEN == "":
+        print("FVT_SLACK_TOKEN is not set")
+        sys.exit(0)
+
+    FVT_SLACK_CHANNEL = os.getenv("FVT_SLACK_CHANNEL")
+    if FVT_SLACK_CHANNEL is None or FVT_SLACK_CHANNEL == "":
+        print("FVT_SLACK_CHANNEL is not set")
+        sys.exit(0)
+
+    FVT_JIRA_TOKEN = os.getenv("FVT_JIRA_TOKEN")
+    if FVT_JIRA_TOKEN is None or FVT_JIRA_TOKEN == "":
+        print("FVT_JIRA_TOKEN is not set")
+        sys.exit(0)
+
+    sc = SlackClient(FVT_SLACK_TOKEN)
+    jira = JIRA(server="https://jsw.ibm.com", token_auth=FVT_JIRA_TOKEN)
+
+
+    # Lookup test results
+    # -------------------------------------------------------------------------
+    result = db.runsv2.find_one({"_id": runId})
+
+
+    # Generate main message
+    # -------------------------------------------------------------------------
+    messageBlocks = []
+    messageBlocks.append(buildHeader(f"FVT Report: {instanceId} #{build}"))
+    messageBlocks.append(buildSection(f"Test result summary for *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+
+    for product in sorted(result["products"]):
+        version = result["products"][product]["version"]
+        tests = 0
+        skipped = 0
+        errors = 0
+        failures = 0
+        if "results" in result["products"][product]:
+            for suite in result["products"][product]["results"]:
+                suiteResults = result["products"][product]["results"][suite]
+
+                tests += suiteResults["tests"]
+                skipped += suiteResults["skipped"]
+                errors += suiteResults["errors"]
+                failures += suiteResults["failures"]
+
+        # print(f"{product} - {tests} tests {skipped} skipped {errors} errors {failures} failures")
+
+        if failures > 0:
+            icon = ":large_red_square:"
+        elif errors > 0:
+            icon = ":large_yellow_square:"
+        else:
+            icon = ":large_green_square:"
+
+        context = [
+            f"{icon} *{product}* {version}",
+            f"*{tests}* tests"
+        ]
+        if skipped > 0:
+            context.append(f"*{skipped}* skipped")
+        if errors > 0:
+            context.append(f"*{errors}* errors")
+        if failures > 0:
+            context.append(f"*{failures}* failures")
+
+        messageBlocks.append(buildContext(context))
+
+    messageBlocks.append(buildSection(f"Download Must Gather from <https://na.artifactory.swg-devops.com/ui/repos/tree/General/wiotp-generic-logs/mas-fvt/{instanceId}/{build}|Artifactory> (may not be available yet), see thread for more information ..."))
+    response = postMessage(FVT_SLACK_CHANNEL, messageBlocks)
+    threadId = response["ts"]
+
+
+    # Generate threaded messages with failure details
+    # -------------------------------------------------------------------------
+    for product in result["products"]:
+        messageBlocks = []
+        messageBlocks.append(buildHeader(f"{product}"))
+        messageBlocks.append(buildSection(f"The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+
+        if "results" in result["products"][product]:
+            for suite in result["products"][product]["results"]:
+                suiteResults = result["products"][product]["results"][suite]
+
+                tests = suiteResults["tests"]
+                skipped = suiteResults["skipped"]
+                errors = suiteResults["errors"]
+                failures = suiteResults["failures"]
+
+                if errors > 0 or failures > 0:
+                    if failures > 0:
+                        icon = ":large_red_square:"
+                    elif errors > 0:
+                        icon = ":large_yellow_square:"
+
+                    # Find Jira issues
+                    openIssues = []
+                    results = jira.search_issues(f'status != "Done" AND status != "Cancelled" AND type = "Bug" AND labels = "masfvt" AND labels="suite:{product}/{suite}" ORDER BY team,severity', maxResults=-1)
+                    for issue in results:
+                        key = issue.key
+                        summary = issue.fields.summary
+                        summary = summary.replace(">", "&gt;")
+                        if len(summary) > 60:
+                            summary = summary[:57] + "..."
+
+                        if issue.fields.assignee is None:
+                            assignee = ":interrobang: Unassigned Person"
+                            assignedType = "unassigned"
+                        else:
+                            assignee = issue.fields.assignee.displayName
+                            assignedType = "assigned"
+
+                        if issue.fields.customfield_11600 is None:
+                            team = ":interrobang: Unassigned Team"
+                        else:
+                            team = issue.fields.customfield_11600.name
+
+                        if issue.fields.customfield_10700 is None:
+                            severity = ":interrobang: Unknown"
+                        else:
+                            severity = issue.fields.customfield_10700.value
+
+                        status = issue.fields.status.statusCategory.name
+
+                        if status == "To Do":
+                            statusIcon = ":black_circle:"
+                        elif status in ["In Progress","Reviewing"]:
+                            statusIcon = ":large_blue_circle:"
+                        elif status == "Blocked":
+                            statusIcon = ":large_red_circle:"
+                        else:
+                            statusIcon = ":interrobang:"
+
+                        openIssues.append(f"{statusIcon} <https://jsw.ibm.com/browse/{key}|{key}> {summary} ({assignee})")
+
+                    context = [
+                        f"{icon} *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}/testsuite/{product}/{suite}|{product}/{suite}>*",
+                        f"*{tests}* tests",
+                        f"*{skipped}* skipped",
+                        f"*{errors}* errors",
+                        f"*{failures}* failures"
+                    ]
+                    messageBlocks.append(buildContext(context))
+                    if len(openIssues) > 0:
+                        messageBlocks.append(buildContext(["\n".join(openIssues)]))
+                    else:
+                        messageBlocks.append(buildContext(["• No open issues - <https://jsw.ibm.com/secure/CreateIssue!default.jspa|create one>"]))
+
+        if len(messageBlocks) > 2 and len(messageBlocks) <= 50:
+            postMessage(FVT_SLACK_CHANNEL, messageBlocks, threadId)
+
+        if len(messageBlocks) > 50:
+            messageBlocks = []
+            messageBlocks.append(buildHeader(f"{product}"))
+            messageBlocks.append(buildSection(f"Test result summary for *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+            messageBlocks.append(buildSection(f"Sorry.  The build is so bad it can't even be summarized within the size limit of a Slack message!"))
+            postMessage(FVT_SLACK_CHANNEL, messageBlocks, threadId)

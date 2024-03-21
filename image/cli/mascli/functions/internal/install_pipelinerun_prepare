@@ -72,6 +72,24 @@ function install_pipelinerun_prepare() {
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-coreidp.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-suite.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-data-dictionary-assetdatadictionary.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-actions.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-auth.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-datapower.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-devops.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-dm.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-dsc.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-edgeconfig.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-fpl.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-guardian.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-iot.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-mbgx.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-mfgx.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-monitor.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-orgmgmt.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-provision.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-registry.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-state.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-webui.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-sls-licenseservice.yml} &>> $LOGFILE
   else
     # pipeline-pod-templates must exist (otherwise the suite-install step will hang), but can be empty

@@ -25,15 +25,6 @@ spec:
     - name: mas_workspace_id
       type: string
       default: ""
-    - name: mas_appws_components
-      type: string
-      description: Which Manage components are being installed?
-      default: ""
-    # TODO: Why do Manage tests need to know the Kafka provider?
-    - name: kafka_provider
-      type: string
-      description: kafka provider used during installation (ibm, aws or redhat)
-      default: ""
 
     # FVT Configuration
     - name: fvt_image_registry
@@ -50,15 +41,11 @@ spec:
     - name: fvt_digest_manage
       type: string
       default: ""
-    - name: fvt_digest_manage_civil_selenium
-      type: string
-      default: ""
 
   tasks:
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase0-aviation.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase1-scheduler.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase2-civil.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase3-all-setup.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase4-all-user.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase5-all-test.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase6-maintmanager.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-is/phase0-aviation.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-is/phase1-scheduler.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-is/phase2-all-setup.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-is/phase3-all-user.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-is/phase4-all-test.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-is/phase5-maintmanager.yml.j2') | indent(4) }}

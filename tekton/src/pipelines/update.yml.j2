@@ -89,10 +89,6 @@ spec:
       type: string
       description: Approves the MongoDb upgrade to version 5 if needed
       default: ""
-    - name: mongodb_storage_class
-      type: string
-      default: ""
-      description: MongoDB Storage class for data and logs
 
     # kafka update
     - name: kafka_action
@@ -113,6 +109,18 @@ spec:
       default: ""
       type: string
       description: Set to 'true' to change all LicenseService CRs' registry to cpopen
+    
+    # UDS/DRO Migration
+    - name: dro_migration
+      default: ""
+      type: string
+      description: Set to 'true' to Migration UDS to DRO 
+
+    # grafana operator update
+    - name: grafana_v5_upgrade
+      type: string
+      description: Approves the Grafana Operator upgrade to version 5
+      default: ""
 
   tasks:
 {% if wait_for_install == true %}
@@ -229,6 +237,22 @@ spec:
           operator: in
           values: ["redhat"]
 
+    - name: update-grafana
+      taskRef:
+        kind: Task
+        name: mas-devops-cluster-monitoring
+      when:
+        - input: $(params.grafana_v5_upgrade)
+          operator: in
+          values: ["true", "True"]
+      params:
+        - name: cluster_monitoring_action
+          value: update_grafana
+        - name: devops_suite_name
+          value: update-grafana
+      runAfter:
+        - update-common-services
+
     - name: update-db2
       taskRef:
         kind: Task
@@ -258,8 +282,6 @@ spec:
           value: $(params.mongodb_namespace)
         - name: mongodb_v5_upgrade
           value: $(params.mongodb_v5_upgrade)
-        - name: mongodb_storage_class
-          value: $(params.mongodb_storage_class)
 
     - name: update-kafka
       taskRef:
@@ -276,7 +298,23 @@ spec:
           value: $(params.kafka_namespace)
         - name: kafka_provider
           value: $(params.kafka_provider)
-
+    
+    # UDS/DRO Migration
+    - name: update-uds
+      taskRef:
+        kind: Task
+        name: mas-devops-uds
+      runAfter:
+        - update-common-services
+      params:
+        - name: dro_migration
+          value: $(params.dro_migration)
+        - name: devops_suite_name
+          value: update-uds
+{% if wait_for_install == true %}
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+{% endif %}
     # 6. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
@@ -289,6 +327,8 @@ spec:
         - update-mongodb
         - update-kafka
         - update-cert-manager
+        - update-uds
+        - update-grafana
 
 
 {% if wait_for_install == true %}
@@ -314,24 +354,4 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-finalize
-{% endif %}
-
-{% if wait_for_install == true %}
-    # 7. Test for outages during mongo update
-    # -------------------------------------------------------------------------
-    - name: fvt-mongo-update
-      taskRef:
-        kind: Task
-        name: mas-ivt-core
-      params:
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_digest
-          value: $(params.fvt_image_digest)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value:  "NOT_USED"
-        - name: fvt_test_suite
-          value: "mongohealth"
 {% endif %}

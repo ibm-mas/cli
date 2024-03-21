@@ -1,0 +1,62 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a QoS class of Guaranteed. More can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
+podTemplates:
+  - name: api-pipeline
+    containers:
+      - name: api-pipeline
+        resources:
+          requests:
+            cpu: 2
+            memory: 2Gi
+          limits:
+            cpu: 2
+            memory: 2Gi
+  - name: deprovagent-fpl
+    containers:
+      - name: deprovagent-fpl
+        resources:
+          requests:
+            cpu: 2
+            memory: 2Gi
+          limits:
+            cpu: 2
+            memory: 2Gi
+  - name: functionsexecutor
+    containers:
+      - name: functionsexecutor
+        resources:
+          requests:
+            cpu: 16
+            memory: 16Gi
+          limits:
+            cpu: 16
+            memory: 16Gi
+      - name: statsd
+        resources:
+          requests:
+            cpu: 0.2
+            memory: 512Mi
+          limits:
+            cpu: 0.2
+            memory: 512Mi
+  - name: pipelinerouter
+    containers:
+      - name: pipelinerouter
+        resources:
+          requests:
+            cpu: 12
+            memory: 8Gi
+          limits:
+            cpu: 12
+            memory: 8Gi
+      - name: statsd
+        resources:
+          requests:
+            cpu: 0.2
+            memory: 512Mi
+          limits:
+            cpu: 0.2
+            memory: 512Mi

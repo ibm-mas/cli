@@ -34,7 +34,6 @@ function kafka_for_iot() {
           EVENTSTREAMS_LOCATION=""
 
           # Clear settings for other providers - AWS
-          KAFKA_CLUSTER_NAME=""
           AWS_KAFKA_USER_NAME=""
           AWS_MSK_INSTANCE_TYPE=""
           AWS_MSK_VOLUME_SIZE=""
@@ -59,7 +58,6 @@ function kafka_for_iot() {
           EVENTSTREAMS_LOCATION=""
 
           # Clear settings for other providers - AWS
-          KAFKA_CLUSTER_NAME=""  # We want to use the generated name
           AWS_KAFKA_USER_NAME=""
           AWS_MSK_INSTANCE_TYPE=""
           AWS_MSK_VOLUME_SIZE=""
@@ -91,7 +89,6 @@ function kafka_for_iot() {
           KAFKA_VERSION=""
 
           # Clear settings for other providers - AWS
-          KAFKA_CLUSTER_NAME=""  # We want to use the generated name
           AWS_KAFKA_USER_NAME=""
           AWS_MSK_INSTANCE_TYPE=""
           AWS_MSK_VOLUME_SIZE=""
@@ -101,7 +98,6 @@ function kafka_for_iot() {
         4)
           KAFKA_PROVIDER="aws"
           # kafka defaults - aws msk
-          [ ! -z $KAFKA_CLUSTER_NAME ] && KAFKA_CLUSTER_NAME=aws-msk-$MAS_INSTANCE_ID
           [ ! -z $AWS_KAFKA_USER_NAME ] && AWS_KAFKA_USER_NAME=masuser
           [ ! -z $AWS_MSK_INSTANCE_TYPE ] && AWS_MSK_INSTANCE_TYPE=kafka.m5.large
           [ ! -z $AWS_MSK_VOLUME_SIZE ] && AWS_MSK_VOLUME_SIZE=100
@@ -119,7 +115,6 @@ function kafka_for_iot() {
           prompt_for_secret "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY "Re-use saved AWS Secret Access Key?"
           prompt_for_input "AWS Region" AWS_REGION $AWS_REGION
           prompt_for_input "Virtual Private Cloud (VPC) ID" VPC_ID $VPC_ID
-          prompt_for_input "MSK Cluster Name" KAFKA_CLUSTER_NAME $KAFKA_CLUSTER_NAME
           prompt_for_input "MSK Instance Username" AWS_KAFKA_USER_NAME $AWS_KAFKA_USER_NAME
           prompt_for_secret "MSK Instance Password" AWS_KAFKA_USER_PASSWORD "Re-use saved MSK Instance Password?"
           prompt_for_input "MSK Instance Type" AWS_MSK_INSTANCE_TYPE $AWS_MSK_INSTANCE_TYPE

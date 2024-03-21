@@ -44,10 +44,6 @@ spec:
       type: string
       description: Manage product that will be tested by this task. Use official names as expected by Manage operators
       default: "base"
-    - name: mas_appws_components
-      type: string
-      description: Manage Workspace component list so ISs tasks can decide if it should be executed base on what is configured
-      default: ""
     - name: product_id
       type: string
       description: Product ID under test
@@ -107,15 +103,20 @@ spec:
         value: $(params.fvt_test_suite)
       - name: FVT_MAS_APPWS_COMPONENT
         value: $(params.fvt_mas_appws_component)
-      - name: MAS_APPWS_COMPONENTS
-        value: $(params.mas_appws_components)
 
       - name: FVT_ENABLE_DEBUG
         value: "$(params.fvt_enable_debug)"
 
       - name: ARTIFACTORY_TOKEN
         value: $(params.artifactory_token)
-      
+
+      - name: ARTIFACTORY_UPLOAD_DIR
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_UPLOAD_DIR
+            optional: true
+
       # Black and white listing
       - name: FVT_BLACKLIST
         valueFrom:
@@ -129,12 +130,69 @@ spec:
             name: mas-fvt-manage
             key: FVT_WHITELIST
             optional: false
+      - name: FVT_BLACKLIST_IS
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_BLACKLIST_IS
+            optional: false
+      - name: FVT_WHITELIST_IS
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_WHITELIST_IS
+            optional: false
+
+      # Test Data
+      - name: LDAP_URL
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: LDAP_URL
+            optional: false
+      - name: LDAP_BASE_DN
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: LDAP_BASE_DN
+            optional: false
+      - name: LDAP_BIND_DN
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: LDAP_BIND_DN
+            optional: false
+      - name: LDAP_BIND_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: LDAP_BIND_PASSWORD
+            optional: false
+      - name: LDAP_USER_MAP
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: LDAP_USER_MAP
+            optional: false
+      - name: LDAP_CERT_ALIAS
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: LDAP_CERT_ALIAS
+            optional: false
+      - name: LDAP_CRT
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: LDAP_CRT
+            optional: false
+
 
   steps:
     - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
-      onError: continue # Ensure bad FVTs don't break the pipeline
+      timeout: 120m  # Ensure bad FVTs don't run forever
+      onError: continue  # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
       volumeMounts:
