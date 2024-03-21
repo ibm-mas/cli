@@ -41,6 +41,9 @@ spec:
       type: string
     - name: source_github_repo
       type: string
+    - name: source_path
+      type: string
+      default: ""
     - name: github_pat
       type: string
 
@@ -84,6 +87,8 @@ spec:
           value: $(params.source_github_org)
         - name: source_github_repo
           value: $(params.source_github_repo)
+        - name: source_path
+          value: $(params.source_path)
         - name: github_pat
           value: $(params.github_pat)
       taskRef:
