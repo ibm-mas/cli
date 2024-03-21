@@ -36,6 +36,9 @@ spec:
     - name: db2_version
       type: string
       default: ""
+    - name: db2_type
+      type: string
+      default: ""
     - name: db2_workload
       type: string
       default: ""
@@ -182,6 +185,8 @@ spec:
         value: $(params.db2_dbname)
       - name: DB2_VERSION
         value: $(params.db2_version)
+      - name: DB2_TYPE
+        value: $(params.db2_type)
       - name: DB2_WORKLOAD
         value: $(params.db2_workload)
       - name: DB2_4K_DEVICE_SUPPORT

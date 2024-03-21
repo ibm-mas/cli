@@ -345,22 +345,23 @@ function manage_settings_cognos() {
 
 # Defines if demo data will be enabled
 function manage_settings_demodata() {
-  echo
-  prompt_for_confirm "Create demo data?" MAS_APP_SETTINGS_DEMODATA
+  prompt_for_confirm "+ Create Demo Data?" MAS_APP_SETTINGS_DEMODATA
 }
 
 # Defines manage server timezone
 function manage_settings_timezone() {
-  echo
-  prompt_for_input "Manage server timezone" MAS_APP_SETTINGS_SERVER_TIMEZONE "GMT" 
+  prompt_for_input "+ Manage Server Timezone" MAS_APP_SETTINGS_SERVER_TIMEZONE "GMT" 
 }
 
 # Defines manage base and secondary languages
 function manage_settings_languages() {
   echo
-  prompt_for_input "Manage base language" MAS_APP_SETTINGS_BASE_LANG "EN"
+  echo "${TEXT_DIM}Define the base language to be configured in the Manage install."
   echo
-  echo "${TEXT_DIM}Define which Manage secondary languages will be configured in the Manage install."
+  reset_colors
+  prompt_for_input "Manage Base Language" MAS_APP_SETTINGS_BASE_LANG "EN"
+  echo
+  echo "${TEXT_DIM}Define the list of additional languages to be configured in the Manage install."
   echo
   echo "Provide a comma-separated list of supported languages codes, as example:'JA,DE,AR'"
   echo
@@ -368,15 +369,17 @@ function manage_settings_languages() {
   echo "https://www.ibm.com/docs/en/mas-cd/mhmpmh-and-p-u/continuous-delivery?topic=deploy-language-support"
   echo
   reset_colors
-  prompt_for_input "Manage secondary languages" MAS_APP_SETTINGS_SECONDARY_LANGS
+  prompt_for_input "Manage Secondary Languages" MAS_APP_SETTINGS_SECONDARY_LANGS
 }
 
 function manage_settings_additional_configs() {
   echo
   echo_h4 "Manage - Additional Settings"
+  echo
   echo "${TEXT_DIM}Configure additional Manage installation settings:"
+  echo
   echo "- Demo Data"
-  echo "- Base and additional languages"
+  echo "- Base and Additional languages"
   echo "- Server timezone"
   reset_colors
   echo

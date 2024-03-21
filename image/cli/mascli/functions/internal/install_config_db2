@@ -41,6 +41,30 @@ function db2_for_iot() {
 
 # Do we need to set up a Manage database?
 # -------------------------------------------------------------------------
+function choose_manage_db2_type() {
+  echo
+  echo -e "${COLOR_YELLOW}Available DB2 instance types for Manage:"
+  echo "  1) DB2 Warehouse (Default option)"
+  echo "  2) DB2 Online Transactional Processing (OLTP)"
+  reset_colors
+
+  echo
+  prompt_for_input "Select the Manage dedicated DB2 instance type" DB2_TYPE_SELECTION "1"
+
+  case $DB2_TYPE_SELECTION in
+    1)
+      DB2_TYPE='db2wh'
+      ;;
+    2)
+      DB2_TYPE='db2oltp'
+      ;;
+    *)
+      echo_warning "Invalid selection"
+      exit 1
+      ;;
+  esac
+}
+
 function db2_for_manage() {
   if [ "$MAS_APP_CHANNEL_MANAGE" != "" ]; then
     echo_h3 "Database configuration for Maximo Manage"
@@ -61,6 +85,7 @@ function db2_for_manage() {
       # Set up database using Db2u operator, or BYO
       if prompt_for_confirm_default_yes "Create Manage dedicated Db2 instance using the IBM Db2 Universal Operator?"; then
         DB2_ACTION_MANAGE=install
+        choose_manage_db2_type
       else
         DB2_ACTION_MANAGE=byo
 

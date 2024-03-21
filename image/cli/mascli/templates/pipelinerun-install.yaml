@@ -63,6 +63,8 @@ spec:
       value: '$DB2_NAMESPACE'
     - name: db2_channel
       value: '$DB2_CHANNEL'
+    - name: db2_type
+      value: '$DB2_TYPE'
 
     # Dependencies - Db2 - Actions
     # -------------------------------------------------------------------------

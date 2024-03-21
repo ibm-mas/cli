@@ -86,6 +86,7 @@ Usage
 - `--db2u-channel DB2_CHANNEL`     Subscription channel for Db2u (e.g. v110508.0)
 - `--db2u-system`                  Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)
 - `--db2u-manage`                  Install a dedicated Db2u instance for Maximo Manage (supported by Manage)
+- `--db2u-type-manage`             Optional. Choose the type of the Manage dedicated Db2u instance. Available options are `db2wh` (default) or `db2oltp`.
 
 ### Advanced Db2u Universal Operator Configuration (Optional):
 - `--db2u-namespace DB2_NAMESPACE` Change namespace where Db2u instances will be created
