@@ -350,7 +350,8 @@ function manage_settings_demodata() {
 
 # Defines manage server timezone
 function manage_settings_timezone() {
-  prompt_for_input "+ Manage Server Timezone" MAS_APP_SETTINGS_SERVER_TIMEZONE "GMT" 
+  prompt_for_input "+ Manage Server Timezone" MAS_APP_SETTINGS_SERVER_TIMEZONE "GMT"
+  DB2_TIMEZONE=$MAS_APP_SETTINGS_SERVER_TIMEZONE # set Manage dedicated Db2 timezone to be same as Manage server timezone
 }
 
 # Defines manage base and secondary languages

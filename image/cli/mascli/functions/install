@@ -409,6 +409,7 @@ function install_noninteractive() {
       # Manage commands - Server timezone
       --manage-server-timezone)
         export MAS_APP_SETTINGS_SERVER_TIMEZONE=$1 && shift
+        export DB2_TIMEZONE=$MAS_APP_SETTINGS_SERVER_TIMEZONE # If used, set Manage dedicated Db2 timezone to be same as Manage server timezone
         ;;
 
       # Cloud Provider Commands - IBM Cloud

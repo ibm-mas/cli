@@ -65,6 +65,8 @@ spec:
       value: '$DB2_CHANNEL'
     - name: db2_type
       value: '$DB2_TYPE'
+    - name: db2_timezone
+      value: '$DB2_TIMEZONE'
 
     # Dependencies - Db2 - Actions
     # -------------------------------------------------------------------------
