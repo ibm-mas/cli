@@ -12,12 +12,13 @@ When no options are specified on the command line, interactive-mode will be enab
 Options:
 
 GitOps Configuration:
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Working directory for GitOps repository
-  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
-  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
-  --config-action ${COLOR_YELLOW}CONFIG_ACTION${TEXT_RESET}          One of upsert|remove.
-  --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}      One of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
-  --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG-SCOPE${TEXT_RESET}    One of system|ws|app|wsapp
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                  Working directory for GitOps repository
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                   Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                   Cluster ID
+  --config-action ${COLOR_YELLOW}CONFIG_ACTION${TEXT_RESET}                 One of upsert|remove.
+  --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}             One of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
+  --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG-SCOPE${TEXT_RESET}           One of system|ws|app|wsapp
+  --use-postdelete-hooks ${COLOR_YELLOW}USE_POSTDELETE_HOOKS${TEXT_RESET}   !!! ArgoCD >= 2.10.* only !!!. If set, PostDelete hooks will be deployed to ensure config CRs are properly cleaned up by ArgoCD on deletion (default: false)
 
 IBM Maximo Application Suite:
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
@@ -118,6 +119,9 @@ function gitops_mas_config_noninteractive() {
         ;;
       --mas-app-id)
         export MAS_APP_ID=$1 && shift
+        ;;
+      --use-postdelete-hooks)
+        export USE_POSTDELETE_HOOKS=true
         ;;
 
       --mas-config-type)
@@ -418,6 +422,8 @@ function gitops_mas_config() {
   GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
   CONFIGS_FILE="${GITOPS_INSTANCE_DIR}/ibm-mas-suite-configs.yaml"
 
+  export USE_POSTDELETE_HOOKS=${USE_POSTDELETE_HOOKS:-false}
+
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-mas-config
   mkdir -p $TEMP_DIR
@@ -476,6 +482,7 @@ function gitops_mas_config() {
   echo_reset_dim "Config Action  .......................... ${COLOR_MAGENTA}${CONFIG_ACTION}"
   echo_reset_dim "Config Type  ............................ ${COLOR_MAGENTA}${MAS_CONFIG_TYPE}"
   echo_reset_dim "Config Name  ............................ ${COLOR_MAGENTA}${MAS_CONFIG_NAME}"
+  echo_reset_dim "Use PostDelete Hooks? ................... ${COLOR_MAGENTA}${USE_POSTDELETE_HOOKS}"
   reset_colors
 
   # Set a default commit message now we know the config name
@@ -734,6 +741,8 @@ function gitops_mas_config() {
     fi
   fi
 
+  echo_h2 "Updates configuration file"
+  cat $CONFIGS_FILE
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
