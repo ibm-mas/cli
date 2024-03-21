@@ -723,7 +723,7 @@ function gitops_mas_config() {
     # Source: gitops_suite_smtp_config
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "smtp" ]; then
-      sm_login
+        sm_login
         SECRET_NAME_SMTP=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}smtp
         sm_update_secret $SECRET_NAME_SMTP "{\"username\": \"$SMTP_USERNAME\", \"password\": \"$SMTP_PASSWORD\"}"
         export SECRET_KEY_SMTP_USERNAME=${SECRET_NAME_SMTP}#username
@@ -752,6 +752,30 @@ function gitops_mas_config() {
 
 
   if [ "${CONFIG_ACTION}" == "remove" ]; then
+
+    echo
+    echo_h2 "Deleting secrets specific to ${MAS_CONFIG_TYPE}"
+    # Delete any secrets that were created by the "upsert" action for this MAS_CONFIG_TYPE
+    # NOTE: this does not include any secrets that were created by post-sync hooks (e.g. sls).
+    #       these will now be handled by PostDelete hooks on the corresponding charts
+
+    if [ "${MAS_CONFIG_TYPE}" == "ldap-default" ]; then
+      sm_login
+      SECRET_NAME_LDAP=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ldap
+      sm_delete_secret $SECRET_NAME_LDAP
+    fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
+      sm_login
+      export DB2_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2${SECRETS_KEY_SEPERATOR}${DB2_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}credentials
+      sm_delete_secret $DB2_CREDENTIALS_SECRET_ID
+    fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "smtp" ]; then
+      sm_login
+      SECRET_NAME_SMTP=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}smtp
+      sm_delete_secret $SECRET_NAME_SMTP "{\"username\": \"$SMTP_USERNAME\", \"password\": \"$SMTP_PASSWORD\"}"
+    fi
 
     # If the file doesn't exist, nothing to remove, so no-op
     if [ -f ${CONFIGS_FILE} ]; then
