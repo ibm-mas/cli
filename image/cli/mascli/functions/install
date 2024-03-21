@@ -392,6 +392,20 @@ function install_noninteractive() {
         export MAS_APP_SETTINGS_OVERRIDE_ENCRYPTION_SECRETS_FLAG=true
         ;;
 
+      # Manage commands - Base & secondary languages
+      --manage-base-language)
+        export MAS_APP_SETTINGS_BASE_LANG=$1 && shift
+        ;;
+
+      --manage-secondary-languages)
+        export MAS_APP_SETTINGS_SECONDARY_LANGS=$1 && shift
+        ;;
+
+      # Manage commands - Server timezone
+      --manage-server-timezone)
+        export MAS_APP_SETTINGS_SERVER_TIMEZONE=$1 && shift
+        ;;
+
       # Cloud Provider Commands - IBM Cloud
       --ibmcloud-apikey)
         export IBMCLOUD_APIKEY=$1 && shift

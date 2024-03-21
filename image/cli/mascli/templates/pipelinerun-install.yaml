@@ -420,6 +420,8 @@ spec:
       value: '$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE'
     - name: mas_app_settings_base_language
       value: '$MAS_APP_SETTINGS_BASE_LANG'
+    - name: mas_app_settings_server_timezone
+      value: '$MAS_APP_SETTINGS_SERVER_TIMEZONE'
     - name: mas_app_settings_secondary_languages
       value: '$MAS_APP_SETTINGS_SECONDARY_LANGS'
     - name: mas_app_settings_tablespace
