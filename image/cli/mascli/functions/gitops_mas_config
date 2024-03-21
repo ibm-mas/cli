@@ -784,7 +784,7 @@ function gitops_mas_config() {
     fi
   fi
 
-  echo_h2 "Updates configuration file"
+  echo_h2 "Updated configuration file"
   cat $CONFIGS_FILE
 
   # Commit and push to github target repo
