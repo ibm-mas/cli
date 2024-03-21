@@ -65,13 +65,13 @@ spec:
   stepTemplate:
     name: gitops-suite-smtp-config
     env:
-      - name: CLUSTER_NAME
+      - name: CLUSTER_ID
         value: $(params.cluster_name)
       - name: OCP_SERVER
         value: $(params.cluster_url)
-      - name: ACCOUNT
+      - name: ACCOUNT_ID
         value: $(params.account)
-      - name: SECRET_PATH
+      - name: SECRETS_PATH
         value: $(params.secrets_path)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
@@ -125,24 +125,29 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        mas gitops-suite-smtp-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
-        --secrets-path $SECRET_PATH \
-        --dir /tmp/init-suite-smtp-config \
+        mas gitops-mas-config \
+        --account-id "$ACCOUNT_ID" \
+        --cluster-id "$CLUSTER_ID" \
+        --mas-instance-id "$MAS_INSTANCE_ID" \
+        --secrets-path "$SECRETS_PATH" \
         --github-push \
-        --github-host $GITHUB_HOST \
-        --github-org $GITHUB_ORG \
-        --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH \
-        --smtp-host $SMTP_HOST \
-        --smtp-port $SMTP_PORT \
-        --smtp-security $SMTP_SECURITY \
-        --smtp-authentication $SMTP_AUTHENTICATION \
-        --smtp-default-sender-email $SMTP_DEFAULT_SENDER_EMAIL \
-        --smtp-default-sender-name $SMTP_DEFAULT_SENDER_NAME \
-        --smtp-default-recipient-email $SMTP_DEFAULT_RECIPIENT_EMAIL \
-        --smtp-default-should-email-passwords $SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS \
-        --smtp-username $SMTP_USERNAME \
-        --smtp-password $SMTP_PASSWORD
+        --github-host "$GITHUB_HOST" \
+        --github-org "$GITHUB_ORG" \
+        --github-repo "$GITHUB_REPO" \
+        --git-branch "$GIT_BRANCH" \
+        --config-action upsert \
+        --mas-config-scope system \
+        --mas-config-type smtp \
+        --dir /tmp/init-suite-smtp-config \
+        --smtp-host "$SMTP_HOST" \
+        --smtp-port "$SMTP_PORT" \
+        --smtp-security "$SMTP_SECURITY" \
+        --smtp-authentication "$SMTP_AUTHENTICATION" \
+        --smtp-default-sender-email "$SMTP_DEFAULT_SENDER_EMAIL" \
+        --smtp-default-sender-name "$SMTP_DEFAULT_SENDER_NAME" \
+        --smtp-default-recipient-email "$SMTP_DEFAULT_RECIPIENT_EMAIL" \
+        --smtp-default-should-email-passwords "$SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS"
+        
       command:
         - /bin/sh
         - -c

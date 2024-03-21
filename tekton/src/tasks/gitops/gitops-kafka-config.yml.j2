@@ -36,13 +36,13 @@ spec:
   stepTemplate:
     name: gitops-kafka-config
     env:
-      - name: CLUSTER_NAME
+      - name: CLUSTER_ID
         value: $(params.cluster_name)
       - name: OCP_SERVER
         value: $(params.cluster_url)
-      - name: ACCOUNT
+      - name: ACCOUNT_ID
         value: $(params.account)
-      - name: SECRET_PATH
+      - name: SECRETS_PATH
         value: $(params.secrets_path)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
@@ -75,14 +75,21 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        mas gitops-kafka-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
-        --secrets-path $SECRET_PATH \
-        --dir /tmp/init-kafka-config \
-        --github-push \
-        --github-host $GITHUB_HOST \
-        --github-org $GITHUB_ORG \
-        --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH
+        mas gitops-mas-config \
+          --account-id "$ACCOUNT_ID" \
+          --cluster-id "$CLUSTER_ID" \
+          --mas-instance-id "$MAS_INSTANCE_ID" \
+          --secrets-path "$SECRETS_PATH" \
+          --github-push \
+          --github-host "$GITHUB_HOST" \
+          --github-org "$GITHUB_ORG" \
+          --github-repo "$GITHUB_REPO" \
+          --git-branch "$GIT_BRANCH" \
+          --config-action upsert \
+          --mas-config-scope system \
+          --mas-config-type kafka \
+          --dir /tmp/init-kafka-config
+
       command:
         - /bin/sh
         - -c

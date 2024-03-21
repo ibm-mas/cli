@@ -44,15 +44,15 @@ spec:
   stepTemplate:
     name: gitops-db2u-config
     env:
-      - name: CLUSTER_NAME
+      - name: CLUSTER_ID
         value: $(params.cluster_name)
       - name: OCP_SERVER
         value: $(params.cluster_url)
-      - name: ACCOUNT
+      - name: ACCOUNT_ID
         value: $(params.account)
       - name: GITHUB_REPO
         value: $(params.github_repo)
-      - name: SECRET_PATH
+      - name: SECRETS_PATH
         value: $(params.secrets_path)
       - name: GIT_BRANCH
         value: $(params.git_branch)
@@ -98,15 +98,26 @@ spec:
         export DB2_LDAP_USERNAME=${!DB2_USER_VAR}
         export DB2_LDAP_PASSWORD=${!DB2_PASSWORD_VAR}
 
-        mkdir -p /tmp/init-db2u-jdbc-config-$MAS_APP_ID
-        mas gitops-db2u-jdbc-config -a $ACCOUNT -c $CLUSTER_NAME \
-        --dir /tmp/init-db2u-jdbc-config-$MAS_APP_ID \
-        --secrets-path $SECRET_PATH \
-        --github-push \
-        --github-host $GITHUB_HOST \
-        --github-org  $GITHUB_ORG \
-        --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH
+        mas gitops-mas-config \
+          --account-id "$ACCOUNT_ID" \
+          --cluster-id "$CLUSTER_ID" \
+          --mas-instance-id "$MAS_INSTANCE_ID" \
+          --mas-workspace-id "$MAS_WORKSPACE_ID" \
+          --mas-app-id "$MAS_APP_ID" \
+          --secrets-path "$SECRETS_PATH" \
+          --github-push \
+          --github-host "$GITHUB_HOST" \
+          --github-org "$GITHUB_ORG" \
+          --github-repo "$GITHUB_REPO" \
+          --git-branch "$GIT_BRANCH" \
+          --config-action upsert \
+          --mas-config-scope "$MAS_CONFIG_SCOPE" \
+          --mas-config-type jdbc \
+          --dir /tmp/init-db2u-jdbc-config-$MAS_APP_ID \
+          --gitops-config-dir "$GITOPS_CONFIG_DIR" \
+          --db2-instance-name "db2wh-$MAS_INSTANCE_ID-$MAS_APP_ID" \
+          --tls-version "$TLS_VERSION"
+
 
         exit $?
       command:

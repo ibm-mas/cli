@@ -49,15 +49,15 @@ spec:
     env:
       - name: OCP_SERVER
         value: $(params.cluster_url)
-      - name: CLUSTER_NAME
+      - name: CLUSTER_ID
         value: $(params.cluster_name)
-      - name: ACCOUNT
+      - name: ACCOUNT_ID
         value: $(params.account)
-      - name: SECRET_PATH
+      - name: SECRETS_PATH
         value: $(params.secrets_path)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
-      - name: MONGO_PROVIDER
+      - name: MONGODB_PROVIDER
         value: $(params.mongo_provider)
       - name: GIT_BRANCH
         value: $(params.git_branch)
@@ -92,21 +92,66 @@ spec:
   steps:
     - args:
       - |-
-        mkdir -p /tmp/init-suite-config
+        
 
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        mas gitops-suite-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
-        --secrets-path $SECRET_PATH \
-        --mongo-provider $MONGO_PROVIDER \
-        --dir /tmp/init-suite-config \
+        mkdir -p /tmp/init-mas-config-mongo
+        mas gitops-mas-config \
+        --account-id "$ACCOUNT_ID" \
+        --cluster-id "$CLUSTER_ID" \
+        --mas-instance-id "$MAS_INSTANCE_ID" \
+        --secrets-path "$SECRETS_PATH" \
         --github-push \
-        --github-host $GITHUB_HOST \
-        --github-org $GITHUB_ORG \
-        --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH
+        --github-host "$GITHUB_HOST" \
+        --github-org "$GITHUB_ORG" \
+        --github-repo "$GITHUB_REPO" \
+        --git-branch "$GIT_BRANCH" \
+        --config-action upsert \
+        --mas-config-scope system \
+        --mas-config-type mongo \
+        --dir /tmp/init-mas-config-mongo \
+        --mongo-provider "$MONGODB_PROVIDER"
+
+        mkdir -p /tmp/init-mas-config-sls
+        mas gitops-mas-config \
+        --account-id "$ACCOUNT_ID" \
+        --cluster-id "$CLUSTER_ID" \
+        --mas-instance-id "$MAS_INSTANCE_ID" \
+        --secrets-path "$SECRETS_PATH" \
+        --github-push \
+        --github-host "$GITHUB_HOST" \
+        --github-org "$GITHUB_ORG" \
+        --github-repo "$GITHUB_REPO" \
+        --git-branch "$GIT_BRANCH" \
+        --config-action upsert \
+        --mas-config-scope system \
+        --mas-config-type sls \
+        --dir /tmp/init-mas-config-sls
+
+        mkdir -p /tmp/init-mas-config-bas
+        mas gitops-mas-config \
+        --account-id "$ACCOUNT_ID" \
+        --cluster-id "$CLUSTER_ID" \
+        --mas-instance-id "$MAS_INSTANCE_ID" \
+        --secrets-path "$SECRETS_PATH" \
+        --github-push \
+        --github-host "$GITHUB_HOST" \
+        --github-org "$GITHUB_ORG" \
+        --github-repo "$GITHUB_REPO" \
+        --git-branch "$GIT_BRANCH" \
+        --config-action upsert \
+        --mas-config-scope system \
+        --mas-config-type bas \
+        --dir /tmp/init-mas-config-bas \
+        --dro-contact-email "$DRO_CONTACT_EMAIL" \
+        --dro-contact-firstname "$DRO_CONTACT_FIRSTNAME" \
+        --dro-contact-lastname "$DRO_CONTACT_LASTNAME" \
+        --dro-ca-certificate-file "$DRO_CA_CERTIFICATE_FILE"
+
+        
       command:
         - /bin/sh
         - -c

@@ -53,13 +53,13 @@ spec:
   stepTemplate:
     name: gitops-suite-idp-config
     env:
-      - name: CLUSTER_NAME
+      - name: CLUSTER_ID
         value: $(params.cluster_name)
       - name: OCP_SERVER
         value: $(params.cluster_url)
-      - name: ACCOUNT
+      - name: ACCOUNT_ID
         value: $(params.account)
-      - name: SECRET_PATH
+      - name: SECRETS_PATH
         value: $(params.secrets_path)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
@@ -104,20 +104,27 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        mas gitops-suite-idp-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
-        --secrets-path $SECRET_PATH \
-        --dir /tmp/init-suite-idp-config \
+        mas gitops-mas-config \
+        --account-id "$ACCOUNT_ID" \
+        --cluster-id "$CLUSTER_ID" \
+        --mas-instance-id "$MAS_INSTANCE_ID" \
+        --secrets-path "$SECRETS_PATH" \
         --github-push \
-        --github-host $GITHUB_HOST \
-        --github-org $GITHUB_ORG \
-        --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH \
-        --ldap-url $LDAP_URL \
-        --ldap-basedn $LDAP_BASEDN \
-        --ldap-userid-map $LDAP_USERID_MAP \
+        --github-host "$GITHUB_HOST" \
+        --github-org "$GITHUB_ORG" \
+        --github-repo "$GITHUB_REPO" \
+        --git-branch "$GIT_BRANCH" \
+        --config-action upsert \
+        --mas-config-scope system \
+        --mas-config-type ldap-default \
+        --dir /tmp/init-suite-idp-config \
+        --ldap-url "$LDAP_URL" \
+        --ldap-basedn "$LDAP_BASEDN" \
+        --ldap-userid-map "$LDAP_USERID_MAP" \
         --ldap-certificate-file /workspace/shared-additional-configs/ldap_masdeps1_cert.pem \
-        --ldap-bind-dn $LDAP_BIND_DN \
-        --ldap-bind-password $LDAP_BIND_PASSWORD
+        --ldap-bind-dn "$LDAP_BIND_DN" \
+        --ldap-bind-password "$LDAP_BIND_PASSWORD"
+
       command:
         - /bin/sh
         - -c
