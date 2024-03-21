@@ -176,8 +176,7 @@ function install_pipelinerun_preview() {
     echo_reset_dim "Subscription Channel ...... ${COLOR_MAGENTA}${DB2_CHANNEL}"
 
     echo_reset_dim "System Instance ........... ${COLOR_MAGENTA}${DB2_ACTION_SYSTEM}"
-    echo_reset_dim "Dedicated Manage Instance . ${COLOR_MAGENTA}${DB2_ACTION_MANAGE}"
-
+    echo_reset_dim "Dedicated Manage Instance . ${COLOR_MAGENTA}${DB2_ACTION_MANAGE} (Db2 type: ${DB2_TYPE:-db2wh})"
     echo_reset_dim "CPU Request ............... ${COLOR_MAGENTA}${DB2_CPU_REQUESTS:-<default>}"
     echo_reset_dim "CPU Limit ................. ${COLOR_MAGENTA}${DB2_CPU_LIMITS:-<default>}"
     echo_reset_dim "Memory Request ............ ${COLOR_MAGENTA}${DB2_MEMORY_REQUESTS:-<default>}"
