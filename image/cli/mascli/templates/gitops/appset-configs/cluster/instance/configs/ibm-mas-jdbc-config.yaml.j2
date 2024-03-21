@@ -37,4 +37,4 @@ wsapp_suite_jdbccfg_labels:
     mas.ibm.com/instanceId: "{{ MAS_INSTANCE_ID }}"
     mas.ibm.com/workspaceId: "{{ MAS_WORKSPACE_ID }}"
 
-db2_ca_pem: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_CA_PEM }}>
+db2_ca_pem: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_CA_PEM }} | base64decode>
