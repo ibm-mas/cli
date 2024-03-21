@@ -281,7 +281,7 @@ function install_pipelinerun_preview() {
   --license-file $SLS_LICENSE_FILE_LOCAL \\
   --uds-email '$UDS_CONTACT_EMAIL' --uds-firstname '$UDS_CONTACT_FIRSTNAME' --uds-lastname '$UDS_CONTACT_LASTNAME' \\
   --storage-rwo '$STORAGE_CLASS_RWO' --storage-rwx '$STORAGE_CLASS_RWX' --storage-pipeline '$PIPELINE_STORAGE_CLASS' --storage-accessmode '$PIPELINE_STORAGE_ACCESSMODE' \\
-  --mas-instance-id '$MAS_INSTANCE_ID' --mas-workspace-id '$MAS_WORKSPACE_ID' --mas-workspace-name '$MAS_WORKSPACE_ID' \\
+  --mas-instance-id '$MAS_INSTANCE_ID' --mas-workspace-id '$MAS_WORKSPACE_ID' --mas-workspace-name '$MAS_WORKSPACE_NAME' \\
   --mas-channel '$MAS_CHANNEL'"
 
   # Optional config
@@ -353,15 +353,16 @@ function install_pipelinerun_preview() {
   [ "$DB2_META_STORAGE_SIZE" != "" ] && cmd+=" --db2u-meta-storage $DB2_META_STORAGE_SIZE"
   [ "$DB2_TEMP_STORAGE_SIZE" != "" ] && cmd+=" --db2u-temp-storage $DB2_TEMP_STORAGE_SIZE"
 
-  # TODO: Only add following flags to the command when required to ...
-  # ------------------------------------------------------------------------
-
-
   # CP4D
   # --cp4d-version ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}                                  Product version of IBM Cloud Pak for Data to use
   # --cp4d-install-spss                                                                      Includes SPSS service to be installed as part of IBM Cloud Pak for Data (Optional if Predict is being installed)
   # --cp4d-install-openscale                                                                 Includes Watson Openscale service to be installed as part of IBM Cloud Pak for Data (Optional if Predict is being installed)
   # --cp4d-install-cognos
+  [ "$DEPLOY_CP4D" == "run" ] && cmd+=" \\
+  --cp4d-version $CP4D_VERSION"
+  [ "$CPD_INSTALL_SPSS" == "true" ] && cmd+=" --cp4d-install-spss"
+  [ "$CPD_INSTALL_OPENSCALE" == "true" ] && cmd+=" --cp4d-install-openscale"
+  [ "$CPD_INSTALL_COGNOS" == "true" ] && cmd+=" --cp4d-install-cognos"
 
   # Manage Application - Advanced Configuration (Optional):
   #       --manage-jms                                                                                                        Enables JMS queues using local persistent volumes
@@ -375,6 +376,23 @@ function install_pipelinerun_preview() {
   #       --manage-old-crypto-key ${COLOR_YELLOW}MAS_APP_SETTINGS_OLD_CRYPTO_KEY${TEXT_RESET}                                 Set 'MXE_SECURITY_OLD_CRYPTO_KEY' value if you want to customize your Manage database encryption keys
   #       --manage-old-cryptox-key ${COLOR_YELLOW}MAS_APP_SETTINGS_OLD_CRYPTOX_KEY${TEXT_RESET}                               Set 'MXE_SECURITY_OLD_CRYPTOX_KEY' value if you want to customize your Manage database encryption keys
   #       --manage-override-encryption-secrets
+
+  [ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" != "" ] && cmd+=" \\
+  --manage-server-bundle-size $MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE"
+  [ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "jms" ] && cmd+=" --manage-jms"
+  [ "$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME" != "" ] && cmd+=" --manage-customization-archive-name $MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME"
+  [ "$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL" != "" ] && cmd+=" --manage-customization-archive-url $MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL"
+  [ "$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME" != "" ] && cmd+=" --manage-customization-archive-username $MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME"
+  [ "$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD" != "" ] && cmd+=" --manage-customization-archive-password $MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD"
+  [ "$MAS_APP_SETTINGS_CRYPTO_KEY" != "" ] && cmd+=" --manage-crypto-key $MAS_APP_SETTINGS_CRYPTO_KEY"
+  [ "$MAS_APP_SETTINGS_CRYPTOX_KEY" != "" ] && cmd+=" --manage-cryptox-key $MAS_APP_SETTINGS_CRYPTOX_KEY"
+  [ "$MAS_APP_SETTINGS_OLD_CRYPTO_KEY" != "" ] && cmd+=" --manage-old-crypto-key $MAS_APP_SETTINGS_OLD_CRYPTO_KEY"
+  [ "$MAS_APP_SETTINGS_OLD_CRYPTOX_KEY" != "" ] && cmd+=" --manage-old-cryptox-key $MAS_APP_SETTINGS_OLD_CRYPTOX_KEY"
+  [ "$MAS_APP_SETTINGS_OVERRIDE_ENCRYPTION_SECRETS_FLAG" == "true" ] && cmd+=" --manage-override-encryption-secrets"
+  [ "$MAS_APP_SETTINGS_BASE_LANG" != "" ] && cmd+=" --manage-base-language $MAS_APP_SETTINGS_BASE_LANG"
+  [ "$MAS_APP_SETTINGS_SECONDARY_LANGS" != "" ] && cmd+=" --manage-secondary-languages $MAS_APP_SETTINGS_SECONDARY_LANGS"
+  [ "$MAS_APP_SETTINGS_SERVER_TIMEZONE" != "" ] && cmd+=" --manage-server-timezone $MAS_APP_SETTINGS_SERVER_TIMEZONE"
+
   reset_colors
   echo
   echo_h4 "Non-Interactive Install Command"
