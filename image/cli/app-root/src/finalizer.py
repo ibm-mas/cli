@@ -329,24 +329,19 @@ if __name__ == "__main__":
         cr = crs.get(name=f"{instanceId}-kafka-system", namespace=f"mas-{instanceId}-core")
         if cr.status and cr.status.config.hosts:
                 firstBroker = cr.status.config.hosts[0].host
-                print(firstBroker)
                 if firstBroker.find('eventstreams') != -1:
                     setObject[f"target.kafkaProvider"] = 'External'
-                    print('External')
                 elif firstBroker.find('amq-streams') != -1:
                     setObject[f"target.kafkaProvider"] = 'AMQ'
                     namespace="amq-streams"
-                    print('amq-streams')
                 elif firstBroker.find('strimzi') != -1:
                     setObject[f"target.kafkaProvider"] = 'STRIMZI'
                     namespace="strimzi"
-                    print('strimzi')
                 else: 
                     print(f"Unable to determine kafka provider using broker host")
                 # check if we need to get the kafka version, this will happen with AMQ and STRIMZI    
                 if namespace != '':
-                    #setObject[f"target.kafkaVersion"] = getKafkaVersion(namespace)
-                    print(getKafkaVersion(namespace))
+                    setObject[f"target.kafkaVersion"] = getKafkaVersion(namespace)
                 else:
                     setObject[f"target.kafkaVersion"] = 'unknown'
         else:
@@ -354,7 +349,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Unable to determine kafka provider and version: {e}")
 
-   # Connect to mongoDb
+    # Connect to mongoDb
     # -------------------------------------------------------------------------
     client = MongoClient(os.getenv("DEVOPS_MONGO_URI"))
     db = client.masfvt
