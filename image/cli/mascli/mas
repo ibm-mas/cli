@@ -68,17 +68,12 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_license
 . $CLI_DIR/functions/gitops_mongo
 . $CLI_DIR/functions/gitops_kafka
-. $CLI_DIR/functions/gitops_kafka_config
 . $CLI_DIR/functions/gitops_suite
 . $CLI_DIR/functions/gitops_suite_app_install
 . $CLI_DIR/functions/gitops_suite_app_config
 . $CLI_DIR/functions/gitops_suite_certs
-. $CLI_DIR/functions/gitops_suite_config
 . $CLI_DIR/functions/gitops_mas_config
 . $CLI_DIR/functions/gitops_suite_dns
-. $CLI_DIR/functions/gitops_suite_idp_config
-. $CLI_DIR/functions/gitops_suite_objectstorage_config
-. $CLI_DIR/functions/gitops_suite_smtp_config
 . $CLI_DIR/functions/gitops_suite_workspace
 . $CLI_DIR/functions/gitops_deprovision_app_config
 . $CLI_DIR/functions/gitops_deprovision_app_install
@@ -91,7 +86,6 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_dro
 . $CLI_DIR/functions/gitops_db2u
 . $CLI_DIR/functions/gitops_db2u_database
-. $CLI_DIR/functions/gitops_db2u_jdbc_config
 . $CLI_DIR/functions/gitops_db2u_jdbc_config_rotate_password
 . $CLI_DIR/functions/gitops_process_mongo_user
 . $CLI_DIR/functions/gitops_aws_infrastructure
@@ -266,14 +260,6 @@ case $1 in
     gitops_cos "$@"
     ;;
 
-  gitops-suite-objectstorage-config)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_suite_objectstorage_config "$@"
-    ;;
-
   gitops-cp4d)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
@@ -337,13 +323,7 @@ case $1 in
     reset_colors
     gitops_suite_app_config "$@"
     ;;
-  gitops-suite-config)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_suite_config "$@"
-    ;;
+
   gitops-mas-config)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
@@ -366,22 +346,6 @@ case $1 in
     echo
     reset_colors
     gitops_suite_certs "$@"
-    ;;
-
-  gitops-suite-idp-config)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_suite_idp_config "$@"
-    ;;
-
-  gitops-suite-smtp-config)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_suite_smtp_config "$@"
     ;;
 
   gitops-suite-workspace)
@@ -544,14 +508,6 @@ case $1 in
     gitops_db2u_database "$@"
     ;;
 
-  gitops-db2u-jdbc-config)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_db2u_jdbc_config "$@"
-    ;;
-
   gitops-db2u-jdbc-config-rotate-password)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
@@ -576,13 +532,6 @@ case $1 in
     gitops_kafka "$@"
     ;;
 
-  gitops-kafka-config)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_kafka_config "$@"
-    ;;
   gitops-rosa)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
