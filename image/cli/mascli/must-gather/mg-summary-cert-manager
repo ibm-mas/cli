@@ -1,0 +1,45 @@
+#!/bin/bash
+
+echo "Certificate Manager - CertificateRequest"
+echo "--------------------------------------------------------------------------------"
+oc -n cert-manager-operator get CertificateRequest
+echo ""
+
+echo ""
+echo "Certificate Manager - Certificate"
+echo "--------------------------------------------------------------------------------"
+oc -n cert-manager-operator get Certificate
+echo ""
+
+echo ""
+echo "Certificate Manager - Challenge"
+echo "--------------------------------------------------------------------------------"
+oc -n cert-manager-operator get Challenge
+echo ""
+
+echo ""
+echo "Certificate Manager - ClusterIssuer"
+echo "--------------------------------------------------------------------------------"
+oc -n cert-manager-operator get ClusterIssuer
+echo ""
+
+echo ""
+echo "Certificate Manager - Issuer"
+echo "--------------------------------------------------------------------------------"
+oc -n cert-manager-operator get Issuer
+echo ""
+
+echo ""
+echo "Certificate Manager - Order"
+echo "--------------------------------------------------------------------------------"
+oc -n cert-manager-operator get Order
+echo ""
+
+echo ""
+echo "Certificate Manager - CertManager"
+echo "--------------------------------------------------------------------------------"
+oc -n cert-manager-operator get CertManager
+echo ""
+
+
+exit 0

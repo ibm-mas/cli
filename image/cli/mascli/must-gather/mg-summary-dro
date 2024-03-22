@@ -1,0 +1,39 @@
+#!/bin/bash
+
+echo "IBM Data Reporter Operator - DataReporterConfig"
+echo "--------------------------------------------------------------------------------"
+oc -n redhat-marketplace get DataReporterConfig
+echo ""
+
+echo ""
+echo "IBM Data Reporter Operator - MarketplaceConfig"
+echo "--------------------------------------------------------------------------------"
+oc -n redhat-marketplace get MarketplaceConfig
+echo ""
+
+echo ""
+echo "IBM Data Reporter Operator - MeterReport"
+echo "--------------------------------------------------------------------------------"
+oc -n redhat-marketplace get MeterReport
+echo ""
+
+echo ""
+echo "IBM Data Reporter Operator - MeterBase"
+echo "--------------------------------------------------------------------------------"
+oc -n redhat-marketplace get MeterBase
+echo ""
+
+echo ""
+echo "IBM Data Reporter Operator - RazeeDeployment"
+echo "--------------------------------------------------------------------------------"
+oc -n redhat-marketplace get RazeeDeployment
+echo ""
+
+echo ""
+echo "IBM Data Reporter Operator - MeterDefinition"
+echo "--------------------------------------------------------------------------------"
+oc -n redhat-marketplace get MeterDefinition
+echo ""
+
+
+exit 0
