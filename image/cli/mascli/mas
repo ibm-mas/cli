@@ -79,8 +79,6 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_app_install
 . $CLI_DIR/functions/gitops_deprovision_cos
 . $CLI_DIR/functions/gitops_deprovision_suite
-. $CLI_DIR/functions/gitops_deprovision_suite_config
-. $CLI_DIR/functions/gitops_deprovision_suite_objectstorage_config
 . $CLI_DIR/functions/gitops_deprovision_suite_workspace
 . $CLI_DIR/functions/gitops_efs
 . $CLI_DIR/functions/gitops_dro
@@ -93,11 +91,8 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_rosa
 . $CLI_DIR/functions/gitops_deprovision_cluster
 . $CLI_DIR/functions/gitops_deprovision_mongo
-. $CLI_DIR/functions/gitops_delete_kafka_config
 . $CLI_DIR/functions/gitops_deprovision_efs
 . $CLI_DIR/functions/gitops_deprovision_kafka
-. $CLI_DIR/functions/gitops_deprovision_suite_idp_config
-. $CLI_DIR/functions/gitops_deprovision_suite_smtp_config
 . $CLI_DIR/functions/gitops_mas_fvt_preparer
 . $CLI_DIR/functions/gitops_suite_watson_studio_config
 . $CLI_DIR/functions/gitops_deprovision_suite_watson_studio_config
@@ -380,14 +375,6 @@ case $1 in
     gitops_deprovision_suite_workspace "$@"
     ;;
 
-  gitops-deprovision-suite-config)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_deprovision_suite_config "$@"
-    ;;
-
   gitops-deprovision-suite)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
@@ -428,22 +415,6 @@ case $1 in
     gitops_deprovision_cos "$@"
     ;;
 
-  gitops-deprovision-suite-objectstorage-config)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_deprovision_suite_objectstorage_config "$@"
-    ;;
-
-  gitops-delete-kafka-config)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_delete_kafka_config "$@"
-    ;;
-
   gitops-deprovision-efs)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
@@ -458,22 +429,6 @@ case $1 in
     echo
     reset_colors
     gitops_deprovision_kafka "$@"
-    ;;
-
-  gitops-deprovision-suite-idp-config)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_deprovision_suite_idp_config "$@"
-    ;;
-
-  gitops-deprovision-suite-smtp-config)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_deprovision_suite_smtp_config "$@"
     ;;
 
   gitops-efs)
