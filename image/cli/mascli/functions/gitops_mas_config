@@ -342,12 +342,12 @@ function gitops_mas_config_noninteractive() {
       [[ -z "$DRO_CONTACT_EMAIL" ]] && gitops_mas_config_help "DRO_CONTACT_EMAIL is not set"
       [[ -z "$DRO_CONTACT_FIRSTNAME" ]] && gitops_mas_config_help "DRO_CONTACT_FIRSTNAME is not set"
       [[ -z "$DRO_CONTACT_LASTNAME" ]] && gitops_mas_config_help "DRO_CONTACT_LASTNAME is not set"
-      [[ -z "$DRO_CA_CERTIFICATE_FILE" ]] && gitops_mas_config_help "DRO_CA_CERTIFICATE_FILE is not set" # TODO: I think this will change under mascore-2025
+      [[ -z "$DRO_CA_CERTIFICATE_FILE" ]] && gitops_mas_config_help "DRO_CA_CERTIFICATE_FILE is not set"
     fi
 
-    if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
-      [[ -z "$SLS_CA_CERTIFICATE" ]] && gitops_mas_config_help "SLS_CA_CERTIFICATE is not set" # TODO: I think this will change under mascore-2025
-    fi
+    # if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
+      # No specific parameters required for sls at present; they are all fetched from SM
+    # fi
 
     # if [ "${MAS_CONFIG_TYPE}" == "kafka" ]; then
       # No specific parameters required for kafka at present; they are all fetched from SM
@@ -558,6 +558,7 @@ function gitops_mas_config() {
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
       echo "${TEXT_DIM}"
       echo_reset_dim "DB2_INSTANCE_NAME ....................... ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
+      echo_reset_dim "DB2_NAMESPACE ........................... ${COLOR_MAGENTA}$DB2_NAMESPACE"
       echo_reset_dim "DB2_DBNAME  ............................. ${COLOR_MAGENTA}${DB2_DBNAME}"
       echo_reset_dim "TLS_VERSION ............................. ${COLOR_MAGENTA}${TLS_VERSION}"
       echo_reset_dim "DB2_LDAP_USERNAME ....................... ${COLOR_MAGENTA}${DB2_LDAP_USERNAME}"
@@ -598,7 +599,6 @@ function gitops_mas_config() {
 
 
     # Define/lookup secrets that may be used depending on which config we are upserting
-    # TODO: merge in Rick's work in this area under mascore-2025 once complete
     # ---------------------------------------------------------------------------
 
     # Certain configurations require additional parameters to be passed in when
@@ -631,14 +631,12 @@ function gitops_mas_config() {
       export SECRET_KEY_DRO_API_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#dro_api_token
       export SECRET_KEY_DRO_URL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#dro_url
       export DRO_CA_CERTIFICATE=$(cat ${DRO_CA_CERTIFICATE_FILE})
-      # TODO: this has changed in mascore-2025
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
       export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls
       export SECRET_KEY_SLS_REGISTRATION_KEY=${SECRET_NAME_SLS}#registration_key
-      export SLS_CA_CERTIFICATE=$(sm_get_secret_value ${SECRET_NAME_SLS} "ca_b64" | base64 -d)
-      # TODO: this has changed in mascore-2025
+      export SECRET_KEY_SLS_CA_B64=${SECRET_NAME_SLS}#ca_b64
     fi
 
     # Source: gitops_kafka_config
@@ -688,16 +686,6 @@ function gitops_mas_config() {
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
       sm_login
 
-      # TODO: this has changed in mascore-2025
-      export CLUSTER_DOMAIN=`oc get ingress.config.openshift.io  cluster -o=jsonpath='{.spec.domain}'`
-      export SECRET_NAME_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain
-      export CLUSTER_DOMAIN=$(sm_get_secret_value ${SECRET_NAME_CLUSTER_DOMAIN} "cluster_domain")
-      echo "cluster domain: ${CLUSTER_DOMAIN}"
-      if [[ -z "${CLUSTER_DOMAIN}" ]]; then
-        echo "Failed to fetch cluster domain from secrets manager"
-        exit
-      fi
-
       # Create a secret in SM containing the username/password for this specific DB2 database instance.
       # A presync hook on the jdbccfg chart will take care of ensuring the user added to the database's LDAP registry
       export DB2_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2${SECRETS_KEY_SEPERATOR}${DB2_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}credentials
@@ -706,15 +694,10 @@ function gitops_mas_config() {
       export SECRET_KEY_DB2_USERNAME=${DB2_CREDENTIALS_SECRET_ID}#username
       export SECRET_KEY_DB2_PASSWORD=${DB2_CREDENTIALS_SECRET_ID}#password
 
-      # TODO: this has changed in mascore-2025
-      # Fetch the CA and target port for the instance set by the postsync job in the ibm-db2u-database chart
-      # Note: these aren't really secrets, so we can safely fetch them here and embed them in the generated config file as plaintext.
-      # We just use SM as a means for passing this runtime-generated value from the cluster as a workaround for the fact that we cannot interact with the cluster directly here.
-      # See https://jsw.ibm.com/browse/MASCORE-1425
+      # This secret is created by a PostSync Job in the ibm-db2u-database chart
       export DB2_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2${SECRETS_KEY_SEPERATOR}${DB2_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
-      export DB2_CA_PEM=$(sm_get_secret_value ${DB2_CONFIG_SECRET_ID} "ca_b64")
-      export DB2_TLS_SERVICEPORT=$(sm_get_secret_value ${DB2_CONFIG_SECRET_ID} "tls_serviceport")
-      export JDBC_URL="jdbc:db2://c-${DB2_INSTANCE_NAME}-db2u-engn-svc.${DB2_NAMESPACE}.svc:${DB2_TLS_SERVICEPORT}/${DB2_DBNAME}:sslConnection=true;sslVersion=${TLS_VERSION};"
+      export SECRET_KEY_DB2_CA_PEM=${DB2_CONFIG_SECRET_ID}#ca_b64
+      export SECRET_KEY_DB2_TLS_SERVICEPORT=${DB2_CONFIG_SECRET_ID}#tls_serviceport
 
     fi
   
