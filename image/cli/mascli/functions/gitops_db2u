@@ -216,16 +216,15 @@ function gitops_db2u() {
   # If DB2_CHANNEL has not been specified, fetch the default set in secrets manager by the postsync job on ibm-common-services
   if [[ -z "${DB2_CHANNEL}" ]]; then
     echo "DB2_CHANNEL not specified, fetching from secrets manager"
-    AVP_TYPE=aws  # Support for IBM will be added later
-    sm_login
-    export SECRET_NAME_DB2_DEFAULT_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}db2_default_channel
-    export DB2_CHANNEL=$(sm_get_secret_value ${SECRET_NAME_DB2_DEFAULT_CHANNEL} "db2_default_channel")
+    export SECRET_KEY_DB2_DEFAULT_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}db2_default_channel#db2_default_channel
   fi
 
   echo "${TEXT_DIM}"
   echo_h2 "DB2u Operator" "    "
   echo_reset_dim "DB2_NAMESPACE  .......................... ${COLOR_MAGENTA}${DB2_NAMESPACE}"
-  echo_reset_dim "DB2_CHANNEL  ............................ ${COLOR_MAGENTA}${DB2_CHANNEL}"
+  if [ "${DB2_CHANNEL}" != "" ]; then
+    echo_reset_dim "DB2_CHANNEL  ............................ ${COLOR_MAGENTA}${DB2_CHANNEL}"
+  fi
   reset_colors
 
   if [ -z $GIT_SSH ]; then

@@ -57,7 +57,7 @@ db2_cpu_requests: {{DB2_CPU_REQUESTS}}
 db2_cpu_limits: {{DB2_CPU_LIMITS}}
 db2_memory_requests: {{DB2_MEMORY_REQUESTS}}
 db2_memory_limits: {{DB2_MEMORY_LIMITS}}
-cluster_domain: {{CLUSTER_DOMAIN}}
+cluster_domain: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CLUSTER_DOMAIN }}>
 mas_instance_id: {{MAS_INSTANCE_ID}}
 mas_application_id: {{MAS_APP_ID}}
 
