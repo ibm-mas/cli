@@ -282,18 +282,6 @@ function gitops_db2u_jdbc_config() {
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
-  # Set by postsync job in ibm-common-services chart
-  # This is a workaround for the fact that we cannot interact with the cluster directly (see https://jsw.ibm.com/browse/MASCORE-1425)
-  # NOTE: this isn't a secret value, so it's safe to fetch it here and embed it in our config in the clear
-  echo "Fetching cluster domain from Secrets manager"
-  export CLUSTER_DOMAIN=`oc get ingress.config.openshift.io  cluster -o=jsonpath='{.spec.domain}'`
-  export SECRET_NAME_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain
-  export CLUSTER_DOMAIN=$(sm_get_secret_value ${SECRET_NAME_CLUSTER_DOMAIN} "cluster_domain")
-  echo "cluster domain: ${CLUSTER_DOMAIN}"
-  if [[ -z "${CLUSTER_DOMAIN}" ]]; then
-    echo "Failed to fetch cluster domain from secrets manager"
-    exit
-  fi
 
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-db2u-jdbc-config
@@ -355,19 +343,15 @@ function gitops_db2u_jdbc_config() {
   # We just use SM as a means for passing this runtime-generated value from the cluster as a workaround for the fact that we cannot interact with the cluster directly here.
   # See https://jsw.ibm.com/browse/MASCORE-1425
   export DB2_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2${SECRETS_KEY_SEPERATOR}${DB2_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
-  export DB2_CA_PEM=$(sm_get_secret_value ${DB2_CONFIG_SECRET_ID} "ca_b64")
-  export DB2_TLS_SERVICEPORT=$(sm_get_secret_value ${DB2_CONFIG_SECRET_ID} "tls_serviceport")
-  export JDBC_URL="jdbc:db2://c-${DB2_INSTANCE_NAME}-db2u-engn-svc.${DB2_NAMESPACE}.svc:${DB2_TLS_SERVICEPORT}/${DB2_DBNAME}:sslConnection=true;sslVersion=${TLS_VERSION};"
+  export SECRET_KEY_DB2_CA_PEM=${DB2_CONFIG_SECRET_ID}#ca_b64
+  export SECRET_KEY_DB2_TLS_SERVICEPORT=${DB2_CONFIG_SECRET_ID}#tls_serviceport
 
   echo_reset_dim "......................................... ${COLOR_MAGENTA}"
   echo_reset_dim ""
   echo_reset_dim "DB2_INSTANCE_NAME ....................... ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
   echo_reset_dim "DB2_NAMESPACE ........................... ${COLOR_MAGENTA}$DB2_NAMESPACE"
-  echo_reset_dim "DB2_CA_PEM .............................. ${COLOR_MAGENTA}$DB2_CA_PEM"    
   echo_reset_dim "DB2_DBNAME .............................. ${COLOR_MAGENTA}$DB2_DBNAME"
   echo_reset_dim "TLS_VERSION ............................. ${COLOR_MAGENTA}$TLS_VERSION"
-  echo_reset_dim "DB2_TLS_SERVICEPORT ..................... ${COLOR_MAGENTA}$DB2_TLS_SERVICEPORT"
-  echo_reset_dim "JDBC_URL ................................ ${COLOR_MAGENTA}$JDBC_URL"
   echo_reset_dim "SUITE_JDBCCFG_NAME ...................... ${COLOR_MAGENTA}$SUITE_JDBCCFG_NAME"
   echo_reset_dim "JDBCCFG_DIR ............................. ${COLOR_MAGENTA}$JDBCCFG_DIR"
   echo_reset_dim "JDBCCFG_FILENAME ........................ ${COLOR_MAGENTA}$JDBCCFG_FILENAME"  
