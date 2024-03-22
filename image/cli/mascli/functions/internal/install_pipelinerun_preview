@@ -70,7 +70,9 @@ function install_pipelinerun_preview() {
     fi
 
     if [[ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "jms" || "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "snojms" ]]
-    then echo_reset_dim " - Configure JMS .......... ${COLOR_MAGENTA}true"
+    then 
+      echo_reset_dim " - Configure JMS .......... ${COLOR_MAGENTA}true"
+      echo_reset_dim " - Enable JMS queues ...... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DEFAULT_JMS:-<false>}"
     fi
 
     if [[ "$MAS_APP_SETTINGS_SERVER_TIMEZONE" != "" ]]
