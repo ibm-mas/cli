@@ -180,12 +180,11 @@ function install_pipelinerun_preview() {
     echo_reset_dim "System Instance ........... ${COLOR_MAGENTA}${DB2_ACTION_SYSTEM}"
     echo_reset_dim "Dedicated Manage Instance . ${COLOR_MAGENTA}${DB2_ACTION_MANAGE}"
     if [[ "$DB2_ACTION_MANAGE" == "install" && "$DB2_TYPE" != "" ]]; then
-      echo_reset_dim " - Type ................. ${COLOR_MAGENTA}${DB2_TYPE:-<db2wh>}"
+      echo_reset_dim " - Type ................... ${COLOR_MAGENTA}${DB2_TYPE:-<db2wh>}"
     fi
     if [[ "$DB2_ACTION_MANAGE" == "install" && "$MAS_APP_SETTINGS_SERVER_TIMEZONE" != "" ]]; then
-      echo_reset_dim " - Timezone ............. ${COLOR_MAGENTA}${DB2_TIMEZONE}"
+      echo_reset_dim " - Timezone ............... ${COLOR_MAGENTA}${DB2_TIMEZONE}"
     fi
-    echo_reset_dim " - Timezone ............... ${COLOR_MAGENTA}${DB2_TIMEZONE:-<default>}"
     echo_reset_dim "CPU Request ............... ${COLOR_MAGENTA}${DB2_CPU_REQUESTS:-<default>}"
     echo_reset_dim "CPU Limit ................. ${COLOR_MAGENTA}${DB2_CPU_LIMITS:-<default>}"
     echo_reset_dim "Memory Request ............ ${COLOR_MAGENTA}${DB2_MEMORY_REQUESTS:-<default>}"
