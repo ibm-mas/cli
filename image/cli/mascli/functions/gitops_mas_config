@@ -399,6 +399,14 @@ function gitops_mas_config_noninteractive() {
   fi # [ "${CONFIG_ACTION}" == "upsert" ]
 
 
+  # A subset of the per-config upsert parameters are still required to remove certain configs
+  # (i.e. to resolve the paths of the secrets we need to delete)
+  if [ "${CONFIG_ACTION}" == "remove" ]; then
+    if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
+      [[ -z "$DB2_INSTANCE_NAME" ]] && gitops_mas_config_help "DB2_INSTANCE_NAME is not set"
+    fi
+  fi
+
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_mas_config_help "GITHUB_HOST is not set"
     [[ -z "$GITHUB_ORG" ]] && gitops_mas_config_help "GITHUB_ORG is not set"
@@ -757,7 +765,7 @@ function gitops_mas_config() {
     if [ "${MAS_CONFIG_TYPE}" == "smtp" ]; then
       sm_login
       SECRET_NAME_SMTP=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}smtp
-      sm_delete_secret $SECRET_NAME_SMTP "{\"username\": \"$SMTP_USERNAME\", \"password\": \"$SMTP_PASSWORD\"}"
+      sm_delete_secret $SECRET_NAME_SMTP
     fi
 
     # If the file doesn't exist, nothing to remove, so no-op
