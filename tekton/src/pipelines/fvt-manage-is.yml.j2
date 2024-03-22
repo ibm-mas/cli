@@ -47,9 +47,9 @@ spec:
 
   tasks:
     {{ lookup('template', 'taskdefs/fvt-manage-is/acm.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-is/scheduler.yml.j2') | indent(4) }}
     
     # Tests will be re-introduced later
     # ------------------------
-    # {{ lookup('template', 'taskdefs/fvt-manage-is/scheduler.yml.j2') | indent(4) }}
-    # {{ lookup('template', 'taskdefs/fvt-manage-is/maintmanager.yml.j2') | indent(4) }}
     
+    # {{ lookup('template', 'taskdefs/fvt-manage-is/maintmanager.yml.j2') | indent(4) }}
