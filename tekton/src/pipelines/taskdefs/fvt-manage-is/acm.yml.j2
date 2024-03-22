@@ -1,0 +1,54 @@
+# ACM - Setup
+- name: fvt-manage-acm-setup
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: acm-setup-data
+    - name: fvt_mas_appws_component
+      value: acm
+    - name: fvt_test_driver
+      value: tpae
+
+# ACM - User
+- name: fvt-manage-acm-user
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: acm-setup-user
+    - name: fvt_mas_appws_component
+      value: acm
+    - name: fvt_test_driver
+      value: tpae      
+  runAfter:
+    - fvt-manage-acm-setup
+
+# ACM - FVT
+- name: fvt-manage-acm
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: acm-1
+    - name: fvt_mas_appws_component
+      value: acm
+    - name: fvt_test_driver
+      value: tpae 
+  runAfter:
+    - fvt-manage-acm-user
+
+# ACM - APAR
+- name: fvt-manage-acm-apar
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base
+    - name: fvt_test_suite
+      value: apar-acm
+  runAfter:
+    - fvt-manage-acm-user

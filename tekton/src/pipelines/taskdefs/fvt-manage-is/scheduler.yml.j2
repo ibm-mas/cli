@@ -1,95 +1,113 @@
-# Manage FVT - ACM Setup
-- name: fvt-manage-acm-setup
+# Scheduler Setup
+# >>> TODO - Move to pytest
+- name: fvt-manage-scheduler-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: acm-setup-data
+      value: scheduler-setup-data
     - name: fvt_mas_appws_component
-      value: acm
+      value: scheduler
+    - name: fvt_test_driver
+      value: tpae
+
+# Scheduler FVT
+- name: fvt-manage-scheduler-1
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: scheduler-1
+    - name: fvt_mas_appws_component
+      value: scheduler
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-scheduling-dashboard
-    - fvt-manage-scheduler-dispatching-dashboard
+    - fvt-manage-scheduler-setup
 
-# Manage FVT - HSE Setup
-- name: fvt-manage-hse-setup
+{# # Manage FVT - Scheduler
+- name: fvt-manage-scheduler-2
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: hse-setup-data
+      value: scheduler-2
     - name: fvt_mas_appws_component
-      value: hse
+      value: scheduler
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-scheduling-dashboard
-    - fvt-manage-scheduler-dispatching-dashboard
+    - fvt-manage-scheduler-setup
 
-# Manage FVT - Nuclear Setup
-- name: fvt-manage-nuclear-setup
+# Manage FVT - Scheduler
+- name: fvt-manage-scheduler-3
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: nuc-setup-data
+      value: scheduler-3
     - name: fvt_mas_appws_component
-      value: nuclear
+      value: scheduler
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-scheduling-dashboard
-    - fvt-manage-scheduler-dispatching-dashboard
+    - fvt-manage-scheduler-setup
 
-# Manage FVT - Service Provider Setup
-- name: fvt-manage-serviceprovider-setup
+# Manage FVT - Scheduler
+- name: fvt-manage-scheduler-4
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: sp-setup-data
+      value: scheduler-4
     - name: fvt_mas_appws_component
-      value: serviceprovider
-    - name: fvt_test_driver
-      value: tpae      
-  runAfter:
-    - fvt-manage-scheduler-scheduling-dashboard
-    - fvt-manage-scheduler-dispatching-dashboard
-
-# Manage FVT - Location Base Services - Setup
-- name: fvt-manage-lbs-setup
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: lbs-setup-data
-    - name: fvt_mas_appws_component
-      value: spatial
+      value: scheduler
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-scheduling-dashboard
-    - fvt-manage-scheduler-dispatching-dashboard
+    - fvt-manage-scheduler-setup
 
-# Manage FVT - Transportation Setup
-- name: fvt-manage-transportation-setup
+# Manage FVT - Scheduler - Scheduling Dashboard
+- name: fvt-manage-scheduler-scheduling-dashboard
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: tr-setup-data
+      value: scheduler-scheduling-dashboard
     - name: fvt_mas_appws_component
-      value: transportation
+      value: scheduler
     - name: fvt_test_driver
-      value: tpae
+      value: graphite
+    - name: fvt_test_graphite_url
+      value: /oslc/graphite/schedulingdashboard
   runAfter:
-    - fvt-manage-scheduler-scheduling-dashboard
-    - fvt-manage-scheduler-dispatching-dashboard
+    - fvt-manage-scheduler-1
+    - fvt-manage-scheduler-2
+    - fvt-manage-scheduler-3
+    - fvt-manage-scheduler-4
+
+# Manage FVT - Scheduler - Scheduling Dashboard
+- name: fvt-manage-scheduler-dispatching-dashboard
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: scheduler-dispatching-dashboard
+    - name: fvt_mas_appws_component
+      value: scheduler
+    - name: fvt_test_driver
+      value: graphite
+    - name: fvt_test_graphite_url
+      value: /oslc/graphite/dispatchingdashboard
+  runAfter:
+    - fvt-manage-scheduler-1
+    - fvt-manage-scheduler-2
+    - fvt-manage-scheduler-3
+    - fvt-manage-scheduler-4 #}
