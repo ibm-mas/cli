@@ -10,6 +10,8 @@
       value: scheduler
     - name: fvt_test_driver
       value: tpae
+  runAfter:
+    - fvt-manage-setup-is # Tests must always start after fvt-manage-setup-is
 
 # Scheduler FVT
 - name: fvt-manage-scheduler-1
@@ -25,6 +27,19 @@
       value: tpae
   runAfter:
     - fvt-manage-scheduler-setup
+
+# Scheduler - APAR
+- name: fvt-manage-scheduler-apar
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base
+    - name: fvt_test_suite
+      value: apar-scheduler
+  runAfter:
+    - fvt-manage-scheduler-setup
+
 
 {# # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-2
