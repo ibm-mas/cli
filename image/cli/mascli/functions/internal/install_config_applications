@@ -300,7 +300,7 @@ function manage_settings_server_bundle_config() {
   echo
   echo "${TEXT_DIM}Define how you want to configure Manage servers."
   echo "You can have one or multiple Manage servers distributing workload."
-  echo "In addition, you can choose to include JMS server for messaging queues."
+  echo "Additionally, you can choose to include JMS server for messaging queues."
   echo
   echo "Option 1: Deploys the 'all' server pod only (workload is concentrated in just one server pod but consumes less resources)."
   echo "Option 2: Deploys the 'all' and 'jms' bundle pods (workload is concentrated in just one server pod and includes jms server)."
