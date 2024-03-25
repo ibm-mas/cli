@@ -451,8 +451,7 @@ function gitops_mas_config() {
 
   export USE_POSTDELETE_HOOKS=${USE_POSTDELETE_HOOKS:-false}
 
-  CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/tmp-mas-config
+  TEMP_DIR=$GITOPS_WORKING_DIR/tmp-mas-config
   mkdir -p $TEMP_DIR
 
   echo
@@ -615,7 +614,7 @@ function gitops_mas_config() {
     # rendering the configuration template file (e.g. Mongo)
     # Put these parameters into this YAML file.
     export ADDITIONAL_JINJA_PARAMS_FILE="$TEMP_DIR/additional-jinja-params.yaml"
-    touch $ADDITIONAL_JINJA_PARAMS_FILE
+    echo "{}" > $ADDITIONAL_JINJA_PARAMS_FILE
 
     # Source: gitops_suite_config
     # ---------------------------------------------------------------------------
@@ -722,6 +721,11 @@ function gitops_mas_config() {
         export SECRET_KEY_SMTP_USERNAME=${SECRET_NAME_SMTP}#username
         export SECRET_KEY_SMTP_PASSWORD=${SECRET_NAME_SMTP}#password
     fi
+
+
+    echo
+    echo_h2 "Generated params file to pass to Jinja2 ($ADDITIONAL_JINJA_PARAMS_FILE)"
+    cat $ADDITIONAL_JINJA_PARAMS_FILE
 
     echo
     echo_h2 "Updating configuration file"
