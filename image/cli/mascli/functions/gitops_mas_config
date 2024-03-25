@@ -778,11 +778,24 @@ function gitops_mas_config() {
     if [ -f ${CONFIGS_FILE} ]; then
       /usr/bin/yq 'del(.ibm_mas_suite_configs[] | select(.mas_config_name == "'${MAS_CONFIG_NAME}'"))' $CONFIGS_FILE > ${TEMP_DIR}/configs.yaml
       cp ${TEMP_DIR}/configs.yaml ${CONFIGS_FILE}
+
+      # If the file is there, but the configs are empty, delete the file
+      CONFIGS_COUNT=$(/usr/bin/yq '.ibm_mas_suite_configs | length' $CONFIGS_FILE)
+      if [ "${CONFIGS_COUNT}" == "0" ]; then
+        rm $CONFIGS_FILE
+      fi
     fi
+
+    
+
   fi
 
-  echo_h2 "Updated configuration file"
-  cat $CONFIGS_FILE
+  echo_h2 "Updated configuration file (${CONFIGS_FILE})"
+  if [ -f ${CONFIGS_FILE} ]; then
+    cat $CONFIGS_FILE
+  else
+    echo "<file was deleted>"
+  fi
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
