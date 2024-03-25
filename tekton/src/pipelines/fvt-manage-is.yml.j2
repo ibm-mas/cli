@@ -60,7 +60,7 @@ spec:
       params:
         {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite_prefix
-          value: all
+          value: base
         - name: fvt_test_suite
           value: setup-is
 
