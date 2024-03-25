@@ -296,18 +296,28 @@ function manage_settings_database() {
 # Manage Settings - Server Bundle configuration
 function manage_settings_server_bundle_config() {
   echo
+  echo_h4 "Manage Server Bundle Selection"
+  echo
   echo "${TEXT_DIM}Define how you want to configure Manage servers."
   echo "You can have one or multiple Manage servers distributing workload."
   echo "In addition, you can choose to include JMS server for messaging queues."
   echo
+  echo "Option 1: Deploys the 'all' server pod only (workload is concentrated in just one server pod but consumes less resources)."
+  echo "Option 2: Deploys the 'all' and 'jms' bundle pods (workload is concentrated in just one server pod and includes jms server)."
+  if [[ "$SNO_MODE" != "true" ]]; then
+    echo "Option 3: Deploys the 'mea', 'report', 'ui' and 'cron' bundle pods (workload is distributed across multiple server pods)."
+    echo "Option 4: Deploys the 'mea', 'report', 'ui', 'cron' and 'jms' bundle pods (workload is distributed across multiple server pods and includes jms server)."
+  fi
+  echo
   reset_colors
   echo -e "${COLOR_YELLOW}Choose the Manage server bundle configuration:"
   echo ""
-  echo "  1) Deploy 'all' server pod only (workload is concentrated in just one server pod but consumes less resources)."
-  echo "  2) Deploy 'all' and 'jms' bundle pods (workload is concentrated in just one server pod and includes jms server)." 
-  echo "  3) Deploy 'mea', 'report', 'ui' and 'cron' bundle pods (workload is distributed across multiple server pods)."
-  echo "  4) Deploy 'mea', 'report', 'ui', 'cron' and 'jms' bundle pods (workload is distributed across multiple server pods and includes jms server)."
-
+  echo "  1) 'all' server pod only (no jms)."
+  echo "  2) 'all' and 'jms' server pods."
+  if [[ "$SNO_MODE" != "true" ]]; then
+    echo "  3) 'mea', 'report', 'ui' and 'cron' server pods (no jms)."
+    echo "  4) 'mea', 'report', 'ui', 'cron' and 'jms' server pods ."
+  fi
   reset_colors
 
   echo
@@ -336,34 +346,34 @@ function manage_settings_server_bundle_config() {
 
 }
 
-# Manage Settings - Server Bundle configuration
-function manage_settings_server_bundle_config_sno() {
-  echo
-  echo -e "${COLOR_YELLOW}Choose the Manage server bundle configuration:"
-  echo ""
-  echo "  1) Deploy 'all' server pod only (workload is concentrated in just one server pod)."
-  echo "  2) Deploy 'all' and 'jms' bundle pods (workload is concentrated in just one server pod and jms queues are enabled)." 
+# # Manage Settings - Server Bundle configuration
+# function manage_settings_server_bundle_config_sno() {
+#   echo
+#   echo -e "${COLOR_YELLOW}Choose the Manage server bundle configuration:"
+#   echo ""
+#   echo "  1) Deploy 'all' server pod only (workload is concentrated in just one server pod)."
+#   echo "  2) Deploy 'all' and 'jms' bundle pods (workload is concentrated in just one server pod and jms queues are enabled)." 
 
-  reset_colors
+#   reset_colors
 
-  echo
-  prompt_for_input "Select the Manage server bundle configuration" MANAGE_SERVER_BUNDLE_SELECTION "1"
+#   echo
+#   prompt_for_input "Select the Manage server bundle configuration" MANAGE_SERVER_BUNDLE_SELECTION "1"
 
-  case $MANAGE_SERVER_BUNDLE_SELECTION in
-    1)
-      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='dev'
-      ;;
-    2)
-      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='snojms'
-      MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
-      ;;
-    *)
-      echo_warning "Invalid selection"
-      exit 1
-      ;;
-  esac
+#   case $MANAGE_SERVER_BUNDLE_SELECTION in
+#     1)
+#       MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='dev'
+#       ;;
+#     2)
+#       MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='snojms'
+#       MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
+#       ;;
+#     *)
+#       echo_warning "Invalid selection"
+#       exit 1
+#       ;;
+#   esac
 
-}
+# }
 
 function manage_settings_jms () {
   
@@ -487,11 +497,12 @@ function manage_settings() {
   manage_settings_components
 
   # Manage Server Bundle Configuration
-  if [[ "$SNO_MODE" == "true" ]]; then
-    manage_settings_server_bundle_config_sno
-  else
-    manage_settings_server_bundle_config
-  fi
+  manage_settings_server_bundle_config
+  # if [[ "$SNO_MODE" == "true" ]]; then
+  #   manage_settings_server_bundle_config_sno
+  # else
+  #   manage_settings_server_bundle_config
+  # fi
 
   # Manage Settings - JMS
   manage_settings_jms
