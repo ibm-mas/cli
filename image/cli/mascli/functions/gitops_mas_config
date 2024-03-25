@@ -93,6 +93,8 @@ function gitops_mas_config_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
 
+  export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
+
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
   fi
