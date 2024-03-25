@@ -4,7 +4,7 @@ As the MAS CLI is updated we maintain a rolling window of approximately four mon
 
 Older catalogs can still be used once they are not shown in the interactive prompt, but this is not recommended, refer to the table below for the recommended version of the CLI to use with each catalog update.
 
-All catalogs are available **indefinitely**, but they have a useful lifespan limited by the support statements of the packages available in the catalog and the OCP release the catalog is certified on.  We **never** remove catalog images from the IBM Container Registry (ICR), even the first Maximo Operator Catalog ever published - [v8-231228-amd64](v8-231228-amd64.md) - is still available today, however it's usefulness is questionable due to the end of life of all compatible OCP releases.
+All catalogs are available **indefinitely**, but they have a useful lifespan limited by the support statements of the packages available in the catalog and the OCP release the catalog is certified on.  We **never** remove catalog images from the IBM Container Registry (ICR), even the first Maximo Operator Catalog ever published - [v8-220717-amd64](v8-220717-amd64.md) - is still available today, however it's usefulness is questionable due to the end of life of all compatible OCP releases.
 
 
 !!! important
