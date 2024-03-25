@@ -5,10 +5,8 @@
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: acm
     - name: fvt_test_suite
-      value: component-acm
+      value: acm-api
   runAfter:
     - fvt-manage-setup-is # Tests must always start after fvt-manage-setup-is
 
