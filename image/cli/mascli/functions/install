@@ -348,11 +348,15 @@ function install_noninteractive() {
       # Manage commands - Server bundle configuration
       --manage-server-bundle-size)
         export MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE=$1 && shift
+        if [[ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "jms" || "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "snojms" ]]; then
+          export MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
+        fi
         ;;
       --manage-jms)
-        export MAS_APP_SETTINGS_DEFAULT_JMS=true
-        export MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
-        export MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE=jms
+        if [[ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "jms" || "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "snojms" ]]; then
+          export MAS_APP_SETTINGS_DEFAULT_JMS=true
+          export MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
+        fi
         ;;
       --manage-demodata)
         export MAS_APP_SETTINGS_DEMODATA=true

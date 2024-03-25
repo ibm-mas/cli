@@ -222,7 +222,7 @@ function manage_validate_internal_registry() {
     if [[ "$?" != "0" ]]; then
       echo
       echo_warning "Unable to proceed with installation of Maximo Manage.  Could not detect the required \"image-registry\" service in the openshift-image-registry namespace."
-      echo_warning "  For more inforomation refer to ${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/masv-and-l/continuous-delivery?topic=installing-enabling-openshift-internal-image-registry"
+      echo_warning "  For more information refer to ${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/masv-and-l/continuous-delivery?topic=installing-enabling-openshift-internal-image-registry"
       reset_colors
       echo
       exit 1
@@ -293,15 +293,90 @@ function manage_settings_database() {
 
 }
 
-# Manage Settings - JMS
+# Manage Settings - Server Bundle configuration
+function manage_settings_server_bundle_config() {
+  echo
+  echo "${TEXT_DIM}Define how you want to configure Manage servers."
+  echo "You can have one or multiple Manage servers distributing workload."
+  echo "In addition, you can choose to include JMS server for messaging queues."
+  echo
+  reset_colors
+  echo -e "${COLOR_YELLOW}Choose the Manage server bundle configuration:"
+  echo ""
+  echo "  1) Deploy 'all' server pod only (workload is concentrated in just one server pod but consumes less resources)."
+  echo "  2) Deploy 'all' and 'jms' bundle pods (workload is concentrated in just one server pod and includes jms server)." 
+  echo "  3) Deploy 'mea', 'report', 'ui' and 'cron' bundle pods (workload is distributed across multiple server pods)."
+  echo "  4) Deploy 'mea', 'report', 'ui', 'cron' and 'jms' bundle pods (workload is distributed across multiple server pods and includes jms server)."
+
+  reset_colors
+
+  echo
+  prompt_for_input "Select the Manage server bundle configuration" MANAGE_SERVER_BUNDLE_SELECTION "1"
+
+  case $MANAGE_SERVER_BUNDLE_SELECTION in
+    1)
+      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='dev'
+      ;;
+    2)
+      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='snojms'
+      MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
+      ;;
+    3)
+      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='small'
+    ;;
+    4)
+      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='jms'
+      MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
+    ;;
+    *)
+      echo_warning "Invalid selection"
+      exit 1
+      ;;
+  esac
+
+}
+
+# Manage Settings - Server Bundle configuration
+function manage_settings_server_bundle_config_sno() {
+  echo
+  echo -e "${COLOR_YELLOW}Choose the Manage server bundle configuration:"
+  echo ""
+  echo "  1) Deploy 'all' server pod only (workload is concentrated in just one server pod)."
+  echo "  2) Deploy 'all' and 'jms' bundle pods (workload is concentrated in just one server pod and jms queues are enabled)." 
+
+  reset_colors
+
+  echo
+  prompt_for_input "Select the Manage server bundle configuration" MANAGE_SERVER_BUNDLE_SELECTION "1"
+
+  case $MANAGE_SERVER_BUNDLE_SELECTION in
+    1)
+      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='dev'
+      ;;
+    2)
+      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='snojms'
+      MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
+      ;;
+    *)
+      echo_warning "Invalid selection"
+      exit 1
+      ;;
+  esac
+
+}
+
 function manage_settings_jms () {
-  if prompt_for_confirm "Configure JMS?"; then
-    MAS_APP_SETTINGS_DEFAULT_JMS=true
-    MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
-    if [[ "$SNO_MODE" == "true" ]]; then
-      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='snojms' # will just deploy manage with 'all' + 'jms' bundle pods
+  
+  if [[ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "jms" || "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "snojms" ]]; then
+    echo
+    echo "${TEXT_DIM}Only Manage JMS sequential queues (sqin and sqout) are enabled by default."
+    echo "However, you can enable both sequential (sqin and sqout) and continuous queues (cqin and cqout)."
+    echo
+    reset_colors
+    if prompt_for_confirm "Enable both Manage JMS sequential and continuous queues?"; then
+      MAS_APP_SETTINGS_DEFAULT_JMS=true
     else
-      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='jms' # will deploy manage with 'mea','rpt','ui','cron' and 'jms' bundle pods
+      MAS_APP_SETTINGS_DEFAULT_JMS=false
     fi
   fi
 }
@@ -410,6 +485,13 @@ function manage_settings() {
 
   # Manage Component Selection
   manage_settings_components
+
+  # Manage Server Bundle Configuration
+  if [[ "$SNO_MODE" == "true" ]]; then
+    manage_settings_server_bundle_config_sno
+  else
+    manage_settings_server_bundle_config
+  fi
 
   # Manage Settings - JMS
   manage_settings_jms
