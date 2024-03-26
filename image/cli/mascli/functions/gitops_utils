@@ -257,6 +257,164 @@ function remove_git_repo_clone() {
 }
 
 
+
+
+
+function unlock_git_repo() {
+  GIT_LOCK_BRANCH=$1
+  GITOPS_REPO_DIR=$2
+  echo ""
+  echo "Deleting "${GIT_LOCK_BRANCH}" from remote"
+  git -C "${GITOPS_REPO_DIR}" push origin --delete "${GIT_LOCK_BRANCH}"
+
+  echo ""
+  echo "Deleting ${GITOPS_REPO_DIR} from filesystem"
+  rm -rf "${GITOPS_REPO_DIR}"
+}
+
+
+
+
+function git_lock_branch_name() {
+
+  LOCK_NAME=$1
+  ACCOUNT_ID=$2
+  REGION_ID=$3
+  CLUSTER_ID=$4
+  MAS_INSTANCE_ID=$5
+
+  echo -n "lock.${LOCK_NAME}.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
+  if [[ -n "${MAS_INSTANCE_ID}" ]]; then
+    echo -n ".${MAS_INSTANCE_ID}"
+  fi
+  
+}
+
+
+
+# Clones the target repo and attempts to create a new branch ($GIT_LOCK_BRANCH) on the remote
+# If this lock branch already exists, this means another process is currently making a change and could lead to a merge conflict.
+# This function retries a limited number of times to reaquire the lock branch, and exits if this does not succeed.
+# In this way, we guarantee sequentual execution order across any script that shares the same $GIT_LOCK_BRANCH name.
+# If the function successfully acquires the lock branch, it registers git_lock_branch_name as an exit trap, to ensure we do not
+# leave the lock branch in place (which would permanently block any other invokations of this function with the same GIT_LOCK_BRANCH.
+# For consistency, it is recommended to use the git_lock_branch_name function above to generate GIT_LOCK_BRANCH, i.e.
+#   GIT_LOCK_BRANCH=$(git_lock_branch_name "${LOCK_NAME}" "${ACCOUNT_ID}" "${REGION_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
+# In order to commit and push at the end of any script that uses this function, use save_and_unlock_target_git_repo. 
+function clone_and_lock_target_git_repo() {
+
+  GITHUB_HOST=$1
+  GITHUB_ORG=$2
+  GITHUB_REPO=$3
+  GIT_BRANCH=$4
+  LOCAL_DIR=$5
+  SSH_PATH=$6
+  GIT_LOCK_BRANCH=$7
+
+  RETRIES=${8:-10}
+  RETRY_DELAY_SECONDS=${8:-20}
+
+  GITOPS_REPO_DIR="${LOCAL_DIR}/${GITHUB_REPO}"
+  LOCKFILE_NAME='.lock'
+
+
+  echo ""
+  echo ""
+  echo "clone_and_lock_git_repo: (${GIT_LOCK_BRANCH})"
+
+  for (( c=1; c<="${RETRIES}"; c++ )); do
+    echo ""
+    echo "clone_and_lock_git_repo: retry ${c} of ${RETRIES}"
+
+
+    # Remove any clones created by prior attempts
+    rm -rf "${GITOPS_REPO_DIR}"
+
+    clone_target_git_repo "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${LOCAL_DIR}" "${SSH_PATH}"
+
+
+    # If the lock branch exists currently on the remote, return after a delay
+    LS_REMOTE_STDOUT=$(git -C "${GITOPS_REPO_DIR}" ls-remote --heads origin ${GIT_LOCK_BRANCH})
+    if [[ -n "${LS_REMOTE_STDOUT}"  ]]; then
+      echo "Lock branch ${GIT_LOCK_BRANCH} currently in use by another process, retry in ${RETRY_DELAY_SECONDS}s"
+      sleep ${RETRY_DELAY_SECONDS}
+      continue
+    fi
+    # NOTE: >1 invokation may pass the initial "git ls-remote" check above
+    # because of the non-zero delay between this call and the subsequent git push that creates the branch
+    # The "git ls-remote" check is NOT DEFINITIVE, it is merely an optimization to avoid doing unnecessary work where
+    # there is sufficient desynchronization between parallel runs of this script
+
+    # Create the lock branch locally
+    git -C "${GITOPS_REPO_DIR}" checkout -b "${GIT_LOCK_BRANCH}"
+
+    # To definitively acquire the "lock", we create and commit a temporary "lock file";
+    # This will mean that, amongst n scripts running in parallel and in sync (i.e. where all invokations have passed the initial git ls-remote check),
+    # at most 1 invokation will be able to successfully perform the push below.
+    touch "${GITOPS_REPO_DIR}/${LOCKFILE_NAME}"
+    git -C "${GITOPS_REPO_DIR}" add ${LOCKFILE_NAME}
+    git -C "${GITOPS_REPO_DIR}" commit -m 'Acquire lock branch'
+    git -C "${GITOPS_REPO_DIR}" push --atomic -u origin "${GIT_LOCK_BRANCH}"
+    GIT_PUSH_RC=$?
+
+    if [ "${GIT_PUSH_RC}" == "0" ]; then
+      # Now we've created the remote lock branch, we are blocking any other invokations of this script
+      # Register an exit trap to ensure we delete the remote branch whatever happens
+      trap "unlock_git_repo ${GIT_LOCK_BRANCH} ${GITOPS_REPO_DIR}" EXIT
+      echo ""
+      echo "clone_and_lock_git_repo: Acquired lock on branch ${GIT_LOCK_BRANCH}; proceeding..."
+      return 0
+    fi 
+
+    echo ""
+    echo "clone_and_lock_git_repo: Failed to acquire Lock branch ${GIT_LOCK_BRANCH}, retry in ${RETRY_DELAY_SECONDS}s"
+    sleep ${RETRY_DELAY_SECONDS}
+
+  done
+
+  echo "!!! Failed clone_and_lock_git_repo after ${RETRIES} retries... giving up"
+  exit 1
+
+}
+
+
+# Intended to be called at the end of a script that uses the clone_and_lock_target_git_repo function above
+# after modifications to config files have been applied to the local clone
+# This pushes the changes to the lock branch (GIT_LOCK_BRANCH), and squash merges them to the main branch (GIT_BRANCH)
+function save_and_unlock_target_git_repo {
+  GITHUB_REPO=$1
+  GIT_BRANCH=$2
+  LOCAL_DIR=$3
+  COMMIT_MSG="$4"
+  GIT_LOCK_BRANCH=$5
+
+  LOCKFILE_NAME='.lock'
+  GITOPS_REPO_DIR="${LOCAL_DIR}/${GITHUB_REPO}"
+
+  # Delete the .lock file
+  rm "${GITOPS_REPO_DIR}/${LOCKFILE_NAME}"
+
+  # commit and push all changes
+  git -C "${GITOPS_REPO_DIR}" add -v .
+  git -C "${GITOPS_REPO_DIR}" commit -m "${GIT_COMMIT_MSG}" 
+  git -C "${GITOPS_REPO_DIR}" push -u origin "${GIT_LOCK_BRANCH}"
+
+  # Merge back to master
+  git -C "${GITOPS_REPO_DIR}" switch "${GIT_BRANCH}"
+  git -C "${GITOPS_REPO_DIR}" merge --squash "${GIT_LOCK_BRANCH}"
+  git -C "${GITOPS_REPO_DIR}" commit -m "${GIT_COMMIT_MSG}" 
+  git -C "${GITOPS_REPO_DIR}" push -u origin "${GIT_BRANCH}"
+
+  # unlock_git_repo exit trap function registered in clone_and_lock_target_git_repo
+  # takes care of deleting remote branch and local clone
+  # we'll do it here too anyway just to be sure
+  # (note since this will also delete the repo dir from the system, when the exit trap reruns this script
+  # it won't repeat the branch delete (which could cause problems since another process could have since re-created the lock branch))
+  unlock_git_repo "${GIT_LOCK_BRANCH}" "${GITOPS_REPO_DIR}"
+
+}
+
+
 function argocd_login() {
   retries=${1:-20}
   interval=${2:-30}
