@@ -122,6 +122,12 @@ spec:
       description: Approves the Grafana Operator upgrade to version 5
       default: ""
 
+    # ocs/odf storage action
+    - name: cp4d_update
+      type: string
+      default: ""
+      description: Flag that determines if CP4D must be upgraded
+
   tasks:
 {% if wait_for_install == true %}
     # 0. Wait for the install pipeline to complete
@@ -214,6 +220,10 @@ spec:
           value: update-common-services
         - name: common_services_action
           value: $(params.common_services_action)
+        when:
+    - input: "$(params.cpd_product_version)"
+      operator: in
+      values: ["","4.5.0", "4.5.3", "4.6.0", "4.6.3", "4.6.4", "4.6.6"]
 
     # Only migrate to Red Hat Certificate Manager if identified that IBM Cloud Pak Foundational Services Certificate Manager is running
     - name: update-cert-manager
@@ -315,6 +325,72 @@ spec:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
 {% endif %}
+
+
+    # 6. Update Cloud Pak for Data
+    # -------------------------------------------------------------------------
+    # 6.1 Cloud Pak for Data Platform
+    - name: update-cp4d
+      params:
+        {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+        - name: devops_suite_name
+          value: setup-cp4d
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
+        - name: cpd_product_version
+          value: $(params.cpd_product_version)
+        - name: cpd_primary_storage_class
+          value: $(params.storage_class_rwx)
+        - name: cpd_metadata_storage_class
+          value: $(params.storage_class_rwo)
+        - name: cp4d_update
+          value: $(params.cp4d_update)
+      taskRef:
+        kind: Task
+        name: mas-devops-cp4d
+      # Only needed identified that current installed CPD version is lower than expected in catalog version
+      when:
+        - input: "$(params.cp4d_update)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - update-cert-manager
+
+    # 6.2 Watson Studio
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-wsl.yml.j2') | indent(4) }}
+      runAfter:
+        - cp4d
+
+    {# # 6.3 Watson Machine Learning
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-wml.yml.j2') | indent(4) }}
+      runAfter:
+        - cp4d
+
+    # 6.4 Analytics Service (Spark)
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-spark.yml.j2') | indent(4) }}
+      runAfter:
+        - cp4d
+
+    # 6.5 Watson OpenScale
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-aiopenscale.yml.j2') | indent(4) }}
+      runAfter:
+        - cp4d
+
+    # 6.6 SPSS Statistics
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-spss.yml.j2') | indent(4) }}
+      runAfter:
+        - cp4d
+
+    # 6.7 Watson Discovery
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-discovery.yml.j2') | indent(4) }}
+      runAfter:
+        - cp4d
+
+    # 6.8 Cognos Analytics
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-cognos.yml.j2') | indent(4) }}
+      runAfter:
+        - cp4d #}
+
     # 6. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={

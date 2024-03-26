@@ -227,6 +227,50 @@ function detect_grafana_update() {
   fi
 }
 
+# Auto-detect Cloud Pak Data
+# -----------------------------------------------------------------------------
+# Validates the existance of installed Cloud Pak Data in the target cluster
+# and prints a warning message if Cloud Pak Data is supposed to be upgraded
+function validate_existing_cp4d() {
+  
+  # CPD_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+
+  # Lookup existing MongoDb instance
+  CP4D_CURRENT_VERSION=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.version}' 2> /dev/null`
+  # Target cp4d version will be defined by chosen catalog/casebundle
+  CP4D_TARGET_VERSION=`yq -r .cpd_product_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml`
+
+  CP4D_CURRENT_MAJORMINOR_VERSION=${CP4D_CURRENT_VERSION:0:3}
+  CP4D_TARGET_MAJORMINOR_VERSION=${CP4D_TARGET_VERSION:0:3}
+
+  # Let users know that cp4d will be upgraded if existing cp4d major.minor version is lower than the target major version
+  # We don't show this message for patch updates, e.g. 4.8.0 to 4.8.1
+  if [ ! "$(printf '%s\n' "$CP4D_TARGET_MAJORMINOR_VERSION" "$CP4D_CURRENT_MAJORMINOR_VERSION" | sort -V | head -n1)" = "$CP4D_TARGET_MAJORMINOR_VERSION" ]; then
+    if [[ -z "$NO_CONFIRM" ]] ; then # if 'mas update -c v8-231128-amd64', but '--no--confirm' is not set, then we proceed and warn user of the mongodb upgrade, users will still have a chance to abort
+      echo_highlight "Dependency Upgrade Notice!"
+      echo_highlight "Cloud Pak For Data is currently running on version ${CP4D_CURRENT_VERSION} and will be upgraded to version ${CP4D_TARGET_VERSION}"
+      echo
+      echo_highlight "It is recommended that you backup your Cloud Pak for Data instance before proceeding:"
+      echo -e "${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/cloud-paks/cp-data/4.8.x?topic=administering-backing-up-restoring-cloud-pak-data${TEXT_RESET}"
+      CP4D_UPDATE=true
+      echo
+    fi
+  fi
+
+  # Set CP4D_UPDATE is current CP4D version is lower than expected
+  if [ ! "$(printf '%s\n' "$CP4D_TARGET_VERSION" "$CP4D_CURRENT_VERSION" | sort -V | head -n1)" = "$CP4D_TARGET_VERSION" ]; then
+    CP4D_UPDATE=true
+  fi
+
+  # Check that current CP4D version is lower or equal than target CP4D version, if not block user from downgrading CP4D
+  if [ ! "$(printf '%s\n' "$CP4D_CURRENT_VERSION" "$CP4D_TARGET_VERSION" | sort -V | head -n1)" = "$CP4D_CURRENT_VERSION" ]; then
+      echo
+      echo -e "${COLOR_RED}Cloud Pak for Data is currently running on version ${CP4D_CURRENT_VERSION} and cannot be downgraded to target version ${CP4D_TARGET_VERSION}, which is the Cloud Pak for Data version you would get when choosing MAS catalog '$MAS_CATALOG_VERSION'"
+      exit 1
+  fi
+}
+
+
 # Validate Selected Catalog
 # -----------------------------------------------------------------------------
 # Validates that the selected catalog version is one that is suitable to use
@@ -254,12 +298,14 @@ function validate_update() {
   # Validates MongoDB upgrade is confirmed while using November catalog
   validate_existing_mongo
 
+  # Validates CP4D upgrade
+  validate_existing_cp4d
+
   # Validates UDS to DRO migration only if UDS is running and January catalog or more recent is used
   validate_dro_migration
 
   # Confirm Grafana Operator upgrade
   detect_grafana_update
-
 
   # Lookup for OCP console route
   if [[ -z "$OCP_CONSOLE_ROUTE" ]]; then
