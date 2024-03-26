@@ -234,6 +234,9 @@ function detect_grafana_update() {
 function validate_existing_cp4d() {
   
   # Lookup existing MongoDb instance
+  CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+  
+  # Lookup existing MongoDb instance
   CP4D_CURRENT_VERSION=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.version}' 2> /dev/null`
   
   # Target cp4d version will be defined by chosen catalog/casebundle
@@ -489,6 +492,7 @@ function update() {
   export CERT_MANAGER_ACTION
   export DRO_MIGRATION
   export GRAFANA_V5_UPGRADE
+  export CP4D_UPDATE
 
   echo_h2 "Review Settings"
 
@@ -553,7 +557,7 @@ function update() {
 
   # Cloud Pak for Data
   if [ "$CP4D_UPDATE" == true ]; then
-    echo_reset_dim "Cloud Pak for Data ......................... ${COLOR_GREEN}${CP4D_CURRENT_VERSION} to ${CP4D_TARGET_VERSION} ($CPD_INSTANCE_NAMESPACE)${TEXT_RESET}"
+    echo_reset_dim "Cloud Pak for Data ......................... ${COLOR_GREEN}${CP4D_CURRENT_VERSION} to ${CP4D_TARGET_VERSION} ($CP4D_INSTANCE_NAMESPACE)${TEXT_RESET}"
   else
     echo_reset_dim "Cloud Pak for Data ......................... ${COLOR_RED}No${TEXT_RESET}"
   fi
