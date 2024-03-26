@@ -47,9 +47,6 @@ spec:
     - name: dro_namespace
       type: string
       default: "redhat-marketplace"
-    - name: dro_csv
-      type: string
-      default: ""
 
     - name: db2_channel
       type: string
@@ -155,8 +152,6 @@ spec:
           value: $(params.argocd_check)
         - name: dro_namespace
           value: $(params.dro_namespace)
-        - name: dro_csv
-          value: $(params.dro_csv)
       taskRef:
         kind: Task
         name: gitops-dro

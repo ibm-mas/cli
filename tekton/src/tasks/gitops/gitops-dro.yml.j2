@@ -24,6 +24,8 @@ spec:
       type: string
     - name: github_host
       type: string
+    - name: dro_namespace
+      type: string
     - name: argocd_url
       type: string
       default: ""
@@ -51,6 +53,8 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
+      - name: DRO_NAMESPACE
+        value: $(params.dro_namespace
       - name: ARGOCD_URL
         value: $(params.argocd_url)
       - name: ARGOCD_CHECK
