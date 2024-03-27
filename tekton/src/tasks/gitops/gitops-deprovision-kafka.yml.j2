@@ -20,6 +20,10 @@ spec:
       default: aws      
     - name: avp_aws_secret_region
       type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
     - name: vpc_ipv4_cidr
       type: string
   stepTemplate:
@@ -39,6 +43,10 @@ spec:
         value: $(params.kafka_provider)        
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
+      - name: SM_AWS_SECRET_ACCESS_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: SM_AWS_ACCESS_KEY_ID
+        value: $(params.avp_aws_access_key)
       - name: VPC_IPV4_CIDR
         value: $(params.vpc_ipv4_cidr)
   steps:
