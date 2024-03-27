@@ -1,10 +1,11 @@
-mas_config_name: "{{ MAS_INSTANCE_ID }}-ldap-default-{{ MAS_CONFIG_SCOPE }}{% if MAS_CONFIG_SCOPE == "ws" or MAS_CONFIG_SCOPE == "wsapp" %}-{{ MAS_WORKSPACE_ID }}{% endif %}{% if MAS_CONFIG_SCOPE == "app" or MAS_CONFIG_SCOPE == "wsapp" %}-{{ MAS_APP_ID }}{% endif %}"
+mas_config_name: "{{ MAS_CONFIG_NAME }}"
 mas_config_chart: ibm-mas-idp-config
 mas_config_scope: {{ MAS_CONFIG_SCOPE }}
 mas_workspace_id: {{ MAS_WORKSPACE_ID }}
 mas_application_id: {{ MAS_APP_ID }}
 mas_config_kind: "idpcfgs"
 mas_config_api_version: "config.mas.ibm.com"
+use_postdelete_hooks: {{ USE_POSTDELETE_HOOKS }}
 
 
 mas_instance_id: {{ MAS_INSTANCE_ID }}
