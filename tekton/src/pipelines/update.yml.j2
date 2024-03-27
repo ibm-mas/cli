@@ -220,10 +220,10 @@ spec:
           value: update-common-services
         - name: common_services_action
           value: $(params.common_services_action)
-        when:
-    - input: "$(params.cpd_product_version)"
-      operator: in
-      values: ["","4.5.0", "4.5.3", "4.6.0", "4.6.3", "4.6.4", "4.6.6"]
+      when:
+      - input: "$(params.cpd_product_version)"
+        operator: in
+        values: ["","4.5.0", "4.5.3", "4.6.0", "4.6.3", "4.6.4", "4.6.6"]
 
     # Only migrate to Red Hat Certificate Manager if identified that IBM Cloud Pak Foundational Services Certificate Manager is running
     - name: update-cert-manager
