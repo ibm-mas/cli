@@ -128,14 +128,18 @@ spec:
       type: string
       default: ""
       description: Flag that determines if CP4D must be upgraded
-    - name: cpd_service_name
-      type: string
-    - name: cpd_product_version
-      type: string
+   
+    # Dependencies - CP4D
+    # -----------------------------------------------------------------------------
     - name: cpd_primary_storage_class
       type: string
+      default: ""
     - name: cpd_metadata_storage_class
       type: string
+      default: ""
+    - name: cpd_product_version
+      type: string
+      default: ""
   tasks:
 {% if wait_for_install == true %}
     # 0. Wait for the install pipeline to complete
@@ -345,10 +349,6 @@ spec:
           value: $(params.image_pull_policy)
         - name: devops_suite_name
           value: update-cp4d
-        - name: storage_class_rwx
-          value: $(params.storage_class_rwx)
-        - name: storage_class_rwo
-          value: $(params.storage_class_rwo)
         - name: ibm_entitlement_key
           value: $(params.ibm_entitlement_key)
         - name: cpd_product_version

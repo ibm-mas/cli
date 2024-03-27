@@ -35,3 +35,15 @@ spec:
       value: '$DRO_MIGRATION'
     - name: grafana_v5_upgrade
       value: '$GRAFANA_V5_UPGRADE'
+  
+    # Storage Classes
+    # -------------------------------------------------------------------------
+    - name: storage_class_rwx
+      value: '$STORAGE_CLASS_RWX'
+    - name: storage_class_rwo
+      value: '$STORAGE_CLASS_RWO'
+    
+    # Dependencies - CP4D
+    # -------------------------------------------------------------------------
+    - name: cpd_product_version
+      value: '$CP4D_VERSION'

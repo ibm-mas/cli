@@ -236,6 +236,23 @@ function validate_existing_cp4d() {
   # Lookup existing MongoDb instance
   CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
   
+  if [[ "$CP4D_INSTANCE_NAMESPACE" != "" ]]; then
+    # Try fetching file storage class for CPD 4.6 format (storageClass property)
+    CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.storageClass}' 2> /dev/null`
+    # If not found then try fetching file storage class for CPD 4.8 format (fileStorageClass property)
+    if [[ "$CPD_FILE_STORAGE_CLASS" == "" ]]; then
+      CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.fileStorageClass}' 2> /dev/null`
+    fi
+
+    # Try fetching block storage class for CPD 4.6 format (zenCoreMetadbStorageClass property)
+    CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.zenCoreMetadbStorageClass}' 2> /dev/null`
+    # If not found then try fetching file storage class for CPD 4.8 format (blockStorageClass property)
+    if [[ "$CPD_BLOCK_STORAGE_CLASS" == "" ]]; then
+      CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.blockStorageClass}' 2> /dev/null`
+    fi
+
+  fi
+
   # Lookup existing MongoDb instance
   CP4D_CURRENT_VERSION=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.version}' 2> /dev/null`
   
@@ -257,6 +274,9 @@ function validate_existing_cp4d() {
         echo_highlight "It is recommended that you backup your Cloud Pak for Data instance before proceeding:"
         echo -e "${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/cloud-paks/cp-data/4.8.x?topic=administering-backing-up-restoring-cloud-pak-data${TEXT_RESET}"
         CP4D_UPDATE=true
+        CP4D_VERSION=$CP4D_TARGET_VERSION
+        STORAGE_CLASS_RWX=$CPD_FILE_STORAGE_CLASS
+        STORAGE_CLASS_RWO=$CPD_BLOCK_STORAGE_CLASS
         echo
       fi
     fi
@@ -264,6 +284,9 @@ function validate_existing_cp4d() {
     # Set CP4D_UPDATE is current CP4D version is lower than expected
     if [ ! "$(printf '%s\n' "$CP4D_TARGET_VERSION" "$CP4D_CURRENT_VERSION" | sort -V | head -n1)" = "$CP4D_TARGET_VERSION" ]; then
       CP4D_UPDATE=true
+      CP4D_VERSION=$CP4D_TARGET_VERSION
+      STORAGE_CLASS_RWX=$CPD_FILE_STORAGE_CLASS
+      STORAGE_CLASS_RWO=$CPD_BLOCK_STORAGE_CLASS
     fi
 
     # Check that current CP4D version is lower or equal than target CP4D version, if not block user from downgrading CP4D
@@ -493,6 +516,9 @@ function update() {
   export DRO_MIGRATION
   export GRAFANA_V5_UPGRADE
   export CP4D_UPDATE
+  export CP4D_VERSION
+  export STORAGE_CLASS_RWO
+  export STORAGE_CLASS_RWX
 
   echo_h2 "Review Settings"
 
@@ -557,7 +583,11 @@ function update() {
 
   # Cloud Pak for Data
   if [ "$CP4D_UPDATE" == true ]; then
-    echo_reset_dim "Cloud Pak for Data ......................... ${COLOR_GREEN}${CP4D_CURRENT_VERSION} to ${CP4D_TARGET_VERSION} ($CP4D_INSTANCE_NAMESPACE)${TEXT_RESET}"
+    echo_reset_dim "Cloud Pak for Data ......................... ${COLOR_GREEN}${CP4D_CURRENT_VERSION} to ${CP4D_VERSION} ($CP4D_INSTANCE_NAMESPACE)${TEXT_RESET}"
+    echo "${TEXT_DIM}"
+    echo_reset_dim " - File Storage Class ...................... ${COLOR_MAGENTA}${STORAGE_CLASS_RWX}"
+    echo_reset_dim " - Block Storage Class ..................... ${COLOR_MAGENTA}${STORAGE_CLASS_RWO}"
+    reset_colors
   else
     echo_reset_dim "Cloud Pak for Data ......................... ${COLOR_RED}No${TEXT_RESET}"
   fi
