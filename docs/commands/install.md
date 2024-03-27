@@ -111,7 +111,7 @@ Usage
 
 - `--manage-server-bundle-size MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE`                        Set Manage server bundle size configuration i.e `dev, small, jms or snojms`
 - `--manage-components MAS_APPWS_COMPONENTS`                                                Set Manage Components to be installed i.e `base=latest,health=latest,civil=latest`
-            
+
   List of all identifiers for Manage industry solutions and add-ons that can be installed with Manage (base):
 
     - `acm (Asset Configuration Manager)`
@@ -335,6 +335,10 @@ Currently supported config files:
   - ibm-mas-iot-registry.yml
   - ibm-mas-iot-state.yml
   - ibm-mas-iot-webui.yml
+- ibm-mas-manage
+  - ibm-mas-manage-manage.yml
+  - ibm-mas-manage-manageworkspace.yml
+  - ibm-mas-manage-civil.yml
 
 For examples on these config files take a look into the pre-defined configs: [BestEffort](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/best-effort) and [Guaranteed](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/guaranteed). More information on podTemplates can be found in our official IBM documentation [here](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=configuring-customizing-workloads).
 

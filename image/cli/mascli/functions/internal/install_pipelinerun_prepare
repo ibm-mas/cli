@@ -90,6 +90,9 @@ function install_pipelinerun_prepare() {
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-registry.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-state.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-iot-webui.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-manage-manage.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-manage-manageworkspace.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-manage-civil.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-sls-licenseservice.yml} &>> $LOGFILE
   else
     # pipeline-pod-templates must exist (otherwise the suite-install step will hang), but can be empty
