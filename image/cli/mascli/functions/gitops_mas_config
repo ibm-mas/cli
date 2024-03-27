@@ -12,13 +12,13 @@ When no options are specified on the command line, interactive-mode will be enab
 Options:
 
 GitOps Configuration:
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                  Working directory for GitOps repository
-  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                   Account name that the cluster belongs to
-  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                   Cluster ID
-  --config-action ${COLOR_YELLOW}CONFIG_ACTION${TEXT_RESET}                 One of upsert|remove.
-  --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}             One of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
-  --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG-SCOPE${TEXT_RESET}           One of system|ws|app|wsapp
-  --use-postdelete-hooks ${COLOR_YELLOW}USE_POSTDELETE_HOOKS${TEXT_RESET}   !!! ArgoCD >= 2.10.* only !!!. If set, PostDelete hooks will be deployed to ensure config CRs are properly cleaned up by ArgoCD on deletion (default: false)
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                     Working directory for GitOps repository
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                      Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                      Cluster ID
+  --config-action ${COLOR_YELLOW}CONFIG_ACTION${TEXT_RESET}                    One of upsert|remove.
+  --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
+  --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG-SCOPE${TEXT_RESET}              One of system|ws|app|wsapp
+  --disable-postdelete-hooks ${COLOR_YELLOW}USE_POSTDELETE_HOOKS${TEXT_RESET}  Unless set (or USE_POSTDELETE_HOOKS exported and set to false), PostDelete hooks will be deployed to ensure config CRs are properly cleaned up by ArgoCD on deletion. !!! PostDelete hooks should never be used when ArgoCD version < 2.10 !!! 
 
 IBM Maximo Application Suite:
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
@@ -122,8 +122,8 @@ function gitops_mas_config_noninteractive() {
       --mas-app-id)
         export MAS_APP_ID=$1 && shift
         ;;
-      --use-postdelete-hooks)
-        export USE_POSTDELETE_HOOKS=true
+      --disable-postdelete-hooks)
+        export USE_POSTDELETE_HOOKS=false
         ;;
 
       --mas-config-type)
@@ -450,7 +450,7 @@ function gitops_mas_config() {
   CONFIGS_FILE="${GITOPS_INSTANCE_DIR}/ibm-mas-suite-configs.yaml"
   GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-mas-config" "${ACCOUNT_ID}" "${REGION_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
 
-  export USE_POSTDELETE_HOOKS=${USE_POSTDELETE_HOOKS:-false}
+  export USE_POSTDELETE_HOOKS=${USE_POSTDELETE_HOOKS:-true}
 
   TEMP_DIR=$GITOPS_WORKING_DIR/tmp-mas-config
   mkdir -p $TEMP_DIR
