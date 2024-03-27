@@ -122,12 +122,20 @@ spec:
       description: Approves the Grafana Operator upgrade to version 5
       default: ""
 
-    # ocs/odf storage action
+    # cp4d update
+    {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
     - name: cp4d_update
       type: string
       default: ""
       description: Flag that determines if CP4D must be upgraded
-
+    - name: cpd_service_name
+      type: string
+    - name: cpd_product_version
+      type: string
+    - name: cpd_primary_storage_class
+      type: string
+    - name: cpd_metadata_storage_class
+      type: string
   tasks:
 {% if wait_for_install == true %}
     # 0. Wait for the install pipeline to complete
@@ -337,6 +345,10 @@ spec:
           value: $(params.image_pull_policy)
         - name: devops_suite_name
           value: update-cp4d
+        - name: storage_class_rwx
+          value: $(params.storage_class_rwx)
+        - name: storage_class_rwo
+          value: $(params.storage_class_rwo)
         - name: ibm_entitlement_key
           value: $(params.ibm_entitlement_key)
         - name: cpd_product_version
