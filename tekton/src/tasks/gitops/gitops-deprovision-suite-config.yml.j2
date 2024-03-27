@@ -39,13 +39,13 @@ spec:
   stepTemplate:
     name: gitops-deprovision-suite-config
     env:
-      - name: CLUSTER_NAME
+      - name: CLUSTER_ID
         value: $(params.cluster_name)
-      - name: ACCOUNT
+      - name: ACCOUNT_ID
         value: $(params.account)
       - name: REGION
         value: $(params.region)
-      - name: SECRET_PATH
+      - name: SECRETS_PATH
         value: $(params.secrets_path)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
@@ -76,20 +76,101 @@ spec:
   steps:
     - args:
       - |-
-        mkdir -p /tmp/deprovision-suite-config
+        
 
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        mas gitops-deprovision-suite-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
-        --secrets-path $SECRET_PATH \
-        --dir /tmp/deprovision-suite-config \
+        # TODO: the calls to remove JDBC config really belong in their own tasks (without the hard-coded appid/wsid/db2_instance_name params)
+        # For now, as I need to limit the impact of the changes under MASCORE-2082 (Replace configs appset with individual Applications), 
+        # I'm simply porting our existing code over without changing the interface/layout of our Tekton pipelines
+        # The equivalents of the operations performed below were previously handled by the (deprecated) gitops-deprovision-suite-config function
+
+        mkdir -p /tmp/deprovision-suite-config-iotdb2
+        mas gitops-mas-config \
+        --account-id "$ACCOUNT_ID" \
+        --cluster-id "$CLUSTER_ID" \
+        --mas-instance-id "$MAS_INSTANCE_ID" \
+        --secrets-path "$SECRETS_PATH" \
         --github-push \
-        --github-host $GITHUB_HOST \
-        --github-org $GITHUB_ORG \
-        --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH
+        --github-host "$GITHUB_HOST" \
+        --github-org "$GITHUB_ORG" \
+        --github-repo "$GITHUB_REPO" \
+        --git-branch "$GIT_BRANCH" \
+        --config-action remove \
+        --mas-config-scope system \
+        --mas-config-type jdbc \
+        --dir /tmp/deprovision-suite-config-iotdb2 \
+        --db2-instance-name "db2wh-$MAS_INSTANCE_ID-iot"
+
+        mkdir -p /tmp/deprovision-suite-config-managedb2
+        mas gitops-mas-config \
+        --account-id "$ACCOUNT_ID" \
+        --cluster-id "$CLUSTER_ID" \
+        --mas-instance-id "$MAS_INSTANCE_ID" \
+        --secrets-path "$SECRETS_PATH" \
+        --github-push \
+        --github-host "$GITHUB_HOST" \
+        --github-org "$GITHUB_ORG" \
+        --github-repo "$GITHUB_REPO" \
+        --git-branch "$GIT_BRANCH" \
+        --config-action remove \
+        --mas-config-scope wsapp \
+        --mas-config-type jdbc \
+        --dir /tmp/deprovision-suite-config-managedb2 \
+        --mas-workspace-id "masdev" \
+        --mas-app-id "manage" \
+        --db2-instance-name "db2wh-$MAS_INSTANCE_ID-manage"
+
+        mkdir -p /tmp/deprovision-suite-config-sls
+        mas gitops-mas-config \
+        --account-id "$ACCOUNT_ID" \
+        --cluster-id "$CLUSTER_ID" \
+        --mas-instance-id "$MAS_INSTANCE_ID" \
+        --secrets-path "$SECRETS_PATH" \
+        --github-push \
+        --github-host "$GITHUB_HOST" \
+        --github-org "$GITHUB_ORG" \
+        --github-repo "$GITHUB_REPO" \
+        --git-branch "$GIT_BRANCH" \
+        --config-action remove \
+        --mas-config-scope system \
+        --mas-config-type sls \
+        --dir /tmp/deprovision-suite-config-sls
+
+        mkdir -p /tmp/deprovision-suite-config-mongo
+        mas gitops-mas-config \
+        --account-id "$ACCOUNT_ID" \
+        --cluster-id "$CLUSTER_ID" \
+        --mas-instance-id "$MAS_INSTANCE_ID" \
+        --secrets-path "$SECRETS_PATH" \
+        --github-push \
+        --github-host "$GITHUB_HOST" \
+        --github-org "$GITHUB_ORG" \
+        --github-repo "$GITHUB_REPO" \
+        --git-branch "$GIT_BRANCH" \
+        --config-action remove \
+        --mas-config-scope system \
+        --mas-config-type mongo \
+        --dir /tmp/deprovision-suite-config-mongo
+
+        mkdir -p /tmp/deprovision-suite-config-bas
+        mas gitops-mas-config \
+        --account-id "$ACCOUNT_ID" \
+        --cluster-id "$CLUSTER_ID" \
+        --mas-instance-id "$MAS_INSTANCE_ID" \
+        --secrets-path "$SECRETS_PATH" \
+        --github-push \
+        --github-host "$GITHUB_HOST" \
+        --github-org "$GITHUB_ORG" \
+        --github-repo "$GITHUB_REPO" \
+        --git-branch "$GIT_BRANCH" \
+        --config-action remove \
+        --mas-config-scope system \
+        --mas-config-type bas \
+        --dir /tmp/deprovision-suite-config-bas
+
       command:
         - /bin/sh
         - -c

@@ -117,9 +117,9 @@ function gitops_suite_certs_noninteractive() {
     fi
   fi
 
-  [[ -z "$CLUSTER_ID" ]] && gitops_kafka_config_help "CLUSTER_ID is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_kafka_config_help "ACCOUNT_ID is not set"
-  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_kafka_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_suite_certs_help "CLUSTER_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_suite_certs_help "ACCOUNT_ID is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_suite_certs_help "MAS_INSTANCE_ID is not set"
 }
 
 

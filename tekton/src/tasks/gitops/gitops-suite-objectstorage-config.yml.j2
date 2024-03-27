@@ -38,13 +38,13 @@ spec:
   stepTemplate:
     name: gitops-suite-objectstorage-config
     env:
-      - name: CLUSTER_NAME
+      - name: CLUSTER_ID
         value: $(params.cluster_name)
       - name: OCP_SERVER
         value: $(params.cluster_url)
-      - name: ACCOUNT
+      - name: ACCOUNT_ID
         value: $(params.account)
-      - name: SECRET_PATH
+      - name: SECRETS_PATH
         value: $(params.secrets_path)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
@@ -88,14 +88,21 @@ spec:
           cp ${GITOPS_CONFIG_DIR}/cos_ibm_system.yml ${COS_CONFIG}
         fi
 
-        mas gitops-suite-objectstorage-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
-        --secrets-path $SECRET_PATH \
-        --dir /tmp/init-suite-objectstorage-config \
-        --github-push \
-        --github-host $GITHUB_HOST \
-        --github-org $GITHUB_ORG \
-        --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH
+        mas gitops-mas-config \
+          --account-id "$ACCOUNT_ID" \
+          --cluster-id "$CLUSTER_ID" \
+          --mas-instance-id "$MAS_INSTANCE_ID" \
+          --secrets-path "$SECRETS_PATH" \
+          --github-push \
+          --github-host "$GITHUB_HOST" \
+          --github-org "$GITHUB_ORG" \
+          --github-repo "$GITHUB_REPO" \
+          --git-branch "$GIT_BRANCH" \
+          --config-action upsert \
+          --mas-config-scope system \
+          --mas-config-type objectstorage \
+          --dir /tmp/init-suite-objectstorage-config \
+          --gitops-config-dir "$GITOPS_CONFIG_DIR"
 
       command:
         - /bin/sh
