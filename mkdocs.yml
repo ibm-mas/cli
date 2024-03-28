@@ -36,10 +36,10 @@ nav:
       - "must-gather": commands/must-gather.md
   - "Catalogs":
       - "All Catalogs": catalogs/index.md
+      - "Mar 26 2024": catalogs/v8-240326-amd64.md
       - "Feb 27 2024": catalogs/v8-240227-amd64.md
       - "Jan 30 2024": catalogs/v8-240130-amd64.md
       - "Dec 28 2023": catalogs/v8-231228-amd64.md
-      - "Nov 28 2023": catalogs/v8-231128-amd64.md
   - "Reference":
       - "Topology": reference/topology.md
       - "Cluster Extensions": reference/cluster-extensions.md
