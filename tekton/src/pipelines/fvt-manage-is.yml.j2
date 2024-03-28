@@ -53,7 +53,6 @@ spec:
     # - User Creation
     # - Add User into Security Group
     # - Set User's Default Site
-    # - Grant Application's Permissions
     # ----------------------------------------
     - name: fvt-manage-setup-is # convention: use fvt-manage-<keyword>, as the value of fvt_test_suite parameter
       {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(6) }}
@@ -65,11 +64,12 @@ spec:
           value: setup-is
 
     # ----------------------------------------
-    # Industry Solution Tests (FVT and APAR)
+    # Industry Solution Tests
     # ----------------------------------------
     {{ lookup('template', 'taskdefs/fvt-manage-is/acm.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-manage-is/scheduler.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-is/maintmanager.yml.j2') | indent(4) }}
     
-    # Tests will be re-introduced later
+    # Tests within _others will be re-introduced later
     # ------------------------
-    {# {{ lookup('template', 'taskdefs/fvt-manage-is/maintmanager.yml.j2') | indent(4) }} #}
+    {# {{ lookup('template', 'taskdefs/fvt-manage-is/_oyhers.yml.j2') | indent(4) }} #}

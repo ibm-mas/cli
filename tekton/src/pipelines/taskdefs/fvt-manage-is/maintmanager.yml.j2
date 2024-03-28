@@ -1,4 +1,6 @@
-# Maintenance Manager - Setup
+# ------------------
+# Maintenance Manager - UI (Setup)
+# ------------------
 - name: fvt-manage-maintmanager-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
@@ -10,8 +12,22 @@
       value: maintmanager
     - name: fvt_test_driver
       value: graphite
+  runAfter:
+    - fvt-manage-setup-is # Tests must always start after fvt-manage-setup-is
 
-# Maintenance Manager - BVT
+# ------------------
+# Maintenance Manager - API Tests
+# ------------------
+- name: fvt-manage-maintmanager-api
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: maintmanager-api
+  runAfter:
+    - fvt-manage-maintmanager-setup
+
+{# # Maintenance Manager - BVT
 - name: fvt-manage-maintmanager-bvt
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
@@ -39,4 +55,4 @@
     - name: fvt_test_driver
       value: graphite
   runAfter:
-    - fvt-manage-maintmanager-setup
+    - fvt-manage-maintmanager-setup #}
