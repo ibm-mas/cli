@@ -97,6 +97,21 @@ def buildContext(texts):
     }
 
 
+# Get Kafka Provider and Version
+# -------------------------------------------------------------------------
+def getKafkaVersion(namespace):
+    try:
+        crs = dynClient.resources.get(api_version="kafka.strimzi.io/v1beta2", kind="Kafka")
+        cr = crs.get(name=f"mas-{instanceId}-system", namespace=f"{namespace}")
+        if cr.status and cr.status.kafkaVersion:
+            return cr.status.kafkaVersion
+        else:
+            print(f"Unable to determine kafka version: status.KafkaVersion unavailable")
+    except Exception as e:
+        print(f"Unable to determine kafka version: {e}")
+    return "unknown"
+
+
 # Script start
 # -----------------------------------------------------------------------------
 if __name__ == "__main__":
@@ -276,6 +291,63 @@ if __name__ == "__main__":
             setObject[f"products.ibm-mas-manage.maximoBuildVersion"] = maximoBuildNumber
     except Exception as e:
         print(f"Unable to determine Maximo Process Automation Engine (MPAE) version: {e}")
+
+    # Get DB2 CLuster Version
+    # -------------------------------------------------------------------------
+    try:
+        crs = dynClient.resources.get(api_version="db2u.databases.ibm.com/v1", kind="Db2uCluster")
+        cr = crs.get(name=f"mas-{instanceId}-system", namespace="db2u")
+        if cr.status and cr.status.version:
+                db2ClusterVersion = cr.status.version
+
+                setObject[f"target.db2ClusterVersion"] = db2ClusterVersion
+        else:
+            print(f"Unable to determine DB2 cluster version: status.version unavailable")
+    except Exception as e:
+        print(f"Unable to determine DB2 cluster version: {e}")
+
+    # Lookup DB2 operator version
+    # -------------------------------------------------------------------------
+    try:
+        
+        csvl = dynClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="ClusterServiceVersion")
+        csv = csvl.get(namespace=f"db2u",label_selector=f'operators.coreos.com/db2u-operator.db2u')
+        
+        if csv is None or csv.items is None or len(csv.items) == 0:
+            print(f"Unable to determine DB2 operator version: component unavailable")
+        else:
+            db2OperatorVersion= (csv.items[0].metadata.name).lstrip('db2u-operator.') 
+            setObject[f"target.db2OperatorVersion"] = db2OperatorVersion
+    except Exception as e:
+        print(f"Unable to determine DB2 operator version: {e}")
+   
+    # Get Kafka Provider and Version
+    # -------------------------------------------------------------------------
+    namespace=''
+    try:
+        crs = dynClient.resources.get(api_version="config.mas.ibm.com/v1", kind="KafkaCfg")
+        cr = crs.get(name=f"{instanceId}-kafka-system", namespace=f"mas-{instanceId}-core")
+        if cr.status and cr.status.config.hosts:
+                firstBroker = cr.status.config.hosts[0].host
+                if firstBroker.find('eventstreams') != -1:
+                    setObject[f"target.kafkaProvider"] = 'External'
+                elif firstBroker.find('amq-streams') != -1:
+                    setObject[f"target.kafkaProvider"] = 'AMQ'
+                    namespace="amq-streams"
+                elif firstBroker.find('strimzi') != -1:
+                    setObject[f"target.kafkaProvider"] = 'STRIMZI'
+                    namespace="strimzi"
+                else: 
+                    print(f"Unable to determine kafka provider using broker host")
+                # check if we need to get the kafka version, this will happen with AMQ and STRIMZI    
+                if namespace != '':
+                    setObject[f"target.kafkaVersion"] = getKafkaVersion(namespace)
+                else:
+                    setObject[f"target.kafkaVersion"] = 'unknown'
+        else:
+            print(f"Unable to determine kafka provider: status.config.hosts unavailable")
+    except Exception as e:
+        print(f"Unable to determine kafka provider and version: {e}")
 
     # Connect to mongoDb
     # -------------------------------------------------------------------------

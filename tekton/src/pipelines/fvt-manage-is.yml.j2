@@ -41,11 +41,35 @@ spec:
     - name: fvt_digest_manage
       type: string
       default: ""
+    - name: fvt_digest_manage_pytest
+      type: string
+      default: ""
 
   tasks:
-    {{ lookup('template', 'taskdefs/fvt-manage-is/phase0-aviation.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/phase1-scheduler.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/phase2-all-setup.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/phase3-all-user.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/phase4-all-test.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/phase5-maintmanager.yml.j2') | indent(4) }}
+
+    # ----------------------------------------
+    # Manage Industry Solutions Setup
+    # Responsible for:
+    # - User Creation
+    # - Add User into Security Group
+    # - Set User's Default Site
+    # ----------------------------------------
+    - name: fvt-manage-setup-is # convention: use fvt-manage-<keyword>, as the value of fvt_test_suite parameter
+      {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite_prefix
+          value: base
+        - name: fvt_test_suite
+          value: setup-is
+
+    # ----------------------------------------
+    # Industry Solution Tests
+    # ----------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-manage-is/acm.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-is/scheduler.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-is/maintmanager.yml.j2') | indent(4) }}
+    
+    # Tests within _others will be re-introduced later
+    # ------------------------
+    {# {{ lookup('template', 'taskdefs/fvt-manage-is/_oyhers.yml.j2') | indent(4) }} #}
