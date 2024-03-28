@@ -77,6 +77,7 @@ spec:
         set -e -o pipefail
 
         mkdir -p /tmp/init-suite-objectstorage-config
+        mkdir -p /tmp/suite-objectstorage-config-dir
 
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
@@ -85,9 +86,11 @@ spec:
         # export GITOPS_CONFIG_DIR=/workspace/configs
         echo "GITOPS_CONFIG_DIR=${GITOPS_CONFIG_DIR}"
 
+        # Use TMP dir as the workspace is read only
+        export TMP_CONFIG_DIR=/tmp/suite-objectstorage-config-dir
         if [ -f "${GITOPS_CONFIG_DIR}/cos_ibm_system.yml" ]; then
-          export COS_CONFIG=${GITOPS_CONFIG_DIR}/${MAS_INSTANCE_ID}-cos/cos-ibm-system.yml
-          mkdir -p ${GITOPS_CONFIG_DIR}/${MAS_INSTANCE_ID}-cos
+          export COS_CONFIG=${TMP_CONFIG_DIR}/${MAS_INSTANCE_ID}-cos/cos-ibm-system.yml
+          mkdir -p ${TMP_CONFIG_DIR}/${MAS_INSTANCE_ID}-cos
           cp ${GITOPS_CONFIG_DIR}/cos_ibm_system.yml ${COS_CONFIG}
         fi
 
@@ -105,7 +108,7 @@ spec:
           --mas-config-scope system \
           --mas-config-type objectstorage \
           --dir /tmp/init-suite-objectstorage-config \
-          --gitops-config-dir "$GITOPS_CONFIG_DIR"
+          --gitops-config-dir "$TMP_CONFIG_DIR"
 
       command:
         - /bin/sh
