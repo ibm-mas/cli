@@ -124,6 +124,10 @@ spec:
 
     # cp4d update
     {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
+    - name: skip_entitlement_key_flag
+      type: string
+      default: ""
+      description: Flag that determines if ibm-entitlement-key check must be skipped in cp4d role
     - name: cp4d_update
       type: string
       default: ""
@@ -351,6 +355,8 @@ spec:
           value: update-cp4d
         - name: ibm_entitlement_key
           value: $(params.ibm_entitlement_key)
+        - name: skip_entitlement_key_flag
+          value: $(params.skip_entitlement_key_flag)
         - name: cpd_product_version
           value: $(params.cpd_product_version)
         - name: cpd_primary_storage_class

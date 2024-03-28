@@ -297,6 +297,7 @@ function validate_existing_cp4d() {
     # Only allow CP4D update if all required params are set
     if [[ "$CP4D_VERSION" != "" && "$STORAGE_CLASS_RWX" != ""  && "$STORAGE_CLASS_RWO" != "" ]]; then
       CP4D_UPDATE=true
+      SKIP_ENTITLEMENT_KEY_FLAG=true # this will skip ibm-entitlement-key assertion in cp4d role
     fi
 
   fi
@@ -523,6 +524,7 @@ function update() {
   export CP4D_VERSION
   export STORAGE_CLASS_RWO
   export STORAGE_CLASS_RWX
+  export SKIP_ENTITLEMENT_KEY_FLAG
 
   echo_h2 "Review Settings"
 
@@ -588,8 +590,9 @@ function update() {
   # Cloud Pak for Data
   if [ "$CP4D_UPDATE" == true ]; then
     echo_reset_dim "Cloud Pak for Data ......................... ${COLOR_GREEN}${CP4D_CURRENT_VERSION} to ${CP4D_VERSION} ($CP4D_INSTANCE_NAMESPACE)${TEXT_RESET}"
-    echo_reset_dim " - File Storage Class ...................... ${STORAGE_CLASS_RWX}"
-    echo_reset_dim " - Block Storage Class ..................... ${STORAGE_CLASS_RWO}"
+    echo_reset_dim " - File Storage Class ...................... ${COLOR_GREEN}${STORAGE_CLASS_RWX}"
+    echo_reset_dim " - Block Storage Class ..................... ${COLOR_GREEN}${STORAGE_CLASS_RWO}"
+    echo_reset_dim " - Skip IBM Entitlement Key ................ ${COLOR_GREEN}${SKIP_ENTITLEMENT_KEY_FLAG}"
     reset_colors
   else
     echo_reset_dim "Cloud Pak for Data ......................... ${COLOR_RED}No${TEXT_RESET}"
