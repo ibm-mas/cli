@@ -31,6 +31,8 @@ spec:
     # Entitlement
     - name: ibm_entitlement_key
       type: string
+    - name: skip_entitlement_key_flag
+      type: string
 
   stepTemplate:
     env:
@@ -55,6 +57,8 @@ spec:
       # Entitlement
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
+      - name: SKIP_ENTITLEMENT_KEY_FLAG
+        value: $(params.skip_entitlement_key_flag)
   steps:
     - name: cp4d
       command:
