@@ -60,7 +60,8 @@ spec:
     - args:
       - |-
 
-      
+        set -e -o pipefail
+        
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
@@ -81,6 +82,8 @@ spec:
         cd $SOURCE_LOCAL_DIR
         echo "git: Cloning $GITHUB_HOST:$SOURCE_GITHUB_ORG/$SOURCE_GITHUB_REPO branch $SOURCE_GIT_BRANCH into $SOURCE_LOCAL_DIR working directory"
         git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$SOURCE_GITHUB_ORG/$SOURCE_GITHUB_REPO.git -b $SOURCE_GIT_BRANCH || exit 
+
+        mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME
 
         echo "copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME"
         cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME
