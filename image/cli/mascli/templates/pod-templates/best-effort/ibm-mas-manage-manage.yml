@@ -32,3 +32,7 @@ podTemplates:
     containers:
       - name: imagestitching
         resources: {}
+  - name: ibm-mas-slackproxy-operator
+    containers:
+      - name: slackproxy
+        resources: {}

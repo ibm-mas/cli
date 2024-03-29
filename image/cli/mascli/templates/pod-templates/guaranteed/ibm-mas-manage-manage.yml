@@ -74,3 +74,13 @@ podTemplates:
           limits:
             cpu: 500m
             memory: 1024Mi
+  - name: ibm-mas-slackproxy-operator
+    containers:
+      - name: slackproxy
+        resources:
+          requests:
+            cpu: 1
+            memory: 1024Mi
+          limits:
+            cpu: 1
+            memory: 1024Mi
