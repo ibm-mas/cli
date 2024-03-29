@@ -12,3 +12,37 @@ podTemplates:
     containers:
       - name: manage-maxinst-maxinst
         resources: {}
+  - name: all
+    containers:
+      - name: all
+        resources: {}
+      - name: monitoragent
+        resources: {}
+  - name: ui
+    containers:
+      - name: ui
+        resources: {}
+      - name: monitoragent
+        resources: {}
+  - name: mea
+    containers:
+      - name: mea
+        resources: {}
+      - name: monitoragent
+        resources: {}
+  - name: rpt
+    containers:
+      - name: rpt
+        resources: {}
+      - name: monitoragent
+        resources: {}
+  - name: cron
+    containers:
+      - name: cron
+        resources: {}
+      - name: monitoragent
+        resources: {}
+  - name: jms
+    containers:
+      - name: jms
+        resources: {}

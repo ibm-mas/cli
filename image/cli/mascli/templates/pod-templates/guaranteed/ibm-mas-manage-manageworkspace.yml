@@ -24,3 +24,103 @@ podTemplates:
           limits:
             cpu: "2"
             memory: 4Gi
+  - name: all
+    containers:
+      - name: all
+        resources:
+          requests:
+            cpu: "6"
+            memory: 10Gi
+          limits:
+            cpu: "6"
+            memory: 10Gi
+      - name: monitoragent
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "1"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+  - name: ui
+    containers:
+      - name: ui
+        resources:
+          requests:
+            cpu: "6"
+            memory: 10Gi
+          limits:
+            cpu: "6"
+            memory: 10Gi
+      - name: monitoragent
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "1"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+  - name: mea
+    containers:
+      - name: mea
+        resources:
+          requests:
+            cpu: "6"
+            memory: 10Gi
+          limits:
+            cpu: "6"
+            memory: 10Gi
+      - name: monitoragent
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "1"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+  - name: rpt
+    containers:
+      - name: rpt
+        resources:
+          requests:
+            cpu: "6"
+            memory: 10Gi
+          limits:
+            cpu: "6"
+            memory: 10Gi
+      - name: monitoragent
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "1"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+  - name: cron
+    containers:
+      - name: cron
+        resources:
+          requests:
+            cpu: "6"
+            memory: 10Gi
+          limits:
+            cpu: "6"
+            memory: 10Gi
+      - name: monitoragent
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "1"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+  - name: jms
+    containers:
+      - name: jms
+        resources:
+          requests:
+            cpu: "6"
+            memory: 10Gi
+          limits:
+            cpu: "6"
+            memory: 10Gi
