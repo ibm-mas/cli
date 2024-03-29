@@ -349,6 +349,20 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Unable to determine kafka provider and version: {e}")
 
+    # Lookup SLS version
+    # -------------------------------------------------------------------------
+    try:
+        crs = dynClient.resources.get(api_version="sls.ibm.com/v1", kind="LicenseService")
+        cr = crs.get(name=f"sls", namespace="ibm-sls")
+        if cr.status and cr.status.versions:
+                slsVersion = cr.status.versions.reconciled
+                print(slsVersion)
+                setObject[f"target.slsVersion"] = slsVersion
+        else:
+            print(f"Unable to determine SLS version: status.versions unavailable")
+    except Exception as e:
+        print(f"Unable to determine SLS version: {e}")
+   
     # Connect to mongoDb
     # -------------------------------------------------------------------------
     client = MongoClient(os.getenv("DEVOPS_MONGO_URI"))
