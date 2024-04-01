@@ -10,7 +10,7 @@ spec:
     name: mas-update
 
   serviceAccountName: pipeline
-  timeout: 1h
+  timeout: 6h
 
   params:
     - name: ibm_entitlement_key
@@ -53,3 +53,5 @@ spec:
       value: '$CP4D_VERSION'
     - name: cp4d_update
       value: '$CP4D_UPDATE'
+    - name: cp4d_update_ws
+      value: '$CP4D_UPDATE_WS'

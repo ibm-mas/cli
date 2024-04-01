@@ -235,7 +235,7 @@ function validate_existing_cp4d() {
   
   # Lookup existing MongoDb instance
   CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
-  
+
   if [[ "$CP4D_INSTANCE_NAMESPACE" != "" ]]; then
     # Try fetching file storage class for CPD 4.6 format (storageClass property)
     CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.storageClass}' 2> /dev/null`
@@ -303,6 +303,25 @@ function validate_existing_cp4d() {
   fi
 }
 
+# Auto-detect Cloud Pak Data Service
+# -----------------------------------------------------------------------------
+# Validates the existance of installed Cloud Pak Data Service in the target cluster in the CP4D namespace
+# If service exists, then flag it to upgrade as we assume it must always run with same version as CP4D platform
+function validate_existing_cp4d_service() {
+  
+  CP4D_SERVICE_CRD=$1
+
+  # Lookup existing CP4D instance namespace
+  CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+
+  # Lookup existing CP4D instance
+  CP4D_SERVICE_EXISTS=`oc get $CP4D_SERVICE_CRD -n $CP4D_INSTANCE_NAMESPACE 2> /dev/null | awk '{print $1}'`
+
+  if [[ "$CP4D_SERVICE_EXISTS" != "" ]]; then
+    CP4D_SERVICE_UPDATE=true
+  fi 
+}
+
 # Validate Selected Catalog
 # -----------------------------------------------------------------------------
 # Validates that the selected catalog version is one that is suitable to use
@@ -332,6 +351,32 @@ function validate_update() {
 
   # Validates CP4D upgrade
   validate_existing_cp4d
+
+  if [[ "$CP4D_UPDATE" == true ]]; then
+    # Validates CP4D services upgrade - Watson Studio
+    validate_existing_cp4d_service 'ws.ws.cpd.ibm.com'
+    CP4D_UPDATE_WS=$CP4D_SERVICE_UPDATE
+
+    # Validates CP4D services upgrade - Watson Machine Learning
+    validate_existing_cp4d_service 'wmlbases.wml.cpd.ibm.com'
+    CP4D_UPDATE_WML=$CP4D_SERVICE_UPDATE
+
+    # Validates CP4D services upgrade - Spark
+    validate_existing_cp4d_service 'analyticsengines.ae.cpd.ibm.com'
+    CP4D_UPDATE_SPARK=$CP4D_SERVICE_UPDATE
+
+    # Validates CP4D services upgrade - Watson Openscale
+    validate_existing_cp4d_service 'woservices.wos.cpd.ibm.com'
+    CP4D_UPDATE_WOS=$CP4D_SERVICE_UPDATE
+
+    # Validates CP4D services upgrade - SPSS Modeler
+    validate_existing_cp4d_service 'spss.spssmodeler.cpd.ibm.com'
+    CP4D_UPDATE_WOS=$CP4D_SERVICE_UPDATE
+
+    # Validates CP4D services upgrade - Cognos
+    validate_existing_cp4d_service 'caservices.ca.cpd.ibm.com'
+    CP4D_UPDATE_COGNOS=$CP4D_SERVICE_UPDATE
+  fi
 
   # Validates UDS to DRO migration only if UDS is running and January catalog or more recent is used
   validate_dro_migration
@@ -522,6 +567,12 @@ function update() {
   export GRAFANA_V5_UPGRADE
   export CP4D_UPDATE
   export CP4D_VERSION
+  export CP4D_UPDATE_WS
+  export CP4D_UPDATE_WML
+  export CP4D_UPDATE_SPARK
+  export CP4D_UPDATE_WOS
+  export CP4D_UPDATE_SPSS
+  export CP4D_UPDATE_COGNOS
   export STORAGE_CLASS_RWO
   export STORAGE_CLASS_RWX
   export SKIP_ENTITLEMENT_KEY_FLAG
@@ -592,7 +643,46 @@ function update() {
     echo_reset_dim "Cloud Pak for Data ......................... ${COLOR_GREEN}${CP4D_CURRENT_VERSION} to ${CP4D_VERSION} ($CP4D_INSTANCE_NAMESPACE)${TEXT_RESET}"
     echo_reset_dim " - File Storage Class ...................... ${COLOR_GREEN}${STORAGE_CLASS_RWX}"
     echo_reset_dim " - Block Storage Class ..................... ${COLOR_GREEN}${STORAGE_CLASS_RWO}"
-    echo_reset_dim " - Skip IBM Entitlement Key ................ ${COLOR_GREEN}${SKIP_ENTITLEMENT_KEY_FLAG}"
+    
+    if [ "$CP4D_UPDATE_WS" == true ]; then
+      echo_reset_dim " - Watson Studio ........................... ${COLOR_GREEN}Yes${TEXT_RESET}"
+    else
+      echo_reset_dim " - Watson Studio ........................... ${COLOR_RED}No${TEXT_RESET}"
+    fi
+
+    if [ "$CP4D_UPDATE_WML" == true ]; then
+      echo_reset_dim " - Watson Machine Learning ................. ${COLOR_GREEN}Yes${TEXT_RESET}"
+    else
+      echo_reset_dim " - Watson Machine Learning ................. ${COLOR_RED}No${TEXT_RESET}"
+    fi
+
+    if [ "$CP4D_UPDATE_SPARK" == true ]; then
+      echo_reset_dim " - Analytics Engine ........................ ${COLOR_GREEN}Yes${TEXT_RESET}"
+    else
+      echo_reset_dim " - Watson Machine Learning ................. ${COLOR_RED}No${TEXT_RESET}"
+    fi
+
+    if [ "$CP4D_UPDATE_WOS" == true ]; then
+      echo_reset_dim " - Watson Openscale ........................ ${COLOR_GREEN}Yes${TEXT_RESET}"
+    else
+      echo_reset_dim " - Watson Openscale ........................ ${COLOR_RED}No${TEXT_RESET}"
+    fi
+
+    if [ "$CP4D_UPDATE_WML" == true ]; then
+      echo_reset_dim " - SPSS Modeler ............................ ${COLOR_GREEN}Yes${TEXT_RESET}"
+    else
+      echo_reset_dim " - SPSS Modeler ............................ ${COLOR_RED}No${TEXT_RESET}"
+    fi
+
+    if [ "$CP4D_UPDATE_WML" == true ]; then
+      echo_reset_dim " - Cognos Analytics ........................ ${COLOR_GREEN}Yes${TEXT_RESET}"
+    else
+      echo_reset_dim " - Cognos Analytics ........................ ${COLOR_RED}No${TEXT_RESET}"
+    fi
+
+    # Due the breaking changes introduced by Watson Discovery, this won't be upgradable via MAS CLI
+    echo_reset_dim " - Watson Discovery ........................ ${COLOR_RED}No${TEXT_RESET}"
+    
     reset_colors
   else
     echo_reset_dim "Cloud Pak for Data ......................... ${COLOR_RED}No${TEXT_RESET}"

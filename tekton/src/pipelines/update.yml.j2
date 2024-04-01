@@ -132,18 +132,28 @@ spec:
       type: string
       default: ""
       description: Flag that determines if CP4D must be upgraded
+    - name: cp4d_update_ws
+      type: string
+      default: ""
+      description: Flag that determines if Watson Studio must be upgraded
    
-    # Dependencies - CP4D
-    # -----------------------------------------------------------------------------
     - name: cpd_primary_storage_class
       type: string
       default: ""
     - name: cpd_metadata_storage_class
       type: string
       default: ""
+    - name: cpd_service_storage_class
+      type: string
+      default: ""
+    - name: cpd_service_block_storage_class
+      type: string
+      default: ""
     - name: cpd_product_version
       type: string
       default: ""
+
+
   tasks:
 {% if wait_for_install == true %}
     # 0. Wait for the install pipeline to complete
@@ -376,10 +386,34 @@ spec:
       runAfter:
         - update-cert-manager
 
-    {# # 6.2 Watson Studio
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-wsl.yml.j2') | indent(4) }}
+    # 6.2 Watson Studio
+    - name: update-watson-studio
+      params:
+        # Controls the image pull policy for the ibmmas/cli image
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: devops_suite_name
+          value: update-cp4d
+        - name: cpd_product_version
+          value: "$(params.cpd_product_version)"
+        - name: cpd_service_name
+          value: wsl
+        - name: cpd_service_storage_class
+          value: "$(params.storage_class_rwx)"
+        - name: cpd_service_block_storage_class
+          value: "$(params.storage_class_rwo)"
+        - name: cp4d_update_ws
+          value: $(params.cp4d_update_ws)
+      taskRef:
+        kind: Task
+        name: mas-devops-cp4d-service
+      # Only needed identified that current installed CPD version is lower than expected in catalog version
+      when:
+        - input: "$(params.cp4d_update_ws)"
+          operator: notin
+          values: [""]
       runAfter:
-        - cp4d #}
+        - update-cp4d
 
     {# # 6.3 Watson Machine Learning
     {{ lookup('template', 'taskdefs/cp4d/cp4d-wml.yml.j2') | indent(4) }}
