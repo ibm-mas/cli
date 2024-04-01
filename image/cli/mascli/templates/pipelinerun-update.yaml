@@ -55,3 +55,14 @@ spec:
       value: '$CP4D_UPDATE'
     - name: cp4d_update_ws
       value: '$CP4D_UPDATE_WS'
+    - name: cp4d_update_wml
+      value: '$CP4D_UPDATE_WML'
+    - name: cp4d_update_wos
+      value: '$CP4D_UPDATE_WOS'
+    - name: cp4d_update_spark
+      value: '$CP4D_UPDATE_SPARK'
+    - name: cp4d_update_spss
+      value: '$CP4D_UPDATE_SPSS'
+    - name: cp4d_update_cognos
+      value: '$CP4D_UPDATE_COGNOS'
+      

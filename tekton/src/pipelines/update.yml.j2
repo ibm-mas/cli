@@ -136,7 +136,26 @@ spec:
       type: string
       default: ""
       description: Flag that determines if Watson Studio must be upgraded
-   
+    - name: cp4d_update_wml
+      type: string
+      default: ""
+      description: Flag that determines if Watson Machine Learning must be upgraded
+    - name: cp4d_update_wos
+      type: string
+      default: ""
+      description: Flag that determines if Watson Openscale must be upgraded
+    - name: cp4d_update_spark
+      type: string
+      default: ""
+      description: Flag that determines if Analytics Engine must be upgraded
+    - name: cp4d_update_spss
+      type: string
+      default: ""
+      description: Flag that determines if SPSS Modeler must be upgraded
+    - name: cp4d_update_spss
+      type: string
+      default: ""
+      description: Flag that determines if Cognos Analytics must be upgraded
     - name: cpd_primary_storage_class
       type: string
       default: ""
@@ -352,100 +371,44 @@ spec:
           value: $(params.mas_instance_id)
 {% endif %}
 
-
-    # 6. Update Cloud Pak for Data
+    # 6 Update Cloud Pak for Data
     # -------------------------------------------------------------------------
     # 6.1 Cloud Pak for Data Platform
-    - name: update-cp4d
-      params:
-        # Controls the image pull policy for the ibmmas/cli image
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: devops_suite_name
-          value: update-cp4d
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
-        - name: skip_entitlement_key_flag
-          value: $(params.skip_entitlement_key_flag)
-        - name: cpd_product_version
-          value: $(params.cpd_product_version)
-        - name: cpd_primary_storage_class
-          value: $(params.storage_class_rwx)
-        - name: cpd_metadata_storage_class
-          value: $(params.storage_class_rwo)
-        - name: cp4d_update
-          value: $(params.cp4d_update)
-      taskRef:
-        kind: Task
-        name: mas-devops-cp4d
-      # Only needed identified that current installed CPD version is lower than expected in catalog version
-      when:
-        - input: "$(params.cp4d_update)"
-          operator: notin
-          values: [""]
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-platform-update.yml.j2') | indent(4) }}
       runAfter:
         - update-cert-manager
 
     # 6.2 Watson Studio
-    - name: update-watson-studio
-      params:
-        # Controls the image pull policy for the ibmmas/cli image
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: devops_suite_name
-          value: update-cp4d
-        - name: cpd_product_version
-          value: "$(params.cpd_product_version)"
-        - name: cpd_service_name
-          value: wsl
-        - name: cpd_service_storage_class
-          value: "$(params.storage_class_rwx)"
-        - name: cpd_service_block_storage_class
-          value: "$(params.storage_class_rwo)"
-        - name: cp4d_update_ws
-          value: $(params.cp4d_update_ws)
-      taskRef:
-        kind: Task
-        name: mas-devops-cp4d-service
-      # Only needed identified that current installed CPD version is lower than expected in catalog version
-      when:
-        - input: "$(params.cp4d_update_ws)"
-          operator: notin
-          values: [""]
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-wsl-update.yml.j2') | indent(4) }}
       runAfter:
         - update-cp4d
 
-    {# # 6.3 Watson Machine Learning
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-wml.yml.j2') | indent(4) }}
+    # 6.3 Watson Machine Learning
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-wml-update.yml.j2') | indent(4) }}
       runAfter:
         - cp4d
 
     # 6.4 Analytics Service (Spark)
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-spark.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-spark-update.yml.j2') | indent(4) }}
       runAfter:
         - cp4d
 
     # 6.5 Watson OpenScale
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-aiopenscale.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-aiopenscale-update.yml.j2') | indent(4) }}
       runAfter:
         - cp4d
 
     # 6.6 SPSS Statistics
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-spss.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-spss-update.yml.j2') | indent(4) }}
       runAfter:
         - cp4d
 
-    # 6.7 Watson Discovery
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-discovery.yml.j2') | indent(4) }}
+    # 6.7 Cognos Analytics
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-cognos-update.yml.j2') | indent(4) }}
       runAfter:
         - cp4d
 
-    # 6.8 Cognos Analytics
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-cognos.yml.j2') | indent(4) }}
-      runAfter:
-        - cp4d #}
-
-    # 6. Verify health of the cluster after dependencies updates
+    # 7. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
         'name': 'post-deps-update-verify',
@@ -460,6 +423,12 @@ spec:
         - update-uds
         - update-grafana
         - update-cp4d
+        - update-watson-studio
+        - update-watson-machine-learning
+        - update-aiopenscale
+        - update-analytics-engine
+        - update-spss
+        - update-cognos
 
 {% if wait_for_install == true %}
   # In FVT only this is the time to take a must-gather and finalize the result

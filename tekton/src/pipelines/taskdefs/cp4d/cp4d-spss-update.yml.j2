@@ -1,0 +1,24 @@
+- name: update-spss
+  params:
+    # Controls the image pull policy for the ibmmas/cli image
+    - name: image_pull_policy
+      value: $(params.image_pull_policy)
+    - name: devops_suite_name
+      value: update-cp4d-spss
+    - name: cpd_product_version
+      value: "$(params.cpd_product_version)"
+    - name: cpd_service_name
+      value: spss
+    - name: cpd_service_storage_class
+      value: "$(params.storage_class_rwx)"
+    - name: cpd_service_block_storage_class
+      value: "$(params.storage_class_rwo)"
+    - name: cp4d_update_spss
+      value: $(params.cp4d_update_spss)
+  taskRef:
+    kind: Task
+    name: mas-devops-cp4d-service
+  when:
+    - input: "$(params.cp4d_update_spss)"
+      operator: notin
+      values: [""]
