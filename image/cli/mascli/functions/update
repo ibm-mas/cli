@@ -228,6 +228,29 @@ function detect_grafana_update() {
   fi
 }
 
+# Auto-detect Cloud Pak Data Service
+# -----------------------------------------------------------------------------
+# Validates the existance of installed Cloud Pak Data Service in the target cluster in the CP4D namespace
+# If service exists, then flag it to upgrade as we assume it must always run with same version as CP4D platform
+function validate_existing_cp4d_service() {
+  
+  CP4D_SERVICE_CRD=$1
+  CP4D_SERVICE_NAME=$2
+
+  # Lookup existing CP4D instance namespace
+  CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+
+  # Lookup existing CP4D instance
+  echo -e "${COLOR_YELLOW}Verifying current Cloud Pak for Data Service $CP4D_SERVICE_NAME deployment status..."
+  CP4D_SERVICE_EXISTS=`oc get $CP4D_SERVICE_CRD -n $CP4D_INSTANCE_NAMESPACE 2> /dev/null | awk '{print $1}'`
+
+  if [[ "$CP4D_SERVICE_EXISTS" != "" ]]; then
+    CP4D_SERVICE_UPDATE=true
+  else
+    CP4D_SERVICE_UPDATE=""
+  fi 
+}
+
 # Auto-detect Cloud Pak Data
 # -----------------------------------------------------------------------------
 # Validates the existance of installed Cloud Pak Data in the target cluster
@@ -302,30 +325,35 @@ function validate_existing_cp4d() {
       SKIP_ENTITLEMENT_KEY_FLAG=true # this will skip ibm-entitlement-key assertion in cp4d role
     fi
 
+    # Check if CP4D services are installed, if found then flag them to be upgraded
+    if [[ "$CP4D_UPDATE" == true ]]; then
+    
+      # Validates CP4D services upgrade - Watson Studio
+      validate_existing_cp4d_service 'ws.ws.cpd.ibm.com' 'Watson Studio'
+      CP4D_UPDATE_WS=$CP4D_SERVICE_UPDATE
+
+      # Validates CP4D services upgrade - Watson Machine Learning
+      validate_existing_cp4d_service 'wmlbases.wml.cpd.ibm.com' 'Watson Machine Learning'
+      CP4D_UPDATE_WML=$CP4D_SERVICE_UPDATE
+
+      # Validates CP4D services upgrade - Spark
+      validate_existing_cp4d_service 'analyticsengines.ae.cpd.ibm.com' 'Analytics Engine'
+      CP4D_UPDATE_SPARK=$CP4D_SERVICE_UPDATE
+
+      # Validates CP4D services upgrade - Watson Openscale
+      validate_existing_cp4d_service 'woservices.wos.cpd.ibm.com' 'Watson Openscale'
+      CP4D_UPDATE_WOS=$CP4D_SERVICE_UPDATE
+
+      # Validates CP4D services upgrade - SPSS Modeler
+      validate_existing_cp4d_service 'spss.spssmodeler.cpd.ibm.com' 'SPSS Modeler'
+      CP4D_UPDATE_SPSS=$CP4D_SERVICE_UPDATE
+
+      # Validates CP4D services upgrade - Cognos
+      validate_existing_cp4d_service 'caservices.ca.cpd.ibm.com' 'Cognos Analytics'
+      CP4D_UPDATE_COGNOS=$CP4D_SERVICE_UPDATE
+    fi
+
   fi
-}
-
-# Auto-detect Cloud Pak Data Service
-# -----------------------------------------------------------------------------
-# Validates the existance of installed Cloud Pak Data Service in the target cluster in the CP4D namespace
-# If service exists, then flag it to upgrade as we assume it must always run with same version as CP4D platform
-function validate_existing_cp4d_service() {
-  
-  CP4D_SERVICE_CRD=$1
-  CP4D_SERVICE_NAME=$2
-
-  # Lookup existing CP4D instance namespace
-  CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
-
-  # Lookup existing CP4D instance
-  echo -e "${COLOR_YELLOW}Verifying current Cloud Pak for Data Service $CP4D_SERVICE_NAME deployment status..."
-  CP4D_SERVICE_EXISTS=`oc get $CP4D_SERVICE_CRD -n $CP4D_INSTANCE_NAMESPACE 2> /dev/null | awk '{print $1}'`
-
-  if [[ "$CP4D_SERVICE_EXISTS" != "" ]]; then
-    CP4D_SERVICE_UPDATE=true
-  else
-    CP4D_SERVICE_UPDATE=""
-  fi 
 }
 
 # Validate Selected Catalog
@@ -357,32 +385,6 @@ function validate_update() {
 
   # Validates CP4D upgrade
   validate_existing_cp4d
-
-  if [[ "$CP4D_UPDATE" == true ]]; then
-    # Validates CP4D services upgrade - Watson Studio
-    validate_existing_cp4d_service 'ws.ws.cpd.ibm.com' 'Watson Studio'
-    CP4D_UPDATE_WS=$CP4D_SERVICE_UPDATE
-
-    # Validates CP4D services upgrade - Watson Machine Learning
-    validate_existing_cp4d_service 'wmlbases.wml.cpd.ibm.com' 'Watson Machine Learning'
-    CP4D_UPDATE_WML=$CP4D_SERVICE_UPDATE
-
-    # Validates CP4D services upgrade - Spark
-    validate_existing_cp4d_service 'analyticsengines.ae.cpd.ibm.com' 'Analytics Engine'
-    CP4D_UPDATE_SPARK=$CP4D_SERVICE_UPDATE
-
-    # Validates CP4D services upgrade - Watson Openscale
-    validate_existing_cp4d_service 'woservices.wos.cpd.ibm.com' 'Watson Openscale'
-    CP4D_UPDATE_WOS=$CP4D_SERVICE_UPDATE
-
-    # Validates CP4D services upgrade - SPSS Modeler
-    validate_existing_cp4d_service 'spss.spssmodeler.cpd.ibm.com' 'SPSS Modeler'
-    CP4D_UPDATE_SPSS=$CP4D_SERVICE_UPDATE
-
-    # Validates CP4D services upgrade - Cognos
-    validate_existing_cp4d_service 'caservices.ca.cpd.ibm.com' 'Cognos Analytics'
-    CP4D_UPDATE_COGNOS=$CP4D_SERVICE_UPDATE
-  fi
 
   # Validates UDS to DRO migration only if UDS is running and January catalog or more recent is used
   validate_dro_migration

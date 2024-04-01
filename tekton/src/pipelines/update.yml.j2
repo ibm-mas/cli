@@ -152,7 +152,7 @@ spec:
       type: string
       default: ""
       description: Flag that determines if SPSS Modeler must be upgraded
-    - name: cp4d_update_spss
+    - name: cp4d_update_cognos
       type: string
       default: ""
       description: Flag that determines if Cognos Analytics must be upgraded
@@ -386,27 +386,27 @@ spec:
     # 6.3 Watson Machine Learning
     {{ lookup('template', 'taskdefs/cp4d/cp4d-wml-update.yml.j2') | indent(4) }}
       runAfter:
-        - cp4d
+        - update-cp4d
 
     # 6.4 Analytics Service (Spark)
     {{ lookup('template', 'taskdefs/cp4d/cp4d-spark-update.yml.j2') | indent(4) }}
       runAfter:
-        - cp4d
+        - update-cp4d
 
     # 6.5 Watson OpenScale
     {{ lookup('template', 'taskdefs/cp4d/cp4d-aiopenscale-update.yml.j2') | indent(4) }}
       runAfter:
-        - cp4d
+        - update-cp4d
 
     # 6.6 SPSS Statistics
     {{ lookup('template', 'taskdefs/cp4d/cp4d-spss-update.yml.j2') | indent(4) }}
       runAfter:
-        - cp4d
+        - update-cp4d
 
     # 6.7 Cognos Analytics
     {{ lookup('template', 'taskdefs/cp4d/cp4d-cognos-update.yml.j2') | indent(4) }}
       runAfter:
-        - cp4d
+        - update-cp4d
 
     # 7. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
