@@ -377,7 +377,7 @@ function validate_update() {
 
     # Validates CP4D services upgrade - SPSS Modeler
     validate_existing_cp4d_service 'spss.spssmodeler.cpd.ibm.com' 'SPSS Modeler'
-    CP4D_UPDATE_WOS=$CP4D_SERVICE_UPDATE
+    CP4D_UPDATE_SPSS=$CP4D_SERVICE_UPDATE
 
     # Validates CP4D services upgrade - Cognos
     validate_existing_cp4d_service 'caservices.ca.cpd.ibm.com' 'Cognos Analytics'
@@ -674,13 +674,13 @@ function update() {
       echo_reset_dim " - Watson Openscale ........................ ${COLOR_RED}No${TEXT_RESET}"
     fi
 
-    if [ "$CP4D_UPDATE_WML" == true ]; then
+    if [ "$CP4D_UPDATE_SPSS" == true ]; then
       echo_reset_dim " - SPSS Modeler ............................ ${COLOR_GREEN}Yes${TEXT_RESET}"
     else
       echo_reset_dim " - SPSS Modeler ............................ ${COLOR_RED}No${TEXT_RESET}"
     fi
 
-    if [ "$CP4D_UPDATE_WML" == true ]; then
+    if [ "$CP4D_UPDATE_COGNOS" == true ]; then
       echo_reset_dim " - Cognos Analytics ........................ ${COLOR_GREEN}Yes${TEXT_RESET}"
     else
       echo_reset_dim " - Cognos Analytics ........................ ${COLOR_RED}No${TEXT_RESET}"
