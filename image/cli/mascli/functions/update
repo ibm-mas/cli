@@ -323,6 +323,8 @@ function validate_existing_cp4d_service() {
 
   if [[ "$CP4D_SERVICE_EXISTS" != "" ]]; then
     CP4D_SERVICE_UPDATE=true
+  else
+    CP4D_SERVICE_UPDATE=""
   fi 
 }
 
