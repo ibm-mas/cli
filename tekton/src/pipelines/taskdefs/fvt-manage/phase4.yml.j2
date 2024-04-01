@@ -20,7 +20,6 @@
       value: sec-audit-log
   runAfter:
     - fvt-manage-escalation-action
-    - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
     - fvt-manage-birt-report
@@ -42,7 +41,6 @@
       value: sec-inactive-auth
   runAfter:
     - fvt-manage-escalation-action
-    - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
     - fvt-manage-birt-report
@@ -64,7 +62,6 @@
       value: mif-kafka-inbound
   runAfter:
     - fvt-manage-escalation-action
-    - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
     - fvt-manage-birt-report
@@ -86,7 +83,6 @@
       value: wo-doclink
   runAfter:
     - fvt-manage-escalation-action
-    - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
     - fvt-manage-birt-report
@@ -106,7 +102,6 @@
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
   runAfter:
     - fvt-manage-escalation-action
-    - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
     - fvt-manage-birt-report
@@ -128,7 +123,6 @@
       value: adhoc
   runAfter:
     - fvt-manage-escalation-action
-    - fvt-manage-autoscript-adddeletewo
     - fvt-manage-jms-inbound
     - fvt-manage-mif-kafka-setup
     - fvt-manage-birt-report
