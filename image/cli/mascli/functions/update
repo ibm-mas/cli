@@ -722,13 +722,13 @@ function update() {
     fi
 
     if [ "$CP4D_UPDATE_SPSS" == true ]; then
-      echo_reset_dim " - SPSS Modeler ............................ ${COLOR_GREEN}Yes - ${CP4D_SERVICE_CURRENT_VERSION_SPSS} to ${CP4D_SERVICE_TARGET_VERSION_SPSS}${TEXT_RESET}"
+      echo_reset_dim " - SPSS Modeler ............................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_SPSS} to ${CP4D_TARGET_VERSION_SPSS}${TEXT_RESET}"
     else
       echo_reset_dim " - SPSS Modeler ............................ ${COLOR_RED}No${TEXT_RESET}"
     fi
 
     if [ "$CP4D_UPDATE_COGNOS" == true ]; then
-      echo_reset_dim " - Cognos Analytics ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_SPARK} to ${CP4D_TARGET_VERSION_SPARK}${TEXT_RESET}"
+      echo_reset_dim " - Cognos Analytics ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_COGNOS} to ${CP4D_TARGET_VERSION_COGNOS}${TEXT_RESET}"
     else
       echo_reset_dim " - Cognos Analytics ........................ ${COLOR_RED}No${TEXT_RESET}"
     fi
