@@ -8,8 +8,10 @@ metadata:
   name: mas-update
 {% endif %}
 spec:
-{% if wait_for_install == true %}
   workspaces:
+    # The generated configuration files
+    - name: shared-configs
+{% if wait_for_install == true %}
     # Shared storage to hold mustgather output for tasks
     - name: shared-mustgather
 {% endif %}
