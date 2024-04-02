@@ -244,7 +244,7 @@ function validate_existing_cp4d_service() {
   # Lookup existing CP4D service version
   echo -e "${COLOR_YELLOW}Verifying current Cloud Pak for Data Service $CP4D_SERVICE_NAME deployment status..."
   CP4D_SERVICE_CURRENT_VERSION=`oc get $CP4D_SERVICE_CRD -n $CP4D_INSTANCE_NAMESPACE -o yaml | yq -r ".items[0].spec.version"`
-
+  
   # Only check if upgrade is needed if CP4D service is installed
   if [[ "$CP4D_SERVICE_CURRENT_VERSION" != "" ]]; then
 
@@ -693,25 +693,25 @@ function update() {
     echo_reset_dim " - Block Storage Class ..................... ${COLOR_GREEN}${STORAGE_CLASS_RWO}"
     
     if [ "$CP4D_UPDATE_WS" == true ]; then
-      echo_reset_dim " - Watson Studio ........................... ${COLOR_GREEN}Yes - ${CP4D_SERVICE_CURRENT_VERSION_WS} to ${CP4D_SERVICE_TARGET_VERSION_WS}${TEXT_RESET}"
+      echo_reset_dim " - Watson Studio ........................... ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WS} to ${CP4D_TARGET_VERSION_WS}${TEXT_RESET}"
     else
       echo_reset_dim " - Watson Studio ........................... ${COLOR_RED}No${TEXT_RESET}"
     fi
 
     if [ "$CP4D_UPDATE_WML" == true ]; then
-      echo_reset_dim " - Watson Machine Learning ................. ${COLOR_GREEN}Yes - ${CP4D_SERVICE_CURRENT_VERSION_WML} to ${CP4D_SERVICE_TARGET_VERSION_WML}${TEXT_RESET}"
+      echo_reset_dim " - Watson Machine Learning ................. ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WML} to ${CP4D_TARGET_VERSION_WML}${TEXT_RESET}"
     else
       echo_reset_dim " - Watson Machine Learning ................. ${COLOR_RED}No${TEXT_RESET}"
     fi
 
     if [ "$CP4D_UPDATE_SPARK" == true ]; then
-      echo_reset_dim " - Analytics Engine ........................ ${COLOR_GREEN}Yes - ${CP4D_SERVICE_CURRENT_VERSION_SPARK} to ${CP4D_SERVICE_TARGET_VERSION_SPARK}${TEXT_RESET}"
+      echo_reset_dim " - Analytics Engine ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_SPARK} to ${CP4D_TARGET_VERSION_SPARK}${TEXT_RESET}"
     else
       echo_reset_dim " - Analytics Engine ........................ ${COLOR_RED}No${TEXT_RESET}"
     fi
 
     if [ "$CP4D_UPDATE_WOS" == true ]; then
-      echo_reset_dim " - Watson Openscale ........................ ${COLOR_GREEN}Yes - ${CP4D_SERVICE_CURRENT_VERSION_WOS} to ${CP4D_SERVICE_TARGET_VERSION_WOS}${TEXT_RESET}"
+      echo_reset_dim " - Watson Openscale ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WOS} to ${CP4D_TARGET_VERSION_WOS}${TEXT_RESET}"
     else
       echo_reset_dim " - Watson Openscale ........................ ${COLOR_RED}No${TEXT_RESET}"
     fi
@@ -723,7 +723,7 @@ function update() {
     fi
 
     if [ "$CP4D_UPDATE_COGNOS" == true ]; then
-      echo_reset_dim " - Cognos Analytics ........................ ${COLOR_GREEN}Yes - ${CP4D_SERVICE_CURRENT_VERSION_SPARK} to ${CP4D_SERVICE_TARGET_VERSION_SPARK}${TEXT_RESET}"
+      echo_reset_dim " - Cognos Analytics ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_SPARK} to ${CP4D_TARGET_VERSION_SPARK}${TEXT_RESET}"
     else
       echo_reset_dim " - Cognos Analytics ........................ ${COLOR_RED}No${TEXT_RESET}"
     fi
