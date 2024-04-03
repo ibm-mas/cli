@@ -234,27 +234,27 @@ function detect_grafana_update() {
 }
 
 
-function validate_existing_cp4d_storage_class() {
+# function validate_existing_cp4d_storage_class() {
   
-  CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+#   CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
 
-  if [[ "$CP4D_INSTANCE_NAMESPACE" != "" ]]; then
-    # Try fetching file storage class for CPD 4.6 format (storageClass property)
-    CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.storageClass}' 2> /dev/null`
-    # If not found then try fetching file storage class for CPD 4.8 format (fileStorageClass property)
-    if [[ "$CPD_FILE_STORAGE_CLASS" == "" ]]; then
-      CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.fileStorageClass}' 2> /dev/null`
-    fi
+#   if [[ "$CP4D_INSTANCE_NAMESPACE" != "" ]]; then
+#     # Try fetching file storage class for CPD 4.6 format (storageClass property)
+#     CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.storageClass}' 2> /dev/null`
+#     # If not found then try fetching file storage class for CPD 4.8 format (fileStorageClass property)
+#     if [[ "$CPD_FILE_STORAGE_CLASS" == "" ]]; then
+#       CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.fileStorageClass}' 2> /dev/null`
+#     fi
 
-    # Try fetching block storage class for CPD 4.6 format (zenCoreMetadbStorageClass property)
-    CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.zenCoreMetadbStorageClass}' 2> /dev/null`
-    # If not found then try fetching file storage class for CPD 4.8 format (blockStorageClass property)
-    if [[ "$CPD_BLOCK_STORAGE_CLASS" == "" ]]; then
-      CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.blockStorageClass}' 2> /dev/null`
-    fi
+#     # Try fetching block storage class for CPD 4.6 format (zenCoreMetadbStorageClass property)
+#     CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.zenCoreMetadbStorageClass}' 2> /dev/null`
+#     # If not found then try fetching file storage class for CPD 4.8 format (blockStorageClass property)
+#     if [[ "$CPD_BLOCK_STORAGE_CLASS" == "" ]]; then
+#       CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.blockStorageClass}' 2> /dev/null`
+#     fi
 
-  fi
-}
+#   fi
+# }
 
 # Auto-detect Cloud Pak Data Service
 # -----------------------------------------------------------------------------
@@ -266,8 +266,8 @@ function validate_existing_cp4d_service() {
   CP4D_SERVICE_NAME=$2
   CP4D_SERVICE_ALIAS=$3
 
-  # Lookup existing CP4D storage classes
-  validate_existing_cp4d_storage_class
+  # # Lookup existing CP4D storage classes
+  # validate_existing_cp4d_storage_class
 
   # Target cp4d version will be defined by chosen catalog/casebundle
   if [[ "$CP4D_VERSION" == "" ]]; then
@@ -311,7 +311,23 @@ function validate_existing_cp4d() {
   # Lookup existing CP4D instance
   echo -e "${COLOR_YELLOW}Verifying current Cloud Pak for Data deployment status..."
   
-  validate_existing_cp4d_storage_class
+  CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+
+  if [[ "$CP4D_INSTANCE_NAMESPACE" != "" ]]; then
+    # Try fetching file storage class for CPD 4.6 format (storageClass property)
+    CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.storageClass}' 2> /dev/null`
+    # If not found then try fetching file storage class for CPD 4.8 format (fileStorageClass property)
+    if [[ "$CPD_FILE_STORAGE_CLASS" == "" ]]; then
+      CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.fileStorageClass}' 2> /dev/null`
+    fi
+
+    # Try fetching block storage class for CPD 4.6 format (zenCoreMetadbStorageClass property)
+    CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.zenCoreMetadbStorageClass}' 2> /dev/null`
+    # If not found then try fetching file storage class for CPD 4.8 format (blockStorageClass property)
+    if [[ "$CPD_BLOCK_STORAGE_CLASS" == "" ]]; then
+      CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.blockStorageClass}' 2> /dev/null`
+    fi
+  fi
 
   # Lookup existing CP4D instance
   CP4D_CURRENT_VERSION=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.version}' 2> /dev/null`
@@ -709,8 +725,13 @@ function update() {
   else
     echo_reset_dim "Cloud Pak for Data Platform ................ ${COLOR_RED}No${TEXT_RESET}"
   
-  if [ "$CP4D_VERSION" == true ]; then
+  if [ "$CP4D_VERSION" != "" ]; then
     echo_reset_dim " - Version ................................. ${COLOR_GREEN}${CP4D_VERSION}${TEXT_RESET}"
+  fi
+
+  if [[ "$STORAGE_CLASS_RWO" != "" && "$STORAGE_CLASS_RWX" != "" ]]; then
+    echo_reset_dim " - File Storage Class ...................... ${COLOR_GREEN}${STORAGE_CLASS_RWX}${TEXT_RESET}"
+    echo_reset_dim " - Block Storage Class ..................... ${COLOR_GREEN}${STORAGE_CLASS_RWO}${TEXT_RESET}"
   fi
 
   # Cloud Pak for Data Services
