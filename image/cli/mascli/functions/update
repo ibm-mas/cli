@@ -263,6 +263,10 @@ function validate_existing_cp4d_service() {
     # Lookup expected CP4D service version
     yq -r .data.release_components_meta ansible-devops/roles/cp4d/templates/config_maps/olm-utils-cm-$CP4D_VERSION.yml.j2 -o yaml > olm-utils.yaml
     CP4D_SERVICE_TARGET_VERSION=$(yq -r .$CP4D_SERVICE_ALIAS.cr_version olm-utils.yaml)
+    if [[ $? -ne 0 ]]; then
+      echo "Could not determine the target version for $CP4D_SERVICE_ALIAS. Skipping..."
+      CP4D_SERVICE_TARGET_VERSION=""
+    fi
     rm -rf olm-utils.yaml
     
     # Only check if upgrade is needed if CP4D service target version is set
