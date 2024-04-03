@@ -262,12 +262,13 @@ function validate_existing_cp4d_service() {
 
     # Lookup expected CP4D service version
     yq -r .data.release_components_meta ansible-devops/roles/cp4d/templates/config_maps/olm-utils-cm-$CP4D_VERSION.yml.j2 -o yaml > olm-utils.yaml
-    CP4D_SERVICE_TARGET_VERSION=$(yq -r .$CP4D_SERVICE_ALIAS.cr_version olm-utils.yaml)
     if [[ $? -ne 0 ]]; then
-      echo "Could not determine the target version for $CP4D_SERVICE_ALIAS. Skipping..."
+      echo "Could not determine the target version for $CP4D_SERVICE_ALIAS. Skipping upgrade for it ..."
       CP4D_SERVICE_TARGET_VERSION=""
+    else
+      CP4D_SERVICE_TARGET_VERSION=$(yq -r .$CP4D_SERVICE_ALIAS.cr_version olm-utils.yaml)
+      rm -rf olm-utils.yaml
     fi
-    rm -rf olm-utils.yaml
     
     # Only check if upgrade is needed if CP4D service target version is set
     if [[ "$CP4D_SERVICE_TARGET_VERSION" != "" ]]; then
@@ -731,7 +732,7 @@ function update() {
     # Cloud Pak for Data Services
     if [ "$CP4D_CURRENT_VERSION_WS" != "" ]; then
       if [ "$CP4D_UPDATE_WS" == true ]; then
-        echo_reset_dim " - Watson Studio ........................... ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WS} to ${CP4D_TARGET_VERSION_WS}${TEXT_RESET}"
+        echo_reset_dim " - Watson Studio ........................... ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WS} to ${CP4D_TARGET_VERSION_WS:-<default>}${TEXT_RESET}"
       else
         echo_reset_dim " - Watson Studio ........................... ${COLOR_RED}No${TEXT_RESET}"
       fi
@@ -739,7 +740,7 @@ function update() {
 
     if [ "$CP4D_CURRENT_VERSION_WML" != "" ]; then
       if [ "$CP4D_UPDATE_WML" == true ]; then
-        echo_reset_dim " - Watson Machine Learning ................. ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WML} to ${CP4D_TARGET_VERSION_WML}${TEXT_RESET}"
+        echo_reset_dim " - Watson Machine Learning ................. ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WML} to ${CP4D_TARGET_VERSION_WML:-<default>}${TEXT_RESET}"
       else
         echo_reset_dim " - Watson Machine Learning ................. ${COLOR_RED}No${TEXT_RESET}"
       fi
@@ -747,7 +748,7 @@ function update() {
 
     if [ "$CP4D_CURRENT_VERSION_SPARK" != "" ]; then
       if [ "$CP4D_UPDATE_SPARK" == true ]; then
-        echo_reset_dim " - Analytics Engine ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_SPARK} to ${CP4D_TARGET_VERSION_SPARK}${TEXT_RESET}"
+        echo_reset_dim " - Analytics Engine ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_SPARK} to ${CP4D_TARGET_VERSION_SPARK:-<default>}${TEXT_RESET}"
       else
         echo_reset_dim " - Analytics Engine ........................ ${COLOR_RED}No${TEXT_RESET}"
       fi
@@ -755,7 +756,7 @@ function update() {
 
     if [ "$CP4D_CURRENT_VERSION_WOS" != "" ]; then
       if [ "$CP4D_UPDATE_WOS" == true ]; then
-        echo_reset_dim " - Watson Openscale ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WOS} to ${CP4D_TARGET_VERSION_WOS}${TEXT_RESET}"
+        echo_reset_dim " - Watson Openscale ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WOS} to ${CP4D_TARGET_VERSION_WOS:-<default>}${TEXT_RESET}"
       else
         echo_reset_dim " - Watson Openscale ........................ ${COLOR_RED}No${TEXT_RESET}"
       fi
@@ -763,7 +764,7 @@ function update() {
 
     if [ "$CP4D_CURRENT_VERSION_SPSS" != "" ]; then
       if [ "$CP4D_UPDATE_SPSS" == true ]; then
-        echo_reset_dim " - SPSS Modeler ............................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_SPSS} to ${CP4D_TARGET_VERSION_SPSS}${TEXT_RESET}"
+        echo_reset_dim " - SPSS Modeler ............................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_SPSS} to ${CP4D_TARGET_VERSION_SPSS:-<default>}${TEXT_RESET}"
       else
         echo_reset_dim " - SPSS Modeler ............................ ${COLOR_RED}No${TEXT_RESET}"
       fi
@@ -771,7 +772,7 @@ function update() {
 
     if [ "$CP4D_CURRENT_VERSION_COGNOS" != "" ]; then
       if [ "$CP4D_UPDATE_COGNOS" == true ]; then
-        echo_reset_dim " - Cognos Analytics ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_COGNOS} to ${CP4D_TARGET_VERSION_COGNOS}${TEXT_RESET}"
+        echo_reset_dim " - Cognos Analytics ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_COGNOS} to ${CP4D_TARGET_VERSION_COGNOS:-<Default>}${TEXT_RESET}"
       else
         echo_reset_dim " - Cognos Analytics ........................ ${COLOR_RED}No${TEXT_RESET}"
       fi
