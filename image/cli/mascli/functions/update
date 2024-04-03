@@ -233,6 +233,31 @@ function detect_grafana_update() {
   fi
 }
 
+
+function validate_existing_cp4d_storage_class() {
+  
+  # Lookup existing CP4D instance
+  echo -e "${COLOR_YELLOW}Verifying current Cloud Pak for Data deployment status..."
+  CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+
+  if [[ "$CP4D_INSTANCE_NAMESPACE" != "" ]]; then
+    # Try fetching file storage class for CPD 4.6 format (storageClass property)
+    CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.storageClass}' 2> /dev/null`
+    # If not found then try fetching file storage class for CPD 4.8 format (fileStorageClass property)
+    if [[ "$CPD_FILE_STORAGE_CLASS" == "" ]]; then
+      CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.fileStorageClass}' 2> /dev/null`
+    fi
+
+    # Try fetching block storage class for CPD 4.6 format (zenCoreMetadbStorageClass property)
+    CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.zenCoreMetadbStorageClass}' 2> /dev/null`
+    # If not found then try fetching file storage class for CPD 4.8 format (blockStorageClass property)
+    if [[ "$CPD_BLOCK_STORAGE_CLASS" == "" ]]; then
+      CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.blockStorageClass}' 2> /dev/null`
+    fi
+
+  fi
+}
+
 # Auto-detect Cloud Pak Data Service
 # -----------------------------------------------------------------------------
 # Validates the existance of installed Cloud Pak Data Service in the target cluster in the CP4D namespace
@@ -243,8 +268,14 @@ function validate_existing_cp4d_service() {
   CP4D_SERVICE_NAME=$2
   CP4D_SERVICE_ALIAS=$3
 
-  # Lookup existing CP4D instance namespace
-  CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+  # Lookup existing CP4D instance namespace and storage classes
+  validate_existing_cp4d_storage_class
+
+  # Target cp4d version will be defined by chosen catalog/casebundle
+  if [[ "$CP4D_VERSION" == "" ]]; then
+    CP4D_TARGET_VERSION=`yq -r .cpd_product_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml`
+    CP4D_VERSION=$CP4D_TARGET_VERSION
+  fi
 
   # Lookup existing CP4D service version
   echo -e "${COLOR_YELLOW}Verifying current Cloud Pak for Data Service $CP4D_SERVICE_NAME deployment status..."
@@ -280,35 +311,18 @@ function validate_existing_cp4d_service() {
 # and prints a warning message if Cloud Pak Data is supposed to be upgraded
 function validate_existing_cp4d() {
   
-  # Lookup existing MongoDb instance
-  echo -e "${COLOR_YELLOW}Verifying current Cloud Pak for Data deployment status..."
-  CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+  validate_existing_cp4d_storage_class
 
-  if [[ "$CP4D_INSTANCE_NAMESPACE" != "" ]]; then
-    # Try fetching file storage class for CPD 4.6 format (storageClass property)
-    CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.storageClass}' 2> /dev/null`
-    # If not found then try fetching file storage class for CPD 4.8 format (fileStorageClass property)
-    if [[ "$CPD_FILE_STORAGE_CLASS" == "" ]]; then
-      CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.fileStorageClass}' 2> /dev/null`
-    fi
-
-    # Try fetching block storage class for CPD 4.6 format (zenCoreMetadbStorageClass property)
-    CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.zenCoreMetadbStorageClass}' 2> /dev/null`
-    # If not found then try fetching file storage class for CPD 4.8 format (blockStorageClass property)
-    if [[ "$CPD_BLOCK_STORAGE_CLASS" == "" ]]; then
-      CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.blockStorageClass}' 2> /dev/null`
-    fi
-
-  fi
-
-  # Lookup existing MongoDb instance
+  # Lookup existing CP4D instance
   CP4D_CURRENT_VERSION=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.version}' 2> /dev/null`
   
   # Target cp4d version will be defined by chosen catalog/casebundle
-  CP4D_TARGET_VERSION=`yq -r .cpd_product_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml`
+  if [[ "$CP4D_VERSION" == "" ]]; then
+    CP4D_VERSION=`yq -r .cpd_product_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml`
+  fi
 
   # Check if CP4D is currently installed, if not then don't bother trying to upgrade
-  if [[ "$CP4D_CURRENT_VERSION" != "" && "$CP4D_TARGET_VERSION" != "" ]]; then
+  if [[ "$CP4D_CURRENT_VERSION" != "" && "$CP4D_VERSION" != "" ]]; then
     CP4D_CURRENT_MAJORMINOR_VERSION=${CP4D_CURRENT_VERSION:0:3}
     CP4D_TARGET_MAJORMINOR_VERSION=${CP4D_TARGET_VERSION:0:3}
 
@@ -321,7 +335,6 @@ function validate_existing_cp4d() {
         echo
         echo_highlight "It is recommended that you backup your Cloud Pak for Data instance before proceeding:"
         echo -e "${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/cloud-paks/cp-data/4.8.x?topic=administering-backing-up-restoring-cloud-pak-data${TEXT_RESET}"
-        CP4D_VERSION=$CP4D_TARGET_VERSION
         STORAGE_CLASS_RWX=$CPD_FILE_STORAGE_CLASS
         STORAGE_CLASS_RWO=$CPD_BLOCK_STORAGE_CLASS
         echo
@@ -329,16 +342,15 @@ function validate_existing_cp4d() {
     fi
 
     # Set CP4D_UPDATE is current CP4D version is lower than expected
-    if [ ! "$(printf '%s\n' "$CP4D_TARGET_VERSION" "$CP4D_CURRENT_VERSION" | sort -V | head -n1)" = "$CP4D_TARGET_VERSION" ]; then
-      CP4D_VERSION=$CP4D_TARGET_VERSION
+    if [ ! "$(printf '%s\n' "$CP4D_VERSION" "$CP4D_CURRENT_VERSION" | sort -V | head -n1)" = "$CP4D_VERSION" ]; then
       STORAGE_CLASS_RWX=$CPD_FILE_STORAGE_CLASS
       STORAGE_CLASS_RWO=$CPD_BLOCK_STORAGE_CLASS
     fi
 
     # Check that current CP4D version is lower or equal than target CP4D version, if not block user from downgrading CP4D
-    if [ ! "$(printf '%s\n' "$CP4D_CURRENT_VERSION" "$CP4D_TARGET_VERSION" | sort -V | head -n1)" = "$CP4D_CURRENT_VERSION" ]; then
+    if [ ! "$(printf '%s\n' "$CP4D_CURRENT_VERSION" "$CP4D_VERSION" | sort -V | head -n1)" = "$CP4D_CURRENT_VERSION" ]; then
         echo
-        echo -e "${COLOR_RED}Cloud Pak for Data is currently running on version ${CP4D_CURRENT_VERSION} and cannot be downgraded to target version ${CP4D_TARGET_VERSION}, which is the Cloud Pak for Data version you would get when choosing MAS catalog '$MAS_CATALOG_VERSION'"
+        echo -e "${COLOR_RED}Cloud Pak for Data is currently running on version ${CP4D_CURRENT_VERSION} and cannot be downgraded to target version ${CP4D_VERSION}, which is the Cloud Pak for Data version you would get when choosing MAS catalog '$MAS_CATALOG_VERSION'"
         exit 1
     fi
 
