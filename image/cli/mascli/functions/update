@@ -353,44 +353,46 @@ function validate_existing_cp4d() {
         exit 1
     fi
 
-    # Check if CP4D services are installed, if found then flag them to be upgraded
-    
-    # Validates CP4D services upgrade - Watson Studio
-    validate_existing_cp4d_service 'ws.ws.cpd.ibm.com' 'Watson Studio' 'ws'
-    CP4D_UPDATE_WS=$CP4D_SERVICE_UPDATE
-    CP4D_CURRENT_VERSION_WS=$CP4D_SERVICE_CURRENT_VERSION
-    CP4D_TARGET_VERSION_WS=$CP4D_SERVICE_TARGET_VERSION
+    # Only check CP4D services if CP4D platform is installed in first place
+    if [[ "$CP4D_CURRENT_VERSION" != "" ]]; then
+      # Check if CP4D services are installed, if found then flag them to be upgraded
 
-    # Validates CP4D services upgrade - Watson Machine Learning
-    validate_existing_cp4d_service 'wmlbases.wml.cpd.ibm.com' 'Watson Machine Learning' 'wml'
-    CP4D_UPDATE_WML=$CP4D_SERVICE_UPDATE
-    CP4D_CURRENT_VERSION_WML=$CP4D_SERVICE_CURRENT_VERSION
-    CP4D_TARGET_VERSION_WML=$CP4D_SERVICE_TARGET_VERSION
+      # Validates CP4D services upgrade - Watson Studio
+      validate_existing_cp4d_service 'ws.ws.cpd.ibm.com' 'Watson Studio' 'ws'
+      CP4D_UPDATE_WS=$CP4D_SERVICE_UPDATE
+      CP4D_CURRENT_VERSION_WS=$CP4D_SERVICE_CURRENT_VERSION
+      CP4D_TARGET_VERSION_WS=$CP4D_SERVICE_TARGET_VERSION
 
-    # Validates CP4D services upgrade - Spark
-    validate_existing_cp4d_service 'analyticsengines.ae.cpd.ibm.com' 'Analytics Engine' 'analyticsengine'
-    CP4D_UPDATE_SPARK=$CP4D_SERVICE_UPDATE
-    CP4D_CURRENT_VERSION_SPARK=$CP4D_SERVICE_CURRENT_VERSION
-    CP4D_TARGET_VERSION_SPARK=$CP4D_SERVICE_TARGET_VERSION
+      # Validates CP4D services upgrade - Watson Machine Learning
+      validate_existing_cp4d_service 'wmlbases.wml.cpd.ibm.com' 'Watson Machine Learning' 'wml'
+      CP4D_UPDATE_WML=$CP4D_SERVICE_UPDATE
+      CP4D_CURRENT_VERSION_WML=$CP4D_SERVICE_CURRENT_VERSION
+      CP4D_TARGET_VERSION_WML=$CP4D_SERVICE_TARGET_VERSION
 
-    # Validates CP4D services upgrade - Watson Openscale
-    validate_existing_cp4d_service 'woservices.wos.cpd.ibm.com' 'Watson Openscale' 'openscale'
-    CP4D_UPDATE_WOS=$CP4D_SERVICE_UPDATE
-    CP4D_CURRENT_VERSION_WOS=$CP4D_SERVICE_CURRENT_VERSION
-    CP4D_TARGET_VERSION_WOS=$CP4D_SERVICE_TARGET_VERSION
+      # Validates CP4D services upgrade - Spark
+      validate_existing_cp4d_service 'analyticsengines.ae.cpd.ibm.com' 'Analytics Engine' 'analyticsengine'
+      CP4D_UPDATE_SPARK=$CP4D_SERVICE_UPDATE
+      CP4D_CURRENT_VERSION_SPARK=$CP4D_SERVICE_CURRENT_VERSION
+      CP4D_TARGET_VERSION_SPARK=$CP4D_SERVICE_TARGET_VERSION
 
-    # Validates CP4D services upgrade - SPSS Modeler
-    validate_existing_cp4d_service 'spss.spssmodeler.cpd.ibm.com' 'SPSS Modeler' 'spss'
-    CP4D_UPDATE_SPSS=$CP4D_SERVICE_UPDATE
-    CP4D_CURRENT_VERSION_SPSS=$CP4D_SERVICE_CURRENT_VERSION
-    CP4D_TARGET_VERSION_SPSS=$CP4D_SERVICE_TARGET_VERSION
+      # Validates CP4D services upgrade - Watson Openscale
+      validate_existing_cp4d_service 'woservices.wos.cpd.ibm.com' 'Watson Openscale' 'openscale'
+      CP4D_UPDATE_WOS=$CP4D_SERVICE_UPDATE
+      CP4D_CURRENT_VERSION_WOS=$CP4D_SERVICE_CURRENT_VERSION
+      CP4D_TARGET_VERSION_WOS=$CP4D_SERVICE_TARGET_VERSION
 
-    # Validates CP4D services upgrade - Cognos
-    validate_existing_cp4d_service 'caservices.ca.cpd.ibm.com' 'Cognos Analytics' 'cognos_analytics'
-    CP4D_UPDATE_COGNOS=$CP4D_SERVICE_UPDATE
-    CP4D_CURRENT_VERSION_COGNOS=$CP4D_SERVICE_CURRENT_VERSION
-    CP4D_TARGET_VERSION_COGNOS=$CP4D_SERVICE_TARGET_VERSION
+      # Validates CP4D services upgrade - SPSS Modeler
+      validate_existing_cp4d_service 'spss.spssmodeler.cpd.ibm.com' 'SPSS Modeler' 'spss'
+      CP4D_UPDATE_SPSS=$CP4D_SERVICE_UPDATE
+      CP4D_CURRENT_VERSION_SPSS=$CP4D_SERVICE_CURRENT_VERSION
+      CP4D_TARGET_VERSION_SPSS=$CP4D_SERVICE_TARGET_VERSION
 
+      # Validates CP4D services upgrade - Cognos
+      validate_existing_cp4d_service 'caservices.ca.cpd.ibm.com' 'Cognos Analytics' 'cognos_analytics'
+      CP4D_UPDATE_COGNOS=$CP4D_SERVICE_UPDATE
+      CP4D_CURRENT_VERSION_COGNOS=$CP4D_SERVICE_CURRENT_VERSION
+      CP4D_TARGET_VERSION_COGNOS=$CP4D_SERVICE_TARGET_VERSION
+    fi
   fi
 }
 
