@@ -17,11 +17,8 @@
       value: $(params.cp4d_update_wos)
   taskRef:
     kind: Task
-    name: mas-devops-cp4d-service
+    name: mas-devops-cp4d-service-update
   when:
     - input: "$(params.cp4d_update_wos)"
       operator: notin
       values: [""]
-  workspaces:
-    - name: configs
-      workspace: shared-configs

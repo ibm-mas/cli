@@ -28,7 +28,8 @@
         - common-services
         - cos
         - cos-deprovision
-        - cp4d_service
+        - cp4d-service
+        - cp4d-service-update
         - cp4d
         - db2
         - ibm-catalogs

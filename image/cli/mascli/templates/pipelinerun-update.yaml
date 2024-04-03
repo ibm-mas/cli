@@ -65,11 +65,3 @@ spec:
       value: '$CP4D_UPDATE_SPSS'
     - name: cp4d_update_cognos
       value: '$CP4D_UPDATE_COGNOS'
-
-  workspaces:
-    # The generated configuration files
-    # -------------------------------------------------------------------------
-    - name: shared-configs
-      persistentVolumeClaim:
-        claimName: config-pvc
-      
