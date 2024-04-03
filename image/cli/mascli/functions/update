@@ -10,7 +10,7 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Maximo Operator Catalog Selection (Required):
-  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}     Maximo Operator Catalog Version (e.g. v8-221129)
+  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}     Maximo Operator Catalog Version (e.g. v8-221129-amd64)
 
 Update Dependencies (Optional):
   --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}          DB2 namespace where instances update will be performed
@@ -19,6 +19,7 @@ Update Dependencies (Optional):
   --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}       Namespace where Kafka operator and instance will be updated
   --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}         Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), or 'strimzi'
   --dro-migration  ${COLOR_YELLOW}DRO_MIGRATION${TEXT_RESET}          Confirm the removal of UDS and replacement with DRO as part of the update
+  --cp4d-version  ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}            Optional. Set Cloud Pak for Data version for the upgrade. Note: This overrides the default CP4D version defined by the Maximo Operator Catalog version.
 
 Other Commands:
       --no-confirm                      Launch the update without prompting for confirmation
@@ -233,29 +234,6 @@ function detect_grafana_update() {
   fi
 }
 
-
-# function validate_existing_cp4d_storage_class() {
-  
-#   CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
-
-#   if [[ "$CP4D_INSTANCE_NAMESPACE" != "" ]]; then
-#     # Try fetching file storage class for CPD 4.6 format (storageClass property)
-#     CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.storageClass}' 2> /dev/null`
-#     # If not found then try fetching file storage class for CPD 4.8 format (fileStorageClass property)
-#     if [[ "$CPD_FILE_STORAGE_CLASS" == "" ]]; then
-#       CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.fileStorageClass}' 2> /dev/null`
-#     fi
-
-#     # Try fetching block storage class for CPD 4.6 format (zenCoreMetadbStorageClass property)
-#     CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.zenCoreMetadbStorageClass}' 2> /dev/null`
-#     # If not found then try fetching file storage class for CPD 4.8 format (blockStorageClass property)
-#     if [[ "$CPD_BLOCK_STORAGE_CLASS" == "" ]]; then
-#       CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.blockStorageClass}' 2> /dev/null`
-#     fi
-
-#   fi
-# }
-
 # Auto-detect Cloud Pak Data Service
 # -----------------------------------------------------------------------------
 # Validates the existance of installed Cloud Pak Data Service in the target cluster in the CP4D namespace
@@ -265,9 +243,6 @@ function validate_existing_cp4d_service() {
   CP4D_SERVICE_CRD=$1
   CP4D_SERVICE_NAME=$2
   CP4D_SERVICE_ALIAS=$3
-
-  # # Lookup existing CP4D storage classes
-  # validate_existing_cp4d_storage_class
 
   # Target cp4d version will be defined by chosen catalog/casebundle
   if [[ "$CP4D_VERSION" == "" ]]; then
@@ -310,8 +285,10 @@ function validate_existing_cp4d() {
   
   # Lookup existing CP4D instance
   echo -e "${COLOR_YELLOW}Verifying current Cloud Pak for Data deployment status..."
-  
-  CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+
+  if [[ "$CP4D_INSTANCE_NAMESPACE" == "" ]]; then
+    CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+  fi
 
   # Lookup existing CP4D instance storage classes
   if [[ "$STORAGE_CLASS_RWX" == "" && "$STORAGE_CLASS_RWO" == "" ]]; then
@@ -535,6 +512,10 @@ function update_noninteractive() {
         ;;
       --dro-migration)
         DRO_MIGRATION=true
+        ;;
+      --cp4d-version)
+        CP4D_UPDATE=true
+        CP4D_VERSION=$1 && shift
         ;;
       --no-confirm)
         NO_CONFIRM=true
