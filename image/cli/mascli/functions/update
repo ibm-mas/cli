@@ -313,19 +313,25 @@ function validate_existing_cp4d() {
   
   CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
 
-  if [[ "$CP4D_INSTANCE_NAMESPACE" != "" ]]; then
-    # Try fetching file storage class for CPD 4.6 format (storageClass property)
-    CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.storageClass}' 2> /dev/null`
-    # If not found then try fetching file storage class for CPD 4.8 format (fileStorageClass property)
-    if [[ "$CPD_FILE_STORAGE_CLASS" == "" ]]; then
-      CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.fileStorageClass}' 2> /dev/null`
-    fi
+  # Lookup existing CP4D instance storage classes
+  if [[ "$STORAGE_CLASS_RWX" == "" && "$STORAGE_CLASS_RWO" == "" ]]; then
+    if [[ "$CP4D_INSTANCE_NAMESPACE" != "" ]]; then
+      # Try fetching file storage class for CPD 4.6 format (storageClass property)
+      CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.storageClass}' 2> /dev/null`
+      # If not found then try fetching file storage class for CPD 4.8 format (fileStorageClass property)
+      if [[ "$CPD_FILE_STORAGE_CLASS" == "" ]]; then
+        CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.fileStorageClass}' 2> /dev/null`
+      fi
 
-    # Try fetching block storage class for CPD 4.6 format (zenCoreMetadbStorageClass property)
-    CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.zenCoreMetadbStorageClass}' 2> /dev/null`
-    # If not found then try fetching file storage class for CPD 4.8 format (blockStorageClass property)
-    if [[ "$CPD_BLOCK_STORAGE_CLASS" == "" ]]; then
-      CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.blockStorageClass}' 2> /dev/null`
+      # Try fetching block storage class for CPD 4.6 format (zenCoreMetadbStorageClass property)
+      CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.zenCoreMetadbStorageClass}' 2> /dev/null`
+      # If not found then try fetching file storage class for CPD 4.8 format (blockStorageClass property)
+      if [[ "$CPD_BLOCK_STORAGE_CLASS" == "" ]]; then
+        CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.blockStorageClass}' 2> /dev/null`
+      fi
+
+      STORAGE_CLASS_RWX=$CPD_FILE_STORAGE_CLASS
+      STORAGE_CLASS_RWO=$CPD_BLOCK_STORAGE_CLASS
     fi
   fi
 
@@ -351,16 +357,16 @@ function validate_existing_cp4d() {
         echo
         echo_highlight "It is recommended that you backup your Cloud Pak for Data instance before proceeding:"
         echo -e "${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/cloud-paks/cp-data/4.8.x?topic=administering-backing-up-restoring-cloud-pak-data${TEXT_RESET}"
-        STORAGE_CLASS_RWX=$CPD_FILE_STORAGE_CLASS
-        STORAGE_CLASS_RWO=$CPD_BLOCK_STORAGE_CLASS
+        CP4D_UPDATE=true
+        SKIP_ENTITLEMENT_KEY_FLAG=true # this will skip ibm-entitlement-key assertion in cp4d role
         echo
       fi
     fi
 
     # Set CP4D_UPDATE is current CP4D version is lower than expected
     if [ ! "$(printf '%s\n' "$CP4D_VERSION" "$CP4D_CURRENT_VERSION" | sort -V | head -n1)" = "$CP4D_VERSION" ]; then
-      STORAGE_CLASS_RWX=$CPD_FILE_STORAGE_CLASS
-      STORAGE_CLASS_RWO=$CPD_BLOCK_STORAGE_CLASS
+      CP4D_UPDATE=true
+      SKIP_ENTITLEMENT_KEY_FLAG=true
     fi
 
     # Check that current CP4D version is lower or equal than target CP4D version, if not block user from downgrading CP4D
@@ -368,12 +374,6 @@ function validate_existing_cp4d() {
         echo
         echo -e "${COLOR_RED}Cloud Pak for Data is currently running on version ${CP4D_CURRENT_VERSION} and cannot be downgraded to target version ${CP4D_VERSION}, which is the Cloud Pak for Data version you would get when choosing MAS catalog '$MAS_CATALOG_VERSION'"
         exit 1
-    fi
-
-    # Only allow CP4D update if all required params are set
-    if [[ "$CP4D_VERSION" != "" && "$STORAGE_CLASS_RWX" != ""  && "$STORAGE_CLASS_RWO" != "" ]]; then
-      CP4D_UPDATE=true
-      SKIP_ENTITLEMENT_KEY_FLAG=true # this will skip ibm-entitlement-key assertion in cp4d role
     fi
 
     # Check if CP4D services are installed, if found then flag them to be upgraded
