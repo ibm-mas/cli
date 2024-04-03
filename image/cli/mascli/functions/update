@@ -709,6 +709,10 @@ function update() {
   else
     echo_reset_dim "Cloud Pak for Data Platform ................ ${COLOR_RED}No${TEXT_RESET}"
   
+  if [ "$CP4D_VERSION" == true ]; then
+    echo_reset_dim " - Version ................................. ${COLOR_GREEN}${CP4D_VERSION}${TEXT_RESET}"
+  fi
+
   # Cloud Pak for Data Services
   if [ "$CP4D_UPDATE_WS" == true ]; then
     echo_reset_dim " - Watson Studio ........................... ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WS} to ${CP4D_TARGET_VERSION_WS}${TEXT_RESET}"
