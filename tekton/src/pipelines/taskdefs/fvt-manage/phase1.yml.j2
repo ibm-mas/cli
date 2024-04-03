@@ -8,14 +8,14 @@
 # -------------------------------------------------------------
 
 # Manage FVT Setup
-- name: fvt-manage-setup # convention: use fvt-manage-<keyword>, as the value of fvt_test_suite parameter
+- name: fvt-manage-setup
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
       value: base
     - name: fvt_test_suite
-      value: bvt
+      value: setup
   runAfter:
     - fvt-manage-usersync
 
