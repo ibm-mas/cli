@@ -701,61 +701,73 @@ function update() {
   fi
 
   # Cloud Pak for Data
-  if [ "$CP4D_UPDATE" == true ]; then
-    echo_reset_dim "Cloud Pak for Data Platform ................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION} to ${CP4D_VERSION} ($CP4D_INSTANCE_NAMESPACE)${TEXT_RESET}"
-  
-    if [[ "$STORAGE_CLASS_RWO" != "" && "$STORAGE_CLASS_RWX" != "" ]]; then
-    echo_reset_dim " - File Storage Class ...................... ${COLOR_GREEN}${STORAGE_CLASS_RWX}${TEXT_RESET}"
-    echo_reset_dim " - Block Storage Class ..................... ${COLOR_GREEN}${STORAGE_CLASS_RWO}${TEXT_RESET}"
+  # only print CP4D info if it's installed in first place
+  if [ "$CP4D_CURRENT_VERSION" != "" ]; then
+    if [ "$CP4D_UPDATE" == true ]; then
+      echo_reset_dim "Cloud Pak for Data Platform ................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION} to ${CP4D_VERSION} ($CP4D_INSTANCE_NAMESPACE)${TEXT_RESET}"
+    
+      if [[ "$STORAGE_CLASS_RWO" != "" && "$STORAGE_CLASS_RWX" != "" ]]; then
+      echo_reset_dim " - File Storage Class ...................... ${COLOR_GREEN}${STORAGE_CLASS_RWX}${TEXT_RESET}"
+      echo_reset_dim " - Block Storage Class ..................... ${COLOR_GREEN}${STORAGE_CLASS_RWO}${TEXT_RESET}"
+      fi
+
+      if [ "$CP4D_VERSION" != "" ]; then
+        echo_reset_dim " - Version ................................. ${COLOR_GREEN}${CP4D_VERSION}${TEXT_RESET}"
+      fi
+    else
+      echo_reset_dim "Cloud Pak for Data Platform ................ ${COLOR_RED}No${TEXT_RESET}"
     fi
 
-    if [ "$CP4D_VERSION" != "" ]; then
-      echo_reset_dim " - Version ................................. ${COLOR_GREEN}${CP4D_VERSION}${TEXT_RESET}"
+    # Cloud Pak for Data Services
+    if [ "$CP4D_CURRENT_VERSION_WS" != "" ]; then
+      if [ "$CP4D_UPDATE_WS" == true ]; then
+        echo_reset_dim " - Watson Studio ........................... ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WS} to ${CP4D_TARGET_VERSION_WS}${TEXT_RESET}"
+      else
+        echo_reset_dim " - Watson Studio ........................... ${COLOR_RED}No${TEXT_RESET}"
+      fi
     fi
-  else
-    echo_reset_dim "Cloud Pak for Data Platform ................ ${COLOR_RED}No${TEXT_RESET}"
+
+    if [ "$CP4D_CURRENT_VERSION_WML" != "" ]; then
+      if [ "$CP4D_UPDATE_WML" == true ]; then
+        echo_reset_dim " - Watson Machine Learning ................. ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WML} to ${CP4D_TARGET_VERSION_WML}${TEXT_RESET}"
+      else
+        echo_reset_dim " - Watson Machine Learning ................. ${COLOR_RED}No${TEXT_RESET}"
+      fi
+    fi
+
+    if [ "$CP4D_CURRENT_VERSION_SPARK" != "" ]; then
+      if [ "$CP4D_UPDATE_SPARK" == true ]; then
+        echo_reset_dim " - Analytics Engine ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_SPARK} to ${CP4D_TARGET_VERSION_SPARK}${TEXT_RESET}"
+      else
+        echo_reset_dim " - Analytics Engine ........................ ${COLOR_RED}No${TEXT_RESET}"
+      fi
+    fi
+
+    if [ "$CP4D_CURRENT_VERSION_WOS" != "" ]; then
+      if [ "$CP4D_UPDATE_WOS" == true ]; then
+        echo_reset_dim " - Watson Openscale ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WOS} to ${CP4D_TARGET_VERSION_WOS}${TEXT_RESET}"
+      else
+        echo_reset_dim " - Watson Openscale ........................ ${COLOR_RED}No${TEXT_RESET}"
+      fi
+    fi
+
+    if [ "$CP4D_CURRENT_VERSION_SPSS" != "" ]; then
+      if [ "$CP4D_UPDATE_SPSS" == true ]; then
+        echo_reset_dim " - SPSS Modeler ............................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_SPSS} to ${CP4D_TARGET_VERSION_SPSS}${TEXT_RESET}"
+      else
+        echo_reset_dim " - SPSS Modeler ............................ ${COLOR_RED}No${TEXT_RESET}"
+      fi
+    fi
+
+    if [ "$CP4D_CURRENT_VERSION_COGNOS" != "" ]; then
+      if [ "$CP4D_UPDATE_COGNOS" == true ]; then
+        echo_reset_dim " - Cognos Analytics ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_COGNOS} to ${CP4D_TARGET_VERSION_COGNOS}${TEXT_RESET}"
+      else
+        echo_reset_dim " - Cognos Analytics ........................ ${COLOR_RED}No${TEXT_RESET}"
+      fi
+    fi
+
   fi
-
-  # Cloud Pak for Data Services
-  if [ "$CP4D_UPDATE_WS" == true ]; then
-    echo_reset_dim " - Watson Studio ........................... ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WS} to ${CP4D_TARGET_VERSION_WS}${TEXT_RESET}"
-  else
-    echo_reset_dim " - Watson Studio ........................... ${COLOR_RED}No${TEXT_RESET}"
-  fi
-
-  if [ "$CP4D_UPDATE_WML" == true ]; then
-    echo_reset_dim " - Watson Machine Learning ................. ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WML} to ${CP4D_TARGET_VERSION_WML}${TEXT_RESET}"
-  else
-    echo_reset_dim " - Watson Machine Learning ................. ${COLOR_RED}No${TEXT_RESET}"
-  fi
-
-  if [ "$CP4D_UPDATE_SPARK" == true ]; then
-    echo_reset_dim " - Analytics Engine ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_SPARK} to ${CP4D_TARGET_VERSION_SPARK}${TEXT_RESET}"
-  else
-    echo_reset_dim " - Analytics Engine ........................ ${COLOR_RED}No${TEXT_RESET}"
-  fi
-
-  if [ "$CP4D_UPDATE_WOS" == true ]; then
-    echo_reset_dim " - Watson Openscale ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WOS} to ${CP4D_TARGET_VERSION_WOS}${TEXT_RESET}"
-  else
-    echo_reset_dim " - Watson Openscale ........................ ${COLOR_RED}No${TEXT_RESET}"
-  fi
-
-  if [ "$CP4D_UPDATE_SPSS" == true ]; then
-    echo_reset_dim " - SPSS Modeler ............................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_SPSS} to ${CP4D_TARGET_VERSION_SPSS}${TEXT_RESET}"
-  else
-    echo_reset_dim " - SPSS Modeler ............................ ${COLOR_RED}No${TEXT_RESET}"
-  fi
-
-  if [ "$CP4D_UPDATE_COGNOS" == true ]; then
-    echo_reset_dim " - Cognos Analytics ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_COGNOS} to ${CP4D_TARGET_VERSION_COGNOS}${TEXT_RESET}"
-  else
-    echo_reset_dim " - Cognos Analytics ........................ ${COLOR_RED}No${TEXT_RESET}"
-  fi
-
-  # Due the breaking changes introduced by Watson Discovery, this won't be upgradable via MAS CLI
-  echo_reset_dim " - Watson Discovery ........................ ${COLOR_RED}${TEXT_RESET}"
-
   reset_colors
 
   # In SLS 3.8.0 registry was changed to icr.io/cpopen, however
