@@ -236,8 +236,6 @@ function detect_grafana_update() {
 
 function validate_existing_cp4d_storage_class() {
   
-  # Lookup existing CP4D instance
-  echo -e "${COLOR_YELLOW}Verifying current Cloud Pak for Data deployment status..."
   CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
 
   if [[ "$CP4D_INSTANCE_NAMESPACE" != "" ]]; then
@@ -268,13 +266,12 @@ function validate_existing_cp4d_service() {
   CP4D_SERVICE_NAME=$2
   CP4D_SERVICE_ALIAS=$3
 
-  # Lookup existing CP4D instance namespace and storage classes
+  # Lookup existing CP4D storage classes
   validate_existing_cp4d_storage_class
 
   # Target cp4d version will be defined by chosen catalog/casebundle
   if [[ "$CP4D_VERSION" == "" ]]; then
-    CP4D_TARGET_VERSION=`yq -r .cpd_product_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml`
-    CP4D_VERSION=$CP4D_TARGET_VERSION
+    CP4D_VERSION=`yq -r .cpd_product_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml`
   fi
 
   # Lookup existing CP4D service version
@@ -285,7 +282,7 @@ function validate_existing_cp4d_service() {
   if [[ "$CP4D_SERVICE_CURRENT_VERSION" != "" ]]; then
 
     # Lookup expected CP4D service version
-    yq -r .data.release_components_meta ansible-devops/roles/cp4d/templates/config_maps/olm-utils-cm-$CP4D_TARGET_VERSION.yml.j2 -o yaml > olm-utils.yaml
+    yq -r .data.release_components_meta ansible-devops/roles/cp4d/templates/config_maps/olm-utils-cm-$CP4D_VERSION.yml.j2 -o yaml > olm-utils.yaml
     CP4D_SERVICE_TARGET_VERSION=$(yq -r .$CP4D_SERVICE_ALIAS.cr_version olm-utils.yaml)
     rm -rf olm-utils.yaml
     
@@ -311,6 +308,9 @@ function validate_existing_cp4d_service() {
 # and prints a warning message if Cloud Pak Data is supposed to be upgraded
 function validate_existing_cp4d() {
   
+  # Lookup existing CP4D instance
+  echo -e "${COLOR_YELLOW}Verifying current Cloud Pak for Data deployment status..."
+  
   validate_existing_cp4d_storage_class
 
   # Lookup existing CP4D instance
@@ -331,7 +331,7 @@ function validate_existing_cp4d() {
     if [ ! "$(printf '%s\n' "$CP4D_TARGET_MAJORMINOR_VERSION" "$CP4D_CURRENT_MAJORMINOR_VERSION" | sort -V | head -n1)" = "$CP4D_TARGET_MAJORMINOR_VERSION" ]; then
       if [[ -z "$NO_CONFIRM" ]] ; then # if 'mas update -c v8-231128-amd64', but '--no--confirm' is not set, then we proceed and warn user of the mongodb upgrade, users will still have a chance to abort
         echo_highlight "Dependency Upgrade Notice!"
-        echo_highlight "Cloud Pak For Data is currently running on version ${CP4D_CURRENT_VERSION} and will be upgraded to version ${CP4D_TARGET_VERSION}"
+        echo_highlight "Cloud Pak For Data is currently running on version ${CP4D_CURRENT_VERSION} and will be upgraded to version ${CP4D_VERSION}"
         echo
         echo_highlight "It is recommended that you backup your Cloud Pak for Data instance before proceeding:"
         echo -e "${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/cloud-paks/cp-data/4.8.x?topic=administering-backing-up-restoring-cloud-pak-data${TEXT_RESET}"
