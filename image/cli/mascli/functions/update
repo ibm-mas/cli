@@ -421,14 +421,14 @@ function validate_update() {
   # Validates MongoDB upgrade is confirmed while using November catalog
   validate_existing_mongo
 
-  # Validates CP4D upgrade
-  validate_existing_cp4d
-
   # Validates UDS to DRO migration only if UDS is running and January catalog or more recent is used
   validate_dro_migration
 
   # Confirm Grafana Operator upgrade
   detect_grafana_update
+
+  # Validates CP4D upgrade
+  validate_existing_cp4d
 
   # Lookup for OCP console route
   if [[ -z "$OCP_CONSOLE_ROUTE" ]]; then
@@ -754,7 +754,7 @@ function update() {
   fi
 
   # Due the breaking changes introduced by Watson Discovery, this won't be upgradable via MAS CLI
-  echo_reset_dim " - Watson Discovery ........................ ${COLOR_RED}No${TEXT_RESET}"
+  echo_reset_dim " - Watson Discovery ........................ ${COLOR_RED}${TEXT_RESET}"
 
   reset_colors
 
