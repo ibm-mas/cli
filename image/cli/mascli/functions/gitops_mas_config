@@ -39,6 +39,7 @@ DRO Configuration (required iff MAS_CONFIG_TYPE is "bas"):
   --dro-contact-firstname ${COLOR_YELLOW}DRO_CONTACT_FIRSTNAME${TEXT_RESET}     The first name to register with DRO
   --dro-contact-lastname ${COLOR_YELLOW}DRO_CONTACT_LASTNAME${TEXT_RESET}       The last name to register with DRO
   --dro-ca-certificate-file ${COLOR_YELLOW}DRO_CA_CERTIFICATE_FILE${TEXT_RESET} The location of a file containing the DRO CA certificate
+  --mas-segment-key ${COLOR_YELLOW}MAS_SEGMENT_KEY${TEXT_RESET}                 The segment key for authentication for Segment
 
 IDP/LDAP Configuration (required iff MAS_CONFIG_TYPE is "ldap-default"):
   --idpcfg-display-name ${COLOR_YELLOW}IDPCFG_DISPLAY_NAME${TEXT_RESET}       Display name for IDPCfg resource
@@ -154,6 +155,9 @@ function gitops_mas_config_noninteractive() {
         ;;
       --dro-ca-certificate-file)
         export DRO_CA_CERTIFICATE_FILE=$1 && shift
+        ;;
+      --mas-segment-key)
+        export MAS_SEGMENT_KEY=$1 && shift
         ;;
 
       # LDAP
@@ -647,9 +651,16 @@ function gitops_mas_config() {
 
 
     if [ "${MAS_CONFIG_TYPE}" == "bas" ]; then
-      export SECRET_KEY_DRO_API_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#dro_api_token
-      export SECRET_KEY_DRO_URL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#dro_url
+      export SECRET_NAME_DRO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro
+      export SECRET_KEY_DRO_API_TOKEN=${SECRET_NAME_DRO}#dro_api_token
+      export SECRET_KEY_DRO_URL=${SECRET_NAME_DRO}#dro_url
+      export SECRET_KEY_MAS_SEGMENT_KEY=${SECRET_NAME_DRO}#mas_segment_key
       export DRO_CA_CERTIFICATE=$(cat ${DRO_CA_CERTIFICATE_FILE})
+      
+      if [[ -n "${MAS_SEGMENT_KEY}" ]]; then
+        sm_login
+        sm_update_secret $SECRET_NAME_DRO "{\"mas_segment_key\": \"$MAS_SEGMENT_KEY\"}"
+      fi
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
