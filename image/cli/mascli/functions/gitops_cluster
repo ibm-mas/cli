@@ -46,6 +46,9 @@ Automatic GitHub Push (Optional):
   -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}           Git branch to commit to of your GitOps repository
   -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}   Git commit message to use when committing to of your GitOps repository
 
+Notifications:
+      --slack-channel-id ${COLOR_YELLOW}SLACK_CHANNEL_ID${TEXT_RESET} Slack channel for ArgoCD to notify when an app sync has completed or failed
+
 Other Commands:
   -h, --help                              Show this help message
 EOM
@@ -163,6 +166,11 @@ function gitops_cluster_noninteractive() {
         export GIT_SSH=$1 && shift
         ;;
 
+      # Notifications
+      --slack-channel-id)
+        export SLACK_CHANNEL_ID=$1 && shift
+        ;;
+
       # Other Commands
       -h|--help)
         gitops_cluster_help
@@ -178,6 +186,7 @@ function gitops_cluster_noninteractive() {
   [[ -z "$CLUSTER_ID" ]] && gitops_cluster_help "CLUSTER_ID is not set"
   [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_cluster_help "REGION_ID or SM_AWS_REGION is not set"
   [[ -z "$CLUSTER_URL" ]] && gitops_cluster_help "CLUSTER_URL is not set"
+  [[ -z "$SLACK_CHANNEL_ID" ]] && gitops_cluster_help "SLACK_CHANNEL_ID is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_cluster_help "GITHUB_HOST is not set"
