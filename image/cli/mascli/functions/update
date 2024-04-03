@@ -722,16 +722,17 @@ function update() {
   # Cloud Pak for Data
   if [ "$CP4D_UPDATE" == true ]; then
     echo_reset_dim "Cloud Pak for Data Platform ................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION} to ${CP4D_VERSION} ($CP4D_INSTANCE_NAMESPACE)${TEXT_RESET}"
-  else
-    echo_reset_dim "Cloud Pak for Data Platform ................ ${COLOR_RED}No${TEXT_RESET}"
   
-  if [ "$CP4D_VERSION" != "" ]; then
-    echo_reset_dim " - Version ................................. ${COLOR_GREEN}${CP4D_VERSION}${TEXT_RESET}"
-  fi
-
-  if [[ "$STORAGE_CLASS_RWO" != "" && "$STORAGE_CLASS_RWX" != "" ]]; then
+    if [[ "$STORAGE_CLASS_RWO" != "" && "$STORAGE_CLASS_RWX" != "" ]]; then
     echo_reset_dim " - File Storage Class ...................... ${COLOR_GREEN}${STORAGE_CLASS_RWX}${TEXT_RESET}"
     echo_reset_dim " - Block Storage Class ..................... ${COLOR_GREEN}${STORAGE_CLASS_RWO}${TEXT_RESET}"
+    fi
+
+    if [ "$CP4D_VERSION" != "" ]; then
+      echo_reset_dim " - Version ................................. ${COLOR_GREEN}${CP4D_VERSION}${TEXT_RESET}"
+    fi
+  else
+    echo_reset_dim "Cloud Pak for Data Platform ................ ${COLOR_RED}No${TEXT_RESET}"
   fi
 
   # Cloud Pak for Data Services
@@ -775,8 +776,6 @@ function update() {
   echo_reset_dim " - Watson Discovery ........................ ${COLOR_RED}No${TEXT_RESET}"
 
   reset_colors
-
-  fi
 
   # In SLS 3.8.0 registry was changed to icr.io/cpopen, however
   # when updating from a previous version it would not automatically
