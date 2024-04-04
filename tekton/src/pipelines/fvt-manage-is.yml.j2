@@ -58,10 +58,8 @@ spec:
       {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(8) }}
-        - name: fvt_test_suite_prefix
-          value: base
         - name: fvt_test_suite
-          value: setup-is
+          value: base-api-setup-is
 
     # ----------------------------------------
     # Industry Solution Tests
