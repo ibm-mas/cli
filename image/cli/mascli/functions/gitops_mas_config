@@ -651,15 +651,15 @@ function gitops_mas_config() {
 
 
     if [ "${MAS_CONFIG_TYPE}" == "bas" ]; then
-      export SECRET_NAME_DRO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro
-      export SECRET_KEY_DRO_API_TOKEN=${SECRET_NAME_DRO}#dro_api_token
-      export SECRET_KEY_DRO_URL=${SECRET_NAME_DRO}#dro_url
-      export SECRET_KEY_MAS_SEGMENT_KEY=${SECRET_NAME_DRO}#mas_segment_key
+      export SECRET_KEY_DRO_API_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#dro_api_token
+      export SECRET_KEY_DRO_URL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#dro_url
+      export SECRET_NAME_MAS_SEGMENT_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mas_segment_key
+      export SECRET_KEY_MAS_SEGMENT_KEY=${SECRET_NAME_MAS_SEGMENT_KEY}#mas_segment_key
       export DRO_CA_CERTIFICATE=$(cat ${DRO_CA_CERTIFICATE_FILE})
       
       if [[ -n "${MAS_SEGMENT_KEY}" ]]; then
         sm_login
-        sm_update_secret $SECRET_NAME_DRO "{\"mas_segment_key\": \"$MAS_SEGMENT_KEY\"}"
+        sm_update_secret $SECRET_NAME_MAS_SEGMENT_KEY "{\"mas_segment_key\": \"$MAS_SEGMENT_KEY\"}"
       fi
     fi
 
