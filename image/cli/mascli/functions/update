@@ -202,7 +202,8 @@ function validate_dro_migration(){
       DRO_MIGRATION="false"
       echo -e "${COLOR_YELLOW}UDS does not exist, skipping DRO migration and proceeding with mas update"
       DRO_NAMESPACE="redhat-marketplace"
-      DRO_CSV=`oc get csv -n "${UDS_NAMESPACE}" | grep ibm-data-reporter-operator  | awk '{print $1}'`
+      DRO_CSV=`oc get csv -n "${DRO_NAMESPACE}" | grep ibm-data-reporter-operator  | awk '{print $1}'`
+      echo $DRO_CSV
       if [[ -n $DRO_CSV ]]; then
         DRO_STATUS=`oc get csv -n "${DRO_NAMESPACE}" "${DRO_CSV}" -o jsonpath='{.status.phase}'`
         if [[ $DRO_STATUS = *'Succeeded'* ]]; then
