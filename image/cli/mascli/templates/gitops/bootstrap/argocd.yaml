@@ -518,7 +518,30 @@ spec:
           hs.message = ""
           return hs
 
-      "asset-data-dictionary.ibm.com*":
+      asset-data-dictionary.ibm.com/AssetDataDictionary:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      asset-data-dictionary.ibm.com/DataDictionaryWorkspace:
         health.lua: |
           hs = {}
           if obj.status ~= nil then
