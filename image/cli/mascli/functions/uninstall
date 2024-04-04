@@ -66,8 +66,29 @@ function uninstall_noninteractive() {
     key="$1"
     shift
     case $key in
-    -i | --id)
+    -i | --mas-instance-id)
       MAS_INSTANCE_ID=$1 && shift
+      ;;
+    --uninstall-cluster-monitoring)
+      export CLUSTER_MONITORING_ACTION=uninstall
+      ;;
+    --uninstall-ibm-catalog)
+      export IBM_CATALOGS_ACTION=uninstall
+      ;;
+    --uninstall-common-services)
+      export COMMON_SERVICES_ACTION=uninstall
+      ;;
+    --uninstall-cert-manager)
+      export CERT_MANAGER_ACTION=uninstall
+      ;;
+    --uninstall-uds)
+      export UDS_ACTION=uninstall
+      ;;
+    --uninstall-mongodb)
+      export MONGODB_ACTION=uninstall
+      ;;
+    --uninstall-sls)
+      export SLS_ACTION=uninstall
       ;;
     --no-confirm)
       NO_CONFIRM=true
@@ -155,13 +176,27 @@ function prompt_for_deps_to_uninstall() {
   echo
   echo_h2 "Uninstall MAS Dependencies"
 
-  validate_action_param "Uninstall Cluster Monitoring?" CLUSTER_MONITORING_ACTION
-  validate_action_param "Uninstall IBM Catalogs?" IBM_CATALOGS_ACTION
-  validate_action_param "Uninstall IBM Common Services?" COMMON_SERVICES_ACTION
-  validate_action_param "Uninstall Certificate Manager?" CERT_MANAGER_ACTION
-  validate_action_param "Uninstall IBM User Data Services?" UDS_ACTION
-  validate_action_param "Uninstall MongoDB?" MONGODB_ACTION
-  validate_action_param "Uninstall IBM Suite Licensing Service?" SLS_ACTION
+  if [ -z "${CLUSTER_MONITORING_ACTION}" ]; then
+    validate_action_param "Uninstall Cluster Monitoring?" CLUSTER_MONITORING_ACTION
+  fi
+  if [ -z "${IBM_CATALOGS_ACTION}" ]; then
+    validate_action_param "Uninstall IBM Catalogs?" IBM_CATALOGS_ACTION
+  fi
+  if [ -z "${COMMON_SERVICES_ACTION}" ]; then
+    validate_action_param "Uninstall IBM Common Services?" COMMON_SERVICES_ACTION
+  fi
+  if [ -z "${CERT_MANAGER_ACTION}" ]; then
+    validate_action_param "Uninstall Certificate Manager?" CERT_MANAGER_ACTION
+  fi
+  if [ -z "${UDS_ACTION}" ]; then
+    validate_action_param "Uninstall IBM User Data Services?" UDS_ACTION
+  fi
+  if [ -z "${MONGODB_ACTION}" ]; then
+    validate_action_param "Uninstall MongoDB?" MONGODB_ACTION
+  fi
+  if [ -z "${SLS_ACTION}" ]; then
+    validate_action_param "Uninstall IBM Suite Licensing Service?" SLS_ACTION
+  fi
 }
 
 function review_uninstall_settings() {
@@ -211,14 +246,19 @@ function launch_uninstall() {
   echo
 }
 
+function uninstall_interactive(){
+  connect
+}
+
 function uninstall() {
   # Take the first parameter off (it will be uninstall)
   shift
   if [[ $# -gt 0 ]]; then
     uninstall_noninteractive "$@"
+  else
+    uninstall_interactive
   fi
 
-  connect
   check_mas_project_exists
   prompt_for_deps_to_uninstall
   define_cert_manager_to_uninstall
