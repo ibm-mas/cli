@@ -255,8 +255,6 @@ function validate_existing_cp4d_service() {
   CP4D_SERVICE_CURRENT_VERSION=`oc get $CP4D_SERVICE_CRD -n $CP4D_INSTANCE_NAMESPACE -o yaml | yq -r ".items[0].spec.version"`
   if [[ "$CP4D_SERVICE_CURRENT_VERSION" == "null" ]]; then
     CP4D_SERVICE_CURRENT_VERSION=""
-  else
-    echo "$CP4D_SERVICE_CURRENT_VERSION"
   fi
   
   # Only check if upgrade is needed if CP4D service is installed
@@ -342,7 +340,7 @@ function validate_existing_cp4d() {
   # Check if CP4D is currently installed, if not then don't bother trying to upgrade
   if [[ "$CP4D_CURRENT_VERSION" != "" && "$CP4D_VERSION" != "" ]]; then
     CP4D_CURRENT_MAJORMINOR_VERSION=${CP4D_CURRENT_VERSION:0:3}
-    CP4D_TARGET_MAJORMINOR_VERSION=${CP4D_TARGET_VERSION:0:3}
+    CP4D_TARGET_MAJORMINOR_VERSION=${CP4D_VERSION:0:3}
 
     # Let users know that cp4d will be upgraded if existing cp4d major.minor version is lower than the target major version
     # We don't show this message for patch updates, e.g. 4.8.0 to 4.8.1
