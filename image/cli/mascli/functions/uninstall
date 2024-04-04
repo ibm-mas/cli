@@ -28,7 +28,9 @@ function check_mas_project_exists() {
       echo "MAS Instance ID property has not been set! Please provide a valid value for '--mas-instance-id' argument."
     fi
   fi
-
+  
+  MAS_NS=mas-$MAS_INSTANCE_ID-core
+  
   if check_project_exists $MAS_NS; then
     export MAS_NS
   else
