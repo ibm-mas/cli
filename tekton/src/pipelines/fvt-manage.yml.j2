@@ -78,12 +78,12 @@ spec:
 
     # 2. Manage FVT - Manage
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-manage/phase0.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-manage/phase2.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-manage/phase3.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase6.yml.j2') | indent(4) }}
 
   finally:
     # 3. Run CV
