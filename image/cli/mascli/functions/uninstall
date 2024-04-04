@@ -29,6 +29,7 @@ function check_mas_project_exists() {
     fi
   fi
   
+  # At this point, expect MAS_INSTANCE_ID to be set, so we set MAS namespace
   MAS_NS=mas-$MAS_INSTANCE_ID-core
   
   if check_project_exists $MAS_NS; then

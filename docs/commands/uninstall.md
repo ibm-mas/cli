@@ -8,10 +8,12 @@ Usage
 ### MAS Instance Selection
 - `-i|--id MAS_INSTANCE_ID` MAS Instance ID to uninstall
 
+### Uninstall Options
+- `--uninstall-cert-manager` Uninstalls Certificate Manager from the target cluster. **Important**: Certificate Manager is a cluster-wide dependency, therefore be really careful when uninstalling it as this might be used by several applications and dependencies installed in the cluster.
+
 ### Other Options
 - `--no-confirm` Launch the upgrade without prompting for confirmation
 - `-h|--help` Show help message
-
 
 Examples
 -------------------------------------------------------------------------------
