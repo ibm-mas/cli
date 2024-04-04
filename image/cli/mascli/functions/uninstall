@@ -253,19 +253,14 @@ function launch_uninstall() {
   echo
 }
 
-function uninstall_interactive(){
-  connect
-}
-
 function uninstall() {
   # Take the first parameter off (it will be uninstall)
   shift
   if [[ $# -gt 0 ]]; then
     uninstall_noninteractive "$@"
-  else
-    uninstall_interactive
   fi
-
+  
+  connect
   check_mas_project_exists
   prompt_for_deps_to_uninstall
   define_cert_manager_to_uninstall
