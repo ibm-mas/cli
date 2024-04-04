@@ -252,9 +252,11 @@ function validate_existing_cp4d_service() {
   # Lookup existing CP4D service version
   echo -e "${COLOR_YELLOW}Verifying current Cloud Pak for Data Service $CP4D_SERVICE_NAME deployment status..."
   
-  CP4D_SERVICE_CURRENT_VERSION=$(`oc get $CP4D_SERVICE_CRD -n $CP4D_INSTANCE_NAMESPACE -o yaml > /dev/null 2>&1 | yq -r ".items[0].spec.version"`)
-  if [[ "$CP4D_SERVICE_CURRENT_VERSION" == "" ]]; then
-    echo "$CP4D_SERVICE_NAME is not installed... skipping upgrade"
+  CP4D_SERVICE_CURRENT_VERSION=`oc get $CP4D_SERVICE_CRD -n $CP4D_INSTANCE_NAMESPACE -o yaml | yq -r ".items[0].spec.version"`
+  if [[ "$CP4D_SERVICE_CURRENT_VERSION" == "null" ]]; then
+    CP4D_SERVICE_CURRENT_VERSION=""
+  else
+    echo "$CP4D_SERVICE_CURRENT_VERSION"
   fi
   
   # Only check if upgrade is needed if CP4D service is installed
