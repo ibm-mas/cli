@@ -8,7 +8,7 @@ function connect() {
   if [[ $? == "0" ]]; then
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
     echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}" | tee $LOGFILE
-    if [[ "$NO_CONFIRM" != "true" ]]; then
+    if [[ "$NO_CONFIRM" != true ]]; then
       if ! prompt_for_confirm_default_yes "Proceed with this cluster?"; then
         PROMPT_FOR_LOGIN=true
       fi
@@ -17,7 +17,7 @@ function connect() {
     PROMPT_FOR_LOGIN=true
   fi
 
-  if [[ $PROMPT_FOR_LOGIN == "true" ]]; then
+  if [[ $PROMPT_FOR_LOGIN == true ]]; then
     prompt_for_input "Server URL" OCP_LOGIN_URL
     prompt_for_secret "Login Token" OCP_LOGIN_TOKEN
     prompt_for_confirm "Disable TLS Verify?" OCP_DISABLE_TLS_VERIFY
