@@ -260,6 +260,13 @@ function gitops_suite_watson_studio_config() {
     export GIT_SSH="false"
   fi
 
+
+  # Validate App Names
+  # ---------------------------------------------------------------------------
+  validate_app_name "${CLUSTER_ID}-watcher"
+  validate_app_name "mas-${MAS_INSTANCE_ID}-watson-studio-config"
+
+
   # Clone github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then

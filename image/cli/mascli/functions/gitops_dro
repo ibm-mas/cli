@@ -210,6 +210,18 @@ function gitops_dro() {
     export GIT_SSH=false
   fi
 
+
+  # Set and Validate App Names
+  # ---------------------------------------------------------------------------
+  ROOT_APP_NAME="root.${ACCOUNT_ID}"
+  CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
+  DRO_APP_NAME="dro.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
+
+  validate_app_name "${ROOT_APP_NAME}"
+  validate_app_name "${CLUSTER_APP_NAME}"
+  validate_app_name "${DRO_APP_NAME}"
+
+
   # Clone github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
@@ -241,10 +253,6 @@ function gitops_dro() {
 
     if [ "${ARGOCD_CHECK}" == "true" ]; then
       argocd_login
-
-      ROOT_APP_NAME="root.${ACCOUNT_ID}"
-      CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
-      DRO_APP_NAME="dro.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
 
       argocd_sync "${ROOT_APP_NAME}"
 
