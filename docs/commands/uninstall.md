@@ -8,7 +8,7 @@ Usage
 ### MAS Instance Selection
 - `-i|--id MAS_INSTANCE_ID` MAS Instance ID to uninstall
 
-### Uninstall Options
+### MAS Dependencies Uninstall Options
 - `--uninstall-cert-manager` Uninstalls Certificate Manager from the target cluster. **Important**: Certificate Manager is a cluster-wide dependency, therefore be really careful when uninstalling it as this might be used by other applications and dependencies installed in the cluster.
 - `--uninstall-common-services` Uninstalls IBM Common Services from the target cluster. **Important**: IBM Common Services is a shared dependency under `ibm-common-services` namespace, therefore be really careful when uninstalling it as this might be used by other applications and dependencies installed in the cluster.
 - `--uninstall-cluster-monitoring` Uninstalls Cluster Monitoring from the target cluster, including OpenTelemetry, Graphana and User Workload Monitoring.
