@@ -152,7 +152,7 @@ function validate_dro_migration() {
               prompt_for_confirm_default_yes "Do you want to use your own storage class to configure DRO?" CUSTOM_STORAGE
               if [[ "$CUSTOM_STORAGE" == "true" ]]; then
                 DRO_STORAGE_CLASS = ""
-                prompt_for_input "Storage Class Name:" DRO_STORAGE_CLASS
+                prompt_for_input "Enter the name of a RWO Storage Class to configure DRO, leave it blank if you want the CLI to autodetect a storage class:" DRO_STORAGE_CLASS
               fi
             else
                 DRO_STORAGE_CLASS = ""
