@@ -13,12 +13,15 @@ MAS Instance Selection (Required):
   -i, --id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                         MAS Instance ID to uninstall
 
 MAS Dependencies Uninstall Options 
-  --uninstall-cert-manager                                         Uninstalls Certificate Manager from the target cluster. **Important**: Certificate Manager is a cluster-wide dependency, therefore be really careful when uninstalling it as this might be used by other applications and dependencies installed in the cluster.
-  --uninstall-common-services                                      Uninstalls IBM Common Services from the target cluster. **Important**: IBM Common Services is a shared dependency under 'ibm-common-services' namespace, therefore be really careful when uninstalling it as this might be used by other applications and dependencies installed in the cluster.
+
+Note: Be really careful while using any of these options as they may uninstall dependencies that are used by other MAS instances or services in the target cluster.
+
+  --uninstall-cert-manager                                         Uninstalls Certificate Manager from the target cluster.
+  --uninstall-common-services                                      Uninstalls IBM Common Services from the target cluster. 
   --uninstall-cluster-monitoring                                   Uninstalls Cluster Monitoring from the target cluster, including OpenTelemetry, Graphana and User Workload Monitoring.
-  --uninstall-ibm-catalog                                          Uninstalls IBM Maximo Operator Catalog Source (e.g ibm-operator-catalog) from the target cluster. **Important**: Catalog Sources are cluster-wide dependencies, therefore be really careful when uninstalling it as this might be used by several applications and dependencies installed in the cluster.
-  --uninstall-mongodb                                              Uninstalls MongoDB from the target cluster. **Important**: MongoDB could be a shared dependency, therefore be really careful when uninstalling it as this might be used by several applications and dependencies installed in the cluster.
-  --uninstall-sls                                                  Uninstalls Suite License Service from the target cluster. **Important**: SLS could be a shared dependency, therefore be really careful when uninstalling it as this might be used by other MAS instances and dependencies installed in the cluster.
+  --uninstall-ibm-catalog                                          Uninstalls IBM Maximo Operator Catalog Source (e.g ibm-operator-catalog) from the target cluster.
+  --uninstall-mongodb                                              Uninstalls MongoDB from the target cluster.
+  --uninstall-sls                                                  Uninstalls Suite License Service from the target cluster.
   --uninstall-all-deps                                             Uninstalls all MAS related dependencies including: Certificate Manager, IBM Common Services, Cluster Monitoring, IBM Maximo Operator Catalog, MongoDB and Suite License Service.
 
 Other Commands:
