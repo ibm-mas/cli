@@ -496,6 +496,17 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
   fi
+
+
+  # Set and Validate App Names
+  # ---------------------------------------------------------------------------
+  INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+  DB2_DATABASE_APP="db2-db.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
+
+  validate_app_name "${INSTANCE_ROOT_APP}"
+  validate_app_name "${DB2_DATABASE_APP}"
+
+
   # Clone github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
@@ -544,9 +555,6 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     fi
 
     if [ "${ARGOCD_CHECK}" == "true" ]; then
-      INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-      DB2_DATABASE_APP="db2-db.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
-
       argocd_login
       argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the db2-db appset to pick up the new config files
       check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync

@@ -397,6 +397,19 @@ function gitops_suite() {
   fi
 
 
+  # Set and Validate App Names
+  # ---------------------------------------------------------------------------
+  CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
+  INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+  SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+  SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+
+  validate_app_name "${CLUSTER_ROOT_APP}"
+  validate_app_name "${INSTANCE_ROOT_APP}"
+  validate_app_name "${SUITE_APP_NAME}"
+  validate_app_name "${SLS_APP_NAME}"
+
+
   # Clone github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
@@ -432,11 +445,6 @@ function gitops_suite() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     if [ "${ARGOCD_CHECK}" == "true" ]; then
-      CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
-      INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-      SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-      SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-
       argocd_login
       argocd_sync "${CLUSTER_ROOT_APP}" ## trigger the instance appset to pick up the new config files
       check_argo_app_synced "${INSTANCE_ROOT_APP}"  "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync

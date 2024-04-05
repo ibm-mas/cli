@@ -214,6 +214,18 @@ function gitops_suite_workspace() {
     export GIT_SSH="false"
   fi
 
+
+  # Set and Validate App Names
+  # ---------------------------------------------------------------------------
+  CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+  INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+  WORKSPACE_APP="workspace.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+
+  validate_app_name "${CLUSTER_ROOT_APP}"
+  validate_app_name "${INSTANCE_ROOT_APP}"
+  validate_app_name "${WORKSPACE_APP}"
+
+
   # Clone github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
@@ -243,10 +255,6 @@ function gitops_suite_workspace() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     if [ "${ARGOCD_CHECK}" == "true" ]; then
-      CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-      INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-      WORKSPACE_APP="workspace.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-
       argocd_login
       argocd_sync "${CLUSTER_ROOT_APP}" ## trigger the instance appset to pick up the new config files
       check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync

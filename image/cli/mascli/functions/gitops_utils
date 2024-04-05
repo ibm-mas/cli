@@ -575,3 +575,12 @@ function check_argo_app_healthy() {
     fi
   done
 }
+
+function validate_app_name(){
+  APPLICATION=$1
+
+  if [[ ${#APPLICATION} -gt 63 ]]; then
+    echo "Application name cannot be longer than 63 characters: $APPLICATION"
+    exit 1
+  fi
+}

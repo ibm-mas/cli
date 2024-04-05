@@ -510,6 +510,15 @@ function gitops_suite_app_config() {
   fi
 
 
+  # Set and Validate App Names
+  # ---------------------------------------------------------------------------
+  INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+  MASAPP_APP="ma.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
+
+  validate_app_name "${INSTANCE_ROOT_APP}"
+  validate_app_name "${MASAPP_APP}"
+
+
   # Clone github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
@@ -647,9 +656,6 @@ function gitops_suite_app_config() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     if [ "${ARGOCD_CHECK}" == "true" ]; then
-      INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-      MASAPP_APP="ma.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
-
       argocd_login
       argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the masapp appset to pick up the new config files
       argocd_sync "${MASAPP_APP}"

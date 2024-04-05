@@ -231,6 +231,18 @@ function gitops_db2u() {
     export GIT_SSH=false
   fi
 
+
+  # Set and Validate App Names
+  # ---------------------------------------------------------------------------
+  ROOT_APP_NAME="root.${ACCOUNT_ID}"
+  CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+  DB2U_APP_NAME="db2u.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+
+  validate_app_name "${ROOT_APP_NAME}"
+  validate_app_name "${CLUSTER_APP_NAME}"
+  validate_app_name "${DB2U_APP_NAME}"
+
+
   # Clone github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
@@ -262,11 +274,6 @@ function gitops_db2u() {
 
     if [ "${ARGOCD_CHECK}" == "true" ]; then
       argocd_login
-
-      ROOT_APP_NAME="root.${ACCOUNT_ID}"
-      CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-      DB2U_APP_NAME="db2u.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-
 
       argocd_sync "${ROOT_APP_NAME}"
       

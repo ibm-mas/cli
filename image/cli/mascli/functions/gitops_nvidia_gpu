@@ -253,6 +253,18 @@ function gitops_nvidia_gpu() {
         export GIT_SSH="false"
     fi
 
+
+    # Set and Validate App Names
+    # ---------------------------------------------------------------------------
+    ROOT_APP_NAME="root.${ACCOUNT_ID}"
+    CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+    NVIDIA_GPU_APP_NAME="nvidia-gpu.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+
+    validate_app_name "${ROOT_APP_NAME}"
+    validate_app_name "${CLUSTER_APP_NAME}"
+    validate_app_name "${NVIDIA_GPU_APP_NAME}"
+
+
     # Clone github target repo
     # ---------------------------------------------------------------------------
     if [ "$GITHUB_PUSH" == "true" ]; then
@@ -282,10 +294,6 @@ function gitops_nvidia_gpu() {
 
         if [ "${ARGOCD_CHECK}" == "true" ]; then
             argocd_login
-
-            ROOT_APP_NAME="root.${ACCOUNT_ID}"
-            CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-            NVIDIA_GPU_APP_NAME="nvidia-gpu.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
 
             argocd_sync "${ROOT_APP_NAME}"
 

@@ -280,6 +280,20 @@ function gitops_cluster() {
     export GIT_SSH="false"
   fi
 
+
+  # Set and Validate App Names
+  # ---------------------------------------------------------------------------
+  ROOT_APP_NAME="root.${ACCOUNT_ID}"
+  CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
+  OPERATOR_CATALOG_APP_NAME="operator-catalog.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
+  COMMON_SERVICES_APP_NAME="redhat-cert-manager.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
+
+  validate_app_name "${ROOT_APP_NAME}"
+  validate_app_name "${CLUSTER_APP_NAME}"
+  validate_app_name "${OPERATOR_CATALOG_APP_NAME}"
+  validate_app_name "${COMMON_SERVICES_APP_NAME}"
+
+
   # Clone github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
@@ -341,11 +355,6 @@ function gitops_cluster() {
     if [ "${ARGOCD_CHECK}" == "true" ]; then
 
       argocd_login
-
-      ROOT_APP_NAME="root.${ACCOUNT_ID}"
-      CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
-      OPERATOR_CATALOG_APP_NAME="operator-catalog.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
-      COMMON_SERVICES_APP_NAME="redhat-cert-manager.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
 
       argocd_sync "${ROOT_APP_NAME}"
       argocd_hard_refresh "${ROOT_APP_NAME}" # refresh any secrets fetched from AWS SM
