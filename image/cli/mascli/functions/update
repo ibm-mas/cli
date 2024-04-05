@@ -123,7 +123,7 @@ function validate_existing_mongo() {
 # Validate UDS to DRO Migration
 # -----------------------------------------------------------------------------
 
-function validate_dro_migration(){
+function validate_dro_migration() {
   # warn about DRO migration if UDS is running and MAS catalog is January 2024 or newer
   MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
 
@@ -142,59 +142,57 @@ function validate_dro_migration(){
         echo
         if [[ "$NO_CONFIRM" != "true" ]]; then
           prompt_for_confirm_default_yes "Do you want to proceed with uninstalling UDS and migrate to DRO?" DRO_MIGRATION
+        else
+          DRO_MIGRATION="true"
         fi
 
-        if [[ "$DRO_MIGRATION" == "true" ]]; then
-          CUSTOM_STORAGE=""
-          if [[ "$NO_CONFIRM" != "true" ]]; then
-            prompt_for_confirm_default_yes "Do you want to use your own storage class to configure DRO?" CUSTOM_STORAGE
-            if [[ "$CUSTOM_STORAGE" == "true" ]]; then
-              DRO_STORAGE_CLASS = ""
-              prompt_for_input "Storage Class Name:" DRO_STORAGE_CLASS
-            fi
-          fi
-          ## Check all avaliable Suite Instances versions , if any of them is 8.9.x cancel the dro migration. Exit mas update throw error.
-          for suite_namespace in $(oc get Suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
-          do
-            suite_name=`oc get Suite -n ${suite_namespace}  -o NAME`
-            suite_version=`oc get ${suite_name} -n ${suite_namespace} -o jsonpath='{.status.versions.reconciled}'`
-
-            if [[ $suite_version = 9.* ]] || [[ $suite_version = 8.11.* ]] || [[ $suite_version = 8.10.* ]]
-            then
-
-              ## Check if the BASCFG url has a local UDS on all instances, if not then exit and throw error
-              bascfg_name=`oc get BasCfg -n ${suite_namespace} -o NAME`
-              bas_url=`oc get ${bascfg_name} -n ${suite_namespace} -o jsonpath='{.spec.config.url}'`
-              uds_url=`oc get route uds-endpoint -n ibm-common-services -o jsonpath='{.spec.host}'`
-
-              if [[ -z ${uds_url} ]]
-              then
-                echo -e "${COLOR_RED}UDS route is empty, Please fix your UDS installation to proceed with DRO migration, exiting mas update"
-                exit 1
-              fi
-
-              if [[ ${bas_url} == *${uds_url}* ]]
-              then
-                echo -e "${COLOR_YELLOW}UDS Configuration on ${suite_namespace} with MAS version ${suite_version} is compatible for DRO migration"
-              
-              elif [[ ${bas_url} == *ibm-data-reporter* ]]
-              then
-                echo -e "${COLOR_YELLOW}${suite_namespace} is already configured with DRO"
-              
-              else
-                echo -e "${COLOR_RED}${suite_namespace} appears to use a Remote UDS that is not running locally on this cluster. This setup is not compatible for DRO migration, exiting mas update"
-                exit 1
+          if [[ "$DRO_MIGRATION" == "true" ]]; then
+            CUSTOM_STORAGE=""
+            if [[ "$NO_CONFIRM" != "true" ]]; then
+              prompt_for_confirm_default_yes "Do you want to use your own storage class to configure DRO?" CUSTOM_STORAGE
+              if [[ "$CUSTOM_STORAGE" == "true" ]]; then
+                DRO_STORAGE_CLASS = ""
+                prompt_for_input "Storage Class Name:" DRO_STORAGE_CLASS
               fi
             else
-              echo -e "${COLOR_RED}${suite_namespace} with MAS version ${suite_version} does not support DRO, you must run mas upgrade to upgrade this instance to at least MAS 8.10, exiting mas update"
-              exit 1
+                DRO_STORAGE_CLASS = ""
             fi
-            echo
-          done
-        else
-          echo -e "${COLOR_RED}You must accept the migration from UDS to DRO to continue with the update to ${MAS_CATALOG_VERSION}"
-          exit 1
-        fi
+            ## Check all avaliable Suite Instances versions , if any of them is 8.9.x cancel the dro migration. Exit mas update throw error.
+            for suite_namespace in $(oc get Suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
+            do
+              suite_name=`oc get Suite -n ${suite_namespace}  -o NAME`
+              suite_version=`oc get ${suite_name} -n ${suite_namespace} -o jsonpath='{.status.versions.reconciled}'`
+
+              if [[ $suite_version = 9.* ]] || [[ $suite_version = 8.11.* ]] || [[ $suite_version = 8.10.* ]]; then
+
+                ## Check if the BASCFG url has a local UDS on all instances, if not then exit and throw error
+                bascfg_name=`oc get BasCfg -n ${suite_namespace} -o NAME`
+                bas_url=`oc get ${bascfg_name} -n ${suite_namespace} -o jsonpath='{.spec.config.url}'`
+                uds_url=`oc get route uds-endpoint -n ibm-common-services -o jsonpath='{.spec.host}'`
+
+                if [[ -z ${uds_url} ]]; then
+                  echo -e "${COLOR_RED}UDS route is empty, Please fix your UDS installation to proceed with DRO migration, exiting mas update"
+                  exit 1
+                fi
+
+                if [[ ${bas_url} == *${uds_url}* ]]; then
+                  echo -e "${COLOR_YELLOW}UDS Configuration on ${suite_namespace} with MAS version ${suite_version} is compatible for DRO migration"
+                elif [[ ${bas_url} == *ibm-data-reporter* ]]; then
+                  echo -e "${COLOR_YELLOW}${suite_namespace} is already configured with DRO"
+                else
+                  echo -e "${COLOR_RED}${suite_namespace} appears to use a Remote UDS that is not running locally on this cluster. This setup is not compatible for DRO migration, exiting mas update"
+                  exit 1
+                fi
+              else
+                echo -e "${COLOR_RED}${suite_namespace} with MAS version ${suite_version} does not support DRO, you must run mas upgrade to upgrade this instance to at least MAS 8.10, exiting mas update"
+                exit 1
+              fi
+              echo
+            done
+          else
+            echo -e "${COLOR_RED}You must accept the migration from UDS to DRO to continue with the update to ${MAS_CATALOG_VERSION}"
+            exit 1
+          fi
       else
         echo -e "${COLOR_RED}UDS is in Error state. Please fix your UDS installation to proceed with DRO migration, exiting mas update"
         exit 1
@@ -209,7 +207,7 @@ function validate_dro_migration(){
         DRO_STATUS=`oc get csv -n "${DRO_NAMESPACE}" "${DRO_CSV}" -o jsonpath='{.status.phase}'`
         if [[ $DRO_STATUS = *'Succeeded'* ]]; then
           echo -e "${COLOR_YELLOW}DRO is currently running in namespace ${DRO_NAMESPACE}, skipping DRO migration and proceeding with mas update"
-          UDS_ACTION="install-dro"
+          UDS_ACTION="skip"
         fi
       fi
 
