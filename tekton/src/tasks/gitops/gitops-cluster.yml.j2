@@ -47,6 +47,9 @@ spec:
     - name: argocd_check
       type: string
       default: "false"
+    - name: slack_channel_id
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-cluster
     env:
@@ -86,6 +89,8 @@ spec:
         value: $(params.argocd_url)
       - name: ARGOCD_CHECK
         value: $(params.argocd_check)
+      - name: SLACK_CHANNEL_ID
+        value: $(params.slack_channel_id)
     envFrom:
       - configMapRef:
           name: environment-properties
