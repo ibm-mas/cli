@@ -208,7 +208,7 @@ function validate_dro_migration(){
         DRO_STATUS=`oc get csv -n "${DRO_NAMESPACE}" "${DRO_CSV}" -o jsonpath='{.status.phase}'`
         if [[ $DRO_STATUS = *'Succeeded'* ]]; then
           echo -e "${COLOR_YELLOW}DRO is currently running in namespace ${DRO_NAMESPACE}, skipping DRO migration and proceeding with mas update"
-          UDS_ACTION="skip"
+          UDS_ACTION="install-dro"
         fi
       fi
 
