@@ -1,17 +1,20 @@
-# Manage FVT - Scheduler - New User
-- name: fvt-manage-scheduler-user
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+# ------------------
+# Scheduler - API Tests
+# ------------------
+- name: fvt-manage-scheduler-api
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: scheduler-setup-user
-    - name: fvt_mas_appws_component
-      value: scheduler
-    - name: fvt_test_driver
-      value: tpae
+      value: scheduler-api
+  runAfter:
+    - fvt-manage-setup-is # Tests must always start after fvt-manage-setup-is
 
-# Manage FVT - Scheduler Setup
+# ------------------
+# Scheduler - UI Tests
+# ------------------
+
+# Setup
 - name: fvt-manage-scheduler-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
@@ -24,9 +27,9 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-user
+    - fvt-manage-setup-is # Tests must always start after fvt-manage-setup-is
 
-# Manage FVT - Scheduler
+{# # UI
 - name: fvt-manage-scheduler-1
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
@@ -39,9 +42,9 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-setup
+    - fvt-manage-scheduler-setup #}
 
-# Manage FVT - Scheduler
+{# # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-2
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
@@ -124,4 +127,4 @@
     - fvt-manage-scheduler-1
     - fvt-manage-scheduler-2
     - fvt-manage-scheduler-3
-    - fvt-manage-scheduler-4
+    - fvt-manage-scheduler-4 #}
