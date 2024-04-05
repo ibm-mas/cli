@@ -77,25 +77,34 @@ function uninstall_noninteractive() {
       MAS_INSTANCE_ID=$1 && shift
       ;;
     --uninstall-cluster-monitoring)
-      export CLUSTER_MONITORING_ACTION=uninstall
+      CLUSTER_MONITORING_ACTION=uninstall
       ;;
     --uninstall-ibm-catalog)
-      export IBM_CATALOGS_ACTION=uninstall
+      IBM_CATALOGS_ACTION=uninstall
       ;;
     --uninstall-common-services)
-      export COMMON_SERVICES_ACTION=uninstall
+      COMMON_SERVICES_ACTION=uninstall
       ;;
     --uninstall-cert-manager)
-      export CERT_MANAGER_ACTION=uninstall
+      CERT_MANAGER_ACTION=uninstall
       ;;
     --uninstall-uds)
-      export UDS_ACTION=uninstall
+      UDS_ACTION=uninstall
       ;;
     --uninstall-mongodb)
-      export MONGODB_ACTION=uninstall
+      MONGODB_ACTION=uninstall
       ;;
     --uninstall-sls)
-      export SLS_ACTION=uninstall
+      SLS_ACTION=uninstall
+      ;;
+    --uninstall-all-deps)
+      CLUSTER_MONITORING_ACTION=uninstall
+      IBM_CATALOGS_ACTION=uninstall
+      COMMON_SERVICES_ACTION=uninstall
+      CERT_MANAGER_ACTION=uninstall
+      UDS_ACTION=uninstall
+      MONGODB_ACTION=uninstall
+      SLS_ACTION=uninstall
       ;;
     --no-confirm)
       NO_CONFIRM=true
@@ -257,6 +266,20 @@ function launch_uninstall() {
   echo
 }
 
+function save_config(){
+  
+  export MAS_INSTANCE_ID
+  export MAS_NS
+  export CLUSTER_MONITORING_ACTION
+  export IBM_CATALOGS_ACTION
+  export COMMON_SERVICES_ACTION
+  export CERT_MANAGER_ACTION
+  export UDS_ACTION
+  export MONGODB_ACTION
+  export SLS_ACTION
+
+}
+
 function uninstall() {
   # Take the first parameter off (it will be uninstall)
   shift
@@ -268,6 +291,7 @@ function uninstall() {
   check_mas_project_exists
   prompt_for_deps_to_uninstall
   define_cert_manager_to_uninstall
+  save_config
   review_uninstall_settings
   launch_uninstall
 }
