@@ -35,6 +35,8 @@ spec:
       type: string
     - name: argocd_check
       type: string
+    - name: slack_channel_id
+      type: string
 
     - name: mas_catalog_version
       type: string
@@ -106,6 +108,8 @@ spec:
           value: $(params.argocd_url)
         - name: argocd_check
           value: $(params.argocd_check)
+        - name: slack_channel_id
+          value: $(params.slack_channel_id)
 
         - name: mas_catalog_version
           value: $(params.mas_catalog_version)
