@@ -149,6 +149,7 @@ function validate_dro_migration(){
           if [[ "$NO_CONFIRM" != "true" ]]; then
             prompt_for_confirm_default_yes "Do you want to use your own storage class to configure DRO?" CUSTOM_STORAGE
             if [[ "$CUSTOM_STORAGE" == "true" ]]; then
+              DRO_STORAGE_CLASS = ""
               prompt_for_input "Storage Class Name:" DRO_STORAGE_CLASS
             fi
           fi
