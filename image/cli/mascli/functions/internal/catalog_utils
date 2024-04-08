@@ -29,13 +29,13 @@ function choose_catalog_version() {
       MAS_CATALOG_VERSION=v8-240405-amd64
       ;;
     2)
-      MAS_CATALOG_VERSION=v8-240326-amd64
-      ;;
-    3)
       MAS_CATALOG_VERSION=v8-240227-amd64
       ;;
+    3)
+      MAS_CATALOG_VERSION=v8-240130-amd64
+      ;;
     4)
-      MAS_CATALOG_VERSION=v8-230130-amd64
+      MAS_CATALOG_VERSION=v8-231228-amd64
       ;;
     *)
       echo_warning "Invalid selection"
@@ -155,6 +155,7 @@ function db2_channel_selection() {
       ;;
   esac
 }
+
 
 # Determine the version of Cloud Pak for Data to use
 # -----------------------------------------------------------------------------
