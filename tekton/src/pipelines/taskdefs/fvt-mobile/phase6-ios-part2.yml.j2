@@ -1,21 +1,4 @@
-## Minimum Verification Test for Mobile Technician MAS test suites
-- name: fvt-technician-mvt-ios
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
-    - name: fvt_mobile_app
-      value: technician-app
-    - name: mobile_device_type
-      value: ios
-    - name: fvt_test_suite
-      value: technician-mvt-ios
-  runAfter:
-    - fvt-mobfoundation-mvt-ios
-    - fvt-service-request-mvt-ios
-    - fvt-inspections-mvt-ios
-    - fvt-asset-manager-mvt-ios
-
- # Mobile FVT - Inventory Counting IOS
+# Mobile FVT - Inventory Counting IOS
 - name: fvt-inventorycounting-mvt-ios
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
   params:
@@ -32,6 +15,7 @@
     - fvt-inspections-mvt-ios
     - fvt-asset-manager-mvt-ios
 
+# Mobile FVT - Inventory Receiving IOS
 - name: fvt-inventoryreceiving-mvt-ios
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
   params:
@@ -48,6 +32,7 @@
     - fvt-inspections-mvt-ios
     - fvt-asset-manager-mvt-ios
 
+# Mobile FVT - Issues and Transfers IOS
 - name: fvt-issuesandtransfers-mvt-ios
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
   params:
