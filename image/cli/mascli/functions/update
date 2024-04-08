@@ -516,7 +516,11 @@ function update() {
 
   if [ "$DRO_MIGRATION" = "true" ]; then
     echo_reset_dim "DRO Migration .............................. ${COLOR_GREEN}Yes${TEXT_RESET}"
-    echo_reset_dim "DRO Storage Class .............................. ${COLOR_GREEN}${DRO_STORAGE_CLASS}${TEXT_RESET}"
+    if [ "$DRO_STORAGE_CLASS" != "" ]; then
+      echo_reset_dim "DRO Storage Class .............................. ${COLOR_GREEN}${DRO_STORAGE_CLASS}${TEXT_RESET}"
+    else
+      echo_reset_dim "DRO Storage Class .............................. ${COLOR_GREEN}None${TEXT_RESET}"
+    fi
     echo_reset_dim "UDS/DRO Action .............................. ${COLOR_GREEN}${UDS_ACTION}${TEXT_RESET}"
   else
     echo_reset_dim "DRO Migration .............................. ${COLOR_RED}No${TEXT_RESET}"
