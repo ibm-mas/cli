@@ -17,7 +17,7 @@ if [ "$DEV_MODE" != "true" ]; then
   TARGET_FILE_IN_CLI=$GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yaml
 else
   TARGET_DIR=$DIR/../../tekton/target
-  VERSION=${VERSION:-18.17.3-pre.MASCORE-2241}
+  VERSION=${VERSION:-19.0.0-pre.master}
 
   TASK_FILES=$TARGET_DIR/tasks/*.yaml
   PIPELINE_FILES=$TARGET_DIR/pipelines/*.yaml

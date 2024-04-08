@@ -128,96 +128,86 @@ function validate_dro_migration() {
   MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
 
   if [[ $MAS_CATALOG_DATE -ge 240227 ]]; then
-    echo -e "${COLOR_YELLOW}Verifing UDS status."
-    # If Jan catalog is detected, set DRO_MIGRATION Flag to True
-    UDS_NAMESPACE="ibm-common-services"
-    UDS_CSV=`oc get csv -n "${UDS_NAMESPACE}" | grep user-data-services  | awk '{print $1}'`
+    if [[ "$NO_CONFIRM" != "true" ]] && [[ -z "${DRO_MIGRATION}" ]]; then
+      prompt_for_confirm_default_yes "Do you want to proceed with uninstalling UDS and migrate to DRO?" DRO_MIGRATION
+    fi
+    if [[ "$DRO_MIGRATION" == "true" ]]; then
+      echo -e "${COLOR_YELLOW}Verifing UDS status."
+      # If Jan catalog is detected, set DRO_MIGRATION Flag to True
+      UDS_NAMESPACE="ibm-common-services"
+      UDS_CSV=$(oc get csv -n "${UDS_NAMESPACE}" | grep user-data-services | awk '{print $1}')
+      if [[ -n $UDS_CSV ]]; then
+        UDS_STATUS=$(oc get csv -n "${UDS_NAMESPACE}" "${UDS_CSV}" -o jsonpath='{.status.phase}')
+        if [[ $UDS_STATUS = *'Succeeded'* ]]; then
+          echo -e "${COLOR_YELLOW}UDS is currently running in namespace ${UDS_NAMESPACE}."
+          echo -e "UDS will be uninstalled and MAS will migrate to use DRO (Data Reporter Operator). All compatible bascfg configuration will be updated and configured to use DRO ${COLOR_RESET}"
+          echo
+          if [[ "$NO_CONFIRM" != "true" ]] && [[ -z "${DRO_STORAGE_CLASS}" ]]; then
+            prompt_for_input "Enter the name of a RWO Storage Class to configure DRO, leave it blank if you want the CLI to autodetect a storage class:" DRO_STORAGE_CLASS
+          else
+            DRO_STORAGE_CLASS=""
+          fi
 
-    if [[ -n $UDS_CSV ]]; then
-      UDS_STATUS=`oc get csv -n "${UDS_NAMESPACE}" "${UDS_CSV}" -o jsonpath='{.status.phase}'`
+          ## Check all avaliable Suite Instances versions , if any of them is 8.9.x cancel the dro migration. Exit mas update throw error.
+          for suite_namespace in $(oc get Suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}'); do
+            suite_name=$(oc get Suite -n ${suite_namespace} -o NAME)
+            suite_version=$(oc get ${suite_name} -n ${suite_namespace} -o jsonpath='{.status.versions.reconciled}')
 
-      if [[ $UDS_STATUS = *'Succeeded'* ]]; then
-        echo -e "${COLOR_YELLOW}UDS is currently running in namespace ${UDS_NAMESPACE}."
-        echo -e "UDS will be uninstalled and MAS will migrate to use DRO (Data Reporter Operator). All compatible bascfg configuration will be updated and configured to use DRO ${COLOR_RESET}"
-        echo
-        if [[ "$NO_CONFIRM" != "true" ]]; then
-          prompt_for_confirm_default_yes "Do you want to proceed with uninstalling UDS and migrate to DRO?" DRO_MIGRATION
-        else
-          DRO_MIGRATION="true"
-        fi
+            if [[ $suite_version = 9.* ]] || [[ $suite_version = 8.11.* ]] || [[ $suite_version = 8.10.* ]]; then
 
-          if [[ "$DRO_MIGRATION" == "true" ]]; then
-            CUSTOM_STORAGE=""
-            if [[ "$NO_CONFIRM" != "true" ]]; then
-              prompt_for_confirm_default_yes "Do you want to use your own storage class to configure DRO?" CUSTOM_STORAGE
-              if [[ "$CUSTOM_STORAGE" == "true" ]]; then
-                DRO_STORAGE_CLASS=""
-                prompt_for_input "Enter the name of a RWO Storage Class to configure DRO, leave it blank if you want the CLI to autodetect a storage class:" DRO_STORAGE_CLASS
-              fi
-            else
-                DRO_STORAGE_CLASS = ""
-            fi
-            ## Check all avaliable Suite Instances versions , if any of them is 8.9.x cancel the dro migration. Exit mas update throw error.
-            for suite_namespace in $(oc get Suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
-            do
-              suite_name=`oc get Suite -n ${suite_namespace}  -o NAME`
-              suite_version=`oc get ${suite_name} -n ${suite_namespace} -o jsonpath='{.status.versions.reconciled}'`
+              ## Check if the BASCFG url has a local UDS on all instances, if not then exit and throw error
+              bascfg_name=$(oc get BasCfg -n ${suite_namespace} -o NAME)
+              bas_url=$(oc get ${bascfg_name} -n ${suite_namespace} -o jsonpath='{.spec.config.url}')
+              uds_url=$(oc get route uds-endpoint -n ibm-common-services -o jsonpath='{.spec.host}')
 
-              if [[ $suite_version = 9.* ]] || [[ $suite_version = 8.11.* ]] || [[ $suite_version = 8.10.* ]]; then
-
-                ## Check if the BASCFG url has a local UDS on all instances, if not then exit and throw error
-                bascfg_name=`oc get BasCfg -n ${suite_namespace} -o NAME`
-                bas_url=`oc get ${bascfg_name} -n ${suite_namespace} -o jsonpath='{.spec.config.url}'`
-                uds_url=`oc get route uds-endpoint -n ibm-common-services -o jsonpath='{.spec.host}'`
-
-                if [[ -z ${uds_url} ]]; then
-                  echo -e "${COLOR_RED}UDS route is empty, Please fix your UDS installation to proceed with DRO migration, exiting mas update"
-                  exit 1
-                fi
-
-                if [[ ${bas_url} == *${uds_url}* ]]; then
-                  echo -e "${COLOR_YELLOW}UDS Configuration on ${suite_namespace} with MAS version ${suite_version} is compatible for DRO migration"
-                elif [[ ${bas_url} == *ibm-data-reporter* ]]; then
-                  echo -e "${COLOR_YELLOW}${suite_namespace} is already configured with DRO"
-                  UDS_ACTION="skip"
-                else
-                  echo -e "${COLOR_RED}${suite_namespace} appears to use a Remote UDS that is not running locally on this cluster. This setup is not compatible for DRO migration, exiting mas update"
-                  exit 1
-                fi
-              else
-                echo -e "${COLOR_RED}${suite_namespace} with MAS version ${suite_version} does not support DRO, you must run mas upgrade to upgrade this instance to at least MAS 8.10, exiting mas update"
+              if [[ -z ${uds_url} ]]; then
+                echo -e "${COLOR_RED}UDS route is empty, Please fix your UDS installation to proceed with DRO migration, exiting mas update"
                 exit 1
               fi
-              echo
-            done
-          else
-            echo -e "${COLOR_RED}You must accept the migration from UDS to DRO to continue with the update to ${MAS_CATALOG_VERSION}"
-            exit 1
-          fi
+
+              if [[ ${bas_url} == *${uds_url}* ]]; then
+                echo -e "${COLOR_YELLOW}UDS Configuration on ${suite_namespace} with MAS version ${suite_version} is compatible for DRO migration"
+              elif [[ ${bas_url} == *ibm-data-reporter* ]]; then
+                echo -e "${COLOR_YELLOW}${suite_namespace} is already configured with DRO"
+              else
+                echo -e "${COLOR_RED}${suite_namespace} appears to use a Remote UDS that is not running locally on this cluster. This setup is not compatible for DRO migration, exiting mas update"
+                exit 1
+              fi
+            else
+              echo -e "${COLOR_RED}${suite_namespace} with MAS version ${suite_version} does not support DRO, you must run mas upgrade to upgrade this instance to at least MAS 8.10, exiting mas update"
+              exit 1
+            fi
+            echo
+          done
+        else
+          echo -e "${COLOR_RED}UDS is in Error state. Please fix your UDS installation to proceed with DRO migration, exiting mas update"
+          exit 1
+        fi
       else
-        echo -e "${COLOR_RED}UDS is in Error state. Please fix your UDS installation to proceed with DRO migration, exiting mas update"
-        exit 1
-      fi
-    else
-      DRO_MIGRATION="false"
-      echo -e "${COLOR_YELLOW}UDS does not exist, skipping DRO migration and proceeding with mas update"
-      DRO_NAMESPACE="redhat-marketplace"
-      DRO_CSV=`oc get csv -n "${DRO_NAMESPACE}" | grep ibm-data-reporter-operator  | awk '{print $1}'`
-      echo $DRO_CSV
-      if [[ -n $DRO_CSV ]]; then
-        DRO_STATUS=`oc get csv -n "${DRO_NAMESPACE}" "${DRO_CSV}" -o jsonpath='{.status.phase}'`
-        if [[ $DRO_STATUS = *'Succeeded'* ]]; then
-          echo -e "${COLOR_YELLOW}DRO is currently running in namespace ${DRO_NAMESPACE}, skipping DRO migration and proceeding with mas update"
-          UDS_ACTION="skip"
+        DRO_MIGRATION="false"
+        echo -e "${COLOR_YELLOW}UDS does not exist, skipping DRO migration and proceeding with mas update"
+        DRO_NAMESPACE="redhat-marketplace"
+        DRO_CSV=$(oc get csv -n "${DRO_NAMESPACE}" | grep ibm-data-reporter-operator | awk '{print $1}')
+        echo $DRO_CSV
+        if [[ -n $DRO_CSV ]]; then
+          DRO_STATUS=$(oc get csv -n "${DRO_NAMESPACE}" "${DRO_CSV}" -o jsonpath='{.status.phase}')
+          if [[ $DRO_STATUS = *'Succeeded'* ]]; then
+            echo -e "${COLOR_YELLOW}DRO is currently running in namespace ${DRO_NAMESPACE}, skipping DRO migration and proceeding with mas update"
+            UDS_ACTION="skip"
+          fi
         fi
       fi
-
+    else
+      echo -e "${COLOR_YELLOW} Skipping the migration from UDS to DRO."
+      echo -e "${COLOR_YELLOW} By choosing 'Yes', you must confirm the migration from UDS to DRO"
+      echo -e "${COLOR_YELLOW} Or Add '--dro-migration' argument to the 'mas update' command in order to continue the migration from UDS to DRO"
     fi
   else
     DRO_MIGRATION="false"
   fi
 
 }
+
 
 # Auto-detect Grafana
 # -----------------------------------------------------------------------------
@@ -521,11 +511,8 @@ function update() {
     else
       echo_reset_dim "DRO Storage Class .............................. ${COLOR_GREEN}None${TEXT_RESET}"
     fi
-    echo_reset_dim "UDS/DRO Action .............................. ${COLOR_GREEN}${UDS_ACTION}${TEXT_RESET}"
   else
     echo_reset_dim "DRO Migration .............................. ${COLOR_RED}No${TEXT_RESET}"
-    echo_reset_dim "UDS/DRO Action .............................. ${COLOR_GREEN}${UDS_ACTION}${TEXT_RESET}"
-
   fi
 
   # Grafana Operator
