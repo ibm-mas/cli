@@ -20,7 +20,7 @@ Update Dependencies (Optional):
   --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}         Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), or 'strimzi'
   --dro-migration  ${COLOR_YELLOW}DRO_MIGRATION${TEXT_RESET}          Confirm the removal of UDS and replacement with DRO as part of the update
   --cp4d-version  ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}            Optional. Set Cloud Pak for Data version for the upgrade. Note: This overrides the default CP4D version defined by the Maximo Operator Catalog version.
-
+  --dro-storage-class  ${COLOR_YELLOW}DRO_STORAGE_CLASS${TEXT_RESET}  Set Custom RWO Storage Class name for DRO as part of the update
 Other Commands:
       --no-confirm                      Launch the update without prompting for confirmation
   -h, --help                            Show this help message
@@ -130,57 +130,52 @@ function validate_existing_mongo() {
 # Validate UDS to DRO Migration
 # -----------------------------------------------------------------------------
 
-function validate_dro_migration(){
+function validate_dro_migration() {
   # warn about DRO migration if UDS is running and MAS catalog is January 2024 or newer
   MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
 
   if [[ $MAS_CATALOG_DATE -ge 240227 ]]; then
-    echo -e "${COLOR_YELLOW}Verifying current UDS deployment status..."
-    # If Jan catalog is detected, set DRO_MIGRATION Flag to True
-    UDS_NAMESPACE="ibm-common-services"
-    UDS_CSV=`oc get csv -n "${UDS_NAMESPACE}" | grep user-data-services  | awk '{print $1}'`
+    if [[ "$NO_CONFIRM" != "true" ]] && [[ -z "${DRO_MIGRATION}" ]]; then
+      prompt_for_confirm_default_yes "Do you want to proceed with uninstalling UDS and migrate to DRO?" DRO_MIGRATION
+    fi
+    if [[ "$DRO_MIGRATION" == "true" ]]; then
+      echo -e "${COLOR_YELLOW}Verifing UDS status."
+      # If Jan catalog is detected, set DRO_MIGRATION Flag to True
+      UDS_NAMESPACE="ibm-common-services"
+      UDS_CSV=$(oc get csv -n "${UDS_NAMESPACE}" | grep user-data-services | awk '{print $1}')
+      if [[ -n $UDS_CSV ]]; then
+        UDS_STATUS=$(oc get csv -n "${UDS_NAMESPACE}" "${UDS_CSV}" -o jsonpath='{.status.phase}')
+        if [[ $UDS_STATUS = *'Succeeded'* ]]; then
+          echo -e "${COLOR_YELLOW}UDS is currently running in namespace ${UDS_NAMESPACE}."
+          echo -e "UDS will be uninstalled and MAS will migrate to use DRO (Data Reporter Operator). All compatible bascfg configuration will be updated and configured to use DRO ${COLOR_RESET}"
+          echo
+          if [[ "$NO_CONFIRM" != "true" ]] && [[ -z "${DRO_STORAGE_CLASS}" ]]; then
+            prompt_for_input "Enter the name of a RWO Storage Class to configure DRO, leave it blank if you want the CLI to autodetect a storage class:" DRO_STORAGE_CLASS
+          else
+            DRO_STORAGE_CLASS=""
+          fi
 
-    if [[ -n $UDS_CSV ]]; then
-      UDS_STATUS=`oc get csv -n "${UDS_NAMESPACE}" "${UDS_CSV}" -o jsonpath='{.status.phase}'`
-
-      if [[ $UDS_STATUS = *'Succeeded'* ]]; then
-        echo -e "${COLOR_YELLOW}UDS is currently running in namespace ${UDS_NAMESPACE}."
-        echo -e "UDS will be uninstalled and MAS will migrate to use DRO (Data Reporter Operator). All compatible bascfg configuration will be updated and configured to use DRO ${COLOR_RESET}"
-        echo
-
-        if [[ "$NO_CONFIRM" != "true" ]]; then
-          prompt_for_confirm_default_yes "Do you want to proceed with uninstalling UDS and migrate to DRO?" DRO_MIGRATION
-        fi
-
-        if [[ "$DRO_MIGRATION" == "true" ]]; then
           ## Check all avaliable Suite Instances versions , if any of them is 8.9.x cancel the dro migration. Exit mas update throw error.
-          for suite_namespace in $(oc get Suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
-          do
-            suite_name=`oc get Suite -n ${suite_namespace}  -o NAME`
-            suite_version=`oc get ${suite_name} -n ${suite_namespace} -o jsonpath='{.status.versions.reconciled}'`
+          for suite_namespace in $(oc get Suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}'); do
+            suite_name=$(oc get Suite -n ${suite_namespace} -o NAME)
+            suite_version=$(oc get ${suite_name} -n ${suite_namespace} -o jsonpath='{.status.versions.reconciled}')
 
-            if [[ $suite_version = 9.* ]] || [[ $suite_version = 8.11.* ]] || [[ $suite_version = 8.10.* ]]
-            then
+            if [[ $suite_version = 9.* ]] || [[ $suite_version = 8.11.* ]] || [[ $suite_version = 8.10.* ]]; then
 
               ## Check if the BASCFG url has a local UDS on all instances, if not then exit and throw error
-              bascfg_name=`oc get BasCfg -n ${suite_namespace} -o NAME`
-              bas_url=`oc get ${bascfg_name} -n ${suite_namespace} -o jsonpath='{.spec.config.url}'`
-              uds_url=`oc get route uds-endpoint -n ibm-common-services -o jsonpath='{.spec.host}'`
+              bascfg_name=$(oc get BasCfg -n ${suite_namespace} -o NAME)
+              bas_url=$(oc get ${bascfg_name} -n ${suite_namespace} -o jsonpath='{.spec.config.url}')
+              uds_url=$(oc get route uds-endpoint -n ibm-common-services -o jsonpath='{.spec.host}')
 
-              if [[ -z ${uds_url} ]]
-              then
+              if [[ -z ${uds_url} ]]; then
                 echo -e "${COLOR_RED}UDS route is empty, Please fix your UDS installation to proceed with DRO migration, exiting mas update"
                 exit 1
               fi
 
-              if [[ ${bas_url} == *${uds_url}* ]]
-              then
+              if [[ ${bas_url} == *${uds_url}* ]]; then
                 echo -e "${COLOR_YELLOW}UDS Configuration on ${suite_namespace} with MAS version ${suite_version} is compatible for DRO migration"
-              
-              elif [[ ${bas_url} == *ibm-data-reporter* ]]
-              then
+              elif [[ ${bas_url} == *ibm-data-reporter* ]]; then
                 echo -e "${COLOR_YELLOW}${suite_namespace} is already configured with DRO"
-              
               else
                 echo -e "${COLOR_RED}${suite_namespace} appears to use a Remote UDS that is not running locally on this cluster. This setup is not compatible for DRO migration, exiting mas update"
                 exit 1
@@ -192,22 +187,34 @@ function validate_dro_migration(){
             echo
           done
         else
-          echo -e "${COLOR_RED}You must accept the migration from UDS to DRO to continue with the update to ${MAS_CATALOG_VERSION}"
+          echo -e "${COLOR_RED}UDS is in Error state. Please fix your UDS installation to proceed with DRO migration, exiting mas update"
           exit 1
         fi
       else
-        echo -e "${COLOR_RED}UDS is in Error state. Please fix your UDS installation to proceed with DRO migration, exiting mas update"
-        exit 1
+        DRO_MIGRATION="false"
+        echo -e "${COLOR_YELLOW}UDS does not exist, skipping DRO migration and proceeding with mas update"
+        DRO_NAMESPACE="redhat-marketplace"
+        DRO_CSV=$(oc get csv -n "${DRO_NAMESPACE}" | grep ibm-data-reporter-operator | awk '{print $1}')
+        echo $DRO_CSV
+        if [[ -n $DRO_CSV ]]; then
+          DRO_STATUS=$(oc get csv -n "${DRO_NAMESPACE}" "${DRO_CSV}" -o jsonpath='{.status.phase}')
+          if [[ $DRO_STATUS = *'Succeeded'* ]]; then
+            echo -e "${COLOR_YELLOW}DRO is currently running in namespace ${DRO_NAMESPACE}, skipping DRO migration and proceeding with mas update"
+            UDS_ACTION="skip"
+          fi
+        fi
       fi
     else
-      DRO_MIGRATION="false"
-      echo -e "${COLOR_YELLOW}UDS does not exist, skipping DRO migration and proceeding with mas update"
+      echo -e "${COLOR_YELLOW} Skipping the migration from UDS to DRO."
+      echo -e "${COLOR_YELLOW} By choosing 'Yes', you must confirm the migration from UDS to DRO"
+      echo -e "${COLOR_YELLOW} Or Add '--dro-migration' argument to the 'mas update' command in order to continue the migration from UDS to DRO"
     fi
   else
     DRO_MIGRATION="false"
   fi
 
 }
+
 
 # Auto-detect Grafana
 # -----------------------------------------------------------------------------
@@ -532,6 +539,9 @@ function update_noninteractive() {
       --dro-migration)
         DRO_MIGRATION=true
         ;;
+      --dro-storage-class)
+        DRO_STORAGE_CLASS=$1 && shift
+        ;;
       --cp4d-version)
         CP4D_UPDATE=true
         CP4D_VERSION=$1 && shift
@@ -657,6 +667,8 @@ function update() {
   export STORAGE_CLASS_RWO
   export STORAGE_CLASS_RWX
   export SKIP_ENTITLEMENT_KEY_FLAG
+  export DRO_STORAGE_CLASS
+  export UDS_ACTION
 
   echo_h2 "Review Settings"
 
@@ -709,9 +721,13 @@ function update() {
 
   if [ "$DRO_MIGRATION" = "true" ]; then
     echo_reset_dim "DRO Migration .............................. ${COLOR_GREEN}Yes${TEXT_RESET}"
+    if [ "$DRO_STORAGE_CLASS" != "" ]; then
+      echo_reset_dim "DRO Storage Class .............................. ${COLOR_GREEN}${DRO_STORAGE_CLASS}${TEXT_RESET}"
+    else
+      echo_reset_dim "DRO Storage Class .............................. ${COLOR_GREEN}None${TEXT_RESET}"
+    fi
   else
     echo_reset_dim "DRO Migration .............................. ${COLOR_RED}No${TEXT_RESET}"
-
   fi
 
   # Grafana Operator

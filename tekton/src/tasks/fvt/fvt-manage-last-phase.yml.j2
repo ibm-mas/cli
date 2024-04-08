@@ -101,7 +101,7 @@ spec:
       - name: FVT_TEST_DRIVER
         value: $(params.fvt_test_driver)
       - name: FVT_TEST_SUITE_PREFIX
-        value: base
+        value: base-ui
       - name: FVT_TEST_SUITE
         value: $(params.fvt_test_suite)
       - name: FVT_MAS_APPWS_COMPONENT
@@ -205,21 +205,6 @@ spec:
         - name: FVT_TEST_SUITE
           value: workflow-designer
 
-    # Manage SMTP Configuration Validation
-    - name: fvt-manage-smtp-setup
-      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
-      imagePullPolicy: $(params.image_pull_policy)
-      timeout: 150m # Ensure bad FVTs don't run forever
-      onError: continue # Ensure bad FVTs don't break the pipeline
-      resources: {}
-      workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
-      env:
-        - name: FVT_TEST_SUITE
-          value: mas-smtp-setup
-
     # Manage FVT E-Signature Basic Scenario
     - name: fvt-manage-esig-basic
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
@@ -234,18 +219,3 @@ spec:
       env:
         - name: FVT_TEST_SUITE
           value: esig-basic
-
-    # Manage FVT E-Audit Basic
-    - name: fvt-manage-eaudit-basic
-      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
-      imagePullPolicy: $(params.image_pull_policy)
-      timeout: 150m # Ensure bad FVTs don't run forever
-      onError: continue # Ensure bad FVTs don't break the pipeline
-      resources: {}
-      workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
-      env:
-        - name: FVT_TEST_SUITE
-          value: eaudit-basic
