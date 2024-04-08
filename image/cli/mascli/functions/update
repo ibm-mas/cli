@@ -179,6 +179,7 @@ function validate_dro_migration() {
                   echo -e "${COLOR_YELLOW}UDS Configuration on ${suite_namespace} with MAS version ${suite_version} is compatible for DRO migration"
                 elif [[ ${bas_url} == *ibm-data-reporter* ]]; then
                   echo -e "${COLOR_YELLOW}${suite_namespace} is already configured with DRO"
+                  UDS_ACTION="skip"
                 else
                   echo -e "${COLOR_RED}${suite_namespace} appears to use a Remote UDS that is not running locally on this cluster. This setup is not compatible for DRO migration, exiting mas update"
                   exit 1
@@ -516,8 +517,10 @@ function update() {
   if [ "$DRO_MIGRATION" = "true" ]; then
     echo_reset_dim "DRO Migration .............................. ${COLOR_GREEN}Yes${TEXT_RESET}"
     echo_reset_dim "DRO Storage Class .............................. ${COLOR_GREEN}${DRO_STORAGE_CLASS}${TEXT_RESET}"
+    echo_reset_dim "UDS/DRO Action .............................. ${COLOR_GREEN}${UDS_ACTION}${TEXT_RESET}"
   else
     echo_reset_dim "DRO Migration .............................. ${COLOR_RED}No${TEXT_RESET}"
+    echo_reset_dim "UDS/DRO Action .............................. ${COLOR_GREEN}${UDS_ACTION}${TEXT_RESET}"
 
   fi
 
