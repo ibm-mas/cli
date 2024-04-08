@@ -33,5 +33,9 @@ spec:
       value: "$CERT_MANAGER_ACTION"
     - name: dro_migration
       value: '$DRO_MIGRATION'
+    - name: uds_storage_class
+      value: '$DRO_STORAGE_CLASS'
+    - name: uds_action
+      value: '$UDS_ACTION'
     - name: grafana_v5_upgrade
       value: '$GRAFANA_V5_UPGRADE'
