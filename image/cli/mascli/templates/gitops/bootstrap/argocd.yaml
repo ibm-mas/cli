@@ -1014,6 +1014,44 @@ spec:
           hs.message = ""
           return hs
 
+      operator.openshift.io/CertManager:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+
+                if condition.type:endsWith('deploymentAvailable') then
+                  if condition.status == "True" then
+                    hs.status = "Healthy"
+                    hs.message = condition.message
+                    return hs
+                  else
+                    hs.status = "Degraded"
+                    hs.message = condition.message
+                    return hs
+                  end
+                end
+                
+                if condition.type:endsWith('Degraded') or condition.type:endsWith('deploymentProgressing') then
+                  if condition.status == "False" then
+                    hs.status = "Healthy"
+                    hs.message = condition.message
+                    return hs
+                  else
+                    hs.status = "Degraded"
+                    hs.message = condition.message
+                    return hs
+                  end
+                end
+
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
   repo:
     initContainers:
       - args:
