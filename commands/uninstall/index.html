@@ -94,6 +94,8 @@
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#mas-instance-selection">MAS Instance Selection</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#mas-dependencies-uninstall-options">MAS Dependencies Uninstall Options</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#other-options">Other Options</a>
     </li>
         </ul>
@@ -167,6 +169,24 @@
 <h3 id="mas-instance-selection">MAS Instance Selection<a class="headerlink" href="#mas-instance-selection" title="Permanent link"></a></h3>
 <ul>
 <li><code>-i|--id MAS_INSTANCE_ID</code> MAS Instance ID to uninstall</li>
+</ul>
+<h3 id="mas-dependencies-uninstall-options">MAS Dependencies Uninstall Options<a class="headerlink" href="#mas-dependencies-uninstall-options" title="Permanent link"></a></h3>
+<ul>
+<li><code>--uninstall-cert-manager</code>        Uninstalls Certificate Manager from the target cluster. <strong>Important</strong>: Certificate Manager is a cluster-wide dependency, therefore be really careful when uninstalling it as this might be used by other applications and dependencies installed in the cluster.</li>
+<li><code>--uninstall-common-services</code>     Uninstalls IBM Common Services from the target cluster <strong>Important</strong>: IBM Common Services is a shared dependency under <code>ibm-common-services</code> namespace, therefore be really careful when uninstalling it as this might be used by other applications and dependencies installed in the cluster.</li>
+<li><code>--uninstall-cluster-monitoring</code>  Uninstalls Cluster Monitoring from the target cluster, including OpenTelemetry, Graphana and User Workload Monitoring.</li>
+<li><code>--uninstall-ibm-catalog</code>         Uninstalls IBM Maximo Operator Catalog Source (<code>ibm-operator-catalog</code>) from the target cluster. <strong>Important</strong>: Catalog Sources are cluster-wide dependencies, therefore be really careful when uninstalling it as this might be used by several applications and dependencies installed in the cluster.</li>
+<li><code>--uninstall-mongodb</code>             Uninstalls MongoDB from the target cluster. <strong>Important</strong>: MongoDB could be a shared dependency, therefore be really careful when uninstalling it as this might be used by several applications and dependencies installed in the cluster.</li>
+<li><code>--uninstall-sls</code>                 Uninstalls Suite License Service from the target cluster. <strong>Important</strong>: SLS could be a shared dependency, therefore be really careful when uninstalling it as this might be used by other MAS instances and dependencies installed in the cluster.</li>
+<li><code>--uninstall-all-deps</code>            Uninstalls <strong>all</strong> MAS related dependencies including:<ul>
+<li>Certificate Manager</li>
+<li>IBM Common Services</li>
+<li>Cluster Monitoring</li>
+<li>IBM Operator Catalog</li>
+<li>MongoDB</li>
+<li>Suite License Service</li>
+</ul>
+</li>
 </ul>
 <h3 id="other-options">Other Options<a class="headerlink" href="#other-options" title="Permanent link"></a></h3>
 <ul>
