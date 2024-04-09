@@ -101,8 +101,7 @@ spec:
           value: $(params.uds_contact_firstname)
         - name: UDS_CONTACT_LASTNAME
           value: $(params.uds_contact_lastname)
-        - name: DRO_MIGRATION
-          value: $(params.dro_migration)
+
 
     # IBM Data Reporter Operator (DRO)
     # -------------------------------------------------------------------------
@@ -143,7 +142,8 @@ spec:
           value: $(params.uds_contact_lastname)
         - name: DRO_MIGRATION
           value: $(params.dro_migration)
-
+        - name: DRO_STORAGE_CLASS
+          value: $(params.uds_storage_class)
   workspaces:
     - name: configs
       optional: true
