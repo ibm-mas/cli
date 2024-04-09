@@ -259,8 +259,7 @@ function check_cp4d_target_version() {
     # Lookup expected CP4D service version
     yq -r .data.release_components_meta "$FULL_PATH_OLM_UTILS_FILE" -o yaml > olm-utils.yaml 2>/dev/null
     if [[ $? -ne 0 ]]; then
-      echo "Error while determining the target version for $CHECK_CP4D_SERVICE_ALIAS!"
-      echo "Path: $FULL_PATH_OLM_UTILS_FILE does not exist! Skipping upgrade for it ..."
+      echo "Error while determining the target version for $CHECK_CP4D_SERVICE_ALIAS! Version $CHECK_CP4D_VERSION is not valid."
       CP4D_SERVICE_TARGET_VERSION=""
     else
       CP4D_SERVICE_TARGET_VERSION=$(yq -r ."$CHECK_CP4D_SERVICE_ALIAS".cr_version olm-utils.yaml)
@@ -594,7 +593,6 @@ function update_noninteractive() {
         DRO_STORAGE_CLASS=$1 && shift
         ;;
       --cp4d-version)
-        CP4D_UPDATE=true
         CP4D_VERSION=$1 && shift
         ;;
       --no-confirm)
