@@ -1,18 +1,4 @@
-## Minimum Verification Test for Mobile Technician MAS test suites
-- name: fvt-technician-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
-    - name: fvt_mobile_app
-      value: technician-app
-    - name: mobile_device_type
-      value: android
-    - name: fvt_test_suite
-      value: technician-mvt-android
-  runAfter:
-    - fvt-inventorycounting-mvt-android
-    - fvt-inventoryreceiving-mvt-android
-    - fvt-issuesandtransfers-mvt-android
+
 
 ## Minimum Verification Test for Mobile Supervisor MAS test suites
 - name: fvt-supervisor-mvt-android
@@ -27,8 +13,8 @@
       value: supervisor-mvt-android
   runAfter:
     - fvt-inventorycounting-mvt-android
-    - fvt-inventoryreceiving-mvt-android
-    - fvt-issuesandtransfers-mvt-android
+    - fvt-service-request-mvt-android
+    - fvt-technician-mvt-android
 
 ## Minimum Verification Test for Mobile calibration MAS test suites
 - name: fvt-calibration-mvt-android
@@ -43,5 +29,21 @@
       value: testng-eam-mobile-android-calibration
   runAfter:
     - fvt-inventorycounting-mvt-android
-    - fvt-inventoryreceiving-mvt-android
-    - fvt-issuesandtransfers-mvt-android
+    - fvt-service-request-mvt-android
+    - fvt-technician-mvt-android
+
+## Mobile FVT - Issues and Transfers Android
+- name: fvt-issuesandtransfers-mvt-android
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: it-automation-testcases
+    - name: mobile_device_type
+      value: android
+    - name: fvt_test_suite
+      value: issues-transfer-mvt-android
+  runAfter:
+    - fvt-inventorycounting-mvt-android
+    - fvt-service-request-mvt-android
+    - fvt-technician-mvt-android
