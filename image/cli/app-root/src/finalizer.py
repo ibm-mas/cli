@@ -405,7 +405,9 @@ if __name__ == "__main__":
         if cr.status and cr.status.config.hosts:
                 firstBroker = cr.status.config.hosts[0].host
                 if firstBroker.find('eventstreams') != -1:
-                    setObject[f"target.kafkaProvider"] = 'External'
+                    setObject[f"target.kafkaProvider"] = 'IBM'
+                elif firstBroker.find('amazonaws') != -1:
+                    setObject[f"target.kafkaProvider"] = 'AWS'
                 elif firstBroker.find('amq-streams') != -1:
                     setObject[f"target.kafkaProvider"] = 'AMQ'
                     namespace="amq-streams"
