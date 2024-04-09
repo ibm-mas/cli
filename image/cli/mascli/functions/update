@@ -464,9 +464,12 @@ function validate_existing_cp4d() {
         CP4D_CURRENT_VERSION_COGNOS=$CP4D_SERVICE_CURRENT_VERSION
         CP4D_TARGET_VERSION_COGNOS=$CP4D_SERVICE_TARGET_VERSION
       fi
-    else
-          echo -e "${COLOR_YELLOW}Existing Cloud Pak for Data instance is already running on a version ($CP4D_CURRENT_VERSION) that is equal or higher than the target upgrade version ($CP4D_VERSION). Skipping upgrade..."          
     fi
+
+    if [ ! "$(printf '%s\n' "$CP4D_CURRENT_VERSION" "$CP4D_VERSION" | sort -V | head -n1)" = "$CP4D_CURRENT_VERSION" ]; then
+      echo -e "${COLOR_YELLOW}Existing Cloud Pak for Data instance is already running on a version ($CP4D_CURRENT_VERSION) that is equal or higher than the target upgrade version ($CP4D_VERSION). Skipping upgrade..."          
+    fi
+
   fi
 }
 
