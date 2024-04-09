@@ -111,6 +111,81 @@ def getKafkaVersion(namespace):
         print(f"Unable to determine kafka version: {e}")
     return "unknown"
 
+# Get cp4d components versions
+# -------------------------------------------------------------------------
+def getcp4dCompsVersions():
+
+    # Get Analytics Engine Version
+    # -------------------------------------------------------------------------
+    try:
+        crs = dynClient.resources.get(api_version="ae.cpd.ibm.com/v1", kind="AnalyticsEngine")
+        cr = crs.get(name="analyticsengine-sample", namespace="ibm-cpd")
+        if cr.status and cr.status.versions.reconciled:
+            setObject[f"target.AnalyticsEngineVersion"] = cr.status.versions.reconciled
+        else:
+            print(f"Unable to determine Analytics Engine version: status.versions.reconciled unavailable")
+    except Exception as e:
+        print(f"Unable to determine Analytics Engine version: {e}")
+
+    # Get Watson Studio Version
+    # -------------------------------------------------------------------------
+    try:
+        crs = dynClient.resources.get(api_version="ws.cpd.ibm.com/v1beta1", kind="WS")
+        cr = crs.get(name="ws-cr", namespace="ibm-cpd")
+        if cr.status and cr.status.versions.reconciled:
+            setObject[f"target.WatsonStudioVersion"] = cr.status.versions.reconciled
+        else:
+            print(f"Unable to determine Watson Studion version: status.versions.reconciled unavailable")
+    except Exception as e:
+        print(f"Unable to determine Watson Studio version: {e}")
+
+    # Get Watson Discovery Version
+    # -------------------------------------------------------------------------
+    try:
+        crs = dynClient.resources.get(api_version="discovery.watson.ibm.com/v1", kind="WatsonDiscovery")
+        cr = crs.get(name="wd", namespace="ibm-cpd")
+        if cr.status and cr.status.versions.reconciled:
+            setObject[f"target.WatsonDiscoveryVersion"] = cr.status.versions.reconciled
+        else:
+            print(f"Unable to determine Watson Discovery version: status.versions.reconciled unavailable")
+    except Exception as e:
+        print(f"Unable to determine Watson Discovery version: {e}") 
+
+    # Get  Watson OpenScale Version
+    # -------------------------------------------------------------------------
+    try:
+        crs = dynClient.resources.get(api_version="wos.cpd.ibm.com/v1", kind="WOService")
+        cr = crs.get(name="openscale-defaultinstance", namespace="ibm-cpd")
+        if cr.status and cr.status.versions.reconciled:
+            setObject[f"target.WOServiceVersion"] = cr.status.versions.reconciled
+        else:
+            print(f"Unable to determine Watson OpenScale version: status.versions.reconciled unavailable")
+    except Exception as e:
+        print(f"Unable to determine Watson OpenScale version: {e}")
+
+    # Get  SPSS Modeler Version
+    # -------------------------------------------------------------------------
+    try:
+        crs = dynClient.resources.get(api_version="spssmodeler.cpd.ibm.com/v1", kind="Spss")
+        cr = crs.get(name="spssmodeler", namespace="ibm-cpd")
+        if cr.status and cr.status.version:
+            setObject[f"target.SpssVersion"] = cr.status.version
+        else:
+            print(f"Unable to determine SPSS Modeler version: status.version unavailable")
+    except Exception as e:
+        print(f"Unable to determine SPSS Modeler version: {e}")
+
+    # Get  Cognos Analytics Version
+   # -------------------------------------------------------------------------
+    try:
+        crs = dynClient.resources.get(api_version="ca.cpd.ibm.com/v1", kind="CAService")
+        cr = crs.get(name="ca-addon-cr", namespace="ibm-cpd")
+        if cr.status and cr.status.versions.reconciled:
+            setObject[f"target.CAServiceVersion"] = cr.status.versions.reconciled
+        else:
+            print(f"Unable to determine Cognos Analytics version: status.versions.reconciled unavailable")
+    except Exception as e:
+        print(f"Unable to determine Cognos Analytics version: {e}")
 
 # Script start
 # -----------------------------------------------------------------------------
@@ -356,12 +431,25 @@ if __name__ == "__main__":
         cr = crs.get(name=f"sls", namespace="ibm-sls")
         if cr.status and cr.status.versions:
                 slsVersion = cr.status.versions.reconciled
-                print(slsVersion)
                 setObject[f"target.slsVersion"] = slsVersion
         else:
             print(f"Unable to determine SLS version: status.versions unavailable")
     except Exception as e:
         print(f"Unable to determine SLS version: {e}")
+    
+     # Lookup CP4D version
+    # -------------------------------------------------------------------------
+    try:
+        crs = dynClient.resources.get(api_version="wml.cpd.ibm.com/v1beta1", kind="WmlBase")
+        cr = crs.get(name=f"wml-cr", namespace="ibm-cpd")
+        if cr.status and cr.status.versions:
+                cp4dVersion = cr.status.versions.reconciled
+                setObject[f"target.cp4dVersion"] = cp4dVersion
+                getcp4dCompsVersions()
+        else:
+            print(f"Unable to determine CP4D version: status.versions unavailable")
+    except Exception as e:
+        print(f"Unable to determine CP4D version: {e}")
    
     # Connect to mongoDb
     # -------------------------------------------------------------------------

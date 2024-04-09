@@ -114,7 +114,15 @@ spec:
     - name: dro_migration
       default: ""
       type: string
-      description: Set to 'true' to Migration UDS to DRO 
+      description: Set to 'true' to Migration UDS to DRO
+    - name: uds_storage_class
+      default: ""
+      type: string
+      description: Set custom storageclass for UDS/DRO
+    - name: uds_action
+      default: "install-dro"
+      type: string
+      description: set UDS_ACTION, default is install-dro'
 
     # grafana operator update
     - name: grafana_v5_upgrade
@@ -298,7 +306,7 @@ spec:
           value: $(params.kafka_namespace)
         - name: kafka_provider
           value: $(params.kafka_provider)
-    
+
     # UDS/DRO Migration
     - name: update-uds
       taskRef:
@@ -309,6 +317,10 @@ spec:
       params:
         - name: dro_migration
           value: $(params.dro_migration)
+        - name: uds_storage_class
+          value: $(params.uds_storage_class)
+        - name: uds_action
+          value: $(params.uds_action)
         - name: devops_suite_name
           value: update-uds
 {% if wait_for_install == true %}

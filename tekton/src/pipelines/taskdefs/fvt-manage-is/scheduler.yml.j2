@@ -29,7 +29,7 @@
   runAfter:
     - fvt-manage-setup-is # Tests must always start after fvt-manage-setup-is
 
-# UI
+{# # UI
 - name: fvt-manage-scheduler-1
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
@@ -42,7 +42,7 @@
     - name: fvt_test_driver
       value: tpae
   runAfter:
-    - fvt-manage-scheduler-setup
+    - fvt-manage-scheduler-setup #}
 
 {# # Manage FVT - Scheduler
 - name: fvt-manage-scheduler-2
