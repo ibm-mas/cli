@@ -241,6 +241,38 @@ function detect_grafana_update() {
   fi
 }
 
+function check_cp4d_target_version() {
+
+  CHECK_CP4D_VERSION=$1
+  CHECK_CP4D_SERVICE_ALIAS=$2
+
+  # Workaround:
+    # If CP4D 4.6.6 then don't use j2 file to lookup for CPD service version as yq fails to generate yaml from j2 due a workaround done in 'olm-utils-cm-4.6.6.yml.j2'
+    if [[ "$CHECK_CP4D_VERSION" == "4.6.6" ]]; then
+      OLM_UTILS_FILE="olm-utils-cm-$CHECK_CP4D_VERSION.yml"
+    else
+      OLM_UTILS_FILE="olm-utils-cm-$CHECK_CP4D_VERSION.yml.j2"
+    fi
+
+    FULL_PATH_OLM_UTILS_FILE="ansible-devops/roles/cp4d/templates/config_maps/$OLM_UTILS_FILE"
+
+    # Lookup expected CP4D service version
+    yq -r .data.release_components_meta "$FULL_PATH_OLM_UTILS_FILE" -o yaml > olm-utils.yaml 2>/dev/null
+    if [[ $? -ne 0 ]]; then
+      echo "Error while determining the target version for $CHECK_CP4D_SERVICE_ALIAS!"
+      echo "Path: $FULL_PATH_OLM_UTILS_FILE does not exist! Skipping upgrade for it ..."
+      CP4D_SERVICE_TARGET_VERSION=""
+    else
+      CP4D_SERVICE_TARGET_VERSION=$(yq -r ."$CHECK_CP4D_SERVICE_ALIAS".cr_version olm-utils.yaml)
+      if [[ "$CP4D_SERVICE_TARGET_VERSION" == "null" ]]; then
+        CP4D_SERVICE_TARGET_VERSION=""
+        echo "Could not determine the target version for '$CHECK_CP4D_SERVICE_ALIAS'. Skipping upgrade for it ..."
+      fi
+    fi
+    rm -rf olm-utils.yaml
+
+}
+
 # Auto-detect Cloud Pak Data Service
 # -----------------------------------------------------------------------------
 # Validates the existance of installed Cloud Pak Data Service in the target cluster in the CP4D namespace
@@ -269,27 +301,29 @@ function validate_existing_cp4d_service() {
   
   # Only check if upgrade is needed if CP4D service is installed
   if [[ "$CP4D_SERVICE_CURRENT_VERSION" != "" ]]; then
+    
+    check_cp4d_target_version "$CP4D_VERSION" "$CP4D_SERVICE_ALIAS"
+    
+    # # Workaround:
+    # # If CP4D 4.6.6 then don't use j2 file to lookup for CPD service version as yq fails to generate yaml from j2 due a workaround done in 'olm-utils-cm-4.6.6.yml.j2'
+    # if [[ "$CP4D_VERSION" == "4.6.6" ]]; then
+    #   OLM_UTILS_FILE="olm-utils-cm-$CP4D_VERSION.yml"
+    # else
+    #   OLM_UTILS_FILE="olm-utils-cm-$CP4D_VERSION.yml.j2"
+    # fi
 
-    # Workaround:
-    # If CP4D 4.6.6 then don't use j2 file to lookup for CPD service version as yq fails to generate yaml from j2 due a workaround done in 'olm-utils-cm-4.6.6.yml.j2'
-    if [[ "$CP4D_VERSION" == "4.6.6" ]]; then
-      OLM_UTILS_FILE="olm-utils-cm-$CP4D_VERSION.yml"
-    else
-      OLM_UTILS_FILE="olm-utils-cm-$CP4D_VERSION.yml.j2"
-    fi
-
-    # Lookup expected CP4D service version
-    yq -r .data.release_components_meta ansible-devops/roles/cp4d/templates/config_maps/$OLM_UTILS_FILE -o yaml > olm-utils.yaml 2>/dev/null
-    if [[ $? -ne 0 ]]; then
-      echo "Could not determine the target version for $CP4D_SERVICE_ALIAS. Skipping upgrade for it ..."
-      CP4D_SERVICE_TARGET_VERSION=""
-    else
-      CP4D_SERVICE_TARGET_VERSION=$(yq -r .$CP4D_SERVICE_ALIAS.cr_version olm-utils.yaml)
-      if [[ "$CP4D_SERVICE_TARGET_VERSION" == "null" ]]; then
-        CP4D_SERVICE_TARGET_VERSION=""
-      fi
-    fi
-    rm -rf olm-utils.yaml    
+    # # Lookup expected CP4D service version
+    # yq -r .data.release_components_meta ansible-devops/roles/cp4d/templates/config_maps/$OLM_UTILS_FILE -o yaml > olm-utils.yaml 2>/dev/null
+    # if [[ $? -ne 0 ]]; then
+    #   echo "Could not determine the target version for $CP4D_SERVICE_ALIAS. Skipping upgrade for it ..."
+    #   CP4D_SERVICE_TARGET_VERSION=""
+    # else
+    #   CP4D_SERVICE_TARGET_VERSION=$(yq -r .$CP4D_SERVICE_ALIAS.cr_version olm-utils.yaml)
+    #   if [[ "$CP4D_SERVICE_TARGET_VERSION" == "null" ]]; then
+    #     CP4D_SERVICE_TARGET_VERSION=""
+    #   fi
+    # fi
+    # rm -rf olm-utils.yaml    
     
     # Only check if upgrade is needed if CP4D service target version is set
     if [[ "$CP4D_SERVICE_TARGET_VERSION" != "" ]]; then
@@ -344,11 +378,20 @@ function validate_existing_cp4d() {
 
   # Lookup existing CP4D instance
   CP4D_CURRENT_VERSION=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.version}' 2> /dev/null`
-  
+
   # Target cp4d version will be defined by chosen catalog/casebundle
   if [[ "$CP4D_VERSION" == "" ]]; then
     CP4D_VERSION=`yq -r .cpd_product_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml 2> /dev/null`
     if [[ "$CP4D_VERSION" == "null" ]]; then
+      CP4D_VERSION=""
+    fi
+  fi
+
+  # Lookup CP4D target version is valid
+  if [[ "$CP4D_VERSION" != "" ]]; then
+    check_cp4d_target_version "$CP4D_VERSION" "cpd_platform"
+    # If CP4D_SERVICE_TARGET_VERSION is empty, it means it's not a valid version to be upgraded thus skip 
+    if [[ "$CP4D_SERVICE_TARGET_VERSION" == "" ]]; then
       CP4D_VERSION=""
     fi
   fi
@@ -375,7 +418,6 @@ function validate_existing_cp4d() {
 
       CP4D_UPDATE=true
       SKIP_ENTITLEMENT_KEY_FLAG=true # this will skip ibm-entitlement-key assertion in cp4d role, as entitlement key is not sent in update pipeline but it is required in cp4d role
-      echo
 
       # # Set CP4D_UPDATE if current CP4D version is lower than expected
       # if [ ! "$(printf '%s\n' "$CP4D_VERSION" "$CP4D_CURRENT_VERSION" | sort -V | head -n1)" = "$CP4D_VERSION" ]; then
