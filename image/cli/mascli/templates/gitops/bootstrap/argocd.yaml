@@ -1017,32 +1017,75 @@ spec:
       operator.openshift.io/CertManager:
         health.lua: |
           hs = {}
+
+          cm_cainjector_deployed = "False"
+          cm_webhook_deployed = "False"
+          cm_controller_deployed  = "False"
+
+          cm_cainjector_degraded = "False"
+          cm_webhook_degraded = "False"
+          cm_controller_degraded  = "False"
+
+          cm_cainjector_progressing = "False"
+          cm_webhook_progressing = "False"
+          cm_controller_progressing  = "False"
+
           if obj.status ~= nil then
             if obj.status.conditions ~= nil then
               for i, condition in ipairs(obj.status.conditions) do
 
-                if condition.type:endsWith('deploymentAvailable') then
-                  if condition.status == "True" then
-                    hs.status = "Healthy"
-                    hs.message = condition.message
-                    return hs
-                  else
-                    hs.status = "Degraded"
-                    hs.message = condition.message
-                    return hs
-                  end
+                if condition.type == "cert-manager-cainjector-deploymentAvailable" and condition.status == "True" then
+                  cm_cainjector_deployed = "True"
                 end
-                
-                if condition.type:endsWith('Degraded') or condition.type:endsWith('deploymentProgressing') then
-                  if condition.status == "False" then
-                    hs.status = "Healthy"
-                    hs.message = condition.message
-                    return hs
-                  else
-                    hs.status = "Degraded"
-                    hs.message = condition.message
-                    return hs
-                  end
+
+                if condition.type == "cert-manager-webhook-deploymentAvailable" and condition.status == "True" then
+                  cm_webhook_deployed = "True"
+                end
+
+                if condition.type == "cert-manager-controller-deploymentAvailable" and condition.status == "True" then
+                  cm_controller_deployed = "True"
+                end
+
+                if condition.type == "cert-manager-cainjector-deploymentDegraded" and condition.status == "True" then
+                  cm_cainjector_degraded = "True"
+                end
+
+                if condition.type == "cert-manager-webhook-deploymentDegraded" and condition.status == "True" then
+                  cm_webhook_degraded = "True"
+                end
+
+                if condition.type == "cert-manager-controller-deploymentDegraded" and condition.status == "True" then
+                  cm_controller_degraded = "True"
+                end
+
+                if condition.type == "cert-manager-cainjector-deploymentProgressing" and condition.status == "True" then
+                  cm_cainjector_progressing = "True"
+                end
+
+                if condition.type == "cert-manager-webhook-deploymentProgressing" and condition.status == "True" then
+                  cm_webhook_progressing = "True"
+                end
+
+                if condition.type == "cert-manager-controller-deploymentProgressing" and condition.status == "True" then
+                  cm_controller_progressing = "True"
+                end
+
+                if cm_cainjector_deployed == "True" and cm_webhook_deployed == "True" and cm_controller_deployed == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+
+                if cm_cainjector_degraded == "True" or cm_webhook_degraded == "True" or cm_controller_degraded == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+
+                if cm_cainjector_progressing == "True" or cm_webhook_progressing == "True" or cm_controller_progressing == "True" then
+                  hs.status = "Progressing"
+                  hs.message = condition.message
+                  return hs
                 end
 
               end
