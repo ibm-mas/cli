@@ -63,7 +63,7 @@ spec:
         - name: fvt_test_suite
           value: coreidp-auth
 
-    - name: imagescan-manage
+    - name: imagescan
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
