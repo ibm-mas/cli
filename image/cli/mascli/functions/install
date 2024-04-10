@@ -384,6 +384,27 @@ function install_noninteractive() {
         export MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD=$1 && shift
         ;;
 
+      # Manage commands - Dabatase tablespaces
+      --manage-db-tablespace)
+        export MAS_APP_SETTINGS_TABLESPACE=$1 && shift
+        ;;
+
+      --manage-db-indexspace)
+        export MAS_APP_SETTINGS_INDEXSPACE=$1 && shift
+        ;;
+
+      --manage-db-schema)
+        export MAS_APP_SETTINGS_DB2_SCHEMA=$1 && shift
+        ;;
+
+      --manage-db-username)
+        export DB2_LDAP_USERNAME=$1 && shift
+        ;;
+
+      --manage-db-password)
+        export DB2_LDAP_PASSWORD=$1 && shift
+        ;;
+
       # Manage commands - Database encryption keys
       --manage-crypto-key)
         export MAS_APP_SETTINGS_CRYPTO_KEY=$1 && shift

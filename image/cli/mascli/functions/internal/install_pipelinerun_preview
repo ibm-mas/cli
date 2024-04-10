@@ -91,7 +91,12 @@ function install_pipelinerun_preview() {
     then echo_reset_dim " - Additional Languages ... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_SECONDARY_LANGS}"
     fi
 
-    echo_reset_dim " - Include Demo Data ...... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DEMODATA}"
+    echo_reset_dim " - Database Settings"
+    echo_reset_dim "   - Schema ............... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_INDEXSPACE:-<MAXINDEX>}"
+    echo_reset_dim "   - Username ............. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DB2_SCHEMA:-<db2inst1>}"
+    echo_reset_dim "   - Tablespace ........... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_TABLESPACE:-<MAXDATA>}"
+    echo_reset_dim "   - Indexspace ........... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_INDEXSPACE:-<MAXINDEX>}"
+
   fi
 
   if [[ "${MAS_APP_CHANNEL_PREDICT}" == '' ]]
@@ -416,6 +421,12 @@ function install_pipelinerun_preview() {
   [ "$MAS_APP_SETTINGS_SECONDARY_LANGS" != "" ] && cmd+=" --manage-secondary-languages '$MAS_APP_SETTINGS_SECONDARY_LANGS'"
   [ "$MAS_APP_SETTINGS_SERVER_TIMEZONE" != "" ] && cmd+=" \\ 
   --manage-server-timezone '$MAS_APP_SETTINGS_SERVER_TIMEZONE'"
+  [ "$MAS_APP_SETTINGS_TABLESPACE" != "" ] && cmd+=" \\
+  --manage-db-tablespace '$MAS_APP_SETTINGS_TABLESPACE'"
+  [ "$MAS_APP_SETTINGS_INDEXSPACE" != "" ] && cmd+=" --manage-db-indexspace '$MAS_APP_SETTINGS_INDEXSPACE'"
+  [ "$MAS_APP_SETTINGS_DB2_SCHEMA" != "" ] && cmd+=" --manage-db-schema '$MAS_APP_SETTINGS_DB2_SCHEMA'"
+  [ "$DB2_LDAP_USERNAME" != "" ] && cmd+=" --manage-db-username '$DB2_LDAP_USERNAME'"
+  [ "$DB2_LDAP_PASSWORD" != "" ] && cmd+=" --manage-db-password '$DB2_LDAP_PASSWORD'"
 
   reset_colors
   echo

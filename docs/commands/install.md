@@ -151,6 +151,12 @@ Usage
 - `--manage-old-crypto-key MAS_APP_SETTINGS_OLD_CRYPTO_KEY`                                 Set `MXE_SECURITY_OLD_CRYPTO_KEY` value if you want to customize your Manage database encryption keys
 - `--manage-old-cryptox-key MAS_APP_SETTINGS_OLD_CRYPTOX_KEY`                               Set `MXE_SECURITY_OLD_CRYPTOX_KEY` value if you want to customize your Manage database encryption keys
 - `--manage-override-encryption-secrets`                                                    Overrides any existing Manage database encryption keys. A backup of the original secret holding existing encryption keys is taken prior overriding it with the new defined keys.
+-- `--manage-db-tablespace MAS_APP_SETTINGS_TABLESPACE`                                     Optional. Set the database tablespace name that Manage will use to be installed. Default is `MAXDATA`.
+-- `--manage-db-indexspace MAS_APP_SETTINGS_INDEXSPACE`                                     Optional. Set the database indexspace name that Manage will use to be installed. Default is `MAXINDEX`.
+-- `--manage-db-schema MAS_APP_SETTINGS_DB2_SCHEMA`                                         Optional. Set the database schema name that Manage will use to be installed. Default is `maximo`.
+-- `--manage-db-username DB2_LDAP_USERNAME`                                                 Optional. Set the database user name that Manage will use to be installed. Default is `db2inst1`.
+-- `--manage-db-password DB2_LDAP_PASSWORD`                                                 Optional. Set the database indexspace name that Manage will use to be installed. Default is an auto generated password during DB2 provisioning.
+
 
 ### Other Commands:
 - `--no-wait-for-pvcs` If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
