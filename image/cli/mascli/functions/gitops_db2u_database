@@ -529,11 +529,8 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo
   echo_h2 "Generating DB2U Database Configuraton"
   echo
-  # GENERATED_CONFIG_FILE="${GITOPS_INSTANCE_DIR}/${DB2_INSTANCE_NAME}.ibm-db2u-database.yaml"
-  # echo_reset_dim "- Generating DB2U Database file ${GENERATED_CONFIG_FILE}"
-  # jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database.yaml.j2 -o ${GENERATED_CONFIG_FILE}
 
-    # If the file doesn't exist, create a blank one
+  # If the file doesn't exist, create a blank one
   if ! [ -f ${CONFIGS_FILE} ]; then
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database-common.yaml.j2 > $CONFIGS_FILE
   fi

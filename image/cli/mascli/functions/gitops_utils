@@ -263,13 +263,16 @@ function remove_git_repo_clone() {
 function unlock_git_repo() {
   GIT_LOCK_BRANCH=$1
   GITOPS_REPO_DIR=$2
-  echo ""
-  echo "Deleting "${GIT_LOCK_BRANCH}" from remote"
-  git -C "${GITOPS_REPO_DIR}" push origin --delete "${GIT_LOCK_BRANCH}"
 
-  echo ""
-  echo "Deleting ${GITOPS_REPO_DIR} from filesystem"
-  rm -rf "${GITOPS_REPO_DIR}"
+  if [[ -d "${GITOPS_REPO_DIR}" ]]; then
+    echo ""
+    echo "Deleting "${GIT_LOCK_BRANCH}" from remote"
+    git -C "${GITOPS_REPO_DIR}" push origin --delete "${GIT_LOCK_BRANCH}"
+
+    echo ""
+    echo "Deleting ${GITOPS_REPO_DIR} from filesystem"
+    rm -rf "${GITOPS_REPO_DIR}"
+  fi
 }
 
 
