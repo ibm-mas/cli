@@ -40,3 +40,4 @@ image/cli/mascli/gitops-mas-deploy-merged.sh
 image/cli/mascli/tmp-suite-deprovision
 image/cli/mascli/fyre-dev.noble3.tgke-env.sh
 image/cli/mascli/tmp-mas-config
+image/cli/mascli/fyre-dev.noble3.tgke-db2u-manage-env.sh
