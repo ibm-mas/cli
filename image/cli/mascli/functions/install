@@ -205,6 +205,12 @@ function install_noninteractive() {
           export DB2_TYPE=$1 && shift
         fi
         ;;
+      --db2-username)
+        export DB2_LDAP_USERNAME=$1 && shift
+        ;;
+      --db2-password)
+        export DB2_LDAP_PASSWORD=$1 && shift
+        ;;
 
       # Dependencies - Db2 Advanced Options
       --db2u-affinity-key)
@@ -395,14 +401,6 @@ function install_noninteractive() {
 
       --manage-db-schema)
         export MAS_APP_SETTINGS_DB2_SCHEMA=$1 && shift
-        ;;
-
-      --manage-db-username)
-        export DB2_LDAP_USERNAME=$1 && shift
-        ;;
-
-      --manage-db-password)
-        export DB2_LDAP_PASSWORD=$1 && shift
         ;;
 
       # Manage commands - Database encryption keys

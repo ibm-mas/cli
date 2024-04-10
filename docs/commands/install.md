@@ -83,10 +83,12 @@ Usage
 - `--eventstreams-instance-location EVENTSTREAMS_LOCATION`      Optional. Set IBM Event Streams instance location.
 
 ### IBM Db2 (Optional, required to use IBM Db2 Universal Operator):
-- `--db2u-channel DB2_CHANNEL`     Subscription channel for Db2u (e.g. v110508.0)
-- `--db2u-system`                  Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)
-- `--db2u-manage`                  Install a dedicated Db2u instance for Maximo Manage (supported by Manage)
-- `--db2u-type-manage`             Optional. Choose the type of the Manage dedicated Db2u instance. Available options are `db2wh` (default) or `db2oltp`.
+- `--db2u-channel DB2_CHANNEL`          Subscription channel for Db2u (e.g. v110508.0)
+- `--db2u-system`                       Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)
+- `--db2u-manage`                       Install a dedicated Db2u instance for Maximo Manage (supported by Manage)
+- `--db2u-type-manage`                  Optional. Choose the type of the Manage dedicated Db2u instance. Available options are `db2wh` (default) or `db2oltp`.
+-`--db2u-username DB2_LDAP_USERNAME`    Optional. Set the DB2 database user name. Default is `db2inst1`. Note: This is only applicable to the cases where a DB2 instance will be created for Manage via MAS CLI.
+- `--db2u-password DB2_LDAP_PASSWORD`   Optional. Set the DB2 database password. Default is an auto generated password during DB2 provisioning. Note: This is only applicable to the cases where a DB2 instance will be created for Manage via MAS CLI.
 
 ### Advanced Db2u Universal Operator Configuration (Optional):
 - `--db2u-namespace DB2_NAMESPACE` Change namespace where Db2u instances will be created
@@ -153,10 +155,7 @@ Usage
 - `--manage-override-encryption-secrets`                                                    Overrides any existing Manage database encryption keys. A backup of the original secret holding existing encryption keys is taken prior overriding it with the new defined keys.
 -- `--manage-db-tablespace MAS_APP_SETTINGS_TABLESPACE`                                     Optional. Set the database tablespace name that Manage will use to be installed. Default is `MAXDATA`.
 -- `--manage-db-indexspace MAS_APP_SETTINGS_INDEXSPACE`                                     Optional. Set the database indexspace name that Manage will use to be installed. Default is `MAXINDEX`.
--- `--manage-db-schema MAS_APP_SETTINGS_DB2_SCHEMA`                                         Optional. Set the database schema name that Manage will use to be installed. Default is `maximo`.
--- `--manage-db-username DB2_LDAP_USERNAME`                                                 Optional. Set the database user name that Manage will use to be installed. Default is `db2inst1`.
--- `--manage-db-password DB2_LDAP_PASSWORD`                                                 Optional. Set the database indexspace name that Manage will use to be installed. Default is an auto generated password during DB2 provisioning.
-
+-- `--manage-db-schema MAS_APP_SETTINGS_DB2_SCHEMA`                                         Optional. Set the DB2 database schema name that Manage will use to be installed. Default is `maximo`. Note: This is only applicable to the cases where a DB2 instance will be created for Manage via MAS CLI.
 
 ### Other Commands:
 - `--no-wait-for-pvcs` If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
