@@ -95,10 +95,6 @@ spec:
       type: string
     - name: smtp_default_should_email_passwords
       type: string
-    - name: smtp_username
-      type: string
-    - name: smtp_password
-      type: string
     - name: ldap_url
       type: string
     - name: ldap_basedn
@@ -486,10 +482,6 @@ spec:
           value: $(params.smtp_default_recipient_email)
         - name: smtp_default_should_email_passwords
           value: $(params.smtp_default_should_email_passwords)
-        - name: smtp_username
-          value: $(params.smtp_username)
-        - name: smtp_password
-          value: $(params.smtp_password)
         - name: cluster_url
           value: $(params.cluster_url)
       taskRef:
