@@ -205,10 +205,10 @@ function install_noninteractive() {
           export DB2_TYPE=$1 && shift
         fi
         ;;
-      --db2-username)
+      --db2u-username)
         export DB2_LDAP_USERNAME=$1 && shift
         ;;
-      --db2-password)
+      --db2u-password)
         export DB2_LDAP_PASSWORD=$1 && shift
         ;;
 
