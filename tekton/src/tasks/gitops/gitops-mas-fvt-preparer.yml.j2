@@ -352,11 +352,14 @@ spec:
           SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
           SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
           SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          WORKSPACE_APP="workspace.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+
           check_argo_app_healthy "${MONGO_CONFIG_APP}" 
           check_argo_app_healthy "${SLS_CONFIG_APP}"
           check_argo_app_healthy "${BAS_CONFIG_APP}"
           check_argo_app_healthy "${SLS_APP_NAME}"
           check_argo_app_healthy "${SUITE_APP_NAME}"
+          check_argo_app_healthy "${WORKSPACE_APP}"
         fi
       
         if [[ "$LAUNCHER_ID" == "apps" ]]; then
