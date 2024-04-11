@@ -167,9 +167,6 @@ spec:
     - name: ldap_userid_map
       type: string
       default: ""
-    - name: ldap_certificate_file
-      type: string
-      default: ""
 
   stepTemplate:
     name: gitops-mas-fvt-preparer
@@ -289,12 +286,12 @@ spec:
 
       - name: LDAP_URL
         value: $(params.ldap_url)
-      - name: LDAP_BASEDN
+      - name: LDAP_BASE_DN
         value: $(params.ldap_basedn)
-      - name: LDAP_USERID_MAP
+      - name: LDAP_USER_MAP
         value: $(params.ldap_userid_map)
-      - name: LDAP_CERTIFICATE_FILE
-        value: /workspace/shared-additional-configs/ldap_masdeps1_cert.pem
+      - name: LDAP_CERT_ALIAS
+        value: ldap
 
     envFrom:
       - configMapRef:
@@ -422,6 +419,7 @@ spec:
         echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration 4h --applications *"  
         argocd proj windows add mas --kind deny --schedule "* * * * *" --duration 4h --applications "*.$MAS_INSTANCE_ID"
 
+        export LDAP_CERT=$(cat /workspace/shared-additional-configs/ldap_masdeps1_cert.pem)
         mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS}
 
         # Wait for launcher to complete

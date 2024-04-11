@@ -169,9 +169,6 @@ spec:
     - name: ldap_userid_map
       type: string
       default: ""
-    - name: ldap_certificate_file
-      type: string
-      default: ""
 
   tasks:
 {% if wait_for_provision == true %}
@@ -312,8 +309,6 @@ spec:
           value: $(params.ldap_basedn)
         - name: ldap_userid_map
           value: $(params.ldap_userid_map)
-        - name: ldap_certificate_file
-          value: $(params.ldap_certificate_file)
 
       workspaces:
         - name: configs
