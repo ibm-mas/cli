@@ -160,6 +160,19 @@ spec:
       type: string
       default: ""
 
+    - name: ldap_url
+      type: string
+      default: ""
+    - name: ldap_basedn
+      type: string
+      default: ""
+    - name: ldap_userid_map
+      type: string
+      default: ""
+    - name: ldap_certificate_file
+      type: string
+      default: ""
+
   tasks:
 {% if wait_for_provision == true %}
     # 0. Wait for the provsion pipeline to complete
@@ -292,6 +305,15 @@ spec:
           value: $(params.mas_app_channel_optimizer)
         - name: mas_app_channel_predict
           value: $(params.mas_app_channel_predict)
+
+        - name: ldap_url
+          value: $(params.ldap_url)
+        - name: ldap_basedn
+          value: $(params.ldap_basedn)
+        - name: ldap_userid_map
+          value: $(params.ldap_userid_map)
+        - name: ldap_certificate_file
+          value: $(params.ldap_certificate_file)
 
       workspaces:
         - name: configs
