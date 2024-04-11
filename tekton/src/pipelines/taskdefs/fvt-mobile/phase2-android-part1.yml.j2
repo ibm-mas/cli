@@ -12,20 +12,6 @@
   runAfter:
     - fvt-mobile-setup-data
 
-## Minimum Verification Test for Mobile Service Request MAS test suites
-- name: fvt-service-request-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
-    - name: fvt_mobile_app
-      value: service-request-app
-    - name: mobile_device_type
-      value: android
-    - name: fvt_test_suite
-      value: service-request-mvt-android
-  runAfter:
-    - fvt-mobile-setup-data
-
 ## Minimum Verification Test for Mobile Inspection MAS test suites
 - name: fvt-inspections-mvt-android
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
@@ -51,5 +37,19 @@
       value: android
     - name: fvt_test_suite
       value: asset-manager-mvt-android
+  runAfter:
+    - fvt-mobile-setup-data
+
+## Mobile FVT - Inventory Counting Android
+- name: fvt-inventorycounting-mvt-android
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: ic-automation-testcases
+    - name: mobile_device_type
+      value: android
+    - name: fvt_test_suite
+      value: inventory-counting-mvt-android # xml for Mobile IC
   runAfter:
     - fvt-mobile-setup-data
