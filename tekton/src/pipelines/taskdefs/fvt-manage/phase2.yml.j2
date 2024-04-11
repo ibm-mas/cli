@@ -1,78 +1,25 @@
 # -------------------------------------------------------------
 # PHASE 2
-# - fvt-manage-mas-navigation (selenium) (temp moved to 2-5.yml.j2)
-# - fvt-manage-classification (selenium)
-# - fvt-manage-helplinks (selenium)
-# - fvt-manage-mif-setup (selenium) (temp moved to 2-5.yml.j2)
-# - fvt-manage-wo-basic (selenium)
-# - fvt-manage-ancestors (pytest)
-# - fvt-manage-automationscripts (pytest)
+# - fvt-manage-base-api-system (pytest)
+# - fvt-manage-base-api-mif (pytest)
 # -------------------------------------------------------------
 
-# Manage FVT Classification
-- name: fvt-manage-classification
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base
-    - name: fvt_test_suite
-      value: classification
-  runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
-
-# Manage FVT Help Links
-- name: fvt-manage-helplinks
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base
-    - name: fvt_test_suite
-      value: helplinks
-  runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
-
-# Manage FVT Work Order Basic Scenario
-- name: fvt-manage-wo-basic
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base
-    - name: fvt_test_suite
-      value: wo-basic
-  runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
-
-# Manage FVT Ancestors
-- name: fvt-manage-ancestors
+# Manage FVT System
+- name: fvt-manage-base-api-system
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base
     - name: fvt_test_suite
-      value: ancestors
+      value: base-api-system
   runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
+    - fvt-manage-base-api-setup
 
-# Manage FVT AutomationScript
-- name: fvt-manage-automationscripts
+# Manage FVT MIF
+- name: fvt-manage-base-api-mif
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base
     - name: fvt_test_suite
-      value: automationscripts
+      value: base-api-mif
   runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
+    - fvt-manage-base-api-setup

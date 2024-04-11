@@ -114,7 +114,15 @@ spec:
     - name: dro_migration
       default: ""
       type: string
-      description: Set to 'true' to Migration UDS to DRO 
+      description: Set to 'true' to Migration UDS to DRO
+    - name: uds_storage_class
+      default: ""
+      type: string
+      description: Set custom storageclass for UDS/DRO
+    - name: uds_action
+      default: "install-dro"
+      type: string
+      description: set UDS_ACTION, default is install-dro'
 
     # grafana operator update
     - name: grafana_v5_upgrade
@@ -248,6 +256,8 @@ spec:
       params:
         - name: cluster_monitoring_action
           value: update_grafana
+        - name: devops_suite_name
+          value: update-grafana
       runAfter:
         - update-common-services
 
@@ -296,7 +306,7 @@ spec:
           value: $(params.kafka_namespace)
         - name: kafka_provider
           value: $(params.kafka_provider)
-    
+
     # UDS/DRO Migration
     - name: update-uds
       taskRef:
@@ -307,7 +317,16 @@ spec:
       params:
         - name: dro_migration
           value: $(params.dro_migration)
-
+        - name: uds_storage_class
+          value: $(params.uds_storage_class)
+        - name: uds_action
+          value: $(params.uds_action)
+        - name: devops_suite_name
+          value: update-uds
+{% if wait_for_install == true %}
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+{% endif %}
     # 6. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
@@ -347,24 +366,4 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-finalize
-{% endif %}
-
-{% if wait_for_install == true %}
-    # 7. Test for outages during mongo update
-    # -------------------------------------------------------------------------
-    - name: fvt-mongo-update
-      taskRef:
-        kind: Task
-        name: mas-ivt-core
-      params:
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_digest
-          value: $(params.fvt_image_digest)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value:  "NOT_USED"
-        - name: fvt_test_suite
-          value: "mongohealth"
 {% endif %}
