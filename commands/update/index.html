@@ -170,8 +170,16 @@
 </ul>
 <h3 id="other-options">Other Options<a class="headerlink" href="#other-options" title="Permanent link"></a></h3>
 <ul>
-<li><code>--no-confirm</code> Launch the update without prompting for confirmation</li>
-<li><code>-h|--help</code> Show help message</li>
+<li><code>--no-confirm</code>         Launch the update without prompting for confirmation</li>
+<li><code>--db2u-namespace</code>     DB2 namespace where instances update will be performed</li>
+<li><code>--mongodb-namespace</code>  Namespace where MongoCE operator and instance will be updated</li>
+<li><code>--mongodb-v5-upgrade</code> Confirms that Mongo can be upgraded to version 5 if needed as part of the update</li>
+<li><code>--kafka-namespace</code>    Namespace where Kafka operator and instance will be updated</li>
+<li><code>--kafka-provider</code>     Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), or 'strimzi'</li>
+<li><code>--dro-migration</code>      Confirm the removal of UDS and replacement with DRO as part of the update</li>
+<li><code>--cp4d-version</code>       Optional. Set Cloud Pak for Data version for the upgrade. All CP4D Services will be upgraded except Watson Discovery as this does not support seamless upgrade. 
+<strong>Note:</strong> This overrides the default CP4D version defined by the Maximo Operator Catalog version.</li>
+<li><code>-h|--help</code>            Show help message</li>
 </ul>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
 <h3 id="interactive-update">Interactive Update<a class="headerlink" href="#interactive-update" title="Permanent link"></a></h3>
