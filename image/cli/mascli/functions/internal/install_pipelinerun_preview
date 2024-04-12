@@ -376,7 +376,7 @@ function install_pipelinerun_preview() {
 # Manage dedicated Db2
   [ "$DB2_ACTION_MANAGE" == "install" ] && cmd+=" \\
   --db2u-manage"
-  [ "$DB2_ACTION_MANAGE" == "install" ] && [ "$DB2_TYPE" != "" ] && cmd+=" --db2u-type-manage '$DB2_TYPE'"
+  [ "$DB2_ACTION_MANAGE" == "install" ] && [ "$DB2_TYPE" != "" ] && cmd+=" --db2u-manage-type '$DB2_TYPE'"
 
   # CP4D
   # --cp4d-version ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}                                  Product version of IBM Cloud Pak for Data to use

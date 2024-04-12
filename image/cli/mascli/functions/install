@@ -200,7 +200,7 @@ function install_noninteractive() {
       --db2u-manage)
         export DB2_ACTION_MANAGE=install
         ;;
-      --db2u-type-manage)
+      --db2u-manage-type)
         if [[ "$DB2_ACTION_MANAGE" == "install" ]]; then
           export DB2_TYPE=$1 && shift
         fi
