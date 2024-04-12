@@ -6,3 +6,7 @@
     {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
       value: setup-common-services
+  when:
+    - input: "$(params.cpd_product_version)"
+      operator: in
+      values: ["","4.5.0", "4.5.3", "4.6.0", "4.6.3", "4.6.4", "4.6.6"]
