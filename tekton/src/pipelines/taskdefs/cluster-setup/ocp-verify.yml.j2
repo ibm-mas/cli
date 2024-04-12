@@ -19,3 +19,7 @@
       value: {{ verify_ingress | default("True") }}
     - name: ocp_ingress_tls_secret_name
       value: $(params.ocp_ingress_tls_secret_name)
+  when:
+    - input: "$(params.skip_install_pre_check)"
+      operator: notin
+      values: ["true"]
