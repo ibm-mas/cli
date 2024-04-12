@@ -689,7 +689,7 @@ function gitops_mas_config() {
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "ldap-default" ]; then
       sm_login
-      SECRET_NAME_LDAP=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ldap
+      SECRET_NAME_LDAP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ldap
       sm_update_secret $SECRET_NAME_LDAP "{\"bindDN\": \"$LDAP_BIND_DN\", \"bindPassword\": \"$LDAP_BIND_PASSWORD\"}"
       export SECRET_KEY_LDAP_BIND_DN=${SECRET_NAME_LDAP}#bindDN
       export SECRET_KEY_LDAP_BIND_PASSWORD=${SECRET_NAME_LDAP}#bindPassword
@@ -737,7 +737,7 @@ function gitops_mas_config() {
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "smtp" ]; then
         sm_login
-        SECRET_NAME_SMTP=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}smtp
+        SECRET_NAME_SMTP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}smtp
         sm_update_secret $SECRET_NAME_SMTP "{\"username\": \"$SMTP_USERNAME\", \"password\": \"$SMTP_PASSWORD\"}"
         export SECRET_KEY_SMTP_USERNAME=${SECRET_NAME_SMTP}#username
         export SECRET_KEY_SMTP_PASSWORD=${SECRET_NAME_SMTP}#password
@@ -782,9 +782,15 @@ function gitops_mas_config() {
     # NOTE: this does not include any secrets that were created by post-sync hooks (e.g. sls).
     #       these will now be handled by PostDelete hooks on the corresponding charts
 
+    if [ "${MAS_CONFIG_TYPE}" == "bas" ]; then
+      sm_login
+      SECRET_NAME_MAS_SEGMENT_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mas_segment_key
+      sm_delete_secret $SECRET_NAME_MAS_SEGMENT_KEY
+    fi
+
     if [ "${MAS_CONFIG_TYPE}" == "ldap-default" ]; then
       sm_login
-      SECRET_NAME_LDAP=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ldap
+      SECRET_NAME_LDAP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ldap
       sm_delete_secret $SECRET_NAME_LDAP
     fi
 
@@ -796,7 +802,7 @@ function gitops_mas_config() {
 
     if [ "${MAS_CONFIG_TYPE}" == "smtp" ]; then
       sm_login
-      SECRET_NAME_SMTP=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}smtp
+      SECRET_NAME_SMTP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}smtp
       sm_delete_secret $SECRET_NAME_SMTP
     fi
 
