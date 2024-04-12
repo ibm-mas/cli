@@ -135,6 +135,15 @@ spec:
       type: string
       default: "true"
       description: "Set this to any falue other than 'true' to disable lauch of the Mobile FVT Pipeline after app-cfg-manage completes"
+    - name: launchfvt_health
+      type: string
+      default: "true"
+    - name: launchfvt_manage_civil
+      type: string
+      default: "true"
+    - name: launchfvt_manage_is
+      type: string
+      default: "true"
 
     - name: mas_app_channel_iot
       type: string
@@ -267,6 +276,12 @@ spec:
         value: $(params.launchfvt_predict)
       - name: LAUNCHFVT_VISUALINSPECTION
         value: $(params.launchfvt_visualinspection)
+      - name: LAUNCHFVT_HEALTH
+        value: $(params.launchfvt_health)
+      - name: LAUNCHFVT_MANAGE_CIVIL
+        value: $(params.launchfvt_manage_civil)
+      - name: LAUNCHFVT_MANAGE_IS
+        value: $(params.launchfvt_manage_is)
       - name: MAS_APP_CHANNEL_IOT
         value: $(params.mas_app_channel_iot)
       - name: MAS_APP_CHANNEL_MANAGE
