@@ -4,6 +4,8 @@
     name: mas-devops-ocp-verify-all
   params:
     {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    - name: skip_install_pre_check
+      value: $(params.skip_install_pre_check)
     - name: devops_suite_name
       value: {{ devops_suite_name }}
   when:
