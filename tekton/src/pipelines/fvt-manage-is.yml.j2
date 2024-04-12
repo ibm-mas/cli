@@ -25,15 +25,6 @@ spec:
     - name: mas_workspace_id
       type: string
       default: ""
-    - name: mas_appws_components
-      type: string
-      description: Which Manage components are being installed?
-      default: ""
-    # TODO: Why do Manage tests need to know the Kafka provider?
-    - name: kafka_provider
-      type: string
-      description: kafka provider used during installation (ibm, aws or redhat)
-      default: ""
 
     # FVT Configuration
     - name: fvt_image_registry
@@ -46,33 +37,37 @@ spec:
       type: string
       default: ""
 
-    # Support for upload to Cloud Object Storage
-    # TODO: Can we not replace this with the must-gather in Artifactory, why do we need a seperate system (which costs $$$$) for Manage FVT?
-    - name: devops_cos_crn
-      type: string
-      description: Object Storage Resource Instance Id in IBM Cloud (optional)
-      default: ""
-    - name: devops_cos_upload_folder
-      type: string
-      description: Directory inside container that will be uploaded to Object Storage (optional)
-      default: ""
-    - name: devops_ibmcloud_apikey
-      description: IBM Cloud API Key to access Object Storage resource (optional)
-      default: ""
-
     # Image Digests
     - name: fvt_digest_manage
       type: string
       default: ""
-    - name: fvt_digest_manage_civil_selenium
+    - name: fvt_digest_manage_pytest
       type: string
       default: ""
 
   tasks:
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase0-aviation.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase1-scheduler.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase2-civil.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase3-all-setup.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase4-all-user.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase5-all-test.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-addons/phase6-maintmanager.yml.j2') | indent(4) }}
+
+    # ----------------------------------------
+    # Manage Industry Solutions Setup
+    # Responsible for:
+    # - User Creation
+    # - Add User into Security Group
+    # - Set User's Default Site
+    # ----------------------------------------
+    - name: fvt-manage-setup-is # convention: use fvt-manage-<keyword>, as the value of fvt_test_suite parameter
+      {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: base-api-setup-is
+
+    # ----------------------------------------
+    # Industry Solution Tests
+    # ----------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-manage-is/scheduler.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-is/maintmanager.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-is/acm.yml.j2') | indent(4) }}
+    
+    # Tests within _others will be re-introduced later
+    # ------------------------
+    {# {{ lookup('template', 'taskdefs/fvt-manage-is/_others.yml.j2') | indent(4) }} #}

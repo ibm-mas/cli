@@ -1,0 +1,145 @@
+# catalogapi ~5m
+# -----------------------------------------------------------------------------
+- name: catalogapi
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: catalogapi
+  runAfter: {{ runAfter }}
+
+# ibmadminissuer ~5m
+# -----------------------------------------------------------------------------
+- name: ibmadminissuer
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: ibmadminissuer
+  runAfter:
+    - catalogapi
+
+# milestonesapi ~5m
+# -----------------------------------------------------------------------------
+- name: milestonesapi
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: milestonesapi
+  runAfter: {{ runAfter }}
+
+# adoptionusageapi ~5m
+# -----------------------------------------------------------------------------
+- name: adoptionusageapi
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: adoptionusageapi
+  runAfter:
+    - milestonesapi
+
+# accapppoints ~5m
+# -----------------------------------------------------------------------------
+- name: accapppoints
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: accapppoints
+  runAfter: {{ runAfter }}
+
+# coreapi-apikeymgmt ~3m
+# -----------------------------------------------------------------------------
+- name: coreapi-apikeymgmt
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: coreapi-apikeymgmt
+  runAfter:
+    - accapppoints
+
+# coreapi-addons ~5m
+# -----------------------------------------------------------------------------
+- name: coreapi-addons
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: coreapi-addons
+  runAfter: {{ runAfter }}
+
+# coreapi-mobileapi ~5m
+# -----------------------------------------------------------------------------
+- name: coreapi-mobileapi
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: coreapi-mobileapi
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - coreapi-addons
+
+# coreapi-uiresources ~5m
+# -----------------------------------------------------------------------------
+- name: coreapi-uiresources
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: coreapi-uiresources
+  runAfter: {{ runAfter }}
+
+# coreapi-uicustomizations ~5m
+# -----------------------------------------------------------------------------
+- name: coreapi-uicustomizations
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: coreapi-uicustomizations
+  runAfter: {{ runAfter }}
+
+# coreapi-messages ~5m
+# -----------------------------------------------------------------------------
+- name: coreapi-messages
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: coreapi-messages
+  runAfter:
+    - coreapi-uiresources
+
+# coreapi-utilities ~5m
+# -----------------------------------------------------------------------------
+- name: coreapi-utilities
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: coreapi-utilities
+  runAfter: {{ runAfter }}
+
+# coreapi-graphiteconfigtool  ~1m
+# ------------------------------------------------------------------------------
+- name: coreapi-graphiteconfigtool
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: coreapi-graphiteconfigtool
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - coreapi-utilities
+
+# coreapi-scimv2 ~1m
+# -----------------------------------------------------------------------------
+- name: coreapi-scimv2
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: coreapi-scimv2
+  runAfter: {{ runAfter }}

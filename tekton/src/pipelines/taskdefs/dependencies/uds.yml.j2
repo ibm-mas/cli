@@ -3,11 +3,12 @@
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: uds_action
       value: "$(params.uds_action)"
-
     - name: mas_instance_id
       value: $(params.mas_instance_id)
     - name: custom_labels
       value: $(params.custom_labels)
+    - name: ocp_ingress_tls_secret_name
+      value: $(params.ocp_ingress_tls_secret_name)
 
     # Used by UDS and DRO
     - name: uds_contact_email

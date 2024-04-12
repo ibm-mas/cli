@@ -55,7 +55,7 @@ function genericMustGather() {
   echo
   echo_h4 "Collect Standard Kubernetes Resources"
   ADDITIONAL_RESOURCES=$(echo "$2" | tr "," " ")
-  for RESOURCE in $ADDITIONAL_RESOURCES configmaps services routes deployments jobs pvc operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings
+  for RESOURCE in $ADDITIONAL_RESOURCES configmaps services routes deployments jobs pvc operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings certificates
   do
     $MG_SCRIPT_DIR/mg-collect-resources -n $1 -r $RESOURCE -d $OUTPUT_DIR/resources $NO_DETAIL_FLAG
   done
@@ -114,7 +114,6 @@ function mustgather() {
     # Restict the gather to processing a specific list of MAS instance IDs, generally discouraged as problems in one MAS instance may be
     # caused by anything on the cluster, including other MAS instances
     --mas-instance-ids)
-      MAS_INSTANCE_IDS=$1; shift
       MAS_INSTANCE_IDS=$1; shift
       ;;
 
@@ -186,8 +185,10 @@ function mustgather() {
   OUTPUT_FILENAME=must-gather-${TIMESTAMP}.tgz
   OUTPUT_FILE=${MG_DIR}/${OUTPUT_FILENAME}
 
-  echo "Must gather will be saved to: $OUTPUT_FILE"
+  LOG_FILE=${OUTPUT_DIR}/must-gather.log
+  exec > >(tee ${LOG_FILE}) 2>&1
 
+  echo "Must gather will be saved to: $OUTPUT_FILE"
 
   # ---------------------------------------------------------------------------
   # Generate OCP Report
@@ -318,6 +319,24 @@ function mustgather() {
     done
     endTimer "${MAS_INSTANCE_ID}:${MAS_APP_ID}"
   done
+
+
+  # ---------------------------------------------------------------------------
+  # Cluster Pipeline Namespace (update pipeline)
+  # ---------------------------------------------------------------------------
+  NAMESPACE_LOOKUP=$(oc get namespace mas-pipelines --ignore-not-found)
+  if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
+    echo_h2 "Maximo Application Suite: Cluster"
+    startTimer
+    echo_h3 "Namespace: mas-pipelines"
+    echo
+    # MAS-specific must-gather
+    $MG_SCRIPT_DIR/mg-summary-mas-pipelines mas-pipelines &> ${OUTPUT_DIR}/mas-pipelines.txt
+    $MG_SCRIPT_DIR/mg-collect-mas-pipelines mas-pipelines $OUTPUT_DIR
+
+    genericMustGather mas-pipelines
+    endTimer "mas-pipelines"
+  fi
 
 
   # ---------------------------------------------------------------------------

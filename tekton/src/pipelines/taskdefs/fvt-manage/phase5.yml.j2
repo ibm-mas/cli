@@ -1,27 +1,121 @@
 # -------------------------------------------------------------
-# LAST PHASE (tests running one after the other)
-# - fvt-manage-mas-usertimeout
-# - fvt-manage-application-designer
-# - fvt-manage-startcenter-config
-# - fvt-manage-workflow-designer
-# - fvt-manage-smtp-setup
-# - fvt-manage-esig-basic
-# - fvt-manage-eaudit-basic
+# PHASE 5
+# - fvt-manage-base-ui-sec-audit-log (selenium)
+# - fvt-manage-base-ui-sec-inactive-auth (selenium)
+# - fvt-manage-base-ui-mif-kafka-inbound (selenium)
+# - fvt-manage-base-ui-wo-doclink (selenium)
+# - fvt-manage-base-ui-directprint (selenium)
+# - fvt-manage-base-ui-adhoc-report (selenium)
 # -------------------------------------------------------------
 
-- name: fvt-manage-last-phase
+# Manage FVT Security Audit Logging
+- name: fvt-manage-base-ui-sec-audit-log
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base-ui
+    - name: fvt_test_suite
+      value: sec-audit-log
+  runAfter:
+    - fvt-manage-base-ui-escalation-action
+    - fvt-manage-base-ui-jms-inbound
+    - fvt-manage-base-ui-mif-kafka-setup
+    - fvt-manage-base-ui-birt-report
+    - fvt-manage-base-ui-user-crud
+    - fvt-manage-base-ui-user-consumption
+    - fvt-manage-base-ui-communication-temp
+
+# Manage FVT Inactive User Authentication
+- name: fvt-manage-base-ui-sec-inactive-auth
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base-ui
+    - name: fvt_test_suite
+      value: sec-inactive-auth
+  runAfter:
+    - fvt-manage-base-ui-escalation-action
+    - fvt-manage-base-ui-jms-inbound
+    - fvt-manage-base-ui-mif-kafka-setup
+    - fvt-manage-base-ui-birt-report
+    - fvt-manage-base-ui-user-crud
+    - fvt-manage-base-ui-user-consumption
+    - fvt-manage-base-ui-communication-temp
+
+# Manage FVT Kafka inbound
+- name: fvt-manage-base-ui-mif-kafka-inbound
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base-ui
+    - name: fvt_test_suite
+      value: mif-kafka-inbound
+  runAfter:
+    - fvt-manage-base-ui-escalation-action
+    - fvt-manage-base-ui-jms-inbound
+    - fvt-manage-base-ui-mif-kafka-setup
+    - fvt-manage-base-ui-birt-report
+    - fvt-manage-base-ui-user-crud
+    - fvt-manage-base-ui-user-consumption
+    - fvt-manage-base-ui-communication-temp
+
+# Manage FVT Work Order Attachments
+- name: fvt-manage-base-ui-wo-doclink
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base-ui
+    - name: fvt_test_suite
+      value: wo-doclink
+  runAfter:
+    - fvt-manage-base-ui-escalation-action
+    - fvt-manage-base-ui-jms-inbound
+    - fvt-manage-base-ui-mif-kafka-setup
+    - fvt-manage-base-ui-birt-report
+    - fvt-manage-base-ui-user-crud
+    - fvt-manage-base-ui-user-consumption
+    - fvt-manage-base-ui-communication-temp
+
+# Manage Direct Print Report Tasks
+- name: fvt-manage-base-ui-directprint
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   taskRef:
     kind: Task
-    name: mas-fvt-manage-last-phase
+    name: mas-fvt-manage-directprint
   params:
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}    
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
   runAfter:
-    - fvt-manage-sec-audit-log
-    - fvt-manage-sec-inactive-auth
-    - fvt-manage-mif-kafka-inbound
-    - fvt-manage-mif-kafka-outbound
-    - fvt-manage-wo-doclink
-    - fvt-manage-directprint
-    - fvt-manage-adhoc-report
-    - fvt-manage-jms-outbound
+    - fvt-manage-base-ui-escalation-action
+    - fvt-manage-base-ui-jms-inbound
+    - fvt-manage-base-ui-mif-kafka-setup
+    - fvt-manage-base-ui-birt-report
+    - fvt-manage-base-ui-user-crud
+    - fvt-manage-base-ui-user-consumption
+    - fvt-manage-base-ui-communication-temp
+
+# Manage FVT Adhoc Reports
+- name: fvt-manage-base-ui-adhoc-report
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base-ui
+    - name: fvt_test_suite
+      value: adhoc
+  runAfter:
+    - fvt-manage-base-ui-escalation-action
+    - fvt-manage-base-ui-jms-inbound
+    - fvt-manage-base-ui-mif-kafka-setup
+    - fvt-manage-base-ui-birt-report
+    - fvt-manage-base-ui-user-crud
+    - fvt-manage-base-ui-user-consumption
+    - fvt-manage-base-ui-communication-temp

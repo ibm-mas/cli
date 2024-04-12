@@ -71,6 +71,20 @@ spec:
             key: DEVOPS_BUILD_NUMBER
             optional: true
 
+      # If this secret exists (with both ARTIFACTORY_TOKEN and ARTIFACTORY_UPLOAD_DIR keys set) the content of /opt/ibm/test/upload file will be automatically uploaded
+      - name: ARTIFACTORY_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_TOKEN
+            optional: true
+      - name: ARTIFACTORY_UPLOAD_DIR
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_UPLOAD_DIR
+            optional: true
+
       # The name of the test suite inside the container we will execute (/opt/ibm/test/suites/{TEST_SUITE})
       - name: TEST_SUITE
         value: $(params.fvt_test_suite)
@@ -116,11 +130,53 @@ spec:
             name: mas-fvt-core
             key: PARTIUM_PASSWORD
             optional: true
+      - name: LDAP_URL
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: LDAP_URL
+            optional: false
+      - name: LDAP_BASE_DN
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: LDAP_BASE_DN
+            optional: false
+      - name: LDAP_BIND_DN
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: LDAP_BIND_DN
+            optional: false
+      - name: LDAP_BIND_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: LDAP_BIND_PASSWORD
+            optional: false
+      - name: LDAP_USER_MAP
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: LDAP_USER_MAP
+            optional: false
+      - name: LDAP_CERT_ALIAS
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: LDAP_CERT_ALIAS
+            optional: false
+      - name: LDAP_CRT
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: LDAP_CRT
+            optional: false
 
   steps:
     - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 2h0m0s # Ensure bad FVTs don't run forever
+      timeout: 3h0m0s # Ensure bad FVTs don't run forever - want this to be lower, but a couple of suites are now pushing 2 hours as standard :(
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src

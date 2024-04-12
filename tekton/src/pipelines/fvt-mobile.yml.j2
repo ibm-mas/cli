@@ -16,6 +16,9 @@ spec:
       description: Pull policy for pipeline container images
 
     # MAS Configuration
+    - name: mas_channel
+      type: string
+      default: ""
     - name: mas_app_channel_manage
       type: string
       default: ""
@@ -25,74 +28,32 @@ spec:
     - name: mas_workspace_id
       type: string
       default: ""
-    - name: mas_appws_components
-      type: string
-      description: Which Manage components are being installed?
-      default: ""
-
 
     # FVT Configuration
     - name: fvt_image_registry
       type: string
       default: ""
-    - name: fvt_artifactory_username
-      type: string
-      default: ""
     - name: fvt_artifactory_token
       type: string
       default: ""
-
-    # Support for upload to Cloud Object Storage
-    # TODO: Can we not replace this with the must-gather in Artifactory, why do we need a seperate system (which costs $$$$) for Manage FVT?
-    - name: devops_cos_crn
-      type: string
-      description: Object Storage Resource Instance Id in IBM Cloud (optional)
-      default: ""
-    - name: devops_cos_upload_folder
-      type: string
-      description: Directory inside container that will be uploaded to Object Storage (optional)
-      default: ""
-    - name: devops_ibmcloud_apikey
-      description: IBM Cloud API Key to access Object Storage resource (optional)
-      default: ""
-
-    # TODO: Consolidate these FVT images already!!
-    - name: fvt_digest_manage_civil_defects_testng
+    
+    # FVT: Mobile Digests
+    - name: fvt_digest_mobile_pytest
       type: string
       default: ""
-    - name: fvt_digest_mobile_manage_setup
+    - name: fvt_digest_mobile_testng
       type: string
       default: ""
-    - name: fvt_digest_mobilefoundation_testng
-      type: string
-      default: ""
-    - name: fvt_digest_servicerequests_testng
-      type: string
-      default: ""
-    - name: fvt_digest_inspection_testng
-      type: string
-      default: ""
-    - name: fvt_digest_technician_testng
-      type: string
-      default: ""
-    - name: fvt_digest_asset_manager_testng
-      type: string
-      default: ""
-    - name: fvt_digest_inventorycounting_testng
-      type: string
-      default: ""
-    - name: fvt_digest_inventoryreceiving_testng
-      type: string
-      default: ""
-    - name: fvt_digest_issuesandtransfers_testng
-      type: string
-      default: ""
-
+  
   tasks:
     # 2. Manage FVT - Manage Mobile
     # -------------------------------------------------------------------------
     
     {{ lookup('template', 'taskdefs/fvt-mobile/phase1-setup.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase2-android.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase3-ios.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase4.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase2-android-part1.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase3-android-part2.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase4-android-part3.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase5-ios-part1.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase6-ios-part2.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase7-ios-part3.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/phase8-desktop.yml.j2') | indent(4) }}

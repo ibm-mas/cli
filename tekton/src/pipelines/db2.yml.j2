@@ -21,6 +21,8 @@ spec:
 
     {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
 
+    {{ lookup('template', params_src_dir ~ '/install-cert-manager.yml.j2') | indent(4)  }}
+
     {{ lookup('template', params_src_dir ~ '/install-ibmcatalogs.yml.j2') | indent(4) }}
 
     {{ lookup('template', params_src_dir ~ '/install-db2.yml.j2') | indent(4)  }}
@@ -48,7 +50,6 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/cert-manager.yml.j2') | indent(4) }}
       runAfter:
         - common-services
-
 
     # 2. Setup Db2
     # -------------------------------------------------------------------------

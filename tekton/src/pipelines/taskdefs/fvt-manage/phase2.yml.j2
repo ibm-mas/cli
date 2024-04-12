@@ -1,93 +1,25 @@
 # -------------------------------------------------------------
 # PHASE 2
-# - fvt-manage-mas-navigation
-# - fvt-manage-classification
-# - fvt-manage-helplinks
-# - fvt-manage-mif-setup
-# - fvt-manage-metrics-api
-# - fvt-manage-wo-basic
+# - fvt-manage-base-api-system (pytest)
+# - fvt-manage-base-api-mif (pytest)
 # -------------------------------------------------------------
 
-# Manage FVT Mas Navigation Scenario
-- name: fvt-manage-mas-navigation
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+# Manage FVT System
+- name: fvt-manage-base-api-system
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: mas-navigation
+      value: base-api-system
   runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
-    
-# Manage FVT Classification
-- name: fvt-manage-classification
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
-    - name: fvt_test_suite
-      value: classification
-  runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
+    - fvt-manage-base-api-setup
 
-# Manage FVT Help Links
-- name: fvt-manage-helplinks
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+# Manage FVT MIF
+- name: fvt-manage-base-api-mif
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: helplinks
+      value: base-api-mif
   runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
-
-# Manage MIF setup
-- name: fvt-manage-mif-setup
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
-    - name: fvt_test_suite
-      value: mif-setup
-  runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
-
-# Manage FVT Metrics API
-- name: fvt-manage-metrics-api
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
-    - name: fvt_test_suite
-      value: metrics-api
-  runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
-
-# Manage FVT Work Order Basic Scenario
-- name: fvt-manage-wo-basic
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
-    - name: fvt_test_suite
-      value: wo-basic
-  runAfter:
-    - fvt-manage-setup
-    - fvt-manage-monitoring
+    - fvt-manage-base-api-setup

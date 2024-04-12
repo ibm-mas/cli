@@ -15,13 +15,19 @@ spec:
       type: string
       description: What action to take (install, uninstall, install-dro)
       default: "install"
-
+    - name: dro_migration
+      default: ""
+      type: string
+      description: Set to 'true' to Migration UDS to DRO 
     - name: mas_instance_id
       type: string
       default: ""
     - name: custom_labels
       type: string
       description: Optional MAS custom labels, comma separated list of key=value pairs
+      default: ""
+    - name: ocp_ingress_tls_secret_name
+      type: string
       default: ""
 
     # Only used by UDS
@@ -81,6 +87,8 @@ spec:
           value: /workspace/configs
         - name: MAS_INSTANCE_ID
           value: $(params.mas_instance_id)
+        - name: OCP_INGRESS_TLS_SECRET_NAME
+          value: $(params.ocp_ingress_tls_secret_name)
         - name: MAS_POD_TEMPLATES_DIR
           value: /workspace/pod-templates
         - name: CUSTOM_LABELS
@@ -93,6 +101,7 @@ spec:
           value: $(params.uds_contact_firstname)
         - name: UDS_CONTACT_LASTNAME
           value: $(params.uds_contact_lastname)
+
 
     # IBM Data Reporter Operator (DRO)
     # -------------------------------------------------------------------------
@@ -117,6 +126,8 @@ spec:
           value: /workspace/configs
         - name: MAS_INSTANCE_ID
           value: $(params.mas_instance_id)
+        - name: OCP_INGRESS_TLS_SECRET_NAME
+          value: $(params.ocp_ingress_tls_secret_name)
         - name: MAS_POD_TEMPLATES_DIR
           value: /workspace/pod-templates
         - name: CUSTOM_LABELS
@@ -129,7 +140,10 @@ spec:
           value: $(params.uds_contact_firstname)
         - name: DRO_CONTACT_LASTNAME
           value: $(params.uds_contact_lastname)
-
+        - name: DRO_MIGRATION
+          value: $(params.dro_migration)
+        - name: DRO_STORAGE_CLASS
+          value: $(params.uds_storage_class)
   workspaces:
     - name: configs
       optional: true

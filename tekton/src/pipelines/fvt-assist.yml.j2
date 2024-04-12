@@ -79,25 +79,6 @@ spec:
           operator: notin
           values: [""]
 
-    - name: cv-assist
-      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
-        - name: product_id
-          value: ibm-mas-assist
-        - name: product_channel
-          value: $(params.mas_app_channel_assist)
-        - name: fvt_test_suite
-          value: contentverification
-      when:
-        - input: "$(params.ivt_digest_core)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
-
-
     # 2. Prepare data for Python and Desktop suites
     # -----------------------------------------------------------------------------
     - name: fvt-assist-preparedata
@@ -131,7 +112,6 @@ spec:
           value: prepare
       runAfter:
         - ivtcore-assist
-        - cv-assist
 
 
     # 3. Python
@@ -172,9 +152,9 @@ spec:
     # 4. Test NG - Desktop
     # -----------------------------------------------------------------------------
     - name: fvt-assist-testng-desktop
-      {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-apps/common/taskref-assist-testng.yml.j2') | indent(6) }}
+      {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-assist/common/taskref-testng.yml.j2') | indent(6) }}
       params:
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-assist/common/params-testng.yml.j2') | indent(8) }}
         - name: fvt_test_suite
           value: testng-assist-desktop
       runAfter:
@@ -184,9 +164,9 @@ spec:
     # 5. Test NG - Mobile
     # -----------------------------------------------------------------------------
     - name: fvt-assist-testng-mobile
-      {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-apps/common/taskref-assist-testng.yml.j2') | indent(6) }}
+      {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-assist/common/taskref-testng.yml.j2') | indent(6) }}
       params:
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-apps/common/params-assist-testng.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-assist/common/params-testng.yml.j2') | indent(8) }}
         - name: fvt_test_suite
           value: testng-assist-mobile
         - name: assist_test_type
@@ -228,4 +208,24 @@ spec:
           value: $(params.mas_app_channel_assist)
       runAfter:
         - ivtcore-assist
-        - cv-assist
+
+  finally:
+    # 3. Run CV
+    # -----------------------------------------------------------------------------
+    - name: cv-assist
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-assist
+        - name: product_channel
+          value: $(params.mas_app_channel_assist)
+        - name: fvt_test_suite
+          value: contentverification
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_assist)"
+          operator: notin
+          values: [""]

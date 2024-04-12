@@ -40,10 +40,6 @@ spec:
       type: string
       description: Manage product that will be tested by this task. Use official names as expected by Manage operators
       default: "base"
-    - name: mas_appws_components
-      type: string
-      description: Manage Workspace component list so ISs tasks can decide if it should be executed base on what is configured
-      default: ""
     - name: product_id
       type: string
       description: Product ID under test
@@ -58,27 +54,12 @@ spec:
     - name: mas_workspace_id
       type: string
       description: Workspace ID in MAS to use for running the tests
-    - name: kafka_provider
-      type: string
-      description: kafka provider used during installation (ibm, aws or redhat)
-      default: ""
-    - name: devops_cos_crn
-      type: string
-      description: Object Storage Resource Instance Id in IBM Cloud (optional)
-      default: ""
-    - name: devops_cos_upload_folder
-      type: string
-      description: Directory inside container that will be uploaded to Object Storage (optional)
-      default: ""
-    - name: devops_ibmcloud_apikey
-      description: IBM Cloud API Key to access Object Storage resource (optional)
-      default: ""
 
     # Test-specific Information (all optional)
     # -------------------------------------------------------------------------
     - name: artifactory_token
       type: string
-      description: Artifactory API Key (required by fvt-ibm-mas-manage to pull test container content)
+      description: Artifactory API Key (required by fvt-ibm-mas-manage to upload test framework logs)
       default: ""
 
   stepTemplate:
@@ -116,17 +97,29 @@ spec:
         value: "$(params.mas_instance_id)"
       - name: WORKSPACE_ID
         value: "$(params.mas_workspace_id)"
-      - name: KAFKA_PROVIDER
-        value: $(params.kafka_provider)
 
       - name: FVT_TEST_DRIVER
         value: $(params.fvt_test_driver)
       - name: FVT_TEST_SUITE_PREFIX
-        value: core
+        value: base-ui
       - name: FVT_TEST_SUITE
         value: $(params.fvt_test_suite)
       - name: FVT_MAS_APPWS_COMPONENT
         value: $(params.fvt_mas_appws_component)
+      
+      # Black and white listing
+      - name: FVT_BLACKLIST
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_BLACKLIST
+            optional: false
+      - name: FVT_WHITELIST
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_WHITELIST
+            optional: false
       
       # If this secret exists (with both ARTIFACTORY_TOKEN and ARTIFACTORY_UPLOAD_DIR keys set) Maximo Automation Framework logs will be automatically uploaded
       - name: ARTIFACTORY_TOKEN
@@ -156,7 +149,7 @@ spec:
     - name: fvt-manage-mas-usertimeout
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 90m # Ensure bad FVTs don't run forever
+      timeout: 150m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
@@ -171,7 +164,7 @@ spec:
     - name: fvt-manage-application-designer
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 90m # Ensure bad FVTs don't run forever
+      timeout: 150m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
@@ -186,7 +179,7 @@ spec:
     - name: fvt-manage-startcenter-config
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 90m # Ensure bad FVTs don't run forever
+      timeout: 150m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
@@ -201,7 +194,7 @@ spec:
     - name: fvt-manage-workflow-designer
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 90m # Ensure bad FVTs don't run forever
+      timeout: 150m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
@@ -212,26 +205,11 @@ spec:
         - name: FVT_TEST_SUITE
           value: workflow-designer
 
-    # Manage SMTP Configuration Validation
-    - name: fvt-manage-smtp-setup
-      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
-      imagePullPolicy: $(params.image_pull_policy)
-      timeout: 90m # Ensure bad FVTs don't run forever
-      onError: continue # Ensure bad FVTs don't break the pipeline
-      resources: {}
-      workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
-      env:
-        - name: FVT_TEST_SUITE
-          value: mas-smtp-setup
-
     # Manage FVT E-Signature Basic Scenario
     - name: fvt-manage-esig-basic
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 90m # Ensure bad FVTs don't run forever
+      timeout: 150m # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
@@ -241,18 +219,3 @@ spec:
       env:
         - name: FVT_TEST_SUITE
           value: esig-basic
-
-    # Manage FVT E-Audit Basic
-    - name: fvt-manage-eaudit-basic
-      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
-      imagePullPolicy: $(params.image_pull_policy)
-      timeout: 90m # Ensure bad FVTs don't run forever
-      onError: continue # Ensure bad FVTs don't break the pipeline
-      resources: {}
-      workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
-      env:
-        - name: FVT_TEST_SUITE
-          value: eaudit-basic

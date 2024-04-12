@@ -36,10 +36,6 @@ spec:
       default: ''
       type: string
       description: Optional. If not provided MAS will generate it's own self-signed cluster issuer when installed
-    - name: mas_upgrade_strategy
-      type: string
-      description: Optional identifier for the Upgrade strategy for MAS Operator. Default is set to Automatic
-      default: ""
     - name: mas_manual_cert_mgmt
       type: string
       description: Optional boolean parameter that when set to True, indicates that manually created certificates will be used to certify MAS and application routes
@@ -100,8 +96,6 @@ spec:
         value: $(params.mas_domain)
       - name: MAS_CLUSTER_ISSUER
         value: $(params.mas_cluster_issuer)
-      - name: MAS_UPGRADE_STRATEGY
-        value: $(params.mas_upgrade_strategy)
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
       - name: MAS_TRUST_DEFAULT_CAS
