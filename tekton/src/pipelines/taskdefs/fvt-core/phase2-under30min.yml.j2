@@ -1,0 +1,49 @@
+# coreapi-groupmgmt ~20m
+# ------------------------------------------------------------------------------
+- name: coreapi-groupmgmt
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: coreapi-groupmgmt
+  runAfter: {{ runAfter }}
+
+# coreapi-workspacemgmt  ~25m
+# ------------------------------------------------------------------------------
+- name: coreapi-workspacemgmt
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: coreapi-workspacemgmt
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter: {{ runAfter }}
+
+#  useractivation-overall  ~8m
+# ------------------------------------------------------------------------------
+- name: useractivation-overall
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: useractivation-overall
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter: {{ runAfter }}
+
+# useractivation-expiresat  ~20m
+# ------------------------------------------------------------------------------
+- name: useractivation-expiresat
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: useractivation-expiresat
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter: {{ runAfter }}
+
+# useractivation-inactivity  ~20m
+# ------------------------------------------------------------------------------
+- name: useractivation-inactivity
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: useractivation-inactivity
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter: {{ runAfter }}

@@ -17,6 +17,7 @@ Usage
 ### MAS OIDC Information (Required):
 - `-m|--mas-home MAS_HOME`                      MAS Home Url
 - `-p|--ui-prefix TRUST_UI_PREFIX`              Trust UI prefix to receive OIDC callback
+- `-i|--instance-id`                            MAS Instance id specified if not derived from MAS_HOME url (Optional)
 
 Examples
 -------------------------------------------------------------------------------
@@ -29,15 +30,16 @@ docker run -ti --rm --pull always quay.io/ibmmas/cli mas oidc register
 ```bash
 docker run -ti --rm --pull always quay.io/ibmmas/cli mas oidc register \
   -t sha256~dOnviPZtgCfJqUfUFLiSlsmXjzxtXpedhdxyXZ0F0X4 -s https://c118-e.us-south.containers.cloud.ibm.com:30221 \
-  -m masdev.home.mobfound1.masdev.suite.maximo.com -p "http://localhost:3000, http://localhost:3001"
+  -m masdev.home.mobfound1.masdev.suite.maximo.com -p "http://localhost:3000, http://localhost:3001" -i "mobfnd"
 ```
 ```bash
 export CLUSTER_TOKEN=sha256~COA8-2Hd6G45rUN0HZLLh47sFByoX8QCC8j92jWB3to  
 export CLUSTER_SERVER=https://c130-e.us-south.containers.cloud.ibm.com:32250
 export MAS_HOME=masdev.home.mobfound1.masdev.suite.maximo.com  
 export TRUST_UI_PREFIX="http://localhost:3000, http://localhost:3001"
+export MAS_INSTANCE_ID=mobfnd
 docker run -ti --rm --pull always quay.io/ibmmas/cli mas oidc register \
-  -t $CLUSTER_TOKEN -s $CLUSTER_SERVEr -m $MAS_HOME -p $TRUEST_UI_PREFIX
+  -t $CLUSTER_TOKEN -s $CLUSTER_SERVEr -m $MAS_HOME -p $TRUEST_UI_PREFIX -i $MAS_INSTANCE_ID
 ```
 
 Appendix
@@ -53,3 +55,4 @@ example: `oc login --token=sha256~COA8-2Hd6G45rUN0HZLLh47sFByoX8QCC8j92jWB3to --
 ### 2. MAS OIDC Information
 - MAS_HOME=main.home.ivt15rel89.ivt.suite.maximo.com
 - TRUST_UI_PREFIX="http://localhost:3000, http://localhost:3001"
+- MAS_INSTANCE_ID=ivt15xx

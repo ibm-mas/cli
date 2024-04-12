@@ -1,190 +1,78 @@
 # -------------------------------------------------------------
 # PHASE 3
-# - fvt-manage-escalation-action
-# - fvt-manage-autoscript-adddeletewo
-# - fvt-manage-jms-inbound
-# - fvt-manage-mif-kafka-setup
-# - fvt-manage-mif-s3-setup
-# - fvt-manage-birt-report
-# - fvt-manage-user-crud
-# - fvt-manage-user-consumption
-# - fvt-manage-communication-temp
+# - fvt-manage-base-ui-classification (selenium)
+# - fvt-manage-base-ui-helplinks (selenium)
+# - fvt-manage-base-ui-wo-basic (selenium)
+# - fvt-manage-base-ui-mif-setup (selenium)
+# - fvt-manage-base-ui-mas-navigation (selenium)
 # -------------------------------------------------------------
 
-# Manage FVT Escalation
-- name: fvt-manage-escalation-action
+# Manage FVT Classification
+- name: fvt-manage-base-ui-classification
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base-ui
     - name: fvt_test_suite
-      value: escalation-action
+      value: classification
   runAfter:
-    - fvt-manage-mas-navigation
-    - fvt-manage-classification
-    - fvt-manage-helplinks
-    - fvt-manage-mif-setup
-    - fvt-manage-metrics-api
-    - fvt-manage-wo-basic
-    
-# Manage FVT AutoScript to Add Delete WorkOrder
-- name: fvt-manage-autoscript-adddeletewo
+    - fvt-manage-base-api-system
+    - fvt-manage-base-api-mif
+
+# Manage FVT Help Links
+- name: fvt-manage-base-ui-helplinks
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base-ui
     - name: fvt_test_suite
-      value: autoscript-adddeletewo
+      value: helplinks
   runAfter:
-    - fvt-manage-mas-navigation
-    - fvt-manage-classification
-    - fvt-manage-helplinks
-    - fvt-manage-mif-setup
-    - fvt-manage-metrics-api
-    - fvt-manage-wo-basic
+    - fvt-manage-base-api-system
+    - fvt-manage-base-api-mif
 
-# Manage JMS Integration - Inbound
-- name: fvt-manage-jms-inbound
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
-    - name: fvt_test_suite
-      value: mif-jms-inbound
-  runAfter:
-    - fvt-manage-mas-navigation
-    - fvt-manage-classification
-    - fvt-manage-helplinks
-    - fvt-manage-mif-setup
-    - fvt-manage-metrics-api
-    - fvt-manage-wo-basic
-
-# Manage FVT Kafka Setup
-- name: fvt-manage-mif-kafka-setup
-  params:
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
-    - name: fvt_test_suite
-      value: mif-kafka-setup
-    - name: kafka_provider
-      value: $(params.kafka_provider)
-  taskRef:
-    kind: Task
-    name: mas-fvt-manage
-  when:
-    - input: "$(params.fvt_digest_manage)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
-      operator: notin
-      values: [""]
-    - input: "$(params.kafka_provider)"
-      operator: notin
-      values: [""]
-  workspaces:
-    - name: configs
-      workspace: shared-configs
-  runAfter:
-    - fvt-manage-mas-navigation
-    - fvt-manage-classification
-    - fvt-manage-helplinks
-    - fvt-manage-mif-setup
-    - fvt-manage-metrics-api
-    - fvt-manage-wo-basic
-
-# Manage MIF S3 setup
-- name: fvt-manage-mif-s3-setup
+# Manage FVT Work Order Basic Scenario
+- name: fvt-manage-base-ui-wo-basic
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base-ui
     - name: fvt_test_suite
-      value: mif-s3-setup
+      value: wo-basic
   runAfter:
-    - fvt-manage-mas-navigation
-    - fvt-manage-classification
-    - fvt-manage-helplinks
-    - fvt-manage-mif-setup
-    - fvt-manage-metrics-api
-    - fvt-manage-wo-basic
+    - fvt-manage-base-api-system
+    - fvt-manage-base-api-mif
 
-# Manage FVT BIRT Reports
-- name: fvt-manage-birt-report
+# Manage MIF setup
+- name: fvt-manage-base-ui-mif-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base-ui
     - name: fvt_test_suite
-      value: birtreportexe
+      value: mif-setup
   runAfter:
-    - fvt-manage-mas-navigation
-    - fvt-manage-classification
-    - fvt-manage-helplinks
-    - fvt-manage-mif-setup
-    - fvt-manage-metrics-api
-    - fvt-manage-wo-basic
+    - fvt-manage-base-api-system
+    - fvt-manage-base-api-mif
 
-# Manage FVT New User Update/Delete/Verufy
-- name: fvt-manage-user-crud
+# Manage FVT Mas Navigation Scenario
+- name: fvt-manage-base-ui-mas-navigation
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
-      value: core
+      value: base-ui
     - name: fvt_test_suite
-      value: user-crud
+      value: mas-navigation
   runAfter:
-    - fvt-manage-mas-navigation
-    - fvt-manage-classification
-    - fvt-manage-helplinks
-    - fvt-manage-mif-setup
-    - fvt-manage-metrics-api
-    - fvt-manage-wo-basic
-
-# Manage FVT User Consumption verification
-- name: fvt-manage-user-consumption
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
-    - name: fvt_test_suite
-      value: user-consumption
-  runAfter:
-    - fvt-manage-mas-navigation
-    - fvt-manage-classification
-    - fvt-manage-helplinks
-    - fvt-manage-mif-setup
-    - fvt-manage-metrics-api
-    - fvt-manage-wo-basic
-
-# Manage FVT Communication Template
-- name: fvt-manage-communication-temp
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
-    - name: fvt_test_suite
-      value: communication-temp
-  runAfter:
-    - fvt-manage-mas-navigation
-    - fvt-manage-classification
-    - fvt-manage-helplinks
-    - fvt-manage-mif-setup
-    - fvt-manage-metrics-api
-    - fvt-manage-wo-basic
+    - fvt-manage-base-api-system
+    - fvt-manage-base-api-mif

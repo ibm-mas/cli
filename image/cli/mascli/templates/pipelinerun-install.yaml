@@ -176,8 +176,6 @@ spec:
     # -------------------------------------------------------------------------
     - name: vpc_id
       value: '$VPC_ID'
-    - name: kafka_cluster_name
-      value: '$KAFKA_CLUSTER_NAME'
     - name: aws_kafka_user_name
       value: '$AWS_KAFKA_USER_NAME'
     - name: aws_kafka_user_password
@@ -277,6 +275,13 @@ spec:
       value: '$MAS_CATALOG_VERSION'
     - name: mas_catalog_digest
       value: '$MAS_CATALOG_DIGEST'
+
+    # Dependencies - Certificate Manager
+    # -------------------------------------------------------------------------
+    - name: cert_manager_provider
+      value: '$CERT_MANAGER_PROVIDER'
+    - name: cert_manager_action
+      value: '$CERT_MANAGER_ACTION'
 
     # MAS DNS Integrations - General
     # -------------------------------------------------------------------------
@@ -501,6 +506,13 @@ spec:
       value: '$GRAFANA_INSTANCE_STORAGE_CLASS'
     - name: grafana_instance_storage_size
       value: '$GRAFANA_INSTANCE_STORAGE_SIZE'
+    - name: grafana_major_version
+      value: '$GRAFANA_MAJOR_VERSION'
+
+    # Open Telemetry
+    # -------------------------------------------------------------------------
+    - name: cluster_monitoring_include_opentelemetry
+      value: '$CLUSTER_MONITORING_INCLUDE_OPENTELEMETRY'
 
   workspaces:
     # The generated configuration files

@@ -6,14 +6,6 @@ function install_config_advanced() {
   echo "${TEXT_DIM}Customize cluster monitoring storage settings, ingress certificate secret, workload scaling profile and default namespaces for MAS dependencies."
   echo
   reset_colors
-  # Determine whether Grafana is available in the cluster based on the available of the operator package
-  oc get packagemanifest grafana-operator &> /dev/null
-  if [[ "$?" == "1" ]]; then
-    CLUSTER_MONITORING_INCLUDE_GRAFANA="False"
-  else
-    CLUSTER_MONITORING_INCLUDE_GRAFANA="True"
-  fi
-
   if prompt_for_confirm "Configure Advanced Settings?"; then
     echo
     install_config_workload_scale

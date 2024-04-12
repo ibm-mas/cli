@@ -20,6 +20,10 @@ spec:
     # MAS Instance ID (the instance who's install to wait for)
     - name: mas_instance_id
       type: string
+    - name: fvt_image_registry
+      type: string
+    - name: fvt_image_digest
+      type: string
 {% endif %}
 
     - name: mas_catalog_image
@@ -65,6 +69,16 @@ spec:
       default: "upgrade"
       description: Set to 'upgrade' to update common_services
 
+    # cert-manager update
+    - name: cert_manager_action
+      type: string
+      default: ""
+      description: Set to 'install' to update to red hat certificate manager
+    - name: cert_manager_provider
+      type: string
+      default: ""
+      description: Certificate manager provider (ibm or redhat)
+
     # db2 update
     - name: db2_action
       type: string
@@ -88,10 +102,6 @@ spec:
       type: string
       description: Approves the MongoDb upgrade to version 5 if needed
       default: ""
-    - name: mongodb_storage_class
-      type: string
-      default: ""
-      description: MongoDB Storage class for data and logs
 
     # kafka update
     - name: kafka_action
@@ -112,6 +122,26 @@ spec:
       default: ""
       type: string
       description: Set to 'true' to change all LicenseService CRs' registry to cpopen
+    
+    # UDS/DRO Migration
+    - name: dro_migration
+      default: ""
+      type: string
+      description: Set to 'true' to Migration UDS to DRO
+    - name: uds_storage_class
+      default: ""
+      type: string
+      description: Set custom storageclass for UDS/DRO
+    - name: uds_action
+      default: "install-dro"
+      type: string
+      description: set UDS_ACTION, default is install-dro'
+
+    # grafana operator update
+    - name: grafana_v5_upgrade
+      type: string
+      description: Approves the Grafana Operator upgrade to version 5
+      default: ""
 
   tasks:
 {% if wait_for_install == true %}
@@ -206,6 +236,44 @@ spec:
         - name: common_services_action
           value: $(params.common_services_action)
 
+    # Only migrate to Red Hat Certificate Manager if identified that IBM Cloud Pak Foundational Services Certificate Manager is running
+    - name: update-cert-manager
+      taskRef:
+        kind: Task
+        name: mas-devops-cert-manager
+      runAfter:
+        - update-common-services
+      params:
+        - name: devops_suite_name
+          value: update-cert-manager
+        - name: cert_manager_action
+          value: $(params.cert_manager_action)
+        - name: cert_manager_provider
+          value: $(params.cert_manager_provider)
+      when:
+        - input: "$(params.cert_manager_action)"
+          operator: in
+          values: ["install"]
+        - input: "$(params.cert_manager_provider)"
+          operator: in
+          values: ["redhat"]
+
+    - name: update-grafana
+      taskRef:
+        kind: Task
+        name: mas-devops-cluster-monitoring
+      when:
+        - input: $(params.grafana_v5_upgrade)
+          operator: in
+          values: ["true", "True"]
+      params:
+        - name: cluster_monitoring_action
+          value: update_grafana
+        - name: devops_suite_name
+          value: update-grafana
+      runAfter:
+        - update-common-services
+
     - name: update-db2
       taskRef:
         kind: Task
@@ -235,8 +303,6 @@ spec:
           value: $(params.mongodb_namespace)
         - name: mongodb_v5_upgrade
           value: $(params.mongodb_v5_upgrade)
-        - name: mongodb_storage_class
-          value: $(params.mongodb_storage_class)
 
     - name: update-kafka
       taskRef:
@@ -254,6 +320,26 @@ spec:
         - name: kafka_provider
           value: $(params.kafka_provider)
 
+    # UDS/DRO Migration
+    - name: update-uds
+      taskRef:
+        kind: Task
+        name: mas-devops-uds
+      runAfter:
+        - update-common-services
+      params:
+        - name: dro_migration
+          value: $(params.dro_migration)
+        - name: uds_storage_class
+          value: $(params.uds_storage_class)
+        - name: uds_action
+          value: $(params.uds_action)
+        - name: devops_suite_name
+          value: update-uds
+{% if wait_for_install == true %}
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+{% endif %}
     # 6. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
@@ -265,6 +351,9 @@ spec:
         - update-db2
         - update-mongodb
         - update-kafka
+        - update-cert-manager
+        - update-uds
+        - update-grafana
 
 
 {% if wait_for_install == true %}
@@ -290,16 +379,4 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-finalize
-{% endif %}
-
-{% if wait_for_install == true %}
-    # 7. Test for outages during mongo update
-    # -------------------------------------------------------------------------
-    - name: fvt-mongo-update
-      taskRef:
-        kind: Task
-        name: mas-ivt-core
-      params:
-        - name: fvt_test_suite
-          value: mongohealth
 {% endif %}

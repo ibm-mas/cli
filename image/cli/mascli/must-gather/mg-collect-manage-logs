@@ -1,0 +1,89 @@
+#!/bin/bash
+set -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $DIR/../functions/internal/utils
+
+NAMESPACE=$1
+OUTPUT_DIR=$2
+
+createFolder () {
+  INSTANCE_ID=$(echo ${NAMESPACE%-*})
+  INSTANCE_ID=$(echo ${INSTANCE_ID#*-})
+  APP=$(echo ${POD%-*}) #removing 2nd ID
+  APP=$(echo ${APP%-*}) #removing 1st ID
+     if [[ "$APP" == "$INSTANCE_ID" ]]; then
+       APP=$(echo ${POD%-*}) #removing 2nd ID
+     fi
+  mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files"
+}
+
+# Getting route_manager.log from EntityMgr-WS Pod
+# ==================================================
+echo "- ${COLOR_BLUE} Getting route_manager.log from EntityMgr-WS Pod ${TEXT_RESET}"
+NAMESPACE=$1
+POD=$(oc -n $NAMESPACE get pods -l "mas.ibm.com/appType= entitymgr-ws-operator" -o jsonpath="{.items[*].metadata.name}")
+if [[ "$POD" != "" ]]; then
+  FILE=$(oc -n $NAMESPACE exec -i $POD -c manager -- find /tmp -iname 'route_manager*' -type f)
+  if [[ "$FILE" != "" ]]; then
+    createFolder
+    oc -n $NAMESPACE exec -i $POD -- cp /tmp/route_manager.log /opt/ansible/route_manager.log
+    oc cp $NAMESPACE/$POD:route_manager.log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files/route_manager.log --retries 20 
+    oc -n $NAMESPACE exec -i $POD -- rm -rf /opt/ansible/route_manager.log
+  else
+    echo_warning "route_manager.log not available on $POD pod"
+  fi
+else
+  echo_warning "$POD pod was not found"
+fi
+
+# Getting Maxinst Pod Files
+# =========================
+echo "- ${COLOR_BLUE} Getting Maxinst Pod Files${TEXT_RESET}"
+POD=$(oc -n $NAMESPACE get pods -l "mas.ibm.com/appType= maxinstudb" -o jsonpath="{.items[*].metadata.name}")
+
+if [[ "$POD" != "" ]]; then
+  createFolder 
+  oc cp $NAMESPACE/$POD:log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries 20
+else
+  echo_warning "Maxinst pod was not found"
+fi
+
+# Getting db2u Pod Files
+# =========================
+echo "- ${COLOR_BLUE} Getting db2u Pod Files${TEXT_RESET}"
+ NAMESPACE=$(oc get namespace db2u -o jsonpath='{.metadata.name}' --ignore-not-found)
+  if [[ "$NAMESPACE" != "" ]]; then
+    POD_NAME=$(oc -n $NAMESPACE get pods -l "type=engine" -o jsonpath="{.items[*].metadata.name}")
+    if [[ "$POD_NAME" != "" ]]; then
+      for POD in ${POD_NAME[@]}; do
+        createFolder
+        FILES=$(oc -n db2u exec -i $POD -- /bin/sh -c "find tmp -type f -not -name 'ks*' -not -name 'tmp*'")
+        for FILE in ${FILES[@]}; do
+          oc cp $NAMESPACE/$POD:$FILE $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files/$FILE --retries 20 > /dev/null 2>&1
+        done
+      done
+    else
+      echo_warning "DB2U pod was not found"
+    fi
+  else
+    echo_highlight "Unable to find db2u namespace"
+  fi
+
+# Getting Server Bundle Pod Files
+# =========================
+echo "- ${COLOR_BLUE} Getting Server Bundle Pod Files${TEXT_RESET}"
+NAMESPACE=$1
+POD_NAME=$(oc -n $NAMESPACE get pods -l "mas.ibm.com/appType= serverBundle" -o jsonpath="{.items[*].metadata.name}")
+if [[ "$POD_NAME" != "" ]]; then
+  for POD in ${POD_NAME[@]}; do
+    createFolder
+    oc -n $NAMESPACE exec -i $POD -- /bin/sh -c "cp -R ./logs ./tmp/bundle" > /dev/null 2>&1
+    oc cp $NAMESPACE/$POD:tmp/bundle $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries 20 > /dev/null 2>&1
+    oc -n $NAMESPACE exec -i $POD -- /bin/sh -c "rm -rf ./tmp/bundle" > /dev/null 2>&1
+  done
+else
+  echo_warning "Server Bundle pod was not found"
+fi
+
+exit 0

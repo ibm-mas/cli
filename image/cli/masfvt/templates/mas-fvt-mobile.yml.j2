@@ -18,42 +18,29 @@ spec:
     # Pull Policy
     - name: image_pull_policy
       value: "{{ image_pull_policy }}"
+    
+    # Registry
+    - name: fvt_image_registry
+      value: "{{ fvt_image_registry }}"
+    - name: fvt_artifactory_token
+      value: "{{ fvt_artifactory_token }}"
+    
     # MAS Info
+    - name: mas_channel
+      value: "{{ mas_channel }}"
     - name: mas_app_channel_manage
       value: "{{ mas_app_channel_manage }}"
     - name: mas_instance_id
       value: "{{ mas_instance_id }}"
     - name: mas_workspace_id
       value: "{{ mas_workspace_id }}"
-    # Registry
-    - name: fvt_image_registry
-      value: "{{ fvt_image_registry }}"
-    - name: fvt_artifactory_username
-      value: "{{ fvt_artifactory_username }}"
-    - name: fvt_artifactory_token
-      value: "{{ fvt_artifactory_token }}"
+        
     # Digests
-    - name: fvt_digest_mobile_manage_setup
-      value: "{{ fvt_digest_mobile_manage_setup }}"
-    - name: fvt_digest_mobilefoundation_testng
-      value: "{{ fvt_digest_mobilefoundation_testng }}"
-    - name: fvt_digest_manage_civil_defects_testng
-      value: "{{ fvt_digest_manage_civil_defects_testng }}"
-    - name: fvt_digest_servicerequests_testng
-      value: "{{ fvt_digest_servicerequests_testng }}"
-    - name: fvt_digest_inspection_testng
-      value: "{{ fvt_digest_inspection_testng }}"
-    - name: fvt_digest_technician_testng
-      value: "{{ fvt_digest_technician_testng }}"
-    - name: fvt_digest_asset_manager_testng
-      value: "{{ fvt_digest_asset_manager_testng }}"
-    - name: fvt_digest_inventorycounting_testng
-      value: "{{ fvt_digest_inventorycounting_testng }}"
-    - name: fvt_digest_inventoryreceiving_testng
-      value: "{{ fvt_digest_inventoryreceiving_testng }}"
-    - name: fvt_digest_issuesandtransfers_testng
-      value: "{{ fvt_digest_issuesandtransfers_testng }}"
-
+    - name: fvt_digest_mobile_pytest
+      value: "{{ fvt_digest_mobile_pytest }}"
+    - name: fvt_digest_mobile_testng
+      value: "{{ fvt_digest_mobile_testng }}"
+    
   workspaces:
     # The generated configuration files
     - name: shared-configs

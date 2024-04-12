@@ -158,6 +158,16 @@ spec:
       type: string
       default: ""
 
+    - name: ldap_url
+      type: string
+      default: ""
+    - name: ldap_basedn
+      type: string
+      default: ""
+    - name: ldap_userid_map
+      type: string
+      default: ""
+
   stepTemplate:
     name: gitops-mas-fvt-preparer
     env:
@@ -274,6 +284,15 @@ spec:
       - name: ARGOCD_URL
         value: $(params.argocd_url)
 
+      - name: LDAP_URL
+        value: $(params.ldap_url)
+      - name: LDAP_BASE_DN
+        value: $(params.ldap_basedn)
+      - name: LDAP_USER_MAP
+        value: $(params.ldap_userid_map)
+      - name: LDAP_CERT_ALIAS
+        value: ldap
+
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -352,11 +371,14 @@ spec:
           SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
           SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
           SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          WORKSPACE_APP="workspace.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+
           check_argo_app_healthy "${MONGO_CONFIG_APP}" 
           check_argo_app_healthy "${SLS_CONFIG_APP}"
           check_argo_app_healthy "${BAS_CONFIG_APP}"
           check_argo_app_healthy "${SLS_APP_NAME}"
           check_argo_app_healthy "${SUITE_APP_NAME}"
+          check_argo_app_healthy "${WORKSPACE_APP}"
         fi
       
         if [[ "$LAUNCHER_ID" == "apps" ]]; then
@@ -397,6 +419,7 @@ spec:
         echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration 4h --applications *"  
         argocd proj windows add mas --kind deny --schedule "* * * * *" --duration 4h --applications "*.$MAS_INSTANCE_ID"
 
+        export LDAP_CRT=$(cat /workspace/shared-additional-configs/ldap_masdeps1_cert.pem)
         mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS}
 
         # Wait for launcher to complete
@@ -418,6 +441,7 @@ spec:
         - -c
       name: gitops-mas-fvt-preparer
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
+      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
   workspaces:
     - name: configs
+    - name: shared-additional-configs

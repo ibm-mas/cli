@@ -27,6 +27,22 @@ spec:
       type: string
     - name: source_path
       type: string
+    - name: mas_channel
+      type: string
+    - name: mas_app_channel_assist
+      type: string
+    - name: mas_app_channel_iot
+      type: string
+    - name: mas_app_channel_manage
+      type: string
+    - name: mas_app_channel_monitor
+      type: string
+    - name: mas_app_channel_optimizer
+      type: string
+    - name: mas_app_channel_predict
+      type: string
+    - name: mas_app_channel_visualinspection
+      type: string
     - name: github_pat
       type: string
   stepTemplate:
@@ -54,6 +70,22 @@ spec:
         value: $(params.source_github_repo)
       - name: SOURCE_PATH
         value: $(params.source_path)
+      - name: MAS_CHANNEL
+        value: $(params.mas_channel)
+      - name: MAS_APP_CHANNEL_ASSIST
+        value: $(params.mas_app_channel_assist)
+      - name: MAS_APP_CHANNEL_IOT
+        value: $(params.mas_app_channel_iot)
+      - name: MAS_APP_CHANNEL_MANAGE
+        value: $(params.mas_app_channel_manage)
+      - name: MAS_APP_CHANNEL_MONITOR
+        value: $(params.mas_app_channel_monitor)
+      - name: MAS_APP_CHANNEL_OPTIMIZER
+        value: $(params.mas_app_channel_optimizer)
+      - name: MAS_APP_CHANNEL_PREDICT
+        value: $(params.mas_app_channel_predict)
+      - name: MAS_APP_CHANNEL_VISUALINSPECTION
+        value: $(params.mas_app_channel_visualinspection)
       - name: GITHUB_PAT
         value: $(params.github_pat)
   steps:
@@ -61,7 +93,7 @@ spec:
       - |-
 
         set -e -o pipefail
-        
+
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
@@ -90,12 +122,40 @@ spec:
 
         cd $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO
 
-        # Update the domain name in the mas-instance.yaml. Assume fvtsaas here
+        # Update the domain name in the mas-instance-params.yaml. Assume fvtsaas here
         export ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
         export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
         export DOMAIN=$(echo -n $OCP_SERVER | sed -n -e 's/^.*api.//p' | cut -d: -f1)
         yq --arg MASDOMAIN fvtsaas.apps.$DOMAIN -iY '.mas_instance.domain= $MASDOMAIN' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+
+        # Update the ocp server url in the cluster-params.yaml. Assume fvtsaas here
         yq --arg URL $OCP_SERVER -iY '.cluster.url= $URL' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+
+        # Update the channel in the mas-instance-params.yaml. Assume fvtsaas here
+        yq --arg MAS_CHANNEL $MAS_CHANNEL -iY '.mas_instance.channel= $MAS_CHANNEL' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+
+        # Update the app channels in the mas-apps-params.yaml. Assume fvtsaas here
+        if [ -n $MAS_APP_CHANNEL_ASSIST ]; then
+          yq --arg MAS_APP_CHANNEL_ASSIST $MAS_APP_CHANNEL_ASSIST -iY '(. | select(has("assist")?).assist.app_channel)= $MAS_APP_CHANNEL_ASSIST' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+        fi
+        if [ -n $MAS_APP_CHANNEL_IOT ]; then
+          yq --arg MAS_APP_CHANNEL_IOT $MAS_APP_CHANNEL_IOT -iY '(. | select(has("iot")?).iot.app_channel)= $MAS_APP_CHANNEL_IOT' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+        fi
+        if [ -n $MAS_APP_CHANNEL_MANAGE ]; then
+          yq --arg MAS_APP_CHANNEL_MANAGE $MAS_APP_CHANNEL_MANAGE -iY '(. | select(has("manage")?).manage.app_channel)= $MAS_APP_CHANNEL_MANAGE' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+        fi
+        if [ -n $MAS_APP_CHANNEL_MONITOR ]; then
+          yq --arg MAS_APP_CHANNEL_MONITOR $MAS_APP_CHANNEL_MONITOR -iY '(. | select(has("monitor")?).monitor.app_channel)= $MAS_APP_CHANNEL_MONITOR' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+        fi
+        if [ -n $MAS_APP_CHANNEL_OPTIMIZER ]; then
+          yq --arg MAS_APP_CHANNEL_OPTIMIZER $MAS_APP_CHANNEL_OPTIMIZER -iY '(. | select(has("optimizer")?).optimizer.app_channel)= $MAS_APP_CHANNEL_OPTIMIZER' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+        fi
+        if [ -n $MAS_APP_CHANNEL_PREDICT ]; then
+          yq --arg MAS_APP_CHANNEL_PREDICT $MAS_APP_CHANNEL_PREDICT -iY '(. | select(has("predict")?).predict.app_channel)= $MAS_APP_CHANNEL_PREDICT' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+        fi
+        if [ -n $MAS_APP_CHANNEL_VISUALINSPECTION ]; then
+          yq --arg MAS_APP_CHANNEL_VISUALINSPECTION $MAS_APP_CHANNEL_VISUALINSPECTION -iY '(. | select(has("visualinspection")?).visualinspection.app_channel)= $MAS_APP_CHANNEL_VISUALINSPECTION' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+        fi
 
         # Update cos details in mas-instance.yaml. Assume fvtsaas here
         export TEMP_MASCONFIG_DIR="/tmp/masconfig/"
@@ -112,12 +172,6 @@ spec:
         yq -iY 'del(.metadata)' $TEMP_COS_CONFIG
         yq -iY 'del(.stringData)' $TEMP_COS_CONFIG
         cp $TEMP_COS_CONFIG gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/cos-ibm-system.yml
-
-        # yq -sY '.[1].spec' $COS_CONFIG > $TEMP_MASCONFIG_DIR/cos-info.yaml
-        # export COS_URL=$(cat $TEMP_MASCONFIG_DIR/cos-info.yaml | yq -r '.config.url')
-        # echo "COS_URL=$COS_URL"
-        # yq --arg URL $COS_URL -iY '.cos.url= $URL' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
-        # rm -rf $TEMP_MASCONFIG_DIR/cos-info.yaml
 
         echo "git: Adding all files in $TARGET_LOCAL_DIR working directory"
         export FILES_ADDED=$(git add -v . | wc -l | xargs)
@@ -166,6 +220,6 @@ spec:
         - -c
       name: gitops-mas-initiator
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
+      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
   workspaces:
     - name: configs

@@ -304,7 +304,12 @@ function gitops_db2u_database() {
 
   mkdir -p ${GITOPS_WORKING_DIR}
   rm -rf $GITOPS_WORKING_DIR/$GITHUB_REPO
-  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/db2-databases
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+  CONFIGS_FILE="${GITOPS_INSTANCE_DIR}/ibm-db2u-databases.yaml"
+
+  # NOTE: must align with lock branch name used by gitops_deprovision_db2u_database script
+  # as both of these scrtipts modify the same file
+  GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-db2u-database" "${ACCOUNT_ID}" "${REGION_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
 
   #Defaults
   if [[ -z $DB2_DBNAME ]]; then
@@ -413,6 +418,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     echo_reset_dim "Organization .......................... ${COLOR_MAGENTA}${GITHUB_ORG}"
     echo_reset_dim "Repository ............................ ${COLOR_MAGENTA}${GITHUB_REPO}"
     echo_reset_dim "Branch ................................ ${COLOR_MAGENTA}${GIT_BRANCH}"
+    echo_reset_dim "Lock Branch ........................... ${COLOR_MAGENTA}${GIT_LOCK_BRANCH}"
   else
     echo_h2 "GitOps Target" "    "
     echo_reset_dim "Automatic Push ........................ ${COLOR_RED}Disabled"
@@ -471,8 +477,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   export SECRET_KEY_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain#cluster_domain
 
-  CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/tmp-db2u-database
+  TEMP_DIR=$GITOPS_WORKING_DIR/tmp-db2u-database
   mkdir -p $TEMP_DIR
 
   # Getting provided db2cluster configs
@@ -510,65 +515,70 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   # Clone github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
-    echo
-    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    # only create the lock branch if we plan to actually push changes to git
+    clone_and_lock_target_git_repo  "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_SSH}" "${GIT_LOCK_BRANCH}"
+  else
+    # even though we don't want to push anything to git,
+    # because this script modifies the existing suite-configs.yaml file, we still need to checkout the repo
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
   mkdir -p ${GITOPS_INSTANCE_DIR}
-
-  # wait till CRD db2uclusters.db2u.databases.ibm.com NamesAccepted=True 
-  # This is now performed as a presync hook in the ibm-db2u-database chart
-  # as a workaround for the fact that we can no longer directly call the cluster
-  # See: https://jsw.ibm.com/browse/MASCORE-1425
-  # wait_for_db2ucluster_crd
-
-  GITOPS_TMP_DIR=${GITOPS_CLUSTER_DIR}/tmp
-  mkdir -p ${GITOPS_TMP_DIR}
 
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   echo
   echo_h2 "Generating DB2U Database Configuraton"
   echo
-  GENERATED_CONFIG_FILE="${GITOPS_INSTANCE_DIR}/${DB2_INSTANCE_NAME}.ibm-db2u-database.yaml"
-  echo_reset_dim "- Generating DB2U Database file ${GENERATED_CONFIG_FILE}"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database.yaml.j2 -o ${GENERATED_CONFIG_FILE}
+
+  # If the file doesn't exist, create a blank one
+  if ! [ -f ${CONFIGS_FILE} ]; then
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database-common.yaml.j2 > $CONFIGS_FILE
+  fi
+
+  # Remove any existing config with this name
+  /usr/bin/yq 'del(.ibm_db2u_databases[] | select(.db2_instance_name == "'${DB2_INSTANCE_NAME}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
+
+  # Render the appropriate template for the config into a new file
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database.yaml.j2 | /usr/bin/yq '{"ibm_db2u_databases": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+
+  # Merge the two files
+  /usr/bin/yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
+
+  # sort the configs by db2_instance_name.
+  # This way, we maintain the same ordering of configs in the file (even though we may have deleted and recreated a config if it's an update)
+  # This eliminates confusing commits to gitops-envs and allows us to determine if anything has actually changed
+  # (which we use, in this case, to determine if we need to update the db2_settings_applied secret)
+  /usr/bin/yq -i '.ibm_db2u_databases |= sort_by(.db2_instance_name)' $CONFIGS_FILE
+
+
+  echo_h2 "Updated configuration file (${CONFIGS_FILE})"
+  if [ -f ${CONFIGS_FILE} ]; then
+    cat $CONFIGS_FILE
+  else
+    echo "<file was deleted>"
+  fi
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
-    echo "git: Added ${FILES_ADDED} files"
+    save_and_unlock_target_git_repo "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_COMMIT_MSG}" "${GIT_LOCK_BRANCH}" DB2_CONFIG_CHANGED
 
     # The DB2CFG_SETTINGS_APPLIED secret is read by the postsync hook in the ibm-db2u-database chart
     # Since we have made changes to the db2u-database config here, we want the postsync hook to rerun,
     # so set the secret to false
-    if [[ "$FILES_ADDED" != "0" ]]; then
+    if [[ "$DB2_CONFIG_CHANGED" != "0" ]]; then
       echo_h2 "setting DB2CFG_SETTINGS_APPLIED to false to prompt postsync hooks to run"
       export DB2CFG_SETTINGS_APPLIED="false"
       export DB2CFG_SETTINGS_APPLIED_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2${SECRETS_KEY_SEPERATOR}${DB2_INSTANCE_NAME}/settings_applied
       sm_update_secret ${DB2CFG_SETTINGS_APPLIED_SECRET} "{ \"db2cfg_settings_applied\": \"${DB2CFG_SETTINGS_APPLIED}\" }"
-      rc=$?
-      [ $rc -ne 0 ] && exit $rc
-    fi
-
-    if [ "${ARGOCD_CHECK}" == "true" ]; then
-      argocd_login
-      argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the db2-db appset to pick up the new config files
-      check_argo_app_synced "${INSTANCE_ROOT_APP}" "${CLUSTER_ROOT_APP}" # wait for the instance root app to sync
-
-      argocd_hard_refresh "${DB2_DATABASE_APP}"
-      check_argo_app_synced "${DB2_DATABASE_APP}" "${INSTANCE_ROOT_APP}"
-      check_argo_app_healthy "${DB2_DATABASE_APP}" "${INSTANCE_ROOT_APP}"
     fi
 
 
-  fi
-  
-  if [ "$GITHUB_PUSH" == "true" ]; then
+  else
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
-  exit 0
+
+
 }

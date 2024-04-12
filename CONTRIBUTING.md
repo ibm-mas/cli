@@ -31,7 +31,7 @@ tekton/test-install.sh
 ```bash
 # Build & install ansible collections, save them to image/cli/, build the docker container, then run the container
 make
-docker run -ti --rm quay.io/ibmmas:local
+docker run -ti --rm quay.io/ibmmas/cli:local
 ```
 
 
@@ -90,6 +90,13 @@ For `major` and `minor` pull requests mainly, make sure you follow the standard 
 
 - Ensure you have tested your changes and they do what is supposed to from an "end-to-end" perspective. Attaching screenshots of the end goal in your `pull request` are always welcome so everyone knows what to expect by the change, and that it does not break existing role functionalities around your change (basic regression test).
 - Ensure that a MAS install test runs successfully from an `end-to-end` via cli (basic regression test). See more information about it in [MAS CLI documentation](https://github.com/ibm-mas/cli).
+- If tekton tasks were modified please use the following test procedure from a linux environment that has ansible installed, the `oc` command and access to modified cli repo (your test branch):
+  - Change directory to the cli/tekton directory
+  - login to your cluster (oc login command)
+  - Execute `ansible-playbook generate-tekton-tasks.yml`
+  - Execute `ansible-playbook generate-tekton-pipelines.yml`
+  - Execute `./test.sh`  This will try to create or recreate all the tekton resources in the default pipeline, make sure there are no errors. 
+
 
 Here's how you could get started with a new pull request from your branch:
 

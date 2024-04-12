@@ -1,0 +1,28 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a QoS class of BestEffort. More can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
+podTemplates:
+  - name: action-mgr-invoker
+    containers:
+      - name: action-mgr
+        resources: {}
+      - name: statsd
+        resources: {}
+  - name: action-mgr-resolver
+    containers:
+      - name: action-mgr
+        resources: {}
+      - name: statsd
+        resources: {}
+  - name: api-actions
+    containers:
+      - name: api-actions
+        resources: {}
+      - name: statsd
+        resources: {}
+  - name: deprovagent-actions
+    containers:
+      - name: deprovagent-actions
+        resources: {}

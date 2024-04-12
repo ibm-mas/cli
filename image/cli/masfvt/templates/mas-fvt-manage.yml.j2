@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   name: "{{ pipelinerun_name }}"
@@ -10,7 +10,17 @@ spec:
   pipelineRef:
     name: mas-fvt-manage
 
-  serviceAccountName: pipeline
+  taskRunTemplate:
+    serviceAccountName: pipeline
+    podTemplate:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: ibm-cloud.kubernetes.io/worker-id
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector: 
+            matchLabels:
+              tekton.dev/task: mas-fvt-manage
+
   timeouts:
     pipeline: "8h"
 
@@ -39,9 +49,6 @@ spec:
       value: "{{ fvt_digest_manage_pytest }}"
     - name: ivt_digest_core
       value: "{{ ivt_digest_core }}"
-    # Test data
-    - name: fvt_manage_automation_version
-      value: "{{ fvt_manage_automation_version }}"
 
   workspaces:
     # The generated configuration files

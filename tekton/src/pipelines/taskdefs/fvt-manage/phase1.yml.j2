@@ -1,34 +1,31 @@
+
 # -------------------------------------------------------------
 # PHASE 1
-# - fvt-manage-setup
-# - fvt-manage-monitoring
+# - ivt-manage-base-api (pytest)
+# - fvt-manage-setup (pytest)
 # -------------------------------------------------------------
 
-# Manage FVT Setup
-- name: fvt-manage-setup # convention: use fvt-manage-<keyword>, as the value of fvt_test_suite parameter
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
-    - name: fvt_test_suite
-      value: setup
-    - name: fvt_mas_appws_component
-      value: base
-    - name: fvt_test_driver
-      value: tpae
-  runAfter:
-    - fvt-manage-usersync
-
-# Manage FVT Monitoring
-- name: fvt-manage-monitoring
+# Manage Integration 
+# It contains a more elaborated test of user sync than the one in coreivt.
+# Other integration tests with mas core are also present here, like monitoring, which
+# validate metrics published in openshift by Manage
+- name: fvt-manage-base-api-ivt
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
     - name: fvt_test_suite
-      value: monitoring
+      value: base-api-ivt
   runAfter:
-    - fvt-manage-usersync
+    - ivtcore-manage
+
+# Manage FVT Setup
+# - Required by all tests after phase 1 in fvt-manage pipeline 
+# - Required by fvt-manage-is, fvt-manage-civil, fvt-manage-health, fvt-mobile. fvt-optimizer and fvt-predict pipelines
+- name: fvt-manage-base-api-setup
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-api-setup
+  runAfter:
+    - fvt-manage-base-api-ivt

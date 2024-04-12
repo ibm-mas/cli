@@ -3,6 +3,10 @@
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
       value: setup-cert-manager
+    - name: cert_manager_provider
+      value: $(params.cert_manager_provider)
+    - name: cert_manager_action
+      value: $(params.cert_manager_action)
   taskRef:
     kind: Task
     name: mas-devops-cert-manager

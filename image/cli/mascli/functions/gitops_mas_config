@@ -765,6 +765,11 @@ function gitops_mas_config() {
     # Merge the two files
     /usr/bin/yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
 
+    # sort the configs by mas_config_name.
+    # This way, we maintain the same ordering of configs in the file (even though we may have deleted and recreated a config if it's an update)
+    # This eliminates confusing commits to gitops-envs and allows us to determine if anything has actually changed if we need to for configs in future
+    /usr/bin/yq -i '.ibm_mas_suite_configs |= sort_by(.mas_config_name)' $CONFIGS_FILE
+
   fi # [ "${CONFIG_ACTION}" == "upsert" ]
 
 

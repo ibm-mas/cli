@@ -35,12 +35,6 @@ spec:
     - name: ldap_certificate_file
       type: string
       default: ""
-    #- name: ldap_bind_dn
-    #  type: string
-    #  default: ""
-    #- name: ldap_bind_password
-    #  type: string
-    #  default: ""
     - name: cluster_url
       type: string
       default: ""
@@ -85,10 +79,7 @@ spec:
         value: $(params.argocd_url)
       - name: ARGOCD_CHECK
         value: $(params.argocd_check)
-      #- name: LDAP_BIND_DN
-      #  value: $(params.ldap_bind_dn)
-      #- name: LDAP_BIND_PASSWORD
-      #  value: $(params.ldap_bind_password)
+
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -130,7 +121,7 @@ spec:
         - -c
       name: gitops-suite-idp-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
+      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
   workspaces:
     - name: configs
     - name: shared-additional-configs

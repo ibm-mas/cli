@@ -62,10 +62,6 @@ spec:
     - name: mas_workspace_id
       type: string
       description: Workspace ID in MAS to use for running the tests
-    - name: kafka_provider
-      type: string
-      description: kafka provider used during installation (ibm, aws or redhat)
-      default: ""
 
   stepTemplate:
     name: fvt-manage
@@ -97,8 +93,6 @@ spec:
         value: "$(params.mas_instance_id)"
       - name: WORKSPACE_ID
         value: "$(params.mas_workspace_id)"
-      - name: KAFKA_PROVIDER
-        value: $(params.kafka_provider)
 
       - name: FVT_TEST_DRIVER
         value: $(params.fvt_test_driver)
@@ -110,7 +104,33 @@ spec:
         value: $(params.fvt_test_suite)
       - name: FVT_MAS_APPWS_COMPONENT
         value: $(params.fvt_mas_appws_component)
-      
+
+      # Black and white listing
+      - name: FVT_BLACKLIST
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_BLACKLIST
+            optional: false
+      - name: FVT_WHITELIST
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_WHITELIST
+            optional: false
+      - name: FVT_BLACKLIST_IS
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_BLACKLIST_IS
+            optional: false
+      - name: FVT_WHITELIST_IS
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_WHITELIST_IS
+            optional: false
+
       # If this secret exists (with both ARTIFACTORY_TOKEN and ARTIFACTORY_UPLOAD_DIR keys set) Maximo Automation Framework logs will be automatically uploaded
       - name: ARTIFACTORY_TOKEN
         valueFrom:
@@ -128,8 +148,8 @@ spec:
   steps:
     - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
-      onError: continue # Ensure bad FVTs don't break the pipeline
+      timeout: 150m  # Ensure bad FVTs don't run forever
+      onError: continue  # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
       volumeMounts:

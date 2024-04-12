@@ -126,45 +126,63 @@ Content
 └── must-gather-20230423-204411.tgz
 ```
 
+
+Usage
+-------------------------------------------------------------------------------
+As with other CLI functions, the must-gather will run against the currently connected cluster, use `oc login` to connect to a cluster before running `mas must-gather`.
+
+```bash
+# Start the container in docker
+docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli
+# Login to the cluster and run the must-gather, which will be available in the home directory on the local system
+oc login --token=xxx --server=https://xxx:xxx
+mas must-gather -d /mnt/home/must-gather
+```
+
+```bash
+# Start the container in podman
+podman run -ti --rm -v /~:/mnt/home:z --pull always quay.io/ibmmas/cli
+# Login to the cluster and run the must-gather, which will be available in the home directory on the local system
+oc login --token=xxx --server=https://xxx:xxx
+mas must-gather -d /mnt/home/must-gather
+```
+
+
 Examples
 -------------------------------------------------------------------------------
-### Complete Must-Gather
-Running this command will save the must-gather file to a must-gather directory in your home directory.
+
+**Cluster-scoped must-gather:** Collect data for all MAS instances, critical cluster resources, and most MAS dependencies (Db2, Cloud Pak Foundational Services, Cloud Pak for Data, etc).
 
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather
+mas must-gather -d /mnt/home/must-gather
 ```
 
-### Quick Must-Gather
-Running this command will save the must-gather file to a must-gather directory in your home directory.
+**Include secret data:** By default secret data is not included in the must-gather archive, only the existence of the secret is recorded and how many fields it contains.  Adding the `--secret-data` flag will trigger the inclusion of the secret data as well.
 
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --all --summary-only
+mas must-gather -d /mnt/home/must-gather --secret-data
 ```
 
-### Must-Gather for one MAS instance
+**Quick must-gather:** This must-gather will omit pod logs and details of standard Kubernetes resources, it runs incredibly fast but it's usage is situational.
+
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --all --mas-instance-ids inst1
+mas must-gather -d /mnt/home/must-gather --summary-only
 ```
 
-### Must-Gather that includes the data of the secrets
+**Target a specific MAS instance:** By setting `---mas-instance-ids` to a comma-separated list of instance IDs you can instruct the must-gather to focus on specific instances only.
+
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --all --secret-data
+mas must-gather -d /mnt/home/must-gather --mas-instance-ids inst1
 ```
 
-### Must-Gather that collects everything, including data for db2 and ibm-common-services namespaces and data for all secrets
-```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather --all --secret-data --extra-namespaces "db2u,ibm-common-services"
-```
+**Target specific applications:**  Setting `--mas-app-ids` to a comma-separated list of MAS application IDs will restict the MAS-specific must-gather to those applications only, which can be combined with `--no-ocp`, `--no-dependencies`, `--no-sls`, & `--mas-instance-ids` to focus the collection to a specific namespace/MAS application.
 
-### Must-Gather that collects only data for mas core for MAS instance "inst1"
 ```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather -mas-instance-ids "inst1" --mas-app-ids "core"
-```
+# Target Core in inst1
+mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst1" --mas-app-ids "core"
 
-### Must-Gather that collects only data for mas core and mas manage for MAS instance "inst1" and mongo data
-```bash
-docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli mas must-gather -d /mnt/home/must-gather -mas-instance-ids "inst1" --mas-app-ids "core,manage" --mongo-report
+# Target Core + Manage in inst2
+mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst2" --mas-app-ids "core,manage"
 ```
 
 ### Execute the Must-Gather in non-interactive mode

@@ -47,12 +47,6 @@ spec:
     - name: smtp_default_should_email_passwords
       type: string
       default: ""
-    - name: smtp_username
-      type: string
-      default: ""
-    - name: smtp_password
-      type: string
-      default: ""
     - name: cluster_url
       type: string
       default: ""
@@ -101,10 +95,6 @@ spec:
         value: $(params.smtp_default_recipient_email)
       - name: SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS
         value: $(params.smtp_default_should_email_passwords)
-      - name: SMTP_USERNAME
-        value: $(params.smtp_username)
-      - name: SMTP_PASSWORD
-        value: $(params.smtp_password)
       - name: ARGOCD_URL
         value: $(params.argocd_url)
       - name: ARGOCD_CHECK
@@ -153,7 +143,7 @@ spec:
         - -c
       name: gitops-suite-smtp-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:7.10.0-pre.gitops
+      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
   workspaces:
     - name: configs
 
