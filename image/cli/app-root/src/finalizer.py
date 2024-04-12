@@ -565,7 +565,7 @@ if __name__ == "__main__":
     for product in result["products"]:
         messageBlocks = []
         messageBlocks.append(buildHeader(f"{product}"))
-        if(product in result["products"]):
+        if(product in productFocal):
             messageBlocks.append(buildSection(f"<!subteam^{productFocal[product]}> The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
         else:
             messageBlocks.append(buildSection(f"The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
