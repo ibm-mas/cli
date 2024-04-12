@@ -10,9 +10,13 @@ spec:
     name: mas-update
 
   serviceAccountName: pipeline
-  timeout: 1h
+  timeout: 6h
 
   params:
+    - name: ibm_entitlement_key
+      value: '$IBM_ENTITLEMENT_KEY'
+    - name: skip_entitlement_key_flag
+      value: '$SKIP_ENTITLEMENT_KEY_FLAG'
     - name: mas_catalog_version
       value: '$MAS_CATALOG_VERSION'
     - name: db2_namespace
@@ -39,3 +43,29 @@ spec:
       value: '$UDS_ACTION'
     - name: grafana_v5_upgrade
       value: '$GRAFANA_V5_UPGRADE'
+  
+    # Storage Classes
+    # -------------------------------------------------------------------------
+    - name: storage_class_rwx
+      value: '$STORAGE_CLASS_RWX'
+    - name: storage_class_rwo
+      value: '$STORAGE_CLASS_RWO'
+    
+    # Dependencies - CP4D
+    # -------------------------------------------------------------------------
+    - name: cpd_product_version
+      value: '$CP4D_VERSION'
+    - name: cp4d_update
+      value: '$CP4D_UPDATE'
+    - name: cp4d_update_ws
+      value: '$CP4D_UPDATE_WS'
+    - name: cp4d_update_wml
+      value: '$CP4D_UPDATE_WML'
+    - name: cp4d_update_wos
+      value: '$CP4D_UPDATE_WOS'
+    - name: cp4d_update_spark
+      value: '$CP4D_UPDATE_SPARK'
+    - name: cp4d_update_spss
+      value: '$CP4D_UPDATE_SPSS'
+    - name: cp4d_update_cognos
+      value: '$CP4D_UPDATE_COGNOS'
