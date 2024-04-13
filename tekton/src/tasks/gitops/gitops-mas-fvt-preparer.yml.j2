@@ -434,7 +434,9 @@ spec:
         echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration 4h --applications *"  
         argocd proj windows add mas --kind deny --schedule "* * * * *" --duration 4h --applications "*.$MAS_INSTANCE_ID"
 
-        export LDAP_CRT=$(</workspace/shared-additional-configs/ldap_masdeps1_cert.pem)
+        UNESCAPED_LDAP_CRT=$(</workspace/shared-additional-configs/ldap_masdeps1_cert.pem)
+        ESCAPED_LDAP_CRT=${UNESCAPED_LDAP_CRT//\"/\\\"}
+        export LDAP_CRT=${ESCAPED_LDAP_CRT//$'\n'/\\n}
         echo "Set LDAP_CRT as $LDAP_CRT"
         mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS}
 
