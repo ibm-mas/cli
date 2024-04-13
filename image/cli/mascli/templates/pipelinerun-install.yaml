@@ -67,6 +67,10 @@ spec:
       value: '$DB2_TYPE'
     - name: db2_timezone
       value: '$DB2_TIMEZONE'
+    - name: db2_ldap_username
+      value: '$DB2_LDAP_USERNAME'
+    - name: db2_ldap_password
+      value: '$DB2_LDAP_PASSWORD'
 
     # Dependencies - Db2 - Actions
     # -------------------------------------------------------------------------
