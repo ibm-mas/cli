@@ -25,6 +25,11 @@ spec:
       type: string
       default: "False"
       description: Skip performing compatiblity checks before upgrade
+    
+    # Pipeline config
+    - name: skip_pre_check
+      type: string
+      default: ""
 
     {{ lookup('template', params_src_dir ~ '/install-appchannels.yml.j2') | indent(4) }}
 

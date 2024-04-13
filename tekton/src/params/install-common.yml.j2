@@ -1,9 +1,3 @@
-# Pipeline config
-# -----------------------------------------------------------------------------
-- name: skip_pre_install_check
-  type: string
-  default: ""
-
 # Storage Class Selection
 # -----------------------------------------------------------------------------
 - name: storage_class_rwo
@@ -20,3 +14,9 @@
 - name: ibm_entitlement_key
   type: string
   description: IBM Entitlement Key
+
+# Pipeline config
+# -----------------------------------------------------------------------------
+- name: skip_pre_check
+  type: string
+  default: ""

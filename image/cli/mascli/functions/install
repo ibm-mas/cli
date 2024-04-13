@@ -412,8 +412,8 @@ function install_noninteractive() {
         ;;
 
       # Other Commands
-      --skip-pre-install-check)
-        SKIP_PRE_INSTALL_CHECK=true
+      --skip-pre-check)
+        SKIP_PRE_CHECK=true
         ;;
       --dev-mode)
         DEV_MODE=true

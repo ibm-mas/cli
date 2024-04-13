@@ -15,8 +15,8 @@ spec:
   params:
     # Pipeline config
     # -------------------------------------------------------------------------
-    - name: skip_pre_install_check
-      value: '$SKIP_PRE_INSTALL_CHECK'
+    - name: skip_pre_check
+      value: '$SKIP_PRE_CHECK'
 
     # Cluster config
     # -------------------------------------------------------------------------
