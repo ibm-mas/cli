@@ -425,8 +425,6 @@ function install_pipelinerun_preview() {
   --manage-db-tablespace '$MAS_APP_SETTINGS_TABLESPACE'"
   [ "$MAS_APP_SETTINGS_INDEXSPACE" != "" ] && cmd+=" --manage-db-indexspace '$MAS_APP_SETTINGS_INDEXSPACE'"
   [ "$MAS_APP_SETTINGS_DB2_SCHEMA" != "" ] && cmd+=" --manage-db-schema '$MAS_APP_SETTINGS_DB2_SCHEMA'"
-  [ "$DB2_LDAP_USERNAME" != "" ] && cmd+=" --manage-db-username '$DB2_LDAP_USERNAME'"
-  [ "$DB2_LDAP_PASSWORD" != "" ] && cmd+=" --manage-db-password '$DB2_LDAP_PASSWORD'"
 
   reset_colors
   echo

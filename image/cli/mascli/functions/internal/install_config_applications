@@ -278,10 +278,6 @@ function manage_settings_database() {
     prompt_for_input "Schema" MAS_APP_SETTINGS_DB2_SCHEMA
     prompt_for_input "Tablespace" MAS_APP_SETTINGS_TABLESPACE
     prompt_for_input "Indexspace" MAS_APP_SETTINGS_INDEXSPACE
-    prompt_for_input "Database Username" DB2_LDAP_USERNAME
-    if [ -n "$DB2_LDAP_USERNAME" ]; then # only prompt password if user if set
-      prompt_for_secret "Database Password" DB2_LDAP_PASSWORD
-    fi
     echo
     if prompt_for_confirm "Customize database encryption settings?"; then
       # TODO: Someone needs to explain what these actually do (with a link to documentation) and change the env vars to meaningful labels
