@@ -22,6 +22,7 @@ Update Dependencies (Optional):
   --cp4d-version  ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}            Optional. Set Cloud Pak for Data version for the upgrade. Note: This overrides the default CP4D version defined by the Maximo Operator Catalog version.
   --dro-storage-class  ${COLOR_YELLOW}DRO_STORAGE_CLASS${TEXT_RESET}  Set Custom RWO Storage Class name for DRO as part of the update
 Other Commands:
+      --skip-pre-check                  Skips the 'pre-update-check' task in the pipeline
       --no-confirm                      Launch the update without prompting for confirmation
   -h, --help                            Show this help message
 EOM
@@ -574,6 +575,9 @@ function update_noninteractive() {
         ;;
       --no-confirm)
         NO_CONFIRM=true
+        ;;
+      --skip-pre-check)
+        SKIP_PRE_CHECK=true
         ;;
       -h|--help)
         update_help
