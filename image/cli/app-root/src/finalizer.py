@@ -302,6 +302,7 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     productFocal = {
         "ibm-mas": "S04PPFYUJG5", 
+        "ibm-mas-devops": "S04PPFYUJG5", 
         "ibm-mas-assist": "S04PSA1M1RR",
         "ibm-mas-iot":"S04PBTG77JB",
         "ibm-mas-manage":"S05QB03HNTU",
@@ -564,7 +565,10 @@ if __name__ == "__main__":
     for product in result["products"]:
         messageBlocks = []
         messageBlocks.append(buildHeader(f"{product}"))
-        messageBlocks.append(buildSection(f"<!subteam^{productFocal[product]}> The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+        if(product in productFocal):
+            messageBlocks.append(buildSection(f"<!subteam^{productFocal[product]}> The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+        else:
+            messageBlocks.append(buildSection(f"The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
 
         if "results" in result["products"][product]:
             for suite in result["products"][product]["results"]:
