@@ -48,7 +48,6 @@ spec:
         name: mas-fvt-wait-for-install
 {% endif %}
 
-
     # 1. Verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
@@ -59,7 +58,6 @@ spec:
       runAfter:
         - wait-for-install
 {% endif %}
-
 
 {% if wait_for_install == true %}
     # 2. Pre-Upgrade pipeline call - test scripts to run before upgrade
@@ -80,7 +78,6 @@ spec:
       runAfter:
         - pre-upgrade-check
 {% endif %}
-
 
     # 3. Suite Upgrade (Phase 1)
     # -------------------------------------------------------------------------
