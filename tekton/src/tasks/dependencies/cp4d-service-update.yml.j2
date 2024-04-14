@@ -1,0 +1,84 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-cp4d-service-update
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    # Namespace configuration (Optional, defaults built into Ansible role)
+    - name: cpd_operator_namespace
+      type: string
+      default: ""
+    - name: cpd_instance_namespace
+      type: string
+      default: ""
+
+    # CPD Service Name (Required)
+    - name: cpd_service_name
+      type: string
+
+    # CPD product Version (Required)
+    - name: cpd_product_version
+      type: string
+
+    # CPD Storage class (Optional, defaults built into Ansible role)
+    - name: cpd_service_storage_class
+      type: string
+      default: ""
+
+    - name: cpd_service_block_storage_class
+      type: string
+      default: ""
+
+    # CPD Watson Studio Analytics Project (Optional)
+    - name: cpd_wsl_project_name
+      type: string
+      default: ""
+
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+      default: ""
+    - name: mas_workspace_id
+      type: string
+      description: Workspace ID
+      default: ""
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      # General
+      - name: MAS_CONFIG_DIR
+        value: /workspace/configs
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
+
+      - name: CPD_OPERATOR_NAMESPACE
+        value: $(params.cpd_operator_namespace)
+      - name: CPD_INSTANCE_NAMESPACE
+        value: $(params.cpd_instance_namespace)
+
+      - name: CPD_PRODUCT_VERSION
+        value: $(params.cpd_product_version)
+      - name: CPD_SERVICE_NAME
+        value: $(params.cpd_service_name)
+      - name: CPD_SERVICE_STORAGE_CLASS
+        value: $(params.cpd_service_storage_class)
+      - name: CPD_SERVICE_BLOCK_STORAGE_CLASS
+        value: $(params.cpd_service_block_storage_class)
+
+      - name: CPD_WSL_PROJECT_NAME
+        value: $(params.cpd_wsl_project_name)
+  steps:
+    - name: update-cp4d-service
+      command:
+        - /opt/app-root/src/run-role.sh
+        - cp4d_service
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/configs
