@@ -35,6 +35,7 @@ AWS MongoDb Provider (Required when MONGODB_PROVIDER is aws):
       --aws-docdb-cidr-az3 ${COLOR_YELLOW}DOCDB_CIDR_AZ3${TEXT_RESET}                                      Availability Zone 3 CIDR
       --aws-docdb-instance-identifier-prefix ${COLOR_YELLOW}DOCDB_INSTANCE_IDENTIFIER_PREFIX${TEXT_RESET}  Prefix
       --aws-docdb-instance-number ${COLOR_YELLOW}DOCDB_INSTANCE_NUMBER${TEXT_RESET}                        DocDB Instance Count
+      --aws-docdb-engine-version ${COLOR_YELLOW}DOCDB_ENGINE_VERSION${TEXT_RESET}                          DocDB Engine Version
 
 YAML MongoDb Provider (Required when MONGODB_PROVIDER is yaml):
       --yaml-file ${COLOR_YELLOW}MONGO_YAML_FILE${TEXT_RESET}      Path to MongoDb configuration file
@@ -118,6 +119,9 @@ function gitops_mongo_noninteractive() {
         ;;
       --aws-docdb-instance-number)
         export DOCDB_INSTANCE_NUMBER=$1 && shift
+        ;;
+      --aws-docdb-engine-version)
+        export DOCDB_ENGINE_VERSION=$1 && shift
         ;;
 
       # YAML MongoDb provider
@@ -234,7 +238,7 @@ function gitops_mongo() {
     export SLS_MONGO_RETRYWRITES=false
     export AWS_DEFAULT_OUTPUT="json"
     export MONGODB_ACTION=install
-
+    export DOCDB_ENGINE_VERSION=${DOCDB_ENGINE_VERSION:-"4.0.0"}
     export DOCDB_MASTER_USERNAME=docdbadmin
     export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
     sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE

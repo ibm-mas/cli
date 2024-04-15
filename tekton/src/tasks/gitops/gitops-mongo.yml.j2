@@ -25,6 +25,9 @@ spec:
     - name: aws_docdb_instance_number
       type: string
       default: 3
+    - name: aws_docdb_engine_version
+      type: string
+      default: 4.0.0
   stepTemplate:
     name: gitops-mongo
     env:
@@ -46,6 +49,8 @@ spec:
         value: $(params.mongo_provider)
       - name: AWS_DOCDB_INSTANCE_NUMBER
         value: $(params.aws_docdb_instance_number)
+      - name: AWS_DOCDB_ENGINE_VERSION
+        value: $(params.aws_docdb_engine_version)
   steps:
     - args:
       - |-
@@ -85,7 +90,8 @@ spec:
         --aws-docdb-cidr-az2 10.1.0.32/27 \
         --aws-docdb-cidr-az3 10.1.0.64/27 \
         --aws-docdb-instance-identifier-prefix docdb-$CLUSTER_NAME \
-        --aws-docdb-instance-number $AWS_DOCDB_INSTANCE_NUMBER
+        --aws-docdb-instance-number $AWS_DOCDB_INSTANCE_NUMBER \
+        --aws-docdb-engine-version $AWS_DOCDB_ENGINE_VERSION
       command:
         - /bin/sh
         - -c
