@@ -350,6 +350,11 @@ function install_pipelinerun_preview() {
   # --cp4d-install-spss                                                                      Includes SPSS service to be installed as part of IBM Cloud Pak for Data (Optional if Predict is being installed)
   # --cp4d-install-openscale                                                                 Includes Watson Openscale service to be installed as part of IBM Cloud Pak for Data (Optional if Predict is being installed)
   # --cp4d-install-cognos
+  [ "$DEPLOY_CP4D" == "run" ] && cmd+=" \\
+  --cp4d-version '$CP4D_VERSION'"
+  [ "$CPD_INSTALL_SPSS" == "true" ] && cmd+=" --cp4d-install-spss"
+  [ "$CPD_INSTALL_OPENSCALE" == "true" ] && cmd+=" --cp4d-install-openscale"
+  [ "$CPD_INSTALL_COGNOS" == "true" ] && cmd+=" --cp4d-install-cognos"
 
   # Manage Application - Advanced Configuration (Optional):
   #       --manage-jms                                                                                                        Enables JMS queues using local persistent volumes

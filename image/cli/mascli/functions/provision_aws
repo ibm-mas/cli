@@ -15,7 +15,7 @@ AWS Credentials (Required):
 
 Cluster Configuration (Required):
   -c, --cluster-name ${COLOR_YELLOW}CLUSTER_NAME${TEXT_RESET}               Name of the cluster to be provisioned
-  -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}                 OCP version to use (e.g 4.8_openshift, 4.10_openshift)
+  -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}                 OCP version to use (e.g 4.13_openshift, 4.14_openshift)
 
 IPI Configuration (Required):
   -r, --region-name ${COLOR_YELLOW}IPI_REGION${TEXT_RESET}                  Region of the cluster to be provisioned (e.g. us-east-1, us-east-2)
@@ -137,12 +137,12 @@ function provision_aws_interactive() {
   # prompt_ocp_version                  # OCP_VERSION
   echo
   echo "OCP Version:"
-  echo "  1. 4.10 (MAS 8.9-8.10)"
+  echo "  1. 4.14 (MAS 8.10-8.11)"
   prompt_for_input "Select Version" OCP_VERSION_SELECTION "1"
 
   case $OCP_VERSION_SELECTION in
-    1|4.10)
-      export OCP_VERSION=latest-4.10
+    1|4.14)
+      export OCP_VERSION=latest-4.14
       ;;
     *)
       export OCP_VERSION=$OCP_VERSION_SELECTION
