@@ -2,6 +2,8 @@
 
 # Check if we need to skip common services installation
 # based on Cloud Pak for Data version
+# If CP4D_VERSION is defined, then it will take precedence over 
+# the MAS_CATALOG_VERSION while determining if common-services must be skipped.
 function validate_common_services_skip {
 
   MIN_VERSION_TO_SKIP_COMMON_SERVICES=4.7.0
