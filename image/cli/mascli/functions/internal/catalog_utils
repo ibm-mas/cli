@@ -162,6 +162,9 @@ function db2_channel_selection() {
 # We automatically select the version of CP4D to install in the
 # cluster based on the version of the catalog that is being used
 function cp4d_channel_selection() {
+
+  CP4D_VERSION_DEFAULT=4.8.0
+
   case $MAS_CATALOG_VERSION in
     # CP4D v4.8.0 was added in the April 2024 catalog update
     v8-amd64|v8-230430-amd64)
@@ -193,7 +196,8 @@ function cp4d_channel_selection() {
     *)
       echo
       echo "One or more selected applications require Cloud Pak for Data"
-      prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.6.4"
+      prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "$CP4D_VERSION_DEFAULT"
+      exit 1
       ;;
   esac
 }

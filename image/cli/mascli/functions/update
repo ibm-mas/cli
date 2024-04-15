@@ -484,7 +484,6 @@ function validate_update() {
 
   # Validates CP4D upgrade
   validate_existing_cp4d
-  validate_common_services_skip
 
   # Lookup for OCP console route
   if [[ -z "$OCP_CONSOLE_ROUTE" ]]; then
@@ -574,7 +573,6 @@ function update_noninteractive() {
         ;;
       --cp4d-version)
         CP4D_VERSION=$1 && shift
-        validate_common_services_skip
         ;;
       --no-confirm)
         NO_CONFIRM=true
@@ -663,6 +661,8 @@ function update() {
   else
     update_interactive
   fi
+
+  validate_common_services_skip
 
   export MAS_CATALOG_VERSION
   export DB2_NAMESPACE

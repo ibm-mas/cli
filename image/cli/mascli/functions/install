@@ -173,7 +173,6 @@ function install_noninteractive() {
       # Dependencies - CP4D
       --cp4d-version)
         export CP4D_VERSION=$1 && shift
-        validate_common_services_skip
         ;;
       --cp4d-install-spss)
         export CPD_INSTALL_SPSS=true
@@ -740,6 +739,8 @@ function install() {
     pipelines_install_operator
     install_config_additional_configs
   fi
+  
+  validate_common_services_skip
 
   # Prepare and launch the Tekton pipeline
   install_pipelinerun_prepare
