@@ -47,7 +47,7 @@ function kafka_for_iot() {
           echo " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in your OperatorHub"
           echo ""
           reset_colors
-          prompt_for_input "Kafka version" KAFKA_VERSION "3.5.1"
+          prompt_for_input "Kafka version" KAFKA_VERSION "3.7.0"
           ;;
         2)
           KAFKA_PROVIDER=redhat
