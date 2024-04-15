@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Check if we need to skip common services installation
+# based on Cloud Pak for Data version
+function validate_common_services_skip {
+
+  MIN_VERSION_TO_SKIP_COMMON_SERVICES=4.7.0
+
+  if [ -n "$CP4D_VERSION" ]; then
+    if [ ! "$(printf '%s\n' "$CP4D_VERSION" "$MIN_VERSION_TO_SKIP_COMMON_SERVICES" | sort -V | head -n1)" = "$CP4D_VERSION" ]; then
+      SKIP_COMMON_SERVICES=true
+    fi
+  fi
+
+}

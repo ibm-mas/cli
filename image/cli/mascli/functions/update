@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. $CLI_DIR/functions/internal/common
+
 function update_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
@@ -482,6 +484,7 @@ function validate_update() {
 
   # Validates CP4D upgrade
   validate_existing_cp4d
+  validate_common_services_skip
 
   # Lookup for OCP console route
   if [[ -z "$OCP_CONSOLE_ROUTE" ]]; then
@@ -571,6 +574,7 @@ function update_noninteractive() {
         ;;
       --cp4d-version)
         CP4D_VERSION=$1 && shift
+        validate_common_services_skip
         ;;
       --no-confirm)
         NO_CONFIRM=true
