@@ -17,6 +17,8 @@ spec:
       value: '$IBM_ENTITLEMENT_KEY'
     - name: skip_entitlement_key_flag
       value: '$SKIP_ENTITLEMENT_KEY_FLAG'
+    - name: skip_common_services
+      value: '$SKIP_COMMON_SERVICES'
     - name: mas_catalog_version
       value: '$MAS_CATALOG_VERSION'
     - name: db2_namespace

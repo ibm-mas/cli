@@ -220,6 +220,8 @@ spec:
       value: '$CPD_INSTALL_OPENSCALE'
     - name: cpd_install_cognos
       value: '$CPD_INSTALL_COGNOS'
+    - name: skip_common_services
+      value: '$SKIP_COMMON_SERVICES'
 
     # Dependencies - SLS
     # -------------------------------------------------------------------------
