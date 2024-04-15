@@ -167,10 +167,12 @@ function cp4d_channel_selection() {
     v8-amd64|v8-230430-amd64)
       CP4D_VERSION=4.8.0
       SKIP_COMMON_SERVICES=true
+      echo "$CP4D_VERSION: skipping common-services"
       ;;
     # CP4D v4.6.6 was added in the September 2023 catalog update
     v8-230926-amd64|v8-231004-amd64|v8-231031-amd64|v8-231128-amd64|v8-231228-amd64|v8-240130-amd64|v8-240227-amd64|v8-240326-amd64|v8-240405-amd64)
       CP4D_VERSION=4.6.6
+      echo "will install common-services"
       ;;
     # CP4D v4.6.4 was added in the June 2023 catalog update
     v8-230616-amd64|v8-230627-amd64|v8-230721-amd64|v8-230725-amd64|v8-230829-amd64)

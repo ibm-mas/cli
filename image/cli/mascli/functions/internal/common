@@ -11,6 +11,9 @@ function validate_common_services_skip {
   if [ -n "$CP4D_VERSION" ]; then
     if [ ! "$(printf '%s\n' "$CP4D_VERSION" "$MIN_VERSION_TO_SKIP_COMMON_SERVICES" | sort -V | head -n1)" = "$CP4D_VERSION" ]; then
       SKIP_COMMON_SERVICES=true
+      echo "$CP4D_VERSION: skipping common-services"
+    else
+        echo "will install common-services"
     fi
   fi
 
