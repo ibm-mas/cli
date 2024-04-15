@@ -388,7 +388,7 @@ function gitops_suite_app_config() {
   echo_reset_dim "Application WS API Version .............. ${COLOR_MAGENTA}${MAS_APPWS_API_VERSION}"
   echo_reset_dim "Application WS Kind ..................... ${COLOR_MAGENTA}${MAS_APPWS_KIND}"
   echo_reset_dim "Application WS Spec Yaml file ........... ${COLOR_MAGENTA}${MAS_APPWS_SPEC_YAML}"
-  if [[ -n "$MAS_APPWS_SPEC_YAML" ]]; then
+  if [[ -n "$MAS_APPWS_SPEC_YAML" ]] && [[ -s "$MAS_APPWS_SPEC_YAML" ]]; then
     echo_reset_dim "Using Default Application Spec ........ ${COLOR_MAGENTA}False"
   else
     echo_reset_dim "Using Default Application Spec ........ ${COLOR_MAGENTA}True"
@@ -565,7 +565,7 @@ function gitops_suite_app_config() {
     fi
   fi
 
-  if [[ -n "$MAS_APPWS_SPEC_YAML" ]]; then
+  if [[ -n "$MAS_APPWS_SPEC_YAML" ]] && [[ -s "$MAS_APPWS_SPEC_YAML" ]]; then
     echo
     echo_h2 "Using application spec provided for $MAS_APP_ID at $MAS_APPWS_SPEC_YAML"
     export MAS_APPWS_SPEC=$(cat ${MAS_APPWS_SPEC_YAML} | yq -r '.' --yaml-output)

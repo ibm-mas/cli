@@ -261,7 +261,7 @@ function gitops_suite_app_install() {
   echo_reset_dim "Application Spec Yaml file ............ ${COLOR_MAGENTA}${MAS_APP_SPEC_YAML}"
   echo_reset_dim "MAS Edition ........................... ${COLOR_MAGENTA}${MAS_EDITION}"
   
-  if [[ -n "$MAS_APP_SPEC_YAML" ]]; then
+  if [[ -n "$MAS_APP_SPEC_YAML" ]] && [[ -s "$MAS_APP_SPEC_YAML" ]]; then
     echo_reset_dim "Using Default Application Spec ...... ${COLOR_MAGENTA}False"
   else
     echo_reset_dim "Using Default Application Spec ...... ${COLOR_MAGENTA}True"
@@ -363,7 +363,7 @@ function gitops_suite_app_install() {
 
   # Getting app spec, either default or provided
   # ---------------------------------------------------------------------------
-  if [[ -n "$MAS_APP_SPEC_YAML" ]]; then
+  if [[ -n "$MAS_APP_SPEC_YAML" ]] && [[ -s "$MAS_APP_SPEC_YAML" ]]; then
     echo
     echo_h2 "Using application spec provided for $MAS_APP_ID at $MAS_APP_SPEC_YAML"
     export POD_TEMPLATE_PATH=$CLI_DIR/templates/pod-templates/$MAS_EDITION/ibm-mas-$MAS_APP_ID.yml
