@@ -301,14 +301,16 @@ if __name__ == "__main__":
     # Associate Mas FVT Focal group with respect to product
     # -------------------------------------------------------------------------
     productFocal = {
-        "ibm-mas": "S04PPFYUJG5", 
-        "ibm-mas-assist": "S04PSA1M1RR",
+        "ibm-mas": "S04PSA1M1RR", 
+        "ibm-mas-devops": "S04PSA1M1RR", 
+        "ibm-mas-assist": "S04PPFYUJG5",
         "ibm-mas-iot":"S04PBTG77JB",
         "ibm-mas-manage":"S05QB03HNTU",
         "ibm-mas-monitor":"S04QG3R30SC",
         "ibm-mas-optimizer":"S04PSB1R8DR",
         "ibm-mas-predict":"S04Q53TT5S5",
-        "ibm-mas-visualinspection":"S04PUSAL2A0"
+        "ibm-mas-visualinspection":"S04PUSAL2A0",
+        "ibm-mas-mobile":"S0507GG7V6K"
     }
 
 
@@ -564,7 +566,10 @@ if __name__ == "__main__":
     for product in result["products"]:
         messageBlocks = []
         messageBlocks.append(buildHeader(f"{product}"))
-        messageBlocks.append(buildSection(f"<!subteam^{productFocal[product]}> The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+        if(product in productFocal):
+            messageBlocks.append(buildSection(f"<!subteam^{productFocal[product]}> The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+        else:
+            messageBlocks.append(buildSection(f"The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
 
         if "results" in result["products"][product]:
             for suite in result["products"][product]["results"]:
