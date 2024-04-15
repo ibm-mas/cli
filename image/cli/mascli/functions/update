@@ -763,10 +763,10 @@ function update() {
 
   # Cloud Pak for Data
   # only print CP4D info if it's installed in first place
+  echo_reset_dim "Skip Common Services ....................... ${COLOR_MAGENTA}${SKIP_COMMON_SERVICES:-<false>}"
   if [ "$CP4D_CURRENT_VERSION" != "" ]; then
     if [ "$CP4D_UPDATE" == true ]; then
       echo_reset_dim "Cloud Pak for Data Platform ................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION} to ${CP4D_VERSION} ($CP4D_INSTANCE_NAMESPACE)${TEXT_RESET}"
-    
       if [[ "$STORAGE_CLASS_RWO" != "" && "$STORAGE_CLASS_RWX" != "" ]]; then
       echo_reset_dim " - File Storage Class ...................... ${COLOR_GREEN}${STORAGE_CLASS_RWX}${TEXT_RESET}"
       echo_reset_dim " - Block Storage Class ..................... ${COLOR_GREEN}${STORAGE_CLASS_RWO}${TEXT_RESET}"

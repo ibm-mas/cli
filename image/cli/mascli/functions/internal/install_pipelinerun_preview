@@ -127,6 +127,7 @@ function install_pipelinerun_preview() {
     reset_colors
     echo "${TEXT_DIM}"
     echo_h4 "IBM Cloud Pak for Data" "    "
+    echo_reset_dim "Skip Common Services ...... ${COLOR_MAGENTA}${SKIP_COMMON_SERVICES:-<false>}"
     echo_reset_dim "Entitlement Key ........... ${COLOR_MAGENTA}${IBM_ENTITLEMENT_KEY:0:8}<snip>"
     echo_reset_dim "Product Version ........... ${COLOR_MAGENTA}${CP4D_VERSION}"
     if [[ "${MAS_APP_CHANNEL_PREDICT}" != '' || "${MAS_APP_CHANNEL_ASSIST}" != '' ]]
