@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-function gitops_suite_app_install_help() {
+function gitops_suite_app_visualinspection_install_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_suite_app_install [options]
+  mas gitops_suite_app_visualinspection_install [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -46,13 +46,14 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_suite_app_install_noninteractive() {
+function gitops_suite_app_visualinspection_install_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-suite-app-install commit"
+  GIT_COMMIT_MSG="gitops-suite-app-visualinspection-install commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
+  export MAS_APP_ID=visualinspection
   export REGION=${REGION:-${SM_AWS_REGION}}
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"} # use an in-cluster argocd worker (which fvtsaas does)
   export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
@@ -103,9 +104,6 @@ function gitops_suite_app_install_noninteractive() {
         ;;
 
       # MAS
-      --mas-app-id)
-        export MAS_APP_ID=$1 && shift
-        ;;
       --mas-app-channel)
         export MAS_APP_CHANNEL=$1 && shift
         ;;
@@ -147,12 +145,12 @@ function gitops_suite_app_install_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_suite_app_install_help
+        gitops_suite_app_visualinspection_install_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_suite_app_install_help "Usage Error: Unsupported option \"${key}\" "
+        gitops_suite_app_visualinspection_install_help "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
@@ -164,7 +162,6 @@ function gitops_suite_app_install_noninteractive() {
 
 
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_suite_app_install_help "MAS_INSTANCE_ID is not set"
-  [[ -z "$MAS_APP_ID" ]] && gitops_suite_app_install_help "MAS_APP_ID is not set"
   [[ -z "$MAS_APP_CHANNEL" ]] && gitops_suite_app_install_help "MAS_APP_CHANNEL is not set"
   [[ -z "$MAS_APP_CATALOG_SOURCE" ]] && gitops_suite_app_install_help "MAS_APP_CATALOG_SOURCE is not set"
   [[ -z "$MAS_APP_API_VERSION" ]] && gitops_suite_app_install_help "MAS_APP_API_VERSION is not set"
@@ -172,36 +169,38 @@ function gitops_suite_app_install_noninteractive() {
 
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_suite_app_install_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_suite_app_install_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_suite_app_install_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_suite_app_install_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_suite_app_visualinspection_install_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_suite_app_visualinspection_install_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_suite_app_visualinspection_install_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_suite_app_visualinspection_install_help "GIT_BRANCH is not set"
   fi
 
   if [[ -z "$MAS_APP_SPEC_YAML" ]]; then
     if [[ "${MAS_APP_ID}" == "iot" ]]; then
-      [[ "${DEFAULT_BLOCK_STORAGE_CLASS}" == "" ]] && gitops_suite_app_install_help "DEFAULT_BLOCK_STORAGE_CLASS is not set"
+      [[ "${DEFAULT_BLOCK_STORAGE_CLASS}" == "" ]] && gitops_suite_app_visualinspection_install_help "DEFAULT_BLOCK_STORAGE_CLASS is not set"
     fi
     if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
-      [[ "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_install_help "DEFAULT_FILE_STORAGE_CLASS is not set"
+      [[ "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_visualinspection_install_help "DEFAULT_FILE_STORAGE_CLASS is not set"
     fi    
   fi
 
 }
 
-function gitops_suite_app_install() {
+function gitops_suite_app_visualinspection_install() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_suite_app_install_noninteractive "$@"
+    gitops_suite_app_install_visualinspection_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_suite_app_install_interactive
+    gitops_suite_app_install_visualinspection_interactive
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
+
   GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/masapps/${MAS_APP_ID}
+  CONFIGS_FILE="${GITOPS_INSTANCE_DIR}/bm-mas-masapp-visualinspection-install.yaml"
 
   export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
 
@@ -355,8 +354,11 @@ function gitops_suite_app_install() {
   # Clone github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
-    echo
-    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    # only create the lock branch if we plan to actually push changes to git
+    clone_and_lock_target_git_repo  "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_SSH}" "${GIT_LOCK_BRANCH}"
+  else
+    # even though we don't want to push anything to git,
+    # because this script modifies the existing suite-configs.yaml file, we still need to checkout the repo
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
   mkdir -p ${GITOPS_INSTANCE_DIR}
@@ -386,22 +388,27 @@ function gitops_suite_app_install() {
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   echo
-  echo_h2 "Generating Argo Project and Applications"
+  echo_h2 "Generating VisualInspection Configuration"
+  echo
 
-  echo "- IBM MAS Application Base Config"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-base.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-masapp-base.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-base.yaml.j2 > $CONFIGS_FILE
 
-  echo "- IBM MAS Application Install"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-install.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-masapp-install.yaml
+  # Merge the two files
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-install.yaml.j2 >> $CONFIG_FILE
 
+  echo_h2 "Updated configuration file (${CONFIGS_FILE})"
+  if [ -f ${CONFIGS_FILE} ]; then
+    cat $CONFIGS_FILE
+  else
+    echo "<file was deleted>"
+  fi
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
 
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_INSTANCE_DIR "${GIT_COMMIT_MSG}"
-    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+    save_and_unlock_target_git_repo "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_COMMIT_MSG}" "${GIT_LOCK_BRANCH}" VISUALINSPECTION_CONFIG_CHANGED
 
     if [ "${ARGOCD_CHECK}" == "true" ]; then
       argocd_login
@@ -414,6 +421,8 @@ function gitops_suite_app_install() {
       check_argo_app_healthy "${MASAPP_APP}" "${INSTANCE_ROOT_APP}"
     fi
 
+  else
+    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
 
 
