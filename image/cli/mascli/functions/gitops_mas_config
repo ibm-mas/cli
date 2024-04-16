@@ -22,8 +22,8 @@ GitOps Configuration:
 
 IBM Maximo Application Suite:
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
-  --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                MAS Application scope for this configuration (required iff MAS_CONFIG_SCOPE is app or wsapp)     
-  --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}    MAS Workspace scope for this configuration (required iff MAS_CONFIG_SCOPE is ws or wsapp) 
+  --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                MAS Application scope for this configuration (required if MAS_CONFIG_SCOPE is app or wsapp)     
+  --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}    MAS Workspace scope for this configuration (required if MAS_CONFIG_SCOPE is ws or wsapp) 
 
 AWS Secrets Manager Configuration (Required):
   --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
@@ -31,17 +31,17 @@ AWS Secrets Manager Configuration (Required):
   --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
   --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                   Secrets Manager path
 
-Mongo Configuration (required iff MAS_CONFIG_TYPE is "mongo"):
+Mongo Configuration (required if MAS_CONFIG_TYPE is "mongo"):
   --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. One of aws|yaml (defaults to yaml)
 
-DRO Configuration (required iff MAS_CONFIG_TYPE is "bas"):
+DRO Configuration (required if MAS_CONFIG_TYPE is "bas"):
   --dro-contact-email ${COLOR_YELLOW}DRO_CONTACT_EMAIL${TEXT_RESET}             The email address to register with DRO
   --dro-contact-firstname ${COLOR_YELLOW}DRO_CONTACT_FIRSTNAME${TEXT_RESET}     The first name to register with DRO
   --dro-contact-lastname ${COLOR_YELLOW}DRO_CONTACT_LASTNAME${TEXT_RESET}       The last name to register with DRO
   --dro-ca-certificate-file ${COLOR_YELLOW}DRO_CA_CERTIFICATE_FILE${TEXT_RESET} The location of a file containing the DRO CA certificate
   --mas-segment-key ${COLOR_YELLOW}MAS_SEGMENT_KEY${TEXT_RESET}                 The segment key for authentication for Segment
 
-IDP/LDAP Configuration (required iff MAS_CONFIG_TYPE is "ldap-default"):
+IDP/LDAP Configuration (required if MAS_CONFIG_TYPE is "ldap-default"):
   --idpcfg-display-name ${COLOR_YELLOW}IDPCFG_DISPLAY_NAME${TEXT_RESET}       Display name for IDPCfg resource
   --ldap-url ${COLOR_YELLOW}LDAP_URL${TEXT_RESET}                             Url of the LDAP server. In the form protocol://host:port
   --ldap-basedn ${COLOR_YELLOW}LDAP_BASEDN${TEXT_RESET}                       The baseDN for the LDAP server
@@ -50,18 +50,18 @@ IDP/LDAP Configuration (required iff MAS_CONFIG_TYPE is "ldap-default"):
   --ldap-bind-dn ${COLOR_YELLOW}LDAP_BIND_DN${TEXT_RESET}                     DN for LDAP server authentication
   --ldap-bind-password ${COLOR_YELLOW}LDAP_BIND_PASSWORD${TEXT_RESET}         Password for LDAP server authenticaiton
 
-Object Storage Configuration (required iff MAS_CONFIG_TYPE is "objectstorage"):
+Object Storage Configuration (required if MAS_CONFIG_TYPE is "objectstorage"):
   --gitops-config-dir ${COLOR_YELLOW}GITOPS_CONFIG_DIR${TEXT_RESET}     Directory that holds configuration to use
 
-JDBC Configuration (required iff MAS_CONFIG_TYPE is "jdbc"):              
+JDBC Configuration (required if MAS_CONFIG_TYPE is "jdbc"):              
   --tls-version ${COLOR_YELLOW}TLS_VERSION${TEXT_RESET}                 TLS Version (defaults to TLSv1.2)
   --db2-ldap-username ${COLOR_YELLOW}DB2_LDAP_USERNAME${TEXT_RESET}     DB2 LDAP Username to create
   --db2-ldap-password ${COLOR_YELLOW}DB2_LDAP_PASSWORD${TEXT_RESET}     DB2 LDAP Password to create
-  --db2-internal      ${COLOR_YELLOW}DB2_INTERNAL${TEXT_RESET}          Set true iff DB2 is running in same cluster as MAS (defaults to true)
+  --db2-internal      ${COLOR_YELLOW}DB2_INTERNAL${TEXT_RESET}          Set true if DB2 is running in same cluster as MAS (defaults to true)
   --db2-instance-name ${COLOR_YELLOW}DB2_INSTANCE_NAME${TEXT_RESET}     Name of the DB2 instance e.g. db2wh-<masinstid>-iot, db2wh-<masinstid>-manage
   --db2-dbname        ${COLOR_YELLOW}DB2_DBNAME${TEXT_RESET}            DB2 database name (defaults to BLUDB)
 
-SMTP Configuration (required iff MAS_CONFIG_TYPE is "smtp"): 
+SMTP Configuration (required if MAS_CONFIG_TYPE is "smtp"): 
   --smtp-display-name ${COLOR_YELLOW}SMTP_DISPLAY_NAME${TEXT_RESET}                                       Display name for SmtpCfg resource
   --smtp-host ${COLOR_YELLOW}SMTP_HOST${TEXT_RESET}                                                        Host of the SMTP server
   --smtp-port ${COLOR_YELLOW}SMTP_PORT${TEXT_RESET}                                                       Port of the SMTP server
@@ -214,7 +214,6 @@ function gitops_mas_config_noninteractive() {
       --db2-dbname)
         export DB2_DBNAME=$1 && shift
         ;;
-
 
       # SMTP
       --smtp-display-name)
@@ -520,7 +519,7 @@ function gitops_mas_config() {
   # Set a default commit message now we know the config name
   export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:="gitops-mas-config commit (${CONFIG_ACTION} ${MAS_CONFIG_NAME})"}
 
-  # Echo provided values for config type iff this is an upsert
+  # Echo provided values for config type if this is an upsert
 
   if [ "${CONFIG_ACTION}" == "upsert" ]; then
 
@@ -596,7 +595,6 @@ function gitops_mas_config() {
       echo_reset_dim "Smtp Server Password ........................... ${COLOR_MAGENTA}${SMTP_PASSWORD:0:4}<snip>"
       reset_colors
     fi
-
   fi
 
 
@@ -710,7 +708,6 @@ function gitops_mas_config() {
       export SECRET_KEY_OBJECTSTORAGE_PASSWORD=${OBJECTSTORAGE_SECRET}#password
     fi
 
-
     # Source: gitops_db2u_jdbc_config
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
@@ -731,18 +728,25 @@ function gitops_mas_config() {
 
     fi
   
-
-
     # Source: gitops_suite_smtp_config
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "smtp" ]; then
-        sm_login
-        SECRET_NAME_SMTP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}smtp
-        sm_update_secret $SECRET_NAME_SMTP "{\"username\": \"$SMTP_USERNAME\", \"password\": \"$SMTP_PASSWORD\"}"
-        export SECRET_KEY_SMTP_USERNAME=${SECRET_NAME_SMTP}#username
-        export SECRET_KEY_SMTP_PASSWORD=${SECRET_NAME_SMTP}#password
+      sm_login
+      SECRET_NAME_SMTP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}smtp
+      sm_update_secret $SECRET_NAME_SMTP "{\"username\": \"$SMTP_USERNAME\", \"password\": \"$SMTP_PASSWORD\"}"
+      export SECRET_KEY_SMTP_USERNAME=${SECRET_NAME_SMTP}#username
+      export SECRET_KEY_SMTP_PASSWORD=${SECRET_NAME_SMTP}#password
     fi
 
+    # Source: gitops_suite_watson_studio_config
+    # ---------------------------------------------------------------------------
+    if [ "${MAS_CONFIG_TYPE}" == "watsonstudio" ]; then
+      # Secrets are stored in SM in the cp4d-service function that installs wsl
+      export WATSON_STUDIO_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wsl-cp4d
+      export SECRET_KEY_WATSON_STUDIO_USERNAME=${WATSON_STUDIO_SECRET}#username
+      export SECRET_KEY_WATSON_STUDIO_PASSWORD=${WATSON_STUDIO_SECRET}#password
+      export SECRET_KEY_WATSON_STUDIO_URL=${WATSON_STUDIO_SECRET}#url
+    fi
 
     echo
     echo_h2 "Generated params file to pass to Jinja2 ($ADDITIONAL_JINJA_PARAMS_FILE)"

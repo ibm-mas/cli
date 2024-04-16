@@ -82,14 +82,21 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        mas gitops-deprovision-suite-watson-studio-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
-        --secrets-path $SECRET_PATH \
-        --dir /tmp/deprovision-suite-watson-studio-config \
+        mas gitops-mas-config \
+        --account-id "$ACCOUNT_ID" \
+        --cluster-id "$CLUSTER_ID" \
+        --mas-instance-id "$MAS_INSTANCE_ID" \
+        --secrets-path "$SECRETS_PATH" \
         --github-push \
-        --github-host $GITHUB_HOST \
-        --github-org $GITHUB_ORG \
-        --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH
+        --github-host "$GITHUB_HOST" \
+        --github-org "$GITHUB_ORG" \
+        --github-repo "$GITHUB_REPO" \
+        --git-branch "$GIT_BRANCH" \
+        --config-action remove \
+        --mas-config-scope system \
+        --mas-config-type watsonstudio \
+        --dir /tmp/deprovision-suite-watson-studio-config
+
       command:
         - /bin/sh
         - -c

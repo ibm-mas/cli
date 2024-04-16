@@ -32,15 +32,6 @@ spec:
     - name: avp_aws_secret_region
       type: string
 
-    - name: watson_studio_username
-      type: string
-    - name: watson_studio_password
-      type: string
-    - name: watson_studio_url
-      type: string
-    - name: cp4d_wsl_action
-      type: string
-      default: ""
     - name: argocd_url
       type: string
       default: ""
@@ -55,11 +46,11 @@ spec:
       - name: MAS_WORKSPACE_ID
         value: $(params.mas_workspace_id)
 
-      - name: CLUSTER_NAME
+      - name: CLUSTER_ID
         value: $(params.cluster_name)
       - name: OCP_SERVER
         value: $(params.cluster_url)
-      - name: ACCOUNT
+      - name: ACCOUNT_ID
         value: $(params.account)
       - name: SECRET_PATH
         value: $(params.secrets_path)
@@ -76,14 +67,6 @@ spec:
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
 
-      - name: WATSON_STUDIO_USERNAME
-        value: $(params.watson_studio_username)
-      - name: WATSON_STUDIO_PASSWORD
-        value: $(params.watson_studio_password)
-      - name: WATSON_STUDIO_URL
-        value: $(params.watson_studio_url)
-      - name: CP4D_WSL_ACTION
-        value: $(params.cp4d_wsl_action)
       - name: ARGOCD_URL
         value: $(params.argocd_url)
       - name: ARGOCD_CHECK
@@ -104,23 +87,28 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        export GITOPS_CONFIG_DIR=/workspace/configs
-
-        mas gitops-suite-watson-studio-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
-        --secrets-path $SECRET_PATH \
-        --dir /tmp/init-suite-watson-studio-config \
+        mas gitops-mas-config \
+        --account-id "$ACCOUNT_ID" \
+        --cluster-id "$CLUSTER_ID" \
+        --mas-instance-id "$MAS_INSTANCE_ID" \
+        --secrets-path "$SECRETS_PATH" \
         --github-push \
-        --github-host $GITHUB_HOST \
-        --github-org $GITHUB_ORG \
-        --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH
+        --github-host "$GITHUB_HOST" \
+        --github-org "$GITHUB_ORG" \
+        --github-repo "$GITHUB_REPO" \
+        --git-branch "$GIT_BRANCH" \
+
+        --config-action upsert \
+        --mas-config-scope system \
+        --mas-config-type watsonstudio \
+        --dir /tmp/init-suite-watson-studio-config \
 
       command:
         - /bin/sh
         - -c
       name: gitops-suite-watson-studio-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:8.1.0-pre.ajw-watsonstudioconfig
   workspaces:
     - name: configs
     - name: shared-gitops-configs
