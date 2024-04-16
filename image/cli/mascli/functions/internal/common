@@ -8,6 +8,18 @@ function validate_common_services_skip {
 
   MIN_VERSION_TO_SKIP_COMMON_SERVICES=4.7.0 # only skip common-services if installing CP4D 4.8 or higher
 
+  # if CP4D_VERSION has not been defined, check if CPD is already installed and if it's running CP4D 4.8 or higher
+  if [ -z "$CP4D_VERSION" ]; then
+    CHECK_CP4D_CURRENT_VERSION=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.version}' 2> /dev/null`
+    if [ -n "$CHECK_CP4D_CURRENT_VERSION" ]; then
+      # if it is running CPD 4.8 or higher, then skip common-services install
+      if [ ! "$(printf '%s\n' "$CHECK_CP4D_CURRENT_VERSION" "$MIN_VERSION_TO_SKIP_COMMON_SERVICES" | sort -V | head -n1)" = "$CHECK_CP4D_CURRENT_VERSION" ]; then
+        SKIP_COMMON_SERVICES=true
+      fi
+    fi
+  fi
+
+  # if CP4D version is defined, then just check if it is supposed to install CP4D 4.8 or higher, if it is then skipt common-services install
   if [ -n "$CP4D_VERSION" ]; then
     if [ ! "$(printf '%s\n' "$CP4D_VERSION" "$MIN_VERSION_TO_SKIP_COMMON_SERVICES" | sort -V | head -n1)" = "$CP4D_VERSION" ]; then
       SKIP_COMMON_SERVICES=true

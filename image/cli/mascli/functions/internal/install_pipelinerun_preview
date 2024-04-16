@@ -123,7 +123,7 @@ function install_pipelinerun_preview() {
   echo_reset_dim "First Name ................ ${COLOR_MAGENTA}${UDS_CONTACT_FIRSTNAME}"
   echo_reset_dim "Last Name ................. ${COLOR_MAGENTA}${UDS_CONTACT_LASTNAME}"
   
-  echo_reset_dim "Skip Common Services ...... ${COLOR_MAGENTA}${SKIP_COMMON_SERVICES:-<false>}"
+  echo_reset_dim "Skip Common Services ...... ${COLOR_MAGENTA}${SKIP_COMMON_SERVICES:-false}"
   if [[ "$DEPLOY_CP4D" == "run" ]]; then
     reset_colors
     echo "${TEXT_DIM}"

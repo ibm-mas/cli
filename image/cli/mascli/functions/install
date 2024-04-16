@@ -744,6 +744,9 @@ function install() {
     install_config_additional_configs
   fi
 
+  # Check whether to skip common-services install
+  validate_common_services_skip
+
   # Prepare and launch the Tekton pipeline
   install_pipelinerun_prepare
   install_pipelinerun_preview

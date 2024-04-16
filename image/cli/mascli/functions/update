@@ -662,6 +662,9 @@ function update() {
     update_interactive
   fi
 
+  # Check whether to skip common-services install
+  validate_common_services_skip
+
   export MAS_CATALOG_VERSION
   export DB2_NAMESPACE
   export MONGODB_NAMESPACE
