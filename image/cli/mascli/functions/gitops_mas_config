@@ -313,8 +313,8 @@ function gitops_mas_config_noninteractive() {
   fi
 
   [[ -z "$MAS_CONFIG_TYPE" ]] && gitops_mas_config_help "MAS_INSTANCE_ID is not set"
-  if ! [[ "$MAS_CONFIG_TYPE" =~ ^(bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp)$ ]]; then
-    gitops_mas_config_help "Invalid MAS_CONFIG_TYPE \"${MAS_CONFIG_TYPE}\"; must be one of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp"
+  if ! [[ "$MAS_CONFIG_TYPE" =~ ^(bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio)$ ]]; then
+    gitops_mas_config_help "Invalid MAS_CONFIG_TYPE \"${MAS_CONFIG_TYPE}\"; must be one of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio"
   fi
 
   [[ -z "$MAS_CONFIG_SCOPE" ]] && gitops_mas_config_help "MAS_CONFIG_SCOPE is not set"
