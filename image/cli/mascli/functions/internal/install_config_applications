@@ -185,7 +185,7 @@ function install_config_applications() {
   if [[ "$MAS_APP_CHANNEL_PREDICT" != '' ]]; then predict_settings; fi
 
   if [[ "$MAS_APP_CHANNEL_PREDICT" != "" || "$MAS_APP_CHANNEL_ASSIST" != "" ]]; then
-    cp4d_channel_selection
+    cp4d_version_selection
   fi
 
 }
@@ -330,7 +330,7 @@ function manage_settings() {
   echo
   if prompt_for_confirm "Install Cognos Analytics"; then
     CPD_INSTALL_COGNOS=true
-    cp4d_channel_selection
+    cp4d_version_selection
     CPD_PRODUCT_VERSION=$CP4D_VERSION
     DEPLOY_CP4D=run
   fi

@@ -461,7 +461,7 @@ function install_noninteractive() {
   validate_catalog_source
 
   if [ "$DEPLOY_CP4D" == "run" ];then
-    cp4d_channel_selection
+    cp4d_version_selection
   fi
 
   # Present the MAS license information
