@@ -1,0 +1,44 @@
+---
+- hosts: localhost
+  any_errors_fatal: true
+  vars:
+    # Image Pull Policy
+    image_pull_policy: "{{ lookup('env', 'IMAGE_PULL_POLICY') }}"
+    # MAS Details
+    mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
+    mas_workspace_id: "{{ lookup('env', 'MAS_WORKSPACE_ID') }}"
+    mas_app_channel_manage: "{{ lookup('env', 'MAS_APP_CHANNEL_MANAGE') }}"
+    mas_app_channel_monitor: "{{ lookup('env', 'MAS_APP_CHANNEL_MONITOR') }}"
+    # FVT Configuration
+    fvt_image_registry: "{{ lookup('env', 'FVT_IMAGE_REGISTRY') }}"
+    fvt_artifactory_username: "{{ lookup('env', 'FVT_ARTIFACTORY_USERNAME') }}"
+    fvt_artifactory_token: "{{ lookup('env', 'FVT_ARTIFACTORY_TOKEN') }}"
+    fvt_digest_manage: "{{ lookup('env', 'FVT_DIGEST_MANAGE') }}"
+    fvt_digest_manage_pytest: "{{ lookup('env', 'FVT_DIGEST_MANAGE_PYTEST') }}"
+    fvt_digest_ctf: "{{ lookup('env', 'FVT_DIGEST_CTF') }}"
+    # Pipeline Run Info
+    pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-upgrade-post', True) }}"
+    pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
+  tasks:
+    - name: "Debug"
+      debug:
+        msg:
+          - "pipelinerun_name ................ {{ pipelinerun_name }}"
+          - "pipelinerun_namespace ........... {{ pipelinerun_namespace }}"
+          - ""
+          - "mas_app_channel_manage .......... {{ mas_app_channel_manage }}"
+          - "mas_app_channel_monitor ......... {{ mas_app_channel_monitor }}"
+          - "mas_instance_id ................. {{ mas_instance_id }}"
+          - "mas_workspace_id ................ {{ mas_workspace_id }}"
+          - ""
+          - "fvt_image_registry .............. {{ fvt_image_registry }}"
+          - "fvt_artifactory_username ........ {{ fvt_artifactory_username }}"
+          - "fvt_artifactory_token ........... {{ fvt_artifactory_token }}"
+          - "fvt_digest_manage ............... {{ fvt_digest_manage }}"
+          - "fvt_digest_manage_pytest ........ {{ fvt_digest_manage_pytest }}"
+          - "fvt_digest_ctf .................. {{ fvt_digest_ctf }}"
+
+    - name: "Start fvt-upgrade-post pipeline"
+      kubernetes.core.k8s:
+        apply: true
+        template: templates/mas-fvt-upgrade-post.yml.j2

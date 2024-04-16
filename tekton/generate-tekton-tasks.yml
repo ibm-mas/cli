@@ -86,6 +86,8 @@
         - launchfvt-optimizer
         - launchfvt-predict
         - launchfvt-visualinspection
+        - launchfvt-upgrade-post
+        - launchfvt-upgrade-pre
 
     # 4. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
