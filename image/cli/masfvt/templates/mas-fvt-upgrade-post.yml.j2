@@ -5,10 +5,10 @@ metadata:
   name: "{{ pipelinerun_name }}"
   namespace: "{{ pipelinerun_namespace }}"
   labels:
-    tekton.dev/pipeline: mas-fvt-manage
+    tekton.dev/pipeline: mas-fvt-upgrade-post
 spec:
   pipelineRef:
-    name: mas-fvt-manage
+    name: mas-fvt-upgrade-post
 
   serviceAccountName: pipeline
   timeouts:
@@ -19,12 +19,14 @@ spec:
     - name: image_pull_policy
       value: "{{ image_pull_policy }}"
     # MAS Info
-    - name: mas_app_channel_manage
-      value: "{{ mas_app_channel_manage }}"
     - name: mas_instance_id
       value: "{{ mas_instance_id }}"
     - name: mas_workspace_id
       value: "{{ mas_workspace_id }}"
+    - name: mas_app_channel_manage
+      value: "{{ mas_app_channel_manage }}"
+    - name: mas_app_channel_monitor
+      value: "{{ mas_app_channel_monitor }}"
     # Registry
     - name: fvt_image_registry
       value: "{{ fvt_image_registry }}"
@@ -37,8 +39,8 @@ spec:
       value: "{{ fvt_digest_manage }}"
     - name: fvt_digest_manage_pytest
       value: "{{ fvt_digest_manage_pytest }}"
-    - name: ivt_digest_core
-      value: "{{ ivt_digest_core }}"
+    - name: fvt_digest_ctf
+      value: "{{ fvt_digest_ctf }}"
 
   workspaces:
     # The generated configuration files

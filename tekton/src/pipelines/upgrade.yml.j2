@@ -26,6 +26,13 @@ spec:
       default: "False"
       description: Skip performing compatiblity checks before upgrade
 
+{% if wait_for_install == true %}
+    - name: launchfvt_upgrade
+      type: string
+      default: "" # Considered False when not informed
+      description: "Set this to any value other than 'true' to disable launch of the pre and post upgrade tests pipeline (running before and after upgrade process happens)"
+{% endif %}
+
     {{ lookup('template', params_src_dir ~ '/install-appchannels.yml.j2') | indent(4) }}
 
   tasks:
@@ -41,7 +48,6 @@ spec:
         name: mas-fvt-wait-for-install
 {% endif %}
 
-
     # 1. Verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
@@ -53,15 +59,38 @@ spec:
         - wait-for-install
 {% endif %}
 
+{% if wait_for_install == true %}
+    # 2. Pre-Upgrade pipeline call - test scripts to run before upgrade
+    # -------------------------------------------------------------------------
+    - name: launchfvt-upgrade-pre
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-uprade-pre"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-upgrade-pre
+      when:
+        - input: $(params.launchfvt_upgrade)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - pre-upgrade-check
+{% endif %}
 
-    # 2. Suite Upgrade (Phase 1)
+    # 3. Suite Upgrade (Phase 1)
     # -------------------------------------------------------------------------
     - name: core-upgrade
       taskRef:
         kind: Task
         name: mas-devops-suite-upgrade
       runAfter:
+{% if wait_for_install == true %}
+        - launchfvt-upgrade-pre
+{% else %}
         - pre-upgrade-check
+{% endif %}
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -89,7 +118,7 @@ spec:
         - core-upgrade
 
 
-    # 3. IoT Upgrade (Phase 2)
+    # 4. IoT Upgrade (Phase 2)
     # -------------------------------------------------------------------------
     - name: iot-upgrade
       params:
@@ -110,7 +139,7 @@ spec:
         - core-verify
 
 
-    # 4. Manage Upgrade (Phase 2)
+    # 5. Manage Upgrade (Phase 2)
     # -------------------------------------------------------------------------
     - name: manage-upgrade
       params:
@@ -131,7 +160,7 @@ spec:
         - core-verify
 
 
-    # 5. Visual Inspection Upgrade (Phase 2)
+    # 6. Visual Inspection Upgrade (Phase 2)
     # -------------------------------------------------------------------------
     - name: visualinspection-upgrade
       params:
@@ -152,7 +181,7 @@ spec:
         - core-verify
 
 
-    # 6. Assist Upgrade (Phase 2)
+    # 7. Assist Upgrade (Phase 2)
     # -------------------------------------------------------------------------
     - name: assist-upgrade
       params:
@@ -173,7 +202,7 @@ spec:
         - core-verify
 
 
-    # 7. Optimizer Upgrade (Phase 2)
+    # 8. Optimizer Upgrade (Phase 2)
     # -------------------------------------------------------------------------
     - name: optimizer-upgrade
       params:
@@ -194,7 +223,7 @@ spec:
         - core-verify
 
 
-    # 8. Monitor Upgrade (Phase 3 - after IoT)
+    # 9. Monitor Upgrade (Phase 3 - after IoT)
     # -------------------------------------------------------------------------
     - name: monitor-upgrade
       params:
@@ -215,7 +244,7 @@ spec:
         - iot-upgrade
 
 
-    # 9. Predict Upgrade (Phase 3 - after Manage)
+    # 10. Predict Upgrade (Phase 3 - after Manage)
     # -------------------------------------------------------------------------
     - name: predict-upgrade
       params:
@@ -236,7 +265,7 @@ spec:
         - manage-upgrade
 
 
-    # 10. HP Utilities Upgrade (Phase 3 - after Manage)
+    # 11. HP Utilities Upgrade (Phase 3 - after Manage)
     # -------------------------------------------------------------------------
     - name: hputilities-upgrade
       params:
@@ -257,7 +286,7 @@ spec:
         - manage-upgrade
 
 
-    # 11. Verify health of the cluster after upgrade
+    # 12. Verify health of the cluster after upgrade
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
         'name': 'post-upgrade-verify',
@@ -272,7 +301,26 @@ spec:
         - hputilities-upgrade
         - predict-upgrade
         - monitor-upgrade
-
+    
+{% if wait_for_install == true %}
+    # 13. Post-Upgrade pipeline call - test scripts to run before upgrade
+    # -------------------------------------------------------------------------
+    - name: launchfvt-upgrade-post
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-upgrade-post"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-upgrade-post
+      when:
+        - input: $(params.launchfvt_upgrade)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - post-upgrade-verify
+{% endif %}
 
 {% if wait_for_install == true %}
   # In FVT only this is the time to take a must-gather and finalize the result
