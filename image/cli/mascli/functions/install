@@ -144,8 +144,8 @@ function install_noninteractive() {
 
       # Applications
       --assist-channel)
-        export DEPLOY_CP4D=run
         export MAS_APP_CHANNEL_ASSIST=$1 && shift
+        export DEPLOY_CP4D=run
         ;;
       --iot-channel)
         export MAS_APP_CHANNEL_IOT=$1 && shift
@@ -157,8 +157,8 @@ function install_noninteractive() {
         export MAS_APP_CHANNEL_MANAGE=$1 && shift
         ;;
       --predict-channel)
-        export DEPLOY_CP4D=run
         export MAS_APP_CHANNEL_PREDICT=$1 && shift
+        export DEPLOY_CP4D=run
         ;;
       --visualinspection-channel)
         export MAS_APP_CHANNEL_VISUALINSPECTION=$1 && shift
@@ -460,6 +460,10 @@ function install_noninteractive() {
   # Ensure that install will not trigger a change in the catalog source
   validate_catalog_source
 
+  if [ "$DEPLOY_CP4D" == "run" ];then
+    cp4d_channel_selection
+  fi
+
   # Present the MAS license information
   license_prompt
 
@@ -739,8 +743,6 @@ function install() {
     pipelines_install_operator
     install_config_additional_configs
   fi
-  
-  validate_common_services_skip
 
   # Prepare and launch the Tekton pipeline
   install_pipelinerun_prepare
