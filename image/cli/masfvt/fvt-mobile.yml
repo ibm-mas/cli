@@ -22,7 +22,8 @@
     # FVT Configuration
     fvt_digest_mobile_pytest: "{{ lookup('env', 'FVT_DIGEST_MOBILE_PYTEST') }}"
     fvt_digest_mobile_testng: "{{ lookup('env', 'FVT_DIGEST_MOBILE_TESTNG') }}"
-    
+    fvt_digest_manage_civil_selenium: "{{ lookup('env', 'FVT_DIGEST_MANAGE_CIVIL_SELENIUM') }}"
+
     # Pipeline Run Info
     pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-mobile', True) }}"
     pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
