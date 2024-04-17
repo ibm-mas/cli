@@ -50,9 +50,6 @@ IDP/LDAP Configuration (required if MAS_CONFIG_TYPE is "ldap-default"):
   --ldap-bind-dn ${COLOR_YELLOW}LDAP_BIND_DN${TEXT_RESET}                     DN for LDAP server authentication
   --ldap-bind-password ${COLOR_YELLOW}LDAP_BIND_PASSWORD${TEXT_RESET}         Password for LDAP server authenticaiton
 
-Object Storage Configuration (required if MAS_CONFIG_TYPE is "objectstorage"):
-  --gitops-config-dir ${COLOR_YELLOW}GITOPS_CONFIG_DIR${TEXT_RESET}     Directory that holds configuration to use
-
 JDBC Configuration (required if MAS_CONFIG_TYPE is "jdbc"):              
   --tls-version ${COLOR_YELLOW}TLS_VERSION${TEXT_RESET}                 TLS Version (defaults to TLSv1.2)
   --db2-ldap-username ${COLOR_YELLOW}DB2_LDAP_USERNAME${TEXT_RESET}     DB2 LDAP Username to create
@@ -181,18 +178,6 @@ function gitops_mas_config_noninteractive() {
         ;;
       --ldap-bind-password)
         export LDAP_BIND_PASSWORD=$1 && shift
-        ;;
-
-
-      # COS
-      --gitops-config-dir)
-        # TODO: this doesn't feel like a cos-specific parameter
-        # but it seems to be the only config script that actually attempts to read from the shared
-        # /workspace/configs directory
-
-        # Unless there's a good reason not to, I think we should align COS to expect config to be passed in via
-        # pre-registered secrets in SM (like we do for mongo, kafka, etc)
-        export GITOPS_CONFIG_DIR=$1 && shift
         ;;
 
       # JDBC
@@ -367,11 +352,6 @@ function gitops_mas_config_noninteractive() {
       [[ -z "$LDAP_CERTIFICATE_FILE" ]] && gitops_mas_config_help "LDAP_CERTIFICATE_FILE is not set"
       [[ -z "$LDAP_BIND_DN" ]] && gitops_mas_config_help "LDAP_BIND_DN is not set"
       [[ -z "$LDAP_BIND_PASSWORD" ]] && gitops_mas_config_help "LDAP_BIND_PASSWORD is not set"
-    fi
-
-
-    if [ "${MAS_CONFIG_TYPE}" == "objectstorage" ]; then
-      [[ -z "$GITOPS_CONFIG_DIR" ]] && gitops_mas_config_help "GITOPS_CONFIG_DIR is not set"
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
@@ -563,12 +543,6 @@ function gitops_mas_config() {
       reset_colors
     fi
 
-    if [ "${MAS_CONFIG_TYPE}" == "objectstorage" ]; then
-      echo "${TEXT_DIM}"
-      echo_reset_dim "Config Directory ...................... ${COLOR_MAGENTA}${GITOPS_CONFIG_DIR}"
-      reset_colors
-    fi
-
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
       echo "${TEXT_DIM}"
       echo_reset_dim "DB2_INSTANCE_NAME ....................... ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
@@ -697,13 +671,14 @@ function gitops_mas_config() {
     # Source: gitops_suite_objectstorage_config
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "objectstorage" ]; then
-      export COS_CONFIG=$GITOPS_CONFIG_DIR/$MAS_INSTANCE_ID-cos/cos-ibm-system.yml
-      /usr/bin/yq '.[1].spec' $COS_CONFIG > $ADDITIONAL_JINJA_PARAMS_FILE
-      rc=$?
-      [ $rc -ne 0 ] && exit $rc
-      /usr/bin/yq -i 'del(.config.credentials)' $ADDITIONAL_JINJA_PARAMS_FILE
-      /usr/bin/yq -i 'del(.displayName)' $ADDITIONAL_JINJA_PARAMS_FILE
       export OBJECTSTORAGE_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cos
+      export SECRET_KEY_OBJECTSTORAGE_INFO=${OBJECTSTORAGE_SECRET}#info
+      export COS_SECRET_FILE=$TEMP_DIR/cos-secret.json
+      sm_login
+      sm_get_secret_file ${OBJECTSTORAGE_SECRET} $COS_SECRET_FILE
+
+      jq -r .info $COS_SECRET_FILE > $ADDITIONAL_JINJA_PARAMS_FILE
+
       export SECRET_KEY_OBJECTSTORAGE_USERNAME=${OBJECTSTORAGE_SECRET}#username
       export SECRET_KEY_OBJECTSTORAGE_PASSWORD=${OBJECTSTORAGE_SECRET}#password
     fi
