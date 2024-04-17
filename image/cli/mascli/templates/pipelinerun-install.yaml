@@ -13,6 +13,11 @@ spec:
   timeout: 24h
 
   params:
+    # Pipeline config
+    # -------------------------------------------------------------------------
+    - name: skip_pre_check
+      value: '$SKIP_PRE_CHECK'
+
     # Cluster config
     # -------------------------------------------------------------------------
     - name: ocp_ingress_tls_secret_name
