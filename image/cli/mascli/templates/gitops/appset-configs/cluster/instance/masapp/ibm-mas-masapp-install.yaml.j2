@@ -1,6 +1,6 @@
-merge-key: "{{ ACCOUNT_ID }}/{{ REGION }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}/{{ MAS_APP_ID }}"
+merge-key: "{{ ACCOUNT_ID }}/{{ REGION }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
 
-ibm_suite_app_install:
+ibm_suite_app_{{ MAS_APP_ID }}_install:
   ibm_entitlement_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>
   mas_instance_id: {{ MAS_INSTANCE_ID }}
   mas_app_id: {{ MAS_APP_ID }}
