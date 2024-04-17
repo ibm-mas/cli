@@ -85,6 +85,17 @@ spec:
             key: IBMCLOUD_APIKEY
             optional: true
 
+      # FVT_ENABLE_IMAGE_SCAN os required for image scan suite
+      - name : FVT_ENABLE_IMAGE_SCAN
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: FVT_ENABLE_IMAGE_SCAN
+            optional: true
+
+
+
+
       # The name of the test suite inside the container we will execute (/opt/ibm/test/suites/{TEST_SUITE})
       - name: TEST_SUITE
         value: $(params.fvt_test_suite)
