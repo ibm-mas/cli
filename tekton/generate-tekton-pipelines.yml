@@ -46,6 +46,8 @@
         - fvt-sls
         - fvt-data-dictionary
         - fvt-uninstall-after
+        - fvt-upgrade-post
+        - fvt-upgrade-pre
         - fvt-visualinspection
         - update
         - upgrade

@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-launchfvt-mobile
+  name: mas-launchfvt-upgrade-pre
 spec:
   params:
     # Control the image pull policy for the FVT container image
@@ -19,7 +19,7 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - ansible-playbook
-        - /masfvt/fvt-mobile.yml
+        - /masfvt/fvt-upgrade-pre.yml
       env:
         - name: IMAGE_PULL_POLICY
           value: $(params.image_pull_policy)
@@ -30,6 +30,12 @@ spec:
 
         # Lookups from mas-devops
         # -----------------------------------------------------------------------
+        - name: DEVOPS_BUILD_NUMBER
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_BUILD_NUMBER
+              optional: true
         - name: MAS_INSTANCE_ID
           valueFrom:
             secretKeyRef:
@@ -45,6 +51,12 @@ spec:
               name: mas-fvt
               key: FVT_IMAGE_REGISTRY
               optional: false
+        - name: FVT_ARTIFACTORY_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FVT_ARTIFACTORY_USERNAME
+              optional: false
         - name: FVT_ARTIFACTORY_TOKEN
           valueFrom:
             secretKeyRef:
@@ -52,60 +64,56 @@ spec:
               key: FVT_ARTIFACTORY_TOKEN
               optional: false
 
-        # Lookups from mas-fvt-mobile
-        # -----------------------------------------------------------------------
-        # Framework Information        
-        - name: MAS_CHANNEL
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-mobile
-              key: MAS_CHANNEL
-              optional: false
+        # Framework Information
         - name: MAS_APP_CHANNEL_MANAGE
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-mobile
+              name: mas-fvt-manage
               key: MAS_APP_CHANNEL_MANAGE
+              optional: false
+        - name: MAS_APP_CHANNEL_MONITOR
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-monitor
+              key: MAS_APP_CHANNEL_MONITOR
               optional: false
         - name: MAS_WORKSPACE_ID
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-mobile
+              name: mas-fvt-manage
               key: MAS_WORKSPACE_ID
               optional: false
-        
+
         # Digests
-        - name: FVT_DIGEST_MOBILE_PYTEST
+        - name: FVT_DIGEST_MANAGE
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-mobile
-              key: FVT_DIGEST_MOBILE_PYTEST
+              name: mas-fvt-manage
+              key: FVT_DIGEST_MANAGE
               optional: false
-        - name: FVT_DIGEST_MOBILE_TESTNG
+        - name: FVT_DIGEST_MANAGE_PYTEST
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-mobile
-              key: FVT_DIGEST_MOBILE_TESTNG
+              name: mas-fvt-manage
+              key: FVT_DIGEST_MANAGE_PYTEST
               optional: false
-        - name: FVT_DIGEST_MANAGE_CIVIL_SELENIUM
+        - name: FVT_DIGEST_CTF
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-mobile
-              key: FVT_DIGEST_MANAGE_CIVIL_SELENIUM
+              name: mas-fvt-monitor
+              key: FVT_DIGEST_CTF
               optional: false
 
-       
-    
     - name: wait-for-pipelinerun
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
-      # 50 retries at 10 minute intervals = just over 8 hours
+      # 10 retries at 5 minute intervals = 50 min
       command:
         - /opt/app-root/src/wait-for-pipelinerun.sh
         - --delay
-        - "600"
+        - "300"
         - --max-retries
-        - "75"
+        - "10"
         - --ignore-failure
       env:
         - name: PIPELINERUN_NAME
