@@ -335,7 +335,7 @@ spec:
       default: ""
     - name: optimizer_plan
       type: string
-      default: "full"
+      default: "limited"
 
     - name: mas_app_channel_predict
       type: string
@@ -362,16 +362,6 @@ spec:
       type: string
       default: ""
 
-    - name: watson_studio_username
-      type: string
-      default: ""
-    - name: watson_studio_password
-      type: string
-      default: ""
-    - name: watson_studio_url
-      type: string
-      default: ""
-
     - name: cpd_wsl_project_id
       type: string
       default: ""
@@ -385,10 +375,6 @@ spec:
       type: string
       default: ""
 
-    # configure cos
-    - name: gitops_config_dir
-      type: string
-      default: "/workspace/configs"
   tasks:
 {% if wait_for_provision == true %}
     # 0. Wait for the fvt start pipeline to complete
@@ -790,8 +776,6 @@ spec:
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: gitops_config_dir
-          value: $(params.gitops_config_dir)
 
       taskRef:
         kind: Task
@@ -914,15 +898,6 @@ spec:
           value: $(params.mas_workspace_id)
         - name: mas_config_scope
           value: wsapp
-
-        - name: watson_studio_username
-          value: $(params.watson_studio_username)
-        - name: watson_studio_password
-          value: $(params.watson_studio_password)
-        - name: watson_studio_url
-          value: $(params.watson_studio_url)
-        - name: cp4d_wsl_action
-          value: $(params.cp4d_wsl_action)
 
       taskRef:
         kind: Task
