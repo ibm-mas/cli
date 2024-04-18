@@ -24,7 +24,7 @@ Secrets Manager:
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
 IBM CP4D Service:
-      --cpd_product-version ${COLOR_YELLOW}CPD_PRODUCT_VERSION${TEXT_RESET}                             CP4D Product Version
+      --cpd-product-version ${COLOR_YELLOW}CPD_PRODUCT_VERSION${TEXT_RESET}                             CP4D Product Version
       --cpd-instance-namespace ${COLOR_YELLOW}CPD_INSTANCE_NAMESPACE${TEXT_RESET}                       CP4D Instance namespace to use
       --cpd-operators-namespace ${COLOR_YELLOW}CPD_OPERATORS_NAMESPACE${TEXT_RESET}                     CP4D Operators namespace to use
       --cpd-service-name ${COLOR_YELLOW}CPD_SERVICE_NAME${TEXT_RESET}                                   CP4D Service Name

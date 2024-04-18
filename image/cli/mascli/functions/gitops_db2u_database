@@ -549,9 +549,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   # sort the configs by db2_instance_name.
   # This way, we maintain the same ordering of configs in the file (even though we may have deleted and recreated a config if it's an update)
   # This eliminates confusing commits to gitops-envs and allows us to determine if anything has actually changed
-  # (which we use, in this case, to determine if we need to update the db2_settings_applied secret)
   /usr/bin/yq -i '.ibm_db2u_databases |= sort_by(.db2_instance_name)' $CONFIGS_FILE
-
 
   echo_h2 "Updated configuration file (${CONFIGS_FILE})"
   if [ -f ${CONFIGS_FILE} ]; then
@@ -566,18 +564,6 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_and_unlock_target_git_repo "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_COMMIT_MSG}" "${GIT_LOCK_BRANCH}" DB2_CONFIG_CHANGED
-
-    # The DB2CFG_SETTINGS_APPLIED secret is read by the postsync hook in the ibm-db2u-database chart
-    # Since we have made changes to the db2u-database config here, we want the postsync hook to rerun,
-    # so set the secret to false
-    if [[ "$DB2_CONFIG_CHANGED" != "0" ]]; then
-      echo_h2 "setting DB2CFG_SETTINGS_APPLIED to false to prompt postsync hooks to run"
-      export DB2CFG_SETTINGS_APPLIED="false"
-      export DB2CFG_SETTINGS_APPLIED_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2${SECRETS_KEY_SEPERATOR}${DB2_INSTANCE_NAME}/settings_applied
-      sm_update_secret ${DB2CFG_SETTINGS_APPLIED_SECRET} "{ \"db2cfg_settings_applied\": \"${DB2CFG_SETTINGS_APPLIED}\" }"
-    fi
-
-
   else
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi

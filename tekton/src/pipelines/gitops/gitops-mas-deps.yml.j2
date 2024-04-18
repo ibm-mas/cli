@@ -54,6 +54,9 @@ spec:
     - name: aws_docdb_instance_number
       type: string
       default: 3
+    - name: aws_docdb_engine_version
+      type: string
+      default: 4.0.0
 
     - name: kafka_provider
       type: string
@@ -130,6 +133,8 @@ spec:
           value: $(params.mongo_provider)
         - name: aws_docdb_instance_number
           value: $(params.aws_docdb_instance_number)
+        - name: aws_docdb_engine_version
+          value: $(params.aws_docdb_engine_version)
       taskRef:
         kind: Task
         name: gitops-mongo
