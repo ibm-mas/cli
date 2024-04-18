@@ -39,9 +39,9 @@ spec:
   stepTemplate:
     name: gitops-deprovision-suite-watson-studio-config
     env:
-      - name: CLUSTER_NAME
+      - name: CLUSTER_ID
         value: $(params.cluster_name)
-      - name: ACCOUNT
+      - name: ACCOUNT_ID
         value: $(params.account)
       - name: REGION
         value: $(params.region)
