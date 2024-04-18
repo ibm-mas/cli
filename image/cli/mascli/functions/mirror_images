@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# TODO: Need lookup the cpd version based on the provided catalog, then pass it along to the
+# mirror_one_thing $MIRROR_DEPS                 "Selected Dependencies"                 "$LOG_PREFIX-dependencies.log"     mirror_dependencies
+# which will then feed the mirror_dependencies.yml playbook that will mirror extra CP4D 4.8.0 images 
+
 function mirror_to_registry_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
@@ -476,6 +480,16 @@ function show_mirror_status() {
   fi
 }
 
+function get_cp4d_version_to_mirror() {
+    CPD_PRODUCT_VERSION=`yq -r .cpd_product_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml 2>/dev/null`
+    if [[ "$CPD_PRODUCT_VERSION" == "null" ]]; then
+      CPD_PRODUCT_VERSION=""
+      MIRROR_CP4D=false
+      echo "Could not determine Cloud Pak for Data version to mirror based on '$MAS_CATALOG_VERSION' catalog source. Skipping mirroring..."
+    fi
+}
+
+
 function mirror_to_registry() {
   # Take the first parameter off (it will be mirror-images)
   shift
@@ -484,6 +498,11 @@ function mirror_to_registry() {
   else
     mirror_to_registry_interactive
   fi
+
+  # Lookup which CP4D version to mirror based on the MAS catalog
+  # This will tell whether we need just to mirror CP4D images from ibm-operator-catalog (as is up to CP4D 4.6.x)
+  # Or if we will need to mirror extra CP4D related images (specific to CP4D 4.8+)
+  get_cp4d_version_to_mirror
 
   # Ensure all environment variables are available to ansible-playbook
 
@@ -516,6 +535,9 @@ function mirror_to_registry() {
   export MIRROR_SPARK
   export MIRROR_APPCONNECT
   export MIRROR_MAS_ICD
+
+  #Cloud Pak for Data
+  export CPD_PRODUCT_VERSION
 
   # Authentication
   export IBM_ENTITLEMENT_KEY
@@ -590,7 +612,11 @@ function mirror_to_registry() {
   echo
   reset_colors
   echo_h4 "Content Selection (Cloud Pak for Data)" "    "
-  show_mirror_status "IBM Cloud Pak for Data (CP4D) ......." $MIRROR_CP4D
+  if [ -z "$CPD_PRODUCT_VERSION" ]; then
+    show_mirror_status "IBM Cloud Pak for Data (CP4D) ......." $MIRROR_CP4D
+  else
+    show_mirror_status "IBM Cloud Pak for Data (CP4D) ....... $MIRROR_CP4D (version: $CPD_PRODUCT_VERSION)"
+  fi
   show_mirror_status "IBM Watson Discovery ................" $MIRROR_WD
   show_mirror_status "IBM Watson Studio ..................." $MIRROR_WSL
   show_mirror_status "IBM Watson Machine Learning ........." $MIRROR_WML
