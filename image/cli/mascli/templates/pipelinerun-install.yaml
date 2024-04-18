@@ -68,6 +68,10 @@ spec:
       value: '$DB2_NAMESPACE'
     - name: db2_channel
       value: '$DB2_CHANNEL'
+    - name: db2_type
+      value: '$DB2_TYPE'
+    - name: db2_timezone
+      value: '$DB2_TIMEZONE'
 
     # Dependencies - Db2 - Actions
     # -------------------------------------------------------------------------
@@ -425,6 +429,8 @@ spec:
       value: '$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE'
     - name: mas_app_settings_base_language
       value: '$MAS_APP_SETTINGS_BASE_LANG'
+    - name: mas_app_settings_server_timezone
+      value: '$MAS_APP_SETTINGS_SERVER_TIMEZONE'
     - name: mas_app_settings_secondary_languages
       value: '$MAS_APP_SETTINGS_SECONDARY_LANGS'
     - name: mas_app_settings_tablespace

@@ -200,6 +200,11 @@ function install_noninteractive() {
       --db2u-manage)
         export DB2_ACTION_MANAGE=install
         ;;
+      --db2u-manage-type)
+        if [[ "$DB2_ACTION_MANAGE" == "install" ]]; then
+          export DB2_TYPE=$1 && shift
+        fi
+        ;;
 
       # Dependencies - Db2 Advanced Options
       --db2u-affinity-key)
@@ -343,11 +348,15 @@ function install_noninteractive() {
       # Manage commands - Server bundle configuration
       --manage-server-bundle-size)
         export MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE=$1 && shift
+        if [[ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "jms" || "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "snojms" ]]; then
+          export MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
+        fi
         ;;
       --manage-jms)
-        export MAS_APP_SETTINGS_DEFAULT_JMS=true
-        export MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
-        export MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE=jms
+        if [[ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "jms" || "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "snojms" ]]; then
+          export MAS_APP_SETTINGS_DEFAULT_JMS=true
+          export MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
+        fi
         ;;
       --manage-demodata)
         export MAS_APP_SETTINGS_DEMODATA=true
@@ -375,6 +384,19 @@ function install_noninteractive() {
         export MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD=$1 && shift
         ;;
 
+      # Manage commands - Dabatase tablespaces
+      --manage-db-tablespace)
+        export MAS_APP_SETTINGS_TABLESPACE=$1 && shift
+        ;;
+
+      --manage-db-indexspace)
+        export MAS_APP_SETTINGS_INDEXSPACE=$1 && shift
+        ;;
+
+      --manage-db-schema)
+        export MAS_APP_SETTINGS_DB2_SCHEMA=$1 && shift
+        ;;
+
       # Manage commands - Database encryption keys
       --manage-crypto-key)
         export MAS_APP_SETTINGS_CRYPTO_KEY=$1 && shift
@@ -390,6 +412,21 @@ function install_noninteractive() {
         ;;
       --manage-override-encryption-secrets)
         export MAS_APP_SETTINGS_OVERRIDE_ENCRYPTION_SECRETS_FLAG=true
+        ;;
+
+      # Manage commands - Base & secondary languages
+      --manage-base-language)
+        export MAS_APP_SETTINGS_BASE_LANG=$1 && shift
+        ;;
+
+      --manage-secondary-languages)
+        export MAS_APP_SETTINGS_SECONDARY_LANGS=$1 && shift
+        ;;
+
+      # Manage commands - Server timezone
+      --manage-server-timezone)
+        export MAS_APP_SETTINGS_SERVER_TIMEZONE=$1 && shift
+        export DB2_TIMEZONE=$MAS_APP_SETTINGS_SERVER_TIMEZONE # If used, set Manage dedicated Db2 timezone to be same as Manage server timezone
         ;;
 
       # Cloud Provider Commands - IBM Cloud
