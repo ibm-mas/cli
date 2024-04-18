@@ -17,7 +17,7 @@ GitOps Configuration:
       --gitops-config-dir ${COLOR_YELLOW}GITOPS_CONFIG_DIR${TEXT_RESET}                                   Directory that holds configuration to use
 
 IBM CP4D Service/Predict:
-  --cpd_product-version ${COLOR_YELLOW}CPD_PRODUCT_VERSION${TEXT_RESET}                                  CP4D Product Version
+  --cpd-product-version ${COLOR_YELLOW}CPD_PRODUCT_VERSION${TEXT_RESET}                                  CP4D Product Version
   --cpd-instance-namespace ${COLOR_YELLOW}CPD_INSTANCE_NAMESPACE${TEXT_RESET}                            CP4D Instance namespace to use
   --cpd-wsl-project-id ${COLOR_YELLOW}CPD_WSL_PROJECT_ID${TEXT_RESET}                                    CP4D WSL Project ID to use for Predict
   --cpd-wml-url ${COLOR_YELLOW}CPD_WML_URL${TEXT_RESET}                                                  CP4D WML URL to use for Predict
