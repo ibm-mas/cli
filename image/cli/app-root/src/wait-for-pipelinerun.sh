@@ -65,7 +65,7 @@ done
 
 echo "Completion Time = $COMPLETION_TIME"
 echo "Retries Used    = $RETRIES_USED"
-RESULT=$(oc -n ${NAMESPACE} get pipelinerun/$PIPELINERUN_NAME -o jsonpath='{.status.conditions[0].status}')
+RESULT=$(oc -n ${PIPELINERUN_NAMESPACE} get pipelinerun/$PIPELINERUN_NAME -o jsonpath='{.status.conditions[0].status}')
 
 if [[ "$RESULT" == "True" ]]; then
   echo "Result          = PipelineRun completed successfully"

@@ -11,15 +11,6 @@ spec:
       type: string
     - name: mas_app_kind
       type: string
-    - name: mas_appws_bindings_jdbc
-      type: string
-      default: ""
-    - name: mas_appws_components
-      type: string
-      default: ""
-    - name: mas_appws_settings
-      type: string
-      default: ""
     - name: mas_appws_api_version
       type: string
     - name: mas_appws_kind
@@ -30,32 +21,21 @@ spec:
     - name: default_file_storage_class
       type: string
       default: ""
-    - name: mas_app_settings_customization_archive_url
-      type: string
-      default: ""
-    - name: mas_app_settings_customization_archive_name
-      type: string
-      default: "manage-custom-archive"
     - name: cpd_wsl_project_id
       type: string
       default: ""
     - name: cpd_product_version
       type: string
       default: ""
-    - name: mas_appws_settings_deployment_size
-      type: string
-      default: "small"
     - name: cpd_wml_url
       type: string
       default: "https://internal-nginx-svc.ibm-cpd.svc:12443"
     - name: cpd_wml_instance_id
       type: string
       default: "openshift"
-
     - name: cpd_instance_namespace
       type: string
       default: ""
-
     - name: cluster_name
       type: string
     - name: cluster_url
@@ -77,69 +57,13 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: mas_app_settings_db2_schema
-      type: string
-      default: ""
-    - name: mas_app_settings_demodata
-      type: string
-      default: ""
-    - name: mas_app_settings_tablespace
-      type: string
-      default: ""
-    - name: mas_app_settings_indexspace
-      type: string
-      default: ""
-    - name: mas_app_settings_base_language
-      type: string
-      default: ""
-    - name: mas_app_settings_secondary_languages
-      type: string
-      default: ""
-    - name: mas_app_settings_aio_flag
-      type: string
-      default: "true"
     - name: mas_app_settings_server_bundles_size
       type: string
       default: "dev"
-    - name: mas_app_settings_persistent_volumes_flag
-      type: string
-      default: "false"
-    - name: mas_app_settings_jms_queue_pvc_accessmode
-      type: string
-      default: "ReadWriteMany"
     - name: mas_app_settings_jms_queue_mount_path
       type: string
       default: "/jms"
-    - name: mas_app_settings_jms_queue_pvc_name
-      type: string
-      default: "manage-jms"
-    - name: mas_app_settings_jms_queue_pvc_size
-      type: string
-      default: "20Gi"
-    - name: mas_app_settings_doclinks_pvc_accessmode
-      type: string
-      default: "ReadWriteMany"
-    - name: mas_app_settings_doclinks_mount_path
-      type: string
-      default: "/DOCLINKS"
-    - name: mas_app_settings_doclinks_pvc_name
-      type: string
-      default: "manage-doclinks"
-    - name: mas_app_settings_doclinks_pvc_size
-      type: string
-      default: "20Gi"
-    - name: mas_app_settings_bim_pvc_accessmode
-      type: string
-      default: "ReadWriteMany"
-    - name: mas_app_settings_bim_mount_path
-      type: string
-      default: "/bim"
-    - name: mas_app_settings_bim_pvc_name
-      type: string
-      default: "manage-bim"
-    - name: mas_app_settings_bim_pvc_size
-      type: string
-      default: "20Gi"
+
     - name: mas_manual_cert_mgmt
       type: string
       default: "False"
@@ -158,12 +82,6 @@ spec:
         value: $(params.mas_app_id)
       - name: MAS_WORKSPACE_ID
         value: $(params.mas_workspace_id)
-      - name: MAS_APPWS_BINDINGS_JDBC
-        value: $(params.mas_appws_bindings_jdbc)
-      - name: MAS_APPWS_COMPONENTS
-        value: $(params.mas_appws_components)
-      - name: MAS_APPWS_SETTINGS
-        value: $(params.mas_appws_settings)
       - name: MAS_APP_KIND
         value: $(params.mas_app_kind)
       - name: MAS_APPWS_API_VERSION
@@ -174,18 +92,10 @@ spec:
         value: $(params.mas_appws_spec_yaml)
       - name: DEFAULT_FILE_STORAGE_CLASS
         value: $(params.default_file_storage_class)
-      - name: MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE
-        value: $(params.mas_app_settings_server_bundles_size)
-      - name: MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL
-        value: $(params.mas_app_settings_customization_archive_url)
-      - name: MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME
-        value: $(params.mas_app_settings_customization_archive_name)
       - name: CPD_WSL_PROJECT_ID
         value: $(params.cpd_wsl_project_id)
       - name: CPD_PRODUCT_VERSION
         value: $(params.cpd_product_version)
-      - name: MAS_APPWS_SETTINGS_DEPLOYMENT_SIZE
-        value: $(params.mas_appws_settings_deployment_size)
       - name: CPD_WML_URL
         value: $(params.cpd_wml_url)
       - name: CPD_WML_INSTANCE_ID
@@ -210,48 +120,10 @@ spec:
         value: $(params.github_repo)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: MAS_APP_ID
-        value: $(params.mas_app_id)
-      - name: MAS_APP_SETTINGS_DB2_SCHEMA
-        value: $(params.mas_app_settings_db2_schema)
-      - name: MAS_APP_SETTINGS_DEMODATA
-        value: $(params.mas_app_settings_demodata)
-      - name: MAS_APP_SETTINGS_TABLESPACE
-        value: $(params.mas_app_settings_tablespace)
-      - name: MAS_APP_SETTINGS_INDEXSPACE
-        value: $(params.mas_app_settings_indexspace)
-      - name: MAS_APP_SETTINGS_BASE_LANGUAGE
-        value: $(params.mas_app_settings_base_language)
-      - name: MAS_APP_SETTINGS_SECONDARY_LANGUAGES
-        value: $(params.mas_app_settings_secondary_languages)
-      - name: MAS_APP_SETTINGS_AIO_FLAG
-        value: $(params.mas_app_settings_aio_flag)
-      - name: MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG
-        value: $(params.mas_app_settings_persistent_volumes_flag)
-      - name: MAS_APP_SETTINGS_JMS_QUEUE_PVC_ACCESSMODE
-        value: $(params.mas_app_settings_jms_queue_pvc_accessmode)
+      - name: MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE
+        value: $(params.mas_app_settings_server_bundles_size)
       - name: MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH
         value: $(params.mas_app_settings_jms_queue_mount_path)
-      - name: MAS_APP_SETTINGS_JMS_QUEUE_PVC_NAME
-        value: $(params.mas_app_settings_jms_queue_pvc_name)
-      - name: MAS_APP_SETTINGS_JMS_QUEUE_PVC_SIZE
-        value: $(params.mas_app_settings_jms_queue_pvc_size)
-      - name: MAS_APP_SETTINGS_DOCLINKS_PVC_ACCESSMODE
-        value: $(params.mas_app_settings_doclinks_pvc_accessmode)
-      - name: MAS_APP_SETTINGS_DOCLINKS_MOUNT_PATH
-        value: $(params.mas_app_settings_doclinks_mount_path)
-      - name: MAS_APP_SETTINGS_DOCLINKS_PVC_NAME
-        value: $(params.mas_app_settings_doclinks_pvc_name)
-      - name: MAS_APP_SETTINGS_DOCLINKS_PVC_SIZE
-        value: $(params.mas_app_settings_doclinks_pvc_size)
-      - name: MAS_APP_SETTINGS_BIM_PVC_ACCESSMODE
-        value: $(params.mas_app_settings_bim_pvc_accessmode)
-      - name: MAS_APP_SETTINGS_BIM_MOUNT_PATH
-        value: $(params.mas_app_settings_bim_mount_path)
-      - name: MAS_APP_SETTINGS_BIM_PVC_NAME
-        value: $(params.mas_app_settings_bim_pvc_name)
-      - name: MAS_APP_SETTINGS_BIM_PVC_SIZE
-        value: $(params.mas_app_settings_bim_pvc_size)
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
       - name: ARGOCD_URL
@@ -304,7 +176,7 @@ spec:
         - -c
       name: gitops-suite-app-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:8.1.0-pre.ajw-manage
   workspaces:
     - name: configs
     - name: shared-gitops-configs

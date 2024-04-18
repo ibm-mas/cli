@@ -16,13 +16,14 @@ GitOps Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                 Cluster ID
       --gitops-config-dir ${COLOR_YELLOW}GITOPS_CONFIG_DIR${TEXT_RESET}                                   Directory that holds configuration to use
 
-
-IBM CP4D Service:
-      --cpd_product-version ${COLOR_YELLOW}CPD_PRODUCT_VERSION${TEXT_RESET}                             CP4D Product Version
-      --cpd-instance-namespace ${COLOR_YELLOW}CPD_INSTANCE_NAMESPACE${TEXT_RESET}                       CP4D Instance namespace to use
+IBM CP4D Service/Predict:
+  --cpd_product-version ${COLOR_YELLOW}CPD_PRODUCT_VERSION${TEXT_RESET}                                  CP4D Product Version
+  --cpd-instance-namespace ${COLOR_YELLOW}CPD_INSTANCE_NAMESPACE${TEXT_RESET}                            CP4D Instance namespace to use
+  --cpd-wsl-project-id ${COLOR_YELLOW}CPD_WSL_PROJECT_ID${TEXT_RESET}                                    CP4D WSL Project ID to use for Predict
+  --cpd-wml-url ${COLOR_YELLOW}CPD_WML_URL${TEXT_RESET}                                                  CP4D WML URL to use for Predict
+  --cpd-wml-instance-id ${COLOR_YELLOW}CPD_WML_INSTANCE_ID${TEXT_RESET}                                  CP4D WML Instance id to use for Predict
 
 Maximo Application Suite:
-
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                       IBM Suite Maximo Application Suite Instance ID
   -W, --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}                                     IBM Suite Maximo Application Suite workspace ID  
   --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                                                     IBM Suite Maximo Application Suite Application ID
@@ -33,40 +34,13 @@ Maximo Application Suite:
   --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}                                 MAS Manual Cert Management
   -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}                                             ArgoCD check flag, when set to true will make ArgoCD calls
 
-  --mas-appws-bindings-jdbc ${COLOR_YELLOW}MAS_APPWS_BINDINGS_JDBC${TEXT_RESET}                           APP WS JDBC Binding
-  --mas-appws-components ${COLOR_YELLOW}MAS_APPWS_COMPONENTS${TEXT_RESET}                                 APP WS Components
-  --mas-appws-settings ${COLOR_YELLOW}MAS_APPWS_SETTINGS${TEXT_RESET}                                     APP WS Settings
-
-  --mas-app-settings-db2-schema ${COLOR_YELLOW}MAS_APP_SETTINGS_DB2_SCHEMA${TEXT_RESET}                   DB2_SCHEMA
-  --mas-app-settings-demodata ${COLOR_YELLOW}MAS_APP_SETTINGS_DEMODATA${TEXT_RESET}                       DEMODATA
-  --mas-app-settings-tablespace ${COLOR_YELLOW}MAS_APP_SETTINGS_TABLESPACE${TEXT_RESET}                   TABLESPACE
-  --mas-app-settings-indexspace ${COLOR_YELLOW}MAS_APP_SETTINGS_INDEXSPACE${TEXT_RESET}                   INDEXSPACE
-  --mas-app-settings-base-language ${COLOR_YELLOW}MAS_APP_SETTINGS_BASE_LANGUAGE${TEXT_RESET}             Base Language
-  --mas-app-settings-secondary-languages ${COLOR_YELLOW}MAS_APP_SETTINGS_SECONDARY_LANGUAGES${TEXT_RESET} Secondary Languages
-  --mas-app-settings-aio-flag ${COLOR_YELLOW}MAS_APP_SETTINGS_AIO_FLAG${TEXT_RESET}                       AIO Flag
-  --mas-app-settings-server-bundles-size ${COLOR_YELLOW}MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE${TEXT_RESET} Server bundles size
+Maximo Manage:
+  --mas-app-settings-server-bundles-size ${COLOR_YELLOW}MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE${TEXT_RESET}   The Maximo Manage Serer Bundle size (snojms, jms, dev or small)
   --mas-app-settings-jms-queue-mount-path ${COLOR_YELLOW}MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH${TEXT_RESET} JMS queue mount path
 
-  --mas-app-settings-pvs-flag ${COLOR_YELLOW}MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG${TEXT_RESET}        PERSISTENT VOLUMES FLAG
-
-  --mas-app-settings-doclinks-pvc-accessmode ${COLOR_YELLOW}MAS_APP_SETTINGS_DOCLINKS_PVC_ACCESSMODE${TEXT_RESET} Doclinks pvc access mode
-  --mas-app-settings-doclinks-mount-path ${COLOR_YELLOW}MAS_APP_SETTINGS_DOCLINKS_MOUNT_PATH${TEXT_RESET}         Doclinks mount path
-  --mas-app-settings-doclinks-pvc-name ${COLOR_YELLOW}MAS_APP_SETTINGS_DOCLINKS_PVC_NAME${TEXT_RESET}             Doclinks pvc name
-  --mas-app-settings-doclinks-pvc-size ${COLOR_YELLOW}MAS_APP_SETTINGS_DOCLINKS_PVC_SIZE${TEXT_RESET}             Doclinks pvc size
-
-  --mas-app-settings-bim-pvc-accessmode ${COLOR_YELLOW}MAS_APP_SETTINGS_BIM_PVC_ACCESSMODE${TEXT_RESET}   BIM pvc access mode
-  --mas-app-settings-bim-mount-path ${COLOR_YELLOW}MAS_APP_SETTINGS_BIM_MOUNT_PATH${TEXT_RESET}           BIM mount path
-  --mas-app-settings-bim-pvc-name ${COLOR_YELLOW}MAS_APP_SETTINGS_BIM_PVC_NAME${TEXT_RESET}               BIM pvc name
-  --mas-app-settings-bim-pvc-size ${COLOR_YELLOW}MAS_APP_SETTINGS_BIM_PVC_SIZE${TEXT_RESET}               BIM pvc size
-
-  --mas-app-settings-jms-queue-pvc-accessmode ${COLOR_YELLOW}MAS_APP_SETTINGS_JMS_QUEUE_PVC_ACCESSMODE${TEXT_RESET}   JMS queue pvc access mode
-  --mas-app-settings-jms-queue-mount-path ${COLOR_YELLOW}MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH${TEXT_RESET}           JMS queue mount path
-  --mas-app-settings-jms-queue-pvc-name ${COLOR_YELLOW}MAS_APP_SETTINGS_JMS_QUEUE_PVC_NAME${TEXT_RESET}               JMS queue pvc name
-  --mas-app-settings-jms-queue-pvc-size ${COLOR_YELLOW}MAS_APP_SETTINGS_JMS_QUEUE_PVC_SIZE${TEXT_RESET}               JMS queue pvc size
-
 Secrets Manager:
-      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                             Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                           Secrets Manager key seperator string
+  --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                                 Secrets Manager path
+  --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                               Secrets Manager key seperator string
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}                                               Enable automatic push to GitHub
@@ -129,40 +103,7 @@ function gitops_suite_app_config_noninteractive() {
         export ARGOCD_CHECK=$1 && shift
         ;;
 
-      --mas-appws-bindings-jdbc)
-        export MAS_APPWS_BINDINGS_JDBC=$1 && shift
-        ;;
-      --mas-appws-components)
-        export MAS_APPWS_COMPONENTS=$1 && shift
-        ;;
-      --mas-appws-settings)
-        export MAS_APPWS_SETTINGS=$1 && shift
-        ;;
-
-      --mas-app-settings-db2-schema)
-        export MAS_APP_SETTINGS_DB2_SCHEMA=$1 && shift
-        ;;
-      --mas-app-settings-demodata)
-        export MAS_APP_SETTINGS_DEMODATA=$1 && shift
-        ;;
-      --mas-app-settings-tablespace)
-        export MAS_APP_SETTINGS_TABLESPACE=$1 && shift
-        ;;
-      --mas-app-settings-indexspace)
-        export MAS_APP_SETTINGS_INDEXSPACE=$1 && shift
-        ;;
-
-      --mas-app-settings-base-language)
-        export MAS_APP_SETTINGS_BASE_LANGUAGE=$1 && shift
-        ;;
-      --mas-app-settings-secondary-languages)
-        export MAS_APP_SETTINGS_SECONDARY_LANGUAGES=$1 && shift
-        ;;
-
-      --mas-app-settings-aio-flag)
-        export MAS_APP_SETTINGS_AIO_FLAG=$1 && shift
-        ;;
-
+      # Maximo Manage
       --mas-app-settings-server-bundles-size)
         export MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE=$1 && shift
         ;;
@@ -170,55 +111,22 @@ function gitops_suite_app_config_noninteractive() {
         export MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH=$1 && shift
         ;;
 
-      --mas-app-settings-pvs-flag)
-        export MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=$1 && shift
-        ;;
-
-      --mas-app-settings-doclinks-pvc-accessmode)
-        export MAS_APP_SETTINGS_DOCLINKS_PVC_ACCESSMODE=$1 && shift
-        ;;
-      --mas-app-settings-doclinks-mount-path)
-        export MAS_APP_SETTINGS_DOCLINKS_MOUNT_PATH=$1 && shift
-        ;;
-      --mas-app-settings-doclinks-pvc-name)
-        export MAS_APP_SETTINGS_DOCLINKS_PVC_NAME=$1 && shift
-        ;;
-      --mas-app-settings-doclinks-pvc-size)
-        export MAS_APP_SETTINGS_DOCLINKS_PVC_SIZE=$1 && shift
-        ;;
-
-      --mas-app-settings-bim-pvc-accessmode)
-        export MAS_APP_SETTINGS_BIM_PVC_ACCESSMODE=$1 && shift
-        ;;
-      --mas-app-settings-bim-mount-path)
-        export MAS_APP_SETTINGS_BIM_MOUNT_PATH=$1 && shift
-        ;;
-      --mas-app-settings-bim-pvc-name)
-        export MAS_APP_SETTINGS_BIM_PVC_NAME=$1 && shift
-        ;;
-      --mas-app-settings-bim-pvc-size)
-        export MAS_APP_SETTINGS_BIM_PVC_SIZE=$1 && shift
-        ;;
-
-      --mas-app-settings-jms-queue-pvc-accessmode)
-        export MAS_APP_SETTINGS_JMS_QUEUE_PVC_ACCESSMODE=$1 && shift
-        ;;
-      --mas-app-settings-jms-queue-mount-path)
-        export MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH=$1 && shift
-        ;;
-      --mas-app-settings-jms-queue-pvc-name)
-        export MAS_APP_SETTINGS_JMS_QUEUE_PVC_NAME=$1 && shift
-        ;;
-      --mas-app-settings-jms-queue-pvc-size)
-        export MAS_APP_SETTINGS_JMS_QUEUE_PVC_SIZE=$1 && shift
-        ;;
 
       # CP4D Service
       --cpd-product-version)
-      export CPD_PRODUCT_VERSION=$1 && shift
+        export CPD_PRODUCT_VERSION=$1 && shift
         ;;
       --cpd-instance-namespace)
-      export CPD_INSTANCE_NAMESPACE=$1 && shift
+        export CPD_INSTANCE_NAMESPACE=$1 && shift
+        ;;
+      --cpd-wsl-project-id)
+        export CPD_WSL_PROJECT_ID=$1 && shift
+        ;;
+      --cpd-wml-url)
+        export CPD_WML_URL=$1 && shift
+        ;;
+      --cpd-wml-instance-id)
+        export CPD_WML_INSTANCE_ID && shift
         ;;
 
       # Secrets Manager
@@ -398,44 +306,15 @@ function gitops_suite_app_config() {
 
   echo_reset_dim "CPD_WSL_PROJECT_ID ...................... ${COLOR_MAGENTA}${CPD_WSL_PROJECT_ID}"
   echo_reset_dim "CPD_PRODUCT_VERSION ..................... ${COLOR_MAGENTA}${CPD_PRODUCT_VERSION}"
-  echo_reset_dim "MAS_APPWS_SETTINGS_DEPLOYMENT_SIZE ...... ${COLOR_MAGENTA}${MAS_APPWS_SETTINGS_DEPLOYMENT_SIZE}"
   echo_reset_dim "CPD_WML_URL ............................. ${COLOR_MAGENTA}${CPD_WML_URL}"
   echo_reset_dim "CPD_WML_INSTANCE_ID ..................... ${COLOR_MAGENTA}${CPD_WML_INSTANCE_ID}"
 
-  echo_reset_dim "MAS_APPWS_BINDINGS_JDBC ................. ${COLOR_MAGENTA}${MAS_APPWS_BINDINGS_JDBC}"
-  echo_reset_dim "MAS_APPWS_COMPONENTS .................... ${COLOR_MAGENTA}${MAS_APPWS_COMPONENTS}"
-  echo_reset_dim "MAS_APPWS_SETTINGS ...................... ${COLOR_MAGENTA}${MAS_APPWS_SETTINGS}"
-
-  echo_reset_dim "DB2_SCHEMA............................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DB2_SCHEMA}"
-  echo_reset_dim "DEMODATA................................. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DEMODATA}"
-  echo_reset_dim "TABLESPACE............................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_TABLESPACE}"
-  echo_reset_dim "INDEXSPACE............................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_INDEXSPACE}"
-  echo_reset_dim "BASE_LANGUAGE ........................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_BASE_LANGUAGE}"
-  echo_reset_dim "SECONDARY_LANGUAGES ..................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_SECONDARY_LANGUAGES}"
-  echo_reset_dim "AIO_FLAG ................................ ${COLOR_MAGENTA}${MAS_APP_SETTINGS_AIO_FLAG}"
   echo
   echo_reset_dim "........................................."
   echo_reset_dim "SERVER_BUNDLES_SIZE ..................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE}"
   echo_reset_dim "JMS_QUEUE_MOUNT_PATH .................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH}"
-  echo_reset_dim "PV FLAG ................................. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG}"
   echo_reset_dim "........................................."  
   echo
-  echo_reset_dim "JMS_QUEUE_PVC_ACCESSMODE ................ ${COLOR_MAGENTA}${MAS_APP_SETTINGS_JMS_QUEUE_PVC_ACCESSMODE}"
-  echo_reset_dim "JMS_QUEUE_PVC_NAME ...................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_JMS_QUEUE_PVC_NAME}"
-  echo_reset_dim "JMS_QUEUE_PVC_SIZE ...................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_JMS_QUEUE_PVC_SIZE}"
-
-  echo_reset_dim "DOCLINKS_PVC_ACCESSMODE ................. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DOCLINKS_PVC_ACCESSMODE}"
-  echo_reset_dim "DOCLINKS_MOUNT_PATH	..................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DOCLINKS_MOUNT_PATH}"
-  echo_reset_dim "DOCLINKS_PVC_NAME ....................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DOCLINKS_PVC_NAME}"
-  echo_reset_dim "DOCLINKS_PVC_SIZE ....................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DOCLINKS_PVC_SIZE}"
-
-  echo_reset_dim "BIM_PVC_ACCESSMODE ...................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_BIM_PVC_ACCESSMODE}"
-  echo_reset_dim "BIM_MOUNT_PATH .......................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_BIM_MOUNT_PATH}"
-  echo_reset_dim "BIM_PVC_NAME ............................ ${COLOR_MAGENTA}${MAS_APP_SETTINGS_BIM_PVC_NAME}"
-  echo_reset_dim "BIM_PVC_SIZE ............................ ${COLOR_MAGENTA}${MAS_APP_SETTINGS_BIM_PVC_SIZE}"
-
-  echo_reset_dim "CUSTOMIZATION_ARCHIVE_URL ............... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL}"
-  echo_reset_dim "CUSTOMIZATION_ARCHIVE_NAME .............. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME}"
 
   echo_reset_dim "MAS Manual Cert Mgt ................... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
 
