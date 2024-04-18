@@ -1,4 +1,33 @@
 mas_appws_spec:
-  bindings: {{ MAS_APPWS_BINDINGS_JDBC | default( {'jdbc': 'workspace-application'}, true) }}
-  components: {{ MAS_APPWS_COMPONENTS | default('{base: {version: latest}, health: {version: latest}}', true) }}
-  settings: {{ MAS_APPWS_SETTINGS | default('{deployment: {persistentVolumes: [], serverBundles: [{bundleType: all, isDefault: true, isMobileTarget: true, isUserSyncTarget: true, name: all, replica: 1, routeSubDomain: all}]}, languages: {baseLang: EN, secondaryLangs: []}, aio: {install: true}, db: {dbSchema: maximo, maxinst: {demodata: true, db2Vargraphic: true, tableSpace: MAXDATA, indexSpace: MAXINDEX, bypassUpgradeVersionCheck: false}}, customizationList: []}', true) }}
+  bindings:
+    jdbc: workspace-application
+  components:
+    base: 
+      version: latest
+    health:
+      version: latest
+  settings:
+    aio:
+      install: true
+    db:
+      dbSchema: maximo
+      maxinst: 
+        demodata: true
+        db2Vargraphic: true
+        tableSpace: MAXDATA
+        indexSpace: MAXINDEX
+        bypassUpgradeVersionCheck: false
+    customizationList:
+    deployment:
+      persistentVolumes: []
+      serverBundles:
+        - bundleType: all
+          isDefault: true
+          isMobileTarget: true
+          isUserSyncTarget: true
+          name: all
+          replica: 1
+          routeSubDomain: all
+      languages:
+        baseLang: EN
+        secondaryLangs: []
