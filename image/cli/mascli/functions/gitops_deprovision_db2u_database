@@ -15,7 +15,7 @@ GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Working directory for GitOps repository
   -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
-  -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
+  -r, --region-id ${COLOR_YELLOW}REGION_ID${TEXT_RESET}              Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
   --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                IBM Suite Maximo Application Suite App that uses this db2u instance      
@@ -48,6 +48,7 @@ function gitops_deprovision_db2u_database_noninteractive() {
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   export REGION=${REGION:-${SM_AWS_REGION}}
+  export REGION_ID=${REGION_ID:-${REGION}}
   export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
 
   while [[ $# -gt 0 ]]
@@ -65,7 +66,7 @@ function gitops_deprovision_db2u_database_noninteractive() {
         export ACCOUNT_ID=$1 && shift
         ;;
       -r|--region-id)
-        export REGION=$1 && shift
+        export REGION_ID=$1 && shift
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
@@ -128,7 +129,7 @@ function gitops_deprovision_db2u_database_noninteractive() {
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_deprovision_db2u_database_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$GITOPS_VERSION" ]] && gitops_deprovision_db2u_database_help "GITOPS_VERSION is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_db2u_database_help "CLUSTER_ID is not set"
-  [[ -z "$REGION" ]] && gitops_deprovision_db2u_database_help "REGION is not set"
+  [[ -z "$REGION_ID" ]] && gitops_deprovision_db2u_database_help "REGION_ID is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_db2u_database_help "ACCOUNT_ID is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_help "MAS_INSTANCE_ID is not set"
   [[ -z "$MAS_APP_ID" ]] && gitops_db2u_help "MAS_APP_ID is not set"
@@ -156,7 +157,7 @@ function gitops_deprovision_db2u_database() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
   CONFIGS_FILE="${GITOPS_INSTANCE_DIR}/ibm-db2u-databases.yaml"
 
   # NOTE: must align with lock branch name used by gitops_db2u_database script
@@ -170,7 +171,7 @@ function gitops_deprovision_db2u_database() {
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID............................. ${COLOR_MAGENTA}${ACCOUNT_ID}"
-  echo_reset_dim "Region ID ............................. ${COLOR_MAGENTA}${REGION}"
+  echo_reset_dim "Region ID ............................. ${COLOR_MAGENTA}${REGION_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   echo_reset_dim "Force Remove Application Flag ......... ${COLOR_MAGENTA}${FORCE_REMOVAL}"
