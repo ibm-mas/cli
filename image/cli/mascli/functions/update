@@ -135,7 +135,7 @@ function validate_dro_migration() {
   # warn about DRO migration if UDS is running and MAS catalog is January 2024 or newer
   MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
 
-  if [[ $MAS_CATALOG_DATE -ge 240227 ]]; then
+  if [[ ($MAS_CATALOG_DATE -ge 240227) || ($MAS_CATALOG_DATE == "amd64") || ($MAS_CATALOG_DATE == "master") ]]; then
     if [[ "$NO_CONFIRM" != "true" ]] && [[ -z "${DRO_MIGRATION}" ]]; then
       prompt_for_confirm_default_yes "Do you want to proceed with uninstalling UDS and migrate to DRO?" DRO_MIGRATION
     fi
