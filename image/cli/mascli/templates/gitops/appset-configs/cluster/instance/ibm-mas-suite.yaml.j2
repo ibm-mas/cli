@@ -21,6 +21,23 @@ ibm_mas_suite:
   sls_mongo_username: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_USERNAME }}>"
   sls_mongo_password: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_PASSWORD }}>"
 
+  # suite dns
+  dns_provider: "{{ DNS_PROVIDER }}"
+  mas_workspace_id: "{{ MAS_WORKSPACE_ID }}"
+  mas_config_dir: "{{ MAS_CONFIG_DIR }}"
+  mas_domain: "{{ MAS_DOMAIN }}"
+  cis_email: "{{ CIS_EMAIL }}"
+  cis_crn: "{{ CIS_CRN }}"
+  cis_apikey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_APIKEY }}>"
+  cis_subdomain: "{{ CIS_SUBDOMAIN }}"
+  cis_enhanced_security: "{{ CIS_ENHANCED_SECURITY }}"
+  cis_proxy: "{{ CIS_PROXY }}"
+  cis_waf: "{{ CIS_WAF }}"
+  cis_service_name: "{{ CIS_SERVICE_NAME }}"
+  update_dns_entries: "{{ UPDATE_DNS_ENTRIES }}"
+  delete_wildcards: "{{ DELETE_WILDCARDS }}"
+  override_edge_certs: "{{ OVERRIDE_EDGE_CERTS }}"
+
   mas_channel: "{{ MAS_CHANNEL }}"
   icr_cp: {{ ICR_CP }}
   icr_cp_open: {{ ICR_CP_OPEN }}
