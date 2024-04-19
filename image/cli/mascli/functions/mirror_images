@@ -502,7 +502,14 @@ function mirror_to_registry() {
   # Lookup which CP4D version to mirror based on the MAS catalog
   # This will tell whether we need just to mirror CP4D images from ibm-operator-catalog (as is up to CP4D 4.6.x)
   # Or if we will need to mirror extra CP4D related images (specific to CP4D 4.8+)
-  get_cp4d_version_to_mirror
+  if [[ "$MIRROR_CP4D" == true ||
+    "$MIRROR_WD" == true ||
+    "$MIRROR_WSL" == true ||
+    "$MIRROR_WML" == true ||
+    "$MIRROR_SPARK" == true ]]
+  then
+    get_cp4d_version_to_mirror
+  fi
 
   # Ensure all environment variables are available to ansible-playbook
 
