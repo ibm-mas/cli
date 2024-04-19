@@ -464,14 +464,17 @@ function mirror_one_thing() {
     echo -en "\033[1K" # Clear current line
     echo -en "\033[u" # Restore cursor position
     if [[ $mirror_result == "0" ]];
-    then 
-    echo -e "${COLOR_GREEN}[SUCCESS] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
+    then
     echo
     cat $MOT_LOGFILE
-    else 
-      echo -e "${COLOR_RED}[FAILURE] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
+    echo
+    echo -e "${COLOR_GREEN}[SUCCESS] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
+    echo
+    else
       echo
       cat $MOT_LOGFILE
+      echo
+      echo -e "${COLOR_RED}[FAILURE] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
     fi
   else
     echo -e "${COLOR_MAGENTA}[SKIPPED] ${MOT_NAME}${TEXT_RESET}"
