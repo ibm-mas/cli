@@ -474,6 +474,8 @@ function mirror_one_thing() {
       echo
       cat $MOT_LOGFILE
       echo
+      ls /tmp/mirror/manifests/direct
+      echo
       echo -e "${COLOR_RED}[FAILURE] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
     fi
   else
