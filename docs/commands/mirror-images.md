@@ -39,7 +39,7 @@ Usage
 - `--mirror-visualinspection` Mirror images for IBM Maximo Visual Inspection
 
 ### Content Selection (Cloud Pak for Data)
-- `--mirror-cp4d` Mirror images for IBM Cloud Pak for Data Platform
+- `--mirror-cp4d CPD_PRODUCT_VERSION` Mirror images for IBM Cloud Pak for Data Platform. Optionally set the Cloud Pak for Data version that should have the images mirrored. If not set, default Cloud Pak for Data version will come from the chosen IBM Maximo Operator Catalog
 - `--mirror-wd` Mirror images for IBM Watson Discovery
 - `--mirror-wsl` Mirror images for IBM Watson Studio Local
 - `--mirror-wml` Mirror images for IBM Watson Machine Learning

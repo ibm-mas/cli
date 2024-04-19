@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# TODO: Need lookup the cpd version based on the provided catalog, then pass it along to the
-# mirror_one_thing $MIRROR_DEPS                 "Selected Dependencies"                 "$LOG_PREFIX-dependencies.log"     mirror_dependencies
-# which will then feed the mirror_dependencies.yml playbook that will mirror extra CP4D 4.8.0 images 
-
 function mirror_to_registry_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
@@ -50,11 +46,11 @@ Content Selection (Applications):
       --mirror-visualinspection                   Mirror images for IBM Maximo Visual Inspection
 
 Content Selection (Cloud Pak for Data):
-      --mirror-cp4d                                 Mirror images for IBM Cloud Pak for Data Platform
-      --mirror-wd                                   Mirror images for IBM Watson Discovery
-      --mirror-wsl                                  Mirror images for IBM Watson Studio Local
-      --mirror-wml                                  Mirror images for IBM Watson Machine Learning
-      --mirror-spark                                Mirror images for IBM Analytics Engine (Spark)
+      --mirror-cp4d ${COLOR_YELLOW}CPD_PRODUCT_VERSION${TEXT_RESET}$            Mirror images for IBM Cloud Pak for Data Platform. Optionally set the Cloud Pak for Data version that should have the images mirrored.
+      --mirror-wd                                                               Mirror images for IBM Watson Discovery
+      --mirror-wsl                                                              Mirror images for IBM Watson Studio Local
+      --mirror-wml                                                              Mirror images for IBM Watson Machine Learning
+      --mirror-spark                                                            Mirror images for IBM Analytics Engine (Spark)
 
 Content Selection (Other Dependencies):
       --mirror-cfs                                  Mirror images for IBM Cloud Pak Foundation Services
@@ -229,6 +225,7 @@ function mirror_to_registry_noninteractive() {
 
       # Content Selection (Cloud Pak for Data)
       --mirror-cp4d)
+        CP4D_VERSION=$1 && shift
         MIRROR_CP4D=true
         ;;
       --mirror-wd)
@@ -492,12 +489,15 @@ function show_mirror_status() {
 }
 
 function get_cp4d_version_to_mirror() {
+  # if 'CPD_PRODUCT_VERSION' is defined, then use it in precedence over the default CPD_PRODUCT_VERSION from the MAS catalog
+  if [ -z "$CPD_PRODUCT_VERSION" ]; then
     CPD_PRODUCT_VERSION=`yq -r .cpd_product_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml 2>/dev/null`
     if [[ "$CPD_PRODUCT_VERSION" == "null" ]]; then
       CPD_PRODUCT_VERSION=""
       MIRROR_CP4D=false
       echo "Could not determine Cloud Pak for Data version to mirror based on '$MAS_CATALOG_VERSION' catalog source. Skipping mirroring..."
     fi
+  fi
 }
 
 
