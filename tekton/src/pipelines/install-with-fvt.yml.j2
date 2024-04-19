@@ -169,7 +169,7 @@ spec:
     # 3.1 Cloud Pak for Data Platform
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-platform.yml.j2') | indent(4) }}
       runAfter:
-        - common-services
+        - cert-manager
 
     # 3.2 Watson Studio
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-wsl.yml.j2') | indent(4) }}

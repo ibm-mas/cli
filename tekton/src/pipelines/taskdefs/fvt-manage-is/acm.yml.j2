@@ -13,7 +13,7 @@
 # ------------------
 # ACM - UI
 # ------------------
-- name: fvt-manage-acm-ui-1
+- name: fvt-manage-acm-ui
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:

@@ -15,6 +15,7 @@
     - fvt-inventoryreceiving-mvt-android
     - fvt-service-request-mvt-android
     - fvt-technician-mvt-android
+    - fvt-manage-civil-selenium
 
 ## Minimum Verification Test for Mobile calibration MAS test suites
 - name: fvt-calibration-mvt-android
@@ -26,11 +27,12 @@
     - name: mobile_device_type
       value: android
     - name: fvt_test_suite
-      value: supervisor-mvt-android
+      value: calibration-mvt-android
   runAfter:
     - fvt-inventoryreceiving-mvt-android
     - fvt-service-request-mvt-android
     - fvt-technician-mvt-android
+    - fvt-manage-civil-selenium
 
 ## Mobile FVT - Issues and Transfers Android
 - name: fvt-issuesandtransfers-mvt-android
@@ -47,3 +49,16 @@
     - fvt-inventoryreceiving-mvt-android
     - fvt-service-request-mvt-android
     - fvt-technician-mvt-android
+    - fvt-manage-civil-selenium
+
+## Minimum Verification Test for Mobile Defects MAS test suites
+- name: fvt-civil-defects-mvt-android
+  {{ lookup('template', 'taskdefs/fvt-manage-civil/common/taskref-mobile.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage-civil/common/params-mobile.yml.j2') | indent(4) }}
+    - name: mobile_device_type
+      value: android
+    - name: fvt_test_suite
+      value: civil-defects-mvt-android
+  runAfter:
+    - fvt-manage-civil-selenium

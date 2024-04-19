@@ -87,6 +87,13 @@ spec:
               name: mas-fvt-mobile
               key: FVT_DIGEST_MOBILE_TESTNG
               optional: false
+        - name: FVT_DIGEST_MANAGE_CIVIL_SELENIUM
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-mobile
+              key: FVT_DIGEST_MANAGE_CIVIL_SELENIUM
+              optional: false
+
        
     
     - name: wait-for-pipelinerun

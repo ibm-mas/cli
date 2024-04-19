@@ -76,6 +76,22 @@ spec:
             name: mas-devops
             key: DEVOPS_BUILD_NUMBER
             optional: true
+      
+      # IBM Cloud Key is required for image scan suite
+      - name: IBMCLOUD_APIKEY
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt
+            key: IBMCLOUD_APIKEY
+            optional: true
+
+      # FVT_ENABLE_IMAGE_SCAN os required for image scan suite
+      - name : FVT_ENABLE_IMAGE_SCAN
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: FVT_ENABLE_IMAGE_SCAN
+            optional: true
 
       # The name of the test suite inside the container we will execute (/opt/ibm/test/suites/{TEST_SUITE})
       - name: TEST_SUITE

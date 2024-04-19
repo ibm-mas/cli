@@ -1,0 +1,44 @@
+# ------------------
+# Aviation - API Tests
+# ------------------
+- name: fvt-manage-aviation-api
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: aviation-api
+  runAfter:
+    - fvt-manage-setup-is # Tests must always start after fvt-manage-setup-is
+
+# ------------------
+# Aviation - UI
+# TODO: Aviation has a different setup that does not require setup-is. IS team will need to review that
+# ------------------
+
+{# - name: fvt-manage-aviation-ui-setup
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mfa-setup
+    - name: fvt_mas_appws_component
+      value: aviation
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-setup-is # Tests must always start after fvt-manage-setup-is
+
+- name: fvt-manage-aviation-ui
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mfa-1
+    - name: fvt_mas_appws_component
+      value: aviation
+    - name: fvt_test_driver
+      value: tpae 
+  runAfter:
+    - fvt-manage-aviation-ui-setup #}
