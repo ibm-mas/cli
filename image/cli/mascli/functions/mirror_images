@@ -225,6 +225,9 @@ function mirror_to_registry_noninteractive() {
 
       # Content Selection (Cloud Pak for Data)
       --mirror-cp4d)
+        if [ -n "$1" ]; then
+          CPD_PRODUCT_VERSION=$1 && shift
+        fi
         MIRROR_CP4D=true
         ;;
       --cp4d-version)
@@ -632,10 +635,9 @@ function mirror_to_registry() {
   echo
   reset_colors
   echo_h4 "Content Selection (Cloud Pak for Data)" "    "
-  if [ -z "$CPD_PRODUCT_VERSION" ]; then
-    show_mirror_status "IBM Cloud Pak for Data (CP4D) ......." $MIRROR_CP4D
-  else
-    show_mirror_status "IBM Cloud Pak for Data (CP4D) ......." $MIRROR_CP4D $CPD_PRODUCT_VERSION
+  show_mirror_status "IBM Cloud Pak for Data (CP4D) ......." $MIRROR_CP4D
+  if [[ "$MIRROR_CP4D" == true && -n "$CPD_PRODUCT_VERSION" ]]; then
+     echo "+ Version .......................... $CPD_PRODUCT_VERSION"
   fi
   show_mirror_status "IBM Watson Discovery ................" $MIRROR_WD
   show_mirror_status "IBM Watson Studio ..................." $MIRROR_WSL
