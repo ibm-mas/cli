@@ -66,7 +66,6 @@ function gitops_masapp_config_noninteractive() {
   export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
 
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
-  export REGION=${REGION:-${SM_AWS_REGION}}
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"} # use an in-cluster argocd worker (which fvtsaas does)
 
 
@@ -246,7 +245,7 @@ function gitops_masapp_config() {
 
   # NOTE: must align with lock branch name used by gitops_deprovision_app_config script
   # as both of these scrtipts modify the same file
-  GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-masapp-config" "${ACCOUNT_ID}" "${REGION_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
+  GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-masapp-config" "${ACCOUNT_ID}" "${REGION}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-masapp-config
   rm -rf $TEMP_DIR
