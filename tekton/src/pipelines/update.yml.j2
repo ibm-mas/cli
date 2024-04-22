@@ -8,13 +8,12 @@ metadata:
   name: mas-update
 {% endif %}
 spec:
-
 {% if wait_for_install == true %}
   workspaces:
     # Shared storage to hold mustgather output for tasks
     - name: shared-mustgather
 {% endif %}
-  
+
   params:
 {% if wait_for_install == true %}
     # MAS Instance ID (the instance who's install to wait for)
@@ -25,18 +24,6 @@ spec:
     - name: fvt_image_digest
       type: string
 {% endif %}
-
-    - name: mas_catalog_image
-      type: string
-      default: ""
-
-    - name: icr_username
-      type: string
-      default: ""
-
-    - name: icr_password
-      type: string
-      default: ""
 
     # Tekton Pipeline image pull policy (for ibmmas/cli images)
     - name: image_pull_policy
@@ -209,8 +196,8 @@ spec:
 
     # 1. Verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
-        'name': 'pre-update-check', 
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
+        'name': 'pre-update-check',
         'devops_suite_name': 'pre-update-check'
       }) | indent(4) }}
 {% if wait_for_install == true %}
@@ -254,7 +241,7 @@ spec:
 
     # 4. Verify health of the cluster before we consider the update complete
     # -------------------------------------------------------------------------
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
         'name': 'post-update-verify',
         'devops_suite_name': 'post-update-verify'
       }) | indent(4) }}

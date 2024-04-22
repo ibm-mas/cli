@@ -2,11 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-{% if wait_for_provision == true %}
-  name: gitops-provision-mas-instance-after-provision
-{% else %}
   name: gitops-provision-mas-instance
-{% endif %}
 spec:
   workspaces:
     - name: configs
@@ -17,15 +13,6 @@ spec:
     - name: shared-gitops-configs
   description: Provision MAS GitOps Instance
   params:
-{% if wait_for_provision == true %}
-      # Name of the PipelineRun to wait for
-    - name: pipelinerun_name
-      type: string
-    - name: ignore_failure
-      type: string
-      default: "False"
-      description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
-{% endif %}
     - name: cluster_name
       type: string
     - name: argocd_url
@@ -137,24 +124,7 @@ spec:
       type: string
 
   tasks:
-{% if wait_for_provision == true %}
-    # 0. Wait for the provsion pipeline to complete
-    # -------------------------------------------------------------------------
-    - name: wait-for-provision
-      params:
-        - name: pipelinerun_name
-          value: $(params.pipelinerun_name)
-        - name: ignore_failure
-          value: $(params.ignore_failure)
-      taskRef:
-        kind: Task
-        name: mas-fvt-wait-for-pipelinerun
-{% endif %}
     - name: gitops-license
-{% if wait_for_provision == true %}
-      runAfter:
-        - wait-for-provision
-{% endif %}
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -176,10 +146,6 @@ spec:
         kind: Task
         name: gitops-license
     - name: gitops-suite-dns
-{% if wait_for_provision == true %}
-      runAfter:
-        - wait-for-provision
-{% endif %}
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -229,10 +195,6 @@ spec:
         - name: configs
           workspace: configs
     - name: gitops-suite-certs
-{% if wait_for_provision == true %}
-      runAfter:
-        - wait-for-provision
-{% endif %}
       params:
         - name: cluster_name
           value: $(params.cluster_name)

@@ -2,11 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-{% if wait_for_provision == true %}
-  name: gitops-mas-fvt-preparer-after-provision
-{% else %}
   name: gitops-mas-fvt-preparer-pipeline
-{% endif %}
 spec:
   workspaces:
     - name: configs
@@ -14,15 +10,6 @@ spec:
 
   description: Gitops MAS FVT pipeline
   params:
-{% if wait_for_provision == true %}
-      # Name of the PipelineRun to wait for
-    - name: pipelinerun_name
-      type: string
-    - name: ignore_failure
-      type: string
-      default: "False"
-      description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
-{% endif %}
     - name: cluster_name
       type: string
     - name: account_id
@@ -146,7 +133,7 @@ spec:
     - name: launchfvt_manage_is
       type: string
       default: "true"
-      
+
     - name: mas_app_channel_iot
       type: string
       default: ""
@@ -180,24 +167,7 @@ spec:
       default: ""
 
   tasks:
-{% if wait_for_provision == true %}
-    # 0. Wait for the provsion pipeline to complete
-    # -------------------------------------------------------------------------
-    - name: wait-for-provision
-      params:
-        - name: pipelinerun_name
-          value: $(params.pipelinerun_name)
-        - name: ignore_failure
-          value: $(params.ignore_failure)
-      taskRef:
-        kind: Task
-        name: mas-fvt-wait-for-pipelinerun
-{% endif %}
     - name: mas-launchfvt
-{% if wait_for_provision == true %}
-      runAfter:
-        - wait-for-provision
-{% endif %}
       params:
         - name: cluster_name
           value: $(params.cluster_name)
