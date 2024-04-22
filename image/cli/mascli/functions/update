@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. $CLI_DIR/functions/internal/install_config_storage_classes
+
 function update_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
@@ -151,7 +153,10 @@ function validate_dro_migration() {
           echo -e "UDS will be uninstalled and MAS will migrate to use DRO (Data Reporter Operator). All compatible bascfg configuration will be updated and configured to use DRO ${COLOR_RESET}"
           echo
           if [[ "$NO_CONFIRM" != "true" ]] && [[ -z "${DRO_STORAGE_CLASS}" ]]; then
-            prompt_for_input "Enter the name of a RWO Storage Class to configure DRO, leave it blank if you want the CLI to autodetect a storage class:" DRO_STORAGE_CLASS
+            echo -e "Checking Available RWO Storage classes to configure DRO. ${COLOR_RESET}"
+            install_config_storage_classes
+            DRO_STORAGE_CLASS=$STORAGE_CLASS_RWO
+            echo -e "selected storage class ${DRO_STORAGE_CLASS}"
           else
             DRO_STORAGE_CLASS=""
           fi

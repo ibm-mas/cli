@@ -367,6 +367,10 @@ spec:
       taskRef:
         kind: Task
         name: mas-devops-uds
+      when:
+        - input: "$(params.dro_migration)"
+          operator: in
+          values: ["true", "True"]
       runAfter:
         - update-common-services
       params:
