@@ -238,7 +238,7 @@ function gitops_masapp_config() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/masapps
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
   export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
 
   # NOTE: must align with lock branch name used by gitops_deprovision_app_config script
@@ -337,18 +337,6 @@ function gitops_masapp_config() {
   sm_login
 
 
-  # Define cluster-level secrets used
-  # ---------------------------------------------------------------------------
-  # Note that this cluster-level secret is set up by gitops-cluster
-
-
-
-  # Get the cluster-level secrets used
-  # ---------------------------------------------------------------------------
-  # Note that this cluster-level secret is set up by gitops-mongo
-
-
-
   # Instance-level secrets to use
   # ---------------------------------------------------------------------------
   declare -A tls_secret_name
@@ -395,7 +383,7 @@ function gitops_masapp_config() {
   # Set and Validate App Names
   # ---------------------------------------------------------------------------
   INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-  MASAPP_APP="ma.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
+  MASAPP_APP="ma-cfg.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
 
   validate_app_name "${INSTANCE_ROOT_APP}"
   validate_app_name "${MASAPP_APP}"
@@ -532,10 +520,10 @@ function gitops_masapp_config() {
   fi
 
   # Remove any existing config with this name
-  /usr/bin/yq 'del(.ibm_mas_masapps[] | select(.mas_app_id == "'${MAS_APP_ID}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
+  /usr/bin/yq 'del(.ibm_mas_masapp_configs[] | select(.mas_app_id == "'${MAS_APP_ID}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
 
   # Render the appropriate template for the config into a new file
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config.yaml.j2 | /usr/bin/yq '{"ibm_mas_masapps": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config.yaml.j2 | /usr/bin/yq '{"ibm_mas_masapp_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
 
   # Merge the two files
   /usr/bin/yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
@@ -543,7 +531,7 @@ function gitops_masapp_config() {
   # sort the configs by mas_app_id.
   # This way, we maintain the same ordering of configs in the file (even though we may have deleted and recreated a config if it's an update)
   # This eliminates confusing commits to gitops-envs and allows us to determine if anything has actually changed
-  /usr/bin/yq -i '.ibm_mas_masapps |= sort_by(.mas_app_id)' $CONFIGS_FILE
+  /usr/bin/yq -i '.ibm_mas_masapp_configs |= sort_by(.mas_app_id)' $CONFIGS_FILE
 
   echo_h2 "Updated configuration file (${CONFIGS_FILE})"
   if [ -f ${CONFIGS_FILE} ]; then
