@@ -452,7 +452,6 @@ function gitops_masapp_config() {
   fi
   echo 
   echo "- MAS_APPWS_SPEC CONTENT ${MAS_APPWS_SPEC}"
-  export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
 
   if [[ "${MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE}" == "snojms" || "${MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE}" == "dev" ]]; then
     export SERVER_BUNDLE_EAR_FILENAME="maximo-all"
