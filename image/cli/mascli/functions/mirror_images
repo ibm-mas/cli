@@ -634,7 +634,7 @@ function mirror_to_registry() {
   echo
   reset_colors
   if [ -n "$CPD_PRODUCT_VERSION" ];then
-    echo_h4 "Content Selection (Cloud Pak for Data - $CPD_PRODUCT_VERSION)" "    "
+    echo_h4 "Content Selection (Cloud Pak for Data v$CPD_PRODUCT_VERSION)" "    "
   else
     echo_h4 "Content Selection (Cloud Pak for Data)" "    "
   fi
