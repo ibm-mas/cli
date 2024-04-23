@@ -68,6 +68,9 @@ spec:
         - input: "$(params.mas_app_channel_iot)"
           operator: notin
           values: [""]
+      workspaces:
+        - name: pod-templates
+          workspace: shared-pod-templates
 
 
     # 2. IoT FVT
@@ -98,8 +101,6 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
-        - name: pod-templates
-          workspace: shared-pod-templates
 
   finally:
     # 3. Run CV
