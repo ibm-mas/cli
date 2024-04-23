@@ -341,6 +341,7 @@ Currently supported config files:
   - ibm-mas-manage-civil.yml
   - ibm-mas-manage-icd.yml
   - ibm-mas-manage-health.yml
+  - ibm-mas-health.yml
 
 For examples on these config files take a look into the pre-defined configs: [BestEffort](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/best-effort) and [Guaranteed](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/guaranteed). More information on podTemplates can be found in our official IBM documentation [here](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=configuring-customizing-workloads).
 
