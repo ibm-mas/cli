@@ -219,12 +219,17 @@ function gitops_bootstrap() {
   echo "${COLOR_GREEN}OpenShift GitOps Operator is installed and ready${COLOR_RESET}"
   echo
 
-  # 10. Fecth Argocd Details
+  # 11. Fecth Argocd Details
   if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
     export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}')
     export ARGOCD_USERNAME=admin
     export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' | base64 -d ; echo)
   fi
+
+  # 12. Add cluster to ARgoCD
+  argocd login ${ARGOCD_URL} --username ${ARGOCD_USERNAME} --password ${ARGOCD_PASSWORD} --insecure
+  export K8S_AUTH_CONTEXT=$(oc whoami -c)
+  argocd cluster add $K8S_AUTH_CONTEXT -y
 
   echo "${COLOR_GREEN}ArgoCD is now available at https://${ARGOCD_URL} username is: admin and password: ${ARGOCD_PASSWORD} ${COLOR_RESET}"
   echo
