@@ -123,11 +123,6 @@ spec:
       runAfter:
         - pre-install-check
 
-    # 1.5 Configure Turbonomic
-    {{ lookup('template', 'taskdefs/cluster-setup/turbonomic.yml.j2') | indent(4) }}
-      runAfter:
-        - pre-install-check
-
 
     # 2. Install Universal Dependencies
     # -------------------------------------------------------------------------
