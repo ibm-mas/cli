@@ -26,7 +26,8 @@ spec:
           "source": {
             "targetRevision": "{{ APP_REVISION }}"
           },
-          "argoapp_namespace": "{{ ARGOAPP_NAMESPACE }}"
+          "argoapp_namespace": "{{ ARGOAPP_NAMESPACE }}",
+          "argo_project_apps": "mas"
         }
   syncPolicy:
     automated:
