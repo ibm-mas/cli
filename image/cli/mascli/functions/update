@@ -92,7 +92,7 @@ function validate_existing_mongo() {
     if [[ $MONGODB_CURRENT_VERSION != "" ]]; then
     
       # Target mongo version will be defined by chosen catalog/casebundle
-      MONGODB_TARGET_VERSION=`yq -r .mongo_extras_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml`
+      MONGODB_TARGET_VERSION=`yq -r .mongo_extras_version ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml`
 
       MONGODB_CURRENT_MAJORMINOR_VERSION=${MONGODB_CURRENT_VERSION:0:3}
       MONGODB_TARGET_MAJORMINOR_VERSION=${MONGODB_TARGET_VERSION:0:3}
