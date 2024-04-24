@@ -45,6 +45,23 @@ spec:
       type: string
     - name: github_pat
       type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
+    - name: secrets_path
+      type: string
+    - name: avp_type
+      type: string
+      default: aws
+    - name: secrets_key_seperator
+      type: string
+      default: /
+    - name: ibmcloud_apikey
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-mas-initiator
     env:
@@ -88,6 +105,20 @@ spec:
         value: $(params.mas_app_channel_visualinspection)
       - name: GITHUB_PAT
         value: $(params.github_pat)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: SM_AWS_SECRET_ACCESS_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: SM_AWS_ACCESS_KEY_ID
+        value: $(params.avp_aws_access_key)
+      - name: SECRETS_PATH
+        value: $(params.secrets_path)
+      - name: AVP_TYPE
+        value: $(params.avp_type)
+      - name: SECRETS_KEY_SEPERATOR
+        value: $(params.secrets_key_seperator)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
   steps:
     - args:
       - |-
@@ -102,6 +133,25 @@ spec:
           echo "Account is not aws-dev, this task is not allowed for $ACCOUNT"
           exit 1
         fi
+
+        if [ -n $IBMCLOUD_APIKEY ]; then
+
+          export SECRET_NAME=${ACCOUNT}${SECRETS_KEY_SEPERATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPERATOR}cis
+          export SECRET_VALUE="{\"ibm_apikey\":\"$IBMCLOUD_APIKEY\"}"
+
+          aws configure set aws_access_key_id ${SM_AWS_ACCESS_KEY_ID}
+          aws configure set aws_secret_access_key ${SM_AWS_SECRET_ACCESS_KEY}
+          aws configure set default.region $SM_AWS_REGION
+          export AWS_REGION=$SM_AWS_REGION
+          aws configure list
+
+          aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${SECRET_NAME} --output json 2> /dev/null
+          aws secretsmanager create-secret --name ${SECRET_NAME} --secret-string "${SECRET_VALUE}" || exit 1
+
+          echo "created AWS secret secret ${SECRET_NAME} with value ${SECRET_NAME:0:6}<snip> in region $(params.avp_aws_secret_region)"
+
+        fi
+
 
         export TARGET_LOCAL_DIR="/tmp/target_repo"
         mkdir -p $TARGET_LOCAL_DIR

@@ -3,7 +3,7 @@ merge-key: "{{ ACCOUNT_ID }}/{{ REGION_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID
 ibm_mas_suite:
   cert_manager_namespace: "{{ CERT_MANAGER_NAMESPACE }}"
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
-  domain: "{{ MAS_DOMAIN }}"
+  domain: "{{ DOMAIN }}"
   mas_instance_id: "{{ MAS_INSTANCE_ID }}"
   cluster_id: "{{ CLUSTER_ID }}"
   sm_aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AWS_ACCESS_KEY_ID }}>"
@@ -20,6 +20,25 @@ ibm_mas_suite:
   docdb_master_info: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DOCDB_MASTER_INFO }}>"
   sls_mongo_username: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_USERNAME }}>"
   sls_mongo_password: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_PASSWORD }}>"
+
+  # suite dns
+  dns_provider: "{{ DNS_PROVIDER }}"
+  mas_workspace_id: "{{ MAS_WORKSPACE_ID }}"
+  mas_config_dir: "{{ MAS_CONFIG_DIR }}"
+  mas_domain: "{{ MAS_DOMAIN }}"
+  cis_mas_domain: "{{ CIS_MAS_DOMAIN }}"
+  ocp_cluster_domain: "{{ OCP_CLUSTER_DOMAIN }}"
+  cis_subdomain: "{{ CIS_SUBDOMAIN }}"
+  cis_email: "{{ CIS_EMAIL }}"
+  cis_crn: "{{ CIS_CRN }}"
+  cis_apikey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_APIKEY }}>"
+  cis_enhanced_security: "{{ CIS_ENHANCED_SECURITY }}"
+  cis_proxy: "{{ CIS_PROXY }}"
+  cis_waf: "{{ CIS_WAF }}"
+  cis_service_name: "{{ CIS_SERVICE_NAME }}"
+  update_dns_entries: "{{ UPDATE_DNS_ENTRIES }}"
+  delete_wildcards: "{{ DELETE_WILDCARDS }}"
+  override_edge_certs: "{{ OVERRIDE_EDGE_CERTS }}"
 
   mas_channel: "{{ MAS_CHANNEL }}"
   icr_cp: {{ ICR_CP }}

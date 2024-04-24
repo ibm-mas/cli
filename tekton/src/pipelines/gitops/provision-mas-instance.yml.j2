@@ -99,6 +99,10 @@ spec:
       default: cis
     - name: cis_subdomain
       type: string
+    - name: cis_mas_domain
+      type: string
+    - name: ocp_cluster_domain
+      type: string
     - name: mas_manual_cert_mgmt
       type: string
     - name: cert_manager_namespace
@@ -108,10 +112,13 @@ spec:
       type: string
     - name: cis_enhanced_security
       type: string
+      default: "True"
     - name: cis_proxy
       type: string
+      default: "True"
     - name: override_edge_certs
       type: string
+      default: "True"
     - name: cis_email
       type: string
     - name: cis_crn
@@ -122,6 +129,16 @@ spec:
       type: string
     - name: mas_app_id
       type: string
+
+    - name: cis_waf
+      type: string
+      default: "True"
+    - name: update_dns_entries
+      type: string
+      default: "True"
+    - name: delete_wildcards
+      type: string
+      default: "True"
 
   tasks:
     - name: gitops-license
@@ -297,6 +314,37 @@ spec:
           value: $(params.cluster_url)
         - name: cert_manager_namespace
           value: $(params.cert_manager_namespace)
+
+        - name: dns_provider
+          value: $(params.dns_provider)
+        - name: cis_subdomain
+          value: $(params.cis_subdomain)
+        - name: cis_mas_domain
+          value: $(params.cis_mas_domain)
+        - name: ocp_cluster_domain
+          value: $(params.ocp_cluster_domain)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: cis_enhanced_security
+          value: $(params.cis_enhanced_security)
+        - name: cis_proxy
+          value: $(params.cis_proxy)
+        - name: override_edge_certs
+          value: $(params.override_edge_certs)
+        - name: cis_email
+          value: $(params.cis_email)
+        - name: cis_crn
+          value: $(params.cis_crn)
+        - name: mas_config_dir
+          value: $(params.mas_config_dir)
+        - name: cis_service_name
+          value: $(params.cis_service_name)
+        - name: cis_waf
+          value: $(params.cis_waf)
+        - name: update_dns_entries
+          value: $(params.update_dns_entries)
+        - name: delete_wildcards
+          value: $(params.delete_wildcards)
 
       taskRef:
         kind: Task
