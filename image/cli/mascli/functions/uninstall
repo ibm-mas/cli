@@ -281,7 +281,7 @@ function launch_uninstall() {
   echo
 }
 
-function save_config(){
+function save_uninstall_config(){
   
   export MAS_INSTANCE_ID
   export MAS_NS
@@ -306,7 +306,7 @@ function uninstall() {
   check_mas_project_exists
   prompt_for_deps_to_uninstall
   define_cert_manager_to_uninstall
-  save_config
+  save_uninstall_config
   review_uninstall_settings
   launch_uninstall
 }
