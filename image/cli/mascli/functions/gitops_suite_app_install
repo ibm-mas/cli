@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-function gitops_masapp_install_help() {
+function gitops_suite_app_install_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_masapp_install [options]
+  mas gitops_suite_app_install [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -46,10 +46,10 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_masapp_install_noninteractive() {
+function gitops_suite_app_install_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-masapp-install commit"
+  GIT_COMMIT_MSG="gitops-suite-app-install commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
@@ -147,57 +147,57 @@ function gitops_masapp_install_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_masapp_install_help
+        gitops_suite_app_install_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_masapp_install_help "Usage Error: Unsupported option \"${key}\" "
+        gitops_suite_app_install_help "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$ACCOUNT_ID" ]] && gitops_masapp_install_help "ACCOUNT_ID is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_masapp_install_help "CLUSTER_ID is not set"
-  [[ -z "$REGION" ]] && gitops_masapp_install_help "REGION is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_suite_app_install_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_suite_app_install_help "CLUSTER_ID is not set"
+  [[ -z "$REGION" ]] && gitops_suite_app_install_help "REGION is not set"
 
 
-  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_masapp_install_help "MAS_INSTANCE_ID is not set"
-  [[ -z "$MAS_APP_ID" ]] && gitops_masapp_install_help "MAS_APP_ID is not set"
-  [[ -z "$MAS_APP_CHANNEL" ]] && gitops_masapp_install_help "MAS_APP_CHANNEL is not set"
-  [[ -z "$MAS_APP_CATALOG_SOURCE" ]] && gitops_masapp_install_help "MAS_APP_CATALOG_SOURCE is not set"
-  [[ -z "$MAS_APP_API_VERSION" ]] && gitops_masapp_install_help "MAS_APP_API_VERSION is not set"
-  [[ -z "$MAS_APP_KIND" ]] && gitops_masapp_install_help "MAS_APP_KIND is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_suite_app_install_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$MAS_APP_ID" ]] && gitops_suite_app_install_help "MAS_APP_ID is not set"
+  [[ -z "$MAS_APP_CHANNEL" ]] && gitops_suite_app_install_help "MAS_APP_CHANNEL is not set"
+  [[ -z "$MAS_APP_CATALOG_SOURCE" ]] && gitops_suite_app_install_help "MAS_APP_CATALOG_SOURCE is not set"
+  [[ -z "$MAS_APP_API_VERSION" ]] && gitops_suite_app_install_help "MAS_APP_API_VERSION is not set"
+  [[ -z "$MAS_APP_KIND" ]] && gitops_suite_app_install_help "MAS_APP_KIND is not set"
 
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_masapp_install_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_masapp_install_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_masapp_install_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_masapp_install_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_suite_app_install_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_suite_app_install_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_suite_app_install_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_suite_app_install_help "GIT_BRANCH is not set"
   fi
 
   if [[ -z "$MAS_APP_SPEC_YAML" ]]; then
     if [[ "${MAS_APP_ID}" == "iot" ]]; then
-      [[ "${DEFAULT_BLOCK_STORAGE_CLASS}" == "" ]] && gitops_masapp_install_help "DEFAULT_BLOCK_STORAGE_CLASS is not set"
+      [[ "${DEFAULT_BLOCK_STORAGE_CLASS}" == "" ]] && gitops_suite_app_install_help "DEFAULT_BLOCK_STORAGE_CLASS is not set"
     fi
     if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
-      [[ "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_masapp_install_help "DEFAULT_FILE_STORAGE_CLASS is not set"
+      [[ "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_install_help "DEFAULT_FILE_STORAGE_CLASS is not set"
     fi    
   fi
 
 }
 
-function gitops_masapp_install() {
+function gitops_suite_app_install() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_masapp_install_noninteractive "$@"
+    gitops_suite_app_install_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_masapp_install_interactive
+    gitops_suite_app_install_interactive
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -206,7 +206,7 @@ function gitops_masapp_install() {
   export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
 
   CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/tmp-masapp-install
+  TEMP_DIR=$CURRENT_DIR/tmp-suite-app-install
   rm -rf $TEMP_DIR
   mkdir -p $TEMP_DIR
 
