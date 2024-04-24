@@ -84,3 +84,13 @@ podTemplates:
           limits:
             cpu: 1
             memory: 1024Mi
+  - name: healthext-entitymgr-ws
+    containers:
+      - name: healthext
+        resources:
+          requests:
+            cpu: 1
+            memory: 1024Mi
+          limits:
+            cpu: 1
+            memory: 1024Mi

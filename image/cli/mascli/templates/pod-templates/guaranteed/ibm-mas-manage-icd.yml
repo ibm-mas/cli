@@ -9,8 +9,8 @@ podTemplates:
       - name: slack-proxy
         resources:
           requests:
-            cpu: 1
-            memory: 512Mi
+            cpu: 3
+            memory: 16Gi
           limits:
-            cpu: 1
-            memory: 512Mi
+            cpu: 3
+            memory: 16Gi

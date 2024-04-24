@@ -36,3 +36,7 @@ podTemplates:
     containers:
       - name: slackproxy
         resources: {}
+  - name: healthext-entitymgr-ws
+    containers:
+      - name: healthext
+        resources: {}
