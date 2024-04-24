@@ -178,8 +178,9 @@ spec:
         export DOMAIN=$(echo -n $OCP_SERVER | sed -n -e 's/^.*api.//p' | cut -d: -f1)
         yq --arg MASDOMAIN fvtsaas.apps.$DOMAIN -iY '.mas_instance.domain= $MASDOMAIN' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
 
-        # Update the ocp server url in the cluster-params.yaml. Assume fvtsaas here
+        # Update the ocp server url & ingress domain url in the cluster-params.yaml. Assume fvtsaas here
         yq --arg URL $OCP_SERVER -iY '.cluster.url= $URL' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+        yq --arg URL apps.$DOMAIN -iY '.cluster.domain= $URL' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
 
         # Update the channel in the mas-instance-params.yaml. Assume fvtsaas here
         yq --arg MAS_CHANNEL $MAS_CHANNEL -iY '.mas_instance.channel= $MAS_CHANNEL' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
