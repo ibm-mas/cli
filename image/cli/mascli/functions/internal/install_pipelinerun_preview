@@ -68,12 +68,35 @@ function install_pipelinerun_preview() {
     if [[ "${MAS_APPWS_COMPONENTS}" != '' ]]
     then echo_reset_dim " - Components ............. ${COLOR_MAGENTA}${MAS_APPWS_COMPONENTS}"
     fi
-
+    
+    if [[ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" != "" ]]
+    then 
+      echo_reset_dim " - Server bundle .......... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE:-<default>}"
+    fi
     if [[ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "jms" || "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "snojms" ]]
-    then echo_reset_dim " - Configure JMS .......... ${COLOR_MAGENTA}true"
+    then 
+      echo_reset_dim " - Configure JMS .......... ${COLOR_MAGENTA}true"
+      echo_reset_dim " - Enable JMS queues ...... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DEFAULT_JMS:-<false>}"
     fi
 
-    echo_reset_dim " - Include Demo Data ...... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DEMODATA}"
+    if [[ "$MAS_APP_SETTINGS_SERVER_TIMEZONE" != "" ]]
+    then echo_reset_dim " - Server Timezone ........ ${COLOR_MAGENTA}${MAS_APP_SETTINGS_SERVER_TIMEZONE}"
+    fi
+
+    if [[ "$MAS_APP_SETTINGS_BASE_LANG" != "" ]]
+    then echo_reset_dim " - Base Language .......... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_BASE_LANG}"
+    fi
+
+    if [[ "$MAS_APP_SETTINGS_SECONDARY_LANGS" != "" ]]
+    then echo_reset_dim " - Additional Languages ... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_SECONDARY_LANGS}"
+    fi
+
+    echo_reset_dim " - Database Settings"
+    echo_reset_dim "   - Schema ............... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_INDEXSPACE:-<MAXINDEX>}"
+    echo_reset_dim "   - Username ............. ${COLOR_MAGENTA}${MAS_APP_SETTINGS_DB2_SCHEMA:-<db2inst1>}"
+    echo_reset_dim "   - Tablespace ........... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_TABLESPACE:-<MAXDATA>}"
+    echo_reset_dim "   - Indexspace ........... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_INDEXSPACE:-<MAXINDEX>}"
+
   fi
 
   if [[ "${MAS_APP_CHANNEL_PREDICT}" == '' ]]
@@ -165,7 +188,12 @@ function install_pipelinerun_preview() {
 
     echo_reset_dim "System Instance ........... ${COLOR_MAGENTA}${DB2_ACTION_SYSTEM}"
     echo_reset_dim "Dedicated Manage Instance . ${COLOR_MAGENTA}${DB2_ACTION_MANAGE}"
-
+    if [[ "$DB2_ACTION_MANAGE" == "install" && "$DB2_TYPE" != "" ]]; then
+      echo_reset_dim " - Type ................... ${COLOR_MAGENTA}${DB2_TYPE:-<db2wh>}"
+    fi
+    if [[ "$DB2_ACTION_MANAGE" == "install" && "$MAS_APP_SETTINGS_SERVER_TIMEZONE" != "" ]]; then
+      echo_reset_dim " - Timezone ............... ${COLOR_MAGENTA}${DB2_TIMEZONE}"
+    fi
     echo_reset_dim "CPU Request ............... ${COLOR_MAGENTA}${DB2_CPU_REQUESTS:-<default>}"
     echo_reset_dim "CPU Limit ................. ${COLOR_MAGENTA}${DB2_CPU_LIMITS:-<default>}"
     echo_reset_dim "Memory Request ............ ${COLOR_MAGENTA}${DB2_MEMORY_REQUESTS:-<default>}"
@@ -269,87 +297,97 @@ function install_pipelinerun_preview() {
   --license-file $SLS_LICENSE_FILE_LOCAL \\
   --uds-email '$UDS_CONTACT_EMAIL' --uds-firstname '$UDS_CONTACT_FIRSTNAME' --uds-lastname '$UDS_CONTACT_LASTNAME' \\
   --storage-rwo '$STORAGE_CLASS_RWO' --storage-rwx '$STORAGE_CLASS_RWX' --storage-pipeline '$PIPELINE_STORAGE_CLASS' --storage-accessmode '$PIPELINE_STORAGE_ACCESSMODE' \\
-  --mas-instance-id '$MAS_INSTANCE_ID' --mas-workspace-id '$MAS_WORKSPACE_ID' --mas-workspace-name '$MAS_WORKSPACE_ID' \\
+  --mas-instance-id '$MAS_INSTANCE_ID' --mas-workspace-id '$MAS_WORKSPACE_ID' --mas-workspace-name '$MAS_WORKSPACE_NAME' \\
   --mas-channel '$MAS_CHANNEL'"
 
   # Optional config
-  [ "$LOCAL_MAS_CONFIG_DIR" != "" ] && cmd+=" --additional-configs $LOCAL_MAS_CONFIG_DIR"
+  [ "$LOCAL_MAS_CONFIG_DIR" != "" ] && cmd+=" --additional-configs '$LOCAL_MAS_CONFIG_DIR'"
   [ "$USE_NON_PROD_MODE" == "true" ] && cmd+=" --non-prod"
   [ "$MAS_TRUST_DEFAULT_CAS" == "true" ] && cmd+=" --mas-trust-default-cas"
-  [ "$OCP_INGRESS_TLS_SECRET_NAME" != "" ] && cmd+=" --ocp-ingress-tls-secret-name $OCP_INGRESS_TLS_SECRET_NAME"
-  [ "$MAS_WORKLOAD_SCALE_PROFILE" != "" ] && cmd+=" --workload-scale-profile $MAS_WORKLOAD_SCALE_PROFILE"
-  [ "$MAS_POD_TEMPLATES_DIR" != "" ] && cmd+=" --mas-pod-templates-dir $MAS_POD_TEMPLATES_DIR"
+  [ "$OCP_INGRESS_TLS_SECRET_NAME" != "" ] && cmd+=" --ocp-ingress-tls-secret-name '$OCP_INGRESS_TLS_SECRET_NAME'"
+  [ "$MAS_WORKLOAD_SCALE_PROFILE" != "" ] && cmd+=" --workload-scale-profile '$MAS_WORKLOAD_SCALE_PROFILE'"
+  [ "$MAS_POD_TEMPLATES_DIR" != "" ] && cmd+=" --mas-pod-templates-dir '$MAS_POD_TEMPLATES_DIR'"
 
   # Applications
   [ "$MAS_APP_CHANNEL_IOT" != "" ] && cmd+=" \\
-  --iot-channel $MAS_APP_CHANNEL_IOT"
+  --iot-channel '$MAS_APP_CHANNEL_IOT'"
   [ "$MAS_APP_CHANNEL_MONITOR" != "" ] && cmd+=" \\
-  --monitor-channel $MAS_APP_CHANNEL_MONITOR"
+  --monitor-channel '$MAS_APP_CHANNEL_MONITOR'"
   [ "$MAS_APP_CHANNEL_MANAGE" != "" ] && cmd+=" \\
-  --manage-channel $MAS_APP_CHANNEL_MANAGE"
+  --manage-channel '$MAS_APP_CHANNEL_MANAGE'"
   [ "$MAS_APPWS_BINDINGS_JDBC_MANAGE" != "" ] && cmd+=" \\
-  --manage-jdbc $MAS_APPWS_BINDINGS_JDBC_MANAGE"
-  [ "$MAS_APPWS_COMPONENTS" != "" ] && cmd+=" --manage-components $MAS_APPWS_COMPONENTS"
+  --manage-jdbc '$MAS_APPWS_BINDINGS_JDBC_MANAGE'"
+  [ "$MAS_APPWS_COMPONENTS" != "" ] && cmd+=" --manage-components '$MAS_APPWS_COMPONENTS'"
   [ "$MAS_APP_SETTINGS_DEMODATA" == "true" ] && cmd+=" --manage-demodata"
 
   [ "$MAS_APP_CHANNEL_PREDICT" != "" ] && cmd+=" \\
-  --predict-channel $MAS_APP_CHANNEL_PREDICT"
+  --predict-channel '$MAS_APP_CHANNEL_PREDICT'"
   [ "$MAS_APP_CHANNEL_ASSIST" != "" ] && cmd+=" \\
-  --assist-channel $MAS_APP_CHANNEL_ASSIST"
+  --assist-channel '$MAS_APP_CHANNEL_ASSIST'"
   [ "$MAS_APP_CHANNEL_VISUALINSPECTION" != "" ] && cmd+=" \\
-  --visualinspection-channel $MAS_APP_CHANNEL_VISUALINSPECTION"
+  --visualinspection-channel '$MAS_APP_CHANNEL_VISUALINSPECTION'"
   [ "$MAS_APP_CHANNEL_OPTIMIZER" != "" ] && cmd+=" \\
-  --optimizer-channel $MAS_APP_CHANNEL_OPTIMIZER --optimizer-plan $MAS_APP_PLAN_OPTIMIZER"
+  --optimizer-channel '$MAS_APP_CHANNEL_OPTIMIZER' --optimizer-plan '$MAS_APP_PLAN_OPTIMIZER'"
 
   # Kafka
   [ "$KAFKA_PROVIDER" != "" ] && cmd+=" \\
-  --kafka-provider $KAFKA_PROVIDER"
-  [ "$KAFKA_NAMESPACE" != "" ] && cmd+=" --kafka-namespace $KAFKA_NAMESPACE"
-  [ "$KAFKA_VERSION" != "" ] && cmd+=" --kafka-version $KAFKA_VERSION"
-  [ "$EVENTSTREAMS_RESOURCEGROUP" != "" ] && cmd+=" --eventstreams-resource-group $EVENTSTREAMS_RESOURCEGROUP"
-  [ "$EVENTSTREAMS_NAME" != "" ] && cmd+=" --eventstreams-instance-name $EVENTSTREAMS_NAME"
-  [ "$EVENTSTREAMS_LOCATION" != "" ] && cmd+=" --eventstreams-instance-location $EVENTSTREAMS_LOCATION"
+  --kafka-provider '$KAFKA_PROVIDER'"
+  [ "$KAFKA_NAMESPACE" != "" ] && cmd+=" --kafka-namespace '$KAFKA_NAMESPACE'"
+  [ "$KAFKA_VERSION" != "" ] && cmd+=" --kafka-version '$KAFKA_VERSION'"
+  [ "$EVENTSTREAMS_RESOURCEGROUP" != "" ] && cmd+=" --eventstreams-resource-group '$EVENTSTREAMS_RESOURCEGROUP'"
+  [ "$EVENTSTREAMS_NAME" != "" ] && cmd+=" --eventstreams-instance-name '$EVENTSTREAMS_NAME'"
+  [ "$EVENTSTREAMS_LOCATION" != "" ] && cmd+=" --eventstreams-instance-location '$EVENTSTREAMS_LOCATION'"
 
   # Mongo
   [ "$MONGODB_NAMESPACE" != "" ] && cmd+=" \\
-  --mongodb-namespace $MONGODB_NAMESPACE"
+  --mongodb-namespace '$MONGODB_NAMESPACE'"
 
   # IBM Db2
   [ "$DB2_CHANNEL" != "" ] && cmd+=" \\
-  --db2u-channel $DB2_CHANNEL"
+  --db2u-channel '$DB2_CHANNEL'"
   [ "$DB2_ACTION_SYSTEM" == "install" ] && cmd+=" --db2u-system"
   [ "$DB2_ACTION_MANAGE" == "install" ] && cmd+=" --db2u-manage"
-  [ "$DB2_NAMESPACE" != "" ] && cmd+=" --db2-namespace $DB2_NAMESPACE"
+  [ "$DB2_NAMESPACE" != "" ] && cmd+=" --db2-namespace '$DB2_NAMESPACE'"
 
   [ "$DB2_AFFINITY_KEY" != "" ] && cmd+=" \\
-  --db2u-affinity-key $DB2_AFFINITY_KEY"
-  [ "$DB2_AFFINITY_VALUE" != "" ] && cmd+=" --db2u-affinity-value $DB2_AFFINITY_VALUE"
-  [ "$DB2_TOLERATE_KEY" != "" ] && cmd+=" --db2u-tolerate-key $DB2_TOLERATE_KEY"
-  [ "$DB2_TOLERATE_VALUE" != "" ] && cmd+=" --db2u-tolerate-value $DB2_TOLERATE_VALUE"
-  [ "$DB2_TOLERATE_EFFECT" != "" ] && cmd+=" --db2u-tolerate-effect $DB2_TOLERATE_EFFECT"
+  --db2u-affinity-key '$DB2_AFFINITY_KEY'"
+  [ "$DB2_AFFINITY_VALUE" != "" ] && cmd+=" --db2u-affinity-value '$DB2_AFFINITY_VALUE'"
+  [ "$DB2_TOLERATE_KEY" != "" ] && cmd+=" --db2u-tolerate-key '$DB2_TOLERATE_KEY'"
+  [ "$DB2_TOLERATE_VALUE" != "" ] && cmd+=" --db2u-tolerate-value '$DB2_TOLERATE_VALUE'"
+  [ "$DB2_TOLERATE_EFFECT" != "" ] && cmd+=" --db2u-tolerate-effect '$DB2_TOLERATE_EFFECT'"
 
   [ "$DB2_CPU_REQUESTS" != "" ] && cmd+=" \\
-  --db2u-cpu-request $DB2_CPU_REQUESTS"
-  [ "$DB2_CPU_LIMITS" != "" ] && cmd+=" --db2u-cpu-limit $DB2_CPU_LIMITS"
-  [ "$DB2_MEMORY_REQUESTS" != "" ] && cmd+=" --db2u-memory-request $DB2_MEMORY_REQUESTS"
-  [ "$DB2_MEMORY_LIMITS" != "" ] && cmd+=" --db2u-memory-limit $DB2_MEMORY_LIMITS"
+  --db2u-cpu-request '$DB2_CPU_REQUESTS'"
+  [ "$DB2_CPU_LIMITS" != "" ] && cmd+=" --db2u-cpu-limit '$DB2_CPU_LIMITS'"
+  [ "$DB2_MEMORY_REQUESTS" != "" ] && cmd+=" --db2u-memory-request '$DB2_MEMORY_REQUESTS'"
+  [ "$DB2_MEMORY_LIMITS" != "" ] && cmd+=" --db2u-memory-limit '$DB2_MEMORY_LIMITS'"
 
   [ "$DB2_BACKUP_STORAGE_SIZE" != "" ] && cmd+=" \\
   --db2u-backup-storage $DB2_BACKUP_STORAGE_SIZE"
-  [ "$DB2_DATA_STORAGE_SIZE" != "" ] && cmd+=" --db2u-data-storage $DB2_DATA_STORAGE_SIZE"
-  [ "$DB2_LOGS_STORAGE_SIZE" != "" ] && cmd+=" --db2u-logs-storage $DB2_LOGS_STORAGE_SIZE"
-  [ "$DB2_META_STORAGE_SIZE" != "" ] && cmd+=" --db2u-meta-storage $DB2_META_STORAGE_SIZE"
-  [ "$DB2_TEMP_STORAGE_SIZE" != "" ] && cmd+=" --db2u-temp-storage $DB2_TEMP_STORAGE_SIZE"
+  [ "$DB2_DATA_STORAGE_SIZE" != "" ] && cmd+=" --db2u-data-storage '$DB2_DATA_STORAGE_SIZE'"
+  [ "$DB2_LOGS_STORAGE_SIZE" != "" ] && cmd+=" --db2u-logs-storage '$DB2_LOGS_STORAGE_SIZE'"
+  [ "$DB2_META_STORAGE_SIZE" != "" ] && cmd+=" --db2u-meta-storage '$DB2_META_STORAGE_SIZE'"
+  [ "$DB2_TEMP_STORAGE_SIZE" != "" ] && cmd+=" --db2u-temp-storage '$DB2_TEMP_STORAGE_SIZE'"
 
-  # TODO: Only add following flags to the command when required to ...
-  # ------------------------------------------------------------------------
+# System Db2
+  [ "$DB2_ACTION_SYSTEM" == "install" ] && cmd+=" \\
+  --db2u-system"
 
+# Manage dedicated Db2
+  [ "$DB2_ACTION_MANAGE" == "install" ] && cmd+=" \\
+  --db2u-manage"
+  [ "$DB2_ACTION_MANAGE" == "install" ] && [ "$DB2_TYPE" != "" ] && cmd+=" --db2u-manage-type '$DB2_TYPE'"
 
   # CP4D
   # --cp4d-version ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}                                  Product version of IBM Cloud Pak for Data to use
   # --cp4d-install-spss                                                                      Includes SPSS service to be installed as part of IBM Cloud Pak for Data (Optional if Predict is being installed)
   # --cp4d-install-openscale                                                                 Includes Watson Openscale service to be installed as part of IBM Cloud Pak for Data (Optional if Predict is being installed)
   # --cp4d-install-cognos
+  [ "$DEPLOY_CP4D" == "run" ] && cmd+=" \\
+  --cp4d-version '$CP4D_VERSION'"
+  [ "$CPD_INSTALL_SPSS" == "true" ] && cmd+=" --cp4d-install-spss"
+  [ "$CPD_INSTALL_OPENSCALE" == "true" ] && cmd+=" --cp4d-install-openscale"
+  [ "$CPD_INSTALL_COGNOS" == "true" ] && cmd+=" --cp4d-install-cognos"
 
   # Manage Application - Advanced Configuration (Optional):
   #       --manage-jms                                                                                                        Enables JMS queues using local persistent volumes
@@ -363,6 +401,31 @@ function install_pipelinerun_preview() {
   #       --manage-old-crypto-key ${COLOR_YELLOW}MAS_APP_SETTINGS_OLD_CRYPTO_KEY${TEXT_RESET}                                 Set 'MXE_SECURITY_OLD_CRYPTO_KEY' value if you want to customize your Manage database encryption keys
   #       --manage-old-cryptox-key ${COLOR_YELLOW}MAS_APP_SETTINGS_OLD_CRYPTOX_KEY${TEXT_RESET}                               Set 'MXE_SECURITY_OLD_CRYPTOX_KEY' value if you want to customize your Manage database encryption keys
   #       --manage-override-encryption-secrets
+
+  [ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" != "" ] && cmd+=" \\
+  --manage-server-bundle-size '$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE'"
+  [ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "jms" ] && cmd+=" --manage-jms"
+  [ "$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME" != "" ] && cmd+=" \\
+  --manage-customization-archive-name '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME'"
+  [ "$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL" != "" ] && cmd+=" --manage-customization-archive-url '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL'"
+  [ "$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME" != "" ] && cmd+=" --manage-customization-archive-username '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME'"
+  [ "$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD" != "" ] && cmd+=" --manage-customization-archive-password '$MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD'"
+  [ "$MAS_APP_SETTINGS_CRYPTO_KEY" != "" ] && cmd+=" \\
+  --manage-crypto-key '$MAS_APP_SETTINGS_CRYPTO_KEY'"
+  [ "$MAS_APP_SETTINGS_CRYPTOX_KEY" != "" ] && cmd+=" --manage-cryptox-key '$MAS_APP_SETTINGS_CRYPTOX_KEY'"
+  [ "$MAS_APP_SETTINGS_OLD_CRYPTO_KEY" != "" ] && cmd+=" --manage-old-crypto-key '$MAS_APP_SETTINGS_OLD_CRYPTO_KEY'"
+  [ "$MAS_APP_SETTINGS_OLD_CRYPTOX_KEY" != "" ] && cmd+=" --manage-old-cryptox-key '$MAS_APP_SETTINGS_OLD_CRYPTOX_KEY'"
+  [ "$MAS_APP_SETTINGS_OVERRIDE_ENCRYPTION_SECRETS_FLAG" == "true" ] && cmd+=" --manage-override-encryption-secrets"
+  [ "$MAS_APP_SETTINGS_BASE_LANG" != "" ] && cmd+=" \\
+  --manage-base-language '$MAS_APP_SETTINGS_BASE_LANG'"
+  [ "$MAS_APP_SETTINGS_SECONDARY_LANGS" != "" ] && cmd+=" --manage-secondary-languages '$MAS_APP_SETTINGS_SECONDARY_LANGS'"
+  [ "$MAS_APP_SETTINGS_SERVER_TIMEZONE" != "" ] && cmd+=" \\ 
+  --manage-server-timezone '$MAS_APP_SETTINGS_SERVER_TIMEZONE'"
+  [ "$MAS_APP_SETTINGS_TABLESPACE" != "" ] && cmd+=" \\
+  --manage-db-tablespace '$MAS_APP_SETTINGS_TABLESPACE'"
+  [ "$MAS_APP_SETTINGS_INDEXSPACE" != "" ] && cmd+=" --manage-db-indexspace '$MAS_APP_SETTINGS_INDEXSPACE'"
+  [ "$MAS_APP_SETTINGS_DB2_SCHEMA" != "" ] && cmd+=" --manage-db-schema '$MAS_APP_SETTINGS_DB2_SCHEMA'"
+
   reset_colors
   echo
   echo_h4 "Non-Interactive Install Command"

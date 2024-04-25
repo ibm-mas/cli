@@ -23,7 +23,7 @@ Red Hat Image Pull Secret (Required):
       --pullsecret ${COLOR_YELLOW}REDHAT_PULLSECRET${TEXT_RESET}              Red Hat OpenShift Pull Secret (https://console.redhat.com/openshift/install/pull-secret)
 
 Content Selection (Required):
-      --release ${COLOR_YELLOW}OCP_RELEASE${TEXT_RESET}                       OCP Release to mirror content for (e.g. 4.10, 4.12)
+      --release ${COLOR_YELLOW}OCP_RELEASE${TEXT_RESET}                       OCP Release to mirror content for (e.g. 4.13, 4.14)
 
 Platform Version Range (Required when mirroring the platform):
       --min-version ${COLOR_YELLOW}OCP_MIN_VERSION${TEXT_RESET}               Minimum version of the OCP release to mirror

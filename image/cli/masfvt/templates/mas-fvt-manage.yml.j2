@@ -1,5 +1,5 @@
 ---
-apiVersion: tekton.dev/v1
+apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
   name: "{{ pipelinerun_name }}"
@@ -10,17 +10,7 @@ spec:
   pipelineRef:
     name: mas-fvt-manage
 
-  taskRunTemplate:
-    serviceAccountName: pipeline
-    podTemplate:
-      topologySpreadConstraints:
-        - maxSkew: 1
-          topologyKey: ibm-cloud.kubernetes.io/worker-id
-          whenUnsatisfiable: ScheduleAnyway
-          labelSelector:
-            matchLabels:
-              tekton.dev/task: mas-fvt-manage
-
+  serviceAccountName: pipeline
   timeouts:
     pipeline: "8h"
 

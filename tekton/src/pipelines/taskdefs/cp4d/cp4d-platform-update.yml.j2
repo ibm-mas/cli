@@ -1,0 +1,24 @@
+- name: update-cp4d
+  params:
+    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    - name: devops_suite_name
+      value: update-cp4d
+    - name: ibm_entitlement_key
+      value: $(params.ibm_entitlement_key)
+    - name: skip_entitlement_key_flag
+      value: $(params.skip_entitlement_key_flag)
+    - name: cpd_product_version
+      value: $(params.cpd_product_version)
+    - name: cpd_primary_storage_class
+      value: $(params.storage_class_rwx)
+    - name: cpd_metadata_storage_class
+      value: $(params.storage_class_rwo)
+    - name: cp4d_update
+      value: $(params.cp4d_update)
+  taskRef:
+    kind: Task
+    name: mas-devops-cp4d
+  when:
+    - input: "$(params.cp4d_update)"
+      operator: notin
+      values: [""]

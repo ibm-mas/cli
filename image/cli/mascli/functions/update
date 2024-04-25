@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. $CLI_DIR/functions/internal/install_config_storage_classes
+
 function update_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
@@ -10,7 +12,7 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Maximo Operator Catalog Selection (Required):
-  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}     Maximo Operator Catalog Version (e.g. v8-221129)
+  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}     Maximo Operator Catalog Version (e.g. v8-221129-amd64)
 
 Update Dependencies (Optional):
   --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}          DB2 namespace where instances update will be performed
@@ -19,8 +21,10 @@ Update Dependencies (Optional):
   --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}       Namespace where Kafka operator and instance will be updated
   --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}         Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), or 'strimzi'
   --dro-migration  ${COLOR_YELLOW}DRO_MIGRATION${TEXT_RESET}          Confirm the removal of UDS and replacement with DRO as part of the update
-
+  --cp4d-version  ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}            Optional. Set Cloud Pak for Data version for the upgrade. Note: This overrides the default CP4D version defined by the Maximo Operator Catalog version.
+  --dro-storage-class  ${COLOR_YELLOW}DRO_STORAGE_CLASS${TEXT_RESET}  Set Custom RWO Storage Class name for DRO as part of the update
 Other Commands:
+      --skip-pre-check                  Skips the 'pre-update-check' and 'post-update-verify' tasks in the update pipeline
       --no-confirm                      Launch the update without prompting for confirmation
   -h, --help                            Show this help message
 EOM
@@ -75,6 +79,7 @@ function validate_existing_cert_manager() {
 # and prints a warning message if MongoDB is supposed to be upgraded
 function validate_existing_mongo() {
   if [ -z "$MONGODB_NAMESPACE" ]; then
+    echo -e "${COLOR_YELLOW}Verifying current MongoDB deployment..."
     MONGODB_NAMESPACE=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
   fi
 
@@ -84,38 +89,43 @@ function validate_existing_mongo() {
   if [[ $MAS_CATALOG_DATE -ge 231128 ]]; then
     # Lookup existing MongoDb instance
     MONGODB_CURRENT_VERSION=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].status.version}' 2> /dev/null`
-    # Target mongo version will be defined by chosen catalog/casebundle
-    MONGODB_TARGET_VERSION=`yq -r .mongo_extras_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml`
+    
+    # Only check if mongo upgrade is needed if mongo is currently installed
+    if [[ $MONGODB_CURRENT_VERSION != "" ]]; then
+    
+      # Target mongo version will be defined by chosen catalog/casebundle
+      MONGODB_TARGET_VERSION=`yq -r .mongo_extras_version ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml`
 
-    MONGODB_CURRENT_MAJORMINOR_VERSION=${MONGODB_CURRENT_VERSION:0:3}
-    MONGODB_TARGET_MAJORMINOR_VERSION=${MONGODB_TARGET_VERSION:0:3}
+      MONGODB_CURRENT_MAJORMINOR_VERSION=${MONGODB_CURRENT_VERSION:0:3}
+      MONGODB_TARGET_MAJORMINOR_VERSION=${MONGODB_TARGET_VERSION:0:3}
 
-    # Let users know that Mongo will be upgraded if existing MongoDb major.minor version is lower than the target major version
-    # We don't show this message for normal updates, e.g. 5.0.1 to 5.0.2
-    if [ ! "$(printf '%s\n' "$MONGODB_TARGET_MAJORMINOR_VERSION" "$MONGODB_CURRENT_MAJORMINOR_VERSION" | sort -V | head -n1)" = "$MONGODB_TARGET_MAJORMINOR_VERSION" ]; then
-      if [[ -z "$NO_CONFIRM" ]] ; then # if 'mas update -c v8-231128-amd64', but '--no--confirm' is not set, then we proceed and warn user of the mongodb upgrade, users will still have a chance to abort
-        echo_highlight "Dependency Upgrade Notice!"
-        echo_highlight "MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and will be upgraded to version ${MONGODB_TARGET_VERSION}"
-        echo
-        echo_highlight "It is recommended that you backup your MongoDB instance before proceeding:"
-        echo -e "${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-backing-up-mongodb-maximo-application${TEXT_RESET}"
-        MONGODB_V5_UPGRADE=true
-        echo
-      else
-        if [[ -z "$MONGODB_V5_UPGRADE" ]] ; then # if 'mas update -c v8-240130-amd64 --no-confirm' but no '--mongodb-v5-upgrade' then we fail as user must consent about the mongodb upgrade
-        echo
-        echo -e "${COLOR_RED}By choosing '$MAS_CATALOG_VERSION' catalog, you must confirm MongoDB upgrade to version 5.${TEXT_RESET}"
-        echo -e "${COLOR_RED}Add '--mongodb-v5-upgrade' argument to the 'mas update' command in order to continue.${TEXT_RESET}"
-        exit 1
+      # Let users know that Mongo will be upgraded if existing MongoDb major.minor version is lower than the target major version
+      # We don't show this message for normal updates, e.g. 5.0.1 to 5.0.2
+      if [ ! "$(printf '%s\n' "$MONGODB_TARGET_MAJORMINOR_VERSION" "$MONGODB_CURRENT_MAJORMINOR_VERSION" | sort -V | head -n1)" = "$MONGODB_TARGET_MAJORMINOR_VERSION" ]; then
+        if [[ -z "$NO_CONFIRM" ]] ; then # if 'mas update -c v8-231128-amd64', but '--no--confirm' is not set, then we proceed and warn user of the mongodb upgrade, users will still have a chance to abort
+          echo_highlight "Dependency Upgrade Notice!"
+          echo_highlight "MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and will be upgraded to version ${MONGODB_TARGET_VERSION}"
+          echo
+          echo_highlight "It is recommended that you backup your MongoDB instance before proceeding:"
+          echo -e "${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-backing-up-mongodb-maximo-application${TEXT_RESET}"
+          MONGODB_V5_UPGRADE=true
+          echo
+        else
+          if [[ -z "$MONGODB_V5_UPGRADE" ]] ; then # if 'mas update -c v8-240130-amd64 --no-confirm' but no '--mongodb-v5-upgrade' then we fail as user must consent about the mongodb upgrade
+          echo
+          echo -e "${COLOR_RED}By choosing '$MAS_CATALOG_VERSION' catalog, you must confirm MongoDB upgrade to version 5.${TEXT_RESET}"
+          echo -e "${COLOR_RED}Add '--mongodb-v5-upgrade' argument to the 'mas update' command in order to continue.${TEXT_RESET}"
+          exit 1
+          fi
         fi
       fi
-    fi
 
-    # Check that current mongo version is lower or equal than target mongo version, if not block user from downgrading mongo
-    if [ ! "$(printf '%s\n' "$MONGODB_CURRENT_VERSION" "$MONGODB_TARGET_VERSION" | sort -V | head -n1)" = "$MONGODB_CURRENT_VERSION" ]; then
-        echo
-        echo -e "${COLOR_RED}MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and cannot be downgraded to target version ${MONGODB_TARGET_VERSION}, which is the MongoDB version you would get when choosing MAS catalog '$MAS_CATALOG_VERSION'"
-        exit 1
+      # Check that current mongo version is lower or equal than target mongo version, if not block user from downgrading mongo
+      if [ ! "$(printf '%s\n' "$MONGODB_CURRENT_VERSION" "$MONGODB_TARGET_VERSION" | sort -V | head -n1)" = "$MONGODB_CURRENT_VERSION" ]; then
+          echo
+          echo -e "${COLOR_RED}MongoDB Community Edition is currently running on version ${MONGODB_CURRENT_VERSION} and cannot be downgraded to target version ${MONGODB_TARGET_VERSION}, which is the MongoDB version you would get when choosing MAS catalog '$MAS_CATALOG_VERSION'"
+          exit 1
+      fi
     fi
   fi
 }
@@ -123,57 +133,58 @@ function validate_existing_mongo() {
 # Validate UDS to DRO Migration
 # -----------------------------------------------------------------------------
 
-function validate_dro_migration(){
+function validate_dro_migration() {
   # warn about DRO migration if UDS is running and MAS catalog is January 2024 or newer
   MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
 
-  if [[ $MAS_CATALOG_DATE -ge 240227 ]]; then
-    echo -e "${COLOR_YELLOW}Verifing UDS status."
-    # If Jan catalog is detected, set DRO_MIGRATION Flag to True
-    UDS_NAMESPACE="ibm-common-services"
-    UDS_CSV=`oc get csv -n "${UDS_NAMESPACE}" | grep user-data-services  | awk '{print $1}'`
+  if [[ ($MAS_CATALOG_DATE -ge 240227) || ($MAS_CATALOG_DATE == "amd64") || ($MAS_CATALOG_DATE == "master") ]]; then
+    if [[ "$NO_CONFIRM" != "true" ]] && [[ -z "${DRO_MIGRATION}" ]]; then
+      prompt_for_confirm_default_yes "Do you want to proceed with uninstalling UDS and migrate to DRO?" DRO_MIGRATION
+    fi
+    if [[ "$DRO_MIGRATION" == "true" ]]; then
+      echo -e "${COLOR_YELLOW}Verifying current UDS deployment status..."
+      # If Jan catalog is detected, set DRO_MIGRATION Flag to True
+      UDS_NAMESPACE="ibm-common-services"
+      UDS_CSV=$(oc get csv -n "${UDS_NAMESPACE}" | grep user-data-services | awk '{print $1}')
+      if [[ -n $UDS_CSV ]]; then
+        UDS_STATUS=$(oc get csv -n "${UDS_NAMESPACE}" "${UDS_CSV}" -o jsonpath='{.status.phase}')
+        if [[ $UDS_STATUS = *'Succeeded'* ]]; then
+          echo -e "${COLOR_YELLOW}UDS is currently running in namespace ${UDS_NAMESPACE}."
+          echo -e "UDS will be uninstalled and MAS will migrate to use DRO (Data Reporter Operator). All compatible bascfg configuration will be updated and configured to use DRO ${COLOR_RESET}"
+          echo
+          if [[ "$NO_CONFIRM" != "true" ]] && [[ -z "${DRO_STORAGE_CLASS}" ]]; then
+            echo -e "Checking Available RWO Storage classes to configure DRO. ${COLOR_RESET}"
+            install_config_storage_classes
+            DRO_STORAGE_CLASS=$STORAGE_CLASS_RWO
+            echo -e "Storage class for DRO ${DRO_STORAGE_CLASS} ${COLOR_RESET}"
+          elif [ "$DRO_STORAGE_CLASS" != "" ]; then
+            echo -e "Storage class for DRO ${DRO_STORAGE_CLASS} ${COLOR_RESET}"
+          else
+            DRO_STORAGE_CLASS=""
+            echo -e "No storage class selected for DRO ${COLOR_RESET}"
+          fi
 
-    if [[ -n $UDS_CSV ]]; then
-      UDS_STATUS=`oc get csv -n "${UDS_NAMESPACE}" "${UDS_CSV}" -o jsonpath='{.status.phase}'`
-
-      if [[ $UDS_STATUS = *'Succeeded'* ]]; then
-        echo -e "${COLOR_YELLOW}UDS is currently running in namespace ${UDS_NAMESPACE}."
-        echo -e "UDS will be uninstalled and MAS will migrate to use DRO (Data Reporter Operator). All compatible bascfg configuration will be updated and configured to use DRO ${COLOR_RESET}"
-        echo
-
-        if [[ "$NO_CONFIRM" != "true" ]]; then
-          prompt_for_confirm_default_yes "Do you want to proceed with uninstalling UDS and migrate to DRO?" DRO_MIGRATION
-        fi
-
-        if [[ "$DRO_MIGRATION" == "true" ]]; then
           ## Check all avaliable Suite Instances versions , if any of them is 8.9.x cancel the dro migration. Exit mas update throw error.
-          for suite_namespace in $(oc get Suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
-          do
-            suite_name=`oc get Suite -n ${suite_namespace}  -o NAME`
-            suite_version=`oc get ${suite_name} -n ${suite_namespace} -o jsonpath='{.status.versions.reconciled}'`
+          for suite_namespace in $(oc get Suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}'); do
+            suite_name=$(oc get Suite -n ${suite_namespace} -o NAME)
+            suite_version=$(oc get ${suite_name} -n ${suite_namespace} -o jsonpath='{.status.versions.reconciled}')
 
-            if [[ $suite_version = 9.* ]] || [[ $suite_version = 8.11.* ]] || [[ $suite_version = 8.10.* ]]
-            then
+            if [[ $suite_version = 9.* ]] || [[ $suite_version = 8.11.* ]] || [[ $suite_version = 8.10.* ]]; then
 
               ## Check if the BASCFG url has a local UDS on all instances, if not then exit and throw error
-              bascfg_name=`oc get BasCfg -n ${suite_namespace} -o NAME`
-              bas_url=`oc get ${bascfg_name} -n ${suite_namespace} -o jsonpath='{.spec.config.url}'`
-              uds_url=`oc get route uds-endpoint -n ibm-common-services -o jsonpath='{.spec.host}'`
+              bascfg_name=$(oc get BasCfg -n ${suite_namespace} -o NAME)
+              bas_url=$(oc get ${bascfg_name} -n ${suite_namespace} -o jsonpath='{.spec.config.url}')
+              uds_url=$(oc get route uds-endpoint -n ibm-common-services -o jsonpath='{.spec.host}')
 
-              if [[ -z ${uds_url} ]]
-              then
+              if [[ -z ${uds_url} ]]; then
                 echo -e "${COLOR_RED}UDS route is empty, Please fix your UDS installation to proceed with DRO migration, exiting mas update"
                 exit 1
               fi
 
-              if [[ ${bas_url} == *${uds_url}* ]]
-              then
+              if [[ ${bas_url} == *${uds_url}* ]]; then
                 echo -e "${COLOR_YELLOW}UDS Configuration on ${suite_namespace} with MAS version ${suite_version} is compatible for DRO migration"
-              
-              elif [[ ${bas_url} == *ibm-data-reporter* ]]
-              then
+              elif [[ ${bas_url} == *ibm-data-reporter* ]]; then
                 echo -e "${COLOR_YELLOW}${suite_namespace} is already configured with DRO"
-              
               else
                 echo -e "${COLOR_RED}${suite_namespace} appears to use a Remote UDS that is not running locally on this cluster. This setup is not compatible for DRO migration, exiting mas update"
                 exit 1
@@ -185,22 +196,34 @@ function validate_dro_migration(){
             echo
           done
         else
-          echo -e "${COLOR_RED}You must accept the migration from UDS to DRO to continue with the update to ${MAS_CATALOG_VERSION}"
+          echo -e "${COLOR_RED}UDS is in Error state. Please fix your UDS installation to proceed with DRO migration, exiting mas update"
           exit 1
         fi
       else
-        echo -e "${COLOR_RED}UDS is in Error state. Please fix your UDS installation to proceed with DRO migration, exiting mas update"
-        exit 1
+        DRO_MIGRATION="false"
+        echo -e "${COLOR_YELLOW}UDS does not exist, skipping DRO migration and proceeding with mas update"
+        DRO_NAMESPACE="redhat-marketplace"
+        DRO_CSV=$(oc get csv -n "${DRO_NAMESPACE}" | grep ibm-data-reporter-operator | awk '{print $1}')
+        echo $DRO_CSV
+        if [[ -n $DRO_CSV ]]; then
+          DRO_STATUS=$(oc get csv -n "${DRO_NAMESPACE}" "${DRO_CSV}" -o jsonpath='{.status.phase}')
+          if [[ $DRO_STATUS = *'Succeeded'* ]]; then
+            echo -e "${COLOR_YELLOW}DRO is currently running in namespace ${DRO_NAMESPACE}, skipping DRO migration and proceeding with mas update"
+            UDS_ACTION="skip"
+          fi
+        fi
       fi
     else
-      DRO_MIGRATION="false"
-      echo -e "${COLOR_YELLOW}UDS does not exist, skipping DRO migration and proceeding with mas update"
+      echo -e "${COLOR_YELLOW} Skipping the migration from UDS to DRO."
+      echo -e "${COLOR_YELLOW} By choosing 'Yes', you must confirm the migration from UDS to DRO"
+      echo -e "${COLOR_YELLOW} Or Add '--dro-migration' argument to the 'mas update' command in order to continue the migration from UDS to DRO"
     fi
   else
     DRO_MIGRATION="false"
   fi
 
 }
+
 
 # Auto-detect Grafana
 # -----------------------------------------------------------------------------
@@ -223,6 +246,212 @@ function detect_grafana_update() {
       echo_highlight "- User accounts set up in the v4 instance will not be migrated"
       echo
       GRAFANA_V5_UPGRADE=true
+    fi
+  fi
+}
+
+function check_cp4d_target_version() {
+
+  CHECK_CP4D_VERSION=$1
+  CHECK_CP4D_SERVICE_ALIAS=$2
+
+  # Workaround:
+    # If CP4D 4.6.6 then don't use j2 file to lookup for CPD service version as yq fails to generate yaml from j2 due a workaround done in 'olm-utils-cm-4.6.6.yml.j2'
+    if [[ "$CHECK_CP4D_VERSION" == "4.6.6" ]]; then
+      OLM_UTILS_FILE="olm-utils-cm-$CHECK_CP4D_VERSION.yml"
+    else
+      OLM_UTILS_FILE="olm-utils-cm-$CHECK_CP4D_VERSION.yml.j2"
+    fi
+
+    FULL_PATH_OLM_UTILS_FILE="ansible-devops/roles/cp4d/templates/config_maps/$OLM_UTILS_FILE"
+
+    # Lookup expected CP4D service version
+    yq -r .data.release_components_meta "$FULL_PATH_OLM_UTILS_FILE" -o yaml > olm-utils.yaml 2>/dev/null
+    if [[ $? -ne 0 ]]; then
+      echo "Error while determining the target version for $CHECK_CP4D_SERVICE_ALIAS! Version $CHECK_CP4D_VERSION is not valid."
+      CP4D_SERVICE_TARGET_VERSION=""
+    else
+      CP4D_SERVICE_TARGET_VERSION=$(yq -r ."$CHECK_CP4D_SERVICE_ALIAS".cr_version olm-utils.yaml)
+      if [[ "$CP4D_SERVICE_TARGET_VERSION" == "null" ]]; then
+        CP4D_SERVICE_TARGET_VERSION=""
+        echo "Could not determine the target version for '$CHECK_CP4D_SERVICE_ALIAS'. Skipping upgrade for it ..."
+      fi
+    fi
+    rm -rf olm-utils.yaml
+
+}
+
+# Auto-detect Cloud Pak Data Service
+# -----------------------------------------------------------------------------
+# Validates the existance of installed Cloud Pak Data Service in the target cluster in the CP4D namespace
+# If service exists, then flag it to upgrade as we assume it must always run with same version as CP4D platform
+function validate_existing_cp4d_service() {
+  
+  CP4D_SERVICE_CRD=$1
+  CP4D_SERVICE_NAME=$2
+  CP4D_SERVICE_ALIAS=$3
+
+  # Target cp4d version will be defined by chosen catalog/casebundle
+  if [[ "$CP4D_VERSION" == "" ]]; then
+    CP4D_VERSION=`yq -r .cpd_product_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml 2>/dev/null`
+    if [[ "$CP4D_VERSION" == "null" ]]; then
+      CP4D_VERSION=""
+      echo "Could not determine default $CP4D_SERVICE_NAME target upgrade version based on '$MAS_CATALOG_VERSION' catalog source. Skipping upgrade..."
+    fi
+  fi
+
+  # Lookup existing CP4D service version
+  echo -e "${COLOR_YELLOW}Verifying current Cloud Pak for Data Service $CP4D_SERVICE_NAME deployment status..."
+  
+  CP4D_SERVICE_CURRENT_VERSION=`oc get $CP4D_SERVICE_CRD -n $CP4D_INSTANCE_NAMESPACE -o yaml | yq -r ".items[0].spec.version" 2>/dev/null`
+  if [[ "$CP4D_SERVICE_CURRENT_VERSION" == "null" ]]; then
+    CP4D_SERVICE_CURRENT_VERSION=""
+  fi
+  
+  # Only check if upgrade is needed if CP4D service is installed
+  if [[ "$CP4D_SERVICE_CURRENT_VERSION" != "" ]]; then
+    
+    check_cp4d_target_version "$CP4D_VERSION" "$CP4D_SERVICE_ALIAS" 
+    
+    # Only check if upgrade is needed if CP4D service target version is set
+    if [[ "$CP4D_SERVICE_TARGET_VERSION" != "" ]]; then
+      
+      # If current version is lower than target version, then flag CP4D service for upgrade
+      if [ ! "$(printf '%s\n' "$CP4D_SERVICE_TARGET_VERSION" "$CP4D_SERVICE_CURRENT_VERSION" | sort -V | head -n1)" = "$CP4D_SERVICE_TARGET_VERSION" ]; then
+        CP4D_SERVICE_UPDATE=true
+      else
+        CP4D_SERVICE_UPDATE=""
+      fi
+
+    fi
+
+  fi
+
+}
+
+# Auto-detect Cloud Pak Data
+# -----------------------------------------------------------------------------
+# Validates the existance of installed Cloud Pak Data in the target cluster
+# and prints a warning message if Cloud Pak Data is supposed to be upgraded
+function validate_existing_cp4d() {
+  
+  # Lookup existing CP4D instance
+  echo -e "${COLOR_YELLOW}Verifying current Cloud Pak for Data deployment status..."
+
+  if [[ "$CP4D_INSTANCE_NAMESPACE" == "" ]]; then
+    CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
+  fi
+
+  # Lookup existing CP4D instance storage classes
+  if [[ "$STORAGE_CLASS_RWX" == "" && "$STORAGE_CLASS_RWO" == "" ]]; then
+    if [[ "$CP4D_INSTANCE_NAMESPACE" != "" ]]; then
+      # Try fetching file storage class for CPD 4.6 format (storageClass property)
+      CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.storageClass}' 2> /dev/null`
+      # If not found then try fetching file storage class for CPD 4.8 format (fileStorageClass property)
+      if [[ "$CPD_FILE_STORAGE_CLASS" == "" ]]; then
+        CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.fileStorageClass}' 2> /dev/null`
+      fi
+
+      # Try fetching block storage class for CPD 4.6 format (zenCoreMetadbStorageClass property)
+      CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.zenCoreMetadbStorageClass}' 2> /dev/null`
+      # If not found then try fetching file storage class for CPD 4.8 format (blockStorageClass property)
+      if [[ "$CPD_BLOCK_STORAGE_CLASS" == "" ]]; then
+        CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.blockStorageClass}' 2> /dev/null`
+      fi
+
+      STORAGE_CLASS_RWX=$CPD_FILE_STORAGE_CLASS
+      STORAGE_CLASS_RWO=$CPD_BLOCK_STORAGE_CLASS
+    fi
+  fi
+
+  # Lookup existing CP4D instance
+  CP4D_CURRENT_VERSION=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.version}' 2> /dev/null`
+
+  # Target cp4d version will be defined by chosen catalog/casebundle
+  if [[ "$CP4D_VERSION" == "" ]]; then
+    CP4D_VERSION=`yq -r .cpd_product_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml 2> /dev/null`
+    if [[ "$CP4D_VERSION" == "null" ]]; then
+      echo "Could not determine default Cloud Pak for Data target upgrade version based on '$MAS_CATALOG_VERSION' catalog source. Skipping upgrade..."
+      CP4D_VERSION=""
+    fi
+  fi
+
+  # Lookup CP4D target version is valid
+  if [[ "$CP4D_VERSION" != "" ]]; then
+    check_cp4d_target_version "$CP4D_VERSION" "cpd_platform"
+    # If CP4D_SERVICE_TARGET_VERSION is empty, it means it's not a valid version to be upgraded thus skip 
+    if [[ "$CP4D_SERVICE_TARGET_VERSION" == "" ]]; then
+      CP4D_VERSION=""
+    fi
+  fi
+
+  # Check if CP4D is currently installed, if not then don't bother trying to upgrade
+  # Set CP4D_UPDATE if current CP4D version is lower than expected
+  if [[ "$CP4D_CURRENT_VERSION" != "" && "$CP4D_VERSION" != "" ]]; then
+    if [ ! "$(printf '%s\n' "$CP4D_VERSION" "$CP4D_CURRENT_VERSION" | sort -V | head -n1)" = "$CP4D_VERSION" ]; then
+
+      CP4D_CURRENT_MAJORMINOR_VERSION=${CP4D_CURRENT_VERSION:0:3}
+      CP4D_TARGET_MAJORMINOR_VERSION=${CP4D_VERSION:0:3}
+
+      # Let users know that cp4d will be upgraded if existing cp4d major.minor version is lower than the target major version
+      # We don't show this message for patch updates, e.g. 4.8.0 to 4.8.1
+      if [ ! "$(printf '%s\n' "$CP4D_TARGET_MAJORMINOR_VERSION" "$CP4D_CURRENT_MAJORMINOR_VERSION" | sort -V | head -n1)" = "$CP4D_TARGET_MAJORMINOR_VERSION" ]; then
+        if [[ -z "$NO_CONFIRM" ]] ; then # if 'mas update -c v8-231128-amd64', but '--no--confirm' is not set, then we proceed and warn user of the mongodb upgrade, users will still have a chance to abort
+          echo_highlight "Dependency Upgrade Notice!"
+          echo_highlight "Cloud Pak For Data is currently running on version ${CP4D_CURRENT_VERSION} and will be upgraded to version ${CP4D_VERSION}"
+          echo
+          echo_highlight "It is recommended that you backup your Cloud Pak for Data instance before proceeding:"
+          echo -e "${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/cloud-paks/cp-data/4.8.x?topic=administering-backing-up-restoring-cloud-pak-data${TEXT_RESET}"
+        fi
+      fi
+
+      CP4D_UPDATE=true
+      SKIP_ENTITLEMENT_KEY_FLAG=true # this will skip ibm-entitlement-key assertion in cp4d role, as entitlement key is not sent in update pipeline but it is required in cp4d role
+
+      # Only check CP4D services if CP4D platform is installed in first place
+      if [[ "$CP4D_CURRENT_VERSION" != "" ]]; then
+        # Check if CP4D services are installed, if found then flag them to be upgraded
+
+        # Validates CP4D services upgrade - Watson Studio
+        validate_existing_cp4d_service 'ws.ws.cpd.ibm.com' 'Watson Studio' 'ws'
+        CP4D_UPDATE_WS=$CP4D_SERVICE_UPDATE
+        CP4D_CURRENT_VERSION_WS=$CP4D_SERVICE_CURRENT_VERSION
+        CP4D_TARGET_VERSION_WS=$CP4D_SERVICE_TARGET_VERSION
+
+        # Validates CP4D services upgrade - Watson Machine Learning
+        validate_existing_cp4d_service 'wmlbases.wml.cpd.ibm.com' 'Watson Machine Learning' 'wml'
+        CP4D_UPDATE_WML=$CP4D_SERVICE_UPDATE
+        CP4D_CURRENT_VERSION_WML=$CP4D_SERVICE_CURRENT_VERSION
+        CP4D_TARGET_VERSION_WML=$CP4D_SERVICE_TARGET_VERSION
+
+        # Validates CP4D services upgrade - Spark
+        validate_existing_cp4d_service 'analyticsengines.ae.cpd.ibm.com' 'Analytics Engine' 'analyticsengine'
+        CP4D_UPDATE_SPARK=$CP4D_SERVICE_UPDATE
+        CP4D_CURRENT_VERSION_SPARK=$CP4D_SERVICE_CURRENT_VERSION
+        CP4D_TARGET_VERSION_SPARK=$CP4D_SERVICE_TARGET_VERSION
+
+        # Validates CP4D services upgrade - Watson Openscale
+        validate_existing_cp4d_service 'woservices.wos.cpd.ibm.com' 'Watson Openscale' 'openscale'
+        CP4D_UPDATE_WOS=$CP4D_SERVICE_UPDATE
+        CP4D_CURRENT_VERSION_WOS=$CP4D_SERVICE_CURRENT_VERSION
+        CP4D_TARGET_VERSION_WOS=$CP4D_SERVICE_TARGET_VERSION
+
+        # Validates CP4D services upgrade - SPSS Modeler
+        validate_existing_cp4d_service 'spss.spssmodeler.cpd.ibm.com' 'SPSS Modeler' 'spss'
+        CP4D_UPDATE_SPSS=$CP4D_SERVICE_UPDATE
+        CP4D_CURRENT_VERSION_SPSS=$CP4D_SERVICE_CURRENT_VERSION
+        CP4D_TARGET_VERSION_SPSS=$CP4D_SERVICE_TARGET_VERSION
+
+        # Validates CP4D services upgrade - Cognos
+        validate_existing_cp4d_service 'caservices.ca.cpd.ibm.com' 'Cognos Analytics' 'cognos_analytics'
+        CP4D_UPDATE_COGNOS=$CP4D_SERVICE_UPDATE
+        CP4D_CURRENT_VERSION_COGNOS=$CP4D_SERVICE_CURRENT_VERSION
+        CP4D_TARGET_VERSION_COGNOS=$CP4D_SERVICE_TARGET_VERSION
+      fi
+    fi
+
+    if [ ! "$(printf '%s\n' "$CP4D_CURRENT_VERSION" "$CP4D_VERSION" | sort -V | head -n1)" = "$CP4D_CURRENT_VERSION" ]; then
+      echo -e "${COLOR_YELLOW}Cloud Pak for Data is currently running on version ($CP4D_CURRENT_VERSION) equal/higher than the target upgrade version ($CP4D_VERSION), skipping upgrade."          
     fi
   fi
 }
@@ -260,6 +489,8 @@ function validate_update() {
   # Confirm Grafana Operator upgrade
   detect_grafana_update
 
+  # Validates CP4D upgrade
+  validate_existing_cp4d
 
   # Lookup for OCP console route
   if [[ -z "$OCP_CONSOLE_ROUTE" ]]; then
@@ -344,8 +575,17 @@ function update_noninteractive() {
       --dro-migration)
         DRO_MIGRATION=true
         ;;
+      --dro-storage-class)
+        DRO_STORAGE_CLASS=$1 && shift
+        ;;
+      --cp4d-version)
+        CP4D_VERSION=$1 && shift
+        ;;
       --no-confirm)
         NO_CONFIRM=true
+        ;;
+      --skip-pre-check)
+        SKIP_PRE_CHECK=true
         ;;
       -h|--help)
         update_help
@@ -442,6 +682,31 @@ function update() {
   export CERT_MANAGER_ACTION
   export DRO_MIGRATION
   export GRAFANA_V5_UPGRADE
+  export CP4D_UPDATE
+  export CP4D_VERSION
+  export CP4D_UPDATE_WS
+  export CP4D_CURRENT_VERSION_WS
+  export CP4D_TARGET_VERSION_WS
+  export CP4D_UPDATE_WML
+  export CP4D_CURRENT_VERSION_WML
+  export CP4D_TARGET_VERSION_WML
+  export CP4D_UPDATE_SPARK
+  export CP4D_CURRENT_VERSION_SPARK
+  export CP4D_TARGET_VERSION_SPARK
+  export CP4D_UPDATE_WOS
+  export CP4D_CURRENT_VERSION_WOS
+  export CP4D_TARGET_VERSION_WOS
+  export CP4D_UPDATE_SPSS
+  export CP4D_CURRENT_VERSION_SPSS
+  export CP4D_TARGET_VERSION_SPSS
+  export CP4D_UPDATE_COGNOS
+  export CP4D_CURRENT_VERSION_COGNOS
+  export CP4D_TARGET_VERSION_COGNOS
+  export STORAGE_CLASS_RWO
+  export STORAGE_CLASS_RWX
+  export SKIP_ENTITLEMENT_KEY_FLAG
+  export DRO_STORAGE_CLASS
+  export UDS_ACTION
 
   echo_h2 "Review Settings"
 
@@ -478,7 +743,7 @@ function update() {
 
   # MongoDB Community Edition
   if [ "$MONGODB_NAMESPACE" != "" ]; then
-    echo_reset_dim "MongoDb Community Edition .................. ${COLOR_GREEN}${MONGODB_CURRENT_VERSION} to ${MONGODB_TARGET_VERSION} ($MONGODB_NAMESPACE)${TEXT_RESET}"
+    echo_reset_dim "MongoDb Community Edition .................. ${COLOR_GREEN}Yes - ${MONGODB_CURRENT_VERSION} to ${MONGODB_TARGET_VERSION} ($MONGODB_NAMESPACE)${TEXT_RESET}"
   else
     echo_reset_dim "MongoDb Community Edition .................. ${COLOR_RED}No${TEXT_RESET}"
   fi
@@ -494,15 +759,89 @@ function update() {
 
   if [ "$DRO_MIGRATION" = "true" ]; then
     echo_reset_dim "DRO Migration .............................. ${COLOR_GREEN}Yes${TEXT_RESET}"
+    if [ "$DRO_STORAGE_CLASS" != "" ]; then
+      echo_reset_dim "DRO Storage Class ........................ ${COLOR_GREEN}${DRO_STORAGE_CLASS}${TEXT_RESET}"
+    else
+      echo_reset_dim "DRO Storage Class ........................ ${COLOR_GREEN}None${TEXT_RESET}"
+    fi
   else
     echo_reset_dim "DRO Migration .............................. ${COLOR_RED}No${TEXT_RESET}"
-
   fi
 
   # Grafana Operator
   if [ "$GRAFANA_V5_UPGRADE" == true ]; then
     echo_reset_dim "Grafana 5 Upgrade .......................... ${COLOR_GREEN}Yes (grafana5)${TEXT_RESET}"
   fi
+
+  # Cloud Pak for Data
+  # only print CP4D info if it's installed in first place
+  if [ "$CP4D_CURRENT_VERSION" != "" ]; then
+    if [ "$CP4D_UPDATE" == true ]; then
+      echo_reset_dim "Cloud Pak for Data Platform ................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION} to ${CP4D_VERSION} ($CP4D_INSTANCE_NAMESPACE)${TEXT_RESET}"
+    
+      if [[ "$STORAGE_CLASS_RWO" != "" && "$STORAGE_CLASS_RWX" != "" ]]; then
+      echo_reset_dim " - File Storage Class ...................... ${COLOR_GREEN}${STORAGE_CLASS_RWX}${TEXT_RESET}"
+      echo_reset_dim " - Block Storage Class ..................... ${COLOR_GREEN}${STORAGE_CLASS_RWO}${TEXT_RESET}"
+      fi
+
+      if [ "$CP4D_VERSION" != "" ]; then
+        echo_reset_dim " - Version ................................. ${COLOR_GREEN}${CP4D_VERSION}${TEXT_RESET}"
+      fi
+    else
+      echo_reset_dim "Cloud Pak for Data Platform ................ ${COLOR_RED}No${TEXT_RESET}"
+    fi
+
+    # Cloud Pak for Data Services
+    if [ "$CP4D_CURRENT_VERSION_WS" != "" ]; then
+      if [ "$CP4D_UPDATE_WS" == true ]; then
+        echo_reset_dim " - Watson Studio ........................... ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WS} to ${CP4D_TARGET_VERSION_WS:-<default>}${TEXT_RESET}"
+      else
+        echo_reset_dim " - Watson Studio ........................... ${COLOR_RED}No${TEXT_RESET}"
+      fi
+    fi
+
+    if [ "$CP4D_CURRENT_VERSION_WML" != "" ]; then
+      if [ "$CP4D_UPDATE_WML" == true ]; then
+        echo_reset_dim " - Watson Machine Learning ................. ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WML} to ${CP4D_TARGET_VERSION_WML:-<default>}${TEXT_RESET}"
+      else
+        echo_reset_dim " - Watson Machine Learning ................. ${COLOR_RED}No${TEXT_RESET}"
+      fi
+    fi
+
+    if [ "$CP4D_CURRENT_VERSION_SPARK" != "" ]; then
+      if [ "$CP4D_UPDATE_SPARK" == true ]; then
+        echo_reset_dim " - Analytics Engine ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_SPARK} to ${CP4D_TARGET_VERSION_SPARK:-<default>}${TEXT_RESET}"
+      else
+        echo_reset_dim " - Analytics Engine ........................ ${COLOR_RED}No${TEXT_RESET}"
+      fi
+    fi
+
+    if [ "$CP4D_CURRENT_VERSION_WOS" != "" ]; then
+      if [ "$CP4D_UPDATE_WOS" == true ]; then
+        echo_reset_dim " - Watson Openscale ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_WOS} to ${CP4D_TARGET_VERSION_WOS:-<default>}${TEXT_RESET}"
+      else
+        echo_reset_dim " - Watson Openscale ........................ ${COLOR_RED}No${TEXT_RESET}"
+      fi
+    fi
+
+    if [ "$CP4D_CURRENT_VERSION_SPSS" != "" ]; then
+      if [ "$CP4D_UPDATE_SPSS" == true ]; then
+        echo_reset_dim " - SPSS Modeler ............................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_SPSS} to ${CP4D_TARGET_VERSION_SPSS:-<default>}${TEXT_RESET}"
+      else
+        echo_reset_dim " - SPSS Modeler ............................ ${COLOR_RED}No${TEXT_RESET}"
+      fi
+    fi
+
+    if [ "$CP4D_CURRENT_VERSION_COGNOS" != "" ]; then
+      if [ "$CP4D_UPDATE_COGNOS" == true ]; then
+        echo_reset_dim " - Cognos Analytics ........................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION_COGNOS} to ${CP4D_TARGET_VERSION_COGNOS:-<Default>}${TEXT_RESET}"
+      else
+        echo_reset_dim " - Cognos Analytics ........................ ${COLOR_RED}No${TEXT_RESET}"
+      fi
+    fi
+
+  fi
+  reset_colors
 
   # In SLS 3.8.0 registry was changed to icr.io/cpopen, however
   # when updating from a previous version it would not automatically

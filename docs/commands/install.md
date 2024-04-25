@@ -51,6 +51,9 @@ Usage
 
 ### IBM Cloud Pak for Data (Required when installing Predict or Assist):
 - `--cp4d-version CP4D_VERSION`                                  Product version of CP4D to use
+- `--cp4d-install-cognos`                                        Adds Cognos as part of Cloud Pak for Data (Requires Manage application to be installed too).
+- `--cp4d-install-spss`                                          Adds SPSS Modeler as part of Cloud Pak for Data.
+- `--cp4d-install-openscale`                                     Adds Watson Openscale as part of Cloud Pak for Data.
 
 ### Kafka - Common Arguments (Optional, required to install Maximo IoT):
 - `--kafka-provider KAFKA_PROVIDER`                             Required. Set Kafka provider. Supported options are `redhat` (Red Hat AMQ Streams), `strimzi` and `ibm` (IBM Event Streams) and `aws` (AWS MSK)
@@ -80,9 +83,10 @@ Usage
 - `--eventstreams-instance-location EVENTSTREAMS_LOCATION`      Optional. Set IBM Event Streams instance location.
 
 ### IBM Db2 (Optional, required to use IBM Db2 Universal Operator):
-- `--db2u-channel DB2_CHANNEL`     Subscription channel for Db2u (e.g. v110508.0)
-- `--db2u-system`                  Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)
-- `--db2u-manage`                  Install a dedicated Db2u instance for Maximo Manage (supported by Manage)
+- `--db2u-channel DB2_CHANNEL`          Subscription channel for Db2u (e.g. v110508.0)
+- `--db2u-system`                       Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)
+- `--db2u-manage`                       Install a dedicated Db2u instance for Maximo Manage (supported by Manage)
+- `--db2u-manage-type`                  Optional. Choose the type of the Manage dedicated Db2u instance. Available options are `db2wh` (default) or `db2oltp`.
 
 ### Advanced Db2u Universal Operator Configuration (Optional):
 - `--db2u-namespace DB2_NAMESPACE` Change namespace where Db2u instances will be created
@@ -114,27 +118,30 @@ Usage
 
   List of all identifiers for Manage industry solutions and add-ons that can be installed with Manage (base):
 
-    - `acm (Asset Configuration Manager)`
-    - `aviation (Aviation)`
-    - `civil (Civil Infrastructure)`
-    - `envizi (Envizi)`
-    - `hse (Health, Safety and Environment)`
-    - `health (Health)`
-    - `icd (Maximo IT)`
-    - `nuclear (Nuclear)`
-    - `oilandgas (Oil & Gas)`
-    - `oracleadapter (Connector for Oracle Applications)`
-    - `sapadapter (Connector for SAP Applications)`
-    - `serviceprovider (Service Provider)`
-    - `spatial (Spatial)`
-    - `strategize (Strategize)`
-    - `transportation (Transportation)`
-    - `tririga (Tririga)`
-    - `utilities (Utilities)`
-    - `workday (Workday Applications)`
+    - `acm` (Asset Configuration Manager)
+    - `aviation` (Aviation)
+    - `civil` (Civil Infrastructure)
+    - `envizi` (Envizi)
+    - `hse` (Health, Safety and Environment)
+    - `health` (Health)
+    - `icd` (Maximo IT)
+    - `nuclear` (Nuclear)
+    - `oilandgas` (Oil & Gas)
+    - `oracleadapter` (Connector for Oracle Applications)
+    - `sapadapter` (Connector for SAP Applications)
+    - `serviceprovider` (Service Provider)
+    - `spatial` (Spatial)
+    - `strategize` (Strategize)
+    - `transportation` (Transportation)
+    - `tririga` (Tririga)
+    - `utilities` (Utilities)
+    - `workday` (Workday Applications)
 
-    - `For detailed information about each of the available Manage Industry Solutions or Add-ons, please check the [Maximo Manage components](https://www.ibm.com/docs/en/mas-cd/maximo-manage/continuous-delivery?topic=overview-maximo-manage-components) documentation.`
+  For detailed information about each of the available Manage Industry Solutions or Add-ons, please check the [Maximo Manage components](https://www.ibm.com/docs/en/mas-cd/maximo-manage/continuous-delivery?topic=overview-maximo-manage-components) documentation.
 
+- `--manage-base-language MAS_APP_SETTINGS_BASE_LANG`                                       Set Manage base language to be installed. Default is `EN` (English).
+- `--manage-secondary-languages MAS_APP_SETTINGS_SECONDARY_LANGS`                           Set a comma-separated list of Manage secondary languages to be installed. As example: `JA,DE,AR` For a complete list of available languages, please check the [Maximo Manage language support](https://www.ibm.com/docs/en/mas-cd/mhmpmh-and-p-u/continuous-delivery?topic=deploy-language-support) documentation.
+- `--manage-server-timezone MAS_APP_SETTINGS_SERVER_TIMEZONE`                               Set the Manage server timezone. Default is `GMT`.
 - `--manage-customization-archive-name MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME`         Set Manage Archive name
 - `--manage-customization-archive-url MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL`           Set Manage Archive url
 - `--manage-customization-archive-username MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME` Set Manage Archive username, in case url requires basic authentication to pull the archive
@@ -144,13 +151,16 @@ Usage
 - `--manage-old-crypto-key MAS_APP_SETTINGS_OLD_CRYPTO_KEY`                                 Set `MXE_SECURITY_OLD_CRYPTO_KEY` value if you want to customize your Manage database encryption keys
 - `--manage-old-cryptox-key MAS_APP_SETTINGS_OLD_CRYPTOX_KEY`                               Set `MXE_SECURITY_OLD_CRYPTOX_KEY` value if you want to customize your Manage database encryption keys
 - `--manage-override-encryption-secrets`                                                    Overrides any existing Manage database encryption keys. A backup of the original secret holding existing encryption keys is taken prior overriding it with the new defined keys.
+-- `--manage-db-tablespace MAS_APP_SETTINGS_TABLESPACE`                                     Optional. Set the database tablespace name that Manage will use to be installed. Default is `MAXDATA`.
+-- `--manage-db-indexspace MAS_APP_SETTINGS_INDEXSPACE`                                     Optional. Set the database indexspace name that Manage will use to be installed. Default is `MAXINDEX`.
+-- `--manage-db-schema MAS_APP_SETTINGS_DB2_SCHEMA`                                         Optional. Set the DB2 database schema name that Manage will use to be installed. Default is `maximo`. Note: This is only applicable to the cases where a DB2 instance will be created for Manage via MAS CLI.
 
 ### Other Commands:
 - `--no-wait-for-pvcs` If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
 - `--no-confirm`       Launch the install without prompting for confirmation
 - `--accept-license`   Accept MAS and Maximo IT (if applicable) licenses
+- `--skip-pre-check`   Skips the 'pre-install-check' task in the install pipeline
 - `-h, --help`         Show install help message
-
 
 Non-Interactive Install
 -------------------------------------------------------------------------------

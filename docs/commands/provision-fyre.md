@@ -13,7 +13,7 @@ Usage
 - `-p|--product-id FYRE_PRODUCT_ID` FYRE product group ID that will own the cluster
 - `-q|--quota-type FYRE_QUOTA_TYPE` Declare the quota to use when provisioning the cluster ("quick_burn" or "product_group")
 - `-c|--cluster-name CLUSTER_NAME` Name of the cluster to be provisioned (lowercase only)
-- `-v|--ocp-version OCP_VERSION` OCP version to use (e.g 4.8, 4.10)
+- `-v|--ocp-version OCP_VERSION` OCP version to use (e.g 4.13, 4.14)
 - `-d|--description FYRE_DESCRIPTION` Description of the OCP cluster
 
 ### Worker Node Configuration
@@ -41,7 +41,7 @@ export FYRE_APIKEY=xxx
 docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-fyre \
   -u $FYRE_USERNAME -a $FYRE_APIKEY \
   -p 225 -q product_group \
-  -c masonfyre -d "My Cluster" -v 4.10 \
+  -c masonfyre -d "My Cluster" -v 4.14 \
   --worker-count 3 --worker-cpu 8 --worker-memory 32 \
   --no-confirm
 ```
