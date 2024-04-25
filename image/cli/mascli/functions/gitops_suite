@@ -465,6 +465,8 @@ function gitops_suite() {
     export CIS_SECRET_FILE=$TEMP_DIR/cis-secret.json
     sm_get_secret_file ${SECRET_NAME_CIS} ${CIS_SECRET_FILE}
     IBM_APIKEY_VALUE=$(jq -r .ibm_apikey $CIS_SECRET_FILE)
+    echo "IBM_APIKEY_VALUE ${IBM_APIKEY_VALUE:0:4}<snip>"
+
     if [ -z "${IBM_APIKEY_VALUE}" ] ; then
       echo "Missing ibm_apikey AWS Secret $SECRET_NAME_CIS, make sure ibm_apikey is added to AWS scret in the path $SECRET_NAME_CIS"
       exit 1
