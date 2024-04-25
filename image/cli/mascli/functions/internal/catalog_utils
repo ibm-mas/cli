@@ -141,7 +141,10 @@ function db2_channel_selection() {
   case $MAS_CATALOG_VERSION in
     # Db2 Channel selection
     # -------------------------------------------------------------------------
-    v8-amd64|v8-231228-amd64|v8-240130-amd64|v8-240227-amd64|v8-240326-amd64|v8-240405-amd64)
+    v8-amd64|v8-240130-amd64|v8-240227-amd64|v8-240326-amd64|v8-240405-amd64)
+      DB2_CHANNEL=v110509.0
+      ;;
+    v8-231228-amd64)
       DB2_CHANNEL=v110508.0
       ;;
     v8-230111-amd64|v8-230217-amd64|v8-230314-amd64|v8-230328-amd64)
