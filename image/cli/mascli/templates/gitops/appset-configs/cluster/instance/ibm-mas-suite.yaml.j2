@@ -41,13 +41,13 @@ ibm_mas_suite:
   override_edge_certs: "{{ OVERRIDE_EDGE_CERTS }}"
 
   mas_channel: "{{ MAS_CHANNEL }}"
-  icr_cp: {{ ICR_CP }}
-  icr_cp_open: {{ ICR_CP_OPEN }}
+  icr_cp: "{{ ICR_CP }}"
+  icr_cp_open: "{{ ICR_CP_OPEN }}"
   run_sync_hooks: true
 {%- if DNS_PROVIDER is defined and DNS_PROVIDER !='' %}
-  dns_provider: {{ DNS_PROVIDER }}
+  dns_provider: "{{ DNS_PROVIDER }}"
 {%- endif %}
-  mas_manual_cert_mgmt: {{ MAS_MANUAL_CERT_MGMT }}
+  mas_manual_cert_mgmt: "{{ MAS_MANUAL_CERT_MGMT }}"
 {%- if MAS_ANNOTATIONS is defined and MAS_ANNOTATIONS !='' %}
   mas_annotations:
     {{ MAS_ANNOTATIONS | indent(4) }}
