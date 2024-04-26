@@ -82,7 +82,9 @@ spec:
         echo "ARGOCD_URL=$ARGOCD_URL"
         echo "CIS_APIKEY=$CIS_APIKEY"
 
-        mas gitops-suite-dns --mas-instance-id $MAS_INSTANCE_ID
+        mas gitops-suite-dns --mas-instance-id $MAS_INSTANCE_ID 
+
+        exit $?
 
       command:
         - /bin/sh

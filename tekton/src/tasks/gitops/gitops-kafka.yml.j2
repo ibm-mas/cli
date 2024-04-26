@@ -97,6 +97,8 @@ spec:
         --aws-msk-ingress-cidr $VPC_IPV4_CIDR \
         --aws-msk-egress-cidr $VPC_IPV4_CIDR
 
+        exit $?
+
       command:
         - /bin/sh
         - -c

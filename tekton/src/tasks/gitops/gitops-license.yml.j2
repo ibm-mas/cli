@@ -36,6 +36,8 @@ spec:
 
         mas gitops-license -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --license-file /workspace/shared-entitlement/entitlement.lic
+
+        exit $?
       command:
         - /bin/sh
         - -c

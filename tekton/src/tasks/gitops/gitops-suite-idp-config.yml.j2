@@ -116,6 +116,8 @@ spec:
         --ldap-bind-dn "$LDAP_BIND_DN" \
         --ldap-bind-password "$LDAP_BIND_PASSWORD"
 
+        exit $?
+
       command:
         - /bin/sh
         - -c

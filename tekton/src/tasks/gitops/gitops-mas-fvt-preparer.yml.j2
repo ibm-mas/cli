@@ -438,7 +438,7 @@ spec:
         ESCAPED_LDAP_CRT=${UNESCAPED_LDAP_CRT//\"/\\\"}
         export LDAP_CRT=${ESCAPED_LDAP_CRT//$'\n'/\\n}
         echo "Set LDAP_CRT as $LDAP_CRT"
-        mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS}
+        mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS} || exit 1
 
         # Wait for launcher to complete
         /opt/app-root/src/wait-for-pipelinerun.sh --name $MAS_INSTANCE_ID-fvt-launcher-$DEVOPS_BUILD_NUMBER-$LAUNCHER_ID --namespace mas-$MAS_INSTANCE_ID-pipelines
@@ -451,7 +451,7 @@ spec:
 
         if [[ "$LAUNCHER_ID" == "apps" ]]; then
           unset KUBERNETES_SERVICE_HOST
-          python3 /opt/app-root/src/finalizer.py
+          python3 /opt/app-root/src/finalizer.py || exit 1
         fi
 
       command:

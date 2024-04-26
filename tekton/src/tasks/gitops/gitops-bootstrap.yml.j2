@@ -86,6 +86,8 @@ spec:
         --github-pat $GITHUB_PAT \
         --github-revision $GITHUB_REVISION \
         --app-revision $APP_REVISION
+	
+        exit $?
       command:
         - /bin/sh
         - -c
