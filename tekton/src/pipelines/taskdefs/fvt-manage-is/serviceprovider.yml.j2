@@ -1,28 +1,30 @@
 # ------------------
-# ACM - API Tests
+# Service Provider - API Tests
 # ------------------
-- name: fvt-manage-acm-api
+- name: fvt-manage-serviceprovider-api
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: acm-api
+      value: serviceprovider-api
   runAfter:
     - fvt-manage-setup-is # Tests must always start after fvt-manage-setup-is
 
 # ------------------
-# ACM - UI
+# Service Provider - UI
 # ------------------
-- name: fvt-manage-acm-ui
+
+# Manage FVT - Service Provider
+- name: fvt-manage-serviceprovider-ui
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: acm-1
+      value: sp-1
     - name: fvt_mas_appws_component
-      value: acm
+      value: serviceprovider
     - name: fvt_test_driver
-      value: tpae 
+      value: tpae
   runAfter:
     - fvt-manage-setup-is # Tests must always start after fvt-manage-setup-is

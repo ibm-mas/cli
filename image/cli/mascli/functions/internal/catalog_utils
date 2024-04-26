@@ -125,15 +125,12 @@ function choose_mas_version() {
 # We automatically select the UDS or DRO operator to install in the
 # cluster based on the version of the catalog that is being used
 function uds_action_selection() {
-  case $MAS_CATALOG_VERSION in
-    v8-amd64|v8-240227-amd64|v8-240326-amd64|v8-240405-amd64)
-      # UDS_ACTION=install-dro will result in any existing install of UDS being removed, and DRO being installed in it's place
-      UDS_ACTION="install-dro"
-      ;;
-    *)
-      UDS_ACTION="install"
-      ;;
-  esac
+  MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
+  if [[ ($MAS_CATALOG_DATE -ge 240227) || ($MAS_CATALOG_DATE == "amd64") || ($MAS_CATALOG_DATE == "master") ]]; then
+    UDS_ACTION="install-dro"
+  else
+    UDS_ACTION="install"
+  fi
 }
 
 # Determine the version of Db2u Operator to use
@@ -144,7 +141,10 @@ function db2_channel_selection() {
   case $MAS_CATALOG_VERSION in
     # Db2 Channel selection
     # -------------------------------------------------------------------------
-    v8-amd64|v8-231228-amd64|v8-240130-amd64|v8-240227-amd64|v8-240326-amd64|v8-240405-amd64)
+    v8-amd64|v8-240130-amd64|v8-240227-amd64|v8-240326-amd64|v8-240405-amd64)
+      DB2_CHANNEL=v110509.0
+      ;;
+    v8-231228-amd64)
       DB2_CHANNEL=v110508.0
       ;;
     v8-230111-amd64|v8-230217-amd64|v8-230314-amd64|v8-230328-amd64)
