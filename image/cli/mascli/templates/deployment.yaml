@@ -19,7 +19,7 @@ spec:
       containers:
         - name: mas-cli
           imagePullPolicy: IfNotPresent
-          image: quay.io/ibmmas/cli:7.17.1-pre.mascore-1446
+          image: quay.io/ibmmas/cli:latest
           command: [ "/bin/bash", "-c", "--" ]
           args: [ "while true; do sleep 30; done;" ]
           volumeMounts:
