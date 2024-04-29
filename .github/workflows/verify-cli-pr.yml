@@ -13,7 +13,7 @@ jobs:
 
       - name: Fail if local Ansible collection is present in PR to master
         run: |
-          if [[ -e $GITHUB_WORKSPACE/image/cli/ibm-mas_devops.tar.gz ]]; then
+          if [[ -e $GITHUB_WORKSPACE/image/cli/install-ansible/ibm-mas_devops.tar.gz ]]; then
             echo "Found a local Ansible collection($GITHUB_WORKSPACE/image/cli/install-ansible/ibm-mas_devops.tar.gz) in this PR, Local ansible collection is not allowed in master branch. Failing build."
             exit 1
           fi
