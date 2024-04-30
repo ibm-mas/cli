@@ -220,7 +220,6 @@ function save_to_target_git_repo() {
     echo "git: Add files failed with error: $return_code"
     exit $return_code
   fi
-
   export FILES_ADDED=$(echo "$FILES_ADDED_OUTPUT" | awk NF | wc -l | xargs)
   echo "git: Added ${FILES_ADDED} files"
 
