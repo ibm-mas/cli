@@ -2,7 +2,8 @@ name: Verify CLI Image
 
 on:
   pull_request:
-    branches: [ "master" ]
+    branches:
+      - master
 
 jobs:
   build:
