@@ -63,7 +63,7 @@ spec:
   stepTemplate:
     name: gitops-suite-app-install
     env:
-      - name: OCP_SERVER
+      - name: CLUSTER_URL
         value: $(params.cluster_url)
       - name: MAS_APP_ID
         value: $(params.mas_app_id)
