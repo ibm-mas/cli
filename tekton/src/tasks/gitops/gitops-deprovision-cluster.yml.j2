@@ -43,7 +43,7 @@ spec:
         value: $(params.account)
       - name: REGION
         value: $(params.region)
-      - name: OCP_SERVER
+      - name: CLUSTER_URL
         value: $(params.cluster_url)
       - name: SECRET_PATH
         value: $(params.secrets_path)
@@ -59,8 +59,6 @@ spec:
         value: $(params.git_commit_msg)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: OCP_SERVER
-        value: $(params.cluster_url)
       - name: ARGOCD_URL
         value: $(params.argocd_url)
       - name: ARGOCD_CHECK
