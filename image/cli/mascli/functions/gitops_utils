@@ -22,7 +22,14 @@ function sm_list_cluster_secrets() {
   CLUSTER_ID=$2
 
   if [[ "$AVP_TYPE" == "aws" ]]; then
-    aws secretsmanager list-secrets --output yaml --no-cli-pager --filters Key=name,Values=${ACCOUNT}${DELIMIITER}${CLUSTER_ID}${DELIMIITER} | yq -r '.SecretList[].Name'
+    LIST_SECRETS_OUTPUT="$(aws secretsmanager list-secrets --output yaml --no-cli-pager --filters Key=name,Values=${ACCOUNT}${DELIMIITER}${CLUSTER_ID}${DELIMIITER})"
+    return_code=$?
+    if [ $return_code -ne 0 ]; then
+      echo "aws: secretmanager list-secrets failed with error: $return_code"
+      exit $return_code
+    fi
+
+    echo "$LIST_SECRETS_OUTPUT" | yq -r '.SecretList[].Name'
   elif [[ "$AVP_TYPE" == "ibm" ]]; then
     echo "IBM SecretsManager not yet supported"
     exit 1
@@ -66,7 +73,7 @@ function sm_delete_secret(){
   if [[ "$AVP_TYPE" == "aws" ]]; then
 
     # Delete the secret
-    aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${SECRET_NAME} --output json 2> /dev/null
+    aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${SECRET_NAME} --output json 2> /dev/null || exit 1
 
   elif [[ "$AVP_TYPE" == "ibm" ]]; then
     echo "IBM SecretsManager not yet supported"
@@ -207,7 +214,14 @@ function save_to_target_git_repo() {
   cd $LOCAL_DIR || exit 1
 
   echo "git: Adding all files in $LOCAL_DIR working directory"
-  export FILES_ADDED=$(git add -v . | wc -l | xargs)
+  FILES_ADDED_OUTPUT="$(git add -v .)"
+  return_code=$?
+  if [ $return_code -ne 0 ]; then
+    echo "git: Add files failed with error: $return_code"
+    exit $return_code
+  fi
+
+  export FILES_ADDED=$(echo "$FILES_ADDED_OUTPUT" | awk NF | wc -l | xargs)
   echo "git: Added ${FILES_ADDED} files"
 
   if [ "$FILES_ADDED" != "0" ]; then
@@ -583,7 +597,7 @@ function argocd_sync(){
   echo "ArgoCD response for Force Application $APP_NAME to Sync: $RC"
 }
 
-  function argocd_prune_sync(){
+function argocd_prune_sync(){
   APP_NAME=$1
   echo "Force Application $APP_NAME to Sync with --prune ..."
   argocd app sync $APP_NAME --prune
