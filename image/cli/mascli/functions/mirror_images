@@ -46,12 +46,12 @@ Content Selection (Applications):
       --mirror-visualinspection                   Mirror images for IBM Maximo Visual Inspection
 
 Content Selection (Cloud Pak for Data):
-      --mirror-cp4d                                                             Mirror images for IBM Cloud Pak for Data Platform
-      --mirror-cp4d-version ${COLOR_YELLOW}CPD_PRODUCT_VERSION${TEXT_RESET}$    Mirror images for IBM Cloud Pak for Data Platform at a specific version defined
-      --mirror-wd                                                               Mirror images for IBM Watson Discovery
-      --mirror-wsl                                                              Mirror images for IBM Watson Studio Local
-      --mirror-wml                                                              Mirror images for IBM Watson Machine Learning
-      --mirror-spark                                                            Mirror images for IBM Analytics Engine (Spark)
+      --mirror-cp4d                                 Mirror images for IBM Cloud Pak for Data Platform
+      --mirror-wd                                   Mirror images for IBM Watson Discovery
+      --mirror-wsl                                  Mirror images for IBM Watson Studio Local
+      --mirror-wml                                  Mirror images for IBM Watson Machine Learning
+      --mirror-spark                                Mirror images for IBM Analytics Engine (Spark)
+      --mirror-cognos                               Mirror images for IBM Cognos Analytics
 
 Content Selection (Other Dependencies):
       --mirror-cfs                                  Mirror images for IBM Cloud Pak Foundation Services
@@ -101,6 +101,7 @@ function mirror_to_registry_noninteractive() {
   MIRROR_WSL=false
   MIRROR_WML=false
   MIRROR_SPARK=false
+  MIRROR_COGNOS=false
   MIRROR_APPCONNECT=false
 
   while [[ $# -gt 0 ]]
@@ -228,10 +229,6 @@ function mirror_to_registry_noninteractive() {
       --mirror-cp4d)
         MIRROR_CP4D=true
         ;;
-      --mirror-cp4d-version)
-        CPD_PRODUCT_VERSION=$1 && shift
-        MIRROR_CP4D=true
-        ;;
       --mirror-wd)
         MIRROR_WD=true
         ;;
@@ -243,6 +240,9 @@ function mirror_to_registry_noninteractive() {
         ;;
       --mirror-spark)
         MIRROR_SPARK=true
+        ;;
+      --mirror-cognos)
+        MIRROR_COGNOS=true
         ;;
 
       --no-confirm)
@@ -365,6 +365,7 @@ function mirror_to_registry_interactive() {
     MIRROR_WSL=true
     MIRROR_WML=true
     MIRROR_SPARK=true
+    MIRROR_COGNOS=true
   else
     prompt_for_confirm_default_yes "IBM Maximo Operator Catalog" MIRROR_CATALOG
 
@@ -428,6 +429,7 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm_default "IBM Watson Discovery" MIRROR_WD
     prompt_for_confirm_default "IBM Watson Machine Learning" MIRROR_WML
     prompt_for_confirm_default "IBM Analytics Engine (Spark)" MIRROR_SPARK
+    prompt_for_confirm_default "IBM Cognos Analytics" MIRROR_COGNOS
 
     prompt_for_confirm_default "IBM AppConnect" MIRROR_APPCONNECT
   fi
@@ -465,19 +467,8 @@ function mirror_one_thing() {
     echo -en "\033[1K" # Clear current line
     echo -en "\033[u" # Restore cursor position
     if [[ $mirror_result == "0" ]];
-    then
-    echo
-    cat $MOT_LOGFILE
-    echo
-    echo -e "${COLOR_GREEN}[SUCCESS] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
-    echo
-    else
-      echo
-      cat $MOT_LOGFILE
-      echo
-      ls /tmp/mirror/manifests/direct
-      echo
-      echo -e "${COLOR_RED}[FAILURE] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
+    then echo -e "${COLOR_GREEN}[SUCCESS] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
+    else echo -e "${COLOR_RED}[FAILURE] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
     fi
   else
     echo -e "${COLOR_MAGENTA}[SKIPPED] ${MOT_NAME}${TEXT_RESET}"
@@ -492,19 +483,6 @@ function show_mirror_status() {
   fi
 }
 
-function get_cp4d_version_to_mirror() {
-  # if 'CPD_PRODUCT_VERSION' is defined, then use it in precedence over the default CPD_PRODUCT_VERSION from the MAS catalog
-  if [ -z "$CPD_PRODUCT_VERSION" ]; then
-    CPD_PRODUCT_VERSION=`yq -r .cpd_product_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml 2>/dev/null`
-    if [[ "$CPD_PRODUCT_VERSION" == "null" ]]; then
-      CPD_PRODUCT_VERSION=""
-      MIRROR_CP4D=false
-      echo "Could not determine Cloud Pak for Data version to mirror based on '$MAS_CATALOG_VERSION' catalog source. Skipping mirroring..."
-    fi
-  fi
-}
-
-
 function mirror_to_registry() {
   # Take the first parameter off (it will be mirror-images)
   shift
@@ -512,18 +490,6 @@ function mirror_to_registry() {
     mirror_to_registry_noninteractive "$@"
   else
     mirror_to_registry_interactive
-  fi
-
-  # Lookup which CP4D version to mirror based on the MAS catalog
-  # This will tell whether we need just to mirror CP4D images from ibm-operator-catalog (as is up to CP4D 4.6.x)
-  # Or if we will need to mirror extra CP4D related images (specific to CP4D 4.8+)
-  if [[ "$MIRROR_CP4D" == true ||
-    "$MIRROR_WD" == true ||
-    "$MIRROR_WSL" == true ||
-    "$MIRROR_WML" == true ||
-    "$MIRROR_SPARK" == true ]]
-  then
-    get_cp4d_version_to_mirror
   fi
 
   # Ensure all environment variables are available to ansible-playbook
@@ -555,11 +521,9 @@ function mirror_to_registry() {
   export MIRROR_WML
   export MIRROR_WSL
   export MIRROR_SPARK
+  export MIRROR_COGNOS
   export MIRROR_APPCONNECT
   export MIRROR_MAS_ICD
-
-  #Cloud Pak for Data
-  export CPD_PRODUCT_VERSION
 
   # Authentication
   export IBM_ENTITLEMENT_KEY
@@ -583,7 +547,8 @@ function mirror_to_registry() {
     "$MIRROR_WD" == true ||
     "$MIRROR_WSL" == true ||
     "$MIRROR_WML" == true ||
-    "$MIRROR_SPARK" == true ]]
+    "$MIRROR_SPARK" == true ||
+    "$MIRROR_COGNOS" == true ]]
   then
     MIRROR_DEPS=true
   else
@@ -633,16 +598,13 @@ function mirror_to_registry() {
 
   echo
   reset_colors
-  if [ -n "$CPD_PRODUCT_VERSION" ];then
-    echo_h4 "Content Selection (Cloud Pak for Data v$CPD_PRODUCT_VERSION)" "    "
-  else
-    echo_h4 "Content Selection (Cloud Pak for Data)" "    "
-  fi
+  echo_h4 "Content Selection (Cloud Pak for Data)" "    "
   show_mirror_status "IBM Cloud Pak for Data (CP4D) ......." $MIRROR_CP4D
   show_mirror_status "IBM Watson Discovery ................" $MIRROR_WD
   show_mirror_status "IBM Watson Studio ..................." $MIRROR_WSL
   show_mirror_status "IBM Watson Machine Learning ........." $MIRROR_WML
   show_mirror_status "IBM Analytics Engine (Spark)........." $MIRROR_SPARK
+  show_mirror_status "IBM Cognos Analytics ................" $MIRROR_COGNOS
 
   echo
   reset_colors
