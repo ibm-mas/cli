@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. $CLI_DIR/functions/internal/install_config_storage_classes
+
 function update_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
@@ -16,6 +18,7 @@ Update Dependencies (Optional):
   --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}          DB2 namespace where instances update will be performed
   --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET}   Namespace where MongoCE operator and instance will be updated
   --mongodb-v5-upgrade ${COLOR_YELLOW}MONGODB_V5_UPGRADE${TEXT_RESET} Confirms that Mongo can be upgraded to version 5 if needed as part of the update
+  --mongodb-version  ${COLOR_YELLOW}MONGODB_VERSION${TEXT_RESET}      Optional. Set Mongo version for the upgrade. Note: This overrides the default MongoDB version defined by the Maximo Operator Catalog version.
   --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}       Namespace where Kafka operator and instance will be updated
   --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}         Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), or 'strimzi'
   --dro-migration  ${COLOR_YELLOW}DRO_MIGRATION${TEXT_RESET}          Confirm the removal of UDS and replacement with DRO as part of the update
@@ -91,8 +94,11 @@ function validate_existing_mongo() {
     # Only check if mongo upgrade is needed if mongo is currently installed
     if [[ $MONGODB_CURRENT_VERSION != "" ]]; then
     
-      # Target mongo version will be defined by chosen catalog/casebundle
-      MONGODB_TARGET_VERSION=`yq -r .mongo_extras_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml`
+      # Target mongo version will be defined by chosen catalog/casebundle if MONGODB_VERSION not set
+      MONGODB_TARGET_VERSION=${MONGODB_VERSION}
+      if [[ "$MONGODB_TARGET_VERSION" == "" ]]; then
+        MONGODB_TARGET_VERSION=`yq -r .mongo_extras_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml 2> /dev/null`
+      fi
 
       MONGODB_CURRENT_MAJORMINOR_VERSION=${MONGODB_CURRENT_VERSION:0:3}
       MONGODB_TARGET_MAJORMINOR_VERSION=${MONGODB_TARGET_VERSION:0:3}
@@ -135,7 +141,7 @@ function validate_dro_migration() {
   # warn about DRO migration if UDS is running and MAS catalog is January 2024 or newer
   MAS_CATALOG_DATE=${MAS_CATALOG_VERSION:3:6}
 
-  if [[ $MAS_CATALOG_DATE -ge 240227 ]]; then
+  if [[ ($MAS_CATALOG_DATE -ge 240227) || ($MAS_CATALOG_DATE == "amd64") || ($MAS_CATALOG_DATE == "master") ]]; then
     if [[ "$NO_CONFIRM" != "true" ]] && [[ -z "${DRO_MIGRATION}" ]]; then
       prompt_for_confirm_default_yes "Do you want to proceed with uninstalling UDS and migrate to DRO?" DRO_MIGRATION
     fi
@@ -151,9 +157,15 @@ function validate_dro_migration() {
           echo -e "UDS will be uninstalled and MAS will migrate to use DRO (Data Reporter Operator). All compatible bascfg configuration will be updated and configured to use DRO ${COLOR_RESET}"
           echo
           if [[ "$NO_CONFIRM" != "true" ]] && [[ -z "${DRO_STORAGE_CLASS}" ]]; then
-            prompt_for_input "Enter the name of a RWO Storage Class to configure DRO, leave it blank if you want the CLI to autodetect a storage class:" DRO_STORAGE_CLASS
+            echo -e "Checking Available RWO Storage classes to configure DRO. ${COLOR_RESET}"
+            install_config_storage_classes
+            DRO_STORAGE_CLASS=$STORAGE_CLASS_RWO
+            echo -e "Storage class for DRO ${DRO_STORAGE_CLASS} ${COLOR_RESET}"
+          elif [ "$DRO_STORAGE_CLASS" != "" ]; then
+            echo -e "Storage class for DRO ${DRO_STORAGE_CLASS} ${COLOR_RESET}"
           else
             DRO_STORAGE_CLASS=""
+            echo -e "No storage class selected for DRO ${COLOR_RESET}"
           fi
 
           ## Check all avaliable Suite Instances versions , if any of them is 8.9.x cancel the dro migration. Exit mas update throw error.
@@ -558,6 +570,9 @@ function update_noninteractive() {
       --mongodb-v5-upgrade)
         MONGODB_V5_UPGRADE=true
         ;;
+      --mongodb-version)
+        MONGODB_VERSION=$1 && shift
+        ;;
       --kafka-namespace)
         KAFKA_NAMESPACE=$1 && shift
         ;;
@@ -668,6 +683,7 @@ function update() {
   export DB2_NAMESPACE
   export MONGODB_NAMESPACE
   export MONGODB_V5_UPGRADE
+  export MONGODB_VERSION
   export KAFKA_NAMESPACE
   export KAFKA_PROVIDER
   export CERT_MANAGER_PROVIDER
@@ -752,9 +768,9 @@ function update() {
   if [ "$DRO_MIGRATION" = "true" ]; then
     echo_reset_dim "DRO Migration .............................. ${COLOR_GREEN}Yes${TEXT_RESET}"
     if [ "$DRO_STORAGE_CLASS" != "" ]; then
-      echo_reset_dim "DRO Storage Class .............................. ${COLOR_GREEN}${DRO_STORAGE_CLASS}${TEXT_RESET}"
+      echo_reset_dim "DRO Storage Class ........................ ${COLOR_GREEN}${DRO_STORAGE_CLASS}${TEXT_RESET}"
     else
-      echo_reset_dim "DRO Storage Class .............................. ${COLOR_GREEN}None${TEXT_RESET}"
+      echo_reset_dim "DRO Storage Class ........................ ${COLOR_GREEN}None${TEXT_RESET}"
     fi
   else
     echo_reset_dim "DRO Migration .............................. ${COLOR_RED}No${TEXT_RESET}"
