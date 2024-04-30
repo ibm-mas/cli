@@ -2,11 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-{% if wait_for_provision == true %}
-  name: gitops-provision-mas-apps-after-provision
-{% else %}
   name: gitops-provision-mas-apps
-{% endif %}
 spec:
   workspaces:
     - name: configs
@@ -14,41 +10,6 @@ spec:
     - name: shared-gitops-configs
   description: Provision MAS GitOps Instance
   params:
-{% if wait_for_provision == true %}
-      # Name of the PipelineRun to wait for
-    - name: pipelinerun_name
-      type: string
-    - name: second_pipelinerun_name
-      type: string
-    - name: ignore_failure
-      type: string
-      default: "False"
-      description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
-    - name: remote_ocp_cluster
-      type: string
-      default: ""
-    - name: remote_ocp_type
-      type: string
-      default: "rosa"
-    - name: remote_rosa_token
-      type: string
-      default: ""
-    - name: remote_rosa_cluster_admin_password
-      type: string
-      default: ""
-    - name: aws_region
-      type: string
-      default: ""
-    - name: aws_secret_access_key
-      type: string
-      default: ""
-    - name: aws_access_key_id
-      type: string
-      default: ""
-    - name: argocd_remove_deny_window
-      type: string
-      default: "True"
-{% endif %}
     - name: cluster_name
       type: string
     - name: cluster_url
@@ -68,12 +29,9 @@ spec:
     - name: avp_aws_secret_region
       type: string
 
-
-
     # 1. Gitops git Parameters
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
-
 
     - name: mas_manual_cert_mgmt
       type: string
@@ -372,57 +330,9 @@ spec:
       default: ""
 
   tasks:
-{% if wait_for_provision == true %}
-    # 0. Wait for the fvt start pipeline to complete
-    # -------------------------------------------------------------------------
-    - name: wait-for-fvt-start
-      params:
-        - name: pipelinerun_name
-          value: $(params.pipelinerun_name)
-        - name: ignore_failure
-          value: $(params.ignore_failure)
-      taskRef:
-        kind: Task
-        name: mas-fvt-wait-for-pipelinerun
-
-    # 1. Wait for the remote fvt pipeline to complete
-    # -------------------------------------------------------------------------
-    - name: wait-for-fvt-complete
-      runAfter:
-        - wait-for-fvt-start
-      params:
-        - name: pipelinerun_name
-          value: $(params.second_pipelinerun_name)
-        - name: ignore_failure
-          value: $(params.ignore_failure)
-        - name: remote_ocp_cluster
-          value: $(params.remote_ocp_cluster)
-        - name: remote_ocp_type
-          value: $(params.remote_ocp_type)
-        - name: remote_rosa_token
-          value: $(params.remote_rosa_token)
-        - name: remote_rosa_cluster_admin_password
-          value: $(params.remote_rosa_cluster_admin_password)
-        - name: aws_region
-          value: $(params.aws_region)
-        - name: aws_secret_access_key
-          value: $(params.aws_secret_access_key)
-        - name: aws_access_key_id
-          value: $(params.aws_access_key_id)
-        - name: argocd_remove_deny_window
-          value: $(params.argocd_remove_deny_window)
-      taskRef:
-        kind: Task
-        name: mas-fvt-wait-for-pipelinerun
-{% endif %}
-
     # 2. Kafka
     # -------------------------------------------------------------------------
     - name: gitops-kafka-config
-{% if wait_for_provision == true %}
-      runAfter:
-        - wait-for-fvt-complete
-{% endif %}
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
@@ -448,10 +358,6 @@ spec:
     # -------------------------------------------------------------------------
     # 3.1 DB2 for IoT
     - name: gitops-db2u-database-iot
-{% if wait_for_provision == true %}
-      runAfter:
-        - wait-for-fvt-complete
-{% endif %}
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
@@ -535,10 +441,6 @@ spec:
 
     # 3.2 DB2 for Manage
     - name: gitops-db2u-database-manage
-{% if wait_for_provision == true %}
-      runAfter:
-        - wait-for-fvt-complete
-{% endif %}
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
@@ -661,15 +563,8 @@ spec:
     # -------------------------------------------------------------------------
     # 7.1 Install VisualInspection
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/visualinspection-app.yml.j2') | indent(4) }}
-{% if wait_for_provision == true %}
-      runAfter:
-        - wait-for-fvt-complete
-        - gitops-suite-objectstorage-config
-{% else %}
       runAfter:
         - gitops-suite-objectstorage-config
-{% endif %}
-
 
     # 7.2 Configure VisualInspection workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/visualinspection-workspace.yml.j2') | indent(4) }}
@@ -680,10 +575,6 @@ spec:
     # -------------------------------------------------------------------------
     # 8.1 CP4D 
     - name: gitops-cp4d
-{% if wait_for_provision == true %}
-      runAfter:
-        - wait-for-fvt-complete
-{% endif %}
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 

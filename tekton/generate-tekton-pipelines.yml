@@ -46,6 +46,8 @@
         - fvt-sls
         - fvt-data-dictionary
         - fvt-uninstall-after
+        - fvt-upgrade-post
+        - fvt-upgrade-pre
         - fvt-visualinspection
         - update
         - upgrade
@@ -86,7 +88,6 @@
         - provision-bootstrap-cluster
         - provision-mas-instance
         - gitops-mas-fvt-preparer-pipeline
-        - gitops-update
         - provision-mas-apps
         - gitops-mas-cluster
 
@@ -101,7 +102,6 @@
       with_items:
         - provision-bootstrap-cluster
         - deprovision-cluster
-        - deprovision-mas-instance
         - deprovision-mas-deps
 
     # 5. Generate Gitops Pipelines with waits
@@ -113,8 +113,5 @@
         src: "{{ pipeline_src_dir }}/gitops/{{ item }}.yml.j2"
         dest: "{{ pipeline_target_dir }}/{{ item }}-after-provision.yaml"
       with_items:
-        - provision-mas-instance
-        - provision-mas-apps
-        - gitops-mas-fvt-preparer-pipeline
         - gitops-mas-deps
         - gitops-mas-initiator

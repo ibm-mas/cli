@@ -31,7 +31,7 @@ spec:
   stepTemplate:
     name: gitops-cis-compliance
     env:
-      - name: OCP_SERVER
+      - name: CLUSTER_URL
         value: $(params.cluster_url)
       - name: CLUSTER_NAME
         value: $(params.cluster_name)

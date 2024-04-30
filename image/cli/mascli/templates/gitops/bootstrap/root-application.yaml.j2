@@ -24,9 +24,11 @@ spec:
             "revision": "{{ APP_REPO_REVISION }}"
           },
           "source": {
-            "targetRevision": "{{ APP_REVISION }}"
+            "targetRevision": "{{ APP_REVISION }}",
+            "repoURL": "https://github.com/ibm-mas/gitops"
           },
-          "argoapp_namespace": "{{ ARGOAPP_NAMESPACE }}"
+          "argoapp_namespace": "{{ ARGOAPP_NAMESPACE }}",
+          "argo_project_apps": "mas"
         }
   syncPolicy:
     automated:

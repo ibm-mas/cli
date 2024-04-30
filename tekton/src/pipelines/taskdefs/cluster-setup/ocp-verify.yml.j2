@@ -4,9 +4,11 @@
     name: mas-devops-ocp-verify
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    # Pipeline Config
+    - name: skip_pre_check
+      value: $(params.skip_pre_check)
     - name: devops_suite_name
       value: {{ devops_suite_name }}
-
     - name: verify_cluster
       value: {{ verify_cluster | default("True") }}
     - name: verify_catalogsources
@@ -17,20 +19,9 @@
       value: {{ verify_workloads | default("True") }}
     - name: verify_ingress
       value: {{ verify_ingress | default("True") }}
-
-{% if remote_ocp_cluster is defined and remote_ocp_cluster != '' %}
-    - name: remote_ocp_cluster
-      value: {{ remote_ocp_cluster }}
-    - name: remote_ocp_type
-      value: {{ remote_ocp_type | default("rosa") }}
-    - name: rosa_cluster_admin_password
-      value: {{ rosa_cluster_admin_password }}
-    - name: rosa_token
-      value: {{ rosa_token }}
-    - name: avp_aws_secret_region
-      value: {{ avp_aws_secret_region }}
-    - name: avp_aws_secret_key
-      value: {{ avp_aws_secret_key }}
-    - name: avp_aws_access_key
-      value: {{ avp_aws_access_key }}
-{% endif %}
+    - name: ocp_ingress_tls_secret_name
+      value: $(params.ocp_ingress_tls_secret_name)
+  when:
+    - input: "$(params.skip_pre_check)"
+      operator: notin
+      values: ["true"]

@@ -47,7 +47,7 @@ spec:
   stepTemplate:
     name: gitops-suite-config
     env:
-      - name: OCP_SERVER
+      - name: CLUSTER_URL
         value: $(params.cluster_url)
       - name: CLUSTER_ID
         value: $(params.cluster_name)

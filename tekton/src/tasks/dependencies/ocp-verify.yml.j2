@@ -27,28 +27,6 @@ spec:
       type: string
       default: ""
 
-    - name: remote_ocp_cluster
-      type: string
-      default: ""
-    - name: remote_ocp_type
-      type: string
-      default: ""
-    - name: rosa_cluster_admin_password
-      type: string
-      default: ""
-    - name: rosa_token
-      type: string
-      default: ""
-    - name: avp_aws_secret_region
-      type: string
-      default: ""
-    - name: avp_aws_secret_key
-      type: string
-      default: ""
-    - name: avp_aws_access_key
-      type: string
-      default: ""
-
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -67,46 +45,11 @@ spec:
       - name: OCP_INGRESS_TLS_SECRET_NAME
         value: $(params.ocp_ingress_tls_secret_name)
 
-      - name: REMOTE_OCP_CLUSTER
-        value: $(params.remote_ocp_cluster)
-      - name: REMOTE_OCP_TYPE
-        value: $(params.remote_ocp_type)
-      - name: ROSA_CLUSTER_ADMIN_PASSWORD
-        value: $(params.rosa_cluster_admin_password)
-      - name: ROSA_TOKEN
-        value: $(params.rosa_token)
-      - name: AVP_AWS_SECRET_REGION
-        value: $(params.avp_aws_secret_region)
-      - name: AVP_AWS_SECRET_KEY
-        value: $(params.avp_aws_secret_key)
-      - name: AVP_AWS_ACCESS_KEY
-        value: $(params.avp_aws_access_key)
   steps:
     - name: ocp-verify
-      script: |
-        #!/usr/bin/env bash
-
-        if [ ! -z $REMOTE_OCP_CLUSTER ];then
-          echo "Logging into $REMOTE_OCP_CLUSTER"
-          if [ $REMOTE_OCP_TYPE == "rosa" ]; then
-            aws configure set aws_access_key_id $AVP_AWS_ACCESS_KEY
-            aws configure set aws_secret_access_key $AVP_AWS_SECRET_KEY
-            aws configure set default.region $AVP_AWS_SECRET_REGION
-          fi
-          export CLUSTER_NAME=$REMOTE_OCP_CLUSTER
-          export CLUSTER_TYPE=$REMOTE_OCP_TYPE
-          ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role 
-          OC_RC=$?
-          if [ $OC_RC -ne 0 ]; then
-            echo "oc login failed to $REMOTE_OCP_CLUSTER"
-            exit 1
-          fi
-          echo "Set k8s context"
-          export K8S_AUTH_CONTEXT=$(oc whoami -c)
-        fi
-
-        ROLE_NAME=ocp_verify ansible-playbook ibm.mas_devops.run_role 
-
+      command:
+        - /opt/app-root/src/run-role.sh
+        - ocp_verify
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs

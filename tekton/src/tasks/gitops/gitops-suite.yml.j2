@@ -68,7 +68,7 @@ spec:
   stepTemplate:
     name: gitops-suite
     env:
-      - name: OCP_SERVER
+      - name: CLUSTER_URL
         value: $(params.cluster_url)
       - name: DNS_PROVIDER
         value: $(params.dns_provider)
