@@ -1,7 +1,7 @@
 name: Verify CLI Image
 
 on:
-  pull_request:
+  push:
     branches:
       - master
 
