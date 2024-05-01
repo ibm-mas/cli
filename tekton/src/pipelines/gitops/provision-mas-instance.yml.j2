@@ -99,10 +99,13 @@ spec:
       default: cis
     - name: cis_subdomain
       type: string
+      default: ""
     - name: cis_mas_domain
       type: string
+      default: ""
     - name: ocp_cluster_domain
       type: string
+      default: ""
     - name: mas_manual_cert_mgmt
       type: string
     - name: cert_manager_namespace
@@ -110,6 +113,7 @@ spec:
       default: "cert-manager"
     - name: cluster_url
       type: string
+      default: ""
     - name: cis_enhanced_security
       type: string
       default: "True"
@@ -121,12 +125,15 @@ spec:
       default: "True"
     - name: cis_email
       type: string
+      default: ""
     - name: cis_crn
       type: string
+      default: ""
     - name: mas_config_dir
       type: string
     - name: cis_service_name
       type: string
+      default: ""
     - name: mas_app_id
       type: string
 

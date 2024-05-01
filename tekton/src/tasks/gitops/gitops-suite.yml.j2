@@ -7,7 +7,7 @@ spec:
   params:
     - name: dns_provider
       type: string
-      default: ''
+      default: cis
     - name: cluster_name
       type: string
     - name: account
@@ -68,10 +68,13 @@ spec:
 
     - name: cis_subdomain
       type: string
+      default: ""
     - name: cis_mas_domain
       type: string
+      default: ""
     - name: ocp_cluster_domain
-      type: string      
+      type: string
+      default: ""
     - name: mas_workspace_id
       type: string
     - name: cis_enhanced_security
@@ -85,12 +88,15 @@ spec:
       default: "True"
     - name: cis_email
       type: string
+      default: ""
     - name: cis_crn
       type: string
+      default: ""
     - name: mas_config_dir
       type: string
     - name: cis_service_name
       type: string
+      default: ""
     - name: cis_waf
       type: string
       default: "True"
