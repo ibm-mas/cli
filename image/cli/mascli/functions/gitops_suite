@@ -36,6 +36,25 @@ IBM Maximo Application Suite:
       --mas-labels ${COLOR_YELLOW}MAS_LABELS${TEXT_RESET}                             MAS Labels definition in dict format
       --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}         MAS Manual Cert Management
 
+      --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                         DNS Provider, Currently supported CIS (Akamai support inprogress)
+      --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}                 MAS Workspace ID
+      --mas-config-dir ${COLOR_YELLOW}MAS_CONFIG_DIR${TEXT_RESET}                     MAS_CONFIG_DIR
+
+      --cis-email ${COLOR_YELLOW}CIS_EMAIL${TEXT_RESET}                               CIS EMAIL
+      --cis-crn ${COLOR_YELLOW}CIS_CRN${TEXT_RESET}                                   CIS CRN
+      --cis-apikey ${COLOR_YELLOW}CIS_APIKEY${TEXT_RESET}                             IBM CLOUD APIKEY
+      --cis-subdomain ${COLOR_YELLOW}CIS_SUBDOMAIN${TEXT_RESET}                       CIS subdomain
+      --cis-mas-domain ${COLOR_YELLOW}CIS_MAS_DOMAIN${TEXT_RESET}                     CIS MAS domain
+      --ocp-cluster-domain ${COLOR_YELLOW}OCP_CLUSTER_DOMAIN${TEXT_RESET}             Open Shift Cluster domain
+      --cis-enhanced-security ${COLOR_YELLOW}CIS_ENHANCED_SECURITY${TEXT_RESET}       Set this to true to enable the enhanced IBM CIS DNS integration security
+      --cis-waf ${COLOR_YELLOW}CIS_WAF${TEXT_RESET}                                   CIS WAF
+      --cis-proxy ${COLOR_YELLOW}CIS_PROXY${TEXT_RESET}                               CIS proxy
+      --cis-service-name ${COLOR_YELLOW}CIS_SERVICE_NAME${TEXT_RESET}                 Set this to override default CIS service name that would otherwise be created as {ClusterName}-cis-{mas_instance_id}
+
+      --update-dns-entries ${COLOR_YELLOW}UPDATE_DNS_ENTRIES${TEXT_RESET}             Set this to false if you want to not update DNS entries if they already exist
+      --delete-wildcards ${COLOR_YELLOW}DELETE_WILDCARDS${TEXT_RESET}                 Set this to true to force deletion of wildcard dns entries in cis
+      --override-edge-certs ${COLOR_YELLOW}OVERRIDE_EDGE_CERTS${TEXT_RESET}           Set this to false to not override and delete any existing edge certificates in cis instance when creating new edge certificates
+
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
 
@@ -160,6 +179,71 @@ function gitops_suite_noninteractive() {
         export CLUSTER_URL=$1 && shift
         ;;
 
+      # DNS 
+      --dns-provider)
+        export DNS_PROVIDER=$1 && shift
+        ;;
+
+      --mas-workspace-id)
+        export MAS_WORKSPACE_ID=$1 && shift
+        ;;
+
+      --mas-config-dir)
+        export MAS_CONFIG_DIR=$1 && shift
+        ;;
+
+      --cis-email)
+        export CIS_EMAIL=$1 && shift
+        ;;
+
+      --cis-crn)
+        export CIS_CRN=$1 && shift
+        ;;
+
+      --cis-apikey)
+        export CIS_APIKEY=$1 && shift
+        ;;
+
+      --cis-subdomain)
+        export CIS_SUBDOMAIN=$1 && shift
+        ;;
+
+      --cis-mas-domain)
+        export CIS_MAS_DOMAIN=$1 && shift
+        ;;
+
+      --ocp-cluster-domain)
+        export OCP_CLUSTER_DOMAIN=$1 && shift
+        ;;
+
+      --cis-enhanced-security)
+        export CIS_ENHANCED_SECURITY=$1 && shift
+        ;;
+
+      --cis-waf)
+        export CIS_WAF=$1 && shift
+        ;;
+
+      --cis-proxy)
+        export CIS_PROXY=$1 && shift
+        ;;
+
+      --cis-service-name)
+        export CIS_SERVICE_NAME=$1 && shift
+        ;;
+
+      --update-dns-entries)
+        export UPDATE_DNS_ENTRIES=$1 && shift
+        ;;
+
+      --delete-wildcards)
+        export DELETE_WILDCARDS=$1 && shift
+        ;;
+
+      --override-edge-certs)
+        export OVERRIDE_EDGE_CERTS=$1 && shift
+        ;;
+
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -209,6 +293,16 @@ function gitops_suite_noninteractive() {
     fi
   fi
 
+  if [[ "${DNS_PROVIDER}" == "cis" ]]; then
+    [[ -z "$MAS_INSTANCE_ID" ]] && gitops_suite_help "MAS_INSTANCE_ID is not set"
+    [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_suite_help "MAS_WORKSPACE_ID is not set"
+    [[ -z "$CIS_MAS_DOMAIN" ]] && gitops_suite_help "CIS_MAS_DOMAIN is not set"
+    [[ -z "$OCP_CLUSTER_DOMAIN" ]] && gitops_suite_help "OCP_CLUSTER_DOMAIN is not set"
+    [[ -z "$CIS_EMAIL" ]] && gitops_suite_help "CIS_EMAIL is not set"
+    [[ -z "$CIS_APIKEY" ]] && gitops_suite_help "CIS_APIKEY is not set"  
+    [[ -z "$CIS_CRN" ]] && gitops_suite_help "CIS_CRN is not set"
+  fi
+
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_suite_help "GITHUB_HOST is not set"
     [[ -z "$GITHUB_ORG" ]] && gitops_suite_help "GITHUB_ORG is not set"
@@ -227,6 +321,19 @@ function gitops_suite() {
     echo "Not supported yet"
     exit 1
     gitops_suite_interactive
+  fi
+
+  export DOMAIN=${MAS_DOMAIN}
+  if [[ "${DNS_PROVIDER}" == "cis" ]]; then
+    export CIS_ENHANCED_SECURITY=${CIS_ENHANCED_SECURITY:-"true"}
+    export CIS_PROXY=${CIS_PROXY:-"false"}
+    export OVERRIDE_EDGE_CERTS=${OVERRIDE_EDGE_CERTS:-"true"}
+
+    export CIS_WAF=${CIS_WAF:-"true"}
+    export UPDATE_DNS_ENTRIES=${UPDATE_DNS_ENTRIES:-"true"}
+    export DELETE_WILDCARDS=${DELETE_WILDCARDS:-"true"}
+
+    export DOMAIN=${CIS_MAS_DOMAIN}
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -268,13 +375,38 @@ function gitops_suite() {
   echo "${TEXT_DIM}"
   echo_h4 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Subscription Channel ........... ${COLOR_MAGENTA}${MAS_CHANNEL}"
-  echo_reset_dim "Domain ......................... ${COLOR_MAGENTA}${MAS_DOMAIN}"
+  echo_reset_dim "MAS Domain ..................... ${COLOR_MAGENTA}${MAS_DOMAIN}"
+  echo_reset_dim "Domain ......................... ${COLOR_MAGENTA}${DOMAIN}"
   echo_reset_dim "Image Tags ..................... ${COLOR_MAGENTA}${MAS_IMAGE_TAGS}"
   echo_reset_dim "Annotations .................... ${COLOR_MAGENTA}${MAS_ANNOTATIONS}"
   echo_reset_dim "Labels ......................... ${COLOR_MAGENTA}${MAS_LABELS}"
   echo_reset_dim "MAS Manual Cert Mgt ............ ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
   echo_reset_dim "Cert Manager Namespace ......... ${COLOR_MAGENTA}${CERT_MANAGER_NAMESPACE}"
+  echo_reset_dim "DNS Provider ................... ${COLOR_MAGENTA}${DNS_PROVIDER}"
   reset_colors
+
+  if [[ -n "$DNS_PROVIDER" ]]; then
+    echo "${TEXT_DIM}"
+    echo_h4 "Suite DNS" "    "
+    echo_reset_dim "MAS Workspace ID ............... ${COLOR_MAGENTA}${MAS_WORKSPACE_ID}"
+    echo_reset_dim "MAS CONFIG DIR ................. ${COLOR_MAGENTA}${MAS_CONFIG_DIR}"
+    echo_reset_dim "CIS Email ...................... ${COLOR_MAGENTA}${CIS_EMAIL}"
+    echo_reset_dim "CIS CRN ........................ ${COLOR_MAGENTA}${CIS_CRN}"
+    echo_reset_dim "IBM CLOUD APIKEY ............... ${COLOR_MAGENTA}${CIS_APIKEY:0:4}<snip>"
+    echo_reset_dim "CIS subdomain .................. ${COLOR_MAGENTA}${CIS_SUBDOMAIN}"
+    echo_reset_dim "CIS MAS Domain ................. ${COLOR_MAGENTA}${CIS_MAS_DOMAIN}"
+    echo_reset_dim "Open Shift Cluster Domain ...... ${COLOR_MAGENTA}${OCP_CLUSTER_DOMAIN}"
+    echo_reset_dim "Domain ......................... ${COLOR_MAGENTA}${DOMAIN}"
+    echo_reset_dim "CIS enhanced security Flag...... ${COLOR_MAGENTA}${CIS_ENHANCED_SECURITY}"
+    echo_reset_dim "CIS WAF ........................ ${COLOR_MAGENTA}${CIS_WAF}"
+    echo_reset_dim "CIS proxy ...................... ${COLOR_MAGENTA}${CIS_PROXY}"
+    echo_reset_dim "CIS service name ............... ${COLOR_MAGENTA}${CIS_SERVICE_NAME}"
+    echo_reset_dim "Update DNS entries Flag ........ ${COLOR_MAGENTA}${UPDATE_DNS_ENTRIES}"
+    echo_reset_dim "DELETE_WILDCARDS Flag .......... ${COLOR_MAGENTA}${DELETE_WILDCARDS}"
+    echo_reset_dim "OVERRIDE_EDGE_CERTS Flag ....... ${COLOR_MAGENTA}${OVERRIDE_EDGE_CERTS}"
+    reset_colors
+  fi
+
 
   echo "${TEXT_DIM}"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
@@ -314,17 +446,33 @@ function gitops_suite() {
   # ---------------------------------------------------------------------------
   # Note that this cluster-level secret is set up by gitops-mongo
   export SECRET_NAME_MASTER_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
+  export SECRET_NAME_CIS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cis
+
   export SECRET_KEY_DOCDB_HOST=${SECRET_NAME_MASTER_MONGO}#docdb_host
   export SECRET_KEY_DOCDB_PORT=${SECRET_NAME_MASTER_MONGO}#docdb_port
   export SECRET_KEY_DOCDB_MASTER_USERNAME=${SECRET_NAME_MASTER_MONGO}#username
   export SECRET_KEY_DOCDB_MASTER_PASSWORD=${SECRET_NAME_MASTER_MONGO}#password
   export SECRET_KEY_DOCDB_MASTER_INFO=${SECRET_NAME_MASTER_MONGO}#info
 
+  export SECRET_KEY_IBM_APIKEY=${SECRET_NAME_CIS}#ibm_apikey
+
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-suite
   rm -rf TEMP_DIR
   mkdir -p $TEMP_DIR
 
+  if [[ "${DNS_PROVIDER}" == "cis" ]]; then
+    export CIS_SECRET_FILE=$TEMP_DIR/cis-secret.json
+    sm_get_secret_file ${SECRET_NAME_CIS} ${CIS_SECRET_FILE}
+    IBM_APIKEY_VALUE=$(jq -r .ibm_apikey $CIS_SECRET_FILE)
+    echo "IBM_APIKEY_VALUE ${IBM_APIKEY_VALUE:0:4}<snip>"
+
+    if [ -z "${IBM_APIKEY_VALUE}" ] ; then
+      echo "Missing ibm_apikey AWS Secret $SECRET_NAME_CIS, make sure ibm_apikey is added to AWS scret in the path $SECRET_NAME_CIS"
+      exit 1
+    fi
+  fi
+  
   # by default yaml. pass aws, in case if configuring with DocDB
   export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"yaml"}
 
@@ -347,7 +495,7 @@ function gitops_suite() {
   sm_get_secret_file $SECRET_KEY_LICENSE_FILE $LICENSE_FILE
 
   # Set certs only if manual cert is True
-  if [ "${MAS_MANUAL_CERT_MGMT}" = "True" ] ; then
+  if [ "${MAS_MANUAL_CERT_MGMT}" == "True" ] ; then
     export PUBLIC_CERT_SECRET_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}certs${SECRETS_KEY_SEPERATOR}core
     export CERT_FILE=$TEMP_DIR/cert.yml
     export CA_CERT_FILE=$TEMP_DIR/ca_cert.yml
