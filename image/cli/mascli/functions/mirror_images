@@ -83,6 +83,7 @@ function mirror_everything() {
     MIRROR_MAS_ASSIST=true
     MIRROR_MAS_IOT=true
     MIRROR_MAS_MANAGE=true
+    MIRROR_MAS_ICD=true
     MIRROR_MAS_MONITOR=true
     MIRROR_MAS_OPTIMIZER=true
     MIRROR_MAS_PREDICT=true
