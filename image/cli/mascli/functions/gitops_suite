@@ -294,13 +294,13 @@ function gitops_suite_noninteractive() {
   fi
 
   if [[ "${DNS_PROVIDER}" == "cis" ]]; then
-    [[ -z "$MAS_INSTANCE_ID" ]] && gitops_cluster_help "MAS_INSTANCE_ID is not set"
-    [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_cluster_help "MAS_WORKSPACE_ID is not set"
-    [[ -z "$CIS_MAS_DOMAIN" ]] && gitops_cluster_help "CIS_MAS_DOMAIN is not set"
-    [[ -z "$OCP_CLUSTER_DOMAIN" ]] && gitops_cluster_help "OCP_CLUSTER_DOMAIN is not set"
-    [[ -z "$CIS_EMAIL" ]] && gitops_cluster_help "CIS_EMAIL is not set"
-    [[ -z "$CIS_APIKEY" ]] && gitops_cluster_help "CIS_APIKEY is not set"  
-    [[ -z "$CIS_CRN" ]] && gitops_cluster_help "CIS_CRN is not set"
+    [[ -z "$MAS_INSTANCE_ID" ]] && gitops_suite_help "MAS_INSTANCE_ID is not set"
+    [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_suite_help "MAS_WORKSPACE_ID is not set"
+    [[ -z "$CIS_MAS_DOMAIN" ]] && gitops_suite_help "CIS_MAS_DOMAIN is not set"
+    [[ -z "$OCP_CLUSTER_DOMAIN" ]] && gitops_suite_help "OCP_CLUSTER_DOMAIN is not set"
+    [[ -z "$CIS_EMAIL" ]] && gitops_suite_help "CIS_EMAIL is not set"
+    [[ -z "$CIS_APIKEY" ]] && gitops_suite_help "CIS_APIKEY is not set"  
+    [[ -z "$CIS_CRN" ]] && gitops_suite_help "CIS_CRN is not set"
   fi
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
@@ -401,7 +401,7 @@ function gitops_suite() {
     echo_reset_dim "CIS WAF ........................ ${COLOR_MAGENTA}${CIS_WAF}"
     echo_reset_dim "CIS proxy ...................... ${COLOR_MAGENTA}${CIS_PROXY}"
     echo_reset_dim "CIS service name ............... ${COLOR_MAGENTA}${CIS_SERVICE_NAME}"
-    echo_reset_dim "update DNS entries Flag ........ ${COLOR_MAGENTA}${UPDATE_DNS_ENTRIES}"
+    echo_reset_dim "Update DNS entries Flag ........ ${COLOR_MAGENTA}${UPDATE_DNS_ENTRIES}"
     echo_reset_dim "DELETE_WILDCARDS Flag .......... ${COLOR_MAGENTA}${DELETE_WILDCARDS}"
     echo_reset_dim "OVERRIDE_EDGE_CERTS Flag ....... ${COLOR_MAGENTA}${OVERRIDE_EDGE_CERTS}"
     reset_colors

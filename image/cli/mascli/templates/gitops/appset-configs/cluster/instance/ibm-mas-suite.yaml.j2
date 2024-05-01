@@ -21,13 +21,16 @@ ibm_mas_suite:
   sls_mongo_username: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_USERNAME }}>"
   sls_mongo_password: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_PASSWORD }}>"
 
+{%- if DNS_PROVIDER is defined and DNS_PROVIDER !='' %}
   # suite dns
   dns_provider: "{{ DNS_PROVIDER }}"
   mas_workspace_id: "{{ MAS_WORKSPACE_ID }}"
   mas_config_dir: "{{ MAS_CONFIG_DIR }}"
   mas_domain: "{{ MAS_DOMAIN }}"
-  cis_mas_domain: "{{ CIS_MAS_DOMAIN }}"
   ocp_cluster_domain: "{{ OCP_CLUSTER_DOMAIN }}"
+{%- endif %}
+{%- if DNS_PROVIDER is defined and DNS_PROVIDER == 'cis' %}
+  cis_mas_domain: "{{ CIS_MAS_DOMAIN }}"
   cis_subdomain: "{{ CIS_SUBDOMAIN }}"
   cis_email: "{{ CIS_EMAIL }}"
   cis_crn: "{{ CIS_CRN }}"
@@ -39,14 +42,13 @@ ibm_mas_suite:
   update_dns_entries: "{{ UPDATE_DNS_ENTRIES }}"
   delete_wildcards: "{{ DELETE_WILDCARDS }}"
   override_edge_certs: "{{ OVERRIDE_EDGE_CERTS }}"
+{%- endif %}
 
   mas_channel: "{{ MAS_CHANNEL }}"
   icr_cp: "{{ ICR_CP }}"
   icr_cp_open: "{{ ICR_CP_OPEN }}"
   run_sync_hooks: true
-{%- if DNS_PROVIDER is defined and DNS_PROVIDER !='' %}
-  dns_provider: "{{ DNS_PROVIDER }}"
-{%- endif %}
+
   mas_manual_cert_mgmt: "{{ MAS_MANUAL_CERT_MGMT }}"
 {%- if MAS_ANNOTATIONS is defined and MAS_ANNOTATIONS !='' %}
   mas_annotations:
