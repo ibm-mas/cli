@@ -46,12 +46,12 @@ Content Selection (Applications):
       --mirror-visualinspection                   Mirror images for IBM Maximo Visual Inspection
 
 Content Selection (Cloud Pak for Data):
-      --mirror-cp4d                                 Mirror images for IBM Cloud Pak for Data Platform
-      --mirror-wd                                   Mirror images for IBM Watson Discovery
-      --mirror-wsl                                  Mirror images for IBM Watson Studio Local
-      --mirror-wml                                  Mirror images for IBM Watson Machine Learning
-      --mirror-spark                                Mirror images for IBM Analytics Engine (Spark)
-      --mirror-cognos                               Mirror images for IBM Cognos Analytics
+      --mirror-cp4d                                                           Mirror images for IBM Cloud Pak for Data Platform
+      --mirror-wd                                                             Mirror images for IBM Watson Discovery
+      --mirror-wsl                                                            Mirror images for IBM Watson Studio Local
+      --mirror-wml                                                            Mirror images for IBM Watson Machine Learning
+      --mirror-spark                                                          Mirror images for IBM Analytics Engine (Spark)
+      --mirror-cognos                                                         Mirror images for IBM Cognos Analytics
 
 Content Selection (Other Dependencies):
       --mirror-cfs                                  Mirror images for IBM Cloud Pak Foundation Services
@@ -482,7 +482,10 @@ function mirror_one_thing() {
     echo -en "\033[u" # Restore cursor position
     if [[ $mirror_result == "0" ]];
     then echo -e "${COLOR_GREEN}[SUCCESS] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
-    else echo -e "${COLOR_RED}[FAILURE] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
+    else 
+      echo -e "${COLOR_RED}[FAILURE] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
+      echo
+      cat "$MOT_LOGFILE"
     fi
   else
     echo -e "${COLOR_MAGENTA}[SKIPPED] ${MOT_NAME}${TEXT_RESET}"

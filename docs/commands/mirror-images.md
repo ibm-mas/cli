@@ -39,12 +39,12 @@ Usage
 - `--mirror-visualinspection` Mirror images for IBM Maximo Visual Inspection
 
 ### Content Selection (Cloud Pak for Data)
-- `--mirror-cp4d` Mirror images for IBM Cloud Pak for Data Platform.
-- `--mirror-cp4d-version CPD_PRODUCT_VERSION` Mirror images for IBM Cloud Pak for Data Platform at a specific version defined.
+- `--mirror-cp4d` Mirror images for IBM Cloud Pak for Data Platform
 - `--mirror-wd` Mirror images for IBM Watson Discovery
 - `--mirror-wsl` Mirror images for IBM Watson Studio Local
 - `--mirror-wml` Mirror images for IBM Watson Machine Learning
 - `--mirror-spark` Mirror images for IBM Analytics Engine (Spark)
+- `--mirror-cognos` Mirror images for IBM Cognos Analytics
 
 ### Content Selection (Other Dependencies)
 - `--mirror-cfs` Mirror images for IBM Cloud Pak Foundation Services
