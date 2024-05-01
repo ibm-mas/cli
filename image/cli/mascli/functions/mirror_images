@@ -74,6 +74,42 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
+function mirror_everything() {
+    # Core
+    MIRROR_CATALOG=true
+    MIRROR_MAS_CORE=true
+
+    # Apps
+    MIRROR_MAS_ASSIST=true
+    MIRROR_MAS_IOT=true
+    MIRROR_MAS_MANAGE=true
+    MIRROR_MAS_MONITOR=true
+    MIRROR_MAS_OPTIMIZER=true
+    MIRROR_MAS_PREDICT=true
+    MIRROR_MAS_VISUALINSPECTION=true
+
+    # Dependencies (Other)
+    MIRROR_CATALOG=true
+    MIRROR_COMMONSERVICES=true
+    MIRROR_UDS=true
+    MIRROR_SLS=true
+    MIRROR_TRUSTSTOREMGR=true
+    MIRROR_MONGOCE=true
+    MIRROR_MONGOCE_V4=true
+    MIRROR_MONGOCE_V5=true
+    MIRROR_MONGOCE_V6=true
+
+    MIRROR_DB2U=true
+    MIRROR_APPCONNECT=true
+
+    # Dependencies (CP4D)
+    MIRROR_CP4D=true
+    MIRROR_WD=true
+    MIRROR_WSL=true
+    MIRROR_WML=true
+    MIRROR_SPARK=true
+    MIRROR_COGNOS=true
+}
 
 function mirror_to_registry_noninteractive() {
   # Main content
@@ -286,6 +322,10 @@ function mirror_to_registry_noninteractive() {
     [[ -z "$REDHAT_CONNECT_USERNAME" ]] && mirror_to_registry_help "REDHAT_CONNECT_USERNAME is not set"
     [[ -z "$REDHAT_CONNECT_PASSWORD" ]] && mirror_to_registry_help "REDHAT_CONNECT_PASSWORD is not set"
   fi
+
+  if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
+   mirror_everything
+  fi
 }
 
 function mirror_to_registry_interactive() {
@@ -338,40 +378,7 @@ function mirror_to_registry_interactive() {
   prompt_for_confirm "Mirror all MAS images (with dependencies)" MIRROR_EVERYTHING
 
   if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
-    # Core
-    MIRROR_CATALOG=true
-    MIRROR_MAS_CORE=true
-
-    # Apps
-    MIRROR_MAS_ASSIST=true
-    MIRROR_MAS_IOT=true
-    MIRROR_MAS_MANAGE=true
-    MIRROR_MAS_MONITOR=true
-    MIRROR_MAS_OPTIMIZER=true
-    MIRROR_MAS_PREDICT=true
-    MIRROR_MAS_VISUALINSPECTION=true
-
-    # Dependencies (Other)
-    MIRROR_CATALOG=true
-    MIRROR_COMMONSERVICES=true
-    MIRROR_UDS=true
-    MIRROR_SLS=true
-    MIRROR_TRUSTSTOREMGR=true
-    MIRROR_MONGOCE=true
-    MIRROR_MONGOCE_V4=true
-    MIRROR_MONGOCE_V5=true
-    MIRROR_MONGOCE_V6=true
-
-    MIRROR_DB2U=true
-    MIRROR_APPCONNECT=true
-
-    # Dependencies (CP4D)
-    MIRROR_CP4D=true
-    MIRROR_WD=true
-    MIRROR_WSL=true
-    MIRROR_WML=true
-    MIRROR_SPARK=true
-    MIRROR_COGNOS=true
+   mirror_everything
   else
     prompt_for_confirm_default_yes "IBM Maximo Operator Catalog" MIRROR_CATALOG
 
@@ -529,7 +536,8 @@ function mirror_to_registry() {
   export MIRROR_SPARK
   export MIRROR_COGNOS
   export MIRROR_APPCONNECT
-  export MIRROR_MAS_ICD
+  export MIRROR_MAS_IC
+  export MIRROR_EVERYTHING
 
   # Authentication
   export IBM_ENTITLEMENT_KEY
