@@ -62,6 +62,9 @@ spec:
     - name: ibmcloud_apikey
       type: string
       default: ""
+    - name: deployment_day_with_cis
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-mas-initiator
     env:
@@ -119,6 +122,8 @@ spec:
         value: $(params.secrets_key_seperator)
       - name: IBMCLOUD_APIKEY
         value: $(params.ibmcloud_apikey)
+      - name: DEPLOYMENT_DAY_WITH_CIS
+        value: $(params.deployment_day_with_cis)
   steps:
     - args:
       - |-
@@ -184,6 +189,20 @@ spec:
 
         # Update the channel in the mas-instance-params.yaml. Assume fvtsaas here
         yq --arg MAS_CHANNEL $MAS_CHANNEL -iY '.mas_instance.channel= $MAS_CHANNEL' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+
+        # Set dns.provider as empty in the mas-instance-params.yaml if deployment with cis is not enabled for that deployment day.  Assume fvtsaas here
+        export DNS_PROVIDER=$(yq -sr '.[0].dns.provider' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml)
+        export CURRENT_DATE=$(date +"%u")
+        export EMPTY_DNS_PROVIDER=""
+        echo "gitops-mas-initiator: DNS_PROVIDER=${DNS_PROVIDER} CURRENT_DATE=${CURRENT_DATE} DEPLOYMENT_DAY_WITH_CIS=$DEPLOYMENT_DAY_WITH_CIS"
+
+        if [ "$DNS_PROVIDER" == "cis" ]; then
+          if [[ -n $DEPLOYMENT_DAY_WITH_CIS && "$DEPLOYMENT_DAY_WITH_CIS" != "CURRENT_DATE" ]]; then
+            yq --arg EMPTY_DNS_PROVIDER "${EMPTY_DNS_PROVIDER}" -iY '(. | select(has("dns")?).dns.provider)= $EMPTY_DNS_PROVIDER' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+            yq -iY 'del(.dns.cis)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+            echo "gitops-mas-initiator: set .dns.provider to empty & remove .dns.cis"
+          fi
+        fi
 
         # Update the app channels in the mas-apps-params.yaml. Assume fvtsaas here
         if [ -n $MAS_APP_CHANNEL_ASSIST ]; then
