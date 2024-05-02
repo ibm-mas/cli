@@ -647,8 +647,8 @@ spec:
         name: gitops-cp4d-service
       when:
         - input: "$(params.cp4d_wd_action)"
-          operator: notin
-          values: [""]
+          operator: in
+          values: ["install"]
 
 
     # Configure COS in MAS
