@@ -86,7 +86,9 @@ spec:
     - name: secrets_key_seperator
       type: string
       default: "/"
-      
+    - name: deployment_day_with_cis
+      type: string
+      default: ""
 
   tasks:
 {% if wait_for_provision == true %}
@@ -162,6 +164,8 @@ spec:
           value: $(params.mas_app_channel_visualinspection)
         - name: github_pat
           value: $(params.github_pat)
+        - name: deployment_day_with_cis
+          value: $(params.deployment_day_with_cis)
       taskRef:
         kind: Task
         name: gitops-mas-initiator
