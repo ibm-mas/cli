@@ -76,6 +76,21 @@ spec:
           operator: notin
           values: [""]
 
+    - name: imagescan-manage
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-manage
+        - name: product_channel
+          value: $(params.mas_app_channel_manage)
+        - name: fvt_test_suite
+          value: imagescan
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+
     # 2. Manage FVT - Manage
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
@@ -84,21 +99,6 @@ spec:
     {{ lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-manage/phase6.yml.j2') | indent(4) }}
-
-    - name: imagescan-manage
-      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
-        - name: product_id
-          value: ibm-mas-manage
-        - name: fvt_test_suite
-          value: imagescan
-        - name: product_channel
-          value: $(params.mas_app_channel_manage)
-      when:
-        - input: "$(params.ivt_digest_core)"
-          operator: notin
-          values: [""]
 
   finally:
     # 3. Run CV
