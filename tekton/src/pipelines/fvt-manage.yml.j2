@@ -70,6 +70,8 @@ spec:
           value: $(params.mas_app_channel_manage)
         - name: fvt_test_suite
           value: coreivt
+        - name: workspace_id
+          value: $(params.mas_workspace_id)
       when:
         - input: "$(params.ivt_digest_core)"
           operator: notin

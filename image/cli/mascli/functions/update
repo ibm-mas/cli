@@ -18,6 +18,7 @@ Update Dependencies (Optional):
   --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}          DB2 namespace where instances update will be performed
   --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET}   Namespace where MongoCE operator and instance will be updated
   --mongodb-v5-upgrade ${COLOR_YELLOW}MONGODB_V5_UPGRADE${TEXT_RESET} Confirms that Mongo can be upgraded to version 5 if needed as part of the update
+  --mongodb-version  ${COLOR_YELLOW}MONGODB_VERSION${TEXT_RESET}      Optional. Set Mongo version for the upgrade. Note: This overrides the default MongoDB version defined by the Maximo Operator Catalog version.
   --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}       Namespace where Kafka operator and instance will be updated
   --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}         Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), or 'strimzi'
   --dro-migration  ${COLOR_YELLOW}DRO_MIGRATION${TEXT_RESET}          Confirm the removal of UDS and replacement with DRO as part of the update
@@ -93,8 +94,11 @@ function validate_existing_mongo() {
     # Only check if mongo upgrade is needed if mongo is currently installed
     if [[ $MONGODB_CURRENT_VERSION != "" ]]; then
     
-      # Target mongo version will be defined by chosen catalog/casebundle
-      MONGODB_TARGET_VERSION=`yq -r .mongo_extras_version ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml`
+      # Target mongo version will be defined by chosen catalog/casebundle if MONGODB_VERSION not set
+      MONGODB_TARGET_VERSION=${MONGODB_VERSION}
+      if [[ "$MONGODB_TARGET_VERSION" == "" ]]; then
+        MONGODB_TARGET_VERSION=`yq -r .mongo_extras_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml 2> /dev/null`
+      fi
 
       MONGODB_CURRENT_MAJORMINOR_VERSION=${MONGODB_CURRENT_VERSION:0:3}
       MONGODB_TARGET_MAJORMINOR_VERSION=${MONGODB_TARGET_VERSION:0:3}
@@ -566,6 +570,9 @@ function update_noninteractive() {
       --mongodb-v5-upgrade)
         MONGODB_V5_UPGRADE=true
         ;;
+      --mongodb-version)
+        MONGODB_VERSION=$1 && shift
+        ;;
       --kafka-namespace)
         KAFKA_NAMESPACE=$1 && shift
         ;;
@@ -676,6 +683,7 @@ function update() {
   export DB2_NAMESPACE
   export MONGODB_NAMESPACE
   export MONGODB_V5_UPGRADE
+  export MONGODB_VERSION
   export KAFKA_NAMESPACE
   export KAFKA_PROVIDER
   export CERT_MANAGER_PROVIDER
