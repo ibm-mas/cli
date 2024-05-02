@@ -26,15 +26,3 @@ spec:
     # 1. ADD FVT
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-data-dictionary/data-dictionary.yml.j2') | indent(4) }}
-    - name: imagescan
-      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
-        - name: product_id
-          value: ibm-mas
-        - name: fvt_test_suite
-          value: imagescan
-      when:
-        - input: "$(params.ivt_digest_core)"
-          operator: notin
-          values: [""]

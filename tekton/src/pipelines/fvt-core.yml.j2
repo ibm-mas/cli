@@ -71,6 +71,8 @@ spec:
           value: ibm-mas
         - name: fvt_test_suite
           value: imagescan
+        - name: product_channel
+          value: $(params.mas_channel)
       when:
         - input: "$(params.ivt_digest_core)"
           operator: notin
