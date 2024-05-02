@@ -199,7 +199,8 @@ spec:
         if [ "$DNS_PROVIDER" == "cis" ]; then
           if [[ -n $DEPLOYMENT_DAY_WITH_CIS && "$DEPLOYMENT_DAY_WITH_CIS" != "CURRENT_DATE" ]]; then
             yq --arg EMPTY_DNS_PROVIDER "${EMPTY_DNS_PROVIDER}" -iY '(. | select(has("dns")?).dns.provider)= $EMPTY_DNS_PROVIDER' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
-            echo "gitops-mas-initiator: set .dns.provider to empty"
+            yq -iY 'del(.dns.cis)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+            echo "gitops-mas-initiator: set .dns.provider to empty & remove .dns.cis"
           fi
         fi
 
