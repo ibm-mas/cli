@@ -25,6 +25,14 @@ spec:
       type: string
     - name: account
       type: string
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
     - name: region
       type: string
     - name: github_host
@@ -69,6 +77,18 @@ spec:
       default: ""
     - name: github_pat
       type: string
+    - name: ibmcloud_apikey
+      type: string
+      default: ""
+    - name: avp_type
+      type: string
+      default: "aws"
+    - name: secrets_key_seperator
+      type: string
+      default: "/"
+    - name: deployment_day_with_cis
+      type: string
+      default: ""
 
   tasks:
 {% if wait_for_provision == true %}
@@ -102,6 +122,20 @@ spec:
           value: $(params.target_git_branch)
         - name: target_github_org
           value: $(params.target_github_org)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: ibmcloud_apikey
+          value: $(params.ibmcloud_apikey)
+        - name: avp_type
+          value: $(params.avp_type)
+        - name: secrets_key_seperator
+          value: $(params.secrets_key_seperator)
         - name: target_github_repo
           value: $(params.target_github_repo)
         - name: source_git_branch
@@ -130,6 +164,8 @@ spec:
           value: $(params.mas_app_channel_visualinspection)
         - name: github_pat
           value: $(params.github_pat)
+        - name: deployment_day_with_cis
+          value: $(params.deployment_day_with_cis)
       taskRef:
         kind: Task
         name: gitops-mas-initiator

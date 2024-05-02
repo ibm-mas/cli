@@ -7,7 +7,7 @@ spec:
   params:
     - name: dns_provider
       type: string
-      default: ''
+      default: cis
     - name: cluster_name
       type: string
     - name: account
@@ -65,6 +65,48 @@ spec:
     - name: cert_manager_namespace
       type: string
       default: "cert-manager"
+
+    - name: cis_subdomain
+      type: string
+      default: ""
+    - name: cis_mas_domain
+      type: string
+      default: ""
+    - name: ocp_cluster_domain
+      type: string
+      default: ""
+    - name: mas_workspace_id
+      type: string
+    - name: cis_enhanced_security
+      type: string
+      default: "True"
+    - name: cis_proxy
+      type: string
+      default: "True"
+    - name: override_edge_certs
+      type: string
+      default: "True"
+    - name: cis_email
+      type: string
+      default: ""
+    - name: cis_crn
+      type: string
+      default: ""
+    - name: mas_config_dir
+      type: string
+    - name: cis_service_name
+      type: string
+      default: ""
+    - name: cis_waf
+      type: string
+      default: "True"
+    - name: update_dns_entries
+      type: string
+      default: "True"
+    - name: delete_wildcards
+      type: string
+      default: "True"
+
   stepTemplate:
     name: gitops-suite
     env:
@@ -118,6 +160,38 @@ spec:
         value: $(params.argocd_check)
       - name: CERT_MANAGER_NAMESPACE
         value: $(params.cert_manager_namespace)
+
+      # cis
+      - name: CIS_SUBDOMAIN
+        value: $(params.cis_subdomain)
+      - name: CIS_MAS_DOMAIN
+        value: $(params.cis_mas_domain)
+      - name: OCP_CLUSTER_DOMAIN
+        value: $(params.ocp_cluster_domain)
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
+      - name: CIS_ENHANCED_SECURITY
+        value: $(params.cis_enhanced_security)
+      - name: CIS_PROXY
+        value: $(params.cis_proxy)
+      - name: OVERRIDE_EDGE_CERTS
+        value: $(params.override_edge_certs)
+      - name: CIS_EMAIL
+        value: $(params.cis_email)
+      - name: CIS_CRN
+        value: $(params.cis_crn)
+      - name: MAS_CONFIG_DIR
+        value: $(params.mas_config_dir)
+      - name: CIS_SERVICE_NAME
+        value: $(params.cis_service_name)
+      - name: CIS_WAF
+        value: $(params.cis_waf)
+
+      - name: UPDATE_DNS_ENTRIES
+        value: $(params.update_dns_entries)
+      - name: DELETE_WILDCARDS
+        value: $(params.delete_wildcards)
+
     envFrom:
       - configMapRef:
           name: environment-properties

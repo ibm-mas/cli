@@ -99,6 +99,13 @@ spec:
       default: cis
     - name: cis_subdomain
       type: string
+      default: ""
+    - name: cis_mas_domain
+      type: string
+      default: ""
+    - name: ocp_cluster_domain
+      type: string
+      default: ""
     - name: mas_manual_cert_mgmt
       type: string
     - name: cert_manager_namespace
@@ -106,22 +113,39 @@ spec:
       default: "cert-manager"
     - name: cluster_url
       type: string
+      default: ""
     - name: cis_enhanced_security
       type: string
+      default: "True"
     - name: cis_proxy
       type: string
+      default: "True"
     - name: override_edge_certs
       type: string
+      default: "True"
     - name: cis_email
       type: string
+      default: ""
     - name: cis_crn
       type: string
+      default: ""
     - name: mas_config_dir
       type: string
     - name: cis_service_name
       type: string
+      default: ""
     - name: mas_app_id
       type: string
+
+    - name: cis_waf
+      type: string
+      default: "True"
+    - name: update_dns_entries
+      type: string
+      default: "True"
+    - name: delete_wildcards
+      type: string
+      default: "True"
 
   tasks:
     - name: gitops-license
@@ -145,105 +169,9 @@ spec:
       taskRef:
         kind: Task
         name: gitops-license
-    - name: gitops-suite-dns
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: argocd_url
-          value: $(params.argocd_url)
-        - name: argocd_check
-          value: $(params.argocd_check)
-        - name: dns_provider
-          value: $(params.dns_provider)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_domain
-          value: $(params.mas_domain)
-        - name: cis_subdomain
-          value: $(params.cis_subdomain)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: mas_manual_cert_mgmt
-          value: $(params.mas_manual_cert_mgmt)
-        - name: cis_enhanced_security
-          value: $(params.cis_enhanced_security)
-        - name: cis_proxy
-          value: $(params.cis_proxy)
-        - name: override_edge_certs
-          value: $(params.override_edge_certs)
-        - name: cis_email
-          value: $(params.cis_email)
-        - name: cis_crn
-          value: $(params.cis_crn)
-        - name: mas_config_dir
-          value: $(params.mas_config_dir)
-        - name: cis_service_name
-          value: $(params.cis_service_name)
-        - name: cluster_url
-          value: $(params.cluster_url)
-      taskRef:
-        kind: Task
-        name: gitops-suite-dns
-      when:
-        - input: "$(params.dns_provider)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_manual_cert_mgmt)"
-          operator: in
-          values: ["False"]
-      workspaces:
-        - name: configs
-          workspace: configs
-    - name: gitops-suite-certs
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: argocd_url
-          value: $(params.argocd_url)
-        - name: argocd_check
-          value: $(params.argocd_check)
-        - name: dns_provider
-          value: $(params.dns_provider)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_domain
-          value: $(params.mas_domain)
-        - name: cis_subdomain
-          value: $(params.cis_subdomain)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: mas_manual_cert_mgmt
-          value: $(params.mas_manual_cert_mgmt)
-        - name: cis_proxy
-          value: $(params.cis_proxy)
-        - name: cis_crn
-          value: $(params.cis_crn)
-        - name: mas_config_dir
-          value: $(params.mas_config_dir)
-        - name: gitops
-          value: "True"
-        - name: account
-          value: $(params.account)
-        - name: secrets_path
-          value: $(params.secrets_path)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
-      taskRef:
-        kind: Task
-        name: gitops-suite-certs
-      when:
-        - input: "$(params.mas_manual_cert_mgmt)"
-          operator: in
-          values: ["True"]
-      workspaces:
-        - name: configs
-          workspace: configs
-        - name: certificates
-          workspace: shared-certificates
     - name: gitops-suite
       runAfter:
         - gitops-license
-        - gitops-suite-certs
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -297,6 +225,37 @@ spec:
           value: $(params.cluster_url)
         - name: cert_manager_namespace
           value: $(params.cert_manager_namespace)
+
+        - name: dns_provider
+          value: $(params.dns_provider)
+        - name: cis_subdomain
+          value: $(params.cis_subdomain)
+        - name: cis_mas_domain
+          value: $(params.cis_mas_domain)
+        - name: ocp_cluster_domain
+          value: $(params.ocp_cluster_domain)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: cis_enhanced_security
+          value: $(params.cis_enhanced_security)
+        - name: cis_proxy
+          value: $(params.cis_proxy)
+        - name: override_edge_certs
+          value: $(params.override_edge_certs)
+        - name: cis_email
+          value: $(params.cis_email)
+        - name: cis_crn
+          value: $(params.cis_crn)
+        - name: mas_config_dir
+          value: $(params.mas_config_dir)
+        - name: cis_service_name
+          value: $(params.cis_service_name)
+        - name: cis_waf
+          value: $(params.cis_waf)
+        - name: update_dns_entries
+          value: $(params.update_dns_entries)
+        - name: delete_wildcards
+          value: $(params.delete_wildcards)
 
       taskRef:
         kind: Task

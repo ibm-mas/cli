@@ -45,6 +45,26 @@ spec:
       type: string
     - name: github_pat
       type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
+    - name: secrets_path
+      type: string
+    - name: avp_type
+      type: string
+      default: "aws"
+    - name: secrets_key_seperator
+      type: string
+      default: "/"
+    - name: ibmcloud_apikey
+      type: string
+      default: ""
+    - name: deployment_day_with_cis
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-mas-initiator
     env:
@@ -88,6 +108,22 @@ spec:
         value: $(params.mas_app_channel_visualinspection)
       - name: GITHUB_PAT
         value: $(params.github_pat)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: SM_AWS_SECRET_ACCESS_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: SM_AWS_ACCESS_KEY_ID
+        value: $(params.avp_aws_access_key)
+      - name: SECRETS_PATH
+        value: $(params.secrets_path)
+      - name: AVP_TYPE
+        value: $(params.avp_type)
+      - name: SECRETS_KEY_SEPERATOR
+        value: $(params.secrets_key_seperator)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
+      - name: DEPLOYMENT_DAY_WITH_CIS
+        value: $(params.deployment_day_with_cis)
   steps:
     - args:
       - |-
@@ -102,6 +138,25 @@ spec:
           echo "Account is not aws-dev, this task is not allowed for $ACCOUNT"
           exit 1
         fi
+
+        if [ -n $IBMCLOUD_APIKEY ]; then
+
+          export SECRET_NAME=${ACCOUNT}${SECRETS_KEY_SEPERATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPERATOR}cis
+          export SECRET_VALUE="{\"ibm_apikey\":\"$IBMCLOUD_APIKEY\"}"
+
+          aws configure set aws_access_key_id ${SM_AWS_ACCESS_KEY_ID}
+          aws configure set aws_secret_access_key ${SM_AWS_SECRET_ACCESS_KEY}
+          aws configure set default.region $SM_AWS_REGION
+          export AWS_REGION=$SM_AWS_REGION
+          aws configure list
+
+          aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${SECRET_NAME} --output json 2> /dev/null
+          aws secretsmanager create-secret --name ${SECRET_NAME} --secret-string "${SECRET_VALUE}" || exit 1
+
+          echo "created AWS secret secret ${SECRET_NAME} with value ${SECRET_NAME:0:6}<snip> in region $(params.avp_aws_secret_region)"
+
+        fi
+
 
         export TARGET_LOCAL_DIR="/tmp/target_repo"
         mkdir -p $TARGET_LOCAL_DIR
@@ -128,11 +183,24 @@ spec:
         export DOMAIN=$(echo -n $OCP_SERVER | sed -n -e 's/^.*api.//p' | cut -d: -f1)
         yq --arg MASDOMAIN fvtsaas.apps.$DOMAIN -iY '.mas_instance.domain= $MASDOMAIN' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
 
-        # Update the ocp server url in the cluster-params.yaml. Assume fvtsaas here
+        # Update the ocp server url & ingress domain url in the cluster-params.yaml. Assume fvtsaas here
         yq --arg URL $OCP_SERVER -iY '.cluster.url= $URL' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+        yq --arg URL apps.$DOMAIN -iY '.cluster.domain= $URL' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
 
         # Update the channel in the mas-instance-params.yaml. Assume fvtsaas here
         yq --arg MAS_CHANNEL $MAS_CHANNEL -iY '.mas_instance.channel= $MAS_CHANNEL' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+
+        # Set dns.provider as empty in the mas-instance-params.yaml if deployment with cis is not enabled for that deployment day.  Assume fvtsaas here
+        export DNS_PROVIDER=$(yq -sr '.[0].dns.provider' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml)
+        export CURRENT_DATE=$(date +"%u")
+        echo "gitops-mas-initiator: DNS_PROVIDER=${DNS_PROVIDER} CURRENT_DATE=${CURRENT_DATE} DEPLOYMENT_DAY_WITH_CIS=$DEPLOYMENT_DAY_WITH_CIS"
+
+        if [ "$DNS_PROVIDER" == "cis" ]; then
+          if [[ -n $DEPLOYMENT_DAY_WITH_CIS && "$DEPLOYMENT_DAY_WITH_CIS" != "CURRENT_DATE" ]]; then
+            yq -iY 'del(.dns)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+            echo "gitops-mas-initiator: removed .dns node"
+          fi
+        fi
 
         # Update the app channels in the mas-apps-params.yaml. Assume fvtsaas here
         if [ -n $MAS_APP_CHANNEL_ASSIST ]; then
