@@ -538,8 +538,8 @@ function gitops_suite_app_config() {
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config-common.yaml.j2 > $CONFIGS_FILE
   fi
 
-  # Remove any existing config with this name
-  /usr/bin/yq 'del(.ibm_mas_masapp_configs[] | select(.mas_app_id == "'${MAS_APP_ID}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
+  # Remove any existing config with this app id and workspace id
+  /usr/bin/yq 'del(.ibm_mas_masapp_configs[] | select(.mas_app_id == "'${MAS_APP_ID}'" and .mas_workspace_id == "'${MAS_WORKSPACE_ID}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
 
   # Render the appropriate template for the config into a new file
   jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config.yaml.j2 | /usr/bin/yq '{"ibm_mas_masapp_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
