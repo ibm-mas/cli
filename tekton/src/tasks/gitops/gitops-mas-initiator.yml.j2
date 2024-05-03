@@ -150,10 +150,11 @@ spec:
           export AWS_REGION=$SM_AWS_REGION
           aws configure list
 
-          aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${SECRET_NAME} --output json 2> /dev/null
-          aws secretsmanager create-secret --name ${SECRET_NAME} --secret-string "${SECRET_VALUE}" || exit 1
+          aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${SECRET_NAME} --region $SM_AWS_REGION --output json 2> /dev/null
+          aws secretsmanager describe-secret --secret-id ${SECRET_NAME} --region $SM_AWS_REGION --output json 2> /dev/null
+          aws secretsmanager create-secret --name ${SECRET_NAME} --region $SM_AWS_REGION --secret-string "${SECRET_VALUE}" || exit 1
 
-          echo "created AWS secret secret ${SECRET_NAME} with value ${SECRET_NAME:0:6}<snip> in region $(params.avp_aws_secret_region)"
+          echo "created AWS secret secret ${SECRET_NAME} with value ${SECRET_NAME:0:6}<snip> in region $SM_AWS_REGION"
 
         fi
 
