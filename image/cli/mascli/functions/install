@@ -750,10 +750,6 @@ function install() {
     esac
   done
 
-  # Determine whether UDS, SUDS, or DRO will be installed
-  # If DRO is being installed, any existing UDS install will be removed first
-  uds_action_selection
-
   # Determine whether Grafana is available in the cluster based on the available of the operator package
   oc get packagemanifest grafana-operator &> /dev/null
   if [[ "$?" == "1" ]]; then
@@ -779,6 +775,10 @@ function install() {
     pipelines_install_operator
     install_config_additional_configs
   fi
+
+  # Determine if UDS or DRO will be installed
+  # DRO is installed by default on latest catalog version, for catalogs older than 240227 install UDS
+  uds_action_selection
 
   # Prepare and launch the Tekton pipeline
   install_pipelinerun_prepare
