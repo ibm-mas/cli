@@ -55,6 +55,8 @@ Usage
 - `--mirror-db2` Mirror images for IBM Db2
 - `--mirror-appconnect` Mirror images for IBM AppConnect
 
+### Content Selection (All images included):
+- `--mirror-everything` Mirror all MAS related images (including dependencies)
 
 ### Other Options
 - `--no-confirm` Mirror images without prompting for confirmation
