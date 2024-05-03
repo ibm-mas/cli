@@ -398,35 +398,35 @@ spec:
       
         if [[ "$LAUNCHER_ID" == "apps" ]]; then
           if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
-            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.assist"
+            MASAPP_APP="assist.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
-            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.iot"
+            MASAPP_APP="iot.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_MANAGE" == "true" ]]; then
-            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.manage"
+            MASAPP_APP="manage.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_MOBILE" == "true" ]]; then
-            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.manage"
+            MASAPP_APP="manage.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
-            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.monitor"
+            MASAPP_APP="monitor.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
-            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.optimizer"
+            MASAPP_APP="optimizer.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_PREDICT" == "true" ]]; then
-            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.predict"
+            MASAPP_APP="predict.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
-            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.visualinspection"
+            MASAPP_APP="visualinspection.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
           fi
         fi

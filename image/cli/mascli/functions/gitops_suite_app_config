@@ -398,7 +398,7 @@ function gitops_suite_app_config() {
   # Set and Validate App Names
   # ---------------------------------------------------------------------------
   INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-  MASAPP_APP="ma.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
+  MASAPP_APP="${MAS_WORKSPACE_ID}.${MAS_APP_ID}.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
   validate_app_name "${INSTANCE_ROOT_APP}"
   validate_app_name "${MASAPP_APP}"
