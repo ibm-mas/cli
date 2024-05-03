@@ -13,6 +13,7 @@ GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                                                Directory for GitOps repository
   -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}                                         Version of ibm-mas/gitops to use
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                 Account name that the cluster belongs to
+  -r, --region ${COLOR_YELLOW}REGION_ID${TEXT_RESET}              Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                 Cluster ID
       --gitops-config-dir ${COLOR_YELLOW}GITOPS_CONFIG_DIR${TEXT_RESET}                                   Directory that holds configuration to use
 
@@ -238,9 +239,14 @@ function gitops_suite_app_config() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/masapps/${MAS_APP_ID}
+  rm -rf $GITOPS_WORKING_DIR/$GITHUB_REPO
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+  CONFIGS_FILE="${GITOPS_INSTANCE_DIR}/ibm-mas-masapp-configs.yaml"
   export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
 
+  # NOTE: must align with lock branch name used by gitops_deprovision_app_config script
+  # as both of these scrtipts modify the same file
+  GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-masapp-config" "${ACCOUNT_ID}" "${REGION}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-suite-app-config
   rm -rf $TEMP_DIR
@@ -392,7 +398,7 @@ function gitops_suite_app_config() {
   # Set and Validate App Names
   # ---------------------------------------------------------------------------
   INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-  MASAPP_APP="ma.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
+  MASAPP_APP="${MAS_WORKSPACE_ID}.${MAS_APP_ID}.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
   validate_app_name "${INSTANCE_ROOT_APP}"
   validate_app_name "${MASAPP_APP}"
@@ -401,8 +407,11 @@ function gitops_suite_app_config() {
   # Clone github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
-    echo
-    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    # only create the lock branch if we plan to actually push changes to git
+    clone_and_lock_target_git_repo  "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_SSH}" "${GIT_LOCK_BRANCH}"
+  else
+    # even though we don't want to push anything to git,
+    # because this script modifies the existing suite-configs.yaml file, we still need to checkout the repo
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
   mkdir -p ${GITOPS_INSTANCE_DIR}
@@ -523,28 +532,41 @@ function gitops_suite_app_config() {
   echo_h2 "Generating Argo Project and Applications"
 
   echo "- IBM Maximo Application Suite Application Platform"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-masapp-config.yaml
+
+  # If the file doesn't exist, create a blank one
+  if ! [ -f ${CONFIGS_FILE} ]; then
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config-common.yaml.j2 > $CONFIGS_FILE
+  fi
+
+  # Remove any existing config with this app id and workspace id
+  /usr/bin/yq 'del(.ibm_mas_masapp_configs[] | select(.mas_app_id == "'${MAS_APP_ID}'" and .mas_workspace_id == "'${MAS_WORKSPACE_ID}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
+
+  # Render the appropriate template for the config into a new file
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config.yaml.j2 | /usr/bin/yq '{"ibm_mas_masapp_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+
+  # Merge the two files
+  /usr/bin/yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
+
+  # sort the configs by mas_app_id.
+  # This way, we maintain the same ordering of configs in the file (even though we may have deleted and recreated a config if it's an update)
+  # This eliminates confusing commits to gitops-envs and allows us to determine if anything has actually changed
+  /usr/bin/yq -i '.ibm_mas_masapp_configs |= sort_by(.mas_app_id)' $CONFIGS_FILE
+
+  echo_h2 "Updated configuration file (${CONFIGS_FILE})"
+  if [ -f ${CONFIGS_FILE} ]; then
+    cat $CONFIGS_FILE
+  else
+    echo "<file was deleted>"
+  fi
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
-
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+    save_and_unlock_target_git_repo "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_COMMIT_MSG}" "${GIT_LOCK_BRANCH}" MASAPP_CONFIG_CHANGED
+    
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
-
-    if [ "${ARGOCD_CHECK}" == "true" ]; then
-      argocd_login
-      argocd_sync "${INSTANCE_ROOT_APP}" ## trigger the masapp appset to pick up the new config files
-      argocd_sync "${MASAPP_APP}"
-
-      argocd_hard_refresh "${MASAPP_APP}"
-
-      check_argo_app_synced "${MASAPP_APP}" "${INSTANCE_ROOT_APP}"
-      check_argo_app_healthy "${MASAPP_APP}" "${INSTANCE_ROOT_APP}"
-    fi
-
   fi
 
 
