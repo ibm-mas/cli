@@ -154,7 +154,7 @@ spec:
           aws secretsmanager describe-secret --secret-id ${SECRET_NAME} --region $SM_AWS_REGION --output json 2> /dev/null
           aws secretsmanager create-secret --name ${SECRET_NAME} --region $SM_AWS_REGION --secret-string "${SECRET_VALUE}" || exit 1
 
-          echo "created AWS secret secret ${SECRET_NAME} with value ${SECRET_NAME:0:6}<snip> in region $SM_AWS_REGION"
+          echo "created AWS secret secret ${SECRET_NAME} with value ${SECRET_VALUE:0:6}<snip> in region $SM_AWS_REGION"
 
         fi
 
