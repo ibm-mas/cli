@@ -353,6 +353,10 @@ spec:
           value: $(params.mongodb_namespace)
         - name: mongodb_v5_upgrade
           value: $(params.mongodb_v5_upgrade)
+        - name: mongodb_v6_upgrade
+          value: $(params.mongodb_v6_upgrade)
+        - name: mongodb_replicas
+          value: $(params.mongodb_replicas)
 
     - name: update-kafka
       taskRef:
