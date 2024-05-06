@@ -53,10 +53,6 @@ spec:
       type: string
       default: "true"
       description: "Set this to any falue other than 'true' to disable launch of the Manage FVT Pipeline after app-cfg-manage completes (does not control the additional Industry Solution, Mobile, or Regression Manage suites)"
-    - name: launchfvt_manage_civil
-      type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Manage Civil FVT Pipeline after launchfvt-manage completes (does not control Civil Industry Solution suites)"
     - name: launchfvt_manage_is
       type: string
       default: "true"
@@ -489,27 +485,7 @@ spec:
       runAfter:
         - app-cfg-manage
 
-    # 18. Application FVT - Manage Civil
-    # -------------------------------------------------------------------------
-    # 22. Application FVT - Civil
-    # -------------------------------------------------------------------------
-    - name: launchfvt-manage-civil
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-manage-civil"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-manage-civil
-      when:
-        - input: $(params.launchfvt_manage_civil)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - launchfvt-manage
-
-    # 19. Application FVT - Manage IS (Industry Solutions)
+    # 18. Application FVT - Manage IS (Industry Solutions)
     # -------------------------------------------------------------------------
     - name: launchfvt-manage-is
       params:
@@ -526,9 +502,8 @@ spec:
           values: ["true", "True"]
       runAfter:
         - launchfvt-health
-        - launchfvt-manage-civil
 
-    # 20. Application FVT - Monitor
+    # 19. Application FVT - Monitor
     # -------------------------------------------------------------------------
     - name: launchfvt-monitor
       params:
@@ -549,7 +524,7 @@ spec:
         # wait until Manage FVT has already ran
         - launchfvt-manage
 
-    # 21. Application FVT - Predict
+    # 20. Application FVT - Predict
     # -------------------------------------------------------------------------
     # Predict FVT has a dependency on fvt-manage-setup in the Manage FVT pipeline
     # We can't run Predict FVT unless Manage FVT has already ran
@@ -570,7 +545,7 @@ spec:
         - app-cfg-predict
         - launchfvt-manage
 
-    # 22. Application FVT - Visual Inspection
+    # 21. Application FVT - Visual Inspection
     # -------------------------------------------------------------------------
     - name: launchfvt-visualinspection
       params:
@@ -589,7 +564,7 @@ spec:
         - app-cfg-visualinspection
 
 
-    # 23. Application FVT - Optimizer
+    # 22. Application FVT - Optimizer
     # -------------------------------------------------------------------------
     # Optimizer FVT has a dependency on fvt-manage-setup in the Manage FVT pipeline
     # We can't run Optimizer FVT unless Manage FVT has already ran
@@ -610,7 +585,7 @@ spec:
         - app-cfg-optimizer
         - launchfvt-manage
 
-    # 24. Application FVT - Mobile
+    # 23. Application FVT - Mobile
     # -------------------------------------------------------------------------
     - name: launchfvt-mobile
       params:
@@ -628,7 +603,7 @@ spec:
       runAfter:
         - launchfvt-manage
 
-    # 25. SLS FVT
+    # 24. SLS FVT
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-sls/sls.yml.j2') | indent(4) }}
       runAfter:

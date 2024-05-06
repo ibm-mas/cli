@@ -164,23 +164,7 @@ spec:
           operator: in
           values: ["true", "True"]
 
-    # 18. Application FVT - Manage Civil
-    # -------------------------------------------------------------------------
-    - name: launchfvt-manage-civil
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-manage-civil"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-manage-civil
-      when:
-        - input: $(params.launchfvt_manage_civil)
-          operator: in
-          values: ["true", "True"]
-    
-    # 19. Application FVT - Manage IS (Industry Solutions)
+    # 18. Application FVT - Manage IS (Industry Solutions)
     # -------------------------------------------------------------------------
     - name: launchfvt-manage-is
       params:
@@ -196,7 +180,7 @@ spec:
           operator: in
           values: ["true", "True"]
 
-    # 20. Application FVT - Monitor
+    # 19. Application FVT - Monitor
     # -------------------------------------------------------------------------
     - name: launchfvt-monitor
       params:
@@ -213,7 +197,7 @@ spec:
           values: ["true", "True"]
 
 
-    # 21. Application FVT - Predict
+    # 20. Application FVT - Predict
     # -------------------------------------------------------------------------
     - name: launchfvt-predict
       params:
@@ -230,7 +214,7 @@ spec:
           values: ["true", "True"]
 
 
-    # 22. Application FVT - Visual Inspection
+    # 21. Application FVT - Visual Inspection
     # -------------------------------------------------------------------------
     - name: launchfvt-visualinspection
       params:
@@ -246,7 +230,7 @@ spec:
           operator: in
           values: ["true", "True"]
 
-    # 23. Application FVT - Optimizer
+    # 22. Application FVT - Optimizer
     # -------------------------------------------------------------------------
     - name: launchfvt-optimizer
       params:
@@ -262,7 +246,7 @@ spec:
           operator: in
           values: ["true", "True"]
     
-    # 24. Application FVT - Mobile
+    # 23. Application FVT - Mobile
     # -------------------------------------------------------------------------
     - name: launchfvt-mobile
       params:
