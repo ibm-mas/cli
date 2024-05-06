@@ -79,6 +79,11 @@ function validate_existing_cert_manager() {
 # Validates the existance of installed MongoDB Community Edition in the target cluster
 # and prints a warning message if MongoDB is supposed to be upgraded
 function validate_existing_mongo() {
+
+  if [ "$SNO_MODE" == true ]; then
+    MONGODB_REPLICAS=1
+  fi 
+
   if [ -z "$MONGODB_NAMESPACE" ]; then
     echo -e "${COLOR_YELLOW}Verifying current MongoDB deployment..."
     MONGODB_NAMESPACE=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
@@ -481,6 +486,9 @@ function validate_update() {
     exit 1
   fi
 
+  # Detect if cluster is SNO
+  detect_sno
+
   # Validates Red Hat Cerficate Manager migration only if January catalog or more recent used
   validate_existing_cert_manager
 
@@ -683,6 +691,8 @@ function update() {
   export DB2_NAMESPACE
   export MONGODB_NAMESPACE
   export MONGODB_V5_UPGRADE
+  export MONGODB_V6_UPGRADE
+  export MONGODB_REPLICAS
   export MONGODB_VERSION
   export KAFKA_NAMESPACE
   export KAFKA_PROVIDER
@@ -752,6 +762,7 @@ function update() {
   # MongoDB Community Edition
   if [ "$MONGODB_NAMESPACE" != "" ]; then
     echo_reset_dim "MongoDb Community Edition .................. ${COLOR_GREEN}Yes - ${MONGODB_CURRENT_VERSION} to ${MONGODB_TARGET_VERSION} ($MONGODB_NAMESPACE)${TEXT_RESET}"
+    echo_reset_dim "MongoDb Replicas ........................... ${COLOR_GREEN}${MONGODB_REPLICAS}${TEXT_RESET}"
   else
     echo_reset_dim "MongoDb Community Edition .................. ${COLOR_RED}No${TEXT_RESET}"
   fi

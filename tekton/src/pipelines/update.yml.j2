@@ -89,6 +89,14 @@ spec:
       type: string
       description: Approves the MongoDb upgrade to version 5 if needed
       default: ""
+    - name: mongodb_v6_upgrade
+      type: string
+      description: Approves the MongoDb upgrade to version 6 if needed
+      default: ""
+    - name: mongodb_replicas
+      type: string
+      description: Optional configuration for mongodb replicas
+      default: ""
 
     # kafka update
     - name: kafka_action
