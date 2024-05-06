@@ -764,7 +764,6 @@ function update() {
   # MongoDB Community Edition
   if [ "$MONGODB_NAMESPACE" != "" ]; then
     echo_reset_dim "MongoDb Community Edition .................. ${COLOR_GREEN}Yes - ${MONGODB_CURRENT_VERSION} to ${MONGODB_TARGET_VERSION} ($MONGODB_NAMESPACE)${TEXT_RESET}"
-    echo_reset_dim "MongoDb Replicas ........................... ${COLOR_GREEN}${MONGODB_REPLICAS}${TEXT_RESET}"
   else
     echo_reset_dim "MongoDb Community Edition .................. ${COLOR_RED}No${TEXT_RESET}"
   fi
