@@ -82,6 +82,8 @@ function validate_existing_mongo() {
 
   if [ "$SNO_MODE" == true ]; then
     MONGODB_REPLICAS=1
+  else
+    MONGODB_REPLICAS=3
   fi 
 
   if [ -z "$MONGODB_NAMESPACE" ]; then
