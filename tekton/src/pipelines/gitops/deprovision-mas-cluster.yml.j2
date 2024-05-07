@@ -33,12 +33,6 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-
-    - name: argocd_url
-      type: string
-    - name: argocd_check
-      type: string
-
     - name: db2_action
       type: string
       default: ""
@@ -70,10 +64,6 @@ spec:
           value: $(params.secrets_path)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: argocd_url
-          value: $(params.argocd_url)
-        - name: argocd_check
-          value: $(params.argocd_check)
         - name: db2_action
           value: $(params.db2_action)
 

@@ -17,8 +17,6 @@ GitOps Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -r, --region-id ${COLOR_YELLOW}REGION${TEXT_RESET}                 Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
-  -f, --force-removal ${COLOR_YELLOW}FORCE_REMOVAL${TEXT_RESET}      Force remove the ArgoCD Application, when deletion exceeds timeout  
-  -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}        ArgoCD check flag, when set to true will make ArgoCD calls
 
 Maximo Application Suite:
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                       IBM Suite Maximo Application Suite Instance ID
@@ -50,7 +48,6 @@ function gitops_deprovision_app_install_noninteractive() {
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   export REGION=${REGION:-${SM_AWS_REGION}}
-  export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
 
   while [[ $# -gt 0 ]]
   do
@@ -71,12 +68,6 @@ function gitops_deprovision_app_install_noninteractive() {
         ;;
       -r|--region-id)
         export REGION=$1 && shift
-        ;;
-      -f|--force-removal)
-        export FORCE_REMOVAL=$1 && shift
-        ;;
-      -A|--argocd-check)
-        export ARGOCD_CHECK=$1 && shift
         ;;
 
       # MAS
@@ -170,8 +161,6 @@ function gitops_deprovision_app_install() {
   echo_reset_dim "Region ID ............................. ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
-  echo_reset_dim "Force Remove Application Flag ......... ${COLOR_MAGENTA}${FORCE_REMOVAL}"
-  echo_reset_dim "ArgoCD Check .......................... ${COLOR_MAGENTA}${ARGOCD_CHECK}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -240,17 +229,5 @@ function gitops_deprovision_app_install() {
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
-
-    if [ "${ARGOCD_CHECK}" == "true" ]; then
-      INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-      MASAPP_APP="ma.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
-
-      argocd_login
-
-      argocd_prune_sync "${INSTANCE_ROOT_APP}" ## trigger the masapp appset to notice the deletion of the remaining config files for this mas app
-
-      check_argo_app_deleted ${MASAPP_APP} "mas" ${FORCE_REMOVAL}
-    fi
-    
   fi
 }

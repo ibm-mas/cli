@@ -15,7 +15,6 @@ GitOps Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -r, --region-id ${COLOR_YELLOW}REGION_ID${TEXT_RESET}              Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
-  -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}        ArgoCD check flag, when set to true will make ArgoCD calls
 
 IBM Maximo Application Suite:
       -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}   IBM Suite Maximo Application Suite Instance ID      
@@ -81,11 +80,6 @@ function gitops_db2u_database_noninteractive() {
   export REGION=${REGION:-${SM_AWS_REGION}}
   export REGION_ID=${REGION_ID:-${REGION}}
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"} # use an in-cluster argocd worker (which fvtsaas does)
-  # alternatively for CLUSTER_URL, we could look it up from ArgoCD like this:
-  # export CLUSTER_URL
-  # argocd_get_cluster_url "${CLUSTER_ID}" "CLUSTER_URL"
-
-  export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
 
   while [[ $# -gt 0 ]]
   do
@@ -110,9 +104,6 @@ function gitops_db2u_database_noninteractive() {
         ;;
       -u|--cluster-url)
         export CLUSTER_URL=$1 && shift
-        ;;
-      -A|--argocd-check)
-        export ARGOCD_CHECK=$1 && shift
         ;;
 
       # MAS
@@ -402,7 +393,6 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "Region ID ............................. ${COLOR_MAGENTA}${REGION_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Instance Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
-  echo_reset_dim "ArgoCD Check .......................... ${COLOR_MAGENTA}${ARGOCD_CHECK}"
   reset_colors
 
   echo "${TEXT_DIM}"

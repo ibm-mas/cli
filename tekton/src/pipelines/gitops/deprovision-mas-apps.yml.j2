@@ -12,11 +12,8 @@ spec:
       type: string
     - name: cluster_url
       type: string
+      default: ""
     - name: region
-      type: string
-    - name: argocd_url
-      type: string
-    - name: argocd_check
       type: string
     - name: account
       type: string
@@ -33,10 +30,6 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
-
-    - name: force_removal
-      type: string
-      default: ""
 
     - name: mas_workspace_id
       type: string
@@ -103,8 +96,6 @@ spec:
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
-        - name: force_removal
-          value: $(params.force_removal)
         - name: mas_app_id
           value: monitor
 
@@ -130,8 +121,6 @@ spec:
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: force_removal
-          value: $(params.force_removal)
         - name: mas_app_id
           value: monitor
 
@@ -142,9 +131,6 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.monitor_workspace_action)"
-          operator: in
-          values: ["deactivate"]
         - input: "$(params.mas_app_channel_monitor)"
           operator: in
           values: [""]
@@ -162,8 +148,6 @@ spec:
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
-        - name: force_removal
-          value: $(params.force_removal)
         - name: mas_app_id
           value: predict
 
@@ -189,8 +173,6 @@ spec:
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: force_removal
-          value: $(params.force_removal)
         - name: mas_app_id
           value: predict
 
@@ -201,9 +183,6 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.predict_workspace_action)"
-          operator: in
-          values: ["deactivate"]
         - input: "$(params.mas_app_channel_predict)"
           operator: in
           values: [""]
@@ -221,8 +200,6 @@ spec:
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
-        - name: force_removal
-          value: $(params.force_removal)
         - name: mas_app_id
           value: visualinspection
 
@@ -248,8 +225,6 @@ spec:
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: force_removal
-          value: $(params.force_removal)
         - name: mas_app_id
           value: visualinspection
 
@@ -260,9 +235,6 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.visualinspection_workspace_action)"
-          operator: in
-          values: ["deactivate"]
         - input: "$(params.mas_app_channel_visualinspection)"
           operator: in
           values: [""]
@@ -280,8 +252,6 @@ spec:
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
-        - name: force_removal
-          value: $(params.force_removal)
         - name: mas_app_id
           value: optimizer
 
@@ -307,8 +277,6 @@ spec:
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: force_removal
-          value: $(params.force_removal)
         - name: mas_app_id
           value: optimizer
 
@@ -319,9 +287,6 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.optimizer_workspace_action)"
-          operator: in
-          values: ["deactivate"]
         - input: "$(params.mas_app_channel_optimizer)"
           operator: in
           values: [""]
@@ -339,8 +304,6 @@ spec:
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
-        - name: force_removal
-          value: $(params.force_removal)
         - name: mas_app_id
           value: assist
 
@@ -366,8 +329,6 @@ spec:
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: force_removal
-          value: $(params.force_removal)
         - name: mas_app_id
           value: assist
 
@@ -378,9 +339,6 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.assist_workspace_action)"
-          operator: in
-          values: ["deactivate"]
         - input: "$(params.mas_app_channel_assist)"
           operator: in
           values: [""]
@@ -402,8 +360,6 @@ spec:
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
-        - name: force_removal
-          value: $(params.force_removal)
         - name: mas_app_id
           value: manage
 
@@ -429,8 +385,6 @@ spec:
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: force_removal
-          value: $(params.force_removal)
         - name: mas_app_id
           value: manage
 
@@ -441,13 +395,36 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.manage_workspace_action)"
-          operator: in
-          values: ["deactivate"]
         - input: "$(params.mas_app_channel_manage)"
           operator: in
           values: [""]
 
+
+    # 6.3 Manage Database
+    - name: gitops-deprovision-db2u-database-manage
+      runAfter:
+        - gitops-deprovision-mas-app-install-manage
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: manage
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-db2u-database
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_manage)"
+          operator: in
+          values: [""]
+  
     # 7. IoT
     # -------------------------------------------------------------------------
     # 7.1 IoT Config/Workspace
@@ -463,8 +440,6 @@ spec:
           value: $(params.mas_instance_id)
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
-        - name: force_removal
-          value: $(params.force_removal)
         - name: mas_app_id
           value: iot
 
@@ -490,8 +465,6 @@ spec:
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: force_removal
-          value: $(params.force_removal)
         - name: mas_app_id
           value: iot
 
@@ -502,9 +475,31 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.iot_workspace_action)"
+        - input: "$(params.mas_app_channel_iot)"
           operator: in
-          values: ["deactivate"]
+          values: [""]
+
+    # 7.3 IoT Database
+    - name: gitops-deprovision-db2u-database-iot
+      runAfter:
+        - gitops-deprovision-mas-app-install-iot
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: iot
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-db2u-database
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
         - input: "$(params.mas_app_channel_iot)"
           operator: in
           values: [""]

@@ -25,19 +25,8 @@ spec:
       type: string
     - name: github_host
       type: string
-    - name: force_removal
-      type: string
     - name: mas_app_id
       type: string
-    - name: cluster_url
-      type: string
-      default: ""
-    - name: argocd_url
-      type: string
-      default: ""
-    - name: argocd_check
-      type: string
-      default: "false"
   stepTemplate:
     name: gitops-deprovision-app-config
     env:
@@ -59,16 +48,8 @@ spec:
         value: $(params.github_repo)
       - name: MAS_WORKSPACE_ID
         value: $(params.mas_workspace_id)
-      - name: FORCE_REMOVAL
-        value: $(params.force_removal)
       - name: MAS_APP_ID
         value: $(params.mas_app_id)
-      - name: CLUSTER_URL
-        value: $(params.cluster_url)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
-      - name: ARGOCD_CHECK
-        value: $(params.argocd_check)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -84,13 +65,6 @@ spec:
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
-
-        if [ "${ARGOCD_CHECK}" == "true" ]; then
-          echo "argo:argocd login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."
-          argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
-          echo "argo:argocd proj windows delete $CLUSTER_NAME 0"
-          argocd proj windows delete $CLUSTER_NAME 0
-        fi
 
         mas gitops-deprovision-app-config -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /tmp/deprovision-app-config \

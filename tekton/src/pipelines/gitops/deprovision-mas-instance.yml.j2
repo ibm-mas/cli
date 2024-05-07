@@ -12,11 +12,8 @@ spec:
       type: string
     - name: cluster_url
       type: string
+      default: ""
     - name: region
-      type: string
-    - name: argocd_url
-      type: string
-    - name: argocd_check
       type: string
     - name: account
       type: string
@@ -41,9 +38,6 @@ spec:
     - name: mas_workspace_name
       type: string
 
-    - name: force_removal
-      type: string
-      default: ""
   tasks:
     # 1. Deprovision workspace
     # -------------------------------------------------------------------------
@@ -59,8 +53,6 @@ spec:
           value: $(params.mas_workspace_id)
         - name: mas_workspace_name
           value: $(params.mas_workspace_name)
-        - name: force_removal
-          value: $(params.force_removal)
 
       taskRef:
         kind: Task
@@ -81,8 +73,6 @@ spec:
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: force_removal
-          value: $(params.force_removal)
 
       taskRef:
         kind: Task
@@ -103,8 +93,6 @@ spec:
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: force_removal
-          value: $(params.force_removal)
 
       taskRef:
         kind: Task
@@ -125,8 +113,6 @@ spec:
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: force_removal
-          value: $(params.force_removal)
 
       workspaces:
         - name: configs
@@ -149,8 +135,6 @@ spec:
           value: $(params.mas_instance_id)
         - name: mongo_provider
           value: $(params.mongo_provider)
-        - name: force_removal
-          value: $(params.force_removal)
 
       taskRef:
         kind: Task
@@ -190,8 +174,7 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
-        - name: force_removal
-          value: $(params.force_removal)
+
         - name: mas_instance_id
           value: $(params.mas_instance_id)
 
@@ -211,8 +194,7 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
-        - name: force_removal
-          value: $(params.force_removal)
+
         - name: mas_instance_id
           value: $(params.mas_instance_id)
 

@@ -56,12 +56,6 @@ spec:
     - name: cluster_url
       type: string
       default: ""
-    - name: argocd_url
-      type: string
-      default: ""
-    - name: argocd_check
-      type: string
-      default: "false"
     - name: cert_manager_namespace
       type: string
       default: "cert-manager"
@@ -154,10 +148,6 @@ spec:
         value: $(params.sls_channel)
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
-      - name: ARGOCD_CHECK
-        value: $(params.argocd_check)
       - name: CERT_MANAGER_NAMESPACE
         value: $(params.cert_manager_namespace)
 

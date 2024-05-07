@@ -11,9 +11,6 @@ spec:
       type: string
     - name: region
       type: string
-    - name: cluster_url
-      type: string
-      default: ""
     - name: secrets_path
       type: string
     - name: git_branch
@@ -28,12 +25,6 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: argocd_url
-      type: string
-      default: ""
-    - name: argocd_check
-      type: string
-      default: "false"
   stepTemplate:
     name: gitops-deprovision-cluster
     env:
@@ -43,8 +34,6 @@ spec:
         value: $(params.account)
       - name: REGION
         value: $(params.region)
-      - name: CLUSTER_URL
-        value: $(params.cluster_url)
       - name: SECRET_PATH
         value: $(params.secrets_path)
       - name: GIT_BRANCH
@@ -59,10 +48,6 @@ spec:
         value: $(params.git_commit_msg)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
-      - name: ARGOCD_CHECK
-        value: $(params.argocd_check)
     envFrom:
       - configMapRef:
           name: environment-properties

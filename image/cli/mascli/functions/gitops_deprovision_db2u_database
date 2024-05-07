@@ -19,8 +19,6 @@ GitOps Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
   --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                IBM Suite Maximo Application Suite App that uses this db2u instance      
-  -f, --force-removal ${COLOR_YELLOW}FORCE_REMOVAL${TEXT_RESET}      Force remove the ArgoCD Application, when deletion exceeds timeout
-  -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}        ArgoCD check flag, when set to true will make ArgoCD calls
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -49,7 +47,6 @@ function gitops_deprovision_db2u_database_noninteractive() {
 
   export REGION=${REGION:-${SM_AWS_REGION}}
   export REGION_ID=${REGION_ID:-${REGION}}
-  export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
 
   while [[ $# -gt 0 ]]
   do
@@ -76,12 +73,6 @@ function gitops_deprovision_db2u_database_noninteractive() {
         ;;
       --mas-app-id)
         export MAS_APP_ID=$1 && shift
-        ;;
-      -f|--force-removal)
-        export FORCE_REMOVAL=$1 && shift
-        ;;
-      -A|--argocd-check)
-        export ARGOCD_CHECK=$1 && shift
         ;;
       # Secrets Manager
       --secrets-path)
@@ -173,8 +164,6 @@ function gitops_deprovision_db2u_database() {
   echo_reset_dim "Region ID ............................. ${COLOR_MAGENTA}${REGION_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
-  echo_reset_dim "Force Remove Application Flag ......... ${COLOR_MAGENTA}${FORCE_REMOVAL}"
-  echo_reset_dim "ArgoCD Check .......................... ${COLOR_MAGENTA}${ARGOCD_CHECK}"
   reset_colors
 
   echo "${TEXT_DIM}"

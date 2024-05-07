@@ -46,12 +46,6 @@ spec:
       type: string
     - name: mas_app_id
       type: string
-    - name: argocd_url
-      type: string
-      default: ""
-    - name: argocd_check
-      type: string
-      default: "false"
   stepTemplate:
     name: gitops-db2u-database
     env:
@@ -95,10 +89,6 @@ spec:
         value: $(params.db2_database_db_config_yaml)
       - name: MAS_APP_ID
         value: $(params.mas_app_id)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
-      - name: ARGOCD_CHECK
-        value: $(params.argocd_check)
     envFrom:
       - configMapRef:
           name: environment-properties
