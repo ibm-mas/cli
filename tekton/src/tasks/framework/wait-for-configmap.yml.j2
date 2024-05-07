@@ -12,7 +12,7 @@ spec:
     - name: configmap_key
       type: string
       description: "The key in the configmap to watch for"
-    - name: configmap_value
+    - name: configmap_target_value
       type: string
       description: "The value to wait for the configmap to change to"
 
@@ -33,7 +33,7 @@ spec:
       description: "Set to False to ignore failures"
 
   steps:
-    - name: wait-for-approval
+    - name: wait-for-configmap
       image: quay.io/ibmmas/cli:latest
       command:
         - /opt/app-root/src/wait-for-configmap.sh
@@ -45,8 +45,8 @@ spec:
           value: $(params.configmap_name)
         - name: CONFIGMAP_KEY
           value: $(params.configmap_key)
-        - name: CONFIGMAP_VALUE
-          value: $(params.configmap_value)
+        - name: CONFIGMAP_TARGET_VALUE
+          value: $(params.configmap_target_value)
 
         # How long to wait
         - name: DELAY

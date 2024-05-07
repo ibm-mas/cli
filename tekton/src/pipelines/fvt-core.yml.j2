@@ -98,7 +98,7 @@ spec:
     {{ lookup('template', 'taskdefs/fvt-core/phase4-disruptive.yml.j2', template_vars={'runAfter': ['coreapi-groupmgmt', 'coreapi-workspacemgmt', 'useractivation-overall', 'useractivation-expiresat', 'useractivation-inactivity', 'coreapi-dependencies', 'coreapi-usermgmt-v3', 'coreapi-other']}) | indent(4) }}
 
   finally:
-    # 3. Run CV
+    # 1. Run CV
     # -----------------------------------------------------------------------------
     - name: cv-core
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
@@ -114,3 +114,20 @@ spec:
         - input: "$(params.ivt_digest_core)"
           operator: notin
           values: [""]
+
+
+    # 2. Update the suite-verify approval configmap to set FVT_STATUS=approved
+    # -----------------------------------------------------------------------------
+    - name: set-approval
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: approval-suite-verify
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_value
+          value: approved

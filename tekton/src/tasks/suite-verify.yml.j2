@@ -38,11 +38,11 @@ spec:
         - name: NAMESPACE
           value: $(context.taskRun.namespace)
         - name: CONFIGMAP_NAME
-          value: approval-mas-suite-verify
+          value: approval-suite-verify
         - name: CONFIGMAP_KEY
           valueFrom:
             configMapKeyRef:
-              name: approval-mas-suite-verify
+              name: approval-suite-verify
               key: CONFIGMAP_KEY
               optional: true
         - name: CONFIGMAP_INITIAL_VALUE
@@ -52,18 +52,18 @@ spec:
         - name: DELAY
           valueFrom:
             configMapKeyRef:
-              name: approval-mas-suite-verify
+              name: approval-suite-verify
               key: DELAY
               optional: true
         - name: MAX_RETRIES
           valueFrom:
             configMapKeyRef:
-              name: approval-mas-suite-verify
+              name: approval-suite-verify
               key: MAX_RETRIES
               optional: true
         - name: IGNORE_FAILURE
           valueFrom:
             configMapKeyRef:
-              name: approval-mas-suite-verify
+              name: approval-suite-verify
               key: IGNORE_FAILURE
               optional: true

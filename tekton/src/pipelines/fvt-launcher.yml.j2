@@ -5,20 +5,6 @@ kind: Pipeline
 metadata:
   name: mas-fvt-launcher
 spec:
-  workspaces:
-    # The generated configuration files
-    - name: shared-configs
-    # Any pre-generated configs that will be copied into the shared-configs workspace during suite-install
-    - name: shared-additional-configs
-    # The SLS entitlement key file that will be installed during install-sls.
-    - name: shared-entitlement
-    # Shared storage to hold mustgather output for tasks
-    - name: shared-mustgather
-    # Pre-generated certificates that will be copied into certs folder of shared-configs workspace to be used by suite-certs task
-    - name: shared-certificates
-    # PodTemplates configurations
-    - name: shared-pod-templates
-
   params:
     - name: fvt_image_registry
       type: string
@@ -80,27 +66,24 @@ spec:
       default: "true"
       description: "Set this to any falue other than 'true' to disable launch of the Visual Inspection FVT Pipeline after app-cfg-visualinspection completes"
 
-    - name: install_pipelinerun_name
-      type: string
-      default: "true"
-      description: "Name of the MAS install pipeline that we are going to watch specific taskruns"
-
   tasks:
-    # 13. MAS Core FVT
+    # 1. MAS Core FVT
     # -------------------------------------------------------------------------
     - name: wait-for-suite-verify
       taskRef:
         kind: Task
-        name: mas-wait-for-tekton
+        name: mas-devops-wait-for-configmap
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: type
-          value: "taskrun"
-        - name: name
-          value: "$(params.install_pipelinerun_name)-suite-verify"
         - name: namespace
           value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-suite-verify
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_target_value
+          value: pending
         - name: delay
           value: "300"
         - name: max_retries
@@ -129,7 +112,7 @@ spec:
         - wait-for-suite-verify
 
 
-    # 14. Application FVT - Assist
+    # 2. Application FVT - Assist
     # -------------------------------------------------------------------------
     - name: launchfvt-assist
       params:
@@ -145,7 +128,7 @@ spec:
           operator: in
           values: ["true", "True"]
 
-    # 15. Application FVT - Health
+    # 3. Application FVT - Health
     # -------------------------------------------------------------------------
     - name: launchfvt-health
       params:
@@ -162,7 +145,7 @@ spec:
           values: ["true", "True"]
 
 
-    # 16. Application FVT - IoT
+    # 4. Application FVT - IoT
     # -------------------------------------------------------------------------
     - name: launchfvt-iot
       params:
@@ -179,7 +162,7 @@ spec:
           values: ["true", "True"]
 
 
-    # 17. Application FVT - Manage
+    # 5. Application FVT - Manage
     # -------------------------------------------------------------------------
     - name: launchfvt-manage
       params:
@@ -195,7 +178,7 @@ spec:
           operator: in
           values: ["true", "True"]
 
-    # 18. Application FVT - Manage Civil
+    # 6. Application FVT - Manage Civil
     # -------------------------------------------------------------------------
     - name: launchfvt-manage-civil
       params:
@@ -211,7 +194,7 @@ spec:
           operator: in
           values: ["true", "True"]
 
-    # 19. Application FVT - Manage IS (Industry Solutions)
+    # 7. Application FVT - Manage IS (Industry Solutions)
     # -------------------------------------------------------------------------
     - name: launchfvt-manage-is
       params:
@@ -227,7 +210,7 @@ spec:
           operator: in
           values: ["true", "True"]
 
-    # 20. Application FVT - Monitor
+    # 8. Application FVT - Monitor
     # -------------------------------------------------------------------------
     - name: launchfvt-monitor
       params:
@@ -244,7 +227,7 @@ spec:
           values: ["true", "True"]
 
 
-    # 21. Application FVT - Predict
+    # 9. Application FVT - Predict
     # -------------------------------------------------------------------------
     - name: launchfvt-predict
       params:
@@ -261,7 +244,7 @@ spec:
           values: ["true", "True"]
 
 
-    # 22. Application FVT - Visual Inspection
+    # 10. Application FVT - Visual Inspection
     # -------------------------------------------------------------------------
     - name: launchfvt-visualinspection
       params:
@@ -277,7 +260,7 @@ spec:
           operator: in
           values: ["true", "True"]
 
-    # 23. Application FVT - Optimizer
+    # 11. Application FVT - Optimizer
     # -------------------------------------------------------------------------
     - name: launchfvt-optimizer
       params:
@@ -293,7 +276,7 @@ spec:
           operator: in
           values: ["true", "True"]
 
-    # 24. Application FVT - Mobile
+    # 12. Application FVT - Mobile
     # -------------------------------------------------------------------------
     - name: launchfvt-mobile
       params:
