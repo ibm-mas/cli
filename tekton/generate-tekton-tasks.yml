@@ -24,7 +24,6 @@
       with_items:
         - appconnect
         - cert-manager
-        - cluster-monitoring
         - common-services
         - cos
         - cos-deprovision
@@ -32,6 +31,7 @@
         - cp4d-service-update
         - cp4d
         - db2
+        - grafana
         - ibm-catalogs
         - kafka
         - kafka-deprovision
