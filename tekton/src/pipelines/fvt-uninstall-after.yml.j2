@@ -353,19 +353,19 @@ spec:
         - uninstall-common-services
 
 
-    # 9. Uninstall Cluster Monitoring
+    # 9. Uninstall Grafana
     # -------------------------------------------------------------------------
-    - name: uninstall-cluster-monitoring
+    - name: uninstall-grafana
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
         - name: grafana_action
           value: $(params.grafana_action)
         - name: devops_suite_name
-          value: setup-cluster-monitoring
+          value: dependencies-grafana-uninstall
       taskRef:
         kind: Task
-        name: mas-devops-cluster-monitoring
+        name: mas-devops-grafana
       when:
         - input: "$(params.grafana_action)"
           operator: in

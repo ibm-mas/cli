@@ -77,12 +77,12 @@ spec:
     {{ lookup('template', 'taskdefs/dependencies/mongo.yml.j2') | indent(4) }}
       runAfter:
         - cert-manager
-        - cluster-monitoring
+        - grafana
 
     # 2.2 AMQStreams (Kafka)
     {{ lookup('template', 'taskdefs/dependencies/kafka.yml.j2') | indent(4) }}
       runAfter:
-        - cluster-monitoring
+        - grafana
 
     # 2.3 Db2
     # 2.3.1 System Db2

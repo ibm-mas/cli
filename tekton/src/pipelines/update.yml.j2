@@ -303,7 +303,7 @@ spec:
     - name: update-grafana
       taskRef:
         kind: Task
-        name: mas-devops-cluster-monitoring
+        name: mas-devops-grafana
       when:
         - input: $(params.grafana_v5_upgrade)
           operator: in

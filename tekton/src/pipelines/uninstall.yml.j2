@@ -371,7 +371,7 @@ spec:
           value: dependencies-grafana-uninstall
       taskRef:
         kind: Task
-        name: mas-devops-cluster-monitoring
+        name: mas-devops-grafana
       when:
         - input: "$(params.grafana_action)"
           operator: in
