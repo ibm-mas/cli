@@ -25,9 +25,6 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: cluster_url
-      type: string
-      default: ""
   stepTemplate:
     name: gitops-deprovision-db2u
     env:
@@ -51,8 +48,6 @@ spec:
         value: $(params.github_repo)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: CLUSTER_URL
-        value: $(params.cluster_url)
     envFrom:
       - configMapRef:
           name: environment-properties

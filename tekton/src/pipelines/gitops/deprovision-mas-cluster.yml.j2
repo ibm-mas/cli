@@ -11,8 +11,6 @@ spec:
 
     - name: cluster_name
       type: string
-    - name: cluster_url
-      type: string
     - name: region
       type: string
     - name: account
@@ -42,8 +40,6 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
-        - name: cluster_url
-          value: $(params.cluster_url)
         - name: account
           value: $(params.account)
         - name: region
