@@ -139,5 +139,6 @@
         src: "{{ task_src_dir }}/framework/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
+        - update-configmap
         - wait-for-configmap
         - wait-for-tekton
