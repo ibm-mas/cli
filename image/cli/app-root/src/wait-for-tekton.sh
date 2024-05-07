@@ -83,7 +83,7 @@ RESULT=$(oc -n ${NAMESPACE} get ${TYPE}/$NAME -o jsonpath='{.status.conditions[0
 if [[ "$RESULT" == "True" ]]; then
   echo "Result          = ${TYPE} completed successfully"
   exit 0
-elif [[ "$IGNORE_FAILURE" == "True" || "$IGNORE_FAILURE" == "true"]]; then
+elif [[ "$IGNORE_FAILURE" == "True" || "$IGNORE_FAILURE" == "true" ]]; then
   echo "Result          = ${TYPE} failed (ignored)"
   exit 0
 else

@@ -37,14 +37,11 @@
         - kafka-deprovision
         - mongodb
         - nvidia-gpu
-        - ocp-verify
-        - ocp-verify-all
         - ocs
         - sls-registry-update
         - sls
         - turbonomic
         - uds
-        - wait-for-tekton
 
     # 3. Generate Tasks (FVT)
     # -------------------------------------------------------------------------
@@ -132,3 +129,15 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - ocp-deprovision
+        - ocp-verify
+        - ocp-verify-all
+
+    # 7. Generate Tasks (Framework)
+    # -------------------------------------------------------------------------
+    - name: Generate Tasks (Framework)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/framework/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - wait-for-configmap
+        - wait-for-tekton
