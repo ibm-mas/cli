@@ -143,7 +143,10 @@ if [ "$MODE" == "backup" ]; then
     echo "Starting MAS Managebackup using the instance id $MAS_INSTANCE_ID to $BACKUP_FOLDER"
     mkdir -p $BACKUP_FOLDER
     backupSingleResource Subscription ibm-mas-manage $MAS_MANAGE_NAMESPACE
-    backupSingleResource OperatorGroup ibm-manage-operatorgroup $MAS_MANAGE_NAMESPACE
+    # backupSingleResource OperatorGroup ibm-manage-operatorgroup $MAS_MANAGE_NAMESPACE
+    OPERATOR_GROUP=$(oc get operatorgroup -n mas-$MAS_INSTANCE_ID-manage -o name)
+    OPERATOR_GROUP_NEW=$(echo "$OPERATOR_GROUP" | sed -E 's/.*\/(.+)/\1/')
+    backupSingleResource OperatorGroup $OPERATOR_GROUP_NEW $MAS_MANAGE_NAMESPACE
     backupSingleResource Secret ibm-entitlement $MAS_MANAGE_NAMESPACE
     backupSingleResource Secret $MAS_WORKSPACE_ID-manage-encryptionsecret $MAS_MANAGE_NAMESPACE
     backupSingleResource Secret $MAS_WORKSPACE_ID-manage-encryptionsecret-operator $MAS_MANAGE_NAMESPACE

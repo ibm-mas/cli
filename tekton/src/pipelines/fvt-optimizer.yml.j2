@@ -71,7 +71,7 @@ spec:
           operator: notin
           values: [""]
 
-    - name: cv-optimizer
+    - name: imagescan-optimizer
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
@@ -80,12 +80,11 @@ spec:
         - name: product_channel
           value: $(params.mas_app_channel_optimizer)
         - name: fvt_test_suite
-          value: contentverification
+          value: imagescan
       when:
         - input: "$(params.ivt_digest_core)"
           operator: notin
           values: [""]
-
 
     # 2. Run "optimizer_fvt" (CTF)
     # -----------------------------------------------------------------------------
@@ -121,7 +120,6 @@ spec:
           values: [""]
       runAfter:
         - ivtcore-optimizer
-        - cv-optimizer
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -263,3 +261,21 @@ spec:
           workspace: shared-configs
       runAfter:
         - fvt-optimizer-manage-connection-setup
+
+  finally:
+    # 3. Run CV
+    # -----------------------------------------------------------------------------
+    - name: cv-optimizer
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-optimizer
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: fvt_test_suite
+          value: contentverification
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]

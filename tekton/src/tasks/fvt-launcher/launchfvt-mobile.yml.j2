@@ -87,6 +87,13 @@ spec:
               name: mas-fvt-mobile
               key: FVT_DIGEST_MOBILE_TESTNG
               optional: false
+        - name: FVT_DIGEST_MANAGE_CIVIL_SELENIUM
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-mobile
+              key: FVT_DIGEST_MANAGE_CIVIL_SELENIUM
+              optional: false
+
        
     
     - name: wait-for-pipelinerun
@@ -98,7 +105,7 @@ spec:
         - --delay
         - "600"
         - --max-retries
-        - "50"
+        - "75"
         - --ignore-failure
       env:
         - name: PIPELINERUN_NAME
