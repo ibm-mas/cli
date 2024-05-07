@@ -35,7 +35,7 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - /opt/app-root/src/run-role.sh
-        - cluster_monitoring
+        - grafana
       workingDir: /workspace/configs
       env:
         {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(8) }}
