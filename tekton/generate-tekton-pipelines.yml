@@ -29,7 +29,6 @@
       with_items:
         - db2
         - install
-        - install-with-fvt
         - fvt-assist
         - fvt-core
         - fvt-deprovision-after
