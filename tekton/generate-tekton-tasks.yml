@@ -44,6 +44,7 @@
         - sls
         - turbonomic
         - uds
+        - wait-for-tekton
 
     # 3. Generate Tasks (FVT)
     # -------------------------------------------------------------------------
@@ -67,7 +68,6 @@
         - fvt-data-dictionary
         - fvt-run-suite
         - fvt-wait-for-install
-        - fvt-wait-for-pipelinerun
 
     - name: Generate Tasks (FVT Launchers)
       ansible.builtin.template:

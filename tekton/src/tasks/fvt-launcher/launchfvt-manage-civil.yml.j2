@@ -54,7 +54,7 @@ spec:
 
         # Lookups from mas-fvt-mobile
         # -----------------------------------------------------------------------
-        # Framework Information        
+        # Framework Information
         - name: MAS_CHANNEL
           valueFrom:
             secretKeyRef:
@@ -73,7 +73,7 @@ spec:
               name: mas-fvt-manage-civil
               key: MAS_WORKSPACE_ID
               optional: false
-        
+
         # Digests
         - name: FVT_DIGEST_MOBILE_TESTNG
           valueFrom:
@@ -88,7 +88,7 @@ spec:
               name: mas-fvt-manage-civil
               key: FVT_DIGEST_MANAGE_CIVIL_SELENIUM
               optional: false
-        
+
         # Black and white listing
         - name: FVT_BLACKLIST
           valueFrom:
@@ -102,14 +102,14 @@ spec:
               name: mas-fvt-manage-civil
               key: FVT_WHITELIST
               optional: false
-        
-    
+
+
     - name: wait-for-pipelinerun
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       # 50 retries at 10 minute intervals = just over 8 hours
       command:
-        - /opt/app-root/src/wait-for-pipelinerun.sh
+        - /opt/app-root/src/wait-for-tekton.sh
         - --delay
         - "600"
         - --max-retries

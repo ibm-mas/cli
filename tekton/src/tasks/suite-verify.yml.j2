@@ -26,3 +26,46 @@ spec:
         - suite_verify
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
+
+    - name: suite-post-verify
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - /opt/app-root/src/wait-for-tekton.sh
+      env:
+        - name: TYPE
+          valueFrom:
+            secretKeyRef:
+              name: mas-suite-post-verify
+              key: TYPE
+              optional: true
+        - name: NAME
+          valueFrom:
+            secretKeyRef:
+              name: mas-suite-post-verify
+              key: NAME
+              optional: true
+        - name: NAMESPACE
+          valueFrom:
+            secretKeyRef:
+              name: mas-suite-post-verify
+              key: NAMESPACE
+              optional: true
+        - name: DELAY
+          valueFrom:
+            secretKeyRef:
+              name: mas-suite-post-verify
+              key: DELAY
+              optional: true
+        - name: MAX_RETRIES
+          valueFrom:
+            secretKeyRef:
+              name: mas-suite-post-verify
+              key: MAX_RETRIES
+              optional: true
+        - name: IGNORE_FAILURE
+          valueFrom:
+            secretKeyRef:
+              name: mas-suite-post-verify
+              key: IGNORE_FAILURE
+              optional: true

@@ -80,22 +80,53 @@ spec:
       default: "true"
       description: "Set this to any falue other than 'true' to disable launch of the Visual Inspection FVT Pipeline after app-cfg-visualinspection completes"
 
+    - name: install_pipelinerun_name
+      type: string
+      default: "true"
+      description: "Name of the MAS install pipeline that we are going to watch specific taskruns"
+
   tasks:
     # 13. MAS Core FVT
     # -------------------------------------------------------------------------
+    - name: wait-for-suite-verify
+      taskRef:
+        kind: Task
+        name: mas-wait-for-tekton
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: type
+          value: "taskrun"
+        - name: name
+          value: "$(params.install_pipelinerun_name)-suite-verify"
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "50"
+        - name: ignore_failure
+          value: "True"
+      when:
+        - input: $(params.launchfvt_core)
+          operator: in
+          values: ["true", "True"]
+
     - name: launchfvt-core
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-core
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
         - name: pipelinerun_name
           value: "$(params.mas_instance_id)-fvt-core"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-core
       when:
         - input: $(params.launchfvt_core)
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - wait-for-suite-verify
 
 
     # 14. Application FVT - Assist
@@ -113,7 +144,7 @@ spec:
         - input: $(params.launchfvt_assist)
           operator: in
           values: ["true", "True"]
-    
+
     # 15. Application FVT - Health
     # -------------------------------------------------------------------------
     - name: launchfvt-health
@@ -179,7 +210,7 @@ spec:
         - input: $(params.launchfvt_manage_civil)
           operator: in
           values: ["true", "True"]
-    
+
     # 19. Application FVT - Manage IS (Industry Solutions)
     # -------------------------------------------------------------------------
     - name: launchfvt-manage-is
@@ -261,7 +292,7 @@ spec:
         - input: $(params.launchfvt_optimizer)
           operator: in
           values: ["true", "True"]
-    
+
     # 24. Application FVT - Mobile
     # -------------------------------------------------------------------------
     - name: launchfvt-mobile

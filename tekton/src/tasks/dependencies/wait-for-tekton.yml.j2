@@ -1,0 +1,51 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-wait-for-tekton
+spec:
+  params:
+    # What to wait for
+    - name: type
+      type: string
+      description: "Set to pipelinerun or taskrun"
+      default: pipelinerun
+    - name: name
+      type: string
+      description: "The name of the pipelinerun or taskrun to wait to run to completion"
+    # How long to wait
+    - name: delay
+      type: string
+      default: "300"
+      description: "The delay between each check of the pipelinerun/taskrun"
+    - name: max_retries
+      type: string
+      default: "50"
+      description: "The maximum number of times to check status before giving up"
+    # How to handle errors
+    - name: ignore_failure
+      type: string
+      default: "True"
+      description: "Set to False to ignore failures"
+
+  steps:
+    - name: wait
+      image: quay.io/ibmmas/cli:latest
+      command:
+        - /opt/app-root/src/wait-for-tekton.sh
+      env:
+        # What to wait for
+        - name: TYPE
+          value: $(params.type)
+        - name: NAME
+          value: $(params.name)
+        - name: NAMESPACE
+          value: $(context.taskRun.namespace)
+        # How long to wait
+        - name: DELAY
+          value: $(params.delay)
+        - name: MAX_RETRIES
+          value: $(params.max_retries)
+        # How to handle errors
+        - name: IGNORE_FAILURE
+          value: $(params.ignore_failure)
