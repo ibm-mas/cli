@@ -29,7 +29,7 @@ spec:
 
     # Optional parameters to uninstall dependencies
     # -------------------------------------------------------------------------
-    - name: cluster_monitoring_action
+    - name: grafana_action
       type: string
       description: Optional. Used to uninstall Cluster Monitoring
       default: "none"
@@ -241,7 +241,7 @@ spec:
         - name: sls_action
           value: $(params.sls_action)
         - name: devops_suite_name
-          value: dependencies-sls
+          value: dependencies-sls-uninstall
       taskRef:
         kind: Task
         name: mas-devops-sls
@@ -262,7 +262,7 @@ spec:
         - name: mongodb_action
           value: $(params.mongodb_action)
         - name: devops_suite_name
-          value: dependencies-mongodb
+          value: dependencies-mongodb-uninstall
       taskRef:
         kind: Task
         name: mas-devops-mongodb
@@ -282,6 +282,8 @@ spec:
           value: $(params.image_pull_policy)
         - name: uds_action
           value: $(params.uds_action)
+        - name: devops_suite_name
+          value: dependencies-uds-uninstall
       taskRef:
         kind: Task
         name: mas-devops-uds
@@ -303,7 +305,7 @@ spec:
         - name: cert_manager_provider
           value: $(params.cert_manager_provider)
         - name: devops_suite_name
-          value: setup-cert-manager
+          value: dependencies-cert-manager-uninstall
       taskRef:
         kind: Task
         name: mas-devops-cert-manager
@@ -324,7 +326,7 @@ spec:
         - name: common_services_action
           value: $(params.common_services_action)
         - name: devops_suite_name
-          value: setup-common-services
+          value: dependencies-common-services-uninstall
       taskRef:
         kind: Task
         name: mas-devops-common-services
@@ -345,7 +347,7 @@ spec:
         - name: ibm_catalogs_action
           value: $(params.ibm_catalogs_action)
         - name: devops_suite_name
-          value: setup-ibm-catalogs
+          value: dependencies-ibm-catalogs-uninstall
       taskRef:
         kind: Task
         name: mas-devops-ibm-catalogs
@@ -357,21 +359,21 @@ spec:
         - uninstall-common-services
 
 
-    # 9. Uninstall Cluster Monitoring
+    # 9. Uninstall Grafana
     # -------------------------------------------------------------------------
-    - name: uninstall-cluster-monitoring
+    - name: uninstall-grafana
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: cluster_monitoring_action
-          value: $(params.cluster_monitoring_action)
+        - name: grafana_action
+          value: $(params.grafana_action)
         - name: devops_suite_name
-          value: setup-cluster-monitoring
+          value: dependencies-grafana-uninstall
       taskRef:
         kind: Task
         name: mas-devops-cluster-monitoring
       when:
-        - input: "$(params.cluster_monitoring_action)"
+        - input: "$(params.grafana_action)"
           operator: in
           values: ["uninstall"]
       runAfter:

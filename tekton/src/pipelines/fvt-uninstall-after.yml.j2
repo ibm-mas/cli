@@ -33,9 +33,9 @@ spec:
 
     # Optional parameters to uninstall dependencies
     # -------------------------------------------------------------------------
-    - name: cluster_monitoring_action
+    - name: grafana_action
       type: string
-      description: Optional. Used to uninstall Cluster Monitoring
+      description: Optional. Used to uninstall Grafana
       default: "none"
     - name: cert_manager_provider
       type: string
@@ -359,15 +359,15 @@ spec:
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: cluster_monitoring_action
-          value: $(params.cluster_monitoring_action)
+        - name: grafana_action
+          value: $(params.grafana_action)
         - name: devops_suite_name
           value: setup-cluster-monitoring
       taskRef:
         kind: Task
         name: mas-devops-cluster-monitoring
       when:
-        - input: "$(params.cluster_monitoring_action)"
+        - input: "$(params.grafana_action)"
           operator: in
           values: ["uninstall"]
       runAfter:

@@ -12,12 +12,12 @@ When no options are specified on the command line, interactive-mode will be enab
 MAS Instance Selection (Required):
   -i, --id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                         MAS Instance ID to uninstall
 
-MAS Dependencies Uninstall Options 
+MAS Dependencies Uninstall Options
 
 Note: Be really careful while using any of these options as they may uninstall dependencies that are used by other MAS instances or services in the target cluster.
 
   --uninstall-cert-manager                                         Uninstalls Certificate Manager from the target cluster.
-  --uninstall-common-services                                      Uninstalls IBM Common Services from the target cluster. 
+  --uninstall-common-services                                      Uninstalls IBM Common Services from the target cluster.
   --uninstall-cluster-monitoring                                   Uninstalls Cluster Monitoring from the target cluster, including OpenTelemetry, Graphana and User Workload Monitoring.
   --uninstall-ibm-catalog                                          Uninstalls IBM Maximo Operator Catalog Source (e.g ibm-operator-catalog) from the target cluster.
   --uninstall-mongodb                                              Uninstalls MongoDB from the target cluster.
@@ -43,10 +43,10 @@ function check_mas_project_exists() {
       echo "MAS Instance ID property has not been set! Please provide a valid value for '--mas-instance-id' argument."
     fi
   fi
-  
+
   # At this point, expect MAS_INSTANCE_ID to be set, so we set MAS namespace
   MAS_NS=mas-$MAS_INSTANCE_ID-core
-  
+
   if check_project_exists $MAS_NS; then
     export MAS_NS
   else
@@ -91,8 +91,8 @@ function uninstall_noninteractive() {
     -i | --mas-instance-id)
       MAS_INSTANCE_ID=$1 && shift
       ;;
-    --uninstall-cluster-monitoring)
-      CLUSTER_MONITORING_ACTION=uninstall
+    --uninstall-grafana)
+      GRAFANA_ACTION=uninstall
       ;;
     --uninstall-ibm-catalog)
       IBM_CATALOGS_ACTION=uninstall
@@ -113,7 +113,7 @@ function uninstall_noninteractive() {
       SLS_ACTION=uninstall
       ;;
     --uninstall-all-deps)
-      CLUSTER_MONITORING_ACTION=uninstall
+      GRAFANA_ACTION=uninstall
       IBM_CATALOGS_ACTION=uninstall
       COMMON_SERVICES_ACTION=uninstall
       CERT_MANAGER_ACTION=uninstall
@@ -209,8 +209,8 @@ function prompt_for_deps_to_uninstall() {
 
   if [ "${NO_CONFIRM}" != true ]; then
 
-    if [ -z "${CLUSTER_MONITORING_ACTION}" ]; then
-      validate_action_param "Uninstall Cluster Monitoring?" CLUSTER_MONITORING_ACTION
+    if [ -z "${GRAFANA_ACTION}" ]; then
+      validate_action_param "Uninstall Grafana?" GRAFANA_ACTION
     fi
     if [ -z "${IBM_CATALOGS_ACTION}" ]; then
       validate_action_param "Uninstall IBM Catalogs?" IBM_CATALOGS_ACTION
@@ -249,7 +249,7 @@ function review_uninstall_settings() {
   echo "${TEXT_DIM}"
   echo_h4 "MAS Dependencies"
 
-  echo_reset_dim "Cluster Monitoring .............. Action: ${COLOR_MAGENTA}${CLUSTER_MONITORING_ACTION:-<none>}"
+  echo_reset_dim "Grafana ......................... Action: ${COLOR_MAGENTA}${GRAFANA_ACTION:-<none>}"
   echo_reset_dim "IBM Catalogs .................... Action: ${COLOR_MAGENTA}${IBM_CATALOGS_ACTION:-<none>}"
   echo_reset_dim "IBM Common Services ............. Action: ${COLOR_MAGENTA}${COMMON_SERVICES_ACTION:-<none>}"
   echo_reset_dim "Certificate Manager ............. Action: ${COLOR_MAGENTA}${CERT_MANAGER_ACTION:-<none>} (${CERT_MANAGER_PROVIDER:-<default>})"
@@ -282,10 +282,10 @@ function launch_uninstall() {
 }
 
 function save_uninstall_config(){
-  
+
   export MAS_INSTANCE_ID
   export MAS_NS
-  export CLUSTER_MONITORING_ACTION
+  export GRAFANA_ACTION
   export IBM_CATALOGS_ACTION
   export COMMON_SERVICES_ACTION
   export CERT_MANAGER_ACTION
