@@ -1,5 +1,4 @@
 ---
-# Don't edit install.yaml directly: modify install.yml.j2, and the content in parts/, then run "ansible-playbook generate-install.yaml"
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
@@ -28,7 +27,7 @@ spec:
   tasks:
     # Content
     # -------
-    # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
+    # 1. Setup Cluster-wide Dependencies & Configure Grafana
     # 2. Install Universal Dependencies
     # 3. Cloud Pak for Data
     # 4. Other Dependecies
@@ -60,8 +59,8 @@ spec:
       runAfter:
         - common-services
 
-    # 1.4 Configure Cluster Monitoring
-    {{ lookup('template', 'taskdefs/cluster-setup/cluster-monitoring.yml.j2') | indent(4) }}
+    # 1.4 Configure Grafana
+    {{ lookup('template', 'taskdefs/cluster-setup/grafana.yml.j2') | indent(4) }}
       runAfter:
         - pre-install-check
 
