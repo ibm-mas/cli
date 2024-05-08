@@ -39,7 +39,7 @@ spec:
     - name: ibmcloud_resourcegroup
       type: string
       default: ""
-    
+
     # COS
     - name: ibmcos_resourcegroup
       type: string
@@ -77,7 +77,7 @@ spec:
     - name: wait-for-pipelinerun
       taskRef:
         kind: Task
-        name: mas-fvt-wait-for-pipelinerun
+        name: mas-wait-for-tekton
       params:
         - name: pipelinerun_name
           value: $(params.pipelinerun_name)
@@ -86,7 +86,7 @@ spec:
 
     # 1. Delete IBM Cloud services
     # -------------------------------------------------------------------------
-    
+
     # COS
     {{ lookup('template', 'taskdefs/dependencies/cos-deprovision.yml.j2') | indent(4) }}
       runAfter:

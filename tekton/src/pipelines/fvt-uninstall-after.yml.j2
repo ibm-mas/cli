@@ -33,9 +33,9 @@ spec:
 
     # Optional parameters to uninstall dependencies
     # -------------------------------------------------------------------------
-    - name: cluster_monitoring_action
+    - name: grafana_action
       type: string
-      description: Optional. Used to uninstall Cluster Monitoring
+      description: Optional. Used to uninstall Grafana
       default: "none"
     - name: cert_manager_provider
       type: string
@@ -89,7 +89,7 @@ spec:
     - name: wait-for-pipelinerun
       taskRef:
         kind: Task
-        name: mas-fvt-wait-for-pipelinerun
+        name: mas-wait-for-tekton
       params:
         - name: pipelinerun_name
           value: $(params.pipelinerun_name)
@@ -130,22 +130,7 @@ spec:
         - name: devops_suite_name
           value: app-assist-uninstall
 
-    # 1.3 Uninstall Health & Predict Utilities
-    - name: app-uninstall-hputilities
-      runAfter:
-        - wait-for-pipelinerun
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-app-uninstall
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_app_id
-          value: hputilities
-        - name: devops_suite_name
-          value: app-hputilities-uninstall
-
-    # 1.4 Uninstall Optimizer
+    # 1.3 Uninstall Optimizer
     - name: app-uninstall-optimizer
       runAfter:
         - wait-for-pipelinerun
@@ -160,7 +145,7 @@ spec:
         - name: devops_suite_name
           value: app-optimizer-uninstall
 
-    # 1.5 Uninstall Predict
+    # 1.4 Uninstall Predict
     - name: app-uninstall-predict
       runAfter:
         - wait-for-pipelinerun
@@ -175,11 +160,10 @@ spec:
         - name: devops_suite_name
           value: app-predict-uninstall
 
-    # 1.6 Uninstall Manage
+    # 1.5 Uninstall Manage
     - name: app-uninstall-manage
       runAfter:
         - app-uninstall-predict
-        - app-uninstall-hputilities
       taskRef:
         kind: Task
         name: mas-devops-suite-app-uninstall
@@ -191,7 +175,7 @@ spec:
         - name: devops_suite_name
           value: app-manage-uninstall
 
-    # 1.7 Uninstall Monitor
+    # 1.6 Uninstall Monitor
     - name: app-uninstall-monitor
       runAfter:
         - app-uninstall-predict
@@ -206,7 +190,7 @@ spec:
         - name: devops_suite_name
           value: app-monitor-uninstall
 
-    # 1.8 Uninstall IoT
+    # 1.7 Uninstall IoT
     - name: app-uninstall-iot
       runAfter:
         - app-uninstall-monitor
@@ -369,21 +353,21 @@ spec:
         - uninstall-common-services
 
 
-    # 9. Uninstall Cluster Monitoring
+    # 9. Uninstall Grafana
     # -------------------------------------------------------------------------
-    - name: uninstall-cluster-monitoring
+    - name: uninstall-grafana
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: cluster_monitoring_action
-          value: $(params.cluster_monitoring_action)
+        - name: grafana_action
+          value: $(params.grafana_action)
         - name: devops_suite_name
-          value: setup-cluster-monitoring
+          value: dependencies-grafana-uninstall
       taskRef:
         kind: Task
-        name: mas-devops-cluster-monitoring
+        name: mas-devops-grafana
       when:
-        - input: "$(params.cluster_monitoring_action)"
+        - input: "$(params.grafana_action)"
           operator: in
           values: ["uninstall"]
       runAfter:

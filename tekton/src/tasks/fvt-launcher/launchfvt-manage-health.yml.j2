@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-launchfvt-health
+  name: mas-launchfvt-manage-health
 spec:
   params:
     # Control the image pull policy for the FVT container image
@@ -117,7 +117,7 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
       # 60 retries at 10 minute intervals = 10 hours
       command:
-        - /opt/app-root/src/wait-for-pipelinerun.sh
+        - /opt/app-root/src/wait-for-tekton.sh
         - --delay
         - "600"
         - --max-retries

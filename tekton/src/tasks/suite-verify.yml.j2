@@ -20,9 +20,50 @@ spec:
         value: $(params.mas_instance_id)
 
   steps:
+    # Run the suite verification role
     - name: suite-verify
       command:
         - /opt/app-root/src/run-role.sh
         - suite_verify
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
+
+    # If configmap/approval-mas-suite-verify exists then set suite-verify=pending and wait for it to be changed to "approved"
+    - name: suite-post-verify
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - /opt/app-root/src/wait-for-configmap.sh
+      env:
+        - name: NAMESPACE
+          value: $(context.taskRun.namespace)
+        - name: CONFIGMAP_NAME
+          value: approval-suite-verify
+        - name: CONFIGMAP_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: approval-suite-verify
+              key: CONFIGMAP_KEY
+              optional: true
+        - name: CONFIGMAP_INITIAL_VALUE
+          value: pending
+        - name: CONFIGMAP_TARGET_VALUE
+          value: approved
+        - name: DELAY
+          valueFrom:
+            configMapKeyRef:
+              name: approval-suite-verify
+              key: DELAY
+              optional: true
+        - name: MAX_RETRIES
+          valueFrom:
+            configMapKeyRef:
+              name: approval-suite-verify
+              key: MAX_RETRIES
+              optional: true
+        - name: IGNORE_FAILURE
+          valueFrom:
+            configMapKeyRef:
+              name: approval-suite-verify
+              key: IGNORE_FAILURE
+              optional: true

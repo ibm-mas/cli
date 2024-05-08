@@ -1,5 +1,4 @@
 ---
-# Don't edit install.yaml directly: modify install.yml.j2, and the content in parts/, then run "ansible-playbook generate-install.yaml"
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
@@ -28,7 +27,7 @@ spec:
   tasks:
     # Content
     # -------
-    # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
+    # 1. Setup Cluster-wide Dependencies & Configure Grafana
     # 2. Install Universal Dependencies
     # 3. Cloud Pak for Data
     # 4. Other Dependecies
@@ -38,7 +37,6 @@ spec:
     # 8. Install & Configure Manage
     # 9. Install & Configure Predict
     # 10. Install & Configure Optimizer
-    # 11. Install & Configure Health & Predict Utilities
     # 12. Install & Configure Assist
     # 13. Install & Configure Visual Inspection
 
@@ -61,8 +59,8 @@ spec:
       runAfter:
         - common-services
 
-    # 1.4 Configure Cluster Monitoring
-    {{ lookup('template', 'taskdefs/cluster-setup/cluster-monitoring.yml.j2') | indent(4) }}
+    # 1.4 Configure Grafana
+    {{ lookup('template', 'taskdefs/cluster-setup/grafana.yml.j2') | indent(4) }}
       runAfter:
         - pre-install-check
 
@@ -78,12 +76,12 @@ spec:
     {{ lookup('template', 'taskdefs/dependencies/mongo.yml.j2') | indent(4) }}
       runAfter:
         - cert-manager
-        - cluster-monitoring
+        - grafana
 
     # 2.2 AMQStreams (Kafka)
     {{ lookup('template', 'taskdefs/dependencies/kafka.yml.j2') | indent(4) }}
       runAfter:
-        - cluster-monitoring
+        - grafana
 
     # 2.3 Db2
     # 2.3.1 System Db2
@@ -299,60 +297,44 @@ spec:
       runAfter:
         - app-install-optimizer
 
-
-    # 11. Install & Configure Health & Predict Utilities
+    # 11. Install & Configure Assist
     # -------------------------------------------------------------------------
-    # 11.1 HPUtilities Install
-    {{ lookup('template', 'taskdefs/apps/hputilities-app.yml.j2') | indent(4) }}
-      runAfter:
-        - app-cfg-manage # Requires Health as an add-on
-        - suite-config-watson-studio
-
-    # 11.2 Configure HPUtilities workspace
-    {{ lookup('template', 'taskdefs/apps/hputilities-workspace.yml.j2') | indent(4) }}
-      runAfter:
-        - app-install-hputilities
-
-
-    # 12. Install & Configure Assist
-    # -------------------------------------------------------------------------
-    # 12.1 Assist Install
+    # 11.1 Assist Install
     {{ lookup('template', 'taskdefs/apps/assist-app.yml.j2') | indent(4) }}
       runAfter:
         - suite-config-cos
 
-    # 12.2 Configure Watson Discovery in MAS
+    # 11.2 Configure Watson Discovery in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-discovery.yml.j2') | indent(4) }}
       runAfter:
         - app-install-assist
         - discovery
 
-    # 12.3 Configure Assist workspace
+    # 11.3 Configure Assist workspace
     {{ lookup('template', 'taskdefs/apps/assist-workspace.yml.j2') | indent(4) }}
       runAfter:
         - suite-config-discovery
 
 
-    # 13. Install & Configure Visual Inspection
+    # 12. Install & Configure Visual Inspection
     # -------------------------------------------------------------------------
-    # 13.1 MVI Install
+    # 12.1 MVI Install
     {{ lookup('template', 'taskdefs/apps/visualinspection-app.yml.j2') | indent(4) }}
       runAfter:
         - nvidia-gpu
         - suite-verify
 
-    # 13.2 Configure MVI workspace
+    # 12.2 Configure MVI workspace
     {{ lookup('template', 'taskdefs/apps/visualinspection-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-visualinspection
 
 
-    # 14. Verify health of the cluster before we consider the install complete
+    # 13. Verify health of the cluster before we consider the install complete
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'post-install-verify', 'devops_suite_name': 'post-install-verify'}) | indent(4) }}
       runAfter:
         - app-cfg-assist
-        - app-cfg-hputilities
         - app-cfg-optimizer
         - app-cfg-predict # infers Manage completed
         - app-cfg-monitor # infers IoT completed

@@ -17,7 +17,8 @@
     fvt_digest_manage_pytest: "{{ lookup('env', 'FVT_DIGEST_MANAGE_PYTEST') }}"
     fvt_digest_ctf: "{{ lookup('env', 'FVT_DIGEST_CTF') }}"
     # Pipeline Run Info
-    pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-upgrade-post', True) }}"
+    devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
+    pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-upgrade-post', True) }}-{{ devops_build_number }}"
     pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
   tasks:
     - name: "Debug"

@@ -350,9 +350,6 @@ For examples on these config files take a look into the pre-defined configs: [Be
 
 !!! Note: This feature is only supported starting in MAS 8.11.0 and SLS 3.8.0
 
-#### Change Cluster monitoring storage defaults?
-Answering "y" at the prompt will allow you to customize the storage capacity and data retention period in Grafana and Prometheus.
-
 #### Change default install namespaces?
 Answering "y" will allow you to customize the namespace where Db2, Grafana, and MongoDb are installed in the cluster.
 

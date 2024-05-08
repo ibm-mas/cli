@@ -1,5 +1,4 @@
 ---
-# Don't edit install.yaml directly -- modify install.yml.j2, and the content in parts/, then run "ansible-playbook generate-install.yaml"
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
@@ -98,7 +97,7 @@ spec:
     {{ lookup('template', 'taskdefs/fvt-core/phase4-disruptive.yml.j2', template_vars={'runAfter': ['coreapi-groupmgmt', 'coreapi-workspacemgmt', 'useractivation-overall', 'useractivation-expiresat', 'useractivation-inactivity', 'coreapi-dependencies', 'coreapi-usermgmt-v3', 'coreapi-other']}) | indent(4) }}
 
   finally:
-    # 3. Run CV
+    # 1. Run CV
     # -----------------------------------------------------------------------------
     - name: cv-core
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}

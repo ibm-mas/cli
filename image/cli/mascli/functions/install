@@ -753,9 +753,9 @@ function install() {
   # Determine whether Grafana is available in the cluster based on the available of the operator package
   oc get packagemanifest grafana-operator &> /dev/null
   if [[ "$?" == "1" ]]; then
-    CLUSTER_MONITORING_INCLUDE_GRAFANA="False"
+    GRAFANA_ACTION="none"
   else
-    CLUSTER_MONITORING_INCLUDE_GRAFANA="True"
+    GRAFANA_ACTION="install"
   fi
 
   if [[ "$INTERACTIVE_MODE" == "true" ]]; then

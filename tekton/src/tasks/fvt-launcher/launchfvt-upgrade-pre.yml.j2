@@ -109,7 +109,7 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
       # 10 retries at 5 minute intervals = 50 min
       command:
-        - /opt/app-root/src/wait-for-pipelinerun.sh
+        - /opt/app-root/src/wait-for-tekton.sh
         - --delay
         - "300"
         - --max-retries
