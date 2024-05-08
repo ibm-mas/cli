@@ -67,12 +67,7 @@ spec:
     - name: mas_manual_cert_mgmt
       type: string
       default: "False"
-    - name: argocd_url
-      type: string
-      default: ""
-    - name: argocd_check
-      type: string
-      default: "false"
+
   stepTemplate:
     name: gitops-suite-app-config
     env:
@@ -126,10 +121,6 @@ spec:
         value: $(params.mas_app_settings_jms_queue_mount_path)
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
-      - name: ARGOCD_CHECK
-        value: $(params.argocd_check)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -147,14 +138,6 @@ spec:
 
         # mas app install specific 
         export MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
-
-        if [ "${ARGOCD_CHECK}" == "true" ]; then
-          if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
-            export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}' --context $K8S_AUTH_CONTEXT)
-            export ARGOCD_USERNAME=admin
-            export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' --context $K8S_AUTH_CONTEXT | base64 -d ; echo)
-          fi
-        fi
 
         # Any external config is stored here
         export GITOPS_CONFIG_DIR=/workspace/configs

@@ -41,12 +41,6 @@ spec:
     - name: common_services_action
       type: string
       default: "install"
-    - name: argocd_url
-      type: string
-      default: ""
-    - name: argocd_check
-      type: string
-      default: "false"
     - name: slack_channel_id
       type: string
       default: ""
@@ -85,10 +79,6 @@ spec:
         value: $(params.common_services_action)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
-      - name: ARGOCD_CHECK
-        value: $(params.argocd_check)
       - name: SLACK_CHANNEL_ID
         value: $(params.slack_channel_id)
     envFrom:

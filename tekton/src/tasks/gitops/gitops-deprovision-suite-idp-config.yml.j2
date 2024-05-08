@@ -25,17 +25,6 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: force_removal
-      type: string
-    - name: cluster_url
-      type: string
-      default: ""
-    - name: argocd_url
-      type: string
-      default: ""
-    - name: argocd_check
-      type: string
-      default: "false"
   stepTemplate:
     name: gitops-deprovision-suite-idp-config
     env:
@@ -59,14 +48,6 @@ spec:
         value: $(params.github_repo)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: FORCE_REMOVAL
-        value: $(params.force_removal)
-      - name: CLUSTER_URL
-        value: $(params.cluster_url)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
-      - name: ARGOCD_CHECK
-        value: $(params.argocd_check)
     envFrom:
       - configMapRef:
           name: environment-properties

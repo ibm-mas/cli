@@ -141,6 +141,8 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - gitops-bootstrap
+        - gitops-cis-compliance
+        - gitops-cluster
         - gitops-cos
         - gitops-cp4d
         - gitops-cp4d-service
@@ -152,9 +154,11 @@
         - gitops-deprovision-app-install
         - gitops-deprovision-cluster
         - gitops-deprovision-cos
-        - gitops-deprovision-mongo
+        - gitops-deprovision-db2u
+        - gitops-deprovision-db2u-database
         - gitops-deprovision-efs
         - gitops-deprovision-kafka
+        - gitops-deprovision-mongo
         - gitops-deprovision-rosa
         - gitops-deprovision-suite-config
         - gitops-deprovision-suite-idp-config
@@ -163,14 +167,16 @@
         - gitops-deprovision-suite-watson-studio-config
         - gitops-deprovision-suite-workspace
         - gitops-deprovision-suite
-        - gitops-cis-compliance
-        - gitops-cluster
+        - gitops-dro
         - gitops-efs
         - gitops-kafka
         - gitops-kafka-config
         - gitops-license
+        - gitops-mas-fvt-preparer
+        - gitops-mas-initiator
         - gitops-mongo
         - gitops-nvidia-gpu
+        - gitops-process-mongo-user
         - gitops-rosa
         - gitops-suite-app-install
         - gitops-suite-app-config
@@ -183,8 +189,3 @@
         - gitops-suite-watson-studio-config
         - gitops-suite-workspace
         - gitops-suite
-        - gitops-process-mongo-user
-        - gitops-deprovision-db2u
-        - gitops-mas-fvt-preparer
-        - gitops-dro
-        - gitops-mas-initiator

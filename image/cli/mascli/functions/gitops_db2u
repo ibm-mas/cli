@@ -15,7 +15,6 @@ GitOps Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
-  -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}        ArgoCD check flag, when set to true will make ArgoCD calls
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -49,8 +48,6 @@ function gitops_db2u_noninteractive() {
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
   export REGION=${REGION:-${SM_AWS_REGION}}
 
-  export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
-
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -71,9 +68,6 @@ function gitops_db2u_noninteractive() {
         ;;
       -r|--region)
         export REGION=$1 && shift
-        ;;
-      -A|--argocd-check)
-        export ARGOCD_CHECK=$1 && shift
         ;;
 
       # Secrets Manager
@@ -157,9 +151,6 @@ function gitops_db2u() {
 
   export DB2_NAMESPACE=db2u
 
-
-
-
   echo
   reset_colors
   echo_h2 "Review Settings"
@@ -170,7 +161,6 @@ function gitops_db2u() {
   echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Cluster Config Directory .............. ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
-  echo_reset_dim "ArgoCD Check .......................... ${COLOR_MAGENTA}${ARGOCD_CHECK}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -271,19 +261,6 @@ function gitops_db2u() {
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
-
-    if [ "${ARGOCD_CHECK}" == "true" ]; then
-      argocd_login
-
-      argocd_sync "${ROOT_APP_NAME}"
-      
-      check_argo_app_synced "${CLUSTER_APP_NAME}" "${ROOT_APP_NAME}"
-      
-      argocd_hard_refresh "${CLUSTER_APP_NAME}"
-      check_argo_app_synced "${DB2U_APP_NAME}" "${CLUSTER_APP_NAME}" "${DB2_NAMESPACE}"
-      check_argo_app_healthy "${DB2U_APP_NAME}" "${CLUSTER_APP_NAME}"
-
-    fi
   fi
 
 }

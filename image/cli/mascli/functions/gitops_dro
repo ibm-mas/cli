@@ -13,7 +13,6 @@ Basic Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}         Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}          Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}          Cluster ID
-  -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}      ArgoCD check flag, when set to true will make ArgoCD calls
 
 IBM DRO (Required):
       --dro-namespace ${COLOR_YELLOW}DRO_NAMESPACE${TEXT_RESET}    Namespace to install DRO subscription (defaults to 'redhat-marketplace')
@@ -46,7 +45,6 @@ function gitops_dro_noninteractive() {
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
   export DRO_NAMESPACE=${DRO_NAMESPACE:-"redhat-marketplace"}
-  export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
 
   while [[ $# -gt 0 ]]
   do
@@ -62,9 +60,6 @@ function gitops_dro_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
-        ;;
-      -A|--argocd-check)
-        export ARGOCD_CHECK=$1 && shift
         ;;
 
       # AWS Secrets Manager Configuration
@@ -127,7 +122,6 @@ function gitops_dro_noninteractive() {
   [[ -z "$CLUSTER_ID" ]] && gitops_dro_help "CLUSTER_ID is not set"
   [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_cluster_help "REGION_ID or SM_AWS_REGION is not set"
 
-
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_dro_help "GITHUB_HOST is not set"
     [[ -z "$GITHUB_ORG" ]] && gitops_dro_help "GITHUB_ORG is not set"
@@ -161,7 +155,6 @@ function gitops_dro() {
   echo_reset_dim "Region ID ...................... ${COLOR_MAGENTA}${REGION_ID}"
   echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
-  echo_reset_dim "ArgoCD Check ................... ${COLOR_MAGENTA}${ARGOCD_CHECK}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -250,20 +243,6 @@ function gitops_dro() {
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
-
-    if [ "${ARGOCD_CHECK}" == "true" ]; then
-      argocd_login
-
-      argocd_sync "${ROOT_APP_NAME}"
-
-      check_argo_app_synced "${CLUSTER_APP_NAME}" "${ROOT_APP_NAME}"
-
-      argocd_hard_refresh "${CLUSTER_APP_NAME}"
-      check_argo_app_synced "${DRO_APP_NAME}" "${CLUSTER_APP_NAME}" "${DRO_NAMESPACE}"
-      check_argo_app_healthy "${DRO_APP_NAME}" "${CLUSTER_APP_NAME}"
-    fi
-
-
   fi
 
   # Get generated DRO API Token and set it in AWS SM

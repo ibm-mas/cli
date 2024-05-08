@@ -84,7 +84,6 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_dro
 . $CLI_DIR/functions/gitops_db2u
 . $CLI_DIR/functions/gitops_db2u_database
-. $CLI_DIR/functions/gitops_db2u_jdbc_config_rotate_password
 . $CLI_DIR/functions/gitops_process_mongo_user
 . $CLI_DIR/functions/gitops_aws_infrastructure
 . $CLI_DIR/functions/gitops_rosa
@@ -442,14 +441,6 @@ case $1 in
     echo
     reset_colors
     gitops_db2u_database "$@"
-    ;;
-
-  gitops-db2u-jdbc-config-rotate-password)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_db2u_jdbc_config_rotate_password "$@"
     ;;
 
   gitops-aws-infrastructure)

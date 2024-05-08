@@ -33,7 +33,6 @@ Maximo Application Suite:
   --mas-appws-api-version ${COLOR_YELLOW}MAS_APPWS_API_VERSION${TEXT_RESET}                               IBM Suite Maximo Application Suite Application Workspace API Version
   --mas-appws-kind ${COLOR_YELLOW}MAS_APPWS_KIND${TEXT_RESET}                                             IBM Suite Maximo Application Suite Application Workspace Kind
   --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}                                 MAS Manual Cert Management
-  -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}                                             ArgoCD check flag, when set to true will make ArgoCD calls
 
 Maximo Manage:
   --mas-app-settings-server-bundles-size ${COLOR_YELLOW}MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE${TEXT_RESET}   The Maximo Manage Serer Bundle size (snojms, jms, dev or small)
@@ -63,7 +62,6 @@ function gitops_suite_app_config_noninteractive() {
   SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-suite-app-config commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
-  export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
 
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
   export REGION=${REGION:-${SM_AWS_REGION}}
@@ -100,9 +98,6 @@ function gitops_suite_app_config_noninteractive() {
       --gitops-config-dir)
         export GITOPS_CONFIG_DIR=$1 && shift
         ;;
-      -A|--argocd-check)
-        export ARGOCD_CHECK=$1 && shift
-        ;;
 
       # Maximo Manage
       --mas-app-settings-server-bundles-size)
@@ -111,7 +106,6 @@ function gitops_suite_app_config_noninteractive() {
       --mas-app-settings-jms-queue-mount-path)
         export MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH=$1 && shift
         ;;
-
 
       # CP4D Service
       --cpd-product-version)
@@ -265,7 +259,6 @@ function gitops_suite_app_config() {
   echo_reset_dim "Cluster ID .............................. ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Application Directory ................... ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   echo_reset_dim "Config Directory ........................ ${COLOR_MAGENTA}${GITOPS_CONFIG_DIR}"
-  echo_reset_dim "ArgoCD Check ............................ ${COLOR_MAGENTA}${ARGOCD_CHECK}"
   reset_colors
 
   echo "${TEXT_DIM}"

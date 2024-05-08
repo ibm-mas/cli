@@ -15,7 +15,6 @@ GitOps Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
-  -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}        ArgoCD check flag, when set to true will make ArgoCD calls
 
 MongoDb Provider Selection:
       --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. Only "aws" is supported
@@ -43,7 +42,6 @@ function gitops_cis_compliance_noninteractive() {
   # defaults for fvtsaas
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
   export REGION=${REGION:-${SM_AWS_REGION}}
-  export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
 
   while [[ $# -gt 0 ]]
   do
@@ -65,9 +63,6 @@ function gitops_cis_compliance_noninteractive() {
         ;;
       -r|--region)
         export REGION=$1 && shift
-        ;;
-      -A|--argocd-check)
-        export ARGOCD_CHECK=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -143,7 +138,6 @@ function gitops_cis_compliance() {
   echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Cluster Config Directory .............. ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
-  echo_reset_dim "ArgoCD Check .......................... ${COLOR_MAGENTA}${ARGOCD_CHECK}"
   
   reset_colors
 
@@ -210,18 +204,6 @@ function gitops_cis_compliance() {
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
-
-    if [ "${ARGOCD_CHECK}" == "true" ]; then
-      argocd_login
-
-      argocd_sync "${ROOT_APP_NAME}"
-
-      check_argo_app_synced "${CLUSTER_APP_NAME}" "${ROOT_APP_NAME}"
-
-      argocd_hard_refresh "${CLUSTER_APP_NAME}"
-      check_argo_app_synced "${CIS_COMPLIANCE_APP_NAME}" "${CLUSTER_APP_NAME}" openshift-compliance
-      check_argo_app_healthy "${CIS_COMPLIANCE_APP_NAME}" "${CLUSTER_APP_NAME}"
-    fi
   fi
 
 }
