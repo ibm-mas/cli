@@ -25,6 +25,11 @@ echo "--------------------------------------------------------------------------
 oc -n ibm-cpd get wmlbase
 
 echo ""
+echo "IBM Cloud Pak For Data - Watson Discovery"
+echo "--------------------------------------------------------------------------------"
+oc -n ibm-cpd get watsondiscoveries
+
+echo ""
 echo "IBM Cloud Pak For Data - Analytics Engine"
 echo "--------------------------------------------------------------------------------"
 oc -n ibm-cpd get analyticsengine

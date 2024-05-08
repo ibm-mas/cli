@@ -40,6 +40,7 @@ Usage
 
 ### Content Selection (Cloud Pak for Data)
 - `--mirror-cp4d` Mirror images for IBM Cloud Pak for Data Platform
+- `--mirror-wd` Mirror images for IBM Watson Discovery
 - `--mirror-wsl` Mirror images for IBM Watson Studio Local
 - `--mirror-wml` Mirror images for IBM Watson Machine Learning
 - `--mirror-spark` Mirror images for IBM Analytics Engine (Spark)
@@ -80,6 +81,7 @@ As of MAS 8.10 (June 2023) the total capacity requirement to mirror content from
 | IBM Cloud Pak for Data       | Command Flag                | Size     |
 | ---------------------------- | --------------------------- | -------- |
 | IBM CP4D Platform            | `--mirror-cp4d`             | 2G       |
+| IBM Watson Discovery         | `--mirror-wd`               | 41G      |
 | IBM Analytics Engine (Spark) | `--mirror-spark`            | 54G      |
 | IBM Watson Machine Learning  | `--mirror-wml`              | 91G      |
 | IBM Watson Studio Local      | `--mirror-wsl`              | 85G      |

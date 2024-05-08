@@ -47,6 +47,7 @@ Content Selection (Applications):
 
 Content Selection (Cloud Pak for Data):
       --mirror-cp4d                                 Mirror images for IBM Cloud Pak for Data Platform
+      --mirror-wd                                   Mirror images for IBM Watson Discovery
       --mirror-wsl                                  Mirror images for IBM Watson Studio Local
       --mirror-wml                                  Mirror images for IBM Watson Machine Learning
       --mirror-spark                                Mirror images for IBM Analytics Engine (Spark)
@@ -95,6 +96,7 @@ function mirror_to_registry_noninteractive() {
   MIRROR_MONGOCE_V6=false
   MIRROR_DB2U=false
   MIRROR_CP4D=false
+  MIRROR_WD=false
   MIRROR_WSL=false
   MIRROR_WML=false
   MIRROR_SPARK=false
@@ -225,6 +227,9 @@ function mirror_to_registry_noninteractive() {
       --mirror-cp4d)
         MIRROR_CP4D=true
         ;;
+      --mirror-wd)
+        MIRROR_WD=true
+        ;;
       --mirror-wsl)
         MIRROR_WSL=true
         ;;
@@ -351,6 +356,7 @@ function mirror_to_registry_interactive() {
 
     # Dependencies (CP4D)
     MIRROR_CP4D=true
+    MIRROR_WD=true
     MIRROR_WSL=true
     MIRROR_WML=true
     MIRROR_SPARK=true
@@ -414,6 +420,7 @@ function mirror_to_registry_interactive() {
 
     prompt_for_confirm_default "IBM Cloud Pak for Data (CP4D)" MIRROR_CP4D
     prompt_for_confirm_default "IBM Watson Studio Local" MIRROR_WSL
+    prompt_for_confirm_default "IBM Watson Discovery" MIRROR_WD
     prompt_for_confirm_default "IBM Watson Machine Learning" MIRROR_WML
     prompt_for_confirm_default "IBM Analytics Engine (Spark)" MIRROR_SPARK
 
@@ -503,6 +510,7 @@ function mirror_to_registry() {
   export MIRROR_MONGOCE_V6
   export MIRROR_DB2U
   export MIRROR_CP4D
+  export MIRROR_WD
   export MIRROR_WML
   export MIRROR_WSL
   export MIRROR_SPARK
@@ -528,6 +536,7 @@ function mirror_to_registry() {
     "$MIRROR_DB2U" == true ||
     "$MIRROR_APPCONNECT" == true ||
     "$MIRROR_CP4D" == true ||
+    "$MIRROR_WD" == true ||
     "$MIRROR_WSL" == true ||
     "$MIRROR_WML" == true ||
     "$MIRROR_SPARK" == true ]]
@@ -582,6 +591,7 @@ function mirror_to_registry() {
   reset_colors
   echo_h4 "Content Selection (Cloud Pak for Data)" "    "
   show_mirror_status "IBM Cloud Pak for Data (CP4D) ......." $MIRROR_CP4D
+  show_mirror_status "IBM Watson Discovery ................" $MIRROR_WD
   show_mirror_status "IBM Watson Studio ..................." $MIRROR_WSL
   show_mirror_status "IBM Watson Machine Learning ........." $MIRROR_WML
   show_mirror_status "IBM Analytics Engine (Spark)........." $MIRROR_SPARK

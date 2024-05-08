@@ -31,10 +31,10 @@ fi
 # 1. Generate tasks and pipelines
 # -----------------------------------------------------------------------------
 if [[ "$1" == "tasks" ]] || [[ "$1" == "" ]]; then
-  ansible-playbook tekton/generate-tekton-tasks.yml || exit 1
+  ansible-playbook tekton/generate-tekton-tasks.yml
 fi
 if [[ "$1" == "pipelines" ]] || [[ "$1" == "" ]]; then
-  ansible-playbook tekton/generate-tekton-pipelines.yml || exit 1
+  ansible-playbook tekton/generate-tekton-pipelines.yml
 fi
 
 # 2. Generate ibm-mas-tekton.yaml and ibm-mas-tekton-fvt.yaml
