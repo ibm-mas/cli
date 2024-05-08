@@ -73,10 +73,10 @@
       with_items:
         - launchfvt-assist
         - launchfvt-core
-        - launchfvt-health
         - launchfvt-iot
         - launchfvt-manage
         - launchfvt-manage-civil
+        - launchfvt-manage-health
         - launchfvt-manage-is
         - launchfvt-mobile
         - launchfvt-monitor

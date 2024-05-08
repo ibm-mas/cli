@@ -98,7 +98,7 @@ spec:
         - name: pipelinerun_name
           value: "$(params.mas_instance_id)-fvt-sls"
       when:
-        - input: $(params.launchfvt_sls)
+        - input: $(params.launchfvt_core)
           operator: in
           values: ["true", "True"]
       runAfter:
