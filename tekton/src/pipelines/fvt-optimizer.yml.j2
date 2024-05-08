@@ -263,7 +263,7 @@ spec:
         - fvt-optimizer-manage-connection-setup
 
   finally:
-    # 3. Run CV
+    # 1. Run CV
     # -----------------------------------------------------------------------------
     - name: cv-optimizer
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
