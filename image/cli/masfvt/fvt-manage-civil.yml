@@ -14,7 +14,7 @@
     mas_app_channel_manage: "{{ lookup('env', 'MAS_APP_CHANNEL_MANAGE') }}"
     mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
     mas_workspace_id: "{{ lookup('env', 'MAS_WORKSPACE_ID') }}"
-    
+
     # FVT Configuration
     fvt_digest_mobile_testng: "{{ lookup('env', 'FVT_DIGEST_MOBILE_TESTNG') }}"
     fvt_digest_manage_civil_selenium: "{{ lookup('env', 'FVT_DIGEST_MANAGE_CIVIL_SELENIUM') }}"
@@ -22,9 +22,10 @@
     # Black and white listing
     fvt_blacklist: "{{ lookup('env', 'FVT_BLACKLIST') }}"
     fvt_whitelist: "{{ lookup('env', 'FVT_WHITELIST') }}"
-    
+
     # Pipeline Run Info
-    pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-manage-civil', True) }}"
+    devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
+    pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-manage-civil', True) }}-{{ devops_build_number }}"
     pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
   tasks:
     - name: "Debug"
