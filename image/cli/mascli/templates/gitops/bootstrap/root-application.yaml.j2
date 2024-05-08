@@ -15,21 +15,19 @@ spec:
     targetRevision: {{ APP_REVISION }}
     helm:
       values: |
-        {
-          "account": {
-            "id": "{{ ACCOUNT_ID }}"
-          },
-          "generator": {
-            "repoURL": "{{ APP_REPO_URL }}",
-            "revision": "{{ APP_REPO_REVISION }}"
-          },
-          "source": {
-            "targetRevision": "{{ APP_REVISION }}",
-            "repoURL": "https://github.com/ibm-mas/gitops"
-          },
-          "argoapp_namespace": "{{ ARGOAPP_NAMESPACE }}",
-          "argo_project_apps": "mas"
-        }
+        account:
+          id: "{{ ACCOUNT_ID }}"
+
+        generator:
+          repo_url: "{{ APP_REPO_URL }}"
+          revision: "{{ APP_REPO_REVISION }}"
+
+        source:
+          revision: "{{ APP_REVISION }}"
+        
+        argo:
+          namespace: "{{ ARGOAPP_NAMESPACE }}"
+
   syncPolicy:
     automated:
       prune: true

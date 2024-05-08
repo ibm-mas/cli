@@ -196,7 +196,7 @@ function gitops_suite_app_install() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/masapps/${MAS_APP_ID}
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
 
   export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
 
@@ -340,7 +340,7 @@ function gitops_suite_app_install() {
   # Set and Validate App Names
   # ---------------------------------------------------------------------------
   INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-  MASAPP_APP="ma.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}.${MAS_APP_ID}"
+  MASAPP_APP="${MAS_APP_ID}.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
   validate_app_name "${INSTANCE_ROOT_APP}"
   validate_app_name "${MASAPP_APP}"
@@ -382,11 +382,8 @@ function gitops_suite_app_install() {
   echo
   echo_h2 "Generating Argo Project and Applications"
 
-  echo "- IBM MAS Application Base Config"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-base.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-masapp-base.yaml
-
   echo "- IBM MAS Application Install"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-install.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-masapp-install.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-install.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-masapp-${MAS_APP_ID}-install.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------

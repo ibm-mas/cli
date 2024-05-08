@@ -1,20 +1,3 @@
-account:
-  id: {{ ACCOUNT_ID }}
-
-region: 
-  id: {{ REGION_ID }}
-
-cluster:
-  id: {{ CLUSTER_ID }}
-  url: {{ CLUSTER_URL }}
-
-instance:
-  id: {{ MAS_INSTANCE_ID }}
-
-sm:
-  aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ACCOUNT_ID}}/{{CLUSTER_ID}}/aws#sm_aws_access_key_id>"
-  aws_secret_access_key: "<path:{{ SECRETS_PATH }}:{{ACCOUNT_ID}}/{{CLUSTER_ID}}/aws#sm_aws_secret_access_key>"
-
 db2_namespace: {{DB2_NAMESPACE}}
 db2_instance_name: {{DB2_INSTANCE_NAME}}
 db2_dbname: {{DB2_DBNAME}}
@@ -58,6 +41,5 @@ db2_cpu_limits: {{DB2_CPU_LIMITS}}
 db2_memory_requests: {{DB2_MEMORY_REQUESTS}}
 db2_memory_limits: {{DB2_MEMORY_LIMITS}}
 cluster_domain: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CLUSTER_DOMAIN }}>
-mas_instance_id: {{MAS_INSTANCE_ID}}
 mas_application_id: {{MAS_APP_ID}}
 
