@@ -268,7 +268,7 @@ function gitops_kafka() {
     TEMP_AWS_KAFKA_USER_PASSWORD=$(jq -r .password $KAFKA_SECRET_FILE)
     if [[ -n ${TEMP_AWS_KAFKA_USER_PASSWORD} ]]; then
       export AWS_KAFKA_USER_PASSWORD=${TEMP_AWS_KAFKA_USER_PASSWORD}
-      echo "deprovision_kafka : AWS_KAFKA_USER_PASSWORD=${AWS_KAFKA_USER_PASSWORD:0:8}<snip> is available in the secret, use the same while invoking the role again"
+      echo "gitops_kafka : AWS_KAFKA_USER_PASSWORD=${AWS_KAFKA_USER_PASSWORD:0:8}<snip> is available in the secret, use the same while invoking the role again"
     fi
     
     export KAFKACFG_FILE_NAME=${KAFKACFG_FILE_NAME:-"aws-msk-${KAFKA_CLUSTER_NAME}-kafkacfg.yml"}
