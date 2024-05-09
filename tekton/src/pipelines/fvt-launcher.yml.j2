@@ -104,6 +104,22 @@ spec:
 #          values: ["true", "True"]
 #      runAfter:
 #        - waitfor-suite-verify
+#
+#    - name: waitforfvt-sls
+#      taskRef:
+#        kind: Task
+#        name: mas-devops-wait-for-tekton
+#      params:
+#        - name: pipelinerun_name
+#          value: "$(params.mas_instance_id)-fvt-sls"
+#        - name: ignore_failure
+#          value: "True"
+#      when:
+#        - input: $(params.launchfvt_core)
+#          operator: in
+#          values: ["true", "True"]
+#      runAfter:
+#        - launchfvt-sls
 
     - name: launchfvt-core
       taskRef:
@@ -120,6 +136,22 @@ spec:
           values: ["true", "True"]
       runAfter:
         - waitfor-suite-verify
+
+    - name: waitforfvt-core
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-core"
+        - name: ignore_failure
+          value: "True"
+      when:
+        - input: $(params.launchfvt_core)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-core
 
     - name: approval-suite-verify
       taskRef:
@@ -140,8 +172,8 @@ spec:
           values: ["true", "True"]
       runAfter:
 # See: https://jsw.ibm.com/browse/IBMSLS-17
-#        - launchfvt-sls
-        - launchfvt-core
+#        - waitforfvt-sls
+        - waitforfvt-core
 
 
     # 2. Application FVT - Assist
@@ -188,6 +220,22 @@ spec:
       runAfter:
         - waitfor-assist
 
+    - name: waitforfvt-assist
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-assist"
+        - name: ignore_failure
+          value: "True"
+      when:
+        - input: $(params.launchfvt_assist)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-assist
+
     - name: approval-assist
       taskRef:
         kind: Task
@@ -206,7 +254,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - launchfvt-assist
+        - waitforfvt-assist
 
 
     # 3. Application FVT - IoT
@@ -250,8 +298,28 @@ spec:
         - input: $(params.launchfvt_iot)
           operator: in
           values: ["true", "True"]
+      when:
+        - input: $(params.launchfvt_iot)
+          operator: in
+          values: ["true", "True"]
       runAfter:
         - waitfor-iot
+
+    - name: waitforfvt-iot
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-iot"
+        - name: ignore_failure
+          value: "True"
+      when:
+        - input: $(params.launchfvt_iot)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-iot
 
     - name: approval-iot
       taskRef:
@@ -271,7 +339,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - launchfvt-iot
+        - waitforfvt-iot
 
 
     # 5. Application FVT - Manage
@@ -315,8 +383,28 @@ spec:
         - input: $(params.launchfvt_manage)
           operator: in
           values: ["true", "True"]
+      when:
+        - input: $(params.launchfvt_manage)
+          operator: in
+          values: ["true", "True"]
       runAfter:
         - waitfor-manage
+
+    - name: waitforfvt-manage
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-manage"
+        - name: ignore_failure
+          value: "True"
+      when:
+        - input: $(params.launchfvt_manage)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-manage
 
     - name: approval-manage
       taskRef:
@@ -335,8 +423,12 @@ spec:
         - input: $(params.launchfvt_manage)
           operator: in
           values: ["true", "True"]
+      when:
+        - input: $(params.launchfvt_manage)
+          operator: in
+          values: ["true", "True"]
       runAfter:
-        - launchfvt-manage
+        - waitforfvt-manage
 
 
     # 6. Application FVT - Monitor
@@ -380,8 +472,28 @@ spec:
         - input: $(params.launchfvt_monitor)
           operator: in
           values: ["true", "True"]
+      when:
+        - input: $(params.launchfvt_monitor)
+          operator: in
+          values: ["true", "True"]
       runAfter:
         - waitfor-monitor
+
+    - name: waitforfvt-monitor
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-monitor"
+        - name: ignore_failure
+          value: "True"
+      when:
+        - input: $(params.launchfvt_monitor)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-monitor
 
     - name: approval-monitor
       taskRef:
@@ -396,8 +508,12 @@ spec:
           value: FVT_STATUS
         - name: configmap_value
           value: approved
+      when:
+        - input: $(params.launchfvt_monitor)
+          operator: in
+          values: ["true", "True"]
       runAfter:
-        - launchfvt-monitor
+        - waitforfvt-monitor
 
 
     # 7. Application FVT - Optimizer
@@ -441,8 +557,28 @@ spec:
         - input: $(params.launchfvt_optimizer)
           operator: in
           values: ["true", "True"]
+      when:
+        - input: $(params.launchfvt_optimizer)
+          operator: in
+          values: ["true", "True"]
       runAfter:
         - waitfor-optimizer
+
+    - name: waitforfvt-optimizer
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-optimizer"
+        - name: ignore_failure
+          value: "True"
+      when:
+        - input: $(params.launchfvt_optimizer)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-optimizer
 
     - name: approval-optimizer
       taskRef:
@@ -457,8 +593,12 @@ spec:
           value: FVT_STATUS
         - name: configmap_value
           value: approved
+      when:
+        - input: $(params.launchfvt_optimizer)
+          operator: in
+          values: ["true", "True"]
       runAfter:
-        - launchfvt-optimizer
+        - waitforfvt-optimizer
 
 
     # 8. Application FVT - Predict
@@ -502,8 +642,28 @@ spec:
         - input: $(params.launchfvt_predict)
           operator: in
           values: ["true", "True"]
+      when:
+        - input: $(params.launchfvt_predict)
+          operator: in
+          values: ["true", "True"]
       runAfter:
         - waitfor-predict
+
+    - name: waitforfvt-predict
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-predict"
+        - name: ignore_failure
+          value: "True"
+      when:
+        - input: $(params.launchfvt_predict)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-predict
 
     - name: approval-predict
       taskRef:
@@ -518,8 +678,12 @@ spec:
           value: FVT_STATUS
         - name: configmap_value
           value: approved
+      when:
+        - input: $(params.launchfvt_predict)
+          operator: in
+          values: ["true", "True"]
       runAfter:
-        - launchfvt-predict
+        - waitforfvt-predict
 
 
     # 9. Application FVT - Visual Inspection
@@ -566,6 +730,22 @@ spec:
       runAfter:
         - waitfor-visualinspection
 
+    - name: waitforfvt-visualinspection
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-visualinspection"
+        - name: ignore_failure
+          value: "True"
+      when:
+        - input: $(params.launchfvt_visualinspection)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-visualinspection
+
     - name: approval-visualinspection
       taskRef:
         kind: Task
@@ -579,5 +759,9 @@ spec:
           value: FVT_STATUS
         - name: configmap_value
           value: approved
+      when:
+        - input: $(params.launchfvt_visualinspection)
+          operator: in
+          values: ["true", "True"]
       runAfter:
-        - launchfvt-visualinspection
+        - waitforfvt-visualinspection
