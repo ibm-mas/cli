@@ -161,9 +161,6 @@ function install_pipelinerun_preview() {
         echo_reset_dim " - Watson Machine Learning  ${COLOR_MAGENTA}required for Predict"
         echo_reset_dim " - Analytics Engine ....... ${COLOR_MAGENTA}required for Predict"
       fi
-      if [[ "${MAS_APP_CHANNEL_ASSIST}" != '' ]]
-      then echo_reset_dim " - Watson Discovery ....... ${COLOR_MAGENTA}required for Assist"
-      fi
       if [[ "${CPD_INSTALL_SPSS}" != '' || "${CPD_INSTALL_OPENSCALE}" == '' ]]
       then
         if [[ "${CPD_INSTALL_OPENSCALE}" == 'true' ]]

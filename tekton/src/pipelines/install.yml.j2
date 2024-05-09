@@ -137,17 +137,12 @@ spec:
       runAfter:
         - cp4d
 
-    # 3.7 Watson Discovery
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-discovery.yml.j2') | indent(4) }}
-      runAfter:
-        - cp4d
-
-    # 3.8 Cognos Analytics
+    # 3.7 Cognos Analytics
     {{ lookup('template', 'taskdefs/cp4d/cp4d-cognos.yml.j2') | indent(4) }}
       runAfter:
         - cp4d
 
-    # 3.9 Configure Watson Studio in MAS
+    # 3.8 Configure Watson Studio in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
@@ -304,16 +299,10 @@ spec:
       runAfter:
         - suite-config-cos
 
-    # 11.2 Configure Watson Discovery in MAS
-    {{ lookup('template', 'taskdefs/core/suite-config-discovery.yml.j2') | indent(4) }}
-      runAfter:
-        - app-install-assist
-        - discovery
-
-    # 11.3 Configure Assist workspace
+    # 11.2 Configure Assist workspace
     {{ lookup('template', 'taskdefs/apps/assist-workspace.yml.j2') | indent(4) }}
       runAfter:
-        - suite-config-discovery
+        - app-install-assist
 
 
     # 12. Install & Configure Visual Inspection

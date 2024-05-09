@@ -139,18 +139,6 @@ def getcp4dCompsVersions():
     except Exception as e:
         print(f"Unable to determine Watson Studio version: {e}")
 
-    # Get Watson Discovery Version
-    # -------------------------------------------------------------------------
-    try:
-        crs = dynClient.resources.get(api_version="discovery.watson.ibm.com/v1", kind="WatsonDiscovery")
-        cr = crs.get(name="wd", namespace="ibm-cpd")
-        if cr.status and cr.status.versions.reconciled:
-            setObject[f"target.WatsonDiscoveryVersion"] = cr.status.versions.reconciled
-        else:
-            print(f"Unable to determine Watson Discovery version: status.versions.reconciled unavailable")
-    except Exception as e:
-        print(f"Unable to determine Watson Discovery version: {e}")
-
     # Get  Watson OpenScale Version
     # -------------------------------------------------------------------------
     try:
