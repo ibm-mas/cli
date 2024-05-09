@@ -229,7 +229,7 @@ function gitops_deprovision_db2u_database() {
   mkdir -p ${GITOPS_INSTANCE_DIR}
 
 
-  # Delete config file that triggers db2-db appset to render the Application for this DB2 instance
+  # # Delete config that makes db2-databases root app to generate the ArgoCD application for this DB2 database instance
   # ---------------------------------------------------------------------------
   echo
   echo_h2 "Removing DB2U Database Configuraton for ${DB2_INSTANCE_NAME}"
