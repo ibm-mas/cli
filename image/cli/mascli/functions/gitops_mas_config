@@ -52,8 +52,6 @@ IDP/LDAP Configuration (required if MAS_CONFIG_TYPE is "ldap-default"):
 
 JDBC Configuration (required if MAS_CONFIG_TYPE is "jdbc"):              
   --tls-version ${COLOR_YELLOW}TLS_VERSION${TEXT_RESET}                 TLS Version (defaults to TLSv1.2)
-  --db2-ldap-username ${COLOR_YELLOW}DB2_LDAP_USERNAME${TEXT_RESET}     DB2 LDAP Username to create
-  --db2-ldap-password ${COLOR_YELLOW}DB2_LDAP_PASSWORD${TEXT_RESET}     DB2 LDAP Password to create
   --db2-internal      ${COLOR_YELLOW}DB2_INTERNAL${TEXT_RESET}          Set true if DB2 is running in same cluster as MAS (defaults to true)
   --db2-instance-name ${COLOR_YELLOW}DB2_INSTANCE_NAME${TEXT_RESET}     Name of the DB2 instance e.g. db2wh-<masinstid>-iot, db2wh-<masinstid>-manage
   --db2-dbname        ${COLOR_YELLOW}DB2_DBNAME${TEXT_RESET}            DB2 database name (defaults to BLUDB)
@@ -183,12 +181,6 @@ function gitops_mas_config_noninteractive() {
       # JDBC
       --tls-version)
         export TLS_VERSION=$1 && shift
-        ;;
-      --db2-ldap-username)
-        export DB2_LDAP_USERNAME=$1 && shift
-        ;;
-      --db2-ldap-password)
-        export DB2_LDAP_PASSWORD=$1 && shift
         ;;
       --db2-internal)
         export DB2_INTERNAL=$1 && shift
@@ -363,9 +355,6 @@ function gitops_mas_config_noninteractive() {
       export TLS_VERSION=${TLS_VERSION:-"TLSv1.2"}
       # by default db2 internal is true, set it to false if db2 is external
       export DB2_INTERNAL=${DB2_INTERNAL:-"true"}
-
-      [[ -z "$DB2_LDAP_USERNAME" ]] && gitops_mas_config_help "DB2_LDAP_USERNAME is not set"
-      [[ -z "$DB2_LDAP_PASSWORD" ]] && gitops_mas_config_help "DB2_LDAP_PASSWORD is not set"
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "smtp" ]; then
@@ -549,8 +538,6 @@ function gitops_mas_config() {
       echo_reset_dim "DB2_NAMESPACE ........................... ${COLOR_MAGENTA}$DB2_NAMESPACE"
       echo_reset_dim "DB2_DBNAME  ............................. ${COLOR_MAGENTA}${DB2_DBNAME}"
       echo_reset_dim "TLS_VERSION ............................. ${COLOR_MAGENTA}${TLS_VERSION}"
-      echo_reset_dim "DB2_LDAP_USERNAME ....................... ${COLOR_MAGENTA}${DB2_LDAP_USERNAME}"
-      echo_reset_dim "DB2_LDAP_PASSWORD ....................... ${COLOR_MAGENTA}${DB2_LDAP_PASSWORD:0:4}<snip>"
       reset_colors
     fi
 
@@ -692,6 +679,19 @@ function gitops_mas_config() {
       # A presync hook on the jdbccfg chart will take care of ensuring the user added to the database's LDAP registry
       export DB2_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2${SECRETS_KEY_SEPERATOR}${DB2_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}credentials
       echo_reset_dim "DB2_CREDENTIALS_SECRET_ID ......................... ${COLOR_MAGENTA}$DB2_CREDENTIALS_SECRET_ID"
+
+      export DB2_SECRET_FILE=$TEMP_DIR/db2-secret.json
+      export DB2_LDAP_USERNAME=db2_${MAS_APP_ID}
+      echo_reset_dim "DB2_LDAP_USERNAME ......................... ${COLOR_MAGENTA}$DB2_LDAP_USERNAME"
+      export DB2_LDAP_PASSWORD=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20`
+      sm_get_secret_file ${DB2_CREDENTIALS_SECRET_ID} $DB2_SECRET_FILE
+      TEMP_DB2_LDAP_PASSWORD=$(jq -r .password $DB2_SECRET_FILE)
+      if [[ -n ${TEMP_DB2_LDAP_PASSWORD} ]]; then
+        export DB2_LDAP_PASSWORD=${TEMP_DB2_LDAP_PASSWORD}
+        echo_reset_dim "DB2_LDAP_PASSWORD ......................... ${COLOR_MAGENTA}${DB2_LDAP_PASSWORD:0:8}<snip> is available in the secret, using that value"
+      fi
+      echo_reset_dim "DB2_LDAP_PASSWORD ......................... ${COLOR_MAGENTA}${DB2_LDAP_PASSWORD:0:8}<snip>"
+
       sm_update_secret $DB2_CREDENTIALS_SECRET_ID "{ \"username\": \"$DB2_LDAP_USERNAME\", \"password\": \"$DB2_LDAP_PASSWORD\"}"
       export SECRET_KEY_DB2_USERNAME=${DB2_CREDENTIALS_SECRET_ID}#username
       export SECRET_KEY_DB2_PASSWORD=${DB2_CREDENTIALS_SECRET_ID}#password
