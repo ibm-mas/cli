@@ -27,6 +27,8 @@ spec:
       value: '$MONGODB_NAMESPACE'
     - name: mongodb_v5_upgrade
       value: '$MONGODB_V5_UPGRADE'
+    - name: mongodb_version
+      value: '$MONGODB_VERSION'
     - name: kafka_namespace
       value: '$KAFKA_NAMESPACE'
     - name: kafka_provider
