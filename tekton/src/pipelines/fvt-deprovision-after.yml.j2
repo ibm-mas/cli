@@ -77,7 +77,7 @@ spec:
     - name: wait-for-pipelinerun
       taskRef:
         kind: Task
-        name: mas-wait-for-tekton
+        name: mas-devops-wait-for-tekton
       params:
         - name: pipelinerun_name
           value: $(params.pipelinerun_name)
