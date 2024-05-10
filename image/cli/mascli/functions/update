@@ -416,19 +416,6 @@ function validate_existing_cp4d() {
       if [[ "$CP4D_CURRENT_VERSION" != "" ]]; then
         # Check if CP4D services are installed, if found then flag them to be upgraded
 
-        # Validates CP4D services upgrade - Watson Discovery
-        # If Watson Discovery is detected then we should block the upgrade
-        validate_existing_cp4d_service 'watsondiscoveries.discovery.watson.ibm.com' 'Watson Discovery' 'watson_discovery'
-        CP4D_UPDATE_WD=$CP4D_SERVICE_UPDATE
-        CP4D_CURRENT_VERSION_WD=$CP4D_SERVICE_CURRENT_VERSION
-        CP4D_TARGET_VERSION_WD=$CP4D_SERVICE_TARGET_VERSION
-
-        # if Watson Discovery is installed, then block update/upgrade
-        if [[ -n "$CP4D_CURRENT_VERSION_WD" ]]; then
-          echo_warning "Watson Discovery is currently installed in the instance of Cloud Pak for Data that is managed by the MAS CLI, this is no longer supported and the update/upgrade can not proceed as a result. Please contact IBM support for assistance."
-          exit 1
-        fi
-
         # Validates CP4D services upgrade - Watson Studio
         validate_existing_cp4d_service 'ws.ws.cpd.ibm.com' 'Watson Studio' 'ws'
         CP4D_UPDATE_WS=$CP4D_SERVICE_UPDATE
@@ -473,6 +460,18 @@ function validate_existing_cp4d() {
   fi
 }
 
+function validate_existing_watson_discovery() {
+
+    validate_existing_cp4d_service 'watsondiscoveries.discovery.watson.ibm.com' 'Watson Discovery' 'watson_discovery'
+    CP4D_CURRENT_VERSION_WD=$CP4D_SERVICE_CURRENT_VERSION
+
+    # if Watson Discovery is installed, then block update/upgrade
+    if [[ -n "$CP4D_CURRENT_VERSION_WD" ]]; then
+      echo_warning "Watson Discovery is currently installed in the instance of Cloud Pak for Data that is managed by the MAS CLI, this is no longer supported and the update/upgrade can not proceed as a result. Please contact IBM support for assistance."
+      exit 1
+    fi
+}
+
 # Validate Selected Catalog
 # -----------------------------------------------------------------------------
 # Validates that the selected catalog version is one that is suitable to use
@@ -493,6 +492,10 @@ function validate_update() {
     echo
     exit 1
   fi
+
+  # Validates CP4D services upgrade - Watson Discovery
+  # If Watson Discovery is detected then we should block the upgrade
+  validate_existing_watson_discovery
 
   # Validates Red Hat Cerficate Manager migration only if January catalog or more recent used
   validate_existing_cert_manager
