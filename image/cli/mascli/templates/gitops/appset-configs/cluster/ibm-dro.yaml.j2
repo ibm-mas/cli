@@ -4,3 +4,7 @@ ibm_dro:
     dro_namespace: {{ DRO_NAMESPACE }}
     ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
     run_sync_hooks: true
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+    custom_labels:
+{{ CUSTOM_LABELS | indent(8) }}
+{%- endif %}

@@ -29,3 +29,7 @@ ibm_suite_app_install:
   {% if TLS_KEY is defined and TLS_KEY !='' %}
   tls_key: {{ TLS_KEY }}
   {% endif %}
+  {%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+  custom_labels:
+  {{ CUSTOM_LABELS | indent(4) }}
+  {%- endif %}

@@ -25,3 +25,8 @@ watson_studio_config:
     endpoint: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WATSON_STUDIO_URL }}>
   displayName: "MAS - Watson Studio configuration"
   type: external
+
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+custom_labels:
+  {{ CUSTOM_LABELS | indent(2) }}
+{%- endif %}

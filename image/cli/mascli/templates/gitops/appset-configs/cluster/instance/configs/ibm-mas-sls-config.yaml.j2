@@ -13,3 +13,8 @@ url: "https://sls.mas-{{ MAS_INSTANCE_ID }}-sls.svc"
 ca:
   crt: |
     <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLS_CA_B64 }} | base64decode>
+
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+custom_labels:
+  {{ CUSTOM_LABELS | indent(2) }}
+{%- endif %}

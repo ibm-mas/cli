@@ -23,6 +23,7 @@ Options:
   --gitops ${COLOR_YELLOW}GITOPS${TEXT_RESET}                               Gitops flag to be used by Ansible role to control OC resources creation
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                   Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                   Cluster ID
+      --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}             Custom Labels definition in dict format
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}         IBM Suite Maximo Application Suite Instance ID  
 
 Secrets Manager:
@@ -73,6 +74,9 @@ function gitops_suite_certs_noninteractive() {
         ;;
       --mas-manual-cert-mgmt)
         export MAS_MANUAL_CERT_MGMT=$1 && shift
+        ;;
+      --custom-labels)
+        export CUSTOM_LABELS=$1 && shift
         ;;
 
       # Secrets Manager

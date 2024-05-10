@@ -40,3 +40,8 @@ wsapp_suite_jdbccfg_labels:
 db2_ca_pem: 
   crt: |
     <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_CA_PEM }} | base64decode>
+
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+custom_labels:
+  {{ CUSTOM_LABELS | indent(2) }}
+{%- endif %}

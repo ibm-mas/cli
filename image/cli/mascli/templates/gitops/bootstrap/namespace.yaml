@@ -6,6 +6,9 @@ metadata:
   name: openshift-marketplace
   labels:
     argocd.argoproj.io/managed-by: openshift-gitops
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+    {{ CUSTOM_LABELS | indent(4) }}
+{%- endif %}
 ---
 # TODO: Why do we need to allow kube-system to be managed by ArgoCD?
 apiVersion: v1
@@ -14,4 +17,7 @@ metadata:
   name: kube-system
   labels:
     argocd.argoproj.io/managed-by: openshift-gitops
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+    {{ CUSTOM_LABELS | indent(4) }}
+{%- endif %}
 

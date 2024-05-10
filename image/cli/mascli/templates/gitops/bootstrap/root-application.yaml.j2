@@ -4,6 +4,10 @@ kind: Application
 metadata:
   name: root.{{ ACCOUNT_ID }}
   namespace: {{ ARGOAPP_NAMESPACE }}
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+  labels:
+    {{ CUSTOM_LABELS | indent(4) }}
+{%- endif %}
 spec:
   destination:
     namespace: {{ ARGOAPP_NAMESPACE }}

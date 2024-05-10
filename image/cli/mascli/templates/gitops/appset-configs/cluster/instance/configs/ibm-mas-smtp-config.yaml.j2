@@ -19,3 +19,8 @@ suite_smtp_default_sender_email: {{ SMTP_DEFAULT_SENDER_EMAIL }}
 suite_smtp_default_sender_name: {{ SMTP_DEFAULT_SENDER_NAME }}
 suite_smtp_default_recipient_email: {{ SMTP_DEFAULT_RECIPIENT_EMAIL }}
 suite_smtp_default_should_email_passwords: {{ SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS }}
+
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+custom_labels:
+  {{ CUSTOM_LABELS | indent(2) }}
+{%- endif %}

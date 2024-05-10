@@ -11,8 +11,9 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Basic Configuration:
-  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}   Account name that the cluster belongs to
-  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}   Cluster ID
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}          Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}          Cluster ID
+      --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}    Custom Labels definition in dict format
 
 AWS Secrets Manager Configuration:
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
@@ -63,6 +64,9 @@ function gitops_mongo_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
+        ;;
+      --custom-labels)
+        export CUSTOM_LABELS=$1 && shift
         ;;
 
       # AWS Secrets Manager Configuration

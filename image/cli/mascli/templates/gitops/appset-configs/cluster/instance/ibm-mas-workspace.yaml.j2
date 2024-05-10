@@ -5,3 +5,7 @@ ibm_mas_workspace:
   mas_workspace_id: {{ MAS_WORKSPACE_ID }}
   mas_workspace_name: {{ MAS_WORKSPACE_NAME }}
   cluster_id: {{ CLUSTER_ID }}
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+  custom_labels:
+    {{ CUSTOM_LABELS | indent(4) }}
+{%- endif %}

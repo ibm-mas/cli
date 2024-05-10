@@ -8,3 +8,7 @@ ibm_db2u:
   db2_channel: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_DEFAULT_CHANNEL }}>
 {% endif %}
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+  custom_labels:
+    {{ CUSTOM_LABELS | indent(4) }}
+{%- endif %}

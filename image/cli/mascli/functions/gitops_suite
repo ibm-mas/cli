@@ -15,6 +15,7 @@ Basic Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
   -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}        ArgoCD check flag, when set to true will make ArgoCD calls
+      --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}      Custom Labels definition in dict format
 
 AWS Secrets Manager Configuration (Required):
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
@@ -116,6 +117,9 @@ function gitops_suite_noninteractive() {
         ;;
       -A|--argocd-check)
         export ARGOCD_CHECK=$1 && shift
+        ;;
+      --custom-labels)
+        export CUSTOM_LABELS=$1 && shift
         ;;
 
       # AWS Secrets Manager Configuration

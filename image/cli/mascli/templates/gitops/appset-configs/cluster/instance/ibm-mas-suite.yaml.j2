@@ -62,6 +62,10 @@ ibm_mas_suite:
   mas_image_tags:
     {{ MAS_IMAGE_TAGS | indent(4) }}
 {%- endif %}
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+  custom_labels:
+    {{ CUSTOM_LABELS | indent(4) }}
+{%- endif %}
 
 {%- if CA_CERT is defined and CA_CERT !='' %}
   ca_cert: {{ CA_CERT }}

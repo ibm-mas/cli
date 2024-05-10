@@ -4,3 +4,7 @@ cis_compliance:
   # no config keys actually needed for the cis-compliance chart, but we need something here
   # for our cis-compliance-app chart to know it it ready to install
   config: true
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+  custom_labels:
+    {{ CUSTOM_LABELS | indent(4) }}
+{%- endif %}

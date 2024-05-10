@@ -4,6 +4,10 @@ kind: Subscription
 metadata:
   name: openshift-gitops
   namespace: openshift-operators
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+  labels:
+    {{ CUSTOM_LABELS | indent(4) }}
+{%- endif %}
 spec:
     channel: gitops-1.12
     installPlanApproval: Automatic

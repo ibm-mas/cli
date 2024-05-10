@@ -60,4 +60,7 @@ db2_memory_limits: {{DB2_MEMORY_LIMITS}}
 cluster_domain: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CLUSTER_DOMAIN }}>
 mas_instance_id: {{MAS_INSTANCE_ID}}
 mas_application_id: {{MAS_APP_ID}}
-
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+custom_labels:
+  {{ CUSTOM_LABELS | indent(2) }}
+{%- endif %}

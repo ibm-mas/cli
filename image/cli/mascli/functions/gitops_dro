@@ -14,10 +14,11 @@ Basic Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}          Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}          Cluster ID
   -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}      ArgoCD check flag, when set to true will make ArgoCD calls
+      --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}    Custom Labels definition in dict format
 
 IBM DRO (Required):
       --dro-namespace ${COLOR_YELLOW}DRO_NAMESPACE${TEXT_RESET}    Namespace to install DRO subscription (defaults to 'redhat-marketplace')
-
+      
 AWS Secrets Manager Configuration (Required):
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
       --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
@@ -62,6 +63,9 @@ function gitops_dro_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
+        ;;
+      --custom-labels)
+        export CUSTOM_LABELS=$1 && shift
         ;;
       -A|--argocd-check)
         export ARGOCD_CHECK=$1 && shift

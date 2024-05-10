@@ -7,3 +7,7 @@ nvidia_gpu_operator:
   gpu_channel: {{ GPU_CHANNEL }}
   gpu_driver_version: {{ GPU_DRIVER_VERSION }}
   gpu_driver_repository_path: {{ GPU_DRIVER_REPOSITORY_PATH }}
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+  custom_labels:
+{{ CUSTOM_LABELS | indent(4) }}
+{%- endif %}

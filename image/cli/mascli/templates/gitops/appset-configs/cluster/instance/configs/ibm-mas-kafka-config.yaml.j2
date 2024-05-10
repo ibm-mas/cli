@@ -28,3 +28,8 @@ kafka_config:
         {{ kafka_certificate.crt }}
         {%- endfilter %}
     {% endfor %}
+
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+custom_labels:
+  {{ CUSTOM_LABELS | indent(2) }}
+{%- endif %}

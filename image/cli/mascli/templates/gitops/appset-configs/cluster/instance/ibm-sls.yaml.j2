@@ -57,3 +57,7 @@ ibm_sls:
           {%- endfilter %}
 {%- endfor -%}
 {%- endif -%}
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+  custom_labels:
+    {{ CUSTOM_LABELS | indent(4) }}
+{%- endif %}

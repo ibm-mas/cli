@@ -4,3 +4,7 @@ ibm_operator_catalog:
     mas_catalog_version: {{ MAS_CATALOG_VERSION }}
     mas_catalog_image: {{ MAS_CATALOG_IMAGE }}
     ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
+{%- if MAS_LABELS is defined and MAS_LABELS !='' %}
+    mas_labels:
+      {{ MAS_LABELS | indent(6) }}
+{%- endif %}

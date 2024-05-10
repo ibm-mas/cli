@@ -16,6 +16,7 @@ GitOps Configuration:
   -r, --region ${COLOR_YELLOW}REGION${TEXT_RESET}                    Region
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}        ArgoCD check flag, when set to true will make ArgoCD calls
+      --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}      Custom Labels definition in dict format
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -79,6 +80,9 @@ function gitops_nvidia_gpu_noninteractive() {
         ;;
       -A|--argocd-check)
         export ARGOCD_CHECK=$1 && shift
+        ;;
+      --custom-labels)
+        export CUSTOM_LABELS=$1 && shift
         ;;
 
       # Secrets Manager

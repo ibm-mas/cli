@@ -15,6 +15,7 @@ GitOps Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -r, --region-id ${COLOR_YELLOW}REGION_ID${TEXT_RESET}              Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
+      --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}      Custom Labels definition in dict format
   -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}        ArgoCD check flag, when set to true will make ArgoCD calls
 
 IBM Maximo Application Suite:
@@ -114,7 +115,10 @@ function gitops_db2u_database_noninteractive() {
       -A|--argocd-check)
         export ARGOCD_CHECK=$1 && shift
         ;;
-
+      --custom-labels)
+        export CUSTOM_LABELS=$1 && shift
+        ;;
+	
       # MAS
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift

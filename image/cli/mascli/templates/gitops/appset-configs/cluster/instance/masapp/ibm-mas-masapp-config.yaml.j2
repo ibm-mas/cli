@@ -46,3 +46,7 @@ ibm_suite_app_config:
       url: {{ WD_URL }}
       version: {{ WD_VERSION }}
   {% endif %}
+  {%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+  custom_labels:
+  {{ CUSTOM_LABELS | indent(4) }}
+  {%- endif %}

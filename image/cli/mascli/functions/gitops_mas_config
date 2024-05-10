@@ -19,6 +19,7 @@ GitOps Configuration:
   --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
   --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG-SCOPE${TEXT_RESET}              One of system|ws|app|wsapp
   --disable-postdelete-hooks ${COLOR_YELLOW}USE_POSTDELETE_HOOKS${TEXT_RESET}  Unless set (or USE_POSTDELETE_HOOKS exported and set to false), PostDelete hooks will be deployed to ensure config CRs are properly cleaned up by ArgoCD on deletion. !!! PostDelete hooks should never be used when ArgoCD version < 2.10 !!! 
+  --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}                    Custom Labels definition in dict format
 
 IBM Maximo Application Suite:
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
@@ -122,6 +123,9 @@ function gitops_mas_config_noninteractive() {
         ;;
       --disable-postdelete-hooks)
         export USE_POSTDELETE_HOOKS=false
+        ;;
+      --custom-labels)
+        export CUSTOM_LABELS=$1 && shift
         ;;
 
       --mas-config-type)

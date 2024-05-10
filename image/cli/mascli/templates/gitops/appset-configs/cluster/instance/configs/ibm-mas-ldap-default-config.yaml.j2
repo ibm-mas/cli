@@ -20,3 +20,7 @@ suite_ldap_certificate:
     {% filter indent(width=4) -%}
     {{ LDAP_CERTIFICATE_CONTENT }}
     {%- endfilter %}
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+custom_labels:
+  {{ CUSTOM_LABELS | indent(2) }}
+{%- endif %}
