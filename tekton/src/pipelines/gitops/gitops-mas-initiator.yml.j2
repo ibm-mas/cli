@@ -89,7 +89,12 @@ spec:
     - name: deployment_day_with_cis
       type: string
       default: ""
-
+    - name: cli_version
+      type: string
+      default: ""
+    - name: fvt_ansible_version
+      type: string
+      default: ""
   tasks:
 {% if wait_for_provision == true %}
     # 0. Wait for the provsion pipeline to complete
@@ -166,6 +171,10 @@ spec:
           value: $(params.github_pat)
         - name: deployment_day_with_cis
           value: $(params.deployment_day_with_cis)
+        - name: cli_version
+          value: $(params.cli_version)
+        - name: fvt_ansible_version
+          value: $(params.fvt_ansible_version)
       taskRef:
         kind: Task
         name: gitops-mas-initiator
