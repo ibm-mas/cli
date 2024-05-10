@@ -26,6 +26,11 @@ spec:
     - name: mas_instance_id
       type: string
 
+    - name: sync_with_install
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable synchronization with a running MAS install pipeline"
+
     - name: launchfvt_core
       type: string
       default: "true"
@@ -41,11 +46,15 @@ spec:
     - name: launchfvt_manage
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Monitor FVT pipeline after app-cfg-manage completes (does not control the additional Industry Solution, Mobile, or Regression Manage suites)"
+      description: "Set this to any falue other than 'true' to disable launch of the Manage FVT pipeline after app-cfg-manage completes"
+    - name: launchfvt_mobile
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable launch of the Mobile FVT pipeline after app-cfg-manage completes"
     - name: launchfvt_monitor
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Manage FVT pipeline after app-cfg-monitor completes"
+      description: "Set this to any falue other than 'true' to disable launch of the Monitor FVT pipeline after app-cfg-monitor completes"
     - name: launchfvt_optimizer
       type: string
       default: "true"
@@ -85,6 +94,9 @@ spec:
           value: "False"
       when:
         - input: $(params.launchfvt_core)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
 
@@ -176,6 +188,9 @@ spec:
         - input: $(params.launchfvt_core)
           operator: in
           values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
       runAfter:
 # See: https://jsw.ibm.com/browse/IBMSLS-17
 #        - waitforfvt-sls
@@ -207,6 +222,9 @@ spec:
           value: "False"
       when:
         - input: $(params.launchfvt_assist)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
 
@@ -265,6 +283,9 @@ spec:
         - input: $(params.launchfvt_assist)
           operator: in
           values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
       runAfter:
         - waitforfvt-assist
 
@@ -294,6 +315,9 @@ spec:
           value: "False"
       when:
         - input: $(params.launchfvt_iot)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
 
@@ -356,6 +380,9 @@ spec:
         - input: $(params.launchfvt_iot)
           operator: in
           values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
       runAfter:
         - waitforfvt-iot
 
@@ -385,6 +412,9 @@ spec:
           value: "False"
       when:
         - input: $(params.launchfvt_manage)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
 
@@ -443,8 +473,7 @@ spec:
         - input: $(params.launchfvt_manage)
           operator: in
           values: ["true", "True"]
-      when:
-        - input: $(params.launchfvt_manage)
+        - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
       runAfter:
@@ -520,6 +549,9 @@ spec:
         - input: $(params.launchfvt_monitor)
           operator: in
           values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
 
     - name: launchfvt-monitor
       params:
@@ -580,6 +612,9 @@ spec:
         - input: $(params.launchfvt_monitor)
           operator: in
           values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
       runAfter:
         - waitforfvt-monitor
 
@@ -609,6 +644,9 @@ spec:
           value: "False"
       when:
         - input: $(params.launchfvt_optimizer)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
 
@@ -671,6 +709,9 @@ spec:
         - input: $(params.launchfvt_optimizer)
           operator: in
           values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
       runAfter:
         - waitforfvt-optimizer
 
@@ -700,6 +741,9 @@ spec:
           value: "False"
       when:
         - input: $(params.launchfvt_predict)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
 
@@ -762,6 +806,9 @@ spec:
         - input: $(params.launchfvt_predict)
           operator: in
           values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
       runAfter:
         - waitforfvt-predict
 
@@ -791,6 +838,9 @@ spec:
           value: "False"
       when:
         - input: $(params.launchfvt_visualinspection)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
 
@@ -847,6 +897,9 @@ spec:
           value: approved
       when:
         - input: $(params.launchfvt_visualinspection)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
       runAfter:
