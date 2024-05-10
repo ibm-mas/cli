@@ -124,6 +124,7 @@ Other Commands:
       --no-confirm          Launch the install without prompting for confirmation
       --accept-license      Accept the licenses for IBM Maximo Application Suite and Maximo IT
       --skip-pre-check      Skips the 'pre-install-check' task in the install pipeline
+      --skip-grafana-install        Skips the Grafana install 
   -h, --help                Show this help message
 
 
