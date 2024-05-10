@@ -449,6 +449,9 @@ function install_noninteractive() {
         ;;
 
       # Other Commands
+      --skip-grafana-install)
+        export CLUSTER_MONITORING_INCLUDE_GRAFANA="False"
+        ;;
       --skip-pre-check)
         SKIP_PRE_CHECK=true
         ;;
@@ -745,7 +748,7 @@ function install() {
         DEV_MODE=true
         ;;
       --skip-grafana-install)
-        SKIP_GRAFANA_INSTALL=true
+        CLUSTER_MONITORING_INCLUDE_GRAFANA="False"
         ;;
       -h|--help)
         install_help
@@ -753,9 +756,7 @@ function install() {
     esac
   done
 
-  if [[ "$SKIP_GRAFANA_INSTALL" == "true" ]]; then
-    CLUSTER_MONITORING_INCLUDE_GRAFANA="False"
-  else
+  if [[ -z $CLUSTER_MONITORING_INCLUDE_GRAFANA ]] || [[  "$CLUSTER_MONITORING_INCLUDE_GRAFANA" != "False" ]]; then
     # Determine whether Grafana is available in the cluster based on the available of the operator package
     oc get packagemanifest grafana-operator &> /dev/null
     if [[ "$?" == "1" ]]; then
