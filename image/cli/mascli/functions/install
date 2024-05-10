@@ -753,8 +753,9 @@ function install() {
     esac
   done
 
-  if [ $SKIP_GRAFANA_INSTALL == "true" ]; then
+  if [[ "$SKIP_GRAFANA_INSTALL" == "true" ]]; then
     CLUSTER_MONITORING_INCLUDE_GRAFANA="False"
+    echo "Skipping Grafana..."
   else
     # Determine whether Grafana is available in the cluster based on the available of the operator package
     oc get packagemanifest grafana-operator &> /dev/null
@@ -764,6 +765,8 @@ function install() {
       CLUSTER_MONITORING_INCLUDE_GRAFANA="True"
     fi
   fi
+
+  echo "Grafana env var(CLUSTER_MONITORING_INCLUDE_GRAFANA) = ${CLUSTER_MONITORING_INCLUDE_GRAFANA}"
 
   if [[ "$INTERACTIVE_MODE" == "true" ]]; then
     load_config
