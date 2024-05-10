@@ -449,9 +449,6 @@ function install_noninteractive() {
         ;;
 
       # Other Commands
-      --skip-grafana-install)
-        export CLUSTER_MONITORING_INCLUDE_GRAFANA="False"
-        ;;
       --skip-pre-check)
         SKIP_PRE_CHECK=true
         ;;
