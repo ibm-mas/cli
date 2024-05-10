@@ -6,18 +6,8 @@ metadata:
   name: mas-fvt-launcher
 spec:
   workspaces:
-    # The generated configuration files
-    - name: shared-configs
-    # Any pre-generated configs that will be copied into the shared-configs workspace during suite-install
-    - name: shared-additional-configs
-    # The SLS entitlement key file that will be installed during install-sls.
-    - name: shared-entitlement
     # Shared storage to hold mustgather output for tasks
     - name: shared-mustgather
-    # Pre-generated certificates that will be copied into certs folder of shared-configs workspace to be used by suite-certs task
-    - name: shared-certificates
-    # PodTemplates configurations
-    - name: shared-pod-templates
 
   params:
     - name: fvt_image_registry
