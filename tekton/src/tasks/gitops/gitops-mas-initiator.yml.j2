@@ -65,6 +65,12 @@ spec:
     - name: deployment_day_with_cis
       type: string
       default: ""
+    - name: cli_version
+      type: string
+      default: ""
+    - name: fvt_ansible_version
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-mas-initiator
     env:
@@ -124,6 +130,10 @@ spec:
         value: $(params.ibmcloud_apikey)
       - name: DEPLOYMENT_DAY_WITH_CIS
         value: $(params.deployment_day_with_cis)
+      - name: CLI_VERSION
+        value: $(params.cli_version)
+      - name: FVT_ANSIBLE_VERSION
+        value: $(params.fvt_ansible_version)
   steps:
     - args:
       - |-
@@ -224,6 +234,12 @@ spec:
         fi
         if [ -n $MAS_APP_CHANNEL_VISUALINSPECTION ]; then
           yq --arg MAS_APP_CHANNEL_VISUALINSPECTION $MAS_APP_CHANNEL_VISUALINSPECTION -iY '(. | select(has("visualinspection")?).visualinspection.app_channel)= $MAS_APP_CHANNEL_VISUALINSPECTION' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+        fi
+
+        # Update the cli_version and ansible_fvt ansible version if mas_fvt_params exists
+        if [ -f gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-fvt-params.yaml ]; then
+          yq --arg CLI_VERSION $CLI_VERSION -iY '.fvt.cli_version= $CLI_VERSION' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-fvt-params.yaml
+          yq --arg FVT_ANSIBLE_VERSION $FVT_ANSIBLE_VERSION -iY '.fvt.ansible_version= $FVT_ANSIBLE_VERSION' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-fvt-params.yaml
         fi
 
         echo "git: Adding all files in $TARGET_LOCAL_DIR working directory"
