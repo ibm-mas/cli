@@ -462,7 +462,8 @@ function validate_existing_cp4d() {
 
 function validate_existing_watson_discovery() {
 
-    WD_SERVICE_CURRENT_VERSION=`oc get watsondiscoveries.discovery.watson.ibm.com -n ibm-cpd -o yaml | yq -r ".items[0].spec.version" 2>/dev/null`
+    echo -e "${COLOR_YELLOW}Verifying current Cloud Pak for Data Service Watson Discovery deployment status..."
+    WD_SERVICE_CURRENT_VERSION=$(oc get watsondiscoveries.discovery.watson.ibm.com -n ibm-cpd -o yaml | yq -r ".items[0].spec.version" 2>/dev/null)
     if [[ "$WD_SERVICE_CURRENT_VERSION" == "null" ]]; then
       WD_SERVICE_CURRENT_VERSION=""
     fi
