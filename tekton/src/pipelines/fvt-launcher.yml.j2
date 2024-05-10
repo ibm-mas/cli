@@ -401,10 +401,6 @@ spec:
         - input: $(params.launchfvt_manage)
           operator: in
           values: ["true", "True"]
-      when:
-        - input: $(params.launchfvt_manage)
-          operator: in
-          values: ["true", "True"]
       runAfter:
         - waitfor-manage
 
@@ -455,7 +451,49 @@ spec:
         - waitforfvt-manage
 
 
-    # 6. Application FVT - Monitor
+    # 6. Application FVT - Mobile
+    # -------------------------------------------------------------------------
+    # Mobile FVT pipeline is launched after Manage is installed, but we do not sync it's progress back to the install pipeline
+    - name: launchfvt-mobile
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-mobile"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-mobile
+      when:
+        - input: $(params.launchfvt_mobile)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-manage
+
+    - name: waitforfvt-mobile
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: type
+          value: pipelinerun
+        - name: name
+          value: "$(params.mas_instance_id)-fvt-mobile"
+        - name: delay
+          value: 300  # seconds between checking the status of the pipelinerun
+        - name: retries
+          value: 50  # attempts before giving up
+        - name: ignore_failure
+          value: "True"  # continue even if the pipeline run has not completed successfully
+      when:
+        - input: $(params.launchfvt_mobile)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-mobile
+
+
+    # 7. Application FVT - Monitor
     # -------------------------------------------------------------------------
     - name: waitfor-monitor
       taskRef:
@@ -546,7 +584,7 @@ spec:
         - waitforfvt-monitor
 
 
-    # 7. Application FVT - Optimizer
+    # 8. Application FVT - Optimizer
     # -------------------------------------------------------------------------
     - name: waitfor-optimizer
       taskRef:
@@ -637,7 +675,7 @@ spec:
         - waitforfvt-optimizer
 
 
-    # 8. Application FVT - Predict
+    # 9. Application FVT - Predict
     # -------------------------------------------------------------------------
     - name: waitfor-predict
       taskRef:
@@ -728,7 +766,7 @@ spec:
         - waitforfvt-predict
 
 
-    # 9. Application FVT - Visual Inspection
+    # 10. Application FVT - Visual Inspection
     # -------------------------------------------------------------------------
     - name: waitfor-visualinspection
       taskRef:
