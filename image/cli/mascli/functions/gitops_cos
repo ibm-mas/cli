@@ -84,26 +84,6 @@ function gitops_cos_noninteractive() {
         export IBMCLOUD_APIKEY=$1 && shift
         ;;
 
-      # Automatic GitHub Push
-      -P|--github-push)
-        export GITHUB_PUSH=true
-        ;;
-      -H|--github-host)
-        export GITHUB_HOST=$1 && shift
-        ;;
-      -O|--github-org)
-        export GITHUB_ORG=$1 && shift
-        ;;
-      -R|--github-repo)
-        export GITHUB_REPO=$1 && shift
-        ;;
-      -B|--git-branch)
-        export GIT_BRANCH=$1 && shift
-        ;;
-      -M|--git-commit-msg)
-        export GIT_COMMIT_MSG=$1 && shift
-        ;;
-
       # Other Commands
       -h|--help)
         gitops_cos_help
