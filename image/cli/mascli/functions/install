@@ -747,6 +747,9 @@ function install() {
       --dev-mode)
         DEV_MODE=true
         ;;
+      --skip-grafana-install)
+        SKIP_GRAFANA_INSTALL=true
+        ;;
       -h|--help)
         install_help
         ;;
