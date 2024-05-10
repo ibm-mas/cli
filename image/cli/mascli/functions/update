@@ -462,11 +462,14 @@ function validate_existing_cp4d() {
 
 function validate_existing_watson_discovery() {
 
-    validate_existing_cp4d_service 'watsondiscoveries.discovery.watson.ibm.com' 'Watson Discovery' 'watson_discovery'
-    CP4D_CURRENT_VERSION_WD=$CP4D_SERVICE_CURRENT_VERSION
+    WD_SERVICE_CURRENT_VERSION=`oc get watsondiscoveries.discovery.watson.ibm.com -n ibm-cpd -o yaml | yq -r ".items[0].spec.version" 2>/dev/null`
+    if [[ "$WD_SERVICE_CURRENT_VERSION" == "null" ]]; then
+      WD_SERVICE_CURRENT_VERSION=""
+    fi
 
-    # if Watson Discovery is installed, then block update/upgrade
-    if [[ -n "$CP4D_CURRENT_VERSION_WD" ]]; then
+    # if Watson Discovery is installed particularly in ibm-cpd namespace, then block MAS update/upgrade as we understand that this is managed by MAS CLI
+    if [[ -n "$WD_SERVICE_CURRENT_VERSION" ]]; then
+      echo
       echo_warning "Watson Discovery is currently installed in the instance of Cloud Pak for Data that is managed by the MAS CLI, this is no longer supported and the update/upgrade can not proceed as a result. Please contact IBM support for assistance."
       exit 1
     fi
@@ -494,7 +497,7 @@ function validate_update() {
   fi
 
   # Validates CP4D services upgrade - Watson Discovery
-  # If Watson Discovery is detected then we should block the upgrade
+  # If Watson Discovery is detected then we should block the upgrade as per product/technical management team's decision
   validate_existing_watson_discovery
 
   # Validates Red Hat Cerficate Manager migration only if January catalog or more recent used
