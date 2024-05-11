@@ -99,13 +99,16 @@ spec:
       # 50 retries at 10 minute intervals = just over 8 hours
       command:
         - /opt/app-root/src/wait-for-tekton.sh
-        - --delay
-        - "600"
-        - --max-retries
-        - "50"
-        - --ignore-failure
       env:
-        - name: PIPELINERUN_NAME
+        - name: TYPE
+          value: pipelinerun
+        - name: NAME
           value: $(params.pipelinerun_name)
-        - name: PIPELINERUN_NAMESPACE
+        - name: NAMESPACE
           value: $(context.taskRun.namespace)
+        - name: DELAY
+          value: "600"
+        - name: MAX_RETRIES
+          value: "50"
+        - name: IGNORE_FAILURE
+          value: "True"
