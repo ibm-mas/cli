@@ -89,6 +89,10 @@ spec:
       type: string
       description: Approves the MongoDb upgrade to version 5 if needed
       default: ""
+    - name: mongodb_version
+      type: string
+      description: MongoDb version to update too
+      default: ""
 
     # kafka update
     - name: kafka_action
@@ -345,6 +349,8 @@ spec:
           value: $(params.mongodb_namespace)
         - name: mongodb_v5_upgrade
           value: $(params.mongodb_v5_upgrade)
+        - name: mongodb_version
+          value: $(params.mongodb_version)
 
     - name: update-kafka
       taskRef:
