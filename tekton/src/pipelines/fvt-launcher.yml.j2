@@ -117,21 +117,6 @@ spec:
 #      runAfter:
 #        - waitfor-suite-verify
 #
-#    - name: waitforfvt-sls
-#      taskRef:
-#        kind: Task
-#        name: mas-devops-wait-for-tekton
-#      params:
-#        - name: pipelinerun_name
-#          value: "$(params.mas_instance_id)-fvt-sls"
-#        - name: ignore_failure
-#          value: "True"
-#      when:
-#        - input: $(params.launchfvt_core)
-#          operator: in
-#          values: ["true", "True"]
-#      runAfter:
-#        - launchfvt-sls
 
     - name: launchfvt-core
       taskRef:
@@ -148,28 +133,6 @@ spec:
           values: ["true", "True"]
       runAfter:
         - waitfor-suite-verify
-
-    - name: waitforfvt-core
-      taskRef:
-        kind: Task
-        name: mas-devops-wait-for-tekton
-      params:
-        - name: type
-          value: pipelinerun
-        - name: name
-          value: "$(params.mas_instance_id)-fvt-core"
-        - name: delay
-          value: 300  # seconds between checking the status of the pipelinerun
-        - name: retries
-          value: 50  # attempts before giving up
-        - name: ignore_failure
-          value: "True"  # continue even if the pipeline run has not completed successfully
-      when:
-        - input: $(params.launchfvt_core)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - launchfvt-core
 
     - name: approval-suite-verify
       taskRef:
@@ -192,9 +155,9 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-# See: https://jsw.ibm.com/browse/IBMSLS-17
-#        - waitforfvt-sls
-        - waitforfvt-core
+        - launchfvt-core
+        # See: https://jsw.ibm.com/browse/IBMSLS-17
+        # - launchfvt-sls
 
 
     # 2. Application FVT - Assist
@@ -246,28 +209,6 @@ spec:
       runAfter:
         - waitfor-assist
 
-    - name: waitforfvt-assist
-      taskRef:
-        kind: Task
-        name: mas-devops-wait-for-tekton
-      params:
-        - name: type
-          value: pipelinerun
-        - name: name
-          value: "$(params.mas_instance_id)-fvt-assist"
-        - name: delay
-          value: 300  # seconds between checking the status of the pipelinerun
-        - name: retries
-          value: 50  # attempts before giving up
-        - name: ignore_failure
-          value: "True"  # continue even if the pipeline run has not completed successfully
-      when:
-        - input: $(params.launchfvt_assist)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - launchfvt-assist
-
     - name: approval-assist
       taskRef:
         kind: Task
@@ -289,7 +230,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitforfvt-assist
+        - launchfvt-assist
 
 
     # 3. Application FVT - IoT
@@ -345,28 +286,6 @@ spec:
       runAfter:
         - waitfor-iot
 
-    - name: waitforfvt-iot
-      taskRef:
-        kind: Task
-        name: mas-devops-wait-for-tekton
-      params:
-        - name: type
-          value: pipelinerun
-        - name: name
-          value: "$(params.mas_instance_id)-fvt-iot"
-        - name: delay
-          value: 300  # seconds between checking the status of the pipelinerun
-        - name: retries
-          value: 50  # attempts before giving up
-        - name: ignore_failure
-          value: "True"  # continue even if the pipeline run has not completed successfully
-      when:
-        - input: $(params.launchfvt_iot)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - launchfvt-iot
-
     - name: approval-iot
       taskRef:
         kind: Task
@@ -388,7 +307,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitforfvt-iot
+        - launchfvt-iot
 
 
     # 5. Application FVT - Manage
@@ -440,28 +359,6 @@ spec:
       runAfter:
         - waitfor-manage
 
-    - name: waitforfvt-manage
-      taskRef:
-        kind: Task
-        name: mas-devops-wait-for-tekton
-      params:
-        - name: type
-          value: pipelinerun
-        - name: name
-          value: "$(params.mas_instance_id)-fvt-manage"
-        - name: delay
-          value: 300  # seconds between checking the status of the pipelinerun
-        - name: retries
-          value: 50  # attempts before giving up
-        - name: ignore_failure
-          value: "True"  # continue even if the pipeline run has not completed successfully
-      when:
-        - input: $(params.launchfvt_manage)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - launchfvt-manage
-
     - name: approval-manage
       taskRef:
         kind: Task
@@ -483,7 +380,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitforfvt-manage
+        - launchfvt-manage
 
 
     # 6. Application FVT - Mobile
@@ -504,28 +401,6 @@ spec:
           values: ["true", "True"]
       runAfter:
         - waitfor-manage
-
-    - name: waitforfvt-mobile
-      taskRef:
-        kind: Task
-        name: mas-devops-wait-for-tekton
-      params:
-        - name: type
-          value: pipelinerun
-        - name: name
-          value: "$(params.mas_instance_id)-fvt-mobile"
-        - name: delay
-          value: 300  # seconds between checking the status of the pipelinerun
-        - name: retries
-          value: 50  # attempts before giving up
-        - name: ignore_failure
-          value: "True"  # continue even if the pipeline run has not completed successfully
-      when:
-        - input: $(params.launchfvt_mobile)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - launchfvt-mobile
 
 
     # 7. Application FVT - Monitor
@@ -582,28 +457,6 @@ spec:
       runAfter:
         - waitfor-monitor
 
-    - name: waitforfvt-monitor
-      taskRef:
-        kind: Task
-        name: mas-devops-wait-for-tekton
-      params:
-        - name: type
-          value: pipelinerun
-        - name: name
-          value: "$(params.mas_instance_id)-fvt-monitor"
-        - name: delay
-          value: 300  # seconds between checking the status of the pipelinerun
-        - name: retries
-          value: 50  # attempts before giving up
-        - name: ignore_failure
-          value: "True"  # continue even if the pipeline run has not completed successfully
-      when:
-        - input: $(params.launchfvt_monitor)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - launchfvt-monitor
-
     - name: approval-monitor
       taskRef:
         kind: Task
@@ -625,7 +478,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitforfvt-monitor
+        - launchfvt-monitor
 
 
     # 8. Application FVT - Optimizer
@@ -681,28 +534,6 @@ spec:
       runAfter:
         - waitfor-optimizer
 
-    - name: waitforfvt-optimizer
-      taskRef:
-        kind: Task
-        name: mas-devops-wait-for-tekton
-      params:
-        - name: type
-          value: pipelinerun
-        - name: name
-          value: "$(params.mas_instance_id)-fvt-optimizer"
-        - name: delay
-          value: 300  # seconds between checking the status of the pipelinerun
-        - name: retries
-          value: 50  # attempts before giving up
-        - name: ignore_failure
-          value: "True"  # continue even if the pipeline run has not completed successfully
-      when:
-        - input: $(params.launchfvt_optimizer)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - launchfvt-optimizer
-
     - name: approval-optimizer
       taskRef:
         kind: Task
@@ -724,7 +555,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitforfvt-optimizer
+        - launchfvt-optimizer
 
 
     # 9. Application FVT - Predict
@@ -782,28 +613,6 @@ spec:
       runAfter:
         - waitfor-predict
 
-    - name: waitforfvt-predict
-      taskRef:
-        kind: Task
-        name: mas-devops-wait-for-tekton
-      params:
-        - name: type
-          value: pipelinerun
-        - name: name
-          value: "$(params.mas_instance_id)-fvt-predict"
-        - name: delay
-          value: 300  # seconds between checking the status of the pipelinerun
-        - name: retries
-          value: 50  # attempts before giving up
-        - name: ignore_failure
-          value: "True"  # continue even if the pipeline run has not completed successfully
-      when:
-        - input: $(params.launchfvt_predict)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - launchfvt-predict
-
     - name: approval-predict
       taskRef:
         kind: Task
@@ -825,7 +634,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitforfvt-predict
+        - launchfvt-predict
 
 
     # 10. Application FVT - Visual Inspection
@@ -877,28 +686,6 @@ spec:
       runAfter:
         - waitfor-visualinspection
 
-    - name: waitforfvt-visualinspection
-      taskRef:
-        kind: Task
-        name: mas-devops-wait-for-tekton
-      params:
-        - name: type
-          value: pipelinerun
-        - name: name
-          value: "$(params.mas_instance_id)-fvt-visualinspection"
-        - name: delay
-          value: 300  # seconds between checking the status of the pipelinerun
-        - name: retries
-          value: 50  # attempts before giving up
-        - name: ignore_failure
-          value: "True"  # continue even if the pipeline run has not completed successfully
-      when:
-        - input: $(params.launchfvt_visualinspection)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - launchfvt-visualinspection
-
     - name: approval-visualinspection
       taskRef:
         kind: Task
@@ -920,7 +707,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitforfvt-visualinspection
+        - launchfvt-visualinspection
 
 
   finally:
