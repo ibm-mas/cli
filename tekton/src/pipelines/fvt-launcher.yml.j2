@@ -227,6 +227,8 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - approval-suite-verify
 
     - name: launchfvt-assist
       params:
@@ -320,6 +322,8 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - approval-suite-verify
 
     - name: launchfvt-iot
       params:
@@ -417,6 +421,8 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - approval-suite-verify
 
     - name: launchfvt-manage
       params:
@@ -524,6 +530,7 @@ spec:
 
     # 7. Application FVT - Monitor
     # -------------------------------------------------------------------------
+    # We only start the Monitor part of the FVT launcher after the IoT part has completed
     - name: waitfor-monitor
       taskRef:
         kind: Task
@@ -552,6 +559,8 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - approval-iot
 
     - name: launchfvt-monitor
       params:
@@ -649,6 +658,8 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - approval-suite-verify
 
     - name: launchfvt-optimizer
       params:
@@ -718,6 +729,7 @@ spec:
 
     # 9. Application FVT - Predict
     # -------------------------------------------------------------------------
+    # We only start the Predict part of the FVT launcher after the Monitor part has completed
     - name: waitfor-predict
       taskRef:
         kind: Task
@@ -746,6 +758,9 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - approval-monitor
+        - approval-manage
 
     - name: launchfvt-predict
       params:
@@ -843,6 +858,8 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - approval-suite-verify
 
     - name: launchfvt-visualinspection
       params:
