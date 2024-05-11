@@ -206,8 +206,7 @@ spec:
         yq --arg MAS_CHANNEL $MAS_CHANNEL -iY '.mas_instance.channel= $MAS_CHANNEL' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
 
         # Update the operationalmode in the mas-instance-params.yaml. Assume fvtsaas here
-        yq --arg MAS_OPERATIONALMODE $MAS_OPERATIONALMODE -iY '.mas_instance.annotations.mas.ibm.com/operationalMode= $MAS_OPERATIONALMODE' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
-
+        yq --arg MAS_OPERATIONALMODE $MAS_OPERATIONALMODE -iY '.mas_instance.annotations."mas.ibm.com/operationalMode"= $MAS_OPERATIONALMODE' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
 
         # Set dns.provider as empty in the mas-instance-params.yaml if deployment with cis is not enabled for that deployment day.  Assume fvtsaas here
         export DNS_PROVIDER=$(yq -sr '.[0].dns.provider' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml)
