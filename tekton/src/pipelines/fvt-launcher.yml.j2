@@ -86,10 +86,11 @@ spec:
           value: FVT_STATUS
         - name: configmap_target_value
           value: pending
+        # 25 retries at 5 minute intervals = 2 hours
         - name: delay
           value: "300"
         - name: max_retries
-          value: "50"
+          value: "25"
         - name: ignore_failure
           value: "False"
       when:
@@ -177,10 +178,11 @@ spec:
           value: FVT_STATUS
         - name: configmap_target_value
           value: pending
+        # 40 retries at 5 minute intervals = 3 hours
         - name: delay
           value: "300"
         - name: max_retries
-          value: "100"
+          value: "40"
         - name: ignore_failure
           value: "False"
       when:
@@ -250,10 +252,11 @@ spec:
           value: FVT_STATUS
         - name: configmap_target_value
           value: pending
+        # 40 retries at 5 minute intervals = 3 hours
         - name: delay
           value: "300"
         - name: max_retries
-          value: "100"
+          value: "40"
         - name: ignore_failure
           value: "False"
       when:
@@ -327,6 +330,7 @@ spec:
           value: FVT_STATUS
         - name: configmap_target_value
           value: pending
+        # 100 retries at 5 minute intervals = 8 hours
         - name: delay
           value: "300"
         - name: max_retries
@@ -421,10 +425,11 @@ spec:
           value: FVT_STATUS
         - name: configmap_target_value
           value: pending
+        # 25 retries at 5 minute intervals = 2 hours
         - name: delay
           value: "300"
         - name: max_retries
-          value: "100"
+          value: "25"
         - name: ignore_failure
           value: "False"
       when:
@@ -498,10 +503,11 @@ spec:
           value: FVT_STATUS
         - name: configmap_target_value
           value: pending
+        # 25 retries at 5 minute intervals = 2 hours
         - name: delay
           value: "300"
         - name: max_retries
-          value: "100"
+          value: "25"
         - name: ignore_failure
           value: "False"
       when:
@@ -576,10 +582,11 @@ spec:
           value: FVT_STATUS
         - name: configmap_target_value
           value: pending
+        # 25 retries at 5 minute intervals = 2 hours
         - name: delay
           value: "300"
         - name: max_retries
-          value: "100"
+          value: "25"
         - name: ignore_failure
           value: "False"
       when:
@@ -654,10 +661,11 @@ spec:
           value: FVT_STATUS
         - name: configmap_target_value
           value: pending
+        # 25 retries at 5 minute intervals = 2 hours
         - name: delay
           value: "300"
         - name: max_retries
-          value: "100"
+          value: "25"
         - name: ignore_failure
           value: "False"
       when:

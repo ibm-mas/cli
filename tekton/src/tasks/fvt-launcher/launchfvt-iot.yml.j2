@@ -96,7 +96,7 @@ spec:
     - name: wait-for-pipelinerun
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
-      # 50 retries at 10 minute intervals = just over 8 hours
+      # 15 retries at 5 minute intervals = just over 1 hour
       command:
         - /opt/app-root/src/wait-for-tekton.sh
       env:
@@ -107,9 +107,9 @@ spec:
         - name: NAMESPACE
           value: $(context.taskRun.namespace)
         - name: DELAY
-          value: "600"
+          value: "300"
         - name: MAX_RETRIES
-          value: "50"
+          value: "15"
         - name: IGNORE_FAILURE
           value: "True"
 
