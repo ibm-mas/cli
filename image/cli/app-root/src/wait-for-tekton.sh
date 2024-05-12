@@ -27,6 +27,10 @@ do
       NAME=$1
       shift
       ;;
+    --suffix)
+      SUFFIX=$1
+      shift
+      ;;
     --namespace)
       NAMESPACE=$1
       shift
@@ -55,7 +59,10 @@ if [[ -z "$NAME" || -z "$NAMESPACE" ]]; then
   exit 0
 fi
 
-echo "Waiting for ${TASK}/${NAME} in ${NAMESPACE} to complete ..."
+if [[ -z "$SUFFIX"] ]]; then
+  NAME="${NAME}-${SUFFIX}"
+fi
+echo "Waiting for ${TYPE}/${NAME} in ${NAMESPACE} to complete ..."
 
 echo ""
 echo "Status of ${TYPE}"

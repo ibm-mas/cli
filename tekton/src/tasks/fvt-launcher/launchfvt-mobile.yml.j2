@@ -107,6 +107,12 @@ spec:
           value: pipelinerun
         - name: NAME
           value: $(params.pipelinerun_name)
+        - name: SUFFIX
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_BUILD_NUMBER
+              optional: true
         - name: NAMESPACE
           value: $(context.taskRun.namespace)
         - name: DELAY
