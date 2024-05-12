@@ -50,6 +50,10 @@ spec:
       type: string
       description: Approves the MongoDb upgrade to version 5 if needed
       default: ""
+    - name: mongodb_v6_upgrade
+      type: string
+      description: Approves the MongoDb upgrade to version 6 if needed
+      default: ""
 
     # Dependencies - IBM Cloud MongoDb
     # -------------------------------------------------------------------------
@@ -109,6 +113,8 @@ spec:
         value: $(params.mongodb_version)
       - name: MONGODB_V5_UPGRADE
         value: $(params.mongodb_v5_upgrade)
+      - name: MONGODB_V6_UPGRADE
+        value: $(params.mongodb_v6_upgrade)
 
       # Dependencies - IBM Cloud MongoDb
       - name: IBM_MONGO_NAME
