@@ -9,10 +9,6 @@ region:
 cluster:
   id: {{ CLUSTER_ID }}
   url: {{ CLUSTER_URL }}
-{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
-custom_labels:
-{{ CUSTOM_LABELS | indent(2) }}
-{%- endif %}
 
 sm:
   aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ACCOUNT_ID}}/{{CLUSTER_ID}}/aws#sm_aws_access_key_id>"
@@ -20,3 +16,8 @@ sm:
 
 notifications:
   slack_channel_id: {{ SLACK_CHANNEL_ID }}
+
+{%- if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+custom_labels:
+  {{ CUSTOM_LABELS | indent(2) }}
+{%- endif %}
