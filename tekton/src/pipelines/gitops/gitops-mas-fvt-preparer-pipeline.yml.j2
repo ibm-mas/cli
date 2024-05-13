@@ -57,35 +57,41 @@ spec:
       type: string
     - name: fvt_version_manage
       type: string
-    - name: fvt_manage_automation_version
-      type: string
     - name: fvt_version_manage_civil
       type: string
     - name: fvt_version_mobile
       type: string
-    - name: fvt_version_mobilefoundation
-      type: string
-    - name: fvt_version_servicerequests
-      type: string
-    - name: fvt_version_inspection
-      type: string
-    - name: fvt_version_technician
-      type: string
-    - name: fvt_version_asset_manager
-      type: string
-    - name: fvt_version_inventorycounting
-      type: string
     - name: fvt_version_data_dictionary
+      type: string
+    - name: fvt_version_sls
       type: string
 
     - name: fvt_blacklist_core
       type: string
     - name: fvt_whitelist_core
       type: string
+    - name: fvt_blacklist_manage
+      type: string
+    - name: fvt_whitelist_manage
+      type: string
+    - name: fvt_blacklist_manage_civil
+      type: string
+    - name: fvt_whitelist_manage_civil
+      type: string
+    - name: fvt_blacklist_manage_is
+      type: string
+    - name: fvt_whitelist_manage_is
+      type: string
+    - name: fvt_blacklist_health
+      type: string
+    - name: fvt_whitelist_health
+      type: string
+    - name: fvt_blacklist_optimizer
+      type: string
+    - name: fvt_whitelist_optimizer
+      type: string
 
     - name: mas_workspace_id
-      type: string
-    - name: mas_channel
       type: string
 
     - name: launchfvt_core
@@ -217,36 +223,42 @@ spec:
           value: $(params.fvt_version_optimizer)
         - name: fvt_version_manage
           value: $(params.fvt_version_manage)
-        - name: fvt_manage_automation_version
-          value: $(params.fvt_manage_automation_version)
         - name: fvt_version_manage_civil
           value: $(params.fvt_version_manage_civil)
         - name: fvt_version_mobile
           value: $(params.fvt_version_mobile)
-        - name: fvt_version_mobilefoundation
-          value: $(params.fvt_version_mobilefoundation)
-        - name: fvt_version_servicerequests
-          value: $(params.fvt_version_servicerequests)
-        - name: fvt_version_inspection
-          value: $(params.fvt_version_inspection)
-        - name: fvt_version_technician
-          value: $(params.fvt_version_technician)
-        - name: fvt_version_asset_manager
-          value: $(params.fvt_version_asset_manager)
-        - name: fvt_version_inventorycounting
-          value: $(params.fvt_version_inventorycounting)
         - name: fvt_version_data_dictionary
           value: $(params.fvt_version_data_dictionary)
+        - name: fvt_version_sls
+          value: $(params.fvt_version_sls)
 
         - name: fvt_blacklist_core
           value: $(params.fvt_blacklist_core)
         - name: fvt_whitelist_core
           value: $(params.fvt_whitelist_core)
+        - name: fvt_blacklist_manage
+          value: $(params.fvt_blacklist_manage)
+        - name: fvt_whitelist_manage
+          value: $(params.fvt_whitelist_manage)
+        - name: fvt_blacklist_manage_civil
+          value: $(params.fvt_blacklist_manage_civil)
+        - name: fvt_whitelist_manage_civil
+          value: $(params.fvt_whitelist_manage_civil)
+        - name: fvt_blacklist_manage_is
+          value: $(params.fvt_blacklist_manage_is)
+        - name: fvt_whitelist_manage_is
+          value: $(params.fvt_whitelist_manage_is)
+        - name: fvt_blacklist_health
+          value: $(params.fvt_blacklist_health)
+        - name: fvt_whitelist_health
+          value: $(params.fvt_whitelist_health)
+        - name: fvt_blacklist_optimizer
+          value: $(params.fvt_blacklist_optimizer)
+        - name: fvt_whitelist_optimizer
+          value: $(params.fvt_whitelist_optimizer)
 
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
-        - name: mas_channel
-          value: $(params.mas_channel)
 
         - name: launchfvt_core
           value: $(params.launchfvt_core)
