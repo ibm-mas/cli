@@ -92,7 +92,7 @@ function gitops_cluster_noninteractive() {
       --custom-labels)
         export CUSTOM_LABELS=$1 && shift
         ;;
-	
+
       # AWS Secrets Manager Configuration
       --sm-aws-secret-region)
         export SM_AWS_REGION=$1
