@@ -259,6 +259,8 @@ spec:
         value: $(params.mas_app_settings_override_encryption_secrets_flag)
       - name: MAS_APP_SETTINGS_DEFAULT_JMS
         value: $(params.mas_app_settings_default_jms)
+      - name: MAS_POD_TEMPLATES_DIR
+        value: /workspace/pod-templates
 
       # Application Workspace - Operand (Predict)
       - name: PREDICT_DEPLOYMENT_SIZE
@@ -330,3 +332,5 @@ spec:
 
   workspaces:
     - name: configs
+    - name: pod-templates
+      optional: true
