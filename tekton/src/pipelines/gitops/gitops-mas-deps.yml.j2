@@ -35,16 +35,6 @@ spec:
       type: string
     - name: avp_aws_access_key
       type: string
-    - name: git_branch
-      type: string
-    - name: github_org
-      type: string
-    - name: github_repo
-      type: string
-    - name: github_host
-      type: string
-    - name: git_commit_msg
-      type: string
 
     - name: vpc_ipv4_cidr
       type: string
@@ -194,8 +184,6 @@ spec:
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
         
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
-
         - name: cluster_name
           value: $(params.cluster_name)
         - name: account

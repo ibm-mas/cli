@@ -52,40 +52,12 @@ spec:
       type: string
     - name: secrets_path
       type: string
-    - name: artifactory_username
-      type: string
-    - name: artifactory_token
-      type: string
-    - name: icr_username
-      type: string
-    - name: icr_password
-      type: string
-    - name: mas_catalog_version
-      type: string
-    - name: mas_catalog_image
-      type: string
-    - name: common_services_channel
-      type: string
-    - name: vpc_ipv4_cidr
-      type: string
-    - name: mongo_provider
-      type: string
-      default: aws
-    - name: aws_docdb_instance_number
-      type: string
-      default: 3
     - name: rosa_cluster_admin_password
       type: string
     - name: rosa_compute_nodes
       type: string
     - name: rosa_compute_machine_type
       type: string
-    - name: db2_channel
-      type: string
-      default: ""
-    - name: db2_action
-      type: string
-      default: ""
 
   tasks:
 {% if wait_for_deprovision == true %}
