@@ -34,10 +34,6 @@
       value: $(params.default_block_storage_class)
     - name: default_file_storage_class
       value: $(params.default_file_storage_class)
-    - name: mas_app_settings_server_bundles_size
-      value: $(params.mas_app_settings_server_bundles_size)
-    - name: mas_app_settings_jms_queue_mount_path
-      value: $(params.mas_app_settings_jms_queue_mount_path)
   taskRef:
     name: gitops-suite-app-config
     kind: Task

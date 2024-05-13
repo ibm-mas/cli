@@ -205,13 +205,6 @@ spec:
       taskRef:
         kind: Task
         name: gitops-deprovision-cos
-      when:
-        - input: "$(params.cos_action)"
-          operator: notin
-          values: [""]
-        - input: "$(params.cos_action)"
-          operator: in
-          values: ["deprovision"]
 
     # Uninstall AWS Elastic File Service (EFS)
     - name: gitops-deprovision-efs
@@ -241,10 +234,3 @@ spec:
       taskRef:
         kind: Task
         name: gitops-deprovision-efs
-      when:
-        - input: "$(params.efs_action)"
-          operator: notin
-          values: [""]
-        - input: "$(params.efs_action)"
-          operator: in
-          values: ["deprovision"]

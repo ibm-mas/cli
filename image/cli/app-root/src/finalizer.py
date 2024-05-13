@@ -10,6 +10,8 @@ from subprocess import PIPE, Popen, TimeoutExpired
 import threading
 from jira import JIRA
 
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class RunCmdResult(object):
     def __init__(self, returnCode, output, error):
@@ -263,6 +265,17 @@ if __name__ == "__main__":
 
     setObject = {"timestampFinished": datetime.utcnow()}
 
+    # Set CLI and ansible-devops version
+    # -------------------------------------------------------------------------
+    cliVersion = os.getenv("VERSION", "unknown")
+    ansibleDevopsVersion = os.getenv("ANSIBLE_DEVOPS_VERSION", "unknown")
+
+    print(f"CLI Version ............ {cliVersion}")
+    print(f"mas_devops Version ..... {ansibleDevopsVersion}")
+
+    setObject["target.version"] = cliVersion
+    setObject["target.ansibleDevopsVersion"] = ansibleDevopsVersion
+
     # Lookup OCP version
     # -------------------------------------------------------------------------
     cvs = dynClient.resources.get(
@@ -458,7 +471,7 @@ if __name__ == "__main__":
         try:
             cr = crs.get(name=f"mas-{instanceId}-system", namespace="db2u")
         except Exception as e1:
-            print("Unable to get cr, try fvtsaas version")
+            print("Unable to get cr, try other possible version")
             cr = crs.get(name=f"db2wh-{instanceId}-iot", namespace=f"db2u")
 
         if cr.status and cr.status.version:
@@ -536,7 +549,7 @@ if __name__ == "__main__":
         try:
             cr = crs.get(name=f"sls", namespace="ibm-sls")
         except Exception as e1:
-            print("Unable to get cr, try fvtsaas version")
+            print("Unable to get cr, try possible version")
             cr = crs.get(name=f"sls", namespace=f"mas-{instanceId}-sls")
         if cr.status and cr.status.versions:
             slsVersion = cr.status.versions.reconciled
@@ -555,7 +568,7 @@ if __name__ == "__main__":
         try:
             cr = crs.get(name=f"wml-cr", namespace="ibm-cpd")
         except Exception as e1:
-            print("Unable to get cr, try fvtsaas version")
+            print("Unable to get cr, try possible version")
             cr = crs.get(name=f"wml-cr", namespace=f"ibm-cpd-{instanceId}-instance")
 
         if cr.status and cr.status.versions:
