@@ -69,6 +69,8 @@ spec:
         {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
         - name: product_id
           value: ibm-mas
+        - name: product_channel
+          value: $(params.mas_channel)
         - name: fvt_test_suite
           value: imagescan
       when:
