@@ -92,6 +92,13 @@ spec:
     - name: mongodb_version
       type: string
       description: MongoDb version to update too
+    - name: mongodb_v6_upgrade
+      type: string
+      description: Approves the MongoDb upgrade to version 6 if needed
+      default: ""
+    - name: mongodb_replicas
+      type: string
+      description: Optional configuration for mongodb replicas
       default: ""
 
     # kafka update
@@ -351,6 +358,10 @@ spec:
           value: $(params.mongodb_v5_upgrade)
         - name: mongodb_version
           value: $(params.mongodb_version)
+        - name: mongodb_v6_upgrade
+          value: $(params.mongodb_v6_upgrade)
+        - name: mongodb_replicas
+          value: $(params.mongodb_replicas)
 
     - name: update-kafka
       taskRef:
