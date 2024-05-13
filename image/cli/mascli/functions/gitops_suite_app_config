@@ -35,8 +35,14 @@ Maximo Application Suite:
   --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}                                 MAS Manual Cert Management
 
 Maximo Manage:
-  --mas-app-settings-server-bundles-size ${COLOR_YELLOW}MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE${TEXT_RESET}   The Maximo Manage Serer Bundle size (snojms, jms, dev or small)
-  --mas-app-settings-jms-queue-mount-path ${COLOR_YELLOW}MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH${TEXT_RESET} JMS queue mount path
+  --mas-app-server-bundles-combined-add-server-config-yaml ${COLOR_YELLOW}MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML${TEXT_RESET}  yaml file location containing Combined additional Server Configuration for server bundles
+  Below is a sample yaml file template ( key: << value base64 encoded content of server config xml >>) where key is secret name and value will be base64 encoded of the server config xml file with which the k8s secret needs to be created
+
+      masdev-manage-d-sb0ascsn: <<base64 encoded content of masdev-manage-dsb0asc-sn.xml>>
+      masdev-manage-d-sb1ascsn: <<base64 encoded content of masdev-manage-dsb1asc-sn.xml>>
+      ...
+      masdev-manage-d-sbNascsn: <<base64 encoded content of masdev-manage-dsbNasc-sn.xml>>
+
 
 Secrets Manager:
   --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                                 Secrets Manager path
@@ -99,14 +105,6 @@ function gitops_suite_app_config_noninteractive() {
         export GITOPS_CONFIG_DIR=$1 && shift
         ;;
 
-      # Maximo Manage
-      --mas-app-settings-server-bundles-size)
-        export MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE=$1 && shift
-        ;;
-      --mas-app-settings-jms-queue-mount-path)
-        export MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH=$1 && shift
-        ;;
-
       # CP4D Service
       --cpd-product-version)
         export CPD_PRODUCT_VERSION=$1 && shift
@@ -153,6 +151,10 @@ function gitops_suite_app_config_noninteractive() {
         ;;
       --mas-appws-spec-yaml)
         export MAS_APPWS_SPEC_YAML=$1 && shift
+        ;;
+      # Maximo Manage
+      --mas-app-server-bundles-combined-add-server-config-yaml)
+        export MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -205,7 +207,7 @@ function gitops_suite_app_config_noninteractive() {
   if [[ "${MAS_APP_ID}" == "manage" || "${MAS_APP_ID}" == "health" ]]; then
     [[ -z "${DEFAULT_FILE_STORAGE_CLASS}" || "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_config_help "DEFAULT_FILE_STORAGE_CLASS is not set"
   fi
-  
+
   if [[ -z "${MAS_APPWS_SPEC_YAML}" ]]; then
     if [[ "${MAS_APP_ID}" == "manage" || "${MAS_APP_ID}" == "health" ]]; then
       [[ -z "${DEFAULT_FILE_STORAGE_CLASS}" || "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_config_help "DEFAULT_FILE_STORAGE_CLASS is not set"
@@ -295,6 +297,8 @@ function gitops_suite_app_config() {
   echo_reset_dim "Application WS API Version .............. ${COLOR_MAGENTA}${MAS_APPWS_API_VERSION}"
   echo_reset_dim "Application WS Kind ..................... ${COLOR_MAGENTA}${MAS_APPWS_KIND}"
   echo_reset_dim "Application WS Spec Yaml file ........... ${COLOR_MAGENTA}${MAS_APPWS_SPEC_YAML}"
+  echo_reset_dim "Combined additional server configs ...... ${COLOR_MAGENTA}${MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML}"
+
   if [[ -n "$MAS_APPWS_SPEC_YAML" ]] && [[ -s "$MAS_APPWS_SPEC_YAML" ]]; then
     echo_reset_dim "Using Default Application Spec ........ ${COLOR_MAGENTA}False"
   else
@@ -307,13 +311,6 @@ function gitops_suite_app_config() {
   echo_reset_dim "CPD_PRODUCT_VERSION ..................... ${COLOR_MAGENTA}${CPD_PRODUCT_VERSION}"
   echo_reset_dim "CPD_WML_URL ............................. ${COLOR_MAGENTA}${CPD_WML_URL}"
   echo_reset_dim "CPD_WML_INSTANCE_ID ..................... ${COLOR_MAGENTA}${CPD_WML_INSTANCE_ID}"
-
-  echo
-  echo_reset_dim "........................................."
-  echo_reset_dim "SERVER_BUNDLES_SIZE ..................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE}"
-  echo_reset_dim "JMS_QUEUE_MOUNT_PATH .................... ${COLOR_MAGENTA}${MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH}"
-  echo_reset_dim "........................................."  
-  echo
 
   echo_reset_dim "MAS Manual Cert Mgt ................... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
 
@@ -446,6 +443,14 @@ function gitops_suite_app_config() {
     fi
   fi
 
+  # The combined YAML file will have key: value where key is secret name and value is base64 encoded content of server config xml file with which k8s secret will be created
+  if [[ -n "$MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML" ]] && [[ -s "$MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML" ]]; then
+    echo
+    echo_h2 "Server bundles Combined additional server config provided for $MAS_APP_ID at $MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML"
+    export MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG=$(cat ${MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML} | yq -r '.' --yaml-output)
+    echo "- MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG CONTENT ${MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG}"
+  fi
+
   if [[ -n "$MAS_APPWS_SPEC_YAML" ]] && [[ -s "$MAS_APPWS_SPEC_YAML" ]]; then
     echo
     echo_h2 "Using application spec provided for $MAS_APP_ID at $MAS_APPWS_SPEC_YAML"
@@ -459,38 +464,6 @@ function gitops_suite_app_config() {
   echo 
   echo "- MAS_APPWS_SPEC CONTENT ${MAS_APPWS_SPEC}"
   export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
-
-  if [[ "${MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE}" == "snojms" || "${MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE}" == "dev" ]]; then
-    export SERVER_BUNDLE_EAR_FILENAME="maximo-all"
-  elif [[ "${MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE}" == "jms" || "${MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE}" == "small" ]]; then
-    export SERVER_BUNDLE_EAR_FILENAME="maximomea"
-  fi
-  export SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-jms.mas-${MAS_INSTANCE_ID}-manage.svc:7276"
-
-
-  if [ "$MAS_APP_ID" == "manage" ]; then
-    # these settings will be applied to ui, cron and report - these server bundles don't need the activation specification in the JMS config xml
-    echo "- Generate SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT "
-    sed "s#SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT#$SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT#g" $CLI_DIR/templates/gitops/files/manage/manage-additional-server-config-no-activation.xml.j2 > ${GITOPS_INSTANCE_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config-no-activation.xml
-      SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT=${GITOPS_INSTANCE_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config-no-activation.xml
-    SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT=$(cat $SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT)
-    export SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT=$(echo -n $SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT | base64  -w 0)
-  
-
-    # this setting will be applied to mea - this server bundles will need the activation specification in the JMS config xml
-    echo "- Generate SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT"
-    sed -e "s#SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT#$SERVER_BUNDLE_JMS_INTERNAL_ENDPOINT#g" -e "s#SERVER_BUNDLE_EAR_FILENAME#$SERVER_BUNDLE_EAR_FILENAME#g" $CLI_DIR/templates/gitops/files/manage/manage-additional-server-config.xml.j2 > ${GITOPS_INSTANCE_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config.xml
-    SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT=${GITOPS_INSTANCE_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config.xml
-    SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT=$(cat $SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT)
-    export SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT=$(echo -n $SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT | base64  -w 0)
-
-    # this setting will be applied to jms - this server bundle will have special config for JMS queues in the xml
-    echo "- Generate SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT"
-    sed -e "s#MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH#$MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH#g" $CLI_DIR/templates/gitops/files/manage/manage-jms-additional-server-config.xml.j2 > ${GITOPS_INSTANCE_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-jms-additional-server-config.xml
-    SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT=${GITOPS_INSTANCE_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-jms-additional-server-config.xml
-    SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT=$(cat $SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT)
-    export SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT=$(echo -n $SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT | base64  -w 0)
-  fi
 
   if [ "$MAS_APP_ID" == "assist" ]; then
     echo "- Configuring for Assist App"
@@ -530,6 +503,7 @@ function gitops_suite_app_config() {
   if ! [ -f ${CONFIGS_FILE} ]; then
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config-common.yaml.j2 > $CONFIGS_FILE
   fi
+
 
   # Remove any existing config with this app id and workspace id
   /usr/bin/yq 'del(.ibm_mas_masapp_configs[] | select(.mas_app_id == "'${MAS_APP_ID}'" and .mas_workspace_id == "'${MAS_WORKSPACE_ID}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
