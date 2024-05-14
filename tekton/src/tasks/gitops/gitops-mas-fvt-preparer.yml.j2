@@ -387,9 +387,9 @@ spec:
         argocd_login
       
         if [[ "$LAUNCHER_ID" == "core" ]]; then
-          MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-          BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-          SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${CLUSTER_NAME}"
+          BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${CLUSTER_NAME}"
+          SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${CLUSTER_NAME}"
           SLS_APP_NAME="sls.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
           SUITE_APP_NAME="suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
           WORKSPACE_APP="${MAS_WORKSPACE_ID}.suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
