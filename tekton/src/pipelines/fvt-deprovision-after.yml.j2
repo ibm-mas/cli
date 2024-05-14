@@ -84,9 +84,9 @@ spec:
         - name: name
           value: $(params.pipelinerun_name)
         - name: delay
-          value: 600  # seconds between checking the status of the pipelinerun
+          value: 1200  # 20 minutes between checking the status of the pipelinerun
         - name: retries
-          value: 50  # attempts before giving up
+          value: 60  # attempts before giving up (approximately 20 hours)
         - name: ignore_failure
           value: "True"  # continue even if the pipeline run has not completed successfully
 
