@@ -2,13 +2,13 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: gitops-provision-mas-apps
+  name: gitops-mas-apps
 spec:
   workspaces:
     - name: configs
     - name: shared-certificates
     - name: shared-gitops-configs
-  description: Provision MAS GitOps Instance
+  description: MAS GitOps Instance
   params:
     - name: cluster_name
       type: string
@@ -130,6 +130,7 @@ spec:
 
     - name: mas_app_channel_iot
       type: string
+      default: ""
     - name: mas_app_catalog_source_iot
       type: string
       default: ibm-operator-catalog
@@ -151,10 +152,11 @@ spec:
       type: string
     - name: iot_workspace_action
       type: string
-      default: ""
+      default: "deactivate"
 
     - name: mas_app_channel_manage
       type: string
+      default: ""
     - name: mas_app_catalog_source_manage
       type: string
       default: ibm-operator-catalog
@@ -176,7 +178,7 @@ spec:
       type: string
     - name: manage_workspace_action
       type: string
-      default: ""
+      default: "deactivate"
     - name: mas_app_settings_server_bundles_size
       type: string
       default: "dev"
@@ -186,6 +188,7 @@ spec:
 
     - name: mas_app_channel_monitor
       type: string
+      default: ""
     - name: mas_app_catalog_source_monitor
       type: string
       default: ibm-operator-catalog
@@ -207,10 +210,11 @@ spec:
       type: string
     - name: monitor_workspace_action
       type: string
-      default: ""
+      default: "deactivate"
 
     - name: mas_app_channel_visualinspection
       type: string
+      default: ""
     - name: mas_app_catalog_source_visualinspection
       type: string
       default: ibm-operator-catalog
@@ -232,10 +236,11 @@ spec:
       type: string
     - name: visualinspection_workspace_action
       type: string
-      default: ""
+      default: "deactivate"
 
     - name: mas_app_channel_assist
       type: string
+      default: ""
     - name: mas_app_catalog_source_assist
       type: string
       default: ibm-operator-catalog
@@ -257,10 +262,11 @@ spec:
       type: string
     - name: assist_workspace_action
       type: string
-      default: ""
+      default: "deactivate"
 
     - name: mas_app_channel_optimizer
       type: string
+      default: ""
     - name: mas_app_catalog_source_optimizer
       type: string
       default: ibm-operator-catalog
@@ -282,13 +288,14 @@ spec:
       type: string
     - name: optimizer_workspace_action
       type: string
-      default: ""
+      default: "deactivate"
     - name: optimizer_plan
       type: string
       default: "limited"
 
     - name: mas_app_channel_predict
       type: string
+      default: ""
     - name: mas_app_catalog_source_predict
       type: string
       default: ibm-operator-catalog
@@ -310,7 +317,7 @@ spec:
       type: string
     - name: predict_workspace_action
       type: string
-      default: ""
+      default: "deactivate"
 
     - name: cpd_wsl_project_id
       type: string
@@ -954,3 +961,500 @@ spec:
           operator: in
           values: ["install"]
 
+    # -------------------------------------------------------------------------
+    # Deprovision task section
+    # -------------------------------------------------------------------------
+
+    # 1. Monitor Deprovision
+    # -------------------------------------------------------------------------
+    # 1.1 Monitor Config/Workspace
+    - name: gitops-deprovision-mas-app-config-monitor
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_id
+          value: monitor
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.monitor_workspace_action)"
+          operator: in
+          values: ["deactivate"]
+
+    # 1.2 Monitor App Deprovision
+    - name: gitops-deprovision-mas-app-install-monitor
+      runAfter:
+        - gitops-deprovision-mas-app-config-monitor
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: monitor
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-install
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: in
+          values: [""]
+
+    # 2. Predict Deprovision
+    # -------------------------------------------------------------------------
+    # 2.1 Predict Config/Workspace
+    - name: gitops-deprovision-mas-app-config-predict
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_id
+          value: predict
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.predict_workspace_action)"
+          operator: in
+          values: ["deactivate"]
+
+    # 2.2 Predict App
+    - name: gitops-deprovision-mas-app-install-predict
+      runAfter:
+        - gitops-deprovision-mas-app-config-predict
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: predict
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-install
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: in
+          values: [""]
+
+    # 3. Visualinspection Deprovision
+    # -------------------------------------------------------------------------
+    # 3.1 Visualinspection Config/Workspace
+    - name: gitops-deprovision-mas-app-config-visualinspection
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_id
+          value: visualinspection
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.visualinspection_workspace_action)"
+          operator: in
+          values: ["deactivate"]
+
+    # 3.2 Visualinspection App
+    - name: gitops-deprovision-mas-app-install-visualinspection
+      runAfter:
+        - gitops-deprovision-mas-app-config-visualinspection
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: visualinspection
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-install
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_visualinspection)"
+          operator: in
+          values: [""]
+
+    # 4. Optimizer Deprovision
+    # -------------------------------------------------------------------------
+    # 4.1 Optimizer Config/Workspace
+    - name: gitops-deprovision-mas-app-config-optimizer
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_id
+          value: optimizer
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.optimizer_workspace_action)"
+          operator: in
+          values: ["deactivate"]
+
+    # 4.2 Optimizer App
+    - name: gitops-deprovision-mas-app-install-optimizer
+      runAfter:
+        - gitops-deprovision-mas-app-config-optimizer
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: optimizer
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-install
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_optimizer)"
+          operator: in
+          values: [""]
+
+    # 5. Assist Deprovision
+    # -------------------------------------------------------------------------
+    # 5.1 Assist Config/Workspace
+    - name: gitops-deprovision-mas-app-config-assist
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_id
+          value: assist
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.assist_workspace_action)"
+          operator: in
+          values: ["deactivate"]
+
+    # 5.2 Assist App
+    - name: gitops-deprovision-mas-app-install-assist
+      runAfter:
+        - gitops-deprovision-mas-app-config-assist
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: assist
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-install
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_assist)"
+          operator: in
+          values: [""]
+
+    # 6. Manage Deprovision
+    # -------------------------------------------------------------------------
+    # 6.1 Manage Config/Workspace
+    - name: gitops-deprovision-mas-app-config-manage
+      runAfter:
+        - gitops-deprovision-mas-app-install-predict
+        - gitops-deprovision-mas-app-install-monitor
+        - gitops-deprovision-mas-app-install-optimizer
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_id
+          value: manage
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.manage_workspace_action)"
+          operator: in
+          values: ["deactivate"]
+
+    # 6.2 Manage App
+    - name: gitops-deprovision-mas-app-install-manage
+      runAfter:
+        - gitops-deprovision-mas-app-config-manage
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: manage
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-install
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_manage)"
+          operator: in
+          values: [""]
+
+
+    # 6.3 Manage Database
+    - name: gitops-deprovision-db2u-database-manage
+      runAfter:
+        - gitops-deprovision-mas-app-install-manage
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: manage
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-db2u-database
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_manage)"
+          operator: in
+          values: [""]
+  
+    # 7. IoT Deprovision
+    # -------------------------------------------------------------------------
+    # 7.1 IoT Config/Workspace
+    - name: gitops-deprovision-mas-app-config-iot
+      runAfter:
+        - gitops-deprovision-mas-app-install-monitor
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_id
+          value: iot
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.iot_workspace_action)"
+          operator: in
+          values: ["deactivate"]
+
+    # 7.2 IoT App
+    - name: gitops-deprovision-mas-app-install-iot
+      runAfter:
+        - gitops-deprovision-mas-app-config-iot
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: iot
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-install
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_iot)"
+          operator: in
+          values: [""]
+
+    # 7.3 IoT Database
+    - name: gitops-deprovision-db2u-database-iot
+      runAfter:
+        - gitops-deprovision-mas-app-install-iot
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: iot
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-db2u-database
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_iot)"
+          operator: in
+          values: [""]
+
+    # 8. Deprovision Kafka config
+    # -------------------------------------------------------------------------
+    - name: gitops-delete-kafka-config
+      runAfter:
+        - gitops-deprovision-mas-app-install-iot
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-delete-kafka-config
+      when:
+        - input: "$(params.mas_app_channel_iot)"
+          operator: in
+          values: [""]
+
+    # 9. Deprovision Objectstorage config
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-suite-objectstorage-config
+      runAfter:
+        - gitops-deprovision-mas-app-install-assist
+        - gitops-deprovision-mas-app-install-visualinspection
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite-objectstorage-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_assist)$(params.mas_app_channel_visualinspection)"
+          operator: in
+          values: [""]
+
+    # 10. Deprovision Watson Studio config
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-suite-watson-studio-config
+      runAfter:
+        - gitops-deprovision-mas-app-install-predict
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite-watson-studio-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: in
+          values: [""]
