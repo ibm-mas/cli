@@ -281,12 +281,10 @@ function unlock_git_repo() {
 function git_lock_branch_name() {
 
   LOCK_NAME=$1
-  ACCOUNT_ID=$2
-  REGION_ID=$3
-  CLUSTER_ID=$4
-  MAS_INSTANCE_ID=$5
+  CLUSTER_ID=$2
+  MAS_INSTANCE_ID=$3
 
-  echo -n "lock.${LOCK_NAME}.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
+  echo -n "lock.${LOCK_NAME}.${CLUSTER_ID}"
   if [[ -n "${MAS_INSTANCE_ID}" ]]; then
     echo -n ".${MAS_INSTANCE_ID}"
   fi
@@ -302,7 +300,7 @@ function git_lock_branch_name() {
 # If the function successfully acquires the lock branch, it registers git_lock_branch_name as an exit trap, to ensure we do not
 # leave the lock branch in place (which would permanently block any other invokations of this function with the same GIT_LOCK_BRANCH.
 # For consistency, it is recommended to use the git_lock_branch_name function above to generate GIT_LOCK_BRANCH, i.e.
-#   GIT_LOCK_BRANCH=$(git_lock_branch_name "${LOCK_NAME}" "${ACCOUNT_ID}" "${REGION_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
+#   GIT_LOCK_BRANCH=$(git_lock_branch_name "${LOCK_NAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
 # In order to commit and push at the end of any script that uses this function, use save_and_unlock_target_git_repo. 
 function clone_and_lock_target_git_repo() {
 

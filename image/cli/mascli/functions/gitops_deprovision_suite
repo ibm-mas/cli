@@ -342,10 +342,10 @@ function gitops_deprovision_suite() {
   # ---------------------------------------------------------------------------
   echo
   echo_h2 "Deleting application configuration files"
-  CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-  INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-  SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-  SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+  CLUSTER_ROOT_APP="cluster.${CLUSTER_ID}"
+  INSTANCE_ROOT_APP="instance.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+  SUITE_APP_NAME="suite.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+  SLS_APP_NAME="sls.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
   echo
   echo "- Delete MAS Suite"

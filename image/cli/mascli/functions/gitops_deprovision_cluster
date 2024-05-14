@@ -218,13 +218,13 @@ function gitops_deprovision_cluster() {
   echo_h2 "Deleting application configuration files"
 
   ROOT_APP_NAME="root.${ACCOUNT_ID}"
-  CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-  OPERATOR_CATALOG_APP_NAME="operator-catalog.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-  COMMON_SERVICES_APP_NAME="redhat-cert-manager.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-  DRO_APP_NAME="dro.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-  CIS_COMPLIANCE_APP_NAME="cis-compliance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-  DB2U_APP_NAME="db2u.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-  NVIDIA_GPU_APP_NAME="nvidia-gpu.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+  CLUSTER_ROOT_APP="cluster.${CLUSTER_ID}"
+  OPERATOR_CATALOG_APP_NAME="operator-catalog.${CLUSTER_ID}"
+  COMMON_SERVICES_APP_NAME="redhat-cert-manager.${CLUSTER_ID}"
+  DRO_APP_NAME="dro.${CLUSTER_ID}"
+  CIS_COMPLIANCE_APP_NAME="cis-compliance.${CLUSTER_ID}"
+  DB2U_APP_NAME="db2u.${CLUSTER_ID}"
+  NVIDIA_GPU_APP_NAME="nvidia-gpu.${CLUSTER_ID}"
 
   echo "- Delete CIS Compliance"
   rm ${GITOPS_CLUSTER_DIR}/cis-compliance.yaml

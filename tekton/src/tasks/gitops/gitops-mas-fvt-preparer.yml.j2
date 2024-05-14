@@ -387,12 +387,12 @@ spec:
         argocd_login
       
         if [[ "$LAUNCHER_ID" == "core" ]]; then
-          MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-          BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-          SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-          SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-          SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-          WORKSPACE_APP="${MAS_WORKSPACE_ID}.suite.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          SLS_APP_NAME="sls.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          SUITE_APP_NAME="suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          WORKSPACE_APP="${MAS_WORKSPACE_ID}.suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
 
           check_argo_app_healthy "${MONGO_CONFIG_APP}" 
           check_argo_app_healthy "${SLS_CONFIG_APP}"
@@ -404,42 +404,42 @@ spec:
       
         if [[ "$LAUNCHER_ID" == "apps" ]]; then
           if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
-            MASAPP_APP="assist.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            MASAPP_APP="assist.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
             check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
-            MASAPP_APP="iot.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            MASAPP_APP="iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
             check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_MANAGE" == "true" ]]; then
-            MASAPP_APP="manage.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
             check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_MOBILE" == "true" ]]; then
-            MASAPP_APP="manage.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
             check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
-            MASAPP_APP="monitor.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            MASAPP_APP="monitor.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
             check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
-            MASAPP_APP="optimizer.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            MASAPP_APP="optimizer.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
             check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_PREDICT" == "true" ]]; then
-            MASAPP_APP="predict.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            MASAPP_APP="predict.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
             check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
-            MASAPP_APP="visualinspection.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            MASAPP_APP="visualinspection.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
             check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
           fi
