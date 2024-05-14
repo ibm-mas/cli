@@ -13,7 +13,6 @@ Basic Configuration (Required):
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}         Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}          Account ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}          Cluster ID
-  -A, --argocd-check ${COLOR_YELLOW}ARGOCD_CHECK${TEXT_RESET}      ArgoCD check flag, when set to true will make ArgoCD calls
 
 AWS Secrets Manager Configuration (Required):
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
@@ -74,8 +73,6 @@ function gitops_cluster_noninteractive() {
   # Target the local (to ArgoCD) cluster
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
 
-  export ARGOCD_CHECK=${ARGOCD_CHECK:-"true"}
-
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -90,9 +87,6 @@ function gitops_cluster_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
-        ;;
-      -A|--argocd-check)
-        export ARGOCD_CHECK=$1 && shift
         ;;
 
       # AWS Secrets Manager Configuration
@@ -233,7 +227,6 @@ function gitops_cluster() {
   echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
   echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
-  echo_reset_dim "ArgoCD Check ................... ${COLOR_MAGENTA}${ARGOCD_CHECK}"  
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -359,30 +352,6 @@ function gitops_cluster() {
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
-
-    if [ "${ARGOCD_CHECK}" == "true" ]; then
-
-      argocd_login
-
-      argocd_sync "${ROOT_APP_NAME}"
-      argocd_hard_refresh "${ROOT_APP_NAME}" # refresh any secrets fetched from AWS SM
-
-      check_argo_app_synced "${CLUSTER_APP_NAME}" "${ROOT_APP_NAME}"
-
-
-      if [[ "$MAS_CATALOG_ACTION" == "update" || "$MAS_CATALOG_ACTION" == "install" ]]; then
-        check_argo_app_synced "${OPERATOR_CATALOG_APP_NAME}" "${ROOT_APP_NAME}"
-        check_argo_app_healthy "${OPERATOR_CATALOG_APP_NAME}" "${ROOT_APP_NAME}"
-      fi
-
-      if [[ "$COMMON_SERVICES_ACTION" == "upgrade" || "$COMMON_SERVICES_ACTION" == "install" ]]; then
-        argocd_hard_refresh "${COMMON_SERVICES_APP_NAME}" # refresh any secrets fetched from AWS SM
-        check_argo_app_synced "${COMMON_SERVICES_APP_NAME}" "${ROOT_APP_NAME}" redhat-cert-manager
-        check_argo_app_healthy "${COMMON_SERVICES_APP_NAME}" "${ROOT_APP_NAME}"
-      fi
-
-    fi
-
   fi
 
 }

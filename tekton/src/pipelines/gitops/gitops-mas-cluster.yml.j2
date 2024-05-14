@@ -31,10 +31,6 @@ spec:
     - name: avp_aws_secret_region
       type: string
     
-    - name: argocd_url
-      type: string
-    - name: argocd_check
-      type: string
     - name: slack_channel_id
       type: string
 
@@ -104,10 +100,7 @@ spec:
           value: $(params.secrets_path)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: argocd_url
-          value: $(params.argocd_url)
-        - name: argocd_check
-          value: $(params.argocd_check)
+
         - name: slack_channel_id
           value: $(params.slack_channel_id)
 
@@ -150,10 +143,6 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
-        - name: argocd_url
-          value: $(params.argocd_url)
-        - name: argocd_check
-          value: $(params.argocd_check)
         - name: dro_namespace
           value: $(params.dro_namespace)
       taskRef:
@@ -187,10 +176,6 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
-        - name: argocd_url
-          value: $(params.argocd_url)
-        - name: argocd_check
-          value: $(params.argocd_check)
       taskRef:
         kind: Task
         name: gitops-cis-compliance
@@ -224,10 +209,6 @@ spec:
           value: $(params.db2_channel)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: argocd_url
-          value: $(params.argocd_url)
-        - name: argocd_check
-          value: $(params.argocd_check)
       workspaces:
         - name: configs
           workspace: configs
@@ -263,10 +244,6 @@ spec:
           value: $(params.secrets_path)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: argocd_url
-          value: $(params.argocd_url)
-        - name: argocd_check
-          value: $(params.argocd_check)
         - name: nfd_namespace
           value: $(params.nfd_namespace)
         - name: nfd_channel

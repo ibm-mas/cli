@@ -50,13 +50,6 @@ spec:
     - name: optimizer_plan
       type: string
       default: "full"
-    - name: argocd_url
-      type: string
-      default: ""
-    - name: argocd_check
-      type: string
-      default: "false"
-
     - name: mas_edition
       type: string
       default: ""
@@ -103,11 +96,6 @@ spec:
         value: $(params.mas_manual_cert_mgmt)
       - name: OPTIMIZER_PLAN
         value: $(params.optimizer_plan)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
-      - name: ARGOCD_CHECK
-        value: $(params.argocd_check)
-
       - name: MAS_EDITION
         value: $(params.mas_edition)
     envFrom:
@@ -127,10 +115,6 @@ spec:
 
         # mas app install specific 
         export MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
-
-        
-
-
 
         mkdir -p /tmp/suite-app-install
 

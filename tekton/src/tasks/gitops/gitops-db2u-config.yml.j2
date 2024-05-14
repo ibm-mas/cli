@@ -35,12 +35,6 @@ spec:
       default: ""
     - name: tls_version
       type: string
-    - name: argocd_url
-      type: string
-      default: ""
-    - name: argocd_check
-      type: string
-      default: "false"
   stepTemplate:
     name: gitops-db2u-config
     env:
@@ -74,10 +68,6 @@ spec:
         value: $(params.mas_workspace_id)
       - name: TLS_VERSION
         value: $(params.tls_version)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
-      - name: ARGOCD_CHECK
-        value: $(params.argocd_check)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -91,13 +81,6 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
         
-        # A DB2 LDAP Username/Password are set per App on the pipeline secure properties.
-        # The below logic is to determine which to use here.
-        DB2_USER_VAR=$(eval echo "DB2_LDAP_USERNAME_${MAS_APP_ID^^}")
-        DB2_PASSWORD_VAR=$(eval echo "DB2_LDAP_PASSWORD_${MAS_APP_ID^^}")
-        export DB2_LDAP_USERNAME=${!DB2_USER_VAR}
-        export DB2_LDAP_PASSWORD=${!DB2_PASSWORD_VAR}
-
         mas gitops-mas-config \
           --account-id "$ACCOUNT_ID" \
           --cluster-id "$CLUSTER_ID" \
@@ -116,7 +99,6 @@ spec:
           --dir /tmp/init-db2u-jdbc-config-$MAS_APP_ID \
           --db2-instance-name "db2wh-$MAS_INSTANCE_ID-$MAS_APP_ID" \
           --tls-version "$TLS_VERSION"
-
 
         exit $?
       command:

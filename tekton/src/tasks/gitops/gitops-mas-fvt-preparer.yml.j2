@@ -28,12 +28,6 @@ spec:
       type: string
     - name: fvt_config
       type: string
-    - name: argocd_url
-      type: string
-      default: ""
-    - name: argocd_check
-      type: string
-      default: "false"
 
     - name: fvt_version_core
       type: string
@@ -51,30 +45,38 @@ spec:
       type: string
     - name: fvt_version_manage
       type: string
-    - name: fvt_manage_automation_version
-      type: string
     - name: fvt_version_manage_civil
       type: string
     - name: fvt_version_mobile
       type: string
-    - name: fvt_version_mobilefoundation
-      type: string
-    - name: fvt_version_servicerequests
-      type: string
-    - name: fvt_version_inspection
-      type: string
-    - name: fvt_version_technician
-      type: string
-    - name: fvt_version_asset_manager
-      type: string
-    - name: fvt_version_inventorycounting
-      type: string
     - name: fvt_version_data_dictionary
+      type: string
+    - name: fvt_version_sls
       type: string
 
     - name: fvt_blacklist_core
       type: string
     - name: fvt_whitelist_core
+      type: string
+    - name: fvt_blacklist_manage
+      type: string
+    - name: fvt_whitelist_manage
+      type: string
+    - name: fvt_blacklist_manage_civil
+      type: string
+    - name: fvt_whitelist_manage_civil
+      type: string
+    - name: fvt_blacklist_manage_is
+      type: string
+    - name: fvt_whitelist_manage_is
+      type: string
+    - name: fvt_blacklist_health
+      type: string
+    - name: fvt_whitelist_health
+      type: string
+    - name: fvt_blacklist_optimizer
+      type: string
+    - name: fvt_whitelist_optimizer
       type: string
 
     - name: artifactory_generic_release_url
@@ -234,30 +236,38 @@ spec:
         value: $(params.fvt_version_optimizer)
       - name: FVT_VERSION_MANAGE
         value: $(params.fvt_version_manage)
-      - name: FVT_MANAGE_AUTOMATION_VERSION
-        value: $(params.fvt_manage_automation_version)
       - name: FVT_VERSION_MANAGE_CIVIL
         value: $(params.fvt_version_manage_civil)
       - name: FVT_VERSION_MOBILE
         value: $(params.fvt_version_mobile)
-      - name: FVT_VERSION_MOBILEFOUNDATION
-        value: $(params.fvt_version_mobilefoundation)
-      - name: FVT_VERSION_SERVICEREQUESTS
-        value: $(params.fvt_version_servicerequests)
-      - name: FVT_VERSION_INSPECTION
-        value: $(params.fvt_version_inspection)
-      - name: FVT_VERSION_TECHNICIAN
-        value: $(params.fvt_version_technician)
-      - name: FVT_VERSION_ASSET_MANAGER
-        value: $(params.fvt_version_asset_manager)
-      - name: FVT_VERSION_INVENTORYCOUNTING
-        value: $(params.fvt_version_inventorycounting)
       - name: FVT_VERSION_DATA_DICTIONARY
         value: $(params.fvt_version_data_dictionary)
+      - name: FVT_VERSION_SLS
+        value: $(params.fvt_version_sls)
       - name: FVT_BLACKLIST_CORE
         value: $(params.fvt_blacklist_core)
       - name: FVT_WHITELIST_CORE
         value: $(params.fvt_whitelist_core)
+      - name: FVT_BLACKLIST_MANAGE
+        value: $(params.fvt_blacklist_manage)
+      - name: FVT_WHITELIST_MANAGE
+        value: $(params.fvt_whitelist_manage)
+      - name: FVT_BLACKLIST_MANAGE_CIVIL
+        value: $(params.fvt_blacklist_manage_civil)
+      - name: FVT_WHITELIST_MANAGE_CIVIL
+        value: $(params.fvt_whitelist_manage_civil)
+      - name: FVT_BLACKLIST_MANAGE_IS
+        value: $(params.fvt_blacklist_manage_is)
+      - name: FVT_WHITELIST_MANAGE_IS
+        value: $(params.fvt_whitelist_manage_is)
+      - name: FVT_BLACKLIST_HEALTH
+        value: $(params.fvt_blacklist_health)
+      - name: FVT_WHITELIST_HEALTH
+        value: $(params.fvt_whitelist_health)
+      - name: FVT_BLACKLIST_OPTIMIZER
+        value: $(params.fvt_blacklist_optimizer)
+      - name: FVT_WHITELIST_OPTIMIZER
+        value: $(params.fvt_whitelist_optimizer)
       - name: LAUNCHFVT_CORE
         value: $(params.launchfvt_core)
       - name: LAUNCHFVT_ASSIST
@@ -296,8 +306,6 @@ spec:
         value: $(params.mas_app_channel_optimizer)
       - name: MAS_APP_CHANNEL_PREDICT
         value: $(params.mas_app_channel_predict)
-      - name: ARGOCD_URL
-        value: $(params.argocd_url)
 
       - name: LDAP_URL
         value: $(params.ldap_url)
@@ -372,12 +380,10 @@ spec:
         done
 
         echo "Setting up ArgoCD sync window to allow FVT tests to run without interuption"
-        if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
-          export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}')
-          export ARGOCD_USERNAME=admin
-          export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' | base64 -d ; echo)
-        fi
-
+        export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}')
+        export ARGOCD_USERNAME=admin
+        export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' | base64 -d ; echo)
+        
         argocd_login
       
         if [[ "$LAUNCHER_ID" == "core" ]]; then
@@ -386,7 +392,7 @@ spec:
           SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
           SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
           SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-          WORKSPACE_APP="workspace.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          WORKSPACE_APP="${MAS_WORKSPACE_ID}.suite.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
 
           check_argo_app_healthy "${MONGO_CONFIG_APP}" 
           check_argo_app_healthy "${SLS_CONFIG_APP}"
@@ -398,36 +404,44 @@ spec:
       
         if [[ "$LAUNCHER_ID" == "apps" ]]; then
           if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
-            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.assist"
+            MASAPP_APP="assist.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
-            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.iot"
+            MASAPP_APP="iot.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_MANAGE" == "true" ]]; then
-            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.manage"
+            MASAPP_APP="manage.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_MOBILE" == "true" ]]; then
-            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.manage"
+            MASAPP_APP="manage.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
-            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.monitor"
+            MASAPP_APP="monitor.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
-            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.optimizer"
+            MASAPP_APP="optimizer.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_PREDICT" == "true" ]]; then
-            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.predict"
+            MASAPP_APP="predict.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
           fi
           if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
-            MASAPP_APP="ma.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}.visualinspection"
+            MASAPP_APP="visualinspection.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
           fi
         fi
 

@@ -1,48 +1,46 @@
-merge-key: "{{ ACCOUNT_ID }}/{{ REGION }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}/{{ MAS_APP_ID }}"
+mas_app_id: {{ MAS_APP_ID }}
+mas_app_namespace: {{ MAS_APP_NAMESPACE }}
 
-ibm_suite_app_config:
-  mas_instance_id: {{ MAS_INSTANCE_ID }}
-  mas_app_id: {{ MAS_APP_ID }}
-  mas_app_namespace: {{ MAS_APP_NAMESPACE }}
+mas_app_ws_apiversion: {{ MAS_APPWS_API_VERSION }}
+mas_app_ws_kind: {{ MAS_APPWS_KIND }}
+mas_workspace_id: {{ MAS_WORKSPACE_ID }}
 
-  {% if MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE %}
-  mas_app_settings_server_bundles_size: {{ MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE }}
-  {% endif %}
-  mas_app_ws_apiversion: {{ MAS_APPWS_API_VERSION }}
-  mas_app_ws_kind: {{ MAS_APPWS_KIND }}
-  mas_workspace_id: {{ MAS_WORKSPACE_ID }}
-  {% if SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT %}
-  server_bundles_add_server_config_no_activation_content: {{ SERVER_BUNDLES_ADD_SERVER_CONFIG_NO_ACTIVATION_CONTENT }}
-  {% endif %}
-  {% if SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT %}
-  server_bundles_add_server_config_content: {{ SERVER_BUNDLES_ADD_SERVER_CONFIG_CONTENT }}
-  {% endif %}
-  {% if SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT %}
-  server_bundles_jms_add_server_config_content: {{ SERVER_BUNDLES_JMS_ADD_SERVER_CONFIG_CONTENT }}
-  {% endif %}
-  {{ MAS_APPWS_SPEC | indent(2) }}
+{% if MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG is defined and MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG !='' %}
+{{ MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG | indent(2) }}
+{% endif %}
 
-  mas_manual_cert_mgmt: {{ MAS_MANUAL_CERT_MGMT }}
-  {% if PUBLIC_TLS_SECRET_NAME is defined and PUBLIC_TLS_SECRET_NAME !='' %}
-  public_tls_secret_name: {{ PUBLIC_TLS_SECRET_NAME }}
-  {% endif %}
+{%- if CUSTOMIZATION_ARCHIVE_SECRET_NAMES is defined and CUSTOMIZATION_ARCHIVE_SECRET_NAMES !='' %}
+customization_archive_secret_names:
+{%- for customization_archive_secret_name in CUSTOMIZATION_ARCHIVE_SECRET_NAMES %}
+  - secret_name: {{ customization_archive_secret_name }}
+    password: <path:{{ SECRETS_PATH }}:{{ CUSTOMIZATION_ARCHIVE_SECRET }}{{ customization_archive_secret_name }}#password>
+    username: <path:{{ SECRETS_PATH }}:{{ CUSTOMIZATION_ARCHIVE_SECRET }}{{ customization_archive_secret_name }}#username>
+{%- endfor %}
+{%- endif %}
 
-  {% if CA_CERT is defined and CA_CERT !='' %}
-  ca_cert: {{ CA_CERT }}
-  {% endif %}
+{{ MAS_APPWS_SPEC | indent(2) }}
 
-  {% if TLS_CERT is defined and TLS_CERT !='' %}
-  tls_cert: {{ TLS_CERT }}
-  {% endif %}
+mas_manual_cert_mgmt: {{ MAS_MANUAL_CERT_MGMT }}
+{% if PUBLIC_TLS_SECRET_NAME is defined and PUBLIC_TLS_SECRET_NAME !='' %}
+public_tls_secret_name: {{ PUBLIC_TLS_SECRET_NAME }}
+{% endif %}
 
-  {% if TLS_KEY is defined and TLS_KEY !='' %}
-  tls_key: {{ TLS_KEY }}
-  {% endif %}
+{% if CA_CERT is defined and CA_CERT !='' %}
+ca_cert: {{ CA_CERT }}
+{% endif %}
 
-  {% if MAS_APP_ID == "assist" %}
-  cpd_admin_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CPD_ADMIN_PASSWORD }}>
-  cpd_admin_username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CPD_ADMIN_USERNAME }}>
-  wd_yaml:
-      url: {{ WD_URL }}
-      version: {{ WD_VERSION }}
-  {% endif %}
+{% if TLS_CERT is defined and TLS_CERT !='' %}
+tls_cert: {{ TLS_CERT }}
+{% endif %}
+
+{% if TLS_KEY is defined and TLS_KEY !='' %}
+tls_key: {{ TLS_KEY }}
+{% endif %}
+
+{% if MAS_APP_ID == "assist" %}
+cpd_admin_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CPD_ADMIN_PASSWORD }}>
+cpd_admin_username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CPD_ADMIN_USERNAME }}>
+wd_yaml:
+  url: {{ WD_URL }}
+  version: {{ WD_VERSION }}
+{% endif %}

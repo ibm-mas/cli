@@ -615,9 +615,8 @@ function argocd_hard_refresh(){
 function check_argo_app_deleted(){
   APPLICATION=$1
   PROJECT=$2
-  FORCE_REMOVAL=$3
   WAIT_PERIOD=0
-  echo "argo: Checking if $APPLICATION in project $PROJECT is deleted, Force removal flag is ${FORCE_REMOVAL}"
+  echo "argo: Checking if $APPLICATION in project $PROJECT is deleted."
   while true; do
     APP=$(argocd app list -p $PROJECT -o json 2> /dev/null | jq -r ".[] | select(.metadata.name == \"$APPLICATION\")")
     if [ -z "$APP" ]; then
@@ -627,13 +626,6 @@ function check_argo_app_deleted(){
       echo "Application $APPLICATION still found, Waiting 30s before checking application again"
       sleep 30
       WAIT_PERIOD=$(($WAIT_PERIOD+30))
-      if [[ $WAIT_PERIOD -gt 600 && "$FORCE_REMOVAL" == "true" ]]; then
-        echo "Force delete application $APPLICATION as it exceeds 10 minutes timeout"
-        argocd app delete $APPLICATION --cascade=true -y
-        RC=$?
-        echo "ArgoCD response for Force delete application $APPLICATION : $RC"
-        break # exiting
-      fi
     fi
   done
 }
