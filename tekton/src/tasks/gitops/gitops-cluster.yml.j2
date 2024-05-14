@@ -44,6 +44,9 @@ spec:
     - name: slack_channel_id
       type: string
       default: ""
+    - name: custom_labels
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-cluster
     env:
@@ -81,6 +84,9 @@ spec:
         value: $(params.avp_aws_secret_region)
       - name: SLACK_CHANNEL_ID
         value: $(params.slack_channel_id)
+      - name: CUSTOM_LABELS
+        value: $(params.custom_labels)
+
     envFrom:
       - configMapRef:
           name: environment-properties

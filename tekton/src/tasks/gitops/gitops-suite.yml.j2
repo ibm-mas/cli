@@ -100,6 +100,9 @@ spec:
     - name: delete_wildcards
       type: string
       default: "True"
+    - name: custom_labels
+      type: string
+      default: ""
 
   stepTemplate:
     name: gitops-suite
@@ -181,6 +184,8 @@ spec:
         value: $(params.update_dns_entries)
       - name: DELETE_WILDCARDS
         value: $(params.delete_wildcards)
+      - name: CUSTOM_LABELS
+        value: $(params.custom_labels)
 
     envFrom:
       - configMapRef:
