@@ -5,7 +5,7 @@
 # Wait for the configmap to have the required key exist:
 #   wait-for-configmap.sh --namespace mynamespace --name myconfigmap --key key1
 # Wait for the configmap to have the required value set in the key:
-#   wait-for-configmap.sh --namespace mynamespace --name myconfigmap --key key1 --value value1
+#   wait-for-configmap.sh --namespace mynamespace --name myconfigmap --key key1 --target-value value1
 
 
 MAX_RETRIES=${MAX_RETRIES:-50}  # Just over 4 hours hours
@@ -20,6 +20,8 @@ do
       NAMESPACE=$1
       shift
       ;;
+
+    # Individual task status configmap
     --name)
       CONFIGMAP_NAME=$1
       shift
@@ -36,6 +38,17 @@ do
       CONFIGMAP_TARGET_VALUE=$1
       shift
       ;;
+
+    # Escape clause configmap
+    --escape-name)
+      ESCAPE_CONFIGMAP_NAME=$1
+      shift
+      ;;
+    --escape-key)
+      ESCAPE_CONFIGMAP_KEY=$1
+      shift
+      ;;
+
     --max-retries)
       MAX_RETRIES=$1
       shift
@@ -63,7 +76,7 @@ fi
 echo ""
 echo "Status of ${CONFIGMAP_NAME}"
 echo "------------------------------------------------------------------"
-oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o yaml
+oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o yaml 2> /dev/null
 CM_EXISTS=$?
 echo
 
@@ -79,13 +92,25 @@ fi
 
 echo
 echo "Waiting for configmap/${CONFIGMAP_NAME} in ${NAMESPACE} to contain key '${CONFIGMAP_KEY}' ..."
-KEY_VALUE=$(oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o jsonpath="{.data.${CONFIGMAP_KEY}}")
+KEY_VALUE=$(oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o jsonpath="{.data.${CONFIGMAP_KEY}}" 2> /dev/null)
 RETRIES_USED=1
 while [[ "$KEY_VALUE" == "" && "$RETRIES_USED" -le "$MAX_RETRIES" ]]; do
   echo "[$RETRIES_USED/$MAX_RETRIES] ${CONFIGMAP_KEY} does not yet exist in configmap/${CONFIGMAP_NAME}.  Waiting ${DELAY} seconds before checking again"
   sleep $DELAY
-  KEY_VALUE=$(oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o jsonpath="{.data.${CONFIGMAP_KEY}}")
-  RETRIES_USED=$((RETRIES_USED + 1))
+  KEY_VALUE=$(oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o jsonpath="{.data.${CONFIGMAP_KEY}}" 2> /dev/null)
+
+  if [[ "${KEY_VALUE}" != "" && -n "${ESCAPE_CONFIGMAP_NAME}" ]]; then
+    # Check if the entire install pipeline has stopped so we can exit early
+    ESCAPE_VALUE=$(oc -n ${NAMESPACE} get configmap/${ESCAPE_CONFIGMAP_NAME} -o jsonpath="{.data.${ESCAPE_CONFIGMAP_KEY}}" 2> /dev/null)
+    if [[ "$ESCAPE_VALUE" != "" ]]; then
+      echo "[$RETRIES_USED/$MAX_RETRIES] configmap/${ESCAPE_CONFIGMAP_NAME} indicates that the pipeline we are synchronizing with has already completed: ${ESCAPE_VALUE}"
+      # Force an early exit from the loop
+      RETRIES_USED=$MAX_RETRIES
+    else
+      echo "[$RETRIES_USED/$MAX_RETRIES] configmap/${ESCAPE_CONFIGMAP_NAME} indicates that the pipeline we are synchronizing with is still alive: '${ESCAPE_VALUE}'"
+    fi
+  fi
+    RETRIES_USED=$((RETRIES_USED + 1))
 done
 
 echo
@@ -102,11 +127,23 @@ elif [[ "$KEY_VALUE" == "" && -z "${CONFIGMAP_TARGET_VALUE}" ]]; then
   fi
 else
   echo "Waiting for configmap/${CONFIGMAP_NAME} in ${NAMESPACE} to contain key '${CONFIGMAP_KEY}' with value '${CONFIGMAP_TARGET_VALUE}' ..."
-  KEY_VALUE=$(oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o jsonpath="{.data.${CONFIGMAP_KEY}}")
+  KEY_VALUE=$(oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o jsonpath="{.data.${CONFIGMAP_KEY}}" 2> /dev/null)
   while [[ "$KEY_VALUE" != "${CONFIGMAP_TARGET_VALUE}" && "$RETRIES_USED" -le "$MAX_RETRIES" ]]; do
     echo "[$RETRIES_USED/$MAX_RETRIES] ${CONFIGMAP_KEY}=${KEY_VALUE} does not equal '${CONFIGMAP_TARGET_VALUE}' yet in configmap/${CONFIGMAP_NAME}.  Waiting ${DELAY} seconds before checking again"
     sleep $DELAY
-    KEY_VALUE=$(oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o jsonpath="{.data.${CONFIGMAP_KEY}}")
+    KEY_VALUE=$(oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o jsonpath="{.data.${CONFIGMAP_KEY}}" 2> /dev/null)
+
+    if [[ "${KEY_VALUE}" != "${CONFIGMAP_TARGET_VALUE}" && -n "${ESCAPE_CONFIGMAP_NAME}" ]]; then
+      # Check if the entire install pipeline has stopped so we can exit early
+      ESCAPE_VALUE=$(oc -n ${NAMESPACE} get configmap/${ESCAPE_CONFIGMAP_NAME} -o jsonpath="{.data.${ESCAPE_CONFIGMAP_KEY}}" 2> /dev/null)
+      if [[ "$ESCAPE_VALUE" != "" ]]; then
+        echo "[$RETRIES_USED/$MAX_RETRIES] configmap/${ESCAPE_CONFIGMAP_NAME} indicates that the pipeline we are synchronizing with has already completed: ${ESCAPE_VALUE}"
+        # Force an early exit from the loop
+        RETRIES_USED=$MAX_RETRIES
+      else
+        echo "[$RETRIES_USED/$MAX_RETRIES] configmap/${ESCAPE_CONFIGMAP_NAME} indicates that the pipeline we are synchronizing with is still alive: '${ESCAPE_VALUE}'"
+      fi
+    fi
     RETRIES_USED=$((RETRIES_USED + 1))
   done
 

@@ -59,7 +59,7 @@ if [[ -z "$NAME" || -z "$NAMESPACE" ]]; then
   exit 0
 fi
 
-if [[ -z "$SUFFIX"] ]]; then
+if [[ -n "$SUFFIX"] ]]; then
   NAME="${NAME}-${SUFFIX}"
 fi
 echo "Waiting for ${TYPE}/${NAME} in ${NAMESPACE} to complete ..."

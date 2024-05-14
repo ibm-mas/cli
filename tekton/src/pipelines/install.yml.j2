@@ -330,3 +330,23 @@ spec:
         - app-cfg-visualinspection
         - turbonomic
         - cognos
+
+
+  finally:
+    # Update synchronization configmap
+    # -------------------------------------------------------------------------
+    - name: sync-install
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: sync-install
+        - name: configmap_key
+          value: INSTALL_STATUS
+        - name: configmap_value
+          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
+          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
+          value: $(tasks.status)
