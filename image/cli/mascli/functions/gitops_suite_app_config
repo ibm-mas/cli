@@ -35,9 +35,11 @@ Maximo Application Suite:
   --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}                                 MAS Manual Cert Management
 
 Maximo Manage:
-  --mas-app-server-bundles-combined-add-server-config-yaml ${COLOR_YELLOW}MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML${TEXT_RESET}  yaml file location containing Combined additional Server Configuration for server bundles
-  Below is a sample yaml file template ( key: << value base64 encoded content of server config xml >>) where key is secret name and value will be base64 encoded of the server config xml file with which the k8s secret needs to be created
+  --mas-app-server-bundles-combined-add-server-config-yaml ${COLOR_YELLOW}MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML${TEXT_RESET} yaml file location containing Combined additional Server Configuration for server bundles
+  Below is a sample yaml file template representing mas_app_server_bundles_combined_add_server_config dictionary ( key: << value base64 encoded content of server config xml >>) 
+  where key is secret name and value will be base64 encoded of the server config xml file with which the k8s secret needs to be created
 
+    mas_app_server_bundles_combined_add_server_config:
       masdev-manage-d-sb0ascsn: <<base64 encoded content of masdev-manage-dsb0asc-sn.xml>>
       masdev-manage-d-sb1ascsn: <<base64 encoded content of masdev-manage-dsb1asc-sn.xml>>
       ...
@@ -443,7 +445,7 @@ function gitops_suite_app_config() {
     fi
   fi
 
-  # The combined YAML file will have key: value where key is secret name and value is base64 encoded content of server config xml file with which k8s secret will be created
+  # The combined YAML file will have mas_app_server_bundles_combined_add_server_config dict with key as secret name and value as  base64 encoded content of server config xml file with which k8s secret will be created
   if [[ -n "$MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML" ]] && [[ -s "$MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML" ]]; then
     echo
     echo_h2 "Server bundles Combined additional server config provided for $MAS_APP_ID at $MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML"
