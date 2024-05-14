@@ -9,6 +9,15 @@ mas_workspace_id: {{ MAS_WORKSPACE_ID }}
 {{ MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG | indent(2) }}
 {% endif %}
 
+{%- if CUSTOMIZATION_ARCHIVE_SECRET_NAMES is defined and CUSTOMIZATION_ARCHIVE_SECRET_NAMES !='' %}
+customization_archive_secret_names:
+{%- for customization_archive_secret_name in CUSTOMIZATION_ARCHIVE_SECRET_NAMES %}
+  - secret_name: {{ customization_archive_secret_name }}
+    password: <path:{{ SECRETS_PATH }}:{{ CUSTOMIZATION_ARCHIVE_SECRET }}{{ customization_archive_secret_name }}#password>
+    username: <path:{{ SECRETS_PATH }}:{{ CUSTOMIZATION_ARCHIVE_SECRET }}{{ customization_archive_secret_name }}#username>
+{%- endfor %}
+{%- endif %}
+
 {{ MAS_APPWS_SPEC | indent(2) }}
 
 mas_manual_cert_mgmt: {{ MAS_MANUAL_CERT_MGMT }}

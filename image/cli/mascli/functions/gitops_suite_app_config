@@ -386,6 +386,7 @@ function gitops_suite_app_config() {
     export GIT_SSH="false"
   fi
 
+  export CUSTOMIZATION_ARCHIVE_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}
 
   # Set and Validate App Names
   # ---------------------------------------------------------------------------
@@ -410,6 +411,10 @@ function gitops_suite_app_config() {
 
   # Getting app spec, either default or provided
   # ---------------------------------------------------------------------------
+
+
+  export ADDITIONAL_JINJA_PARAMS_FILE="$TEMP_DIR/additional-jinja-params.yaml"
+  echo "{}" > $ADDITIONAL_JINJA_PARAMS_FILE
 
   if [ "$MAS_APP_ID" == "predict" ]; then
     echo "- Configuring for Predict App"
@@ -457,6 +462,7 @@ function gitops_suite_app_config() {
     echo
     echo_h2 "Using application spec provided for $MAS_APP_ID at $MAS_APPWS_SPEC_YAML"
     export MAS_APPWS_SPEC=$(cat ${MAS_APPWS_SPEC_YAML} | yq -r '.' --yaml-output)
+    /usr/bin/yq eval '.mas_appws_spec.settings.customizationList  | to_entries | .[].value.customizationArchiveCredentials.secretName | [] + .' ${MAS_APPWS_SPEC_YAML} | /usr/bin/yq '{"CUSTOMIZATION_ARCHIVE_SECRET_NAMES": [] + .}'  > $ADDITIONAL_JINJA_PARAMS_FILE
   else
     echo
     echo_h2 "Using default application spec for $MAS_APP_ID"
@@ -511,7 +517,7 @@ function gitops_suite_app_config() {
   /usr/bin/yq 'del(.ibm_mas_masapp_configs[] | select(.mas_app_id == "'${MAS_APP_ID}'" and .mas_workspace_id == "'${MAS_WORKSPACE_ID}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
 
   # Render the appropriate template for the config into a new file
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config.yaml.j2 | /usr/bin/yq '{"ibm_mas_masapp_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+  jinja -X .+ -d $ADDITIONAL_JINJA_PARAMS_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config.yaml.j2 | /usr/bin/yq '{"ibm_mas_masapp_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
 
   # Merge the two files
   /usr/bin/yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
