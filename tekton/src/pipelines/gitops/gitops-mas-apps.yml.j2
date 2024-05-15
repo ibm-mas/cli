@@ -990,7 +990,7 @@ spec:
       when:
         - input: "$(params.monitor_workspace_action)"
           operator: in
-          values: ["deactivate"]
+          values: ["deactivate", ""]
 
     # 1.2 Monitor App Deprovision
     - name: gitops-deprovision-mas-app-install-monitor
@@ -1042,7 +1042,7 @@ spec:
       when:
         - input: "$(params.predict_workspace_action)"
           operator: in
-          values: ["deactivate"]
+          values: ["deactivate", ""]
 
     # 2.2 Predict App
     - name: gitops-deprovision-mas-app-install-predict
@@ -1094,7 +1094,7 @@ spec:
       when:
         - input: "$(params.visualinspection_workspace_action)"
           operator: in
-          values: ["deactivate"]
+          values: ["deactivate", ""]
 
     # 3.2 Visualinspection App
     - name: gitops-deprovision-mas-app-install-visualinspection
@@ -1146,7 +1146,7 @@ spec:
       when:
         - input: "$(params.optimizer_workspace_action)"
           operator: in
-          values: ["deactivate"]
+          values: ["deactivate", ""]
 
     # 4.2 Optimizer App
     - name: gitops-deprovision-mas-app-install-optimizer
@@ -1198,7 +1198,7 @@ spec:
       when:
         - input: "$(params.assist_workspace_action)"
           operator: in
-          values: ["deactivate"]
+          values: ["deactivate", ""]
 
     # 5.2 Assist App
     - name: gitops-deprovision-mas-app-install-assist
@@ -1254,7 +1254,7 @@ spec:
       when:
         - input: "$(params.manage_workspace_action)"
           operator: in
-          values: ["deactivate"]
+          values: ["deactivate", ""]
 
     # 6.2 Manage App
     - name: gitops-deprovision-mas-app-install-manage
@@ -1334,7 +1334,7 @@ spec:
       when:
         - input: "$(params.iot_workspace_action)"
           operator: in
-          values: ["deactivate"]
+          values: ["deactivate", ""]
 
     # 7.2 IoT App
     - name: gitops-deprovision-mas-app-install-iot
