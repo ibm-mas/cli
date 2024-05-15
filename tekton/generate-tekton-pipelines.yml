@@ -81,14 +81,13 @@
         dest: "{{ pipeline_target_dir }}/{{ item }}.yaml"
       with_items:
         - deprovision-cluster
-        - deprovision-mas-apps
         - deprovision-mas-deps
         - deprovision-mas-instance
         - deprovision-mas-cluster
         - provision-bootstrap-cluster
-        - provision-mas-instance
+        - gitops-mas-instance
         - gitops-mas-fvt-preparer-pipeline
-        - provision-mas-apps
+        - gitops-mas-apps
         - gitops-mas-cluster
 
     # 4. Generate Gitops Pipelines with waits
