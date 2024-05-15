@@ -99,9 +99,6 @@ spec:
         - name: ignore_failure
           value: "False"
       when:
-        - input: $(params.launchfvt_core)
-          operator: in
-          values: ["true", "True"]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
@@ -275,9 +272,10 @@ spec:
         - name: ignore_failure
           value: "False"
       when:
-        - input: $(params.launchfvt_iot)
+        # Wait for IoT to be installed if we are running the IoT and/or the Monitor FVT suite
+        - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)"
           operator: in
-          values: ["true", "True"]
+          values: ["true", "True","truetrue", "TrueTrue"]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
@@ -450,7 +448,7 @@ spec:
           value: sync-install
         - name: escape_configmap_key
           value: INSTALL_STATUS
-        # 25 retries at 5 minute intervals = 2 hours
+        # 25 retries at 5 minute intervals = 4 hours
         - name: delay
           value: "300"
         - name: max_retries
