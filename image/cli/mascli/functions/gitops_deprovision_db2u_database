@@ -152,7 +152,7 @@ function gitops_deprovision_db2u_database() {
 
   # NOTE: must align with lock branch name used by gitops_db2u_database script
   # as both of these scrtipts modify the same file
-  GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-db2u-database" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
+  GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-db2u-database" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
 
   echo
   reset_colors

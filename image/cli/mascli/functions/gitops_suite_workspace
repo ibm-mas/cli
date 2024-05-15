@@ -146,7 +146,7 @@ function gitops_suite_workspace() {
 
   # NOTE: must align with lock branch name used by gitops_deprovision_suite_workspace script
   # as both of these scripts modify the same file
-  GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-suite-workspace" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
+  GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-suite-workspace" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
 
   CONFIGS_FILE="${GITOPS_INSTANCE_DIR}/ibm-mas-workspaces.yaml"
 
