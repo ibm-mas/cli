@@ -285,7 +285,7 @@ function git_lock_branch_name() {
   CLUSTER_ID=$3
   MAS_INSTANCE_ID=$4
 
-  echo -n "lock.${ACCOUNT_ID}.${LOCK_NAME}.${CLUSTER_ID}"
+  echo -n "lock.${LOCK_NAME}.${ACCOUNT_ID}.${CLUSTER_ID}"
   if [[ -n "${MAS_INSTANCE_ID}" ]]; then
     echo -n ".${MAS_INSTANCE_ID}"
   fi
