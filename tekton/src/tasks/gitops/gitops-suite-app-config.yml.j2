@@ -18,6 +18,9 @@ spec:
     - name: mas_appws_spec_yaml
       type: string
       default: ""
+    - name: mas_app_server_bundles_combined_add_server_config_yaml
+      type: string
+      default: ""
     - name: default_file_storage_class
       type: string
       default: ""
@@ -57,12 +60,6 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: mas_app_settings_server_bundles_size
-      type: string
-      default: "dev"
-    - name: mas_app_settings_jms_queue_mount_path
-      type: string
-      default: "/jms"
 
     - name: mas_manual_cert_mgmt
       type: string
@@ -85,6 +82,8 @@ spec:
         value: $(params.mas_appws_kind)
       - name: MAS_APPWS_SPEC_YAML 
         value: $(params.mas_appws_spec_yaml)
+      - name: MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML 
+        value: $(params.mas_app_server_bundles_combined_add_server_config_yaml)
       - name: DEFAULT_FILE_STORAGE_CLASS
         value: $(params.default_file_storage_class)
       - name: CPD_WSL_PROJECT_ID
@@ -115,10 +114,6 @@ spec:
         value: $(params.github_repo)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE
-        value: $(params.mas_app_settings_server_bundles_size)
-      - name: MAS_APP_SETTINGS_JMS_QUEUE_MOUNT_PATH
-        value: $(params.mas_app_settings_jms_queue_mount_path)
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
     envFrom:
