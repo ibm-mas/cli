@@ -113,6 +113,8 @@
               </ul>
               <p class="caption"><span class="caption-text">Reference</span></p>
               <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/dependencies/">Dependencies</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../reference/topology/">Topology</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../reference/cluster-extensions/">Cluster Extensions</a>
@@ -154,6 +156,10 @@
 <p class="admonition-title">Note</p>
 <p>This catalog is a republish of the <a href="../v8-230627-amd64/">v8-230627-amd64</a> catalog, it introduces only one new package - IBM User Data Services v2.0.11 - to fix a critical defect related to support for a recent update of Crunchy Postgres in the Red Hat Certified Operator Catalog.  For more information refer to <a href="https://github.com/ibm-mas/ansible-devops/issues/916">ibm-mas/ansible-devops#916</a>.</p>
 <p>It is recommended that all customers using earlier catalogs switch to this catalog as soon as possible to prevent potential issues when updating to newer Red Hat Certified Operator Catalog versions.  Customers running in a disconnected environment already using the <a href="../v8-230627-amd64/">v8-230627-amd64</a> catalog will only need to mirror the new UDS images, because nothing else has changed.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This release of the catalog is no longer supported due to the shutdown of IBM User Data Services, the first operator catalog release that supports it's replacement (IBM Data Reporter Operator) is the <a href="../v8-240227-amd64/">February 2024 update</a></p>
 </div>
 <h2 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link"></a></h2>
 <p><code>oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v8-230721-amd64.yaml</code></p>
@@ -230,8 +236,8 @@ spec:
 </ul>
 <p>The following packages from this catalog are used in the Maximo Application Suite install:</p>
 <ul>
-<li><strong>grafana-operator</strong> required by <code>ibm.mas_devops.cluster_monitoring</code> role</li>
-<li><strong>opentelemetry-operator</strong> required by <code>ibm.mas_devops.cluster_monitoring</code> role</li>
+<li><strong>grafana-operator</strong> required by <code>ibm.mas_devops.grafana</code> role</li>
+<li><strong>opentelemetry-operator</strong> required by <code>ibm.mas_devops.opentelemetry</code> role</li>
 </ul>
 <h3 id="red-hat-operators">Red Hat Operators<a class="headerlink" href="#red-hat-operators" title="Permanent link"></a></h3>
 <ul>

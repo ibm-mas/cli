@@ -113,6 +113,8 @@
               </ul>
               <p class="caption"><span class="caption-text">Reference</span></p>
               <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/dependencies/">Dependencies</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../reference/topology/">Topology</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../reference/cluster-extensions/">Cluster Extensions</a>
@@ -150,6 +152,10 @@
   <tr><td>Digest</td><td>sha256:431656fe80e0d565d9b130bb53e6ef12ec0370e3422975f6f4ddbfe95f728cda</tr></tr>
 </table>
 
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This release of the catalog is no longer supported due to the shutdown of IBM User Data Services, the first operator catalog release that supports it's replacement (IBM Data Reporter Operator) is the <a href="../v8-240227-amd64/">February 2024 update</a></p>
+</div>
 <h2 id="whats-new">What's New<a class="headerlink" href="#whats-new" title="Permanent link"></a></h2>
 <ul>
 <li><strong>Security updates and bug fixes</strong><ul>
@@ -226,8 +232,8 @@ spec:
 </ul>
 <p>The following packages from this catalog are used in the Maximo Application Suite install:</p>
 <ul>
-<li><strong>grafana-operator</strong> required by <code>ibm.mas_devops.cluster_monitoring</code> role</li>
-<li><strong>opentelemetry-operator</strong> required by <code>ibm.mas_devops.cluster_monitoring</code> role</li>
+<li><strong>grafana-operator</strong> required by <code>ibm.mas_devops.grafana</code> role</li>
+<li><strong>opentelemetry-operator</strong> required by <code>ibm.mas_devops.opentelemetry</code> role</li>
 <li><strong>strimzi-kafka-operator</strong> required by <code>ibm.mas_devops.kafka</code> role (if using Strimzi as Kakfa provider)</li>
 </ul>
 <h3 id="red-hat-operators">Red Hat Operators<a class="headerlink" href="#red-hat-operators" title="Permanent link"></a></h3>

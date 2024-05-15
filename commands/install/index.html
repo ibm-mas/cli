@@ -156,8 +156,6 @@
         <ul>
     <li class="toctree-l4"><a class="reference internal" href="#configure-scaling-profile">Configure Scaling Profile</a>
     </li>
-    <li class="toctree-l4"><a class="reference internal" href="#change-cluster-monitoring-storage-defaults">Change Cluster monitoring storage defaults?</a>
-    </li>
     <li class="toctree-l4"><a class="reference internal" href="#change-default-install-namespaces">Change default install namespaces?</a>
     </li>
         </ul>
@@ -217,6 +215,8 @@
               </ul>
               <p class="caption"><span class="caption-text">Reference</span></p>
               <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/dependencies/">Dependencies</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../reference/topology/">Topology</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../reference/cluster-extensions/">Cluster Extensions</a>
@@ -581,8 +581,6 @@ mas install
   - ibm-mas-manage-healthextworkspace.yml</p>
 <p>For examples on these config files take a look into the pre-defined configs: <a href="https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/best-effort">BestEffort</a> and <a href="https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/guaranteed">Guaranteed</a>. More information on podTemplates can be found in our official IBM documentation <a href="https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=configuring-customizing-workloads">here</a>.</p>
 <p>!!! Note: This feature is only supported starting in MAS 8.11.0 and SLS 3.8.0</p>
-<h4 id="change-cluster-monitoring-storage-defaults">Change Cluster monitoring storage defaults?<a class="headerlink" href="#change-cluster-monitoring-storage-defaults" title="Permanent link"></a></h4>
-<p>Answering "y" at the prompt will allow you to customize the storage capacity and data retention period in Grafana and Prometheus.</p>
 <h4 id="change-default-install-namespaces">Change default install namespaces?<a class="headerlink" href="#change-default-install-namespaces" title="Permanent link"></a></h4>
 <p>Answering "y" will allow you to customize the namespace where Db2, Grafana, and MongoDb are installed in the cluster.</p>
 <h3 id="step-15-configure-ibm-container-registry">Step 15. Configure IBM Container Registry<a class="headerlink" href="#step-15-configure-ibm-container-registry" title="Permanent link"></a></h3>
@@ -641,7 +639,6 @@ mas install
 <li>Apache Kafka</li>
 <li>IBM Db2</li>
 <li>IBM Cloud Pak for Data Platform and Services<ul>
-<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-discovery">Watson Discovery</a></li>
 <li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-studio">Watson Studio</a></li>
 <li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-machine-learning">Watson Machine Learning</a></li>
 <li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-openscale">Watson OpenScale</a></li>

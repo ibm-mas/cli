@@ -127,6 +127,8 @@
               </ul>
               <p class="caption"><span class="caption-text">Reference</span></p>
               <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/dependencies/">Dependencies</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../reference/topology/">Topology</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../reference/cluster-extensions/">Cluster Extensions</a>
@@ -202,13 +204,13 @@ export REDHAT_PASSWORD=xxx
 <pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/cp4d \
   -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v8-240130-amd64 -C 8.11.x \
-  --mirror-cp4d --mirror-wd --mirror-spark --mirror-wml --mirror-wsl \
+  --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
 <pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/cp4d \
   -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v8-240130-amd64 -C 8.11.x \
-  --mirror-cp4d --mirror-wd --mirror-spark --mirror-wml --mirror-wsl
+  --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl
 </code></pre>
 <h2 id="stage-4-other-dependencies">Stage 4 - Other Dependencies<a class="headerlink" href="#stage-4-other-dependencies" title="Permanent link"></a></h2>
 <pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/other \

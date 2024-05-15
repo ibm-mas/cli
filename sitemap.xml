@@ -256,6 +256,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://ibm-mas.github.io/cli/reference/dependencies/</loc>
+         <lastmod>2024-05-15</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://ibm-mas.github.io/cli/reference/topology/</loc>
          <lastmod>2024-05-15</lastmod>
          <changefreq>daily</changefreq>

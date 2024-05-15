@@ -113,6 +113,8 @@
               </ul>
               <p class="caption"><span class="caption-text">Reference</span></p>
               <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/dependencies/">Dependencies</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../reference/topology/">Topology</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../reference/cluster-extensions/">Cluster Extensions</a>
@@ -156,6 +158,10 @@
 <p>On 24th November 2023, we re-issued this catalog with an updated channel graph that resolves <a href="https://www.ibm.com/mysupport/s/defect/aCI3p0000004LXZGA2/dt246802">DT246802</a>. This update resolves an edge condition impacting disconnected installations where an intermediate version was required to update in certain scenarios.</p>
 <p>The content of the catalog has not changed, if you already mirrored images using the original issue you do not need to mirror anything new.</p>
 <p>MAS CLI versions v7.9.0 or newer will automatically use this new issue.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This release of the catalog is no longer supported due to the shutdown of IBM User Data Services, the first operator catalog release that supports it's replacement (IBM Data Reporter Operator) is the <a href="../v8-240227-amd64/">February 2024 update</a></p>
 </div>
 <h3 id="issue-1">Issue 1<a class="headerlink" href="#issue-1" title="Permanent link"></a></h3>
 <table>
@@ -228,8 +234,8 @@ spec:
 </ul>
 <p>The following packages from this catalog are used in the Maximo Application Suite install:</p>
 <ul>
-<li><strong>grafana-operator</strong> required by <code>ibm.mas_devops.cluster_monitoring</code> role</li>
-<li><strong>opentelemetry-operator</strong> required by <code>ibm.mas_devops.cluster_monitoring</code> role</li>
+<li><strong>grafana-operator</strong> required by <code>ibm.mas_devops.grafana</code> role</li>
+<li><strong>opentelemetry-operator</strong> required by <code>ibm.mas_devops.opentelemetry</code> role</li>
 <li><strong>strimzi-kafka-operator</strong> required by <code>ibm.mas_devops.kafka</code> role (if using Strimzi as Kakfa provider)</li>
 </ul>
 <h3 id="red-hat-operators">Red Hat Operators<a class="headerlink" href="#red-hat-operators" title="Permanent link"></a></h3>

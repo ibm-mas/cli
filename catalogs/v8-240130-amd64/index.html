@@ -153,6 +153,8 @@
               </ul>
               <p class="caption"><span class="caption-text">Reference</span></p>
               <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/dependencies/">Dependencies</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../reference/topology/">Topology</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../reference/cluster-extensions/">Cluster Extensions</a>
@@ -191,6 +193,10 @@
   <tr><td>Digest</td><td>sha256:7944a630ce47776338238717cb04ff98e1faf90087fd339708a0785c683326ca</tr></tr>
 </table>
 
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This release of the catalog is no longer supported due to the shutdown of IBM User Data Services, the first operator catalog release that supports it's replacement (IBM Data Reporter Operator) is the <a href="../v8-240227-amd64/">February 2024 update</a></p>
+</div>
 <h2 id="whats-new">What's New<a class="headerlink" href="#whats-new" title="Permanent link"></a></h2>
 <ul>
 <li><strong>End of support for OCP 4.11</strong> Maintenance support for OCP 4.11 ends on <a href="https://access.redhat.com/support/policy/updates/openshift/">February 10th 2024</a>.  The <a href="../v8-231228-amd64/">December 2023</a> Maximo Operator Catalog is the last to support the OCP 4.11 release; you must upgrade to OCP 4.12 before applying the January update.</li>
@@ -277,8 +283,8 @@ spec:
 </ul>
 <p>The following packages from this catalog are used in the Maximo Application Suite install:</p>
 <ul>
-<li><strong>grafana-operator</strong> required by <code>ibm.mas_devops.cluster_monitoring</code> role</li>
-<li><strong>opentelemetry-operator</strong> required by <code>ibm.mas_devops.cluster_monitoring</code> role</li>
+<li><strong>grafana-operator</strong> required by <code>ibm.mas_devops.grafana</code> role</li>
+<li><strong>opentelemetry-operator</strong> required by <code>ibm.mas_devops.opentelemetry</code> role</li>
 <li><strong>strimzi-kafka-operator</strong> required by <code>ibm.mas_devops.kafka</code> role (if using Strimzi as Kakfa provider)</li>
 </ul>
 <h3 id="red-hat-operators">Red Hat Operators<a class="headerlink" href="#red-hat-operators" title="Permanent link"></a></h3>
@@ -2624,7 +2630,7 @@ spec:
       <span><a href="../v8-240227-amd64/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../../reference/topology/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../../reference/dependencies/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

@@ -113,6 +113,8 @@
               </ul>
               <p class="caption"><span class="caption-text">Reference</span></p>
               <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../dependencies/">Dependencies</a>
+                  </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">Topology</a>
     <ul class="current">
     </ul>
@@ -148,7 +150,7 @@
                 <h2 id="deployment-topology">Deployment Topology<a class="headerlink" href="#deployment-topology" title="Permanent link"></a></h2>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link"></a></h2>
 <ul>
-<li>Multiple instances of MAS are supported on a single OpenShift cluster, the instances do not have to be on the same release, but there must be no more than 1 minor version difference between the oldest and newest versions installed.</li>
+<li>Multiple instances of MAS are supported on a single OpenShift cluster, the instances do not have to be on the same release, but <strong>there must be no more than 1 minor version difference between the oldest and newest versions installed</strong>.</li>
 <li>A single MongoDb cluster will be created using the the <code>MongoDbCommunity</code> CRD, each MAS instance will have it's own database in the MongoDb cluster.<ul>
 <li>The cluster will be named <code>mas-mongo-ce</code></li>
 </ul>
@@ -203,7 +205,7 @@
         </span>
     
     
-      <span><a href="../../catalogs/v8-240130-amd64/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../dependencies/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
       <span><a href="../cluster-extensions/" style="color: #fcfcfc">Next &raquo;</a></span>
