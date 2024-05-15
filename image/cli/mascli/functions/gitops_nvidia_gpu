@@ -167,7 +167,7 @@ function gitops_nvidia_gpu() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}
 
   echo
   reset_colors
@@ -251,8 +251,8 @@ function gitops_nvidia_gpu() {
   # Set and Validate App Names
   # ---------------------------------------------------------------------------
   ROOT_APP_NAME="root.${ACCOUNT_ID}"
-  CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-  NVIDIA_GPU_APP_NAME="nvidia-gpu.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+  CLUSTER_APP_NAME="cluster.${CLUSTER_ID}"
+  NVIDIA_GPU_APP_NAME="nvidia-gpu.${CLUSTER_ID}"
 
   validate_app_name "${ROOT_APP_NAME}"
   validate_app_name "${CLUSTER_APP_NAME}"

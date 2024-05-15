@@ -126,7 +126,7 @@ function gitops_cis_compliance() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION}/${CLUSTER_ID}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}
 
   echo
   reset_colors
@@ -172,8 +172,8 @@ function gitops_cis_compliance() {
   # Set and Validate App Names
   # ---------------------------------------------------------------------------
   ROOT_APP_NAME="root.${ACCOUNT_ID}"
-  CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
-  CIS_COMPLIANCE_APP_NAME="cis-compliance.${ACCOUNT_ID}.${REGION}.${CLUSTER_ID}"
+  CLUSTER_APP_NAME="cluster.${CLUSTER_ID}"
+  CIS_COMPLIANCE_APP_NAME="cis-compliance.${CLUSTER_ID}"
 
   validate_app_name "${ROOT_APP_NAME}"
   validate_app_name "${CLUSTER_APP_NAME}"
