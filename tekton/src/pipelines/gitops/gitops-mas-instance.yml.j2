@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: gitops-provision-mas-instance
+  name: gitops-mas-instance
 spec:
   workspaces:
     - name: configs
@@ -11,13 +11,15 @@ spec:
     # Any pre-generated configs that will be copied into the shared-configs workspace during suite-install
     - name: shared-additional-configs
     - name: shared-gitops-configs
-  description: Provision MAS GitOps Instance
+  description: MAS GitOps Instance
   params:
     - name: cluster_name
       type: string
     - name: account
       type: string
     - name: secrets_path
+      type: string
+    - name: region
       type: string
     - name: avp_aws_secret_region
       type: string
@@ -144,6 +146,9 @@ spec:
       default: "True"
 
   tasks:
+
+    # 1. License Entitlement
+    # -------------------------------------------------------------------------
     - name: gitops-license
       params:
         - name: cluster_name
@@ -160,6 +165,9 @@ spec:
       taskRef:
         kind: Task
         name: gitops-license
+
+    # 2. MAS Suite
+    # -------------------------------------------------------------------------
     - name: gitops-suite
       runAfter:
         - gitops-license
@@ -212,7 +220,6 @@ spec:
           value: $(params.cluster_url)
         - name: cert_manager_namespace
           value: $(params.cert_manager_namespace)
-
         - name: dns_provider
           value: $(params.dns_provider)
         - name: cis_subdomain
@@ -250,6 +257,10 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+
+
+    # 3. MAS Suite Config
+    # -------------------------------------------------------------------------
     - name: gitops-suite-config
       runAfter:
         - gitops-suite
@@ -298,6 +309,10 @@ spec:
       taskRef:
         name: gitops-suite-config
         kind: Task
+
+
+    # 4. MAS Suite Workspace
+    # -------------------------------------------------------------------------
     - name: gitops-suite-workspace
       runAfter:
         - gitops-suite-config
@@ -336,6 +351,10 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+
+
+    # 5. MAS Suite SMTP Config
+    # -------------------------------------------------------------------------
     - name: gitops-suite-smtp-config
       runAfter:
         - gitops-suite-config
@@ -390,6 +409,10 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+
+ 
+    # 6. MAS Suite IDP Config
+    # -------------------------------------------------------------------------
     - name: gitops-suite-idp-config
       runAfter:
         - gitops-suite-config
@@ -438,3 +461,51 @@ spec:
           workspace: configs
         - name: shared-additional-configs
           workspace: shared-additional-configs
+
+    # -------------------------------------------------------------------------
+    # Deprovision task section
+    # -------------------------------------------------------------------------
+
+    # 2. Deprovision SMTP config
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-suite-smtp-config
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite-smtp-config
+      when:
+        - input: "$(params.smtp_host)"
+          operator: in
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: configs
+
+    # 3. Deprovision IDP config
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-suite-idp-config
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite-idp-config
+      when:
+        - input: "$(params.ldap_url)"
+          operator: in
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: configs

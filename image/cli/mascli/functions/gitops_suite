@@ -332,7 +332,7 @@ function gitops_suite() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
 
   echo
   reset_colors
@@ -541,10 +541,10 @@ function gitops_suite() {
 
   # Set and Validate App Names
   # ---------------------------------------------------------------------------
-  CLUSTER_ROOT_APP="cluster.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
-  INSTANCE_ROOT_APP="instance.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-  SUITE_APP_NAME="suite.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-  SLS_APP_NAME="sls.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+  CLUSTER_ROOT_APP="cluster.${CLUSTER_ID}"
+  INSTANCE_ROOT_APP="instance.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+  SUITE_APP_NAME="suite.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+  SLS_APP_NAME="sls.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
 
   validate_app_name "${CLUSTER_ROOT_APP}"
   validate_app_name "${INSTANCE_ROOT_APP}"

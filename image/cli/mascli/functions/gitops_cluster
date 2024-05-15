@@ -214,7 +214,7 @@ function gitops_cluster() {
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${REGION_ID}/${CLUSTER_ID}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}
 
   echo
   reset_colors
@@ -285,9 +285,9 @@ function gitops_cluster() {
   # Set and Validate App Names
   # ---------------------------------------------------------------------------
   ROOT_APP_NAME="root.${ACCOUNT_ID}"
-  CLUSTER_APP_NAME="cluster.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
-  OPERATOR_CATALOG_APP_NAME="operator-catalog.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
-  COMMON_SERVICES_APP_NAME="redhat-cert-manager.${ACCOUNT_ID}.${REGION_ID}.${CLUSTER_ID}"
+  CLUSTER_APP_NAME="cluster.${CLUSTER_ID}"
+  OPERATOR_CATALOG_APP_NAME="operator-catalog.${CLUSTER_ID}"
+  COMMON_SERVICES_APP_NAME="redhat-cert-manager.${CLUSTER_ID}"
 
   validate_app_name "${ROOT_APP_NAME}"
   validate_app_name "${CLUSTER_APP_NAME}"
