@@ -42,6 +42,7 @@ nav:
       - "Feb 27 2024": catalogs/v8-240227-amd64.md
       - "Jan 30 2024": catalogs/v8-240130-amd64.md
   - "Reference":
+      - "Dependencies": reference/dependencies.md
       - "Topology": reference/topology.md
       - "Cluster Extensions": reference/cluster-extensions.md
 theme:

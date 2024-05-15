@@ -10,17 +10,10 @@ function install_config_advanced() {
     echo
     install_config_workload_scale
 
-    if prompt_for_confirm "Change Cluster monitoring storage defaults?"; then
-      if [[ "$CLUSTER_MONITORING_INCLUDE_GRAFANA" == "True" ]]; then
-        prompt_for_input "+ Grafana Storage Size" GRAFANA_INSTANCE_STORAGE_SIZE "10Gi"
-      fi
-      prompt_for_input "+ Prometheus Retention Period" PROMETHEUS_RETENTION_PERIOD "15d"
-      prompt_for_input "+ Prometheus Storage Size" PROMETHEUS_STORAGE_SIZE "300Gi"
-      prompt_for_input "+ Prometheus Alert Mgr Storage Size" PROMETHEUS_ALERTMGR_STORAGE_SIZE "300Gi"
-      prompt_for_input "+ Prometheus User Workload Retention Period" PROMETHEUS_USERWORKLOAD_RETENTION_PERIOD "15d"
-      prompt_for_input "+ Prometheus User Workload Storage Size" PROMETHEUS_USERWORKLOAD_STORAGE_SIZE "300Gi"
+    if [[ "$GRAFANA_ACTION" == "install" ]]; then
+      prompt_for_input "+ Grafana Storage Size" GRAFANA_INSTANCE_STORAGE_SIZE "10Gi"
+      echo
     fi
-    echo
 
     if prompt_for_confirm "Change default install namespaces?"; then
       if [[ "$DB2_ACTION_SYSTEM" == "install" || "$DB2_ACTION_MANAGE" == "install" ]]; then
@@ -34,8 +27,8 @@ function install_config_advanced() {
         fi
         prompt_for_input "+ Kafka Namespace" KAFKA_NAMESPACE $KAFKA_NAMESPACE
       fi
-      if [[ "$CLUSTER_MONITORING_INCLUDE_GRAFANA" == "True" ]]; then
-        prompt_for_input "+ Grafana Namespace" GRAFANA_NAMESPACE "grafana"
+      if [[ "$GRAFANA_ACTION" == "install" ]]; then
+        prompt_for_input "+ Grafana Namespace" GRAFANA_V5_NAMESPACE "grafana5"
       fi
       prompt_for_input "+ MongoDB Namespace" MONGODB_NAMESPACE "mongoce"
     fi

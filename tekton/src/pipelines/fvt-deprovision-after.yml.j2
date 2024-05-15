@@ -39,7 +39,7 @@ spec:
     - name: ibmcloud_resourcegroup
       type: string
       default: ""
-    
+
     # COS
     - name: ibmcos_resourcegroup
       type: string
@@ -77,16 +77,22 @@ spec:
     - name: wait-for-pipelinerun
       taskRef:
         kind: Task
-        name: mas-fvt-wait-for-pipelinerun
+        name: mas-devops-wait-for-tekton
       params:
-        - name: pipelinerun_name
+        - name: type
+          value: pipelinerun
+        - name: name
           value: $(params.pipelinerun_name)
+        - name: delay
+          value: 1200  # 20 minutes between checking the status of the pipelinerun
+        - name: retries
+          value: 60  # attempts before giving up (approximately 20 hours)
         - name: ignore_failure
-          value: $(params.ignore_failure)
+          value: "True"  # continue even if the pipeline run has not completed successfully
 
     # 1. Delete IBM Cloud services
     # -------------------------------------------------------------------------
-    
+
     # COS
     {{ lookup('template', 'taskdefs/dependencies/cos-deprovision.yml.j2') | indent(4) }}
       runAfter:

@@ -19,7 +19,8 @@
     # Control the Monitor suite based on the presence/absence of Manage
     fvt_test_suite: "{{ (mas_app_channel_manage == '') | ternary('monitor_fvt', 'monitor_fvt_with_manage') }}"
     # Pipeline Run Info
-    pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-monitor', True) }}"
+    devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
+    pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-monitor', True) }}-{{ devops_build_number }}"
     pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
   tasks:
     - name: "Debug"

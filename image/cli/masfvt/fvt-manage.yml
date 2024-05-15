@@ -19,7 +19,8 @@
     fvt_blacklist: "{{ lookup('env', 'FVT_BLACKLIST') }}"
     fvt_whitelist: "{{ lookup('env', 'FVT_WHITELIST') }}"
     # Pipeline Run Info
-    pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-manage', True) }}"
+    devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
+    pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-manage', True) }}-{{ devops_build_number }}"
     pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
     # Test Data
     ldap_url: "{{ lookup('env', 'LDAP_URL') }}"
