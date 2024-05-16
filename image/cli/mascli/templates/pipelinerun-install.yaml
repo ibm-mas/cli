@@ -10,7 +10,8 @@ spec:
     name: mas-install
 
   serviceAccountName: pipeline
-  timeout: 24h
+  timeouts:
+    pipeline: "24h"
 
   params:
     # Pipeline config
