@@ -65,8 +65,95 @@ function install_pipelinerun_preview() {
   else
     echo_reset_dim "Manage .................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL_MANAGE} (${MAS_APPWS_BINDINGS_JDBC_MANAGE} JDBC Config)"
 
-    if [[ "${MAS_APPWS_COMPONENTS}" != '' ]]
-    then echo_reset_dim " - Components ............. ${COLOR_MAGENTA}${MAS_APPWS_COMPONENTS}"
+    echo_reset_dim " - Components"
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"acm="* ]]
+    then echo_reset_dim "   - ACM .................... ${COLOR_GREEN}Enabled"
+    else echo_reset_dim "   - ACM .................... ${COLOR_RED}Disabled"
+    fi
+
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"aviation="* ]]
+    then echo_reset_dim "   - Aviation ............... ${COLOR_GREEN}Enabled"
+    else echo_reset_dim "   - Aviation ............... ${COLOR_RED}Disabled"
+    fi
+
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"civil="* ]]
+    then echo_reset_dim "   - Civil Infrastructure ... ${COLOR_GREEN}Enabled"
+    else echo_reset_dim "   - Civil Infrastructure ... ${COLOR_RED}Disabled"
+    fi
+
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"envizi="* ]]
+    then echo_reset_dim "   - Envizi ................. ${COLOR_GREEN}Enabled"
+    else echo_reset_dim "   - Envizi ................. ${COLOR_RED}Disabled"
+    fi
+
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"health="* ]]
+    then echo_reset_dim "   - Health ................. ${COLOR_GREEN}Enabled"
+    else echo_reset_dim "   - Health ................. ${COLOR_RED}Disabled"
+    fi
+
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"hse="* ]]
+    then echo_reset_dim "   - HSE .................... ${COLOR_GREEN}Enabled"
+    else echo_reset_dim "   - HSE .................... ${COLOR_RED}Disabled"
+    fi
+
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"icd="* ]]
+    then echo_reset_dim "   - Maximo IT .............. ${COLOR_GREEN}Enabled"
+    else echo_reset_dim "   - Maximo IT .............. ${COLOR_RED}Disabled"
+    fi
+
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"nuclear="* ]]
+    then echo_reset_dim "   - Nuclear ................ ${COLOR_GREEN}Enabled"
+    else echo_reset_dim "   - Nuclear ................ ${COLOR_RED}Disabled"
+    fi
+
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"oilandgas="* ]]
+    then echo_reset_dim "   - Oil & Gas .............. ${COLOR_GREEN}Enabled"
+    else echo_reset_dim "   - Oil & Gas .............. ${COLOR_RED}Disabled"
+    fi
+
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"oracleadapter="* ]]
+    then echo_reset_dim "   - Connector for Oracle ... ${COLOR_GREEN}Enabled"
+    else echo_reset_dim "   - Connector for Oracle ... ${COLOR_RED}Disabled"
+    fi
+
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"sapadapter="* ]]
+    then echo_reset_dim "   - Connector for SAP ...... ${COLOR_GREEN}Enabled"
+    else echo_reset_dim "   - Connector for SAP ...... ${COLOR_RED}Disabled"
+    fi
+
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"serviceprovider="* ]]
+    then echo_reset_dim "   - Service Provider ....... ${COLOR_GREEN}Enabled"
+    else echo_reset_dim "   - Service Provider ....... ${COLOR_RED}Disabled"
+    fi
+
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"spatial="* ]]
+    then echo_reset_dim "   - Spatial ................ ${COLOR_GREEN}Enabled"
+    else echo_reset_dim "   - Spatial ................ ${COLOR_RED}Disabled"
+    fi
+
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"strategize="* ]]
+    then echo_reset_dim "   - Strategize ............. ${COLOR_GREEN}Enabled"
+    else echo_reset_dim "   - Strategize ............. ${COLOR_RED}Disabled"
+    fi
+
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"transportation="* ]]
+    then echo_reset_dim "   - Transportation ......... ${COLOR_GREEN}Enabled"
+    else echo_reset_dim "   - Transportation ......... ${COLOR_RED}Disabled"
+    fi
+
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"tririga="* ]]
+    then echo_reset_dim "   - Tririga ................ ${COLOR_GREEN}Enabled"
+    else echo_reset_dim "   - Tririga ................ ${COLOR_RED}Disabled"
+    fi
+
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"utilities="* ]]
+    then echo_reset_dim "   - Utilities .............. ${COLOR_GREEN}Enabled"
+    else echo_reset_dim "   - Utilities .............. ${COLOR_RED}Disabled"
+    fi
+
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"workday="* ]]
+    then echo_reset_dim "   - Workday Applications ... ${COLOR_GREEN}Enabled"
+    else echo_reset_dim "   - Workday Applications ... ${COLOR_RED}Disabled"
     fi
 
     if [[ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" != "" ]]

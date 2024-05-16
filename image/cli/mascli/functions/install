@@ -39,7 +39,7 @@ function validate_catalog_source {
     catalogVersion=v8-amd64
   fi
 
-  if [[ "$catalogImage" != "null" ]] && [[ "$catalogId" != "$MAS_CATALOG_VERSION" ]]; then
+  if [[ "$catalogImage" != "null" && "$catalogImage" != "" && "$catalogId" != "$MAS_CATALOG_VERSION" ]]; then
     echo
     echo_warning "Error: IBM Maximo Operator Catalog $catalogVersion is already installed on this cluster."
     echo_warning "If you wish to install a new MAS instance using the $MAS_CATALOG_VERSION catalog please first run \"mas update\" to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update."
@@ -559,9 +559,6 @@ function install_interactive() {
 
   # Ensure that install will not trigger a change in the catalog source
   validate_catalog_source
-
-  # Determine SLS version specific prompts
-  sls_prompt_selection
 
   # Present a the MAS license information
   license_prompt
