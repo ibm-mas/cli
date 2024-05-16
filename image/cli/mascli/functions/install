@@ -507,12 +507,7 @@ function install_noninteractive() {
   cert_manager_selection
 
   # Work out which SLS var to use for bootstrap
-  sls_prompt_selection
-  if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
-    export SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
-  else
-    export SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
-  fi
+  export SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
 }
 
 
@@ -712,11 +707,7 @@ function install_interactive() {
     exit 1
   fi
 
-  if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
-    SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
-  else
-    SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
-  fi
+  SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
 
   echo ""
   echo_h2 "Configure UDS"

@@ -124,13 +124,7 @@ function install_pipelinerun_preview() {
   reset_colors
   echo "${TEXT_DIM}"
   echo_h4 "IBM Suite License Service" "    "
-  if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
-    echo_reset_dim "License ID ................ ${COLOR_MAGENTA}${SLS_LICENSE_ID}"
-  fi
   echo_reset_dim "License File .............. ${COLOR_MAGENTA}${SLS_LICENSE_FILE_LOCAL}"
-  if [[ "$SLS_PROMPT_ICR_CP" == "true" ]]; then
-    echo_reset_dim "IBM Entitled Registry ..... ${COLOR_MAGENTA}${SLS_ICR_CP}"
-  fi
   echo_reset_dim "IBM Open Registry ......... ${COLOR_MAGENTA}${SLS_ICR_CPOPEN}"
 
   reset_colors

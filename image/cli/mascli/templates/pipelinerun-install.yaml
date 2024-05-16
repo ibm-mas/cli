@@ -235,16 +235,10 @@ spec:
     # -------------------------------------------------------------------------
     - name: sls_namespace
       value: '$SLS_NAMESPACE'
-    - name: sls_license_id
-      value: '$SLS_LICENSE_ID'
-    - name: sls_license_file
-      value: '$SLS_LICENSE_FILE'
     - name: sls_entitlement_file
       value: '$SLS_ENTITLEMENT_FILE'
     - name: sls_channel
       value: '3.x'
-    - name: sls_icr_cp
-      value: '$SLS_ICR_CP'
     - name: sls_icr_cpopen
       value: '$SLS_ICR_CPOPEN'
 
