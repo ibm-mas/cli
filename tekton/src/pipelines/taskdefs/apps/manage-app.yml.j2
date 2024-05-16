@@ -21,6 +21,9 @@
   taskRef:
     name: mas-devops-suite-app-install
     kind: Task
+  workspaces:
+    - name: pod-templates
+      workspace: shared-pod-templates
   # Only install Manage if a channel has been chosen
   when:
     - input: "$(params.mas_app_channel_manage)"

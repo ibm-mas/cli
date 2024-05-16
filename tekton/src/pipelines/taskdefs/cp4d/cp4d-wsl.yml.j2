@@ -20,9 +20,9 @@
   taskRef:
     kind: Task
     name: mas-devops-cp4d-service
-  # Only needed if either Predict or HPUtilities are being installed
+  # Only needed if either Predict or Health w/ WSL are being installed
   when:
-    - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)$(params.mas_appws_bindings_health_wsl_flag)"
+    - input: "$(params.mas_app_channel_predict)$(params.mas_appws_bindings_health_wsl_flag)"
       operator: notin
       values: [""]
   workspaces:

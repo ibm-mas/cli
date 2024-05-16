@@ -89,6 +89,17 @@ spec:
       type: string
       description: Approves the MongoDb upgrade to version 5 if needed
       default: ""
+    - name: mongodb_version
+      type: string
+      description: MongoDb version to update too
+    - name: mongodb_v6_upgrade
+      type: string
+      description: Approves the MongoDb upgrade to version 6 if needed
+      default: ""
+    - name: mongodb_replicas
+      type: string
+      description: Optional configuration for mongodb replicas
+      default: ""
 
     # kafka update
     - name: kafka_action
@@ -109,7 +120,7 @@ spec:
       default: ""
       type: string
       description: Set to 'true' to change all LicenseService CRs' registry to cpopen
-    
+
     # UDS/DRO Migration
     - name: dro_migration
       default: ""
@@ -303,16 +314,16 @@ spec:
     - name: update-grafana
       taskRef:
         kind: Task
-        name: mas-devops-cluster-monitoring
+        name: mas-devops-grafana
       when:
         - input: $(params.grafana_v5_upgrade)
           operator: in
           values: ["true", "True"]
       params:
-        - name: cluster_monitoring_action
-          value: update_grafana
+        - name: grafana_action
+          value: update
         - name: devops_suite_name
-          value: update-grafana
+          value: dependencies-grafana-update
       runAfter:
         - update-common-services
 
@@ -345,6 +356,12 @@ spec:
           value: $(params.mongodb_namespace)
         - name: mongodb_v5_upgrade
           value: $(params.mongodb_v5_upgrade)
+        - name: mongodb_version
+          value: $(params.mongodb_version)
+        - name: mongodb_v6_upgrade
+          value: $(params.mongodb_v6_upgrade)
+        - name: mongodb_replicas
+          value: $(params.mongodb_replicas)
 
     - name: update-kafka
       taskRef:
@@ -367,6 +384,10 @@ spec:
       taskRef:
         kind: Task
         name: mas-devops-uds
+      when:
+        - input: "$(params.dro_migration)"
+          operator: in
+          values: ["true", "True"]
       runAfter:
         - update-common-services
       params:
