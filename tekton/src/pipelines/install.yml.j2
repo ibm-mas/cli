@@ -173,6 +173,8 @@ spec:
     # -------------------------------------------------------------------------
     # 5.1 Configure Workspace
     {{ lookup('template', 'taskdefs/core/gencfg-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - pre-install-check
 
     # 5.2 DNS Setup
     {{ lookup('template', 'taskdefs/core/suite-dns.yml.j2') | indent(4) }}
@@ -190,7 +192,6 @@ spec:
         - sls
         - uds
         - gencfg-workspace
-        - suite-dns
         - suite-certs
 
     # 5.5 Suite Configuration
