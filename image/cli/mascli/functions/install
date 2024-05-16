@@ -746,7 +746,9 @@ function install() {
     oc get packagemanifest grafana-operator &> /dev/null
     if [[ "$?" == "1" ]]; then
       GRAFANA_ACTION="none"
-      echo_warning "Grafana is not available in the cluster based on the available operator packages. Grafana installation will be skipped."
+      echo
+      echo_warning "The Grafana operator package is not available in any catalogs on the target cluster, the installation of Grafana will be disabled."
+      echo
     else
       GRAFANA_ACTION="install"
     fi
