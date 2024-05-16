@@ -58,6 +58,6 @@ if [[ "$CM_EXISTS" == "0" ]]; then
   exit $?
 else
   echo "Creating new configmap with ${CONFIGMAP_KEY}=${CONFIGMAP_VALUE}"
-  oc -n ${NAMESPACE} create configmap ${CONFIGMAP_NAME} --from-literal=${CONFIGMAP_KEY}=c${CONFIGMAP_VALUE}
+  oc -n ${NAMESPACE} create configmap ${CONFIGMAP_NAME} --from-literal=${CONFIGMAP_KEY}=${CONFIGMAP_VALUE}
   exit $?
 fi
