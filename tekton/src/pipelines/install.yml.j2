@@ -191,6 +191,7 @@ spec:
         - uds
         - gencfg-workspace
         - suite-dns
+        - suite-certs
 
     # 5.5 Suite Configuration
     {{ lookup('template', 'taskdefs/core/suite-config.yml.j2') | indent(4) }}
