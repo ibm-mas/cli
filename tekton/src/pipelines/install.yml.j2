@@ -11,6 +11,8 @@ spec:
     - name: shared-additional-configs
     # The SLS entitlement key file that will be installed during install-sls.
     - name: shared-entitlement
+    # Pre-generated certificates that will be copied into certs folder of shared-configs workspace to be used by suite-certs task
+    - name: shared-certificates
     # PodTemplates configurations
     - name: shared-pod-templates
 
@@ -171,37 +173,44 @@ spec:
     # -------------------------------------------------------------------------
     # 5.1 Configure Workspace
     {{ lookup('template', 'taskdefs/core/gencfg-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - pre-install-check
 
     # 5.2 DNS Setup
     {{ lookup('template', 'taskdefs/core/suite-dns.yml.j2') | indent(4) }}
       runAfter:
         - cert-manager
 
-    # 5.3 Suite Installation
+    # 5.3 Manual Certificates
+    {{ lookup('template', 'taskdefs/core/suite-certs.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-dns
+
+    # 5.4 Suite Installation
     {{ lookup('template', 'taskdefs/core/suite-install.yml.j2') | indent(4) }}
       runAfter:
         - sls
         - uds
         - gencfg-workspace
-        - suite-dns
+        - suite-certs
 
-    # 5.4 Suite Configuration
+    # 5.5 Suite Configuration
     {{ lookup('template', 'taskdefs/core/suite-config.yml.j2') | indent(4) }}
       runAfter:
         - suite-install
 
-    # 5.5 Suite Verification
+    # 5.6 Suite Verification
     {{ lookup('template', 'taskdefs/core/suite-verify.yml.j2') | indent(4) }}
       runAfter:
         - suite-config
 
-    # 5.6 Configure Db2 in MAS
+    # 5.7 Configure Db2 in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
         - db2-manage  # db2-manage already waits for db2-system so we don't need to list both
 
-    # 5.7 Configure Kafka in MAS
+    # 5.8 Configure Kafka in MAS
     {{ lookup('template', 'taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
