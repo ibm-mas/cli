@@ -73,6 +73,8 @@ function gitops_mas_fvt_preparer() {
 
   echo_reset_dim "Pipeline storage class................... ${COLOR_MAGENTA}${PIPELINE_STORAGE_CLASS}"
 
+  #Don't wait for install process
+  export SYNC_WITH_INSTALL=false
   #FVT pipeline to run
   export PIPELINE_NAME=$FVT_PIPELINE_NAME
   ansible-playbook ibm.mas_fvt.setup_pipeline

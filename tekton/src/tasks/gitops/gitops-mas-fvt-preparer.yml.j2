@@ -455,7 +455,7 @@ spec:
         mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS}
 
         # Wait for launcher to complete
-        /opt/app-root/src/wait-for-tekton.sh --type pipelinerun--name $MAS_INSTANCE_ID-fvt-$DEVOPS_BUILD_NUMBER-$LAUNCHER_ID --namespace mas-$MAS_INSTANCE_ID-pipelines
+        /opt/app-root/src/wait-for-tekton.sh --type pipelinerun --name $MAS_INSTANCE_ID-fvt-$DEVOPS_BUILD_NUMBER-$LAUNCHER_ID --namespace mas-$MAS_INSTANCE_ID-pipelines
 
         # Remove argocd window
         argocd_login
