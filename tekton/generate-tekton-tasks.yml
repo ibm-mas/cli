@@ -128,8 +128,21 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - ocp-deprovision
+        - ocp-verify
+        - ocp-verify-all
 
-    # 6. Generate Tasks (GitOps)
+    # 7. Generate Tasks (Framework)
+    # -------------------------------------------------------------------------
+    - name: Generate Tasks (Framework)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/framework/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - update-configmap
+        - wait-for-configmap
+        - wait-for-tekton
+
+    # 8. Generate Tasks (GitOps)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (GitOps)
       ansible.builtin.template:
@@ -185,16 +198,3 @@
         - gitops-suite-watson-studio-config
         - gitops-suite-workspace
         - gitops-suite
-        - ocp-verify
-        - ocp-verify-all
-
-    # 7. Generate Tasks (Framework)
-    # -------------------------------------------------------------------------
-    - name: Generate Tasks (Framework)
-      ansible.builtin.template:
-        src: "{{ task_src_dir }}/framework/{{ item }}.yml.j2"
-        dest: "{{ task_target_dir }}/{{ item }}.yaml"
-      with_items:
-        - update-configmap
-        - wait-for-configmap
-        - wait-for-tekton
