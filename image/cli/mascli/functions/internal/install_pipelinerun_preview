@@ -333,8 +333,8 @@ function install_pipelinerun_preview() {
   echo "${TEXT_DIM}"
   echo_h4 "Grafana" "    "
   if [[ "${GRAFANA_ACTION}" == 'install' ]]
-    then echo_reset_dim "Include Grafana ........... ${COLOR_RED}Package not available"
-    else echo_reset_dim "Include Grafana ........... ${COLOR_MAGENTA}Yes"
+    then echo_reset_dim "Include Grafana ........... ${COLOR_MAGENTA}Yes"
+    else echo_reset_dim "Include Grafana ........... ${COLOR_RED}Package not available"
   fi
 
   reset_colors
