@@ -744,18 +744,24 @@ function install() {
       --dev-mode)
         DEV_MODE=true
         ;;
+      --skip-grafana-install)
+        GRAFANA_ACTION="none"
+        ;;
       -h|--help)
         install_help
         ;;
     esac
   done
 
-  # Determine whether Grafana is available in the cluster based on the available of the operator package
-  oc get packagemanifest grafana-operator &> /dev/null
-  if [[ "$?" == "1" ]]; then
-    CLUSTER_MONITORING_INCLUDE_GRAFANA="False"
-  else
-    CLUSTER_MONITORING_INCLUDE_GRAFANA="True"
+  if [[ -z $GRAFANA_ACTION ]] || [[  "$GRAFANA_ACTION" != "none" ]]; then
+    # Determine whether Grafana is available in the cluster based on the available of the operator package
+    oc get packagemanifest grafana-operator &> /dev/null
+    if [[ "$?" == "1" ]]; then
+      GRAFANA_ACTION="none"
+      echo_warning "Grafana is not available in the cluster based on the available operator packages. Grafana installation will be skipped."
+    else
+      GRAFANA_ACTION="install"
+    fi
   fi
 
   if [[ "$INTERACTIVE_MODE" == "true" ]]; then

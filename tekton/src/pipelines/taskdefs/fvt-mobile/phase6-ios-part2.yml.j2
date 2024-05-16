@@ -51,14 +51,3 @@
     - fvt-inspections-mvt-ios
     - fvt-asset-manager-mvt-ios
 
-# Minimum Verification Test for Mobile Defects MAS test suites
-- name: fvt-civil-defects-mvt-ios
-  {{ lookup('template', 'taskdefs/fvt-manage-civil/common/taskref-mobile.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage-civil/common/params-mobile.yml.j2') | indent(4) }}
-    - name: mobile_device_type
-      value: ios
-    - name: fvt_test_suite
-      value: civil-defects-mvt-ios
-  runAfter:
-    - fvt-civil-defects-mvt-android

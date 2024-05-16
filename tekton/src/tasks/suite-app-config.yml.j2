@@ -290,6 +290,46 @@ spec:
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
 
+    # If configmap/approval-app-cfg-$(params.mas_app_id) exists then set CONFIGMAP_KEY=pending and wait for it to be changed to "approved"
+    - name: app-cfg-post-verify
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - /opt/app-root/src/wait-for-configmap.sh
+      env:
+        - name: NAMESPACE
+          value: $(context.taskRun.namespace)
+        - name: CONFIGMAP_NAME
+          value: approval-app-cfg-$(params.mas_app_id)
+        - name: CONFIGMAP_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: approval-app-cfg-$(params.mas_app_id)
+              key: CONFIGMAP_KEY
+              optional: true
+        - name: CONFIGMAP_INITIAL_VALUE
+          value: pending
+        - name: CONFIGMAP_TARGET_VALUE
+          value: approved
+        - name: DELAY
+          valueFrom:
+            configMapKeyRef:
+              name: approval-app-cfg-$(params.mas_app_id)
+              key: DELAY
+              optional: true
+        - name: MAX_RETRIES
+          valueFrom:
+            configMapKeyRef:
+              name: approval-app-cfg-$(params.mas_app_id)
+              key: MAX_RETRIES
+              optional: true
+        - name: IGNORE_FAILURE
+          valueFrom:
+            configMapKeyRef:
+              name: approval-app-cfg-$(params.mas_app_id)
+              key: IGNORE_FAILURE
+              optional: true
+
   workspaces:
     - name: configs
     - name: pod-templates

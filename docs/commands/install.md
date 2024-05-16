@@ -356,9 +356,6 @@ For examples on these config files take a look into the pre-defined configs: [Be
 
 !!! Note: This feature is only supported starting in MAS 8.11.0 and SLS 3.8.0
 
-#### Change Cluster monitoring storage defaults?
-Answering "y" at the prompt will allow you to customize the storage capacity and data retention period in Grafana and Prometheus.
-
 #### Change default install namespaces?
 Answering "y" will allow you to customize the namespace where Db2, Grafana, and MongoDb are installed in the cluster.
 
@@ -431,7 +428,6 @@ The installer supports:
     - Apache Kafka
     - IBM Db2
     - IBM Cloud Pak for Data Platform and Services
-        - [Watson Discovery](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-discovery)
         - [Watson Studio](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-studio)
         - [Watson Machine Learning](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-machine-learning)
         - [Watson OpenScale](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-openscale)

@@ -120,7 +120,7 @@ spec:
       default: ""
       type: string
       description: Set to 'true' to change all LicenseService CRs' registry to cpopen
-    
+
     # UDS/DRO Migration
     - name: dro_migration
       default: ""
@@ -314,16 +314,16 @@ spec:
     - name: update-grafana
       taskRef:
         kind: Task
-        name: mas-devops-cluster-monitoring
+        name: mas-devops-grafana
       when:
         - input: $(params.grafana_v5_upgrade)
           operator: in
           values: ["true", "True"]
       params:
-        - name: cluster_monitoring_action
-          value: update_grafana
+        - name: grafana_action
+          value: update
         - name: devops_suite_name
-          value: update-grafana
+          value: dependencies-grafana-update
       runAfter:
         - update-common-services
 
