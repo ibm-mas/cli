@@ -151,9 +151,6 @@ spec:
         - name: configmap_value
           value: approved
       when:
-        - input: $(params.launchfvt_core)
-          operator: in
-          values: ["true", "True"]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
@@ -316,9 +313,9 @@ spec:
         - name: configmap_value
           value: approved
       when:
-        - input: $(params.launchfvt_iot)
+        - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)"
           operator: in
-          values: ["true", "True"]
+          values: ["true", "True","truetrue", "TrueTrue"]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
