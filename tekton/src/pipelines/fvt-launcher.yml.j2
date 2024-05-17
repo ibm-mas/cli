@@ -151,9 +151,6 @@ spec:
         - name: configmap_value
           value: approved
       when:
-        - input: $(params.launchfvt_core)
-          operator: in
-          values: ["true", "True"]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
