@@ -38,8 +38,6 @@ spec:
       value: '$KAFKA_NAMESPACE'
     - name: kafka_provider
       value: '$KAFKA_PROVIDER'
-    - name: update_sls_registry
-      value: '$UPDATE_SLS_REGISTRY'
     - name: cert_manager_provider
       value: "$CERT_MANAGER_PROVIDER"
     - name: cert_manager_action
