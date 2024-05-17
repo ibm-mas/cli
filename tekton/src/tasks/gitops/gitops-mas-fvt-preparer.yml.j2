@@ -455,7 +455,7 @@ spec:
         mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS} || exit 1
 
         # Wait for launcher to complete
-        /opt/app-root/src/wait-for-pipelinerun.sh --name $MAS_INSTANCE_ID-fvt-launcher-$DEVOPS_BUILD_NUMBER-$LAUNCHER_ID --namespace mas-$MAS_INSTANCE_ID-pipelines
+        /opt/app-root/src/wait-for-tekton.sh --type pipelinerun --name $MAS_INSTANCE_ID-fvt-$DEVOPS_BUILD_NUMBER-$LAUNCHER_ID --namespace mas-$MAS_INSTANCE_ID-pipelines
 
         # Remove argocd window
         argocd_login
@@ -472,8 +472,8 @@ spec:
         - /bin/bash
         - -c
       name: gitops-mas-fvt-preparer
-      imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
   workspaces:
     - name: configs
     - name: shared-additional-configs

@@ -157,22 +157,6 @@ def getcp4dCompsVersions():
     except Exception as e:
         print(f"Unable to determine Watson Studio version: {e}")
 
-    # Get Watson Discovery Version
-    # -------------------------------------------------------------------------
-    try:
-        crs = dynClient.resources.get(
-            api_version="discovery.watson.ibm.com/v1", kind="WatsonDiscovery"
-        )
-        cr = crs.get(name="wd", namespace="ibm-cpd")
-        if cr.status and cr.status.versions.reconciled:
-            setObject[f"target.WatsonDiscoveryVersion"] = cr.status.versions.reconciled
-        else:
-            print(
-                f"Unable to determine Watson Discovery version: status.versions.reconciled unavailable"
-            )
-    except Exception as e:
-        print(f"Unable to determine Watson Discovery version: {e}")
-
     # Get  Watson OpenScale Version
     # -------------------------------------------------------------------------
     try:
@@ -489,17 +473,13 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     try:
 
-        csvl = dynClient.resources.get(
-            api_version="operators.coreos.com/v1alpha1", kind="ClusterServiceVersion"
-        )
-        csv = csvl.get(
-            namespace=f"db2u", label_selector=f"operators.coreos.com/db2u-operator.db2u"
-        )
+        csvl = dynClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="ClusterServiceVersion")
+        csv = csvl.get(namespace=f"db2u",label_selector=f'operators.coreos.com/db2u-operator.db2u')
 
         if csv is None or csv.items is None or len(csv.items) == 0:
             print(f"Unable to determine DB2 operator version: component unavailable")
         else:
-            db2OperatorVersion = (csv.items[0].metadata.name).lstrip("db2u-operator.")
+            db2OperatorVersion= (csv.items[0].metadata.name).lstrip('db2u-operator.')
             setObject[f"target.db2OperatorVersion"] = db2OperatorVersion
     except Exception as e:
         print(f"Unable to determine DB2 operator version: {e}")
@@ -516,23 +496,23 @@ if __name__ == "__main__":
         )
         if cr.status and cr.status.config.hosts:
             firstBroker = cr.status.config.hosts[0].host
-            if firstBroker.find("eventstreams") != -1:
-                setObject[f"target.kafkaProvider"] = "IBM"
-            elif firstBroker.find("amazonaws") != -1:
-                setObject[f"target.kafkaProvider"] = "AWS"
-            elif firstBroker.find("amq-streams") != -1:
-                setObject[f"target.kafkaProvider"] = "AMQ"
-                namespace = "amq-streams"
-            elif firstBroker.find("strimzi") != -1:
-                setObject[f"target.kafkaProvider"] = "STRIMZI"
-                namespace = "strimzi"
+            if firstBroker.find('eventstreams') != -1:
+                setObject[f"target.kafkaProvider"] = 'IBM'
+            elif firstBroker.find('amazonaws') != -1:
+                setObject[f"target.kafkaProvider"] = 'AWS'
+            elif firstBroker.find('amq-streams') != -1:
+                setObject[f"target.kafkaProvider"] = 'AMQ'
+                namespace="amq-streams"
+            elif firstBroker.find('strimzi') != -1:
+                setObject[f"target.kafkaProvider"] = 'STRIMZI'
+                namespace="strimzi"
             else:
                 print(f"Unable to determine kafka provider using broker host")
             # check if we need to get the kafka version, this will happen with AMQ and STRIMZI
-            if namespace != "":
+            if namespace != '':
                 setObject[f"target.kafkaVersion"] = getKafkaVersion(namespace)
             else:
-                setObject[f"target.kafkaVersion"] = "unknown"
+                setObject[f"target.kafkaVersion"] = 'unknown'
         else:
             print(
                 f"Unable to determine kafka provider: status.config.hosts unavailable"

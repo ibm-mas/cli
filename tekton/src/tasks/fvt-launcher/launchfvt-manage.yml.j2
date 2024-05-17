@@ -111,7 +111,7 @@ spec:
               name: mas-fvt-manage
               key: FVT_WHITELIST
               optional: false
-        # Test data 
+        # Test data
         - name: LDAP_URL
           valueFrom:
             secretKeyRef:
@@ -158,16 +158,25 @@ spec:
     - name: wait-for-pipelinerun
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
-      # 60 retries at 10 minute intervals = 10 hours
+      # 50 retries at 10 minute intervals = just over 8 hours
       command:
-        - /opt/app-root/src/wait-for-pipelinerun.sh
-        - --delay
-        - "600"
-        - --max-retries
-        - "60"
-        - --ignore-failure
+        - /opt/app-root/src/wait-for-tekton.sh
       env:
-        - name: PIPELINERUN_NAME
+        - name: TYPE
+          value: pipelinerun
+        - name: NAME
           value: $(params.pipelinerun_name)
-        - name: PIPELINERUN_NAMESPACE
+        - name: SUFFIX
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_BUILD_NUMBER
+              optional: true
+        - name: NAMESPACE
           value: $(context.taskRun.namespace)
+        - name: DELAY
+          value: "600"
+        - name: MAX_RETRIES
+          value: "50"
+        - name: IGNORE_FAILURE
+          value: "True"

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. $CLI_DIR/functions/internal/install_config_storage_classes
+
 function update_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
@@ -16,6 +18,7 @@ Update Dependencies (Optional):
   --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}          DB2 namespace where instances update will be performed
   --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET}   Namespace where MongoCE operator and instance will be updated
   --mongodb-v5-upgrade ${COLOR_YELLOW}MONGODB_V5_UPGRADE${TEXT_RESET} Confirms that Mongo can be upgraded to version 5 if needed as part of the update
+  --mongodb-version  ${COLOR_YELLOW}MONGODB_VERSION${TEXT_RESET}      Optional. Set Mongo version for the upgrade. Note: This overrides the default MongoDB version defined by the Maximo Operator Catalog version.
   --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}       Namespace where Kafka operator and instance will be updated
   --kafka-provider ${COLOR_YELLOW}KAFKA_PROVIDER${TEXT_RESET}         Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), or 'strimzi'
   --dro-migration  ${COLOR_YELLOW}DRO_MIGRATION${TEXT_RESET}          Confirm the removal of UDS and replacement with DRO as part of the update
@@ -76,6 +79,13 @@ function validate_existing_cert_manager() {
 # Validates the existance of installed MongoDB Community Edition in the target cluster
 # and prints a warning message if MongoDB is supposed to be upgraded
 function validate_existing_mongo() {
+
+  if [[ "$SNO_MODE" == "true" ]]; then
+    MONGODB_REPLICAS=1
+  else
+    MONGODB_REPLICAS=3
+  fi
+
   if [ -z "$MONGODB_NAMESPACE" ]; then
     echo -e "${COLOR_YELLOW}Verifying current MongoDB deployment..."
     MONGODB_NAMESPACE=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
@@ -87,12 +97,15 @@ function validate_existing_mongo() {
   if [[ $MAS_CATALOG_DATE -ge 231128 ]]; then
     # Lookup existing MongoDb instance
     MONGODB_CURRENT_VERSION=`oc get mongodbcommunity.mongodbcommunity.mongodb.com -A -o jsonpath='{.items[0].status.version}' 2> /dev/null`
-    
+
     # Only check if mongo upgrade is needed if mongo is currently installed
     if [[ $MONGODB_CURRENT_VERSION != "" ]]; then
-    
-      # Target mongo version will be defined by chosen catalog/casebundle
-      MONGODB_TARGET_VERSION=`yq -r .mongo_extras_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml`
+
+      # Target mongo version will be defined by chosen catalog/casebundle if MONGODB_VERSION not set
+      MONGODB_TARGET_VERSION=${MONGODB_VERSION}
+      if [[ "$MONGODB_TARGET_VERSION" == "" ]]; then
+        MONGODB_TARGET_VERSION=`yq -r .mongo_extras_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml 2> /dev/null`
+      fi
 
       MONGODB_CURRENT_MAJORMINOR_VERSION=${MONGODB_CURRENT_VERSION:0:3}
       MONGODB_TARGET_MAJORMINOR_VERSION=${MONGODB_TARGET_VERSION:0:3}
@@ -151,9 +164,15 @@ function validate_dro_migration() {
           echo -e "UDS will be uninstalled and MAS will migrate to use DRO (Data Reporter Operator). All compatible bascfg configuration will be updated and configured to use DRO ${COLOR_RESET}"
           echo
           if [[ "$NO_CONFIRM" != "true" ]] && [[ -z "${DRO_STORAGE_CLASS}" ]]; then
-            prompt_for_input "Enter the name of a RWO Storage Class to configure DRO, leave it blank if you want the CLI to autodetect a storage class:" DRO_STORAGE_CLASS
+            echo -e "Checking Available RWO Storage classes to configure DRO. ${COLOR_RESET}"
+            install_config_storage_classes
+            DRO_STORAGE_CLASS=$STORAGE_CLASS_RWO
+            echo -e "Storage class for DRO ${DRO_STORAGE_CLASS} ${COLOR_RESET}"
+          elif [ "$DRO_STORAGE_CLASS" != "" ]; then
+            echo -e "Storage class for DRO ${DRO_STORAGE_CLASS} ${COLOR_RESET}"
           else
             DRO_STORAGE_CLASS=""
+            echo -e "No storage class selected for DRO ${COLOR_RESET}"
           fi
 
           ## Check all avaliable Suite Instances versions , if any of them is 8.9.x cancel the dro migration. Exit mas update throw error.
@@ -278,7 +297,7 @@ function check_cp4d_target_version() {
 # Validates the existance of installed Cloud Pak Data Service in the target cluster in the CP4D namespace
 # If service exists, then flag it to upgrade as we assume it must always run with same version as CP4D platform
 function validate_existing_cp4d_service() {
-  
+
   CP4D_SERVICE_CRD=$1
   CP4D_SERVICE_NAME=$2
   CP4D_SERVICE_ALIAS=$3
@@ -294,20 +313,20 @@ function validate_existing_cp4d_service() {
 
   # Lookup existing CP4D service version
   echo -e "${COLOR_YELLOW}Verifying current Cloud Pak for Data Service $CP4D_SERVICE_NAME deployment status..."
-  
+
   CP4D_SERVICE_CURRENT_VERSION=`oc get $CP4D_SERVICE_CRD -n $CP4D_INSTANCE_NAMESPACE -o yaml | yq -r ".items[0].spec.version" 2>/dev/null`
   if [[ "$CP4D_SERVICE_CURRENT_VERSION" == "null" ]]; then
     CP4D_SERVICE_CURRENT_VERSION=""
   fi
-  
+
   # Only check if upgrade is needed if CP4D service is installed
   if [[ "$CP4D_SERVICE_CURRENT_VERSION" != "" ]]; then
-    
-    check_cp4d_target_version "$CP4D_VERSION" "$CP4D_SERVICE_ALIAS" 
-    
+
+    check_cp4d_target_version "$CP4D_VERSION" "$CP4D_SERVICE_ALIAS"
+
     # Only check if upgrade is needed if CP4D service target version is set
     if [[ "$CP4D_SERVICE_TARGET_VERSION" != "" ]]; then
-      
+
       # If current version is lower than target version, then flag CP4D service for upgrade
       if [ ! "$(printf '%s\n' "$CP4D_SERVICE_TARGET_VERSION" "$CP4D_SERVICE_CURRENT_VERSION" | sort -V | head -n1)" = "$CP4D_SERVICE_TARGET_VERSION" ]; then
         CP4D_SERVICE_UPDATE=true
@@ -326,7 +345,7 @@ function validate_existing_cp4d_service() {
 # Validates the existance of installed Cloud Pak Data in the target cluster
 # and prints a warning message if Cloud Pak Data is supposed to be upgraded
 function validate_existing_cp4d() {
-  
+
   # Lookup existing CP4D instance
   echo -e "${COLOR_YELLOW}Verifying current Cloud Pak for Data deployment status..."
 
@@ -371,7 +390,7 @@ function validate_existing_cp4d() {
   # Lookup CP4D target version is valid
   if [[ "$CP4D_VERSION" != "" ]]; then
     check_cp4d_target_version "$CP4D_VERSION" "cpd_platform"
-    # If CP4D_SERVICE_TARGET_VERSION is empty, it means it's not a valid version to be upgraded thus skip 
+    # If CP4D_SERVICE_TARGET_VERSION is empty, it means it's not a valid version to be upgraded thus skip
     if [[ "$CP4D_SERVICE_TARGET_VERSION" == "" ]]; then
       CP4D_VERSION=""
     fi
@@ -443,9 +462,23 @@ function validate_existing_cp4d() {
     fi
 
     if [ ! "$(printf '%s\n' "$CP4D_CURRENT_VERSION" "$CP4D_VERSION" | sort -V | head -n1)" = "$CP4D_CURRENT_VERSION" ]; then
-      echo -e "${COLOR_YELLOW}Cloud Pak for Data is currently running on version ($CP4D_CURRENT_VERSION) equal/higher than the target upgrade version ($CP4D_VERSION), skipping upgrade."          
+      echo -e "${COLOR_YELLOW}Cloud Pak for Data is currently running on version ($CP4D_CURRENT_VERSION) equal/higher than the target upgrade version ($CP4D_VERSION), skipping upgrade."
     fi
   fi
+}
+
+function validate_existing_watson_discovery() {
+    WD_SERVICE_CURRENT_VERSION=$(oc get watsondiscoveries.discovery.watson.ibm.com -n ibm-cpd -o yaml  2>/dev/null | yq -r ".items[0].spec.version")
+    if [[ "$WD_SERVICE_CURRENT_VERSION" == "null" ]]; then
+      WD_SERVICE_CURRENT_VERSION=""
+    fi
+
+    # If Watson Discovery is installed particularly in ibm-cpd namespace, then block MAS update as the MAS CLI no longer supports installation/management of Watson Discovery
+    if [[ -n "$WD_SERVICE_CURRENT_VERSION" ]]; then
+      echo
+      echo_warning "Watson Discovery is currently installed in the instance of Cloud Pak for Data that is managed by the MAS CLI (in the ibm-cpd namespace), this is no longer supported and the update can not proceed as a result. Please contact IBM support for assistance."
+      exit 1
+    fi
 }
 
 # Validate Selected Catalog
@@ -468,6 +501,13 @@ function validate_update() {
     echo
     exit 1
   fi
+
+  # Validates CP4D services upgrade - Watson Discovery
+  # If Watson Discovery is detected then we should block the upgrade as per product/technical management team's decision
+  validate_existing_watson_discovery
+
+  # Detect if cluster is SNO
+  detect_sno
 
   # Validates Red Hat Cerficate Manager migration only if January catalog or more recent used
   validate_existing_cert_manager
@@ -557,6 +597,9 @@ function update_noninteractive() {
         ;;
       --mongodb-v5-upgrade)
         MONGODB_V5_UPGRADE=true
+        ;;
+      --mongodb-version)
+        MONGODB_VERSION=$1 && shift
         ;;
       --kafka-namespace)
         KAFKA_NAMESPACE=$1 && shift
@@ -668,6 +711,9 @@ function update() {
   export DB2_NAMESPACE
   export MONGODB_NAMESPACE
   export MONGODB_V5_UPGRADE
+  export MONGODB_V6_UPGRADE
+  export MONGODB_REPLICAS
+  export MONGODB_VERSION
   export KAFKA_NAMESPACE
   export KAFKA_PROVIDER
   export CERT_MANAGER_PROVIDER
@@ -752,9 +798,9 @@ function update() {
   if [ "$DRO_MIGRATION" = "true" ]; then
     echo_reset_dim "DRO Migration .............................. ${COLOR_GREEN}Yes${TEXT_RESET}"
     if [ "$DRO_STORAGE_CLASS" != "" ]; then
-      echo_reset_dim "DRO Storage Class .............................. ${COLOR_GREEN}${DRO_STORAGE_CLASS}${TEXT_RESET}"
+      echo_reset_dim "DRO Storage Class ........................ ${COLOR_GREEN}${DRO_STORAGE_CLASS}${TEXT_RESET}"
     else
-      echo_reset_dim "DRO Storage Class .............................. ${COLOR_GREEN}None${TEXT_RESET}"
+      echo_reset_dim "DRO Storage Class ........................ ${COLOR_GREEN}None${TEXT_RESET}"
     fi
   else
     echo_reset_dim "DRO Migration .............................. ${COLOR_RED}No${TEXT_RESET}"
@@ -770,7 +816,7 @@ function update() {
   if [ "$CP4D_CURRENT_VERSION" != "" ]; then
     if [ "$CP4D_UPDATE" == true ]; then
       echo_reset_dim "Cloud Pak for Data Platform ................ ${COLOR_GREEN}Yes - ${CP4D_CURRENT_VERSION} to ${CP4D_VERSION} ($CP4D_INSTANCE_NAMESPACE)${TEXT_RESET}"
-    
+
       if [[ "$STORAGE_CLASS_RWO" != "" && "$STORAGE_CLASS_RWX" != "" ]]; then
       echo_reset_dim " - File Storage Class ...................... ${COLOR_GREEN}${STORAGE_CLASS_RWX}${TEXT_RESET}"
       echo_reset_dim " - Block Storage Class ..................... ${COLOR_GREEN}${STORAGE_CLASS_RWO}${TEXT_RESET}"
