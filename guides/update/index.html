@@ -176,7 +176,7 @@
 <p>This command can also be ran non-interactive, for full details refer to the <a href="../../commands/mirror-images/">mirror-images</a> command documentation.</p>
 <pre><code class="language-bash">mas mirror-images -m direct -d /mnt/local-mirror \
   -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-240130-amd64 -C 8.11.x \
+  -c v8-240430-amd64 -C 8.11.x \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
   --mirror-cfs --mirror-uds --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
@@ -195,7 +195,7 @@
 <pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas update
 </code></pre>
 <p>The command can also be ran non-interactive.</p>
-<pre><code class="language-bash">mas update -c v8-240130-amd64 --no-confirm
+<pre><code class="language-bash">mas update -c v8-240430-amd64 --no-confirm
 </code></pre>
               
             </div>
