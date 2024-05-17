@@ -272,7 +272,7 @@ spec:
         # Wait for IoT to be installed if we are running the IoT and/or the Monitor FVT suite
         - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)"
           operator: in
-          values: ["true", "True","truetrue", "TrueTrue"]
+          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue"]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
@@ -288,10 +288,6 @@ spec:
       taskRef:
         kind: Task
         name: mas-launchfvt-iot
-      when:
-        - input: $(params.launchfvt_iot)
-          operator: in
-          values: ["true", "True"]
       when:
         - input: $(params.launchfvt_iot)
           operator: in
@@ -315,7 +311,7 @@ spec:
       when:
         - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)"
           operator: in
-          values: ["true", "True","truetrue", "TrueTrue"]
+          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue"]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
