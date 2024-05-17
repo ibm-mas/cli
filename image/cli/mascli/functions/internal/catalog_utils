@@ -14,7 +14,7 @@ MOST_RECENT_CATALOG=v8-240430-amd64
 # Currently only used in the mas update function.  The user does not need to select
 # the version of MAS, only the version of the catalog to update to.
 function choose_catalog_version() {
-  echo -e "${COLOR_YELLOW}Select MAS Catalog:"
+  echo "Select MAS Catalog:"
   echo "  1) April 30 2024 Update (MAS 8.11.10 & 8.10.13)"
   echo "  2) April 05 2024 Update (MAS 8.11.9 & 8.10.11)"
   echo "  3) February 27 2024 Update (MAS 8.11.7 & 8.10.10)"
