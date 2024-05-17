@@ -36,7 +36,7 @@ spec:
         RC=$?
         if [ $RC -ne 0 ]; then
           echo "mas gitops-deprovision-rosa failed with error $RC"
-	  exit $RC
+          exit $RC
         fi
 
         echo "Removing rosa-$(params.cluster_name)-details.yaml"
