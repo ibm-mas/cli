@@ -349,7 +349,7 @@ spec:
         - name: ignore_failure
           value: "False"
       when:
-        - input: $(params.launchfvt_manage)$(params.launchfvt_monitor)"
+        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)"
           operator: in
           values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue", "truefalse", "TrueFalse"]
         - input: $(params.sync_with_install)
@@ -388,7 +388,7 @@ spec:
         - name: configmap_value
           value: approved
       when:
-        - input: $(params.launchfvt_manage)$(params.launchfvt_monitor)"
+        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)"
           operator: in
           values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue", "truefalse", "TrueFalse"]
         - input: $(params.sync_with_install)
