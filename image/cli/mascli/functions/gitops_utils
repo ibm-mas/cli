@@ -284,7 +284,7 @@ function unlock_git_repo() {
 
     echo ""
     echo "Deleting ${GITOPS_REPO_DIR} from filesystem"
-    rm -rf "${GITOPS_REPO_DIR}" || exit 1
+    rm -rf "${GITOPS_REPO_DIR}" 
   fi
 }
 
