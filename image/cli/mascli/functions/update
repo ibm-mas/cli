@@ -866,16 +866,16 @@ function update() {
 
   # UDS to DRO Migration
   if [ "$DRO_MIGRATION" = "true" ]; then
-    echo_reset_dim "UDS to DRO Migration ....................... ${COLOR_GREEN}Yes"
+    echo_reset_dim "UDS to DRO ................................. ${COLOR_GREEN}Yes"
     echo_reset_dim " - DRO Storage Class ....................... ${COLOR_GREEN}${DRO_STORAGE_CLASS}"
   else
-    echo_reset_dim "UDS to DRO Migration ....................... ${COLOR_RED}Not Required"
+    echo_reset_dim "UDS to DRO ................................. ${COLOR_RED}Not Required"
   fi
 
   # Grafana Operator
   if [ "$GRAFANA_V5_UPGRADE" == true ]
-  then echo_reset_dim "Grafana v4 to v5 Migration ................. ${COLOR_GREEN}Yes"
-  else echo_reset_dim "Grafana v4 to v5 Migration ................. ${COLOR_RED}Not Required"
+  then echo_reset_dim "Grafana v4 to v5 ........................... ${COLOR_GREEN}Yes"
+  else echo_reset_dim "Grafana v4 to v5 ........................... ${COLOR_RED}Not Required"
   fi
 
   echo
