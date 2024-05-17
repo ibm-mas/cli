@@ -284,7 +284,7 @@ function unlock_git_repo() {
 
     echo ""
     echo "Deleting ${GITOPS_REPO_DIR} from filesystem"
-    rm -rf "${GITOPS_REPO_DIR}" || :
+    rm -rf "${GITOPS_REPO_DIR}" || exit 1
   fi
 }
 
@@ -498,8 +498,10 @@ function save_and_unlock_target_git_repo {
   echo
   echo "- save_and_unlock_target_git_repo: commit -m ${GIT_COMMIT_MSG}"
   echo "-------------------------------------------------"
-  git -C "${GITOPS_REPO_DIR}" commit -m "${GIT_COMMIT_MSG}" 
+  git -C "${GITOPS_REPO_DIR}" commit -m "${GIT_COMMIT_MSG}"
+  
   export RC=$?
+  echo "commit returned $RC"
   if [ $RC -ne 0 -a $RC -ne 1 ]; then
     echo "exit $RC"
     exit $RC
@@ -544,7 +546,7 @@ function save_and_unlock_target_git_repo {
 
   export RC=$?
   echo "commit returned $RC"
-  if [ "$RC" -ne 0 -a "$RC" -ne 1 ]; then
+  if [ $RC -ne 0 -a $RC -ne 1 ]; then
     echo exit $RC
     exit $RC
   fi
