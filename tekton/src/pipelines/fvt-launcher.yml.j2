@@ -561,10 +561,6 @@ spec:
         - input: $(params.launchfvt_optimizer)
           operator: in
           values: ["true", "True"]
-      when:
-        - input: $(params.launchfvt_optimizer)
-          operator: in
-          values: ["true", "True"]
       runAfter:
         - waitfor-optimizer
 
