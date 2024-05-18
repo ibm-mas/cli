@@ -455,18 +455,13 @@ spec:
         mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS}
 
         # Wait for launcher to complete
-        /opt/app-root/src/wait-for-tekton.sh --type pipelinerun --name $MAS_INSTANCE_ID-fvt-$DEVOPS_BUILD_NUMBER-$LAUNCHER_ID --namespace mas-$MAS_INSTANCE_ID-pipelines
+        /opt/app-root/src/wait-for-tekton.sh --type pipelinerun --max-retries 100 --name $MAS_INSTANCE_ID-fvt-$DEVOPS_BUILD_NUMBER-$LAUNCHER_ID --namespace mas-$MAS_INSTANCE_ID-pipelines
 
         # Remove argocd window
         argocd_login
         ARGOWINDOW=$(argocd proj windows list mas | grep "*.$MAS_INSTANCE_ID" | cut -c1-1)
         echo "argo:argocd proj windows delete mas $ARGOWINDOW"
         argocd proj windows delete mas $ARGOWINDOW
-
-        if [[ "$LAUNCHER_ID" == "apps" ]]; then
-          unset KUBERNETES_SERVICE_HOST
-          python3 /opt/app-root/src/finalizer.py
-        fi
 
       command:
         - /bin/bash
