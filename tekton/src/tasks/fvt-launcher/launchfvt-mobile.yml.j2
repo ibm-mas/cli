@@ -32,6 +32,7 @@ spec:
         # -----------------------------------------------------------------------
         - name: DEVOPS_BUILD_NUMBER
           valueFrom:
+            secretKeyRef:
               name: mas-devops
               key: DEVOPS_BUILD_NUMBER
               optional: true
