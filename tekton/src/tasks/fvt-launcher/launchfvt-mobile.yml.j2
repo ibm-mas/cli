@@ -30,6 +30,11 @@ spec:
 
         # Lookups from mas-devops
         # -----------------------------------------------------------------------
+        - name: DEVOPS_BUILD_NUMBER
+          valueFrom:
+              name: mas-devops
+              key: DEVOPS_BUILD_NUMBER
+              optional: true
         - name: MAS_INSTANCE_ID
           valueFrom:
             secretKeyRef:
