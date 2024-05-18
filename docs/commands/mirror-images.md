@@ -33,7 +33,7 @@ Usage
 - `--mirror-hputilities` Mirror images for IBM Maximo Health & Predict Utilities
 - `--mirror-iot` Mirror images for IBM Maximo IoT
 - `--mirror-manage` Mirror images for IBM Maximo Manage
-- `--mirror-icd` Mirror image  for IBM Maximo IT (Separately entitled IBM Maximo Manage extension)
+- `--mirror-icd` Mirror image for IBM Maximo IT (Separately entitled IBM Maximo Manage extension)
 - `--mirror-monitor` Mirror images for IBM Maximo Monitor
 - `--mirror-optimizer` Mirror images for IBM Maximo Optimizer
 - `--mirror-predict` Mirror images for IBM Maximo Predict
