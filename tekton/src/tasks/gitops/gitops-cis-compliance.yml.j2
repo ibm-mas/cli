@@ -62,6 +62,8 @@ spec:
         --github-org  $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
         --git-branch $GIT_BRANCH
+
+        exit $?
       command:
         - /bin/sh
         - -c

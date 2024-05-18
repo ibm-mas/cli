@@ -103,7 +103,8 @@ spec:
         --mas-config-scope system \
         --mas-config-type mongo \
         --dir /tmp/init-mas-config-mongo \
-        --mongo-provider "$MONGODB_PROVIDER"
+        --mongo-provider "$MONGODB_PROVIDER" \
+        || exit 1
 
         mkdir -p /tmp/init-mas-config-sls
         mas gitops-mas-config \
@@ -119,7 +120,8 @@ spec:
         --config-action upsert \
         --mas-config-scope system \
         --mas-config-type sls \
-        --dir /tmp/init-mas-config-sls
+        --dir /tmp/init-mas-config-sls \
+        || exit 1
 
         mkdir -p /tmp/init-mas-config-bas
         mas gitops-mas-config \
@@ -140,7 +142,8 @@ spec:
         --dro-contact-firstname "$DRO_CONTACT_FIRSTNAME" \
         --dro-contact-lastname "$DRO_CONTACT_LASTNAME" \
         --dro-ca-certificate-file "$DRO_CA_CERTIFICATE_FILE" \
-        --mas-segment-key "$MAS_SEGMENT_KEY"
+        --mas-segment-key "$MAS_SEGMENT_KEY" \
+        || exit 1
 
         
       command:

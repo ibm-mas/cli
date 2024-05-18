@@ -103,6 +103,8 @@ spec:
         --github-repo $GITHUB_REPO \
         --git-branch $GIT_BRANCH \
         --secrets-path $SECRET_PATH
+
+        exit $?
       command:
         - /bin/sh
         - -c

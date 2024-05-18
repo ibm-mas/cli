@@ -41,6 +41,8 @@ spec:
         export ROSA_CONFIG_DIR=/workspace/configs/tmp-rosa
         mkdir -p $ROSA_CONFIG_DIR
         mas gitops-rosa -c $(params.cluster_name) -v $(params.ocp_version)
+
+        exit $?
       command:
         - /bin/sh
         - -c
