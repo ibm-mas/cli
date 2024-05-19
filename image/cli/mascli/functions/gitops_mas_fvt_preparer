@@ -72,9 +72,16 @@ function gitops_mas_fvt_preparer() {
   echo_h2 "Target" "    "
 
   echo_reset_dim "Pipeline storage class................... ${COLOR_MAGENTA}${PIPELINE_STORAGE_CLASS}"
+  echo_reset_dim "FVT Pipeline ............................ ${COLOR_MAGENTA}${FVT_PIPELINE_NAME}"
+  echo_reset_dim "FVT Config .............................. ${COLOR_MAGENTA}${FVT_CONFIG}"
+  echo_reset_dim "Launcher ID ............................. ${COLOR_MAGENTA}${LAUNCHER_ID}"
 
   #Don't wait for install process
   export SYNC_WITH_INSTALL=false
+  #If this is the FVT Core run then don't call finalize at the end of this run
+  if [[ "$LAUNCHER_ID" == "core" ]]; then
+    export RUN_FINALIZE=false
+  fi
   #FVT pipeline to run
   export PIPELINE_NAME=$FVT_PIPELINE_NAME
   ansible-playbook ibm.mas_fvt.setup_pipeline
