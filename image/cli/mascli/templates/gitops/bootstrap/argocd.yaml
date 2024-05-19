@@ -150,52 +150,6 @@ spec:
           hs.message = ""
           return hs
 
-      apps.mas.ibm.com/HPUtilitiesApp:
-        health.lua: |
-          hs = {}
-          if obj.status ~= nil then
-            if obj.status.conditions ~= nil then
-              for i, condition in ipairs(obj.status.conditions) do
-                if condition.type == "Failure" and condition.status == "True" then
-                  hs.status = "Degraded"
-                  hs.message = condition.message
-                  return hs
-                end
-                if condition.type == "Ready" and condition.status == "True" then
-                  hs.status = "Healthy"
-                  hs.message = condition.message
-                  return hs
-                end
-              end
-            end
-          end
-          hs.status = "Progressing"
-          hs.message = ""
-          return hs
-
-      apps.mas.ibm.com/HPUtilitiesWorkspace:
-        health.lua: |
-          hs = {}
-          if obj.status ~= nil then
-            if obj.status.conditions ~= nil then
-              for i, condition in ipairs(obj.status.conditions) do
-                if condition.type == "Failure" and condition.status == "True" then
-                  hs.status = "Degraded"
-                  hs.message = condition.message
-                  return hs
-                end
-                if condition.type == "Ready" and condition.status == "True" then
-                  hs.status = "Healthy"
-                  hs.message = condition.message
-                  return hs
-                end
-              end
-            end
-          end
-          hs.status = "Progressing"
-          hs.message = ""
-          return hs
-
       apps.mas.ibm.com/ManageApp:
         health.lua: |
           hs = {}
@@ -312,52 +266,6 @@ spec:
           return hs
 
       apps.mas.ibm.com/PredictWorkspace:
-        health.lua: |
-          hs = {}
-          if obj.status ~= nil then
-            if obj.status.conditions ~= nil then
-              for i, condition in ipairs(obj.status.conditions) do
-                if condition.type == "Failure" and condition.status == "True" then
-                  hs.status = "Degraded"
-                  hs.message = condition.message
-                  return hs
-                end
-                if condition.type == "Ready" and condition.status == "True" then
-                  hs.status = "Healthy"
-                  hs.message = condition.message
-                  return hs
-                end
-              end
-            end
-          end
-          hs.status = "Progressing"
-          hs.message = ""
-          return hs
-
-      apps.mas.ibm.com/Safety:
-        health.lua: |
-          hs = {}
-          if obj.status ~= nil then
-            if obj.status.conditions ~= nil then
-              for i, condition in ipairs(obj.status.conditions) do
-                if condition.type == "Failure" and condition.status == "True" then
-                  hs.status = "Degraded"
-                  hs.message = condition.message
-                  return hs
-                end
-                if condition.type == "Ready" and condition.status == "True" then
-                  hs.status = "Healthy"
-                  hs.message = condition.message
-                  return hs
-                end
-              end
-            end
-          end
-          hs.status = "Progressing"
-          hs.message = ""
-          return hs
-
-      apps.mas.ibm.com/SafetyWorkspace:
         health.lua: |
           hs = {}
           if obj.status ~= nil then
@@ -850,23 +758,41 @@ spec:
         health.lua: |
           hs = {}
           if obj.status ~= nil then
-            if obj.status.conditions ~= nil then
-              for i, condition in ipairs(obj.status.conditions) do
-                if condition.type == "CatalogSourcesUnhealthy" and condition.status == "True" then
-                  hs.status = "Degraded"
-                  hs.message = condition.message
-                  return hs
-                end
-                if condition.type == "CatalogSourcesUnhealthy" and condition.status == "False" then
+            if obj.status.installedCSV ~= nil then
+              hs.status = "Progressing"
+              hs.message = "CSV Installed"
+              if obj.status.state ~= nil then
+                hs.message = obj.status.state
+                if obj.status.state == "AtLatestKnown" then
                   hs.status = "Healthy"
-                  hs.message = condition.message
-                  return hs
                 end
               end
+              return hs
             end
           end
           hs.status = "Progressing"
-          hs.message = ""
+          hs.message = "Unknown"
+          if obj.status.state ~= nil then
+            hs.message = obj.status.state
+          end
+          return hs
+
+      operators.coreos.com/InstallPlan:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.phase ~= nil then
+              hs.message = obj.status.phase
+              if obj.status.phase == "Complete" then
+                hs.status = "Healthy"
+              else
+                hs.status = "Progressing"
+              end
+              return hs
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = "Unknown"
           return hs
 
       db2u.databases.ibm.com/Db2uCluster:
