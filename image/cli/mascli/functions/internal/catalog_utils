@@ -14,7 +14,7 @@ MOST_RECENT_CATALOG=v8-240430-amd64
 # Currently only used in the mas update function.  The user does not need to select
 # the version of MAS, only the version of the catalog to update to.
 function choose_catalog_version() {
-  echo -e "${COLOR_YELLOW}Select MAS Catalog:"
+  echo "Select MAS Catalog:"
   echo "  1) April 30 2024 Update (MAS 8.11.10 & 8.10.13)"
   echo "  2) April 05 2024 Update (MAS 8.11.9 & 8.10.11)"
   echo "  3) February 27 2024 Update (MAS 8.11.7 & 8.10.10)"
@@ -52,9 +52,9 @@ function choose_catalog_version() {
 # select both a version of the catalog and a version of MAS within the catalog.
 function choose_mas_version() {
   b="│"
-  header=" ┌───┬──────────────┬────────┬────────┬───────┬────────┬─────────┬───────────┬─────────┬────────────┐"
-  divider=" ├───┼──────────────┼────────┼────────┼───────┼────────┼─────────┼───────────┼─────────┼────────────┤"
-  footer=" └───┴──────────────┴────────┴────────┴───────┴────────┴─────────┴───────────┴─────────┴────────────┘"
+  header=" ┌───┬──────────────┬─────────┬────────┬─────────┬────────┬─────────┬───────────┬─────────┬────────────┐"
+  divider=" ├───┼──────────────┼─────────┼────────┼─────────┼────────┼─────────┼───────────┼─────────┼────────────┤"
+  footer=" └───┴──────────────┴─────────┴────────┴─────────┴────────┴─────────┴───────────┴─────────┴────────────┘"
   echo ""
   echo -e "$header"
   echo -e " $b # $b Catalog      $b  Core   $b Assist $b   IoT   $b Manage $b Monitor $b Optimizer $b Predict $b Inspection $b"
@@ -70,7 +70,7 @@ function choose_mas_version() {
   echo -e "$divider"
   echo -e " $b 7 $b Jan 30 2024  $b 8.11.6  $b 8.8.1  $b 8.8.4   $b 8.7.4  $b 8.11.3  $b   8.5.1   $b  8.9.1  $b   8.9.0    $b"
   echo -e " $b 8 $b              $b 8.10.9  $b 8.7.2  $b 8.7.8   $b 8.6.9  $b 8.10.6  $b   8.4.2   $b  8.8.2  $b   8.8.1    $b"
-  echo -e "$divider"
+  echo -e "$footer"
   reset_colors
   echo
   prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
@@ -143,12 +143,6 @@ function db2_channel_selection() {
     v8-amd64|v8-240130-amd64|v8-240227-amd64|v8-240326-amd64|v8-240405-amd64|v8-240430-amd64)
       DB2_CHANNEL=v110509.0
       ;;
-    v8-231228-amd64)
-      DB2_CHANNEL=v110508.0
-      ;;
-    v8-230111-amd64|v8-230217-amd64|v8-230314-amd64|v8-230328-amd64)
-      DB2_CHANNEL=v2.2
-      ;;
     *)
       DB2_CHANNEL="" # The default channel will be used
       ;;
@@ -166,53 +160,14 @@ function cp4d_channel_selection() {
     v8-amd64|v8-230926-amd64|v8-231004-amd64|v8-231031-amd64|v8-231128-amd64|v8-231228-amd64|v8-240130-amd64|v8-240227-amd64|v8-240326-amd64|v8-240405-amd64|v8-240430-amd64)
       CP4D_VERSION=4.6.6
       ;;
-    # CP4D v4.6.4 was added in the June 2023 catalog update
-    v8-230616-amd64|v8-230627-amd64|v8-230721-amd64|v8-230725-amd64|v8-230829-amd64)
-      CP4D_VERSION=4.6.4
-      ;;
-    # CP4D v4.6.3 was added in the April 2023 catalog update
-    v8-230414-amd64|v8-230518-amd64|v8-230526-amd64)
-      CP4D_VERSION=4.6.3
-      ;;
-    # CP4D v4.6.0 was added in the February 2023 catalog update
-    v8-230217-amd64|v8-230314-amd64)
-      CP4D_VERSION=4.6.0
-      ;;
-    # Versions of the catalog older than February 2023 support up to CP4D v4.5.2
-    v8-230111-amd64)
-      CP4D_VERSION=4.5.2
-      ;;
     *)
       echo
       echo "One or more selected applications require Cloud Pak for Data"
-      prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.6.4"
+      prompt_for_input 'Cloud Pak for Data product version' CP4D_VERSION "4.6.6"
       ;;
   esac
 }
 
-# Determine the prompts for SLS
-# -----------------------------------------------------------------------------
-# We automatically select the version of SLS to install in the
-# cluster based on the version of the catalog that is being used
-# We use the following vars to make version specific prompts
-function sls_prompt_selection() {
-  case $MAS_CATALOG_VERSION in
-    # SLS 3.8.x and up
-    v8-amd64|v8-230926-amd64|v8-231004-amd64|v8-231031-amd64|v8-231128-amd64|v8-231228-amd64|v8-240130-amd64|v8-240227-amd64|v8-240326-amd64|v8-240405-amd64|v8-240430-amd64)
-      SLS_PROMPT_LICENSE_ID="false"
-      SLS_PROMPT_ICR_CP="false"
-      ;;
-    # SLS 3.7.0
-    v8-230518-amd64|v8-230627-amd64|v8-230725-amd64|v8-230829-amd64)
-      SLS_PROMPT_LICENSE_ID="false"
-      SLS_PROMPT_ICR_CP="true"
-      ;;
-    *)
-      SLS_PROMPT_LICENSE_ID="true"
-      SLS_PROMPT_ICR_CP="true"
-      ;;
-  esac
-}
 
 # Determine the Certificate Manager provider to use
 # -----------------------------------------------------------------------------

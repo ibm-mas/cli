@@ -115,12 +115,6 @@ spec:
       default: "strimzi"
       description: kafka provider such as 'redhat' or 'strimzi'
 
-    # SLS 3.8.0 registry change
-    - name: update_sls_registry
-      default: ""
-      type: string
-      description: Set to 'true' to change all LicenseService CRs' registry to cpopen
-
     # UDS/DRO Migration
     - name: dro_migration
       default: ""
@@ -236,19 +230,6 @@ spec:
           value: $(params.artifactory_username)
         - name: artifactory_token
           value: $(params.artifactory_token)
-
-    # 3. Update SLS LicenseService CR registry if needed
-    # -------------------------------------------------------------------------
-    - name: update-licenseservice
-      taskRef:
-        kind: Task
-        name: sls-registry-update
-      runAfter:
-        - update-catalog
-      when:
-        - input: "true"
-          operator: in
-          values: ["$(params.update_sls_registry)"]
 
     # 4. Verify health of the cluster before we consider the update complete
     # -------------------------------------------------------------------------
@@ -449,7 +430,6 @@ spec:
         'devops_suite_name': 'post-deps-update-verify'
       }) | indent(4) }}
       runAfter:
-        - update-licenseservice
         - update-db2
         - update-mongodb
         - update-kafka
