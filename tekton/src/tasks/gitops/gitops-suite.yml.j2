@@ -228,7 +228,8 @@ spec:
         --github-host $GITHUB_HOST \
         --github-org  $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH
+        --git-branch $GIT_BRANCH \
+	--custom-labels "$CUSTOM_LABELS"
 
         exit $?
       command:
