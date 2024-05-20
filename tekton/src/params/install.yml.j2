@@ -21,11 +21,6 @@
 - name: sls_namespace
   type: string
   default: ""
-- name: sls_license_id
-  type: string
-- name: sls_license_file
-  type: string
-  default: "/workspace/entitlement/entitlement.lic"
 - name: sls_entitlement_file
   type: string
   default: "/workspace/entitlement/entitlement.lic"
@@ -36,9 +31,6 @@
   type: string
   default: ""
 - name: sls_channel
-  type: string
-  default: ""
-- name: sls_icr_cp
   type: string
   default: ""
 - name: sls_icr_cpopen
@@ -282,39 +274,15 @@
   description: COS action to be performed (provision or deprovision)
   default: ""
 
-# MAS Integration - Cluster Monitoring - Prometheus
-# -----------------------------------------------------------------------------
-- name: prometheus_retention_period
-  type: string
-  default: ""
-- name: prometheus_storage_class
-  type: string
-  default: ""
-- name: prometheus_storage_size
-  type: string
-  default: ""
-- name: prometheus_alertmgr_storage_class
-  type: string
-  default: ""
-- name: prometheus_alertmgr_storage_size
-  type: string
-  default: ""
-- name: prometheus_userworkload_retention_period
-  type: string
-  default: ""
-- name: prometheus_userworkload_storage_class
-  type: string
-  default: ""
-- name: prometheus_userworkload_storage_size
-  type: string
-  default: ""
-
 # MAS Integration - Cluster Monitoring - Grafana
 # -----------------------------------------------------------------------------
-- name: cluster_monitoring_include_grafana
+- name: grafana_action
+  type: string
+  default: "none"
+- name: grafana_namespace
   type: string
   default: ""
-- name: grafana_namespace
+- name: grafana_v5_namespace
   type: string
   default: ""
 - name: grafana_instance_storage_class
@@ -324,12 +292,6 @@
   type: string
   default: ""
 - name: grafana_major_version
-  type: string
-  default: ""
-
-# MAS Integration - Cluster Monitoring - Open Telemetry
-# -----------------------------------------------------------------------------
-- name: cluster_monitoring_include_opentelemetry
   type: string
   default: ""
 

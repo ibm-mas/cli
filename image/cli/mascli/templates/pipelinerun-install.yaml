@@ -10,7 +10,8 @@ spec:
     name: mas-install
 
   serviceAccountName: pipeline
-  timeout: 24h
+  timeouts:
+    pipeline: "24h"
 
   params:
     # Pipeline config
@@ -234,16 +235,10 @@ spec:
     # -------------------------------------------------------------------------
     - name: sls_namespace
       value: '$SLS_NAMESPACE'
-    - name: sls_license_id
-      value: '$SLS_LICENSE_ID'
-    - name: sls_license_file
-      value: '$SLS_LICENSE_FILE'
     - name: sls_entitlement_file
       value: '$SLS_ENTITLEMENT_FILE'
     - name: sls_channel
       value: '3.x'
-    - name: sls_icr_cp
-      value: '$SLS_ICR_CP'
     - name: sls_icr_cpopen
       value: '$SLS_ICR_CPOPEN'
 
@@ -488,29 +483,10 @@ spec:
     - name: mas_app_channel_visualinspection
       value: '$MAS_APP_CHANNEL_VISUALINSPECTION'
 
-    # Prometheus
-    # -------------------------------------------------------------------------
-    - name: prometheus_retention_period
-      value: '$PROMETHEUS_RETENTION_PERIOD'
-    - name: prometheus_storage_class
-      value: '$PROMETHEUS_STORAGE_CLASS'
-    - name: prometheus_storage_size
-      value: '$PROMETHEUS_STORAGE_SIZE'
-    - name: prometheus_alertmgr_storage_class
-      value: '$PROMETHEUS_ALERTMGR_STORAGE_CLASS'
-    - name: prometheus_alertmgr_storage_size
-      value: '$PROMETHEUS_ALERTMGR_STORAGE_SIZE'
-    - name: prometheus_userworkload_retention_period
-      value: '$PROMETHEUS_USERWORKLOAD_RETENTION_PERIOD'
-    - name: prometheus_userworkload_storage_class
-      value: '$PROMETHEUS_USERWORKLOAD_STORAGE_CLASS'
-    - name: prometheus_userworkload_storage_size
-      value: '$PROMETHEUS_USERWORKLOAD_STORAGE_SIZE'
-
     # Grafana
     # -------------------------------------------------------------------------
-    - name: cluster_monitoring_include_grafana
-      value: '$CLUSTER_MONITORING_INCLUDE_GRAFANA'
+    - name: grafana_action
+      value: '$GRAFANA_ACTION'
     - name: grafana_namespace
       value: '$GRAFANA_NAMESPACE'
     - name: grafana_instance_storage_class
@@ -519,11 +495,6 @@ spec:
       value: '$GRAFANA_INSTANCE_STORAGE_SIZE'
     - name: grafana_major_version
       value: '$GRAFANA_MAJOR_VERSION'
-
-    # Open Telemetry
-    # -------------------------------------------------------------------------
-    - name: cluster_monitoring_include_opentelemetry
-      value: '$CLUSTER_MONITORING_INCLUDE_OPENTELEMETRY'
 
   workspaces:
     # The generated configuration files

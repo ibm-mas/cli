@@ -1,0 +1,126 @@
+# podTemplates
+# ===================================================================================
+# This list defines the resources for Deployment: Suite.
+# The pod gets tested for scaling and affinity.
+# The containers that get tested for resources - QoS class of Guaranteed and Burstable.
+podTemplates:
+  - name: monitoragent
+    containers:
+      - name: monitoragent
+        resources:
+          requests:
+            memory: 350Mi
+            cpu: 250m
+          limits:
+            memory: 350Mi
+            cpu: 250m
+  - name: manage-maxinst
+    containers:
+      - name: manage-maxinst-maxinst
+        resources:
+          requests:
+            cpu: "2"
+            memory: 4Gi
+          limits:
+            cpu: "2"
+            memory: 4Gi
+  - name: all
+    containers:
+      - name: all
+        resources:
+          requests:
+            cpu: "6"
+            memory: 10Gi
+          limits:
+            cpu: "6"
+            memory: 10Gi
+      - name: monitoragent
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "1"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+  - name: ui
+    containers:
+      - name: ui
+        resources:
+          requests:
+            cpu: "6"
+            memory: 10Gi
+          limits:
+            cpu: "6"
+            memory: 10Gi
+      - name: monitoragent
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "1"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+  - name: mea
+    containers:
+      - name: mea
+        resources:
+          requests:
+            cpu: "6"
+            memory: 10Gi
+          limits:
+            cpu: "6"
+            memory: 10Gi
+      - name: monitoragent
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "1"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+  - name: rpt
+    containers:
+      - name: rpt
+        resources:
+          requests:
+            cpu: "6"
+            memory: 10Gi
+          limits:
+            cpu: "6"
+            memory: 10Gi
+      - name: monitoragent
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "1"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+  - name: cron
+    containers:
+      - name: cron
+        resources:
+          requests:
+            cpu: "6"
+            memory: 10Gi
+          limits:
+            cpu: "6"
+            memory: 10Gi
+      - name: monitoragent
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "1"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+  - name: jms
+    containers:
+      - name: jms
+        resources:
+          requests:
+            cpu: "6"
+            memory: 10Gi
+          limits:
+            cpu: "6"
+            memory: 10Gi

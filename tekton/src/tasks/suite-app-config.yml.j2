@@ -11,7 +11,7 @@ spec:
     - name: mas_instance_id
       type: string
       description: Instance ID
-    
+
     # CPD Version
     - name: cpd_product_version
       type: string
@@ -120,7 +120,7 @@ spec:
     - name: mas_app_settings_customization_archive_password
       type: string
       description: Password to authenticate into Manage custom archive url (if required)
-      default: "" 
+      default: ""
     - name: mas_app_settings_crypto_key
       type: string
       description: Manage database encryption key for MXE_SECURITY_CRYPTO_KEY
@@ -187,7 +187,7 @@ spec:
         value: /workspace/configs
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
-      
+
       # CPD Version
       - name: CPD_PRODUCT_VERSION
         value: $(params.cpd_product_version)
@@ -259,6 +259,8 @@ spec:
         value: $(params.mas_app_settings_override_encryption_secrets_flag)
       - name: MAS_APP_SETTINGS_DEFAULT_JMS
         value: $(params.mas_app_settings_default_jms)
+      - name: MAS_POD_TEMPLATES_DIR
+        value: /workspace/pod-templates
 
       # Application Workspace - Operand (Predict)
       - name: PREDICT_DEPLOYMENT_SIZE
@@ -288,5 +290,47 @@ spec:
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
 
+    # If configmap/approval-app-cfg-$(params.mas_app_id) exists then set CONFIGMAP_KEY=pending and wait for it to be changed to "approved"
+    - name: app-cfg-post-verify
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - /opt/app-root/src/wait-for-configmap.sh
+      env:
+        - name: NAMESPACE
+          value: $(context.taskRun.namespace)
+        - name: CONFIGMAP_NAME
+          value: approval-app-cfg-$(params.mas_app_id)
+        - name: CONFIGMAP_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: approval-app-cfg-$(params.mas_app_id)
+              key: CONFIGMAP_KEY
+              optional: true
+        - name: CONFIGMAP_INITIAL_VALUE
+          value: pending
+        - name: CONFIGMAP_TARGET_VALUE
+          value: approved
+        - name: DELAY
+          valueFrom:
+            configMapKeyRef:
+              name: approval-app-cfg-$(params.mas_app_id)
+              key: DELAY
+              optional: true
+        - name: MAX_RETRIES
+          valueFrom:
+            configMapKeyRef:
+              name: approval-app-cfg-$(params.mas_app_id)
+              key: MAX_RETRIES
+              optional: true
+        - name: IGNORE_FAILURE
+          valueFrom:
+            configMapKeyRef:
+              name: approval-app-cfg-$(params.mas_app_id)
+              key: IGNORE_FAILURE
+              optional: true
+
   workspaces:
     - name: configs
+    - name: pod-templates
+      optional: true

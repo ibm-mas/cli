@@ -76,21 +76,25 @@ spec:
             name: mas-devops
             key: DEVOPS_BUILD_NUMBER
             optional: true
-      
-      # IBM Cloud Key is required for image scan suite
+
+      # IBM Cloud API Key & Github Token are required to run the image vulnerability scan testsuite
+      - name : FVT_ENABLE_IMAGE_SCAN
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: FVT_ENABLE_IMAGE_SCAN
+            optional: true
       - name: IBMCLOUD_APIKEY
         valueFrom:
           secretKeyRef:
             name: mas-fvt
             key: IBMCLOUD_APIKEY
             optional: true
-
-      # FVT_ENABLE_IMAGE_SCAN os required for image scan suite
-      - name : FVT_ENABLE_IMAGE_SCAN
+      - name: GITHUB_TOKEN
         valueFrom:
           secretKeyRef:
-            name: mas-fvt-core
-            key: FVT_ENABLE_IMAGE_SCAN
+            name: mas-fvt
+            key: FVT_GITHUB_TOKEN
             optional: true
 
       # The name of the test suite inside the container we will execute (/opt/ibm/test/suites/{TEST_SUITE})
@@ -104,7 +108,7 @@ spec:
   steps:
     - image: '$(params.fvt_image_registry)/mas-devops/ivt-core@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 2h0m0s # Ensure bad FVTs don't run forever
+      timeout: 4h0m0s # SPS Multi-Scan can take over three hours to run for IoT
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
