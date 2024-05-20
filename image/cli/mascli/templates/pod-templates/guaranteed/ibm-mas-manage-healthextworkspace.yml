@@ -1,0 +1,18 @@
+# podTemplates
+# ===================================================================================
+# This list defines the resources for Deployment: Suite.
+# The pod gets tested for scaling and affinity.
+# The containers that get tested for resources - QoS class of Guaranteed and Burstable.
+podTemplates:
+  - name: healthext-model-engine
+    containers:
+      - name: healthext-model-engine
+        resources:
+          requests:
+            cpu: 1000m
+            ephemeral-storage: 2Gi
+            memory: 1Gi
+          limits:
+            cpu: 1000m
+            ephemeral-storage: 2Gi
+            memory: 1Gi

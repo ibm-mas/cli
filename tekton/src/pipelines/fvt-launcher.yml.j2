@@ -1,96 +1,212 @@
 ---
-# Don't edit install.yaml directly -- modify install.yml.j2, and the content in parts/, then run "ansible-playbook generate-install.yaml"
+# There are various integration points in the install pipeline that we can hang FVT off
+# 1. suite-verify ............... Triggered after Core install and configuration is verified
+# 2. app-cfg-assist ............. Triggered after Assist is installed and configured
+# 3. app-cfg-iot ................ Triggered after IoT is installed and configured
+# 4. app-cfg-manage ............. Triggered after Manage is installed and configured
+# 5. app-cfg-monitor ............ Triggered after Monitor is installed and configured
+# 6. app-cfg-optimizer .......... Triggered after Optimizer is installed and configured
+# 7. app-cfg-predict ............ Triggered after Predict is installed and configured
+# 8. app-cft-visualinspection ... Triggered after Visual Inspection is installed and configured
+
+# TODO: Manage component sub-pipelines need to be integrated (fvt-manage-civil, fvt-manage-health, fvt-manage-is)
+# TODO: Mobile sub-pipelines need to be integrated (fvt-mobile) .. should this be fvt-manage-mobile, is it testing anything mobile that is outside scope of Manage application?
+
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: mas-fvt-launcher
 spec:
-  workspaces:
-    # Shared storage to hold mustgather output for tasks
-    - name: shared-mustgather
-    - name: shared-additional-configs
-    
   params:
     - name: fvt_image_registry
       type: string
-      default: ""
     - name: image_pull_policy
       type: string
-      default: ""
 
     - name: mas_instance_id
       type: string
-      default: ""
+
+    - name: sync_with_install
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable synchronization with a running MAS install pipeline"
+
+    - name: run_finalize
+      type: string
+      default: "true"
+      description: "Set this to 'false' to stop the finalize task from running for this launcher"
 
     - name: launchfvt_core
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Core FVT Pipeline after suite-verify completes"
+      description: "Set this to any falue other than 'true' to disable launch of the SLS & Core FVT pipelines after suite-verify completes"
     - name: launchfvt_assist
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Assist FVT Pipeline after app-cfg-assist completes"
-    - name: launchfvt_health
-      type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Health FVT Pipeline after app-cfg-manage completes"
+      description: "Set this to any falue other than 'true' to disable launch of the Assist FVT pipeline after app-cfg-assist completes"
     - name: launchfvt_iot
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the IoT FVT Pipeline after app-cfg-iot completes"
+      description: "Set this to any falue other than 'true' to disable launch of the IoT FVT pipeline after app-cfg-iot completes"
     - name: launchfvt_manage
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Manage FVT Pipeline after app-cfg-manage completes (does not control the additional Industry Solution, Mobile, or Regression Manage suites)"
-    - name: launchfvt_manage_civil
-      type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Manage Civil FVT Pipeline after launchfvt-manage completes (does not control Civil Industry Solution suites)"
-    - name: launchfvt_manage_is
-      type: string
-      default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Manage Industry Solutions FVT Pipeline after launchfvt-manage completes"
+      description: "Set this to any falue other than 'true' to disable launch of the Manage FVT pipeline after app-cfg-manage completes"
     - name: launchfvt_mobile
       type: string
-      default: "false"
-      description: "Set this to 'true' to enable launch of the Mobile FVT Pipeline after app-cfg-manage completes"
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable launch of the Mobile FVT pipeline after app-cfg-manage completes"
     - name: launchfvt_monitor
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Manage FVT Pipeline after app-cfg-monitor completes"
+      description: "Set this to any falue other than 'true' to disable launch of the Monitor FVT pipeline after app-cfg-monitor completes"
     - name: launchfvt_optimizer
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Optimizer FVT Pipeline after app-cfg-optimizer completes"
+      description: "Set this to any falue other than 'true' to disable launch of the Optimizer FVT pipeline after app-cfg-optimizer completes"
     - name: launchfvt_predict
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Predict FVT Pipeline after app-cfg-predict completes"
+      description: "Set this to any falue other than 'true' to disable launch of the Predict FVT pipeline after app-cfg-predict completes"
     - name: launchfvt_visualinspection
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Visual Inspection FVT Pipeline after app-cfg-visualinspection completes"
+      description: "Set this to any falue other than 'true' to disable launch of the Visual Inspection FVT pipeline after app-cfg-visualinspection completes"
 
   tasks:
-    # 13. MAS Core FVT
+    # 1. MAS Core FVT
     # -------------------------------------------------------------------------
+    - name: waitfor-suite-verify
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-suite-verify
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
+        # 25 retries at 5 minute intervals = 2 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "25"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+
+# See: https://jsw.ibm.com/browse/IBMSLS-17
+#    - name: launchfvt-sls
+#      taskRef:
+#        kind: Task
+#        name: mas-launchfvt-sls
+#      params:
+#        - name: image_pull_policy
+#          value: $(params.image_pull_policy)
+#        - name: pipelinerun_name
+#          value: "$(params.mas_instance_id)-fvt-sls"
+#      when:
+#        - input: $(params.launchfvt_core)
+#          operator: in
+#          values: ["true", "True"]
+#      runAfter:
+#        - waitfor-suite-verify
+#
+
     - name: launchfvt-core
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-core
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
         - name: pipelinerun_name
           value: "$(params.mas_instance_id)-fvt-core"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-core
       when:
         - input: $(params.launchfvt_core)
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - waitfor-suite-verify
+
+    - name: approval-suite-verify
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: approval-suite-verify
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_value
+          value: approved
+      when:
+        - input: $(params.launchfvt_core)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-core
+        # See: https://jsw.ibm.com/browse/IBMSLS-17
+        # - launchfvt-sls
 
 
-    # 14. Application FVT - Assist
+    # 2. Application FVT - Assist
     # -------------------------------------------------------------------------
+    - name: waitfor-assist
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-app-cfg-assist
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
+        # 40 retries at 5 minute intervals = 3 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "40"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: $(params.launchfvt_assist)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - approval-suite-verify
+
     - name: launchfvt-assist
       params:
         - name: image_pull_policy
@@ -104,26 +220,73 @@ spec:
         - input: $(params.launchfvt_assist)
           operator: in
           values: ["true", "True"]
-    
-    # 15. Application FVT - Health
-    # -------------------------------------------------------------------------
-    - name: launchfvt-health
+      runAfter:
+        - waitfor-assist
+
+    - name: approval-assist
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-health"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-health
+        - name: configmap_name
+          value: approval-app-cfg-assist
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_value
+          value: approved
       when:
-        - input: $(params.launchfvt_health)
+        - input: $(params.launchfvt_assist)
           operator: in
           values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-assist
 
 
-    # 16. Application FVT - IoT
+    # 3. Application FVT - IoT
     # -------------------------------------------------------------------------
+    - name: waitfor-iot
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-app-cfg-iot
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
+        # 40 retries at 5 minute intervals = 3 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "40"
+        - name: ignore_failure
+          value: "False"
+      when:
+        # Wait for IoT to be installed if we are running the IoT and/or the Monitor FVT suite
+        - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)"
+          operator: in
+          values: ["true", "True","truetrue", "TrueTrue"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - approval-suite-verify
+
     - name: launchfvt-iot
       params:
         - name: image_pull_policy
@@ -137,10 +300,76 @@ spec:
         - input: $(params.launchfvt_iot)
           operator: in
           values: ["true", "True"]
+      when:
+        - input: $(params.launchfvt_iot)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-iot
+
+    - name: approval-iot
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: approval-app-cfg-iot
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_value
+          value: approved
+      when:
+        - input: $(params.launchfvt_iot)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-iot
 
 
-    # 17. Application FVT - Manage
+    # 5. Application FVT - Manage
     # -------------------------------------------------------------------------
+    - name: waitfor-manage
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-app-cfg-manage
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
+        # 100 retries at 5 minute intervals = 8 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "100"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: $(params.launchfvt_manage)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - approval-suite-verify
+
     - name: launchfvt-manage
       params:
         - name: image_pull_policy
@@ -154,107 +383,36 @@ spec:
         - input: $(params.launchfvt_manage)
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - waitfor-manage
 
-    # 18. Application FVT - Manage Civil
-    # -------------------------------------------------------------------------
-    - name: launchfvt-manage-civil
+    - name: approval-manage
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-manage-civil"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-manage-civil
+        - name: configmap_name
+          value: approval-app-cfg-manage
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_value
+          value: approved
       when:
-        - input: $(params.launchfvt_manage_civil)
+        - input: $(params.launchfvt_manage)
           operator: in
           values: ["true", "True"]
-    
-    # 19. Application FVT - Manage IS (Industry Solutions)
-    # -------------------------------------------------------------------------
-    - name: launchfvt-manage-is
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-manage-is"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-manage-is
-      when:
-        - input: $(params.launchfvt_manage_is)
+        - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - launchfvt-manage
 
-    # 20. Application FVT - Monitor
+
+    # 6. Application FVT - Mobile
     # -------------------------------------------------------------------------
-    - name: launchfvt-monitor
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-monitor"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-monitor
-      when:
-        - input: $(params.launchfvt_monitor)
-          operator: in
-          values: ["true", "True"]
-
-
-    # 21. Application FVT - Predict
-    # -------------------------------------------------------------------------
-    - name: launchfvt-predict
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-predict"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-predict
-      when:
-        - input: $(params.launchfvt_predict)
-          operator: in
-          values: ["true", "True"]
-
-
-    # 22. Application FVT - Visual Inspection
-    # -------------------------------------------------------------------------
-    - name: launchfvt-visualinspection
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-visualinspection"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-visualinspection
-      when:
-        - input: $(params.launchfvt_visualinspection)
-          operator: in
-          values: ["true", "True"]
-
-    # 23. Application FVT - Optimizer
-    # -------------------------------------------------------------------------
-    - name: launchfvt-optimizer
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-optimizer"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-optimizer
-      when:
-        - input: $(params.launchfvt_optimizer)
-          operator: in
-          values: ["true", "True"]
-    
-    # 24. Application FVT - Mobile
-    # -------------------------------------------------------------------------
+    # Mobile FVT pipeline is launched after Manage is installed, but we do not sync it's progress back to the install pipeline
     - name: launchfvt-mobile
       params:
         - name: image_pull_policy
@@ -269,7 +427,339 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - launchfvt-manage
+        - waitfor-manage
+
+
+    # 7. Application FVT - Monitor
+    # -------------------------------------------------------------------------
+    # We only start the Monitor part of the FVT launcher after the IoT part has completed
+    - name: waitfor-monitor
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-app-cfg-monitor
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
+        # 25 retries at 5 minute intervals = 4 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "25"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: $(params.launchfvt_monitor)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - approval-iot
+
+    - name: launchfvt-monitor
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-monitor"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-monitor
+      when:
+        - input: $(params.launchfvt_monitor)
+          operator: in
+          values: ["true", "True"]
+      when:
+        - input: $(params.launchfvt_monitor)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-monitor
+
+    - name: approval-monitor
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: approval-app-cfg-monitor
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_value
+          value: approved
+      when:
+        - input: $(params.launchfvt_monitor)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-monitor
+
+
+    # 8. Application FVT - Optimizer
+    # -------------------------------------------------------------------------
+    - name: waitfor-optimizer
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-app-cfg-optimizer
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
+        # 25 retries at 5 minute intervals = 2 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "25"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: $(params.launchfvt_optimizer)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - approval-suite-verify
+
+    - name: launchfvt-optimizer
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-optimizer"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-optimizer
+      when:
+        - input: $(params.launchfvt_optimizer)
+          operator: in
+          values: ["true", "True"]
+      when:
+        - input: $(params.launchfvt_optimizer)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-optimizer
+
+    - name: approval-optimizer
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: approval-app-cfg-optimizer
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_value
+          value: approved
+      when:
+        - input: $(params.launchfvt_optimizer)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-optimizer
+
+
+    # 9. Application FVT - Predict
+    # -------------------------------------------------------------------------
+    # We only start the Predict part of the FVT launcher after the Monitor part has completed
+    - name: waitfor-predict
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-app-cfg-predict
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
+        # 25 retries at 5 minute intervals = 2 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "25"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: $(params.launchfvt_predict)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - approval-monitor
+        - approval-manage
+
+    - name: launchfvt-predict
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-predict"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-predict
+      when:
+        - input: $(params.launchfvt_predict)
+          operator: in
+          values: ["true", "True"]
+      when:
+        - input: $(params.launchfvt_predict)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-predict
+
+    - name: approval-predict
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: approval-app-cfg-predict
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_value
+          value: approved
+      when:
+        - input: $(params.launchfvt_predict)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-predict
+
+
+    # 10. Application FVT - Visual Inspection
+    # -------------------------------------------------------------------------
+    - name: waitfor-visualinspection
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-app-cfg-visualinspection
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
+        # 25 retries at 5 minute intervals = 2 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "25"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: $(params.launchfvt_visualinspection)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - approval-suite-verify
+
+    - name: launchfvt-visualinspection
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-visualinspection"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-visualinspection
+      when:
+        - input: $(params.launchfvt_visualinspection)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-visualinspection
+
+    - name: approval-visualinspection
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: approval-app-cfg-visualinspection
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_value
+          value: approved
+      when:
+        - input: $(params.launchfvt_visualinspection)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-visualinspection
+
 
   finally:
     # Collect must-gather
@@ -284,3 +774,18 @@ spec:
       workspaces:
         - name: mustgather
           workspace: shared-mustgather
+
+    # Finalize the record in the FVT database
+    # -------------------------------------------------------------------------
+    - name: finalize
+      taskRef:
+        kind: Task
+        name: mas-fvt-finalize
+      when:
+        - input: $(params.run_finalize)
+          operator: in
+          values: ["true", "True"]
+
+  workspaces:
+    # Shared storage to hold mustgather output for tasks
+    - name: shared-mustgather

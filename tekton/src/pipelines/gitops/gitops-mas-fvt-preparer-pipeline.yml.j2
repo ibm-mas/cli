@@ -49,15 +49,11 @@ spec:
       type: string
     - name: fvt_version_assist
       type: string
-    - name: fvt_version_health
-      type: string
     - name: fvt_version_iot
       type: string
     - name: fvt_version_optimizer
       type: string
     - name: fvt_version_manage
-      type: string
-    - name: fvt_version_manage_civil
       type: string
     - name: fvt_version_mobile
       type: string
@@ -74,17 +70,9 @@ spec:
       type: string
     - name: fvt_whitelist_manage
       type: string
-    - name: fvt_blacklist_manage_civil
-      type: string
-    - name: fvt_whitelist_manage_civil
-      type: string
     - name: fvt_blacklist_manage_is
       type: string
     - name: fvt_whitelist_manage_is
-      type: string
-    - name: fvt_blacklist_health
-      type: string
-    - name: fvt_whitelist_health
       type: string
     - name: fvt_blacklist_optimizer
       type: string
@@ -130,12 +118,6 @@ spec:
       type: string
       default: "true"
       description: "Set this to any falue other than 'true' to disable lauch of the Mobile FVT Pipeline after app-cfg-manage completes"
-    - name: launchfvt_health
-      type: string
-      default: "true"
-    - name: launchfvt_manage_civil
-      type: string
-      default: "true"
     - name: launchfvt_manage_is
       type: string
       default: "true"
@@ -215,16 +197,12 @@ spec:
           value: $(params.fvt_version_ctf)
         - name: fvt_version_assist
           value: $(params.fvt_version_assist)
-        - name: fvt_version_health
-          value: $(params.fvt_version_health)
         - name: fvt_version_iot
           value: $(params.fvt_version_iot)
         - name: fvt_version_optimizer
           value: $(params.fvt_version_optimizer)
         - name: fvt_version_manage
           value: $(params.fvt_version_manage)
-        - name: fvt_version_manage_civil
-          value: $(params.fvt_version_manage_civil)
         - name: fvt_version_mobile
           value: $(params.fvt_version_mobile)
         - name: fvt_version_data_dictionary
@@ -240,18 +218,10 @@ spec:
           value: $(params.fvt_blacklist_manage)
         - name: fvt_whitelist_manage
           value: $(params.fvt_whitelist_manage)
-        - name: fvt_blacklist_manage_civil
-          value: $(params.fvt_blacklist_manage_civil)
-        - name: fvt_whitelist_manage_civil
-          value: $(params.fvt_whitelist_manage_civil)
         - name: fvt_blacklist_manage_is
           value: $(params.fvt_blacklist_manage_is)
         - name: fvt_whitelist_manage_is
           value: $(params.fvt_whitelist_manage_is)
-        - name: fvt_blacklist_health
-          value: $(params.fvt_blacklist_health)
-        - name: fvt_whitelist_health
-          value: $(params.fvt_whitelist_health)
         - name: fvt_blacklist_optimizer
           value: $(params.fvt_blacklist_optimizer)
         - name: fvt_whitelist_optimizer
@@ -278,10 +248,6 @@ spec:
           value: $(params.launchfvt_predict)
         - name: launchfvt_visualinspection
           value: $(params.launchfvt_visualinspection)
-        - name: launchfvt_health
-          value: $(params.launchfvt_health)
-        - name: launchfvt_manage_civil
-          value: $(params.launchfvt_manage_civil)
         - name: launchfvt_manage_is
           value: $(params.launchfvt_manage_is)
 

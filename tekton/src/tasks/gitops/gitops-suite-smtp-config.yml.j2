@@ -127,13 +127,15 @@ spec:
         --smtp-default-sender-name "$SMTP_DEFAULT_SENDER_NAME" \
         --smtp-default-recipient-email "$SMTP_DEFAULT_RECIPIENT_EMAIL" \
         --smtp-default-should-email-passwords "$SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS"
+
+        exit $?
         
       command:
         - /bin/sh
         - -c
       name: gitops-suite-smtp-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
   workspaces:
     - name: configs
 

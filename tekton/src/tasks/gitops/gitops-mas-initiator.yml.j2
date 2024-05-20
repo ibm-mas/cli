@@ -250,7 +250,13 @@ spec:
         fi
 
         echo "git: Adding all files in $TARGET_LOCAL_DIR working directory"
-        export FILES_ADDED=$(git add -v . | wc -l | xargs)
+        FILES_ADDED_OUTPUT="$(git add -v .)"
+        return_code=$?
+        if [ $return_code -ne 0 ]; then
+          echo "git: Add files failed with error: $return_code"
+          exit $return_code
+        fi
+        export FILES_ADDED=$(echo "$FILES_ADDED_OUTPUT" | awk NF | wc -l | xargs)
         echo "git: Added ${FILES_ADDED} files"
 
         export COMMIT_MSG="gitops-initiator deploy for $CLUSTER_NAME"
@@ -296,6 +302,6 @@ spec:
         - -c
       name: gitops-mas-initiator
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
   workspaces:
     - name: configs

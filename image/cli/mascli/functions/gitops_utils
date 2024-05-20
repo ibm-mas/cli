@@ -22,7 +22,14 @@ function sm_list_cluster_secrets() {
   CLUSTER_ID=$2
 
   if [[ "$AVP_TYPE" == "aws" ]]; then
-    aws secretsmanager list-secrets --output yaml --no-cli-pager --filters Key=name,Values=${ACCOUNT}${DELIMIITER}${CLUSTER_ID}${DELIMIITER} | yq -r '.SecretList[].Name'
+    LIST_SECRETS_OUTPUT="$(aws secretsmanager list-secrets --output yaml --no-cli-pager --filters Key=name,Values=${ACCOUNT}${DELIMIITER}${CLUSTER_ID}${DELIMIITER})"
+    return_code=$?
+    if [ $return_code -ne 0 ]; then
+      echo "aws: secretmanager list-secrets failed with error: $return_code"
+      exit $return_code
+    fi
+
+    echo "$LIST_SECRETS_OUTPUT" | yq -r '.SecretList[].Name'
   elif [[ "$AVP_TYPE" == "ibm" ]]; then
     echo "IBM SecretsManager not yet supported"
     exit 1
@@ -66,7 +73,7 @@ function sm_delete_secret(){
   if [[ "$AVP_TYPE" == "aws" ]]; then
 
     # Delete the secret
-    aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${SECRET_NAME} --output json 2> /dev/null
+    aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${SECRET_NAME} --output json 2> /dev/null || exit 1
 
   elif [[ "$AVP_TYPE" == "ibm" ]]; then
     echo "IBM SecretsManager not yet supported"
@@ -207,7 +214,13 @@ function save_to_target_git_repo() {
   cd $LOCAL_DIR || exit 1
 
   echo "git: Adding all files in $LOCAL_DIR working directory"
-  export FILES_ADDED=$(git add -v . | wc -l | xargs)
+  FILES_ADDED_OUTPUT="$(git add -v .)"
+  return_code=$?
+  if [ $return_code -ne 0 ]; then
+    echo "git: Add files failed with error: $return_code"
+    exit $return_code
+  fi
+  export FILES_ADDED=$(echo "$FILES_ADDED_OUTPUT" | awk NF | wc -l | xargs)
   echo "git: Added ${FILES_ADDED} files"
 
   if [ "$FILES_ADDED" != "0" ]; then
@@ -267,11 +280,11 @@ function unlock_git_repo() {
   if [[ -d "${GITOPS_REPO_DIR}" ]]; then
     echo ""
     echo "Deleting "${GIT_LOCK_BRANCH}" from remote"
-    git -C "${GITOPS_REPO_DIR}" push origin --delete "${GIT_LOCK_BRANCH}"
+    git -C "${GITOPS_REPO_DIR}" push origin --delete "${GIT_LOCK_BRANCH}" || exit 1
 
     echo ""
     echo "Deleting ${GITOPS_REPO_DIR} from filesystem"
-    rm -rf "${GITOPS_REPO_DIR}"
+    rm -rf "${GITOPS_REPO_DIR}" || exit 1
   fi
 }
 
@@ -313,7 +326,7 @@ function clone_and_lock_target_git_repo() {
   SSH_PATH=$6
   GIT_LOCK_BRANCH=$7
 
-  RETRIES=${8:-10}
+  RETRIES=${8:-20}
   RETRY_DELAY_SECONDS=${8:-20}
 
   GITOPS_REPO_DIR="${LOCAL_DIR}/${GITHUB_REPO}"
@@ -409,7 +422,7 @@ function git_push_with_retries {
   GITHUB_REPO="$1"
   GIT_BRANCH="$2"
   LOCAL_DIR="$3"
-  RETRIES=${4:-10}
+  RETRIES=${4:-20}
   RETRY_DELAY_SECONDS=${5:-30}
 
   GITOPS_REPO_DIR="${LOCAL_DIR}/${GITHUB_REPO}"
@@ -480,33 +493,40 @@ function save_and_unlock_target_git_repo {
   echo
   echo "- save_and_unlock_target_git_repo: add -v ."
   echo "-------------------------------------------------"
-  git -C "${GITOPS_REPO_DIR}" add -v .
+  git -C "${GITOPS_REPO_DIR}" add -v . || exit 1
 
   echo
   echo "- save_and_unlock_target_git_repo: commit -m ${GIT_COMMIT_MSG}"
   echo "-------------------------------------------------"
   git -C "${GITOPS_REPO_DIR}" commit -m "${GIT_COMMIT_MSG}"
+  
+  export RC=$?
+  echo "commit returned $RC"
+  if [ $RC -ne 0 -a $RC -ne 1 ]; then
+    echo "exit $RC"
+    exit $RC
+  fi
 
   echo
   echo "- save_and_unlock_target_git_repo: push -u origin ${GIT_LOCK_BRANCH}"
   echo "-------------------------------------------------"
-  git -C "${GITOPS_REPO_DIR}" push -u origin "${GIT_LOCK_BRANCH}"
+  git -C "${GITOPS_REPO_DIR}" push -u origin "${GIT_LOCK_BRANCH}" || exit 1
 
   # Merge back to master
   echo
   echo "- save_and_unlock_target_git_repo: switch ${GIT_BRANCH}"
   echo "-------------------------------------------------"
-  git -C "${GITOPS_REPO_DIR}" switch "${GIT_BRANCH}"
+  git -C "${GITOPS_REPO_DIR}" switch "${GIT_BRANCH}" || exit 1
 
   echo
   echo "- save_and_unlock_target_git_repo: pull origin $GIT_BRANCH --rebase"
   echo "-------------------------------------------------"
-  git -C "${GITOPS_REPO_DIR}" pull origin $GIT_BRANCH --rebase
+  git -C "${GITOPS_REPO_DIR}" pull origin $GIT_BRANCH --rebase || exit 1
 
   echo
   echo "- save_and_unlock_target_git_repo: merge --squash ${GIT_LOCK_BRANCH}"
   echo "-------------------------------------------------"
-  git -C "${GITOPS_REPO_DIR}" merge --squash "${GIT_LOCK_BRANCH}"
+  git -C "${GITOPS_REPO_DIR}" merge --squash "${GIT_LOCK_BRANCH}" || exit 1
 
 
   if [[ -n "${RETURNVARNAME_MODIFIED}" ]]; then
@@ -524,6 +544,12 @@ function save_and_unlock_target_git_repo {
   echo "-------------------------------------------------"
   git -C "${GITOPS_REPO_DIR}" commit -m "${GIT_COMMIT_MSG}" 
 
+  export RC=$?
+  echo "commit returned $RC"
+  if [ $RC -ne 0 -a $RC -ne 1 ]; then
+    echo exit $RC
+    exit $RC
+  fi
 
   git_push_with_retries "${GITHUB_REPO}" "${GIT_BRANCH}" "${LOCAL_DIR}"
 
@@ -582,7 +608,7 @@ function argocd_sync(){
   echo "ArgoCD response for Force Application $APP_NAME to Sync: $RC"
 }
 
-  function argocd_prune_sync(){
+function argocd_prune_sync(){
   APP_NAME=$1
   echo "Force Application $APP_NAME to Sync with --prune ..."
   argocd app sync $APP_NAME --prune

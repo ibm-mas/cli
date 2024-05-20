@@ -102,11 +102,13 @@ spec:
         --aws-ec2-cidr-az1 10.0.0.0/17 \
         --aws-key-pair-name $AWS_KEY_PAIR_NAME \
         --ec2-linux-ami-id $EC2_LINUX_AMI_ID
+
+        exit $?
       command:
         - /bin/sh
         - -c
       name: gitops-process-mongo-user
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
   workspaces:
     - name: configs

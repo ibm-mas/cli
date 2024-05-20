@@ -80,14 +80,16 @@ spec:
     - args:
       - |-
 
-        mas gitops-suite-dns --mas-instance-id $MAS_INSTANCE_ID
+        mas gitops-suite-dns --mas-instance-id $MAS_INSTANCE_ID 
+
+        exit $?
 
       command:
         - /bin/sh
         - -c
       name: gitops-suite-dns
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
   workspaces:
     - name: configs
 

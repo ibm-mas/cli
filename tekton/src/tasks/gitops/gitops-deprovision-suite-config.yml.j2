@@ -83,7 +83,8 @@ spec:
         --mas-config-scope system \
         --mas-config-type jdbc \
         --dir /tmp/deprovision-suite-config-iotdb2 \
-        --db2-instance-name "db2wh-$MAS_INSTANCE_ID-iot"
+        --db2-instance-name "db2wh-$MAS_INSTANCE_ID-iot" \
+        || exit 1
 
         mkdir -p /tmp/deprovision-suite-config-managedb2
         mas gitops-mas-config \
@@ -102,7 +103,8 @@ spec:
         --dir /tmp/deprovision-suite-config-managedb2 \
         --mas-workspace-id "masdev" \
         --mas-app-id "manage" \
-        --db2-instance-name "db2wh-$MAS_INSTANCE_ID-manage"
+        --db2-instance-name "db2wh-$MAS_INSTANCE_ID-manage" \
+        || exit 1
 
         mkdir -p /tmp/deprovision-suite-config-sls
         mas gitops-mas-config \
@@ -118,7 +120,8 @@ spec:
         --config-action remove \
         --mas-config-scope system \
         --mas-config-type sls \
-        --dir /tmp/deprovision-suite-config-sls
+        --dir /tmp/deprovision-suite-config-sls \
+        || exit 1
 
         mkdir -p /tmp/deprovision-suite-config-mongo
         mas gitops-mas-config \
@@ -134,7 +137,8 @@ spec:
         --config-action remove \
         --mas-config-scope system \
         --mas-config-type mongo \
-        --dir /tmp/deprovision-suite-config-mongo
+        --dir /tmp/deprovision-suite-config-mongo \
+        || exit 1
 
         mkdir -p /tmp/deprovision-suite-config-bas
         mas gitops-mas-config \
@@ -150,14 +154,15 @@ spec:
         --config-action remove \
         --mas-config-scope system \
         --mas-config-type bas \
-        --dir /tmp/deprovision-suite-config-bas
+        --dir /tmp/deprovision-suite-config-bas \
+        || exit 1
 
       command:
         - /bin/sh
         - -c
       name: gitops-deprovision-suite-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
   workspaces:
     - name: configs
 

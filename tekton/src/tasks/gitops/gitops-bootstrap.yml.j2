@@ -86,11 +86,13 @@ spec:
         --github-pat $GITHUB_PAT \
         --github-revision $GITHUB_REVISION \
         --app-revision $APP_REVISION
+
+        exit $?
       command:
         - /bin/sh
         - -c
       name: gitops-bootstrap
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
   workspaces:
     - name: configs

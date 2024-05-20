@@ -33,6 +33,11 @@ spec:
         export ROSA_CONFIG_DIR=/workspace/configs/tmp-rosa-deprovision
         mkdir -p $ROSA_CONFIG_DIR
         mas gitops-deprovision-rosa -c $(params.cluster_name)
+        RC=$?
+        if [ $RC -ne 0 ]; then
+          echo "mas gitops-deprovision-rosa failed with error $RC"
+          exit $RC
+        fi
 
         echo "Removing rosa-$(params.cluster_name)-details.yaml"
         rm -f /workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
@@ -41,6 +46,6 @@ spec:
         - -c
       name: gitops-deprovision-rosa
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
   workspaces:
     - name: configs

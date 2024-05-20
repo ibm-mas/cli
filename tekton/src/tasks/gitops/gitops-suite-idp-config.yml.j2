@@ -106,12 +106,14 @@ spec:
         --ldap-bind-dn "$LDAP_BIND_DN" \
         --ldap-bind-password "$LDAP_BIND_PASSWORD"
 
+        exit $?
+
       command:
         - /bin/sh
         - -c
       name: gitops-suite-idp-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
   workspaces:
     - name: configs
     - name: shared-additional-configs

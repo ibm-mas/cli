@@ -37,15 +37,11 @@ spec:
       type: string
     - name: fvt_version_assist
       type: string
-    - name: fvt_version_health
-      type: string
     - name: fvt_version_iot
       type: string
     - name: fvt_version_optimizer
       type: string
     - name: fvt_version_manage
-      type: string
-    - name: fvt_version_manage_civil
       type: string
     - name: fvt_version_mobile
       type: string
@@ -62,17 +58,9 @@ spec:
       type: string
     - name: fvt_whitelist_manage
       type: string
-    - name: fvt_blacklist_manage_civil
-      type: string
-    - name: fvt_whitelist_manage_civil
-      type: string
     - name: fvt_blacklist_manage_is
       type: string
     - name: fvt_whitelist_manage_is
-      type: string
-    - name: fvt_blacklist_health
-      type: string
-    - name: fvt_whitelist_health
       type: string
     - name: fvt_blacklist_optimizer
       type: string
@@ -137,12 +125,6 @@ spec:
       type: string
       default: "true"
       description: "Set this to any falue other than 'true' to disable lauch of the Mobile FVT Pipeline after app-cfg-manage completes"
-    - name: launchfvt_health
-      type: string
-      default: "true"
-    - name: launchfvt_manage_civil
-      type: string
-      default: "true"
     - name: launchfvt_manage_is
       type: string
       default: "true"
@@ -228,16 +210,12 @@ spec:
         value: $(params.fvt_version_ctf)
       - name: FVT_VERSION_ASSIST
         value: $(params.fvt_version_assist)
-      - name: FVT_VERSION_HEALTH
-        value: $(params.fvt_version_health)
       - name: FVT_VERSION_IOT
         value: $(params.fvt_version_iot)
       - name: FVT_VERSION_OPTIMIZER
         value: $(params.fvt_version_optimizer)
       - name: FVT_VERSION_MANAGE
         value: $(params.fvt_version_manage)
-      - name: FVT_VERSION_MANAGE_CIVIL
-        value: $(params.fvt_version_manage_civil)
       - name: FVT_VERSION_MOBILE
         value: $(params.fvt_version_mobile)
       - name: FVT_VERSION_DATA_DICTIONARY
@@ -252,18 +230,10 @@ spec:
         value: $(params.fvt_blacklist_manage)
       - name: FVT_WHITELIST_MANAGE
         value: $(params.fvt_whitelist_manage)
-      - name: FVT_BLACKLIST_MANAGE_CIVIL
-        value: $(params.fvt_blacklist_manage_civil)
-      - name: FVT_WHITELIST_MANAGE_CIVIL
-        value: $(params.fvt_whitelist_manage_civil)
       - name: FVT_BLACKLIST_MANAGE_IS
         value: $(params.fvt_blacklist_manage_is)
       - name: FVT_WHITELIST_MANAGE_IS
         value: $(params.fvt_whitelist_manage_is)
-      - name: FVT_BLACKLIST_HEALTH
-        value: $(params.fvt_blacklist_health)
-      - name: FVT_WHITELIST_HEALTH
-        value: $(params.fvt_whitelist_health)
       - name: FVT_BLACKLIST_OPTIMIZER
         value: $(params.fvt_blacklist_optimizer)
       - name: FVT_WHITELIST_OPTIMIZER
@@ -286,10 +256,6 @@ spec:
         value: $(params.launchfvt_predict)
       - name: LAUNCHFVT_VISUALINSPECTION
         value: $(params.launchfvt_visualinspection)
-      - name: LAUNCHFVT_HEALTH
-        value: $(params.launchfvt_health)
-      - name: LAUNCHFVT_MANAGE_CIVIL
-        value: $(params.launchfvt_manage_civil)
       - name: LAUNCHFVT_MANAGE_IS
         value: $(params.launchfvt_manage_is)
       - name: MAS_APP_CHANNEL_IOT
@@ -452,10 +418,10 @@ spec:
         ESCAPED_LDAP_CRT=${UNESCAPED_LDAP_CRT//\"/\\\"}
         export LDAP_CRT=${ESCAPED_LDAP_CRT//$'\n'/\\n}
         echo "Set LDAP_CRT as $LDAP_CRT"
-        mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS}
+        mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS} || exit 1
 
         # Wait for launcher to complete
-        /opt/app-root/src/wait-for-pipelinerun.sh --name $MAS_INSTANCE_ID-fvt-launcher-$DEVOPS_BUILD_NUMBER-$LAUNCHER_ID --namespace mas-$MAS_INSTANCE_ID-pipelines
+        /opt/app-root/src/wait-for-tekton.sh --type pipelinerun --max-retries 100 --name $MAS_INSTANCE_ID-fvt-$DEVOPS_BUILD_NUMBER-$LAUNCHER_ID --namespace mas-$MAS_INSTANCE_ID-pipelines
 
         # Remove argocd window
         argocd_login
@@ -463,17 +429,12 @@ spec:
         echo "argo:argocd proj windows delete mas $ARGOWINDOW"
         argocd proj windows delete mas $ARGOWINDOW
 
-        if [[ "$LAUNCHER_ID" == "apps" ]]; then
-          unset KUBERNETES_SERVICE_HOST
-          python3 /opt/app-root/src/finalizer.py
-        fi
-
       command:
         - /bin/bash
         - -c
       name: gitops-mas-fvt-preparer
-      imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
   workspaces:
     - name: configs
     - name: shared-additional-configs

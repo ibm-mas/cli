@@ -109,11 +109,13 @@ spec:
         --github-repo $GITHUB_REPO \
         --git-branch $GIT_BRANCH \
         --secrets-path $SECRET_PATH
+
+        exit $?
       command:
         - /bin/sh
         - -c
       name: gitops-cluster
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
   workspaces:
     - name: configs

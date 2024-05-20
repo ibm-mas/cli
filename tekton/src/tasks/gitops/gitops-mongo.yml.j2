@@ -92,12 +92,14 @@ spec:
         --aws-docdb-instance-identifier-prefix docdb-$CLUSTER_NAME \
         --aws-docdb-instance-number $AWS_DOCDB_INSTANCE_NUMBER \
         --aws-docdb-engine-version $AWS_DOCDB_ENGINE_VERSION
+
+        exit $?
       command:
         - /bin/sh
         - -c
       name: gitops-mongo
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
   workspaces:
     - name: configs
 

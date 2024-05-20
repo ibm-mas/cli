@@ -67,12 +67,14 @@ spec:
         --aws-region $SM_AWS_REGION \
         --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
         --aws-access-key $SM_AWS_ACCESS_KEY_ID
+
+        exit $?
       command:
         - /bin/sh
         - -c
       name: gitops-efs
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
   workspaces:
     - name: configs
 

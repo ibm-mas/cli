@@ -29,14 +29,12 @@
       with_items:
         - db2
         - install
-        - install-with-fvt
         - fvt-assist
         - fvt-core
         - fvt-deprovision-after
-        - fvt-health
         - fvt-iot
         - fvt-manage
-        - fvt-manage-civil
+        - fvt-manage-health
         - fvt-manage-is
         - fvt-manage-regr
         - fvt-mobile
@@ -44,7 +42,6 @@
         - fvt-optimizer
         - fvt-predict
         - fvt-sls
-        - fvt-data-dictionary
         - fvt-uninstall-after
         - fvt-upgrade-post
         - fvt-upgrade-pre

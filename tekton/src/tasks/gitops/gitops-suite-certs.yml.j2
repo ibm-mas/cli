@@ -88,12 +88,14 @@ spec:
         --secrets-path $SECRET_PATH \
         --mas-config-dir /workspace/configs
 
+        exit $?
+
       command:
         - /bin/sh
         - -c
       name: gitops-suite-certs
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:8.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
   workspaces:
     - name: configs
     - name: certificates
