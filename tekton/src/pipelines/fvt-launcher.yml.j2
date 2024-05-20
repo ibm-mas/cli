@@ -103,21 +103,21 @@ spec:
           operator: in
           values: ["true", "True"]
 
-   - name: launchfvt-sls
-     taskRef:
-       kind: Task
-       name: mas-launchfvt-sls
-     params:
-       - name: image_pull_policy
-         value: $(params.image_pull_policy)
-       - name: pipelinerun_name
-         value: "$(params.mas_instance_id)-fvt-sls"
-     when:
-       - input: $(params.launchfvt_core)
-         operator: in
-         values: ["true", "True"]
-     runAfter:
-       - waitfor-suite-verify
+    - name: launchfvt-sls
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-sls
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-sls"
+      when:
+        - input: $(params.launchfvt_core)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-suite-verify
 
     - name: launchfvt-core
       taskRef:
