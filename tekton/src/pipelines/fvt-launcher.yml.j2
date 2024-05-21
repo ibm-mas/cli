@@ -270,9 +270,9 @@ spec:
           value: "False"
       when:
         # Wait for IoT to be installed if we are running the IoT and/or the Monitor FVT suite
-        - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)"
+        - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor) | lower"
           operator: in
-          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue"]
+          values: ["true", "truetrue", "falsetrue", "truefalse"]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
