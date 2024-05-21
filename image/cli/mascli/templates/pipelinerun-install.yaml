@@ -528,3 +528,5 @@ spec:
     # Certificates configurations
     # -------------------------------------------------------------------------
     - name: shared-certificates
+      secret:
+        secretName: pipeline-certificates
