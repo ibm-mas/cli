@@ -524,3 +524,9 @@ spec:
     - name: shared-pod-templates
       secret:
         secretName: pipeline-pod-templates
+    
+    # Certificates configurations
+    # -------------------------------------------------------------------------
+    - name: shared-certificates
+      secret:
+        secretName: pipeline-certificates
