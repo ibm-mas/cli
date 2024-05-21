@@ -147,6 +147,8 @@ spec:
         value: $(params.mas_image_tags)
       - name: MAS_LABELS
         value: $(params.mas_labels)
+      - name: CUSTOM_LABELS
+        value: $(params.custom_labels)
       - name: SLS_CHANNEL
         value: $(params.sls_channel)
       - name: MAS_MANUAL_CERT_MGMT
@@ -184,8 +186,6 @@ spec:
         value: $(params.update_dns_entries)
       - name: DELETE_WILDCARDS
         value: $(params.delete_wildcards)
-      - name: CUSTOM_LABELS
-        value: $(params.custom_labels)
 
     envFrom:
       - configMapRef:
@@ -204,6 +204,7 @@ spec:
         echo "Image Tags ............................ ${MAS_IMAGE_TAGS}"
         echo "Annotations ........................... ${MAS_ANNOTATIONS}"
         echo "Labels ................................ ${MAS_LABELS}"
+        echo "Custom Labels ......................... ${CUSTOM_LABELS}"
 
         # Parse MAS variables from json to dict        
 
@@ -219,6 +220,10 @@ spec:
         export MAS_LABELS=$(echo "${MAS_LABELS}" | yq --yaml-output)
         echo " MAS_LABELS = ${MAS_LABELS}"
 
+        CUSTOM_LABELS=$(echo "${CUSTOM_LABELS}" | sed "s/'/\"/g")
+        export CUSTOM_LABELS=$(echo "${CUSTOM_LABELS}" | yq --yaml-output)
+        echo " CUSTOM_LABELS = ${CUSTOM_LABELS}"
+
         sed -n -e 's/^.*api.fvtsaas.//p' | cut -d: -f1
         mkdir -p /tmp/init-suite
         mas gitops-suite -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
@@ -228,8 +233,7 @@ spec:
         --github-host $GITHUB_HOST \
         --github-org  $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH \
-        --custom-labels "$CUSTOM_LABELS"
+        --git-branch $GIT_BRANCH
 
         exit $?
       command:

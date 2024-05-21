@@ -100,6 +100,12 @@ spec:
         git config --global user.email "mas_automation@email.com"
         git config --global user.password $GITHUB_PAT
 
+        echo "Custom Labels ......................... ${CUSTOM_LABELS}"
+
+        CUSTOM_LABELS=$(echo "${CUSTOM_LABELS}" | sed "s/'/\"/g")
+        export CUSTOM_LABELS=$(echo "${CUSTOM_LABELS}" | yq --yaml-output)
+        echo " CUSTOM_LABELS = ${CUSTOM_LABELS}"
+
         mkdir -p /tmp/init-cluster
         mas gitops-cluster -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /tmp/init-cluster \
@@ -108,8 +114,7 @@ spec:
         --github-org  $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
         --git-branch $GIT_BRANCH \
-        --secrets-path $SECRET_PATH \
-        --custom-labels "$CUSTOM_LABELS"
+        --secrets-path $SECRET_PATH
 
         exit $?
       command:
