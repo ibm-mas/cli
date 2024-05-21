@@ -30,6 +30,12 @@ spec:
 
         # Lookups from mas-devops
         # -----------------------------------------------------------------------
+        - name: DEVOPS_BUILD_NUMBER
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_BUILD_NUMBER
+              optional: true
         - name: MAS_INSTANCE_ID
           valueFrom:
             secretKeyRef:
@@ -44,6 +50,12 @@ spec:
             secretKeyRef:
               name: mas-fvt
               key: FVT_IMAGE_REGISTRY
+              optional: false
+        - name: FVT_ARTIFACTORY_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FVT_ARTIFACTORY_USERNAME
               optional: false
         - name: FVT_ARTIFACTORY_TOKEN
           valueFrom:
