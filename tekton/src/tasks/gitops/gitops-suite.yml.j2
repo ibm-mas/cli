@@ -43,6 +43,9 @@ spec:
     - name: mas_labels
       type: string
       default: ''
+    - name: custom_labels
+      type: string
+      default: ''
     - name: mas_domain
       type: string
     - name: avp_aws_secret_region
@@ -100,9 +103,6 @@ spec:
     - name: delete_wildcards
       type: string
       default: "True"
-    - name: custom_labels
-      type: string
-      default: ""
 
   stepTemplate:
     name: gitops-suite
