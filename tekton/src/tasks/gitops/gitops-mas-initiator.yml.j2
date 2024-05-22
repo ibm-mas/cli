@@ -73,6 +73,12 @@ spec:
     - name: fvt_ansible_version
       type: string
       default: ""
+    - name: artifactory_username
+      type: string
+      default: ""
+    - name: artifactory_token
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-mas-initiator
     env:
@@ -138,6 +144,10 @@ spec:
         value: $(params.cli_version)
       - name: FVT_ANSIBLE_VERSION
         value: $(params.fvt_ansible_version)
+      - name: ARTIFACTORY_USERNAME
+        value: $(params.artifactory_username)
+      - name: ARTIFACTORY_TOKEN
+        value: $(params.artifactory_token)
   steps:
     - args:
       - |-
@@ -157,6 +167,25 @@ spec:
 
           export SECRET_NAME=${ACCOUNT}${SECRETS_KEY_SEPERATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPERATOR}cis
           export SECRET_VALUE="{\"ibm_apikey\":\"$IBMCLOUD_APIKEY\"}"
+
+          aws configure set aws_access_key_id ${SM_AWS_ACCESS_KEY_ID}
+          aws configure set aws_secret_access_key ${SM_AWS_SECRET_ACCESS_KEY}
+          aws configure set default.region $SM_AWS_REGION
+          export AWS_REGION=$SM_AWS_REGION
+          aws configure list
+          set +e +o pipefail
+          aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${SECRET_NAME} --region $SM_AWS_REGION --output json 2> /dev/null
+          aws secretsmanager describe-secret --secret-id ${SECRET_NAME} --region $SM_AWS_REGION --output json 2> /dev/null
+          aws secretsmanager create-secret --name ${SECRET_NAME} --region $SM_AWS_REGION --secret-string "${SECRET_VALUE}" || exit 1
+
+          echo "created AWS secret secret ${SECRET_NAME} with value ${SECRET_VALUE:0:6}<snip> in region $SM_AWS_REGION"
+          set -e -o pipefail
+        fi
+
+        if [[ -n "${ARTIFACTORY_USERNAME}" && -n "${ARTIFACTORY_TOKEN}" ]]; then
+
+          export SECRET_NAME=${ACCOUNT}${SECRETS_KEY_SEPERATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPERATOR}artifactory
+          export SECRET_VALUE="{\"artifactory_username\":\"${ARTIFACTORY_USERNAME}\",\"artifactory_token\":\"${ARTIFACTORY_TOKEN}\"}"
 
           aws configure set aws_access_key_id ${SM_AWS_ACCESS_KEY_ID}
           aws configure set aws_secret_access_key ${SM_AWS_SECRET_ACCESS_KEY}
