@@ -1,0 +1,203 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-fvt-manage-adhoc-report
+spec:
+  params:
+    # Control the image pull policy for the FVT container image
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+
+    # Test Container Information
+    # -------------------------------------------------------------------------
+    - name: fvt_image_registry
+      type: string
+      description: FVT Container Image Registry (required)
+    - name: fvt_image_namespace
+      type: string
+      description: FVT Image namespace
+      default: mas-devops
+    - name: fvt_image_name
+      type: string
+      description: FVT Container Image
+    - name: fvt_image_digest
+      type: string
+      description: FVT Container Image Digest
+
+    # Test Framework Information
+    # -------------------------------------------------------------------------
+    - name: fvt_test_driver
+      type: string
+      description: Driver utilized by the manage selenium framework - Can be wither tpae or graphite
+      default: "tpae"
+    - name: fvt_test_suite
+      type: string
+      description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
+      default: ""
+    - name: fvt_mas_appws_component
+      type: string
+      description: Manage product that will be tested by this task. Use official names as expected by Manage operators
+      default: "base"
+    - name: product_id
+      type: string
+      description: Product ID under test
+      default: ibm-mas
+    - name: product_channel
+      type: string
+      description: "Subscription channel for the product (todo: have the test code look this up instead)"
+      default: ""
+    - name: mas_instance_id
+      type: string
+      description: Instance ID of the target test environment
+    - name: mas_workspace_id
+      type: string
+      description: Workspace ID in MAS to use for running the tests
+
+    # Test-specific Information (all optional)
+    # -------------------------------------------------------------------------
+    - name: artifactory_token
+      type: string
+      description: Artifactory API Key (required by fvt-ibm-mas-manage to upload test framework logs)
+      default: ""
+
+  stepTemplate:
+    name: fvt-manage-adhoc-report
+    securityContext:
+      privileged: true
+      runAsUser: 0
+    env:
+      - name: PRODUCT_ID
+        value: $(params.product_id)
+      - name: PRODUCT_CHANNEL
+        value: $(params.product_channel)
+      - name: PRODUCT_ID
+        value: ibm-mas-manage
+
+      - name: DEVOPS_MONGO_URI
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: DEVOPS_MONGO_URI
+            optional: true
+      - name: BUILD_NUM
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: DEVOPS_BUILD_NUMBER
+            optional: true
+
+      - name: NAMESPACE
+        value: "mas-$(params.mas_instance_id)-core"
+      - name: INSTANCE_ID
+        value: "$(params.mas_instance_id)"
+      - name: WORKSPACE_ID
+        value: "$(params.mas_workspace_id)"
+
+      - name: FVT_TEST_DRIVER
+        value: $(params.fvt_test_driver)
+      - name: FVT_TEST_SUITE_PREFIX
+        value: base-ui
+      - name: FVT_TEST_SUITE
+        value: $(params.fvt_test_suite)
+      - name: FVT_MAS_APPWS_COMPONENT
+        value: $(params.fvt_mas_appws_component)
+      
+      # Black and white listing
+      - name: FVT_BLACKLIST
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_BLACKLIST
+            optional: false
+      - name: FVT_WHITELIST
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: FVT_WHITELIST
+            optional: false
+      
+      # If this secret exists (with both ARTIFACTORY_TOKEN and ARTIFACTORY_UPLOAD_DIR keys set) Maximo Automation Framework logs will be automatically uploaded
+      - name: ARTIFACTORY_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_TOKEN
+            optional: true
+      - name: ARTIFACTORY_UPLOAD_DIR
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_UPLOAD_DIR
+            optional: true
+
+  volumes:
+    - name: dshm
+      emptyDir:
+        medium: Memory
+
+  workspaces:
+    - name: configs
+
+  steps:
+
+    # Adhoc Report - Job Plan
+    - name: fvt-manage-jobplan-adhoc-report
+      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
+      imagePullPolicy: $(params.image_pull_policy)
+      timeout: 150m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      resources: {}
+      workingDir: /opt/ibm/test/src
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+      env:
+        - name: FVT_TEST_SUITE
+          value: jobplan-adhoc
+
+    # Adhoc Report - Assets
+    - name: fvt-manage-assets-adhoc-report
+      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
+      imagePullPolicy: $(params.image_pull_policy)
+      timeout: 150m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      resources: {}
+      workingDir: /opt/ibm/test/src
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+      env:
+        - name: FVT_TEST_SUITE
+          value: assets-adhoc
+
+    # Adhoc Report - Purchase
+    - name: fvt-manage-purchase-adhoc-report
+      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
+      imagePullPolicy: $(params.image_pull_policy)
+      timeout: 150m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      resources: {}
+      workingDir: /opt/ibm/test/src
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+      env:
+        - name: FVT_TEST_SUITE
+          value: purchase-adhoc
+
+    # Adhoc Report - Workorder
+    - name: fvt-manage-workorder-adhoc-report
+      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
+      imagePullPolicy: $(params.image_pull_policy)
+      timeout: 150m # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      resources: {}
+      workingDir: /opt/ibm/test/src
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+      env:
+        - name: FVT_TEST_SUITE
+          value: workorder-adhoc
