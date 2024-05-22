@@ -185,8 +185,8 @@ function mustgather() {
   OUTPUT_FILENAME=must-gather-${TIMESTAMP}.tgz
   OUTPUT_FILE=${MG_DIR}/${OUTPUT_FILENAME}
 
-  LOG_FILE=${OUTPUT_DIR}/must-gather.log
-  exec > >(tee ${LOG_FILE}) 2>&1
+  LOGFILE=${OUTPUT_DIR}/must-gather.log
+  exec > >(tee ${LOGFILE}) 2>&1
 
   echo "Must gather will be saved to: $OUTPUT_FILE"
 
