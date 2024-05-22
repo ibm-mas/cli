@@ -13,6 +13,7 @@ GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
   -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
+  -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
 
 IBM Maximo Application Suite:
@@ -52,6 +53,9 @@ function gitops_cp4d_noninteractive() {
   GIT_COMMIT_MSG="gitops-cp4d commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
+  export REGION=${REGION:-${SM_AWS_REGION}}
+
+
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -69,6 +73,9 @@ function gitops_cp4d_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
+        ;;
+      -r|--region)
+        export REGION=$1 && shift
         ;;
 
       # MAS
@@ -147,8 +154,9 @@ function gitops_cp4d_noninteractive() {
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_cp4d_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_cp4d_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_cp4d_help "CLUSTER_ID is not set"
+  [[ -z "$REGION" ]] && ggitops_cp4d_help "REGION is not set"
 
-  #MAS
+  # MAS
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_cp4d_help "MAS_INSTANCE_ID is not set"
 
   [[ -z "$COMMON_SERVICES_CHANNEL" ]] && gitops_cp4d_help "COMMON_SERVICES_CHANNEL is not set"
@@ -286,7 +294,7 @@ function gitops_cp4d() {
   echo "- CP4D operator"
 
   echo "Generating IBM CP4D file ${GITOPS_CLUSTER_DIR}/ibm-cp4d.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-cp4d.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-cp4d.yaml
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-cp4d.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-cp4d.yaml
 
 
   # Commit and push to github target repo
