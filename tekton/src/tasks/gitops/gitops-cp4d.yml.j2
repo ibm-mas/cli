@@ -84,16 +84,6 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
         
-        # oc login here as we need to move cp4d to gitops approach. When we have then ocp login is not needed.
-        oc login -u $OCP_USERNAME -p $OCP_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
-        OC_RC=$?
-        if [ $OC_RC -ne 0 ]; then
-          echo "oc login failed"
-          exit 1
-        fi
-        echo "Set k8s context"
-        export K8S_AUTH_CONTEXT=$(oc whoami -c)
-
         mkdir -p /tmp/init-cp4d
         mas gitops-cp4d -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /tmp/init-cp4d \
