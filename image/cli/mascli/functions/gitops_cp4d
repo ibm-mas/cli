@@ -238,21 +238,64 @@ function gitops_cp4d() {
   TEMP_DIR=$CURRENT_DIR/tmp-cp4d
   mkdir -p $TEMP_DIR
 
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH="false"
+  fi
 
-  # We want to use CP4D 4.8 but we need to wait for it to be ready in automation and product
-  # In order to not block use we will just install using ansible-devops
+
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
-  export IBM_ENTITLEMENT_KEY_FILE=$TEMP_DIR/entitlement.yaml
-  export SECRET_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
-  sm_get_secret_file $SECRET_IBM_ENTITLEMENT $IBM_ENTITLEMENT_KEY_FILE
+  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
+  export SECRET_KEY_NAMESPACE_SCOPE_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}namespace_scope_channel#namespace_scope_channel
+  export SECRET_KEY_LICENSING_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}licensing_channel#licensing_channel
+  export SECRET_KEY_LICENSING_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}licensing_version#licensing_version
+  export SECRET_KEY_CPFS_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cpfs_channel#cpfs_channel
 
-  export IBM_ENTITLEMENT_KEY=$(jq -r .entitlement_key $IBM_ENTITLEMENT_KEY_FILE | base64 -d ; echo)
-  export ROLE_NAME=cp4d
-  ansible-playbook ibm.mas_devops.run_role
+  # Default settings
+  export CPD_CS_CONTROL_NAMESPACE="cs-control"
+  export CPD_ADMIN_LOGIN_SA="mas-cpd-cluster-admin-sa"
+  export CPD_PLATFORM_CR_NAME="ibmcpd-cr"
+  export CPD_IAM_INTEGRATION=false
 
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
 
-  exit 0
+  # Set and Validate App Names
+  # ---------------------------------------------------------------------------
+  ROOT_APP_NAME="root.${ACCOUNT_ID}"
+  CLUSTER_APP_NAME="cluster.${CLUSTER_ID}"
+  CP4D_APP_NAME="cp4d.${CLUSTER_ID}"
+
+  validate_app_name "${ROOT_APP_NAME}"
+  validate_app_name "${CLUSTER_APP_NAME}"
+  validate_app_name "${CP4D_APP_NAME}"
+
+
+  # Clone github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+  fi
+  mkdir -p ${GITOPS_CLUSTER_DIR}
+
+
+  # Generate ArgoApps
+  # ----------------------------------------------------------------------------
+  echo
+  echo_h2 "Generating CP4D Platform Operator Applications"
+  echo "- CP4D operator"
+
+  echo "Generating IBM CP4D file ${GITOPS_CLUSTER_DIR}/ibm-cp4d.yaml"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-cp4d.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-cp4d.yaml
+
+
+  # Commit and push to github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+  fi
+
 }
