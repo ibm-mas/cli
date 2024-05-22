@@ -69,7 +69,7 @@ spec:
 
         mas gitops-deprovision-suite-workspace -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --mas-workspace-id $WORKSPACE_ID \
-        --mas-workspace-name $WORKSPACE_NAME \
+        --mas-workspace-name "$WORKSPACE_NAME" \
         --dir /tmp/deprovision-suite-workspace \
         --github-push \
         --github-host $GITHUB_HOST \
