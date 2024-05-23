@@ -89,6 +89,9 @@ spec:
       type: string
       description: Approves the MongoDb upgrade to version 5 if needed
       default: ""
+    - name: mongodb_version
+      type: string
+      description: MongoDb version to update too
     - name: mongodb_v6_upgrade
       type: string
       description: Approves the MongoDb upgrade to version 6 if needed
@@ -112,12 +115,6 @@ spec:
       default: "strimzi"
       description: kafka provider such as 'redhat' or 'strimzi'
 
-    # SLS 3.8.0 registry change
-    - name: update_sls_registry
-      default: ""
-      type: string
-      description: Set to 'true' to change all LicenseService CRs' registry to cpopen
-    
     # UDS/DRO Migration
     - name: dro_migration
       default: ""
@@ -234,19 +231,6 @@ spec:
         - name: artifactory_token
           value: $(params.artifactory_token)
 
-    # 3. Update SLS LicenseService CR registry if needed
-    # -------------------------------------------------------------------------
-    - name: update-licenseservice
-      taskRef:
-        kind: Task
-        name: sls-registry-update
-      runAfter:
-        - update-catalog
-      when:
-        - input: "true"
-          operator: in
-          values: ["$(params.update_sls_registry)"]
-
     # 4. Verify health of the cluster before we consider the update complete
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
@@ -311,16 +295,16 @@ spec:
     - name: update-grafana
       taskRef:
         kind: Task
-        name: mas-devops-cluster-monitoring
+        name: mas-devops-grafana
       when:
         - input: $(params.grafana_v5_upgrade)
           operator: in
           values: ["true", "True"]
       params:
-        - name: cluster_monitoring_action
-          value: update_grafana
+        - name: grafana_action
+          value: update
         - name: devops_suite_name
-          value: update-grafana
+          value: dependencies-grafana-update
       runAfter:
         - update-common-services
 
@@ -353,6 +337,8 @@ spec:
           value: $(params.mongodb_namespace)
         - name: mongodb_v5_upgrade
           value: $(params.mongodb_v5_upgrade)
+        - name: mongodb_version
+          value: $(params.mongodb_version)
         - name: mongodb_v6_upgrade
           value: $(params.mongodb_v6_upgrade)
         - name: mongodb_replicas
@@ -444,7 +430,6 @@ spec:
         'devops_suite_name': 'post-deps-update-verify'
       }) | indent(4) }}
       runAfter:
-        - update-licenseservice
         - update-db2
         - update-mongodb
         - update-kafka

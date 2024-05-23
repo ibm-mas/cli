@@ -1,5 +1,4 @@
 ---
-# Don't edit install.yaml directly -- modify install.yml.j2, and the content in parts/, then run "ansible-playbook generate-install.yaml"
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
@@ -47,6 +46,7 @@ spec:
       type: string
       description: IVT Digest - Core
       default: ""
+
     # Data Dictionary Digest
     - name: fvt_digest_data_dictionary
       type: string
@@ -141,7 +141,7 @@ spec:
         - fvt-monitor
 
   finally:
-    # 3. Run CV
+    # 1. Run CV
     # -----------------------------------------------------------------------------
     - name: cv-monitor
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}

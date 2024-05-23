@@ -39,7 +39,7 @@ function validate_catalog_source {
     catalogVersion=v8-amd64
   fi
 
-  if [[ "$catalogImage" != "null" ]] && [[ "$catalogId" != "$MAS_CATALOG_VERSION" ]]; then
+  if [[ "$catalogImage" != "null" && "$catalogImage" != "" && "$catalogId" != "$MAS_CATALOG_VERSION" ]]; then
     echo
     echo_warning "Error: IBM Maximo Operator Catalog $catalogVersion is already installed on this cluster."
     echo_warning "If you wish to install a new MAS instance using the $MAS_CATALOG_VERSION catalog please first run \"mas update\" to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update."
@@ -507,12 +507,7 @@ function install_noninteractive() {
   cert_manager_selection
 
   # Work out which SLS var to use for bootstrap
-  sls_prompt_selection
-  if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
-    export SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
-  else
-    export SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
-  fi
+  export SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
 }
 
 
@@ -564,9 +559,6 @@ function install_interactive() {
 
   # Ensure that install will not trigger a change in the catalog source
   validate_catalog_source
-
-  # Determine SLS version specific prompts
-  sls_prompt_selection
 
   # Present a the MAS license information
   license_prompt
@@ -712,11 +704,7 @@ function install_interactive() {
     exit 1
   fi
 
-  if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
-    SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
-  else
-    SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
-  fi
+  SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
 
   echo ""
   echo_h2 "Configure UDS"
@@ -744,18 +732,26 @@ function install() {
       --dev-mode)
         DEV_MODE=true
         ;;
+      --skip-grafana-install)
+        GRAFANA_ACTION="none"
+        ;;
       -h|--help)
         install_help
         ;;
     esac
   done
 
-  # Determine whether Grafana is available in the cluster based on the available of the operator package
-  oc get packagemanifest grafana-operator &> /dev/null
-  if [[ "$?" == "1" ]]; then
-    CLUSTER_MONITORING_INCLUDE_GRAFANA="False"
-  else
-    CLUSTER_MONITORING_INCLUDE_GRAFANA="True"
+  if [[ -z $GRAFANA_ACTION ]] || [[  "$GRAFANA_ACTION" != "none" ]]; then
+    # Determine whether Grafana is available in the cluster based on the available of the operator package
+    oc get packagemanifest grafana-operator &> /dev/null
+    if [[ "$?" == "1" ]]; then
+      GRAFANA_ACTION="none"
+      echo
+      echo_warning "The Grafana operator package is not available in any catalogs on the target cluster, the installation of Grafana will be disabled."
+      echo
+    else
+      GRAFANA_ACTION="install"
+    fi
   fi
 
   if [[ "$INTERACTIVE_MODE" == "true" ]]; then

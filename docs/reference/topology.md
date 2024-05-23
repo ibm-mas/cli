@@ -1,7 +1,7 @@
 ## Deployment Topology
 
 ## Overview
-- Multiple instances of MAS are supported on a single OpenShift cluster, the instances do not have to be on the same release, but there must be no more than 1 minor version difference between the oldest and newest versions installed.
+- Multiple instances of MAS are supported on a single OpenShift cluster, the instances do not have to be on the same release, but **there must be no more than 1 minor version difference between the oldest and newest versions installed**.
 - A single MongoDb cluster will be created using the the `MongoDbCommunity` CRD, each MAS instance will have it's own database in the MongoDb cluster.
     - The cluster will be named `mas-mongo-ce`
 - Multiple Db2 clusters will be created using the IBM Db2 Universal Operator, each hosting a single database.  Depending on the settings chosen a MAS instance may be configured the use up to two `Db2uCluster` instances.

@@ -20,13 +20,13 @@ trap trap_exit EXIT
 trap trap_int INT
 
 
-CLI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-CONFIG_DIR="$HOME/.ibm-mas/config"
-LOG_DIR="$HOME/.ibm-mas/logs"
-LOGFILE=$LOG_DIR/mas.log
+export CLI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export CONFIG_DIR="$HOME/.ibm-mas/config"
+export LOG_DIR="$HOME/.ibm-mas/logs"
+export LOGFILE=$LOG_DIR/mas.log
 
 # Note: "latest" is overwritten with the actual version at build time
-VERSION=latest
+export VERSION=latest
 
 mkdir -p $LOG_DIR
 mkdir -p $CONFIG_DIR
@@ -58,8 +58,15 @@ mkdir -p $CONFIG_DIR
 # Must Gather
 . $CLI_DIR/functions/must_gather
 
+# TODO: The path from the CLI the installation of the Ansible collection should be configurable
+MAS_DEVOPS_COLLECTION_PATH=${MAS_DEVOPS_COLLECTION_PATH:-ansible-devops}
+
 case $1 in
   fyre|provision-fyre)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! provision-fyre                                                            !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite FYRE Cluster Provisioner (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
@@ -68,6 +75,10 @@ case $1 in
     ;;
 
   roks|provision-roks)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! provision-roks                                                            !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite ROKS Cluster Provisioner (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
@@ -76,6 +87,10 @@ case $1 in
     ;;
 
   aws|provision-aws)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! provision-aws                                                             !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AWS Cluster Provisioner (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
@@ -84,13 +99,21 @@ case $1 in
     ;;
 
   oidc|configtool-oidc)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! configtool-oidc                                                           !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite OIDC for Configuration Tool (v${VERSION})${TEXT_RESET}"
     echo
     reset_colors
     configtool_oidc "$@"
     ;;
 
-  registry|setup-registry|setup-mirror-registry|setup-airgap-registry)
+  registry|setup-registry)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! setup-registry                                                            !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Registry Setup (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
@@ -99,7 +122,11 @@ case $1 in
     setup_mirror_registry
     ;;
 
-  delete-registry|teardown-registry|teardown-mirror-registry|teardown-airgap-registry)
+  delete-registry)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! delete-registry                                                           !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Registry Tear Down (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
@@ -108,7 +135,11 @@ case $1 in
     teardown_mirror_registry
     ;;
 
-  mirror|mirror-images)
+  mirror|mirror-images|mirror-ibm-images)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! mirror-ibm-images                                                         !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Image Mirror (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
@@ -117,6 +148,9 @@ case $1 in
     ;;
 
   mirror-redhat|mirror-redhat-images)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! mirror-redhat-images                                                      !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Red Hat Image Mirror (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
@@ -124,7 +158,11 @@ case $1 in
     mirror_redhat "$@"
     ;;
 
-  configure-ocp-for-mirror|configure-airgap|configure-mirror|config-airgap|config-mirror)
+  configure-ocp-for-mirror|configure-airgap)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! configure-airgap                                                            !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap OCP Setup (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
@@ -133,10 +171,17 @@ case $1 in
     ;;
 
   install)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! install                                                                   !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     install "$@"
     ;;
 
   update)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! update                                                                    !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Update Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
     echo
@@ -145,6 +190,10 @@ case $1 in
     ;;
 
   upgrade)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! upgrade                                                                   !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Upgrade Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
     echo
@@ -153,6 +202,10 @@ case $1 in
     ;;
 
   uninstall)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! uninstall                                                                 !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Uninstall Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
     echo
@@ -161,6 +214,9 @@ case $1 in
     ;;
 
   mustgather|must-gather)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! must-gather                                                               !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Must-Gather Tool (v${VERSION})${TEXT_RESET}"
     echo
     mustgather "$@"

@@ -46,22 +46,25 @@ Content Selection (Applications):
       --mirror-visualinspection                   Mirror images for IBM Maximo Visual Inspection
 
 Content Selection (Cloud Pak for Data):
-      --mirror-cp4d                                 Mirror images for IBM Cloud Pak for Data Platform
-      --mirror-wd                                   Mirror images for IBM Watson Discovery
-      --mirror-wsl                                  Mirror images for IBM Watson Studio Local
-      --mirror-wml                                  Mirror images for IBM Watson Machine Learning
-      --mirror-spark                                Mirror images for IBM Analytics Engine (Spark)
+      --mirror-cp4d                               Mirror images for IBM Cloud Pak for Data Platform
+      --mirror-wsl                                Mirror images for IBM Watson Studio Local
+      --mirror-wml                                Mirror images for IBM Watson Machine Learning
+      --mirror-spark                              Mirror images for IBM Analytics Engine (Spark)
+      --mirror-cognos                             Mirror images for IBM Cognos Analytics
 
 Content Selection (Other Dependencies):
-      --mirror-cfs                                  Mirror images for IBM Cloud Pak Foundation Services
-      --mirror-uds                                  Mirror images for IBM User Data Services
-      --mirror-sls                                  Mirror images for IBM Suite License Service
-      --mirror-tsm                                  Mirror images for IBM Truststore Manager
-      --mirror-mongo                                Mirror images for MongoDb Community Edition
-      --mirror-mongo-v5                             Mirror images for MongoDb Community Edition version 5
-      --mirror-mongo-v6                             Mirror images for MongoDb Community Edition version 6
-      --mirror-db2                                  Mirror images for IBM Db2
-      --mirror-appconnect                           Mirror images for IBM AppConnect
+      --mirror-cfs                                Mirror images for IBM Cloud Pak Foundation Services
+      --mirror-uds                                Mirror images for IBM User Data Services
+      --mirror-sls                                Mirror images for IBM Suite License Service
+      --mirror-tsm                                Mirror images for IBM Truststore Manager
+      --mirror-mongo                              Mirror images for MongoDb Community Edition
+      --mirror-mongo-v5                           Mirror images for MongoDb Community Edition version 5
+      --mirror-mongo-v6                           Mirror images for MongoDb Community Edition version 6
+      --mirror-db2                                Mirror images for IBM Db2
+      --mirror-appconnect                         Mirror images for IBM AppConnect
+
+Content Selection (All images included):
+      --mirror-everything                         Mirror all MAS related images (including dependencies)
 
 Other Commands:
       --no-confirm                                Mirror images without prompting for confirmation
@@ -70,6 +73,42 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
+function mirror_everything() {
+    # Core
+    MIRROR_CATALOG=true
+    MIRROR_MAS_CORE=true
+
+    # Apps
+    MIRROR_MAS_ASSIST=true
+    MIRROR_MAS_IOT=true
+    MIRROR_MAS_MANAGE=true
+    MIRROR_MAS_ICD=true
+    MIRROR_MAS_MONITOR=true
+    MIRROR_MAS_OPTIMIZER=true
+    MIRROR_MAS_PREDICT=true
+    MIRROR_MAS_VISUALINSPECTION=true
+
+    # Dependencies (Other)
+    MIRROR_CATALOG=true
+    MIRROR_COMMONSERVICES=true
+    MIRROR_UDS=true
+    MIRROR_SLS=true
+    MIRROR_TRUSTSTOREMGR=true
+    MIRROR_MONGOCE=true
+    MIRROR_MONGOCE_V4=true
+    MIRROR_MONGOCE_V5=true
+    MIRROR_MONGOCE_V6=true
+
+    MIRROR_DB2U=true
+    MIRROR_APPCONNECT=true
+
+    # Dependencies (CP4D)
+    MIRROR_CP4D=true
+    MIRROR_WSL=true
+    MIRROR_WML=true
+    MIRROR_SPARK=true
+    MIRROR_COGNOS=true
+}
 
 function mirror_to_registry_noninteractive() {
   # Main content
@@ -96,10 +135,10 @@ function mirror_to_registry_noninteractive() {
   MIRROR_MONGOCE_V6=false
   MIRROR_DB2U=false
   MIRROR_CP4D=false
-  MIRROR_WD=false
   MIRROR_WSL=false
   MIRROR_WML=false
   MIRROR_SPARK=false
+  MIRROR_COGNOS=false
   MIRROR_APPCONNECT=false
 
   while [[ $# -gt 0 ]]
@@ -227,9 +266,6 @@ function mirror_to_registry_noninteractive() {
       --mirror-cp4d)
         MIRROR_CP4D=true
         ;;
-      --mirror-wd)
-        MIRROR_WD=true
-        ;;
       --mirror-wsl)
         MIRROR_WSL=true
         ;;
@@ -238,6 +274,12 @@ function mirror_to_registry_noninteractive() {
         ;;
       --mirror-spark)
         MIRROR_SPARK=true
+        ;;
+      --mirror-cognos)
+        MIRROR_COGNOS=true
+        ;;
+      --mirror-everything)
+        MIRROR_EVERYTHING=true
         ;;
 
       --no-confirm)
@@ -274,6 +316,10 @@ function mirror_to_registry_noninteractive() {
   if [[ $MIRROR_UDS == "true" ]]; then
     [[ -z "$REDHAT_CONNECT_USERNAME" ]] && mirror_to_registry_help "REDHAT_CONNECT_USERNAME is not set"
     [[ -z "$REDHAT_CONNECT_PASSWORD" ]] && mirror_to_registry_help "REDHAT_CONNECT_PASSWORD is not set"
+  fi
+
+  if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
+   mirror_everything
   fi
 }
 
@@ -327,39 +373,7 @@ function mirror_to_registry_interactive() {
   prompt_for_confirm "Mirror all MAS images (with dependencies)" MIRROR_EVERYTHING
 
   if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
-    # Core
-    MIRROR_CATALOG=true
-    MIRROR_MAS_CORE=true
-
-    # Apps
-    MIRROR_MAS_ASSIST=true
-    MIRROR_MAS_IOT=true
-    MIRROR_MAS_MANAGE=true
-    MIRROR_MAS_MONITOR=true
-    MIRROR_MAS_OPTIMIZER=true
-    MIRROR_MAS_PREDICT=true
-    MIRROR_MAS_VISUALINSPECTION=true
-
-    # Dependencies (Other)
-    MIRROR_CATALOG=true
-    MIRROR_COMMONSERVICES=true
-    MIRROR_UDS=true
-    MIRROR_SLS=true
-    MIRROR_TRUSTSTOREMGR=true
-    MIRROR_MONGOCE=true
-    MIRROR_MONGOCE_V4=true
-    MIRROR_MONGOCE_V5=true
-    MIRROR_MONGOCE_V6=true
-
-    MIRROR_DB2U=true
-    MIRROR_APPCONNECT=true
-
-    # Dependencies (CP4D)
-    MIRROR_CP4D=true
-    MIRROR_WD=true
-    MIRROR_WSL=true
-    MIRROR_WML=true
-    MIRROR_SPARK=true
+   mirror_everything
   else
     prompt_for_confirm_default_yes "IBM Maximo Operator Catalog" MIRROR_CATALOG
 
@@ -418,13 +432,13 @@ function mirror_to_registry_interactive() {
 
     prompt_for_confirm_default_yes "IBM Db2" MIRROR_DB2U
 
-    prompt_for_confirm_default "IBM Cloud Pak for Data (CP4D)" MIRROR_CP4D
-    prompt_for_confirm_default "IBM Watson Studio Local" MIRROR_WSL
-    prompt_for_confirm_default "IBM Watson Discovery" MIRROR_WD
-    prompt_for_confirm_default "IBM Watson Machine Learning" MIRROR_WML
-    prompt_for_confirm_default "IBM Analytics Engine (Spark)" MIRROR_SPARK
+    prompt_for_confirm "IBM Cloud Pak for Data (CP4D)" MIRROR_CP4D
+    prompt_for_confirm "IBM Watson Studio Local" MIRROR_WSL
+    prompt_for_confirm "IBM Watson Machine Learning" MIRROR_WML
+    prompt_for_confirm "IBM Analytics Engine (Spark)" MIRROR_SPARK
+    prompt_for_confirm "IBM Cognos Analytics" MIRROR_COGNOS
 
-    prompt_for_confirm_default "IBM AppConnect" MIRROR_APPCONNECT
+    prompt_for_confirm "IBM AppConnect" MIRROR_APPCONNECT
   fi
 
   if [[ "$MIRROR_MAS_ICD" == "true" ]]; then
@@ -461,7 +475,10 @@ function mirror_one_thing() {
     echo -en "\033[u" # Restore cursor position
     if [[ $mirror_result == "0" ]];
     then echo -e "${COLOR_GREEN}[SUCCESS] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
-    else echo -e "${COLOR_RED}[FAILURE] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
+    else 
+      echo -e "${COLOR_RED}[FAILURE] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
+      echo
+      cat "$MOT_LOGFILE"
     fi
   else
     echo -e "${COLOR_MAGENTA}[SKIPPED] ${MOT_NAME}${TEXT_RESET}"
@@ -510,12 +527,13 @@ function mirror_to_registry() {
   export MIRROR_MONGOCE_V6
   export MIRROR_DB2U
   export MIRROR_CP4D
-  export MIRROR_WD
   export MIRROR_WML
   export MIRROR_WSL
   export MIRROR_SPARK
+  export MIRROR_COGNOS
   export MIRROR_APPCONNECT
-  export MIRROR_MAS_ICD
+  export MIRROR_MAS_IC
+  export MIRROR_EVERYTHING
 
   # Authentication
   export IBM_ENTITLEMENT_KEY
@@ -536,10 +554,10 @@ function mirror_to_registry() {
     "$MIRROR_DB2U" == true ||
     "$MIRROR_APPCONNECT" == true ||
     "$MIRROR_CP4D" == true ||
-    "$MIRROR_WD" == true ||
     "$MIRROR_WSL" == true ||
     "$MIRROR_WML" == true ||
-    "$MIRROR_SPARK" == true ]]
+    "$MIRROR_SPARK" == true ||
+    "$MIRROR_COGNOS" == true ]]
   then
     MIRROR_DEPS=true
   else
@@ -591,10 +609,10 @@ function mirror_to_registry() {
   reset_colors
   echo_h4 "Content Selection (Cloud Pak for Data)" "    "
   show_mirror_status "IBM Cloud Pak for Data (CP4D) ......." $MIRROR_CP4D
-  show_mirror_status "IBM Watson Discovery ................" $MIRROR_WD
   show_mirror_status "IBM Watson Studio ..................." $MIRROR_WSL
   show_mirror_status "IBM Watson Machine Learning ........." $MIRROR_WML
   show_mirror_status "IBM Analytics Engine (Spark)........." $MIRROR_SPARK
+  show_mirror_status "IBM Cognos Analytics ................" $MIRROR_COGNOS
 
   echo
   reset_colors

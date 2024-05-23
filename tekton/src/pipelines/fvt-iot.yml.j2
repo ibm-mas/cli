@@ -1,5 +1,4 @@
 ---
-# Don't edit install.yaml directly -- modify install.yml.j2, and the content in parts/, then run "ansible-playbook generate-install.yaml"
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
@@ -119,7 +118,7 @@ spec:
           workspace: shared-configs
 
   finally:
-    # 3. Run CV
+    # 1. Run CV
     # -----------------------------------------------------------------------------
     - name: cv-iot
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
