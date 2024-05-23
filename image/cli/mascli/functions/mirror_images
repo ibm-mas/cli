@@ -432,13 +432,13 @@ function mirror_to_registry_interactive() {
 
     prompt_for_confirm_default_yes "IBM Db2" MIRROR_DB2U
 
-    prompt_for_confirm_default "IBM Cloud Pak for Data (CP4D)" MIRROR_CP4D
-    prompt_for_confirm_default "IBM Watson Studio Local" MIRROR_WSL
-    prompt_for_confirm_default "IBM Watson Machine Learning" MIRROR_WML
-    prompt_for_confirm_default "IBM Analytics Engine (Spark)" MIRROR_SPARK
-    prompt_for_confirm_default "IBM Cognos Analytics" MIRROR_COGNOS
+    prompt_for_confirm "IBM Cloud Pak for Data (CP4D)" MIRROR_CP4D
+    prompt_for_confirm "IBM Watson Studio Local" MIRROR_WSL
+    prompt_for_confirm "IBM Watson Machine Learning" MIRROR_WML
+    prompt_for_confirm "IBM Analytics Engine (Spark)" MIRROR_SPARK
+    prompt_for_confirm "IBM Cognos Analytics" MIRROR_COGNOS
 
-    prompt_for_confirm_default "IBM AppConnect" MIRROR_APPCONNECT
+    prompt_for_confirm "IBM AppConnect" MIRROR_APPCONNECT
   fi
 
   if [[ "$MIRROR_MAS_ICD" == "true" ]]; then
