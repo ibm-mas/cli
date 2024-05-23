@@ -85,7 +85,7 @@ spec:
         git config --global user.password $GITHUB_PAT
         
         mkdir -p /tmp/init-cp4d
-        mas gitops-cp4d -a $ACCOUNT -c $CLUSTER_NAME \
+        mas gitops-cp4d -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --dir /tmp/init-cp4d \
         --secrets-path $SECRET_PATH \
         --github-push \
@@ -99,7 +99,7 @@ spec:
         - /bin/sh
         - -c
       name: gitops-cp4d
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: Always
       image: quay.io/ibmmas/cli:9.0.0-pre.mascore1287
   workspaces:
     - name: configs
