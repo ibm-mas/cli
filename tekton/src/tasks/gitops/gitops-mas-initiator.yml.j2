@@ -73,6 +73,12 @@ spec:
     - name: fvt_ansible_version
       type: string
       default: ""
+    - name: artifactory_username
+      type: string
+      default: ""
+    - name: artifactory_token
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-mas-initiator
     env:
@@ -138,6 +144,10 @@ spec:
         value: $(params.cli_version)
       - name: FVT_ANSIBLE_VERSION
         value: $(params.fvt_ansible_version)
+      - name: ARTIFACTORY_USERNAME
+        value: $(params.artifactory_username)
+      - name: ARTIFACTORY_TOKEN
+        value: $(params.artifactory_token)
   steps:
     - args:
       - |-
@@ -171,7 +181,6 @@ spec:
           echo "created AWS secret secret ${SECRET_NAME} with value ${SECRET_VALUE:0:6}<snip> in region $SM_AWS_REGION"
           set -e -o pipefail
         fi
-
 
         export TARGET_LOCAL_DIR="/tmp/target_repo"
         mkdir -p $TARGET_LOCAL_DIR
@@ -220,6 +229,40 @@ spec:
           fi
         fi
 
+        #customizationList customizationArchive credentials
+        if [ -f "gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/appws_spec_manage.yaml" ]; then
+
+          MAS_APPWS_SPEC_YAML=gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/appws_spec_manage.yaml
+          secret_names=$(/usr/bin/yq eval '.mas_appws_spec.settings.customizationList | to_entries | .[].value.customizationArchiveCredentials.secretName' ${MAS_APPWS_SPEC_YAML})
+          for customization_archive_secret_name in ${secret_names[@]}; do
+
+            export CUSTOMIZATION_ARCHIVE_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPERATOR}fvtsaas${SECRETS_KEY_SEPERATOR}
+            export CUSTOMIZATION_ARCHIVE_SECRET_NAME=${CUSTOMIZATION_ARCHIVE_SECRET}${customization_archive_secret_name}
+            echo "gitops-mas-initiator: creating AWS SM with name :: ${CUSTOMIZATION_ARCHIVE_SECRET_NAME}"
+
+            if [[ -n "${ARTIFACTORY_USERNAME}" && -n "${ARTIFACTORY_TOKEN}" ]]; then
+              export SECRET_VALUE="{\"username\":\"${ARTIFACTORY_USERNAME}\",\"password\":\"${ARTIFACTORY_TOKEN}\"}"
+
+              aws configure set aws_access_key_id ${SM_AWS_ACCESS_KEY_ID}
+              aws configure set aws_secret_access_key ${SM_AWS_SECRET_ACCESS_KEY}
+              aws configure set default.region $SM_AWS_REGION
+              export AWS_REGION=$SM_AWS_REGION
+              aws configure list
+              set +e +o pipefail
+              aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${CUSTOMIZATION_ARCHIVE_SECRET_NAME} --region $SM_AWS_REGION --output json 2> /dev/null
+              aws secretsmanager describe-secret --secret-id ${CUSTOMIZATION_ARCHIVE_SECRET_NAME} --region $SM_AWS_REGION --output json 2> /dev/null
+              aws secretsmanager create-secret --name ${CUSTOMIZATION_ARCHIVE_SECRET_NAME} --region $SM_AWS_REGION --secret-string "${SECRET_VALUE}" || exit 1
+
+              echo "created AWS secret secret ${CUSTOMIZATION_ARCHIVE_SECRET_NAME} with value ${SECRET_VALUE:0:6}<snip> in region $SM_AWS_REGION"
+              set -e -o pipefail
+            else
+              echo "gitops-mas-initiator: ARTIFACTORY_USERNAME and/or ARTIFACTORY_TOKEN not set, exit with error"
+              exit 1
+            fi
+
+          done
+
+        fi
         # Update the app channels in the mas-apps-params.yaml. Assume fvtsaas here
         if [ -n $MAS_APP_CHANNEL_ASSIST ]; then
           yq --arg MAS_APP_CHANNEL_ASSIST $MAS_APP_CHANNEL_ASSIST -iY '(. | select(has("assist")?).assist.app_channel)= $MAS_APP_CHANNEL_ASSIST' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
