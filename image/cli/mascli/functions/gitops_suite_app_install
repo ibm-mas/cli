@@ -25,6 +25,21 @@ Maximo Application Suite:
   --mas-app-spec-yaml ${COLOR_YELLOW}MAS_APP_SPEC_YAML${TEXT_RESET}                Yaml file location containing IBM Suite Maximo Application Suite Application Spec
   --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}          MAS Manual Cert Management
   --mas-edition ${COLOR_YELLOW}MAS_EDITION${TEXT_RESET}                            MAS EDITION
+  --manual-certs-yaml ${COLOR_YELLOW}MANUAL_CERTS_YAML${TEXT_RESET}                YAML file location containing combined MAS Manual Certs of core and all other apps
+
+  Below is a sample yaml file template representing manual_certs dictionary ( key: << value base64 encoded content of cert file >>) 
+  where key is <<app>>_<<filename . replaced by _>> name and value will be base64 encoded of the respective ca/tls file, 
+  supported app are core, assist, iot, manage, monitor, optimizer, predict,visualinspection
+    manual_certs:
+      core_tls_crt: <<base64 enc of core tls.crt>>
+      core_tls_key: <<base64 enc of core tls.key>>
+      core_ca_crt: <<base64 enc of core ca.crt>>
+      assist_tls_crt: <<base64 enc of assist tls.crt>>
+      assist_tls_key: <<base64 enc of assist tls.key>>
+      assist_ca_crt: <<base64 enc of assist ca.crt>>
+      <<app>>_tls_crt: <<base64 enc of <<app>> tls.crt>>
+      <<app>>_tls_key: <<base64 enc of <<app>> tls.key>>
+      <<app>>_ca_crt: <<base64 enc of <<app>> ca.crt>>
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -87,6 +102,9 @@ function gitops_suite_app_install_noninteractive() {
         ;;
       --mas-edition)
         export MAS_EDITION=$1 && shift
+        ;;
+      --manual-certs-yaml)
+        export MANUAL_CERTS_YAML=$1 && shift
         ;;
 
       # Secrets Manager
@@ -263,6 +281,7 @@ function gitops_suite_app_install() {
   echo_reset_dim "Default File Storage Class ............ ${COLOR_MAGENTA}${DEFAULT_FILE_STORAGE_CLASS}"
   echo_reset_dim "Default Block Storage Class ........... ${COLOR_MAGENTA}${DEFAULT_BLOCK_STORAGE_CLASS}"
   echo_reset_dim "MAS Manual Cert Mgt ................... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
+  echo_reset_dim "MANUAL CERTS YAML ..................... ${COLOR_MAGENTA}${MANUAL_CERTS_YAML}"  
     
   reset_colors
 
@@ -290,45 +309,7 @@ function gitops_suite_app_install() {
 
   # Instance-level secrets to use
   # ---------------------------------------------------------------------------
-  # Set certs only if manual cert is True
 
-  declare -A tls_secret_name
-  tls_secret_name['iot']="${MAS_INSTANCE_ID}-public-tls"
-  tls_secret_name['add']="${MAS_INSTANCE_ID}-add-cert-public"
-  tls_secret_name['assist']="public-assist-tls"
-  tls_secret_name['monitor']="${MAS_INSTANCE_ID}-public-tls"
-  tls_secret_name['optimizer']="${MAS_INSTANCE_ID}-cert-optimizer-public"
-  tls_secret_name['predict']="${MAS_INSTANCE_ID}-public-predict-tls"
-  tls_secret_name['visualinspection']="public-visualinspection-tls"
-
-  if [[ "${MAS_MANUAL_CERT_MGMT}" = "True" && -n "${tls_secret_name[$MAS_APP_ID]}" ]]; then
-
-    export PUBLIC_TLS_SECRET_NAME=${tls_secret_name[$MAS_APP_ID]}
-    
-    export PUBLIC_CERT_SECRET_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}certs${SECRETS_KEY_SEPERATOR}${MAS_APP_ID}
-    export CERT_FILE=$TEMP_DIR/cert.yml
-    export CA_CERT_FILE=$TEMP_DIR/ca_cert.yml
-    export TLS_CERT_FILE=$TEMP_DIR/tls_cert.yml
-    export TLS_KEY_FILE=$TEMP_DIR/tls_key.yml
-
-    sm_get_secret_file $PUBLIC_CERT_SECRET_NAME $CERT_FILE
-    jq -r .cert_ca $CERT_FILE > $CA_CERT_FILE
-    jq -r .cert_tls $CERT_FILE > $TLS_CERT_FILE
-    jq -r .tls_key $CERT_FILE > $TLS_KEY_FILE
-
-    if [[ -n "$CA_CERT_FILE" ]]; then
-      export CA_CERT=$(cat ${CA_CERT_FILE})
-      echo_reset_dim "CA_CERT ............................... ${COLOR_MAGENTA}${CA_CERT}"
-    fi
-    if [[ -n "$TLS_CERT_FILE" ]]; then
-      export TLS_CERT=$(cat ${TLS_CERT_FILE})
-      echo_reset_dim "TLS_CERT .............................. ${COLOR_MAGENTA}${TLS_CERT}"
-    fi
-    if [[ -n "$TLS_KEY_FILE" ]]; then
-      export TLS_KEY=$(cat ${TLS_KEY_FILE})
-      echo_reset_dim "TLS_KEY ............................... ${COLOR_MAGENTA}${TLS_KEY}"    
-    fi
-  fi
 
   # Instance-level secrets to create
   # ---------------------------------------------------------------------------
@@ -376,6 +357,42 @@ function gitops_suite_app_install() {
   fi
   echo_reset_dim "MAS_APP_SPEC ............................ ${COLOR_MAGENTA}${MAS_APP_SPEC}"
   reset_colors
+
+  # Set certs only if manual cert is True (to create k8s secret in gitops) for app $MAS_APP_ID
+  # ---------------------------------------------------------------------------
+  if [ "${MAS_MANUAL_CERT_MGMT}" == "True" ] ; then
+    if [[ -n "$MANUAL_CERTS_YAML" ]] && [[ -s "$MANUAL_CERTS_YAML" ]]; then
+
+      declare -A tls_secret_name
+      tls_secret_name['iot']="${MAS_INSTANCE_ID}-public-tls"
+      tls_secret_name['add']="${MAS_INSTANCE_ID}-add-cert-public"
+      tls_secret_name['assist']="public-assist-tls"
+      tls_secret_name['monitor']="${MAS_INSTANCE_ID}-public-tls"
+      tls_secret_name['optimizer']="${MAS_INSTANCE_ID}-cert-optimizer-public"
+      tls_secret_name['predict']="${MAS_INSTANCE_ID}-public-predict-tls"
+      tls_secret_name['visualinspection']="public-visualinspection-tls"
+
+      if [[ -n "${tls_secret_name[$MAS_APP_ID]}" ]]; then
+        echo
+        echo_h2 "Read manual cert files for app ${MAS_APP_ID} from file ${MANUAL_CERTS_YAML}, and set to gitops template"
+
+        tls_crt_filter_query=.manual_certs.${MAS_APP_ID}_tls_crt
+        tls_key_filter_query=.manual_certs.${MAS_APP_ID}_tls_key
+        ca_crt_filter_query=.manual_certs.${MAS_APP_ID}_ca_crt
+
+        export PUBLIC_TLS_SECRET_NAME=${tls_secret_name[$MAS_APP_ID]}
+        export TLS_CERT=$(/usr/bin/yq eval "$tls_crt_filter_query" ${MANUAL_CERTS_YAML})
+        export TLS_KEY=$(/usr/bin/yq eval  "$tls_key_filter_query" ${MANUAL_CERTS_YAML})
+        export CA_CERT=$(/usr/bin/yq eval  "$ca_crt_filter_query"  ${MANUAL_CERTS_YAML})
+
+        echo -e "\n - PUBLIC_TLS_SECRET_NAME ................ ${PUBLIC_TLS_SECRET_NAME}"
+        echo -e "\n - CA_CERT CONTENT ....................... ${CA_CERT}"
+        echo -e "\n - TLS_CERT CONTENT ...................... ${TLS_CERT}"
+        echo -e "\n - TLS_KEY CONTENT ....................... ${TLS_KEY}"
+      fi
+
+    fi
+  fi
 
   # Generate ArgoApps
   # ---------------------------------------------------------------------------

@@ -145,6 +145,9 @@ spec:
       type: string
       default: "True"
 
+    - name: manual_certs_yaml
+      type: string
+      default: ""
   tasks:
 
     # 1. License Entitlement
@@ -250,6 +253,8 @@ spec:
           value: $(params.update_dns_entries)
         - name: delete_wildcards
           value: $(params.delete_wildcards)
+        - name: manual_certs_yaml
+          value: $(params.manual_certs_yaml)
 
       taskRef:
         kind: Task
@@ -257,6 +262,8 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+        - name: shared-certificates
+          workspace: shared-certificates
 
 
     # 3. MAS Suite Config

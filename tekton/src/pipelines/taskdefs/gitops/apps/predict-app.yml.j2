@@ -32,6 +32,8 @@
       value: $(params.default_file_storage_class)
     - name: mas_edition
       value: $(params.mas_edition)
+    - name: manual_certs_yaml
+      value: $(params.manual_certs_yaml)
   taskRef:
     name: gitops-suite-app-install
     kind: Task
@@ -45,3 +47,5 @@
       workspace: configs
     - name: shared-gitops-configs
       workspace: shared-gitops-configs
+    - name: shared-certificates
+      workspace: shared-certificates

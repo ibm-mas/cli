@@ -26,6 +26,8 @@
       value: $(params.mas_appws_kind_visualinspection)
     - name: mas_app_kind
       value: $(params.mas_app_kind_visualinspection)
+    - name: manual_certs_yaml
+      value: $(params.manual_certs_yaml)
   taskRef:
     name: gitops-suite-app-config
     kind: Task
@@ -42,3 +44,5 @@
       workspace: configs
     - name: shared-gitops-configs
       workspace: shared-gitops-configs
+    - name: shared-certificates
+      workspace: shared-certificates
