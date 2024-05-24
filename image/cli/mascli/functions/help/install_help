@@ -91,11 +91,12 @@ Advanced Db2u Universal Operator Configuration - Resource Requests (Optional):
       --db2u-memory-limit ${COLOR_YELLOW}DB2_MEMORY_LIMITS${TEXT_RESET}          Customize Db2 memory limit
 
 Advanced Db2u Universal Operator Configuration - Storage (Optional):
-      --db2u-backup-storage ${COLOR_YELLOW}DB2_BACKUP_STORAGE_SIZE${TEXT_RESET}  Customize Db2 storage capacity
-      --db2u-data-storage ${COLOR_YELLOW}DB2_DATA_STORAGE_SIZE${TEXT_RESET}      Customize Db2 storage capacity
-      --db2u-logs-storage ${COLOR_YELLOW}DB2_LOGS_STORAGE_SIZE${TEXT_RESET}      Customize Db2 storage capacity
-      --db2u-meta-storage ${COLOR_YELLOW}DB2_META_STORAGE_SIZE${TEXT_RESET}      Customize Db2 storage capacity
-      --db2u-temp-storage ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}      Customize Db2 storage capacity
+      --db2u-backup-storage ${COLOR_YELLOW}DB2_BACKUP_STORAGE_SIZE${TEXT_RESET}           Customize Db2 storage capacity
+      --db2u-data-storage ${COLOR_YELLOW}DB2_DATA_STORAGE_SIZE${TEXT_RESET}               Customize Db2 storage capacity
+      --db2u-logs-storage ${COLOR_YELLOW}DB2_LOGS_STORAGE_SIZE${TEXT_RESET}               Customize Db2 storage capacity
+      --db2u-audit-logs-storage ${COLOR_YELLOW}DB2_AUDIT_LOGS_STORAGE_SIZE${TEXT_RESET}   Customize Db2 storage capacity
+      --db2u-meta-storage ${COLOR_YELLOW}DB2_META_STORAGE_SIZE${TEXT_RESET}               Customize Db2 storage capacity
+      --db2u-temp-storage ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}               Customize Db2 storage capacity
 
 Advanced MongoDB Configuration (Optional):
       --mongodb-namespace ${COLOR_YELLOW}MONGODB_NAMESPACE${TEXT_RESET}          Change namespace where MongoCE operator and instance will be created

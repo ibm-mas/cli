@@ -183,6 +183,7 @@ function db2u_configuration() {
     echo_reset_dim " - Backup:           ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_SIZE:-Default}"
     echo_reset_dim " - Temp:             ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_SIZE:-Default}"
     echo_reset_dim " - Transaction Logs: ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_SIZE:-Default}"
+    echo_reset_dim " - Audit Logs:       ${COLOR_MAGENTA}${DB2_AUDIT_LOGS_STORAGE_SIZE:-Default}"
     echo
     reset_colors
     if prompt_for_confirm "Customize storage capacity?"; then
@@ -191,6 +192,7 @@ function db2u_configuration() {
       prompt_for_input "+ Metadata volume size" DB2_META_STORAGE_SIZE && export DB2_META_STORAGE_SIZE
       prompt_for_input "+ Transaction logs volume size" DB2_LOGS_STORAGE_SIZE && export DB2_LOGS_STORAGE_SIZE
       prompt_for_input "+ Backup volume size" DB2_BACKUP_STORAGE_SIZE && export DB2_BACKUP_STORAGE_SIZE
+      prompt_for_input "+ Audit logs volume size" DB2_AUDIT_LOGS_STORAGE_SIZE && export DB2_AUDIT_LOGS_STORAGE_SIZE
     fi
   fi
 }
@@ -216,12 +218,14 @@ function install_config_db2() {
       DB2_META_STORAGE_SIZE=${DB2_META_STORAGE_SIZE:-10Gi}
       DB2_BACKUP_STORAGE_SIZE=${DB2_BACKUP_STORAGE_SIZE:-10Gi}
       DB2_LOGS_STORAGE_SIZE=${DB2_LOGS_STORAGE_SIZE:-10Gi}
+      DB2_AUDIT_LOGS_STORAGE_SIZE=${DB2_AUDIT_LOGS_STORAGE_SIZE:-10Gi}
       DB2_TEMP_STORAGE_SIZE=${DB2_TEMP_STORAGE_SIZE:-10Gi}
       DB2_DATA_STORAGE_SIZE=${DB2_DATA_STORAGE_SIZE:-20Gi}
     else
       DB2_META_STORAGE_SIZE=${DB2_META_STORAGE_SIZE:-20Gi}
       DB2_BACKUP_STORAGE_SIZE=${DB2_BACKUP_STORAGE_SIZE:-100Gi}
       DB2_LOGS_STORAGE_SIZE=${DB2_LOGS_STORAGE_SIZE:-100Gi}
+      DB2_AUDIT_LOGS_STORAGE_SIZE=${DB2_AUDIT_LOGS_STORAGE_SIZE:-100Gi}
       DB2_TEMP_STORAGE_SIZE=${DB2_TEMP_STORAGE_SIZE:-100Gi}
       DB2_DATA_STORAGE_SIZE=${DB2_DATA_STORAGE_SIZE:-100Gi}
     fi

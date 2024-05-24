@@ -88,6 +88,8 @@ spec:
       value: '$DB2_BACKUP_STORAGE_ACCESSMODE'
     - name: db2_logs_storage_accessmode
       value: '$DB2_LOGS_STORAGE_ACCESSMODE'
+    - name: db2_audit_logs_storage_accessmode
+      value: '$DB2_AUDIT_LOGS_STORAGE_ACCESSMODE'  
     - name: db2_temp_storage_accessmode
       value: '$DB2_TEMP_STORAGE_ACCESSMODE'
     - name: db2_data_storage_accessmode
@@ -135,6 +137,10 @@ spec:
       value: '$DB2_LOGS_STORAGE_CLASS'
     - name: db2_logs_storage_size
       value: '$DB2_LOGS_STORAGE_SIZE'
+    - name: db2_audit_logs_storage_class
+      value: '$DB2_AUDIT_LOGS_STORAGE_CLASS'
+    - name: db2_audit_logs_storage_size
+      value: '$DB2_AUDIT_LOGS_STORAGE_SIZE'
     - name: db2_temp_storage_class
       value: '$DB2_TEMP_STORAGE_CLASS'
     - name: db2_temp_storage_size

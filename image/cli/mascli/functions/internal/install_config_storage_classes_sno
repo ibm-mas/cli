@@ -9,6 +9,7 @@
 # - grafana_instance_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
 # - db2_data_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
 # - db2_logs_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+# - db2_audit_logs_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
 # - db2_temp_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
 # - kafka_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
 # - mongodb_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]

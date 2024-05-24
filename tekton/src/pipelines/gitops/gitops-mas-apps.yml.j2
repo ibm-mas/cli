@@ -55,6 +55,8 @@ spec:
       type: string
     - name: db2_logs_storage_class
       type: string
+    - name: db2_audit_logs_storage_class
+      type: string
     - name: db2_data_storage_class
       type: string
     - name: db2_backup_storage_class
@@ -376,6 +378,8 @@ spec:
           value: $(params.db2_temp_storage_class)
         - name: db2_logs_storage_class
           value: $(params.db2_logs_storage_class)
+        - name: db2_audit_logs_storage_class
+          value: $(params.db2_audit_logs_storage_class)
         - name: db2_data_storage_class
           value: $(params.db2_data_storage_class)
         - name: db2_backup_storage_class
@@ -459,6 +463,8 @@ spec:
           value: $(params.db2_temp_storage_class)
         - name: db2_logs_storage_class
           value: $(params.db2_logs_storage_class)
+        - name: db2_audit_logs_storage_class
+          value: $(params.db2_audit_logs_storage_class)
         - name: db2_data_storage_class
           value: $(params.db2_data_storage_class)
         - name: db2_backup_storage_class

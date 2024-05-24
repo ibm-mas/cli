@@ -16,5 +16,6 @@ function install_config_sno() {
     export DB2_BACKUP_STORAGE_ACCESSMODE=ReadWriteOnce
     export DB2_DATA_STORAGE_ACCESSMODE=ReadWriteOnce
     export DB2_LOGS_STORAGE_ACCESSMODE=ReadWriteOnce
+    export DB2_AUDIT_LOGS_STORAGE_ACCESSMODE=ReadWriteOnce
   fi
 }
