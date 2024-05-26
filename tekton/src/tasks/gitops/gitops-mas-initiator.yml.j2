@@ -223,7 +223,7 @@ spec:
         echo "gitops-mas-initiator: DNS_PROVIDER=${DNS_PROVIDER} CURRENT_DATE=${CURRENT_DATE} DEPLOYMENT_DAY_WITH_CIS=$DEPLOYMENT_DAY_WITH_CIS"
 
         if [ "$DNS_PROVIDER" == "cis" ]; then
-          if [[ -n $DEPLOYMENT_DAY_WITH_CIS && "$DEPLOYMENT_DAY_WITH_CIS" != "CURRENT_DATE" ]]; then
+          if [[ -n ${DEPLOYMENT_DAY_WITH_CIS} && "${DEPLOYMENT_DAY_WITH_CIS}" != "${CURRENT_DATE}" ]]; then
             yq -iY 'del(.dns)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
             echo "gitops-mas-initiator: removed .dns node"
           fi
