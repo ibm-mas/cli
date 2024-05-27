@@ -126,9 +126,13 @@ function install_pipelinerun_preview() {
     else echo_reset_dim "   - Service Provider ....... ${COLOR_RED}Disabled"
     fi
 
-    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"spatial="* ]]
-    then echo_reset_dim "   - Spatial ................ ${COLOR_GREEN}Enabled"
-    else echo_reset_dim "   - Spatial ................ ${COLOR_RED}Disabled"
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"spatial="* ]]; then 
+      echo_reset_dim "   - Spatial ................ ${COLOR_GREEN}Enabled"
+      if [[ "${INSTALL_ARCGIS}" == true ]]; then
+      echo_reset_dim "   - Maximo Loc Srv Esri .... ${COLOR_GREEN}Enabled"
+      fi
+    else 
+      echo_reset_dim "   - Spatial ................ ${COLOR_RED}Disabled"
     fi
 
     if [[ "${MAS_APPWS_COMPONENTS,,}" == *"strategize="* ]]

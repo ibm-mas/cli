@@ -116,7 +116,8 @@ Manage Application - Advanced Configuration (Optional):
       --manage-cryptox-key ${COLOR_YELLOW}MAS_APP_SETTINGS_CRYPTOX_KEY${TEXT_RESET}                                       Customize your Manage database encryption keys
       --manage-old-crypto-key ${COLOR_YELLOW}MAS_APP_SETTINGS_OLD_CRYPTO_KEY${TEXT_RESET}                                 Customize your Manage database encryption keys
       --manage-old-cryptox-key ${COLOR_YELLOW}MAS_APP_SETTINGS_OLD_CRYPTOX_KEY${TEXT_RESET}                               Customize your Manage database encryption keys
-      --manage-override-encryption-secrets                                                    Override any existing Manage database encryption keys (a backup of the original is taken).
+      --manage-override-encryption-secrets                                                                                Override any existing Manage database encryption keys (a backup of the original is taken).
+      --install-arcgis                                                                                                    Optional. Enables IBM Maximo Location Services for Esri installation. Only applicable if installing Manage with Spatial.
 
 Other Commands:
       --dev-mode              Enable developer mode (e.g. for access to pre-release builds)

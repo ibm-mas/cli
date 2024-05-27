@@ -151,9 +151,10 @@ Usage
 - `--manage-old-crypto-key MAS_APP_SETTINGS_OLD_CRYPTO_KEY`                                 Set `MXE_SECURITY_OLD_CRYPTO_KEY` value if you want to customize your Manage database encryption keys
 - `--manage-old-cryptox-key MAS_APP_SETTINGS_OLD_CRYPTOX_KEY`                               Set `MXE_SECURITY_OLD_CRYPTOX_KEY` value if you want to customize your Manage database encryption keys
 - `--manage-override-encryption-secrets`                                                    Overrides any existing Manage database encryption keys. A backup of the original secret holding existing encryption keys is taken prior overriding it with the new defined keys.
--- `--manage-db-tablespace MAS_APP_SETTINGS_TABLESPACE`                                     Optional. Set the database tablespace name that Manage will use to be installed. Default is `MAXDATA`.
--- `--manage-db-indexspace MAS_APP_SETTINGS_INDEXSPACE`                                     Optional. Set the database indexspace name that Manage will use to be installed. Default is `MAXINDEX`.
--- `--manage-db-schema MAS_APP_SETTINGS_DB2_SCHEMA`                                         Optional. Set the DB2 database schema name that Manage will use to be installed. Default is `maximo`. Note: This is only applicable to the cases where a DB2 instance will be created for Manage via MAS CLI.
+- `--manage-db-tablespace MAS_APP_SETTINGS_TABLESPACE`                                     Optional. Set the database tablespace name that Manage will use to be installed. Default is `MAXDATA`.
+- `--manage-db-indexspace MAS_APP_SETTINGS_INDEXSPACE`                                     Optional. Set the database indexspace name that Manage will use to be installed. Default is `MAXINDEX`.
+- `--manage-db-schema MAS_APP_SETTINGS_DB2_SCHEMA`                                         Optional. Set the DB2 database schema name that Manage will use to be installed. Default is `maximo`. Note: This is only applicable to the cases where a DB2 instance will be created for Manage via MAS CLI.
+- `--install-arcgis`                                                                       Optional. Enables IBM Maximo Location Services for Esri installation. Only applicable if installing Manage with Spatial.
 
 ### Other Commands:
 - `--no-wait-for-pvcs` If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
