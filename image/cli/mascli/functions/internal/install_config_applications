@@ -286,24 +286,6 @@ function manage_settings_components() {
 
     prompt_for_confirm " - Spatial" MANAGE_COMPONENT_SPATIAL
     [[ "$MANAGE_COMPONENT_SPATIAL" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,spatial=latest"
-    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"spatial="* ]]; then
-      echo
-      echo "${TEXT_DIM}Maximo Spatial requires a map server provider in order to enable geospatial capabilities."
-      echo "${TEXT_DIM}You may choose your preferred map provider later or you can add IBM Maximo Location Services for Esri now along with your Manage + Spatial deployment (additional license is required)."
-      reset_colors
-      echo
-      if prompt_for_confirm " - Include IBM Maximo Location Services for Esri" INSTALL_ARCGIS; then
-        
-          echo
-          echo_h4 "IBM Maximo Location Services for Esri License Terms"
-          echo -e "${COLOR_YELLOW}For information about your IBM Maximo Location Services for Esri License, see ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/MAXIT81-License${TEXT_RESET}. To continue with the installation, you must accept these additional license terms."
-          prompt_for_confirm_default_yes "Do you accept the license terms?" MLS_LICENSE_RESPONSE
-          if [[ "$MLS_LICENSE_RESPONSE" == "false" ]]; then
-            exit 1
-          fi
-      
-      fi
-    fi
 
     prompt_for_confirm " - Strategize" MANAGE_COMPONENT_STRATEGIZE
     [[ "$MANAGE_COMPONENT_STRATEGIZE" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,strategize=latest"
@@ -322,15 +304,36 @@ function manage_settings_components() {
 
     reset_colors
 
+    # If Spatial is selected, then prompt to choose to add IBM Maximo Location Services for Esri, and prompt license
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"spatial="* ]]; then
+      echo
+      echo "${TEXT_DIM}Maximo Spatial requires a map server provider in order to enable geospatial capabilities."
+      echo "${TEXT_DIM}You may choose your preferred map provider later or you can enable IBM Maximo Location Services for Esri now along with your Manage & Spatial deployment (additional AppPoints are needed)."
+      reset_colors
+      echo
+      if prompt_for_confirm " - Include IBM Maximo Location Services for Esri" INSTALL_ARCGIS; then
+        
+          echo
+          echo_h4 "IBM Maximo Location Services for Esri License Terms"
+          echo -e "${COLOR_YELLOW}For information about your IBM Maximo Location Services for Esri License, see ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/MAXIT81-License${TEXT_RESET}${COLOR_YELLOW}. To continue with the installation, you must accept these additional license terms.${TEXT_RESET}"
+          prompt_for_confirm_default_yes "Do you accept the license terms?" MLS_LICENSE_RESPONSE
+          if [[ "$MLS_LICENSE_RESPONSE" == "false" ]]; then
+            exit 1
+          fi
+          echo
+      fi
+    fi
+
     # if Maximo IT is selected, prompt specific Maximo IT license terms
     if [[ "${MAS_APPWS_COMPONENTS,,}" == *"icd="* ]]; then
       echo
       echo_h4 "Maximo IT License Terms"
-      echo -e "${COLOR_YELLOW}For information about your Maximo IT License, see ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/MAXIT81-License${TEXT_RESET}. To continue with the installation, you must accept these additional license terms."
+      echo -e "${COLOR_YELLOW}For information about your Maximo IT License, see ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/MAXIT81-License${TEXT_RESET}${COLOR_YELLOW}. To continue with the installation, you must accept these additional license terms.${TEXT_RESET}"
       prompt_for_confirm_default_yes "Do you accept the license terms?" LICENSE_RESPONSE
       if [[ "$LICENSE_RESPONSE" == "false" ]]; then
         exit 1
       fi
+      echo
     fi
 
   fi

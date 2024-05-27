@@ -507,7 +507,9 @@ function install_pipelinerun_preview() {
   --manage-db-tablespace '$MAS_APP_SETTINGS_TABLESPACE'"
   [ "$MAS_APP_SETTINGS_INDEXSPACE" != "" ] && cmd+=" --manage-db-indexspace '$MAS_APP_SETTINGS_INDEXSPACE'"
   [ "$MAS_APP_SETTINGS_DB2_SCHEMA" != "" ] && cmd+=" --manage-db-schema '$MAS_APP_SETTINGS_DB2_SCHEMA'"
-
+  [ "$INSTALL_ARCGIS" == true ] && cmd+=" \\
+  --install-arcgis"
+  
   reset_colors
   echo
   echo_h4 "Non-Interactive Install Command"
