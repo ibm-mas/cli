@@ -740,7 +740,50 @@ spec:
           values: ["true", "True"]
       runAfter:
         - launchfvt-visualinspection
-
+    
+    # Last Sync Point
+    # -------------------------------------------------------------------------
+    # Guarantee installation pipeline ran till the end;
+    # In other words, guarantee sync-install pipeline has install_status key filled
+    # Note: this task will start once all the FVTs are approved and will start at the
+    # same time install's post-verify starts. It means its timeout must be higher than
+    # post-verify + sync-install, which will set the flag needed to finalize this fvt-launcher
+    # - Escape Route: none
+    # - Ignore Failures: false
+    # -------------------------------------------------------------------------
+    - name: waitfor-installation
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: sync-install
+        - name: configmap_key
+          value: INSTALL_STATUS
+        # 25 retries at 5 minute intervals = 2 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "25"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-mobile
+        - approval-iot
+        - approval-manage
+        - approval-monitor
+        - approval-assist
+        - approval-optimizer
+        - approval-predict
+        - approval-visualinspection
 
   finally:
     # Collect must-gather
