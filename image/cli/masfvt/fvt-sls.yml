@@ -1,0 +1,52 @@
+---
+- hosts: localhost
+  any_errors_fatal: true
+  vars:
+    # Image Pull Policy
+    image_pull_policy: "{{ lookup('env', 'IMAGE_PULL_POLICY') }}"
+    # MAS Details
+    mas_channel: "{{ lookup('env', 'MAS_CHANNEL') }}"
+    mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
+    mas_workspace_id: "{{ lookup('env', 'MAS_WORKSPACE_ID') }}"
+    # FVT Configuration
+    fvt_image_registry: "{{ lookup('env', 'FVT_IMAGE_REGISTRY') }}"
+    fvt_artifactory_username: "{{ lookup('env', 'FVT_ARTIFACTORY_USERNAME') }}"
+    fvt_artifactory_token: "{{ lookup('env', 'FVT_ARTIFACTORY_TOKEN') }}"
+    fvt_digest_sls: "{{ lookup('env', 'FVT_DIGEST_SLS') }}"
+    #Dependencies - SLS
+    sls_namespace: "{{ lookup('env', 'SLS_NAMESPACE') }}"
+    sls_channel: "{{ lookup('env', 'SLS_CHANNEL') }}"
+    # Pipeline Run Info
+    devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
+    pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-sls', True) }}-{{ devops_build_number }}"
+    pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
+  tasks:
+    - name: "Debug"
+      debug:
+        msg:
+          - "pipelinerun_namespace ................... {{ pipelinerun_namespace }}"
+          - "pipelinerun_name ........................ {{ pipelinerun_name }}"
+          - ""
+          - "image_pull_policy ....................... {{ image_pull_policy }}"
+          - ""
+          - "sls_namespace ........................... {{ sls_namespace }}"
+          - "sls_channel ............................. {{ sls_channel }}"
+          - ""
+          - "mas_instance_id ......................... {{ mas_instance_id }}"
+          - "mas_channel ............................. {{ mas_channel }}"
+          - "mas_workspace_id ........................ {{ mas_workspace_id }}"
+          - ""
+          - "devops_build_number ..................... {{ devops_build_number }}"
+          - ""
+          - "fvt_image_registry ...................... {{ fvt_image_registry }}"
+          - "fvt_artifactory_username ................ {{ fvt_artifactory_username }}"
+          - "fvt_artifactory_token ................... ************"
+          - ""
+          - "SLS FVT"
+          - ""
+          - "fvt_digest_sls .......................... {{ fvt_digest_sls }}"
+
+    - name: "Start FVT-SLS pipeline"
+      kubernetes.core.k8s:
+        apply: true
+        template: templates/mas-fvt-sls.yml.j2
