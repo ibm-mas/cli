@@ -139,18 +139,6 @@ def getcp4dCompsVersions():
     except Exception as e:
         print(f"Unable to determine Watson Studio version: {e}")
 
-    # Get Watson Discovery Version
-    # -------------------------------------------------------------------------
-    try:
-        crs = dynClient.resources.get(api_version="discovery.watson.ibm.com/v1", kind="WatsonDiscovery")
-        cr = crs.get(name="wd", namespace="ibm-cpd")
-        if cr.status and cr.status.versions.reconciled:
-            setObject[f"target.WatsonDiscoveryVersion"] = cr.status.versions.reconciled
-        else:
-            print(f"Unable to determine Watson Discovery version: status.versions.reconciled unavailable")
-    except Exception as e:
-        print(f"Unable to determine Watson Discovery version: {e}") 
-
     # Get  Watson OpenScale Version
     # -------------------------------------------------------------------------
     try:
@@ -301,14 +289,16 @@ if __name__ == "__main__":
     # Associate Mas FVT Focal group with respect to product
     # -------------------------------------------------------------------------
     productFocal = {
-        "ibm-mas": "S04PPFYUJG5", 
-        "ibm-mas-assist": "S04PSA1M1RR",
+        "ibm-mas": "S04PSA1M1RR",
+        "ibm-mas-devops": "S04PSA1M1RR",
+        "ibm-mas-assist": "S04PPFYUJG5",
         "ibm-mas-iot":"S04PBTG77JB",
         "ibm-mas-manage":"S05QB03HNTU",
         "ibm-mas-monitor":"S04QG3R30SC",
         "ibm-mas-optimizer":"S04PSB1R8DR",
         "ibm-mas-predict":"S04Q53TT5S5",
-        "ibm-mas-visualinspection":"S04PUSAL2A0"
+        "ibm-mas-visualinspection":"S04PUSAL2A0",
+        "ibm-mas-mobile":"S0507GG7V6K"
     }
 
 
@@ -398,18 +388,18 @@ if __name__ == "__main__":
     # Lookup DB2 operator version
     # -------------------------------------------------------------------------
     try:
-        
+
         csvl = dynClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="ClusterServiceVersion")
         csv = csvl.get(namespace=f"db2u",label_selector=f'operators.coreos.com/db2u-operator.db2u')
-        
+
         if csv is None or csv.items is None or len(csv.items) == 0:
             print(f"Unable to determine DB2 operator version: component unavailable")
         else:
-            db2OperatorVersion= (csv.items[0].metadata.name).lstrip('db2u-operator.') 
+            db2OperatorVersion= (csv.items[0].metadata.name).lstrip('db2u-operator.')
             setObject[f"target.db2OperatorVersion"] = db2OperatorVersion
     except Exception as e:
         print(f"Unable to determine DB2 operator version: {e}")
-   
+
     # Get Kafka Provider and Version
     # -------------------------------------------------------------------------
     namespace=''
@@ -428,9 +418,9 @@ if __name__ == "__main__":
                 elif firstBroker.find('strimzi') != -1:
                     setObject[f"target.kafkaProvider"] = 'STRIMZI'
                     namespace="strimzi"
-                else: 
+                else:
                     print(f"Unable to determine kafka provider using broker host")
-                # check if we need to get the kafka version, this will happen with AMQ and STRIMZI    
+                # check if we need to get the kafka version, this will happen with AMQ and STRIMZI
                 if namespace != '':
                     setObject[f"target.kafkaVersion"] = getKafkaVersion(namespace)
                 else:
@@ -452,7 +442,7 @@ if __name__ == "__main__":
             print(f"Unable to determine SLS version: status.versions unavailable")
     except Exception as e:
         print(f"Unable to determine SLS version: {e}")
-    
+
      # Lookup CP4D version
     # -------------------------------------------------------------------------
     try:
@@ -466,7 +456,7 @@ if __name__ == "__main__":
             print(f"Unable to determine CP4D version: status.versions unavailable")
     except Exception as e:
         print(f"Unable to determine CP4D version: {e}")
-   
+
     # Connect to mongoDb
     # -------------------------------------------------------------------------
     client = MongoClient(os.getenv("DEVOPS_MONGO_URI"))
@@ -564,7 +554,10 @@ if __name__ == "__main__":
     for product in result["products"]:
         messageBlocks = []
         messageBlocks.append(buildHeader(f"{product}"))
-        messageBlocks.append(buildSection(f"<!subteam^{productFocal[product]}> The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+        if(product in productFocal):
+            messageBlocks.append(buildSection(f"<!subteam^{productFocal[product]}> The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+        else:
+            messageBlocks.append(buildSection(f"The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
 
         if "results" in result["products"][product]:
             for suite in result["products"][product]["results"]:

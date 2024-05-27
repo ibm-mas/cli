@@ -1,5 +1,4 @@
 ---
-# Don't edit install.yaml directly -- modify install.yml.j2, and the content in parts/, then run "ansible-playbook generate-install.yaml"
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
@@ -63,6 +62,21 @@ spec:
         - name: fvt_test_suite
           value: coreidp-auth
 
+    - name: imagescan
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas
+        - name: product_channel
+          value: $(params.mas_channel)
+        - name: fvt_test_suite
+          value: imagescan
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+
     # Phase 1
     # -------------------------------------------------------------------------
     # Only suites that take less than 5 minutes
@@ -83,7 +97,7 @@ spec:
     {{ lookup('template', 'taskdefs/fvt-core/phase4-disruptive.yml.j2', template_vars={'runAfter': ['coreapi-groupmgmt', 'coreapi-workspacemgmt', 'useractivation-overall', 'useractivation-expiresat', 'useractivation-inactivity', 'coreapi-dependencies', 'coreapi-usermgmt-v3', 'coreapi-other']}) | indent(4) }}
 
   finally:
-    # 3. Run CV
+    # 1. Run CV
     # -----------------------------------------------------------------------------
     - name: cv-core
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}

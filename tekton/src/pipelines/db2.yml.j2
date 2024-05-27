@@ -1,5 +1,4 @@
 ---
-# Don't edit install.yaml directly: modify install.yml.j2, and the content in parts/, then run "ansible-playbook generate-install.yaml"
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
@@ -16,6 +15,9 @@ spec:
   params:
     {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}
     - name: mas_workspace_id
+      type: string
+      default: ""
+    - name: cpd_product_version # common-services will only be installed with specific cpd versions or if set to 'none'
       type: string
       default: ""
 

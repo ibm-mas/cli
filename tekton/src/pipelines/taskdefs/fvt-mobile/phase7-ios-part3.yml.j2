@@ -1,0 +1,48 @@
+
+## Minimum Verification Test for Mobile Supervisor MAS test suites
+- name: fvt-supervisor-mvt-ios
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: supervisor-app
+    - name: mobile_device_type
+      value: ios
+    - name: fvt_test_suite
+      value: supervisor-mvt-ios
+  runAfter:
+    - fvt-inventoryreceiving-mvt-ios
+    - fvt-service-request-mvt-ios
+    - fvt-technician-mvt-ios
+
+## Minimum Verification Test for Mobile Technician MAS test suites
+- name: fvt-calibration-mvt-ios
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: calibration-app
+    - name: mobile_device_type
+      value: ios
+    - name: fvt_test_suite
+      value: calibration-mvt-ios
+  runAfter:
+    - fvt-inventoryreceiving-mvt-ios
+    - fvt-service-request-mvt-ios
+    - fvt-technician-mvt-ios
+
+# Mobile FVT - Issues and Transfers IOS
+- name: fvt-issuesandtransfers-mvt-ios
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: it-automation-testcases
+    - name: mobile_device_type
+      value: ios
+    - name: fvt_test_suite
+      value: issues-transfer-mvt-ios
+  runAfter:
+    - fvt-inventoryreceiving-mvt-ios
+    - fvt-service-request-mvt-ios
+    - fvt-technician-mvt-ios

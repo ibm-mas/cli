@@ -39,7 +39,7 @@ function validate_catalog_source {
     catalogVersion=v8-amd64
   fi
 
-  if [[ "$catalogImage" != "null" ]] && [[ "$catalogId" != "$MAS_CATALOG_VERSION" ]]; then
+  if [[ "$catalogImage" != "null" && "$catalogImage" != "" && "$catalogId" != "$MAS_CATALOG_VERSION" ]]; then
     echo
     echo_warning "Error: IBM Maximo Operator Catalog $catalogVersion is already installed on this cluster."
     echo_warning "If you wish to install a new MAS instance using the $MAS_CATALOG_VERSION catalog please first run \"mas update\" to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update."
@@ -200,6 +200,11 @@ function install_noninteractive() {
       --db2u-manage)
         export DB2_ACTION_MANAGE=install
         ;;
+      --db2u-manage-type)
+        if [[ "$DB2_ACTION_MANAGE" == "install" ]]; then
+          export DB2_TYPE=$1 && shift
+        fi
+        ;;
 
       # Dependencies - Db2 Advanced Options
       --db2u-affinity-key)
@@ -343,11 +348,15 @@ function install_noninteractive() {
       # Manage commands - Server bundle configuration
       --manage-server-bundle-size)
         export MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE=$1 && shift
+        if [[ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "jms" || "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "snojms" ]]; then
+          export MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
+        fi
         ;;
       --manage-jms)
-        export MAS_APP_SETTINGS_DEFAULT_JMS=true
-        export MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
-        export MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE=jms
+        if [[ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "jms" || "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "snojms" ]]; then
+          export MAS_APP_SETTINGS_DEFAULT_JMS=true
+          export MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
+        fi
         ;;
       --manage-demodata)
         export MAS_APP_SETTINGS_DEMODATA=true
@@ -375,6 +384,19 @@ function install_noninteractive() {
         export MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD=$1 && shift
         ;;
 
+      # Manage commands - Dabatase tablespaces
+      --manage-db-tablespace)
+        export MAS_APP_SETTINGS_TABLESPACE=$1 && shift
+        ;;
+
+      --manage-db-indexspace)
+        export MAS_APP_SETTINGS_INDEXSPACE=$1 && shift
+        ;;
+
+      --manage-db-schema)
+        export MAS_APP_SETTINGS_DB2_SCHEMA=$1 && shift
+        ;;
+
       # Manage commands - Database encryption keys
       --manage-crypto-key)
         export MAS_APP_SETTINGS_CRYPTO_KEY=$1 && shift
@@ -390,6 +412,21 @@ function install_noninteractive() {
         ;;
       --manage-override-encryption-secrets)
         export MAS_APP_SETTINGS_OVERRIDE_ENCRYPTION_SECRETS_FLAG=true
+        ;;
+
+      # Manage commands - Base & secondary languages
+      --manage-base-language)
+        export MAS_APP_SETTINGS_BASE_LANG=$1 && shift
+        ;;
+
+      --manage-secondary-languages)
+        export MAS_APP_SETTINGS_SECONDARY_LANGS=$1 && shift
+        ;;
+
+      # Manage commands - Server timezone
+      --manage-server-timezone)
+        export MAS_APP_SETTINGS_SERVER_TIMEZONE=$1 && shift
+        export DB2_TIMEZONE=$MAS_APP_SETTINGS_SERVER_TIMEZONE # If used, set Manage dedicated Db2 timezone to be same as Manage server timezone
         ;;
 
       # Cloud Provider Commands - IBM Cloud
@@ -412,6 +449,9 @@ function install_noninteractive() {
         ;;
 
       # Other Commands
+      --skip-pre-check)
+        SKIP_PRE_CHECK=true
+        ;;
       --dev-mode)
         DEV_MODE=true
         ;;
@@ -467,12 +507,7 @@ function install_noninteractive() {
   cert_manager_selection
 
   # Work out which SLS var to use for bootstrap
-  sls_prompt_selection
-  if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
-    export SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
-  else
-    export SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
-  fi
+  export SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
 }
 
 
@@ -524,9 +559,6 @@ function install_interactive() {
 
   # Ensure that install will not trigger a change in the catalog source
   validate_catalog_source
-
-  # Determine SLS version specific prompts
-  sls_prompt_selection
 
   # Present a the MAS license information
   license_prompt
@@ -672,11 +704,7 @@ function install_interactive() {
     exit 1
   fi
 
-  if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
-    SLS_LICENSE_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
-  else
-    SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
-  fi
+  SLS_ENTITLEMENT_FILE="/workspace/entitlement/$(basename $SLS_LICENSE_FILE_LOCAL)"
 
   echo ""
   echo_h2 "Configure UDS"
@@ -704,22 +732,26 @@ function install() {
       --dev-mode)
         DEV_MODE=true
         ;;
+      --skip-grafana-install)
+        GRAFANA_ACTION="none"
+        ;;
       -h|--help)
         install_help
         ;;
     esac
   done
 
-  # Determine whether UDS, SUDS, or DRO will be installed
-  # If DRO is being installed, any existing UDS install will be removed first
-  uds_action_selection
-
-  # Determine whether Grafana is available in the cluster based on the available of the operator package
-  oc get packagemanifest grafana-operator &> /dev/null
-  if [[ "$?" == "1" ]]; then
-    CLUSTER_MONITORING_INCLUDE_GRAFANA="False"
-  else
-    CLUSTER_MONITORING_INCLUDE_GRAFANA="True"
+  if [[ -z $GRAFANA_ACTION ]] || [[  "$GRAFANA_ACTION" != "none" ]]; then
+    # Determine whether Grafana is available in the cluster based on the available of the operator package
+    oc get packagemanifest grafana-operator &> /dev/null
+    if [[ "$?" == "1" ]]; then
+      GRAFANA_ACTION="none"
+      echo
+      echo_warning "The Grafana operator package is not available in any catalogs on the target cluster, the installation of Grafana will be disabled."
+      echo
+    else
+      GRAFANA_ACTION="install"
+    fi
   fi
 
   if [[ "$INTERACTIVE_MODE" == "true" ]]; then
@@ -739,6 +771,10 @@ function install() {
     pipelines_install_operator
     install_config_additional_configs
   fi
+
+  # Determine if UDS or DRO will be installed
+  # DRO is installed by default on latest catalog version, for catalogs older than 240227 install UDS
+  uds_action_selection
 
   # Prepare and launch the Tekton pipeline
   install_pipelinerun_prepare

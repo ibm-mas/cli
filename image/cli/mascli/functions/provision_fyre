@@ -108,6 +108,8 @@ function provision_fyre_noninteractive() {
   if [[ -z "$FYRE_SITE" ]]; then
     FYRE_SITE=svl
   fi
+
+  [[ "$FYRE_SITE" != "svl" && "$FYRE_QUOTA_TYPE" == "quick_burn" ]] && provision_fyre_help "Quickburn is only available in svl"
 }
 
 function provision_fyre_interactive() {
@@ -138,7 +140,7 @@ function provision_fyre_interactive() {
       export OCP_VERSION=4.12
       ;;
     2|4.14)
-      export OCP_VERSION=4.14.12
+      export OCP_VERSION=4.14
       ;;
     *)
       # Print out a warning as there could be a typo
@@ -159,6 +161,10 @@ function provision_fyre_interactive() {
     prompt_for_number "Worker Node Memory (max 64)" FYRE_WORKER_MEMORY
   else
     FYRE_QUOTA_TYPE="quick_burn"
+    if [[ "$FYRE_SITE" != "svl" ]]; then 
+      echo -e "${COLOR_RED}Usage Error: QuickBurn is only supported in svl${TEXT_RESET}\n"
+      exit 1
+    fi
   fi
 
   prompt_for_input "Configure Storage (ODF)" FYRE_CONFIG_STORAGE

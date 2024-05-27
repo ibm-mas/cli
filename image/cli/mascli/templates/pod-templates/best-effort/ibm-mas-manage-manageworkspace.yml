@@ -1,0 +1,48 @@
+# podTemplates
+# ===================================================================================
+# This list defines the resources for Deployment: Suite.
+# The pod gets tested for scaling and affinity.
+# The containers that get tested for resources - QoS class of Guaranteed and Burstable.
+podTemplates:
+  - name: monitoragent
+    containers:
+      - name: monitoragent
+        resources: {}
+  - name: manage-maxinst
+    containers:
+      - name: manage-maxinst-maxinst
+        resources: {}
+  - name: all
+    containers:
+      - name: all
+        resources: {}
+      - name: monitoragent
+        resources: {}
+  - name: ui
+    containers:
+      - name: ui
+        resources: {}
+      - name: monitoragent
+        resources: {}
+  - name: mea
+    containers:
+      - name: mea
+        resources: {}
+      - name: monitoragent
+        resources: {}
+  - name: rpt
+    containers:
+      - name: rpt
+        resources: {}
+      - name: monitoragent
+        resources: {}
+  - name: cron
+    containers:
+      - name: cron
+        resources: {}
+      - name: monitoragent
+        resources: {}
+  - name: jms
+    containers:
+      - name: jms
+        resources: {}

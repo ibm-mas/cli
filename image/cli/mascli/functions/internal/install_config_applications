@@ -222,7 +222,7 @@ function manage_validate_internal_registry() {
     if [[ "$?" != "0" ]]; then
       echo
       echo_warning "Unable to proceed with installation of Maximo Manage.  Could not detect the required \"image-registry\" service in the openshift-image-registry namespace."
-      echo_warning "  For more inforomation refer to ${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/masv-and-l/continuous-delivery?topic=installing-enabling-openshift-internal-image-registry"
+      echo_warning "  For more information refer to ${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/masv-and-l/continuous-delivery?topic=installing-enabling-openshift-internal-image-registry"
       reset_colors
       echo
       exit 1
@@ -230,58 +230,96 @@ function manage_validate_internal_registry() {
   fi
 }
 
-
 # Manage Settings Function
 # -----------------------------------------------------------------------------
-function manage_settings() {
-  echo
-  echo_h3 "Configure Maximo Manage"
-  echo "${TEXT_DIM}Customize your Manage installation, refer to the product documentation for more information."
-  reset_colors
 
-  case $MAS_APP_CHANNEL_MANAGE in
-    8.9.x|8.10.x)
-      # Manage Bindings - Watson Studio Local (Manage v8.11 + only)
-      echo
-      echo_h4 "Manage Binding Configuration"
-      if prompt_for_confirm "Install and bind Watson Studio Local?"; then
-        MAS_APPWS_BINDINGS_HEALTH_WSL_FLAG=true
-      fi
-      ;;
-  esac
-
-  # Manage Component Selection
+# Manage Component Selection
+function manage_settings_components() {
   echo
-  echo_h4 "Manage Component Selection"
-  echo "${TEXT_DIM}Define which Manage Industry Solutions and Add-ons will be configured in the Manage install."
-  echo
-  echo "Provide a comma-separated list of component=version values, as example: 'base=latest,health=latest,civil=latest'"
-  echo
-  echo "For a complete list of available industry solutions and add-ons that can be installed:"
-  echo "https://ibm-mas.github.io/cli/commands/install/#manage-application-advanced-configuration-optional"
-  echo
+  echo_h4 "Maximo Manage Components"
+  echo "${TEXT_DIM}The default configuration will install Manage with Health enabled, alternatively choose exactly what industry solutions and add-ons will be configured."
   reset_colors
   echo
-  if prompt_for_confirm "Customize Manage components?"; then
-    prompt_for_input "Manage components to be installed" MAS_APPWS_COMPONENTS
-    if [[ -z "$MAS_APPWS_COMPONENTS" ]]; then
-      MAS_APPWS_COMPONENTS="base=latest,health=latest"
-    fi
+
+  # Default to base+health only
+  if [[ "$MAS_APPWS_COMPONENTS" == "" ]]; then
+    MAS_APPWS_COMPONENTS="base=latest,health=latest"
+  fi
+
+  if prompt_for_confirm "Select components to enable?"; then
+    MAS_APPWS_COMPONENTS="base=latest"
+    prompt_for_confirm " - Asset Configuration Manager" MANAGE_COMPONENT_ACM
+    [[ "$MANAGE_COMPONENT_ACM" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,acm=latest"
+
+    prompt_for_confirm " - Aviation" MANAGE_COMPONENT_AVIATION
+    [[ "$MANAGE_COMPONENT_AVIATION" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,aviation=latest"
+
+    prompt_for_confirm " - Civil Infrastructure" MANAGE_COMPONENT_CIVIL
+    [[ "$MANAGE_COMPONENT_CIVIL" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,civil=latest"
+
+    prompt_for_confirm " - Envizi" MANAGE_COMPONENT_ENVIZI
+    [[ "$MANAGE_COMPONENT_ENVIZI" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,envizi=latest"
+
+    prompt_for_confirm " - Health" MANAGE_COMPONENT_HEALTH
+    [[ "$MANAGE_COMPONENT_HEALTH" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,health=latest"
+
+    prompt_for_confirm " - Health, Safety and Environment" MANAGE_COMPONENT_HSE
+    [[ "$MANAGE_COMPONENT_HSE" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,hse=latest"
+
+    prompt_for_confirm " - Maximo IT" MANAGE_COMPONENT_ICD
+    [[ "$MANAGE_COMPONENT_ICD" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,icd=latest"
+
+    prompt_for_confirm " - Nuclear" MANAGE_COMPONENT_NUCLEAR
+    [[ "$MANAGE_COMPONENT_NUCLEAR" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,nuclear=latest"
+
+    prompt_for_confirm " - Oil & Gas" MANAGE_COMPONENT_OILANDGAS
+    [[ "$MANAGE_COMPONENT_OILANDGAS" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,oilandgas=latest"
+
+    prompt_for_confirm " - Connector for Oracle Applications" MANAGE_COMPONENT_ORACLEADAPTER
+    [[ "$MANAGE_COMPONENT_ORACLEADAPTER" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,oracleadapter=latest"
+
+    prompt_for_confirm " - Connector for SAP Applications" MANAGE_COMPONENT_SAPADAPTER
+    [[ "$MANAGE_COMPONENT_SAPADAPTER" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,sapadapter=latest"
+
+    prompt_for_confirm " - Service Provider" MANAGE_COMPONENT_SERVICEPROVIDER
+    [[ "$MANAGE_COMPONENT_SERVICEPROVIDER" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,serviceprovider=latest"
+
+    prompt_for_confirm " - Spatial" MANAGE_COMPONENT_SPATIAL
+    [[ "$MANAGE_COMPONENT_SPATIAL" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,spatial=latest"
+
+    prompt_for_confirm " - Strategize" MANAGE_COMPONENT_STRATEGIZE
+    [[ "$MANAGE_COMPONENT_STRATEGIZE" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,strategize=latest"
+
+    prompt_for_confirm " - Transportation" MANAGE_COMPONENT_TRANSPORTATION
+    [[ "$MANAGE_COMPONENT_TRANSPORTATION" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,transportation=latest"
+
+    prompt_for_confirm " - Tririga" MANAGE_COMPONENT_TRIRIGA
+    [[ "$MANAGE_COMPONENT_TRIRIGA" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,tririga=latest"
+
+    prompt_for_confirm " - Utilities" MANAGE_COMPONENT_UTILITIES
+    [[ "$MANAGE_COMPONENT_UTILITIES" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,utilities=latest"
+
+    prompt_for_confirm " - Workday Applications" MANAGE_COMPONENT_WORKDAY
+    [[ "$MANAGE_COMPONENT_WORKDAY" == "true" ]] && MAS_APPWS_COMPONENTS="$MAS_APPWS_COMPONENTS,workday=latest"
+
+    reset_colors
+
     if [[ "${MAS_APPWS_COMPONENTS,,}" == *"icd="* ]]; then
+      echo
       echo_h4 "Maximo IT License Terms"
-      echo -e "${COLOR_YELLOW}For information about your Maximo IT License, see "https://ibm.biz/MAXIT81-License". To continue with the installation, you must accept the license terms."
+      echo -e "${COLOR_YELLOW}For information about your Maximo IT License, see ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/MAXIT81-License${TEXT_RESET}. To continue with the installation, you must accept these additional license terms."
       prompt_for_confirm_default_yes "Do you accept the license terms?" LICENSE_RESPONSE
       if [[ "$LICENSE_RESPONSE" == "false" ]]; then
         exit 1
       fi
     fi
-  else
-    MAS_APPWS_COMPONENTS="base=latest,health=latest"
   fi
+}
 
-  # Manage Settings - Database
+# Manage Settings - Database
+function manage_settings_database() {
   echo
-  echo_h4 "Manage Settings - Database"
+  echo_h4 "Maximo Manage Settings - Database"
   echo "${TEXT_DIM}Customise the schema, tablespace, indexspace, and encryption settings used by Manage"
   reset_colors
   echo
@@ -305,9 +343,71 @@ function manage_settings() {
     fi
   fi
 
-  # Manage Settings - Customization
+}
+
+# Manage Settings - Server Bundle configuration
+function manage_settings_server_bundle_config() {
   echo
-  echo_h4 "Manage Settings - Customization"
+  echo_h4 "Maximo Manage Settings - Server Bundles"
+  echo "${TEXT_DIM}Define how you want to configure Manage servers:"
+  echo " - You can have one or multiple Manage servers distributing workload"
+  echo " - Additionally, you can choose to include JMS server for messaging queues"
+  echo
+  reset_colors
+  echo -e "Configurations:"
+  echo "  1. Deploy the 'all' server pod only (workload is concentrated in just one server pod but consumes less resource)"
+  echo "  2. Deploy the 'all' and 'jms' bundle pods (workload is concentrated in just one server pod and includes jms server)"
+  if [[ "$SNO_MODE" != "true" ]]; then
+    echo "  3. Deploy the 'mea', 'report', 'ui' and 'cron' bundle pods (workload is distributed across multiple server pods)"
+    echo "  4. Deploy the 'mea', 'report', 'ui', 'cron' and 'jms' bundle pods (workload is distributed across multiple server pods and includes jms server)"
+  fi
+
+  echo
+  prompt_for_input "Select a server bundle configuration" MANAGE_SERVER_BUNDLE_SELECTION "1"
+
+  case $MANAGE_SERVER_BUNDLE_SELECTION in
+    1)
+      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='dev'
+      ;;
+    2)
+      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='snojms'
+      MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
+      ;;
+    3)
+      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='small'
+    ;;
+    4)
+      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='jms'
+      MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
+    ;;
+    *)
+      echo_warning "Invalid selection"
+      exit 1
+      ;;
+  esac
+
+}
+
+
+function manage_settings_jms () {
+  if [[ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "jms" || "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "snojms" ]]; then
+    echo
+    echo "${TEXT_DIM}Only Manage JMS sequential queues (sqin and sqout) are enabled by default."
+    echo "However, you can enable both sequential (sqin and sqout) and continuous queues (cqin and cqout)."
+    echo
+    reset_colors
+    if prompt_for_confirm "Enable both Manage JMS sequential and continuous queues?"; then
+      MAS_APP_SETTINGS_DEFAULT_JMS=true
+    else
+      MAS_APP_SETTINGS_DEFAULT_JMS=false
+    fi
+  fi
+}
+
+# Manage Settings - Customization
+function manage_settings_customization_archive() {
+  echo
+  echo_h4 "Maximo Manage Settings - Customization"
   # TODO: Improve the guidance here.  e.g. Should the url include the filename, or is archive name appended to the URL?
   echo "${TEXT_DIM}Provide a customization archive to be used in the Manage build process"
   reset_colors
@@ -315,43 +415,103 @@ function manage_settings() {
   if prompt_for_confirm "Include customization archive?"; then
     MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME='manage-custom-archive'
     prompt_for_input "Customization archive name" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME
-    prompt_for_input "Customization archive url" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL
+    prompt_for_input "Customization archive file path/url" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL
     if prompt_for_confirm "Provide authentication to access customization archive URL?"; then
       prompt_for_input "Username" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME
       prompt_for_secret "Password" MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD
     fi
   fi
+}
 
-  echo
-  echo_h4 "Manage Settings - Cognos Analytics"
-  echo "${TEXT_DIM}Manage application supports the integration with Cognos Analytics for reporting features which is an optional service installed on top of IBM Cloud Pak for Data. Unless requested these will not be installed."
-  echo "Once Manage application and Cognos Analytics are installed, you will be able to configure the Manage & Cognos integration following this documentation: https://ibm.biz/BdMuxs"
-  reset_colors
-  echo
-  if prompt_for_confirm "Install Cognos Analytics"; then
-    CPD_INSTALL_COGNOS=true
-    cp4d_channel_selection
-    CPD_PRODUCT_VERSION=$CP4D_VERSION
-    DEPLOY_CP4D=run
-  fi
 
-  # Manage Settings - Other
+# Defines if demo data will be enabled
+function manage_settings_demodata() {
+  prompt_for_confirm "+ Create Demo Data?" MAS_APP_SETTINGS_DEMODATA
+}
+
+
+# Defines manage server timezone
+function manage_settings_timezone() {
+  prompt_for_input "+ Manage Server Timezone" MAS_APP_SETTINGS_SERVER_TIMEZONE "GMT"
+  DB2_TIMEZONE=$MAS_APP_SETTINGS_SERVER_TIMEZONE # set Manage dedicated Db2 timezone to be same as Manage server timezone
+}
+
+
+# Defines manage base and secondary languages
+function manage_settings_languages() {
   echo
-  echo_h4 "Manage Settings - Other"
-  echo "${TEXT_DIM}Other miscellanous settings for the installation"
+  echo "${TEXT_DIM}Define the base language for Maximo Manage."
+  echo
   reset_colors
+  prompt_for_input "Base Language" MAS_APP_SETTINGS_BASE_LANG "EN"
   echo
-  prompt_for_confirm "Create demo data?" MAS_APP_SETTINGS_DEMODATA
-  if prompt_for_confirm "Configure JMS?"; then
-    MAS_APP_SETTINGS_DEFAULT_JMS=true
-    MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
-    if [[ "$SNO_MODE" == "true" ]]; then
-      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='snojms' # will just deploy manage with 'all' + 'jms' bundle pods
-    else
-      MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE='jms' # will deploy manage with 'mea','rpt','ui','cron' and 'jms' bundle pods
+  echo "${TEXT_DIM}Define the additional languages to be configured in Maximo Manage. provide a comma-separated list of supported languages codes, for example: 'JA,DE,AR'"
+  echo "A complete list of available language codes is available online:"
+  echo "    ${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/mas-cd/mhmpmh-and-p-u/continuous-delivery?topic=deploy-language-support${TEXT_RESET}"
+  echo
+  reset_colors
+  prompt_for_input "Secondary Languages" MAS_APP_SETTINGS_SECONDARY_LANGS
+}
+
+
+# Manage Settings - Cloud Pak for Data Integration
+function manage_settings_cp4d() {
+  if [[ "$MAS_APP_CHANNEL_MANAGE" == "8.7.x" ]]; then
+    echo "${TEXT_DIM}Integration with Cognos Analytics provides additional support for reporting features in Maximo Manage, for more information refer to the documentation online: "
+    echo "    ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/BdMuxs${TEXT_RESET}"
+    reset_colors
+    echo
+    if prompt_for_confirm "Enabled integration with Cognos Analytics?"; then
+      CPD_INSTALL_COGNOS=true
+    fi
+
+    if prompt_for_confirm "Enable integration with Watson Studio Local?"; then
+      MAS_APPWS_BINDINGS_HEALTH_WSL_FLAG=true
+    fi
+
+    if [[ "$MAS_APPWS_BINDINGS_HEALTH_WSL_FLAG" == "true" || "$CPD_INSTALL_COGNOS" == "true" ]]; then
+      cp4d_channel_selection
+      CPD_PRODUCT_VERSION=$CP4D_VERSION
+      DEPLOY_CP4D=run
     fi
   fi
+}
 
+
+function manage_settings_other() {
+  echo
+  echo_h4 "Maximo Manage Settings - Other"
+  echo "${TEXT_DIM}Configure additional settings:"
+  echo
+  echo "- Demo data"
+  echo "- Base and additional languages"
+  echo "- Server timezone"
+  echo "- Cognos integration (install Cloud Pak for Data)"
+  echo "- Watson Studio Local integration (install Cloud Pak for Data)"
+  reset_colors
+  echo
+  if prompt_for_confirm "Configure Additional Settings?"; then
+    manage_settings_demodata
+    manage_settings_timezone
+    manage_settings_languages
+    manage_settings_cp4d
+  fi
+}
+
+
+function manage_settings() {
+  echo
+  echo_h3 "Configure Maximo Manage"
+  echo "${TEXT_DIM}Customize your Manage installation, refer to the product documentation for more information."
+  reset_colors
+
+  # Manage Component and Settings
+  manage_settings_components
+  manage_settings_server_bundle_config
+  manage_settings_jms
+  manage_settings_database
+  manage_settings_customization_archive
+  manage_settings_other
 }
 
 

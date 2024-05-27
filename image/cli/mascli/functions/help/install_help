@@ -119,11 +119,13 @@ Manage Application - Advanced Configuration (Optional):
       --manage-override-encryption-secrets                                                    Override any existing Manage database encryption keys (a backup of the original is taken).
 
 Other Commands:
-      --dev-mode            Enable developer mode (e.g. for access to pre-release builds)
-      --no-wait-for-pvcs    If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
-      --no-confirm          Launch the install without prompting for confirmation
-      --accept-license      Accept the licenses for IBM Maximo Application Suite and Maximo IT
-  -h, --help                Show this help message
+      --dev-mode              Enable developer mode (e.g. for access to pre-release builds)
+      --no-wait-for-pvcs      If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
+      --no-confirm            Launch the install without prompting for confirmation
+      --accept-license        Accept the licenses for IBM Maximo Application Suite and Maximo IT
+      --skip-pre-check        Skips the 'pre-install-check' task in the install pipeline
+      --skip-grafana-install  Skips Grafana install action
+  -h, --help                  Show this help message
 
 
 EOM

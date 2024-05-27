@@ -149,24 +149,6 @@ The tables below detail the cluster extensions (ClusterResourceDefinitions, or C
 <table class="clusterExtensions">
   <tr><th style="width:300px">Package</th><th style="width:300px">API Group</th><th style="width:300px">Kind</th></tr>
 
-  <tr class="alt"><td rowspan="17">ibm-watson-discovery-operator</td><td>oppy.ibm.com</td><td>temporarypatch</td></tr>
-  <tr class="alt"><td rowspan="16">discovery.watson.ibm.com</td><td>watsondiscovery</td></tr>
-  <tr class="alt"><td>watsondiscoveryapi</td></tr>
-  <tr class="alt"><td>watsondiscoverycnm</td></tr>
-  <tr class="alt"><td>watsondiscoverycoreapi</td></tr>
-  <tr class="alt"><td>watsondiscoverydf</td></tr>
-  <tr class="alt"><td>watsondiscoveryfoundation</td></tr>
-  <tr class="alt"><td>watsondiscoveryhdp</td></tr>
-  <tr class="alt"><td>watsondiscoveryingestion</td></tr>
-  <tr class="alt"><td>watsondiscoverymigration</td></tr>
-  <tr class="alt"><td>watsondiscoveryorchestrator</td></tr>
-  <tr class="alt"><td>watsondiscoveryquery</td></tr>
-  <tr class="alt"><td>watsondiscoverysdu</td></tr>
-  <tr class="alt"><td>watsondiscoverystatelessapi</td></tr>
-  <tr class="alt"><td>watsondiscoverytooling</td></tr>
-  <tr class="alt"><td>watsondiscoverywire</td></tr>
-  <tr class="alt"><td>watsondiscoverywksml</td></tr>
-
   <tr><td rowspan="2">ibm-model-train-operator</td><td rowspan="2">modeltrain.ibm.com</td><td>modeltrain</td></tr>
   <tr><td>modeltraindynamicworkflow</td></tr>
 

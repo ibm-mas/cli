@@ -10,9 +10,16 @@ spec:
     name: mas-update
 
   serviceAccountName: pipeline
-  timeout: 1h
+  timeouts:
+    pipeline: "6h"
 
   params:
+    - name: ibm_entitlement_key
+      value: '$IBM_ENTITLEMENT_KEY'
+    - name: skip_entitlement_key_flag
+      value: '$SKIP_ENTITLEMENT_KEY_FLAG'
+    - name: skip_pre_check
+      value: '$SKIP_PRE_CHECK'
     - name: mas_catalog_version
       value: '$MAS_CATALOG_VERSION'
     - name: db2_namespace
@@ -21,12 +28,16 @@ spec:
       value: '$MONGODB_NAMESPACE'
     - name: mongodb_v5_upgrade
       value: '$MONGODB_V5_UPGRADE'
+    - name: mongodb_version
+      value: '$MONGODB_VERSION'
+    - name: mongodb_v6_upgrade
+      value: '$MONGODB_V6_UPGRADE'
+    - name: mongodb_replicas
+      value: '$MONGODB_REPLICAS'
     - name: kafka_namespace
       value: '$KAFKA_NAMESPACE'
     - name: kafka_provider
       value: '$KAFKA_PROVIDER'
-    - name: update_sls_registry
-      value: '$UPDATE_SLS_REGISTRY'
     - name: cert_manager_provider
       value: "$CERT_MANAGER_PROVIDER"
     - name: cert_manager_action
@@ -39,3 +50,29 @@ spec:
       value: '$UDS_ACTION'
     - name: grafana_v5_upgrade
       value: '$GRAFANA_V5_UPGRADE'
+
+    # Storage Classes
+    # -------------------------------------------------------------------------
+    - name: storage_class_rwx
+      value: '$STORAGE_CLASS_RWX'
+    - name: storage_class_rwo
+      value: '$STORAGE_CLASS_RWO'
+
+    # Dependencies - CP4D
+    # -------------------------------------------------------------------------
+    - name: cpd_product_version
+      value: '$CP4D_VERSION'
+    - name: cp4d_update
+      value: '$CP4D_UPDATE'
+    - name: cp4d_update_ws
+      value: '$CP4D_UPDATE_WS'
+    - name: cp4d_update_wml
+      value: '$CP4D_UPDATE_WML'
+    - name: cp4d_update_wos
+      value: '$CP4D_UPDATE_WOS'
+    - name: cp4d_update_spark
+      value: '$CP4D_UPDATE_SPARK'
+    - name: cp4d_update_spss
+      value: '$CP4D_UPDATE_SPSS'
+    - name: cp4d_update_cognos
+      value: '$CP4D_UPDATE_COGNOS'
