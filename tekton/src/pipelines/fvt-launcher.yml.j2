@@ -777,12 +777,9 @@ spec:
           values: ["true", "True"]
       runAfter:
         - launchfvt-mobile
-        - approval-iot
-        - approval-manage
-        - approval-monitor
         - approval-assist
         - approval-optimizer
-        - approval-predict
+        - approval-predict # Infers Manage, Monitor and IoT completed
         - approval-visualinspection
 
   finally:
