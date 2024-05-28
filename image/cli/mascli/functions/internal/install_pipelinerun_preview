@@ -363,7 +363,6 @@ function install_pipelinerun_preview() {
   --db2u-backup-storage $DB2_BACKUP_STORAGE_SIZE"
   [ "$DB2_DATA_STORAGE_SIZE" != "" ] && cmd+=" --db2u-data-storage '$DB2_DATA_STORAGE_SIZE'"
   [ "$DB2_LOGS_STORAGE_SIZE" != "" ] && cmd+=" --db2u-logs-storage '$DB2_LOGS_STORAGE_SIZE'"
-  [ "$DB2_AUDIT_LOGS_STORAGE_SIZE" != "" ] && cmd+=" --db2u-audit-logs-storage '$DB2_AUDIT_LOGS_STORAGE_SIZE'"
   [ "$DB2_META_STORAGE_SIZE" != "" ] && cmd+=" --db2u-meta-storage '$DB2_META_STORAGE_SIZE'"
   [ "$DB2_TEMP_STORAGE_SIZE" != "" ] && cmd+=" --db2u-temp-storage '$DB2_TEMP_STORAGE_SIZE'"
 
