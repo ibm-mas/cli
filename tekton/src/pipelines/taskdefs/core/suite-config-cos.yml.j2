@@ -9,9 +9,9 @@
   taskRef:
     kind: Task
     name: mas-devops-suite-config
-  # Only load COS if Assist is being installed
+  # Only load COS if Assist or Manage is being installed
   when:
-    - input: "$(params.mas_app_channel_assist)"
+    - input: "$(params.mas_app_channel_assist)$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
   workspaces:
