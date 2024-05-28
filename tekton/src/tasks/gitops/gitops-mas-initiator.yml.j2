@@ -223,7 +223,7 @@ spec:
         echo "gitops-mas-initiator: DNS_PROVIDER=${DNS_PROVIDER} CURRENT_DATE=${CURRENT_DATE} DEPLOYMENT_DAY_WITH_CIS=$DEPLOYMENT_DAY_WITH_CIS"
 
         if [ "$DNS_PROVIDER" == "cis" ]; then
-          if [[ -n $DEPLOYMENT_DAY_WITH_CIS && "$DEPLOYMENT_DAY_WITH_CIS" != "CURRENT_DATE" ]]; then
+          if [[ -n ${DEPLOYMENT_DAY_WITH_CIS} && "${DEPLOYMENT_DAY_WITH_CIS}" != "${CURRENT_DATE}" ]]; then
             yq -iY 'del(.dns)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
             echo "gitops-mas-initiator: removed .dns node"
           fi
@@ -236,7 +236,7 @@ spec:
           secret_names=$(/usr/bin/yq eval '.mas_appws_spec.settings.customizationList | to_entries | .[].value.customizationArchiveCredentials.secretName' ${MAS_APPWS_SPEC_YAML})
           for customization_archive_secret_name in ${secret_names[@]}; do
 
-            export CUSTOMIZATION_ARCHIVE_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPERATOR}fvtsaas${SECRETS_KEY_SEPERATOR}
+            export CUSTOMIZATION_ARCHIVE_SECRET=${ACCOUNT}${SECRETS_KEY_SEPERATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPERATOR}fvtsaas${SECRETS_KEY_SEPERATOR}
             export CUSTOMIZATION_ARCHIVE_SECRET_NAME=${CUSTOMIZATION_ARCHIVE_SECRET}${customization_archive_secret_name}
             echo "gitops-mas-initiator: creating AWS SM with name :: ${CUSTOMIZATION_ARCHIVE_SECRET_NAME}"
 
