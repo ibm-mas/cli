@@ -33,7 +33,7 @@ Maximo Application Suite:
   --mas-appws-api-version ${COLOR_YELLOW}MAS_APPWS_API_VERSION${TEXT_RESET}                               IBM Suite Maximo Application Suite Application Workspace API Version
   --mas-appws-kind ${COLOR_YELLOW}MAS_APPWS_KIND${TEXT_RESET}                                             IBM Suite Maximo Application Suite Application Workspace Kind
   --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}                                 MAS Manual Cert Management
-  --manual-certs-yaml ${COLOR_YELLOW}MANUAL_CERTS_YAML${TEXT_RESET}                                       YAML file location containing combined MAS Manual Certs of manage and health apps
+  --mas-manual-certs-yaml ${COLOR_YELLOW}MAS_MANUAL_CERTS_YAML${TEXT_RESET}                               YAML file location containing combined MAS Manual Certs of manage app
 
   Below is a sample yaml file template representing manual_certs dictionary ( key: << value base64 encoded content of cert file >>) 
   where key is <<app>>_<<filename . replaced by _>> name and value will be base64 encoded of the respective ca/tls file, 
@@ -41,9 +41,6 @@ Maximo Application Suite:
       manage_tls_crt: <<base64 enc of core tls.crt>>
       manage_tls_key: <<base64 enc of core tls.key>>
       manage_ca_crt: <<base64 enc of core ca.crt>>
-      health_tls_crt: <<base64 enc of assist tls.crt>>
-      health_tls_key: <<base64 enc of assist tls.key>>
-      health_ca_crt: <<base64 enc of assist ca.crt>>
 
 Maximo Manage:
   --mas-app-server-bundles-combined-add-server-config-yaml ${COLOR_YELLOW}MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML${TEXT_RESET} yaml file location containing Combined additional Server Configuration for server bundles
@@ -114,8 +111,8 @@ function gitops_suite_app_config_noninteractive() {
       --mas-manual-cert-mgmt)
         export MAS_MANUAL_CERT_MGMT=$1 && shift
         ;;
-      --manual-certs-yaml)
-        export MANUAL_CERTS_YAML=$1 && shift
+      --mas-manual-certs-yaml)
+        export MAS_MANUAL_CERTS_YAML=$1 && shift
         ;;
       --gitops-config-dir)
         export GITOPS_CONFIG_DIR=$1 && shift
@@ -329,7 +326,7 @@ function gitops_suite_app_config() {
   echo_reset_dim "CPD_WML_INSTANCE_ID ..................... ${COLOR_MAGENTA}${CPD_WML_INSTANCE_ID}"
 
   echo_reset_dim "MAS Manual Cert Mgt ..................... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
-  echo_reset_dim "MANUAL CERTS YAML ....................... ${COLOR_MAGENTA}${MANUAL_CERTS_YAML}"  
+  echo_reset_dim "MAS MANUAL CERTS YAML ................... ${COLOR_MAGENTA}${MAS_MANUAL_CERTS_YAML}"  
 
   reset_colors
 
@@ -482,10 +479,10 @@ function gitops_suite_app_config() {
     [ $rc -ne 0 ] && exit $rc
   fi
 
-  # Set certs only if manual cert is True (to create k8s secret in gitops) only required for manage / health
+  # Set certs only if manual cert is True (to create k8s secret in gitops) only required for manage
   # ---------------------------------------------------------------------------
   if [ "${MAS_MANUAL_CERT_MGMT}" == "True" ] ; then
-    if [[ -n "$MANUAL_CERTS_YAML" ]] && [[ -s "$MANUAL_CERTS_YAML" ]]; then
+    if [[ -n "$MAS_MANUAL_CERTS_YAML" ]] && [[ -s "$MAS_MANUAL_CERTS_YAML" ]]; then
 
       declare -A tls_secret_name
       tls_secret_name['health']="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-cert-public-81"
@@ -494,16 +491,16 @@ function gitops_suite_app_config() {
       if [[ -n "${tls_secret_name[$MAS_APP_ID]}" ]]; then
 
         echo
-        echo_h2 "Read manual cert files for app ${MAS_APP_ID} from file ${MANUAL_CERTS_YAML}, and set to gitops template"
+        echo_h2 "Read manual cert files for app ${MAS_APP_ID} from file ${MAS_MANUAL_CERTS_YAML}, and set to gitops template"
 
         tls_crt_filter_query=.manual_certs.${MAS_APP_ID}_tls_crt
         tls_key_filter_query=.manual_certs.${MAS_APP_ID}_tls_key
         ca_crt_filter_query=.manual_certs.${MAS_APP_ID}_ca_crt
 
         export PUBLIC_TLS_SECRET_NAME=${tls_secret_name[$MAS_APP_ID]}
-        export TLS_CERT=$(/usr/bin/yq eval "$tls_crt_filter_query" ${MANUAL_CERTS_YAML})
-        export TLS_KEY=$(/usr/bin/yq eval  "$tls_key_filter_query" ${MANUAL_CERTS_YAML})
-        export CA_CERT=$(/usr/bin/yq eval  "$ca_crt_filter_query"  ${MANUAL_CERTS_YAML})
+        export TLS_CERT=$(/usr/bin/yq eval "$tls_crt_filter_query" ${MAS_MANUAL_CERTS_YAML})
+        export TLS_KEY=$(/usr/bin/yq eval  "$tls_key_filter_query" ${MAS_MANUAL_CERTS_YAML})
+        export CA_CERT=$(/usr/bin/yq eval  "$ca_crt_filter_query"  ${MAS_MANUAL_CERTS_YAML})
 
         echo -e "\n - PUBLIC_TLS_SECRET_NAME ................ ${PUBLIC_TLS_SECRET_NAME}"
         echo -e "\n - TLS_CERT CONTENT ...................... ${TLS_CERT}"
