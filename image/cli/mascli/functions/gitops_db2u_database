@@ -364,7 +364,7 @@ function gitops_db2u_database() {
     export DB2_AUDIT_LOGS_STORAGE_SIZE=100Gi
   fi 
   if [[ -z $DB2_AUDIT_LOGS_STORAGE_ACCESSMODE ]]; then
-    export DB2_AUDIT_LOGS_STORAGE_ACCESSMODE=ReadWriteOnce
+    export DB2_AUDIT_LOGS_STORAGE_ACCESSMODE=ReadWriteMany
   fi  
   if [[ -z $DB2_TEMP_STORAGE_SIZE ]]; then
     export DB2_TEMP_STORAGE_SIZE=100Gi
