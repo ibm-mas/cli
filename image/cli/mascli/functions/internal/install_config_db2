@@ -183,7 +183,6 @@ function db2u_configuration() {
     echo_reset_dim " - Backup:           ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_SIZE:-Default}"
     echo_reset_dim " - Temp:             ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_SIZE:-Default}"
     echo_reset_dim " - Transaction Logs: ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_SIZE:-Default}"
-    echo_reset_dim " - Audit Logs:       ${COLOR_MAGENTA}${DB2_AUDIT_LOGS_STORAGE_SIZE:-Default}"
     echo
     reset_colors
     if prompt_for_confirm "Customize storage capacity?"; then
@@ -192,7 +191,6 @@ function db2u_configuration() {
       prompt_for_input "+ Metadata volume size" DB2_META_STORAGE_SIZE && export DB2_META_STORAGE_SIZE
       prompt_for_input "+ Transaction logs volume size" DB2_LOGS_STORAGE_SIZE && export DB2_LOGS_STORAGE_SIZE
       prompt_for_input "+ Backup volume size" DB2_BACKUP_STORAGE_SIZE && export DB2_BACKUP_STORAGE_SIZE
-      prompt_for_input "+ Audit logs volume size" DB2_AUDIT_LOGS_STORAGE_SIZE && export DB2_AUDIT_LOGS_STORAGE_SIZE
     fi
   fi
 }
