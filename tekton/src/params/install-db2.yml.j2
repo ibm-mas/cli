@@ -108,14 +108,6 @@
   type: string
   description: Storage capacity (logs)
   default: "100Gi"
-- name: db2_audit_logs_storage_class
-  type: string
-  description: Storage class (audit logs)
-  default: ""
-- name: db2_audit_logs_storage_size
-  type: string
-  description: Storage capacity (audit logs)
-  default: "100Gi"
 - name: db2_temp_storage_class
   type: string
   description: Storage class (temp)
@@ -146,10 +138,6 @@
 - name: db2_logs_storage_accessmode
   type: string
   description: Optional override for db2 logs storage access mode
-  default: ""
-- name: db2_audit_logs_storage_accessmode
-  type: string
-  description: Optional override for db2 audit logs storage access mode
   default: ""
 - name: db2_temp_storage_accessmode
   type: string

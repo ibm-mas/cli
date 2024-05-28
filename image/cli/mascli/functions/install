@@ -246,9 +246,6 @@ function install_noninteractive() {
       --db2u-logs-storage)
         export DB2_LOGS_STORAGE_SIZE=$1 && shift
         ;;
-      --db2u-audit-logs-storage)
-        export DB2_AUDIT_LOGS_STORAGE_SIZE=$1 && shift
-        ;;
       --db2u-meta-storage)
         export DB2_META_STORAGE_SIZE=$1 && shift
         ;;

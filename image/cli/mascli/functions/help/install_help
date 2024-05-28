@@ -94,7 +94,6 @@ Advanced Db2u Universal Operator Configuration - Storage (Optional):
       --db2u-backup-storage ${COLOR_YELLOW}DB2_BACKUP_STORAGE_SIZE${TEXT_RESET}           Customize Db2 storage capacity
       --db2u-data-storage ${COLOR_YELLOW}DB2_DATA_STORAGE_SIZE${TEXT_RESET}               Customize Db2 storage capacity
       --db2u-logs-storage ${COLOR_YELLOW}DB2_LOGS_STORAGE_SIZE${TEXT_RESET}               Customize Db2 storage capacity
-      --db2u-audit-logs-storage ${COLOR_YELLOW}DB2_AUDIT_LOGS_STORAGE_SIZE${TEXT_RESET}   Customize Db2 storage capacity
       --db2u-meta-storage ${COLOR_YELLOW}DB2_META_STORAGE_SIZE${TEXT_RESET}               Customize Db2 storage capacity
       --db2u-temp-storage ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}               Customize Db2 storage capacity
 
