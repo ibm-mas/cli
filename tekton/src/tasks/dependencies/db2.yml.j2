@@ -98,9 +98,6 @@ spec:
     - name: db2_logs_storage_size
       type: string
       default: ""
-    - name: db2_audit_logs_storage_size
-      type: string
-      default: ""
     - name: db2_temp_storage_size
       type: string
       default: ""
@@ -118,9 +115,6 @@ spec:
     - name: db2_logs_storage_class
       type: string
       default: ""
-    - name: db2_audit_logs_storage_class
-      type: string
-      default: ""
     - name: db2_temp_storage_class
       type: string
       default: ""
@@ -136,9 +130,6 @@ spec:
       type: string
       default: ""
     - name: db2_logs_storage_accessmode
-      type: string
-      default: ""
-    - name: db2_audit_logs_storage_accessmode
       type: string
       default: ""
     - name: db2_temp_storage_accessmode
@@ -241,8 +232,6 @@ spec:
         value: $(params.db2_backup_storage_size)
       - name: DB2_LOGS_STORAGE_SIZE
         value: $(params.db2_logs_storage_size)
-      - name: DB2_AUDIT_LOGS_STORAGE_SIZE
-        value: $(params.db2_audit_logs_storage_size)
       - name: DB2_TEMP_STORAGE_SIZE
         value: $(params.db2_temp_storage_size)
 
@@ -255,8 +244,6 @@ spec:
         value: $(params.db2_backup_storage_class)
       - name: DB2_LOGS_STORAGE_CLASS
         value: $(params.db2_logs_storage_class)
-      - name: DB2_AUDIT_LOGS_STORAGE_CLASS
-        value: $(params.db2_audit_logs_storage_class)
       - name: DB2_TEMP_STORAGE_CLASS
         value: $(params.db2_temp_storage_class)
 
@@ -269,8 +256,6 @@ spec:
         value: $(params.db2_backup_storage_accessmode)
       - name: DB2_LOGS_STORAGE_ACCESSMODE
         value: $(params.db2_logs_storage_accessmode)
-      - name: DB2_AUDIT_LOGS_STORAGE_ACCESSMODE
-        value: $(params.db2_audit_logs_storage_accessmode)
       - name: DB2_TEMP_STORAGE_ACCESSMODE
         value: $(params.db2_temp_storage_accessmode)
 
