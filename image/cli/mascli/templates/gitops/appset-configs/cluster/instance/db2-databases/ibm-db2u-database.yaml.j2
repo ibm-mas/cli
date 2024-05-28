@@ -13,6 +13,12 @@ db2_database_db_config:
   {% filter indent(width=2) -%}
   {{ DB2_DATABASE_DB_CONFIG }}
   {%- endfilter %}
+{% if DB2_ADDONS_AUDIT_CONFIG %}
+db2_addons_audit_config:
+  {% filter indent(width=2) -%}
+  {{ DB2_ADDONS_AUDIT_CONFIG }}
+  {%- endfilter %}
+{% endif %}
 {% if DB2_INSTANCE_DBM_CONFIG %}
 db2_instance_dbm_config:
   {% filter indent(width=2) -%}

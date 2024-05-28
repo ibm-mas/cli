@@ -42,6 +42,8 @@ spec:
       type: string
     - name: db2_instance_dbm_config_yaml
       type: string
+    - name: db2_addons_audit_config_yaml
+      type: string
     - name: db2_database_db_config_yaml
       type: string
     - name: mas_instance_id
@@ -89,6 +91,8 @@ spec:
         value: $(params.db2_instance_registry_yaml)
       - name: DB2_INSTANCE_DBM_CONFIG_YAML
         value: $(params.db2_instance_dbm_config_yaml)
+      - name: DB2_ADDONS_AUDIT_CONFIG_YAML
+        value: $(params.db2_addons_audit_config_yaml)
       - name: DB2_DATABASE_DB_CONFIG_YAML
         value: $(params.db2_database_db_config_yaml)
       - name: MAS_APP_ID
