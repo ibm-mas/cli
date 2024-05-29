@@ -4,7 +4,7 @@ metadata:
   name: ibm-operator-catalog
   namespace: openshift-marketplace
 spec:
-  displayName: IBM Maximo Operators (v8-240430-amd64)
+  displayName: IBM Maximo Operators (v8-240528-amd64)
   publisher: IBM
   description: Static Catalog Source for IBM Maximo Application Suite
   sourceType: grpc
