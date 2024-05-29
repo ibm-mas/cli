@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-fvt-manage-adhoc-report
+  name: mas-fvt-manage-birt-report
 spec:
   params:
     # Control the image pull policy for the FVT container image
@@ -63,7 +63,7 @@ spec:
       default: ""
 
   stepTemplate:
-    name: fvt-manage-adhoc-report
+    name: fvt-manage-birt-report
     securityContext:
       privileged: true
       runAsUser: 0
@@ -142,8 +142,8 @@ spec:
 
   steps:
 
-    # Adhoc Report - Job Plan
-    - name: fvt-manage-jobplan-adhoc-report
+    # BIRT Report - Assets
+    - name: fvt-manage-assets-birt-report
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 150m # Ensure bad FVTs don't run forever
@@ -155,10 +155,10 @@ spec:
           name: dshm
       env:
         - name: FVT_TEST_SUITE
-          value: jobplan-adhoc
+          value: asset-birt
 
-    # Adhoc Report - Assets
-    - name: fvt-manage-assets-adhoc-report
+    # BIRT Report - Purchase order
+    - name: fvt-manage-purchase-birt-report
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 150m # Ensure bad FVTs don't run forever
@@ -170,10 +170,10 @@ spec:
           name: dshm
       env:
         - name: FVT_TEST_SUITE
-          value: asset-adhoc
+          value: purchase-birt
 
-    # Adhoc Report - Purchase
-    - name: fvt-manage-purchase-adhoc-report
+    # BIRT Report - Workorder
+    - name: fvt-manage-workorder-birt-report
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 150m # Ensure bad FVTs don't run forever
@@ -185,19 +185,4 @@ spec:
           name: dshm
       env:
         - name: FVT_TEST_SUITE
-          value: purchase-adhoc
-
-    # Adhoc Report - Workorder
-    - name: fvt-manage-workorder-adhoc-report
-      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
-      imagePullPolicy: $(params.image_pull_policy)
-      timeout: 150m # Ensure bad FVTs don't run forever
-      onError: continue # Ensure bad FVTs don't break the pipeline
-      resources: {}
-      workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
-      env:
-        - name: FVT_TEST_SUITE
-          value: workorder-adhoc
+          value: workorder-birt
