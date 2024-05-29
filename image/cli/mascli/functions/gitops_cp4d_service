@@ -276,28 +276,6 @@ function gitops_cp4d_service() {
   rc=$?
   [ $rc -ne 0 ] && exit $rc
 
-
-  if [[ "$CPD_SERVICE_NAME" == "wd" ]]; then
-    export CPD_USER_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cp4d
-    export SECRET_KEY_CPD_ADMIN_USERNAME=${CPD_USER_SECRET}#username
-    export SECRET_KEY_CPD_ADMIN_PASSWORD=${CPD_USER_SECRET}#password
-
-    # Extract the required details from the generated coscfg/secret.
-    export CPD_ADMIN_USERNAME
-    CPD_ADMIN_USERNAME=$(yq -sr '.[2].stringData.username' $MAS_CONFIG_DIR/${MAS_INSTANCE_ID}-wd-config.yml)
-    rc=$?
-    [ $rc -ne 0 ] && exit $rc
-
-    export CPD_ADMIN_PASSWORD
-    CPD_ADMIN_PASSWORD=$(yq -sr '.[2].stringData.password' $MAS_CONFIG_DIR/${MAS_INSTANCE_ID}-wd-config.yml)
-    rc=$?
-    [ $rc -ne 0 ] && exit $rc
-    sm_update_secret $CPD_USER_SECRET "{\"username\": \"$CPD_ADMIN_USERNAME\", \"password\": \"$CPD_ADMIN_PASSWORD\"}"
-
-    rc=$?
-    [ $rc -ne 0 ] && exit $rc
-  fi
-
   if [[ "$CPD_SERVICE_NAME" == "wsl" ]]; then
     export WSL_CPD_USER_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wsl-cp4d
     # Extract the required details from the generated WatsonStudioCfg/secret.
