@@ -24,7 +24,7 @@
     kind: Task
     name: mas-devops-cos
   
-  # Only install Kafka if Assist or Manage applications are being installed
+  # Only install COS if Assist or Manage applications are being installed
   when:
     - input: "$(params.cos_type)"
       operator: notin
