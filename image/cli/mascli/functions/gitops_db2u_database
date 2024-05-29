@@ -52,8 +52,8 @@ IBM DB2U:
       --db2-memory-limits ${COLOR_YELLOW}DB2_MEMORY_LIMITS${TEXT_RESET}                                       Define the Kubernetes memory limit for the Db2 pod.
       --db2-instance-registry-yaml ${COLOR_YELLOW}DB2_INSTANCE_REGISTRY_YAML${TEXT_RESET}                     Yaml file containing the db2ucluster instance registry section.
       --db2-instance-dbm-config-yaml ${COLOR_YELLOW}DB2_INSTANCE_DBM_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the db2ucluster instance dbm config section.
-      --db2-database-db-config-yaml ${COLOR_YELLOW}DB2_DATABASE_DB_CONFIG_YAML${TEXT_RESET}
-      --db2-addons-audit-config-yaml ${COLOR_YELLOW}DB2_ADDONS_AUDIT_CONFIG_YAML${TEXT_RESET} 
+      --db2-database-db-config-yaml ${COLOR_YELLOW}DB2_DATABASE_DB_CONFIG_YAML${TEXT_RESET}                   Yaml file containing the db2ucluster database db config section.
+      --db2-addons-audit-config-yaml ${COLOR_YELLOW}DB2_ADDONS_AUDIT_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the db2ucluster addons audit config section.
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -284,7 +284,6 @@ function gitops_db2u_database_noninteractive() {
   [[ -z "$DB2_DATA_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_DATA_STORAGE_CLASS is not set"
   [[ -z "$DB2_BACKUP_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_BACKUP_STORAGE_CLASS is not set"
   [[ -z "$DB2_LOGS_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_LOGS_STORAGE_CLASS is not set"
-  [[ -z "$DB2_AUDIT_LOGS_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_AUDIT_LOGS_STORAGE_CLASS is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_help "MAS_INSTANCE_ID is not set"
   [[ -z "$MAS_APP_ID" ]] && gitops_db2u_help "MAS_APP_ID is not set"
   

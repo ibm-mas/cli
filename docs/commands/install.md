@@ -105,11 +105,11 @@ Usage
 - `--db2u-memory-limit DB2_MEMORY_LIMITS`            Customize Db2 memory limit
 
 ### Advanced Db2u Universal Operator Configuration - Storage (Optional):
-- `--db2u-backup-storage DB2_BACKUP_STORAGE_SIZE`           Customize Db2 storage capacity
-- `--db2u-data-storage DB2_DATA_STORAGE_SIZE`               Customize Db2 storage capacity
-- `--db2u-logs-storage DB2_LOGS_STORAGE_SIZE`               Customize Db2 storage capacity
-- `--db2u-meta-storage DB2_META_STORAGE_SIZE`               Customize Db2 storage capacity
-- `--db2u-temp-storage DB2_TEMP_STORAGE_SIZE`               Customize Db2 storage capacity
+- `--db2u-backup-storage DB2_BACKUP_STORAGE_SIZE`    Customize Db2 storage capacity
+- `--db2u-data-storage DB2_DATA_STORAGE_SIZE`        Customize Db2 storage capacity
+- `--db2u-logs-storage DB2_LOGS_STORAGE_SIZE`        Customize Db2 storage capacity
+- `--db2u-meta-storage DB2_META_STORAGE_SIZE`        Customize Db2 storage capacity
+- `--db2u-temp-storage DB2_TEMP_STORAGE_SIZE`        Customize Db2 storage capacity
 
 ### Manage Application - Advanced Configuration (Optional):
 
