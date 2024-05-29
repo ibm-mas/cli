@@ -15,7 +15,7 @@ MOST_RECENT_CATALOG=v8-240528-amd64
 # the version of MAS, only the version of the catalog to update to.
 function choose_catalog_version() {
   echo "Select MAS Catalog:"
-  echo "  1) May 28 2024 Update (MAS 8.11.11 & 8.10.13)"
+  echo "  1) May 28 2024 Update (MAS 8.11.11 & 8.10.14)"
   echo "  2) April 30 2024 Update (MAS 8.11.10 & 8.10.13)"
   echo "  3) April 05 2024 Update (MAS 8.11.9 & 8.10.11)"
   echo "  4) February 27 2024 Update (MAS 8.11.7 & 8.10.10)"
@@ -60,7 +60,7 @@ function choose_mas_version() {
   echo -e " $b # $b Catalog      $b  Core   $b Assist $b   IoT   $b Manage $b Monitor $b Optimizer $b Predict $b Inspection $b"
   echo -e "$divider"
   echo -e " $b 1 $b May 28 2024  $b 8.11.11 $b 8.8.3  $b 8.8.8   $b 8.7.8  $b 8.11.7  $b   8.5.5   $b  8.9.2  $b   8.9.3    $b"
-  echo -e " $b 2 $b              $b 8.10.13 $b 8.7.4  $b 8.7.11  $b 8.6.13 $b 8.10.9  $b   8.4.5   $b  8.8.2  $b   8.8.3    $b"
+  echo -e " $b 2 $b              $b 8.10.14 $b 8.7.4  $b 8.7.12  $b 8.6.13 $b 8.10.10 $b   8.4.6   $b  8.8.2  $b   8.8.4    $b"
   echo -e "$divider"
   echo -e " $b 3 $b Apr 30 2024  $b 8.11.10 $b 8.8.3  $b 8.8.7   $b 8.7.7  $b 8.11.6  $b   8.5.4   $b  8.9.2  $b   8.9.2    $b"
   echo -e " $b 4 $b              $b 8.10.13 $b 8.7.4  $b 8.7.11  $b 8.6.13 $b 8.10.9  $b   8.4.5   $b  8.8.2  $b   8.8.3    $b"
