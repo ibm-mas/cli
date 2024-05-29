@@ -100,3 +100,8 @@
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
     - licensingapi
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+    - name: pod-templates
+      workspace: shared-pod-templates
