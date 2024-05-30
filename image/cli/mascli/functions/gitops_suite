@@ -556,9 +556,13 @@ function gitops_suite() {
 
   # Set certs only if manual cert is True (to create k8s secret in gitops)
   # ---------------------------------------------------------------------------
-  if [ "${MAS_MANUAL_CERT_MGMT}" == "True" ] ; then
-    if [[ -n "$MAS_MANUAL_CERTS_YAML" ]] && [[ -s "$MAS_MANUAL_CERTS_YAML" ]]; then
 
+  if [ "${MAS_MANUAL_CERT_MGMT}" == "True" ] ; then
+    if [[ -n "$MAS_MANUAL_CERTS_YAML" ]]; then
+      echo "Troubleshoot path $MAS_MANUAL_CERTS_YAML" 
+      ls -ltr $MAS_MANUAL_CERTS_YAML
+    fi
+    if [[ -n "$MAS_MANUAL_CERTS_YAML" && -s "$MAS_MANUAL_CERTS_YAML" ]]; then
       echo
       echo_h2 "Read manual cert files for core from file ${MAS_MANUAL_CERTS_YAML}, and set to gitops template"
 
