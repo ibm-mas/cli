@@ -158,40 +158,36 @@
                 <h1 id="choosing-the-right-catalog">Choosing the Right Catalog<a class="headerlink" href="#choosing-the-right-catalog" title="Permanent link"></a></h1>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>In all cases we <strong>strongly discourage the use of manual update approvals on subscriptions</strong>.  In our experience it leads to overly complicated updates requiring significant administrative effort when taking into account the range of operators running in a cluster across numerous namespaces.</p>
-<p>If you desire control over when updates are introduced to your cluster we highly recommend the use of our static operator catalogs.</p>
+<p>In all cases we <strong>strongly discourage the use of manual update approval strategy for operator subscriptions</strong>.  In our experience it leads to overly complicated updates requiring significant administrative effort when taking into account the range of operators running in a cluster across numerous namespaces. <strong>If you desire control over when updates are introduced to your cluster, we highly recommend the use of our static operator catalogs.</strong> This not only provides more control but also allows for the use of <a href="../update/"><code>mas update</code></a> to manage MAS and update MAS dependencies.</p>
 </div>
 <h2 id="automatic-updates">Automatic Updates<a class="headerlink" href="#automatic-updates" title="Permanent link"></a></h2>
 <ul>
 <li>Goal: I want to receive updates automatically as soon as they are available</li>
-<li>Solution: Use the <strong>dynamic catalog and automatic approval strategy</strong></li>
+<li>Solution: Use the <strong>dynamic catalogs and automatic update approval strategy</strong></li>
 </ul>
 <p>The content in this catalog is updated regularly. Multiple installations at different times will not necessarily be identical because package updates are being delivered to the channels.</p>
 <ul>
 <li>Only security updates and bug fixes will be delivered this way (software updates).</li>
 <li>Software upgrades require the user to explicitly change a subscription channel.</li>
+<li>Automatic updates delivered do not include updates to MAS dependencies and hence have to be done manually.</li>
 </ul>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>This is the recommended way to install IBM Maximo Application Suite in a connected environment.  It will ensure that you receive vulnerability fixes and critical defect fixes as soon as they are available.</p>
-</div>
 <h2 id="user-controlled-updates">User-Controlled Updates<a class="headerlink" href="#user-controlled-updates" title="Permanent link"></a></h2>
 <ul>
 <li>Goal: I want to control when updates are introduced into my cluster</li>
-<li>Solution: Use one of the <strong>static catalogs and automatic approval strategy</strong></li>
+<li>Solution: Use the <strong>static catalogs and automatic update approval strategy</strong></li>
 </ul>
 <p>The packages available in these catalogs are fixed. Multiple installations at different times will always result in exactly the same version of all operators being installed.</p>
 <p>When you are ready to apply updates you simply modify the CatalogSource installed in your cluster, changing it from e.g. <code>v8-240227-amd64</code> to <code>v8-240430-amd64</code>.  No further action is required, after a brief delay all installed operators will update automatically to the latest versions in the new catalog source.</p>
 <h2 id="multi-cluster-version-equivalency">Multi-Cluster Version Equivalency<a class="headerlink" href="#multi-cluster-version-equivalency" title="Permanent link"></a></h2>
 <ul>
 <li>Goal: I want to maintain <strong>exact</strong> version alignment across multiple OpenShift clusters, for instance in a development, staging, production setup</li>
-<li>Solution: Use one of the <strong>static catalogs and automatic approval strategy</strong></li>
+<li>Solution: Use the <strong>static catalogs and automatic update approval strategy</strong></li>
 </ul>
 <p>The packages available in these catalogs are fixed. Multiple installations at different times will always result in exactly the same version of all operators being installed.  By choosing the same static catalog across multiple clusters the customer will be guaranteed that their installations are identical, right down to the patch level of the operators installed.  Updates can be rolled out in a controlled manner, and the upgrade path between two catalog versions will always be identical regardless of how much time passes between upgrades in different cluster.</p>
 <h2 id="disconnected-install">Disconnected Install<a class="headerlink" href="#disconnected-install" title="Permanent link"></a></h2>
 <ul>
 <li>Goal: I want to run a disconnected environment using a private mirror registry</li>
-<li>Solution: Use one of the <strong>static catalogs and automatic approval strategy</strong></li>
+<li>Solution: Use the <strong>static catalogs and automatic approval strategy</strong></li>
 </ul>
 <p>The MAS CLI <code>mirror-images</code> command accepts the name of a static catalog to control what is mirrored to your registry, it will mirror all of the necessary images for the latest version of each package in that catalog are mirrored to your private registry.  Once the images are mirrored simply run the <code>configure-mirror</code> command to install the IBM Maximo Application Suite ImageContentSourcePolicy, and the rest of your installation experience is identical to a connected environment.</p>
 <div class="admonition important">
