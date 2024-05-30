@@ -272,7 +272,6 @@ spec:
             echo "gitops-mas-initiator: removed .assist node"
           fi
         fi
-        fi
         if [ -n $MAS_APP_CHANNEL_IOT ]; then
           yq --arg MAS_APP_CHANNEL_IOT $MAS_APP_CHANNEL_IOT -iY '(. | select(has("iot")?).iot.app_channel)= $MAS_APP_CHANNEL_IOT' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
         fi
