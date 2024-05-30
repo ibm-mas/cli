@@ -45,6 +45,15 @@ spec:
     - name: dro_namespace
       type: string
       default: "redhat-marketplace"
+    - name: dro_cmm_setup
+      type: string
+      default: "false"
+    - name: dro_cmm_auth_url
+      type: string
+      defualt: ""
+    - name: dro_cmm_cmm_url
+      type: string
+      defualt: ""
 
     - name: db2_channel
       type: string
@@ -145,6 +154,12 @@ spec:
           value: $(params.git_commit_msg)
         - name: dro_namespace
           value: $(params.dro_namespace)
+        - name: dro_cmm_setup
+          value: $(params.dro_cmm_setup)
+        - name: dro_cmm_auth_url
+          value: $(params.dro_cmm_auth_url)
+        - name: dro_cmm_cmm_url
+          value: $(params.dro_cmm_cmm_url)
       taskRef:
         kind: Task
         name: gitops-dro

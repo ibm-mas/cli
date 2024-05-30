@@ -4,3 +4,10 @@ ibm_dro:
     dro_namespace: {{ DRO_NAMESPACE }}
     ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
     run_sync_hooks: true
+    dro_cmm_setup: {{ DRO_CMM_SETUP }}
+{% if DRO_CMM_SETUP is defined and DRO_CMM_SETUP %}
+    dro_cmm:
+        auth_apikey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DRO_CMM_AUTH_APIKEY }}>"
+        auth_url: {{ DRO_CMM_AUTH_URL }}
+        cmm_url: {{ DRO_CMM_CMM_URL }}
+{% endif %}
