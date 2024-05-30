@@ -21,35 +21,39 @@ IBM Maximo Application Suite:
       --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                 IBM Suite Maximo Application Suite App that will use this db2u instance      
 
 IBM DB2U:
-      --db2-dbname ${COLOR_YELLOW}DB2_DBNAME${TEXT_RESET}                                         DB2 DB Name
-      --db2-version ${COLOR_YELLOW}DB2_VERSION${TEXT_RESET}                                       DB2 Version
-      --db2-table-org ${COLOR_YELLOW}DB2_TABLE_ORG${TEXT_RESET}                                   DB2 table org
-      --db2-4k-device-support ${COLOR_YELLOW}DB2_4K_DEVICE_SUPPORT${TEXT_RESET}                   DB2 4k device support
-      --db2-workload ${COLOR_YELLOW}DB2_WORKLOAD${TEXT_RESET}                                     DB2 workload
-      --db2-mln-count ${COLOR_YELLOW}DB2_MLN_COUNT${TEXT_RESET}                                   DB2 logical nodes count 
-      --db2-num-pods ${COLOR_YELLOW}DB2_NUM_PODS${TEXT_RESET}                                     DB2 number of pods
-      --db2-meta-storage-class ${COLOR_YELLOW}DB2_META_STORAGE_CLASS${TEXT_RESET}                 DB2 meta storage class
-      --db2-meta-storage-size ${COLOR_YELLOW}DB2_META_STORAGE_SIZE${TEXT_RESET}                   DB2 meta storage size
-      --db2-meta-storage-accessmode ${COLOR_YELLOW}DB2_META_STORAGE_ACCESSMODE${TEXT_RESET}       DB2 meta storage accessmode
-      --db2-data-storage-class ${COLOR_YELLOW}DB2_DATA_STORAGE_CLASS${TEXT_RESET}                 DB2 data storage class
-      --db2-data-storage-size ${COLOR_YELLOW}DB2_DATA_STORAGE_SIZE${TEXT_RESET}                   DB2 data storage size
-      --db2-data-storage-accessmode ${COLOR_YELLOW}DB2_DATA_STORAGE_ACCESSMODE${TEXT_RESET}       DB2 data storage accessmode
-      --db2-backup-storage-class ${COLOR_YELLOW}DB2_BACKUP_STORAGE_CLASS${TEXT_RESET}             DB2 backup storage class
-      --db2-backup-storage-size ${COLOR_YELLOW}DB2_BACKUP_STORAGE_SIZE${TEXT_RESET}               DB2 backup storage size
-      --db2-backup-storage-accessmode ${COLOR_YELLOW}DB2_BACKUP_STORAGE_ACCESSMODE${TEXT_RESET}   DB2 backup storage accessmode
-      --db2-logs-storage-class ${COLOR_YELLOW}DB2_LOGS_STORAGE_CLASS${TEXT_RESET}                 DB2 logs storage class
-      --db2-logs-storage-size ${COLOR_YELLOW}DB2_LOGS_STORAGE_SIZE${TEXT_RESET}                   DB2 logs storage size
-      --db2-logs-storage-accessmode ${COLOR_YELLOW}DB2_LOGS_STORAGE_ACCESSMODE${TEXT_RESET}       DB2 logs storage accessmode
-      --db2-temp-storage-class ${COLOR_YELLOW}DB2_TEMP_STORAGE_CLASS${TEXT_RESET}                 DB2 temp storage class
-      --db2-temp-storage-size ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}                   DB2 temp storage size
-      --db2-temp-storage-accessmode ${COLOR_YELLOW}DB2_TEMP_STORAGE_ACCESSMODE${TEXT_RESET}       DB2 temp storage accessmode
-      --db2-cpu-requests ${COLOR_YELLOW}DB2_CPU_REQUESTS${TEXT_RESET}                             Define the Kubernetes CPU request for the Db2 pod.
-      --db2-cpu-limits ${COLOR_YELLOW}DB2_CPU_LIMITS${TEXT_RESET}                                 Define the Kubernetes CPU limit for the Db2 pod.
-      --db2-memory-requests ${COLOR_YELLOW}DB2_MEMORY_REQUESTS${TEXT_RESET}                       Define the Kubernetes memory request for the Db2 pod.
-      --db2-memory-limits ${COLOR_YELLOW}DB2_MEMORY_LIMITS${TEXT_RESET}                           Define the Kubernetes memory limit for the Db2 pod.
-      --db2-instance-registry-yaml ${COLOR_YELLOW}DB2_INSTANCE_REGISTRY_YAML${TEXT_RESET}         Yaml file containing the db2ucluster instance registry section.
-      --db2-instance-dbm-config-yaml ${COLOR_YELLOW}DB2_INSTANCE_DBM_CONFIG_YAML${TEXT_RESET}     Yaml file containing the db2ucluster instance dbm config section.
-      --db2-database-db-config-yaml ${COLOR_YELLOW}DB2_DATABASE_DB_CONFIG_YAML${TEXT_RESET}       Yaml file containing the db2ucluster database db config section.
+      --db2-dbname ${COLOR_YELLOW}DB2_DBNAME${TEXT_RESET}                                                     DB2 DB Name
+      --db2-version ${COLOR_YELLOW}DB2_VERSION${TEXT_RESET}                                                   DB2 Version
+      --db2-table-org ${COLOR_YELLOW}DB2_TABLE_ORG${TEXT_RESET}                                               DB2 table org
+      --db2-4k-device-support ${COLOR_YELLOW}DB2_4K_DEVICE_SUPPORT${TEXT_RESET}                               DB2 4k device support
+      --db2-workload ${COLOR_YELLOW}DB2_WORKLOAD${TEXT_RESET}                                                 DB2 workload
+      --db2-mln-count ${COLOR_YELLOW}DB2_MLN_COUNT${TEXT_RESET}                                               DB2 logical nodes count 
+      --db2-num-pods ${COLOR_YELLOW}DB2_NUM_PODS${TEXT_RESET}                                                 DB2 number of pods
+      --db2-meta-storage-class ${COLOR_YELLOW}DB2_META_STORAGE_CLASS${TEXT_RESET}                             DB2 meta storage class
+      --db2-meta-storage-size ${COLOR_YELLOW}DB2_META_STORAGE_SIZE${TEXT_RESET}                               DB2 meta storage size
+      --db2-meta-storage-accessmode ${COLOR_YELLOW}DB2_META_STORAGE_ACCESSMODE${TEXT_RESET}                   DB2 meta storage accessmode
+      --db2-data-storage-class ${COLOR_YELLOW}DB2_DATA_STORAGE_CLASS${TEXT_RESET}                             DB2 data storage class
+      --db2-data-storage-size ${COLOR_YELLOW}DB2_DATA_STORAGE_SIZE${TEXT_RESET}                               DB2 data storage size
+      --db2-data-storage-accessmode ${COLOR_YELLOW}DB2_DATA_STORAGE_ACCESSMODE${TEXT_RESET}                   DB2 data storage accessmode
+      --db2-backup-storage-class ${COLOR_YELLOW}DB2_BACKUP_STORAGE_CLASS${TEXT_RESET}                         DB2 backup storage class
+      --db2-backup-storage-size ${COLOR_YELLOW}DB2_BACKUP_STORAGE_SIZE${TEXT_RESET}                           DB2 backup storage size
+      --db2-backup-storage-accessmode ${COLOR_YELLOW}DB2_BACKUP_STORAGE_ACCESSMODE${TEXT_RESET}               DB2 backup storage accessmode
+      --db2-logs-storage-class ${COLOR_YELLOW}DB2_LOGS_STORAGE_CLASS${TEXT_RESET}                             DB2 logs storage class
+      --db2-logs-storage-size ${COLOR_YELLOW}DB2_LOGS_STORAGE_SIZE${TEXT_RESET}                               DB2 logs storage size
+      --db2-logs-storage-accessmode ${COLOR_YELLOW}DB2_LOGS_STORAGE_ACCESSMODE${TEXT_RESET}                   DB2 logs storage accessmode
+      --db2-audit-logs-storage-class ${COLOR_YELLOW}DB2_AUDIT_LOGS_STORAGE_CLASS${TEXT_RESET}                 DB2 audit logs storage class
+      --db2-audit-logs-storage-size ${COLOR_YELLOW}DB2_AUDIT_LOGS_STORAGE_SIZE${TEXT_RESET}                   DB2 audit logs storage size
+      --db2-audit-logs-storage-accessmode ${COLOR_YELLOW}DB2_AUDIT_LOGS_STORAGE_ACCESSMODE${TEXT_RESET}       DB2 audit logs storage accessmode
+      --db2-temp-storage-class ${COLOR_YELLOW}DB2_TEMP_STORAGE_CLASS${TEXT_RESET}                             DB2 temp storage class
+      --db2-temp-storage-size ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}                               DB2 temp storage size
+      --db2-temp-storage-accessmode ${COLOR_YELLOW}DB2_TEMP_STORAGE_ACCESSMODE${TEXT_RESET}                   DB2 temp storage accessmode
+      --db2-cpu-requests ${COLOR_YELLOW}DB2_CPU_REQUESTS${TEXT_RESET}                                         Define the Kubernetes CPU request for the Db2 pod.
+      --db2-cpu-limits ${COLOR_YELLOW}DB2_CPU_LIMITS${TEXT_RESET}                                             Define the Kubernetes CPU limit for the Db2 pod.
+      --db2-memory-requests ${COLOR_YELLOW}DB2_MEMORY_REQUESTS${TEXT_RESET}                                   Define the Kubernetes memory request for the Db2 pod.
+      --db2-memory-limits ${COLOR_YELLOW}DB2_MEMORY_LIMITS${TEXT_RESET}                                       Define the Kubernetes memory limit for the Db2 pod.
+      --db2-instance-registry-yaml ${COLOR_YELLOW}DB2_INSTANCE_REGISTRY_YAML${TEXT_RESET}                     Yaml file containing the db2ucluster instance registry section.
+      --db2-instance-dbm-config-yaml ${COLOR_YELLOW}DB2_INSTANCE_DBM_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the db2ucluster instance dbm config section.
+      --db2-database-db-config-yaml ${COLOR_YELLOW}DB2_DATABASE_DB_CONFIG_YAML${TEXT_RESET}                   Yaml file containing the db2ucluster database db config section.
+      --db2-addons-audit-config-yaml ${COLOR_YELLOW}DB2_ADDONS_AUDIT_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the db2ucluster addons audit config section.
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -183,6 +187,15 @@ function gitops_db2u_database_noninteractive() {
       --db2-logs-storage-accessmode)
         export DB2_LOGS_STORAGE_ACCESSMODE=$1 && shift
         ;;
+      --db2-audit-logs-storage-class)
+        export DB2_AUDIT_LOGS_STORAGE_CLASS=$1 && shift
+        ;;
+      --db2-audit-logs-storage-size)
+        export DB2_AUDIT_LOGS_STORAGE_SIZE=$1 && shift
+        ;;
+      --db2-audit-logs-storage-accessmode)
+        export DB2_AUDIT_LOGS_STORAGE_ACCESSMODE=$1 && shift
+        ;;
       --db2-temp-storage-class)
         export DB2_TEMP_STORAGE_CLASS=$1 && shift
         ;;
@@ -212,6 +225,9 @@ function gitops_db2u_database_noninteractive() {
         ;;
       --db2-instance-dbm-config-yaml)
         export DB2_INSTANCE_DBM_CONFIG_YAML=$1 && shift
+        ;;
+      --db2-addons-audit-config-yaml)
+        export DB2_ADDONS_AUDIT_CONFIG_YAML=$1 && shift
         ;;
       --db2-database-db-config-yaml)
         export DB2_DATABASE_DB_CONFIG_YAML=$1 && shift
@@ -347,6 +363,12 @@ function gitops_db2u_database() {
   if [[ -z $DB2_LOGS_STORAGE_ACCESSMODE ]]; then
     export DB2_LOGS_STORAGE_ACCESSMODE=ReadWriteOnce
   fi  
+  if [[ -z $DB2_AUDIT_LOGS_STORAGE_SIZE ]]; then
+    export DB2_AUDIT_LOGS_STORAGE_SIZE=100Gi
+  fi 
+  if [[ -z $DB2_AUDIT_LOGS_STORAGE_ACCESSMODE ]]; then
+    export DB2_AUDIT_LOGS_STORAGE_ACCESSMODE=ReadWriteMany
+  fi  
   if [[ -z $DB2_TEMP_STORAGE_SIZE ]]; then
     export DB2_TEMP_STORAGE_SIZE=100Gi
   fi 
@@ -431,37 +453,41 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   echo "${TEXT_DIM}"
   echo_h2 "DB2 Cluster Configuration" "    "
-  echo_reset_dim "db2-instance-name ....................... ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
-  echo_reset_dim "db2-dbname  ............................. ${COLOR_MAGENTA}${DB2_DBNAME}"
-  echo_reset_dim "db2-version  ............................ ${COLOR_MAGENTA}${DB2_VERSION}"
-  echo_reset_dim "db2-table-org  .......................... ${COLOR_MAGENTA}${DB2_TABLE_ORG}"
-  echo_reset_dim "db2-4k-device-support  .................. ${COLOR_MAGENTA}${DB2_4K_DEVICE_SUPPORT}"
-  echo_reset_dim "db2-workload  ........................... ${COLOR_MAGENTA}${DB2_WORKLOAD}"
-  echo_reset_dim "db2-mln-count  .......................... ${COLOR_MAGENTA}${DB2_MLN_COUNT}"
-  echo_reset_dim "db2-num-pods  ........................... ${COLOR_MAGENTA}${DB2_NUM_PODS}"
-  echo_reset_dim "db2-meta-storage-class  ................. ${COLOR_MAGENTA}${DB2_META_STORAGE_CLASS}"
-  echo_reset_dim "db2-meta-storage-size  .................. ${COLOR_MAGENTA}${DB2_META_STORAGE_SIZE}"
-  echo_reset_dim "db2-meta-storage-accessmode  ............ ${COLOR_MAGENTA}${DB2_META_STORAGE_ACCESSMODE}"
-  echo_reset_dim "db2-data-storage-class  ................. ${COLOR_MAGENTA}${DB2_DATA_STORAGE_CLASS}"
-  echo_reset_dim "db2-data-storage-size  .................. ${COLOR_MAGENTA}${DB2_DATA_STORAGE_SIZE}"
-  echo_reset_dim "db2-data-storage-accessmode  ............ ${COLOR_MAGENTA}${DB2_DATA_STORAGE_ACCESSMODE}"
-  echo_reset_dim "db2-backup-storage-class  ............... ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_CLASS}"
-  echo_reset_dim "db2-backup-storage-size  ................ ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_SIZE}"
-  echo_reset_dim "db2-backup-storage-accessmode  .......... ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_ACCESSMODE}"
-  echo_reset_dim "db2-logs-storage-class  ................. ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_CLASS}"
-  echo_reset_dim "db2-logs-storage-size  .................. ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_SIZE}"
-  echo_reset_dim "db2-logs-storage-accessmode  ............ ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_ACCESSMODE}"
-  echo_reset_dim "db2-temp-storage-class  ................. ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_CLASS}"
-  echo_reset_dim "db2-temp-storage-size  .................. ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_SIZE}"
-  echo_reset_dim "db2-temp-storage-accessmode  ............ ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_ACCESSMODE}"
-  echo_reset_dim "mas-app-id  ............................. ${COLOR_MAGENTA}${MAS_APP_ID}"
-  echo_reset_dim "db2-cpu-requests  ....................... ${COLOR_MAGENTA}${DB2_CPU_REQUESTS}"
-  echo_reset_dim "db2-cpu-limits  ......................... ${COLOR_MAGENTA}${DB2_CPU_LIMITS}"
-  echo_reset_dim "db2-memory-requests  .................... ${COLOR_MAGENTA}${DB2_MEMORY_REQUESTS}"
-  echo_reset_dim "db2-memory-limits  ...................... ${COLOR_MAGENTA}${DB2_MEMORY_LIMITS}"
-  echo_reset_dim "db2-instance-registry-yaml .............. ${COLOR_MAGENTA}${DB2_INSTANCE_REGISTRY_YAML}"
-  echo_reset_dim "db2-instance-dbm-config-yaml ............ ${COLOR_MAGENTA}${DB2_INSTANCE_DBM_CONFIG_YAML}"
-  echo_reset_dim "db2-database-db-config-yaml ............. ${COLOR_MAGENTA}${DB2_DATABASE_DB_CONFIG_YAML}"
+  echo_reset_dim "db2-instance-name ............................. ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
+  echo_reset_dim "db2-dbname  ................................... ${COLOR_MAGENTA}${DB2_DBNAME}"
+  echo_reset_dim "db2-version  .................................. ${COLOR_MAGENTA}${DB2_VERSION}"
+  echo_reset_dim "db2-table-org  ................................ ${COLOR_MAGENTA}${DB2_TABLE_ORG}"
+  echo_reset_dim "db2-4k-device-support  ........................ ${COLOR_MAGENTA}${DB2_4K_DEVICE_SUPPORT}"
+  echo_reset_dim "db2-workload  ................................. ${COLOR_MAGENTA}${DB2_WORKLOAD}"
+  echo_reset_dim "db2-mln-count  ................................ ${COLOR_MAGENTA}${DB2_MLN_COUNT}"
+  echo_reset_dim "db2-num-pods  ................................. ${COLOR_MAGENTA}${DB2_NUM_PODS}"
+  echo_reset_dim "db2-meta-storage-class  ....................... ${COLOR_MAGENTA}${DB2_META_STORAGE_CLASS}"
+  echo_reset_dim "db2-meta-storage-size  ........................ ${COLOR_MAGENTA}${DB2_META_STORAGE_SIZE}"
+  echo_reset_dim "db2-meta-storage-accessmode  .................. ${COLOR_MAGENTA}${DB2_META_STORAGE_ACCESSMODE}"
+  echo_reset_dim "db2-data-storage-class  ....................... ${COLOR_MAGENTA}${DB2_DATA_STORAGE_CLASS}"
+  echo_reset_dim "db2-data-storage-size  ........................ ${COLOR_MAGENTA}${DB2_DATA_STORAGE_SIZE}"
+  echo_reset_dim "db2-data-storage-accessmode  .................. ${COLOR_MAGENTA}${DB2_DATA_STORAGE_ACCESSMODE}"
+  echo_reset_dim "db2-backup-storage-class  ..................... ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_CLASS}"
+  echo_reset_dim "db2-backup-storage-size  ...................... ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_SIZE}"
+  echo_reset_dim "db2-backup-storage-accessmode  ................ ${COLOR_MAGENTA}${DB2_BACKUP_STORAGE_ACCESSMODE}"
+  echo_reset_dim "db2-logs-storage-class  ....................... ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_CLASS}"
+  echo_reset_dim "db2-logs-storage-size  ........................ ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_SIZE}"
+  echo_reset_dim "db2-logs-storage-accessmode  .................. ${COLOR_MAGENTA}${DB2_LOGS_STORAGE_ACCESSMODE}"
+  echo_reset_dim "db2-audit-logs-storage-class  ................. ${COLOR_MAGENTA}${DB2_AUDIT_LOGS_STORAGE_CLASS}"
+  echo_reset_dim "db2-audit-logs-storage-size  .................. ${COLOR_MAGENTA}${DB2_AUDIT_LOGS_STORAGE_SIZE}"
+  echo_reset_dim "db2-audit-logs-storage-accessmode  ............ ${COLOR_MAGENTA}${DB2_AUDIT_LOGS_STORAGE_ACCESSMODE}"
+  echo_reset_dim "db2-temp-storage-class  ....................... ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_CLASS}"
+  echo_reset_dim "db2-temp-storage-size  ........................ ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_SIZE}"
+  echo_reset_dim "db2-temp-storage-accessmode  .................. ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_ACCESSMODE}"
+  echo_reset_dim "mas-app-id  ................................... ${COLOR_MAGENTA}${MAS_APP_ID}"
+  echo_reset_dim "db2-cpu-requests  ............................. ${COLOR_MAGENTA}${DB2_CPU_REQUESTS}"
+  echo_reset_dim "db2-cpu-limits  ............................... ${COLOR_MAGENTA}${DB2_CPU_LIMITS}"
+  echo_reset_dim "db2-memory-requests  .......................... ${COLOR_MAGENTA}${DB2_MEMORY_REQUESTS}"
+  echo_reset_dim "db2-memory-limits  ............................ ${COLOR_MAGENTA}${DB2_MEMORY_LIMITS}"
+  echo_reset_dim "db2-instance-registry-yaml .................... ${COLOR_MAGENTA}${DB2_INSTANCE_REGISTRY_YAML}"
+  echo_reset_dim "db2-instance-dbm-config-yaml .................. ${COLOR_MAGENTA}${DB2_INSTANCE_DBM_CONFIG_YAML}"
+  echo_reset_dim "db2-database-db-config-yaml ................... ${COLOR_MAGENTA}${DB2_DATABASE_DB_CONFIG_YAML}"
+  echo_reset_dim "db2-addons-audit-config-yaml .................. ${COLOR_MAGENTA}${DB2_ADDONS_AUDIT_CONFIG_YAML}"
   reset_colors
 
   AVP_TYPE=aws  # Support for IBM will be added later
@@ -483,6 +509,11 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     echo
     echo_h2 "Using db2 instance dm config provided for $MAS_APP_ID at $DB2_INSTANCE_DBM_CONFIG_YAML"
     export DB2_INSTANCE_DBM_CONFIG=$(cat ${DB2_INSTANCE_DBM_CONFIG_YAML})
+  fi
+  if [[ -n "$DB2_ADDONS_AUDIT_CONFIG_YAML" ]]; then
+    echo
+    echo_h2 "Using db2 addons audit config provided for $MAS_APP_ID at $DB2_ADDONS_AUDIT_CONFIG_YAML"
+    export DB2_ADDONS_AUDIT_CONFIG=$(cat ${DB2_ADDONS_AUDIT_CONFIG_YAML})
   fi
   if [[ -n "$DB2_INSTANCE_REGISTRY_YAML" ]]; then
     echo
