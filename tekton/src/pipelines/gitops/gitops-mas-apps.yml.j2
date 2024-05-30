@@ -55,6 +55,8 @@ spec:
       type: string
     - name: db2_logs_storage_class
       type: string
+    - name: db2_audit_logs_storage_class
+      type: string
     - name: db2_data_storage_class
       type: string
     - name: db2_backup_storage_class
@@ -72,6 +74,9 @@ spec:
     - name: db2_database_db_config_yaml_manage
       type: string
       default: ""
+    - name: db2_addons_audit_config_yaml_manage
+      type: string
+      default: ""
     - name: db2_instance_registry_yaml_iot
       type: string
       default: ""
@@ -79,6 +84,9 @@ spec:
       type: string
       default: ""
     - name: db2_database_db_config_yaml_iot
+      type: string
+      default: ""
+    - name: db2_addons_audit_config_yaml_iot
       type: string
       default: ""
 
@@ -374,6 +382,8 @@ spec:
           value: $(params.db2_temp_storage_class)
         - name: db2_logs_storage_class
           value: $(params.db2_logs_storage_class)
+        - name: db2_audit_logs_storage_class
+          value: $(params.db2_audit_logs_storage_class)
         - name: db2_data_storage_class
           value: $(params.db2_data_storage_class)
         - name: db2_backup_storage_class
@@ -386,6 +396,8 @@ spec:
           value: $(params.db2_instance_dbm_config_yaml_iot)
         - name: db2_database_db_config_yaml
           value: $(params.db2_database_db_config_yaml_iot)
+        - name: db2_addons_audit_config_yaml
+          value: $(params.db2_addons_audit_config_yaml_iot)
 
       workspaces:
         - name: configs
@@ -457,6 +469,8 @@ spec:
           value: $(params.db2_temp_storage_class)
         - name: db2_logs_storage_class
           value: $(params.db2_logs_storage_class)
+        - name: db2_audit_logs_storage_class
+          value: $(params.db2_audit_logs_storage_class)
         - name: db2_data_storage_class
           value: $(params.db2_data_storage_class)
         - name: db2_backup_storage_class
@@ -469,6 +483,8 @@ spec:
           value: $(params.db2_instance_dbm_config_yaml_manage)
         - name: db2_database_db_config_yaml
           value: $(params.db2_database_db_config_yaml_manage)
+        - name: db2_addons_audit_config_yaml
+          value: $(params.db2_addons_audit_config_yaml_manage)
 
       workspaces:
         - name: configs
