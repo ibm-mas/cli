@@ -561,6 +561,8 @@ function gitops_suite() {
     if [[ -n "$MAS_MANUAL_CERTS_YAML" ]]; then
       echo "Troubleshoot path $MAS_MANUAL_CERTS_YAML" 
       ls -ltr $MAS_MANUAL_CERTS_YAML
+      echo "Troubleshoot path /workspace/shared-gitops-configs/"
+      ls -ltr /workspace/shared-gitops-configs/
     fi
     if [[ -n "$MAS_MANUAL_CERTS_YAML" && -s "$MAS_MANUAL_CERTS_YAML" ]]; then
       echo
