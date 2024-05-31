@@ -277,6 +277,11 @@ spec:
         # Update the app channels in the mas-apps-params.yaml. Assume fvtsaas here
         if [ -n $MAS_APP_CHANNEL_ASSIST ]; then
           yq --arg MAS_APP_CHANNEL_ASSIST $MAS_APP_CHANNEL_ASSIST -iY '(. | select(has("assist")?).assist.app_channel)= $MAS_APP_CHANNEL_ASSIST' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+          # Assist not supported in v8 due to no CP4D WD support
+          if [[ "$MAS_APP_CHANNEL_ASSIST" =~ ^8\. ]]; then
+            yq -iY 'del(.assist)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+            echo "gitops-mas-initiator: removed .assist node"
+          fi
         fi
         if [ -n $MAS_APP_CHANNEL_IOT ]; then
           yq --arg MAS_APP_CHANNEL_IOT $MAS_APP_CHANNEL_IOT -iY '(. | select(has("iot")?).iot.app_channel)= $MAS_APP_CHANNEL_IOT' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml

@@ -30,6 +30,8 @@ spec:
       type: string
     - name: db2_logs_storage_class
       type: string
+    - name: db2_audit_logs_storage_class
+      type: string
     - name: db2_data_storage_class
       type: string
     - name: db2_backup_storage_class
@@ -39,6 +41,8 @@ spec:
     - name: db2_instance_registry_yaml
       type: string
     - name: db2_instance_dbm_config_yaml
+      type: string
+    - name: db2_addons_audit_config_yaml
       type: string
     - name: db2_database_db_config_yaml
       type: string
@@ -75,6 +79,8 @@ spec:
         value: $(params.db2_temp_storage_class)
       - name: DB2_LOGS_STORAGE_CLASS
         value: $(params.db2_logs_storage_class)
+      - name: DB2_AUDIT_LOGS_STORAGE_CLASS
+        value: $(params.db2_audit_logs_storage_class)
       - name: DB2_DATA_STORAGE_CLASS
         value: $(params.db2_data_storage_class)
       - name: DB2_BACKUP_STORAGE_CLASS
@@ -85,6 +91,8 @@ spec:
         value: $(params.db2_instance_registry_yaml)
       - name: DB2_INSTANCE_DBM_CONFIG_YAML
         value: $(params.db2_instance_dbm_config_yaml)
+      - name: DB2_ADDONS_AUDIT_CONFIG_YAML
+        value: $(params.db2_addons_audit_config_yaml)
       - name: DB2_DATABASE_DB_CONFIG_YAML
         value: $(params.db2_database_db_config_yaml)
       - name: MAS_APP_ID

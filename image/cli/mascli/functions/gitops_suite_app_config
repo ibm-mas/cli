@@ -452,33 +452,6 @@ function gitops_suite_app_config() {
   echo "- MAS_APPWS_SPEC CONTENT ${MAS_APPWS_SPEC}"
   export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
 
-  if [ "$MAS_APP_ID" == "assist" ]; then
-    echo "- Configuring for Assist App"
-
-    export CPD_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cp4d
-    export SECRET_KEY_CPD_ADMIN_USERNAME=${CPD_SECRET}#username
-    export SECRET_KEY_CPD_ADMIN_PASSWORD=${CPD_SECRET}#password
-
-    export WD_YAML=$TEMP_DIR/wd_yaml.yaml
-    export WD_CONFIG=$GITOPS_CONFIG_DIR/$MAS_INSTANCE_ID-cp4d-service-wd/$MAS_INSTANCE_ID-wd-config.yml
-    echo "- Reading config data from $WD_CONFIG"
-    yq -sr '.[1].data."wd.yaml"' $WD_CONFIG > $WD_YAML
-    rc=$?
-    [ $rc -ne 0 ] && exit $rc
-
-    echo ""
-    echo "- Getting WD URL"
-    export WD_URL
-    WD_URL=$(yq -sr '.[0].url' $WD_YAML)
-    rc=$?
-    [ $rc -ne 0 ] && exit $rc
-    echo "- Getting WD Version"
-    export WD_VERSION
-    WD_VERSION=$(yq -sr '.[0].version' $WD_YAML)
-    rc=$?
-    [ $rc -ne 0 ] && exit $rc
-  fi
-
   # Set certs only if manual cert is True (to create k8s secret in gitops) only required for manage
   # ---------------------------------------------------------------------------
   if [ "${MAS_MANUAL_CERT_MGMT}" == "True" ] ; then
@@ -510,6 +483,7 @@ function gitops_suite_app_config() {
       fi
     fi
   fi
+
 
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
