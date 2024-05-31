@@ -266,6 +266,8 @@ function gitops_cp4d() {
   export CPD_ADMIN_LOGIN_SA="mas-cpd-cluster-admin-sa"
   export CPD_PLATFORM_CR_NAME="ibmcpd-cr"
   export CPD_IAM_INTEGRATION=false
+  export CPFS_SIZE="small"
+  export CPD_SCALE_CONFIG="medium"
 
 
   # Set and Validate App Names

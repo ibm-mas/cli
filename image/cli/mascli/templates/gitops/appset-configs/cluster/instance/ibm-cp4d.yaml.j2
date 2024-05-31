@@ -9,6 +9,8 @@ ibm_cp4d:
     cpd_ibm_licensing_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LICENSING_CHANNEL }}>"
     cpd_ibm_licensing_version: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LICENSING_VERSION }}>"
     cpfs_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CPFS_CHANNEL }}>"
+    cpfs_size: "{{ CPFS_SIZE }}"
+    cpd_scale_config: "{{ CPD_SCALE_CONFIG }}"
     cpd_admin_login_sa: "{{ CPD_ADMIN_LOGIN_SA }}"
     cpd_platform_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CPD_PLATFORM_CHANNEL }}>"
     cpd_platform_cr_name: "{{ CPD_PLATFORM_CR_NAME }}"
