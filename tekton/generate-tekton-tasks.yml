@@ -58,6 +58,8 @@
         - fvt-manage
         - fvt-mobile
         - fvt-manage-directprint
+        - fvt-manage-adhoc-report
+        - fvt-manage-birt-report
         - fvt-manage-last-phase
         - fvt-manage-pytest
         - fvt-monitor
