@@ -44,6 +44,8 @@ spec:
       type: string
     - name: mas_labels
       type: string
+    - name: custom_labels
+      type: string
     - name: mas_domain
       type: string
     - name: mas_workspace_id
@@ -204,6 +206,8 @@ spec:
           value: $(params.mas_image_tags)
         - name: mas_labels
           value: $(params.mas_labels)
+        - name: custom_labels
+          value: $(params.custom_labels)
         - name: mas_domain
           value: $(params.mas_domain)
         - name: github_pat

@@ -17,6 +17,12 @@ Basic Configuration:
 IBM DRO (Required):
       --dro-namespace ${COLOR_YELLOW}DRO_NAMESPACE${TEXT_RESET}    Namespace to install DRO subscription (defaults to 'redhat-marketplace')
 
+IBM CMM Integration (Optional):
+      --dro-cmm-setup ${COLOR_YELLOW}DRO_CMM_SETUP${TEXT_RESET}                Set to indicate if we should setup DRO to CMM Integration or not
+      --dro-cmm-auth-apikey ${COLOR_YELLOW}DRO_CMM_AUTH_APIKEY${TEXT_RESET}    The API Key used to connect to MCSP
+      --dro-cmm-auth-url ${COLOR_YELLOW}DRO_CMM_AUTH_URL${TEXT_RESET}       The MCSP Auth url to obtain the token using the API key
+      --dro-cmm-cmm-url ${COLOR_YELLOW}DRO_CMM_CMM_URL${TEXT_RESET}        The MCSP CMM endpoint that DRO will call
+
 AWS Secrets Manager Configuration (Required):
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
       --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
@@ -83,6 +89,20 @@ function gitops_dro_noninteractive() {
       export DRO_NAMESPACE=$1 && shift
         ;;
 
+      # DRO-CMM
+      --dro-cmm-setup)
+      export DRO_CMM_SETUP=true
+        ;;
+      --dro-cmm-auth-apikey)
+      export DRO_CMM_AUTH_APIKEY=$1 && shift
+        ;;
+      --dro-cmm-auth-url)
+      export DRO_CMM_AUTH_URL=$1 && shift
+        ;;
+      --dro-cmm-cmm-url)
+      export DRO_CMM_CMM_URL=$1 && shift
+        ;;
+
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -129,6 +149,11 @@ function gitops_dro_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_dro_help "GIT_BRANCH is not set"
   fi
 
+  if [[ "$DRO_CMM_SETUP" == "true" ]]; then
+    [[ -z "$DRO_CMM_AUTH_APIKEY" ]] && gitops_dro_help "DRO_CMM_AUTH_APIKEY is not set"
+    [[ -z "$DRO_CMM_AUTH_URL" ]] && gitops_dro_help "DRO_CMM_AUTH_URL is not set"
+    [[ -z "$DRO_CMM_CMM_URL" ]] && gitops_dro_help "DRO_CMM_CMM_URL is not set"
+  fi
 }
 
 function gitops_dro() {
@@ -186,6 +211,14 @@ function gitops_dro() {
   echo_reset_dim "DRO_NAMESPACE  .......................... ${COLOR_MAGENTA}${DRO_NAMESPACE}"
   reset_colors
 
+  echo "${TEXT_DIM}"
+  echo_h2 "DRO CMM Integration" "    "
+  echo_reset_dim "DRO_CMM_SETUP  .......................... ${COLOR_MAGENTA}${DRO_CMM_SETUP}"
+  echo_reset_dim "DRO_CMM_AUTH_APIKEY  .................... ${COLOR_MAGENTA}${DRO_CMM_AUTH_APIKEY:0:4}<snip>"
+  echo_reset_dim "DRO_CMM_AUTH_URL  ....................... ${COLOR_MAGENTA}${DRO_CMM_AUTH_URL}"
+  echo_reset_dim "DRO_CMM_CMM_URL  ........................ ${COLOR_MAGENTA}${DRO_CMM_CMM_URL}"
+  reset_colors
+
   # Set up secrets
   # ---------------------------------------------------------------------------
   CURRENT_DIR=$PWD
@@ -198,6 +231,12 @@ function gitops_dro() {
   # ---------------------------------------------------------------------------
   # Note that SECRET_KEY_IBM_ENTITLEMENT cluster-level secret is set up by gitops-cluster
   export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#entitlement_key
+  
+  if [ "$DRO_CMM_SETUP" == "true" ]; then
+    export SECRET_KEY_DRO_CMM_AUTH_APIKEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro_cmm_auth#api_key
+    export SECRET_NAME_DRO_CMM_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro_cmm_auth
+    sm_update_secret $SECRET_NAME_DRO_CMM_AUTH "{\"api_key\": \"$DRO_CMM_AUTH_APIKEY\"}"
+  fi
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false

@@ -26,6 +26,15 @@ spec:
       type: string
     - name: dro_namespace
       type: string
+    - name: dro_cmm_setup
+      type: string
+      default: false
+    - name: dro_cmm_auth_url
+      type: string
+      default: ""
+    - name: dro_cmm_cmm_url
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-dro
     env:
@@ -49,6 +58,12 @@ spec:
         value: $(params.github_repo)
       - name: DRO_NAMESPACE
         value: $(params.dro_namespace)
+      - name: DRO_CMM_SETUP
+        value: $(params.dro_cmm_setup)
+      - name: DRO_CMM_AUTH_URL
+        value: $(params.dro_cmm_auth_url)
+      - name: DRO_CMM_CMM_URL
+        value: $(params.dro_cmm_cmm_url)
     envFrom:
       - configMapRef:
           name: environment-properties
