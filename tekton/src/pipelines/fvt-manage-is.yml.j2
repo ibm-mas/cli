@@ -44,6 +44,15 @@ spec:
     - name: fvt_digest_manage_pytest
       type: string
       default: ""
+    - name: fvt_digest_health_preparedata
+      type: string
+      default: ""
+    - name: fvt_digest_health_testng
+      type: string
+      default: ""
+    - name: fvt_digest_health_python
+      type: string
+      default: ""
 
   tasks:
 
@@ -73,7 +82,8 @@ spec:
     {{ lookup('template', 'taskdefs/fvt-manage-is/serviceprovider.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-manage-is/spatial.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-manage-is/transportation.yml.j2') | indent(4) }}
-    
+    {{ lookup('template', 'taskdefs/fvt-manage-is/health.yml.j2') | indent(4) }}
+
     # Tests within _others will be re-introduced later
     # ------------------------
     {# {{ lookup('template', 'taskdefs/fvt-manage-is/aviation.yml.j2') | indent(4) }} #}
