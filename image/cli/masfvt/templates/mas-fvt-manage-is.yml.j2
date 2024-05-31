@@ -38,14 +38,11 @@ spec:
     - name: fvt_digest_manage_pytest
       value: "{{ fvt_digest_manage_pytest }}"
     - name: fvt_digest_health_preparedata
-      type: string
-      default: ""
+      value: "{{ fvt_digest_health_preparedata }}"
     - name: fvt_digest_health_testng
-      type: string
-      default: ""
+      value: "{{ fvt_digest_health_testng }}"
     - name: fvt_digest_health_python
-      type: string
-      default: ""
+      value: "{{ fvt_digest_health_python }}"
 
   workspaces:
     # The generated configuration files
