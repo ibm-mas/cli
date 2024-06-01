@@ -55,6 +55,8 @@ spec:
       type: string
     - name: db2_logs_storage_class
       type: string
+    - name: db2_audit_logs_storage_class
+      type: string
     - name: db2_data_storage_class
       type: string
     - name: db2_backup_storage_class
@@ -72,6 +74,9 @@ spec:
     - name: db2_database_db_config_yaml_manage
       type: string
       default: ""
+    - name: db2_addons_audit_config_yaml_manage
+      type: string
+      default: ""
     - name: db2_instance_registry_yaml_iot
       type: string
       default: ""
@@ -79,6 +84,9 @@ spec:
       type: string
       default: ""
     - name: db2_database_db_config_yaml_iot
+      type: string
+      default: ""
+    - name: db2_addons_audit_config_yaml_iot
       type: string
       default: ""
 
@@ -112,8 +120,6 @@ spec:
     - name: cpd_service_block_storage_class
       type: string
     - name: cpd_service_storage_class
-      type: string
-    - name: cp4d_wd_action
       type: string
 
       #CP4D wml, analytics, openscale, spss modeler
@@ -376,6 +382,8 @@ spec:
           value: $(params.db2_temp_storage_class)
         - name: db2_logs_storage_class
           value: $(params.db2_logs_storage_class)
+        - name: db2_audit_logs_storage_class
+          value: $(params.db2_audit_logs_storage_class)
         - name: db2_data_storage_class
           value: $(params.db2_data_storage_class)
         - name: db2_backup_storage_class
@@ -388,6 +396,8 @@ spec:
           value: $(params.db2_instance_dbm_config_yaml_iot)
         - name: db2_database_db_config_yaml
           value: $(params.db2_database_db_config_yaml_iot)
+        - name: db2_addons_audit_config_yaml
+          value: $(params.db2_addons_audit_config_yaml_iot)
 
       workspaces:
         - name: configs
@@ -459,6 +469,8 @@ spec:
           value: $(params.db2_temp_storage_class)
         - name: db2_logs_storage_class
           value: $(params.db2_logs_storage_class)
+        - name: db2_audit_logs_storage_class
+          value: $(params.db2_audit_logs_storage_class)
         - name: db2_data_storage_class
           value: $(params.db2_data_storage_class)
         - name: db2_backup_storage_class
@@ -471,6 +483,8 @@ spec:
           value: $(params.db2_instance_dbm_config_yaml_manage)
         - name: db2_database_db_config_yaml
           value: $(params.db2_database_db_config_yaml_manage)
+        - name: db2_addons_audit_config_yaml
+          value: $(params.db2_addons_audit_config_yaml_manage)
 
       workspaces:
         - name: configs
@@ -571,7 +585,7 @@ spec:
       runAfter:
         - app-install-visualinspection
 
-    # 8. CP4D for Assist and Predict
+    # 8. CP4D for Predict
     # -------------------------------------------------------------------------
     # 8.1 CP4D 
     - name: gitops-cp4d
@@ -612,45 +626,9 @@ spec:
           operator: in
           values: ["install"]
 
-    # 9. CP4D Watson Discovery for Assist
+    # 9. Configure Objectstorage for Assist or MVI
     # -------------------------------------------------------------------------
-    # 9.1 CP4D WD
-    - name: gitops-cp4d-wd
-      runAfter:
-        - gitops-cp4d
-      params:
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
-
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-
-        - name: cpd_service_name
-          value: wd
-        - name: cpd_product_version
-          value: $(params.cpd_product_version)
-        - name: cpd_service_block_storage_class
-          value: $(params.cpd_service_block_storage_class)
-        - name: cpd_service_storage_class
-          value: $(params.cpd_service_storage_class)
-
-      workspaces:
-        - name: configs
-          workspace: configs
-        - name: shared-gitops-configs
-          workspace: shared-gitops-configs
-      taskRef:
-        kind: Task
-        name: gitops-cp4d-service
-      when:
-        - input: "$(params.cp4d_wd_action)"
-          operator: in
-          values: ["install"]
-
-
+    # 9.1 Configure Objectstorage
     # Configure COS in MAS
     - name: gitops-suite-objectstorage-config
       params:
@@ -683,7 +661,6 @@ spec:
     # 10.1 Install Assist
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/assist-app.yml.j2') | indent(4) }}
       runAfter:
-        - gitops-cp4d-wd
         - gitops-suite-objectstorage-config
 
     # 10.2 Configure Assist workspace
