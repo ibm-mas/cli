@@ -94,3 +94,13 @@ podTemplates:
           limits:
             cpu: 1
             memory: 1024Mi
+  - name: entitymgr-acc
+    containers:
+      - name: manager
+        resources:
+          requests:
+            cpu: 1
+            memory: 1024Mi
+          limits:
+            cpu: 1
+            memory: 1024Mi

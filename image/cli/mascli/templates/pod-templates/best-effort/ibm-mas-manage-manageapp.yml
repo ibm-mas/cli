@@ -40,3 +40,7 @@ podTemplates:
     containers:
       - name: healthext
         resources: {}
+  - name: entitymgr-acc
+    containers:
+      - name: manager
+        resources: {}
