@@ -13,7 +13,7 @@ GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
   -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
-  -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
+  -r, --region-id ${COLOR_YELLOW}REGION_ID${TEXT_RESET}              Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
 
 IBM Maximo Application Suite:
@@ -31,6 +31,8 @@ IBM CP4D:
       --common-services-channel ${COLOR_YELLOW}COMMON_SERVICES_CHANNEL${TEXT_RESET}            CommonServices Channel
       --cpd-primary-storage-class ${COLOR_YELLOW}CPD_PRIMARY_STORAGE_CLASS${TEXT_RESET}        CP4D Primary StorageClass
       --cpd-metadata-storage-class ${COLOR_YELLOW}CPD_METADATA_STORAGE_CLASS${TEXT_RESET}      CP4D MetaData StorageClass
+      --cpfs-size ${COLOR_YELLOW}CPFS_SIZE${TEXT_RESET}                                        CommonServices CR Size
+      --cpd-scale-config ${COLOR_YELLOW}CPD_SCALE_CONFIG${TEXT_RESET}                          Scale config for IBM ZenServices
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -53,7 +55,7 @@ function gitops_cp4d_noninteractive() {
   GIT_COMMIT_MSG="gitops-cp4d commit"
   export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
-  export REGION=${REGION:-${SM_AWS_REGION}}
+  export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
 
   while [[ $# -gt 0 ]]
@@ -74,8 +76,8 @@ function gitops_cp4d_noninteractive() {
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
         ;;
-      -r|--region)
-        export REGION=$1 && shift
+      -r|--region-id)
+        export REGION_ID=$1 && shift
         ;;
 
       # MAS
@@ -112,6 +114,12 @@ function gitops_cp4d_noninteractive() {
         ;;
       --cpd-metadata-storage-class)
       export CPD_METADATA_STORAGE_CLASS=$1 && shift
+        ;;
+      --cpfs-size)
+      export CPFS_SIZE=$1 && shift
+        ;;
+      --cpd-scale-config)
+      export CPD_SCALE_CONFIG=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -154,7 +162,7 @@ function gitops_cp4d_noninteractive() {
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_cp4d_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_cp4d_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_cp4d_help "CLUSTER_ID is not set"
-  [[ -z "$REGION" ]] && ggitops_cp4d_help "REGION is not set"
+  [[ -z "$REGION_ID" ]] && gitops_cp4d_help "REGION_ID is not set"
 
   # MAS
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_cp4d_help "MAS_INSTANCE_ID is not set"
@@ -266,8 +274,8 @@ function gitops_cp4d() {
   export CPD_ADMIN_LOGIN_SA="mas-cpd-cluster-admin-sa"
   export CPD_PLATFORM_CR_NAME="ibmcpd-cr"
   export CPD_IAM_INTEGRATION=false
-  export CPFS_SIZE="small"
-  export CPD_SCALE_CONFIG="medium"
+  export CPFS_SIZE=${CPFS_SIZE:-small}
+  export CPD_SCALE_CONFIG=${CPD_SCALE_CONFIG:-medium}
 
 
   # Set and Validate App Names
