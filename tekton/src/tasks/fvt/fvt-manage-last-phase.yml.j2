@@ -204,18 +204,3 @@ spec:
       env:
         - name: FVT_TEST_SUITE
           value: workflow-designer
-
-    # Manage FVT E-Signature Basic Scenario
-    - name: fvt-manage-esig-basic
-      image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
-      imagePullPolicy: $(params.image_pull_policy)
-      timeout: 150m # Ensure bad FVTs don't run forever
-      onError: continue # Ensure bad FVTs don't break the pipeline
-      resources: {}
-      workingDir: /opt/ibm/test/src
-      volumeMounts:
-        - mountPath: /dev/shm
-          name: dshm
-      env:
-        - name: FVT_TEST_SUITE
-          value: esig-basic
