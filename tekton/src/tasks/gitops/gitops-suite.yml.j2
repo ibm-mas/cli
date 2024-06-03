@@ -245,8 +245,8 @@ spec:
         - /bin/sh
         - -c
       name: gitops-suite
-      imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:9.0.0-pre.pk-gitops-mascore-2637
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
   workspaces:
     - name: configs
     - name: shared-gitops-configs
