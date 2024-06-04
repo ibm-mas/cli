@@ -375,7 +375,7 @@ function mustgather() {
     echo_h3 "Namespace: openshift-gitops"
     echo
     # Argo-specific must-gather
-    $MG_SCRIPT_DIR/mg-summary-argo openshift-gitops &> ${OUTPUT_DIR}/mas-pipelines.txt
+    $MG_SCRIPT_DIR/mg-summary-argo openshift-gitops &> ${OUTPUT_DIR}/argo.txt
     $MG_SCRIPT_DIR/mg-collect-argo openshift-gitops $OUTPUT_DIR
 
     genericMustGather openshift-gitops
