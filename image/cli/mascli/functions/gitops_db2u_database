@@ -23,6 +23,7 @@ IBM Maximo Application Suite:
 IBM DB2U:
       --db2-dbname ${COLOR_YELLOW}DB2_DBNAME${TEXT_RESET}                                                     DB2 DB Name
       --db2-version ${COLOR_YELLOW}DB2_VERSION${TEXT_RESET}                                                   DB2 Version
+      --db2-tls-version ${COLOR_YELLOW}DB2_TLS_VERSION${TEXT_RESET}                                           TLS version to use in connection url
       --db2-table-org ${COLOR_YELLOW}DB2_TABLE_ORG${TEXT_RESET}                                               DB2 table org
       --db2-4k-device-support ${COLOR_YELLOW}DB2_4K_DEVICE_SUPPORT${TEXT_RESET}                               DB2 4k device support
       --db2-workload ${COLOR_YELLOW}DB2_WORKLOAD${TEXT_RESET}                                                 DB2 workload
@@ -135,6 +136,9 @@ function gitops_db2u_database_noninteractive() {
         ;;
       --db2-version)
         export DB2_VERSION=$1 && shift
+        ;;
+      --db2-tlsversion)
+        export DB2_TLS_VERSION=$1 && shift
         ;;
       --db2-table-org)
         export DB2_TABLE_ORG=$1 && shift
@@ -321,6 +325,9 @@ function gitops_db2u_database() {
   GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-db2u-database" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
 
   #Defaults
+  if [[ -z $DB2_TLS_VERSION ]]; then
+    export DB2_TLS_VERSION=TLSv1.2
+  fi
   if [[ -z $DB2_DBNAME ]]; then
     export DB2_DBNAME=BLUDB
   fi
@@ -456,6 +463,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "db2-instance-name ............................. ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
   echo_reset_dim "db2-dbname  ................................... ${COLOR_MAGENTA}${DB2_DBNAME}"
   echo_reset_dim "db2-version  .................................. ${COLOR_MAGENTA}${DB2_VERSION}"
+  echo_reset_dim "db2-tls-version  .............................. ${COLOR_MAGENTA}${DB2_TLS_VERSION}"
   echo_reset_dim "db2-table-org  ................................ ${COLOR_MAGENTA}${DB2_TABLE_ORG}"
   echo_reset_dim "db2-4k-device-support  ........................ ${COLOR_MAGENTA}${DB2_4K_DEVICE_SUPPORT}"
   echo_reset_dim "db2-workload  ................................. ${COLOR_MAGENTA}${DB2_WORKLOAD}"

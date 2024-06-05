@@ -49,6 +49,28 @@ spec:
     - name: icr_cp_open
       type: string
 
+    - name: jdbc_type_iot
+      type: string
+    - name: jdbc_instance_name_iot
+      type: string
+    - name: jdbc_connection_url_iot
+      type: string
+      default: ""
+    - name: jdbc_certificate_file_iot
+      type: string
+      default: ""
+
+    - name: jdbc_type_manage
+      type: string
+    - name: jdbc_instance_name_manage
+      type: string
+    - name: jdbc_connection_url_manage
+      type: string
+      default: ""
+    - name: jdbc_certificate_file_manage
+      type: string
+      default: ""
+
     - name: db2_meta_storage_class
       type: string
     - name: db2_temp_storage_class
@@ -109,8 +131,7 @@ spec:
     - name: db2_addons_audit_config_yaml_iot
       type: string
       default: ""
-
-    - name: tls_version
+    - name: db2_tls_version
       type: string
       default: TLSv1.2
 
@@ -430,6 +451,8 @@ spec:
 
         - name: db2_version
           value: $(params.db2_version)
+        - name: db2_tls_version
+          value: $(params.db2_tls_version)
         - name: db2_instance_registry_yaml
           value: $(params.db2_instance_registry_yaml_iot)
         - name: db2_instance_dbm_config_yaml
@@ -451,11 +474,14 @@ spec:
         - input: "$(params.db2_action)"
           operator: notin
           values: [""]
+        - input: "$(params.jdbc_type_iot)"
+          operator: in
+          values: ["incluster-db2"]
         - input: "$(params.mas_app_channel_iot)"
           operator: notin
           values: [""]
 
-    - name: gitops-db2u-config-iot
+    - name: gitops-jdbc-config-iot
       runAfter:
         - gitops-db2u-database-iot
       params:
@@ -471,18 +497,23 @@ spec:
           value: iot
         - name: mas_config_scope
           value: system
-
-        - name: tls_version
-          value: $(params.tls_version)
+        - name: jdbc_type
+          value: $(params.jdbc_type_iot)
+        - name: jdbc_instance_name
+          value: $(params.jdbc_instance_name_iot)
+        - name: jdbc_connection_url
+          value: $(params.jdbc_connection_url_iot)
+        - name: jdbc_certificate_file
+          value: $(params.jdbc_certificate_file_iot)
 
       workspaces:
         - name: configs
           workspace: configs
       taskRef:
         kind: Task
-        name: gitops-db2u-config
+        name: gitops-jdbc-config
       when:
-        - input: "$(params.db2_action)"
+        - input: "$(params.jdbc_type_iot)"
           operator: notin
           values: [""]
         - input: "$(params.mas_app_channel_iot)"
@@ -531,6 +562,8 @@ spec:
 
         - name: db2_version
           value: $(params.db2_version)
+        - name: db2_tls_version
+          value: $(params.db2_tls_version)
         - name: db2_instance_registry_yaml
           value: $(params.db2_instance_registry_yaml_manage)
         - name: db2_instance_dbm_config_yaml
@@ -552,10 +585,13 @@ spec:
         - input: "$(params.db2_action)"
           operator: notin
           values: [""]
+        - input: "$(params.jdbc_type_manage)"
+          operator: in
+          values: ["incluster-db2"]
         - input: "$(params.mas_app_channel_manage)"
           operator: notin
           values: [""]
-    - name: gitops-db2u-config-manage
+    - name: gitops-jdbc-config-manage
       runAfter:
         - gitops-db2u-database-manage
       params:
@@ -573,17 +609,23 @@ spec:
           value: wsapp
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
+        - name: jdbc_type
+          value: $(params.jdbc_type_manage)
+        - name: jdbc_instance_name
+          value: $(params.jdbc_instance_name_manage)
+        - name: jdbc_connection_url
+          value: $(params.jdbc_connection_url_manage)
+        - name: jdbc_certificate_file
+          value: $(params.jdbc_certificate_file_manage)
 
-        - name: tls_version
-          value: $(params.tls_version)
       workspaces:
         - name: configs
           workspace: configs
       taskRef:
         kind: Task
-        name: gitops-db2u-config
+        name: gitops-jdbc-config
       when:
-        - input: "$(params.db2_action)"
+        - input: "$(params.jdbc_type_manage)"
           operator: notin
           values: [""]
         - input: "$(params.mas_app_channel_manage)"
@@ -596,7 +638,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/iot-app.yml.j2') | indent(4) }}
       runAfter:
         - gitops-kafka-config
-        - gitops-db2u-config-iot
+        - gitops-jdbc-config-iot
 
     # 4.2 Configure IoT workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/iot-workspace.yml.j2') | indent(4) }}
@@ -608,7 +650,7 @@ spec:
     # 5.1 Install Manage
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/manage-app.yml.j2') | indent(4) }}
       runAfter:
-        - gitops-db2u-config-manage
+        - gitops-jdbc-config-manage
 
     # 5.2 Configure Manage workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/manage-workspace.yml.j2') | indent(4) }}
