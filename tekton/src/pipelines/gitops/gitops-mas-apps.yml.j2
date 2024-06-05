@@ -135,6 +135,12 @@ spec:
       type: string
     - name: cp4d_action
       type: string
+    - name: cpfs_size
+      type: string
+      default: "small"
+    - name: cpd_scale_config
+      type: string
+      default: "medium"
 
       #CP4D Services
     - name: cpd_service_block_storage_class
@@ -657,6 +663,10 @@ spec:
           value: $(params.cpd_primary_storage_class)
         - name: cpd_metadata_storage_class
           value: $(params.cpd_metadata_storage_class)
+        - name: cpfs_size
+          value: $(params.cpfs_size)
+        - name: cpd_scale_config
+          value: $(params.cpd_scale_config)
 
       workspaces:
         - name: configs
