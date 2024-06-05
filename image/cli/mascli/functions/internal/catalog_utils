@@ -27,7 +27,7 @@ function choose_catalog_version() {
   case $MAS_CATALOG_SELECTION in
     1)
       MAS_CATALOG_VERSION=v8-240528-amd64
-      ;;  
+      ;;
     2)
       MAS_CATALOG_VERSION=v8-240430-amd64
       ;;
@@ -43,8 +43,6 @@ function choose_catalog_version() {
       ;;
   esac
 }
-
-#TODO: UPDATE BELOW
 
 # Choose a catalog and the MAS channel
 # -----------------------------------------------------------------------------
