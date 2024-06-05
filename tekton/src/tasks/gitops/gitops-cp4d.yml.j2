@@ -36,6 +36,10 @@ spec:
       type: string
     - name: cpd_metadata_storage_class
       type: string
+    - name: cpfs_size
+      type: string
+    - name: cpd_scale_config
+      type: string
   stepTemplate:
     name: gitops-cp4d
     env:
@@ -71,6 +75,10 @@ spec:
         value: $(params.cpd_primary_storage_class)
       - name: CPD_METADATA_STORAGE_CLASS
         value: $(params.cpd_metadata_storage_class)
+      - name: CPFS_SIZE
+        value: $(params.cpfs_size)
+      - name: CPD_SCALE_CONFIG
+        value: $(params.cpd_scale_config)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -84,18 +92,8 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
         
-        # oc login here as we need to move cp4d to gitops approach. When we have then ocp login is not needed.
-        oc login -u $OCP_USERNAME -p $OCP_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
-        OC_RC=$?
-        if [ $OC_RC -ne 0 ]; then
-          echo "oc login failed"
-          exit 1
-        fi
-        echo "Set k8s context"
-        export K8S_AUTH_CONTEXT=$(oc whoami -c)
-
         mkdir -p /tmp/init-cp4d
-        mas gitops-cp4d -a $ACCOUNT -c $CLUSTER_NAME \
+        mas gitops-cp4d -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
         --dir /tmp/init-cp4d \
         --secrets-path $SECRET_PATH \
         --github-push \
@@ -109,7 +107,7 @@ spec:
         - /bin/sh
         - -c
       name: gitops-cp4d
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: Always
       image: quay.io/ibmmas/cli:9.0.0-pre.gitops
   workspaces:
     - name: configs
