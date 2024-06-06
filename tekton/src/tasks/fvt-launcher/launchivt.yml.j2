@@ -1,0 +1,140 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-launchivt
+spec:
+  params:
+    # Control the image pull policy for the FVT container image
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+
+    - name: pipelinerun_name
+      type: string
+
+  steps:
+    - name: start-pipelinerun
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - ansible-playbook
+        - /masfvt/ivt.yml
+      env:
+        - name: IMAGE_PULL_POLICY
+          value: $(params.image_pull_policy)
+        - name: PIPELINERUN_NAME
+          value: $(params.pipelinerun_name)
+        - name: PIPELINERUN_NAMESPACE
+          value: $(context.taskRun.namespace)
+
+        # Lookups from mas-devops
+        # -----------------------------------------------------------------------
+        - name: DEVOPS_BUILD_NUMBER
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_BUILD_NUMBER
+              optional: true
+        - name: MAS_INSTANCE_ID
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: MAS_INSTANCE_ID
+              optional: false
+
+        # Lookups from mas-fvt
+        # -----------------------------------------------------------------------
+        - name: FVT_IMAGE_REGISTRY
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FVT_IMAGE_REGISTRY
+              optional: false
+        - name: FVT_ARTIFACTORY_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FVT_ARTIFACTORY_USERNAME
+              optional: false
+        - name: FVT_ARTIFACTORY_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FVT_ARTIFACTORY_TOKEN
+              optional: false
+
+        # Lookups from mas-fvt-manage
+        # -----------------------------------------------------------------------
+        # Framework Information
+        - name: MAS_APP_CHANNEL_MANAGE
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: MAS_APP_CHANNEL_MANAGE
+              optional: false
+        - name: MAS_WORKSPACE_ID
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: MAS_WORKSPACE_ID
+              optional: false
+        # Digests
+        - name: FVT_DIGEST_MANAGE
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: FVT_DIGEST_MANAGE
+              optional: false
+        - name: FVT_DIGEST_MANAGE_PYTEST
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: FVT_DIGEST_MANAGE_PYTEST
+              optional: false
+        - name: FVT_DIGEST_CTF
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-monitor
+              key: FVT_DIGEST_CTF
+              optional: false
+        
+        # Black and white listing
+        - name: FVT_BLACKLIST
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: FVT_BLACKLIST_IS
+              optional: false
+        - name: FVT_WHITELIST
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: FVT_WHITELIST_IS
+              optional: false
+
+    - name: wait-for-pipelinerun
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      # 50 retries at 10 minute intervals = just over 8 hours
+      command:
+        - /opt/app-root/src/wait-for-tekton.sh
+      env:
+        - name: TYPE
+          value: pipelinerun
+        - name: NAME
+          value: $(params.pipelinerun_name)
+        - name: SUFFIX
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_BUILD_NUMBER
+              optional: true
+        - name: NAMESPACE
+          value: $(context.taskRun.namespace)
+        - name: DELAY
+          value: "600"
+        - name: MAX_RETRIES
+          value: "50"
+        - name: IGNORE_FAILURE
+          value: "True"
