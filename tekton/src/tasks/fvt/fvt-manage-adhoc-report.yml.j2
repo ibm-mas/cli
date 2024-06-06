@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-fvt-manage-last-phase
+  name: mas-fvt-manage-adhoc-report
 spec:
   params:
     # Control the image pull policy for the FVT container image
@@ -63,7 +63,7 @@ spec:
       default: ""
 
   stepTemplate:
-    name: fvt-manage-last-phase
+    name: fvt-manage-adhoc-report
     securityContext:
       privileged: true
       runAsUser: 0
@@ -87,9 +87,6 @@ spec:
             name: mas-devops
             key: DEVOPS_BUILD_NUMBER
             optional: true
-
-      - name: IBMADMIN_ENABLED
-        value: "true"
 
       - name: NAMESPACE
         value: "mas-$(params.mas_instance_id)-core"
@@ -145,8 +142,8 @@ spec:
 
   steps:
 
-    # Manage FVT MAS UserTimeout
-    - name: fvt-manage-mas-usertimeout
+    # Adhoc Report - Job Plan
+    - name: fvt-manage-jobplan-adhoc-report
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 150m # Ensure bad FVTs don't run forever
@@ -158,10 +155,10 @@ spec:
           name: dshm
       env:
         - name: FVT_TEST_SUITE
-          value: masuser-timeout
+          value: jobplan-adhoc
 
-    # Manage FVT Application Designer
-    - name: fvt-manage-application-designer
+    # Adhoc Report - Assets
+    - name: fvt-manage-assets-adhoc-report
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 150m # Ensure bad FVTs don't run forever
@@ -173,10 +170,10 @@ spec:
           name: dshm
       env:
         - name: FVT_TEST_SUITE
-          value: application-designer
+          value: asset-adhoc
 
-    # Manage FVT Start Center
-    - name: fvt-manage-startcenter-config
+    # Adhoc Report - Purchase
+    - name: fvt-manage-purchase-adhoc-report
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 150m # Ensure bad FVTs don't run forever
@@ -188,10 +185,10 @@ spec:
           name: dshm
       env:
         - name: FVT_TEST_SUITE
-          value: startcenter-config
+          value: purchase-adhoc
 
-    # Manage FVT Create Workflow Design & Approve WO Assignments
-    - name: fvt-manage-workflow-designer
+    # Adhoc Report - Workorder
+    - name: fvt-manage-workorder-adhoc-report
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 150m # Ensure bad FVTs don't run forever
@@ -203,4 +200,4 @@ spec:
           name: dshm
       env:
         - name: FVT_TEST_SUITE
-          value: workflow-designer
+          value: workorder-adhoc
