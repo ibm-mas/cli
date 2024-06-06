@@ -26,6 +26,10 @@ spec:
     - name: pipelinerun_name
       type: string
       description: name of the installation pipelinerun that must be tracked til completion
+    - name: launchfvt_upgrade
+      type: string
+      default: "" # Considered False when not informed
+      description: "Set this to any value other than 'true' to disable launch of the pre and post upgrade tests pipeline (running before and after upgrade process happens)"
 {% endif %}
 
     # Tekton Pipeline image pull policy (for ibmmas/cli images)
