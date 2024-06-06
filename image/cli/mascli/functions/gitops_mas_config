@@ -710,6 +710,8 @@ function gitops_mas_config() {
         export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
         export SECRET_KEY_JDBC_CA_PEM=${JDBC_CONFIG_SECRET_ID}#ca_b64
         sm_get_secret_file ${JDBC_CONFIG_SECRET_ID} $DB2_CONFIG_FILE
+        export DB2_DBNAME=$(jq -r .db2_dbname $DB2_CONFIG_FILE)
+        export DB2_NAMESPACE=$(jq -r .db2_namespace $DB2_CONFIG_FILE)
         export JDBC_CONNECTION_URL=$(jq -r .jdbc_connection_url $DB2_CONFIG_FILE)
         export JDBC_CERTIFICATE_CONTENT=$(jq -r .ca_b64 $DB2_CONFIG_FILE | base64 -d)
       else

@@ -22,6 +22,7 @@ IBM Maximo Application Suite:
 
 IBM DB2U:
       --db2-dbname ${COLOR_YELLOW}DB2_DBNAME${TEXT_RESET}                                                     DB2 DB Name
+      --db2-instance-name ${COLOR_YELLOW}DB2_INSTANCE_NAME${TEXT_RESET}                                       DB2 Instance Name
       --db2-version ${COLOR_YELLOW}DB2_VERSION${TEXT_RESET}                                                   DB2 Version
       --db2-tls-version ${COLOR_YELLOW}DB2_TLS_VERSION${TEXT_RESET}                                           TLS version to use in connection url
       --db2-table-org ${COLOR_YELLOW}DB2_TABLE_ORG${TEXT_RESET}                                               DB2 table org
@@ -131,13 +132,16 @@ function gitops_db2u_database_noninteractive() {
       --db2-channel)
         export DB2_CHANNEL=$1 && shift
         ;;
+      --db2-instance-name)
+        export DB2_INSTANCE_NAME=$1 && shift
+        ;;
       --db2-dbname)
         export DB2_DBNAME=$1 && shift
         ;;
       --db2-version)
         export DB2_VERSION=$1 && shift
         ;;
-      --db2-tlsversion)
+      --db2-tls-version)
         export DB2_TLS_VERSION=$1 && shift
         ;;
       --db2-table-org)
@@ -404,8 +408,9 @@ DB2_4K_DEVICE_SUPPORT: '${DB2_4K_DEVICE_SUPPORT}'
 DB2_FMP_RUN_AS_CONNECTED_USER: 'NO'
 DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   fi
-
-  export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+  if [[ -z $DB2_INSTANCE_NAME ]]; then
+    export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+  fi
   export DB2_NAMESPACE=db2u
   export DB2_DBNAME=${DB2_DBNAME:-"BLUDB"}
 

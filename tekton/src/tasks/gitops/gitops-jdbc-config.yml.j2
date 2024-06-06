@@ -118,7 +118,7 @@ spec:
         - /bin/sh
         - -c
       name: gitops-jdbc-config
-      imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:9.0.0-pre.ajw-mascore1268
   workspaces:
     - name: configs
