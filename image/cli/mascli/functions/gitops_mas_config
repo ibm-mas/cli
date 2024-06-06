@@ -352,7 +352,6 @@ function gitops_mas_config_noninteractive() {
       if [ "${JDBC_TYPE}" == "incluster-db2" ]; then
         [[ -n "$JDBC_INSTANCE_NAME" ]] && gitops_mas_config_help "JDBC_INSTANCE_NAME is set when JDBC_TYPE is incluster-db2"
         [[ -n "$JDBC_CONNECTION_URL" ]] && gitops_mas_config_help "JDBC_CONNECTION_URL is set when JDBC_TYPE is incluster-db2"
-        [[ -n "$JDBC_CERTIFICATE_FILE" ]] && gitops_mas_config_help "JDBC_CERTIFICATE_FILE is set when JDBC_TYPE is incluster-db2"
       else
         [[ -z "$JDBC_INSTANCE_NAME" ]] && gitops_mas_config_help "JDBC_INSTANCE_NAME is not set"
         [[ -z "$JDBC_CONNECTION_URL" ]] && gitops_mas_config_help "JDBC_CONNECTION_URL is not set"
