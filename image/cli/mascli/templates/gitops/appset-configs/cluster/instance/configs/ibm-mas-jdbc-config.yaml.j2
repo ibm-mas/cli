@@ -41,6 +41,4 @@ wsapp_suite_jdbccfg_labels:
 
 jdbc_ca_pem:
   crt: |
-    {% filter indent(width=4) -%}
-    <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_JDBC_CERTIFICATE_CONTENT }}>
-    {%- endfilter %}
+    <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_JDBC_CERTIFICATE_CONTENT }} | base64decode>
