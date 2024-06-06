@@ -348,12 +348,13 @@ function gitops_mas_config_noninteractive() {
 
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
       export JDBC_TYPE=${JDBC_TYPE:-incluster-db2}
-      [[ -z "$JDBC_INSTANCE_NAME" ]] && gitops_mas_config_help "JDBC_INSTANCE_NAME is not set"
 
       if [ "${JDBC_TYPE}" == "incluster-db2" ]; then
+        [[ -n "$JDBC_INSTANCE_NAME" ]] && gitops_mas_config_help "JDBC_INSTANCE_NAME is set when JDBC_TYPE is incluster-db2"
         [[ -n "$JDBC_CONNECTION_URL" ]] && gitops_mas_config_help "JDBC_CONNECTION_URL is set when JDBC_TYPE is incluster-db2"
         [[ -n "$JDBC_CERTIFICATE_FILE" ]] && gitops_mas_config_help "JDBC_CERTIFICATE_FILE is set when JDBC_TYPE is incluster-db2"
       else
+        [[ -z "$JDBC_INSTANCE_NAME" ]] && gitops_mas_config_help "JDBC_INSTANCE_NAME is not set"
         [[ -z "$JDBC_CONNECTION_URL" ]] && gitops_mas_config_help "JDBC_CONNECTION_URL is not set"
         [[ -z "$JDBC_CERTIFICATE_FILE" ]] && gitops_mas_config_help "JDBC_CERTIFICATE_FILE is not set"
       fi
@@ -681,7 +682,6 @@ function gitops_mas_config() {
       sm_login
 
       echo_reset_dim "JDBC_TYPE ................................. ${COLOR_MAGENTA}$JDBC_TYPE"
-      echo_reset_dim "JDBC_INSTANCE_NAME ........................ ${COLOR_MAGENTA}$JDBC_INSTANCE_NAME"
 
       export JDBC_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}credentials
       echo_reset_dim "JDBC_CREDENTIALS_SECRET_ID ................ ${COLOR_MAGENTA}$JDBC_CREDENTIALS_SECRET_ID"
@@ -714,10 +714,12 @@ function gitops_mas_config() {
         export DB2_NAMESPACE=$(jq -r .db2_namespace $DB2_CONFIG_FILE)
         export JDBC_CONNECTION_URL=$(jq -r .jdbc_connection_url $DB2_CONFIG_FILE)
         export JDBC_CERTIFICATE_CONTENT=$(jq -r .ca_b64 $DB2_CONFIG_FILE | base64 -d)
+        export JDBC_INSTANCE_NAME=$(jq -r .jdbc_instance_name $DB2_CONFIG_FILE)
       else
         export JDBC_CERTIFICATE_CONTENT=$(<$JDBC_CERTIFICATE_FILE)
       fi
 
+      echo_reset_dim "JDBC_INSTANCE_NAME ........................ ${COLOR_MAGENTA}$JDBC_INSTANCE_NAME"
       echo_reset_dim "JDBC_CONNECTION_URL ....................... ${COLOR_MAGENTA}${JDBC_CONNECTION_URL}"
 
     fi
