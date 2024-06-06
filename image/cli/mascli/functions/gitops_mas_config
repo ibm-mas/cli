@@ -708,20 +708,20 @@ function gitops_mas_config() {
       if [ "${JDBC_TYPE}" == "incluster-db2"]; then
         # This secret is created by a PostSync Job in the ibm-db2u-database chart
         export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
-        export SECRET_KEY_JDBC_CA_PEM=${JDBC_CONFIG_SECRET_ID}#ca_b64
-        sm_get_secret_file ${JDBC_CONFIG_SECRET_ID} $DB2_CONFIG_FILE
-        export DB2_DBNAME=$(jq -r .db2_dbname $DB2_CONFIG_FILE)
-        export DB2_NAMESPACE=$(jq -r .db2_namespace $DB2_CONFIG_FILE)
-        export JDBC_CONNECTION_URL=$(jq -r .jdbc_connection_url $DB2_CONFIG_FILE)
-        export JDBC_CERTIFICATE_CONTENT=$(jq -r .ca_b64 $DB2_CONFIG_FILE | base64 -d)
-        export JDBC_INSTANCE_NAME=$(jq -r .jdbc_instance_name $DB2_CONFIG_FILE)
+        export SECRET_KEY_DB2_DBNAME=${JDBC_CONFIG_SECRET_ID}#db2_dbname
+        export SECRET_KEY_DB2_NAMESPACE=${JDBC_CONFIG_SECRET_ID}#db2_namespace
       else
-        export JDBC_CERTIFICATE_CONTENT=$(<$JDBC_CERTIFICATE_FILE)
+        # This secret we are creating here
+        export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
+        export JDBC_CERTIFICATE_CONTENT_B64=$(cat $JDBC_CERTIFICATE_FILE | base64 -w0)
+        sm_update_secret $JDBC_CONFIG_SECRET_ID "{ \"jdbc_connection_url\": \"${JDBC_CONNECTION_URL}\", \"jdbc_instance_name\": \"${JDBC_INSTANCE_NAME}\", \"ca_b64\": \"${JDBC_CERTIFICATE_CONTENT_B64}\", \}\" }"
+        echo_reset_dim "JDBC_INSTANCE_NAME ........................ ${COLOR_MAGENTA}$JDBC_INSTANCE_NAME"
+        echo_reset_dim "JDBC_CONNECTION_URL ....................... ${COLOR_MAGENTA}${JDBC_CONNECTION_URL}"
       fi
 
-      echo_reset_dim "JDBC_INSTANCE_NAME ........................ ${COLOR_MAGENTA}$JDBC_INSTANCE_NAME"
-      echo_reset_dim "JDBC_CONNECTION_URL ....................... ${COLOR_MAGENTA}${JDBC_CONNECTION_URL}"
-
+      export SECRET_KEY_JDBC_CONNECTION_URL=${JDBC_CONFIG_SECRET_ID}#jdbc_connection_url
+      export SECRET_KEY_JDBC_CERTIFICATE_CONTENT=${JDBC_CONFIG_SECRET_ID}#ca_b64
+      export SECRET_KEY_JDBC_INSTANCE_NAME=${JDBC_CONFIG_SECRET_ID}#jdbc_instance_name
     fi
   
     # Source: gitops_suite_smtp_config
