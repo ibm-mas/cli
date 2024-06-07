@@ -348,9 +348,10 @@ function gitops_mas_config_noninteractive() {
 
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
       export JDBC_TYPE=${JDBC_TYPE:-incluster-db2}
-
+      if [[ -z $JDBC_INSTANCE_NAME ]]; then
+        export JDBC_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+      fi
       if [ "${JDBC_TYPE}" == "incluster-db2" ]; then
-        [[ -n "$JDBC_INSTANCE_NAME" ]] && gitops_mas_config_help "JDBC_INSTANCE_NAME is set when JDBC_TYPE is incluster-db2"
         [[ -n "$JDBC_CONNECTION_URL" ]] && gitops_mas_config_help "JDBC_CONNECTION_URL is set when JDBC_TYPE is incluster-db2"
       else
         [[ -z "$JDBC_INSTANCE_NAME" ]] && gitops_mas_config_help "JDBC_INSTANCE_NAME is not set"
@@ -541,9 +542,9 @@ function gitops_mas_config() {
 
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
       echo_reset_dim "JDBC_TYPE ...................................... ${COLOR_MAGENTA}${JDBC_TYPE}"
+      echo_reset_dim "JDBC_INSTANCE_NAME ............................. ${COLOR_MAGENTA}${JDBC_INSTANCE_NAME}"
       if [ "${JDBC_TYPE}" != "incluster-db2" ]; then
         echo "${TEXT_DIM}"
-        echo_reset_dim "JDBC_INSTANCE_NAME ............................. ${COLOR_MAGENTA}${JDBC_INSTANCE_NAME}"
         echo_reset_dim "JDBC_CONNECTION_URL ............................ ${COLOR_MAGENTA}${JDBC_CONNECTION_URL}"
         echo_reset_dim "Path to JDBC Cert File  ........................ ${COLOR_MAGENTA}${JDBC_CERTIFICATE_FILE}"
         if [ -f ${JDBC_CERTIFICATE_FILE} ]; then
