@@ -695,7 +695,7 @@ function gitops_mas_config() {
       export JDBC_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}credentials
       echo_reset_dim "JDBC_CREDENTIALS_SECRET_ID ................ ${COLOR_MAGENTA}$JDBC_CREDENTIALS_SECRET_ID"
 
-      if [ "${JDBC_TYPE}" == "incluster-db2"]; then
+      if [ "${JDBC_TYPE}" == "incluster-db2" ]; then
         # Create a secret in SM containing the username/password for this specific DB2 database instance.
         # A presync hook on the jdbccfg chart will take care of ensuring the user added to the database's LDAP registry
         export DB2_SECRET_FILE=$TEMP_DIR/db2-secret.json
@@ -709,9 +709,9 @@ function gitops_mas_config() {
           echo_reset_dim "JDBC_PASSWORD ........................... ${COLOR_MAGENTA}${JDBC_PASSWORD:0:8}<snip> is available in the secret, using that value"
         fi
         echo_reset_dim "JDBC_PASSWORD ............................. ${COLOR_MAGENTA}${JDBC_PASSWORD:0:8}<snip>"
+        sm_update_secret $JDBC_CREDENTIALS_SECRET_ID "{ \"username\": \"$JDBC_USERNAME\", \"password\": \"$JDBC_PASSWORD\"}"
       fi
 
-      sm_update_secret $JDBC_CREDENTIALS_SECRET_ID "{ \"username\": \"$JDBC_USERNAME\", \"password\": \"$JDBC_PASSWORD\"}"
       export SECRET_KEY_JDBC_USERNAME=${JDBC_CREDENTIALS_SECRET_ID}#username
       export SECRET_KEY_JDBC_PASSWORD=${JDBC_CREDENTIALS_SECRET_ID}#password
 
