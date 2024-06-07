@@ -684,7 +684,7 @@ function gitops_mas_config() {
 
       export JDBC_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}credentials
       echo_reset_dim "JDBC_CREDENTIALS_SECRET_ID ................ ${COLOR_MAGENTA}$JDBC_CREDENTIALS_SECRET_ID"
-      
+
       if [ "${JDBC_TYPE}" == "incluster-db2"]; then
         # Create a secret in SM containing the username/password for this specific DB2 database instance.
         # A presync hook on the jdbccfg chart will take care of ensuring the user added to the database's LDAP registry
@@ -705,7 +705,7 @@ function gitops_mas_config() {
       export SECRET_KEY_JDBC_USERNAME=${JDBC_CREDENTIALS_SECRET_ID}#username
       export SECRET_KEY_JDBC_PASSWORD=${JDBC_CREDENTIALS_SECRET_ID}#password
 
-      if [ "${JDBC_TYPE}" == "incluster-db2"]; then
+      if [ "${JDBC_TYPE}" == "incluster-db2" ]; then
         # This secret is created by a PostSync Job in the ibm-db2u-database chart
         export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
         export SECRET_KEY_DB2_DBNAME=${JDBC_CONFIG_SECRET_ID}#db2_dbname
