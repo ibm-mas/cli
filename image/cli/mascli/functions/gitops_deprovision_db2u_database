@@ -24,6 +24,9 @@ Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
+IBM DB2U:
+      --db2-instance-name ${COLOR_YELLOW}DB2_INSTANCE_NAME${TEXT_RESET}          DB2 Instance Name
+
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
   -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
@@ -82,6 +85,11 @@ function gitops_deprovision_db2u_database_noninteractive() {
         export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
 
+      # DB2
+      --db2-instance-name)
+        export DB2_INSTANCE_NAME=$1 && shift
+        ;;
+
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -130,9 +138,10 @@ function gitops_deprovision_db2u_database_noninteractive() {
     [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_db2u_database_help "GITHUB_REPO is not set"
     [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_db2u_database_help "GIT_BRANCH is not set"
   fi
-
-  export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
-  export DB2_CONFIG_SECRET=${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/db2/${DB2_INSTANCE_NAME}/config
+  if [[ -z $DB2_INSTANCE_NAME ]]; then
+    export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+  fi
+  export DB2_CONFIG_SECRET=${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/jdbc/${DB2_INSTANCE_NAME}/config
 }
 
 function gitops_deprovision_db2u_database() {
