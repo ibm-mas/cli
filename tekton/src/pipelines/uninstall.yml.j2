@@ -400,16 +400,7 @@ spec:
   finally:
     # Collect must-gather
     # -------------------------------------------------------------------------
-    - name: must-gather
-      taskRef:
-        kind: Task
-        name: mas-devops-must-gather
-      params:
-        - name: base_output_dir
-          value: "/workspace/mustgather/$(context.pipelineRun.name)"
-      workspaces:
-        - name: mustgather
-          workspace: shared-mustgather
+    {{ lookup('template', 'taskdefs/common/must-gather.yml.j2') | indent(4) }}
 
     # Finalize the record in the FVT database
     # -------------------------------------------------------------------------
