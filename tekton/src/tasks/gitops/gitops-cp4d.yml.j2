@@ -107,7 +107,7 @@ spec:
         - /bin/sh
         - -c
       name: gitops-cp4d
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:9.0.0-pre.gitops
   workspaces:
     - name: configs

@@ -259,7 +259,6 @@ function gitops_cp4d() {
 
 
   AVP_TYPE=aws  # Support for IBM will be added later
-  sm_login
 
   export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
   export SECRET_KEY_NAMESPACE_SCOPE_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}namespace_scope_channel#namespace_scope_channel
@@ -304,7 +303,7 @@ function gitops_cp4d() {
   echo_h2 "Generating CP4D Platform Operator Applications"
   echo "- CP4D operator"
 
-  echo "Generating IBM CP4D file ${GITOPS_CLUSTER_DIR}/ibm-cp4d.yaml"
+  echo "Generating IBM CP4D file ${GITOPS_INSTANCE_DIR}/ibm-cp4d.yaml"
   jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-cp4d.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-cp4d.yaml
 
 
