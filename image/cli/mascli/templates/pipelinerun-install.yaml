@@ -52,6 +52,8 @@ spec:
 
     # Dependencies - ECK
     # -------------------------------------------------------------------------
+    - name: eck_action
+      value: '$ECK_ACTION'
     - name: eck_enable_elasticsearch
       value: '$ECK_ENABLE_ELASTICSEARCH'
     - name: eck_enable_kibana

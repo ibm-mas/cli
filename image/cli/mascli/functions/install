@@ -59,6 +59,8 @@ function install_noninteractive() {
   DB2_ACTION_MANAGE=none
   KAFKA_ACTION_SYSTEM=none
 
+  ECK_ACTION=none
+
   LOCAL_MAS_CONFIG_DIR=""
   LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN=yes
   use_additional_configs=no
@@ -99,6 +101,14 @@ function install_noninteractive() {
         ;;
       -W|--mas-workspace-name)
         export MAS_WORKSPACE_NAME=$1 && shift
+        ;;
+
+      # MAS Superuser Account
+      --superuser-username)
+        export MAS_SUPERUSER_USERNAME=$1 && shift
+        ;;
+      --superuser-password)
+        export MAS_SUPERUSER_PASSWORD=$1 && shift
         ;;
 
       # Advanced Configuration
@@ -173,15 +183,19 @@ function install_noninteractive() {
       # Dependencies - ECK
       --eck-enable-elasticsearch )
         export ECK_ENABLE_ELASTICSEARCH=true
+        export ECK_ACTION=install
         ;;
       --eck-enable-kibana)
         export ECK_ENABLE_KIBANA=true
+        export ECK_ACTION=install
         ;;
       --eck-enable-logstash)
         export ECK_ENABLE_LOGSTASH=true
+        export ECK_ACTION=install
         ;;
       --eck-enable-filebeat)
         export ECK_ENABLE_FILEBEAT=true
+        export ECK_ACTION=install
         ;;
 
       --eck-remote-es-hosts)
@@ -342,9 +356,6 @@ function install_noninteractive() {
         ;;
 
       # SLS
-      --license-id)
-        export SLS_LICENSE_ID=$1 && shift
-        ;;
       --license-file)
         export SLS_LICENSE_FILE_LOCAL=$1 && shift
         if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then
@@ -716,10 +727,6 @@ function install_interactive() {
 
   echo
   echo_h2 "Configure Product License"
-
-  if [[ "$SLS_PROMPT_LICENSE_ID" == "true" ]]; then
-    prompt_for_input "License ID" SLS_LICENSE_ID
-  fi
 
   prompt_for_input "License File" SLS_LICENSE_FILE_LOCAL
   if [[ ! -e "$SLS_LICENSE_FILE_LOCAL" ]]; then

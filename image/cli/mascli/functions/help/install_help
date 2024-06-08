@@ -15,9 +15,6 @@ Entitlement & Licensing (Required):
       --uds-firstname ${COLOR_YELLOW}UDS_CONTACT_FIRSTNAME${TEXT_RESET}                Contact first name
       --uds-lastname ${COLOR_YELLOW}UDS_CONTACT_LASTNAME${TEXT_RESET}                  Contact last name
 
-Entitlement & Licensing (Only required up to v8-230414-amd64):
-      --license-id ${COLOR_YELLOW}SLS_LICENSE_ID${TEXT_RESET}                          MAS license ID. Required for SLS 3.6.0 and below
-
 Storage Class Selection (Required):
       --storage-rwo ${COLOR_YELLOW}STORAGE_CLASS_RWO${TEXT_RESET}                      Read Write Once (RWO) storage class (e.g. ibmc-block-gold)
       --storage-rwx ${COLOR_YELLOW}STORAGE_CLASS_RWX${TEXT_RESET}                      Read Write Many (RWX) storage class (e.g. ibmc-file-gold-gid)
@@ -35,8 +32,8 @@ Advanced MAS Configuration (Optional):
       --mas-trust-default-cas ${COLOR_YELLOW}MAS_TRUST_DEFAULT_CAS${TEXT_RESET}        Trust certificates signed by well-known CAs
       --workload-scale-profile ${COLOR_YELLOW}MAS_WORKLOAD_SCALE_PROFILE${TEXT_RESET}  Set a pre-defined workload scale profile [Burstable, BestEffort, Guaranteed]
       --mas-pod-templates-dir ${COLOR_YELLOW}MAS_POD_TEMPLATES_DIR${TEXT_RESET}        Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over --workload-scale-profile
-      --mas-superuser-username ${COLOR_YELLOW}MAS_SUPERUSER_USERNAME${TEXT_RESET}      Provide your own superuser account name rather than accept the generated username & password
-      --mas-superuser-password ${COLOR_YELLOW}MAS_SUPERUSER_PASSWORD${TEXT_RESET}      Provide yoyr own superuser account password rather than accept the generated username & password
+      --superuser-username ${COLOR_YELLOW}MAS_SUPERUSER_USERNAME${TEXT_RESET}          Provide your own superuser account name rather than accept the generated username & password
+      --superuser-password ${COLOR_YELLOW}MAS_SUPERUSER_PASSWORD${TEXT_RESET}          Provide yoyr own superuser account password rather than accept the generated username & password
 
 Maximo Application Suite Core Platform (Required):
       --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                            Subscription channel for the Core Platform

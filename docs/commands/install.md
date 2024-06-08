@@ -10,7 +10,6 @@ Usage
 
 ### Entitlement & Licensing (Required):
 - `--ibm-entitlement-key IBM_ENTITLEMENT_KEY`  IBM entitlement key
-- `--license-id SLS_LICENSE_ID`                MAS license ID
 - `--license-file SLS_LICENSE_FILE_LOCAL`      Path to MAS license file
 - `--uds-email UDS_CONTACT_EMAIL`              Contact e-mail address
 - `--uds-firstname UDS_CONTACT_FIRSTNAME`      Contact first name

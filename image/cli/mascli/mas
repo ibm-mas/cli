@@ -26,7 +26,7 @@ export LOG_DIR="$HOME/.ibm-mas/logs"
 export LOGFILE=$LOG_DIR/mas.log
 
 # Note: "latest" is overwritten with the actual version at build time
-export VERSION=latest
+export VERSION="${VERSION:-latest}"
 
 mkdir -p $LOG_DIR
 mkdir -p $CONFIG_DIR

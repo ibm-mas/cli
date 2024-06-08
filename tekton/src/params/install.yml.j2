@@ -12,6 +12,10 @@
   type: string
   default: ""
 
+# Dependencies - ECK
+# -----------------------------------------------------------------------------
+{{ lookup('template', params_src_dir ~ '/install-eck.yml.j2') }}
+
 # Dependencies - Turbonomic
 # -----------------------------------------------------------------------------
 {{ lookup('template', params_src_dir ~ '/install-turbonomic.yml.j2') }}
