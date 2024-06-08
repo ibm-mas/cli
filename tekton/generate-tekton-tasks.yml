@@ -31,6 +31,7 @@
         - cp4d-service-update
         - cp4d
         - db2
+        - eck
         - grafana
         - ibm-catalogs
         - kafka

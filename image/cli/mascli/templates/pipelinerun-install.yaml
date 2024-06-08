@@ -50,6 +50,24 @@ spec:
     - name: storage_class_rwo
       value: '$STORAGE_CLASS_RWO'
 
+    # Dependencies - ECK
+    # -------------------------------------------------------------------------
+    - name: eck_enable_elasticsearch
+      value: '$ECK_ENABLE_ELASTICSEARCH'
+    - name: eck_enable_kibana
+      value: '$ECK_ENABLE_KIBANA'
+    - name: eck_enable_logstash
+      value: '$ECK_ENABLE_LOGSTASH'
+    - name: eck_enable_filebeat
+      value: '$ECK_ENABLE_FILEBEAT'
+
+    - name: eck_remote_es_hosts
+      value: '$ECK_REMOTE_ES_HOSTS'
+    - name: eck_remote_es_username
+      value: '$ECK_REMOTE_ES_USERNAME'
+    - name: eck_remote_es_password
+      value: '$ECK_REMOTE_ES_PASSWORD'
+
     # Dependencies - Turbonomic
     # -------------------------------------------------------------------------
     - name: turbonomic_server_url
@@ -373,6 +391,13 @@ spec:
     - name: enable_ipv6
       value: '$ENABLE_IPV6'
 
+    # MAS Superuser Account
+    # -------------------------------------------------------------------------
+    - name: mas_superuser_username
+      value: '$MAS_SUPERUSER_USERNAME'
+    - name: mas_superuser_password
+      value: '$MAS_SUPERUSER_PASSWORD'
+
     # MAS Workspace
     # -------------------------------------------------------------------------
     - name: mas_workspace_id
@@ -524,7 +549,7 @@ spec:
     - name: shared-pod-templates
       secret:
         secretName: pipeline-pod-templates
-    
+
     # Certificates configurations
     # -------------------------------------------------------------------------
     - name: shared-certificates

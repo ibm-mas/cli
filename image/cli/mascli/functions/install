@@ -170,6 +170,30 @@ function install_noninteractive() {
         export MAS_APP_PLAN_OPTIMIZER=$1 && shift
         ;;
 
+      # Dependencies - ECK
+      --eck-enable-elasticsearch )
+        export ECK_ENABLE_ELASTICSEARCH=true
+        ;;
+      --eck-enable-kibana)
+        export ECK_ENABLE_KIBANA=true
+        ;;
+      --eck-enable-logstash)
+        export ECK_ENABLE_LOGSTASH=true
+        ;;
+      --eck-enable-filebeat)
+        export ECK_ENABLE_FILEBEAT=true
+        ;;
+
+      --eck-remote-es-hosts)
+        export ECK_REMOTE_ES_HOSTS=$1 && shift
+        ;;
+      --eck-remote-es-username)
+        export ECK_REMOTE_ES_USERNAME=$1 && shift
+        ;;
+      --eck-remote-es-password)
+        export ECK_REMOTE_ES_PASSWORD=$1 && shift
+        ;;
+
       # Dependencies - CP4D
       --cp4d-version)
         export CP4D_VERSION=$1 && shift
@@ -538,7 +562,6 @@ function install_interactive() {
         1|8.11|8.11.x)
           MAS_CHANNEL=8.11.x
           ;;
-
 
         2|8.10|8.10.x)
           MAS_CHANNEL=8.10.x

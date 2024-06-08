@@ -41,6 +41,14 @@
       value: $(params.mas_add_catalog)
     - name: mas_add_channel
       value: $(params.mas_add_channel)
+    # Enable optional integration with ECK logstash
+    - name: eck_enable_logstash
+      value: $(params.eck_enable_logstash)
+    # Optionally configure the superuser account
+    - name: mas_superuser_username
+      value: $(params.mas_superuser_username)
+    - name: mas_superuser_password
+      value: $(params.mas_superuser_password)
 
   taskRef:
     kind: Task

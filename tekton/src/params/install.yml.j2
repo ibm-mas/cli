@@ -274,7 +274,7 @@
   description: COS action to be performed (provision or deprovision)
   default: ""
 
-# MAS Integration - Cluster Monitoring - Grafana
+# MAS Integration - Grafana
 # -----------------------------------------------------------------------------
 - name: grafana_action
   type: string
@@ -425,6 +425,15 @@
   type: string
   default: ""
   description: Data Dictionary catalog source
+
+# MAS Configuration - Superuser Account
+# -----------------------------------------------------------------------------
+- name: mas_superuser_username
+  type: string
+  default: ""
+- name: mas_superuser_password
+  type: string
+  default: ""
 
 # MAS Application Configuration - IoT Application
 # -----------------------------------------------------------------------------
