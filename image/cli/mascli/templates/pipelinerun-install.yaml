@@ -18,6 +18,8 @@ spec:
     # -------------------------------------------------------------------------
     - name: skip_pre_check
       value: '$SKIP_PRE_CHECK'
+    - name: image_pull_policy
+      value: '$IMAGE_PULL_POLICY'
 
     # Cluster config
     # -------------------------------------------------------------------------

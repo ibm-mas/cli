@@ -34,6 +34,11 @@ function validate_catalog_source {
     # catalogVersion = yymmdd
     catalogId=$(sed -E "s/.+\\((v8-[0-9]+-amd64)\\)/\1/" <<< $catalogDisplayName)
     catalogVersion=$(sed -E "s/.+\\(v8-([0-9]+)-amd64\\)/\1/" <<< $catalogDisplayName)
+  elif [[ "$catalogDisplayName" =~ .+(v8-[a-z]+-amd64) ]]; then
+    # catalogId = v8-master-amd64
+    # catalogVersion = master
+    catalogId=$(sed -E "s/.+\\((v8-[a-z]+-amd64).*\\)/\1/" <<< $catalogDisplayName)
+    catalogVersion=$(sed -E "s/.+\\(v8-([a-z]+)-amd64.*\\)/\1/" <<< $catalogDisplayName)
   elif [[ "$catalogDisplayName" =~ .+(v8-amd64) ]]; then
     catalogId=v8-amd64
     catalogVersion=v8-amd64
@@ -483,10 +488,15 @@ function install_noninteractive() {
         export VPC_ID=$1 && shift
         ;;
 
-      # Other Commands
+      # Pipeline Options
       --skip-pre-check)
-        SKIP_PRE_CHECK=true
+        export SKIP_PRE_CHECK=true
         ;;
+      --image-pull-policy)
+        export IMAGE_PULL_POLICY=$1 && shift
+        ;;
+
+      # Other Commands
       --dev-mode)
         DEV_MODE=true
         ;;

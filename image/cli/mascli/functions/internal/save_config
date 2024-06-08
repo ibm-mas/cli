@@ -12,6 +12,9 @@ function save_config() {
   fi
 
   cat << EOF > $HOME/.ibm-mas/cli.env
+export SKIP_PRE_CHECK=$SKIP_PRE_CHECK
+export IMAGE_PULL_POLICY=$IMAGE_PULL_POLICY
+
 export ARTIFACTORY_USERNAME=$ARTIFACTORY_USERNAME
 export ARTIFACTORY_TOKEN=$ARTIFACTORY_TOKEN
 
