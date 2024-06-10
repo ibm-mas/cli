@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-launchfvt-manage-health
+  name: mas-launchfvt-sls
 spec:
   params:
     # Control the image pull policy for the FVT container image
@@ -19,7 +19,7 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - ansible-playbook
-        - /masfvt/fvt-health.yml
+        - /masfvt/fvt-sls.yml
       env:
         - name: IMAGE_PULL_POLICY
           value: $(params.image_pull_policy)
@@ -64,58 +64,45 @@ spec:
               key: FVT_ARTIFACTORY_TOKEN
               optional: false
 
-        # Lookups from mas-fvt-manage
+        # Lookups from mas-fvt-sls
         # -----------------------------------------------------------------------
         # Framework Information
-        - name: MAS_APP_CHANNEL_MANAGE
+        - name: MAS_CHANNEL
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-manage
-              key: MAS_APP_CHANNEL_MANAGE
+              name: mas-fvt-sls
+              key: MAS_CHANNEL
               optional: false
         - name: MAS_WORKSPACE_ID
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-manage
+              name: mas-fvt-sls
               key: MAS_WORKSPACE_ID
               optional: false
         # Digests
-        - name: FVT_DIGEST_HEALTH_PREPAREDATA
+        - name: FVT_DIGEST_SLS
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-health
-              key: FVT_DIGEST_HEALTH_PREPAREDATA
+              name: mas-fvt-sls
+              key: FVT_DIGEST_SLS
               optional: false
-        - name: FVT_DIGEST_HEALTH_TESTNG
+        - name: SLS_NAMESPACE
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-health
-              key: FVT_DIGEST_HEALTH_TESTNG
+              name: mas-fvt-sls
+              key: SLS_NAMESPACE
               optional: false
-        - name: FVT_DIGEST_HEALTH_PYTHON
+        - name: SLS_CHANNEL
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-health
-              key: FVT_DIGEST_HEALTH_PYTHON
-              optional: false
-        # Black and white listing
-        - name: FVT_BLACKLIST
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-health
-              key: FVT_BLACKLIST
-              optional: false
-        - name: FVT_WHITELIST
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-health
-              key: FVT_WHITELIST
+              name: mas-fvt-sls
+              key: SLS_CHANNEL
               optional: false
 
     - name: wait-for-pipelinerun
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
-      # 50 retries at 10 minute intervals = just over 8 hours
+      # 15 retries at 5 minute intervals = just over 1 hour
       command:
         - /opt/app-root/src/wait-for-tekton.sh
       env:
@@ -132,8 +119,8 @@ spec:
         - name: NAMESPACE
           value: $(context.taskRun.namespace)
         - name: DELAY
-          value: "600"
+          value: "300"
         - name: MAX_RETRIES
-          value: "50"
+          value: "15"
         - name: IGNORE_FAILURE
           value: "True"

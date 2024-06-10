@@ -1,0 +1,10 @@
+# podTemplates
+# ===================================================================================
+# This list defines the resources for Deployment: Suite.
+# The pod gets tested for scaling and affinity.
+# The containers that get tested for resources - QoS class of Guaranteed and Burstable.
+podTemplates:
+  - name: healthext-entitymgr-acc
+    containers:
+      - name: healthext-acc
+        resources: {}
