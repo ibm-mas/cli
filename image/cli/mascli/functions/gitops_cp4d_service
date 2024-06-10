@@ -300,5 +300,55 @@ function gitops_cp4d_service() {
     [ $rc -ne 0 ] && exit $rc
   fi
 
-  exit 0
+  if [[ "$CPD_SERVICE_NAME" == "wml" ]]; then
+    export SECRET_KEY_CCS_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ccs_channel#ccs_channel
+    export SECRET_KEY_CCS_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ccs_version#ccs_version
+    export SECRET_KEY_CPD_WML_PROJECT_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wml_project_name#wml_project_name
+    export SECRET_KEY_DATAREFINERY_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}datarefinery_channel#datarefinery_channel
+    export SECRET_KEY_OPENCONTENT_ELASTICSEARCH_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}opencontent_elasticsearch_channel#opencontent_elasticsearch_channel
+    export SECRET_KEY_WML_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wml_version#wml_version
+    export SECRET_KEY_WML_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wml_channel#wml_channel
+    export SECRET_KEY_WS_RUNTIMES_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ws_runtimes_channel#ws_runtimes_channel
+  fi
+  
+# Set and Validate App Names
+  # ---------------------------------------------------------------------------
+  CLUSTER_ROOT_APP="cluster.${CLUSTER_ID}"
+  INSTANCE_ROOT_APP="instance.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+  CPD_SERVICE_APP_NAME="cpd.${CPD_SERVICE_NAME}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+
+  validate_app_name "${CLUSTER_ROOT_APP}"
+  validate_app_name "${INSTANCE_ROOT_APP}"
+  validate_app_name "${CPD_SERVICE_APP_NAME}"
+
+
+  # Clone github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+  fi
+  mkdir -p ${GITOPS_INSTANCE_DIR}
+
+  # Generate ArgoApps
+  # ----------------------------------------------------------------------------
+  echo
+  echo_h2 "Generating CPD Service (${CPD_SERVICE_NAME}) Application"
+  echo "- ${CPD_SERVICE_NAME} operator"
+
+  echo "Generating IBM CPD Service file ${GITOPS_INSTANCE_DIR}/ibm-${CPD_SERVICE_NAME}.yaml"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-${CPD_SERVICE_NAME}.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-${CPD_SERVICE_NAME}.yaml
+
+
+  # Commit and push to github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+  fi
+
+
 }
