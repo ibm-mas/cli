@@ -7,7 +7,7 @@
 # a static catalog.  We only support converting from v8-amd64 to the latest static catalog
 # because any other change would be a downgrade and would result in the HEAD bundle in
 # our packages regressing, which would confuse OLM.
-MOST_RECENT_CATALOG=v8-240430-amd64
+MOST_RECENT_CATALOG=v8-240528-amd64
 
 # Choose a catalog only
 # -----------------------------------------------------------------------------
@@ -15,10 +15,10 @@ MOST_RECENT_CATALOG=v8-240430-amd64
 # the version of MAS, only the version of the catalog to update to.
 function choose_catalog_version() {
   echo "Select MAS Catalog:"
-  echo "  1) April 30 2024 Update (MAS 8.11.10 & 8.10.13)"
-  echo "  2) April 05 2024 Update (MAS 8.11.9 & 8.10.11)"
-  echo "  3) February 27 2024 Update (MAS 8.11.7 & 8.10.10)"
-  echo "  4) January 30 2024 Update (MAS 8.11.6 & 8.10.9)"
+  echo "  1) May 28 2024 Update (MAS 8.11.11 & 8.10.14)"
+  echo "  2) April 30 2024 Update (MAS 8.11.10 & 8.10.13)"
+  echo "  3) April 05 2024 Update (MAS 8.11.9 & 8.10.11)"
+  echo "  4) February 27 2024 Update (MAS 8.11.7 & 8.10.10)"
   reset_colors
 
   echo
@@ -26,16 +26,16 @@ function choose_catalog_version() {
 
   case $MAS_CATALOG_SELECTION in
     1)
-      MAS_CATALOG_VERSION=v8-240430-amd64
+      MAS_CATALOG_VERSION=v8-240528-amd64
       ;;
     2)
-      MAS_CATALOG_VERSION=v8-240405-amd64
+      MAS_CATALOG_VERSION=v8-240430-amd64
       ;;
     3)
-      MAS_CATALOG_VERSION=v8-240227-amd64
+      MAS_CATALOG_VERSION=v8-240405-amd64
       ;;
     4)
-      MAS_CATALOG_VERSION=v8-240130-amd64
+      MAS_CATALOG_VERSION=v8-240227-amd64
       ;;
     *)
       echo_warning "Invalid selection"
@@ -43,8 +43,6 @@ function choose_catalog_version() {
       ;;
   esac
 }
-
-#TODO: UPDATE BELOW
 
 # Choose a catalog and the MAS channel
 # -----------------------------------------------------------------------------
@@ -59,57 +57,57 @@ function choose_mas_version() {
   echo -e "$header"
   echo -e " $b # $b Catalog      $b  Core   $b Assist $b   IoT   $b Manage $b Monitor $b Optimizer $b Predict $b Inspection $b"
   echo -e "$divider"
-  echo -e " $b 1 $b Apr 30 2024  $b 8.11.10 $b 8.8.3  $b 8.8.7   $b 8.7.7  $b 8.11.6  $b   8.5.4   $b  8.9.2  $b   8.9.2    $b"
-  echo -e " $b 2 $b              $b 8.10.13 $b 8.7.4  $b 8.7.11  $b 8.6.13 $b 8.10.9  $b   8.4.5   $b  8.8.2  $b   8.8.3    $b"
+  echo -e " $b 1 $b May 28 2024  $b 8.11.11 $b 8.8.3  $b 8.8.9   $b 8.7.8  $b 8.11.7  $b   8.5.5   $b  8.9.2  $b   8.9.3    $b"
+  echo -e " $b 2 $b              $b 8.10.14 $b 8.7.4  $b 8.7.13  $b 8.6.14 $b 8.10.10 $b   8.4.6   $b  8.8.2  $b   8.8.4    $b"
   echo -e "$divider"
-  echo -e " $b 3 $b Apr 05 2024  $b 8.11.9  $b 8.8.2  $b 8.8.6   $b 8.7.6  $b 8.11.5  $b   8.5.3   $b  8.9.2  $b   8.9.1    $b"
-  echo -e " $b 4 $b              $b 8.10.11 $b 8.7.3  $b 8.7.10  $b 8.6.11 $b 8.10.8  $b   8.4.4   $b  8.8.2  $b   8.8.2    $b"
+  echo -e " $b 3 $b Apr 30 2024  $b 8.11.10 $b 8.8.3  $b 8.8.7   $b 8.7.7  $b 8.11.6  $b   8.5.4   $b  8.9.2  $b   8.9.2    $b"
+  echo -e " $b 4 $b              $b 8.10.13 $b 8.7.4  $b 8.7.11  $b 8.6.13 $b 8.10.9  $b   8.4.5   $b  8.8.2  $b   8.8.3    $b"
   echo -e "$divider"
-  echo -e " $b 5 $b Feb 27 2024  $b 8.11.7  $b 8.8.2  $b 8.8.5   $b 8.7.5  $b 8.11.4  $b   8.5.2   $b  8.9.2  $b   8.9.1    $b"
-  echo -e " $b 6 $b              $b 8.10.10 $b 8.7.3  $b 8.7.9   $b 8.6.10 $b 8.10.7  $b   8.4.3   $b  8.8.2  $b   8.8.2    $b"
+  echo -e " $b 5 $b Apr 05 2024  $b 8.11.9  $b 8.8.2  $b 8.8.6   $b 8.7.6  $b 8.11.5  $b   8.5.3   $b  8.9.2  $b   8.9.1    $b"
+  echo -e " $b 6 $b              $b 8.10.11 $b 8.7.3  $b 8.7.10  $b 8.6.11 $b 8.10.8  $b   8.4.4   $b  8.8.2  $b   8.8.2    $b"
   echo -e "$divider"
-  echo -e " $b 7 $b Jan 30 2024  $b 8.11.6  $b 8.8.1  $b 8.8.4   $b 8.7.4  $b 8.11.3  $b   8.5.1   $b  8.9.1  $b   8.9.0    $b"
-  echo -e " $b 8 $b              $b 8.10.9  $b 8.7.2  $b 8.7.8   $b 8.6.9  $b 8.10.6  $b   8.4.2   $b  8.8.2  $b   8.8.1    $b"
+  echo -e " $b 7 $b Feb 27 2024  $b 8.11.7  $b 8.8.2  $b 8.8.5   $b 8.7.5  $b 8.11.4  $b   8.5.2   $b  8.9.2  $b   8.9.1    $b"
+  echo -e " $b 8 $b              $b 8.10.10 $b 8.7.3  $b 8.7.9   $b 8.6.10 $b 8.10.7  $b   8.4.3   $b  8.8.2  $b   8.8.2    $b"
   echo -e "$footer"
   reset_colors
   echo
   prompt_for_input "Select Catalog Source" MAS_CHANNEL_SELECTION "1"
 
   case $MAS_CHANNEL_SELECTION in
-    # April 2024
+    # May 2024
     1)
       MAS_CHANNEL=8.11.x
-      MAS_CATALOG_VERSION=v8-240430-amd64
+      MAS_CATALOG_VERSION=v8-240528-amd64
       ;;
     2)
       MAS_CHANNEL=8.10.x
+      MAS_CATALOG_VERSION=v8-240528-amd64
+      ;;
+    # April 2024
+    3)
+      MAS_CHANNEL=8.11.x
       MAS_CATALOG_VERSION=v8-240430-amd64
       ;;
-    3)
+    4)
+      MAS_CHANNEL=8.10.x
+      MAS_CATALOG_VERSION=v8-240430-amd64
+      ;;
+    5)
       MAS_CHANNEL=8.11.x
       MAS_CATALOG_VERSION=v8-240405-amd64
       ;;
-    4)
+    6)
       MAS_CHANNEL=8.10.x
       MAS_CATALOG_VERSION=v8-240405-amd64
       ;;
     # February 2024
-    5)
-      MAS_CHANNEL=8.11.x
-      MAS_CATALOG_VERSION=v8-240227-amd64
-      ;;
-    6)
-      MAS_CHANNEL=8.10.x
-      MAS_CATALOG_VERSION=v8-240227-amd64
-      ;;
-    # January 2024
     7)
       MAS_CHANNEL=8.11.x
-      MAS_CATALOG_VERSION=v8-240130-amd64
+      MAS_CATALOG_VERSION=v8-240227-amd64
       ;;
     8)
       MAS_CHANNEL=8.10.x
-      MAS_CATALOG_VERSION=v8-240130-amd64
+      MAS_CATALOG_VERSION=v8-240227-amd64
       ;;
     # Invalid Selection
     *)
@@ -140,7 +138,7 @@ function db2_channel_selection() {
   case $MAS_CATALOG_VERSION in
     # Db2 Channel selection
     # -------------------------------------------------------------------------
-    v8-amd64|v8-240130-amd64|v8-240227-amd64|v8-240326-amd64|v8-240405-amd64|v8-240430-amd64)
+    v8-amd64|v8-240130-amd64|v8-240227-amd64|v8-240326-amd64|v8-240405-amd64|v8-240430-amd64|v8-240528-amd64)
       DB2_CHANNEL=v110509.0
       ;;
     *)
@@ -157,7 +155,7 @@ function db2_channel_selection() {
 function cp4d_channel_selection() {
   case $MAS_CATALOG_VERSION in
     # CP4D v4.6.6 was added in the September 2023 catalog update
-    v8-amd64|v8-230926-amd64|v8-231004-amd64|v8-231031-amd64|v8-231128-amd64|v8-231228-amd64|v8-240130-amd64|v8-240227-amd64|v8-240326-amd64|v8-240405-amd64|v8-240430-amd64)
+    v8-amd64|v8-230926-amd64|v8-231004-amd64|v8-231031-amd64|v8-231128-amd64|v8-231228-amd64|v8-240130-amd64|v8-240227-amd64|v8-240326-amd64|v8-240405-amd64|v8-240430-amd64|v8-240528-amd64)
       CP4D_VERSION=4.6.6
       ;;
     *)
@@ -180,7 +178,7 @@ function cert_manager_selection() {
   case $MAS_CATALOG_VERSION in
     # Cert-Manager Channel selection
     # -------------------------------------------------------------------------
-    v8-amd64|v8-240130-amd64|v8-240227-amd64|v8-240326-amd64|v8-240405-amd64|v8-240430-amd64)
+    v8-amd64|v8-240130-amd64|v8-240227-amd64|v8-240326-amd64|v8-240405-amd64|v8-240430-amd64|v8-240528-amd64)
       CERT_MANAGER_PROVIDER=redhat
       CERT_MANAGER_ACTION=install
       ;;

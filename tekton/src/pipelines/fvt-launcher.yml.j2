@@ -9,7 +9,7 @@
 # 7. app-cfg-predict ............ Triggered after Predict is installed and configured
 # 8. app-cft-visualinspection ... Triggered after Visual Inspection is installed and configured
 
-# TODO: Manage component sub-pipelines need to be integrated (fvt-manage-civil, fvt-manage-health, fvt-manage-is)
+# TODO: Manage component sub-pipelines need to be integrated (fvt-manage-civil, fvt-manage-is)
 # TODO: Mobile sub-pipelines need to be integrated (fvt-mobile) .. should this be fvt-manage-mobile, is it testing anything mobile that is outside scope of Manage application?
 
 apiVersion: tekton.dev/v1beta1
@@ -103,23 +103,21 @@ spec:
           operator: in
           values: ["true", "True"]
 
-# See: https://jsw.ibm.com/browse/IBMSLS-17
-#    - name: launchfvt-sls
-#      taskRef:
-#        kind: Task
-#        name: mas-launchfvt-sls
-#      params:
-#        - name: image_pull_policy
-#          value: $(params.image_pull_policy)
-#        - name: pipelinerun_name
-#          value: "$(params.mas_instance_id)-fvt-sls"
-#      when:
-#        - input: $(params.launchfvt_core)
-#          operator: in
-#          values: ["true", "True"]
-#      runAfter:
-#        - waitfor-suite-verify
-#
+    - name: launchfvt-sls
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-sls
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-sls"
+      when:
+        - input: $(params.launchfvt_core)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-suite-verify
 
     - name: launchfvt-core
       taskRef:
@@ -156,8 +154,7 @@ spec:
           values: ["true", "True"]
       runAfter:
         - launchfvt-core
-        # See: https://jsw.ibm.com/browse/IBMSLS-17
-        # - launchfvt-sls
+        - launchfvt-sls
 
 
     # 2. Application FVT - Assist
@@ -743,7 +740,50 @@ spec:
           values: ["true", "True"]
       runAfter:
         - launchfvt-visualinspection
-
+    
+    # Last Sync Point
+    # -------------------------------------------------------------------------
+    # Guarantee installation pipeline ran till the end;
+    # In other words, guarantee sync-install pipeline has install_status key filled
+    # 
+    # Note: this task will start once all the FVTs are approved and will start at the
+    # same time install's post-verify starts. It means its timeout must be higher than
+    # post-verify + sync-install, which will set the flag needed to finalize this fvt-launcher
+    # - Escape Route: none
+    # - Ignore Failures: false
+    # -------------------------------------------------------------------------
+    - name: waitfor-installation
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: sync-install
+        - name: configmap_key
+          value: INSTALL_STATUS
+        - name: configmap_target_value
+          value: Completed
+        # 25 retries at 5 minute intervals = 2 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "25"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-mobile
+        - approval-assist
+        - approval-optimizer
+        - approval-predict # Infers Manage, Monitor and IoT completed
+        - approval-visualinspection
 
   finally:
     # Collect must-gather
@@ -754,7 +794,7 @@ spec:
         name: mas-devops-must-gather
       params:
         - name: base_output_dir
-          value: "/workspace/mustgather/$(context.pipelineRun.name)"
+          value: "/mustgather/$(context.pipelineRun.name)"
       workspaces:
         - name: mustgather
           workspace: shared-mustgather

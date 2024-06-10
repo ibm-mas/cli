@@ -51,6 +51,7 @@ function install_pipelinerun_prepare() {
   oc -n $PIPELINES_NS delete secret pipeline-additional-configs --ignore-not-found=true &>> $LOGFILE
   oc -n $PIPELINES_NS delete secret pipeline-sls-entitlement --ignore-not-found=true &>> $LOGFILE
   oc -n $PIPELINES_NS delete secret pipeline-pod-templates --ignore-not-found=true &>> $LOGFILE
+  oc -n $PIPELINES_NS delete secret pipeline-certificates --ignore-not-found=true &>> $LOGFILE
 
   # Create new secrets
   if [ "$LOCAL_MAS_CONFIG_DIR" != "" ]; then
@@ -61,6 +62,9 @@ function install_pipelinerun_prepare() {
   fi
 
   oc -n $PIPELINES_NS create secret generic pipeline-sls-entitlement --from-file=$SLS_LICENSE_FILE_LOCAL &>> $LOGFILE
+
+  # pipeline-certificates must exist. It could be an empty secret at the first place before customer configure it
+  oc -n $PIPELINES_NS create secret generic pipeline-certificates &>> $LOGFILE 
 
   if [ "MAS_POD_TEMPLATES_DIR" != "" ]; then
     oc -n $PIPELINES_NS create secret generic pipeline-pod-templates \
@@ -93,6 +97,8 @@ function install_pipelinerun_prepare() {
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-manage-manageapp.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-manage-manageworkspace.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-manage-imagestitching.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-manage-manageaccelerators.yml} \
+      --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-manage-healthextaccelerator.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-manage-slackproxy.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-mas-manage-healthextworkspace.yml} \
       --from-file=${MAS_POD_TEMPLATES_DIR:+$MAS_POD_TEMPLATES_DIR/ibm-sls-licenseservice.yml} &>> $LOGFILE
