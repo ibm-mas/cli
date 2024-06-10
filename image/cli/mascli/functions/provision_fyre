@@ -140,7 +140,7 @@ function provision_fyre_interactive() {
       export OCP_VERSION=4.12
       ;;
     2|4.14)
-      export OCP_VERSION=4.14.12
+      export OCP_VERSION=4.14
       ;;
     *)
       # Print out a warning as there could be a typo

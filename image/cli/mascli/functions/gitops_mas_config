@@ -50,11 +50,11 @@ IDP/LDAP Configuration (required if MAS_CONFIG_TYPE is "ldap-default"):
   --ldap-bind-dn ${COLOR_YELLOW}LDAP_BIND_DN${TEXT_RESET}                     DN for LDAP server authentication
   --ldap-bind-password ${COLOR_YELLOW}LDAP_BIND_PASSWORD${TEXT_RESET}         Password for LDAP server authenticaiton
 
-JDBC Configuration (required if MAS_CONFIG_TYPE is "jdbc"):              
-  --tls-version ${COLOR_YELLOW}TLS_VERSION${TEXT_RESET}                 TLS Version (defaults to TLSv1.2)
-  --db2-internal      ${COLOR_YELLOW}DB2_INTERNAL${TEXT_RESET}          Set true if DB2 is running in same cluster as MAS (defaults to true)
-  --db2-instance-name ${COLOR_YELLOW}DB2_INSTANCE_NAME${TEXT_RESET}     Name of the DB2 instance e.g. db2wh-<masinstid>-iot, db2wh-<masinstid>-manage
-  --db2-dbname        ${COLOR_YELLOW}DB2_DBNAME${TEXT_RESET}            DB2 database name (defaults to BLUDB)
+JDBC Configuration (required if MAS_CONFIG_TYPE is "jdbc"):
+  --jdbc-type ${COLOR_YELLOW}JDBC_TYPE${TEXT_RESET}                           Set to 'incluster-db2' when wanting to use the gitops configured, via gitops-db2u-database, db2u cluster (defaults to incluster-db2)
+  --jdbc-instance-name ${COLOR_YELLOW}JDBC_INSTANCE_NAME${TEXT_RESET}         The JDBC instance name to use. Required for all JDBC_TYPE's
+  --jdbc-connection-url ${COLOR_YELLOW}JDBC_CONNECTION_URL${TEXT_RESET}       The JDBC connection URL. Required when JDBC_TYPE is not incluster-db2
+  --jdbc-certificate-file ${COLOR_YELLOW}JDBC_CERTIFICATE_FILE${TEXT_RESET}   Path to file containing CA Certificate for JDBC server. Required when JDBC_TYPE is not incluster-db2
 
 SMTP Configuration (required if MAS_CONFIG_TYPE is "smtp"): 
   --smtp-display-name ${COLOR_YELLOW}SMTP_DISPLAY_NAME${TEXT_RESET}                                       Display name for SmtpCfg resource
@@ -179,18 +179,18 @@ function gitops_mas_config_noninteractive() {
         ;;
 
       # JDBC
-      --tls-version)
-        export TLS_VERSION=$1 && shift
+      --jdbc-type)
+        export JDBC_TYPE=$1 && shift
         ;;
-      --db2-internal)
-        export DB2_INTERNAL=$1 && shift
+      --jdbc-instance-name)
+        export JDBC_INSTANCE_NAME=$1 && shift
         ;;
-      --db2-instance-name)
-        export DB2_INSTANCE_NAME=$1 && shift
+      --jdbc-connection-url)
+        export JDBC_CONNECTION_URL=$1 && shift
         ;;
-      --db2-dbname)
-        export DB2_DBNAME=$1 && shift
-        ;;
+      --jdbc-certificate-file)
+        export JDBC_CERTIFICATE_FILE=$1 && shift
+        ;; 
 
       # SMTP
       --smtp-display-name)
@@ -347,14 +347,17 @@ function gitops_mas_config_noninteractive() {
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
-      if [[ -z $DB2_DBNAME ]]; then
-        export DB2_DBNAME=BLUDB
+      export JDBC_TYPE=${JDBC_TYPE:-incluster-db2}
+      if [[ -z $JDBC_INSTANCE_NAME ]]; then
+        export JDBC_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
       fi
-      [[ -z "$DB2_INSTANCE_NAME" ]] && gitops_mas_config_help "DB2_INSTANCE_NAME is not set"
-      export DB2_NAMESPACE=db2u
-      export TLS_VERSION=${TLS_VERSION:-"TLSv1.2"}
-      # by default db2 internal is true, set it to false if db2 is external
-      export DB2_INTERNAL=${DB2_INTERNAL:-"true"}
+      if [ "${JDBC_TYPE}" == "incluster-db2" ]; then
+        [[ -n "$JDBC_CONNECTION_URL" ]] && gitops_mas_config_help "JDBC_CONNECTION_URL is set when JDBC_TYPE is incluster-db2"
+      else
+        [[ -z "$JDBC_INSTANCE_NAME" ]] && gitops_mas_config_help "JDBC_INSTANCE_NAME is not set"
+        [[ -z "$JDBC_CONNECTION_URL" ]] && gitops_mas_config_help "JDBC_CONNECTION_URL is not set"
+        [[ -z "$JDBC_CERTIFICATE_FILE" ]] && gitops_mas_config_help "JDBC_CERTIFICATE_FILE is not set"
+      fi
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "smtp" ]; then
@@ -377,7 +380,9 @@ function gitops_mas_config_noninteractive() {
   # (i.e. to resolve the paths of the secrets we need to delete)
   if [ "${CONFIG_ACTION}" == "remove" ]; then
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
-      [[ -z "$DB2_INSTANCE_NAME" ]] && gitops_mas_config_help "DB2_INSTANCE_NAME is not set"
+      if [[ -z $JDBC_INSTANCE_NAME ]]; then
+        export JDBC_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+      fi
     fi
   fi
 
@@ -527,18 +532,30 @@ function gitops_mas_config() {
       echo_reset_dim "LDAP Server baseDN ............................. ${COLOR_MAGENTA}${LDAP_BASEDN}"
       echo_reset_dim "LDAP UserId Map ................................ ${COLOR_MAGENTA}${LDAP_USERID_MAP}"
       echo_reset_dim "Path to LDAP Cert File  ........................ ${COLOR_MAGENTA}${LDAP_CERTIFICATE_FILE}"
+      if [ -f ${LDAP_CERTIFICATE_FILE} ]; then
+        echo_reset_dim "LDAP Cert File exists .......................... ${COLOR_MAGENTA}True"
+      else
+        echo_reset_dim "LDAP Cert File exists .......................... ${COLOR_MAGENTA}False"
+      fi
       echo_reset_dim "ldap Server Bind DN ............................ ${COLOR_MAGENTA}${LDAP_BIND_DN}"
       echo_reset_dim "ldap Server Bind Password ...................... ${COLOR_MAGENTA}${LDAP_BIND_PASSWORD:0:4}<snip>"
       reset_colors
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
-      echo "${TEXT_DIM}"
-      echo_reset_dim "DB2_INSTANCE_NAME ....................... ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
-      echo_reset_dim "DB2_NAMESPACE ........................... ${COLOR_MAGENTA}$DB2_NAMESPACE"
-      echo_reset_dim "DB2_DBNAME  ............................. ${COLOR_MAGENTA}${DB2_DBNAME}"
-      echo_reset_dim "TLS_VERSION ............................. ${COLOR_MAGENTA}${TLS_VERSION}"
-      reset_colors
+      echo_reset_dim "JDBC_TYPE ...................................... ${COLOR_MAGENTA}${JDBC_TYPE}"
+      echo_reset_dim "JDBC_INSTANCE_NAME ............................. ${COLOR_MAGENTA}${JDBC_INSTANCE_NAME}"
+      if [ "${JDBC_TYPE}" != "incluster-db2" ]; then
+        echo "${TEXT_DIM}"
+        echo_reset_dim "JDBC_CONNECTION_URL ............................ ${COLOR_MAGENTA}${JDBC_CONNECTION_URL}"
+        echo_reset_dim "Path to JDBC Cert File  ........................ ${COLOR_MAGENTA}${JDBC_CERTIFICATE_FILE}"
+        if [ -f ${JDBC_CERTIFICATE_FILE} ]; then
+          echo_reset_dim "JDBC Cert File exists .......................... ${COLOR_MAGENTA}True"
+        else
+          echo_reset_dim "JDBC Cert File exists .......................... ${COLOR_MAGENTA}False"
+        fi
+        reset_colors
+      fi
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "smtp" ]; then
@@ -675,32 +692,48 @@ function gitops_mas_config() {
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
       sm_login
 
-      # Create a secret in SM containing the username/password for this specific DB2 database instance.
-      # A presync hook on the jdbccfg chart will take care of ensuring the user added to the database's LDAP registry
-      export DB2_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2${SECRETS_KEY_SEPERATOR}${DB2_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}credentials
-      echo_reset_dim "DB2_CREDENTIALS_SECRET_ID ......................... ${COLOR_MAGENTA}$DB2_CREDENTIALS_SECRET_ID"
+      echo_reset_dim "JDBC_TYPE ................................. ${COLOR_MAGENTA}$JDBC_TYPE"
 
-      export DB2_SECRET_FILE=$TEMP_DIR/db2-secret.json
-      export DB2_LDAP_USERNAME=db2_${MAS_APP_ID}
-      echo_reset_dim "DB2_LDAP_USERNAME ......................... ${COLOR_MAGENTA}$DB2_LDAP_USERNAME"
-      export DB2_LDAP_PASSWORD=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20`
-      sm_get_secret_file ${DB2_CREDENTIALS_SECRET_ID} $DB2_SECRET_FILE
-      TEMP_DB2_LDAP_PASSWORD=$(jq -r .password $DB2_SECRET_FILE)
-      if [[ -n ${TEMP_DB2_LDAP_PASSWORD} ]]; then
-        export DB2_LDAP_PASSWORD=${TEMP_DB2_LDAP_PASSWORD}
-        echo_reset_dim "DB2_LDAP_PASSWORD ......................... ${COLOR_MAGENTA}${DB2_LDAP_PASSWORD:0:8}<snip> is available in the secret, using that value"
+      export JDBC_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}credentials
+      echo_reset_dim "JDBC_CREDENTIALS_SECRET_ID ................ ${COLOR_MAGENTA}$JDBC_CREDENTIALS_SECRET_ID"
+
+      if [ "${JDBC_TYPE}" == "incluster-db2" ]; then
+        # Create a secret in SM containing the username/password for this specific DB2 database instance.
+        # A presync hook on the jdbccfg chart will take care of ensuring the user added to the database's LDAP registry
+        export DB2_SECRET_FILE=$TEMP_DIR/db2-secret.json
+        export JDBC_USERNAME=db2_${MAS_APP_ID}
+        echo_reset_dim "JDBC_USERNAME ............................. ${COLOR_MAGENTA}$JDBC_USERNAME"
+        export JDBC_PASSWORD=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20`
+        sm_get_secret_file ${JDBC_CREDENTIALS_SECRET_ID} $DB2_SECRET_FILE
+        TEMP_DB2_LDAP_PASSWORD=$(jq -r .password $DB2_SECRET_FILE)
+        if [[ -n ${TEMP_DB2_LDAP_PASSWORD} ]]; then
+          export JDBC_PASSWORD=${TEMP_DB2_LDAP_PASSWORD}
+          echo_reset_dim "JDBC_PASSWORD ........................... ${COLOR_MAGENTA}${JDBC_PASSWORD:0:8}<snip> is available in the secret, using that value"
+        fi
+        echo_reset_dim "JDBC_PASSWORD ............................. ${COLOR_MAGENTA}${JDBC_PASSWORD:0:8}<snip>"
+        sm_update_secret $JDBC_CREDENTIALS_SECRET_ID "{ \"username\": \"$JDBC_USERNAME\", \"password\": \"$JDBC_PASSWORD\"}"
       fi
-      echo_reset_dim "DB2_LDAP_PASSWORD ......................... ${COLOR_MAGENTA}${DB2_LDAP_PASSWORD:0:8}<snip>"
 
-      sm_update_secret $DB2_CREDENTIALS_SECRET_ID "{ \"username\": \"$DB2_LDAP_USERNAME\", \"password\": \"$DB2_LDAP_PASSWORD\"}"
-      export SECRET_KEY_DB2_USERNAME=${DB2_CREDENTIALS_SECRET_ID}#username
-      export SECRET_KEY_DB2_PASSWORD=${DB2_CREDENTIALS_SECRET_ID}#password
+      export SECRET_KEY_JDBC_USERNAME=${JDBC_CREDENTIALS_SECRET_ID}#username
+      export SECRET_KEY_JDBC_PASSWORD=${JDBC_CREDENTIALS_SECRET_ID}#password
 
-      # This secret is created by a PostSync Job in the ibm-db2u-database chart
-      export DB2_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2${SECRETS_KEY_SEPERATOR}${DB2_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
-      export SECRET_KEY_DB2_CA_PEM=${DB2_CONFIG_SECRET_ID}#ca_b64
-      export SECRET_KEY_DB2_TLS_SERVICEPORT=${DB2_CONFIG_SECRET_ID}#tls_serviceport
+      if [ "${JDBC_TYPE}" == "incluster-db2" ]; then
+        # This secret is created by a PostSync Job in the ibm-db2u-database chart
+        export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
+        export SECRET_KEY_DB2_DBNAME=${JDBC_CONFIG_SECRET_ID}#db2_dbname
+        export SECRET_KEY_DB2_NAMESPACE=${JDBC_CONFIG_SECRET_ID}#db2_namespace
+      else
+        # This secret we are creating here
+        export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
+        export JDBC_CERTIFICATE_CONTENT_B64=$(cat $JDBC_CERTIFICATE_FILE | base64 -w0)
+        sm_update_secret $JDBC_CONFIG_SECRET_ID "{ \"jdbc_connection_url\": \"${JDBC_CONNECTION_URL}\", \"jdbc_instance_name\": \"${JDBC_INSTANCE_NAME}\", \"ca_b64\": \"${JDBC_CERTIFICATE_CONTENT_B64}\" }"
+        echo_reset_dim "JDBC_INSTANCE_NAME ........................ ${COLOR_MAGENTA}$JDBC_INSTANCE_NAME"
+        echo_reset_dim "JDBC_CONNECTION_URL ....................... ${COLOR_MAGENTA}${JDBC_CONNECTION_URL}"
+      fi
 
+      export SECRET_KEY_JDBC_CONNECTION_URL=${JDBC_CONFIG_SECRET_ID}#jdbc_connection_url
+      export SECRET_KEY_JDBC_CERTIFICATE_CONTENT=${JDBC_CONFIG_SECRET_ID}#ca_b64
+      export SECRET_KEY_JDBC_INSTANCE_NAME=${JDBC_CONFIG_SECRET_ID}#jdbc_instance_name
     fi
   
     # Source: gitops_suite_smtp_config
@@ -775,8 +808,8 @@ function gitops_mas_config() {
 
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
       sm_login
-      export DB2_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2${SECRETS_KEY_SEPERATOR}${DB2_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}credentials
-      sm_delete_secret $DB2_CREDENTIALS_SECRET_ID
+      export JDBC_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}credentials
+      sm_delete_secret $JDBC_CREDENTIALS_SECRET_ID
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "smtp" ]; then

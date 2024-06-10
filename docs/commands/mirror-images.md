@@ -33,6 +33,7 @@ Usage
 - `--mirror-hputilities` Mirror images for IBM Maximo Health & Predict Utilities
 - `--mirror-iot` Mirror images for IBM Maximo IoT
 - `--mirror-manage` Mirror images for IBM Maximo Manage
+- `--mirror-icd` Mirror image for IBM Maximo IT (Separately entitled IBM Maximo Manage extension)
 - `--mirror-monitor` Mirror images for IBM Maximo Monitor
 - `--mirror-optimizer` Mirror images for IBM Maximo Optimizer
 - `--mirror-predict` Mirror images for IBM Maximo Predict
@@ -43,6 +44,7 @@ Usage
 - `--mirror-wsl` Mirror images for IBM Watson Studio Local
 - `--mirror-wml` Mirror images for IBM Watson Machine Learning
 - `--mirror-spark` Mirror images for IBM Analytics Engine (Spark)
+- `--mirror-cognos` Mirror images for IBM Cognos Analytics
 
 ### Content Selection (Other Dependencies)
 - `--mirror-cfs` Mirror images for IBM Cloud Pak Foundation Services
@@ -53,6 +55,8 @@ Usage
 - `--mirror-db2` Mirror images for IBM Db2
 - `--mirror-appconnect` Mirror images for IBM AppConnect
 
+### Content Selection (All images included):
+- `--mirror-everything` Mirror all MAS related images (including dependencies)
 
 ### Other Options
 - `--no-confirm` Mirror images without prompting for confirmation

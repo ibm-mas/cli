@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-db2u-config
+  name: gitops-jdbc-config
 spec:
   params:
     - name: cluster_name
@@ -33,10 +33,19 @@ spec:
     - name: mas_workspace_id
       type: string
       default: ""
-    - name: tls_version
+    - name: jdbc_type
       type: string
+      default: incluster-db2
+    - name: jdbc_instance_name
+      type: string
+    - name: jdbc_connection_url
+      type: string
+      default: ""
+    - name: jdbc_certificate_file
+      type: string
+      default: ""
   stepTemplate:
-    name: gitops-db2u-config
+    name: gitops-jdbc-config
     env:
       - name: CLUSTER_ID
         value: $(params.cluster_name)
@@ -66,8 +75,14 @@ spec:
         value: $(params.mas_config_scope)
       - name: MAS_WORKSPACE_ID
         value: $(params.mas_workspace_id)
-      - name: TLS_VERSION
-        value: $(params.tls_version)
+      - name: JDBC_TYPE
+        value: $(params.jdbc_type)
+      - name: JDBC_INSTANCE_NAME
+        value: $(params.jdbc_instance_name)
+      - name: JDBC_CONNECTION_URL
+        value: $(params.jdbc_connection_url)
+      - name: JDBC_CERTIFICATE_FILE
+        value: $(params.jdbc_certificate_file)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -96,16 +111,15 @@ spec:
           --config-action upsert \
           --mas-config-scope "$MAS_CONFIG_SCOPE" \
           --mas-config-type jdbc \
-          --dir /tmp/init-db2u-jdbc-config-$MAS_APP_ID \
-          --db2-instance-name "db2wh-$MAS_INSTANCE_ID-$MAS_APP_ID" \
-          --tls-version "$TLS_VERSION"
+          --dir /tmp/init-jdbc-config-$MAS_APP_ID
 
         exit $?
       command:
         - /bin/sh
         - -c
-      name: gitops-db2u-config
-      imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
+      name: gitops-jdbc-config
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:9.4.0-pre.gitops
   workspaces:
     - name: configs
+    - name: shared-gitops-configs

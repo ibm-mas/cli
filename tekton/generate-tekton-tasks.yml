@@ -58,6 +58,8 @@
         - fvt-manage
         - fvt-mobile
         - fvt-manage-directprint
+        - fvt-manage-adhoc-report
+        - fvt-manage-birt-report
         - fvt-manage-last-phase
         - fvt-manage-pytest
         - fvt-monitor
@@ -73,9 +75,9 @@
       with_items:
         - launchfvt-assist
         - launchfvt-core
+        - launchfvt-sls
         - launchfvt-iot
         - launchfvt-manage
-        - launchfvt-manage-health
         - launchfvt-manage-is
         - launchfvt-mobile
         - launchfvt-monitor
@@ -156,7 +158,6 @@
         - gitops-cp4d
         - gitops-cp4d-service
         - gitops-db2u
-        - gitops-db2u-config
         - gitops-db2u-database
         - gitops-delete-kafka-config
         - gitops-deprovision-app-config
@@ -178,6 +179,7 @@
         - gitops-deprovision-suite
         - gitops-dro
         - gitops-efs
+        - gitops-jdbc-config
         - gitops-kafka
         - gitops-kafka-config
         - gitops-license
