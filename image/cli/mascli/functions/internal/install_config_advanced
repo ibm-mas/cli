@@ -3,42 +3,60 @@
 function install_config_advanced() {
   echo
   echo_h2 "Advanced Settings"
-  echo "${TEXT_DIM}Customize cluster monitoring storage settings, ingress certificate secret, workload scaling profile and default namespaces for MAS dependencies."
+  echo "${TEXT_DIM}You can configure the following optional settings for the installation:"
+  echo "  - Workload scaling policies"
+  echo "  - Certificate authority trust"
+  echo "  - Grafana storage"
+  echo "  - Target namespaces"
+  echo "  - Cluster ingress secret override"
   echo
   reset_colors
   if prompt_for_confirm "Configure Advanced Settings?"; then
     echo
     install_config_workload_scale
 
+    echo
+    echo_h3 "Certificate Authority Trust"
+    echo "${TEXT_DIM}By default, Maximo Application Suite is configured to trust well-known certificate authoritories, you can disable this so that it will only trust the CAs that you explicitly define"
+    prompt_for_confirm_default_yes "Configure Maximo Application Suite to trust default CAs?" MAS_TRUST_DEFAULT_CAS
+
     if [[ "$GRAFANA_ACTION" == "install" ]]; then
-      prompt_for_input "+ Grafana Storage Size" GRAFANA_INSTANCE_STORAGE_SIZE "10Gi"
+      echo
+      echo_h3 "Configure Grafana Storage"
+      prompt_for_input "Grafana Storage Size" GRAFANA_INSTANCE_STORAGE_SIZE "10Gi"
       echo
     fi
 
-    if prompt_for_confirm "Change default install namespaces?"; then
-      if [[ "$DB2_ACTION_SYSTEM" == "install" || "$DB2_ACTION_MANAGE" == "install" ]]; then
-        prompt_for_input "+ Db2 Namespace" DB2_NAMESPACE "db2u"
-      fi
-      if [[ "$KAFKA_ACTION_SYSTEM" == "install" && ("$KAFKA_PROVIDER" == "strimzi" || "$KAFKA_PROVIDER" == "redhat") ]]; then
-        if [[ "$KAFKA_PROVIDER" == "strimzi" ]]; then
-          KAFKA_NAMESPACE="strimzi"
-        else
-          KAFKA_NAMESPACE="amq-streams"
-        fi
-        prompt_for_input "+ Kafka Namespace" KAFKA_NAMESPACE $KAFKA_NAMESPACE
-      fi
-      if [[ "$GRAFANA_ACTION" == "install" ]]; then
-        prompt_for_input "+ Grafana Namespace" GRAFANA_V5_NAMESPACE "grafana5"
-      fi
-      prompt_for_input "+ MongoDB Namespace" MONGODB_NAMESPACE "mongoce"
-    fi
     echo
+    echo_h3 "Configure Target Namespaces"
+    if [[ "$DB2_ACTION_SYSTEM" == "install" || "$DB2_ACTION_MANAGE" == "install" ]]; then
+      prompt_for_input "+ Db2 Namespace" DB2_NAMESPACE "db2u"
+    fi
 
-    if prompt_for_confirm "Change default cluster ingress certificate secret name?"; then
+    if [[ "$KAFKA_ACTION_SYSTEM" == "install" && ("$KAFKA_PROVIDER" == "strimzi" || "$KAFKA_PROVIDER" == "redhat") ]]; then
+      if [[ "$KAFKA_PROVIDER" == "strimzi" ]]; then
+        KAFKA_NAMESPACE="strimzi"
+      else
+        KAFKA_NAMESPACE="amq-streams"
+      fi
+      prompt_for_input "+ Kafka Namespace" KAFKA_NAMESPACE $KAFKA_NAMESPACE
+    fi
+
+    if [[ "$GRAFANA_ACTION" == "install" ]]; then
+      prompt_for_input "+ Grafana Namespace" GRAFANA_V5_NAMESPACE "grafana5"
+    fi
+
+    prompt_for_input "+ MongoDB Namespace" MONGODB_NAMESPACE "mongoce"
+
+    echo
+    echo_h3 "Cluster Ingress Secret Override"
+    echo "${TEXT_DIM}In most OpenShift clusters the installation is able to automatically locate the default ingress certificate, however in some configurations it is necessary to manually configure the name of the secret."
+    echo "${TEXT_DIM}Unless you see an error during the ocp-verify stage indicating that the secret can not be determined you do not need to set this."
+
+    if prompt_for_confirm "Override default cluster ingress certificate secret?"; then
         prompt_for_input "+ Cluster ingress certificate secret name" OCP_INGRESS_TLS_SECRET_NAME $OCP_INGRESS_TLS_SECRET_NAME
     fi
 
-    prompt_for_confirm_default_yes "Trust Default CAs?" MAS_TRUST_DEFAULT_CAS
   else
     clear_mas_workload_scale_envs
   fi

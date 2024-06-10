@@ -99,7 +99,7 @@ while [[ "$KEY_VALUE" == "" && "$RETRIES_USED" -le "$MAX_RETRIES" ]]; do
   sleep $DELAY
   KEY_VALUE=$(oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o jsonpath="{.data.${CONFIGMAP_KEY}}" 2> /dev/null)
 
-  if [[ "${KEY_VALUE}" != "" && -n "${ESCAPE_CONFIGMAP_NAME}" ]]; then
+  if [[ "${KEY_VALUE}" == "" && -n "${ESCAPE_CONFIGMAP_NAME}" ]]; then
     # Check if the entire install pipeline has stopped so we can exit early
     ESCAPE_VALUE=$(oc -n ${NAMESPACE} get configmap/${ESCAPE_CONFIGMAP_NAME} -o jsonpath="{.data.${ESCAPE_CONFIGMAP_KEY}}" 2> /dev/null)
     if [[ "$ESCAPE_VALUE" != "" ]]; then
