@@ -191,7 +191,7 @@ spec:
         mkdir -p $TARGET_LOCAL_DIR
         cd $TARGET_LOCAL_DIR
         echo "git: Cloning $GITHUB_HOST:$TARGET_GITHUB_ORG/$TARGET_GITHUB_REPO branch $TARGET_GIT_BRANCH into $TARGET_LOCAL_DIR working directory"
-        git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$TARGET_GITHUB_ORG/$TARGET_GITHUB_REPO.git -b $TARGET_GIT_BRANCH || exit 
+        git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$TARGET_GITHUB_ORG/$TARGET_GITHUB_REPO.git -b $TARGET_GIT_BRANCH || exit
 
         export SOURCE_LOCAL_DIR="/tmp/source_repo"
         mkdir -p $SOURCE_LOCAL_DIR
@@ -203,6 +203,26 @@ spec:
 
         echo "copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME"
         cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME
+
+        echo "gitops-mas-initiator:: DNS_PROVIDER_CONTROL_IDEN=${DNS_PROVIDER_CONTROL_IDEN} MANUAL_CERTS_CONTROL_FLAG=${MANUAL_CERTS_CONTROL_FLAG}"
+        if [[ "${MANUAL_CERTS_CONTROL_FLAG}" == "True" ]]; then
+
+          mkdir -p $TARGET_LOCAL_DIR/manual-certs
+          cd $TARGET_LOCAL_DIR/manual-certs
+          git clone https://github.ibm.com/maximoappsuite/devops-configs.git -b master || exit
+
+          # Assume fvtsaas mas_instance here
+          mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/manual-certs
+
+          # Copy manual certs of fvtsaas mas_instance 
+          cp -r $TARGET_LOCAL_DIR/manual-certs/devops-configs/certs/fvtsaas/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/manual-certs
+
+          # Invoke create-aggregate-manual-certs.sh to generate combined_manual_certs.yaml
+          $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/create-aggregate-manual-certs.sh  $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/manual-certs
+
+          # Remove manual-certs folder
+          rm -rf $TARGET_LOCAL_DIR/manual-certs
+        fi
 
         cd $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO
 
@@ -227,7 +247,6 @@ spec:
         export CURRENT_DATE=$(date +"%u")
         echo "gitops-mas-initiator: DNS_PROVIDER=${DNS_PROVIDER} CURRENT_DATE=${CURRENT_DATE}"
 
-        echo "gitops-mas-initiator:: DNS_PROVIDER_CONTROL_IDEN=${DNS_PROVIDER_CONTROL_IDEN} MANUAL_CERTS_CONTROL_FLAG=${MANUAL_CERTS_CONTROL_FLAG}"
         # Remove dns node when DNS_PROVIDER_CONTROL_IDEN is not set
         if [ "${DNS_PROVIDER_CONTROL_IDEN}" == "" ]; then
           yq -iY 'del(.dns)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
