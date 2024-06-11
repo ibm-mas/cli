@@ -55,3 +55,8 @@ ibm_mas_suite:
 {%- if TLS_KEY is defined and TLS_KEY !='' %}
   tls_key: {{ TLS_KEY }}
 {%- endif %}
+
+{% if MANUAL_CERTS is defined and MANUAL_CERTS !='' %}
+  manual_certs:
+    {{ MANUAL_CERTS | indent(4) }}
+{% endif %}

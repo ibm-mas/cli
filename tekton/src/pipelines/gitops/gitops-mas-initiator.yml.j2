@@ -89,9 +89,14 @@ spec:
     - name: secrets_key_seperator
       type: string
       default: "/"
-    - name: deployment_day_with_cis
+
+    - name: manual_certs_control_flag
       type: string
       default: ""
+    - name: dns_provider_control_iden
+      type: string
+      default: ""
+
     - name: cli_version
       type: string
       default: ""
@@ -180,8 +185,10 @@ spec:
           value: $(params.mas_app_channel_visualinspection)
         - name: github_pat
           value: $(params.github_pat)
-        - name: deployment_day_with_cis
-          value: $(params.deployment_day_with_cis)
+        - name: manual_certs_control_flag
+          value: $(params.manual_certs_control_flag)
+        - name: dns_provider_control_iden
+          value: $(params.dns_provider_control_iden)
         - name: cli_version
           value: $(params.cli_version)
         - name: fvt_ansible_version
