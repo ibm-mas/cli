@@ -64,7 +64,10 @@ spec:
     - name: ibmcloud_apikey
       type: string
       default: ""
-    - name: deployment_day_with_cis
+    - name: manual_certs_control_flag
+      type: string
+      default: "True"
+    - name: dns_provider_control_iden
       type: string
       default: ""
     - name: cli_version
@@ -138,8 +141,10 @@ spec:
         value: $(params.secrets_key_seperator)
       - name: IBMCLOUD_APIKEY
         value: $(params.ibmcloud_apikey)
-      - name: DEPLOYMENT_DAY_WITH_CIS
-        value: $(params.deployment_day_with_cis)
+      - name: MANUAL_CERTS_CONTROL_FLAG
+        value: $(params.manual_certs_control_flag)
+      - name: DNS_PROVIDER_CONTROL_IDEN
+        value: $(params.dns_provider_control_iden)
       - name: CLI_VERSION
         value: $(params.cli_version)
       - name: FVT_ANSIBLE_VERSION
@@ -186,7 +191,7 @@ spec:
         mkdir -p $TARGET_LOCAL_DIR
         cd $TARGET_LOCAL_DIR
         echo "git: Cloning $GITHUB_HOST:$TARGET_GITHUB_ORG/$TARGET_GITHUB_REPO branch $TARGET_GIT_BRANCH into $TARGET_LOCAL_DIR working directory"
-        git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$TARGET_GITHUB_ORG/$TARGET_GITHUB_REPO.git -b $TARGET_GIT_BRANCH || exit 
+        git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$TARGET_GITHUB_ORG/$TARGET_GITHUB_REPO.git -b $TARGET_GIT_BRANCH || exit
 
         export SOURCE_LOCAL_DIR="/tmp/source_repo"
         mkdir -p $SOURCE_LOCAL_DIR
@@ -198,6 +203,30 @@ spec:
 
         echo "copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME"
         cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME
+
+        echo "gitops-mas-initiator:: DNS_PROVIDER_CONTROL_IDEN=${DNS_PROVIDER_CONTROL_IDEN} MANUAL_CERTS_CONTROL_FLAG=${MANUAL_CERTS_CONTROL_FLAG}"
+        if [[ "${MANUAL_CERTS_CONTROL_FLAG}" == "True" ]]; then
+
+          mkdir -p $TARGET_LOCAL_DIR/manual-certs
+          cd $TARGET_LOCAL_DIR/manual-certs
+
+          git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$SOURCE_GITHUB_ORG/devops-configs.git -b master || exit
+
+          # Assume fvtsaas mas_instance here
+          mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/manual-certs
+
+          # Copy manual certs of fvtsaas mas_instance 
+          cp -r $TARGET_LOCAL_DIR/manual-certs/devops-configs/certs/fvtsaas/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/manual-certs
+
+          # Invoke create-aggregate-manual-certs.sh to generate combined_manual_certs.yaml
+
+          chmod +x $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/create-aggregate-manual-certs.sh
+
+          $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/create-aggregate-manual-certs.sh  $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/manual-certs
+
+          # Remove manual-certs folder
+          rm -rf $TARGET_LOCAL_DIR/manual-certs
+        fi
 
         cd $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO
 
@@ -220,13 +249,23 @@ spec:
         # Set dns.provider as empty in the mas-instance-params.yaml if deployment with cis is not enabled for that deployment day.  Assume fvtsaas here
         export DNS_PROVIDER=$(yq -sr '.[0].dns.provider' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml)
         export CURRENT_DATE=$(date +"%u")
-        echo "gitops-mas-initiator: DNS_PROVIDER=${DNS_PROVIDER} CURRENT_DATE=${CURRENT_DATE} DEPLOYMENT_DAY_WITH_CIS=$DEPLOYMENT_DAY_WITH_CIS"
+        echo "gitops-mas-initiator: DNS_PROVIDER=${DNS_PROVIDER} CURRENT_DATE=${CURRENT_DATE}"
 
-        if [ "$DNS_PROVIDER" == "cis" ]; then
-          if [[ -n ${DEPLOYMENT_DAY_WITH_CIS} && "${DEPLOYMENT_DAY_WITH_CIS}" != "${CURRENT_DATE}" ]]; then
-            yq -iY 'del(.dns)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
-            echo "gitops-mas-initiator: removed .dns node"
-          fi
+        # Remove dns node when DNS_PROVIDER_CONTROL_IDEN is not set
+        if [ "${DNS_PROVIDER_CONTROL_IDEN}" == "" ]; then
+          yq -iY 'del(.dns)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+          echo "gitops-mas-initiator: removed .dns node"
+        fi
+
+        # Deploy fvtsaas with CIS as DNS provider and Manual_certs=True on Mon, Tue, Wed, Thu, Fri
+        # Deploy fvtsaas with CIS as DNS provider and Manual_certs=False on Sun
+
+        yq --arg MANUAL_CERTS_CONTROL_FLAG $MANUAL_CERTS_CONTROL_FLAG -iY '.mas_instance.manual_cert_mgmt= $MANUAL_CERTS_CONTROL_FLAG' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+        echo "gitops-mas-initiator: .mas_instance.manual_cert_mgmt set to $MANUAL_CERTS_CONTROL_FLAG"
+
+        if [[ "${DNS_PROVIDER_CONTROL_IDEN}" == "cis" ]]; then
+          yq --arg DNS_PROVIDER_CONTROL_IDEN $DNS_PROVIDER_CONTROL_IDEN -iY '.dns.provider= $DNS_PROVIDER_CONTROL_IDEN' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+          echo "gitops-mas-initiator: .dns.provider set to $DNS_PROVIDER_CONTROL_IDEN"
         fi
 
         #customizationList customizationArchive credentials
