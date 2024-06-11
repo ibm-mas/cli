@@ -304,7 +304,7 @@ function gitops_cp4d() {
   echo_h2 "Generating CP4D Platform Operator Applications"
   echo "- CP4D operator"
 
-  echo "Generating IBM CP4D file ${GITOPS_CLUSTER_DIR}/ibm-cp4d.yaml"
+  echo "Generating IBM CP4D file ${GITOPS_INSTANCE_DIR}/ibm-cp4d.yaml"
   jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-cp4d.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-cp4d.yaml
 
 
