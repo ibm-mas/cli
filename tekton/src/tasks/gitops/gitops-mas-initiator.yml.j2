@@ -209,7 +209,8 @@ spec:
 
           mkdir -p $TARGET_LOCAL_DIR/manual-certs
           cd $TARGET_LOCAL_DIR/manual-certs
-          git clone https://github.ibm.com/maximoappsuite/devops-configs.git -b master || exit
+
+          git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$SOURCE_GITHUB_ORG/devops-configs.git -b master || exit
 
           # Assume fvtsaas mas_instance here
           mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/manual-certs
@@ -218,6 +219,9 @@ spec:
           cp -r $TARGET_LOCAL_DIR/manual-certs/devops-configs/certs/fvtsaas/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/manual-certs
 
           # Invoke create-aggregate-manual-certs.sh to generate combined_manual_certs.yaml
+
+          chmod +x $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/create-aggregate-manual-certs.sh
+
           $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/create-aggregate-manual-certs.sh  $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/manual-certs
 
           # Remove manual-certs folder
@@ -255,10 +259,11 @@ spec:
 
         # Deploy fvtsaas with CIS as DNS provider and Manual_certs=True on Mon, Tue, Wed, Thu, Fri
         # Deploy fvtsaas with CIS as DNS provider and Manual_certs=False on Sun
-        if [[ "${DNS_PROVIDER_CONTROL_IDEN}" == "cis" ]]; then
-          yq --arg MANUAL_CERTS_CONTROL_FLAG $MANUAL_CERTS_CONTROL_FLAG -iY '.mas_instance.manual_cert_mgmt= $MANUAL_CERTS_CONTROL_FLAG' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
-          echo "gitops-mas-initiator: .mas_instance.manual_cert_mgmt set to $MANUAL_CERTS_CONTROL_FLAG"
 
+        yq --arg MANUAL_CERTS_CONTROL_FLAG $MANUAL_CERTS_CONTROL_FLAG -iY '.mas_instance.manual_cert_mgmt= $MANUAL_CERTS_CONTROL_FLAG' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+        echo "gitops-mas-initiator: .mas_instance.manual_cert_mgmt set to $MANUAL_CERTS_CONTROL_FLAG"
+
+        if [[ "${DNS_PROVIDER_CONTROL_IDEN}" == "cis" ]]; then
           yq --arg DNS_PROVIDER_CONTROL_IDEN $DNS_PROVIDER_CONTROL_IDEN -iY '.dns.provider= $DNS_PROVIDER_CONTROL_IDEN' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
           echo "gitops-mas-initiator: .dns.provider set to $DNS_PROVIDER_CONTROL_IDEN"
         fi
