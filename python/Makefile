@@ -10,5 +10,5 @@ install: venv
 	. venv/bin/activate && python -m pip install --editable .[dev]
 
 build: venv
-	rm README.rst
+	rm -f README.rst
 	. venv/bin/activate && python -m build

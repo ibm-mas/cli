@@ -1,0 +1,2 @@
+include src/mas/devops/templates/*.yaml
+include src/mas/devops/templates/*.yml.j2

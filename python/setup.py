@@ -11,10 +11,7 @@ import sys
 import os
 sys.path.insert(0, 'src')
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup, find_namespace_packages
 
 if not os.path.exists('README.rst'):
     import pypandoc
@@ -31,10 +28,8 @@ setup(
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},
-    packages=[
-        'mas.devops',
-    ],
-    namespace_packages=['mas'],
+    packages=find_namespace_packages(where='src/', include=['mas.devops']),
+    include_package_data=True,
     url='https://github.com/ibm-mas/cli',
     license='Eclipse Public License - v1.0',
     description='Python SDK for Maximo Application Suite',
