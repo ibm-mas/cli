@@ -145,8 +145,8 @@ class BaseApp(object):
         Configure the Kubernetes API Client using the active context in kubeconfig
         """
         logger.debug("Reloading Kubernetes Client Configuration")
-        config.load_kube_config()
         try:
+            config.load_kube_config()
             self._dynClient = dynamic.DynamicClient(
                 api_client.ApiClient(configuration=config.load_kube_config())
             )
