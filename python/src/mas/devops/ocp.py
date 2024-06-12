@@ -69,3 +69,8 @@ def createNamespace(dynClient, namespace):
         namespaceAPI.create(body=nsObj)
         logger.debug(f"Created namespace {namespace}")
     return True
+
+def getConsoleURL(dynClient):
+    routesAPI = dynClient.resources.get(api_version="route.openshift.io/v1", kind="Route")
+    consoleRoute = routesAPI.get(name="console", namespace="openshift-console")
+    return f"https://{consoleRoute.spec.host}"

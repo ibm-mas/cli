@@ -194,11 +194,10 @@ case $1 in
     echo "!! upgrade                                                                   !!" >> $LOGFILE
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
 
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Upgrade Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
-    echo
-    reset_colors
-    upgrade "$@"
+    # Take the first parameter off (it will be "upgrade")
+    shift
+    # Run the new Python-based upgrade
+    mas-upgrade "$@"
     ;;
 
   uninstall)

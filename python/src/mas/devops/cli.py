@@ -7,6 +7,8 @@
 # http://www.eclipse.org/legal/epl-v10.html
 #
 # *****************************************************************************
+from argparse import RawTextHelpFormatter
+from shutil import which
 
 # Use of the openshift client rather than the kubernetes client allows us access to "apply"
 from openshift import dynamic
@@ -36,6 +38,7 @@ from prompt_toolkit.validation import Validator, ValidationError
 # SlateBlue  SlateGray  SlateGrey  Snow  SpringGreen  SteelBlue  Tan  Teal  Thistle  Tomato  Turquoise
 # Violet  Wheat  White  WhiteSmoke  Yellow  YellowGreen
 
+from mas.devops import __version__ as packageVersion
 from mas.devops.ocp import connect
 from mas.devops.mas import verifyMasInstance
 
@@ -68,6 +71,19 @@ class YesNoValidator(Validator):
         if response.lower() not in ["y", "n", "yes", "no" ]:
             raise ValidationError(message='Enter a valid response: y(es), n(o)', cursor_position=len(response))
 
+def getHelpFormatter(formatter=RawTextHelpFormatter, w=160, h=50):
+    """
+    Return a wider HelpFormatter, if possible.
+
+    https://stackoverflow.com/a/57655311
+    """
+    try:
+        kwargs = {'width': w, 'max_help_position': h}
+        formatter(None, **kwargs)
+        return lambda prog: formatter(prog, **kwargs)
+    except TypeError:
+        logger.warn("argparse help formatter failed, falling back.")
+        return formatter
 
 class BaseApp(object):
     def __init__(self):
@@ -86,7 +102,7 @@ class BaseApp(object):
         rootLogger.addHandler(ch)
         rootLogger.setLevel(logging.DEBUG)
 
-        self.version = "1.0.0"
+        self.version = packageVersion
         self.h1count = 0
 
         self.spinner = {
@@ -101,15 +117,19 @@ class BaseApp(object):
         self.printTitle(f"IBM Maximo Application Suite Admin CLI v{self.version}")
         print_formatted_text(HTML("Powered by <DarkGoldenRod><u>https://github.com/ibm-mas/ansible-devops/</u></DarkGoldenRod> and <DarkGoldenRod><u>https://tekton.dev/</u></DarkGoldenRod>"))
 
+        if which("kubectl") is None:
+            logger.error("Could not find kubectl on the path")
+            print_formatted_text(HTML("\n<Red>Error: Could not find kubectl on the path, see <u>https://kubernetes.io/docs/tasks/tools/#kubectl</u> for installation instructions</Red>\n"))
+            exit(1)
 
     def printTitle(self, message):
-        print_formatted_text(HTML(f"<b><u><DeepSkyBlue>{message}</DeepSkyBlue></u></b>"), color_depth=ColorDepth.TRUE_COLOR)
+        print_formatted_text(HTML(f"<b><u>{message}</u></b>"))
 
 
     def printH1(self, message):
         self.h1count += 1
         print()
-        print_formatted_text(HTML(f"<u><SteelBlue>{self.h1count}. {message}</SteelBlue></u>"), color_depth=ColorDepth.TRUE_COLOR)
+        print_formatted_text(HTML(f"<u><SteelBlue>{self.h1count}. {message}</SteelBlue></u>"))
 
 
     @property
@@ -136,19 +156,24 @@ class BaseApp(object):
             print_formatted_text(HTML(f"<Red>Error: Unable to connect to OpenShift Container Platform.  See log file for details</Red>"))
             return None
 
-
     def connect(self, noConfirm):
         promptForNewServer = False
         self.reloadDynamicClient()
         if self.dynamicClient is not None:
-            routesAPI = self.dynamicClient.resources.get(api_version="route.openshift.io/v1", kind="Route")
-            consoleRoute = routesAPI.get(name="console", namespace="openshift-console")
-            print_formatted_text(HTML(f"Already connected to OCP Cluster:\n <u><Orange>https://{consoleRoute.spec.host}</Orange></u>"))
-            print()
-            if not noConfirm:
-                continueWithExistingCluster = prompt(HTML(f'<Yellow>Proceed with this cluster?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False, default="y")
-                promptForNewServer = continueWithExistingCluster in ["n", "no"]
+            try:
+                routesAPI = self.dynamicClient.resources.get(api_version="route.openshift.io/v1", kind="Route")
+                consoleRoute = routesAPI.get(name="console", namespace="openshift-console")
+                print_formatted_text(HTML(f"Already connected to OCP Cluster:\n <u><Orange>https://{consoleRoute.spec.host}</Orange></u>"))
+                print()
+                if not noConfirm:
+                    # We are already connected to a cluster, but prompt the user if they want to use this connection
+                    continueWithExistingCluster = prompt(HTML(f'<Yellow>Proceed with this cluster?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False, default="y")
+                    promptForNewServer = continueWithExistingCluster in ["n", "no"]
+            except:
+                # We are already connected to a cluster, but the connection is not valid so prompt for connection details
+                promptForNewServer = True
         else:
+            # We are not already connected to any cluster, so prompt for connection details
             promptForNewServer = True
 
         if promptForNewServer:

@@ -22,6 +22,8 @@ from openshift.dynamic.exceptions import NotFoundError, UnprocessibleEntityError
 from jinja2 import Environment, FileSystemLoader
 from jinja2.exceptions import TemplateNotFound
 
+from .ocp import getConsoleURL
+
 logger = logging.getLogger(__name__)
 
 
@@ -119,7 +121,7 @@ def launchUpgradePipeline(dynClient, instanceId, masChannel=""):
             template = env.get_template("pipelinerun-upgrade.yml.j2")
         except TemplateNotFound as e:
             logger.warning(f"Could not find pipelinerun template in {templateDir}: {e}")
-            return False
+            return None
         renderedTemplate = template.render(
             timestamp = timestamp,
             mas_instance_id = instanceId,
@@ -131,14 +133,15 @@ def launchUpgradePipeline(dynClient, instanceId, masChannel=""):
     except NotFoundError as e:
         logger.warning(f"Error: Couldn't find package manifest for Red Hat Openshift Pipelines Operator: {e}")
         logger.debug(renderedTemplate)
-        return False
+        return None
     except UnprocessibleEntityError as e:
         logger.warning(f"Error: Couldn't create/update OpenShift Pipelines Operator Subscription: {e}")
         logger.debug(renderedTemplate)
-        return False
+        return None
     except Exception as e:
         logger.warning(f"Error: As unexpected error occured: {e}")
         logger.debug(renderedTemplate)
-        return False
+        return None
 
-    return True
+    pipelineURL = f"{getConsoleURL(dynClient)}/k8s/ns/mas-{instanceId}-pipelines/tekton.dev~v1beta1~PipelineRun/{instanceId}-upgrade-{timestamp}"
+    return pipelineURL
