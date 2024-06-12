@@ -141,9 +141,12 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    app = App()
-    app.upgrade(
-        args.instance_id,
-        args.skip_pre_check,
-        args.no_confirm
-    )
+    try:
+        app = App()
+        app.upgrade(
+            args.instance_id,
+            args.skip_pre_check,
+            args.no_confirm
+        )
+    except KeyboardInterrupt as e:
+        pass

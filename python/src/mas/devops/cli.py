@@ -153,15 +153,14 @@ class BaseApp(object):
             return self._dynClient
         except Exception as e:
             logger.warning(f"Error: Unable to connect to OpenShift Container Platform: {e}")
-            print_formatted_text(HTML(f"<Red>Error: Unable to connect to OpenShift Container Platform.  See log file for details</Red>"))
             return None
 
     def connect(self, noConfirm):
         promptForNewServer = False
         self.reloadDynamicClient()
-        if self.dynamicClient is not None:
+        if self._dynClient is not None:
             try:
-                routesAPI = self.dynamicClient.resources.get(api_version="route.openshift.io/v1", kind="Route")
+                routesAPI = self._dynClient.resources.get(api_version="route.openshift.io/v1", kind="Route")
                 consoleRoute = routesAPI.get(name="console", namespace="openshift-console")
                 print_formatted_text(HTML(f"Already connected to OCP Cluster:\n <u><Orange>https://{consoleRoute.spec.host}</Orange></u>"))
                 print()
@@ -169,7 +168,7 @@ class BaseApp(object):
                     # We are already connected to a cluster, but prompt the user if they want to use this connection
                     continueWithExistingCluster = prompt(HTML(f'<Yellow>Proceed with this cluster?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False, default="y")
                     promptForNewServer = continueWithExistingCluster in ["n", "no"]
-            except:
+            except Exception as e:
                 # We are already connected to a cluster, but the connection is not valid so prompt for connection details
                 promptForNewServer = True
         else:
@@ -182,6 +181,6 @@ class BaseApp(object):
             token = prompt(HTML(f'<Yellow>Login Token:</Yellow> '), is_password=True, placeholder="sha256~...")
             connect(server, token)
             self.reloadDynamicClient()
-            if self.dynamicClient is None:
+            if self._dynClient is None:
                 print_formatted_text(HTML(f"<Red>Unable to connect to cluster.  See log file for details</Red>"))
                 exit(1)
