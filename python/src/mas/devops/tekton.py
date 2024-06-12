@@ -101,8 +101,7 @@ def updateTektonDefinitions(namespace):
             logger.debug(line)
     except KubectlCommandError as e:
         logger.warning(f"Error: Unable to install/update Tekton definitions: {e}")
-        for line in result.split("\n"):
-            logger.warning(line)
+
 
 def launchUpgradePipeline(dynClient, instanceId, masChannel=""):
     """

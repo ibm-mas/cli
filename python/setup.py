@@ -44,7 +44,7 @@ setup(
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},
-    packages=find_namespace_packages(where='src/', include=[
+    packages=find_namespace_packages(where='src', include=[
         'mas.devops',
         'mas.devops.templates'
     ]),
