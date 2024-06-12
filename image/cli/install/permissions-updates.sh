@@ -8,7 +8,6 @@ chmod +x /opt/app-root/src/*.sh
 chmod +x /opt/app-root/src/.bashrc
 chmod -R ug+w /mascli
 chmod +x /mascli/mas
-chmod +x /mascli/*.py
 chmod +x /mascli/must-gather/*
 chmod +x /mascli/backup-restore/*
 chmod -R ug+w /masfvt
