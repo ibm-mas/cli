@@ -11,6 +11,8 @@ jobs:
   build-cli:
     runs-on: ubuntu-latest
     steps:
+      # 1. Initialize the build
+      # -------------------------------------------------------------------------------------------
       - name: Checkout
         uses: actions/checkout@v3
         # Without this option, we don't get the tag information
@@ -23,7 +25,7 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/initbuild.sh
           source $GITHUB_WORKSPACE/build/bin/.functions.sh
 
-      # 1. Download Ansible collection from Artifactory
+      # 2. Download Ansible collection from Artifactory
       # -------------------------------------------------------------------------------------------
       - name: Download Ansible collection from Artifactory
         env:
@@ -37,7 +39,7 @@ jobs:
             wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz -O $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz
           fi
 
-      # 2. Tekton
+      # 3. Tekton
       # -------------------------------------------------------------------------------------------
       - name: Build the Tekton definitions
         run: $GITHUB_WORKSPACE/build/bin/build-tekton.sh
@@ -57,7 +59,7 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton-fvt.yaml
 
-      # 3. Python Package
+      # 4. Python Package
       # -------------------------------------------------------------------------------------------
       - name: Build the Python package
         run: |
@@ -69,7 +71,7 @@ jobs:
           make install build
           cp $GITHUB_WORKSPACE/python/dist/mas_devops-${{ env.VERSION_NOPREREL }}.tar.gz $GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz
 
-      # 4. CLI installer
+      # 5. CLI installer
       # -------------------------------------------------------------------------------------------
       - name: Build the cli package
         run: |
@@ -82,7 +84,7 @@ jobs:
           path: ${{ github.workspace }}/ibm-mas-cli-${{ env.VERSION }}.tgz
           retention-days: 30
 
-      # 5. CLI container image
+      # 6. CLI container image
       # -------------------------------------------------------------------------------------------
       - name: Build the docker image
         run: |
@@ -98,7 +100,7 @@ jobs:
           username: ${{ secrets.QUAYIO_USERNAME }}
           password: ${{ secrets.QUAYIO_PASSWORD }}
 
-      # 6. OWASP Dependency Check
+      # 7. OWASP Dependency Check
       # -------------------------------------------------------------------------------------------
       - name: Perform dependency check
         uses: dependency-check/Dependency-Check_Action@main
