@@ -18,15 +18,18 @@ ENV ANSIBLE_COLLECTIONS_PATH=/opt/app-root/lib64/python3.9/site-packages/ansible
 # 3. Install Ansible collections -- do this last for efficient dev builds
 # 4. Set file permissions to be developer (hack) friendly
 COPY install-ansible /tmp/install-ansible
+COPY install-python /tmp/install-python
 RUN umask 0002 && \
     bash /tmp/install-ansible/install-ansible-collections.sh && \
     rm -rf /tmp/install-ansible && \
+    python3 -m pip install /tmp/python-install/mas_sdk-1.0.0.tar.gz && \
     chmod -R ug+rwx /opt/app-root/src/env.sh && \
     chmod -R ug+rwx /opt/app-root/src/.ansible && \
     chmod +x /opt/app-root/src/*.sh && \
     chmod +x /opt/app-root/src/.bashrc && \
     chmod -R ug+w /mascli && \
     chmod +x /mascli/mas && \
+    chmod +x /mascli/*.py && \
     chmod +x /mascli/must-gather/* && \
     chmod +x /mascli/backup-restore/* && \
     chmod -R ug+w /masfvt && \

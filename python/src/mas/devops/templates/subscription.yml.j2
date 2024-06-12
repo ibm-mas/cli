@@ -1,0 +1,11 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+    name: openshift-pipelines-operator
+    namespace: openshift-operators
+spec:
+    channel: {{pipelines_channel}}
+    name: openshift-pipelines-operator-rh
+    source: {{pipelines_source}}
+    sourceNamespace: {{pipelines_source_namespace}}

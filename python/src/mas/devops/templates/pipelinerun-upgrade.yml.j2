@@ -1,0 +1,20 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: "{{ mas_instance_id }}-upgrade-{{ timestamp }}"
+  labels:
+    tekton.dev/pipeline: mas-upgrade
+spec:
+  pipelineRef:
+    name: mas-upgrade
+
+  serviceAccountName: pipeline
+  timeouts:
+    pipeline: "10h"
+
+  params:
+    - name: mas_instance_id
+      value: "{{ mas_instance_id }}"
+    - name: mas_channel
+      value: "{{ mas_channel }}"

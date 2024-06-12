@@ -57,7 +57,19 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton-fvt.yaml
 
-      # 3. CLI installer
+      # 3. Python Package
+      # -------------------------------------------------------------------------------------------
+      - name: Build the Python package
+        run: |
+          python -m pip install --upgrade pip
+          cp $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml $GITHUB_WORKSPACE/python/src/mas/devops/templates/ibm-mas-tekton.yaml
+          cd $GITHUB_WORKSPACE/python
+          make install build
+          mkdir $GITHUB_WORKSPACE/image/cli/install-python
+          cp $GITHUB_WORKSPACE/python/dist/mas_sdk-1.0.0.tar.gz $GITHUB_WORKSPACE/image/cli/install-python/mas_sdk-1.0.0.tar.gz
+          cp $GITHUB_WORKSPACE/python/src/cli-upgrade.py $GITHUB_WORKSPACE/image/cli/mascli/mas-upgrade.py
+
+      # 4. CLI installer
       # -------------------------------------------------------------------------------------------
       - name: Build the cli package
         run: |
@@ -70,7 +82,7 @@ jobs:
           path: ${{ github.workspace }}/ibm-mas-cli-${{ env.VERSION }}.tgz
           retention-days: 30
 
-      # 4. CLI container image
+      # 5. CLI container image
       # -------------------------------------------------------------------------------------------
       - name: Build the docker image
         run: |
@@ -86,7 +98,7 @@ jobs:
           username: ${{ secrets.QUAYIO_USERNAME }}
           password: ${{ secrets.QUAYIO_PASSWORD }}
 
-      # 5. OWASP Dependency Check
+      # 6. OWASP Dependency Check
       # -------------------------------------------------------------------------------------------
       - name: Perform dependency check
         uses: dependency-check/Dependency-Check_Action@main

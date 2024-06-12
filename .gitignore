@@ -12,3 +12,11 @@ tmp/
 tekton/test-*.yaml
 tekton/target
 tekton/tmp
+/python/venv
+/python/src/mas_sdk.egg-info
+python/pandoc-3.2-1-amd64.deb
+kubectl.exe
+mas.log
+/python/dist
+python/README.rst
+python/src/mas/devops/templates/ibm-mas-tekton.yaml
