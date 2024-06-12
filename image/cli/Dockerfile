@@ -22,7 +22,7 @@ COPY install-python /tmp/install-python
 RUN umask 0002 && \
     bash /tmp/install-ansible/install-ansible-collections.sh && \
     rm -rf /tmp/install-ansible && \
-    python3 -m pip install /tmp/python-install/mas_sdk-1.0.0.tar.gz && \
+    python3 -m pip install /tmp/python-install/mas_devops-1.0.0.tar.gz && \
     chmod -R ug+rwx /opt/app-root/src/env.sh && \
     chmod -R ug+rwx /opt/app-root/src/.ansible && \
     chmod +x /opt/app-root/src/*.sh && \

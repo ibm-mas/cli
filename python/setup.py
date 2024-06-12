@@ -26,13 +26,12 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='mas-cli',
+    name='mas-devops',
     version='1.0.0',
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},
     packages=[
-        'mas.cli',
         'mas.devops',
     ],
     namespace_packages=['mas'],
@@ -53,6 +52,7 @@ setup(
         'dev': [
             'build',       # MIT License
             'pytest',      # MIT License
+            'pyinstaller', # GPL, https://pyinstaller.org/en/stable/license.html & https://github.com/pyinstaller/pyinstaller/wiki/FAQ#license
         ]
     },
     classifiers=[

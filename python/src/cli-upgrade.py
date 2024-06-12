@@ -19,11 +19,10 @@ from prompt_toolkit.completion import WordCompleter
 
 from halo import Halo
 
+from mas.devops.cli import InstanceIDValidator, YesNoValidator, BaseApp
 from mas.devops.ocp import createNamespace
 from mas.devops.mas import listMasInstances, verifyMasInstance
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
-
-from mas.cli.utils import InstanceIDValidator, YesNoValidator, BaseApp
 
 logger = logging.getLogger(__name__)
 
