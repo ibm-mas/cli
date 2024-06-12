@@ -35,6 +35,21 @@ IBM Maximo Application Suite:
       --mas-image-tags ${COLOR_YELLOW}MAS_IMAGE_TAGS${TEXT_RESET}                     MAS Image tags definition in dict format
       --mas-labels ${COLOR_YELLOW}MAS_LABELS${TEXT_RESET}                             MAS Labels definition in dict format
       --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}         MAS Manual Cert Management
+      --mas-manual-certs-yaml ${COLOR_YELLOW}MAS_MANUAL_CERTS_YAML${TEXT_RESET}               YAML file location containing combined MAS Manual Certs of core and all other apps
+
+      Below is a sample yaml file template representing manual_certs dictionary ( key: << value base64 encoded content of cert file >>) 
+      where key is <<app>>_<<filename . replaced by _>> name and value will be base64 encoded of the respective ca/tls file, 
+      supported app are core, assist, iot, manage, monitor, optimizer, predict,visualinspection
+        manual_certs:
+          core_tls_crt: <<base64 enc of core tls.crt>>
+          core_tls_key: <<base64 enc of core tls.key>>
+          core_ca_crt: <<base64 enc of core ca.crt>>
+          assist_tls_crt: <<base64 enc of assist tls.crt>>
+          assist_tls_key: <<base64 enc of assist tls.key>>
+          assist_ca_crt: <<base64 enc of assist ca.crt>>
+          <<app>>_tls_crt: <<base64 enc of <<app>> tls.crt>>
+          <<app>>_tls_key: <<base64 enc of <<app>> tls.key>>
+          <<app>>_ca_crt: <<base64 enc of <<app>> ca.crt>>
 
       --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                         DNS Provider, Currently supported CIS (Akamai support inprogress)
       --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}                 MAS Workspace ID
@@ -173,6 +188,9 @@ function gitops_suite_noninteractive() {
         export MAS_MANUAL_CERT_MGMT=$1 && shift
         ;;
 
+      --mas-manual-certs-yaml)
+        export MAS_MANUAL_CERTS_YAML=$1 && shift
+        ;;
       # Target Cluster (Optional)
       --cluster-url)
         export CLUSTER_URL=$1 && shift
@@ -379,6 +397,7 @@ function gitops_suite() {
   echo_reset_dim "Annotations .................... ${COLOR_MAGENTA}${MAS_ANNOTATIONS}"
   echo_reset_dim "Labels ......................... ${COLOR_MAGENTA}${MAS_LABELS}"
   echo_reset_dim "MAS Manual Cert Mgt ............ ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
+  echo_reset_dim "MAS MANUAL CERTS YAML .......... ${COLOR_MAGENTA}${MAS_MANUAL_CERTS_YAML}"  
   echo_reset_dim "Cert Manager Namespace ......... ${COLOR_MAGENTA}${CERT_MANAGER_NAMESPACE}"
   echo_reset_dim "DNS Provider ................... ${COLOR_MAGENTA}${DNS_PROVIDER}"
   reset_colors
@@ -492,32 +511,6 @@ function gitops_suite() {
   export LICENSE_FILE=$TEMP_DIR/license.lic
   sm_get_secret_file $SECRET_KEY_LICENSE_FILE $LICENSE_FILE
 
-  # Set certs only if manual cert is True
-  if [ "${MAS_MANUAL_CERT_MGMT}" == "True" ] ; then
-    export PUBLIC_CERT_SECRET_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}certs${SECRETS_KEY_SEPERATOR}core
-    export CERT_FILE=$TEMP_DIR/cert.yml
-    export CA_CERT_FILE=$TEMP_DIR/ca_cert.yml
-    export TLS_CERT_FILE=$TEMP_DIR/tls_cert.yml
-    export TLS_KEY_FILE=$TEMP_DIR/tls_key.yml
-
-    sm_get_secret_file $PUBLIC_CERT_SECRET_NAME $CERT_FILE
-    jq -r .cert_ca $CERT_FILE > $CA_CERT_FILE
-    jq -r .cert_tls $CERT_FILE > $TLS_CERT_FILE
-    jq -r .tls_key $CERT_FILE > $TLS_KEY_FILE
-
-    if [[ -n "$CA_CERT_FILE" ]]; then
-      export CA_CERT=$(cat ${CA_CERT_FILE})
-      echo_reset_dim "CA_CERT ............................... ${COLOR_MAGENTA}${CA_CERT}"
-    fi
-    if [[ -n "$TLS_CERT_FILE" ]]; then
-      export TLS_CERT=$(cat ${TLS_CERT_FILE})
-      echo_reset_dim "TLS_CERT .............................. ${COLOR_MAGENTA}${TLS_CERT}"
-    fi
-    if [[ -n "$TLS_KEY_FILE" ]]; then
-      export TLS_KEY=$(cat ${TLS_KEY_FILE})
-      echo_reset_dim "TLS_KEY ............................... ${COLOR_MAGENTA}${TLS_KEY}"
-    fi
-  fi
   # Instance-level secrets to create
   # ---------------------------------------------------------------------------
   export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
@@ -565,6 +558,26 @@ function gitops_suite() {
   fi
   mkdir -p ${GITOPS_INSTANCE_DIR}
 
+  # Set certs only if manual cert is True (to create k8s secret in gitops)
+  # ---------------------------------------------------------------------------
+  
+  if [ "${MAS_MANUAL_CERT_MGMT}" == "True" ] ; then
+    if [[ -n "$MAS_MANUAL_CERTS_YAML" && -s "$MAS_MANUAL_CERTS_YAML" ]]; then
+      echo
+      echo_h2 "Read manual cert files for core from file ${MAS_MANUAL_CERTS_YAML}, and set to gitops template"
+
+      export MANUAL_CERTS=$(/usr/bin/yq eval '.manual_certs' ${MAS_MANUAL_CERTS_YAML})
+      export TLS_CERT=$(/usr/bin/yq eval '.manual_certs.core_tls_crt' ${MAS_MANUAL_CERTS_YAML})
+      export TLS_KEY=$(/usr/bin/yq eval  '.manual_certs.core_tls_key' ${MAS_MANUAL_CERTS_YAML})
+      export CA_CERT=$(/usr/bin/yq eval  '.manual_certs.core_ca_crt'  ${MAS_MANUAL_CERTS_YAML})
+
+      echo -e "\n - MANUAL_CERTS CONTENT .................. ${MANUAL_CERTS}"
+      echo -e "\n - TLS_CERT CONTENT ...................... ${TLS_CERT}"
+      echo -e "\n - TLS_KEY CONTENT ....................... ${TLS_KEY}"
+      echo -e "\n - CA_CERT CONTENT ....................... ${CA_CERT}"
+
+    fi
+  fi
 
   # Generate ArgoApps
   # ---------------------------------------------------------------------------

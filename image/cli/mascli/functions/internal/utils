@@ -21,7 +21,11 @@ function reset_colors() {
 
 function echo_h1() {
   echo -e "${TEXT_BOLD}${TEXT_UNDERLINE}${1}${TEXT_RESET}"
+
+  echo -e "${1}" >> $LOGFILE
+  echo "===============================================================================" >> $LOGFILE
 }
+
 function echo_h2() {
   msg=$1
   prefix=$2
@@ -30,6 +34,10 @@ function echo_h2() {
   H3_COUNT=0
   echo
   echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}) ${msg}${TEXT_RESET}"
+
+  echo >> $LOGFILE
+  echo -e "${prefix}${H2_COUNT}) ${msg}" >> $LOGFILE
+  echo "-------------------------------------------------------------------------------" >> $LOGFILE
 }
 
 function echo_h3() {
@@ -39,44 +47,56 @@ function echo_h3() {
   H3_COUNT=$(($H3_COUNT + 1))
   echo
   echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}.${H3_COUNT}) ${msg}${TEXT_RESET}"
+
+  echo >> $LOGFILE
+  echo -e "${prefix}${H2_COUNT}.${H3_COUNT}) ${msg}" >> $LOGFILE
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" >> $LOGFILE
 }
 
 function echo_h4() {
   msg=$1
   prefix=$2
   echo -e "${prefix}${TEXT_UNDERLINE}${msg}${TEXT_RESET}"
+  echo -e "${prefix}${msg}" >> $LOGFILE
+  echo "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~" >> $LOGFILE
 }
 
 function echo_warning() {
   echo -e "${COLOR_RED}$1${TEXT_RESET}"
+  echo -e "WARNING: $1" >> $LOGFILE
 }
 
 function echo_highlight() {
   echo "${COLOR_CYAN}$1${TEXT_RESET}"
+  echo -e "$1" >> $LOGFILE
 }
 
 function echo_green() {
   echo "${COLOR_GREEN}$1${TEXT_RESET}"
+  echo -e "$1" >> $LOGFILE
 }
 
 function echo_blue() {
   echo "${COLOR_BLUE}$1${TEXT_RESET}"
+  echo -e "$1" >> $LOGFILE
 }
 
 function echo_dim() {
   echo "${TEXT_DIM}$1${TEXT_RESET}"
+  echo -e "$1" >> $LOGFILE
 }
 
 function echo_reset_dim() {
   echo "${TEXT_RESET}${TEXT_DIM}    $1"
+  echo -e "$1" >> $LOGFILE
 }
 
 function echo_hr1() {
-  echo "==============================================================================="
+  echo "===============================================================================" | tee $LOGFILE
 }
 
 function echo_hr2() {
-  echo "-------------------------------------------------------------------------------"
+  echo "-------------------------------------------------------------------------------" | tee $LOGFILE
 }
 
 
