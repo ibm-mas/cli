@@ -67,8 +67,7 @@ jobs:
           cp $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml $GITHUB_WORKSPACE/python/src/mas/devops/templates/ibm-mas-tekton.yaml
           cd $GITHUB_WORKSPACE/python
           make install build
-          cp $GITHUB_WORKSPACE/python/dist/mas_devops-{{ env.VERSION_NOPREREL }}.tar.gz $GITHUB_WORKSPACE/image/cli/install/
-          mv $GITHUB_WORKSPACE/image/cli/install/mas_devops-{{ env.VERSION_NOPREREL }}.tar.gz $GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz
+          cp $GITHUB_WORKSPACE/python/dist/mas_devops-${{ env.VERSION_NOPREREL }}.tar.gz $GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz
 
       # 4. CLI installer
       # -------------------------------------------------------------------------------------------
