@@ -61,13 +61,13 @@ jobs:
       # -------------------------------------------------------------------------------------------
       - name: Build the Python package
         run: |
-          sed -i "s#__version__ = 100.0.0#__version__ = ${{ env.VERSION }}#g" ${GITHUB_WORKSPACE}/python/src/mas/devops/__init__.py
+          sed -i "s#__version__ = \"100.0.0\"#__version__ = \"${{ env.VERSION }}\"#g" ${GITHUB_WORKSPACE}/python/src/mas/devops/__init__.py
           cat ${GITHUB_WORKSPACE}/python/src/mas/devops/__init__.py
           python -m pip install --upgrade pip
           cp $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml $GITHUB_WORKSPACE/python/src/mas/devops/templates/ibm-mas-tekton.yaml
           cd $GITHUB_WORKSPACE/python
           make install build
-          cp $GITHUB_WORKSPACE/python/dist/mas_devops-1.0.0.tar.gz $GITHUB_WORKSPACE/image/cli/install/mas_devops-1.0.0.tar.gz
+          cp $GITHUB_WORKSPACE/python/dist/mas_devops-{{ env.VERSION }}.tar.gz $GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz
 
       # 4. CLI installer
       # -------------------------------------------------------------------------------------------
