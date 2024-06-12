@@ -378,6 +378,8 @@ spec:
           value: $(params.uds_storage_class)
         - name: uds_action
           value: $(params.uds_action)
+        - name: DRO_NAMESPACE
+          value: $(params.dro_namespace)
         - name: devops_suite_name
           value: update-uds
 {% if wait_for_install == true %}
