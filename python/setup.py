@@ -44,7 +44,10 @@ setup(
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},
-    packages=find_namespace_packages(where='src/', include=['mas.devops']),
+    packages=find_namespace_packages(where='src/', include=[
+        'mas.devops',
+        'mas.devops.templates'
+    ]),
     include_package_data=True,
     scripts=[
         'src/mas-upgrade',
