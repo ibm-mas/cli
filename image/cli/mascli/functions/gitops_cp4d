@@ -269,7 +269,7 @@ function gitops_cp4d() {
 
 
   # Default settings
-  export CPD_CS_CONTROL_NAMESPACE="cs-control"
+  export CPD_CS_CONTROL_NAMESPACE="cs-${MAS_INSTANCE_ID}-control"
   export CPD_ADMIN_LOGIN_SA="mas-cpd-cluster-admin-sa"
   export CPD_PLATFORM_CR_NAME="ibmcpd-cr"
   export CPD_IAM_INTEGRATION=false
