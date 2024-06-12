@@ -30,6 +30,10 @@ setup(
     package_dir={'': 'src'},
     packages=find_namespace_packages(where='src/', include=['mas.devops']),
     include_package_data=True,
+    scripts=[
+        'src/mas-upgrade',
+        'src/mas-upgrade-gui'
+    ],
     url='https://github.com/ibm-mas/cli',
     license='Eclipse Public License - v1.0',
     description='Python SDK for Maximo Application Suite',
