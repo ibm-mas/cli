@@ -96,7 +96,7 @@ jobs:
         id: push_to_quay
         run:
           docker images
-          docker login quay.io -u ${{ secrets.QUAYIO_USERNAME }} -p ${{ secrets.QUAYIO_PASSWORD }}
+          docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
           docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
         # Old version ...
         # uses: redhat-actions/push-to-registry@v2
