@@ -259,7 +259,6 @@ function gitops_cp4d() {
 
 
   AVP_TYPE=aws  # Support for IBM will be added later
-  sm_login
 
   export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
   export SECRET_KEY_NAMESPACE_SCOPE_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}namespace_scope_channel#namespace_scope_channel
@@ -270,7 +269,7 @@ function gitops_cp4d() {
 
 
   # Default settings
-  export CPD_CS_CONTROL_NAMESPACE="cs-control"
+  export CPD_CS_CONTROL_NAMESPACE="cs-${MAS_INSTANCE_ID}-control"
   export CPD_ADMIN_LOGIN_SA="mas-cpd-cluster-admin-sa"
   export CPD_PLATFORM_CR_NAME="ibmcpd-cr"
   export CPD_IAM_INTEGRATION=false
