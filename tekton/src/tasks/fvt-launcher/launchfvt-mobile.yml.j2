@@ -30,6 +30,12 @@ spec:
 
         # Lookups from mas-devops
         # -----------------------------------------------------------------------
+        - name: DEVOPS_BUILD_NUMBER
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_BUILD_NUMBER
+              optional: true
         - name: MAS_INSTANCE_ID
           valueFrom:
             secretKeyRef:
@@ -45,6 +51,12 @@ spec:
               name: mas-fvt
               key: FVT_IMAGE_REGISTRY
               optional: false
+        - name: FVT_ARTIFACTORY_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FVT_ARTIFACTORY_USERNAME
+              optional: false
         - name: FVT_ARTIFACTORY_TOKEN
           valueFrom:
             secretKeyRef:
@@ -54,7 +66,7 @@ spec:
 
         # Lookups from mas-fvt-mobile
         # -----------------------------------------------------------------------
-        # Framework Information        
+        # Framework Information
         - name: MAS_CHANNEL
           valueFrom:
             secretKeyRef:
@@ -73,7 +85,7 @@ spec:
               name: mas-fvt-mobile
               key: MAS_WORKSPACE_ID
               optional: false
-        
+
         # Digests
         - name: FVT_DIGEST_MOBILE_PYTEST
           valueFrom:
@@ -94,21 +106,30 @@ spec:
               key: FVT_DIGEST_MANAGE_CIVIL_SELENIUM
               optional: false
 
-       
-    
+
+
     - name: wait-for-pipelinerun
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       # 50 retries at 10 minute intervals = just over 8 hours
       command:
-        - /opt/app-root/src/wait-for-pipelinerun.sh
-        - --delay
-        - "600"
-        - --max-retries
-        - "75"
-        - --ignore-failure
+        - /opt/app-root/src/wait-for-tekton.sh
       env:
-        - name: PIPELINERUN_NAME
+        - name: TYPE
+          value: pipelinerun
+        - name: NAME
           value: $(params.pipelinerun_name)
-        - name: PIPELINERUN_NAMESPACE
+        - name: SUFFIX
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_BUILD_NUMBER
+              optional: true
+        - name: NAMESPACE
           value: $(context.taskRun.namespace)
+        - name: DELAY
+          value: "600"
+        - name: MAX_RETRIES
+          value: "50"
+        - name: IGNORE_FAILURE
+          value: "True"

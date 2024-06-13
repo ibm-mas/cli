@@ -25,7 +25,7 @@ spec:
       type: string
       default: "False"
       description: Skip performing compatiblity checks before upgrade
-    
+
     # Pipeline config
     - name: skip_pre_check
       type: string
@@ -269,29 +269,7 @@ spec:
       runAfter:
         - manage-upgrade
 
-
-    # 11. HP Utilities Upgrade (Phase 3 - after Manage)
-    # -------------------------------------------------------------------------
-    - name: hputilities-upgrade
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_app_id
-          value: hputilities
-        - name: mas_app_channel
-          value: $(params.mas_app_channel_hputilities)
-        - name: skip_compatibility_check
-          value: $(params.skip_compatibility_check)
-        - name: devops_suite_name
-          value: hputilities-upgrade
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-app-upgrade
-      runAfter:
-        - manage-upgrade
-
-
-    # 12. Verify health of the cluster after upgrade
+    # 11. Verify health of the cluster after upgrade
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
         'name': 'post-upgrade-verify',
@@ -303,12 +281,11 @@ spec:
         - optimizer-upgrade
         - visualinspection-upgrade
         # Phase 3 apps
-        - hputilities-upgrade
         - predict-upgrade
         - monitor-upgrade
-    
+
 {% if wait_for_install == true %}
-    # 13. Post-Upgrade pipeline call - test scripts to run before upgrade
+    # 12. Post-Upgrade pipeline call - test scripts to run before upgrade
     # -------------------------------------------------------------------------
     - name: launchfvt-upgrade-post
       params:
@@ -333,16 +310,7 @@ spec:
   finally:
     # Collect must-gather
     # -------------------------------------------------------------------------
-    - name: must-gather
-      taskRef:
-        kind: Task
-        name: mas-devops-must-gather
-      params:
-        - name: base_output_dir
-          value: "/workspace/mustgather/$(context.pipelineRun.name)"
-      workspaces:
-        - name: mustgather
-          workspace: shared-mustgather
+    {{ lookup('template', 'taskdefs/common/must-gather.yml.j2') | indent(4) }}
 
     # Finalize the record in the FVT database
     # -------------------------------------------------------------------------

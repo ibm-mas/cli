@@ -16,8 +16,7 @@ Usage
 - `--kafka-namespace`    Namespace where Kafka operator and instance will be updated
 - `--kafka-provider`     Set Kafka provider. Supported options are 'redhat' (Red Hat AMQ Streams), or 'strimzi'
 - `--dro-migration`      Confirm the removal of UDS and replacement with DRO as part of the update
-- `--cp4d-version`       Optional. Set Cloud Pak for Data version for the upgrade. All CP4D Services will be upgraded except Watson Discovery as this does not support seamless upgrade
-**Note:** This overrides the default CP4D version defined by the Maximo Operator Catalog version
+- `--cp4d-version`       Optional. Set Cloud Pak for Data version for the upgrade.  This overrides the default CP4D version defined by the Maximo Operator Catalog version
 - `--skip-pre-check`     Skips the 'pre-update-check' and 'post-update-verify' task in the update pipeline
 - `-h|--help`            Show help message
 

@@ -1,0 +1,75 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-wait-for-configmap
+spec:
+  params:
+    # What to wait for
+    - name: configmap_name
+      type: string
+      description: "The name of the configmap wait for"
+    - name: configmap_key
+      type: string
+      description: "The key in the configmap to watch for"
+    - name: configmap_target_value
+      type: string
+      description: "The value to wait for the configmap to change to"
+
+    # Optional escape route
+    - name: escape_configmap_name
+      type: string
+      description: "The name of the configmap wait for"
+      default: ""
+    - name: escape_configmap_key
+      type: string
+      description: "The key in the configmap to watch for"
+      default: ""
+
+    # How long to wait
+    - name: delay
+      type: string
+      default: "300"
+      description: "The delay between each check of the configmap"
+    - name: max_retries
+      type: string
+      default: "50"
+      description: "The maximum number of times to check status before giving up"
+
+    # How to handle errors
+    - name: ignore_failure
+      type: string
+      default: "True"
+      description: "Set to False to ignore failures"
+
+  steps:
+    - name: wait-for-configmap
+      image: quay.io/ibmmas/cli:latest
+      command:
+        - /opt/app-root/src/wait-for-configmap.sh
+      env:
+        # What to wait for
+        - name: NAMESPACE
+          value: $(context.taskRun.namespace)
+        - name: CONFIGMAP_NAME
+          value: $(params.configmap_name)
+        - name: CONFIGMAP_KEY
+          value: $(params.configmap_key)
+        - name: CONFIGMAP_TARGET_VALUE
+          value: $(params.configmap_target_value)
+
+        # Optional escape route
+        - name: ESCAPE_CONFIGMAP_NAME
+          value: $(params.escape_configmap_name)
+        - name: ESCAPE_CONFIGMAP_KEY
+          value: $(params.escape_configmap_key)
+
+        # How long to wait
+        - name: DELAY
+          value: $(params.delay)
+        - name: MAX_RETRIES
+          value: $(params.max_retries)
+
+        # How to handle errors
+        - name: IGNORE_FAILURE
+          value: $(params.ignore_failure)

@@ -20,7 +20,7 @@
 
 # Manage FVT Setup
 # - Required by all tests after phase 1 in fvt-manage pipeline 
-# - Required by fvt-manage-is, fvt-manage-civil, fvt-manage-health, fvt-mobile. fvt-optimizer and fvt-predict pipelines
+# - Required by fvt-manage-is, fvt-mobile, fvt-optimizer and fvt-predict pipelines
 - name: fvt-manage-base-api-setup
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:

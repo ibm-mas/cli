@@ -1,0 +1,46 @@
+# podTemplates
+# ===================================================================================
+# This list defines the resources for Deployment: Suite.
+# The pod gets tested for scaling and affinity.
+# The containers that get tested for resources - QoS class of Guaranteed and Burstable.
+podTemplates:
+  - name: entitymgr-primary-entity
+    containers:
+      - name: manager
+        resources: {}
+  - name: entitymgr-appstatus
+    containers:
+      - name: manager
+        resources: {}
+  - name: entitymgr-bdi
+    containers:
+      - name: manager
+        resources: {}
+  - name: entitymgr-ws
+    containers:
+      - name: manager
+        resources: {}
+  - name: usersyncagent
+    containers:
+      - name: manage-usersyncagent
+        resources: {}
+  - name: groupsyncagent
+    containers:
+      - name: manage-groupsyncagent
+        resources: {}
+  - name: ibm-mas-imagestitching-operator
+    containers:
+      - name: imagestitching
+        resources: {}
+  - name: ibm-mas-slackproxy-operator
+    containers:
+      - name: slackproxy
+        resources: {}
+  - name: healthext-entitymgr-ws
+    containers:
+      - name: healthext
+        resources: {}
+  - name: entitymgr-acc
+    containers:
+      - name: manager
+        resources: {}
