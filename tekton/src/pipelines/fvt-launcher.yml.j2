@@ -47,6 +47,10 @@ spec:
       type: string
       default: "true"
       description: "Set this to any value other than 'true' to disable launch of the Manage FVT pipeline after app-cfg-manage completes"
+    - name: launchfvt_manage_is
+      type: string
+      default: "true"
+      description: "Set this to any value other than 'true' to disable launch of the Manage Industry Solutions FVT pipeline after app-cfg-manage completes"
     - name: launchfvt_mobile
       type: string
       default: "true"
@@ -374,6 +378,22 @@ spec:
           values: ["true", "True"]
       runAfter:
         - waitfor-manage
+    
+    - name: launchfvt-manage-is
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-manage-is"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-manage-is
+      when:
+        - input: $(params.launchfvt_manage_is)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-manage
 
     - name: approval-manage
       taskRef:
@@ -397,6 +417,7 @@ spec:
           values: ["true", "True"]
       runAfter:
         - launchfvt-manage
+        - launchfvt-manage-is
 
 
     # 6. Application FVT - Mobile
