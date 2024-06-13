@@ -14,9 +14,6 @@ from kubernetes import client, config
 
 instanceId = os.getenv("INSTANCE_ID")
 workspaceId = os.getenv("WORKSPACE_ID")
-masNamespace = os.getenv("NAMESPACE")
-manageNamespace = f'mas-{instanceId}-manage'
-
 
 class RunCmdResult(object):
     def __init__(self, returnCode, output, error):
@@ -234,7 +231,6 @@ if __name__ == "__main__":
         k8s_client = client.api_client.ApiClient(configuration=k8s_config)
         dynClient = DynamicClient(k8s_client)
     else:
-        print("it should be here")
         k8s_client = config.new_client_from_config()
         dynClient = DynamicClient(k8s_client)
 
