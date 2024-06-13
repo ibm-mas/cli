@@ -1,0 +1,13 @@
+# podTemplates
+# ===================================================================================
+# This list defines the resources for Deployment: Manage+Health - ManageApp CRD
+# The pod gets tested for scaling and affinity.
+podTemplates:
+  - name: health-acc-job
+    containers:
+      - name: health-acc-job
+        resources: {}
+  - name: uninstall-health-acc-job
+    containers:
+      - name: uninstall-health-acc-job
+        resources: {}

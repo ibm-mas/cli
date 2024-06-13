@@ -53,6 +53,9 @@ spec:
     - name: mas_edition
       type: string
       default: ""
+    - name: mas_manual_certs_yaml
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite-app-install
     env:
@@ -98,6 +101,8 @@ spec:
         value: $(params.optimizer_plan)
       - name: MAS_EDITION
         value: $(params.mas_edition)
+      - name: MAS_MANUAL_CERTS_YAML
+        value: $(params.mas_manual_certs_yaml)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -133,7 +138,7 @@ spec:
         - -c
       name: gitops-suite-app-install
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
+      image: quay.io/ibmmas/cli:9.4.0-pre.gitops
   workspaces:
     - name: configs
     - name: shared-gitops-configs

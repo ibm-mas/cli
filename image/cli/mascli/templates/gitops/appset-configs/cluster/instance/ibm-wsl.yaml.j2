@@ -1,0 +1,16 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
+
+ibm_wsl:
+  cpd_service_storage_class: "{{ CPD_SERVICE_STORAGE_CLASS }}"
+  cpd_service_block_storage_class: "{{ CPD_SERVICE_BLOCK_STORAGE_CLASS }}"
+  cpd_service_scale_config: "{{ CPD_SERVICE_SCALE_CONFIG }}"
+  wsl_version: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WSL_VERSION }}>"
+  wsl_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WSL_CHANNEL }}>"
+  ccs_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CCS_CHANNEL }}>"
+  ccs_version: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CCS_VERSION }}>"
+  datarefinery_version: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DATAREFINERY_VERSION }}>"
+  datarefinery_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DATAREFINERY_CHANNEL }}>"
+  ws_runtimes_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WS_RUNTIMES_CHANNEL }}>"
+  ws_runtimes_version: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WS_RUNTIMES_VERSION }}>"
+  opencontent_rabbitmq_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_OPENCONTENT_RABBITMQ_CHANNEL }}>"
+  opencontent_elasticsearch_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_OPENCONTENT_ELASTICSEARCH_CHANNEL }}>"

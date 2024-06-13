@@ -79,9 +79,9 @@
     - name: ibmcloud_resourcegroup
       value: $(params.ibmcloud_resourcegroup)
 
-  # Only install Kafka if the IoT application is being installed
+  # Only install Kafka if IoT or Manage applications are being installed
   when:
-    - input: "$(params.mas_app_channel_iot)"
+    - input: "$(params.mas_app_channel_iot)$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
     - input: "$(params.kafka_action_system)"

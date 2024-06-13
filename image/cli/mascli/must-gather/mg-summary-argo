@@ -1,0 +1,15 @@
+#!/bin/bash
+
+NAMESPACE=$1
+
+echo "Argo - ApplicationSets"
+echo "--------------------------------------------------------------------------------"
+oc -n $NAMESPACE get ApplicationSets -o wide
+echo ""
+
+echo "Argo - Applications"
+echo "--------------------------------------------------------------------------------"
+oc -n $NAMESPACE get Applications  -o wide
+echo ""
+
+exit 0

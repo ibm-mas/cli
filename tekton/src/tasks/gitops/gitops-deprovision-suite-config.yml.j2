@@ -102,9 +102,10 @@ spec:
         --config-action remove \
         --mas-config-scope system \
         --mas-config-type jdbc \
+        --mas-app-id "iot" \
         --dir /tmp/deprovision-suite-config-iotdb \
         --jdbc-type "$JDBC_TYPE_IOT" \
-        --jdbc-instance-name "$JDBC_INSTANCE_NAME_IOT"
+        --jdbc-instance-name "$JDBC_INSTANCE_NAME_IOT" \
         || exit 1
 
         mkdir -p /tmp/deprovision-suite-config-managedb
@@ -125,7 +126,7 @@ spec:
         --mas-workspace-id "masdev" \
         --mas-app-id "manage" \
         --jdbc-type "$JDBC_TYPE_MANAGE" \
-        --jdbc-instance-name "$JDBC_INSTANCE_NAME_MANAGE"
+        --jdbc-instance-name "$JDBC_INSTANCE_NAME_MANAGE" \
         || exit 1
 
         mkdir -p /tmp/deprovision-suite-config-sls
@@ -184,7 +185,7 @@ spec:
         - -c
       name: gitops-deprovision-suite-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:9.0.0-pre.gitops
+      image: quay.io/ibmmas/cli:9.4.0-pre.gitops
   workspaces:
     - name: configs
 

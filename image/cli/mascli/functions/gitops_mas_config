@@ -380,7 +380,9 @@ function gitops_mas_config_noninteractive() {
   # (i.e. to resolve the paths of the secrets we need to delete)
   if [ "${CONFIG_ACTION}" == "remove" ]; then
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
-      [[ -z "$DB2_INSTANCE_NAME" ]] && gitops_mas_config_help "DB2_INSTANCE_NAME is not set"
+      if [[ -z $JDBC_INSTANCE_NAME ]]; then
+        export JDBC_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+      fi
     fi
   fi
 
