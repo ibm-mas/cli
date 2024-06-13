@@ -1,0 +1,31 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-fvt-mobile-versions
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+    - name: mas_instance_id
+      type: string
+      description: Instance ID of the target test environment
+    - name: mas_workspace_id
+      type: string
+      description: Workspace ID in MAS to use for running the tests
+      default: "masdev"
+
+  steps:
+    - name: mobile-versions
+      command:
+        - python3
+        - /opt/app-root/src/mobile-version-finder.py
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      env:
+        {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(8) }}
+
+        # The following optional environment variables enable reporting of FVT results via Slack
+        - name: INSTANCE_ID
+          value: "$(params.mas_instance_id)"
+        - name: WORKSPACE_ID
+          value: "$(params.mas_workspace_id)"
