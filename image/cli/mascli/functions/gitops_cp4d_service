@@ -280,6 +280,14 @@ function gitops_cp4d_service() {
     export SECRET_KEY_OPENCONTENT_ELASTICSEARCH_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}opencontent_elasticsearch_channel#opencontent_elasticsearch_channel
   fi
 
+  if [[ "$CPD_SERVICE_NAME" == "aiopenscale" ]]; then
+    export SECRET_KEY_AIOPENSCALE_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}aiopenscale_version#aiopenscale_version
+    export SECRET_KEY_AIOPENSCALE_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}aiopenscale_channel#aiopenscale_channel
+    export SECRET_KEY_CCS_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ccs_version#ccs_version
+  fi
+
+
+
 # Set and Validate App Names
   # ---------------------------------------------------------------------------
   CLUSTER_ROOT_APP="cluster.${CLUSTER_ID}"

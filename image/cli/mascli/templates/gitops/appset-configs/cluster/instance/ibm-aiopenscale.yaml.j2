@@ -1,0 +1,7 @@
+ibm_aiopenscale:
+  cpd_service_storage_class: "{{ CPD_SERVICE_STORAGE_CLASS }}"
+  cpd_service_block_storage_class: "{{ CPD_SERVICE_BLOCK_STORAGE_CLASS }}"
+  cpd_service_scale_config: "{{ CPD_SERVICE_SCALE_CONFIG }}"
+  aiopenscale_version: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AIOPENSCALE_VERSION }}>"
+  aiopenscale_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AIOPENSCALE_CHANNEL }}>"
+  ccs_version: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CCS_VERSION }}>"
