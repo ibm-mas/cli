@@ -67,6 +67,10 @@ spec:
       type: string
       default: "true"
       description: "Set this to any falue other than 'true' to disable launch of the Visual Inspection FVT pipeline after app-cfg-visualinspection completes"
+    - name: launchivt
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable launch of the IVT pipeline after applications FVT completes"
 
   tasks:
     # 1. MAS Core FVT
@@ -784,6 +788,26 @@ spec:
         - approval-optimizer
         - approval-predict # Infers Manage, Monitor and IoT completed
         - approval-visualinspection
+        - launchivt
+
+    # 11. IVT
+    # -------------------------------------------------------------------------
+    - name: launchivt
+      taskRef:
+        kind: Task
+        name: mas-launchivt
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-ivt"
+      when:
+        - input: $(params.launchivt)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - approval-manage
+        - approval-monitor
 
   finally:
     # Collect must-gather
