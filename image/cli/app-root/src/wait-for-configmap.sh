@@ -68,23 +68,20 @@ do
   esac
 done
 
-# KEY_VALUE=$(oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o jsonpath="{.data.${CONFIGMAP_KEY}}" 2> /dev/null)
-# echo "KEY_VALUE = $KEY_VALUE"
-# echo "CONFIGMAP_TARGET_VALUE = $CONFIGMAP_TARGET_VALUE"
-# if [[ "${CONFIGMAP_TARGET_VALUE}" == *"$KEY_VALUE"* ]]; then
-#   echo "KEY_VALUE is in CONFIGMAP_TARGET_VALUE"
-# else
-#   echo "KEY_VALUE is NOT in CONFIGMAP_TARGET_VALUE"
-# fi
-
-# if [[ "${CONFIGMAP_TARGET_VALUE}" != *"$KEY_VALUE"* ]]; then
-#   echo "KEY_VALUE is NOT CONFIGMAP_TARGET_VALUE"
-# else
-#   echo "KEY_VALUE is in CONFIGMAP_TARGET_VALUE"
-# fi
-
-# exit 0
-
+echo ""
+echo "Namespace .................. $NAMESPACE"
+echo "Config Map ................. $CONFIGMAP_NAME"
+echo "Config Map Key ............. $CONFIGMAP_KEY"
+echo "Config Map Initial Value.... $CONFIGMAP_INITIAL_VALUE"
+echo "Config Map Target Value..... $CONFIGMAP_TARGET_VALUE"
+echo ""
+echo "Escape Config Map .......... $ESCAPE_CONFIGMAP_NAME"
+echo "Escape Config Map Key ...... $ESCAPE_CONFIGMAP_KEY"
+echo ""
+echo "Max Retries ................ $MAX_RETRIES"
+echo "Delay ...................... $DELAY"
+echo "Ignore Failure ............. $IGNORE_FAILURE"
+echo ""
 
 if [[ -z "$CONFIGMAP_NAME" || -z "$CONFIGMAP_KEY" || -z "$NAMESPACE" ]]; then
   echo "NAMESPACE, CONFIGMAP_NAME, and CONFIGMAP_KEY must all be defined, there is nothing to wait for."
