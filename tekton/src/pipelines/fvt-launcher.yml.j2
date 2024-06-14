@@ -361,12 +361,16 @@ spec:
         - name: ignore_failure
           value: "False"
       when:
-        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)
-          operator: in
-          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue", "truefalse", "TrueFalse"]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
+        # If any of these launchers are meant to run we need to wait for manage before triggering setup
+        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_optimizer)$(params.launchfvt_predict)$(params.launchivt)
+          operator: notin
+          values: ["falsefalsefalsefalsefalsefalse"] # case senstive to simplify (here is how launchfvt flags are in fvt template repos)
       runAfter:
         - approval-suite-verify
     
