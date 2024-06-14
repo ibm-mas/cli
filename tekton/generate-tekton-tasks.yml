@@ -58,7 +58,6 @@
         - fvt-manage
         - fvt-mobile
         - fvt-mobile-pytest
-        - fvt-mobile-versions
         - fvt-manage-directprint
         - fvt-manage-adhoc-report
         - fvt-manage-birt-report
