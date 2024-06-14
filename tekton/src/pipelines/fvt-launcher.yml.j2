@@ -367,10 +367,10 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
-        # If any of these launchers are meant to run we need to wait for manage before triggering setup
+        # All these launchers require manage in place to then run setup, therefore the criteria
         - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_optimizer)$(params.launchfvt_predict)$(params.launchivt)
           operator: notin
-          values: ["falsefalsefalsefalsefalsefalse"] # case senstive to simplify (here is how launchfvt flags are in fvt template repos)
+          values: ["falsefalsefalsefalsefalsefalse"] # case sensitive to simplify (here is how launchfvt flags are in fvt template repos)
       runAfter:
         - approval-suite-verify
     
@@ -431,9 +431,10 @@ spec:
         - name: configmap_value
           value: approved
       when:
-        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)
-          operator: in
-          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue", "truefalse", "TrueFalse"]
+        # Same criteria used in waitfor-manage task
+        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_optimizer)$(params.launchfvt_predict)$(params.launchivt)
+          operator: notin
+          values: ["falsefalsefalsefalsefalsefalse"] # case sensitive to simplify (here is how launchfvt flags are in fvt template repos)
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
