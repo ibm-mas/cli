@@ -178,7 +178,7 @@ function validate_dro_migration() {
           echo "No storage class selected for DRO"
         fi
         if [[ "$NO_CONFIRM" != "true" ]] && [[ -z "${DRO_NAMESPACE}" ]]; then
-          prompt_for_input "Provide DRO Namespace [Default:'redhat-marketplace']" DRO_NAMESPACE
+          prompt_for_input "Provide DRO Namespace [Default:'redhat-marketplace']" DRO_NAMESPACE "redhat-marketplace"
           echo_highlight "DRO is configured to install in ${DRO_NAMESPACE} namespace"
         fi
 
@@ -215,9 +215,6 @@ function validate_dro_migration() {
       else
         DRO_MIGRATION="false"
         echo -e "${COLOR_YELLOW}UDS does not exist, skipping DRO migration and proceeding with mas update"
-        if [[ -z "${DRO_NAMESPACE}" ]] || [[ "${DRO_NAMESPACE}" == "" ]]; then
-          DRO_NAMESPACE="redhat-marketplace"
-        fi
         DRO_CSV=$(oc get csv -n "${DRO_NAMESPACE}" | grep ibm-data-reporter-operator | awk '{print $1}')
         echo $DRO_CSV
         if [[ -n $DRO_CSV ]]; then
@@ -879,6 +876,7 @@ function update() {
   if [ "$DRO_MIGRATION" = "true" ]; then
     echo_reset_dim "UDS to DRO ................................. ${COLOR_GREEN}Yes"
     echo_reset_dim " - DRO Storage Class ....................... ${COLOR_GREEN}${DRO_STORAGE_CLASS}"
+    echo_reset_dim " - DRO Namespace ........................... ${COLOR_GREEN}${DRO_NAMESPACE}"
   else
     echo_reset_dim "UDS to DRO ................................. ${COLOR_RED}Not Required"
   fi

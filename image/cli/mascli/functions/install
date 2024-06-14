@@ -339,7 +339,7 @@ function install_noninteractive() {
         export UDS_CONTACT_LASTNAME=$1 && shift
         ;;
       # DRO
-      -dro-namespace)
+      --dro-namespace)
         export DRO_NAMESPACE=$1 && shift
         ;;
 
@@ -780,8 +780,8 @@ function install() {
   uds_action_selection
 
   # Select DRO Namespace
-  if [[ "$INTERACTIVE_MODE" == "true" ]] &&[ [ "$UDS_ACTION" == "install-dro" ]]; then
-    prompt_for_input "Provide DRO Namespace [Default:'redhat-marketplace']" DRO_NAMESPACE
+  if [[ "$INTERACTIVE_MODE" == "true" ]] && [[ "$UDS_ACTION" == "install-dro" ]]; then
+    prompt_for_input "Provide DRO Namespace [Default:'redhat-marketplace']" DRO_NAMESPACE "redhat-marketplace"
     echo_highlight "DRO is configured to install in ${DRO_NAMESPACE} namespace"
   fi
 
