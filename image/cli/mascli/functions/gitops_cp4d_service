@@ -314,7 +314,7 @@ function gitops_cp4d_service() {
   echo
   echo_h2 "Generating CPD Service (${CPD_SERVICE_NAME}) Application"
 
-  if [[ "$CPD_SERVICE_NAME" == "wsl" || "$CPD_SERVICE_NAME" == "wml" || "$CPD_SERVICE_NAME" == "spss"]]; then
+  if [[ "$CPD_SERVICE_NAME" == "wsl" || "$CPD_SERVICE_NAME" == "wml" || "$CPD_SERVICE_NAME" == "spss" ]]; then
     echo "Generating IBM CPD Service file ${GITOPS_INSTANCE_DIR}/ibm-cp4d-services-base.yaml"
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-cp4d-services-base.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-cp4d-services-base.yaml
   fi
