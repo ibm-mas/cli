@@ -46,7 +46,7 @@ function install_config_dns() {
       2|cis)
         # User has chosen to set up DNS integration with Cloudflare
         prompt_for_input "CIS e-mail" CIS_EMAIL
-        prompt_for_input "CIS API Key" CIS_APIKEY
+        prompt_for_secret "CIS API Key" CIS_APIKEY
         prompt_for_input "CIS CRN" CIS_CRN
         prompt_for_input "CIS Subdomain" CIS_SUBDOMAIN
         DNS_PROVIDER=cis
