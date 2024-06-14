@@ -31,6 +31,9 @@ spec:
 
     - name: mas_manual_cert_mgmt
       type: string
+    - name: mas_manual_certs_yaml
+      type: string
+      default: ""
 
     - name: mas_edition
       type: string
@@ -81,6 +84,7 @@ spec:
       type: string
     - name: db2_data_storage_class
       type: string
+      default: ""
     - name: db2_backup_storage_class
       type: string
 
@@ -137,6 +141,7 @@ spec:
 
     - name: custom_labels
       type: string
+      default: ""
 
     - name: default_block_storage_class
       type: string
@@ -168,6 +173,9 @@ spec:
       type: string
     - name: cpd_service_storage_class
       type: string
+    - name: cpd_service_scale_config
+      type: string
+      default: "small"
 
       #CP4D wml, analytics, openscale, spss modeler
     - name: cp4d_wsl_action
@@ -829,6 +837,8 @@ spec:
           value: $(params.cpd_service_block_storage_class)
         - name: cpd_service_storage_class
           value: $(params.cpd_service_storage_class)
+        - name: cpd_service_scale_config
+          value: $(params.cpd_service_scale_config)
 
       workspaces:
         - name: configs
@@ -906,6 +916,8 @@ spec:
           value: $(params.cpd_service_block_storage_class)
         - name: cpd_service_storage_class
           value: $(params.cpd_service_storage_class)
+        - name: cpd_service_scale_config
+          value: $(params.cpd_service_scale_config)
 
       workspaces:
         - name: configs
@@ -944,6 +956,8 @@ spec:
           value: $(params.cpd_service_block_storage_class)
         - name: cpd_service_storage_class
           value: $(params.cpd_service_storage_class)
+        - name: cpd_service_scale_config
+          value: $(params.cpd_service_scale_config)
 
       workspaces:
         - name: configs
@@ -983,6 +997,8 @@ spec:
           value: $(params.cpd_service_block_storage_class)
         - name: cpd_service_storage_class
           value: $(params.cpd_service_storage_class)
+        - name: cpd_service_scale_config
+          value: $(params.cpd_service_scale_config)
 
       workspaces:
         - name: configs
@@ -1022,6 +1038,8 @@ spec:
           value: $(params.cpd_service_block_storage_class)
         - name: cpd_service_storage_class
           value: $(params.cpd_service_storage_class)
+        - name: cpd_service_scale_config
+          value: $(params.cpd_service_scale_config)
 
       workspaces:
         - name: configs

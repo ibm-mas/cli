@@ -103,6 +103,9 @@ spec:
     - name: delete_wildcards
       type: string
       default: "True"
+    - name: mas_manual_certs_yaml
+      type: string
+      default: ""
 
   stepTemplate:
     name: gitops-suite
@@ -187,6 +190,8 @@ spec:
       - name: DELETE_WILDCARDS
         value: $(params.delete_wildcards)
 
+      - name: MAS_MANUAL_CERTS_YAML 
+        value: $(params.mas_manual_certs_yaml)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -244,3 +249,4 @@ spec:
       image: quay.io/ibmmas/cli:9.4.0-pre.gitops
   workspaces:
     - name: configs
+    - name: shared-gitops-configs

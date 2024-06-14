@@ -39,12 +39,6 @@ spec:
     - name: cpd_instance_namespace
       type: string
       default: ""
-    - name: cpfs_size
-      type: string
-      default: "small"
-    - name: cpd_scale_config
-      type: string
-      default: "medium"
     - name: cluster_name
       type: string
     - name: cluster_url
@@ -70,6 +64,9 @@ spec:
     - name: mas_manual_cert_mgmt
       type: string
       default: "False"
+    - name: mas_manual_certs_yaml
+      type: string
+      default: ""
 
   stepTemplate:
     name: gitops-suite-app-config
@@ -102,10 +99,6 @@ spec:
         value: $(params.cpd_wml_instance_id)
       - name: CPD_INSTANCE_NAMESPACE
         value: $(params.cpd_instance_namespace)
-      - name: CPFS_SIZE
-        value: $(params.cpfs_size)
-      - name: CPD_SCALE_CONFIG
-        value: $(params.cpd_scale_config)
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
       - name: ACCOUNT
@@ -126,6 +119,8 @@ spec:
         value: $(params.avp_aws_secret_region)
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
+      - name: MAS_MANUAL_CERTS_YAML
+        value: $(params.mas_manual_certs_yaml)
     envFrom:
       - configMapRef:
           name: environment-properties
