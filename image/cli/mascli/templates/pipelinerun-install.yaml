@@ -252,7 +252,8 @@ spec:
       value: '$UDS_CONTACT_LASTNAME'
     - name: uds_action
       value: '$UDS_ACTION'
-
+    - name: dro_namespace
+      value: '$DRO_NAMESPACE'
     # Dependencies - AppConnect
     # -------------------------------------------------------------------------
     - name: appconnect_entitlement_username
