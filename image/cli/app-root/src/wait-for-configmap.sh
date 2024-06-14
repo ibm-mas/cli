@@ -69,15 +69,15 @@ do
 done
 
 echo ""
+echo "Inputs"
+echo "------------------------------------------------------------------"
 echo "Namespace .................. $NAMESPACE"
 echo "Config Map ................. $CONFIGMAP_NAME"
 echo "Config Map Key ............. $CONFIGMAP_KEY"
 echo "Config Map Initial Value.... $CONFIGMAP_INITIAL_VALUE"
 echo "Config Map Target Value..... $CONFIGMAP_TARGET_VALUE"
-echo ""
 echo "Escape Config Map .......... $ESCAPE_CONFIGMAP_NAME"
 echo "Escape Config Map Key ...... $ESCAPE_CONFIGMAP_KEY"
-echo ""
 echo "Max Retries ................ $MAX_RETRIES"
 echo "Delay ...................... $DELAY"
 echo "Ignore Failure ............. $IGNORE_FAILURE"
