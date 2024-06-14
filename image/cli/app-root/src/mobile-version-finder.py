@@ -15,7 +15,7 @@ from kubernetes import client, config
 
 instanceId = os.getenv("INSTANCE_ID")
 workspaceId = os.getenv("WORKSPACE_ID")
-uploadLogs = os.getenv("UPLOAD_LOGS")
+uploadFile = os.getenv("UPLOAD_FILE")
 artKey = os.getenv("ARTIFACTORY_TOKEN")
 artDir = os.getenv("ARTIFACTORY_UPLOAD_DIR")
 output_filename = "mobile-is-versions.json"
@@ -281,8 +281,8 @@ if __name__ == "__main__":
     print("************************************************")
 
     # Upload logs conditionally based o env var
-    if uploadLogs:
-        print("Uploading logs to artifactory")
+    if uploadFile:
+        print("Uploading file to artifactory")
         artifactory_upload()
 
     print("Done")
