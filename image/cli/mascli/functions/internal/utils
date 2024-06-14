@@ -373,8 +373,8 @@ function license_prompt() {
     echo_h2 "License Terms"
     echo -e "To continue with the installation, you must accept the license terms:"
     echo -e "   ${COLOR_CYAN}${TEXT_UNDERLINE}${MAS_LICENSE_LINK}${TEXT_RESET}"
-    echo -e "   ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/MAXIT81-License"
-    echo -e "   ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/MAXArcGIS90-License"
+    echo -e "   ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/MAXIT81-License${TEXT_RESET}"
+    echo -e "   ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/MAXArcGIS90-License${TEXT_RESET}"
     echo
     reset_colors
     if [[ "$NO_CONFIRM" == "true" ]]; then
