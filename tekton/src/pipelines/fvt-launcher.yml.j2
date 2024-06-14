@@ -788,6 +788,27 @@ spec:
       runAfter:
         - launchfvt-visualinspection
     
+    # 11. IVT
+    # -------------------------------------------------------------------------
+    - name: launchivt
+      taskRef:
+        kind: Task
+        name: mas-launchivt
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-ivt"
+      when:
+        - input: $(params.launchivt)
+          operator: in
+          values: ["true", "True"]
+      # Currently there is only one task testing Manage and Monitor, no point to
+      # run IVT after all approvals are obtained.
+      runAfter:
+        - approval-manage
+        - approval-monitor
+    
     # Last Sync Point
     # -------------------------------------------------------------------------
     # Guarantee installation pipeline ran till the end;
@@ -796,8 +817,8 @@ spec:
     # Note: this task will start once all the FVTs are approved and will start at the
     # same time install's post-verify starts. It means its timeout must be higher than
     # post-verify + sync-install, which will set the flag needed to finalize this fvt-launcher
-    # - Escape Route: none
-    # - Ignore Failures: false
+    # - Escape Route: INSTALL_STATUS != "" (i.e. FAILED)
+    # - Ignore Failures: False
     # -------------------------------------------------------------------------
     - name: waitfor-installation
       taskRef:
@@ -814,6 +835,11 @@ spec:
           value: INSTALL_STATUS
         - name: configmap_target_value
           value: Completed
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
         # 25 retries at 5 minute intervals = 2 hours
         - name: delay
           value: "300"
@@ -832,25 +858,6 @@ spec:
         - approval-predict # Infers Manage, Monitor and IoT completed
         - approval-visualinspection
         - launchivt
-
-    # 11. IVT
-    # -------------------------------------------------------------------------
-    - name: launchivt
-      taskRef:
-        kind: Task
-        name: mas-launchivt
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-ivt"
-      when:
-        - input: $(params.launchivt)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - approval-manage
-        - approval-monitor
 
   finally:
     # Collect must-gather
