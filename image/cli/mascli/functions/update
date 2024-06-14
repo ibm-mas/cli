@@ -179,7 +179,7 @@ function validate_dro_migration() {
         fi
         if [[ "$NO_CONFIRM" != "true" ]] && [[ -z "${DRO_NAMESPACE}" ]]; then
           prompt_for_input "Provide DRO Namespace [Default:'redhat-marketplace']" DRO_NAMESPACE
-          echo_highlight "DRO is configured to install in ${DRO_NAMESPACE} "
+          echo_highlight "DRO is configured to install in ${DRO_NAMESPACE} namespace"
         fi
 
         ## Check all avaliable Suite Instance's versions, if any of them is 8.9.x cancel the update. Exit mas update throw error.
