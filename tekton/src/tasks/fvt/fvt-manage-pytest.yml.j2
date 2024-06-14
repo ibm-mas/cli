@@ -55,16 +55,6 @@ spec:
     - name: mas_instance_id
       type: string
       description: Instance ID of the target test environment
-    - name: mas_workspace_id
-      type: string
-      description: Workspace ID in MAS to use for running the tests
-
-    # Test-specific Information (all optional)
-    # -------------------------------------------------------------------------
-    - name: artifactory_token
-      type: string
-      description: Artifactory API Key (required by fvt-ibm-mas-manage to pull test container content)
-      default: ""
 
   stepTemplate:
     name: 'fvt-manage-pytest'
@@ -95,7 +85,11 @@ spec:
       - name: INSTANCE_ID
         value: "$(params.mas_instance_id)"
       - name: WORKSPACE_ID
-        value: "$(params.mas_workspace_id)"
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: MAS_WORKSPACE_ID
+              optional: false
 
       - name: FVT_TEST_SUITE_PREFIX
         value: $(params.fvt_test_suite_prefix)
@@ -108,8 +102,11 @@ spec:
         value: "$(params.fvt_enable_debug)"
 
       - name: ARTIFACTORY_TOKEN
-        value: $(params.artifactory_token)
-
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt
+            key: FVT_ARTIFACTORY_TOKEN
+            optional: false
       - name: ARTIFACTORY_UPLOAD_DIR
         valueFrom:
           secretKeyRef:

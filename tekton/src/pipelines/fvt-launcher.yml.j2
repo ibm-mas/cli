@@ -75,6 +75,16 @@ spec:
       type: string
       default: "true"
       description: "Set this to any value other than 'true' to disable launch of the IVT pipeline after applications FVT completes"
+    
+    # Required by Manage Setup (Data Loader)
+    - name: mas_app_channel_manage
+      type: string
+      default: ""
+      description: "Manage Channel - necessary to run Manage Setup and for the when clause"
+    - name: fvt_digest_manage_pytest
+      type: string
+      default: ""
+      description: "Manage Pytest FVT Digest - necessary to run Manage Setup and for the when clause"
 
   tasks:
     # 1. MAS Core FVT
@@ -362,6 +372,17 @@ spec:
           values: ["true", "True"]
       runAfter:
         - approval-suite-verify
+    
+    # Manage Setup (Data Loader)
+    # Required by fvt-manage, fvt-manage-is, fvt-optimizer and fvt-predict pipelines
+    - name: manage-setup
+      {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: base-api-setup
+      runAfter:
+        - waitfor-manage
 
     - name: launchfvt-manage
       params:
@@ -377,7 +398,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitfor-manage
+        - manage-setup
     
     - name: launchfvt-manage-is
       params:
@@ -393,7 +414,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitfor-manage
+        - manage-setup
 
     - name: approval-manage
       taskRef:
@@ -578,6 +599,7 @@ spec:
           values: ["true", "True"]
       runAfter:
         - waitfor-optimizer
+        - manage-setup
 
     - name: approval-optimizer
       taskRef:
@@ -854,3 +876,5 @@ spec:
   workspaces:
     # Shared storage to hold mustgather output for tasks
     - name: shared-mustgather
+    # The generated configuration files
+    - name: shared-configs
