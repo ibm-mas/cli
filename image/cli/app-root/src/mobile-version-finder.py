@@ -4,6 +4,7 @@ import zipfile
 import sys
 import json
 import yaml
+import requests
 from pathlib import Path
 from collections import OrderedDict
 from subprocess import PIPE, Popen, TimeoutExpired
@@ -14,6 +15,10 @@ from kubernetes import client, config
 
 instanceId = os.getenv("INSTANCE_ID")
 workspaceId = os.getenv("WORKSPACE_ID")
+uploadLogs = os.getenv("UPLOAD_LOGS")
+artKey = os.getenv("ARTIFACTORY_TOKEN")
+artDir = os.getenv("ARTIFACTORY_UPLOAD_DIR")
+output_filename = "mobile-is-versions.json"
 
 class RunCmdResult(object):
     def __init__(self, returnCode, output, error):
@@ -187,11 +192,7 @@ def get_mobile_and_is_image_tags():
             result = run_cmd(ocExecCommand)
             cat_result = result.out.decode('utf-8')
             images = yaml.safe_load(cat_result)
-            images_json.update(
-                {
-                    "mobileapi": images['defaultTags']['mobileapi']
-                }
-            )
+            images_json.update({"mobileapi": images['defaultTags']['mobileapi']})
     except Exception as e:
         print(f"Unable to catch images file from entitymgr pod: {e}")
         sys.exit(1)
@@ -221,9 +222,26 @@ def get_mobile_and_is_image_tags():
 
     return images_json_sorted
 
+def artifactory_upload():
+
+    url = artDir + '/' + output_filename
+    bearer = f"Bearer {artKey}"
+    headers = {
+        'content-type': 'application/json',
+        'Authorization': bearer
+    }
+
+    with open(output_filename, 'rb') as f:
+        r = requests.put(url, data=f, headers=headers, timeout=10)
+
+    if r.status_code != 201:
+        print("Upload failed.")
+    else:
+        print("Upload successful")
+        print("Download URL:", r.json()['downloadUri'])
+
 
 if __name__ == "__main__":
-
 
     if "KUBERNETES_SERVICE_HOST" in os.environ:
         config.load_incluster_config()
@@ -234,8 +252,9 @@ if __name__ == "__main__":
         k8s_client = config.new_client_from_config()
         dynClient = DynamicClient(k8s_client)
 
-    if os.path.isfile('mobile_is_versions.json'):
-        os.remove('mobile_is_versions.json')
+    if os.path.isfile(output_filename):
+        print("Found an existing output file. Deleting...")
+        os.remove(output_filename)
 
     print("Retrieving Graphite versions for Manage apps")
     graphite_versions = get_graphite_versions()
@@ -252,12 +271,18 @@ if __name__ == "__main__":
         }
     )
 
-    with open("mobile_is_versions.json", "w", encoding="utf-8") as outfile:
+    with open(output_filename, "w", encoding="utf-8") as outfile:
         json.dump(mobile_is_versions, outfile, indent=4)
 
     print("Printing gererated file:")
     print("************************************************")
-    with open("mobile_is_versions.json", "r", encoding="utf-8") as readfile:
+    with open(output_filename, "r", encoding="utf-8") as readfile:
         print(readfile.read())
     print("************************************************")
+
+    # Upload logs conditionally based o env var
+    if uploadLogs:
+        print("Uploading logs to artifactory")
+        artifactory_upload()
+
     print("Done")
