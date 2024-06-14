@@ -151,6 +151,10 @@ spec:
     - name: mas_manual_certs_yaml
       type: string
       default: ""
+    - name: mas_wipe_mongo_data
+      type: string
+      default: "False"
+
   tasks:
 
     # 1. License Entitlement
@@ -311,6 +315,8 @@ spec:
           value: $(params.dro_ca_certificate_file)
         - name: cluster_url
           value: $(params.cluster_url)
+        - name: mas_wipe_mongo_data
+          value: $(params.mas_wipe_mongo_data)
       workspaces:
         - name: configs
           workspace: configs

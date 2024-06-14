@@ -21,9 +21,10 @@ GitOps Configuration:
   --disable-postdelete-hooks ${COLOR_YELLOW}USE_POSTDELETE_HOOKS${TEXT_RESET}  Unless set (or USE_POSTDELETE_HOOKS exported and set to false), PostDelete hooks will be deployed to ensure config CRs are properly cleaned up by ArgoCD on deletion. !!! PostDelete hooks should never be used when ArgoCD version < 2.10 !!! 
 
 IBM Maximo Application Suite:
-  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
-  --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                MAS Application scope for this configuration (required if MAS_CONFIG_SCOPE is app or wsapp)     
-  --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}    MAS Workspace scope for this configuration (required if MAS_CONFIG_SCOPE is ws or wsapp) 
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}         IBM Suite Maximo Application Suite Instance ID
+  --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                       MAS Application scope for this configuration (required if MAS_CONFIG_SCOPE is app or wsapp)     
+  --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}           MAS Workspace scope for this configuration (required if MAS_CONFIG_SCOPE is ws or wsapp)
+  --mas-wipe-mongo-data ${COLOR_YELLOW}MAS_WIPE_MONGO_DATA${TEXT_RESET}     Flag to wipe mongo data on MAS uninstall
 
 AWS Secrets Manager Configuration (Required):
   --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
@@ -114,6 +115,9 @@ function gitops_mas_config_noninteractive() {
         ;;
       -W|--mas-workspace-id)
         export MAS_WORKSPACE_ID=$1 && shift
+        ;;
+      --mas-wipe-mongo-data)
+        export MAS_WIPE_MONGO_DATA=$1 && shift
         ;;
       --mas-app-id)
         export MAS_APP_ID=$1 && shift
@@ -500,6 +504,7 @@ function gitops_mas_config() {
     if [ "${MAS_CONFIG_TYPE}" == "mongo" ]; then
       echo "${TEXT_DIM}"
       echo_reset_dim "Mongo Provider  ................ ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
+      echo_reset_dim "MAS_WIPE_MONGO_DATA ............ ${COLOR_MAGENTA}${MAS_WIPE_MONGO_DATA}"
       reset_colors
     fi
 
