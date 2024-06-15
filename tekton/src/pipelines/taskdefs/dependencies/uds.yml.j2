@@ -27,7 +27,7 @@
     # Only used by DRO
     - name: ibm_entitlement_key
       value: $(params.ibm_entitlement_key)
-    - name: DRO_NAMESPACE
+    - name: dro_namespace
       value: $(params.dro_namespace)
   when:
     - input: "$(params.uds_action)"
