@@ -65,7 +65,6 @@ function install_noninteractive() {
 
   WAIT_FOR_PVCS=true
   STORAGE_CLASS_PROVIDER=custom
-
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -338,6 +337,10 @@ function install_noninteractive() {
         ;;
       --uds-lastname)
         export UDS_CONTACT_LASTNAME=$1 && shift
+        ;;
+      # DRO
+      --dro-namespace)
+        export DRO_NAMESPACE=$1 && shift
         ;;
 
       # MongoDB
@@ -775,6 +778,11 @@ function install() {
   # Determine if UDS or DRO will be installed
   # DRO is installed by default on latest catalog version, for catalogs older than 240227 install UDS
   uds_action_selection
+
+  # Select DRO Namespace
+  if [[ "$INTERACTIVE_MODE" == "true" ]] && [[ "$UDS_ACTION" == "install-dro" ]]; then
+    prompt_for_input "Provide DRO Namespace [Default:'redhat-marketplace']" DRO_NAMESPACE "redhat-marketplace"
+  fi
 
   # Prepare and launch the Tekton pipeline
   install_pipelinerun_prepare
