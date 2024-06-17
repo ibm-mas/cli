@@ -9,7 +9,9 @@ use_postdelete_hooks: {{ USE_POSTDELETE_HOOKS }}
 
 dro_api_token: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DRO_API_TOKEN }}>
 dro_endpoint_url: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DRO_URL }}>
+{%- if MAS_SEGMENT_KEY is defined and MAS_SEGMENT_KEY !='' %}
 mas_segment_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MAS_SEGMENT_KEY }}>
+{%- endif %}
 dro_contact:
   email: {{ DRO_CONTACT_EMAIL }}
   first_name: {{ DRO_CONTACT_FIRSTNAME }}
