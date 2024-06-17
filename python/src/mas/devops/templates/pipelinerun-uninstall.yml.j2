@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  generateName: $MAS_INSTANCE_ID-uninstall-
+  name: "{{mas_instance_id}}-uninstall-{{ timestamp }}"
   labels:
     tekton.dev/pipeline: mas-uninstall
 spec:
@@ -11,24 +11,24 @@ spec:
 
   serviceAccountName: pipeline
   timeouts:
-    pipeline: "1h"
+    pipeline: "5h"
 
   params:
     - name: mas_instance_id
-      value: "$MAS_INSTANCE_ID"
+      value: {{ mas_instance_id }}
     - name: grafana_action
-      value: "$GRAFANA_ACTION"
+      value: {{ grafana_action }}
     - name: cert_manager_provider
-      value: "$CERT_MANAGER_PROVIDER"
+      value: {{ cert_manager_provider }}
     - name: cert_manager_action
-      value: "$CERT_MANAGER_ACTION"
+      value: {{ cert_manager_action }}
     - name: common_services_action
-      value: "$COMMON_SERVICES_ACTION"
+      value: {{ common_services_action }}
     - name: ibm_catalogs_action
-      value: "$IBM_CATALOGS_ACTION"
+      value: {{ ibm_catalogs_action }}
     - name: mongodb_action
-      value: "$MONGODB_ACTION"
+      value: {{ mongodb_action }}
     - name: sls_action
-      value: "$SLS_ACTION"
+      value: {{ sls_action }}
     - name: uds_action
-      value: "$UDS_ACTION"
+      value: {{ uds_action }}

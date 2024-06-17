@@ -11,11 +11,12 @@
 import logging
 from kubeconfig import KubeConfig
 from kubeconfig.exceptions import KubectlNotFoundError
+from openshift.dynamic import DynamicClient
 from openshift.dynamic.exceptions import NotFoundError
 
 logger = logging.getLogger(__name__)
 
-def connect(server, token):
+def connect(server: str, token: str) -> bool:
     """
     Connect to target OCP
     """
@@ -50,7 +51,7 @@ def connect(server, token):
     return True
 
 
-def createNamespace(dynClient, namespace):
+def createNamespace(dynClient: DynamicClient, namespace: str) -> bool:
     """
     Create a namespace if it does not exist
     """
@@ -70,7 +71,8 @@ def createNamespace(dynClient, namespace):
         logger.debug(f"Created namespace {namespace}")
     return True
 
-def getConsoleURL(dynClient):
+
+def getConsoleURL(dynClient: DynamicClient) -> str:
     routesAPI = dynClient.resources.get(api_version="route.openshift.io/v1", kind="Route")
     consoleRoute = routesAPI.get(name="console", namespace="openshift-console")
     return f"https://{consoleRoute.spec.host}"

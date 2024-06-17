@@ -51,7 +51,7 @@ setup(
     include_package_data=True,
     scripts=[
         'src/mas-upgrade',
-        'src/mas-upgrade-gui'
+        'src/mas-uninstall'
     ],
     url='https://github.com/ibm-mas/cli',
     license='Eclipse Public License - v1.0',

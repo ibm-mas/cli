@@ -166,7 +166,7 @@ class BaseApp(object):
                 print()
                 if not noConfirm:
                     # We are already connected to a cluster, but prompt the user if they want to use this connection
-                    continueWithExistingCluster = prompt(HTML(f'<Yellow>Proceed with this cluster?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False, default="y")
+                    continueWithExistingCluster = prompt(HTML(f'<Yellow>Proceed with this cluster?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
                     promptForNewServer = continueWithExistingCluster in ["n", "no"]
             except Exception as e:
                 # We are already connected to a cluster, but the connection is not valid so prompt for connection details

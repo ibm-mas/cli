@@ -17,6 +17,7 @@ from time import sleep
 
 from kubeconfig import kubectl
 from kubeconfig.exceptions import KubectlCommandError
+from openshift.dynamic import DynamicClient
 from openshift.dynamic.exceptions import NotFoundError, UnprocessibleEntityError
 
 from jinja2 import Environment, FileSystemLoader
@@ -27,7 +28,7 @@ from .ocp import getConsoleURL
 logger = logging.getLogger(__name__)
 
 
-def installOpenShiftPipelines(dynClient):
+def installOpenShiftPipelines(dynClient: DynamicClient) -> bool:
     """
     Install the OpenShift Pipelines Operator and wait for it to be ready to use
     """
@@ -87,7 +88,7 @@ def installOpenShiftPipelines(dynClient):
     return True
 
 
-def updateTektonDefinitions(namespace):
+def updateTektonDefinitions(namespace: str) -> bool:
     """
     Install/update the MAS tekton pipeline and task definitions
 
@@ -99,11 +100,15 @@ def updateTektonDefinitions(namespace):
         result = kubectl.run(subcmd_args=['apply', '-n', namespace, '-f', path.join(thisDir, "templates", "ibm-mas-tekton.yaml")])
         for line in result.split("\n"):
             logger.debug(line)
+        return True
     except KubectlCommandError as e:
         logger.warning(f"Error: Unable to install/update Tekton definitions: {e}")
+        return False
 
 
-def launchUpgradePipeline(dynClient, instanceId, masChannel=""):
+def launchUpgradePipeline(dynClient: DynamicClient,
+                          instanceId: str,
+                          masChannel: str="") -> str:
     """
     Create a PipelineRun to upgrade the chosen MAS instance
     """
@@ -129,18 +134,70 @@ def launchUpgradePipeline(dynClient, instanceId, masChannel=""):
         pipelineRun = yaml.safe_load(renderedTemplate)
         pipelineRunsAPI.apply(body=pipelineRun, namespace=namespace)
 
-    except NotFoundError as e:
-        logger.warning(f"Error: Couldn't find package manifest for Red Hat Openshift Pipelines Operator: {e}")
-        logger.debug(renderedTemplate)
-        return None
-    except UnprocessibleEntityError as e:
-        logger.warning(f"Error: Couldn't create/update OpenShift Pipelines Operator Subscription: {e}")
-        logger.debug(renderedTemplate)
-        return None
     except Exception as e:
-        logger.warning(f"Error: As unexpected error occured: {e}")
+        logger.warning(f"Error: An unexpected error occured: {e}")
         logger.debug(renderedTemplate)
         return None
 
     pipelineURL = f"{getConsoleURL(dynClient)}/k8s/ns/mas-{instanceId}-pipelines/tekton.dev~v1beta1~PipelineRun/{instanceId}-upgrade-{timestamp}"
+    return pipelineURL
+
+def launchUninstallPipeline(dynClient: DynamicClient,
+                            instanceId: str,
+                            certManagerProvider: str="redhat",
+                            uninstallCertManager: bool=False,
+                            uninstallGrafana: bool=False,
+                            uninstallCatalog: bool=False,
+                            uninstallCommonServices: bool=False,
+                            uninstallUDS: bool=False,
+                            uninstallMongoDb: bool=False,
+                            uninstallSLS: bool=False) -> str:
+    """
+    Create a PipelineRun to uninstall the chosen MAS instance (and selected dependencies)
+    """
+    pipelineRunsAPI = dynClient.resources.get(api_version="tekton.dev/v1beta1", kind="PipelineRun")
+    namespace = f"mas-{instanceId}-pipelines"
+    timestamp = datetime.now().strftime("%y%m%d-%H%M")
+    # Create the PipelineRun
+    try:
+        templateDir = path.join(path.abspath(path.dirname(__file__)), "templates")
+        env = Environment(
+            loader=FileSystemLoader(searchpath=templateDir)
+        )
+        try:
+            template = env.get_template("pipelinerun-uninstall.yml.j2")
+        except TemplateNotFound as e:
+            logger.warning(f"Could not find pipelinerun template in {templateDir}: {e}")
+            return None
+
+        grafanaAction = "uninstall" if uninstallGrafana else "none"
+        certManagerAction = "uninstall" if uninstallCertManager else "none"
+        commonServicesAction = "uninstall" if uninstallCommonServices else "none"
+        ibmCatalogAction = "uninstall" if uninstallCatalog else "none"
+        mongoDbAction = "uninstall" if uninstallMongoDb else "none"
+        slsAction = "uninstall" if uninstallSLS else "none"
+        udsAction = "uninstall" if uninstallUDS else "none"
+
+        # Render the pipelineRun
+        renderedTemplate = template.render(
+            timestamp = timestamp,
+            mas_instance_id = instanceId,
+            grafana_action = grafanaAction,
+            cert_manager_provider = certManagerProvider,
+            cert_manager_action = certManagerAction,
+            common_services_action = commonServicesAction,
+            ibm_catalogs_action = ibmCatalogAction,
+            mongodb_action = mongoDbAction,
+            sls_action = slsAction,
+            uds_action = udsAction
+        )
+        pipelineRun = yaml.safe_load(renderedTemplate)
+        pipelineRunsAPI.apply(body=pipelineRun, namespace=namespace)
+
+    except Exception as e:
+        logger.warning(f"Error: An unexpected error occured: {e}")
+        logger.debug(renderedTemplate)
+        return None
+
+    pipelineURL = f"{getConsoleURL(dynClient)}/k8s/ns/mas-{instanceId}-pipelines/tekton.dev~v1beta1~PipelineRun/{instanceId}-uninstall-{timestamp}"
     return pipelineURL
