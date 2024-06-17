@@ -1,16 +1,22 @@
 name: Release CLI
 on:
-  push:
-    branches-ignore:
-      - '**'
-    tags:
-      - '**'
+  release:
+    types: [ published ]
+
+permissions:
+  contents: read
+
 jobs:
   build-cli:
     runs-on: ubuntu-latest
     steps:
+      # 1. Initialize the build
+      # -------------------------------------------------------------------------------------------
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        # Without this option, we don't get the tag information
+        with:
+          fetch-depth: 0
 
       - name: Initialise the build system
         run: |
@@ -18,7 +24,7 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/initbuild.sh
           source $GITHUB_WORKSPACE/build/bin/.functions.sh
 
-      # 1. Tekton
+      # 2. Tekton
       # -------------------------------------------------------------------------------------------
       - name: Build the Tekton definitions
         run: $GITHUB_WORKSPACE/build/bin/build-tekton.sh
@@ -40,8 +46,32 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml
           $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton-fvt.yaml
 
+      # 3. Python Package
+      # -------------------------------------------------------------------------------------------
+      - name: Build the Python package
+        run: |
+          sed -i "s#__version__ = \"100.0.0\"#__version__ = \"${{ env.VERSION_NOPREREL }}\"#g" ${GITHUB_WORKSPACE}/python/src/mas/devops/__init__.py
+          cat ${GITHUB_WORKSPACE}/python/src/mas/devops/__init__.py
+          python -m pip install --upgrade pip
+          cp $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml $GITHUB_WORKSPACE/python/src/mas/devops/templates/ibm-mas-tekton.yaml
+          cd $GITHUB_WORKSPACE/python
+          make install build
+          cp $GITHUB_WORKSPACE/python/dist/mas_devops-${{ env.VERSION_NOPREREL }}.tar.gz $GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz
 
-      # 2. CLI installer
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 python/src --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 python/src --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+
+      # 4. CLI installer
       # -------------------------------------------------------------------------------------------
       - name: Build the cli package
         run: |
@@ -56,8 +86,7 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
 
-
-      # 3. CLI container image
+      # 5. CLI container image
       # -------------------------------------------------------------------------------------------
       - name: Build the docker image
         run: |
@@ -80,7 +109,7 @@ jobs:
         #   username: ${{ secrets.QUAYIO_USERNAME }}
         #   password: ${{ secrets.QUAYIO_PASSWORD }}
 
-      # 4. OWASP Dependency Check
+      # 6. OWASP Dependency Check
       # -------------------------------------------------------------------------------------------
       - name: Perform dependency check
         uses: dependency-check/Dependency-Check_Action@main

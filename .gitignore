@@ -14,7 +14,7 @@ tekton/tmp
 kubectl.exe
 mas.log
 
-python/pandoc-3.2-1-amd64.deb
+python/pandoc-*-amd64.deb
 python/dist
 python/venv
 python/src/mas_devops.egg-info
