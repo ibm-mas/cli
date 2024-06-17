@@ -66,7 +66,6 @@
         - fvt-sls
         - fvt-data-dictionary
         - fvt-run-suite
-        - fvt-wait-for-install
 
     - name: Generate Tasks (FVT Launchers)
       ansible.builtin.template:
@@ -86,6 +85,7 @@
         - launchfvt-visualinspection
         - launchfvt-upgrade-post
         - launchfvt-upgrade-pre
+        - launchivt
 
     # 4. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
