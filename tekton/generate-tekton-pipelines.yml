@@ -50,6 +50,7 @@
         - rollback
         - uninstall
         - fvt-launcher
+        - ivt
 
     # 2. Generate Pipelines
     # -------------------------------------------------------------------------
