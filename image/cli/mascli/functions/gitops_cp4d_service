@@ -260,19 +260,27 @@ function gitops_cp4d_service() {
   # In order to not block use we will just install using ansible-devops
   AVP_TYPE=aws  # Support for IBM will be added later
 
-  if [[ "$CPD_SERVICE_NAME" == "wsl" ]]; then
-    export SECRET_KEY_WSL_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wsl_version#wsl_version
-    export SECRET_KEY_WSL_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wsl_channel#wsl_channel
+  if [[ "$CPD_SERVICE_NAME" == "wsl" || "$CPD_SERVICE_NAME" == "wml" || "$CPD_SERVICE_NAME" == "spss" ]]; then
     export SECRET_KEY_CCS_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ccs_channel#ccs_channel
     export SECRET_KEY_CCS_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ccs_version#ccs_version
-    export SECRET_KEY_DATAREFINERY_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}datarefinery_version#datarefinery_version
     export SECRET_KEY_DATAREFINERY_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}datarefinery_channel#datarefinery_channel
     export SECRET_KEY_WS_RUNTIMES_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ws_runtimes_channel#ws_runtimes_channel
-    export SECRET_KEY_WS_RUNTIMES_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ws_runtimes_version#ws_runtimes_version
     export SECRET_KEY_OPENCONTENT_RABBITMQ_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}opencontent_rabbitmq_channel#opencontent_rabbitmq_channel
     export SECRET_KEY_OPENCONTENT_ELASTICSEARCH_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}opencontent_elasticsearch_channel#opencontent_elasticsearch_channel
   fi
 
+  if [[ "$CPD_SERVICE_NAME" == "wsl" ]]; then
+    export SECRET_KEY_WSL_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wsl_version#wsl_version
+    export SECRET_KEY_WSL_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wsl_channel#wsl_channel
+    export SECRET_KEY_DATAREFINERY_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}datarefinery_version#datarefinery_version
+    export SECRET_KEY_WS_RUNTIMES_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ws_runtimes_version#ws_runtimes_version
+  fi
+
+  if [[ "$CPD_SERVICE_NAME" == "wml" ]]; then
+    export SECRET_KEY_WML_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wml_version#wml_version
+    export SECRET_KEY_WML_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wml_channel#wml_channel
+  fi
+  
 # Set and Validate App Names
   # ---------------------------------------------------------------------------
   CLUSTER_ROOT_APP="cluster.${CLUSTER_ID}"
@@ -298,11 +306,17 @@ function gitops_cp4d_service() {
   # ----------------------------------------------------------------------------
   echo
   echo_h2 "Generating CPD Service (${CPD_SERVICE_NAME}) Application"
+
+  if [[ "$CPD_SERVICE_NAME" == "wsl" || "$CPD_SERVICE_NAME" == "wml" || "$CPD_SERVICE_NAME" == "spss" ]]; then
+    echo "Generating IBM CPD Service file ${GITOPS_INSTANCE_DIR}/ibm-cp4d-services-base.yaml"
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-cp4d-services-base.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-cp4d-services-base.yaml
+  fi
+  
+  echo
   echo "- ${CPD_SERVICE_NAME} operator"
 
   echo "Generating IBM CPD Service file ${GITOPS_INSTANCE_DIR}/ibm-${CPD_SERVICE_NAME}.yaml"
   jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-${CPD_SERVICE_NAME}.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-${CPD_SERVICE_NAME}.yaml
-
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
