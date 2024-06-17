@@ -1018,6 +1018,27 @@ spec:
           hs.message = "Provisioning nvidia ClusterPolicy instance..."
           return hs
 
+      cpd.ibm.com/Ibmcpd:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.controlPlaneStatus ~= nil then
+              if obj.status.controlPlaneStatus ~= "Completed" then
+                hs.status = "Degraded"
+                hs.message = "Error"
+                return hs
+              end
+              if obj.status.controlPlaneStatus == "Completed" then
+                hs.status = "Healthy"
+                hs.message = obj.status.controlPlaneStatus
+                return hs
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = "Provisioning Ibmcpd instance..."
+          return hs
+
       compliance.openshift.io/TailoredProfile:
         health.lua: |
           hs = {}
