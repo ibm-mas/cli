@@ -57,6 +57,7 @@
         - fvt-iot
         - fvt-manage
         - fvt-mobile
+        - fvt-mobile-pytest
         - fvt-manage-directprint
         - fvt-manage-adhoc-report
         - fvt-manage-birt-report
