@@ -4,16 +4,6 @@
 # assigned a QoS class of Guaranteed. More can be found here:
 # https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
 podTemplates:
-  - name: edgeconfig-configui
-    containers:
-      - name: edgeconfig-configui
-        resources:
-          requests:
-            cpu: 2
-            memory: 2Gi
-          limits:
-            cpu: 2
-            memory: 2Gi
   - name: edgeconfig-server
     containers:
       - name: edgeconfig-server

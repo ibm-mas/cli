@@ -92,6 +92,24 @@ spec:
               name: mas-fvt-manage
               key: FVT_DIGEST_MANAGE_PYTEST
               optional: false
+        - name: FVT_DIGEST_HEALTH_PREPAREDATA
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: FVT_DIGEST_HEALTH_PREPAREDATA
+              optional: false
+        - name: FVT_DIGEST_HEALTH_TESTNG
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: FVT_DIGEST_HEALTH_TESTNG
+              optional: false
+        - name: FVT_DIGEST_HEALTH_PYTHON
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: FVT_DIGEST_HEALTH_PYTHON
+              optional: false
         # Black and white listing
         - name: FVT_BLACKLIST
           valueFrom:

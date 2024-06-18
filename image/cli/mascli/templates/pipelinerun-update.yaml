@@ -48,6 +48,8 @@ spec:
       value: '$DRO_STORAGE_CLASS'
     - name: uds_action
       value: '$UDS_ACTION'
+    - name: dro_namespace
+      value: '$DRO_NAMESPACE'
     - name: grafana_v5_upgrade
       value: '$GRAFANA_V5_UPGRADE'
 

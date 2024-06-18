@@ -5,10 +5,10 @@ metadata:
   name: "{{ pipelinerun_name }}"
   namespace: "{{ pipelinerun_namespace }}"
   labels:
-    tekton.dev/pipeline: mas-fvt-manage-health
+    tekton.dev/pipeline: mas-ivt
 spec:
   pipelineRef:
-    name: mas-fvt-manage-health
+    name: mas-ivt
 
   serviceAccountName: pipeline
   timeouts:
@@ -18,13 +18,7 @@ spec:
     # Pull Policy
     - name: image_pull_policy
       value: "{{ image_pull_policy }}"
-
-    # Registry
-    - name: fvt_image_registry
-      value: "{{ fvt_image_registry }}"
-    - name: fvt_artifactory_token
-      value: "{{ fvt_artifactory_token }}"
-
+    
     # MAS Info
     - name: mas_app_channel_manage
       value: "{{ mas_app_channel_manage }}"
@@ -32,13 +26,27 @@ spec:
       value: "{{ mas_instance_id }}"
     - name: mas_workspace_id
       value: "{{ mas_workspace_id }}"
+    - name: mas_app_channel_monitor
+      value: "{{ mas_app_channel_monitor }}"
+    
+    # Registry
+    - name: fvt_image_registry
+      value: "{{ fvt_image_registry }}"
+    - name: fvt_artifactory_username
+      value: "{{ fvt_artifactory_username }}"
+    - name: fvt_artifactory_token
+      value: "{{ fvt_artifactory_token }}"
 
-    # Digests
-    - name: fvt_digest_mobile_testng
-      value: "{{ fvt_digest_mobile_testng }}"
-    - name: fvt_digest_manage_civil_selenium
-      value: "{{ fvt_digest_manage_civil_selenium }}"
+    # Digests of manage
+    - name: fvt_digest_manage
+      value: "{{ fvt_digest_manage }}"
+    - name: fvt_digest_manage_pytest
+      value: "{{ fvt_digest_manage_pytest }}"
 
+    # Digests of monitor
+    - name: fvt_digest_ctf
+      value: "{{ fvt_digest_ctf }}"
+    
   workspaces:
     # The generated configuration files
     - name: shared-configs

@@ -19,6 +19,9 @@ spec:
     # MAS Instance ID (the instance who's install to wait for)
     - name: mas_instance_id
       type: string
+    - name: pipelinerun_name
+      type: string
+      description: name of the installation pipelinerun that must be tracked til completion
 {% endif %}
     
     # Pipeline config
@@ -63,12 +66,20 @@ spec:
     # 0. Wait for the install pipeline to complete
     # -------------------------------------------------------------------------
     - name: wait-for-install
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
       taskRef:
         kind: Task
-        name: mas-fvt-wait-for-install
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: type
+          value: pipelinerun
+        - name: name
+          value: $(params.pipelinerun_name)
+        - name: delay
+          value: 600  # seconds between checking the status of the pipelinerun
+        - name: retries
+          value: 50  # attempts before giving up
+        - name: ignore_failure
+          value: "False"  # fails and exit once the first failure is detected
 {% endif %}
 
     # 1. Verify health of the cluster before we change anything
@@ -203,16 +214,7 @@ spec:
   finally:
     # Collect must-gather
     # -------------------------------------------------------------------------
-    - name: must-gather
-      taskRef:
-        kind: Task
-        name: mas-devops-must-gather
-      params:
-        - name: base_output_dir
-          value: "/workspace/mustgather/$(context.pipelineRun.name)"
-      workspaces:
-        - name: mustgather
-          workspace: shared-mustgather
+    {{ lookup('template', 'taskdefs/common/must-gather.yml.j2') | indent(4) }}
 
     # Finalize the record in the FVT database
     # -------------------------------------------------------------------------

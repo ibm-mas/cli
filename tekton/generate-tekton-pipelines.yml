@@ -34,7 +34,6 @@
         - fvt-deprovision-after
         - fvt-iot
         - fvt-manage
-        - fvt-manage-health
         - fvt-manage-is
         - fvt-manage-regr
         - fvt-mobile
@@ -51,6 +50,7 @@
         - rollback
         - uninstall
         - fvt-launcher
+        - ivt
 
     # 2. Generate Pipelines
     # -------------------------------------------------------------------------
