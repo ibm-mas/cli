@@ -1,0 +1,39 @@
+#!/bin/bash
+
+echo "IBM Data Reporter Operator - DataReporterConfig"
+echo "--------------------------------------------------------------------------------"
+oc -n ibm-software-central get DataReporterConfig
+echo ""
+
+echo ""
+echo "IBM Data Reporter Operator - MarketplaceConfig"
+echo "--------------------------------------------------------------------------------"
+oc -n ibm-software-central get MarketplaceConfig
+echo ""
+
+echo ""
+echo "IBM Data Reporter Operator - MeterReport"
+echo "--------------------------------------------------------------------------------"
+oc -n ibm-software-central get MeterReport
+echo ""
+
+echo ""
+echo "IBM Data Reporter Operator - MeterBase"
+echo "--------------------------------------------------------------------------------"
+oc -n ibm-software-central get MeterBase
+echo ""
+
+echo ""
+echo "IBM Data Reporter Operator - RazeeDeployment"
+echo "--------------------------------------------------------------------------------"
+oc -n ibm-software-central get RazeeDeployment
+echo ""
+
+echo ""
+echo "IBM Data Reporter Operator - MeterDefinition"
+echo "--------------------------------------------------------------------------------"
+oc -n ibm-software-central get MeterDefinition
+echo ""
+
+
+exit 0

@@ -781,7 +781,7 @@ function install() {
 
   # Select DRO Namespace
   if [[ "$INTERACTIVE_MODE" == "true" ]] && [[ "$UDS_ACTION" == "install-dro" ]]; then
-    prompt_for_input "Provide DRO Namespace [Default:'redhat-marketplace']" DRO_NAMESPACE "redhat-marketplace"
+    prompt_for_input "Provide DRO Namespace [Default:'ibm-software-central']" DRO_NAMESPACE "ibm-software-central"
   fi
 
   # Prepare and launch the Tekton pipeline

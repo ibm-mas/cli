@@ -262,6 +262,14 @@ function mustgather() {
       echo_highlight "Unable to find redhat-marketplace namespace"
     fi
 
+    NAMESPACE_LOOKUP=$(oc get namespace ibm-software-central --ignore-not-found)
+    if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
+      $MG_SCRIPT_DIR/mg-summary-dro-isc &> ${OUTPUT_DIR}/dro.txt
+      genericMustGather ibm-software-central DataReporterConfig,MarketplaceConfig,MeterReport,MeterBase,RazeeDeployment,MeterDefinition
+    else
+      echo_highlight "Unable to find ibm-software-central namespace"
+    fi
+
     echo_h3 "Red Hat Certificate Manager"
     NAMESPACE_LOOKUP=$(oc get namespace cert-manager-operator --ignore-not-found)
     if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
