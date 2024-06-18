@@ -70,8 +70,8 @@ jobs:
           cd $GITHUB_WORKSPACE/python
           python -m pip install --upgrade pip
           pip install .[dev]
-          flake8 python/src --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 python/src --count --exit-zero --max-complexity=10 --max-line-length=200 --statistics
+          flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 src --count --exit-zero --max-complexity=10 --max-line-length=200 --statistics
           python -m build
           cp $GITHUB_WORKSPACE/python/dist/mas_cli-${{ env.VERSION_NOPREREL }}.tar.gz $GITHUB_WORKSPACE/image/cli/install/mas_cli.tar.gz
 
