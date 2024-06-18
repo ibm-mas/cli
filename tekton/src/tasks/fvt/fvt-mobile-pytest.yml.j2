@@ -55,6 +55,12 @@ spec:
       type: string
       description: Used only by fvt-mobile-version step to upload version file to artifactory
       default: "true"
+    
+    - name: output_data_file
+      type: string
+      description: Used by pytest to define output file with shared data
+      default: "default_output.data"
+    
 
   stepTemplate:
     name: 'fvt-mobile'
@@ -97,6 +103,9 @@ spec:
 
       - name: UPLOAD_FILE
         value: "$(params.upload_file)"
+
+      - name: OUTPUT_DATA_FILE
+        value: "$(params.output_data_file)"
 
       - name: ARTIFACTORY_TOKEN
         valueFrom:
