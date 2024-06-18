@@ -65,6 +65,7 @@ jobs:
         run: |
           sed -i "s#__version__ = \"100.0.0\"#__version__ = \"${{ env.VERSION_NOPREREL }}\"#g" ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
           cat ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
+          mkdir -p $GITHUB_WORKSPACE/python/src/mas/cli/templates
           cp $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml $GITHUB_WORKSPACE/python/src/mas/cli/templates/ibm-mas-tekton.yaml
           cd $GITHUB_WORKSPACE/python
           python -m pip install --upgrade pip
