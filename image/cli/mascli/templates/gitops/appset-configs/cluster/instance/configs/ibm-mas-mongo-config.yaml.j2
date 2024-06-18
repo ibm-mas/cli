@@ -15,8 +15,6 @@ mas_wipe_mongo_data: false
 username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_USERNAME }}>
 password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_PASSWORD }}>
 
-info: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_INFO }}>"
-
 config:
   hosts:
     {%- for mongo_host in config.hosts %}
