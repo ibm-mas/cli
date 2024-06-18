@@ -12,6 +12,11 @@ if [ -f "$VERSION_FILE" ]; then
   export VERSION=$(cat ${VERSION_FILE})
 fi
 
+export VERSION_FILE_NOPREREL=${GITHUB_WORKSPACE}/.version-noprerel
+if [ -f "$VERSION_FILE_NOPREREL" ]; then
+  export VERSION_NOPREREL=$(cat ${VERSION_FILE_NOPREREL})
+fi
+
 # During initbuild we record the release level (aka the version bump from the last release)
 export SEMVER_RELEASE_LEVEL_FILE=${GITHUB_WORKSPACE}/.releaselevel
 if [ -f "$SEMVER_RELEASE_LEVEL_FILE" ]; then
@@ -27,14 +32,18 @@ if [ -z $BUILD_SYSTEM_ENV_LOADED ]; then
   export BUILD_SYSTEM_ENV_LOADED=1
 
   if [ ! -z $GITHUB_ENV ]; then
-    echo "GITHUB_ENV is defined, exporting properties to $GITHUB_ENV"
     # https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#environment-files
-    echo "VERSION=$VERSION" >> $GITHUB_ENV
+    echo "GITHUB_ENV is defined, exporting properties to $GITHUB_ENV"
+
     echo "VERSION_FILE=$VERSION_FILE" >> $GITHUB_ENV
+    echo "VERSION_FILE_NOPREREL=$VERSION_FILE_NOPREREL" >> $GITHUB_ENV
     echo "VERSION=$VERSION" >> $GITHUB_ENV
+    echo "VERSION_NOPREREL=$VERSION_NOPREREL" >> $GITHUB_ENV
     echo "DOCKER_TAG=$DOCKER_TAG" >> $GITHUB_ENV
+
     echo "SEMVER_RELEASE_LEVEL_FILE=$SEMVER_RELEASE_LEVEL_FILE" >> $GITHUB_ENV
     echo "SEMVER_RELEASE_LEVEL=$SEMVER_RELEASE_LEVEL" >> $GITHUB_ENV
+
     echo "BUILD_SYSTEM_ENV_LOADED=1" >> $GITHUB_ENV
   else
     echo "GITHUB_ENV is not defined"
@@ -45,7 +54,9 @@ if [ -z $BUILD_SYSTEM_ENV_LOADED ]; then
   echo_highlight "PATH ....................... $PATH"
   echo_highlight ""
   echo_highlight "VERSION_FILE ............... $VERSION_FILE"
+  echo_highlight "VERSION_FILE_NOPREREL ...... $VERSION_FILE_NOPREREL"
   echo_highlight "VERSION .................... $VERSION"
+  echo_highlight "VERSION_NOPREREL ........... $VERSION_NOPREREL"
   echo_highlight "DOCKER_TAG ................. $DOCKER_TAG"
   echo_highlight ""
   echo_highlight "SEMVER_RELEASE_LEVEL_FILE .. $SEMVER_RELEASE_LEVEL_FILE"

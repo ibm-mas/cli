@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-fvt-manage-pytest
+  name: mas-fvt-mobile-pytest
 spec:
   params:
     # Control the image pull policy for the FVT container image
@@ -15,13 +15,6 @@ spec:
     - name: fvt_image_registry
       type: string
       description: FVT Container Image Registry (required)
-    - name: fvt_image_namespace
-      type: string
-      description: FVT Image namespace
-      default: mas-devops
-    - name: fvt_image_name
-      type: string
-      description: FVT Container Image
     - name: fvt_image_digest
       type: string
       description: FVT Container Image Digest
@@ -32,10 +25,6 @@ spec:
       type: string
       description: Turn on debug logging (verbose mode)
       default: "true"
-    - name: fvt_test_suite_prefix
-      type: string
-      description: text to prefix fvt_test_suite in devops database followed by hyphen
-      default: ""
     - name: fvt_test_suite
       type: string
       description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
@@ -47,17 +36,28 @@ spec:
     - name: product_id
       type: string
       description: Product ID under test
-      default: ibm-mas
+      default: ibm-mas-mobile
     - name: product_channel
       type: string
       description: "Subscription channel for the product (todo: have the test code look this up instead)"
-      default: ""
+      default: "ibm-mas-mobile"
     - name: mas_instance_id
       type: string
       description: Instance ID of the target test environment
+    - name: mas_workspace_id
+      type: string
+      description: Workspace ID in MAS to use for running the tests
+      default: "masdev"
+
+    # Test-specific Information (all optional)
+    # -------------------------------------------------------------------------
+    - name: upload_file
+      type: string
+      description: Used only by fvt-mobile-version step to upload version file to artifactory
+      default: "true"
 
   stepTemplate:
-    name: 'fvt-manage-pytest'
+    name: 'fvt-mobile'
     env:
       - name: PRODUCT_ID
         value: $(params.product_id)
@@ -85,14 +85,8 @@ spec:
       - name: INSTANCE_ID
         value: "$(params.mas_instance_id)"
       - name: WORKSPACE_ID
-        valueFrom:
-          secretKeyRef:
-            name: mas-fvt-manage
-            key: MAS_WORKSPACE_ID
-            optional: false
+        value: "$(params.mas_workspace_id)"
 
-      - name: FVT_TEST_SUITE_PREFIX
-        value: $(params.fvt_test_suite_prefix)
       - name: FVT_TEST_SUITE
         value: $(params.fvt_test_suite)
       - name: FVT_MAS_APPWS_COMPONENT
@@ -101,12 +95,16 @@ spec:
       - name: FVT_ENABLE_DEBUG
         value: "$(params.fvt_enable_debug)"
 
+      - name: UPLOAD_FILE
+        value: "$(params.upload_file)"
+
       - name: ARTIFACTORY_TOKEN
         valueFrom:
           secretKeyRef:
-            name: mas-fvt
-            key: FVT_ARTIFACTORY_TOKEN
-            optional: false
+            name: mas-devops
+            key: ARTIFACTORY_TOKEN
+            optional: true
+
       - name: ARTIFACTORY_UPLOAD_DIR
         valueFrom:
           secretKeyRef:
@@ -184,9 +182,17 @@ spec:
             key: LDAP_CRT
             optional: false
 
-
   steps:
-    - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
+    - name: fvt-mobile-version
+      command:
+        - python3
+        - /opt/app-root/src/mobile-version-finder.py
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      onError: continue
+
+    - name: fvt-mobile-pytest
+      image: '$(params.fvt_image_registry)/fvt-mobile/fvt-mobile-pytest@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 120m  # Ensure bad FVTs don't run forever
       onError: continue  # Ensure bad FVTs don't break the pipeline

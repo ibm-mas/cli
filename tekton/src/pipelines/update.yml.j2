@@ -23,6 +23,13 @@ spec:
       type: string
     - name: fvt_image_digest
       type: string
+    - name: pipelinerun_name
+      type: string
+      description: name of the installation pipelinerun that must be tracked til completion
+    - name: launchfvt_upgrade
+      type: string
+      default: "" # Considered False when not informed
+      description: "Set this to any value other than 'true' to disable launch of the pre and post upgrade tests pipeline (running before and after upgrade process happens)"
 {% endif %}
 
     # Tekton Pipeline image pull policy (for ibmmas/cli images)
@@ -194,12 +201,20 @@ spec:
     # 0. Wait for the install pipeline to complete
     # -------------------------------------------------------------------------
     - name: wait-for-install
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
       taskRef:
         kind: Task
-        name: mas-fvt-wait-for-install
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: type
+          value: pipelinerun
+        - name: name
+          value: $(params.pipelinerun_name)
+        - name: delay
+          value: 600  # seconds between checking the status of the pipelinerun
+        - name: retries
+          value: 50  # attempts before giving up
+        - name: ignore_failure
+          value: "False"  # fails and exit once the first failure is detected
 {% endif %}
 
     # 1. Verify health of the cluster before we change anything
@@ -213,14 +228,38 @@ spec:
         - wait-for-install
 {% endif %}
 
-    # 2. Run the catalog update
+{% if wait_for_install == true %}
+    # 2. Pre-Upgrade pipeline call - test scripts to run before update
+    # -------------------------------------------------------------------------
+    - name: launchfvt-upgrade-pre
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-uprade-pre"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-upgrade-pre
+      when:
+        - input: $(params.launchfvt_upgrade)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - pre-update-check
+{% endif %}
+
+    # 3. Run the catalog update
     # -------------------------------------------------------------------------
     - name: update-catalog
       taskRef:
         kind: Task
         name: mas-devops-ibm-catalogs
       runAfter:
+{% if wait_for_install == true %}
+        - launchfvt-upgrade-pre
+{% else %}
         - pre-update-check
+{% endif %}
       params:
         - name: devops_suite_name
           value: update-catalog
@@ -446,6 +485,26 @@ spec:
         - update-analytics-engine
         - update-spss
         - update-cognos
+
+{% if wait_for_install == true %}
+    # 7. Post-Upgrade pipeline call - test scripts to run before upgrade
+    # -------------------------------------------------------------------------
+    - name: launchfvt-upgrade-post
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-upgrade-post"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-upgrade-post
+      when:
+        - input: $(params.launchfvt_upgrade)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - post-deps-update-verify
+{% endif %}
 
 {% if wait_for_install == true %}
   # In FVT only this is the time to take a must-gather and finalize the result

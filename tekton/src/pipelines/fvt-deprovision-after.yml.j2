@@ -88,7 +88,7 @@ spec:
         - name: retries
           value: 60  # attempts before giving up (approximately 20 hours)
         - name: ignore_failure
-          value: "True"  # continue even if the pipeline run has not completed successfully
+          value: $(params.ignore_failure)
 
     # 1. Delete IBM Cloud services
     # -------------------------------------------------------------------------
