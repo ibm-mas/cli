@@ -241,7 +241,7 @@ spec:
               end
               if dBReady and bundleReady then
                 hs.status = "Healthy"
-                hs.message = condition.message
+                hs.message = "Bundle and DB both Ready"
                 return hs
             end
           end

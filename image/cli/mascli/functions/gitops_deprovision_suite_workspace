@@ -13,7 +13,6 @@ Options:
 
 GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                  Working directory for GitOps repository
-  -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}           Version of ibm-mas/gitops to use
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                   Account name that the cluster belongs to
   -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                   Cluster ID
@@ -40,7 +39,6 @@ function gitops_deprovision_suite_workspace_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-deprovision-suite-workspace commit"
-  export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   export REGION=${REGION:-${SM_AWS_REGION}}
 
@@ -107,7 +105,6 @@ function gitops_deprovision_suite_workspace_noninteractive() {
   done
 
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_deprovision_suite_workspace_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$GITOPS_VERSION" ]] && gitops_deprovision_suite_workspace_help "GITOPS_VERSION is not set"
   [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_deprovision_suite_workspace_help "MAS_WORKSPACE_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_suite_workspace_help "CLUSTER_ID is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_suite_workspace_help "ACCOUNT_ID is not set"
@@ -162,11 +159,6 @@ function gitops_deprovision_suite_workspace() {
   echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   reset_colors
 
-  echo "${TEXT_DIM}"
-  echo_h2 "GitOps Source" "    "
-  echo_reset_dim "GitOps URL ............................ ${COLOR_MAGENTA}https://github.com/ibm-mas/gitops"
-  echo_reset_dim "GitOps Version ........................ ${COLOR_MAGENTA}${GITOPS_VERSION}"
-  reset_colors
 
   echo "${TEXT_DIM}"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
