@@ -68,6 +68,21 @@ do
   esac
 done
 
+echo ""
+echo "Inputs"
+echo "------------------------------------------------------------------"
+echo "Namespace .................. $NAMESPACE"
+echo "Config Map ................. $CONFIGMAP_NAME"
+echo "Config Map Key ............. $CONFIGMAP_KEY"
+echo "Config Map Initial Value.... $CONFIGMAP_INITIAL_VALUE"
+echo "Config Map Target Value..... $CONFIGMAP_TARGET_VALUE"
+echo "Escape Config Map .......... $ESCAPE_CONFIGMAP_NAME"
+echo "Escape Config Map Key ...... $ESCAPE_CONFIGMAP_KEY"
+echo "Max Retries ................ $MAX_RETRIES"
+echo "Delay ...................... $DELAY"
+echo "Ignore Failure ............. $IGNORE_FAILURE"
+echo ""
+
 if [[ -z "$CONFIGMAP_NAME" || -z "$CONFIGMAP_KEY" || -z "$NAMESPACE" ]]; then
   echo "NAMESPACE, CONFIGMAP_NAME, and CONFIGMAP_KEY must all be defined, there is nothing to wait for."
   exit 0
@@ -128,12 +143,12 @@ elif [[ "$KEY_VALUE" == "" && -z "${CONFIGMAP_TARGET_VALUE}" ]]; then
 else
   echo "Waiting for configmap/${CONFIGMAP_NAME} in ${NAMESPACE} to contain key '${CONFIGMAP_KEY}' with value '${CONFIGMAP_TARGET_VALUE}' ..."
   KEY_VALUE=$(oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o jsonpath="{.data.${CONFIGMAP_KEY}}" 2> /dev/null)
-  while [[ "$KEY_VALUE" != "${CONFIGMAP_TARGET_VALUE}" && "$RETRIES_USED" -le "$MAX_RETRIES" ]]; do
+  while [[ "${CONFIGMAP_TARGET_VALUE}" != *"$KEY_VALUE"* && "$RETRIES_USED" -le "$MAX_RETRIES" ]]; do
     echo "[$RETRIES_USED/$MAX_RETRIES] ${CONFIGMAP_KEY}=${KEY_VALUE} does not equal '${CONFIGMAP_TARGET_VALUE}' yet in configmap/${CONFIGMAP_NAME}.  Waiting ${DELAY} seconds before checking again"
     sleep $DELAY
     KEY_VALUE=$(oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o jsonpath="{.data.${CONFIGMAP_KEY}}" 2> /dev/null)
 
-    if [[ "${KEY_VALUE}" != "${CONFIGMAP_TARGET_VALUE}" && -n "${ESCAPE_CONFIGMAP_NAME}" ]]; then
+    if [[ "${CONFIGMAP_TARGET_VALUE}" != *"${KEY_VALUE}"* && -n "${ESCAPE_CONFIGMAP_NAME}" ]]; then
       # Check if the entire install pipeline has stopped so we can exit early
       ESCAPE_VALUE=$(oc -n ${NAMESPACE} get configmap/${ESCAPE_CONFIGMAP_NAME} -o jsonpath="{.data.${ESCAPE_CONFIGMAP_KEY}}" 2> /dev/null)
       if [[ "$ESCAPE_VALUE" != "" ]]; then
@@ -148,7 +163,7 @@ else
   done
 
   echo
-  if [[ "$KEY_VALUE" == "${CONFIGMAP_TARGET_VALUE}" ]]; then
+  if [[ "${CONFIGMAP_TARGET_VALUE}" == *"$KEY_VALUE"* ]]; then
     echo "Located key ${CONFIGMAP_KEY} in configmap/${CONFIGMAP_NAME} with value '${CONFIGMAP_TARGET_VALUE}'"
     exit 0
   else
