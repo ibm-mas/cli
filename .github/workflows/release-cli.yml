@@ -50,26 +50,32 @@ jobs:
       # -------------------------------------------------------------------------------------------
       - name: Build the Python package
         run: |
-          sed -i "s#__version__ = \"100.0.0\"#__version__ = \"${{ env.VERSION_NOPREREL }}\"#g" ${GITHUB_WORKSPACE}/python/src/mas/devops/__init__.py
-          cat ${GITHUB_WORKSPACE}/python/src/mas/devops/__init__.py
-          python -m pip install --upgrade pip
-          cp $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml $GITHUB_WORKSPACE/python/src/mas/devops/templates/ibm-mas-tekton.yaml
+          sed -i "s#__version__ = \"100.0.0\"#__version__ = \"${{ env.VERSION_NOPREREL }}\"#g" ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
+          cat ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
+          cp $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml $GITHUB_WORKSPACE/python/src/mas/cli/templates/ibm-mas-tekton.yaml
           cd $GITHUB_WORKSPACE/python
-          make install build
-          cp $GITHUB_WORKSPACE/python/dist/mas_devops-${{ env.VERSION_NOPREREL }}.tar.gz $GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz
+          python -m pip install --upgrade pip
+          pip install .[dev]
+          cp $GITHUB_WORKSPACE/python/dist/mas_cli-${{ env.VERSION_NOPREREL }}.tar.gz $GITHUB_WORKSPACE/image/cli/install/mas_cli.tar.gz
 
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
           flake8 python/src --count --select=E9,F63,F7,F82 --show-source --statistics
-          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-          flake8 python/src --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          # exit-zero treats all errors as warnings.
+          flake8 python/src --count --exit-zero --max-complexity=10 --max-line-length=200 --statistics
+
+      - name: Build package
+        run: |
+          cd python
+          python -m build
 
       - name: Publish package
-        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
+          packages-dir: python/dist
 
       # 4. CLI installer
       # -------------------------------------------------------------------------------------------

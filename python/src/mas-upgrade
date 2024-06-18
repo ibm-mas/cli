@@ -13,14 +13,13 @@ import argparse
 import sys
 import logging
 import logging.handlers
-from os import path
 from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
 
 from halo import Halo
 
-from mas.devops import __version__ as packageVersion
-from mas.devops.cli import InstanceIDValidator, YesNoValidator, BaseApp, getHelpFormatter
+from mas.cli import __version__ as packageVersion
+from mas.cli.cli import InstanceIDValidator, YesNoValidator, BaseApp, getHelpFormatter
 from mas.devops.ocp import createNamespace
 from mas.devops.mas import listMasInstances, verifyMasInstance
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
@@ -50,6 +49,11 @@ class App(BaseApp):
             print_formatted_text(HTML("<LightSlateGrey>Select a MAS instance to upgrade from the list below:</LightSlateGrey>"))
             suites = listMasInstances(self.dynamicClient)
             suiteOptions = []
+
+            if len(suites) == 0:
+                print_formatted_text(HTML(f"<Red>Error: No MAS instances detected on this cluster</Red>"))
+                sys.exit(1)
+
             for suite in suites:
                 print_formatted_text(HTML(f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"))
                 suiteOptions.append(suite['metadata']['name'])
@@ -60,7 +64,7 @@ class App(BaseApp):
         else:
             # Non-interactive mode
             if not verifyMasInstance(self.dynamicClient, instanceId):
-                print_formatted_text(HTML(f"<Red>Error: MAS Instance {instanceId} not found on this cluster</Red>"))
+                print_formatted_text(HTML(f"<Red>Error: MAS instance {instanceId} not found on this cluster</Red>"))
                 sys.exit(1)
 
         self.printH1("Review Settings")
@@ -69,7 +73,7 @@ class App(BaseApp):
 
         if not noConfirm:
             print()
-            continueWithUpgrade = prompt(HTML(f'<Yellow>Proceed with these settings?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False, default="y")
+            continueWithUpgrade = prompt(HTML(f'<Yellow>Proceed with these settings?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
 
         if noConfirm or continueWithUpgrade in ["y", "yes"]:
             self.printH1("Launch Upgrade")
@@ -84,7 +88,7 @@ class App(BaseApp):
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
             with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
-                updateTektonDefinitions(pipelinesNamespace)
+                updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text='Submitting PipelineRun for {instanceId} upgrade', spinner=self.spinner) as h:

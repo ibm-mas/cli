@@ -9,6 +9,7 @@
 # *****************************************************************************
 from argparse import RawTextHelpFormatter
 from shutil import which
+from os import path
 
 # Use of the openshift client rather than the kubernetes client allows us access to "apply"
 from openshift import dynamic
@@ -16,7 +17,6 @@ from kubernetes import config
 from kubernetes.client import api_client
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
-from prompt_toolkit.output import ColorDepth
 from prompt_toolkit.validation import Validator, ValidationError
 
 # Available named colours in prompt_toolkit
@@ -38,7 +38,7 @@ from prompt_toolkit.validation import Validator, ValidationError
 # SlateBlue  SlateGray  SlateGrey  Snow  SpringGreen  SteelBlue  Tan  Teal  Thistle  Tomato  Turquoise
 # Violet  Wheat  White  WhiteSmoke  Yellow  YellowGreen
 
-from mas.devops import __version__ as packageVersion
+from mas.cli import __version__ as packageVersion
 from mas.devops.ocp import connect
 from mas.devops.mas import verifyMasInstance
 
@@ -47,6 +47,7 @@ from sys import exit
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 class InstanceIDValidator(Validator):
     def validate(self, document):
@@ -68,8 +69,9 @@ class YesNoValidator(Validator):
         Validate that a response is understandable as a yes/no response
         """
         response = document.text
-        if response.lower() not in ["y", "n", "yes", "no" ]:
+        if response.lower() not in ["y", "n", "yes", "no"]:
             raise ValidationError(message='Enter a valid response: y(es), n(o)', cursor_position=len(response))
+
 
 def getHelpFormatter(formatter=RawTextHelpFormatter, w=160, h=50):
     """
@@ -84,6 +86,7 @@ def getHelpFormatter(formatter=RawTextHelpFormatter, w=160, h=50):
     except TypeError:
         logger.warn("argparse help formatter failed, falling back.")
         return formatter
+
 
 class BaseApp(object):
     def __init__(self):
@@ -105,12 +108,15 @@ class BaseApp(object):
         self.version = packageVersion
         self.h1count = 0
 
+        self.tektonDefsPath = path.join(path.abspath(path.dirname(__file__)), "templates", "ibm-mas-tekton.yaml")
+        print(self.tektonDefsPath)
+
         self.spinner = {
             "interval": 80,
-            "frames": [ " ⠋", " ⠙", " ⠹", " ⠸", " ⠼", " ⠴", " ⠦", " ⠧", " ⠇", " ⠏" ]
+            "frames": [" ⠋", " ⠙", " ⠹", " ⠸", " ⠼", " ⠴", " ⠦", " ⠧", " ⠇", " ⠏"]
         }
-        self.successIcon="✅️"
-        self.failureIcon="❌"
+        self.successIcon = "✅️"
+        self.failureIcon = "❌"
 
         self._dynClient = None
 
@@ -125,12 +131,10 @@ class BaseApp(object):
     def printTitle(self, message):
         print_formatted_text(HTML(f"<b><u>{message}</u></b>"))
 
-
     def printH1(self, message):
         self.h1count += 1
         print()
         print_formatted_text(HTML(f"<u><SteelBlue>{self.h1count}. {message}</SteelBlue></u>"))
-
 
     @property
     def dynamicClient(self):
@@ -138,7 +142,6 @@ class BaseApp(object):
             return self._dynClient
         else:
             return self.reloadDynamicClient()
-
 
     def reloadDynamicClient(self):
         """
@@ -166,9 +169,9 @@ class BaseApp(object):
                 print()
                 if not noConfirm:
                     # We are already connected to a cluster, but prompt the user if they want to use this connection
-                    continueWithExistingCluster = prompt(HTML(f'<Yellow>Proceed with this cluster?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
+                    continueWithExistingCluster = prompt(HTML('<Yellow>Proceed with this cluster?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
                     promptForNewServer = continueWithExistingCluster in ["n", "no"]
-            except Exception as e:
+            except Exception:
                 # We are already connected to a cluster, but the connection is not valid so prompt for connection details
                 promptForNewServer = True
         else:
@@ -177,10 +180,10 @@ class BaseApp(object):
 
         if promptForNewServer:
             # Prompt for new connection properties
-            server = prompt(HTML(f'<Yellow>Server URL:</Yellow> '), placeholder="https://...")
-            token = prompt(HTML(f'<Yellow>Login Token:</Yellow> '), is_password=True, placeholder="sha256~...")
+            server = prompt(HTML('<Yellow>Server URL:</Yellow> '), placeholder="https://...")
+            token = prompt(HTML('<Yellow>Login Token:</Yellow> '), is_password=True, placeholder="sha256~...")
             connect(server, token)
             self.reloadDynamicClient()
             if self._dynClient is None:
-                print_formatted_text(HTML(f"<Red>Unable to connect to cluster.  See log file for details</Red>"))
+                print_formatted_text(HTML("<Red>Unable to connect to cluster.  See log file for details</Red>"))
                 exit(1)

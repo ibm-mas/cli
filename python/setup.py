@@ -39,14 +39,14 @@ def get_version(rel_path):
         raise RuntimeError("Unable to find version string.")
 
 setup(
-    name='mas-devops',
-    version=get_version("src/mas/devops/__init__.py"),
+    name='mas-cli',
+    version=get_version("src/mas/cli/__init__.py"),
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},
     packages=find_namespace_packages(where='src', include=[
-        'mas.devops',
-        'mas.devops.templates'
+        'mas.cli',
+        'mas.cli.templates'
     ]),
     include_package_data=True,
     scripts=[
@@ -55,22 +55,21 @@ setup(
     ],
     url='https://github.com/ibm-mas/cli',
     license='Eclipse Public License - v1.0',
-    description='Python SDK for Maximo Application Suite',
+    description='Python Admin CLI for Maximo Application Suite',
     long_description=long_description,
     install_requires=[
+        'mas-devops',     # EPL
         'halo',           # MIT License
         'prompt_toolkit', # BSD License
-        'pyyaml',         # MIT License
         'openshift',      # Apache Software License
-        'kubernetes',     # Apache Software License
-        'kubeconfig',     # BSD License
-        'jinja2'          # BSD License
+        'kubernetes'      # Apache Software License
     ],
     extras_require={
         'dev': [
             'build',       # MIT License
+            'flake8',      # MIT License
             'pytest',      # MIT License
-            'pyinstaller', # GPL, https://pyinstaller.org/en/stable/license.html & https://github.com/pyinstaller/pyinstaller/wiki/FAQ#license
+            'pyinstaller'  # GPL, https://pyinstaller.org/en/stable/license.html & https://github.com/pyinstaller/pyinstaller/wiki/FAQ#license
         ]
     },
     classifiers=[

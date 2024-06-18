@@ -13,14 +13,13 @@ import argparse
 import sys
 import logging
 import logging.handlers
-from os import path
 from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
 
 from halo import Halo
 
-from mas.devops import __version__ as packageVersion
-from mas.devops.cli import InstanceIDValidator, YesNoValidator, BaseApp, getHelpFormatter
+from mas.cli import __version__ as packageVersion
+from mas.cli.cli import InstanceIDValidator, YesNoValidator, BaseApp, getHelpFormatter
 from mas.devops.ocp import createNamespace
 from mas.devops.mas import listMasInstances, verifyMasInstance
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUninstallPipeline
@@ -147,7 +146,7 @@ class App(BaseApp):
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
             with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
-                updateTektonDefinitions(pipelinesNamespace)
+                updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text='Submitting PipelineRun for {instanceId} uninstall', spinner=self.spinner) as h:
