@@ -1039,6 +1039,27 @@ spec:
           hs.message = "Provisioning Ibmcpd instance..."
           return hs
 
+      wml.cpd.ibm.com/WmlBase:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+              if obj.status.wmlStatus ~= nil then
+                  if obj.status.wmlStatus ~= "Completed" then
+                      hs.status = "Degraded"
+                      hs.message = "Error"
+                      return hs
+                  end
+                  if obj.status.wmlStatus == "Completed" then
+                      hs.status = "Healthy"
+                      hs.message = obj.status.wmlStatus
+                      return hs
+                  end
+              end
+          end
+          hs.status = "Progressing"
+          hs.message = "Provisioning WmlBase instance..."
+          return hs
+
       compliance.openshift.io/TailoredProfile:
         health.lua: |
           hs = {}
