@@ -791,7 +791,6 @@ function install() {
   # Select DRO Namespace
   if [[ "$INTERACTIVE_MODE" == "true" ]] && [[ "$UDS_ACTION" == "install-dro" ]]; then
     prompt_for_input "Provide DRO Namespace [Default:'redhat-marketplace']" DRO_NAMESPACE "redhat-marketplace"
-    echo_highlight "DRO is configured to install in ${DRO_NAMESPACE} namespace"
   fi
 
   # Prepare and launch the Tekton pipeline

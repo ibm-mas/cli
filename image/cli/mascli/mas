@@ -45,8 +45,6 @@ mkdir -p $CONFIG_DIR
 # MAS installation support
 . $CLI_DIR/functions/install
 . $CLI_DIR/functions/update
-. $CLI_DIR/functions/upgrade
-. $CLI_DIR/functions/uninstall
 # Airgap support
 . $CLI_DIR/functions/setup_registry
 . $CLI_DIR/functions/teardown_registry
@@ -193,24 +191,20 @@ case $1 in
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! upgrade                                                                   !!" >> $LOGFILE
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
-
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Upgrade Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
-    echo
-    reset_colors
-    upgrade "$@"
+    # Take the first parameter off (it will be "upgrade")
+    shift
+    # Run the new Python-based upgrade
+    mas-upgrade "$@"
     ;;
 
   uninstall)
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! uninstall                                                                 !!" >> $LOGFILE
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
-
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Uninstall Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
-    echo
-    reset_colors
-    uninstall "$@"
+    # Take the first parameter off (it will be "uninstall")
+    shift
+    # Run the new Python-based upgrade
+    mas-uninstall "$@"
     ;;
 
   mustgather|must-gather)

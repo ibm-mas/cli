@@ -1,0 +1,168 @@
+# -------------------------------------------------------------
+# PHASE 3
+# - fvt-manage-nuclear-api             # Nuclear
+# - fvt-manage-nuclear-ui              # Nuclear
+# - fvt-manage-transportation-api      # Transportation
+# - fvt-manage-transportation-ui       # Transportation
+# - fvt-manage-lbs-api                 # LBS
+# - fvt-manage-lbs-spatial-ui          # LBS
+#   - fvt-manage-lbs-utilities-ui      # LBS
+#     - fvt-manage-lbs-linear-ui       # LBS
+# -------------------------------------------------------------
+
+# ------------------
+# Nuclear
+# ------------------
+
+# Nuclear - API Tests
+# ------------------
+- name: fvt-manage-nuclear-api
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: nuclear-api
+  runAfter:
+    - fvt-manage-acm-api
+    - fvt-manage-acm-ui
+    - fvt-manage-hse-api
+    - fvt-manage-hse-ui
+    - fvt-manage-serviceprovider-api
+    - fvt-manage-serviceprovider-ui
+
+# Nuclear - UI
+# ------------------
+- name: fvt-manage-nuclear-ui
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: nuc-1
+    - name: fvt_mas_appws_component
+      value: nuclear
+    - name: fvt_test_driver
+      value: tpae 
+  runAfter:
+    - fvt-manage-acm-api
+    - fvt-manage-acm-ui
+    - fvt-manage-hse-api
+    - fvt-manage-hse-ui
+    - fvt-manage-serviceprovider-api
+    - fvt-manage-serviceprovider-ui
+
+
+# ------------------
+# Transportation
+# ------------------
+
+# Transportation - API Tests
+# ------------------
+- name: fvt-manage-transportation-api
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: transportation-api
+  runAfter:
+    - fvt-manage-acm-api
+    - fvt-manage-acm-ui
+    - fvt-manage-hse-api
+    - fvt-manage-hse-ui
+    - fvt-manage-serviceprovider-api
+    - fvt-manage-serviceprovider-ui
+
+# Transportation - UI
+# ------------------
+- name: fvt-manage-transportation-ui
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: tr-1
+    - name: fvt_mas_appws_component
+      value: transportation
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-acm-api
+    - fvt-manage-acm-ui
+    - fvt-manage-hse-api
+    - fvt-manage-hse-ui
+    - fvt-manage-serviceprovider-api
+    - fvt-manage-serviceprovider-ui
+
+
+# ------------------
+# LBS
+# ------------------
+
+# LBS - API Tests
+# ------------------
+- name: fvt-manage-lbs-api
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: lbs-api
+  runAfter:
+    - fvt-manage-acm-api
+    - fvt-manage-acm-ui
+    - fvt-manage-hse-api
+    - fvt-manage-hse-ui
+    - fvt-manage-serviceprovider-api
+    - fvt-manage-serviceprovider-ui
+
+# LBS - UI
+# ------------------
+
+# Manage FVT - Spatial
+- name: fvt-manage-lbs-spatial-ui
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: lbs-spatial-1
+    - name: fvt_mas_appws_component
+      value: spatial
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-acm-api
+    - fvt-manage-acm-ui
+    - fvt-manage-hse-api
+    - fvt-manage-hse-ui
+    - fvt-manage-serviceprovider-api
+    - fvt-manage-serviceprovider-ui
+
+# Manage FVT - Utilities
+- name: fvt-manage-lbs-utilities-ui
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: lbs-utilities-1
+    - name: fvt_mas_appws_component
+      value: spatial
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-lbs-spatial-ui
+
+# Manage FVT - Linear
+- name: fvt-manage-lbs-linear-ui
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: lbs-linear-1
+    - name: fvt_mas_appws_component
+      value: spatial
+    - name: fvt_test_driver
+      value: tpae
+  runAfter:
+    - fvt-manage-lbs-utilities-ui
