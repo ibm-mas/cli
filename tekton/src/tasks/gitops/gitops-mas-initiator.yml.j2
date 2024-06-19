@@ -309,6 +309,8 @@ spec:
           if [[ "$MAS_APP_CHANNEL_ASSIST" =~ ^8\. ]]; then
             yq -iY 'del(.assist)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
             echo "gitops-mas-initiator: removed .assist node"
+            yq -iY '.launchfvt.assist= false' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-fvt-params.yaml
+            echo "gitops-mas-initiator: set .launchfvt.assist to false"
           fi
         fi
         if [ -n $MAS_APP_CHANNEL_IOT ]; then

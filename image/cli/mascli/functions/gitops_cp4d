@@ -11,7 +11,6 @@ When no options are specified on the command line, interactive-mode will be enab
 
 GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
-  -g, --gitops-version ${COLOR_YELLOW}GITOPS_VERSION${TEXT_RESET}    Version of ibm-mas/gitops to use
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -r, --region-id ${COLOR_YELLOW}REGION_ID${TEXT_RESET}              Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
@@ -53,7 +52,6 @@ function gitops_cp4d_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-cp4d commit"
-  export GITOPS_VERSION=${GITOPS_VERSION:-poc}
 
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
@@ -68,7 +66,8 @@ function gitops_cp4d_noninteractive() {
         export GITOPS_WORKING_DIR=$1 && shift
         ;;
       -g|--gitops-version)
-        export GITOPS_VERSION=$1 && shift
+        echo "${COLOR_YELLOW}WARNING: the -g|--gitops-version parameter is deprecated; it has no effect and will be removed in a future release${COLOR_RESET}"
+        shift
         ;;
       -a|--account-id)
         export ACCOUNT_ID=$1 && shift
@@ -213,12 +212,6 @@ function gitops_cp4d() {
   echo "${TEXT_DIM}"
   echo_h2 "Secrets Manager" "    "
   echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
-  reset_colors
-
-  echo "${TEXT_DIM}"
-  echo_h2 "GitOps Source" "    "
-  echo_reset_dim "GitOps URL ............................ ${COLOR_MAGENTA}https://github.com/ibm-mas/gitops"
-  echo_reset_dim "GitOps Version ........................ ${COLOR_MAGENTA}${GITOPS_VERSION}"
   reset_colors
 
   echo "${TEXT_DIM}"
