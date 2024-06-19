@@ -1110,6 +1110,27 @@ spec:
           hs.message = ""
           return hs
 
+      zen.cpd.ibm.com/ZenService:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.zenStatus ~= nil then
+              if obj.status.zenStatus ~= "Completed" and obj.status.zenStatus ~= "InProgress" then
+                hs.status = "Degraded"
+                hs.message = obj.status.zenMessage
+                return hs
+              end
+              if obj.status.zenStatus == "Completed" then
+                hs.status = "Healthy"
+                hs.message = obj.status.zenMessage
+                return hs
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
       compliance.openshift.io/TailoredProfile:
         health.lua: |
           hs = {}
