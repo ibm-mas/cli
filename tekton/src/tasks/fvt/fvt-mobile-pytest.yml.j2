@@ -56,11 +56,18 @@ spec:
       description: Used only by fvt-mobile-version step to upload version file to artifactory
       default: "true"
     
+    - name: workspace_managedata_path
+      type: string
+      description: Path where output data file will be placed. Defaults to value used in fvt shared workspace
+      default: "/workspace/configs/mobiledata"
+    - name: input_data_file
+      type: string
+      description: Used by pytest to define input file with shared data
+      default: "MobileSetup4MAS.data"
     - name: output_data_file
       type: string
       description: Used by pytest to define output file with shared data
       default: "default_output.data"
-    
 
   stepTemplate:
     name: 'fvt-mobile'
@@ -103,7 +110,11 @@ spec:
 
       - name: UPLOAD_FILE
         value: "$(params.upload_file)"
-
+      
+      - name: WORKSPACE_MANAGEDATA_PATH
+        value: "$(params.workspace_managedata_path)"
+      - name: INPUT_DATA_FILE
+        value: "$(params.input_data_file)"
       - name: OUTPUT_DATA_FILE
         value: "$(params.output_data_file)"
 
