@@ -1018,7 +1018,7 @@ spec:
           hs.message = "Provisioning nvidia ClusterPolicy instance..."
           return hs
 
-      wos.cpd.ibm.com/WOService:
+      cpd.ibm.com/Ibmcpd:
         health.lua: |
           hs = {}
           if obj.status ~= nil then
@@ -1041,7 +1041,7 @@ spec:
           hs.message = ""
           return hs
 
-      ws.cpd.ibm.com/WS:
+      wml.cpd.ibm.com/WmlBase:
         health.lua: |
           hs = {}
           if obj.status ~= nil then
