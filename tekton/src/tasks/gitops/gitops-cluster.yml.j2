@@ -30,21 +30,15 @@ spec:
     - name: mas_catalog_image
       type: string
       default: ""
-    - name: common_services_channel
-      type: string
-      default: ""
     - name: avp_aws_secret_region
       type: string
-    - name: mas_catalog_action
-      type: string
-      default: "install"
-    - name: common_services_action
-      type: string
-      default: "install"
     - name: slack_channel_id
       type: string
       default: ""
     - name: custom_labels
+      type: string
+      default: ''
+    - name: cluster_promotion_cluster_values
       type: string
       default: ''
   stepTemplate:
@@ -72,21 +66,16 @@ spec:
         value: $(params.mas_catalog_version)
       - name: MAS_CATALOG_IMAGE
         value: $(params.mas_catalog_image)
-      - name: COMMON_SERVICES_CHANNEL
-        value: $(params.common_services_channel)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: MAS_CATALOG_ACTION
-        value: $(params.mas_catalog_action)
-      - name: COMMON_SERVICES_ACTION
-        value: $(params.common_services_action)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
       - name: SLACK_CHANNEL_ID
         value: $(params.slack_channel_id)
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
-
+      - name: CLUSTER_PROMOTION_CLUSTER_VALUES
+        value: $(params.cluster_promotion_cluster_values)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -122,6 +111,6 @@ spec:
         - -c
       name: gitops-cluster
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:9.4.0-pre.gitops
+      image: quay.io/ibmmas/cli:9.4.0-pre.ajw-mascore654
   workspaces:
     - name: configs

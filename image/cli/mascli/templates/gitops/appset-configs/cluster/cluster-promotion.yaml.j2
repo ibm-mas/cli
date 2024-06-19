@@ -1,0 +1,15 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
+
+promotion:
+  github_pat: "{{ CLUSTER_PROMOTION_TARGET_GITHUB_PAT }}"
+  target_github_host: "{{ CLUSTER_PROMOTION_TARGET_GITHUB_HOST }}"
+  target_github_repo: "{{ CLUSTER_PROMOTION_TARGET_GITHUB_REPO}}"
+  target_github_org: "{{ CLUSTER_PROMOTION_TARGET_GITHUB_ORG }}"
+  target_github_path: "{{ CLUSTER_PROMOTION_TARGET_GITHUB_PATH }}"
+  target_git_branch: "{{ CLUSTER_PROMOTION_TARGET_GIT_BRANCH }}"
+  create_target_pr: "{{ CLUSTER_PROMOTION_CREATE_TARGET_PR }}"
+  cluster_values:
+{% for cluster_value in CLUSTER_PROMOTION_CLUSTER_VALUES -%}
+   - {{ cluster_value }}
+{% endfor %}
+  target_pr_title: "{{ CLUSTER_PROMOTION_TARGET_PR_TITLE }}

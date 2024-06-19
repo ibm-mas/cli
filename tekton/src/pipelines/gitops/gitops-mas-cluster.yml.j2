@@ -41,9 +41,6 @@ spec:
     - name: mas_catalog_image
       type: string
 
-    - name: common_services_channel
-      type: string
-
     - name: dro_namespace
       type: string
       default: "redhat-marketplace"
@@ -121,9 +118,6 @@ spec:
           value: $(params.mas_catalog_version)
         - name: mas_catalog_image
           value: $(params.mas_catalog_image)
-
-        - name: common_services_channel
-          value: $(params.common_services_channel)
 
       taskRef:
         kind: Task
