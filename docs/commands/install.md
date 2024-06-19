@@ -15,6 +15,7 @@ Usage
 - `--uds-email UDS_CONTACT_EMAIL`              Contact e-mail address
 - `--uds-firstname UDS_CONTACT_FIRSTNAME`      Contact first name
 - `--uds-lastname UDS_CONTACT_LASTNAME`        Contact last name
+- `--dro-namespace  DRO_NAMESPACE`             Set Custom Namespace for DRO (Default: ibm-software-central)
 
 ### Storage Class Selection (Required):
 - `--storage-rwo STORAGE_CLASS_RWO`                   Read Write Once (RWO) storage class (e.g. ibmc-block-gold)
