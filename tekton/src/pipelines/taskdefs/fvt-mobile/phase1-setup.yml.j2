@@ -19,8 +19,6 @@
       value: $(params.mas_workspace_id)
     - name: product_channel
       value: $(params.mas_app_channel_manage)
-    - name: output_data_file 
-      value: "MobileSetup4MAS.data"
   when:
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
@@ -50,9 +48,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: upload_file
-      value: false
-    - name: output_data_file 
-      value: "SR_API.data"
+      value: "false"
   when:
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
