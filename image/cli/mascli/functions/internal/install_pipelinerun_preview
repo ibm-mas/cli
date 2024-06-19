@@ -226,6 +226,7 @@ function install_pipelinerun_preview() {
   echo_reset_dim "Contact Email ............. ${COLOR_MAGENTA}${UDS_CONTACT_EMAIL}"
   echo_reset_dim "First Name ................ ${COLOR_MAGENTA}${UDS_CONTACT_FIRSTNAME}"
   echo_reset_dim "Last Name ................. ${COLOR_MAGENTA}${UDS_CONTACT_LASTNAME}"
+  echo_reset_dim "Namespace ................. ${COLOR_MAGENTA}${DRO_NAMESPACE}"
 
   if [[ "$DEPLOY_CP4D" == "run" ]]; then
     reset_colors

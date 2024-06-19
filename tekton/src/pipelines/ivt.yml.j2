@@ -1,0 +1,60 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-ivt
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+    # PodTemplates configurations
+    - name: shared-pod-templates
+
+  params:
+    # Tekton Pipeline image pull policy (for ibmmas/cli images)
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+      description: Pull policy for pipeline container images
+
+    # MAS Configuration
+    - name: mas_app_channel_manage
+      type: string
+      default: ""
+    - name: mas_instance_id
+      type: string
+      default: ""
+    - name: mas_workspace_id
+      type: string
+      default: ""
+    - name: mas_app_channel_monitor
+      type: string
+      default: ""
+
+    # FVT Configuration
+    - name: fvt_image_registry
+      type: string
+      default: ""
+    - name: fvt_artifactory_username
+      type: string
+      default: ""
+    - name: fvt_artifactory_token
+      type: string
+      default: ""
+
+    # Image Digests
+    - name: fvt_digest_manage
+      type: string
+      default: ""
+    - name: fvt_digest_manage_pytest
+      type: string
+      default: ""
+
+    - name: fvt_digest_ctf
+      type: string
+      default: ""
+
+  tasks:
+    # IVT
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/ivt/ivt.yml.j2') | indent(4) }}
