@@ -131,16 +131,20 @@ function provision_fyre_interactive() {
 
   echo
   echo "OCP Version:"
-  echo "  1. 4.12 (MAS 8.9-8.10)"
-  echo "  2. 4.14 (MAS 8.10-8.11)"
+  echo "  1. 4.15 (MAS 8.10-9.0)"
+  echo "  2. 4.14 (MAS 8.10-9.0)"
+  echo "  3. 4.12 (MAS 8.9-8.10)"
   prompt_for_input "Select Version" OCP_VERSION_SELECTION "1"
 
   case $OCP_VERSION_SELECTION in
-    1|4.12)
-      export OCP_VERSION=4.12
+    1|4.15)
+      export OCP_VERSION=4.15
       ;;
     2|4.14)
       export OCP_VERSION=4.14
+      ;;
+    3|4.12)
+      export OCP_VERSION=4.12
       ;;
     *)
       # Print out a warning as there could be a typo
