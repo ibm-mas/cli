@@ -111,6 +111,9 @@ spec:
       type: string
     - name: db2_action
       type: string
+    - name: db2_channel
+      type: string
+      default: ""
     - name: db2_instance_registry_yaml_manage
       type: string
       default: ""
@@ -417,8 +420,48 @@ spec:
 
     # 3. DB2 for IoT and Manage
     # -------------------------------------------------------------------------
+
+    - name: gitops-db2u
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: db2_channel
+          value: $(params.db2_channel)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-db2u
+      when:
+        - input: "$(params.db2_action)"
+          operator: notin
+          values: [""]
+
     # 3.1 DB2 for IoT
     - name: gitops-db2u-database-iot
+      runAfter:
+        - gitops-db2u
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
@@ -532,6 +575,8 @@ spec:
 
     # 3.2 DB2 for Manage
     - name: gitops-db2u-database-manage
+      runAfter:
+        - gitops-db2u
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
