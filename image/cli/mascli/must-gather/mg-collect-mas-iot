@@ -5,10 +5,10 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 NAMESPACE=$1
 OUTPUT_DIR=$2
 
-# Collect MBGX Logs
+# Collect MBGX/MFGX Logs
 # -----------------------------------------------------------------------------
-echo_h4 "Collect Message Broker Logs"
-$DIR/mg-collect-mbgx-logs $NAMESPACE $OUTPUT_DIR
+echo_h4 "Collect Message Broker and Broker Proxy Logs"
+$DIR/mg-collect-iot-extra-logs $NAMESPACE $OUTPUT_DIR
 
 # Collect Reconcile Logs
 # -----------------------------------------------------------------------------
