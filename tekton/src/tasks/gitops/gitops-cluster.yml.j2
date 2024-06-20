@@ -47,6 +47,17 @@ spec:
     - name: custom_labels
       type: string
       default: ''
+
+    - name: dns_provider
+      type: string
+      default: cis
+    - name: mas_manual_cert_mgmt
+      type: string
+      default: "False"
+    - name: ocp_cluster_domain
+      type: string
+      default: ""
+
   stepTemplate:
     name: gitops-cluster
     env:
@@ -86,6 +97,13 @@ spec:
         value: $(params.slack_channel_id)
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
+
+      - name: DNS_PROVIDER
+        value: $(params.dns_provider)
+      - name: MAS_MANUAL_CERT_MGMT
+        value: $(params.mas_manual_cert_mgmt)
+      - name: OCP_CLUSTER_DOMAIN
+        value: $(params.ocp_cluster_domain)
 
     envFrom:
       - configMapRef:

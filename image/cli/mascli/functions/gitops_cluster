@@ -36,6 +36,12 @@ Operator Catalog (Optional):
 IBM Cloud Pak Foundational Services (Optional):
       --common-services-channel ${COLOR_YELLOW}COMMON_SERVICES_CHANNEL${TEXT_RESET} Subscription channel for IBM Cloud Pak Foundation Services (defaults to 'v3.23')
       --common-services-action ${COLOR_YELLOW}COMMON_SERVICES_ACTION${TEXT_RESET}   Action to take for IBM Cloud Pak Foundation Services ('install', 'upgrade' or 'none'. Default is 'install')
+      --ocp-cluster-domain ${COLOR_YELLOW}OCP_CLUSTER_DOMAIN${TEXT_RESET}             Open Shift Cluster domain
+
+IBM CIS Cert Manager:
+      --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                         DNS Provider, Currently supported CIS (Akamai support inprogress)
+      --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}         MAS Manual Cert Management
+      --cis-apikey ${COLOR_YELLOW}CIS_APIKEY${TEXT_RESET}                             IBM CLOUD APIKEY
 
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}         Enable automatic push to GitHub
@@ -73,6 +79,9 @@ function gitops_cluster_noninteractive() {
 
   # Target the local (to ArgoCD) cluster
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
+
+  # Disable manual certificate management by default
+  export MAS_MANUAL_CERT_MGMT=${MAS_MANUAL_CERT_MGMT:-"False"}
 
   while [[ $# -gt 0 ]]
   do
@@ -169,6 +178,21 @@ function gitops_cluster_noninteractive() {
         export SLACK_CHANNEL_ID=$1 && shift
         ;;
 
+      # IBM CIS Cert Manager 
+      --dns-provider)
+        export DNS_PROVIDER=$1 && shift
+        ;;
+      --mas-manual-cert-mgmt)
+        export MAS_MANUAL_CERT_MGMT=$1 && shift
+        ;;
+      --ocp-cluster-domain)
+        export OCP_CLUSTER_DOMAIN=$1 && shift
+        ;;
+      --cis-apikey)
+        export CIS_APIKEY=$1 && shift
+        ;;
+
+
       # Other Commands
       -h|--help)
         gitops_cluster_help
@@ -190,6 +214,11 @@ function gitops_cluster_noninteractive() {
     [[ -z "$GITHUB_ORG" ]] && gitops_cluster_help "GITHUB_ORG is not set"
     [[ -z "$GITHUB_REPO" ]] && gitops_cluster_help "GITHUB_REPO is not set"
     [[ -z "$GIT_BRANCH" ]] && gitops_cluster_help "GIT_BRANCH is not set"
+  fi
+
+  if [[ "${DNS_PROVIDER}" == "cis" ]]; then
+    [[ -z "$OCP_CLUSTER_DOMAIN" ]] && gitops_cluster_help "OCP_CLUSTER_DOMAIN is not set"
+    [[ -z "$CIS_APIKEY" ]] && gitops_cluster_help "CIS_APIKEY is not set"
   fi
 
   [[ -z "$SECRETS_PATH" ]] && gitops_cluster_help "SECRETS_PATH is not set"
@@ -270,6 +299,15 @@ function gitops_cluster() {
   echo_reset_dim "Common Services Action ......... ${COLOR_MAGENTA}${COMMON_SERVICES_ACTION}"
   reset_colors
 
+  if [[ -n "$DNS_PROVIDER" ]]; then
+    echo "${TEXT_DIM}"
+    echo_h2 "IBM CIS Cert Manager" "    "
+    echo_reset_dim "DNS Provider ................. ${COLOR_MAGENTA}${DNS_PROVIDER}"
+    echo_reset_dim "MAS Manual Cert Mgt .......... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
+    echo_reset_dim "Open Shift Cluster Domain .... ${COLOR_MAGENTA}${OCP_CLUSTER_DOMAIN}"
+    echo_reset_dim "IBM CLOUD APIKEY ............. ${COLOR_MAGENTA}${CIS_APIKEY:0:4}<snip>"
+    reset_colors
+  fi
 
   # Set up secrets
   # ---------------------------------------------------------------------------
@@ -280,6 +318,9 @@ function gitops_cluster() {
 
   export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}ibm_entitlement
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRET_NAME_IBM_ENTITLEMENT}#image_pull_secret_b64
+
+  export SECRET_NAME_CIS=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}cis
+  export SECRET_KEY_IBM_APIKEY=${SECRET_NAME_CIS}#ibm_apikey
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
@@ -347,7 +388,10 @@ function gitops_cluster() {
     echo "- IBM Common Services"
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/redhat-cert-manager.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/redhat-cert-manager.yaml
   fi
-
+  if [[ -n "$DNS_PROVIDER" ]]; then
+    echo "- IBM CIS Cert Manager"
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-cis-cert-manager.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-cis-cert-manager.yaml
+  fi
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
