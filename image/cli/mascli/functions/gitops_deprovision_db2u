@@ -139,7 +139,6 @@ function gitops_deprovision_db2u() {
   echo_reset_dim "Region ID ............................. ${COLOR_MAGENTA}${REGION_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Instance config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
-  echo_reset_dim "DB2U Namespace ........................ ${COLOR_MAGENTA}${DB2_NAMESPACE}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -156,7 +155,6 @@ function gitops_deprovision_db2u() {
     echo_reset_dim "Organization .......................... ${COLOR_MAGENTA}${GITHUB_ORG}"
     echo_reset_dim "Repository ............................ ${COLOR_MAGENTA}${GITHUB_REPO}"
     echo_reset_dim "Branch ................................ ${COLOR_MAGENTA}${GIT_BRANCH}"
-    echo_reset_dim "Lock Branch ........................... ${COLOR_MAGENTA}${GIT_LOCK_BRANCH}"
   else
     echo_h2 "GitOps Target" "    "
     echo_reset_dim "Automatic Push ........................ ${COLOR_RED}Disabled"
@@ -167,7 +165,6 @@ function gitops_deprovision_db2u() {
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo_reset_dim "MAS Application ID ..................... ${COLOR_MAGENTA}${MAS_APP_ID}"
   reset_colors
 
   TEMP_DIR=$GITOPS_WORKING_DIR/tmp-deprovision-db2u
