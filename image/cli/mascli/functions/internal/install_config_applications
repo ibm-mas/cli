@@ -308,7 +308,10 @@ function manage_settings_components() {
     if [[ "${MAS_APPWS_COMPONENTS,,}" == *"spatial="* ]]; then
       echo
       echo "${TEXT_DIM}Maximo Spatial requires a map server provider in order to enable geospatial capabilities."
-      echo "${TEXT_DIM}You may choose your preferred map provider later or you can enable IBM Maximo Location Services for Esri now along with your Manage & Spatial deployment (additional AppPoints are needed)."
+      echo "${TEXT_DIM}You may choose your preferred map provider later or you can enable IBM Maximo Location Services for Esri now."
+      echo "${TEXT_DIM}This includes ArcGIS Enterprise as part of the Manage and Maximo Spatial bundle for an additional 150 AppPoints."
+      echo
+
       reset_colors
       echo
       if prompt_for_confirm " - Include IBM Maximo Location Services for Esri" INSTALL_ARCGIS; then
