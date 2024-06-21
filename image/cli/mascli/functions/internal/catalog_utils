@@ -175,16 +175,22 @@ function cp4d_channel_selection() {
 # provided by IBM Cloud Pak Foundational Services
 
 function cert_manager_selection() {
-  case $MAS_CATALOG_VERSION in
-    # Cert-Manager Channel selection
-    # -------------------------------------------------------------------------
-    v8-amd64|v8-240130-amd64|v8-240227-amd64|v8-240326-amd64|v8-240405-amd64|v8-240430-amd64|v8-240528-amd64)
-      CERT_MANAGER_PROVIDER=redhat
-      CERT_MANAGER_ACTION=install
-      ;;
-    *)
-      CERT_MANAGER_PROVIDER=ibm
-      CERT_MANAGER_ACTION=install
-      ;;
-  esac
+
+  if [ "$DEV_MODE" != "true" ]; then
+    case $MAS_CATALOG_VERSION in
+      # Cert-Manager Channel selection
+      # -------------------------------------------------------------------------
+      v8-amd64|v8-240130-amd64|v8-240227-amd64|v8-240326-amd64|v8-240405-amd64|v8-240430-amd64|v8-240528-amd64)
+        CERT_MANAGER_PROVIDER=redhat
+        CERT_MANAGER_ACTION=install
+        ;;
+      *)
+        CERT_MANAGER_PROVIDER=redhat
+        CERT_MANAGER_ACTION=install
+        ;;
+    esac
+  else
+    CERT_MANAGER_PROVIDER=redhat
+    CERT_MANAGER_ACTION=install
+  fi
 }
