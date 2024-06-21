@@ -218,7 +218,7 @@ function gitops_cluster_noninteractive() {
 
   if [[ "${DNS_PROVIDER}" == "cis" ]]; then
     [[ -z "$OCP_CLUSTER_DOMAIN" ]] && gitops_cluster_help "OCP_CLUSTER_DOMAIN is not set"
-    [[ -z "$CIS_APIKEY" ]] && gitops_cluster_help "CIS_APIKEY is not set"
+    #[[ -z "$CIS_APIKEY" ]] && gitops_cluster_help "CIS_APIKEY is not set"
   fi
 
   [[ -z "$SECRETS_PATH" ]] && gitops_cluster_help "SECRETS_PATH is not set"
