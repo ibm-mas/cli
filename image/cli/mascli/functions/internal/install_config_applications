@@ -309,7 +309,7 @@ function manage_settings_components() {
       echo
       echo "${TEXT_DIM}Maximo Spatial requires a map server provider in order to enable geospatial capabilities."
       echo "${TEXT_DIM}You may choose your preferred map provider later or you can enable IBM Maximo Location Services for Esri now."
-      echo "${TEXT_DIM}This includes ArcGIS Enterprise as part of the Manage and Maximo Spatial bundle for an additional 150 AppPoints."
+      echo "${TEXT_DIM}This includes ArcGIS Enterprise as part of the Manage and Maximo Spatial bundle (Additional AppPoints required)."
       echo
 
       reset_colors
