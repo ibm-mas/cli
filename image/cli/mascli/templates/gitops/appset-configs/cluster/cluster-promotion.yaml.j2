@@ -2,7 +2,7 @@ merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
 
 {% set cluster_values = CLUSTER_PROMOTION_CLUSTER_VALUES.split(",") %}
 promotion:
-  github_pat: "{{ SECRET_KEY_GITHUB_PAT }}"
+  github_pat: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_GITHUB_PAT }}>"
   target_github_host: "{{ CLUSTER_PROMOTION_TARGET_GITHUB_HOST }}"
   target_github_repo: "{{ CLUSTER_PROMOTION_TARGET_GITHUB_REPO}}"
   target_github_org: "{{ CLUSTER_PROMOTION_TARGET_GITHUB_ORG }}"
@@ -15,4 +15,4 @@ promotion:
     - {{ cluster_value | trim("[]") }}
   {%- endfilter %}
 {% endfor %}
-  target_pr_title: "{{ CLUSTER_PROMOTION_TARGET_PR_TITLE }}
+  target_pr_title: "{{ CLUSTER_PROMOTION_TARGET_PR_TITLE }}"
