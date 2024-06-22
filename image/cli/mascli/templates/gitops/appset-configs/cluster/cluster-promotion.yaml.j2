@@ -9,9 +9,9 @@ promotion:
   target_git_branch: "{{ CLUSTER_PROMOTION_TARGET_GIT_BRANCH }}"
   create_target_pr: "{{ CLUSTER_PROMOTION_CREATE_TARGET_PR }}"
   cluster_values:
-{% for cluster_value in [CLUSTER_PROMOTION_CLUSTER_VALUES] -%}
-{% filter indent(width=4) -%}
-   - {{ cluster_value }}
-{%- endfilter %}
+{% for cluster_value in (CLUSTER_PROMOTION_CLUSTER_VALUES if CLUSTER_PROMOTION_CLUSTER_VALUES is not string else [CLUSTER_PROMOTION_CLUSTER_VALUES]) -%}
+  {% filter indent(width=2) -%}
+  - {{ cluster_value }}
+  {%- endfilter %}
 {% endfor %}
   target_pr_title: "{{ CLUSTER_PROMOTION_TARGET_PR_TITLE }}
