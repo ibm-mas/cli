@@ -95,6 +95,12 @@ spec:
         export CUSTOM_LABELS=$(echo "${CUSTOM_LABELS}" | yq --yaml-output)
         echo " CUSTOM_LABELS = ${CUSTOM_LABELS}"
 
+
+        if [[ -z "${CLUSTER_PROMOTION_TARGET_GITHUB_PAT}" ]];then
+          echo "Setting var CLUSTER_PROMOTION_TARGET_GITHUB_PAT to be the same as var GITHUB_PAT as it as not set"
+          export CLUSTER_PROMOTION_TARGET_GITHUB_PAT=${GITHUB_PAT}
+        fi
+
         mkdir -p /tmp/init-cluster
         mas gitops-cluster -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /tmp/init-cluster \

@@ -363,6 +363,12 @@ function gitops_cluster() {
 
   sm_update_secret $SECRET_NAME_IBM_ENTITLEMENT "{\"image_pull_secret_b64\": \"${IBM_ENTITLEMENT_PULL_SECRET_B64}\", \"entitlement_key\": \"${IBM_ENTITLEMENT_B64}\"}"
 
+  if [[ "$CLUSTER_PROMOTION" == "true" ]]; then
+    export SECRET_NAME_GITHUB_PAT=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}github_pat
+    export SECRET_KEY_GITHUB_PAT=${SECRET_NAME_GITHUB_PAT}#github_pat
+    sm_update_secret $SECRET_NAME_GITHUB_PAT "{\"github_pat\": \"${CLUSTER_PROMOTION_TARGET_GITHUB_PAT}\"}"
+  fi
+
   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
 
 
