@@ -1,5 +1,6 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
 
+{% set cluster_values = CLUSTER_PROMOTION_CLUSTER_VALUES.split(",") %}
 promotion:
   github_pat: "{{ SECRET_KEY_GITHUB_PAT }}"
   target_github_host: "{{ CLUSTER_PROMOTION_TARGET_GITHUB_HOST }}"
@@ -9,9 +10,9 @@ promotion:
   target_git_branch: "{{ CLUSTER_PROMOTION_TARGET_GIT_BRANCH }}"
   create_target_pr: "{{ CLUSTER_PROMOTION_CREATE_TARGET_PR }}"
   cluster_values:
-{% for cluster_value in (CLUSTER_PROMOTION_CLUSTER_VALUES if CLUSTER_PROMOTION_CLUSTER_VALUES is not string else [CLUSTER_PROMOTION_CLUSTER_VALUES]) -%}
-  {% filter indent(width=2) -%}
-  - {{ cluster_value }}
+{% for cluster_value in cluster_values  -%}
+  {% filter indent(width=2, first=true) -%}
+    - {{ cluster_value | trim("[]") }}
   {%- endfilter %}
 {% endfor %}
   target_pr_title: "{{ CLUSTER_PROMOTION_TARGET_PR_TITLE }}
