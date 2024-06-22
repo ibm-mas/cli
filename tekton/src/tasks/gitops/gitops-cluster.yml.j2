@@ -38,6 +38,27 @@ spec:
     - name: custom_labels
       type: string
       default: ''
+    - name: cluster_promotion_target_github_host
+      type: string
+      default: ''
+    - name: cluster_promotion_target_github_repo
+      type: string
+      default: ''
+    - name: cluster_promotion_target_github_org
+      type: string
+      default: ''
+    - name: cluster_promotion_target_github_path
+      type: string
+      default: ''
+    - name: cluster_promotion_target_git_branch
+      type: string
+      default: ''
+    - name: cluster_promotion_create_target_pr
+      type: string
+      default: ''
+    - name: cluster_promotion_target_pr_title
+      type: string
+      default: ''
     - name: cluster_promotion_cluster_values
       type: string
       default: ''
@@ -74,6 +95,20 @@ spec:
         value: $(params.slack_channel_id)
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
+      - name: CLUSTER_PROMOTION_TARGET_GITHUB_HOST
+        value: $(params.cluster_promotion_target_github_host)
+      - name: CLUSTER_PROMOTION_TARGET_GITHUB_REPO
+        value: $(params.cluster_promotion_target_github_repo)
+      - name: CLUSTER_PROMOTION_TARGET_GITHUB_ORG
+        value: $(params.cluster_promotion_target_github_org)
+      - name: CLUSTER_PROMOTION_TARGET_GITHUB_PATH
+        value: $(params.cluster_promotion_target_github_path)
+      - name: CLUSTER_PROMOTION_TARGET_GIT_BRANCH
+        value: $(params.cluster_promotion_target_git_branch)
+      - name: CLUSTER_PROMOTION_CREATE_TARGET_PR
+        value: $(params.cluster_promotion_create_target_pr)
+      - name: CLUSTER_PROMOTION_TARGET_PR_TITLE
+        value: $(params.cluster_promotion_target_pr_title)
       - name: CLUSTER_PROMOTION_CLUSTER_VALUES
         value: $(params.cluster_promotion_cluster_values)
     envFrom:
@@ -99,6 +134,11 @@ spec:
         if [[ -z "${CLUSTER_PROMOTION_TARGET_GITHUB_PAT}" ]];then
           echo "Setting var CLUSTER_PROMOTION_TARGET_GITHUB_PAT to be the same as var GITHUB_PAT as it as not set"
           export CLUSTER_PROMOTION_TARGET_GITHUB_PAT=${GITHUB_PAT}
+        fi
+
+        if [[ -n "${CLUSTER_PROMOTION_CLUSTER_VALUES}" ]];then
+          echo "Setting var CLUSTER_PROMOTION to true as var CLUSTER_PROMOTION_CLUSTER_VALUES is set"
+          export CLUSTER_PROMOTION=true
         fi
 
         mkdir -p /tmp/init-cluster
