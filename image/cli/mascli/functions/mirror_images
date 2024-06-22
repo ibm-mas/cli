@@ -62,6 +62,7 @@ Content Selection (Other Dependencies):
       --mirror-mongo-v6                           Mirror images for MongoDb Community Edition version 6
       --mirror-db2                                Mirror images for IBM Db2
       --mirror-appconnect                         Mirror images for IBM AppConnect
+      --mirror-couchdb                            Mirror images for IBM CouchDB
 
 Content Selection (All images included):
       --mirror-everything                         Mirror all MAS related images (including dependencies)
@@ -101,6 +102,7 @@ function mirror_everything() {
 
     MIRROR_DB2U=true
     MIRROR_APPCONNECT=true
+    MIRROR_COUCHDB=true
 
     # Dependencies (CP4D)
     MIRROR_CP4D=true
@@ -140,6 +142,7 @@ function mirror_to_registry_noninteractive() {
   MIRROR_SPARK=false
   MIRROR_COGNOS=false
   MIRROR_APPCONNECT=false
+  MIRROR_COUCHDB=false
 
   while [[ $# -gt 0 ]]
   do
@@ -260,6 +263,9 @@ function mirror_to_registry_noninteractive() {
         ;;
       --mirror-appconnect)
         MIRROR_APPCONNECT=true
+        ;;
+      --mirror-couchdb)
+        MIRROR_COUCHDB=true
         ;;
 
       # Content Selection (Cloud Pak for Data)
@@ -437,7 +443,8 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm "IBM Watson Machine Learning" MIRROR_WML
     prompt_for_confirm "IBM Analytics Engine (Spark)" MIRROR_SPARK
     prompt_for_confirm "IBM Cognos Analytics" MIRROR_COGNOS
-
+    
+    prompt_for_confirm "IBM CouchDB" MIRROR_COUCHDB
     prompt_for_confirm "IBM AppConnect" MIRROR_APPCONNECT
   fi
 
@@ -553,6 +560,7 @@ function mirror_to_registry() {
     "$MIRROR_MONGOCE_V6" == true ||
     "$MIRROR_DB2U" == true ||
     "$MIRROR_APPCONNECT" == true ||
+    "$MIRROR_COUCHDB" == true ||
     "$MIRROR_CP4D" == true ||
     "$MIRROR_WSL" == true ||
     "$MIRROR_WML" == true ||
@@ -627,6 +635,7 @@ function mirror_to_registry() {
   show_mirror_status "+ Version 6 ........................." $MIRROR_MONGOCE_V6
   show_mirror_status "IBM Db2 ............................." $MIRROR_DB2U
   show_mirror_status "IBM AppConnect ......................" $MIRROR_APPCONNECT
+  show_mirror_status "IBM CouchDB ........................." $MIRROR_COUCHDB
 
   echo
   reset_colors
