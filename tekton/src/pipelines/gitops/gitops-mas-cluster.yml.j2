@@ -83,6 +83,31 @@ spec:
       type: string
       default: nvcr.io/nvidia
 
+    - name: cluster_promotion_target_github_host
+      type: string
+      default: ''
+    - name: cluster_promotion_target_github_repo
+      type: string
+      default: ''
+    - name: cluster_promotion_target_github_org
+      type: string
+      default: ''
+    - name: cluster_promotion_target_github_path
+      type: string
+      default: ''
+    - name: cluster_promotion_target_git_branch
+      type: string
+      default: ''
+    - name: cluster_promotion_create_target_pr
+      type: string
+      default: ''
+    - name: cluster_promotion_target_pr_title
+      type: string
+      default: ''
+    - name: cluster_promotion_cluster_values
+      type: string
+      default: ''
+
   tasks:
     - name: gitops-cluster
       params:
@@ -118,6 +143,23 @@ spec:
           value: $(params.mas_catalog_version)
         - name: mas_catalog_image
           value: $(params.mas_catalog_image)
+
+        - name: cluster_promotion_target_github_host
+          value: $(params.cluster_promotion_target_github_host)
+        - name: cluster_promotion_target_github_repo
+          value: $(params.cluster_promotion_target_github_repo)
+        - name: cluster_promotion_target_github_org
+          value: $(params.cluster_promotion_target_github_org)
+        - name: cluster_promotion_target_github_path
+          value: $(params.cluster_promotion_target_github_path)
+        - name: cluster_promotion_target_git_branch
+          value: $(params.cluster_promotion_target_git_branch)
+        - name: cluster_promotion_create_target_pr
+          value: $(params.cluster_promotion_create_target_pr)
+        - name: cluster_promotion_target_pr_title
+          value: $(params.cluster_promotion_target_pr_title)
+        - name: cluster_promotion_cluster_values
+          value: $(params.cluster_promotion_cluster_values)
 
       taskRef:
         kind: Task
