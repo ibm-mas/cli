@@ -12,19 +12,13 @@ promotion:
   cluster_values:
 {% for cluster_value in cluster_values  -%}
   {% filter indent(width=2, first=true) -%}
-    - value: {{ cluster_value | trim("[]") }}
+    - {{ cluster_value | trim("[]") }}
   {%- endfilter %}
 {% endfor %}
-  cluster_values_direct_non_value:
-{% for cluster_value in (ESCAPED_CLUSTER_VALUES if ESCAPED_CLUSTER_VALUES is not string else [ESCAPED_CLUSTER_VALUES]) -%}
+  cluster_values_new:
+{% for cluster_value in CLUSTER_PROMOTION_CLUSTER_VALUES  -%}
   {% filter indent(width=2, first=true) -%}
-    - value: {{ cluster_value }}
-  {%- endfilter %}
-{% endfor %}
-  cluster_values_escaped_direct:
-{% for cluster_value in ESCAPED_CLUSTER_VALUES if ESCAPED_CLUSTER_VALUES is not string else [ESCAPED_CLUSTER_VALUES]) -%}
-  {% filter indent(width=2, first=true) -%}
-    - value: {{ cluster_value.value }}
+    - {{ cluster_value }}
   {%- endfilter %}
 {% endfor %}
   target_pr_title: "{{ CLUSTER_PROMOTION_TARGET_PR_TITLE }}"
