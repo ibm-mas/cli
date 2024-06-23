@@ -16,13 +16,13 @@ promotion:
   {%- endfilter %}
 {% endfor %}
   cluster_values_direct_non_value:
-{% for cluster_value in CLUSTER_PROMOTION_CLUSTER_VALUES  -%}
+{% for cluster_value in ESCAPED_CLUSTER_VALUES  -%}
   {% filter indent(width=2, first=true) -%}
     - value: {{ cluster_value }}
   {%- endfilter %}
 {% endfor %}
-  cluster_values_direct:
-{% for cluster_value in CLUSTER_PROMOTION_CLUSTER_VALUES  -%}
+  cluster_values_escaped_direct:
+{% for cluster_value in ESCAPED_CLUSTER_VALUES  -%}
   {% filter indent(width=2, first=true) -%}
     - value: {{ cluster_value.value }}
   {%- endfilter %}

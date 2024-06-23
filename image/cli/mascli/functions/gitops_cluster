@@ -393,6 +393,8 @@ function gitops_cluster() {
   jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/redhat-cert-manager.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/redhat-cert-manager.yaml
   
   if [[ "$CLUSTER_PROMOTION" == "true" ]]; then
+    ESCAPED_CLUSTER_VALUES=${CLUSTER_PROMOTION_CLUSTER_VALUES//\"/\\\"}
+    export ESCAPED_CLUSTER_VALUES=${ESCAPED_CLUSTER_VALUES//$'\n'/\\n}
     echo "- Cluster Promotion"
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-promotion.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/cluster-promotion.yaml
   fi
