@@ -12,7 +12,19 @@ promotion:
   cluster_values:
 {% for cluster_value in cluster_values  -%}
   {% filter indent(width=2, first=true) -%}
-    - {{ cluster_value | trim("[]") }}
+    - value: {{ cluster_value.value | trim("[]") }}
+  {%- endfilter %}
+{% endfor %}
+  cluster_values_non_value:
+{% for cluster_value in cluster_values  -%}
+  {% filter indent(width=2, first=true) -%}
+    - value: {{ cluster_value }}
+  {%- endfilter %}
+{% endfor %}
+  cluster_values_non_trim:
+{% for cluster_value in cluster_values  -%}
+  {% filter indent(width=2, first=true) -%}
+    - value: {{ cluster_value.value }}
   {%- endfilter %}
 {% endfor %}
   target_pr_title: "{{ CLUSTER_PROMOTION_TARGET_PR_TITLE }}"
