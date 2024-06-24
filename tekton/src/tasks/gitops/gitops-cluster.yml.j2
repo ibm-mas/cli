@@ -62,6 +62,14 @@ spec:
     - name: cluster_promotion_cluster_values
       type: string
       default: ''
+
+    - name: dns_provider
+      type: string
+      default: cis
+    - name: ocp_cluster_domain
+      type: string
+      default: ""
+
   stepTemplate:
     name: gitops-cluster
     env:
@@ -111,6 +119,12 @@ spec:
         value: $(params.cluster_promotion_target_pr_title)
       - name: CLUSTER_PROMOTION_CLUSTER_VALUES
         value: $(params.cluster_promotion_cluster_values)
+
+      - name: DNS_PROVIDER
+        value: $(params.dns_provider)
+      - name: OCP_CLUSTER_DOMAIN
+        value: $(params.ocp_cluster_domain)
+
     envFrom:
       - configMapRef:
           name: environment-properties

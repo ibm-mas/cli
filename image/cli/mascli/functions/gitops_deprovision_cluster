@@ -223,19 +223,10 @@ function gitops_deprovision_cluster() {
   COMMON_SERVICES_APP_NAME="redhat-cert-manager.${CLUSTER_ID}"
   DRO_APP_NAME="dro.${CLUSTER_ID}"
   CIS_COMPLIANCE_APP_NAME="cis-compliance.${CLUSTER_ID}"
-  DB2U_APP_NAME="db2u.${CLUSTER_ID}"
   NVIDIA_GPU_APP_NAME="nvidia-gpu.${CLUSTER_ID}"
 
   echo "- Delete CIS Compliance"
   rm ${GITOPS_CLUSTER_DIR}/cis-compliance.yaml
-  if [ "$GITHUB_PUSH" == "true" ]; then
-    echo
-    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
-  fi
-
-  echo "- Delete DB2U"
-  rm ${GITOPS_CLUSTER_DIR}/ibm-db2u.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
