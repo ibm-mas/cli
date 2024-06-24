@@ -286,6 +286,11 @@ function gitops_cp4d_service() {
     export SECRET_KEY_WML_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wml_version#wml_version
     export SECRET_KEY_WML_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wml_channel#wml_channel
   fi
+
+  if [[ "$CPD_SERVICE_NAME" == "spark" ]]; then
+    export SECRET_KEY_SPARK_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}spark_channel#spark_channel
+    export SECRET_KEY_SPARK_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}spark_version#spark_version
+  fi
   
   # Set and Validate App Names
   # ---------------------------------------------------------------------------
