@@ -89,9 +89,6 @@ spec:
     - name: dns_provider
       type: string
       default: cis
-    - name: mas_manual_cert_mgmt
-      type: string
-      default: "False"
     - name: ocp_cluster_domain
       type: string
       default: ""
@@ -137,8 +134,6 @@ spec:
 
         - name: ocp_cluster_domain
           value: $(params.ocp_cluster_domain)
-        - name: mas_manual_cert_mgmt
-          value: $(params.mas_manual_cert_mgmt)
         - name: dns_provider
           value: $(params.dns_provider)
       taskRef:

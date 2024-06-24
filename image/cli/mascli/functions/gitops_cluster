@@ -40,7 +40,6 @@ IBM Cloud Pak Foundational Services (Optional):
 
 IBM CIS Cert Manager:
       --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                         DNS Provider, Currently supported CIS (Akamai support inprogress)
-      --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}         MAS Manual Cert Management
       --cis-apikey ${COLOR_YELLOW}CIS_APIKEY${TEXT_RESET}                             IBM CLOUD APIKEY
 
 Automatic GitHub Push (Optional):
@@ -80,8 +79,6 @@ function gitops_cluster_noninteractive() {
   # Target the local (to ArgoCD) cluster
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
 
-  # Disable manual certificate management by default
-  export MAS_MANUAL_CERT_MGMT=${MAS_MANUAL_CERT_MGMT:-"False"}
 
   while [[ $# -gt 0 ]]
   do
@@ -181,9 +178,6 @@ function gitops_cluster_noninteractive() {
       # IBM CIS Cert Manager 
       --dns-provider)
         export DNS_PROVIDER=$1 && shift
-        ;;
-      --mas-manual-cert-mgmt)
-        export MAS_MANUAL_CERT_MGMT=$1 && shift
         ;;
       --ocp-cluster-domain)
         export OCP_CLUSTER_DOMAIN=$1 && shift
@@ -303,7 +297,6 @@ function gitops_cluster() {
     echo "${TEXT_DIM}"
     echo_h2 "IBM CIS Cert Manager" "    "
     echo_reset_dim "DNS Provider ................. ${COLOR_MAGENTA}${DNS_PROVIDER}"
-    echo_reset_dim "MAS Manual Cert Mgt .......... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
     echo_reset_dim "Open Shift Cluster Domain .... ${COLOR_MAGENTA}${OCP_CLUSTER_DOMAIN}"
     echo_reset_dim "IBM CLOUD APIKEY ............. ${COLOR_MAGENTA}${CIS_APIKEY:0:4}<snip>"
     reset_colors
