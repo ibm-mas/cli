@@ -167,8 +167,14 @@ function install_config_applications() {
 
   if prompt_for_confirm "Install Manage?" MAS_APP_INSTALL_MANAGE; then
     channel_select_manage || exit 1
-    if prompt_for_confirm "Install Predict?" MAS_APP_INSTALL_PREDICT; then
-      channel_select_predict || exit 1
+    # Ask for Predict only for 9.0.x and 8.11.x
+    # Predict 8.10.x doesn't support cpd4.8
+    if [ "$MAS_CHANNEL" == "9.0.x" ] || [ "$MAS_CHANNEL" == "8.11.x" ]; then
+      if prompt_for_confirm "Install Predict?" MAS_APP_INSTALL_PREDICT; then
+        channel_select_predict || exit 1
+      else
+        MAS_APP_CHANNEL_PREDICT=""
+      fi
     else
       MAS_APP_CHANNEL_PREDICT=""
     fi
@@ -179,10 +185,16 @@ function install_config_applications() {
 
     MAS_APP_CHANNEL_PREDICT=""
   fi
-
-  if prompt_for_confirm "Install Assist?" MAS_APP_INSTALL_ASSIST; then
-    channel_select_assist || exit 1
+  # Ask for Assist only for 9.0.x channel
+  # Assist 8.10.x and 8.11.x doesn't support No-watson-discovery mode
+  if [[ "$MAS_CHANNEL" == "9.0.x" ]]; then
+    if prompt_for_confirm "Install Assist?" MAS_APP_INSTALL_ASSIST; then
+      channel_select_assist || exit 1
+    else
+      MAS_APP_CHANNEL_ASSIST=""
+    fi
   else
+    # Do not install Assist for 8.10.x and 8.11.x channels
     MAS_APP_CHANNEL_ASSIST=""
   fi
 
