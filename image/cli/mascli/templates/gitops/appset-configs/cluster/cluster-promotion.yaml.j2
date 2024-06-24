@@ -15,10 +15,4 @@ promotion:
     - {{ cluster_value | trim("[]") }}
   {%- endfilter %}
 {% endfor %}
-  cluster_values_new:
-{% for cluster_value in CLUSTER_PROMOTION_CLUSTER_VALUES  -%}
-  {% filter indent(width=2, first=true) -%}
-    - {{ cluster_value }}
-  {%- endfilter %}
-{% endfor %}
   target_pr_title: "{{ CLUSTER_PROMOTION_TARGET_PR_TITLE }}"
