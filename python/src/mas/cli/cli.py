@@ -10,6 +10,7 @@
 from argparse import RawTextHelpFormatter
 from shutil import which
 from os import path
+from sys import exit
 
 # Use of the openshift client rather than the kubernetes client allows us access to "apply"
 from openshift import dynamic
@@ -17,7 +18,9 @@ from kubernetes import config
 from kubernetes.client import api_client
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
-from prompt_toolkit.validation import Validator, ValidationError
+from prompt_toolkit.validation import Validator
+
+from .validators import YesNoValidator, FileExistsValidator, DirectoryExistsValidator
 
 # Available named colours in prompt_toolkit
 # -----------------------------------------------------------------------------
@@ -39,38 +42,13 @@ from prompt_toolkit.validation import Validator, ValidationError
 # Violet  Wheat  White  WhiteSmoke  Yellow  YellowGreen
 
 from mas.cli import __version__ as packageVersion
-from mas.devops.ocp import connect
-from mas.devops.mas import verifyMasInstance
+from mas.devops.ocp import connect, isSNO
 
 from sys import exit
 
 import logging
 
 logger = logging.getLogger(__name__)
-
-
-class InstanceIDValidator(Validator):
-    def validate(self, document):
-        """
-        Validate that a MAS instance ID exists on the target cluster
-        """
-        instanceId = document.text
-
-        dynClient = dynamic.DynamicClient(
-            api_client.ApiClient(configuration=config.load_kube_config())
-        )
-        if not verifyMasInstance(dynClient, instanceId):
-            raise ValidationError(message='Not a valid MAS instance ID on this cluster', cursor_position=len(instanceId))
-
-
-class YesNoValidator(Validator):
-    def validate(self, document):
-        """
-        Validate that a response is understandable as a yes/no response
-        """
-        response = document.text
-        if response.lower() not in ["y", "n", "yes", "no"]:
-            raise ValidationError(message='Enter a valid response: y(es), n(o)', cursor_position=len(response))
 
 
 def getHelpFormatter(formatter=RawTextHelpFormatter, w=160, h=50):
@@ -107,9 +85,35 @@ class BaseApp(object):
 
         self.version = packageVersion
         self.h1count = 0
+        self.h2count = 0
 
-        self.tektonDefsPath = path.join(path.abspath(path.dirname(__file__)), "templates", "ibm-mas-tekton.yaml")
-        print(self.tektonDefsPath)
+        self.localConfigDir = None
+        self.templatesDir = path.join(path.abspath(path.dirname(__file__)), "templates")
+        self.tektonDefsPath = path.join(self.templatesDir, "ibm-mas-tekton.yaml")
+
+        self._isSNO = None
+
+        self.compatibilityMatrix = {
+            "8.11.x": {
+                "assist": ["8.8.x", "8.7.x"],
+                "iot": ["8.8.x", "8.7.x"],
+                "manage": ["8.7.x", "8.6.x"],
+                "monitor": ["8.11.x", "8.10.x"],
+                "optimizer": ["8.5.x", "8.4.x"],
+                "predict": ["8.9.x", "8.8.x"],
+                "visualinspection": ["8.9.x", "8.8.x"]
+            },
+            "8.10.x": {
+                "assist": ["8.7.x", "8.6.x"],
+                "hputilities": ["8.6.x", "8.5.x"],
+                "iot": ["8.7.x", "8.6.x"],
+                "manage": ["8.6.x", "8.5.x"],
+                "monitor": ["8.10.x", "8.9.x"],
+                "optimizer": ["8.4.x", "8.3.x"],
+                "predict": ["8.8.x", "8.7.x"],
+                "visualinspection": ["8.8.x", "8.7.x"]
+            }
+        }
 
         self.spinner = {
             "interval": 80,
@@ -128,13 +132,103 @@ class BaseApp(object):
             print_formatted_text(HTML("\n<Red>Error: Could not find kubectl on the path, see <u>https://kubernetes.io/docs/tasks/tools/#kubectl</u> for installation instructions</Red>\n"))
             exit(1)
 
+    def getCompatibleVersions(self, coreChannel: str, appId: str) -> list:
+        if coreChannel in self.compatibilityMatrix:
+            return self.compatibilityMatrix[coreChannel][appId]
+        else:
+            return []
+
     def printTitle(self, message):
-        print_formatted_text(HTML(f"<b><u>{message}</u></b>"))
+        print_formatted_text(HTML(f"<b><u>{message.replace(' & ', ' &amp; ')}</u></b>"))
 
     def printH1(self, message):
         self.h1count += 1
+        self.h2count = 0
         print()
-        print_formatted_text(HTML(f"<u><SteelBlue>{self.h1count}. {message}</SteelBlue></u>"))
+        print_formatted_text(HTML(f"<u><SteelBlue>{self.h1count}) {message.replace(' & ', ' &amp; ')}</SteelBlue></u>"))
+
+    def printH2(self, message):
+        self.h2count += 1
+        print()
+        print_formatted_text(HTML(f"<u><SkyBlue>{self.h1count}.{self.h2count}) {message.replace(' & ', ' &amp; ')}</SkyBlue></u>"))
+
+    def printDescription(self, content: list) -> None:
+        content[0] = "<LightSlateGrey>" + content[0]
+        content[len(content) - 1] = content[len(content) - 1] + "</LightSlateGrey>"
+        print_formatted_text(HTML("\n".join(content)))
+
+    def printSummary(self, title: str, value: str) -> None:
+        titleLength = len(title)
+        message = f"{title} {'.' * (40 - titleLength)} {value}"
+        print_formatted_text(HTML(f"  <SkyBlue>{message.replace(' & ', ' &amp; ')}</SkyBlue>"))
+
+    def printParamSummary(self, message: str, param: str) -> None:
+        if self.getParam(param) is None:
+            self.printSummary(message, "<LightSlateGrey>Undefined</LightSlateGrey>")
+        elif self.getParam(param) == "":
+            self.printSummary(message, "<LightSlateGrey>Default</LightSlateGrey>")
+        else:
+            self.printSummary(message, self.getParam(param))
+
+    def fatalError(self, message: str, exception: Exception=None) -> None:
+        if exception is not None:
+            print_formatted_text(HTML(f"<Red>Fatal Exception: {message.replace(' & ', ' &amp; ')}: {exception}</Red>"))
+        else:
+            print_formatted_text(HTML(f"<Red>Fatal Error: {message.replace(' & ', ' &amp; ')}</Red>"))
+        exit(1)
+
+    def isSNO(self):
+        if self._isSNO is None:
+            self._isSNO = isSNO(self.dynamicClient)
+        return self._isSNO
+
+    def yesOrNo(self, message: str, param: str=None) -> bool:
+        response = prompt(HTML(f"<Yellow>{message.replace(' & ', ' &amp; ')}? [y/n]</Yellow> "), validator=YesNoValidator(), validate_while_typing=False)
+        responseAsBool = response.lower() in ["y", "yes"]
+        if param is not None:
+            self.params[param] = "true" if responseAsBool else "false"
+        return responseAsBool
+
+    def promptForString(self, message: str, param: str=None, default: str="", isPassword: bool=False, validator: Validator=None) -> str:
+        messageHTML = HTML(f"<Yellow>{message.replace(' & ', ' &amp; ')}</Yellow> ")
+        response = prompt(messageHTML, is_password=isPassword, default=default, validator=validator, validate_while_typing=False)
+        if param is not None:
+            self.params[param] = response
+        return response
+
+    def promptForInt(self, message: str, param: str=None, default: int=None) -> int:
+        if default is None:
+            response = int(prompt(HTML(f"<Yellow>{message.replace(' & ', ' &amp; ')}</Yellow> ")))
+        else:
+            response = int(prompt(HTML(f"<Yellow>{message.replace(' & ', ' &amp; ')}</Yellow> "), default=str(default)))
+        if param is not None:
+            self.params[param] = str(response)
+        return response
+
+    def promptForListSelect(self, message: str, options: list, param: str=None, default: int=None) -> str:
+        selection = self.promptForInt(message=message, default=default)
+        self.setParam(param, options[selection+1])
+
+    def promptForFile(self, message: str, mustExist: bool=True, default: str="") -> None:
+        if mustExist:
+            return prompt(HTML(f"<Yellow>{message.replace(' & ', ' &amp; ')}</Yellow> "), validator=FileExistsValidator(), validate_while_typing=False, default=default)
+        else:
+            return prompt(HTML(f"<Yellow>{message.replace(' & ', ' &amp; ')}</Yellow> "), default=default)
+
+    def promptForDir(self, message: str, mustExist: bool=True, default: str="") -> None:
+        if mustExist:
+            return prompt(HTML(f"<Yellow>{message.replace(' & ', ' &amp; ')}</Yellow> "), validator=DirectoryExistsValidator(), validate_while_typing=False, default=default)
+        else:
+            return prompt(HTML(f"<Yellow>{message.replace(' & ', ' &amp; ')}</Yellow> "), default=default)
+
+    def setParam(self, param: str, value: str):
+        self.params[param] = value
+
+    def getParam(self, param: str):
+        if param in self.params:
+            return self.params[param]
+        else:
+            return ""
 
     @property
     def dynamicClient(self):

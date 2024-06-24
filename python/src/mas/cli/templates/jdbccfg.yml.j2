@@ -1,0 +1,52 @@
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+{%- if scope == "system" %}
+  name: "jdbc-system-credentials"
+{%- elif scope == "workspace-application" %}
+  name: "jdbc-{{ mas_workspace_id}}-{{ mas_application_id }}-credentials"
+{%- endif %}
+  namespace: "mas-{{ mas_instance_id }}-core"
+stringData:
+  username: "{{ jdbc_username }}"
+  password: "{{ jdbc_password }}"
+---
+apiVersion: config.mas.ibm.com/v1
+kind: JdbcCfg
+metadata:
+{%- if scope == "system" %}
+  name: "{{ mas_instance_id }}-jdbc-system"
+{%- elif scope == "workspace-application" %}
+  name: "{{ mas_instance_id }}-jdbc-wsapp-{{ mas_workspace_id }}-{{ mas_application_id }}"
+{%- endif %}
+  namespace: "mas-{{ mas_instance_id }}-core"
+  labels:
+    'mas.ibm.com/configScope': 'system'
+    'mas.ibm.com/instanceId': '{{ mas_instance_id }}'
+{%- if scope == "workspace-application" %}
+    'mas.ibm.com/workspaceId': '{{ mas_workspace_id }}'
+    'mas.ibm.com/applicationId': '{{ mas_application_id }}'
+{%- endif %}
+spec:
+  displayName: "{{ cfg_display_name }}"
+  config:
+    url: "{{ jdbc_url }}"
+    sslEnabled: {{ jdbc_ssl_enabled }}
+    credentials:
+{%- if scope == "system" %}
+      secretName: "jdbc-system-credentials"
+{%- elif scope == "workspace-application" %}
+      secretName: "jdbc-{{ mas_workspace_id}}-{{ mas_application_id }}-credentials"
+{%- endif %}
+{%- if jdbc_ssl_enabled == True %}
+  certificates:
+{%- if scope == "system" %}
+    - alias: "jdbc-system"
+{%- elif scope == "workspace-application" %}
+    - alias: "jdbc-{{ mas_workspace_id}}-{{ mas_application_id }}"
+{%- endif %}
+      crt: |
+        {{ jdbc_cert_local_file_content | indent(8) }}
+{%- endif %}

@@ -62,7 +62,8 @@ setup(
         'halo',           # MIT License
         'prompt_toolkit', # BSD License
         'openshift',      # Apache Software License
-        'kubernetes'      # Apache Software License
+        'kubernetes',     # Apache Software License
+        'tabulate'        # MIT License
     ],
     extras_require={
         'dev': [

@@ -15,10 +15,11 @@ kubectl.exe
 mas.log
 
 python/pandoc-*-amd64.deb
+python/pandoc-*-windows-x86_64.msi
+python/build
 python/dist
 python/venv
 python/src/mas_cli.egg-info
-python/README.rst
 python/src/mas/cli/templates/ibm-mas-tekton.yaml
-/python/build
-python/mas-upgrade.spec
+python/mas-*.spec
+python/README.rst

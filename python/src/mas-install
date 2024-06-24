@@ -1,0 +1,944 @@
+#!/usr/bin/env python
+# *****************************************************************************
+# Copyright (c) 2024 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# *****************************************************************************
+
+import argparse
+import sys
+import logging
+import logging.handlers
+import yaml
+from os import path
+
+from openshift.dynamic.exceptions import NotFoundError
+
+from prompt_toolkit import prompt, print_formatted_text, HTML
+from urllib3.exceptions import MaxRetryError
+from jinja2.exceptions import TemplateNotFound
+from kubeconfig.exceptions import KubectlCommandError
+from kubernetes.client.exceptions import ApiException
+
+from tabulate import tabulate
+
+from halo import Halo
+
+from mas.cli.cli import BaseApp
+from mas.cli.gencfg import ConfigGeneratorMixin
+from mas.cli.installArgParser import installArgParser
+from mas.cli.validators import (
+  InstanceIDFormatValidator,
+  WorkspaceIDFormatValidator,
+  WorkspaceNameFormatValidator,
+  StorageClassValidator,
+  OptimizerInstallPlanValidator
+)
+
+from mas.cli.db2InstallSettings import Db2SettingsMixin
+from mas.cli.manageInstallSettings import ManageSettingsMixin
+from mas.cli.installSummarizer import InstallSummarizerMixin
+from mas.devops.ocp import createNamespace, isSNO, getStorageClass, getStorageClasses
+from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, preparePipelinesNamespace, prepareInstallSecrets, testCLI, launchInstallPipeline
+
+logger = logging.getLogger(__name__)
+
+class App(BaseApp, ManageSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, Db2SettingsMixin):
+    def validateCatalogSource(self):
+        # catalogDisplayName=$(oc -n openshift-marketplace get catalogsource ibm-operator-catalog -o yaml --ignore-not-found=true | yq -r ".spec.displayName")
+        # catalogImage=$(oc -n openshift-marketplace get catalogsource ibm-operator-catalog -o yaml --ignore-not-found=true | yq -r ".spec.image")
+
+        # if [[ "$catalogDisplayName" =~ .+(v8-[0-9]+-amd64) ]]; then
+        #     # catalogId = v8-yymmdd-amd64
+        #     # catalogVersion = yymmdd
+        #     catalogId=$(sed -E "s/.+\\((v8-[0-9]+-amd64)\\)/\1/" <<< $catalogDisplayName)
+        #     catalogVersion=$(sed -E "s/.+\\(v8-([0-9]+)-amd64\\)/\1/" <<< $catalogDisplayName)
+        # elif [[ "$catalogDisplayName" =~ .+(v8-amd64) ]]; then
+        #     catalogId=v8-amd64
+        #     catalogVersion=v8-amd64
+        # fi
+
+        # if [[ "$catalogImage" != "null" && "$catalogImage" != "" && "$catalogId" != "$MAS_CATALOG_VERSION" ]]; then
+        #     echo
+        #     echo_warning "Error: IBM Maximo Operator Catalog $catalogVersion is already installed on this cluster."
+        #     echo_warning "If you wish to install a new MAS instance using the $MAS_CATALOG_VERSION catalog please first run \"mas update\" to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update."
+        #     echo
+        #     exit 1
+        # fi
+        pass
+
+    def validateInternalRegistryAvailable(self):
+        """
+        We can save customers wasted time by detecting if the image-registry service
+        is available in the cluster.  If it's not, and they've selected to install
+        Manage then their install is going to fail, so let's just prevent the install
+        starting in the first place.
+        """
+        serviceAPI = self.dynamicClient.resources.get(api_version="v1", kind="Service")
+        try:
+            serviceAPI.get(name="image-registry", namespace="openshift-image-registry")
+        except NotFoundError:
+            self.fatalError(
+                "\n".join[
+                    "Unable to proceed with installation of Maximo Manage.  Could not detect the required \"image-registry\" service in the openshift-image-registry namespace",
+                    "For more information refer to <u>https://www.ibm.com/docs/en/masv-and-l/continuous-delivery?topic=installing-enabling-openshift-internal-image-registry</u>"
+                ])
+
+    def licensePrompt(self):
+        # license_prompt
+        pass
+
+    def configICR(self):
+        if self.args.dev_mode:
+            self.params["mas_icr_cp"] = "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"
+            self.params["mas_icr_cpopen"] = "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"
+            self.params["sls_icr_cpopen"] = "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"
+        else:
+            self.params["mas_icr_cp"] = "cp.icr.io/cp"
+            self.params["mas_icr_cpopen"] = "icr.io/cpopen"
+            self.params["sls_icr_cpopen"] = "icr.io/cpopen"
+
+    def configICRCredentials(self):
+        self.printH1("Configure IBM Container Registry")
+        self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
+        if self.args.dev_mode:
+            self.promptForString("Artifactory username", "artifactory_username", isPassword=True)
+            self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
+
+    def configCertManager(self):
+        # Only install of Red Hat Cert-Manager has been supported since the January 2025 catalog update
+        self.params["cert_manager_provider"] = "redhat"
+        self.params["cert_manager_action"] = "install"
+
+    def configCatalog(self):
+        self.printH1("IBM Maximo Operator Catalog Selection")
+        if self.args.dev_mode:
+            self.promptForString("Select catalog source", "mas_catalog_version", default="v8-master-amd64")
+            self.promptForString("Select channel", "mas_channel", default="9.0.x-dev")
+        else:
+            print(tabulate(self.installOptions, headers="keys", tablefmt="simple_grid"))
+            catalogSelection = self.promptForInt("Select catalog and release", default=1)
+
+            self.setParam("mas_catalog_version", self.installOptions[catalogSelection-1]["catalog"])
+            self.setParam("mas_channel", self.installOptions[catalogSelection-1]["release"])
+
+    def configSLS(self) -> None:
+        self.printH1("Configure Product License")
+        self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, default="c:\\Users\\097891866\\entitlement.lic")
+        self.promptForString("Contact e-mail address", "uds_contact_email")
+        self.promptForString("Contact first name", "uds_contact_firstname")
+        self.promptForString("Contact last name", "uds_contact_lastname")
+
+    def selectLocalConfigDir(self) -> None:
+        if self.localConfigDir is None:
+            # You need to tell us where the configuration file can be found
+            self.localConfigDir = self.promptForDir("Select Local configuration directory", default="C:\\Users\\097891866\\Documents\\GitHub\\ibm-mas\\installer\\tmp\\mascfg")
+
+    def configCP4D(self):
+        # CPD 4.6.6 is the only version we've supported since September 2023 (4.8 support is due in June)
+        self.params["cpd_product_version"] = "4.6.6"
+        self.deployCP4D = True
+
+    def configMAS(self):
+        self.printH1("Configure MAS Instance")
+        print_formatted_text(HTML("\n".join([
+            "<LightSlateGrey>Instance ID restrictions:",
+            " - Must be 3-12 characters long",
+            " - Must only use lowercase letters, numbers, and hypen (-) symbol",
+            " - Must start with a lowercase letter",
+            " - Must end with a lowercase letter or a number</LightSlateGrey>"
+        ])))
+        self.promptForString("Instance ID", "mas_instance_id", validator=InstanceIDFormatValidator(), default="dev1")
+        print()
+
+        print_formatted_text(HTML("\n".join([
+            "<LightSlateGrey>Workspace ID restrictions:",
+            " - Must be 3-12 characters long",
+            " - Must only use lowercase letters and numbers",
+            " - Must start with a lowercase letter</LightSlateGrey>"
+        ])))
+        self.params["mas_workspace_id"] = prompt(HTML(f'<Yellow>Workspace ID</Yellow> '), validator=WorkspaceIDFormatValidator(), default="ws1")
+        print()
+
+        print_formatted_text(HTML("\n".join([
+            "<LightSlateGrey>Workspace display name restrictions:",
+            " - Must be 3-300 characters long</LightSlateGrey>"
+        ])))
+        self.params["mas_workspace_name"] = prompt(HTML(f'<Yellow>Workspace name</Yellow> '), validator=WorkspaceNameFormatValidator(), default="My Workspace")
+
+    def configOperationMode(self):
+        self.printH1("Configure Operational Mode")
+        print_formatted_text(HTML("\n".join([
+            "<LightSlateGrey>Maximo Application Suite can be installed in a non-production mode for internal development and testing, this setting cannot be changed after installation:",
+            " - All applications, add-ons, and solutions have 0 (zero) installation AppPoints in non-production installations.",
+            " - These specifications are also visible in the metrics that are shared with IBM and in the product UI.</LightSlateGrey>",
+            "",
+            "Operational Mode:",
+            "  1. Production",
+            "  2. Non-Production"
+        ])))
+        self.operationalMode = int(prompt(HTML(f'<Yellow>Operational Mode</Yellow> '), default="1"))
+
+        if self.operationalMode == 2:
+            self.params["mas_annotations"] = "mas.ibm.com/operationalMode=nonproduction"
+
+    def configSNO(self):
+        if self.isSNO():
+            self.params["mongodb_replicas"] = "1"
+            self.params["mongodb_cpu_requests"] = "500m"
+            self.params["mas_app_settings_aio_flag"] = "false"
+
+    def configDNSAndCerts(self):
+        self.printH1("Configure Domain & Certificate Management")
+        configureDomainAndCertMgmt = self.yesOrNo('Configure domain & certificate management')
+        if configureDomainAndCertMgmt:
+            configureDomain = self.yesOrNo('Configure custom domain')
+            if configureDomain:
+                self.params["mas_domain"] = prompt(HTML(f'<Yellow>MAS top-level domain</Yellow> '))
+                print_formatted_text(HTML("\n".join([
+                    "<LightSlateGrey>DNS Integrations:",
+                    "  1. Cloudflare",
+                    "  2. IBM Cloud Internet Services",
+                    "  3. AWS Route 53",
+                    "  4. None (I will set up DNS myself)</LightSlateGrey>"
+                ])))
+
+                dnsProvider = int(prompt(HTML(f'<Yellow>DNS Provider</Yellow> ')))
+
+                if dnsProvider == 1:
+                    self.configDNSAndCertsCloudflare()
+                elif dnsProvider == 2:
+                    self.configDNSAndCertsCIS()
+                elif dnsProvider == 3:
+                    self.configDNSAndCertsRoute53()
+                elif dnsProvider == 4:
+                    # Use MAS default self-signed cluster issuer with a custom domain
+                    self.params["dns_provider"] = ""
+                    self.params["mas_cluster_issuer"] = ""
+            else:
+                # Use MAS default self-signed cluster issuer with the default domain
+                self.params["dns_provider"] = ""
+                self.params["mas_domain"] = ""
+                self.params["mas_cluster_issuer"] = ""
+
+    def configDNSAndCertsCloudflare(self):
+        # User has chosen to set up DNS integration with Cloudflare
+        self.params["dns_provider"] = "cloudflare"
+        self.params["cloudflare_email"] = prompt(HTML(f'<Yellow>Cloudflare e-mail</Yellow> '))
+        self.params["cloudflare_apitoken"] = prompt(HTML(f'<Yellow>Cloudflare API token</Yellow> '))
+        self.params["cloudflare_zone"] = prompt(HTML(f'<Yellow>Cloudflare zone</Yellow> '))
+        self.params["cloudflare_subdomain"] = prompt(HTML(f'<Yellow>Cloudflare subdomain</Yellow> '))
+
+        print_formatted_text(HTML("\n".join([
+            "<LightSlateGrey>Certificate Issuer:",
+            "  1. LetsEncrypt (Production)",
+            "  2. LetsEncrypt (Staging)",
+            "  3. Self-Signed</LightSlateGrey>"
+        ])))
+        certIssuer = int(prompt(HTML(f'<Yellow>Cloudflare subdomain</Yellow> ')))
+        certIssuerOptions = [
+            f"${self.params['mas_instance_id']}-cloudflare-le-prod",
+            f"${self.params['mas_instance_id']}-cloudflare-le-stg",
+            ""
+        ]
+        self.params["mas_cluster_issuer"] = certIssuerOptions[certIssuer-1]
+
+    def configDNSAndCertsCIS(self):
+        # # User has chosen to set up DNS integration with Cloudflare
+        # prompt_for_input "CIS e-mail" CIS_EMAIL
+        # prompt_for_input "CIS API Key" CIS_APIKEY
+        # prompt_for_input "CIS CRN" CIS_CRN
+        # prompt_for_input "CIS Subdomain" CIS_SUBDOMAIN
+        # DNS_PROVIDER=cis
+
+        # echo
+        # echo -e "${COLOR_YELLOW}Certificate Issuer:"
+        # echo "  1. LetsEncrypt (Production)"
+        # echo "  2. LetsEncrypt (Staging)"
+        # echo "  3. Self-Signed"
+        # prompt_for_input "Select Certificate Issuer" CLUSTER_ISSUER_SELECTION "1"
+        # case $CLUSTER_ISSUER_SELECTION in
+        #   1|prod)
+        #     MAS_CLUSTER_ISSUER="${MAS_INSTANCE_ID}-cis-le-prod"
+        #     ;;
+        #   2|staging)
+        #     MAS_CLUSTER_ISSUER="${MAS_INSTANCE_ID}-cis-le-stg"
+        #     ;;
+        #   3|self)
+        #     MAS_CLUSTER_ISSUER=''
+        #     ;;
+        #   *)
+        #     MAS_CLUSTER_ISSUER=CLUSTER_ISSUER_SELECTION
+        #     ;;
+        # esac
+        self.params["dns_provider"] = "cis"
+
+    def configDNSAndCertsRoute53(self):
+        # # User has chosen to set up DNS integration with AWS Route 53
+        # echo ""
+        # echo "Provide your AWS account access key ID & secret access key."
+        # echo "This will be used to authenticate into the AWS account where your AWS Route 53 hosted zone instance is located."
+        # echo ""
+        # prompt_for_secret "AWS Access Key ID" AWS_ACCESS_KEY_ID "Re-use saved AWS Access Key ID?"
+        # prompt_for_secret "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY "Re-use saved AWS Secret Access Key?"
+        # echo ""
+        # echo "Provide your AWS Route 53 hosted zone instance details."
+        # echo "This information will be used to create webhook resources between your cluster and your AWS Route 53 instance (cluster issuer and cname records)"
+        # echo "in order for it to be able to resolve DNS entries for all the subdomains created for your Maximo Application Suite instance."
+        # echo ""
+        # echo "Therefore, the AWS Route 53 subdomain + the AWS Route 53 hosted zone name defined, when combined, needs to match with the chosen MAS Top Level domain, otherwise the DNS records won't be able to get resolved."
+        # echo ""
+        # echo -e "${COLOR_YELLOW}Example:"
+        # echo "MAS Top Level Domain: masinst1.mycompany.com"
+        # echo "AWS Route 53 hosted zone name: mycompany.com"
+        # echo "AWS Route 53 subdomain: masinst1"
+        # echo ""
+        # echo -e "${COLOR_YELLOW}Your MAS Top Level Domain: $MAS_DOMAIN"
+        # echo ""
+        # prompt_for_input "AWS Route 53 hosted zone name" ROUTE53_HOSTED_ZONE_NAME && export ROUTE53_HOSTED_ZONE_NAME
+        # prompt_for_input "AWS Route 53 hosted zone region" ROUTE53_HOSTED_ZONE_REGION && export ROUTE53_HOSTED_ZONE_REGION
+        # prompt_for_input "AWS Route 53 subdomain" ROUTE53_SUBDOMAIN && export ROUTE53_SUBDOMAIN
+        # prompt_for_input "AWS Route 53 e-mail" ROUTE53_EMAIL && export ROUTE53_EMAIL
+
+        # DNS_PROVIDER=route53
+        # MAS_CLUSTER_ISSUER="${MAS_INSTANCE_ID}-route53-le-prod"
+        self.params["dns_provider"] = "route53"
+
+    def configApps(self):
+        self.printH1("Application Selection")
+        self.installIoT = self.yesOrNo("Install IoT")
+
+        if self.installIoT:
+            self.configAppChannel("iot")
+            self.installMonitor = self.yesOrNo("Install Monitor")
+        else:
+            self.installMonitor = False
+
+        if self.installMonitor:
+            self.configAppChannel("monitor")
+
+        self.installManage = self.yesOrNo("Install Manage")
+
+        if self.installManage:
+            self.configAppChannel("manage")
+
+        if self.installIoT and self.installManage:
+            self.installPredict = self.yesOrNo("Install Predict")
+        else:
+            self.installPredict = False
+
+        if self.installPredict:
+            self.configAppChannel("predict")
+
+        self.installAssist = self.yesOrNo("Install Assist")
+        if self.installAssist:
+            self.configAppChannel("assist")
+
+        self.installOptimizer = self.yesOrNo("Install Optimizer")
+        if self.installOptimizer:
+            self.configAppChannel("optimizer")
+
+        self.installInspection = self.yesOrNo("Install Visual Inspection")
+        if self.installInspection:
+            self.configAppChannel("visualinspection")
+
+    def configAppChannel(self, appId):
+        versions = self.getCompatibleVersions(self.params["mas_channel"], appId)
+        if len(versions) == 0:
+            self.params[f"mas_app_channel_{appId}"] = prompt(HTML('<Yellow>Custom channel</Yellow> '))
+        else:
+            self.params[f"mas_app_channel_{appId}"] = versions[0]
+
+    def configStorageClasses(self):
+        self.printH1("Configure Storage Class Usage")
+        self.printDescription([
+            "Maximo Application Suite and it's dependencies require storage classes that support ReadWriteOnce (RWO) and ReadWriteMany (RWX) access modes:",
+            "  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node.",
+            "  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes.",
+            ""
+        ])
+        # 1. ROKS
+        if getStorageClass(self.dynamicClient, "ibmc-file-gold-gid") is not None:
+            print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: IBMCloud ROKS</MediumSeaGreen>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): ibmc-block-gold</LightSlateGrey>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): ibmc-file-gold-gid</LightSlateGrey>"))
+            self.storageClassProvider = "ibmc"
+            self.params["storage_class_rwo"] = "ibmc-block-gold"
+            self.params["storage_class_rwx"] = "ibmc-file-gold-gid"
+        # 2. OCS
+        elif getStorageClass(self.dynamicClient, "ocs-storagecluster-cephfs") is not None:
+            print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: OpenShift Container Storage</MediumSeaGreen>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): ocs-storagecluster-ceph-rbd</LightSlateGrey>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): ocs-storagecluster-cephfs</LightSlateGrey>"))
+            self.storageClassProvider = "ocs"
+            self.params["storage_class_rwo"] = "ocs-storagecluster-ceph-rbd"
+            self.params["storage_class_rwx"] = "ocs-storagecluster-cephfs"
+        # 3. Azure
+        elif getStorageClass(self.dynamicClient, "managed-premium") is not None:
+            print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: Azure Managed</MediumSeaGreen>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): azurefiles-premium</LightSlateGrey>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): managed-premium</LightSlateGrey>"))
+            self.storageClassProvider = "azure"
+            self.params["storage_class_rwo"] = "azurefiles-premium"
+            self.params["storage_class_rwx"] = "managed-premium"
+        # 4. AWS
+        elif getStorageClass(self.dynamicClient, "gp2") is not None:
+            print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: AWS gp2/MediumSeaGreen>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): gp2</LightSlateGrey>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): efs</LightSlateGrey>"))
+            self.storageClassProvider = "aws"
+            self.params["storage_class_rwo"] = "gp2"
+            self.params["storage_class_rwx"] = "efs"
+
+        overrideStorageClasses = False
+        if "storage_class_rwx" in self.params and self.params["storage_class_rwx"] != "":
+            overrideStorageClasses = self.yesOrNo("Choose your own storage classes anyway")
+
+        if "storage_class_rwx" not in self.params or self.params["storage_class_rwx"] == "" or overrideStorageClasses:
+            self.storageClassProvider = "custom"
+
+            self.printDescription([
+                "Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:",
+                "Enter 'none' for the ReadWriteMany storage class if you do not have a suitable class available in the cluster, however this will limit what can be installed"
+            ])
+            for storageClass in getStorageClasses(self.dynamicClient):
+                print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
+
+            self.params["storage_class_rwo"] = prompt(HTML('<Yellow>ReadWriteOnce (RWO) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+            self.params["storage_class_rwx"] = prompt(HTML('<Yellow>ReadWriteMany (RWX) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+
+        # Configure storage class for pipeline PVC
+        # We prefer to use ReadWriteMany, but we can cope with ReadWriteOnce if necessary
+        if self.isSNO() or self.params["storage_class_rwx"] == "none":
+            self.pipelineStorageClass = self.getParam("storage_class_rwo")
+            self.pipelineStorageAccessMode = "ReadWriteOnce"
+        else:
+            self.pipelineStorageClass = self.getParam("storage_class_rwx")
+            self.pipelineStorageAccessMode = "ReadWriteMany"
+
+    def setIoTStorageClasses(self) -> None:
+        if self.installIoT:
+            self.setParam("mas_app_settings_iot_fpl_pvc_storage_class",  self.getParam("storage_class_rwo"))
+            self.setParam("mas_app_settings_iot_mqttbroker_pvc_storage_class",  self.getParam("storage_class_rwo"))
+
+    def optimizerSettings(self) -> None:
+        if self.installOptimizer:
+            self.printH1("Configure Maximo Optimizer")
+            self.printDescription(["Customize your Optimizer installation, 'full' and 'limited' install plans are available, refer to the product documentation for more information"])
+
+            self.promptForString("Plan [full/limited]", "mas_app_plan_optimizer", default="full", validator=OptimizerInstallPlanValidator())
+
+    def predictSettings(self) -> None:
+        if self.installPredict:
+            self.printH1("Configure Maximo Predict")
+            self.printDescription([
+                "Predict application supports integration with IBM SPSS and Watson Openscale which are optional services installed on top of IBM Cloud Pak for Data",
+                "Unless requested these will not be installed"
+            ])
+            self.configCP4D()
+            self.yesOrNo("Install IBM SPSS Statistics", "cpd_install_spss")
+            self.yesOrNo("Install Watson OpenScale", "cpd_install_openscale")
+
+    def assistSettings(self) -> None:
+        if self.installAssist:
+            self.printH1("Configure Maximo Assist")
+            self.printDescription([
+                "Assist requires access to Cloud Object Storage (COS), this install supports automatic setup using either IBMCloud COS or in-cluster COS via OpenShift Container Storage/OpenShift Data Foundation (OCS/ODF)"
+            ])
+            self.configCP4D()
+            self.promptForString("COS Provider [ibm/ocs]", "cos_type")
+            if self.getParam("cos_type" == "ibm"):
+                self.promptForString("IBM Cloud API Key", "ibmcloud_apikey", isPassword=True)
+                self.promptForString("IBM Cloud Resource Group", "ibmcos_resourcegroup")
+
+    def kafkaSettings(self) -> None:
+        # #!/bin/bash
+
+        # # Do we need to set up an IoT kafka?
+        # # -------------------------------------------------------------------------
+        # function kafka_for_iot() {
+        # if [ "$MAS_APP_CHANNEL_IOT" != "" ]; then
+        #     # Set up system kafka - using providers or external source
+        #     echo_h3 "Kafka configuration for Maximo IoT"
+        #     echo "${TEXT_DIM}Maximo IoT requires a shared system-scope Kafka instance."
+        #     echo " - Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK."
+        #     echo ""
+        #     reset_colors
+
+        #     if prompt_for_confirm_default_yes "Create system Kafka instance using one of the supported providers?"; then
+        #     KAFKA_ACTION_SYSTEM=install
+        #     echo
+        #     echo "Kafka Provider:"
+        #     echo "  1. Strimzi (opensource)"
+        #     echo "  2. Red Hat AMQ Streams (requires a separate license)"
+        #     echo "  3. IBM Cloud Event Streams (paid IBM Cloud service)"
+        #     echo "  4. AWS MSK (paid AWS service)"
+        #     reset_colors
+        #     echo
+        #     prompt_for_input "Select Kafka provider" KAFKA_SELECTION "1"
+        #     echo
+
+        #     case $KAFKA_SELECTION in
+        #         1)
+        #         KAFKA_PROVIDER="strimzi"
+
+        #         # Clear settings for other providers - IBM
+        #         EVENTSTREAMS_RESOURCEGROUP=""
+        #         EVENTSTREAMS_NAME=""
+        #         EVENTSTREAMS_LOCATION=""
+
+        #         # Clear settings for other providers - AWS
+        #         AWS_KAFKA_USER_NAME=""
+        #         AWS_MSK_INSTANCE_TYPE=""
+        #         AWS_MSK_VOLUME_SIZE=""
+        #         AWS_MSK_INSTANCE_NUMBER=""
+        #         AWS_REGION=""
+
+        #         # Ask the user to choose the version of Kafka to use
+        #         echo "Strimzi: Cluster Version"
+        #         echo -e "${TEXT_DIM}The version of the Strimzi operator available on your cluster will determine the supported versions of Kafka that can be deployed."
+        #         echo " - If you are using the latest available operator catalog then the default version below can be accepted"
+        #         echo " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in your OperatorHub"
+        #         echo ""
+        #         reset_colors
+        #         prompt_for_input "Kafka version" KAFKA_VERSION "3.7.0"
+        #         ;;
+        #         2)
+        #         KAFKA_PROVIDER=redhat
+
+        #         # Clear settings for other providers - IBM
+        #         EVENTSTREAMS_RESOURCEGROUP=""
+        #         EVENTSTREAMS_NAME=""
+        #         EVENTSTREAMS_LOCATION=""
+
+        #         # Clear settings for other providers - AWS
+        #         AWS_KAFKA_USER_NAME=""
+        #         AWS_MSK_INSTANCE_TYPE=""
+        #         AWS_MSK_VOLUME_SIZE=""
+        #         AWS_MSK_INSTANCE_NUMBER=""
+        #         AWS_REGION=""
+
+        #         # Ask the user to choose the version of Kafka to use
+        #         echo "Red Hat AMQ Streams: Cluster Version"
+        #         echo -e "${TEXT_DIM}The version of the Red Hat AMQ Streams operator available on your cluster will determine the supported versions of Kafka that can be deployed."
+        #         echo " - If you are using the latest available operator catalog then the default version below can be accepted"
+        #         echo " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in your OperatorHub"
+        #         echo ""
+        #         reset_colors
+        #         prompt_for_input "Kafka version" KAFKA_VERSION "3.5.0"
+        #         ;;
+        #         3)
+        #         KAFKA_PROVIDER="ibm"
+        #         # kafka defaults - event streams
+        #         [ ! -z $EVENTSTREAMS_RESOURCEGROUP ] && EVENTSTREAMS_RESOURCEGROUP=Default
+        #         [ ! -z $EVENTSTREAMS_NAME ] && EVENTSTREAMS_NAME=event-streams-$MAS_INSTANCE_ID
+        #         [ ! -z $EVENTSTREAMS_LOCATION ] && EVENTSTREAMS_LOCATION=us-east
+
+        #         prompt_for_secret "IBM Cloud API Key" IBMCLOUD_APIKEY "Re-use saved IBM Cloud API Key?"
+        #         prompt_for_input "IBM Event Streams resource group" EVENTSTREAMS_RESOURCEGROUP $EVENTSTREAMS_RESOURCEGROUP
+        #         prompt_for_input "IBM Event Streams instance name" EVENTSTREAMS_NAME $EVENTSTREAMS_NAME
+        #         prompt_for_input "IBM Event Streams location" EVENTSTREAMS_LOCATION $EVENTSTREAMS_LOCATION
+
+        #         # Clear settings for other providers - AMQ Streams & Strimzi
+        #         KAFKA_VERSION=""
+
+        #         # Clear settings for other providers - AWS
+        #         AWS_KAFKA_USER_NAME=""
+        #         AWS_MSK_INSTANCE_TYPE=""
+        #         AWS_MSK_VOLUME_SIZE=""
+        #         AWS_MSK_INSTANCE_NUMBER=""
+        #         AWS_REGION=""
+        #         ;;
+        #         4)
+        #         KAFKA_PROVIDER="aws"
+        #         # kafka defaults - aws msk
+        #         [ ! -z $AWS_KAFKA_USER_NAME ] && AWS_KAFKA_USER_NAME=masuser
+        #         [ ! -z $AWS_MSK_INSTANCE_TYPE ] && AWS_MSK_INSTANCE_TYPE=kafka.m5.large
+        #         [ ! -z $AWS_MSK_VOLUME_SIZE ] && AWS_MSK_VOLUME_SIZE=100
+        #         [ ! -z $AWS_MSK_INSTANCE_NUMBER ] && AWS_MSK_INSTANCE_NUMBER=3
+        #         [ ! -z $AWS_REGION ] && AWS_REGION=us-east-1
+
+        #         echo "${TEXT_DIM}"
+        #         echo "While provisioning the AWS MSK instance, you will be required to provide the AWS Virtual Private Cloud ID and subnet details"
+        #         echo "where your instance will be deployed to properly configure inbound and outbound connectivity."
+        #         echo "You should be able to find these information inside your VPC and subnet configurations in the target AWS account."
+        #         echo "For more details about AWS subnet/CIDR configuration, refer: https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html"
+        #         echo ""
+        #         reset_colors
+        #         prompt_for_secret "AWS Access Key ID" AWS_ACCESS_KEY_ID "Re-use saved AWS Access Key ID?"
+        #         prompt_for_secret "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY "Re-use saved AWS Secret Access Key?"
+        #         prompt_for_input "AWS Region" AWS_REGION $AWS_REGION
+        #         prompt_for_input "Virtual Private Cloud (VPC) ID" VPC_ID $VPC_ID
+        #         prompt_for_input "MSK Instance Username" AWS_KAFKA_USER_NAME $AWS_KAFKA_USER_NAME
+        #         prompt_for_secret "MSK Instance Password" AWS_KAFKA_USER_PASSWORD "Re-use saved MSK Instance Password?"
+        #         prompt_for_input "MSK Instance Type" AWS_MSK_INSTANCE_TYPE $AWS_MSK_INSTANCE_TYPE
+        #         prompt_for_input "MSK Total Number of Broker Nodes" AWS_MSK_INSTANCE_NUMBER $AWS_MSK_INSTANCE_NUMBER
+        #         prompt_for_input "MSK Storage Size (in GB)" AWS_MSK_VOLUME_SIZE $AWS_MSK_VOLUME_SIZE
+        #         prompt_for_input "Availability Zone 1 CIDR" AWS_MSK_CIDR_AZ1 $AWS_MSK_CIDR_AZ1
+        #         prompt_for_input "Availability Zone 2 CIDR" AWS_MSK_CIDR_AZ2 $AWS_MSK_CIDR_AZ2
+        #         prompt_for_input "Availability Zone 3 CIDR" AWS_MSK_CIDR_AZ3 $AWS_MSK_CIDR_AZ3
+        #         prompt_for_input "Ingress CIDR" AWS_MSK_INGRESS_CIDR $AWS_MSK_INGRESS_CIDR
+        #         prompt_for_input "Egress CIDR" AWS_MSK_EGRESS_CIDR $AWS_MSK_EGRESS_CIDR
+
+        #         # Clear settings for other providers - AMQ Streams & Strimzi
+        #         KAFKA_VERSION=""
+
+        #         # Clear settings for other providers - IBM
+        #         EVENTSTREAMS_RESOURCEGROUP=""
+        #         EVENTSTREAMS_NAME=""
+        #         EVENTSTREAMS_LOCATION=""
+        #         ;;
+        #         *)
+        #         echo_warning "Invalid selection"
+        #         exit 1
+        #         ;;
+        #     esac
+
+        #     else
+        #     KAFKA_ACTION_SYSTEM=byo
+
+        #     select_local_config_dir
+
+        #     # Check if a configuration already exists
+        #     kafka_cfg_file=$LOCAL_MAS_CONFIG_DIR/kafka-$MAS_INSTANCE_ID-system.yaml
+        #     echo "${TEXT_DIM}Searching for system Kafka configuration file in $kafka_cfg_file ..."
+        #     reset_colors
+        #     echo
+        #     if [ ! -e "$kafka_cfg_file" ]; then
+        #         echo_warning "Error: Kafka configuration file does not exist: '$kafka_cfg_file'"
+        #         echo_warning "In order to continue, provide an existing Kafka configuration file ($kafka_cfg_file) or choose one of the supported Kafka providers to be installed."
+        #         exit 1
+        #     else
+        #         echo "Provided Kafka configuration file '$kafka_cfg_file' will be applied."
+        #     fi
+        #     fi
+        # else
+        #     # We don't need a system kafka, IoT is not being installed
+        #     KAFKA_ACTION_SYSTEM=none
+        # fi
+        # }
+
+        # function install_config_kafka() {
+        # echo
+        # echo_h2 "Configure Kafka"
+        # echo "${TEXT_DIM}The installer can setup one Kafka provider instance (in your OpenShift cluster or in the chosen cloud provider account) for the use of applications that require a Kafka configuration (e.g IoT) or you may choose to configure MAS to use an existing Kafka instance."
+        # echo
+        # reset_colors
+
+        # # Unless we are installing IoT we have nothing to do
+        # if [[ "$MAS_APP_CHANNEL_IOT" != "" ]]; then
+        #     kafka_for_iot
+        # else
+        #     echo_highlight "No applications have been selected that require a Kafka installation"
+        #     KAFKA_ACTION_SYSTEM=none
+        # fi
+        # }
+        pass
+
+    def interactiveMode(self) -> None:
+        # Interactive mode
+
+        # Catalog
+        self.configCatalog()
+        self.validateCatalogSource()
+
+        # SNO & Storage Classes
+        self.configSNO()
+        self.configStorageClasses()
+
+        # Licensing (SLS and DRO)
+        self.configSLS()
+        self.configICRCredentials()
+
+        # MAS Core
+        self.configCertManager()
+        self.configMAS()
+        self.configOperationMode()
+        self.configDNSAndCerts()
+
+        # MAS Applications
+        # Note: manageSettings(), predictSettings(), or assistSettings() functions can trigger configCP4D()
+        self.configApps()
+        self.validateInternalRegistryAvailable()
+        self.manageSettings()
+        self.optimizerSettings()
+        self.predictSettings()
+        self.assistSettings()
+
+        # Optional Dependencies
+        # Note: This will only do anything if IoT or Manage have been selected for install
+        self.configDb2()
+
+    def nonInteractiveMode(self) -> None:
+        # Non-interactive mode
+
+        # Set defaults
+        self.storageClassProvider="custom"
+        self.installAssist = False
+        self.installIoT = False
+        self.installMonitor = False
+        self.installManage = False
+        self.installPredict = False
+        self.installInspection = False
+        self.installOptimizer = False
+        self.deployCP4D = False
+        self.db2SetAffinity = False
+        self.db2SetTolerations = False
+
+        requiredParams = [
+            "mas_catalog_version",
+            "mas_channel",
+            "mas_instance_id",
+            "mas_workspace_id",
+            "mas_workspace_name",
+            "storage_class_rwo",
+            "storage_class_rwx",
+            "ibm_entitlement_key",
+            "uds_contact_email",
+            "uds_contact_firstname",
+            "uds_contact_lastname"
+        ]
+        optionalParams = [
+            "ocp_ingress_tls_secret_name",
+            "dro_namespace",
+            "mongodb_namespace",
+            "cpd_product_version",
+            "db2_action_system",
+            "db2_action_manage",
+            "db2_type",
+            "db2_namespace",
+            "db2_channel",
+            'db2_affinity_key',
+            'db2_affinity_value',
+            'db2_tolerate_key',
+            'db2_tolerate_value',
+            'db2_tolerate_effect',
+            'db2_cpu_requests',
+            'db2_cpu_limits',
+            'db2_memory_requests',
+            'db2_memory_limits',
+            'db2_backup_storage_size',
+            'db2_data_storage_size',
+            'db2_logs_storage_size',
+            'db2_meta_storage_size',
+            'db2_temp_storage_size',
+            "cpd_install_cognos",
+            "cpd_install_openscale",
+            "cpd_install_spss"
+        ]
+        for key, value in vars(args).items():
+            # These fields we just pass straight through to the parameters and fail if they are not set
+            if key in requiredParams:
+                if value is None:
+                    self.fatalError(f"{key} must be set")
+                self.setParam(key, value)
+
+            # These fields we just pass straight through to the parameters
+            elif key in optionalParams:
+                if value is not None:
+                    self.setParam(key, value)
+
+            elif key == "additional_configs":
+                pass
+            elif key == "non_prod":
+                if not value:
+                    self.operationalMode = 1
+                else:
+                    self.operationalMode = 2
+
+            elif key == "mas_trust_default_cas":
+                # TODO: Implement me
+                pass
+            elif key == "workload_scale_profile":
+                # TODO: Implement me
+                pass
+            elif key == "mas_pod_templates_dir":
+                # TODO: Implement me
+                pass
+
+            elif key == "assist_channel":
+                if value is not None:
+                    self.setParam("mas_app_channel_assist", value)
+                    self.installAssist = True
+            elif key == "iot_channel":
+                if value is not None:
+                    self.setParam("mas_app_channel_iot", value)
+                    self.installIoT = True
+            elif key == "monitor_channel":
+                if value is not None:
+                    self.setParam("mas_app_channel_monitor", value)
+                    self.installMonitor = True
+            elif key == "manage_channel":
+                if value is not None:
+                    self.setParam("mas_app_channel_manage", value)
+                    self.installManage = True
+            elif key == "predict_channel":
+                if value is not None:
+                    self.setParam("mas_app_channel_predict", value)
+                    self.installPredict = True
+                    self.deployCP4D = True
+            elif key == "visualinspection_channel":
+                if value is not None:
+                    self.setParam("mas_app_channel_visualinspection", value)
+                    self.installInspection = True
+            elif key == "optimizer_channel":
+                if value is not None:
+                    self.setParam("mas_app_channel_optimizer", value)
+                    self.installOptimizer = True
+            elif key == "optimizer_plan":
+                if value is not None:
+                    self.setParam("mas_app_plan_optimizer", value)
+
+            # These settings are used by the CLI rather than passed to the PipelineRun
+            elif key == "storage_accessmode":
+                if value is None:
+                    self.fatalError(f"{key} must be set")
+                self.pipelineStorageAccessMode = value
+            elif key == "storage_pipeline":
+                if value is None:
+                    self.fatalError(f"{key} must be set")
+                self.pipelineStorageClass = value
+            elif key == "license_file":
+                    print(f"License file = {value}")
+                    self.slsLicenseFileLocal = value
+            elif key == "no_confirm":
+                noConfirm = True
+
+            # Arguments that we don't need to do anything with
+            elif key in ["dev_mode", "help"]:
+                pass
+
+            # Fail if there's any arguments we don't know how to handle
+            else:
+                print(f"Unknown option: {key} {value}")
+                self.fatalError(f"Unknown option: {key} {value}")
+
+    def install(self, args):
+        """
+        Install MAS instance
+        """
+        instanceId = args.mas_instance_id
+        noConfirm = args.no_confirm
+
+        self.args = args
+        self.params = dict()
+
+        self.installOptions = [
+            { "#": 1, "catalog": "v8-20240528-amd64", "release": "8.11.x", "core": "8.11.11", "manage": "8.7.8" },
+            { "#": 2, "catalog": "v8-20240528-amd64", "release": "8.10.x", "core": "8.10.14", "manage": "8.6.14" },
+            { "#": 3, "catalog": "v8-20240430-amd64", "release": "8.11.x", "core": "8.11.10", "manage": "8.7.7" },
+            { "#": 4, "catalog": "v8-20240430-amd64", "release": "8.10.x", "core": "8.10.13", "manage": "8.6.13" }
+        ]
+
+        if instanceId is None:
+            self.printH1("Set Target OpenShift Cluster")
+            # Connect to the target cluster
+            self.connect(noConfirm)
+        else:
+            logger.debug("MAS instance ID is set, so we assume already connected to the desired OCP")
+
+        if self.dynamicClient is None:
+            print_formatted_text(HTML("<Red>Error: The Kubernetes dynamic Client is not available.  See log file for details</Red>"))
+            sys.exit(1)
+
+        # Basic settings before the user provides any input
+        self.configICR()
+        self.configCertManager()
+        self.deployCP4D = False
+
+        # UDS install has not been supported since the January 2024 catalog update
+        self.setParam("uds_action", "install-dro")
+
+        # User must either provide the configuration via numerous command line arguments, or the interactive prompts
+        if instanceId is None:
+            self.interactiveMode()
+        else:
+            self.nonInteractiveMode()
+
+        # After we've configured the basic inputs, we can calculate these ones
+        self.setIoTStorageClasses()
+        if self.deployCP4D:
+            self.configCP4D()
+
+        # The entitlement file for SLS is mounted as a secret in /workspace/entitlement
+        entitlementFileBaseName = path.basename(self.slsLicenseFileLocal)
+        self.setParam("sls_entitlement_file", f"/workspace/entitlement/{entitlementFileBaseName}")
+
+        # Show a summary of the installation configuration
+        self.displayInstallSummary()
+
+        if not noConfirm:
+            print()
+            continueWithInstall = self.yesOrNo("Proceed with these settings")
+
+        # Prepare the namespace and launch the installation pipeline
+        if noConfirm or continueWithInstall:
+            self.printH1("Launch Install")
+            pipelinesNamespace = f"mas-{self.getParam('mas_instance_id')}-pipelines"
+
+            if not noConfirm:
+                self.printDescription(["If you are using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"])
+                wait = self.yesOrNo("Wait for PVCs to bind")
+            else:
+                wait = False
+
+            with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
+                installOpenShiftPipelines(self.dynamicClient)
+                h.stop_and_persist(symbol=self.successIcon, text=f"OpenShift Pipelines Operator is installed and ready to use")
+
+            with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
+                createNamespace(self.dynamicClient, pipelinesNamespace)
+                preparePipelinesNamespace(
+                    dynClient=self.dynamicClient,
+                    instanceId=self.getParam('mas_instance_id'),
+                    storageClass=self.pipelineStorageClass,
+                    accessMode=self.pipelineStorageAccessMode,
+                    waitForBind=wait
+                )
+                prepareInstallSecrets(
+                    dynClient=self.dynamicClient,
+                    instanceId=self.getParam('mas_instance_id'),
+                    slsLicenseFile=self.slsLicenseFileLocal,
+                    localConfigDir=self.localConfigDir,
+                    podTemplatesDir=None
+                )
+                h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
+
+            with Halo(text=f'Testing availability of MAS CLI image in cluster', spinner=self.spinner) as h:
+                testCLI()
+                h.stop_and_persist(symbol=self.successIcon, text=f"MAS CLI image deployment test completed")
+
+            with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
+                updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
+                h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
+
+            with Halo(text=f"Submitting PipelineRun for {self.getParam('mas_instance_id')} install", spinner=self.spinner) as h:
+                pipelineURL = launchInstallPipeline(dynClient=self.dynamicClient, params=self.params)
+                if pipelineURL is not None:
+                    h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {self.getParam('mas_instance_id')} install submitted")
+                    print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
+                else:
+                    h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {self.getParam('mas_instance_id')} install, see log file for details")
+                    print()
+
+
+if __name__ == '__main__':
+    args = installArgParser.parse_args()
+
+    try:
+        app = App()
+        app.install(args)
+    except KeyboardInterrupt as e:
+        pass
+    except ApiException as e:
+        app.fatalError(message=f"An error occured communicating with the target server: {e.reason} ({e.status})")
+    except MaxRetryError as e:
+        app.fatalError(message="Unable to connect to API server", exception=e)
+    except TemplateNotFound as e:
+        app.fatalError("Could not find template", exception=e)
+    except KubectlCommandError as e:
+        app.fatalError("Could not execute kubectl command", exception=e)
