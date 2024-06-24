@@ -10,7 +10,7 @@
     - name: fvt_test_suite
       value: mobfoundation-mvt-android
   runAfter:
-    - fvt-mobile-setup-data
+    - fvt-mobile-test-sr
 
 ## Minimum Verification Test for Mobile Inspection MAS test suites
 - name: fvt-inspections-mvt-android
@@ -24,7 +24,7 @@
     - name: fvt_test_suite
       value: inspections-mvt-android
   runAfter:
-    - fvt-mobile-setup-data
+    - fvt-mobile-test-sr
 
 ## Minimum Verification Test for Mobile Asset Manager MAS test suites
 - name: fvt-asset-manager-mvt-android
@@ -38,7 +38,7 @@
     - name: fvt_test_suite
       value: asset-manager-mvt-android
   runAfter:
-    - fvt-mobile-setup-data
+    - fvt-mobile-test-sr
 
 ## Mobile FVT - Inventory Counting Android
 - name: fvt-inventorycounting-mvt-android
@@ -52,4 +52,4 @@
     - name: fvt_test_suite
       value: inventory-counting-mvt-android # xml for Mobile IC
   runAfter:
-    - fvt-mobile-setup-data
+    - fvt-mobile-test-sr
