@@ -86,6 +86,13 @@ spec:
       type: string
       default: nvcr.io/nvidia
 
+    - name: dns_provider
+      type: string
+      default: cis
+    - name: ocp_cluster_domain
+      type: string
+      default: ""
+
   tasks:
     - name: gitops-cluster
       params:
@@ -125,6 +132,10 @@ spec:
         - name: common_services_channel
           value: $(params.common_services_channel)
 
+        - name: ocp_cluster_domain
+          value: $(params.ocp_cluster_domain)
+        - name: dns_provider
+          value: $(params.dns_provider)
       taskRef:
         kind: Task
         name: gitops-cluster

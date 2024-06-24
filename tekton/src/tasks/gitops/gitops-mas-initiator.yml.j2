@@ -228,12 +228,12 @@ spec:
           rm -rf $TARGET_LOCAL_DIR/manual-certs
         fi
 
+        cd $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO
+
         if [[ "${MANUAL_CERTS_CONTROL_FLAG}" != "True" ]]; then
-          yq -iY 'del(.dns.manual_certs)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+          yq -iY 'del(.dns.manual_certs)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
           echo "gitops-mas-initiator: removed .dns.manual_certs node"
         fi
-
-        cd $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO
 
         # Update the domain name in the mas-instance-params.yaml. Assume fvtsaas here
         export ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
