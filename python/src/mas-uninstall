@@ -116,8 +116,9 @@ class App(BaseApp):
         podsAPI = self.dynamicClient.resources.get(api_version="v1", kind="Pod")
         podsList = podsAPI.get(namespace="ibm-common-services")
         for pod in podsList:
-            if pod.metadata.name.contains("cert-manager-cainjector"):
-                certManagerProvider = "ibm"
+            self.printH1(f"CM POD : {pod}")
+            #if pod.metadata.name.contains("cert-manager-cainjector"):
+            #    certManagerProvider = "ibm"
 
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
