@@ -1,27 +1,22 @@
 #!/usr/bin/env bash
 
-function gitops_db2u_help() {
+function gitops_deprovision_db2u_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops_db2u [options]
+  mas gitops_deprovision_db2u [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
+Options:
+
 GitOps Configuration:
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Working directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
-  -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
+  -r, --region-id ${COLOR_YELLOW}REGION_ID${TEXT_RESET}              Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
-
-Secrets Manager:
-      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
-
-IBM DB2U:
-      --db2-channel ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}        DB2 Channel, defaults to default channel in catalog
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -38,21 +33,19 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_db2u_noninteractive() {
+function gitops_deprovision_db2u_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-db2u commit"
+  GIT_COMMIT_MSG="gitops-deprovision-db2u commit"
 
-  # defaults for fvtsaas
-  # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
   export REGION=${REGION:-${SM_AWS_REGION}}
+  export REGION_ID=${REGION_ID:-${REGION}}
 
   while [[ $# -gt 0 ]]
   do
     key="$1"
     shift
     case $key in
-      # GitOps Configuration
       -d|--dir)
         export GITOPS_WORKING_DIR=$1 && shift
         ;;
@@ -63,27 +56,14 @@ function gitops_db2u_noninteractive() {
       -a|--account-id)
         export ACCOUNT_ID=$1 && shift
         ;;
+      -r|--region-id)
+        export REGION_ID=$1 && shift
+        ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
         ;;
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
-        ;;
-      -r|--region)
-        export REGION=$1 && shift
-        ;;
-
-      # Secrets Manager
-      --secrets-path)
-        export SECRETS_PATH=$1 && shift
-        ;;
-      --secrets-key-seperator)
-        export SECRETS_KEY_SEPERATOR=$1 && shift
-        ;;
-
-      # DB2
-      --db2-channel)
-      export DB2_CHANNEL=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -105,55 +85,49 @@ function gitops_db2u_noninteractive() {
       -M|--git-commit-msg)
         export GIT_COMMIT_MSG=$1 && shift
         ;;
-        
       -S|--github-ssh)
         export GIT_SSH=$1 && shift
         ;;
 
-      # Other Commands
       -h|--help)
-        gitops_db2u_help
+        gitops_deprovision_db2u_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_db2u_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_deprovision_db2u_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_db2u_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_db2u_help "ACCOUNT_ID is not set"
-  [[ -z "$REGION" ]] && gitops_db2u_help "REGION is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_db2u_help "CLUSTER_ID is not set"
-  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_cluster_help "MAS_INSTANCE_ID is not set"
-
-
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_deprovision_db2u_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_db2u_help "CLUSTER_ID is not set"
+  [[ -z "$REGION_ID" ]] && gitops_deprovision_db2u_help "REGION_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_db2u_help "ACCOUNT_ID is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_help "MAS_INSTANCE_ID is not set"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_db2u_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_db2u_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_db2u_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_db2u_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_db2u_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_deprovision_db2u_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_db2u_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_db2u_help "GIT_BRANCH is not set"
   fi
-
 }
 
-function gitops_db2u() {
+function gitops_deprovision_db2u() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_db2u_noninteractive "$@"
+    gitops_deprovision_db2u_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_db2u_interactive
+    gitops_deprovision_db2u_interactive
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
 
-  export DB2_NAMESPACE="db2u-${MAS_INSTANCE_ID}"
 
   echo
   reset_colors
@@ -161,12 +135,10 @@ function gitops_db2u() {
 
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
-  echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
-  echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
+  echo_reset_dim "Account ID............................. ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ID ............................. ${COLOR_MAGENTA}${REGION_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "MAS Instance ID ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo_reset_dim "DB2U Namespace ........................ ${COLOR_MAGENTA}${DB2_NAMESPACE}"
-  echo_reset_dim "Instance Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
+  echo_reset_dim "Instance config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -190,48 +162,17 @@ function gitops_db2u() {
   fi
   reset_colors
 
-
-
-  CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/tmp-db2u
-  mkdir -p $TEMP_DIR
-
-
-  # Define cluster-level secrets used
-  # ---------------------------------------------------------------------------
-  # Note that this cluster-level secret is set up by gitops-cluster
-  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
-  
-
-  # If DB2_CHANNEL has not been specified, fetch the default set in secrets manager by the postsync job on ibm-common-services
-  if [[ -z "${DB2_CHANNEL}" ]]; then
-    echo "DB2_CHANNEL not specified, fetching from secrets manager"
-    export SECRET_KEY_DB2_DEFAULT_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}db2_default_channel#db2_default_channel
-  fi
-
   echo "${TEXT_DIM}"
-  echo_h2 "DB2u Operator" "    "
-  echo_reset_dim "DB2_NAMESPACE  .......................... ${COLOR_MAGENTA}${DB2_NAMESPACE}"
-  if [ "${DB2_CHANNEL}" != "" ]; then
-    echo_reset_dim "DB2_CHANNEL  ............................ ${COLOR_MAGENTA}${DB2_CHANNEL}"
-  fi
+  echo_h2 "IBM Maximo Application Suite" "    "
+  echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   reset_colors
 
+  TEMP_DIR=$GITOPS_WORKING_DIR/tmp-deprovision-db2u
+  mkdir -p $TEMP_DIR
+
   if [ -z $GIT_SSH ]; then
-    export GIT_SSH=false
+    export GIT_SSH="false"
   fi
-
-
-  # Set and Validate App Names
-  # ---------------------------------------------------------------------------
-  ROOT_APP_NAME="root.${ACCOUNT_ID}"
-  CLUSTER_APP_NAME="cluster.${CLUSTER_ID}"
-  DB2U_APP_NAME="db2u.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
-
-  validate_app_name "${ROOT_APP_NAME}"
-  validate_app_name "${CLUSTER_APP_NAME}"
-  validate_app_name "${DB2U_APP_NAME}"
-
 
   # Clone github target repo
   # ---------------------------------------------------------------------------
@@ -240,27 +181,18 @@ function gitops_db2u() {
     echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
     clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
-  mkdir -p ${GITOPS_INSTANCE_DIR}
 
 
-  # Generate ArgoApps
-  # ---------------------------------------------------------------------------
   echo
-  echo_h2 "Generating DB2U operator Applications"
-  echo "- DB2U operator"
-
-  export IBM_ENTITLEMENT_KEY=$SECRET_KEY_IBM_ENTITLEMENT
-
-  echo "Generating DB2U file ${GITOPS_INSTANCE_DIR}/ibm-db2u.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-db2u.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-db2u.yaml
-
-  # Commit and push to github target repo
-  # ---------------------------------------------------------------------------
+  echo_h2 "Removing ${GITOPS_INSTANCE_DIR}/ibm-db2u.yaml"
+  echo
+  rm ${GITOPS_INSTANCE_DIR}/ibm-db2u.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
-    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
+
+  remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
 }

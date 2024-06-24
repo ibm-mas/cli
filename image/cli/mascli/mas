@@ -95,6 +95,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_mas_fvt_preparer
 . $CLI_DIR/functions/gitops_deprovision_db2u_database
 . $CLI_DIR/functions/gitops_nvidia_gpu
+. $CLI_DIR/functions/gitops_deprovision_db2u
 
 # TODO: The path from the CLI the installation of the Ansible collection should be configurable
 MAS_DEVOPS_COLLECTION_PATH=${MAS_DEVOPS_COLLECTION_PATH:-ansible-devops}
@@ -544,6 +545,14 @@ case $1 in
     echo
     reset_colors
     gitops_nvidia_gpu "$@"
+    ;;
+    
+  gitops-deprovision-db2u)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_db2u "$@"
     ;;
 
   *)

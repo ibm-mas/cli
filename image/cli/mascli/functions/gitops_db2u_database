@@ -410,7 +410,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   if [[ -z $DB2_INSTANCE_NAME ]]; then
     export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
   fi
-  export DB2_NAMESPACE=db2u
+  export DB2_NAMESPACE="db2u-${MAS_INSTANCE_ID}"
   export DB2_DBNAME=${DB2_DBNAME:-"BLUDB"}
 
   # by default db2 internal is true, set it to false if db2 is external
@@ -458,6 +458,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   echo "${TEXT_DIM}"
   echo_h2 "DB2 Cluster Configuration" "    "
+  echo_reset_dim "DB2 Namespace ................................. ${COLOR_MAGENTA}${DB2_NAMESPACE}"
   echo_reset_dim "db2-instance-name ............................. ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
   echo_reset_dim "db2-dbname  ................................... ${COLOR_MAGENTA}${DB2_DBNAME}"
   echo_reset_dim "db2-version  .................................. ${COLOR_MAGENTA}${DB2_VERSION}"
