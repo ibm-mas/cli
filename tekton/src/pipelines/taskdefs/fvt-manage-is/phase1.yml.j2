@@ -32,7 +32,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-health
+      value: ibm-mas-manage
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
 
@@ -74,7 +74,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-health
+      value: ibm-mas-manage
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
 
@@ -114,7 +114,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: product_id
-      value: ibm-mas-health
+      value: ibm-mas-manage
 
   taskRef:
     kind: Task
