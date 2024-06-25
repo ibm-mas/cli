@@ -113,7 +113,7 @@ spec:
         - /bin/sh
         - -c
       name: gitops-delete-jdbc-config
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:9.4.0-pre.gitops
   workspaces:
     - name: configs
