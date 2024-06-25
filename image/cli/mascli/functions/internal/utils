@@ -354,6 +354,9 @@ function build_license_link_by_mas_version() {
 
 function license_prompt() {
   case $MAS_CHANNEL in
+    9.0.x)
+      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "90" )
+      ;;
     8.11.x)
       MAS_LICENSE_LINK=$( build_license_link_by_mas_version "811" )
       ;;
@@ -371,9 +374,17 @@ function license_prompt() {
   else
     echo
     echo_h2 "License Terms"
-    echo -e "To continue with the installation, you must accept the license terms:"
+    echo -e "To continue with the installation, you must accept the license terms:"    
     echo -e "   ${COLOR_CYAN}${TEXT_UNDERLINE}${MAS_LICENSE_LINK}${TEXT_RESET}"
-    echo -e "   ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/MAXIT81-License"
+    # In MAS 9.0.x we have added the license for ArcGIS and a new license for MaximoIT
+    # In MAS 8.11.x we only need MaximoIT license and no additional license links are needed
+    # for versions previous 8.11.x
+    if [[ "$MAS_CHANNEL" == "9.0.x" ]]; then
+      echo -e "   ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/MaximoIT90-license"
+      echo -e "   ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/MAXArcGIS90-License"
+    elif [[ "$MAS_CHANNEL" == "8.11.x" ]]; then
+      echo -e "   ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/MAXIT81-License"
+    fi
     echo
     reset_colors
     if [[ "$NO_CONFIRM" == "true" ]]; then

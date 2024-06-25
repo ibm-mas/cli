@@ -23,6 +23,7 @@ from mas.cli.cli import InstanceIDValidator, YesNoValidator, BaseApp, getHelpFor
 from mas.devops.ocp import createNamespace
 from mas.devops.mas import listMasInstances, verifyMasInstance
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUninstallPipeline
+from openshift.dynamic.exceptions import NotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -113,11 +114,18 @@ class App(BaseApp):
 
         # Default to Red Hat Cert-Manager, and check if IBM cert-manager is installed
         certManagerProvider="redhat"
-        podsAPI = self.dynamicClient.resources.get(api_version="v1", kind="Pod")
-        podsList = podsAPI.get(namespace="ibm-common-services")
-        for pod in podsList:
-            if pod.metadata.name.contains("cert-manager-cainjector"):
-                certManagerProvider = "ibm"
+        namespaceAPI = self.dynamicClient.resources.get(api_version="v1", kind="Namespace")
+        try:
+            # Check if 'ibm-common-services' namespace exist, this will throw NotFoundError exception when not found.
+            namespaceAPI.get(name="ibm-common-services")
+            podsAPI = self.dynamicClient.resources.get(api_version="v1", kind="Pod")
+            podsList = podsAPI.get(namespace="ibm-common-services")
+            for pod in podsList:
+                if pod is not None and pod.metadata.name.contains("cert-manager-cainjector"):
+                    certManagerProvider = "ibm"
+        except NotFoundError:
+            print()
+            # ibm cert manager not found, proceed with default redhat.
 
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
