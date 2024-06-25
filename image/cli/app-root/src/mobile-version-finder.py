@@ -159,10 +159,13 @@ def get_graphite_versions():
     for app_zip_file in pathlist:
         zip_file_path = f"./{str(app_zip_file)}"
         with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
-            zip_ref.extract("build.json", ".")
+            try:
+                zip_ref.extract("build.json", ".")
+                zip_file_prefix = zip_file_path.split(".zip")
+                os.rename("./build.json", f"{zip_file_prefix[0]}.json")
+            except KeyError as e:
+                print(f"There is no build.json file in {zip_file_path}")
             zip_ref.close()
-        zip_file_prefix = zip_file_path.split(".zip")
-        os.rename("./build.json", f"{zip_file_prefix[0]}.json")
         os.remove(zip_file_path)
 
     # dictionary that will contain all graphite versions for all found zips
