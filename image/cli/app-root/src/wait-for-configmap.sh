@@ -141,9 +141,12 @@ elif [[ "$KEY_VALUE" == "" && -z "${CONFIGMAP_TARGET_VALUE}" ]]; then
     exit 1
   fi
 else
+  # It is guaranteed, at this point, that CONFIGMAP_TARGET_VALUE has a value different from empty/null
   echo "Waiting for configmap/${CONFIGMAP_NAME} in ${NAMESPACE} to contain key '${CONFIGMAP_KEY}' with value '${CONFIGMAP_TARGET_VALUE}' ..."
   KEY_VALUE=$(oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o jsonpath="{.data.${CONFIGMAP_KEY}}" 2> /dev/null)
-  while [[ "${CONFIGMAP_TARGET_VALUE}" != *"$KEY_VALUE"* && "$RETRIES_USED" -le "$MAX_RETRIES" ]]; do
+  # Empty test must be checked besides target value and key value due to the wildcard comparison.
+  # Any value is contained in an ** result, but we do not want that
+  while [[ ("$KEY_VALUE" == "" || "${CONFIGMAP_TARGET_VALUE}" != *"$KEY_VALUE"*) && "$RETRIES_USED" -le "$MAX_RETRIES" ]]; do
     echo "[$RETRIES_USED/$MAX_RETRIES] ${CONFIGMAP_KEY}=${KEY_VALUE} does not equal '${CONFIGMAP_TARGET_VALUE}' yet in configmap/${CONFIGMAP_NAME}.  Waiting ${DELAY} seconds before checking again"
     sleep $DELAY
     KEY_VALUE=$(oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o jsonpath="{.data.${CONFIGMAP_KEY}}" 2> /dev/null)
@@ -163,7 +166,9 @@ else
   done
 
   echo
-  if [[ "${CONFIGMAP_TARGET_VALUE}" == *"$KEY_VALUE"* ]]; then
+  # Empty test must be checked besides target value and key value due to the wildcard comparison.
+  # Any value is contained in an ** result, but we do not want that
+  if [[ "$KEY_VALUE" != "" && "${CONFIGMAP_TARGET_VALUE}" == *"$KEY_VALUE"* ]]; then
     echo "Located key ${CONFIGMAP_KEY} in configmap/${CONFIGMAP_NAME} with value '${CONFIGMAP_TARGET_VALUE}'"
     exit 0
   else
