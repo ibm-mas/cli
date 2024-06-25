@@ -197,13 +197,27 @@
 
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>Maximo Predict users upgrading to cloud pak for data v4.8.0 requires retraining for some model.
-Please refer <a href="https://www.ibm.com/docs/en/mas-cd/mhmpmh-and-p-u/continuous-delivery?topic=ui-upgrade-cloud-pak-data-requires-retraining-some-models-maximo-predict">here</a></p>
+<p><strong>Maximo Assist</strong>
+Customers using Maximo Assist v8.7 or v8.8 should not update to this catalog and must instead contact IBM Support for guidance regarding the removal of IBM Watson Discovery and upgrading to Maximo Assist v9.0</p>
+<p><strong>Maximo Predict</strong>
+Customers using Maximo Predict v8.7 should first update to v8.8 before updating to this catalog, Cloud Pak for Data v4.8 support is missing from the v8.7 maintenance stream currently</p>
+<p>Customers using Maximo Predict v8.8 will have to retrain their models due to the upgrade to Cloud Pak for Data v4.8 included in this catalog update.  For more information refer to the <a href="https://www.ibm.com/docs/en/mas-cd/mhmpmh-and-p-u/continuous-delivery?topic=ui-upgrade-cloud-pak-data-requires-retraining-some-models-maximo-predict">product documentation</a>.</p>
 </div>
 <h2 id="whats-new">What's New<a class="headerlink" href="#whats-new" title="Permanent link"></a></h2>
 <ul>
-<li>IBM Maximo Application Suite v9.0</li>
-<li>Support for Cloud Pak for Data v4.8.0</li>
+<li>IBM Maximo Application Suite v9.0<ul>
+<li>IBM Maximo Application Suite Core Platform v9.0</li>
+<li>IBM Maximo Manage v9.0</li>
+<li>IBM Maximo IoT v9.0</li>
+<li>IBM Maximo Monitor v9.0</li>
+<li>IBM Maximo Optimizer v9.0</li>
+<li>IBM Maximo Assist v9.0</li>
+<li>IBM Maximo Predict v9.0</li>
+<li>IBM Maximo AI Broker v9.0</li>
+</ul>
+</li>
+<li>Support for Cloud Pak for Data v4.8</li>
+<li>Support for MongoDb v6</li>
 <li><strong>Security updates and bug fixes</strong><ul>
 <li>IBM Maximo Application Suite Core Platform v8.10 and v8.11</li>
 <li>IBM Maximo Manage v8.7 and v8.6</li>
@@ -212,9 +226,8 @@ Please refer <a href="https://www.ibm.com/docs/en/mas-cd/mhmpmh-and-p-u/continuo
 <li>IBM Maximo Optimizer v8.5 and v8.4</li>
 <li>IBM Maximo Assist v8.8 and v8.7</li>
 <li>IBM Maximo Predict v8.9</li>
-<li>IBM Data Dictionary 1.1.9</li>
-<li>IBM Truststore Manager 1.5.4</li>
-<li>Security updates in base image and python modules</li>
+<li>IBM Data Dictionary v1.1</li>
+<li>IBM Truststore Manager v1.5</li>
 </ul>
 </li>
 </ul>
