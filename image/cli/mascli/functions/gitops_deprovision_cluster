@@ -217,13 +217,13 @@ function gitops_deprovision_cluster() {
   echo
   echo_h2 "Deleting application configuration files"
 
-  ROOT_APP_NAME="root.${ACCOUNT_ID}"
-  CLUSTER_ROOT_APP="cluster.${CLUSTER_ID}"
-  OPERATOR_CATALOG_APP_NAME="operator-catalog.${CLUSTER_ID}"
-  COMMON_SERVICES_APP_NAME="redhat-cert-manager.${CLUSTER_ID}"
-  DRO_APP_NAME="dro.${CLUSTER_ID}"
-  CIS_COMPLIANCE_APP_NAME="cis-compliance.${CLUSTER_ID}"
-  NVIDIA_GPU_APP_NAME="nvidia-gpu.${CLUSTER_ID}"
+  echo "- Delete Cluster Promotion"
+  rm ${GITOPS_CLUSTER_DIR}/cluster-promotion.yaml
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+  fi
 
   echo "- Delete CIS Compliance"
   rm ${GITOPS_CLUSTER_DIR}/cis-compliance.yaml

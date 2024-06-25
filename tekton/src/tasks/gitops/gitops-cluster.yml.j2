@@ -30,21 +30,36 @@ spec:
     - name: mas_catalog_image
       type: string
       default: ""
-    - name: common_services_channel
-      type: string
-      default: ""
     - name: avp_aws_secret_region
       type: string
-    - name: mas_catalog_action
-      type: string
-      default: "install"
-    - name: common_services_action
-      type: string
-      default: "install"
     - name: slack_channel_id
       type: string
       default: ""
     - name: custom_labels
+      type: string
+      default: ''
+    - name: cluster_promotion_target_github_host
+      type: string
+      default: ''
+    - name: cluster_promotion_target_github_repo
+      type: string
+      default: ''
+    - name: cluster_promotion_target_github_org
+      type: string
+      default: ''
+    - name: cluster_promotion_target_github_path
+      type: string
+      default: ''
+    - name: cluster_promotion_target_git_branch
+      type: string
+      default: ''
+    - name: cluster_promotion_create_target_pr
+      type: string
+      default: ''
+    - name: cluster_promotion_target_pr_title
+      type: string
+      default: ''
+    - name: cluster_promotion_cluster_values
       type: string
       default: ''
 
@@ -80,20 +95,30 @@ spec:
         value: $(params.mas_catalog_version)
       - name: MAS_CATALOG_IMAGE
         value: $(params.mas_catalog_image)
-      - name: COMMON_SERVICES_CHANNEL
-        value: $(params.common_services_channel)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: MAS_CATALOG_ACTION
-        value: $(params.mas_catalog_action)
-      - name: COMMON_SERVICES_ACTION
-        value: $(params.common_services_action)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
       - name: SLACK_CHANNEL_ID
         value: $(params.slack_channel_id)
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
+      - name: CLUSTER_PROMOTION_TARGET_GITHUB_HOST
+        value: $(params.cluster_promotion_target_github_host)
+      - name: CLUSTER_PROMOTION_TARGET_GITHUB_REPO
+        value: $(params.cluster_promotion_target_github_repo)
+      - name: CLUSTER_PROMOTION_TARGET_GITHUB_ORG
+        value: $(params.cluster_promotion_target_github_org)
+      - name: CLUSTER_PROMOTION_TARGET_GITHUB_PATH
+        value: $(params.cluster_promotion_target_github_path)
+      - name: CLUSTER_PROMOTION_TARGET_GIT_BRANCH
+        value: $(params.cluster_promotion_target_git_branch)
+      - name: CLUSTER_PROMOTION_CREATE_TARGET_PR
+        value: $(params.cluster_promotion_create_target_pr)
+      - name: CLUSTER_PROMOTION_TARGET_PR_TITLE
+        value: $(params.cluster_promotion_target_pr_title)
+      - name: CLUSTER_PROMOTION_CLUSTER_VALUES
+        value: $(params.cluster_promotion_cluster_values)
 
       - name: DNS_PROVIDER
         value: $(params.dns_provider)
@@ -118,6 +143,17 @@ spec:
         CUSTOM_LABELS=$(echo "${CUSTOM_LABELS}" | sed "s/'/\"/g")
         export CUSTOM_LABELS=$(echo "${CUSTOM_LABELS}" | yq --yaml-output)
         echo " CUSTOM_LABELS = ${CUSTOM_LABELS}"
+
+
+        if [[ -z "${CLUSTER_PROMOTION_TARGET_GITHUB_PAT}" ]];then
+          echo "Setting var CLUSTER_PROMOTION_TARGET_GITHUB_PAT to be the same as var GITHUB_PAT as it as not set"
+          export CLUSTER_PROMOTION_TARGET_GITHUB_PAT=${GITHUB_PAT}
+        fi
+
+        if [[ -n "${CLUSTER_PROMOTION_CLUSTER_VALUES}" ]];then
+          echo "Setting var CLUSTER_PROMOTION to true as var CLUSTER_PROMOTION_CLUSTER_VALUES is set"
+          export CLUSTER_PROMOTION=true
+        fi
 
         mkdir -p /tmp/init-cluster
         mas gitops-cluster -a $ACCOUNT -c $CLUSTER_NAME \
