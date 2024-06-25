@@ -1,8 +1,18 @@
+# *****************************************************************************
+# Copyright (c) 2024 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# *****************************************************************************
+
 import argparse
 from os import path
 
-from . import __version__ as packageVersion
-from .cli import getHelpFormatter
+from .. import __version__ as packageVersion
+from ..cli import getHelpFormatter
 
 def isValidFile(parser, arg) -> str:
     if not path.exists(arg):
@@ -11,7 +21,7 @@ def isValidFile(parser, arg) -> str:
         return arg
 
 installArgParser = argparse.ArgumentParser(
-    prog='mas uninstall',
+    prog="mas uninstall",
     description="\n".join([
         f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
         "Install MAS by configuring and launching the MAS Uninstall Tekton Pipeline.\n",
@@ -25,92 +35,92 @@ installArgParser = argparse.ArgumentParser(
 
 # MAS Catalog Selection & Entitlement
 # -----------------------------------------------------------------------------
-catArgGroup = installArgParser.add_argument_group('MAS Catalog Selection & Entitlement')
+catArgGroup = installArgParser.add_argument_group("MAS Catalog Selection & Entitlement")
 catArgGroup.add_argument(
-    '-c', '--mas-catalog-version',
+    "-c", "--mas-catalog-version",
     required=False,
     help=""
 )
 catArgGroup.add_argument(
-    '--ibm-entitlement-key',
+    "--ibm-entitlement-key",
     required=False,
     help=""
 )
 
 # MAS Basic Configuration
 # -----------------------------------------------------------------------------
-masArgGroup = installArgParser.add_argument_group('MAS Basic Configuration')
+masArgGroup = installArgParser.add_argument_group("MAS Basic Configuration")
 masArgGroup.add_argument(
-    '-i', '--mas-instance-id',
+    "-i", "--mas-instance-id",
     required=False,
     help=""
 )
 masArgGroup.add_argument(
-    '-w', '--mas-workspace-id',
+    "-w", "--mas-workspace-id",
     required=False,
     help=""
 )
 masArgGroup.add_argument(
-    '-W', '--mas-workspace-name',
+    "-W", "--mas-workspace-name",
     required=False,
     help=""
 )
 masArgGroup.add_argument(
-    '--mas-channel',
+    "--mas-channel",
     required=False,
     help=""
 )
 
 # MAS Advanced Configuration
 # -----------------------------------------------------------------------------
-masAdvancedArgGroup = installArgParser.add_argument_group('MAS Advanced Configuration')
+masAdvancedArgGroup = installArgParser.add_argument_group("MAS Advanced Configuration")
 masAdvancedArgGroup.add_argument(
-    '--additional-configs',
+    "--additional-configs",
     required=False,
     help=""
 )
 masAdvancedArgGroup.add_argument(
-    '--non-prod',
+    "--non-prod",
     required=False,
     help="",
     action="store_true"
 )
 masAdvancedArgGroup.add_argument(
-    '--mas-trust-default-cas',
+    "--mas-trust-default-cas",
     required=False,
     help=""
 )
 masAdvancedArgGroup.add_argument(
-    '--workload-scale-profile',
+    "--workload-scale-profile",
     required=False,
     help=""
 )
 masAdvancedArgGroup.add_argument(
-    '--mas-pod-templates-dir',
+    "--mas-pod-templates-dir",
     required=False,
     help=""
 )
 
 # Storage
 # -----------------------------------------------------------------------------
-storageArgGroup = installArgParser.add_argument_group('Storage')
+storageArgGroup = installArgParser.add_argument_group("Storage")
 storageArgGroup.add_argument(
-    '--storage-class-rwo',
+    "--storage-class-rwo",
     required=False,
     help=""
 )
 storageArgGroup.add_argument(
-    '--storage-class-rwx',
+    "--storage-class-rwx",
     required=False,
     help=""
 )
 storageArgGroup.add_argument(
-    '--storage-pipeline',
+    "--storage-pipeline",
     required=False,
     help=""
 )
 storageArgGroup.add_argument(
-    '--storage-accessmode',
+    "--storage-accessmode",
     required=False,
     help="",
     choices=["ReadOnlyMany", "ReadWriteMany", "ReadWriteOnce", "ReadWriteOncePod"]
@@ -118,9 +128,9 @@ storageArgGroup.add_argument(
 
 # IBM Suite License Service
 # -----------------------------------------------------------------------------
-slsArgGroup = installArgParser.add_argument_group('IBM Suite License Service')
+slsArgGroup = installArgParser.add_argument_group("IBM Suite License Service")
 slsArgGroup.add_argument(
-    '--license-file',
+    "--license-file",
     required=False,
     help="",
     type=lambda x: isValidFile(installArgParser, x)
@@ -128,121 +138,121 @@ slsArgGroup.add_argument(
 
 # IBM Data Reporting Operator (DRO)
 # -----------------------------------------------------------------------------
-droArgGroup = installArgParser.add_argument_group('IBM Data Reporting Operator (DRO)')
+droArgGroup = installArgParser.add_argument_group("IBM Data Reporting Operator (DRO)")
 droArgGroup.add_argument(
-    '--uds-email',
-    dest='uds_contact_email',
+    "--uds-email",
+    dest="uds_contact_email",
     required=False,
     help=""
 )
 droArgGroup.add_argument(
-    '--uds-firstname',
-    dest='uds_contact_firstname',
+    "--uds-firstname",
+    dest="uds_contact_firstname",
     required=False,
     help=""
 )
 droArgGroup.add_argument(
-    '--uds-lastname',
-    dest='uds_contact_lastname',
+    "--uds-lastname",
+    dest="uds_contact_lastname",
     required=False,
     help=""
 )
 droArgGroup.add_argument(
-    '--dro-namespace',
+    "--dro-namespace",
     required=False,
     help=""
 )
 
 # MongoDb Community Operator
 # -----------------------------------------------------------------------------
-mongoArgGroup = installArgParser.add_argument_group('MongoDb Community Operator')
+mongoArgGroup = installArgParser.add_argument_group("MongoDb Community Operator")
 mongoArgGroup.add_argument(
-    '--mongodb-namespace',
+    "--mongodb-namespace",
     required=False,
     help=""
 )
 
 # OCP Configuration
 # -----------------------------------------------------------------------------
-ocpArgGroup = installArgParser.add_argument_group('OCP Configuration')
+ocpArgGroup = installArgParser.add_argument_group("OCP Configuration")
 ocpArgGroup.add_argument(
-    '--ocp-ingress-tls-secret-name',
+    "--ocp-ingress-tls-secret-name",
     required=False,
     help=""
 )
 
 # MAS Applications
 # -----------------------------------------------------------------------------
-masAppsArgGroup = installArgParser.add_argument_group('MAS Applications')
+masAppsArgGroup = installArgParser.add_argument_group("MAS Applications")
 masAppsArgGroup.add_argument(
-    '--assist-channel',
+    "--assist-channel",
     required=False,
     help=""
 )
 masAppsArgGroup.add_argument(
-    '--iot-channel',
+    "--iot-channel",
     required=False,
     help=""
 )
 masAppsArgGroup.add_argument(
-    '--monitor-channel',
+    "--monitor-channel",
     required=False,
     help=""
 )
 masAppsArgGroup.add_argument(
-    '--manage-channel',
+    "--manage-channel",
     required=False,
     help=""
 )
 masAppsArgGroup.add_argument(
-    '--predict-channel',
+    "--predict-channel",
     required=False,
     help=""
 )
 masAppsArgGroup.add_argument(
-    '--visualinspection-channel',
+    "--visualinspection-channel",
     required=False,
     help=""
 )
 masAppsArgGroup.add_argument(
-    '--optimizer-channel',
+    "--optimizer-channel",
     required=False,
     help=""
 )
 masAppsArgGroup.add_argument(
-    '--optimizer-plan',
+    "--optimizer-plan",
     required=False,
     help=""
 )
 
 # IBM Cloud Pak for Data
 # -----------------------------------------------------------------------------
-cpdAppsArgGroup = installArgParser.add_argument_group('IBM Cloud Pak for Data')
+cpdAppsArgGroup = installArgParser.add_argument_group("IBM Cloud Pak for Data")
 cpdAppsArgGroup.add_argument(
-    '--cp4d-version',
-    dest='cpd_product_version',
+    "--cp4d-version",
+    dest="cpd_product_version",
     required=False,
     help=""
 )
 cpdAppsArgGroup.add_argument(
-    '--cp4d-install-spss',
-    dest='cpd_install_spss',
+    "--cp4d-install-spss",
+    dest="cpd_install_spss",
     required=False,
     help="",
     action="store_const",
     const="install"
 )
 cpdAppsArgGroup.add_argument(
-    '--cp4d-installopenscale',
-    dest='cpd_install_openscale',
+    "--cp4d-installopenscale",
+    dest="cpd_install_openscale",
     required=False,
     help="",
     action="store_const",
     const="install"
 )
 cpdAppsArgGroup.add_argument(
-    '--cp4d-install-cognos',
-    dest='cpd_install_cognos',
+    "--cp4d-install-cognos",
+    dest="cpd_install_cognos",
     required=False,
     help="",
     action="store_const",
@@ -251,180 +261,220 @@ cpdAppsArgGroup.add_argument(
 
 # IBM Db2 Universal Operator
 # -----------------------------------------------------------------------------
-db2AppsArgGroup = installArgParser.add_argument_group('IBM Db2 Universal Operator')
-db2AppsArgGroup.add_argument(
-    '--db2-namespace',
+db2ArgGroup = installArgParser.add_argument_group("IBM Db2 Universal Operator")
+db2ArgGroup.add_argument(
+    "--db2-namespace",
     required=False,
     help=""
 )
-db2AppsArgGroup.add_argument(
-    '--db2-channel',
+db2ArgGroup.add_argument(
+    "--db2-channel",
     required=False,
     help=""
 )
-db2AppsArgGroup.add_argument(
-    '--db2-system',
-    dest='db2_action_system',
+db2ArgGroup.add_argument(
+    "--db2-system",
+    dest="db2_action_system",
     required=False,
     help="",
     action="store_const",
     const="install"
 )
-db2AppsArgGroup.add_argument(
-    '--db2-manage',
-    dest='db2_action_manage',
+db2ArgGroup.add_argument(
+    "--db2-manage",
+    dest="db2_action_manage",
     required=False,
     help="",
     action="store_const",
     const="install"
 )
-db2AppsArgGroup.add_argument(
-    '--db2-type',
+db2ArgGroup.add_argument(
+    "--db2-type",
     required=False,
     help=""
 )
 
-db2AppsArgGroup.add_argument(
-    '--db2-affinity-key',
+db2ArgGroup.add_argument(
+    "--db2-affinity-key",
     required=False,
     help=""
 )
-db2AppsArgGroup.add_argument(
-    '--db2-affinity-value',
+db2ArgGroup.add_argument(
+    "--db2-affinity-value",
     required=False,
     help=""
 )
-db2AppsArgGroup.add_argument(
-    '--db2-tolerate-key',
+db2ArgGroup.add_argument(
+    "--db2-tolerate-key",
     required=False,
     help=""
 )
-db2AppsArgGroup.add_argument(
-    '--db2-tolerate-value',
+db2ArgGroup.add_argument(
+    "--db2-tolerate-value",
     required=False,
     help=""
 )
-db2AppsArgGroup.add_argument(
-    '--db2-tolerate-effect',
+db2ArgGroup.add_argument(
+    "--db2-tolerate-effect",
     required=False,
     help=""
 )
-db2AppsArgGroup.add_argument(
-    '--db2-cpu-requests',
+db2ArgGroup.add_argument(
+    "--db2-cpu-requests",
     required=False,
     help=""
 )
-db2AppsArgGroup.add_argument(
-    '--db2-cpu-limits',
+db2ArgGroup.add_argument(
+    "--db2-cpu-limits",
     required=False,
     help=""
 )
-db2AppsArgGroup.add_argument(
-    '--db2-memory-requests',
+db2ArgGroup.add_argument(
+    "--db2-memory-requests",
     required=False,
     help=""
 )
-db2AppsArgGroup.add_argument(
-    '--db2-memory-limits',
+db2ArgGroup.add_argument(
+    "--db2-memory-limits",
     required=False,
     help=""
 )
-db2AppsArgGroup.add_argument(
-    '--db2-backup-storage',
-    dest='db2_backup_storage_size',
+db2ArgGroup.add_argument(
+    "--db2-backup-storage",
+    dest="db2_backup_storage_size",
     required=False,
     help=""
 )
-db2AppsArgGroup.add_argument(
-    '--db2-data-storage',
-    dest='db2_data_storage_size',
+db2ArgGroup.add_argument(
+    "--db2-data-storage",
+    dest="db2_data_storage_size",
     required=False,
     help=""
 )
-db2AppsArgGroup.add_argument(
-    '--db2-logs-storage',
-    dest='db2_logs_storage_size',
+db2ArgGroup.add_argument(
+    "--db2-logs-storage",
+    dest="db2_logs_storage_size",
     required=False,
     help=""
 )
-db2AppsArgGroup.add_argument(
-    '--db2-meta-storage',
-    dest='db2_meta_storage_size',
+db2ArgGroup.add_argument(
+    "--db2-meta-storage",
+    dest="db2_meta_storage_size",
     required=False,
     help=""
 )
-db2AppsArgGroup.add_argument(
-    '--db2-temp-storage',
-    dest='db2_temp_storage_size',
+db2ArgGroup.add_argument(
+    "--db2-temp-storage",
+    dest="db2_temp_storage_size",
     required=False,
     help=""
 )
 
 
+# Kafka - Common
+# -----------------------------------------------------------------------------
+kafkaCommonArgGroup = installArgParser.add_argument_group("Kafka - Common")
+kafkaCommonArgGroup.add_argument(
+    "--kafka-provider",
+    required=False,
+    help="",
+    choices=["strimzi", "redhat", "ibm", "aws"]
+)
+kafkaCommonArgGroup.add_argument(
+    "--kafka-username",
+    required=False,
+    help=""
+)
+kafkaCommonArgGroup.add_argument(
+    "--kafka-password",
+    required=False,
+    help=""
+)
 
+# Kafka - Strimzi & AMQ Streams
+# -----------------------------------------------------------------------------
+kafkaOCPArgGroup = installArgParser.add_argument_group("Kafka - Strimzi and AMQ Streams")
+kafkaCommonArgGroup.add_argument(
+    "--kafka-namespace",
+    required=False,
+    help=""
+)
+kafkaOCPArgGroup.add_argument(
+    "--kafka-version",
+    required=False,
+    help=""
+)
 
+# Kafka - MSK
+# -----------------------------------------------------------------------------
+mskArgGroup = installArgParser.add_argument_group("Kafka - AWS MSK")
+mskArgGroup.add_argument(
+    "--msk-instance-type",
+    dest="aws_msk_instance_type",
+    required=False,
+    help=""
+)
+mskArgGroup.add_argument(
+    "--msk-instance-nodes",
+    dest="aws_msk_instance_number",
+    required=False,
+    help=""
+)
+mskArgGroup.add_argument(
+    "--msk-instance-volume-size",
+    dest="aws_msk_volume_size",
+    required=False,
+    help=""
+)
+mskArgGroup.add_argument(
+    "--msk-cidr-az1",
+    dest="aws_msk_cidr_az1",
+    required=False,
+    help=""
+)
+mskArgGroup.add_argument(
+    "--msk-cidr-az2",
+    dest="aws_msk_cidr_az2",
+    required=False,
+    help=""
+)
+mskArgGroup.add_argument(
+    "--msk-cidr-az3",
+    dest="aws_msk_cidr_az3",
+    required=False,
+    help=""
+)
+mskArgGroup.add_argument(
+    "--msk-cidr-egress",
+    dest="aws_msk_egress_cidr",
+    required=False,
+    help=""
+)
+mskArgGroup.add_argument(
+    "--msk-cidr-ingress",
+    dest="aws_msk_ingress_cidr",
+    required=False,
+    help=""
+)
 
-
-
-#   # Dependencies - Kafka common arguments
-#   --kafka-provider)
-#     export KAFKA_ACTION_SYSTEM=install
-#     export KAFKA_PROVIDER=$1 && shift
-#     ;;
-#   --kafka-username)
-#     export AWS_KAFKA_USER_NAME=$1
-#     export KAFKA_USER_NAME=$1 && shift
-#     ;;
-#   --kafka-password)
-#     export AWS_KAFKA_USER_PASSWORD=$1
-#     export KAFKA_USER_PASSWORD=$1 && shift
-#     ;;
-
-#   # Dependencies - Kafka (AMQ & Strimzi)
-#   --kafka-namespace)
-#     export KAFKA_NAMESPACE=$1 && shift
-#     ;;
-#   --kafka-version)
-#     export KAFKA_VERSION=$1 && shift
-#     ;;
-
-#   # Dependencies - Kafka (AWS MSK)
-#   --msk-instance-type)
-#     export AWS_MSK_INSTANCE_TYPE=$1 && shift
-#     ;;
-#   --msk-instance-nodes)
-#     export AWS_MSK_INSTANCE_NUMBER=$1 && shift
-#     ;;
-#   --msk-instance-volume-size)
-#     export AWS_MSK_VOLUME_SIZE=$1 && shift
-#     ;;
-#   --msk-cidr-az1)
-#     export AWS_MSK_CIDR_AZ1=$1 && shift
-#     ;;
-#   --msk-cidr-az2)
-#     export AWS_MSK_CIDR_AZ2=$1 && shift
-#     ;;
-#   --msk-cidr-az3)
-#     export AWS_MSK_CIDR_AZ3=$1 && shift
-#     ;;
-#   --msk-cidr-ingress)
-#     export AWS_MSK_INGRESS_CIDR=$1 && shift
-#     ;;
-#   --msk-cidr-egress)
-#     export AWS_MSK_EGRESS_CIDR=$1 && shift
-#     ;;
-
-#   # Dependencies - Kafka (IBM Cloud Event Streams)
-#   --eventstreams-resource-group)
-#     export EVENTSTREAMS_RESOURCEGROUP=$1 && shift
-#     ;;
-#   --eventstreams-instance-name)
-#     export EVENTSTREAMS_NAME=$1 && shift
-#     ;;
-#   --eventstreams-instance-location)
-#     export EVENTSTREAMS_LOCATION=$1 && shift
-#     ;;
-
+# Kafka - Event Streams
+# -----------------------------------------------------------------------------
+mskArgGroup = installArgParser.add_argument_group("Kafka - Event Streams")
+mskArgGroup.add_argument(
+    "--eventstreams-resource-group",
+    required=False,
+    help=""
+)
+mskArgGroup.add_argument(
+    "--eventstreams-instance-name",
+    required=False,
+    help=""
+)
+mskArgGroup.add_argument(
+    "--eventstreams-instance-location",
+    required=False,
+    help=""
+)
 
 
 #   # Manage commands - Server bundle configuration
@@ -531,50 +581,38 @@ db2AppsArgGroup.add_argument(
 #     ;;
 
 #   # Other Commands
-#   --skip-pre-check)
-#     SKIP_PRE_CHECK=true
-#     ;;
-#   --dev-mode)
-#     DEV_MODE=true
-#     ;;
 #   --no-wait-for-pvcs)
 #     WAIT_FOR_PVCS=false
-#     ;;
-#   --no-confirm)
-#     NO_CONFIRM=true
 #     ;;
 #   --accept-license)
 #     LICENSE_ACCEPTED=true
 #     ;;
-#   -h|--help)
-#     install_help
-#     ;;
-#   *)
-#     # unknown option
-#     echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${TEXT_RESET}\n"
-#     install_help
-#     exit 1
-#     ;;
 
 
-otherArgGroup = installArgParser.add_argument_group('More')
+otherArgGroup = installArgParser.add_argument_group("More")
 otherArgGroup.add_argument(
-    '--dev-mode',
+    "--dev-mode",
     required=False,
-    action='store_true',
+    action="store_true",
     default=False,
     help="Configure installation for development mode",
 )
 otherArgGroup.add_argument(
-    '--no-confirm',
+    "--skip-pre-check",
     required=False,
-    action='store_true',
+    action="store_true",
+    help="Disable the 'pre-install-check' at the start of the install pipeline"
+)
+otherArgGroup.add_argument(
+    "--no-confirm",
+    required=False,
+    action="store_true",
     default=False,
     help="Launch the upgrade without prompting for confirmation",
 )
 otherArgGroup.add_argument(
-    '-h', "--help",
-    action='help',
+    "-h", "--help",
+    action="help",
     default=False,
     help="Show this help message and exit",
 )

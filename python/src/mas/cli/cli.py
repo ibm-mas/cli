@@ -7,6 +7,7 @@
 # http://www.eclipse.org/legal/epl-v10.html
 #
 # *****************************************************************************
+
 from argparse import RawTextHelpFormatter
 from shutil import which
 from os import path
@@ -22,32 +23,12 @@ from prompt_toolkit.validation import Validator
 
 from .validators import YesNoValidator, FileExistsValidator, DirectoryExistsValidator
 
-# Available named colours in prompt_toolkit
-# -----------------------------------------------------------------------------
-# AliceBlue  AntiqueWhite  Aqua  Aquamarine  Azure  Beige  Bisque  Black  BlanchedAlmond  Blue  BlueViolet
-# Brown  BurlyWood  CadetBlue  Chartreuse  Chocolate  Coral  CornflowerBlue  Cornsilk  Crimson  Cyan
-# DarkBlue  DarkCyan  DarkGoldenRod  DarkGray  DarkGreen  DarkGrey  DarkKhaki  DarkMagenta  DarkOliveGreen
-# DarkOrange  DarkOrchid  DarkRed  DarkSalmon  DarkSeaGreen  DarkSlateBlue  DarkSlateGray  DarkSlateGrey
-# DarkTurquoise  DarkViolet  DeepPink  DeepSkyBlue  DimGray  DimGrey  DodgerBlue  FireBrick  FloralWhite
-# ForestGreen  Fuchsia  Gainsboro  GhostWhite  Gold  GoldenRod  Gray  Green  GreenYellow  Grey  HoneyDew
-# HotPink  IndianRed  Indigo  Ivory  Khaki  Lavender  LavenderBlush  LawnGreen  LemonChiffon  LightBlue
-# LightCoral  LightCyan  LightGoldenRodYellow  LightGray  LightGreen  LightGrey  LightPink  LightSalmon
-# LightSeaGreen  LightSkyBlue  LightSlateGray  LightSlateGrey  LightSteelBlue  LightYellow  Lime
-# LimeGreen  Linen  Magenta  Maroon  MediumAquaMarine  MediumBlue  MediumOrchid  MediumPurple  MediumSeaGreen
-# MediumSlateBlue  MediumSpringGreen  MediumTurquoise  MediumVioletRed  MidnightBlue  MintCream  MistyRose
-# Moccasin  NavajoWhite  Navy  OldLace  Olive  OliveDrab  Orange  OrangeRed  Orchid  PaleGoldenRod  PaleGreen
-# PaleTurquoise  PaleVioletRed  PapayaWhip  PeachPuff  Peru  Pink  Plum  PowderBlue  Purple  RebeccaPurple
-# Red  RosyBrown  RoyalBlue  SaddleBrown  Salmon  SandyBrown  SeaGreen  SeaShell  Sienna  Silver  SkyBlue
-# SlateBlue  SlateGray  SlateGrey  Snow  SpringGreen  SteelBlue  Tan  Teal  Thistle  Tomato  Turquoise
-# Violet  Wheat  White  WhiteSmoke  Yellow  YellowGreen
-
 from mas.cli import __version__ as packageVersion
 from mas.devops.ocp import connect, isSNO
 
 from sys import exit
 
 import logging
-
 logger = logging.getLogger(__name__)
 
 
@@ -145,7 +126,7 @@ class BaseApp(object):
         self.h1count += 1
         self.h2count = 0
         print()
-        print_formatted_text(HTML(f"<u><SteelBlue>{self.h1count}) {message.replace(' & ', ' &amp; ')}</SteelBlue></u>"))
+        print_formatted_text(HTML(f"<u><SkyBlue>{self.h1count}) {message.replace(' & ', ' &amp; ')}</SkyBlue></u>"))
 
     def printH2(self, message):
         self.h2count += 1
@@ -207,7 +188,8 @@ class BaseApp(object):
 
     def promptForListSelect(self, message: str, options: list, param: str=None, default: int=None) -> str:
         selection = self.promptForInt(message=message, default=default)
-        self.setParam(param, options[selection+1])
+        # List indices are 0 origin, so we need to subtract 1 from the selection made to arrive at the correct value
+        self.setParam(param, options[selection-1])
 
     def promptForFile(self, message: str, mustExist: bool=True, default: str="") -> None:
         if mustExist:
@@ -252,7 +234,7 @@ class BaseApp(object):
             logger.warning(f"Error: Unable to connect to OpenShift Container Platform: {e}")
             return None
 
-    def connect(self, noConfirm):
+    def connect(self):
         promptForNewServer = False
         self.reloadDynamicClient()
         if self._dynClient is not None:
@@ -261,7 +243,7 @@ class BaseApp(object):
                 consoleRoute = routesAPI.get(name="console", namespace="openshift-console")
                 print_formatted_text(HTML(f"Already connected to OCP Cluster:\n <u><Orange>https://{consoleRoute.spec.host}</Orange></u>"))
                 print()
-                if not noConfirm:
+                if not self.noConfirm:
                     # We are already connected to a cluster, but prompt the user if they want to use this connection
                     continueWithExistingCluster = prompt(HTML('<Yellow>Proceed with this cluster?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
                     promptForNewServer = continueWithExistingCluster in ["n", "no"]

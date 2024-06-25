@@ -1,3 +1,13 @@
+# *****************************************************************************
+# Copyright (c) 2024 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# *****************************************************************************
+
 import logging
 import yaml
 from prompt_toolkit import print_formatted_text, HTML
@@ -12,12 +22,16 @@ class InstallSummarizerMixin():
         self.printSummary("Storage Class Provider", self.storageClassProvider)
         self.printParamSummary("ReadWriteOnce Storage Class", "storage_class_rwo")
         self.printParamSummary("ReadWriteMany Storage Class", "storage_class_rwx")
-        self.printSummary("Certificate Manager", self.params["cert_manager_provider"])
+
+        self.printParamSummary("Certificate Manager", "cert_manager_provider")
+        self.printParamSummary("Certificate Secret", "ocp_ingress_tls_secret_name")
 
         if self.isSNO():
             self.printSummary("Single Node OpenShift", "Yes")
         else:
             self.printSummary("Single Node OpenShift", "No")
+
+        self.printSummary("Skip Pre-Install Healthcheck", "Yes" if self.getParam('skip_pre_check') == "true" else "No")
 
     def icrSummary(self) -> None:
         self.printH2("IBM Container Registry Credentials")
@@ -30,25 +44,26 @@ class InstallSummarizerMixin():
         operationalModeNames=["", "Production", "Non-Production"]
 
         self.printH2("IBM Maximo Application Suite")
-        self.printSummary("Instance ID", self.params['mas_instance_id'])
-        self.printSummary("Workspace ID", self.params['mas_workspace_id'])
-        self.printSummary("Workspace Name", self.params['mas_workspace_name'])
+        self.printParamSummary("Instance ID", "mas_instance_id")
+        self.printParamSummary("Workspace ID", "mas_workspace_id")
+        self.printParamSummary("Workspace Name", "mas_workspace_name")
+        print()
         self.printSummary(f"Operational Mode", operationalModeNames[self.operationalMode])
         if isAirgapInstall(self.dynamicClient):
             self.printSummary("Install Mode", "Disconnected Install")
         else:
             self.printSummary("Install Mode", "Connected Install")
-
+        print()
         if "mas_domain" in self.params:
-            self.printSummary("Domain Name", self.params['mas_domain'])
-            self.printSummary("DNS Provider", self.params['dns_provider'])
-            self.printSummary("Certificate Issuer", self.params['mas_cluster_issuer'])
+            self.printParamSummary("Domain Name", "mas_domain")
+            self.printParamSummary("DNS Provider", "dns_provider")
+            self.printParamSummary("Certificate Issuer", "mas_cluster_issuer")
 
             if self.params['dns_provider'] == "cloudflare":
-                self.printSummary("CloudFlare e-mail", self.params["cloudflare_email"])
-                self.printSummary("CloudFlare API token", self.params["cloudflare_apitoken"])
-                self.printSummary("CloudFlare zone", self.params["cloudflare_zone"])
-                self.printSummary("CloudFlare subdomain", self.params["cloudflare_subdomain"])
+                self.printParamSummary("CloudFlare e-mail", "cloudflare_email")
+                self.printParamSummary("CloudFlare API token", "cloudflare_apitoken")
+                self.printParamSummary("CloudFlare zone", "cloudflare_zone")
+                self.printParamSummary("CloudFlare subdomain", "cloudflare_subdomain")
             elif self.params['dns_provider'] == "cis":
                 pass
             elif self.params['dns_provider'] == "route53":
@@ -56,10 +71,14 @@ class InstallSummarizerMixin():
             elif self.params['dns_provider'] == "":
                 pass
 
-        self.printSummary("Catalog Version", self.params['mas_catalog_version'])
-        self.printSummary("Subscription Channel", self.params['mas_channel'])
-        self.printSummary("IBM Entitled Registry", self.params['mas_icr_cp'])
-        self.printSummary("IBM Open Registry", self.params['mas_icr_cpopen'])
+        print()
+        self.printParamSummary("Catalog Version", "mas_catalog_version")
+        self.printParamSummary("Subscription Channel", "mas_channel")
+        print()
+        self.printParamSummary("IBM Entitled Registry", "mas_icr_cp")
+        self.printParamSummary("IBM Open Registry", "mas_icr_cpopen")
+        print()
+        self.printSummary("Additional Configs", self.localConfigDir)
 
     def iotSummary(self) -> None:
         if self.installIoT:
@@ -142,13 +161,13 @@ class InstallSummarizerMixin():
     def db2Summary(self) -> None:
         if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
             self.printH2("IBM Db2 Univeral Operator Configuration")
-            self.printParamSummary("Install Namespace", "db2_namespace")
-            self.printParamSummary("Subscription Channel", "db2_channel")
-            print()
-            self.printParamSummary("System Instance", "db2_action_system")
-            self.printParamSummary("Dedicated Manage Instance", "db2_action_manage")
+            self.printSummary("System Instance", "Install" if self.getParam("db2_action_system") == "install" else "Do Not Install")
+            self.printSummary("Dedicated Manage Instance", "Install" if self.getParam("db2_action_manage") == "install" else "Do Not Install")
             self.printParamSummary(" - Type", "db2_type")
             self.printParamSummary(" - Timezone", "db2_timezone")
+            print()
+            self.printParamSummary("Install Namespace", "db2_namespace")
+            self.printParamSummary("Subscription Channel", "db2_channel")
             print()
             self.printParamSummary("CPU Request", "db2_cpu_requests")
             self.printParamSummary("CPU Limit", "db2_cpu_limits")
@@ -161,15 +180,15 @@ class InstallSummarizerMixin():
             self.printParamSummary("Temp Storage", "db2_temp_storage_size")
             self.printParamSummary("Transaction Logs Storage", "db2_logs_storage_size")
             print()
-            if self.getParam('db2_affinity_key') is not "":
+            if self.getParam('db2_affinity_key') != "":
                 self.printSummary("Node Affinity", f"{self.getParam('db2_affinity_key')}={self.getParam('db2_affinity_value')}")
             else:
-                self.printSummary("Node Affinity", "none")
+                self.printSummary("Node Affinity", "None")
 
-            if self.getParam('db2_tolerate_key') is not "":
+            if self.getParam('db2_tolerate_key') != "":
                 self.printSummary("Node Tolerations", f"{self.getParam('db2_tolerate_key')}={self.getParam('db2_tolerate_value')} @ {self.getParam('db2_tolerate_effect')}")
             else:
-                self.printSummary("Node Tolerations", "none")
+                self.printSummary("Node Tolerations", "None")
 
     def cp4dSummary(self) -> None:
         if self.deployCP4D:
@@ -200,49 +219,36 @@ class InstallSummarizerMixin():
         self.printParamSummary("Install Namespace", "mongodb_namespace")
 
 
-    # if [[ "$KAFKA_ACTION_SYSTEM" == "install" && ("$KAFKA_PROVIDER" == "strimzi" || "$KAFKA_PROVIDER" == "redhat") ]]; then
-    #   reset_colors
-    #   echo "${TEXT_DIM}"
-    #   echo_h4 "Kafka" "    "
-    #   echo_reset_dim "Install Namespace ......... ${COLOR_MAGENTA}${KAFKA_NAMESPACE:-<default>}"
-    #   echo_reset_dim "Kafka Provider ............ ${COLOR_MAGENTA}${KAFKA_PROVIDER}"
-    #   echo_reset_dim "Kafka Version ............. ${COLOR_MAGENTA}${KAFKA_VERSION}"
-    # fi
+    def kafkaSummary(self) -> None:
+        if self.getParam("kafka_action_system") != "":
+            self.printH2("Kafka")
 
-    # if [[ "$KAFKA_ACTION_SYSTEM" == "install" && "$KAFKA_PROVIDER" == "ibm" ]]; then
-    #   reset_colors
-    #   echo "${TEXT_DIM}"
-    #   echo_h4 "Kafka - IBM Cloud Event Streams" "    "
-    #   echo_reset_dim "Resource group ............ ${COLOR_MAGENTA}${EVENTSTREAMS_RESOURCEGROUP}"
-    #   echo_reset_dim "Instance name ............. ${COLOR_MAGENTA}${EVENTSTREAMS_NAME}"
-    #   echo_reset_dim "Instance location ......... ${COLOR_MAGENTA}${EVENTSTREAMS_LOCATION}"
-    # fi
+            if self.getParam("kafka_provider") in ["strimzi", "redhat"]:
+                self.printParamSummary("Provider", "kafka_provider")
+                self.printParamSummary("Version", "kafka_version")
+                self.printParamSummary("Install Namespace", "kafka_namespace")
 
-    # if [[ "$KAFKA_ACTION_SYSTEM" == "install" && "$KAFKA_PROVIDER" == "aws" ]]; then
-    #   reset_colors
-    #   echo "${TEXT_DIM}"
-    #   echo_h4 "Kafka - AWS MSK" "    "
-    #   echo_reset_dim "VPC ID .................... ${COLOR_MAGENTA}${VPC_ID}"
-    #   echo_reset_dim "Instance region ........... ${COLOR_MAGENTA}${AWS_REGION}"
-    #   echo_reset_dim "Instance username ......... ${COLOR_MAGENTA}${AWS_KAFKA_USER_NAME}"
-    #   echo_reset_dim "Instance type ............. ${COLOR_MAGENTA}${AWS_MSK_INSTANCE_TYPE}"
-    #   echo_reset_dim "Number of broker nodes .... ${COLOR_MAGENTA}${AWS_MSK_INSTANCE_NUMBER}"
-    #   echo_reset_dim "Storage size (GB) ......... ${COLOR_MAGENTA}${AWS_MSK_VOLUME_SIZE}"
-    #   echo_reset_dim "Availability Zone 1 CIDR .. ${COLOR_MAGENTA}${AWS_MSK_CIDR_AZ1}"
-    #   echo_reset_dim "Availability Zone 2 CIDR .. ${COLOR_MAGENTA}${AWS_MSK_CIDR_AZ2}"
-    #   echo_reset_dim "Availability Zone 3 CIDR .. ${COLOR_MAGENTA}${AWS_MSK_CIDR_AZ3}"
-    #   echo_reset_dim "Ingress CIDR .............. ${COLOR_MAGENTA}${AWS_MSK_INGRESS_CIDR}"
-    #   echo_reset_dim "Egress CIDR ............... ${COLOR_MAGENTA}${AWS_MSK_EGRESS_CIDR}"
-    # fi
+            elif self.getParam("kafka_provider") == "ibm":
+                self.printParamSummary("Resource group", "eventstreams_resourcegroup")
+                self.printParamSummary("Instance name", "eventstreams_name")
+                self.printParamSummary("Instance location", "eventstreams_location")
 
-    # reset_colors
-    # echo "${TEXT_DIM}"
-    # echo_h4 "Grafana" "    "
-    # if [[ "${GRAFANA_ACTION}" == 'install' ]]
-    #   then echo_reset_dim "Include Grafana ........... ${COLOR_MAGENTA}Yes"
-    #   else echo_reset_dim "Include Grafana ........... ${COLOR_RED}Package not available"
-    # fi
+            elif self.getParam("kafka_provider") == "aws":
+                self.printParamSummary("VPC ID", "vpc_id")
+                self.printParamSummary("Instance region", "aws_region")
+                self.printParamSummary("Instance username", "aws_kafka_user_name")
+                self.printParamSummary("Instance type", "aws_msk_instance_type")
+                self.printParamSummary("Number of broker nodes", "aws_msk_instance_number")
+                self.printParamSummary("Storage size (GB)", "aws_msk_volume_size")
+                self.printParamSummary("Availability Zone 1 CIDR", "aws_msk_cidr_az1")
+                self.printParamSummary("Availability Zone 2 CIDR", "aws_msk_cidr_az2")
+                self.printParamSummary("Availability Zone 3 CIDR", "aws_msk_cidr_az3")
+                self.printParamSummary("Ingress CIDR", "aws_msk_ingress_cidr")
+                self.printParamSummary("Egress CIDR", "aws_msk_egress_cidr")
 
+    def grafanaSummary(self) -> None:
+        self.printH2("Grafana")
+        self.printSummary("Install Grafana", "Install" if self.getParam("grafana_action") == "install" else "Do Not Install")
 
 
     # reset_colors
@@ -258,11 +264,6 @@ class InstallSummarizerMixin():
     # else
     #   echo_reset_dim "Workload Scale Profile .... ${COLOR_MAGENTA}Burstable"
     # fi
-
-    # reset_colors
-    # echo "${TEXT_DIM}"
-    # echo_h4 "Cluster Ingress Configuration" "    "
-    # echo_reset_dim "Certificate Secret ........ ${COLOR_MAGENTA}${OCP_INGRESS_TLS_SECRET_NAME:-<default>}"
 
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")
@@ -291,6 +292,8 @@ class InstallSummarizerMixin():
         self.inspectionSummary()
 
         # Application Dependencies
+        self.grafanaSummary()
         self.mongoSummary()
         self.db2Summary()
+        self.kafkaSummary()
         self.cp4dSummary()

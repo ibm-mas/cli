@@ -466,10 +466,6 @@ function install_noninteractive() {
 
 function install_interactive() {
 
-  install_config_kafka
-  install_config_turbonomic
-  install_config_additional_configs
-
   if [[ "$SNO_MODE" == "true" ]]; then
     install_config_storage_classes_sno
   else

@@ -7,6 +7,7 @@
 # http://www.eclipse.org/legal/epl-v10.html
 #
 # *****************************************************************************
+
 from re import match
 from os import path
 
