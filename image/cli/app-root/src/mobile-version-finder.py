@@ -16,9 +16,10 @@ from kubernetes import client, config
 instanceId = os.getenv("INSTANCE_ID")
 workspaceId = os.getenv("WORKSPACE_ID")
 uploadFile = os.getenv("UPLOAD_FILE")
+buildNum = os.getenv("BUILD_NUM")
 artKey = os.getenv("ARTIFACTORY_TOKEN")
 artDir = os.getenv("ARTIFACTORY_UPLOAD_DIR")
-output_filename = "mobile-is-versions.json"
+output_filename = f"{instanceId}-{buildNum}-mobile-is-versions.json"
 
 
 class RunCmdResult(object):
@@ -158,14 +159,21 @@ def get_graphite_versions():
     pathlist = Path(".").glob("*.zip")
     for app_zip_file in pathlist:
         zip_file_path = f"./{str(app_zip_file)}"
+        zip_file_prefix = zip_file_path.split(".zip")
         with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
             try:
                 zip_ref.extract("build.json", ".")
-                zip_file_prefix = zip_file_path.split(".zip")
-                os.rename("./build.json", f"{zip_file_prefix[0]}.json")
             except KeyError as e:
-                print(f"There is no build.json file in {zip_file_path}")
+                print(f"There is no build.json file in {app_zip_file}")
+                with open("build.json", "w", encoding="utf-8") as dummy_file:
+                    warn_json = {
+                        "WARN": {
+                            str(app_zip_file): "File does not contain version information"
+                        }
+                    }
+                    json.dump(warn_json, dummy_file, indent=4)
             zip_ref.close()
+        os.rename("./build.json", f"{zip_file_prefix[0]}.json")
         os.remove(zip_file_path)
 
     # dictionary that will contain all graphite versions for all found zips
@@ -178,26 +186,29 @@ def get_graphite_versions():
         with open(path_in_str, "r", encoding="utf-8") as openfile:
             json_object = json.load(openfile)
 
-        graphite_json.update(
-            {
-                json_object.get("applicationId"): {
-                    "version": json_object.get("version"),
-                    "applicationId": json_object.get("applicationId"),
-                    "applicationTitle": json_object.get("applicationTitle"),
-                    "mobileVersion": json_object.get("mobileVersion"),
-                    "buildToolsVersion": json_object.get("buildToolsVersion"),
-                    "appProcessorVersion": json_object.get("appProcessorVersion"),
+        if json_object.get("WARN") is not None:
+            graphite_json.update({"WARN": json_object.get("WARN")})
+        else:
+            graphite_json.update(
+                {
+                    json_object.get("applicationId"): {
+                        "version": json_object.get("version"),
+                        "applicationId": json_object.get("applicationId"),
+                        "applicationTitle": json_object.get("applicationTitle"),
+                        "mobileVersion": json_object.get("mobileVersion"),
+                        "buildToolsVersion": json_object.get("buildToolsVersion"),
+                        "appProcessorVersion": json_object.get("appProcessorVersion"),
+                    }
                 }
-            }
-        )
+            )
 
-        # removing empty mobile version or non mobile apps
-        if json_object.get("mobileVersion") is None:
-            del graphite_json[json_object.get("applicationId")]["mobileVersion"]
+            # removing empty mobile version or non mobile apps
+            if json_object.get("mobileVersion") is None:
+                del graphite_json[json_object.get("applicationId")]["mobileVersion"]
 
-        # removing empty title from apps with no title
-        if json_object.get("applicationTitle") is None:
-            del graphite_json[json_object.get("applicationId")]["applicationTitle"]
+            # removing empty title from apps with no title
+            if json_object.get("applicationTitle") is None:
+                del graphite_json[json_object.get("applicationId")]["applicationTitle"]
 
         # delete build.json file
         os.remove(path_in_str)
