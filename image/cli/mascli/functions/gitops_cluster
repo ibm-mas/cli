@@ -33,11 +33,6 @@ Operator Catalog (Optional):
       --catalog-image ${COLOR_YELLOW}MAS_CATALOG_IMAGE${TEXT_RESET}       Container image to use for IBM Maximo Operator Catalog (defaults to 'icr.io/cpopen/ibm-maximo-operator-catalog')
       --catalog-action ${COLOR_YELLOW}MAS_CATALOG_ACTION${TEXT_RESET}     Action to take for IBM Maximo Operator Catalog ('install', 'update' or 'none'. Default is 'install')
 
-IBM Cloud Pak Foundational Services (Optional):
-      --common-services-channel ${COLOR_YELLOW}COMMON_SERVICES_CHANNEL${TEXT_RESET} Subscription channel for IBM Cloud Pak Foundation Services (defaults to 'v3.23')
-      --common-services-action ${COLOR_YELLOW}COMMON_SERVICES_ACTION${TEXT_RESET}   Action to take for IBM Cloud Pak Foundation Services ('install', 'upgrade' or 'none'. Default is 'install')
-      --ocp-cluster-domain ${COLOR_YELLOW}OCP_CLUSTER_DOMAIN${TEXT_RESET}             Open Shift Cluster domain
-
 IBM CIS Cert Manager:
       --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                         DNS Provider, Currently supported CIS (Akamai support inprogress)
 
@@ -49,6 +44,18 @@ Automatic GitHub Push (Optional):
   -S, --github-ssh ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}              Git ssh key path
   -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}           Git branch to commit to of your GitOps repository
   -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}   Git commit message to use when committing to of your GitOps repository
+
+Cluster Promotion (Optional):
+      --cluster-promotion ${COLOR_YELLOW}CLUSTER_PROMOTION${TEXT_RESET}                                         Enable cluster promotion processing
+      --cluster-promotion-target-github-pat ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_PAT${TEXT_RESET}     The github PAT to use when commiting the change to the target promotion repo
+      --cluster-promotion-target-github-host ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_HOST${TEXT_RESET}   The github host to use when commiting the change to the target promotion repo
+      --cluster-promotion-target-github-repo ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_REPO${TEXT_RESET}   The github repo to use when commiting the change to the target promotion repo
+      --cluster-promotion-target-github-org ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_ORG${TEXT_RESET}     The github org to use when commiting the change to the target promotion repo
+      --cluster-promotion-target-github-path ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_PATH${TEXT_RESET}   The path in the github target repo to update under when commiting the change to the target promotion repo
+      --cluster-promotion-target-git-branch ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GIT_BRANCH${TEXT_RESET}     The git branch to use when commiting the change to the target promotion repo
+      --cluster-promotion-create-target-pr ${COLOR_YELLOW}CLUSTER_PROMOTION_CREATE_TARGET_PR${TEXT_RESET}       Create a PR to the CLUSTER_PROMOTION_TARGET_GIT_BRANCH branch instead of commiting directly to it.
+      --cluster-promotion-target-pr-title ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_PR_TITLE${TEXT_RESET}         The title of the PR if a PR is to be created
+      --cluster-promotion-cluster-values ${COLOR_YELLOW}CLUSTER_PROMOTION_CLUSTER_VALUES${TEXT_RESET}           A list of values in json format to update in the target git repo.
 
 Notifications:
       --slack-channel-id ${COLOR_YELLOW}SLACK_CHANNEL_ID${TEXT_RESET} Slack channel for ArgoCD to notify when an app sync has completed or failed
@@ -66,10 +73,7 @@ function gitops_cluster_noninteractive() {
   SM_DELIM="/"
 
   export GITHUB_PUSH="false"
-  export MAS_CATALOG_ACTION=${MAS_CATALOG_ACTION:-"install"}
-  export COMMON_SERVICES_ACTION=${COMMON_SERVICES_ACTION:-"install"}
   export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"gitops-cluster commit"}
-  export COMMON_SERVICES_CHANNEL=${COMMON_SERVICES_CHANNEL:-"v3.23"}
   export MAS_CATALOG_VERSION=${MAS_CATALOG_VERSION:-"v8-240130-amd64"}
   export MAS_CATALOG_IMAGE=${MAS_CATALOG_IMAGE:-"icr.io/cpopen/ibm-maximo-operator-catalog"}
   export ICR_USERNAME=cp
@@ -134,17 +138,6 @@ function gitops_cluster_noninteractive() {
       --catalog-image)
         export MAS_CATALOG_IMAGE=$1 && shift
         ;;
-      --catalog-action)
-        export MAS_CATALOG_ACTION=$1 && shift
-        ;;
-
-      # IBM Cloud Pak Foundational Services
-      --common-services-channel)
-        export COMMON_SERVICES_CHANNEL=$1 && shift
-        ;;
-      --common-services-action)
-        export COMMON_SERVICES_ACTION=$1 && shift
-        ;;
 
       # Automatic GitHub Push (Optional)
       -P|--github-push)
@@ -172,6 +165,38 @@ function gitops_cluster_noninteractive() {
       # Notifications
       --slack-channel-id)
         export SLACK_CHANNEL_ID=$1 && shift
+        ;;
+
+      # Cluster Promotion
+      --cluster-promotion)
+        export CLUSTER_PROMOTION=true
+        ;;
+      --cluster-promotion-target-github-pat)
+        export CLUSTER_PROMOTION_TARGET_GITHUB_PAT=$1 && shift
+        ;;
+      --cluster-promotion-target-github-host)
+        export CLUSTER_PROMOTION_TARGET_GITHUB_HOST=$1 && shift
+        ;;
+      --cluster-promotion-target-github-repo)
+        export CLUSTER_PROMOTION_TARGET_GITHUB_REPO=$1 && shift
+        ;;
+      --cluster-promotion-target-github-org)
+        export CLUSTER_PROMOTION_TARGET_GITHUB_ORG=$1 && shift
+        ;;
+      --cluster-promotion-target-github-path)
+        export CLUSTER_PROMOTION_TARGET_GITHUB_PATH=$1 && shift
+        ;;
+      --cluster-promotion-target-git-branch)
+        export CLUSTER_PROMOTION_TARGET_GIT_BRANCH=$1 && shift
+        ;;
+      --cluster-promotion-create-target-pr)
+        export CLUSTER_PROMOTION_CREATE_TARGET_PR=true
+        ;;
+      --cluster-promotion-target-pr-title)
+        export CLUSTER_PROMOTION_TARGET_PR_TITLE=$1 && shift
+        ;;
+      --cluster-promotion-cluster-values)
+        export CLUSTER_PROMOTION_CLUSTER_VALUES=$1 && shift
         ;;
 
       # IBM CIS Cert Manager 
@@ -212,15 +237,23 @@ function gitops_cluster_noninteractive() {
 
   [[ -z "$SECRETS_PATH" ]] && gitops_cluster_help "SECRETS_PATH is not set"
 
-  if [[ "$MAS_CATALOG_ACTION" == "update" || "$MAS_CATALOG_ACTION" == "install" ]]; then
-    if [ -z $ICR_USERNAME ] || [ -z $ICR_PASSWORD ]; then
-      echo 'Missing required environment variables, make sure to set ICR_USERNAME, ICR_PASSWORD'
-      exit 1
+  if [[ "$CLUSTER_PROMOTION" == "true" ]]; then
+    [[ -z "$CLUSTER_PROMOTION_TARGET_GITHUB_PAT" ]] && gitops_cluster_help "CLUSTER_PROMOTION_TARGET_GITHUB_PAT is not set"
+    [[ -z "$CLUSTER_PROMOTION_TARGET_GITHUB_HOST" ]] && gitops_cluster_help "CLUSTER_PROMOTION_TARGET_GITHUB_HOST is not set"
+    [[ -z "$CLUSTER_PROMOTION_TARGET_GITHUB_REPO" ]] && gitops_cluster_help "CLUSTER_PROMOTION_TARGET_GITHUB_REPO is not set"
+    [[ -z "$CLUSTER_PROMOTION_TARGET_GITHUB_ORG" ]] && gitops_cluster_help "CLUSTER_PROMOTION_TARGET_GITHUB_ORG is not set"
+    [[ -z "$CLUSTER_PROMOTION_TARGET_GITHUB_PATH" ]] && gitops_cluster_help "CLUSTER_PROMOTION_TARGET_GITHUB_PATH is not set"
+    [[ -z "$CLUSTER_PROMOTION_TARGET_GIT_BRANCH" ]] && gitops_cluster_help "CLUSTER_PROMOTION_TARGET_GIT_BRANCH is not set"
+    [[ -z "$CLUSTER_PROMOTION_CREATE_TARGET_PR" ]] && gitops_cluster_help "CLUSTER_PROMOTION_CREATE_TARGET_PR is not set"
+    [[ -z "$CLUSTER_PROMOTION_CLUSTER_VALUES" ]] && gitops_cluster_help "CLUSTER_PROMOTION_CLUSTER_VALUES is not set"
+    if [[ "$CLUSTER_PROMOTION_CREATE_TARGET_PR" == "true" ]]; then
+      [[ -z "$CLUSTER_PROMOTION_TARGET_PR_TITLE" ]] && gitops_cluster_help "CLUSTER_PROMOTION_TARGET_PR_TITLE is not set"
     fi
   fi
-
-  if [[ "$COMMON_SERVICES_ACTION" == "upgrade" || "$COMMON_SERVICES_ACTION" == "install" ]]; then
-    [[ -z "$COMMON_SERVICES_CHANNEL" ]] && gitops_cluster_help "COMMON_SERVICES_CHANNEL is not set"
+  
+  if [ -z $ICR_USERNAME ] || [ -z $ICR_PASSWORD ]; then
+    echo 'Missing required environment variables, make sure to set ICR_USERNAME, ICR_PASSWORD'
+    exit 1
   fi
 }
 
@@ -279,13 +312,22 @@ function gitops_cluster() {
   echo_h2 "IBM Maximo Operator Catalog" "    "
   echo_reset_dim "Catalog Version ................ ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
   echo_reset_dim "Catalog Image .................. ${COLOR_MAGENTA}${MAS_CATALOG_IMAGE}"
-  echo_reset_dim "Catalog Action ................. ${COLOR_MAGENTA}${MAS_CATALOG_ACTION}"
   reset_colors
 
   echo "${TEXT_DIM}"
-  echo_h2 "IBM Common Services" "    "
-  echo_reset_dim "Common Services Channel  ....... ${COLOR_MAGENTA}${COMMON_SERVICES_CHANNEL}"
-  echo_reset_dim "Common Services Action ......... ${COLOR_MAGENTA}${COMMON_SERVICES_ACTION}"
+  echo_h2 "Cluster Promotion" "    "
+  echo_reset_dim "Cluster Promotion   ............. ${COLOR_MAGENTA}${CLUSTER_PROMOTION}"
+  if [[ "$CLUSTER_PROMOTION" == "true" ]]; then
+    echo_reset_dim "Github PAT  ..................... ${COLOR_MAGENTA}${CLUSTER_PROMOTION_TARGET_GITHUB_PAT:0:4}<snip>"
+    echo_reset_dim "GitHub Host  .................... ${COLOR_MAGENTA}${CLUSTER_PROMOTION_TARGET_GITHUB_HOST}"
+    echo_reset_dim "GitHub Repo  .................... ${COLOR_MAGENTA}${CLUSTER_PROMOTION_TARGET_GITHUB_REPO}"
+    echo_reset_dim "GitHub Org  ..................... ${COLOR_MAGENTA}${CLUSTER_PROMOTION_TARGET_GITHUB_ORG}"
+    echo_reset_dim "GitHub Path  .................... ${COLOR_MAGENTA}${CLUSTER_PROMOTION_TARGET_GITHUB_PATH}"
+    echo_reset_dim "Git Branch  ..................... ${COLOR_MAGENTA}${CLUSTER_PROMOTION_TARGET_GIT_BRANCH}"
+    echo_reset_dim "Create Target PR  ............... ${COLOR_MAGENTA}${CLUSTER_PROMOTION_CREATE_TARGET_PR}"
+    echo_reset_dim "Target PR Title   ............... ${COLOR_MAGENTA}${CLUSTER_PROMOTION_TARGET_PR_TITLE}"
+    echo_reset_dim "Cluster Values  ................. ${COLOR_MAGENTA}${CLUSTER_PROMOTION_CLUSTER_VALUES}"
+  fi
   reset_colors
 
   if [[ -n "$DNS_PROVIDER" ]]; then
@@ -350,6 +392,12 @@ function gitops_cluster() {
 
   sm_update_secret $SECRET_NAME_IBM_ENTITLEMENT "{\"image_pull_secret_b64\": \"${IBM_ENTITLEMENT_PULL_SECRET_B64}\", \"entitlement_key\": \"${IBM_ENTITLEMENT_B64}\"}"
 
+  if [[ "$CLUSTER_PROMOTION" == "true" ]]; then
+    export SECRET_NAME_GITHUB_PAT=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}github_pat
+    export SECRET_KEY_GITHUB_PAT=${SECRET_NAME_GITHUB_PAT}#github_pat
+    sm_update_secret $SECRET_NAME_GITHUB_PAT "{\"github_pat\": \"${CLUSTER_PROMOTION_TARGET_GITHUB_PAT}\"}"
+  fi
+
   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
 
 
@@ -367,14 +415,19 @@ function gitops_cluster() {
   echo "- Base Config"
   jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-mas-cluster-base.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-mas-cluster-base.yaml
 
-  if [[ "$MAS_CATALOG_ACTION" == "update" || "$MAS_CATALOG_ACTION" == "install" ]]; then
-    echo "- IBM Operator Catalog"
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-operator-catalog.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
+  echo "- IBM Operator Catalog"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-operator-catalog.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
+
+  echo "- Redhat Cert Manager"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/redhat-cert-manager.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/redhat-cert-manager.yaml
+  
+  if [[ "$CLUSTER_PROMOTION" == "true" ]]; then
+    ESCAPED_CLUSTER_VALUES=${CLUSTER_PROMOTION_CLUSTER_VALUES//\"/\\\"}
+    export ESCAPED_CLUSTER_VALUES=${ESCAPED_CLUSTER_VALUES//$'\n'/\\n}
+    echo "- Cluster Promotion"
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-promotion.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/cluster-promotion.yaml
   fi
-  if [[ "$COMMON_SERVICES_ACTION" == "upgrade" || "$COMMON_SERVICES_ACTION" == "install" ]]; then
-    echo "- IBM Common Services"
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/redhat-cert-manager.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/redhat-cert-manager.yaml
-  fi
+  
   if [[ -n "$DNS_PROVIDER" ]]; then
     echo "- IBM CIS Cert Manager"
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-cis-cert-manager.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-cis-cert-manager.yaml

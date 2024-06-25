@@ -251,15 +251,11 @@ spec:
         # Update the operationalmode in the mas-instance-params.yaml. Assume fvtsaas here
         yq --arg MAS_OPERATIONALMODE $MAS_OPERATIONALMODE -iY '.mas_instance.annotations."mas.ibm.com/operationalMode"= $MAS_OPERATIONALMODE' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
 
-        # Set dns.provider as empty in the mas-instance-params.yaml if deployment with cis is not enabled for that deployment day.  Assume fvtsaas here
-        export DNS_PROVIDER=$(yq -sr '.[0].dns.provider' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml)
-        export CURRENT_DATE=$(date +"%u")
-        echo "gitops-mas-initiator: DNS_PROVIDER=${DNS_PROVIDER} CURRENT_DATE=${CURRENT_DATE}"
-
         # Remove dns node when DNS_PROVIDER_CONTROL_IDEN is not set
         if [ "${DNS_PROVIDER_CONTROL_IDEN}" == "" ]; then
           yq -iY 'del(.dns)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
-          echo "gitops-mas-initiator: removed .dns node"
+          yq -iY 'del(.cluster.dns)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+          echo "gitops-mas-initiator: removed .dns / .cluster.dns node from gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml & gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml"
         fi
 
         # Deploy fvtsaas with CIS as DNS provider and Manual_certs=True on Mon, Tue, Wed, Thu, Fri
@@ -269,8 +265,8 @@ spec:
         echo "gitops-mas-initiator: .mas_instance.manual_cert_mgmt set to $MANUAL_CERTS_CONTROL_FLAG"
 
         if [[ "${DNS_PROVIDER_CONTROL_IDEN}" == "cis" ]]; then
-          yq --arg DNS_PROVIDER_CONTROL_IDEN $DNS_PROVIDER_CONTROL_IDEN -iY '.dns.provider= $DNS_PROVIDER_CONTROL_IDEN' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
-          echo "gitops-mas-initiator: .dns.provider set to $DNS_PROVIDER_CONTROL_IDEN"
+          yq --arg DNS_PROVIDER_CONTROL_IDEN $DNS_PROVIDER_CONTROL_IDEN -iY '.cluster.dns.provider= $DNS_PROVIDER_CONTROL_IDEN' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+          echo "gitops-mas-initiator: .cluster.dns.provider set to $DNS_PROVIDER_CONTROL_IDEN in gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml"
         fi
 
         #customizationList customizationArchive credentials
