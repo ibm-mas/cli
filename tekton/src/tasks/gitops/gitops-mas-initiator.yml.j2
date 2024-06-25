@@ -265,8 +265,8 @@ spec:
         echo "gitops-mas-initiator: .mas_instance.manual_cert_mgmt set to $MANUAL_CERTS_CONTROL_FLAG"
 
         if [[ "${DNS_PROVIDER_CONTROL_IDEN}" == "cis" ]]; then
-          yq --arg DNS_PROVIDER_CONTROL_IDEN $DNS_PROVIDER_CONTROL_IDEN -iY '.dns.provider= $DNS_PROVIDER_CONTROL_IDEN' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
-          echo "gitops-mas-initiator: .dns.provider set to $DNS_PROVIDER_CONTROL_IDEN in gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml"
+          yq --arg DNS_PROVIDER_CONTROL_IDEN $DNS_PROVIDER_CONTROL_IDEN -iY '.cluster.dns.provider= $DNS_PROVIDER_CONTROL_IDEN' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+          echo "gitops-mas-initiator: .cluster.dns.provider set to $DNS_PROVIDER_CONTROL_IDEN in gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml"
         fi
 
         #customizationList customizationArchive credentials
