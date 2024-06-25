@@ -114,6 +114,8 @@
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/">All Catalogs</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240625-amd64/">Jun 25 2024</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-240528-amd64/">May 28 2024</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-240430-amd64/">Apr 30 2024</a>
@@ -162,7 +164,7 @@
                 <h1 id="image-mirroring">Image Mirroring<a class="headerlink" href="#image-mirroring" title="Permanent link"></a></h1>
 <h2 id="image-mirroring-overview">Image Mirroring Overview<a class="headerlink" href="#image-mirroring-overview" title="Permanent link"></a></h2>
 <p>We recommend the use of two-phase mirroring, it is slower than direct mirroring and requires more storage capacity, but can allow you to more easily recover from network glitches and creates a clean seperation of the tasks of getting the content from the source registry and putting it into the target registry which can make debugging failures easier.</p>
-<p>This guide assumes that you are looking to mirror content for the latest release (<strong>8.11.x</strong>) from the most recent catalog update (<strong>v8-240430-amd64</strong>), and that you are installing all MAS applications.  If you are not installing certain applications or dependencies take care to remove the appropriate <code>--mirror-x</code> flags to avoid mirroring unnecessary images.</p>
+<p>This guide assumes that you are looking to mirror content for the latest release (<strong>9.0.x</strong>) from the most recent catalog update (<strong>v8-240625-amd64</strong>), and that you are installing all MAS applications.  If you are not installing certain applications or dependencies take care to remove the appropriate <code>--mirror-x</code> flags to avoid mirroring unnecessary images.</p>
 <h2 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link"></a></h2>
 <p>Set the following environment variables that will be used in each stage:</p>
 <pre><code class="language-bash">export IBM_ENTITLEMENT_KEY=xxx
@@ -178,50 +180,50 @@ export REDHAT_PASSWORD=xxx
 <p>Let's start simple and just get the MAS Core and IBM Maximo Operator Catalog mirrored to the registry, this shouldn't take long and provides an early measure of the download and upload performance to help estimate the time to complete the larger stages.</p>
 <pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/core \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-240430-amd64 -C 8.11.x \
+  -c v8-240625-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
 <p>Once the images are mirrored to local disk, we will mirror them from local disk to your registry, this should complete in very little time, depends on the speed of your internal network:</p>
 <pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/core \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-240430-amd64 -C 8.11.x \
+  -c v8-240625-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core
 </code></pre>
 <h2 id="stage-2-apps">Stage 2 - Apps<a class="headerlink" href="#stage-2-apps" title="Permanent link"></a></h2>
 <pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-240430-amd64 -C 8.11.x \
+  -c v8-240625-amd64 -C 9.0.x \
   --mirror-assist --mirror-hputilities --mirror-iot --mirror-manage --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
 <pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-240430-amd64 -C 8.11.x \
+  -c v8-240625-amd64 -C 9.0.x \
   --mirror-assist --mirror-hputilities --mirror-iot --mirror-manage --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection
 </code></pre>
 <h2 id="stage-3-cp4d">Stage 3 - CP4D<a class="headerlink" href="#stage-3-cp4d" title="Permanent link"></a></h2>
 <pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/cp4d \
   -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-240430-amd64 -C 8.11.x \
+  -c v8-240625-amd64 -C 9.0.x \
   --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
 <pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/cp4d \
   -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-240430-amd64 -C 8.11.x \
+  -c v8-240625-amd64 -C 9.0.x \
   --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl
 </code></pre>
 <h2 id="stage-4-other-dependencies">Stage 4 - Other Dependencies<a class="headerlink" href="#stage-4-other-dependencies" title="Permanent link"></a></h2>
 <pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-240430-amd64 -C 8.11.x \
+  -c v8-240625-amd64 -C 9.0.x \
   --mirror-mongo --mirror-tsm --mirror-uds --mirror-sls --mirror-cfs --mirror-appconnect --mirror-db2 \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD
 </code></pre>
 <pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v8-240430-amd64 -C 8.11.x \
+  -c v8-240625-amd64 -C 9.0.x \
   --mirror-mongo --mirror-tsm --mirror-uds --mirror-sls --mirror-cfs --mirror-appconnect --mirror-db2
 </code></pre>
               

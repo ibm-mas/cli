@@ -140,6 +140,8 @@
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/">All Catalogs</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240625-amd64/">Jun 25 2024</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-240528-amd64/">May 28 2024</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-240430-amd64/">Apr 30 2024</a>
@@ -208,8 +210,8 @@
 </ul>
 <h3 id="maximo-operator-catalog-selection">Maximo Operator Catalog Selection<a class="headerlink" href="#maximo-operator-catalog-selection" title="Permanent link"></a></h3>
 <ul>
-<li><code>-c|--catalog MAS_CATALOG_VERSION</code> Maximo Operator Catalog Version to mirror (e.g. v8-230627-amd64)</li>
-<li><code>-C|--channel MAS_CHANNEL</code> Maximo Application Suite Channel to mirror (e.g. 8.10.x)</li>
+<li><code>-c|--catalog MAS_CATALOG_VERSION</code> Maximo Operator Catalog Version to mirror (e.g. v9-240625-amd64)</li>
+<li><code>-C|--channel MAS_CHANNEL</code> Maximo Application Suite Channel to mirror (e.g. 9.0.x)</li>
 </ul>
 <h3 id="content-selection-core-platform">Content Selection (Core Platform)<a class="headerlink" href="#content-selection-core-platform" title="Permanent link"></a></h3>
 <ul>
@@ -424,7 +426,7 @@
   --mode direct --dir /tmp/registry \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
   -H mirror.mydomain.com -P 5000 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
-  -c v8-240430-amd64 -C 8.11.x \
+  -c v8-240625-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
   --mirror-cfs --mirror-uds --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --no-confirm
@@ -438,7 +440,7 @@ docker run -ti --rm -v /registry:/mnt/registry quay.io/ibmmas/cli:9.0.0 mas mirr
   --mode to-filesystem --dir /mnt/registry \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
   -H mirror.mydomain.com -P 5000 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
-  -c v8-240430-amd64 -C 8.11.x \
+  -c v8-240625-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
   --mirror-cfs --mirror-uds --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --no-confirm
@@ -457,7 +459,7 @@ docker run -ti --rm -v /registry:/mnt/registry mirror.mydomain.com:5000/ibmmas/c
   --mode from-filesystem --dir /mnt/registry \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
   -H mirror.mydomain.com -P 5000 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
-  -c v8-240430-amd64 -C 8.11.x \
+  -c v8-240625-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
   --mirror-cfs --mirror-uds --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --no-confirm
