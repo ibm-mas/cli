@@ -1407,7 +1407,7 @@ spec:
     # 6.4 Manage JDBC Config
     - name: gitops-delete-jdbc-config
       runAfter:
-        - gitops-deprovision-db2u-database
+        - gitops-deprovision-mas-app-install-manage
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
