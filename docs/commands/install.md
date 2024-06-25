@@ -6,7 +6,7 @@ Usage
 `mas install [options]`
 
 ### Catalog Selection (Required):
-- `-c, --mas-catalog-version MAS_CATALOG_VERSION` IBM Maximo Operator Catalog to install (e.g. v8-amd64)
+- `-c, --mas-catalog-version MAS_CATALOG_VERSION` IBM Maximo Operator Catalog to install (e.g. v9-240625-amd64 or v8-240528-amd64)
 
 ### Entitlement & Licensing (Required):
 - `--ibm-entitlement-key IBM_ENTITLEMENT_KEY`  IBM entitlement key
@@ -168,7 +168,7 @@ Non-Interactive Install
 ```bash
 docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
 export ENTITLEMENT_KEY=xxx
-mas install -i mas1 -w ws1 -W "My Workspace" -c v8-amd64 --mas-channel 8.10.x \
+mas install -i mas1 -w ws1 -W "My Workspace" -c v9-240625-amd64 --mas-channel 9.0.x \
   --ibm-entitlement-key $ENTITLEMENT_KEY \
   --license-id xxxxxxxxxxxx --license-file /mnt/home/entitlement.lic \
   --uds-email myemail@email.com --uds-firstname John --uds-lastname Barnes \

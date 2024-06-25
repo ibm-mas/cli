@@ -29,11 +29,11 @@ function validate_catalog_source {
   catalogDisplayName=$(oc -n openshift-marketplace get catalogsource ibm-operator-catalog -o yaml --ignore-not-found=true | yq -r ".spec.displayName")
   catalogImage=$(oc -n openshift-marketplace get catalogsource ibm-operator-catalog -o yaml --ignore-not-found=true | yq -r ".spec.image")
 
-  if [[ "$catalogDisplayName" =~ .+(v8-[0-9]+-amd64) ]]; then
+  if [[ "$catalogDisplayName" =~ .+(v[89]-[0-9]+-amd64) ]]; then
     # catalogId = v8-yymmdd-amd64
     # catalogVersion = yymmdd
-    catalogId=$(sed -E "s/.+\\((v8-[0-9]+-amd64)\\)/\1/" <<< $catalogDisplayName)
-    catalogVersion=$(sed -E "s/.+\\(v8-([0-9]+)-amd64\\)/\1/" <<< $catalogDisplayName)
+    catalogId=$(sed -E "s/.+\\((v[89]-[0-9]+-amd64)\\)/\1/" <<< $catalogDisplayName)
+    catalogVersion=$(sed -E "s/.+\\(v[89]-([0-9]+)-amd64\\)/\1/" <<< $catalogDisplayName)
   elif [[ "$catalogDisplayName" =~ .+(v8-amd64) ]]; then
     catalogId=v8-amd64
     catalogVersion=v8-amd64
@@ -533,8 +533,8 @@ function install_interactive() {
 
   if [[ -n "$DEV_MODE" ]]; then
     # Development mode
-    prompt_for_input "Select Catalog Source" MAS_CATALOG_VERSION "v8-master-amd64"
-    prompt_for_input "Select Subscription Channel" MAS_CHANNEL "8.11.x-dev"
+    prompt_for_input "Select Catalog Source" MAS_CATALOG_VERSION "v9-master-amd64"
+    prompt_for_input "Select Subscription Channel" MAS_CHANNEL "9.0.x-dev"
   elif [[ -z "$AIRGAP_MODE" ]]; then
     prompt_for_confirm "Enable automatic updates with the online dynamic catalog?" USE_ONLINE_CATALOG
     if [[ "$USE_ONLINE_CATALOG" == "true" ]]; then
