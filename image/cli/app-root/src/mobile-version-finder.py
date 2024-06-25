@@ -16,9 +16,11 @@ from kubernetes import client, config
 instanceId = os.getenv("INSTANCE_ID")
 workspaceId = os.getenv("WORKSPACE_ID")
 uploadFile = os.getenv("UPLOAD_FILE")
+buildNum = os.getenv("BUILD_NUM")
 artKey = os.getenv("ARTIFACTORY_TOKEN")
 artDir = os.getenv("ARTIFACTORY_UPLOAD_DIR")
-output_filename = "mobile-is-versions.json"
+output_filename = f"{instanceId}-{buildNum}-mobile-is-versions.json"
+
 
 class RunCmdResult(object):
     def __init__(self, returnCode, output, error):
@@ -31,6 +33,7 @@ class RunCmdResult(object):
 
     def failed(self):
         return self.rc != 0
+
 
 def run_cmd(cmdArray, timeout=630):
     """
@@ -51,7 +54,8 @@ def run_cmd(cmdArray, timeout=630):
             output, error = p.communicate(timeout=timeout)
             return RunCmdResult(p.returncode, output, error)
         except TimeoutExpired as e:
-            return RunCmdResult(127, 'TimeoutExpired', str(e))
+            return RunCmdResult(127, "TimeoutExpired", str(e))
+
 
 def get_graphite_versions():
     # This list will contains all files found in the maxinst pod
@@ -60,7 +64,10 @@ def get_graphite_versions():
     # Downloads all zip files from maxinst container
     try:
         pods = dynClient.resources.get(api_version="v1", kind="Pod")
-        podList = pods.get(namespace=f"mas-{instanceId}-manage", label_selector='mas.ibm.com/appType=maxinstudb')
+        podList = pods.get(
+            namespace=f"mas-{instanceId}-manage",
+            label_selector="mas.ibm.com/appType=maxinstudb",
+        )
 
         if podList is None or podList.items is None or len(podList.items) == 0:
             pass
@@ -68,9 +75,18 @@ def get_graphite_versions():
             podName = podList.items[0].metadata.name
 
             # list all graphite zip packages in maxinst pod
-            ocExecCommand = ["oc", "exec", "-n", f"mas-{instanceId}-manage", podName, "--", "ls", "/opt/IBM/SMP/maximo/tools/maximo/en/graphite/apps"]
+            ocExecCommand = [
+                "oc",
+                "exec",
+                "-n",
+                f"mas-{instanceId}-manage",
+                podName,
+                "--",
+                "ls",
+                "/opt/IBM/SMP/maximo/tools/maximo/en/graphite/apps",
+            ]
             result = run_cmd(ocExecCommand)
-            ls_result = result.out.decode('utf-8')
+            ls_result = result.out.decode("utf-8")
             apps_list = ls_result.split("\n")
             # removes last empty value from the list
             apps_list.pop()
@@ -79,10 +95,13 @@ def get_graphite_versions():
             for a in apps_list:
                 print("Downloading:", a)
                 ocExecCommand = [
-                    "oc", "cp", "-n", f"mas-{instanceId}-manage", 
+                    "oc",
+                    "cp",
+                    "-n",
+                    f"mas-{instanceId}-manage",
                     f"{podName}:/opt/IBM/SMP/maximo/tools/maximo/en/graphite/apps/{a}",
                     f"./{a}",
-                    "--retries=10"
+                    "--retries=10",
                 ]
                 run_cmd(ocExecCommand)
 
@@ -90,11 +109,13 @@ def get_graphite_versions():
         print(f"Unable to download mobile packages from maxinst pod: {e}")
         sys.exit(1)
 
-
     # Downloading navigator from mobileapi pod
     try:
         pods = dynClient.resources.get(api_version="v1", kind="Pod")
-        podList = pods.get(namespace=f"mas-{instanceId}-core", label_selector=f'app={instanceId}-mobileapi')
+        podList = pods.get(
+            namespace=f"mas-{instanceId}-core",
+            label_selector=f"app={instanceId}-mobileapi",
+        )
 
         if podList is None or podList.items is None or len(podList.items) == 0:
             pass
@@ -102,9 +123,18 @@ def get_graphite_versions():
             podName = podList.items[0].metadata.name
 
             # list navigator zip packages in mobileapi pod
-            ocExecCommand = ["oc", "exec", "-n", f"mas-{instanceId}-core", podName, "--", "ls", "/etc/mobile/packages"]
+            ocExecCommand = [
+                "oc",
+                "exec",
+                "-n",
+                f"mas-{instanceId}-core",
+                podName,
+                "--",
+                "ls",
+                "/etc/mobile/packages",
+            ]
             result = run_cmd(ocExecCommand)
-            ls_result = result.out.decode('utf-8')
+            ls_result = result.out.decode("utf-8")
             apps_list = ls_result.split("\n")
             # removes last empty value from the list
             apps_list.pop()
@@ -112,58 +142,73 @@ def get_graphite_versions():
             for a in apps_list:
                 print("Downloading:", a)
                 ocExecCommand = [
-                    "oc", "cp", "-n", f"mas-{instanceId}-core", 
+                    "oc",
+                    "cp",
+                    "-n",
+                    f"mas-{instanceId}-core",
                     f"{podName}:/etc/mobile/packages/{a}",
                     f"./{a}",
-                    "--retries=10"
+                    "--retries=10",
                 ]
                 run_cmd(ocExecCommand)
     except Exception as e:
         print(f"Unable to download mobileapi navigator package from mobileapi pod: {e}")
         sys.exit(1)
 
-
     # Extracting build.json from each file and deleting zip
-    pathlist = Path(".").glob('*.zip')
+    pathlist = Path(".").glob("*.zip")
     for app_zip_file in pathlist:
         zip_file_path = f"./{str(app_zip_file)}"
-        with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
-            zip_ref.extract('build.json', '.')
-            zip_ref.close()
         zip_file_prefix = zip_file_path.split(".zip")
-        os.rename('./build.json', f'{zip_file_prefix[0]}.json')
+        with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
+            try:
+                zip_ref.extract("build.json", ".")
+            except KeyError as e:
+                print(f"There is no build.json file in {app_zip_file}")
+                with open("build.json", "w", encoding="utf-8") as dummy_file:
+                    warn_json = {
+                        "WARN": {
+                            str(app_zip_file): "File does not contain version information"
+                        }
+                    }
+                    json.dump(warn_json, dummy_file, indent=4)
+            zip_ref.close()
+        os.rename("./build.json", f"{zip_file_prefix[0]}.json")
         os.remove(zip_file_path)
 
     # dictionary that will contain all graphite versions for all found zips
     graphite_json = {}
 
-    pathlist = Path(".").glob('*.json')
+    pathlist = Path(".").glob("*.json")
     for path in pathlist:
         path_in_str = str(path)
 
-        with open(path_in_str, 'r', encoding="utf-8") as openfile:
+        with open(path_in_str, "r", encoding="utf-8") as openfile:
             json_object = json.load(openfile)
 
-        graphite_json.update(
-            {
-                json_object.get("applicationId"): {
-                    "version": json_object.get("version"),
-                    "applicationId": json_object.get("applicationId"),
-                    "applicationTitle": json_object.get("applicationTitle"),
-                    "mobileVersion": json_object.get("mobileVersion"),
-                    "buildToolsVersion": json_object.get("buildToolsVersion"),
-                    "appProcessorVersion": json_object.get("appProcessorVersion")
+        if json_object.get("WARN") is not None:
+            graphite_json.update({"WARN": json_object.get("WARN")})
+        else:
+            graphite_json.update(
+                {
+                    json_object.get("applicationId"): {
+                        "version": json_object.get("version"),
+                        "applicationId": json_object.get("applicationId"),
+                        "applicationTitle": json_object.get("applicationTitle"),
+                        "mobileVersion": json_object.get("mobileVersion"),
+                        "buildToolsVersion": json_object.get("buildToolsVersion"),
+                        "appProcessorVersion": json_object.get("appProcessorVersion"),
+                    }
                 }
-            }
-        )
+            )
 
-        # removing empty mobile version or non mobile apps
-        if json_object.get("mobileVersion") is None:
-            del graphite_json[json_object.get("applicationId")]["mobileVersion"]
+            # removing empty mobile version or non mobile apps
+            if json_object.get("mobileVersion") is None:
+                del graphite_json[json_object.get("applicationId")]["mobileVersion"]
 
-        # removing empty title from apps with no title
-        if json_object.get("applicationTitle") is None:
-            del graphite_json[json_object.get("applicationId")]["applicationTitle"]
+            # removing empty title from apps with no title
+            if json_object.get("applicationTitle") is None:
+                del graphite_json[json_object.get("applicationId")]["applicationTitle"]
 
         # delete build.json file
         os.remove(path_in_str)
@@ -173,6 +218,7 @@ def get_graphite_versions():
 
     return graphite_json_sorted
 
+
 def get_mobile_and_is_image_tags():
 
     images_json = {}
@@ -180,7 +226,10 @@ def get_mobile_and_is_image_tags():
     # getting mobileapi image version from entitymgr-suite pod
     try:
         pods = dynClient.resources.get(api_version="v1", kind="Pod")
-        podList = pods.get(namespace=f"mas-{instanceId}-core", label_selector=f'app={instanceId}-entitymgr-suite')
+        podList = pods.get(
+            namespace=f"mas-{instanceId}-core",
+            label_selector=f"app={instanceId}-entitymgr-suite",
+        )
 
         if podList is None or podList.items is None or len(podList.items) == 0:
             pass
@@ -188,11 +237,20 @@ def get_mobile_and_is_image_tags():
             podName = podList.items[0].metadata.name
 
             # list navigator zip packages in mobileapi pod
-            ocExecCommand = ["oc", "exec", "-n", f"mas-{instanceId}-core", podName, "--", "cat", "/opt/ansible/roles/suite/vars/images.yml"]
+            ocExecCommand = [
+                "oc",
+                "exec",
+                "-n",
+                f"mas-{instanceId}-core",
+                podName,
+                "--",
+                "cat",
+                "/opt/ansible/roles/suite/vars/images.yml",
+            ]
             result = run_cmd(ocExecCommand)
-            cat_result = result.out.decode('utf-8')
+            cat_result = result.out.decode("utf-8")
             images = yaml.safe_load(cat_result)
-            images_json.update({"mobileapi": images['defaultTags']['mobileapi']})
+            images_json.update({"mobileapi": images["defaultTags"]["mobileapi"]})
     except Exception as e:
         print(f"Unable to catch images file from entitymgr pod: {e}")
         sys.exit(1)
@@ -200,7 +258,10 @@ def get_mobile_and_is_image_tags():
     # getting industry solutions images version from entitymgr-ws
     try:
         pods = dynClient.resources.get(api_version="v1", kind="Pod")
-        podList = pods.get(namespace=f"mas-{instanceId}-manage", label_selector='mas.ibm.com/appType=entitymgr-ws-operator')
+        podList = pods.get(
+            namespace=f"mas-{instanceId}-manage",
+            label_selector="mas.ibm.com/appType=entitymgr-ws-operator",
+        )
 
         if podList is None or podList.items is None or len(podList.items) == 0:
             pass
@@ -208,11 +269,20 @@ def get_mobile_and_is_image_tags():
             podName = podList.items[0].metadata.name
 
             # list navigator zip packages in mobileapi pod
-            ocExecCommand = ["oc", "exec", "-n", f"mas-{instanceId}-manage", podName, "--", "cat", "/opt/ansible/roles/workspace/vars/images.yml"]
+            ocExecCommand = [
+                "oc",
+                "exec",
+                "-n",
+                f"mas-{instanceId}-manage",
+                podName,
+                "--",
+                "cat",
+                "/opt/ansible/roles/workspace/vars/images.yml",
+            ]
             result = run_cmd(ocExecCommand)
-            cat_result = result.out.decode('utf-8')
+            cat_result = result.out.decode("utf-8")
             images = yaml.safe_load(cat_result)
-            images_json.update(images['defaultTags'])
+            images_json.update(images["defaultTags"])
 
     except Exception as e:
         print(f"Unable to catch images file from entitymgr pod: {e}")
@@ -222,23 +292,21 @@ def get_mobile_and_is_image_tags():
 
     return images_json_sorted
 
+
 def artifactory_upload():
 
-    url = artDir + '/' + output_filename
+    url = artDir + "/" + output_filename
     bearer = f"Bearer {artKey}"
-    headers = {
-        'content-type': 'application/json',
-        'Authorization': bearer
-    }
+    headers = {"content-type": "application/json", "Authorization": bearer}
 
-    with open(output_filename, 'rb') as f:
+    with open(output_filename, "rb") as f:
         r = requests.put(url, data=f, headers=headers, timeout=10)
 
     if r.status_code != 201:
         print("Upload failed.")
     else:
         print("Upload successful")
-        print("Download URL:", r.json()['downloadUri'])
+        print("Download URL:", r.json()["downloadUri"])
 
 
 if __name__ == "__main__":
@@ -265,10 +333,7 @@ if __name__ == "__main__":
     print("Generating output file with versions")
     mobile_is_versions = {}
     mobile_is_versions.update(
-        {
-            "graphite_versions": graphite_versions,
-            "images_versions": img_versions
-        }
+        {"graphite_versions": graphite_versions, "images_versions": img_versions}
     )
 
     with open(output_filename, "w", encoding="utf-8") as outfile:
