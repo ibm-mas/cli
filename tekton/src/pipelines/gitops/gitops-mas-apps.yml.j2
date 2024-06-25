@@ -1405,7 +1405,7 @@ spec:
           values: [""]
 
     # 6.4 Manage JDBC Config
-    - name: gitops-delete-jdbc-config
+    - name: gitops-delete-jdbc-config-manage
       runAfter:
         - gitops-deprovision-mas-app-install-manage
       params:
@@ -1433,6 +1433,8 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
       taskRef:
         kind: Task
         name: gitops-delete-jdbc-config
