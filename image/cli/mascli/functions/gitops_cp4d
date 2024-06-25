@@ -26,8 +26,6 @@ IBM CP4D:
       --cpd-product-version ${COLOR_YELLOW}CPD_PRODUCT_VERSION${TEXT_RESET}                    CP4D Product Version
       --cpd-instance-namespace ${COLOR_YELLOW}CPD_INSTANCE_NAMESPACE{TEXT_RESET}               CP4D Instance namespace to use
       --cpd-operators-namespace ${COLOR_YELLOW}CPD_OPERATORS_NAMESPACE${TEXT_RESET}            CP4D Operators namespace to use
-      --cpd-channel ${COLOR_YELLOW}CPD_CHANNEL${TEXT_RESET}                                    CP4D Channel
-      --common-services-channel ${COLOR_YELLOW}COMMON_SERVICES_CHANNEL${TEXT_RESET}            CommonServices Channel
       --cpd-primary-storage-class ${COLOR_YELLOW}CPD_PRIMARY_STORAGE_CLASS${TEXT_RESET}        CP4D Primary StorageClass
       --cpd-metadata-storage-class ${COLOR_YELLOW}CPD_METADATA_STORAGE_CLASS${TEXT_RESET}      CP4D MetaData StorageClass
       --cpfs-size ${COLOR_YELLOW}CPFS_SIZE${TEXT_RESET}                                        CommonServices CR Size
@@ -102,12 +100,6 @@ function gitops_cp4d_noninteractive() {
       --cpd-instance-namespace)
       export CPD_INSTANCE_NAMESPACE=$1 && shift
         ;;
-      --cpd-channel)
-      export CPD_CHANNEL=$1 && shift
-        ;;
-      --common-services-channel)
-      export COMMON_SERVICES_CHANNEL=$1 && shift
-        ;;
       --cpd-primary-storage-class)
       export CPD_PRIMARY_STORAGE_CLASS=$1 && shift
         ;;
@@ -166,9 +158,7 @@ function gitops_cp4d_noninteractive() {
   # MAS
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_cp4d_help "MAS_INSTANCE_ID is not set"
 
-  [[ -z "$COMMON_SERVICES_CHANNEL" ]] && gitops_cp4d_help "COMMON_SERVICES_CHANNEL is not set"
   [[ -z "$CPD_PRODUCT_VERSION" ]] && gitops_cp4d_help "CPD_PRODUCT_VERSION is not set"
-  [[ -z "$CPD_CHANNEL" ]] && gitops_cp4d_help "CPD_CHANNEL is not set"
   [[ -z "$CPD_PRIMARY_STORAGE_CLASS" ]] && gitops_cp4d_help "CPD_PRIMARY_STORAGE_CLASS is not set"
   [[ -z "$CPD_METADATA_STORAGE_CLASS" ]] && gitops_cp4d_help "CPD_METADATA_STORAGE_CLASS is not set"
 
@@ -235,8 +225,6 @@ function gitops_cp4d() {
   echo_reset_dim "CPD_PRODUCT_VERSION  ..................... ${COLOR_MAGENTA}${CPD_PRODUCT_VERSION}"
   echo_reset_dim "CPD_OPERATORS_NAMESPACE  ................. ${COLOR_MAGENTA}${CPD_OPERATORS_NAMESPACE}"
   echo_reset_dim "CPD_INSTANCE_NAMESPACE  .................. ${COLOR_MAGENTA}${CPD_INSTANCE_NAMESPACE}"
-  echo_reset_dim "COMMON_SERVICES_CHANNEL  ................. ${COLOR_MAGENTA}${COMMON_SERVICES_CHANNEL}"
-  echo_reset_dim "CPD_CHANNEL  ............................. ${COLOR_MAGENTA}${CPD_CHANNEL}"
   echo_reset_dim "CPD_PRIMARY_STORAGE_CLASS  ............... ${COLOR_MAGENTA}${CPD_PRIMARY_STORAGE_CLASS}"
   echo_reset_dim "CPD_METADATA_STORAGE_CLASS  .............. ${COLOR_MAGENTA}${CPD_METADATA_STORAGE_CLASS}"
 
