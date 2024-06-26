@@ -296,7 +296,7 @@ function gitops_deprovision_cluster() {
   # oc patch ProfileBundle rhcos4 -n openshift-compliance --type="json" -p '[{"op": "remove", "path":"/metadata/finalizers"}]'
 
   # # dro
-  # oc patch MarketplaceConfig marketplaceconfig -n redhat-marketplace --type="json" -p '[{"op": "remove", "path":"/metadata/finalizers"}]'
+  # oc patch MarketplaceConfig marketplaceconfig -n ibm-software-central --type="json" -p '[{"op": "remove", "path":"/metadata/finalizers"}]'
 
   # This may be necessary to allow cert-manager operator to reinstall successfully (it might not have been cleaned up because the finalizers didn't run)
   # oc delete CertManagers default

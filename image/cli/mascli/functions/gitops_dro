@@ -15,7 +15,7 @@ Basic Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}          Cluster ID
 
 IBM DRO (Required):
-      --dro-namespace ${COLOR_YELLOW}DRO_NAMESPACE${TEXT_RESET}    Namespace to install DRO subscription (defaults to 'redhat-marketplace')
+      --dro-namespace ${COLOR_YELLOW}DRO_NAMESPACE${TEXT_RESET}    Namespace to install DRO subscription (defaults to 'ibm-software-central')
 
 IBM CMM Integration (Optional):
       --dro-cmm-setup ${COLOR_YELLOW}DRO_CMM_SETUP${TEXT_RESET}                Set to indicate if we should setup DRO to CMM Integration or not
@@ -50,7 +50,7 @@ function gitops_dro_noninteractive() {
   GIT_COMMIT_MSG="gitops-dro commit"
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
-  export DRO_NAMESPACE=${DRO_NAMESPACE:-"redhat-marketplace"}
+  export DRO_NAMESPACE=${DRO_NAMESPACE:-"ibm-software-central"}
 
   while [[ $# -gt 0 ]]
   do
