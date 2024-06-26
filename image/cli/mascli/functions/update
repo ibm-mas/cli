@@ -12,7 +12,7 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Maximo Operator Catalog Selection (Required):
-  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}     Maximo Operator Catalog Version (e.g. v8-221129-amd64)
+  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}     Maximo Operator Catalog Version (e.g. v9-240625-amd64)
 
 Update Dependencies (Optional):
   --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}          DB2 namespace where instances update will be performed
@@ -553,15 +553,15 @@ function show_current_catalog() {
   echo -e "   ${COLOR_CYAN}${TEXT_UNDERLINE}${catalogImage}"
   reset_colors
 
-  if [[ "$catalogDisplayName" =~ .+(v8-[0-9]+-amd64) ]]; then
+  if [[ "$catalogDisplayName" =~ .+(v[89]-[0-9]+-amd64) ]]; then
     # catalogId = v8-yymmdd-amd64
     # catalogVersion = yymmdd
-    catalogId=$(sed -E "s/.+\\((v8-[0-9]+-amd64)\\)/\1/" <<< $catalogDisplayName)
-    catalogVersion=$(sed -E "s/.+\\(v8-([0-9]+)-amd64\\)/\1/" <<< $catalogDisplayName)
+    catalogId=$(sed -E "s/.+\\((v[89]-[0-9]+-amd64)\\)/\1/" <<< $catalogDisplayName)
+    catalogVersion=$(sed -E "s/.+\\(v[89]-([0-9]+)-amd64\\)/\1/" <<< $catalogDisplayName)
     catalogIsDynamic=false
   elif [[ "$catalogDisplayName" =~ .+(v8-amd64) ]]; then
     catalogId=$MOST_RECENT_CATALOG
-    catalogVersion=$(sed -E "s/.+\\(v8-([0-9]+)-amd64\\)/\1/" <<< $MOST_RECENT_CATALOG)
+    catalogVersion=$(sed -E "s/.+\\(v[89]-([0-9]+)-amd64\\)/\1/" <<< $MOST_RECENT_CATALOG)
     catalogIsDynamic=true
 
     echo

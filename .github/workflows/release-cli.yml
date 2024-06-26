@@ -3,9 +3,6 @@ on:
   release:
     types: [ published ]
 
-permissions:
-  contents: read
-
 jobs:
   build-cli:
     runs-on: ubuntu-latest
