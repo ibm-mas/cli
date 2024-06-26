@@ -159,6 +159,7 @@
         - gitops-cp4d-service
         - gitops-db2u
         - gitops-db2u-database
+        - gitops-delete-jdbc-config
         - gitops-delete-kafka-config
         - gitops-deprovision-app-config
         - gitops-deprovision-app-install
