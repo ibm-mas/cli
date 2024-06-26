@@ -337,15 +337,53 @@ function manage_settings_components() {
 
     reset_colors
 
+    # If Spatial is selected, then prompt to choose to add IBM Maximo Location Services for Esri, and prompt license
+    if [[ "${MAS_APPWS_COMPONENTS,,}" == *"spatial="* ]]; then
+      echo
+      echo "${TEXT_DIM}Maximo Spatial requires a map server provider in order to enable geospatial capabilities."
+      echo "${TEXT_DIM}You may choose your preferred map provider later or you can enable IBM Maximo Location Services for Esri now."
+      echo "${TEXT_DIM}This includes ArcGIS Enterprise as part of the Manage and Maximo Spatial bundle (Additional AppPoints required)."
+      echo
+
+      reset_colors
+      echo
+      if prompt_for_confirm " - Include IBM Maximo Location Services for Esri" INSTALL_ARCGIS; then
+
+          case $MAS_CHANNEL in
+            9.0.x)
+              MAS_ARCGIS_CHANNEL=9.0.x
+              ;;
+            *)
+              prompt_for_input 'Custom Subscription Channel' MAS_ARCGIS_CHANNEL
+              ;;
+          esac
+          true
+
+          echo
+          echo_h4 "IBM Maximo Location Services for Esri License Terms"
+          echo -e "${COLOR_YELLOW}For information about your IBM Maximo Location Services for Esri License,"
+          echo -e "${COLOR_YELLOW}see ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/MAXArcGIS90-License${TEXT_RESET}${COLOR_YELLOW}."
+          echo -e "${COLOR_YELLOW}To continue with the installation, you must accept these additional license terms.${TEXT_RESET}"
+          prompt_for_confirm_default_yes "Do you accept the license terms?" MLS_LICENSE_RESPONSE
+          if [[ "$MLS_LICENSE_RESPONSE" == "false" ]]; then
+            exit 1
+          fi
+          echo
+      fi
+    fi
+
+    # if Maximo IT is selected, prompt specific Maximo IT license terms
     if [[ "${MAS_APPWS_COMPONENTS,,}" == *"icd="* ]]; then
       echo
       echo_h4 "Maximo IT License Terms"
-      echo -e "${COLOR_YELLOW}For information about your Maximo IT License, see ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/MAXIT81-License${TEXT_RESET}. To continue with the installation, you must accept these additional license terms."
+      echo -e "${COLOR_YELLOW}For information about your Maximo IT License, see ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/MAXIT81-License${TEXT_RESET}${COLOR_YELLOW}. To continue with the installation, you must accept these additional license terms.${TEXT_RESET}"
       prompt_for_confirm_default_yes "Do you accept the license terms?" LICENSE_RESPONSE
       if [[ "$LICENSE_RESPONSE" == "false" ]]; then
         exit 1
       fi
+      echo
     fi
+
   fi
 }
 

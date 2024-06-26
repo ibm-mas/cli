@@ -455,6 +455,13 @@ spec:
       value: '$MAS_APP_SETTINGS_OVERRIDE_ENCRYPTION_SECRETS_FLAG'
     - name: mas_app_settings_default_jms
       value: '$MAS_APP_SETTINGS_DEFAULT_JMS'
+    
+    # IBM Maximo Location Services por Esri
+    # -------------------------------------------------------------------------
+    - name: mas_arcgis_channel
+      value: '$MAS_ARCGIS_CHANNEL'
+    - name: install_arcgis
+      value: '$INSTALL_ARCGIS'
 
     # Monitor Application
     # -------------------------------------------------------------------------

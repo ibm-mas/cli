@@ -560,6 +560,17 @@
   description: Set true if you want to configure JMS queues. It is false by default.
   default: "" # default is handled by ansible-devops
 
+# MAS Application Configuration - IBM Maximo Location Services for ESRI
+# -----------------------------------------------------------------------------
+- name: install_arcgis
+  type: string
+  description: Flag to control whether to install IBM Maximo Location Services for ESRI
+  default: ""
+- name: mas_arcgis_channel
+  type: string
+  description: Default channel for IBM Maximo Location Services for ESRI 
+  default: "" # default is handled by ansible-devops
+
 # MAS Application Configuration - Health Application
 - name: mas_appws_bindings_health_wsl_flag
   type: string
