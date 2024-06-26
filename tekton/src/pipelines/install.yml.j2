@@ -272,7 +272,7 @@ spec:
     # 8.4 Configure IBM Maximo Location Services for ESRI
     {{ lookup('template', 'taskdefs/dependencies/arcgis.yml.j2') | indent(4) }}
       runAfter:
-        - app-install-manage
+        - suite-verify
 
     # 9. Install & Configure Predict
     # -------------------------------------------------------------------------
