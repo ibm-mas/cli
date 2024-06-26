@@ -54,7 +54,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             catalogDisplayName = catalog.spec.displayName
             catalogImage = catalog.spec.image
 
-            m = re.match(r".+(?P<catalogId>v8-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
+            m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
             if m:
                 # catalogId = v8-yymmdd-amd64
                 # catalogVersion = yymmdd
@@ -89,17 +89,17 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
 
     def licensePrompt(self):
         licenses = {
-            "8.9.x": "https://ibm.biz/MAS89-License",
-            "8.10.x": "https://ibm.biz/MAS810-License",
-            "8.11.x": "https://ibm.biz/MAS811-License"
+            "8.9.x": " - <u>https://ibm.biz/MAS89-License</u>",
+            "8.10.x": " - <u>https://ibm.biz/MAS810-License</u>",
+            "8.11.x": " - <u>https://ibm.biz/MAS811-License</u>\n - <u>https://ibm.biz/MAXIT81-License</u>",
+            "9.0.x": " - <u>https://ibm.biz/MAS90-License</u>\n - <u>https://ibm.biz/MaximoIT90-License</u>\n - <u>https://ibm.biz/MAXArcGIS90-License</u>"
         }
 
         if not self.licenseAccepted:
             self.printH1("License Terms")
             self.printDescription([
                 "To continue with the installation, you must accept the license terms:",
-                f"   <u>{licenses[self.getParam('mas_channel')]}</u>",
-                "   <u>https://ibm.biz/MAXIT81-License</u>"
+                licenses[self.getParam('mas_channel')]
             ])
 
             if self.noConfirm:
@@ -177,8 +177,17 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
         self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
 
     def configCP4D(self):
-        # CPD 4.6.6 is the only version we've supported since September 2023 (4.8 support is due in June)
-        self.setParam("cpd_product_version", "4.6.6")
+        # TODO: It's probably time to remove v8-amd64 support from the CLI entirely now
+        if self.getParam("mas_catalog_version") in ["v8-amd64", "v9-240625-amd64"]:
+            self.setParam("cpd_product_version", "4.8.0")
+        elif self.getParam("mas_catalog_version") in ["v8-240528-amd64"]:
+            self.setParam("cpd_product_version", "4.6.6")
+        else:
+            self.printDescription([
+                f"Unknown catalog {self.getParam('mas_catalog_version')}, please manually select the version of Cloud Pak for Data to use"
+            ])
+            self.promptForString("Cloud Pak for Data product version", "cpd_product_version", default="4.8.0")
+
         self.deployCP4D = True
 
     def configMAS(self):
@@ -364,7 +373,8 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
         if self.installManage:
             self.configAppChannel("manage")
 
-        if self.installIoT and self.installManage:
+        # Predict for MAS 8.10 is effectively unsupported now, because it has not shipped support for Cloud Pak for Data 4.8 as of June 2023 catalog update
+        if self.installIoT and self.installManage and self.getParam("mas_channel") != "8.10.x":
             self.installPredict = self.yesOrNo("Install Predict")
         else:
             self.installPredict = False
@@ -372,9 +382,11 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
         if self.installPredict:
             self.configAppChannel("predict")
 
-        self.installAssist = self.yesOrNo("Install Assist")
-        if self.installAssist:
-            self.configAppChannel("assist")
+        # Assist is only installable on MAS 9.0.x due to withdrawal of support for Watson Discovery in our managed dependency stack and the inability of Assist 8.x to support this
+        if not self.getParam("mas_channel").startswith("8."):
+            self.installAssist = self.yesOrNo("Install Assist")
+            if self.installAssist:
+                self.configAppChannel("assist")
 
         self.installOptimizer = self.yesOrNo("Install Optimizer")
         if self.installOptimizer:
@@ -768,10 +780,71 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             self.setParam("skip_pre_check", "true")
 
         self.installOptions = [
-            { "#": 1, "catalog": "v8-240528-amd64", "release": "8.11.x", "core": "8.11.11", "manage": "8.7.8" },
-            { "#": 2, "catalog": "v8-240528-amd64", "release": "8.10.x", "core": "8.10.14", "manage": "8.6.14" },
-            { "#": 3, "catalog": "v8-240430-amd64", "release": "8.11.x", "core": "8.11.10", "manage": "8.7.7" },
-            { "#": 4, "catalog": "v8-240430-amd64", "release": "8.10.x", "core": "8.10.13", "manage": "8.6.13" }
+            {
+                "#": 1,
+                "catalog": "v9-240625-amd64",
+                "release": "9.0.x",
+                "core": "9.0.0",
+                "assist": "9.0.0",
+                "iot": "9.0.0",
+                "manage": "9.0.0",
+                "monitor": "9.0.0",
+                "optimizer": "9.0.0",
+                "predict": "9.0.0",
+                "inspection": "9.0.0"
+            },
+            {
+                "#": 2,
+                "catalog": "v9-240625-amd64",
+                "release": "8.11.x",
+                "core": "8.11.12",
+                "assist": "8.8.4",
+                "iot": "8.8.10",
+                "manage": "8.7.9",
+                "monitor": "8.11.8",
+                "optimizer": "8.5.6",
+                "predict": "8.9.3",
+                "inspection": "8.9.3"
+            },
+            {
+                "#": 3,
+                "catalog": "v9-240625-amd64",
+                "release": "8.10.x",
+                "core": "8.10.15",
+                "assist": "8.7.5",
+                "iot": "8.7.14",
+                "manage": "8.6.15",
+                "monitor": "8.10.11",
+                "optimizer": "8.4.7",
+                "predict": "8.8.2",
+                "inspection": "8.8.4"
+            },
+            {
+                "#": 4,
+                "catalog": "v8-240528-amd64",
+                "release": "8.11.x",
+                "core": "8.11.11",
+                "assist": "8.8.3",
+                "iot": "8.8.9",
+                "manage": "8.7.8",
+                "monitor": "8.11.7",
+                "optimizer": "8.5.5",
+                "predict": "8.9.2",
+                "inspection": "8.9.3"
+            },
+            {
+                "#": 5,
+                "catalog": "v8-240528-amd64",
+                "release": "8.10.x",
+                "core": "8.10.14",
+                "assist": "8.7.4",
+                "iot": "8.7.13",
+                "manage": "8.6.14",
+                "monitor": "8.10.10",
+                "optimizer": "8.4.6",
+                "predict": "8.8.2",
+                "inspection": "8.8.4"
+            }
         ]
 
         if instanceId is None:
