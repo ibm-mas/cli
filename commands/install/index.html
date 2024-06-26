@@ -412,10 +412,11 @@
 <li><code>--manage-cryptox-key MAS_APP_SETTINGS_CRYPTOX_KEY</code>                                       Set <code>MXE_SECURITY_CRYPTOX_KEY</code> value if you want to customize your Manage database encryption keys</li>
 <li><code>--manage-old-crypto-key MAS_APP_SETTINGS_OLD_CRYPTO_KEY</code>                                 Set <code>MXE_SECURITY_OLD_CRYPTO_KEY</code> value if you want to customize your Manage database encryption keys</li>
 <li><code>--manage-old-cryptox-key MAS_APP_SETTINGS_OLD_CRYPTOX_KEY</code>                               Set <code>MXE_SECURITY_OLD_CRYPTOX_KEY</code> value if you want to customize your Manage database encryption keys</li>
-<li><code>--manage-override-encryption-secrets</code>                                                    Overrides any existing Manage database encryption keys. A backup of the original secret holding existing encryption keys is taken prior overriding it with the new defined keys.
--- <code>--manage-db-tablespace MAS_APP_SETTINGS_TABLESPACE</code>                                     Optional. Set the database tablespace name that Manage will use to be installed. Default is <code>MAXDATA</code>.
--- <code>--manage-db-indexspace MAS_APP_SETTINGS_INDEXSPACE</code>                                     Optional. Set the database indexspace name that Manage will use to be installed. Default is <code>MAXINDEX</code>.
--- <code>--manage-db-schema MAS_APP_SETTINGS_DB2_SCHEMA</code>                                         Optional. Set the DB2 database schema name that Manage will use to be installed. Default is <code>maximo</code>. Note: This is only applicable to the cases where a DB2 instance will be created for Manage via MAS CLI.</li>
+<li><code>--manage-override-encryption-secrets</code>                                                    Overrides any existing Manage database encryption keys. A backup of the original secret holding existing encryption keys is taken prior overriding it with the new defined keys.</li>
+<li><code>--manage-db-tablespace MAS_APP_SETTINGS_TABLESPACE</code>                                     Optional. Set the database tablespace name that Manage will use to be installed. Default is <code>MAXDATA</code>.</li>
+<li><code>--manage-db-indexspace MAS_APP_SETTINGS_INDEXSPACE</code>                                     Optional. Set the database indexspace name that Manage will use to be installed. Default is <code>MAXINDEX</code>.</li>
+<li><code>--manage-db-schema MAS_APP_SETTINGS_DB2_SCHEMA</code>                                         Optional. Set the DB2 database schema name that Manage will use to be installed. Default is <code>maximo</code>. Note: This is only applicable to the cases where a DB2 instance will be created for Manage via MAS CLI.</li>
+<li><code>--install-arcgis</code>                                                                       Optional. Enables IBM Maximo Location Services for Esri installation. Only applicable if installing Manage with Spatial.</li>
 </ul>
 <h3 id="other-commands">Other Commands:<a class="headerlink" href="#other-commands" title="Permanent link"></a></h3>
 <ul>
