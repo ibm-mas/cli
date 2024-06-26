@@ -44,6 +44,7 @@ class KafkaSettingsMixin():
                         " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in your OperatorHub",
                         ""
                     ])
+                    self.promptForString("Install namespace", "kafka_namespace", default="strimzi")
                     self.promptForString("Kafka version", "kafka_version", default="3.7.0")
 
                 elif self.getParam("kafka_provider") == "redhat":
@@ -55,6 +56,7 @@ class KafkaSettingsMixin():
                         " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in your OperatorHub",
                         ""
                     ])
+                    self.promptForString("Install namespace", "kafka_namespace", default="amq-streams")
                     self.promptForString("Kafka version", "kafka_version", default="3.5.0")
 
                 elif self.getParam("kafka_provider") == "ibm":

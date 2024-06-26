@@ -126,6 +126,9 @@ class Db2SettingsMixin():
 
         # Do we need to configure Db2u?
         if self.getParam("db2_action_system")  == "install" or self.getParam("db2_action_manage") == "install":
+            self.printH2("Installation Namespace")
+            self.promptForString("Install namespace", "db2_namespace", default="db2u")
+
             # Node Affinity & Tolerations
             # -------------------------------------------------------------------------
             self.printH2("Node Affinity and Tolerations")

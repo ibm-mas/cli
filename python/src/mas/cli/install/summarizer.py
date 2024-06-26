@@ -24,7 +24,7 @@ class InstallSummarizerMixin():
         self.printParamSummary("ReadWriteMany Storage Class", "storage_class_rwx")
 
         self.printParamSummary("Certificate Manager", "cert_manager_provider")
-        self.printParamSummary("Certificate Secret", "ocp_ingress_tls_secret_name")
+        self.printParamSummary("Cluster Ingress Certificate Secret", "ocp_ingress_tls_secret_name")
 
         if self.isSNO():
             self.printSummary("Single Node OpenShift", "Yes")
@@ -47,14 +47,16 @@ class InstallSummarizerMixin():
         self.printParamSummary("Instance ID", "mas_instance_id")
         self.printParamSummary("Workspace ID", "mas_workspace_id")
         self.printParamSummary("Workspace Name", "mas_workspace_name")
+
         print()
         self.printSummary(f"Operational Mode", operationalModeNames[self.operationalMode])
         if isAirgapInstall(self.dynamicClient):
             self.printSummary("Install Mode", "Disconnected Install")
         else:
             self.printSummary("Install Mode", "Connected Install")
-        print()
+
         if "mas_domain" in self.params:
+            print()
             self.printParamSummary("Domain Name", "mas_domain")
             self.printParamSummary("DNS Provider", "dns_provider")
             self.printParamSummary("Certificate Issuer", "mas_cluster_issuer")
@@ -74,11 +76,23 @@ class InstallSummarizerMixin():
         print()
         self.printParamSummary("Catalog Version", "mas_catalog_version")
         self.printParamSummary("Subscription Channel", "mas_channel")
+
         print()
         self.printParamSummary("IBM Entitled Registry", "mas_icr_cp")
         self.printParamSummary("IBM Open Registry", "mas_icr_cpopen")
+
         print()
-        self.printSummary("Additional Configs", self.localConfigDir)
+        self.printParamSummary("Trust Default Cert Authorities", "mas_trust_default_cas")
+
+        print()
+        if self.localConfigDir is not None:
+            self.printSummary("Additional Config", self.localConfigDir)
+        else:
+            self.printSummary("Additional Config", "Not Configured")
+        if "mas_pod_templates_dir" in self.params:
+            self.printParamSummary("Pod Templates", "mas_pod_templates_dir")
+        else:
+            self.printSummary("Pod Templates", "Not Configured")
 
     def iotSummary(self) -> None:
         if self.installIoT:
@@ -214,10 +228,21 @@ class InstallSummarizerMixin():
         self.printSummary("License File", self.slsLicenseFileLocal)
         self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
 
+    def turbonomicSummary(self) -> None:
+        self.printH2("Turbonomic")
+        if self.getParam("turbonomic_server_url") != "":
+            self.printSummary("Turbonomic Integration", "Enabled")
+            self.printParamSummary("Server URL", "turbonomic_server_url")
+            self.printParamSummary("Server version", "turbonomic_server_version")
+            self.printParamSummary("Target name", "turbonomic_target_name")
+            self.printParamSummary("Username", "turbonomic_username")
+            self.printSummary("Password", f"{self.getParam('turbonomic_password')[0:8]}&lt;snip&gt;")
+        else:
+            self.printSummary("Turbonomic Integration", "Disabled")
+
     def mongoSummary(self) -> None:
         self.printH2("MongoDb")
         self.printParamSummary("Install Namespace", "mongodb_namespace")
-
 
     def kafkaSummary(self) -> None:
         if self.getParam("kafka_action_system") != "":
@@ -250,21 +275,6 @@ class InstallSummarizerMixin():
         self.printH2("Grafana")
         self.printSummary("Install Grafana", "Install" if self.getParam("grafana_action") == "install" else "Do Not Install")
 
-
-    # reset_colors
-    # echo "${TEXT_DIM}"
-    # echo_h4 "Workload Scale Configuration" "    "
-    # if [[ -n "${MAS_WORKLOAD_SCALE_PROFILE}" ]]; then
-    #   if [[ "$MAS_WORKLOAD_SCALE_PROFILE" == "Custom" ]]; then
-    #     echo_reset_dim "Workload Scale Profile .... ${COLOR_MAGENTA}${MAS_WORKLOAD_SCALE_PROFILE}"
-    #     echo_reset_dim "Configuration(s) .......... ${COLOR_MAGENTA}${MAS_POD_TEMPLATES_DIR}"
-    #   else
-    #     echo_reset_dim "Workload Scale Profile .... ${COLOR_MAGENTA}${MAS_WORKLOAD_SCALE_PROFILE}"
-    #   fi
-    # else
-    #   echo_reset_dim "Workload Scale Profile .... ${COLOR_MAGENTA}Burstable"
-    # fi
-
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")
         self.printDescription([
@@ -292,8 +302,9 @@ class InstallSummarizerMixin():
         self.inspectionSummary()
 
         # Application Dependencies
-        self.grafanaSummary()
         self.mongoSummary()
         self.db2Summary()
         self.kafkaSummary()
         self.cp4dSummary()
+        self.grafanaSummary()
+        self.turbonomicSummary()

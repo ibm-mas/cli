@@ -10,7 +10,7 @@
 
 class TurbonomicSettingsMixin():
 
-    def turbonomicSettings(self) -> None:
+    def configTurbonomic(self) -> None:
         self.printH1("Configure Turbonomic")
         self.printDescription([
             "The IBM Turbonomic hybrid cloud cost optimization platform allows you to eliminate this guesswork with solutions that save time and optimize costs",
@@ -22,4 +22,4 @@ class TurbonomicSettingsMixin():
             self.promptForString("Turbonomic Server URL", "turbonomic_server_url")
             self.promptForString("Turbonomic Server Version", "turbonomic_server_version")
             self.promptForString("Turbonomic Username", "turbonomic_username")
-            self.promptForString("Turbonomic Password", "turbonomic_password", isPasssword=True)
+            self.promptForString("Turbonomic Password", "turbonomic_password", isPassword=True)

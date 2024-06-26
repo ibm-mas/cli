@@ -80,25 +80,23 @@ masAdvancedArgGroup.add_argument(
     help=""
 )
 masAdvancedArgGroup.add_argument(
+    "--pod-templates",
+    required=False,
+    help=""
+)
+masAdvancedArgGroup.add_argument(
     "--non-prod",
     required=False,
     help="",
     action="store_true"
 )
 masAdvancedArgGroup.add_argument(
-    "--mas-trust-default-cas",
+    "--disable-ca-trust",
+    dest="mas_trust_default_cas",
     required=False,
-    help=""
-)
-masAdvancedArgGroup.add_argument(
-    "--workload-scale-profile",
-    required=False,
-    help=""
-)
-masAdvancedArgGroup.add_argument(
-    "--mas-pod-templates-dir",
-    required=False,
-    help=""
+    help="",
+    action="store_const",
+    const="false"
 )
 
 # Storage
@@ -172,6 +170,7 @@ mongoArgGroup.add_argument(
     help=""
 )
 
+
 # OCP Configuration
 # -----------------------------------------------------------------------------
 ocpArgGroup = installArgParser.add_argument_group("OCP Configuration")
@@ -221,6 +220,152 @@ masAppsArgGroup.add_argument(
 )
 masAppsArgGroup.add_argument(
     "--optimizer-plan",
+    required=False,
+    help=""
+)
+
+# Manage Advanced Settings
+# -----------------------------------------------------------------------------
+manageArgGroup = installArgParser.add_argument_group("Advanced Settings - Manage")
+manageArgGroup.add_argument(
+    "--manage-server-bundle-size",
+    dest="mas_app_settings_server_bundles_size",
+    required=False,
+    help="",
+    choices=["dev", "snojms", "small", "jms"]
+)
+manageArgGroup.add_argument(
+    "--manage-jms",
+    dest="mas_app_settings_default_jms",
+    required=False,
+    help="",
+    action="store_const",
+    const="true"
+)
+manageArgGroup.add_argument(
+    "--manage-persistent-volumes",
+    dest="mas_app_settings_persistent_volumes_flag",
+    required=False,
+    help="",
+    action="store_const",
+    const="true"
+)
+
+manageArgGroup.add_argument(
+    "--manage-jdbc",
+    dest="mas_appws_bindings_jdbc_manage",
+    required=False,
+    help="",
+    choices=["system", "workspace-application"]
+)
+manageArgGroup.add_argument(
+    "--manage-demodata",
+    dest="mas_app_settings_demodata",
+    required=False,
+    help="",
+    action="store_const",
+    const="true"
+)
+manageArgGroup.add_argument(
+    "--manage-components",
+    dest="mas_appws_components",
+    required=False,
+    help="",
+    default="base=latest;health=latest"
+)
+
+manageArgGroup.add_argument(
+    "--manage-customization-archive-name",
+    dest="mas_app_settings_customization_archive_name",
+    required=False,
+    help=""
+)
+manageArgGroup.add_argument(
+    "--manage-customization-archive-url",
+    dest="mas_app_settings_customization_archive_url",
+    required=False,
+    help=""
+)
+manageArgGroup.add_argument(
+    "--manage-customization-archive-username",
+    dest="mas_app_settings_customization_archive_username",
+    required=False,
+    help=""
+)
+manageArgGroup.add_argument(
+    "--manage-customization-archive-password",
+    dest="mas_app_settings_customization_archive_password",
+    required=False,
+    help=""
+)
+
+manageArgGroup.add_argument(
+    "--manage-db-tablespace",
+    dest="mas_app_settings_tablespace",
+    required=False,
+    help=""
+)
+manageArgGroup.add_argument(
+    "--manage-db-indexspace",
+    dest="mas_app_settings_indexspace",
+    required=False,
+    help=""
+)
+manageArgGroup.add_argument(
+    "--manage-db-schema",
+    dest="mas_app_settings_db2_schema",
+    required=False,
+    help=""
+)
+
+manageArgGroup.add_argument(
+    "--manage-crypto-key",
+    dest="mas_app_settings_crypto_key",
+    required=False,
+    help=""
+)
+manageArgGroup.add_argument(
+    "--manage-cryptox-key",
+    dest="mas_app_settings_cryptox_key",
+    required=False,
+    help=""
+)
+manageArgGroup.add_argument(
+    "--manage-old-crypto-key",
+    dest="mas_app_settings_old_crypto_key",
+    required=False,
+    help=""
+)
+manageArgGroup.add_argument(
+    "--manage-old-cryptox-key",
+    dest="mas_app_settings_old_cryptox_key",
+    required=False,
+    help=""
+)
+manageArgGroup.add_argument(
+    "--manage-override-encryption-secrets",
+    dest="mas_app_settings_override_encryption_secrets_flag",
+    required=False,
+    help="",
+    action="store_const",
+    const="true"
+)
+
+manageArgGroup.add_argument(
+    "--manage-base-language",
+    dest="mas_app_settings_base_lang",
+    required=False,
+    help=""
+)
+manageArgGroup.add_argument(
+    "--manage-secondary-languages",
+    dest="mas_app_settings_secondary_langs",
+    required=False,
+    help=""
+)
+manageArgGroup.add_argument(
+    "--manage-server-timezone",
+    dest="mas_app_settings_server_timezone",
     required=False,
     help=""
 )
@@ -293,7 +438,11 @@ db2ArgGroup.add_argument(
     required=False,
     help=""
 )
-
+db2ArgGroup.add_argument(
+    "--db2-timezone",
+    required=False,
+    help=""
+)
 db2ArgGroup.add_argument(
     "--db2-affinity-key",
     required=False,
@@ -476,126 +625,88 @@ mskArgGroup.add_argument(
     help=""
 )
 
+# Turbonomic Integration
+# -----------------------------------------------------------------------------
+turboArgGroup = installArgParser.add_argument_group("Turbonomic Integration")
+turboArgGroup.add_argument(
+    "--turbonomic-name",
+    dest="turbonomic_target_name",
+    required=False,
+    help=""
+)
+turboArgGroup.add_argument(
+    "--turbonomic-url",
+    dest="turbonomic_server_url",
+    required=False,
+    help=""
+)
+turboArgGroup.add_argument(
+    "--turbonomic-version",
+    dest="turbonomic_server_version",
+    required=False,
+    help=""
+)
+turboArgGroup.add_argument(
+    "--turbonomic-username",
+    dest="turbonomic_username",
+    required=False,
+    help=""
+)
+turboArgGroup.add_argument(
+    "--turbonomic-password",
+    dest="turbonomic_password",
+    required=False,
+    help=""
+)
 
-#   # Manage commands - Server bundle configuration
-#   --manage-server-bundle-size)
-#     export MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE=$1 && shift
-#     if [[ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "jms" || "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "snojms" ]]; then
-#       export MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
-#     fi
-#     ;;
-#   --manage-jms)
-#     if [[ "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "jms" || "$MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE" == "snojms" ]]; then
-#       export MAS_APP_SETTINGS_DEFAULT_JMS=true
-#       export MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG=true
-#     fi
-#     ;;
-#   --manage-demodata)
-#     export MAS_APP_SETTINGS_DEMODATA=true
-#     ;;
-#   --manage-jdbc)
-#     export MAS_APPWS_BINDINGS_JDBC_MANAGE=$1 && shift
-#     ;;
-
-#   # Manage commands - Components
-#   --manage-components)
-#     export MAS_APPWS_COMPONENTS=$1 && shift
-#    ;;
-
-#   # Manage commands - Customization archive
-#   --manage-customization-archive-name)
-#     export MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME=$1 && shift
-#     ;;
-#   --manage-customization-archive-url)
-#     export MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL=$1 && shift
-#     ;;
-#   --manage-customization-archive-username)
-#     export MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME=$1 && shift
-#     ;;
-#   --manage-customization-archive-password)
-#     export MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD=$1 && shift
-#     ;;
-
-#   # Manage commands - Dabatase tablespaces
-#   --manage-db-tablespace)
-#     export MAS_APP_SETTINGS_TABLESPACE=$1 && shift
-#     ;;
-
-#   --manage-db-indexspace)
-#     export MAS_APP_SETTINGS_INDEXSPACE=$1 && shift
-#     ;;
-
-#   --manage-db-schema)
-#     export MAS_APP_SETTINGS_DB2_SCHEMA=$1 && shift
-#     ;;
-
-#   # Manage commands - Database encryption keys
-#   --manage-crypto-key)
-#     export MAS_APP_SETTINGS_CRYPTO_KEY=$1 && shift
-#     ;;
-#   --manage-cryptox-key)
-#     export MAS_APP_SETTINGS_CRYPTOX_KEY=$1 && shift
-#     ;;
-#   --manage-old-crypto-key)
-#     export MAS_APP_SETTINGS_OLD_CRYPTO_KEY=$1 && shift
-#     ;;
-#   --manage-old-cryptox-key)
-#     export MAS_APP_SETTINGS_OLD_CRYPTOX_KEY=$1 && shift
-#     ;;
-#   --manage-override-encryption-secrets)
-#     export MAS_APP_SETTINGS_OVERRIDE_ENCRYPTION_SECRETS_FLAG=true
-#     ;;
-
-#   # Manage commands - Base & secondary languages
-#   --manage-base-language)
-#     export MAS_APP_SETTINGS_BASE_LANG=$1 && shift
-#     ;;
-
-#   --manage-secondary-languages)
-#     export MAS_APP_SETTINGS_SECONDARY_LANGS=$1 && shift
-#     ;;
-
-#   # Manage commands - Server timezone
-#   --manage-server-timezone)
-#     export MAS_APP_SETTINGS_SERVER_TIMEZONE=$1 && shift
-#     export DB2_TIMEZONE=$MAS_APP_SETTINGS_SERVER_TIMEZONE # If used, set Manage dedicated Db2 timezone to be same as Manage server timezone
-#     ;;
-
-#   # Cloud Provider Commands - IBM Cloud
-#   --ibmcloud-apikey)
-#     export IBMCLOUD_APIKEY=$1 && shift
-#     ;;
-
-#   # Cloud Provider Commands - AWS
-#   --aws-region)
-#     export AWS_REGION=$1 && shift
-#     ;;
-#   --aws-access-key-id)
-#     export AWS_ACCESS_KEY_ID=$1 && shift
-#     ;;
-#   --aws-secret-access-key)
-#     export AWS_SECRET_ACCESS_KEY=$1 && shift
-#     ;;
-#   --aws-vpc-id)
-#     export VPC_ID=$1 && shift
-#     ;;
-
-#   # Other Commands
-#   --no-wait-for-pvcs)
-#     WAIT_FOR_PVCS=false
-#     ;;
-#   --accept-license)
-#     LICENSE_ACCEPTED=true
-#     ;;
-
+# Clud Providers
+# -----------------------------------------------------------------------------
+cloudArgGroup = installArgParser.add_argument_group("Cloud Providers")
+cloudArgGroup.add_argument(
+    "--ibmcloud-apikey",
+    required=False,
+    help=""
+)
+cloudArgGroup.add_argument(
+    "--aws-region",
+    required=False,
+    help=""
+)
+cloudArgGroup.add_argument(
+    "--aws-access-key-id",
+    required=False,
+    help=""
+)
+cloudArgGroup.add_argument(
+    "--secret-access-key",
+    required=False,
+    help=""
+)
+cloudArgGroup.add_argument(
+    "--aws-vpc-id",
+    required=False,
+    help=""
+)
 
 otherArgGroup = installArgParser.add_argument_group("More")
+otherArgGroup.add_argument(
+    "--accept-license",
+    action="store_true",
+    default=False,
+    help=""
+)
 otherArgGroup.add_argument(
     "--dev-mode",
     required=False,
     action="store_true",
     default=False,
     help="Configure installation for development mode",
+)
+otherArgGroup.add_argument(
+    "--no-wait-for-pvc",
+    required=False,
+    action="store_true",
+    help="Disable the wait for pipeline PVC to bind before starting the pipeline"
 )
 otherArgGroup.add_argument(
     "--skip-pre-check",
@@ -610,6 +721,7 @@ otherArgGroup.add_argument(
     default=False,
     help="Launch the upgrade without prompting for confirmation",
 )
+
 otherArgGroup.add_argument(
     "-h", "--help",
     action="help",

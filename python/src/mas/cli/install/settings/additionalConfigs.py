@@ -49,7 +49,7 @@ class AdditionalConfigsMixin():
                     exit(0)
 
             # Generate the secret and apply it to the cluster
-            starterSecret = {
+            secret = {
                 "apiVersion": "v1",
                 "kind": "Secret",
                 "type": "Opaque",
@@ -57,18 +57,71 @@ class AdditionalConfigsMixin():
                     "name": "pipeline-additional-configs"
                 }
             }
-            additionalConfigsSecret = self.addToAdditionalSecrets(starterSecret, self.localConfigDir)
+            additionalConfigsSecret = self.addFilesToSecret(secret, self.localConfigDir, "yaml")
             logger.debug(additionalConfigsSecret)
             self.additionalConfigsSecret = additionalConfigsSecret
 
-    def addToAdditionalSecrets(self, secretDict: dict, configPath: str) -> dict:
+    def podTemplates(self) -> None:
+        if self.interactiveMode:
+            self.printH1("Configure Pod Templates")
+            self.printDescription([
+                "The CLI supports two pod template profiles out of the box that allow you to reconfigure MAS for either a guaranteed or besteffort QoS level",
+                "You may also define your own custom pod templates profile",
+                "Make a selection from the list below. For more information about the profiles, see https://kubernetes.io/docs/concepts/workloads/pods/pod-qos/",
+                "",
+                "1. Guaranteed QoS",
+                "2. BestEffort QoS",
+                "3. Custom"
+            ])
+
+            podTemplateChoice = self.promptForInt("Select pod templates profile")
+
+            if podTemplateChoice == 1:
+                self.setParam("mas_pod_templates_dir", path.join(self.templatesDir, "pod-templates", "guaranteed"))
+            elif podTemplateChoice == 2:
+                self.setParam("mas_pod_templates_dir", path.join(self.templatesDir, "pod-templates", "best-effort"))
+            elif podTemplateChoice == 3:
+                self.promptForDir("Pod templates directory", "mas_pod_templates_dir", mustExist=True)
+            else:
+                self.fatalError(f"Invalid selection: {podTemplateChoice}")
+
+        if self.getParam("mas_pod_templates_dir") != "":
+            # Get list of files in localConfigDir
+            templateFilesPath = rf'{self.getParam("mas_pod_templates_dir")}/*.yml'
+            templateFiles = glob(templateFilesPath)
+            if len(templateFiles) == 0:
+                self.fatalError(f"No pod templates (*.yml) were found in {self.getParam('mas_pod_templates_dir')}")
+
+            print_formatted_text("The following pod templates will be applied:")
+            for tf in templateFiles:
+                print_formatted_text(f" - {path.basename(tf)}")
+
+            if not self.noConfirm:
+                if not self.yesOrNo("Are these the correct pod templates to apply"):
+                    print_formatted_text("Pod templates were not confirmed.  Aborting installation")
+                    exit(0)
+
+            # Generate the secret and apply it to the cluster
+            secret = {
+                "apiVersion": "v1",
+                "kind": "Secret",
+                "type": "Opaque",
+                "metadata": {
+                    "name": "pipeline-pod-templates"
+                }
+            }
+            podTemplatesSecret = self.addFilesToSecret(secret, self.getParam("mas_pod_templates_dir"), "yml")
+            logger.debug(podTemplatesSecret)
+            self.podTemplatesSecret = podTemplatesSecret
+
+    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str) -> dict:
         """
         Add file (or files) to pipeline-additional-configs
         """
         filesToProcess = []
         if path.isdir(configPath):
             logger.debug(f"Adding all config files in directory {configPath}")
-            filesToProcess = glob(f"{configPath}/*.yaml")
+            filesToProcess = glob(f"{configPath}/*.{extension}")
         else:
             logger.debug(f"Adding config file {configPath}")
             filesToProcess = [configPath]
