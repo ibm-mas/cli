@@ -19,3 +19,11 @@ Package                   Version     Editable project location
 mas-cli                   100.0.0     C:\Users\xxx\Documents\GitHub\ibm-mas\cli\python
 mas-devops                100.0.0     C:\Users\xxx\Documents\GitHub\ibm-mas\python-devops
 ```
+
+
+```
+.\env.ps1
+python .\python\src\mas-install --help
+
+python .\python\src\mas-install
+```

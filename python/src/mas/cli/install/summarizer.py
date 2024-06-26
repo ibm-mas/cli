@@ -108,6 +108,13 @@ class InstallSummarizerMixin():
         else:
             self.printSummary("Monitor", "Do Not Install")
 
+    def arcgisSummary(self) -> None:
+        if self.getParam("install_arcgis") != "":
+            self.printSummary("Loc Srv Esri (arcgis)", self.params["mas_arcgis_channel"])
+        else:
+            self.printSummary("Loc Srv Esri (arcgis)", "Do Not Install")
+
+
     def predictSummary(self) -> None:
         if self.installPredict:
             self.printSummary("Predict", self.params["mas_app_channel_predict"])
@@ -296,6 +303,7 @@ class InstallSummarizerMixin():
         self.iotSummary()
         self.monitorSummary()
         self.manageSummary()
+        self.arcgisSummary()
         self.predictSummary()
         self.optimizerSummary()
         self.assistSummary()

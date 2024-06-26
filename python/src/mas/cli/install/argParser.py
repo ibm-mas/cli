@@ -224,6 +224,23 @@ masAppsArgGroup.add_argument(
     help=""
 )
 
+# Arcgis
+# -----------------------------------------------------------------------------
+arcgisArgGroup = installArgParser.add_argument_group("Maximo Location Services for Esri (arcgis)")
+arcgisArgGroup.add_argument(
+    "--install-arcgis",
+    required=False,
+    help="Enables IBM Maximo Location Services for Esri. Only applicable if installing Manage with Spatial",
+    action="store_const",
+    const="true"
+)
+arcgisArgGroup.add_argument(
+    "--arcgis-channel",
+    dest="mas_arcgis_channel",
+    required=False,
+    help=""
+)
+
 # Manage Advanced Settings
 # -----------------------------------------------------------------------------
 manageArgGroup = installArgParser.add_argument_group("Advanced Settings - Manage")
@@ -659,7 +676,7 @@ turboArgGroup.add_argument(
     help=""
 )
 
-# Clud Providers
+# Cloud Providers
 # -----------------------------------------------------------------------------
 cloudArgGroup = installArgParser.add_argument_group("Cloud Providers")
 cloudArgGroup.add_argument(

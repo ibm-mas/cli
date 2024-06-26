@@ -10,12 +10,39 @@
 
 class ManageSettingsMixin():
 
+    def arcgisSettings(self) -> None:
+        # If Spatial is selected, then prompt to choose to add IBM Maximo Location Services for Esri, and prompt license
+        if "spatial=" in self.getParam("mas_appws_components") and self.getParam("mas_app_channel_manage").startswith("9."):
+            self.printDescription([
+                "",
+                "Maximo Spatial requires a map server provider in order to enable geospatial capabilities",
+                "You may choose your preferred map provider later or you can enable IBM Maximo Location Services for Esri now",
+                "This includes ArcGIS Enterprise as part of the Manage and Maximo Spatial bundle (Additional AppPoints required)."
+            ])
+
+            if self.yesOrNo("Include IBM Maximo Location Services for Esri"):
+                self.setParam("install_arcgis", "true")
+                self.setParam("mas_arcgis_channel", self.getParam("mas_app_channel_manage"))
+
+                self.printDescription([
+                    "",
+                    "IBM Maximo Location Services for Esri License Terms",
+                    "For information about your IBM Maximo Location Services for Esri License visit: ",
+                    " <u>https://ibm.biz/MAXArcGIS90-License</u>",
+                    "To continue with the installation, you must accept these additional license terms"
+                ])
+
+                if not self.yesOrNo("Do you accept the license terms"):
+                    exit(1)
+
     def manageSettings(self) -> None:
         if self.installManage:
             self.printH1("Configure Maximo Manage")
             self.printDescription(["Customize your Manage installation, refer to the product documentation for more information"])
 
             self.manageSettingsComponents()
+            self.arcgisSettings()
+
             self.manageSettingsServerBundleConfig()
             self.manageSettingsJMS()
             self.manageSettingsDatabase()
