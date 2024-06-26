@@ -22,6 +22,7 @@
         src: "{{ task_src_dir }}/dependencies/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
+        - arcgis
         - appconnect
         - cert-manager
         - common-services
