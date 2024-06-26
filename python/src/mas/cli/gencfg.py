@@ -25,8 +25,8 @@ class ConfigGeneratorMixin():
             template = Template(tFile.read())
 
         if scope == "workspace-application":
-            assert appId is not ""
-            assert workspaceId is not ""
+            assert appId != ""
+            assert workspaceId != ""
 
         name = self.promptForString("Configuration Display Name")
         url = self.promptForString("JDBC Connection String")
