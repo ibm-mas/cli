@@ -1,5 +1,25 @@
 #!/bin/bash
+set -e
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $DIR/../functions/internal/utils
 
-# No App-specific must-gather (yet)
+NAMESPACE=$1
+OUTPUT_DIR=$2
+
+# Collect Reconcile Logs
+# -----------------------------------------------------------------------------
+echo_h4 "Collect Reconcile Logs"
+
+# Main Operator
+$DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-visualinspection $OUTPUT_DIR
+
+# Mongo
+$DIR/mg-collect-reconcile-logs $NAMESPACE control-pane ibm-mas-cfg-mongo $OUTPUT_DIR
+
+# GPU Operator
+$DIR/mg-collect-reconcile-logs $NAMESPACE app gpu-operator $OUTPUT_DIR
+
+#NFD
+$DIR/mg-collect-reconcile-logs $NAMESPACE app visualinspection $OUTPUT_DIR
 
 exit 0
