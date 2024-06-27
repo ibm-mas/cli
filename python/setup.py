@@ -44,10 +44,7 @@ setup(
     author='David Parker',
     author_email='parkerda@uk.ibm.com',
     package_dir={'': 'src'},
-    packages=find_namespace_packages(where='src', include=[
-        'mas.cli',
-        'mas.cli.templates'
-    ]),
+    packages=find_namespace_packages(where='src'),
     include_package_data=True,
     scripts=[
         'src/mas-install',
