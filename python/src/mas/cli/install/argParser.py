@@ -85,7 +85,7 @@ eckArgGroup.add_argument(
 eckArgGroup.add_argument(
     "--eck-enable-logstash",
     required=False,
-    help=""
+    help="",
     action="store_const",
     const="install"
 )
