@@ -30,6 +30,9 @@ spec:
     - name: kafkacfg_file_name
       type: string
       default: ""
+    - name: aws_msk_instance_type
+      type: string
+      default: ""
 
   stepTemplate:
     name: gitops-kafka
@@ -56,6 +59,8 @@ spec:
         value: $(params.vpc_ipv4_cidr)
       - name: KAFKACFG_FILE_NAME
         value: $(params.kafkacfg_file_name)
+      - name: AWS_MSK_INSTANCE_TYPE
+        value: $(params.aws_msk_instance_type)
   steps:
     - args:
       - |-

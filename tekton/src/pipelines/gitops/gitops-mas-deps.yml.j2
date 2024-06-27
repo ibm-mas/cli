@@ -59,6 +59,9 @@ spec:
     - name: kafkacfg_file_name
       type: string
       default: ""
+    - name: aws_msk_instance_type
+      type: string
+      default: ""
 
     - name: efs_action
       type: string
@@ -163,6 +166,8 @@ spec:
           value: $(params.vpc_ipv4_cidr)
         - name: kafkacfg_file_name
           value: $(params.kafkacfg_file_name)
+        - name: aws_msk_instance_type
+          value: $(params.aws_msk_instance_type)
 
       workspaces:
         - name: configs
