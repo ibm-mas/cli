@@ -544,6 +544,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
         self.configTurbonomic()
 
         # TODO: Support ECK integration via the interactive install mode
+        # TODO: Support MAS superuser username/password via the interactive install mode
 
     def nonInteractiveMode(self) -> None:
         # Non-interactive mode
@@ -578,6 +579,8 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             "uds_contact_lastname"
         ]
         optionalParams = [
+            "mas_superuser_username",
+            "mas_superuser_password",
             "mas_trust_default_cas",
             "mas_app_settings_server_bundles_size",
             "mas_app_settings_default_jms",

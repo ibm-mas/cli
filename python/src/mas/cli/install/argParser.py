@@ -110,11 +110,13 @@ eckArgGroup.add_argument(
 masAdvancedArgGroup = installArgParser.add_argument_group("MAS Advanced Configuration")
 masAdvancedArgGroup.add_argument(
     "--superuser-username",
+    dest="mas_superuser_username",
     required=False,
     help=""
 )
 masAdvancedArgGroup.add_argument(
     "--superuser-password",
+    dest="mas_superuser_password",
     required=False,
     help=""
 )
