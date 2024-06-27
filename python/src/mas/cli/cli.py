@@ -141,7 +141,10 @@ class BaseApp(PrintMixin, PromptMixin):
         self.params[param] = value
 
     def getParam(self, param: str):
-        if param in self.params:
+        """
+        Returns the value of a parameter, or an empty string is the parameter has not set at all or is set to None
+        """
+        if param in self.params and self.params[param] is not None:
             return self.params[param]
         else:
             return ""
