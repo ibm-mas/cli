@@ -1,7 +1,5 @@
-
 *.DS_Store*
 .vscode
-
 *.pyc
 
 image/cli/mascli/templates/ibm-mas-tekton.yaml
@@ -12,3 +10,17 @@ tmp/
 tekton/test-*.yaml
 tekton/target
 tekton/tmp
+
+kubectl.exe
+mas.log
+
+python/pandoc-*-amd64.deb
+python/pandoc-*-windows-x86_64.msi
+python/build
+python/dist
+python/venv
+python/src/mas_cli.egg-info
+python/src/mas/cli/templates/ibm-mas-tekton.yaml
+python/mas-*.spec
+python/README.rst
+.env

@@ -12,7 +12,7 @@ Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by s
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 Maximo Operator Catalog Selection (Required):
-  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}     Maximo Operator Catalog Version (e.g. v8-221129-amd64)
+  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}     Maximo Operator Catalog Version (e.g. v9-240625-amd64)
 
 Update Dependencies (Optional):
   --db2u-namespace ${COLOR_YELLOW}DB2_NAMESPACE${TEXT_RESET}          DB2 namespace where instances update will be performed
@@ -24,6 +24,7 @@ Update Dependencies (Optional):
   --dro-migration  ${COLOR_YELLOW}DRO_MIGRATION${TEXT_RESET}          Confirm the removal of UDS and replacement with DRO as part of the update
   --cp4d-version  ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}            Optional. Set Cloud Pak for Data version for the upgrade. Note: This overrides the default CP4D version defined by the Maximo Operator Catalog version.
   --dro-storage-class  ${COLOR_YELLOW}DRO_STORAGE_CLASS${TEXT_RESET}  Set Custom RWO Storage Class name for DRO as part of the update
+  --dro-namespace  ${COLOR_YELLOW}DRO_NAMESPACE${TEXT_RESET}          Set Custom Namespace for DRO(Default: redhat-marketplace)
 Other Commands:
       --skip-pre-check                  Skips the 'pre-update-check' and 'post-update-verify' tasks in the update pipeline
       --no-confirm                      Launch the update without prompting for confirmation
@@ -176,6 +177,10 @@ function validate_dro_migration() {
           DRO_STORAGE_CLASS=""
           echo "No storage class selected for DRO"
         fi
+        if [[ "$NO_CONFIRM" != "true" ]] && [[ -z "${DRO_NAMESPACE}" ]]; then
+          prompt_for_input "Provide DRO Namespace [Default:'redhat-marketplace']" DRO_NAMESPACE "redhat-marketplace"
+          echo_highlight "DRO is configured to install in ${DRO_NAMESPACE} namespace"
+        fi
 
         ## Check all avaliable Suite Instance's versions, if any of them is 8.9.x cancel the update. Exit mas update throw error.
         for suite_namespace in $(oc get Suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}'); do
@@ -210,7 +215,6 @@ function validate_dro_migration() {
       else
         DRO_MIGRATION="false"
         echo -e "${COLOR_YELLOW}UDS does not exist, skipping DRO migration and proceeding with mas update"
-        DRO_NAMESPACE="redhat-marketplace"
         DRO_CSV=$(oc get csv -n "${DRO_NAMESPACE}" | grep ibm-data-reporter-operator | awk '{print $1}')
         echo $DRO_CSV
         if [[ -n $DRO_CSV ]]; then
@@ -549,15 +553,15 @@ function show_current_catalog() {
   echo -e "   ${COLOR_CYAN}${TEXT_UNDERLINE}${catalogImage}"
   reset_colors
 
-  if [[ "$catalogDisplayName" =~ .+(v8-[0-9]+-amd64) ]]; then
+  if [[ "$catalogDisplayName" =~ .+(v[89]-[0-9]+-amd64) ]]; then
     # catalogId = v8-yymmdd-amd64
     # catalogVersion = yymmdd
-    catalogId=$(sed -E "s/.+\\((v8-[0-9]+-amd64)\\)/\1/" <<< $catalogDisplayName)
-    catalogVersion=$(sed -E "s/.+\\(v8-([0-9]+)-amd64\\)/\1/" <<< $catalogDisplayName)
+    catalogId=$(sed -E "s/.+\\((v[89]-[0-9]+-amd64)\\)/\1/" <<< $catalogDisplayName)
+    catalogVersion=$(sed -E "s/.+\\(v[89]-([0-9]+)-amd64\\)/\1/" <<< $catalogDisplayName)
     catalogIsDynamic=false
   elif [[ "$catalogDisplayName" =~ .+(v8-amd64) ]]; then
     catalogId=$MOST_RECENT_CATALOG
-    catalogVersion=$(sed -E "s/.+\\(v8-([0-9]+)-amd64\\)/\1/" <<< $MOST_RECENT_CATALOG)
+    catalogVersion=$(sed -E "s/.+\\(v[89]-([0-9]+)-amd64\\)/\1/" <<< $MOST_RECENT_CATALOG)
     catalogIsDynamic=true
 
     echo
@@ -603,6 +607,9 @@ function update_noninteractive() {
         ;;
       --dro-migration)
         DRO_MIGRATION=true
+        ;;
+      --dro-namespace)
+        DRO_NAMESPACE=$1 && shift
         ;;
       --dro-storage-class)
         DRO_STORAGE_CLASS=$1 && shift
@@ -681,10 +688,10 @@ function update_interactive() {
     if [ "$?" == "0" ]; then
       if [ "$KAFKA_OPERATOR" == "amq-streams" ]; then
         KAFKA_PROVIDER="redhat"
-        KAFKA_PROVIDER_NAME="AMQ Streams) ........................"
+        KAFKA_PROVIDER_NAME="AMQ Streams"
       elif [ "$KAFKA_OPERATOR" == "strimzi-kafka-operator" ]; then
         KAFKA_PROVIDER="strimzi"
-        KAFKA_PROVIDER_NAME="Strimzi) ............................"
+        KAFKA_PROVIDER_NAME="Strimzi"
       fi
     fi
   fi
@@ -739,6 +746,7 @@ function update() {
   export SKIP_ENTITLEMENT_KEY_FLAG
   export DRO_STORAGE_CLASS
   export UDS_ACTION
+  export DRO_NAMESPACE
 
   reset_colors
   echo_h2 "Review Settings"
@@ -778,7 +786,7 @@ function update() {
 
   # Kafka (Strimzi/AMQ Streams)
   if [ "$KAFKA_NAMESPACE" != "" ]; then
-    echo_reset_dim "Kafka ...................................... ${COLOR_GREEN}$KAFKA_PROVIDER_NAME ($KAFKA_NAMESPACE)"
+    echo_reset_dim "Kafka ...................................... ${COLOR_GREEN}${KAFKA_PROVIDER_NAME} ($KAFKA_NAMESPACE)"
   else
     echo_reset_dim "Kafka ...................................... ${COLOR_RED}Not found in target cluster"
   fi
@@ -868,6 +876,7 @@ function update() {
   if [ "$DRO_MIGRATION" = "true" ]; then
     echo_reset_dim "UDS to DRO ................................. ${COLOR_GREEN}Yes"
     echo_reset_dim " - DRO Storage Class ....................... ${COLOR_GREEN}${DRO_STORAGE_CLASS}"
+    echo_reset_dim " - DRO Namespace ........................... ${COLOR_GREEN}${DRO_NAMESPACE}"
   else
     echo_reset_dim "UDS to DRO ................................. ${COLOR_RED}Not Required"
   fi
