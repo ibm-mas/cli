@@ -50,6 +50,7 @@ setup(
     ]),
     include_package_data=True,
     scripts=[
+        'src/mas-install',
         'src/mas-upgrade',
         'src/mas-uninstall'
     ],
