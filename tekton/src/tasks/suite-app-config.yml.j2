@@ -145,6 +145,30 @@ spec:
       type: string
       description: Set true if you want to configure JMS queues. It is false by default.
       default: "" # default is handled by ansible-devops
+    - name: mas_manage_attachment_configuration_mode
+      type: string
+      description: Manage attachment configuration mode (cr or db)
+      default: ""
+    - name: mas_manage_attachments_provider
+      type: string
+      description: Manage attachment provider (filestorage, ibm, aws)
+      default: ""
+    - name: db2_namespace
+      type: string
+      description: Namespace to create Db2uCluster instances
+      default: ""
+    - name: ibmcloud_resourcegroup
+      type: string
+      description: IBM Cloud Resource Group where COS is installed (for when attachments is configured via ibm provider)
+      default: ""
+    - name: ibmcos_instance_name # cos_instance_name in attachments devops role
+      type: string
+      description: Name of COS instance in IBM Cloud account
+      default: ""
+    - name: ibmcos_bucket_name # cos_bucket_name in attachments devops role
+      type: string
+      description: COS Bucket optionally used to hold attachments in Manage
+      default: ""
 
     # Application Workspace - Operand (Predict)
     - name: predict_deployment_size
@@ -261,6 +285,22 @@ spec:
         value: $(params.mas_app_settings_default_jms)
       - name: MAS_POD_TEMPLATES_DIR
         value: /workspace/pod-templates
+      - name: MAS_MANAGE_ATTACHMENT_CONFIGURATION_MODE
+        value: $(params.mas_manage_attachment_configuration_mode)
+      - name: MAS_MANAGE_ATTACHMENTS_PROVIDER
+        value: $(params.mas_manage_attachments_provider)
+      - name: DB2_INSTANCE_NAME
+        value: $(params.db2_instance_name)
+      - name: DB2_NAMESPACE
+        value: $(params.db2_namespace)
+      - name: DB2_DBNAME
+        value: $(params.db2_dbname)
+      - name: IBMCLOUD_RESOURCEGROUP
+        value: $(params.ibmcloud_resourcegroup)
+      - name: COS_INSTANCE_NAME
+        value: $(params.ibmcos_instance_name)
+      - name: COS_BUCKET_NAME
+        value: $(params.ibmcos_bucket_name)
 
       # Application Workspace - Operand (Predict)
       - name: PREDICT_DEPLOYMENT_SIZE

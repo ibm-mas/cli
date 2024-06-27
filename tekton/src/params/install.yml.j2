@@ -559,6 +559,18 @@
   type: string
   description: Set true if you want to configure JMS queues. It is false by default.
   default: "" # default is handled by ansible-devops
+- name: mas_manage_attachment_configuration_mode
+  type: string
+  description: Manage attachment configuration mode (cr or db)
+  default: ""
+- name: mas_manage_attachments_provider
+  type: string
+  description: Manage attachment provider (filestorage, ibm, aws)
+  default: ""
+- name: ibmcos_bucket_name # cos_bucket_name in attachments role
+  type: string
+  description: COS Bucket optionally used to hold attachments in Manage
+  default: ""
 
 # MAS Application Configuration - IBM Maximo Location Services for ESRI
 # -----------------------------------------------------------------------------
