@@ -14,6 +14,7 @@ import logging.handlers
 from sys import exit
 from os import path
 import re
+import re
 
 from openshift.dynamic.exceptions import NotFoundError
 
@@ -37,6 +38,7 @@ from mas.cli.validators import (
   InstanceIDFormatValidator,
   WorkspaceIDFormatValidator,
   WorkspaceNameFormatValidator,
+  TimeoutFormatValidator,
   StorageClassValidator,
   OptimizerInstallPlanValidator
 )
@@ -189,6 +191,26 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             self.promptForString("Cloud Pak for Data product version", "cpd_product_version", default="4.8.0")
 
         self.deployCP4D = True
+
+    def configSSOProperties(self):
+        self.printH2("Configure Single Sign-On (SSO) Default Properties")
+        sso_response = self.yesOrNo("Would you like to configure default SSO properties?")
+        if not sso_response:
+            self.printDescription([
+                "Using default SSO properties"
+            ])
+        else:
+            idleTimeout =self.promptForInt("Enter the idleTimeout (in seconds)", default=1800)
+            self.setParam("IDLE_TIMEOUT", idleTimeout)
+            self.printDescription([
+                f"Idle Timeout set to: {idleTimeout} seconds"
+            ])
+
+            self.promptForString("Enter the IDP session timeout (e.g., '12h' for 12 hours)", "IDP_SESSION_TIMEOUT", validator=TimeoutFormatValidator(), default="12h")
+            self.promptForString("Enter the access token timeout (e.g., '30m' for 30 minutes)", "ACCESS_TOKEN_TIMEOUT", validator=TimeoutFormatValidator(), default="30m")
+            self.promptForString("Enter the refresh token timeout (e.g., '12h' for 12 hours)", "REFRESH_TOKEN_TIMEOUT", validator=TimeoutFormatValidator(), default="12h")
+            self.promptForString("Enter the default Identity Provider (IDP)", default="local")
+            self.yesOrNo("Enable seamless login?", param="SEAMLESS_LOGIN")
 
     def configMAS(self):
         self.printH1("Configure MAS Instance")
@@ -509,6 +531,8 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
         # Interactive mode
         self.interactiveMode = True
 
+        # SSO Config
+        self.configSSOProperties()
         # Catalog
         self.configCatalog()
         self.validateCatalogSource()
