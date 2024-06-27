@@ -7,9 +7,11 @@
 # http://www.eclipse.org/legal/epl-v10.html
 #
 # *****************************************************************************
+
 from argparse import RawTextHelpFormatter
 from shutil import which
 from os import path
+from sys import exit
 
 # Use of the openshift client rather than the kubernetes client allows us access to "apply"
 from openshift import dynamic
@@ -17,60 +19,15 @@ from kubernetes import config
 from kubernetes.client import api_client
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
-from prompt_toolkit.validation import Validator, ValidationError
 
-# Available named colours in prompt_toolkit
-# -----------------------------------------------------------------------------
-# AliceBlue  AntiqueWhite  Aqua  Aquamarine  Azure  Beige  Bisque  Black  BlanchedAlmond  Blue  BlueViolet
-# Brown  BurlyWood  CadetBlue  Chartreuse  Chocolate  Coral  CornflowerBlue  Cornsilk  Crimson  Cyan
-# DarkBlue  DarkCyan  DarkGoldenRod  DarkGray  DarkGreen  DarkGrey  DarkKhaki  DarkMagenta  DarkOliveGreen
-# DarkOrange  DarkOrchid  DarkRed  DarkSalmon  DarkSeaGreen  DarkSlateBlue  DarkSlateGray  DarkSlateGrey
-# DarkTurquoise  DarkViolet  DeepPink  DeepSkyBlue  DimGray  DimGrey  DodgerBlue  FireBrick  FloralWhite
-# ForestGreen  Fuchsia  Gainsboro  GhostWhite  Gold  GoldenRod  Gray  Green  GreenYellow  Grey  HoneyDew
-# HotPink  IndianRed  Indigo  Ivory  Khaki  Lavender  LavenderBlush  LawnGreen  LemonChiffon  LightBlue
-# LightCoral  LightCyan  LightGoldenRodYellow  LightGray  LightGreen  LightGrey  LightPink  LightSalmon
-# LightSeaGreen  LightSkyBlue  LightSlateGray  LightSlateGrey  LightSteelBlue  LightYellow  Lime
-# LimeGreen  Linen  Magenta  Maroon  MediumAquaMarine  MediumBlue  MediumOrchid  MediumPurple  MediumSeaGreen
-# MediumSlateBlue  MediumSpringGreen  MediumTurquoise  MediumVioletRed  MidnightBlue  MintCream  MistyRose
-# Moccasin  NavajoWhite  Navy  OldLace  Olive  OliveDrab  Orange  OrangeRed  Orchid  PaleGoldenRod  PaleGreen
-# PaleTurquoise  PaleVioletRed  PapayaWhip  PeachPuff  Peru  Pink  Plum  PowderBlue  Purple  RebeccaPurple
-# Red  RosyBrown  RoyalBlue  SaddleBrown  Salmon  SandyBrown  SeaGreen  SeaShell  Sienna  Silver  SkyBlue
-# SlateBlue  SlateGray  SlateGrey  Snow  SpringGreen  SteelBlue  Tan  Teal  Thistle  Tomato  Turquoise
-# Violet  Wheat  White  WhiteSmoke  Yellow  YellowGreen
+from .validators import YesNoValidator
 
-from mas.cli import __version__ as packageVersion
-from mas.devops.ocp import connect
-from mas.devops.mas import verifyMasInstance
-
-from sys import exit
+from . import __version__ as packageVersion
+from .displayMixins import PrintMixin, PromptMixin
+from mas.devops.ocp import connect, isSNO
 
 import logging
-
 logger = logging.getLogger(__name__)
-
-
-class InstanceIDValidator(Validator):
-    def validate(self, document):
-        """
-        Validate that a MAS instance ID exists on the target cluster
-        """
-        instanceId = document.text
-
-        dynClient = dynamic.DynamicClient(
-            api_client.ApiClient(configuration=config.load_kube_config())
-        )
-        if not verifyMasInstance(dynClient, instanceId):
-            raise ValidationError(message='Not a valid MAS instance ID on this cluster', cursor_position=len(instanceId))
-
-
-class YesNoValidator(Validator):
-    def validate(self, document):
-        """
-        Validate that a response is understandable as a yes/no response
-        """
-        response = document.text
-        if response.lower() not in ["y", "n", "yes", "no"]:
-            raise ValidationError(message='Enter a valid response: y(es), n(o)', cursor_position=len(response))
 
 
 def getHelpFormatter(formatter=RawTextHelpFormatter, w=160, h=50):
@@ -88,7 +45,7 @@ def getHelpFormatter(formatter=RawTextHelpFormatter, w=160, h=50):
         return formatter
 
 
-class BaseApp(object):
+class BaseApp(PrintMixin, PromptMixin):
     def __init__(self):
         # Set up a log formatter
         chFormatter = logging.Formatter('%(asctime)-25s' + ' %(levelname)-8s %(message)s')
@@ -107,9 +64,44 @@ class BaseApp(object):
 
         self.version = packageVersion
         self.h1count = 0
+        self.h2count = 0
 
-        self.tektonDefsPath = path.join(path.abspath(path.dirname(__file__)), "templates", "ibm-mas-tekton.yaml")
-        print(self.tektonDefsPath)
+        self.localConfigDir = None
+        self.templatesDir = path.join(path.abspath(path.dirname(__file__)), "templates")
+        self.tektonDefsPath = path.join(self.templatesDir, "ibm-mas-tekton.yaml")
+
+        self._isSNO = None
+
+        self.compatibilityMatrix = {
+            "9.0.x": {
+                "assist": ["9.0.x", "8.8.x"],
+                "iot": ["9.0.x", "8.8.x"],
+                "manage": ["9.0.x", "8.7.x"],
+                "monitor": ["9.0.x", "8.11.x"],
+                "optimizer": ["9.0.x", "8.5.x"],
+                "predict": ["9.0.x", "8.9.x"],
+                "visualinspection": ["9.0.x", "8.9.x"]
+            },
+            "8.11.x": {
+                "assist": ["8.8.x", "8.7.x"],
+                "iot": ["8.8.x", "8.7.x"],
+                "manage": ["8.7.x", "8.6.x"],
+                "monitor": ["8.11.x", "8.10.x"],
+                "optimizer": ["8.5.x", "8.4.x"],
+                "predict": ["8.9.x", "8.8.x"],
+                "visualinspection": ["8.9.x", "8.8.x"]
+            },
+            "8.10.x": {
+                "assist": ["8.7.x", "8.6.x"],
+                "hputilities": ["8.6.x", "8.5.x"],
+                "iot": ["8.7.x", "8.6.x"],
+                "manage": ["8.6.x", "8.5.x"],
+                "monitor": ["8.10.x", "8.9.x"],
+                "optimizer": ["8.4.x", "8.3.x"],
+                "predict": ["8.8.x", "8.7.x"],
+                "visualinspection": ["8.8.x", "8.7.x"]
+            }
+        }
 
         self.spinner = {
             "interval": 80,
@@ -120,21 +112,39 @@ class BaseApp(object):
 
         self._dynClient = None
 
-        self.printTitle(f"IBM Maximo Application Suite Admin CLI v{self.version}")
-        print_formatted_text(HTML("Powered by <DarkGoldenRod><u>https://github.com/ibm-mas/ansible-devops/</u></DarkGoldenRod> and <DarkGoldenRod><u>https://tekton.dev/</u></DarkGoldenRod>"))
-
+        self.printTitle(f"\nIBM Maximo Application Suite Admin CLI v{self.version}")
+        print_formatted_text(HTML("Powered by <DarkGoldenRod><u>https://github.com/ibm-mas/ansible-devops/</u></DarkGoldenRod> and <DarkGoldenRod><u>https://tekton.dev/</u></DarkGoldenRod>\n"))
         if which("kubectl") is None:
             logger.error("Could not find kubectl on the path")
             print_formatted_text(HTML("\n<Red>Error: Could not find kubectl on the path, see <u>https://kubernetes.io/docs/tasks/tools/#kubectl</u> for installation instructions</Red>\n"))
             exit(1)
 
-    def printTitle(self, message):
-        print_formatted_text(HTML(f"<b><u>{message}</u></b>"))
+    def getCompatibleVersions(self, coreChannel: str, appId: str) -> list:
+        if coreChannel in self.compatibilityMatrix:
+            return self.compatibilityMatrix[coreChannel][appId]
+        else:
+            return []
 
-    def printH1(self, message):
-        self.h1count += 1
-        print()
-        print_formatted_text(HTML(f"<u><SteelBlue>{self.h1count}. {message}</SteelBlue></u>"))
+    def fatalError(self, message: str, exception: Exception=None) -> None:
+        if exception is not None:
+            print_formatted_text(HTML(f"<Red>Fatal Exception: {message.replace(' & ', ' &amp; ')}: {exception}</Red>"))
+        else:
+            print_formatted_text(HTML(f"<Red>Fatal Error: {message.replace(' & ', ' &amp; ')}</Red>"))
+        exit(1)
+
+    def isSNO(self):
+        if self._isSNO is None:
+            self._isSNO = isSNO(self.dynamicClient)
+        return self._isSNO
+
+    def setParam(self, param: str, value: str):
+        self.params[param] = value
+
+    def getParam(self, param: str):
+        if param in self.params:
+            return self.params[param]
+        else:
+            return ""
 
     @property
     def dynamicClient(self):
@@ -158,7 +168,7 @@ class BaseApp(object):
             logger.warning(f"Error: Unable to connect to OpenShift Container Platform: {e}")
             return None
 
-    def connect(self, noConfirm):
+    def connect(self):
         promptForNewServer = False
         self.reloadDynamicClient()
         if self._dynClient is not None:
@@ -167,7 +177,7 @@ class BaseApp(object):
                 consoleRoute = routesAPI.get(name="console", namespace="openshift-console")
                 print_formatted_text(HTML(f"Already connected to OCP Cluster:\n <u><Orange>https://{consoleRoute.spec.host}</Orange></u>"))
                 print()
-                if not noConfirm:
+                if not self.noConfirm:
                     # We are already connected to a cluster, but prompt the user if they want to use this connection
                     continueWithExistingCluster = prompt(HTML('<Yellow>Proceed with this cluster?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
                     promptForNewServer = continueWithExistingCluster in ["n", "no"]
