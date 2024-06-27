@@ -139,7 +139,6 @@ function gitops_deprovision_db2u_database_noninteractive() {
   if [[ -z $DB2_INSTANCE_NAME ]]; then
     export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
   fi
-  export DB2_CONFIG_SECRET=${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/jdbc/${DB2_INSTANCE_NAME}/config
 }
 
 function gitops_deprovision_db2u_database() {
@@ -204,7 +203,6 @@ function gitops_deprovision_db2u_database() {
   echo "${TEXT_DIM}"
   echo_h2 "DB2 Cluster Configuration" "    "
   echo_reset_dim "db2-instance-name ....................... ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
-  echo_reset_dim "DB2 config secret........................ ${COLOR_MAGENTA}${DB2_CONFIG_SECRET}"
   reset_colors
 
   TEMP_DIR=$GITOPS_WORKING_DIR/tmp-deprovision-db2u-database
