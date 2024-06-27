@@ -2,6 +2,7 @@
 .vscode
 *.pyc
 
+image/cli/install/mas_cli.tar.gz
 image/cli/mascli/templates/ibm-mas-tekton.yaml
 
 target/

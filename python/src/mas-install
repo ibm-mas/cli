@@ -543,6 +543,8 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
         self.configGrafana()
         self.configTurbonomic()
 
+        # TODO: Support ECK integration via the interactive install mode
+
     def nonInteractiveMode(self) -> None:
         # Non-interactive mode
         self.interactiveMode = False
@@ -638,6 +640,11 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             "eventstreams_resource_group",
             "eventstreams_instance_name",
             "eventstreams_instance_location",
+            "eck_action",
+            "eck_enable_logstash",
+            "eck_remote_es_hosts",
+            "eck_remote_es_username",
+            "eck_remote_es_password",
             "turbonomic_target_name",
             "turbonomic_server_url",
             "turbonomic_server_version",

@@ -71,9 +71,51 @@ masArgGroup.add_argument(
     help=""
 )
 
+# ECK Integration
+# -----------------------------------------------------------------------------
+eckArgGroup = installArgParser.add_argument_group("ECK Integration")
+eckArgGroup.add_argument(
+    "--eck",
+    dest="eck_action",
+    required=False,
+    help="",
+    action="store_const",
+    const="install"
+)
+eckArgGroup.add_argument(
+    "--eck-enable-logstash",
+    required=False,
+    help=""
+)
+eckArgGroup.add_argument(
+    "--eck-remote-es-hosts",
+    required=False,
+    help=""
+)
+eckArgGroup.add_argument(
+    "--eck-remote-es-username",
+    required=False,
+    help=""
+)
+eckArgGroup.add_argument(
+    "--eck-remote-es-password",
+    required=False,
+    help=""
+)
+
 # MAS Advanced Configuration
 # -----------------------------------------------------------------------------
 masAdvancedArgGroup = installArgParser.add_argument_group("MAS Advanced Configuration")
+masAdvancedArgGroup.add_argument(
+    "--superuser-username",
+    required=False,
+    help=""
+)
+masAdvancedArgGroup.add_argument(
+    "--superuser-password",
+    required=False,
+    help=""
+)
 masAdvancedArgGroup.add_argument(
     "--additional-configs",
     required=False,
