@@ -688,10 +688,10 @@ function update_interactive() {
     if [ "$?" == "0" ]; then
       if [ "$KAFKA_OPERATOR" == "amq-streams" ]; then
         KAFKA_PROVIDER="redhat"
-        KAFKA_PROVIDER_NAME="AMQ Streams) ........................"
+        KAFKA_PROVIDER_NAME="AMQ Streams"
       elif [ "$KAFKA_OPERATOR" == "strimzi-kafka-operator" ]; then
         KAFKA_PROVIDER="strimzi"
-        KAFKA_PROVIDER_NAME="Strimzi) ............................"
+        KAFKA_PROVIDER_NAME="Strimzi"
       fi
     fi
   fi
@@ -786,7 +786,7 @@ function update() {
 
   # Kafka (Strimzi/AMQ Streams)
   if [ "$KAFKA_NAMESPACE" != "" ]; then
-    echo_reset_dim "Kafka ...................................... ${COLOR_GREEN}$KAFKA_PROVIDER_NAME ($KAFKA_NAMESPACE)"
+    echo_reset_dim "Kafka ...................................... ${COLOR_GREEN}${KAFKA_PROVIDER_NAME} ($KAFKA_NAMESPACE)"
   else
     echo_reset_dim "Kafka ...................................... ${COLOR_RED}Not found in target cluster"
   fi
