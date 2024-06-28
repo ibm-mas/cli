@@ -95,7 +95,6 @@ class AdditionalConfigsMixin():
                 self.fatalError(f"Invalid selection: {podTemplateChoice}")
 
         if self.getParam("mas_pod_templates_dir") != "":
-            # Get list of files in localConfigDir
             templateFilesPath = rf'{self.getParam("mas_pod_templates_dir")}/*.yml'
             templateFiles = glob(templateFilesPath)
             if len(templateFiles) == 0:
