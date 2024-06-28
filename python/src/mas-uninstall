@@ -34,7 +34,8 @@ class App(BaseApp):
         Uninstall MAS instance
         """
         instanceId = args.instance_id
-        noConfirm = args.no_confirm
+        self.noConfirm = args.no_confirm
+
         if args.uninstall_all_deps:
             uninstallGrafana = True
             uninstallIBMCatalog = True
@@ -55,7 +56,7 @@ class App(BaseApp):
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
             # Connect to the target cluster
-            self.connect(noConfirm)
+            self.connect()
         else:
             logger.debug("MAS instance ID is set, so we assume already connected to the desired OCP")
 
@@ -138,11 +139,11 @@ class App(BaseApp):
         print_formatted_text(HTML(f"<LightSlateGrey>Uninstall MongoDb ............... {uninstallMongoDb}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Uninstall SLS ................... {uninstallSLS}</LightSlateGrey>"))
 
-        if not noConfirm:
+        if not self.noConfirm:
             print()
             continueWithUninstall = prompt(HTML(f'<Yellow>Proceed with these settings?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
 
-        if noConfirm or continueWithUninstall in ["y", "yes"]:
+        if self.noConfirm or continueWithUninstall in ["y", "yes"]:
             self.printH1("Launch uninstall")
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 

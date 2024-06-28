@@ -32,11 +32,12 @@ class App(BaseApp):
         """
         Upgrade MAS instance
         """
+        self.noConfirm = noConfirm
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
             # Connect to the target cluster
-            self.connect(noConfirm)
+            self.connect()
         else:
             logger.debug("MAS instance ID is set, so we assume already connected to the desired OCP")
 
@@ -72,11 +73,11 @@ class App(BaseApp):
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Skip Pre-Upgrade Checks ......... {skipPreCheck}</LightSlateGrey>"))
 
-        if not noConfirm:
+        if not self.noConfirm:
             print()
             continueWithUpgrade = prompt(HTML(f'<Yellow>Proceed with these settings?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
 
-        if noConfirm or continueWithUpgrade in ["y", "yes"]:
+        if self.noConfirm or continueWithUpgrade in ["y", "yes"]:
             self.printH1("Launch Upgrade")
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 
