@@ -20,5 +20,5 @@
     name: mas-devops-cp4d
   when:
     - input: "$(params.cp4d_update)"
-      operator: notin
-      values: [""]
+      operator: in
+      values: ["true", "True"]
