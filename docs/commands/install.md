@@ -440,3 +440,7 @@ The installer will automatically provision and set up the required dependencies 
 The install can be launched with the command `mas install`.  The end result will be a pipeline run started in your target cluster where you can track the progress of the installation.
 
 ![](../img/pipelineruns.png)
+
+Limitations
+-------------------------------------------------------------------------------
+- It is not supported to install Cloud Pak for Data in customized namespaces. The default Cloud Pak for Data namespaces used by this MAS CLI are `ibm-cpd-operators` where CPD related operators will be installed, and `ibm-cpd` where the CPD deployment will be located. Therefore, MAS CLI does not support multiple Cloud Pak for Data instances.

@@ -20,6 +20,10 @@ Usage
 - `--skip-pre-check`     Skips the 'pre-update-check' and 'post-update-verify' task in the update pipeline
 - `-h|--help`            Show help message
 
+Limitations
+-------------------------------------------------------------------------------
+- Cloud Pak for Data upgrade is not supported if not initially installed using MAS CLI or ansible-devops (i.e under `ibm-cpd` namespace). You should not upgrade Cloud Pak For Data using `mas update` if installed in first place using `cpd-cli` tool. Refer to [Cloud Pak for Data documentation](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.8.x?topic=48-preparing-upgrade-instance-cloud-pak-data) for upgrade steps if you have used `cpd-cli` for your initial installation.
+
 Examples
 -------------------------------------------------------------------------------
 ### Interactive Update
