@@ -235,6 +235,16 @@ class InstallSummarizerMixin():
         self.printSummary("License File", self.slsLicenseFileLocal)
         self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
 
+    def eckSummary(self) -> None:
+        self.printH2("Elastic Cloud on Kubernetes")
+        if self.getParam("eck_action") == "install":
+            self.printSummary("ECK Integration", "Enabled")
+            self.printParamSummary("Logstash", "eck_enable_logstash")
+            self.printParamSummary("Remote Elasticsearch hosts", "eck_remote_es_hosts")
+            self.printParamSummary("Remote Elasticsearch username", "eck_remote_es_username")
+        else:
+            self.printSummary("ECK Integration", "Disabled")
+
     def turbonomicSummary(self) -> None:
         self.printH2("Turbonomic")
         if self.getParam("turbonomic_server_url") != "":

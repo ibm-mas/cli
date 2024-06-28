@@ -113,6 +113,7 @@ function validate_existing_mongo() {
 
       MONGODB_CURRENT_MAJORMINOR_VERSION=${MONGODB_CURRENT_VERSION:0:3}
       MONGODB_TARGET_MAJORMINOR_VERSION=${MONGODB_TARGET_VERSION:0:3}
+      MONGODB_TARGET_MAJOR_VERSION=${MONGODB_TARGET_VERSION:0:1}
 
       # Let users know that Mongo will be upgraded if existing MongoDb major.minor version is lower than the target major version
       # We don't show this message for normal updates, e.g. 5.0.1 to 5.0.2
@@ -123,14 +124,25 @@ function validate_existing_mongo() {
           echo
           echo_highlight "It is recommended that you backup your MongoDB instance before proceeding:"
           echo -e "${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-backing-up-mongodb-maximo-application${TEXT_RESET}"
-          MONGODB_V5_UPGRADE=true
+
+          if [[ "$MONGODB_TARGET_MAJOR_VERSION" == "5" ]]; then
+            MONGODB_V5_UPGRADE=true
+          elif [[ "$MONGODB_TARGET_MAJOR_VERSION" == "6" ]]; then
+            MONGODB_V6_UPGRADE=true
+          fi
           echo
         else
-          if [[ -z "$MONGODB_V5_UPGRADE" ]] ; then # if 'mas update -c v8-240130-amd64 --no-confirm' but no '--mongodb-v5-upgrade' then we fail as user must consent about the mongodb upgrade
-          echo
-          echo -e "${COLOR_RED}By choosing '$MAS_CATALOG_VERSION' catalog, you must confirm MongoDB upgrade to version 5.${TEXT_RESET}"
-          echo -e "${COLOR_RED}Add '--mongodb-v5-upgrade' argument to the 'mas update' command in order to continue.${TEXT_RESET}"
-          exit 1
+           # if 'mas update -c v8-240130-amd64 --no-confirm' but no '--mongodb-v5-upgrade' then we fail as user must consent about the mongodb upgrade
+          if [[ "$MONGODB_TARGET_MAJOR_VERSION" == "5" && -z "$MONGODB_V5_UPGRADE" ]] ; then
+            echo
+            echo -e "${COLOR_RED}By choosing '$MAS_CATALOG_VERSION' catalog, you must confirm MongoDB upgrade to version 5.${TEXT_RESET}"
+            echo -e "${COLOR_RED}Add '--mongodb-v5-upgrade' argument to the 'mas update' command in order to continue.${TEXT_RESET}"
+            exit 1
+          elif [[ "$MONGODB_TARGET_MAJOR_VERSION" == "6" && -z "$MONGODB_V6_UPGRADE" ]] ; then
+            echo
+            echo -e "${COLOR_RED}By choosing '$MAS_CATALOG_VERSION' catalog, you must confirm MongoDB upgrade to version 6.${TEXT_RESET}"
+            echo -e "${COLOR_RED}Add '--mongodb-v5-upgrade' argument to the 'mas update' command in order to continue.${TEXT_RESET}"
+            exit 1
           fi
         fi
       fi
