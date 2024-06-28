@@ -19,7 +19,8 @@ from prompt_toolkit.completion import WordCompleter
 from halo import Halo
 
 from mas.cli import __version__ as packageVersion
-from mas.cli.cli import InstanceIDValidator, YesNoValidator, BaseApp, getHelpFormatter
+from mas.cli.cli import BaseApp, getHelpFormatter
+from mas.cli.validators import InstanceIDValidator, YesNoValidator
 from mas.devops.ocp import createNamespace
 from mas.devops.mas import listMasInstances, verifyMasInstance
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
