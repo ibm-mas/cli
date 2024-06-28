@@ -86,8 +86,7 @@ eckArgGroup.add_argument(
     "--eck-enable-logstash",
     required=False,
     help="",
-    action="store_const",
-    const="install"
+    action="store_true"
 )
 eckArgGroup.add_argument(
     "--eck-remote-es-hosts",
