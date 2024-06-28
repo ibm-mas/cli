@@ -1,0 +1,133 @@
+#!/bin/bash
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# !! Note: Despite the name, this is used by the upgrade script              !!
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+# STORAGE_CLASS_RWX
+# -----------------
+# RWX: Usually this role is fulfilled by block storage classes; used by:
+# - Grafana
+# - Db2 (data, logs, and temp volumes)
+# - Kafka, MongoDb, and User Data Services
+#
+# - db2_meta_storage_class [ibmc-file-gold, ocs-storagecluster-cephfs, azurefiles-premium]
+# - db2_backup_storage_class [ibmc-file-gold, ocs-storagecluster-cephfs, azurefiles-premium]
+
+# STORAGE_CLASS_RWO
+# -----------------
+# RWO: Usually this role is fulfilled by file storage classes; used by:
+# - Db2 (meta and backup volumes)
+#
+# - grafana_instance_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+# - db2_data_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+# - db2_logs_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+# - db2_temp_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+# - kafka_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+# - mongodb_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+# - uds_storage_class [ibmc-block-bronze, ocs-storagecluster-ceph-rbd, managed-premium] (doesn't really need to be bronze)
+
+# Unknown/TBC
+# - appconnect_storage_class - doesn't support auto-select storage classes :(
+# - cpd_metadata_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+# - cpd_primary_storage_class [ibmc-file-gold-gid, ocs-storagecluster-cephfs, azurefiles-premium]
+# - cpd_service_storage_class [ibmc-file-gold-gid, ocs-storagecluster-cephfs, azurefiles-premium] / WD: [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
+
+function install_config_storage_classes() {
+  echo
+  echo_h2 "Configure Storage Class Usage"
+  echo "${TEXT_DIM}Maximo Application Suite and it's dependencies require storage classes that support ReadWriteOnce (RWO) and ReadWriteMany (RWX) access modes:"
+  echo "  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node."
+  echo "  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes."
+  echo ""
+  reset_colors
+  # 1. ROKS
+  oc get storageclass ibmc-file-gold-gid &>> $LOGFILE
+  if [[ $? == "0" ]]; then
+    echo -e "${COLOR_GREEN}Storage provider auto-detected: IBMCloud ROKS${TEXT_RESET}"
+    echo "${TEXT_DIM}  - Storage class (ReadWriteOnce): ibmc-block-gold"
+    echo "${TEXT_DIM}  - Storage class (ReadWriteMany): ibmc-file-gold-gid"
+    STORAGE_CLASS_PROVIDER=ibmc
+    STORAGE_CLASS_RWO=ibmc-block-gold
+    STORAGE_CLASS_RWX=ibmc-file-gold-gid
+  fi
+
+  # 2. OCS
+  if [[ "$STORAGE_CLASS_RWX" == "" ]]; then
+    oc get storageclass ocs-storagecluster-cephfs &>> $LOGFILE
+    if [[ $? == "0" ]]; then
+      echo -e "${COLOR_GREEN}Storage provider auto-detected: OpenShift Container Storage${TEXT_RESET}"
+      echo "${TEXT_DIM}  - Storage class (ReadWriteOnce): ocs-storagecluster-ceph-rbd"
+      echo "${TEXT_DIM}  - Storage class (ReadWriteMany): ocs-storagecluster-cephfs"
+      STORAGE_CLASS_PROVIDER=ocs
+      STORAGE_CLASS_RWO=ocs-storagecluster-ceph-rbd
+      STORAGE_CLASS_RWX=ocs-storagecluster-cephfs
+    fi
+  fi
+
+  # 3. Azure
+  if [[ "$STORAGE_CLASS_RWX" == "" ]]; then
+    oc get storageclass managed-premium &>> $LOGFILE
+    if [[ $? == "0" ]]; then
+      echo -e "${COLOR_GREEN}Storage provider auto-detected: Azure Managed${TEXT_RESET}"
+      echo "${TEXT_DIM}  - Storage class (ReadWriteOnce): azurefiles-premium"
+      echo "${TEXT_DIM}  - Storage class (ReadWriteMany): managed-premium"
+      STORAGE_CLASS_PROVIDER=azure
+      STORAGE_CLASS_RWO=azurefiles-premium
+      STORAGE_CLASS_RWX=managed-premium
+    fi
+  fi
+
+  # 4. AWS
+  if [[ "$STORAGE_CLASS_RWX" == "" ]]; then
+    oc get storageclass gp2 &>> $LOGFILE
+    if [[ $? == "0" ]]; then
+      echo -e "${COLOR_GREEN}Storage provider auto-detected: AWS gp2${TEXT_RESET}"
+      echo "${TEXT_DIM}  - Storage class (ReadWriteOnce): gp2"
+      echo "${TEXT_DIM}  - Storage class (ReadWriteMany): efs"
+      STORAGE_CLASS_PROVIDER=aws
+      STORAGE_CLASS_RWO=gp2
+      STORAGE_CLASS_RWX=efs
+    fi
+  fi
+  reset_colors
+
+  if [[ "$STORAGE_CLASS_PROVIDER" == "ibmc" ]]; then
+    # Unless we use the -gid storage class we struggle with permission issues when mounted
+    PIPELINE_STORAGE_CLASS=ibmc-file-gold-gid
+  else
+    PIPELINE_STORAGE_CLASS=$STORAGE_CLASS_RWX
+  fi
+
+  PIPELINE_STORAGE_ACCESSMODE="ReadWriteMany"
+  if [[ "$SNO_MODE" == "true" ]]; then
+    PIPELINE_STORAGE_CLASS=$STORAGE_CLASS_RWO
+    PIPELINE_STORAGE_ACCESSMODE="ReadWriteOnce"
+  fi
+
+  if [[ "$STORAGE_CLASS_RWX" != "" ]]; then
+    echo
+    prompt_for_confirm "Choose your own storage classes anyway?" OVERRIDE_STORAGE_CLASSES
+  fi
+
+  # 5. You choose then ...
+  if [[ "$STORAGE_CLASS_RWX" == "" || "$OVERRIDE_STORAGE_CLASSES" == "true" ]]; then
+    STORAGE_CLASS_PROVIDER=custom
+    echo ""
+    echo "${COLOR_YELLOW}Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:"
+    oc get storageclasses -o jsonpath='{range .items[*]}{" - "}{.metadata.name}{"\n"}{end}'
+    echo ""
+    echo "${COLOR_YELLOW}Enter 'none' for the ReadWriteMany storage class if you do not have a suitable class available in the cluster, however this will limit what can be installed"
+    echo ""
+    prompt_for_input "ReadWriteOnce (RWO) storage class" STORAGE_CLASS_RWO
+    prompt_for_input "ReadWriteMany (RWX) storage class" STORAGE_CLASS_RWX
+
+    # We prefer to use ReadWriteMany, but we can cope with ReadWriteOnce if necessary
+    PIPELINE_STORAGE_CLASS=$STORAGE_CLASS_RWX
+    PIPELINE_STORAGE_ACCESSMODE="ReadWriteMany"
+    if [[ "$STORAGE_CLASS_RWX" == "none" ]]; then
+      PIPELINE_STORAGE_CLASS=$STORAGE_CLASS_RWO
+      PIPELINE_STORAGE_ACCESSMODE="ReadWriteOnce"
+    fi
+  fi
+}

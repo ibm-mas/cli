@@ -19,7 +19,8 @@ from prompt_toolkit.completion import WordCompleter
 from halo import Halo
 
 from mas.cli import __version__ as packageVersion
-from mas.cli.cli import InstanceIDValidator, YesNoValidator, BaseApp, getHelpFormatter
+from mas.cli.cli import BaseApp, getHelpFormatter
+from mas.cli.validators import InstanceIDValidator, YesNoValidator
 from mas.devops.ocp import createNamespace
 from mas.devops.mas import listMasInstances, verifyMasInstance
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUninstallPipeline
@@ -33,7 +34,8 @@ class App(BaseApp):
         Uninstall MAS instance
         """
         instanceId = args.instance_id
-        noConfirm = args.no_confirm
+        self.noConfirm = args.no_confirm
+
         if args.uninstall_all_deps:
             uninstallGrafana = True
             uninstallIBMCatalog = True
@@ -54,7 +56,7 @@ class App(BaseApp):
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
             # Connect to the target cluster
-            self.connect(noConfirm)
+            self.connect()
         else:
             logger.debug("MAS instance ID is set, so we assume already connected to the desired OCP")
 
@@ -114,14 +116,15 @@ class App(BaseApp):
 
         # Default to Red Hat Cert-Manager, and check if IBM cert-manager is installed
         certManagerProvider="redhat"
-        namespaceAPI = self.dynamicClient.resources.get(api_version="v1", kind="Namespace")
         try:
             # Check if 'ibm-common-services' namespace exist, this will throw NotFoundError exception when not found.
+            namespaceAPI = self.dynamicClient.resources.get(api_version="v1", kind="Namespace")
             namespaceAPI.get(name="ibm-common-services")
+
             podsAPI = self.dynamicClient.resources.get(api_version="v1", kind="Pod")
             podsList = podsAPI.get(namespace="ibm-common-services")
-            for pod in podsList:
-                if pod is not None and pod.metadata.name.contains("cert-manager-cainjector"):
+            for pod in podsList.items:
+                if pod is not None and "cert-manager-cainjector" in pod.metadata.name:
                     certManagerProvider = "ibm"
         except NotFoundError:
             print()
@@ -137,11 +140,11 @@ class App(BaseApp):
         print_formatted_text(HTML(f"<LightSlateGrey>Uninstall MongoDb ............... {uninstallMongoDb}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Uninstall SLS ................... {uninstallSLS}</LightSlateGrey>"))
 
-        if not noConfirm:
+        if not self.noConfirm:
             print()
             continueWithUninstall = prompt(HTML(f'<Yellow>Proceed with these settings?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
 
-        if noConfirm or continueWithUninstall in ["y", "yes"]:
+        if self.noConfirm or continueWithUninstall in ["y", "yes"]:
             self.printH1("Launch uninstall")
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 
