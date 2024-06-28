@@ -25,6 +25,7 @@ Update Dependencies (Optional):
   --cp4d-version  ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}            Optional. Set Cloud Pak for Data version for the upgrade. Note: This overrides the default CP4D version defined by the Maximo Operator Catalog version.
   --dro-storage-class  ${COLOR_YELLOW}DRO_STORAGE_CLASS${TEXT_RESET}  Set Custom RWO Storage Class name for DRO as part of the update
   --dro-namespace  ${COLOR_YELLOW}DRO_NAMESPACE${TEXT_RESET}          Set Custom Namespace for DRO(Default: redhat-marketplace)
+  --skip-cp4d-upgrade                                                 Skips Cloud Pak for Data upgrade
 Other Commands:
       --skip-pre-check                  Skips the 'pre-update-check' and 'post-update-verify' tasks in the update pipeline
       --no-confirm                      Launch the update without prompting for confirmation
@@ -356,128 +357,130 @@ function validate_existing_cp4d_service() {
 # and prints a warning message if Cloud Pak Data is supposed to be upgraded
 function validate_existing_cp4d() {
 
-  # Lookup existing CP4D instance
-  if [[ "$CP4D_INSTANCE_NAMESPACE" == "" ]]; then
-    CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
-  fi
-
-  # if still CP4D instance not found in ibm-cpd, then likely not installed via MAS automation so we can't guarantee support.
-  if [[ "$CP4D_INSTANCE_NAMESPACE" == "ibm-cpd" ]]; then
-    # Lookup existing CP4D instance storage classes
-    if [[ "$STORAGE_CLASS_RWX" == "" && "$STORAGE_CLASS_RWO" == "" ]]; then
-      if [[ "$CP4D_INSTANCE_NAMESPACE" != "" ]]; then
-        # Try fetching file storage class for CPD 4.6 format (storageClass property)
-        CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.storageClass}' 2> /dev/null`
-        # If not found then try fetching file storage class for CPD 4.8 format (fileStorageClass property)
-        if [[ "$CPD_FILE_STORAGE_CLASS" == "" ]]; then
-          CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.fileStorageClass}' 2> /dev/null`
-        fi
-
-        # Try fetching block storage class for CPD 4.6 format (zenCoreMetadbStorageClass property)
-        CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.zenCoreMetadbStorageClass}' 2> /dev/null`
-        # If not found then try fetching file storage class for CPD 4.8 format (blockStorageClass property)
-        if [[ "$CPD_BLOCK_STORAGE_CLASS" == "" ]]; then
-          CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.blockStorageClass}' 2> /dev/null`
-        fi
-
-        STORAGE_CLASS_RWX=$CPD_FILE_STORAGE_CLASS
-        STORAGE_CLASS_RWO=$CPD_BLOCK_STORAGE_CLASS
-      fi
-    fi
-
+  if [[ -z "$CPD_UPDATE" ]]; then
     # Lookup existing CP4D instance
-    CP4D_CURRENT_VERSION=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.version}' 2> /dev/null`
-
-    # Target cp4d version will be defined by chosen catalog/casebundle
-    if [[ "$CP4D_VERSION" == "" ]]; then
-      CP4D_VERSION=`yq -r .cpd_product_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml 2> /dev/null`
-      if [[ "$CP4D_VERSION" == "null" ]]; then
-        echo "Could not determine default Cloud Pak for Data target upgrade version based on '$MAS_CATALOG_VERSION' catalog source. Skipping upgrade..."
-        CP4D_VERSION=""
-      fi
+    if [[ "$CP4D_INSTANCE_NAMESPACE" == "" ]]; then
+      CP4D_INSTANCE_NAMESPACE=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].metadata.namespace}' 2> /dev/null`
     fi
 
-    # Lookup CP4D target version is valid
-    if [[ "$CP4D_VERSION" != "" ]]; then
-      check_cp4d_target_version "$CP4D_VERSION" "cpd_platform"
-      # If CP4D_SERVICE_TARGET_VERSION is empty, it means it's not a valid version to be upgraded thus skip
-      if [[ "$CP4D_SERVICE_TARGET_VERSION" == "" ]]; then
-        CP4D_VERSION=""
+    # if still CP4D instance not found in ibm-cpd, then likely not installed via MAS automation so we can't guarantee support.
+    if [[ "$CP4D_INSTANCE_NAMESPACE" == "ibm-cpd" ]]; then
+      # Lookup existing CP4D instance storage classes
+      if [[ "$STORAGE_CLASS_RWX" == "" && "$STORAGE_CLASS_RWO" == "" ]]; then
+        if [[ "$CP4D_INSTANCE_NAMESPACE" != "" ]]; then
+          # Try fetching file storage class for CPD 4.6 format (storageClass property)
+          CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.storageClass}' 2> /dev/null`
+          # If not found then try fetching file storage class for CPD 4.8 format (fileStorageClass property)
+          if [[ "$CPD_FILE_STORAGE_CLASS" == "" ]]; then
+            CPD_FILE_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.fileStorageClass}' 2> /dev/null`
+          fi
+
+          # Try fetching block storage class for CPD 4.6 format (zenCoreMetadbStorageClass property)
+          CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.zenCoreMetadbStorageClass}' 2> /dev/null`
+          # If not found then try fetching file storage class for CPD 4.8 format (blockStorageClass property)
+          if [[ "$CPD_BLOCK_STORAGE_CLASS" == "" ]]; then
+            CPD_BLOCK_STORAGE_CLASS=`oc get ibmcpds.cpd.ibm.com -n $CP4D_INSTANCE_NAMESPACE -o jsonpath='{.items[0].spec.blockStorageClass}' 2> /dev/null`
+          fi
+
+          STORAGE_CLASS_RWX=$CPD_FILE_STORAGE_CLASS
+          STORAGE_CLASS_RWO=$CPD_BLOCK_STORAGE_CLASS
+        fi
       fi
-    fi
 
-    # Check if CP4D is currently installed, if not then don't bother trying to upgrade
-    # Set CP4D_UPDATE if current CP4D version is lower than expected
-    if [[ "$CP4D_CURRENT_VERSION" != "" && "$CP4D_VERSION" != "" ]]; then
-      if [ ! "$(printf '%s\n' "$CP4D_VERSION" "$CP4D_CURRENT_VERSION" | sort -V | head -n1)" = "$CP4D_VERSION" ]; then
+      # Lookup existing CP4D instance
+      CP4D_CURRENT_VERSION=`oc get ibmcpds.cpd.ibm.com -A -o jsonpath='{.items[0].spec.version}' 2> /dev/null`
 
-        CP4D_CURRENT_MAJORMINOR_VERSION=${CP4D_CURRENT_VERSION:0:3}
-        CP4D_TARGET_MAJORMINOR_VERSION=${CP4D_VERSION:0:3}
+      # Target cp4d version will be defined by chosen catalog/casebundle
+      if [[ "$CP4D_VERSION" == "" ]]; then
+        CP4D_VERSION=`yq -r .cpd_product_version_default ansible-devops/common_vars/casebundles/${MAS_CATALOG_VERSION}.yml 2> /dev/null`
+        if [[ "$CP4D_VERSION" == "null" ]]; then
+          echo "Could not determine default Cloud Pak for Data target upgrade version based on '$MAS_CATALOG_VERSION' catalog source. Skipping upgrade..."
+          CP4D_VERSION=""
+        fi
+      fi
 
-        # Let users know that cp4d will be upgraded if existing cp4d major.minor version is lower than the target major version
-        # We don't show this message for patch updates, e.g. 4.8.0 to 4.8.1
-        if [ ! "$(printf '%s\n' "$CP4D_TARGET_MAJORMINOR_VERSION" "$CP4D_CURRENT_MAJORMINOR_VERSION" | sort -V | head -n1)" = "$CP4D_TARGET_MAJORMINOR_VERSION" ]; then
-          if [[ -z "$NO_CONFIRM" ]] ; then # if 'mas update -c v8-231128-amd64', but '--no--confirm' is not set, then we proceed and warn user of the mongodb upgrade, users will still have a chance to abort
-            echo_highlight "Dependency Upgrade Notice!"
-            echo_highlight "Cloud Pak For Data is currently running on version ${CP4D_CURRENT_VERSION} and will be upgraded to version ${CP4D_VERSION}"
-            echo
-            echo_highlight "It is recommended that you backup your Cloud Pak for Data instance before proceeding:"
-            echo -e "${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/cloud-paks/cp-data/4.8.x?topic=administering-backing-up-restoring-cloud-pak-data${TEXT_RESET}"
+      # Lookup CP4D target version is valid
+      if [[ "$CP4D_VERSION" != "" ]]; then
+        check_cp4d_target_version "$CP4D_VERSION" "cpd_platform"
+        # If CP4D_SERVICE_TARGET_VERSION is empty, it means it's not a valid version to be upgraded thus skip
+        if [[ "$CP4D_SERVICE_TARGET_VERSION" == "" ]]; then
+          CP4D_VERSION=""
+        fi
+      fi
+
+      # Check if CP4D is currently installed, if not then don't bother trying to upgrade
+      # Set CP4D_UPDATE if current CP4D version is lower than expected
+      if [[ "$CP4D_CURRENT_VERSION" != "" && "$CP4D_VERSION" != "" ]]; then
+        if [ ! "$(printf '%s\n' "$CP4D_VERSION" "$CP4D_CURRENT_VERSION" | sort -V | head -n1)" = "$CP4D_VERSION" ]; then
+
+          CP4D_CURRENT_MAJORMINOR_VERSION=${CP4D_CURRENT_VERSION:0:3}
+          CP4D_TARGET_MAJORMINOR_VERSION=${CP4D_VERSION:0:3}
+
+          # Let users know that cp4d will be upgraded if existing cp4d major.minor version is lower than the target major version
+          # We don't show this message for patch updates, e.g. 4.8.0 to 4.8.1
+          if [ ! "$(printf '%s\n' "$CP4D_TARGET_MAJORMINOR_VERSION" "$CP4D_CURRENT_MAJORMINOR_VERSION" | sort -V | head -n1)" = "$CP4D_TARGET_MAJORMINOR_VERSION" ]; then
+            if [[ -z "$NO_CONFIRM" ]] ; then # if 'mas update -c v8-231128-amd64', but '--no--confirm' is not set, then we proceed and warn user of the mongodb upgrade, users will still have a chance to abort
+              echo_highlight "Dependency Upgrade Notice!"
+              echo_highlight "Cloud Pak For Data is currently running on version ${CP4D_CURRENT_VERSION} and will be upgraded to version ${CP4D_VERSION}"
+              echo
+              echo_highlight "It is recommended that you backup your Cloud Pak for Data instance before proceeding:"
+              echo -e "${COLOR_CYAN}${TEXT_UNDERLINE}https://www.ibm.com/docs/en/cloud-paks/cp-data/4.8.x?topic=administering-backing-up-restoring-cloud-pak-data${TEXT_RESET}"
+            fi
+          fi
+
+          CP4D_UPDATE=true
+          SKIP_ENTITLEMENT_KEY_FLAG=true # this will skip ibm-entitlement-key assertion in cp4d role, as entitlement key is not sent in update pipeline but it is required in cp4d role
+
+          # Only check CP4D services if CP4D platform is installed in first place
+          if [[ "$CP4D_CURRENT_VERSION" != "" ]]; then
+            # Check if CP4D services are installed, if found then flag them to be upgraded
+
+            # Validates CP4D services upgrade - Watson Studio
+            validate_existing_cp4d_service 'ws.ws.cpd.ibm.com' 'Watson Studio' 'ws'
+            CP4D_UPDATE_WS=$CP4D_SERVICE_UPDATE
+            CP4D_CURRENT_VERSION_WS=$CP4D_SERVICE_CURRENT_VERSION
+            CP4D_TARGET_VERSION_WS=$CP4D_SERVICE_TARGET_VERSION
+
+            # Validates CP4D services upgrade - Watson Machine Learning
+            validate_existing_cp4d_service 'wmlbases.wml.cpd.ibm.com' 'Watson Machine Learning' 'wml'
+            CP4D_UPDATE_WML=$CP4D_SERVICE_UPDATE
+            CP4D_CURRENT_VERSION_WML=$CP4D_SERVICE_CURRENT_VERSION
+            CP4D_TARGET_VERSION_WML=$CP4D_SERVICE_TARGET_VERSION
+
+            # Validates CP4D services upgrade - Spark
+            validate_existing_cp4d_service 'analyticsengines.ae.cpd.ibm.com' 'Analytics Engine' 'analyticsengine'
+            CP4D_UPDATE_SPARK=$CP4D_SERVICE_UPDATE
+            CP4D_CURRENT_VERSION_SPARK=$CP4D_SERVICE_CURRENT_VERSION
+            CP4D_TARGET_VERSION_SPARK=$CP4D_SERVICE_TARGET_VERSION
+
+            # Validates CP4D services upgrade - Watson Openscale
+            validate_existing_cp4d_service 'woservices.wos.cpd.ibm.com' 'Watson Openscale' 'openscale'
+            CP4D_UPDATE_WOS=$CP4D_SERVICE_UPDATE
+            CP4D_CURRENT_VERSION_WOS=$CP4D_SERVICE_CURRENT_VERSION
+            CP4D_TARGET_VERSION_WOS=$CP4D_SERVICE_TARGET_VERSION
+
+            # Validates CP4D services upgrade - SPSS Modeler
+            validate_existing_cp4d_service 'spss.spssmodeler.cpd.ibm.com' 'SPSS Modeler' 'spss'
+            CP4D_UPDATE_SPSS=$CP4D_SERVICE_UPDATE
+            CP4D_CURRENT_VERSION_SPSS=$CP4D_SERVICE_CURRENT_VERSION
+            CP4D_TARGET_VERSION_SPSS=$CP4D_SERVICE_TARGET_VERSION
+
+            # Validates CP4D services upgrade - Cognos
+            validate_existing_cp4d_service 'caservices.ca.cpd.ibm.com' 'Cognos Analytics' 'cognos_analytics'
+            CP4D_UPDATE_COGNOS=$CP4D_SERVICE_UPDATE
+            CP4D_CURRENT_VERSION_COGNOS=$CP4D_SERVICE_CURRENT_VERSION
+            CP4D_TARGET_VERSION_COGNOS=$CP4D_SERVICE_TARGET_VERSION
           fi
         fi
 
-        CP4D_UPDATE=true
-        SKIP_ENTITLEMENT_KEY_FLAG=true # this will skip ibm-entitlement-key assertion in cp4d role, as entitlement key is not sent in update pipeline but it is required in cp4d role
-
-        # Only check CP4D services if CP4D platform is installed in first place
-        if [[ "$CP4D_CURRENT_VERSION" != "" ]]; then
-          # Check if CP4D services are installed, if found then flag them to be upgraded
-
-          # Validates CP4D services upgrade - Watson Studio
-          validate_existing_cp4d_service 'ws.ws.cpd.ibm.com' 'Watson Studio' 'ws'
-          CP4D_UPDATE_WS=$CP4D_SERVICE_UPDATE
-          CP4D_CURRENT_VERSION_WS=$CP4D_SERVICE_CURRENT_VERSION
-          CP4D_TARGET_VERSION_WS=$CP4D_SERVICE_TARGET_VERSION
-
-          # Validates CP4D services upgrade - Watson Machine Learning
-          validate_existing_cp4d_service 'wmlbases.wml.cpd.ibm.com' 'Watson Machine Learning' 'wml'
-          CP4D_UPDATE_WML=$CP4D_SERVICE_UPDATE
-          CP4D_CURRENT_VERSION_WML=$CP4D_SERVICE_CURRENT_VERSION
-          CP4D_TARGET_VERSION_WML=$CP4D_SERVICE_TARGET_VERSION
-
-          # Validates CP4D services upgrade - Spark
-          validate_existing_cp4d_service 'analyticsengines.ae.cpd.ibm.com' 'Analytics Engine' 'analyticsengine'
-          CP4D_UPDATE_SPARK=$CP4D_SERVICE_UPDATE
-          CP4D_CURRENT_VERSION_SPARK=$CP4D_SERVICE_CURRENT_VERSION
-          CP4D_TARGET_VERSION_SPARK=$CP4D_SERVICE_TARGET_VERSION
-
-          # Validates CP4D services upgrade - Watson Openscale
-          validate_existing_cp4d_service 'woservices.wos.cpd.ibm.com' 'Watson Openscale' 'openscale'
-          CP4D_UPDATE_WOS=$CP4D_SERVICE_UPDATE
-          CP4D_CURRENT_VERSION_WOS=$CP4D_SERVICE_CURRENT_VERSION
-          CP4D_TARGET_VERSION_WOS=$CP4D_SERVICE_TARGET_VERSION
-
-          # Validates CP4D services upgrade - SPSS Modeler
-          validate_existing_cp4d_service 'spss.spssmodeler.cpd.ibm.com' 'SPSS Modeler' 'spss'
-          CP4D_UPDATE_SPSS=$CP4D_SERVICE_UPDATE
-          CP4D_CURRENT_VERSION_SPSS=$CP4D_SERVICE_CURRENT_VERSION
-          CP4D_TARGET_VERSION_SPSS=$CP4D_SERVICE_TARGET_VERSION
-
-          # Validates CP4D services upgrade - Cognos
-          validate_existing_cp4d_service 'caservices.ca.cpd.ibm.com' 'Cognos Analytics' 'cognos_analytics'
-          CP4D_UPDATE_COGNOS=$CP4D_SERVICE_UPDATE
-          CP4D_CURRENT_VERSION_COGNOS=$CP4D_SERVICE_CURRENT_VERSION
-          CP4D_TARGET_VERSION_COGNOS=$CP4D_SERVICE_TARGET_VERSION
+        if [ ! "$(printf '%s\n' "$CP4D_CURRENT_VERSION" "$CP4D_VERSION" | sort -V | head -n1)" = "$CP4D_CURRENT_VERSION" ]; then
+          echo -e "${COLOR_YELLOW}Cloud Pak for Data is currently running on version ($CP4D_CURRENT_VERSION) equal/higher than the target upgrade version ($CP4D_VERSION), skipping upgrade."
         fi
       fi
-
-      if [ ! "$(printf '%s\n' "$CP4D_CURRENT_VERSION" "$CP4D_VERSION" | sort -V | head -n1)" = "$CP4D_CURRENT_VERSION" ]; then
-        echo -e "${COLOR_YELLOW}Cloud Pak for Data is currently running on version ($CP4D_CURRENT_VERSION) equal/higher than the target upgrade version ($CP4D_VERSION), skipping upgrade."
-      fi
+    else
+      echo -e "${COLOR_YELLOW}Cloud Pak for Data instance was not found in 'ibm-cpd' namespace, skipping upgrade."
+      CP4D_UPDATE=false
     fi
-  else
-    echo -e "${COLOR_YELLOW}Cloud Pak for Data instance was not found in 'ibm-cpd' namespace, skipping upgrade."
-    CP4D_UPDATE=false
   fi
 }
 
@@ -640,6 +643,9 @@ function update_noninteractive() {
         ;;
       --skip-pre-check)
         SKIP_PRE_CHECK=true
+        ;;
+      --skip-cp4d-upgrade)
+        CPD_UPDATE=false
         ;;
       -h|--help)
         update_help
