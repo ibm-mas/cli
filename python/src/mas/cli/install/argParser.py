@@ -333,7 +333,7 @@ manageArgGroup.add_argument(
     dest="mas_appws_components",
     required=False,
     help="",
-    default="base=latest;health=latest"
+    default="base=latest,health=latest"
 )
 
 manageArgGroup.add_argument(
