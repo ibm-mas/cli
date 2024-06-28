@@ -70,6 +70,10 @@ class BaseApp(PrintMixin, PromptMixin):
         self.templatesDir = path.join(path.abspath(path.dirname(__file__)), "templates")
         self.tektonDefsPath = path.join(self.templatesDir, "ibm-mas-tekton.yaml")
 
+        # These dicts will hold the additional-configs and pod-templates secrets
+        self.additionalConfigsSecret = None
+        self.podTemplatesSecret = None
+
         self._isSNO = None
 
         self.compatibilityMatrix = {

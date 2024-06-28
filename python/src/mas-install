@@ -934,7 +934,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
                     instanceId=self.getParam("mas_instance_id"),
                     slsLicenseFile=self.slsLicenseFileLocal,
                     additionalConfigs=self.additionalConfigsSecret,
-                    podTemplatesDir=None
+                    podTemplates=self.podTemplatesSecret
                 )
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
