@@ -70,6 +70,10 @@ class BaseApp(PrintMixin, PromptMixin):
         self.templatesDir = path.join(path.abspath(path.dirname(__file__)), "templates")
         self.tektonDefsPath = path.join(self.templatesDir, "ibm-mas-tekton.yaml")
 
+        # These dicts will hold the additional-configs and pod-templates secrets
+        self.additionalConfigsSecret = None
+        self.podTemplatesSecret = None
+
         self._isSNO = None
 
         self.compatibilityMatrix = {
@@ -141,7 +145,10 @@ class BaseApp(PrintMixin, PromptMixin):
         self.params[param] = value
 
     def getParam(self, param: str):
-        if param in self.params:
+        """
+        Returns the value of a parameter, or an empty string is the parameter has not set at all or is set to None
+        """
+        if param in self.params and self.params[param] is not None:
             return self.params[param]
         else:
             return ""

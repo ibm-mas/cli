@@ -12,6 +12,10 @@
   type: string
   default: ""
 
+# Dependencies - ECK
+# -----------------------------------------------------------------------------
+{{ lookup('template', params_src_dir ~ '/install-eck.yml.j2') }}
+
 # Dependencies - Turbonomic
 # -----------------------------------------------------------------------------
 {{ lookup('template', params_src_dir ~ '/install-turbonomic.yml.j2') }}
@@ -277,7 +281,7 @@
   description: COS action to be performed (provision or deprovision)
   default: ""
 
-# MAS Integration - Cluster Monitoring - Grafana
+# MAS Integration - Grafana
 # -----------------------------------------------------------------------------
 - name: grafana_action
   type: string
@@ -429,6 +433,15 @@
   type: string
   default: ""
   description: Data Dictionary catalog source
+
+# MAS Configuration - Superuser Account
+# -----------------------------------------------------------------------------
+- name: mas_superuser_username
+  type: string
+  default: ""
+- name: mas_superuser_password
+  type: string
+  default: ""
 
 # MAS Application Configuration - IoT Application
 # -----------------------------------------------------------------------------

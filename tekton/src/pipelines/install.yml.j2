@@ -29,7 +29,7 @@ spec:
   tasks:
     # Content
     # -------
-    # 1. Setup Cluster-wide Dependencies & Configure Grafana
+    # 1. Setup Cluster-wide Dependencies inc. Grafana, ECK, and Turbonomic
     # 2. Install Universal Dependencies
     # 3. Cloud Pak for Data
     # 4. Other Dependecies
@@ -66,7 +66,12 @@ spec:
       runAfter:
         - pre-install-check
 
-    # 1.5 Configure Turbonomic
+    # 1.5 Configure ECK
+    {{ lookup('template', 'taskdefs/cluster-setup/eck.yml.j2') | indent(4) }}
+      runAfter:
+        - pre-install-check
+
+    # 1.6 Configure Turbonomic
     {{ lookup('template', 'taskdefs/cluster-setup/turbonomic.yml.j2') | indent(4) }}
       runAfter:
         - pre-install-check
@@ -80,7 +85,7 @@ spec:
         - cert-manager
         - grafana
 
-    # 2.2 AMQStreams (Kafka)
+    # 2.2 Kafka
     {{ lookup('template', 'taskdefs/dependencies/kafka.yml.j2') | indent(4) }}
       runAfter:
         - grafana
@@ -101,7 +106,7 @@ spec:
       runAfter:
         - mongodb
 
-    # 2.5 UDS
+    # 2.5 UDS/DRO
     {{ lookup('template', 'taskdefs/dependencies/uds.yml.j2') | indent(4) }}
       runAfter:
         - common-services
@@ -341,6 +346,7 @@ spec:
         - app-cfg-predict # infers Manage completed
         - app-cfg-monitor # infers IoT completed
         - app-cfg-visualinspection
+        - eck
         - turbonomic
         - cognos
 
