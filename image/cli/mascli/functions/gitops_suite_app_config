@@ -390,14 +390,27 @@ function gitops_suite_app_config() {
 
   if [ "$MAS_APP_ID" == "predict" ]; then
     echo "- Configuring for Predict App"
-
     export CPD_WSL_PROJECT_ID_FILE=$TEMP_DIR/cpd-wsl-project-id-file.json
     export CPD_WSL_PROJECT_NAME=wsl-mas-${MAS_INSTANCE_ID}-predict
 
-    SECRET_NAME_WSL_PROJECT_ID=${ACCOUNT_ID}/${CLUSTER_ID}/${INSTANCE_ID}/$CPD_WSL_PROJECT_NAME
-    sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}${CPD_WSL_PROJECT_NAME} ${CPD_WSL_PROJECT_ID_FILE}
-    CPD_WSL_PROJECT_ID=$(jq -r .wsl_project_id ${CPD_WSL_PROJECT_ID_FILE})
-    
+    wait_period=0
+    while true; do
+      wait_period=$(($wait_period+300))
+      if [ $wait_period -gt 15000 ]; then
+        echo "CPD_WSL_PROJECT_ID is empty after 4 hours and 10 minutes of waiting. Exiting..."
+        exit 1
+      else
+        sleep 300
+      fi
+
+      sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}${CPD_WSL_PROJECT_NAME} ${CPD_WSL_PROJECT_ID_FILE}
+      CPD_WSL_PROJECT_ID=$(jq -r .wsl_project_id ${CPD_WSL_PROJECT_ID_FILE})
+
+      if [[ -n "${CPD_WSL_PROJECT_ID}" ]]; then
+        echo "- CPD_WSL_PROJECT_ID ${CPD_WSL_PROJECT_ID} is available in AWS SM, Ready to move on..."
+        break
+      fi
+    done
 
     if [ -z ${CPD_WML_URL} ]; then
       export CPD_WML_URL="https://internal-nginx-svc.${CPD_INSTANCE_NAMESPACE}.svc.cluster.local:12443"
@@ -419,11 +432,6 @@ function gitops_suite_app_config() {
         export CPD_PRODUCT_VERSION=${CPD_PRODUCT_VERSION%.*}
         echo CPD_PRODUCT_VERSION=$CPD_PRODUCT_VERSION
       fi
-    fi
-
-    if [[ -z "${CPD_WSL_PROJECT_ID}" || "${CPD_WSL_PROJECT_ID}" == "" ]]; then
-      echo "- CPD_WSL_PROJECT_ID is empty, exiting ..."
-      exit 1
     fi
   fi
 
