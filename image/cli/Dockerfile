@@ -27,5 +27,5 @@ RUN umask 0002 && \
     bash /tmp/install/install-python-packages.sh && \
     bash /tmp/install/install-ansible-collections.sh && \
     bash /tmp/install/permissions-updates.sh && \
-    ln -s /opt/app-root/lib/python3.9/site-packages /mas-cli/site-packages && \
+    ln -s /opt/app-root/lib/python3.9/site-packages /mascli/site-packages && \
     rm -rf /tmp/install
