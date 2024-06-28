@@ -391,13 +391,18 @@ function gitops_suite_app_config() {
   if [ "$MAS_APP_ID" == "predict" ]; then
     echo "- Configuring for Predict App"
 
-    if [ -z $CPD_WSL_PROJECT_ID ]; then
-      export CPD_WSL_PROJECT_ID=$(cat $GITOPS_CONFIG_DIR/$MAS_INSTANCE_ID-cp4d-service-wsl/wsl-mas-$MAS_INSTANCE_ID-hputilities.id)
-    fi
-    if [ -z $CPD_WML_URL ]; then
+    export CPD_WSL_PROJECT_ID_FILE=$TEMP_DIR/cpd-wsl-project-id-file.json
+    export CPD_WSL_PROJECT_NAME=wsl-mas-${MAS_INSTANCE_ID}-predict
+
+    SECRET_NAME_WSL_PROJECT_ID=${ACCOUNT_ID}/${CLUSTER_ID}/${INSTANCE_ID}/$CPD_WSL_PROJECT_NAME
+    sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}${CPD_WSL_PROJECT_NAME} ${CPD_WSL_PROJECT_ID_FILE}
+    CPD_WSL_PROJECT_ID=$(jq -r .wsl_project_id ${CPD_WSL_PROJECT_ID_FILE})
+    
+
+    if [ -z ${CPD_WML_URL} ]; then
       export CPD_WML_URL="https://internal-nginx-svc.${CPD_INSTANCE_NAMESPACE}.svc.cluster.local:12443"
     fi
-    if [ -z $CPD_WML_INSTANCE_ID ]; then
+    if [ -z ${CPD_WML_INSTANCE_ID} ]; then
       export CPD_WML_INSTANCE_ID="openshift"
     fi
 
@@ -406,7 +411,7 @@ function gitops_suite_app_config() {
     echo "- CPD_WML_INSTANCE_ID=${CPD_WML_INSTANCE_ID}"
     echo "- CPD_PRODUCT_VERSION=${CPD_PRODUCT_VERSION}"
 
-    if [ -n $CPD_PRODUCT_VERSION ]; then
+    if [ -n ${CPD_PRODUCT_VERSION} ]; then
       DOTS_COUNT=$(echo $CPD_PRODUCT_VERSION | grep -o "\." | wc -l)
       echo $DOTS_COUNT
 
