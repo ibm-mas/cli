@@ -116,14 +116,15 @@ class App(BaseApp):
 
         # Default to Red Hat Cert-Manager, and check if IBM cert-manager is installed
         certManagerProvider="redhat"
-        namespaceAPI = self.dynamicClient.resources.get(api_version="v1", kind="Namespace")
         try:
             # Check if 'ibm-common-services' namespace exist, this will throw NotFoundError exception when not found.
+            namespaceAPI = self.dynamicClient.resources.get(api_version="v1", kind="Namespace")
             namespaceAPI.get(name="ibm-common-services")
+
             podsAPI = self.dynamicClient.resources.get(api_version="v1", kind="Pod")
             podsList = podsAPI.get(namespace="ibm-common-services")
-            for pod in podsList:
-                if pod is not None and pod.metadata.name.contains("cert-manager-cainjector"):
+            for pod in podsList.items:
+                if pod is not None and "cert-manager-cainjector" in pod.metadata.name:
                     certManagerProvider = "ibm"
         except NotFoundError:
             print()
