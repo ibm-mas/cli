@@ -161,11 +161,11 @@ spec:
       type: string
       description: IBM Cloud Resource Group where COS is installed (for when attachments is configured via ibm provider)
       default: ""
-    - name: ibmcos_instance_name # cos_instance_name in attachments devops role
+    - name: cos_instance_name # cos_instance_name in attachments devops role
       type: string
       description: Name of COS instance in IBM Cloud account
       default: ""
-    - name: ibmcos_bucket_name # cos_bucket_name in attachments devops role
+    - name: cos_bucket_name # cos_bucket_name in attachments devops role
       type: string
       description: COS Bucket optionally used to hold attachments in Manage
       default: ""
@@ -294,9 +294,9 @@ spec:
       - name: IBMCLOUD_RESOURCEGROUP
         value: $(params.ibmcloud_resourcegroup)
       - name: COS_INSTANCE_NAME
-        value: $(params.ibmcos_instance_name)
+        value: $(params.cos_instance_name)
       - name: COS_BUCKET_NAME
-        value: $(params.ibmcos_bucket_name)
+        value: $(params.cos_bucket_name)
 
       # Application Workspace - Operand (Predict)
       - name: PREDICT_DEPLOYMENT_SIZE
