@@ -161,6 +161,10 @@ spec:
       type: string
       description: IBM Cloud Resource Group where COS is installed (for when attachments is configured via ibm provider)
       default: ""
+    - name: ibmcloud_apikey
+      type: string
+      description: API Key used to configure COS and buckets in IBM Cloud (used by Manage attachments settings)
+      default: ""
     - name: cos_instance_name # cos_instance_name in attachments devops role
       type: string
       description: Name of COS instance in IBM Cloud account
@@ -293,6 +297,8 @@ spec:
         value: $(params.db2_namespace)
       - name: IBMCLOUD_RESOURCEGROUP
         value: $(params.ibmcloud_resourcegroup)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
       - name: COS_INSTANCE_NAME
         value: $(params.cos_instance_name)
       - name: COS_BUCKET_NAME
