@@ -31,7 +31,7 @@ spec:
       type: string
       description: Name of an existing Resource Group in IBM Cloud account
       default: "Default"
-    - name: ibmcos_resourcegroup
+    - name: cos_resourcegroup
       type: string
       description: Name of an existing COS Resource Group in IBM Cloud account
       default: ""
@@ -39,7 +39,7 @@ spec:
       type: string
       description: COS action to be performed
       default: ""
-    - name: ibmcos_instance_name
+    - name: cos_instance_name
       type: string
       description: Name of COS instance in IBM Cloud account
       default: ""
@@ -65,11 +65,11 @@ spec:
       - name: COS_ACTION
         value: $(params.cos_action)
       - name: COS_INSTANCE_NAME
-        value: $(params.ibmcos_instance_name)
+        value: $(params.cos_instance_name)
       - name: IBMCLOUD_APIKEY
         value: $(params.ibmcloud_apikey)
-      - name: IBMCOS_RESOURCEGROUP
-        value: $(params.ibmcos_resourcegroup)
+      - name: COS_RESOURCEGROUP
+        value: $(params.cos_resourcegroup)
       - name: IBMCLOUD_RESOURCEGROUP
         value: $(params.ibmcloud_resourcegroup)
   steps:

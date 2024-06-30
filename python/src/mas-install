@@ -503,7 +503,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             self.promptForString("COS Provider [ibm/ocs]", "cos_type")
             if self.getParam("cos_type") == "ibm":
                 self.promptForString("IBM Cloud API Key", "ibmcloud_apikey", isPassword=True)
-                self.promptForString("IBM Cloud Resource Group", "ibmcos_resourcegroup")
+                self.promptForString("IBM Cloud Resource Group", "cos_resourcegroup")
 
     def interactiveMode(self) -> None:
         # Interactive mode
