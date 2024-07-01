@@ -33,3 +33,7 @@ ibm_suite_app_{{ MAS_APP_ID }}_install:
   {% if TLS_KEY is defined and TLS_KEY !='' %}
   tls_key: {{ TLS_KEY }}
   {% endif %}
+
+  {% if GPU_REQUEST_QUOTA is defined and GPU_REQUEST_QUOTA != '' %}
+  gpu_request_quota: {{ GPU_REQUEST_QUOTA }}
+  {% endif %}
