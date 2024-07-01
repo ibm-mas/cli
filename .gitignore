@@ -1,9 +1,8 @@
-
 *.DS_Store*
 .vscode
-
 *.pyc
 
+image/cli/install/mas_cli.tar.gz
 image/cli/mascli/templates/ibm-mas-tekton.yaml
 
 target/
@@ -43,3 +42,16 @@ image/cli/mascli/tmp-mas-config
 image/cli/mascli/fyre-dev.noble3.tgke-db2u-manage-env.sh
 image/cli/mascli/tmp-suite-workspace
 image/cli/mascli/tmp-suite-workspace-deprovision
+kubectl.exe
+mas.log
+
+python/pandoc-*-amd64.deb
+python/pandoc-*-windows-x86_64.msi
+python/build
+python/dist
+python/venv
+python/src/mas_cli.egg-info
+python/src/mas/cli/templates/ibm-mas-tekton.yaml
+python/mas-*.spec
+python/README.rst
+.env

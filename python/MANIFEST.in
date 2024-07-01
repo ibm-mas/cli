@@ -1,0 +1,5 @@
+include src/mas/cli/templates/*.yaml
+include src/mas/cli/templates/*.yml.j2
+include src/mas/cli/templates/pod-templates/best-effort/*.yml
+include src/mas/cli/templates/pod-templates/guaranteed/*.yml
+include src/mas/cli/templates/pod-templates/saas-essentials/*.yml

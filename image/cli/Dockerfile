@@ -1,6 +1,9 @@
 FROM quay.io/ibmmas/cli-base:1.1.0-pre.gitops
 ARG VERSION_LABEL
 
+# Auto-expire the image in quay.io after 3 weeks
+LABEL quay.expires-after=3w
+
 # 1. Copy basics
 COPY app-root/src/ /opt/app-root/src/
 COPY mascli/ /mascli/
@@ -15,21 +18,14 @@ ENV ANSIBLE_COLLECTIONS_PATH=/opt/app-root/lib64/python3.9/site-packages/ansible
     VERSION=${VERSION_LABEL:-x.y.z} \
     VIRTUAL_ENV_DISABLE_PROMPT=1
 
-# 3. Install Ansible collections -- do this last for efficient dev builds
-# 4. Set file permissions to be developer (hack) friendly
-COPY install-ansible /tmp/install-ansible
+# 3. Install Python packages
+# 4. Install Ansible collections
+# 5. Set file permissions to be developer (hack) friendly
+COPY install /tmp/install
 RUN umask 0002 && \
-    bash /tmp/install-ansible/install-ansible-collections.sh && \
-    rm -rf /tmp/install-ansible && \
-    chmod -R ug+rwx /opt/app-root/src/env.sh && \
-    chmod -R ug+rwx /opt/app-root/src/.ansible && \
-    chmod +x /opt/app-root/src/*.sh && \
-    chmod +x /opt/app-root/src/.bashrc && \
-    chmod -R ug+w /mascli && \
-    chmod +x /mascli/mas && \
-    chmod +x /mascli/must-gather/* && \
-    chmod +x /mascli/backup-restore/* && \
-    chmod -R ug+w /masfvt && \
-    chmod +x /usr/bin/gather && \
-    chmod -R g+w $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops && \
-    ln -s $ANSIBLE_COLLECTIONS_PATH/ibm/mas_devops /mascli/ansible-devops
+    ls /tmp/install && \
+    bash /tmp/install/install-python-packages.sh && \
+    bash /tmp/install/install-ansible-collections.sh && \
+    bash /tmp/install/permissions-updates.sh && \
+    ln -s /opt/app-root/lib/python3.9/site-packages /mascli/site-packages && \
+    rm -rf /tmp/install

@@ -29,7 +29,7 @@ spec:
   tasks:
     # Content
     # -------
-    # 1. Setup Cluster-wide Dependencies & Configure Grafana
+    # 1. Setup Cluster-wide Dependencies inc. Grafana, ECK, and Turbonomic
     # 2. Install Universal Dependencies
     # 3. Cloud Pak for Data
     # 4. Other Dependecies
@@ -66,7 +66,12 @@ spec:
       runAfter:
         - pre-install-check
 
-    # 1.5 Configure Turbonomic
+    # 1.5 Configure ECK
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/eck.yml.j2') | indent(4) }}
+      runAfter:
+        - pre-install-check
+
+    # 1.6 Configure Turbonomic
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/turbonomic.yml.j2') | indent(4) }}
       runAfter:
         - pre-install-check
@@ -80,7 +85,7 @@ spec:
         - cert-manager
         - grafana
 
-    # 2.2 AMQStreams (Kafka)
+    # 2.2 Kafka
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/kafka.yml.j2') | indent(4) }}
       runAfter:
         - grafana
@@ -101,7 +106,7 @@ spec:
       runAfter:
         - mongodb
 
-    # 2.5 UDS
+    # 2.5 UDS/DRO
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/uds.yml.j2') | indent(4) }}
       runAfter:
         - common-services
@@ -269,6 +274,10 @@ spec:
       runAfter:
         - app-install-manage
 
+    # 8.4 Configure IBM Maximo Location Services for ESRI
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/arcgis.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-verify
 
     # 9. Install & Configure Predict
     # -------------------------------------------------------------------------
@@ -337,6 +346,7 @@ spec:
         - app-cfg-predict # infers Manage completed
         - app-cfg-monitor # infers IoT completed
         - app-cfg-visualinspection
+        - eck
         - turbonomic
         - cognos
 

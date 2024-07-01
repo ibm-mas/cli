@@ -48,6 +48,17 @@ spec:
       type: string
       description: Optional boolean parameter that when set to True, enables dual stack for IPv6 testing in internal fyre clusters at RTP site
       default: "False"
+    # Enable optional integration with ECK logstash
+    - name: eck_enable_logstash
+      type: string
+      default: ""
+    # Optionally configure the superuser account
+    - name: mas_superuser_username
+      type: string
+      default: ""
+    - name: mas_superuser_password
+      type: string
+      default: ""
 
     - name: mas_icr_cp
       type: string
@@ -102,6 +113,14 @@ spec:
         value: $(params.mas_trust_default_cas)
       - name: ENABLE_IPV6
         value: $(params.enable_ipv6)
+      # Enable optional integration with ECK logstash
+      - name: ECK_ENABLE_LOGSTASH
+        value: $(params.eck_enable_logstash)
+      # Optionally configure the superuser account
+      - name: MAS_SUPERUSER_USERNAME
+        value: $(params.mas_superuser_username)
+      - name: MAS_SUPERUSER_PASSWORD
+        value: $(params.mas_superuser_password)
 
       - name: ARTIFACTORY_USERNAME
         value: $(params.artifactory_username)

@@ -2,7 +2,6 @@
 # -------------------------------------------------------------
 # PHASE 1
 # - ivt-manage-base-api (pytest)
-# - fvt-manage-setup (pytest)
 # -------------------------------------------------------------
 
 # Manage Integration 
@@ -17,15 +16,3 @@
       value: base-api-ivt
   runAfter:
     - ivtcore-manage
-
-# Manage FVT Setup
-# - Required by all tests after phase 1 in fvt-manage pipeline 
-# - Required by fvt-manage-is, fvt-mobile, fvt-optimizer and fvt-predict pipelines
-- name: fvt-manage-base-api-setup
-  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: base-api-setup
-  runAfter:
-    - fvt-manage-base-api-ivt

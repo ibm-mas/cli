@@ -6,7 +6,7 @@ Usage:
   mas install [options]
 
 Catalog Selection (Required):
-  -c, --mas-catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}            IBM Maximo Operator Catalog to install (e.g. v8-amd64)
+  -c, --mas-catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}            IBM Maximo Operator Catalog to install (e.g. v9-240625-amd64)
 
 Entitlement & Licensing (Required):
       --ibm-entitlement-key ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}            IBM entitlement key
@@ -14,9 +14,6 @@ Entitlement & Licensing (Required):
       --uds-email ${COLOR_YELLOW}UDS_CONTACT_EMAIL${TEXT_RESET}                        Contact e-mail address
       --uds-firstname ${COLOR_YELLOW}UDS_CONTACT_FIRSTNAME${TEXT_RESET}                Contact first name
       --uds-lastname ${COLOR_YELLOW}UDS_CONTACT_LASTNAME${TEXT_RESET}                  Contact last name
-
-Entitlement & Licensing (Only required up to v8-230414-amd64):
-      --license-id ${COLOR_YELLOW}SLS_LICENSE_ID${TEXT_RESET}                          MAS license ID. Required for SLS 3.6.0 and below
 
 Storage Class Selection (Required):
       --storage-rwo ${COLOR_YELLOW}STORAGE_CLASS_RWO${TEXT_RESET}                      Read Write Once (RWO) storage class (e.g. ibmc-block-gold)
@@ -35,6 +32,8 @@ Advanced MAS Configuration (Optional):
       --mas-trust-default-cas ${COLOR_YELLOW}MAS_TRUST_DEFAULT_CAS${TEXT_RESET}        Trust certificates signed by well-known CAs
       --workload-scale-profile ${COLOR_YELLOW}MAS_WORKLOAD_SCALE_PROFILE${TEXT_RESET}  Set a pre-defined workload scale profile [Burstable, BestEffort, Guaranteed]
       --mas-pod-templates-dir ${COLOR_YELLOW}MAS_POD_TEMPLATES_DIR${TEXT_RESET}        Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over --workload-scale-profile
+      --superuser-username ${COLOR_YELLOW}MAS_SUPERUSER_USERNAME${TEXT_RESET}          Provide your own superuser account name rather than accept the generated username & password
+      --superuser-password ${COLOR_YELLOW}MAS_SUPERUSER_PASSWORD${TEXT_RESET}          Provide yoyr own superuser account password rather than accept the generated username & password
 
 Maximo Application Suite Core Platform (Required):
       --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                            Subscription channel for the Core Platform
@@ -50,6 +49,15 @@ Maximo Application Suite Application Selection (Optional):
       --optimizer-channel ${COLOR_YELLOW}MAS_APP_CHANNEL_OPTIMIZER${TEXT_RESET}                Subscription channel for Maximo optimizer
       --optimizer-plan ${COLOR_YELLOW}MAS_APP_PLAN_OPTIMIZER${TEXT_RESET}                      Installation plan for Maximo Optimizer (full or limited)
 
+Elastic Cloud on Kubernetes (Optional):
+      --eck-enable-elasticsearch           Install Elasticsearch
+      --eck-enable-kibana                  Install Kibana
+      --eck-enable-logstash                Install Logstash
+      --eck-enable-filebeat                Install Filebeat agent on all cluster nodes
+      --eck-remote-es-hosts ${COLOR_YELLOW}ECK_REMOTE_ES_HOSTS${TEXT_RESET}                    A comma-separated list of hosts (host:port) to connect the ECK LogStash instance to
+      --eck-remote-es-username ${COLOR_YELLOW}ECK_REMOTE_ES_USERNAME${TEXT_RESET}              The username to authenticate with to the remote Elasticsearch instance
+      --eck-remote-es-password ${COLOR_YELLOW}ECK_REMOTE_ES_PASSWORD${TEXT_RESET}              The password to authenticate with to the remote Elasticsearch instance
+
 IBM Cloud Pak for Data (Required when installing Predict or Assist):
       --cp4d-version ${COLOR_YELLOW}CP4D_VERSION${TEXT_RESET}          Product version of IBM Cloud Pak for Data to use
       --cp4d-install-spss                  Include SPSS service to be installed as part of IBM Cloud Pak for Data (Optional if Predict is being installed)
@@ -63,7 +71,7 @@ Kafka (Optional, applicable for Strimzi and Red Hat AMQ Streams only):
       --kafka-namespace ${COLOR_YELLOW}KAFKA_NAMESPACE${TEXT_RESET}    Set Strimzi and Red Hat AMQ Streams namespace
       --kafka-version ${COLOR_YELLOW}KAFKA_VERSION${TEXT_RESET}        Set version of the Kafka cluster that the Strimzi or AMQ Streams operator will create
 
-Kafka (Required for IBM Cloud Event Streams only):
+Kafka (Required for IBM Cloud EventStreams only):
       --ibmcloud-apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                            Set IBM Cloud API Key. Required to provision IBM Cloud services
       --eventstreams-resource-group ${COLOR_YELLOW}EVENTSTREAMS_RESOURCEGROUP${TEXT_RESET}     Set IBM Cloud resource group to target the Event Streams instance provisioning (Only applicable if installing IBM Cloud Event Streams)
       --eventstreams-instance-name ${COLOR_YELLOW}EVENTSTREAMS_NAME${TEXT_RESET}               Set IBM Event Streams instance name (Only applicable if installing IBM Event Streams)
@@ -116,7 +124,8 @@ Manage Application - Advanced Configuration (Optional):
       --manage-cryptox-key ${COLOR_YELLOW}MAS_APP_SETTINGS_CRYPTOX_KEY${TEXT_RESET}                                       Customize your Manage database encryption keys
       --manage-old-crypto-key ${COLOR_YELLOW}MAS_APP_SETTINGS_OLD_CRYPTO_KEY${TEXT_RESET}                                 Customize your Manage database encryption keys
       --manage-old-cryptox-key ${COLOR_YELLOW}MAS_APP_SETTINGS_OLD_CRYPTOX_KEY${TEXT_RESET}                               Customize your Manage database encryption keys
-      --manage-override-encryption-secrets                                                    Override any existing Manage database encryption keys (a backup of the original is taken).
+      --manage-override-encryption-secrets                                                                                Override any existing Manage database encryption keys (a backup of the original is taken).
+      --install-arcgis                                                                                                    Optional. Enables IBM Maximo Location Services for Esri installation. Only applicable if installing Manage with Spatial.
 
 Other Commands:
       --dev-mode              Enable developer mode (e.g. for access to pre-release builds)
