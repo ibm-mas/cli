@@ -50,6 +50,9 @@ spec:
     - name: optimizer_plan
       type: string
       default: "full"
+    - name: gpu_request_quota
+      type: string
+      default: "2"
     - name: mas_edition
       type: string
       default: ""
@@ -103,6 +106,8 @@ spec:
         value: $(params.mas_edition)
       - name: MAS_MANUAL_CERTS_YAML
         value: $(params.mas_manual_certs_yaml)
+      - name: GPU_REQUEST_QUOTA
+        value: $(params.gpu_request_quota)
     envFrom:
       - configMapRef:
           name: environment-properties
