@@ -282,8 +282,12 @@ function gitops_suite_app_install() {
   echo_reset_dim "Default File Storage Class ............ ${COLOR_MAGENTA}${DEFAULT_FILE_STORAGE_CLASS}"
   echo_reset_dim "Default Block Storage Class ........... ${COLOR_MAGENTA}${DEFAULT_BLOCK_STORAGE_CLASS}"
   echo_reset_dim "MAS Manual Cert Mgt ................... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
-  echo_reset_dim "MAS MANUAL CERTS YAML ................. ${COLOR_MAGENTA}${MAS_MANUAL_CERTS_YAML}"  
-    
+  echo_reset_dim "MAS Manual Certs YAML ................. ${COLOR_MAGENTA}${MAS_MANUAL_CERTS_YAML}"
+  
+  if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
+    echo_reset_dim "GPU Request Quota ..................... ${COLOR_MAGENTA}${GPU_REQUEST_QUOTA}"
+  fi
+  
   reset_colors
 
 
