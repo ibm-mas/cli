@@ -197,6 +197,26 @@ spec:
       # Common Test Framework Specific information
       - name: CTF_IS_LOCAL
         value: $(params.ctf_is_local)
+      
+      # Health Test Specific data
+      - name: RHM_APIKEY
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: RHM_APIKEY
+            optional: true
+      - name: RHM_PULL_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: RHM_PULL_SECRET
+            optional: true
+      - name: RHM_URL
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-manage
+            key: RHM_URL
+            optional: true
 
   steps:
     - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'

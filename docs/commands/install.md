@@ -6,11 +6,10 @@ Usage
 `mas install [options]`
 
 ### Catalog Selection (Required):
-- `-c, --mas-catalog-version MAS_CATALOG_VERSION` IBM Maximo Operator Catalog to install (e.g. v8-amd64)
+- `-c, --mas-catalog-version MAS_CATALOG_VERSION` IBM Maximo Operator Catalog to install (e.g. v9-240625-amd64 or v8-240528-amd64)
 
 ### Entitlement & Licensing (Required):
 - `--ibm-entitlement-key IBM_ENTITLEMENT_KEY`  IBM entitlement key
-- `--license-id SLS_LICENSE_ID`                MAS license ID
 - `--license-file SLS_LICENSE_FILE_LOCAL`      Path to MAS license file
 - `--uds-email UDS_CONTACT_EMAIL`              Contact e-mail address
 - `--uds-firstname UDS_CONTACT_FIRSTNAME`      Contact first name
@@ -151,9 +150,10 @@ Usage
 - `--manage-old-crypto-key MAS_APP_SETTINGS_OLD_CRYPTO_KEY`                                 Set `MXE_SECURITY_OLD_CRYPTO_KEY` value if you want to customize your Manage database encryption keys
 - `--manage-old-cryptox-key MAS_APP_SETTINGS_OLD_CRYPTOX_KEY`                               Set `MXE_SECURITY_OLD_CRYPTOX_KEY` value if you want to customize your Manage database encryption keys
 - `--manage-override-encryption-secrets`                                                    Overrides any existing Manage database encryption keys. A backup of the original secret holding existing encryption keys is taken prior overriding it with the new defined keys.
--- `--manage-db-tablespace MAS_APP_SETTINGS_TABLESPACE`                                     Optional. Set the database tablespace name that Manage will use to be installed. Default is `MAXDATA`.
--- `--manage-db-indexspace MAS_APP_SETTINGS_INDEXSPACE`                                     Optional. Set the database indexspace name that Manage will use to be installed. Default is `MAXINDEX`.
--- `--manage-db-schema MAS_APP_SETTINGS_DB2_SCHEMA`                                         Optional. Set the DB2 database schema name that Manage will use to be installed. Default is `maximo`. Note: This is only applicable to the cases where a DB2 instance will be created for Manage via MAS CLI.
+- `--manage-db-tablespace MAS_APP_SETTINGS_TABLESPACE`                                     Optional. Set the database tablespace name that Manage will use to be installed. Default is `MAXDATA`.
+- `--manage-db-indexspace MAS_APP_SETTINGS_INDEXSPACE`                                     Optional. Set the database indexspace name that Manage will use to be installed. Default is `MAXINDEX`.
+- `--manage-db-schema MAS_APP_SETTINGS_DB2_SCHEMA`                                         Optional. Set the DB2 database schema name that Manage will use to be installed. Default is `maximo`. Note: This is only applicable to the cases where a DB2 instance will be created for Manage via MAS CLI.
+- `--install-arcgis`                                                                       Optional. Enables IBM Maximo Location Services for Esri installation. Only applicable if installing Manage with Spatial.
 
 ### Other Commands:
 - `--no-wait-for-pvcs` If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
@@ -167,7 +167,7 @@ Non-Interactive Install
 ```bash
 docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
 export ENTITLEMENT_KEY=xxx
-mas install -i mas1 -w ws1 -W "My Workspace" -c v8-amd64 --mas-channel 8.10.x \
+mas install -i mas1 -w ws1 -W "My Workspace" -c v9-240625-amd64 --mas-channel 9.0.x \
   --ibm-entitlement-key $ENTITLEMENT_KEY \
   --license-id xxxxxxxxxxxx --license-file /mnt/home/entitlement.lic \
   --uds-email myemail@email.com --uds-firstname John --uds-lastname Barnes \

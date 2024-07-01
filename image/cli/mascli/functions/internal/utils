@@ -331,65 +331,6 @@ function detect_sno() {
 }
 
 
-function select_local_config_dir() {
-  if [ "$LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN" != "yes" ]; then
-    # You need to tell us where the configuration file can be found
-    prompt_for_input "Select Local configuration directory" LOCAL_MAS_CONFIG_DIR && export LOCAL_MAS_CONFIG_DIR
-    if [[ ! -e "$LOCAL_MAS_CONFIG_DIR" ]]; then
-      echo_warning "$LOCAL_MAS_CONFIG_DIR does not exist"
-      exit 1
-    fi
-    export LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN=yes
-  fi
-}
-
-
-# Present a the MAS license information
-# ---------------------------------------------------------------------------
-function build_license_link_by_mas_version() {
-  version=$1
-  link="https://ibm.biz/MAS"$version"-License"
-  echo $link
-}
-
-function license_prompt() {
-  case $MAS_CHANNEL in
-    8.11.x)
-      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "811" )
-      ;;
-    8.10.x)
-      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
-      ;;
-    8.9.x)
-      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
-      ;;
-  esac
-
-  # If the user has already accepted the license then there's nothing to do
-  if [[ "$LICENSE_ACCEPTED" == "true" ]]; then
-    return
-  else
-    echo
-    echo_h2 "License Terms"
-    echo -e "To continue with the installation, you must accept the license terms:"
-    echo -e "   ${COLOR_CYAN}${TEXT_UNDERLINE}${MAS_LICENSE_LINK}${TEXT_RESET}"
-    echo -e "   ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/MAXIT81-License"
-    echo
-    reset_colors
-    if [[ "$NO_CONFIRM" == "true" ]]; then
-      echo_warning "You must accept the license terms with --accept-license when using the --no-confirm flag"
-      reset_colors
-      exit 1
-    else
-      prompt_for_confirm_default_yes "Do you accept the license terms?" LICENSE_RESPONSE
-
-      if [[ "$LICENSE_RESPONSE" == "false" ]]; then
-        exit 1
-      fi
-    fi
-  fi
-}
-
 function ocp_version_check() {
   # Check for OCP 4.9, 4.10, & 4.11
   export OCP_VERSION=$(oc get clusterversion version -o jsonpath="{.status.desired.version}")

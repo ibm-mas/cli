@@ -17,7 +17,7 @@ if [ "$DEV_MODE" != "true" ]; then
   TARGET_FILE_IN_CLI=$GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yaml
 else
   TARGET_DIR=$DIR/../../tekton/target
-  VERSION=${VERSION:-6.1.0-pre.deprov}
+  VERSION=${VERSION:-100.0.0-pre.localbuild}
 
   TASK_FILES=$TARGET_DIR/tasks/*.yaml
   PIPELINE_FILES=$TARGET_DIR/pipelines/*.yaml
@@ -59,7 +59,7 @@ for FILE in $TASK_FILES; do
   FILE_NAME=$(basename $FILE)
   addToFile $FILE $TARGET_FILE_FVT
 
-  if [[ ! "$FILE_NAME" == fvt-* ]]
+  if [[ ! "$FILE_NAME" == fvt-* ]] && [[ ! "$FILE_NAME" == ivt-* ]] && [[ ! "$FILE_NAME" == launchfvt-* ]]
   then
     addToFile $FILE $TARGET_FILE
   fi
@@ -69,7 +69,7 @@ for FILE in $PIPELINE_FILES; do
   FILE_NAME=$(basename $FILE)
   addToFile $FILE $TARGET_FILE_FVT
 
-  if [[ ! "$FILE_NAME" == fvt-* ]] && [[ ! "$FILE_NAME" == *-after-install.yaml ]] && [[ ! "$FILE_NAME" == *-with-fvt.yaml ]]
+  if [[ ! "$FILE_NAME" == fvt-* ]] && [[ ! "$FILE_NAME" == ivt-* ]] && [[ ! "$FILE_NAME" == *-after-install.yaml ]] && [[ ! "$FILE_NAME" == *-with-fvt.yaml ]]
   then
     addToFile $FILE $TARGET_FILE
   fi

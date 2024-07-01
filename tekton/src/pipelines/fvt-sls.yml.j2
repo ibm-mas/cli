@@ -11,15 +11,16 @@ spec:
     - name: shared-pod-templates
 
   params:
-    # 1. Common Parameters
-    # -------------------------------------------------------------------------
-    {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}
-
-    # 2. Additional Params for FVT
-    # -------------------------------------------------------------------------
-    {{ lookup('template', params_src_dir ~ '/fvt.yml.j2') | indent(4) }}
-
-    # SLS Namespace
+    - name: mas_instance_id
+      type: string
+      default: ""
+    - name: fvt_image_registry
+      type: string
+      default: ""
+    - name: fvt_digest_sls
+      type: string
+      description: SLS Digest
+      default: ""
     - name: sls_namespace
       type: string
       description: SLS Namespace
