@@ -40,6 +40,9 @@ Maximo Application Suite:
       <<app>>_tls_key: <<base64 enc of <<app>> tls.key>>
       <<app>>_ca_crt: <<base64 enc of <<app>> ca.crt>>
 
+Visual Inspection:
+  --gpu-request-quota ${COLOR_YELLOW}GPU_REQUEST_QUOTA${TEXT_RESET}              The gpu request quota to set for this VisualInspection App install
+
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
@@ -134,6 +137,11 @@ function gitops_suite_app_install_noninteractive() {
         export MAS_APP_SPEC_YAML=$1 && shift
         ;;
 
+      # MAS VisualInspection
+      --gpu-request-quota)
+        export GPU_REQUEST_QUOTA=$1 && shift
+        ;;
+
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -196,7 +204,7 @@ function gitops_suite_app_install_noninteractive() {
     fi
     if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
       [[ "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_install_help "DEFAULT_FILE_STORAGE_CLASS is not set"
-    fi    
+    fi
   fi
 
 }

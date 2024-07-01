@@ -34,6 +34,8 @@
       value: $(params.mas_edition)
     - name: mas_manual_certs_yaml
       value: $(params.mas_manual_certs_yaml)
+    - name: gpu_request_quota
+      value: $(params.visualinspection_gpu_request_quota)
   taskRef:
     name: gitops-suite-app-install
     kind: Task
