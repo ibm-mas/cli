@@ -387,7 +387,8 @@ function gitops_suite_app_config() {
 
   export ADDITIONAL_JINJA_PARAMS_FILE="$TEMP_DIR/additional-jinja-params.yaml"
   echo "{}" > $ADDITIONAL_JINJA_PARAMS_FILE
-  if [[ -z "${MAS_APPWS_SPEC_YAML}" && "$MAS_APP_ID" == "predict" ]]; then
+
+  if [[ ( -z "${MAS_APPWS_SPEC_YAML}" || ! -s "${MAS_APPWS_SPEC_YAML}" ) && "${MAS_APP_ID}" == "predict" ]]; then
     echo "- Configuring for Predict App"
 
     export CPD_WSL_PROJECT_ID_FILE=$TEMP_DIR/cpd-wsl-project-id-file.json
