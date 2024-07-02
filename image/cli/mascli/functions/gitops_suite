@@ -501,7 +501,7 @@ function gitops_suite() {
   jq -r .info $MONGO_SECRET_FILE > $MONGO_CONFIG_FILE
   MASTER_MONGO_USERNAME=$(jq -r .username $MONGO_SECRET_FILE)
   MASTER_MONGO_PASSWORD=$(jq -r .password $MONGO_SECRET_FILE)
-  UNESCAPED_MONGO_INFO=$(jq -r .info $MONGO_SECRET_FILE)
+  # UNESCAPED_MONGO_INFO=$(jq -r .info $MONGO_SECRET_FILE)
 
 
   # Instance-level secrets to use
@@ -527,9 +527,9 @@ function gitops_suite() {
   # Setting mongo instance secret with info field copied from the cluster level secret, 
   # Instance username and password will be created in presync hook 
 
-  ESCAPED_INFO=${UNESCAPED_MONGO_INFO//\"/\\\"}
-  ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
-  sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$INSTANCE_MONGO_USERNAME\", \"password\": \"$INSTANCE_MONGO_PASSWORD\"}"
+  # ESCAPED_INFO=${UNESCAPED_MONGO_INFO//\"/\\\"}
+  # ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
+  # sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$INSTANCE_MONGO_USERNAME\", \"password\": \"$INSTANCE_MONGO_PASSWORD\"}"
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
