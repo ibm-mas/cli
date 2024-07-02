@@ -387,6 +387,8 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             self.installAssist = self.yesOrNo("Install Assist")
             if self.installAssist:
                 self.configAppChannel("assist")
+        else:
+            self.installAssist = False
 
         self.installOptimizer = self.yesOrNo("Install Optimizer")
         if self.installOptimizer:
