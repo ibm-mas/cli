@@ -330,6 +330,7 @@ function gitops_suite_noninteractive() {
 }
 
 function gitops_suite() {
+  set -e
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
