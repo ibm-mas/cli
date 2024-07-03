@@ -776,7 +776,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
                 self.fatalError(f"Unknown option: {key} {value}")
 
         # Once we've processed the inputs, we should validate the catalog source & prompt to accept the license terms
-        if self.devMode is None or self.devMode.lower() not in ['true', '1', 'yes', 'on']:
+        if not self.devMode:
             self.validateCatalogSource()
         self.licensePrompt()
 
