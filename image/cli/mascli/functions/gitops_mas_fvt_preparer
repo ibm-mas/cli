@@ -76,6 +76,8 @@ function gitops_mas_fvt_preparer() {
   echo_reset_dim "FVT Config .............................. ${COLOR_MAGENTA}${FVT_CONFIG}"
   echo_reset_dim "Launcher ID ............................. ${COLOR_MAGENTA}${LAUNCHER_ID}"
 
+  # Set SLS Namespace
+  export SLS_NAMESPACE="ibm-${MAS_INSTANCE_ID}-sls"
   #Don't wait for install process
   export SYNC_WITH_INSTALL=false
   #If this is the FVT Core run then don't call finalize at the end of this run
@@ -85,13 +87,13 @@ function gitops_mas_fvt_preparer() {
   #FVT pipeline to run
   export PIPELINE_NAME=$FVT_PIPELINE_NAME
   ansible-playbook ibm.mas_fvt.setup_pipeline
-  
+
   rc=$?
-  echo_reset_dim "setup_pipeline return code............... ${COLOR_MAGENTA}${rc}"  
+  echo_reset_dim "setup_pipeline return code............... ${COLOR_MAGENTA}${rc}"
   [ $rc -ne 0 ] && exit $rc
   ansible-playbook ibm.mas_fvt.start_pipeline
   rc=$?
-  echo_reset_dim "start_pipeline return code............... ${COLOR_MAGENTA}${rc}"    
+  echo_reset_dim "start_pipeline return code............... ${COLOR_MAGENTA}${rc}"
   [ $rc -ne 0 ] && exit $rc
   exit 0
 }
