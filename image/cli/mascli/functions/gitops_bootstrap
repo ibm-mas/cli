@@ -14,6 +14,7 @@ Options:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                Account ID
       --app-revision ${COLOR_YELLOW}APP_REVISION${TEXT_RESET}            Revision (branch or tag) of ibm-mas/gitops to use
       --argoapp-namespace ${COLOR_YELLOW}ARGOAPP_NAMESPACE${TEXT_RESET}  Namespace in the ArgoCD worker cluster to create ArgoCD Application and ApplicationSet resources (defaults to 'openshift-gitops)
+      --auto-delete ${COLOR_YELLOW}AUTO_DELETE${TEXT_RESET}                  If set (or AUTO_DELETE set to exactly "true"), ArgoCD will be permitted to automatically delete resources based on config / helm chart changes. Only recommended for use in development environments.
 
 AWS Secrets Manager Configuration:
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
@@ -51,6 +52,10 @@ function gitops_bootstrap_noninteractive() {
 
       --argoapp-namespace)
         export ARGOAPP_NAMESPACE=$1 && shift
+        ;;
+      
+      --auto-delete)
+        export AUTO_DELETE="true"
         ;;
 
       # AWS Secrets Manager Configuration
@@ -119,6 +124,11 @@ function gitops_bootstrap() {
   echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Applicaton Revision ............ ${COLOR_MAGENTA}${APP_REVISION}"
   echo_reset_dim "Argo Application Namespace ..... ${COLOR_MAGENTA}${ARGOAPP_NAMESPACE}"
+  if [[ "${AUTO_DELETE}" == "true" ]]; then
+    echo_reset_dim "Auto Delete .................... ${COLOR_GREEN}enabled"
+  else
+    echo_reset_dim "Auto Delete .................... ${COLOR_RED}disabled"
+  fi
   reset_colors
 
   echo ""

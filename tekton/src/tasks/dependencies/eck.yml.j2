@@ -1,0 +1,65 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-eck
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    # Internal Stack
+    - name: eck_enable_elasticsearch
+      type: string
+      default: "false"
+    - name: eck_enable_kibana
+      type: string
+      default: "false"
+    - name: eck_enable_logstash
+      type: string
+      default: "false"
+    - name: eck_enable_filebeat
+      type: string
+      default: "false"
+
+    # Remote Elasticsearch instance for Logstash
+    - name: eck_remote_es_hosts
+      type: string
+      description: Comma-separated list of host:port for Elasticsearch
+      default: ""
+    - name: eck_remote_es_username
+      type: string
+      description: User that LogStash will use to authenticate with Elasticsearch
+      default: ""
+    - name: eck_remote_es_password
+      type: string
+      description: Password that LogStash will use to authenticate with Elasticsearch
+      default: "Default"
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      # Internal Stack
+      - name: ECK_ENABLE_ELASTICSEARCH
+        value: $(params.eck_enable_elasticsearch)
+      - name: ECK_ENABLE_KIBANA
+        value: $(params.eck_enable_kibana)
+      - name: ECK_ENABLE_LOGSTASH
+        value: $(params.eck_enable_logstash)
+      - name: ECK_ENABLE_FILEBEAT
+        value: $(params.eck_enable_filebeat)
+
+      # Remote Elasticsearch instance for Logstash
+      - name: ECK_REMOTE_ES_HOSTS
+        value: $(params.eck_remote_es_hosts)
+      - name: ECK_REMOTE_ES_USERNAME
+        value: $(params.eck_remote_es_username)
+      - name: ECK_REMOTE_ES_PASSWORD
+        value: $(params.eck_remote_es_password)
+  steps:
+    - name: eck
+      command:
+        - /opt/app-root/src/run-role.sh
+        - eck
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)

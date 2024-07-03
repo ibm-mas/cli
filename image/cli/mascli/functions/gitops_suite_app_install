@@ -40,6 +40,9 @@ Maximo Application Suite:
       <<app>>_tls_key: <<base64 enc of <<app>> tls.key>>
       <<app>>_ca_crt: <<base64 enc of <<app>> ca.crt>>
 
+Visual Inspection:
+  --gpu-request-quota ${COLOR_YELLOW}GPU_REQUEST_QUOTA${TEXT_RESET}              The gpu request quota to set for this VisualInspection App install
+
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
@@ -134,6 +137,11 @@ function gitops_suite_app_install_noninteractive() {
         export MAS_APP_SPEC_YAML=$1 && shift
         ;;
 
+      # MAS VisualInspection
+      --gpu-request-quota)
+        export GPU_REQUEST_QUOTA=$1 && shift
+        ;;
+
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -196,7 +204,7 @@ function gitops_suite_app_install_noninteractive() {
     fi
     if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
       [[ "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_install_help "DEFAULT_FILE_STORAGE_CLASS is not set"
-    fi    
+    fi
   fi
 
 }
@@ -274,8 +282,12 @@ function gitops_suite_app_install() {
   echo_reset_dim "Default File Storage Class ............ ${COLOR_MAGENTA}${DEFAULT_FILE_STORAGE_CLASS}"
   echo_reset_dim "Default Block Storage Class ........... ${COLOR_MAGENTA}${DEFAULT_BLOCK_STORAGE_CLASS}"
   echo_reset_dim "MAS Manual Cert Mgt ................... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
-  echo_reset_dim "MAS MANUAL CERTS YAML ................. ${COLOR_MAGENTA}${MAS_MANUAL_CERTS_YAML}"  
-    
+  echo_reset_dim "MAS Manual Certs YAML ................. ${COLOR_MAGENTA}${MAS_MANUAL_CERTS_YAML}"
+  
+  if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
+    echo_reset_dim "GPU Request Quota ..................... ${COLOR_MAGENTA}${GPU_REQUEST_QUOTA}"
+  fi
+  
   reset_colors
 
 

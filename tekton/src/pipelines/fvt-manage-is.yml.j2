@@ -63,7 +63,7 @@ spec:
     # - Add User into Security Group
     # - Set User's Default Site
     # ----------------------------------------
-    - name: fvt-manage-setup-is # convention: use fvt-manage-<keyword>, as the value of fvt_test_suite parameter
+    - name: fvt-manage-setup-is
       {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(8) }}
@@ -73,17 +73,7 @@ spec:
     # ----------------------------------------
     # Industry Solution Tests
     # ----------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-manage-is/scheduler.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/maintmanager.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/acm.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/aviation.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/hse.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/nuclear.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/serviceprovider.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/spatial.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/transportation.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage-is/health.yml.j2') | indent(4) }}
-
-    # Tests within _others will be re-introduced later
-    # ------------------------
-    {# {{ lookup('template', 'taskdefs/fvt-manage-is/aviation.yml.j2') | indent(4) }} #}
+    {{ lookup('template', 'taskdefs/fvt-manage-is/phase1.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-is/phase2.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-is/phase3.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-is/phase4.yml.j2') | indent(4) }}

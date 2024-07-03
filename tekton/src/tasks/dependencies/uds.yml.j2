@@ -45,6 +45,9 @@ spec:
     - name: ibm_entitlement_key
       type: string
       default: ""
+    - name: dro_namespace
+      type: string
+      default: "redhat-marketplace"
 
     # Used by UDS & DRO
     - name: uds_contact_email
@@ -144,6 +147,8 @@ spec:
           value: $(params.dro_migration)
         - name: DRO_STORAGE_CLASS
           value: $(params.uds_storage_class)
+        - name: DRO_NAMESPACE
+          value: $(params.dro_namespace)
   workspaces:
     - name: configs
       optional: true

@@ -9,9 +9,6 @@
 # 7. app-cfg-predict ............ Triggered after Predict is installed and configured
 # 8. app-cft-visualinspection ... Triggered after Visual Inspection is installed and configured
 
-# TODO: Manage component sub-pipelines need to be integrated (fvt-manage-civil, fvt-manage-is)
-# TODO: Mobile sub-pipelines need to be integrated (fvt-mobile) .. should this be fvt-manage-mobile, is it testing anything mobile that is outside scope of Manage application?
-
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
@@ -39,39 +36,57 @@ spec:
     - name: launchfvt_core
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the SLS & Core FVT pipelines after suite-verify completes"
+      description: "Set this to any value other than 'true' to disable launch of the SLS & Core FVT pipelines after suite-verify completes"
     - name: launchfvt_assist
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Assist FVT pipeline after app-cfg-assist completes"
+      description: "Set this to any value other than 'true' to disable launch of the Assist FVT pipeline after app-cfg-assist completes"
     - name: launchfvt_iot
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the IoT FVT pipeline after app-cfg-iot completes"
+      description: "Set this to any value other than 'true' to disable launch of the IoT FVT pipeline after app-cfg-iot completes"
     - name: launchfvt_manage
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Manage FVT pipeline after app-cfg-manage completes"
+      description: "Set this to any value other than 'true' to disable launch of the Manage FVT pipeline after app-cfg-manage completes"
+    - name: launchfvt_manage_is
+      type: string
+      default: "true"
+      description: "Set this to any value other than 'true' to disable launch of the Manage Industry Solutions FVT pipeline after app-cfg-manage completes"
     - name: launchfvt_mobile
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Mobile FVT pipeline after app-cfg-manage completes"
+      description: "Set this to any value other than 'true' to disable launch of the Mobile FVT pipeline after app-cfg-manage completes"
     - name: launchfvt_monitor
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Monitor FVT pipeline after app-cfg-monitor completes"
+      description: "Set this to any value other than 'true' to disable launch of the Monitor FVT pipeline after app-cfg-monitor completes"
     - name: launchfvt_optimizer
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Optimizer FVT pipeline after app-cfg-optimizer completes"
+      description: "Set this to any value other than 'true' to disable launch of the Optimizer FVT pipeline after app-cfg-optimizer completes"
     - name: launchfvt_predict
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Predict FVT pipeline after app-cfg-predict completes"
+      description: "Set this to any value other than 'true' to disable launch of the Predict FVT pipeline after app-cfg-predict completes"
     - name: launchfvt_visualinspection
       type: string
       default: "true"
-      description: "Set this to any falue other than 'true' to disable launch of the Visual Inspection FVT pipeline after app-cfg-visualinspection completes"
+      description: "Set this to any value other than 'true' to disable launch of the Visual Inspection FVT pipeline after app-cfg-visualinspection completes"
+    - name: launchivt
+      type: string
+      default: "true"
+      description: "Set this to any value other than 'true' to disable launch of the IVT pipeline at the end of applications FVT"
+    
+    # Required by Manage Setup (Data Loader)
+    - name: mas_app_channel_manage
+      type: string
+      default: ""
+      description: "Manage Channel - necessary to run Manage Setup and for the when clause"
+    - name: fvt_digest_manage_pytest
+      type: string
+      default: ""
+      description: "Manage Pytest FVT Digest - necessary to run Manage Setup and for the when clause"
 
   tasks:
     # 1. MAS Core FVT
@@ -274,7 +289,7 @@ spec:
         # Wait for IoT to be installed if we are running the IoT and/or the Monitor FVT suite
         - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)"
           operator: in
-          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue"]
+          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue", "truefalse","TrueFalse" ]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
@@ -313,7 +328,7 @@ spec:
       when:
         - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)"
           operator: in
-          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue"]
+          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue", "truefalse","TrueFalse" ]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
@@ -351,14 +366,29 @@ spec:
         - name: ignore_failure
           value: "False"
       when:
-        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)
-          operator: in
-          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue", "truefalse", "TrueFalse"]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
+        # All these launchers require manage in place to then run setup, therefore the criteria
+        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_optimizer)$(params.launchfvt_predict)$(params.launchivt)
+          operator: notin
+          values: ["falsefalsefalsefalsefalsefalse"] # case sensitive to simplify (here is how launchfvt flags are in fvt template repos)
       runAfter:
         - approval-suite-verify
+    
+    # Manage Setup (Data Loader)
+    # Required by fvt-manage, fvt-manage-is, fvt-optimizer and fvt-predict pipelines
+    - name: manage-setup
+      {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: base-api-setup
+      runAfter:
+        - waitfor-manage
 
     - name: launchfvt-manage
       params:
@@ -374,7 +404,23 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitfor-manage
+        - manage-setup
+    
+    - name: launchfvt-manage-is
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-manage-is"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-manage-is
+      when:
+        - input: $(params.launchfvt_manage_is)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - manage-setup
 
     - name: approval-manage
       taskRef:
@@ -390,14 +436,16 @@ spec:
         - name: configmap_value
           value: approved
       when:
-        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)
-          operator: in
-          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue", "truefalse", "TrueFalse"]
+        # Same criteria used in waitfor-manage task
+        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_optimizer)$(params.launchfvt_predict)$(params.launchivt)
+          operator: notin
+          values: ["falsefalsefalsefalsefalsefalse"] # case sensitive to simplify (here is how launchfvt flags are in fvt template repos)
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
       runAfter:
         - launchfvt-manage
+        - launchfvt-manage-is
 
 
     # 6. Application FVT - Mobile
@@ -417,7 +465,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitfor-manage
+        - manage-setup
 
 
     # 7. Application FVT - Monitor
@@ -558,6 +606,7 @@ spec:
           values: ["true", "True"]
       runAfter:
         - waitfor-optimizer
+        - manage-setup
 
     - name: approval-optimizer
       taskRef:
@@ -746,6 +795,27 @@ spec:
       runAfter:
         - launchfvt-visualinspection
     
+    # 11. IVT
+    # -------------------------------------------------------------------------
+    - name: launchivt
+      taskRef:
+        kind: Task
+        name: mas-launchivt
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-ivt"
+      when:
+        - input: $(params.launchivt)
+          operator: in
+          values: ["true", "True"]
+      # Currently there is only one task testing Manage and Monitor, no point to
+      # run IVT after all approvals are obtained.
+      runAfter:
+        - approval-manage
+        - approval-monitor
+    
     # Last Sync Point
     # -------------------------------------------------------------------------
     # Guarantee installation pipeline ran till the end;
@@ -754,8 +824,8 @@ spec:
     # Note: this task will start once all the FVTs are approved and will start at the
     # same time install's post-verify starts. It means its timeout must be higher than
     # post-verify + sync-install, which will set the flag needed to finalize this fvt-launcher
-    # - Escape Route: none
-    # - Ignore Failures: false
+    # - Escape Route: INSTALL_STATUS != "" (i.e. FAILED)
+    # - Ignore Failures: False
     # -------------------------------------------------------------------------
     - name: waitfor-installation
       taskRef:
@@ -771,7 +841,12 @@ spec:
         - name: configmap_key
           value: INSTALL_STATUS
         - name: configmap_target_value
-          value: Completed
+          value: Completed,Succeeded
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
         # 25 retries at 5 minute intervals = 2 hours
         - name: delay
           value: "300"
@@ -789,6 +864,7 @@ spec:
         - approval-optimizer
         - approval-predict # Infers Manage, Monitor and IoT completed
         - approval-visualinspection
+        - launchivt
 
   finally:
     # Collect must-gather
@@ -818,3 +894,5 @@ spec:
   workspaces:
     # Shared storage to hold mustgather output for tasks
     - name: shared-mustgather
+    # The generated configuration files
+    - name: shared-configs

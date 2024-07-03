@@ -1,0 +1,284 @@
+#!/usr/bin/env python
+# *****************************************************************************
+# Copyright (c) 2024 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# *****************************************************************************
+
+import argparse
+import sys
+import logging
+import logging.handlers
+from prompt_toolkit import prompt, print_formatted_text, HTML
+from prompt_toolkit.completion import WordCompleter
+
+from halo import Halo
+
+from mas.cli import __version__ as packageVersion
+from mas.cli.cli import BaseApp, getHelpFormatter
+from mas.cli.validators import InstanceIDValidator, YesNoValidator
+from mas.devops.ocp import createNamespace
+from mas.devops.mas import listMasInstances, verifyMasInstance
+from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUninstallPipeline
+from openshift.dynamic.exceptions import NotFoundError
+
+logger = logging.getLogger(__name__)
+
+class App(BaseApp):
+    def uninstall(self, args):
+        """
+        Uninstall MAS instance
+        """
+        instanceId = args.instance_id
+        self.noConfirm = args.no_confirm
+
+        if args.uninstall_all_deps:
+            uninstallGrafana = True
+            uninstallIBMCatalog = True
+            uninstallCommonServices = True
+            uninstallCertManager = True
+            uninstallUDS = True
+            uninstallMongoDb = True
+            uninstallSLS = True
+        else:
+            uninstallGrafana = args.uninstall_grafana
+            uninstallIBMCatalog = args.uninstall_ibm_catalog
+            uninstallCommonServices = args.uninstall_common_services
+            uninstallCertManager = args.uninstall_cert_manager
+            uninstallUDS = args.uninstall_uds
+            uninstallMongoDb = args.uninstall_mongodb
+            uninstallSLS = args.uninstall_sls
+
+        if instanceId is None:
+            self.printH1("Set Target OpenShift Cluster")
+            # Connect to the target cluster
+            self.connect()
+        else:
+            logger.debug("MAS instance ID is set, so we assume already connected to the desired OCP")
+
+        if self.dynamicClient is None:
+            print_formatted_text(HTML("<Red>Error: The Kubernetes dynamic Client is not available.  See log file for details</Red>"))
+            sys.exit(1)
+
+        if instanceId is None:
+            # Interactive mode
+            self.printH1("Instance Selection")
+            print_formatted_text(HTML("<LightSlateGrey>Select a MAS instance to uninstall from the list below:</LightSlateGrey>"))
+            suites = listMasInstances(self.dynamicClient)
+            suiteOptions = []
+            for suite in suites:
+                print_formatted_text(HTML(f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"))
+                suiteOptions.append(suite['metadata']['name'])
+
+            suiteCompleter = WordCompleter(suiteOptions)
+            print()
+            instanceId = prompt(HTML(f'<Yellow>Enter MAS instance ID: </Yellow>'), completer=suiteCompleter, validator=InstanceIDValidator(), validate_while_typing=False)
+
+            self.printH1("Uninstall MAS Dependencies")
+            uninstallCertManager = prompt(HTML(f'<Yellow>Uninstall Certificate Manager? </Yellow>'), validator=YesNoValidator()) in ["y", "yes"]
+            if uninstallCertManager:
+                # If you choose to uninstall Cert-Manager, everything will be uninstalled
+                uninstallGrafana = True
+                uninstallIBMCatalog = True
+                uninstallCommonServices = True
+                uninstallUDS = True
+                uninstallMongoDb = True
+                uninstallSLS = True
+            else:
+                uninstallMongoDb = prompt(HTML(f'<Yellow>Uninstall MongoDb? </Yellow>'), validator=YesNoValidator()) in ["y", "yes"]
+                if uninstallMongoDb:
+                    # If you are removing MongoDb then SLS needs to be uninstalled too
+                    uninstallSLS = True
+                else:
+                    uninstallSLS = prompt(HTML(f'<Yellow>Uninstall IBM Suite Licensing Service? </Yellow>'), validator=YesNoValidator()) in ["y", "yes"]
+
+                uninstallGrafana = prompt(HTML(f'<Yellow>Uninstall Grafana? </Yellow>'), validator=YesNoValidator()) in ["y", "yes"]
+                uninstallIBMCatalog = prompt(HTML(f'<Yellow>Uninstall IBM Catalog Source? </Yellow>'), validator=YesNoValidator()) in ["y", "yes"]
+                if uninstallIBMCatalog:
+                    # If you choose to uninstall IBM Operator Catalog, everything from the catalog will be uninstalled
+                    uninstallCommonServices = True
+                    uninstallUDS = True
+                    uninstallMongoDb = True
+                    uninstallSLS = True
+                else:
+                    uninstallCommonServices = prompt(HTML(f'<Yellow>Uninstall IBM Common Services? </Yellow>'), validator=YesNoValidator()) in ["y", "yes"]
+                    uninstallUDS = prompt(HTML(f'<Yellow>Uninstall IBM User Data Services? </Yellow>'), validator=YesNoValidator()) in ["y", "yes"]
+
+        else:
+            # Non-interactive mode
+            if not verifyMasInstance(self.dynamicClient, instanceId):
+                print_formatted_text(HTML(f"<Red>Error: MAS Instance {instanceId} not found on this cluster</Red>"))
+                sys.exit(1)
+
+        # Default to Red Hat Cert-Manager, and check if IBM cert-manager is installed
+        certManagerProvider="redhat"
+        try:
+            # Check if 'ibm-common-services' namespace exist, this will throw NotFoundError exception when not found.
+            namespaceAPI = self.dynamicClient.resources.get(api_version="v1", kind="Namespace")
+            namespaceAPI.get(name="ibm-common-services")
+
+            podsAPI = self.dynamicClient.resources.get(api_version="v1", kind="Pod")
+            podsList = podsAPI.get(namespace="ibm-common-services")
+            for pod in podsList.items:
+                if pod is not None and "cert-manager-cainjector" in pod.metadata.name:
+                    certManagerProvider = "ibm"
+        except NotFoundError:
+            print()
+            # ibm cert manager not found, proceed with default redhat.
+
+        self.printH1("Review Settings")
+        print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Uninstall Cert-Manager .......... {uninstallCertManager} ({certManagerProvider})</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Uninstall Grafana ............... {uninstallGrafana}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Uninstall IBM Operator Catalog .. {uninstallIBMCatalog}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Uninstall IBM Common Services ... {uninstallCommonServices}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Uninstall UDS ................... {uninstallUDS}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Uninstall MongoDb ............... {uninstallMongoDb}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Uninstall SLS ................... {uninstallSLS}</LightSlateGrey>"))
+
+        if not self.noConfirm:
+            print()
+            continueWithUninstall = prompt(HTML(f'<Yellow>Proceed with these settings?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
+
+        if self.noConfirm or continueWithUninstall in ["y", "yes"]:
+            self.printH1("Launch uninstall")
+            pipelinesNamespace = f"mas-{instanceId}-pipelines"
+
+            with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
+                installOpenShiftPipelines(self.dynamicClient)
+                h.stop_and_persist(symbol=self.successIcon, text=f"OpenShift Pipelines Operator is installed and ready to use")
+
+            with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
+                createNamespace(self.dynamicClient, pipelinesNamespace)
+                h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
+
+            with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
+                updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
+                h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
+
+            with Halo(text='Submitting PipelineRun for {instanceId} uninstall', spinner=self.spinner) as h:
+                pipelineURL = launchUninstallPipeline(
+                    dynClient = self.dynamicClient,
+                    instanceId = instanceId,
+                    certManagerProvider = "redhat",
+                    uninstallCertManager = uninstallCertManager,
+                    uninstallGrafana = uninstallGrafana,
+                    uninstallCatalog = uninstallCommonServices,
+                    uninstallCommonServices = uninstallCommonServices,
+                    uninstallUDS = uninstallUDS,
+                    uninstallMongoDb = uninstallMongoDb,
+                    uninstallSLS = uninstallSLS
+                )
+                if pipelineURL is not None:
+                    h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} uninstall submitted")
+                    print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
+                else:
+                    h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {instanceId} uninstall, see log file for details")
+                    print()
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        prog='mas uninstall',
+        description="\n".join([
+            f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
+            "Uninstall MAS by configuring and launching the MAS Uninstall Tekton Pipeline.\n",
+            "Interactive Mode:",
+            "Omitting the --instance-id option will trigger an interactive prompt"
+        ]),
+        epilog="Refer to the online documentation for more information: https://ibm-mas.github.io/cli/",
+        formatter_class=getHelpFormatter(),
+        add_help=False
+    )
+
+    masArgGroup = parser.add_argument_group('MAS Instance Selection')
+    masArgGroup.add_argument(
+        '--instance-id',
+        required=False,
+        help="The MAS instance ID to be uninstalled"
+    )
+
+    depsArgGroup = parser.add_argument_group('MAS Dependencies Selection')
+    depsArgGroup.add_argument(
+        '--uninstall-all-deps',
+        required=False,
+        action='store_true',
+        default=False,
+        help="Uninstall all MAS-related dependencies from the target cluster",
+    )
+
+    depsArgGroup.add_argument(
+        '--uninstall-cert-manager',
+        required=False,
+        action='store_true',
+        default=False,
+        help="Uninstall Certificate Manager from the target cluster",
+    )
+    depsArgGroup.add_argument(
+        '--uninstall-common-services',
+        required=False,
+        action='store_true',
+        default=False,
+        help="Uninstall IBM Common Services from the target cluster",
+    )
+    depsArgGroup.add_argument(
+        '--uninstall-grafana',
+        required=False,
+        action='store_true',
+        default=False,
+        help="Uninstall Grafana from the target cluster",
+    )
+    depsArgGroup.add_argument(
+        '--uninstall-ibm-catalog',
+        required=False,
+        action='store_true',
+        default=False,
+        help="Uninstall the IBM Maximo Operator Catalog Source (ibm-operator-catalog) from the target cluster",
+    )
+    depsArgGroup.add_argument(
+        '--uninstall-mongodb',
+        required=False,
+        action='store_true',
+        default=False,
+        help="Uninstall MongoDb from the target cluster",
+    )
+    depsArgGroup.add_argument(
+        '--uninstall-sls',
+        required=False,
+        action='store_true',
+        default=False,
+        help="Uninstall IBM Suite License Service from the target cluster",
+    )
+    depsArgGroup.add_argument(
+        '--uninstall-uds',
+        required=False,
+        action='store_true',
+        default=False,
+        help="Uninstall IBM User Data Services from the target cluster",
+    )
+
+    otherArgGroup = parser.add_argument_group('More')
+    otherArgGroup.add_argument(
+        '--no-confirm',
+        required=False,
+        action='store_true',
+        default=False,
+        help="Launch the upgrade without prompting for confirmation",
+    )
+    otherArgGroup.add_argument(
+        '-h', "--help",
+        action='help',
+        default=False,
+        help="Show this help message and exit",
+    )
+
+    args = parser.parse_args()
+
+    try:
+        app = App()
+        app.uninstall(args)
+    except KeyboardInterrupt as e:
+        pass

@@ -12,6 +12,10 @@
   type: string
   default: ""
 
+# Dependencies - ECK
+# -----------------------------------------------------------------------------
+{{ lookup('template', params_src_dir ~ '/install-eck.yml.j2') }}
+
 # Dependencies - Turbonomic
 # -----------------------------------------------------------------------------
 {{ lookup('template', params_src_dir ~ '/install-turbonomic.yml.j2') }}
@@ -247,6 +251,9 @@
 - name: uds_action
   type: string
   default: ""
+- name: dro_namespace
+  type: string
+  default: ""
 - name: mas_segment_key
   type: string
   default: ""
@@ -261,11 +268,11 @@
   type: string
   description: COS Provider (ibm or ocs)
   default: ""
-- name: ibmcos_resourcegroup
+- name: cos_resourcegroup
   type: string
   description: Name of an existing COS Resource Group in IBM Cloud account
   default: ""
-- name: ibmcos_instance_name
+- name: cos_instance_name
   type: string
   description: Name of COS instance in IBM Cloud account
   default: ""
@@ -274,11 +281,12 @@
   description: COS action to be performed (provision or deprovision)
   default: ""
 
-# MAS Integration - Cluster Monitoring - Grafana
+# MAS Integration - Grafana
 # -----------------------------------------------------------------------------
 - name: grafana_action
   type: string
-  default: "none"
+  description: Set to 'none' to skip Grafana installation
+  default: "install"
 - name: grafana_namespace
   type: string
   default: ""
@@ -426,6 +434,15 @@
   default: ""
   description: Data Dictionary catalog source
 
+# MAS Configuration - Superuser Account
+# -----------------------------------------------------------------------------
+- name: mas_superuser_username
+  type: string
+  default: ""
+- name: mas_superuser_password
+  type: string
+  default: ""
+
 # MAS Application Configuration - IoT Application
 # -----------------------------------------------------------------------------
 - name: mas_app_settings_iot_deployment_size
@@ -554,6 +571,29 @@
 - name: mas_app_settings_default_jms
   type: string
   description: Set true if you want to configure JMS queues. It is false by default.
+  default: "" # default is handled by ansible-devops
+- name: mas_manage_attachment_configuration_mode
+  type: string
+  description: Manage attachment configuration mode (cr or db)
+  default: ""
+- name: mas_manage_attachments_provider
+  type: string
+  description: Manage attachment provider (filestorage, ibm, aws)
+  default: ""
+- name: cos_bucket_name # cos_bucket_name in attachments role
+  type: string
+  description: COS Bucket optionally used to hold attachments in Manage
+  default: ""
+
+# MAS Application Configuration - IBM Maximo Location Services for ESRI
+# -----------------------------------------------------------------------------
+- name: install_arcgis
+  type: string
+  description: Flag to control whether to install IBM Maximo Location Services for ESRI
+  default: ""
+- name: mas_arcgis_channel
+  type: string
+  description: Default channel for IBM Maximo Location Services for ESRI 
   default: "" # default is handled by ansible-devops
 
 # MAS Application Configuration - Health Application

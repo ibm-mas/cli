@@ -28,6 +28,8 @@ spec:
         argo:
           namespace: "{{ ARGOAPP_NAMESPACE }}"
 
+        auto_delete: {{ true if AUTO_DELETE=="true" else false }}
+
   syncPolicy:
     automated:
       prune: true
