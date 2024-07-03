@@ -77,7 +77,7 @@ function gitops_mas_fvt_preparer() {
   echo_reset_dim "Launcher ID ............................. ${COLOR_MAGENTA}${LAUNCHER_ID}"
 
   # Set SLS Namespace
-  export SLS_NAMESPACE="ibm-${MAS_INSTANCE_ID}-sls"
+  export SLS_NAMESPACE="mas-${MAS_INSTANCE_ID}-sls"
   #Don't wait for install process
   export SYNC_WITH_INSTALL=false
   #If this is the FVT Core run then don't call finalize at the end of this run
