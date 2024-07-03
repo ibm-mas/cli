@@ -11,6 +11,7 @@
 
 import logging
 import logging.handlers
+import os
 from sys import exit
 from os import path
 import re
@@ -510,10 +511,11 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
     def interactiveMode(self) -> None:
         # Interactive mode
         self.interactiveMode = True
+        self.devMode = os.environ.get('DEV_MODE')
 
         # Catalog
         self.configCatalog()
-        if not self.args.dev_mode:
+        if self.devMode is None or self.devMode.lower() not in ['true', '1', 'yes', 'on']:
             self.validateCatalogSource()
         self.licensePrompt()
 
@@ -552,6 +554,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
     def nonInteractiveMode(self) -> None:
         # Non-interactive mode
         self.interactiveMode = False
+        self.devMode = self.args.dev_mode
 
         # Set defaults
         self.storageClassProvider="custom"
@@ -773,7 +776,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
                 self.fatalError(f"Unknown option: {key} {value}")
 
         # Once we've processed the inputs, we should validate the catalog source & prompt to accept the license terms
-        if not self.args.dev_mode:
+        if self.devMode is None or self.devMode.lower() not in ['true', '1', 'yes', 'on']:
             self.validateCatalogSource()
         self.licensePrompt()
 
