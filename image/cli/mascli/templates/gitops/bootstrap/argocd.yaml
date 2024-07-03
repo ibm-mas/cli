@@ -1132,7 +1132,30 @@ spec:
           hs.status = "Progressing"
           hs.message = ""
           return hs
-          
+
+      spssmodeler.cpd.ibm.com/Spss:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Successful" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
       zen.cpd.ibm.com/ZenService:
         health.lua: |
           hs = {}
