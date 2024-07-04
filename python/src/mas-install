@@ -287,6 +287,11 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
                 self.setParam("dns_provider", "")
                 self.setParam("mas_domain", "")
                 self.setParam("mas_cluster_issuer", "")
+            configureCerts = self.yesOrNo("Configure manual certificates", "mas_manual_cert_mgmt")
+            if configureCerts:
+                self.cacrtFileLocal = self.promptForFile("ca.crt file name (with path)", mustExist=True)
+                self.tlscrtFileLocal = self.promptForFile("tls.crt file name (with path)", mustExist=True)
+                self.tlskeyFileLocal = self.promptForFile("tls.key file name (with path)", mustExist=True)
 
     def configDNSAndCertsCloudflare(self):
         # User has chosen to set up DNS integration with Cloudflare
@@ -893,9 +898,10 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
         entitlementFileBaseName = path.basename(self.slsLicenseFileLocal)
         self.setParam("sls_entitlement_file", f"/workspace/entitlement/{entitlementFileBaseName}")
 
-        # Set up the secrets for additional configs and podtemplates
+        # Set up the secrets for additional configs, podtemplates and manual certificates
         self.additionalConfigs()
         self.podTemplates()
+        self.manualCertificates()
 
         # Show a summary of the installation configuration
         self.displayInstallSummary()
@@ -936,7 +942,8 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
                     instanceId=self.getParam("mas_instance_id"),
                     slsLicenseFile=self.slsLicenseFileLocal,
                     additionalConfigs=self.additionalConfigsSecret,
-                    podTemplates=self.podTemplatesSecret
+                    podTemplates=self.podTemplatesSecret,
+                    certs=self.certsSecret
                 )
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 

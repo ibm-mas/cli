@@ -122,6 +122,30 @@ class AdditionalConfigsMixin():
             logger.debug(podTemplatesSecret)
             self.podTemplatesSecret = podTemplatesSecret
 
+    def manualCertificates(self) -> None:
+        if self.getParam("mas_manual_cert_mgmt"):
+            certsSecret = {
+                "apiVersion": "v1",
+                "kind": "Secret",
+                "type": "Opaque",
+                "metadata": {
+                    "name": "pipeline-pod-templates"
+                }
+            }
+
+            certsSecret["data"] = {}
+            with open(self.cacrtFileLocal, 'r') as cacrtFile, open(self.tlscrtFileLocal, 'r') as tlscrtFile, open(self.tlskeyFileLocal, 'r') as tlskeyFile:
+                cacrtdata = cacrtFile.read()
+                tlscrtdata = cacrtFile.read()
+                tlskeydata = cacrtFile.read()
+                
+                certsSecret["data"]["core.ca.crt"] = b64encode(cacrtdata.encode('ascii')).decode("ascii")
+                certsSecret["data"]["core.tls.crt"] = b64encode(tlscrtdata.encode('ascii')).decode("ascii")
+                certsSecret["data"]["core.tls.key"] = b64encode(tlskeydata.encode('ascii')).decode("ascii")
+
+            logger.debug(certsSecret)
+            self.certsSecret = certsSecret
+
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str) -> dict:
         """
         Add file (or files) to pipeline-additional-configs
