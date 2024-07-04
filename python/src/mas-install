@@ -110,7 +110,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
                     exit(1)
 
     def configICR(self):
-        if self.args.dev_mode:
+        if self.devMode:
             self.setParam("mas_icr_cp", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local")
             self.setParam("mas_icr_cpopen", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen")
             self.setParam("sls_icr_cpopen", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen")
@@ -122,7 +122,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
     def configICRCredentials(self):
         self.printH1("Configure IBM Container Registry")
         self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
-        if self.args.dev_mode:
+        if self.devMode:
             self.promptForString("Artifactory username", "artifactory_username", isPassword=True)
             self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
 
@@ -133,7 +133,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
 
     def configCatalog(self):
         self.printH1("IBM Maximo Operator Catalog Selection")
-        if self.args.dev_mode:
+        if self.devMode:
             self.promptForString("Select catalog source", "mas_catalog_version", default="v9-master-amd64")
             self.promptForString("Select channel", "mas_channel", default="9.0.x-dev")
         else:
@@ -511,11 +511,10 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
     def interactiveMode(self) -> None:
         # Interactive mode
         self.interactiveMode = True
-        self.devMode = os.environ.get('DEV_MODE')
 
         # Catalog
         self.configCatalog()
-        if self.devMode is None or self.devMode.lower() not in ['true', '1', 'yes', 'on']:
+        if self.devMode:
             self.validateCatalogSource()
         self.licensePrompt()
 
@@ -554,7 +553,6 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
     def nonInteractiveMode(self) -> None:
         # Non-interactive mode
         self.interactiveMode = False
-        self.devMode = self.args.dev_mode
 
         # Set defaults
         self.storageClassProvider="custom"
@@ -784,12 +782,20 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
         """
         Install MAS instance
         """
+        # We use the presence of --mas-instance-id to determine whether
+        # the CLI is being started in interactive mode or not
         instanceId = args.mas_instance_id
+
+        # Properties for arguments that control the behavior of the CLI
         self.noConfirm = args.no_confirm
         self.waitForPVC = not args.no_wait_for_pvc
         self.licenseAccepted = args.accept_license
+        self.devMode = args.dev_mode
 
+        # Store all args
         self.args = args
+
+        # Initialize the dictionary that will hold the parameters we pass to the PipelineRun
         self.params = dict()
 
         # These flags work for setting params in both interactive and non-interactive modes
