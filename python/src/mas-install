@@ -514,7 +514,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
 
         # Catalog
         self.configCatalog()
-        if self.devMode:
+        if not self.devMode:
             self.validateCatalogSource()
         self.licensePrompt()
 
