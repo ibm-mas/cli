@@ -247,8 +247,7 @@ function gitops_cp4d_service() {
   echo_reset_dim "CPD_SERVICE_DEPLOYMENT_TYPE  ................ ${COLOR_MAGENTA}${CPD_SERVICE_DEPLOYMENT_TYPE}"
   reset_colors
 
-  # NOTE: must align with lock branch name used by gitops_deprovision_app_config script
-  # as both of these scrtipts modify the same file
+
   GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-cp4d-service" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-cp4d-service
