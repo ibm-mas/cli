@@ -515,7 +515,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
         self.configCatalog()
         if not self.devMode:
             self.validateCatalogSource()
-        self.licensePrompt()
+            self.licensePrompt()
 
         # SNO & Storage Classes
         self.configSNO()
@@ -775,7 +775,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
         # Once we've processed the inputs, we should validate the catalog source & prompt to accept the license terms
         if not self.devMode:
             self.validateCatalogSource()
-        self.licensePrompt()
+            self.licensePrompt()
 
     def install(self, args):
         """
