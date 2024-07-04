@@ -129,15 +129,15 @@ class AdditionalConfigsMixin():
                 "kind": "Secret",
                 "type": "Opaque",
                 "metadata": {
-                    "name": "pipeline-pod-templates"
+                    "name": "pipeline-certificates"
                 }
             }
 
             certsSecret["data"] = {}
             with open(self.cacrtFileLocal, 'r') as cacrtFile, open(self.tlscrtFileLocal, 'r') as tlscrtFile, open(self.tlskeyFileLocal, 'r') as tlskeyFile:
                 cacrtdata = cacrtFile.read()
-                tlscrtdata = cacrtFile.read()
-                tlskeydata = cacrtFile.read()
+                tlscrtdata = tlscrtFile.read()
+                tlskeydata = tlskeyFile.read()
                 
                 certsSecret["data"]["core.ca.crt"] = b64encode(cacrtdata.encode('ascii')).decode("ascii")
                 certsSecret["data"]["core.tls.crt"] = b64encode(tlscrtdata.encode('ascii')).decode("ascii")
