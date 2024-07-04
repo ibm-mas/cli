@@ -104,7 +104,7 @@ class Db2SettingsMixin():
                         "  1. DB2 Warehouse (Default option)",
                         "  2. DB2 Online Transactional Processing (OLTP)"
                     ])
-                    self.promptForListSelect(message="Select the Manage dedicated DB2 instance type", options=["db2wh", "db2oltp"], param="db2oltp", default="db2wh")
+                    self.promptForListSelect(message="Select the Manage dedicated DB2 instance type", options=["db2wh", "db2oltp"], param="db2_type", default="1")
                 else:
                     workspaceId = self.getParam("mas_workspace_id")
                     self.setParam("db2_action_manage", "byo")

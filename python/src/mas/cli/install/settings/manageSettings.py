@@ -104,10 +104,10 @@ class ManageSettingsMixin():
             self.promptForString("Indexspace", "mas_app_settings_db2_indexspace", default="MAXINDEX")
 
             if self.yesOrNo("Customize database encryption settings"):
-                self.promptForString("MXE_SECURITY_CRYPTO_KEY", "mxe_security_crypto_key")
-                self.promptForString("MXE_SECURITY_CRYPTOX_KEY", "mxe_security_cryptox_key")
-                self.promptForString("MXE_SECURITY_OLD_CRYPTO_KEY", "mxe_security_old_crypto_key")
-                self.promptForString("MXE_SECURITY_OLD_CRYPTOX_KEY", "mxe_security_old_cryptox_key")
+                self.promptForString("MXE_SECURITY_CRYPTO_KEY", "mas_app_settings_crypto_key")
+                self.promptForString("MXE_SECURITY_CRYPTOX_KEY", "mas_app_settings_cryptox_key")
+                self.promptForString("MXE_SECURITY_OLD_CRYPTO_KEY", "mas_app_settings_old_crypto_key")
+                self.promptForString("MXE_SECURITY_OLD_CRYPTOX_KEY", "mas_app_settings_old_cryptox_key")
                 self.yesOrNo("Override database encryption secrets with provided keys", "mas_app_settings_override_encryption_secrets_flag")
 
     def manageSettingsServerBundleConfig(self) -> None:
@@ -166,7 +166,7 @@ class ManageSettingsMixin():
                 self.promptForString("Password", "mas_app_settings_customization_archive_password", isPassword=True)
 
     def manageSettingsDemodata(self) -> None:
-        self.yesOrNo("Create demo data", "masp_app_settings_demodata")
+        self.yesOrNo("Create demo data", "mas_app_settings_demodata")
 
     def manageSettingsTimezone(self) -> None:
         self.promptForString("Manage server timezone", "mas_app_settings_server_timezone", default="GMT")
