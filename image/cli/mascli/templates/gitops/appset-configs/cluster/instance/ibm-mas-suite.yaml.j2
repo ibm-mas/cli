@@ -60,3 +60,8 @@ ibm_mas_suite:
   manual_certs:
     {{ MANUAL_CERTS | indent(4) }}
 {% endif %}
+
+{% if MAS_POD_TEMPLATE is defined and MAS_POD_TEMPLATE !='' %}
+  mas_pod_templates:
+    {{ MAS_POD_TEMPLATE | indent(4) }}
+{% endif %}
