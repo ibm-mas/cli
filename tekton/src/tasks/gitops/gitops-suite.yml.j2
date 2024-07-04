@@ -106,7 +106,9 @@ spec:
     - name: mas_manual_certs_yaml
       type: string
       default: ""
-
+    - name: mas_pod_template_yaml
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite
     env:
@@ -192,6 +194,8 @@ spec:
 
       - name: MAS_MANUAL_CERTS_YAML 
         value: $(params.mas_manual_certs_yaml)
+      - name: MAS_POD_TEMPLATE_YAML
+        value: $(params.mas_pod_template_yaml)
     envFrom:
       - configMapRef:
           name: environment-properties
