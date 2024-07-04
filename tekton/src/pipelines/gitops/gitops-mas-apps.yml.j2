@@ -138,6 +138,60 @@ spec:
     - name: db2_tls_version
       type: string
       default: TLSv1.2
+    - name: db2_table_org
+      type: string
+      default: ""
+    - name: db2_mln_count
+      type: string
+      default: ""
+    - name: db2_num_pods
+      type: string
+      default: ""
+    - name: db2_meta_storage_accessmode
+      type: string
+      default: ""
+    - name: db2_data_storage_accessmode
+      type: string
+      default: ""
+    - name: db2_backup_storage_accessmode
+      type: string
+      default: ""
+    - name: db2_logs_storage_accessmode
+      type: string
+      default: ""
+    - name: db2_audit_logs_storage_accessmode
+      type: string
+      default: ""
+    - name: db2_temp_storage_accessmode
+      type: string
+      default: ""
+    - name: db2_cpu_requests
+      type: string
+      default: ""
+    - name: db2_cpu_limits
+      type: string
+      default: ""
+    - name: db2_memory_requests
+      type: string
+      default: ""
+    - name: db2_memory_limits
+      type: string
+      default: ""
+    - name: db2_affinity_key
+      type: string
+      default: ""
+    - name: db2_affinity_value
+      type: string
+      default: ""
+    - name: db2_tolerate_key
+      type: string
+      default: ""
+    - name: db2_tolerate_value
+      type: string
+      default: ""
+    - name: db2_tolerate_effect
+      type: string
+      default: ""
 
     - name: custom_labels
       type: string
@@ -469,6 +523,42 @@ spec:
           value: $(params.db2_database_db_config_yaml_iot)
         - name: db2_addons_audit_config_yaml
           value: $(params.db2_addons_audit_config_yaml_iot)
+        - name: db2_table_org
+          value: $(params.db2_table_org)
+        - name: db2_mln_count
+          value: $(params.db2_mln_count)
+        - name: db2_num_pods
+          value: $(params.db2_num_pods)
+        - name: db2_meta_storage_accessmode
+          value: $(params.db2_meta_storage_accessmode)
+        - name: db2_data_storage_accessmode
+          value: $(params.db2_data_storage_accessmode)
+        - name: db2_backup_storage_accessmode
+          value: $(params.db2_backup_storage_accessmode)
+        - name: db2_logs_storage_accessmode
+          value: $(params.db2_logs_storage_accessmode)
+        - name: db2_audit_logs_storage_accessmode
+          value: $(params.db2_audit_logs_storage_accessmode)
+        - name: db2_temp_storage_accessmode
+          value: $(params.db2_temp_storage_accessmode)
+        - name: db2_cpu_requests
+          value: $(params.db2_cpu_requests)
+        - name: db2_cpu_limits
+          value: $(params.db2_cpu_limits)
+        - name: db2_memory_requests
+          value: $(params.db2_memory_requests)
+        - name: db2_memory_limits
+          value: $(params.db2_memory_limits)
+        - name: db2_affinity_key
+          value: $(params.db2_affinity_key)
+        - name: db2_affinity_value
+          value: $(params.db2_affinity_value)
+        - name: db2_tolerate_key
+          value: $(params.db2_tolerate_key)
+        - name: db2_tolerate_value
+          value: $(params.db2_tolerate_value)
+        - name: db2_tolerate_effect
+          value: $(params.db2_tolerate_effect)
 
       workspaces:
         - name: configs
@@ -582,7 +672,43 @@ spec:
           value: $(params.db2_database_db_config_yaml_manage)
         - name: db2_addons_audit_config_yaml
           value: $(params.db2_addons_audit_config_yaml_manage)
-
+        - name: db2_table_org
+          value: $(params.db2_table_org)
+        - name: db2_mln_count
+          value: $(params.db2_mln_count)
+        - name: db2_num_pods
+          value: $(params.db2_num_pods)
+        - name: db2_meta_storage_accessmode
+          value: $(params.db2_meta_storage_accessmode)
+        - name: db2_data_storage_accessmode
+          value: $(params.db2_data_storage_accessmode)
+        - name: db2_backup_storage_accessmode
+          value: $(params.db2_backup_storage_accessmode)
+        - name: db2_logs_storage_accessmode
+          value: $(params.db2_logs_storage_accessmode)
+        - name: db2_audit_logs_storage_accessmode
+          value: $(params.db2_audit_logs_storage_accessmode)
+        - name: db2_temp_storage_accessmode
+          value: $(params.db2_temp_storage_accessmode)
+        - name: db2_cpu_requests
+          value: $(params.db2_cpu_requests)
+        - name: db2_cpu_limits
+          value: $(params.db2_cpu_limits)
+        - name: db2_memory_requests
+          value: $(params.db2_memory_requests)
+        - name: db2_memory_limits
+          value: $(params.db2_memory_limits)
+        - name: db2_affinity_key
+          value: $(params.db2_affinity_key)
+        - name: db2_affinity_value
+          value: $(params.db2_affinity_value)
+        - name: db2_tolerate_key
+          value: $(params.db2_tolerate_key)
+        - name: db2_tolerate_value
+          value: $(params.db2_tolerate_value)
+        - name: db2_tolerate_effect
+          value: $(params.db2_tolerate_effect)
+        
       workspaces:
         - name: configs
           workspace: configs
