@@ -199,7 +199,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             " - Must start with a lowercase letter",
             " - Must end with a lowercase letter or a number"
         ])
-        self.promptForString("Instance ID", "mas_instance_id", validator=InstanceIDFormatValidator(), default="dev1")
+        self.promptForString("Instance ID", "mas_instance_id", validator=InstanceIDFormatValidator())
         self.printDescription([
             "",
             "Workspace ID restrictions:",
@@ -207,13 +207,13 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             " - Must only use lowercase letters and numbers",
             " - Must start with a lowercase letter"
         ])
-        self.promptForString("Workspace ID", "mas_workspace_id", validator=WorkspaceIDFormatValidator(), default="ws1")
+        self.promptForString("Workspace ID", "mas_workspace_id", validator=WorkspaceIDFormatValidator())
         self.printDescription([
             "",
             "Workspace display name restrictions:",
             " - Must be 3-300 characters long"
         ])
-        self.promptForString("Workspace name", "mas_workspace_name", validator=WorkspaceNameFormatValidator(), default="My Workspace")
+        self.promptForString("Workspace name", "mas_workspace_name", validator=WorkspaceNameFormatValidator())
 
         self.configOperationMode()
         self.configCATrust()
