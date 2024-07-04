@@ -73,7 +73,7 @@ class InstallSummarizerMixin():
             elif self.params['dns_provider'] == "":
                 pass
         
-        if self.param["mas_manual_cert_mgmt"]:
+        if self.params["mas_manual_cert_mgmt"]:
             self.printSummary("Manual Certificates", "Configured")
             self.printSummary("Core ca.crt", self.cacrtFileLocal)
             self.printSummary("Core tls.crt", self.tlscrtFileLocal)
