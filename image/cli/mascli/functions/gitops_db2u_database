@@ -49,7 +49,7 @@ IBM DB2U:
       --db2-temp-storage-accessmode ${COLOR_YELLOW}DB2_TEMP_STORAGE_ACCESSMODE${TEXT_RESET}                   DB2 temp storage accessmode
       --db2-archivelogs-storage-class ${COLOR_YELLOW}DB2_ARCHIVELOGS_STORAGE_CLASS${TEXT_RESET}               DB2 archivelogs storage class
       --db2-archivelogs-storage-size ${COLOR_YELLOW}DB2_ARCHIVELOGS_STORAGE_SIZE${TEXT_RESET}                 DB2 archivelogs storage size (default: 100Gi)
-      --db2-archivelogs-storage-accessmode ${COLOR_YELLOW}ARCHIVELOGS_STORAGE_ACCESSMODE${TEXT_RESET}         DB2 archivelogs storage accessmode (default: ReadWriteMany)
+      --db2-archivelogs-storage-accessmode ${COLOR_YELLOW}DB2_ARCHIVELOGS_STORAGE_ACCESSMODE${TEXT_RESET}         DB2 archivelogs storage accessmode (default: ReadWriteMany)
       --db2-cpu-requests ${COLOR_YELLOW}DB2_CPU_REQUESTS${TEXT_RESET}                                         Define the Kubernetes CPU request for the Db2 pod.
       --db2-cpu-limits ${COLOR_YELLOW}DB2_CPU_LIMITS${TEXT_RESET}                                             Define the Kubernetes CPU limit for the Db2 pod.
       --db2-memory-requests ${COLOR_YELLOW}DB2_MEMORY_REQUESTS${TEXT_RESET}                                   Define the Kubernetes memory request for the Db2 pod.

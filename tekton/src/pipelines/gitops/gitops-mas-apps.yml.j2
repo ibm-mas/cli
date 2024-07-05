@@ -87,6 +87,8 @@ spec:
       default: ""
     - name: db2_backup_storage_class
       type: string
+    - name: db2_archivelogs_storage_class
+      type: string
 
     - name: db2_meta_storage_size
       type: string
@@ -104,6 +106,9 @@ spec:
       type: string
       default: ""
     - name: db2_backup_storage_size
+      type: string
+      default: ""
+    - name: db2_archivelogs_storage_size
       type: string
       default: ""
 
@@ -163,6 +168,8 @@ spec:
       type: string
       default: ""
     - name: db2_temp_storage_accessmode
+      type: string
+    - name: db2_archivelogs_storage_accessmode
       type: string
       default: ""
     - name: db2_cpu_requests
@@ -497,6 +504,8 @@ spec:
           value: $(params.db2_data_storage_class)
         - name: db2_backup_storage_class
           value: $(params.db2_backup_storage_class)
+        - name: db2_archivelogs_storage_class
+          value: $(params.db2_archivelogs_storage_class)
 
         - name: db2_meta_storage_size
           value: $(params.db2_meta_storage_size)
@@ -510,6 +519,8 @@ spec:
           value: $(params.db2_data_storage_size)
         - name: db2_backup_storage_size
           value: $(params.db2_backup_storage_size)
+        - name: db2_archivelogs_storage_size
+          value: $(params.db2_archivelogs_storage_size)
 
         - name: db2_version
           value: $(params.db2_version)
@@ -541,6 +552,8 @@ spec:
           value: $(params.db2_audit_logs_storage_accessmode)
         - name: db2_temp_storage_accessmode
           value: $(params.db2_temp_storage_accessmode)
+        - name: db2_archivelogs_storage_accessmode
+          value: $(params.db2_archivelogs_storage_accessmode)
         - name: db2_cpu_requests
           value: $(params.db2_cpu_requests)
         - name: db2_cpu_limits
@@ -646,6 +659,8 @@ spec:
           value: $(params.db2_data_storage_class)
         - name: db2_backup_storage_class
           value: $(params.db2_backup_storage_class)
+        - name: db2_archivelogs_storage_class
+          value: $(params.db2_archivelogs_storage_class)
 
         - name: db2_meta_storage_size
           value: $(params.db2_meta_storage_size)
@@ -659,6 +674,8 @@ spec:
           value: $(params.db2_data_storage_size)
         - name: db2_backup_storage_size
           value: $(params.db2_backup_storage_size)
+        - name: db2_archivelogs_storage_size
+          value: $(params.db2_archivelogs_storage_size)
 
         - name: db2_version
           value: $(params.db2_version)
@@ -690,6 +707,8 @@ spec:
           value: $(params.db2_audit_logs_storage_accessmode)
         - name: db2_temp_storage_accessmode
           value: $(params.db2_temp_storage_accessmode)
+        - name: db2_archivelogs_storage_accessmode
+          value: $(params.db2_archivelogs_storage_accessmode)
         - name: db2_cpu_requests
           value: $(params.db2_cpu_requests)
         - name: db2_cpu_limits
