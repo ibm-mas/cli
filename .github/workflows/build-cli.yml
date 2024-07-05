@@ -142,38 +142,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Obviously none of this will work as we're running on Windows!!
-      # - name: Initialise the build system
-      #   run: |
-      #     chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
-      #     $GITHUB_WORKSPACE/build/bin/initbuild.sh
-      #     source $GITHUB_WORKSPACE/build/bin/.functions.sh
-
-      # # 2. Tekton
-      # # -------------------------------------------------------------------------------------------
-      # - name: Build the Tekton definitions
-      #   run: $GITHUB_WORKSPACE/build/bin/build-tekton.sh
-
-      # https://github.com/marketplace/actions/download-workflow-artifact
-      # - name: Wait for build-cli to succeed
-      #   uses: lewagon/wait-on-check-action@v1.3.4
-      #   with:
-      #     ref: ${{ github.ref }}
-      #     check-name: 'build-cli'
-      #     repo-token: ${{ secrets.GITHUB_TOKEN }}
-      #     wait-interval: 10
-
-      # - name: Download artifact
-      #   id: download-artifact
-      #   uses: dawidd6/action-download-artifact@v6
-      #   with:
-      #     workflow: build-cli.yml
-      #     commit: ${{ env.GITHUB_SHA }}
-      #     name: ibm-mas-tekton.yaml
-      #     skip_unpack: false
-      #     if_no_artifact_found: fail
-
-      # 3. Run PyInstaller
+      # 2. Run PyInstaller
       # -------------------------------------------------------------------------------------------
       - name: Download the tekton file built in the other job
         uses: actions/download-artifact@v3
@@ -191,7 +160,9 @@ jobs:
           cd python
           python -m pip install --upgrade pip
           python -m pip list
+          python -m pip install pypandoc_binary
           python -m pip install .[dev]
+          python -m pip list
 
           pyinstaller --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli src/mas-install
           pyinstaller --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli src/mas-upgrade
