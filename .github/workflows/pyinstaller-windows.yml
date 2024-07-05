@@ -1,7 +1,7 @@
 name: Build Windows Binary
 on:
   push:
-    branches:
+    branches-ignore:
       - '**'
     tags-ignore:
       - '**'
