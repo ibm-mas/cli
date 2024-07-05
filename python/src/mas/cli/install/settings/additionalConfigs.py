@@ -133,17 +133,10 @@ class AdditionalConfigsMixin():
                 }
             }
 
-            certsSecret["data"] = {}
-            with open(self.cacrtFileLocal, 'r') as cacrtFile, open(self.tlscrtFileLocal, 'r') as tlscrtFile, open(self.tlskeyFileLocal, 'r') as tlskeyFile:
-                cacrtdata = cacrtFile.read()
-                tlscrtdata = tlscrtFile.read()
-                tlskeydata = tlskeyFile.read()
-                
-                certsSecret["data"]["core.ca.crt"] = b64encode(cacrtdata.encode('ascii')).decode("ascii")
-                certsSecret["data"]["core.tls.crt"] = b64encode(tlscrtdata.encode('ascii')).decode("ascii")
-                certsSecret["data"]["core.tls.key"] = b64encode(tlskeydata.encode('ascii')).decode("ascii")
+            certsSecret = self.addFilesToSecret(certsSecret, self.cacrtFileLocal, "crt")
+            certsSecret = self.addFilesToSecret(certsSecret, self.tlscrtFileLocal, "crt")
+            certsSecret = self.addFilesToSecret(certsSecret, self.tlskeyFileLocal, "key")
 
-            logger.debug(certsSecret)
             self.certsSecret = certsSecret
 
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str) -> dict:
