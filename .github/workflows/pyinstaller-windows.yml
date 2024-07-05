@@ -1,4 +1,4 @@
-name: Build Windows CLI
+name: Build Windows Binary
 on:
   push:
     branches:
@@ -7,7 +7,7 @@ on:
       - '**'
 
 jobs:
-  build:
+  pyinstaller-windows:
     runs-on: windows-latest
     steps:
       # 1. Initialize the build
@@ -31,12 +31,21 @@ jobs:
       #   run: $GITHUB_WORKSPACE/build/bin/build-tekton.sh
 
       # https://github.com/marketplace/actions/download-workflow-artifact
+
+      - name: Wait for build-cli to succeed
+        uses: lewagon/wait-on-check-action@v1.3.4
+        with:
+          ref: ${{ github.ref }}
+          check-name: 'build-cli'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+
       - name: Download artifact
         id: download-artifact
         uses: dawidd6/action-download-artifact@v6
         with:
           workflow: build-cli.yml
-          run_id: ${{ github.event.workflow_run.id }}
+          commit: ${{ env.GITHUB_SHA }}
           name: ibm-mas-tekton.yaml
           skip_unpack: false
           if_no_artifact_found: fail
