@@ -47,7 +47,7 @@ jobs:
       - name: Upload the Tekton definitions
         uses: actions/upload-artifact@v3
         with:
-          name: ibm-mas-tekton-${{ env.VERSION }}.yaml
+          name: ibm-mas-tekton.yaml
           path: ${{ github.workspace }}/tekton/target/ibm-mas-tekton.yaml
           retention-days: 30
 

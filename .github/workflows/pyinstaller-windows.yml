@@ -30,6 +30,17 @@ jobs:
       # - name: Build the Tekton definitions
       #   run: $GITHUB_WORKSPACE/build/bin/build-tekton.sh
 
+      # https://github.com/marketplace/actions/download-workflow-artifact
+      - name: Download artifact
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: build-cli.yml
+          run_id: ${{ github.event.workflow_run.id }}
+          name: ibm-mas-tekton.yaml
+          skip_unpack: false
+          if_no_artifact_found: fail
+
       # 3. Run PyInstaller
       # -------------------------------------------------------------------------------------------
       - name: Build the mas-x Windows executables
@@ -37,7 +48,7 @@ jobs:
           # We can't sed on Windows
           # sed -i "s#__version__ = \"100.0.0\"#__version__ = \"${{ env.VERSION_NOPREREL }}\"#g" ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
           # cat ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
-          cp $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml $GITHUB_WORKSPACE/python/src/mas/cli/templates/ibm-mas-tekton.yaml
+          cp ibm-mas-tekton.yaml $GITHUB_WORKSPACE/python/src/mas/cli/templates/ibm-mas-tekton.yaml
 
           cd python
           python -m pip install --upgrade pip
