@@ -191,7 +191,7 @@
 <li>Goal: I want to run a disconnected environment using a private mirror registry</li>
 <li>Solution: Use the <strong>static catalogs and automatic approval strategy</strong></li>
 </ul>
-<p>The MAS CLI <code>mirror-images</code> command accepts the name of a static catalog to control what is mirrored to your registry, it will mirror all of the necessary images for the latest version of each package in that catalog are mirrored to your private registry.  Once the images are mirrored simply run the <code>configure-mirror</code> command to install the IBM Maximo Application Suite ImageContentSourcePolicy, and the rest of your installation experience is identical to a connected environment.</p>
+<p>The MAS CLI <code>mirror-images</code> command accepts the name of a static catalog to control what is mirrored to your registry, it will mirror all of the necessary images for the latest version of each package in that catalog are mirrored to your private registry.  Once the images are mirrored simply run the <code>configure-airgap</code> command to install the IBM Maximo Application Suite ImageContentSourcePolicy, and the rest of your installation experience is identical to a connected environment.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>To apply updates in a disconnected cluster, run the <code>mirror-images</code> command with the name of the new static catalog you wish to update to <strong>before</strong> updating the CatalogSource in your cluster</p>
