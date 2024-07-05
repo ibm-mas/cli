@@ -82,10 +82,11 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             serviceAPI.get(name="image-registry", namespace="openshift-image-registry")
         except NotFoundError:
             self.fatalError(
-                "\n".join[
+                "\n".join([
                     "Unable to proceed with installation of Maximo Manage.  Could not detect the required \"image-registry\" service in the openshift-image-registry namespace",
                     "For more information refer to <u>https://www.ibm.com/docs/en/masv-and-l/continuous-delivery?topic=installing-enabling-openshift-internal-image-registry</u>"
                 ])
+            )
 
     def licensePrompt(self):
         licenses = {

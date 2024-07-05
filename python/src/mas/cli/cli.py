@@ -8,6 +8,9 @@
 #
 # *****************************************************************************
 
+import logging
+import urllib3
+
 from argparse import RawTextHelpFormatter
 from shutil import which
 from os import path
@@ -20,15 +23,17 @@ from kubernetes.client import api_client
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
 
-from .validators import YesNoValidator
-
-from . import __version__ as packageVersion
-from .displayMixins import PrintMixin, PromptMixin
 from mas.devops.ocp import connect, isSNO
 
-import logging
+from . import __version__ as packageVersion
+from .validators import YesNoValidator
+from .displayMixins import PrintMixin, PromptMixin
+
+# Configure the logger
 logger = logging.getLogger(__name__)
 
+# Disable warnings when users are connecting to OCP clusters with self-signed certificates
+urllib3.disable_warnings()
 
 def getHelpFormatter(formatter=RawTextHelpFormatter, w=160, h=50):
     """
