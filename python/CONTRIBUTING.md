@@ -27,3 +27,20 @@ python .\python\src\mas-install --help
 
 python .\python\src\mas-install
 ```
+
+
+PyInstaller Development Tips
+-------------------------------------------------------------------------------
+
+```
+python -m venv .venv
+.\.venv\Scripts\activate
+
+cd python
+python -m pip install --upgrade pip
+python -m pip install .[dev]
+pyinstaller --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli src/mas-install
+pyinstaller --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli src/mas-upgrade
+pyinstaller --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli src/mas-uninstall
+
+```
