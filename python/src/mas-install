@@ -287,8 +287,8 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
                 self.setParam("dns_provider", "")
                 self.setParam("mas_domain", "")
                 self.setParam("mas_cluster_issuer", "")
-            configureCerts = self.yesOrNo("Configure manual certificates", "mas_manual_cert_mgmt")
-            if configureCerts:
+            self.yesOrNo("Configure manual certificates", "mas_manual_cert_mgmt")
+            if self.getParam("mas_manual_cert_mgmt"):
                 self.cacrtFileLocal = self.promptForFile("ca.crt file name (with path)", mustExist=True)
                 self.tlscrtFileLocal = self.promptForFile("tls.crt file name (with path)", mustExist=True)
                 self.tlskeyFileLocal = self.promptForFile("tls.key file name (with path)", mustExist=True)
