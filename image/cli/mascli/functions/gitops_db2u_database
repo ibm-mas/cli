@@ -302,6 +302,7 @@ function gitops_db2u_database_noninteractive() {
   [[ -z "$DB2_META_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_META_STORAGE_CLASS is not set"
   [[ -z "$DB2_DATA_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_DATA_STORAGE_CLASS is not set"
   [[ -z "$DB2_BACKUP_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_BACKUP_STORAGE_CLASS is not set"
+  [[ -z "$DB2_ARCHIVELOGS_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_ARCHIVELOGS_STORAGE_CLASS is not set"
   [[ -z "$DB2_LOGS_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_LOGS_STORAGE_CLASS is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_help "MAS_INSTANCE_ID is not set"
   [[ -z "$MAS_APP_ID" ]] && gitops_db2u_help "MAS_APP_ID is not set"
