@@ -236,9 +236,6 @@ function gitops_db2u_database_noninteractive() {
       --db2-memory-limits)
         export DB2_MEMORY_LIMITS=$1 && shift
         ;;
-      --db2-internal)
-        export DB2_INTERNAL=$1 && shift
-        ;;
       --db2-instance-registry-yaml)
         export DB2_INSTANCE_REGISTRY_YAML=$1 && shift
         ;;
@@ -250,6 +247,21 @@ function gitops_db2u_database_noninteractive() {
         ;;
       --db2-database-db-config-yaml)
         export DB2_DATABASE_DB_CONFIG_YAML=$1 && shift
+        ;;
+      --db2-affinity-key)
+        export DB2_AFFINITY_KEY=$1 && shift
+        ;;
+      --db2-affinity-value)
+        export DB2_AFFINITY_VALUE=$1 && shift
+        ;;
+      --db2-tolerate-key)
+        export DB2_TOLERATE_KEY=$1 && shift
+        ;;
+      --db2-tolerate-value)
+        export DB2_TOLERATE_VALUE=$1 && shift
+        ;;
+      --db2-tolerate-effect)
+        export DB2_TOLERATE_EFFECT=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -431,9 +443,6 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   export DB2_NAMESPACE="db2u-${MAS_INSTANCE_ID}"
   export DB2_DBNAME=${DB2_DBNAME:-"BLUDB"}
 
-  # by default db2 internal is true, set it to false if db2 is external
-  export DB2_INTERNAL=${DB2_INTERNAL:-"true"}
-
   echo
   reset_colors
   echo_h2 "Review Settings "
@@ -516,6 +525,11 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "db2-instance-dbm-config-yaml .................. ${COLOR_MAGENTA}${DB2_INSTANCE_DBM_CONFIG_YAML}"
   echo_reset_dim "db2-database-db-config-yaml ................... ${COLOR_MAGENTA}${DB2_DATABASE_DB_CONFIG_YAML}"
   echo_reset_dim "db2-addons-audit-config-yaml .................. ${COLOR_MAGENTA}${DB2_ADDONS_AUDIT_CONFIG_YAML}"
+  echo_reset_dim "db2-affinity-key .............................. ${COLOR_MAGENTA}${DB2_AFFINITY_KEY}"
+  echo_reset_dim "db2-affinity-value ............................ ${COLOR_MAGENTA}${DB2_AFFINITY_VALUE}"
+  echo_reset_dim "db2-tolerate-key .............................. ${COLOR_MAGENTA}${DB2_TOLERATE_KEY}"
+  echo_reset_dim "db2-tolerate-value ............................ ${COLOR_MAGENTA}${DB2_TOLERATE_VALUE}"
+  echo_reset_dim "db2-tolerate-effect ........................... ${COLOR_MAGENTA}${DB2_TOLERATE_EFFECT}"
   reset_colors
 
   AVP_TYPE=aws  # Support for IBM will be added later
