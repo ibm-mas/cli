@@ -8,8 +8,95 @@ on:
     tags-ignore:
       - '**'
 jobs:
-  build-cli:
+  build-tekton:
     runs-on: ubuntu-latest
+    steps:
+      # 1. Initialize the build
+      # -------------------------------------------------------------------------------------------
+      - name: Checkout
+        uses: actions/checkout@v4
+        # Without this option, we don't get the tag information
+        with:
+          fetch-depth: 0
+
+      - name: Initialise the build system
+        run: |
+          chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
+          $GITHUB_WORKSPACE/build/bin/initbuild.sh
+          source $GITHUB_WORKSPACE/build/bin/.functions.sh
+
+      # 2. Tekton
+      # -------------------------------------------------------------------------------------------
+      - name: Build the Tekton definitions
+        run: $GITHUB_WORKSPACE/build/bin/build-tekton.sh
+
+      - name: Upload the Tekton definitions
+        uses: actions/upload-artifact@v3
+        with:
+          name: ibm-mas-tekton.yaml
+          path: ${{ github.workspace }}/tekton/target/ibm-mas-tekton.yaml
+          retention-days: 30
+
+      - name: Upload definition to Artifactory
+        env:
+          ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
+          ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
+        run: |
+          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml
+          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton-fvt.yaml
+
+  build-python:
+    runs-on: ubuntu-latest
+    needs: build-tekton
+    steps:
+      # 1. Initialize the build
+      # -------------------------------------------------------------------------------------------
+      - name: Checkout
+        uses: actions/checkout@v4
+        # Without this option, we don't get the tag information
+        with:
+          fetch-depth: 0
+
+      - name: Initialise the build system
+        run: |
+          chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
+          $GITHUB_WORKSPACE/build/bin/initbuild.sh
+          source $GITHUB_WORKSPACE/build/bin/.functions.sh
+
+      # 2. Python Package
+      # -------------------------------------------------------------------------------------------
+      - name: Download the tekton file built in the other job
+        uses: actions/download-artifact@v3
+        with:
+          name: ibm-mas-tekton.yaml
+          path: ${{ github.workspace }}/python/src/mas/cli/templates/ibm-mas-tekton.yaml
+
+      - name: Build the Python package
+        run: |
+          sed -i "s#__version__ = \"100.0.0\"#__version__ = \"${{ env.VERSION_NOPREREL }}\"#g" ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
+          cat ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
+
+          cd $GITHUB_WORKSPACE/python
+          python -m pip install --upgrade pip
+          pip install .[dev]
+          flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 src --count --exit-zero --max-complexity=10 --max-line-length=200 --statistics
+          python -m build
+
+          cp $GITHUB_WORKSPACE/python/dist/mas_cli-${{ env.VERSION_NOPREREL }}.tar.gz $GITHUB_WORKSPACE/image/cli/install/mas_cli.tar.gz
+
+      - name: Upload the python package
+        uses: actions/upload-artifact@v3
+        with:
+          name: mas_cli.tar.gz
+          path: ${{ github.workspace }}/image/cli/install/mas_cli.tar.gz
+          retention-days: 30
+
+  build-container:
+    runs-on: ubuntu-latest
+    needs:
+      - build-tekton
+      - build-python
     steps:
       # 1. Initialize the build
       # -------------------------------------------------------------------------------------------
@@ -39,43 +126,22 @@ jobs:
             wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz -O $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz
           fi
 
-      # 3. Tekton
+      # 3. Download Built Artifacts
       # -------------------------------------------------------------------------------------------
-      - name: Build the Tekton definitions
-        run: $GITHUB_WORKSPACE/build/bin/build-tekton.sh
-
-      - name: Upload the Tekton definitions
-        uses: actions/upload-artifact@v3
+      - name: Download the tekton file built in the other job
+        uses: actions/download-artifact@v3
         with:
           name: ibm-mas-tekton.yaml
-          path: ${{ github.workspace }}/tekton/target/ibm-mas-tekton.yaml
-          retention-days: 30
+          path: ${{ github.workspace }}/image/cli/mascli/templates/ibm-mas-tekton.yaml
 
-      - name: Upload definition to Artifactory
-        env:
-          ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
-          ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
-        run: |
-          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml
-          $GITHUB_WORKSPACE/build/bin/artifactory-release.sh $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton-fvt.yaml
+      - name: Download the python package
+        uses: actions/download-artifact@v3
+        with:
+          name: mas_cli.tar.gz
+          path: ${{ github.workspace }}/image/cli/install/mas_cli.tar.gz
 
-      # 4. Python Package
-      # -------------------------------------------------------------------------------------------
-      - name: Build the Python package
-        run: |
-          sed -i "s#__version__ = \"100.0.0\"#__version__ = \"${{ env.VERSION_NOPREREL }}\"#g" ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
-          cat ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
-          mkdir -p $GITHUB_WORKSPACE/python/src/mas/cli/templates
-          cp $GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml $GITHUB_WORKSPACE/python/src/mas/cli/templates/ibm-mas-tekton.yaml
-          cd $GITHUB_WORKSPACE/python
-          python -m pip install --upgrade pip
-          pip install .[dev]
-          flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 src --count --exit-zero --max-complexity=10 --max-line-length=200 --statistics
-          python -m build
-          cp $GITHUB_WORKSPACE/python/dist/mas_cli-${{ env.VERSION_NOPREREL }}.tar.gz $GITHUB_WORKSPACE/image/cli/install/mas_cli.tar.gz
 
-      # 5. CLI installer
+      # 3. CLI installer
       # -------------------------------------------------------------------------------------------
       - name: Build the cli package
         run: |
@@ -88,26 +154,19 @@ jobs:
           path: ${{ github.workspace }}/ibm-mas-cli-${{ env.VERSION }}.tgz
           retention-days: 30
 
-      # 6. CLI container image
+      # 4. CLI container image
       # -------------------------------------------------------------------------------------------
-      - name: Build the docker image
+      - name: Build the container image
         run: |
           $GITHUB_WORKSPACE/build/bin/docker-build.sh -n ibmmas -i cli
           docker tag ibmmas/cli quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
 
-      # https://github.com/marketplace/actions/push-to-registry
-      - name: Push the docker image
+      - name: Push the container image
         id: push_to_quay
         run: |
           docker images
           docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
           docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
-        # Old version ...
-        # uses: redhat-actions/push-to-registry@v2
-        # with:
-        #   tags: quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
-        #   username: ${{ secrets.QUAYIO_USERNAME }}
-        #   password: ${{ secrets.QUAYIO_PASSWORD }}
 
       # 7. OWASP Dependency Check
       # -------------------------------------------------------------------------------------------
@@ -129,10 +188,11 @@ jobs:
            path: ${{github.workspace}}/reports
            retention-days: 30
 
-
   pyinstaller-windows:
     runs-on: windows-latest
-    needs: build-cli
+    needs:
+      - build-tekton
+      - build-python
     steps:
       # 1. Initialize the build
       # -------------------------------------------------------------------------------------------
@@ -148,20 +208,21 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ibm-mas-tekton.yaml
-          path: ${{ github.workspace }}/ibm-mas-tekton.yaml
+          path: ${{ github.workspace }}/python/src/mas/cli/templates/ibm-mas-tekton.yaml
+
+      - name: Download the python package
+        uses: actions/download-artifact@v3
+        with:
+          name: mas_cli.tar.gz
+          path: ${{ github.workspace }}/mas_cli.tar.gz
 
       - name: Build the Windows executables
         run: |
-          # We can't sed on Windows
-          # sed -i "s#__version__ = \"100.0.0\"#__version__ = \"${{ env.VERSION_NOPREREL }}\"#g" ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
-          # cat ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
-          cp ibm-mas-tekton.yaml $GITHUB_WORKSPACE/python/src/mas/cli/templates/ibm-mas-tekton.yaml
 
           cd python
           python -m pip install --upgrade pip
           python -m pip list
-          python -m pip install pypandoc_binary
-          python -m pip install .[dev]
+          python -m pip install mas_cli.tar.gz[dev]
           python -m pip list
 
           pyinstaller --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli src/mas-install
