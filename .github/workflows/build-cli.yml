@@ -31,7 +31,7 @@ jobs:
         run: $GITHUB_WORKSPACE/build/bin/build-tekton.sh
 
       - name: Upload the Tekton definitions
-        uses: actions/download-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: ibm-mas-tekton.yaml
           path: ${{ github.workspace }}/tekton/target/ibm-mas-tekton.yaml
@@ -86,7 +86,7 @@ jobs:
           cp $GITHUB_WORKSPACE/python/dist/mas_cli-${{ env.VERSION_NOPREREL }}.tar.gz $GITHUB_WORKSPACE/image/cli/install/mas_cli.tar.gz
 
       - name: Upload the python package
-        uses: actions/download-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: mas_cli.tar.gz
           path: ${{ github.workspace }}/image/cli/install/mas_cli.tar.gz
@@ -148,7 +148,7 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/build-cli.sh
 
       - name: Upload the cli
-        uses: actions/download-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: ibm-mas-cli-${{ env.VERSION }}.tgz
           path: ${{ github.workspace }}/ibm-mas-cli-${{ env.VERSION }}.tgz
@@ -182,7 +182,7 @@ jobs:
             --enableRetired
 
       - name: Upload dependency check results
-        uses: actions/download-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
            name: OWASP dependency check report
            path: ${{github.workspace}}/reports
@@ -232,21 +232,21 @@ jobs:
           pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-uninstall
 
       - name: Upload mas-install
-        uses: actions/download-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: mas-install-windows-${{ env.VERSION_NOPREREL }}.exe
           path: ${{ github.workspace }}/python/dist/mas-install.exe
           retention-days: 30
 
       - name: Upload mas-upgrade
-        uses: actions/download-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: mas-upgrade-windows-${{ env.VERSION_NOPREREL }}.exe
           path: ${{ github.workspace }}/python/dist/mas-upgrade.exe
           retention-days: 30
 
       - name: Upload mas-uninstall
-        uses: actions/download-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: mas-uninstall-windows-${{ env.VERSION_NOPREREL }}.exe
           path: ${{ github.workspace }}/python/dist/mas-uninstall.exe
