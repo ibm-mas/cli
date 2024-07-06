@@ -223,7 +223,7 @@ jobs:
           python -m venv .venv
           .\.venv\Scripts\activate
           python -m pip list
-          python -m pip install mas_cli.tar.gz[dev]
+          python -m pip install ./mas_cli.tar.gz[dev]
           python -m pip list
 
           pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-install
