@@ -64,7 +64,7 @@ spec:
           # Needed if there is only one cluster in account
           vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME | yq '.Value')
         fi
-        export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ['$vpc_name']}]' --output yaml | yq -r '.Vpcs[].VpcId' )
+        export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ['$vpc_name']}]' --output yaml | yq '.Vpcs[].VpcId' )
         
         if [ -z "$VPC_ID" ]; then
           echo "No VPC for $CLUSTER_NAME found so assume there is no kafka to deprovision, exiting.."

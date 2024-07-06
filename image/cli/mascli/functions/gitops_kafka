@@ -289,12 +289,12 @@ function gitops_kafka() {
     rc=$?
     [ $rc -ne 0 ] && exit $rc
     # Extract the required details from the generated kafkacfg/secret. For msk this is in plain text (stringData)
-    export KAFKA_USERNAME=$(yq -sr '.[0].stringData.username' $TEMP_DIR/${KAFKACFG_FILE_NAME})
-    export KAFKA_PASSWORD=$(yq -sr '.[0].stringData.password' $TEMP_DIR/${KAFKACFG_FILE_NAME})
-    yq -sY  '.[1].spec' $TEMP_DIR/${KAFKACFG_FILE_NAME} >> $TEMP_DIR/kafka-info.yaml
-    yq -iY 'del(.config.credentials)' $TEMP_DIR/kafka-info.yaml
-    yq -iY 'del(.displayName)' $TEMP_DIR/kafka-info.yaml
-    yq -iY 'del(.type)' $TEMP_DIR/kafka-info.yaml
+    export KAFKA_USERNAME=$(yq '.[0].stringData.username' $TEMP_DIR/${KAFKACFG_FILE_NAME})
+    export KAFKA_PASSWORD=$(yq '.[0].stringData.password' $TEMP_DIR/${KAFKACFG_FILE_NAME})
+    yq '.[1].spec' $TEMP_DIR/${KAFKACFG_FILE_NAME} >> $TEMP_DIR/kafka-info.yaml
+    yq -i 'del(.config.credentials)' $TEMP_DIR/kafka-info.yaml
+    yq -i 'del(.displayName)' $TEMP_DIR/kafka-info.yaml
+    yq -i 'del(.type)' $TEMP_DIR/kafka-info.yaml
 
     UNESCAPED_INFO="$(cat $TEMP_DIR/kafka-info.yaml)"
     
