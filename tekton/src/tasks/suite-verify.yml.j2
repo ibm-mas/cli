@@ -25,7 +25,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_verify
-      image: quay.io/ibmmas/cli:10.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:10.1.0-pre.ajw-mascore2119
       imagePullPolicy: $(params.image_pull_policy)
 
     # If configmap/approval-suite-verify exists then set CONFIGMAP_KEY=pending and wait for it to be changed to "approved"
