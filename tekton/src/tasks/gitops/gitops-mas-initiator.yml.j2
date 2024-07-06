@@ -252,7 +252,7 @@ spec:
         yq -i '.mas_instance.channel = env(MAS_CHANNEL)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
 
         # Update the operationalmode in the mas-instance-params.yaml. Assume fvtsaas here
-        yq -i '.mas_instance.annotations.mas.ibm.com/operationalMode = env(MAS_OPERATIONALMODE)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+        yq -i '.mas_instance.annotations."mas.ibm.com/operationalMode" = env(MAS_OPERATIONALMODE)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
 
         # Remove dns node when DNS_PROVIDER_CONTROL_IDEN is not set
         if [ "${DNS_PROVIDER_CONTROL_IDEN}" == "" ]; then
