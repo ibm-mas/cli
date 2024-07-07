@@ -23,8 +23,8 @@ NVIDIA GPU OPERATOR:
       --nfd-namespace ${COLOR_YELLOW}NFD_NAMESPACE${TEXT_RESET}                                 NFD Namespace, defaults to openshift-nfd
       --nfd-channel ${COLOR_YELLOW}NFD_CHANNEL${TEXT_RESET}                                     NFD Channel, defaults to stable
       --gpu-namespace ${COLOR_YELLOW}GPU_NAMESPACE${TEXT_RESET}                                 GPU Namespace, defaults to nvidia-gpu-operator
-      --gpu-channel ${COLOR_YELLOW}GPU_CHANNEL${TEXT_RESET}                                     GPU Channel, defaults to v23.3
-      --gpu-driver-version ${COLOR_YELLOW}GPU_DRIVER_VERSION${TEXT_RESET}                       GPU Driver Version, defaults to 525.105.17
+      --gpu-channel ${COLOR_YELLOW}GPU_CHANNEL${TEXT_RESET}                                     GPU Channel, defaults to v24.3
+      --gpu-driver-version ${COLOR_YELLOW}GPU_DRIVER_VERSION${TEXT_RESET}                       GPU Driver Version, defaults to 550.90.07
       --gpu-driver-repository-path ${COLOR_YELLOW}GPU_DRIVER_REPOSITORY_PATH${TEXT_RESET}       GPU Driver Repository, defaults to nvcr.io/nvidia
 
 Automatic GitHub Push:
@@ -212,10 +212,10 @@ function gitops_nvidia_gpu() {
     export GPU_NAMESPACE=nvidia-gpu-operator
   fi
   if [[ -z "${GPU_CHANNEL}" ]]; then
-    export GPU_CHANNEL=v23.3
+    export GPU_CHANNEL=v24.3
   fi
   if [[ -z "${GPU_DRIVER_VERSION}" ]]; then
-    export GPU_DRIVER_VERSION="525.105.17"
+    export GPU_DRIVER_VERSION="550.90.07"
   fi
   if [[ -z "${GPU_DRIVER_REPOSITORY_PATH}" ]]; then
     export GPU_DRIVER_REPOSITORY_PATH=nvcr.io/nvidia

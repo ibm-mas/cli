@@ -429,6 +429,20 @@ spec:
         echo "argo:argocd proj windows delete mas $ARGOWINDOW"
         argocd proj windows delete mas $ARGOWINDOW
 
+        # Set auto_delete: true, to allow ArgoCD to automatically delete resources when the deprovision pipelines run
+        if [[ "$LAUNCHER_ID" == "apps" ]]; then
+          ACCOUNT_ROOT_APP="root.${ACCOUNT_ID}"
+          CLUSTER_ROOT_APP="cluster.${CLUSTER_NAME}"
+          INSTANCE_ROOT_APP="instance.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+
+          argocd app set ${ACCOUNT_ROOT_APP} --parameter auto_delete=true
+
+          # wait for the root apps to sync to make sure the setting has been applied everywhere
+          check_argo_app_synced "${ACCOUNT_ROOT_APP}"
+          check_argo_app_synced "${CLUSTER_ROOT_APP}"
+          check_argo_app_synced "${INSTANCE_ROOT_APP}"
+        fi
+
       command:
         - /bin/bash
         - -c

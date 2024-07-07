@@ -35,7 +35,8 @@ IBM Maximo Application Suite:
       --mas-image-tags ${COLOR_YELLOW}MAS_IMAGE_TAGS${TEXT_RESET}                     MAS Image tags definition in dict format
       --mas-labels ${COLOR_YELLOW}MAS_LABELS${TEXT_RESET}                             MAS Labels definition in dict format
       --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}         MAS Manual Cert Management
-      --mas-manual-certs-yaml ${COLOR_YELLOW}MAS_MANUAL_CERTS_YAML${TEXT_RESET}               YAML file location containing combined MAS Manual Certs of core and all other apps
+      --mas-manual-certs-yaml ${COLOR_YELLOW}MAS_MANUAL_CERTS_YAML${TEXT_RESET}       YAML file location containing combined MAS Manual Certs of core and all other apps
+      --mas-pod-template-yaml ${COLOR_YELLOW}MAS_POD_TEMPLATE_YAML${TEXT_RESET}       The location of a file containing the POD template
 
       Below is a sample yaml file template representing manual_certs dictionary ( key: << value base64 encoded content of cert file >>) 
       where key is <<app>>_<<filename . replaced by _>> name and value will be base64 encoded of the respective ca/tls file, 
@@ -191,6 +192,10 @@ function gitops_suite_noninteractive() {
       --mas-manual-certs-yaml)
         export MAS_MANUAL_CERTS_YAML=$1 && shift
         ;;
+      --mas-pod-template-yaml)
+        export MAS_POD_TEMPLATE_YAML=$1 && shift
+        ;;
+
       # Target Cluster (Optional)
       --cluster-url)
         export CLUSTER_URL=$1 && shift
@@ -400,6 +405,7 @@ function gitops_suite() {
   echo_reset_dim "MAS MANUAL CERTS YAML .......... ${COLOR_MAGENTA}${MAS_MANUAL_CERTS_YAML}"  
   echo_reset_dim "Cert Manager Namespace ......... ${COLOR_MAGENTA}${CERT_MANAGER_NAMESPACE}"
   echo_reset_dim "DNS Provider ................... ${COLOR_MAGENTA}${DNS_PROVIDER}"
+  echo_reset_dim "Pod Template YAML File  ........ ${COLOR_MAGENTA}${MAS_POD_TEMPLATE_YAML}"
   reset_colors
 
   if [[ -n "$DNS_PROVIDER" ]]; then
@@ -578,6 +584,12 @@ function gitops_suite() {
       echo -e "\n - CA_CERT CONTENT ....................... ${CA_CERT}"
 
     fi
+  fi
+  # Set pod template yaml
+  # ---------------------------------------------------------------------------
+  if [[ -n "$MAS_POD_TEMPLATE_YAML" && -s "$MAS_POD_TEMPLATE_YAML" ]]; then
+    export MAS_POD_TEMPLATE=$(/usr/bin/yq eval '.podTemplates' ${MAS_POD_TEMPLATE_YAML})
+    echo -e "\n - MAS_POD_TEMPLATE CONTENT .................. ${MAS_POD_TEMPLATE}"
   fi
 
   # Generate ArgoApps
