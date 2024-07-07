@@ -154,6 +154,9 @@ spec:
     - name: mas_wipe_mongo_data
       type: string
       default: "False"
+    - name: mas_pod_template_yaml
+      type: string
+      default: ""
 
     - name: db2_channel
       type: string
@@ -311,7 +314,8 @@ spec:
           value: $(params.delete_wildcards)
         - name: mas_manual_certs_yaml
           value: $(params.mas_manual_certs_yaml)
-
+        - name: mas_pod_template_yaml
+          value: $(params.mas_pod_template_yaml)
       taskRef:
         kind: Task
         name: gitops-suite
