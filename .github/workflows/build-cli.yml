@@ -72,13 +72,13 @@ jobs:
 
       # 2. Python Package
       # -------------------------------------------------------------------------------------------
-      - name: Download the tekton file built in the other job
+      - name: Download tekton definitions
         uses: actions/download-artifact@v4
         with:
           name: ibm-mas-tekton.yaml
           path: ${{ github.workspace }}/python/src/mas/cli/templates/
 
-      - name: Build the Python package
+      - name: Install
         run: |
           sed -i "s#__version__ = \"100.0.0\"#__version__ = \"${{ env.VERSION_NOPREREL }}\"#g" ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
           cat ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
@@ -86,17 +86,25 @@ jobs:
           cd $GITHUB_WORKSPACE/python
           python -m pip install --upgrade pip
           pip install .[dev]
+
+      - name: Lint
+        run: |
           flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 src --count --exit-zero --max-complexity=10 --max-line-length=200 --statistics
+
+      - name: Test
+        run: |
+          pytest
+
+      - name: Build
+        run: |
           python -m build
 
-          cp $GITHUB_WORKSPACE/python/dist/mas_cli-${{ env.VERSION_NOPREREL }}.tar.gz $GITHUB_WORKSPACE/image/cli/install/mas_cli.tar.gz
-
-      - name: Upload the python package
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: mas_cli.tar.gz
-          path: ${{ github.workspace }}/image/cli/install/mas_cli.tar.gz
+          path: ${{ github.workspace }}/python/dist/mas_cli-${{ env.VERSION_NOPREREL }}.tar.gz
           retention-days: 30
 
   build-container:

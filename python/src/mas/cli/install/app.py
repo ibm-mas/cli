@@ -663,7 +663,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "mas_arcgis_channel"
         ]
 
-        for key, value in vars(args).items():
+        for key, value in vars(self.args).items():
             # These fields we just pass straight through to the parameters and fail if they are not set
             if key in requiredParams:
                 if value is None:

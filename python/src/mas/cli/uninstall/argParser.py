@@ -28,7 +28,7 @@ uninstallArgParser = argparse.ArgumentParser(
 
 masArgGroup = uninstallArgParser.add_argument_group('MAS Instance Selection')
 masArgGroup.add_argument(
-    '--instance-id',
+    '--mas-instance-id',
     required=False,
     help="The MAS instance ID to be uninstalled"
 )

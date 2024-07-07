@@ -34,7 +34,7 @@ class UninstallApp(BaseApp):
         Uninstall MAS instance
         """
         args = uninstallArgParser.parse_args(args=argv)
-        instanceId = args.instance_id
+        instanceId = args.mas_instance_id
         self.noConfirm = args.no_confirm
 
         if args.uninstall_all_deps:
