@@ -80,24 +80,27 @@ jobs:
 
       - name: Install
         run: |
+          cd $GITHUB_WORKSPACE/python
           sed -i "s#__version__ = \"100.0.0\"#__version__ = \"${{ env.VERSION_NOPREREL }}\"#g" ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
           cat ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
 
-          cd $GITHUB_WORKSPACE/python
           python -m pip install --upgrade pip
           pip install .[dev]
 
       - name: Lint
         run: |
+          cd $GITHUB_WORKSPACE/python
           flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 src --count --exit-zero --max-complexity=10 --max-line-length=200 --statistics
 
       - name: Test
         run: |
+          cd $GITHUB_WORKSPACE/python
           pytest
 
       - name: Build
         run: |
+          cd $GITHUB_WORKSPACE/python
           python -m build
 
       - name: Upload
