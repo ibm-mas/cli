@@ -224,18 +224,19 @@ jobs:
 
       - name: Build the Windows executables
         run: |
-          python -m pip install --upgrade pip venv
+          python -m pip install --upgrade pip virtualenv
 
           python -m venv .venv
           .\.venv\Scripts\activate
           python -m pip list
-          dir ./
           python -m pip install "./mas_cli.tar.gz[dev]"
           python -m pip list
 
           pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-install
           pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-upgrade
           pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-uninstall
+
+          dir ./python/dist
 
       - name: Upload mas-install
         uses: actions/upload-artifact@v4
@@ -286,18 +287,19 @@ jobs:
 
       - name: Build the Linux executables
         run: |
-          python -m pip install --upgrade pip venv
+          python -m pip install --upgrade pip virtualenv
 
           python -m venv .venv
           .venv/bin/activate
           python -m pip list
-          dir ./
           python -m pip install ./mas_cli.tar.gz[dev]
           python -m pip list
 
           pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-install
           pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-upgrade
           pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-uninstall
+
+          ls ./python/dist
 
       - name: Upload mas-install
         uses: actions/upload-artifact@v4
