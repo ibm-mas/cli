@@ -290,7 +290,7 @@ jobs:
           python -m pip install --upgrade pip virtualenv
 
           python -m venv .venv
-          .venv/bin/activate
+          source .venv/bin/activate
           python -m pip list
           python -m pip install ./mas_cli.tar.gz[dev]
           python -m pip list
