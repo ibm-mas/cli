@@ -335,6 +335,8 @@ function gitops_suite_noninteractive() {
 }
 
 function gitops_suite() {
+  trap "{ echo 'Error occurred on line $LINENO while running command $BASH_COMMAND'; exit 1; }" ERR
+
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
@@ -598,13 +600,13 @@ function gitops_suite() {
   echo_h2 "Generating Argo Project and Applications"
 
   echo "- Base Config"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-instance-base.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-instance-base.yaml || { echo "Error occurred on line $LINENO while running command '$BASH_COMMAND'"; exit 1; }
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-instance-base.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-instance-base.yaml
 
   echo "- IBM Suite License Service"
-  jinja -X .+ -d $MONGO_CONFIG_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-sls-fake.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml || { echo "Error occurred on line $LINENO while running command '$BASH_COMMAND'"; exit 1; }
+  jinja -X .+ -d $MONGO_CONFIG_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-sls-fake.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
 
   echo "- IBM Maximo Application Suite Core Platform"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-suite.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-suite.yaml || { echo "Error occurred on line $LINENO while running command '$BASH_COMMAND'"; exit 1; }
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-suite.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-suite.yaml
 
 
   # Commit and push to github target repo
