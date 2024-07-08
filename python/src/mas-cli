@@ -66,14 +66,10 @@ if __name__ == '__main__':
     except KeyboardInterrupt as e:
         pass
     except ApiException as e:
-        logger.exception(e, stack_info=True)
         app.fatalError(message=f"An error occured communicating with the target server: {e.reason} ({e.status})")
     except MaxRetryError as e:
-        logger.exception(e, stack_info=True)
         app.fatalError(message="Unable to connect to API server", exception=e)
     except TemplateNotFound as e:
-        logger.exception(e, stack_info=True)
         app.fatalError("Could not find template", exception=e)
     except KubectlCommandError as e:
-        logger.exception(e, stack_info=True)
         app.fatalError("Could not execute kubectl command", exception=e)
