@@ -174,7 +174,7 @@ case $1 in
     # Take the first parameter off (it will be "install")
     shift
     # Run the new Python-based install
-    mas-install "$@"
+    mas-cli install "$@"
     ;;
 
   update)
@@ -196,7 +196,7 @@ case $1 in
     # Take the first parameter off (it will be "upgrade")
     shift
     # Run the new Python-based upgrade
-    mas-upgrade "$@"
+    mas-cli upgrade "$@"
     ;;
 
   uninstall)
@@ -206,7 +206,7 @@ case $1 in
     # Take the first parameter off (it will be "uninstall")
     shift
     # Run the new Python-based upgrade
-    mas-uninstall "$@"
+    mas-cli uninstall "$@"
     ;;
 
   mustgather|must-gather)

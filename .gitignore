@@ -25,3 +25,4 @@ python/src/mas/cli/templates/ibm-mas-tekton.yaml
 python/mas-*.spec
 python/README.rst
 .env
+/.venv

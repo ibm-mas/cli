@@ -18,20 +18,16 @@ import re
 from openshift.dynamic.exceptions import NotFoundError
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
-from urllib3.exceptions import MaxRetryError
-from jinja2.exceptions import TemplateNotFound
-from kubeconfig.exceptions import KubectlCommandError
-from kubernetes.client.exceptions import ApiException
 
 from tabulate import tabulate
 
 from halo import Halo
 
-from mas.cli.cli import BaseApp
-from mas.cli.gencfg import ConfigGeneratorMixin
-from mas.cli.install.argParser import installArgParser
-from mas.cli.install.settings import InstallSettingsMixin
-from mas.cli.install.summarizer import InstallSummarizerMixin
+from ..cli import BaseApp
+from ..gencfg import ConfigGeneratorMixin
+from .argParser import installArgParser
+from .settings import InstallSettingsMixin
+from .summarizer import InstallSummarizerMixin
 
 from mas.cli.validators import (
   InstanceIDFormatValidator,
@@ -47,7 +43,7 @@ from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions
 logger = logging.getLogger(__name__)
 
 
-class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin):
+class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin):
     def validateCatalogSource(self):
         catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
         try:
@@ -667,7 +663,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             "mas_arcgis_channel"
         ]
 
-        for key, value in vars(args).items():
+        for key, value in vars(self.args).items():
             # These fields we just pass straight through to the parameters and fail if they are not set
             if key in requiredParams:
                 if value is None:
@@ -778,10 +774,12 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             self.validateCatalogSource()
             self.licensePrompt()
 
-    def install(self, args):
+    def install(self, argv):
         """
         Install MAS instance
         """
+        args = installArgParser.parse_args(args=argv)
+
         # We use the presence of --mas-instance-id to determine whether
         # the CLI is being started in interactive mode or not
         instanceId = args.mas_instance_id
@@ -967,25 +965,3 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
                 else:
                     h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {self.getParam('mas_instance_id')} install, see log file for details")
                     print()
-
-
-if __name__ == '__main__':
-    args = installArgParser.parse_args()
-
-    try:
-        app = App()
-        app.install(args)
-    except KeyboardInterrupt as e:
-        pass
-    except ApiException as e:
-        logger.exception(e, stack_info=True)
-        app.fatalError(message=f"An error occured communicating with the target server: {e.reason} ({e.status})")
-    except MaxRetryError as e:
-        logger.exception(e, stack_info=True)
-        app.fatalError(message="Unable to connect to API server", exception=e)
-    except TemplateNotFound as e:
-        logger.exception(e, stack_info=True)
-        app.fatalError("Could not find template", exception=e)
-    except KubectlCommandError as e:
-        logger.exception(e, stack_info=True)
-        app.fatalError("Could not execute kubectl command", exception=e)
