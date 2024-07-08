@@ -237,11 +237,11 @@ function gitops_deprovision_db2u_database() {
   echo
   # If the file doesn't exist, nothing to remove, so no-op
   if [ -f ${CONFIGS_FILE} ]; then
-    /usr/bin/yq 'del(.ibm_db2u_databases[] | select(.db2_instance_name == "'${DB2_INSTANCE_NAME}'"))' $CONFIGS_FILE > ${TEMP_DIR}/configs.yaml
+    yq 'del(.ibm_db2u_databases[] | select(.db2_instance_name == "'${DB2_INSTANCE_NAME}'"))' $CONFIGS_FILE > ${TEMP_DIR}/configs.yaml
     cp ${TEMP_DIR}/configs.yaml ${CONFIGS_FILE}
 
     # If the file is there, but the configs are empty, delete the file
-    CONFIGS_COUNT=$(/usr/bin/yq '.ibm_db2u_databases | length' $CONFIGS_FILE)
+    CONFIGS_COUNT=$(yq '.ibm_db2u_databases | length' $CONFIGS_FILE)
     if [ "${CONFIGS_COUNT}" == "0" ]; then
       rm $CONFIGS_FILE
     fi

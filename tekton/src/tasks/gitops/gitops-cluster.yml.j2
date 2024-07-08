@@ -141,7 +141,7 @@ spec:
         echo "Custom Labels ......................... ${CUSTOM_LABELS}"
 
         CUSTOM_LABELS=$(echo "${CUSTOM_LABELS}" | sed "s/'/\"/g")
-        export CUSTOM_LABELS=$(echo "${CUSTOM_LABELS}" | yq --yaml-output)
+        export CUSTOM_LABELS=$(echo "${CUSTOM_LABELS}" | yq --output-format yaml)
         echo " CUSTOM_LABELS = ${CUSTOM_LABELS}"
 
 

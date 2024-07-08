@@ -443,20 +443,20 @@ function gitops_suite_app_config() {
   if [[ -n "$MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML" ]] && [[ -s "$MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML" ]]; then
     echo
     echo_h2 "Server bundles Combined additional server config provided for $MAS_APP_ID at $MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML"
-    export MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG=$(cat ${MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML} | yq -r '.' --yaml-output)
+    export MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG=$(cat ${MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML} | yq '.' --output-format yaml)
     echo "- MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG CONTENT ${MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG}"
   fi
 
   if [[ -n "$MAS_APPWS_SPEC_YAML" ]] && [[ -s "$MAS_APPWS_SPEC_YAML" ]]; then
     echo
     echo_h2 "Using application spec provided for $MAS_APP_ID at $MAS_APPWS_SPEC_YAML"
-    export MAS_APPWS_SPEC=$(cat ${MAS_APPWS_SPEC_YAML} | yq -r '.' --yaml-output)
-    /usr/bin/yq eval '.mas_appws_spec.settings.customizationList  | to_entries | .[].value.customizationArchiveCredentials.secretName | [] + .' ${MAS_APPWS_SPEC_YAML} | /usr/bin/yq '{"CUSTOMIZATION_ARCHIVE_SECRET_NAMES": [] + .}'  > $ADDITIONAL_JINJA_PARAMS_FILE
+    export MAS_APPWS_SPEC=$(cat ${MAS_APPWS_SPEC_YAML} | yq '.' --output-format yaml)
+    yq eval '.mas_appws_spec.settings.customizationList  | to_entries | .[].value.customizationArchiveCredentials.secretName | [] + .' ${MAS_APPWS_SPEC_YAML} | yq '{"CUSTOMIZATION_ARCHIVE_SECRET_NAMES": [] + .}'  > $ADDITIONAL_JINJA_PARAMS_FILE
   else
     echo
     echo_h2 "Using default application spec for $MAS_APP_ID"
     jinja -X .+ $CLI_DIR/templates/gitops/app-ws-spec-defaults/${MAS_APP_ID}.yaml.j2 -o ${TEMP_DIR}/${MAS_APP_ID}-appws-spec.yaml
-    export MAS_APPWS_SPEC=$(cat ${TEMP_DIR}/${MAS_APP_ID}-appws-spec.yaml | yq -r '.' --yaml-output)
+    export MAS_APPWS_SPEC=$(cat ${TEMP_DIR}/${MAS_APP_ID}-appws-spec.yaml | yq '.' --output-format yaml)
   fi
   echo 
   echo "- MAS_APPWS_SPEC CONTENT ${MAS_APPWS_SPEC}"
@@ -481,9 +481,9 @@ function gitops_suite_app_config() {
         ca_crt_filter_query=.manual_certs.${MAS_APP_ID}_ca_crt
 
         export PUBLIC_TLS_SECRET_NAME=${tls_secret_name[$MAS_APP_ID]}
-        export TLS_CERT=$(/usr/bin/yq eval "$tls_crt_filter_query" ${MAS_MANUAL_CERTS_YAML})
-        export TLS_KEY=$(/usr/bin/yq eval  "$tls_key_filter_query" ${MAS_MANUAL_CERTS_YAML})
-        export CA_CERT=$(/usr/bin/yq eval  "$ca_crt_filter_query"  ${MAS_MANUAL_CERTS_YAML})
+        export TLS_CERT=$(yq eval "$tls_crt_filter_query" ${MAS_MANUAL_CERTS_YAML})
+        export TLS_KEY=$(yq eval  "$tls_key_filter_query" ${MAS_MANUAL_CERTS_YAML})
+        export CA_CERT=$(yq eval  "$ca_crt_filter_query"  ${MAS_MANUAL_CERTS_YAML})
 
         echo -e "\n - PUBLIC_TLS_SECRET_NAME ................ ${PUBLIC_TLS_SECRET_NAME}"
         echo -e "\n - TLS_CERT CONTENT ...................... ${TLS_CERT}"
@@ -509,18 +509,18 @@ function gitops_suite_app_config() {
 
 
   # Remove any existing config with this app id and workspace id
-  /usr/bin/yq 'del(.ibm_mas_masapp_configs[] | select(.mas_app_id == "'${MAS_APP_ID}'" and .mas_workspace_id == "'${MAS_WORKSPACE_ID}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
+  yq 'del(.ibm_mas_masapp_configs[] | select(.mas_app_id == "'${MAS_APP_ID}'" and .mas_workspace_id == "'${MAS_WORKSPACE_ID}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
 
   # Render the appropriate template for the config into a new file
-  jinja -X .+ -d $ADDITIONAL_JINJA_PARAMS_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config.yaml.j2 | /usr/bin/yq '{"ibm_mas_masapp_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml || { echo "Error occurred on line $LINENO"; exit 1; }
+  jinja -X .+ -d $ADDITIONAL_JINJA_PARAMS_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config.yaml.j2 | yq '{"ibm_mas_masapp_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml || { echo "Error occurred on line $LINENO"; exit 1; }
 
   # Merge the two files
-  /usr/bin/yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
+  yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
 
   # sort the configs by mas_app_id.
   # This way, we maintain the same ordering of configs in the file (even though we may have deleted and recreated a config if it's an update)
   # This eliminates confusing commits to gitops-envs and allows us to determine if anything has actually changed
-  /usr/bin/yq -i '.ibm_mas_masapp_configs |= sort_by(.mas_app_id)' $CONFIGS_FILE
+  yq -i '.ibm_mas_masapp_configs |= sort_by(.mas_app_id)' $CONFIGS_FILE
 
   echo_h2 "Updated configuration file (${CONFIGS_FILE})"
   if [ -f ${CONFIGS_FILE} ]; then
