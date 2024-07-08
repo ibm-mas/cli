@@ -9,31 +9,34 @@ from prompt_toolkit.output import DummyOutput
 
 def testInstallHelp():
     """
-    Should exit with RC = 1 because kubectl is not on the path
+    Should exit with RC = 0 after printing help message
     """
     with create_app_session(output=DummyOutput()):
-        app = InstallApp()
-        app.install(argv=["--help"])
-
-    #     with pytest.raises(SystemExit) as e:
-    #         app = InstallApp()
-    #         app.install(argv=["--help"])
-    # assert e.type == SystemExit
-    # assert e.value.code == 1
+        with pytest.raises(SystemExit) as e:
+            app = InstallApp()
+            app.install(argv=["--help"])
+        assert e.type == SystemExit
+        assert e.value.code == 0
 
 
 def testUninstallHelp():
     """
-    Should exit with RC = 1 because kubectl is not on the path
+    Should exit with RC = 0 after printing help message
     """
     with create_app_session(output=DummyOutput()):
-        app = UninstallApp()
-        app.uninstall(argv=["--help"])
+        with pytest.raises(SystemExit) as e:
+            app = UninstallApp()
+            app.uninstall(argv=["--help"])
+        assert e.type == SystemExit
+        assert e.value.code == 0
 
 def testUpgradeHelp():
     """
-    Should exit with RC = 1 because kubectl is not on the path
+    Should exit with RC = 0 after printing help message
     """
     with create_app_session(output=DummyOutput()):
-        app = UpgradeApp()
-        app.upgrade(argv=["--help"])
+        with pytest.raises(SystemExit) as e:
+            app = UpgradeApp()
+            app.upgrade(argv=["--help"])
+        assert e.type == SystemExit
+        assert e.value.code == 0
