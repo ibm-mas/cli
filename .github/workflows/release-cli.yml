@@ -97,12 +97,6 @@ jobs:
           docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
           docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
           docker push quay.io/ibmmas/cli:latest
-        # Old version ...
-        # uses: redhat-actions/push-to-registry@v2
-        # with:
-        #   tags: quay.io/ibmmas/cli:${{ env.DOCKER_TAG }} quay.io/ibmmas/cli:latest
-        #   username: ${{ secrets.QUAYIO_USERNAME }}
-        #   password: ${{ secrets.QUAYIO_PASSWORD }}
 
       # 6. OWASP Dependency Check
       # -------------------------------------------------------------------------------------------
@@ -118,7 +112,7 @@ jobs:
             --enableRetired
 
       - name: Upload dependency check results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
            name: OWASP dependency check report
            path: ${{github.workspace}}/reports

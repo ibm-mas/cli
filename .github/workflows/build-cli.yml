@@ -196,7 +196,7 @@ jobs:
           docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
           docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
 
-      # 7. OWASP Dependency Check
+      # 5. OWASP Dependency Check
       # -------------------------------------------------------------------------------------------
       - name: Perform dependency check
         uses: dependency-check/Dependency-Check_Action@main
@@ -242,43 +242,20 @@ jobs:
           name: mas_cli.tar.gz
           path: ${{ github.workspace }}/
 
-      - name: Build the Windows executables
+      - name: Build the Windows executable
         run: |
           python -m pip install --upgrade pip virtualenv
-
-          dir ./
-
           python -m venv .venv
           .\.venv\Scripts\activate
-          python -m pip list
           python -m pip install "./mas_cli.tar.gz[dev]"
           python -m pip list
+          pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-cli
 
-          pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-install
-          pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-upgrade
-          pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-uninstall
-
-          dir ./python/dist
-
-      - name: Upload mas-install
+      - name: Upload mas-cli
         uses: actions/upload-artifact@v4
         with:
           name: mas-install-windows-amd64.exe
-          path: ${{ github.workspace }}/python/dist/mas-install.exe
-          retention-days: 30
-
-      - name: Upload mas-upgrade
-        uses: actions/upload-artifact@v4
-        with:
-          name: mas-upgrade-windows-amd64.exe
-          path: ${{ github.workspace }}/python/dist/mas-upgrade.exe
-          retention-days: 30
-
-      - name: Upload mas-uninstall
-        uses: actions/upload-artifact@v4
-        with:
-          name: mas-uninstall-windows-amd64.exe
-          path: ${{ github.workspace }}/python/dist/mas-uninstall.exe
+          path: ${{ github.workspace }}/python/dist/mas-cli.exe
           retention-days: 30
 
   pyinstaller-linux:
@@ -307,39 +284,18 @@ jobs:
           name: mas_cli.tar.gz
           path: ${{ github.workspace }}/
 
-      - name: Build the Linux executables
+      - name: Build the Linux executable
         run: |
           python -m pip install --upgrade pip virtualenv
-
           python -m venv .venv
           source .venv/bin/activate
-          python -m pip list
           python -m pip install ./mas_cli.tar.gz[dev]
           python -m pip list
+          pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-cli
 
-          pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-install
-          pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-upgrade
-          pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-uninstall
-
-          ls ./python/dist
-
-      - name: Upload mas-install
+      - name: Upload mas-cli
         uses: actions/upload-artifact@v4
         with:
-          name: mas-install-linux-amd64
-          path: ${{ github.workspace }}/python/dist/mas-install
-          retention-days: 30
-
-      - name: Upload mas-upgrade
-        uses: actions/upload-artifact@v4
-        with:
-          name: mas-upgrade-linux-amd64
-          path: ${{ github.workspace }}/python/dist/mas-upgrade
-          retention-days: 30
-
-      - name: Upload mas-uninstall
-        uses: actions/upload-artifact@v4
-        with:
-          name: mas-uninstall-linux-amd64
-          path: ${{ github.workspace }}/python/dist/mas-uninstall
+          name: mas-cli-linux-amd64
+          path: ${{ github.workspace }}/python/dist/mas-cli
           retention-days: 30
