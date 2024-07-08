@@ -59,12 +59,14 @@ jobs:
       # 1. Initialize the build
       # -------------------------------------------------------------------------------------------
       - name: Checkout
+        id: checkout
         uses: actions/checkout@v4
         # Without this option, we don't get the tag information
         with:
           fetch-depth: 0
 
       - name: Initialise the build system
+        id: init
         run: |
           chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
           $GITHUB_WORKSPACE/build/bin/initbuild.sh
@@ -73,12 +75,14 @@ jobs:
       # 2. Python Package
       # -------------------------------------------------------------------------------------------
       - name: Download tekton definitions
+        id: download-tekton
         uses: actions/download-artifact@v4
         with:
           name: ibm-mas-tekton.yaml
           path: ${{ github.workspace }}/python/src/mas/cli/templates/
 
       - name: Install
+        id: install
         run: |
           cd $GITHUB_WORKSPACE/python
           sed -i "s#__version__ = \"100.0.0\"#__version__ = \"${{ env.VERSION_NOPREREL }}\"#g" ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
@@ -88,26 +92,31 @@ jobs:
           pip install .[dev]
 
       - name: Lint
+        id: lint
         run: |
           cd $GITHUB_WORKSPACE/python
           flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 src --count --exit-zero --max-complexity=10 --max-line-length=200 --statistics
 
       - name: Test
+        id: test
         run: |
           cd $GITHUB_WORKSPACE/python
           pytest
 
       - name: Build
+        id: build
         run: |
           cd $GITHUB_WORKSPACE/python
           python -m build
+          mv $GITHUB_WORKSPACE/python/dist/mas_cli-${{ env.VERSION_NOPREREL }}.tar.gz $GITHUB_WORKSPACE/python/dist/mas_cli.tar.gz
 
       - name: Upload
+        id: upload
         uses: actions/upload-artifact@v4
         with:
           name: mas_cli.tar.gz
-          path: ${{ github.workspace }}/python/dist/mas_cli-${{ env.VERSION_NOPREREL }}.tar.gz
+          path: ${{ github.workspace }}/python/dist/mas_cli.tar.gz
           retention-days: 30
 
   build-container:
