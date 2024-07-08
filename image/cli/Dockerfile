@@ -1,4 +1,4 @@
-FROM quay.io/ibmmas/cli-base:1.2.1-pre.ajw-mascore2119
+FROM quay.io/ibmmas/cli-base:1.2.1
 ARG VERSION_LABEL
 
 # Auto-expire the image in quay.io after 3 weeks
