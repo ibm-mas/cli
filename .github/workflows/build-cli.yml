@@ -226,7 +226,7 @@ jobs:
       # 1. Initialize the build
       # -------------------------------------------------------------------------------------------
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # 2. Run PyInstaller
       # -------------------------------------------------------------------------------------------
@@ -254,7 +254,7 @@ jobs:
       - name: Upload mas-cli
         uses: actions/upload-artifact@v4
         with:
-          name: mas-install-windows-amd64.exe
+          name: mas-cli-windows-amd64
           path: ${{ github.workspace }}/python/dist/mas-cli.exe
           retention-days: 30
 
@@ -268,7 +268,7 @@ jobs:
       # 1. Initialize the build
       # -------------------------------------------------------------------------------------------
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # 2. Run PyInstaller
       # -------------------------------------------------------------------------------------------
@@ -310,7 +310,7 @@ jobs:
       # 1. Initialize the build
       # -------------------------------------------------------------------------------------------
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # 2. Run PyInstaller
       # -------------------------------------------------------------------------------------------
