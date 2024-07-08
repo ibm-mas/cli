@@ -1,0 +1,59 @@
+- name: fvt-mobile-test-sr
+  taskRef:
+    kind: Task
+    name: mas-fvt-mobile-pytest
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+  params:
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_mobile_pytest)
+    - name: fvt_test_suite
+      value: sr_api
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+  when:
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+    - input: "$(params.fvt_digest_mobile_pytest)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-mobile-setup-data
+
+- name: fvt-mobile-test-insp
+  taskRef:
+    kind: Task
+    name: mas-fvt-mobile-pytest
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+  params:
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_mobile_pytest)
+    - name: fvt_test_suite
+      value: insp_api
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+  when:
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+    - input: "$(params.fvt_digest_mobile_pytest)"
+      operator: notin
+      values: [""]
+  runAfter:
+    - fvt-mobile-test-sr
