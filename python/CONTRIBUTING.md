@@ -39,8 +39,6 @@ python -m venv .venv
 cd python
 python -m pip install --upgrade pip
 python -m pip install .[dev]
-pyinstaller --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli src/mas-install
-pyinstaller --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli src/mas-upgrade
-pyinstaller --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli src/mas-uninstall
+pyinstaller --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli src/mas-cli
 
 ```
