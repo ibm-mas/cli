@@ -253,14 +253,14 @@ function gitops_mongo() {
     [ $rc -ne 0 ] && exit $rc
 
     # Extract the required details from the generated mongocfg/secret. For docdb this is in base64 encoded form
-    export MONGO_USERNAME=$(yq -sr '.[0].data.username' $TEMP_DIR/mongo-docdb.yml | base64 -d)
-    export MONGO_PASSWORD=$(yq -sr '.[0].data.password' $TEMP_DIR/mongo-docdb.yml| base64 -d)
-    export DOCDB_HOST=$(yq -sr '.[1].spec.config.hosts[0].host' $TEMP_DIR/mongo-docdb.yml)
-    export DOCDB_PORT=$(yq -sr '.[1].spec.config.hosts[0].port' $TEMP_DIR/mongo-docdb.yml)
-    yq -sY  '.[1].spec' $TEMP_DIR/mongo-docdb.yml >> $TEMP_DIR/mongo-info.yaml
-    yq -iY 'del(.config.credentials)' $TEMP_DIR/mongo-info.yaml
-    yq -iY 'del(.displayName)' $TEMP_DIR/mongo-info.yaml
-    yq -iY 'del(.type)' $TEMP_DIR/mongo-info.yaml
+    export MONGO_USERNAME=$(yq 'select(di == 0) | .data.username' $TEMP_DIR/mongo-docdb.yml | base64 -d)
+    export MONGO_PASSWORD=$(yq 'select(di == 0) | .data.password' $TEMP_DIR/mongo-docdb.yml| base64 -d)
+    export DOCDB_HOST=$(yq 'select(di == 1) | .spec.config.hosts[0].host' $TEMP_DIR/mongo-docdb.yml)
+    export DOCDB_PORT=$(yq 'select(di == 1) | .spec.config.hosts[0].port' $TEMP_DIR/mongo-docdb.yml)
+    yq 'select(di == 1) | .spec' $TEMP_DIR/mongo-docdb.yml >> $TEMP_DIR/mongo-info.yaml
+    yq -i 'del(.config.credentials)' $TEMP_DIR/mongo-info.yaml
+    yq -i 'del(.displayName)' $TEMP_DIR/mongo-info.yaml
+    yq -i 'del(.type)' $TEMP_DIR/mongo-info.yaml
 
     UNESCAPED_INFO="$(cat $TEMP_DIR/mongo-info.yaml)"
     ESCAPED_INFO=${UNESCAPED_INFO//\"/\\\"}
