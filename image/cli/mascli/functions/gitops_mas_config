@@ -774,18 +774,18 @@ function gitops_mas_config() {
     fi
 
     # Remove any existing config with this name
-    /usr/bin/yq 'del(.ibm_mas_suite_configs[] | select(.mas_config_name == "'${MAS_CONFIG_NAME}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
+    yq 'del(.ibm_mas_suite_configs[] | select(.mas_config_name == "'${MAS_CONFIG_NAME}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
 
     # Render the appropriate template for the config into a new file
-    jinja -X .+ -d $ADDITIONAL_JINJA_PARAMS_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-${MAS_CONFIG_TYPE}-config.yaml.j2 | /usr/bin/yq '{"ibm_mas_suite_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+    jinja -X .+ -d $ADDITIONAL_JINJA_PARAMS_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-${MAS_CONFIG_TYPE}-config.yaml.j2 | yq '{"ibm_mas_suite_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
 
     # Merge the two files
-    /usr/bin/yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
+    yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
 
     # sort the configs by mas_config_name.
     # This way, we maintain the same ordering of configs in the file (even though we may have deleted and recreated a config if it's an update)
     # This eliminates confusing commits to gitops-envs and allows us to determine if anything has actually changed if we need to for configs in future
-    /usr/bin/yq -i '.ibm_mas_suite_configs |= sort_by(.mas_config_name)' $CONFIGS_FILE
+    yq -i '.ibm_mas_suite_configs |= sort_by(.mas_config_name)' $CONFIGS_FILE
 
   fi # [ "${CONFIG_ACTION}" == "upsert" ]
 
@@ -825,11 +825,11 @@ function gitops_mas_config() {
 
     # If the file doesn't exist, nothing to remove, so no-op
     if [ -f ${CONFIGS_FILE} ]; then
-      /usr/bin/yq 'del(.ibm_mas_suite_configs[] | select(.mas_config_name == "'${MAS_CONFIG_NAME}'"))' $CONFIGS_FILE > ${TEMP_DIR}/configs.yaml
+      yq 'del(.ibm_mas_suite_configs[] | select(.mas_config_name == "'${MAS_CONFIG_NAME}'"))' $CONFIGS_FILE > ${TEMP_DIR}/configs.yaml
       cp ${TEMP_DIR}/configs.yaml ${CONFIGS_FILE}
 
       # If the file is there, but the configs are empty, delete the file
-      CONFIGS_COUNT=$(/usr/bin/yq '.ibm_mas_suite_configs | length' $CONFIGS_FILE)
+      CONFIGS_COUNT=$(yq '.ibm_mas_suite_configs | length' $CONFIGS_FILE)
       if [ "${CONFIGS_COUNT}" == "0" ]; then
         rm $CONFIGS_FILE
       fi
