@@ -121,7 +121,7 @@ jobs:
 
       - name: Publish package
         id: publish
-        if: github.event_name == "release"
+        if: github.event_name == 'release'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
@@ -199,7 +199,7 @@ jobs:
 
       - name: Push the container image (latest)
         id: docker-push-latest
-        if: github.event_name == "release"
+        if: github.event_name == 'release'
         run: |
           docker tag ibmmas/cli quay.io/ibmmas/cli:latest
           docker images
@@ -276,7 +276,7 @@ jobs:
 
       - name: Publish the new cli
         id: publish
-        if: github.event_name == "release"
+        if: github.event_name == 'release'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -336,7 +336,7 @@ jobs:
 
       - name: Publish the new cli
         id: publish
-        if: github.event_name == "release"
+        if: github.event_name == 'release'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -395,7 +395,7 @@ jobs:
 
       - name: Publish the new cli
         id: publish
-        if: github.event_name == "release"
+        if: github.event_name == 'release'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
