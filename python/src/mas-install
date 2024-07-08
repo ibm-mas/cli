@@ -289,7 +289,8 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
                 self.setParam("mas_cluster_issuer", "")
             self.yesOrNo("Configure manual certificates", "mas_manual_cert_mgmt")
             if self.getParam("mas_manual_cert_mgmt"):
-                self.promptForDir("Enter the path containing certs folder", "mas_config_dir", mustExist=True)
+                self.masConfigDir = self.promptForDir("Enter the path containing certs folder")
+                self.setParam("mas_config_dir", self.masConfigDir)
                 self.cacrtFileLocal = self.promptForFile("ca.crt file name (with path)", mustExist=True)
                 self.tlscrtFileLocal = self.promptForFile("tls.crt file name (with path)", mustExist=True)
                 self.tlskeyFileLocal = self.promptForFile("tls.key file name (with path)", mustExist=True)
