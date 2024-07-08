@@ -299,3 +299,47 @@ jobs:
           name: mas-cli-linux-amd64
           path: ${{ github.workspace }}/python/dist/mas-cli
           retention-days: 30
+
+  pyinstaller-macos:
+    if: contains(fromJson('["push", "workflow_dispatch", "repository_dispatch"]'), github.event_name)
+    runs-on: macos-latest
+    needs:
+      - build-tekton
+      - build-python
+    steps:
+      # 1. Initialize the build
+      # -------------------------------------------------------------------------------------------
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # 2. Run PyInstaller
+      # -------------------------------------------------------------------------------------------
+      - name: Download the tekton file built in the other job
+        uses: actions/download-artifact@v4
+        with:
+          name: ibm-mas-tekton.yaml
+          path: ${{ github.workspace }}/python/src/mas/cli/templates/
+
+      - name: Download the python package
+        uses: actions/download-artifact@v4
+        with:
+          name: mas_cli.tar.gz
+          path: ${{ github.workspace }}/
+
+      - name: Build the Linux executable
+        run: |
+          python -m pip install --upgrade pip virtualenv
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install ./mas_cli.tar.gz[dev]
+          python -m pip list
+          pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-cli
+
+          ls python/dist
+
+      - name: Upload mas-cli
+        uses: actions/upload-artifact@v4
+        with:
+          name: mas-cli-macos-arm64
+          path: ${{ github.workspace }}/python/dist/mas-cli
+          retention-days: 30
