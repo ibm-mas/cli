@@ -264,7 +264,7 @@ spec:
         # Deploy fvtsaas with CIS as DNS provider and Manual_certs=True on Mon, Tue, Wed, Thu, Fri
         # Deploy fvtsaas with CIS as DNS provider and Manual_certs=False on Sun
 
-        yq -i '.mas_instance.manual_cert_mgmt = env(MANUAL_CERTS_CONTROL_FLAG)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+        yq -i '.mas_instance.manual_cert_mgmt = env(MANUAL_CERTS_CONTROL_FLAG) | .mas_instance.manual_cert_mgmt style="double"' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
         echo "gitops-mas-initiator: .mas_instance.manual_cert_mgmt set to $MANUAL_CERTS_CONTROL_FLAG"
 
         if [[ "${DNS_PROVIDER_CONTROL_IDEN}" == "cis" ]]; then
