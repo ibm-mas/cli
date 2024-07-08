@@ -124,9 +124,7 @@ class BaseApp(PrintMixin, PromptMixin):
         self.printTitle(f"\nIBM Maximo Application Suite Admin CLI v{self.version}")
         print_formatted_text(HTML("Powered by <DarkGoldenRod><u>https://github.com/ibm-mas/ansible-devops/</u></DarkGoldenRod> and <DarkGoldenRod><u>https://tekton.dev/</u></DarkGoldenRod>\n"))
         if which("kubectl") is None:
-            logger.error("Could not find kubectl on the path")
-            print_formatted_text(HTML("\n<Red>Error: Could not find kubectl on the path, see <u>https://kubernetes.io/docs/tasks/tools/#kubectl</u> for installation instructions</Red>\n"))
-            exit(1)
+            self.fatalError("Could not find kubectl on the path, see <u>https://kubernetes.io/docs/tasks/tools/#kubectl</u> for installation instructions")
 
     def getCompatibleVersions(self, coreChannel: str, appId: str) -> list:
         if coreChannel in self.compatibilityMatrix:
@@ -136,8 +134,11 @@ class BaseApp(PrintMixin, PromptMixin):
 
     def fatalError(self, message: str, exception: Exception=None) -> None:
         if exception is not None:
+            logger.error(message)
+            logger.exception(exception, stack_info=True)
             print_formatted_text(HTML(f"<Red>Fatal Exception: {message.replace(' & ', ' &amp; ')}: {exception}</Red>"))
         else:
+            logger.error(message)
             print_formatted_text(HTML(f"<Red>Fatal Error: {message.replace(' & ', ' &amp; ')}</Red>"))
         exit(1)
 
