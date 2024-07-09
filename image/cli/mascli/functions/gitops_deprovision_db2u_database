@@ -139,7 +139,6 @@ function gitops_deprovision_db2u_database_noninteractive() {
   if [[ -z $DB2_INSTANCE_NAME ]]; then
     export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
   fi
-  export DB2_CONFIG_SECRET=${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/jdbc/${DB2_INSTANCE_NAME}/config
 }
 
 function gitops_deprovision_db2u_database() {
@@ -207,7 +206,6 @@ function gitops_deprovision_db2u_database() {
   echo "${TEXT_DIM}"
   echo_h2 "DB2 Cluster Configuration" "    "
   echo_reset_dim "db2-instance-name ....................... ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
-  echo_reset_dim "DB2 config secret........................ ${COLOR_MAGENTA}${DB2_CONFIG_SECRET}"
   reset_colors
 
   TEMP_DIR=$GITOPS_WORKING_DIR/tmp-deprovision-db2u-database
@@ -267,9 +265,7 @@ function gitops_deprovision_db2u_database() {
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_and_unlock_target_git_repo "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_COMMIT_MSG}" "${GIT_LOCK_BRANCH}"
 
-    # Delete the DB2 config secret created by the postsync hook
-    echo "Deleting ${DB2_CONFIG_SECRET} secret from AWS"
-    sm_delete_secret ${DB2_CONFIG_SECRET}
+    # Deletion of the DB2 config secret created by the postsync hook moved to the postdelete hook
 
   else
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
