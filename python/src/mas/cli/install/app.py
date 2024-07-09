@@ -793,9 +793,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # Store all args
         self.args = args
 
-        # Initialize the dictionary that will hold the parameters we pass to the PipelineRun
-        self.params = dict()
-
         # These flags work for setting params in both interactive and non-interactive modes
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
