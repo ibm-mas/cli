@@ -87,9 +87,7 @@ class UpdateApp(BaseApp):
             self.detectUDS()
             self.detectGrafana4()
             self.detectMongoDb()
-
-            # # Validates CP4D upgrade
-            # validate_existing_cp4d
+            self.detectCP4D()
 
             print()
             print("Params:")
@@ -372,3 +370,112 @@ class UpdateApp(BaseApp):
                 # UDS has never been installed on this cluster
                 logger.debug("UDS has not been installed on this cluster before")
                 h.stop_and_persist(symbol=self.successIcon, text=f"IBM User Data Services is not installed")
+
+    def detectCP4D(self) -> bool:
+        # Important:
+        # This CLI can run independent of the ibm.mas_devops collection, so we cannot reference
+        # the case bundles in there anymore
+        # Longer term we will centralise this information inside the mas-devops python collection,
+        # where it can be made available to both the ansible collection and this python package.
+        cp4dVersions = {
+            "v8-240528-amd64": "4.8.0",
+            "v9-240625-amd64": "4.6.6"
+        }
+
+        with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:
+            try:
+                # cpdAPI = self.dynamicClient.resources.get(api_version="cpd.ibm.com/v1", kind="Ibmcpd")
+                # cpds = cpdAPI.get().to_dict()["items"]
+
+                # For testing, comment out the lines above and set cpds to a simple list
+                cpds = [{
+                    "metadata": {"namespace": "ibm-cpd" },
+                    "spec": {
+                        "version": "4.6.6",
+                        "storageClass": "default",
+                        "zenCoreMetadbStorageClass": "default"
+                    }
+                }]
+
+
+                if len(cpds) > 0:
+                    cpdInstanceNamespace = cpds[0]["metadata"]["namespace"]
+                    cpdInstanceVersion = cpds[0]["spec"]["version"]
+                    cpdTargetVersion = cp4dVersions[self.getParam("mas_catalog_version")]
+
+                    currentCpdVersionMajorMinor = f"{cpdInstanceVersion.split('.')[0]}.{cpdInstanceVersion.split('.')[1]}"
+                    targetCpdVersionMajorMinor = f"{cpdTargetVersion.split('.')[0]}.{cpdTargetVersion.split('.')[1]}"
+
+                    if currentCpdVersionMajorMinor < targetCpdVersionMajorMinor:
+                        # We only show the "backup first" notice for minor CP4D updates
+                        self.printHighlight([
+                            "<u>Dependency Update Notice</u>",
+                            f"Cloud Pak For Data is currently running version {cpdInstanceVersion} and will be updated to version {targetCpdVersionMajorMinor}",
+                            "It is recommended that you backup your Cloud Pak for Data instance before proceeding:"
+                            "  <u>https://www.ibm.com/docs/en/cloud-paks/cp-data/4.8.x?topic=administering-backing-up-restoring-cloud-pak-data</u>"
+                        ])
+
+                    if cpdInstanceVersion < cpdTargetVersion:
+                        # We have to update CP4D
+
+                        # Lookup the storage classes already used by CP4D
+                        # Note: this should be done by the Ansible role, but isn't
+                        if "storageClass" in cpds[0]["spec"]:
+                            cpdFileStorage = cpds[0]["spec"]["storageClass"]
+                        elif "fileStorageClass" in cpds[0]["spec"]:
+                            cpdFileStorage = cpds[0]["spec"]["fileStorageClass"]
+                        else:
+                            self.fatalError("Unable to determine the file storage class used in IBM Cloud Pak for Data")
+
+                        if "zenCoreMetadbStorageClass" in cpds[0]["spec"]:
+                            cpdBlockStorage = cpds[0]["spec"]["zenCoreMetadbStorageClass"]
+                        elif "blockStorageClass" in cpds[0]["spec"]:
+                            cpdBlockStorage = cpds[0]["spec"]["blockStorageClass"]
+                        else:
+                            self.fatalError("Unable to determine the block storage class used in IBM Cloud Pak for Data")
+
+                        # Set the desired storage classes (the same ones already in use)
+                        self.setParam("storage_class_rwx", cpdFileStorage)
+                        self.setParam("storage_class_rwo", cpdBlockStorage)
+
+                        # Set the desired target version
+                        self.setParam("cpd_product_version", cpdTargetVersion)
+                        self.setParam("cp4d_update", "true")
+                        self.setParam("skip_entitlement_key_flag", "true")
+
+                        self.detectCpdService('ws.ws.cpd.ibm.com/v1', 'Watson Studio', 'ws')
+                        self.detectCpdService('wmlbases.wml.cpd.ibm.com/v1', 'Watson Machine Learning', 'wml')
+                        self.detectCpdService('analyticsengines.ae.cpd.ibm.com/v1', 'Analytics Engine', 'analyticsengine')
+                        self.detectCpdService('woservices.wos.cpd.ibm.com/v1', 'Watson Openscale', 'openscale')
+                        self.detectCpdService('spss.spssmodeler.cpd.ibm.com/v1', 'SPSS Modeler', 'spss')
+                        self.detectCpdService('caservices.ca.cpd.ibm.com/v1', 'Cognos Analytics', 'cognos_analytics')
+
+                        h.stop_and_persist(symbol=self.successIcon, text=f"Grafana Operator v4 instance will be updated to v5")
+                        self.printDescription([
+                            "<u>Dependency Upgrade Notice</u>",
+                            "Grafana Operator v4 is currently installed and will be updated to v5",
+                            "- Grafana v5 instance will have a new URL and admin password",
+                            "- User accounts set up in the v4 instance will not be migrated"
+                        ])
+                        self.setParam("grafana_v5_upgrade", "true")
+                    else:
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Grafana Operator v4 is not installed")
+                return
+            except (ResourceNotFoundError, NotFoundError) as e:
+                h.stop_and_persist(symbol=self.successIcon, text=f"Grafana Operator v4 is not installed")
+
+    def detectCpdService(self, api: str, name: str, kind: str) -> None:
+        try:
+            # cpdServiceAPI = self.dynamicClient.resources.get(api_version=api, kind=kind)
+            # cpdServices = cpdServiceAPI.get().to_dict()["items"]
+
+            # For testing, comment out the lines above and set cpds to a simple list
+            cpdServices = [{
+                "spec": {
+                    "version": "4.6.6",
+                }
+            }]
+
+        except (ResourceNotFoundError, NotFoundError) as e:
+            # No action required for this service
+            pass

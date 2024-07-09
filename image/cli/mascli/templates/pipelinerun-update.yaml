@@ -14,16 +14,25 @@ spec:
     pipeline: "6h"
 
   params:
+    # IBM entitlement key
     - name: ibm_entitlement_key
       value: '$IBM_ENTITLEMENT_KEY'
     - name: skip_entitlement_key_flag
       value: '$SKIP_ENTITLEMENT_KEY_FLAG'
+
+    # Skip pre-check
     - name: skip_pre_check
       value: '$SKIP_PRE_CHECK'
+
+    # Catalog version
     - name: mas_catalog_version
       value: '$MAS_CATALOG_VERSION'
+
+    # Db2 Update
     - name: db2_namespace
       value: '$DB2_NAMESPACE'
+
+    # MongoDb CE update
     - name: mongodb_namespace
       value: '$MONGODB_NAMESPACE'
     - name: mongodb_v5_upgrade
@@ -34,14 +43,20 @@ spec:
       value: '$MONGODB_V6_UPGRADE'
     - name: mongodb_replicas
       value: '$MONGODB_REPLICAS'
+
+    # Kafka update
     - name: kafka_namespace
       value: '$KAFKA_NAMESPACE'
     - name: kafka_provider
       value: '$KAFKA_PROVIDER'
+
+    # Cert-Manager migration
     - name: cert_manager_provider
       value: "$CERT_MANAGER_PROVIDER"
     - name: cert_manager_action
       value: "$CERT_MANAGER_ACTION"
+
+    # UDS to DRO migration
     - name: dro_migration
       value: '$DRO_MIGRATION'
     - name: uds_storage_class
@@ -50,22 +65,29 @@ spec:
       value: '$UDS_ACTION'
     - name: dro_namespace
       value: '$DRO_NAMESPACE'
+
+    # Grafana
     - name: grafana_v5_upgrade
       value: '$GRAFANA_V5_UPGRADE'
 
-    # Storage Classes
+    # Storage Classes - why are we providing these they don't appear to be used (or set)?
     # -------------------------------------------------------------------------
-    - name: storage_class_rwx
-      value: '$STORAGE_CLASS_RWX'
-    - name: storage_class_rwo
-      value: '$STORAGE_CLASS_RWO'
+    # - name: storage_class_rwx
+    #   value: '$STORAGE_CLASS_RWX'
+    # - name: storage_class_rwo
+    #   value: '$STORAGE_CLASS_RWO'
 
     # Dependencies - CP4D
     # -------------------------------------------------------------------------
+    # Target version
     - name: cpd_product_version
       value: '$CP4D_VERSION'
+
+    # Update the platform itself
     - name: cp4d_update
       value: '$CP4D_UPDATE'
+
+    # Individual flags per service have to be set
     - name: cp4d_update_ws
       value: '$CP4D_UPDATE_WS'
     - name: cp4d_update_wml

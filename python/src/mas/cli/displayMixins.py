@@ -45,7 +45,7 @@ class PrintMixin():
         content[len(content) - 1] = f"{content[len(content) - 1]}</{DESCRIPTIONCOLOR}>"
         print_formatted_text(HTML("\n".join(content)))
 
-    def printHighlight(self, message: str | list) -> None:
+    def printHighlight(self, message: str) -> None:
         if isinstance(message, list):
             message = "\n".join(message)
 
