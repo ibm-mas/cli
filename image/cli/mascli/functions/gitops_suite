@@ -335,7 +335,6 @@ function gitops_suite_noninteractive() {
 }
 
 function gitops_suite() {
-  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE: $LINENO command: $BASH_COMMMAND exited with $?"; exit 1' ERR
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
@@ -345,6 +344,8 @@ function gitops_suite() {
     exit 1
     gitops_suite_interactive
   fi
+
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE: $LINENO command: $BASH_COMMMAND exited with $?"; exit 1' ERR
 
   export DOMAIN=${MAS_DOMAIN}
   if [[ "${DNS_PROVIDER}" == "cis" ]]; then
