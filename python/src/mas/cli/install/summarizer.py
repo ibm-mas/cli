@@ -80,6 +80,7 @@ class InstallSummarizerMixin():
             self.printSummary("Core tls.crt", self.tlscrtFileLocal)
             self.printSummary("Core tls.key", self.tlskeyFileLocal)
         else:
+            print()
             self.printSummary("Manual Certificates", "Not Configured")
 
         print()
