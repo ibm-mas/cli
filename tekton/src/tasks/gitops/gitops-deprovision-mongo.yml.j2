@@ -93,7 +93,7 @@ spec:
         - /bin/sh
         - -c
       name: gitops-deprovision-mongo
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: Always
       image: quay.io/ibmmas/cli:10.1.0-pre.gitops
   workspaces:
     - name: configs
