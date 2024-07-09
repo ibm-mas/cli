@@ -449,20 +449,8 @@ class UpdateApp(BaseApp):
                         self.detectCpdService('woservices.wos.cpd.ibm.com/v1', 'Watson Openscale', 'openscale')
                         self.detectCpdService('spss.spssmodeler.cpd.ibm.com/v1', 'SPSS Modeler', 'spss')
                         self.detectCpdService('caservices.ca.cpd.ibm.com/v1', 'Cognos Analytics', 'cognos_analytics')
-
-                        h.stop_and_persist(symbol=self.successIcon, text=f"Grafana Operator v4 instance will be updated to v5")
-                        self.printDescription([
-                            "<u>Dependency Upgrade Notice</u>",
-                            "Grafana Operator v4 is currently installed and will be updated to v5",
-                            "- Grafana v5 instance will have a new URL and admin password",
-                            "- User accounts set up in the v4 instance will not be migrated"
-                        ])
-                        self.setParam("grafana_v5_upgrade", "true")
-                    else:
-                    h.stop_and_persist(symbol=self.successIcon, text=f"Grafana Operator v4 is not installed")
-                return
             except (ResourceNotFoundError, NotFoundError) as e:
-                h.stop_and_persist(symbol=self.successIcon, text=f"Grafana Operator v4 is not installed")
+                h.stop_and_persist(symbol=self.successIcon, text=f"IBM Cloud Pak for Data is not installed")
 
     def detectCpdService(self, api: str, name: str, kind: str) -> None:
         try:
