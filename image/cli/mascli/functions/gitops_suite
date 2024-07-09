@@ -345,7 +345,8 @@ function gitops_suite() {
     gitops_suite_interactive
   fi
 
-  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE: $LINENO command: $BASH_COMMMAND exited with $?"; exit 1' ERR
+  # catch errors
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
   export DOMAIN=${MAS_DOMAIN}
   if [[ "${DNS_PROVIDER}" == "cis" ]]; then

@@ -52,6 +52,9 @@ function gitops_deprovision_rosa(){
     gitops_deprovision_rosa_interactive
   fi
 
+  # catch errors
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
   echo
   reset_colors
   echo_h2 "Review Settings"
