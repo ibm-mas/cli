@@ -604,7 +604,7 @@ function gitops_suite() {
   jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-instance-base.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-instance-base.yaml
 
   echo "- IBM Suite License Service"
-  jinja -X .+ -d $MONGO_CONFIG_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-sls-fail.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
+  jinja -X .+ -d $MONGO_CONFIG_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-sls.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
 
   echo "- IBM Maximo Application Suite Core Platform"
   jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-suite.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-mas-suite.yaml
