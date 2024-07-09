@@ -335,7 +335,7 @@ function gitops_suite_noninteractive() {
 }
 
 function gitops_suite() {
-  trap ‘echo “[ERROR] Error occurred at $BASH_SOURCE: $LINENO command: $BASH_COMMMAND exited with $?”’ ERR
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE: $LINENO command: $BASH_COMMMAND exited with $?"' ERR
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
