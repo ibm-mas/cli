@@ -133,10 +133,6 @@ class AdditionalConfigsMixin():
                 }
             }
 
-            certsSecret = self.addFilesToSecret(certsSecret, self.cacrtFileLocal, "crt")
-            certsSecret = self.addFilesToSecret(certsSecret, self.tlscrtFileLocal, "crt")
-            certsSecret = self.addFilesToSecret(certsSecret, self.tlskeyFileLocal, "key")
-
             with open(self.cacrtFileLocal, 'r') as cacrtFile, open(self.tlscrtFileLocal, 'r') as tlscrtFile, open(self.tlskeyFileLocal, 'r') as tlskeyFile:
                 cacrtdata = cacrtFile.read()
                 tlscrtdata = tlscrtFile.read()
