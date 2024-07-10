@@ -198,11 +198,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             ])
         else:
             self.promptForInt("Enter the idleTimeout (in seconds)", "IDLE_TIMEOUT", default=1800)
+            print(self.params)
             self.promptForString("Enter the IDP session timeout (e.g., '12h' for 12 hours)", "IDP_SESSION_TIMEOUT", validator=TimeoutFormatValidator(), default="12h")
+            print(self.params)
             self.promptForString("Enter the access token timeout (e.g., '30m' for 30 minutes)", "ACCESS_TOKEN_TIMEOUT", validator=TimeoutFormatValidator(), default="30m")
+            print(self.params)
             self.promptForString("Enter the refresh token timeout (e.g., '12h' for 12 hours)", "REFRESH_TOKEN_TIMEOUT", validator=TimeoutFormatValidator(), default="12h")
+            print(self.params)
             self.promptForString("Enter the default Identity Provider (IDP)", "DEFAULT_IDP",default="local")
+            print(self.params)
             self.yesOrNo("Enable seamless login?", "SEAMLESS_LOGIN" ,param="SEAMLESS_LOGIN")
+            print(self.params)
 
     def configMAS(self):
         self.printH1("Configure MAS Instance")
