@@ -482,10 +482,11 @@ if __name__ == "__main__":
         print("FVT_SLACK_TOKEN is not set")
         sys.exit(0)
 
-    FVT_SLACK_CHANNEL = os.getenv("FVT_SLACK_CHANNEL")
-    if FVT_SLACK_CHANNEL is None or FVT_SLACK_CHANNEL == "":
-        print("FVT_SLACK_CHANNEL is not set")
-        sys.exit(0)
+    if instanceId.startswith("fvt"):
+        # To generate the channel name we remove the "fvt" prefix from the instanceId
+        FVT_SLACK_CHANNEL = f"mas-fvtreports-{instanceId.replace('fvt', '')}"
+    else:
+        FVT_SLACK_CHANNEL = f"mas-fvtreports-{instanceId}"
 
     FVT_JIRA_TOKEN = os.getenv("FVT_JIRA_TOKEN")
     if FVT_JIRA_TOKEN is None or FVT_JIRA_TOKEN == "":
