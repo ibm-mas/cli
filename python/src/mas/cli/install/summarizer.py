@@ -75,10 +75,7 @@ class InstallSummarizerMixin():
         
         if self.params["mas_manual_cert_mgmt"]:
             print()
-            self.printSummary("Manual Certificates", "Configured")
-            self.printSummary("Core ca.crt", self.cacrtFileLocal)
-            self.printSummary("Core tls.crt", self.tlscrtFileLocal)
-            self.printSummary("Core tls.key", self.tlskeyFileLocal)
+            self.printParamSummary("Manual Certificates", "mas_manual_cert_dir")
         else:
             print()
             self.printSummary("Manual Certificates", "Not Configured")
