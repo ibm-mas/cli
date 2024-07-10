@@ -668,7 +668,6 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             # TODO: The way arcgis has been implemented needs to be fixed
             "install_arcgis",
             "mas_arcgis_channel",
-            "manual_certificates"
         ]
 
         for key, value in vars(args).items():
