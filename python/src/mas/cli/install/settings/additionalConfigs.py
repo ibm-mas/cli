@@ -176,7 +176,7 @@ class AdditionalConfigsMixin():
                         if file not in glob(f'{app["dir"]}/*'):
                             self.fatalError(f'{file} is not present in {app["dir"]}')
                     for ext in extensions:
-                        certsSecret = self.addFilesToSecret(certsSecret, app["dir"], ext, app["keyPrefix"])
+                        certsSecret = self.addFilesToSecret(certsSecret, apps[app]["dir"], ext, apps[app]["keyPrefix"])
 
             self.certsSecret = certsSecret
 
