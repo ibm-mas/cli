@@ -205,9 +205,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             print(self.params)
             self.promptForString("Enter the refresh token timeout (e.g., '12h' for 12 hours)", "REFRESH_TOKEN_TIMEOUT", validator=TimeoutFormatValidator(), default="12h")
             print(self.params)
-            self.promptForString("Enter the default Identity Provider (IDP)", "DEFAULT_IDP",default="local")
+            self.promptForString("Enter the default Identity Provider (IDP)", "DEFAULT_IDP", default="local")
             print(self.params)
-            self.yesOrNo("Enable seamless login?", "SEAMLESS_LOGIN" ,param="SEAMLESS_LOGIN")
+            self.yesOrNo("Enable seamless login?", param="SEAMLESS_LOGIN")
             print(self.params)
 
     def configMAS(self):
