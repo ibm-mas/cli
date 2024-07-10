@@ -123,28 +123,36 @@ class AdditionalConfigsMixin():
             self.podTemplatesSecret = podTemplatesSecret
 
     def manualCertificates(self) -> None:
-        if self.getParam("mas_manual_cert_mgmt"):
-            certsSecret = {
-                "apiVersion": "v1",
-                "kind": "Secret",
-                "type": "Opaque",
-                "metadata": {
-                    "name": "pipeline-certificates"
-                }
+
+        certsSecret = {
+            "apiVersion": "v1",
+            "kind": "Secret",
+            "type": "Opaque",
+            "metadata": {
+                "name": "pipeline-certificates"
             }
+        }
 
-            with open(self.cacrtFileLocal, 'r') as cacrtFile, open(self.tlscrtFileLocal, 'r') as tlscrtFile, open(self.tlskeyFileLocal, 'r') as tlskeyFile:
-                cacrtdata = cacrtFile.read()
-                tlscrtdata = tlscrtFile.read()
-                tlskeydata = tlskeyFile.read()
-                
-                certsSecret["data"]["core.ca.crt"] = b64encode(cacrtdata.encode('ascii')).decode("ascii")
-                certsSecret["data"]["core.tls.crt"] = b64encode(tlscrtdata.encode('ascii')).decode("ascii")
-                certsSecret["data"]["core.tls.key"] = b64encode(tlskeydata.encode('ascii')).decode("ascii")
+        if self.getParam("mas_manual_cert_mgmt"):
+            with (self.getParam("mas_manual_cert_dir")) as certpath:
 
-            self.certsSecret = certsSecret
+                extensions = ["key", "crt"]
+                manualCertsSecret = certsSecret
+                for ext in extensions:
+                    manualCertsSecret = self.addFilesToSecret(manualCertsSecret, self.getParam("mas_manual_cert_dir")+'/core/', ext, "core.")
+                    logger.debug(manualCertsSecret) 
+                    self.manualCertsSecret = manualCertsSecret
+                    
+                if self.getParam("appchannel") != "":
+                    for app in apps:
+                        for ext in extensions:
+                            manualCertsSecret = self.addFilesToSecret(manualCertsSecret, self.getParam("mas_manual_cert_dir")+'/'+app+'/', ext, app+'.')
+                            logger.debug(manualCertsSecret) 
+                            self.manualCertsSecret = manualCertsSecret
 
-    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str='') -> dict:
+
+
+def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str='') -> dict:
         """
         Add file (or files) to pipeline-additional-configs
         """
