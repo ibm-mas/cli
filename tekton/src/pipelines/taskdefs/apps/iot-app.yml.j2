@@ -1,4 +1,5 @@
 - name: app-install-iot
+  timeout: 0
   params:
     {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
@@ -21,7 +22,7 @@
       value: $(params.custom_labels)
     - name: mas_app_settings_iot_deployment_size
       value: $(params.mas_app_settings_iot_deployment_size)
-    - name: mas_app_settings_iot_mqttbroker_pvc_storage_class 
+    - name: mas_app_settings_iot_mqttbroker_pvc_storage_class
       value: $(params.storage_class_rwo) # use common rwo storage class as user is not prompted to choose this storage class
     - name: mas_app_settings_iot_fpl_pvc_storage_class
       value: $(params.storage_class_rwo) # use common rwo storage class as user is not prompted to choose this storage class

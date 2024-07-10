@@ -48,6 +48,7 @@ spec:
     # 0. Wait for the install pipeline to complete
     # -------------------------------------------------------------------------
     - name: wait-for-install
+      timeout: 0
       taskRef:
         kind: Task
         name: mas-devops-wait-for-tekton
@@ -79,6 +80,7 @@ spec:
     # 2. Pre-Upgrade pipeline call - test scripts to run before upgrade
     # -------------------------------------------------------------------------
     - name: launchfvt-upgrade-pre
+      timeout: 0
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -98,6 +100,7 @@ spec:
     # 3. Suite Upgrade (Phase 1)
     # -------------------------------------------------------------------------
     - name: core-upgrade
+      timeout: 0
       taskRef:
         kind: Task
         name: mas-devops-suite-upgrade
@@ -118,6 +121,7 @@ spec:
           value: core-upgrade
 
     - name: core-verify
+      timeout: 0
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -137,6 +141,7 @@ spec:
     # 4. IoT Upgrade (Phase 2)
     # -------------------------------------------------------------------------
     - name: iot-upgrade
+      timeout: 0
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -158,6 +163,7 @@ spec:
     # 5. Manage Upgrade (Phase 2)
     # -------------------------------------------------------------------------
     - name: manage-upgrade
+      timeout: 0
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -179,6 +185,7 @@ spec:
     # 6. Visual Inspection Upgrade (Phase 2)
     # -------------------------------------------------------------------------
     - name: visualinspection-upgrade
+      timeout: 0
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -200,6 +207,7 @@ spec:
     # 7. Assist Upgrade (Phase 2)
     # -------------------------------------------------------------------------
     - name: assist-upgrade
+      timeout: 0
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -221,6 +229,7 @@ spec:
     # 8. Optimizer Upgrade (Phase 2)
     # -------------------------------------------------------------------------
     - name: optimizer-upgrade
+      timeout: 0
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -242,6 +251,7 @@ spec:
     # 9. Monitor Upgrade (Phase 3 - after IoT)
     # -------------------------------------------------------------------------
     - name: monitor-upgrade
+      timeout: 0
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -263,6 +273,7 @@ spec:
     # 10. Predict Upgrade (Phase 3 - after Manage)
     # -------------------------------------------------------------------------
     - name: predict-upgrade
+      timeout: 0
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -299,6 +310,7 @@ spec:
     # 12. Post-Upgrade pipeline call - test scripts to run before upgrade
     # -------------------------------------------------------------------------
     - name: launchfvt-upgrade-post
+      timeout: 0
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -326,6 +338,7 @@ spec:
     # Finalize the record in the FVT database
     # -------------------------------------------------------------------------
     - name: finalize
+      timeout: 0
       taskRef:
         kind: Task
         name: mas-fvt-finalize
