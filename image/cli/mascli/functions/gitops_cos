@@ -117,6 +117,10 @@ function gitops_cos() {
     exit 1
     gitops_cos_interactive
   fi
+  
+  # catch errors
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
   rm -rf $GITOPS_WORKING_DIR
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}

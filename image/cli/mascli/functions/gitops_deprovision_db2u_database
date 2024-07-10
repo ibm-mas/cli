@@ -152,6 +152,9 @@ function gitops_deprovision_db2u_database() {
     gitops_deprovision_db2u_database_interactive
   fi
 
+  # catch errors
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
   CONFIGS_FILE="${GITOPS_INSTANCE_DIR}/ibm-db2u-databases.yaml"

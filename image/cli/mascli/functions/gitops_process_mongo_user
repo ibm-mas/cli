@@ -192,6 +192,9 @@ function gitops_process_mongo_user() {
     exit 1
     gitops_process_mongo_user_interactive
   fi
+  
+  # catch errors
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
   echo
   reset_colors
