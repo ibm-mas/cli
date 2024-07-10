@@ -1,0 +1,28 @@
+- name: eck
+  timeout: "0"
+  taskRef:
+    kind: Task
+    name: mas-devops-eck
+  params:
+    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    - name: devops_suite_name
+      value: dependencies-eck
+
+    - name: eck_action
+      value: $(params.eck_action)
+
+    - name: eck_enable_elasticsearch
+      value: $(params.eck_enable_elasticsearch)
+    - name: eck_enable_kibana
+      value: $(params.eck_enable_kibana)
+    - name: eck_enable_logstash
+      value: $(params.eck_enable_logstash)
+    - name: eck_enable_filebeat
+      value: $(params.eck_enable_filebeat)
+
+    - name: eck_remote_es_hosts
+      value: $(params.eck_remote_es_hosts)
+    - name: eck_remote_es_username
+      value: $(params.eck_remote_es_username)
+    - name: eck_remote_es_password
+      value: $(params.eck_remote_es_password)

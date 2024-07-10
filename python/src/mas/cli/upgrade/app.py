@@ -9,7 +9,6 @@
 #
 # *****************************************************************************
 
-import argparse
 import sys
 import logging
 import logging.handlers
@@ -18,24 +17,30 @@ from prompt_toolkit.completion import WordCompleter
 
 from halo import Halo
 
-from mas.cli import __version__ as packageVersion
-from mas.cli.cli import InstanceIDValidator, YesNoValidator, BaseApp, getHelpFormatter
+from ..cli import BaseApp, getHelpFormatter
+from ..validators import InstanceIDValidator, YesNoValidator
+from .argParser import upgradeArgParser
+
 from mas.devops.ocp import createNamespace
 from mas.devops.mas import listMasInstances, verifyMasInstance
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
 
 logger = logging.getLogger(__name__)
 
-class App(BaseApp):
-    def upgrade(self, instanceId, skipPreCheck, noConfirm):
+class UpgradeApp(BaseApp):
+    def upgrade(self, argv):
         """
         Upgrade MAS instance
         """
+        args = upgradeArgParser.parse_args(args=argv)
+        instanceId = args.mas_instance_id
+        self.noConfirm = args.no_confirm
+        self.skipPreCheck = args.skip_pre_check
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
             # Connect to the target cluster
-            self.connect(noConfirm)
+            self.connect()
         else:
             logger.debug("MAS instance ID is set, so we assume already connected to the desired OCP")
 
@@ -69,13 +74,13 @@ class App(BaseApp):
 
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
-        print_formatted_text(HTML(f"<LightSlateGrey>Skip Pre-Upgrade Checks ......... {skipPreCheck}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Skip Pre-Upgrade Checks ......... {self.skipPreCheck}</LightSlateGrey>"))
 
-        if not noConfirm:
+        if not self.noConfirm:
             print()
             continueWithUpgrade = prompt(HTML(f'<Yellow>Proceed with these settings?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
 
-        if noConfirm or continueWithUpgrade in ["y", "yes"]:
+        if self.noConfirm or continueWithUpgrade in ["y", "yes"]:
             self.printH1("Launch Upgrade")
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 
@@ -92,65 +97,10 @@ class App(BaseApp):
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text='Submitting PipelineRun for {instanceId} upgrade', spinner=self.spinner) as h:
-                pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId)
+                pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck)
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} upgrade submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
                 else:
                     h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {instanceId} upgrade, see log file for details")
                     print()
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        prog='mas upgrade',
-        description="\n".join([
-            f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
-            "Upgrade MAS by configuring and launching the MAS Upgrade Tekton Pipeline.\n",
-            "Interactive Mode:",
-            "Omitting the --instance-id option will trigger an interactive prompt"
-        ]),
-        epilog="Refer to the online documentation for more information: https://ibm-mas.github.io/cli/",
-        formatter_class=getHelpFormatter(),
-        add_help=False
-    )
-
-    masArgGroup = parser.add_argument_group('MAS Instance Selection')
-    masArgGroup.add_argument(
-        '--instance-id',
-        required=False,
-        help="The MAS instance ID to be upgraded"
-    )
-
-    otherArgGroup = parser.add_argument_group('More')
-    otherArgGroup.add_argument(
-        '--skip-pre-check',
-        required=False,
-        action='store_true',
-        default=False,
-        help="Disable the 'pre-upgrade-check' and 'post-upgrade-verify' tasks in the upgrade pipeline"
-    )
-    otherArgGroup.add_argument(
-        '--no-confirm',
-        required=False,
-        action='store_true',
-        default=False,
-        help="Launch the upgrade without prompting for confirmation",
-    )
-    otherArgGroup.add_argument(
-        '-h', "--help",
-        action='help',
-        default=False,
-        help="Show this help message and exit",
-    )
-
-    args = parser.parse_args()
-
-    try:
-        app = App()
-        app.upgrade(
-            args.instance_id,
-            args.skip_pre_check,
-            args.no_confirm
-        )
-    except KeyboardInterrupt as e:
-        pass

@@ -1,4 +1,5 @@
 - name: cos-deprovision
+  timeout: "0"
   params:
     {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
@@ -12,8 +13,8 @@
       value: $(params.cos_type)
     - name: cos_action
       value: $(params.cos_action)
-    - name: ibmcos_resourcegroup
-      value: $(params.ibmcos_resourcegroup)
+    - name: cos_resourcegroup
+      value: $(params.cos_resourcegroup)
     - name: ibmcloud_apikey
       value: $(params.ibmcloud_apikey)
     - name: ibmcloud_resourcegroup

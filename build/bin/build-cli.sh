@@ -9,7 +9,7 @@ else
   export GITHUB_WORKSPACE=$(pwd)
 fi
 
-sed -i "s#VERSION=latest#VERSION=${VERSION}#g" ${GITHUB_WORKSPACE}/image/cli/mascli/mas
+sed -i "s#VERSION=\"\${VERSION:-latest}\"#VERSION=${VERSION}#g" ${GITHUB_WORKSPACE}/image/cli/mascli/mas
 
 cd $GITHUB_WORKSPACE/image/cli/mascli
 chmod ug+x $GITHUB_WORKSPACE/image/cli/mascli/mas

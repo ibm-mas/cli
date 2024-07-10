@@ -18,8 +18,7 @@ class KafkaSettingsMixin():
             self.printDescription([
                 "Maximo IoT requires a shared system-scope Kafka instance",
                 "Supported Kafka providers: Strimzi, Red Hat AMQ Streams, IBM Cloud Event Streams and AWS MSK",
-                "You may also choose to configure MAS to use an existing Kafka instance by providing a pre-existing configuration file",
-                ""
+                "You may also choose to configure MAS to use an existing Kafka instance by providing a pre-existing configuration file"
             ])
             if self.yesOrNo("Create system Kafka instance using one of the supported providers"):
                 self.setParam("kafka_action_system", "install")
@@ -30,8 +29,7 @@ class KafkaSettingsMixin():
                     "  1. Strimzi (opensource)",
                     "  2. Red Hat AMQ Streams (requires a separate license)",
                     "  3. IBM Cloud Event Streams (paid IBM Cloud service)",
-                    "  4. AWS MSK (paid AWS service)",
-                    ""
+                    "  4. AWS MSK (paid AWS service)"
                 ])
                 self.promptForListSelect("Select Kafka provider", ["strimzi", "redhat", "ibm", "aws"], "kafka_provider")
 
@@ -41,8 +39,7 @@ class KafkaSettingsMixin():
                         "Strimzi: Cluster Version",
                         "The version of the Strimzi operator available on your cluster will determine the supported versions of Kafka that can be deployed.",
                         " - If you are using the latest available operator catalog then the default version below can be accepted",
-                        " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in your OperatorHub",
-                        ""
+                        " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in your OperatorHub"
                     ])
                     self.promptForString("Install namespace", "kafka_namespace", default="strimzi")
                     self.promptForString("Kafka version", "kafka_version", default="3.7.0")
@@ -53,8 +50,7 @@ class KafkaSettingsMixin():
                         "Red Hat AMQ Streams: Cluster Version",
                         "The version of the Red Hat AMQ Streams operator available on your cluster will determine the supported versions of Kafka that can be deployed.",
                         " - If you are using the latest available operator catalog then the default version below can be accepted",
-                        " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in your OperatorHub",
-                        ""
+                        " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in your OperatorHub"
                     ])
                     self.promptForString("Install namespace", "kafka_namespace", default="amq-streams")
                     self.promptForString("Kafka version", "kafka_version", default="3.5.0")
@@ -72,8 +68,7 @@ class KafkaSettingsMixin():
                         "While provisioning the AWS MSK instance, you will be required to provide the AWS Virtual Private Cloud ID and subnet details",
                         "where your instance will be deployed to properly configure inbound and outbound connectivity.",
                         "You should be able to find these information inside your VPC and subnet configurations in the target AWS account.",
-                        "For more details about AWS subnet/CIDR configuration, refer: https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html",
-                        ""
+                        "For more details about AWS subnet/CIDR configuration, refer: https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html"
                     ])
                     self.promptForString("AWS Access Key ID", "aws_access_key_id", isPassword=True)
                     self.promptForString("AWS Secret Access Key" "aws_secret_access_key", isPassword=True)

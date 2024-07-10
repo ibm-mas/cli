@@ -26,7 +26,7 @@ export LOG_DIR="$HOME/.ibm-mas/logs"
 export LOGFILE=$LOG_DIR/mas.log
 
 # Note: "latest" is overwritten with the actual version at build time
-export VERSION=latest
+export VERSION="${VERSION:-latest}"
 
 mkdir -p $LOG_DIR
 mkdir -p $CONFIG_DIR
@@ -49,7 +49,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/teardown_registry
 . $CLI_DIR/functions/mirror_images
 . $CLI_DIR/functions/mirror_redhat
-. $CLI_DIR/functions/configure_mirror
+. $CLI_DIR/functions/configure_airgap
 # Manage OIDC for configtool
 . $CLI_DIR/functions/configtool_oidc
 # Must Gather
@@ -155,9 +155,9 @@ case $1 in
     mirror_redhat "$@"
     ;;
 
-  configure-ocp-for-mirror|configure-airgap)
+  configure-airgap)
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
-    echo "!! configure-airgap                                                            !!" >> $LOGFILE
+    echo "!! configure-airgap                                                          !!" >> $LOGFILE
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
 
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap OCP Setup (v${VERSION})${TEXT_RESET}"
@@ -174,7 +174,7 @@ case $1 in
     # Take the first parameter off (it will be "install")
     shift
     # Run the new Python-based install
-    mas-install "$@"
+    mas-cli install "$@"
     ;;
 
   update)
@@ -196,7 +196,7 @@ case $1 in
     # Take the first parameter off (it will be "upgrade")
     shift
     # Run the new Python-based upgrade
-    mas-upgrade "$@"
+    mas-cli upgrade "$@"
     ;;
 
   uninstall)
@@ -206,7 +206,7 @@ case $1 in
     # Take the first parameter off (it will be "uninstall")
     shift
     # Run the new Python-based upgrade
-    mas-uninstall "$@"
+    mas-cli uninstall "$@"
     ;;
 
   mustgather|must-gather)

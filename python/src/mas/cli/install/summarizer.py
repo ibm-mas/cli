@@ -36,7 +36,7 @@ class InstallSummarizerMixin():
     def icrSummary(self) -> None:
         self.printH2("IBM Container Registry Credentials")
         self.printSummary("IBM Entitlement Key", f"{self.params['ibm_entitlement_key'][0:8]}&lt;snip&gt;")
-        if self.args.dev_mode:
+        if self.devMode:
             self.printSummary("Artifactory Username", self.params['artifactory_username'])
             self.printSummary("Artifactory Token", f"{self.params['artifactory_token'][0:8]}&lt;snip&gt;")
 
@@ -234,6 +234,16 @@ class InstallSummarizerMixin():
         self.printH2("IBM Suite License Service")
         self.printSummary("License File", self.slsLicenseFileLocal)
         self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
+
+    def eckSummary(self) -> None:
+        self.printH2("Elastic Cloud on Kubernetes")
+        if self.getParam("eck_action") == "install":
+            self.printSummary("ECK Integration", "Enabled")
+            self.printParamSummary("Logstash", "eck_enable_logstash")
+            self.printParamSummary("Remote Elasticsearch hosts", "eck_remote_es_hosts")
+            self.printParamSummary("Remote Elasticsearch username", "eck_remote_es_username")
+        else:
+            self.printSummary("ECK Integration", "Disabled")
 
     def turbonomicSummary(self) -> None:
         self.printH2("Turbonomic")
