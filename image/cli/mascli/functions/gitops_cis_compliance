@@ -124,6 +124,9 @@ function gitops_cis_compliance() {
     gitops_cis_compliance_interactive
   fi
 
+  # catch errors
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}
 

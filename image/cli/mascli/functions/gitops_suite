@@ -345,6 +345,9 @@ function gitops_suite() {
     gitops_suite_interactive
   fi
 
+  # catch errors
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
   export DOMAIN=${MAS_DOMAIN}
   if [[ "${DNS_PROVIDER}" == "cis" ]]; then
     export CIS_ENHANCED_SECURITY=${CIS_ENHANCED_SECURITY:-"true"}
@@ -536,6 +539,7 @@ function gitops_suite() {
   ESCAPED_INFO=${UNESCAPED_MONGO_INFO//\"/\\\"}
   ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
   sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$INSTANCE_MONGO_USERNAME\", \"password\": \"$INSTANCE_MONGO_PASSWORD\"}"
+  
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
