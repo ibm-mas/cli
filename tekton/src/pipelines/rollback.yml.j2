@@ -66,7 +66,7 @@ spec:
     # 0. Wait for the install pipeline to complete
     # -------------------------------------------------------------------------
     - name: wait-for-install
-      timeout: 0
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-tekton
@@ -95,7 +95,7 @@ spec:
     # -------------------------------------------------------------------------
     # Suite Rollback
     - name: core-rollback
-      timeout: 0
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-suite-rollback
@@ -121,7 +121,7 @@ spec:
     # -------------------------------------------------------------------------
     # Manage App Rollback
     - name: manage-rollback
-      timeout: 0
+      timeout: "0"
       runAfter:
         - core-rollback
       params:
@@ -160,7 +160,7 @@ spec:
     # 5. Verify MAS core version after the rollback complete
     # -------------------------------------------------------------------------
     - name: post-rollback-verify-core-version
-      timeout: 0
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-suite-rollback
@@ -187,7 +187,7 @@ spec:
     # 6. Verify MAS Manage App version after the rollback complete
     # -------------------------------------------------------------------------
     - name: post-rollback-verify-app-version
-      timeout: 0
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-suite-app-rollback
@@ -224,7 +224,7 @@ spec:
     # Finalize the record in the FVT database
     # -------------------------------------------------------------------------
     - name: finalize
-      timeout: 0
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-fvt-finalize
