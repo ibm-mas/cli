@@ -93,7 +93,7 @@ spec:
         {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
           value: base-api-upgrade-post
-    
+
     # Manage Tests Post Upgrade (UI)
     - name: fvt-manage-base-ui-upgrade-post
       {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(6) }}
