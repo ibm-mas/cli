@@ -49,11 +49,11 @@ class WorkspaceIDFormatValidator(Validator):
             raise ValidationError(message='Workspace ID does not meet the requirements', cursor_position=len(instanceId))
 
 class TimeoutFormatValidator(Validator):
-    def validate(self, string_to_validate : str):
+    def validate(self, document):
         """
         Validate that a MAS instance ID exists on the target cluster
         """
-
+        string_to_validate = document.text
         if not match(r'^([0-9]+)([hm])$', string_to_validate):
             message = f"Error: Your input: {string_to_validate} does not meet the required pattern. Please use it in hours or minutes format (e.g., 12h, 12m)."
             raise ValidationError(message=message, cursor_position=len(string_to_validate))
