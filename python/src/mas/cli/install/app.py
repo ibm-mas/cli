@@ -12,7 +12,7 @@
 import logging
 import logging.handlers
 from sys import exit
-from os import path
+from os import path, environ
 import re
 import re
 
@@ -197,17 +197,29 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "Using default SSO properties"
             ])
         else:
-            idleTimeout =self.promptForInt("Enter the idleTimeout (in seconds)", default=1800)
-            self.setParam("IDLE_TIMEOUT", idleTimeout)
-            self.printDescription([
-                f"Idle Timeout set to: {idleTimeout} seconds"
-            ])
+            self.promptForInt("Enter the idleTimeout (in seconds)", "IDLE_TIMEOUT", default=1800)
+            idle_time_out = environ.get("IDLE_TIMEOUT")
+            self.printH1(idle_time_out)
 
             self.promptForString("Enter the IDP session timeout (e.g., '12h' for 12 hours)", "IDP_SESSION_TIMEOUT", validator=TimeoutFormatValidator(), default="12h")
+            IDP_SESSION_TIMEOUT = environ.get("IDP_SESSION_TIMEOUT")
+            self.printH1(IDP_SESSION_TIMEOUT)
+
             self.promptForString("Enter the access token timeout (e.g., '30m' for 30 minutes)", "ACCESS_TOKEN_TIMEOUT", validator=TimeoutFormatValidator(), default="30m")
+            ACCESS_TOKEN_TIMEOUT = environ.get("ACCESS_TOKEN_TIMEOUT")
+            self.printH1(ACCESS_TOKEN_TIMEOUT)
+
             self.promptForString("Enter the refresh token timeout (e.g., '12h' for 12 hours)", "REFRESH_TOKEN_TIMEOUT", validator=TimeoutFormatValidator(), default="12h")
-            self.promptForString("Enter the default Identity Provider (IDP)", default="local")
-            self.yesOrNo("Enable seamless login?", param="SEAMLESS_LOGIN")
+            REFRESH_TOKEN_TIMEOUT = environ.get("REFRESH_TOKEN_TIMEOUT")
+            self.printH1(REFRESH_TOKEN_TIMEOUT)
+
+            self.promptForString("Enter the default Identity Provider (IDP)", "DEFAULT_IDP",default="local")
+            DEFAULT_IDP = environ.get("DEFAULT_IDP")
+            self.printH1(DEFAULT_IDP)
+
+            self.yesOrNo("Enable seamless login?", "SEAMLESS_LOGIN" ,param="SEAMLESS_LOGIN")
+            SEAMLESS_LOGIN = environ.get("SEAMLESS_LOGIN")
+            self.printH1(SEAMLESS_LOGIN)
 
     def configMAS(self):
         self.printH1("Configure MAS Instance")
