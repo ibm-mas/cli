@@ -667,7 +667,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             "aws_vpc_id",
             # TODO: The way arcgis has been implemented needs to be fixed
             "install_arcgis",
-            "mas_arcgis_channel",
+            "mas_arcgis_channel"
         ]
 
         for key, value in vars(args).items():
