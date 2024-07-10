@@ -181,7 +181,7 @@ class AdditionalConfigsMixin():
             self.certsSecret = certsSecret
 
 
-def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str='') -> dict:
+    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str='') -> dict:
         """
         Add file (or files) to pipeline-additional-configs
         """
