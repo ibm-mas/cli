@@ -144,7 +144,7 @@ class AdditionalConfigsMixin():
 
             self.certsSecret = certsSecret
 
-    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str) -> dict:
+    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str='') -> dict:
         """
         Add file (or files) to pipeline-additional-configs
         """
@@ -167,6 +167,6 @@ class AdditionalConfigsMixin():
             # Add/update an entry to the secret data
             if "data" not in secretDict:
                 secretDict["data"] = {}
-            secretDict["data"][fileName] = b64encode(data.encode('ascii')).decode("ascii")
+            secretDict["data"][keyPrefix + fileName] = b64encode(data.encode('ascii')).decode("ascii")
 
         return secretDict
