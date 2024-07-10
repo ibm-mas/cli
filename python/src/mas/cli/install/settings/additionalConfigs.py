@@ -124,32 +124,61 @@ class AdditionalConfigsMixin():
 
     def manualCertificates(self) -> None:
 
-        certsSecret = {
-            "apiVersion": "v1",
-            "kind": "Secret",
-            "type": "Opaque",
-            "metadata": {
-                "name": "pipeline-certificates"
-            }
-        }
-
         if self.getParam("mas_manual_cert_mgmt"):
-            with (self.getParam("mas_manual_cert_dir")) as certpath:
+            certsSecret = {
+                "apiVersion": "v1",
+                "kind": "Secret",
+                "type": "Opaque",
+                "metadata": {
+                    "name": "pipeline-certificates"
+                }
+            }
 
-                extensions = ["key", "crt"]
-                manualCertsSecret = certsSecret
-                for ext in extensions:
-                    manualCertsSecret = self.addFilesToSecret(manualCertsSecret, self.getParam("mas_manual_cert_dir")+'/core/', ext, "core.")
-                    logger.debug(manualCertsSecret) 
-                    self.manualCertsSecret = manualCertsSecret
-                    
-                if self.getParam("appchannel") != "":
-                    for app in apps:
-                        for ext in extensions:
-                            manualCertsSecret = self.addFilesToSecret(manualCertsSecret, self.getParam("mas_manual_cert_dir")+'/'+app+'/', ext, app+'.')
-                            logger.debug(manualCertsSecret) 
-                            self.manualCertsSecret = manualCertsSecret
+            extensions = ["key", "crt"]
 
+            apps = {
+                "mas_app_channel_assist": {
+                        "dir": self.getParam("mas_manual_cert_dir") + "/assist/",
+                        "keyPrefix": "assist."
+                    },
+                "mas_app_channel_manage": {
+                        "dir": self.getParam("mas_manual_cert_dir") + "/assist/",
+                        "keyPrefix": "assist."
+                    },
+                "mas_app_channel_iot": {
+                        "dir": self.getParam("mas_manual_cert_dir") + "/iot/",
+                        "keyPrefix": "iot."
+                    },
+                "mas_app_channel_monitor": {
+                        "dir": self.getParam("mas_manual_cert_dir") + "/monitor/",
+                        "keyPrefix": "monitor."
+                    },
+                "mas_app_channel_predict": {
+                        "dir": self.getParam("mas_manual_cert_dir") + "/predict/",
+                        "keyPrefix": "predict."
+                    },
+                "mas_app_channel_visualinspection": {
+                        "dir": self.getParam("mas_manual_cert_dir") + "/visualinspection/",
+                        "keyPrefix": "visualinspection."
+                    },
+                "mas_app_channel_optimizer": {
+                        "dir": self.getParam("mas_manual_cert_dir") + "/optimizer/",
+                        "keyPrefix": "optimizer." 
+                    }
+                }
+            
+            for ext in extensions:
+                certsSecret = self.addFilesToSecret(certsSecret, self.getParam("mas_manual_cert_dir")+'/core/', ext, "core.")
+            
+            for app in apps:
+                if self.getParam(app) != "":
+                    for file in ["ca.crt", "tls.cert", "tls.key"]:
+                        if file not in glob(f'{app["dir"]}/*'):
+                            self.fatalError(f'{file} is not present in {app["dir"]}')
+                    for ext in extensions:
+                        certsSecret = self.addFilesToSecret(certsSecret, app["dir"], ext, app["keyPrefix"])
+
+            self.certsSecret = certsSecret
 
 
 def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str='') -> dict:
