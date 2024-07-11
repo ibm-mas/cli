@@ -206,6 +206,11 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
+    - name: kafka_provider
+      type: string
+      description: Optional Valid kafka provider e.g. strimzi, redhat
+      default: ""
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -323,6 +328,8 @@ spec:
       # Custom Label Support
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
+      - name: KAFKA_PROVIDER
+        value: $(params.kafka_provider)
 
   steps:
     - name: suite-app-config
