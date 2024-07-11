@@ -172,7 +172,7 @@ class AdditionalConfigsMixin():
             
             for app in apps:
                 if self.getParam(app) != "":
-                    for file in ["ca.crt", "tls.cert", "tls.key"]:
+                    for file in ["ca.crt", "tls.crt", "tls.key"]:
                         if file not in map(path.basename, glob(f'{apps[app]["dir"]}/*')):
                             self.fatalError(f'{file} is not present in {apps[app]["dir"]}')
                     for ext in extensions:
