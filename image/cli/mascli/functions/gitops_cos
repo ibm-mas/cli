@@ -117,6 +117,10 @@ function gitops_cos() {
     exit 1
     gitops_cos_interactive
   fi
+  
+  # catch errors
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
   rm -rf $GITOPS_WORKING_DIR
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
@@ -164,16 +168,16 @@ function gitops_cos() {
   
   # Extract the required details from the generated coscfg/secret.
   export COS_USERNAME
-  COS_USERNAME=$(yq -sr '.[0].stringData.username' $MAS_CONFIG_DIR/cos-ibm-system.yml)
+  COS_USERNAME=$(yq 'select(di == 0) | .stringData.username' $MAS_CONFIG_DIR/cos-ibm-system.yml)
   rc=$?
   [ $rc -ne 0 ] && exit $rc
   export COS_PASSWORD
-  COS_PASSWORD=$(yq -sr '.[0].stringData.password' $MAS_CONFIG_DIR/cos-ibm-system.yml)
+  COS_PASSWORD=$(yq 'select(di == 0) | .stringData.password' $MAS_CONFIG_DIR/cos-ibm-system.yml)
   rc=$?
   [ $rc -ne 0 ] && exit $rc
-  yq -sY  '.[1].spec' $MAS_CONFIG_DIR/cos-ibm-system.yml >> $TEMP_DIR/cos-info.yaml
-  yq -iY 'del(.config.credentials)' $TEMP_DIR/cos-info.yaml
-  yq -iY 'del(.displayName)' $TEMP_DIR/cos-info.yaml
+  yq 'select(di == 1) | .spec' $MAS_CONFIG_DIR/cos-ibm-system.yml >> $TEMP_DIR/cos-info.yaml
+  yq -i 'del(.config.credentials)' $TEMP_DIR/cos-info.yaml
+  yq -i 'del(.displayName)' $TEMP_DIR/cos-info.yaml
 
   UNESCAPED_INFO="$(cat $TEMP_DIR/cos-info.yaml)"
   ESCAPED_INFO=${UNESCAPED_INFO//\"/\\\"}

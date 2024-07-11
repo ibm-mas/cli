@@ -18,6 +18,16 @@ customization_archive_secret_names:
 {%- endfor %}
 {%- endif %}
 
+{%- if MANAGE_LOGGING_SECRET_NAME is defined and MANAGE_LOGGING_SECRET_NAME !='' %}
+manage_logging_secret_name: {{ MANAGE_LOGGING_SECRET_NAME }}
+manage_logging_access_secret_key: <path:{{ SECRETS_PATH }}:{{ MANAGE_LOGGING_SECRET }}{{ manage_logging_secret_name }}#access_secret_key>
+{%- endif %}
+
+{%- if MANAGE_ATTACHMENTS_SECRET_NAME is defined and MANAGE_ATTACHMENTS_SECRET_NAME !='' %}
+manage_attachments_secret_name: {{ MANAGE_ATTACHMENTS_SECRET_NAME }}
+manage_attachments_access_secret_key: <path:{{ SECRETS_PATH }}:{{ MANAGE_ATTACHMENTS_SECRET }}{{ manage_attachments_secret_name }}#access_secret_key>
+{%- endif %}
+
 {{ MAS_APPWS_SPEC | indent(2) }}
 
 {% if MAS_MANUAL_CERT_MGMT == 'True' %}

@@ -1,4 +1,5 @@
 - name: cos
+  timeout: "0"
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
@@ -17,13 +18,13 @@
       value: $(params.ibmcloud_apikey)
     - name: cos_resourcegroup
       value: $(params.cos_resourcegroup)
-  
+
     - name: custom_labels
       value: $(params.custom_labels)
   taskRef:
     kind: Task
     name: mas-devops-cos
-  
+
   # Only install COS if Assist or Manage applications are being installed
   when:
     - input: "$(params.cos_type)"

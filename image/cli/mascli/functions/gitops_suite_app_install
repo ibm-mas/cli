@@ -220,6 +220,9 @@ function gitops_suite_app_install() {
     gitops_suite_app_install_interactive
   fi
 
+  # catch errors
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
 
@@ -346,12 +349,12 @@ function gitops_suite_app_install() {
   if [[ -n "$MAS_APP_SPEC_YAML" ]] && [[ -s "$MAS_APP_SPEC_YAML" ]]; then
     echo
     echo_h2 "Using application spec provided for $MAS_APP_ID at $MAS_APP_SPEC_YAML"
-    export MAS_APP_SPEC=$(cat ${MAS_APP_SPEC_YAML} | yq -r '.' --yaml-output)
+    export MAS_APP_SPEC=$(cat ${MAS_APP_SPEC_YAML} | yq '.' --output-format yaml)
   else
     echo
     echo_h2 "Using default application spec for $MAS_APP_ID"
     jinja -X .+ $CLI_DIR/templates/gitops/app-spec-defaults/${MAS_APP_ID}.yaml.j2 -o ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml
-    export MAS_APP_SPEC=$(cat ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml | yq -r '.' --yaml-output)
+    export MAS_APP_SPEC=$(cat ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml | yq '.' --output-format yaml)
   fi
   echo_reset_dim "MAS_APP_SPEC ............................ ${COLOR_MAGENTA}${MAS_APP_SPEC}"
   reset_colors
@@ -379,9 +382,9 @@ function gitops_suite_app_install() {
         ca_crt_filter_query=.manual_certs.${MAS_APP_ID}_ca_crt
 
         export PUBLIC_TLS_SECRET_NAME=${tls_secret_name[$MAS_APP_ID]}
-        export TLS_CERT=$(/usr/bin/yq eval "$tls_crt_filter_query" ${MAS_MANUAL_CERTS_YAML})
-        export TLS_KEY=$(/usr/bin/yq eval  "$tls_key_filter_query" ${MAS_MANUAL_CERTS_YAML})
-        export CA_CERT=$(/usr/bin/yq eval  "$ca_crt_filter_query"  ${MAS_MANUAL_CERTS_YAML})
+        export TLS_CERT=$(yq eval "$tls_crt_filter_query" ${MAS_MANUAL_CERTS_YAML})
+        export TLS_KEY=$(yq eval  "$tls_key_filter_query" ${MAS_MANUAL_CERTS_YAML})
+        export CA_CERT=$(yq eval  "$ca_crt_filter_query"  ${MAS_MANUAL_CERTS_YAML})
 
         echo -e "\n - PUBLIC_TLS_SECRET_NAME ................ ${PUBLIC_TLS_SECRET_NAME}"
         echo -e "\n - CA_CERT CONTENT ....................... ${CA_CERT}"

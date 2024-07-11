@@ -297,9 +297,9 @@ spec:
 
         ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
         if [ -f $ROSA_CONFIG ]; then
-          export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
-          export OCP_USERNAME=$(cat $ROSA_CONFIG | yq -r '.data.username')
-          export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq -r '.data.admin_password')
+          export OCP_SERVER=$(cat $ROSA_CONFIG | yq '.data.api_url')
+          export OCP_USERNAME=$(cat $ROSA_CONFIG | yq '.data.username')
+          export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq '.data.admin_password')
           oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
           OC_RC=$?
           if [ $OC_RC -ne 0 ]; then
@@ -448,7 +448,7 @@ spec:
         - -c
       name: gitops-mas-fvt-preparer
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:10.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:10.2.0-pre.gitops
   workspaces:
     - name: configs
     - name: shared-additional-configs

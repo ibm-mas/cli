@@ -98,7 +98,7 @@ spec:
         - /bin/sh
         - -c
       name: gitops-deprovision-cos
-      imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:10.1.0-pre.gitops
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:10.2.0-pre.gitops
   workspaces:
     - name: configs

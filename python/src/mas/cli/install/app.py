@@ -18,20 +18,16 @@ import re
 from openshift.dynamic.exceptions import NotFoundError
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
-from urllib3.exceptions import MaxRetryError
-from jinja2.exceptions import TemplateNotFound
-from kubeconfig.exceptions import KubectlCommandError
-from kubernetes.client.exceptions import ApiException
 
 from tabulate import tabulate
 
 from halo import Halo
 
-from mas.cli.cli import BaseApp
-from mas.cli.gencfg import ConfigGeneratorMixin
-from mas.cli.install.argParser import installArgParser
-from mas.cli.install.settings import InstallSettingsMixin
-from mas.cli.install.summarizer import InstallSummarizerMixin
+from ..cli import BaseApp
+from ..gencfg import ConfigGeneratorMixin
+from .argParser import installArgParser
+from .settings import InstallSettingsMixin
+from .summarizer import InstallSummarizerMixin
 
 from mas.cli.validators import (
   InstanceIDFormatValidator,
@@ -46,23 +42,23 @@ from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions
 
 logger = logging.getLogger(__name__)
 
-class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin):
+
+class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin):
     def validateCatalogSource(self):
         catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
         try:
             catalog = catalogsAPI.get(name="ibm-operator-catalog", namespace="openshift-marketplace")
             catalogDisplayName = catalog.spec.displayName
-            catalogImage = catalog.spec.image
 
             m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
             if m:
                 # catalogId = v8-yymmdd-amd64
                 # catalogVersion = yymmdd
                 catalogId = m.group("catalogId")
-                catalogVersion = m.group("catalogVersion")
             elif re.match(r".+v8-amd64", catalogDisplayName):
                 catalogId = "v8-amd64"
-                catalogVersion = "v8-amd64"
+            else:
+                self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
 
             if catalogId != self.getParam("mas_catalog_version"):
                 self.fatalError(f"IBM Maximo Operator Catalog {catalogId} is already installed on this cluster, if you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
@@ -82,10 +78,11 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             serviceAPI.get(name="image-registry", namespace="openshift-image-registry")
         except NotFoundError:
             self.fatalError(
-                "\n".join[
+                "\n".join([
                     "Unable to proceed with installation of Maximo Manage.  Could not detect the required \"image-registry\" service in the openshift-image-registry namespace",
                     "For more information refer to <u>https://www.ibm.com/docs/en/masv-and-l/continuous-delivery?topic=installing-enabling-openshift-internal-image-registry</u>"
                 ])
+            )
 
     def licensePrompt(self):
         licenses = {
@@ -109,7 +106,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
                     exit(1)
 
     def configICR(self):
-        if self.args.dev_mode:
+        if self.devMode:
             self.setParam("mas_icr_cp", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local")
             self.setParam("mas_icr_cpopen", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen")
             self.setParam("sls_icr_cpopen", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen")
@@ -121,7 +118,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
     def configICRCredentials(self):
         self.printH1("Configure IBM Container Registry")
         self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
-        if self.args.dev_mode:
+        if self.devMode:
             self.promptForString("Artifactory username", "artifactory_username", isPassword=True)
             self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
 
@@ -132,9 +129,9 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
 
     def configCatalog(self):
         self.printH1("IBM Maximo Operator Catalog Selection")
-        if self.args.dev_mode:
+        if self.devMode:
             self.promptForString("Select catalog source", "mas_catalog_version", default="v9-master-amd64")
-            self.promptForString("Select channel", "mas_channel", default="9.0.x-dev")
+            self.promptForString("Select channel", "mas_channel", default="9.1.x-dev")
         else:
             print(tabulate(self.installOptions, headers="keys", tablefmt="simple_grid"))
             catalogSelection = self.promptForInt("Select catalog and release", default=1)
@@ -199,7 +196,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             " - Must start with a lowercase letter",
             " - Must end with a lowercase letter or a number"
         ])
-        self.promptForString("Instance ID", "mas_instance_id", validator=InstanceIDFormatValidator(), default="dev1")
+        self.promptForString("Instance ID", "mas_instance_id", validator=InstanceIDFormatValidator())
         self.printDescription([
             "",
             "Workspace ID restrictions:",
@@ -207,13 +204,13 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             " - Must only use lowercase letters and numbers",
             " - Must start with a lowercase letter"
         ])
-        self.promptForString("Workspace ID", "mas_workspace_id", validator=WorkspaceIDFormatValidator(), default="ws1")
+        self.promptForString("Workspace ID", "mas_workspace_id", validator=WorkspaceIDFormatValidator())
         self.printDescription([
             "",
             "Workspace display name restrictions:",
             " - Must be 3-300 characters long"
         ])
-        self.promptForString("Workspace name", "mas_workspace_name", validator=WorkspaceNameFormatValidator(), default="My Workspace")
+        self.promptForString("Workspace name", "mas_workspace_name", validator=WorkspaceNameFormatValidator())
 
         self.configOperationMode()
         self.configCATrust()
@@ -387,6 +384,8 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             self.installAssist = self.yesOrNo("Install Assist")
             if self.installAssist:
                 self.configAppChannel("assist")
+        else:
+            self.installAssist = False
 
         self.installOptimizer = self.yesOrNo("Install Optimizer")
         if self.installOptimizer:
@@ -511,8 +510,9 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
 
         # Catalog
         self.configCatalog()
-        self.validateCatalogSource()
-        self.licensePrompt()
+        if not self.devMode:
+            self.validateCatalogSource()
+            self.licensePrompt()
 
         # SNO & Storage Classes
         self.configSNO()
@@ -663,7 +663,7 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
             "mas_arcgis_channel"
         ]
 
-        for key, value in vars(args).items():
+        for key, value in vars(self.args).items():
             # These fields we just pass straight through to the parameters and fail if they are not set
             if key in requiredParams:
                 if value is None:
@@ -770,19 +770,30 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
                 self.fatalError(f"Unknown option: {key} {value}")
 
         # Once we've processed the inputs, we should validate the catalog source & prompt to accept the license terms
-        self.validateCatalogSource()
-        self.licensePrompt()
+        if not self.devMode:
+            self.validateCatalogSource()
+            self.licensePrompt()
 
-    def install(self, args):
+    def install(self, argv):
         """
         Install MAS instance
         """
+        args = installArgParser.parse_args(args=argv)
+
+        # We use the presence of --mas-instance-id to determine whether
+        # the CLI is being started in interactive mode or not
         instanceId = args.mas_instance_id
+
+        # Properties for arguments that control the behavior of the CLI
         self.noConfirm = args.no_confirm
         self.waitForPVC = not args.no_wait_for_pvc
         self.licenseAccepted = args.accept_license
+        self.devMode = args.dev_mode
 
+        # Store all args
         self.args = args
+
+        # Initialize the dictionary that will hold the parameters we pass to the PipelineRun
         self.params = dict()
 
         # These flags work for setting params in both interactive and non-interactive modes
@@ -954,25 +965,3 @@ class App(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGenerator
                 else:
                     h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {self.getParam('mas_instance_id')} install, see log file for details")
                     print()
-
-
-if __name__ == '__main__':
-    args = installArgParser.parse_args()
-
-    try:
-        app = App()
-        app.install(args)
-    except KeyboardInterrupt as e:
-        pass
-    except ApiException as e:
-        logger.exception(e, stack_info=True)
-        app.fatalError(message=f"An error occured communicating with the target server: {e.reason} ({e.status})")
-    except MaxRetryError as e:
-        logger.exception(e, stack_info=True)
-        app.fatalError(message="Unable to connect to API server", exception=e)
-    except TemplateNotFound as e:
-        logger.exception(e, stack_info=True)
-        app.fatalError("Could not find template", exception=e)
-    except KubectlCommandError as e:
-        logger.exception(e, stack_info=True)
-        app.fatalError("Could not execute kubectl command", exception=e)

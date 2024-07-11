@@ -231,41 +231,44 @@ spec:
         cd $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO
 
         if [[ "${MANUAL_CERTS_CONTROL_FLAG}" != "True" ]]; then
-          yq -iY 'del(.dns.manual_certs)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+          yq -i 'del(.dns.manual_certs)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
           echo "gitops-mas-initiator: removed .dns.manual_certs node"
         fi
 
         # Update the domain name in the mas-instance-params.yaml. Assume fvtsaas here
         export ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
-        export OCP_SERVER=$(cat $ROSA_CONFIG | yq -r '.data.api_url')
+        export OCP_SERVER=$(cat $ROSA_CONFIG | yq '.data.api_url')
         export DOMAIN=$(echo -n $OCP_SERVER | sed -n -e 's/^.*api.//p' | cut -d: -f1)
-        yq --arg MASDOMAIN fvtsaas.apps.$DOMAIN -iY '.mas_instance.domain= $MASDOMAIN' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+        export MASDOMAIN=fvtsaas.apps.$DOMAIN
+        export APPSDOMAIN=apps.$DOMAIN
+
+        yq -i '.mas_instance.domain = env(MASDOMAIN)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
 
         # Update the ocp server url & ingress domain url in the cluster-params.yaml. Assume fvtsaas here
-        yq --arg URL $OCP_SERVER -iY '.cluster.url= $URL' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
-        yq --arg URL apps.$DOMAIN -iY '.cluster.domain= $URL' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+        yq -i '.cluster.url = env(OCP_SERVER)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+        yq -i '.cluster.domain = env(APPSDOMAIN)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
 
         # Update the channel in the mas-instance-params.yaml. Assume fvtsaas here
-        yq --arg MAS_CHANNEL $MAS_CHANNEL -iY '.mas_instance.channel= $MAS_CHANNEL' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+        yq -i '.mas_instance.channel = env(MAS_CHANNEL)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
 
         # Update the operationalmode in the mas-instance-params.yaml. Assume fvtsaas here
-        yq --arg MAS_OPERATIONALMODE $MAS_OPERATIONALMODE -iY '.mas_instance.annotations."mas.ibm.com/operationalMode"= $MAS_OPERATIONALMODE' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+        yq -i '.mas_instance.annotations."mas.ibm.com/operationalMode" = env(MAS_OPERATIONALMODE)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
 
         # Remove dns node when DNS_PROVIDER_CONTROL_IDEN is not set
         if [ "${DNS_PROVIDER_CONTROL_IDEN}" == "" ]; then
-          yq -iY 'del(.dns)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
-          yq -iY 'del(.cluster.dns)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+          yq -i 'del(.dns)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+          yq -i 'del(.cluster.dns)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
           echo "gitops-mas-initiator: removed .dns / .cluster.dns node from gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml & gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml"
         fi
 
         # Deploy fvtsaas with CIS as DNS provider and Manual_certs=True on Mon, Tue, Wed, Thu, Fri
         # Deploy fvtsaas with CIS as DNS provider and Manual_certs=False on Sun
 
-        yq --arg MANUAL_CERTS_CONTROL_FLAG $MANUAL_CERTS_CONTROL_FLAG -iY '.mas_instance.manual_cert_mgmt= $MANUAL_CERTS_CONTROL_FLAG' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+        yq -i '.mas_instance.manual_cert_mgmt = env(MANUAL_CERTS_CONTROL_FLAG) | .mas_instance.manual_cert_mgmt style="double"' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
         echo "gitops-mas-initiator: .mas_instance.manual_cert_mgmt set to $MANUAL_CERTS_CONTROL_FLAG"
 
         if [[ "${DNS_PROVIDER_CONTROL_IDEN}" == "cis" ]]; then
-          yq --arg DNS_PROVIDER_CONTROL_IDEN $DNS_PROVIDER_CONTROL_IDEN -iY '.cluster.dns.provider= $DNS_PROVIDER_CONTROL_IDEN' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+          yq -i '.cluster.dns.provider = env(DNS_PROVIDER_CONTROL_IDEN)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
           echo "gitops-mas-initiator: .cluster.dns.provider set to $DNS_PROVIDER_CONTROL_IDEN in gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml"
         fi
 
@@ -273,7 +276,7 @@ spec:
         if [ -f "gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/appws_spec_manage.yaml" ]; then
 
           MAS_APPWS_SPEC_YAML=gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/appws_spec_manage.yaml
-          secret_names=$(/usr/bin/yq eval '.mas_appws_spec.settings.customizationList | to_entries | .[].value.customizationArchiveCredentials.secretName' ${MAS_APPWS_SPEC_YAML})
+          secret_names=$(yq eval '.mas_appws_spec.settings.customizationList | to_entries | .[].value.customizationArchiveCredentials.secretName' ${MAS_APPWS_SPEC_YAML})
           for customization_archive_secret_name in ${secret_names[@]}; do
 
             export CUSTOMIZATION_ARCHIVE_SECRET=${ACCOUNT}${SECRETS_KEY_SEPERATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPERATOR}fvtsaas${SECRETS_KEY_SEPERATOR}
@@ -305,38 +308,38 @@ spec:
         fi
         # Update the app channels in the mas-apps-params.yaml. Assume fvtsaas here
         if [ -n $MAS_APP_CHANNEL_ASSIST ]; then
-          yq --arg MAS_APP_CHANNEL_ASSIST $MAS_APP_CHANNEL_ASSIST -iY '(. | select(has("assist")?).assist.app_channel)= $MAS_APP_CHANNEL_ASSIST' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+          yq -i '(. | select(has("assist")) |  .assist.app_channel) = env(MAS_APP_CHANNEL_ASSIST)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
           # Assist not supported in v8 due to no CP4D WD support
           if [[ "$MAS_APP_CHANNEL_ASSIST" =~ ^8\. ]]; then
-            yq -iY 'del(.assist)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+            yq -i 'del(.assist)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
             echo "gitops-mas-initiator: removed .assist node"
-            yq -iY '.launchfvt.assist= false' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-fvt-params.yaml
+            yq -i '.launchfvt.assist = false' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-fvt-params.yaml
             echo "gitops-mas-initiator: set .launchfvt.assist to false"
           fi
         fi
         if [ -n $MAS_APP_CHANNEL_IOT ]; then
-          yq --arg MAS_APP_CHANNEL_IOT $MAS_APP_CHANNEL_IOT -iY '(. | select(has("iot")?).iot.app_channel)= $MAS_APP_CHANNEL_IOT' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+          yq -i '(. | select(has("iot")) |  .iot.app_channel) = env(MAS_APP_CHANNEL_IOT)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
         fi
         if [ -n $MAS_APP_CHANNEL_MANAGE ]; then
-          yq --arg MAS_APP_CHANNEL_MANAGE $MAS_APP_CHANNEL_MANAGE -iY '(. | select(has("manage")?).manage.app_channel)= $MAS_APP_CHANNEL_MANAGE' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+          yq -i '(. | select(has("manage")) |  .manage.app_channel) = env(MAS_APP_CHANNEL_MANAGE)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
         fi
         if [ -n $MAS_APP_CHANNEL_MONITOR ]; then
-          yq --arg MAS_APP_CHANNEL_MONITOR $MAS_APP_CHANNEL_MONITOR -iY '(. | select(has("monitor")?).monitor.app_channel)= $MAS_APP_CHANNEL_MONITOR' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+          yq -i '(. | select(has("monitor")) |  .monitor.app_channel) = env(MAS_APP_CHANNEL_MONITOR)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
         fi
         if [ -n $MAS_APP_CHANNEL_OPTIMIZER ]; then
-          yq --arg MAS_APP_CHANNEL_OPTIMIZER $MAS_APP_CHANNEL_OPTIMIZER -iY '(. | select(has("optimizer")?).optimizer.app_channel)= $MAS_APP_CHANNEL_OPTIMIZER' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+          yq -i '(. | select(has("optimizer")) |  .optimizer.app_channel) = env(MAS_APP_CHANNEL_OPTIMIZER)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
         fi
         if [ -n $MAS_APP_CHANNEL_PREDICT ]; then
-          yq --arg MAS_APP_CHANNEL_PREDICT $MAS_APP_CHANNEL_PREDICT -iY '(. | select(has("predict")?).predict.app_channel)= $MAS_APP_CHANNEL_PREDICT' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+          yq -i '(. | select(has("predict")) |  .predict.app_channel) = env(MAS_APP_CHANNEL_PREDICT)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
         fi
         if [ -n $MAS_APP_CHANNEL_VISUALINSPECTION ]; then
-          yq --arg MAS_APP_CHANNEL_VISUALINSPECTION $MAS_APP_CHANNEL_VISUALINSPECTION -iY '(. | select(has("visualinspection")?).visualinspection.app_channel)= $MAS_APP_CHANNEL_VISUALINSPECTION' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+          yq -i '(. | select(has("visualinspection")) |  .visualinspection.app_channel) = env(MAS_APP_CHANNEL_VISUALINSPECTION)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
         fi
 
         # Update the cli_version and ansible_fvt ansible version if mas_fvt_params exists
         if [ -f gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-fvt-params.yaml ]; then
-          yq --arg CLI_VERSION $CLI_VERSION -iY '.fvt.cli_version= $CLI_VERSION' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-fvt-params.yaml
-          yq --arg FVT_ANSIBLE_VERSION $FVT_ANSIBLE_VERSION -iY '.fvt.ansible_version= $FVT_ANSIBLE_VERSION' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-fvt-params.yaml
+          yq -i '.fvt.cli_version = env(CLI_VERSION)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-fvt-params.yaml
+          yq -i '.fvt.ansible_version = env(FVT_ANSIBLE_VERSION)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-fvt-params.yaml
         fi
 
         echo "git: Adding all files in $TARGET_LOCAL_DIR working directory"
@@ -392,6 +395,6 @@ spec:
         - -c
       name: gitops-mas-initiator
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:10.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:10.2.0-pre.gitops
   workspaces:
     - name: configs

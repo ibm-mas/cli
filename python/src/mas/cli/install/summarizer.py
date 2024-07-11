@@ -36,7 +36,7 @@ class InstallSummarizerMixin():
     def icrSummary(self) -> None:
         self.printH2("IBM Container Registry Credentials")
         self.printSummary("IBM Entitlement Key", f"{self.params['ibm_entitlement_key'][0:8]}&lt;snip&gt;")
-        if self.args.dev_mode:
+        if self.devMode:
             self.printSummary("Artifactory Username", self.params['artifactory_username'])
             self.printSummary("Artifactory Token", f"{self.params['artifactory_token'][0:8]}&lt;snip&gt;")
 

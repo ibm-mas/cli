@@ -218,19 +218,19 @@ spec:
         # Parse MAS variables from json to dict        
 
         MAS_ANNOTATIONS=$(echo "${MAS_ANNOTATIONS}" | sed "s/'/\"/g")
-        export MAS_ANNOTATIONS=$(echo "${MAS_ANNOTATIONS}" | yq --yaml-output)
+        export MAS_ANNOTATIONS=$(echo "${MAS_ANNOTATIONS}" | yq --output-format yaml)
         echo " MAS_ANNOTATIONS = ${MAS_ANNOTATIONS}"
 
         MAS_IMAGE_TAGS=$(echo "${MAS_IMAGE_TAGS}" | sed "s/'/\"/g")
-        export MAS_IMAGE_TAGS=$(echo "${MAS_IMAGE_TAGS}" | yq --yaml-output)
+        export MAS_IMAGE_TAGS=$(echo "${MAS_IMAGE_TAGS}" | yq --output-format yaml)
         echo " MAS_IMAGE_TAGS = ${MAS_IMAGE_TAGS}"
 
         MAS_LABELS=$(echo "${MAS_LABELS}" | sed "s/'/\"/g")
-        export MAS_LABELS=$(echo "${MAS_LABELS}" | yq --yaml-output)
+        export MAS_LABELS=$(echo "${MAS_LABELS}" | yq --output-format yaml)
         echo " MAS_LABELS = ${MAS_LABELS}"
 
         CUSTOM_LABELS=$(echo "${CUSTOM_LABELS}" | sed "s/'/\"/g")
-        export CUSTOM_LABELS=$(echo "${CUSTOM_LABELS}" | yq --yaml-output)
+        export CUSTOM_LABELS=$(echo "${CUSTOM_LABELS}" | yq --output-format yaml)
         echo " CUSTOM_LABELS = ${CUSTOM_LABELS}"
 
         sed -n -e 's/^.*api.fvtsaas.//p' | cut -d: -f1
@@ -250,7 +250,7 @@ spec:
         - -c
       name: gitops-suite
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:10.1.0-pre.gitops
+      image: quay.io/ibmmas/cli:10.2.0-pre.gitops
   workspaces:
     - name: configs
     - name: shared-gitops-configs
