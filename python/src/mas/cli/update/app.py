@@ -35,12 +35,44 @@ class UpdateApp(BaseApp):
         """
         Uninstall MAS instance
         """
-        args = updateArgParser.parse_args(args=argv)
-        self.noConfirm = args.no_confirm
+        self.args = updateArgParser.parse_args(args=argv)
+        self.noConfirm = self.args.no_confirm
 
-        if args.mas_catalog_version:
+        if self.args.mas_catalog_version:
             # Non-interactive mode
             logger.debug("Maximo Operator Catalog version is set, so we assume already connected to the desired OCP")
+            requiredParams = ["mas_catalog_version"]
+            optionalParams = [
+                "db2_namespace",
+                "mongodb_namespace",
+                "mongodb_v5_upgrade",
+                "mongodb_v6_upgrade",
+                "kafka_namespace",
+                "kafka_provider",
+                "dro_migration",
+                "dro_storage_class",
+                "dro_namespace"
+            ]
+            for key, value in vars(self.args).items():
+                # These fields we just pass straight through to the parameters and fail if they are not set
+                if key in requiredParams:
+                    if value is None:
+                        self.fatalError(f"{key} must be set")
+                    self.setParam(key, value)
+
+                # These fields we just pass straight through to the parameters
+                elif key in optionalParams:
+                    if value is not None:
+                        self.setParam(key, value)
+
+                # Arguments that we don't need to do anything with
+                elif key in ["skip_pre_check", "no_confirm", "help"]:
+                    pass
+
+                # Fail if there's any arguments we don't know how to handle
+                else:
+                    print(f"Unknown option: {key} {value}")
+                    self.fatalError(f"Unknown option: {key} {value}")
         else:
             # Interactive mode
             self.printH1("Set Target OpenShift Cluster")
@@ -50,49 +82,49 @@ class UpdateApp(BaseApp):
         if self.dynamicClient is None:
             self.fatalError("The Kubernetes dynamic Client is not available.  See log file for details")
 
-        if args.mas_catalog_version is not None:
-            # Non-Interactive mode
-            pass
-        else:
+        self.reviewCurrentCatalog()
+        self.reviewMASInstance()
+
+        if self.args.mas_catalog_version is None:
             # Interactive mode
-            self.reviewCurrentCatalog()
-            self.reviewMASInstance()
             self.chooseCatalog()
 
-            self.validateCatalog()
+        # Validations
+        self.validateCatalog()
 
-            # Validations
-            self.printH1("Dependency Update Checks")
-            with Halo(text='Checking for IBM Watson Discovery', spinner=self.spinner) as h:
-                if self.isWatsonDiscoveryInstalled():
-                    h.stop_and_persist(symbol=self.failureIcon, text=f"IBM Watson Discovery is installed")
-                    self.fatalError("Watson Discovery is currently installed in the instance of Cloud Pak for Data that is managed by the MAS CLI (in the ibm-cpd namespace), this is no longer supported and the update can not proceed as a result. Please contact IBM support for assistance")
-                else:
-                    h.stop_and_persist(symbol=self.successIcon, text=f"IBM Watson Discovery is not installed")
+        self.printH1("Dependency Update Checks")
+        with Halo(text='Checking for IBM Watson Discovery', spinner=self.spinner) as h:
+            if self.isWatsonDiscoveryInstalled():
+                h.stop_and_persist(symbol=self.failureIcon, text=f"IBM Watson Discovery is installed")
+                self.fatalError("Watson Discovery is currently installed in the instance of Cloud Pak for Data that is managed by the MAS CLI (in the ibm-cpd namespace), this is no longer supported and the update can not proceed as a result. Please contact IBM support for assistance")
+            else:
+                h.stop_and_persist(symbol=self.successIcon, text=f"IBM Watson Discovery is not installed")
 
-            with Halo(text='Checking for IBM Certificate-Manager', spinner=self.spinner) as h:
-                if self.isIBMCertManagerInstalled():
-                    h.stop_and_persist(symbol=self.successIcon, text=f"IBM Certificate-Manager will be replaced by Red Hat Certificate-Manager")
-                    self.setParam("cert_manager_action", "install")
-                    self.setParam("cert_manager_provider", "redhat")
-                    self.printHighlight([
-                        "<u>Migration Notice</u>",
-                        "IBM Certificate-Manager is currently running in the ${CERT_MANAGER_NAMESPACE} namespace",
-                        "This will be uninstalled and replaced by Red Hat Certificate-Manager as part of this update",
-                        ""
-                    ])
-                else:
-                    h.stop_and_persist(symbol=self.successIcon, text=f"IBM Certificate-Manager is not installed")
+        with Halo(text='Checking for IBM Certificate-Manager', spinner=self.spinner) as h:
+            if self.isIBMCertManagerInstalled():
+                h.stop_and_persist(symbol=self.successIcon, text=f"IBM Certificate-Manager will be replaced by Red Hat Certificate-Manager")
+                self.setParam("cert_manager_action", "install")
+                self.setParam("cert_manager_provider", "redhat")
+                self.printHighlight([
+                    "<u>Migration Notice</u>",
+                    "IBM Certificate-Manager is currently running in the ${CERT_MANAGER_NAMESPACE} namespace",
+                    "This will be uninstalled and replaced by Red Hat Certificate-Manager as part of this update",
+                    ""
+                ])
+            else:
+                h.stop_and_persist(symbol=self.successIcon, text=f"IBM Certificate-Manager is not installed")
 
-            self.detectUDS()
-            self.detectGrafana4()
-            self.detectMongoDb()
-            self.detectCP4D()
+        self.detectUDS()
+        self.detectGrafana4()
+        self.detectMongoDb()
+        self.detectDb2uOrKafka("db2")
+        self.detectDb2uOrKafka("kafka")
+        self.detectCP4D()
 
-            print()
-            print("Params:")
-            for param in self.params:
-                print(f"{param} = {self.getParam(param)}")
+        print()
+        print("Params:")
+        for param in self.params:
+            print(f"{param} = {self.getParam(param)}")
 
 
         if not self.noConfirm:
@@ -292,6 +324,7 @@ class UpdateApp(BaseApp):
                             if not self.yesOrNo(f"Confirm update from MongoDb {currentMongoVersion} to {targetMongoVersion}", f"mongodb_v{targetMongoVersionMajor}_upgrade"):
                                 # If the user did not approve the update, abort
                                 exit(1)
+                            print()
                         else:
                             h.stop_and_persist(symbol=self.successIcon, text=f"MongoDb CE will be updated from {currentMongoVersion} to {targetMongoVersion}")
                             self.showMongoDependencyUpdateNotice(currentMongoVersion, targetMongoVersion)
@@ -378,25 +411,24 @@ class UpdateApp(BaseApp):
         # Longer term we will centralise this information inside the mas-devops python collection,
         # where it can be made available to both the ansible collection and this python package.
         cp4dVersions = {
-            "v8-240528-amd64": "4.8.0",
-            "v9-240625-amd64": "4.6.6"
+            "v8-240528-amd64": "4.6.6",
+            "v9-240625-amd64": "4.8.0"
         }
 
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:
             try:
-                # cpdAPI = self.dynamicClient.resources.get(api_version="cpd.ibm.com/v1", kind="Ibmcpd")
-                # cpds = cpdAPI.get().to_dict()["items"]
+                cpdAPI = self.dynamicClient.resources.get(api_version="cpd.ibm.com/v1", kind="Ibmcpd")
+                cpds = cpdAPI.get().to_dict()["items"]
 
                 # For testing, comment out the lines above and set cpds to a simple list
-                cpds = [{
-                    "metadata": {"namespace": "ibm-cpd" },
-                    "spec": {
-                        "version": "4.6.6",
-                        "storageClass": "default",
-                        "zenCoreMetadbStorageClass": "default"
-                    }
-                }]
-
+                # cpds = [{
+                #     "metadata": {"namespace": "ibm-cpd" },
+                #     "spec": {
+                #         "version": "4.6.6",
+                #         "storageClass": "default",
+                #         "zenCoreMetadbStorageClass": "default"
+                #     }
+                # }]
 
                 if len(cpds) > 0:
                     cpdInstanceNamespace = cpds[0]["metadata"]["namespace"]
@@ -406,17 +438,21 @@ class UpdateApp(BaseApp):
                     currentCpdVersionMajorMinor = f"{cpdInstanceVersion.split('.')[0]}.{cpdInstanceVersion.split('.')[1]}"
                     targetCpdVersionMajorMinor = f"{cpdTargetVersion.split('.')[0]}.{cpdTargetVersion.split('.')[1]}"
 
-                    if currentCpdVersionMajorMinor < targetCpdVersionMajorMinor:
-                        # We only show the "backup first" notice for minor CP4D updates
-                        self.printHighlight([
-                            "<u>Dependency Update Notice</u>",
-                            f"Cloud Pak For Data is currently running version {cpdInstanceVersion} and will be updated to version {targetCpdVersionMajorMinor}",
-                            "It is recommended that you backup your Cloud Pak for Data instance before proceeding:"
-                            "  <u>https://www.ibm.com/docs/en/cloud-paks/cp-data/4.8.x?topic=administering-backing-up-restoring-cloud-pak-data</u>"
-                        ])
-
                     if cpdInstanceVersion < cpdTargetVersion:
                         # We have to update CP4D
+                        h.stop_and_persist(symbol=self.successIcon, text=f"IBM Cloud Pak for Data {cpdInstanceVersion} needs to be updated to {cpdTargetVersion}")
+
+                        if currentCpdVersionMajorMinor < targetCpdVersionMajorMinor:
+                            # We only show the "backup first" notice for minor CP4D updates
+                            self.printHighlight([
+                                ""
+                                "<u>Dependency Update Notice</u>",
+                                f"Cloud Pak For Data is currently running version {cpdInstanceVersion} and will be updated to version {cpdTargetVersion}",
+                                "It is recommended that you backup your Cloud Pak for Data instance before proceeding:",
+                                "  <u>https://www.ibm.com/docs/en/cloud-paks/cp-data/4.8.x?topic=administering-backing-up-restoring-cloud-pak-data</u>"
+                            ])
+
+                            ## TODO : HANDLE CONFIRMATION
 
                         # Lookup the storage classes already used by CP4D
                         # Note: this should be done by the Ansible role, but isn't
@@ -443,27 +479,104 @@ class UpdateApp(BaseApp):
                         self.setParam("cp4d_update", "true")
                         self.setParam("skip_entitlement_key_flag", "true")
 
-                        self.detectCpdService('ws.ws.cpd.ibm.com/v1', 'Watson Studio', 'ws')
-                        self.detectCpdService('wmlbases.wml.cpd.ibm.com/v1', 'Watson Machine Learning', 'wml')
-                        self.detectCpdService('analyticsengines.ae.cpd.ibm.com/v1', 'Analytics Engine', 'analyticsengine')
-                        self.detectCpdService('woservices.wos.cpd.ibm.com/v1', 'Watson Openscale', 'openscale')
-                        self.detectCpdService('spss.spssmodeler.cpd.ibm.com/v1', 'SPSS Modeler', 'spss')
-                        self.detectCpdService('caservices.ca.cpd.ibm.com/v1', 'Cognos Analytics', 'cognos_analytics')
+                        self.detectCpdService('WS', 'ws.cpd.ibm.com/v1beta1', 'Watson Studio', "cp4d_update_ws")
+                        self.detectCpdService('WmlBase', 'wml.cpd.ibm.com/v1beta1', 'Watson Machine Learning', "cp4d_update_wml")
+                        self.detectCpdService('AnalyticsEngine', 'ae.cpd.ibm.com/v1', 'Analytics Engine', "cp4d_update_spark")
+                        self.detectCpdService('WOService', 'wos.cpd.ibm.com/v1', 'Watson Openscale', "cp4d_update_wos")
+                        self.detectCpdService('Spss', 'spssmodeler.cpd.ibm.com/v1', 'SPSS Modeler', "cp4d_update_spss")
+                        self.detectCpdService('CAService', 'ca.cpd.ibm.com/v1', 'Cognos Analytics', "cp4d_update_cognos")
+                    else:
+                        h.stop_and_persist(symbol=self.successIcon, text=f"IBM Cloud Pak for Data is already installed at version {cpdTargetVersion}")
+                else:
+                    h.stop_and_persist(symbol=self.successIcon, text=f"No IBM Cloud Pak for Data instance found")
             except (ResourceNotFoundError, NotFoundError) as e:
                 h.stop_and_persist(symbol=self.successIcon, text=f"IBM Cloud Pak for Data is not installed")
 
-    def detectCpdService(self, api: str, name: str, kind: str) -> None:
+    def detectCpdService(self, kind: str, api: str, name: str, param: str) -> None:
         try:
-            # cpdServiceAPI = self.dynamicClient.resources.get(api_version=api, kind=kind)
-            # cpdServices = cpdServiceAPI.get().to_dict()["items"]
+            cpdServiceAPI = self.dynamicClient.resources.get(api_version=api, kind=kind)
+            cpdServices = cpdServiceAPI.get().to_dict()["items"]
 
-            # For testing, comment out the lines above and set cpds to a simple list
-            cpdServices = [{
-                "spec": {
-                    "version": "4.6.6",
-                }
-            }]
+            if len(cpdServices) > 0:
+                logger.debug(f"{name} is included in CP4D update")
+                self.setParam(param, "true")
+            else:
+                logger.debug(f"{name} is not included in CP4D update")
+                self.setParam(param, "false")
 
         except (ResourceNotFoundError, NotFoundError) as e:
             # No action required for this service
-            pass
+            logger.debug(f"{name} is not included in CP4D update: {e}")
+            self.setParam(param, "false")
+
+    def detectDb2uOrKafka(self, mode: str) -> bool:
+        if mode == "db2":
+            haloStartingMessage = "Checking for Db2uCluster instances to update"
+            apiVersion = "db2u.databases.ibm.com/v1"
+            kind = "Db2uCluster"
+            paramName = "db2_namespace"
+        elif mode == "kafka":
+            haloStartingMessage = "Checking for Kafka instances to update"
+            apiVersion = "kafka.strimzi.io/v1beta2"
+            kind = "Kafka"
+            paramName = "kafka_namespace"
+        else:
+            self.fatalError("Unexpected error")
+
+        with Halo(text=haloStartingMessage, spinner=self.spinner) as h:
+            try:
+                k8sAPI = self.dynamicClient.resources.get(api_version=apiVersion, kind=kind)
+                instances = k8sAPI.get().to_dict()["items"]
+
+                logger.debug(f"Found {len(instances)} {kind} instances on the cluster")
+                if len(instances) > 0:
+                    # If the user provided the namespace using --db2-namespace then we don't have any work to do here
+                    if self.getParam(paramName) == "":
+                        namespaces = set()
+                        for instance in instances:
+                            namespaces.add(instance["metadata"]["namespace"])
+
+                        if len(namespaces) == 1:
+                            # If db2u is only in one namespace, we will update that
+                            h.stop_and_persist(symbol=self.successIcon, text=f"{len(instances)} {kind}s ({apiVersion}) in namespace '{list(namespaces)[0]}' will be updated")
+                            logger.debug(f"There is only one namespace containing {kind}s so we will target that one: {namespaces}")
+                            self.setParam(paramName, list(namespaces)[0])
+                        elif self.noConfirm:
+                            # If db2u is in multiple namespaces and user has disabled prompts then we must error
+                            h.stop_and_persist(symbol=self.failureIcon, text=f"{len(instances)} {kind}s ({apiVersion}) were found in multiple namespaces")
+                            logger.warning(f"There are multiple namespaces containing {kind}s and user has enable --no-confirm without setting --{mode}-namespace: {namespaces.keys()}")
+                            self.fatalError(f"{kind}s are installed in multiple namespaces.  You must instruct which one to update using the '--{mode}-namespace' argument")
+                        else:
+                            # Otherwise, provide user the list of namespaces we found and ask them to pick on
+                            h.stop_and_persist(symbol=self.successIcon, text=f"{len(instances)} {kind}s ({apiVersion}) found in multiple namespaces")
+                            logger.debug(f"There are multiple namespaces containing {kind}s, user must choose: {namespaces}")
+                            self.printDescription([
+                                f"{kind}s were found in multiple namespaces, select the namespace to target from the list below:"
+                            ])
+                            for ns in sorted(namespaces):
+                                self.printDescription([f"1. {ns}"])
+                            self.promptForListSelect("Select namespace", sorted(namespaces), paramName)
+                else:
+                    logger.debug(f"Found no instances of {kind} to update")
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Found no {kind} ({apiVersion}) instances to update")
+            except (ResourceNotFoundError, NotFoundError) as e:
+                logger.debug(f"{kind}.{apiVersion} is not available in the cluster")
+                h.stop_and_persist(symbol=self.successIcon, text=f"{kind}.{apiVersion} is not available in the cluster")
+
+            # With Kafka we also have to determine the provider (strimzi or redhat)
+            if mode == "kafka" and self.getParam("kafka_namespace") != "" and self.getParam("kafka_provider") == "":
+                try:
+                    subAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="Subscription")
+                    subs = subAPI.get().to_dict()["items"]
+
+                    for sub in subs:
+                        if sub["spec"]["name"] == "amq-streams":
+                            self.setParam("kafka_provider", "redhat")
+                        elif sub["spec"]["name"] == "strimzi-kafka-operator":
+                            self.setParam("kafka_provider", "strimzi")
+                except (ResourceNotFoundError, NotFoundError) as e:
+                    pass
+
+                # If the param is still undefined then there is a big problem
+                if self.getParam("kafka_provider") == "":
+                    self.fatalError("Unable to determine whether the installed Kafka instance is managed by Strimzi or Red Hat AMQ Streams")

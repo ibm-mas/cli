@@ -36,7 +36,7 @@ masArgGroup.add_argument(
 
 depsArgGroup = updateArgParser.add_argument_group('Update Dependencies')
 depsArgGroup.add_argument(
-    '--db2u-namespace',
+    '--db2-namespace',
     required=False,
     help="Namespace where Db2u operator and instances will be updated",
 )
@@ -96,18 +96,6 @@ droArgGroup.add_argument(
     help="Set Custom Namespace for DRO(Default: redhat-marketplace)",
 )
 
-
-versionOverrideArgGroup = updateArgParser.add_argument_group('Version Overrides')
-versionOverrideArgGroup.add_argument(
-    '--mongodb-version',
-    required=False,
-    help="Override the default MongoDB version automatically chosen for compatibility with the chosen catalog (use with caution)",
-)
-versionOverrideArgGroup.add_argument(
-    '--cp4d-version',
-    required=False,
-    help="Override the default Cloud Pak for Data version chosen for compatibility with the chosen catalog (use with caution)",
-)
 
 otherArgGroup = updateArgParser.add_argument_group('More')
 otherArgGroup.add_argument(
