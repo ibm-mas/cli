@@ -774,7 +774,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("mas_manual_cert_mgmt", True)
                     self.setParam("mas_manual_cert_dir", value)
                 else:
-                    self.setPatam("mas_manual_cert_mgmt", False)
+                    self.setParam("mas_manual_cert_mgmt", False)
 
             # Fail if there's any arguments we don't know how to handle
             else:
