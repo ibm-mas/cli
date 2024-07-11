@@ -355,6 +355,7 @@ spec:
     # Update synchronization configmap
     # -------------------------------------------------------------------------
     - name: sync-install
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-update-configmap

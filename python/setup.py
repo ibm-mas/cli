@@ -47,9 +47,7 @@ setup(
     packages=find_namespace_packages(where='src'),
     include_package_data=True,
     scripts=[
-        'src/mas-install',
-        'src/mas-upgrade',
-        'src/mas-uninstall'
+        'src/mas-cli'
     ],
     url='https://github.com/ibm-mas/cli',
     license='Eclipse Public License - v1.0',

@@ -21,7 +21,7 @@ def isValidFile(parser, arg) -> str:
         return arg
 
 installArgParser = argparse.ArgumentParser(
-    prog="mas uninstall",
+    prog="mas install",
     description="\n".join([
         f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
         "Install MAS by configuring and launching the MAS Uninstall Tekton Pipeline.\n",

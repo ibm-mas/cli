@@ -67,8 +67,7 @@ class AdditionalConfigsMixin():
             self.printDescription([
                 "The CLI supports two pod template profiles out of the box that allow you to reconfigure MAS for either a guaranteed or best effort QoS level",
                 "For more information about the Kubernetes quality of service (QoS) levels, see https://kubernetes.io/docs/concepts/workloads/pods/pod-qos/",
-                "You may also choose to use your own customized pod template definitions",
-                ""
+                "You may also choose to use your own customized pod template definitions"
             ])
 
             if not self.yesOrNo("Use pod templates"):
@@ -79,8 +78,7 @@ class AdditionalConfigsMixin():
                 "",
                 "1. Guaranteed QoS",
                 "2. Best Effort QoS",
-                "3. Custom",
-                ""
+                "3. Custom"
             ])
 
             podTemplateChoice = self.promptForInt("Select pod templates profile")
