@@ -141,7 +141,7 @@ class AdditionalConfigsMixin():
                     },
                 "mas_app_channel_manage": {
                         "dir": self.getParam("mas_manual_cert_dir") + "/manage/",
-                        "keyPrefix": "assist."
+                        "keyPrefix": "manage."
                     },
                 "mas_app_channel_iot": {
                         "dir": self.getParam("mas_manual_cert_dir") + "/iot/",
