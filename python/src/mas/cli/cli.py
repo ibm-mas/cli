@@ -8,6 +8,9 @@
 #
 # *****************************************************************************
 
+import logging
+import urllib3
+
 from argparse import RawTextHelpFormatter
 from shutil import which
 from os import path
@@ -20,15 +23,17 @@ from kubernetes.client import api_client
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
 
-from .validators import YesNoValidator
-
-from . import __version__ as packageVersion
-from .displayMixins import PrintMixin, PromptMixin
 from mas.devops.ocp import connect, isSNO
 
-import logging
+from . import __version__ as packageVersion
+from .validators import YesNoValidator
+from .displayMixins import PrintMixin, PromptMixin
+
+# Configure the logger
 logger = logging.getLogger(__name__)
 
+# Disable warnings when users are connecting to OCP clusters with self-signed certificates
+urllib3.disable_warnings()
 
 def getHelpFormatter(formatter=RawTextHelpFormatter, w=160, h=50):
     """
@@ -119,9 +124,7 @@ class BaseApp(PrintMixin, PromptMixin):
         self.printTitle(f"\nIBM Maximo Application Suite Admin CLI v{self.version}")
         print_formatted_text(HTML("Powered by <DarkGoldenRod><u>https://github.com/ibm-mas/ansible-devops/</u></DarkGoldenRod> and <DarkGoldenRod><u>https://tekton.dev/</u></DarkGoldenRod>\n"))
         if which("kubectl") is None:
-            logger.error("Could not find kubectl on the path")
-            print_formatted_text(HTML("\n<Red>Error: Could not find kubectl on the path, see <u>https://kubernetes.io/docs/tasks/tools/#kubectl</u> for installation instructions</Red>\n"))
-            exit(1)
+            self.fatalError("Could not find kubectl on the path, see <u>https://kubernetes.io/docs/tasks/tools/#kubectl</u> for installation instructions")
 
     def getCompatibleVersions(self, coreChannel: str, appId: str) -> list:
         if coreChannel in self.compatibilityMatrix:
@@ -131,8 +134,11 @@ class BaseApp(PrintMixin, PromptMixin):
 
     def fatalError(self, message: str, exception: Exception=None) -> None:
         if exception is not None:
+            logger.error(message)
+            logger.exception(exception, stack_info=True)
             print_formatted_text(HTML(f"<Red>Fatal Exception: {message.replace(' & ', ' &amp; ')}: {exception}</Red>"))
         else:
+            logger.error(message)
             print_formatted_text(HTML(f"<Red>Fatal Error: {message.replace(' & ', ' &amp; ')}</Red>"))
         exit(1)
 

@@ -1,4 +1,5 @@
 - name: {{ name | default("ocp-verify") }}
+  timeout: "0"
   taskRef:
     kind: Task
     name: mas-devops-ocp-verify-all

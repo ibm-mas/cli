@@ -1,4 +1,5 @@
 - name: app-install-assist
+  timeout: "0"
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name

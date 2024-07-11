@@ -93,7 +93,7 @@ spec:
         {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
           value: base-api-setup
-    
+
     # Manage Tests Pre Upgrade (API)
     - name: fvt-manage-base-api-upgrade-pre
       {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(6) }}
@@ -103,7 +103,7 @@ spec:
           value: base-api-upgrade-pre
       runAfter:
         - fvt-manage-base-api-setup
-    
+
     # Manage Tests Pre Upgrade (UI)
     - name: fvt-manage-base-ui-upgrade-pre
       {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(6) }}
