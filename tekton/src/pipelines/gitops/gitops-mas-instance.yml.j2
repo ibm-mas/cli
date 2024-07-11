@@ -109,6 +109,7 @@ spec:
       default: ""
     - name: mas_manual_cert_mgmt
       type: string
+      default: "false"
     - name: cert_manager_namespace
       type: string
       default: "cert-manager"
@@ -117,13 +118,13 @@ spec:
       default: ""
     - name: cis_enhanced_security
       type: string
-      default: "True"
+      default: "true"
     - name: cis_proxy
       type: string
-      default: "True"
+      default: "true"
     - name: override_edge_certs
       type: string
-      default: "True"
+      default: "true"
     - name: cis_email
       type: string
       default: ""
@@ -140,20 +141,20 @@ spec:
 
     - name: cis_waf
       type: string
-      default: "True"
+      default: "true"
     - name: update_dns_entries
       type: string
-      default: "True"
+      default: "true"
     - name: delete_wildcards
       type: string
-      default: "True"
+      default: "true"
 
     - name: mas_manual_certs_yaml
       type: string
       default: ""
     - name: mas_wipe_mongo_data
       type: string
-      default: "False"
+      default: "false"
     - name: mas_pod_template_yaml
       type: string
       default: ""

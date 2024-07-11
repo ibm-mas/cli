@@ -102,7 +102,7 @@ function gitops_suite_noninteractive() {
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
 
   # Disable manual certificate management by default
-  export MAS_MANUAL_CERT_MGMT=${MAS_MANUAL_CERT_MGMT:-"False"}
+  export MAS_MANUAL_CERT_MGMT=${MAS_MANUAL_CERT_MGMT:-"false"}
 
   # Target IBM Container Registry by default
   export ICR_CP=${ICR_CP:-"cp.icr.io/cp"}
@@ -571,7 +571,7 @@ function gitops_suite() {
   # Set certs only if manual cert is True (to create k8s secret in gitops)
   # ---------------------------------------------------------------------------
   
-  if [ "${MAS_MANUAL_CERT_MGMT}" == "True" ] ; then
+  if [ "${MAS_MANUAL_CERT_MGMT}" == "true" ] ; then
     if [[ -n "$MAS_MANUAL_CERTS_YAML" && -s "$MAS_MANUAL_CERTS_YAML" ]]; then
       echo
       echo_h2 "Read manual cert files for core from file ${MAS_MANUAL_CERTS_YAML}, and set to gitops template"
