@@ -14,12 +14,12 @@ from .. import __version__ as packageVersion
 from ..cli import getHelpFormatter
 
 updateArgParser = argparse.ArgumentParser(
-    prog='mas uninstall',
+    prog='mas update',
     description="\n".join([
         f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
-        "Uninstall MAS by configuring and launching the MAS Uninstall Tekton Pipeline.\n",
+        "Update the IBM Maximo Operator Catalog, and related MAS dependencies by configuring and launching the MAS Update Tekton Pipeline.\n",
         "Interactive Mode:",
-        "Omitting the --instance-id option will trigger an interactive prompt"
+        "Omitting the --catalog option will trigger an interactive prompt"
     ]),
     epilog="Refer to the online documentation for more information: https://ibm-mas.github.io/cli/",
     formatter_class=getHelpFormatter(),
