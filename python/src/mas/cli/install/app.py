@@ -53,17 +53,18 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             catalogDisplayName = catalog.spec.displayName
 
             m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
+            print(f"m: {m}")
             if m:
                 # catalogId = v8-yymmdd-amd64
                 # catalogVersion = yymmdd
                 catalogId = m.group("catalogId")
             elif re.match(r".+v8-amd64", catalogDisplayName):
                 catalogId = "v8-amd64"
-            # else:
-            #     self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
+            # # else:
+            # #     self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
 
-            if catalogId != self.getParam("mas_catalog_version"):
-                self.fatalError(f"IBM Maximo Operator Catalog {catalogId} is already installed on this cluster, if you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
+            # if catalogId != self.getParam("mas_catalog_version"):
+            #     self.fatalError(f"IBM Maximo Operator Catalog {catalogId} is already installed on this cluster, if you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
         except NotFoundError:
             # There's no existing catalog installed
             pass
