@@ -142,7 +142,7 @@ class AdditionalConfigsMixin():
                         "keyPrefix": "assist."
                     },
                 "mas_app_channel_manage": {
-                        "dir": self.getParam("mas_manual_cert_dir") + "/assist/",
+                        "dir": self.getParam("mas_manual_cert_dir") + "/manage/",
                         "keyPrefix": "assist."
                     },
                 "mas_app_channel_iot": {
@@ -167,6 +167,9 @@ class AdditionalConfigsMixin():
                     }
                 }
             
+            for file in ["ca.crt", "tls.crt", "tls.key"]:
+                if file not in map(path.basename, glob(f'{self.getParam("mas_manual_cert_dir")} + "/core/*"')):
+                    self.fatalError(f'{file} is not present in {self.getParam("mas_manual_cert_dir")} + "/core/"')
             for ext in extensions:
                 certsSecret = self.addFilesToSecret(certsSecret, self.getParam("mas_manual_cert_dir")+'/core/', ext, "core.")
             
