@@ -198,17 +198,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "Using default SSO properties"
             ])
         else:
-            self.promptForInt("Enter the idleTimeout (in seconds)", "IDLE_TIMEOUT", default=1800)
+            self.promptForInt("Enter the idleTimeout (in seconds)", "idle_timeout", default=1800)
             print(self.params)
-            self.promptForString("Enter the IDP session timeout (e.g., '12h' for 12 hours)", "IDP_SESSION_TIMEOUT", validator=TimeoutFormatValidator(), default="12h")
+            self.promptForString("Enter the IDP session timeout (e.g., '12h' for 12 hours)", "idp_session_timeout", validator=TimeoutFormatValidator(), default="12h")
             print(self.params)
-            self.promptForString("Enter the access token timeout (e.g., '30m' for 30 minutes)", "ACCESS_TOKEN_TIMEOUT", validator=TimeoutFormatValidator(), default="30m")
+            self.promptForString("Enter the access token timeout (e.g., '30m' for 30 minutes)", "access_token_timeout", validator=TimeoutFormatValidator(), default="30m")
             print(self.params)
-            self.promptForString("Enter the refresh token timeout (e.g., '12h' for 12 hours)", "REFRESH_TOKEN_TIMEOUT", validator=TimeoutFormatValidator(), default="12h")
+            self.promptForString("Enter the refresh token timeout (e.g., '12h' for 12 hours)", "refresh_token_timeout", validator=TimeoutFormatValidator(), default="12h")
             print(self.params)
-            self.promptForString("Enter the default Identity Provider (IDP)", "DEFAULT_IDP", default="local")
+            self.promptForString("Enter the default Identity Provider (IDP)", "default_idp", default="local")
             print(self.params)
-            self.yesOrNo("Enable seamless login?", param="SEAMLESS_LOGIN")
+            self.yesOrNo("Enable seamless login?", param="seamless_login")
             print(self.params)
 
     def configMAS(self):
