@@ -63,9 +63,6 @@ function gitops_mas_fvt_preparer() {
     gitops_mas_fvt_preparer_interactive
   fi
 
-  # catch errors
-  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
-
   mkdir -p ${GITOPS_WORKING_DIR}
   echo
   reset_colors
