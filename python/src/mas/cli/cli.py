@@ -75,6 +75,9 @@ class BaseApp(PrintMixin, PromptMixin):
         self.templatesDir = path.join(path.abspath(path.dirname(__file__)), "templates")
         self.tektonDefsPath = path.join(self.templatesDir, "ibm-mas-tekton.yaml")
 
+        # Initialize the dictionary that will hold the parameters we pass to a PipelineRun
+        self.params = dict()
+
         # These dicts will hold the additional-configs, pod-templates and manual certificates secrets
         self.additionalConfigsSecret = None
         self.podTemplatesSecret = None
@@ -125,7 +128,7 @@ class BaseApp(PrintMixin, PromptMixin):
         self.printTitle(f"\nIBM Maximo Application Suite Admin CLI v{self.version}")
         print_formatted_text(HTML("Powered by <DarkGoldenRod><u>https://github.com/ibm-mas/ansible-devops/</u></DarkGoldenRod> and <DarkGoldenRod><u>https://tekton.dev/</u></DarkGoldenRod>\n"))
         if which("kubectl") is None:
-            self.fatalError("Could not find kubectl on the path, see <u>https://kubernetes.io/docs/tasks/tools/#kubectl</u> for installation instructions")
+            self.fatalError("Could not find kubectl on the path, see <DarkGoldenRod><u>https://kubernetes.io/docs/tasks/tools/#kubectl</u></DarkGoldenRod> for installation instructions")
 
     def getCompatibleVersions(self, coreChannel: str, appId: str) -> list:
         if coreChannel in self.compatibilityMatrix:
@@ -137,10 +140,10 @@ class BaseApp(PrintMixin, PromptMixin):
         if exception is not None:
             logger.error(message)
             logger.exception(exception, stack_info=True)
-            print_formatted_text(HTML(f"<Red>Fatal Exception: {message.replace(' & ', ' &amp; ')}: {exception}</Red>"))
+            print_formatted_text(HTML(f"<Red>Fatal Exception: {message.replace(' & ', ' &amp; ')}: {exception}</Red>\n"))
         else:
             logger.error(message)
-            print_formatted_text(HTML(f"<Red>Fatal Error: {message.replace(' & ', ' &amp; ')}</Red>"))
+            print_formatted_text(HTML(f"<Red>Fatal Error: {message.replace(' & ', ' &amp; ')}</Red>\n"))
         exit(1)
 
     def isSNO(self):
