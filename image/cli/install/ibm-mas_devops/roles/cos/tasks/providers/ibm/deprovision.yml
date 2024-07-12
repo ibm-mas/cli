@@ -1,0 +1,96 @@
+---
+- name: "Fail if ibmcloud_apikey is not provided"
+  assert:
+    that: ibmcloud_apikey is defined and ibmcloud_apikey != ""
+    fail_msg: "ibmcloud_apikey property is required"
+
+# 1. Determine the instance name
+# ---------------------------------------------------------------------------------------------------------------------
+- name: Customize IBM COS Instance Name using mas_instance_id variables
+  when:
+    - mas_instance_id is defined
+    - mas_instance_id != ""
+    - cos_instance_name is not defined or cos_instance_name == ""
+  set_fact:
+    cos_instance_name: "Object Storage for MAS - {{ mas_instance_id }}"
+
+- name: Fallback to default IBM COS Instance Name
+  when:
+    - cos_instance_name is not defined or cos_instance_name == ""
+  set_fact:
+    cos_instance_name: "Object Storage for MAS"
+
+- name: "ibm : Debug information"
+  debug:
+    msg:
+      - "IBM COS Resource Group ............. {{ cos_resourcegroup }}"
+      - "IBM COS url ........................ {{ cos_url }}"
+      - "IBM COS username/accesskey ......... {{ cos_username }}"
+      - "IBM COS instance name .............. {{ cos_instance_name }}"
+      - "IBM COS location info .............. {{ cos_location_info }}"
+      - "IBM COS plan type .................. {{ cos_plan_type }}"
+
+# 2. Lookup IBM Cloud Resource Group GUID
+# ---------------------------------------------------------------------------------------------------------------------
+- name: Initialize vars
+  set_fact:
+    cos_exists: false
+
+- name: Fetch IBM Cloud Resource Group Id
+  ibm.cloudcollection.ibm_resource_group_info:
+    name: "{{ cos_resourcegroup }}"
+    ibmcloud_api_key: "{{ ibmcloud_apikey }}"
+  register: rg_info
+
+- name: Fetch IBM COS Information
+  ibm.cloudcollection.ibm_resource_instance_info:
+    name: "{{ cos_instance_name }}"
+    resource_group_id: "{{ rg_info.resource.id }}"
+    service: "{{ cos_service }}"
+    location: "{{ cos_location_info }}"
+    ibmcloud_api_key: "{{ ibmcloud_apikey  }}"
+  register: cos_info
+  failed_when: cos_info.rc != 0 and "No resource instance found" not in cos_info.stderr
+
+- name: Set Fact COS exists or not
+  when:
+    - cos_info is defined
+    - cos_info.resource is defined
+    - cos_info.resource.id is defined and cos_info.resource.id != ''
+  set_fact:
+    cos_exists: true
+
+- debug:
+    msg:
+      - "{{ cos_exists | ternary('COS instance does exist, proceed with deletion process...', 'COS instance does not exist, skipping deletion process...') }}"
+
+- block:
+    - name: "ibm: Set Resource Instance Id for deletion"
+      set_fact:
+        cos_resource_id: "{{ cos_info.resource.id }}"
+
+    - name: "ibm : Deprovision IBM COS instance"
+      ibm.cloudcollection.ibm_resource_instance:
+        name: "{{ cos_instance_name }}"
+        id: "{{ cos_resource_id }}"
+        resource_group_id: "{{ rg_info.resource.id }}"
+        service: "cloud-object-storage"
+        plan: "{{ cos_plan_type }}"
+        location: "{{ cos_location_info }}"
+        ibmcloud_api_key: "{{ ibmcloud_apikey  }}"
+        state: absent
+      register: cos_deprovision_output
+
+    - name: Debug IBM COS Deprovision Output
+      debug:
+        msg:
+          - "{{ cos_deprovision_output.stdout_lines }}"
+
+    - name: Check IBM COS deleted successfully
+      assert:
+        that:
+          - cos_deprovision_output.rc == 0
+          - cos_deprovision_output.stdout.find('Destroy complete') != -1
+        fail_msg: "Unable to delete IBM COS instance"
+
+  when: cos_exists

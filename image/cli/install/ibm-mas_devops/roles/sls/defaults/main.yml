@@ -1,0 +1,60 @@
+---
+sls_action: "{{ lookup('env', 'SLS_ACTION') | default('install', true) }}"
+
+# Define the version of SLS will be installed
+sls_catalog_source: "{{ lookup('env', 'SLS_CATALOG_SOURCE') | default('ibm-operator-catalog', true) }}"
+sls_channel: "{{ lookup('env', 'SLS_CHANNEL') | default('3.x', true) }}"
+
+# Define where SLS will be installed
+sls_instance_name: "{{ lookup('env', 'SLS_INSTANCE_NAME') | default('sls', true) }}"
+sls_namespace: "{{ lookup('env', 'SLS_NAMESPACE') | default('ibm-sls', true) }}"
+sls_icr_cp: "{{ lookup('env', 'SLS_ICR_CP') | default('cp.icr.io/cp', true) }}"
+sls_icr_cpopen: "{{ lookup('env', 'SLS_ICR_CPOPEN') | default('icr.io/cpopen', true) }}"
+
+# IBM entitlement key for SLS
+# Default to re-using the IBM entitlement key if we do not provide a specific one for SLS
+sls_entitlement_username: "{{ lookup('env', 'SLS_ENTITLEMENT_USERNAME') | default('cp', true) }}"
+ibm_entitlement_key: "{{ lookup('env', 'IBM_ENTITLEMENT_KEY') }}"
+sls_entitlement_key: "{{ lookup('env', 'SLS_ENTITLEMENT_KEY') | default(ibm_entitlement_key, true) }}"
+
+db_provider: "{{ lookup('env', 'DB_PROVIDER') | default('community', true) }}"
+
+# SLS settings
+sls_mongo_configdb: "admin"
+sls_mongo_retrywrites: "{{ lookup('env', 'SLS_MONGO_RETRYWRITES') | default('true', true) | string }}"
+
+sls_domain: "{{ lookup('env', 'SLS_DOMAIN') }}"
+sls_auth_enforce: "{{ lookup('env', 'SLS_AUTH_ENFORCE') | default('True', true) | bool }}"
+sls_compliance_enforce: "{{ lookup('env', 'SLS_COMPLIANCE_ENFORCE') | default('True', true) | bool }}"
+sls_registration_open: "{{ lookup('env', 'SLS_REGISTRATION_OPEN') | default('True', true) | bool }}"
+
+sls_mongodb_cfg_file: "{{ lookup('env', 'SLS_MONGODB_CFG_FILE') }}"
+
+# Bootstrap is used to initialize SLS, provide if you have an existing lic file and licenseId
+bootstrap:
+  license_id: "{{ lookup('env', 'SLS_LICENSE_ID') | default(\"\", true) }}"
+  license_file: "{{ lookup('env', 'SLS_LICENSE_FILE') | default(\"\", true) }}"
+  registration_key: "{{ lookup('env', 'SLS_REGISTRATION_KEY') | default(\"\", true) }}"
+
+bootstrap_mode: false
+
+# New mechanism to upload license file in SLS 3.7.0 (instead of the old bootstrap)
+entitlement_file: "{{ lookup('env', 'SLS_ENTITLEMENT_FILE') | default(\"\", true) }}"
+
+# SLSCfg generation
+mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
+mas_config_dir: "{{ lookup('env', 'MAS_CONFIG_DIR') }}"
+mas_license_sync_frequency: "{{ lookup('env', 'MAS_LICENSE_SYNC_FREQUENCY') | default('*/30 * * * *', true) }}"
+
+sls_url: "{{ lookup('env', 'SLS_URL') }}"
+sls_registration_key: "{{ lookup('env', 'SLS_REGISTRATION_KEY') }}"
+sls_tls_crt: "{{ lookup('env', 'SLS_TLS_CERT') }}"
+sls_tls_crt_local_file_path: "{{ lookup('env', 'SLS_TLS_CERT_LOCAL_FILE_PATH') }}"
+
+# Custom Labels
+custom_labels: "{{ lookup('env', 'CUSTOM_LABELS') | default(None, true) | string | ibm.mas_devops.string2dict() }}"
+
+# PodTemplates configuration
+# mas_pod_templates_dir: path to directory containing podTemplates configuration
+# -----------------------------------------------------------------------------
+mas_pod_templates_dir: "{{ lookup('env', 'MAS_POD_TEMPLATES_DIR') | default('', true) }}"

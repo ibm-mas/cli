@@ -1,0 +1,6 @@
+---
+# Default application spec for Safety
+mas_app_spec:
+  bindings:
+    jdbc: "{{ mas_app_bindings_jdbc }}"
+  components: {}

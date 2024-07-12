@@ -1,0 +1,5 @@
+---
+- name: "Run the selected action"
+  include_tasks: "tasks/{{ ibm_catalogs_action }}/main.yml"
+  when:
+    - ibm_catalogs_action != "none"

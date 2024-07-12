@@ -1,0 +1,155 @@
+---
+# 1. Delete CR, CSV and Subscription
+# -----------------------------------------------------------------------------
+# IMO
+
+- name: Get ibm-metrics-operator Subscription
+  kubernetes.core.k8s_info:
+    api_version: operators.coreos.com/v1alpha1
+    kind: Subscription
+    namespace: "{{ dro_namespace }}"
+    label_selectors:
+      - "app.kubernetes.io/name = imo"
+  register: imo_subscription
+
+- name: "uninstall : Delete the MarketplaceConfig"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: marketplace.redhat.com/v1alpha1
+    kind: MarketplaceConfig
+    namespace: "{{ dro_namespace }}"
+    name: marketplaceconfig
+    wait: yes
+    wait_timeout: 600
+  when: (imo_subscription.resources is defined) and (imo_subscription.resources| length == 1)
+
+- name: "uninstall : Delete the MeterBase"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: marketplace.redhat.com/v1alpha1
+    kind: MeterBase
+    namespace: "{{ dro_namespace }}"
+    name: rhm-marketplaceconfig-meterbase
+    wait: yes
+    wait_timeout: 600
+  when: (imo_subscription.resources is defined) and (imo_subscription.resources| length == 1)
+
+- name: "uninstall : Delete ibm-metrics-operator CSV"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: operators.coreos.com/v1alpha1
+    kind: ClusterServiceVersion
+    namespace: "{{ dro_namespace }}"
+    label_selectors:
+      - "operators.coreos.com/ibm-metrics-operator.{{ dro_namespace }}"
+    wait: yes
+    wait_timeout: 300
+  when: (imo_subscription.resources is defined) and (imo_subscription.resources| length == 1)
+
+- name: "uninstall : Delete ibm-metrics-operator Subscription"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: operators.coreos.com/v1alpha1
+    kind: Subscription
+    name: ibm-metrics-operator
+    namespace: "{{ dro_namespace }}"
+    wait: yes
+    wait_timeout: 300
+  when: (imo_subscription.resources is defined) and (imo_subscription.resources| length == 1)
+
+# DRO
+
+- name: Get ibm-data-operator Subscription
+  kubernetes.core.k8s_info:
+    api_version: operators.coreos.com/v1alpha1
+    kind: Subscription
+    namespace: "{{ dro_namespace }}"
+    label_selectors:
+      - "app.kubernetes.io/name = dro"
+  register: dro_subscription
+
+- name: "uninstall : Delete  ibm-data-reporter-operator CSV"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: operators.coreos.com/v1alpha1
+    kind: ClusterServiceVersion
+    namespace: "{{ dro_namespace }}"
+    label_selectors:
+      - "operators.coreos.com/ibm-data-reporter-operator.{{ dro_namespace }}"
+    wait: yes
+    wait_timeout: 300
+  when: (dro_subscription.resources is defined) and (dro_subscription.resources| length == 1)
+
+- name: "uninstall : Delete ibm-data-reporter-operator Subscription"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: operators.coreos.com/v1alpha1
+    kind: Subscription
+    name: ibm-data-reporter-operator
+    namespace: "{{ dro_namespace }}"
+    wait: yes
+    wait_timeout: 300
+  when: (dro_subscription.resources is defined) and (dro_subscription.resources| length == 1)
+
+- name: "uninstall : Delete the DataReporterConfig"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: marketplace.redhat.com/v1alpha1
+    kind: DataReporterConfig
+    namespace: "{{ dro_namespace }}"
+    name: datareporterconfig
+    wait: yes
+    wait_timeout: 600
+  when: (dro_subscription.resources is defined) and (dro_subscription.resources| length == 1)
+
+- name: "uninstall : Delete the redhat-marketplace-pull-secret secret"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Secret
+    namespace: "{{ dro_namespace }}"
+    name: redhat-marketplace-pull-secret
+# RMO
+
+- name: Get ibm-metrics-operator Subscription
+  kubernetes.core.k8s_info:
+    api_version: operators.coreos.com/v1alpha1
+    kind: Subscription
+    namespace: "{{ dro_namespace }}"
+    label_selectors:
+      - "app.kubernetes.io/name = rmo"
+  register: rmo_subscription
+
+# Delete secrets
+- name: "uninstall : Delete the ibm-data-reporter-operator-api SA token secret"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Secret
+    namespace: "{{ dro_namespace }}"
+    name: ibm-data-reporter-operator-api-token
+
+# Delete PVC's
+- name: "uninstall : Delete the Data service PVC 0"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: PersistentVolumeClaim
+    namespace: "{{ dro_namespace }}"
+    name: rhm-data-service-rhm-data-service-0
+
+- name: "uninstall : Delete the Data service PVC 1"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: PersistentVolumeClaim
+    namespace: "{{ dro_namespace }}"
+    name: rhm-data-service-rhm-data-service-1
+
+- name: "uninstall : Delete the Data service PVC 2"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: PersistentVolumeClaim
+    namespace: "{{ dro_namespace }}"
+    name: rhm-data-service-rhm-data-service-2

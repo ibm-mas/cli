@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: "cert-manager-webhook-ibm-cis"
+  labels:
+    app: "cert-manager-webhook-ibm-cis"
+spec:
+  type: "{{ cis_webhook.service.type }}"
+  ports:
+    - port: {{ cis_webhook.service.port }}
+      targetPort: https
+      protocol: TCP
+      name: https
+  selector:
+    app: "cert-manager-webhook-ibm-cis"

@@ -1,0 +1,260 @@
+---
+# 1. Check for undefined properties that do not have a default
+# -----------------------------------------------------------------------------
+- name: "Fail if mas_instance_id is not provided"
+  assert:
+    that: mas_instance_id is defined and mas_instance_id != ""
+    fail_msg: "mas_instance_id property is required"
+
+- name: "Fail if mas_instance_id does not meet requirements"
+  assert:
+    that: mas_instance_id is match ('^[a-z][a-z0-9-]{1,10}[a-z0-9]$')
+    fail_msg:
+      - "mas_instance_id does not meet requirements"
+      - "Must be 3-12 characters long"
+      - "Must only use lowercase letters, numbers, and hyphen (-) symbol"
+      - "Must start with a lowercase letter"
+      - "Must end with a lowercase letter or a number"
+
+
+# 2. Set facts for mas_annotations_dict, HyperscalerFormat, HyperscalerChannel
+# -----------------------------------------------------------------------------
+- name: "Set facts : mas_annotations_dict"
+  set_fact:
+    mas_annotations_dict: "{{ mas_annotations | string  | ibm.mas_devops.getAnnotations() }}"
+
+- name: "Set facts : HyperscalerFormat"
+  set_fact:
+    input_hyperscalerFormat: "{{ item.value }}"
+  when:
+    - mas_annotations_dict is defined and item.key == 'mas.ibm.com/hyperscalerFormat'
+  with_dict:
+    - "{{  mas_annotations_dict  }}"
+
+- name: "Set facts : HyperscalerChannel"
+  set_fact:
+    input_hyperscalerChannel: "{{ item.value }}"
+  when:
+    - mas_annotations_dict is defined and item.key == 'mas.ibm.com/hyperscalerChannel'
+  with_dict:
+    - "{{  mas_annotations_dict  }}"
+
+- name: "Set facts : HyperscalerProvider"
+  set_fact:
+    input_hyperscalerProvider: "{{ item.value }}"
+  when:
+    - mas_annotations_dict is defined and item.key == 'mas.ibm.com/hyperscalerProvider'
+  with_dict:
+    - "{{  mas_annotations_dict  }}"
+
+- name: "Debug input hyperscaler values"
+  debug:
+    msg:
+      - "Hyperscaler Provider ................... {{ input_hyperscalerProvider | default('<undefined>', true) }}"
+      - "Hyperscaler Channel .................... {{ input_hyperscalerChannel | default('<undefined>', true) }}"
+      - "Hyperscaler Format ..................... {{ input_hyperscalerFormat | default('<undefined>', true) }}"
+      - "mas_annotations_dict ................... {{ mas_annotations_dict }}"
+
+
+# 3. Validate annotations: Check for Hyperscaler flag partially set
+# -----------------------------------------------------------------------------
+- name: "Check for Hyperscaler flag partially set"
+  when:
+    - mas_annotations_dict is defined
+  assert:
+    that:
+      - (input_hyperscalerProvider is undefined and input_hyperscalerChannel is undefined and input_hyperscalerFormat is undefined) or (input_hyperscalerProvider is defined and input_hyperscalerChannel is defined )
+    fail_msg: "Assertion Failed! Invalid HyperScalerFlag combination in {{mas_annotations}} "
+    success_msg: "Assertion Passed!  Valid HyperScalerFlag combination in {{mas_annotations}} "
+
+
+# 4. Validate annotations: Check if mas_annotations has valid allowed values
+# -----------------------------------------------------------------------------
+- name: "Fail if mas_annotations value is invalid"
+  when:
+    - mas_annotations_dict is defined and item.key in mas_annotation_valid_entries
+  assert:
+    that:
+      - mas_annotation_valid_entries[item.key] is defined and mas_annotation_valid_entries[item.key] | length>0
+      - item.value in mas_annotation_valid_entries[item.key]
+    fail_msg: "Assertion Failed! Annotation {{item.key}}={{item.value}} is not valid "
+    success_msg: "Assertion Passed!  Annotation {{item.key}}={{item.value}} is valid "
+  with_dict:
+    - "{{  mas_annotations_dict  }}"
+
+
+# 5. Check if mas_annotations value has invalid combinations
+# -----------------------------------------------------------------------------
+- name: "Fail if mas_annotations value has invalid combinations"
+  when:
+    - mas_annotations_dict is defined and item.key == 'mas.ibm.com/hyperscalerProvider'
+  assert:
+    that:
+      - item.value in mas_annotation_valid_combinations and mas_annotation_valid_combinations[item.value] is defined # check if provider exist in 'mas_annotation_valid_combinations' lookup
+      - input_hyperscalerChannel is defined and input_hyperscalerChannel in mas_annotation_valid_combinations[item.value] # check if channel exist in 'mas_annotation_valid_combinations' lookup
+      - mas_annotation_valid_combinations[item.value][input_hyperscalerChannel] | length>0 # check channel's [format list] length
+      - (input_hyperscalerFormat is undefined and input_hyperscalerChannel == 'azure') or (input_hyperscalerFormat is defined and input_hyperscalerFormat in mas_annotation_valid_combinations[item.value][input_hyperscalerChannel]) # check if format exist in 'mas_annotation_valid_combinations' lookup, (edge case for azure, hyperscalerFormat is undefined in marketplace)
+    fail_msg: "Assertion Failed! Invalid HyperScalerFlag combination in {{mas_annotations}} "
+    success_msg: "Assertion Passed!  Valid HyperScalerFlag combination in {{mas_annotations}} "
+  with_dict:
+    - "{{  mas_annotations_dict  }}"
+
+
+# 6. Check if hyperscalerFormat is set to saas incase if hyperscalerTier is set with valid values
+# -----------------------------------------------------------------------------
+- name: "Fail if hyperscalerTier is set with valid value but hyperscalerFormat is other than saas"
+  when:
+    - mas_annotations_dict is defined and item.key == 'mas.ibm.com/hyperscalerTier'
+  assert:
+    that:
+      - input_hyperscalerFormat == 'saas'
+    fail_msg: "Assertion Failed! Annotation {{item.key}}={{item.value}} is not valid as mas.ibm.com/hyperscalerFormat is not set to saas (instead set to {{input_hyperscalerFormat}} ) "
+    success_msg: "Assertion Passed!  Annotation {{item.key}}={{item.value}} is valid as mas.ibm.com/hyperscalerFormat is set to {{input_hyperscalerFormat}}"
+  with_dict:
+    - "{{  mas_annotations_dict  }}"
+
+
+# 7. Load PodTemplates configuration
+# -----------------------------------------------------------------------------
+- name: "Load podTemplates configuration"
+  include_tasks: "{{ role_path }}/../../common_tasks/pod_templates/main.yml"
+  vars:
+    config_files:
+      - "ibm-mas-suite.yml"
+      - "ibm-mas-coreidp.yml"
+    combine_into: "ibm-mas-suite.yml"
+
+- name: "Load podTemplates configuration"
+  include_tasks: "{{ role_path }}/../../common_tasks/pod_templates/main.yml"
+  vars:
+    config_files:
+      - "ibm-data-dictionary-assetdatadictionary.yml"
+
+
+# 8. Set up the domain name for MAS
+# -----------------------------------------------------------------------------
+- name: "Get cluster subdomain"
+  kubernetes.core.k8s_info:
+    api_version: config.openshift.io/v1
+    kind: Ingress
+    name: cluster
+  register: _cluster_subdomain
+
+- name: "Configure domain if not set"
+  when: mas_domain == ""
+  set_fact:
+    mas_domain: "{{ mas_instance_id }}.{{ _cluster_subdomain.resources[0].spec.domain }}"
+
+
+# 9. Determine version of cert-manager in use on the cluster
+# -----------------------------------------------------------------------------
+# if cert_manager_cluster_resource_namespace is not set then
+# run 'detect_cert_manager' task to set it as this will be needed to be set in Suite CR
+- name: Detect Certificate Manager installation
+  include_tasks: "{{ role_path }}/../../common_tasks/detect_cert_manager.yml"
+  when: cert_manager_cluster_resource_namespace is not defined or cert_manager_cluster_resource_namespace == ''
+
+
+# 10. Provide debug information
+# -----------------------------------------------------------------------------
+- name: "Configure namespace"
+  set_fact:
+    mas_namespace: "mas-{{ mas_instance_id }}-core"
+
+- name: "Debug information"
+  debug:
+    msg:
+      - "Catalog source ................ {{ mas_catalog_source }}"
+      - "MAS channel ................... {{ mas_channel }}"
+      - "Instance ID ................... {{ mas_instance_id }}"
+      - "MAS namespace ................. {{ mas_namespace }}"
+      - "MAS domain .................... {{ mas_domain }}"
+      - "MAS ICR cp content ............ {{ mas_icr_cp }}"
+      - "MAS ICR cpopen content ........ {{ mas_icr_cpopen }}"
+      - "Cert Manager namespace ........ {{ cert_manager_cluster_resource_namespace }}"
+      - "MAS Cluster Issuer ............ {{ mas_cluster_issuer }}"
+      - "IPv6 Enabled .................. {{ enable_ipv6 }}"
+
+
+# 11. Install the operator & create entitlement secret
+# -----------------------------------------------------------------------------
+- name: "Install MAS Operator"
+  include_role:
+    name: ibm.mas_devops.install_operator
+  vars:
+    namespace: "{{ mas_namespace }}"
+    icr_username: "{{ mas_entitlement_username }}"
+    icr_password: "{{ mas_entitlement_key }}"
+    catalog_source: "{{ mas_catalog_source }}"
+    operator_group: "{{ lookup('template', 'templates/operator-group.yml.j2') }}"
+    subscription: "{{ lookup('template', 'templates/subscription.yml.j2') }}"
+
+
+# 12. Wait until the Suite CRD is available
+# -----------------------------------------------------------------------------
+- name: "Wait until the Suite CRD is available"
+  include_tasks: "{{ role_path }}/../../common_tasks/wait_for_crd.yml"
+  vars:
+    crd_name: suites.core.mas.ibm.com
+
+
+# 13. Before we install the suite create the optional filebeat and superuser secrets
+# -----------------------------------------------------------------------------
+# Note that this will have no effect on older version of MAS, but will do no harm
+- name: Configure Filebeat for Logstash
+  when: eck_enable_logstash
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ mas_namespace }}"
+    template: templates/secret-filebeat-output.yml.j2
+
+- name: Configure MAS Superuser account
+  when:
+    - mas_superuser_username is defined and mas_superuser_username != ""
+    - mas_superuser_password is defined and mas_superuser_password != ""
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ mas_namespace }}"
+    template: templates/secret-superuser.yml.j2
+
+
+- name: Render the Jinja2 template
+  template:
+    src: templates/core_v1_suite.yml.j2
+    dest: /tmp/rendered_template.yml
+
+- name: Read the rendered YAML file
+  slurp:
+    src: /tmp/rendered_template.yml
+  register: rendered_content
+
+- name: Convert slurped content to string
+  set_fact:
+    rendered_yaml: "{{ rendered_content.content | b64decode }}"
+
+- name: Print the rendered YAML
+  debug:
+    msg: "{{ rendered_yaml }}"
+
+# 14. Suite installation
+# -----------------------------------------------------------------------------
+- name: Create suite.ibm.com/v1 CR
+  vars:
+    annotation_dict: "{{ mas_annotations | string | ibm.mas_devops.getAnnotations() }}"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ mas_namespace }}"
+    template: templates/core_v1_suite.yml.j2
+  register: suiteResult
+
+- name: debug suiteResult
+  debug:
+    msg: "{{ suiteResult }}"
+
+
+# 15. Set up OCP ConsoleLink for MAS Admin Dashboard
+# -----------------------------------------------------------------------------
+- name: Create ConsoleLink for MAS Admin Dashbord
+  kubernetes.core.k8s:
+    state: present
+    template: templates/consolelink.yml.j2

@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: "{{ dro_namespace }}"
+{% if og_info.resources |length ==0 %}
+---
+apiVersion: operators.coreos.com/v1alpha2
+kind: OperatorGroup
+metadata:
+  name: operatorgroup
+  namespace: "{{ dro_namespace }}"
+spec:
+  targetNamespaces:
+  - "{{ dro_namespace }}"
+{% endif %}

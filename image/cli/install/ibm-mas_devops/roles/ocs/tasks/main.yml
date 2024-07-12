@@ -1,0 +1,5 @@
+---
+- name: "Run the selected action"
+  include_tasks: "tasks/{{ ocs_action }}/main.yml"
+  when:
+    - ocs_action != "none"

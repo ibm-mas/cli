@@ -1,0 +1,113 @@
+---
+# tasks file for suite
+
+# 1. Check for undefined properties that do not have a default
+# -----------------------------------------------------------------------------
+- name: "Fail if mas_instance_id is not provided"
+  assert:
+    that:
+      - mas_instance_id is defined
+      - mas_instance_id != ""
+    fail_msg: "mas_instance_id property is required"
+
+
+# 2. Configure target namespace
+# -----------------------------------------------------------------------------
+- name: "Configure namespace"
+  set_fact:
+    mas_namespace: "mas-{{ mas_instance_id }}-core"
+
+
+# 3. Follow Suite Status
+# -----------------------------------------------------------------------------
+- name: "Wait for Suite Components to be ready (60s delay)"
+  kubernetes.core.k8s_info:
+    api_version: v1
+    name: "{{mas_instance_id}}"
+    namespace: "{{mas_namespace}}"
+    kind: Suite
+  register: suite_cr_result
+  until:
+    - suite_cr_result.resources[0].status.conditions is defined
+    - suite_cr_result.resources[0].status.conditions | selectattr('type', 'equalto', 'SystemDatabaseReady') | map(attribute='status') | list | length > 0
+    - suite_cr_result.resources[0].status.conditions | selectattr('type', 'equalto', 'SystemDatabaseReady') | map(attribute='status') | list | first == "True"
+    - suite_cr_result.resources[0].status.conditions | selectattr('type', 'equalto', 'BASIntegrationReady') | map(attribute='status') | list | length > 0
+    - suite_cr_result.resources[0].status.conditions | selectattr('type', 'equalto', 'BASIntegrationReady') | map(attribute='status') | list | first == "True"
+    - suite_cr_result.resources[0].status.conditions | selectattr('type', 'equalto', 'SLSIntegrationReady') | map(attribute='status') | list | length > 0
+    - suite_cr_result.resources[0].status.conditions | selectattr('type', 'equalto', 'SLSIntegrationReady') | map(attribute='status') | list | first == "True"
+  retries: 50 # approx 50 minutes before we give up
+  delay: 60 # 1 minute
+
+# Older versions of MAS Core may not have the CoreIDPReady status check so it is seperated here and it only runs if the check is present
+- name: "Wait for CoreIDP to be ready if check is present (60s delay)"
+  when: suite_cr_result.resources[0].status.conditions | selectattr('type', 'equalto', 'CoreIDPReady') | map(attribute='status') | list | length > 0
+  kubernetes.core.k8s_info:
+    api_version: v1
+    name: "{{mas_instance_id}}"
+    namespace: "{{mas_namespace}}"
+    kind: Suite
+  register: suite_cr_result
+  until: suite_cr_result.resources[0].status.conditions | selectattr('type', 'equalto', 'CoreIDPReady') | map(attribute='status') | list | first == "True"
+  retries: 20 # approx 20 minutes before we give up
+  delay: 60 # 1 minute
+
+- name: "Wait for Suite to be ready overall (60s delay)"
+  kubernetes.core.k8s_info:
+    api_version: v1
+    name: "{{mas_instance_id}}"
+    namespace: "{{mas_namespace}}"
+    kind: Suite
+  register: suite_cr_result
+  until:
+    - suite_cr_result.resources[0].status.conditions | selectattr('type', 'equalto', 'Ready') | map(attribute='status') | list | length > 0
+    - suite_cr_result.resources[0].status.conditions | selectattr('type', 'equalto', 'Ready') | map(attribute='status') | list | first == "True"
+  retries: 20 # approx 20 minutes before we give up
+  delay: 60 # 1 minute
+
+# 4. Lookup for superuser credentials
+# -----------------------------------------------------------------------------
+- name: "Lookup MAS superuser credentials"
+  when: not mas_hide_superuser_credentials
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    name: "{{ mas_instance_id }}-credentials-superuser"
+    namespace: "{{mas_namespace}}"
+  register: superuser_credentials
+
+- name: "Show the username/password"
+  when: not mas_hide_superuser_credentials
+  set_fact:
+    superuser_username: "{{ superuser_credentials.resources[0].data.username | b64decode }}"
+    superuser_password: "{{ superuser_credentials.resources[0].data.password | b64decode }}"
+
+- name: "Hide actual username/password"
+  when: mas_hide_superuser_credentials
+  set_fact:
+    superuser_username: "Available in Secret/{{ mas_instance_id }}-credentials-superuser"
+    superuser_password: "Available in Secret/{{ mas_instance_id }}-credentials-superuser"
+
+# 5. Print MAS login information
+# -----------------------------------------------------------------------------
+- name: Lookup Route for admin
+  kubernetes.core.k8s_info:
+    api_version: route.openshift.io/v1
+    kind: Route
+    name: "{{ mas_instance_id}}-admin"
+    namespace: "{{ mas_namespace }}"
+  register: admin_route
+
+- name: "Lookup cluster subdomain"
+  kubernetes.core.k8s_info:
+    api_version: config.openshift.io/v1
+    kind: Ingress
+    name: cluster
+  register: cluster_subdomain
+
+- name: "Maximo Application Suite Authentication Summary:"
+  debug:
+    msg:
+      - "Maximo Application Suite is Ready, use the superuser credentials to authenticate"
+      - "Admin Dashboard ... https://{{ admin_route.resources[0].spec.host }}"
+      - "Username .......... {{ superuser_username }}"
+      - "Password .......... {{ superuser_password }}"

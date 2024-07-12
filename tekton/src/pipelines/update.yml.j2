@@ -32,16 +32,22 @@ spec:
       description: "Set this to any value other than 'true' to disable launch of the pre and post upgrade tests pipeline (running before and after upgrade process happens)"
 {% endif %}
 
-    # Tekton Pipeline image pull policy (for ibmmas/cli images)
+    # Tekton Pipeline Configuration
+    # -------------------------------------------------------------------------
     - name: image_pull_policy
       type: string
       default: IfNotPresent
+    - name: skip_pre_check
+      type: string
+      default: ""
 
     # Catalog Version
+    # -------------------------------------------------------------------------
     - name: mas_catalog_version
       type: string
 
     # Development Build Support
+    # -------------------------------------------------------------------------
     - name: artifactory_username
       default: ""
       type: string
@@ -52,18 +58,21 @@ spec:
       description: Required to install development MAS catalogs
 
     # ocs/odf storage action
+    # -------------------------------------------------------------------------
     - name: ocs_action
       type: string
       default: "upgrade"
       description: Set to 'upgrade' to update ocs/odf
 
     # common services action
+    # -------------------------------------------------------------------------
     - name: common_services_action
       type: string
       default: "upgrade"
       description: Set to 'upgrade' to update common_services
 
     # cert-manager update
+    # -------------------------------------------------------------------------
     - name: cert_manager_action
       type: string
       default: ""
@@ -74,6 +83,7 @@ spec:
       description: Certificate manager provider (ibm or redhat)
 
     # db2 update
+    # -------------------------------------------------------------------------
     - name: db2_action
       type: string
       default: "upgrade"
@@ -84,6 +94,7 @@ spec:
       description: Namespace where db2 instances will be updated
 
     # mongodb update
+    # -------------------------------------------------------------------------
     - name: mongodb_action
       type: string
       default: "install"
@@ -92,23 +103,28 @@ spec:
       type: string
       default: "mongoce"
       description: Namespace where mongodb instances will be updated
-    - name: mongodb_v5_upgrade
-      type: string
-      description: Approves the MongoDb upgrade to version 5 if needed
-      default: ""
     - name: mongodb_version
       type: string
-      description: MongoDb version to update too
-    - name: mongodb_v6_upgrade
-      type: string
-      description: Approves the MongoDb upgrade to version 6 if needed
-      default: ""
+      description: Override the target version of MongoDb (use with extreme caution)
+
+    # TODO: The role should look this up itself
     - name: mongodb_replicas
       type: string
       description: Optional configuration for mongodb replicas
       default: ""
 
+    # Required to confirm a major version update
+    - name: mongodb_v5_upgrade
+      type: string
+      description: Approves the MongoDb upgrade to version 5 if needed
+      default: ""
+    - name: mongodb_v6_upgrade
+      type: string
+      description: Approves the MongoDb upgrade to version 6 if needed
+      default: ""
+
     # kafka update
+    # -------------------------------------------------------------------------
     - name: kafka_action
       type: string
       default: "upgrade"
@@ -123,6 +139,7 @@ spec:
       description: kafka provider such as 'redhat' or 'strimzi'
 
     # UDS/DRO Migration
+    # -------------------------------------------------------------------------
     - name: dro_migration
       default: ""
       type: string
@@ -139,18 +156,19 @@ spec:
       default: "redhat-marketplace"
       type: string
 
-    # grafana operator update
+    # Grafana operator update
+    # -------------------------------------------------------------------------
     - name: grafana_v5_upgrade
       type: string
       description: Approves the Grafana Operator upgrade to version 5
       default: ""
 
-    # cp4d update
-    {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
-    - name: skip_entitlement_key_flag
+    # CP4D update
+    # -------------------------------------------------------------------------
+    - name: cpd_product_version
       type: string
       default: ""
-      description: Flag that determines if ibm-entitlement-key check must be skipped in cp4d role
+
     - name: cp4d_update
       type: string
       default: ""
@@ -179,22 +197,16 @@ spec:
       type: string
       default: ""
       description: Flag that determines if Cognos Analytics must be upgraded
-    - name: cpd_primary_storage_class
-      type: string
-      default: ""
-    - name: cpd_metadata_storage_class
-      type: string
-      default: ""
-    - name: cpd_service_storage_class
-      type: string
-      default: ""
-    - name: cpd_service_block_storage_class
-      type: string
-      default: ""
-    - name: cpd_product_version
-      type: string
-      default: ""
 
+    # TODO: CP4D update needs to just look up the storage classes already in use
+    - name: storage_class_rwo
+      type: string
+      default: ""
+      description: ReadWriteOnce storage class
+    - name: storage_class_rwx
+      type: string
+      default: ""
+      description: ReadWriteMany storage class
 
   tasks:
 {% if wait_for_install == true %}

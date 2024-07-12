@@ -1,0 +1,65 @@
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: maskafka-credentials
+  namespace: "{{ kafka_namespace }}"
+stringData:
+  username: "{{ kafka_user_name }}"
+  password: "{{ kafka_user_password }}"
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaUser
+metadata:
+  name: "{{ kafka_user_name }}"
+  labels:
+    strimzi.io/cluster: "{{ kafka_cluster_name }}"
+  namespace: "{{ kafka_namespace }}"
+spec:
+  authentication:
+    type: scram-sha-512
+    password:
+      valueFrom:
+        secretKeyRef:
+          name: maskafka-credentials
+          key: password
+  authorization:
+    type: simple
+    acls:
+      - host: '*'
+        operation: All
+        resource:
+          name: '*'
+          patternType: prefix
+          type: topic
+      - host: '*'
+        operation: All
+        resource:
+          name: '*'
+          patternType: prefix
+          type: group
+      - host: '*'
+        operation: All
+        resource:
+          name: '*'
+          patternType: prefix
+          type: cluster
+      - host: '*'
+        operation: All
+        resource:
+          name: '*'
+          patternType: literal
+          type: topic
+      - host: '*'
+        operation: All
+        resource:
+          name: '*'
+          patternType: literal
+          type: group
+      - host: '*'
+        operation: All
+        resource:
+          name: '*'
+          patternType: literal
+          type: cluster

@@ -1,0 +1,96 @@
+---
+# Cluster definition
+# -----------------------------------------------------------------------------
+cluster_name: "{{ lookup('env', 'CLUSTER_NAME')}}"
+cluster_type: "{{ lookup('env', 'CLUSTER_TYPE')}}"
+cluster_platform: "{{lookup('env', 'CLUSTER_PLATFORM') | default('x',true)}}"
+
+ocp_version: "{{ lookup('env', 'OCP_VERSION') }}"
+ocp_fips_enabled: "{{ lookup('env', 'OCP_FIPS_ENABLED') | default('false', true) | bool }}"
+
+supported_cluster_types:
+  - fyre
+  - roks
+  - rosa
+  - ipi
+
+# GPU support (limited)
+# -----------------------------------------------------------------------------
+# Flag to add GPU worker node to cluster. Currently only set up for ROKS clusters
+ocp_provision_gpu: "{{ lookup('env', 'OCP_PROVISION_GPU') | default('false', True) }}"
+
+# The number of GPU worker nodes to deploy. Currently only set up for ROKS clusters
+gpu_workers: "{{ lookup('env', 'GPU_WORKERS') | default('1', true) }}"
+
+# The name of the gpu worker pool.
+gpu_workerpool_name: "{{ lookup('env', 'GPU_WORKERPOOL_NAME') | default('gpu', true) }}"
+
+# ROKS
+# -----------------------------------------------------------------------------
+ibmcloud_endpoint: "{{ lookup('env', 'IBMCLOUD_ENDPOINT') | default('https://cloud.ibm.com', true) }}"
+ibmcloud_apikey: "{{ lookup('env', 'IBMCLOUD_APIKEY') }}"
+ibmcloud_resourcegroup: "{{ lookup('env', 'IBMCLOUD_RESOURCEGROUP') | default('Default', true) }}"
+
+roks_zone: "{{ lookup('env', 'ROKS_ZONE') | default('dal10', true) }}"
+roks_flavor: "{{ lookup('env', 'ROKS_FLAVOR') | default('b3c.16x64.300gb', true) }}"
+roks_workers: "{{ lookup('env', 'ROKS_WORKERS') | default('3', true) }}"
+roks_flags: "{{ lookup('env', 'ROKS_FLAGS') | default('', true) }}"
+
+# FYRE
+# -----------------------------------------------------------------------------
+fyre_username: "{{ lookup('env', 'FYRE_USERNAME') }}"
+fyre_password: "{{ lookup('env', 'FYRE_APIKEY') }}"
+
+fyre_cluster_description: "{{ lookup('env', 'FYRE_CLUSTER_DESCRIPTION') | default('No description provided', true) }}"
+fyre_cluster_size: "{{ lookup('env', 'FYRE_CLUSTER_SIZE') | default('large', true) }}"
+fyre_product_id: "{{ lookup('env', 'FYRE_PRODUCT_ID') }}"
+fyre_quota_type: "{{ lookup('env', 'FYRE_QUOTA_TYPE') | default('quick_burn', true) }}"
+fyre_site: "{{ lookup('env', 'FYRE_SITE') | default('svl', true) }}"
+
+# Only used when quota_type == product_group
+fyre_worker_count: "{{ lookup('env', 'FYRE_WORKER_COUNT') | default('3', true) }}"
+fyre_worker_memory: "{{ lookup('env', 'FYRE_WORKER_MEMORY') | default('16', true) }}"
+fyre_worker_cpu: "{{ lookup('env', 'FYRE_WORKER_CPU') | default('64', true) }}"
+
+# ROSA
+# -----------------------------------------------------------------------------
+rosa_token: "{{ lookup('env', 'ROSA_TOKEN') }}"
+rosa_cluster_admin_password: "{{ lookup('env', 'ROSA_CLUSTER_ADMIN_PASSWORD') }}"
+rosa_compute_nodes: "{{ lookup('env', 'ROSA_COMPUTE_NODES') | default('3', true) }}"
+rosa_compute_machine_type: "{{ lookup('env', 'ROSA_COMPUTE_MACHINE_TYPE') | default('m5.4xlarge', true) }}"
+rosa_config_dir: "{{ lookup('env', 'ROSA_CONFIG_DIR') | default('', true) }}"
+
+# AWS
+# -----------------------------------------------------------------------------
+aws_access_key_id: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+aws_secret_access_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+
+# GCP
+gcp_service_account_file: "{{ lookup('env', 'GOOGLE_APPLICATION_CREDENTIALS') }}"
+ipi_gcp_projectid: "{{lookup('env', 'GOOGLE_PROJECTID')}}"
+
+# Installer Provided Infrastructure
+# -----------------------------------------------------------------------------
+ipi_base_domain: "{{ lookup('env', 'IPI_BASE_DOMAIN') }}"
+ipi_platform: "{{ lookup('env', 'IPI_PLATFORM')  | default('aws', true)  }}"
+ipi_region: "{{ lookup('env', 'IPI_REGION')  | default('us-east-1', true)  }}"
+
+# For now we can default the type to the best fit for AWS as that's all we support atm
+ipi_compute_type: "{{ lookup('env', 'IPI_COMPUTE_TYPE') | default('m5.4xlarge', true) }}"
+ipi_compute_replicas: "{{ lookup('env', 'IPI_COMPUTE_REPLICAS') | default('3', true) }}"
+
+# For now we can default the type to the best fit for AWS as that's all we support atm
+ipi_controlplane_type: "{{ lookup('env', 'IPI_CONTROLPLANE_TYPE') | default('m5.4xlarge', true) }}"
+ipi_controlplane_replicas: "{{ lookup('env', 'IPI_CONTROLPLANE_REPLICAS') | default('3', true) }}"
+ipi_rootvolume_size: "{{ lookup('env', 'IPI_ROOTVOLUME_SIZE') }}"
+
+ipi_pull_secret_file: "{{ lookup('env', 'IPI_PULL_SECRET_FILE') }}"
+sshKey: "{{ lookup('env', 'SSH_PUB_KEY') | default('', true) }}"
+ipi_dir: "{{ lookup('env', 'IPI_DIR') | default(ansible_env.HOME ~ '/openshift-install', True) }}"
+ipi_config_dir: "{{ ipi_dir }}/config/{{ cluster_name }}"
+
+ocp_installer_dir: "{{ ipi_dir }}/installer/{{ ocp_version }}"
+ocp_installer_exe: "{{ ipi_dir }}/installer/{{ ocp_version }}/openshift-install"
+
+# Enable IPv6?
+enable_ipv6: "{{ lookup('env', 'ENABLE_IPV6') | default('false', true) | bool }}"

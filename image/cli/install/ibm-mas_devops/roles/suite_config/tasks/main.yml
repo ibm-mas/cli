@@ -1,0 +1,45 @@
+---
+
+# 1. Check for undefined properties that do not have a default values
+# -----------------------------------------------------------------------------
+- name: "Fail if mas_instance_id is not provided"
+  assert:
+    that: mas_instance_id is defined and mas_instance_id != ""
+    fail_msg: "mas_instance_id property is required"
+
+- name: "Fail if mas_config_dir is not provided"
+  assert:
+    that: mas_config_dir is defined and mas_config_dir != ""
+    fail_msg: "mas_config_dir property is required"
+
+
+# 2. Provide debug information
+# -----------------------------------------------------------------------------
+- name: "Debug information"
+  debug:
+    msg:
+      - "Instance ID ............... {{ mas_instance_id }}"
+      - "MAS config directory ...... {{ mas_config_dir }}"
+
+
+# 3. Apply optional MAS configuration
+# -----------------------------------------------------------------------------
+- name: Find *.yml and *.yaml files in the MAS config directory
+  find:
+    paths: "{{ mas_config_dir }}"
+    patterns: '*.yml,*.yaml'
+    recurse: no
+  register: mas_config_files
+
+- name: "Debug the list of config files located"
+  debug:
+    msg: "{{ item.path }}"
+  with_items: "{{ mas_config_files.files }}"
+
+- name: "Apply configs"
+  vars:
+    instance_id: "{{ mas_instance_id }}"
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', item.path) }}"
+  with_items: "{{ mas_config_files.files }}"

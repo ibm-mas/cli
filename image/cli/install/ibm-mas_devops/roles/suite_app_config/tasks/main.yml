@@ -1,0 +1,113 @@
+---
+
+# 1. Check for undefined properties that do not have a default
+# -----------------------------------------------------------------------------
+- name: "Fail if required properties are not provided"
+  assert:
+    that:
+      - mas_instance_id is defined and mas_instance_id != ""
+      - mas_app_id is defined and mas_app_id != ""
+      - mas_workspace_id is defined and mas_workspace_id != ""
+    fail_msg: "Missing one or more required properties"
+
+
+# 2. Load var files
+# -----------------------------------------------------------------------------
+- name: Load mas_appws variables
+  include_vars: "vars/{{ mas_app_id }}.yml"
+
+- name: Load mas_app variables
+  include_vars: "{{ role_path }}/../suite_app_install/vars/{{ mas_app_id }}.yml"
+
+
+# 3. Run Application Specific Pre-configuration
+# -----------------------------------------------------------------------------
+# The following will auto determine storage classes to be used as persistent
+# volumes for Manage attachments/BIM configurations (Manage OOTB features)
+- name: Determine Storage Class for {{ mas_app_id }} application
+  when:
+    - mas_app_id in ['manage','health']
+    - mas_app_settings_persistent_volumes_flag or mas_app_settings_server_bundles_size in ['jms','snojms']
+  include_tasks: "tasks/determine-storage-classes.yml"
+
+# Pre-config specific application settings before workspace CR be deployed
+- name: "Run Manage specific pre-configuration"
+  when: mas_app_id is in ['manage'] # applications which have something to process before configuration
+  include_tasks: "tasks/{{ mas_app_id }}/pre-config/main.yml"
+
+# Resolve the WSL project ID that will be used by Predict and HP Utilities
+- name: Lookup Watson Studio Project ID
+  when: mas_app_id is in ['hputilities', 'predict']
+  include_tasks: "tasks/determine-watson-studio-id.yml"
+
+
+# 4. Load default application workspace spec, if user does not provide one
+# -----------------------------------------------------------------------------
+- name: Load default application workspace spec
+  when: mas_appws_spec is not defined or mas_appws_spec == ""
+  include_vars: "vars/defaultspecs/{{ mas_app_id }}.yml"
+
+
+# 5. Provide debug information
+# -----------------------------------------------------------------------------
+- name: "Configure namespace"
+  set_fact:
+    mas_namespace: "mas-{{ mas_instance_id }}-core"
+    mas_app_namespace: "mas-{{ mas_instance_id }}-{{ mas_app_id }}"
+
+- name: "Debug information"
+  debug:
+    msg:
+      - "Instance ID ............................ {{ mas_instance_id }}"
+      - "Application ID ......................... {{ mas_app_id }}"
+      - "Workspace ID ........................... {{ mas_workspace_id }}"
+      - "Application namespace .................. {{ mas_app_namespace }}"
+      - "JDBC Binding ........................... {{ mas_appws_bindings_jdbc | default('<undefined>', true) }}"
+      - "Templated workspace CR ................. {{ lookup('template', 'templates/workspace.yml.j2') }}"
+
+
+# 6. Workspace configuration
+# -----------------------------------------------------------------------------
+- name: Configure application in workspace
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ mas_app_namespace }}"
+    definition: "{{ lookup('template', 'templates/workspace.yml.j2') }}"
+
+
+# 7. Check if the application is ready
+# -----------------------------------------------------------------------------
+# Workspaces can only be configured when an application is in Ready state.
+#
+# If the application is not in ready state we can fail fast rather than waiting
+# for the workspace to be Ready -- because it never will!
+- name: "Lookup application information"
+  kubernetes.core.k8s_info:
+    api_version: "{{ mas_app_api_version }}"
+    name: "{{ mas_instance_id }}"
+    namespace: "{{ mas_app_namespace }}"
+    kind: "{{ mas_app_kind }}"
+  register: app_cr_result
+
+- name: "Check that the application is ready to configure a workspace"
+  assert:
+    that:
+      - app_cr_result.resources is defined
+      - app_cr_result.resources | length > 0
+      - app_cr_result.resources | json_query('[*].status.conditions[?type==`Ready`][].status') | select ('match','True') | list | length == 1
+    fail_msg: "Workspace {{ mas_workspace_id }} created but application {{ mas_app_id }} is not ready"
+
+
+# 8. Wait for application workspace to be ready
+# -----------------------------------------------------------------------------
+- ansible.builtin.include_role:
+    name: ibm.mas_devops.suite_app_verify
+
+
+# 9. Run Application Specific Post-configuration
+# -----------------------------------------------------------------------------
+
+# Post-config specific application settings after workspace CR be successfully deployed
+- name: "Run Manage specific post-configuration"
+  when: mas_app_id is in ['manage'] # applications which have something to process after configuration
+  include_tasks: "tasks/{{ mas_app_id }}/post-config/main.yml"

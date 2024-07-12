@@ -1,0 +1,46 @@
+{
+ "collection_info": {
+  "namespace": "ibm",
+  "name": "mas_devops",
+  "version": "100.0.0",
+  "authors": [
+   "David Parker <parkerda@uk.ibm.com>",
+   "Paul Stone <stonepd@uk.ibm.com>",
+   "Tom Klapiscak",
+   "Andrew Whitfield",
+   "Caio Pereira <caiofcp@br.ibm.com>",
+   "Joao Paulo Karol Nunes",
+   "Andre Marcelino",
+   "Alexandre Fernandes Quinteiro <alexandre.quinteiro@br.ibm.com>",
+   "Sanjay Prabhakar <sanjay.prabhakar@uk.ibm.com>"
+  ],
+  "readme": "README.md",
+  "tags": [
+   "ibm",
+   "mas",
+   "rhocp"
+  ],
+  "description": "MAS DevOps Ansible Collection",
+  "license": [
+   "EPL-2.0"
+  ],
+  "license_file": null,
+  "dependencies": {
+   "kubernetes.core": ">=2.2.0,<3.0.0",
+   "ibm.cloudcollection": ">=1.37.1,<2.0.0",
+   "ansible.utils": ">=2.11.0"
+  },
+  "repository": "https://github.com/ibm-mas/ansible-devops",
+  "documentation": "https://ibm-mas.github.io/ansible-devops/",
+  "homepage": "https://ibm-mas.github.io/ansible-devops/",
+  "issues": "https://github.com/ibm-mas/ansible-devops/issues"
+ },
+ "file_manifest_file": {
+  "name": "FILES.json",
+  "ftype": "file",
+  "chksum_type": "sha256",
+  "chksum_sha256": "f71607f02922f8047bb86d779830078fb6f59cfb474633389496582c822b77aa",
+  "format": 1
+ },
+ "format": 1
+}

@@ -1,0 +1,101 @@
+---
+# Choose DNS Provider
+# -----------------------------------------------------------------------------
+dns_provider: "{{ lookup('env', 'DNS_PROVIDER') }}"
+supported_dns_providers:
+  - cis
+  - cloudflare
+  - route53
+mas_manual_cert_mgmt: "{{ lookup('env', 'MAS_MANUAL_CERT_MGMT')| default(False, true) }}"
+
+# Certificate Manager
+# -----------------------------------------------------------------------------
+# If IBM Certificate Manager is installed then 'cert_manager_service_account' must be 'ibm-cert-manager-controller'
+# If Red Hat Certificate Manager is installed then 'cert_manager_service_account' must be 'cert-manager'
+cert_manager_service_account: "{{ 'ibm-cert-manager-controller' if (cert_manager_namespace == 'ibm-common-services') else 'cert-manager' }}"
+
+# MAS Domain
+# -----------------------------------------------------------------------------
+mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
+mas_workspace_id: "{{ lookup('env', 'MAS_WORKSPACE_ID') }}"
+mas_namespace: "mas-{{ mas_instance_id }}-core"
+mas_domain: "{{ lookup('env', 'MAS_DOMAIN') }}"
+
+# Ouput Directory
+# -----------------------------------------------------------------------------
+output_dir: "{{ lookup('env', 'OUTPUT_DIR') | default('.', true)}}"
+
+# Override the OCP ingress used in DNS entries
+# -----------------------------------------------------------------------------
+ocp_ingress: "{{ lookup('env', 'OCP_INGRESS') }}"
+
+# Cloudflare DNS Integration
+# -----------------------------------------------------------------------------
+cloudflare_prod_issuer_name: "{{ mas_instance_id }}-cloudflare-le-prod"
+cloudflare_stg_issuer_name: "{{ mas_instance_id }}-cloudflare-le-stg"
+
+cloudflare_email: "{{ lookup('env', 'CLOUDFLARE_EMAIL') }}"
+cloudflare_apitoken: "{{ lookup('env', 'CLOUDFLARE_APITOKEN') }}"
+cloudflare_zone: "{{ lookup('env', 'CLOUDFLARE_ZONE') }}"
+cloudflare_subdomain: "{{ lookup('env', 'CLOUDFLARE_SUBDOMAIN') }}"
+
+# IBM Cloud Internet Services DNS Integration
+# -----------------------------------------------------------------------------
+cis_prod_issuer_name: "{{ mas_instance_id }}-cis-le-prod"
+cis_stg_issuer_name: "{{ mas_instance_id }}-cis-le-stg"
+
+cis_email: "{{ lookup('env', 'CIS_EMAIL') }}"
+cis_apikey: "{{ lookup('env', 'CIS_APIKEY') }}"
+cis_crn: "{{ lookup('env', 'CIS_CRN') }}"
+cis_subdomain: "{{ lookup('env', 'CIS_SUBDOMAIN') }}"
+cis_enhanced_security: "{{ lookup('env', 'CIS_ENHANCED_SECURITY') | default(false, false) }}"
+
+# Enhanced IBM CIS DNS Integration Security
+# -----------------------------------------------------------------------------
+cis_waf: "{{ lookup('env', 'CIS_WAF') | default(true, true) }}"
+cis_proxy: "{{ lookup('env', 'CIS_PROXY') | default(false, true) }}"
+cis_service_name: "{{ lookup('env', 'CIS_SERVICE_NAME')}}"
+
+# Update DNS entry if it already exists
+update_dns: "{{ lookup('env', 'UPDATE_DNS_ENTRIES') | default(true, true) }}"
+# Force deletion of wildcard dns entries in cis
+delete_wildcards: "{{ lookup('env', 'DELETE_WILDCARDS') | default(false, true)}}"
+# Override and delete any existing edge certificates in cis instance
+override_edge_certs: "{{ lookup('env', 'OVERRIDE_EDGE_CERTS') | default(true, true)}}"
+
+cis_apiservice:
+  group_name: acme.cis.ibm.com
+
+cis_webhook:
+  image:
+    repository: quay.io/ibmmas/cert-manager-webhook-ibm-cis
+    tag: 1.0.0
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 443
+  log_level: 1
+
+# AWS Route53 Integration
+# -----------------------------------------------------------------------------
+aws_access_key_id: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+aws_secret_access_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+route53_hosted_zone_name: "{{ lookup('env', 'ROUTE53_HOSTED_ZONE_NAME') }}"
+route53_subdomain: "{{ lookup('env', 'ROUTE53_SUBDOMAIN') }}"
+route53_caller_reference: "{{ lookup('env', 'ROUTE53_CALLER_REFERENCE') | default(ansible_date_time.iso8601_basic_short, true) }}" # sample default: "20170930T132646"
+route53_email: "{{ lookup('env', 'ROUTE53_EMAIL') }}"
+aws_region: "{{ lookup('env', 'AWS_REGION') | default('us-east-2', True) }}"
+route53_hosted_zone_region: "{{ lookup('env', 'ROUTE53_HOSTED_ZONE_REGION') | default(aws_region, True) }}"
+route53_prod_issuer_name: "{{ mas_instance_id }}-route53-le-prod"
+route53_cname_json_file_path_local: "{{ role_path }}/templates/route53"
+
+# CP4D Integration
+# -----------------------------------------------------------------------------
+cpd_prod_issuer_name_default: "{{ mas_instance_id }}-{{ dns_provider }}-le-prod" # this will be the same production issuer used to setup mas instance
+cpd_prod_issuer_name: "{{ lookup('env', 'CPD_PROD_ISSUER_NAME') | default(cpd_prod_issuer_name_default, true) }}"
+cpd_custom_domain: "{{ lookup('env', 'CPD_CUSTOM_DOMAIN') | default(mas_domain, true) }}" # if not set, we'll use same mas domain
+cpd_instance_namespace: "{{ lookup('env', 'CPD_INSTANCE_NAMESPACE') }}"
+
+# Custom Labels
+# -----------------------------------------------------------------------------
+custom_labels: "{{ lookup('env', 'CUSTOM_LABELS') | default(None, true) | string | ibm.mas_devops.string2dict() }}"

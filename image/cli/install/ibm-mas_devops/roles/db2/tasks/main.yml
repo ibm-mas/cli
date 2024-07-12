@@ -1,0 +1,5 @@
+---
+- name: "Run the selected action"
+  include_tasks: "tasks/{{ db2_action }}/main.yml"
+  when:
+    - db2_action != "none"

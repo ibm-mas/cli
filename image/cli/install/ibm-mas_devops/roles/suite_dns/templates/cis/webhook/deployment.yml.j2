@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "cert-manager-webhook-ibm-cis"
+  labels:
+    app: "cert-manager-webhook-ibm-cis"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "cert-manager-webhook-ibm-cis"
+  template:
+    metadata:
+      labels:
+        app: "cert-manager-webhook-ibm-cis"
+    spec:
+      serviceAccountName: "cert-manager-webhook-ibm-cis"
+      containers:
+        - name: webhook
+          image: "{{ cis_webhook.image.repository }}:{{ cis_webhook.image.tag }}"
+          imagePullPolicy: {{ cis_webhook.image.pullPolicy }}
+          args:
+            - --tls-cert-file=/tls/tls.crt
+            - --tls-private-key-file=/tls/tls.key
+            - --v={{ cis_webhook.log_level }}
+          env:
+            - name: GROUP_NAME
+              value: "{{ cis_apiservice.group_name }}"
+          ports:
+            - name: https
+              containerPort: 443
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              scheme: HTTPS
+              path: /healthz
+              port: https
+          readinessProbe:
+            httpGet:
+              scheme: HTTPS
+              path: /healthz
+              port: https
+          volumeMounts:
+            - name: certs
+              mountPath: /tls
+              readOnly: true
+          resources:
+      volumes:
+        - name: certs
+          secret:
+            secretName: "cert-manager-webhook-ibm-cis-serving-cert"

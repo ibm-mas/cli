@@ -1,0 +1,28 @@
+---
+# 1. Check for undefined properties that do not have a default
+# -----------------------------------------------------------------------------
+- name: "Fail if cluster name & type is not provided"
+  assert:
+    that:
+      - cluster_type is defined and cluster_type != ""
+      - cluster_name is defined and cluster_name != ""
+    fail_msg: "cluster_type and cluster_name properties are required"
+
+- name: "Backwards compatability for 'quickburn' cluster type"
+  when: cluster_type == "quickburn"
+  set_fact:
+    cluster_type: "fyre"
+
+- name: "Fail if cluster type is not supported"
+  assert:
+    that: cluster_type is in supported_cluster_types
+    fail_msg: "cluster_type '{{ cluster_type }}' property is not supported by this role"
+
+- name: "Fail if no OCP version is provided"
+  assert:
+    that: ocp_version is defined and ocp_version != ""
+    fail_msg: "ocp_version is required"
+
+# 2. Run the provision
+# -----------------------------------------------------------------------------
+- include_tasks: "tasks/providers/{{ cluster_type }}.yml"
