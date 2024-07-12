@@ -13,7 +13,7 @@ ibm_suite_app_{{ MAS_APP_ID }}_install:
   run_sync_hooks: true
   {{ MAS_APP_SPEC | indent(2) }}
 
-  {% if MAS_MANUAL_CERT_MGMT == 'True' %}
+  {% if MAS_MANUAL_CERT_MGMT == 'true' %}
   mas_manual_cert_mgmt: true
   {% else %}
   mas_manual_cert_mgmt: false

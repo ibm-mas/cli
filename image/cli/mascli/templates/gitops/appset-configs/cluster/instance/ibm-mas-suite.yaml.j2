@@ -32,7 +32,11 @@ ibm_mas_suite:
   icr_cp: "{{ ICR_CP }}"
   icr_cp_open: "{{ ICR_CP_OPEN }}"
 
-  mas_manual_cert_mgmt: "{{ MAS_MANUAL_CERT_MGMT }}"
+{% if MAS_MANUAL_CERT_MGMT == 'true' %}
+  mas_manual_cert_mgmt: true
+{% else %}
+  mas_manual_cert_mgmt: false
+{% endif %}
 {%- if MAS_ANNOTATIONS is defined and MAS_ANNOTATIONS !='' %}
   mas_annotations:
     {{ MAS_ANNOTATIONS | indent(4) }}

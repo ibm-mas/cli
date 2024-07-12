@@ -66,7 +66,7 @@ spec:
       default: ""
     - name: manual_certs_control_flag
       type: string
-      default: "True"
+      default: "true"
     - name: dns_provider_control_iden
       type: string
       default: ""
@@ -205,7 +205,7 @@ spec:
         cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME
 
         echo "gitops-mas-initiator:: DNS_PROVIDER_CONTROL_IDEN=${DNS_PROVIDER_CONTROL_IDEN} MANUAL_CERTS_CONTROL_FLAG=${MANUAL_CERTS_CONTROL_FLAG}"
-        if [[ "${MANUAL_CERTS_CONTROL_FLAG}" == "True" ]]; then
+        if [[ "${MANUAL_CERTS_CONTROL_FLAG}" == "true" ]]; then
 
           mkdir -p $TARGET_LOCAL_DIR/manual-certs
           cd $TARGET_LOCAL_DIR/manual-certs
@@ -230,7 +230,7 @@ spec:
 
         cd $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO
 
-        if [[ "${MANUAL_CERTS_CONTROL_FLAG}" != "True" ]]; then
+        if [[ "${MANUAL_CERTS_CONTROL_FLAG}" != "true" ]]; then
           yq -i 'del(.dns.manual_certs)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
           echo "gitops-mas-initiator: removed .dns.manual_certs node"
         fi
@@ -264,7 +264,7 @@ spec:
         # Deploy fvtsaas with CIS as DNS provider and Manual_certs=True on Mon, Tue, Wed, Thu, Fri
         # Deploy fvtsaas with CIS as DNS provider and Manual_certs=False on Sun
 
-        yq -i '.mas_instance.manual_cert_mgmt = env(MANUAL_CERTS_CONTROL_FLAG) | .mas_instance.manual_cert_mgmt style="double"' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+        yq -i '.mas_instance.manual_cert_mgmt = env(MANUAL_CERTS_CONTROL_FLAG)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
         echo "gitops-mas-initiator: .mas_instance.manual_cert_mgmt set to $MANUAL_CERTS_CONTROL_FLAG"
 
         if [[ "${DNS_PROVIDER_CONTROL_IDEN}" == "cis" ]]; then
