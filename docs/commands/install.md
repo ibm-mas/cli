@@ -33,6 +33,7 @@ Usage
 - `--mas-trust-default-cas MAS_TRUST_DEFAULT_CAS`                   Trust certificates signed by well-known CAs
 - `--workload-scale-profile`                                        Set a pre-defined workload scale profile [`Burstable`, `BestEffort`, `Guaranteed`]
 - `--mas-pod-templates-dir`                                         Path to directory containing custom podTemplates configuration files to be applied. Takes precedence over `--workload-scale-profile`
+- `--manual-certificates`                                           Path to directory containing the manual certificates for core and the apps to be installed
 
 ### Maximo Application Suite Core Platform (Required):
 - `--mas-channel MAS_CHANNEL`                                    Subscription channel for the Core Platform

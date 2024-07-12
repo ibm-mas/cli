@@ -146,7 +146,7 @@ masAdvancedArgGroup.add_argument(
 masAdvancedArgGroup.add_argument(
     "--manual-certificates",
     required=False,
-    help=""
+    help="Please enter the path containing the manual certificates for core and the apps to be installed"
 )
 
 # Storage
