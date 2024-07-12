@@ -301,8 +301,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         ])
         certIssuer = self.promptForInt("Certificate issuer")
         certIssuerOptions = [
-            f"${self.getParam('mas_instance_id')}-cloudflare-le-prod",
-            f"${self.getParam('mas_instance_id')}-cloudflare-le-stg",
+            f"{self.getParam('mas_instance_id')}-cloudflare-le-prod",
+            f"{self.getParam('mas_instance_id')}-cloudflare-le-stg",
             ""
         ]
         self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer-1])
@@ -322,8 +322,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         ])
         certIssuer = self.promptForInt("Certificate issuer")
         certIssuerOptions = [
-            f"${self.getParam('mas_instance_id')}-cis-le-prod",
-            f"${self.getParam('mas_instance_id')}-cis-le-stg",
+            f"{self.getParam('mas_instance_id')}-cis-le-prod",
+            f"{self.getParam('mas_instance_id')}-cis-le-stg",
             ""
         ]
         self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer-1])
