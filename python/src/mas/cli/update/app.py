@@ -22,7 +22,7 @@ from ..cli import BaseApp
 from ..validators import StorageClassValidator
 from .argParser import updateArgParser
 
-from mas.devops.ocp import createNamespace, getStorageClasses
+from mas.devops.ocp import createNamespace, getStorageClasses, getConsoleURL
 from mas.devops.mas import listMasInstances
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline
 
@@ -122,10 +122,42 @@ class UpdateApp(BaseApp):
         self.detectCP4D()
 
         print()
-        print("Params:")
-        for param in self.params:
-            print(f"{param} = {self.getParam(param)}")
 
+        self.printH1("Review Settings")
+        self.printDescription([
+            "Connected to:",
+            f" - <u>{getConsoleURL(self.dynamicClient)}</u>"
+        ])
+
+        self.printH2("IBM Maximo Operator Catalog")
+        self.printSummary("Installed Catalog", self.installedCatalogId)
+        self.printSummary("Updated Catalog", self.getParam("mas_catalog_version"))
+
+        self.printH2("Supported Dependency Updates")
+        if self.getParam("db2_namespace") != "":
+            self.printSummary("IBM Db2", f"All Db2uCluster instances in {self.getParam('db2_namespace')}")
+        else:
+            self.printSummary("IBM Db2", "No action required")
+
+        if self.getParam("mongodb_namespace") != "":
+            self.printSummary("MongoDb CE", f"All MongoDbCommunity instances in {self.getParam('mongodb_namespace')}")
+        else:
+            self.printSummary("MongoDb CE", "No action required")
+
+        if self.getParam("kafka_namespace") != "":
+            self.printSummary("Apache Kafka", f"All Kafka instances in {self.getParam('kafka_namespace')}")
+        else:
+            self.printSummary("Apache Kafka", "No action required")
+
+        if self.getParam("cp4d_update") != "":
+            self.printSummary("IBM Cloud Pak for Data", f"Platform and services in ibm-cpd")
+        else:
+            self.printSummary("IBM Cloud Pak for Data", "No action required")
+
+        self.printH2("Required Migrations")
+        self.printSummary("IBM Certificate-Manager", "Migrate to Red Hat Certificate-Manager" if self.getParam("cert_manager_action") != "" else "No action required")
+        self.printSummary("IBM User Data Services", "Migrate to IBM Data Reporter Operator" if self.getParam("dro_migration") != "" else "No action required")
+        self.printSummary("Grafana v4 Operator", "Migrate to Grafana v5 Operator" if self.getParam("grafana_v5_upgrade") != "" else "No action required")
 
         if not self.noConfirm:
             print()
@@ -451,8 +483,6 @@ class UpdateApp(BaseApp):
                                 "It is recommended that you backup your Cloud Pak for Data instance before proceeding:",
                                 "  <u>https://www.ibm.com/docs/en/cloud-paks/cp-data/4.8.x?topic=administering-backing-up-restoring-cloud-pak-data</u>"
                             ])
-
-                            ## TODO : HANDLE CONFIRMATION
 
                         # Lookup the storage classes already used by CP4D
                         # Note: this should be done by the Ansible role, but isn't
