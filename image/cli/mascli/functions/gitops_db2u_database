@@ -47,6 +47,9 @@ IBM DB2U:
       --db2-temp-storage-class ${COLOR_YELLOW}DB2_TEMP_STORAGE_CLASS${TEXT_RESET}                             DB2 temp storage class
       --db2-temp-storage-size ${COLOR_YELLOW}DB2_TEMP_STORAGE_SIZE${TEXT_RESET}                               DB2 temp storage size
       --db2-temp-storage-accessmode ${COLOR_YELLOW}DB2_TEMP_STORAGE_ACCESSMODE${TEXT_RESET}                   DB2 temp storage accessmode
+      --db2-archivelogs-storage-class ${COLOR_YELLOW}DB2_ARCHIVELOGS_STORAGE_CLASS${TEXT_RESET}               DB2 archivelogs storage class
+      --db2-archivelogs-storage-size ${COLOR_YELLOW}DB2_ARCHIVELOGS_STORAGE_SIZE${TEXT_RESET}                 DB2 archivelogs storage size (default: 100Gi)
+      --db2-archivelogs-storage-accessmode ${COLOR_YELLOW}DB2_ARCHIVELOGS_STORAGE_ACCESSMODE${TEXT_RESET}     DB2 archivelogs storage accessmode (default: ReadWriteMany)
       --db2-cpu-requests ${COLOR_YELLOW}DB2_CPU_REQUESTS${TEXT_RESET}                                         Define the Kubernetes CPU request for the Db2 pod.
       --db2-cpu-limits ${COLOR_YELLOW}DB2_CPU_LIMITS${TEXT_RESET}                                             Define the Kubernetes CPU limit for the Db2 pod.
       --db2-memory-requests ${COLOR_YELLOW}DB2_MEMORY_REQUESTS${TEXT_RESET}                                   Define the Kubernetes memory request for the Db2 pod.
@@ -212,6 +215,15 @@ function gitops_db2u_database_noninteractive() {
       --db2-temp-storage-accessmode)
         export DB2_TEMP_STORAGE_ACCESSMODE=$1 && shift
         ;;
+      --db2-archivelogs-storage-class)
+        export DB2_ARCHIVELOGS_STORAGE_CLASS=$1 && shift
+        ;;
+      --db2-archivelogs-storage-size)
+        export DB2_ARCHIVELOGS_STORAGE_SIZE=$1 && shift
+        ;;
+      --db2-archivelogs-storage-accessmode)
+        export DB2_ARCHIVELOGS_STORAGE_ACCESSMODE=$1 && shift
+        ;;
       --db2-cpu-requests)
         export DB2_CPU_REQUESTS=$1 && shift
         ;;
@@ -302,6 +314,7 @@ function gitops_db2u_database_noninteractive() {
   [[ -z "$DB2_META_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_META_STORAGE_CLASS is not set"
   [[ -z "$DB2_DATA_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_DATA_STORAGE_CLASS is not set"
   [[ -z "$DB2_BACKUP_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_BACKUP_STORAGE_CLASS is not set"
+  [[ -z "$DB2_ARCHIVELOGS_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_ARCHIVELOGS_STORAGE_CLASS is not set"
   [[ -z "$DB2_LOGS_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_LOGS_STORAGE_CLASS is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_help "MAS_INSTANCE_ID is not set"
   [[ -z "$MAS_APP_ID" ]] && gitops_db2u_help "MAS_APP_ID is not set"
@@ -400,6 +413,12 @@ function gitops_db2u_database() {
   if [[ -z $DB2_TEMP_STORAGE_ACCESSMODE ]]; then
     export DB2_TEMP_STORAGE_ACCESSMODE=ReadWriteOnce
   fi
+  if [[ -z $DB2_ARCHIVELOGS_STORAGE_SIZE ]]; then
+    export DB2_ARCHIVELOGS_STORAGE_SIZE=100Gi
+  fi 
+  if [[ -z $DB2_ARCHIVELOGS_STORAGE_ACCESSMODE ]]; then
+    export DB2_ARCHIVELOGS_STORAGE_ACCESSMODE=ReadWriteMany
+  fi  
   if [[ -z $DB2_CPU_REQUESTS ]]; then
     export DB2_CPU_REQUESTS=4
   fi 
@@ -497,6 +516,9 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "db2-temp-storage-class  ....................... ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_CLASS}"
   echo_reset_dim "db2-temp-storage-size  ........................ ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_SIZE}"
   echo_reset_dim "db2-temp-storage-accessmode  .................. ${COLOR_MAGENTA}${DB2_TEMP_STORAGE_ACCESSMODE}"
+  echo_reset_dim "db2-archivelogs-storage-class  ................ ${COLOR_MAGENTA}${DB2_ARCHIVELOGS_STORAGE_CLASS}"
+  echo_reset_dim "db2-archivelogs-storage-size  ................. ${COLOR_MAGENTA}${DB2_ARCHIVELOGS_STORAGE_SIZE}"
+  echo_reset_dim "db2-archivelogs-storage-accessmode  ........... ${COLOR_MAGENTA}${DB2_ARCHIVELOGS_STORAGE_ACCESSMODE}"
   echo_reset_dim "mas-app-id  ................................... ${COLOR_MAGENTA}${MAS_APP_ID}"
   echo_reset_dim "db2-cpu-requests  ............................. ${COLOR_MAGENTA}${DB2_CPU_REQUESTS}"
   echo_reset_dim "db2-cpu-limits  ............................... ${COLOR_MAGENTA}${DB2_CPU_LIMITS}"

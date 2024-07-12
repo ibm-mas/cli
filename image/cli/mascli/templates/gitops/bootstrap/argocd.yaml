@@ -984,6 +984,27 @@ spec:
           hs.message = "Provisioning Db2 instance..."
           return hs
 
+      db2u.databases.ibm.com/Db2uInstance:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.state ~= nil then
+              if obj.status.state == "LicenseError" or obj.status.state == "Error" then
+                hs.status = "Degraded"
+                hs.message = "General Error or License Error"
+                return hs
+              end
+              if obj.status.state == "Ready" then
+                hs.status = "Healthy"
+                hs.message = obj.status.conditions.status
+                return hs
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = "Provisioning Db2 instance..."
+          return hs
+
       marketplace.redhat.com/MarketplaceConfig:
         health.lua: |
           hs = {}
