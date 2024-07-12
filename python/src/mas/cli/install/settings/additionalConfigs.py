@@ -120,7 +120,69 @@ class AdditionalConfigsMixin():
             logger.debug(podTemplatesSecret)
             self.podTemplatesSecret = podTemplatesSecret
 
-    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str) -> dict:
+    def manualCertificates(self) -> None:
+
+        if self.getParam("mas_manual_cert_mgmt"):
+            certsSecret = {
+                "apiVersion": "v1",
+                "kind": "Secret",
+                "type": "Opaque",
+                "metadata": {
+                    "name": "pipeline-certificates"
+                }
+            }
+
+            extensions = ["key", "crt"]
+
+            apps = {
+                "mas_app_channel_assist": {
+                        "dir": self.getParam("mas_manual_cert_dir") + "/assist/",
+                        "keyPrefix": "assist."
+                    },
+                "mas_app_channel_manage": {
+                        "dir": self.getParam("mas_manual_cert_dir") + "/manage/",
+                        "keyPrefix": "manage."
+                    },
+                "mas_app_channel_iot": {
+                        "dir": self.getParam("mas_manual_cert_dir") + "/iot/",
+                        "keyPrefix": "iot."
+                    },
+                "mas_app_channel_monitor": {
+                        "dir": self.getParam("mas_manual_cert_dir") + "/monitor/",
+                        "keyPrefix": "monitor."
+                    },
+                "mas_app_channel_predict": {
+                        "dir": self.getParam("mas_manual_cert_dir") + "/predict/",
+                        "keyPrefix": "predict."
+                    },
+                "mas_app_channel_visualinspection": {
+                        "dir": self.getParam("mas_manual_cert_dir") + "/visualinspection/",
+                        "keyPrefix": "visualinspection."
+                    },
+                "mas_app_channel_optimizer": {
+                        "dir": self.getParam("mas_manual_cert_dir") + "/optimizer/",
+                        "keyPrefix": "optimizer." 
+                    }
+                }
+            
+            for file in ["ca.crt", "tls.crt", "tls.key"]:
+                if file not in map(path.basename, glob(f'{self.getParam("mas_manual_cert_dir")}/core/*')):
+                    self.fatalError(f'{file} is not present in {self.getParam("mas_manual_cert_dir")}/core/')
+            for ext in extensions:
+                certsSecret = self.addFilesToSecret(certsSecret, self.getParam("mas_manual_cert_dir")+'/core/', ext, "core.")
+            
+            for app in apps:
+                if self.getParam(app) != "":
+                    for file in ["ca.crt", "tls.crt", "tls.key"]:
+                        if file not in map(path.basename, glob(f'{apps[app]["dir"]}/*')):
+                            self.fatalError(f'{file} is not present in {apps[app]["dir"]}')
+                    for ext in extensions:
+                        certsSecret = self.addFilesToSecret(certsSecret, apps[app]["dir"], ext, apps[app]["keyPrefix"])
+
+            self.certsSecret = certsSecret
+
+
+    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str='') -> dict:
         """
         Add file (or files) to pipeline-additional-configs
         """
@@ -143,6 +205,6 @@ class AdditionalConfigsMixin():
             # Add/update an entry to the secret data
             if "data" not in secretDict:
                 secretDict["data"] = {}
-            secretDict["data"][fileName] = b64encode(data.encode('ascii')).decode("ascii")
+            secretDict["data"][keyPrefix + fileName] = b64encode(data.encode('ascii')).decode("ascii")
 
         return secretDict

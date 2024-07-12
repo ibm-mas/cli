@@ -284,6 +284,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.setParam("dns_provider", "")
                 self.setParam("mas_domain", "")
                 self.setParam("mas_cluster_issuer", "")
+            self.manualCerts = self.yesOrNo("Configure manual certificates")
+            self.setParam("mas_manual_cert_mgmt", self.manualCerts)
+            if self.getParam("mas_manual_cert_mgmt"):
+                self.manualCertsDir = self.promptForDir("Enter the path containing the manual certificates", mustExist=True)
+                self.setParam("mas_manual_cert_dir", self.manualCertsDir)
 
     def configDNSAndCertsCloudflare(self):
         # User has chosen to set up DNS integration with Cloudflare
@@ -764,6 +769,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             elif key in ["accept_license", "dev_mode", "skip_pre_check", "no_confirm", "no_wait_for_pvc", "help"]:
                 pass
 
+            elif key == "manual_certificates":
+                if value is not None:
+                    self.setParam("mas_manual_cert_mgmt", True)
+                    self.setParam("mas_manual_cert_dir", value)
+                else:
+                    self.setParam("mas_manual_cert_mgmt", False)
+
             # Fail if there's any arguments we don't know how to handle
             else:
                 print(f"Unknown option: {key} {value}")
@@ -899,9 +911,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         entitlementFileBaseName = path.basename(self.slsLicenseFileLocal)
         self.setParam("sls_entitlement_file", f"/workspace/entitlement/{entitlementFileBaseName}")
 
-        # Set up the secrets for additional configs and podtemplates
+        # Set up the secrets for additional configs, podtemplates and manual certificates
         self.additionalConfigs()
         self.podTemplates()
+        self.manualCertificates()
 
         # Show a summary of the installation configuration
         self.displayInstallSummary()
@@ -942,7 +955,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     instanceId=self.getParam("mas_instance_id"),
                     slsLicenseFile=self.slsLicenseFileLocal,
                     additionalConfigs=self.additionalConfigsSecret,
-                    podTemplates=self.podTemplatesSecret
+                    podTemplates=self.podTemplatesSecret,
+                    certs=self.certsSecret
                 )
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 

@@ -143,6 +143,11 @@ masAdvancedArgGroup.add_argument(
     action="store_const",
     const="false"
 )
+masAdvancedArgGroup.add_argument(
+    "--manual-certificates",
+    required=False,
+    help="Please enter the path containing the manual certificates for core and the apps to be installed"
+)
 
 # Storage
 # -----------------------------------------------------------------------------

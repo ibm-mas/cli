@@ -72,6 +72,13 @@ class InstallSummarizerMixin():
                 pass
             elif self.params['dns_provider'] == "":
                 pass
+        
+        if self.params["mas_manual_cert_mgmt"]:
+            print()
+            self.printParamSummary("Manual Certificates", "mas_manual_cert_dir")
+        else:
+            print()
+            self.printSummary("Manual Certificates", "Not Configured")
 
         print()
         self.printParamSummary("Catalog Version", "mas_catalog_version")
