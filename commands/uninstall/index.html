@@ -91,14 +91,6 @@
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">uninstall</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#mas-instance-selection">MAS Instance Selection</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#mas-dependencies-uninstall-options">MAS Dependencies Uninstall Options</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#other-options">Other Options</a>
-    </li>
-        </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a>
         <ul>
@@ -169,42 +161,40 @@
               
                 <h1 id="uninstall">Uninstall<a class="headerlink" href="#uninstall" title="Permanent link"></a></h1>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
-<p><code>mas uninstall [options]</code></p>
-<h3 id="mas-instance-selection">MAS Instance Selection<a class="headerlink" href="#mas-instance-selection" title="Permanent link"></a></h3>
-<ul>
-<li><code>-i|--id MAS_INSTANCE_ID</code> MAS Instance ID to uninstall</li>
-</ul>
-<h3 id="mas-dependencies-uninstall-options">MAS Dependencies Uninstall Options<a class="headerlink" href="#mas-dependencies-uninstall-options" title="Permanent link"></a></h3>
-<ul>
-<li><code>--uninstall-cert-manager</code>        Uninstalls Certificate Manager from the target cluster. <strong>Important</strong>: Certificate Manager is a cluster-wide dependency, therefore be really careful when uninstalling it as this might be used by other applications and dependencies installed in the cluster</li>
-<li><code>--uninstall-common-services</code>     Uninstalls IBM Common Services from the target cluster <strong>Important</strong>: IBM Common Services is a shared dependency under <code>ibm-common-services</code> namespace, therefore be really careful when uninstalling it as this might be used by other applications and dependencies installed in the cluster</li>
-<li><code>--uninstall-grafana</code>  Uninstalls Grafana</li>
-<li><code>--uninstall-ibm-catalog</code>         Uninstalls IBM Maximo Operator Catalog Source (<code>ibm-operator-catalog</code>) from the target cluster. <strong>Important</strong>: Catalog Sources are cluster-wide dependencies, therefore be really careful when uninstalling it as this might be used by several applications and dependencies installed in the cluster</li>
-<li><code>--uninstall-mongodb</code>             Uninstalls MongoDB from the target cluster. <strong>Important</strong>: MongoDB could be a shared dependency, therefore be really careful when uninstalling it as this might be used by several applications and dependencies installed in the cluster</li>
-<li><code>--uninstall-sls</code>                 Uninstalls Suite License Service from the target cluster. <strong>Important</strong>: SLS could be a shared dependency, therefore be really careful when uninstalling it as this might be used by other MAS instances and dependencies installed in the cluster</li>
-<li><code>--uninstall-all-deps</code>            Uninstalls <strong>all</strong> MAS related dependencies including:<ul>
-<li>Certificate Manager</li>
-<li>IBM Common Services</li>
-<li>Grafana</li>
-<li>IBM Operator Catalog</li>
-<li>MongoDB</li>
-<li>Suite License Service</li>
-</ul>
-</li>
-</ul>
-<h3 id="other-options">Other Options<a class="headerlink" href="#other-options" title="Permanent link"></a></h3>
-<ul>
-<li><code>--no-confirm</code> Launch the upgrade without prompting for confirmation</li>
-<li><code>-h|--help</code> Show help message</li>
-</ul>
+<p>Usage information can be obtained using <code>mas uninstall --help</code></p>
+<pre><code>usage: mas uninstall [--mas-instance-id MAS_INSTANCE_ID] [--uninstall-all-deps] [--uninstall-cert-manager] [--uninstall-common-services] [--uninstall-grafana]
+                     [--uninstall-ibm-catalog] [--uninstall-mongodb] [--uninstall-sls] [--uninstall-uds] [--no-confirm] [-h]
+
+IBM Maximo Application Suite Admin CLI v100.0.0
+Uninstall MAS by configuring and launching the MAS Uninstall Tekton Pipeline.
+
+Interactive Mode:
+Omitting the --instance-id option will trigger an interactive prompt
+
+MAS Instance Selection:
+  --mas-instance-id MAS_INSTANCE_ID  The MAS instance ID to be uninstalled
+
+MAS Dependencies Selection:
+  --uninstall-all-deps               Uninstall all MAS-related dependencies from the target cluster
+  --uninstall-cert-manager           Uninstall Certificate Manager from the target cluster
+  --uninstall-common-services        Uninstall IBM Common Services from the target cluster
+  --uninstall-grafana                Uninstall Grafana from the target cluster
+  --uninstall-ibm-catalog            Uninstall the IBM Maximo Operator Catalog Source (ibm-operator-catalog) from the target cluster
+  --uninstall-mongodb                Uninstall MongoDb from the target cluster
+  --uninstall-sls                    Uninstall IBM Suite License Service from the target cluster
+  --uninstall-uds                    Uninstall IBM User Data Services from the target cluster
+
+More:
+  --no-confirm                       Launch the upgrade without prompting for confirmation
+  -h, --help                         Show this help message and exit
+</code></pre>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
 <h3 id="interactive-uninstall">Interactive Uninstall<a class="headerlink" href="#interactive-uninstall" title="Permanent link"></a></h3>
 <pre><code class="language-bash">mas uninstall
 </code></pre>
 <h3 id="non-interactive-uninstall">Non-Interactive Uninstall<a class="headerlink" href="#non-interactive-uninstall" title="Permanent link"></a></h3>
-<pre><code class="language-bash">mas uninstall -i inst1 --no-confirm
+<pre><code class="language-bash">mas uninstall --mas-instance-id inst1 --no-confirm
 </code></pre>
-<p>Note: If you are not already connected to an OpenShift cluster you will be prompted to provide the server URL &amp; token, and whether to verify the server certificate or not,  If you are already connected to a cluster you will be given the option to change to another cluster.</p>
               
             </div>
           </div><footer>

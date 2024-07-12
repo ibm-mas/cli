@@ -89,12 +89,6 @@
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">upgrade</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#mas-instance-selection">MAS Instance Selection</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#other-options">Other Options</a>
-    </li>
-        </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a>
         <ul>
@@ -167,17 +161,23 @@
               
                 <h1 id="upgrade">Upgrade<a class="headerlink" href="#upgrade" title="Permanent link"></a></h1>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
-<p><code>mas upgrade [options]</code></p>
-<h3 id="mas-instance-selection">MAS Instance Selection<a class="headerlink" href="#mas-instance-selection" title="Permanent link"></a></h3>
-<ul>
-<li><code>-i|--id MAS_INSTANCE_ID</code> MAS Instance ID to upgrade</li>
-</ul>
-<h3 id="other-options">Other Options<a class="headerlink" href="#other-options" title="Permanent link"></a></h3>
-<ul>
-<li><code>--no-confirm</code>        Launch the upgrade without prompting for confirmation</li>
-<li><code>--skip-pre-check</code>    Skips the 'pre-upgrade-check' and 'post-upgrade-verify' tasks in the upgrade pipeline</li>
-<li><code>-h|--help</code>           Show help message</li>
-</ul>
+<p>Usage information can be obtained using <code>mas upgrade --help</code></p>
+<pre><code>sage: mas upgrade [--mas-instance-id MAS_INSTANCE_ID] [--skip-pre-check] [--no-confirm] [-h]
+
+IBM Maximo Application Suite Admin CLI v100.0.0
+Upgrade MAS by configuring and launching the MAS Upgrade Tekton Pipeline.
+
+Interactive Mode:
+Omitting the --instance-id option will trigger an interactive prompt
+
+MAS Instance Selection:
+  --mas-instance-id MAS_INSTANCE_ID  The MAS instance ID to be upgraded
+
+More:
+  --skip-pre-check                   Disable the 'pre-upgrade-check' and 'post-upgrade-verify' tasks in the upgrade pipeline
+  --no-confirm                       Launch the upgrade without prompting for confirmation
+  -h, --help                         Show this help message and exit
+</code></pre>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
 <h3 id="interactive-upgrade">Interactive Upgrade<a class="headerlink" href="#interactive-upgrade" title="Permanent link"></a></h3>
 <pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas upgrade
