@@ -471,7 +471,7 @@ function gitops_suite_app_config() {
 
   # Set certs only if manual cert is True (to create k8s secret in gitops) only required for manage
   # ---------------------------------------------------------------------------
-  if [ "${MAS_MANUAL_CERT_MGMT}" == "True" ] ; then
+  if [ "${MAS_MANUAL_CERT_MGMT}" == "true" ] ; then
     if [[ -n "$MAS_MANUAL_CERTS_YAML" ]] && [[ -s "$MAS_MANUAL_CERTS_YAML" ]]; then
 
       declare -A tls_secret_name

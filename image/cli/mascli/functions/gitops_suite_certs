@@ -161,7 +161,7 @@ function gitops_suite_certs() {
   rc=$?
   [ $rc -ne 0 ] && exit $rc
 
-  if [ "${MAS_MANUAL_CERT_MGMT}" = "True" ] ; then
+  if [ "${MAS_MANUAL_CERT_MGMT}" = "true" ] ; then
 
     echo
     echo "Move Certs to Secret Manager"

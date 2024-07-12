@@ -6,7 +6,7 @@ mas_application_id: {{ MAS_APP_ID }}
 mas_config_kind: "mongocfgs"
 mas_config_api_version: "config.mas.ibm.com"
 use_postdelete_hooks: {{ USE_POSTDELETE_HOOKS }}
-{% if MAS_WIPE_MONGO_DATA == 'True' %}
+{% if MAS_WIPE_MONGO_DATA == 'true' %}
 mas_wipe_mongo_data: true
 {% else %}
 mas_wipe_mongo_data: false
