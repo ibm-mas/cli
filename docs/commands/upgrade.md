@@ -3,15 +3,25 @@ Upgrade
 
 Usage
 -------------------------------------------------------------------------------
-`mas upgrade [options]`
+Usage information can be obtained using `mas upgrade --help`
 
-### MAS Instance Selection
-- `-i|--id MAS_INSTANCE_ID` MAS Instance ID to upgrade
+```
+sage: mas upgrade [--mas-instance-id MAS_INSTANCE_ID] [--skip-pre-check] [--no-confirm] [-h]
 
-### Other Options
-- `--no-confirm`        Launch the upgrade without prompting for confirmation
-- `--skip-pre-check`    Skips the 'pre-upgrade-check' and 'post-upgrade-verify' tasks in the upgrade pipeline
-- `-h|--help`           Show help message
+IBM Maximo Application Suite Admin CLI v100.0.0
+Upgrade MAS by configuring and launching the MAS Upgrade Tekton Pipeline.
+
+Interactive Mode:
+Omitting the --instance-id option will trigger an interactive prompt
+
+MAS Instance Selection:
+  --mas-instance-id MAS_INSTANCE_ID  The MAS instance ID to be upgraded
+
+More:
+  --skip-pre-check                   Disable the 'pre-upgrade-check' and 'post-upgrade-verify' tasks in the upgrade pipeline
+  --no-confirm                       Launch the upgrade without prompting for confirmation
+  -h, --help                         Show this help message and exit
+```
 
 
 Examples
