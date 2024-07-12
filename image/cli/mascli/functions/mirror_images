@@ -16,6 +16,7 @@ Mirror Mode (Required):
 Registry Details (Required):
   -H, --host ${COLOR_YELLOW}REGISTRY_PUBLIC_HOST${TEXT_RESET}                 Hostname of the target registry
   -P, --port ${COLOR_YELLOW}REGISTRY_PUBLIC_PORT${TEXT_RESET}                 Port number for the target registry
+  -x, --prefix ${COLOR_YELLOW}REGISTRY_PREFIX${TEXT_RESET}                    Prefix for the mirror image
   -u, --username ${COLOR_YELLOW}REGISTRY_USERNAME${TEXT_RESET}                Username to authenticate to the target registry
   -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}                Password to authenticate to the target registry
 
@@ -160,6 +161,9 @@ function mirror_to_registry_noninteractive() {
         ;;
       -P|--port)
         REGISTRY_PUBLIC_PORT=$1 && shift
+        ;;
+      -x, --prefix)
+        REGISTRY_PREFIX=$1 && shift        
         ;;
       -u|--username)
         REGISTRY_USERNAME=$1 && shift
@@ -307,6 +311,7 @@ function mirror_to_registry_noninteractive() {
 
   [[ -z "$REGISTRY_PUBLIC_HOST" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_HOST is not set"
   [[ -z "$REGISTRY_PUBLIC_PORT" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_PORT is not set"
+  [[ -z "$REGISTRY_PREFIX" ]] && mirror_to_registry_help "REGISTRY_PREFIX is not set"
 
   if [[ $MIRROR_MODE != "to-filesystem" ]]; then
     [[ -z "$REGISTRY_USERNAME" ]] && mirror_to_registry_help "REGISTRY_USERNAME is not set"
@@ -355,6 +360,7 @@ function mirror_to_registry_interactive() {
   echo_h2 "Configure Target Mirror"
   prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
   prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
+  prompt_for_input "Mirror Registry Prefix" REGISTRY_PREFIX
 
   if [[ $MIRROR_MODE != "to-filesystem" ]]; then
     echo
@@ -512,6 +518,7 @@ function mirror_to_registry() {
 
   export REGISTRY_PUBLIC_HOST
   export REGISTRY_PUBLIC_PORT
+  export REGISTRY_PREFIX
   export REGISTRY_USERNAME
   export REGISTRY_PASSWORD
 
@@ -578,6 +585,8 @@ function mirror_to_registry() {
   echo_h4 "Target Registry" "    "
   echo_reset_dim "Registry Host ....................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_HOST}"
   echo_reset_dim "Registry Port ....................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_PORT}"
+  echo_reset_dim "Registry Prefix ..................... ${COLOR_MAGENTA}${REGISTRY_PREFIX}"
+
 
   echo
   reset_colors
