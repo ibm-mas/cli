@@ -65,7 +65,7 @@ spec:
         - /bin/sh
         - -c
       name: gitops-deprovision-efs
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:10.2.0-pre.gitops
   workspaces:
     - name: configs
