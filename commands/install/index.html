@@ -217,7 +217,7 @@
                    [--mas-channel MAS_CHANNEL] [--eck] [--eck-enable-logstash] [--eck-remote-es-hosts ECK_REMOTE_ES_HOSTS]
                    [--eck-remote-es-username ECK_REMOTE_ES_USERNAME] [--eck-remote-es-password ECK_REMOTE_ES_PASSWORD]
                    [--superuser-username MAS_SUPERUSER_USERNAME] [--superuser-password MAS_SUPERUSER_PASSWORD] [--additional-configs ADDITIONAL_CONFIGS]
-                   [--pod-templates POD_TEMPLATES] [--non-prod] [--disable-ca-trust] [--storage-class-rwo STORAGE_CLASS_RWO]
+                   [--pod-templates POD_TEMPLATES] [--manual-certificates MANUAL_CERTIFICATES] [--non-prod] [--disable-ca-trust] [--storage-class-rwo STORAGE_CLASS_RWO]
                    [--storage-class-rwx STORAGE_CLASS_RWX] [--storage-pipeline STORAGE_PIPELINE] [--storage-accessmode {ReadWriteMany,ReadWriteOnce}]
                    [--license-file LICENSE_FILE] [--uds-email UDS_CONTACT_EMAIL] [--uds-firstname UDS_CONTACT_FIRSTNAME] [--uds-lastname UDS_CONTACT_LASTNAME]
                    [--dro-namespace DRO_NAMESPACE] [--mongodb-namespace MONGODB_NAMESPACE] [--ocp-ingress-tls-secret-name OCP_INGRESS_TLS_SECRET_NAME]
@@ -287,6 +287,7 @@ MAS Advanced Configuration:
   --pod-templates POD_TEMPLATES                   Path to directory containing custom podTemplates configuration files to be applied
   --non-prod                                      Install MAS in non-production mode
   --disable-ca-trust                              Disable built-in trust of well-known CAs
+  --manual-certificates                           Path to directory containing the manual certificates for core and the apps to be installed
 
 Storage:
   --storage-class-rwo STORAGE_CLASS_RWO           ReadWriteOnce (RWO) storage class (e.g. ibmc-block-gold)
