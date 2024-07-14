@@ -571,19 +571,24 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configGrafana()
 
         requiredParams = [
+            # MAS
             "mas_catalog_version",
             "mas_channel",
             "mas_instance_id",
             "mas_workspace_id",
             "mas_workspace_name",
+            # Storage classes
             "storage_class_rwo",
             "storage_class_rwx",
+            # Entitlement
             "ibm_entitlement_key",
+            # DRO
             "uds_contact_email",
             "uds_contact_firstname",
             "uds_contact_lastname"
         ]
         optionalParams = [
+            # MAS
             "mas_superuser_username",
             "mas_superuser_password",
             "mas_trust_default_cas",
@@ -609,9 +614,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "mas_app_settings_secondary_langs",
             "mas_app_settings_server_timezone",
             "ocp_ingress_tls_secret_name",
+            # DRO
             "dro_namespace",
+            # MongoDb
             "mongodb_namespace",
-            "cpd_product_version",
+            # Db2
             "db2_action_system",
             "db2_action_manage",
             "db2_type",
@@ -632,9 +639,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "db2_logs_storage_size",
             "db2_meta_storage_size",
             "db2_temp_storage_size",
+            # CP4D
+            "cpd_product_version",
             "cpd_install_cognos",
             "cpd_install_openscale",
             "cpd_install_spss",
+            # Kafka
             "kafka_namespace",
             "kafka_version",
             "aws_msk_instance_type",
@@ -648,21 +658,27 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "eventstreams_resource_group",
             "eventstreams_instance_name",
             "eventstreams_instance_location",
+            # ECK
             "eck_action",
             "eck_enable_logstash",
             "eck_remote_es_hosts",
             "eck_remote_es_username",
             "eck_remote_es_password",
+            # Turbonomic
             "turbonomic_target_name",
             "turbonomic_server_url",
             "turbonomic_server_version",
             "turbonomic_username",
             "turbonomic_password",
+            # Cloud Providers
             "ibmcloud_apikey",
             "aws_region",
             "aws_access_key_id",
             "secret_access_key",
             "aws_vpc_id",
+            # Dev Mode
+            "artifactory_username",
+            "artifactory_token",
             # TODO: The way arcgis has been implemented needs to be fixed
             "install_arcgis",
             "mas_arcgis_channel"

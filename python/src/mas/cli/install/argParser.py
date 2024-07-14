@@ -756,12 +756,29 @@ cloudArgGroup.add_argument(
     help="Set target Virtual Private Cloud ID for the MSK instance"
 )
 
+# Development Mode
+# -----------------------------------------------------------------------------
+devArgGroup = installArgParser.add_argument_group("Development Mode")
+devArgGroup.add_argument(
+    "--artifactory-username",
+    required=False,
+    help="Username for access to development builds on Artifactory"
+)
+devArgGroup.add_argument(
+    "--artifactory-token",
+    required=False,
+    help="API Token for access to development builds on Artifactory"
+)
+
+
+# More Options
+# -----------------------------------------------------------------------------
 otherArgGroup = installArgParser.add_argument_group("More")
 otherArgGroup.add_argument(
     "--accept-license",
     action="store_true",
     default=False,
-    help=""
+    help="Accept all license terms without prompting"
 )
 otherArgGroup.add_argument(
     "--dev-mode",
