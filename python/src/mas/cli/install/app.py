@@ -38,7 +38,14 @@ from mas.cli.validators import (
 )
 
 from mas.devops.ocp import createNamespace, getStorageClass, getStorageClasses
-from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, preparePipelinesNamespace, prepareInstallSecrets, testCLI, launchInstallPipeline
+from mas.devops.tekton import (
+    installOpenShiftPipelines,
+    updateTektonDefinitions,
+    preparePipelinesNamespace,
+    prepareInstallSecrets,
+    testCLI,
+    launchInstallPipeline
+)
 
 logger = logging.getLogger(__name__)
 
@@ -781,6 +788,19 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         self.fatalError(f"{key} must be set")
                     self.slsLicenseFileLocal = value
 
+            elif key.startswith("approval_"):
+                valueParts = value.split(":")
+                if len(valueParts) != 4:
+                    self.fatalError(f"Unsupported format for {key} ({value}).  Expected APPROVAL_KEY:MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE")
+                else:
+                    try:
+                        # Make sure we can convert max_retries, retry_delay, and ignore_failure to the expected type
+                        int(valueParts[1])
+                        int(valueParts[2])
+                        bool(valueParts[1])
+                    except:
+                        self.fatalError(f"Unsupported format for {key} ({value}).  Expected string:int:int:boolean")
+
             # Arguments that we don't need to do anything with
             elif key in ["accept_license", "dev_mode", "skip_pre_check", "no_confirm", "no_wait_for_pvc", "help"]:
                 pass
@@ -974,6 +994,19 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     podTemplates=self.podTemplatesSecret,
                     certs=self.certsSecret
                 )
+
+                # Ensure the supported approval configmaps are in the expected state for the start of the run:
+                # - not present (if approval is not required)
+                # - present with the chosen state field initialized to ""
+                self.setupApproval(pipelinesNamespace, "suite-verify", "approval_core")
+                self.setupApproval(pipelinesNamespace, "app-cfg-assist", "approval_assist")
+                self.setupApproval(pipelinesNamespace, "app-cfg-iot", "approval_iot")
+                self.setupApproval(pipelinesNamespace, "app-cfg-manage", "approval_manage")
+                self.setupApproval(pipelinesNamespace, "app-cfg-monitor", "approval_monitor")
+                self.setupApproval(pipelinesNamespace, "app-cfg-optimizer", "approval_optimizer")
+                self.setupApproval(pipelinesNamespace, "app-cfg-predict", "approval_predict")
+                self.setupApproval(pipelinesNamespace, "app-cfg-visualinspection", "approval_visualinspection")
+
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
             with Halo(text=f'Testing availability of MAS CLI image in cluster', spinner=self.spinner) as h:
@@ -992,3 +1025,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 else:
                     h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {self.getParam('mas_instance_id')} install, see log file for details")
                     print()
+
+    def setupApproval(self, namespace: str, approvalId: str, paramName: str) -> None:
+        if self.getParam(paramName) != "":
+            # Enable this approval workload
+            settings = self.getParam(paramName).split[":"]
+            self.initializeApprovalConfigMap(namespace, approvalId, settings[0], int(settings[1]), int(settings[2]), bool(settings[3]))
+        else:
+            # Disable this approval workload
+            self.initializeApprovalConfigMap(namespace, approvalId)

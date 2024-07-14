@@ -770,6 +770,50 @@ devArgGroup.add_argument(
     help="API Token for access to development builds on Artifactory"
 )
 
+# Approvals
+# -----------------------------------------------------------------------------
+approvalsGroup = installArgParser.add_argument_group("Integrated Approval Workflow (APPROVAL_KEY:MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE)")
+approvalsGroup.add_argument(
+    "--approval-core",
+    default="",
+    help="Require approval after the Core Platform has been configured"
+)
+approvalsGroup.add_argument(
+    "--approval-assist",
+    default="",
+    help="Require approval after the Maximo Assist workspace has been configured"
+)
+approvalsGroup.add_argument(
+    "--approval-iot",
+    default="",
+    help="Require approval after the Maximo IoT workspace has been configured"
+)
+approvalsGroup.add_argument(
+    "--approval-manage",
+    default="",
+    help="Require approval after the Maximo Manage workspace has been configured"
+)
+approvalsGroup.add_argument(
+    "--approval-monitor",
+    default="",
+    help="Require approval after the Maximo Monitor workspace has been configured"
+)
+approvalsGroup.add_argument(
+    "--approval-optimizer",
+    default="",
+    help="Require approval after the Maximo Optimizer workspace has been configured"
+)
+approvalsGroup.add_argument(
+    "--approval-predict",
+    default="",
+    help="Require approval after the Maximo Predict workspace has been configured"
+)
+approvalsGroup.add_argument(
+    "--approval-visualinspection",
+    default="",
+    help="Require approval after the Maximo Visual Inspection workspace has been configured"
+)
+
 
 # More Options
 # -----------------------------------------------------------------------------
