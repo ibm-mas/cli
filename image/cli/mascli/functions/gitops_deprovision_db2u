@@ -189,7 +189,7 @@ function gitops_deprovision_db2u() {
   echo
   echo_h2 "Removing ${GITOPS_INSTANCE_DIR}/ibm-db2u.yaml"
   echo
-  rm ${GITOPS_INSTANCE_DIR}/ibm-db2u.yaml
+  rm -rf ${GITOPS_INSTANCE_DIR}/ibm-db2u.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
