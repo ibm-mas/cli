@@ -1,5 +1,0 @@
----
-- name: "Run the selected action for the registry"
-  include_tasks: "tasks/{{ registry_action }}/main.yml"
-  when:
-    - registry_action != "none"

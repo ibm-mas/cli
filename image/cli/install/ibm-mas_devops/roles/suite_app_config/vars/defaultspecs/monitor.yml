@@ -1,6 +1,0 @@
----
-# Default application spec for Monitor
-mas_appws_spec:
-  bindings:
-    iot: workspace
-    jdbc: "{{ mas_appws_bindings_jdbc | default( 'system' , true) }}"

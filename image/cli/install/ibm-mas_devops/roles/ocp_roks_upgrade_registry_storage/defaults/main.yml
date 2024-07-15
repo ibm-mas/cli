@@ -1,3 +1,0 @@
----
-ibmcloud_apikey: "{{ lookup('env', 'IBMCLOUD_APIKEY') }}"
-image_registry_size: "400"

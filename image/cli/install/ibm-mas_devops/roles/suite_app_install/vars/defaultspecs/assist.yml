@@ -1,5 +1,0 @@
----
-# Default application spec for Assist
-mas_app_spec:
-  bindings:
-    objectstorage: system

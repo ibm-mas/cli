@@ -1,3 +1,0 @@
-{% if tls_crt_size | int > 0 %}
-{{ lookup('file', '{{ cert_path }}/tls.crt') | b64encode }}
-{% endif %}

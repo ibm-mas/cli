@@ -1,9 +1,0 @@
----
-# 1. Upgrade OCP version
-# -----------------------------------------------------------------------------
-
-# https://cloud.ibm.com/docs/openshift?topic=openshift-update#master
-
-# 1.1 Upgrade to OCP 4.7
-- name: "Upgrade cluster {{ cluster_name }} {{ ocp_version_upgrade }}"
-  include_tasks: tasks/ocp_upgrade.yml

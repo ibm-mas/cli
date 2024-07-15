@@ -1,5 +1,0 @@
----
-
-skip_list:
-  # See: https://github.com/ansible-community/ansible-lint/issues/457
-  - '602'

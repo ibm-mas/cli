@@ -1,7 +1,0 @@
----
-# Check if there are any cluster scope kafka already installed
-# -------------------------------------------------------------------
-- include_tasks: tasks/provider/redhat/check-kafka-exists.yml
-
-# Run the install if there's no previous cluster scope kafka installed
-- include_tasks: tasks/provider/redhat/install-kafka.yml
