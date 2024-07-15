@@ -1030,8 +1030,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def setupApproval(self, namespace: str, approvalId: str, paramName: str) -> None:
         if self.getParam(paramName) != "":
             # Enable this approval workload
+            logger.debug(f"Approval workflow for {approvalId} ({paramName}) will be enabled during install ({self.getParam(paramName)})")
             settings = self.getParam(paramName).split[":"]
             self.initializeApprovalConfigMap(namespace, approvalId, settings[0], int(settings[1]), int(settings[2]), bool(settings[3]))
         else:
             # Disable this approval workload
+            logger.debug(f"Approval workflow for {approvalId} ({paramName}) will be disabled during install")
             self.initializeApprovalConfigMap(namespace, approvalId)
