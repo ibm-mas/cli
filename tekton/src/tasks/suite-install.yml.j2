@@ -82,22 +82,22 @@ spec:
     # SSO Configuration
     - name: idle_timeout
       type: string
-      default: "1800"
+      default: ''
     - name: idp_session_timeout
       type: string
-      default: "12h"
+      default: ''
     - name: access_token_timeout
       type: string
-      default: "30m"
+      default: ''
     - name: refresh_token_timeout
       type: string
-      default: "12h"
+      default: ''
     - name: default_idp
       type: string
-      default: "local"
+      default: ''
     - name: seamless_login
       type: string
-      default: "false"
+      default: ''
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -156,19 +156,18 @@ spec:
 
       - name: MAS_POD_TEMPLATES_DIR
         value: /workspace/pod-templates
-      #SSO configs
       - name: IDLE_TIMEOUT
-        value: value: $(params.idle_timeout)
+        value: $(params.idle_timeout)
       - name: IDP_SESSION_TIMEOUT
-        value: value: $(params.idp_session_timeout)
+        value: $(params.idp_session_timeout)
       - name: ACCESS_TOKEN_TIMEOUT
-        value: value: $(params.access_token_timeout)
+        value: $(params.access_token_timeout)
       - name: REFRESH_TOKEN_TIMEOUT
-        value: value: $(params.refresh_token_timeout)
+        value: $(params.refresh_token_timeout)
       - name: DEFAULT_IDP
-        value: value: $(params.default_idp)
+        value: $(params.default_idp)
       - name: SEAMLESS_LOGIN
-        value: value: $(params.seamless_login)
+        value: $(params.seamless_login)
       
 
   steps:
