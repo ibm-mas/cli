@@ -575,6 +575,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.db2SetAffinity = False
         self.db2SetTolerations = False
 
+        self.approvals = {
+            "approval_core": {"id": "suite-verify"},  # After Core Platform verification has completed
+            "approval_assist": {"id": "app-cfg-assist"},  # After Assist workspace has been configured
+            "apprvoal_iot": {"id": "app-cfg-iot"},  # After IoT workspace has been configured
+            "approval_manage": {"id": "app-cfg-manage"},  # After Manage workspace has been configured
+            "approval_monitor": {"id": "app-cfg-monitor"},  # After Monitor workspace has been configured
+            "approval_optimizer": {"id": "app-cfg-optimizer"},  # After Optimizer workspace has been configured
+            "approval_predict": {"id": "app-cfg-predict"},  # After Predict workspace has been configured
+            "approval_visualinspection": {"id": "app-cfg-visualinspection"}  # After Visual Inspection workspace has been configured
+        }
+
         self.configGrafana()
 
         requiredParams = [
@@ -789,16 +800,19 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.slsLicenseFileLocal = value
 
             elif key.startswith("approval_"):
+                if key not in self.approvals:
+                    raise KeyError(f"{key} is not a supported approval workflow ID: {self.approvals.keys()}")
+
                 if value != "":
                     valueParts = value.split(":")
                     if len(valueParts) != 4:
                         self.fatalError(f"Unsupported format for {key} ({value}).  Expected APPROVAL_KEY:MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE")
                     else:
                         try:
-                            # Make sure we can convert max_retries, retry_delay, and ignore_failure to the expected type
-                            int(valueParts[1])
-                            int(valueParts[2])
-                            bool(valueParts[1])
+                            self.approvals[key]["approvalKey"] = valueParts[0]
+                            self.approvals[key]["maxRetries"] = int(valueParts[1])
+                            self.approvals[key]["retryDelay"] = int(valueParts[2])
+                            self.approvals[key]["ignoreFailure"] = bool(valueParts[3])
                         except:
                             self.fatalError(f"Unsupported format for {key} ({value}).  Expected string:int:int:boolean")
 
@@ -996,17 +1010,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     certs=self.certsSecret
                 )
 
-                # Ensure the supported approval configmaps are in the expected state for the start of the run:
-                # - not present (if approval is not required)
-                # - present with the chosen state field initialized to ""
-                self.setupApproval(pipelinesNamespace, "suite-verify", "approval_core")
-                self.setupApproval(pipelinesNamespace, "app-cfg-assist", "approval_assist")
-                self.setupApproval(pipelinesNamespace, "app-cfg-iot", "approval_iot")
-                self.setupApproval(pipelinesNamespace, "app-cfg-manage", "approval_manage")
-                self.setupApproval(pipelinesNamespace, "app-cfg-monitor", "approval_monitor")
-                self.setupApproval(pipelinesNamespace, "app-cfg-optimizer", "approval_optimizer")
-                self.setupApproval(pipelinesNamespace, "app-cfg-predict", "approval_predict")
-                self.setupApproval(pipelinesNamespace, "app-cfg-visualinspection", "approval_visualinspection")
+                self.setupApprovals(pipelinesNamespace)
 
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
@@ -1027,13 +1031,18 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {self.getParam('mas_instance_id')} install, see log file for details")
                     print()
 
-    def setupApproval(self, namespace: str, approvalId: str, paramName: str) -> None:
-        if self.getParam(paramName) != "":
-            # Enable this approval workload
-            logger.debug(f"Approval workflow for {approvalId} ({paramName}) will be enabled during install ({self.getParam(paramName)})")
-            settings = self.getParam(paramName).split[":"]
-            self.initializeApprovalConfigMap(namespace, approvalId, settings[0], int(settings[1]), int(settings[2]), bool(settings[3]))
-        else:
-            # Disable this approval workload
-            logger.debug(f"Approval workflow for {approvalId} ({paramName}) will be disabled during install")
-            self.initializeApprovalConfigMap(namespace, approvalId)
+    def setupApprovals(self, namespace: str) -> None:
+        """
+        Ensure the supported approval configmaps are in the expected state for the start of the run:
+         - not present (if approval is not required)
+         - present with the chosen state field initialized to ""
+        """
+        for approval in self.approvals.values():
+            if "approvalKey" in approval:
+                # Enable this approval workload
+                logger.debug(f"Approval workflow for {approval['id']} will be enabled during install ({approval['maxRetries']} / {approval['retryDelay']}s / {approval['approvalKey']} / {approval['ignoreFailure']})")
+                self.initializeApprovalConfigMap(namespace, approval['id'], approval['approvalKey'], approval['maxRetries'], approval['retryDelay'], approval['ignoreFailure'])
+            else:
+                # Disable this approval workload
+                logger.debug(f"Approval workflow for {approval['id']} will be disabled during install")
+                self.initializeApprovalConfigMap(namespace, approval['id'])

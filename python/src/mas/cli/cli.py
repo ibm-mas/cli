@@ -220,20 +220,6 @@ class BaseApp(PrintMixin, PromptMixin):
         """
         Set key = None if you don't want approval workflow enabled
         """
-        supportedIds = [
-            # Install approvals
-            "app-cfg-assist",  # After Assist workspace has been configured
-            "app-cfg-iot",  # After IoT workspace has been configured
-            "app-cfg-manage",  # After Manage workspace has been configured
-            "app-cfg-monitor",  # After Monitor workspace has been configured
-            "app-cfg-optimizer",  # After Optimizer workspace has been configured
-            "app-cfg-predict",  # After Predict workspace has been configured
-            "app-cfg-visualinspection",  # After Visual Inspection workspace has been configured
-            "suite-verify"  # After Core Platform verification has completed
-        ]
-        if id not in supportedIds:
-            raise KeyError(f"Unable to create {id} is not a supported ID: {supportedIds}")
-
         cmAPI = self.dynamicClient.resources.get(api_version="v1", kind="ConfigMap")
         configMap = {
             "apiVersion": "v1",
