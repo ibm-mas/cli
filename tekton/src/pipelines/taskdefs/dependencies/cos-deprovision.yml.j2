@@ -1,4 +1,5 @@
 - name: cos-deprovision
+  timeout: "0"
   params:
     {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
