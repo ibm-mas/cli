@@ -789,17 +789,18 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.slsLicenseFileLocal = value
 
             elif key.startswith("approval_"):
-                valueParts = value.split(":")
-                if len(valueParts) != 4:
-                    self.fatalError(f"Unsupported format for {key} ({value}).  Expected APPROVAL_KEY:MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE")
-                else:
-                    try:
-                        # Make sure we can convert max_retries, retry_delay, and ignore_failure to the expected type
-                        int(valueParts[1])
-                        int(valueParts[2])
-                        bool(valueParts[1])
-                    except:
-                        self.fatalError(f"Unsupported format for {key} ({value}).  Expected string:int:int:boolean")
+                if value != "":
+                    valueParts = value.split(":")
+                    if len(valueParts) != 4:
+                        self.fatalError(f"Unsupported format for {key} ({value}).  Expected APPROVAL_KEY:MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE")
+                    else:
+                        try:
+                            # Make sure we can convert max_retries, retry_delay, and ignore_failure to the expected type
+                            int(valueParts[1])
+                            int(valueParts[2])
+                            bool(valueParts[1])
+                        except:
+                            self.fatalError(f"Unsupported format for {key} ({value}).  Expected string:int:int:boolean")
 
             # Arguments that we don't need to do anything with
             elif key in ["accept_license", "dev_mode", "skip_pre_check", "no_confirm", "no_wait_for_pvc", "help"]:

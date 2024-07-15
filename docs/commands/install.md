@@ -81,7 +81,7 @@ MAS Advanced Configuration:
   --pod-templates POD_TEMPLATES                   Path to directory containing custom podTemplates configuration files to be applied
   --non-prod                                      Install MAS in non-production mode
   --disable-ca-trust                              Disable built-in trust of well-known CAs
-  --manual-certificates MANUAL_CERTIFICATES       Please enter the path containing the manual certificates for core and the apps to be installed
+  --manual-certificates MANUAL_CERTIFICATES       Path to directory containing the certificates to be applied
 
 Storage:
   --storage-class-rwo STORAGE_CLASS_RWO           ReadWriteOnce (RWO) storage class (e.g. ibmc-block-gold)
