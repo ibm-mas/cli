@@ -434,6 +434,27 @@
   default: ""
   description: Data Dictionary catalog source
 
+# SSO Configuration
+# -----------------------------------------------------------------------------
+- name: IDLE_TIMEOUT
+  type: string
+  default: ''
+- name: IDP_SESSION_TIMEOUT
+  type: string
+  default: ''
+- name: ACCESS_TOKEN_TIMEOUT
+  type: string
+  default: ''
+- name: REFRESH_TOKEN_TIMEOUT
+  type: string
+  default: ''
+- name: DEFAULT_IDP
+  type: string
+  default: ''
+- name: SEAMLESS_LOGIN
+  type: string
+  default: ''
+
 # MAS Configuration - Superuser Account
 # -----------------------------------------------------------------------------
 - name: mas_superuser_username

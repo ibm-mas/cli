@@ -80,22 +80,22 @@ spec:
       description: Required to install development MAS catalogs
 
     # SSO Configuration
-    - name: idle_timeout
+    - name: IDLE_TIMEOUT
       type: string
       default: ''
-    - name: idp_session_timeout
+    - name: IDP_SESSION_TIMEOUT
       type: string
       default: ''
-    - name: access_token_timeout
+    - name: ACCESS_TOKEN_TIMEOUT
       type: string
       default: ''
-    - name: refresh_token_timeout
+    - name: REFRESH_TOKEN_TIMEOUT
       type: string
       default: ''
-    - name: default_idp
+    - name: DEFAULT_IDP
       type: string
       default: ''
-    - name: seamless_login
+    - name: SEAMLESS_LOGIN
       type: string
       default: ''
   stepTemplate:
@@ -156,6 +156,7 @@ spec:
 
       - name: MAS_POD_TEMPLATES_DIR
         value: /workspace/pod-templates
+      
       - name: IDLE_TIMEOUT
         value: $(params.idle_timeout)
       - name: IDP_SESSION_TIMEOUT
