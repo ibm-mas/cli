@@ -578,7 +578,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.approvals = {
             "approval_core": {"id": "suite-verify"},  # After Core Platform verification has completed
             "approval_assist": {"id": "app-cfg-assist"},  # After Assist workspace has been configured
-            "apprvoal_iot": {"id": "app-cfg-iot"},  # After IoT workspace has been configured
+            "approval_iot": {"id": "app-cfg-iot"},  # After IoT workspace has been configured
             "approval_manage": {"id": "app-cfg-manage"},  # After Manage workspace has been configured
             "approval_monitor": {"id": "app-cfg-monitor"},  # After Monitor workspace has been configured
             "approval_optimizer": {"id": "app-cfg-optimizer"},  # After Optimizer workspace has been configured
