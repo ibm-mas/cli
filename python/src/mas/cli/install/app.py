@@ -284,6 +284,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.setParam("dns_provider", "")
                 self.setParam("mas_domain", "")
                 self.setParam("mas_cluster_issuer", "")
+            self.manualCerts = self.yesOrNo("Configure manual certificates")
+            self.setParam("mas_manual_cert_mgmt", self.manualCerts)
+            if self.getParam("mas_manual_cert_mgmt"):
+                self.manualCertsDir = self.promptForDir("Enter the path containing the manual certificates", mustExist=True)
+                self.setParam("mas_manual_cert_dir", self.manualCertsDir)
 
     def configDNSAndCertsCloudflare(self):
         # User has chosen to set up DNS integration with Cloudflare
@@ -301,8 +306,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         ])
         certIssuer = self.promptForInt("Certificate issuer")
         certIssuerOptions = [
-            f"${self.getParam('mas_instance_id')}-cloudflare-le-prod",
-            f"${self.getParam('mas_instance_id')}-cloudflare-le-stg",
+            f"{self.getParam('mas_instance_id')}-cloudflare-le-prod",
+            f"{self.getParam('mas_instance_id')}-cloudflare-le-stg",
             ""
         ]
         self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer-1])
@@ -322,8 +327,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         ])
         certIssuer = self.promptForInt("Certificate issuer")
         certIssuerOptions = [
-            f"${self.getParam('mas_instance_id')}-cis-le-prod",
-            f"${self.getParam('mas_instance_id')}-cis-le-stg",
+            f"{self.getParam('mas_instance_id')}-cis-le-prod",
+            f"{self.getParam('mas_instance_id')}-cis-le-stg",
             ""
         ]
         self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer-1])
@@ -764,6 +769,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             elif key in ["accept_license", "dev_mode", "skip_pre_check", "no_confirm", "no_wait_for_pvc", "help"]:
                 pass
 
+            elif key == "manual_certificates":
+                if value is not None:
+                    self.setParam("mas_manual_cert_mgmt", True)
+                    self.setParam("mas_manual_cert_dir", value)
+                else:
+                    self.setParam("mas_manual_cert_mgmt", False)
+
             # Fail if there's any arguments we don't know how to handle
             else:
                 print(f"Unknown option: {key} {value}")
@@ -793,9 +805,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # Store all args
         self.args = args
 
-        # Initialize the dictionary that will hold the parameters we pass to the PipelineRun
-        self.params = dict()
-
         # These flags work for setting params in both interactive and non-interactive modes
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
@@ -819,7 +828,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "catalog": "v9-240625-amd64",
                 "release": "8.11.x",
                 "core": "8.11.12",
-                "assist": "8.8.4",
+                "assist": "N/A",
                 "iot": "8.8.10",
                 "manage": "8.7.9",
                 "monitor": "8.11.8",
@@ -832,12 +841,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "catalog": "v9-240625-amd64",
                 "release": "8.10.x",
                 "core": "8.10.15",
-                "assist": "8.7.5",
+                "assist": "N/A",
                 "iot": "8.7.14",
                 "manage": "8.6.15",
                 "monitor": "8.10.11",
                 "optimizer": "8.4.7",
-                "predict": "8.8.2",
+                "predict": "N/A",
                 "inspection": "8.8.4"
             },
             {
@@ -845,7 +854,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "catalog": "v8-240528-amd64",
                 "release": "8.11.x",
                 "core": "8.11.11",
-                "assist": "8.8.3",
+                "assist": "N/A",
                 "iot": "8.8.9",
                 "manage": "8.7.8",
                 "monitor": "8.11.7",
@@ -858,12 +867,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "catalog": "v8-240528-amd64",
                 "release": "8.10.x",
                 "core": "8.10.14",
-                "assist": "8.7.4",
+                "assist": "N/A",
                 "iot": "8.7.13",
                 "manage": "8.6.14",
                 "monitor": "8.10.10",
                 "optimizer": "8.4.6",
-                "predict": "8.8.2",
+                "predict": "N/A",
                 "inspection": "8.8.4"
             }
         ]
@@ -902,9 +911,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         entitlementFileBaseName = path.basename(self.slsLicenseFileLocal)
         self.setParam("sls_entitlement_file", f"/workspace/entitlement/{entitlementFileBaseName}")
 
-        # Set up the secrets for additional configs and podtemplates
+        # Set up the secrets for additional configs, podtemplates and manual certificates
         self.additionalConfigs()
         self.podTemplates()
+        self.manualCertificates()
 
         # Show a summary of the installation configuration
         self.displayInstallSummary()
@@ -945,7 +955,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     instanceId=self.getParam("mas_instance_id"),
                     slsLicenseFile=self.slsLicenseFileLocal,
                     additionalConfigs=self.additionalConfigsSecret,
-                    podTemplates=self.podTemplatesSecret
+                    podTemplates=self.podTemplatesSecret,
+                    certs=self.certsSecret
                 )
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
