@@ -12,8 +12,7 @@
 import logging
 import logging.handlers
 from sys import exit
-from os import path, environ
-import re
+from os import path
 import re
 
 from openshift.dynamic.exceptions import NotFoundError
@@ -60,11 +59,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 catalogId = m.group("catalogId")
             elif re.match(r".+v8-amd64", catalogDisplayName):
                 catalogId = "v8-amd64"
-            # # else:
-            # #     self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
+            else:
+                self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
 
-            # if catalogId != self.getParam("mas_catalog_version"):
-            #     self.fatalError(f"IBM Maximo Operator Catalog {catalogId} is already installed on this cluster, if you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
+            if catalogId != self.getParam("mas_catalog_version"):
+                self.fatalError(f"IBM Maximo Operator Catalog {catalogId} is already installed on this cluster, if you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
         except NotFoundError:
             # There's no existing catalog installed
             pass
@@ -199,17 +198,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             ])
         else:
             self.promptForInt("Enter the idleTimeout (in seconds)", "idle_timeout", default=1800)
-            print(self.params)
             self.promptForString("Enter the IDP session timeout (e.g., '12h' for 12 hours)", "idp_session_timeout", validator=TimeoutFormatValidator(), default="12h")
-            print(self.params)
             self.promptForString("Enter the access token timeout (e.g., '30m' for 30 minutes)", "access_token_timeout", validator=TimeoutFormatValidator(), default="30m")
-            print(self.params)
             self.promptForString("Enter the refresh token timeout (e.g., '12h' for 12 hours)", "refresh_token_timeout", validator=TimeoutFormatValidator(), default="12h")
-            print(self.params)
             self.promptForString("Enter the default Identity Provider (IDP)", "default_idp", default="local")
-            print(self.params)
             self.yesOrNo("Enable seamless login?", param="seamless_login")
-            print(self.params)
 
     def configMAS(self):
         self.printH1("Configure MAS Instance")
@@ -995,7 +988,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text=f"Submitting PipelineRun for {self.getParam('mas_instance_id')} install", spinner=self.spinner) as h:
-                print(self.params)
                 pipelineURL = launchInstallPipeline(dynClient=self.dynamicClient, params=self.params)
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {self.getParam('mas_instance_id')} install submitted")
