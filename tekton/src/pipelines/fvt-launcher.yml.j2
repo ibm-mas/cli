@@ -72,7 +72,7 @@ spec:
       type: string
       default: "true"
       description: "Set this to any value other than 'true' to disable launch of the IVT pipeline at the end of applications FVT"
-    
+
     # Required by Manage Setup (Data Loader)
     - name: mas_app_channel_manage
       type: string
@@ -373,7 +373,7 @@ spec:
           values: ["falsefalsefalsefalsefalsefalse"] # case sensitive to simplify (here is how launchfvt flags are in fvt template repos)
       runAfter:
         - approval-suite-verify
-    
+
     # Manage Setup (Data Loader)
     # Required by fvt-manage, fvt-manage-is, fvt-optimizer and fvt-predict pipelines
     - name: manage-setup
@@ -400,7 +400,7 @@ spec:
           values: ["true", "True"]
       runAfter:
         - manage-setup
-    
+
     - name: launchfvt-manage-is
       params:
         - name: image_pull_policy
@@ -789,33 +789,31 @@ spec:
           values: ["true", "True"]
       runAfter:
         - launchfvt-visualinspection
-    
+
     # 11. IVT
     # -------------------------------------------------------------------------
-    - name: launchivt
+    - name: launchivt-manage
       taskRef:
         kind: Task
-        name: mas-launchivt
+        name: mas-launchivt-manage
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
         - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-ivt"
+          value: "$(params.mas_instance_id)-ivt-manage"
       when:
-        - input: $(params.launchivt)
+        - input: $(params.launchivt_manage)
           operator: in
           values: ["true", "True"]
-      # Currently there is only one task testing Manage and Monitor, no point to
-      # run IVT after all approvals are obtained.
       runAfter:
         - approval-manage
         - approval-monitor
-    
+
     # Last Sync Point
     # -------------------------------------------------------------------------
     # Guarantee installation pipeline ran till the end;
     # In other words, guarantee sync-install pipeline has install_status key filled
-    # 
+    #
     # Note: this task will start once all the FVTs are approved and will start at the
     # same time install's post-verify starts. It means its timeout must be higher than
     # post-verify + sync-install, which will set the flag needed to finalize this fvt-launcher

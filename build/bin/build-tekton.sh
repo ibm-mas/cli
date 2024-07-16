@@ -60,7 +60,7 @@ function addToFile() {
 for FILE in $TASK_FILES; do
   FILE_NAME=$(basename $FILE)
 
-  if [[ "$FILE_NAME" == fvt-* ]] || [[ "$FILE_NAME" == ivt-* ]] || [[ "$FILE_NAME" == launchfvt-* ]]
+  if [[ "$FILE_NAME" == fvt-* ]] || [[ "$FILE_NAME" == ivt-* ]] || [[ "$FILE_NAME" == launchfvt-* ]] || [[ "$FILE_NAME" == launchivt-* ]]
   then addToFile $FILE $TARGET_FILE_FVT
   else addToFile $FILE $TARGET_FILE
   fi

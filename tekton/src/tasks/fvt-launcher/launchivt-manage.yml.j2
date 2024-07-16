@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-launchivt
+  name: mas-launchivt-manage
 spec:
   params:
     # Control the image pull policy for the FVT container image
@@ -19,7 +19,7 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - ansible-playbook
-        - /masfvt/ivt.yml
+        - /masfvt/ivt-manage.yml
       env:
         - name: IMAGE_PULL_POLICY
           value: $(params.image_pull_policy)
@@ -104,7 +104,7 @@ spec:
               name: mas-fvt-monitor
               key: FVT_DIGEST_CTF
               optional: false
-        
+
         # Black and white listing
         - name: FVT_BLACKLIST
           valueFrom:

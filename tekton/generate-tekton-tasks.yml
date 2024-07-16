@@ -88,7 +88,7 @@
         - launchfvt-visualinspection
         - launchfvt-upgrade-post
         - launchfvt-upgrade-pre
-        - launchivt
+        - launchivt-manage
 
     # 4. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
@@ -98,7 +98,7 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - ivt-core
-        - ivt-manage-monitor-dd
+        - ivt-manage
 
     # 5. Generate Tasks (Suite)
     # -------------------------------------------------------------------------
