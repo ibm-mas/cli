@@ -106,6 +106,7 @@ spec:
     # 1. MAS Core FVT
     # -------------------------------------------------------------------------
     - name: waitfor-suite-verify
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-configmap
@@ -138,6 +139,7 @@ spec:
           values: ["true", "True"]
 
     - name: launchfvt-sls
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-launchfvt-sls
@@ -154,6 +156,7 @@ spec:
         - waitfor-suite-verify
 
     - name: launchfvt-core
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-launchfvt-core
@@ -170,6 +173,7 @@ spec:
         - waitfor-suite-verify
 
     - name: approval-suite-verify
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-update-configmap
@@ -194,6 +198,7 @@ spec:
     # 2. Application FVT - Assist
     # -------------------------------------------------------------------------
     - name: waitfor-assist
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-configmap
@@ -231,6 +236,7 @@ spec:
         - approval-suite-verify
 
     - name: launchfvt-assist
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -247,6 +253,7 @@ spec:
         - waitfor-assist
 
     - name: approval-assist
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-update-configmap
@@ -273,6 +280,7 @@ spec:
     # 3. Application FVT - IoT
     # -------------------------------------------------------------------------
     - name: waitfor-iot
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-configmap
@@ -311,6 +319,7 @@ spec:
         - approval-suite-verify
 
     - name: launchfvt-iot
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -327,6 +336,7 @@ spec:
         - waitfor-iot
 
     - name: approval-iot
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-update-configmap
@@ -353,6 +363,7 @@ spec:
     # 5. Application FVT - Manage
     # -------------------------------------------------------------------------
     - name: waitfor-manage
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-configmap
@@ -393,6 +404,7 @@ spec:
     # Manage Setup (Data Loader)
     # Required by fvt-manage, fvt-manage-is, fvt-optimizer and fvt-predict pipelines
     - name: manage-setup
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-fvt-manage-pytest
@@ -424,6 +436,7 @@ spec:
         - waitfor-manage
 
     - name: launchfvt-manage
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -440,6 +453,7 @@ spec:
         - manage-setup
 
     - name: launchfvt-manage-is
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -456,6 +470,7 @@ spec:
         - manage-setup
 
     - name: approval-manage
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-update-configmap
@@ -485,6 +500,7 @@ spec:
     # -------------------------------------------------------------------------
     # Mobile FVT pipeline is launched after Manage is installed, but we do not sync it's progress back to the install pipeline
     - name: launchfvt-mobile
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -505,6 +521,7 @@ spec:
     # -------------------------------------------------------------------------
     # We only start the Monitor part of the FVT launcher after the IoT part has completed
     - name: waitfor-monitor
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-configmap
@@ -542,6 +559,7 @@ spec:
         - approval-iot
 
     - name: launchfvt-monitor
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -562,6 +580,7 @@ spec:
         - waitfor-monitor
 
     - name: approval-monitor
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-update-configmap
@@ -588,6 +607,7 @@ spec:
     # 8. Application FVT - Optimizer
     # -------------------------------------------------------------------------
     - name: waitfor-optimizer
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-configmap
@@ -625,6 +645,7 @@ spec:
         - approval-suite-verify
 
     - name: launchfvt-optimizer
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -642,6 +663,7 @@ spec:
         - manage-setup
 
     - name: approval-optimizer
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-update-configmap
@@ -669,6 +691,7 @@ spec:
     # -------------------------------------------------------------------------
     # We only start the Predict part of the FVT launcher after the Monitor part has completed
     - name: waitfor-predict
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-configmap
@@ -707,6 +730,7 @@ spec:
         - approval-manage
 
     - name: launchfvt-predict
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -727,6 +751,7 @@ spec:
         - waitfor-predict
 
     - name: approval-predict
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-update-configmap
@@ -753,6 +778,7 @@ spec:
     # 10. Application FVT - Visual Inspection
     # -------------------------------------------------------------------------
     - name: waitfor-visualinspection
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-configmap
@@ -790,6 +816,7 @@ spec:
         - approval-suite-verify
 
     - name: launchfvt-visualinspection
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -806,6 +833,7 @@ spec:
         - waitfor-visualinspection
 
     - name: approval-visualinspection
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-update-configmap
@@ -831,6 +859,7 @@ spec:
     # 11. IVT
     # -------------------------------------------------------------------------
     - name: launchivt-manage
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-launchivt-manage
@@ -859,6 +888,7 @@ spec:
     # - Ignore Failures: False
     # -------------------------------------------------------------------------
     - name: waitfor-installation
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-configmap
@@ -900,6 +930,7 @@ spec:
     # Collect must-gather
     # -------------------------------------------------------------------------
     - name: must-gather
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-must-gather
@@ -915,6 +946,7 @@ spec:
     # Finalize the record in the FVT database
     # -------------------------------------------------------------------------
     - name: finalize
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-fvt-finalize
@@ -944,6 +976,7 @@ spec:
     # Delete the named cluster
     # -------------------------------------------------------------------------
     - name: deprovision-cluster
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-fvt-deprovision-ocp

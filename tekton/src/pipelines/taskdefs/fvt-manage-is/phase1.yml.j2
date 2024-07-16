@@ -1,18 +1,17 @@
-# -------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # PHASE 1
 # - fvt-health-testng-preparedata  # Health
 #   - fvt-health-testng-desktop    # Health
 #   - fvt-health-python            # Health
 # - fvt-manage-scheduler-api       # Scheduler
 # - fvt-manage-scheduler-setup     # Scheduler
-# -------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-# ------------------
 # Health
-# ------------------
-
-## Health Prepare User Data
+# -----------------------------------------------------------------------------
+# Health Prepare User Data
 - name: fvt-health-testng-preparedata
+  timeout: "0"
   params:
     - name: mas_instance_id
       value: $(params.mas_instance_id)
@@ -35,7 +34,6 @@
       value: ibm-mas-manage
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
-
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -53,8 +51,9 @@
   runAfter:
     - fvt-manage-setup-is
 
-## All Health test suites on desktop
+# All Health test suites on desktop
 - name: fvt-health-testng-desktop
+  timeout: "0"
   params:
     - name: mas_instance_id
       value: $(params.mas_instance_id)
@@ -77,7 +76,6 @@
       value: ibm-mas-manage
     - name: browserstack_remoteserver
       value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
-
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -97,6 +95,7 @@
 
 ## All Health test suites in Python
 - name: fvt-health-python
+  timeout: "0"
   params:
     - name: mas_instance_id
       value: $(params.mas_instance_id)
@@ -115,7 +114,6 @@
       value: $(params.mas_app_channel_manage)
     - name: product_id
       value: ibm-mas-manage
-
   taskRef:
     kind: Task
     name: mas-fvt-run-suite
@@ -133,12 +131,10 @@
   runAfter:
     - fvt-health-testng-preparedata
 
-# ------------------
-# Scheduler
-# ------------------
 
+# Scheduler
+# -----------------------------------------------------------------------------
 # Scheduler - API Tests
-# ------------------
 - name: fvt-manage-scheduler-api
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
@@ -148,11 +144,7 @@
   runAfter:
     - fvt-manage-setup-is
 
-
 # Scheduler - UI Tests
-# ------------------
-
-# Setup
 - name: fvt-manage-scheduler-setup
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
@@ -166,103 +158,3 @@
       value: tpae
   runAfter:
     - fvt-manage-setup-is
-
-{# # UI
-- name: fvt-manage-scheduler-1
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: scheduler-1
-    - name: fvt_mas_appws_component
-      value: scheduler
-    - name: fvt_test_driver
-      value: tpae
-  runAfter:
-    - fvt-manage-scheduler-setup #}
-
-{# # Manage FVT - Scheduler
-- name: fvt-manage-scheduler-2
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: scheduler-2
-    - name: fvt_mas_appws_component
-      value: scheduler
-    - name: fvt_test_driver
-      value: tpae
-  runAfter:
-    - fvt-manage-scheduler-setup
-
-# Manage FVT - Scheduler
-- name: fvt-manage-scheduler-3
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: scheduler-3
-    - name: fvt_mas_appws_component
-      value: scheduler
-    - name: fvt_test_driver
-      value: tpae
-  runAfter:
-    - fvt-manage-scheduler-setup
-
-# Manage FVT - Scheduler
-- name: fvt-manage-scheduler-4
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: scheduler-4
-    - name: fvt_mas_appws_component
-      value: scheduler
-    - name: fvt_test_driver
-      value: tpae
-  runAfter:
-    - fvt-manage-scheduler-setup
-
-# Manage FVT - Scheduler - Scheduling Dashboard
-- name: fvt-manage-scheduler-scheduling-dashboard
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: scheduler-scheduling-dashboard
-    - name: fvt_mas_appws_component
-      value: scheduler
-    - name: fvt_test_driver
-      value: graphite
-    - name: fvt_test_graphite_url
-      value: /oslc/graphite/schedulingdashboard
-  runAfter:
-    - fvt-manage-scheduler-1
-    - fvt-manage-scheduler-2
-    - fvt-manage-scheduler-3
-    - fvt-manage-scheduler-4
-
-# Manage FVT - Scheduler - Scheduling Dashboard
-- name: fvt-manage-scheduler-dispatching-dashboard
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: scheduler-dispatching-dashboard
-    - name: fvt_mas_appws_component
-      value: scheduler
-    - name: fvt_test_driver
-      value: graphite
-    - name: fvt_test_graphite_url
-      value: /oslc/graphite/dispatchingdashboard
-  runAfter:
-    - fvt-manage-scheduler-1
-    - fvt-manage-scheduler-2
-    - fvt-manage-scheduler-3
-    - fvt-manage-scheduler-4 #}
