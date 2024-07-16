@@ -214,7 +214,7 @@ function gitops_deprovision_app_install() {
   # Delete ArgoApps
   # ---------------------------------------------------------------------------
   # Per MAS instance
-  rm ${GITOPS_INSTANCE_DIR}/ibm-mas-masapp-${MAS_APP_ID}-install.yaml
+  rm -rf ${GITOPS_INSTANCE_DIR}/ibm-mas-masapp-${MAS_APP_ID}-install.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------

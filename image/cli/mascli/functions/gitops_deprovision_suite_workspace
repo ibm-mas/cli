@@ -222,7 +222,7 @@ function gitops_deprovision_suite_workspace() {
     # If the file is there, but the configs are empty, delete the file
     CONFIGS_COUNT=$(yq '.ibm_mas_workspaces | length' $CONFIGS_FILE)
     if [ "${CONFIGS_COUNT}" == "0" ]; then
-      rm $CONFIGS_FILE
+      rm -rf $CONFIGS_FILE
     fi
   fi
 

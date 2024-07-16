@@ -487,7 +487,7 @@ function save_and_unlock_target_git_repo {
   GITOPS_REPO_DIR="${LOCAL_DIR}/${GITHUB_REPO}"
 
   # Delete the .lock file
-  rm "${GITOPS_REPO_DIR}/${LOCKFILE_NAME}"
+  rm -rf "${GITOPS_REPO_DIR}/${LOCKFILE_NAME}"
 
   # commit and push all changes
   echo
