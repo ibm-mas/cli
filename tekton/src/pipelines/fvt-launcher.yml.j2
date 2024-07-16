@@ -28,6 +28,8 @@ spec:
       default: "false"
       description: "Set this to 'true' to enable synchronization with a running MAS install pipeline"
 
+    # What to launch
+    # -------------------------------------------------------------------------
     - name: launchfvt_core
       type: string
       default: "true"
@@ -68,20 +70,17 @@ spec:
       type: string
       default: "true"
       description: "Set this to any value other than 'true' to disable launch of the Visual Inspection FVT pipeline after app-cfg-visualinspection completes"
-    - name: launchivt
+    - name: launchivt_manage
       type: string
       default: "true"
       description: "Set this to any value other than 'true' to disable launch of the IVT pipeline at the end of applications FVT"
 
-    # Required by Manage Setup (Data Loader)
-    - name: mas_app_channel_manage
+    # Deprovision Resources
+    # -------------------------------------------------------------------------
+    - name: deprovision
       type: string
-      default: ""
-      description: "Manage Channel - necessary to run Manage Setup and for the when clause"
-    - name: fvt_digest_manage_pytest
-      type: string
-      default: ""
-      description: "Manage Pytest FVT Digest - necessary to run Manage Setup and for the when clause"
+      default: "false"
+      description: "Set this to 'true' to enable deprovision of the target cluster & associated resources following the completion of this pipeline"
 
   tasks:
     # 1. MAS Core FVT
@@ -361,14 +360,11 @@ spec:
         - name: ignore_failure
           value: "False"
       when:
-        - input: "$(params.mas_app_channel_manage)"
-          operator: notin
-          values: [""]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
         # All these launchers require manage in place to then run setup, therefore the criteria
-        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_optimizer)$(params.launchfvt_predict)$(params.launchivt)
+        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_optimizer)$(params.launchfvt_predict)$(params.launchivt_manage)
           operator: notin
           values: ["falsefalsefalsefalsefalsefalse"] # case sensitive to simplify (here is how launchfvt flags are in fvt template repos)
       runAfter:
@@ -432,7 +428,7 @@ spec:
           value: approved
       when:
         # Same criteria used in waitfor-manage task
-        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_optimizer)$(params.launchfvt_predict)$(params.launchivt)
+        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_optimizer)$(params.launchfvt_predict)$(params.launchivt_manage)
           operator: notin
           values: ["falsefalsefalsefalsefalsefalse"] # case sensitive to simplify (here is how launchfvt flags are in fvt template repos)
         - input: $(params.sync_with_install)
@@ -857,9 +853,8 @@ spec:
         - approval-optimizer
         - approval-predict # Infers Manage, Monitor and IoT completed
         - approval-visualinspection
-        - launchivt
+        - launchivt-manage
 
-  finally:
     # Collect must-gather
     # -------------------------------------------------------------------------
     - name: must-gather
@@ -872,6 +867,8 @@ spec:
       workspaces:
         - name: mustgather
           workspace: shared-mustgather
+      runAfter:
+        - waitfor-installation
 
     # Finalize the record in the FVT database
     # -------------------------------------------------------------------------
@@ -879,6 +876,42 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-finalize
+      runAfter:
+        - must-gather
+
+    # Delete IBM Cloud services
+    # -------------------------------------------------------------------------
+    # COS
+    {{ lookup('template', 'taskdefs/dependencies/fvt-deprovision-cos.yml.j2') | indent(4) }}
+      when:
+        - input: $(params.deprovision)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - must-gather
+
+    # Event Streams
+    {{ lookup('template', 'taskdefs/dependencies/fvt-deprovision-kafka.yml.j2') | indent(4) }}
+      when:
+        - input: $(params.deprovision)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - must-gather
+
+    # Delete the named cluster
+    # -------------------------------------------------------------------------
+    - name: deprovision-cluster
+      taskRef:
+        kind: Task
+        name: mas-fvt-deprovision-ocp
+      when:
+        - input: $(params.deprovision)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - cos-deprovision
+        - kafka-deprovision
 
   workspaces:
     # Shared storage to hold mustgather output for tasks
