@@ -930,7 +930,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - must-gather
+        - finalize
 
     # Event Streams
     {{ lookup('template', 'taskdefs/dependencies/fvt-deprovision-kafka.yml.j2') | indent(4) }}
@@ -939,7 +939,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - must-gather
+        - finalize
 
     # Delete the named cluster
     # -------------------------------------------------------------------------
