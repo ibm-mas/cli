@@ -1,6 +1,0 @@
----
-apiVersion: v1
-kind: Secret
-type: Opaque
-metadata:
-  name: pipeline-additional-configs

@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# !! Note: Despite the name, this is used by the upgrade script              !!
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 # STORAGE_CLASS_RWX
 # -----------------
 # RWX: Usually this role is fulfilled by block storage classes; used by:

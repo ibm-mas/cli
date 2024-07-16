@@ -15,9 +15,10 @@ if [ "$DEV_MODE" != "true" ]; then
   TARGET_FILE=$GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton.yaml
   TARGET_FILE_FVT=$GITHUB_WORKSPACE/tekton/target/ibm-mas-tekton-fvt.yaml
   TARGET_FILE_IN_CLI=$GITHUB_WORKSPACE/image/cli/mascli/templates/ibm-mas-tekton.yaml
+  TARGET_FILE_IN_PY=$GITHUB_WORKSPACE/python/src/mas/cli/templates/ibm-mas-tekton.yaml
 else
   TARGET_DIR=$DIR/../../tekton/target
-  VERSION=${VERSION:-6.1.0-pre.deprov}
+  VERSION=${VERSION:-100.0.0-pre.localbuild}
 
   TASK_FILES=$TARGET_DIR/tasks/*.yaml
   PIPELINE_FILES=$TARGET_DIR/pipelines/*.yaml
@@ -25,6 +26,7 @@ else
   TARGET_FILE=$DIR/../../tekton/target/ibm-mas-tekton.yaml
   TARGET_FILE_FVT=$DIR/../../tekton/target/ibm-mas-tekton-fvt.yaml
   TARGET_FILE_IN_CLI=$DIR/../../image/cli/mascli/templates/ibm-mas-tekton.yaml
+  TARGET_FILE_IN_PY=$DIR/../../python/src/mas/cli/templates/ibm-mas-tekton.yaml
 fi
 
 
@@ -84,6 +86,7 @@ mv $TARGET_FILE.txt $TARGET_FILE
 mv $TARGET_FILE_FVT.txt $TARGET_FILE_FVT
 
 cp $TARGET_FILE $TARGET_FILE_IN_CLI
+cp $TARGET_FILE $TARGET_FILE_IN_PY
 
 # Extra debug for Travis builds
 if [ "$DEV_MODE" != "true" ]; then
