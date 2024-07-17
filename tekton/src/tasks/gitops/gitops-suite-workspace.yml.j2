@@ -1,0 +1,93 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-suite-workspace
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: mas_workspace_id
+      type: string
+    - name: mas_workspace_name
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: avp_aws_secret_region
+      type: string
+  stepTemplate:
+    name: gitops-suite-workspace
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: WORKSPACE_ID
+        value: $(params.mas_workspace_id)
+      - name: WORKSPACE_NAME
+        value: $(params.mas_workspace_name)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+        
+  steps:
+    - args:
+      - |-
+
+        mkdir -p /tmp/init-suite-workspace
+
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+
+        mas gitops-suite-workspace -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        --mas-workspace-id $WORKSPACE_ID \
+        --mas-workspace-name "$WORKSPACE_NAME" \
+        --dir /tmp/init-suite-workspace \
+        --github-push \
+        --github-host $GITHUB_HOST \
+        --github-org $GITHUB_ORG \
+        --github-repo $GITHUB_REPO \
+        --git-branch $GIT_BRANCH
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-suite-workspace
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs
