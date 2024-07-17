@@ -125,4 +125,3 @@ When building a MAS CLI pre-release image version, the build system will embed t
 
 - By default, MAS CLI will build its pre-release image using [the latest MAS Ansible Devops released version](https://github.com/ibm-mas/ansible-devops/releases).
 - **To use a custom MAS Ansible Devops collection within MAS CLI:**  If you are developing a custom MAS Ansible Devops collection and you want to build a MAS CLI image that will make use of this ansible collection, from the `cli` root folder, you can run `make ansible-build` to build and place your MAS Ansible Devops `tar.gz` into [`cli/image/cli/install`](image/cli/install/), that's the folder that CLI uses to install the MAS Ansible Devops collection that will be used within the MAS CLI container during the image build process.
-
