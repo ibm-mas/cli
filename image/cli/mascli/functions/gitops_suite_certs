@@ -1,0 +1,224 @@
+#!/usr/bin/env bash
+
+function gitops_suite_certs_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops_suite_certs [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Options:
+  --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                   DNS Provider
+  --mas_domain ${COLOR_YELLOW}MAS_DOMAIN${TEXT_RESET}                       MAS domain
+  --cis-subdomain ${COLOR_YELLOW}CIS_SUBDOMAIN${TEXT_RESET}                 CIS subdomain
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}         IBM Suite Maximo Application Suite Instance ID  
+  --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}           MAS_WORKSPACE_ID
+  --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}   MAS_MANUAL_CERT_MGMT
+  --cis-proxy ${COLOR_YELLOW}CIS_PROXY${TEXT_RESET}                         CIS_PROXY
+  --cis-crn ${COLOR_YELLOW}CIS_CRN${TEXT_RESET}                             CIS_CRN
+  --cis-apikey ${COLOR_YELLOW}CIS_APIKEY${TEXT_RESET}                       CIS_APIKEY
+  --mas-config-dir ${COLOR_YELLOW}MAS_CONFIG_DIR${TEXT_RESET}               MAS_CONFIG_DIR
+  --gitops ${COLOR_YELLOW}GITOPS${TEXT_RESET}                               Gitops flag to be used by Ansible role to control OC resources creation
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                   Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                   Cluster ID
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}         IBM Suite Maximo Application Suite Instance ID  
+
+Secrets Manager:
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
+      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
+
+Other Commands:
+  -h, --help                                                                Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_suite_certs_noninteractive() {
+  SECRETS_KEY_SEPERATOR="/"
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+
+      # DNS provider,  cis and route53 is supported to provision suite_dns
+      --dns-provider)
+        export DNS_PROVIDER=$1 && shift
+        ;;
+
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+      --gitops)
+        export GITOPS=$1 && shift
+        ;;
+
+      -m|--mas-instance-id)
+        export MAS_INSTANCE_ID=$1 && shift
+        ;;
+      --mas-config-dir)
+        export MAS_CONFIG_DIR=$1 && shift
+        ;;
+      --mas-workspace-id)
+        export MAS_WORKSPACE_ID=$1 && shift
+        ;;
+      --mas-domain)
+        export MAS_DOMAIN=$1 && shift
+        ;;
+      --mas-manual-cert-mgmt)
+        export MAS_MANUAL_CERT_MGMT=$1 && shift
+        ;;
+
+      # Secrets Manager
+      --secrets-path)
+        export SECRETS_PATH=$1 && shift
+        ;;
+      --secrets-key-seperator)
+        export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
+
+      # CIS specific
+      --cis-subdomain)
+        export CIS_SUBDOMAIN=$1 && shift
+        ;;
+      --cis-proxy)
+        export CIS_PROXY=$1 && shift
+        ;;
+      --cis-crn)
+        export CIS_CRN=$1 && shift
+        ;;
+      --cis-apikey)
+        export CIS_APIKEY=$1 && shift
+        ;;
+
+      # Other Commands
+      -h|--help)
+        gitops_suite_certs_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        gitops_suite_certs_help  "Usage Error: Unsupported option \"${key}\" "
+        exit 1
+        ;;
+      esac
+  done
+
+  if [ $DNS_PROVIDER == 'cis' ]; then
+    if [ -z $CIS_SUBDOMAIN ] || [ -z $CIS_CRN ] || [ -z $CIS_APIKEY ]; then
+      echo 'Missing required params for CIS provider, make sure to provide --cis-subdomain, --cis-crn and --cis-apikey'
+      exit 1
+    fi
+  fi
+
+  [[ -z "$CLUSTER_ID" ]] && gitops_suite_certs_help "CLUSTER_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_suite_certs_help "ACCOUNT_ID is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_suite_certs_help "MAS_INSTANCE_ID is not set"
+}
+
+
+function gitops_suite_certs() {
+  # Take the first parameter off (it will be create-gitops)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_suite_certs_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_suite_certs_interactive
+  fi
+
+  # catch errors  
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Target" "    "
+  
+  echo_reset_dim "DNS Provider ............................ ${COLOR_MAGENTA}${DNS_PROVIDER}"
+  echo_reset_dim "MAS Domain .............................. ${COLOR_MAGENTA}${MAS_DOMAIN}"
+  echo_reset_dim "CIS SUB Domain .......................... ${COLOR_MAGENTA}${CIS_SUBDOMAIN}"
+  echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "MAS Workspace Id ........................ ${COLOR_MAGENTA}${MAS_WORKSPACE_ID}"
+  echo_reset_dim "mas_manual_cert_mgmt .................... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
+  echo_reset_dim "cis_proxy ............................... ${COLOR_MAGENTA}${CIS_PROXY}"
+  echo_reset_dim "cis_crn ................................. ${COLOR_MAGENTA}${CIS_CRN}"
+  echo_reset_dim "cis_apikey .............................. ${COLOR_MAGENTA}${CIS_APIKEY:0:8}<snip>"
+  echo_reset_dim "mas_config_dir .......................... ${COLOR_MAGENTA}${MAS_CONFIG_DIR}"
+  echo_reset_dim "gitops .................................. ${COLOR_MAGENTA}${GITOPS}"
+
+  export ROLE_NAME=suite_certs && ansible-playbook ibm.mas_devops.run_role
+
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
+
+  if [ "${MAS_MANUAL_CERT_MGMT}" = "true" ] ; then
+
+    echo
+    echo "Move Certs to Secret Manager"
+    AVP_TYPE=aws  # Support for IBM will be added later
+    sm_login
+
+    appList=(
+      "core"
+      "assist" 
+      "iot"
+      "manage"
+      "monitor"
+      "optimizer"  
+      "predict"
+      "visualinspection"
+    ) 
+    APP_CERTS_PATH=${MAS_CONFIG_DIR}/app/certs
+
+    if [ -e "${APP_CERTS_PATH}" ]; then
+
+      for app in ${appList[@]}; do
+
+        PUBLIC_CERT_CA_FILE_PATH=${APP_CERTS_PATH}/${app}/public-cert-ca.yml
+        PUBLIC_CERT_TLS_FILE_PATH=${APP_CERTS_PATH}/${app}/public-cert-tls.yml
+        PUBLIC_TLS_KEY_FILE_PATH=${APP_CERTS_PATH}/${app}/public-tls-key.yml
+
+        PUBLIC_CERT_CA=""
+        PUBLIC_CERT_TLS=""
+        PUBLIC_TLS_KEY=""
+
+        export PUBLIC_CERT_SECRET_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}certs${SECRETS_KEY_SEPERATOR}${app}
+
+        if [[ -s "${PUBLIC_CERT_CA_FILE_PATH}" ]]; then
+          echo "File Path :  ${PUBLIC_CERT_CA_FILE_PATH}"
+          PUBLIC_CERT_CA=$(cat $PUBLIC_CERT_CA_FILE_PATH)
+          PUBLIC_CERT_CA=${PUBLIC_CERT_CA//\"/\\\"}
+          PUBLIC_CERT_CA=${PUBLIC_CERT_CA//$'\n'/\\n}  
+        fi
+
+        if [[ -s "${PUBLIC_CERT_TLS_FILE_PATH}" ]]; then
+          echo "File Path :  ${PUBLIC_CERT_TLS_FILE_PATH}"
+          PUBLIC_CERT_TLS=$(cat $PUBLIC_CERT_TLS_FILE_PATH)
+          PUBLIC_CERT_TLS=${PUBLIC_CERT_TLS//\"/\\\"}
+          PUBLIC_CERT_TLS=${PUBLIC_CERT_TLS//$'\n'/\\n}
+        fi
+
+        if [[ -s "${PUBLIC_TLS_KEY_FILE_PATH}" ]]; then  
+          echo "File Path :  $PUBLIC_TLS_KEY_FILE_PATH"
+          PUBLIC_TLS_KEY=$(cat $PUBLIC_TLS_KEY_FILE_PATH)
+          PUBLIC_TLS_KEY=${PUBLIC_TLS_KEY//\"/\\\"}
+          PUBLIC_TLS_KEY=${PUBLIC_TLS_KEY//$'\n'/\\n}
+        fi
+        sm_update_secret $PUBLIC_CERT_SECRET_NAME "{\"cert_ca\": \"$PUBLIC_CERT_CA\", \"cert_tls\": \"$PUBLIC_CERT_TLS\", \"tls_key\": \"$PUBLIC_TLS_KEY\"}"
+
+      done  
+    fi
+
+  fi
+  exit 0
+}

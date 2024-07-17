@@ -1,0 +1,17 @@
+---
+# We will be installing and managing the IBM Maximo Operator Catalog CatalogSource using ArgoCD
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openshift-marketplace
+  labels:
+    argocd.argoproj.io/managed-by: openshift-gitops
+---
+# TODO: Why do we need to allow kube-system to be managed by ArgoCD?
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kube-system
+  labels:
+    argocd.argoproj.io/managed-by: openshift-gitops
+

@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+
+function gitops_mas_fvt_preparer_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops_mas_fvt_preparer [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Options:
+  --pipeline-storage-class ${COLOR_YELLOW}PIPELINE_STORAGE_CLASS${TEXT_RESET}            Storge class which the Pipeline will use
+
+Other Commands:
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_mas_fvt_preparer_noninteractive() {
+  GITOPS_WORKING_DIR=$PWD/mas-fvt
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      --pipeline-storage-class)
+        export PIPELINE_STORAGE_CLASS=$1 && shift
+        ;;
+
+      # Other Commands
+      -h|--help)
+        gitops_mas_fvt_preparer_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        gitops_mas_fvt_preparer_help  "Usage Error: Unsupported option \"${key}\" "
+        exit 1
+        ;;
+      esac
+  done
+  [[ -z "$PIPELINE_STORAGE_CLASS" ]] && gitops_mas_fvt_preparer_help "PIPELINE_STORAGE_CLASS is not set"
+  [[ -z "$FVT_PIPELINE_NAME" ]] && gitops_mas_fvt_preparer_help "FVT_PIPELINE_NAME is not set"
+  [[ -z "$CLI_VERSION" ]] && gitops_mas_fvt_preparer_help "CLI_VERSION is not set"
+  [[ -z "$FVT_ARTIFACTORY_USERNAME" ]] && gitops_mas_fvt_preparer_help "FVT_ARTIFACTORY_USERNAME is not set"
+  [[ -z "$FVT_ARTIFACTORY_TOKEN" ]] && gitops_mas_fvt_preparer_help "FVT_ARTIFACTORY_TOKEN is not set"
+  [[ -z "$FVT_CONFIG" ]] && gitops_mas_fvt_preparer_help "FVT_CONFIG is not set"
+  [[ -z "$FVT_IMAGE_REGISTRY" ]] && gitops_mas_fvt_preparer_help "FVT_IMAGE_REGISTRY is not set"
+  [[ -z "$FVT_VERSION_CORE" ]] && gitops_mas_fvt_preparer_help "FVT_VERSION_CORE is not set"
+  [[ -z "$IVT_VERSION_CORE" ]] && gitops_mas_fvt_preparer_help "IVT_VERSION_CORE is not set"
+}
+
+function gitops_mas_fvt_preparer() {
+  # Take the first parameter off (it will be create-gitops)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_mas_fvt_preparer_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_mas_fvt_preparer_interactive
+  fi
+
+  mkdir -p ${GITOPS_WORKING_DIR}
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Target" "    "
+
+  echo_reset_dim "Pipeline storage class................... ${COLOR_MAGENTA}${PIPELINE_STORAGE_CLASS}"
+  echo_reset_dim "FVT Pipeline ............................ ${COLOR_MAGENTA}${FVT_PIPELINE_NAME}"
+  echo_reset_dim "FVT Config .............................. ${COLOR_MAGENTA}${FVT_CONFIG}"
+  echo_reset_dim "Launcher ID ............................. ${COLOR_MAGENTA}${LAUNCHER_ID}"
+
+  # Set SLS Namespace
+  export SLS_NAMESPACE="mas-${MAS_INSTANCE_ID}-sls"
+  #Don't wait for install process
+  export SYNC_WITH_INSTALL=false
+  #If this is the FVT Core run then don't call finalize at the end of this run
+  if [[ "$LAUNCHER_ID" == "core" ]]; then
+    export RUN_FINALIZE=false
+  fi
+  #FVT pipeline to run
+  export PIPELINE_NAME=$FVT_PIPELINE_NAME
+  ansible-playbook ibm.mas_fvt.setup_pipeline
+
+  rc=$?
+  echo_reset_dim "setup_pipeline return code............... ${COLOR_MAGENTA}${rc}"
+  [ $rc -ne 0 ] && exit $rc
+  ansible-playbook ibm.mas_fvt.start_pipeline
+  rc=$?
+  echo_reset_dim "start_pipeline return code............... ${COLOR_MAGENTA}${rc}"
+  [ $rc -ne 0 ] && exit $rc
+  exit 0
+}

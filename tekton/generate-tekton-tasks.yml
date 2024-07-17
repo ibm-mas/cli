@@ -146,3 +146,61 @@
         - update-configmap
         - wait-for-configmap
         - wait-for-tekton
+
+    # 8. Generate Tasks (GitOps)
+    # -------------------------------------------------------------------------
+    - name: Generate Tasks (GitOps)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/gitops/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - gitops-bootstrap
+        - gitops-cis-compliance
+        - gitops-cluster
+        - gitops-cos
+        - gitops-cp4d
+        - gitops-cp4d-service
+        - gitops-db2u
+        - gitops-db2u-database
+        - gitops-delete-jdbc-config
+        - gitops-delete-kafka-config
+        - gitops-deprovision-app-config
+        - gitops-deprovision-app-install
+        - gitops-deprovision-cluster
+        - gitops-deprovision-cos
+        - gitops-deprovision-db2u
+        - gitops-deprovision-db2u-database
+        - gitops-deprovision-efs
+        - gitops-deprovision-kafka
+        - gitops-deprovision-mongo
+        - gitops-deprovision-rosa
+        - gitops-deprovision-suite-config
+        - gitops-deprovision-suite-idp-config
+        - gitops-deprovision-suite-objectstorage-config
+        - gitops-deprovision-suite-smtp-config
+        - gitops-deprovision-suite-watson-studio-config
+        - gitops-deprovision-suite-workspace
+        - gitops-deprovision-suite
+        - gitops-dro
+        - gitops-efs
+        - gitops-jdbc-config
+        - gitops-kafka
+        - gitops-kafka-config
+        - gitops-license
+        - gitops-mas-fvt-preparer
+        - gitops-mas-initiator
+        - gitops-mongo
+        - gitops-nvidia-gpu
+        - gitops-process-mongo-user
+        - gitops-rosa
+        - gitops-suite-app-install
+        - gitops-suite-app-config
+        - gitops-suite-certs
+        - gitops-suite-config
+        - gitops-suite-dns
+        - gitops-suite-idp-config
+        - gitops-suite-objectstorage-config
+        - gitops-suite-smtp-config
+        - gitops-suite-watson-studio-config
+        - gitops-suite-workspace
+        - gitops-suite

@@ -1,0 +1,296 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: gitops-mas-cluster
+spec:
+  description: MAS Cluster scope
+  workspaces:
+    - name: configs
+  params:
+    - name: cluster_name
+      type: string
+    - name: cluster_url
+      type: string
+    - name: custom_labels
+      type: string
+    - name: account
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: github_user
+      type: string
+    - name: git_commit_msg
+      type: string
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    
+    - name: slack_channel_id
+      type: string
+
+    - name: mas_catalog_version
+      type: string
+    - name: mas_catalog_image
+      type: string
+
+    - name: dro_namespace
+      type: string
+      default: "ibm-software-central"
+    - name: dro_cmm_setup
+      type: string
+      default: "false"
+    - name: dro_cmm_auth_url
+      type: string
+      default: ""
+    - name: dro_cmm_cmm_url
+      type: string
+      default: ""
+
+    - name: db2_channel
+      type: string
+      default: ""
+    - name: db2_action
+      type: string
+      default: ""
+
+    - name: nvidia_gpu_action
+      type: string
+      default: ""
+    - name: nfd_namespace
+      type: string
+      default: openshift-nfd
+    - name: nfd_channel
+      type: string
+      default: stable
+    - name: gpu_namespace
+      type: string
+      default: nvidia-gpu-operator
+    - name: gpu_channel
+      type: string
+      default: v24.3
+    - name: gpu_driver_version
+      type: string
+      default: 550.90.07
+    - name: gpu_driver_repository_path
+      type: string
+      default: nvcr.io/nvidia
+
+    - name: cluster_promotion_target_github_host
+      type: string
+      default: ''
+    - name: cluster_promotion_target_github_repo
+      type: string
+      default: ''
+    - name: cluster_promotion_target_github_org
+      type: string
+      default: ''
+    - name: cluster_promotion_target_github_path
+      type: string
+      default: ''
+    - name: cluster_promotion_target_git_branch
+      type: string
+      default: ''
+    - name: cluster_promotion_create_target_pr
+      type: string
+      default: ''
+    - name: cluster_promotion_target_pr_title
+      type: string
+      default: ''
+    - name: cluster_promotion_cluster_values
+      type: string
+      default: ''
+    - name: dns_provider
+      type: string
+      default: cis
+    - name: ocp_cluster_domain
+      type: string
+      default: ""
+
+  tasks:
+    - name: gitops-cluster
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: custom_labels
+          value: $(params.custom_labels)
+        - name: account
+          value: $(params.account)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: github_user
+          value: $(params.github_user)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+
+        - name: slack_channel_id
+          value: $(params.slack_channel_id)
+
+        - name: mas_catalog_version
+          value: $(params.mas_catalog_version)
+        - name: mas_catalog_image
+          value: $(params.mas_catalog_image)
+
+        - name: cluster_promotion_target_github_host
+          value: $(params.cluster_promotion_target_github_host)
+        - name: cluster_promotion_target_github_repo
+          value: $(params.cluster_promotion_target_github_repo)
+        - name: cluster_promotion_target_github_org
+          value: $(params.cluster_promotion_target_github_org)
+        - name: cluster_promotion_target_github_path
+          value: $(params.cluster_promotion_target_github_path)
+        - name: cluster_promotion_target_git_branch
+          value: $(params.cluster_promotion_target_git_branch)
+        - name: cluster_promotion_create_target_pr
+          value: $(params.cluster_promotion_create_target_pr)
+        - name: cluster_promotion_target_pr_title
+          value: $(params.cluster_promotion_target_pr_title)
+        - name: cluster_promotion_cluster_values
+          value: $(params.cluster_promotion_cluster_values)
+
+        - name: ocp_cluster_domain
+          value: $(params.ocp_cluster_domain)
+        - name: dns_provider
+          value: $(params.dns_provider)
+      taskRef:
+        kind: Task
+        name: gitops-cluster
+      workspaces:
+        - name: configs
+          workspace: configs
+
+    - name: gitops-dro
+      runAfter:
+        - gitops-cluster
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: account
+          value: $(params.account)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: dro_namespace
+          value: $(params.dro_namespace)
+        - name: dro_cmm_setup
+          value: $(params.dro_cmm_setup)
+        - name: dro_cmm_auth_url
+          value: $(params.dro_cmm_auth_url)
+        - name: dro_cmm_cmm_url
+          value: $(params.dro_cmm_cmm_url)
+      taskRef:
+        kind: Task
+        name: gitops-dro
+      workspaces:
+        - name: configs
+          workspace: configs
+
+    - name: gitops-cis-compliance
+      runAfter:
+        - gitops-cluster
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: account
+          value: $(params.account)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+      taskRef:
+        kind: Task
+        name: gitops-cis-compliance
+      workspaces:
+        - name: configs
+          workspace: configs
+
+    - name: gitops-nvidia-gpu
+      runAfter:
+        - gitops-cluster
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: account
+          value: $(params.account)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: nfd_namespace
+          value: $(params.nfd_namespace)
+        - name: nfd_channel
+          value: $(params.nfd_channel)
+        - name: gpu_namespace
+          value: $(params.gpu_namespace)
+        - name: gpu_channel
+          value: $(params.gpu_channel)
+        - name: gpu_driver_version
+          value: $(params.gpu_driver_version)
+        - name: gpu_driver_repository_path
+          value: $(params.gpu_driver_repository_path)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-nvidia-gpu
+      when:
+        - input: "$(params.nvidia_gpu_action)"
+          operator: in
+          values: ["install"]

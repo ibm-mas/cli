@@ -78,6 +78,13 @@ spec:
       default: "true"
       description: "Set this to any value other than 'true' to disable launch of the IVT pipeline at the end of applications FVT"
 
+    # Finalize
+    # -------------------------------------------------------------------------
+    - name: finalize
+      type: string
+      default: "true"
+      description: "Set this to 'false' to stop the finalize task from running for this launcher"
+
     # Deprovision Resources
     # -------------------------------------------------------------------------
     - name: deprovision
@@ -952,6 +959,10 @@ spec:
         name: mas-fvt-finalize
       runAfter:
         - must-gather
+      when:
+        - input: $(params.finalize)
+          operator: in
+          values: ["true", "True"]
 
     # Delete IBM Cloud services
     # -------------------------------------------------------------------------

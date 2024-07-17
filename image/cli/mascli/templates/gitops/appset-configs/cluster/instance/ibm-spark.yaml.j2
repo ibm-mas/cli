@@ -1,0 +1,9 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
+
+ibm_spark:
+  ccs_version: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CCS_VERSION }}>"
+  cpd_service_block_storage_class: "{{ CPD_SERVICE_BLOCK_STORAGE_CLASS }}"
+  cpd_service_scale_config: "{{ CPD_SERVICE_SCALE_CONFIG }}"
+  cpd_service_storage_class: "{{ CPD_SERVICE_STORAGE_CLASS }}"
+  spark_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SPARK_CHANNEL }}>"
+  spark_version: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SPARK_VERSION }}>"

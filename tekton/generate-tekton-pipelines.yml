@@ -69,3 +69,49 @@
         - upgrade
         - rollback
         - uninstall
+        - fvt-core
+
+    # 3. Generate Gitops Pipelines
+    # -------------------------------------------------------------------------
+    - name: Generate GitOps Pipelines 
+      vars:
+        wait_for_provision: false
+        wait_for_deprovision: false
+      ansible.builtin.template:
+        src: "{{ pipeline_src_dir }}/gitops/{{ item }}.yml.j2"
+        dest: "{{ pipeline_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - deprovision-cluster
+        - deprovision-mas-deps
+        - deprovision-mas-instance
+        - deprovision-mas-cluster
+        - provision-bootstrap-cluster
+        - gitops-mas-instance
+        - gitops-mas-fvt-preparer-pipeline
+        - gitops-mas-apps
+        - gitops-mas-cluster
+
+    # 4. Generate Gitops Pipelines with waits
+    # -------------------------------------------------------------------------
+    - name: Generate GitOps Pipelines with wait-after-deprovision
+      vars:
+        wait_for_deprovision: true
+      ansible.builtin.template:
+        src: "{{ pipeline_src_dir }}/gitops/{{ item }}.yml.j2"
+        dest: "{{ pipeline_target_dir }}/{{ item }}-after-deprovision.yaml"
+      with_items:
+        - provision-bootstrap-cluster
+        - deprovision-cluster
+        - deprovision-mas-deps
+
+    # 5. Generate Gitops Pipelines with waits
+    # -------------------------------------------------------------------------
+    - name: Generate GitOps Pipelines with wait-after-provision
+      vars:
+        wait_for_provision: true
+      ansible.builtin.template:
+        src: "{{ pipeline_src_dir }}/gitops/{{ item }}.yml.j2"
+        dest: "{{ pipeline_target_dir }}/{{ item }}-after-provision.yaml"
+      with_items:
+        - gitops-mas-deps
+        - gitops-mas-initiator
